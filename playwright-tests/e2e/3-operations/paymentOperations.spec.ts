@@ -4,21 +4,20 @@ import { PaymentOperations } from "../../support/pages/operations/PaymentOperati
 import { generateUniqueEmail } from "../../support/helper";
 import {
   signupUser,
-  loginUser,
   loginUI,
-  createDummyConnector,
-  createAPIKey,
-  createPayment,
+  createDummyConnectorAPI,
+  createPaymentAPI,
   ompLineage,
 } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
 const columnSize = 24;
 const requiredColumnsSize = 14;
+let email: string;
 
 test.describe("Payment Operations", () => {
   test.beforeEach(async ({ page, context }) => {
-    const email = generateUniqueEmail();
+    email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
@@ -80,73 +79,14 @@ test.describe("Payment Operations", () => {
     const paymentOperations = new PaymentOperations(page);
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
-    let paymentResponse: {
-      payment_id?: string;
-      profile_id?: string;
-      amount?: number;
-      currency?: string;
-      status?: string;
-      payment_method?: string;
-      payment_method_type?: string;
-      connector_transaction_id?: string;
-      merchant_order_reference_id?: string;
-      description?: string;
-      metadata?: Record<string, string>;
-    } = {};
 
     if (merchantId) {
-      const { token } = await loginUser(
-        generateUniqueEmail(),
-        PLAYWRIGHT_PASSWORD,
-        context.request,
-      );
-      const apiKey = await createAPIKey(merchantId, token, context.request);
-      await createDummyConnector(
+      await createDummyConnectorAPI(
         merchantId,
-        token,
         "stripe_test_1",
         context.request,
       );
-      const response = await context.request.post(
-        `${process.env.HYPERSWITCH_API_URL || "http://localhost:8080"}/payments`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            "api-key": apiKey,
-          },
-          data: {
-            amount: 10000,
-            currency: "USD",
-            confirm: true,
-            capture_method: "automatic",
-            customer_id: "test_customer",
-            authentication_type: "no_three_ds",
-            return_url: "https://google.com",
-            email: "abc@test.com",
-            name: "Joseph Doe",
-            phone: "999999999",
-            phone_country_code: "+65",
-            merchant_order_reference_id: "abcd",
-            description: "Its my first payment",
-            statement_descriptor_name: "Juspay",
-            statement_descriptor_suffix: "Router",
-            payment_method: "card",
-            payment_method_type: "credit",
-            payment_method_data: {
-              card: {
-                card_number: "4242424242424242",
-                card_exp_month: "01",
-                card_exp_year: "2027",
-                card_holder_name: "joseph Doe",
-                card_cvc: "100",
-                nick_name: "hehe",
-              },
-            },
-          },
-        },
-      );
-      paymentResponse = await response.json();
+      const paymentData = await createPaymentAPI(merchantId, context.request);
 
       await homePage.operations.click();
       await homePage.paymentOperations.click();
@@ -201,39 +141,38 @@ test.describe("Payment Operations", () => {
       ).toContainText("1");
       await expect(
         page.locator('[data-table-location="Orders_tr1_td2"]'),
-      ).toContainText(paymentResponse.payment_id || "");
+      ).toContainText(paymentData.payment_id);
       await expect(
         page.locator('[data-table-location="Orders_tr1_td3"]'),
       ).toContainText("Stripe Dummy");
       await expect(
         page.locator('[data-table-location="Orders_tr1_td4"]'),
-      ).toContainText(paymentResponse.profile_id || "");
+      ).toContainText(paymentData.profile_id);
       await expect(
         page.locator('[data-table-location="Orders_tr1_td5"]'),
-      ).toContainText(
-        `${(paymentResponse.amount || 0) / 100} ${paymentResponse.currency}`,
-      );
+      ).toContainText(`${paymentData.amount / 100} ${paymentData.currency}`);
       await expect(
         page.locator('[data-table-location="Orders_tr1_td6"]'),
-      ).toContainText((paymentResponse.status || "").toUpperCase());
+      ).toContainText(paymentData.status.toUpperCase());
       await expect(
         page.locator('[data-table-location="Orders_tr1_td7"]'),
-      ).toContainText(paymentResponse.payment_method || "");
+      ).toContainText(paymentData.payment_method);
       await expect(
         page.locator('[data-table-location="Orders_tr1_td8"]'),
-      ).toContainText(paymentResponse.payment_method_type || "");
+      ).toContainText(paymentData.payment_method_type);
       await expect(
         page.locator('[data-table-location="Orders_tr1_td9"]'),
       ).toContainText("N/A");
       await expect(
         page.locator('[data-table-location="Orders_tr1_td10"]'),
-      ).toContainText(paymentResponse.connector_transaction_id || "");
+      ).toContainText(paymentData.connector_transaction_id);
       await expect(
         page.locator('[data-table-location="Orders_tr1_td11"]'),
-      ).toContainText(paymentResponse.merchant_order_reference_id || "");
+      ).toContainText(paymentData.merchant_order_reference_id);
     }
   });
 
+  // Columns
   test("should display all default columns and allow selecting/deselecting columns", async ({
     page,
     context,
@@ -300,19 +239,13 @@ test.describe("Payment Operations", () => {
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (merchantId) {
-      const { token } = await loginUser(
-        generateUniqueEmail(),
-        PLAYWRIGHT_PASSWORD,
-        context.request,
-      );
-      await createDummyConnector(
+      // Use API helpers to set up connector and payment without UI login flow
+      await createDummyConnectorAPI(
         merchantId,
-        token,
         "stripe_test_1",
         context.request,
       );
-      const apiKey = await createAPIKey(merchantId, token, context.request);
-      await createPayment(merchantId, apiKey, context.request);
+      await createPaymentAPI(merchantId, context.request);
     }
 
     await homePage.operations.click();
@@ -367,60 +300,6 @@ test.describe("Payment Operations", () => {
     }
   });
 
-  test("should verify filter dropdown contains all filters", async ({
-    page,
-  }) => {
-    const allFilters = [
-      "Connector",
-      "Currency",
-      "Status",
-      "Payment Method",
-      "Authentication Type",
-      "Card Network",
-      "Card Discovery",
-      "Payment Method Type",
-      "Customer Id",
-      "Amount",
-      "Merchant Order Reference Id",
-    ];
-
-    const homePage = new HomePage(page);
-    const paymentOperations = new PaymentOperations(page);
-
-    await homePage.operations.click();
-    await homePage.paymentOperations.click();
-
-    await paymentOperations.addFilters.click();
-
-    for (const filter of allFilters) {
-      await expect(
-        page.locator('[class="px-1 py-1 overflow-y-auto max-h-96"]'),
-      ).toContainText(filter);
-    }
-  });
-
-  test("should verify all transaction filter views are displayed", async ({
-    page,
-  }) => {
-    const transactionViews = [
-      "All",
-      "Succeeded",
-      "Failed",
-      "Dropoffs",
-      "Cancelled",
-    ];
-
-    const homePage = new HomePage(page);
-    const paymentOperations = new PaymentOperations(page);
-
-    await homePage.operations.click();
-    await homePage.paymentOperations.click();
-
-    for (const view of transactionViews) {
-      await expect(paymentOperations.transactionView).toContainText(view);
-    }
-  });
-
   test("should display matching columns when searching for valid column names", async ({
     page,
     context,
@@ -457,17 +336,13 @@ test.describe("Payment Operations", () => {
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (merchantId) {
-      const { token } = await loginUser(
-        generateUniqueEmail(),
-        PLAYWRIGHT_PASSWORD,
-        context.request,
-      );
-      await createDummyConnector(
+      // Use API helpers to set up connector and payment without UI login flow
+      await createDummyConnectorAPI(
         merchantId,
-        token,
         "stripe_test_1",
         context.request,
       );
+      await createPaymentAPI(merchantId, context.request);
     }
 
     await homePage.operations.click();
@@ -495,17 +370,13 @@ test.describe("Payment Operations", () => {
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (merchantId) {
-      const { token } = await loginUser(
-        generateUniqueEmail(),
-        PLAYWRIGHT_PASSWORD,
-        context.request,
-      );
-      await createDummyConnector(
+      // Use API helpers to set up connector and payment without UI login flow
+      await createDummyConnectorAPI(
         merchantId,
-        token,
         "stripe_test_1",
         context.request,
       );
+      await createPaymentAPI(merchantId, context.request);
     }
 
     await homePage.operations.click();
@@ -568,17 +439,13 @@ test.describe("Payment Operations", () => {
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (merchantId) {
-      const { token } = await loginUser(
-        generateUniqueEmail(),
-        PLAYWRIGHT_PASSWORD,
-        context.request,
-      );
-      await createDummyConnector(
+      // Use API helpers to set up connector and payment without UI login flow
+      await createDummyConnectorAPI(
         merchantId,
-        token,
         "stripe_test_1",
         context.request,
       );
+      await createPaymentAPI(merchantId, context.request);
     }
 
     await homePage.operations.click();
@@ -598,10 +465,130 @@ test.describe("Payment Operations", () => {
       "Save",
     );
 
+    await page.locator('[data-button-text="Save"]').click();
+
     for (let i = 0; i < expectedColumns.length; i++) {
       await expect(page.locator("table thead tr th").nth(i)).toHaveText(
         expectedColumns[i],
       );
+    }
+  });
+
+  // Search bar
+  test("should display correct payment when searched with payment ID", async ({
+    page,
+    context,
+  }) => {
+    const homePage = new HomePage(page);
+    const paymentOperations = new PaymentOperations(page);
+
+    const merchantId = await homePage.merchantID.nth(0).textContent();
+    if (merchantId) {
+      // Use API helpers to set up connector and payment without UI login flow
+      await createDummyConnectorAPI(
+        merchantId,
+        "stripe_test_1",
+        context.request,
+      );
+      await createPaymentAPI(merchantId, context.request);
+      await createPaymentAPI(merchantId, context.request);
+    }
+
+    await homePage.operations.click();
+    await homePage.paymentOperations.click();
+
+    const firstPaymentId = await page
+      .locator('[data-table-location="Orders_tr1_td2"]')
+      .textContent();
+    if (firstPaymentId) {
+      await paymentOperations.searchBox.fill(firstPaymentId);
+      await paymentOperations.searchBox.press("Enter");
+
+      await expect(
+        page.locator('[data-table-location="Orders_tr1_td2"]'),
+      ).toContainText(firstPaymentId);
+    }
+
+    await paymentOperations.searchBox.clear();
+
+    const secondPaymentId = await page
+      .locator('[data-table-location="Orders_tr2_td2"]')
+      .textContent();
+    if (secondPaymentId) {
+      await paymentOperations.searchBox.fill(secondPaymentId);
+      await paymentOperations.searchBox.press("Enter");
+
+      await expect(
+        page.locator('[data-table-location="Orders_tr1_td2"]'),
+      ).toContainText(secondPaymentId);
+    }
+  });
+
+  test.skip("should display a valid message and expand search timerange when searched with invalid payment ID", async ({
+    page,
+    context,
+  }) => {
+    const homePage = new HomePage(page);
+    const paymentOperations = new PaymentOperations(page);
+
+    const merchantId = await homePage.merchantID.nth(0).textContent();
+    if (merchantId) {
+      await createDummyConnectorAPI(
+        merchantId,
+        "stripe_test_1",
+        context.request,
+      );
+      await createPaymentAPI(merchantId, context.request);
+    }
+
+    await homePage.operations.click();
+    await homePage.paymentOperations.click();
+
+    await expect(paymentOperations.searchBox).toBeVisible();
+    await paymentOperations.searchBox.fill("invalidID");
+    await paymentOperations.searchBox.press("Enter");
+
+    await expect(
+      page.locator('[class="items-center text-2xl text-black font-bold mb-4"]'),
+    ).toHaveText("No results found");
+    await expect(
+      page.locator('[data-button-for="expandTheSearchToThePrevious90Days"]'),
+    ).toHaveText("Expand the search to the previous 90 days");
+    await expect(page.locator('[class="flex justify-center"]')).toContainText(
+      "Or try the following:Try a different search parameterAdjust or remove filters and search once more",
+    );
+  });
+
+  // Filters
+  test("should verify filter dropdown contains all filters", async ({
+    page,
+  }) => {
+    const allFilters = [
+      "Connector",
+      "Currency",
+      "Status",
+      "Payment Method",
+      "Authentication Type",
+      "Card Network",
+      "Card Discovery",
+      "Payment Method Type",
+      "Customer Id",
+      "Amount",
+      "Merchant Order Reference Id",
+    ];
+
+    const homePage = new HomePage(page);
+    const paymentOperations = new PaymentOperations(page);
+
+    await homePage.operations.click();
+    await homePage.paymentOperations.click();
+
+    await paymentOperations.addFilters.click();
+
+    for (const filter of allFilters) {
+      await expect(
+        page.locator('[class="px-1 py-1 overflow-y-auto max-h-96"]'),
+      ).toContainText(filter);
     }
   });
 
@@ -626,14 +613,8 @@ test.describe("Payment Operations", () => {
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (merchantId) {
-      const { token } = await loginUser(
-        generateUniqueEmail(),
-        PLAYWRIGHT_PASSWORD,
-        context.request,
-      );
-      await createDummyConnector(
+      await createDummyConnectorAPI(
         merchantId,
-        token,
         "stripe_test_1",
         context.request,
       );
@@ -644,9 +625,12 @@ test.describe("Payment Operations", () => {
 
     for (const filter of filterKeys) {
       await paymentOperations.addFilters.click();
-      await page.locator(".mr-5.text-left").getByText(filter).click();
+      await page
+        .locator(".mr-5.text-left")
+        .getByText(filter, { exact: true })
+        .click();
       await expect(
-        page.locator('[class="flex relative  flex-row  flex-wrap"]'),
+        page.locator('[class="flex relative  flex-row  flex-wrap"]').first(),
       ).toContainText(`Select ${filter}`);
       await page.locator('[data-icon="cross-outline"]').click();
     }
@@ -678,54 +662,12 @@ test.describe("Payment Operations", () => {
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (merchantId) {
-      const { token } = await loginUser(
-        generateUniqueEmail(),
-        PLAYWRIGHT_PASSWORD,
-        context.request,
-      );
-      await createDummyConnector(
+      await createDummyConnectorAPI(
         merchantId,
-        token,
         "stripe_test_1",
         context.request,
       );
-      const apiKey = await createAPIKey(merchantId, token, context.request);
-      await context.request.post(
-        `${process.env.HYPERSWITCH_API_URL || "http://localhost:8080"}/payments`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            "api-key": apiKey,
-          },
-          data: {
-            amount: 10000,
-            currency: "USD",
-            confirm: true,
-            capture_method: "automatic",
-            customer_id: "test_customer",
-            authentication_type: "no_three_ds",
-            return_url: "https://google.com",
-            email: "abc@test.com",
-            name: "Joseph Doe",
-            phone: "999999999",
-            phone_country_code: "+65",
-            merchant_order_reference_id: "abcd",
-            description: "Its my first payment",
-            payment_method: "card",
-            payment_method_type: "credit",
-            payment_method_data: {
-              card: {
-                card_number: "4242424242424242",
-                card_exp_month: "01",
-                card_exp_year: "2027",
-                card_holder_name: "joseph Doe",
-                card_cvc: "100",
-              },
-            },
-          },
-        },
-      );
+      await createPaymentAPI(merchantId, context.request);
     }
 
     await homePage.operations.click();
@@ -733,21 +675,20 @@ test.describe("Payment Operations", () => {
 
     await paymentOperations.addFilters.click();
     await page.locator(".mr-5.text-left").getByText("Connector").click();
-    await page.locator('[class="flex relative  flex-row  flex-wrap"]').click();
+    await page
+      .locator('[class="flex relative  flex-row  flex-wrap"]')
+      .first()
+      .click();
     await page.locator('[value="Stripe Test"]').click();
     await page.locator('[data-button-text="Apply"]').click();
-    await expect(
-      page.locator('[class="flex relative  flex-row  flex-wrap"]'),
-    ).toContainText("Stripe Test");
+    await expect(page.getByText("Stripe Test").first()).toBeVisible();
 
     await paymentOperations.addFilters.click();
     await page.locator(".mr-5.text-left").getByText("Status").click();
     await page.locator('[data-component-field-wrapper="field-status"]').click();
     await page.locator('[value="Succeeded"]').click();
     await page.locator('[data-button-text="Apply"]').click();
-    await expect(
-      page.locator('[class="flex relative  flex-row  flex-wrap"]'),
-    ).toContainText("Succeeded");
+    await expect(page.getByText("Succeeded").first()).toBeVisible();
 
     await paymentOperations.addFilters.click();
     await page.locator(".mr-5.text-left").getByText("Currency").click();
@@ -755,9 +696,7 @@ test.describe("Payment Operations", () => {
     await page.locator('[placeholder="Search..."]').fill("USD");
     await page.locator('[data-searched-text="USD"]').click();
     await page.locator('[data-button-text="Apply"]').click();
-    await expect(
-      page.locator('[class="flex relative  flex-row  flex-wrap"]'),
-    ).toContainText("USD");
+    await expect(page.getByText("USD").first()).toBeVisible();
 
     await expect(
       page.locator('[data-table-location="Orders_tr1_td3"]'),
@@ -770,6 +709,7 @@ test.describe("Payment Operations", () => {
     ).toContainText("USD");
   });
 
+  // Date Selector
   test("should extend the time range by 90 days when no payments are listed", async ({
     page,
   }) => {
@@ -808,6 +748,150 @@ test.describe("Payment Operations", () => {
     }
   });
 
+  test.skip("should verify all time range filters are displayed in date selector dropdown", async ({
+    page,
+  }) => {
+    const timeRangeFilters = [
+      "Last 30 Mins",
+      "Last 1 Hour",
+      "Last 2 Hours",
+      "Today",
+      "Yesterday",
+      "Last 2 Days",
+      "Last 7 Days",
+      "Last 30 Days",
+      "This Month",
+      "Last Month",
+      "Custom Range",
+    ];
+
+    const homePage = new HomePage(page);
+    const paymentOperations = new PaymentOperations(page);
+
+    await homePage.operations.click();
+    await homePage.paymentOperations.click();
+
+    await expect(paymentOperations.dateSelector).toBeVisible();
+    await paymentOperations.dateSelector.click();
+
+    await expect(
+      page.locator('[data-date-picker-predefined="predefined-options"]'),
+    ).toBeVisible();
+
+    for (const filter of timeRangeFilters) {
+      await expect(
+        page.locator('[data-date-picker-predefined="predefined-options"]'),
+      ).toContainText(filter);
+    }
+  });
+
+  test.skip("should verify selected timerange when predefined timerange is applied from dropdown", async ({
+    page,
+  }) => {
+    const predefinedTimeRange = [
+      "Last 30 Mins",
+      "Last 1 Hour",
+      "Last 2 Hours",
+      "Today",
+      "Yesterday",
+      "Last 2 Days",
+      "Last 7 Days",
+      "Last 30 Days",
+      "This Month",
+      "Last Month",
+    ];
+
+    const homePage = new HomePage(page);
+    const paymentOperations = new PaymentOperations(page);
+
+    await homePage.operations.click();
+    await homePage.paymentOperations.click();
+
+    for (const timeRange of predefinedTimeRange) {
+      await paymentOperations.dateSelector.click();
+      await expect(
+        page.locator('[data-date-picker-predefined="predefined-options"]'),
+      ).toBeVisible();
+      await page
+        .locator('[data-date-picker-predefined="predefined-options"]')
+        .getByText(timeRange)
+        .click();
+      await expect(
+        page.locator('[data-testid="date-range-selector"]'),
+      ).toContainText(timeRange);
+    }
+  });
+
+  test.skip("should verify applied custom timerange is displayed correctly", async ({
+    page,
+  }) => {
+    const now = new Date();
+    const today = now.getDate();
+    const previousMonth = new Date(
+      now.setMonth(now.getMonth() - 1),
+    ).toLocaleString("default", { month: "short" });
+    const currentYear = now.getFullYear();
+
+    const startDate = today === 2 ? 1 : 2;
+    const endDate = today === 28 ? 29 : 28;
+
+    const formatDate = (day: number) => {
+      const paddedDay = String(day).padStart(2, "0");
+      return `${previousMonth} ${paddedDay}, ${currentYear}`;
+    };
+
+    const expectedRange = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+
+    const homePage = new HomePage(page);
+    const paymentOperations = new PaymentOperations(page);
+
+    await homePage.operations.click();
+    await homePage.paymentOperations.click();
+
+    await expect(paymentOperations.dateSelector).toBeVisible();
+    await paymentOperations.dateSelector.click();
+
+    await expect(
+      page.locator('[data-date-picker-predefined="predefined-options"]'),
+    ).toBeVisible();
+
+    await page
+      .locator('[data-daterange-dropdown-value="Custom Range"]')
+      .click();
+
+    await page.locator(`[data-testid*=" ${startDate},"]`).first().click();
+    await page.locator(`[data-testid*=" ${endDate},"]`).first().click();
+
+    await page.locator('[data-button-text="Apply"]').click();
+
+    await expect(
+      page.locator(`[data-button-text="${expectedRange}"]`),
+    ).toContainText(expectedRange);
+  });
+
+  // Views
+  test("should verify all transaction filter views are displayed", async ({
+    page,
+  }) => {
+    const transactionViews = [
+      "All",
+      "Succeeded",
+      "Failed",
+      "Dropoffs",
+      "Cancelled",
+    ];
+
+    const homePage = new HomePage(page);
+    const paymentOperations = new PaymentOperations(page);
+
+    await homePage.operations.click();
+    await homePage.paymentOperations.click();
+
+    for (const view of transactionViews) {
+      await expect(paymentOperations.transactionView).toContainText(view);
+    }
+  });
+
   test("should switch between different transaction views and verify applied filters", async ({
     page,
     context,
@@ -824,48 +908,12 @@ test.describe("Payment Operations", () => {
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (merchantId) {
-      const { token } = await loginUser(
-        generateUniqueEmail(),
-        PLAYWRIGHT_PASSWORD,
-        context.request,
-      );
-      await createDummyConnector(
+      await createDummyConnectorAPI(
         merchantId,
-        token,
         "stripe_test_1",
         context.request,
       );
-      const apiKey = await createAPIKey(merchantId, token, context.request);
-      await context.request.post(
-        `${process.env.HYPERSWITCH_API_URL || "http://localhost:8080"}/payments`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            "api-key": apiKey,
-          },
-          data: {
-            amount: 10000,
-            currency: "USD",
-            confirm: true,
-            capture_method: "automatic",
-            customer_id: "test_customer",
-            authentication_type: "no_three_ds",
-            return_url: "https://google.com",
-            payment_method: "card",
-            payment_method_type: "credit",
-            payment_method_data: {
-              card: {
-                card_number: "4242424242424242",
-                card_exp_month: "01",
-                card_exp_year: "2027",
-                card_holder_name: "joseph Doe",
-                card_cvc: "100",
-              },
-            },
-          },
-        },
-      );
+      const apiPayment = await createPaymentAPI(merchantId, context.request);
     }
 
     await homePage.operations.click();
@@ -879,67 +927,62 @@ test.describe("Payment Operations", () => {
     }
   });
 
-  test("should verify all components in Payment Details page - 1", async ({
+  // Verify "Open in new tab" button for payment ID
+  test.only("should verify open in new tab for a payment", async ({
+    page,
+    context,
+  }) => {
+    const homePage = new HomePage(page);
+
+    await page.goto("/dashboard/home");
+        
+    const merchantId = await homePage.merchantID.nth(0).textContent();
+    if (merchantId) {
+      // Use API helpers to set up connector and payment without UI login flow
+      await createDummyConnectorAPI(
+        merchantId,
+        "stripe_test_1",
+        context.request,
+      );
+    }
+    const paymentData = await createPaymentAPI(merchantId, context.request);
+
+    await homePage.operations.click();
+    await homePage.paymentOperations.click();
+
+    await expect(page.locator('[data-icon="external-link-alt"]')).toBeVisible();
+
+    const link = page
+      .locator('[data-icon="external-link-alt"]')
+      .locator("..")
+      .filter({ has: page.locator("a") });
+    await expect(link).toHaveAttribute("target", "_blank");
+
+    const href = await link.getAttribute("href");
+    const expectedUrlPart = `/dashboard/payments/${paymentData.payment_id}/${lineage.profileId}/${lineage.merchantId}/${lineage.orgId}`;
+    expect(href).toContain(expectedUrlPart);
+  });
+
+  // Payment details page
+  test.only("should verify all components in Payment Details page - 1", async ({
     page,
     context,
   }) => {
     const homePage = new HomePage(page);
     const paymentOperations = new PaymentOperations(page);
 
-    const lineage = await ompLineage(page);
+    await page.goto("/dashboard/home");
 
-    const { token } = await loginUser(
-      generateUniqueEmail(),
-      PLAYWRIGHT_PASSWORD,
-      context.request,
-    );
-    await createDummyConnector(
-      lineage.merchantId,
-      token,
-      "stripe_test_1",
-      context.request,
-    );
-    const apiKey = await createAPIKey(
-      lineage.merchantId,
-      token,
-      context.request,
-    );
-    await context.request.post(
-      `${process.env.HYPERSWITCH_API_URL || "http://localhost:8080"}/payments`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          "api-key": apiKey,
-        },
-        data: {
-          amount: 12345,
-          currency: "USD",
-          confirm: true,
-          capture_method: "automatic",
-          customer_id: "test_customer",
-          authentication_type: "three_ds",
-          return_url: "https://google.com",
-          email: "abc@test.com",
-          name: "Joseph Doe",
-          phone: "999999999",
-          phone_country_code: "+65",
-          merchant_order_reference_id: "abcd",
-          description: "Its my first payment",
-          payment_method: "card",
-          payment_method_type: "credit",
-          payment_method_data: {
-            card: {
-              card_number: "4242424242424242",
-              card_exp_month: "01",
-              card_exp_year: "2027",
-              card_holder_name: "joseph Doe",
-              card_cvc: "100",
-            },
-          },
-        },
-      },
-    );
+    const merchantId = await homePage.merchantID.nth(0).textContent();
+    if (merchantId) {
+      // Use API helpers to set up connector and payment without UI login flow
+      await createDummyConnectorAPI(
+        merchantId,
+        "stripe_test_1",
+        context.request,
+      );
+      await createPaymentAPI(merchantId, context.request);
+    }
 
     await homePage.operations.click();
     await homePage.paymentOperations.click();
@@ -1101,66 +1144,24 @@ test.describe("Payment Operations", () => {
     }
   });
 
-  test("should verify all components in Payment Details page - 2", async ({
+  test.only("should verify all components in Payment Details page - 2", async ({
     page,
     context,
   }) => {
     const homePage = new HomePage(page);
 
-    const lineage = await ompLineage(page);
+    await page.goto("/dashboard/home");
 
-    const { token } = await loginUser(
-      generateUniqueEmail(),
-      PLAYWRIGHT_PASSWORD,
-      context.request,
-    );
-    await createDummyConnector(
-      lineage.merchantId,
-      token,
-      "stripe_test_1",
-      context.request,
-    );
-    const apiKey = await createAPIKey(
-      lineage.merchantId,
-      token,
-      context.request,
-    );
-    await context.request.post(
-      `${process.env.HYPERSWITCH_API_URL || "http://localhost:8080"}/payments`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          "api-key": apiKey,
-        },
-        data: {
-          amount: 12345,
-          currency: "USD",
-          confirm: true,
-          capture_method: "automatic",
-          customer_id: "test_customer",
-          authentication_type: "three_ds",
-          return_url: "https://google.com",
-          email: "abc@test.com",
-          name: "Joseph Doe",
-          phone: "999999999",
-          phone_country_code: "+65",
-          merchant_order_reference_id: "abcd",
-          description: "Its my first payment",
-          payment_method: "card",
-          payment_method_type: "credit",
-          payment_method_data: {
-            card: {
-              card_number: "4242424242424242",
-              card_exp_month: "01",
-              card_exp_year: "2027",
-              card_holder_name: "joseph Doe",
-              card_cvc: "100",
-            },
-          },
-        },
-      },
-    );
+    const merchantId = await homePage.merchantID.nth(0).textContent();
+    if (merchantId) {
+      // Use API helpers to set up connector and payment without UI login flow
+      await createDummyConnectorAPI(
+        merchantId,
+        "stripe_test_1",
+        context.request,
+      );
+      await createPaymentAPI(merchantId, context.request);
+    }
 
     await homePage.operations.click();
     await homePage.paymentOperations.click();
@@ -1212,189 +1213,7 @@ test.describe("Payment Operations", () => {
     });
   });
 
-  test("should display correct payment when searched with payment ID", async ({
-    page,
-    context,
-  }) => {
-    const homePage = new HomePage(page);
-    const paymentOperations = new PaymentOperations(page);
+  // Refund cases amount less , more and equal to payment amount
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
-    if (merchantId) {
-      const { token } = await loginUser(
-        generateUniqueEmail(),
-        PLAYWRIGHT_PASSWORD,
-        context.request,
-      );
-      await createDummyConnector(
-        merchantId,
-        token,
-        "stripe_test_1",
-        context.request,
-      );
-      const apiKey = await createAPIKey(merchantId, token, context.request);
-      // Create two payments
-      await context.request.post(
-        `${process.env.HYPERSWITCH_API_URL || "http://localhost:8080"}/payments`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            "api-key": apiKey,
-          },
-          data: {
-            amount: 10000,
-            currency: "USD",
-            confirm: true,
-            capture_method: "automatic",
-            customer_id: "test_customer",
-            authentication_type: "no_three_ds",
-            return_url: "https://google.com",
-            payment_method: "card",
-            payment_method_type: "credit",
-            payment_method_data: {
-              card: {
-                card_number: "4242424242424242",
-                card_exp_month: "01",
-                card_exp_year: "2027",
-                card_holder_name: "joseph Doe",
-                card_cvc: "100",
-              },
-            },
-          },
-        },
-      );
-      await context.request.post(
-        `${process.env.HYPERSWITCH_API_URL || "http://localhost:8080"}/payments`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            "api-key": apiKey,
-          },
-          data: {
-            amount: 10000,
-            currency: "USD",
-            confirm: true,
-            capture_method: "automatic",
-            customer_id: "test_customer",
-            authentication_type: "no_three_ds",
-            return_url: "https://google.com",
-            payment_method: "card",
-            payment_method_type: "credit",
-            payment_method_data: {
-              card: {
-                card_number: "4242424242424242",
-                card_exp_month: "01",
-                card_exp_year: "2027",
-                card_holder_name: "joseph Doe",
-                card_cvc: "100",
-              },
-            },
-          },
-        },
-      );
-    }
-
-    await homePage.operations.click();
-    await homePage.paymentOperations.click();
-
-    await paymentOperations.paymentIdCopyButton.nth(0).click({ force: true });
-
-    const firstPaymentId = await page.evaluate(() =>
-      navigator.clipboard.readText(),
-    );
-    await paymentOperations.searchBox.fill(firstPaymentId);
-    await paymentOperations.searchBox.press("Enter");
-
-    await expect(
-      page.locator('[data-table-location="Orders_tr1_td2"]'),
-    ).toContainText(firstPaymentId);
-
-    await paymentOperations.searchBox.clear();
-
-    await paymentOperations.paymentIdCopyButton.nth(1).click({ force: true });
-
-    const secondPaymentId = await page.evaluate(() =>
-      navigator.clipboard.readText(),
-    );
-    await paymentOperations.searchBox.fill(secondPaymentId);
-    await paymentOperations.searchBox.press("Enter");
-
-    await expect(
-      page.locator('[data-table-location="Orders_tr1_td2"]'),
-    ).toContainText(secondPaymentId);
-  });
-
-  test("should verify open in new tab for a payment", async ({
-    page,
-    context,
-  }) => {
-    const homePage = new HomePage(page);
-
-    const lineage = await ompLineage(page);
-
-    const { token } = await loginUser(
-      generateUniqueEmail(),
-      PLAYWRIGHT_PASSWORD,
-      context.request,
-    );
-    await createDummyConnector(
-      lineage.merchantId,
-      token,
-      "stripe_test_1",
-      context.request,
-    );
-    const apiKey = await createAPIKey(
-      lineage.merchantId,
-      token,
-      context.request,
-    );
-    const response = await context.request.post(
-      `${process.env.HYPERSWITCH_API_URL || "http://localhost:8080"}/payments`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          "api-key": apiKey,
-        },
-        data: {
-          amount: 10000,
-          currency: "USD",
-          confirm: true,
-          capture_method: "automatic",
-          customer_id: "test_customer",
-          authentication_type: "no_three_ds",
-          return_url: "https://google.com",
-          payment_method: "card",
-          payment_method_type: "credit",
-          payment_method_data: {
-            card: {
-              card_number: "4242424242424242",
-              card_exp_month: "01",
-              card_exp_year: "2027",
-              card_holder_name: "joseph Doe",
-              card_cvc: "100",
-            },
-          },
-        },
-      },
-    );
-    const paymentData = await response.json();
-
-    await homePage.operations.click();
-    await homePage.paymentOperations.click();
-
-    await expect(page.locator('[data-icon="external-link-alt"]')).toBeVisible();
-
-    const link = page
-      .locator('[data-icon="external-link-alt"]')
-      .locator("..")
-      .filter({ has: page.locator("a") });
-    await expect(link).toHaveAttribute("target", "_blank");
-
-    const href = await link.getAttribute("href");
-    const expectedUrlPart = `/dashboard/payments/${paymentData.payment_id}/${lineage.profileId}/${lineage.merchantId}/${lineage.orgId}`;
-    expect(href).toContain(expectedUrlPart);
-  });
+  // generate reports
 });

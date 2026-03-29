@@ -110,15 +110,13 @@ export async function createAPIKey(
   return body.api_key as string;
 }
 
-export async function createDummyConnector(
+export async function createDummyConnectorAPI(
   merchantId: string,
-  token: string,
-  connectorName: string,
+  connectorLabel: string,
   context?: APIRequestContext,
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
-
-  const apiKey = await createAPIKey(merchantId, token, ctx);
+  const apiKey = await createAPIKey(merchantId, "", ctx);
 
   const response = await ctx.post(
     `${API_URL}/account/${merchantId}/connectors`,
@@ -131,7 +129,7 @@ export async function createDummyConnector(
       data: {
         connector_type: "payment_processor",
         connector_name: "stripe_test",
-        connector_label: connectorName,
+        connector_label: connectorLabel,
         connector_account_details: {
           api_key: "test_key",
           auth_type: "HeaderKey",
@@ -144,7 +142,15 @@ export async function createDummyConnector(
             payment_method_types: [
               {
                 payment_method_type: "debit",
-                card_networks: ["Mastercard", "Visa"],
+                card_networks: ["Mastercard"],
+                minimum_amount: 0,
+                maximum_amount: 68607706,
+                recurring_enabled: true,
+                installment_payment_enabled: false,
+              },
+              {
+                payment_method_type: "debit",
+                card_networks: ["Visa"],
                 minimum_amount: 0,
                 maximum_amount: 68607706,
                 recurring_enabled: true,
@@ -157,7 +163,15 @@ export async function createDummyConnector(
             payment_method_types: [
               {
                 payment_method_type: "credit",
-                card_networks: ["Mastercard", "Visa"],
+                card_networks: ["Mastercard"],
+                minimum_amount: 0,
+                maximum_amount: 68607706,
+                recurring_enabled: true,
+                installment_payment_enabled: false,
+              },
+              {
+                payment_method_type: "credit",
+                card_networks: ["Visa"],
                 minimum_amount: 0,
                 maximum_amount: 68607706,
                 recurring_enabled: true,
@@ -173,17 +187,30 @@ export async function createDummyConnector(
   if (!response.ok()) {
     const body = await response.text();
     throw new Error(
-      `createDummyConnector failed (${response.status()}): ${body}`,
+      `createDummyConnectorAPI failed (${response.status()}): ${body}`,
     );
   }
 }
 
-export async function createPayment(
+export async function createPaymentAPI(
   merchantId: string,
-  apiKey: string,
   context?: APIRequestContext,
-): Promise<void> {
+): Promise<{
+  payment_id: string;
+  profile_id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  payment_method: string;
+  payment_method_type: string;
+  connector_transaction_id: string;
+  merchant_order_reference_id: string;
+  description: string;
+  metadata: Record<string, string>;
+}> {
   const ctx = context ?? (await request.newContext());
+  const apiKey = await createAPIKey(merchantId, "", ctx);
+
   const response = await ctx.post(`${API_URL}/payments`, {
     headers: {
       "Content-Type": "application/json",
@@ -191,7 +218,7 @@ export async function createPayment(
       "api-key": apiKey,
     },
     data: {
-      amount: 10000,
+      amount: 12345,
       currency: "USD",
       confirm: true,
       capture_method: "automatic",
@@ -262,8 +289,10 @@ export async function createPayment(
 
   if (!response.ok()) {
     const body = await response.text();
-    throw new Error(`createPayment failed (${response.status()}): ${body}`);
+    throw new Error(`createPaymentAPI failed (${response.status()}): ${body}`);
   }
+
+  return await response.json();
 }
 
 export async function visitSignupPage(page: Page): Promise<void> {

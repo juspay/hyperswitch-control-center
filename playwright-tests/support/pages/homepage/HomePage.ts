@@ -62,7 +62,7 @@ export class HomePage {
   get integrateConnectorCard(): Locator {
     return this.page.locator(
       '[class="relative bg-white  border p-6 rounded flex flex-col justify-between flex-1 rounded-xl p-6 gap-4"]',
-    );
+    ).first();
   }
 
   get demoCheckoutCard(): Locator {

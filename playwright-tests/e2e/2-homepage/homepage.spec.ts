@@ -6,15 +6,14 @@ import {
   loginUser,
   loginUI,
   createDummyConnector,
-  createAPIKey,
-  createPayment,
 } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
+let email = "";
 
 test.describe("Homepage", () => {
   test.beforeEach(async ({ page, context }) => {
-    const email = generateUniqueEmail();
+    email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
 
     await page.route("**/dashboard/config/feature?domain=", async (route) => {
@@ -88,7 +87,7 @@ test.describe("Homepage", () => {
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (merchantId) {
       const { token } = await loginUser(
-        await generateUniqueEmail(),
+        email,
         PLAYWRIGHT_PASSWORD,
         context.request,
       );
