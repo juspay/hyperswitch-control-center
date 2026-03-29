@@ -11,8 +11,14 @@ let createCustomRole = FormRenderer.makeFieldInfo(
   ~isRequired=true,
 )
 
-let roleScope = userRole => {
-  let roleScopeArray = ["Merchant", "Organization"]->Array.map(item => {
+let roleScope = (userRole, entityType: UserInfoTypes.entity) => {
+  let validScopes = switch entityType {
+  | #Organization => ["Organization"]
+  | #Merchant => ["Organization", "Merchant"]
+  | #Profile => ["Organization", "Merchant", "Profile"]
+  | _ => ["Organization", "Merchant"]
+  }
+  let roleScopeArray = validScopes->Array.map(item => {
     let option: SelectBox.dropdownOption = {
       label: item,
       value: item->String.toLowerCase,
@@ -34,7 +40,7 @@ let roleScope = userRole => {
 }
 
 let entityTypeField = (~onEntityTypeChange: option<entity => unit>=?, ~userHasAccess) => {
-  let entityTypeVariants: array<UserInfoTypes.entity> = [#Merchant, #Profile]
+  let entityTypeVariants: array<UserInfoTypes.entity> = [#Organization, #Merchant, #Profile]
   let entityTypeArray = entityTypeVariants->Array.map(entityVariant => {
     let entityString = (entityVariant :> string)->String.toLowerCase
     let option: SelectBox.dropdownOption = {
