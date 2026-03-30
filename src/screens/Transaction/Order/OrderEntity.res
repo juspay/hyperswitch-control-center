@@ -370,7 +370,7 @@ let allColumnsV2 = [
   ErrorMessage,
 ]
 
-let getHeading = (~devSortEnabled=false, colType: colType) => {
+let getHeading = (~devSortEnabled, colType: colType) => {
   switch colType {
   | Metadata => Table.makeHeaderInfo(~key="metadata", ~title="Metadata")
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID")
@@ -840,7 +840,7 @@ let getOrders: JSON.t => array<order> = json => {
   getArrayDataFromJson(json, PaymentInterfaceUtils.mapDictToPaymentPayload)
 }
 
-let orderEntity = (merchantId, orgId, ~version: UserInfoTypes.version=V1, ~devSortEnabled=false) =>
+let orderEntity = (merchantId, orgId, ~version: UserInfoTypes.version=V1, ~devSortEnabled) =>
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getOrders,
