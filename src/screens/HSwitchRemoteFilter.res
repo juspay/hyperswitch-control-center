@@ -130,8 +130,8 @@ module SearchBarFilter = {
       checked: true,
     }
 
-    <div className="w-max">
-      <TextInput
+    <div className="w-72">
+      <TextInputAdapter
         input=inputSearch
         placeholder
         customStyle="rounded-lg placeholder:opacity-90"
@@ -140,7 +140,7 @@ module SearchBarFilter = {
         iconOpacity="opacity-100"
         leftIconCustomStyle="pl-4"
         inputStyle="!placeholder:opacity-90"
-        customWidth="w-72"
+        customWidth="w-full"
       />
     </div>
   }
