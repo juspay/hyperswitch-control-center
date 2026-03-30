@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.03.30.0
+
+### Features
+
+- Migrate RangeSlider to Blend Design System ([#4404](https://github.com/juspay/hyperswitch-control-center/pull/4404)) ([`4c3114f`](https://github.com/juspay/hyperswitch-control-center/commit/4c3114f73fde14e8a68c9d0daffa423e74aa0933))
+
+### Bug Fixes
+
+- For envoy enable only payouts ([#4431](https://github.com/juspay/hyperswitch-control-center/pull/4431)) ([`0213424`](https://github.com/juspay/hyperswitch-control-center/commit/021342439a7ba9a0e11a34c7903c4d1edf00de05))
+- Show seconds when milliseconds are absent in DateCell ([#4617](https://github.com/juspay/hyperswitch-control-center/pull/4617)) ([`ae79b68`](https://github.com/juspay/hyperswitch-control-center/commit/ae79b68058fb6524579896c155b00f2f39bd6446))
+
+**Full Changelog:** [`2026.03.27.1...2026.03.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.27.1...2026.03.30.0)
+
+- - -
+
 ## 2026.03.27.1
 
 ### Features
