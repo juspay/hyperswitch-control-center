@@ -17,13 +17,12 @@ let make = (
   ~singleOpen=false,
   ~initialOpenIndex=-1,
 ) => {
-  let isBlendEnabled = React.useContext(BlendContext.blendEnabledContext)
+  let isBlendEnabled = BlendContext.useBlendEnabled()
 
-  // Hoisted above conditional to satisfy React hook rules
-  let initialOpen = if initialExpandedArray->Array.length > 0 {
+  let initialOpen = if singleOpen {
+    initialOpenIndex >= 0 ? [initialOpenIndex->Int.toString] : []
+  } else if initialExpandedArray->Array.length > 0 {
     initialExpandedArray->Array.map(Int.toString)
-  } else if initialOpenIndex >= 0 {
-    [initialOpenIndex->Int.toString]
   } else {
     []
   }
@@ -99,7 +98,6 @@ let make = (
       ->Array.mapWithIndex((item, i) => {
         let isOpen = openValues->Array.includes(i->Int.toString)
 
-        // Use renderContentOnTop as the Blend title element if present
         let titleElem = switch item.renderContentOnTop {
         | Some(fn) => fn()
         | None => React.string(item.title)
