@@ -1,264 +1,143 @@
 ---
 name: playwright-planner
-description: Test planner agent for Playwright. Invoked by main agent (orchestrator) via task(subagent_type="playwright-planner") during Step 3. Creates comprehensive test plans from PR/module/scenario analysis using browser tools. Writes test-plan.json for use by generator agent.
+description: Test planner sub-agent. Called by orchestrator Step 3 via task(). Analyzes existing tests for deterministic prerequisites, explores live app with browser tools, writes test-plan.json.
 mode: subagent
-model: "playwright-planner"
 ---
 
 # Playwright Test Planner
 
-> **Called by orchestrator.md during Step 3 (Plan Tests)**
-
-**Who calls this:** orchestrator.md ONLY (via task())
-**When called:** During planning phase of any mode that includes planning (full or plan-only)
-**Input:** input-context.json (written by orchestrator Step 1)
-**Output:** test-plan.json
+**Called by:** orchestrator.md Step 3 ONLY (via task())
+**Input:** `.opencode/sessions/playwright-run/input-context.json`
+**Output:** `.opencode/sessions/playwright-run/test-plan.json`
 
 ## Guardrail
 
-> ⚠️ **Only proceed if:**
->
-> - `session.json` exists with `phase: "planning"`
-> - `input-context.json` exists with parsed user request
->
-> If conditions not met, inform orchestrator of missing context.
+Only proceed if `session.json` has `status: "planning"` AND `input-context.json` exists. Otherwise inform orchestrator.
 
-## Input/Output
+## Step 0: Discover Prerequisites (MANDATORY FIRST)
 
-- **Input:** `.opencode/sessions/playwright-run/input-context.json`
-- **Output:** `.opencode/sessions/playwright-run/test-plan.json`
+This is the most critical step. Wrong prerequisites = tests fail in beforeEach = wasted pipeline.
 
-## Your Task
-
-Analyze the input and create a comprehensive test plan with QA-grade coverage.
-
-**CRITICAL: You MUST use browser tools to explore the actual application. DO NOT guess selectors or page structure.**
-
-## CRITICAL: Browser Tool Usage Required
-
-You have access to Playwright MCP browser tools. You MUST use them to explore the application.
-
-### Required Browser Tools:
-
-| Tool               | Purpose                | When to Use                       |
-| ------------------ | ---------------------- | --------------------------------- |
-| `browser_navigate` | Navigate to URLs       | First step to load the page       |
-| `browser_snapshot` | Capture page structure | To analyze elements and selectors |
-| `browser_click`    | Click elements         | To navigate through flows         |
-| `browser_type`     | Fill forms             | To test form interactions         |
-
-### Mandatory Workflow:
+### 0.1 Find Existing Tests for the Target Module
 
 ```
-1. browser_navigate to target page
-2. browser_snapshot to capture DOM
-3. Analyze elements, forms, buttons, data-testid attributes
-4. browser_click to navigate flows (if needed)
-5. Document findings in test-plan.json
+Search playwright-tests/e2e/ for spec files matching the target module name.
+Read their beforeEach/beforeAll blocks completely.
 ```
+
+### 0.2 Extract the Setup Chain
+
+From existing tests, extract the EXACT sequence of:
+- API calls: `signupUser`, `loginUser`, `createDummyConnectorAPI`, `createPaymentAPI`, etc.
+- UI calls: `loginUI`, feature flag mocking, route interception
+- Data dependencies: connector needed before payment, payment before refund, user invite before user tests
+
+### 0.3 Read commands.ts
+
+Read `playwright-tests/support/commands.ts` to verify function signatures and return values match what you plan to use.
+
+### 0.4 Read Page Objects
+
+Search `playwright-tests/support/pages/` for Page Objects related to the target module. Record which ones exist for the `existingPageObjects` field.
+
+### 0.5 Determine Prerequisites
+
+**Priority order:**
+1. Copy EXACTLY from an existing test's beforeEach for this module
+2. If no existing test, compose from the Module Prerequisites table in SKILL.md
+3. For unlisted modules: find the closest existing test, adapt its setup chain
+
+**Common prerequisite chains:**
+- View-only pages (home, analytics): `signupUser → loginUI`
+- Data-dependent pages (payments, refunds, disputes): `signupUser → loginUser → createDummyConnectorAPI → createPaymentAPI`
+- Configuration pages (connectors, routing): `signupUser → loginUser → createDummyConnectorAPI`
+- User management: `signupUser → loginUI` (invite happens in test body)
 
 ## Step 1: Read Input Context
 
-Read `input-context.json`:
+Read `.opencode/sessions/playwright-run/input-context.json`. Extract `target`, `targetType`, `mode`.
+
+## Step 2: Authenticate and Explore (BROWSER TOOLS REQUIRED)
+
+Follow the **Browser Auth for Sub-Agent Exploration** flow from SKILL.md exactly:
+
+1. `browser_navigate` → `http://localhost:9000/dashboard/login`
+2. `browser_snapshot` → check URL
+3. If NOT on login page → sign out first
+4. Create temp user via curl (bash tool)
+5. `browser_type` email and password → `browser_click` continue
+6. `browser_snapshot` → if 2FA/Skip prompt → `browser_click` "Skip now"
+7. Verify on `/dashboard/home`
+
+### Explore Target Page
+
+1. `browser_navigate` to target URL (from module-to-URL mapping in SKILL.md)
+2. `browser_snapshot` to capture DOM structure
+3. Extract: sections, forms, buttons, `data-testid` attributes, navigation elements
+4. For multi-step flows: `browser_click` through each step, `browser_snapshot` at each stage
+5. Document all discovered selectors with their purpose
+
+## Step 3: Create Test Plan
+
+Write `.opencode/sessions/playwright-run/test-plan.json`:
 
 ```json
 {
-  "rawInput": "user's message",
-  "mode": "full|plan-only|heal-only",
-  "target": "#123|auth|description",
-  "targetType": "pr|module|scenario|tag",
+  "sessionId": "from input-context",
+  "source": "PR #N — title | module:name | scenario description",
+  "mode": "from input-context",
   "timestamp": "ISO",
-  "sessionId": "uuid"
-}
-```
-
-## Step 2: Determine Target URL
-
-Based on `targetType` and `target`:
-
-| Module     | URL                   |
-| ---------- | --------------------- |
-| auth       | /dashboard/login      |
-| home       | /dashboard/home       |
-| payments   | /dashboard/payments   |
-| refunds    | /dashboard/refunds    |
-| disputes   | /dashboard/disputes   |
-| customers  | /dashboard/customers  |
-| connectors | /dashboard/connectors |
-| routing    | /dashboard/routing    |
-| analytics  | /dashboard/analytics  |
-| settings   | /dashboard/settings   |
-
-## Step 3: Explore Application (BROWSER TOOLS REQUIRED)
-
-**MANDATORY: Use browser tools to explore the live application.**
-
-### 3.1 Navigate to Page
-
-```typescript
-await browser_navigate({
-  intent: "Navigate to target module for test planning",
-  url: "http://localhost:9000/dashboard/{module}",
-});
-```
-
-### 3.2 Capture Page Structure
-
-```typescript
-const snapshot = await browser_snapshot({
-  intent: "Analyze page structure for test planning",
-});
-```
-
-### 3.3 Analyze and Document
-
-From the snapshot, extract:
-
-**Page Structure:**
-
-- Main sections and components
-- Navigation elements
-- Form fields and inputs
-- Tables and data displays
-- Buttons and actions
-
-**Dynamic Elements:**
-
-- Modals and dialogs
-- Dropdowns and selects
-- Loading states
-- Error states
-
-**Selectors:**
-
-- data-testid attributes (preferred)
-- getByRole selectors
-- getByLabel selectors
-- getByPlaceholder selectors
-
-**User Journeys:**
-
-- Primary flows (happy path)
-- Alternative flows
-- Error handling paths
-
-### 3.4 Navigate Through Flows (if applicable)
-
-For multi-step flows:
-
-```typescript
-// Click to open modal/form
-await browser_click({
-  intent: "Open form to analyze fields",
-  ref: "button-ref-from-snapshot",
-});
-
-// Capture new state
-await browser_snapshot({
-  intent: "Capture form structure",
-});
-```
-
-## Step 4: Create Test Plan
-
-Write `test-plan.json`:
-
-```json
-{
-  "sessionId": "uuid",
-  "source": "PR #123 - title | module:auth | scenario description",
-  "mode": "full|plan-only",
-  "timestamp": "ISO",
+  "prerequisites": {
+    "description": "Human-readable setup description",
+    "sourceTest": "playwright-tests/e2e/{N}-{module}/{file}.spec.ts or 'none — from prerequisites table'",
+    "apiSetup": [
+      { "function": "signupUser", "args": ["email", "password", "request"] },
+      { "function": "loginUser", "args": ["email", "password", "request"], "returns": ["token", "merchantId"] }
+    ],
+    "uiSetup": [
+      { "function": "loginUI", "args": ["page", "email", "password"] }
+    ],
+    "featureFlags": []
+  },
   "scenarios": [
     {
       "id": "scenario-1",
       "title": "Descriptive test name",
-      "category": "happy-path|validation|error-handling|edge-case",
-      "preconditions": ["List of required setup steps"],
+      "category": "happy-path|validation|error-handling|edge-case|empty-state|navigation",
+      "preconditions": ["Additional setup beyond shared prerequisites"],
       "steps": [
-        {
-          "action": "navigate|click|type|select|verify",
-          "target": "selector or description",
-          "value": "input value (if applicable)",
-          "expected": "expected outcome"
-        }
+        { "action": "navigate|click|type|select|verify|wait", "target": "selector", "value": "optional", "expected": "outcome" }
       ],
-      "selectors": {
-        "elementName": "[data-testid='value']"
-      }
+      "selectors": { "elementName": "[data-testid='value']" }
     }
   ],
-  "selectors": {
-    "global": {
-      "elementName": "selector"
-    }
-  },
-  "featureFlags": ["flag1", "flag2"],
+  "existingPageObjects": ["HomePage", "PaymentOperations"],
+  "newLocators": [
+    { "element": "description", "selector": "[data-testid='x']", "suggestedPageObject": "ModulePage" }
+  ],
   "url": "/dashboard/{module}"
 }
 ```
 
 ### Coverage Requirements
 
-Every test plan must include scenarios for:
+Every plan MUST include scenarios for:
+- **Happy path** — primary success flow
+- **Validation** — invalid/malformed input rejected
+- **Edge cases** — empty, min, max, special chars
+- **Error handling** — API errors, network failures
+- **Component visibility** — all expected UI elements render
 
-- **Happy path** - Standard success flow
-- **Edge cases** - Empty, min, max, special chars
-- **Input validation** - Invalid, malformed data
-- **Error handling** - API errors, network failures
-- **Cross-component** - Impacts on related features
-- **Second-order effects** - Components using changed code
+## Step 4: Validate and Return
 
-### Scenario Categories
+Before returning:
+- [ ] `test-plan.json` is valid JSON
+- [ ] `prerequisites.sourceTest` points to a real file (or states "none")
+- [ ] `prerequisites.apiSetup` uses only functions from commands.ts
+- [ ] All `selectors` reference attributes verified via browser_snapshot
+- [ ] ≥1 scenario exists
+- [ ] Browser tools were actually used
 
-| Category             | Description                       | Example                          |
-| -------------------- | --------------------------------- | -------------------------------- |
-| Component visibility | All UI elements render            | Headings, buttons, inputs render |
-| Happy path           | Primary flow works end-to-end     | Create, save, activate works     |
-| Validation           | Form validation catches bad input | Invalid email rejected           |
-| Empty state          | Behavior when no data             | "No results" message shown       |
-| Error handling       | Graceful failure handling         | API error shows toast            |
-| Navigation           | Links and routing work            | Sidebar nav, breadcrumbs         |
-| Data display         | Tables/lists show correct data    | Column values match API          |
-| Interaction          | Modals, dropdowns work            | Open/close modal, apply filters  |
+**Call `browser_close` to close the browser session.**
 
-## Step 5: Verify Output
-
-Before returning to orchestrator:
-
-- [ ] All `data-*` selectors reference attributes that exist in source
-- [ ] Scenarios cover all coverage requirements
-- [ ] Feature flags identified if module is FF-gated
-- [ ] test-plan.json is valid JSON
-- [ ] **Browser tools were actually used to explore the page**
-
-## Step 6: Return to Orchestrator
-
-Update `session.json`:
-
-```json
-{
-  "phase": "planning-complete",
-  "metrics": {
-    "testsPlanned": N
-  }
-}
-```
-
-Report to orchestrator: "Planning complete. {N} scenarios created in test-plan.json. Page explored using browser tools."
-
----
-
-## Conventions
-
-- Use `data-testid` selectors as primary
-- Add `{ timeout: 10000 }` for API-dependent renders
-- One test per scenario
-- Use `test.beforeEach` for common setup
-- Prefer semantic selectors (getByRole, getByLabel) over testid
-
-## References
-
-- Conventions: `SKILL.md`
-- Orchestrator: `orchestrator.md`
-- Next step: `_generator.md`
+Report: "Planning complete. {N} scenarios in test-plan.json."
