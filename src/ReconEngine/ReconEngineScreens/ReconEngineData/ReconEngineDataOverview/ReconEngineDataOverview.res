@@ -105,7 +105,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
           customTitleStyle={`${heading.lg.semibold}`}
           customHeadingStyle="py-0"
         />
-        <Accordion
+        <AccordionAdapter
           initialExpandedArray={initialExpandedArray->Array.make(~length=1)}
           accordion={ReconEngineDataOverviewHelper.getAccordionConfig(
             ~ingestionHistoryData,
