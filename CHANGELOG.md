@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.03.31.0
+
+### Features
+
+- Gate sorting for the `Modified` column in the Orders table via the `dev_sort_enabled` feature flag ([#4632](https://github.com/juspay/hyperswitch-control-center/pull/4632)) ([`ff0bf65`](https://github.com/juspay/hyperswitch-control-center/commit/ff0bf6547054dc3588aee99e8ec17e3374a40759))
+
+**Full Changelog:** [`2026.03.30.0...2026.03.31.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.30.0...2026.03.31.0)
+
+- - -
+
 ## 2026.03.30.0
 
 ### Features
