@@ -295,9 +295,9 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
             tabs=tabValues
             maxSelection=1
             setActiveTab
-            initalTab=tabKeys
+            initialTab=tabKeys
             tabContainerClass="px-2"
-            updateCollapsableTabs=collapseTab
+            updateCollapsibleTabs=collapseTab
             showAddMoreTabs=false
           />
         </div>
@@ -308,7 +308,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   open OrderUtils
   <PageLoaderWrapper
     screenState
-    customLoader={<p className=" text-center text-sm text-jp-gray-900 p-4">
+    customLoader={<p className=" text-center text-sm text-jp-gray-900">
       {"Crunching the latest data…"->React.string}
     </p>}
     customUI={<NoDataFound

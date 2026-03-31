@@ -34,7 +34,7 @@ let make = (~onClick) => {
 
   <PageLoaderWrapper screenState>
     <EmailVerifyScreen
-      errorMessage onClick trasitionMessage="You will be redirecting to the dashboard.."
+      errorMessage onClick transitionMessage="You will be redirecting to the dashboard.."
     />
   </PageLoaderWrapper>
 }

@@ -38,7 +38,8 @@ let make = (~previewOnly=false) => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport, email, devSortEnabled} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let startTime = filterValueJson->getString(startTimeFilterKey(version), "")
 
@@ -225,13 +226,13 @@ let make = (~previewOnly=false) => {
         <LoadedTableWithCustomColumns
           title="Orders"
           actualData=orderData
-          entity={OrderEntity.orderEntity(merchantId, orgId, ~version)}
+          entity={OrderEntity.orderEntity(merchantId, orgId, ~version, ~devSortEnabled)}
           resultsPerPage=20
           showSerialNumber=true
           totalResults={previewOnly ? orderData->Array.length : totalCount}
           offset
           setOffset
-          currrentFetchCount={orderData->Array.length}
+          currentFetchCount={orderData->Array.length}
           customColumnMapper=TableAtoms.ordersMapDefaultCols
           defaultColumns={OrderEntity.defaultColumns}
           showSerialNumberInCustomizeColumns=false

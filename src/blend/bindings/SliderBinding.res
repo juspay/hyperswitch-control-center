@@ -18,7 +18,7 @@ type sliderLabelPosition =
   | @as("inline") Inline
 
 type sliderValueFormatConfig = {
-  @as("type") type_: sliderValueType,
+  \"type": sliderValueType,
   decimalPlaces?: int,
   prefix?: string,
   suffix?: string,
