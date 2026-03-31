@@ -3,444 +3,294 @@ name: playwright-test
 description: Entry point for Playwright test automation. ALWAYS delegates to orchestrator.md. The orchestrator (YOU) detects execution mode (full pipeline or heal-only) and manages the complete workflow including setup, execution, summary, bug reports, and cleanup. Triggers on phrases like "generate tests", "create tests", "run tests", "test flow", "end-to-end test", "e2e test", "test PR", "test module", "test scenario", "analyze for testing", "generate test cases", "write test code", "create test file", "heal tests", "fix failing tests", "debug tests", "repair tests".
 ---
 
-# Playwright Test Generation Skill
+# Playwright Test Automation
 
-**READ `orchestrator.md` and EXECUTE its instructions directly. DO NOT delegate orchestrator.md.**
+**READ `orchestrator.md` and EXECUTE it. YOU are the orchestrator.**
 
-The orchestrator.md contains the full pipeline logic that YOU (the main agent) should execute. YOU are the orchestrator - you coordinate the workflow and delegate to sub-agents via task() calls.
+## Editing Guidelines for All Agents
 
-> **ENTRY POINT - Always delegates to orchestrator.md**
+When any agent in this skill modifies files, **ALWAYS use surgical edits**:
 
-### Execution Flow
+- **Use `edit` tool** with precise `oldString`/`newString` to change only what needs changing
+- **Preserve existing content** - never overwrite entire files just to update a field or fix a test
+- **Target specific sections** - modify only the failing test case, the field that changed, or the line that needs updating
+- **NEW files only** - use `write` only when creating files that don't exist
 
-```
-User Request
-    ↓
-SKILL.md (entry point)
-    ↓ (You READ orchestrator.md and EXECUTE it)
-You execute orchestrator.md instructions:
-    - Step 1: Parse input
-    - Step 2: Environment setup
-    - Step 3: Delegate to _planner.md via task(subagent_type="playwright-planner")
-    - Step 4: Delegate to _generator.md via task(subagent_type="playwright-generator")
-    - Step 5: Run tests via CLI
-    - Step 6: Delegate to _healer.md via task(subagent_type="playwright-healer") if needed
-    - Step 7: Summary & Options
-    ↓
-Cleanup
-```
+This applies to:
 
----
+- `session.json` updates (change only the phase/metrics fields)
+- `test-plan.json` updates (append scenarios, don't rewrite)
+- Test files (fix only broken tests, preserve working ones)
+- Page objects (add methods/locators, don't regenerate classes)
 
-### Execution Modes
+## Execution Modes
 
-The orchestrator automatically detects mode based on your input:
+| Mode          | Trigger Phrases                                                    | Pipeline                                                 |
+| ------------- | ------------------------------------------------------------------ | -------------------------------------------------------- |
+| **Full**      | "generate tests", "create test", "test PR #123", "write test code" | Setup → Plan → Generate → Run → Heal → Summary → Cleanup |
+| **Heal-Only** | "fix failing tests", "fix tests", "heal tests", "repair tests"     | Setup → Plan → Run → Heal → Summary → Cleanup            |
 
-| Mode              | Trigger Phrases                                                    | What Happens                                                                   |
-| ----------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
-| **Full Pipeline** | "generate tests", "create test", "test PR #123", "write test code" | Setup env → Plan → Generate → Run tests → Heal (if needed) → Summary → Cleanup |
-| **Heal-Only**     | "fix failing tests", "fix tests", "heal tests", "repair tests"     | Setup env → Plan → Run tests → Heal → Summary → Cleanup                        |
+## Sub-Agent Delegation
 
-### Sub-Agent Responsibilities
+| Agent     | File            | Called By          | Uses Browser | Input                | Output                          |
+| --------- | --------------- | ------------------ | ------------ | -------------------- | ------------------------------- |
+| planner   | `_planner.md`   | Step 3             | **YES**      | `input-context.json` | `test-plan.json`                |
+| generator | `_generator.md` | Step 4 (Full only) | **YES**      | `test-plan.json`     | `*.spec.ts`                     |
+| healer    | `_healer.md`    | Step 5             | **YES**      | Test files           | Fixed tests, `run-results.json` |
 
-| Agent        | File              | Input              | Output             | Must Use Browser Tools           |
-| ------------ | ----------------- | ------------------ | ------------------ | -------------------------------- |
-| Orchestrator | `orchestrator.md` | User request       | Session management | -                                |
-| Planner      | `_planner.md`     | input-context.json | test-plan.json     | **YES** - Explore page structure |
-| Generator    | `_generator.md`   | test-plan.json     | \*.spec.ts         | **YES** - Verify selectors       |
-| Healer       | `_healer.md`      | run-results.json   | Fixed tests        | **YES** - Debug failures         |
-
-### **IMPORTANT** Sub-Agent Delegation Pattern (Executed by Main Agent)
-
-The main agent (you) delegates to sub-agents using the following pattern:
+**Delegation Pattern:**
 
 ```typescript
-// Step 3: Delegate to playwright-planner
 await task({
-  mode: "subagent",
-  load_skills: ["playwright-test", "playwright-planner"],
+  subagent_type: "playwright-planner|playwright-generator|playwright-healer",
+  load_skills: ["playwright-test"],
   mcp: ["playwright"],
-  description: "Create test plan via playwright-planner",
-  prompt: `
-    You are the playwright-planner agent. Your job is to create a comprehensive test plan. 
-
-    **MANDATORY ACTIONS:**
-    1. Read: .opencode/skills/playwright-test/_planner.md for instructions.
-    2. Read: .opencode/sessions/playwright-run/input-context.json
-    3. Use browser tools to explore the application:
-       - create a test user for exploration (if needed)
-       - browser_navigate to http://localhost:9000/dashboard/login (or appropriate URL)
-       - browser_snapshot to analyze page structure
-       - Identify all interactive elements, forms, buttons, navigation
-    4. Create test-plan.json with detailed scenarios
-    
-    The test plan must include:
-    - Scenarios array with detailed steps
-    - Selectors for elements
-    - Preconditions for each test
-    - Expected outcomes
-
-    Retrieve selector strategy from skill
-    Use timeouts sparsly
-
-    After writing test-plan.json, report: "Planning complete. N scenarios created."
-
-    **OUTPUT**: .opencode/sessions/playwright-run/test-plan.json
-  `,
-});
-
-// Step 4: Delegate to playwright-generator
-await task({
-  mode: "subagent",
-  load_skills: ["playwright-test", "playwright-generator"],
-  mcp: ["playwright"],
-  description: "Generate test code via playwright-generator",
-  prompt: `
-    You are the playwright-generator agent. Your job is to generate executable Playwright tests.
-    
-    **MANDATORY ACTIONS:**
-    1. Read: .opencode/skills/playwright-test/_generator.md for instructions.
-    2. Read: .opencode/sessions/playwright-run/test-plan.json
-    3. Read relevant modules in source code to understand context (if needed)
-    4. Read relevant existing tests in playwright-tests/ to understand patterns
-    5. Use API helpers from support/commands.ts for setup steps (signupUser, etc.)
-    6. Read existing Page Object Models in playwright-tests/support/pages/ 
-    7. Use browser tools to verify selectors from the test plan actually exist:
-       - create a test user for exploration (if needed)
-       - browser_navigate to target page
-       - browser_snapshot to verify selectors
-    8. Generate test file: playwright-tests/ai-generated/{filename}.spec.ts
-
-    After writing test files, report: "Generation complete. N tests written to {filename}."
-    
-    OUTPUT: playwright-tests/ai-generated/*.spec.ts
-  `,
-});
-
-// Step 6: Delegate to playwright-healer - if tests fail
-await task({
-  mode: "subagent",
-  load_skills: ["playwright-test", "playwright-healer"],
-  mcp: ["playwright"],
-  description: "Fix failing tests via playwright-healer",
-  prompt: `
-    You are the playwright-healer agent. Your job is to diagnose and fix failing tests.
-    
-    **MANDATORY ACTIONS:**
-    1. Read: .opencode/skills/playwright-test/_healer.md for instructions.
-    2. Read: .opencode/sessions/playwright-run/run-results.json
-    3. Check if user prompting to test full PR, specific test case, or tests in a module. If so, focus on those tests first.
-    4. Flow flow
-       - Read run-results.json to identify failing tests and failure reasons ELSE run tests to get fresh results.
-       - Seggregate failures by type: selector not found, timeout, assertion failure, etc.
-       - Prioritize fixes that are likely to succeed (e.g. selector issues)
-       - For each failure type, apply fixes.
-       - Run the full flow till no failures remain or max 3 attempts reached.
-       - Create a detailed report of fixes applied and remaining failures.
-    
-    OUTPUT: Fixed test files in playwright-tests/ai-generated/*.spec.ts
-
-    **Common Fixes:**
-    - Fix selectors: based on skill selector strategy and browser_snapshot findings
-    - Add preconditions: e.g. create test user, create payments, create connectors etc
-    - Add waits: await page.locator("...").waitFor({ state: "visible" })
-    - Add timing: await page.waitForLoadState("networkidle")
-    - Handle conditional elements: Check isVisible() before clicking
-    
-    **Max 3 attempts per test.**
-    
-    **Document fixes in comments:**
-    // Fixed: Added wait for API response
-    // Was failing because element rendered before data loaded
-    
-    After completing, report: "Healing complete. N tests fixed, M still failing"
-  `,
+  description: "...",
+  prompt:
+    "Read SKILL.md for conventions. Read your .md file for instructions. Execute.",
 });
 ```
 
----
+## Browser Tools (All Sub-Agents)
 
-## Playwright MCP Browser Tools
-
-All sub-agents (planner, generator, healer) **MUST** use browser tools to explore and verify the application.
-
-### Browser Tools
-
-| Tool                             | Purpose                                           | Used By |
-| -------------------------------- | ------------------------------------------------- | ------- |
-| `browser_snapshot`               | PRIMARY — get page structure and element refs     | All     |
-| `browser_navigate`               | Go to a URL                                       | All     |
-| `browser_click`                  | Click elements using ref                          | All     |
-| `browser_fill_form`              | Fill multiple form fields                         | All     |
-| `browser_type`                   | Type into a single input                          | All     |
-| `browser_select_option`          | Select dropdown value                             | All     |
-| `browser_hover`                  | Reveal tooltips and hidden elements               | All     |
-| `browser_press_key`              | Keyboard interactions                             | All     |
-| `browser_wait_for`               | Wait for text, element, or time                   | All     |
-| `browser_evaluate`               | Run custom JS to extract state                    | All     |
-| `browser_run_code`               | Execute and validate playwright snippet instantly | All     |
-| `browser_generate_locator`       | Generate stable locator from snapshot ref         | All     |
-| `browser_network_requests`       | Inspect API calls                                 | All     |
-| `browser_console_messages`       | Capture JS errors and logs                        | All     |
-| `browser_take_screenshot`        | Visual capture for diagnosis only                 | All     |
-| `browser_storage_state`          | Save auth/cookie state to file                    | All     |
-| `browser_set_storage_state`      | Restore auth/cookie state from file               | All     |
-| `browser_verify_element_visible` | Assert element exists                             | All     |
-| `browser_verify_text_visible`    | Assert text is visible                            | All     |
-| `browser_verify_value`           | Assert input or checkbox value                    | All     |
-
----
+| Tool                             | Purpose                                           |
+| -------------------------------- | ------------------------------------------------- |
+| `browser_navigate`               | Navigate to URL                                   |
+| `browser_snapshot`               | **PRIMARY** - Get page structure and element refs |
+| `browser_click`                  | Click element by ref                              |
+| `browser_fill_form`              | Fill form fields                                  |
+| `browser_type`                   | Type into input                                   |
+| `browser_select_option`          | Select dropdown                                   |
+| `browser_wait_for`               | Wait for text/element/time                        |
+| `browser_console_messages`       | Capture JS errors                                 |
+| `browser_network_requests`       | Inspect API calls                                 |
+| `browser_generate_locator`       | Generate stable locator                           |
+| `browser_verify_element_visible` | Assert visibility                                 |
 
 ## Module-to-URL Mapping
 
-| Module           | URL                          | Feature Flag | Description                      |
-| ---------------- | ---------------------------- | ------------ | -------------------------------- |
-| auth             | /dashboard/login             | -            | Sign in, sign up, password reset |
-| home             | /dashboard/home              | -            | Homepage dashboard view          |
-| payments         | /dashboard/payments          | -            | Payment operations list          |
-| refunds          | /dashboard/refunds           | -            | Refund management                |
-| disputes         | /dashboard/disputes          | -            | Chargeback handling              |
-| payouts          | /dashboard/payouts           | -            | Payout processing (FF)           |
-| customers        | /dashboard/customers         | -            | Customer management              |
-| connectors       | /dashboard/connectors        | -            | Payment processor setup          |
-| payoutConnectors | /dashboard/payout-connectors | -            | Payout processor setup           |
-| routing          | /dashboard/routing           | -            | Payment routing rules            |
-| analytics        | /dashboard/analytics         | -            | Reporting & insights             |
-| users            | /dashboard/users             | -            | User management                  |
-| api-keys         | /dashboard/api-keys          | -            | API key management               |
-| webhooks         | /dashboard/webhooks          | -            | Webhook config (FF)              |
-| settings         | /dashboard/settings          | -            | General settings                 |
+| Module            | URL                            | Prerequisites               |
+| ----------------- | ------------------------------ | --------------------------- |
+| auth              | `/dashboard/login`             | -                           |
+| home              | `/dashboard/home`              | User                        |
+| payments          | `/dashboard/payments`          | User + Connector            |
+| refunds           | `/dashboard/refunds`           | User + Connector + Payment  |
+| disputes          | `/dashboard/disputes`          | User + Connector + Payment  |
+| connectors        | `/dashboard/connectors`        | User                        |
+| payout-connectors | `/dashboard/payout-connectors` | User                        |
+| routing           | `/dashboard/routing`           | User + Connector            |
+| customers         | `/dashboard/customers`         | User + Payments             |
+| analytics         | `/dashboard/analytics`         | User + Connector + Payments |
+| users             | `/dashboard/users`             | User (admin)                |
+| api-keys          | `/dashboard/api-keys`          | User                        |
+| webhooks          | `/dashboard/webhooks`          | User                        |
+| settings          | `/dashboard/settings`          | User                        |
 
----
+## Selector Strategy (Priority Order)
 
-## Selector Strategy
+1. `getByRole()` - Buttons, links, headings
+2. `getByLabel()` - Form inputs
+3. `getByPlaceholder()` - Placeholder text
+4. `getByText()` - Visible text
+5. `getByTestId()` - Fallback
+6. CSS/XPath - Last resort
 
-Priority order (highest to lowest):
-
-1. **`getByRole()`** - Buttons, links, headings, textboxes
-2. **`getByLabel()`** - Form inputs with labels
-3. **`getByPlaceholder()`** - Placeholder text
-4. **`getByText()`** - Visible text content
-5. **`getByTestId()`** - Fallback when semantic unavailable
-6. **CSS/XPath** - Last resort only
-
-### Example
-
-**Payments Module:**
+## API Helpers (`playwright-tests/support/commands.ts`)
 
 ```typescript
-await page.getByRole("grid").waitFor();
-await page.getByPlaceholder("Search by ID or amount").fill("pay_123");
+// User Management
+signupUser(email, password, context): Promise<void>
+loginUser(email, password, context): Promise<string>
+loginUI(page, email, password): Promise<void>
+generateUniqueEmail(): string
+
+// Connector Setup
+createDummyConnectorAPI(merchantId, label, context): Promise<void>
+deleteConnector(mcaId, merchantId, token, context): Promise<void>
+
+// Payments & Data
+createPaymentAPI(merchantId, context): Promise<PaymentData>
+createAPIKey(merchantId, token, context): Promise<string>
+
+// Utilities
+ompLineage(page): Promise<{orgId, merchantId, profileId}>
 ```
 
----
-
-## Authentication for Browser exploration
-
-When exploring protected routes, sub-agents MUST authenticate first. (If already logged in (navigated to /home), logout and continue with fresh login to ensure clean session)
-
-### Quick Auth Flow
+## Authentication Flow (Sub-Agents)
 
 ```typescript
-// 1. Check if logged in (navigate to protected route)
-const nav = await browser_navigate({
-  url: "http://localhost:9000/dashboard/home",
+// 1. Create user via API
+await signupUser(`test_${timestamp}@example.com`, "Test@123456", context);
+
+// 2. Login via UI
+await browser_navigate({ url: "http://localhost:9000/dashboard/login" });
+await browser_fill_form({
+  fields: [
+    { name: "email", type: "textbox", value: email, ref: "email-input" },
+    {
+      name: "password",
+      type: "textbox",
+      value: "Test@123456",
+      ref: "password-input",
+    },
+  ],
 });
-if (nav.url.includes("/login")) {
-  // Need to authenticate
+await browser_click({ element: "Continue button", ref: "continue-btn" });
 
-  // 2. Create test account via API
-  await bash({
-    command: `curl -X POST http://localhost:8080/user/signup_with_merchant_id \
-      -H "Content-Type: application/json" \
-      -H "api-key: test_admin" \
-      -d '{"email":"test_'$(date +%s)'@example.com","password":"Test@123456","company_name":"Test Co $(date +%s)"}'`,
-  });
-
-  // 3. Login via UI
-  await browser_navigate({ url: "http://localhost:9000/dashboard/login" });
-  await browser_fill_form({
-    fields: [
-      { name: "email", type: "textbox", value: email, ref: "email-input-ref" },
-      {
-        name: "password",
-        type: "textbox",
-        value: "Test@123456",
-        ref: "password-input-ref",
-      },
-    ],
-  });
-  await browser_click({ element: "Continue button", ref: "continue-btn-ref" });
-
-  // 4. Skip 2FA if shown
-  try {
-    await browser_click({ element: "Skip now button", ref: "skip-now" });
-  } catch (e) {
-    // 2FA not shown, proceed
-  }
-}
+// 3. Handle 2FA
+await browser_click({ element: "Skip now button", ref: "skip-now" });
 ```
 
-### Happy Path test case to navigate to dashboard homepage
-
-Navigate to homepage and start actual test steps should be added as before each step for all tests except auth
-
-Read playwright-test/seed.spec.ts for a reference test case.
+## Test Setup Pattern (All Tests)
 
 ```typescript
-test.beforeEach(async ({ page }) => {
-  email = generateUniqueEmail();
-  await signupUser(email, PLAYWRIGHT_PASSWORD, page.context().request);
+test.beforeEach(async ({ page, context }) => {
+  const email = generateUniqueEmail();
+  await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 });
 ```
 
----
+## Page Object Models
 
-### State Management
+Location: `playwright-tests/support/pages/`
 
-**Session Directory:** `.opencode/sessions/playwright-run/{sessionId}/`
+| Page              | Path                                        | Key Elements                              |
+| ----------------- | ------------------------------------------- | ----------------------------------------- |
+| SignInPage        | `auth/SignInPage.ts`                        | emailInput, passwordInput, continueButton |
+| SignUpPage        | `auth/SignUpPage.ts`                        | signupForm, emailInput, passwordInput     |
+| HomePage          | `homepage/HomePage.ts`                      | sidebar, dashboardElements                |
+| PaymentOperations | `operations/PaymentOperations.ts`           | paymentList, filters, search              |
+| PaymentConnector  | `connector/PaymentConnector.ts`             | connectorSearch, addButton, config        |
+| PaymentRouting    | `workflow/paymentRouting/PaymentRouting.ts` | routingRules, volumeConfig                |
 
-## STATE MACHINE RULE
+**Pattern:**
 
-Before executing any step:
+```typescript
+export class PageName {
+  constructor(readonly page: Page) {}
+  get elementName(): Locator {
+    return this.page.locator("[data-testid='...']");
+  }
+}
+```
 
-1. Read session.json
-2. Verify current status is in allowedTransitions
-3. If status is a terminal failure state: STOP, report to user
-4. Never skip a status transition
-5. Write new status to session.json BEFORE executing the step
-6. If step fails: write failure status, STOP immediately
+## State Machine
 
+Pipeline state is tracked in `session.json` using the `phase` field:
+
+### Valid Phases
+
+```json
+[
+  "parse",
+  "setup",
+  "planning",
+  "planning-complete",
+  "generating",
+  "generating-complete",
+  "healing",
+  "healing-complete",
+  "awaiting-user-choice",
+  "cleanup",
+  "complete",
+  "failed"
+]
+```
+
+### Phase Flows
+
+| Mode          | Flow                                                                                                                                                                           |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Full**      | `parse` → `setup` → `planning` → `planning-complete` → `generating` → `generating-complete` → `healing` → `healing-complete` → `awaiting-user-choice` → `cleanup` → `complete` |
+| **Heal-Only** | `parse` → `setup` → `planning` → `planning-complete` → `healing` → `healing-complete` → `awaiting-user-choice` → `cleanup` → `complete`                                        |
+
+### Allowed Transitions
+
+```json
 {
-"status": "initialized",
-"allowedTransitions": {
-"initialized": ["server-ready"],
-"server-ready": ["planning"],
-"planning": ["planning-complete", "planning-failed"],
-"planning-complete": ["generating"],
-"generating": ["generating-complete", "generating-failed"],
-"generating-complete":["running"],
-"running": ["all-pass", "some-pass", "none-pass"],
-"all-pass": ["complete"],
-"some-pass": ["healing"],
-"none-pass": ["healing"],
-"healing": ["complete", "healing-failed"]
+  "parse": ["setup", "failed"],
+  "setup": ["planning", "failed"],
+  "planning": ["planning-complete", "failed"],
+  "planning-complete": ["generating", "healing", "failed"],
+  "generating": ["generating-complete", "failed"],
+  "generating-complete": ["healing", "failed"],
+  "healing": ["healing-complete", "failed"],
+  "healing-complete": ["awaiting-user-choice", "failed"],
+  "awaiting-user-choice": ["cleanup"],
+  "cleanup": ["complete"],
+  "failed": []
 }
-}
+```
 
-**Session JSON Schema:**
+**Status Field:**
+
+- `"in_progress"` - Pipeline running
+- `"failed"` - Step failed, pipeline stopped
+- `"complete"` - All steps finished
+
+## File Naming
+
+| Mode     | Pattern                      | Example                       |
+| -------- | ---------------------------- | ----------------------------- |
+| PR       | `PR-{number}-{slug}.spec.ts` | `PR-123-payment-form.spec.ts` |
+| Module   | `module-{name}.spec.ts`      | `module-auth.spec.ts`         |
+| Scenario | `scenario-{slug}.spec.ts`    | `scenario-checkout.spec.ts`   |
+
+## Session Files
+
+Location: `.opencode/sessions/playwright-run/`
+
+| File                 | Purpose                  |
+| -------------------- | ------------------------ |
+| `input-context.json` | Parsed user request      |
+| `session.json`       | Pipeline state & metrics |
+| `test-plan.json`     | Planner output           |
+| `run-results.json`   | Test execution results   |
+| `bug-report.md`      | Failure analysis         |
+| `summary.json`       | Final summary            |
+
+### Session Schema
 
 ```json
 {
   "sessionId": "uuid",
   "mode": "full|heal-only",
-  "status": "initialized|running|complete|failed",
-  "phase": "parse|setup|planning|generating|running|healing|summary|cleanup",
+  "status": "in_progress|failed|complete",
+  "phase": "parse|setup|...",
   "startedAt": "ISO",
   "servers": {
     "backendWasStarted": false,
     "frontendWasStarted": false
   },
   "metrics": {
+    "testsPlanned": 0,
     "testsGenerated": 0,
     "testsPassed": 0,
     "testsFailed": 0,
-    "fixesApplied": 0
-  },
-  "files": {
-    "testPlan": "test-plan.json",
-    "testFile": "playwright-tests/ai-generated/*.spec.ts",
-    "results": "run-results.json",
-    "summary": "summary.json"
+    "testsFixed": 0,
+    "healingAttempts": 0
   }
 }
 ```
 
----
+## Common Fixes Reference
 
-## API Helpers
-
-Location: `playwright-tests/support/commands.ts`
-
-```typescript
-// User Management
-signupUser(email: string, password: string): Promise<void>
-
-// Merchant Setup
-createAPIKey(merchantId: string, token: string): Promise<string>
-createDummyConnector(merchantId: string, token: string, name: string): Promise<void>
-createPayment(merchantId: string, apiKey: string): Promise<void>
-
-// Utilities
-generateUniqueEmail(): string
-generateDateTimeString(): string
-```
-
----
-
-## File Naming
-
-| Mode     | Pattern                      | Example                          |
-| -------- | ---------------------------- | -------------------------------- |
-| PR       | `PR-{number}-{slug}.spec.ts` | `PR-123-payment-form.spec.ts`    |
-| Module   | `module-{name}.spec.ts`      | `module-auth.spec.ts`            |
-| Scenario | `scenario-{slug}.spec.ts`    | `scenario-checkout-flow.spec.ts` |
-
-Slug: lowercase, hyphens, max 50 chars.
-
----
-
-## Troubleshooting
-
-| Error               | Solution                              |
-| ------------------- | ------------------------------------- |
-| Backend DOWN        | Run `sh cypress/start_hyperswitch.sh` |
-| gh not auth         | Run `gh auth login`                   |
-| Test timeout        | Add `{ timeout: 10000 }`              |
-| Selector not found  | Use `browser_snapshot` to discover    |
-| Feature not visible | Add `page.route()` intercept          |
-
----
-
-## Reference Files
-
-| File              | Purpose                                      |
-| ----------------- | -------------------------------------------- |
-| `orchestrator.md` | Main coordinator - delegates to sub-agents   |
-| `_planner.md`     | Creates test plans using browser exploration |
-| `_generator.md`   | Generates tests with verified selectors      |
-| `_healer.md`      | Fixes failures using browser debugging       |
-
----
+| Issue              | Fix                                                       |
+| ------------------ | --------------------------------------------------------- |
+| Selector not found | `await page.locator("...").waitFor({ state: "visible" })` |
+| Timing issue       | `await page.waitForLoadState("networkidle")`              |
+| API dependent      | `await page.waitForResponse("**/api/...")`                |
+| Feature flag       | Route intercept to enable feature                         |
+| Optional element   | `if (await element.isVisible().catch(() => false))`       |
 
 ## Project Context
 
-This project is a dashboard for managing payments, refunds, disputes, and payouts built with React + ReScript on the frontend, a Rust-based Hyperswitch backend, and a Node.js dashboard server. The Playwright test suite covers critical user flows across modules like auth, payments, refunds, disputes, customers, connectors, routing, analytics, and settings.
-
-### Technology Stack
-
-- **Frontend**: React + ReScript, Webpack
-- **Testing**: Playwright + MCP tools
-- **Backend**: Hyperswitch (Rust) on :8080
-- **Dashboard**: Node.js on :9000
-
-### URLs
-
-- Backend API: `http://localhost:8080`
-- Dashboard: `http://localhost:9000`
-- Base Path: `/dashboard`
-
----
+- **Frontend**: React + ReScript, localhost:9000
+- **Backend**: Hyperswitch Rust, localhost:8080
+- **Test Dir**: `playwright-tests/`
+- **Generated**: `playwright-tests/ai-generated/`
 
 ## Next Step
 
-**YOU (the main agent) must READ and EXECUTE orchestrator.md directly.**
-
-Do NOT delegate orchestrator.md - it contains the instructions YOU should follow to coordinate the workflow. The orchestrator.md will guide you on when to delegate to sub-agents (playwright-planner, playwright-generator, playwright-healer).
-
-**Your role:**
-
-1. Read orchestrator.md
-2. Follow its step-by-step instructions
-3. Delegate planning/generation/healing to appropriate sub-agents via task() when instructed
+**READ and EXECUTE `orchestrator.md`. DO NOT delegate it.**

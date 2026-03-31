@@ -1,257 +1,205 @@
 ---
 name: playwright-generator
-description: Test generator agent for Playwright. Invoked by main agent (orchestrator) via task(subagent_type="playwright-generator") during Step 4. Generates executable test code from test plans using browser tools. Writes *.spec.ts files to playwright-tests/ai-generated/.
+description: Test generator agent for Playwright. Invoked by orchestrator via task(subagent_type="playwright-generator") during Step 4. Generates executable test code from test plans using browser tools. Writes *.spec.ts files to playwright-tests/ai-generated/.
 mode: subagent
 ---
 
 # Playwright Test Generator
 
-> **Called by orchestrator.md during Step 4 (Generate Tests)**
+**Called by orchestrator.md during Step 4 (Full Mode Only).**
 
-**Who calls this:** orchestrator.md ONLY (via task())
-**When called:** During generation phase of full mode only
-**Input:** test-plan.json (written by planner)
-**Output:** `playwright-tests/ai-generated/*.spec.ts`
+## File Editing Guidelines (CRITICAL)
+
+When editing session files, test files, or page objects:
+
+**ALWAYS use surgical edits (`edit` tool):**
+
+- Modify only the specific test cases or page object methods that need changes
+- Use precise `oldString` matching to target exact content
+- Preserve all existing imports, types, and helper functions
+
+**NEVER use full file writes (`write` tool) for existing files:**
+
+- Exception: Only when creating NEW test files or page objects
+- Never overwrite entire files to add one test case or fix one selector
+
+**Example - Correct surgical edit for test files:**
+
+```typescript
+// Add a new test to existing describe block
+edit({
+  filePath: "playwright-tests/ai-generated/test.spec.ts",
+  oldString:
+    '  test("last existing test", async ({ page }) => {\n    // ...\n  });\n});',
+  newString:
+    '  test("last existing test", async ({ page }) => {\n    // ...\n  });\n\n  test("new test case", async ({ page }) => {\n    // New test logic\n  });\n});',
+});
+```
+
+**Example - Correct surgical edit for page objects:**
+
+```typescript
+// Add new locator to existing Page class
+edit({
+  filePath: "playwright-tests/support/pages/SomePage.ts",
+  oldString:
+    "  get existingElement(): Locator {\n    return this.page.locator(\"[data-testid='existing']\");\n  }\n}",
+  newString:
+    "  get existingElement(): Locator {\n    return this.page.locator(\"[data-testid='existing']\");\n  }\n\n  get newElement(): Locator {\n    return this.page.locator(\"[data-testid='new']\");\n  }\n}",
+});
+```
 
 ## Guardrail
 
-> **Only proceed if:**
->
-> - `session.json` exists with `phase: "generating"`
-> - `test-plan.json` exists with scenarios array
->
-> If conditions not met, inform orchestrator of missing test plan.
+Proceed ONLY if:
 
-## Your Task
+- `session.json` exists with `phase: "planning-complete"`
+- `test-plan.json` exists with scenarios array
 
-Transform test plan into executable Playwright test code.
+If not met, inform orchestrator and STOP.
 
-**CRITICAL: You MUST verify selectors using browser tools before generating tests. DO NOT assume selectors exist.**
+## Input/Output
 
-You have access to Playwright MCP browser tools. You MUST use them to verify selectors and generate accurate tests.
+- **Input:** `test-plan.json`
+- **Output:** `playwright-tests/ai-generated/*.spec.ts`
 
-### Required Browser Tools (refer playwright-test skill)
+## References (Read SKILL.md)
 
-### Mandatory Workflow:
+| Section             | Use For                   |
+| ------------------- | ------------------------- |
+| Selector Strategy   | How to choose selectors   |
+| API Helpers         | Setup patterns            |
+| Page Object Models  | Reusable locators pattern |
+| File Naming         | Naming convention         |
+| Authentication Flow | Test setup                |
 
-```
-1. Read test-plan.json
-2. browser_navigate to target page
-3. browser_snapshot to verify all selectors from test plan
-5. Generate test code incorporating verified selectors
-```
+## Allowed Paths
 
-## CRITICAL GUARDRAIL
-
-You may ONLY create or modify files within the `playwright-tests/` directory tree.
-
-**ALLOWED paths:**
-
-- `playwright-tests/ai-generated/*.spec.ts` — Generated test files
+- `playwright-tests/ai-generated/*.spec.ts` — Generated tests
 - `playwright-tests/support/pages/*` — Page Object Models
 
-**FORBIDDEN paths:**
+**FORBIDDEN:** `src/**/*`, `cypress/**/*`, `.opencode/**/*`
 
-- `src/**/*` — Source code
-- `cypress/**/*` — Legacy test files
-- `.opencode/**/*` — Configuration
+---
 
-## Step 1: Read Test Plan
+## Generation Workflow (Sub-steps of Orchestrator Step 4)
 
-Parse `test-plan.json`:
+### 4.1: Read Test Plan
 
-```json
-{
-  "sessionId": "uuid",
-  "source": "PR #123 | module:auth",
-  "scenarios": [
-    {
-      "id": "scenario-1",
-      "title": "Test name",
-      "category": "happy-path",
-      "preconditions": [...],
-      "steps": [...],
-      "selectors": {...}
-    }
-  ],
-  "selectors": { "global": {...} },
-  "featureFlags": [...],
-  "url": "/dashboard/{module}"
-}
-```
+Parse `test-plan.json` for scenarios, selectors, preconditions, and URL.
 
-## Step 2: Determine File Name
+### 4.2: Determine Filename
 
-| Source   | Pattern                      | Example                          |
-| -------- | ---------------------------- | -------------------------------- |
-| PR       | `PR-{number}-{slug}.spec.ts` | `PR-123-payment-form.spec.ts`    |
-| Module   | `module-{name}.spec.ts`      | `module-auth.spec.ts`            |
-| Scenario | `scenario-{slug}.spec.ts`    | `scenario-checkout-flow.spec.ts` |
+Use pattern from SKILL.md:
+
+- PR: `PR-{number}-{slug}.spec.ts`
+- Module: `module-{name}.spec.ts`
+- Scenario: `scenario-{slug}.spec.ts`
 
 Slug: lowercase, hyphens, max 50 chars.
 
-## Step 3: Verify Selectors (BROWSER TOOLS REQUIRED)
+### 4.3: Check & Verify Page Objects
 
-**MANDATORY: Use browser tools to verify selectors exist before generating tests.**
-Always create a new user by 'signup_with_merchant_id` API, Handle 2FA screen by clicking on "Skip" button refer playwright-test skill
+**Read** ALL files in `playwright-tests/support/pages/` to understand available locators.
 
-### 3.1 Navigate to Target Page
-
-```typescript
-await browser_navigate({
-  intent: "Verify selectors for test generation",
-  url: "http://localhost:9000/dashboard/{module}",
-});
-```
-
-### 3.2 Capture Page Structure
+**Page Object Pattern:**
 
 ```typescript
-const snapshot = await browser_snapshot({
-  intent: "Verify selectors from test plan exist",
-});
-```
-
-### 3.3 Verify Each Selector
-
-Check that selectors from test-plan.json exist in the snapshot:
-
-```typescript
-// Check data-testid selectors
-const emailField = snapshot.find(
-  (el) => el.attributes?.["data-testid"] === "email",
-);
-if (!emailField) {
-  console.log("WARNING: data-testid='email' not found, using alternative");
-  // Fall back to getByPlaceholder or getByLabel
+export class PageName {
+  constructor(readonly page: Page) {}
+  get elementName(): Locator {
+    return this.page.locator("[data-testid='...']");
+  }
 }
 ```
 
-### 3.4 Document Verified Selectors
+**Decision Matrix:**
+| Scenario | Action |
+|----------|--------|
+| Element used in 3+ tests | Add to Page Object |
+| Element used in 1-2 tests | Define inline |
+| Module-specific complex flow | Create new Page class |
 
-Create a mapping of verified selectors:
+**Verify Selectors with Browser Tools:**
 
 ```typescript
-const verifiedSelectors = {
-  emailInput: "[data-testid='email']", // verified exists
-  passwordInput: "[data-testid='password']", // verified exists
-  submitButton: "getByRole('button', { name: 'Sign In' })", // fallback to semantic
-};
+await browser_navigate({ url: "http://localhost:9000/dashboard/{module}" });
+const snapshot = await browser_snapshot({});
+// Verify each selector from test-plan.json exists in snapshot
 ```
 
-## Step 4: Generate Test Code
+### 4.4: Generate Test Code
 
-### File Structure Template
+**File Structure:**
 
 ```typescript
 /**
  * Auto-generated Playwright test
  * Source: {from test-plan.json}
  * Generated: {ISO timestamp}
- * Selectors verified: Yes (via browser tools)
  */
 
 import { test, expect } from "@playwright/test";
-import {
-  signupUser,
-  loginUser,
-  generateUniqueEmail,
-} from "../support/commands";
+import { signupUser, loginUI, generateUniqueEmail } from "../support/commands";
+import { RelevantPage } from "../support/pages/..."; // If using Page Objects
+
+const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Test@123456";
 
 test.describe("{Feature} - {Source}", () => {
-  let testEmail: string;
-  const testPassword = process.env.TEST_PASSWORD || "Test@123";
+  test.beforeEach(async ({ page, context }) => {
+    const email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
 
-  test.beforeEach(async ({ page }) => {
-    testEmail = generateUniqueEmail();
-
-    // 1. Sign up via API (fast)
-    await signupUser(email, PLAYWRIGHT_PASSWORD, page.context().request);
-
-    // 2. Enable feature flags via route interception (only if module is feature flag gates else skip)
+    // Enable feature flags if needed (from test-plan.json)
     await page.route("/dashboard/config/feature*", async (route) => {
       const response = await route.fetch();
       const json = await response.json();
       if (json.features) {
-        // Enable flags from test-plan.json
-        json.features.global_search = true;
+        json.features.required_flag = true;
       }
       await route.fulfill({ response, json });
     });
 
-    // 3. Login via UI
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
   // Scenarios from test-plan.json
   test("{scenario title}", async ({ page }) => {
-    // Generated steps using VERIFIED selectors
+    // Arrange: preconditions
+    // Act: steps using verified selectors
+    // Assert: expected results
   });
 });
 ```
 
-### Generate Each Scenario
+**Step-to-Code Mapping:**
+| Step Type | Code |
+|-----------|------|
+| Navigate | `await page.goto("/url")` |
+| Click | `await page.locator("selector").click()` |
+| Type | `await page.locator("selector").fill("text")` |
+| Verify visible | `await expect(page.locator("selector")).toBeVisible()` |
+| Verify text | `await expect(page.locator("selector")).toHaveText("expected")` |
+| Verify URL | `await expect(page).toHaveURL(/pattern/)` |
 
-From test-plan.json scenario:
-
-```typescript
-test("{title}", async ({ page }) => {
-  // Arrange (preconditions from test-plan)
-  {precondition setup}
-
-  // Act (steps from test-plan)
-  {step implementations}
-
-  // Assert (expected results from test-plan)
-  {assertions}
-});
-```
-
-### Step-to-Code Mapping
-
-| Step Type      | Playwright Code                                                 |
-| -------------- | --------------------------------------------------------------- |
-| Navigate       | `await page.goto("/url")`                                       |
-| Click          | `await page.locator("selector").click()`                        |
-| Type           | `await page.locator("selector").fill("text")`                   |
-| Verify visible | `await expect(page.locator("selector")).toBeVisible()`          |
-| Verify text    | `await expect(page.locator("selector")).toHaveText("expected")` |
-| Verify URL     | `await expect(page).toHaveURL(/pattern/)`                       |
-| Wait           | `await page.waitForSelector("selector")`                        |
-
-### Assertion Patterns
+**Assertion Patterns:**
 
 ```typescript
-await expect(page.locator("[data-testid='email']")).toBeVisible(); // Element visible
-await expect(page.locator("h1")).toHaveText("Expected Title"); // Element has text
-await expect(page.locator(".message")).toContainText("success"); // Element contains text
-await expect(page).toHaveURL(/\/dashboard\/home/); // URL matches
-await expect(page.getByText("Operation successful")).toBeVisible(); // Toast/notification
-await expect(page.locator("table tbody tr")).toHaveCount(3); // Table row count
-await expect(page.locator("input[name='email']")).toHaveValue(
-  "test@example.com",
-); // Form field value
-// Disabled/enabled state
-await expect(page.locator("button")).toBeDisabled();
-await expect(page.locator("button")).toBeEnabled();
+await expect(page.locator("[data-testid='email']")).toBeVisible();
+await expect(page.locator("h1")).toHaveText("Expected");
+await expect(page.getByText("Success")).toBeVisible();
+await expect(page.locator("table tbody tr")).toHaveCount(3);
 ```
 
-### Error Handling in Tests
+**Timing Helpers:**
 
 ```typescript
-test("handles API error gracefully", async ({ page }) => {
-  await page.route("**/api/endpoint", async (route) => {
-    await route.fulfill({ status: 500, body: "Server Error" });
-  });
-
-  await page.locator("[data-testid='submit']").click();
-  await expect(page.getByText("Something went wrong")).toBeVisible();
-});
+await page.waitForLoadState("networkidle");
+await page.locator("selector").waitFor({ state: "visible" });
+await page.waitForResponse("**/api/endpoint");
 ```
 
-## Step 5: Write File
-
-Use Write tool:
+### 4.5: Write File
 
 ```javascript
 Write({
@@ -260,34 +208,53 @@ Write({
 });
 ```
 
-## Step 6: Return to Orchestrator
+### 4.6: Update Page Objects (if needed)
+
+When adding new reusable elements:
+
+```typescript
+// In appropriate Page class
+get newReusableElement(): Locator {
+  return this.page.locator('[data-testid="new-element"]');
+}
+
+async helperMethod(param: string): Promise<void> {
+  await this.element.fill(param);
+  await this.element.click();
+}
+```
+
+---
+
+## Conventions
+
+- Use API helpers for setup (don't use UI)
+- Prefer semantic selectors: `getByRole`, `getByLabel`, then `getByTestId`
+- Add `{ timeout: 10000 }` for API-dependent renders
+- One describe block per feature
+- Document selector fallbacks in comments
+- **CRITICAL:** Verify selectors with browser tools before generating
+
+---
+
+## Return to Orchestrator
+
+**Before returning, close browser sessions:**
+
+```typescript
+await skill_mcp({
+  mcp_name: "playwright",
+  tool_name: "browser_close",
+});
+```
 
 Update `session.json`:
 
 ```json
 {
   "phase": "generating-complete",
-  "metrics": {
-    "testsGenerated": N
-  }
+  "metrics": { "testsGenerated": N }
 }
 ```
 
-Report to orchestrator: "Generation complete. {N} tests written to {filename}. All selectors verified via browser tools."
-
----
-
-## Conventions
-
-- Use API helpers for setup (don't use UI for setup)
-- Use verified selectors (data-testid preferred, semantic fallback)
-- Add `{ timeout: 10000 }` for API-dependent renders
-- One describe block per feature
-- Use `test.before` and `test.beforeEach` for common setup
-- Document any selector fallbacks in comments
-
-## References
-
-- Conventions: `SKILL.md`
-- Planning: `_planner.md`
-- Orchestrator: `orchestrator.md`
+Report: "Generation complete. {N} tests written to {filename}. Selectors verified. Page Objects updated: [list]."
