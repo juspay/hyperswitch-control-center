@@ -427,7 +427,7 @@ let numericTextInput = (
   ~rightIconCustomStyle=?,
   ~leftIconCustomStyle=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
-  <NumericTextInput
+  <NumericTextInputAdapter
     customStyle
     input
     placeholder
