@@ -563,7 +563,7 @@ module CollectDetails = {
                 key={index->Int.toString}
                 className="flex gap-2 mb-3 items-center cursor-pointer"
                 onClick={_ => onClick(option.key)}>
-                <RadioIcon
+                <RadioIconAdapter
                   isSelected={valuesDict->getBool(option.key, false)} fill="text-green-700"
                 />
                 <div className=p2RegularTextStyle> {option.name->snakeToTitle->React.string} </div>

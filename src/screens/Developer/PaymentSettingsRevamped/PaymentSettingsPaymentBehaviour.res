@@ -59,7 +59,7 @@ module CollectDetails = {
                 key={index->Int.toString}
                 className="flex gap-2  items-center cursor-pointer"
                 onClick={_ => onClick(option.key)}>
-                <RadioIcon
+                <RadioIconAdapter
                   isSelected={valuesDict->getBool(option.key, false)}
                   fill="text-nd_primary_blue-450"
                 />
