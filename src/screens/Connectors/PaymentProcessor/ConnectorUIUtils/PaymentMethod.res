@@ -549,7 +549,7 @@ module CardRenderer = {
                         <p
                           className={`${p2RegularTextStyle} cursor-pointer`}
                           onClick={_ => removeOrAddMethods(value)}>
-                          {React.string(value.payment_method_type->snakeToTitle)}
+                          {React.string(value.payment_method_type->getPaymentMethodDisplayName)}
                         </p>
                       }}
                     </div>

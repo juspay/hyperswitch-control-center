@@ -228,6 +228,7 @@ type paymentMethodTypes =
   | Pix
   | Boleto
   | NetworkToken
+  | Ideal
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {

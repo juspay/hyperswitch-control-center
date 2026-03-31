@@ -266,6 +266,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "directcarrierbilling" => DirectCarrierBilling
   | "amazon_pay" => AmazonPay
   | "network_token" => NetworkToken
+  | "ideal" => Ideal
   | _ => UnknownPaymentMethodType(paymentMethodType)
   }
 }
@@ -1462,6 +1463,13 @@ let itemProviderMapper: dict<JSON.t> => ConnectorTypes.paymentMethodConfigType =
 
 let getPaymentMethodMapper: JSON.t => array<paymentMethodConfigType> = json => {
   getArrayDataFromJson(json, itemProviderMapper)
+}
+
+let getPaymentMethodDisplayName = (paymentMethodType: string) => {
+  switch paymentMethodType->getPaymentMethodTypeFromString {
+  | Ideal => "iDEAL | Wero"
+  | _ => paymentMethodType->snakeToTitle
+  }
 }
 
 let itemToObjMapper = dict => {
