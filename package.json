@@ -21,7 +21,7 @@
     "re:start": "rescript -w",
     "re:format": "rescript format -all",
     "test:start": "cross-env default__endpoints__api_url=http://localhost:8080 default__features__email=true node dist/server/server.js",
-    "postinstall": "git config core.hooksPath .githooks && chmod +x .githooks/commit-msg",
+    "postinstall": "git config core.hooksPath .githooks && chmod +x .githooks/commit-msg && patch-package",
     "cy:open": "sh cypress/start_hyperswitch.sh && cypress open",
     "cy:run": "sh cypress/start_hyperswitch.sh && cypress run",
     "local:cy:open": "cypress open",
@@ -53,6 +53,7 @@
     "monaco-editor-webpack-plugin": "^7.0.1",
     "nyc": "^15.1.0",
     "otplib": "^12.0.1",
+    "patch-package": "^8.0.1",
     "postcss": "^8.3.6",
     "postcss-loader": "^4.1.0",
     "prettier": "^3.1.0",
@@ -71,6 +72,7 @@
     "@iarna/toml": "^2.2.5",
     "@juspay-tech/hyper-js": "^2.0.4",
     "@juspay-tech/react-hyper-js": "^1.2.4",
+    "@juspay/blend-design-system": "^0.0.36",
     "@monaco-editor/react": "^4.4.5",
     "@rescript/core": "^0.6.0",
     "@rescript/react": "^0.12.0",
@@ -100,8 +102,7 @@
     "react-window": "^1.8.8",
     "recoil": "^0.1.2",
     "rescript-webapi": "0.10.0",
-    "tailwindcss": "^3.0.0",
-    "@juspay/blend-design-system": "0.0.36-beta.2"
+    "tailwindcss": "^3.0.0"
   },
   "packageManager": "yarn@3.2.1"
 }
