@@ -70,9 +70,11 @@ let make = (
             <div className="h-full box-border pl-4 py-3">
               <div className="flex flex-row gap-3 items-center">
                 <RenderIf condition={isSelectable}>
-                  <div onClick={_ => handleRowSelection()} className="cursor-pointer">
-                    <CheckBoxIcon isSelected={isRowSelected} checkboxDimension="h-4 w-4" />
-                  </div>
+                  <CheckBoxIconAdapter
+                    isSelected={isRowSelected}
+                    setIsSelected={_ => handleRowSelection()}
+                    checkboxDimension="h-4 w-4"
+                  />
                 </RenderIf>
               </div>
             </div>

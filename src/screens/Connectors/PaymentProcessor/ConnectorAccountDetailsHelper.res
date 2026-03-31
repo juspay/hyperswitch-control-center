@@ -207,7 +207,7 @@ module CashToCodeSelectBox = {
         renderContentOnTop: Some(
           () =>
             <div className="flex items-center gap-3 w-full">
-              <CheckBoxIcon isSelected=isCountrySelected stopPropagationNeeded=true />
+              <CheckBoxIconAdapter isSelected=isCountrySelected stopPropagationNeeded=true />
               <span className={`${body.sm.semibold} text-nd-gray-600`}>
                 {countryTitle->React.string}
               </span>
@@ -321,7 +321,7 @@ module Payload = {
           renderContentOnTop: Some(
             () =>
               <div className="flex items-center gap-3 w-full">
-                <CheckBoxIcon isSelected=isCountrySelected stopPropagationNeeded=true />
+                <CheckBoxIconAdapter isSelected=isCountrySelected stopPropagationNeeded=true />
                 <span className="font-medium text-jp-gray-700 dark:text-jp-gray-text_darktheme">
                   {React.string(countryTitle)}
                 </span>

@@ -233,7 +233,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
           <div
             className="flex flex-col md:flex-row md:items-center gap-4 md:gap-3 lg:gap-4 lg:ml-6">
             <div className={`flex flex-row items-center gap-4 md:gap-1 lg:gap-2`}>
-              <CheckBoxIcon
+              <CheckBoxIconAdapter
                 isSelected=isDistribute
                 setIsSelected={v => {
                   isDistributeInput.onChange(v->Identity.anyTypeToReactEvent)

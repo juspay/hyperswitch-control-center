@@ -495,17 +495,18 @@ module CardRenderer = {
                               ->getString("klarna_region", "") !== "Europe"
 
                           <RenderIf condition={!klarnaCheck}>
-                            <div
-                              onClick={_ => removeOrAddMethods(value)} className="cursor-pointer">
-                              <CheckBoxIcon isSelected={isSelected(value)} />
-                            </div>
+                            <CheckBoxIconAdapter
+                              isSelected={isSelected(value)}
+                              setIsSelected={_ => removeOrAddMethods(value)}
+                            />
                           </RenderIf>
                         }
 
                       | _ =>
-                        <div onClick={_ => removeOrAddMethods(value)} className="cursor-pointer">
-                          <CheckBoxIcon isSelected={isSelected(value)} />
-                        </div>
+                        <CheckBoxIconAdapter
+                          isSelected={isSelected(value)}
+                          setIsSelected={_ => removeOrAddMethods(value)}
+                        />
                       }}
                       {switch (
                         value.payment_method_type->getPaymentMethodTypeFromString,
@@ -604,7 +605,7 @@ module CardRenderer = {
                           className="flex gap-2 items-center cursor-pointer flex-1 justify-between w-full">
                           <div className="flex gap-2 items-center">
                             <div className="cursor-pointer">
-                              <CheckBoxIcon
+                              <CheckBoxIconAdapter
                                 isSelected={isSelected(value)}
                                 setIsSelected={handleBankDebitCheckboxClick(~method=value)}
                                 stopPropagationNeeded=true
