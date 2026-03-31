@@ -264,7 +264,7 @@ let make = (~children) => {
         ),
         logoUrl: getUrl(
           "logoUrl",
-          "/assets/Dark/hyperswitchLogoIconWithText.svg",
+          "/assets/Dark/juspayLogoIcon.svg",
           existingEnv.urlThemeConfig.logoUrl,
         ),
       }
