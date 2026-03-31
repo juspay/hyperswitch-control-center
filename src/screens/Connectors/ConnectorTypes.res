@@ -137,7 +137,6 @@ type processorTypes =
   | SANTANDER
   | REVOLV3
   | TRUELAYER
-  | ENVOY
   | FISERVCOMMERCEHUB
 
 type payoutProcessorTypes =

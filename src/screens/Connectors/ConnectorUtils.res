@@ -181,7 +181,6 @@ let connectorList: array<connectorTypes> = [
   Processors(SANTANDER),
   Processors(REVOLV3),
   Processors(TRUELAYER),
-  Processors(ENVOY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -984,7 +983,6 @@ let getConnectorNameString = (connector: processorTypes) =>
   | SANTANDER => "santander"
   | REVOLV3 => "revolv3"
   | TRUELAYER => "truelayer"
-  | ENVOY => "envoy"
   | FISERVCOMMERCEHUB => "fiservcommercehub"
   }
 
@@ -1182,7 +1180,6 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "santander" => Processors(SANTANDER)
     | "revolv3" => Processors(REVOLV3)
     | "truelayer" => Processors(TRUELAYER)
-    | "envoy" => Processors(ENVOY)
     | "fiservcommercehub" => Processors(FISERVCOMMERCEHUB)
     | _ => UnknownConnector("Not known")
     }
@@ -1358,7 +1355,6 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | SANTANDER => santanderInfo
   | REVOLV3 => revolv3Info
   | TRUELAYER => truelayerInfo
-  | ENVOY => envoyInfo
   | FISERVCOMMERCEHUB => fiservcommercehubInfo
   }
 }
@@ -2331,7 +2327,6 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | SANTANDER => "Santander"
   | REVOLV3 => "Revolv3"
   | TRUELAYER => "Truelayer"
-  | ENVOY => "Worldpay Envoy"
   | FISERVCOMMERCEHUB => "Fiserv Commerce Hub"
   }
 
@@ -2516,7 +2511,8 @@ let checkIfPredecryptFlowEnabledForApplePay = connector => {
   | Processors(NUVEI)
   | Processors(ADYEN)
   | Processors(CHECKOUT)
-  | Processors(WORLDPAYVANTIV) => true
+  | Processors(WORLDPAYVANTIV)
+  | Processors(NMI) => true
   | _ => false
   }
 }
@@ -2526,7 +2522,8 @@ let checkIfPredecryptFlowEnabledForGooglePay = connector => {
   | Processors(NUVEI)
   | Processors(ADYEN)
   | Processors(CHECKOUT)
-  | Processors(WORLDPAYVANTIV) => true
+  | Processors(WORLDPAYVANTIV)
+  | Processors(NMI) => true
   | _ => false
   }
 }
