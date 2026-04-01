@@ -188,7 +188,7 @@ let make = () => {
         hideTitle=true
         offset
         setOffset
-        currrentFetchCount={webhooksData->Array.map(Nullable.make)->Array.length}
+        currentFetchCount={webhooksData->Array.map(Nullable.make)->Array.length}
         collapseTableRow=false
         showSerialNumber=true
         showAutoScroll=true

@@ -8,14 +8,14 @@ let make = (~applePayFields, ~update, ~closeModal, ~closeAccordionFn, ~connector
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
-  let initalFormValue =
+  let initialFormValue =
     formState.values
     ->getDictFromJsonObject
     ->getDictfromDict("metadata")
     ->getDictfromDict("apple_pay")
 
   let setFormData = () => {
-    let value = zenApplePayConfig(initalFormValue)
+    let value = zenApplePayConfig(initialFormValue)
     form.change("metadata.apple_pay", value->Identity.genericTypeToJson)
   }
 
