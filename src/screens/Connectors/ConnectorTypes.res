@@ -137,7 +137,6 @@ type processorTypes =
   | SANTANDER
   | REVOLV3
   | TRUELAYER
-  | ENVOY
   | FISERVCOMMERCEHUB
 
 type payoutProcessorTypes =
@@ -229,6 +228,7 @@ type paymentMethodTypes =
   | Pix
   | Boleto
   | NetworkToken
+  | Ideal
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {
