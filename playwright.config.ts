@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const PLAYWRIGHT_USERNAME = process.env.PLAYWRIGHT_USERNAME || "playwright@test.com";
+const PLAYWRIGHT_USERNAME =
+  process.env.PLAYWRIGHT_USERNAME || "playwright@test.com";
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 const MAIL_URL = process.env.MAIL_URL || "http://localhost:8025";
 const PLAYWRIGHT_SSO_BASE_URL = process.env.CYPRESS_SSO_BASE_URL;
@@ -70,9 +71,9 @@ export default defineConfig({
 
   // Run your local dev server before starting the tests
   webServer: {
-    command: "npm run build:test && npm run test:start",
+    command: "npm run test:start",
     url: "http://localhost:9000",
     reuseExistingServer: !process.env.CI,
-    timeout: 120000,
+    timeout: 60000,
   },
 });
