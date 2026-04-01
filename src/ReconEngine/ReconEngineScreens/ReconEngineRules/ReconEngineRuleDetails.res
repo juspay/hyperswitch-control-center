@@ -102,7 +102,7 @@ module SearchIdentifier = {
                       deselectDisable=true
                       disableSelect=true
                       fullLength=true
-                      customButtonStyle="w-147-px h-40-px"
+                      customButtonStyle="w-147-px h-10"
                     />
                   </div>
                   <div className="flex items-center mt-6">
@@ -119,7 +119,7 @@ module SearchIdentifier = {
                       deselectDisable=true
                       disableSelect=true
                       fullLength=true
-                      customButtonStyle="w-147-px h-40-px"
+                      customButtonStyle="w-147-px h-10"
                     />
                   </div>
                 </div>
@@ -214,7 +214,7 @@ module MappingRules = {
                           deselectDisable=true
                           disableSelect=true
                           fullLength=true
-                          customButtonStyle="w-147-px h-40-px"
+                          customButtonStyle="w-147-px h-10"
                         />
                       </div>
                       <div className="flex items-center mt-6">
@@ -231,7 +231,7 @@ module MappingRules = {
                           deselectDisable=true
                           disableSelect=true
                           fullLength=true
-                          customButtonStyle="w-147-px h-40-px"
+                          customButtonStyle="w-147-px h-10"
                         />
                       </div>
                     </div>
@@ -312,7 +312,7 @@ module TriggerRules = {
             deselectDisable=true
             disableSelect=true
             fullLength=true
-            customButtonStyle="w-147-px h-40-px"
+            customButtonStyle="w-147-px h-10"
           />
         </div>
         <SelectBox.BaseDropdown
@@ -325,13 +325,13 @@ module TriggerRules = {
           hideMultiSelectButtons=true
           deselectDisable=true
           disableSelect=true
-          customButtonStyle="w-16 h-40-px"
+          customButtonStyle="w-16 h-10"
         />
         <div className="flex-1 flex flex-col gap-2 max-w-325">
           {InputFields.textInput(
             ~isDisabled=true,
             ~inputStyle="rounded-lg",
-            ~customDashboardClass="h-40-px text-sm font-normal",
+            ~customDashboardClass="h-10 text-sm font-normal",
             ~onDisabledStyle=`!bg-nd_gray-50 border-nd_gray-200 !text-nd_gray-500 ${body.md.semibold}`,
           )(~input=valueInput, ~placeholder="Enter trigger value")}
         </div>
@@ -360,7 +360,7 @@ module GroupingField = {
           {InputFields.textInput(
             ~isDisabled=true,
             ~inputStyle="rounded-lg",
-            ~customDashboardClass="h-40-px text-sm font-normal",
+            ~customDashboardClass="h-10 text-sm font-normal",
             ~onDisabledStyle=`!bg-nd_gray-50 border-nd_gray-200 !text-nd_gray-500 ${body.md.semibold}`,
           )(~input=groupingFieldInput, ~placeholder="Enter grouping field")}
         </div>
@@ -413,7 +413,7 @@ module SourceTargetAccount = {
             deselectDisable=true
             disableSelect=true
             fullLength=true
-            customButtonStyle="w-147-px h-40-px"
+            customButtonStyle="w-147-px h-10"
           />
           <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-1`}>
             {"Where the original transaction is recorded"->React.string}
@@ -450,7 +450,7 @@ module SourceTargetAccount = {
                   deselectDisable=true
                   disableSelect=true
                   fullLength=true
-                  customButtonStyle="w-147-px h-40-px"
+                  customButtonStyle="w-147-px h-10"
                 />
                 <RenderIf condition={splitText->isNonEmptyString}>
                   <p className={`${body.md.semibold} text-nd_gray-600 my-3`}>
