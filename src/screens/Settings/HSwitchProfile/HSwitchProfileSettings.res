@@ -66,7 +66,7 @@ module ChangePasswordModal = {
             <CommonAuthForm.ChangePasswordForm />
             <div id="auth-submit-btn" className="flex flex-col gap-2">
               <FormRenderer.SubmitButton
-                customSumbitButtonStyle="!w-full"
+                customSubmitButtonStyle="!w-full"
                 text="Confirm"
                 userInteractionRequired=true
                 showToolTip=false
