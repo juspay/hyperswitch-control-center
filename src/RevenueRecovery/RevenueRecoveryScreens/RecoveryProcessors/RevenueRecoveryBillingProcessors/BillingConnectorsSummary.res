@@ -234,7 +234,7 @@ module BillingConnectorDetails = {
           <p className={heading.md.semibold}> {"Billing Platform Details"->React.string} </p>
         </div>
         <div className="grid grid-cols-3 px-2">
-          <div className="flex flex-col gap-0.5-rem ">
+          <div className="flex flex-col gap-2 ">
             <h4 className="text-nd_gray-400 "> {"Biller Platform "->React.string} </h4>
             <div className="flex gap-2 align-center">
               <GatewayIcon
@@ -280,7 +280,7 @@ module BillingConnectorDetails = {
               ->Array.mapWithIndex((item, index) => {
                 let (key, value) = item
 
-                <div className="flex flex-col gap-0.5-rem " key={index->Int.toString}>
+                <div className="flex flex-col gap-2 " key={index->Int.toString}>
                   <h4 className="text-nd_gray-400 "> {key->snakeToTitle->React.string} </h4>
                   {value->JSON.Decode.string->Option.getOr("")->React.string}
                 </div>
@@ -425,7 +425,7 @@ module PaymentConnectorDetails = {
           </div>
           <Form onSubmit={onSubmit} initialValues={initialValues} validate=validateMandatoryField>
             <div className="grid grid-cols-3 px-2">
-              <div className="flex flex-col gap-0.5-rem ">
+              <div className="flex flex-col gap-2 ">
                 <h4 className="text-nd_gray-400 "> {"Payment Processor"->React.string} </h4>
                 <div className="flex gap-2 align-center">
                   <GatewayIcon
@@ -434,7 +434,7 @@ module PaymentConnectorDetails = {
                   {connector_name->React.string}
                 </div>
               </div>
-              <div className="flex flex-col gap-0.5-rem ">
+              <div className="flex flex-col gap-2 ">
                 <h4 className="text-nd_gray-400 "> {"Processor status"->React.string} </h4>
                 <div className="flex flex-row gap-2 items-center ">
                   <ConnectorHelperV2.ProcessorStatus connectorInfo=connectorInfodict />
@@ -443,7 +443,7 @@ module PaymentConnectorDetails = {
             </div>
             <div className="flex flex-col gap-12 mt-7">
               <div className="grid grid-cols-3 px-2">
-                <div className="flex flex-col gap-0.5-rem ">
+                <div className="flex flex-col gap-2 ">
                   <h4 className="text-nd_gray-400 "> {"Profile"->React.string} </h4>
                   {connectorInfodict.profile_id->React.string}
                 </div>
@@ -528,11 +528,11 @@ module RetriesConfiguration = {
           <p className={heading.md.semibold}> {"Retries configuration"->React.string} </p>
         </div>
         <div className="grid grid-cols-3 px-2">
-          <div className="flex flex-col gap-0.5-rem ">
+          <div className="flex flex-col gap-2 ">
             <h4 className="text-nd_gray-400 "> {"Connector Retry Threshold"->React.string} </h4>
             {billing_connector_retry_threshold->Int.toString->React.string}
           </div>
-          <div className="flex flex-col gap-0.5-rem ">
+          <div className="flex flex-col gap-2 ">
             <h4 className="text-nd_gray-400 "> {"Max Retry Count"->React.string} </h4>
             {max_retry_count->Int.toString->React.string}
           </div>

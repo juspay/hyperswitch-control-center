@@ -113,7 +113,7 @@ module Landing = {
           <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
           <DirectFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
         </>
-      | Processors(NUVEI) =>
+      | Processors(NUVEI) | Processors(NMI) =>
         <>
           <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
           <PaymentGatewayFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
