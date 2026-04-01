@@ -10,7 +10,7 @@ let make = (
 
   let rows = sections->Array.length->Int.toString
   let currIndex = sections->findSectionIndex(currentStep.sectionId)
-  <div className="flex flex-col gap-y-6 h-774-px w-334-px sticky overflow-y-auto py-5">
+  <div className="flex flex-col gap-y-6 h-[774px] w-[334px] sticky overflow-y-auto py-5">
     <div className="flex items-center gap-x-3 px-6">
       <Icon
         name="nd-arrow-left"

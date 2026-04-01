@@ -361,9 +361,9 @@ let make = (
   let paddingClass = customPaddingClass->Option.getOr("")
 
   let customWidthClass = switch buttonSize {
-  | Large => "w-147-px"
-  | Medium => "w-145-px"
-  | Small => "w-137-px"
+  | Large => "w-[147px]"
+  | Medium => "w-[145px]"
+  | Small => "w-[137px]"
   | _ => ""
   }
 

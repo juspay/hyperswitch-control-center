@@ -107,7 +107,7 @@ let make = () => {
 
   let leftCustomClass = switch activeProduct {
   | Orchestration(V1) => ""
-  | _ => "-left-180-px"
+  | _ => "-left-[180px]"
   }
 
   let showGlobalSearchBar = switch merchantDetailsTypedValue.product_type {

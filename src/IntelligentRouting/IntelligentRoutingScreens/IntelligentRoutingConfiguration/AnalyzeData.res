@@ -214,7 +214,7 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
     None
   }, [selectedField])
 
-  <div className="w-500-px">
+  <div className="w-[500px]">
     {IntelligentRoutingHelper.stepperHeading(
       ~title="Choose Your Data Source",
       ~subTitle="Select a data source to begin your simulation",

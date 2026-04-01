@@ -9,7 +9,7 @@ let make = (~initialValues, ~merchantId, ~onNextClick) => {
     title="Setup Subscription Webhook"
     subTitle="Configure this endpoint in the subscription management system dashboard under webhook settings for us to pick up failed payments for recovery.">
     <div className="mb-10 flex flex-col gap-7">
-      <div className="mb-10 flex flex-col gap-7 w-540-px">
+      <div className="mb-10 flex flex-col gap-7 w-[540px]">
         <ConnectorWebhookPreview
           merchantId
           connectorName=connectorInfoDict.id

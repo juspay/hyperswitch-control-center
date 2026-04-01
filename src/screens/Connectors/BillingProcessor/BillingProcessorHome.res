@@ -205,7 +205,7 @@ let make = () => {
     <>
       <RenderIf condition={connectorInfo.merchant_connector_id == billing_processor_id}>
         <div
-          className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.md.medium}`}>
+          className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-0.5 rounded-lg ${body.md.medium}`}>
           {"Default"->React.string}
         </div>
       </RenderIf>

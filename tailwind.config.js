@@ -33,8 +33,7 @@ module.exports = {
         400: "4",
       },
       margin: {
-        "15-px": "15px",
-        "300-px": "300px",
+        "15-px": "15px", // Blend unit[15] — not in Tailwind default scale
       },
       height: {
         "1.1-rem": "1.125rem",
@@ -59,26 +58,10 @@ module.exports = {
         "30-vh": "30vh",
         "40-vh": "40vh",
         "75-vh": "75vh",
-        "50-px": "50px",
-        "68-px": "68px",
-        "84-px": "84px",
-        "120-px": "120px",
-        "130-px": "130px",
-        "195-px": "195px",
-        "344-px": "344px",
-        "400-px": "400px",
-        "590-px": "590px",
-        "650-px": "650px",
-        "700-px": "700px",
-        "774-px": "774px",
-        "840-px": "840px",
-        "890-px": "890px",
+        "120-px": "120px", // Blend unit[120] — not in Tailwind default scale
         "12.5-rem": "12.5rem",
         onBoardingSupplier: "calc(100vh - 300px)",
         modalContentHeight: "calc(100vh - 140px)",
-      },
-      padding: {
-        "2-px": "2px",
       },
       minWidth: {
         "25-rem": "25rem",
@@ -87,17 +70,10 @@ module.exports = {
         "15-rem": "15rem",
         "25-rem": "25rem",
         "30-rem": "30rem",
-        "750-px": "750px",
-      },
-      minHeight: {
-        "500-px": "500px",
       },
       inset: {
-        "5-px": "5px",
-        "76-px": "76px",
-        "120-px": "120px",
-        "180-px": "180px",
-        "500-px": "500px",
+        "5-px": "5px", // Blend unit[5] — not in Tailwind default scale
+        "120-px": "120px", // Blend unit[120] — not in Tailwind default scale
       },
       letterSpacing: {
         compressed: "-2px",
@@ -107,8 +83,7 @@ module.exports = {
         extended: "2px",
       },
       width: {
-        "1-px": "1px",
-        "90-px": "90px",
+        "1-px": "1px", // Blend unit[1] — not in Tailwind default scale
         100: "25rem",
         133: "35rem",
         200: "58rem",
@@ -123,25 +98,10 @@ module.exports = {
         "30-rem": "30rem",
         "10.25-rem": "10.25rem",
         "89.5-per": "89.5%",
-        "104-px": "104px",
-        "137-px": "137px",
-        "145-px": "145px",
-        "147-px": "147px",
-        "267-px": "267px",
-        "298-px": "298px",
-        "334-px": "334px",
-        "499-px": "499px",
-        "540-px": "540px",
-        "500-px": "500px",
-        "1034-px": "1034px",
-        "306-px": "306px",
         modalOverlay: "calc(100vw + 7rem)",
         pageWidth11: "75rem",
         fixedPageWidth: "75.5rem",
         standardPageWidth: "67.5rem",
-      },
-      gap: {
-        "72-px": "72px",
       },
       maxWidth: {
         fixedPageWidth: "82.75rem",

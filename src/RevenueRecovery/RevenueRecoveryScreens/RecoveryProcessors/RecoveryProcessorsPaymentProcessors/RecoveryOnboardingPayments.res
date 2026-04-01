@@ -262,7 +262,7 @@ let make = (
     | (#chooseDataSource, _) =>
       <PageWrapper
         title="Choose Your Data Source" subTitle="Select a data source to begin your simulation">
-        <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
+        <div className="-m-1 mb-10 flex flex-col gap-7 w-[540px]">
           {dataSource
           ->Array.map(dataSource => {
             switch dataSource {
@@ -333,7 +333,7 @@ let make = (
       <PageWrapper
         title="Where do you process your payments"
         subTitle="Link the payment processor you use for handling subscription transactions.">
-        <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
+        <div className="-m-1 mb-10 flex flex-col gap-7 w-[540px]">
           <PageLoaderWrapper screenState>
             <Form onSubmit initialValues validate=validateMandatoryField>
               <SelectBox.BaseDropdown
@@ -392,7 +392,7 @@ let make = (
       </PageWrapper>
     | (#connectProcessor, #activePaymentMethods) =>
       <PageWrapper title="Payment Methods" subTitle="Configure your PaymentMethods.">
-        <div className="mb-10 flex flex-col gap-7 w-540-px">
+        <div className="mb-10 flex flex-col gap-7 w-[540px]">
           <PageLoaderWrapper screenState>
             <Form onSubmit initialValues validate=validateMandatoryField>
               <div className="flex flex-col mb-5 gap-3 ">

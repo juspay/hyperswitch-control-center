@@ -102,7 +102,7 @@ module SearchIdentifier = {
                       deselectDisable=true
                       disableSelect=true
                       fullLength=true
-                      customButtonStyle="w-147-px h-10"
+                      customButtonStyle="w-[147px] h-10"
                     />
                   </div>
                   <div className="flex items-center mt-6">
@@ -119,7 +119,7 @@ module SearchIdentifier = {
                       deselectDisable=true
                       disableSelect=true
                       fullLength=true
-                      customButtonStyle="w-147-px h-10"
+                      customButtonStyle="w-[147px] h-10"
                     />
                   </div>
                 </div>
@@ -214,7 +214,7 @@ module MappingRules = {
                           deselectDisable=true
                           disableSelect=true
                           fullLength=true
-                          customButtonStyle="w-147-px h-10"
+                          customButtonStyle="w-[147px] h-10"
                         />
                       </div>
                       <div className="flex items-center mt-6">
@@ -231,7 +231,7 @@ module MappingRules = {
                           deselectDisable=true
                           disableSelect=true
                           fullLength=true
-                          customButtonStyle="w-147-px h-10"
+                          customButtonStyle="w-[147px] h-10"
                         />
                       </div>
                     </div>
@@ -312,7 +312,7 @@ module TriggerRules = {
             deselectDisable=true
             disableSelect=true
             fullLength=true
-            customButtonStyle="w-147-px h-10"
+            customButtonStyle="w-[147px] h-10"
           />
         </div>
         <SelectBox.BaseDropdown
@@ -413,7 +413,7 @@ module SourceTargetAccount = {
             deselectDisable=true
             disableSelect=true
             fullLength=true
-            customButtonStyle="w-147-px h-10"
+            customButtonStyle="w-[147px] h-10"
           />
           <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-1`}>
             {"Where the original transaction is recorded"->React.string}
@@ -450,7 +450,7 @@ module SourceTargetAccount = {
                   deselectDisable=true
                   disableSelect=true
                   fullLength=true
-                  customButtonStyle="w-147-px h-10"
+                  customButtonStyle="w-[147px] h-10"
                 />
                 <RenderIf condition={splitText->isNonEmptyString}>
                   <p className={`${body.md.semibold} text-nd_gray-600 my-3`}>

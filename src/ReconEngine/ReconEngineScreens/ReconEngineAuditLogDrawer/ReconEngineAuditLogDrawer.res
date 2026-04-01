@@ -92,7 +92,7 @@ let make = (~showDrawer: bool) => {
 
   <>
     <div
-      className={`fixed right-0 top-0 h-full w-500-px bg-white shadow-2xl rounded-l-xl overflow-hidden transform transition-all duration-300 ease-in-out flex flex-col z-20 ${transitionClass}`}>
+      className={`fixed right-0 top-0 h-full w-[500px] bg-white shadow-2xl rounded-l-xl overflow-hidden transform transition-all duration-300 ease-in-out flex flex-col z-20 ${transitionClass}`}>
       <div className="flex flex-col gap-2 p-6 border-b border-nd_br_gray-150 bg-white">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

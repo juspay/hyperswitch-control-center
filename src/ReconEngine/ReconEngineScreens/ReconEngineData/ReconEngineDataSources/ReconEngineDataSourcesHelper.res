@@ -158,7 +158,7 @@ module TransformationHistoryActionsComponent = {
           ->Int.toString})`}
         modalHeadingClass={`text-nd_gray-800 ${heading.sm.semibold}`}
         alignModal="justify-center items-center"
-        modalClass="flex flex-col justify-start !h-400-px w-2/5 !overflow-y-scroll !bg-white dark:!bg-jp-gray-lightgray_background"
+        modalClass="flex flex-col justify-start !h-[400px] w-2/5 !overflow-y-scroll !bg-white dark:!bg-jp-gray-lightgray_background"
         childClass="relative h-full">
         <div className="h-full relative">
           <div className="absolute inset-0 overflow-scroll px-8 py-4 modal-scrollbar mb-20">

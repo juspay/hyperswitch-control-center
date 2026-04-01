@@ -63,8 +63,8 @@ module LeastCostAnalyticsBasicMetricsCard = {
     <div className="grid md:grid-cols-2 gap-4">
       <PageLoaderWrapper
         screenState
-        customUI={<NewAnalyticsHelper.NoData height="h-84-px" />}
-        customLoader={<Shimmer styleClass="h-84-px w-full rounded-xl" />}>
+        customUI={<NewAnalyticsHelper.NoData height="h-[84px]" />}
+        customLoader={<Shimmer styleClass="h-[84px] w-full rounded-xl" />}>
         <div
           className="flex flex-col border rounded-xl p-4 bg-white shadow-xs border-nd_gray-200 gap-6 2xl:gap-2">
           <p className={`${body.md.medium} text-nd_gray-400`}> {"Total Savings"->React.string} </p>
@@ -76,8 +76,8 @@ module LeastCostAnalyticsBasicMetricsCard = {
       </PageLoaderWrapper>
       <PageLoaderWrapper
         screenState
-        customUI={<NewAnalyticsHelper.NoData height="h-84-px" />}
-        customLoader={<Shimmer styleClass="h-84-px w-full rounded-xl" />}>
+        customUI={<NewAnalyticsHelper.NoData height="h-[84px]" />}
+        customLoader={<Shimmer styleClass="h-[84px] w-full rounded-xl" />}>
         <div
           className="flex flex-col border rounded-xl p-4 bg-white shadow-xs border-nd_gray-200 gap-6 2xl:gap-2">
           <p className={`${body.md.medium} text-nd_gray-400`}>
@@ -160,8 +160,8 @@ module LeastCostAnalyticsRegulationMetricsCard = {
     <div className="grid md:grid-cols-2 gap-4">
       <PageLoaderWrapper
         screenState
-        customUI={<NewAnalyticsHelper.NoData height="h-84-px" />}
-        customLoader={<Shimmer styleClass="h-84-px w-full rounded-xl" />}>
+        customUI={<NewAnalyticsHelper.NoData height="h-[84px]" />}
+        customLoader={<Shimmer styleClass="h-[84px] w-full rounded-xl" />}>
         <div
           className="flex flex-col border rounded-xl p-4 bg-white shadow-xs border-nd_gray-200 gap-2">
           <p className={`${body.md.medium} text-nd_gray-400`}>
@@ -174,8 +174,8 @@ module LeastCostAnalyticsRegulationMetricsCard = {
       </PageLoaderWrapper>
       <PageLoaderWrapper
         screenState
-        customUI={<NewAnalyticsHelper.NoData height="h-84-px" />}
-        customLoader={<Shimmer styleClass="h-84-px w-full rounded-xl" />}>
+        customUI={<NewAnalyticsHelper.NoData height="h-[84px]" />}
+        customLoader={<Shimmer styleClass="h-[84px] w-full rounded-xl" />}>
         <div
           className="flex flex-col border rounded-xl p-4 bg-white shadow-xs border-nd_gray-200 gap-2">
           <p className={`${body.md.medium} text-nd_gray-400`}>

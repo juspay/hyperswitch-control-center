@@ -2,7 +2,7 @@
 let make = () => {
   let (showDrawer, setShowDrawer) = React.useState(_ => false)
 
-  let iconClass = showDrawer ? "right-500-px" : "right-0"
+  let iconClass = showDrawer ? "right-[500px]" : "right-0"
 
   <>
     <div

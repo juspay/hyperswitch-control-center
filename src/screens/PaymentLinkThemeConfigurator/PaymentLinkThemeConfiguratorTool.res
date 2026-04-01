@@ -127,7 +127,7 @@ module ConfiguratorForm = {
                 />
                 <style> {React.string(configuratorScrollbarCss)} </style>
                 <div
-                  className="flex flex-col gap-3 rounded-lg border border-nd_gray-300 p-4 h-650-px overflow-scroll configurator-scrollbar !m-0">
+                  className="flex flex-col gap-3 rounded-lg border border-nd_gray-300 p-4 h-[650px] overflow-scroll configurator-scrollbar !m-0">
                   <FieldRenderer field={makeLogoField()} fieldWrapperClass="!w-full" />
                   <FieldRenderer field={makePaymentButtonTextField()} fieldWrapperClass="!w-full" />
                   <FieldRenderer
@@ -212,7 +212,7 @@ module ConfiguratorForm = {
           </div>
           <div className="w-full">
             <div className="sticky top-4 w-full">
-              <div className="bg-nd_gray-25 rounded-lg border border-nd_gray-300 p-3.5 h-650-px">
+              <div className="bg-nd_gray-25 rounded-lg border border-nd_gray-300 p-3.5 h-[650px]">
                 <div className="flex items-center justify-between">
                   <h4 className={`text-nd_gray-600 mb-2 ${body.xl.medium}`}>
                     {"Live Preview"->React.string}
@@ -226,7 +226,7 @@ module ConfiguratorForm = {
                       </div>
                     : React.null}
                 </div>
-                <div className=" rounded-lg w-full h-590-px flex flex-col bg-white">
+                <div className=" rounded-lg w-full h-[590px] flex flex-col bg-white">
                   {switch (previewLoading, previewError, previewHtml) {
                   | (true, _, _) =>
                     <div className="flex items-center justify-center h-full w-full">

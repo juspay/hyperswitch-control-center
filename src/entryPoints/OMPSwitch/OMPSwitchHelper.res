@@ -103,7 +103,7 @@ module ListBaseComp = {
       {switch user {
       | #Merchant =>
         <div
-          className={`cursor-pointer ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-0.5 ${body.sm.semibold} w-267-px px-4 py-3`}>
+          className={`cursor-pointer ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-0.5 ${body.sm.semibold} w-[267px] px-4 py-3`}>
           <div className="flex flex-row w-full justify-between">
             <div className="flex gap-2">
               <span className={`${secondaryTextColor} opacity-50 ${body.sm.medium}`}>

@@ -156,7 +156,7 @@ module ConnectorCustomCell = {
         </div>
         <RenderIf condition={showDefaultTag}>
           <div
-            className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.sm.semibold}`}>
+            className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-0.5 rounded-lg ${body.sm.semibold}`}>
             {"Default"->React.string}
           </div>
         </RenderIf>

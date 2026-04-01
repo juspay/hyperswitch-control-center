@@ -28,14 +28,14 @@ let make = (~setShowOnBoarding, ~currentStep, ~setCurrentStep) => {
       </h1>
     </>
 
-  <div className="flex flex-col gap-10 h-774-px">
+  <div className="flex flex-col gap-10 h-[774px]">
     <div className="flex h-full mt-10">
       <div className="flex flex-col">
         <VerticalStepIndicator titleElement=reconTitleElement sections currentStep backClick />
       </div>
       <div className="mx-12 mt-16 overflow-y-auto">
         <div
-          className="absolute z-10 top-76-px left-0 w-full py-4 px-10 bg-orange-50 flex justify-between items-center">
+          className="absolute z-10 top-[76px] left-0 w-full py-4 px-10 bg-orange-50 flex justify-between items-center">
           <div className="flex gap-4 items-center">
             <Icon name="nd-information-triangle" size=24 />
             <p className="text-nd_gray-600 text-base leading-6 font-medium">
@@ -43,7 +43,7 @@ let make = (~setShowOnBoarding, ~currentStep, ~setCurrentStep) => {
             </p>
           </div>
         </div>
-        <div className="w-500-px">
+        <div className="w-[500px]">
           {switch currentStep.sectionId->getSectionVariantFromString {
           | #orderDataConnection =>
             <OrderDataConnection

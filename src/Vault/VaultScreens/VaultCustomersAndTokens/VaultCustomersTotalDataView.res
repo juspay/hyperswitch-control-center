@@ -2,7 +2,7 @@ module TotalNumbersViewCard = {
   @react.component
   let make = (~title, ~count, ~countTextCss="font-semibold text-2xl text-nd_gray-600") => {
     <div
-      className={`flex flex-col  gap-3 h-20 justify-between bg-white text-semibold border rounded-md pt-3 px-4 pb-2.5 w-306-px my-8 border-nd_gray-150`}>
+      className={`flex flex-col  gap-3 h-20 justify-between bg-white text-semibold border rounded-md pt-3 px-4 pb-2.5 w-[306px] my-8 border-nd_gray-150`}>
       <p className="font-medium text-xs text-nd_gray-400"> {title->React.string} </p>
       <RenderIf condition={!(count->LogicUtils.isEmptyString)}>
         <p className=countTextCss> {count->React.string} </p>

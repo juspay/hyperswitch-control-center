@@ -44,8 +44,8 @@ let make = () => {
       </h1>
     </>
 
-  <div className="h-774-px w-full">
-    <div className="flex flex-row h-890-px">
+  <div className="h-[774px] w-full">
+    <div className="flex flex-row h-[890px]">
       <VerticalStepIndicator
         titleElement=intelligentRoutingTitleElement sections currentStep backClick
       />

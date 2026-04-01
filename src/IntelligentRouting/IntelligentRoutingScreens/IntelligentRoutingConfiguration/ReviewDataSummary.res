@@ -84,7 +84,7 @@ let make = (~reviewFields, ~isUpload=false, ~fileUInt8Array) => {
     </div>
 
   <div>
-    <div className="w-500-px">
+    <div className="w-[500px]">
       {IntelligentRoutingHelper.stepperHeading(
         ~title="Review Data Summary",
         ~subTitle="Explore insights in the dashboard",

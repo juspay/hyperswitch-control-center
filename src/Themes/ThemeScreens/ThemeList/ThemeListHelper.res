@@ -5,7 +5,7 @@ module NoThemesFound = {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     <RenderIf condition={themeListArray->Array.length == 0}>
-      <div className="flex flex-col items-center justify-center text-center mt-300-px">
+      <div className="flex flex-col items-center justify-center text-center mt-[300px]">
         <div className="flex flex-col items-center gap-2 ">
           <p className={`${heading.sm.semibold}`}> {"No Themes Available"->React.string} </p>
           <p className={`${body.md.regular} text-nd_gray-500 mb-6`}>

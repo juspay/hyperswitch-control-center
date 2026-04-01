@@ -81,7 +81,7 @@ let make = (~ruleId: string) => {
     <PageLoaderWrapper
       screenState
       customUI={<NewAnalyticsHelper.NoData height="h-72" message="No data available" />}
-      customLoader={<Shimmer styleClass="w-full h-344-px rounded-b-xl" />}>
+      customLoader={<Shimmer styleClass="w-full h-[344px] rounded-b-xl" />}>
       <div className="w-full p-4">
         <ColumnGraph options={ColumnGraphUtils.getColumnGraphOptions(volumeData)} />
       </div>
