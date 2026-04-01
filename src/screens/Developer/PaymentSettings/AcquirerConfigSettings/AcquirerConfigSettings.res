@@ -266,7 +266,7 @@ module AcquirerConfigContent = {
 
 @react.component
 let make = () => {
-  let accordionData: array<Accordion.accordion> = [
+  let accordionData: array<AccordionAdapter.accordion> = [
     {
       title: "Acquirer Config Settings",
       renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) =>
@@ -276,7 +276,7 @@ let make = () => {
   ]
 
   <div className="py-4 md:py-10 gap-10 h-full flex flex-col">
-    <Accordion
+    <AccordionAdapter
       accordion=accordionData
       accordionTopContainerCss="border overflow-visible border-jp-gray-500 rounded-md dark:border-jp-gray-960"
       accordionBottomContainerCss="px-4 py-3 md:bg-jp-gray-100 dark:bg-jp-gray-lightgray_background"
