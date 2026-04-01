@@ -12,7 +12,7 @@ let make = (
   ~isCheckboxSelectedClass=false,
   ~stopPropagationNeeded=false,
 ) => {
-  let isBlendEnabled = React.useContext(BlendContext.blendEnabledContext)
+  let isBlendEnabled = BlendContext.useBlendEnabled()
 
   // Blend's Checkbox is a button that calls stopPropagation internally.
   // It can only work when setIsSelected is provided — otherwise the parent

@@ -170,7 +170,7 @@ let make = (
   ~wrapBasis="",
   (),
 ) => {
-  let isBlendEnabled = React.useContext(BlendContext.blendEnabledContext)
+  let isBlendEnabled = BlendContext.useBlendEnabled()
   let useBlend = isBlendEnabled && isDropDown && baseComponentMethod->Option.isNone
 
   let authContext = React.useContext(FormAuthContext.formAuthContext)
