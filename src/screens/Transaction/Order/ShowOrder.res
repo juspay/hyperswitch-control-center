@@ -733,10 +733,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     }
   }
 
-  let breadCrumbLink = switch version {
-  | V1 => "/payments"
-  | V2 => "/v2/orchestration/payments"
-  }
+  let breadCrumbLink = RouteUtils.getPath(~path="/payments", version)
 
   <div className="flex flex-col overflow-scroll gap-8">
     <div className="flex justify-between w-full">
