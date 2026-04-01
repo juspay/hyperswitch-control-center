@@ -202,7 +202,7 @@ module CashToCodeSelectBox = {
       let countryTitle = country->snakeToTitle
       let isCountrySelected = country->isSelected
 
-      let accordionItem: Accordion.accordion = {
+      let accordionItem: AccordionAdapter.accordion = {
         title: "",
         renderContentOnTop: Some(
           () =>
@@ -231,7 +231,7 @@ module CashToCodeSelectBox = {
     })
 
     <div className="w-full">
-      <Accordion
+      <AccordionAdapter
         accordion=accordionItems
         accordionTopContainerCss="mt-4 rounded-lg"
         accordionBottomContainerCss="p-4"
@@ -316,7 +316,7 @@ module Payload = {
         let countryTitle = country->snakeToTitle
         let isCountrySelected = country->isSelected
 
-        let accordionItem: Accordion.accordion = {
+        let accordionItem: AccordionAdapter.accordion = {
           title: "",
           renderContentOnTop: Some(
             () =>
@@ -342,7 +342,7 @@ module Payload = {
       })
 
     <div className="w-full space-y-4 ">
-      <Accordion
+      <AccordionAdapter
         accordion=accordionItems
         accordionTopContainerCss="mt-2 rounded-lg border border-gray-200"
         accordionBottomContainerCss="p-4"
