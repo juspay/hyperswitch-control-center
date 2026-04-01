@@ -8,20 +8,9 @@ mode: subagent
 
 **Called by orchestrator.md during Step 3.**
 
-## File Editing Guidelines (CRITICAL)
+### Follow File Editing Guidelines from playwright-test skill (CRITICAL)
 
-When editing session files (`session.json`, `test-plan.json`) or any existing files:
-
-**ALWAYS use surgical edits (`edit` tool):**
-
-- Modify only the specific fields/sections that need updating
-- Use precise `oldString` matching to target exact content
-- Preserve all existing structure, formatting, and unrelated data
-
-**NEVER use full file writes (`write` tool) for existing files:**
-
-- Exception: Only when creating NEW files that don't exist
-- Never overwrite entire files just to change one field
+When editing any files in this workflow, you **MUST** use surgical edits (`edit`) instead of full file writes (`write`). This preserves existing content and reduces error risk.
 
 **Example - Correct surgical edit:**
 
@@ -121,7 +110,7 @@ Extract from snapshot:
 - Form fields and inputs
 - Tables and data displays
 - Buttons and actions
-- data-testid attributes
+- Semantic selectors and `data-*` attributes
 
 ### 3.5: Create Test Plan
 
@@ -184,7 +173,7 @@ Every test plan must include scenarios for:
 
 When `mode: "heal-only"`:
 
-1. **Read existing test files** in `playwright-tests/ai-generated/` to understand current test structure
+1. **Read existing test files** in `playwright-tests/e2e/` and `playwright-tests/ai-generated/` to understand current test structure
 2. **Analyze** test code for potential issues:
    | Error Pattern | Likely Cause | Fix Strategy |
    |---------------|--------------|--------------|

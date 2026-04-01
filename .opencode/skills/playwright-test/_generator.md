@@ -8,20 +8,9 @@ mode: subagent
 
 **Called by orchestrator.md during Step 4 (Full Mode Only).**
 
-## File Editing Guidelines (CRITICAL)
+### Follow File Editing Guidelines from playwright-test skill (CRITICAL)
 
-When editing session files, test files, or page objects:
-
-**ALWAYS use surgical edits (`edit` tool):**
-
-- Modify only the specific test cases or page object methods that need changes
-- Use precise `oldString` matching to target exact content
-- Preserve all existing imports, types, and helper functions
-
-**NEVER use full file writes (`write` tool) for existing files:**
-
-- Exception: Only when creating NEW test files or page objects
-- Never overwrite entire files to add one test case or fix one selector
+When editing any files in this workflow, you **MUST** use surgical edits (`edit`) instead of full file writes (`write`). This preserves existing content and reduces error risk.
 
 **Example - Correct surgical edit for test files:**
 
@@ -78,8 +67,6 @@ If not met, inform orchestrator and STOP.
 - `playwright-tests/ai-generated/*.spec.ts` — Generated tests
 - `playwright-tests/support/pages/*` — Page Object Models
 
-**FORBIDDEN:** `src/**/*`, `cypress/**/*`, `.opencode/**/*`
-
 ---
 
 ## Generation Workflow (Sub-steps of Orchestrator Step 4)
@@ -121,6 +108,7 @@ export class PageName {
 | Module-specific complex flow | Create new Page class |
 
 **Verify Selectors with Browser Tools:**
+Use authentication flow from SKILL.md to log in, then:
 
 ```typescript
 await browser_navigate({ url: "http://localhost:9000/dashboard/{module}" });

@@ -8,21 +8,9 @@ mode: subagent
 
 **Called by orchestrator.md during Step 5 (Healing Phase).**
 
-## File Editing Guidelines (CRITICAL)
+### Follow File Editing Guidelines from playwright-test skill (CRITICAL)
 
-When fixing failing tests, you **MUST** use surgical edits to modify only the broken parts:
-
-**ALWAYS use surgical edits (`edit` tool):**
-
-- Modify only the specific test case or assertion that needs fixing
-- Use precise `oldString` matching to target exact failing code
-- Preserve all working test cases, imports, and setup code
-- Add fix documentation as comments without disrupting code structure
-
-**NEVER use full file writes (`write` tool) for existing test files:**
-
-- Exception: Only when creating NEW files
-- Never regenerate entire test files just to fix one selector or timing issue
+When editing any files in this workflow, you **MUST** use surgical edits (`edit`) instead of full file writes (`write`). This preserves existing content and reduces error risk.
 
 **Example - Correct surgical fix for selector issue:**
 
@@ -54,13 +42,13 @@ edit({
 Proceed ONLY if:
 
 - `session.json` exists with `phase: "generating-complete"` (Full) OR `phase: "planning-complete"` (Heal-Only)
-- Test files exist in `playwright-tests/ai-generated/`
+- Test files exist in `playwright-tests/`
 
 If not met, inform orchestrator and STOP.
 
 ## Input/Output
 
-- **Input:** Test files in `playwright-tests/ai-generated/`
+- **Input:** Test files in `playwright-tests/ai-generated/` OR `playwright-tests/e2e/`
 - **Output:**
   - Updated test files (in-place edits)
   - `.opencode/sessions/playwright-run/run-results.json`
@@ -149,7 +137,7 @@ For each failure: read test file, analyze error, assign category.
 
 ```
 1. Read test code
-2. browser_navigate to test page
+2. browser_navigate to test page (handle 2fa in login flow)
 3. browser_console_messages (check for JS errors)
 4. Reproduce steps manually
 5. browser_snapshot at failure point

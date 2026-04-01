@@ -36,25 +36,13 @@ await task({
 });
 ```
 
----
-
-## Step 1: Parse Input & Detect Mode
-
-### File Editing Guidelines (CRITICAL)
+### Follow File Editing Guidelines from playwright-test skill (CRITICAL)
 
 When editing any files in this workflow, you **MUST** use surgical edits (`edit`) instead of full file writes (`write`). This preserves existing content and reduces error risk.
 
-**Allowed Editing Patterns:**
+---
 
-- Use `edit` tool with precise `oldString` and `newString` to modify specific sections
-- Target only the lines that need to change
-- Preserve all existing code, comments, and formatting
-
-**Forbidden Patterns:**
-
-- NEVER use `write` to overwrite entire files unless creating new files
-- NEVER omit unchanged content when editing
-- NEVER reformat or restructure files unless explicitly required
+## Step 1: Parse Input & Detect Mode
 
 ### Preconditions
 
@@ -126,7 +114,7 @@ When editing any files in this workflow, you **MUST** use surgical edits (`edit`
 
 1. Check backend health: `curl -s http://localhost:8080/health`
    - **If DOWN/non-200:**
-     - Run: `sh cypress/start_hyperswitch.sh`
+     - Run: `sh playwright-tests/start_hyperswitch.sh`
      - Poll every 5s, max 120s
      - Set `backendWasStarted = true`
      - If still DOWN: ask user to continue or abort
@@ -477,11 +465,11 @@ const choice =
 
 #### Cleanup Actions
 
-| Choice           | Action                                                |
-| ---------------- | ----------------------------------------------------- |
-| `commit` (1)     | Commit changes, push, create PR                       |
-| `new-branch` (2) | Create branch `pw/{target}-{timestamp}`, commit, push |
-| `clean` (3)      | Delete `ai-generated/*.spec.ts`, clear session files  |
+| Choice           | Action                                                                         |
+| ---------------- | ------------------------------------------------------------------------------ |
+| `commit` (1)     | Commit changes, push, create PR                                                |
+| `new-branch` (2) | Create branch `pw/{target}-{timestamp}`, commit, push (Refer `raise-pr` skill) |
+| `clean` (3)      | Delete `ai-generated/*.spec.ts`, clear session files                           |
 
 **Invalid Input Handling:**
 

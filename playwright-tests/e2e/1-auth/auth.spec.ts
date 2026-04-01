@@ -103,7 +103,7 @@ test.describe("Sign up", () => {
     await expect(signupPage.footerText).toContainText("Cancel");
   });
 
-  test("should verify password masking while signup", async ({ page }) => {
+  test("should be able to sign up using magic link and verify password masking while signup", async ({ page }) => {
     const email = generateUniqueEmail();
     const password = PLAYWRIGHT_PASSWORD;
 
@@ -114,6 +114,7 @@ test.describe("Sign up", () => {
     await visitSignupPage(page);
     await page.getByPlaceholder("Enter your Email").fill(email);
     await signupPage.signUpButton.click();
+    await page.waitForLoadState("networkidle");
 
     await redirectFromMailInbox(page, email);
     await signinPage.skip2FAButton.click();
@@ -142,26 +143,7 @@ test.describe("Sign up", () => {
       "text",
     );
     await expect(resetPasswordPage.confirmPassword).toHaveValue(password);
-  });
 
-  test("should be able to sign up using magic link", async ({ page }) => {
-    const email = generateUniqueEmail();
-    const password = PLAYWRIGHT_PASSWORD;
-
-    const signinPage = new SignInPage(page);
-    const signupPage = new SignUpPage(page);
-    const resetPasswordPage = new ResetPasswordPage(page);
-
-    await visitSignupPage(page);
-    await signupPage.emailInput.fill(email);
-    await signupPage.signUpButton.click();
-
-    await redirectFromMailInbox(page, email);
-
-    await signinPage.skip2FAButton.click();
-
-    await resetPasswordPage.createPassword.fill(password);
-    await resetPasswordPage.confirmPassword.fill(password);
     await resetPasswordPage.confirmButton.click();
 
     await signinPage.emailInput.fill(email);

@@ -7,7 +7,7 @@ description: Entry point for Playwright test automation. ALWAYS delegates to orc
 
 **READ `orchestrator.md` and EXECUTE it. YOU are the orchestrator.**
 
-## Editing Guidelines for All Agents
+## File Editing Guidelines for All Agents
 
 When any agent in this skill modifies files, **ALWAYS use surgical edits**:
 
@@ -25,10 +25,10 @@ This applies to:
 
 ## Execution Modes
 
-| Mode          | Trigger Phrases                                                    | Pipeline                                                 |
-| ------------- | ------------------------------------------------------------------ | -------------------------------------------------------- |
-| **Full**      | "generate tests", "create test", "test PR #123", "write test code" | Setup → Plan → Generate → Run → Heal → Summary → Cleanup |
-| **Heal-Only** | "fix failing tests", "fix tests", "heal tests", "repair tests"     | Setup → Plan → Run → Heal → Summary → Cleanup            |
+| Mode          | Trigger Phrases                                                    | Pipeline                                           |
+| ------------- | ------------------------------------------------------------------ | -------------------------------------------------- |
+| **Full**      | "generate tests", "create test", "test PR #123", "write test code" | Setup → Plan → Generate → Heal → Summary → Cleanup |
+| **Heal-Only** | "fix failing tests", "fix tests", "heal tests", "repair tests"     | Setup → Plan → Heal → Summary → Cleanup            |
 
 ## Sub-Agent Delegation
 
@@ -38,7 +38,7 @@ This applies to:
 | generator | `_generator.md` | Step 4 (Full only) | **YES**      | `test-plan.json`     | `*.spec.ts`                     |
 | healer    | `_healer.md`    | Step 5             | **YES**      | Test files           | Fixed tests, `run-results.json` |
 
-**Delegation Pattern:**
+**Sub-Agent Delegation Pattern:**
 
 ```typescript
 await task({
@@ -93,14 +93,14 @@ await task({
 3. `getByPlaceholder()` - Placeholder text
 4. `getByText()` - Visible text
 5. `getByTestId()` - Fallback
-6. CSS/XPath - Last resort
+6. `data-*`
+7. CSS/XPath - Last resort
 
 ## API Helpers (`playwright-tests/support/commands.ts`)
 
 ```typescript
 // User Management
 signupUser(email, password, context): Promise<void>
-loginUser(email, password, context): Promise<string>
 loginUI(page, email, password): Promise<void>
 generateUniqueEmail(): string
 
@@ -116,7 +116,9 @@ createAPIKey(merchantId, token, context): Promise<string>
 ompLineage(page): Promise<{orgId, merchantId, profileId}>
 ```
 
-## Authentication Flow (Sub-Agents)
+## Browser exploration - handle authentication (Sub-Agents)
+
+Handle 2FA screen by clicking on skip button
 
 ```typescript
 // 1. Create user via API

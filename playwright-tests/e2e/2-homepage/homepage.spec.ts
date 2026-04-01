@@ -3,7 +3,6 @@ import { HomePage } from "../../support/pages/homepage/HomePage";
 import { generateUniqueEmail } from "../../support/helper";
 import {
   signupUser,
-  loginUser,
   loginUI,
   createDummyConnectorAPI,
 } from "../../support/commands";

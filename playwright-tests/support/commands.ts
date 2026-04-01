@@ -8,7 +8,6 @@ import { generateDateTimeString } from "./helper";
 import { SignInPage } from "./pages/auth/SignInPage";
 import { SignUpPage } from "./pages/auth/SignUpPage";
 import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
-import { checkPermissionsFromTestName as checkPermissions } from "./permissions";
 
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000";
 const API_URL = process.env.HYPERSWITCH_API_URL || "http://localhost:8080";
@@ -759,5 +758,3 @@ export async function ompLineage(
     profileId: body.profile_id ?? "",
   };
 }
-
-export { checkPermissions as checkPermissionsFromTestName };

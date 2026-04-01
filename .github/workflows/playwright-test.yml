@@ -1,0 +1,75 @@
+name: Playwright Tests
+permissions:
+  contents: read
+
+on:
+  pull_request:
+  merge_group:
+
+jobs:
+  playwright-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Clear Docker cache
+        run: docker builder prune -af
+
+      - name: Execute Shell Script
+        run: |
+          chmod +x playwright-tests/start_hyperswitch.sh
+          sh playwright-tests/start_hyperswitch.sh
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install --force
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Health check for Backend
+        run: |
+          # Once the backend services are up, hit the health endpoint with the actual curl request
+          response=$(curl --location --request GET 'http://0.0.0.0:8080/health')
+          echo "Response:"
+          echo "$response"
+
+      - name: Run Playwright tests
+        run: npx playwright test
+        env:
+          PLAYWRIGHT_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          PLAYWRIGHT_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          PLAYWRIGHT_SSO_BASE_URL: ${{ secrets.CYPRESS_SSO_BASE_URL }}
+          PLAYWRIGHT_SSO_CLIENT_ID: ${{ secrets.CYPRESS_SSO_CLIENT_ID }}
+          PLAYWRIGHT_SSO_CLIENT_SECRET: ${{ secrets.CYPRESS_SSO_CLIENT_SECRET }}
+          PLAYWRIGHT_SSO_USERNAME: ${{ secrets.CYPRESS_SSO_USERNAME }}
+          PLAYWRIGHT_SSO_PASSWORD: ${{ secrets.CYPRESS_SSO_PASSWORD }}
+
+      - name: Artifact - Playwright Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+
+      - name: Artifact - Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-results/
+
+      - name: Artifact - Test failure screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-screenshots
+          path: test-results/**/*.png

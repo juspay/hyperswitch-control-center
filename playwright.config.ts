@@ -1,8 +1,13 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const PLAYWRIGHT_USERNAME =
-process.env.PLAYWRIGHT_USERNAME || "playwright@test.com";
+const PLAYWRIGHT_USERNAME = process.env.PLAYWRIGHT_USERNAME || "playwright@test.com";
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
+const MAIL_URL = process.env.MAIL_URL || "http://localhost:8025";
+const PLAYWRIGHT_SSO_BASE_URL = process.env.CYPRESS_SSO_BASE_URL;
+const PLAYWRIGHT_SSO_CLIENT_ID = process.env.CYPRESS_SSO_CLIENT_ID;
+const PLAYWRIGHT_SSO_CLIENT_SECRET = process.env.CYPRESS_SSO_CLIENT_SECRET;
+const PLAYWRIGHT_SSO_USERNAME = process.env.CYPRESS_SSO_USERNAME;
+const PLAYWRIGHT_SSO_PASSWORD = process.env.CYPRESS_SSO_PASSWORD;
 
 export default defineConfig({
   testDir: "./playwright-tests",
