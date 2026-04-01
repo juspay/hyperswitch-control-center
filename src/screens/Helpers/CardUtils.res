@@ -14,13 +14,13 @@ module CardHeader = {
       | None => React.null
       }}
       <div className="w-full">
-        <div className={`text-xl font-semibold ${customHeadingStyle}`}>
-          {heading->React.string}
-        </div>
-        <div
-          className={`text-medium font-medium leading-7 opacity-50 mt-2 ${customSubHeadingStyle}`}>
-          {subHeading->React.string}
-        </div>
+      <div className={`${Typography.body.lg.semibold} ${customHeadingStyle}`}>
+        {heading->React.string}
+      </div>
+      <div
+        className={`${Typography.body.sm.medium} ${customSubHeadingStyle} opacity-50 mt-2`}>
+        {subHeading->React.string}
+      </div>
       </div>
     </div>
   }
