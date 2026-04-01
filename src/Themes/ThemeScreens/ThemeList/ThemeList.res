@@ -1,5 +1,5 @@
 @react.component
-let make = (~themeIdFromUserInfo) => {
+let make = () => {
   open LogicUtils
   open Typography
   open ThemeListHelper
@@ -14,16 +14,12 @@ let make = (~themeIdFromUserInfo) => {
   let showToast = ToastState.useShowToast()
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {themeId: themeIdFromUserInfo} = React.useContext(
+  let {themeId: themeIdFromUserInfo, orgId} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getResolvedUserInfo()
-
   let (showModal, setShowModal) = React.useState(_ => false)
-  let themeIdRef = React.useRef(themeIdFromUserInfo)
-  themeIdRef.current = themeIdFromUserInfo
 
   let fetchCurrentTheme = async () => {
-    let currentThemeId = themeIdRef.current
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
