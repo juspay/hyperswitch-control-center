@@ -16,7 +16,7 @@ let make = (
   ~rightIconCustomStyle=?,
   ~leftIconCustomStyle=?,
 ) => {
-  let isBlendEnabled = React.useContext(BlendContext.blendEnabledContext)
+  let isBlendEnabled = BlendContext.useBlendEnabled()
 
   if isBlendEnabled {
     let blendValue =

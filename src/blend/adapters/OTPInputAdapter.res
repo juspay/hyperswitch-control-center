@@ -1,6 +1,6 @@
 @react.component
 let make = (~value: string, ~setValue: (string => string) => unit, ~hasError: bool=false) => {
-  let isBlendEnabled = React.useContext(BlendContext.blendEnabledContext)
+  let isBlendEnabled = BlendContext.useBlendEnabled()
 
   if isBlendEnabled {
     <div className="flex justify-center">
