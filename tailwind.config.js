@@ -34,7 +34,6 @@ module.exports = {
       },
       margin: {
         "15-px": "15px",
-        "54-px": "54px",
         "300-px": "300px",
       },
       height: {
@@ -60,9 +59,6 @@ module.exports = {
         "30-vh": "30vh",
         "40-vh": "40vh",
         "75-vh": "75vh",
-        "32-px": "32px",
-        "36-px": "36px",
-        "40-px": "40px",
         "50-px": "50px",
         "68-px": "68px",
         "84-px": "84px",
@@ -82,7 +78,6 @@ module.exports = {
         modalContentHeight: "calc(100vh - 140px)",
       },
       padding: {
-        "10-px": "10px",
         "2-px": "2px",
       },
       minWidth: {
@@ -145,7 +140,6 @@ module.exports = {
         standardPageWidth: "67.5rem",
       },
       gap: {
-        "0.5-rem": "0.5rem",
         "72-px": "72px",
       },
       maxWidth: {
@@ -497,7 +491,6 @@ module.exports = {
       },
       spacing: {
         DEFAULT: "var(--spacing-padding)",
-        "104-px": "104px",
       },
     },
   },
