@@ -64,7 +64,7 @@ let make = () => {
       title={"3DS Authentication Manager"}
       subTitle={"Connect and manage 3DS authentication providers to enhance the conversions"}
     />
-      <PageLoaderWrapper screenState>
+    <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-8">
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
