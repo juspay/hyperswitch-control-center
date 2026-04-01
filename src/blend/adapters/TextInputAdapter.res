@@ -39,7 +39,7 @@ let make = (
   ~focusOnKeyPress: option<ReactEvent.Keyboard.t => bool>=?,
   ~customDashboardClass: option<string>=?,
 ) => {
-  let isBlendEnabled = React.useContext(BlendContext.blendEnabledContext)
+  let isBlendEnabled = BlendContext.useBlendEnabled()
   let showPopUp = PopUpState.useShowPopUp()
   let inputRef = React.useRef(Nullable.null)
   let {meta} = ReactFinalForm.useField(input.name)
