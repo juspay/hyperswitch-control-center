@@ -236,8 +236,8 @@ let dropDownOptionsForCountryCurrency = Country.country->Array.map((
   item
 ): SelectBox.dropdownOption => {
   open CountryUtils
-  let countryName = item.countryName->getCountryNameFromVarient->toReadableCountryName
-  let countryCode = item.isoAlpha2->getCountryCodeStringFromVarient
+  let countryName = item.countryName->getCountryNameFromVariant->toReadableCountryName
+  let countryCode = item.isoAlpha2->getCountryCodeStringFromVariant
   {
     label: `${item.flag} ${countryName} - (${item.currency})`,
     value: `${countryCode}-${item.currency}`,

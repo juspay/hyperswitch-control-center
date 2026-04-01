@@ -4,6 +4,7 @@ open Typography
 let make = () => {
   open ThemeCreateType
   open APIUtils
+  open LogicUtils
 
   let {orgId, merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
@@ -14,6 +15,8 @@ let make = () => {
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let (showUploadModal, setShowUploadModal) = React.useState(_ => false)
+  let (themeId, setThemeId) = React.useState(_ => "")
 
   let redirectToList = () => {
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/theme"))
@@ -23,9 +26,12 @@ let make = () => {
     try {
       setScreenState(_ => Loading)
       let themeURL = getURL(~entityName=V1(USERS), ~methodType=Post, ~id=None, ~userType=#THEME)
-      let _ = await updateDetails(themeURL, values, Post)
+      let res = await updateDetails(themeURL, values, Post)
+      let newThemeId = res->getDictFromJsonObject->getString("theme_id", "")
+      setThemeId(_ => newThemeId)
+
       setScreenState(_ => Success)
-      redirectToList()
+      setShowUploadModal(_ => true)
     } catch {
     | _ => {
         showToast(~message="Failed to create theme.", ~toastType=ToastError)
@@ -60,7 +66,7 @@ let make = () => {
                   text="Apply Theme"
                   buttonType=Primary
                   buttonSize={Small}
-                  customSumbitButtonStyle={`${body.md.semibold} py-4`}
+                  customSubmitButtonStyle={`${body.md.semibold} py-4`}
                   tooltipForWidthClass="w-full"
                 />
               </div>
@@ -68,6 +74,9 @@ let make = () => {
           </div>
         </div>
       </div>
+      <ThemeHelper.ThemeUploadAssetsModal
+        showModal=showUploadModal setShowModal=setShowUploadModal themeId redirectToList
+      />
     </Form>
   </PageLoaderWrapper>
 }

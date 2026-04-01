@@ -549,7 +549,7 @@ module CardRenderer = {
                         <p
                           className={`${p2RegularTextStyle} cursor-pointer`}
                           onClick={_ => removeOrAddMethods(value)}>
-                          {React.string(value.payment_method_type->snakeToTitle)}
+                          {React.string(value.payment_method_type->getPaymentMethodDisplayName)}
                         </p>
                       }}
                     </div>
@@ -576,15 +576,15 @@ module CardRenderer = {
               </p>
             </RenderIf>
             <div className={`flex flex-col gap-4 `}>
-              <Accordion
+              <AccordionAdapter
                 key={paymentMethod}
                 arrowPosition=Right
                 initialExpandedArray={[]}
                 initialOpenIndex
                 accordion={methodsWithAdditionalDetails->Array.map(value => {
-                  let accordionElem: Accordion.accordion = {
+                  let accordionElem: AccordionAdapter.accordion = {
                     title: value.payment_method_type,
-                    renderContent: (~currentAccordianState as _, ~closeAccordionFn) =>
+                    renderContent: (~currentAccordionState as _, ~closeAccordionFn) =>
                       <AdditionalDetailsSidebar
                         key={`${value.payment_method_type}`}
                         method={Some(selectedWallet)}
@@ -626,9 +626,9 @@ module CardRenderer = {
                   }
                   accordionElem
                 })}
-                accordianTopContainerCss="border border-nd_gray-150 rounded-lg "
+                accordionTopContainerCss="border border-nd_gray-150 rounded-lg "
                 contentExpandCss="p-0 "
-                accordianBottomContainerCss="!p-2 flex justify-between w-full"
+                accordionBottomContainerCss="!p-2 flex justify-between w-full"
                 gapClass="flex flex-col gap-4"
                 singleOpen=true
               />
