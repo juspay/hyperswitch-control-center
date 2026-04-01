@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.04.01.0
+
+### Features
+
+- Migrate Accordion to Blend Design System ([#4405](https://github.com/juspay/hyperswitch-control-center/pull/4405)) ([`f3ad75a`](https://github.com/juspay/hyperswitch-control-center/commit/f3ad75af38770e1f8baf37e0acbb5abe63b357de))
+
+### Bug Fixes
+
+- Patch @juspay/blend-design-system for React 18 compatibility ([#4513](https://github.com/juspay/hyperswitch-control-center/pull/4513)) ([`9abbd16`](https://github.com/juspay/hyperswitch-control-center/commit/9abbd16164854c2b3160ccfabf52877cb7524dc4))
+
+**Full Changelog:** [`2026.03.31.0...2026.04.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.31.0...2026.04.01.0)
+
+- - -
+
 ## 2026.03.31.0
 
 ### Features

@@ -137,14 +137,13 @@ module.exports = {
         "306-px": "306px",
         modalOverlay: "calc(100vw + 7rem)",
         pageWidth11: "75rem",
-        fixedPageWidth: "75.5rem",
         standardPageWidth: "67.5rem",
       },
       gap: {
         "72-px": "72px",
       },
       maxWidth: {
-        fixedPageWidth: "82.75rem",
+        fixedPageWidth: "120rem",
         860: "860px",
         600: "600px",
         700: "700px",

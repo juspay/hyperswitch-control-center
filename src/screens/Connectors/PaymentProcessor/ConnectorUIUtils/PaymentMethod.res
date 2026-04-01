@@ -576,13 +576,13 @@ module CardRenderer = {
               </p>
             </RenderIf>
             <div className={`flex flex-col gap-4 `}>
-              <Accordion
+              <AccordionAdapter
                 key={paymentMethod}
                 arrowPosition=Right
                 initialExpandedArray={[]}
                 initialOpenIndex
                 accordion={methodsWithAdditionalDetails->Array.map(value => {
-                  let accordionElem: Accordion.accordion = {
+                  let accordionElem: AccordionAdapter.accordion = {
                     title: value.payment_method_type,
                     renderContent: (~currentAccordionState as _, ~closeAccordionFn) =>
                       <AdditionalDetailsSidebar
