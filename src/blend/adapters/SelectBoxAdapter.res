@@ -1,4 +1,3 @@
-// Re-export legacy types so call sites need no type annotation changes
 type dropdownOption = SelectBox.dropdownOption
 type dropdownOptionWithoutOptional = SelectBox.dropdownOptionWithoutOptional
 type allSelectType = SelectBox.allSelectType
@@ -7,7 +6,6 @@ type direction = SelectBox.direction
 let makeOptions = SelectBox.makeOptions
 let makeNonOptional = SelectBox.makeNonOptional
 
-// Direction conversion helpers: CC's 6-value direction → Blend's alignment + side
 let getAlignmentFromDirection = (direction: SelectBox.direction) =>
   switch direction {
   | BottomLeft | TopLeft => MultiSelectBindings.End
@@ -107,7 +105,6 @@ module BaseDropdown = {
     ~reverseSortGroupKeys: bool=?,
     ~maxButtonWidth: string=?,
     ~customSortOrder: array<string>=?,
-    // Blend-specific props
     ~side: MultiSelectBindings.selectMenuItemSide=?,
     ~alignment: MultiSelectBindings.selectMenuItemAlignment=?,
     ~minMenuWidth: int=?,
@@ -120,7 +117,7 @@ module BaseDropdown = {
     ~onClearAllClick: option<unit => unit>=?,
     ~variant: option<MultiSelectBindings.selectMenuItemVariant>=?,
   ) => {
-    let isBlendEnabled = React.useContext(BlendContext.blendEnabledContext)
+    let isBlendEnabled = BlendContext.useBlendEnabled()
     let useBlend = isBlendEnabled && baseComponentMethod->Option.isNone
 
     if useBlend {
@@ -286,14 +283,12 @@ module BaseDropdown = {
 
 @react.component
 let make = (
-  // Core props
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~options: array<SelectBox.dropdownOption>,
   ~buttonText: string="",
   ~buttonSize: Button.buttonSize=Medium,
   ~allowMultiSelect: bool=false,
   ~isDropDown: bool=true,
-  // Legacy props — passed through to SelectBox unchanged in legacy branch
   ~hideMultiSelectButtons: bool=?,
   ~optionSize: CheckBoxIcon.size=?,
   ~isSelectedStateMinus: bool=?,
@@ -372,7 +367,6 @@ let make = (
   ~shouldDisplaySelectedOnTop: bool=?,
   ~placeholderCss: string=?,
   ~maxButtonWidth: string=?,
-  // Blend-specific props (only used when blend is enabled)
   ~side: MultiSelectBindings.selectMenuItemSide=?,
   ~alignment: MultiSelectBindings.selectMenuItemAlignment=?,
   ~minMenuWidth: int=?,
@@ -387,19 +381,11 @@ let make = (
   ~onClearAllClick: option<unit => unit>=?,
   ~variant: option<MultiSelectBindings.selectMenuItemVariant>=?,
 ) => {
-  let isBlendEnabled = React.useContext(BlendContext.blendEnabledContext)
-
-  // Routing logic:
-  // 1. !isDropDown → always legacy
-  // 2. baseComponentMethod provided → always legacy (render prop incompatible with Blend)
-  // 3. isBlendEnabled → Blend path
-  // 4. otherwise → legacy
+  let isBlendEnabled = BlendContext.useBlendEnabled()
 
   let useBlend = isBlendEnabled && isDropDown && baseComponentMethod->Option.isNone
 
   if useBlend {
-    // Compute alignment + side from fixedDropDownDirection if provided
-    // Compute alignment + side from fixedDropDownDirection if not explicitly provided
     let alignment = switch alignment {
     | Some(_) => alignment
     | None => fixedDropDownDirection->Option.map(getAlignmentFromDirection)
@@ -409,7 +395,6 @@ let make = (
     | None => fixedDropDownDirection->Option.map(getSideFromDirection)
     }
 
-    // slot element from leftIcon
     let slot = MultiSelectWrapper.getSlotElementFromIcon(leftIcon)
 
     // Wrap in a plain <div> so Radix asChild can inject onClick onto a DOM element.
@@ -419,7 +404,6 @@ let make = (
     | Some(el) => Some(wrapTrigger(el))
     | None => customButton->Option.map(wrapTrigger)
     }
-
     let selectedValues = input.value->LogicUtils.getStrArrayFromJson
     let selectedValue = input.value->LogicUtils.getStringFromJson("")
 
@@ -478,7 +462,6 @@ let make = (
       />
     }
   } else {
-    // Legacy branch — all original props forwarded unchanged
     <SelectBox
       input
       buttonText
