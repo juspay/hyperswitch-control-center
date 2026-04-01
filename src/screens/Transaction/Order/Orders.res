@@ -16,10 +16,10 @@ let make = (~previewOnly=false) => {
   let {merchantId, orgId, version} = getCommonSessionDetails()
 
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
-  let fetchOrdersHook = (~payload, ~version) => {
+  let fetchOrdersHook = (~payload, ~version, ~signal=?) => {
     devOpensearch && userHasResourceAccess(~resourceAccess=Analytics) === Access
-      ? fetchAnalyticsOrdersHook(~payload, ~version)
-      : fetchOrdersHook(~payload, ~version)
+      ? fetchAnalyticsOrdersHook(~payload, ~version, ~signal?)
+      : fetchOrdersHook(~payload, ~version, ~signal?)
   }
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
