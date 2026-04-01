@@ -61,13 +61,13 @@ module ButtonRightIcon = {
     ~disable,
     ~isDropdownOpen,
     ~removeFilterOption,
-    ~resetToInitalValues,
+    ~resetToInitialValues,
   ) => {
     let buttonIcon = isDropdownOpen ? "angle-up" : "angle-down"
 
     let removeApplyFilter = ev => {
       ev->ReactEvent.Mouse.stopPropagation
-      resetToInitalValues()
+      resetToInitialValues()
       setStartDateVal(_ => "")
       setEndDateVal(_ => "")
     }
@@ -95,7 +95,7 @@ module DateSelectorButton = {
     ~disable,
     ~isDropdownOpen,
     ~removeFilterOption,
-    ~resetToInitalValues,
+    ~resetToInitialValues,
     ~showTime,
     ~buttonText,
     ~showSeconds,
@@ -183,7 +183,7 @@ module DateSelectorButton = {
           disable
           isDropdownOpen
           removeFilterOption
-          resetToInitalValues
+          resetToInitialValues
         />,
       )
     }

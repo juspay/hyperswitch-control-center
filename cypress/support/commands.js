@@ -387,7 +387,7 @@ Cypress.Commands.add("createPaymentAPI", (merchant_id) => {
         "api-key": apiKey, // Pass the apiKey here
       },
       body: {
-        amount: 10000,
+        amount: 12345,
         currency: "USD",
         confirm: true,
         capture_method: "automatic",
@@ -592,6 +592,52 @@ Cypress.Commands.add("get_authID_by_email", () => {
     .then((response) => {
       return response.body[0].auth_id;
     });
+});
+
+Cypress.Commands.add("ompLineage", () => {
+  return cy.window().then((win) => {
+    const rawUserInfo = win.localStorage.getItem("USER_INFO");
+
+    if (!rawUserInfo) {
+      throw new Error(
+        "ompLineage: USER_INFO not found in localStorage. User may not be logged in.",
+      );
+    }
+
+    let userInfo;
+    try {
+      userInfo = JSON.parse(rawUserInfo);
+    } catch (e) {
+      throw new Error(
+        `ompLineage: Failed to parse USER_INFO from localStorage: ${e.message}`,
+      );
+    }
+
+    const token = userInfo && userInfo.token;
+    if (!token) {
+      throw new Error(
+        "ompLineage: token not found in USER_INFO. User may not be authenticated.",
+      );
+    }
+
+    return cy
+      .request({
+        method: "GET",
+        url: "http://localhost:8080/user",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        const { merchant_id, org_id, profile_id } = response.body;
+
+        return {
+          org_id,
+          merchant_id,
+          profile_id,
+        };
+      });
+  });
 });
 
 Cypress.Commands.add("assertConnectorFieldLabels", (fieldLabels) => {

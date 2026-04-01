@@ -105,7 +105,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
           customTitleStyle={`${heading.lg.semibold}`}
           customHeadingStyle="py-0"
         />
-        <Accordion
+        <AccordionAdapter
           initialExpandedArray={initialExpandedArray->Array.make(~length=1)}
           accordion={ReconEngineDataOverviewHelper.getAccordionConfig(
             ~ingestionHistoryData,
@@ -118,8 +118,8 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
             ~transformationHistoryId,
             ~stagingEntryId,
           )}
-          accordianTopContainerCss="!border !border-nd_gray-150 !rounded-xl !overflow-scroll"
-          accordianBottomContainerCss="!p-4 !bg-nd_gray-25 !rounded-xl !overflow-scroll"
+          accordionTopContainerCss="!border !border-nd_gray-150 !rounded-xl !overflow-scroll"
+          accordionBottomContainerCss="!p-4 !bg-nd_gray-25 !rounded-xl !overflow-scroll"
           contentExpandCss={`!${body.md.semibold} !rounded-b-xl !overflow-scroll`}
           titleStyle={`${body.lg.semibold} !text-nd_gray-800`}
           gapClass="flex flex-col gap-8"

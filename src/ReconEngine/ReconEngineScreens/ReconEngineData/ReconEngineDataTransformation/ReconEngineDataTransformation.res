@@ -37,12 +37,12 @@ let make = () => {
         </div>
       </RenderIf>
       <RenderIf condition={accountData->Array.length > 0}>
-        <Accordion
+        <AccordionAdapter
           initialExpandedArray=[0]
-          accordion={accountData->Array.map((account): Accordion.accordion => {
+          accordion={accountData->Array.map((account): AccordionAdapter.accordion => {
             {
               title: account.account_name,
-              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>
+              renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) =>
                 <ReconEngineDataTransformationConfigs account={account} />,
               renderContentOnTop: Some(
                 () => {
@@ -51,8 +51,8 @@ let make = () => {
               ),
             }
           })}
-          accordianTopContainerCss="border border-nd_gray-150 rounded-lg"
-          accordianBottomContainerCss="p-4 !bg-nd_gray-25"
+          accordionTopContainerCss="border border-nd_gray-150 rounded-lg"
+          accordionBottomContainerCss="p-4 !bg-nd_gray-25"
           contentExpandCss="p-0"
           titleStyle={`${body.lg.semibold} text-nd_gray-800`}
           gapClass="flex flex-col gap-8"

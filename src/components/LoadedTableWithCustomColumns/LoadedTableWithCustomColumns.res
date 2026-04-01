@@ -15,11 +15,11 @@ let make = (
   ~handleRefetch=() => (),
   ~entity: EntityType.entityType<'colType, 't>,
   ~onEntityClick=?,
-  ~currrentFetchCount,
+  ~currentFetchCount,
   ~filters=React.null,
   ~tableDataBackgroundClass="",
   ~hideRightTitleElement=false,
-  ~evenVertivalLines=false,
+  ~evenVerticalLines=false,
   ~showPagination=true,
   ~downloadCsv=?,
   ~ignoreUrlUpdate=false,
@@ -120,7 +120,7 @@ let make = (
     ?tableActions
     showSerialNumber
     totalResults
-    currrentFetchCount
+    currentFetchCount
     offset
     resultsPerPage
     setOffset

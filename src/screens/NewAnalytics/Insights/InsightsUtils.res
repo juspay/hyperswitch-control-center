@@ -421,7 +421,7 @@ let getSampleDateRange = (~useSampleDates, ~sampleDateRange) => {
   let defaultDateRange: filterBody = getDateFilteredObject(~range=7)
   let dates = useSampleDates ? sampleDateRange : defaultDateRange
   let comparison = useSampleDates ? (EnableComparison :> string) : (DisableComparison :> string)
-  let (compareStart, compareEnd) = getComparisionTimePeriod(
+  let (compareStart, compareEnd) = getComparisonTimePeriod(
     ~startDate=dates.start_time,
     ~endDate=dates.end_time,
   )
