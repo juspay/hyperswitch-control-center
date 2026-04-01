@@ -1,3 +1,5 @@
+open LogicUtils
+
 let useStateForInput = (input: ReactFinalForm.fieldRenderPropsInput) => {
   React.useMemo(() => {
     let val = input.value->JSON.Decode.string->Option.getOr("")
@@ -136,7 +138,7 @@ let make = (
   ~removeConversion=false,
   ~isTooltipVisible=true,
 ) => {
-  let isBlendEnabled = React.useContext(BlendContext.blendEnabledContext)
+  let isBlendEnabled = BlendContext.useBlendEnabled()
 
   // Hoist hooks above conditional to satisfy React rules
   let startInput = ReactFinalForm.useField(startKey).input
@@ -146,7 +148,7 @@ let make = (
 
   if isBlendEnabled {
     let blendValue: option<DateRangePickerBinding.dateRange> = if (
-      startDateVal->LogicUtils.isNonEmptyString && endDateVal->LogicUtils.isNonEmptyString
+      startDateVal->isNonEmptyString && endDateVal->isNonEmptyString
     ) {
       Some({
         startDate: Js.Date.fromString(startDateVal),

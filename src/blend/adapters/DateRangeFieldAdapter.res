@@ -1,3 +1,5 @@
+open LogicUtils
+
 @react.component
 let make = (
   ~startKey: string,
@@ -26,7 +28,7 @@ let make = (
   ~events=?,
   ~customButtonStyle="",
 ) => {
-  let isBlendEnabled = React.useContext(BlendContext.blendEnabledContext)
+  let isBlendEnabled = BlendContext.useBlendEnabled()
 
   // Hoist hooks above conditional to satisfy React rules
   let startInput = ReactFinalForm.useField(startKey).input
@@ -36,7 +38,7 @@ let make = (
 
   if isBlendEnabled {
     let blendValue: option<DateRangePickerBinding.dateRange> = if (
-      startDateVal->LogicUtils.isNonEmptyString && endDateVal->LogicUtils.isNonEmptyString
+      startDateVal->isNonEmptyString && endDateVal->isNonEmptyString
     ) {
       Some({
         startDate: Js.Date.fromString(startDateVal),
