@@ -120,7 +120,7 @@ module BaseDropdown = {
     ~onClearAllClick: option<unit => unit>=?,
     ~variant: option<MultiSelectBindings.selectMenuItemVariant>=?,
   ) => {
-    let isBlendEnabled = React.useContext(BlendContext.blendEnabledContext)
+    let isBlendEnabled = BlendContext.useBlendEnabled()
     let useBlend = isBlendEnabled && baseComponentMethod->Option.isNone
 
     if useBlend {
@@ -387,7 +387,7 @@ let make = (
   ~onClearAllClick: option<unit => unit>=?,
   ~variant: option<MultiSelectBindings.selectMenuItemVariant>=?,
 ) => {
-  let isBlendEnabled = React.useContext(BlendContext.blendEnabledContext)
+  let isBlendEnabled = BlendContext.useBlendEnabled()
 
   // Routing logic:
   // 1. !isDropDown → always legacy

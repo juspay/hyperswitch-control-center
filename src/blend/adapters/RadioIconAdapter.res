@@ -7,7 +7,7 @@ let make = (
   ~size: size=Small,
   ~fill="#0EB025",
 ) => {
-  let isBlendEnabled = React.useContext(BlendContext.blendEnabledContext)
+  let isBlendEnabled = BlendContext.useBlendEnabled()
 
   if isBlendEnabled {
     let blendSize = switch size {
