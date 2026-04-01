@@ -201,7 +201,6 @@ type userType = [
   | #THEME_LIST
   | #THEME_BY_LINEAGE
   | #THEME_UPLOAD_ASSET
-  | #THEME_CONFIG_VERSION
   | #NONE
 ]
 
