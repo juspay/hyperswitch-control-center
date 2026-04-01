@@ -12,6 +12,8 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=PayoutProcessor)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {payoutProcessorsLiveList} =
+    HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
 
   let getConnectorListAndUpdateState = async () => {
     try {
@@ -60,7 +62,7 @@ let make = () => {
   }, ~wait=200)
 
   let payoutConnectorList = featureFlagDetails.isLiveMode
-    ? payoutConnectorListForLive
+    ? payoutProcessorsLiveList
     : payoutConnectorList
 
   <div>
@@ -100,7 +102,7 @@ let make = () => {
               "payoutconnectors",
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
-            currrentFetchCount={filteredConnectorData->Array.length}
+            currentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false
             showAutoScroll=true
           />

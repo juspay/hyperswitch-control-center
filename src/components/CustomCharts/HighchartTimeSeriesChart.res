@@ -57,7 +57,7 @@ module LineChart1D = {
     ~isPartners=false,
     ~showIndicator=false,
     ~showMarkers=false,
-    ~comparitionWidget=false,
+    ~comparisonWidget=false,
     ~selectedTab: option<array<string>>=?,
   ) => {
     let {theme} = React.useContext(ThemeProvider.themeContext)
@@ -252,7 +252,7 @@ module LineChart1D = {
     }
 
     let legendData = React.useMemo(() => {
-      let data = LineChartUtils.getLegendDataForCurrentMetrix(
+      let data = LineChartUtils.getLegendDataForCurrentMetric(
         ~yAxis=selectedMetrics.metric_name_db,
         ~xAxis,
         ~timeSeriesData=rawChartData,
@@ -281,7 +281,7 @@ module LineChart1D = {
       colType: LineChartUtils.chartLegendStatsType,
     ): Table.cell => {
       let formatter = value => {
-        LineChartUtils.formatStatsAccToMetrix(selectedMetrics.metric_type, value)
+        LineChartUtils.formatStatsAccToMetric(selectedMetrics.metric_type, value)
       }
       let colorOrig =
         chartDataOrig
@@ -716,7 +716,7 @@ module LineChart1D = {
                 setOffset
                 defaultSort
                 showPagination=false
-                currrentFetchCount={legendData->Array.length}
+                currentFetchCount={legendData->Array.length}
                 onEntityClick={val => {
                   setClickedRowNames(val)
                 }}

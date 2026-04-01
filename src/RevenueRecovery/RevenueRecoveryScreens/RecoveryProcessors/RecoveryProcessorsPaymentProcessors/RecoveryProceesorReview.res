@@ -53,7 +53,7 @@ let make = (~connectorInfo) => {
         customSubTitleStyle="font-500 font-normal text-nd_gray-400"
       />
       <div className=" flex flex-col py-4 gap-6">
-        <div className="flex flex-col gap-0.5-rem ">
+        <div className="flex flex-col gap-2 ">
           <h4 className="text-nd_gray-400 "> {"Profile"->React.string} </h4>
           {connectorInfodict.profile_id->React.string}
         </div>

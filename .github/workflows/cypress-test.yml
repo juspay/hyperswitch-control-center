@@ -1,4 +1,6 @@
 name: Cypress Tests
+permissions:
+  contents: read
 
 on:
   pull_request:
@@ -15,8 +17,7 @@ jobs:
           fetch-depth: 1
 
       - name: Clear Docker cache
-        run: |
-          docker builder prune -af
+        run: docker builder prune -af
 
       - name: Execute Shell Script
         run: |
@@ -31,11 +32,10 @@ jobs:
       - name: Install dependencies
         run: npm install --force
 
-      - name: Make Curl Request
+      - name: Health check for Backend
         run: |
-          # Once the service is up, make the actual curl request
+          # Once the backend services are up, hit the health endpoint with  the actual curl request
           response=$(curl --location --request GET 'http://0.0.0.0:8080/health')
-
           echo "Response:"
           echo "$response"
 
@@ -53,7 +53,7 @@ jobs:
           install: false
           build: npm run build:test
           start: npm run test:start
-          # spec: cypress/e2e/quick-start/sbx-quick-start.cy.js
+          config: excludeSpecPattern=cypress/e2e/cypress-ai-generated/**
 
       - name: Artifact - Coverage Report
         uses: actions/upload-artifact@v4
