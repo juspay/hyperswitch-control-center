@@ -519,9 +519,9 @@ module FileUploadField = {
       <div className="flex gap-4">
         {switch selectedFile {
         | Some(file) =>
-          <div className="mt-2 flex items-center gap-2 text-sm text-nd_gray-600">
+          <div className="mt-2 flex items-center gap-2  text-nd_gray-600">
             <Icon name="file-icon" size=16 />
-            <span> {file["name"]->React.string} </span>
+            <span className={`${body.sm.regular}`}> {file["name"]->React.string} </span>
           </div>
         | None => React.null
         }}
@@ -540,6 +540,7 @@ module ThemeUploadAssetsModal = {
   let make = (~showModal, ~setShowModal, ~themeId, ~redirectToList) => {
     open APIUtils
     open LogicUtils
+    open FormDataUtils
     let showToast = ToastState.useShowToast()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod(~showErrorToast=false)
@@ -562,9 +563,9 @@ module ThemeUploadAssetsModal = {
 
     let uploadAsset = async (~assetFile, ~assetName) => {
       try {
-        let formData = FormDataUtils.formData()
-        FormDataUtils.append(formData, "asset_name", assetName)
-        FormDataUtils.append(formData, "asset_data", assetFile)
+        let formData = formData()
+        append(formData, "asset_name", assetName)
+        append(formData, "asset_data", assetFile)
         let url = getURL(
           ~entityName=V1(USERS),
           ~methodType=Post,
