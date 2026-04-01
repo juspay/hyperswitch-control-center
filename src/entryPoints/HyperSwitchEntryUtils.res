@@ -30,7 +30,7 @@ let setThemeConfigVersiontoStore = themeConfigVersion => {
   if version->Option.isSome {
     LocalStorage.setItem("themeConfigVersion", version->Option.getOr(""))
   } else {
-    LocalStorage.setItem("themeConfigVersion", "") //to change back to default if no version present on switchz
+    ()
   }
 }
 

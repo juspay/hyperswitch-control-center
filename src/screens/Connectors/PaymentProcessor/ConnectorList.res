@@ -72,6 +72,8 @@ let make = (
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {paymentProcessorsLiveList} =
+    HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
 
   let getConnectorListAndUpdateState = async () => {
     try {
@@ -121,7 +123,7 @@ let make = (
   }, ~wait=200)
 
   let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
-    ? connectorListForLive
+    ? paymentProcessorsLiveList
     : connectorList
 
   <div>
@@ -160,7 +162,7 @@ let make = (
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
               ~sendMixpanelEvent,
             )}
-            currrentFetchCount={filteredConnectorData->Array.length}
+            currentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false
             showAutoScroll=true
           />

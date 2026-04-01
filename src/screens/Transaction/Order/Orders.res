@@ -5,12 +5,21 @@ let make = (~previewOnly=false) => {
   open LogicUtils
 
   let fetchOrdersHook = OrdersHook.useFetchOrdersHook()
+  let fetchAnalyticsOrdersHook = AnalyticsOrdersHook.useFetchAnalyticsOrdersHook()
+  let {devOpensearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let {transactionEntity} = getResolvedUserInfo()
   let {merchantId, orgId, version} = getCommonSessionDetails()
+
+  let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
+  let fetchOrdersHook = (~payload, ~version) => {
+    devOpensearch && userHasResourceAccess(~resourceAccess=Analytics) === Access
+      ? fetchAnalyticsOrdersHook(~payload, ~version)
+      : fetchOrdersHook(~payload, ~version)
+  }
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (orderData, setOrdersData) = React.useState(_ => [])
@@ -29,7 +38,8 @@ let make = (~previewOnly=false) => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport, email, devSortEnabled} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let startTime = filterValueJson->getString(startTimeFilterKey(version), "")
 
@@ -216,13 +226,13 @@ let make = (~previewOnly=false) => {
         <LoadedTableWithCustomColumns
           title="Orders"
           actualData=orderData
-          entity={OrderEntity.orderEntity(merchantId, orgId, ~version)}
+          entity={OrderEntity.orderEntity(merchantId, orgId, ~version, ~devSortEnabled)}
           resultsPerPage=20
           showSerialNumber=true
           totalResults={previewOnly ? orderData->Array.length : totalCount}
           offset
           setOffset
-          currrentFetchCount={orderData->Array.length}
+          currentFetchCount={orderData->Array.length}
           customColumnMapper=TableAtoms.ordersMapDefaultCols
           defaultColumns={OrderEntity.defaultColumns}
           showSerialNumberInCustomizeColumns=false

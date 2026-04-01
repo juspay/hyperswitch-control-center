@@ -13,8 +13,8 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let setMixpanelIdentity = MixpanelHook.useSetIdentity()
 
   let initialValues = Dict.make()->JSON.Encode.object
-  let clientCountry = HSwitchUtils.getBrowswerDetails().clientCountry
-  let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
+  let clientCountry = HSwitchUtils.getBrowserDetails().clientCountry
+  let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVariant
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (email, setEmail) = React.useState(_ => "")
@@ -243,8 +243,14 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   | LoginWithEmail => ["email"]
   | SignUP => featureFlagValues.email ? ["email"] : ["email", "password"]
   | LoginWithPassword => ["email"]
-  | ResetPassword => ["create_password", "comfirm_password"]
+  | ResetPassword => ["create_password", "confirm_password"]
   | _ => []
+  }
+
+  let equalKeys = switch authType {
+  | ResetPassword =>
+    Some(({key1: "create_password", key2: "confirm_password"}: TwoFaTypes.equalValidationKeys))
+  | _ => None
   }
 
   React.useEffect(() => {
@@ -259,7 +265,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     key="auth"
     initialValues
     subscription=ReactFinalForm.subscribeToValues
-    validate={values => validateTotpForm(values, validateKeys)}
+    validate={values => validateTotpForm(values, validateKeys, equalKeys)}
     onSubmit
     render={({handleSubmit}) => {
       <>

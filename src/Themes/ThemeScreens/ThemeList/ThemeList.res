@@ -9,12 +9,14 @@ let make = (~themeIdFromUserInfo) => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let themeList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.themeListAtom)
-  let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-  // let {themeId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
   let (currentTheme, setCurrentTheme) = React.useState(_ => None)
   let themeListArray = themeList->getArrayFromJson([])
+  let showToast = ToastState.useShowToast()
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {themeId: themeIdFromUserInfo} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getResolvedUserInfo()
 
   let (showModal, setShowModal) = React.useState(_ => false)
   let themeIdRef = React.useRef(themeIdFromUserInfo)
@@ -27,14 +29,17 @@ let make = (~themeIdFromUserInfo) => {
       let url = getURL(
         ~entityName=V1(USERS),
         ~methodType=Get,
-        ~id=Some(currentThemeId),
+        ~id=Some(themeIdFromUserInfo),
         ~userType=#THEME,
       )
       let res = await getMethod(url)
       setCurrentTheme(_ => Some(res))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Success)
+    | _ => {
+        showToast(~toastType=ToastError, ~message="Failed to fetch current theme")
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     }
   }
 
@@ -83,7 +88,7 @@ let make = (~themeIdFromUserInfo) => {
             totalResults={themeListArray->Array.length}
             offset=0
             setOffset={_ => ()}
-            currrentFetchCount={themeListArray->Array.length}
+            currentFetchCount={themeListArray->Array.length}
           />
         </RenderIf>
       </div>

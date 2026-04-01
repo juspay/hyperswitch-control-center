@@ -295,9 +295,9 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
             tabs=tabValues
             maxSelection=1
             setActiveTab
-            initalTab=tabKeys
+            initialTab=tabKeys
             tabContainerClass="px-2"
-            updateCollapsableTabs=collapseTab
+            updateCollapsibleTabs=collapseTab
             showAddMoreTabs=false
           />
         </div>

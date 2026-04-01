@@ -370,7 +370,7 @@ let allColumnsV2 = [
   ErrorMessage,
 ]
 
-let getHeading = (colType: colType) => {
+let getHeading = (~devSortEnabled, colType: colType) => {
   switch colType {
   | Metadata => Table.makeHeaderInfo(~key="metadata", ~title="Metadata")
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID")
@@ -384,7 +384,7 @@ let getHeading = (colType: colType) => {
   | ConnectorTransactionID =>
     Table.makeHeaderInfo(~key="connector_transaction_id", ~title="Connector Transaction ID")
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created", ~showSort=true)
-  | Modified => Table.makeHeaderInfo(~key="modified_at", ~title="Modified")
+  | Modified => Table.makeHeaderInfo(~key="modified", ~title="Modified", ~showSort=devSortEnabled)
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer ID")
   | Description => Table.makeHeaderInfo(~key="description", ~title="Description")
@@ -807,12 +807,23 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
       },
     )
   | CardNetwork => {
-      let dict = switch order.payment_method_data {
-      | Some(val) => val->getDictFromJsonObject
-      | _ => Dict.make()
-      }
+      let cardNetwork = switch order.payment_method_data {
+      | Some(val) =>
+        switch val->JSON.Classify.classify {
+        | Object(value) => Some(value->getString("card_network", ""))
+        | String(value) =>
+          Some(
+            value
+            ->safeParse
+            ->getDictFromJsonObject
+            ->getStringFromNestedDict("card", "card_network", ""),
+          )
+        | _ => None
+        }
+      | _ => None
+      }->Option.mapOr("", val => val)
 
-      Text(dict->getString("card_network", ""))
+      Text(cardNetwork)
     }
   | MerchantOrderReferenceId => Text(order.merchant_order_reference_id->Option.getOr(""))
   | AttemptCount => Text(order.attempt_count->Int.toString)
@@ -829,13 +840,13 @@ let getOrders: JSON.t => array<order> = json => {
   getArrayDataFromJson(json, PaymentInterfaceUtils.mapDictToPaymentPayload)
 }
 
-let orderEntity = (merchantId, orgId, ~version: UserInfoTypes.version=V1) =>
+let orderEntity = (merchantId, orgId, ~version: UserInfoTypes.version=V1, ~devSortEnabled) =>
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getOrders,
     ~defaultColumns,
     ~allColumns=getAllColumns(version),
-    ~getHeading,
+    ~getHeading=colType => getHeading(~devSortEnabled, colType),
     ~getCell=(order, colType) => getCell(order, colType, merchantId, orgId),
     ~dataKey="",
     ~getShowLink={

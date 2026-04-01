@@ -1,5 +1,7 @@
 type theme = Light | Dark
 
+open LogicUtils
+
 let defaultSetter = _ => ()
 
 type themeType = LightTheme
@@ -23,7 +25,7 @@ let fallbackThemeConfig: HyperSwitchConfigTypes.customStylesTheme = {
     colors: {
       primary: "#006DF9",
       secondary: "#303E5F",
-      background: "#006df9",
+      background: "#f7f8fa",
     },
     sidebar: {
       primary: "#FCFCFD",
@@ -135,7 +137,6 @@ let make = (~children) => {
   }
 
   let configCustomDomainTheme = React.useCallback((uiConfg: JSON.t) => {
-    open LogicUtils
     let dict = uiConfg->getDictFromJsonObject
     let settings = dict->getDictfromDict("settings")
     let url = dict->getDictfromDict("urls")
@@ -246,7 +247,6 @@ let make = (~children) => {
     }
   }
   let updateThemeURLs = (~themesData, ~themeConfigVersion=None) => {
-    open LogicUtils
     open HyperSwitchConfigTypes
     try {
       let urlsDict = themesData->getDictFromJsonObject->getDictfromDict("urls")
@@ -272,24 +272,27 @@ let make = (~children) => {
         ),
       }
 
-      // Append version to URLs if they are not default values
       let logoUrlWithVersion = switch val.logoUrl {
       | Some(url) if url !== "/assets/Dark/hyperswitchLogoIconWithText.svg" =>
-        Some(`${url}?version=${themeConfigVersion->Option.getOr("")}`)
-      | other => other
+        Some(ThemeFeatureUtils.appendVersionParam(url, ~version=themeConfigVersion))
+      | Some(url) => Some(url)
+      | _ => val.logoUrl
       }
 
       let faviconUrlWithVersion = switch val.faviconUrl {
       | Some(url) if url !== "/HyperswitchFavicon.png" =>
-        Some(`${url}?version=${themeConfigVersion->Option.getOr("")}`)
-      | other => other
+        Some(ThemeFeatureUtils.appendVersionParam(url, ~version=themeConfigVersion))
+      | Some(url) => Some(url)
+      | _ => val.faviconUrl
       }
 
-      let updatedUrlConfig = {...existingEnv, urlThemeConfig: val}
+      let updatedUrlConfig = {
+        ...existingEnv,
+        urlThemeConfig: {logoUrl: logoUrlWithVersion, faviconUrl: faviconUrlWithVersion},
+      }
       DOMUtils.window._env_ = updatedUrlConfig
-      configureFavIcon(faviconUrlWithVersion)->ignore
+      configureFavIcon(faviconUrlWithVersion)
       setContextLogoUrl(_ => logoUrlWithVersion)
-      setContextFaviconUrl(_ => faviconUrlWithVersion)
     } catch {
     | _ => Exn.raiseError("Error while updating theme URL and favicon")
     }
@@ -301,6 +304,11 @@ let make = (~children) => {
       "urls": fallbackThemeConfig.urls,
     }->Identity.genericTypeToJson
     defaultStyle
+  }
+
+  let applyThemeConfig = (config: JSON.t) => {
+    updateThemeURLs(~themesData=config)
+    configCustomDomainTheme(config)
   }
 
   let getThemeConfigVersion = async (~themeId) => {
@@ -316,15 +324,19 @@ let make = (~children) => {
   let getThemesJson = async (~themesID, ~domain=None) => {
     try {
       let themeJson = {
-        if themesID->Option.isSome && themesID->Option.getOr("")->LogicUtils.isNonEmptyString {
+        if themesID->Option.isSome && themesID->Option.getOr("")->isNonEmptyString {
           let id = themesID->Option.getOr("")
           let versionApiResponse = await getThemeConfigVersion(~themeId=id)
           let themeConfigVersion =
             versionApiResponse
-            ->LogicUtils.getDictFromJsonObject
-            ->LogicUtils.getString("theme_config_version", "")
+            ->getDictFromJsonObject
+            ->getString("theme_config_version", "")
           HyperSwitchEntryUtils.setThemeConfigVersiontoStore(themeConfigVersion)
-          let url = `${GlobalVars.getHostUrl}/themes/${id}/theme.json?version=${themeConfigVersion}`
+          let url = ThemeFeatureUtils.appendVersionParam(
+            `${GlobalVars.getHostUrl}/themes/${id}/theme.json`,
+            ~version=Some(themeConfigVersion),
+          )
+
           let themeResponse = await fetchApi(
             url,
             ~method_=Get,
@@ -332,9 +344,9 @@ let make = (~children) => {
             ~forceCookies=false,
           )
           await themeResponse->(res => res->Fetch.Response.json)
-        } // this need to be removed once all the exisitng user started consuming theme from the cdn
+        } // this need to be removed once all the existing user started consuming theme from the cdn
         // else if condition for backward compatibility
-        else if domain->Option.isSome && domain->Option.getOr("")->LogicUtils.isNonEmptyString {
+        else if domain->Option.isSome && domain->Option.getOr("")->isNonEmptyString {
           let domainValue = domain->Option.getOr("")
           let url = `${GlobalVars.getHostUrl}/themes?domain=${domainValue}`
           let themeResponse = await fetchApi(
@@ -369,6 +381,24 @@ let make = (~children) => {
     }
   }
 
+  let handleInitConfigMessage = (ev: Dom.event) => {
+    open EmbeddableGlobalUtils
+    try {
+      let objectdata = ev->HandlingEvents.convertToCustomEvent
+      let dict = objectdata.data->getDictFromJsonObject
+      switch dict->getOptionString("type")->Option.map(messageToTypeConversion) {
+      | Some(INIT_CONFIG) => {
+          let initConfigJson = dict->getJsonObjectFromDict("init_config")
+          let themeValues = isNullJson(initConfigJson) ? getDefaultStyle() : initConfigJson
+          applyThemeConfig(themeValues)
+        }
+      | _ => ()
+      }
+    } catch {
+    | _ => ()
+    }
+  }
+
   let value = React.useMemo(() => {
     {
       globalUIConfig: UIConfig.defaultUIConfig,
@@ -380,6 +410,11 @@ let make = (~children) => {
       faviconURL: contextFaviconUrl,
     }
   }, (theme, setTheme, contextLogoUrl))
+
+  React.useEffect(() => {
+    Window.addEventListener("message", handleInitConfigMessage)
+    Some(() => Window.removeEventListener("message", handleInitConfigMessage))
+  }, [])
   React.useEffect(() => {
     if theme === Dark {
       setTheme(Light)
@@ -390,7 +425,7 @@ let make = (~children) => {
   <Parent value>
     <div className=themeClassName>
       <div
-        className="bg-jp-gray-100 dark:bg-jp-gray-darkgray_background text-gray-700 dark:text-gray-200 red:bg-red">
+        className={`${value.globalUIConfig.backgroundColor} text-gray-700 dark:text-gray-200 red:bg-red`}>
         children
       </div>
     </div>

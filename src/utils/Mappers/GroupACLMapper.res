@@ -91,36 +91,37 @@ let defaultValueForGroupAccessJson = {
   themeManage: NoAccess,
 }
 
-let getAccessValue = (~groupAccess: groupAccessType, ~groupACL) =>
-  groupACL->Array.find(ele => ele == groupAccess)->Option.isSome ? Access : NoAccess
-
-// TODO: Refactor to not call function for every group
-let getGroupAccessJson = groupACL => {
-  operationsView: getAccessValue(~groupAccess=OperationsView, ~groupACL),
-  operationsManage: getAccessValue(~groupAccess=OperationsManage, ~groupACL),
-  connectorsView: getAccessValue(~groupAccess=ConnectorsView, ~groupACL),
-  connectorsManage: getAccessValue(~groupAccess=ConnectorsManage, ~groupACL),
-  workflowsView: getAccessValue(~groupAccess=WorkflowsView, ~groupACL),
-  workflowsManage: getAccessValue(~groupAccess=WorkflowsManage, ~groupACL),
-  analyticsView: getAccessValue(~groupAccess=AnalyticsView, ~groupACL),
-  usersView: getAccessValue(~groupAccess=UsersView, ~groupACL),
-  usersManage: getAccessValue(~groupAccess=UsersManage, ~groupACL),
-  merchantDetailsView: getAccessValue(~groupAccess=MerchantDetailsView, ~groupACL),
-  merchantDetailsManage: getAccessValue(~groupAccess=MerchantDetailsManage, ~groupACL),
-  organizationManage: getAccessValue(~groupAccess=OrganizationManage, ~groupACL),
-  accountView: getAccessValue(~groupAccess=AccountView, ~groupACL),
-  accountManage: getAccessValue(~groupAccess=AccountManage, ~groupACL),
-  themeView: getAccessValue(~groupAccess=ThemeView, ~groupACL),
-  themeManage: getAccessValue(~groupAccess=ThemeManage, ~groupACL),
-}
-
 let convertValueToMapGroup = arrayValue => {
   let userGroupACLMap: Map.t<groupAccessType, authorization> = Map.make()
   arrayValue->Array.forEach(value => userGroupACLMap->Map.set(value, Access))
   userGroupACLMap
 }
+
 let convertValueToMapResources = arrayValue => {
   let resourceACLMap: Map.t<resourceAccessType, authorization> = Map.make()
   arrayValue->Array.forEach(value => resourceACLMap->Map.set(value, Access))
   resourceACLMap
+}
+
+let getGroupAccessJson = groupACL => {
+  let accessMap = convertValueToMapGroup(groupACL)
+  let getAccess = key => accessMap->Map.get(key)->Option.isSome ? Access : NoAccess
+  {
+    operationsView: getAccess(OperationsView),
+    operationsManage: getAccess(OperationsManage),
+    connectorsView: getAccess(ConnectorsView),
+    connectorsManage: getAccess(ConnectorsManage),
+    workflowsView: getAccess(WorkflowsView),
+    workflowsManage: getAccess(WorkflowsManage),
+    analyticsView: getAccess(AnalyticsView),
+    usersView: getAccess(UsersView),
+    usersManage: getAccess(UsersManage),
+    merchantDetailsView: getAccess(MerchantDetailsView),
+    merchantDetailsManage: getAccess(MerchantDetailsManage),
+    organizationManage: getAccess(OrganizationManage),
+    accountView: getAccess(AccountView),
+    accountManage: getAccess(AccountManage),
+    themeView: getAccess(ThemeView),
+    themeManage: getAccess(ThemeManage),
+  }
 }

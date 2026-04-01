@@ -27,14 +27,14 @@ let make = (
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let initalFormValue =
+  let initialFormValue =
     formState.values
     ->getDictFromJsonObject
     ->getDictfromDict("metadata")
     ->getDictfromDict("apple_pay_combined")
 
   let setFormData = () => {
-    let value = applePayCombined(initalFormValue, #simplified, connector)
+    let value = applePayCombined(initialFormValue, #simplified, connector)
     form.change("metadata.apple_pay_combined", value->Identity.genericTypeToJson)
   }
 
@@ -183,6 +183,21 @@ let make = (
           )}`}
       />}
     />
+    <RenderIf condition={ConnectorUtils.checkIfPredecryptFlowEnabledForApplePay(connector)}>
+      <FormRenderer.FieldRenderer
+        labelClass="font-semibold !text-hyperswitch_black"
+        fieldWrapperClass="w-full flex justify-between items-center py-6"
+        field={FormRenderer.makeFieldInfo(
+          ~name={"metadata.apple_pay_combined.support_predecrypted_token"},
+          ~label="Enable pre decrypted token",
+          ~customInput=InputFields.boolInput(
+            ~isDisabled=false,
+            ~boolCustomClass="rounded-lg ",
+            ~isCheckBox=false,
+          ),
+        )}
+      />
+    </RenderIf>
     <RenderIf condition={featureFlagDetails.isLiveMode && featureFlagDetails.complianceCertificate}>
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(STRIPE) =>

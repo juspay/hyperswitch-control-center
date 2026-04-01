@@ -54,7 +54,7 @@ let getSearchOptionsForProcessors = (~processorList, ~getNameFromString) => {
 
 let isValidEmail = value =>
   !RegExp.test(
-    %re(`/^(([^<>()[\]\.,;:\s@"]+(\.[^<>()[\]\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/`),
+    %re(`/^(([^<>()[\]\.,;:\s@"{}\/\\]+(\.[^<>()[\]\.,;:\s@"{}\/\\]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/`),
     value,
   )
 
@@ -71,7 +71,7 @@ let getClientCountry = clientTimeZone => {
   ->Option.getOr(Country.defaultTimeZone)
 }
 
-let getBrowswerDetails = () => {
+let getBrowserDetails = () => {
   open Window
   open Window.Navigator
   open Window.Screen
