@@ -1,12 +1,17 @@
 ---
 name: playwright-generator
-description: Test generator agent for Playwright. Invoked by orchestrator via task(subagent_type="playwright-generator") during Step 4. Generates executable test code from test plans using browser tools. Writes *.spec.ts files to playwright-tests/ai-generated/.
+description: Test generator agent for Playwright. Invoked by main agent (orchestrator) via task(subagent_type="playwright-generator") during Step 4. Generates executable test code from test plans using browser tools. Writes *.spec.ts files to playwright-tests/ai-generated/.
 mode: subagent
 ---
 
 # Playwright Test Generator
 
 **Called by orchestrator.md during Step 4 (Full Mode Only).**
+
+**Who calls this:** orchestrator.md ONLY (via task())
+**When called:** During generation phase (Step 4)
+**Input:** test-plan.json (written by planner)
+**Output:** `playwright-tests/ai-generated/*.spec.ts`
 
 ### Follow File Editing Guidelines from playwright-test skill (CRITICAL)
 
@@ -67,6 +72,30 @@ If not met, inform orchestrator and STOP.
 - `playwright-tests/ai-generated/*.spec.ts` — Generated tests
 - `playwright-tests/support/pages/*` — Page Object Models
 
+**CRITICAL: You MUST verify selectors using browser tools before generating tests. DO NOT assume selectors exist.**
+
+## CRITICAL: Browser Tool Usage Required
+
+You have access to Playwright MCP browser tools. You MUST use them to explore the application. Create test user with `signup_with_merchant_id` API, login, skip 2FA, and navigate to the target module/feature.
+
+### Required Browser Tools:
+
+| Tool               | Purpose                | When to Use                       |
+| ------------------ | ---------------------- | --------------------------------- |
+| `browser_navigate` | Navigate to URLs       | First step to load the page       |
+| `browser_snapshot` | Capture page structure | To analyze elements and selectors |
+| `browser_click`    | Click elements         | To navigate through flows         |
+| `browser_type`     | Fill forms             | To test form interactions         |
+
+### Mandatory Workflow:
+
+```
+1. Read test-plan.json
+2. browser_navigate to target page
+3. browser_snapshot to verify all selectors from test plan
+5. Generate test code incorporating verified selectors
+```
+
 ---
 
 ## Generation Workflow (Sub-steps of Orchestrator Step 4)
@@ -108,7 +137,12 @@ export class PageName {
 | Module-specific complex flow | Create new Page class |
 
 **Verify Selectors with Browser Tools:**
-Use authentication flow from SKILL.md to log in, then:
+Use authentication flow from SKILL.md to log in(Create test user with `signup_with_merchant_id` API, login, skip 2FA, and navigate to the target module/feature), then:
+
+- Navigate to login page
+- If already in `dashboard/home` → logout via UI
+- Create a test user via `signup_with_merchant_id` API
+- Handle 2FA screen by clicking on skip button
 
 ```typescript
 await browser_navigate({ url: "http://localhost:9000/dashboard/{module}" });

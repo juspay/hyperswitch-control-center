@@ -176,6 +176,8 @@ ompLineage(page): Promise<{orgId, merchantId, profileId}>
 
 ## Browser exploration - handle authentication (Sub-Agents)
 
+- Navigate to login page
+- If already in `dashboard/home` → logout via UI
 - Create a test user via `signup_with_merchant_id` API
 - Handle 2FA screen by clicking on skip button
 
