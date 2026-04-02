@@ -60,12 +60,20 @@ let make = (
       | Pix =>
         <PixIntegration connector closeAccordionFn update=updateMetadata onCloseClickCustomFun />
       | PixAutomaticoQr =>
-        <PixAutomaticoQrIntegration
-          connector closeAccordionFn update=updateMetadata onCloseClickCustomFun
+        <PixAutomaticoIntegration
+          connector
+          metadataKey="pix_automatico_qr"
+          closeAccordionFn
+          update=updateMetadata
+          onCloseClickCustomFun
         />
       | PixAutomaticoPush =>
-        <PixAutomaticoPushIntegration
-          connector closeAccordionFn update=updateMetadata onCloseClickCustomFun
+        <PixAutomaticoIntegration
+          connector
+          metadataKey="pix_automatico_push"
+          closeAccordionFn
+          update=updateMetadata
+          onCloseClickCustomFun
         />
       | Boleto =>
         <BoletoIntegration connector closeAccordionFn update=updateMetadata onCloseClickCustomFun />
