@@ -1,12 +1,22 @@
 ---
 name: playwright-orchestrator
-description: Central dispatcher for Playwright test automation. Receives ALL user requests from SKILL.md, detects execution mode (full and heal), and orchestrates the workflow by DELEGATING to sub-agents (playwright-planner, playwright-generator, playwright-healer). THIS FILE IS EXECUTED BY THE MAIN AGENT (YOU), NOT DELEGATED.
+description: Central dispatcher for Playwright test automation. Receives ALL user requests from SKILL.md, detects execution mode (full and heal), and orchestrates the appropriate workflow by DELEGATING to sub-agents (playwright-planner, playwright-generator, playwright-healer). THIS FILE IS EXECUTED BY THE MAIN AGENT (YOU), NOT DELEGATED.
 mode: primary
 ---
 
 # Playwright Test Orchestrator
 
 **YOU are the orchestrator. DELEGATE all work to sub-agents via task(). DO NOT implement pipeline logic yourself.**
+
+> **CENTRAL DISPATCHER - All user requests flow through here**
+
+**Who calls this:** SKILL.md (ALWAYS - sole entry point)
+**What you do:** Detect execution mode, orchestrate workflow by DELEGATING to sub-agents via task() calls, manage state, produce summary
+**What you do NOT do:** Implement test logic directly (delegate to specialized agents via task())
+
+**CRITICAL RULE:** You MUST use task() to delegate to sub-agents. Do NOT do the work yourself.
+
+---
 
 ## Pipeline Flows
 
@@ -17,26 +27,42 @@ mode: primary
 
 ## Sub-Agent Delegation
 
-| Agent     | Type                   | Instructions    | Called In          |
-| --------- | ---------------------- | --------------- | ------------------ |
-| planner   | `playwright-planner`   | `_planner.md`   | Step 3 (all modes) |
-| generator | `playwright-generator` | `_generator.md` | Step 4 (Full only) |
-| healer    | `playwright-healer`    | `_healer.md`    | Step 5 (all modes) |
+| Sub-Agent              | Instructions file | Called In          | Purpose                          |
+| ---------------------- | ----------------- | ------------------ | -------------------------------- |
+| `playwright-planner`   | `_planner.md`     | Step 3 (all modes) | Creates comprehensive test plans |
+| `playwright-generator` | `_generator.md`   | Step 4 (Full only) | Generates test code from plans   |
+| `playwright-healer`    | `_healer.md`      | Step 5 (all modes) | Fixes failing tests              |
 
-**Standard task() call:**
+**How to invoke:** `task({ category: "unspecified-high", load_skills: ["playwright-test"], subagent_type: "playwright-planner|playwright-generator|playwright-healer", prompt: "You are playwright-{role}..." })`
 
-```typescript
-await task({
-  subagent_type: "playwright-{role}",
+---
+
+## CRITICAL: Delegation Pattern
+
+**YOU MUST delegate via task() calls. DO NOT implement logic yourself.**
+
+### Correct Delegation Pattern:
+
+````typescript
+const plannerResult = await task({
+  category: "unspecified-high",
   load_skills: ["playwright-test"],
-  mcp: ["playwright"],
-  description: "Brief description",
-  prompt:
-    "Read SKILL.md for conventions. Read _{role}.md for your instructions. Execute.",
+  subagent_type: "playwright-planner",
+  run_in_background: false,
+  description: "Create test plan via playwright-planner",
+  prompt: `
+    <YOUR PROMPT>
+  `
 });
-```
 
-### Follow File Editing Guidelines from playwright-test skill (CRITICAL)
+// Check planner result and proceed only if successful
+if (!plannerResult.success) {
+  report error and stop;
+}
+
+---
+
+**Follow File Editing Guidelines from playwright-test skill (CRITICAL)**
 
 When editing any files in this workflow, you **MUST** use surgical edits (`edit`) instead of full file writes (`write`). This preserves existing content and reduces error risk.
 
@@ -50,13 +76,13 @@ When editing any files in this workflow, you **MUST** use surgical edits (`edit`
 
 ### Execute
 
-1. Extract raw user message, PR numbers, module names, or scenario descriptions
+1. Extract raw user message, PR numbers, PR code diff, PR comments, PR description, module names, or scenario descriptions.
 2. Detect mode by keywords:
    - `full`: "generate tests", "create test", "test PR #N", "run playwright tests"
    - `heal-only`: "fix failing tests", "fix tests", "heal tests", "repair tests"
-3. Parse target: PR number, module name, or scenario description
+3. Parse target (Based on mode extract): PR number, module name, or scenario description
 4. Generate `sessionId = crypto.randomUUID()`
-5. Write `.opencode/sessions/playwright-run/input-context.json`:
+5. Write input-context.json `.opencode/sessions/playwright-run/input-context.json`:
    ```json
    {
      "rawInput": "user message",
@@ -66,8 +92,9 @@ When editing any files in this workflow, you **MUST** use surgical edits (`edit`
      "timestamp": "ISO",
      "sessionId": "uuid"
    }
-   ```
-6. Initialize `.opencode/sessions/playwright-run/session.json`:
+````
+
+6. Initialize session.json `.opencode/sessions/playwright-run/session.json`:
    ```json
    {
      "sessionId": "uuid",
@@ -116,10 +143,12 @@ When editing any files in this workflow, you **MUST** use surgical edits (`edit`
    - **If DOWN/non-200:**
      - Run: `sh playwright-tests/start_hyperswitch.sh`
      - Poll every 5s, max 120s
-     - Set `backendWasStarted = true`
+     - Update `session.json.servers.backendWasStarted = true`
      - If still DOWN: ask user to continue or abort
 2. Check frontend: `curl -s http://localhost:9000 > /dev/null && echo "UP" || echo "DOWN"`
-   - **If DOWN:**
+   - **If UP:**
+     - Stop process: `kill -TERM $(lsof -ti:9000) 2>/dev/null; sleep 3; kill -9 $(lsof -ti:9000) 2>/dev/null`
+   - **Start frontend:**
      - Run: `npm run build:test && npm run test:start`
      - Poll every 5s, max 120s
      - Set `frontendWasStarted = true`
@@ -162,24 +191,44 @@ Update `session.json`:
 
 ### Execute
 
+**CRITICAL:** Delegate to planner agent via task(). DO NOT plan tests yourself.
+
 1. Delegate to playwright-planner:
 
 ```typescript
-await task({
-  subagent_type: "playwright-planner",
+const plannerResult = await task({
+  category: "unspecified-high",
   load_skills: ["playwright-test"],
+  subagent_type: "playwright-planner", // This loads _planner.md instructions
   mcp: ["playwright"],
-  description: "Create test plan",
+  run_in_background: false,
+  description: "Create test plan via playwright-planner agent",
   prompt: `
-    Read SKILL.md for conventions and API helpers.
-    Read _planner.md for your specific instructions.
-    Read input-context.json for the target.
+    You are the playwright-planner agent. Your job is to create a comprehensive test plan.
+
+    **MANDATORY ACTIONS:**
+    1. Read .opencode/skills/playwright-tests/SKILL.md for conventions and API helpers.
+    2. Read .opencode/skills/playwright-tests/_planner.md for your specific instructions.
+    3. Read .opencode/sessions/playwright-run/input-context.json for the test target.
+    4. Use browser tools to explore the application:
+       - browser_navigate to http://localhost:9000/dashboard/login (or appropriate URL)
+       - browser_snapshot to analyze page structure
+       - Identify all interactive elements, forms, buttons, navigation
+    5. Create .opencode/sessions/playwright-run/test-plan.json with detailed scenarios
     
-    Execute the planning workflow:
-    1. Read existing tests in playwright-tests/e2e/ for patterns
+    **Execute the planning workflow:**
+    1. Read relevant source code, existing tests in playwright-tests/e2e/ for patterns
     2. Use browser tools to explore the application
     3. Determine preconditions using module mapping from SKILL.md
     4. Create test-plan.json with scenarios
+
+    **Refer Test Plan Structure in _planner.md**
+    
+    **Coverage Requirements:**
+    - Happy path scenarios
+    - Validation scenarios  
+    - Error handling scenarios
+    - Navigation scenarios
     
     Output: .opencode/sessions/playwright-run/test-plan.json
     Update session.json: { "phase": "planning-complete", "metrics": { "testsPlanned": N } }
@@ -211,6 +260,10 @@ await task({
 
 ## Step 4: Generate Tests (Full Mode Only)
 
+**Skip this step for:** heal-only mode
+
+**CRITICAL:** Delegate to generator agent via task(). DO NOT generate tests yourself.
+
 ### Preconditions
 
 - `session.json` exists with `phase="planning-complete"`
@@ -223,18 +276,35 @@ await task({
 1. Delegate to playwright-generator:
 
 ```typescript
-await task({
-  subagent_type: "playwright-generator",
+const generatorResult = await task({
+  category: "unspecified-high",
   load_skills: ["playwright-test"],
+  subagent_type: "playwright-generator", // This loads _generator.md instructions
   mcp: ["playwright"],
-  description: "Generate test code",
+  run_in_background: false,
+  description: "Generate test code via playwright-generator agent",
   prompt: `
-    Read SKILL.md for conventions, selector strategy, and API helpers.
-    Read _generator.md for your specific instructions.
-    Read test-plan.json for scenarios.
-    
+    You are the playwright-generator agent. Your job is to generate executable Playwright tests.
+
+    **MANDATORY ACTIONS:**
+    1. Read .opencode/skills/playwright-tests/SKILL.md for conventions, selector strategy, and API helpers.
+    2. Read .opencode/skills/playwright-tests/_generator.md for your specific instructions.
+    3. Read: .opencode/sessions/playwright-run/test-plan.json
+    4. Read existing Page Object Models in playwright-tests/support/pages/ 
+    5. Use browser tools to verify selectors from the test plan actually exist:
+       - browser_navigate to target page
+       - browser_snapshot to verify selectors
+    6. Generate test file: playwright-tests/ai-generated/{filename}.spec.ts
+
+    **File Naming:**
+    - PR: PR-{number}-{slug}.spec.ts
+    - Module: module-{name}.spec.ts
+    - Scenario: scenario-{slug}.spec.ts
+
+     **Refer Test File Structure in _generator.md**
+
     Execute the generation workflow:
-    1. Check existing Page Objects in playwright-tests/support/pages/
+    1. Check existing relevant tests in playwright-tests/e2e/ and related Page Objects in playwright-tests/support/pages/
     2. Use browser tools to verify selectors
     3. Generate test files in playwright-tests/ai-generated/
     4. Reuse/update Page Objects as needed
@@ -274,6 +344,8 @@ npx tsc --noEmit playwright-tests/ai-generated/*.spec.ts 2>&1
 
 ## Step 5: Healing Phase (All Modes)
 
+**CRITICAL:** Delegate to healer agent via task(). DO NOT fix tests yourself.
+
 ### Preconditions
 
 - **Full mode:** `session.json` exists with `phase="generating-complete"`
@@ -285,23 +357,39 @@ npx tsc --noEmit playwright-tests/ai-generated/*.spec.ts 2>&1
 1. Delegate to playwright-healer:
 
 ```typescript
-await task({
-  subagent_type: "playwright-healer",
+const healerResult = await task({
+  category: "unspecified-high",
   load_skills: ["playwright-test"],
+  subagent_type: "playwright-healer", // This loads _healer.md instructions
   mcp: ["playwright"],
-  description: "Run tests and fix failures",
+  run_in_background: false,
+  description: "Debug and fix failing tests via playwright-healer agent",
   prompt: `
-    Read SKILL.md for conventions and common fixes.
-    Read _healer.md for your specific instructions.
-    
+    You are the playwright-healer agent. Your job is to diagnose and fix failing tests.
+
+    **MANDATORY ACTIONS:**
+    1. Read .opencode/skills/playwright-tests/SKILL.md for conventions, selector strategy, and API helpers.
+    2. Read .opencode/skills/playwright-tests/_generator.md for your specific instructions.
+
     Execute the healing workflow:
     1. Run: npx playwright test playwright-tests/ai-generated/*.spec.ts --reporter=json
     2. Read run-results.json
     3. Segregate bugs by type (selector, timing, data, network, feature flag)
-    4. Use browser tools to diagnose and fix
+    4. Use browser tools to diagnose and fix failing tests
+       - Use browser_navigate to go to the test page
+       - Use browser_console_messages to check for JS errors
+       - Use browser_snapshot to inspect the DOM at failure point
+       - Reproduce the failure steps manually
+       - Identify the root cause (selector, timing, data, etc.)
     5. Repeat up to 3 times or until all tests pass
     6. Generate bug-report.md if failures remain
-    
+
+    **Common Fixes:**
+    - Add waits: await page.locator("...").waitFor({ state: "visible" })
+    - Fix selectors: Use data-testid or semantic selectors
+    - Add timing: await page.waitForLoadState("networkidle")
+    - Handle conditional elements: Check isVisible() before clicking
+
     Max attempts: 3
     Output: Fixed test files, run-results.json, bug-report.md
     Update session.json: { "phase": "healing-complete", "metrics": { "testsPassed": N, "testsFailed": N, "testsFixed": N, "healingAttempts": N } }
@@ -353,10 +441,10 @@ await skill_mcp({
 **2. Stop Servers (if started)**
 
 ```bash
-# If session.json.servers.backendWasStarted == true:
+# Stop backend server
 cd hyperswitch && docker rm -f hyperswitch-mailhog-1 2>/dev/null && docker compose down -v
 
-# If session.json.servers.frontendWasStarted == true:
+# Stop frontend server
 # Try graceful shutdown first, then force kill if needed
 PID=$(lsof -ti:9000)
 if [ -n "$PID" ]; then
@@ -465,11 +553,11 @@ const choice =
 
 #### Cleanup Actions
 
-| Choice           | Action                                                                         |
-| ---------------- | ------------------------------------------------------------------------------ |
-| `commit` (1)     | Commit changes, push, create PR                                                |
-| `new-branch` (2) | Create branch `pw/{target}-{timestamp}`, commit, push (Refer `raise-pr` skill) |
-| `clean` (3)      | Delete `ai-generated/*.spec.ts`, clear session files                           |
+| Choice           | Action                                                                                                                |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `commit` (1)     | Commit changes, push (Applicable only if target is PR, if target is module/scenario/tag/default fallback to option 2) |
+| `new-branch` (2) | Create branch `pw/{target}-{timestamp}`, commit, push (Refer `raise-pr` skill)                                        |
+| `clean` (3)      | Delete `ai-generated/*.spec.ts`, clear session files                                                                  |
 
 **Invalid Input Handling:**
 
