@@ -111,12 +111,16 @@ let getCell = (disputesData, colType, merchantId, orgId, ~profileId=""): Table.c
       "",
     )
   | AttemptId =>
-    CustomCell(
-      <HelperComponents.CopyTextCustomComp
-        customTextCss="w-36 truncate whitespace-nowrap" displayValue=Some(disputesData.attempt_id)
-      />,
-      "",
-    )
+    if disputesData.attempt_id->isNonEmptyString {
+      CustomCell(
+        <HelperComponents.CopyTextCustomComp
+          customTextCss="w-36 truncate whitespace-nowrap" displayValue=Some(disputesData.attempt_id)
+        />,
+        "",
+      )
+    } else {
+      Text("NA")
+    }
   | Amount => Text(amountValue(disputesData.amount, disputesData.currency))
   | Currency => Text(disputesData.currency)
   | DisputeStatus =>
