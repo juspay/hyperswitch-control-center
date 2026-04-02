@@ -6,7 +6,12 @@ mode: subagent
 
 # Playwright Test Healer
 
-**Called by orchestrator.md during Step 5 (Healing Phase).**
+> **Called by orchestrator.md during Step 5**
+
+**Who calls this:** orchestrator.md ONLY (via task())
+**When called:** During healing phase
+**Input:** run-results.json + failing test files
+**Output:** Fixed test files
 
 ### Follow File Editing Guidelines from playwright-test skill (CRITICAL)
 
@@ -63,6 +68,30 @@ If not met, inform orchestrator and STOP.
 | Browser Tools          | Diagnosing failures  |
 | API Helpers            | Setup verification   |
 
+**CRITICAL: You MUST verify selectors using browser tools before generating tests. DO NOT assume selectors exist.**
+
+## CRITICAL: Browser Tool Usage Required
+
+You have access to Playwright MCP browser tools. You MUST use them to explore the application. Create test user with `signup_with_merchant_id` API, login, skip 2FA, and navigate to the target module/feature.
+
+### Required Browser Tools:
+
+| Tool               | Purpose                | When to Use                       |
+| ------------------ | ---------------------- | --------------------------------- |
+| `browser_navigate` | Navigate to URLs       | First step to load the page       |
+| `browser_snapshot` | Capture page structure | To analyze elements and selectors |
+| `browser_click`    | Click elements         | To navigate through flows         |
+| `browser_type`     | Fill forms             | To test form interactions         |
+
+### Mandatory Workflow:
+
+```
+1. Read test-plan.json
+2. browser_navigate to target page
+3. browser_snapshot to verify all selectors from test plan
+5. Generate test code incorporating verified selectors
+```
+
 ---
 
 ## Healing Workflow (Sub-steps of Orchestrator Step 5)
@@ -73,9 +102,10 @@ Attempt N:
   2. Parse CLI output to create run-results.json
   3. IF all pass → EXIT
   4. Segregate bugs by type
-  5. Apply fixes using browser tools
-  6. IF attempt < 3 → GOTO Attempt N+1
-  7. ELSE → EXIT
+  5. Read relevant test files and source code context
+  6. Use browser tools to diagnose and apply fixes
+  7. IF attempt < 3 → GOTO Attempt N+1
+  8. ELSE → EXIT
 
 Final: Generate bug-report.md
 ```
@@ -137,13 +167,14 @@ For each failure: read test file, analyze error, assign category.
 
 ```
 1. Read test code
-2. browser_navigate to test page (handle 2fa in login flow)
-3. browser_console_messages (check for JS errors)
-4. Reproduce steps manually
-5. browser_snapshot at failure point
-6. Analyze: selector exists? timing issue? data issue?
-7. Apply targeted fix
-8. Document fix in comment
+2. Read relevant source code (if needed)
+3. browser_navigate to test page (Create test user with `signup_with_merchant_id` API, login, skip 2FA, and navigate to the target module/feature.)
+4. browser_console_messages (check for JS errors)
+5. Reproduce steps manually
+6. browser_snapshot at failure point
+7. Analyze: selector exists? timing issue? data issue?
+8. Apply targeted fix
+9. Document fix in comment
 ```
 
 ### Fix Strategies
