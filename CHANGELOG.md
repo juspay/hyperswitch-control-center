@@ -3,6 +3,31 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.04.02.0
+
+### Features
+
+- Add upload assets modal in themecreate ([#4297](https://github.com/juspay/hyperswitch-control-center/pull/4297)) ([`6039926`](https://github.com/juspay/hyperswitch-control-center/commit/6039926b5b67ec2b2f86a388a71694f614f237a1))
+- Add mixpanel event for acquirer config settings ([#4517](https://github.com/juspay/hyperswitch-control-center/pull/4517)) ([`e0134e4`](https://github.com/juspay/hyperswitch-control-center/commit/e0134e4a8470950467e51ca09be5160577ac58bd))
+
+### Bug Fixes
+
+- MaxPageWidth issue across dashboard ([#4533](https://github.com/juspay/hyperswitch-control-center/pull/4533)) ([`d8f9d22`](https://github.com/juspay/hyperswitch-control-center/commit/d8f9d22a4163d0eb5cfba224daad204fac9bffc9))
+- Correct typos batch 4/7 ([#4389](https://github.com/juspay/hyperswitch-control-center/pull/4389)) ([`4395690`](https://github.com/juspay/hyperswitch-control-center/commit/4395690b51a69a2b4d566c5813e5e375f4e49c95))
+
+### Refactors
+
+- Parallelize dashboard API calls in setUpDashboard ([#4521](https://github.com/juspay/hyperswitch-control-center/pull/4521)) ([`8a5757f`](https://github.com/juspay/hyperswitch-control-center/commit/8a5757fa033f603ba35008f3b45f666c1ad32b83))
+- Rename `iDEAL` to `iDEAL | Wero` pmt ([#4644](https://github.com/juspay/hyperswitch-control-center/pull/4644)) ([`8270346`](https://github.com/juspay/hyperswitch-control-center/commit/8270346f0529c54b90638d4c1ab6456f5209f2b1))
+
+### Miscellaneous Tasks
+
+- Replace custom spacing aliases with standard Tailwind equivalents ([#4645](https://github.com/juspay/hyperswitch-control-center/pull/4645)) ([`3d21aed`](https://github.com/juspay/hyperswitch-control-center/commit/3d21aedbfc0371d315fca91fa67a3fd8f14deadd))
+
+**Full Changelog:** [`2026.04.01.0...2026.04.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.01.0...2026.04.02.0)
+
+- - -
+
 ## 2026.04.01.0
 
 ### Features
