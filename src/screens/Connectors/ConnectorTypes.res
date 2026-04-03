@@ -226,6 +226,8 @@ type paymentMethodTypes =
   | DirectCarrierBilling
   | AmazonPay
   | Pix
+  | PixAutomaticoQr
+  | PixAutomaticoPush
   | Boleto
   | NetworkToken
   | Ideal
