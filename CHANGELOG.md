@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.04.03.0
+
+### Features
+
+- Add pix automatic payment method types for santander ([#4656](https://github.com/juspay/hyperswitch-control-center/pull/4656)) ([`0ed2b19`](https://github.com/juspay/hyperswitch-control-center/commit/0ed2b193229637dcdf116168415e3ca983138f52))
+
+**Full Changelog:** [`2026.04.02.0...2026.04.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.02.0...2026.04.03.0)
+
+- - -
+
 ## 2026.04.02.0
 
 ### Features
