@@ -65,7 +65,7 @@ export const connectorConfig = {
       BankRedirect: {
         label: "Bank Redirect",
         methods: [
-          "Ideal",
+          "iDEAL | Wero",
           "Eps",
           "Blik",
           "Trustly",
