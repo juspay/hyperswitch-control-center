@@ -16,7 +16,7 @@ import {
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
 
-test.describe("Sign up", () => {
+test.describe.serial("Sign up", () => {
   test("should verify all components on the sign-up page", async ({ page }) => {
     const signupPage = new SignUpPage(page);
     const signinPage = new SignInPage(page);
@@ -88,7 +88,6 @@ test.describe("Sign up", () => {
     const email = generateUniqueEmail();
 
     await visitSignupPage(page);
-    await signinPage.signUpLink.click();
     await signupPage.emailInput.fill(email);
     await signupPage.signUpButton.click();
 
@@ -103,7 +102,9 @@ test.describe("Sign up", () => {
     await expect(signupPage.footerText).toContainText("Cancel");
   });
 
-  test("should be able to sign up using magic link and verify password masking while signup", async ({ page }) => {
+  test("should be able to sign up using magic link and verify password masking while signup", async ({
+    page,
+  }) => {
     const email = generateUniqueEmail();
     const password = PLAYWRIGHT_PASSWORD;
 

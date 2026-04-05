@@ -22,8 +22,8 @@ export default defineConfig({
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000", // Base URL to use in actions like `await page.goto('')`.
     screenshot: "only-on-failure", // Screenshot on failure for debugging
-    video: process.env.CI ? "on" : "retain-on-failure", // Video recording for CI debugging
-    trace: process.env.CI ? "on" : "on-first-retry", // Collect trace for detailed debugging
+    video: "retain-on-failure",
+    trace: "on-first-retry",
     actionTimeout: 30000, // Action timeout - aligned with Cypress
     navigationTimeout: 90000, // Navigation timeout - aligned with Cypress
     viewport: { width: 1440, height: 1005 }, // Viewport - aligned with Cypress

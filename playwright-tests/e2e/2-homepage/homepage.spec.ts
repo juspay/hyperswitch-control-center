@@ -93,7 +93,7 @@ test.describe("Homepage", () => {
 
       await homePage.connectors.click();
       await homePage.paymentProcessors.click();
-      await expect(page.getByText("Payment Processors")).toBeVisible();
+      await expect(page.getByText("Payment Processors").nth(1)).toBeVisible();
 
       await page.locator('[data-testid="overview"]').first().click();
       await page.locator('[data-button-for="tryItOut"]').click();
