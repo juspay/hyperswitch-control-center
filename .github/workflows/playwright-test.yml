@@ -60,6 +60,10 @@ jobs:
           PLAYWRIGHT_SSO_USERNAME: ${{ secrets.CYPRESS_SSO_USERNAME }}
           PLAYWRIGHT_SSO_PASSWORD: ${{ secrets.CYPRESS_SSO_PASSWORD }}
 
+      - name: Publish Test Summary Results
+        if: always()
+        run: npx github-actions-ctrf ctrf/ctrf-report.json
+
       - name: Artifact - Playwright Report
         uses: actions/upload-artifact@v4
         if: always()

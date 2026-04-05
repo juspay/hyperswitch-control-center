@@ -120,7 +120,7 @@ test.describe("Homepage", () => {
     }
   });
 
-  test("should verify sidebar menu navigation for orchestrator", async ({
+  test("should verify sidebar menu navigation - overview and operations", async ({
     page,
   }) => {
     const homePage = new HomePage(page);
@@ -159,6 +159,12 @@ test.describe("Homepage", () => {
     await expect(homePage.customers).toBeVisible();
     await homePage.customers.click();
     await expect(page).toHaveURL(/.*dashboard\/customers/);
+  });
+
+  test("should verify sidebar menu navigation - connectors", async ({
+    page,
+  }) => {
+    const homePage = new HomePage(page);
 
     await expect(homePage.connectors).toBeVisible();
     await homePage.connectors.click();
@@ -193,6 +199,12 @@ test.describe("Homepage", () => {
     await expect(homePage.vaultConnectors).toBeVisible();
     await homePage.vaultConnectors.click();
     await expect(page).toHaveURL(/.*dashboard\/vault-processor/);
+  });
+
+  test("should verify sidebar menu navigation - analytics and workflow", async ({
+    page,
+  }) => {
+    const homePage = new HomePage(page);
 
     await expect(homePage.analytics).toBeVisible();
     await homePage.analytics.click();
@@ -225,6 +237,12 @@ test.describe("Homepage", () => {
     await expect(homePage.threeDSExemptionManager).toBeVisible();
     await homePage.threeDSExemptionManager.click();
     await expect(page).toHaveURL(/.*dashboard\/3ds-exemption/);
+  });
+
+  test("should verify sidebar menu navigation - vault, developer and settings", async ({
+    page,
+  }) => {
+    const homePage = new HomePage(page);
 
     await expect(homePage.vault).toBeVisible();
     await homePage.vault.click();
