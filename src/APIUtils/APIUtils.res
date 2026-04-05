@@ -214,7 +214,7 @@ let useGetURL = () => {
         userInfo.analyticsEntity,
         userInfo.userEntity,
       )
-    | EmbeddableSession(_) => (#Merchant, #Merchant, #Merchant)
+    | EmbeddableSession(_) => (#Profile, #Profile, #Profile)
     }
 
     let connectorBaseURL = `account/${merchantId}/connectors`

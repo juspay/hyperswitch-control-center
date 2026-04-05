@@ -7,6 +7,7 @@ const CompressionPlugin = require("compression-webpack-plugin");
 const tailwindcss = require("tailwindcss");
 const serverConfig = require("./webpack.server");
 const config = import("./src/server/config.mjs");
+const themeConfig = import("./src/server/theme.mjs");
 
 const DEV_SERVER_PORT = 9001;
 
@@ -41,7 +42,7 @@ const proxyConfig = [
 ];
 
 const configMiddleware = (req, res, next) => {
-  if (req.path.includes("/config/feature") && req.method === "GET") {
+  if (req.url?.includes("/config/feature") && req.method === "GET") {
     const { domain = "default" } = req.query;
     config
       .then((result) => {
@@ -54,11 +55,28 @@ const configMiddleware = (req, res, next) => {
       });
     return;
   }
+  if (req.url?.includes("/config/theme") && req.method === "GET") {
+    themeConfig
+      .then((result) => {
+        result.themeConfigHandler(req, res, false);
+      })
+      .catch((error) => {
+        console.error("Theme middleware error:", error);
+        res.writeHead(500, { "Content-Type": "text/plain" });
+        res.end("Internal Server Error");
+      });
+    return;
+  }
   next();
 };
 
 const assetRewriteMiddleware = (req, _res, next) => {
-  if (req.path.startsWith("/embedded")) {
+  // Only rewrite asset paths, not application routes
+  // Application routes are handled by historyApiFallback
+  if (
+    req.path.startsWith("/embedded/assets/") ||
+    req.path.startsWith("/embedded/lottie-files/")
+  ) {
     req.url = req.path.replace(/^\/embedded/, "");
   } else if (
     req.path.startsWith("/assets/") ||

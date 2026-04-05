@@ -621,7 +621,10 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open OrderUIUtils
   let getURL = useGetURL()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let {getCommonSessionDetails, isEmbeddableSession} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let {version} = getCommonSessionDetails()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -637,12 +640,16 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     open PaymentsInterface
     try {
       setScreenState(_ => Loading)
-      let _ = await internalSwitch(
-        ~expectedOrgId=orgId,
-        ~expectedMerchantId=merchantId,
-        ~expectedProfileId=profileId,
-        ~version,
-      )
+
+      if !isEmbeddableSession() {
+        let _ = await internalSwitch(
+          ~expectedOrgId=orgId,
+          ~expectedMerchantId=merchantId,
+          ~expectedProfileId=profileId,
+          ~version,
+        )
+      }
+
       let res = await fetchDetails(url)
       let order = switch version {
       | V1 => mapJsonDictToCommonPaymentPayload(paymentInterfaceV1, res->getDictFromJsonObject)
