@@ -133,22 +133,22 @@ This project is a dashboard for managing payments, refunds, disputes, and payout
 
 ## Module-to-URL Mapping
 
-| Module            | URL                            | Prerequisites               |
-| ----------------- | ------------------------------ | --------------------------- |
-| auth              | `/dashboard/login`             | -                           |
-| home              | `/dashboard/home`              | User                        |
-| payments          | `/dashboard/payments`          | User + Connector            |
-| refunds           | `/dashboard/refunds`           | User + Connector + Payment  |
-| disputes          | `/dashboard/disputes`          | User + Connector + Payment  |
-| connectors        | `/dashboard/connectors`        | User                        |
-| payout-connectors | `/dashboard/payout-connectors` | User                        |
-| routing           | `/dashboard/routing`           | User + Connector            |
-| customers         | `/dashboard/customers`         | User + Payments             |
-| analytics         | `/dashboard/analytics`         | User + Connector + Payments |
-| users             | `/dashboard/users`             | User (admin)                |
-| api-keys          | `/dashboard/api-keys`          | User                        |
-| webhooks          | `/dashboard/webhooks`          | User                        |
-| settings          | `/dashboard/settings`          | User                        |
+| Module            | URL                             | Prerequisites               |
+| ----------------- | ------------------------------- | --------------------------- |
+| auth              | `/dashboard/login`              | -                           |
+| home              | `/dashboard/home`               | User                        |
+| payments          | `/dashboard/payments`           | User + Connector            |
+| refunds           | `/dashboard/refunds`            | User + Connector + Payment  |
+| disputes          | `/dashboard/disputes`           | User + Connector + Payment  |
+| connectors        | `/dashboard/connectors`         | User                        |
+| payout-connectors | `/dashboard/payout-connectors`  | User                        |
+| routing           | `/dashboard/routing`            | User + Connector            |
+| customers         | `/dashboard/customers`          | User + Payments             |
+| analytics         | `/dashboard/analytics-payments` | User + Connector + Payments |
+| users             | `/dashboard/users`              | User (admin)                |
+| api-keys          | `/dashboard/developer-api-keys` | User                        |
+| webhooks          | `/dashboard/webhooks`           | User                        |
+| settings          | `/dashboard/settings`           | User                        |
 
 ---
 
