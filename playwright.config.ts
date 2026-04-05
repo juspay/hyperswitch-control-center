@@ -34,10 +34,7 @@ export default defineConfig({
         ["html", { open: "never", outputFolder: "playwright-report" }],
         ["json", { outputFile: "test-results/report.json" }],
         ["line"],
-        [
-          "playwright-ctrf-json-reporter",
-          { outputFile: "ctrf/ctrf-report.json", outputDir: "" },
-        ],
+        ["playwright-ctrf-json-reporter", { outputDir: "ctrf" }],
       ]
     : [["html", { open: "on-failure" }]],
 
