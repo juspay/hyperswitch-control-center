@@ -235,6 +235,7 @@ test.describe("Homepage", () => {
     await expect(homePage.vaultCustomersAndTokens).toBeVisible();
     await homePage.vaultCustomersAndTokens.click();
     await expect(page).toHaveURL(/.*dashboard\/vault-customers-tokens/);
+    await page.waitForLoadState("networkidle");
 
     await expect(homePage.developer).toBeVisible();
     await homePage.developer.click();
@@ -259,5 +260,6 @@ test.describe("Homepage", () => {
     await expect(homePage.organizationSettings).toBeVisible();
     await homePage.organizationSettings.click();
     await expect(page).toHaveURL(/.*dashboard\/organization-settings/);
+    await page.waitForLoadState("networkidle");
   });
 });

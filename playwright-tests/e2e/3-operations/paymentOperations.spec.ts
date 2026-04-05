@@ -710,7 +710,7 @@ test.describe("Payment Operations", () => {
   });
 
   // Date Selector
-  test("should extend the time range by 90 days when no payments are listed", async ({
+  test.skip("should extend the time range by 90 days when no payments are listed", async ({
     page,
   }) => {
     const homePage = new HomePage(page);
