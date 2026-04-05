@@ -546,8 +546,11 @@ const ssoBaseUrl = process.env.PLAYWRIGHT_SSO_BASE_URL;
     let authId = "";
 
     test.beforeAll(async ({ request }) => {
-      const email = generateUniqueEmail();
-      await signupUser(email, PLAYWRIGHT_PASSWORD, request);
+      await signupUser(
+        process.env.PLAYWRIGHT_SSO_USERNAME!,
+        process.env.PLAYWRIGHT_SSO_PASSWORD!,
+        request,
+      );
       await createAuth(request);
       authId = await getAuthIdByEmail(request);
     });

@@ -95,24 +95,29 @@ When editing any files in this workflow, you **MUST** use surgical edits (`edit`
 ````
 
 6. Initialize session.json `.opencode/sessions/playwright-run/session.json`:
-   ```json
-   {
-     "sessionId": "uuid",
-     "mode": "detected-mode",
-     "status": "in_progress",
-     "phase": "parse",
-     "startedAt": "ISO",
-     "servers": { "backendWasStarted": false, "frontendWasStarted": false },
-     "metrics": {
-       "testsPlanned": 0,
-       "testsGenerated": 0,
-       "testsPassed": 0,
-       "testsFailed": 0,
-       "testsFixed": 0,
-       "healingAttempts": 0
-     }
-   }
-   ```
+
+```json
+{
+  "sessionId": "uuid",
+  "mode": "detected-mode",
+  "status": "in_progress",
+  "phase": "parse",
+  "startedAt": "ISO",
+  "servers": {
+    "backendWasStarted": false,
+    "frontendWasStarted": false,
+    "frontendPid": null
+  },
+  "metrics": {
+    "testsPlanned": 0,
+    "testsGenerated": 0,
+    "testsPassed": 0,
+    "testsFailed": 0,
+    "testsFixed": 0,
+    "healingAttempts": 0
+  }
+}
+```
 
 ### Verify
 
@@ -149,10 +154,12 @@ When editing any files in this workflow, you **MUST** use surgical edits (`edit`
    - **If UP:**
      - Stop process: `kill -TERM $(lsof -ti:9000) 2>/dev/null; sleep 3; kill -9 $(lsof -ti:9000) 2>/dev/null`
    - **Start frontend:**
-     - Run: `npm run build:test && npm run test:start`
-     - Poll every 5s, max 120s
-     - Set `frontendWasStarted = true`
-     - If still DOWN: ask user to continue or abort
+     - Run build: `npm run build:test`
+     - Start server in background: `npm run start:test`
+     - Capture PID: `FRONTEND_PID=$!`
+     - Poll every 5s, max 240s for `curl -s http://localhost:9000 > /dev/null` to return 0
+     - Set `frontendWasStarted = true` and store `frontendPid: $FRONTEND_PID`
+     - If still DOWN after 120s: `kill $FRONTEND_PID 2>/dev/null` and ask user to continue or abort
 
 ### Session Update
 
@@ -445,7 +452,17 @@ await skill_mcp({
 cd hyperswitch && docker rm -f hyperswitch-mailhog-1 2>/dev/null && docker compose down -v
 
 # Stop frontend server
-# Try graceful shutdown first, then force kill if needed
+# First try the stored PID if available
+if [ -n "$FRONTEND_PID" ]; then
+  kill -TERM "$FRONTEND_PID" 2>/dev/null
+  sleep 3
+  # Force kill if still running
+  if kill -0 "$FRONTEND_PID" 2>/dev/null; then
+    kill -9 "$FRONTEND_PID" 2>/dev/null
+  fi
+fi
+
+# Fallback: kill any process on port 9000
 PID=$(lsof -ti:9000)
 if [ -n "$PID" ]; then
   kill -TERM "$PID" 2>/dev/null

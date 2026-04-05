@@ -42,7 +42,7 @@ edit({
 });
 ```
 
-## Guardrail
+### Guardrail
 
 Proceed ONLY if:
 
@@ -51,7 +51,7 @@ Proceed ONLY if:
 
 If not met, inform orchestrator and STOP.
 
-## Input/Output
+### Input/Output
 
 - **Input:** Test files in `playwright-tests/ai-generated/` OR `playwright-tests/e2e/`
 - **Output:**
@@ -59,7 +59,7 @@ If not met, inform orchestrator and STOP.
   - `.opencode/sessions/playwright-run/run-results.json`
   - `.opencode/sessions/playwright-run/bug-report.md` (if failures)
 
-## References (Read SKILL.md)
+### References (Read SKILL.md)
 
 | Section                | Use For              |
 | ---------------------- | -------------------- |
@@ -70,7 +70,7 @@ If not met, inform orchestrator and STOP.
 
 **CRITICAL: You MUST verify selectors using browser tools before generating tests. DO NOT assume selectors exist.**
 
-## CRITICAL: Browser Tool Usage Required
+### CRITICAL: Browser Tool Usage Required
 
 You have access to Playwright MCP browser tools. You MUST use them to explore the application. Create test user with `signup_with_merchant_id` API, login, skip 2FA, and navigate to the target module/feature.
 
@@ -94,25 +94,27 @@ You have access to Playwright MCP browser tools. You MUST use them to explore th
 
 ---
 
-## Healing Workflow (Sub-steps of Orchestrator Step 5)
+### Healing Workflow (Sub-steps of Orchestrator Step 5)
 
 ```
 Attempt N:
   1. Run tests via CLI
   2. Parse CLI output to create run-results.json
-  3. IF all pass → EXIT
+  3. IF all pass → UPDATE session.json → EXIT
   4. Segregate bugs by type
   5. Read relevant test files and source code context
   6. Use browser tools to diagnose and apply fixes
-  7. IF attempt < 3 → GOTO Attempt N+1
-  8. ELSE → EXIT
+  7. UPDATE run-results.json with current results
+  8. UPDATE session.json with metrics and healingAttempts = N
+  9. IF attempt < 3 → GOTO Attempt N+1
+  10. ELSE → EXIT
 
 Final: Generate bug-report.md
 ```
 
 ---
 
-## 5.1: Run Tests
+### 5.1: Run Tests
 
 ```bash
 npx playwright test playwright-tests/ai-generated/*.spec.ts --reporter=json --output=test-results/
@@ -138,16 +140,14 @@ Parse CLI output and write `run-results.json`:
 }
 ```
 
----
-
-## 5.2: Check Results
+### 5.2: Check Results
 
 - If `summary.failed === 0` → All pass! Skip to 5.7
 - If `summary.failed > 0` → Continue to 5.3
 
 ---
 
-## 5.3: Segregate Bugs by Type
+### 5.3: Segregate Bugs by Type
 
 | Category         | Error Patterns                                                      | Common Causes                        |
 | ---------------- | ------------------------------------------------------------------- | ------------------------------------ |
@@ -161,7 +161,7 @@ For each failure: read test file, analyze error, assign category.
 
 ---
 
-## 5.4: Apply Fixes (Browser Tools REQUIRED)
+### 5.4: Apply Fixes (Browser Tools REQUIRED)
 
 **Fix Workflow for each failure:**
 
@@ -177,7 +177,7 @@ For each failure: read test file, analyze error, assign category.
 9. Document fix in comment
 ```
 
-### Fix Strategies
+#### Fix Strategies
 
 **Selector Issues:**
 
@@ -240,9 +240,7 @@ if (await element.isVisible().catch(() => false)) {
 }
 ```
 
----
-
-## 5.5: Document Fixes
+### 5.5: Document Fixes
 
 Add comments to fixed tests:
 
@@ -257,24 +255,63 @@ await page.locator('[data-testid="payment-list"]').waitFor();
 await page.locator('[data-testid="submit-button"]').click();
 ```
 
----
+### 5.6: Update Session and Results After Each Attempt
 
-## 5.6: Healing Loop Control
+**At the end of each healing attempt (BEFORE deciding to continue), you MUST:**
+
+1. **Update `run-results.json`** with current test results:
+
+   ```json
+   {
+     "status": "passed|partial|failed",
+     "testFile": "path",
+     "timestamp": "ISO",
+     "summary": { "total": 0, "passed": 0, "failed": 0, "skipped": 0 },
+     "failures": [...],
+     "attempt": N
+   }
+   ```
+
+2. **Update `session.json`** with current metrics:
+   ```json
+   {
+     "metrics": {
+       "testsPassed": N,
+       "testsFailed": N,
+       "testsFixed": N,
+       "healingAttempts": N
+     }
+   }
+   ```
+
+**Use surgical edits to update only the changed fields.**
+
+### 5.7: Healing Loop Control & Exit Conditions
+
+**Exit Conditions (STOP healing when ANY of these are met):**
+
+1. **All tests pass** (`summary.failed === 0`) → EXIT to 5.8
+2. **Max attempts reached** (`attempt >= 3`) → EXIT to 5.8
+3. **No fixes applied** (failures exist but no changes made) → EXIT to 5.8
+
+**Continue Conditions:**
 
 ```
-IF attempt < 3 AND failures were fixed:
-  → Increment attempt counter
+IF attempt < 3 AND summary.failed > 0 AND fixes were applied:
+  → Increment attempt counter (attempt = attempt + 1)
   → GOTO 5.1 (Run Tests again)
 ELSE:
   → EXIT loop
-  → GOTO 5.7
+  → GOTO 5.8
 ```
+
+**CRITICAL: The healing loop MUST exit after exactly 3 attempts maximum.**
 
 ---
 
-## 5.7: Generate Bug Report & Final Results
+### 5.8: Generate Bug Report & Final Results
 
-### Write `bug-report.md` (if failures remain):
+#### Write `bug-report.md` (if failures remain):
 
 ```markdown
 # Bug Report - Playwright Test Failures
@@ -308,7 +345,7 @@ Attempts: {N}
 | {test-name} | {description} | 1       | selector   |
 ```
 
-### Update `run-results.json`:
+#### Update `run-results.json`:
 
 ```json
 {
@@ -334,9 +371,7 @@ Attempts: {N}
 }
 ```
 
----
-
-## 5.8: Return to Orchestrator
+### 5.9: Return to Orchestrator
 
 **Before returning, close browser sessions:**
 

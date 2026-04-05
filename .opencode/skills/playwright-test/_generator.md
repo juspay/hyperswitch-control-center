@@ -248,7 +248,7 @@ async helperMethod(param: string): Promise<void> {
 
 ---
 
-## Conventions
+### Conventions
 
 - Use API helpers for setup (don't use UI)
 - Prefer semantic selectors: `getByRole`, `getByLabel`, then `getByTestId`
@@ -259,7 +259,7 @@ async helperMethod(param: string): Promise<void> {
 
 ---
 
-## Return to Orchestrator
+### Return to Orchestrator
 
 **Before returning, close browser sessions:**
 

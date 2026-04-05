@@ -85,7 +85,7 @@ If not met, inform orchestrator of missing context and STOP.
 
 ## Planning Workflow (Sub-steps of Orchestrator Step 3)
 
-### 3.1: Read Input Context
+#### 3.1: Read Input Context
 
 Read `input-context.json`:
 
@@ -100,7 +100,7 @@ Read `input-context.json`:
 }
 ```
 
-### 3.2: Analyze Existing Tests & Page Objects
+#### 3.2: Analyze Existing Tests & Page Objects
 
 **MANDATORY:** Read existing patterns in `playwright-tests/e2e/**/*.spec.ts`:
 
@@ -110,7 +110,7 @@ Read `input-context.json`:
 
 **Read Page Objects** in `playwright-tests/support/pages/` to identify reusable locators.
 
-### 3.3: Determine Preconditions
+#### 3.3: Determine Preconditions
 
 Use module dependency mapping from SKILL.md:
 
@@ -165,7 +165,7 @@ Every test plan must include scenarios for:
 - **Empty state** - Behavior when no data
 - **Navigation** - Links and routing work
 
-#### Scenario Categories
+##### Scenario Categories
 
 | Category             | Description                       | Example                          |
 | -------------------- | --------------------------------- | -------------------------------- |
@@ -257,7 +257,7 @@ Before returning to orchestrator:
 
 ---
 
-## Return to Orchestrator
+#### Return to Orchestrator
 
 **Before returning, close browser sessions:**
 
