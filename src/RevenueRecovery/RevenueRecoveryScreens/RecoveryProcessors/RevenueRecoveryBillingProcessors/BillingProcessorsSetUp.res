@@ -213,9 +213,7 @@ let make = (
             </div>
           </RenderIf>
           <FormRenderer.SubmitButton
-            text="Next"
-            buttonSize={Small}
-            customSubmitButtonStyle="!w-full"
+            text="Next" buttonSize={Small} customSubmitButtonStyle="!w-full"
           />
         </div>
       </Form>
