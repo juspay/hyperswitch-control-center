@@ -89,6 +89,8 @@ module CardRenderer = {
     let showAdditionalDetails = methodVariant => {
       switch (methodVariant, connector->getConnectorNameTypeFromString(~connectorType)) {
       | (Pix, Processors(SANTANDER))
+      | (PixAutomaticoQr, Processors(SANTANDER))
+      | (PixAutomaticoPush, Processors(SANTANDER))
       | (Boleto, Processors(SANTANDER))
       | (PayPal, Processors(BRAINTREE)) => true
       | _ =>
