@@ -724,7 +724,6 @@ test.describe("TOTP flows", () => {
     await expect(page.locator('[viewBox="0 0 41 41"]')).toBeVisible();
 
     const token = authenticator.generate(totpSecret);
-    console.log("Generated TOTP token:", token);
 
     const textboxes = page.getByRole("textbox");
     const count = await textboxes.count();
