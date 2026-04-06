@@ -68,13 +68,7 @@ let make = (
     triggerElement
   } else {
     <ToolTipBinding
-      content
-      size=Lg
-      ?side
-      ?align
-      ?delayDuration
-      ?open_
-      disableInteractive={!hoverOnToolTip}>
+      content size=Lg ?side ?align ?delayDuration ?open_ disableInteractive={!hoverOnToolTip}>
       trigger
     </ToolTipBinding>
   }
