@@ -166,13 +166,13 @@ module AssetField = {
         <input type_="file" accept hidden=true onChange={handleFileChange} id={inputId} />
         <label
           htmlFor={inputId}
-          className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer transition">
+          className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-nd_gray-700 bg-white border border-nd_gray-300 rounded-md hover:bg-nd_gray-50 cursor-pointer transition">
           {React.string(`Upload ${label}`)}
         </label>
       </div>
 
     <div className="flex flex-col gap-2">
-      <div className={`${body.md.medium} text-gray-700`}> {React.string(label)} </div>
+      <div className={`${body.md.medium} text-nd_gray-700`}> {React.string(label)} </div>
       <div className="flex items-center gap-3">
         {switch action {
         | Unchanged =>
@@ -180,7 +180,7 @@ module AssetField = {
           | Some(_) =>
             <>
               <div
-                className="w-16 h-16 border border-gray-200 rounded-md flex items-center justify-center overflow-hidden bg-white">
+                className="w-16 h-16 border border-nd_gray-200 rounded-md flex items-center justify-center overflow-hidden bg-white">
                 <img
                   src={versionedUrl} alt={label} className="max-w-full max-h-full object-contain"
                 />
@@ -188,7 +188,7 @@ module AssetField = {
               <button
                 type_="button"
                 onClick={_ => handleRemove()}
-                className="p-2 hover:bg-gray-100 rounded-md transition">
+                className="p-2 hover:bg-nd_gray-100 rounded-md transition">
                 <Icon name="nd-cross" size=16 className="text-gray-500" />
               </button>
             </>
@@ -196,14 +196,14 @@ module AssetField = {
           }
         | Updated({file: Some(file)}) =>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-nd_gray-600">
               <Icon name="file-icon" size=16 />
               <span> {(file->Identity.jsonToAnyType)["name"]->React.string} </span>
             </div>
             <button
               type_="button"
               onClick={_ => handleRemove()}
-              className="p-2 hover:bg-gray-100 rounded-md transition">
+              className="p-2 hover:bg-nd_gray-100 rounded-md transition">
               <Icon name="nd-cross" size=16 className="text-gray-500" />
             </button>
           </div>

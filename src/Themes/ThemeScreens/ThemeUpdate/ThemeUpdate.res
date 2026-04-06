@@ -51,30 +51,40 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
       setIntitalValues(_ => mappedTheme->Identity.genericTypeToJson)
       setScreenState(_ => Success)
     } catch {
-    | _ => setScreenState(_ => Error("Failed to fetch theme details"))
+    | _ => {
+        showToast(~message="Failed to fetch theme details", ~toastType=ToastState.ToastError)
+        setScreenState(_ => Error("Failed to fetch theme details"))
+      }
     }
   }
 
   let uploadAsset = async (~assetFile, ~assetName) => {
-    let formData = FormDataUtils.formData()
-    FormDataUtils.append(formData, "asset_name", assetName)
-    FormDataUtils.append(formData, "asset_data", assetFile)
+    try {
+      let formData = FormDataUtils.formData()
+      FormDataUtils.append(formData, "asset_name", assetName)
+      FormDataUtils.append(formData, "asset_data", assetFile)
 
-    let url = getURL(
-      ~entityName=V1(USERS),
-      ~methodType=Post,
-      ~id=Some(themeId),
-      ~userType=#THEME_UPLOAD_ASSET,
-    )
+      let url = getURL(
+        ~entityName=V1(USERS),
+        ~methodType=Post,
+        ~id=Some(themeId),
+        ~userType=#THEME_UPLOAD_ASSET,
+      )
 
-    await updateDetails(
-      ~bodyFormData=formData,
-      ~headers=Dict.make(),
-      url,
-      Dict.make()->JSON.Encode.object,
-      Post,
-      ~contentType=AuthHooks.Unknown,
-    )
+      await updateDetails(
+        ~bodyFormData=formData,
+        ~headers=Dict.make(),
+        url,
+        Dict.make()->JSON.Encode.object,
+        Post,
+        ~contentType=AuthHooks.Unknown,
+      )
+    } catch {
+    | _ => {
+        showToast(~message="Failed to upload asset", ~toastType=ToastError)
+        JSON.Encode.null
+      }
+    }
   }
 
   React.useEffect(() => {
@@ -88,7 +98,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
       let deleteUrl = getURL(
         ~entityName=V1(USERS),
         ~methodType=Delete,
-        ~id=Some(`${themeId}`),
+        ~id=Some(`${themeId}dsdsd`),
         ~userType=#THEME,
       )
       let _ = await updateDetails(deleteUrl, JSON.Encode.object(Dict.make()), Delete)
@@ -162,7 +172,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
           "theme_data",
           Array.concat(
             [("settings", settingsDict->JSON.Encode.object)],
-            if urlsDict->LogicUtils.isEmptyDict {
+            if urlsDict->isEmptyDict {
               []
             } else {
               [("urls", urlsDict->JSON.Encode.object)]
@@ -218,7 +228,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
               <div className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
                 <div
                   className="absolute top-3 right-3 z-10 bg-white bg-opacity-80 rounded-full p-1 flex items-center justify-center shadow">
-                  <Icon name="eye" size=18 className="text-gray-500 opacity-70" />
+                  <Icon name="eye" size=18 className="text-nd_gray-500 opacity-70" />
                 </div>
                 <ThemeMockDashboard />
               </div>
