@@ -157,7 +157,7 @@ type chartLegendStatsType =
 
 type legenedType = Heading | LegendData
 
-type secondryMetrics = {
+type secondaryMetrics = {
   metric_name_db: string,
   metric_label: string,
   metric_type: dropDownMetricType,
@@ -169,7 +169,7 @@ type metricsConfig = {
   thresholdVal: option<float>,
   step_up_threshold: option<float>,
   legendOption?: (chartLegendStatsType, chartLegendStatsType),
-  secondryMetrics?: secondryMetrics,
+  secondaryMetrics?: secondaryMetrics,
   disabled?: bool,
   description?: string,
   data_transformation_func?: Dict.t<JSON.t> => Dict.t<JSON.t>,
@@ -252,7 +252,7 @@ let legendIndexFunc = (name: string) => {
   index
 }
 
-type timeSeriesDictWithSecondryMetrics<'a> = {
+type timeSeriesDictWithsecondaryMetrics<'a> = {
   color: option<string>,
   name: string,
   data: array<('a, float, option<float>)>,
@@ -275,7 +275,7 @@ let timeSeriesDataMaker = (
   }
   let yAxis = metricsConfig.metric_name_db
   let metricType = metricsConfig.metric_type
-  let secondryMetrics = metricsConfig.secondryMetrics
+  let secondaryMetrics = metricsConfig.secondaryMetrics
   let timeSeriesDict = Dict.make() // { name : groupByName, data: array<(value1, value2)>}
   let groupedByTime = Dict.make() // {time : [values at that time]}
   let _ = data->Array.map(item => {
@@ -302,14 +302,14 @@ let timeSeriesDataMaker = (
     let xAxisDataPoint = dict->getString(xAxis, "")->String.split(" ")->Array.joinWith("T") ++ "Z" // right now it is time string
     let yAxisDataPoint = dict->getFloat(yAxis, 0.)
 
-    let secondryAxisPoint = switch secondryMetrics {
-    | Some(secondryMetrics) => Some(dict->getFloat(secondryMetrics.metric_name_db, 0.))
+    let secondaryAxisPoint = switch secondaryMetrics {
+    | Some(secondaryMetrics) => Some(dict->getFloat(secondaryMetrics.metric_name_db, 0.))
     | None => None
     }
     if dict->getString(xAxis, "")->isNonEmptyString {
       timeSeriesDict->appendToDictValue(
         groupByName,
-        (xAxisDataPoint->DateTimeUtils.parseAsFloat, yAxisDataPoint, secondryAxisPoint),
+        (xAxisDataPoint->DateTimeUtils.parseAsFloat, yAxisDataPoint, secondaryAxisPoint),
       )
       groupedByTime->addToDictValueFloat(
         xAxisDataPoint->DateTimeUtils.parseAsFloat->Float.toString,
@@ -353,7 +353,7 @@ let timeSeriesDataMaker = (
         mod(index, legendColor->Array.length)
       ]->Option.getOr(defaultLegendColorGradients(topGradient, bottomGradient))
     }
-    let value: timeSeriesDictWithSecondryMetrics<float> = {
+    let value: timeSeriesDictWithsecondaryMetrics<float> = {
       color: Some(color),
       name: key,
       data: sortedValBasedOnTime,
@@ -594,9 +594,9 @@ let formatLabels = (metric: metricsConfig, value: float) => {
 let getTooltipHTML = (metrics, data, onCursorName, index, length) => {
   let metric_type = metrics.metric_type
   let (name, color, y_axis, secondary_metric) = data
-  let secondary_metric_val = switch metrics.secondryMetrics {
-  | Some(secondryMetrics) =>
-    `${formatStatsAccToMetric(secondryMetrics.metric_type, secondary_metric->Option.getOr(0.))}`
+  let secondary_metric_val = switch metrics.secondaryMetrics {
+  | Some(secondaryMetrics) =>
+    `${formatStatsAccToMetric(secondaryMetrics.metric_type, secondary_metric->Option.getOr(0.))}`
   | None => ""
   }
 

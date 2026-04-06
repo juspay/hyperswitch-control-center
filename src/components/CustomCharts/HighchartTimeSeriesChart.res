@@ -90,7 +90,7 @@ module LineChart1D = {
 
     let (chartData, xAxisMapInfo, chartDataOrig) = React.useMemo(() => {
       let chartdata: array<
-        LineChartUtils.timeSeriesDictWithSecondryMetrics<JSON.t>,
+        LineChartUtils.timeSeriesDictWithsecondaryMetrics<JSON.t>,
       > = LineChartUtils.timeSeriesDataMaker(
         ~data=rawChartData,
         ~groupKey,
@@ -159,7 +159,7 @@ module LineChart1D = {
       selectedChartData->Array.forEach(item => {
         item.data->Array.forEach(
           axes => {
-            let (x, y, secondryMetrics) = axes
+            let (x, y, secondaryMetrics) = axes
             xAxisMapInfo->LineChartUtils.appendToDictValue(
               ["run_date", "run_month", "run_week"]->Array.includes(groupKey)
                 ? x->JSON.Decode.string->Option.getOr("")
@@ -170,7 +170,7 @@ module LineChart1D = {
                   item.color->Option.getOr("#000000")
                 },
                 y,
-                secondryMetrics,
+                secondaryMetrics,
               ),
             )
           },
