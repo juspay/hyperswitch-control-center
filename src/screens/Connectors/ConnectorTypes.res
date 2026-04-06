@@ -228,8 +228,11 @@ type paymentMethodTypes =
   | DirectCarrierBilling
   | AmazonPay
   | Pix
+  | PixAutomaticoQr
+  | PixAutomaticoPush
   | Boleto
   | NetworkToken
+  | Ideal
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {

@@ -82,7 +82,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let url = RescriptReactRouter.useUrl()
   let getURL = APIUtils.useGetURL()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {devSortEnabled, auditTrail} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenStateForRefund, setScreenStateForRefund) = React.useState(_ =>
     PageLoaderWrapper.Loading
   )
@@ -194,9 +194,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       />}>
       <RefundInfo orderDict={refundData->getDictFromJsonObject} />
       <div className="mt-5" />
-      <RenderIf
-        condition={featureFlagDetails.auditTrail &&
-        userHasAccess(~groupAccess=AnalyticsView) === Access}>
+      <RenderIf condition={auditTrail && userHasAccess(~groupAccess=AnalyticsView) === Access}>
         <OrderUIUtils.RenderAccordion
           initialExpandedArray=[0]
           accordion={[
@@ -216,7 +214,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         <LoadedTable
           title="Payment"
           actualData=orderData
-          entity={OrderEntity.orderEntity(merchantIdFromUserInfo, orgIdFromUserInfo)}
+          entity={OrderEntity.orderEntity(
+            merchantIdFromUserInfo,
+            orgIdFromUserInfo,
+            ~devSortEnabled,
+          )}
           resultsPerPage=1
           showSerialNumber=true
           totalResults=1
