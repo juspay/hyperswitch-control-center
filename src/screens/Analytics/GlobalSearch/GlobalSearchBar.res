@@ -7,7 +7,7 @@ let make = () => {
 
   let getURL = APIUtils.useGetURL()
   let prefix = useUrlPrefix()
-  let setGLobalSearchResults = HyperswitchAtom.globalSeacrchAtom->Recoil.useSetRecoilState
+  let setGLobalSearchResults = HyperswitchAtom.globalSearchAtom->Recoil.useSetRecoilState
   let fetchDetails = APIUtils.useUpdateMethod()
   let (state, setState) = React.useState(_ => Idle)
   let (showModal, setShowModal) = React.useState(_ => false)
