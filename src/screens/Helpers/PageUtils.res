@@ -1,10 +1,11 @@
+open Typography
 module PageHeading = {
   @react.component
   let make = (
     ~title,
     ~subTitle=?,
     ~customTitleStyle="",
-    ~customSubTitleStyle=`${Typography.body.lg.medium}`,
+    ~customSubTitleStyle=`${body.lg.medium}`,
     ~customHeadingStyle="",
     ~isTag=false,
     ~tagText="",
@@ -20,9 +21,7 @@ module PageHeading = {
       | None => React.null
       }}
       <div className={`flex items-center gap-4 ${customTitleSectionStyles}`}>
-        <div className={`${Typography.heading.lg.semibold} ${customTitleStyle}`}>
-          {title->React.string}
-        </div>
+        <div className={`${heading.lg.semibold} ${customTitleStyle}`}> {title->React.string} </div>
         <RenderIf condition=showPermLink>
           <OMPPermaLinkButton />
         </RenderIf>
