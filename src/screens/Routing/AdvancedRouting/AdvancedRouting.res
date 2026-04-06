@@ -906,7 +906,7 @@ let make = (
                     text="Save Rule"
                     buttonSize=Button.Small
                     buttonType=Button.Secondary
-                    customSumbitButtonStyle="w-1/5 rounded-xl"
+                    customSubmitButtonStyle="w-1/5 rounded-xl"
                   />}
                   submitButton={<AdvancedRoutingUIUtils.SaveAndActivateButton
                     onSubmit handleActivateConfiguration

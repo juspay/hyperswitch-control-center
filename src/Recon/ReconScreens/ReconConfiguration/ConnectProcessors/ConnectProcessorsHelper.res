@@ -216,7 +216,9 @@ module ConnectProcessorsFields = {
       <div className="mt-10 w-full">
         <FormRenderer.DesktopRow wrapperClass="!w-full" itemWrapperClass="!mx-0">
           <FormRenderer.SubmitButton
-            text="Next" customSumbitButtonStyle="rounded !w-full" buttonType={Primary}
+            text="Next"
+            customSubmitButtonStyle="rounded !w-full"
+            buttonType={Primary}
           />
         </FormRenderer.DesktopRow>
       </div>

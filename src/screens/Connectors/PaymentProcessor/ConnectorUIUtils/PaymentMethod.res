@@ -89,6 +89,8 @@ module CardRenderer = {
     let showAdditionalDetails = methodVariant => {
       switch (methodVariant, connector->getConnectorNameTypeFromString(~connectorType)) {
       | (Pix, Processors(SANTANDER))
+      | (PixAutomaticoQr, Processors(SANTANDER))
+      | (PixAutomaticoPush, Processors(SANTANDER))
       | (Boleto, Processors(SANTANDER))
       | (PayPal, Processors(BRAINTREE)) => true
       | _ =>
@@ -549,7 +551,7 @@ module CardRenderer = {
                         <p
                           className={`${p2RegularTextStyle} cursor-pointer`}
                           onClick={_ => removeOrAddMethods(value)}>
-                          {React.string(value.payment_method_type->snakeToTitle)}
+                          {React.string(value.payment_method_type->getPaymentMethodDisplayName)}
                         </p>
                       }}
                     </div>

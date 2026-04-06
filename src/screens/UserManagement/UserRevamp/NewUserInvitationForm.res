@@ -72,7 +72,7 @@ module NoteComponent = {
     let {userEntity} = getResolvedUserInfo()
     let {orgId, merchantId, profileId} = getCommonSessionDetails()
 
-    // TODO : Chnage id to name once backend starts sending name in userinfo
+    // TODO : Change id to name once backend starts sending name in userinfo
     let descriptionBasedOnEntity = switch userEntity {
     | #Tenant
     | #Organization =>
@@ -115,7 +115,7 @@ let make = () => {
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
 
-  let getMemberAcessBasedOnRole = async _ => {
+  let getMemberAccessBasedOnRole = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
@@ -142,7 +142,7 @@ let make = () => {
 
   React.useEffect(() => {
     if roleTypeValue->Option.isSome {
-      getMemberAcessBasedOnRole()->ignore
+      getMemberAccessBasedOnRole()->ignore
     }
     None
   }, [roleTypeValue])
@@ -184,7 +184,7 @@ let make = () => {
           text={"Send Invite"}
           loadingText="Loading..."
           buttonSize={Small}
-          customSumbitButtonStyle="w-full !h-12"
+          customSubmitButtonStyle="w-full !h-12"
         />
       </div>
     </div>

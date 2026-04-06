@@ -107,7 +107,9 @@ let make = (
                 processorType=ConnectorTypes.BillingProcessor
               />
               <FormRenderer.SubmitButton
-                text="Next" buttonSize={Small} customSumbitButtonStyle="!w-full mt-8"
+                text="Next"
+                buttonSize={Small}
+                customSubmitButtonStyle="!w-full mt-8"
               />
             </div>
           </RenderIf>

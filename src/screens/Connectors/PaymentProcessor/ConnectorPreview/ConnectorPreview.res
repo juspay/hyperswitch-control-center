@@ -295,7 +295,7 @@ module ConnectorSummaryGrid = {
                     label={field.payment_method->LogicUtils.snakeToTitle}
                     render={Some(
                       field.payment_method_types
-                      ->Array.map(item => item.payment_method_type->LogicUtils.snakeToTitle)
+                      ->Array.map(item => item.payment_method_type->getPaymentMethodDisplayName)
                       ->Array.reduce([], (acc, curr) => {
                         if !(acc->Array.includes(curr)) {
                           acc->Array.push(curr)
