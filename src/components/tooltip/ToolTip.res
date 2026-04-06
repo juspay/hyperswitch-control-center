@@ -41,12 +41,15 @@ let make = (
   | None => <Icon name="nd-info-circle" size=14 />
   }
 
-  let delayDuration = if visibleOnClick {
-    Some(0)
-  } else if enableTooltipDelay {
-    Some(tooltipDelay->Option.getOr(500))
-  } else {
-    Some(100)
+  let delayDuration = {
+    let value = if visibleOnClick {
+      0
+    } else if enableTooltipDelay {
+      tooltipDelay->Option.getOr(500)
+    } else {
+      100
+    }
+    Some(value)
   }
 
   let open_ = if visibleOnClick {
