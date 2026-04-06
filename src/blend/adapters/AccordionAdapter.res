@@ -128,7 +128,9 @@ let make = (
 
   <>
     <RenderIf condition=isBlendEnabled>
-      <BlendAccordion accordion arrowPosition gapClass singleOpen initialOpenIndex initialExpandedArray />
+      <BlendAccordion
+        accordion arrowPosition gapClass singleOpen initialOpenIndex initialExpandedArray
+      />
     </RenderIf>
     <RenderIf condition={!isBlendEnabled}>
       <Accordion
