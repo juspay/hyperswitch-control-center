@@ -13,6 +13,7 @@ import {
   createAuth,
   getAuthIdByEmail,
 } from "../../support/commands";
+import { authenticator } from "otplib";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
 
@@ -688,62 +689,52 @@ const ssoBaseUrl = process.env.PLAYWRIGHT_SSO_BASE_URL;
 
       await signinPage.continueWithOktaButton.click();
 
-      //await page.waitForURL(/.*okta\.com.*/, { timeout: 10000 });
       await expect(page).toHaveURL(/.*okta\.com.*/);
     });
   },
 );
 
 test.describe("TOTP flows", () => {
-  test.beforeEach(async ({ page, context }) => {
-    const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
-  });
-
-  test.skip("should successfully setup 2FA while signup", async ({
+  test("should successfully setup 2FA while signup", async ({
     page,
     context,
   }) => {
-    await page.route("**/api/user/2fa/generate_secret", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          secret: "JBSWY3DPEHPK3PXP",
-          qr_code_url:
-            "otpauth://totp/Hyperswitch:test@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Hyperswitch",
-        }),
-      });
-    });
+    let totpSecret = "";
+    const email = generateUniqueEmail();
+
+    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
 
     await page.goto("/");
     const signinPage = new SignInPage(page);
 
-    await signinPage.emailInput.fill(generateUniqueEmail());
+    await signinPage.emailInput.fill(email);
     await signinPage.passwordInput.fill(PLAYWRIGHT_PASSWORD);
-    await signinPage.signinButton.click();
 
-    await expect(signinPage.enable2FA).toBeVisible();
-    await signinPage.enable2FA.click();
-
-    await page.route("**/api/user/2fa/verify_totp", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          verified: true,
-        }),
-      });
+    await page.route("**/2fa/totp/begin", async (route) => {
+      const response = await route.fetch();
+      const body = await response.json();
+      totpSecret = body.secret.secret;
+      await route.fulfill({ response });
     });
 
-    await page.locator('[data-testid="totp-input"]').fill("123456");
-    await page.locator('[data-button-for="verify"]').click();
+    const responsePromise = page.waitForResponse("**/2fa/totp/begin");
+    await signinPage.signinButton.click();
+    await responsePromise;
 
-    await expect(
-      page.getByText("Two Factor Authentication has been enabled"),
-    ).toBeVisible();
+    await expect(page.locator('[viewBox="0 0 41 41"]')).toBeVisible();
 
-    await page.locator('[data-button-for="continue"]').click();
+    const token = authenticator.generate(totpSecret);
+    console.log("Generated TOTP token:", token);
+
+    const textboxes = page.getByRole("textbox");
+    const count = await textboxes.count();
+    for (let i = 0; i < token.length && i < count; i++) {
+      await textboxes.nth(i).fill(token.charAt(i));
+    }
+
+    await signinPage.enable2FA.click();
+
+    await page.locator('[data-button-for="download"]').click();
 
     await expect(page).toHaveURL(/.*dashboard\/home/);
   });
