@@ -216,10 +216,6 @@ let make = (
         },
       ]
       currentPageTitle={`${connectorName->getDisplayNameForConnector}`}
-      dividerVal=Slash
-      customTextClass="text-nd_gray-400 font-medium "
-      childGapClass="gap-2"
-      titleTextClass="text-ng_gray-600 font-medium"
     />
     <Form onSubmit initialValues validate=validateMandatoryField>
       <div className={`flex flex-col gap-10 ${topPadding} `}>
@@ -270,7 +266,7 @@ let make = (
                       customButtonStyle="w-fit"
                     />
                     <FormRenderer.SubmitButton
-                      text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+                      text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
                     />
                   </>
                 } else {
@@ -308,7 +304,7 @@ let make = (
                       customButtonStyle="w-fit"
                     />
                     <FormRenderer.SubmitButton
-                      text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+                      text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
                     />
                   </>
                 } else {
@@ -355,7 +351,7 @@ let make = (
                     customButtonStyle="w-fit"
                   />
                   <FormRenderer.SubmitButton
-                    text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+                    text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
                   />
                 </>
               } else {
