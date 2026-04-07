@@ -9,7 +9,7 @@ module MetadataAuthenticationInput = {
     let (key, setKey) = React.useState(_ => "")
     let (metaValue, setValue) = React.useState(_ => "")
     let originalKeyRef = React.useRef("")
-    let getMetadatKeyValues = () => {
+    let getMetadataKeyValues = () => {
       let metadataKeyValueDict =
         formState.values
         ->getDictFromJsonObject
@@ -23,7 +23,7 @@ module MetadataAuthenticationInput = {
     }
 
     React.useEffect(() => {
-      let (metadataKey, customMetadataVal) = getMetadatKeyValues()
+      let (metadataKey, customMetadataVal) = getMetadataKeyValues()
       setValue(_ => customMetadataVal)
       setKey(_ => metadataKey)
       originalKeyRef.current = metadataKey
@@ -215,7 +215,7 @@ let make = (
       setScreenState(_ => PageLoaderWrapper.Loading)
       let valuesDict = values->getDictFromJsonObject
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let body = valuesDict->JSON.Encode.object->getMetdataKeyValuePayload->JSON.Encode.object
+      let body = valuesDict->JSON.Encode.object->getMetadataKeyValuePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post)
       fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
       setBusinessProfile(_ => res->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1)
