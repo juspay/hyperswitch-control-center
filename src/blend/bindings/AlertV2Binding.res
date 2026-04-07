@@ -41,11 +41,11 @@ module BaseAlertV2 = {
 @react.component
 let make = (
   ~alertType: alertV2Type=Primary,
-  ~slot: slotConfig=?,
-  ~heading: string=?,
-  ~description: string=?,
-  ~actions: alertV2Actions=?,
-  ~className: string=?,
+  ~slot: option<slotConfig>=?,
+  ~heading: option<string>=?,
+  ~description: option<string>=?,
+  ~actions: option<alertV2Actions>=?,
+  ~className: option<string>=?,
 ) => {
   <BaseAlertV2
     \"type"=alertType
