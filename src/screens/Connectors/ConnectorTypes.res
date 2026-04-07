@@ -138,6 +138,7 @@ type processorTypes =
   | REVOLV3
   | TRUELAYER
   | FISERVCOMMERCEHUB
+  | TRUSTLY
 
 type payoutProcessorTypes =
   | ADYEN
@@ -155,6 +156,7 @@ type payoutProcessorTypes =
   | WORLDPAYXML
   | TRUELAYER
   | ENVOY
+  | TRUSTLY
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO
@@ -226,8 +228,11 @@ type paymentMethodTypes =
   | DirectCarrierBilling
   | AmazonPay
   | Pix
+  | PixAutomaticoQr
+  | PixAutomaticoPush
   | Boleto
   | NetworkToken
+  | Ideal
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {

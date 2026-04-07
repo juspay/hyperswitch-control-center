@@ -588,7 +588,7 @@ module ConnectorHeaderWrapper = {
         | _ => false
         }}>
         <AlertV2Binding
-          \"type"=Warning
+          alertType=Warning
           slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
           description="Disclaimer: Please ensure the payment currency matches the Braintree-configured currency for the given Merchant Account ID."
         />

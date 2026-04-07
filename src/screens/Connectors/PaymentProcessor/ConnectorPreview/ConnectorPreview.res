@@ -271,7 +271,7 @@ module ConnectorSummaryGrid = {
             condition={connectorInfo.connector_name->getConnectorNameTypeFromString ==
               Processors(FIUU)}>
             <AlertV2Binding
-              \"type"=Primary
+              alertType=Primary
               slot={{
                 slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
               }}
@@ -298,7 +298,7 @@ module ConnectorSummaryGrid = {
                     label={field.payment_method->LogicUtils.snakeToTitle}
                     render={Some(
                       field.payment_method_types
-                      ->Array.map(item => item.payment_method_type->LogicUtils.snakeToTitle)
+                      ->Array.map(item => item.payment_method_type->getPaymentMethodDisplayName)
                       ->Array.reduce([], (acc, curr) => {
                         if !(acc->Array.includes(curr)) {
                           acc->Array.push(curr)
@@ -330,7 +330,7 @@ module ConnectorSummaryGrid = {
               </RenderIf>
             </div>
             <AlertV2Binding
-              \"type"=Primary
+              alertType=Primary
               slot={{
                 slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
               }}

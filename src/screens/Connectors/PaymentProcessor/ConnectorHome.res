@@ -224,7 +224,6 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true, ~showBreadCrumbWarnin
                 },
           ]
           currentPageTitle={connector->getDisplayNameForConnector}
-          cursorStyle="cursor-pointer"
         />
       </RenderIf>
       <RenderIf condition={currentStep !== Preview && showStepIndicator}>
@@ -233,7 +232,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true, ~showBreadCrumbWarnin
       <RenderIf
         condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>
         <AlertV2Binding
-          \"type"=Warning
+          alertType=Warning
           slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
           description="This is a test connector and will not be reflected on your payment processor dashboard."
         />

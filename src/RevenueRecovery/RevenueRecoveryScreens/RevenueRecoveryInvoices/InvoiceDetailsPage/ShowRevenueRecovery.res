@@ -82,7 +82,7 @@ module RecoveryAmountStatus = {
     switch status {
     | Recovered =>
       <AlertV2Binding
-        \"type"=Success
+        alertType=Success
         slot={{slot: <Icon name="nd-toast-success" size=20 className="text-nd_green-400" />}}
         heading="Fully recovered"
         description="This invoice was successfully recovered."
@@ -117,7 +117,7 @@ module RecoveryAmountStatus = {
       </div>
     | Queued | NoPicked =>
       <AlertV2Binding
-        \"type"=Neutral
+        alertType=Neutral
         slot={{slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />}}
         heading="Recovery not started"
         description="This invoice is queued. Retries will begin soon."
@@ -125,14 +125,14 @@ module RecoveryAmountStatus = {
     | Terminated =>
       if amountCaptured > 0.0 {
         <AlertV2Binding
-          \"type"=Warning
+          alertType=Warning
           slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
           heading="Partially recovered invoice"
           description={`${amountCaptured->formatCurrency} recovered out of ${orderAmount->formatCurrency}.`}
         />
       } else {
         <AlertV2Binding
-          \"type"=Error
+          alertType=Error
           slot={{slot: <Icon name="nd-cross" size=20 className="text-nd_red-500" />}}
           heading="Unable to Recover Invoice"
           description="This invoice couldn't be recovered."
@@ -140,7 +140,7 @@ module RecoveryAmountStatus = {
       }
     | PartiallyRecovered =>
       <AlertV2Binding
-        \"type"=Warning
+        alertType=Warning
         slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
         heading="Partially recovered invoice"
         description={`${amountCaptured->formatCurrency} recovered out of ${orderAmount->formatCurrency}.`}
@@ -269,14 +269,7 @@ let make = (~id) => {
 
   <div className="flex flex-col gap-8">
     <BreadCrumbNavigation
-      path=[{title: "Invoices", link: "/v2/recovery/invoices"}]
-      currentPageTitle=id
-      cursorStyle="cursor-pointer"
-      customTextClass="text-nd_gray-400"
-      titleTextClass="text-nd_gray-600 font-medium"
-      fontWeight="font-medium"
-      dividerVal=Slash
-      childGapClass="gap-2"
+      path=[{title: "Invoices", link: "/v2/recovery/invoices"}] currentPageTitle=id
     />
     <div className="flex flex-col gap-10">
       <div className="flex flex-row justify-between items-center">

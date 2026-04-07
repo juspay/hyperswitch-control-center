@@ -33,6 +33,7 @@ module SettingsForm = {
     let updateDetails = APIUtils.useUpdateMethod()
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
     let validateForm = values => validateAcquirerConfigForm(values, formKeys)
+    let mixpanelEvent = MixpanelHook.useSendEvent()
 
     let isUpdateMode = editingConfig->Option.isSome
     let initialValues =
@@ -113,6 +114,7 @@ module SettingsForm = {
       | Some({id}) => await updateAcquirerConfig(values, id)
       | _ => await createAcquirerConfig(values)
       }
+      mixpanelEvent(~eventName="payment_settings_acquirer_config_settings")
       Nullable.null
     }
 

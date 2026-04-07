@@ -110,9 +110,7 @@ let make = () => {
   }
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-8 h-full">
-      <BreadCrumbNavigation
-        path currentPageTitle={displayNameForConnector} cursorStyle="cursor-pointer"
-      />
+      <BreadCrumbNavigation path currentPageTitle={displayNameForConnector} />
       <RenderIf condition={currentStep !== Preview}>
         <ConnectorHome.ConnectorCurrentStepIndicator currentStep stepsArr=FRMInfo.stepsArr />
       </RenderIf>

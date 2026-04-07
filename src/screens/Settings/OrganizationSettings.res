@@ -86,7 +86,7 @@ let make = () => {
 
   let contactUsBanner =
     <AlertV2Binding
-      \"type"=Primary
+      alertType=Primary
       slot={{
         slot: <div className="flex items-center gap-2">
           <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />

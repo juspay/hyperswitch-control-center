@@ -24,7 +24,7 @@ type alertV2Actions = {
 
 type alertV2CloseButton = {show: bool}
 
-module Raw = {
+module BaseAlertV2 = {
   @module("@juspay/blend-design-system") @react.component
   external make: (
     ~\"type": alertV2Type=?,
@@ -40,15 +40,15 @@ module Raw = {
 
 @react.component
 let make = (
-  ~\"type": alertV2Type=Primary,
-  ~slot: slotConfig=?,
-  ~heading: string=?,
-  ~description: string=?,
-  ~actions: alertV2Actions=?,
-  ~className: string=?,
+  ~alertType: alertV2Type=Primary,
+  ~slot: option<slotConfig>=?,
+  ~heading: option<string>=?,
+  ~description: option<string>=?,
+  ~actions: option<alertV2Actions>=?,
+  ~className: option<string>=?,
 ) => {
-  <Raw
-    \"type"
+  <BaseAlertV2
+    \"type"=alertType
     ?slot
     ?heading
     ?description
