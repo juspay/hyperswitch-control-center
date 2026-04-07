@@ -1,4 +1,3 @@
-open ThemeHelper
 open LogicUtils
 
 type themeObj = {
@@ -86,7 +85,7 @@ let getCell = (themeObj, colType): Table.cell => {
     let sidebarObj = settings->getObj("sidebar", Dict.make())
     let primary = colors->getString("primary", fallbackThemeConfigSettings.colors.primary)
     let sidebar = sidebarObj->getString("primary", fallbackThemeConfigSettings.sidebar.primary)
-    Table.CustomCell(<OverlappingCircles colorA=primary colorB=sidebar />, "")
+    Table.CustomCell(<ThemeHelper.OverlappingCircles colorA=primary colorB=sidebar />, "")
   }
 }
 

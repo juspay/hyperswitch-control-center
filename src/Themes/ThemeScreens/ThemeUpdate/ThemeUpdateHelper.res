@@ -2,7 +2,7 @@ open Typography
 module ActionButtons = {
   @react.component
   let make = (~handleDelete) => {
-    <div className="flex flex-row gap-4 justify-end w-full">
+    <div className="flex gap-4 justify-end w-full">
       <Button
         text="Delete Theme"
         buttonType=Secondary

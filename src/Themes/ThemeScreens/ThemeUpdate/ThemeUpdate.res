@@ -90,7 +90,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
       let deleteUrl = getURL(
         ~entityName=V1(USERS),
         ~methodType=Delete,
-        ~id=Some(`${themeId}dsdsd`),
+        ~id=Some(themeId),
         ~userType=#THEME,
       )
       let _ = await updateDetails(deleteUrl, JSON.Encode.object(Dict.make()), Delete)
@@ -173,7 +173,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
             customSubTitleStyle={`${body.lg.medium} text-nd_gray-400`}
           />
           <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
-            <div className="flex flex-col gap-2 ">
+            <div className="flex flex-col gap-2">
               <ThemeSettingsHelper.IconSettings
                 originalLogoUrl
                 originalFaviconUrl

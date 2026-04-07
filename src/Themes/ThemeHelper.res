@@ -3,11 +3,11 @@ module OverlappingCircles = {
   let make = (~colorA: string, ~colorB: string) => {
     <div className="relative w-9 h-6 flex items-center">
       <div
-        className={`absolute left-0 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md`}
+        className="absolute left-0 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md"
         style={ReactDOM.Style.make(~backgroundColor=colorA, ())}
       />
       <div
-        className={`absolute left-4 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md`}
+        className="absolute left-4 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md"
         style={ReactDOM.Style.make(~backgroundColor=colorB, ())}
       />
     </div>
@@ -32,7 +32,7 @@ module RadioButtons = {
       }}>
       <div className="flex flex-col gap-4">
         <div
-          className="flex flex-row gap-2 items-start flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-4 rounded-lg">
+          className="flex gap-2 items-start flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-4 rounded-lg">
           <Icon name="nd-info-circle" size=20 />
           <span className={`text-nd_gray-600 ${body.md.regular}`}>
             {`You can only create theme for ${orgId} here. To create theme to another organisation, please switch the organisation.`->React.string}
@@ -46,11 +46,9 @@ module RadioButtons = {
               <div
                 className={`flex items-center justify-between border rounded-lg p-4 cursor-pointer transition ${borderClass}`}>
                 <div className="flex items-center gap-4 w-full">
-                  <div>
-                    <div
-                      className="w-8 h-8 border border-nd_br_gray-50 flex items-center justify-center rounded-md">
-                      {option.icon}
-                    </div>
+                  <div
+                    className="w-8 h-8 border border-nd_br_gray-50 flex items-center justify-center rounded-md">
+                    {option.icon}
                   </div>
                   <div className="flex flex-col flex-1">
                     <span className={`text-nd_gray-600 ${body.md.semibold}`}>
@@ -60,9 +58,7 @@ module RadioButtons = {
                       {option.desc->React.string}
                     </span>
                   </div>
-                  <div>
-                    <input type_="radio" checked={checked["checked"]} className="accent-primary" />
-                  </div>
+                  <input type_="radio" checked={checked["checked"]} className="accent-primary" />
                 </div>
               </div>
             }}
@@ -220,7 +216,7 @@ module LineageFormContent = {
           field={orgDisplayField(~getNameForId)}
           showErrorOnChange=true
           errorClass={ProdVerifyModalUtils.errorClass}
-          labelClass={`${body.sm.semibold} `}
+          labelClass={`${body.sm.semibold}`}
         />
       | MerchantLevelConfig =>
         <>
@@ -242,7 +238,7 @@ module LineageFormContent = {
               field={merchantField(~getNameForId, ~merchantList, ~merchantId, ~onMerchantSelect)}
               showErrorOnChange=true
               errorClass={ProdVerifyModalUtils.errorClass}
-              labelClass={`${body.sm.semibold} `}
+              labelClass={`${body.sm.semibold}`}
             />
           </div>
         </>
@@ -252,7 +248,7 @@ module LineageFormContent = {
             field={orgDisplayField(~getNameForId)}
             showErrorOnChange=true
             errorClass={ProdVerifyModalUtils.errorClass}
-            labelClass={`${body.sm.semibold} `}
+            labelClass={`${body.sm.semibold}`}
           />
           <div className="relative pl-8">
             <div
@@ -266,7 +262,7 @@ module LineageFormContent = {
               field={merchantField(~getNameForId, ~merchantList, ~merchantId, ~onMerchantSelect)}
               showErrorOnChange=true
               errorClass={ProdVerifyModalUtils.errorClass}
-              labelClass={`${body.sm.semibold} `}
+              labelClass={`${body.sm.semibold}`}
             />
           </div>
           <div className="relative pl-16">
@@ -281,7 +277,7 @@ module LineageFormContent = {
               field={profileField(~getNameForId, ~profileList, ~profileId, ~onProfileSelect)}
               showErrorOnChange=true
               errorClass={ProdVerifyModalUtils.errorClass}
-              labelClass={`${body.sm.semibold} `}
+              labelClass={`${body.sm.semibold}`}
             />
           </div>
         </>
@@ -295,11 +291,11 @@ module LineageFormContent = {
     }
 
     <>
-      <div className="flex flex-col h-full w-full p-4 gap-2 ">
+      <div className="flex flex-col h-full w-full p-4 gap-2">
         {renderStep()}
         <RenderIf condition={themeExists}>
           <div
-            className="flex flex-row gap-2 items-center flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-2 rounded-lg">
+            className="flex gap-2 items-center flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-2 rounded-lg">
             <Icon name="nd-info-circle" size=14 className="text-nd_gray-500" />
             <span className={`text-nd_gray-600 ${body.sm.regular}`}>
               {"A theme already exists for this lineage entity level. Continue to override."->React.string}
@@ -590,8 +586,8 @@ module ThemeUploadAssetsModal = {
     }
 
     let hasChanges = switch (logoAction, faviconAction) {
-    | (ThemeFeatureUtils.Updated({file: Some(_)}), _)
-    | (_, ThemeFeatureUtils.Updated({file: Some(_)})) => true
+    | (Updated({file: Some(_)}), _)
+    | (_, Updated({file: Some(_)})) => true
     | _ => false
     }
 

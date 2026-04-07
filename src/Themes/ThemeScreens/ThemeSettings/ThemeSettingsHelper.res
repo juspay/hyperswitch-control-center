@@ -157,7 +157,7 @@ module AssetField = {
     }
 
     let versionedUrl = switch originalUrl {
-    | Some(url) => `${url}?version=${themeConfigVersion->Option.getOr("")}`
+    | Some(url) => ThemeFeatureUtils.appendVersionParam(url, ~version=themeConfigVersion)
     | None => ""
     }
 
