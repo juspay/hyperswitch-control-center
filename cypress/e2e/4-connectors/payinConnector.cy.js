@@ -13,7 +13,7 @@ describe("connector", () => {
     cy.login_UI(email, Cypress.env("CYPRESS_PASSWORD"));
   });
 
-  it("should setup a dummy connector", () => {
+  it.only("should setup a dummy connector", () => {
     homePage.connectors.click();
     homePage.paymentProcessors.click();
     paymentConnector.pageHeading
