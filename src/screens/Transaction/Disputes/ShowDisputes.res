@@ -222,9 +222,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           <div>
             <PageUtils.PageHeading title="Disputes" />
             <BreadCrumbNavigation
-              path=[{title: "Disputes", link: "/disputes"}]
-              currentPageTitle=id
-              cursorStyle="cursor-pointer"
+              path=[{title: "Disputes", link: "/disputes"}] currentPageTitle=id
             />
           </div>
           <div />

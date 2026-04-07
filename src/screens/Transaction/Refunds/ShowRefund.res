@@ -163,11 +163,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       <div className="flex items-center justify-between w-full">
         <div>
           <PageUtils.PageHeading title="Refunds" />
-          <BreadCrumbNavigation
-            path=[{title: "Refunds", link: "/refunds"}]
-            currentPageTitle=id
-            cursorStyle="cursor-pointer"
-          />
+          <BreadCrumbNavigation path=[{title: "Refunds", link: "/refunds"}] currentPageTitle=id />
         </div>
         <RenderIf condition={showSyncButton()}>
           <ACLButton
