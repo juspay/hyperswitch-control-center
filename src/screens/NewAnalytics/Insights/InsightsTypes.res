@@ -6,6 +6,7 @@ type analyticsPagesRoutes =
   | @as("new-analytics/payment") NewAnalyticsPayment
   | @as("new-analytics/smart-retry") NewAnalyticsSmartRetry
   | @as("new-analytics/refund") NewAnalyticsRefund
+  | @as("new-analytics/dashboards") NewAnalyticsDashboards
 
 type domain = [#payments | #refunds | #disputes]
 type dimension = [

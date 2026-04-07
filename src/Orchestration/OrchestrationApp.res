@@ -66,7 +66,8 @@ let make = (~setScreenState) => {
     | list{"new-analytics"}
     | list{"new-analytics", "payment"}
     | list{"new-analytics", "refund"}
-    | list{"new-analytics", "smart-retry"} =>
+    | list{"new-analytics", "smart-retry"}
+    | list{"new-analytics", "dashboards"} =>
       <AccessControl
         isEnabled={featureFlagDetails.newAnalytics &&
         isFeatureEnabledForDenyListMerchant(merchantSpecificConfig.newAnalytics)}

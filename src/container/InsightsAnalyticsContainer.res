@@ -6,7 +6,7 @@ let make = () => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let url = RescriptReactRouter.useUrl()
-  let {newAnalyticsSmartRetries, newAnalyticsRefunds} =
+  let {newAnalyticsSmartRetries, newAnalyticsRefunds, customDashboards} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateExistingKeys, updateFilterAsync} = React.useContext(FilterContext.filterContext)
   let (tabIndex, setTabIndex) = React.useState(_ => url->getPageIndex)
@@ -106,6 +106,13 @@ let make = () => {
     tabs->Array.push({
       title: "Refunds",
       renderContent: () => <InsightsRefundsAnalytics />,
+    })
+  }
+
+  if customDashboards {
+    tabs->Array.push({
+      title: "My Dashboards",
+      renderContent: () => <CustomDashboardTab />,
     })
   }
 

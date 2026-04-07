@@ -77,6 +77,7 @@ type featureFlag = {
   devVault: bool,
   networkTokenization: bool,
   devBlendEnabled: bool,
+  customDashboards: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -156,6 +157,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     paymentSettingsRevamped: dict->getBool("payment_settings_revamped", false),
     networkTokenization: dict->getBool("network_tokenization", false),
     devBlendEnabled: dict->getBool("dev_blend_enabled", false),
+    customDashboards: dict->getBool("custom_dashboards", false),
   }
 }
 
