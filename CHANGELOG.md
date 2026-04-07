@@ -3,6 +3,27 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.04.07.0
+
+### Features
+
+- Migrate OTPInput to Blend Design System ([#4636](https://github.com/juspay/hyperswitch-control-center/pull/4636)) ([`42bf130`](https://github.com/juspay/hyperswitch-control-center/commit/42bf130475b41ca80a4e8dc817b33b94f347a024))
+- WASM changes for Trustly connector ([#4620](https://github.com/juspay/hyperswitch-control-center/pull/4620)) ([`416f366`](https://github.com/juspay/hyperswitch-control-center/commit/416f36650c6b5bc02c43890818c7cd803420f666))
+- Add Trustly connector for payments and payouts ([#4616](https://github.com/juspay/hyperswitch-control-center/pull/4616)) ([`1f18613`](https://github.com/juspay/hyperswitch-control-center/commit/1f186132d19fc027bb5657d8ba05f9860d008849))
+- Migrate BreadCrumbNavigation to Blend Design System ([#4406](https://github.com/juspay/hyperswitch-control-center/pull/4406)) ([`0dbeeac`](https://github.com/juspay/hyperswitch-control-center/commit/0dbeeac1cf1f6d0047d62fa874a0e542a779341c))
+
+### Bug Fixes
+
+- Correct typos batch 5/7 ([#4390](https://github.com/juspay/hyperswitch-control-center/pull/4390)) ([`32f9f61`](https://github.com/juspay/hyperswitch-control-center/commit/32f9f6124e89071cb58f4e7cc078bbf77dbaaf9e))
+
+### Testing
+
+- Playwright UI tests. ([#4496](https://github.com/juspay/hyperswitch-control-center/pull/4496)) ([`74990ac`](https://github.com/juspay/hyperswitch-control-center/commit/74990ac8c082c98b239c5c0ea3874f422c1d042b))
+
+**Full Changelog:** [`2026.04.03.0...2026.04.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.03.0...2026.04.07.0)
+
+- - -
+
 ## 2026.04.03.0
 
 ### Features
