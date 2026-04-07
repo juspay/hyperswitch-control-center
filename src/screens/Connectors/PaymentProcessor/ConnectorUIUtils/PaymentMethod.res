@@ -564,7 +564,7 @@ module CardRenderer = {
           <div className="flex flex-col gap-4">
             <RenderIf condition={paymentMethod->getPaymentMethodFromString == BankDebit}>
               <AlertV2Binding
-                \"type"=Primary
+                alertType=Primary
                 slot={{
                   slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
                 }}

@@ -58,7 +58,7 @@ let make = (~setTwoFaPageState, ~onClickDownload, ~setShowNewQR) => {
             {"Recovery codes provide a way to access your account if you lose your device and can't receive two-factor authentication codes."->React.string}
           </p>
           <AlertV2Binding
-            \"type"=Warning
+            alertType=Warning
             slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
             description="These codes are the last resort for accessing your account in case you lose your password and second factors. If you cannot find these codes, you will lose access to your account."
           />

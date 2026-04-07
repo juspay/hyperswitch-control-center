@@ -217,7 +217,7 @@ let make = () => {
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
                     <RenderIf condition={maintenanceAlert->LogicUtils.isNonEmptyString}>
                       <AlertV2Binding
-                        \"type"=Primary
+                        alertType=Primary
                         slot={{
                           slot: <Icon
                             name="nd-toast-info" size=20 className="text-nd_primary_blue-450"

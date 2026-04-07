@@ -276,7 +276,7 @@ module LowRecoveryCodeBanner = {
   @react.component
   let make = (~recoveryCode) => {
     <AlertV2Binding
-      \"type"=Warning
+      alertType=Warning
       slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
       description={`You are low on recovery-codes. Only ${recoveryCode->Int.toString} left.`}
       actions={{

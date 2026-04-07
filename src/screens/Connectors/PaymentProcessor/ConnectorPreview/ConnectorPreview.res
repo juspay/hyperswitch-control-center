@@ -268,7 +268,7 @@ module ConnectorSummaryGrid = {
             condition={connectorInfo.connector_name->getConnectorNameTypeFromString ==
               Processors(FIUU)}>
             <AlertV2Binding
-              \"type"=Primary
+              alertType=Primary
               slot={{
                 slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
               }}
@@ -327,7 +327,7 @@ module ConnectorSummaryGrid = {
               </RenderIf>
             </div>
             <AlertV2Binding
-              \"type"=Primary
+              alertType=Primary
               slot={{
                 slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
               }}

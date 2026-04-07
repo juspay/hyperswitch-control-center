@@ -313,7 +313,7 @@ let make = () => {
         subTitle="Make your payments more secure by enforcing 3DS authentication through custom rules defined on payment parameters"
       />
       <AlertV2Binding
-        \"type"=Warning
+        alertType=Warning
         slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
         description="Deprecation Notice: 3DS Decision Manager will be deprecated soon. Please use 3DS Exemption Manager for managing 3DS rules."
       />

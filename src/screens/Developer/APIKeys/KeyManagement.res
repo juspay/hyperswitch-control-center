@@ -29,7 +29,7 @@ let make = () => {
     <RenderIf condition={isCurrentOrganizationPlatform}>
       <div className="py-4">
         <AlertV2Binding
-          \"type"=Warning
+          alertType=Warning
           slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
           heading={isCurrentMerchantPlatform ? "Platform Merchant Account:" : ""}
           description=bannerText
