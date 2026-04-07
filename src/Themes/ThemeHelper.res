@@ -496,150 +496,78 @@ module ThemeLineageModal = {
   }
 }
 
-module FileUploadField = {
-  @react.component
-  let make = (
-    ~label,
-    ~inputId,
-    ~acceptTypes,
-    ~tooltipDescription,
-    ~selectedFile,
-    ~onFileChange,
-  ) => {
-    <div className="flex justify-between gap-4">
-      <div className={`flex ${body.md.medium} text-nd_gray-700 gap-2 items-center`}>
-        {label->React.string}
-        <ToolTip
-          toolTipFor={<Icon name="info-vacent" size=13 className="cursor-pointer" />}
-          description=tooltipDescription
-          toolTipPosition=Right
-        />
-      </div>
-      <input type_="file" accept=acceptTypes hidden=true onChange=onFileChange id=inputId />
-      <div className="flex gap-4">
-        {switch selectedFile {
-        | Some(file) =>
-          <div className="mt-2 flex items-center gap-2  text-nd_gray-600">
-            <Icon name="file-icon" size=16 />
-            <span className={`${body.sm.regular}`}> {file["name"]->React.string} </span>
-          </div>
-        | None => React.null
-        }}
-        <label
-          htmlFor=inputId
-          className="flex items-center justify-center gap-2 rounded-md border border-nd_gray-300 cursor-pointer hover:border-nd_gray-400 p-4">
-          <Icon name="nd-upload-file" />
-        </label>
-      </div>
-    </div>
-  }
-}
-
 module ThemeUploadAssetsModal = {
   @react.component
   let make = (~showModal, ~setShowModal, ~themeId, ~redirectToList) => {
     open APIUtils
     open LogicUtils
-    open FormDataUtils
+    open ThemeSettingsHelper
+
     let showToast = ToastState.useShowToast()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod(~showErrorToast=false)
     let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Success)
     let fetchDetails = useGetMethod()
-    let (selectedFiles, setSelectedFiles) = React.useState(_ => Dict.make())
+    let (logoAction, setLogoAction) = React.useState(_ => Unchanged)
+    let (faviconAction, setFaviconAction) = React.useState(_ => Unchanged)
 
-    let handleFileChange = assetName => ev => {
-      let files = ReactEvent.Form.target(ev)["files"]
-      switch files[0] {
-      | Some(file) =>
-        setSelectedFiles(prev => {
-          let newDict = prev->Dict.copy
-          newDict->Dict.set(assetName, file)
-          newDict
-        })
-      | None => ()
-      }
-    }
+    let assetUploadUrl = getURL(
+      ~entityName=V1(USERS),
+      ~methodType=Post,
+      ~id=Some(themeId),
+      ~userType=#THEME_UPLOAD_ASSET,
+    )
 
-    let uploadAsset = async (~assetFile, ~assetName) => {
-      try {
-        let formData = formData()
-        append(formData, "asset_name", assetName)
-        append(formData, "asset_data", assetFile)
-        let url = getURL(
-          ~entityName=V1(USERS),
-          ~methodType=Post,
-          ~id=Some(themeId),
-          ~userType=#THEME_UPLOAD_ASSET,
-        )
-        let _ = await updateDetails(
-          ~bodyFormData=formData,
-          ~headers=Dict.make(),
-          url,
-          Dict.make()->JSON.Encode.object,
-          Post,
-          ~contentType=AuthHooks.Unknown,
-        )
-      } catch {
-      | _ => Exn.raiseError("Failed to upload asset.")
-      }
-    }
-    let getThemeByThemeId = async () => {
-      try {
-        let url = getURL(
-          ~entityName=V1(USERS),
-          ~methodType=Get,
-          ~id=Some(themeId),
-          ~userType=#THEME,
-        )
-        let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
-        res
-      } catch {
-      | _ => Exn.raiseError("Failed to fetch theme.json")
-      }
-    }
-
-    let updateThemeWithAssetUrls = async (~uploadedFiles) => {
-      try {
-        let currentThemeData = await getThemeByThemeId()
-        let currentThemeDict = currentThemeData->getDictFromJsonObject
-        let currentThemeDataDict = currentThemeDict->getDictfromDict("theme_data")
-        let existingUrls = currentThemeDataDict->getDictfromDict("urls")
-
-        if uploadedFiles->Dict.get("logo.png")->Option.isSome {
-          let logoUrl = `${GlobalVars.getHostUrl}/themes/${themeId}/logo.png`
-          existingUrls->Dict.set("logoUrl", logoUrl->JSON.Encode.string)
-        }
-        if uploadedFiles->Dict.get("favicon.png")->Option.isSome {
-          let faviconUrl = `${GlobalVars.getHostUrl}/themes/${themeId}/favicon.png`
-          existingUrls->Dict.set("faviconUrl", faviconUrl->JSON.Encode.string)
-        }
-
-        currentThemeDataDict->Dict.set("urls", existingUrls->JSON.Encode.object)
-        currentThemeDict->Dict.set("theme_data", currentThemeDataDict->JSON.Encode.object)
-
-        let updateUrl = getURL(
-          ~entityName=V1(USERS),
-          ~methodType=Put,
-          ~id=Some(themeId),
-          ~userType=#THEME,
-        )
-        let _ = await updateDetails(updateUrl, currentThemeDict->JSON.Encode.object, Put)
-      } catch {
-      | _ => Exn.raiseError("Failed to update theme")
-      }
+    let uploadFn = async (~assetFile, ~assetName) => {
+      let formData = FormDataUtils.formData()
+      FormDataUtils.append(formData, "asset_name", assetName)
+      FormDataUtils.append(formData, "asset_data", assetFile)
+      await updateDetails(
+        assetUploadUrl,
+        Dict.make()->JSON.Encode.object,
+        Post,
+        ~bodyFormData=formData,
+        ~headers=Dict.make(),
+        ~contentType=AuthHooks.Unknown,
+      )
     }
 
     let handleUpload = async () => {
       try {
         setScreenState(_ => Loading)
-        let _ =
-          selectedFiles
-          ->Dict.toArray
-          ->Array.map(async ((assetName, assetFile)) => {
-            let _ = await uploadAsset(~assetFile, ~assetName)
-          })
-        let _ = await updateThemeWithAssetUrls(~uploadedFiles=selectedFiles)
+
+        let urlsDict = await processAssets(
+          ~logoAction,
+          ~faviconAction,
+          ~originalLogoUrl=None,
+          ~originalFaviconUrl=None,
+          ~uploadFn,
+          ~themeId,
+        )
+
+        if !(urlsDict->isEmptyDict) {
+          let themeUrl = getURL(
+            ~entityName=V1(USERS),
+            ~methodType=Get,
+            ~id=Some(themeId),
+            ~userType=#THEME,
+          )
+          let currentThemeData = await fetchDetails(themeUrl, ~version=UserInfoTypes.V1)
+          let settingsDict =
+            currentThemeData
+            ->getDictFromJsonObject
+            ->getDictfromDict("theme_data")
+            ->getDictfromDict("settings")
+
+          let requestBody = buildThemeDataBody(~settingsDict, ~urlsDict)
+          let updateUrl = getURL(
+            ~entityName=V1(USERS),
+            ~methodType=Put,
+            ~id=Some(themeId),
+            ~userType=#THEME,
+          )
+          let _ = await updateDetails(updateUrl, requestBody, Put)
+        }
 
         showToast(~message="Theme has been created with assets", ~toastType=ToastState.ToastSuccess)
         setScreenState(_ => Success)
@@ -661,6 +589,12 @@ module ThemeUploadAssetsModal = {
       redirectToList()
     }
 
+    let hasChanges = switch (logoAction, faviconAction) {
+    | (ThemeFeatureUtils.Updated({file: Some(_)}), _)
+    | (_, ThemeFeatureUtils.Updated({file: Some(_)})) => true
+    | _ => false
+    }
+
     <Modal
       showModal
       setShowModal
@@ -674,21 +608,23 @@ module ThemeUploadAssetsModal = {
       </div>}>
       <PageLoaderWrapper screenState={screenState} sectionHeight="h-20-vh">
         <div className="flex flex-col gap-2 p-3">
-          <FileUploadField
-            label="Icon"
-            inputId="iconInput"
-            acceptTypes=".png,.jpg,.jpeg"
-            tooltipDescription="Supported formats: PNG, JPG, JPEG. Recommended size: 32x32px"
-            selectedFile={selectedFiles->Dict.get("logo.png")}
-            onFileChange={handleFileChange("logo.png")}
+          <AssetField
+            label="Logo"
+            originalUrl=None
+            action=logoAction
+            setAction=setLogoAction
+            accept=".png,.jpg,.jpeg"
+            inputId="logoFileInput"
+            themeConfigVersion=None
           />
-          <FileUploadField
+          <AssetField
             label="Favicon"
-            inputId="faviconInput"
-            acceptTypes=".png,.ico,.jpg,.jpeg"
-            tooltipDescription="Supported formats: ICO, PNG. Recommended size: 16x16px or 32x32px"
-            selectedFile={selectedFiles->Dict.get("favicon.png")}
-            onFileChange={handleFileChange("favicon.png")}
+            originalUrl=None
+            action=faviconAction
+            setAction=setFaviconAction
+            accept=".png,.ico,.jpg,.jpeg"
+            inputId="faviconFileInput"
+            themeConfigVersion=None
           />
           <div className="flex justify-end gap-3 pt-4 border-t border-nd_gray-200">
             <Button
@@ -701,7 +637,7 @@ module ThemeUploadAssetsModal = {
             <Button
               text="Save & Upload"
               buttonType=Primary
-              buttonState={selectedFiles->isEmptyDict ? Disabled : Normal}
+              buttonState={hasChanges ? Normal : Disabled}
               buttonSize=Small
               onClick={_ => handleUpload()->ignore}
             />

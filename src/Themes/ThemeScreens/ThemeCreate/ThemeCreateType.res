@@ -21,11 +21,6 @@ type themeCreate = {
   email_config: option<emailConfig>,
 }
 
-type themeUpdate = {
-  theme_name: string,
-  theme_data: HyperSwitchConfigTypes.customStylesTheme,
-  email_config: option<emailConfig>,
-}
 let defaultCreate = (~lineage: lineage) => {
   entity_type: lineage.entity_type,
   tenant_id: lineage.tenant_id,

@@ -1,34 +1,5 @@
-open ThemeCreateType
+open ThemeUpdateType
 open LogicUtils
-
-type assetAction =
-  | Unchanged
-  | Updated({file: option<JSON.t>})
-
-let processAssetAction = async (
-  ~originalUrl: option<string>,
-  ~action: assetAction,
-  ~assetName: string,
-  ~uploadFn: (~assetFile: option<JSON.t>, ~assetName: string) => promise<JSON.t>,
-  ~themeId: string,
-) => {
-  try {
-    let baseUrl = GlobalVars.getHostUrl
-    let newAssetUrl = `${baseUrl}/themes/${themeId}/${assetName}`
-    switch (originalUrl, action) {
-    | (None, Unchanged) => None
-    | (Some(existingUrl), Unchanged) => Some(existingUrl->JSON.Encode.string)
-    | (Some(_), Updated({file: None})) => None
-    | (_, Updated({file: Some(file)})) => {
-        let _ = await uploadFn(~assetFile=Some(file), ~assetName)
-        Some(newAssetUrl->JSON.Encode.string)
-      }
-    | _ => None
-    }
-  } catch {
-  | Exn.Error(_) as err => raise(err)
-  }
-}
 
 let themeBodyMapper = (json: JSON.t): themeUpdate => {
   let dict = getDictFromJsonObject(json)

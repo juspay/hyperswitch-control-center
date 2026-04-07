@@ -134,8 +134,8 @@ module AssetField = {
   let make = (
     ~label: string,
     ~originalUrl: option<string>,
-    ~action: ThemeUpdateUtils.assetAction,
-    ~setAction: (ThemeUpdateUtils.assetAction => ThemeUpdateUtils.assetAction) => unit,
+    ~action: ThemeFeatureUtils.assetAction,
+    ~setAction: (ThemeFeatureUtils.assetAction => ThemeFeatureUtils.assetAction) => unit,
     ~accept: string,
     ~inputId: string,
     ~themeConfigVersion: option<string>,
@@ -143,7 +143,7 @@ module AssetField = {
     let handleFileChange = ev => {
       let files = ReactEvent.Form.target(ev)["files"]
       switch files[0] {
-      | Some(file) => setAction(_ => ThemeUpdateUtils.Updated({file: Some(file)}))
+      | Some(file) => setAction(_ => ThemeFeatureUtils.Updated({file: Some(file)}))
       | None => ()
       }
     }
@@ -213,16 +213,16 @@ module AssetField = {
     </div>
   }
 }
-
+open ThemeFeatureUtils
 module IconSettings = {
   @react.component
   let make = (
     ~originalLogoUrl: option<string>,
     ~originalFaviconUrl: option<string>,
-    ~logoAction: ThemeUpdateUtils.assetAction,
-    ~setLogoAction: (ThemeUpdateUtils.assetAction => ThemeUpdateUtils.assetAction) => unit,
-    ~faviconAction: ThemeUpdateUtils.assetAction,
-    ~setFaviconAction: (ThemeUpdateUtils.assetAction => ThemeUpdateUtils.assetAction) => unit,
+    ~logoAction: assetAction,
+    ~setLogoAction: (assetAction => assetAction) => unit,
+    ~faviconAction: assetAction,
+    ~setFaviconAction: (assetAction => assetAction) => unit,
     ~themeConfigVersion,
   ) => {
     <div className="flex flex-col gap-4">

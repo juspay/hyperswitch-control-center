@@ -23,8 +23,8 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
-  let (logoAction, setLogoAction) = React.useState(_ => ThemeUpdateUtils.Unchanged)
-  let (faviconAction, setFaviconAction) = React.useState(_ => ThemeUpdateUtils.Unchanged)
+  let (logoAction, setLogoAction) = React.useState(_ => ThemeFeatureUtils.Unchanged)
+  let (faviconAction, setFaviconAction) = React.useState(_ => ThemeFeatureUtils.Unchanged)
   let (originalLogoUrl, setOriginalLogoUrl) = React.useState(_ => None)
   let (originalFaviconUrl, setOriginalFaviconUrl) = React.useState(_ => None)
   let themeConfigVersion = HyperSwitchEntryUtils.getThemeConfigVersionfromStore()
@@ -58,33 +58,25 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
     }
   }
 
-  let uploadAsset = async (~assetFile, ~assetName) => {
-    try {
-      let formData = FormDataUtils.formData()
-      FormDataUtils.append(formData, "asset_name", assetName)
-      FormDataUtils.append(formData, "asset_data", assetFile)
+  let assetUploadUrl = getURL(
+    ~entityName=V1(USERS),
+    ~methodType=Post,
+    ~id=Some(themeId),
+    ~userType=#THEME_UPLOAD_ASSET,
+  )
 
-      let url = getURL(
-        ~entityName=V1(USERS),
-        ~methodType=Post,
-        ~id=Some(themeId),
-        ~userType=#THEME_UPLOAD_ASSET,
-      )
-
-      await updateDetails(
-        ~bodyFormData=formData,
-        ~headers=Dict.make(),
-        url,
-        Dict.make()->JSON.Encode.object,
-        Post,
-        ~contentType=AuthHooks.Unknown,
-      )
-    } catch {
-    | _ => {
-        showToast(~message="Failed to upload asset", ~toastType=ToastError)
-        JSON.Encode.null
-      }
-    }
+  let uploadFn = async (~assetFile, ~assetName) => {
+    let formData = FormDataUtils.formData()
+    FormDataUtils.append(formData, "asset_name", assetName)
+    FormDataUtils.append(formData, "asset_data", assetFile)
+    await updateDetails(
+      assetUploadUrl,
+      Dict.make()->JSON.Encode.object,
+      Post,
+      ~bodyFormData=formData,
+      ~headers=Dict.make(),
+      ~contentType=AuthHooks.Unknown,
+    )
   }
 
   React.useEffect(() => {
@@ -138,48 +130,18 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
     try {
       setScreenState(_ => Loading)
       let valuesDict = values->getDictFromJsonObject
-      let urlsDict = Dict.make()
 
-      let logoResult = await processAssetAction(
-        ~originalUrl=originalLogoUrl,
-        ~action=logoAction,
-        ~assetName="logo.png",
-        ~uploadFn=uploadAsset,
+      let urlsDict = await ThemeFeatureUtils.processAssets(
+        ~logoAction,
+        ~faviconAction,
+        ~originalLogoUrl,
+        ~originalFaviconUrl,
+        ~uploadFn,
         ~themeId,
       )
-      switch logoResult {
-      | Some(url) => urlsDict->Dict.set("logoUrl", url)
-      | None => ()
-      }
 
-      let faviconResult = await processAssetAction(
-        ~originalUrl=originalFaviconUrl,
-        ~action=faviconAction,
-        ~assetName="favicon.png",
-        ~uploadFn=uploadAsset,
-        ~themeId,
-      )
-      switch faviconResult {
-      | Some(url) => urlsDict->Dict.set("faviconUrl", url)
-      | None => ()
-      }
-
-      let themeDataDict = valuesDict->getDictfromDict("theme_data")
-      let settingsDict = themeDataDict->getDictfromDict("settings")
-
-      let requestBody = [
-        (
-          "theme_data",
-          Array.concat(
-            [("settings", settingsDict->JSON.Encode.object)],
-            if urlsDict->isEmptyDict {
-              []
-            } else {
-              [("urls", urlsDict->JSON.Encode.object)]
-            },
-          )->getJsonFromArrayOfJson,
-        ),
-      ]->getJsonFromArrayOfJson
+      let settingsDict = valuesDict->getDictfromDict("theme_data")->getDictfromDict("settings")
+      let requestBody = ThemeFeatureUtils.buildThemeDataBody(~settingsDict, ~urlsDict)
 
       let updateUrl = getURL(
         ~entityName=V1(USERS),
