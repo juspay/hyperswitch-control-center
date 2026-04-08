@@ -232,7 +232,7 @@ let make = (
   }
   <ReactFinalForm.Form
     key="auth"
-    initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+    initialValues={businessProfileDetails->parseBusinessProfileJson->JSON.Encode.object}
     subscription=ReactFinalForm.subscribeToValues
     onSubmit
     render={({handleSubmit}) => {

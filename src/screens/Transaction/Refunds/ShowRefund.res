@@ -186,7 +186,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       customUI={<DefaultLandingPage
         height="90vh"
         title="Something Went Wrong!"
-        overriddingStylesTitle={`text-3xl font-semibold`}
+        overridingStylesTitle={`text-3xl font-semibold`}
       />}>
       <RefundInfo orderDict={refundData->getDictFromJsonObject} />
       <div className="mt-5" />

@@ -62,7 +62,7 @@ let make = () => {
             actualData={filteredConnectorData}
             totalResults={filteredConnectorData->Array.length}
             resultsPerPage=20
-            entity={BillingProcesssorEntity.billingProcessorEntity(
+            entity={BillingProcessorEntity.billingProcessorEntity(
               "billing-processor",
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
