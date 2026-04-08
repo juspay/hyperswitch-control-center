@@ -232,6 +232,30 @@ let validateCustom = (key, errors, value) => {
     ) {
       Dict.set(errors, key->getStringFromVariant, "Please Enter Valid URL"->JSON.Encode.string)
     }
+  | Designation =>
+    if value->String.length < 2 || value->String.length > 100 {
+      Dict.set(
+        errors,
+        key->getStringFromVariant,
+        "Designation must be between 2 and 100 characters"->JSON.Encode.string,
+      )
+    }
+  | MonthlyPaymentVolume =>
+    if !monthlyPaymentVolumeOptions->Array.some(opt => opt == value) {
+      Dict.set(
+        errors,
+        key->getStringFromVariant,
+        "Please select a valid monthly payment volume option"->JSON.Encode.string,
+      )
+    }
+  | Industry =>
+    if !industryOptions->Array.some(opt => opt == value) {
+      Dict.set(
+        errors,
+        key->getStringFromVariant,
+        "Please select a valid industry option"->JSON.Encode.string,
+      )
+    }
   | _ => ()
   }
 }
