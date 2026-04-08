@@ -508,6 +508,7 @@ module ThemeUploadAssetsModal = {
     let fetchDetails = useGetMethod()
     let (selectedIcon, setSelectedIcon) = React.useState(_ => None)
     let (selectedFavicon, setSelectedFavicon) = React.useState(_ => None)
+    let (selectedEmailLogo, setSelectedEmailLogo) = React.useState(_ => None)
     let form = ReactFinalForm.useForm()
     let handleIconChange = ev => {
       let files = ReactEvent.Form.target(ev)["files"]
@@ -521,6 +522,14 @@ module ThemeUploadAssetsModal = {
       let files = ReactEvent.Form.target(ev)["files"]
       switch files[0] {
       | Some(file) => setSelectedFavicon(_ => Some(file))
+      | None => ()
+      }
+    }
+
+    let handleEmailLogoChange = ev => {
+      let files = ReactEvent.Form.target(ev)["files"]
+      switch files[0] {
+      | Some(file) => setSelectedEmailLogo(_ => Some(file))
       | None => ()
       }
     }
@@ -559,22 +568,40 @@ module ThemeUploadAssetsModal = {
       }
     }
 
-    let updateThemeWithAssetUrls = async (~iconName, ~faviconName) => {
+    let updateThemeWithAssetUrls = async (~hasIcon, ~hasFavicon, ~hasEmailLogo) => {
       let currentThemeData = await getThemeByThemeId()
       let baseUrl = GlobalVars.getHostUrl
-
-      let iconUrl = `${baseUrl}/themes/${themeId}/${iconName}`
-      let faviconUrl = `${baseUrl}/themes/${themeId}/${faviconName}`
-
       let currentThemeDict = currentThemeData->getDictFromJsonObject
       let currentThemeDataDict = currentThemeDict->getDictfromDict("theme_data")
 
       let updatedUrls = Dict.make()
-      updatedUrls->Dict.set("logoUrl", iconUrl->JSON.Encode.string)
-      updatedUrls->Dict.set("faviconUrl", faviconUrl->JSON.Encode.string)
+      if hasIcon {
+        updatedUrls->Dict.set(
+          "logoUrl",
+          `${baseUrl}/themes/${themeId}/logo.png`->JSON.Encode.string,
+        )
+      }
+      if hasFavicon {
+        updatedUrls->Dict.set(
+          "faviconUrl",
+          `${baseUrl}/themes/${themeId}/favicon.png`->JSON.Encode.string,
+        )
+      }
+      if !(updatedUrls->LogicUtils.isEmptyDict) {
+        currentThemeDataDict->Dict.set("urls", updatedUrls->JSON.Encode.object)
+        currentThemeDict->Dict.set("theme_data", currentThemeDataDict->JSON.Encode.object)
+      }
 
-      currentThemeDataDict->Dict.set("urls", updatedUrls->JSON.Encode.object)
-      currentThemeDict->Dict.set("theme_data", currentThemeDataDict->JSON.Encode.object)
+      if hasEmailLogo {
+        let emailConfigDict =
+          currentThemeDict
+          ->LogicUtils.getDictfromDict("email_config")
+        emailConfigDict->Dict.set(
+          "entity_logo_url",
+          `${baseUrl}/themes/${themeId}/email_logo.png`->JSON.Encode.string,
+        )
+        currentThemeDict->Dict.set("email_config", emailConfigDict->JSON.Encode.object)
+      }
 
       let updateUrl = getURL(
         ~entityName=V1(USERS),
@@ -588,27 +615,44 @@ module ThemeUploadAssetsModal = {
     let handleUpload = async (~isUpdateFlow=false) => {
       try {
         setScreenState(_ => Loading)
-        let iconName = "logo.png"
-        let faviconName = "favicon.png"
-        if selectedIcon->Option.isSome {
-          let _ = await uploadAsset(~assetFile=selectedIcon, ~assetName=iconName)
+        let hasIcon = selectedIcon->Option.isSome
+        let hasFavicon = selectedFavicon->Option.isSome
+        let hasEmailLogo = selectedEmailLogo->Option.isSome
+
+        if hasIcon {
+          let _ = await uploadAsset(~assetFile=selectedIcon, ~assetName="logo.png")
         }
-        if selectedFavicon->Option.isSome {
-          let _ = await uploadAsset(~assetFile=selectedFavicon, ~assetName=faviconName)
+        if hasFavicon {
+          let _ = await uploadAsset(~assetFile=selectedFavicon, ~assetName="favicon.png")
         }
-        if isUpdateFlow {
-          form.change(
-            "urls.logoUrl",
-            `https://integ.hyperswitch.io/themes/${themeId}/${iconName}`->Identity.genericTypeToJson,
-          )
-          form.change(
-            "urls.faviconUrl",
-            `https://integ.hyperswitch.io/themes/${themeId}/${faviconName}`->Identity.genericTypeToJson,
-          )
+        if hasEmailLogo {
+          let _ = await uploadAsset(~assetFile=selectedEmailLogo, ~assetName="email_logo.png")
         }
 
-        if !isUpdateFlow {
-          let _ = await updateThemeWithAssetUrls(~iconName, ~faviconName)
+        if isUpdateFlow {
+          let baseUrl = GlobalVars.getHostUrl
+          if hasIcon {
+            form.change(
+              "urls.logoUrl",
+              `${baseUrl}/themes/${themeId}/logo.png`->Identity.genericTypeToJson,
+            )
+          }
+          if hasFavicon {
+            form.change(
+              "urls.faviconUrl",
+              `${baseUrl}/themes/${themeId}/favicon.png`->Identity.genericTypeToJson,
+            )
+          }
+          if hasEmailLogo {
+            form.change(
+              "email_config.entity_logo_url",
+              `${baseUrl}/themes/${themeId}/email_logo.png`->Identity.genericTypeToJson,
+            )
+          }
+        }
+
+        if !isUpdateFlow && (hasIcon || hasFavicon || hasEmailLogo) {
+          let _ = await updateThemeWithAssetUrls(~hasIcon, ~hasFavicon, ~hasEmailLogo)
         }
 
         showToast(~message="Theme has been created with assets", ~toastType=ToastState.ToastSuccess)
@@ -640,7 +684,7 @@ module ThemeUploadAssetsModal = {
       modalClass="w-1/2 m-auto"
       childClass="p-0"
       modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
-        {"Upload icon and favicon files for your theme."->React.string}
+        {"Upload icon, favicon and email logo files for your theme."->React.string}
       </div>}>
       <div className="p-2">
         <div className="flex flex-col gap-4 p-4">
@@ -698,6 +742,38 @@ module ThemeUploadAssetsModal = {
               <Icon name="nd-upload-file" />
             </label>
             {switch selectedFavicon {
+            | Some(file) =>
+              <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
+                <Icon name="file-icon" size=16 />
+                <span> {file["name"]->React.string} </span>
+              </div>
+            | None => React.null
+            }}
+          </div>
+        </div>
+        <div className="flex flex-col gap-4 p-4">
+          <div className="flex justify-between gap-4">
+            <div className={`flex ${body.md.medium} text-gray-700 gap-2 items-center`}>
+              {"Email Logo"->React.string}
+              <ToolTip
+                toolTipFor={<Icon name="info-vacent" size=13 className="cursor-pointer" />}
+                description="Supported formats: PNG, JPG, JPEG. Used in email templates."
+                toolTipPosition=Right
+              />
+            </div>
+            <input
+              type_="file"
+              accept=".png,.jpg,.jpeg"
+              hidden=true
+              onChange={handleEmailLogoChange}
+              id="emailLogoInput"
+            />
+            <label
+              htmlFor="emailLogoInput"
+              className="flex items-center justify-center gap-2 rounded-md border border-gray-300 cursor-pointer hover:border-gray-400 p-4">
+              <Icon name="nd-upload-file" />
+            </label>
+            {switch selectedEmailLogo {
             | Some(file) =>
               <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
                 <Icon name="file-icon" size=16 />

@@ -129,6 +129,51 @@ module ButtonSettings = {
   }
 }
 
+module EmailSettings = {
+  @react.component
+  let make = () => {
+    let labelClass = `${body.md.medium} text-nd_gray-700`
+
+    let entityNameField = makeFieldInfo(
+      ~label="Entity Name",
+      ~name="email_config.entity_name",
+      ~placeholder="Enter entity name for emails.",
+      ~customInput=InputFields.textInput(),
+    )
+
+    let primaryColorField = makeFieldInfo(
+      ~label="Primary Color",
+      ~name="email_config.primary_color",
+      ~placeholder="Enter primary color.",
+      ~customInput=InputFields.colorPickerInput(~defaultValue="#006DF9"),
+    )
+
+    let foregroundColorField = makeFieldInfo(
+      ~label="Foreground Color",
+      ~name="email_config.foreground_color",
+      ~placeholder="Enter foreground color.",
+      ~customInput=InputFields.colorPickerInput(~defaultValue="#111326"),
+    )
+
+    let backgroundColorField = makeFieldInfo(
+      ~label="Background Color",
+      ~name="email_config.background_color",
+      ~placeholder="Enter background color.",
+      ~customInput=InputFields.colorPickerInput(~defaultValue="#FFFFFF"),
+    )
+
+    <div className="flex flex-col gap-4">
+      <div className={`${body.lg.semibold}`}> {React.string("Email Settings")} </div>
+      <div className="space-y-4">
+        <FormRenderer.FieldRenderer field=entityNameField labelClass />
+        <FormRenderer.FieldRenderer field=primaryColorField labelClass />
+        <FormRenderer.FieldRenderer field=foregroundColorField labelClass />
+        <FormRenderer.FieldRenderer field=backgroundColorField labelClass />
+      </div>
+    </div>
+  }
+}
+
 module AssetField = {
   @react.component
   let make = (
