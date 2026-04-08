@@ -28,7 +28,7 @@ let getStringFromVariant = key => {
 }
 
 let businessName = FormRenderer.makeFieldInfo(
-  ~label="Organization Name",
+  ~label="Legal Business Name",
   ~name=BusinessName->getStringFromVariant,
   ~placeholder="Eg: HyperSwitch Pvt Ltd",
   ~customInput=InputFields.textInput(),
@@ -36,7 +36,7 @@ let businessName = FormRenderer.makeFieldInfo(
 )
 
 let website = FormRenderer.makeFieldInfo(
-  ~label="Organization Website",
+  ~label="Business Website",
   ~name=Website->getStringFromVariant,
   ~placeholder="Enter a website",
   ~customInput=InputFields.textInput(),
@@ -62,7 +62,7 @@ let pocEmail = FormRenderer.makeFieldInfo(
 let designation = FormRenderer.makeFieldInfo(
   ~label="Designation",
   ~name=Designation->getStringFromVariant,
-  ~placeholder="Eg: Product Manager",
+  ~placeholder="Eg: CTO",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
 )
@@ -98,10 +98,9 @@ let industryOptions = [
   ("Gaming", "Gaming"),
   ("Financial Services", "Financial Services"),
   ("Healthcare", "Healthcare"),
-  ("Education", "Education"),
   ("Travel & Hospitality", "Travel & Hospitality"),
-  ("Food & Beverage", "Food & Beverage"),
-  ("Technology", "Technology"),
+  ("Education", "Education"),
+  ("Media & Entertainment", "Media & Entertainment"),
   ("Other", "Other"),
 ]
 
@@ -111,9 +110,14 @@ let monthlyPaymentVolumeField = FormRenderer.makeFieldInfo(
   ~placeholder="Select monthly volume",
   ~customInput=InputFields.selectInput(
     ~options=monthlyPaymentVolumeOptions->Array.map(((value, label)) => {
-      SelectBox.dropdownOption(~label, ~value)
+      let option: SelectBox.dropdownOption = {
+        label,
+        value,
+        icon: None,
+        iconPosition: None,
+      }
+      option
     }),
-    ~buttonText="Select monthly volume",
     ~deselectDisable=true,
     (),
   ),
@@ -126,9 +130,14 @@ let industryField = FormRenderer.makeFieldInfo(
   ~placeholder="Select industry",
   ~customInput=InputFields.selectInput(
     ~options=industryOptions->Array.map(((value, label)) => {
-      SelectBox.dropdownOption(~label, ~value)
+      let option: SelectBox.dropdownOption = {
+        label,
+        value,
+        icon: None,
+        iconPosition: None,
+      }
+      option
     }),
-    ~buttonText="Select industry",
     ~deselectDisable=true,
     (),
   ),
@@ -190,9 +199,9 @@ let getFormField = columnType => {
   }
 }
 
-let formFields = [POCName, POCemail, Designation, BusinessName, Country, Website, MonthlyPaymentVolume, Industry]
+let formFields = [POCName, POCemail, Designation, BusinessName, Website, Country, MonthlyPaymentVolume, Industry]
 
-let formFieldsForQuickStart = [BusinessName, Country, Website, POCName, POCemail]
+let formFieldsForQuickStart = [POCName, POCemail, Designation, BusinessName, Website, Country, MonthlyPaymentVolume, Industry]
 
 let validateCustom = (key, errors, value) => {
   switch key {
@@ -233,7 +242,7 @@ let getJsonString = (valueDict, key) => {
   valueDict->getString(key->getStringFromVariant, "")->JSON.Encode.string
 }
 
-let getBody = (values: JSON.t, ~selectedProducts: array<string>=[]) => {
+let getBody = (values: JSON.t, ~selectedProducts: array<ProductTypes.productTypes>) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
 
@@ -279,13 +288,12 @@ let getBody = (values: JSON.t, ~selectedProducts: array<string>=[]) => {
     Industry->getStringFromVariant,
     valuesDict->getOptionString(Industry->getStringFromVariant),
   )
-  
-  if selectedProducts->Array.length > 0 {
-    prodOnboardingpayload->Dict.set(
-      SelectedProducts->getStringFromVariant,
-      selectedProducts->JSON.Encode.array,
-    )
-  }
-  
+
+  let productStrings = selectedProducts->Array.map(ProductUtils.getProductStringName)
+  prodOnboardingpayload->Dict.set(
+    SelectedProducts->getStringFromVariant,
+    productStrings->JSON.Encode.array,
+  )
+
   prodOnboardingpayload
 }
