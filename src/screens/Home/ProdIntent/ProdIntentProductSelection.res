@@ -56,7 +56,7 @@ module ProductCard = {
     let stateClasses = if isDisabled {
       "border-nd_gray-200 bg-nd_gray-50 cursor-not-allowed opacity-60"
     } else if isSelected {
-      "border-nd_primary_blue-500 bg-nd_primary_blue-50"
+      "border-nd_blue-500 bg-nd_blue-50"
     } else {
       "border-nd_gray-200 hover:border-nd_gray-300 bg-white"
     }
@@ -69,15 +69,17 @@ module ProductCard = {
         }
       }}>
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Icon name={item.icon} size=24 className="text-nd_primary_blue-500" />
-          <span className="font-semibold text-nd_gray-700"> {item.name->React.string} </span>
-        </div>
+        <Icon name={item.icon} size=24 />
         <RenderIf condition={isSelected}>
-          <Icon name="nd-check" size=20 className="text-nd_primary_blue-500" />
+          <div className="w-5 h-5 rounded-full bg-nd_blue-500 flex items-center justify-center">
+            <Icon name="check" size=12 customIconColor="text-white" />
+          </div>
         </RenderIf>
       </div>
-      <p className="text-sm text-nd_gray-500"> {item.description->React.string} </p>
+      <div className="flex flex-col gap-1">
+        <span className="text-sm font-semibold text-nd_gray-700"> {item.name->React.string} </span>
+        <span className="text-xs text-nd_gray-500"> {item.description->React.string} </span>
+      </div>
     </div>
   }
 }
