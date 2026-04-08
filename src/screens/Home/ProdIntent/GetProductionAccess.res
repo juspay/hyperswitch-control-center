@@ -40,9 +40,7 @@ let make = () => {
   }
 
   let isProdAccessAvailableForProduct = switch activeProduct {
-  | Orchestration(V1)
-  | DynamicRouting
-  | Recon(V2) => true
+  | Orchestration(V1) => true
   | _ => false
   }
 
