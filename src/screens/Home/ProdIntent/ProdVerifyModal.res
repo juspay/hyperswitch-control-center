@@ -11,7 +11,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
   let {setShowProdIntentForm} = React.useContext(GlobalProvider.defaultContext)
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
-  let (selectedProducts, setSelectedProducts) = React.useState(_ => ["orchestration"])
+  let (selectedProducts, setSelectedProducts) = React.useState(_ => [ProductTypes.Orchestration(V1)])
 
   let updateProdDetails = async values => {
     try {
