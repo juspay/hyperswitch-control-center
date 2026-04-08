@@ -53,8 +53,17 @@ module ProductCard = {
 
     <div
       className={`${baseClasses} ${stateClasses}`}
+      role="checkbox"
+      aria-checked={isSelected->Bool.toString}
+      tabIndex={isDisabled ? -1 : 0}
       onClick={_ => {
         if !isDisabled {
+          onToggle()
+        }
+      }}
+      onKeyDown={ev => {
+        if !isDisabled && (ev->ReactEvent.Keyboard.key === "Enter" || ev->ReactEvent.Keyboard.key === " ") {
+          ev->ReactEvent.Keyboard.preventDefault
           onToggle()
         }
       }}>
