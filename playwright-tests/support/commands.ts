@@ -352,6 +352,16 @@ export async function loginAPI(
   }
 }
 
+export async function mockV2MerchantList(page: Page): Promise<void> {
+  await page.route("**/v2/user/list/merchant", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify([]),
+    });
+  });
+}
+
 export async function enableEmailFeatureFlag(page: Page): Promise<void> {
   await page.route("**/dashboard/config/feature?domain=", async (route) => {
     await route.fulfill({

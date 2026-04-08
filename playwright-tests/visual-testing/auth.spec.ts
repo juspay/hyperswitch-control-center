@@ -1,13 +1,13 @@
 import { test, expect } from "@playwright/test";
 import { SignInPage } from "../support/pages/auth/SignInPage";
 import { SignUpPage } from "../support/pages/auth/SignUpPage";
-import { ResetPasswordPage } from "../support/pages/auth/ResetPasswordPage";
 import { generateUniqueEmail } from "../support/helper";
 import {
   getAuthIdByEmail,
   signupUser,
   createAuth,
   visitSignupPage,
+  mockV2MerchantList,
 } from "../support/commands";
 import { authenticator } from "otplib";
 import { HomePage } from "../support/pages/homepage/HomePage";
@@ -158,6 +158,7 @@ test.describe("Visual Testing - Auth Pages", () => {
     context,
   }) => {
     let totpSecret = "";
+    await mockV2MerchantList(page);
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
 
