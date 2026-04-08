@@ -27,7 +27,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
         ("poc_email", values->LogicUtils.getDictFromJsonObject->LogicUtils.getString("poc_email", "")->JSON.Encode.string),
         ("poc_name", values->LogicUtils.getDictFromJsonObject->LogicUtils.getString("poc_name", "")->JSON.Encode.string),
       ]->LogicUtils.getJsonFromArrayOfJson
-      let _ = await updateDetails(emailUrl, emailBody, Post)->catch(_ => Promise.resolve(JSON.Encode.null))
+      let _ = await updateDetails(emailUrl, emailBody, Post)->Promise.catch(_ => Promise.resolve(JSON.Encode.null))
 
       showToast(
         ~toastType=ToastSuccess,
