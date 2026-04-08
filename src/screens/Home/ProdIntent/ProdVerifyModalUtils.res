@@ -28,7 +28,7 @@ let getStringFromVariant = key => {
 }
 
 let businessName = FormRenderer.makeFieldInfo(
-  ~label="Legal Business Name",
+  ~label="Organization Name",
   ~name=BusinessName->getStringFromVariant,
   ~placeholder="Eg: HyperSwitch Pvt Ltd",
   ~customInput=InputFields.textInput(),
@@ -36,7 +36,7 @@ let businessName = FormRenderer.makeFieldInfo(
 )
 
 let website = FormRenderer.makeFieldInfo(
-  ~label="Business Website",
+  ~label="Organization Website",
   ~name=Website->getStringFromVariant,
   ~placeholder="Enter a website",
   ~customInput=InputFields.textInput(),
@@ -62,7 +62,7 @@ let pocEmail = FormRenderer.makeFieldInfo(
 let designation = FormRenderer.makeFieldInfo(
   ~label="Designation",
   ~name=Designation->getStringFromVariant,
-  ~placeholder="Eg: CTO",
+  ~placeholder="Eg: Product Manager",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
 )
@@ -92,56 +92,97 @@ let monthlyPaymentVolumeOptions = [
 ]
 
 let industryOptions = [
-  ("E-commerce", "E-commerce"),
-  ("SaaS", "SaaS"),
-  ("Retail", "Retail"),
-  ("Gaming", "Gaming"),
-  ("Financial Services", "Financial Services"),
-  ("Healthcare", "Healthcare"),
-  ("Travel & Hospitality", "Travel & Hospitality"),
-  ("Education", "Education"),
-  ("Media & Entertainment", "Media & Entertainment"),
-  ("Other", "Other"),
+  ("e_commerce", "E-commerce"),
+  ("saas", "SaaS"),
+  ("retail", "Retail"),
+  ("gaming", "Gaming"),
+  ("fintech", "Fintech"),
+  ("healthcare", "Healthcare"),
+  ("education", "Education"),
+  ("travel", "Travel & Hospitality"),
+  ("food", "Food & Beverage"),
+  ("media", "Media & Entertainment"),
+  ("other", "Other"),
 ]
 
-let monthlyPaymentVolumeField = FormRenderer.makeFieldInfo(
+let monthlyVolumeFieldInput = () => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+  let field = fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)
+
+  let input: ReactFinalForm.fieldRenderPropsInput = {
+    name: "monthly_payment_volume",
+    onBlur: _ => (),
+    onChange: ev => {
+      let stringVal = ev->Identity.formReactEventToString
+      field.input.onChange(stringVal->Identity.anyTypeToReactEvent)
+    },
+    onFocus: _ => (),
+    value: field.input.value,
+    checked: true,
+  }
+
+  <SelectBox.BaseDropdown
+    allowMultiSelect=false
+    buttonText="Select Monthly Volume"
+    customButtonStyle="!rounded-md !py-5"
+    input
+    options={monthlyPaymentVolumeOptions->Array.map(((value, label)) => {
+      SelectBox.dropDownOption(~value, ~label)
+    })}
+    hideMultiSelectButtons=true
+    fullLength=true
+    dropdownClassName={`h-48 overflow-scroll`}
+    dropdownCustomWidth="!w-full"
+    addButton=false
+    deselectDisable=true
+  />
+}
+
+let monthlyVolumeField = FormRenderer.makeMultiInputFieldInfoOld(
   ~label="Monthly Payment Volume",
-  ~name=MonthlyPaymentVolume->getStringFromVariant,
-  ~placeholder="Select monthly volume",
-  ~customInput=InputFields.selectInput(
-    ~options=monthlyPaymentVolumeOptions->Array.map(((value, label)) => {
-      let option: SelectBox.dropdownOption = {
-        label,
-        value,
-        icon: None,
-        iconPosition: None,
-      }
-      option
-    }),
-    ~deselectDisable=true,
-    (),
-  ),
+  ~comboCustomInput=monthlyVolumeFieldInput(),
+  ~inputFields=[FormRenderer.makeInputFieldInfo(~name=`monthly_payment_volume`)],
   ~isRequired=true,
+  (),
 )
 
-let industryField = FormRenderer.makeFieldInfo(
+let industryFieldInput = () => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+  let field = fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)
+
+  let input: ReactFinalForm.fieldRenderPropsInput = {
+    name: "industry",
+    onBlur: _ => (),
+    onChange: ev => {
+      let stringVal = ev->Identity.formReactEventToString
+      field.input.onChange(stringVal->Identity.anyTypeToReactEvent)
+    },
+    onFocus: _ => (),
+    value: field.input.value,
+    checked: true,
+  }
+
+  <SelectBox.BaseDropdown
+    allowMultiSelect=false
+    buttonText="Select Industry"
+    customButtonStyle="!rounded-md !py-5"
+    input
+    options={industryOptions->Array.map(((value, label)) => {
+      SelectBox.dropDownOption(~value, ~label)
+    })}
+    hideMultiSelectButtons=true
+    fullLength=true
+    dropdownClassName={`h-48 overflow-scroll`}
+    dropdownCustomWidth="!w-full"
+    addButton=false
+    deselectDisable=true
+  />
+}
+
+let industryField = FormRenderer.makeMultiInputFieldInfoOld(
   ~label="Your Industry",
-  ~name=Industry->getStringFromVariant,
-  ~placeholder="Select industry",
-  ~customInput=InputFields.selectInput(
-    ~options=industryOptions->Array.map(((value, label)) => {
-      let option: SelectBox.dropdownOption = {
-        label,
-        value,
-        icon: None,
-        iconPosition: None,
-      }
-      option
-    }),
-    ~deselectDisable=true,
-    (),
-  ),
+  ~comboCustomInput=industryFieldInput(),
+  ~inputFields=[FormRenderer.makeInputFieldInfo(~name=`industry`)],
   ~isRequired=true,
+  (),
 )
 
 let validateEmptyValue = (key, errors) => {
@@ -193,15 +234,15 @@ let getFormField = columnType => {
   | Website => website
   | POCName => pocName
   | Designation => designation
-  | MonthlyPaymentVolume => monthlyPaymentVolumeField
+  | MonthlyPaymentVolume => monthlyVolumeField
   | Industry => industryField
   | _ => countryField
   }
 }
 
-let formFields = [POCName, POCemail, Designation, BusinessName, Website, Country, MonthlyPaymentVolume, Industry]
+let formFields = [POCName, POCemail, Designation, BusinessName, Country, Website, MonthlyPaymentVolume, Industry]
 
-let formFieldsForQuickStart = [POCName, POCemail, Designation, BusinessName, Website, Country, MonthlyPaymentVolume, Industry]
+let formFieldsForQuickStart = [POCName, POCemail, Designation, BusinessName, Country, Website, MonthlyPaymentVolume, Industry]
 
 let validateCustom = (key, errors, value) => {
   switch key {
@@ -242,7 +283,7 @@ let getJsonString = (valueDict, key) => {
   valueDict->getString(key->getStringFromVariant, "")->JSON.Encode.string
 }
 
-let getBody = (values: JSON.t, ~selectedProducts: array<ProductTypes.productTypes>) => {
+let getBody = (values: JSON.t, ~selectedProducts: array<string>=[]) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
 
@@ -289,11 +330,12 @@ let getBody = (values: JSON.t, ~selectedProducts: array<ProductTypes.productType
     valuesDict->getOptionString(Industry->getStringFromVariant),
   )
 
-  let productStrings = selectedProducts->Array.map(ProductUtils.getProductStringName)
-  prodOnboardingpayload->Dict.set(
-    SelectedProducts->getStringFromVariant,
-    productStrings->JSON.Encode.array,
-  )
+  if selectedProducts->Array.length > 0 {
+    prodOnboardingpayload->Dict.set(
+      SelectedProducts->getStringFromVariant,
+      selectedProducts->JSON.Encode.array,
+    )
+  }
 
   prodOnboardingpayload
 }
