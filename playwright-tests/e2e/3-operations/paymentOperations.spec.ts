@@ -32,7 +32,7 @@ test.describe("Payment Operations", () => {
     await homePage.paymentOperations.click();
 
     await expect(
-      page.locator('[class="text-fs-28 font-semibold leading-10 "]'),
+      page.locator('[class="flex justify-between items-center"]'),
     ).toContainText("Payment Operations");
 
     await expect(
@@ -92,7 +92,7 @@ test.describe("Payment Operations", () => {
       await homePage.paymentOperations.click();
 
       await expect(
-        page.locator('[class="text-fs-28 font-semibold leading-10 "]'),
+        page.locator('[class="flex justify-between items-center"]'),
       ).toContainText("Payment Operations");
 
       await expect(

@@ -290,7 +290,7 @@ type googlePay = {
 
 type metaData = {
   apple_pay?: applePay,
-  goole_pay?: googlePay,
+  google_pay?: googlePay,
 }
 type pmAuthPaymentMethods = {
   payment_method: string,

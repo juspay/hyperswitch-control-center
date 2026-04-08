@@ -1,4 +1,4 @@
-let tableHeadingClass = "font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75"
+let tableHeadingClass = `${Typography.heading.sm.semibold} text-black text-opacity-75 dark:text-white dark:text-opacity-75`
 type view = Table | Card
 
 let visibilityColFunc = (
