@@ -27,7 +27,8 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
   let updateProdDetails = async values => {
     try {
       let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
-      let bodyValues = values->getBody(~selectedProducts)->JSON.Encode.object
+      let selectedProductStrings = selectedProducts->Array.map(ProductUtils.getProductStringName)
+      let bodyValues = values->getBody(~selectedProducts=selectedProductStrings)->JSON.Encode.object
       let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
       showToast(
