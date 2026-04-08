@@ -30,6 +30,9 @@
     "pw:codegen": "playwright codegen",
     "pw:debug": "playwright test --debug",
     "pw:report": "playwright show-report",
+    "pw:coverage": "cross-env PW_COVERAGE=true playwright test --project=chromium",
+    "pw:coverage:report": "nyc report --reporter=text --reporter=html --reporter=lcov --temp-dir=.nyc_output --report-dir=coverage",
+    "pw:coverage:clean": "rimraf .nyc_output coverage",
     "lint:hooks": "eslint src/ --max-warnings 0",
     "lint:fix": "eslint src/ --fix && prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
@@ -71,6 +74,7 @@
     "terser-webpack-plugin": "^5.1.3",
     "typescript": "^5.9.3",
     "typescript-language-server": "^5.1.3",
+    "v8-to-istanbul": "^9.3.0",
     "webpack": "^5.99.9",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.2",

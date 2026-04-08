@@ -1,4 +1,33 @@
-# Hyperswitch Control Center
+<p align="center">
+  <img src="https://github.com/juspay/hyperswitch/tree/main/docs/imgs/hyperswitch-logo-dark.svg#gh-dark-mode-only" alt="Hyperswitch-Logo" width="40%" />
+  <img src="https://github.com/juspay/hyperswitch/tree/main/docs/imgs/hyperswitch-logo-light.svg#gh-light-mode-only" alt="Hyperswitch-Logo" width="40%" />
+</p>
+
+<h1 align="center">Hyperswitch Control Center</h1>
+
+<p align="center">
+  <a href="https://github.com/juspay/hyperswitch-control-center/actions/workflows/ci.yml">
+    <img src="https://github.com/juspay/hyperswitch-control-center/workflows/CI/badge.svg" />
+  </a>
+  <a href="https://github.com/juspay/hyperswitch-control-center/actions/workflows/playwright-test.yml">
+    <img src="https://github.com/juspay/hyperswitch-control-center/workflows/Playwright%20Tests/badge.svg" />
+  </a>
+  <a href="https://github.com/juspay/hyperswitch/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/juspay/hyperswitch" />
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://www.linkedin.com/company/hyperswitch/">
+    <img src="https://img.shields.io/badge/follow-hyperswitch-blue?logo=linkedin&labelColor=grey"/>
+  </a>
+  <a href="https://x.com/hyperswitchio">
+    <img src="https://img.shields.io/badge/follow-%40hyperswitchio-white?logo=x&labelColor=grey"/>
+  </a>
+  <a href="https://inviter.co/hyperswitch-slack">
+    <img src="https://img.shields.io/badge/chat-on_slack-blue?logo=slack&labelColor=grey&color=%233f0e40"/>
+  </a>
+</p>
 
 Hyperswitch control center is an open source dashboard to easily view, manage and control your payments across multiple processors through Hyperswitch - an open source payments switch.
 
@@ -500,9 +529,9 @@ Welcome to the standard process for raising a Pull Request (PR) directly from a 
 - Include relevant tests, documentation updates, or screenshots, if applicable.
 - Collaborate and communicate effectively with other contributors and maintainers throughout the review process.
 
-## Cypress Test Suite
+## Playwright Test Suite
 
-This guide walks you through running Cypress tests locally for the [Hyperswitch Control Center](https://github.com/juspay/hyperswitch-control-center) project. The tests simulate real user workflows on the dashboard UI and require a working Hyperswitch backend environment.
+This guide walks you through running Playwright tests locally for the [Hyperswitch Control Center](https://github.com/juspay/hyperswitch-control-center) project. The tests simulate real user workflows on the dashboard UI and require a working Hyperswitch backend environment.
 
 ---
 
@@ -512,7 +541,8 @@ This guide walks you through running Cypress tests locally for the [Hyperswitch 
 
 - [Node.js](https://nodejs.org/)
 - [npm](https://www.npmjs.com/)
-- [Cypress](https://docs.cypress.io/app/get-started/install-cypress)
+- [Playwright](https://playwright.dev/docs/intro)
+- [Docker Compose](https://docs.docker.com/compose/install/)
 
 ---
 
@@ -535,27 +565,36 @@ npm install
 npm run build:test && npm run start:test
 ```
 
-### 4. Running Cypress Tests
+### 4. Install Playwright Browsers
+
+Multiple browsers: `npx playwright install chromium firefox webkit --with-deps`
+
+(Available: chromium, chrome, chrome-beta, msedge, msedge-beta, msedge-dev, firefox, webkit)
+
+```
+npx playwright install chromium --with-deps
+```
+
+### 5. Start the backend server using Docker Compose
+
+```
+sh playwright-test/start-hyperswitch.sh
+```
+
+### 6. Running Playwright Tests
 
 Open a second terminal and run the following commands
 
-#### Set environment variables for cypress
+#### To run tests interactively in Playwright Test Runner:
 
 ```
-export CYPRESS_USERNAME="cypress@test.com"
-export CYPRESS_PASSWORD="Cypress00#"
-```
-
-#### To run tests interactively in Cypress Test Runner:
-
-```
-npm run cy:open
+npx playwright test --ui
 ```
 
 #### To run tests in headless mode (CI/CD):
 
 ```
-npm run cy:run
+npx playwright test
 ```
 
 ## License

@@ -4,7 +4,7 @@
  * Generated: 2025-04-06T09:47:00Z
  */
 
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../support/test";
 import { HomePage } from "../support/pages/homepage/HomePage";
 import { PaymentOperations } from "../support/pages/operations/PaymentOperations";
 import { generateUniqueEmail } from "../support/helper";
