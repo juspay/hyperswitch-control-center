@@ -216,8 +216,14 @@ let make = () => {
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
                     <RenderIf condition={maintenanceAlert->LogicUtils.isNonEmptyString}>
-                      <HSwitchUtils.AlertBanner
-                        bannerContent={<p> {maintenanceAlert->React.string} </p>} bannerType={Info}
+                      <AlertV2Binding
+                        alertType=Primary
+                        slot={{
+                          slot: <Icon
+                            name="nd-toast-info" size=20 className="text-nd_primary_blue-450"
+                          />,
+                        }}
+                        description=maintenanceAlert
                       />
                     </RenderIf>
                     <WorkflowSideDrawer />
