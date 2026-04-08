@@ -34,7 +34,7 @@ let getGranularityLabel = option => {
   }
 }
 
-let defaulGranularity = {
+let defaultGranularity = {
   label: #G_ONEDAY->getGranularityLabel,
   value: (#G_ONEDAY: NewAnalyticsTypes.granularity :> string),
 }
@@ -63,9 +63,9 @@ let getGranularityOptions = (~startTime, ~endTime) => {
 let getDefaultGranularity = (~startTime, ~endTime, ~granularity) => {
   let options = getGranularityOptions(~startTime, ~endTime)
   if granularity {
-    options->Array.get(options->Array.length - 1)->Option.getOr(defaulGranularity)
+    options->Array.get(options->Array.length - 1)->Option.getOr(defaultGranularity)
   } else {
-    defaulGranularity
+    defaultGranularity
   }
 }
 
@@ -166,16 +166,16 @@ let fillForMissingTimeRange = (
   let startingPoint = startingPoint.format("YYYY-MM-DD HH:00:00")->DayJs.getDayJsForString
   let endingPoint = endDate->DayJs.getDayJsForString
   let gap = "minute"
-  let devider = granularity->getGranularityGap
+  let divider = granularity->getGranularityGap
   let limit =
-    (endingPoint.diff(startingPoint.toString(), gap)->Int.toFloat /. devider->Int.toFloat)
+    (endingPoint.diff(startingPoint.toString(), gap)->Int.toFloat /. divider->Int.toFloat)
     ->Math.floor
     ->Float.toInt
   let format = getFormat(~granularity)
   let dataPoints = Dict.make()
   let _ = Belt.Array.range(0, limit)->Array.map(x => {
     let newDict = defaultValue->getDictFromJsonObject->Dict.copy
-    let timeVal = startingPoint.add(x * devider, gap).format(format)
+    let timeVal = startingPoint.add(x * divider, gap).format(format)
     switch existingTimeDict->Dict.get(timeVal) {
     | Some(val) => {
         newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)

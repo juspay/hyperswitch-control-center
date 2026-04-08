@@ -226,7 +226,7 @@ let make = () => {
           customButtonStyle="w-full mt-8"
         />
       </div>
-    | #ReviewAndConnect => <RecoveryProceesorReview connectorInfo=initialValues />
+    | #ReviewAndConnect => <RecoveryProcessorReview connectorInfo=initialValues />
     }}
   </div>
 }

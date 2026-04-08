@@ -314,7 +314,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
             ("end", endTimeFromUrl->JSON.Encode.string),
           ])
           let (metric, secondaryMetrics) = switch value.metrics->Array.get(0) {
-          | Some(metrics) => (metrics.metric_name_db, metrics.secondryMetrics)
+          | Some(metrics) => (metrics.metric_name_db, metrics.secondaryMetrics)
           | None => ("", None)
           }
           let timeCol = value.timeCol
@@ -449,7 +449,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
             ("end", endTimeFromUrl->JSON.Encode.string),
           ])
           let (metric, secondaryMetrics) = switch value.metrics->Array.get(0) {
-          | Some(metrics) => (metrics.metric_name_db, metrics.secondryMetrics)
+          | Some(metrics) => (metrics.metric_name_db, metrics.secondaryMetrics)
           | None => ("", None)
           }
           let metricsArr = switch secondaryMetrics {
