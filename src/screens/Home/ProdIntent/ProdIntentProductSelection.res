@@ -1,7 +1,7 @@
 open ProductTypes
 
 type productSelectionItem = {
-  product: productTypes,
+  productKey: string,
   name: string,
   icon: string,
   description: string,
@@ -9,25 +9,25 @@ type productSelectionItem = {
 
 let availableProducts = [
   {
-    product: Orchestration(V1),
+    productKey: "orchestration",
     name: "Orchestration",
     icon: "orchestrator-home",
     description: "Payment orchestration platform",
   },
   {
-    product: Recon(V1),
+    productKey: "recon",
     name: "Reconciliation",
     icon: "recon-home",
     description: "Automated reconciliation",
   },
   {
-    product: Recovery,
+    productKey: "recovery",
     name: "Revenue Recovery",
     icon: "recovery-home",
     description: "Failed payment recovery",
   },
   {
-    product: CostObservability,
+    productKey: "cost_observability",
     name: "Cost Observability",
     icon: "nd-piggy-bank",
     description: "Payment cost analytics",
@@ -78,7 +78,7 @@ module ProductCard = {
 }
 
 @react.component
-let make = (~selectedProducts: array<productTypes>, ~onProductToggle: productTypes => unit) => {
+let make = (~selectedProducts: array<string>, ~onProductToggle: (string, bool) => unit) => {
   <div className="flex flex-col gap-4">
     <div className="flex flex-col gap-1">
       <span className="text-sm font-medium text-nd_gray-700">
@@ -91,15 +91,15 @@ let make = (~selectedProducts: array<productTypes>, ~onProductToggle: productTyp
     <div className="grid grid-cols-2 gap-3">
       {availableProducts
       ->Array.map(product => {
-        let isSelected = selectedProducts->Array.some(p => p == product.product)
-        let isDisabled = product.product == Orchestration(V1)
+        let isSelected = selectedProducts->Array.some(p => p == product.productKey)
+        let isDisabled = product.productKey == "orchestration"
 
         <ProductCard
-          key={product.name}
+          key={product.productKey}
           product
           isSelected
           isDisabled
-          onToggle={() => onProductToggle(product.product)}
+          onToggle={() => onProductToggle(product.productKey, !isSelected)}
         />
       })
       ->React.array}
