@@ -366,7 +366,11 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys,
 
     let makeOptions = (options: array<string>): array<FilterSelectBox.dropdownOption> => {
       options->Array.map(str => {
-        let option: FilterSelectBox.dropdownOption = {label: str->snakeToTitle, value: str}
+        let label = switch key->getFilterTypeFromString {
+        | #connector => ConnectorUtils.getDisplayNameForConnector(str)
+        | _ => str->snakeToTitle
+        }
+        let option: FilterSelectBox.dropdownOption = {label, value: str}
         option
       })
     }
