@@ -87,11 +87,11 @@ let industryOptions = [
   "Other",
 ]
 
-let monthlyPaymentVolumeFieldInput = () => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+let dropdownFieldInput = (~fieldName: string, ~buttonText: string, ~options: array<string>) => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
   let field = fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
-    name: "monthly_payment_volume",
+    name: fieldName,
     onBlur: _ => (),
     onChange: ev => {
       let stringVal = ev->Identity.formReactEventToString
@@ -104,10 +104,10 @@ let monthlyPaymentVolumeFieldInput = () => (fieldsArray: array<ReactFinalForm.fi
 
   <SelectBox.BaseDropdown
     allowMultiSelect=false
-    buttonText="Select Monthly Volume"
+    buttonText
     customButtonStyle="!rounded-md !py-5"
     input
-    options={monthlyPaymentVolumeOptions->Array.map(opt => {
+    options={options->Array.map(opt => {
       SelectBox.dropDownOption={
         label: opt,
         value: opt,
@@ -121,6 +121,12 @@ let monthlyPaymentVolumeFieldInput = () => (fieldsArray: array<ReactFinalForm.fi
     deselectDisable=true
   />
 }
+
+let monthlyPaymentVolumeFieldInput = () => dropdownFieldInput(
+  ~fieldName="monthly_payment_volume",
+  ~buttonText="Select Monthly Volume",
+  ~options=monthlyPaymentVolumeOptions
+)
 
 let monthlyPaymentVolumeField = FormRenderer.makeMultiInputFieldInfoOld(
   ~label="Monthly Payment Volume",
@@ -130,40 +136,11 @@ let monthlyPaymentVolumeField = FormRenderer.makeMultiInputFieldInfoOld(
   (),
 )
 
-let industryFieldInput = () => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
-  let field = fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)
-
-  let input: ReactFinalForm.fieldRenderPropsInput = {
-    name: "industry",
-    onBlur: _ => (),
-    onChange: ev => {
-      let stringVal = ev->Identity.formReactEventToString
-      field.input.onChange(stringVal->Identity.anyTypeToReactEvent)
-    },
-    onFocus: _ => (),
-    value: field.input.value,
-    checked: true,
-  }
-
-  <SelectBox.BaseDropdown
-    allowMultiSelect=false
-    buttonText="Select Industry"
-    customButtonStyle="!rounded-md !py-5"
-    input
-    options={industryOptions->Array.map(opt => {
-      SelectBox.dropDownOption={
-        label: opt,
-        value: opt,
-      }
-    })}
-    hideMultiSelectButtons=true
-    fullLength=true
-    dropdownClassName={`h-48 overflow-scroll`}
-    dropdownCustomWidth="!w-full"
-    addButton=false
-    deselectDisable=true
-  />
-}
+let industryFieldInput = () => dropdownFieldInput(
+  ~fieldName="industry",
+  ~buttonText="Select Industry",
+  ~options=industryOptions
+)
 
 let industryField = FormRenderer.makeMultiInputFieldInfoOld(
   ~label="Your Industry",
