@@ -10,9 +10,19 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let {setShowProdIntentForm} = React.useContext(GlobalProvider.defaultContext)
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
 
-  let (selectedProducts, setSelectedProducts) = React.useState(_ => ["orchestration"])
+  let (selectedProducts, setSelectedProducts) = React.useState(_ => [ProductTypes.Orchestration(V1)])
+
+  let toggleProduct = (product: ProductTypes.productTypes) => {
+    setSelectedProducts(current => {
+      let exists = current->Array.some(p => p == product)
+      if exists {
+        current->Array.filter(p => p != product)
+      } else {
+        current->Array.concat([product])
+      }
+    })
+  }
 
   let updateProdDetails = async values => {
     try {
@@ -20,15 +30,6 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
       let bodyValues = values->getBody(~selectedProducts)->JSON.Encode.object
       let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
-
-      let emailUrl = getURL(~entityName=V1(USERS), ~userType=#SEND_PROD_INTENT_EMAIL, ~methodType=Post)
-      let emailBody = [
-        ("requested_products", selectedProducts->JSON.Encode.array),
-        ("poc_email", values->LogicUtils.getDictFromJsonObject->LogicUtils.getString("poc_email", "")->JSON.Encode.string),
-        ("poc_name", values->LogicUtils.getDictFromJsonObject->LogicUtils.getString("poc_name", "")->JSON.Encode.string),
-      ]->LogicUtils.getJsonFromArrayOfJson
-      let _ = await updateDetails(emailUrl, emailBody, Post)->Promise.catch(_ => Promise.resolve(JSON.Encode.null))
-
       showToast(
         ~toastType=ToastSuccess,
         ~message="Successfully sent for verification!",
@@ -47,16 +48,6 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
     mixpanelEvent(~eventName="create_get_production_access_request", ~metadata=values)
     setScreenState(_ => PageLoaderWrapper.Loading)
     updateProdDetails(values)
-  }
-
-  let handleProductToggle = (productKey, isSelected) => {
-    setSelectedProducts(prev => {
-      if isSelected {
-        prev->Array.concat([productKey])
-      } else {
-        prev->Array.filter(p => p !== productKey)
-      }
-    })
   }
 
   let modalBody = {
@@ -84,13 +75,11 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
               <div className="flex flex-col gap-8 w-full">
                 <FormRenderer.DesktopRow>
                   <div className="flex flex-col gap-6">
-                    <div className="flex flex-col gap-3">
-                      <span className="text-sm font-medium text-black">
-                        {"Select Products"->React.string}
-                      </span>
-                      <ProdIntentProductSelection selectedProducts onProductToggle=handleProductToggle />
-                    </div>
-                    <div className="flex flex-col gap-5">
+                    <ProdIntentProductSelection
+                      selectedProducts
+                      onProductToggle=toggleProduct
+                    />
+                    <div className="grid grid-cols-2 gap-5">
                       {formFields
                       ->Array.mapWithIndex((column, index) =>
                         <FormRenderer.FieldRenderer
@@ -122,7 +111,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
     setShowModal
     childClass="p-0"
     borderBottom=true
-    modalClass="w-full max-w-2xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
+    modalClass="w-full max-w-3xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
     modalBody
   </Modal>
 }
