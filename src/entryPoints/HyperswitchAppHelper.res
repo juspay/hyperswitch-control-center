@@ -29,7 +29,7 @@ module TestMode = {
     let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
 
     let showTestMode = !isLiveMode && !isInternalUser
-    let isOrchestrationV1 = switch activeProduct {
+    let showGetProductionAccess = switch activeProduct {
     | Orchestration(V1) => true
     | _ => false
     }
@@ -43,7 +43,7 @@ module TestMode = {
           <p className="text-nd_yellow-200 text-base leading-5 font-medium text-nowrap">
             {"You're in Test Mode"->React.string}
           </p>
-          <RenderIf condition={isOrchestrationV1}>
+          <RenderIf condition={showGetProductionAccess}>
             <GetProductionAccess />
           </RenderIf>
         </div>
