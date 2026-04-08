@@ -190,7 +190,7 @@ let getFormField = columnType => {
   }
 }
 
-let formFields = [POCName, POCemail, Designation, BusinessName, countryField, Website, MonthlyPaymentVolume, Industry]
+let formFields = [POCName, POCemail, Designation, BusinessName, Country, Website, MonthlyPaymentVolume, Industry]
 
 let formFieldsForQuickStart = [BusinessName, Country, Website, POCName, POCemail]
 
