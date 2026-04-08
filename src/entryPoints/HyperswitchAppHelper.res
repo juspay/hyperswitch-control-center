@@ -26,8 +26,13 @@ module TestMode = {
     let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
     let {roleId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
+    let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
 
     let showTestMode = !isLiveMode && !isInternalUser
+    let isOrchestrationV1 = switch activeProduct {
+    | Orchestration(V1) => true
+    | _ => false
+    }
 
     <RenderIf condition={showTestMode}>
       <div
@@ -38,7 +43,9 @@ module TestMode = {
           <p className="text-nd_yellow-200 text-base leading-5 font-medium text-nowrap">
             {"You're in Test Mode"->React.string}
           </p>
-          <GetProductionAccess />
+          <RenderIf condition={isOrchestrationV1}>
+            <GetProductionAccess />
+          </RenderIf>
         </div>
       </div>
     </RenderIf>
