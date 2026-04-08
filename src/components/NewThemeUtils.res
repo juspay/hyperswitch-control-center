@@ -15,13 +15,14 @@ module NewThemeHeading = {
   ) => {
     let descriptionSize = switch headingSize {
     | XSmall => "text-fs-12"
+    | Small => "text-fs-16"
     | _ => "text-fs-14"
     }
 
     let headingSize = switch headingSize {
     | Large => "text-fs-24"
     | Medium => "text-fs-20"
-    | Small => "text-fs-18"
+    | Small => "text-fs-16"
     | XSmall => "text-fs-14"
     }
 
