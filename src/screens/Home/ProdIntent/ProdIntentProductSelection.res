@@ -34,20 +34,10 @@ let availableProducts = [
   },
 ]
 
-let getProductStringKey = product => {
-  switch product {
-  | Orchestration(_) => "orchestration"
-  | Recon(_) => "recon"
-  | Recovery => "recovery"
-  | CostObservability => "cost_observability"
-  | _ => ""
-  }
-}
-
 module ProductCard = {
   @react.component
   let make = (
-    ~item: productSelectionItem,
+    ~product: productSelectionItem,
     ~isSelected: bool,
     ~isDisabled: bool,
     ~onToggle: unit => unit,
@@ -56,9 +46,9 @@ module ProductCard = {
     let stateClasses = if isDisabled {
       "border-nd_gray-200 bg-nd_gray-50 cursor-not-allowed opacity-60"
     } else if isSelected {
-      "border-nd_blue-500 bg-nd_blue-50"
+      "border-nd_blue-500 bg-nd_blue-50 hover:border-nd_blue-600"
     } else {
-      "border-nd_gray-200 hover:border-nd_gray-300 bg-white"
+      "border-nd_gray-200 bg-white hover:border-nd_gray-300 hover:bg-nd_gray-50"
     }
 
     <div
@@ -69,38 +59,50 @@ module ProductCard = {
         }
       }}>
       <div className="flex items-center justify-between">
-        <Icon name={item.icon} size=24 />
-        <RenderIf condition={isSelected}>
-          <div className="w-5 h-5 rounded-full bg-nd_blue-500 flex items-center justify-center">
-            <Icon name="check" size=12 customIconColor="text-white" />
-          </div>
-        </RenderIf>
+        <div className="flex items-center gap-3">
+          <Icon name={product.icon} size=24 />
+          <span className="font-semibold text-nd_gray-700"> {product.name->React.string} </span>
+        </div>
+        <div
+          className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+            isSelected ? "bg-nd_blue-500 border-nd_blue-500" : "border-nd_gray-300 bg-white"
+          }`}>
+          <RenderIf condition={isSelected}>
+            <Icon name="check" size=14 customIconColor="text-white" />
+          </RenderIf>
+        </div>
       </div>
-      <div className="flex flex-col gap-1">
-        <span className="text-sm font-semibold text-nd_gray-700"> {item.name->React.string} </span>
-        <span className="text-xs text-nd_gray-500"> {item.description->React.string} </span>
-      </div>
+      <p className="text-sm text-nd_gray-500"> {product.description->React.string} </p>
     </div>
   }
 }
 
 @react.component
-let make = (~selectedProducts: array<string>, ~onProductToggle: (string, bool) => unit) => {
-  <div className="grid grid-cols-2 gap-4">
-    {availableProducts
-    ->Array.map(item => {
-      let productKey = item.product->getProductStringKey
-      let isSelected = selectedProducts->Array.includes(productKey)
-      let isDisabled = productKey === "orchestration"
+let make = (~selectedProducts: array<productTypes>, ~onProductToggle: productTypes => unit) => {
+  <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-1">
+      <span className="text-sm font-medium text-nd_gray-700">
+        {"Select Products"->React.string}
+      </span>
+      <span className="text-xs text-nd_gray-500">
+        {"Choose the products you want production access for"->React.string}
+      </span>
+    </div>
+    <div className="grid grid-cols-2 gap-3">
+      {availableProducts
+      ->Array.map(product => {
+        let isSelected = selectedProducts->Array.some(p => p == product.product)
+        let isDisabled = product.product == Orchestration(V1)
 
-      <ProductCard
-        key={productKey}
-        item
-        isSelected
-        isDisabled
-        onToggle={() => onProductToggle(productKey, !isSelected)}
-      />
-    })
-    ->React.array}
+        <ProductCard
+          key={product.name}
+          product
+          isSelected
+          isDisabled
+          onToggle={() => onProductToggle(product.product)}
+        />
+      })
+      ->React.array}
+    </div>
   </div>
 }
