@@ -70,8 +70,8 @@ test.describe("Visual Testing - Auth Pages", () => {
   }) => {
     const signinPage = new SignInPage(page);
 
-    await createAuth(request);
-    const authId = await getAuthIdByEmail(request);
+    await createAuth(request, "visualtest.in");
+    const authId = await getAuthIdByEmail(request, "visualtest.in");
 
     await page.goto(`/?auth_id=${authId}`);
     await page.waitForLoadState("networkidle");

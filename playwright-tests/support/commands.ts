@@ -445,7 +445,10 @@ export async function deleteConnector(
   }
 }
 
-export async function createAuth(context?: APIRequestContext): Promise<void> {
+export async function createAuth(
+  context?: APIRequestContext,
+  emailDomain: string = "cypresstest.in",
+): Promise<void> {
   const ctx = context ?? (await request.newContext());
 
   const response = await ctx.post(`${API_URL}/user/auth`, {
@@ -468,7 +471,7 @@ export async function createAuth(context?: APIRequestContext): Promise<void> {
         },
       },
       allow_signup: false,
-      email_domain: "cypresstest.in",
+      email_domain: emailDomain,
     },
   });
 
@@ -480,11 +483,12 @@ export async function createAuth(context?: APIRequestContext): Promise<void> {
 
 export async function getAuthIdByEmail(
   context?: APIRequestContext,
+  emailDomain: string = "cypresstest.in",
 ): Promise<string> {
   const ctx = context ?? (await request.newContext());
 
   const response = await ctx.get(
-    `${API_URL}/user/auth/list?email_domain=cypresstest.in`,
+    `${API_URL}/user/auth/list?email_domain=${emailDomain}`,
   );
 
   if (!response.ok()) {
