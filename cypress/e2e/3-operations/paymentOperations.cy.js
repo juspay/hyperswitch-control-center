@@ -20,7 +20,7 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     //Header
-    cy.get(`[class="text-fs-28 font-semibold leading-10 "]`).should(
+    cy.get(`[class="flex justify-between items-center"]`).should(
       "contain",
       "Payment Operations",
     );
@@ -86,7 +86,7 @@ describe("Payment Operations", () => {
           homePage.paymentOperations.click();
 
           //Header
-          cy.get(`[class="text-fs-28 font-semibold leading-10 "]`).should(
+          cy.get(`[class="flex justify-between items-center"]`).should(
             "contain",
             "Payment Operations",
           );

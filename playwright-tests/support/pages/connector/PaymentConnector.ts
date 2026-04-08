@@ -8,7 +8,7 @@ export class PaymentConnector {
   }
 
   get pageHeading(): Locator {
-    return this.page.locator('[class="text-fs-28 font-semibold leading-10 "]');
+    return this.page.locator('[class="flex items-center gap-4 "]');
   }
 
   get pageBanner(): Locator {
