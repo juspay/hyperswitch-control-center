@@ -437,7 +437,7 @@ module BaseSelect = {
     ~showSelectionAsChips=true,
     ~maxHeight="md:max-h-72",
     ~searchable=?,
-    ~optionRigthElement=?,
+    ~optionRightElement=?,
     ~searchInputPlaceHolder="",
     ~showSearchIcon=true,
     ~customStyle="",
@@ -612,7 +612,7 @@ module BaseSelect = {
 
     let searchRef = React.useRef(Nullable.null)
     let (isChooseAllToggleSelected, setChooseAllToggleSelected) = React.useState(() => false)
-    let gapClass = switch optionRigthElement {
+    let gapClass = switch optionRightElement {
     | Some(_) => "flex gap-4"
     | None => ""
     }
@@ -713,7 +713,10 @@ module BaseSelect = {
               condition={filteredOptions->Array.length > 1 &&
                 filteredOptions->Array.find(item => item.value === "Loading...")->Option.isNone}>
               <div
-                onClick={selectAll(noOfSelected === 0)}
+                onClick={ev => {
+                  ev->ReactEvent.Mouse.stopPropagation
+                  selectAll(noOfSelected === 0)(ev)
+                }}
                 className={`flex px-3 py-2 border-b-2 gap-3 text-jp-2-gray-300 items-center text-fs-14 font-medium cursor-pointer`}>
                 <CheckBoxIcon
                   isSelected={noOfSelected !== 0}
@@ -725,7 +728,10 @@ module BaseSelect = {
             </RenderIf>
           } else {
             <div
-              onClick={selectAll(noOfSelected !== options->Array.length)}
+              onClick={ev => {
+                ev->ReactEvent.Mouse.stopPropagation
+                selectAll(noOfSelected !== options->Array.length)(ev)
+              }}
               className={`flex ${isHorizontal
                   ? "flex-col"
                   : "flex-row"} justify-between pr-4 pl-5 pt-6 pb-1 text-base font-semibold ${font.textColor.primaryNormal} cursor-pointer`}>
@@ -855,7 +861,7 @@ module BaseSelect = {
                     checkboxDimension
                     iconStroke=item.iconStroke
                   />
-                  {switch optionRigthElement {
+                  {switch optionRightElement {
                   | Some(rightElement) => rightElement
                   | None => React.null
                   }}
@@ -1585,7 +1591,7 @@ module BaseDropdown = {
     let dropdownRef = React.useRef(Nullable.null)
     let selectBtnRef = React.useRef(Nullable.null)
     let (preservedAppliedOptions, setPreservedAppliedOptions) = React.useState(_ =>
-      newInputSelect.value->LogicUtils.getStrArryFromJson
+      newInputSelect.value->LogicUtils.getStrArrayFromJson
     )
 
     // this useEffect enables communication between transaction view changes and the filter dropdown options via filterValueJson
@@ -1611,7 +1617,7 @@ module BaseDropdown = {
       | None => ()
       }
 
-      setPreservedAppliedOptions(_ => newInputSelect.value->LogicUtils.getStrArryFromJson)
+      setPreservedAppliedOptions(_ => newInputSelect.value->LogicUtils.getStrArrayFromJson)
     }
 
     let clearBtnRef = React.useRef(Nullable.null)
@@ -1919,7 +1925,7 @@ module BaseDropdown = {
                         description={showNameAsToolTip
                           ? `Select ${LogicUtils.snakeToTitle(newInputSelect.name)}`
                           : newInputSelect.value
-                            ->LogicUtils.getStrArryFromJson
+                            ->LogicUtils.getStrArrayFromJson
                             ->Array.joinWith(",\n")}
                         toolTipFor=selectButton
                         toolTipPosition=Bottom
@@ -2112,7 +2118,7 @@ let make = (
   ~maxHeight=?,
   ~searchable=?,
   ~fill="#0EB025",
-  ~optionRigthElement=?,
+  ~optionRightElement=?,
   ~hideBorder=false,
   ~allSelectType=Icon,
   ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
@@ -2243,7 +2249,7 @@ let make = (
       options
       optionSize
       isSelectedStateMinus
-      ?optionRigthElement
+      ?optionRightElement
       onSelect=newInputSelect.onChange
       value=newInputSelect.value
       isDropDown

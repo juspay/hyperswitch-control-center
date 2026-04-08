@@ -34,7 +34,7 @@ let getOptionalHeadersWithEmptyValParsing = (~dict, ~key) => {
     dict
     ->Dict.get(key)
     ->Option.mapOr(JSON.Encode.null, _ => {
-      let parsedValue = PaymentSettingsV2Utils.removeEmptyValues(~dict, ~key)
+      let parsedValue = PaymentSettingsRevampedUtils.removeEmptyValues(~dict, ~key)
       parsedValue->Identity.genericTypeToJson
     }),
   )

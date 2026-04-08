@@ -7,7 +7,7 @@ let visibilityColFunc = (
   ~tableCell: Table.cell,
 ) => {
   switch tableCell {
-  | Label(x) | ColoredText(x) => (x.title->JSON.Encode.string->Some, jsonVal) // wherever we are doing transformation only that transformed value for serch
+  | Label(x) | ColoredText(x) => (x.title->JSON.Encode.string->Some, jsonVal) // wherever we are doing transformation only that transformed value for search
   | Text(x) | EllipsisText(x, _) | CustomCell(_, x) => (x->JSON.Encode.string->Some, jsonVal)
   | Date(x) => (dateFormatConvertor(x), dateFormatConvertor(x))
   | StartEndDate(start, end) => (
@@ -53,10 +53,10 @@ let filteredData = (
         // either to take this row or not if any filter is present then take row or else drop
         let rowDict = row->Identity.genericTypeToDictOfJson
         let anyMatch = selectedFiltersKeys->Array.find(keys => {
-          // Selected fitler
+          // Selected filter
           switch Dict.get(columnFilter, keys) {
           | Some(selectedArr) => {
-              // selected value of the fitler
+              // selected value of the filter
               let jsonVal = Dict.get(
                 rowDict->JSON.Encode.object->JsonFlattenUtils.flattenObject(false),
                 keys,
@@ -281,7 +281,7 @@ module ChooseColumns = {
     ~showColumnSelector,
     ~isModalView=true,
     ~sortingBasedOnDisabled=true,
-    ~orderdColumnBasedOnDefaultCol: bool=false,
+    ~orderedColumnBasedOnDefaultCol: bool=false,
     ~showSerialNumber=true,
     ~mandatoryOptions=[],
     ~isDraggable=false,
@@ -303,7 +303,25 @@ module ChooseColumns = {
       }
     }
 
-    let colTypeArray = retrieveColumnValueFromLocalStorage(title)->Belt.Array.keepMap(getHeadingCol)
+    let colTypeArrayWithNewDefaults = {
+      // current stored columns in local storage for this table
+      let colTypeArray =
+        retrieveColumnValueFromLocalStorage(title)->Belt.Array.keepMap(getHeadingCol)
+
+      // new default columns which are not in stored columns
+      let newDefaultColumns =
+        defaultColumns->Array.filter(col => !(colTypeArray->Array.includes(col)))
+
+      if newDefaultColumns->Array.length > 0 && colTypeArray->Array.length > 0 {
+        let updatedColumns = Array.concat(colTypeArray, newDefaultColumns)
+
+        let updatedColumnTitles = updatedColumns->Array.map(col => getHeading(col).title)
+        setColumnValueInLocalStorage(updatedColumnTitles, title)
+        updatedColumns
+      } else {
+        colTypeArray
+      }
+    }
 
     let setColumns = React.useCallback(fn => {
       setVisibleColumns(fn)
@@ -311,8 +329,8 @@ module ChooseColumns = {
     }, [setVisibleColumns])
 
     React.useEffect(() => {
-      if !{colTypeArray->Array.length === 0} {
-        setColumns(_ => colTypeArray)
+      if colTypeArrayWithNewDefaults->Array.length !== 0 {
+        setColumns(_ => colTypeArrayWithNewDefaults)
       }
       None
     }, [])
@@ -328,7 +346,7 @@ module ChooseColumns = {
         defaultColumns
         isModalView
         sortingBasedOnDisabled
-        orderdColumnBasedOnDefaultCol
+        orderedColumnBasedOnDefaultCol
         showSerialNumber
         isDraggable
         title

@@ -90,7 +90,7 @@ module TransactionsTable = {
         offset
         setOffset
         entity={IntelligentRoutingTransactionsEntity.transactionDetailsEntity()}
-        currrentFetchCount={data->Array.length}
+        currentFetchCount={data->Array.length}
         tableheadingClass="h-12"
         tableHeadingTextClass="!font-normal"
         nonFrozenTableParentClass="!rounded-lg"

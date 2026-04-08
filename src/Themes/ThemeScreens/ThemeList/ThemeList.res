@@ -9,30 +9,43 @@ let make = () => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let themeList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.themeListAtom)
-  let {themeId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
   let (currentTheme, setCurrentTheme) = React.useState(_ => None)
   let themeListArray = themeList->getArrayFromJson([])
+  let showToast = ToastState.useShowToast()
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {themeId: themeIdFromUserInfo} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getResolvedUserInfo()
+
+  let (showModal, setShowModal) = React.useState(_ => false)
 
   let fetchCurrentTheme = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=V1(USERS), ~methodType=Get, ~id=Some(themeId), ~userType=#THEME)
+      let url = getURL(
+        ~entityName=V1(USERS),
+        ~methodType=Get,
+        ~id=Some(themeIdFromUserInfo),
+        ~userType=#THEME,
+      )
       let res = await getMethod(url)
       setCurrentTheme(_ => Some(res))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Theme doesn't exist for this Lineage"))
+    | _ => {
+        showToast(~toastType=ToastError, ~message="Failed to fetch current theme")
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     }
   }
 
   React.useEffect(() => {
-    if themeId->isNonEmptyString {
+    if themeIdFromUserInfo->isNonEmptyString {
       fetchCurrentTheme()->ignore
     }
     None
-  }, [themeId])
+  }, [themeIdFromUserInfo])
 
   <PageLoaderWrapper screenState>
     <div className="flex flex-col h-screen gap-8">
@@ -53,7 +66,9 @@ let make = () => {
                 buttonSize=Small
                 customButtonStyle={`${body.md.semibold} py-4`}
                 authorization={userHasAccess(~groupAccess=ThemeManage)}
+                onClick={_ => setShowModal(_ => true)}
               />
+              <ThemeHelper.ThemeLineageModal showModal setShowModal />
             </div>
           </RenderIf>
         </div>
@@ -70,7 +85,7 @@ let make = () => {
             totalResults={themeListArray->Array.length}
             offset=0
             setOffset={_ => ()}
-            currrentFetchCount={themeListArray->Array.length}
+            currentFetchCount={themeListArray->Array.length}
           />
         </RenderIf>
       </div>
