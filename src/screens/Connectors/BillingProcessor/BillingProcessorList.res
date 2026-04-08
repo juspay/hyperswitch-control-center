@@ -54,10 +54,11 @@ let make = () => {
       title={"Billing Processor"} subTitle={"Connect and configure Billing Processor"}
     />
     <PageLoaderWrapper screenState>
-      <div className="flex flex-col gap-10">
+      <div className="flex flex-col gap-8">
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Connected Processors"
+            titleSize={Small}
             actualData={filteredConnectorData}
             totalResults={filteredConnectorData->Array.length}
             resultsPerPage=20
