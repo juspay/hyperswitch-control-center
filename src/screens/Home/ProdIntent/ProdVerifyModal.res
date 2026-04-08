@@ -21,22 +21,13 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
       let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
 
-      let emailUrl = getURL(~entityName=V1(USERS), ~userType=#SEND_PROD_INTENT_EMAIL, ~methodType=Post)
+      let emailUrl = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
       let emailBody = [
         ("requested_products", selectedProducts->Array.map(ProductUtils.getProductStringName)->JSON.Encode.array),
         ("poc_email", values->LogicUtils.getDictFromJsonObject->LogicUtils.getString("poc_email", "")->JSON.Encode.string),
         ("poc_name", values->LogicUtils.getDictFromJsonObject->LogicUtils.getString("poc_name", "")->JSON.Encode.string),
       ]->LogicUtils.getJsonFromArrayOfJson
-      let _ = await updateDetails(emailUrl, emailBody, Post)->catch(err => {
-        Console.error("Failed to send production intent email notification:")
-        Console.error(err)
-        showToast(
-          ~toastType=ToastWarning,
-          ~message="Request submitted, but email notification failed. Our team will still process your request.",
-          ~autoClose=true,
-        )
-        Promise.resolve(JSON.Encode.null)
-      })
+      let _ = await updateDetails(emailUrl, emailBody, Post)->catch(_ => Promise.resolve(JSON.Encode.null))
 
       showToast(
         ~toastType=ToastSuccess,
