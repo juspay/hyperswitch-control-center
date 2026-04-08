@@ -124,6 +124,15 @@ let getOptionsForPayoutFilters = (dict, filterValues) => {
   newArr
 }
 
+let getFilterTypeFromString = filterType =>
+  switch filterType {
+  | "connector" => #connector
+  | "currency" => #currency
+  | "payout_method" => #payout_method
+  | "status" => #status
+  | _ => #unknown
+  }
+
 let initialFilters = (json, _, _, _, _, _) => {
   open LogicUtils
 
@@ -133,6 +142,19 @@ let initialFilters = (json, _, _, _, _, _) => {
     ->Dict.toArray
     ->Array.map(item => {
       let (key, value) = item
+      let items =
+        value
+        ->JSON.Decode.array
+        ->Option.getOr([])
+        ->Array.map(item => item->JSON.Decode.string->Option.getOr(""))
+      let options = switch key->getFilterTypeFromString {
+      | #connector =>
+        items->Array.map((str): FilterSelectBox.dropdownOption => {
+          label: ConnectorUtils.getDisplayNameForConnector(str),
+          value: str,
+        })
+      | _ => items->FilterSelectBox.makeOptions
+      }
 
       (
         {
@@ -140,11 +162,7 @@ let initialFilters = (json, _, _, _, _, _) => {
             ~label="",
             ~name=key,
             ~customInput=InputFields.filterMultiSelectInput(
-              ~options=value
-              ->JSON.Decode.array
-              ->Option.getOr([])
-              ->Array.map(item => item->JSON.Decode.string->Option.getOr(""))
-              ->FilterSelectBox.makeOptions,
+              ~options,
               ~buttonText=`Select ${key}`,
               ~showSelectionAsChips=false,
               ~searchable=true,
