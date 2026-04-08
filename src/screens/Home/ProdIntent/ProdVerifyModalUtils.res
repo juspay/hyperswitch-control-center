@@ -62,7 +62,7 @@ let pocEmail = FormRenderer.makeFieldInfo(
 let designation = FormRenderer.makeFieldInfo(
   ~label="Designation",
   ~name=Designation->getStringFromVariant,
-  ~placeholder="Eg: CTO",
+  ~placeholder="Eg: Product Manager",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
 )
@@ -105,81 +105,33 @@ let industryOptions = [
   ("Other", "Other"),
 ]
 
-let monthlyVolumeFieldInput = () => (props: ReactFinalForm.fieldRenderProps) => {
-  let input = props.input
-
-  let selectInput: ReactFinalForm.fieldRenderPropsInput = {
-    name: input.name,
-    onBlur: _ => (),
-    onChange: ev => {
-      let stringVal = ev->Identity.formReactEventToString
-      input.onChange(stringVal->Identity.anyTypeToReactEvent)
-    },
-    onFocus: _ => (),
-    value: input.value,
-    checked: true,
-  }
-
-  <SelectBox.BaseDropdown
-    allowMultiSelect=false
-    buttonText="Select Monthly Volume"
-    customButtonStyle="!rounded-md !py-5"
-    input={selectInput}
-    options={monthlyPaymentVolumeOptions->Array.map(((value, label)) => {
-      SelectBox.dropdownOption(~value, ~label, ())
-    })}
-    hideMultiSelectButtons=true
-    fullLength=true
-    dropdownClassName={`h-64 overflow-scroll`}
-    dropdownCustomWidth="!w-full"
-    addButton=false
-    deselectDisable=true
-  />
-}
-
-let monthlyVolumeField = FormRenderer.makeFieldInfo(
+let monthlyPaymentVolumeField = FormRenderer.makeFieldInfo(
   ~label="Monthly Payment Volume",
   ~name=MonthlyPaymentVolume->getStringFromVariant,
-  ~customInput=monthlyVolumeFieldInput(),
+  ~placeholder="Select monthly volume",
+  ~customInput=InputFields.selectInput(
+    ~options=monthlyPaymentVolumeOptions->Array.map(((value, label)) => {
+      SelectBox.dropdownOption(~label, ~value)
+    }),
+    ~buttonText="Select monthly volume",
+    ~deselectDisable=true,
+    (),
+  ),
   ~isRequired=true,
 )
-
-let industryFieldInput = () => (props: ReactFinalForm.fieldRenderProps) => {
-  let input = props.input
-
-  let selectInput: ReactFinalForm.fieldRenderPropsInput = {
-    name: input.name,
-    onBlur: _ => (),
-    onChange: ev => {
-      let stringVal = ev->Identity.formReactEventToString
-      input.onChange(stringVal->Identity.anyTypeToReactEvent)
-    },
-    onFocus: _ => (),
-    value: input.value,
-    checked: true,
-  }
-
-  <SelectBox.BaseDropdown
-    allowMultiSelect=false
-    buttonText="Select Industry"
-    customButtonStyle="!rounded-md !py-5"
-    input={selectInput}
-    options={industryOptions->Array.map(((value, label)) => {
-      SelectBox.dropdownOption(~value, ~label, ())
-    })}
-    hideMultiSelectButtons=true
-    fullLength=true
-    dropdownClassName={`h-64 overflow-scroll`}
-    dropdownCustomWidth="!w-full"
-    addButton=false
-    deselectDisable=true
-  />
-}
 
 let industryField = FormRenderer.makeFieldInfo(
   ~label="Your Industry",
   ~name=Industry->getStringFromVariant,
-  ~customInput=industryFieldInput(),
+  ~placeholder="Select industry",
+  ~customInput=InputFields.selectInput(
+    ~options=industryOptions->Array.map(((value, label)) => {
+      SelectBox.dropdownOption(~label, ~value)
+    }),
+    ~buttonText="Select industry",
+    ~deselectDisable=true,
+    (),
+  ),
   ~isRequired=true,
 )
 
@@ -192,11 +144,11 @@ let validateEmptyValue = (key, errors) => {
       "Please enter your Email ID"->JSON.Encode.string,
     )
   | BusinessName =>
-    Dict.set(errors, key->getStringFromVariant, "Please enter your Organization Name"->JSON.Encode.string)
+    Dict.set(errors, key->getStringFromVariant, "Please enter Organization Name"->JSON.Encode.string)
   | Country =>
     Dict.set(errors, key->getStringFromVariant, "Please select a Country"->JSON.Encode.string)
   | Website =>
-    Dict.set(errors, key->getStringFromVariant, "Please enter your Organization Website"->JSON.Encode.string)
+    Dict.set(errors, key->getStringFromVariant, "Please enter Organization Website"->JSON.Encode.string)
   | POCName =>
     Dict.set(
       errors,
@@ -213,7 +165,7 @@ let validateEmptyValue = (key, errors) => {
     Dict.set(
       errors,
       key->getStringFromVariant,
-      "Please select your Monthly Payment Volume"->JSON.Encode.string,
+      "Please select Monthly Payment Volume"->JSON.Encode.string,
     )
   | Industry =>
     Dict.set(
@@ -232,15 +184,15 @@ let getFormField = columnType => {
   | Website => website
   | POCName => pocName
   | Designation => designation
-  | MonthlyPaymentVolume => monthlyVolumeField
+  | MonthlyPaymentVolume => monthlyPaymentVolumeField
   | Industry => industryField
   | _ => countryField
   }
 }
 
-let formFields = [POCName, POCemail, Designation, BusinessName, Website, Country, MonthlyPaymentVolume, Industry]
+let formFields = [POCName, POCemail, Designation, BusinessName, countryField, Website, MonthlyPaymentVolume, Industry]
 
-let formFieldsForQuickStart = [POCName, POCemail, Designation, BusinessName, Website, Country, MonthlyPaymentVolume, Industry]
+let formFieldsForQuickStart = [BusinessName, Country, Website, POCName, POCemail]
 
 let validateCustom = (key, errors, value) => {
   switch key {
@@ -281,7 +233,7 @@ let getJsonString = (valueDict, key) => {
   valueDict->getString(key->getStringFromVariant, "")->JSON.Encode.string
 }
 
-let getBody = (values: JSON.t, ~selectedProducts: array<ProductTypes.productTypes>) => {
+let getBody = (values: JSON.t, ~selectedProducts: array<string>=[]) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
 
@@ -327,12 +279,13 @@ let getBody = (values: JSON.t, ~selectedProducts: array<ProductTypes.productType
     Industry->getStringFromVariant,
     valuesDict->getOptionString(Industry->getStringFromVariant),
   )
-
-  let productStrings = selectedProducts->Array.map(ProductUtils.getProductStringName)
-  prodOnboardingpayload->Dict.set(
-    SelectedProducts->getStringFromVariant,
-    productStrings->JSON.Encode.array,
-  )
-
+  
+  if selectedProducts->Array.length > 0 {
+    prodOnboardingpayload->Dict.set(
+      SelectedProducts->getStringFromVariant,
+      selectedProducts->JSON.Encode.array,
+    )
+  }
+  
   prodOnboardingpayload
 }
