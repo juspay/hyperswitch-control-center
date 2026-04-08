@@ -70,7 +70,7 @@ test.describe("Visual Testing - Auth Pages", () => {
   }) => {
     const signinPage = new SignInPage(page);
 
-    await createAuth(request, "visualtest.in");
+    await createAuth(request, "playwright", "visualtest.in");
     const authId = await getAuthIdByEmail(request, "visualtest.in");
 
     await page.goto(`/?auth_id=${authId}`);

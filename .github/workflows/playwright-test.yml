@@ -9,6 +9,9 @@ on:
 jobs:
   playwright-tests:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.58.2-noble
+      options: --ipc=host
 
     steps:
       - name: Checkout code
@@ -16,28 +19,13 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Clear Docker cache
-        run: docker builder prune -af
-
       - name: Execute Shell Script
         run: |
           chmod +x playwright-tests/start_hyperswitch.sh
           sh playwright-tests/start_hyperswitch.sh
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 24
-
       - name: Install dependencies
-        run: npm install --force
-
-      - name: Install Playwright Browsers
-        # Installing only Chrome (Chromium) for now
-        # To add other browsers later:
-        #   - Multiple: npx playwright install chromium firefox webkit --with-deps
-        #   - Available: chromium, chrome, chrome-beta, msedge, msedge-beta, msedge-dev, firefox, webkit
-        run: npx playwright install chromium --with-deps
+        run: npm ci
 
       - name: Build application
         run: npm run build:test

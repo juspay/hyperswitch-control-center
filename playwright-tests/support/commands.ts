@@ -447,6 +447,7 @@ export async function deleteConnector(
 
 export async function createAuth(
   context?: APIRequestContext,
+  ownerId: string = "okta_test",
   emailDomain: string = "cypresstest.in",
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
@@ -457,7 +458,7 @@ export async function createAuth(
       "api-key": "test_admin",
     },
     data: {
-      owner_id: "okta_test",
+      owner_id: ownerId,
       owner_type: "organization",
       auth_method: {
         auth_type: "open_id_connect",
