@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.04.08.0
+
+### Features
+
+- Migrate AlertBanner to Blend AlertV2 component ([#4411](https://github.com/juspay/hyperswitch-control-center/pull/4411)) ([`906e2ec`](https://github.com/juspay/hyperswitch-control-center/commit/906e2ec6feb055077f13b47635dfdd73d6dd986c))
+
+**Full Changelog:** [`2026.04.07.0...2026.04.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.07.0...2026.04.08.0)
+
+- - -
+
 ## 2026.04.07.0
 
 ### Features
