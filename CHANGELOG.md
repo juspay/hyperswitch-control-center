@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.04.09.0
+
+### Bug Fixes
+
+- Standardize dashboard spacing and typography ([#4653](https://github.com/juspay/hyperswitch-control-center/pull/4653)) ([`57388aa`](https://github.com/juspay/hyperswitch-control-center/commit/57388aa583e3cd6cd740e01411dcaafbc22db088))
+- Correct typos batch 6/7 ([#4417](https://github.com/juspay/hyperswitch-control-center/pull/4417)) ([`9095258`](https://github.com/juspay/hyperswitch-control-center/commit/9095258640ac452be315feda1170938c9056f20d))
+- Correct typos batch 7/7 ([#4418](https://github.com/juspay/hyperswitch-control-center/pull/4418)) ([`0ef9d8d`](https://github.com/juspay/hyperswitch-control-center/commit/0ef9d8dd983f44be295242e07a99f96f0be4cba3))
+
+**Full Changelog:** [`2026.04.08.0...2026.04.09.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.08.0...2026.04.09.0)
+
+- - -
+
 ## 2026.04.08.0
 
 ### Features
