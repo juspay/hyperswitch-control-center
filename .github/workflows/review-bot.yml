@@ -6,6 +6,11 @@ on:
   pull_request_review_comment:
     types: [created]
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   agent:
     runs-on: self-hosted
@@ -46,6 +51,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
         run: |
           COMMENT_BODY=$(jq -r '.comment.body // empty' "$GITHUB_EVENT_PATH")
+          IN_REPLY_TO=$(jq -r '.comment.in_reply_to_id // empty' "$GITHUB_EVENT_PATH")
           SESSION_DIR="/home/phoenix/.opencode-sessions"
           mkdir -p "$SESSION_DIR"
           SESSION_FILE="$SESSION_DIR/review-$PR_NUMBER"
@@ -54,16 +60,28 @@ jobs:
           echo "Event: $EVENT_NAME"
           echo "GH_REPO: $GH_REPO"
 
+          # Determine if this is a new review request or feedback on a previous comment
+          if [ -f "$SESSION_FILE" ] && [ -n "$IN_REPLY_TO" ]; then
+            TRIGGER_TYPE="feedback"
+          else
+            TRIGGER_TYPE="review"
+          fi
+
           PROMPT="Load and follow the agent at /home/phoenix/.config/opencode/agents/hyperswitch-control-center-reviewer.md
 
           TRIGGER CONTEXT:
+          Type         : $TRIGGER_TYPE
           Event        : $EVENT_NAME
           PR           : #$PR_NUMBER
-          Comment      : $COMMENT_BODY"
+          Comment      : $COMMENT_BODY
+          In reply to  : $IN_REPLY_TO
+
+          If Type is 'review': Run full review (Phase 1-3), then post comments.
+          If Type is 'feedback': This is a reply to one of your previous comments. Read it, classify the feedback (true positive / false positive / codebase convention / missing rule), and update your agent memory if needed. Do NOT re-review the entire PR."
 
           if [ -f "$SESSION_FILE" ]; then
             SAVED_ID=$(cat "$SESSION_FILE")
-            echo "Resuming session $SAVED_ID for review #$PR_NUMBER"
+            echo "Resuming session $SAVED_ID for review #$PR_NUMBER ($TRIGGER_TYPE)"
             opencode run \
               --session "$SAVED_ID" \
               --dir /home/phoenix/repos/hyperswitch-control-center \
