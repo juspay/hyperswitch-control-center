@@ -548,12 +548,28 @@ const ssoBaseUrl = process.env.PLAYWRIGHT_SSO_BASE_URL;
     let authId = "";
 
     test.beforeAll(async ({ request }) => {
-      await signupUser(
-        process.env.PLAYWRIGHT_SSO_USERNAME!,
-        process.env.PLAYWRIGHT_SSO_PASSWORD!,
-        request,
-      );
-      await createAuth(request);
+      try {
+        await signupUser(
+          process.env.PLAYWRIGHT_SSO_USERNAME!,
+          process.env.PLAYWRIGHT_SSO_PASSWORD!,
+          request,
+        );
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        // Ignore "already exists" error on retries, rethrow all others
+        if (!errorMsg.includes("already exists")) {
+          throw error;
+        }
+      }
+      try {
+        await createAuth(request);
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        // Ignore "auth method already exists" error on retries, rethrow all others
+        if (!errorMsg.includes("already exists")) {
+          throw error;
+        }
+      }
       authId = await getAuthIdByEmail(request);
     });
 
@@ -738,10 +754,7 @@ test.describe("TOTP flows", () => {
     await expect(page).toHaveURL(/.*dashboard\/home/);
   });
 
-  test("should successfully signin using 2FA", async ({
-    page,
-    context,
-  }) => {
+  test("should successfully signin using 2FA", async ({ page, context }) => {
     let totpSecret = "";
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
@@ -797,7 +810,7 @@ test.describe("TOTP flows", () => {
       await textboxes.nth(i).fill(token.charAt(i));
     }
 
-    await page.getByRole('button', { name: 'Verify OTP' }).click();
+    await page.getByRole("button", { name: "Verify OTP" }).click();
 
     await expect(page).toHaveURL(/.*dashboard\/home/);
   });

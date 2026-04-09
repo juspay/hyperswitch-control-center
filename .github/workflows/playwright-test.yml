@@ -16,7 +16,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Execute Shell Script
+      - name: Start backend services
         run: |
           chmod +x playwright-tests/start_hyperswitch.sh
           sh playwright-tests/start_hyperswitch.sh
@@ -57,29 +57,11 @@ jobs:
           PLAYWRIGHT_SSO_USERNAME: ${{ secrets.CYPRESS_SSO_USERNAME }}
           PLAYWRIGHT_SSO_PASSWORD: ${{ secrets.CYPRESS_SSO_PASSWORD }}
 
-      - name: Generate coverage report
-        if: always()
-        run: npm run pw:coverage:report
-        continue-on-error: true
-
-      - name: Publish Coverage to GitHub Summary
-        if: always()
-        uses: irongut/CodeCoverageSummary@v1.3.0
-        with:
-          filename: coverage/lcov.info
-          badge: true
-          fail_below_min: false
-          format: markdown
-          hide_branch_rate: false
-          hide_complexity: true
-          indicators: true
-          output: both
-          thresholds: "50 80"
-        continue-on-error: true
-
-      - name: Add Coverage Summary to Job
+      - name: Generate and publish coverage report
         if: always()
         run: |
+          npm run pw:coverage:report || true
+
           echo "## Playwright Test Coverage" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ -f coverage/lcov.info ]; then
@@ -92,6 +74,7 @@ jobs:
             echo "⚠️ Coverage report not generated" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
+        continue-on-error: true
 
       - name: Publish Test Summary Results
         uses: ctrf-io/github-test-reporter@v1
@@ -100,7 +83,7 @@ jobs:
           report-path: "./ctrf/*.json"
           github-report: true
 
-      - name: Artifact - Coverage Report
+      - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -110,7 +93,7 @@ jobs:
             .nyc_output/
           retention-days: 7
 
-      - name: Artifact - Failed Test Results Only
+      - name: Upload failure artifacts
         uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -118,13 +101,6 @@ jobs:
           path: |
             test-results/**/*-failed-*
             test-results/**/*-retry*/
+            playwright-report/
           if-no-files-found: ignore
-          retention-days: 7
-
-      - name: Artifact - Playwright HTML Report
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: playwright-report
-          path: playwright-report/
           retention-days: 7

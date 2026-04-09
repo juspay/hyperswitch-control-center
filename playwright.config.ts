@@ -29,6 +29,7 @@ export default defineConfig({
     viewport: { width: 1620, height: 1080 }, // Viewport
   },
   outputDir: "test-results/", // Output directory for test artifacts
+  snapshotPathTemplate: '{testDir}/{testFilePath}-snapshots/{arg}{ext}',
   reporter: process.env.CI // Reporter configuration
     ? [
         ["html", { open: "never", outputFolder: "playwright-report" }],

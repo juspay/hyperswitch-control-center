@@ -70,7 +70,15 @@ test.describe("Visual Testing - Auth Pages", () => {
   }) => {
     const signinPage = new SignInPage(page);
 
-    await createAuth(request, "playwright", "visualtest.in");
+    try {
+      await createAuth(request);
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      // Ignore "auth method already exists" error on retries, rethrow all others
+      if (!errorMsg.includes("already exists")) {
+        throw error;
+      }
+    }
     const authId = await getAuthIdByEmail(request, "visualtest.in");
 
     await page.goto(`/?auth_id=${authId}`);
