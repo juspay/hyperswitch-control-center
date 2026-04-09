@@ -141,6 +141,7 @@ type payoutProcessorTypes =
   | ADYENPLATFORM
   | CYBERSOURCE
   | EBANX
+  | ITAUBANK
   | PAYPAL
   | STRIPE
   | WISE

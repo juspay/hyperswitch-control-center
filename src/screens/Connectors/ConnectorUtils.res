@@ -23,6 +23,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(ADYENPLATFORM),
   PayoutProcessor(CYBERSOURCE),
   PayoutProcessor(EBANX),
+  PayoutProcessor(ITAUBANK),
   PayoutProcessor(PAYPAL),
   PayoutProcessor(STRIPE),
   PayoutProcessor(WISE),
@@ -39,6 +40,7 @@ let payoutConnectorListForLive: array<connectorTypes> = [
   PayoutProcessor(ADYENPLATFORM),
   PayoutProcessor(CYBERSOURCE),
   PayoutProcessor(EBANX),
+  PayoutProcessor(ITAUBANK),
   PayoutProcessor(PAYPAL),
   PayoutProcessor(STRIPE),
   PayoutProcessor(WISE),
@@ -969,6 +971,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | ADYENPLATFORM => "adyenplatform"
   | CYBERSOURCE => "cybersource"
   | EBANX => "ebanx"
+  | ITAUBANK => "itaubank"
   | PAYPAL => "paypal"
   | STRIPE => "stripe"
   | WISE => "wise"
@@ -1161,6 +1164,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "adyenplatform" => PayoutProcessor(ADYENPLATFORM)
     | "cybersource" => PayoutProcessor(CYBERSOURCE)
     | "ebanx" => PayoutProcessor(EBANX)
+    | "itaubank" => PayoutProcessor(ITAUBANK)
     | "paypal" => PayoutProcessor(PAYPAL)
     | "stripe" => PayoutProcessor(STRIPE)
     | "wise" => PayoutProcessor(WISE)
@@ -1332,6 +1336,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | ADYENPLATFORM => adyenPlatformInfo
   | CYBERSOURCE => cybersourceInfo
   | EBANX => ebanxInfo
+  | ITAUBANK => itauBankInfo
   | PAYPAL => paypalInfo
   | STRIPE => stripeInfo
   | WISE => wiseInfo
@@ -2297,6 +2302,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | ADYENPLATFORM => "Adyen Platform"
   | CYBERSOURCE => "Cybersource"
   | EBANX => "Ebanx"
+  | ITAUBANK => "Itaubank"
   | PAYPAL => "PayPal"
   | STRIPE => "Stripe"
   | WISE => "Wise"
