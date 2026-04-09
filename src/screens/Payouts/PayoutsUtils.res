@@ -144,8 +144,7 @@ let initialFilters = (json, _, _, _, _, _) => {
       let (key, value) = item
       let items =
         value
-        ->JSON.Decode.array
-        ->Option.getOr([])
+        ->getArrayFromJson([])
         ->Array.map(item => item->JSON.Decode.string->Option.getOr(""))
       let options = switch key->getFilterTypeFromString {
       | #connector =>
