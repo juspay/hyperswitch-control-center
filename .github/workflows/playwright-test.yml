@@ -46,8 +46,8 @@ jobs:
           echo "Response:"
           echo "$response"
 
-      - name: Run Playwright tests with coverage
-        run: PW_COVERAGE=true npx playwright test --project=chromium
+      - name: Run Playwright tests
+        run: npx playwright test --project=chromium
         env:
           PLAYWRIGHT_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           PLAYWRIGHT_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
@@ -57,41 +57,12 @@ jobs:
           PLAYWRIGHT_SSO_USERNAME: ${{ secrets.CYPRESS_SSO_USERNAME }}
           PLAYWRIGHT_SSO_PASSWORD: ${{ secrets.CYPRESS_SSO_PASSWORD }}
 
-      - name: Generate and publish coverage report
-        if: always()
-        run: |
-          npm run pw:coverage:report || true
-
-          echo "## Playwright Test Coverage" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          if [ -f coverage/lcov.info ]; then
-            echo "✅ Coverage report generated successfully" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### Coverage Artifacts" >> $GITHUB_STEP_SUMMARY
-            echo "- [HTML Report](coverage/index.html)" >> $GITHUB_STEP_SUMMARY
-            echo "- [LCOV Report](coverage/lcov-report/index.html)" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⚠️ Coverage report not generated" >> $GITHUB_STEP_SUMMARY
-          fi
-          echo "" >> $GITHUB_STEP_SUMMARY
-        continue-on-error: true
-
       - name: Publish Test Summary Results
         uses: ctrf-io/github-test-reporter@v1
         if: always()
         with:
           report-path: "./ctrf/*.json"
           github-report: true
-
-      - name: Upload coverage artifacts
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-coverage
-          path: |
-            coverage/
-            .nyc_output/
-          retention-days: 7
 
       - name: Upload failure artifacts
         uses: actions/upload-artifact@v4

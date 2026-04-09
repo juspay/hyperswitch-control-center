@@ -175,7 +175,7 @@ test.describe.serial("Sign up", () => {
   });
 });
 
-test.describe("Sign in", () => {
+test.describe.serial("Sign in", () => {
   test("should verify all components on the signin page", async ({ page }) => {
     const signinPage = new SignInPage(page);
     const signupPage = new SignUpPage(page);
