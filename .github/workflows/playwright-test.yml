@@ -47,7 +47,7 @@ jobs:
           echo "$response"
 
       - name: Run Playwright tests
-        run: npx playwright test --project=chromium
+        run: npx playwright test
         env:
           PLAYWRIGHT_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           PLAYWRIGHT_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
@@ -64,11 +64,11 @@ jobs:
           report-path: "./ctrf/*.json"
           github-report: true
 
-      - name: Upload failure artifacts
+      - name: Upload Test Artifacts
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: playwright-failures
+          name: playwright-artifacts
           path: |
             test-results/**/*-failed-*
             test-results/**/*-retry*/

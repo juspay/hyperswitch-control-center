@@ -1,4 +1,4 @@
-import { test, expect } from "../../support/test";
+import { test, expect } from "@playwright/test";
 import { signupUser, loginUI } from "../../support/commands";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { generateUniqueEmail } from "../../support/helper";
