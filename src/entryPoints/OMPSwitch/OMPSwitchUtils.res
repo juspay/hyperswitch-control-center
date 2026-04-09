@@ -73,15 +73,15 @@ let profileItemToObjMapper = dict => {
 }
 
 let org = {
-  lable: "Organization",
+  label: "Organization",
   entity: #Organization,
 }
 let merchant = {
-  lable: "Merchant",
+  label: "Merchant",
   entity: #Merchant,
 }
 let profile = {
-  lable: "Profile",
+  label: "Profile",
   entity: #Profile,
 }
 
@@ -124,6 +124,30 @@ let userSwitch = (~ompData: array<string>, ~path) => {
     Some(data)
   } else {
     None
+  }
+}
+
+let isDuplicateOmpName = (list: array<ompListTypes>, ~name: string) => {
+  list->Array.some(item => item.name->String.toLowerCase == name->String.toLowerCase)
+}
+
+let validateOmpName = (
+  ~name: string,
+  ~list: array<ompListTypes>,
+  ~entityLabel: string,
+  ~regex: string="^([a-z]|[A-Z]|[0-9]|_|\\s)+$",
+) => {
+  let isDuplicate = isDuplicateOmpName(list, ~name)
+  if name->isEmptyString {
+    `${entityLabel} name cannot be empty`
+  } else if name->String.length > 64 {
+    `${entityLabel} name cannot exceed 64 characters`
+  } else if !RegExp.test(RegExp.fromString(regex), name) {
+    `${entityLabel} name should not contain special characters`
+  } else if isDuplicate {
+    `${entityLabel} with this name already exists`
+  } else {
+    ""
   }
 }
 

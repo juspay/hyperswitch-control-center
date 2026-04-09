@@ -84,12 +84,12 @@ let make = (
     />}>
     <div className="flex flex-col gap-5">
       <FieldRenderer field=enterEmailField fieldWrapperClass="!w-full" />
-      <Accordion
+      <AccordionAdapter
         initialExpandedArray=[0]
         accordion={[
           {
             title: "Authorization & Capture Settings",
-            renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+            renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
               <AuthorizationAndCaptureSettings
                 showSetupFutureUsage
                 setShowSetupFutureUsage
@@ -101,8 +101,8 @@ let make = (
             renderContentOnTop: None,
           },
         ]}
-        accordianTopContainerCss="!overflow-visible"
-        accordianBottomContainerCss="p-5"
+        accordionTopContainerCss="!overflow-visible"
+        accordionBottomContainerCss="p-5"
         contentExpandCss="p-2"
         titleStyle="font-semibold text-bold text-md hover:!bg-white"
       />

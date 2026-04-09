@@ -37,6 +37,12 @@ let featureFlagAtom: Recoil.recoilAtom<FeatureFlagUtils.featureFlag> = Recoil.at
   "featureFlag",
   JSON.Encode.null->FeatureFlagUtils.featureFlagType,
 )
+let connectorListForLiveAtom: Recoil.recoilAtom<
+  ConnectorListForLiveFromConfigTypes.connectorListForLive,
+> = Recoil.atom(
+  "connectorListForLive",
+  JSON.Encode.null->ConnectorListForLiveFromConfigUtils.getConnectorListForLive,
+)
 let merchantSpecificConfigAtom: Recoil.recoilAtom<
   FeatureFlagUtils.merchantSpecificConfig,
 > = Recoil.atom("merchantSpecificConfig", JSON.Encode.null->FeatureFlagUtils.merchantSpecificConfig)
@@ -61,7 +67,7 @@ let switchMerchantListAtom: Recoil.recoilAtom<
 
 let currentTabNameRecoilAtom = Recoil.atom("currentTabName", "ActiveTab")
 
-let globalSeacrchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Recoil.atom(
+let globalSearchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Recoil.atom(
   "globalSearch",
   {
     GlobalSearchTypes.local_results: [],

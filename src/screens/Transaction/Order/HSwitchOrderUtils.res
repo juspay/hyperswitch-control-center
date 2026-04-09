@@ -1,4 +1,7 @@
 open LogicUtils
+
+let idCellEndValue = 24
+
 type status =
   | Succeeded
   | Failed

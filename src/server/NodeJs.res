@@ -21,10 +21,10 @@ module Fs = {
 }
 
 module Querystring = {
-  type parsedUrlQUery = JSON.t
+  type parsedUrlQuery = JSON.t
 
   @module("querystring")
-  external parse: string => parsedUrlQUery = "parse"
+  external parse: string => parsedUrlQuery = "parse"
 }
 
 module Http = {
