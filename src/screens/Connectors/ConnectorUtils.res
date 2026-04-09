@@ -2043,7 +2043,7 @@ let getSuggestedAction = (~verifyErrorMessage, ~connector) => {
     | Processors(PAYPAL) => (
         {
           if msg->String.includes("Client Authentication failed") {
-            <PaypalClientAuthenticationFalied />
+            <PaypalClientAuthenticationFailed />
           } else {
             React.null
           }
@@ -2511,7 +2511,7 @@ let updateMetaData = (~metaData) => {
 
 let sortByDisableField = (arr: array<'a>, getDisabledStatus: 'a => bool) => {
   arr->Array.sort((a, b) =>
-    numericArraySortComperator(getDisabledStatus(a) ? 1.0 : 0.0, getDisabledStatus(b) ? 1.0 : 0.0)
+    numericArraySortComparator(getDisabledStatus(a) ? 1.0 : 0.0, getDisabledStatus(b) ? 1.0 : 0.0)
   )
 }
 
