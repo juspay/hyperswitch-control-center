@@ -105,7 +105,7 @@ describe("Volume based routing", () => {
       "contain",
       "Test volume based config",
     );
-    cy.get(`[data-label="INACTIVE"]`).should("contain", "INACTIVE");
+    cy.get(`[data-testid="inactive"]`).should("contain", "INACTIVE");
   });
 
   it("should save and activate Volume based configuration", () => {
