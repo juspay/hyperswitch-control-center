@@ -15,7 +15,7 @@ jobs:
   agent:
     runs-on: self-hosted
     if: |
-      github.event.issue.pull_request &&
+      (github.event_name == 'pull_request_review_comment' || github.event.issue.pull_request) &&
       contains(github.event.comment.body, '@control_center_review_bot')
 
     steps:
