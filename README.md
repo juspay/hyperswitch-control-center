@@ -1,33 +1,4 @@
-<p align="center">
-  <img src="https://github.com/juspay/hyperswitch/tree/main/docs/imgs/hyperswitch-logo-dark.svg#gh-dark-mode-only" alt="Hyperswitch-Logo" width="40%" />
-  <img src="https://github.com/juspay/hyperswitch/tree/main/docs/imgs/hyperswitch-logo-light.svg#gh-light-mode-only" alt="Hyperswitch-Logo" width="40%" />
-</p>
-
-<h1 align="center">Hyperswitch Control Center</h1>
-
-<p align="center">
-  <a href="https://github.com/juspay/hyperswitch-control-center/actions/workflows/ci.yml">
-    <img src="https://github.com/juspay/hyperswitch-control-center/workflows/CI/badge.svg" />
-  </a>
-  <a href="https://github.com/juspay/hyperswitch-control-center/actions/workflows/playwright-test.yml">
-    <img src="https://github.com/juspay/hyperswitch-control-center/workflows/Playwright%20Tests/badge.svg" />
-  </a>
-  <a href="https://github.com/juspay/hyperswitch/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/juspay/hyperswitch" />
-  </a>
-</p>
-
-<p align="center">
-  <a href="https://www.linkedin.com/company/hyperswitch/">
-    <img src="https://img.shields.io/badge/follow-hyperswitch-blue?logo=linkedin&labelColor=grey"/>
-  </a>
-  <a href="https://x.com/hyperswitchio">
-    <img src="https://img.shields.io/badge/follow-%40hyperswitchio-white?logo=x&labelColor=grey"/>
-  </a>
-  <a href="https://inviter.co/hyperswitch-slack">
-    <img src="https://img.shields.io/badge/chat-on_slack-blue?logo=slack&labelColor=grey&color=%233f0e40"/>
-  </a>
-</p>
+# Hyperswitch Control Center
 
 Hyperswitch control center is an open source dashboard to easily view, manage and control your payments across multiple processors through Hyperswitch - an open source payments switch.
 
