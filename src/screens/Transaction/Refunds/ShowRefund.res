@@ -163,11 +163,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       <div className="flex items-center justify-between w-full">
         <div>
           <PageUtils.PageHeading title="Refunds" />
-          <BreadCrumbNavigation
-            path=[{title: "Refunds", link: "/refunds"}]
-            currentPageTitle=id
-            cursorStyle="cursor-pointer"
-          />
+          <BreadCrumbNavigation path=[{title: "Refunds", link: "/refunds"}] currentPageTitle=id />
         </div>
         <RenderIf condition={showSyncButton()}>
           <ACLButton
@@ -188,9 +184,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     <PageLoaderWrapper
       screenState={screenStateForRefund}
       customUI={<DefaultLandingPage
-        height="90vh"
-        title="Something Went Wrong!"
-        overriddingStylesTitle={`text-3xl font-semibold`}
+        height="90vh" title="Something Went Wrong!" overridingStylesTitle={`text-3xl font-semibold`}
       />}>
       <RefundInfo orderDict={refundData->getDictFromJsonObject} />
       <div className="mt-5" />

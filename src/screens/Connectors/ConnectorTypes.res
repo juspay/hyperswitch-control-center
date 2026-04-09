@@ -138,6 +138,7 @@ type processorTypes =
   | REVOLV3
   | TRUELAYER
   | FISERVCOMMERCEHUB
+  | TRUSTLY
 
 type payoutProcessorTypes =
   | ADYEN
@@ -155,6 +156,7 @@ type payoutProcessorTypes =
   | WORLDPAYXML
   | TRUELAYER
   | ENVOY
+  | TRUSTLY
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO
@@ -288,7 +290,7 @@ type googlePay = {
 
 type metaData = {
   apple_pay?: applePay,
-  goole_pay?: googlePay,
+  google_pay?: googlePay,
 }
 type pmAuthPaymentMethods = {
   payment_method: string,
