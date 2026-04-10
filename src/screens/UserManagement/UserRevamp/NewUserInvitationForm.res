@@ -101,6 +101,7 @@ let make = () => {
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+  let merchList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let (roleDict, setRoleDict) = React.useState(_ => Dict.make())
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let roleTypeValue =
@@ -160,7 +161,27 @@ let make = () => {
         ~queryParameters=Some(`entity_type=${roleEntity}`),
       )
       let result = await fetchDetails(url)
-      setOptions(_ => result->makeSelectBoxOptions)
+      let allOptions = result->makeSelectBoxOptions
+      let filteredOptions = if roleEntity == "merchant" {
+        let selectedMerchantId =
+          formState.values->getDictFromJsonObject->getString("merchant_value", "")
+        let selectedMerchant = merchList->Array.find(m => m.id == selectedMerchantId)
+        let isRecon = switch selectedMerchant {
+        | Some({?productType}) =>
+          switch productType {
+          | Some(Recon(_)) => true
+          | _ => false
+          }
+        | None => false
+        }
+        allOptions->Array.filter(option => {
+          let isReconRole = option.label->String.toLowerCase->String.startsWith("recon")
+          isRecon ? isReconRole : !isReconRole
+        })
+      } else {
+        allOptions
+      }
+      setOptions(_ => filteredOptions)
       if result->getArrayFromJson([])->Array.length > 0 {
         setDropDownLoaderState(_ => DropdownWithLoading.Success)
       } else {
