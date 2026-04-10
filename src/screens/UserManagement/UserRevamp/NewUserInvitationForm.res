@@ -101,7 +101,7 @@ let make = () => {
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let merchList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+  let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let (roleDict, setRoleDict) = React.useState(_ => Dict.make())
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let roleTypeValue =
@@ -165,10 +165,10 @@ let make = () => {
       let filteredOptions = if roleEntity == "merchant" || roleEntity == "profile" {
         let selectedMerchantId =
           formState.values->getDictFromJsonObject->getString("merchant_value", "")
-        let selectedMerchant = merchList->Array.find(m => m.id == selectedMerchantId)
+        let selectedMerchant = merchantList->Array.find(m => m.id == selectedMerchantId)
         let isRecon = switch selectedMerchant {
-        | Some({?productType}) =>
-          switch productType {
+        | Some(selectedMerchant) =>
+          switch selectedMerchant.productType {
           | Some(Recon(_)) => true
           | _ => false
           }
