@@ -17,10 +17,6 @@ let make = (~onCreateClick) => {
         )}
       </p>
     </div>
-    <Button
-      text="+ Create Dashboard"
-      buttonType={Primary}
-      onClick={_ => onCreateClick()}
-    />
+    <Button text="+ Create Dashboard" buttonType={Primary} onClick={_ => onCreateClick()} />
   </div>
 }

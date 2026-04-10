@@ -93,13 +93,13 @@ let serializeWidget = (widget: CustomDashboardTypes.widget): JSON.t => {
   let config = Dict.fromArray([
     (
       "domain",
-      (switch widget.config.domain {
+      switch widget.config.domain {
       | Payments | SmartRetries => "payments"
       | Routing => "routing"
       | Refunds => "refunds"
       | Disputes => "disputes"
       | AuthEvents => "auth_events"
-      })->JSON.Encode.string,
+      }->JSON.Encode.string,
     ),
     ("metrics", widget.config.metrics->Array.map(JSON.Encode.string)->JSON.Encode.array),
     ("group_by", widget.config.groupBy->Array.map(JSON.Encode.string)->JSON.Encode.array),

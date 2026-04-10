@@ -1,9 +1,4 @@
-let attachResizeHandlers: (
-  Dom.element,
-  int,
-  int,
-  (int, int) => unit,
-) => unit = %raw(`
+let attachResizeHandlers: (Dom.element, int, int, (int, int) => unit) => unit = %raw(`
   function(container, currentW, currentH, onResizeEnd) {
     container.querySelectorAll('.resize-handle').forEach(function(el) { el.remove() });
 

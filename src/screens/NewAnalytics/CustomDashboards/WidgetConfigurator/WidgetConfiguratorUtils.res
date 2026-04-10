@@ -190,8 +190,8 @@ let paymentIntentMetricValues = [
   "payments_success_rate",
   "payment_intent_count",
   "smart_retried_amount",
-  "payment_processed_amount",  // exists in both, V2 is fine
-  "sessionized_payment_processed_amount",  // exists in both, V2 is fine
+  "payment_processed_amount", // exists in both, V2 is fine
+  "sessionized_payment_processed_amount", // exists in both, V2 is fine
 ]
 
 let isPaymentIntentMetric = (metric: string): bool => {
@@ -588,10 +588,7 @@ let isNumericMetric = (metric: string): bool => {
 }
 
 // Check if selected metrics support a given chart type
-let doMetricsSupportChartType = (
-  metrics: array<string>,
-  chartType: chartType,
-): bool => {
+let doMetricsSupportChartType = (metrics: array<string>, chartType: chartType): bool => {
   if metrics->Array.length === 0 {
     true // No metrics selected yet, allow all
   } else {
@@ -607,8 +604,7 @@ let doMetricsSupportChartType = (
     | FunnelChart =>
       // Funnel charts only work with funnel metrics
       hasFunnelMetric || (!hasDistributionMetric && !hasNumericMetric)
-    | SankeyChart =>
-      // Sankey charts need flow data - temporarily disable for most metrics
+    | SankeyChart => // Sankey charts need flow data - temporarily disable for most metrics
       // Only enable if specifically using routing/flow metrics
       false
     | _ =>
@@ -631,7 +627,8 @@ let isChartTypeCompatible = (
     // Check if chart type needs groupBy (only enforce after user starts configuring)
     let needsGroupByCheck = switch chartType {
     | LineChart | ColumnChart => true
-    | BarChart | PieChart | StackedBarChart | FunnelChart => hasGroupBy || selectedMetrics->Array.length === 0
+    | BarChart | PieChart | StackedBarChart | FunnelChart =>
+      hasGroupBy || selectedMetrics->Array.length === 0
     | SankeyChart => hasGroupBy
     | Table | StatNumber | Gauge => true
     }

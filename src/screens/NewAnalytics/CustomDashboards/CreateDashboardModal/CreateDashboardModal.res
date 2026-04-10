@@ -24,10 +24,10 @@ let make = (~onClose, ~onSuccess) => {
             widgetId: `${Date.now()->Float.toString}-${Math.random()->Float.toString}`,
           })
         )
-        
+
         let data = Dict.make()
         data->Dict.set("dashboard_name", trimmedName->JSON.Encode.string)
-        
+
         let trimmedDesc = description->String.trim
         if trimmedDesc->isNonEmptyString {
           data->Dict.set("description", trimmedDesc->JSON.Encode.string)
@@ -35,13 +35,13 @@ let make = (~onClose, ~onSuccess) => {
         if widgets->Array.length > 0 {
           data->Dict.set("widgets", widgets->CustomDashboardUtils.serializeWidgets)
         }
-        
+
         let body = CustomDashboardUtils.buildOperationBody(
           ~operationType="Create",
           ~data=data->JSON.Encode.object,
         )
         let _ = await updateDetails(url, body, Post)
-        
+
         let now = Date.make()->Date.toISOString
         let newDashboard: CustomDashboardTypes.dashboard = {
           dashboardName: trimmedName,
@@ -136,9 +136,7 @@ let make = (~onClose, ~onSuccess) => {
                   <p className="text-sm font-medium text-jp-gray-900 dark:text-white">
                     {React.string(template.label)}
                   </p>
-                  <p className="text-xs text-grey-text">
-                    {React.string(template.description)}
-                  </p>
+                  <p className="text-xs text-grey-text"> {React.string(template.description)} </p>
                 </div>
               </label>
             )
@@ -152,9 +150,7 @@ let make = (~onClose, ~onSuccess) => {
           text="Create"
           buttonType={Primary}
           onClick={_ => handleCreate()->ignore}
-          buttonState={isSubmitting || name->String.trim->String.length === 0
-            ? Disabled
-            : Normal}
+          buttonState={isSubmitting || name->String.trim->String.length === 0 ? Disabled : Normal}
         />
       </div>
     </div>

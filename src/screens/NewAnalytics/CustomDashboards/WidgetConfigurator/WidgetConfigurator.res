@@ -153,10 +153,7 @@ let make = (
           ~data=data->JSON.Encode.object,
         )
         let _ = await updateDetails(url, body, Post)
-        showToast(
-          ~message=isEditMode ? "Widget updated" : "Widget added",
-          ~toastType=ToastSuccess,
-        )
+        showToast(~message=isEditMode ? "Widget updated" : "Widget added", ~toastType=ToastSuccess)
         onSuccess()
       } catch {
       | _ =>
@@ -172,7 +169,9 @@ let make = (
   // ── Section helper ──
   let sectionTitle = (title: string, ~subtitle: string="") => {
     <div className="mb-3">
-      <h3 className="text-sm font-semibold text-jp-gray-900 dark:text-white"> {React.string(title)} </h3>
+      <h3 className="text-sm font-semibold text-jp-gray-900 dark:text-white">
+        {React.string(title)}
+      </h3>
       {if subtitle->isNonEmptyString {
         <p className="text-xs text-gray-400 mt-0.5"> {React.string(subtitle)} </p>
       } else {
@@ -192,7 +191,8 @@ let make = (
       className="bg-white dark:bg-jp-gray-lightgray_background w-full max-w-xl shadow-2xl flex flex-col overflow-hidden"
       onClick={evt => evt->JsxEvent.Mouse.stopPropagation}>
       // ── Header ──
-      <div className="flex items-center justify-between px-6 py-4 border-b bg-gray-50 dark:bg-jp-gray-950">
+      <div
+        className="flex items-center justify-between px-6 py-4 border-b bg-gray-50 dark:bg-jp-gray-950">
         <div>
           <h2 className="text-lg font-bold text-jp-gray-900 dark:text-white">
             {React.string(isEditMode ? "Edit Widget" : "Add Widget")}
@@ -201,7 +201,8 @@ let make = (
             {React.string("Configure your chart visualization and data source")}
           </p>
         </div>
-        <button className="p-2 rounded-lg hover:bg-gray-200 transition-colors" onClick={_ => onClose()}>
+        <button
+          className="p-2 rounded-lg hover:bg-gray-200 transition-colors" onClick={_ => onClose()}>
           <Icon name="nd-cross" size=18 />
         </button>
       </div>
@@ -274,7 +275,8 @@ let make = (
                   </span>
                 </button>
                 {if !isCompatible && !isActive {
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-gray-300 rounded-full flex items-center justify-center">
+                  <div
+                    className="absolute -top-1 -right-1 w-4 h-4 bg-gray-300 rounded-full flex items-center justify-center">
                     <span className="text-[8px] text-white font-bold"> {React.string("!")} </span>
                   </div>
                 } else {
@@ -335,11 +337,9 @@ let make = (
         // SECTION 4: Metrics
         // ═══════════════════════════════════════
         <div>
-          {sectionTitle(
-            "Metrics *",
-            ~subtitle="Select one or more metrics to visualize",
-          )}
-          <div className="flex flex-col gap-1 max-h-64 overflow-y-auto border rounded-lg p-2 bg-gray-50 dark:bg-jp-gray-950">
+          {sectionTitle("Metrics *", ~subtitle="Select one or more metrics to visualize")}
+          <div
+            className="flex flex-col gap-1 max-h-64 overflow-y-auto border rounded-lg p-2 bg-gray-50 dark:bg-jp-gray-950">
             {availableMetrics
             ->Array.map(metric => {
               let isSelected = selectedMetrics->Array.includes(metric.value)
@@ -362,7 +362,8 @@ let make = (
                           : "text-gray-700 dark:text-gray-300"}`}>
                       {React.string(metric.label)}
                     </p>
-                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-500">
+                    <span
+                      className="text-[9px] px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-500">
                       {React.string(metric.category)}
                     </span>
                   </div>
@@ -387,9 +388,7 @@ let make = (
                   key={m}
                   className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
                   {React.string(label)}
-                  <button
-                    className="hover:text-blue-900"
-                    onClick={_ => toggleMetric(m)}>
+                  <button className="hover:text-blue-900" onClick={_ => toggleMetric(m)}>
                     {React.string({`\u00d7`})}
                   </button>
                 </span>
@@ -448,13 +447,14 @@ let make = (
         <div>
           {sectionTitle("Widget Size", ~subtitle="Width (columns) and height")}
           <div className="flex flex-col gap-5">
-            // Visual size preview
             {
               let previewWPct = Float.fromInt(widgetW) /. 12.0 *. 100.0
               let previewWStr = previewWPct->Js.Float.toFixedWithPrecision(~digits=1)
               let previewHPx = widgetH * 8 // Scaled down (80px / 10)
               <div className="bg-gray-100 dark:bg-jp-gray-950 rounded-lg p-3">
-                <div className="bg-gray-50 dark:bg-gray-800 rounded border border-dashed border-gray-300 dark:border-gray-600 relative" style={ReactDOM.Style.make(~height="100px", ())}>
+                <div
+                  className="bg-gray-50 dark:bg-gray-800 rounded border border-dashed border-gray-300 dark:border-gray-600 relative"
+                  style={ReactDOM.Style.make(~height="100px", ())}>
                   <div
                     className="bg-blue-100 dark:bg-blue-900/30 border-2 border-blue-400 rounded transition-all duration-200"
                     style={ReactDOM.Style.make(
@@ -472,7 +472,9 @@ let make = (
                   </span>
                   <span className="text-xs text-gray-300"> {React.string("\u2022")} </span>
                   <span className="text-xs text-blue-600 font-semibold">
-                    {React.string(`${widgetH->Int.toString}h tall (${(widgetH * 80)->Int.toString}px)`)}
+                    {React.string(
+                      `${widgetH->Int.toString}h tall (${(widgetH * 80)->Int.toString}px)`,
+                    )}
                   </span>
                 </div>
               </div>
@@ -480,14 +482,19 @@ let make = (
             // Width slider
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#6b7280"
+                  strokeWidth="2"
+                  strokeLinecap="round">
                   <line x1="5" y1="12" x2="19" y2="12" />
                   <polyline points="5,8 1,12 5,16" />
                   <polyline points="19,8 23,12 19,16" />
                 </svg>
-                <span className="text-xs font-medium text-gray-600">
-                  {React.string("Width")}
-                </span>
+                <span className="text-xs font-medium text-gray-600"> {React.string("Width")} </span>
                 <span className="ml-auto text-xs text-blue-600 font-semibold">
                   {React.string(`${widgetW->Int.toString}/12`)}
                 </span>
@@ -513,7 +520,14 @@ let make = (
             // Height slider
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#6b7280"
+                  strokeWidth="2"
+                  strokeLinecap="round">
                   <line x1="12" y1="5" x2="12" y2="19" />
                   <polyline points="8,5 12,1 16,5" />
                   <polyline points="8,19 12,23 16,19" />
@@ -522,7 +536,9 @@ let make = (
                   {React.string("Height")}
                 </span>
                 <span className="ml-auto text-xs text-blue-600 font-semibold">
-                  {React.string(`${widgetH->Int.toString} units (${(widgetH * 80)->Int.toString}px)`)}
+                  {React.string(
+                    `${widgetH->Int.toString} units (${(widgetH * 80)->Int.toString}px)`,
+                  )}
                 </span>
               </div>
               <input
@@ -575,7 +591,9 @@ let make = (
                   {React.string(widgetName->isNonEmptyString ? widgetName : "Untitled Widget")}
                   <span className="text-gray-400 ml-2">
                     {React.string(
-                      `\u2014 ${CustomDashboardUtils.getChartTypeLabel(chartType)} \u2022 ${CustomDashboardUtils.getDomainLabel(domain)}`,
+                      `\u2014 ${CustomDashboardUtils.getChartTypeLabel(
+                          chartType,
+                        )} \u2022 ${CustomDashboardUtils.getDomainLabel(domain)}`,
                     )}
                   </span>
                 </p>
@@ -629,9 +647,7 @@ let make = (
             <div>
               <span className="text-gray-400"> {React.string("Size: ")} </span>
               <span className="text-gray-700 dark:text-gray-300 font-medium">
-                {React.string(
-                  `${widgetW->Int.toString}/12 \u00d7 ${widgetH->Int.toString}h`,
-                )}
+                {React.string(`${widgetW->Int.toString}/12 \u00d7 ${widgetH->Int.toString}h`)}
               </span>
             </div>
             {if needsTimeSeries(chartType) {
@@ -653,7 +669,8 @@ let make = (
         </div>
       </div>
       // ── Footer ──
-      <div className="flex items-center justify-between px-6 py-4 border-t bg-gray-50 dark:bg-jp-gray-950">
+      <div
+        className="flex items-center justify-between px-6 py-4 border-t bg-gray-50 dark:bg-jp-gray-950">
         <div className="text-xs text-gray-400">
           {if !canSubmit {
             React.string("Fill name and select at least one metric")

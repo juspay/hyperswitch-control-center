@@ -39,9 +39,7 @@ let make = (~onOpenDashboard) => {
     try {
       let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
       let data =
-        Dict.fromArray([
-          ("dashboard_name", dashboardName->JSON.Encode.string),
-        ])->JSON.Encode.object
+        Dict.fromArray([("dashboard_name", dashboardName->JSON.Encode.string)])->JSON.Encode.object
       let body = CustomDashboardUtils.buildOperationBody(~operationType="Delete", ~data)
       let _ = await updateDetails(url, body, Post)
       showToast(~message="Dashboard deleted", ~toastType=ToastSuccess)
@@ -57,7 +55,7 @@ let make = (~onOpenDashboard) => {
       let data =
         Dict.fromArray([
           ("dashboard_name", dashboardName->JSON.Encode.string),
-          ("is_default", (!currentlyDefault)->JSON.Encode.bool),
+          ("is_default", !currentlyDefault->JSON.Encode.bool),
         ])->JSON.Encode.object
       let body = CustomDashboardUtils.buildOperationBody(~operationType="Update", ~data)
       let _ = await updateDetails(url, body, Post)
@@ -102,15 +100,12 @@ let make = (~onOpenDashboard) => {
         ("description", `Duplicated from ${dashboardName}`->JSON.Encode.string),
       ]
       let dataEntries = if widgets->Array.length > 0 {
-        dataEntries->Array.concat([
-          ("widgets", widgets->CustomDashboardUtils.serializeWidgets),
-        ])
+        dataEntries->Array.concat([("widgets", widgets->CustomDashboardUtils.serializeWidgets)])
       } else {
         dataEntries
       }
       let data = dataEntries->Dict.fromArray->JSON.Encode.object
-      let body = CustomDashboardUtils.buildOperationBody(~operationType="Create", ~data,
-      )
+      let body = CustomDashboardUtils.buildOperationBody(~operationType="Create", ~data)
       let _ = await updateDetails(url, body, Post)
       showToast(~message="Dashboard duplicated", ~toastType=ToastSuccess)
       fetchDashboards()->ignore
@@ -152,7 +147,8 @@ let make = (~onOpenDashboard) => {
               dashboard
               onOpen={() => onOpenDashboard(dashboard)}
               onDelete={() => handleDelete(dashboard.dashboardName)->ignore}
-              onSetDefault={() => handleSetDefault(dashboard.dashboardName, dashboard.isDefault)->ignore}
+              onSetDefault={() =>
+                handleSetDefault(dashboard.dashboardName, dashboard.isDefault)->ignore}
               onRename={newName => handleRename(dashboard.dashboardName, newName)->ignore}
               onDuplicate={() => handleDuplicate(dashboard.dashboardName)->ignore}
             />

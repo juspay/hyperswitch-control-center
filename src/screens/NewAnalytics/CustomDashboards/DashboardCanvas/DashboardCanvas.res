@@ -20,8 +20,8 @@ let make = (~dashboard: CustomDashboardTypes.dashboard, ~onBack) => {
   let (viewMode, setViewMode) = React.useState(_ => CustomDashboardTypes.View)
   let (widgets, setWidgets) = React.useState(_ => dashboard.widgets)
   let (showConfigurator, setShowConfigurator) = React.useState(_ => false)
-  let (editingWidget, setEditingWidget) = React.useState(
-    (): option<CustomDashboardTypes.widget> => None,
+  let (editingWidget, setEditingWidget) = React.useState((): option<CustomDashboardTypes.widget> =>
+    None
   )
 
   // Refetch dashboard widgets from API to get fresh data after add/edit/remove
@@ -185,7 +185,9 @@ let make = (~dashboard: CustomDashboardTypes.dashboard, ~onBack) => {
           <ReactBeautifulDND.Droppable droppableId="dashboard-widgets" direction="vertical">
             {(droppableProvided, _snapshot) =>
               React.cloneElement(
-                <div ref={droppableProvided["innerRef"]} className="dashboard-grid grid grid-cols-12 gap-4">
+                <div
+                  ref={droppableProvided["innerRef"]}
+                  className="dashboard-grid grid grid-cols-12 gap-4">
                   {widgets
                   ->Array.mapWithIndex((widget, index) =>
                     <ReactBeautifulDND.Draggable

@@ -2,7 +2,6 @@ open LogicUtils
 open InsightsUtils
 open NewAnalyticsUtils
 
-
 let buildLineGraphPayload = (
   ~data: JSON.t,
   ~xKey: string,
@@ -44,10 +43,9 @@ let buildBarGraphPayload = (
   ~yKey: string,
   ~title: string,
 ): BarGraphTypes.barGraphPayload => {
-  let categories =
-    data->Array.map(item => {
-      item->getDictFromJsonObject->getString(yKey, "NA")->snakeToTitle
-    })
+  let categories = data->Array.map(item => {
+    item->getDictFromJsonObject->getString(yKey, "NA")->snakeToTitle
+  })
 
   let barData: BarGraphTypes.dataObj = {
     showInLegend: false,
@@ -70,16 +68,15 @@ let buildColumnGraphPayload = (
   ~yKey: string,
   ~title: string,
 ): ColumnGraphTypes.columnGraphPayload => {
-  let columnData =
-    data->Array.mapWithIndex((item, index) => {
-      let dict = item->getDictFromJsonObject
-      let dataPoint: ColumnGraphTypes.dataObj = {
-        name: dict->getString(yKey, "NA")->snakeToTitle,
-        y: dict->getFloat(xKey, 0.0),
-        color: getColor(index),
-      }
-      dataPoint
-    })
+  let columnData = data->Array.mapWithIndex((item, index) => {
+    let dict = item->getDictFromJsonObject
+    let dataPoint: ColumnGraphTypes.dataObj = {
+      name: dict->getString(yKey, "NA")->snakeToTitle,
+      y: dict->getFloat(xKey, 0.0),
+      color: getColor(index),
+    }
+    dataPoint
+  })
 
   let seriesObj: ColumnGraphTypes.seriesObj = {
     showInLegend: true,
@@ -126,9 +123,7 @@ let buildStackedBarGraphPayload = (
   ~_title: string,
 ): StackedBarGraphTypes.stackedBarGraphPayload => {
   let categories =
-    data->Array.map(item =>
-      item->getDictFromJsonObject->getString(yKey, "NA")->snakeToTitle
-    )
+    data->Array.map(item => item->getDictFromJsonObject->getString(yKey, "NA")->snakeToTitle)
 
   let stackedData: StackedBarGraphTypes.dataObj = {
     name: xKey->snakeToTitle,
@@ -158,33 +153,32 @@ let buildSankeyGraphPayload = (
 ): SankeyGraphTypes.sankeyPayload => {
   // Build flow data: source → category → value
   // Each grouped data point becomes a flow from "Total" to the category
-  let sankeyData: SankeyGraphTypes.data =
-    data->Array.map(item => {
-      let dict = item->getDictFromJsonObject
-      let category = dict->getString(yKey, "Unknown")->snakeToTitle
-      let value = dict->getFloat(xKey, 0.0)->Float.toInt
-      ("Total", category, value, "")
-    })
+  let sankeyData: SankeyGraphTypes.data = data->Array.map(item => {
+    let dict = item->getDictFromJsonObject
+    let category = dict->getString(yKey, "Unknown")->snakeToTitle
+    let value = dict->getFloat(xKey, 0.0)->Float.toInt
+    ("Total", category, value, "")
+  })
 
-  let nodes: SankeyGraphTypes.nodes =
-    [
+  let nodes: SankeyGraphTypes.nodes = [
+    (
+      {
+        id: "Total",
+        dataLabels: {align: "left", x: -10, name: 0},
+      }: SankeyGraphTypes.node
+    ),
+  ]->Array.concat(
+    data->Array.mapWithIndex((item, index) => {
+      let category = item->getDictFromJsonObject->getString(yKey, "Unknown")->snakeToTitle
+
       (
         {
-          id: "Total",
-          dataLabels: {align: "left", x: -10, name: 0},
+          id: category,
+          dataLabels: {align: "right", x: 10, name: index + 1},
         }: SankeyGraphTypes.node
-      ),
-    ]->Array.concat(
-      data->Array.mapWithIndex((item, index) => {
-        let category = item->getDictFromJsonObject->getString(yKey, "Unknown")->snakeToTitle
-        (
-          {
-            id: category,
-            dataLabels: {align: "right", x: 10, name: index + 1},
-          }: SankeyGraphTypes.node
-        )
-      }),
-    )
+      )
+    }),
+  )
 
   let colors = data->Array.mapWithIndex((_, index) => getColor(index))
 
@@ -212,18 +206,23 @@ let buildFunnelData = (
     ->Array.toSorted((a, b) => {
       let (_, va) = a
       let (_, vb) = b
-      if vb > va { 1.0 } else if vb < va { -1.0 } else { 0.0 }
+      if vb > va {
+        1.0
+      } else if vb < va {
+        -1.0
+      } else {
+        0.0
+      }
     })
 
-  let columnData =
-    sorted->Array.mapWithIndex(((name, value), index) => {
-      let dataPoint: ColumnGraphTypes.dataObj = {
-        name,
-        y: value,
-        color: getColor(index),
-      }
-      dataPoint
-    })
+  let columnData = sorted->Array.mapWithIndex(((name, value), index) => {
+    let dataPoint: ColumnGraphTypes.dataObj = {
+      name,
+      y: value,
+      color: getColor(index),
+    }
+    dataPoint
+  })
 
   let seriesObj: ColumnGraphTypes.seriesObj = {
     showInLegend: false,
@@ -270,29 +269,27 @@ let buildPieGraphPayload = (
   ~title: string,
 ): PieGraphTypes.pieGraphPayload<'t> => {
   // Calculate total for percentage display
-  let total =
-    data->Array.reduce(0.0, (acc, item) => {
-      acc +. item->getDictFromJsonObject->getFloat(xKey, 0.0)
-    })
+  let total = data->Array.reduce(0.0, (acc, item) => {
+    acc +. item->getDictFromJsonObject->getFloat(xKey, 0.0)
+  })
 
-  let pieData =
-    data->Array.mapWithIndex((item, index) => {
-      let dict = item->getDictFromJsonObject
-      let value = dict->getFloat(xKey, 0.0)
-      let name = dict->getString(yKey, "Unknown")->snakeToTitle
-      let pct = if total > 0.0 {
-        value /. total *. 100.0
-      } else {
-        0.0
-      }
-      let pctStr = pct->Js.Float.toFixedWithPrecision(~digits=0)
-      let dataPoint: PieGraphTypes.pieGraphDataType = {
-        name: `${name} ${pctStr}%`,
-        y: value,
-        color: getColor(index),
-      }
-      dataPoint
-    })
+  let pieData = data->Array.mapWithIndex((item, index) => {
+    let dict = item->getDictFromJsonObject
+    let value = dict->getFloat(xKey, 0.0)
+    let name = dict->getString(yKey, "Unknown")->snakeToTitle
+    let pct = if total > 0.0 {
+      value /. total *. 100.0
+    } else {
+      0.0
+    }
+    let pctStr = pct->Js.Float.toFixedWithPrecision(~digits=0)
+    let dataPoint: PieGraphTypes.pieGraphDataType = {
+      name: `${name} ${pctStr}%`,
+      y: value,
+      color: getColor(index),
+    }
+    dataPoint
+  })
 
   let pieDataObj: PieGraphTypes.dataObj<'t> = {
     \"type": "pie",
@@ -306,10 +303,7 @@ let buildPieGraphPayload = (
   {
     data: [pieDataObj],
     title: {text: ""},
-    tooltipFormatter: PieGraphUtils.pieGraphTooltipFormatter(
-      ~title,
-      ~valueFormatterType=Volume,
-    ),
+    tooltipFormatter: PieGraphUtils.pieGraphTooltipFormatter(~title, ~valueFormatterType=Volume),
     legendFormatter: PieGraphUtils.pieGraphLegendFormatter(),
     chartSize: "60%",
     startAngle: 0,
