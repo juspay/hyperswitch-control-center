@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.04.10.0
+
+### Miscellaneous Tasks
+
+- Inline comment fixes for review agents ([#4684](https://github.com/juspay/hyperswitch-control-center/pull/4684)) ([`e917b2f`](https://github.com/juspay/hyperswitch-control-center/commit/e917b2fa25d0d34945e79ca3084d3a8fbc9e51d1))
+
+**Full Changelog:** [`2026.04.09.0...2026.04.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.09.0...2026.04.10.0)
+
+- - -
+
 ## 2026.04.09.0
 
 ### Bug Fixes
