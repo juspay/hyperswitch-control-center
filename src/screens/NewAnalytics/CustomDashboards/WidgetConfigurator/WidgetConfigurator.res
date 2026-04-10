@@ -8,6 +8,7 @@ let make = (
   open LogicUtils
   open APIUtils
   open WidgetConfiguratorUtils
+  open CustomDashboardTypes
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
@@ -21,7 +22,7 @@ let make = (
     | None => ""
     }
   )
-  let (description, setDescription) = React.useState(_ => "")
+  // Description field removed — widget type has no description field in BE
   let (domain, setDomain) = React.useState(_ =>
     switch editingWidget {
     | Some(w) => w.config.domain
@@ -224,18 +225,6 @@ let make = (
                 className="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-jp-gray-950 dark:text-white dark:border-gray-700"
               />
             </div>
-            <div>
-              <label className="text-xs font-medium text-gray-600 mb-1 block">
-                {React.string("Description (optional)")}
-              </label>
-              <input
-                type_="text"
-                value={description}
-                onChange={evt => setDescription(_ => ReactEvent.Form.target(evt)["value"])}
-                placeholder="Brief description of this widget"
-                className="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-jp-gray-950 dark:text-white dark:border-gray-700"
-              />
-            </div>
           </div>
         </div>
         // ═══════════════════════════════════════
@@ -247,24 +236,66 @@ let make = (
             {chartTypeOptions
             ->Array.map(opt => {
               let isActive = chartType === opt.value
-              <button
-                key={opt.label}
-                className={`flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-all ${isActive
-                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-sm"
-                    : "border-gray-200 dark:border-gray-700 hover:border-gray-300 hover:bg-gray-50"}`}
-                onClick={_ => setChartType(_ => opt.value)}>
-                {WidgetIcons.getChartIcon(opt.value, ~isActive)}
-                <span
-                  className={`text-xs font-medium ${isActive
-                      ? "text-blue-700"
-                      : "text-gray-600"}`}>
-                  {React.string(opt.label)}
-                </span>
-                <span className="text-[10px] text-gray-400"> {React.string(opt.description)} </span>
-              </button>
+              let hasGroupBy = groupBy->LogicUtils.isNonEmptyString
+              let isCompatible = WidgetConfiguratorUtils.isChartTypeCompatible(
+                opt.value,
+                ~hasGroupBy,
+                ~selectedMetrics,
+              )
+              let disabledReason = WidgetConfiguratorUtils.getChartTypeDisabledReason(
+                opt.value,
+                ~hasGroupBy,
+                ~selectedMetrics,
+              )
+              let baseClass = if isActive {
+                "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-sm"
+              } else if isCompatible {
+                "border-gray-200 dark:border-gray-700 hover:border-gray-300 hover:bg-gray-50 cursor-pointer"
+              } else {
+                "border-gray-100 dark:border-gray-800 opacity-40 cursor-not-allowed"
+              }
+              <div key={opt.label} className="relative" title={disabledReason->Option.getOr("")}>
+                <button
+                  className={`flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-all w-full ${baseClass}`}
+                  disabled={!isCompatible && !isActive}
+                  onClick={_ =>
+                    if isCompatible {
+                      setChartType(_ => opt.value)
+                    }}>
+                  {WidgetIcons.getChartIcon(opt.value, ~isActive)}
+                  <span
+                    className={`text-xs font-medium ${isActive
+                        ? "text-blue-700"
+                        : "text-gray-600"}`}>
+                    {React.string(opt.label)}
+                  </span>
+                  <span className="text-[10px] text-gray-400">
+                    {React.string(opt.description)}
+                  </span>
+                </button>
+                {if !isCompatible && !isActive {
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-gray-300 rounded-full flex items-center justify-center">
+                    <span className="text-[8px] text-white font-bold"> {React.string("!")} </span>
+                  </div>
+                } else {
+                  React.null
+                }}
+              </div>
             })
             ->React.array}
           </div>
+          {
+            let hasGroupBy = groupBy->LogicUtils.isNonEmptyString
+            if !hasGroupBy && WidgetConfiguratorUtils.needsGroupBy(chartType) {
+              <p className="text-xs text-amber-600 mt-2">
+                {React.string(
+                  "Current chart type requires a Group By dimension. Select one below or switch to Line chart.",
+                )}
+              </p>
+            } else {
+              React.null
+            }
+          }
         </div>
         // ═══════════════════════════════════════
         // SECTION 3: Data Source

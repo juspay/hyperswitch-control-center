@@ -6,6 +6,9 @@ type chartType =
   | @as("stacked_bar_chart") StackedBarChart
   | @as("sankey_chart") SankeyChart
   | @as("funnel_chart") FunnelChart
+  | @as("table") Table
+  | @as("stat_number") StatNumber
+  | @as("gauge") Gauge
 
 type analyticsDomain =
   | @as("payments") Payments

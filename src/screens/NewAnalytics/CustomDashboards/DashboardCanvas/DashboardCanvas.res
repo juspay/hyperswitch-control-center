@@ -1,14 +1,20 @@
 let reorder = (list, startIndex, endIndex) => {
-  let arr = Array.copy(list)
-  let removed = Js.Array.removeCountInPlace(~pos=startIndex, ~count=1, arr)
-  arr->Array.splice(~start=endIndex, ~remove=0, ~insert=removed)
-  arr
+  switch (list[startIndex], startIndex === endIndex) {
+  | (None, _) | (_, true) => list
+  | (Some(item), false) => {
+      let without = list->Array.filterWithIndex((_, i) => i !== startIndex)
+      let before = without->Array.slice(~start=0, ~end=endIndex)
+      let after = without->Array.slice(~start=endIndex, ~end=without->Array.length)
+      before->Array.concat([item])->Array.concat(after)
+    }
+  }
 }
 
 @react.component
 let make = (~dashboard: CustomDashboardTypes.dashboard, ~onBack) => {
   open APIUtils
   let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let (viewMode, setViewMode) = React.useState(_ => CustomDashboardTypes.View)
@@ -18,12 +24,34 @@ let make = (~dashboard: CustomDashboardTypes.dashboard, ~onBack) => {
     (): option<CustomDashboardTypes.widget> => None,
   )
 
+  // Refetch dashboard widgets from API to get fresh data after add/edit/remove
+  let refetchWidgets = async () => {
+    try {
+      let url = getURL(
+        ~entityName=V1(USERS),
+        ~userType=#USER_DATA,
+        ~methodType=Get,
+        ~queryParameters=Some("keys=CustomDashboards"),
+      )
+      let response = await fetchDetails(url)
+      let dashboards = CustomDashboardUtils.parseDashboards(response)
+      let updated = dashboards->Array.find(d => d.dashboardName === dashboard.dashboardName)
+      switch updated {
+      | Some(d) => setWidgets(_ => d.widgets)
+      | None => ()
+      }
+    } catch {
+    | _ => showToast(~message="Failed to refresh widgets", ~toastType=ToastError)
+    }
+  }
+
   let handleRemoveWidget = async (widgetId: string) => {
     try {
       let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
-      let data = Dict.make()
-      data->Dict.set("dashboard_name", dashboard.dashboardName->JSON.Encode.string)
-      data->Dict.set("widget_id", widgetId->JSON.Encode.string)
+      let data = Dict.fromArray([
+        ("dashboard_name", dashboard.dashboardName->JSON.Encode.string),
+        ("widget_id", widgetId->JSON.Encode.string),
+      ])
       let body = CustomDashboardUtils.buildOperationBody(
         ~operationType="RemoveWidget",
         ~data=data->JSON.Encode.object,
@@ -39,29 +67,30 @@ let make = (~dashboard: CustomDashboardTypes.dashboard, ~onBack) => {
   let handleSave = async () => {
     try {
       let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
-      let layoutData =
-        widgets->Array.mapWithIndex((widget, index) => {
-          let entry = Dict.make()
-          entry->Dict.set("widget_id", widget.widgetId->JSON.Encode.string)
-          let position = Dict.make()
-          position->Dict.set("x", 0->JSON.Encode.int)
-          position->Dict.set("y", (index * widget.position.h)->JSON.Encode.int)
-          position->Dict.set("w", widget.position.w->JSON.Encode.int)
-          position->Dict.set("h", widget.position.h->JSON.Encode.int)
-          entry->Dict.set("position", position->JSON.Encode.object)
-          entry->JSON.Encode.object
-        })
-      let data = Dict.make()
-      data->Dict.set("dashboard_name", dashboard.dashboardName->JSON.Encode.string)
-      data->Dict.set("layout", layoutData->JSON.Encode.array)
+      let layoutData = widgets->Array.map(widget => {
+        let pos = widget.position
+        let position = Dict.fromArray([
+          ("x", pos.x->JSON.Encode.int),
+          ("y", pos.y->JSON.Encode.int),
+          ("w", pos.w->JSON.Encode.int),
+          ("h", pos.h->JSON.Encode.int),
+        ])
+        Dict.fromArray([
+          ("widget_id", widget.widgetId->JSON.Encode.string),
+          ("position", position->JSON.Encode.object),
+        ])->JSON.Encode.object
+      })
+      let data = Dict.fromArray([
+        ("dashboard_name", dashboard.dashboardName->JSON.Encode.string),
+        ("layout", layoutData->JSON.Encode.array),
+      ])
       let body = CustomDashboardUtils.buildOperationBody(
         ~operationType="UpdateLayout",
         ~data=data->JSON.Encode.object,
       )
       let _ = await updateDetails(url, body, Post)
       showToast(~message="Dashboard saved", ~toastType=ToastSuccess)
-      // Go back to list so it re-fetches fresh data from API
-      onBack()
+      setViewMode(_ => View)
     } catch {
     | _ => showToast(~message="Failed to save layout", ~toastType=ToastError)
     }
@@ -73,8 +102,16 @@ let make = (~dashboard: CustomDashboardTypes.dashboard, ~onBack) => {
   }
 
   let openAddWidget = () => {
-    setEditingWidget(_ => None)
-    setShowConfigurator(_ => true)
+    // FIX: Enforce widget limit before opening configurator
+    if widgets->Array.length >= CustomDashboardConstants.maxWidgetsPerDashboard {
+      showToast(
+        ~message=`Maximum ${CustomDashboardConstants.maxWidgetsPerDashboard->Int.toString} widgets allowed per dashboard`,
+        ~toastType=ToastWarning,
+      )
+    } else {
+      setEditingWidget(_ => None)
+      setShowConfigurator(_ => true)
+    }
   }
 
   let openEditWidget = (widget: CustomDashboardTypes.widget) => {
@@ -85,7 +122,7 @@ let make = (~dashboard: CustomDashboardTypes.dashboard, ~onBack) => {
   let handleConfiguratorSuccess = () => {
     setShowConfigurator(_ => false)
     setEditingWidget(_ => None)
-    onBack()
+    refetchWidgets()->ignore
   }
 
   let isEditMode = viewMode === Edit
@@ -181,8 +218,8 @@ let make = (~dashboard: CustomDashboardTypes.dashboard, ~onBack) => {
       } else {
         <div className="dashboard-grid grid grid-cols-12 gap-4">
           {widgets
-          ->Array.mapWithIndex((widget, index) =>
-            <div key={index->Int.toString} className={getColSpanClass(widget.position.w)}>
+          ->Array.map(widget =>
+            <div key={widget.widgetId} className={getColSpanClass(widget.position.w)}>
               <WidgetCard widget isEditMode=false />
             </div>
           )

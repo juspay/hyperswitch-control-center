@@ -14,7 +14,7 @@ let paymentOverviewTemplate: array<widget> = [
     position: {x: 0, y: 0, w: 6, h: 4},
     config: {
       domain: Payments,
-      metrics: ["sessionized_payments_success_rate"],
+      metrics: ["sessionized_payment_success_rate"],
       groupBy: [],
       filters: JSON.Encode.object(Dict.make()),
       granularity: Some("G_ONEDAY"),
@@ -28,7 +28,7 @@ let paymentOverviewTemplate: array<widget> = [
     position: {x: 6, y: 0, w: 6, h: 4},
     config: {
       domain: Payments,
-      metrics: ["sessionized_payment_intent_count"],
+      metrics: ["sessionized_payment_count"],
       groupBy: ["payment_method"],
       filters: JSON.Encode.object(Dict.make()),
       granularity: None,
@@ -59,7 +59,7 @@ let connectorComparisonTemplate: array<widget> = [
     position: {x: 0, y: 0, w: 12, h: 4},
     config: {
       domain: Payments,
-      metrics: ["sessionized_payments_success_rate"],
+      metrics: ["sessionized_payment_success_rate"],
       groupBy: ["connector"],
       filters: JSON.Encode.object(Dict.make()),
       granularity: Some("G_ONEDAY"),
@@ -73,7 +73,7 @@ let connectorComparisonTemplate: array<widget> = [
     position: {x: 0, y: 4, w: 6, h: 4},
     config: {
       domain: Payments,
-      metrics: ["sessionized_payment_intent_count"],
+      metrics: ["sessionized_payment_count"],
       groupBy: ["connector"],
       filters: JSON.Encode.object(Dict.make()),
       granularity: None,

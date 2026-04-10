@@ -11,44 +11,53 @@ let make = (~onClose, ~onSuccess) => {
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
 
   let handleCreate = async () => {
-    if name->String.trim->isNonEmptyString {
+    let trimmedName = name->String.trim
+    if trimmedName->isNonEmptyString {
       try {
         setIsSubmitting(_ => true)
         let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
         let template = CustomDashboardConstants.templates->Array.get(selectedTemplate)
-        let widgets = switch template {
-        | Some(t) => t.widgets
-        | None => []
-        }
+        // Generate unique widget IDs to prevent collision across dashboards
+        let widgets = template->Option.mapOr([], t =>
+          t.widgets->Array.map(w => {
+            ...w,
+            widgetId: `${Date.now()->Float.toString}-${Math.random()->Float.toString}`,
+          })
+        )
+        
         let data = Dict.make()
-        data->Dict.set("dashboard_name", name->String.trim->JSON.Encode.string)
-        if description->String.trim->isNonEmptyString {
-          data->Dict.set("description", description->String.trim->JSON.Encode.string)
+        data->Dict.set("dashboard_name", trimmedName->JSON.Encode.string)
+        
+        let trimmedDesc = description->String.trim
+        if trimmedDesc->isNonEmptyString {
+          data->Dict.set("description", trimmedDesc->JSON.Encode.string)
         }
         if widgets->Array.length > 0 {
-          data->Dict.set("widgets", widgets->Identity.genericTypeToJson)
+          data->Dict.set("widgets", widgets->CustomDashboardUtils.serializeWidgets)
         }
+        
         let body = CustomDashboardUtils.buildOperationBody(
           ~operationType="Create",
           ~data=data->JSON.Encode.object,
         )
         let _ = await updateDetails(url, body, Post)
+        
+        let now = Date.make()->Date.toISOString
         let newDashboard: CustomDashboardTypes.dashboard = {
-          dashboardName: name->String.trim,
-          description: description->String.trim->isNonEmptyString
-            ? Some(description->String.trim)
-            : None,
+          dashboardName: trimmedName,
+          description: trimmedDesc->isNonEmptyString ? Some(trimmedDesc) : None,
           isDefault: false,
           widgets,
-          createdAt: Date.make()->Date.toISOString,
-          updatedAt: Date.make()->Date.toISOString,
+          createdAt: now,
+          updatedAt: now,
         }
         showToast(~message="Dashboard created", ~toastType=ToastSuccess)
         onSuccess(newDashboard)
       } catch {
-      | _ =>
-        showToast(~message="Failed to create dashboard", ~toastType=ToastError)
-        setIsSubmitting(_ => false)
+      | _ => {
+          showToast(~message="Failed to create dashboard", ~toastType=ToastError)
+          setIsSubmitting(_ => false)
+        }
       }
     }
   }

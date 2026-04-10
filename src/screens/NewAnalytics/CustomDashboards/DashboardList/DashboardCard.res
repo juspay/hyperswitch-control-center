@@ -9,6 +9,7 @@ let make = (
 ) => {
   let widgetCount = dashboard.widgets->Array.length
   let updatedText = CustomDashboardUtils.formatUpdatedAt(dashboard.updatedAt)
+  let showPopUp = PopUpState.useShowPopUp()
   let (showMenu, setShowMenu) = React.useState(_ => false)
   let (isRenaming, setIsRenaming) = React.useState(_ => false)
   let (renameValue, setRenameValue) = React.useState(_ => dashboard.dashboardName)
@@ -127,7 +128,16 @@ let make = (
                 className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2.5"
                 onClick={_ => {
                   setShowMenu(_ => false)
-                  onDelete()
+                  showPopUp({
+                    popUpType: (Danger, WithoutIcon),
+                    heading: `Delete '${dashboard.dashboardName}'?`,
+                    description: "This dashboard will be deleted permanently"->React.string,
+                    handleCancel: {text: "Cancel"},
+                    handleConfirm: {
+                      text: "Delete Dashboard",
+                      onClick: _ => onDelete(),
+                    },
+                  })
                 }}>
                 <Icon name="nd-delete-dustbin" size=14 />
                 {React.string("Delete")}

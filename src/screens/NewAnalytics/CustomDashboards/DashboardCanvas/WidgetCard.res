@@ -101,11 +101,25 @@ let attachResizeHandlers: (
     container.appendChild(makeHandle('r-right','ew-resize','x'));
     container.appendChild(makeHandle('r-bottom','ns-resize','y'));
     container.appendChild(makeHandle('r-corner','nwse-resize','xy'));
+
+    // Store abort function for cleanup during mid-drag unmount
+    container.__abortResize = function() {
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      container.style.outline = '';
+      container.style.outlineOffset = '';
+      container.style.transition = '';
+    };
   }
 `)
 
 let cleanupResizeHandlers: Dom.element => unit = %raw(`
   function(container) {
+    // Abort any in-flight drag to prevent memory leak
+    if (container.__abortResize) {
+      container.__abortResize();
+      container.__abortResize = null;
+    }
     container.querySelectorAll('.resize-handle').forEach(function(el) { el.remove() });
     container.style.outline = '';
     container.style.width = '';
@@ -128,12 +142,13 @@ let make = (
   let cardRef = React.useRef(Nullable.null)
   let heightPx = widget.position.h * 80
 
-  // In edit mode use fixed height; in view mode use minHeight so content can expand
-  let cardStyle = if isEditMode {
-    ReactDOM.Style.make(~height=`${heightPx->Int.toString}px`, ~overflow="hidden", ())
-  } else {
-    ReactDOM.Style.make(~minHeight=`${heightPx->Int.toString}px`, ())
-  }
+  // Edit mode uses fixed height for resize stability; view mode allows content expansion
+  let cardStyle = ReactDOM.Style.make(
+    ~height=isEditMode ? `${heightPx->Int.toString}px` : "auto",
+    ~minHeight=isEditMode ? "auto" : `${heightPx->Int.toString}px`,
+    ~overflow=isEditMode ? "hidden" : "visible",
+    (),
+  )
 
   // Attach resize handles — re-runs when widget size changes (after resize end)
   React.useEffect(() => {
@@ -201,10 +216,18 @@ let make = (
             </button>
           </div>
         } else {
+          // View mode: no toggle buttons (removed as not useful)
           React.null
         }}
       </div>
-      <div className="px-2 pb-4 overflow-hidden">
+      // Chart area with light blue background (matching mockup design)
+      // [class*="highcharts-background"] makes Highcharts SVG background transparent
+      <div
+        className="mx-4 mb-4 rounded-lg overflow-hidden chart-bg-gradient"
+        style={ReactDOM.Style.make(
+          ~background="linear-gradient(180deg, #eff6ff 0%, #f0f9ff 40%, #ffffff 100%)",
+          (),
+        )}>
         <GenericChartRenderer widget />
       </div>
     </div>

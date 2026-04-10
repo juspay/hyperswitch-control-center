@@ -23,9 +23,10 @@ let make = (~onOpenDashboard) => {
       setDashboards(_ => parsed)
       setScreenState(_ => Success)
     } catch {
-    | _ =>
-      setDashboards(_ => [])
-      setScreenState(_ => Success)
+    | _ => {
+        setDashboards(_ => [])
+        setScreenState(_ => Error("Failed to load dashboards"))
+      }
     }
   }
 
@@ -37,12 +38,11 @@ let make = (~onOpenDashboard) => {
   let handleDelete = async (dashboardName: string) => {
     try {
       let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
-      let data = Dict.make()
-      data->Dict.set("dashboard_name", dashboardName->JSON.Encode.string)
-      let body = CustomDashboardUtils.buildOperationBody(
-        ~operationType="Delete",
-        ~data=data->JSON.Encode.object,
-      )
+      let data =
+        Dict.fromArray([
+          ("dashboard_name", dashboardName->JSON.Encode.string),
+        ])->JSON.Encode.object
+      let body = CustomDashboardUtils.buildOperationBody(~operationType="Delete", ~data)
       let _ = await updateDetails(url, body, Post)
       showToast(~message="Dashboard deleted", ~toastType=ToastSuccess)
       fetchDashboards()->ignore
@@ -51,16 +51,15 @@ let make = (~onOpenDashboard) => {
     }
   }
 
-  let handleSetDefault = async (dashboardName: string) => {
+  let handleSetDefault = async (dashboardName: string, currentlyDefault: bool) => {
     try {
       let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
-      let data = Dict.make()
-      data->Dict.set("dashboard_name", dashboardName->JSON.Encode.string)
-      data->Dict.set("is_default", true->JSON.Encode.bool)
-      let body = CustomDashboardUtils.buildOperationBody(
-        ~operationType="Update",
-        ~data=data->JSON.Encode.object,
-      )
+      let data =
+        Dict.fromArray([
+          ("dashboard_name", dashboardName->JSON.Encode.string),
+          ("is_default", (!currentlyDefault)->JSON.Encode.bool),
+        ])->JSON.Encode.object
+      let body = CustomDashboardUtils.buildOperationBody(~operationType="Update", ~data)
       let _ = await updateDetails(url, body, Post)
       showToast(~message="Default updated", ~toastType=ToastSuccess)
       fetchDashboards()->ignore
@@ -72,13 +71,12 @@ let make = (~onOpenDashboard) => {
   let handleRename = async (dashboardName: string, newName: string) => {
     try {
       let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
-      let data = Dict.make()
-      data->Dict.set("dashboard_name", dashboardName->JSON.Encode.string)
-      data->Dict.set("new_dashboard_name", newName->JSON.Encode.string)
-      let body = CustomDashboardUtils.buildOperationBody(
-        ~operationType="Update",
-        ~data=data->JSON.Encode.object,
-      )
+      let data =
+        Dict.fromArray([
+          ("dashboard_name", dashboardName->JSON.Encode.string),
+          ("new_dashboard_name", newName->JSON.Encode.string),
+        ])->JSON.Encode.object
+      let body = CustomDashboardUtils.buildOperationBody(~operationType="Update", ~data)
       let _ = await updateDetails(url, body, Post)
       showToast(~message="Dashboard renamed", ~toastType=ToastSuccess)
       fetchDashboards()->ignore
@@ -90,24 +88,28 @@ let make = (~onOpenDashboard) => {
   let handleDuplicate = async (dashboardName: string) => {
     try {
       let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
-      // Find the source dashboard to copy its widgets
       let sourceDashboard = dashboards->Array.find(d => d.dashboardName === dashboardName)
       let widgets = switch sourceDashboard {
-      | Some(d) => d.widgets
+      | Some(d) =>
+        d.widgets->Array.map(widget => {
+          ...widget,
+          widgetId: `${Date.now()->Float.toString}-${Math.random()->Float.toString}`,
+        })
       | None => []
       }
-      let data = Dict.make()
-      data->Dict.set(
-        "dashboard_name",
-        `${dashboardName} (Copy)`->JSON.Encode.string,
-      )
-      data->Dict.set("description", `Duplicated from ${dashboardName}`->JSON.Encode.string)
-      if widgets->Array.length > 0 {
-        data->Dict.set("widgets", widgets->Identity.genericTypeToJson)
+      let dataEntries = [
+        ("dashboard_name", `${dashboardName} (Copy)`->JSON.Encode.string),
+        ("description", `Duplicated from ${dashboardName}`->JSON.Encode.string),
+      ]
+      let dataEntries = if widgets->Array.length > 0 {
+        dataEntries->Array.concat([
+          ("widgets", widgets->CustomDashboardUtils.serializeWidgets),
+        ])
+      } else {
+        dataEntries
       }
-      let body = CustomDashboardUtils.buildOperationBody(
-        ~operationType="Create",
-        ~data=data->JSON.Encode.object,
+      let data = dataEntries->Dict.fromArray->JSON.Encode.object
+      let body = CustomDashboardUtils.buildOperationBody(~operationType="Create", ~data,
       )
       let _ = await updateDetails(url, body, Post)
       showToast(~message="Dashboard duplicated", ~toastType=ToastSuccess)
@@ -144,13 +146,13 @@ let make = (~onOpenDashboard) => {
       } else {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {dashboards
-          ->Array.mapWithIndex((dashboard, index) =>
+          ->Array.map(dashboard =>
             <DashboardCard
-              key={index->Int.toString}
+              key={dashboard.dashboardName}
               dashboard
               onOpen={() => onOpenDashboard(dashboard)}
               onDelete={() => handleDelete(dashboard.dashboardName)->ignore}
-              onSetDefault={() => handleSetDefault(dashboard.dashboardName)->ignore}
+              onSetDefault={() => handleSetDefault(dashboard.dashboardName, dashboard.isDefault)->ignore}
               onRename={newName => handleRename(dashboard.dashboardName, newName)->ignore}
               onDuplicate={() => handleDuplicate(dashboard.dashboardName)->ignore}
             />
