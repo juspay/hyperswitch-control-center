@@ -162,7 +162,7 @@ let make = () => {
       )
       let result = await fetchDetails(url)
       let allOptions = result->makeSelectBoxOptions
-      let filteredOptions = if roleEntity == "merchant" {
+      let filteredOptions = if roleEntity == "merchant" || roleEntity == "profile" {
         let selectedMerchantId =
           formState.values->getDictFromJsonObject->getString("merchant_value", "")
         let selectedMerchant = merchList->Array.find(m => m.id == selectedMerchantId)
@@ -175,7 +175,7 @@ let make = () => {
         | None => false
         }
         allOptions->Array.filter(option => {
-          let isReconRole = option.label->String.toLowerCase->String.startsWith("recon")
+          let isReconRole = option.label->String.toLowerCase->String.startsWith("recon_")
           isRecon ? isReconRole : !isReconRole
         })
       } else {
