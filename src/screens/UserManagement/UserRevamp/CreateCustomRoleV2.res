@@ -35,22 +35,22 @@ module RenderPermissionModule = {
       parentGroupsField.input.onChange(updatedGroups->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
+    let isReadAvailable =
+      scopes->Array.some(scope => scope === (Read :> string)->String.toLowerCase)
+    let isWriteAvailable =
+      scopes->Array.some(scope => scope === (Write :> string)->String.toLowerCase)
+
     let handleScopeChange = (scope, isSelected) => {
       let currentScopes = getCurrentScopes()
       let newScopes = updateScope(currentScopes, isSelected ? Add : Remove, scope)
 
       let finalScopes = switch (scope, isSelected) {
-      | (Write, true) => updateScope(newScopes, Add, Read)
+      | (Write, true) => isReadAvailable ? updateScope(newScopes, Add, Read) : newScopes
       | (Read, false) => updateScope(newScopes, Remove, Write)
       | _ => newScopes
       }
       updateScopes(finalScopes->Array.map(JSON.Encode.string))
     }
-
-    let isReadAvailable =
-      scopes->Array.some(scope => scope === (Read :> string)->String.toLowerCase)
-    let isWriteAvailable =
-      scopes->Array.some(scope => scope === (Write :> string)->String.toLowerCase)
     let currentScopes = getCurrentScopes()
     let isReadSelected = currentScopes->Array.includes("read")
     let isWriteSelected = currentScopes->Array.includes("write")
