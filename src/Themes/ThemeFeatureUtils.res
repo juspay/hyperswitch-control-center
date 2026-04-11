@@ -23,66 +23,23 @@ let getEntityTypeFromStep = (stepVariant: ThemeTypes.lineageSelectionSteps) =>
   | _ => ""
   }
 
-type assetAction =
-  | Unchanged
-  | Updated({file: option<JSON.t>})
-
-let processAssetAction = async (
-  ~originalUrl: option<string>,
-  ~action: assetAction,
-  ~assetName: string,
-  ~uploadFn: (~assetFile: option<JSON.t>, ~assetName: string) => promise<JSON.t>,
-  ~themeId: string,
-) => {
-  let baseUrl = GlobalVars.getHostUrl
-  let newAssetUrl = `${baseUrl}/themes/${themeId}/${assetName}`
-  switch (originalUrl, action) {
-  | (None, Unchanged) => None
-  | (Some(existingUrl), Unchanged) => Some(existingUrl->JSON.Encode.string)
-  | (Some(_), Updated({file: None})) => None
-  | (_, Updated({file: Some(file)})) => {
-      let _ = await uploadFn(~assetFile=Some(file), ~assetName)
-      Some(newAssetUrl->JSON.Encode.string)
-    }
-  | _ => None
+let handleAssetFileSelect = (setAssets, key, ev) => {
+  let files = ReactEvent.Form.target(ev)["files"]
+  switch files->LogicUtils.getValueFromArray(0, None) {
+  | Some(file) =>
+    setAssets(prev => {
+      let next = prev->Dict.copy
+      next->Dict.set(key, file)
+      next
+    })
+  | None => ()
   }
 }
 
-let processAssets = async (
-  ~logoAction: assetAction,
-  ~faviconAction: assetAction,
-  ~originalLogoUrl: option<string>,
-  ~originalFaviconUrl: option<string>,
-  ~uploadFn: (~assetFile: option<JSON.t>, ~assetName: string) => promise<JSON.t>,
-  ~themeId: string,
-) => {
-  let urlsDict = Dict.make()
-
-  let logoResult = await processAssetAction(
-    ~originalUrl=originalLogoUrl,
-    ~action=logoAction,
-    ~assetName="logo.png",
-    ~uploadFn,
-    ~themeId,
-  )
-  switch logoResult {
-  | Some(url) => urlsDict->Dict.set("logoUrl", url)
-  | None => ()
-  }
-
-  let faviconResult = await processAssetAction(
-    ~originalUrl=originalFaviconUrl,
-    ~action=faviconAction,
-    ~assetName="favicon.png",
-    ~uploadFn,
-    ~themeId,
-  )
-  switch faviconResult {
-  | Some(url) => urlsDict->Dict.set("faviconUrl", url)
-  | None => ()
-  }
-
-  urlsDict
+let handleAssetRemove = (setAssets, key) => {
+  setAssets(prev => {
+    prev->Dict.toArray->Array.filter(((k, _)) => k !== key)->Dict.fromArray
+  })
 }
 
 let buildThemeDataBody = (~settingsDict: Dict.t<JSON.t>, ~urlsDict: Dict.t<JSON.t>) => {

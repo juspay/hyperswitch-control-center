@@ -504,42 +504,16 @@ module ThemeUploadAssetsModal = {
     let updateDetails = useUpdateMethod(~showErrorToast=false)
     let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Success)
     let fetchDetails = useGetMethod()
-    let (logoAction, setLogoAction) = React.useState(_ => Unchanged)
-    let (faviconAction, setFaviconAction) = React.useState(_ => Unchanged)
-
-    let assetUploadUrl = getURL(
-      ~entityName=V1(USERS),
-      ~methodType=Post,
-      ~id=Some(themeId),
-      ~userType=#THEME_UPLOAD_ASSET,
-    )
-
-    let uploadFn = async (~assetFile, ~assetName) => {
-      let formData = FormDataUtils.formData()
-      FormDataUtils.append(formData, "asset_name", assetName)
-      FormDataUtils.append(formData, "asset_data", assetFile)
-      await updateDetails(
-        assetUploadUrl,
-        Dict.make()->JSON.Encode.object,
-        Post,
-        ~bodyFormData=formData,
-        ~headers=Dict.make(),
-        ~contentType=AuthHooks.Unknown,
-      )
-    }
+    let processAssets = ThemeHooks.useProcessAssets(~themeId)
+    let (assets, setAssets) = React.useState(_ => Dict.make())
+    let handleFileSelect = (key, ev) => handleAssetFileSelect(setAssets, key, ev)
+    let handleRemove = key => handleAssetRemove(setAssets, key)
 
     let handleUpload = async () => {
       try {
         setScreenState(_ => Loading)
 
-        let urlsDict = await processAssets(
-          ~logoAction,
-          ~faviconAction,
-          ~originalLogoUrl=None,
-          ~originalFaviconUrl=None,
-          ~uploadFn,
-          ~themeId,
-        )
+        let urlsDict = await processAssets(~assets)
 
         if !(urlsDict->isEmptyDict) {
           let themeUrl = getURL(
@@ -585,11 +559,7 @@ module ThemeUploadAssetsModal = {
       redirectToList()
     }
 
-    let hasChanges = switch (logoAction, faviconAction) {
-    | (Updated({file: Some(_)}), _)
-    | (_, Updated({file: Some(_)})) => true
-    | _ => false
-    }
+    let hasChanges = !{assets->isEmptyDict}
 
     <Modal
       showModal
@@ -604,23 +574,8 @@ module ThemeUploadAssetsModal = {
       </div>}>
       <PageLoaderWrapper screenState={screenState} sectionHeight="h-20-vh">
         <div className="flex flex-col gap-2 p-3">
-          <AssetField
-            label="Logo"
-            originalUrl=None
-            action=logoAction
-            setAction=setLogoAction
-            accept=".png,.jpg,.jpeg"
-            inputId="logoFileInput"
-            themeConfigVersion=None
-          />
-          <AssetField
-            label="Favicon"
-            originalUrl=None
-            action=faviconAction
-            setAction=setFaviconAction
-            accept=".png,.ico,.jpg,.jpeg"
-            inputId="faviconFileInput"
-            themeConfigVersion=None
+          <IconSettings
+            assets onFileSelect=handleFileSelect onRemove=handleRemove themeConfigVersion=None
           />
           <div className="flex justify-end gap-3 pt-4 border-t border-nd_gray-200">
             <Button

@@ -27,6 +27,7 @@ let make = (~remainingPath) => {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Error fetching theme list"))
     }
   }
+  let toOption = (val, sentinel) => val->Option.flatMap(v => v == sentinel ? None : Some(v))
 
   React.useEffect(() => {
     fetchThemeList()->ignore
@@ -50,7 +51,6 @@ let make = (~remainingPath) => {
           <ThemeUpdate themeId orgId=None merchantId=None profileId=None />
         </AccessControl>}
       renderCustomWithOMP={(themeId, profileId, merchantId, orgId) => {
-        let toOption = (val, sentinel) => val->Option.flatMap(v => v == sentinel ? None : Some(v))
         <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
           <ThemeUpdate
             themeId

@@ -1,5 +1,6 @@
 open FormRenderer
 open Typography
+open ThemeFeatureUtils
 
 module BrandSettings = {
   @react.component
@@ -133,115 +134,85 @@ module AssetField = {
   @react.component
   let make = (
     ~label: string,
-    ~originalUrl: option<string>,
-    ~action: ThemeFeatureUtils.assetAction,
-    ~setAction: (ThemeFeatureUtils.assetAction => ThemeFeatureUtils.assetAction) => unit,
+    ~displayUrl: option<string>,
+    ~onFileChange: ReactEvent.Form.t => unit,
+    ~onRemove: unit => unit,
     ~accept: string,
     ~inputId: string,
     ~themeConfigVersion: option<string>,
   ) => {
-    let handleFileChange = ev => {
-      let files = ReactEvent.Form.target(ev)["files"]
-      switch files[0] {
-      | Some(file) => setAction(_ => ThemeFeatureUtils.Updated({file: Some(file)}))
-      | None => ()
-      }
-    }
-
-    let handleRemove = () => {
-      switch action {
-      | Updated(_)
-      | Unchanged =>
-        setAction(_ => Updated({file: None}))
-      }
-    }
-
-    let versionedUrl = switch originalUrl {
-    | Some(url) => ThemeFeatureUtils.appendVersionParam(url, ~version=themeConfigVersion)
-    | None => ""
-    }
-
-    let uploadInput =
-      <div className="flex flex-col gap-2">
-        <input type_="file" accept hidden=true onChange={handleFileChange} id={inputId} />
-        <label
-          htmlFor={inputId}
-          className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-nd_gray-700 bg-white border border-nd_gray-300 rounded-md hover:bg-nd_gray-50 cursor-pointer transition">
-          {React.string(`Upload ${label}`)}
-        </label>
-      </div>
-
     <div className="flex flex-col gap-2">
       <div className={`${body.md.medium} text-nd_gray-700`}> {React.string(label)} </div>
       <div className="flex items-center gap-3">
-        {switch action {
-        | Unchanged =>
-          switch originalUrl {
-          | Some(_) =>
+        {switch displayUrl {
+        | Some(url) => {
+            let imgSrc = if url->String.startsWith("blob:") {
+              url
+            } else {
+              appendVersionParam(url, ~version=themeConfigVersion)
+            }
             <>
               <div
                 className="w-16 h-16 border border-nd_gray-200 rounded-md flex items-center justify-center overflow-hidden bg-white">
-                <img
-                  src={versionedUrl} alt={label} className="max-w-full max-h-full object-contain"
-                />
+                <img src={imgSrc} alt={label} className="max-w-full max-h-full object-contain" />
               </div>
               <button
                 type_="button"
-                onClick={_ => handleRemove()}
+                onClick={_ => onRemove()}
                 className="p-2 hover:bg-nd_gray-100 rounded-md transition">
-                <Icon name="nd-cross" size=16 className="text-gray-500" />
+                <Icon name="nd-cross" size=16 className="text-nd_gray-500" />
               </button>
             </>
-          | None => uploadInput
           }
-        | Updated({file: Some(file)}) =>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 text-sm text-nd_gray-600">
-              <Icon name="file-icon" size=16 />
-              <span> {(file->Identity.jsonToAnyType)["name"]->React.string} </span>
-            </div>
-            <button
-              type_="button"
-              onClick={_ => handleRemove()}
-              className="p-2 hover:bg-nd_gray-100 rounded-md transition">
-              <Icon name="nd-cross" size=16 className="text-gray-500" />
-            </button>
-          </div>
-        | Updated({file: None}) => uploadInput
+        | None =>
+          <RawFileInput buttonText={`Upload ${label}`} accept inputId onChange=onFileChange />
         }}
       </div>
     </div>
   }
 }
-open ThemeFeatureUtils
+
 module IconSettings = {
   @react.component
   let make = (
-    ~originalLogoUrl: option<string>,
-    ~originalFaviconUrl: option<string>,
-    ~logoAction: assetAction,
-    ~setLogoAction: (assetAction => assetAction) => unit,
-    ~faviconAction: assetAction,
-    ~setFaviconAction: (assetAction => assetAction) => unit,
+    ~assets: Dict.t<JSON.t>,
+    ~onFileSelect: (string, ReactEvent.Form.t) => unit,
+    ~onRemove: string => unit,
     ~themeConfigVersion,
   ) => {
+    let getDisplayUrl = (key: string) => {
+      switch assets->LogicUtils.getvalFromDict(key) {
+      | Some(value) =>
+        switch value->JSON.Decode.string {
+        | Some(url) => Some(url)
+        | None =>
+          Some(
+            DownloadUtils.createObjectURL(
+              (value->Identity.jsonToAnyType: DownloadUtils.blobInstanceType),
+            ),
+          )
+        }
+      | None => None
+      }
+    }
+
     <div className="flex flex-col gap-4">
       <div className={`${body.lg.semibold}`}> {React.string("Icons")} </div>
       <div className="space-y-4">
         <AssetField
           label="Logo"
-          originalUrl=originalLogoUrl
-          action=logoAction
-          setAction=setLogoAction
+          displayUrl={getDisplayUrl("logo")}
+          onFileChange={ev => onFileSelect("logo", ev)}
+          onRemove={() => onRemove("logo")}
           accept=".png,.jpg,.jpeg"
           inputId="logoFileInput"
           themeConfigVersion
         />
         <AssetField
           label="Favicon"
-          originalUrl=originalFaviconUrl
-          action=faviconAction
-          setAction=setFaviconAction
+          displayUrl={getDisplayUrl("favicon")}
+          onFileChange={ev => onFileSelect("favicon", ev)}
+          onRemove={() => onRemove("favicon")}
           accept=".png,.ico,.jpg,.jpeg"
           inputId="faviconFileInput"
           themeConfigVersion
