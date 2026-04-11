@@ -34,7 +34,7 @@ test.describe("Refunds List Page", () => {
     await homePage.operations.click();
     await homePage.refundOperations.click();
 
-    await expect(page.locator('[class*="text-fs-28"]')).toContainText(
+    await expect(page.locator('[class="flex justify-between items-center"]')).toContainText(
       "Refunds",
     );
 
@@ -83,7 +83,7 @@ test.describe("Refunds List Page", () => {
       await homePage.operations.click();
       await homePage.refundOperations.click();
 
-      await expect(page.locator('[class*="text-fs-28"]')).toContainText(
+      await expect(page.locator('[class="flex justify-between items-center"]')).toContainText(
         "Refunds",
       );
 
@@ -211,15 +211,12 @@ test.describe("Refunds List Page", () => {
   test("should navigate to refunds via sidebar", async ({ page }) => {
     const homePage = new HomePage(page);
 
-    await page.goto("/dashboard/home");
-    // Fixed (Attempt 2): Wait for page to load and use getByText for operations
-    await page.waitForLoadState("networkidle");
-    await page.getByText("Operations").click();
-    await page.getByText("Refunds").nth(1).click();
-
+    await homePage.operations.click();
+    await homePage.refundOperations.click();
+    
     await expect(page).toHaveURL(/.*dashboard\/refunds/);
 
-    await expect(page.locator('[class*="text-fs-28"]')).toContainText(
+    await expect(page.locator('[class="flex justify-between items-center"]')).toContainText(
       "Refunds",
     );
   });

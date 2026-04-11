@@ -9,19 +9,20 @@ module NewThemeHeading = {
     ~descriptionColor="",
     ~headingSize=Large,
     ~rightActions=?,
-    ~headingRightElemnt=?,
+    ~headingRightElement=?,
     ~alignItems="items-end",
     ~outerMargin="desktop:mb-6 mb-4",
   ) => {
     let descriptionSize = switch headingSize {
     | XSmall => "text-fs-12"
+    | Small => "text-fs-16"
     | _ => "text-fs-14"
     }
 
     let headingSize = switch headingSize {
     | Large => "text-fs-24"
     | Medium => "text-fs-20"
-    | Small => "text-fs-18"
+    | Small => "text-fs-16"
     | XSmall => "text-fs-14"
     }
 
@@ -36,7 +37,7 @@ module NewThemeHeading = {
             <div
               className={`flex items-center ${headingSize} mobile:text-fs-16 font-semibold ${headingColor} dark:text-white`}>
               {heading->React.string}
-              {switch headingRightElemnt {
+              {switch headingRightElement {
               | Some(ele) => ele
               | None => React.null
               }}

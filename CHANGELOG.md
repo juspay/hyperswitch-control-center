@@ -3,6 +3,38 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.04.10.0
+
+### Miscellaneous Tasks
+
+- Inline comment fixes for review agents ([#4684](https://github.com/juspay/hyperswitch-control-center/pull/4684)) ([`e917b2f`](https://github.com/juspay/hyperswitch-control-center/commit/e917b2fa25d0d34945e79ca3084d3a8fbc9e51d1))
+
+**Full Changelog:** [`2026.04.09.0...2026.04.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.09.0...2026.04.10.0)
+
+- - -
+
+## 2026.04.09.0
+
+### Bug Fixes
+
+- Standardize dashboard spacing and typography ([#4653](https://github.com/juspay/hyperswitch-control-center/pull/4653)) ([`57388aa`](https://github.com/juspay/hyperswitch-control-center/commit/57388aa583e3cd6cd740e01411dcaafbc22db088))
+- Correct typos batch 6/7 ([#4417](https://github.com/juspay/hyperswitch-control-center/pull/4417)) ([`9095258`](https://github.com/juspay/hyperswitch-control-center/commit/9095258640ac452be315feda1170938c9056f20d))
+- Correct typos batch 7/7 ([#4418](https://github.com/juspay/hyperswitch-control-center/pull/4418)) ([`0ef9d8d`](https://github.com/juspay/hyperswitch-control-center/commit/0ef9d8dd983f44be295242e07a99f96f0be4cba3))
+
+**Full Changelog:** [`2026.04.08.0...2026.04.09.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.08.0...2026.04.09.0)
+
+- - -
+
+## 2026.04.08.0
+
+### Features
+
+- Migrate AlertBanner to Blend AlertV2 component ([#4411](https://github.com/juspay/hyperswitch-control-center/pull/4411)) ([`906e2ec`](https://github.com/juspay/hyperswitch-control-center/commit/906e2ec6feb055077f13b47635dfdd73d6dd986c))
+
+**Full Changelog:** [`2026.04.07.0...2026.04.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.07.0...2026.04.08.0)
+
+- - -
+
 ## 2026.04.07.0
 
 ### Features

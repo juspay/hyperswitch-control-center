@@ -29,7 +29,7 @@ let make = (
   let url = RescriptReactRouter.useUrl()
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
 
-  let removeFieldsFromRespose = json => {
+  let removeFieldsFromResponse = json => {
     let dict = json->getDictFromJsonObject
     dict->Dict.delete("applepay_verified_domains")
     dict->Dict.delete("business_country")
@@ -47,7 +47,7 @@ let make = (
         ~id=Some(connectorID),
       )
       let json = await fetchDetails(connectorUrl, ~version=V2)
-      setInitialValues(_ => json->removeFieldsFromRespose)
+      setInitialValues(_ => json->removeFieldsFromResponse)
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch details"))
@@ -148,7 +148,7 @@ let make = (
       let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
       let _ = await fetchConnectorListResponse()
       setCurrentActiveSection(_ => None)
-      setInitialValues(_ => response->removeFieldsFromRespose)
+      setInitialValues(_ => response->removeFieldsFromResponse)
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to update"))

@@ -20,7 +20,7 @@ test.describe("Performance Monitor", () => {
 
     await expect(page).toHaveURL(/.*dashboard\/analytics-payments/);
     await expect(
-      page.locator('[class="text-fs-28 font-semibold leading-10 "]'),
+      page.locator('[class="flex items-center gap-4 "]'),
     ).toContainText("Payments");
   });
 
@@ -32,7 +32,7 @@ test.describe("Performance Monitor", () => {
 
     await expect(page).toHaveURL(/.*dashboard\/analytics-refunds/);
     await expect(
-      page.locator('[class="text-fs-28 font-semibold leading-10 "]'),
+      page.locator('[class="flex items-center gap-4 "]'),
     ).toContainText("Refunds");
   });
 });

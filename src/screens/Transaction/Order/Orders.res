@@ -214,7 +214,7 @@ let make = (~previewOnly=false) => {
           </RenderIf>
         </div>
       </div>
-      <div className="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-6 my-8">
+      <div className="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-6 mb-8">
         <TransactionView entity=TransactionViewTypes.Orders version />
       </div>
       <div className="flex">
