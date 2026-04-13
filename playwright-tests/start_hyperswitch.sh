@@ -47,6 +47,9 @@ for tag in $(git tag --sort=-creatordate); do
   sed '/^\[network_tokenization_service\]/,/^\[.*\]/d' "$toml_file" > temp.toml
   mv temp.toml "$toml_file"
 
+  # Use sed to update the backup_file_path from relative to absolute path
+  sed -i '' "s|backup_file_path = \"./config/superposition_seed.toml\"|backup_file_path = \"/local/config/superposition_seed.toml\"|g" "$toml_file"
+  
   echo "Starting docker compose..."
   
   # Start Docker Compose services in detached mode
