@@ -165,9 +165,7 @@ let paymentLinkConfigMapper = paymentLinkConfigDict => {
 }
 
 let paymentMethodBlockingEntryMapper: Dict.t<JSON.t> => paymentMethodBlockingEntry = entryDict => {
-  card_types: entryDict
-  ->Dict.get("card_types")
-  ->Option.map(json => json->getArrayFromJson([])->Array.map(item => item->getStringFromJson(""))),
+  card_types: entryDict->getOptionStrArrayFromDict("card_types"),
 }
 
 let paymentMethodBlockingMapper: Dict.t<JSON.t> => paymentMethodBlocking = pmbDict => {

@@ -190,10 +190,10 @@ module PaymentMethodBlocking = {
   let make = () => {
     open FormRenderer
 
-    let cardTypeOptions: array<SelectBox.dropdownOption> = [
-      {label: "Credit", value: "credit"},
-      {label: "Debit", value: "debit"},
-    ]
+    let cardTypeOptions: array<SelectBox.dropdownOption> = ["credit", "debit"]->Array.map(item => {
+      SelectBox.label: item->LogicUtils.snakeToTitle,
+      value: item,
+    })
 
     let blocklistCardTypes = makeFieldInfo(
       ~label="Card Types",
@@ -565,8 +565,10 @@ let make = () => {
       </RenderIf>
       <ClickToPaySection />
       <hr />
-      <PaymentMethodBlocking />
-      <hr />
+      <RenderIfVersion visibleForVersion=V1>
+        <PaymentMethodBlocking />
+        <hr />
+      </RenderIfVersion>
       <ReturnUrl />
       <WebHook />
       <DesktopRow wrapperClass="mt-8">
