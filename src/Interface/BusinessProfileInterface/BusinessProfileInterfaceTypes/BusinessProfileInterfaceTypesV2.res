@@ -31,6 +31,7 @@ type profileEntityRequestType_v2 = {
   merchant_category_code: option<JSON.t>,
   is_network_tokenization_enabled: option<JSON.t>,
   split_txns_enabled: option<JSON.t>,
+  payment_method_blocking: option<JSON.t>,
 }
 type webhookDetailsRequest_v2 = {webhook_url: option<JSON.t>}
 
@@ -55,4 +56,5 @@ type profileEntity_v2 = {
   merchant_category_code: option<string>,
   is_network_tokenization_enabled: option<bool>,
   split_txns_enabled: option<string>,
+  payment_method_blocking: option<BusinessProfileInterfaceTypes.paymentMethodBlocking>,
 }

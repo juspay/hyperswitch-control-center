@@ -46,6 +46,7 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity_v2 => {
   let outgoingWebhookHeaders = getOptionalHeaders(jsonDict, "outgoing_webhook_custom_http_headers")
 
   let metadataHeaders = getOptionalHeaders(jsonDict, "metadata")
+  let paymentMethodBlockingDict = jsonDict->getDictfromDict("payment_method_blocking")
 
   {
     profile_id: jsonDict->getString("profile_id", ""),
@@ -82,6 +83,9 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity_v2 => {
     merchant_category_code: jsonDict->getOptionString("merchant_category_code"),
     is_network_tokenization_enabled: jsonDict->getOptionBool("is_network_tokenization_enabled"),
     split_txns_enabled: jsonDict->getOptionString("split_txns_enabled"),
+    payment_method_blocking: paymentMethodBlockingDict->isEmptyDict
+      ? None
+      : Some(paymentMethodBlockingDict->paymentMethodBlockingMapper),
   }
 }
 let mapV2WebhookDetailsToCommonType: webhookDetails_v2 => BusinessProfileInterfaceTypes.webhookDetails = webhookDetailsRecord => {
@@ -131,6 +135,7 @@ let mapV2toCommonType: profileEntity_v2 => BusinessProfileInterfaceTypes.commonP
     payment_link_config: None,
     is_external_vault_enabled: None,
     external_vault_connector_details: None,
+    payment_method_blocking: profileRecord.payment_method_blocking,
   }
 }
 
@@ -199,5 +204,6 @@ let commonTypeJsonToV2ForRequest: JSON.t => profileEntityRequestType_v2 = json =
     split_txns_enabled: dict
     ->getOptionString("split_txns_enabled")
     ->convertOptionalStringToOptionalJson,
+    payment_method_blocking: dict->Dict.get("payment_method_blocking"),
   }
 }

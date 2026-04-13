@@ -164,6 +164,21 @@ let paymentLinkConfigMapper = paymentLinkConfigDict => {
   }
 }
 
+let paymentMethodBlockingEntryMapper: Dict.t<JSON.t> => paymentMethodBlockingEntry = entryDict => {
+  card_types: entryDict
+  ->Dict.get("card_types")
+  ->Option.map(json => json->getArrayFromJson([])->Array.map(item => item->getStringFromJson(""))),
+}
+
+let paymentMethodBlockingMapper: Dict.t<JSON.t> => paymentMethodBlocking = pmbDict => {
+  let cardDict = pmbDict->getDictfromDict("card")
+  let walletDict = pmbDict->getDictfromDict("wallet")
+  {
+    card: cardDict->isEmptyDict ? None : Some(cardDict->paymentMethodBlockingEntryMapper),
+    wallet: walletDict->isEmptyDict ? None : Some(walletDict->paymentMethodBlockingEntryMapper),
+  }
+}
+
 let externalVaultConnectorDetailsMapper = externalVaultConnectorDetailsDict => {
   vault_connector_id: externalVaultConnectorDetailsDict->getString("vault_connector_id", ""),
   vault_token_selector: externalVaultConnectorDetailsDict->getOptionalArrayFromDict(
@@ -178,6 +193,7 @@ let mapJsontoCommonType: JSON.t => commonProfileEntity = input => {
   let externalVaultConnectorDetails = jsonDict->getDictfromDict("external_vault_connector_details")
   let outgoingWebhookHeaders = getOptionalHeaders(jsonDict, "outgoing_webhook_custom_http_headers")
   let metadataHeaders = getOptionalHeaders(jsonDict, "metadata")
+  let paymentMethodBlockingDict = jsonDict->getDictfromDict("payment_method_blocking")
 
   {
     profile_id: jsonDict->getString("profile_id", ""),
@@ -233,5 +249,8 @@ let mapJsontoCommonType: JSON.t => commonProfileEntity = input => {
     external_vault_connector_details: externalVaultConnectorDetails->isEmptyDict
       ? None
       : Some(externalVaultConnectorDetails->externalVaultConnectorDetailsMapper),
+    payment_method_blocking: paymentMethodBlockingDict->isEmptyDict
+      ? None
+      : Some(paymentMethodBlockingDict->paymentMethodBlockingMapper),
   }
 }
