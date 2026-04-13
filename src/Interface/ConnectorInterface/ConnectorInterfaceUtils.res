@@ -281,7 +281,7 @@ let mapV1DictToCommonConnectorPayload: connectorPayload => connectorPayloadCommo
   }
 }
 
-// v2 to commmon type mappers
+// v2 to common type mappers
 
 let paymentMethodsTypesMapperV2: paymentMethodConfigTypeV2 => paymentMethodConfigTypeCommon = paymentMethodsTypes => {
   {

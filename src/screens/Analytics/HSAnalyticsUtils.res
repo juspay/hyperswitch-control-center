@@ -206,7 +206,7 @@ let generateTablePayload = (
   ~startTimeFromUrl: string,
   ~endTimeFromUrl: string,
   ~filterValueFromUrl: option<JSON.t>,
-  ~currenltySelectedTab: option<array<string>>,
+  ~currentlySelectedTab: option<array<string>>,
   ~tableMetrics: array<string>,
   ~distributionArray: option<array<JSON.t>>,
   ~deltaMetrics: array<string>,
@@ -232,7 +232,7 @@ let generateTablePayload = (
   let deltaPayload = generatedeltaTablePayload(
     ~deltaDateArr,
     ~metrics=deltaMetrics,
-    ~groupByNames=currenltySelectedTab,
+    ~groupByNames=currentlySelectedTab,
     ~source,
     ~mode,
     ~deltaPrefixArr,
@@ -241,10 +241,10 @@ let generateTablePayload = (
     ~showDeltaMetrics,
   )
 
-  let tableBodyWithNonDeltaMetrix = if metrics->Array.length > 0 {
+  let tableBodyWithNonDeltaMetric = if metrics->Array.length > 0 {
     [
       getFilterRequestBody(
-        ~groupByNames=currenltySelectedTab,
+        ~groupByNames=currentlySelectedTab,
         ~filter=filterValueFromUrl,
         ~metrics=Some(metrics),
         ~delta=showDeltaMetrics,
@@ -259,12 +259,12 @@ let generateTablePayload = (
     []
   }
 
-  let tableBodyWithDeltaMetrix = if deltaMetrics->Array.length > 0 {
+  let tableBodyWithDeltaMetric = if deltaMetrics->Array.length > 0 {
     switch distributionArray {
     | Some(distributionArray) =>
       distributionArray->Array.map(arr =>
         getFilterRequestBody(
-          ~groupByNames=currenltySelectedTab,
+          ~groupByNames=currentlySelectedTab,
           ~filter=filterValueFromUrl,
           ~metrics=Some(deltaMetrics),
           ~delta=showDeltaMetrics,
@@ -278,7 +278,7 @@ let generateTablePayload = (
       )
     | None => [
         getFilterRequestBody(
-          ~groupByNames=currenltySelectedTab,
+          ~groupByNames=currentlySelectedTab,
           ~filter=filterValueFromUrl,
           ~metrics=Some(deltaMetrics),
           ~delta=showDeltaMetrics,
@@ -297,7 +297,7 @@ let generateTablePayload = (
   let tableIndustryPayload = if isIndustry {
     [
       getFilterRequestBody(
-        ~groupByNames=currenltySelectedTab,
+        ~groupByNames=currentlySelectedTab,
         ~filter=filterValueFromUrl,
         ~metrics=Some(deltaMetrics),
         ~delta=showDeltaMetrics,
@@ -313,7 +313,7 @@ let generateTablePayload = (
     []
   }
   let tableBodyValues =
-    tableBodyWithNonDeltaMetrix->Array.concatMany([tableBodyWithDeltaMetrix, tableIndustryPayload])
+    tableBodyWithNonDeltaMetric->Array.concatMany([tableBodyWithDeltaMetric, tableIndustryPayload])
 
   let tableBody =
     tableBodyValues->Array.concat(deltaPayload)->Array.map(JSON.Encode.object)->JSON.Encode.array

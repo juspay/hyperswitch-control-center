@@ -309,7 +309,7 @@ let make = (
   }
 
   // Hyperswitch doesn't have use case of some btn type variant
-  // overridding the variant with a used type
+  // overriding the variant with a used type
   let buttonType = switch buttonType {
   | SecondaryFilled => Secondary
   | _ => buttonType
@@ -368,9 +368,9 @@ let make = (
   }
 
   let customHeightClass = switch buttonSize {
-  | Large => "h-40-px"
-  | Medium => "h-36-px"
-  | Small => "h-32-px"
+  | Large => "h-10"
+  | Medium => "h-9"
+  | Small => "h-8"
   | _ => ""
   }
 

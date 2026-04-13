@@ -1,8 +1,8 @@
 type embeddedState = Success | NotInsideIframe | TokenFetchError | Loading
 
-type embeddedContextTye = {setEmbeddedStateToError: unit => unit}
+type embeddedContextType = {setEmbeddedStateToError: unit => unit}
 
-let embeddedProviderContext: embeddedContextTye = {
+let embeddedProviderContext: embeddedContextType = {
   setEmbeddedStateToError: () => (),
 }
 

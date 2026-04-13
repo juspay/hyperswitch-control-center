@@ -30,7 +30,7 @@ module TableModule = {
         offset
         setOffset
         defaultSort
-        currrentFetchCount={tableData->Array.length}
+        currentFetchCount={tableData->Array.length}
         tableLocalFilter=false
         tableheadingClass=tableBorderClass
         tableBorderClass
@@ -74,8 +74,8 @@ let make = (~entity: moduleEntity) => {
           ~id=Some((entity.domain: domain :> string)),
         )
         let groupByNames = switch entity.requestBodyConfig.groupBy {
-        | Some(dimentions) =>
-          dimentions
+        | Some(dimensions) =>
+          dimensions
           ->Array.map(item => (item: dimension :> string))
           ->Some
         | _ => None

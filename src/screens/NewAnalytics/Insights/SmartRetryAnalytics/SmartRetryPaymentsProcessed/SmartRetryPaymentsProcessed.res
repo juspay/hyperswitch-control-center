@@ -39,7 +39,7 @@ module TableModule = {
         offset
         setOffset
         defaultSort
-        currrentFetchCount={smartRetryPaymentsProcessed->Array.length}
+        currentFetchCount={smartRetryPaymentsProcessed->Array.length}
         tableLocalFilter=false
         tableheadingClass=tableBorderClass
         tableBorderClass
@@ -183,16 +183,16 @@ let make = (
   let currency = filterValueJson->getString((#currency: filters :> string), "")
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
-  let defaulGranularity = getDefaultGranularity(
+  let defaultGranularity = getDefaultGranularity(
     ~startTime=startTimeVal,
     ~endTime=endTimeVal,
     ~granularity=featureFlag.granularity,
   )
-  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
+  let (granularity, setGranularity) = React.useState(_ => defaultGranularity)
   let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   React.useEffect(() => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
-      setGranularity(_ => defaulGranularity)
+      setGranularity(_ => defaultGranularity)
     }
     None
   }, (startTimeVal, endTimeVal))
