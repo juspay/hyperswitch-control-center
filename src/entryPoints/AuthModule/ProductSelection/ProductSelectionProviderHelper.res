@@ -153,7 +153,7 @@ module SelectMerchantBody = {
           </div>
           <div className="flex justify-end w-full p-3">
             <FormRenderer.SubmitButton
-              text="Select Merchant" buttonSize=Small customSumbitButtonStyle="w-full mb-2"
+              text="Select Merchant" buttonSize=Small customSubmitButtonStyle="w-full mb-2"
             />
           </div>
         </div>

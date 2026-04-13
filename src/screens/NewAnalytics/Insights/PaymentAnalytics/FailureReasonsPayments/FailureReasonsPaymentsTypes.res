@@ -1,4 +1,4 @@
-type failreResonsColsTypes =
+type failureReasonsColsTypes =
   | Error_Reason
   | Failure_Reason_Count
   | Reasons_Count_Ratio
@@ -8,7 +8,7 @@ type failreResonsColsTypes =
   | Payment_Method_Type
   | Authentication_Type
 
-type failreResonsObjectType = {
+type failureReasonsObjectType = {
   error_reason: string,
   failure_reason_count: int,
   total_failure_reasons_count: int,

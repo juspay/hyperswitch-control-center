@@ -476,11 +476,7 @@ module DateCell = {
     }
   }
 
-  let removeSecondAndMilliseconds = format =>
-    format
-    ->String.replace(":ss.SSS", "")
-    ->String.replace(":ss", "")
-    ->String.replace(".SSS", "")
+  let removeMilliseconds = format => format->String.replace(".SSS", "")
 
   @react.component
   let make = (
@@ -501,7 +497,7 @@ module DateCell = {
       : dateFormat
     let millisecondsPart = getMillisecondsPart(timestamp)
     let showMilliseconds = millisecondsPart != "000"
-    let dateFormat = showMilliseconds ? dateFormat : dateFormat->removeSecondAndMilliseconds
+    let dateFormat = showMilliseconds ? dateFormat : dateFormat->removeMilliseconds
 
     let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZoneInFloat()
     let getFormattedDate = dateStr => {

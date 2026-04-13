@@ -34,6 +34,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(WORLDPAYXML),
   PayoutProcessor(TRUELAYER),
   PayoutProcessor(ENVOY),
+  PayoutProcessor(TRUSTLY),
 ]
 
 let payoutConnectorListForLive: array<connectorTypes> = [
@@ -181,7 +182,7 @@ let connectorList: array<connectorTypes> = [
   Processors(SANTANDER),
   Processors(REVOLV3),
   Processors(TRUELAYER),
-  Processors(ENVOY),
+  Processors(TRUSTLY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -257,6 +258,8 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "apple_pay" => ApplePay
   | "paypal" => PayPal
   | "pix" => Pix
+  | "pix_automatico_qr" => PixAutomaticoQr
+  | "pix_automatico_push" => PixAutomaticoPush
   | "boleto" => Boleto
   | "klarna" => Klarna
   | "open_banking_pis" => OpenBankingPIS
@@ -267,6 +270,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "directcarrierbilling" => DirectCarrierBilling
   | "amazon_pay" => AmazonPay
   | "network_token" => NetworkToken
+  | "ideal" => Ideal
   | _ => UnknownPaymentMethodType(paymentMethodType)
   }
 }
@@ -873,6 +877,10 @@ let fiservcommercehubInfo = {
   description: "Fiservcommercehub is a developer-friendly, flexible communication standards, unified APIs, and pre-certified integrations, Commerce Hub reduces development time and accelerates speed to market.",
 }
 
+let trustlyInfo = {
+  description: "Trustly provides a secure, efficient, and cost-effective payment solution for your businesses to offer customers a convenient and hassle-free payment experience.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -984,8 +992,8 @@ let getConnectorNameString = (connector: processorTypes) =>
   | SANTANDER => "santander"
   | REVOLV3 => "revolv3"
   | TRUELAYER => "truelayer"
-  | ENVOY => "envoy"
   | FISERVCOMMERCEHUB => "fiservcommercehub"
+  | TRUSTLY => "trustly"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1005,6 +1013,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | WORLDPAYXML => "worldpayxml"
   | TRUELAYER => "truelayer"
   | ENVOY => "envoy"
+  | TRUSTLY => "trustly"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -1182,8 +1191,8 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "santander" => Processors(SANTANDER)
     | "revolv3" => Processors(REVOLV3)
     | "truelayer" => Processors(TRUELAYER)
-    | "envoy" => Processors(ENVOY)
     | "fiservcommercehub" => Processors(FISERVCOMMERCEHUB)
+    | "trustly" => Processors(TRUSTLY)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1203,6 +1212,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "worldpayxml" => PayoutProcessor(WORLDPAYXML)
     | "truelayer" => PayoutProcessor(TRUELAYER)
     | "envoy" => PayoutProcessor(ENVOY)
+    | "trustly" => PayoutProcessor(TRUSTLY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1358,8 +1368,8 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | SANTANDER => santanderInfo
   | REVOLV3 => revolv3Info
   | TRUELAYER => truelayerInfo
-  | ENVOY => envoyInfo
   | FISERVCOMMERCEHUB => fiservcommercehubInfo
+  | TRUSTLY => trustlyInfo
   }
 }
 
@@ -1380,6 +1390,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | WORLDPAYXML => worldpayxmlInfo
   | TRUELAYER => truelayerInfo
   | ENVOY => envoyInfo
+  | TRUSTLY => trustlyInfo
   }
 }
 
@@ -1466,6 +1477,13 @@ let itemProviderMapper: dict<JSON.t> => ConnectorTypes.paymentMethodConfigType =
 
 let getPaymentMethodMapper: JSON.t => array<paymentMethodConfigType> = json => {
   getArrayDataFromJson(json, itemProviderMapper)
+}
+
+let getPaymentMethodDisplayName = (paymentMethodType: string) => {
+  switch paymentMethodType->getPaymentMethodTypeFromString {
+  | Ideal => "iDEAL | Wero"
+  | _ => paymentMethodType->snakeToTitle
+  }
 }
 
 let itemToObjMapper = dict => {
@@ -2025,7 +2043,7 @@ let getSuggestedAction = (~verifyErrorMessage, ~connector) => {
     | Processors(PAYPAL) => (
         {
           if msg->String.includes("Client Authentication failed") {
-            <PaypalClientAuthenticationFalied />
+            <PaypalClientAuthenticationFailed />
           } else {
             React.null
           }
@@ -2331,8 +2349,8 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | SANTANDER => "Santander"
   | REVOLV3 => "Revolv3"
   | TRUELAYER => "Truelayer"
-  | ENVOY => "Worldpay Envoy"
   | FISERVCOMMERCEHUB => "Fiserv Commerce Hub"
+  | TRUSTLY => "Trustly"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2352,6 +2370,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | WORLDPAYXML => "Worldpay WPG"
   | TRUELAYER => "Truelayer"
   | ENVOY => "Worldpay Envoy"
+  | TRUSTLY => "Trustly"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
@@ -2492,7 +2511,7 @@ let updateMetaData = (~metaData) => {
 
 let sortByDisableField = (arr: array<'a>, getDisabledStatus: 'a => bool) => {
   arr->Array.sort((a, b) =>
-    numericArraySortComperator(getDisabledStatus(a) ? 1.0 : 0.0, getDisabledStatus(b) ? 1.0 : 0.0)
+    numericArraySortComparator(getDisabledStatus(a) ? 1.0 : 0.0, getDisabledStatus(b) ? 1.0 : 0.0)
   )
 }
 
@@ -2516,7 +2535,8 @@ let checkIfPredecryptFlowEnabledForApplePay = connector => {
   | Processors(NUVEI)
   | Processors(ADYEN)
   | Processors(CHECKOUT)
-  | Processors(WORLDPAYVANTIV) => true
+  | Processors(WORLDPAYVANTIV)
+  | Processors(NMI) => true
   | _ => false
   }
 }
@@ -2526,7 +2546,8 @@ let checkIfPredecryptFlowEnabledForGooglePay = connector => {
   | Processors(NUVEI)
   | Processors(ADYEN)
   | Processors(CHECKOUT)
-  | Processors(WORLDPAYVANTIV) => true
+  | Processors(WORLDPAYVANTIV)
+  | Processors(NMI) => true
   | _ => false
   }
 }
