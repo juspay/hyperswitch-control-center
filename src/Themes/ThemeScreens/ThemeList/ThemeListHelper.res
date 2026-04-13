@@ -1,6 +1,6 @@
 module NoThemesFound = {
   @react.component
-  let make = (~themeListArray) => {
+  let make = (~themeListArray, ~setShowModal) => {
     open Typography
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
@@ -18,6 +18,7 @@ module NoThemesFound = {
           buttonSize=Small
           customButtonStyle={`${body.md.semibold}`}
           authorization={userHasAccess(~groupAccess=ThemeManage)}
+          onClick={_ => setShowModal(_ => true)}
         />
       </div>
     </RenderIf>
