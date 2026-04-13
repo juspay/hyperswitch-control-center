@@ -69,11 +69,8 @@ let make = () => {
                   <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
                     <ThemeSettings />
                     <div className="flex flex-col gap-8 w-full lg:col-span-2">
-                      <div className={`${body.lg.semibold} mt-2`}>
-                        {React.string("Preview")}
-                      </div>
-                      <div
-                        className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
+                      <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
+                      <div className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
                         <div
                           className="absolute top-3 right-3 z-10 bg-white bg-opacity-80 rounded-full p-1 flex items-center justify-center shadow">
                           <Icon name="eye" size=18 className="text-nd_gray-500 opacity-70" />
@@ -90,11 +87,8 @@ let make = () => {
                   <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
                     <EmailConfigSettings />
                     <div className="flex flex-col gap-8 w-full lg:col-span-2">
-                      <div className={`${body.lg.semibold} mt-2`}>
-                        {React.string("Preview")}
-                      </div>
-                      <div
-                        className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
+                      <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
+                      <div className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
                         <div
                           className="absolute top-3 right-3 z-10 bg-white bg-opacity-80 rounded-full p-1 flex items-center justify-center shadow">
                           <Icon name="eye" size=18 className="text-nd_gray-500 opacity-70" />
@@ -106,7 +100,12 @@ let make = () => {
                   </div>,
               },
             ]
-            <Tabs tabs showBottomBorder=true tabBottomShadow="" />
+            <Tabs
+              tabs
+              showBottomBorder=true
+              tabBottomShadow=""
+              selectTabBottomBorderColor="bg-nd_primary_blue-400"
+            />
           }
         </div>
       </div>

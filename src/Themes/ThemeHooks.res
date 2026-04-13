@@ -58,7 +58,28 @@ let useProcessAssets = (~themeId) => {
       | None => ()
       }
 
-      urlsDict
+      let emailLogoUrl = switch assets->getvalFromDict("emailLogo") {
+      | Some(value) =>
+        switch value->JSON.Decode.string {
+        | Some(url) => Some(url->JSON.Encode.string)
+        | None =>
+          let formData = FormDataUtils.formData()
+          FormDataUtils.append(formData, "asset_name", "email_logo.png")
+          FormDataUtils.append(formData, "asset_data", Some(value))
+          let _ = await updateDetails(
+            assetUploadUrl,
+            Dict.make()->JSON.Encode.object,
+            Post,
+            ~bodyFormData=formData,
+            ~headers=Dict.make(),
+            ~contentType=AuthHooks.Unknown,
+          )
+          Some(`${baseUrl}/themes/${themeId}/email_logo.png`->JSON.Encode.string)
+        }
+      | None => None
+      }
+
+      (urlsDict, emailLogoUrl)
     } catch {
     | _ => Exn.raiseError("Error uploading assets")
     }

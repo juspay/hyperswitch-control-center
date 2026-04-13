@@ -513,7 +513,7 @@ module ThemeUploadAssetsModal = {
       try {
         setScreenState(_ => Loading)
 
-        let urlsDict = await processAssets(~assets)
+        let (urlsDict, _) = await processAssets(~assets)
 
         if !(urlsDict->isEmptyDict) {
           let themeUrl = getURL(

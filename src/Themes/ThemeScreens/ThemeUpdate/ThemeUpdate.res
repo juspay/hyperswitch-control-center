@@ -57,6 +57,13 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
         }
       | None => ()
       }
+      switch mappedTheme.email_config {
+      | Some(ec) =>
+        if ec.entity_logo_url->isNonEmptyString {
+          initialAssets->Dict.set("emailLogo", ec.entity_logo_url->JSON.Encode.string)
+        }
+      | None => ()
+      }
       setAssets(_ => initialAssets)
       setInitialValues(_ => mappedTheme->Identity.genericTypeToJson)
       setScreenState(_ => Success)
@@ -120,10 +127,15 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
       setScreenState(_ => Loading)
       let valuesDict = values->getDictFromJsonObject
 
-      let urlsDict = await processAssets(~assets)
+      let (urlsDict, emailLogoUrl) = await processAssets(~assets)
 
       let settingsDict = valuesDict->getDictfromDict("theme_data")->getDictfromDict("settings")
-      let requestBody = buildThemeDataBody(~settingsDict, ~urlsDict)
+      let emailConfigDict = valuesDict->getDictfromDict("email_config")
+      switch emailLogoUrl {
+      | Some(url) => emailConfigDict->Dict.set("entity_logo_url", url)
+      | None => ()
+      }
+      let requestBody = buildThemeDataBody(~settingsDict, ~urlsDict, ~emailConfigDict)
 
       let updateUrl = getURL(
         ~entityName=V1(USERS),
@@ -155,25 +167,85 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
             subTitle="Update your configuration."
             customSubTitleStyle={`${body.lg.medium} text-nd_gray-400`}
           />
-          <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
-            <div className="flex flex-col gap-2">
-              <ThemeSettingsHelper.IconSettings
-                assets onFileSelect=handleFileSelect onRemove=handleRemove themeConfigVersion
-              />
-              <ThemeSettings />
-            </div>
-            <div className="flex flex-col gap-8 w-full lg:col-span-2">
-              <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
-              <div className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
-                <div
-                  className="absolute top-3 right-3 z-10 bg-white bg-opacity-80 rounded-full p-1 flex items-center justify-center shadow">
-                  <Icon name="eye" size=18 className="text-nd_gray-500 opacity-70" />
-                </div>
-                <ThemeMockDashboard />
-              </div>
-              <ThemeUpdateHelper.ActionButtons handleDelete />
-            </div>
-          </div>
+          {
+            let emailLogoDisplayUrl = switch assets->getvalFromDict("emailLogo") {
+            | Some(value) =>
+              switch value->JSON.Decode.string {
+              | Some(url) => Some(url)
+              | None =>
+                Some(
+                  DownloadUtils.createObjectURL(
+                    (value->Identity.jsonToAnyType: DownloadUtils.blobInstanceType),
+                  ),
+                )
+              }
+            | None => None
+            }
+
+            let tabs: array<Tabs.tab> = [
+              {
+                title: "Dashboard Config",
+                renderContent: () =>
+                  <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
+                    <div className="flex flex-col gap-2">
+                      <ThemeSettingsHelper.IconSettings
+                        assets
+                        onFileSelect=handleFileSelect
+                        onRemove=handleRemove
+                        themeConfigVersion
+                      />
+                      <ThemeSettings />
+                    </div>
+                    <div className="flex flex-col gap-8 w-full lg:col-span-2">
+                      <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
+                      <div className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
+                        <div
+                          className="absolute top-3 right-3 z-10 bg-white bg-opacity-80 rounded-full p-1 flex items-center justify-center shadow">
+                          <Icon name="eye" size=18 className="text-nd_gray-500 opacity-70" />
+                        </div>
+                        <ThemeMockDashboard />
+                      </div>
+                      <ThemeUpdateHelper.ActionButtons handleDelete />
+                    </div>
+                  </div>,
+              },
+              {
+                title: "Email Config",
+                renderContent: () =>
+                  <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
+                    <div className="flex flex-col gap-4">
+                      <ThemeSettingsHelper.AssetField
+                        label="Email Logo"
+                        displayUrl=emailLogoDisplayUrl
+                        onFileChange={ev => handleFileSelect("emailLogo", ev)}
+                        onRemove={() => handleRemove("emailLogo")}
+                        accept=".png,.jpg,.jpeg"
+                        inputId="emailLogoFileInput"
+                        themeConfigVersion
+                      />
+                      <EmailConfigSettings />
+                    </div>
+                    <div className="flex flex-col gap-8 w-full lg:col-span-2">
+                      <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
+                      <div className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
+                        <div
+                          className="absolute top-3 right-3 z-10 bg-white bg-opacity-80 rounded-full p-1 flex items-center justify-center shadow">
+                          <Icon name="eye" size=18 className="text-nd_gray-500 opacity-70" />
+                        </div>
+                        <ThemeMockEmail />
+                      </div>
+                      <ThemeUpdateHelper.ActionButtons handleDelete />
+                    </div>
+                  </div>,
+              },
+            ]
+            <Tabs
+              tabs
+              showBottomBorder=true
+              tabBottomShadow=""
+              selectTabBottomBorderColor="bg-nd_primary_blue-400"
+            />
+          }
         </div>
       </div>
     </Form>

@@ -42,13 +42,23 @@ let handleAssetRemove = (setAssets, key) => {
   })
 }
 
-let buildThemeDataBody = (~settingsDict: Dict.t<JSON.t>, ~urlsDict: Dict.t<JSON.t>) => {
+let buildThemeDataBody = (
+  ~settingsDict: Dict.t<JSON.t>,
+  ~urlsDict: Dict.t<JSON.t>,
+  ~emailConfigDict: option<Dict.t<JSON.t>>=?,
+) => {
   open LogicUtils
   let themeDataEntries = [("settings", settingsDict->JSON.Encode.object)]
   if !(urlsDict->isEmptyDict) {
     themeDataEntries->Array.push(("urls", urlsDict->JSON.Encode.object))
   }
-  [("theme_data", themeDataEntries->getJsonFromArrayOfJson)]->getJsonFromArrayOfJson
+  let bodyEntries = [("theme_data", themeDataEntries->getJsonFromArrayOfJson)]
+  switch emailConfigDict {
+  | Some(dict) if !(dict->isEmptyDict) =>
+    bodyEntries->Array.push(("email_config", dict->JSON.Encode.object))
+  | _ => ()
+  }
+  bodyEntries->getJsonFromArrayOfJson
 }
 
 let entities: array<ThemeTypes.themeOption> = [

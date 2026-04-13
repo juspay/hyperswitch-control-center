@@ -97,9 +97,7 @@ let make = () => {
       <div style={ReactDOM.Style.make(~height="10px", ())} />
       <div style={ReactDOM.Style.make(~maxWidth="80%", ~margin="auto", ())}>
         <p className={`${body.sm.medium}`} style=subTextStyle>
-          {React.string(
-            `Dear User, we are thrilled to welcome you into our community!`,
-          )}
+          {React.string(`Dear User, we are thrilled to welcome you into our community!`)}
         </p>
       </div>
       <div style={ReactDOM.Style.make(~height="30px", ())} />
