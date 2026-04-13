@@ -89,8 +89,8 @@ let themeContext = {
 
 let themeContext = React.createContext(themeContext)
 
-let parseThemeJson = (uiConfg: JSON.t): HyperSwitchConfigTypes.customStylesTheme => {
-  let dict = uiConfg->getDictFromJsonObject
+let parseThemeJson = (uiConfig: JSON.t): HyperSwitchConfigTypes.customStylesTheme => {
+  let dict = uiConfig->getDictFromJsonObject
   let settings = dict->getDictfromDict("settings")
   let url = dict->getDictfromDict("urls")
   let colorsConfig = settings->getDictfromDict("colors")

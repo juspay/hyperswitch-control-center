@@ -46,7 +46,7 @@ let make = (~remainingPath) => {
         <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
           <ThemeCreate />
         </AccessControl>}
-      renderShow={(themeId, _remainingPath) =>
+      renderShow={(themeId, _) =>
         <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
           <ThemeUpdate themeId orgId=None merchantId=None profileId=None />
         </AccessControl>}
