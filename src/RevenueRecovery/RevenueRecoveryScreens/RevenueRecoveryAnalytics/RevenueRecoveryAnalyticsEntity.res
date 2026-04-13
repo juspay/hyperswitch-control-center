@@ -61,7 +61,7 @@ let retriesComparisonChartEntity: chartEntity<
   LineScatterGraphTypes.lineScatterGraphOptions,
   JSON.t,
 > = {
-  getObjects: RetriesComparisionAnalyticsUtils.smartRetriesComparisonMapper,
+  getObjects: RetriesComparisonAnalyticsUtils.smartRetriesComparisonMapper,
   getChatOptions: LineScatterGraphUtils.getLineGraphOptions,
 }
 

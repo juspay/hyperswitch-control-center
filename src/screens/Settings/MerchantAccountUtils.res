@@ -5,7 +5,7 @@ let parseKey = api_key => {
   api_key->String.slice(~start=0, ~end=6)->String.concat(String.repeat("*", 20))
 }
 
-let parseBussinessProfileJson = (
+let parseBusinessProfileJson = (
   profileRecord: BusinessProfileInterfaceTypesV1.profileEntity_v1,
 ) => {
   let {

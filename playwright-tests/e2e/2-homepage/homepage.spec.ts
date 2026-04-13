@@ -99,7 +99,7 @@ test.describe("Homepage", () => {
       await page.locator('[data-button-for="tryItOut"]').click();
 
       await expect(
-        page.locator('[class="text-fs-28 font-semibold leading-10 "]'),
+        page.locator('[class="text-fs-24 leading-32 font-semibold font-inter-style "]'),
       ).toContainText("Setup Checkout");
 
       await page.locator('[data-button-for="showPreview"]').click();

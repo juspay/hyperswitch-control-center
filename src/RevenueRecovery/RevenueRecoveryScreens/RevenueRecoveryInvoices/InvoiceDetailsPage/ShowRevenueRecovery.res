@@ -81,18 +81,12 @@ module RecoveryAmountStatus = {
 
     switch status {
     | Recovered =>
-      <div
-        className="bg-nd_green-150 border border-nd_green-500 rounded-xl p-4 flex items-start gap-3">
-        <Icon name="nd-check-circle-outline" size=20 className="mt-0.5" />
-        <div className="flex-1">
-          <div className={`${heading.xs.semibold} text-nd_gray-800 mb-1`}>
-            {"Fully recovered"->React.string}
-          </div>
-          <div className={`${body.md.regular} text-nd_gray-600`}>
-            {"This invoice was successfully recovered."->React.string}
-          </div>
-        </div>
-      </div>
+      <AlertV2Binding
+        alertType=Success
+        slot={{slot: <Icon name="nd-toast-success" size=20 className="text-nd_green-400" />}}
+        heading="Fully recovered"
+        description="This invoice was successfully recovered."
+      />
     | Scheduled | Processing | PartiallyCapturedAndProcessing =>
       <div className="bg-white border border-nd_gray-200 rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
@@ -122,59 +116,35 @@ module RecoveryAmountStatus = {
         }}
       </div>
     | Queued | NoPicked =>
-      <div
-        className="bg-nd_gray-100 border border-nd_gray-300 rounded-xl p-4 flex items-start gap-3">
-        <Icon name="nd-payment-queued" size=20 className="text-nd_gray-600 mt-0.5" />
-        <div className="flex-1">
-          <div className={`${heading.xs.semibold} text-nd_gray-800 mb-1`}>
-            {"Recovery not started"->React.string}
-          </div>
-          <div className={`${body.md.regular} text-nd_gray-600`}>
-            {"This invoice is queued. Retries will begin soon."->React.string}
-          </div>
-        </div>
-      </div>
+      <AlertV2Binding
+        alertType=Neutral
+        slot={{slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />}}
+        heading="Recovery not started"
+        description="This invoice is queued. Retries will begin soon."
+      />
     | Terminated =>
       if amountCaptured > 0.0 {
-        <div
-          className="bg-nd_orange-150 border border-nd_orange-200 rounded-xl p-4 flex items-start gap-3">
-          <Icon name="nd-payment-partial-captured" size=20 className="text-nd_orange-600 mt-0.5" />
-          <div className="flex-1">
-            <div className={`${heading.xs.semibold} text-nd_gray-800 mb-1`}>
-              {"Partially recovered invoice"->React.string}
-            </div>
-            <div className={`${body.md.regular} text-nd_gray-600`}>
-              {`${amountCaptured->formatCurrency} recovered out of ${orderAmount->formatCurrency}.`->React.string}
-            </div>
-          </div>
-        </div>
+        <AlertV2Binding
+          alertType=Warning
+          slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
+          heading="Partially recovered invoice"
+          description={`${amountCaptured->formatCurrency} recovered out of ${orderAmount->formatCurrency}.`}
+        />
       } else {
-        <div
-          className="bg-nd_red-50 border border-nd_red-600 rounded-xl p-4 flex items-start gap-3">
-          <Icon name="nd-payment-terminal" size=20 className="text-nd_red-600 mt-0.5" />
-          <div className="flex-1">
-            <div className={`${heading.xs.semibold} text-nd_gray-800 mb-1`}>
-              {"Unable to Recover Invoice"->React.string}
-            </div>
-            <div className={`${body.md.regular} text-nd_gray-600`}>
-              {"This invoice couldn't be recovered."->React.string}
-            </div>
-          </div>
-        </div>
+        <AlertV2Binding
+          alertType=Error
+          slot={{slot: <Icon name="nd-cross" size=20 className="text-nd_red-500" />}}
+          heading="Unable to Recover Invoice"
+          description="This invoice couldn't be recovered."
+        />
       }
     | PartiallyRecovered =>
-      <div
-        className="bg-nd_orange-150 border border-nd_orange-200 rounded-xl p-4 flex items-start gap-3">
-        <Icon name="nd-payment-partial-captured" size=20 className="text-nd_orange-600 mt-0.5" />
-        <div className="flex-1">
-          <div className={`${heading.xs.semibold} text-nd_gray-800 mb-1`}>
-            {"Partially recovered invoice"->React.string}
-          </div>
-          <div className={`${body.md.regular} text-nd_gray-600`}>
-            {`${amountCaptured->formatCurrency} recovered out of ${orderAmount->formatCurrency}.`->React.string}
-          </div>
-        </div>
-      </div>
+      <AlertV2Binding
+        alertType=Warning
+        slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
+        heading="Partially recovered invoice"
+        description={`${amountCaptured->formatCurrency} recovered out of ${orderAmount->formatCurrency}.`}
+      />
     | Monitoring | Other(_) =>
       <div className="bg-white border border-nd_gray-200 rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
