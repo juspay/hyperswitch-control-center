@@ -10,7 +10,9 @@ let make = (~setSelectedAuthId) => {
   let {setAuthStatus, authMethods} = React.useContext(AuthInfoProvider.authStatusContext)
   let {fetchAuthMethods} = AuthModuleHooks.useAuthMethods()
   let updateDetails = useUpdateMethod()
+  let {isPasswordEnabled, isMagicLinkEnabled} = AuthModuleHooks.useAuthMethods()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (logoVariant, iconUrl) = switch Window.env.urlThemeConfig.logoUrl {
   | Some(url) => (IconWithURL, Some(url))
   | _ => (IconWithText, None)
@@ -67,6 +69,16 @@ let make = (~setSelectedAuthId) => {
         customButtonStyle="!w-full"
         onClick={_ => handleTerminateSSO(method.id)->ignore}
       />
+    | (MAGIC_LINK, #Magic_Link) =>
+      <RenderIf condition={isMagicLinkEnabled() && !isPasswordEnabled()}>
+        <Button
+          text="Continue with Magic Link"
+          buttonType={Primary}
+          buttonSize={Large}
+          customButtonStyle="!w-full"
+          onClick={_ => handleTerminateSSO(method.id)->ignore}
+        />
+      </RenderIf>
     | (_, _) => React.null
     }
   }
@@ -75,7 +87,7 @@ let make = (~setSelectedAuthId) => {
     <HSwitchUtils.BackgroundImageWrapper
       customPageCss="flex flex-col items-center  overflow-scroll ">
       <div
-        className="h-full flex flex-col items-center justify-between overflow-scoll text-grey-0 w-full mobile:w-30-rem">
+        className="h-full flex flex-col items-center justify-between text-grey-0 w-full mobile:w-30-rem">
         <div className="flex flex-col items-center gap-6 flex-1 mt-32 w-30-rem">
           <Div layoutId="form" className="bg-white w-full text-black mobile:border rounded-lg">
             <div className="px-7 py-6">
@@ -89,7 +101,11 @@ let make = (~setSelectedAuthId) => {
               ->Array.mapWithIndex((authMethod, index) =>
                 <React.Fragment key={index->Int.toString}>
                   {authMethod->renderComponentForAuthTypes}
-                  <RenderIf condition={index === 0 && authMethods->Array.length !== 2}>
+                  <RenderIf
+                    condition={authMethods->SSOUtils.checkToRenderOr(
+                      index,
+                      featureFlagValues.email,
+                    ) && index != authMethods->Array.length - 1}>
                     {PreLoginUtils.divider}
                   </RenderIf>
                 </React.Fragment>

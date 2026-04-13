@@ -8,9 +8,6 @@ let make = (~remainingPath) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let getURL = useGetURL()
   let setThemeList = HyperswitchAtom.themeListAtom->Recoil.useSetRecoilState
-  let {themeId: themeIdFromUserInfo} = React.useContext(
-    UserInfoProvider.defaultContext,
-  ).getResolvedUserInfo()
 
   let fetchThemeList = async () => {
     try {
@@ -30,6 +27,7 @@ let make = (~remainingPath) => {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Error fetching theme list"))
     }
   }
+  let toOption = (val, sentinel) => val->Option.flatMap(v => v == sentinel ? None : Some(v))
 
   React.useEffect(() => {
     fetchThemeList()->ignore
@@ -42,45 +40,25 @@ let make = (~remainingPath) => {
       remainingPath
       renderList={() =>
         <AccessControl authorization={userHasAccess(~groupAccess=ThemeView)}>
-          <ThemeList themeIdFromUserInfo />
+          <ThemeList />
         </AccessControl>}
       renderNewForm={() =>
         <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
           <ThemeCreate />
         </AccessControl>}
-      renderShow={(themeId, remainingPath) => {
-        switch remainingPath {
-        | Some(val) => {
-            let parts = val->String.replace("key=", "")->String.trim->String.split("+")
-            let (extractedProfileId, extractedMerchantId, extractedOrgId) = switch parts {
-            | [p, m, o] => (p, m, o)
-            | _ => ("all_profiles", "all_merchants", "all_orgs")
-            }
-            let profileId = if extractedProfileId == "all_profiles" {
-              None
-            } else {
-              Some(extractedProfileId)
-            }
-            let merchantId = if extractedMerchantId == "all_merchants" {
-              None
-            } else {
-              Some(extractedMerchantId)
-            }
-            let orgId = if extractedOrgId == "all_orgs" {
-              None
-            } else {
-              Some(extractedOrgId)
-            }
-
-            <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
-              <ThemeUpdate themeId orgId merchantId profileId />
-            </AccessControl>
-          }
-        | None =>
-          <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
-            <ThemeUpdate themeId orgId=None merchantId=None profileId=None />
-          </AccessControl>
-        }
+      renderShow={(themeId, _) =>
+        <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
+          <ThemeUpdate themeId orgId=None merchantId=None profileId=None />
+        </AccessControl>}
+      renderCustomWithOMP={(themeId, profileId, merchantId, orgId) => {
+        <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
+          <ThemeUpdate
+            themeId
+            orgId={orgId->toOption("all_orgs")}
+            merchantId={merchantId->toOption("all_merchants")}
+            profileId={profileId->toOption("all_profiles")}
+          />
+        </AccessControl>
       }}
     />
   </PageLoaderWrapper>

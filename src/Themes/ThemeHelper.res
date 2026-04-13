@@ -3,11 +3,11 @@ module OverlappingCircles = {
   let make = (~colorA: string, ~colorB: string) => {
     <div className="relative w-9 h-6 flex items-center">
       <div
-        className={`absolute left-0 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md `}
+        className="absolute left-0 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md"
         style={ReactDOM.Style.make(~backgroundColor=colorA, ())}
       />
       <div
-        className={`absolute left-4 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md `}
+        className="absolute left-4 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md"
         style={ReactDOM.Style.make(~backgroundColor=colorB, ())}
       />
     </div>
@@ -32,7 +32,7 @@ module RadioButtons = {
       }}>
       <div className="flex flex-col gap-4">
         <div
-          className="flex flex-row gap-2 items-start flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-4 rounded-lg">
+          className="flex gap-2 items-start flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-4 rounded-lg">
           <Icon name="nd-info-circle" size=20 />
           <span className={`text-nd_gray-600 ${body.md.regular}`}>
             {`You can only create theme for ${orgId} here. To create theme to another organisation, please switch the organisation.`->React.string}
@@ -46,11 +46,9 @@ module RadioButtons = {
               <div
                 className={`flex items-center justify-between border rounded-lg p-4 cursor-pointer transition ${borderClass}`}>
                 <div className="flex items-center gap-4 w-full">
-                  <div>
-                    <div
-                      className="w-8 h-8 border border-nd_br_gray-50 flex items-center justify-center rounded-md">
-                      {option.icon}
-                    </div>
+                  <div
+                    className="w-8 h-8 border border-nd_br_gray-50 flex items-center justify-center rounded-md">
+                    {option.icon}
                   </div>
                   <div className="flex flex-col flex-1">
                     <span className={`text-nd_gray-600 ${body.md.semibold}`}>
@@ -60,9 +58,7 @@ module RadioButtons = {
                       {option.desc->React.string}
                     </span>
                   </div>
-                  <div>
-                    <input type_="radio" checked={checked["checked"]} className="accent-primary" />
-                  </div>
+                  <input type_="radio" checked={checked["checked"]} className="accent-primary" />
                 </div>
               </div>
             }}
@@ -88,7 +84,7 @@ let orgDisplayField = (~getNameForId) =>
     ~name="display.organization_name",
     ~customInput=(~input as _, ~placeholder as _) =>
       <div
-        className="w-full border border-gray-200 bg-gray-50 rounded-lg px-3 py-2 flex items-center">
+        className="w-full border border-nd_gray-200 bg-nd_gray-50 rounded-lg px-3 py-2 flex items-center">
         <span className="text-nd_gray-600 font-medium">
           {getNameForId(#Organization)->React.string}
         </span>
@@ -220,7 +216,7 @@ module LineageFormContent = {
           field={orgDisplayField(~getNameForId)}
           showErrorOnChange=true
           errorClass={ProdVerifyModalUtils.errorClass}
-          labelClass={`${body.sm.semibold} `}
+          labelClass={`${body.sm.semibold}`}
         />
       | MerchantLevelConfig =>
         <>
@@ -232,17 +228,17 @@ module LineageFormContent = {
           />
           <div className="relative pl-8">
             <div
-              className="absolute left-4 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-gray-300"
+              className="absolute left-4 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-nd_gray-300"
             />
             <div
-              className="absolute left-4 top-12 w-4 h-px border-t-2 border-dashed border-gray-300"
+              className="absolute left-4 top-12 w-4 h-px border-t-2 border-dashed border-nd_gray-300"
             />
             <FormRenderer.FieldRenderer
               fieldWrapperClass="w-full"
               field={merchantField(~getNameForId, ~merchantList, ~merchantId, ~onMerchantSelect)}
               showErrorOnChange=true
               errorClass={ProdVerifyModalUtils.errorClass}
-              labelClass={`${body.sm.semibold} `}
+              labelClass={`${body.sm.semibold}`}
             />
           </div>
         </>
@@ -252,36 +248,36 @@ module LineageFormContent = {
             field={orgDisplayField(~getNameForId)}
             showErrorOnChange=true
             errorClass={ProdVerifyModalUtils.errorClass}
-            labelClass={`${body.sm.semibold} `}
+            labelClass={`${body.sm.semibold}`}
           />
           <div className="relative pl-8">
             <div
-              className="absolute left-4 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-gray-300"
+              className="absolute left-4 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-nd_gray-300"
             />
             <div
-              className="absolute left-4 top-12 w-4 h-px border-t-2 border-dashed border-gray-300"
+              className="absolute left-4 top-12 w-4 h-px border-t-2 border-dashed border-nd_gray-300"
             />
             <FormRenderer.FieldRenderer
               fieldWrapperClass="w-full"
               field={merchantField(~getNameForId, ~merchantList, ~merchantId, ~onMerchantSelect)}
               showErrorOnChange=true
               errorClass={ProdVerifyModalUtils.errorClass}
-              labelClass={`${body.sm.semibold} `}
+              labelClass={`${body.sm.semibold}`}
             />
           </div>
           <div className="relative pl-16">
             <div
-              className="absolute left-12 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-gray-300"
+              className="absolute left-12 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-nd_gray-300"
             />
             <div
-              className="absolute left-12 top-12 w-4 h-px border-t-2 border-dashed border-gray-300"
+              className="absolute left-12 top-12 w-4 h-px border-t-2 border-dashed border-nd_gray-300"
             />
             <FormRenderer.FieldRenderer
               fieldWrapperClass="w-full"
               field={profileField(~getNameForId, ~profileList, ~profileId, ~onProfileSelect)}
               showErrorOnChange=true
               errorClass={ProdVerifyModalUtils.errorClass}
-              labelClass={`${body.sm.semibold} `}
+              labelClass={`${body.sm.semibold}`}
             />
           </div>
         </>
@@ -295,11 +291,11 @@ module LineageFormContent = {
     }
 
     <>
-      <div className="flex flex-col h-full w-full p-4 gap-2 ">
+      <div className="flex flex-col h-full w-full p-4 gap-2">
         {renderStep()}
         <RenderIf condition={themeExists}>
           <div
-            className="flex flex-row gap-2 items-center flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-2 rounded-lg">
+            className="flex gap-2 items-center flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-2 rounded-lg">
             <Icon name="nd-info-circle" size=14 className="text-nd_gray-500" />
             <span className={`text-nd_gray-600 ${body.sm.regular}`}>
               {"A theme already exists for this lineage entity level. Continue to override."->React.string}
@@ -498,161 +494,49 @@ module ThemeLineageModal = {
 
 module ThemeUploadAssetsModal = {
   @react.component
-  let make = (~showModal, ~setShowModal, ~themeId, ~redirectToList, ~isUpdateFlow=false) => {
+  let make = (~showModal, ~setShowModal, ~themeId, ~redirectToList) => {
     open APIUtils
     open LogicUtils
+    open ThemeSettingsHelper
+
     let showToast = ToastState.useShowToast()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod(~showErrorToast=false)
     let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Success)
     let fetchDetails = useGetMethod()
-    let (selectedIcon, setSelectedIcon) = React.useState(_ => None)
-    let (selectedFavicon, setSelectedFavicon) = React.useState(_ => None)
-    let (selectedEmailLogo, setSelectedEmailLogo) = React.useState(_ => None)
-    let form = ReactFinalForm.useForm()
-    let handleIconChange = ev => {
-      let files = ReactEvent.Form.target(ev)["files"]
-      switch files[0] {
-      | Some(file) => setSelectedIcon(_ => Some(file))
-      | None => ()
-      }
-    }
+    let processAssets = ThemeHooks.useProcessAssets(~themeId)
+    let (assets, setAssets) = React.useState(_ => Dict.make())
+    let handleFileSelect = (key, ev) => handleAssetFileSelect(setAssets, key, ev)
+    let handleRemove = key => handleAssetRemove(setAssets, key)
 
-    let handleFaviconChange = ev => {
-      let files = ReactEvent.Form.target(ev)["files"]
-      switch files[0] {
-      | Some(file) => setSelectedFavicon(_ => Some(file))
-      | None => ()
-      }
-    }
-
-    let handleEmailLogoChange = ev => {
-      let files = ReactEvent.Form.target(ev)["files"]
-      switch files[0] {
-      | Some(file) => setSelectedEmailLogo(_ => Some(file))
-      | None => ()
-      }
-    }
-
-    let uploadAsset = async (~assetFile, ~assetName) => {
-      let formData = FormDataUtils.formData()
-      FormDataUtils.append(formData, "asset_name", assetName)
-      FormDataUtils.append(formData, "asset_data", assetFile)
-      let url = getURL(
-        ~entityName=V1(USERS),
-        ~methodType=Post,
-        ~id=Some(themeId),
-        ~userType=#THEME_UPLOAD_ASSET,
-      )
-      await updateDetails(
-        ~bodyFormData=formData,
-        ~headers=Dict.make(),
-        url,
-        Dict.make()->JSON.Encode.object,
-        Post,
-        ~contentType=AuthHooks.Unknown,
-      )
-    }
-    let getThemeByThemeId = async () => {
-      try {
-        let url = getURL(
-          ~entityName=V1(USERS),
-          ~methodType=Get,
-          ~id=Some(`${themeId}`),
-          ~userType=#THEME,
-        )
-        let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
-        res
-      } catch {
-      | _ => JSON.Encode.null
-      }
-    }
-
-    let updateThemeWithAssetUrls = async (~hasIcon, ~hasFavicon, ~hasEmailLogo) => {
-      let currentThemeData = await getThemeByThemeId()
-      let baseUrl = GlobalVars.getHostUrl
-      let currentThemeDict = currentThemeData->getDictFromJsonObject
-      let currentThemeDataDict = currentThemeDict->getDictfromDict("theme_data")
-
-      let updatedUrls = Dict.make()
-      if hasIcon {
-        updatedUrls->Dict.set(
-          "logoUrl",
-          `${baseUrl}/themes/${themeId}/logo.png`->JSON.Encode.string,
-        )
-      }
-      if hasFavicon {
-        updatedUrls->Dict.set(
-          "faviconUrl",
-          `${baseUrl}/themes/${themeId}/favicon.png`->JSON.Encode.string,
-        )
-      }
-      if !(updatedUrls->LogicUtils.isEmptyDict) {
-        currentThemeDataDict->Dict.set("urls", updatedUrls->JSON.Encode.object)
-        currentThemeDict->Dict.set("theme_data", currentThemeDataDict->JSON.Encode.object)
-      }
-
-      if hasEmailLogo {
-        let emailConfigDict =
-          currentThemeDict
-          ->LogicUtils.getDictfromDict("email_config")
-        emailConfigDict->Dict.set(
-          "entity_logo_url",
-          `${baseUrl}/themes/${themeId}/email_logo.png`->JSON.Encode.string,
-        )
-        currentThemeDict->Dict.set("email_config", emailConfigDict->JSON.Encode.object)
-      }
-
-      let updateUrl = getURL(
-        ~entityName=V1(USERS),
-        ~methodType=Put,
-        ~id=Some(themeId),
-        ~userType=#THEME,
-      )
-      await updateDetails(updateUrl, currentThemeDict->JSON.Encode.object, Put)
-    }
-
-    let handleUpload = async (~isUpdateFlow=false) => {
+    let handleUpload = async () => {
       try {
         setScreenState(_ => Loading)
-        let hasIcon = selectedIcon->Option.isSome
-        let hasFavicon = selectedFavicon->Option.isSome
-        let hasEmailLogo = selectedEmailLogo->Option.isSome
 
-        if hasIcon {
-          let _ = await uploadAsset(~assetFile=selectedIcon, ~assetName="logo.png")
-        }
-        if hasFavicon {
-          let _ = await uploadAsset(~assetFile=selectedFavicon, ~assetName="favicon.png")
-        }
-        if hasEmailLogo {
-          let _ = await uploadAsset(~assetFile=selectedEmailLogo, ~assetName="email_logo.png")
-        }
+        let urlsDict = await processAssets(~assets)
 
-        if isUpdateFlow {
-          let baseUrl = GlobalVars.getHostUrl
-          if hasIcon {
-            form.change(
-              "urls.logoUrl",
-              `${baseUrl}/themes/${themeId}/logo.png`->Identity.genericTypeToJson,
-            )
-          }
-          if hasFavicon {
-            form.change(
-              "urls.faviconUrl",
-              `${baseUrl}/themes/${themeId}/favicon.png`->Identity.genericTypeToJson,
-            )
-          }
-          if hasEmailLogo {
-            form.change(
-              "email_config.entity_logo_url",
-              `${baseUrl}/themes/${themeId}/email_logo.png`->Identity.genericTypeToJson,
-            )
-          }
-        }
+        if !(urlsDict->isEmptyDict) {
+          let themeUrl = getURL(
+            ~entityName=V1(USERS),
+            ~methodType=Get,
+            ~id=Some(themeId),
+            ~userType=#THEME,
+          )
+          let currentThemeData = await fetchDetails(themeUrl, ~version=UserInfoTypes.V1)
+          let settingsDict =
+            currentThemeData
+            ->getDictFromJsonObject
+            ->getDictfromDict("theme_data")
+            ->getDictfromDict("settings")
 
-        if !isUpdateFlow && (hasIcon || hasFavicon || hasEmailLogo) {
-          let _ = await updateThemeWithAssetUrls(~hasIcon, ~hasFavicon, ~hasEmailLogo)
+          let requestBody = buildThemeDataBody(~settingsDict, ~urlsDict)
+          let updateUrl = getURL(
+            ~entityName=V1(USERS),
+            ~methodType=Put,
+            ~id=Some(themeId),
+            ~userType=#THEME,
+          )
+          let _ = await updateDetails(updateUrl, requestBody, Put)
         }
 
         showToast(~message="Theme has been created with assets", ~toastType=ToastState.ToastSuccess)
@@ -661,7 +545,7 @@ module ThemeUploadAssetsModal = {
         redirectToList()
       } catch {
       | _ =>
-        showToast(~message="Failed to upload assets!", ~toastType=ToastState.ToastError)
+        showToast(~message="Failed to upload assets", ~toastType=ToastState.ToastError)
         setScreenState(_ => Success)
       }
     }
@@ -675,131 +559,42 @@ module ThemeUploadAssetsModal = {
       redirectToList()
     }
 
+    let hasChanges = !{assets->isEmptyDict}
+
     <Modal
       showModal
-      closeOnOutsideClick=false
       setShowModal
       modalHeading="Upload Assets"
       modalHeadingClass={`${heading.sm.semibold}`}
       modalClass="w-1/2 m-auto"
       childClass="p-0"
+      showCloseIcon=false
       modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
         {"Upload icon, favicon and email logo files for your theme."->React.string}
       </div>}>
-      <div className="p-2">
-        <div className="flex flex-col gap-4 p-4">
-          <div className="flex justify-between gap-4">
-            <div className={`flex ${body.md.medium} text-gray-700 gap-2 items-center`}>
-              {"Icon"->React.string}
-              <ToolTip
-                toolTipFor={<Icon name="info-vacent" size=13 className="cursor-pointer" />}
-                description="Supported formats: PNG, JPG, JPEG. Recommended size: 32x32px"
-                toolTipPosition=Right
-              />
-            </div>
-            <input
-              type_="file"
-              accept=".png,.jpg,.jpeg"
-              hidden=true
-              onChange={handleIconChange}
-              id="iconInput"
-            />
-            <label
-              htmlFor="iconInput"
-              className="flex items-center justify-center gap-2 rounded-md border border-gray-300 cursor-pointer hover:border-gray-400 p-4 ">
-              <Icon name="nd-upload-file" />
-            </label>
-            {switch selectedIcon {
-            | Some(file) =>
-              <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
-                <Icon name="file-icon" size=16 />
-                <span> {file["name"]->React.string} </span>
-              </div>
-            | None => React.null
-            }}
-          </div>
-        </div>
-        <div className="flex flex-col gap-4 p-4">
-          <div className="flex justify-between gap-4">
-            <div className={`flex ${body.md.medium} text-gray-700 gap-2 items-center`}>
-              {"Favicon"->React.string}
-              <ToolTip
-                toolTipFor={<Icon name="info-vacent" size=13 className="cursor-pointer" />}
-                description="Supported formats: ICO, PNG. Recommended size: 16x16px or 32x32px"
-                toolTipPosition=Right
-              />
-            </div>
-            <input
-              type_="file"
-              accept=".png,.jpg,.jpeg"
-              hidden=true
-              onChange={handleFaviconChange}
-              id="faviconInput"
-            />
-            <label
-              htmlFor="faviconInput"
-              className="flex items-center justify-center gap-2 rounded-md border border-gray-300 cursor-pointer hover:border-gray-400 p-4">
-              <Icon name="nd-upload-file" />
-            </label>
-            {switch selectedFavicon {
-            | Some(file) =>
-              <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
-                <Icon name="file-icon" size=16 />
-                <span> {file["name"]->React.string} </span>
-              </div>
-            | None => React.null
-            }}
-          </div>
-        </div>
-        <div className="flex flex-col gap-4 p-4">
-          <div className="flex justify-between gap-4">
-            <div className={`flex ${body.md.medium} text-gray-700 gap-2 items-center`}>
-              {"Email Logo"->React.string}
-              <ToolTip
-                toolTipFor={<Icon name="info-vacent" size=13 className="cursor-pointer" />}
-                description="Supported formats: PNG, JPG, JPEG. Used in email templates."
-                toolTipPosition=Right
-              />
-            </div>
-            <input
-              type_="file"
-              accept=".png,.jpg,.jpeg"
-              hidden=true
-              onChange={handleEmailLogoChange}
-              id="emailLogoInput"
-            />
-            <label
-              htmlFor="emailLogoInput"
-              className="flex items-center justify-center gap-2 rounded-md border border-gray-300 cursor-pointer hover:border-gray-400 p-4">
-              <Icon name="nd-upload-file" />
-            </label>
-            {switch selectedEmailLogo {
-            | Some(file) =>
-              <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
-                <Icon name="file-icon" size=16 />
-                <span> {file["name"]->React.string} </span>
-              </div>
-            | None => React.null
-            }}
-          </div>
-        </div>
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-          <Button
-            text="Skip for now"
-            buttonType=Secondary
-            buttonState=Normal
-            buttonSize=Small
-            onClick={_ => handleCancel()->ignore}
+      <PageLoaderWrapper screenState={screenState} sectionHeight="h-20-vh">
+        <div className="flex flex-col gap-2 p-3">
+          <IconSettings
+            assets onFileSelect=handleFileSelect onRemove=handleRemove themeConfigVersion=None
           />
-          <Button
-            text="Save & Upload"
-            buttonType=Primary
-            buttonState={Normal}
-            buttonSize=Small
-            onClick={_ => handleUpload()->ignore}
-          />
+          <div className="flex justify-end gap-3 pt-4 border-t border-nd_gray-200">
+            <Button
+              text="Skip for now"
+              buttonType=Secondary
+              buttonState=Normal
+              buttonSize=Small
+              onClick={_ => handleCancel()->ignore}
+            />
+            <Button
+              text="Save & Upload"
+              buttonType=Primary
+              buttonState={hasChanges ? Normal : Disabled}
+              buttonSize=Small
+              onClick={_ => handleUpload()->ignore}
+            />
+          </div>
         </div>
-      </div>
+      </PageLoaderWrapper>
     </Modal>
   }
 }

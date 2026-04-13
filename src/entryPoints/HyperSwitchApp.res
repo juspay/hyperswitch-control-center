@@ -35,7 +35,6 @@ let make = () => {
   let {roleId} = getResolvedUserInfo()
   let {orgId, merchantId, profileId, version} = getCommonSessionDetails()
 
-  let themeConfigVersion = HyperSwitchEntryUtils.getThemeConfigVersionfromStore()
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let {logoURL} = React.useContext(ThemeProvider.themeContext)
   let isReconEnabled = React.useMemo(() => {
@@ -66,12 +65,21 @@ let make = () => {
       if featureFlagDetails.paymentLinkThemeConfigurator {
         Window.paymentLinkWasmInit()->ignore
       }
-      let merchantResponse = await fetchMerchantAccountDetails(~version)
-      let _ = await fetchMerchantSpecificConfig()
-      if !isInternalUser {
-        let _ = await fetchMerchantList()
+      // Initiate all independent api requests concurrently for performance improvement
+      let merchantDetailsFetch = fetchMerchantAccountDetails(~version)
+      let merchantConfigFetch = fetchMerchantSpecificConfig()
+      let merchantListFetch = if !isInternalUser {
+        fetchMerchantList()
+      } else {
+        Promise.resolve()
       }
-      let _ = await fetchUserGroupACL()
+      let userGroupACLFetch = fetchUserGroupACL()
+      let (merchantResponse, _, _, _) = await Promise.all4((
+        merchantDetailsFetch,
+        merchantConfigFetch,
+        merchantListFetch,
+        userGroupACLFetch,
+      ))
       setActiveProductValue(merchantResponse.product_type)
       setShowSideBar(_ => true)
     } catch {
@@ -112,7 +120,7 @@ let make = () => {
   }
 
   let showGlobalSearchBar = switch merchantDetailsTypedValue.product_type {
-  | Orchestration(V1) => true
+  | Orchestration(V1) => featureFlagDetails.globalSearch
   | _ => false
   }
 
@@ -190,13 +198,7 @@ let make = () => {
                       headerLeftActions={
                         let logoElement = switch logoURL {
                         | Some(url) if url->LogicUtils.isNonEmptyString =>
-                          <div className="flex md:gap-4 gap-2 items-center">
-                            <img
-                              className="h-8 w-auto object-contain"
-                              alt="image"
-                              src={`${url}?version=${themeConfigVersion->Option.getOr("")}`}
-                            />
-                          </div>
+                          <img className="h-8 w-auto object-contain" alt="image" src=url />
                         | _ => React.null
                         }
                         <div className="flex md:gap-4 gap-2 items-center">
@@ -214,13 +216,19 @@ let make = () => {
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
                     <RenderIf condition={maintenanceAlert->LogicUtils.isNonEmptyString}>
-                      <HSwitchUtils.AlertBanner
-                        bannerContent={<p> {maintenanceAlert->React.string} </p>} bannerType={Info}
+                      <AlertV2Binding
+                        alertType=Primary
+                        slot={{
+                          slot: <Icon
+                            name="nd-toast-info" size=20 className="text-nd_primary_blue-450"
+                          />,
+                        }}
+                        description=maintenanceAlert
                       />
                     </RenderIf>
                     <WorkflowSideDrawer />
                     <div
-                      className="p-6 md:px-12 md:py-8 flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
+                      className="p-6 md:px-12 md:py-8 flex flex-col gap-8 max-w-fixedPageWidth min-h-full">
                       <ErrorBoundary>
                         {switch (activeProduct, url.path->urlPath) {
                         // /* DEFAULT HOME */

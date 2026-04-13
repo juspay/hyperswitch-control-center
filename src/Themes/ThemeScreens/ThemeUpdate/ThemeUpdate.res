@@ -5,6 +5,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
   open ThemeUpdateUtils
   open LogicUtils
   open Typography
+  open ThemeFeatureUtils
 
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let lineage = ThemeCreateUtils.createLineage(
@@ -12,7 +13,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
     ~merchantId=merchantId->Option.getOr(""),
     ~profileId=profileId->Option.getOr(""),
   )
-  let (initialValues, setIntitalValues) = React.useState(() =>
+  let (initialValues, setInitialValues) = React.useState(() =>
     defaultCreate(~lineage)->Identity.genericTypeToJson
   )
   let {getUserInfo} = OMPSwitchHooks.useUserInfo()
@@ -20,13 +21,13 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
   let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Loading)
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
-  let (logoAction, setLogoAction) = React.useState(_ => ThemeUpdateUtils.Unchanged)
-  let (faviconAction, setFaviconAction) = React.useState(_ => ThemeUpdateUtils.Unchanged)
-  let (originalLogoUrl, setOriginalLogoUrl) = React.useState(_ => None)
-  let (originalFaviconUrl, setOriginalFaviconUrl) = React.useState(_ => None)
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
+  let processAssets = ThemeHooks.useProcessAssets(~themeId)
+  let (assets, setAssets) = React.useState(_ => Dict.make())
+  let handleFileSelect = (key, ev) => handleAssetFileSelect(setAssets, key, ev)
+  let handleRemove = key => handleAssetRemove(setAssets, key)
   let themeConfigVersion = HyperSwitchEntryUtils.getThemeConfigVersionfromStore()
   let getThemeByThemeId = async () => {
     try {
@@ -37,44 +38,34 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
         ~expectedMerchantId=merchantId,
         ~expectedProfileId=profileId,
       )
-      let url = getURL(
-        ~entityName=V1(USERS),
-        ~methodType=Get,
-        ~id=Some(`${themeId}`),
-        ~userType=#THEME,
-      )
+      let url = getURL(~entityName=V1(USERS), ~methodType=Get, ~id=Some(themeId), ~userType=#THEME)
       let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
       let mappedTheme = res->themeBodyMapper
       let themeUrls = mappedTheme.theme_data.urls
-      setOriginalLogoUrl(_ => themeUrls.logoUrl)
-      setOriginalFaviconUrl(_ => themeUrls.faviconUrl)
-      setIntitalValues(_ => mappedTheme->Identity.genericTypeToJson)
+      let initialAssets = Dict.make()
+      switch themeUrls.logoUrl {
+      | Some(url) =>
+        if url->isNonEmptyString {
+          initialAssets->Dict.set("logo", url->JSON.Encode.string)
+        }
+      | None => ()
+      }
+      switch themeUrls.faviconUrl {
+      | Some(url) =>
+        if url->isNonEmptyString {
+          initialAssets->Dict.set("favicon", url->JSON.Encode.string)
+        }
+      | None => ()
+      }
+      setAssets(_ => initialAssets)
+      setInitialValues(_ => mappedTheme->Identity.genericTypeToJson)
       setScreenState(_ => Success)
     } catch {
-    | _ => setScreenState(_ => Error("Failed to fetch theme details"))
+    | _ => {
+        showToast(~message="Failed to fetch theme details", ~toastType=ToastState.ToastError)
+        setScreenState(_ => Error("Failed to fetch theme details"))
+      }
     }
-  }
-
-  let uploadAsset = async (~assetFile, ~assetName) => {
-    let formData = FormDataUtils.formData()
-    FormDataUtils.append(formData, "asset_name", assetName)
-    FormDataUtils.append(formData, "asset_data", assetFile)
-
-    let url = getURL(
-      ~entityName=V1(USERS),
-      ~methodType=Post,
-      ~id=Some(themeId),
-      ~userType=#THEME_UPLOAD_ASSET,
-    )
-
-    await updateDetails(
-      ~bodyFormData=formData,
-      ~headers=Dict.make(),
-      url,
-      Dict.make()->JSON.Encode.object,
-      Post,
-      ~contentType=AuthHooks.Unknown,
-    )
   }
 
   React.useEffect(() => {
@@ -88,7 +79,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
       let deleteUrl = getURL(
         ~entityName=V1(USERS),
         ~methodType=Delete,
-        ~id=Some(`${themeId}`),
+        ~id=Some(themeId),
         ~userType=#THEME,
       )
       let _ = await updateDetails(deleteUrl, JSON.Encode.object(Dict.make()), Delete)
@@ -128,48 +119,11 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
     try {
       setScreenState(_ => Loading)
       let valuesDict = values->getDictFromJsonObject
-      let urlsDict = Dict.make()
 
-      let logoResult = await processAssetAction(
-        ~originalUrl=originalLogoUrl,
-        ~action=logoAction,
-        ~assetName="logo.png",
-        ~uploadFn=uploadAsset,
-        ~themeId,
-      )
-      switch logoResult {
-      | Some(url) => urlsDict->Dict.set("logoUrl", url)
-      | None => ()
-      }
+      let urlsDict = await processAssets(~assets)
 
-      let faviconResult = await processAssetAction(
-        ~originalUrl=originalFaviconUrl,
-        ~action=faviconAction,
-        ~assetName="favicon.png",
-        ~uploadFn=uploadAsset,
-        ~themeId,
-      )
-      switch faviconResult {
-      | Some(url) => urlsDict->Dict.set("faviconUrl", url)
-      | None => ()
-      }
-
-      let themeDataDict = valuesDict->getDictfromDict("theme_data")
-      let settingsDict = themeDataDict->getDictfromDict("settings")
-
-      let requestBody = [
-        (
-          "theme_data",
-          Array.concat(
-            [("settings", settingsDict->JSON.Encode.object)],
-            if urlsDict->LogicUtils.isEmptyDict {
-              []
-            } else {
-              [("urls", urlsDict->JSON.Encode.object)]
-            },
-          )->getJsonFromArrayOfJson,
-        ),
-      ]->getJsonFromArrayOfJson
+      let settingsDict = valuesDict->getDictfromDict("theme_data")->getDictfromDict("settings")
+      let requestBody = buildThemeDataBody(~settingsDict, ~urlsDict)
 
       let updateUrl = getURL(
         ~entityName=V1(USERS),
@@ -191,6 +145,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
     }
     Nullable.null
   }
+
   <PageLoaderWrapper screenState={screenState}>
     <Form key={themeId} onSubmit initialValues>
       <div className="flex flex-col h-screen gap-8">
@@ -201,15 +156,9 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
             customSubTitleStyle={`${body.lg.medium} text-nd_gray-400`}
           />
           <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
-            <div className="flex flex-col gap-2 ">
+            <div className="flex flex-col gap-2">
               <ThemeSettingsHelper.IconSettings
-                originalLogoUrl
-                originalFaviconUrl
-                logoAction
-                setLogoAction
-                faviconAction
-                setFaviconAction
-                themeConfigVersion
+                assets onFileSelect=handleFileSelect onRemove=handleRemove themeConfigVersion
               />
               <ThemeSettings />
             </div>
@@ -218,7 +167,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
               <div className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
                 <div
                   className="absolute top-3 right-3 z-10 bg-white bg-opacity-80 rounded-full p-1 flex items-center justify-center shadow">
-                  <Icon name="eye" size=18 className="text-gray-500 opacity-70" />
+                  <Icon name="eye" size=18 className="text-nd_gray-500 opacity-70" />
                 </div>
                 <ThemeMockDashboard />
               </div>

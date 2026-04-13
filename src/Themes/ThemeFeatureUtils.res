@@ -1,3 +1,10 @@
+let appendVersionParam = (url, ~version) => {
+  switch version {
+  | Some(v) if v->LogicUtils.isNonEmptyString => `${url}?version=${v}`
+  | _ => url
+  }
+}
+
 let getStepVariantfromString = (stepString: string): ThemeTypes.lineageSelectionSteps => {
   switch stepString {
   | "entityselection" => EntitySelection
@@ -15,6 +22,34 @@ let getEntityTypeFromStep = (stepVariant: ThemeTypes.lineageSelectionSteps) =>
   | ProfileLevelConfig => "profile"
   | _ => ""
   }
+
+let handleAssetFileSelect = (setAssets, key, ev) => {
+  let files = ReactEvent.Form.target(ev)["files"]
+  switch files->LogicUtils.getValueFromArray(0, None) {
+  | Some(file) =>
+    setAssets(prev => {
+      let next = prev->Dict.copy
+      next->Dict.set(key, file)
+      next
+    })
+  | None => ()
+  }
+}
+
+let handleAssetRemove = (setAssets, key) => {
+  setAssets(prev => {
+    prev->Dict.toArray->Array.filter(((k, _)) => k !== key)->Dict.fromArray
+  })
+}
+
+let buildThemeDataBody = (~settingsDict: Dict.t<JSON.t>, ~urlsDict: Dict.t<JSON.t>) => {
+  open LogicUtils
+  let themeDataEntries = [("settings", settingsDict->JSON.Encode.object)]
+  if !(urlsDict->isEmptyDict) {
+    themeDataEntries->Array.push(("urls", urlsDict->JSON.Encode.object))
+  }
+  [("theme_data", themeDataEntries->getJsonFromArrayOfJson)]->getJsonFromArrayOfJson
+}
 
 let entities: array<ThemeTypes.themeOption> = [
   {

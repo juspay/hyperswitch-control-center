@@ -1,5 +1,7 @@
 type theme = Light | Dark
 
+open LogicUtils
+
 let defaultSetter = _ => ()
 
 type themeType = LightTheme
@@ -13,7 +15,6 @@ type customUIConfig = {
   configCustomDomainTheme: JSON.t => unit,
   getThemesJson: (~themesID: option<string>, ~domain: option<string>=?) => promise<JSON.t>,
   logoURL: option<string>,
-  faviconURL: option<string>,
 }
 open HyperSwitchConfigTypes
 
@@ -23,7 +24,7 @@ let fallbackThemeConfig: HyperSwitchConfigTypes.customStylesTheme = {
     colors: {
       primary: "#006DF9",
       secondary: "#303E5F",
-      background: "#006df9",
+      background: "#f7f8fa",
     },
     sidebar: {
       primary: "#FCFCFD",
@@ -84,11 +85,96 @@ let themeContext = {
     }
   },
   logoURL: Some(""),
-  faviconURL: Some(""),
 }
 
 let themeContext = React.createContext(themeContext)
 
+let parseThemeJson = (uiConfig: JSON.t): HyperSwitchConfigTypes.customStylesTheme => {
+  let dict = uiConfig->getDictFromJsonObject
+  let settings = dict->getDictfromDict("settings")
+  let url = dict->getDictfromDict("urls")
+  let colorsConfig = settings->getDictfromDict("colors")
+  let sidebarConfig = settings->getDictfromDict("sidebar")
+  let typography = settings->getDictfromDict("typography")
+  let borders = settings->getDictfromDict("borders")
+  let spacing = settings->getDictfromDict("spacing")
+  let colorsBtnPrimary = settings->getDictfromDict("buttons")->getDictfromDict("primary")
+  let colorsBtnSecondary = settings->getDictfromDict("buttons")->getDictfromDict("secondary")
+  let {settings: defaultSettings, _} = fallbackThemeConfig
+  {
+    settings: {
+      colors: {
+        primary: colorsConfig->getString("primary", defaultSettings.colors.primary),
+        secondary: colorsConfig->getString("secondary", defaultSettings.colors.secondary),
+        background: colorsConfig->getString("background", defaultSettings.colors.background),
+      },
+      sidebar: {
+        primary: sidebarConfig->getString("primary", defaultSettings.sidebar.primary),
+        textColor: sidebarConfig->getString("textColor", defaultSettings.sidebar.textColor),
+        textColorPrimary: sidebarConfig->getString(
+          "textColorPrimary",
+          defaultSettings.sidebar.textColorPrimary,
+        ),
+      },
+      typography: {
+        fontFamily: typography->getString("fontFamily", defaultSettings.typography.fontFamily),
+        fontSize: typography->getString("fontSize", defaultSettings.typography.fontSize),
+        headingFontSize: typography->getString(
+          "headingFontSize",
+          defaultSettings.typography.headingFontSize,
+        ),
+        textColor: typography->getString("textColor", defaultSettings.typography.textColor),
+        linkColor: typography->getString("linkColor", defaultSettings.typography.linkColor),
+        linkHoverColor: typography->getString(
+          "linkHoverColor",
+          defaultSettings.typography.linkHoverColor,
+        ),
+      },
+      buttons: {
+        primary: {
+          backgroundColor: colorsBtnPrimary->getString(
+            "backgroundColor",
+            defaultSettings.buttons.primary.backgroundColor,
+          ),
+          textColor: colorsBtnPrimary->getString(
+            "textColor",
+            defaultSettings.buttons.primary.textColor,
+          ),
+          hoverBackgroundColor: colorsBtnPrimary->getString(
+            "hoverBackgroundColor",
+            defaultSettings.buttons.primary.hoverBackgroundColor,
+          ),
+        },
+        secondary: {
+          backgroundColor: colorsBtnSecondary->getString(
+            "backgroundColor",
+            defaultSettings.buttons.secondary.backgroundColor,
+          ),
+          textColor: colorsBtnSecondary->getString(
+            "textColor",
+            defaultSettings.buttons.secondary.textColor,
+          ),
+          hoverBackgroundColor: colorsBtnSecondary->getString(
+            "hoverBackgroundColor",
+            defaultSettings.buttons.secondary.hoverBackgroundColor,
+          ),
+        },
+      },
+      borders: {
+        defaultRadius: borders->getString("defaultRadius", defaultSettings.borders.defaultRadius),
+        borderColor: borders->getString("borderColor", defaultSettings.borders.borderColor),
+      },
+      spacing: {
+        padding: spacing->getString("padding", defaultSettings.spacing.padding),
+        margin: spacing->getString("margin", defaultSettings.spacing.margin),
+      },
+    },
+    urls: {
+      faviconUrl: url->getOptionString("faviconUrl"),
+      logoUrl: url->getOptionString("logoUrl"),
+    },
+  }
+}
 module Parent = {
   let make = React.Context.provider(themeContext)
 }
@@ -103,7 +189,6 @@ let make = (~children) => {
   let fetchApi = AuthHooks.useApiFetcher()
   let isCurrentlyDark = MatchMedia.useMatchMedia("(prefers-color-scheme: dark)")
   let (contextLogoUrl, setContextLogoUrl) = React.useState(() => Some(""))
-  let (contextFaviconUrl, setContextFaviconUrl) = React.useState(() => Some(""))
 
   let initialTheme = Light
 
@@ -134,94 +219,11 @@ let make = (~children) => {
   | Light => ""
   }
 
-  let configCustomDomainTheme = React.useCallback((uiConfg: JSON.t) => {
-    open LogicUtils
-    let dict = uiConfg->getDictFromJsonObject
-    let settings = dict->getDictfromDict("settings")
-    let url = dict->getDictfromDict("urls")
-    let colorsConfig = settings->getDictfromDict("colors")
-    let sidebarConfig = settings->getDictfromDict("sidebar")
-    let typography = settings->getDictfromDict("typography")
-    let borders = settings->getDictfromDict("borders")
-    let spacing = settings->getDictfromDict("spacing")
-    let colorsBtnPrimary = settings->getDictfromDict("buttons")->getDictfromDict("primary")
-    let colorsBtnSecondary = settings->getDictfromDict("buttons")->getDictfromDict("secondary")
-    let {settings: defaultSettings, _} = fallbackThemeConfig
-    let value: HyperSwitchConfigTypes.customStylesTheme = {
-      settings: {
-        colors: {
-          primary: colorsConfig->getString("primary", defaultSettings.colors.primary),
-          secondary: colorsConfig->getString("secondary", defaultSettings.colors.secondary),
-          background: colorsConfig->getString("background", defaultSettings.colors.background),
-        },
-        sidebar: {
-          primary: sidebarConfig->getString("primary", defaultSettings.sidebar.primary),
-          textColor: sidebarConfig->getString("textColor", defaultSettings.sidebar.textColor),
-          textColorPrimary: sidebarConfig->getString(
-            "textColorPrimary",
-            defaultSettings.sidebar.textColorPrimary,
-          ),
-        },
-        typography: {
-          fontFamily: typography->getString("fontFamily", defaultSettings.typography.fontFamily),
-          fontSize: typography->getString("fontSize", defaultSettings.typography.fontSize),
-          headingFontSize: typography->getString(
-            "headingFontSize",
-            defaultSettings.typography.headingFontSize,
-          ),
-          textColor: typography->getString("textColor", defaultSettings.typography.textColor),
-          linkColor: typography->getString("linkColor", defaultSettings.typography.linkColor),
-          linkHoverColor: typography->getString(
-            "linkHoverColor",
-            defaultSettings.typography.linkHoverColor,
-          ),
-        },
-        buttons: {
-          primary: {
-            backgroundColor: colorsBtnPrimary->getString(
-              "backgroundColor",
-              defaultSettings.buttons.primary.backgroundColor,
-            ),
-            textColor: colorsBtnPrimary->getString(
-              "textColor",
-              defaultSettings.buttons.primary.textColor,
-            ),
-            hoverBackgroundColor: colorsBtnPrimary->getString(
-              "hoverBackgroundColor",
-              defaultSettings.buttons.primary.hoverBackgroundColor,
-            ),
-          },
-          secondary: {
-            backgroundColor: colorsBtnSecondary->getString(
-              "backgroundColor",
-              defaultSettings.buttons.secondary.backgroundColor,
-            ),
-            textColor: colorsBtnSecondary->getString(
-              "textColor",
-              defaultSettings.buttons.secondary.textColor,
-            ),
-            hoverBackgroundColor: colorsBtnSecondary->getString(
-              "hoverBackgroundColor",
-              defaultSettings.buttons.secondary.hoverBackgroundColor,
-            ),
-          },
-        },
-        borders: {
-          defaultRadius: borders->getString("defaultRadius", defaultSettings.borders.defaultRadius),
-          borderColor: borders->getString("borderColor", defaultSettings.borders.borderColor),
-        },
-        spacing: {
-          padding: spacing->getString("padding", defaultSettings.spacing.padding),
-          margin: spacing->getString("margin", defaultSettings.spacing.margin),
-        },
-      },
-      urls: {
-        faviconUrl: url->getOptionString("faviconUrl"),
-        logoUrl: url->getOptionString("logoUrl"),
-      },
-    }
+  let configCustomDomainTheme = React.useCallback((uiConfig: JSON.t) => {
+    let value = parseThemeJson(uiConfig)
     Window.appendStyle(value)
   }, [])
+
   let configureFavIcon = (faviconUrl: option<string>) => {
     open DOMUtils
     try {
@@ -246,7 +248,6 @@ let make = (~children) => {
     }
   }
   let updateThemeURLs = (~themesData, ~themeConfigVersion=None) => {
-    open LogicUtils
     open HyperSwitchConfigTypes
     try {
       let urlsDict = themesData->getDictFromJsonObject->getDictfromDict("urls")
@@ -272,24 +273,27 @@ let make = (~children) => {
         ),
       }
 
-      // Append version to URLs if they are not default values
       let logoUrlWithVersion = switch val.logoUrl {
       | Some(url) if url !== "/assets/Dark/hyperswitchLogoIconWithText.svg" =>
-        Some(`${url}?version=${themeConfigVersion->Option.getOr("")}`)
-      | other => other
+        Some(ThemeFeatureUtils.appendVersionParam(url, ~version=themeConfigVersion))
+      | Some(url) => Some(url)
+      | _ => val.logoUrl
       }
 
       let faviconUrlWithVersion = switch val.faviconUrl {
       | Some(url) if url !== "/HyperswitchFavicon.png" =>
-        Some(`${url}?version=${themeConfigVersion->Option.getOr("")}`)
-      | other => other
+        Some(ThemeFeatureUtils.appendVersionParam(url, ~version=themeConfigVersion))
+      | Some(url) => Some(url)
+      | _ => val.faviconUrl
       }
 
-      let updatedUrlConfig = {...existingEnv, urlThemeConfig: val}
+      let updatedUrlConfig = {
+        ...existingEnv,
+        urlThemeConfig: {logoUrl: logoUrlWithVersion, faviconUrl: faviconUrlWithVersion},
+      }
       DOMUtils.window._env_ = updatedUrlConfig
-      configureFavIcon(faviconUrlWithVersion)->ignore
+      configureFavIcon(faviconUrlWithVersion)
       setContextLogoUrl(_ => logoUrlWithVersion)
-      setContextFaviconUrl(_ => faviconUrlWithVersion)
     } catch {
     | _ => Exn.raiseError("Error while updating theme URL and favicon")
     }
@@ -301,6 +305,11 @@ let make = (~children) => {
       "urls": fallbackThemeConfig.urls,
     }->Identity.genericTypeToJson
     defaultStyle
+  }
+
+  let applyThemeConfig = (config: JSON.t) => {
+    updateThemeURLs(~themesData=config)
+    configCustomDomainTheme(config)
   }
 
   let getThemeConfigVersion = async (~themeId) => {
@@ -316,15 +325,19 @@ let make = (~children) => {
   let getThemesJson = async (~themesID, ~domain=None) => {
     try {
       let themeJson = {
-        if themesID->Option.isSome && themesID->Option.getOr("")->LogicUtils.isNonEmptyString {
+        if themesID->Option.isSome && themesID->Option.getOr("")->isNonEmptyString {
           let id = themesID->Option.getOr("")
           let versionApiResponse = await getThemeConfigVersion(~themeId=id)
           let themeConfigVersion =
             versionApiResponse
-            ->LogicUtils.getDictFromJsonObject
-            ->LogicUtils.getString("theme_config_version", "")
+            ->getDictFromJsonObject
+            ->getString("theme_config_version", "")
           HyperSwitchEntryUtils.setThemeConfigVersiontoStore(themeConfigVersion)
-          let url = `${GlobalVars.getHostUrl}/themes/${id}/theme.json?version=${themeConfigVersion}`
+          let url = ThemeFeatureUtils.appendVersionParam(
+            `${GlobalVars.getHostUrl}/themes/${id}/theme.json`,
+            ~version=Some(themeConfigVersion),
+          )
+
           let themeResponse = await fetchApi(
             url,
             ~method_=Get,
@@ -332,9 +345,9 @@ let make = (~children) => {
             ~forceCookies=false,
           )
           await themeResponse->(res => res->Fetch.Response.json)
-        } // this need to be removed once all the exisitng user started consuming theme from the cdn
+        } // this need to be removed once all the existing user started consuming theme from the cdn
         // else if condition for backward compatibility
-        else if domain->Option.isSome && domain->Option.getOr("")->LogicUtils.isNonEmptyString {
+        else if domain->Option.isSome && domain->Option.getOr("")->isNonEmptyString {
           let domainValue = domain->Option.getOr("")
           let url = `${GlobalVars.getHostUrl}/themes?domain=${domainValue}`
           let themeResponse = await fetchApi(
@@ -369,6 +382,24 @@ let make = (~children) => {
     }
   }
 
+  let handleInitConfigMessage = (ev: Dom.event) => {
+    open EmbeddableGlobalUtils
+    try {
+      let objectdata = ev->HandlingEvents.convertToCustomEvent
+      let dict = objectdata.data->getDictFromJsonObject
+      switch dict->getOptionString("type")->Option.map(messageToTypeConversion) {
+      | Some(INIT_CONFIG) => {
+          let initConfigJson = dict->getJsonObjectFromDict("init_config")
+          let themeValues = isNullJson(initConfigJson) ? getDefaultStyle() : initConfigJson
+          applyThemeConfig(themeValues)
+        }
+      | _ => ()
+      }
+    } catch {
+    | _ => ()
+    }
+  }
+
   let value = React.useMemo(() => {
     {
       globalUIConfig: UIConfig.defaultUIConfig,
@@ -377,9 +408,13 @@ let make = (~children) => {
       configCustomDomainTheme,
       getThemesJson,
       logoURL: contextLogoUrl,
-      faviconURL: contextFaviconUrl,
     }
   }, (theme, setTheme, contextLogoUrl))
+
+  React.useEffect(() => {
+    Window.addEventListener("message", handleInitConfigMessage)
+    Some(() => Window.removeEventListener("message", handleInitConfigMessage))
+  }, [])
   React.useEffect(() => {
     if theme === Dark {
       setTheme(Light)
@@ -390,7 +425,7 @@ let make = (~children) => {
   <Parent value>
     <div className=themeClassName>
       <div
-        className="bg-jp-gray-100 dark:bg-jp-gray-darkgray_background text-gray-700 dark:text-gray-200 red:bg-red">
+        className={`${value.globalUIConfig.backgroundColor} text-gray-700 dark:text-gray-200 red:bg-red`}>
         children
       </div>
     </div>

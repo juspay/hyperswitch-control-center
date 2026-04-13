@@ -1,5 +1,5 @@
 @react.component
-let make = (~themeIdFromUserInfo) => {
+let make = () => {
   open LogicUtils
   open Typography
   open ThemeListHelper
@@ -9,32 +9,33 @@ let make = (~themeIdFromUserInfo) => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let themeList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.themeListAtom)
-  let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-  // let {themeId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
   let (currentTheme, setCurrentTheme) = React.useState(_ => None)
   let themeListArray = themeList->getArrayFromJson([])
+  let showToast = ToastState.useShowToast()
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-
+  let {themeId: themeIdFromUserInfo, orgId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getResolvedUserInfo()
   let (showModal, setShowModal) = React.useState(_ => false)
-  let themeIdRef = React.useRef(themeIdFromUserInfo)
-  themeIdRef.current = themeIdFromUserInfo
 
   let fetchCurrentTheme = async () => {
-    let currentThemeId = themeIdRef.current
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
         ~entityName=V1(USERS),
         ~methodType=Get,
-        ~id=Some(currentThemeId),
+        ~id=Some(themeIdFromUserInfo),
         ~userType=#THEME,
       )
       let res = await getMethod(url)
       setCurrentTheme(_ => Some(res))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Success)
+    | _ => {
+        showToast(~toastType=ToastError, ~message="Failed to fetch current theme")
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     }
   }
 
@@ -48,7 +49,7 @@ let make = (~themeIdFromUserInfo) => {
   <PageLoaderWrapper screenState>
     <div className="flex flex-col h-screen gap-8">
       <div className="flex flex-col flex-1 h-full w-full">
-        <div className="flex flex-row items-center justify-between w-full">
+        <div className="flex items-center justify-between w-full">
           <div className="flex-1">
             <PageUtils.PageHeading
               title="Theme Configuration"
@@ -57,17 +58,15 @@ let make = (~themeIdFromUserInfo) => {
             />
           </div>
           <RenderIf condition={themeListArray->Array.length > 0}>
-            <div>
-              <ACLButton
-                text="Create Theme"
-                buttonType=Primary
-                buttonSize=Small
-                customButtonStyle={`${body.md.semibold} py-4`}
-                authorization={userHasAccess(~groupAccess=ThemeManage)}
-                onClick={_ => setShowModal(_ => true)}
-              />
-              <ThemeHelper.ThemeLineageModal showModal setShowModal />
-            </div>
+            <ACLButton
+              text="Create Theme"
+              buttonType=Primary
+              buttonSize=Small
+              customButtonStyle={`${body.md.semibold} py-4`}
+              authorization={userHasAccess(~groupAccess=ThemeManage)}
+              onClick={_ => setShowModal(_ => true)}
+            />
+            <ThemeHelper.ThemeLineageModal showModal setShowModal />
           </RenderIf>
         </div>
         <NoThemesFound themeListArray />
@@ -83,7 +82,7 @@ let make = (~themeIdFromUserInfo) => {
             totalResults={themeListArray->Array.length}
             offset=0
             setOffset={_ => ()}
-            currrentFetchCount={themeListArray->Array.length}
+            currentFetchCount={themeListArray->Array.length}
           />
         </RenderIf>
       </div>
