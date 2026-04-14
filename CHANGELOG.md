@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.04.13.0
+
+### Features
+
+- Payment method blocking support from dashboard ([#4699](https://github.com/juspay/hyperswitch-control-center/pull/4699)) ([`55912cd`](https://github.com/juspay/hyperswitch-control-center/commit/55912cd52c75a51952b8b19887d7202c75704e9e))
+
+**Full Changelog:** [`2026.04.10.0...2026.04.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.10.0...2026.04.13.0)
+
+- - -
+
 ## 2026.04.10.0
 
 ### Miscellaneous Tasks
