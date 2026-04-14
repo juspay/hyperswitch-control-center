@@ -137,12 +137,12 @@ let getTransactionStatusValueFromStatusList = (statusList: array<domainTransacti
 }
 
 let getMergedMatchedTransactionStatusFilter = statusFilter => {
-  if statusFilter->Array.some(v => v->getStringFromJson("") == "matched_manual") {
-    if !(statusFilter->Array.some(v => v->getStringFromJson("") == "matched_force")) {
-      [...statusFilter, "matched_force"->JSON.Encode.string]
-    } else {
-      statusFilter
-    }
+  let (matchedManualValue, _, _) = getTransactionStatusGroupedValueAndLabel(Matched(Manual))
+  let (matchedForceValue, _, _) = getTransactionStatusGroupedValueAndLabel(Matched(Force))
+
+  let hasStatus = value => statusFilter->Array.some(v => v->getStringFromJson("") == value)
+  if hasStatus(matchedManualValue) && !hasStatus(matchedForceValue) {
+    [...statusFilter, matchedForceValue->JSON.Encode.string]
   } else {
     statusFilter
   }
