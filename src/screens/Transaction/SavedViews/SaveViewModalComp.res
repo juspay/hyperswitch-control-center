@@ -79,10 +79,18 @@ let make = (
 
   let fetchSavedViews = async () => {
     try {
+      let keys = switch entity {
+      | "payment_views" => "PaymentViews"
+      | "refund_views" => "RefundViews"
+      | "dispute_views" => "DisputeViews"
+      | "payout_views" => "PayoutViews"
+      | _ => "PaymentViews"
+      }
       let url = getURL(
-        ~entityName=V1(SAVED_VIEWS),
+        ~entityName=V1(USERS),
+        ~userType=#USER_DATA,
         ~methodType=Get,
-        ~queryParameters=Some(`entity=${entity}`),
+        ~queryParameters=Some(`keys=${keys}`),
       )
       let res = await fetchDetails(url)
       let mappedRes = res->HSwitchOrderUtils.savedViewsResponseMapper
@@ -102,7 +110,7 @@ let make = (
     None
   }, [showModal])
 
-  let getPayload = name => {
+  let getPayload = (name, operation, ~view_id=?) => {
     let filtersDict = mergedFilters->Dict.copy
     if !includeDate {
       filtersDict->Dict.delete(OrderUIUtils.startTimeFilterKey(version))
@@ -187,19 +195,41 @@ let make = (
       }
     }
 
-    [
-      ("view_name", name->JSON.Encode.string),
-      ("filters", filtersDict->JSON.Encode.object),
-      ("entity", entity->JSON.Encode.string),
-    ]
+    let dataDict =
+      [
+        ("view_name", name->JSON.Encode.string),
+        ("filters", filtersDict->JSON.Encode.object),
+        ("entity", entity->JSON.Encode.string),
+        ("version", "v1"->JSON.Encode.string),
+      ]->Dict.fromArray
+
+    switch view_id {
+    | Some(id) => dataDict->Dict.set("view_id", id->JSON.Encode.string)
+    | None => ()
+    }
+
+    let actionDict =
+      [("type", operation->JSON.Encode.string), ("data", dataDict->JSON.Encode.object)]
+      ->Dict.fromArray
+      ->JSON.Encode.object
+
+    let keys = switch entity {
+    | "payment_views" => "PaymentViews"
+    | "refund_views" => "RefundViews"
+    | "dispute_views" => "DisputeViews"
+    | "payout_views" => "PayoutViews"
+    | _ => "PaymentViews"
+    }
+
+    [(keys, actionDict)]
     ->Dict.fromArray
     ->JSON.Encode.object
   }
 
   let handleCreate = async _ => {
     try {
-      let url = getURL(~entityName=V1(SAVED_VIEWS), ~methodType=Post)
-      let payload = getPayload(viewName)
+      let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
+      let payload = getPayload(viewName, "Create")
       let res = await updateDetails(url, payload, Post)
       onViewsUpdated(res, Some(viewName))
       showToast(
@@ -248,9 +278,11 @@ let make = (
     try {
       let viewToOverwrite = name->LogicUtils.isNonEmptyString ? name : selectedViewToOverwrite
       if viewToOverwrite->LogicUtils.isNonEmptyString {
-        let url = getURL(~entityName=V1(SAVED_VIEWS), ~methodType=Put)
-        let payload = getPayload(viewToOverwrite)
-        let res = await updateDetails(url, payload, Put)
+        let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
+        let viewId =
+          savedViews->Array.find(view => view.view_name === viewToOverwrite)->Option.map(v => v.view_id)
+        let payload = getPayload(viewToOverwrite, "Update", ~view_id=?viewId)
+        let res = await updateDetails(url, payload, Post)
         onViewsUpdated(res, Some(viewToOverwrite))
         showToast(
           ~message=`'${SavedViewsUtils.truncateName(
@@ -282,9 +314,7 @@ let make = (
 
   let viewNameExists =
     trimmedViewName->isNonEmptyString &&
-      savedViews->Array.some(view =>
-        view.view_name->String.toLowerCase === trimmedViewName->String.toLowerCase
-      )
+      savedViews->Array.some(view => view.view_name === trimmedViewName)
 
   let viewLimitReached = viewCount >= 5
 

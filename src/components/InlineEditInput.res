@@ -13,11 +13,13 @@ module HoverInline = {
     ~customWidth,
     ~showTooltipOnHover=false,
     ~toolTipPosition: ToolTip.toolTipPosition=Bottom,
+    ~paddingClass="p-2",
+    ~bgClass="bg-white rounded-md",
   ) => {
     open Typography
 
     <div
-      className={`group/inlineHover relative font-medium flex flex-row items-center p-2 justify-center gap-x-2 w-full bg-white rounded-md ${customWidth} ${customStyle}`}>
+      className={`group/inlineHover relative font-medium flex flex-row items-center justify-between gap-x-2 w-full ${paddingClass} ${bgClass} ${customWidth} ${customStyle}`}>
       <RenderIf condition={leftIcon->Option.isSome}>
         {leftIcon->Option.getOr(React.null)}
       </RenderIf>
@@ -45,7 +47,7 @@ module HoverInline = {
           <div
             className={`${showEditIconOnHover ? "invisible group-hover/inlineHover:visible" : ""}`}
             onClick={ReactEvent.Mouse.stopPropagation}>
-            leftActionButtons
+            {leftActionButtons}
           </div>
         </div>
         <RenderIf condition={subText->isNonEmptyString}>
@@ -78,6 +80,10 @@ let make = (
   ~handleClick=?,
   ~showTooltipOnHover=false,
   ~toolTipPosition: ToolTip.toolTipPosition=Bottom,
+  ~iconSize=14,
+  ~paddingClass="p-2",
+  ~bgClass="bg-white rounded-md",
+  ~inputPaddingClass="p-2",
 ) => {
   let (value, setValue) = React.useState(_ => labelText)
   let (inputErrors, setInputErrors) = React.useState(_ => Dict.make())
@@ -139,8 +145,7 @@ let make = (
   )
   let submitButtons =
     <div
-      className="flex items-center gap-2 pr-4 cursor-pointer"
-      onClick={ReactEvent.Mouse.stopPropagation}>
+      className="flex items-center gap-2 cursor-pointer pr-4" onClick={ReactEvent.Mouse.stopPropagation}>
       <button onClick={_ => handleCancel()} className={`cursor-pointer  ${customIconStyle}`}>
         <Icon name="nd-cross" size=16 />
       </button>
@@ -156,12 +161,13 @@ let make = (
     <div className="gap-2 flex cursor-pointer">
       <RenderIf condition={showEditIcon}>
         <button
-          onClick={_ => {
+          onClick={ev => {
+            ev->ReactEvent.Mouse.stopPropagation
             handleEdit(Some(index))
           }}
           className={`${customIconStyle}`}
           ariaLabel="Edit">
-          <Icon name="nd-pencil" size=14 />
+          <Icon name="nd-pencil" size=iconSize />
         </button>
       </RenderIf>
       <RenderIf condition={customIconComponent->Option.isSome}>
@@ -182,24 +188,24 @@ let make = (
     className="relative inline-block w-full"
     onClick={e => {
       switch handleClick {
-      | Some(fn) => fn()
-      | None =>
-        ()
+      | Some(fn) =>
         e->ReactEvent.Mouse.stopPropagation
+        fn()
+      | None => ()
       }
     }}>
     {if isUnderEdit {
       //TODO: validation error message has to be displayed
       <div
-        className={`flex items-center  p-1 ${customWidth}`}
+        className={`flex items-center p-1 ${paddingClass} ${customWidth}`}
         onClick={ReactEvent.Mouse.stopPropagation}>
         <RenderIf condition={leftIcon->Option.isSome}>
           {leftIcon->Option.getOr(React.null)}
         </RenderIf>
         <div
-          className={`group relative flex items-center bg-white ${inputErrors->isEmptyDict
+          className={`group relative flex items-center !py-2 ${bgClass} ${inputErrors->isEmptyDict
               ? "focus-within:ring-1 focus-within:ring-blue-400"
-              : "ring-1 ring-red-300"}  rounded-md text-md !py-2 ${customStyle} `}>
+              : "ring-1 ring-red-300"}  rounded-md text-md ${customStyle} `}>
           <div className={`flex-1 `}>
             <input
               type_="text"
@@ -207,7 +213,7 @@ let make = (
               onChange=handleInputChange
               onKeyDown=handleKeyDown
               autoFocus=true
-              className={`w-full p-2 bg-transparent focus:outline-none text-md ${customInputStyle}`}
+              className={`w-full p-2 bg-transparent focus:outline-none text-md ${inputPaddingClass} ${customInputStyle}`}
             />
           </div>
           {submitButtons}
@@ -226,6 +232,8 @@ let make = (
           customWidth
           showTooltipOnHover
           toolTipPosition
+          paddingClass
+          bgClass
         />
       </RenderIf>
     }}

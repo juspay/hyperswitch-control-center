@@ -16,15 +16,25 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
   let (showSaveModal, setShowSaveModal) = React.useState(_ => false)
   let (savedViews: array<SavedViewTypes.savedView>, setSavedViews) = React.useState(_ => [])
   let (activeViewName, setActiveViewName) = React.useState(_ => "")
+  let (currentlyEditingIndex, setCurrentlyEditingIndex) = React.useState(_ => None)
   let isInternalUpdate = React.useRef(false)
 
   let fetchSavedViews = async () => {
     try {
+      let keys = switch entity {
+      | "payment_views" => "PaymentViews"
+      | "refund_views" => "RefundViews"
+      | "dispute_views" => "DisputeViews"
+      | "payout_views" => "PayoutViews"
+      | _ => "PaymentViews"
+      }
       let url = getURL(
-        ~entityName=V1(SAVED_VIEWS),
+        ~entityName=V1(USERS),
+        ~userType=#USER_DATA,
         ~methodType=Get,
-        ~queryParameters=Some(`entity=${entity}`),
+        ~queryParameters=Some(`keys=${keys}`),
       )
+
       let res = await fetchDetails(url)
       let mappedRes = res->HSwitchOrderUtils.savedViewsResponseMapper
       setSavedViews(_ => mappedRes.views)
@@ -111,14 +121,33 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
 
   let showPopUp = PopUpState.useShowPopUp()
 
-  let performDelete = async viewName => {
+  let performDelete = async (view_id, viewName) => {
     try {
-      let url = getURL(~entityName=V1(SAVED_VIEWS), ~methodType=Delete)
-      let payload =
-        [("view_name", viewName->JSON.Encode.string), ("entity", entity->JSON.Encode.string)]
+      let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
+      let payload = {
+        let keys = switch entity {
+        | "payment_views" => "PaymentViews"
+        | "refund_views" => "RefundViews"
+        | "dispute_views" => "DisputeViews"
+        | "payout_views" => "PayoutViews"
+        | _ => "PaymentViews"
+        }
+
+        let dataDict =
+          [("entity", entity->JSON.Encode.string), ("view_id", view_id->JSON.Encode.string)]
+          ->Dict.fromArray
+          ->JSON.Encode.object
+
+        let actionDict =
+          [("type", "Delete"->JSON.Encode.string), ("data", dataDict)]
+          ->Dict.fromArray
+          ->JSON.Encode.object
+
+        [(keys, actionDict)]
         ->Dict.fromArray
         ->JSON.Encode.object
-      let _ = await updateDetails(url, payload, Delete)
+      }
+      let _ = await updateDetails(url, payload, Post)
       showToast(
         ~message=`'${viewName}' has been deleted successfully!`,
         ~toastType=ToastSuccess,
@@ -146,17 +175,76 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
     }
   }
 
-  let handleDelete = (viewName, ev) => {
+  let performRename = async (view: SavedViewTypes.savedView, newName) => {
+    try {
+      let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
+      let payload = {
+        let keys = switch entity {
+        | "payment_views" => "PaymentViews"
+        | "refund_views" => "RefundViews"
+        | "dispute_views" => "DisputeViews"
+        | "payout_views" => "PayoutViews"
+        | _ => "PaymentViews"
+        }
+
+        let dataDict =
+          [
+            ("view_id", view.view_id->JSON.Encode.string),
+            ("view_name", newName->JSON.Encode.string),
+            ("filters", view.filters),
+            ("entity", entity->JSON.Encode.string),
+            ("version", "v1"->JSON.Encode.string),
+          ]
+          ->Dict.fromArray
+          ->JSON.Encode.object
+
+        let actionDict =
+          [("type", "Update"->JSON.Encode.string), ("data", dataDict)]
+          ->Dict.fromArray
+          ->JSON.Encode.object
+
+        [(keys, actionDict)]
+        ->Dict.fromArray
+        ->JSON.Encode.object
+      }
+      let _ = await updateDetails(url, payload, Post)
+      showToast(
+        ~message=`View renamed to '${newName}' successfully!`,
+        ~toastType=ToastSuccess,
+        ~toastElement={
+          <div
+            className="border-l-green-status rounded-lg shadow-sm bg-white border border-l-4 p-4 flex items-center">
+            <Icon name="nd-toast-success" size=20 className="text-green-status mr-3" />
+            <div className={`text-sm font-medium text-gray-800 flex items-center gap-1`}>
+              {"View renamed to '"->React.string}
+              <HelperComponents.EllipsisText
+                displayValue=newName endValue=15 showCopy=false expandText=false
+              />
+              {"' successfully!"->React.string}
+            </div>
+          </div>
+        },
+      )
+      fetchSavedViews()->ignore
+      if activeViewName === view.view_name {
+        setActiveViewName(_ => newName)
+      }
+    } catch {
+    | _ => showToast(~message="Failed to rename view. Please try again.", ~toastType=ToastError)
+    }
+  }
+
+  let handleDelete = (view: SavedViewTypes.savedView, ev) => {
     ev->ReactEvent.Mouse.stopPropagation
     showPopUp({
-      heading: `Delete '${SavedViewsUtils.truncateName(viewName)}'?`,
+      heading: `Delete '${SavedViewsUtils.truncateName(view.view_name)}'?`,
       description: "This saved view will be deleted permanently"->React.string,
       popUpType: (Danger, WithoutIcon),
       handleCancel: {text: "Cancel"},
       handleConfirm: {
         text: "Delete Saved View",
         onClick: _ => {
-          performDelete(viewName)->ignore
+          performDelete(view.view_id, view.view_name)->ignore
         },
       },
     })
@@ -170,6 +258,7 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
         savedViews
         ->Array.find(view => view.view_name === viewName)
         ->Option.getOr({
+          view_id: "",
           view_name: "",
           entity,
           filters: JSON.Encode.object(Dict.make()),
@@ -293,24 +382,49 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
           customIconStyle: None,
           rightIcon: NoIcon,
           description: None,
+          customComponent: None,
         }
-        let savedOptions = savedViews->Array.map(view => {
+        let savedOptions = savedViews->Array.mapWithIndex((view, i) => {
           let name = view.view_name
           let opt: HeadlessUISelectBox.updatedOptionWithIcons = {
-            label: SavedViewsUtils.truncateName(name),
+            label: name,
             value: name,
             isDisabled: false,
             leftIcon: name === activeViewName ? CustomIcon(<Tick isSelected=true />) : NoIcon,
             customTextStyle: None,
             customIconStyle: None,
-            rightIcon: CustomIcon(
-              <div
-                className="text-nd_gray-300 hover:text-red-500 cursor-pointer"
-                onClick={ev => handleDelete(name, ev)}>
-                <Icon name="trash-outline" size=20 />
-              </div>,
-            ),
+            rightIcon: NoIcon,
             description: None,
+            customComponent: Some(
+              <InlineEditInput
+                index=i
+                labelText=name
+                isUnderEdit={currentlyEditingIndex->Option.mapOr(false, index => index == i)}
+                handleEdit={index => setCurrentlyEditingIndex(_ => index)}
+                onSubmit={newName => performRename(view, newName)->ignore}
+                showEditIcon={true}
+                showEditIconOnHover={false}
+                iconSize=18
+                paddingClass="!p-0"
+                bgClass="!bg-transparent !py-0"
+                inputPaddingClass="!py-1 !px-2"
+                customInputStyle="!py-1 !px-2 !bg-transparent text-nd_gray-700"
+                customIconStyle="text-nd_gray-300 hover:text-black"
+                customWidth="w-full"
+                validateInput={newName => {
+                  let errors = Dict.make()
+                  if newName->LogicUtils.isEmptyString {
+                    errors->Dict.set("view_name", "Name cannot be empty"->JSON.Encode.string)
+                  }
+                  errors
+                }}
+                customIconComponent={<div
+                  className="text-nd_gray-300 hover:text-red-500 cursor-pointer ml-2"
+                  onClick={ev => handleDelete(view, ev)}>
+                  <Icon name="trash-outline" size=18 />
+                </div>}
+              />,
+            ),
           }
           opt
         })

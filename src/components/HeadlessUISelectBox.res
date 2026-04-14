@@ -9,6 +9,7 @@ type updatedOptionWithIcons = {
   customIconStyle: option<string>,
   rightIcon: Button.iconType,
   description: option<string>,
+  customComponent: option<React.element>,
 }
 
 @react.component
@@ -79,7 +80,7 @@ let make = (
                                   ? "bg-gray-100 dark:bg-gray-700"
                                   : ""} ${disabledClass}`}
                               disabled={option.isDisabled}>
-                              <div className="flex flex-row items-center gap-2">
+                              <div className="flex flex-row items-center gap-2 w-full">
                                 {switch option.leftIcon {
                                 | FontAwesome(iconName) =>
                                   <Icon
@@ -96,13 +97,19 @@ let make = (
                                 | _ => React.null
                                 }}
                                 <AddDataAttributes attributes=[("data-options", option.label)]>
-                                  <div className={option.customTextStyle->Option.getOr("")}>
-                                    <span
+                                  <div
+                                    className={`${option.customTextStyle->Option.getOr(
+                                        "",
+                                      )} w-full`}>
+                                    <div
                                       className={selected
-                                        ? `${textColor.primaryNormal} font-semibold`
-                                        : ""}>
-                                      {React.string(option.label)}
-                                    </span>
+                                        ? `${textColor.primaryNormal} font-semibold w-full`
+                                        : "w-full"}>
+                                      {switch option.customComponent {
+                                      | Some(comp) => comp
+                                      | None => React.string(option.label)
+                                      }}
+                                    </div>
                                   </div>
                                 </AddDataAttributes>
                               </div>
@@ -164,7 +171,7 @@ let make = (
                                 ? "bg-gray-100 dark:bg-gray-700"
                                 : ""} ${disabledClass}`}
                             disabled={option.isDisabled}>
-                            <div className="flex flex-row items-center gap-2">
+                            <div className="flex flex-row items-center gap-2 w-full">
                               {switch option.leftIcon {
                               | FontAwesome(iconName) =>
                                 <Icon
@@ -181,13 +188,17 @@ let make = (
                               | _ => React.null
                               }}
                               <AddDataAttributes attributes=[("data-options", option.label)]>
-                                <div className={option.customTextStyle->Option.getOr("")}>
-                                  <span
+                                <div
+                                  className={`${option.customTextStyle->Option.getOr("")} w-full`}>
+                                  <div
                                     className={selected
-                                      ? `${textColor.primaryNormal} font-semibold`
-                                      : ""}>
-                                    {React.string(option.label)}
-                                  </span>
+                                      ? `${textColor.primaryNormal} font-semibold w-full`
+                                      : "w-full"}>
+                                    {switch option.customComponent {
+                                    | Some(comp) => comp
+                                    | None => React.string(option.label)
+                                    }}
+                                  </div>
                                 </div>
                               </AddDataAttributes>
                             </div>
