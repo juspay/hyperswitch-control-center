@@ -106,7 +106,7 @@ let make = () => {
         offset=userOffset
         setOffset=setUserOffset
         entity={ListUserTableEntity.userEntity}
-        currrentFetchCount={usersFilterData->Array.length}
+        currentFetchCount={usersFilterData->Array.length}
         collapseTableRow=false
         tableheadingClass="h-12"
         tableHeadingTextClass="!font-normal"

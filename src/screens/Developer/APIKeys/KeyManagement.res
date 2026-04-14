@@ -1,6 +1,5 @@
 @react.component
 let make = () => {
-  open Typography
   open KeyManagementHelper
 
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -29,23 +28,18 @@ let make = () => {
     />
     <RenderIf condition={isCurrentOrganizationPlatform}>
       <div className="py-4">
-        <HSwitchUtils.AlertBanner
-          bannerContent={<p>
-            <RenderIf condition={isCurrentMerchantPlatform}>
-              <span className={`text-nd_gray-800 ${body.md.semibold}`}>
-                {"Platform Merchant Account: "->React.string}
-              </span>
-            </RenderIf>
-            <span className={`text-nd_gray-600 ${body.md.regular}`}>
-              {bannerText->React.string}
-            </span>
-            <span
-              onClick={redirectToDocs}
-              className={`text-nd_primary_blue-500 hover:cursor-pointer ${body.md.regular}`}>
-              {" Learn More"->React.string}
-            </span>
-          </p>}
-          bannerType=Warning
+        <AlertV2Binding
+          alertType=Warning
+          slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
+          heading={isCurrentMerchantPlatform ? "Platform Merchant Account:" : ""}
+          description=bannerText
+          actions={{
+            position: Bottom,
+            primaryAction: {
+              text: "Learn More",
+              onClick: redirectToDocs,
+            },
+          }}
         />
       </div>
     </RenderIf>

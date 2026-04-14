@@ -32,6 +32,9 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(LOONIO),
   PayoutProcessor(WORLDPAY),
   PayoutProcessor(WORLDPAYXML),
+  PayoutProcessor(TRUELAYER),
+  PayoutProcessor(ENVOY),
+  PayoutProcessor(TRUSTLY),
 ]
 
 let payoutConnectorListForLive: array<connectorTypes> = [
@@ -173,10 +176,13 @@ let connectorList: array<connectorTypes> = [
   Processors(FINIX),
   Processors(ZIFT),
   Processors(PAYJUSTNOWINSTORE),
+  Processors(FISERVCOMMERCEHUB),
   Processors(AMAZONPAY),
   Processors(WORLDPAYMODULAR),
   Processors(SANTANDER),
   Processors(REVOLV3),
+  Processors(TRUELAYER),
+  Processors(TRUSTLY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -252,6 +258,8 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "apple_pay" => ApplePay
   | "paypal" => PayPal
   | "pix" => Pix
+  | "pix_automatico_qr" => PixAutomaticoQr
+  | "pix_automatico_push" => PixAutomaticoPush
   | "boleto" => Boleto
   | "klarna" => Klarna
   | "open_banking_pis" => OpenBankingPIS
@@ -262,6 +270,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "directcarrierbilling" => DirectCarrierBilling
   | "amazon_pay" => AmazonPay
   | "network_token" => NetworkToken
+  | "ideal" => Ideal
   | _ => UnknownPaymentMethodType(paymentMethodType)
   }
 }
@@ -857,6 +866,21 @@ let revolv3Info = {
   description: "Revolv3 is a specialized, AI-driven payment orchestration platform designed to maximize subscription billing approval rates and reduce involuntary churn for e-commerce merchant.",
 }
 
+let truelayerInfo = {
+  description: "A leading open banking payments and financial data platform that enables secure, real-time bank-to-bank payments, identity verification and direct access to bank account data via authorised APIs.",
+}
+
+let envoyInfo = {
+  description: "Envoy, specialized in providing single-point access to over 200 local payment methods worldwide, enhancing Worldpay's ability to handle international online and mobile transactions. ",
+}
+let fiservcommercehubInfo = {
+  description: "Fiservcommercehub is a developer-friendly, flexible communication standards, unified APIs, and pre-certified integrations, Commerce Hub reduces development time and accelerates speed to market.",
+}
+
+let trustlyInfo = {
+  description: "Trustly provides a secure, efficient, and cost-effective payment solution for your businesses to offer customers a convenient and hassle-free payment experience.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -967,6 +991,9 @@ let getConnectorNameString = (connector: processorTypes) =>
   | WORLDPAYMODULAR => "worldpaymodular"
   | SANTANDER => "santander"
   | REVOLV3 => "revolv3"
+  | TRUELAYER => "truelayer"
+  | FISERVCOMMERCEHUB => "fiservcommercehub"
+  | TRUSTLY => "trustly"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -984,6 +1011,9 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | LOONIO => "loonio"
   | WORLDPAY => "worldpay"
   | WORLDPAYXML => "worldpayxml"
+  | TRUELAYER => "truelayer"
+  | ENVOY => "envoy"
+  | TRUSTLY => "trustly"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -1160,6 +1190,9 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "worldpaymodular" => Processors(WORLDPAYMODULAR)
     | "santander" => Processors(SANTANDER)
     | "revolv3" => Processors(REVOLV3)
+    | "truelayer" => Processors(TRUELAYER)
+    | "fiservcommercehub" => Processors(FISERVCOMMERCEHUB)
+    | "trustly" => Processors(TRUSTLY)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1177,6 +1210,9 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "loonio" => PayoutProcessor(LOONIO)
     | "worldpay" => PayoutProcessor(WORLDPAY)
     | "worldpayxml" => PayoutProcessor(WORLDPAYXML)
+    | "truelayer" => PayoutProcessor(TRUELAYER)
+    | "envoy" => PayoutProcessor(ENVOY)
+    | "trustly" => PayoutProcessor(TRUSTLY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1331,6 +1367,9 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | WORLDPAYMODULAR => worldpayModularInfo
   | SANTANDER => santanderInfo
   | REVOLV3 => revolv3Info
+  | TRUELAYER => truelayerInfo
+  | FISERVCOMMERCEHUB => fiservcommercehubInfo
+  | TRUSTLY => trustlyInfo
   }
 }
 
@@ -1349,6 +1388,9 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | LOONIO => loonioInfo
   | WORLDPAY => worldpayInfo
   | WORLDPAYXML => worldpayxmlInfo
+  | TRUELAYER => truelayerInfo
+  | ENVOY => envoyInfo
+  | TRUSTLY => trustlyInfo
   }
 }
 
@@ -1435,6 +1477,13 @@ let itemProviderMapper: dict<JSON.t> => ConnectorTypes.paymentMethodConfigType =
 
 let getPaymentMethodMapper: JSON.t => array<paymentMethodConfigType> = json => {
   getArrayDataFromJson(json, itemProviderMapper)
+}
+
+let getPaymentMethodDisplayName = (paymentMethodType: string) => {
+  switch paymentMethodType->getPaymentMethodTypeFromString {
+  | Ideal => "iDEAL | Wero"
+  | _ => paymentMethodType->snakeToTitle
+  }
 }
 
 let itemToObjMapper = dict => {
@@ -2006,7 +2055,7 @@ let getSuggestedAction = (~verifyErrorMessage, ~connector) => {
     | Processors(PAYPAL) => (
         {
           if msg->String.includes("Client Authentication failed") {
-            <PaypalClientAuthenticationFalied />
+            <PaypalClientAuthenticationFailed />
           } else {
             React.null
           }
@@ -2075,6 +2124,7 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
         : connectorAdditionalMerchantData->JSON.Encode.object,
     ),
     ("connector_label", dict->getString("connector_label", "")->JSON.Encode.string),
+    ("disabled", dict->getBool("disabled", false)->JSON.Encode.bool),
     ("status", dict->getString("status", "active")->JSON.Encode.string),
     (
       "pm_auth_config",
@@ -2220,7 +2270,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | ELAVON => "Elavon"
   | ACI => "ACI Worldwide"
   | WORLDLINE => "Worldline"
-  | FISERV => "Fiserv Commerce Hub"
+  | FISERV => "Fiserv IPG"
   | SHIFT4 => "Shift4"
   | RAPYD => "Rapyd"
   | PAYU => "PayU"
@@ -2269,7 +2319,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | SQUARE => "Square"
   | PAYBOX => "Paybox"
   | WELLSFARGO => "Wells Fargo"
-  | FISERVIPG => "Fiserv IPG"
+  | FISERVIPG => "Fiserv IPG (EMEA)"
   | FIUU => "Fiuu"
   | NOVALNET => "Novalnet"
   | DEUTSCHEBANK => "Deutsche Bank"
@@ -2310,6 +2360,9 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | WORLDPAYMODULAR => "Worldpay Modular"
   | SANTANDER => "Santander"
   | REVOLV3 => "Revolv3"
+  | TRUELAYER => "Truelayer"
+  | FISERVCOMMERCEHUB => "Fiserv Commerce Hub"
+  | TRUSTLY => "Trustly"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2327,6 +2380,9 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | LOONIO => "Loonio"
   | WORLDPAY => "Worldpay"
   | WORLDPAYXML => "Worldpay WPG"
+  | TRUELAYER => "Truelayer"
+  | ENVOY => "Worldpay Envoy"
+  | TRUSTLY => "Trustly"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
@@ -2467,7 +2523,7 @@ let updateMetaData = (~metaData) => {
 
 let sortByDisableField = (arr: array<'a>, getDisabledStatus: 'a => bool) => {
   arr->Array.sort((a, b) =>
-    numericArraySortComperator(getDisabledStatus(a) ? 1.0 : 0.0, getDisabledStatus(b) ? 1.0 : 0.0)
+    numericArraySortComparator(getDisabledStatus(a) ? 1.0 : 0.0, getDisabledStatus(b) ? 1.0 : 0.0)
   )
 }
 
@@ -2483,5 +2539,27 @@ let stepsArr = (~connector) => {
   switch connector->getConnectorNameTypeFromString {
   | Processors(PAYSAFE) => [IntegFields, PaymentMethods, CustomMetadata, SummaryAndTest]
   | _ => [IntegFields, PaymentMethods, SummaryAndTest]
+  }
+}
+
+let checkIfPredecryptFlowEnabledForApplePay = connector => {
+  switch connector->getConnectorNameTypeFromString {
+  | Processors(NUVEI)
+  | Processors(ADYEN)
+  | Processors(CHECKOUT)
+  | Processors(WORLDPAYVANTIV)
+  | Processors(NMI) => true
+  | _ => false
+  }
+}
+
+let checkIfPredecryptFlowEnabledForGooglePay = connector => {
+  switch connector->getConnectorNameTypeFromString {
+  | Processors(NUVEI)
+  | Processors(ADYEN)
+  | Processors(CHECKOUT)
+  | Processors(WORLDPAYVANTIV)
+  | Processors(NMI) => true
+  | _ => false
   }
 }

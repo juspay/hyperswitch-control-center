@@ -136,6 +136,9 @@ type processorTypes =
   | WORLDPAYMODULAR
   | SANTANDER
   | REVOLV3
+  | TRUELAYER
+  | FISERVCOMMERCEHUB
+  | TRUSTLY
 
 type payoutProcessorTypes =
   | ADYEN
@@ -151,6 +154,9 @@ type payoutProcessorTypes =
   | LOONIO
   | WORLDPAY
   | WORLDPAYXML
+  | TRUELAYER
+  | ENVOY
+  | TRUSTLY
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO
@@ -222,8 +228,11 @@ type paymentMethodTypes =
   | DirectCarrierBilling
   | AmazonPay
   | Pix
+  | PixAutomaticoQr
+  | PixAutomaticoPush
   | Boleto
   | NetworkToken
+  | Ideal
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {
@@ -281,7 +290,7 @@ type googlePay = {
 
 type metaData = {
   apple_pay?: applePay,
-  goole_pay?: googlePay,
+  google_pay?: googlePay,
 }
 type pmAuthPaymentMethods = {
   payment_method: string,

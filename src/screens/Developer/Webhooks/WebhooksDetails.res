@@ -39,7 +39,7 @@ module TabDetails = {
 
       let headerDataItem = headersArray->Array.map(header => {
         header
-        ->getStrArryFromJson
+        ->getStrArrayFromJson
         ->headerKeyValUI
       })
 
@@ -210,7 +210,7 @@ let make = (~id) => {
       onEntityClick={val => handleClickItem(val)}
       offset
       setOffset
-      currrentFetchCount={attemptTableArr->Array.map(Nullable.make)->Array.length}
+      currentFetchCount={attemptTableArr->Array.map(Nullable.make)->Array.length}
       collapseTableRow=false
       showSerialNumber=true
       highlightSelectedRow=true
@@ -242,9 +242,7 @@ let make = (~id) => {
   <div className="flex flex-col gap-4">
     <PageUtils.PageHeading title="Webhooks" subTitle="" />
     <BreadCrumbNavigation
-      path=[{title: "Webhooks", link: "/webhooks"}]
-      currentPageTitle="Webhooks home"
-      cursorStyle="cursor-pointer"
+      path=[{title: "Webhooks", link: "/webhooks"}] currentPageTitle="Webhooks home"
     />
     <PageLoaderWrapper screenState>
       <div className="flex gap-6 max-h-screen">

@@ -12,19 +12,23 @@ module ContextWrapper = {
         <Recoil.RecoilRoot>
           <ErrorBoundary>
             <ThemeProvider>
-              <PopUpContainer>
-                <SnackBarContainer>
-                  <ToastContainer>
-                    <TokenContextProvider>
-                      <UserTimeZoneProvider>
-                        <SidebarProvider>
-                          <ModalContainer> children </ModalContainer>
-                        </SidebarProvider>
-                      </UserTimeZoneProvider>
-                    </TokenContextProvider>
-                  </ToastContainer>
-                </SnackBarContainer>
-              </PopUpContainer>
+              <BlendProvider>
+                <BlendThemeProvider foundationTokens={FoundationTokens.defaultFoundationTokens}>
+                  <PopUpContainer>
+                    <SnackBarContainer>
+                      <ToastContainer>
+                        <TokenContextProvider>
+                          <UserTimeZoneProvider>
+                            <SidebarProvider>
+                              <ModalContainer> children </ModalContainer>
+                            </SidebarProvider>
+                          </UserTimeZoneProvider>
+                        </TokenContextProvider>
+                      </ToastContainer>
+                    </SnackBarContainer>
+                  </PopUpContainer>
+                </BlendThemeProvider>
+              </BlendProvider>
             </ThemeProvider>
           </ErrorBoundary>
         </Recoil.RecoilRoot>

@@ -29,7 +29,7 @@ let getHeading = colType => {
   | CardNetwork => Table.makeHeaderInfo(~key="card_network", ~title="Card Network")
   }
 }
-let getCell = (~setReferesh) => {
+let getCell = (~setRefresh) => {
   let getPaymentMethodConfigCell = (
     paymentMethodConfig: paymentMethodConfiguration,
     colType,
@@ -39,21 +39,21 @@ let getCell = (~setReferesh) => {
     | Processor =>
       Table.CustomCell(
         <PaymentMethodConfig
-          paymentMethodConfig config={paymentMethodConfig.connector_name} setReferesh
+          paymentMethodConfig config={paymentMethodConfig.connector_name} setRefresh
         />,
         "",
       )
     | PaymentMethod =>
       Table.CustomCell(
         <PaymentMethodConfig
-          paymentMethodConfig config={paymentMethodConfig.payment_method} setReferesh
+          paymentMethodConfig config={paymentMethodConfig.payment_method} setRefresh
         />,
         "",
       )
     | PaymentMethodType =>
       Table.CustomCell(
         <PaymentMethodConfig
-          paymentMethodConfig config={paymentMethodConfig.payment_method_type} setReferesh
+          paymentMethodConfig config={paymentMethodConfig.payment_method_type} setRefresh
         />,
         "",
       )
@@ -63,7 +63,7 @@ let getCell = (~setReferesh) => {
         <PaymentMethodConfig
           paymentMethodConfig
           element={paymentMethodConfig.accepted_countries->getAdvanceConfiguration}
-          setReferesh
+          setRefresh
         />,
         "",
       )
@@ -72,14 +72,14 @@ let getCell = (~setReferesh) => {
         <PaymentMethodConfig
           paymentMethodConfig
           element={paymentMethodConfig.accepted_currencies->getAdvanceConfiguration}
-          setReferesh
+          setRefresh
         />,
         "",
       )
     | CardNetwork =>
       Table.CustomCell(
         <PaymentMethodConfig
-          paymentMethodConfig config={paymentMethodConfig.card_networks->Array.toString} setReferesh
+          paymentMethodConfig config={paymentMethodConfig.card_networks->Array.toString} setRefresh
         />,
         "",
       )
@@ -98,7 +98,7 @@ let itemObjMapper = (list: ConnectorTypes.connectorPayloadCommonType, mappedArr)
   }
 }
 
-let getFilterdConnectorList = (
+let getFilteredConnectorList = (
   list: array<ConnectorTypes.connectorPayloadCommonType>,
   filters: PaymentMethodConfigTypes.paymentMethodConfigFilters,
 ): array<paymentMethodConfiguration> => {
@@ -122,13 +122,13 @@ let getObjects: JSON.t => array<'t> = _ => {
   []
 }
 
-let paymentMethodEntity = (~setReferesh: unit => promise<unit>) => {
+let paymentMethodEntity = (~setRefresh: unit => promise<unit>) => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects,
     ~defaultColumns,
     ~getHeading,
-    ~getCell=getCell(~setReferesh),
+    ~getCell=getCell(~setRefresh),
     ~dataKey="",
   )
 }

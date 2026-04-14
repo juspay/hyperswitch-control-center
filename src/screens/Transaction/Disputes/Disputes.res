@@ -125,7 +125,7 @@ let make = () => {
         </RenderIf>
       </div>
     </div>
-    <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 my-8">
+    <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8">
       <TransactionView entity=TransactionViewTypes.Disputes />
     </div>
     <div className="flex-1"> {filtersUI} </div>
@@ -147,7 +147,7 @@ let make = () => {
           totalResults={disputesData->Array.length}
           offset
           setOffset
-          currrentFetchCount={disputesData->Array.length}
+          currentFetchCount={disputesData->Array.length}
           defaultColumns={DisputesEntity.defaultColumns}
           customColumnMapper={TableAtoms.disputesMapDefaultCols}
           showSerialNumberInCustomizeColumns=false
