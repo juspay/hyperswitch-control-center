@@ -644,11 +644,11 @@ describe("Payment Operations", () => {
           paymentOperations.addFilters.click();
           cy.get(".mr-5.text-left").contains("Connector").click();
           cy.get('[class="flex relative  flex-row  flex-wrap"]').click();
-          cy.get('[value="Stripe Test"]').click();
+          cy.get('[value="Stripe Dummy"]').click();
           cy.get('[data-button-text="Apply"]').click();
           cy.get('[class="flex relative  flex-row  flex-wrap"]').should(
             "contain",
-            `Stripe Test`,
+            `Stripe Dummy`,
           );
 
           paymentOperations.addFilters.click();
