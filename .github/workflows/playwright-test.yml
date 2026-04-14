@@ -29,6 +29,15 @@ jobs:
       - name: Install dependencies
         run: npm install --force
 
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
+
       - name: Install Playwright Browsers
         # Installing only Chrome (Chromium) for now
         # To add other browsers later:

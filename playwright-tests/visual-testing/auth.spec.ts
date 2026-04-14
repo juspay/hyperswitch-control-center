@@ -207,7 +207,7 @@ test.describe("Visual Testing - Auth Pages", () => {
       {
         fullPage: true,
         animations: "disabled",
-        maxDiffPixelRatio: 0.02,
+        maxDiffPixelRatio: 0.01,
       },
     );
 
