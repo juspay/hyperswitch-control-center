@@ -108,7 +108,7 @@ let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
   })
 }
 
-let getReconciledTypeLabel = (statusString: matchedDataType): Table.cell => {
+let getMatchedTypeLabel = (statusString: matchedDataType): Table.cell => {
   Table.Label({
     title: (statusString :> string)->String.toUpperCase,
     color: switch statusString {
@@ -172,8 +172,8 @@ let getCell = (transaction: transactionType, colType: transactionColType): Table
   | CreatedAt => Date(transaction.created_at)
   | ReconciliationType =>
     switch transaction.data.matched_data_type {
-    | Some(matchedDataType) => getReconciledTypeLabel(matchedDataType)
-    | None => getReconciledTypeLabel(UnknownMatchedDataType)
+    | Some(matchedDataType) => getMatchedTypeLabel(matchedDataType)
+    | None => getMatchedTypeLabel(UnknownMatchedDataType)
     }
   | Reason => EllipsisText(transaction.data.reason->Option.getOr("N/A"), "max-w-96")
   | RuleName =>
