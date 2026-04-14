@@ -71,7 +71,7 @@ test.describe("Visual Testing - Auth Pages", () => {
     const signinPage = new SignInPage(page);
 
     try {
-      await createAuth(request);
+      await createAuth(request, "visual_test", "visualtest.in");
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       // Ignore "auth method already exists" error on retries, rethrow all others
