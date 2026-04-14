@@ -84,16 +84,3 @@ jobs:
             playwright-report/
           if-no-files-found: ignore
           retention-days: 7
-
-      # TODO: REMOVE THIS STEP AFTER REGENERATING SNAPSHOTS
-      # This step uploads the generated snapshots as artifacts so they can be downloaded
-      # and committed back to the repo. Run the CI, download the artifact, and push the snapshots.
-      - name: Upload Snapshot Artifacts (Temporary)
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-snapshots
-          path: |
-            playwright-tests/visual-testing/
-          if-no-files-found: ignore
-          retention-days: 1
