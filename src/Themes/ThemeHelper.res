@@ -526,8 +526,7 @@ module ThemeUploadAssetsModal = {
           let settingsDict =
             currentThemeData
             ->getDictFromJsonObject
-            ->getDictfromDict("theme_data")
-            ->getDictfromDict("settings")
+            ->getDictFromNestedDict("theme_data", "settings")
 
           let requestBody = buildThemeDataBody(~settingsDict, ~urlsDict)
           let updateUrl = getURL(

@@ -1,7 +1,6 @@
 open HyperSwitchConfigTypes
 
 type themeUpdate = {
-  theme_name: string,
-  theme_data: HyperSwitchConfigTypes.customStylesTheme,
+  theme_data: customStylesTheme,
   email_config: option<emailConfig>,
 }

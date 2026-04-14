@@ -3,9 +3,7 @@ open LogicUtils
 
 let themeBodyMapper = (json: JSON.t): themeUpdate => {
   let dict = getDictFromJsonObject(json)
-  let theme_name = getString(dict, "theme_name", "")
-  let themeDataJson = getJsonObjectFromDict(dict, "theme_data")->ThemeProvider.parseThemeJson
-  let theme_data = themeDataJson
+  let theme_data = getJsonObjectFromDict(dict, "theme_data")->ThemeProvider.parseThemeJson
   let emailConfigJson = dict->getvalFromDict("email_config")
   let email_config: option<HyperSwitchConfigTypes.emailConfig> = switch emailConfigJson {
   | Some(emailJson) => {
@@ -21,7 +19,6 @@ let themeBodyMapper = (json: JSON.t): themeUpdate => {
   | None => None
   }
   {
-    theme_name,
     theme_data,
     email_config,
   }

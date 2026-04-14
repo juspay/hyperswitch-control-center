@@ -14,49 +14,32 @@ let useProcessAssets = (~themeId) => {
       let urlsDict = Dict.make()
       let baseUrl = GlobalVars.getHostUrl
 
-      switch assets->getvalFromDict("logo") {
-      | Some(value) =>
-        let url = switch value->JSON.Decode.string {
-        | Some(url) => url->JSON.Encode.string
-        | None =>
-          let formData = FormDataUtils.formData()
-          FormDataUtils.append(formData, "asset_name", "logo.png")
-          FormDataUtils.append(formData, "asset_data", Some(value))
-          let _ = await updateDetails(
-            assetUploadUrl,
-            Dict.make()->JSON.Encode.object,
-            Post,
-            ~bodyFormData=formData,
-            ~headers=Dict.make(),
-            ~contentType=AuthHooks.Unknown,
-          )
-          `${baseUrl}/themes/${themeId}/logo.png`->JSON.Encode.string
+      let processAsset = async (~assetKey, ~fileName, ~urlKey) => {
+        switch assets->getvalFromDict(assetKey) {
+        | Some(value) =>
+          let url = switch value->JSON.Decode.string {
+          | Some(url) => url->JSON.Encode.string
+          | None =>
+            let formData = FormDataUtils.formData()
+            FormDataUtils.append(formData, "asset_name", fileName)
+            FormDataUtils.append(formData, "asset_data", Some(value))
+            let _ = await updateDetails(
+              assetUploadUrl,
+              Dict.make()->JSON.Encode.object,
+              Post,
+              ~bodyFormData=formData,
+              ~headers=Dict.make(),
+              ~contentType=AuthHooks.Unknown,
+            )
+            `${baseUrl}/themes/${themeId}/${fileName}`->JSON.Encode.string
+          }
+          urlsDict->Dict.set(urlKey, url)
+        | None => ()
         }
-        urlsDict->Dict.set("logoUrl", url)
-      | None => ()
       }
 
-      switch assets->getvalFromDict("favicon") {
-      | Some(value) =>
-        let url = switch value->JSON.Decode.string {
-        | Some(url) => url->JSON.Encode.string
-        | None =>
-          let formData = FormDataUtils.formData()
-          FormDataUtils.append(formData, "asset_name", "favicon.png")
-          FormDataUtils.append(formData, "asset_data", Some(value))
-          let _ = await updateDetails(
-            assetUploadUrl,
-            Dict.make()->JSON.Encode.object,
-            Post,
-            ~bodyFormData=formData,
-            ~headers=Dict.make(),
-            ~contentType=AuthHooks.Unknown,
-          )
-          `${baseUrl}/themes/${themeId}/favicon.png`->JSON.Encode.string
-        }
-        urlsDict->Dict.set("faviconUrl", url)
-      | None => ()
-      }
+      await processAsset(~assetKey="logo", ~fileName="logo.png", ~urlKey="logoUrl")
+      await processAsset(~assetKey="favicon", ~fileName="favicon.png", ~urlKey="faviconUrl")
 
       urlsDict
     } catch {

@@ -156,12 +156,9 @@ module AssetField = {
                 className="w-16 h-16 border border-nd_gray-200 rounded-md flex items-center justify-center overflow-hidden bg-white">
                 <img src={imgSrc} alt={label} className="max-w-full max-h-full object-contain" />
               </div>
-              <button
-                type_="button"
-                onClick={_ => onRemove()}
-                className="p-2 hover:bg-nd_gray-100 rounded-md transition">
-                <Icon name="nd-cross" size=16 className="text-nd_gray-500" />
-              </button>
+              <div onClick={_ => onRemove()}>
+                <Icon name="nd-cross" size=16 className="text-nd_gray-500 cursor-pointer" />
+              </div>
             </>
           }
         | None =>
