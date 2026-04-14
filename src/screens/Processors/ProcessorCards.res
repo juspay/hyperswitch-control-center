@@ -109,7 +109,7 @@ let make = (
       <AddDataAttributes
         attributes=[("data-testid", heading->LogicUtils.titleToSnake->String.toLowerCase)]>
         <h2
-          className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
+          className={`${Typography.body.lg.semibold} text-nd_gray-600 dark:text-white dark:text-opacity-75`}>
           {heading->React.string}
         </h2>
       </AddDataAttributes>
@@ -162,6 +162,7 @@ let make = (
               onClick={_ => ()}
               key={i->string_of_int}
               className="border p-6 gap-4 bg-white rounded flex flex-col justify-between"
+              tooltipForWidthClass="!h-full"
               dataAttrStr=connectorName>
               <div className="flex flex-col gap-3 items-start">
                 <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />

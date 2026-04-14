@@ -23,6 +23,7 @@ If there are no changes at all, stop and tell the user: "No changes detected. No
 Print: `[1/5] Running formatter (npm run re:format)...`
 
 Run:
+
 ```bash
 npm run re:format
 ```
@@ -42,6 +43,7 @@ After formatting succeeds, check if `re:format` modified any files (`git diff --
 Print: `[2/5] Running linter (npm run lint:hooks)...`
 
 Run:
+
 ```bash
 npm run lint:hooks
 ```
@@ -66,10 +68,12 @@ Print: `[3/5] Preparing commit...`
 Run `git diff --name-only` and `git status --short` to see what will be staged.
 
 **Protected files — never stage these unless the user explicitly asks:**
+
 - `config.toml` (contains local environment config that varies per developer)
 - `webpack.dev.js` / `webpack.dev.ts` / any file matching `webpack.dev*` (local dev overrides)
 
 Before staging, check if any of these files appear in the diff. If they do, warn the user:
+
 ```
 ⚠ Skipping protected files (not staging):
   - config.toml
@@ -78,10 +82,12 @@ These contain local config and are excluded by default. Say "include config.toml
 ```
 
 Stage everything except protected files:
+
 ```bash
 git add -A
 git restore --staged config.toml webpack.dev.js webpack.dev.ts  # unstage if accidentally staged
 ```
+
 (Only run `git restore --staged` for files that are actually present/staged.)
 
 ### 3b: Generate commit message
@@ -113,6 +119,7 @@ git commit -m "<confirmed message>"
 Print: `✓ Committed: <message>`
 
 If the commit is rejected by a pre-commit hook, print the hook output clearly and stop:
+
 ```
 ✗ Pre-commit hook failed. See output above.
 ```
@@ -128,6 +135,7 @@ The repo uses `.github/PULL_REQUEST_TEMPLATE.md` as the standard PR body. Use it
 ### The template structure (fill these in):
 
 **## Type of Change** — check all boxes that apply based on the diff:
+
 - `[x] Bugfix` if fixing a bug (`fix:` commit, error handling changes, etc.)
 - `[x] New feature` if adding new capability (`feat:` commit)
 - `[x] Enhancement` if improving existing functionality
@@ -141,20 +149,24 @@ The repo uses `.github/PULL_REQUEST_TEMPLATE.md` as the standard PR body. Use it
 **## Motivation and Context** — explain the problem this solves or the need it addresses. If the user provided context earlier in the conversation, use it here. Otherwise infer from the diff.
 
 **## How did you test it?** — infer from the changes:
+
 - If test files were modified, say so
 - Otherwise note: "Tested manually" and list the relevant flows based on what changed
 
 **## Where to test it?** — check the appropriate environment(s):
+
 - `[x] INTEG` by default for most changes
 - Add `[x] SANDBOX` if the change affects payment flows or connector logic
 - Leave `[ ] PROD` unchecked unless the user says otherwise
 
 **## Checklist** — pre-fill:
+
 - `[x] I ran \`npm run re:build\`` — leave unchecked, remind the user to verify
 - `[x] I reviewed submitted code` — check this
 - `[ ] I added unit tests for my changes where possible` — check only if test files are in the diff
 
 After filling in all sections, show the user the complete PR body and ask:
+
 ```
 Here's the PR description I've drafted. Reply with any edits, or press Enter to use it as-is:
 ```
@@ -208,4 +220,3 @@ After all steps complete successfully, print:
 ```
 
 If any step failed earlier, you would have already stopped and reported the error — no need to summarize failures here.
-

@@ -118,7 +118,7 @@ let make = () => {
           </RenderIf>
         </div>
       </RenderIf>
-      <div className="flex flex-col gap-14">
+      <div className="flex flex-col gap-8">
         <RenderIf condition={showFeedbackModal}>
           <HSwitchFeedBackModal
             showModal={showFeedbackModal}
@@ -130,6 +130,7 @@ let make = () => {
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Connected Processors"
+            titleSize={Small}
             actualData=filteredConnectorData
             totalResults={filteredConnectorData->Array.length}
             filters={<TableSearchFilter
