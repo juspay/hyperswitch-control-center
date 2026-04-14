@@ -49,7 +49,7 @@ module PSPTokens = {
         totalResults={data->Array.length}
         offset
         setOffset
-        currrentFetchCount={data->Array.length}
+        currentFetchCount={data->Array.length}
         showAutoScroll=true
       />
     </div>

@@ -1,12 +1,11 @@
 type statChartColor = [#blue | #grey]
-open ApexCharts
+
 @react.component
 let make = (
   ~title,
   ~tooltipText,
   ~deltaTooltipComponent=React.null,
   ~value: float,
-  ~data,
   ~statType="",
   ~borderRounded="rounded-lg",
   ~singleStatLoading=false,
@@ -41,74 +40,6 @@ let make = (
 
   let isMobileWidth = MatchMedia.useMatchMedia("(max-width: 700px)")
 
-  let sortedData1 = React.useMemo(() => {
-    data
-    ->Array.toSorted((item1, item2) => {
-      let (x1, _y1) = item1
-      let (x2, _y2) = item2
-      if x1 > x2 {
-        -1.
-      } else if x1 == x2 {
-        0.
-      } else {
-        1.
-      }
-    })
-    ->Array.map(item => {
-      let (x, y) = item
-      {
-        x,
-        y,
-      }
-    })
-  }, [data])
-
-  let _options1 = {
-    chart: {
-      height: 10,
-      toolbar: {
-        show: false,
-      },
-    },
-    legend: {show: false},
-    stroke: {curve: "smooth"},
-    dataLabels: {enabled: false},
-    grid: {show: false},
-    xaxis: {
-      labels: {
-        show: false, // Hide x-axis labels
-      },
-      axisBorder: {
-        show: false, // Hide x-axis border
-      },
-      axisTicks: {
-        show: false, // Hide x-axis ticks
-      },
-    },
-    yaxis: {
-      labels: {
-        show: false, // Hide x-axis labels
-      },
-      axisBorder: {
-        show: false, // Hide x-axis border
-      },
-      axisTicks: {
-        show: false, // Hide x-axis ticks
-      },
-    },
-    tooltip: {
-      enabled: false,
-    },
-    colors: ["#006DF9"],
-  }
-
-  let _series = [
-    {
-      \"type": "area",
-      data: sortedData1,
-    },
-  ]
-
   if singleStatLoading && loaderType === Shimmer {
     <div className={`p-4`} style={width: fullWidth ? "100%" : isMobileWidth ? "100%" : "33.33%"}>
       <Shimmer styleClass="w-full h-28" />
@@ -128,15 +59,6 @@ let make = (
             <div className="font-bold text-3xl w-1/3">
               {statValue(statType)->String.toLowerCase->React.string}
             </div>
-            // <div className="h-16 w-2/3 scale-[0.4]">
-            // <ApexCharts.ReactApexChart
-            //   \"type"="area"
-            //   options={options1}
-            //   series={series->objToJson}
-            //   height={"170"}
-            //   width="380"
-            // />
-            // </div>
           </div>
           <div
             className={"flex gap-2 items-center pt-4 text-jp-gray-700 font-bold self-start h-1/2"}>

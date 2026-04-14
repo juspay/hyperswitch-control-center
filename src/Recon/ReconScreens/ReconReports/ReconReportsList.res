@@ -2,7 +2,6 @@
 let make = () => {
   open LogicUtils
   let (offset, setOffset) = React.useState(_ => 0)
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (selectedId, setSelectedId) = React.useState(_ =>
     Dict.make()->ReconReportUtils.getAllReportPayloadType
   )
@@ -96,10 +95,7 @@ let make = () => {
           <LoadedTableWithCustomColumns
             title="All Reports"
             actualData={filteredReportsData}
-            entity={ReportsTableEntity.reportsEntity(
-              `v2/recon/reports`,
-              ~authorization=userHasAccess(~groupAccess=UsersManage),
-            )}
+            entity={ReportsTableEntity.reportsEntity(`v2/recon/reports`, ~authorization=Access)}
             resultsPerPage=10
             filters={<TableSearchFilter
               data={configuredReports->Array.map(Nullable.make)}
@@ -112,7 +108,7 @@ let make = () => {
             totalResults={filteredReportsData->Array.length}
             offset
             setOffset
-            currrentFetchCount={configuredReports->Array.map(Nullable.make)->Array.length}
+            currentFetchCount={configuredReports->Array.map(Nullable.make)->Array.length}
             customColumnMapper=TableAtoms.reconReportsDefaultCols
             defaultColumns={ReportsTableEntity.defaultColumns}
             showSerialNumberInCustomizeColumns=false

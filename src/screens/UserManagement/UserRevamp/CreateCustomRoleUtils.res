@@ -33,7 +33,7 @@ let validateCustomRoleForm = (values, ~permissionModules=[], ~isV2=false) => {
     let parentGroups = valuesDict->getArrayFromDict("parent_groups", [])
     let hasPermissions = parentGroups->Array.some(groupJson => {
       let groupDict = groupJson->getDictFromJsonObject
-      let scopes = getStrArryFromJson(getJsonObjectFromDict(groupDict, "scopes"))
+      let scopes = getStrArrayFromJson(getJsonObjectFromDict(groupDict, "scopes"))
       scopes->Array.length > 0
     })
 

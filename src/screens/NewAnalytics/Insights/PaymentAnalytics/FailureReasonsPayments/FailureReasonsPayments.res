@@ -32,7 +32,7 @@ module TableModule = {
         offset
         setOffset
         defaultSort
-        currrentFetchCount={tableData->Array.length}
+        currentFetchCount={tableData->Array.length}
         tableLocalFilter=false
         tableheadingClass=tableBorderClass
         tableBorderClass
@@ -69,7 +69,7 @@ let make = (~entity: moduleEntity) => {
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let (tableData, setTableData) = React.useState(_ => JSON.Encode.array([]))
-  let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
+  let (groupBy, setGroupBy) = React.useState(_ => defaultGroupBy)
   let fetchApi = AuthHooks.useApiFetcher()
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
@@ -96,8 +96,8 @@ let make = (~entity: moduleEntity) => {
           ~id=Some((entity.domain: domain :> string)),
         )
         let groupByNames = switch entity.requestBodyConfig.groupBy {
-        | Some(dimentions) =>
-          dimentions
+        | Some(dimensions) =>
+          dimensions
           ->Array.map(item => (item: dimension :> string))
           ->Array.concat(groupBy.value->String.split(","))
           ->Some

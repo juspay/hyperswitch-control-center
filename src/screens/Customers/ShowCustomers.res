@@ -28,7 +28,7 @@ module CustomerInfo = {
                     value={getCell(data, colType)}
                     customMoneyStyle="!font-normal !text-sm"
                     labelMargin="!py-0 mt-2"
-                    overiddingHeadingStyles="text-black text-sm font-medium"
+                    overridingHeadingStyles="text-black text-sm font-medium"
                     textColor="!font-normal !text-jp-gray-700"
                   />
                 </div>
@@ -138,9 +138,7 @@ let make = (~id) => {
           <div>
             <PageUtils.PageHeading title="Customers" />
             <BreadCrumbNavigation
-              path=[{title: "Customers", link: "/customers"}]
-              currentPageTitle=id
-              cursorStyle="cursor-pointer"
+              path=[{title: "Customers", link: "/customers"}] currentPageTitle=id
             />
           </div>
           <div />

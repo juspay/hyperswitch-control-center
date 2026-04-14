@@ -3,14 +3,14 @@ type filterBody = {
   end_time: string,
 }
 
-let formateDateString = date => {
+let formatDateString = date => {
   date->Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:ss[Z]")
 }
 
 let getDateFilteredObject = (~range=7) => {
   let currentDate = Date.make()
 
-  let end_time = currentDate->formateDateString
+  let end_time = currentDate->formatDateString
 
   let start_time =
     Js.Date.makeWithYMD(
@@ -21,7 +21,7 @@ let getDateFilteredObject = (~range=7) => {
     )
     ->Js.Date.setDate((currentDate->Js.Date.getDate->Float.toInt - range)->Int.toFloat)
     ->Js.Date.fromFloat
-    ->formateDateString
+    ->formatDateString
 
   {
     start_time,
@@ -46,7 +46,7 @@ let useSetInitialFilters = (
   let {filterValueJson} = FilterContext.filterContext->React.useContext
 
   () => {
-    let inititalSearchParam = Dict.make()
+    let initialSearchParam = Dict.make()
 
     let defaultDate = getDateFilteredObject(~range)
 
@@ -56,10 +56,7 @@ let useSetInitialFilters = (
           ? [(startTimeFilterKey, defaultDate.start_time)]
           : switch enableCompareTo {
             | Some(_) => {
-                let (
-                  compareToStartTime,
-                  compareToEndTime,
-                ) = DateRangeUtils.getComparisionTimePeriod(
+                let (compareToStartTime, compareToEndTime) = DateRangeUtils.getComparisonTimePeriod(
                   ~startDate=defaultDate.start_time,
                   ~endDate=defaultDate.end_time,
                 )
@@ -86,12 +83,12 @@ let useSetInitialFilters = (
 
       timeRange->Array.forEach(item => {
         let (key, defaultValue) = item
-        switch inititalSearchParam->Dict.get(key) {
+        switch initialSearchParam->Dict.get(key) {
         | Some(_) => ()
-        | None => inititalSearchParam->Dict.set(key, defaultValue)
+        | None => initialSearchParam->Dict.set(key, defaultValue)
         }
       })
-      inititalSearchParam->updateExistingKeys
+      initialSearchParam->updateExistingKeys
     }
   }
 }

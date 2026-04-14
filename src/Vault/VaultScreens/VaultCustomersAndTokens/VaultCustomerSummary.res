@@ -11,7 +11,7 @@ module DisplayKeyValueParams = {
     ~customDateStyle="",
     ~wordBreak=true,
     ~textColor="",
-    ~overiddingHeadingStyles="",
+    ~overridingHeadingStyles="",
   ) => {
     let marginClass = if labelMargin->LogicUtils.isEmptyString {
       "mt-4 py-0"
@@ -39,7 +39,7 @@ module DisplayKeyValueParams = {
       <div className={`flex ${isHorizontal ? "flex-row gap-3" : "flex-col gap-1"} py-4`}>
         <div
           className="flex flex-row text-fs-11 leading-3 text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 items-center">
-          <div className={`${overiddingHeadingStyles}`}>
+          <div className={`${overridingHeadingStyles}`}>
             {React.string(showTitle ? heading.title : "")}
           </div>
           <RenderIf condition={description->LogicUtils.isNonEmptyString}>
@@ -88,7 +88,7 @@ module Details = {
                 value={getCell(data, colType)}
                 customMoneyStyle="!font-normal !text-sm"
                 labelMargin="!py-0 mt-2"
-                overiddingHeadingStyles="text-nd_gray-400 !text-sm font-medium"
+                overridingHeadingStyles="text-nd_gray-400 !text-sm font-medium"
                 textColor="!text-nd_gray-600 leading-6 !text-fs-16 !font-medium"
               />
             </div>
@@ -133,7 +133,11 @@ module VaultedPaymentMethodsTable = {
     let (tableData, setTableData) = React.useState(_ => [])
     let (showModal, setShowModal) = React.useState(_ => false)
     let (paymentId, setPaymentId) = React.useState(_ => "")
-    let customerIdFromUrl = url.path->List.toArray->Array.get(4)->Option.getOr("")
+    let customerIdFromUrl = if isOrchestrationVault {
+      url.path->List.toArray->Array.get(2)->Option.getOr("")
+    } else {
+      url.path->List.toArray->Array.get(4)->Option.getOr("")
+    }
     let mixpanelEvent = MixpanelHook.useSendEvent()
 
     let fetchPaymentMethods = async () => {
@@ -194,7 +198,7 @@ module VaultedPaymentMethodsTable = {
             ),
           )
         }}
-        currrentFetchCount={tableData->Array.length}
+        currentFetchCount={tableData->Array.length}
         showAutoScroll=true
       />
       <Modal
@@ -287,7 +291,6 @@ let make = (~id, ~sampleReport) => {
                 },
               ]
               currentPageTitle=id
-              cursorStyle="cursor-pointer"
             />
           </div>
         </div>

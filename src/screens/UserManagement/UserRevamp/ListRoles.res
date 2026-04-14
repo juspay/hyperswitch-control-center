@@ -15,21 +15,21 @@ let make = () => {
     setUserModuleEntity,
   ) = React.useState(_ => #Default)
 
-  let getRolesAvailable = async (userModuleEntity: UserManagementTypes.userModuleTypes) => {
+  let getRolesAvailable = async (selectedEntity: UserManagementTypes.userModuleTypes) => {
     setScreenStateRoles(_ => PageLoaderWrapper.Loading)
     try {
       let userDataURL = getURL(
         ~entityName=V1(USER_MANAGEMENT),
         ~methodType=Get,
         ~userRoleTypes=ROLE_LIST,
-        ~queryParameters=userModuleEntity == #Default
+        ~queryParameters=selectedEntity == #Default
           ? None
-          : Some(`entity_type=${(userModuleEntity :> string)->String.toLowerCase}`),
+          : Some(`entity_type=${(selectedEntity :> string)->String.toLowerCase}`),
       )
       let res = await fetchDetails(userDataURL)
       let rolesData = res->LogicUtils.getArrayDataFromJson(itemToObjMapperForRoles)
       setRolesAvailableData(_ => rolesData->Array.map(Nullable.make))
-      setUserModuleEntity(_ => userModuleEntity)
+      setUserModuleEntity(_ => selectedEntity)
       setScreenStateRoles(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenStateRoles(_ => PageLoaderWrapper.Error(""))
@@ -72,7 +72,7 @@ let make = () => {
         offset=rolesOffset
         setOffset=setRolesOffset
         entity={rolesEntity}
-        currrentFetchCount={rolesAvailableData->Array.length}
+        currentFetchCount={rolesAvailableData->Array.length}
         collapseTableRow=false
         tableheadingClass="h-12"
         customBorderClass="border !rounded-xl"
