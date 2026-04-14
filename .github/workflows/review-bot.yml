@@ -33,6 +33,20 @@ jobs:
           echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
           echo "Resolved — PR: #$PR_NUMBER"
 
+      - name: Sync review skills from spec repo
+        run: |
+          echo "Syncing control-center-reviewer skill from spec repo..."
+          cd /home/phoenix/repos/hyperswitch-specs
+          git checkout main
+          git pull origin main
+          
+          # Copy skill files to Phoenix
+          mkdir -p ~/.config/opencode/skills/control-center-reviewer
+          cp -r /home/phoenix/repos/hyperswitch-specs/.opencode/skills/control-center-reviewer/. \
+                ~/.config/opencode/skills/control-center-reviewer/
+          
+          echo "Skills synced successfully"
+
       - name: Pull latest and checkout PR branch
         env:
           GH_REPO: juspay/hyperswitch-control-center
