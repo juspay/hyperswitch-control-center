@@ -14,7 +14,6 @@ let make = (~ruleId: string) => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let getTransactions = ReconEngineHooks.useGetTransactions()
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
@@ -148,7 +147,7 @@ let make = (~ruleId: string) => {
           actualData={filteredExceptionData}
           entity={hierarchicalTransactionsLoadedTableEntity(
             "v1/recon-engine/exceptions/recon",
-            ~authorization=userHasAccess(~groupAccess=UsersManage),
+            ~authorization=Access,
           )}
           resultsPerPage=3
           filters={<TableSearchFilter
@@ -163,7 +162,7 @@ let make = (~ruleId: string) => {
           totalResults={filteredExceptionData->Array.length}
           offset
           setOffset
-          currrentFetchCount={exceptionData->Array.length}
+          currentFetchCount={exceptionData->Array.length}
           customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
           defaultColumns={defaultColumns}
           showSerialNumberInCustomizeColumns=false

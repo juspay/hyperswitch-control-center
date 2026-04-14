@@ -79,7 +79,7 @@ let make = () => {
             ~sendMixpanelEvent,
             ~isOrchestrationVault,
           )}
-          currrentFetchCount={filteredConnectorData->Array.length}
+          currentFetchCount={filteredConnectorData->Array.length}
           collapseTableRow=false
           rightTitleElement={requestAProcessorComponent}
           showAutoScroll=true

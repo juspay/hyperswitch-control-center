@@ -205,7 +205,7 @@ module EntryAuditTrailInfo = {
               totalResults={[openedTransaction]->Array.length}
               offset={0}
               setOffset={_ => ()}
-              currrentFetchCount={[openedTransaction]->Array.length}
+              currentFetchCount={[openedTransaction]->Array.length}
             />
           </div>
         </div>

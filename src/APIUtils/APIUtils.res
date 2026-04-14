@@ -81,6 +81,14 @@ let getV2Url = (
       }
     | _ => ""
     }
+  /* REPORTS */
+  | REVENUE_RECOVERY_REPORT =>
+    switch transactionEntity {
+    | #Tenant
+    | #Organization => `v2/analytics/org/report/payments`
+    | #Merchant => `v2/analytics/merchant/report/payments`
+    | #Profile => `v2/analytics/profile/report/payments`
+    }
   | V2_ATTEMPTS_LIST =>
     switch methodType {
     | Get =>
@@ -122,7 +130,7 @@ let getV2Url = (
   | TOTAL_TOKEN_COUNT => `v1/customers/total-payment-methods`
   | RETRIEVE_PAYMENT_METHOD =>
     switch id {
-    | Some(paymentMethodId) => `v2/payment-methods/${paymentMethodId}`
+    | Some(paymentMethodId) => `v1/payment-methods/${paymentMethodId}`
     | None => ""
     }
   /* MERCHANT ACCOUNT DETAILS (Get,Post and Put) */
@@ -275,15 +283,15 @@ let useGetURL = () => {
         }
       | PAYMENT_METHODS =>
         switch methodType {
-        | Get => "payemnt_methods"
+        | Get => "payment_methods"
         | _ => ""
         }
       | PAYMENT_METHODS_DETAILS =>
         switch methodType {
         | Get =>
           switch id {
-          | Some(id) => `payemnt_methods/${id}`
-          | None => `payemnt_methods`
+          | Some(id) => `payment_methods/${id}`
+          | None => `payment_methods`
           }
         | _ => ""
         }
@@ -792,6 +800,17 @@ let useGetURL = () => {
         | #Merchant => `analytics/v1/merchant/report/payments`
         | #Profile => `analytics/v1/profile/report/payments`
         }
+      | PAYMENTS_LIST =>
+        switch methodType {
+        | Post =>
+          switch transactionEntity {
+          | #Merchant => `analytics/v1/payments/list`
+          | #Profile => `analytics/v1/profile/payments/list`
+          | _ => `payments/list`
+          }
+
+        | _ => ""
+        }
       | PAYOUT_REPORT =>
         switch transactionEntity {
         | #Tenant
@@ -1266,7 +1285,7 @@ let useGetURL = () => {
           | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
           }
 
-        // POST LOGIN QUESTIONARE
+        // POST LOGIN QUESTIONNAIRE
         | #SET_METADATA =>
           switch queryParameters {
           | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`

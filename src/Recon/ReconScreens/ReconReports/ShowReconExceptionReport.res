@@ -24,7 +24,7 @@ module ShowOrderDetails = {
               value={getCell(data, colType)}
               customMoneyStyle="!font-normal !text-sm"
               labelMargin="!py-0 mt-2"
-              overiddingHeadingStyles="text-nd_gray-400 text-sm font-medium"
+              overridingHeadingStyles="text-nd_gray-400 text-sm font-medium"
               isHorizontal
             />
           </div>
@@ -150,12 +150,6 @@ let make = (~showOnBoarding, ~id) => {
     <BreadCrumbNavigation
       path=[{title: "Recon", link: `/v2/recon/reports?tab=exceptions`}]
       currentPageTitle="Exceptions Summary"
-      cursorStyle="cursor-pointer"
-      customTextClass="text-nd_gray-400"
-      titleTextClass="text-nd_gray-600 font-medium"
-      fontWeight="font-medium"
-      dividerVal=Slash
-      childGapClass="gap-2"
     />
     <div className="flex flex-col gap-4">
       <div className="flex flex-row justify-between items-center">
@@ -214,7 +208,7 @@ let make = (~showOnBoarding, ~id) => {
           resultsPerPage=20
           offset
           setOffset
-          currrentFetchCount={attemptData->Array.length}
+          currentFetchCount={attemptData->Array.length}
         />
       </PageLoaderWrapper>
     </div>
@@ -248,7 +242,7 @@ let make = (~showOnBoarding, ~id) => {
               tooltipForWidthClass="w-full"
               text="Done"
               buttonType={Primary}
-              customSumbitButtonStyle="!w-full mt-4"
+              customSubmitButtonStyle="!w-full mt-4"
             />
           </FormRenderer.DesktopRow>
         </Form>

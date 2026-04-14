@@ -857,7 +857,7 @@ let getMainResolutionButtons = (~isResolutionAvailable, ~setExceptionStage, ~set
   open ReconEngineExceptionTransactionTypes
   [
     {
-      text: "Force Reconcile",
+      text: "Force Match",
       icon: "nd-check-circle-outline",
       iconClass: "text-nd_gray-600",
       condition: isResolutionAvailable(ForceReconcile),

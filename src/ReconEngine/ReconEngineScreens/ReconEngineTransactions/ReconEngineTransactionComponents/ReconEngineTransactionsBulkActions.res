@@ -214,7 +214,7 @@ let make = (
               buttonType={modalConfig.bulkActionModal.modalConfirmButtonType}
               buttonSize=Medium
               text={modalConfig.bulkActionModal.modalConfirmButtonText}
-              customSumbitButtonStyle="!w-fit"
+              customSubmitButtonStyle="!w-fit"
             />
           </div>
         </Form>
@@ -270,7 +270,7 @@ let make = (
             offset={0}
             showPagination=false
             setOffset={_ => ()}
-            currrentFetchCount={bulkActionResponses->Array.length}
+            currentFetchCount={bulkActionResponses->Array.length}
             onEntityClick={_ => ()}
           />
         </div>
