@@ -158,10 +158,11 @@ let useGetAllProductSections = (~isReconEnabled, ~products: array<productTypes>)
 
   let orchestratorSidebars = useGetOrchestratorSidebars(~isReconEnabled)
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   products->Array.map(productType => {
     let links = switch productType {
-    | Recon(V1) => ReconEngineSidebarValues.reconEngineSidebars
+    | Recon(V1) => ReconEngineSidebarValues.reconEngineSidebars(~userHasAccess)
     | Recon(V2) => ReconSidebarValues.reconSidebars
     | Recovery => RevenueRecoverySidebarValues.recoverySidebars(isLiveMode)
     | Vault => VaultSidebarValues.vaultSidebars
@@ -222,7 +223,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
-  let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let defaultSidebar = []
   if featureFlagDetails.devModularityV2 {
     // show Home when modularity is enabled
@@ -270,7 +271,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   | CostObservability => HypersenseSidebarValues.hypersenseSidebars
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
   | Orchestration(V2) => orchestratorV2Sidebars
-  | Recon(V1) => ReconEngineSidebarValues.reconEngineSidebars
+  | Recon(V1) => ReconEngineSidebarValues.reconEngineSidebars(~userHasAccess)
   | OnBoarding(_)
   | UnknownProduct => []
   }

@@ -1,96 +1,78 @@
 open SidebarTypes
+open UserManagementTypes
 
-let reconOverview = {
-  Link({
+let reconEngineSidebars = (
+  ~userHasAccess: (~groupAccess: groupAccessType) => CommonAuthTypes.authorization,
+) => {
+  let reconOverview = Link({
     name: "Overview",
     link: `/v1/recon-engine/overview`,
     access: Access,
     icon: "nd-overview",
     selectedIcon: "nd-overview-fill",
   })
-}
 
-let reconTransactions = {
-  Link({
+  let reconTransactions = Link({
     name: "Transactions",
     link: `/v1/recon-engine/transactions`,
-    access: Access,
+    access: userHasAccess(~groupAccess=ReconTransactionsView),
     icon: "nd-reports",
     selectedIcon: "nd-reports-fill",
   })
-}
 
-let transformedEntriesExceptions = {
-  SubLevelLink({
+  let transformedEntriesExceptions = SubLevelLink({
     name: "Transformed Entries",
     link: "/v1/recon-engine/exceptions/transformed-entries",
-    access: Access,
+    access: userHasAccess(~groupAccess=ReconExceptionsView),
   })
-}
 
-let reconExceptions = {
-  SubLevelLink({
+  let reconExceptions = SubLevelLink({
     name: "Recon",
     link: "/v1/recon-engine/exceptions/recon",
-    access: Access,
+    access: userHasAccess(~groupAccess=ReconExceptionsView),
   })
-}
 
-let exceptions = {
-  Section({
+  let exceptions = Section({
     name: "Exceptions",
     icon: "nd-operations",
     showSection: true,
     links: [reconExceptions, transformedEntriesExceptions],
     selectedIcon: "nd-operations-fill",
   })
-}
 
-let reconRuleCreation = {
-  Link({
+  let reconRuleCreation = Link({
     name: "Rules Library",
     link: `/v1/recon-engine/rules`,
-    access: Access,
+    access: userHasAccess(~groupAccess=ReconRulesView),
     icon: "nd-reports",
     selectedIcon: "nd-reports-fill",
   })
-}
 
-let sources = {
-  SubLevelLink({
+  let sources = SubLevelLink({
     name: "Sources",
     link: "/v1/recon-engine/sources",
-    access: Access,
+    access: userHasAccess(~groupAccess=ReconSourcesView),
   })
-}
 
-let transformation = {
-  SubLevelLink({
+  let transformation = SubLevelLink({
     name: "Transformation",
     link: "/v1/recon-engine/transformation",
-    access: Access,
+    access: userHasAccess(~groupAccess=ReconSourcesView),
   })
-}
 
-let transformedEntries = {
-  SubLevelLink({
+  let transformedEntries = SubLevelLink({
     name: "Transformed Entries",
     link: "/v1/recon-engine/transformed-entries",
-    access: Access,
+    access: userHasAccess(~groupAccess=ReconSourcesView),
   })
-}
 
-let reconAccounts = {
-  Section({
+  let reconAccounts = Section({
     name: "Data",
     icon: "nd-connectors",
     showSection: true,
     links: [sources, transformation, transformedEntries],
     selectedIcon: "nd-connectors-fill",
   })
-}
 
-let reconEngineSidebars = {
-  let sidebar = [reconOverview, reconTransactions, exceptions, reconRuleCreation, reconAccounts]
-  sidebar
+  [reconOverview, reconTransactions, exceptions, reconRuleCreation, reconAccounts]
 }
