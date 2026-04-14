@@ -353,10 +353,12 @@ let rec filterNullValues = json => {
 
 let itemToSavedView = json => {
   let dict = json->getDictFromJsonObject
+  let dataDict = dict->getJsonObjectFromDict("data")->getDictFromJsonObject
   let savedView: SavedViewTypes.savedView = {
+    view_id: dict->getString("view_id", ""),
     view_name: dict->getString("view_name", ""),
-    entity: dict->getString("entity", ""),
-    filters: dict->getJsonObjectFromDict("filters")->filterNullValues,
+    entity: dataDict->getString("entity", ""),
+    filters: dataDict->getJsonObjectFromDict("filters")->filterNullValues,
     created_at: dict->getString("created_at", ""),
     updated_at: dict->getString("updated_at", ""),
   }
@@ -364,10 +366,16 @@ let itemToSavedView = json => {
 }
 
 let savedViewsResponseMapper = json => {
-  let dict = json->getDictFromJsonObject
+  let viewsArray =
+    json
+    ->getArrayFromJson([])
+    ->getValueFromArray(0, Dict.make()->JSON.Encode.object)
+    ->getDictFromJsonObject
+    ->getArrayFromDict("PaymentViews", [])
+
   let response: SavedViewTypes.savedViewsResponse = {
-    count: dict->getInt("count", 0),
-    views: dict->getArrayFromDict("views", [])->Array.map(itemToSavedView),
+    count: viewsArray->Array.length,
+    views: viewsArray->Array.map(itemToSavedView),
   }
   response
 }

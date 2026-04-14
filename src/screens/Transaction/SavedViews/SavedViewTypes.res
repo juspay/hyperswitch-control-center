@@ -1,4 +1,5 @@
 type savedView = {
+  view_id: string,
   view_name: string,
   entity: string,
   filters: JSON.t,
