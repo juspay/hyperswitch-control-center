@@ -38,7 +38,7 @@ for tag in $(git tag --sort=-creatordate); do
   toml_file="config/docker_compose.toml"
 
   # Ensure the file exists
-  if [[ ! -f "$toml_file" ]]; then
+  if [ ! -f "$toml_file" ]; then
     echo "Error: File $toml_file not found!"
     exit 1
   fi
@@ -47,6 +47,11 @@ for tag in $(git tag --sort=-creatordate); do
   sed '/^\[network_tokenization_service\]/,/^\[.*\]/d' "$toml_file" > temp.toml
   mv temp.toml "$toml_file"
 
+  # Use sed to update the backup_file_path from relative to absolute path
+  # Portable sed in-place editing (works on both BSD and GNU sed)
+  sed "s|backup_file_path = \"./config/superposition_seed.toml\"|backup_file_path = \"/local/config/superposition_seed.toml\"|g" "$toml_file" > "${toml_file}.tmp"
+  mv "${toml_file}.tmp" "$toml_file"
+  
   echo "Starting docker compose..."
   
   # Start Docker Compose services in detached mode
