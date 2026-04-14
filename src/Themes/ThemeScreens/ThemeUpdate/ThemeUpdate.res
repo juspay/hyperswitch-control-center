@@ -168,20 +168,6 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
             customSubTitleStyle={`${body.lg.medium} text-nd_gray-400`}
           />
           {
-            let emailLogoDisplayUrl = switch assets->getvalFromDict("emailLogo") {
-            | Some(value) =>
-              switch value->JSON.Decode.string {
-              | Some(url) => Some(url)
-              | None =>
-                Some(
-                  DownloadUtils.createObjectURL(
-                    (value->Identity.jsonToAnyType: DownloadUtils.blobInstanceType),
-                  ),
-                )
-              }
-            | None => None
-            }
-
             let tabs: array<Tabs.tab> = [
               {
                 title: "Dashboard Config",
@@ -214,13 +200,12 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
                 renderContent: () =>
                   <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
                     <div className="flex flex-col gap-4">
-                      <ThemeSettingsHelper.AssetField
-                        label="Email Logo"
-                        displayUrl=emailLogoDisplayUrl
-                        onFileChange={ev => handleFileSelect("emailLogo", ev)}
-                        onRemove={() => handleRemove("emailLogo")}
-                        accept=".png,.jpg,.jpeg"
-                        inputId="emailLogoFileInput"
+                      <ThemeSettingsHelper.IconSettings
+                        forDashboardTheme=false
+                        forEmailTheme=true
+                        assets
+                        onFileSelect=handleFileSelect
+                        onRemove=handleRemove
                         themeConfigVersion
                       />
                       <EmailConfigSettings />

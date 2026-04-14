@@ -220,6 +220,8 @@ module AssetField = {
 module IconSettings = {
   @react.component
   let make = (
+    ~forDashboardTheme=true,
+    ~forEmailTheme=false,
     ~assets: Dict.t<JSON.t>,
     ~onFileSelect: (string, ReactEvent.Form.t) => unit,
     ~onRemove: string => unit,
@@ -241,28 +243,46 @@ module IconSettings = {
       }
     }
 
-    <div className="flex flex-col gap-4">
-      <div className={`${body.lg.semibold}`}> {React.string("Icons")} </div>
-      <div className="space-y-4">
-        <AssetField
-          label="Logo"
-          displayUrl={getDisplayUrl("logo")}
-          onFileChange={ev => onFileSelect("logo", ev)}
-          onRemove={() => onRemove("logo")}
-          accept=".png,.jpg,.jpeg"
-          inputId="logoFileInput"
-          themeConfigVersion
-        />
-        <AssetField
-          label="Favicon"
-          displayUrl={getDisplayUrl("favicon")}
-          onFileChange={ev => onFileSelect("favicon", ev)}
-          onRemove={() => onRemove("favicon")}
-          accept=".png,.ico,.jpg,.jpeg"
-          inputId="faviconFileInput"
-          themeConfigVersion
-        />
-      </div>
-    </div>
+    <>
+      <RenderIf condition=forDashboardTheme>
+        <div className="flex flex-col gap-4">
+          <div className={`${body.lg.semibold}`}> {React.string("Icons")} </div>
+          <div className="space-y-4">
+            <AssetField
+              label="Logo"
+              displayUrl={getDisplayUrl("logo")}
+              onFileChange={ev => onFileSelect("logo", ev)}
+              onRemove={() => onRemove("logo")}
+              accept=".png,.jpg,.jpeg"
+              inputId="logoFileInput"
+              themeConfigVersion
+            />
+            <AssetField
+              label="Favicon"
+              displayUrl={getDisplayUrl("favicon")}
+              onFileChange={ev => onFileSelect("favicon", ev)}
+              onRemove={() => onRemove("favicon")}
+              accept=".png,.ico,.jpg,.jpeg"
+              inputId="faviconFileInput"
+              themeConfigVersion
+            />
+          </div>
+        </div>
+      </RenderIf>
+      <RenderIf condition=forEmailTheme>
+        <div className="flex flex-col gap-4">
+          <div className={`${body.lg.semibold}`}> {React.string("Email Logo")} </div>
+          <AssetField
+            label="Email Logo"
+            displayUrl={getDisplayUrl("emailLogo")}
+            onFileChange={ev => onFileSelect("emailLogo", ev)}
+            onRemove={() => onRemove("emailLogo")}
+            accept=".png,.jpg,.jpeg"
+            inputId="emailLogoFileInput"
+            themeConfigVersion
+          />
+        </div>
+      </RenderIf>
+    </>
   }
 }
