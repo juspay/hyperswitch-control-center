@@ -22,6 +22,14 @@ type groupAccessType =
   | AccountManage
   | ThemeView
   | ThemeManage
+  | ReconSourcesView
+  | ReconSourcesManage
+  | ReconTransactionsView
+  | ReconTransactionsManage
+  | ReconRulesView
+  | ReconRulesManage
+  | ReconExceptionsView
+  | ReconExceptionsManage
   | UnknownGroupAccess(string)
 
 type resourceAccessType =
