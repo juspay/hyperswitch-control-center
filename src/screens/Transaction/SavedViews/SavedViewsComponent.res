@@ -19,27 +19,25 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
   let (currentlyEditingIndex, setCurrentlyEditingIndex) = React.useState(_ => None)
   let isInternalUpdate = React.useRef(false)
 
+  let postSavedViewsAction = async payload => {
+    let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
+    let _ = await updateDetails(url, payload, Post)
+  }
+
   let fetchSavedViews = async () => {
     try {
-      let keys = switch entity {
-      | "payment_views" => "PaymentViews"
-      | "refund_views" => "RefundViews"
-      | "dispute_views" => "DisputeViews"
-      | "payout_views" => "PayoutViews"
-      | _ => "PaymentViews"
-      }
       let url = getURL(
         ~entityName=V1(USERS),
         ~userType=#USER_DATA,
         ~methodType=Get,
-        ~queryParameters=Some(`keys=${keys}`),
+        ~queryParameters=Some(SavedViewsAPI.savedViewsQueryParam(entity)),
       )
-
       let res = await fetchDetails(url)
       let mappedRes = res->HSwitchOrderUtils.savedViewsResponseMapper
       setSavedViews(_ => mappedRes.views)
     } catch {
-    | _ => ()
+    | _ =>
+      showToast(~message="Failed to load saved views. Please try again.", ~toastType=ToastError)
     }
   }
 
@@ -70,10 +68,9 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
       let currentFiltersStringDict = Dict.make()
       filterValueJson
       ->Dict.toArray
-      ->Array.forEach(item => {
-        let (key, value) = item
+      ->Array.forEach(((key, value)) =>
         SavedViewsUtils.flattenToDict(currentFiltersStringDict, key, value)
-      })
+      )
 
       let matchingView = savedViews->Array.find(view => {
         let savedFilters = view.filters->getDictFromJsonObject
@@ -82,11 +79,8 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
 
         savedFilters
         ->Dict.toArray
-        ->Array.forEach(
-          item => {
-            let (key, value) = item
-            SavedViewsUtils.flattenToDict(savedFiltersStringDict, key, value)
-          },
+        ->Array.forEach(((key, value)) =>
+          SavedViewsUtils.flattenToDict(savedFiltersStringDict, key, value)
         )
 
         let startTimeKey = OrderUIUtils.startTimeFilterKey(version)
@@ -117,53 +111,16 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
       }
     }
     None
-  }, (filterValueJson, savedViews, version))
+  }, (filterValueJson, savedViews, version, activeViewName))
 
   let showPopUp = PopUpState.useShowPopUp()
 
   let performDelete = async (view_id, viewName) => {
     try {
-      let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
-      let payload = {
-        let keys = switch entity {
-        | "payment_views" => "PaymentViews"
-        | "refund_views" => "RefundViews"
-        | "dispute_views" => "DisputeViews"
-        | "payout_views" => "PayoutViews"
-        | _ => "PaymentViews"
-        }
-
-        let dataDict =
-          [("entity", entity->JSON.Encode.string), ("view_id", view_id->JSON.Encode.string)]
-          ->Dict.fromArray
-          ->JSON.Encode.object
-
-        let actionDict =
-          [("type", "Delete"->JSON.Encode.string), ("data", dataDict)]
-          ->Dict.fromArray
-          ->JSON.Encode.object
-
-        [(keys, actionDict)]
-        ->Dict.fromArray
-        ->JSON.Encode.object
-      }
-      let _ = await updateDetails(url, payload, Post)
+      let _ = await postSavedViewsAction(SavedViewsAPI.buildDeletePayload(entity, view_id))
       showToast(
-        ~message=`'${viewName}' has been deleted successfully!`,
+        ~message=`'${SavedViewsUtils.truncateName(viewName)}' has been deleted successfully!`,
         ~toastType=ToastSuccess,
-        ~toastElement={
-          <div
-            className="border-l-green-status rounded-lg shadow-sm bg-white border border-l-4 p-4 flex items-center">
-            <Icon name="trash-outline" size=20 className="text-green-status mr-3" />
-            <div className={`${body.md.medium} text-gray-800 flex items-center gap-1`}>
-              {"'"->React.string}
-              <HelperComponents.EllipsisText
-                displayValue=viewName endValue=15 showCopy=false expandText=false
-              />
-              {"' has been deleted successfully!"->React.string}
-            </div>
-          </div>
-        },
       )
       fetchSavedViews()->ignore
     } catch {
@@ -177,53 +134,10 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
 
   let performRename = async (view: SavedViewTypes.savedView, newName) => {
     try {
-      let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
-      let payload = {
-        let keys = switch entity {
-        | "payment_views" => "PaymentViews"
-        | "refund_views" => "RefundViews"
-        | "dispute_views" => "DisputeViews"
-        | "payout_views" => "PayoutViews"
-        | _ => "PaymentViews"
-        }
-
-        let dataDict =
-          [
-            ("view_id", view.view_id->JSON.Encode.string),
-            ("view_name", newName->JSON.Encode.string),
-            ("filters", view.filters),
-            ("entity", entity->JSON.Encode.string),
-            ("version", "v1"->JSON.Encode.string),
-          ]
-          ->Dict.fromArray
-          ->JSON.Encode.object
-
-        let actionDict =
-          [("type", "Update"->JSON.Encode.string), ("data", dataDict)]
-          ->Dict.fromArray
-          ->JSON.Encode.object
-
-        [(keys, actionDict)]
-        ->Dict.fromArray
-        ->JSON.Encode.object
-      }
-      let _ = await updateDetails(url, payload, Post)
+      let _ = await postSavedViewsAction(SavedViewsAPI.buildRenamePayload(entity, view, newName))
       showToast(
-        ~message=`View renamed to '${newName}' successfully!`,
+        ~message=`View renamed to '${SavedViewsUtils.truncateName(newName)}' successfully!`,
         ~toastType=ToastSuccess,
-        ~toastElement={
-          <div
-            className="border-l-green-status rounded-lg shadow-sm bg-white border border-l-4 p-4 flex items-center">
-            <Icon name="nd-toast-success" size=20 className="text-green-status mr-3" />
-            <div className={`text-sm font-medium text-gray-800 flex items-center gap-1`}>
-              {"View renamed to '"->React.string}
-              <HelperComponents.EllipsisText
-                displayValue=newName endValue=15 showCopy=false expandText=false
-              />
-              {"' successfully!"->React.string}
-            </div>
-          </div>
-        },
       )
       fetchSavedViews()->ignore
       if activeViewName === view.view_name {
@@ -252,31 +166,24 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
 
   let handleSelect = viewName => {
     isInternalUpdate.current = true
-    setActiveViewName(_ => viewName)
     if viewName !== "" {
-      let selectedView =
-        savedViews
-        ->Array.find(view => view.view_name === viewName)
-        ->Option.getOr({
-          view_id: "",
-          view_name: "",
-          entity,
-          filters: JSON.Encode.object(Dict.make()),
-          created_at: "",
-          updated_at: "",
-        })
-
-      let filterDict = selectedView.filters->getDictFromJsonObject
+      switch savedViews->Array.find(view => view.view_name === viewName) {
+      | None =>
+        showToast(
+          ~message=`Saved view '${SavedViewsUtils.truncateName(viewName)}' not found.`,
+          ~toastType=ToastError,
+        )
+        isInternalUpdate.current = false
+      | Some(selectedView) =>
+        setActiveViewName(_ => viewName)
+        let filterDict = selectedView.filters->getDictFromJsonObject
       let stringDict = Dict.make()
 
       // Extract saved view filters first so we can check if dates are included
       let newFiltersDict = Dict.make()
       filterDict
       ->Dict.toArray
-      ->Array.forEach(item => {
-        let (key, value) = item
-        SavedViewsUtils.flattenToDict(newFiltersDict, key, value)
-      })
+      ->Array.forEach(((key, value)) => SavedViewsUtils.flattenToDict(newFiltersDict, key, value))
 
       // Check if saved view includes date keys
       let startTimeKey = OrderUIUtils.startTimeFilterKey(version)
@@ -285,9 +192,8 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
 
       // Clear currently active filters, but preserve dates if view doesn't include them
       filterValueJson
-      ->Dict.toArray
-      ->Array.forEach(item => {
-        let (key, _) = item
+      ->Dict.keysToArray
+      ->Array.forEach(key => {
         if !savedHasDates && (key === startTimeKey || key === endTimeKey) {
           () // preserve existing date range
         } else {
@@ -299,10 +205,7 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
 
       newFiltersDict
       ->Dict.toArray
-      ->Array.forEach(item => {
-        let (key, value) = item
-        stringDict->Dict.set(key, value)
-      })
+      ->Array.forEach(((key, value)) => stringDict->Dict.set(key, value))
 
       // Map keys for UI display
       let displayKeys =
@@ -318,12 +221,7 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
           !(["start_time", "end_time", "created.gte", "created.lte"]->Array.includes(key))
         })
 
-      let uniqueDisplayKeys = []
-      displayKeys->Array.forEach(key => {
-        if !(uniqueDisplayKeys->Array.includes(key)) {
-          uniqueDisplayKeys->Array.push(key)->ignore
-        }
-      })
+      let uniqueDisplayKeys = displayKeys->getUniqueArray
 
       // reconstruct amount_option from start/end amounts
       let startAmountStr = stringDict->Dict.get("start_amount")->Option.getOr("")
@@ -336,7 +234,7 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
           if startAmountStr === endAmountStr {
             stringDict->Dict.set("amount_option", "EqualTo")
           } else {
-            stringDict->Dict.set("amount_option", "InBetween")
+            stringDict->Dict.set("amount_option", "Between")
           }
         } else if startAmountStr->LogicUtils.isNonEmptyString {
           stringDict->Dict.set("amount_option", "GreaterThanOrEqualTo")
@@ -351,14 +249,20 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
 
       setfilterKeys(_ => uniqueDisplayKeys)
       stringDict->updateExistingKeys
+      }
     } else {
       reset()
     }
-
-    let _ = Js.Global.setTimeout(() => {
-      isInternalUpdate.current = false
-    }, 100)
   }
+
+  // Clear the guard flag as soon as the next filterValueJson update arrives.
+  // This replaces a fragile 100ms timer and avoids races on slow propagation.
+  React.useEffect(() => {
+    if isInternalUpdate.current {
+      isInternalUpdate.current = false
+    }
+    None
+  }, [filterValueJson])
 
   <div className="flex items-center gap-2">
     <Button

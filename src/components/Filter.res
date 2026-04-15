@@ -208,7 +208,7 @@ let make = (
     | None => ()
     }
     None
-  }, (searchParams, filterKeys, remoteFilters, remoteOptions))
+  }, (searchParams, filterKeys, remoteFilters->Array.length, remoteOptions->Array.length))
 
   let onSubmit = (values, _) => {
     let obj = values->JSON.Decode.object->Option.getOr(Dict.make())->Dict.toArray->Dict.fromArray
