@@ -1,3 +1,14 @@
+let maxViews = 5
+
+let entityToKey = entity =>
+  switch entity {
+  | "payment_views" => "PaymentViews"
+  | "refund_views" => "RefundViews"
+  | "dispute_views" => "DisputeViews"
+  | "payout_views" => "PayoutViews"
+  | _ => "PaymentViews"
+  }
+
 let truncateName = (~maxLen=20, name) =>
   name->String.length > maxLen ? name->String.slice(~start=0, ~end=maxLen) ++ "..." : name
 
@@ -13,6 +24,66 @@ let jsonValueToString = jsonValue => {
     }
   | Null => ""
   | _ => ""
+  }
+}
+
+// Read a filter value as a string regardless of whether it is stored as
+// a string, a number, or a single-element array (as react-final-form sometimes does).
+let stringFromFilterValue = (dict, key) => {
+  switch dict->Dict.get(key) {
+  | Some(json) =>
+    switch json->JSON.Classify.classify {
+    | String(s) => s
+    | Number(n) => n->Float.toString
+    | Array(arr) =>
+      switch arr->Array.get(0) {
+      | Some(ele) =>
+        switch ele->JSON.Classify.classify {
+        | String(s) => s
+        | Number(n) => n->Float.toString
+        | _ => ""
+        }
+      | None => ""
+      }
+    | _ => ""
+    }
+  | None => ""
+  }
+}
+
+// Collapses amount_option / start_amount / end_amount into a nested amount_filter
+// object on `filtersDict` in place. Matches the backend contract used at read time.
+let foldAmountOption = filtersDict => {
+  let amountOption = filtersDict->stringFromFilterValue("amount_option")
+  if amountOption->LogicUtils.isNonEmptyString {
+    let startAmountStr = filtersDict->stringFromFilterValue("start_amount")
+    let endAmountStr = filtersDict->stringFromFilterValue("end_amount")
+    filtersDict->Dict.delete("amount_option")
+    filtersDict->Dict.delete("start_amount")
+    filtersDict->Dict.delete("end_amount")
+
+    let amountFilterDict = Dict.make()
+    let setIfSome = (key, str) =>
+      switch Float.fromString(str) {
+      | Some(num) => amountFilterDict->Dict.set(key, num->JSON.Encode.float)
+      | None => ()
+      }
+
+    switch amountOption {
+    | "GreaterThanOrEqualTo" => setIfSome("start_amount", startAmountStr)
+    | "LessThanOrEqualTo" => setIfSome("end_amount", endAmountStr)
+    | "EqualTo" =>
+      setIfSome("start_amount", startAmountStr)
+      setIfSome("end_amount", startAmountStr)
+    | "Between" =>
+      setIfSome("start_amount", startAmountStr)
+      setIfSome("end_amount", endAmountStr)
+    | _ => ()
+    }
+
+    if amountFilterDict->Dict.keysToArray->Array.length > 0 {
+      filtersDict->Dict.set("amount_filter", amountFilterDict->JSON.Encode.object)
+    }
   }
 }
 

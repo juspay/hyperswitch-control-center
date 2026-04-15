@@ -2,6 +2,166 @@ open APIUtils
 open LogicUtils
 open Typography
 
+module IncludeDateCheckbox = {
+  @react.component
+  let make = (~includeDate, ~setIncludeDate, ~dateRangeText) => {
+    <div className="flex flex-col gap-2">
+      <div
+        className="flex items-center gap-3 cursor-pointer"
+        onClick={_ => setIncludeDate(prev => !prev)}>
+        <CheckBoxIcon
+          isSelected=includeDate
+          setIsSelected={val => setIncludeDate(_ => val)}
+          isCheckboxSelectedClass=true
+          checkboxDimension="w-3.5 h-3.5"
+          stopPropagationNeeded=true
+        />
+        <div className={`${body.md.medium} text-nd_gray-600`}>
+          {(
+            dateRangeText->isNonEmptyString
+              ? `Include date range ${dateRangeText}`
+              : "Include Date Range"
+          )->React.string}
+        </div>
+      </div>
+    </div>
+  }
+}
+
+module CreateTab = {
+  @react.component
+  let make = (
+    ~viewName,
+    ~setViewName,
+    ~viewNameExists,
+    ~viewLimitReached,
+    ~includeDate,
+    ~setIncludeDate,
+    ~dateRangeText,
+    ~handleCreate,
+    ~setShowModal,
+  ) => {
+    let trimmedViewName = viewName->String.trim
+    <div className="flex flex-col gap-6">
+      <div className={`flex flex-col gap-1`}>
+        <div className={`${body.md.medium} text-nd_gray-400`}>
+          {"View Name"->React.string}
+          <span className="text-red-500"> {"*"->React.string} </span>
+        </div>
+        <TextInput
+          input={
+            name: "viewName",
+            onBlur: _ => (),
+            onFocus: _ => (),
+            onChange: ev => setViewName(_ => ReactEvent.Form.target(ev)["value"]),
+            value: viewName->JSON.Encode.string,
+            checked: false,
+          }
+          placeholder="Enter view name"
+          customPaddingClass="px-4"
+          customStyle={viewNameExists ? "border-red-500 focus:border-red-500" : ""}
+        />
+        <RenderIf condition=viewNameExists>
+          <div className="text-red-500 text-xs mt-1">
+            {"This view already exists. Please choose a different name."->React.string}
+          </div>
+        </RenderIf>
+        <RenderIf condition={viewLimitReached && !viewNameExists}>
+          <div className="text-red-500 text-xs mt-1">
+            {`Maximum ${SavedViewsUtils.maxViews->Int.toString} views allowed. Please update or delete an existing view.`->React.string}
+          </div>
+        </RenderIf>
+      </div>
+      <IncludeDateCheckbox includeDate setIncludeDate dateRangeText />
+      <div className="flex justify-end gap-3 mt-2">
+        <Button text="Cancel" onClick={_ => setShowModal(_ => false)} buttonType=Secondary />
+        <Button
+          text="Save New View"
+          onClick={_ => {
+            let _ = handleCreate()
+          }}
+          buttonState={trimmedViewName->isEmptyString || viewNameExists || viewLimitReached
+            ? Disabled
+            : Normal}
+          buttonType=Primary
+        />
+      </div>
+    </div>
+  }
+}
+
+module OverwriteTab = {
+  @react.component
+  let make = (
+    ~savedViews: array<SavedViewTypes.savedView>,
+    ~selectedViewToOverwrite,
+    ~setSelectedViewToOverwrite,
+    ~includeDate,
+    ~setIncludeDate,
+    ~dateRangeText,
+    ~handleOverwrite,
+    ~setShowModal,
+  ) => {
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-1">
+        <div className={`${body.md.medium} text-nd_gray-400`}>
+          {"Search View Name to Overwrite"->React.string}
+          <span className="text-red-500"> {"*"->React.string} </span>
+        </div>
+        <SelectBox.BaseDropdown
+          allowMultiSelect=false
+          hideMultiSelectButtons=true
+          buttonText="Select View"
+          options={savedViews->Array.map(view => {
+            let opt: SelectBox.dropdownOption = {label: view.view_name, value: view.view_name}
+            opt
+          })}
+          input={
+            name: "selectedViewToOverwrite",
+            onBlur: _ => (),
+            onFocus: _ => (),
+            onChange: ev => {
+              let value = ev->Identity.formReactEventToString
+              setSelectedViewToOverwrite(_ => value)
+            },
+            value: selectedViewToOverwrite->JSON.Encode.string,
+            checked: false,
+          }
+          searchable=false
+          fullLength=true
+          dropdownCustomWidth="w-full"
+          baseComponentMethod={_isOpen => {
+            <div
+              className={`flex items-center justify-between w-full h-10 px-4 border border-jp-gray-lightmode_steelgray border-opacity-75 rounded bg-white cursor-pointer hover:border-opacity-100 overflow-hidden ${body.md.regular}`}>
+              <span
+                className={`truncate ${selectedViewToOverwrite->isEmptyString
+                    ? "text-nd_gray-400"
+                    : "text-nd_gray-800"}`}>
+                {(
+                  selectedViewToOverwrite->isEmptyString ? "Select View" : selectedViewToOverwrite
+                )->React.string}
+              </span>
+              <Icon name="chevron-down" size=14 className="text-nd_gray-400 flex-shrink-0 ml-2" />
+            </div>
+          }}
+        />
+      </div>
+      <IncludeDateCheckbox includeDate setIncludeDate dateRangeText />
+      <div className="flex justify-end gap-3 mt-2">
+        <Button text="Cancel" onClick={_ => setShowModal(_ => false)} buttonType=Secondary />
+        <Button
+          text="Overwrite Existing View"
+          onClick={_ => {
+            let _ = handleOverwrite(selectedViewToOverwrite)
+          }}
+          buttonState={selectedViewToOverwrite->isEmptyString ? Disabled : Normal}
+          buttonType=Primary
+        />
+      </div>
+    </div>
+  }
+}
+
 @react.component
 let make = (
   ~showModal,
@@ -26,50 +186,32 @@ let make = (
   )
 
   let mergedFilters = React.useMemo(() => {
-    let merged = Dict.make()
-    filterValueJson
-    ->Dict.toArray
-    ->Array.forEach(((key, value)) => {
-      merged->Dict.set(key, value)
-    })
-    formValues
-    ->getDictFromJsonObject
-    ->Dict.toArray
-    ->Array.forEach(((key, value)) => {
-      merged->Dict.set(key, value)
-    })
+    let merged = DictionaryUtils.mergeDicts([filterValueJson, formValues->getDictFromJsonObject])
 
     let startTimeKey = OrderUIUtils.startTimeFilterKey(version)
     let endTimeKey = OrderUIUtils.endTimeFilterKey(version)
-
-    let start = merged->getString(startTimeKey, "")
-    let end = merged->getString(endTimeKey, "")
-
     let defaultDates = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
 
+    let start = merged->getString(startTimeKey, "")
     if start->isEmptyString || start->String.toLowerCase === "now" {
       merged->Dict.set(startTimeKey, defaultDates.start_time->JSON.Encode.string)
     }
+    let end = merged->getString(endTimeKey, "")
     if end->isEmptyString || end->String.toLowerCase === "now" {
       merged->Dict.set(endTimeKey, defaultDates.end_time->JSON.Encode.string)
     }
-
     merged
   }, (filterValueJson, formValues, version))
 
   let dateRangeText = React.useMemo(() => {
     let start = mergedFilters->getString(OrderUIUtils.startTimeFilterKey(version), "")
     let end = mergedFilters->getString(OrderUIUtils.endTimeFilterKey(version), "")
-
-    let format = isoStr => {
+    let format = isoStr =>
       if isoStr->isNonEmptyString {
-        let dayjs: DayJs.dayJs = isoStr->DayJs.getDayJsForString
-        dayjs.format("MMM D, YYYY HH:mm")
+        (isoStr->DayJs.getDayJsForString).format("MMM D, YYYY HH:mm")
       } else {
         ""
       }
-    }
-
     if start->isNonEmptyString && end->isNonEmptyString {
       `from ${format(start)} to ${format(end)}`
     } else {
@@ -79,25 +221,19 @@ let make = (
 
   let fetchSavedViews = async () => {
     try {
-      let keys = switch entity {
-      | "payment_views" => "PaymentViews"
-      | "refund_views" => "RefundViews"
-      | "dispute_views" => "DisputeViews"
-      | "payout_views" => "PayoutViews"
-      | _ => "PaymentViews"
-      }
       let url = getURL(
         ~entityName=V1(USERS),
         ~userType=#USER_DATA,
         ~methodType=Get,
-        ~queryParameters=Some(`keys=${keys}`),
+        ~queryParameters=Some(SavedViewsAPI.savedViewsQueryParam(entity)),
       )
       let res = await fetchDetails(url)
       let mappedRes = res->HSwitchOrderUtils.savedViewsResponseMapper
       setViewCount(_ => mappedRes.count)
       setSavedViews(_ => mappedRes.views)
     } catch {
-    | _ => ()
+    | _ =>
+      showToast(~message="Failed to load saved views. Please try again.", ~toastType=ToastError)
     }
   }
 
@@ -110,144 +246,33 @@ let make = (
     None
   }, [showModal])
 
-  let getPayload = (name, operation, ~view_id=?) => {
+  let buildFilters = () => {
     let filtersDict = mergedFilters->Dict.copy
+    // Pagination is per-session state, never part of a saved view.
+    filtersDict->Dict.delete("limit")
+    filtersDict->Dict.delete("offset")
     if !includeDate {
       filtersDict->Dict.delete(OrderUIUtils.startTimeFilterKey(version))
       filtersDict->Dict.delete(OrderUIUtils.endTimeFilterKey(version))
     }
-    let getStrFromDict = (dict, key) => {
-      let val = dict->Dict.get(key)
-      switch val {
-      | Some(json) =>
-        switch json->JSON.Classify.classify {
-        | String(s) => s
-        | Array(arr) =>
-          switch arr->Array.get(0) {
-          | Some(ele) =>
-            switch ele->JSON.Classify.classify {
-            | String(s) => s
-            | Number(n) => n->Float.toString
-            | _ => ""
-            }
-          | None => ""
-          }
-        | Number(n) => n->Float.toString
-        | _ => ""
-        }
-      | None => ""
-      }
-    }
+    SavedViewsUtils.foldAmountOption(filtersDict)
+    filtersDict->JSON.Encode.object
+  }
 
-    let amountOption = getStrFromDict(filtersDict, "amount_option")
-    let startAmountStr = getStrFromDict(filtersDict, "start_amount")
-    let endAmountStr = getStrFromDict(filtersDict, "end_amount")
-
-    if amountOption->LogicUtils.isNonEmptyString {
-      filtersDict->Dict.delete("amount_option")
-      filtersDict->Dict.delete("start_amount")
-      filtersDict->Dict.delete("end_amount")
-
-      let amountFilterDict = Dict.make()
-
-      let getAmountNum = str => {
-        let parsed = Float.fromString(str)
-        switch parsed {
-        | Some(num) => Some(num)
-        | None => None
-        }
-      }
-
-      let startAmount = getAmountNum(startAmountStr)
-      let endAmount = getAmountNum(endAmountStr)
-
-      if amountOption === "GreaterThanOrEqualTo" {
-        switch startAmount {
-        | Some(num) => amountFilterDict->Dict.set("start_amount", num->JSON.Encode.float)
-        | None => ()
-        }
-      } else if amountOption === "LessThanOrEqualTo" {
-        switch endAmount {
-        | Some(num) => amountFilterDict->Dict.set("end_amount", num->JSON.Encode.float)
-        | None => ()
-        }
-      } else if amountOption === "EqualTo" {
-        switch startAmount {
-        | Some(num) => {
-            amountFilterDict->Dict.set("start_amount", num->JSON.Encode.float)
-            amountFilterDict->Dict.set("end_amount", num->JSON.Encode.float)
-          }
-        | None => ()
-        }
-      } else if amountOption === "Between" {
-        switch startAmount {
-        | Some(num) => amountFilterDict->Dict.set("start_amount", num->JSON.Encode.float)
-        | None => ()
-        }
-        switch endAmount {
-        | Some(num) => amountFilterDict->Dict.set("end_amount", num->JSON.Encode.float)
-        | None => ()
-        }
-      }
-
-      if amountFilterDict->Dict.keysToArray->Array.length > 0 {
-        filtersDict->Dict.set("amount_filter", amountFilterDict->JSON.Encode.object)
-      }
-    }
-
-    let dataDict =
-      [
-        ("view_name", name->JSON.Encode.string),
-        ("filters", filtersDict->JSON.Encode.object),
-        ("entity", entity->JSON.Encode.string),
-        ("version", "v1"->JSON.Encode.string),
-      ]->Dict.fromArray
-
-    switch view_id {
-    | Some(id) => dataDict->Dict.set("view_id", id->JSON.Encode.string)
-    | None => ()
-    }
-
-    let actionDict =
-      [("type", operation->JSON.Encode.string), ("data", dataDict->JSON.Encode.object)]
-      ->Dict.fromArray
-      ->JSON.Encode.object
-
-    let keys = switch entity {
-    | "payment_views" => "PaymentViews"
-    | "refund_views" => "RefundViews"
-    | "dispute_views" => "DisputeViews"
-    | "payout_views" => "PayoutViews"
-    | _ => "PaymentViews"
-    }
-
-    [(keys, actionDict)]
-    ->Dict.fromArray
-    ->JSON.Encode.object
+  let postSavedViewsAction = async payload => {
+    let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
+    await updateDetails(url, payload, Post)
   }
 
   let handleCreate = async _ => {
     try {
-      let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
-      let payload = getPayload(viewName, "Create")
-      let res = await updateDetails(url, payload, Post)
+      let filters = buildFilters()
+      let payload = SavedViewsAPI.buildSavePayload(entity, "Create", viewName, filters, None)
+      let res = await postSavedViewsAction(payload)
       onViewsUpdated(res, Some(viewName))
       showToast(
         ~message=`New View '${SavedViewsUtils.truncateName(viewName)}' created successfully!`,
         ~toastType=ToastSuccess,
-        ~toastElement={
-          <div
-            className="border-l-green-status rounded-lg shadow-sm bg-white border border-l-4 p-4 flex items-center">
-            <Icon name="nd-toast-success" size=20 className="text-green-status mr-3" />
-            <div className={`${body.md.medium} text-gray-800 flex items-center gap-1`}>
-              {"New View '"->React.string}
-              <HelperComponents.EllipsisText
-                displayValue=viewName endValue=15 showCopy=false expandText=false
-              />
-              {"' created successfully!"->React.string}
-            </div>
-          </div>
-        },
       )
       setShowModal(_ => false)
     } catch {
@@ -257,227 +282,79 @@ let make = (
             viewName,
           )}'. Please try again.`,
         ~toastType=ToastError,
-        ~toastElement={
-          <div
-            className="border-l-red-900 rounded-lg shadow-sm bg-white border border-l-4 p-4 flex items-center">
-            <Icon name="nd-toast-error" size=20 className="text-red-900 mr-3" />
-            <div className={`${body.md.medium} text-gray-800 flex items-center gap-1 text-wrap`}>
-              {"Failed to create view '"->React.string}
-              <HelperComponents.EllipsisText
-                displayValue=viewName endValue=15 showCopy=false expandText=false
-              />
-              {"'. Please try again."->React.string}
-            </div>
-          </div>
-        },
       )
     }
   }
 
   let handleOverwrite = async name => {
     try {
-      let viewToOverwrite = name->LogicUtils.isNonEmptyString ? name : selectedViewToOverwrite
-      if viewToOverwrite->LogicUtils.isNonEmptyString {
-        let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
+      let viewToOverwrite = name->isNonEmptyString ? name : selectedViewToOverwrite
+      if viewToOverwrite->isNonEmptyString {
         let viewId =
-          savedViews->Array.find(view => view.view_name === viewToOverwrite)->Option.map(v => v.view_id)
-        let payload = getPayload(viewToOverwrite, "Update", ~view_id=?viewId)
-        let res = await updateDetails(url, payload, Post)
+          savedViews
+          ->Array.find(view => view.view_name === viewToOverwrite)
+          ->Option.map(v => v.view_id)
+        let filters = buildFilters()
+        let payload = SavedViewsAPI.buildSavePayload(
+          entity,
+          "Update",
+          viewToOverwrite,
+          filters,
+          viewId,
+        )
+        let res = await postSavedViewsAction(payload)
         onViewsUpdated(res, Some(viewToOverwrite))
         showToast(
           ~message=`'${SavedViewsUtils.truncateName(
               viewToOverwrite,
             )}' has been overwritten successfully!`,
           ~toastType=ToastSuccess,
-          ~toastElement={
-            <div
-              className="border-l-green-status rounded-lg shadow-sm bg-white border border-l-4 p-4 flex items-center">
-              <Icon name="nd-toast-success" size=20 className="text-green-status mr-3" />
-              <div className={`${body.md.medium} text-gray-800 flex items-center gap-1`}>
-                {"'"->React.string}
-                <HelperComponents.EllipsisText
-                  displayValue=viewToOverwrite endValue=15 showCopy=false expandText=false
-                />
-                {"' has been overwritten successfully!"->React.string}
-              </div>
-            </div>
-          },
         )
         setShowModal(_ => false)
       }
     } catch {
-    | _ => showToast(~message=`Failed to overwrite view. Please try again.`, ~toastType=ToastError)
+    | _ => showToast(~message="Failed to overwrite view. Please try again.", ~toastType=ToastError)
     }
   }
 
   let trimmedViewName = viewName->String.trim
-
   let viewNameExists =
     trimmedViewName->isNonEmptyString &&
       savedViews->Array.some(view => view.view_name === trimmedViewName)
+  let viewLimitReached = viewCount >= SavedViewsUtils.maxViews
 
-  let viewLimitReached = viewCount >= 5
-
-  let tabs: array<Tabs.tab> = [
-    {
-      title: "Create New View",
-      renderContent: () => {
-        <div className="flex flex-col gap-6">
-          <div className={`flex flex-col gap-1`}>
-            <div className={`${body.md.medium} text-nd_gray-400`}>
-              {"View Name"->React.string}
-              <span className="text-red-500"> {"*"->React.string} </span>
-            </div>
-            <TextInput
-              input={
-                name: "viewName",
-                onBlur: _ => (),
-                onFocus: _ => (),
-                onChange: ev => setViewName(_ => ReactEvent.Form.target(ev)["value"]),
-                value: viewName->JSON.Encode.string,
-                checked: false,
-              }
-              placeholder="Enter view name"
-              customPaddingClass="px-4"
-              customStyle={viewNameExists ? "border-red-500 focus:border-red-500" : ""}
-            />
-            <RenderIf condition=viewNameExists>
-              <div className="text-red-500 text-xs mt-1">
-                {"This view already exists. Please choose a different name."->React.string}
-              </div>
-            </RenderIf>
-            <RenderIf condition={viewLimitReached && !viewNameExists}>
-              <div className="text-red-500 text-xs mt-1">
-                {"Maximum 5 views allowed. Please update or delete an existing view."->React.string}
-              </div>
-            </RenderIf>
-          </div>
-          <div className="flex flex-col gap-2">
-            <div
-              className="flex items-center gap-3 cursor-pointer"
-              onClick={_ => setIncludeDate(prev => !prev)}>
-              <CheckBoxIcon
-                isSelected=includeDate
-                setIsSelected={val => setIncludeDate(_ => val)}
-                isCheckboxSelectedClass=true
-                checkboxDimension="w-3.5 h-3.5"
-                stopPropagationNeeded=true
-              />
-              <div className={`${body.md.medium} text-nd_gray-600`}>
-                {(
-                  dateRangeText->LogicUtils.isNonEmptyString
-                    ? `Include date range ${dateRangeText}`
-                    : "Include Date Range"
-                )->React.string}
-              </div>
-            </div>
-          </div>
-          <div className="flex justify-end gap-3 mt-2">
-            <Button text="Cancel" onClick={_ => setShowModal(_ => false)} buttonType=Secondary />
-            <Button
-              text="Save New View"
-              onClick={_ => {
-                let _ = handleCreate()
-              }}
-              buttonState={trimmedViewName->isEmptyString || viewNameExists || viewLimitReached
-                ? Disabled
-                : Normal}
-              buttonType=Primary
-            />
-          </div>
-        </div>
-      },
-    },
-    {
-      title: "Overwrite Existing View",
-      renderContent: () => {
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col gap-1">
-            <div className={`${body.md.medium} text-nd_gray-400`}>
-              {"Search View Name to Overwrite"->React.string}
-              <span className="text-red-500"> {"*"->React.string} </span>
-            </div>
-            <SelectBox.BaseDropdown
-              allowMultiSelect=false
-              hideMultiSelectButtons=true
-              buttonText="Select View"
-              options={savedViews->Array.map(view => {
-                let opt: SelectBox.dropdownOption = {label: view.view_name, value: view.view_name}
-                opt
-              })}
-              input={
-                name: "selectedViewToOverwrite",
-                onBlur: _ => (),
-                onFocus: _ => (),
-                onChange: ev => {
-                  let value = ev->Identity.formReactEventToString
-                  setSelectedViewToOverwrite(_ => value)
-                },
-                value: selectedViewToOverwrite->JSON.Encode.string,
-                checked: false,
-              }
-              searchable=false
-              fullLength=true
-              dropdownCustomWidth="w-full"
-              baseComponentMethod={_isOpen => {
-                <div
-                  className={`flex items-center justify-between w-full h-10 px-4 border border-jp-gray-lightmode_steelgray border-opacity-75 rounded bg-white cursor-pointer hover:border-opacity-100 overflow-hidden ${body.md.regular}`}>
-                  <span
-                    className={`truncate ${selectedViewToOverwrite->isEmptyString
-                        ? "text-nd_gray-400"
-                        : "text-nd_gray-800"}`}>
-                    {(
-                      selectedViewToOverwrite->isEmptyString
-                        ? "Select View"
-                        : selectedViewToOverwrite
-                    )->React.string}
-                  </span>
-                  <Icon
-                    name="chevron-down" size=14 className="text-nd_gray-400 flex-shrink-0 ml-2"
-                  />
-                </div>
-              }}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <div
-              className="flex items-center gap-3 cursor-pointer"
-              onClick={_ => setIncludeDate(prev => !prev)}>
-              <CheckBoxIcon
-                isSelected=includeDate
-                setIsSelected={val => setIncludeDate(_ => val)}
-                isCheckboxSelectedClass=true
-                checkboxDimension="w-3.5 h-3.5"
-                stopPropagationNeeded=true
-              />
-              <div className={`${body.md.medium} text-nd_gray-600`}>
-                {(
-                  dateRangeText->LogicUtils.isNonEmptyString
-                    ? `Include date range ${dateRangeText}`
-                    : "Include Date Range"
-                )->React.string}
-              </div>
-            </div>
-          </div>
-          <div className="flex justify-end gap-3 mt-2">
-            <Button text="Cancel" onClick={_ => setShowModal(_ => false)} buttonType=Secondary />
-            <Button
-              text="Overwrite Existing View"
-              onClick={_ => {
-                let _ = handleOverwrite(selectedViewToOverwrite)
-              }}
-              buttonState={selectedViewToOverwrite->isEmptyString ? Disabled : Normal}
-              buttonType=Primary
-            />
-          </div>
-        </div>
-      },
-    },
+  let tabs = [
+    (
+      "Create New View",
+      () =>
+        <CreateTab
+          viewName
+          setViewName
+          viewNameExists
+          viewLimitReached
+          includeDate
+          setIncludeDate
+          dateRangeText
+          handleCreate
+          setShowModal
+        />,
+    ),
+    (
+      "Overwrite Existing View",
+      () =>
+        <OverwriteTab
+          savedViews
+          selectedViewToOverwrite
+          setSelectedViewToOverwrite
+          includeDate
+          setIncludeDate
+          dateRangeText
+          handleOverwrite
+          setShowModal
+        />,
+    ),
   ]
-
   let (selectedTabIndex, setSelectedTabIndex) = React.useState(_ => 0)
-
-  let tabsList = ["Create New View", "Overwrite Existing View"]
 
   <Modal
     showModal
@@ -495,8 +372,8 @@ let make = (
             (),
           )}
         />
-        {tabsList
-        ->Array.mapWithIndex((tabTitle, index) => {
+        {tabs
+        ->Array.mapWithIndex(((tabTitle, _), index) => {
           let isSelected = selectedTabIndex === index
           <div
             key={tabTitle}
@@ -513,7 +390,7 @@ let make = (
         key={selectedTabIndex->Int.toString}
         className="p-6 pt-2 pb-8 min-h-[160px] animate-fadeIn animate-slideUp">
         {switch tabs->Array.get(selectedTabIndex) {
-        | Some(tab) => tab.renderContent()
+        | Some((_, render)) => render()
         | None => React.null
         }}
       </div>

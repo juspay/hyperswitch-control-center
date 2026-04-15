@@ -316,16 +316,14 @@ module RemoteTableFilters = {
     }, [filterValueJson])
 
     React.useEffect(() => {
-      let timer = Js.Global.setTimeout(() => {
-        if filterValueJson->Dict.keysToArray->Array.length != 0 {
-          setFilters(_ => Some(filterValueJson))
-          setOffset(_ => 0)
-        } else {
-          setFilters(_ => Some(Dict.make()))
-          setOffset(_ => 0)
-        }
-      }, 50)
-      Some(() => Js.Global.clearTimeout(timer))
+      if filterValueJson->Dict.keysToArray->Array.length != 0 {
+        setFilters(_ => Some(filterValueJson))
+        setOffset(_ => 0)
+      } else {
+        setFilters(_ => Some(Dict.make()))
+        setOffset(_ => 0)
+      }
+      None
     }, [filterValue])
 
     let dict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
