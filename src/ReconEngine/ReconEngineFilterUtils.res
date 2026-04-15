@@ -102,7 +102,7 @@ let getTransactionStatusGroupedValueAndLabel = (status: domainTransactionStatus)
   | Missing => ("missing", "Missing", "Others")
   | Expected => ("expected", "Expected", "Others")
   | Void => ("void", "Void", "Others")
-  | Matched(Force)
+  | Matched(Force) => ("matched_force", "", "")
   | Archived
   | Matched(UnknownDomainTransactionMatchedStatus)
   | Posted(UnknownDomainTransactionPostedStatus)
