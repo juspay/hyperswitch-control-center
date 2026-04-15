@@ -145,7 +145,8 @@ let make = (
   )
   let submitButtons =
     <div
-      className="flex items-center gap-2 cursor-pointer pr-4" onClick={ReactEvent.Mouse.stopPropagation}>
+      className="flex items-center gap-2 cursor-pointer pr-4"
+      onClick={ReactEvent.Mouse.stopPropagation}>
       <button onClick={_ => handleCancel()} className={`cursor-pointer  ${customIconStyle}`}>
         <Icon name="nd-cross" size=16 />
       </button>

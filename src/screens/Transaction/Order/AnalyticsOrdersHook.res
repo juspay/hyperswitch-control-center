@@ -10,7 +10,8 @@ let useFetchAnalyticsOrdersHook = () => {
   async (~payload, ~version: UserInfoTypes.version) => {
     try {
       let paymentsData = switch version {
-      | V1 => try {
+      | V1 =>
+        try {
           let ordersUrl = getURL(~entityName=V1(PAYMENTS_LIST), ~methodType=Post)
           let res = await updateDetails(ordersUrl, payload, Post)
           let mappedRes = res->mapAnalyticsResponseToOrdersObject
