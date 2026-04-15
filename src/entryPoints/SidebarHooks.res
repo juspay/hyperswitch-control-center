@@ -158,11 +158,12 @@ let useGetAllProductSections = (~isReconEnabled, ~products: array<productTypes>)
 
   let orchestratorSidebars = useGetOrchestratorSidebars(~isReconEnabled)
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   products->Array.map(productType => {
     let links = switch productType {
-    | Recon(V1) => ReconEngineSidebarValues.reconEngineSidebars(~userHasAccess)
+    | Recon(V1) =>
+      ReconEngineSidebarValues.reconEngineSidebars(~userHasResourceAccess, ~userHasAccess)
     | Recon(V2) => ReconSidebarValues.reconSidebars
     | Recovery => RevenueRecoverySidebarValues.recoverySidebars(isLiveMode)
     | Vault => VaultSidebarValues.vaultSidebars
@@ -271,7 +272,8 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   | CostObservability => HypersenseSidebarValues.hypersenseSidebars
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
   | Orchestration(V2) => orchestratorV2Sidebars
-  | Recon(V1) => ReconEngineSidebarValues.reconEngineSidebars(~userHasAccess)
+  | Recon(V1) =>
+    ReconEngineSidebarValues.reconEngineSidebars(~userHasResourceAccess, ~userHasAccess)
   | OnBoarding(_)
   | UnknownProduct => []
   }
