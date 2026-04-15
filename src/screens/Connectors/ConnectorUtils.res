@@ -184,6 +184,7 @@ let connectorList: array<connectorTypes> = [
   Processors(REVOLV3),
   Processors(TRUELAYER),
   Processors(TRUSTLY),
+  Processors(IMERCHANTSOLUTIONS),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -231,7 +232,6 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(WORLDPAYMODULAR),
   Processors(PAYJUSTNOW),
   Processors(PAYJUSTNOWINSTORE),
-  Processors(IMERCHANTSOLUTIONS),
 ]
 
 let connectorListWithAutomaticFlow = [PAYPAL]
