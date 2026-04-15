@@ -15,7 +15,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
           Window.getConnectorConfig(connector)
           ->getDictFromJsonObject
           ->getDictfromDict("metadata")
-          ->getArrayFromDict("pix", [])
+          ->getArrayFromDict("pix_qr", [])
 
         pixInputFields
       } else {

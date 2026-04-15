@@ -13,7 +13,7 @@ let pixRequestToDictMapper = dict => {
 }
 
 let pixNameMapper = (~name) => {
-  `metadata.pix.${name}`
+  `metadata.pix_qr.${name}`
 }
 
 let pixFieldInput = (~pixField: CommonConnectorTypes.inputField, ~fill) => {
@@ -34,7 +34,10 @@ let pixFieldInput = (~pixField: CommonConnectorTypes.inputField, ~fill) => {
 
 let validatePixFields = (json: JSON.t) => {
   let pixFields =
-    json->getDictFromJsonObject->getDictFromNestedDict("metadata", "pix")->pixRequestToDictMapper
+    json
+    ->getDictFromJsonObject
+    ->getDictFromNestedDict("metadata", "pix_qr")
+    ->pixRequestToDictMapper
 
   pixFields.client_id->isNonEmptyString &&
   pixFields.client_secret->isNonEmptyString &&
