@@ -255,7 +255,7 @@ let generateDropdownOptionsOMPViews = (dropdownList: OMPSwitchTypes.ompViews, ge
     {
       label: `${item.entity->getNameForId}`,
       value: `${(item.entity :> string)}`,
-      labelDescription: `(${item.lable})`,
+      labelDescription: `(${item.label})`,
       description: `${item.entity->getNameForId}`,
     }
   })

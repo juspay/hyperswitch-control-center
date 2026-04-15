@@ -90,10 +90,9 @@ describe("Homepage", () => {
         cy.contains("Payment Processors").should("be.visible");
         cy.get("[data-testid=overview]").first().click();
         cy.get("[data-button-for=tryItOut]").click();
-        cy.get('[class="text-fs-28 font-semibold leading-10 "]').should(
-          "contain",
-          "Setup Checkout",
-        );
+        cy.get(
+          '[class="text-fs-24 leading-32 font-semibold font-inter-style "]',
+        ).should("contain", "Setup Checkout");
         cy.get("[data-button-for=showPreview]").click();
         cy.wait(2000);
         getIframeBody()

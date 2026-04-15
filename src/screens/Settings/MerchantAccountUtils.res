@@ -5,7 +5,7 @@ let parseKey = api_key => {
   api_key->String.slice(~start=0, ~end=6)->String.concat(String.repeat("*", 20))
 }
 
-let parseBussinessProfileJson = (
+let parseBusinessProfileJson = (
   profileRecord: BusinessProfileInterfaceTypesV1.profileEntity_v1,
 ) => {
   let {
@@ -774,6 +774,7 @@ let defaultValueForBusinessProfile: BusinessProfileInterfaceTypesV1.profileEntit
   payment_link_config: None,
   is_external_vault_enabled: None,
   external_vault_connector_details: None,
+  payment_method_blocking: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {

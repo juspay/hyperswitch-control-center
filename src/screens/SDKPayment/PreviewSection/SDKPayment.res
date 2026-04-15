@@ -192,7 +192,7 @@ let make = () => {
       </RenderIf>
     }}
     <RenderIf condition={connectorListFromRecoil->Array.length == 0}>
-      <BluredTableComponent
+      <BlurredTableComponent
         infoText={"Connect to a payment processor to make your first payment"}
         buttonText={"Connect a connector"}
         moduleName=""
@@ -200,7 +200,7 @@ let make = () => {
       />
     </RenderIf>
     <RenderIf
-      condition={connectorListFromRecoil->Array.length > 0 && clientSecretStatus == IntialPreview}>
+      condition={connectorListFromRecoil->Array.length > 0 && clientSecretStatus == InitialPreview}>
       <div className="flex items-center justify-center w-full h-5/6">
         <img alt="blurry-sdk" src="/assets/BlurSdkPreview.png" className="w-full h-full" />
       </div>
