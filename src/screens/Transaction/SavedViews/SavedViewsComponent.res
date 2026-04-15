@@ -79,8 +79,8 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
 
         savedFilters
         ->Dict.toArray
-        ->Array.forEach(((key, value)) =>
-          SavedViewsUtils.flattenToDict(savedFiltersStringDict, key, value)
+        ->Array.forEach(
+          ((key, value)) => SavedViewsUtils.flattenToDict(savedFiltersStringDict, key, value),
         )
 
         let startTimeKey = OrderUIUtils.startTimeFilterKey(version)
@@ -177,78 +177,80 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
       | Some(selectedView) =>
         setActiveViewName(_ => viewName)
         let filterDict = selectedView.filters->getDictFromJsonObject
-      let stringDict = Dict.make()
+        let stringDict = Dict.make()
 
-      // Extract saved view filters first so we can check if dates are included
-      let newFiltersDict = Dict.make()
-      filterDict
-      ->Dict.toArray
-      ->Array.forEach(((key, value)) => SavedViewsUtils.flattenToDict(newFiltersDict, key, value))
+        // Extract saved view filters first so we can check if dates are included
+        let newFiltersDict = Dict.make()
+        filterDict
+        ->Dict.toArray
+        ->Array.forEach(((key, value)) => SavedViewsUtils.flattenToDict(newFiltersDict, key, value))
 
-      // Check if saved view includes date keys
-      let startTimeKey = OrderUIUtils.startTimeFilterKey(version)
-      let endTimeKey = OrderUIUtils.endTimeFilterKey(version)
-      let savedHasDates = newFiltersDict->Dict.get(startTimeKey)->Option.isSome
+        // Check if saved view includes date keys
+        let startTimeKey = OrderUIUtils.startTimeFilterKey(version)
+        let endTimeKey = OrderUIUtils.endTimeFilterKey(version)
+        let savedHasDates = newFiltersDict->Dict.get(startTimeKey)->Option.isSome
 
-      // Clear currently active filters, but preserve dates if view doesn't include them
-      filterValueJson
-      ->Dict.keysToArray
-      ->Array.forEach(key => {
-        if !savedHasDates && (key === startTimeKey || key === endTimeKey) {
-          () // preserve existing date range
-        } else {
-          stringDict->Dict.set(key, "")
-        }
-      })
-
-      let rawKeys = newFiltersDict->Dict.keysToArray
-
-      newFiltersDict
-      ->Dict.toArray
-      ->Array.forEach(((key, value)) => stringDict->Dict.set(key, value))
-
-      // Map keys for UI display
-      let displayKeys =
-        rawKeys
-        ->Array.map(key => {
-          if ["amount_option", "start_amount", "end_amount"]->Array.includes(key) {
-            "amount"
+        // Clear currently active filters, but preserve dates if view doesn't include them
+        filterValueJson
+        ->Dict.keysToArray
+        ->Array.forEach(key => {
+          if !savedHasDates && (key === startTimeKey || key === endTimeKey) {
+            () // preserve existing date range
           } else {
-            key
+            stringDict->Dict.set(key, "")
           }
         })
-        ->Array.filter(key => {
-          !(["start_time", "end_time", "created.gte", "created.lte"]->Array.includes(key))
-        })
 
-      let uniqueDisplayKeys = displayKeys->getUniqueArray
+        let rawKeys = newFiltersDict->Dict.keysToArray
 
-      // reconstruct amount_option from start/end amounts
-      let startAmountStr = stringDict->Dict.get("start_amount")->Option.getOr("")
-      let endAmountStr = stringDict->Dict.get("end_amount")->Option.getOr("")
+        newFiltersDict
+        ->Dict.toArray
+        ->Array.forEach(((key, value)) => stringDict->Dict.set(key, value))
 
-      if startAmountStr->LogicUtils.isNonEmptyString || endAmountStr->LogicUtils.isNonEmptyString {
+        // Map keys for UI display
+        let displayKeys =
+          rawKeys
+          ->Array.map(key => {
+            if ["amount_option", "start_amount", "end_amount"]->Array.includes(key) {
+              "amount"
+            } else {
+              key
+            }
+          })
+          ->Array.filter(key => {
+            !(["start_time", "end_time", "created.gte", "created.lte"]->Array.includes(key))
+          })
+
+        let uniqueDisplayKeys = displayKeys->getUniqueArray
+
+        // reconstruct amount_option from start/end amounts
+        let startAmountStr = stringDict->Dict.get("start_amount")->Option.getOr("")
+        let endAmountStr = stringDict->Dict.get("end_amount")->Option.getOr("")
+
         if (
-          startAmountStr->LogicUtils.isNonEmptyString && endAmountStr->LogicUtils.isNonEmptyString
+          startAmountStr->LogicUtils.isNonEmptyString || endAmountStr->LogicUtils.isNonEmptyString
         ) {
-          if startAmountStr === endAmountStr {
-            stringDict->Dict.set("amount_option", "EqualTo")
-          } else {
-            stringDict->Dict.set("amount_option", "Between")
+          if (
+            startAmountStr->LogicUtils.isNonEmptyString && endAmountStr->LogicUtils.isNonEmptyString
+          ) {
+            if startAmountStr === endAmountStr {
+              stringDict->Dict.set("amount_option", "EqualTo")
+            } else {
+              stringDict->Dict.set("amount_option", "Between")
+            }
+          } else if startAmountStr->LogicUtils.isNonEmptyString {
+            stringDict->Dict.set("amount_option", "GreaterThanOrEqualTo")
+          } else if endAmountStr->LogicUtils.isNonEmptyString {
+            stringDict->Dict.set("amount_option", "LessThanOrEqualTo")
           }
-        } else if startAmountStr->LogicUtils.isNonEmptyString {
-          stringDict->Dict.set("amount_option", "GreaterThanOrEqualTo")
-        } else if endAmountStr->LogicUtils.isNonEmptyString {
-          stringDict->Dict.set("amount_option", "LessThanOrEqualTo")
+
+          if !(uniqueDisplayKeys->Array.includes("amount")) {
+            uniqueDisplayKeys->Array.push("amount")->ignore
+          }
         }
 
-        if !(uniqueDisplayKeys->Array.includes("amount")) {
-          uniqueDisplayKeys->Array.push("amount")->ignore
-        }
-      }
-
-      setfilterKeys(_ => uniqueDisplayKeys)
-      stringDict->updateExistingKeys
+        setfilterKeys(_ => uniqueDisplayKeys)
+        stringDict->updateExistingKeys
       }
     } else {
       reset()

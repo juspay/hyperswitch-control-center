@@ -16,7 +16,10 @@ let buildActionPayload = (entity, actionType, dataDict) => {
 
 let buildDeletePayload = (entity, viewId) => {
   let dataDict =
-    [("entity", entity->JSON.Encode.string), ("view_id", viewId->JSON.Encode.string)]->Dict.fromArray
+    [
+      ("entity", entity->JSON.Encode.string),
+      ("view_id", viewId->JSON.Encode.string),
+    ]->Dict.fromArray
   buildActionPayload(entity, "Delete", dataDict)
 }
 
