@@ -74,8 +74,9 @@ let getTransactionStatusGroupedValueAndLabel = (status: domainTransactionStatus)
   string,
 ) => {
   switch status {
-  | Posted(Auto) => ("posted_auto", "Reconciled (Auto)", "Reconciled")
-  | Posted(Manual) => ("posted_manual", "Reconciled (Manual)", "Reconciled")
+  | Posted(Manual) => ("posted_manual", "Posted (Manual)", "Posted")
+  | Matched(Auto) => ("matched_auto", "Matched (Auto)", "Matched")
+  | Matched(Manual) => ("matched_manual", "Matched (Manual)", "Matched")
   | OverAmount(Expected) => (
       "over_amount_expected",
       "Positive Variance (Awaiting Match)",
@@ -97,11 +98,17 @@ let getTransactionStatusGroupedValueAndLabel = (status: domainTransactionStatus)
       "Negative Variance",
     )
   | DataMismatch => ("data_mismatch", "Data Mismatch", "Others")
-  | PartiallyReconciled => ("partially_reconciled", "Partially Reconciled", "Others")
+  | PartiallyReconciled => ("partially_reconciled", "Partially Matched", "Others")
   | Missing => ("missing", "Missing", "Others")
   | Expected => ("expected", "Expected", "Others")
   | Void => ("void", "Void", "Others")
-  | _ => ("", "", "")
+  | Matched(Force)
+  | Archived
+  | Matched(UnknownDomainTransactionMatchedStatus)
+  | Posted(UnknownDomainTransactionPostedStatus)
+  | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
+  | UnderAmount(UnknownDomainTransactionAmountMismatchStatus)
+  | UnknownDomainTransactionStatus => ("", "", "")
   }
 }
 
@@ -129,13 +136,13 @@ let getTransactionStatusValueFromStatusList = (statusList: array<domainTransacti
   })
 }
 
-let getMergedPostedTransactionStatusFilter = statusFilter => {
-  if statusFilter->Array.some(v => v->getStringFromJson("") == "posted_manual") {
-    if !(statusFilter->Array.some(v => v->getStringFromJson("") == "posted_force")) {
-      [...statusFilter, "posted_force"->JSON.Encode.string]
-    } else {
-      statusFilter
-    }
+let getMergedMatchedTransactionStatusFilter = statusFilter => {
+  let (matchedManualValue, _, _) = getTransactionStatusGroupedValueAndLabel(Matched(Manual))
+  let (matchedForceValue, _, _) = getTransactionStatusGroupedValueAndLabel(Matched(Force))
+
+  let hasStatus = value => statusFilter->Array.some(v => v->getStringFromJson("") == value)
+  if hasStatus(matchedManualValue) && !hasStatus(matchedForceValue) {
+    [...statusFilter, matchedForceValue->JSON.Encode.string]
   } else {
     statusFilter
   }
