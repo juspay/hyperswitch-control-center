@@ -36,7 +36,8 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
       let mappedRes = res->HSwitchOrderUtils.savedViewsResponseMapper
       setSavedViews(_ => mappedRes.views)
     } catch {
-    | _ =>
+    | err =>
+      Js.Console.error2("[SavedViews] fetchSavedViews failed", err)
       showToast(~message="Failed to load saved views. Please try again.", ~toastType=ToastError)
     }
   }
@@ -124,9 +125,12 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
       )
       fetchSavedViews()->ignore
     } catch {
-    | _ =>
+    | err =>
+      Js.Console.error2("[SavedViews] performDelete failed", err)
       showToast(
-        ~message=`Failed to delete view '${viewName}'. Please try again.`,
+        ~message=`Failed to delete view '${SavedViewsUtils.truncateName(
+            viewName,
+          )}'. Please try again.`,
         ~toastType=ToastError,
       )
     }
@@ -144,7 +148,9 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
         setActiveViewName(_ => newName)
       }
     } catch {
-    | _ => showToast(~message="Failed to rename view. Please try again.", ~toastType=ToastError)
+    | err =>
+      Js.Console.error2("[SavedViews] performRename failed", err)
+      showToast(~message="Failed to rename view. Please try again.", ~toastType=ToastError)
     }
   }
 
