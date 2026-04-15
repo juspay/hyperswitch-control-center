@@ -3,6 +3,33 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.04.15.0
+
+### Features
+
+- Add Itaubank as payout processor for Pix ([#4695](https://github.com/juspay/hyperswitch-control-center/pull/4695)) ([`a63a5bb`](https://github.com/juspay/hyperswitch-control-center/commit/a63a5bb5583aa0802b3d5258563939af9fdf9dce))
+- Wasm changes for `Itaubank` payout connector ([#4697](https://github.com/juspay/hyperswitch-control-center/pull/4697)) ([`93a5615`](https://github.com/juspay/hyperswitch-control-center/commit/93a5615d44aac385aa82225005c06eaa62df535f))
+- Recon engine add matched variants in transactions and entries ([#4240](https://github.com/juspay/hyperswitch-control-center/pull/4240)) ([`1d266ea`](https://github.com/juspay/hyperswitch-control-center/commit/1d266ea2e668118398276ddbdd3b13080b5455e4))
+
+### Bug Fixes
+
+- Backend script setup for tests ([#4701](https://github.com/juspay/hyperswitch-control-center/pull/4701)) ([`b1395b0`](https://github.com/juspay/hyperswitch-control-center/commit/b1395b018dca38c2020667a3314d1dc9513ef869))
+- Show display name for connectors in order filters ([#4676](https://github.com/juspay/hyperswitch-control-center/pull/4676)) ([`f2da09b`](https://github.com/juspay/hyperswitch-control-center/commit/f2da09bdd28c241e15fb1498c99e2ab0cbed5e85))
+- Disable 3DS authentication by default in SDK payment module ([#4691](https://github.com/juspay/hyperswitch-control-center/pull/4691)) ([`0465422`](https://github.com/juspay/hyperswitch-control-center/commit/046542249b8cc2842de9dae25c46161f07a824d8))
+- Show horizontal scrollbar on global search result tables ([#4707](https://github.com/juspay/hyperswitch-control-center/pull/4707)) ([`7ff11ea`](https://github.com/juspay/hyperswitch-control-center/commit/7ff11eac3bf6713dbc84331b3849edbb93d53cd9))
+
+### Refactors
+
+- Parameterize review bot workflow for reuse ([#4708](https://github.com/juspay/hyperswitch-control-center/pull/4708)) ([`6c964ab`](https://github.com/juspay/hyperswitch-control-center/commit/6c964ab5b35ce560ae11992e55e3ddd32911d7c0))
+
+### Miscellaneous Tasks
+
+- Add skill sync step from spec repo ([#4704](https://github.com/juspay/hyperswitch-control-center/pull/4704)) ([`7f45c8b`](https://github.com/juspay/hyperswitch-control-center/commit/7f45c8bb83fb42d71e912d8e3e8e5b03a12d975e))
+
+**Full Changelog:** [`2026.04.13.0...2026.04.15.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.13.0...2026.04.15.0)
+
+- - -
+
 ## 2026.04.13.0
 
 ### Features
