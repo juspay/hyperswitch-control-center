@@ -57,6 +57,12 @@ type resourceAccessType =
   | WebhookEvent
   | Report
   | Theme
+  | ReconIngestion
+  | ReconTransformation
+  | ReconException
+  | ReconStagingEntry
+  | ReconTransaction
+  | ReconRule
   | UnknownResourceAccess(string)
 
 open CommonAuthTypes
@@ -77,6 +83,14 @@ type groupAccessJsonType = {
   accountManage: authorization,
   themeView: authorization,
   themeManage: authorization,
+  reconSourcesView: authorization,
+  reconSourcesManage: authorization,
+  reconTransactionsView: authorization,
+  reconTransactionsManage: authorization,
+  reconRulesView: authorization,
+  reconRulesManage: authorization,
+  reconExceptionsView: authorization,
+  reconExceptionsManage: authorization,
 }
 
 type getInfoType = {
