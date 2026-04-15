@@ -85,6 +85,12 @@ let mapStringToResourceAccessType = val =>
   | "run_recon" => RunRecon
   | "recon_config" => ReconConfig
   | "theme" => Theme
+  | "recon_ingestion" => ReconIngestion
+  | "recon_transformation" => ReconTransformation
+  | "recon_exception" => ReconException
+  | "recon_staging_entry" => ReconStagingEntry
+  | "recon_transaction" => ReconTransaction
+  | "recon_rule" => ReconRule
   | _ => UnknownResourceAccess(val)
   }
 
@@ -105,6 +111,14 @@ let defaultValueForGroupAccessJson = {
   accountManage: NoAccess,
   themeView: NoAccess,
   themeManage: NoAccess,
+  reconSourcesView: NoAccess,
+  reconSourcesManage: NoAccess,
+  reconTransactionsView: NoAccess,
+  reconTransactionsManage: NoAccess,
+  reconRulesView: NoAccess,
+  reconRulesManage: NoAccess,
+  reconExceptionsView: NoAccess,
+  reconExceptionsManage: NoAccess,
 }
 
 let convertValueToMapGroup = arrayValue => {
@@ -139,5 +153,13 @@ let getGroupAccessJson = groupACL => {
     accountManage: getAccess(AccountManage),
     themeView: getAccess(ThemeView),
     themeManage: getAccess(ThemeManage),
+    reconSourcesView: getAccess(ReconSourcesView),
+    reconSourcesManage: getAccess(ReconSourcesManage),
+    reconTransactionsView: getAccess(ReconTransactionsView),
+    reconTransactionsManage: getAccess(ReconTransactionsManage),
+    reconRulesView: getAccess(ReconRulesView),
+    reconRulesManage: getAccess(ReconRulesManage),
+    reconExceptionsView: getAccess(ReconExceptionsView),
+    reconExceptionsManage: getAccess(ReconExceptionsManage),
   }
 }
