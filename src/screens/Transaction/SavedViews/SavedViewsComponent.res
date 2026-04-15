@@ -223,25 +223,31 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
 
         let uniqueDisplayKeys = displayKeys->getUniqueArray
 
-        // reconstruct amount_option from start/end amounts
+        // AmountFilter reads amount_option via stringRangetoTypeAmount which expects
+        // variant constructor names (e.g. "InBetween"), NOT human-readable labels.
+        // If the saved view didn't persist amount_option (older payload), reconstruct
+        // it from start/end presence.
         let startAmountStr = stringDict->Dict.get("start_amount")->Option.getOr("")
         let endAmountStr = stringDict->Dict.get("end_amount")->Option.getOr("")
+        let hasStart = startAmountStr->LogicUtils.isNonEmptyString
+        let hasEnd = endAmountStr->LogicUtils.isNonEmptyString
+        let hasAmountOption =
+          stringDict
+          ->Dict.get("amount_option")
+          ->Option.getOr("")
+          ->LogicUtils.isNonEmptyString
 
-        if (
-          startAmountStr->LogicUtils.isNonEmptyString || endAmountStr->LogicUtils.isNonEmptyString
-        ) {
-          if (
-            startAmountStr->LogicUtils.isNonEmptyString && endAmountStr->LogicUtils.isNonEmptyString
-          ) {
-            if startAmountStr === endAmountStr {
-              stringDict->Dict.set("amount_option", "EqualTo")
-            } else {
-              stringDict->Dict.set("amount_option", "Between")
+        if hasStart || hasEnd {
+          if !hasAmountOption {
+            let constructorName = switch (hasStart, hasEnd) {
+            | (true, true) => startAmountStr === endAmountStr ? "EqualTo" : "InBetween"
+            | (true, false) => "GreaterThanOrEqualTo"
+            | (false, true) => "LessThanOrEqualTo"
+            | (false, false) => ""
             }
-          } else if startAmountStr->LogicUtils.isNonEmptyString {
-            stringDict->Dict.set("amount_option", "GreaterThanOrEqualTo")
-          } else if endAmountStr->LogicUtils.isNonEmptyString {
-            stringDict->Dict.set("amount_option", "LessThanOrEqualTo")
+            if constructorName->LogicUtils.isNonEmptyString {
+              stringDict->Dict.set("amount_option", constructorName)
+            }
           }
 
           if !(uniqueDisplayKeys->Array.includes("amount")) {

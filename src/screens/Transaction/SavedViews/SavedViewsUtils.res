@@ -52,13 +52,14 @@ let stringFromFilterValue = (dict, key) => {
 }
 
 // Collapses amount_option / start_amount / end_amount into a nested amount_filter
-// object on `filtersDict` in place. Matches the backend contract used at read time.
+// object on `filtersDict` in place. AmountFilter stores amount_option via an
+// identity cast of the variant, so the value in form state is the constructor
+// name ("InBetween", "GreaterThanOrEqualTo", ...). Parse with stringRangetoTypeAmount.
 let foldAmountOption = filtersDict => {
   let amountOption = filtersDict->stringFromFilterValue("amount_option")
   if amountOption->LogicUtils.isNonEmptyString {
     let startAmountStr = filtersDict->stringFromFilterValue("start_amount")
     let endAmountStr = filtersDict->stringFromFilterValue("end_amount")
-    filtersDict->Dict.delete("amount_option")
     filtersDict->Dict.delete("start_amount")
     filtersDict->Dict.delete("end_amount")
 
@@ -69,16 +70,18 @@ let foldAmountOption = filtersDict => {
       | None => ()
       }
 
-    switch amountOption {
-    | "GreaterThanOrEqualTo" => setIfSome("start_amount", startAmountStr)
-    | "LessThanOrEqualTo" => setIfSome("end_amount", endAmountStr)
-    | "EqualTo" =>
+    switch amountOption->AmountFilterUtils.stringRangetoTypeAmount {
+    | GreaterThanOrEqualTo => setIfSome("start_amount", startAmountStr)
+    | LessThanOrEqualTo => setIfSome("end_amount", endAmountStr)
+    | EqualTo =>
       setIfSome("start_amount", startAmountStr)
       setIfSome("end_amount", startAmountStr)
-    | "Between" =>
+    | InBetween =>
       setIfSome("start_amount", startAmountStr)
       setIfSome("end_amount", endAmountStr)
-    | _ => ()
+    | UnknownRange(_) =>
+      // Unrecognized option — drop it rather than persist garbage.
+      filtersDict->Dict.delete("amount_option")
     }
 
     if amountFilterDict->Dict.keysToArray->Array.length > 0 {
