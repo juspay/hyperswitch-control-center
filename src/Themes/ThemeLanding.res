@@ -2,6 +2,7 @@
 let make = (~remainingPath) => {
   open APIUtils
   open APIUtilsTypes
+  open LogicUtils
 
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchDetails = useGetMethod()
@@ -27,7 +28,6 @@ let make = (~remainingPath) => {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Error fetching theme list"))
     }
   }
-  let toOption = (val, sentinel) => val->Option.flatMap(v => v == sentinel ? None : Some(v))
 
   React.useEffect(() => {
     fetchThemeList()->ignore
@@ -54,9 +54,9 @@ let make = (~remainingPath) => {
         <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
           <ThemeUpdate
             themeId
-            orgId={orgId->toOption("all_orgs")}
-            merchantId={merchantId->toOption("all_merchants")}
-            profileId={profileId->toOption("all_profiles")}
+            orgId={orgId->convertToNoneIfEqual("all_orgs")}
+            merchantId={merchantId->convertToNoneIfEqual("all_merchants")}
+            profileId={profileId->convertToNoneIfEqual("all_profiles")}
           />
         </AccessControl>
       }}

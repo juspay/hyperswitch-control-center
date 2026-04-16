@@ -25,9 +25,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
   let showPopUp = PopUpState.useShowPopUp()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let processAssets = ThemeHooks.useProcessAssets(~themeId)
-  let (assets, setAssets) = React.useState(_ => Dict.make())
-  let handleFileSelect = (key, ev) => handleAssetFileSelect(setAssets, key, ev)
-  let handleRemove = key => handleAssetRemove(setAssets, key)
+  let (assets, setAssets) = React.useState(_ => Dict.make()->assetsMapper)
   let themeConfigVersion = HyperSwitchEntryUtils.getThemeConfigVersionfromStore()
   let getThemeByThemeId = async () => {
     try {
@@ -41,23 +39,8 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
       let url = getURL(~entityName=V1(USERS), ~methodType=Get, ~id=Some(themeId), ~userType=#THEME)
       let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
       let mappedTheme = res->themeBodyMapper
-      let themeUrls = mappedTheme.theme_data.urls
-      let initialAssets = Dict.make()
-      switch themeUrls.logoUrl {
-      | Some(url) =>
-        if url->isNonEmptyString {
-          initialAssets->Dict.set("logo", url->JSON.Encode.string)
-        }
-      | None => ()
-      }
-      switch themeUrls.faviconUrl {
-      | Some(url) =>
-        if url->isNonEmptyString {
-          initialAssets->Dict.set("favicon", url->JSON.Encode.string)
-        }
-      | None => ()
-      }
-      setAssets(_ => initialAssets)
+      let urlsDict = res->getDictFromJsonObject->getDictFromNestedDict("theme_data", "urls")
+      setAssets(_ => urlsDict->assetsMapper)
       setInitialValues(_ => mappedTheme->Identity.genericTypeToJson)
       setScreenState(_ => Success)
     } catch {
@@ -158,9 +141,14 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
           <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
             <div className="flex flex-col gap-2">
               <ThemeSettingsHelper.IconSettings
-                assets onFileSelect=handleFileSelect onRemove=handleRemove themeConfigVersion
+                assets
+                onLogoSelect={file => setAssets(prev => {...prev, logo: Some(File(file))})}
+                onLogoRemove={() => setAssets(prev => {...prev, logo: None})}
+                onFaviconSelect={file => setAssets(prev => {...prev, favicon: Some(File(file))})}
+                onFaviconRemove={() => setAssets(prev => {...prev, favicon: None})}
+                themeConfigVersion
               />
-              <ThemeSettings />
+              <ThemeSettings isUpdatePage=true />
             </div>
             <div className="flex flex-col gap-8 w-full lg:col-span-2">
               <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>

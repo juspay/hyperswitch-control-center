@@ -4,7 +4,7 @@ open ThemeFeatureUtils
 
 module BrandSettings = {
   @react.component
-  let make = (~colorsFromForm: HyperSwitchConfigTypes.colorPalette) => {
+  let make = (~colorsFromForm: HyperSwitchConfigTypes.colorPalette, ~isUpdatePage=false) => {
     let labelClass = `${body.md.medium} text-nd_gray-700`
     let primaryColor = makeFieldInfo(
       ~label="Primary Color",
@@ -23,7 +23,9 @@ module BrandSettings = {
     <div className="flex flex-col gap-4">
       <div className={`${body.lg.semibold}`}> {React.string("Brand Settings")} </div>
       <div className="space-y-4">
-        <FormRenderer.FieldRenderer field=themeNameField labelClass />
+        <RenderIf condition={!isUpdatePage}>
+          <FormRenderer.FieldRenderer field=themeNameField labelClass />
+        </RenderIf>
         <FormRenderer.FieldRenderer field=primaryColor labelClass />
       </div>
     </div>
@@ -172,25 +174,32 @@ module AssetField = {
 module IconSettings = {
   @react.component
   let make = (
-    ~assets: Dict.t<JSON.t>,
-    ~onFileSelect: (string, ReactEvent.Form.t) => unit,
-    ~onRemove: string => unit,
+    ~assets: ThemeTypes.assets,
+    ~onLogoSelect: JSON.t => unit,
+    ~onLogoRemove: unit => unit,
+    ~onFaviconSelect: JSON.t => unit,
+    ~onFaviconRemove: unit => unit,
     ~themeConfigVersion,
   ) => {
-    let getDisplayUrl = (key: string) => {
-      switch assets->LogicUtils.getvalFromDict(key) {
-      | Some(value) =>
-        switch value->JSON.Decode.string {
-        | Some(url) => Some(url)
-        | None =>
-          Some(
-            DownloadUtils.createObjectURL(
-              (value->Identity.jsonToAnyType: DownloadUtils.blobInstanceType),
-            ),
-          )
-        }
+    let getDisplayUrl = (asset: option<ThemeTypes.assetValue>) => {
+      switch asset {
+      | Some(Url(url)) => Some(url)
+      | Some(File(file)) =>
+        Some(
+          DownloadUtils.createObjectURL(
+            (file->Identity.jsonToAnyType: DownloadUtils.blobInstanceType),
+          ),
+        )
       | None => None
       }
+    }
+
+    let handleFileChange = onSelect => {
+      ev =>
+        switch ThemeFeatureUtils.getFileFromEvent(ev) {
+        | Some(file) => onSelect(file)
+        | None => ()
+        }
     }
 
     <div className="flex flex-col gap-4">
@@ -198,18 +207,18 @@ module IconSettings = {
       <div className="space-y-4">
         <AssetField
           label="Logo"
-          displayUrl={getDisplayUrl("logo")}
-          onFileChange={ev => onFileSelect("logo", ev)}
-          onRemove={() => onRemove("logo")}
+          displayUrl={getDisplayUrl(assets.logo)}
+          onFileChange={handleFileChange(onLogoSelect)}
+          onRemove=onLogoRemove
           accept=".png,.jpg,.jpeg"
           inputId="logoFileInput"
           themeConfigVersion
         />
         <AssetField
           label="Favicon"
-          displayUrl={getDisplayUrl("favicon")}
-          onFileChange={ev => onFileSelect("favicon", ev)}
-          onRemove={() => onRemove("favicon")}
+          displayUrl={getDisplayUrl(assets.favicon)}
+          onFileChange={handleFileChange(onFaviconSelect)}
+          onRemove=onFaviconRemove
           accept=".png,.ico,.jpg,.jpeg"
           inputId="faviconFileInput"
           themeConfigVersion

@@ -23,23 +23,24 @@ let getEntityTypeFromStep = (stepVariant: ThemeTypes.lineageSelectionSteps) =>
   | _ => ""
   }
 
-let handleAssetFileSelect = (setAssets, key, ev) => {
+let getFileFromEvent = ev => {
   let files = ReactEvent.Form.target(ev)["files"]
-  switch files->LogicUtils.getValueFromArray(0, None) {
-  | Some(file) =>
-    setAssets(prev => {
-      let next = prev->Dict.copy
-      next->Dict.set(key, file)
-      next
-    })
-  | None => ()
-  }
+  files->LogicUtils.getValueFromArray(0, None)
 }
 
-let handleAssetRemove = (setAssets, key) => {
-  setAssets(prev => {
-    prev->Dict.toArray->Array.filter(((k, _)) => k !== key)->Dict.fromArray
-  })
+let assetsMapper = (dict): ThemeTypes.assets => {
+  open LogicUtils
+  let toUrl = url => url->isNonEmptyString ? Some(ThemeTypes.Url(url)) : None
+  {
+    logo: switch dict->getOptionString("logoUrl") {
+    | Some(url) => toUrl(url)
+    | None => None
+    },
+    favicon: switch dict->getOptionString("faviconUrl") {
+    | Some(url) => toUrl(url)
+    | None => None
+    },
+  }
 }
 
 let buildThemeDataBody = (~settingsDict: Dict.t<JSON.t>, ~urlsDict: Dict.t<JSON.t>) => {

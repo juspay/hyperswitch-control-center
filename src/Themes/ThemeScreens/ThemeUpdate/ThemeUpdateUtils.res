@@ -3,7 +3,11 @@ open LogicUtils
 
 let themeBodyMapper = (json: JSON.t): themeUpdate => {
   let dict = getDictFromJsonObject(json)
-  let theme_data = getJsonObjectFromDict(dict, "theme_data")->ThemeProvider.parseThemeJson
+  let themeJsonObject = getJsonObjectFromDict(dict, "theme_data")
+  let theme_data = ThemeUtils.parseThemeJson(
+    ~uiConfig=themeJsonObject,
+    ~fallbackThemeConfig=ThemeProvider.fallbackThemeConfig,
+  )
   let emailConfigJson = dict->getvalFromDict("email_config")
   let email_config: option<HyperSwitchConfigTypes.emailConfig> = switch emailConfigJson {
   | Some(emailJson) => {

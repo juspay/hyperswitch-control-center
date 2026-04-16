@@ -1,5 +1,6 @@
 let useProcessAssets = (~themeId) => {
-  open LogicUtils
+  open GlobalVars
+  open ThemeTypes
   let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
   let getURL = APIUtils.useGetURL()
   let assetUploadUrl = getURL(
@@ -8,38 +9,39 @@ let useProcessAssets = (~themeId) => {
     ~id=Some(themeId),
     ~userType=#THEME_UPLOAD_ASSET,
   )
+  let processAsset = async (~asset, ~fileName, ~urlKey, ~urlsDict) => {
+    switch asset {
+    | Some(Url(url)) => urlsDict->Dict.set(urlKey, url->JSON.Encode.string)
+    | Some(File(file)) =>
+      let formData = FormDataUtils.formData()
+      FormDataUtils.append(formData, "asset_name", fileName)
+      FormDataUtils.append(formData, "asset_data", Some(file))
+      let _ = await updateDetails(
+        assetUploadUrl,
+        Dict.make()->JSON.Encode.object,
+        Post,
+        ~bodyFormData=formData,
+        ~headers=Dict.make(),
+        ~contentType=AuthHooks.Unknown,
+      )
+      urlsDict->Dict.set(urlKey, `${getHostUrl}/themes/${themeId}/${fileName}`->JSON.Encode.string)
+    | None => ()
+    }
+  }
 
-  async (~assets: Dict.t<JSON.t>) => {
+  async (~assets: ThemeTypes.assets) => {
     try {
       let urlsDict = Dict.make()
-      let baseUrl = GlobalVars.getHostUrl
 
-      let processAsset = async (~assetKey, ~fileName, ~urlKey) => {
-        switch assets->getvalFromDict(assetKey) {
-        | Some(value) =>
-          let url = switch value->JSON.Decode.string {
-          | Some(url) => url->JSON.Encode.string
-          | None =>
-            let formData = FormDataUtils.formData()
-            FormDataUtils.append(formData, "asset_name", fileName)
-            FormDataUtils.append(formData, "asset_data", Some(value))
-            let _ = await updateDetails(
-              assetUploadUrl,
-              Dict.make()->JSON.Encode.object,
-              Post,
-              ~bodyFormData=formData,
-              ~headers=Dict.make(),
-              ~contentType=AuthHooks.Unknown,
-            )
-            `${baseUrl}/themes/${themeId}/${fileName}`->JSON.Encode.string
-          }
-          urlsDict->Dict.set(urlKey, url)
-        | None => ()
-        }
-      }
-
-      await processAsset(~assetKey="logo", ~fileName="logo.png", ~urlKey="logoUrl")
-      await processAsset(~assetKey="favicon", ~fileName="favicon.png", ~urlKey="faviconUrl")
+      let (_, _) = await Promise.all2((
+        processAsset(~asset=assets.logo, ~fileName="logo.png", ~urlKey="logoUrl", ~urlsDict),
+        processAsset(
+          ~asset=assets.favicon,
+          ~fileName="favicon.png",
+          ~urlKey="faviconUrl",
+          ~urlsDict,
+        ),
+      ))
 
       urlsDict
     } catch {
