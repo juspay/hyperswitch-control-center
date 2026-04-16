@@ -176,7 +176,7 @@ module ExceptionDataDisplay = {
         entryDetails
         ->Array.filter(entry => entry.status == Mismatched)
         ->Array.map(entry => entry.data)
-        ->LogicUtils.getValueFromArray(0, Js.Json.null)
+        ->LogicUtils.getValueFromArray(0, JSON.Encode.null)
       | Posted(Manual)
       | Matched(Force)
       | Matched(Manual)
@@ -192,7 +192,7 @@ module ExceptionDataDisplay = {
       | Matched(UnknownDomainTransactionMatchedStatus)
       | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
       | UnderAmount(UnknownDomainTransactionAmountMismatchStatus)
-      | UnknownDomainTransactionStatus => Js.Json.null
+      | UnknownDomainTransactionStatus => JSON.Encode.null
       }
     }, [currentExceptionDetails.transaction_status])
 

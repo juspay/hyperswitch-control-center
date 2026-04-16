@@ -222,7 +222,11 @@ let initialFilters = (json, filtervalues, _, _, _, _) => {
 
     let options = switch key->getFilterTypeFromString {
     | #connector_label => getOptionsForRefundFilters(filterDict, filtervalues)
-    | #connector => values->FilterSelectBox.makeOptions(~isTitle=true)
+    | #connector =>
+      values->Array.map((str): FilterSelectBox.dropdownOption => {
+        label: ConnectorUtils.getDisplayNameForConnector(str),
+        value: str,
+      })
     | _ => values->FilterSelectBox.makeOptions
     }
     let customInput = switch key->getFilterTypeFromString {

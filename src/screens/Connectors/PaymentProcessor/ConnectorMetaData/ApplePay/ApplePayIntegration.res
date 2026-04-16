@@ -161,7 +161,6 @@ module Landing = {
     }
     <div className="flex flex-col gap-6 p-6">
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
-      | Processors(STRIPE)
       | Processors(BANKOFAMERICA)
       | Processors(CYBERSOURCE)
       | Processors(FIUU)
@@ -172,7 +171,7 @@ module Landing = {
           <ApplePayManualLandingCard setApplePayIntegrationType appleIntegrationType />
         </>
 
-      | Processors(NUVEI) | Processors(NMI) =>
+      | Processors(NUVEI) | Processors(NMI) | Processors(STRIPE) =>
         <>
           <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
           <ApplePaySimplifiedLandingCard setApplePayIntegrationType appleIntegrationType />
