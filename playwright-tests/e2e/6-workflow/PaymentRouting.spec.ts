@@ -65,7 +65,7 @@ test.describe("Volume based routing", () => {
       "Smart routing configuration",
     );
 
-    const currentDate = new Date().toLocaleDateString("en-IN", {
+    const currentDate = new Date().toLocaleDateString("en-CA", {
       timeZone: "Asia/Kolkata"
     });
     await expect(
