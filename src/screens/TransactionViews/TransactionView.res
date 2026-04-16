@@ -50,7 +50,10 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
     updateViewsFilterValue(view)
   }
 
-  let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
+  let defaultDate = React.useMemo(
+    () => HSwitchRemoteFilter.getDateFilteredObject(~range=30),
+    [],
+  )
   let startTime =
     filterValueJson->getString(OrderUIUtils.startTimeFilterKey(version), defaultDate.start_time)
   let endTime =
