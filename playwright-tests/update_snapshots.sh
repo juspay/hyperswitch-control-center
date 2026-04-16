@@ -159,16 +159,16 @@ else
 fi
 
 # Show which snapshots were modified
-# echo ""
-# echo "Modified snapshots:"
-# CHANGED=$(git diff --name-only -- '*.png' 2>/dev/null || true)
-# UNTRACKED=$(git ls-files --others --exclude-standard -- '*.png' 2>/dev/null || true)
-# ALL_CHANGED=$(printf '%s\n%s' "$CHANGED" "$UNTRACKED" | grep -v '^$' | sort -u || true)
+echo ""
+echo "Modified snapshots:"
+CHANGED=$(git diff --name-only -- '*.png' 2>/dev/null || true)
+UNTRACKED=$(git ls-files --others --exclude-standard -- '*.png' 2>/dev/null || true)
+ALL_CHANGED=$(printf '%s\n%s' "$CHANGED" "$UNTRACKED" | grep -v '^$' | sort -u || true)
 
-# if [ -n "$ALL_CHANGED" ]; then
-#   echo "$ALL_CHANGED" | while read -r f; do echo "  $f"; done
-# else
-#   echo "  (no snapshot changes detected)"
-# fi
+if [ -n "$ALL_CHANGED" ]; then
+  echo "$ALL_CHANGED" | while read -r f; do echo "  $f"; done
+else
+  echo "  (no snapshot changes detected)"
+fi
 
 exit $EXIT_CODE
