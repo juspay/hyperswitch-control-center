@@ -58,7 +58,7 @@ let make = (
           connector closeAccordionFn update=updatePaymentMethods onCloseClickCustomFun
         />
       | PixQr =>
-        <PixIntegration connector closeAccordionFn update=updateMetadata onCloseClickCustomFun />
+        <PixQrIntegration connector closeAccordionFn update=updateMetadata onCloseClickCustomFun />
       | PixAutomaticoQr =>
         <PixAutomaticoIntegration
           connector
