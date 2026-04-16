@@ -38,7 +38,7 @@ for tag in $(git tag --sort=-creatordate); do
   toml_file="config/docker_compose.toml"
 
   # Ensure the file exists
-  if [[ ! -f "$toml_file" ]]; then
+  if [ ! -f "$toml_file" ]; then
     echo "Error: File $toml_file not found!"
     exit 1
   fi

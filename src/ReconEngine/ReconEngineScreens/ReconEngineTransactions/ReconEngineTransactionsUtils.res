@@ -58,8 +58,9 @@ let getAccounts = (entries: array<transactionEntryType>, entryType: entryDirecti
 
 let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
   let statusOptions = getGroupedTransactionStatusOptions([
-    Posted(Auto),
     Posted(Manual),
+    Matched(Auto),
+    Matched(Manual),
     OverAmount(Mismatch),
     OverAmount(Expected),
     UnderAmount(Mismatch),
@@ -134,7 +135,11 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
 
 let getTransactionStatusLabelColor = (status: domainTransactionStatus): TableUtils.labelColor => {
   switch status {
-  | Posted(_) => LabelGreen
+  | Posted(Manual)
+  | Matched(Force)
+  | Matched(Manual)
+  | Matched(Auto) =>
+    LabelGreen
   | OverAmount(Mismatch)
   | UnderAmount(Mismatch)
   | DataMismatch =>
@@ -142,6 +147,12 @@ let getTransactionStatusLabelColor = (status: domainTransactionStatus): TableUti
   | Expected | UnderAmount(Expected) | OverAmount(Expected) => LabelBlue
   | Archived => LabelGray
   | PartiallyReconciled | Missing => LabelOrange
-  | Void | UnknownDomainTransactionStatus => LabelLightGray
+  | Void
+  | UnknownDomainTransactionStatus
+  | Matched(UnknownDomainTransactionMatchedStatus)
+  | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
+  | UnderAmount(UnknownDomainTransactionAmountMismatchStatus)
+  | Posted(UnknownDomainTransactionPostedStatus) =>
+    LabelLightGray
   }
 }
