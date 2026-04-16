@@ -10,7 +10,7 @@ import { HomePage } from "../support/pages/homepage/HomePage";
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
 
 test.describe("Visual Testing - Homepage", () => {
-  test("homepage should match visual snapshot", async ({ page,context }) => {
+  test("homepage should match visual snapshot", async ({ page, context }) => {
     const homePage = new HomePage(page);
     await mockV2MerchantList(page);
 

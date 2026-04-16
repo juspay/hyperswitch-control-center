@@ -15,7 +15,7 @@ import { PaymentOperations } from "../support/pages/operations/PaymentOperations
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
 
 test.describe("Visual Testing - Payment Operations", () => {
-  test("payment operations when no payment exists should match visual snapshot", async ({ page,context }) => {
+  test("payment operations when no payment exists should match visual snapshot", async ({ page, context }) => {
     await mockV2MerchantList(page);
     
     const homePage = new HomePage(page);
@@ -35,7 +35,7 @@ test.describe("Visual Testing - Payment Operations", () => {
     });
   });
 
-  test("payment operations when payment exists should match visual snapshot", async ({ page,context }) => {
+  test("payment operations when payment exists should match visual snapshot", async ({ page, context }) => {
     await mockV2MerchantList(page);
     
     const homePage = new HomePage(page);
@@ -131,7 +131,7 @@ test.describe("Visual Testing - Payment Operations", () => {
 });
 
 test.describe("Visual Testing - Refund Operations", () => {
-  test("refund operations when no refund exists should match visual snapshot", async ({ page,context }) => {
+  test("refund operations when no refund exists should match visual snapshot", async ({ page, context }) => {
     await mockV2MerchantList(page);
     
     const homePage = new HomePage(page);
@@ -151,7 +151,7 @@ test.describe("Visual Testing - Refund Operations", () => {
     });
   });
 
-  test("refund operations when refund exists should match visual snapshot", async ({ page,context }) => {
+  test("refund operations when refund exists should match visual snapshot", async ({ page, context }) => {
     await mockV2MerchantList(page);
     
     const homePage = new HomePage(page);
@@ -206,7 +206,7 @@ test.describe("Visual Testing - Refund Operations", () => {
 });
 
 test.describe("Visual Testing - Payout Operations", () => {
-  test("payout operations when no payouts exists should match visual snapshot", async ({ page,context }) => {
+  test("payout operations when no payouts exists should match visual snapshot", async ({ page, context }) => {
     await mockV2MerchantList(page);
     
     const homePage = new HomePage(page);
@@ -226,7 +226,7 @@ test.describe("Visual Testing - Payout Operations", () => {
     });
   });
 
-  test("payout operations when payouts exist should match visual snapshot", async ({ page,context }) => {
+  test("payout operations when payouts exist should match visual snapshot", async ({ page, context }) => {
     await mockV2MerchantList(page);
     
     const homePage = new HomePage(page);
@@ -295,7 +295,7 @@ test.describe("Visual Testing - Payout Operations", () => {
 });
 
 test.describe("Visual Testing - Dispute Operations", () => {
-  test("dispute operations when no disputes exists should match visual snapshot", async ({ page,context }) => {
+  test("dispute operations when no disputes exists should match visual snapshot", async ({ page, context }) => {
     await mockV2MerchantList(page);
     
     const homePage = new HomePage(page);
@@ -317,7 +317,7 @@ test.describe("Visual Testing - Dispute Operations", () => {
 });
 
 test.describe("Visual Testing - Customers", () => {
-  test("customers page when no customers exist should match visual snapshot", async ({ page,context }) => {
+  test("customers page when no customers exist should match visual snapshot", async ({ page, context }) => {
     await mockV2MerchantList(page);
     
     const homePage = new HomePage(page);
@@ -337,7 +337,7 @@ test.describe("Visual Testing - Customers", () => {
     });
   });
 
-  test("customers page when customers exist should match visual snapshot", async ({ page,context }) => {
+  test("customers page when customers exist should match visual snapshot", async ({ page, context }) => {
     await mockV2MerchantList(page);
     
     const homePage = new HomePage(page);

@@ -549,7 +549,7 @@ npx playwright install chromium --with-deps
 ### 5. Start the backend server using Docker Compose
 
 ```
-sh playwright-test/start-hyperswitch.sh
+sh playwright-tests/start_hyperswitch.sh
 ```
 
 ### 6. Running Playwright Tests
