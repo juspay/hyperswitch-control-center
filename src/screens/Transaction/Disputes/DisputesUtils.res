@@ -217,21 +217,7 @@ let initialFilters = (json, filtervalues, _, _, _, _) => {
 
     let options = switch key->getFilterTypeFromString {
     | #connector_label => getOptionsForDisputeFilters(filterDict, filtervalues)
-    | #connector =>
-      values->Array.filterMap(str => {
-        switch str->String.toLowerCase->ConnectorUtils.getConnectorNameTypeFromString {
-        | UnknownConnector(_) => None
-        | _ =>
-          Some(
-            (
-              {
-                label: ConnectorUtils.getDisplayNameForConnector(str),
-                value: str,
-              }: FilterSelectBox.dropdownOption
-            ),
-          )
-        }
-      })
+    | #connector => values->ConnectorUtils.getConnectorFilterOptions
     | _ => values->FilterSelectBox.makeOptions
     }
 
