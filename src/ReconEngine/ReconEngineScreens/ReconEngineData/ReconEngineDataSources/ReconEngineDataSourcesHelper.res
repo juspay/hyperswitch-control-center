@@ -204,6 +204,7 @@ module IngestionHistoryActionsComponent = {
   let make = (~ingestionHistory: ingestionHistoryType) => {
     open APIUtils
 
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let (showModal, setShowModal) = React.useState(_ => false)
     let getURL = useGetURL()
     let fetchApi = AuthHooks.useApiFetcher()
@@ -255,13 +256,24 @@ module IngestionHistoryActionsComponent = {
       />
       {ingestionHistoryIconActions
       ->Array.mapWithIndex((action, index) => {
-        <Icon
-          key={index->Int.toString}
-          name={(action.iconType :> string)}
-          size=16
-          onClick={action.onClick}
-          className={action.disabled ? "cursor-not-allowed" : "cursor-pointer"}
-        />
+        let iconElement =
+          <Icon
+            key={index->Int.toString}
+            name={(action.iconType :> string)}
+            size=16
+            onClick={action.onClick}
+            className={action.disabled ? "cursor-not-allowed" : "cursor-pointer"}
+          />
+        switch action.iconType {
+        | DownloadIcon =>
+          <ACLDiv
+            key={index->Int.toString}
+            authorization={userHasAccess(~groupAccess=UserManagementTypes.ReconSourcesManage)}
+            onClick={action.onClick}>
+            {iconElement}
+          </ACLDiv>
+        | _ => iconElement
+        }
       })
       ->React.array}
     </div>

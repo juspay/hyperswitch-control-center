@@ -9,6 +9,7 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
   open ReconEngineDataSourcesUtils
   open ReconEngineDataSourcesEntity
 
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let fetchApi = AuthHooks.useApiFetcher()
@@ -111,14 +112,27 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
       <div className="flex flex-row gap-4">
         {getIngestionButtonActions
         ->Array.mapWithIndex((action, index) => {
-          <Button
-            key={index->Int.toString}
-            buttonType=Secondary
-            buttonState={action.disabled ? Disabled : Normal}
-            text={(action.buttonType :> string)}
-            onClick={action.onClick}
-            customButtonStyle="!w-fit"
-          />
+          switch action.buttonType {
+          | Download =>
+            <ACLButton
+              key={index->Int.toString}
+              authorization={userHasAccess(~groupAccess=UserManagementTypes.ReconSourcesManage)}
+              buttonType=Secondary
+              buttonState={action.disabled ? Disabled : Normal}
+              text={(action.buttonType :> string)}
+              onClick={action.onClick}
+              customButtonStyle="!w-fit"
+            />
+          | _ =>
+            <Button
+              key={index->Int.toString}
+              buttonType=Secondary
+              buttonState={action.disabled ? Disabled : Normal}
+              text={(action.buttonType :> string)}
+              onClick={action.onClick}
+              customButtonStyle="!w-fit !bg-red-500"
+            />
+          }
         })
         ->React.array}
       </div>
