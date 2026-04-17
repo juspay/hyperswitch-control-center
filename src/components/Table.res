@@ -873,7 +873,7 @@ let make = (
   })
 
   let remainingHeading = heading->Array.sliceToEnd(~start=frozenUpto)
-  let remaingRow = rowInfo->Array.map(row => {
+  let remainingRow = rowInfo->Array.map(row => {
     row->Array.sliceToEnd(~start=frozenUpto)
   })
 
@@ -931,7 +931,7 @@ let make = (
       </RenderIf>
       <tbody>
         {tableFilterRow(~isFrozen=false)}
-        {tableRows(remaingRow, false)}
+        {tableRows(remainingRow, false)}
       </tbody>
     </table>
   }

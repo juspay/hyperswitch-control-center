@@ -60,6 +60,13 @@ type externalVaultConnectorDetails = {
   vault_token_selector: option<array<JSON.t>>,
 }
 
+type paymentMethodBlockingEntry = {card_types: option<array<string>>}
+
+type paymentMethodBlocking = {
+  card: option<paymentMethodBlockingEntry>,
+  wallet: option<paymentMethodBlockingEntry>,
+}
+
 type commonProfileEntity = {
   profile_id: string,
   merchant_id: string,
@@ -94,4 +101,5 @@ type commonProfileEntity = {
   split_txns_enabled: option<string>,
   is_external_vault_enabled: option<string>,
   external_vault_connector_details: option<externalVaultConnectorDetails>,
+  payment_method_blocking: option<paymentMethodBlocking>,
 }
