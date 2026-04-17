@@ -229,7 +229,7 @@ let make = (
           onSubmit()->ignore
         }}
         customButtonStyle="w-full"
-        buttonState={formState.values->validateSimplifedFlow}
+        buttonState={formState.values->validateSimplifiedFlow}
       />
     </div>
   </div>

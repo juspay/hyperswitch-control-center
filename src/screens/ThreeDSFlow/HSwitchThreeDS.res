@@ -173,7 +173,7 @@ let make = () => {
       let responseDict = threeDsRuleDetail->getDictFromJsonObject
       let programValue = responseDict->getObj("program", Dict.make())
 
-      let intitialValue =
+      let initialValue =
         [
           ("name", responseDict->LogicUtils.getString("name", "")->JSON.Encode.string),
           (
@@ -183,7 +183,7 @@ let make = () => {
           ("algorithm", programValue->JSON.Encode.object),
         ]->Dict.fromArray
 
-      setInitialRule(_ => Some(intitialValue))
+      setInitialRule(_ => Some(initialValue))
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -312,11 +312,10 @@ let make = () => {
         title={"3DS Decision Manager"}
         subTitle="Make your payments more secure by enforcing 3DS authentication through custom rules defined on payment parameters"
       />
-      <HSwitchUtils.AlertBanner
-        bannerContent={<p>
-          {"Deprecation Notice: 3DS Decision Manager will be deprecated soon. Please use 3DS Exemption Manager for managing 3DS rules."->React.string}
-        </p>}
-        bannerType=Warning
+      <AlertV2Binding
+        alertType=Warning
+        slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
+        description="Deprecation Notice: 3DS Decision Manager will be deprecated soon. Please use 3DS Exemption Manager for managing 3DS rules."
       />
       {switch pageView {
       | NEW =>

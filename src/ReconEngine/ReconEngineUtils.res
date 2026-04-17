@@ -4,27 +4,29 @@ open LogicUtils
 let getTransactionStatusVariantFromString = (status: string): transactionStatus => {
   switch status {
   | "posted" => Posted
+  | "matched" => Matched
   | "mismatched" => Mismatched
   | "expected" => Expected
   | "archived" => Archived
   | "void" => Void
   | "partially_reconciled" => PartiallyReconciled
-  | _ => Expected
+  | _ => UnknownTransactionStatus
   }
 }
 
-let getTransactionPostedTypeVariantFromString = (postedType: string): transactionPostedType => {
-  switch postedType->String.toLowerCase {
-  | "reconciled" => Reconciled
-  | "force_reconciled" => ForceReconciled
-  | "manually_reconciled" => ManuallyReconciled
-  | _ => UnknownTransactionPostedType
+let getMatchedDataTypeVariantFromString = (matchedType: string): matchedDataType => {
+  switch matchedType->String.toLowerCase {
+  | "auto" => Auto
+  | "force" => Force
+  | "manual" => Manual
+  | _ => UnknownMatchedDataType
   }
 }
 
 let getEntryStatusVariantFromString = (entryType: string): entryStatus => {
   switch entryType->String.toLowerCase {
   | "posted" => Posted
+  | "matched" => Matched
   | "mismatched" => Mismatched
   | "expected" => Expected
   | "archived" => Archived
@@ -91,10 +93,19 @@ let getDomainTransactionPostedStatusFromString = (
   status: string,
 ): domainTransactionPostedStatus => {
   switch status->String.toLowerCase {
+  | "manual" => Manual
+  | _ => UnknownDomainTransactionPostedStatus
+  }
+}
+
+let getDomainTransactionMatchedStatusFromString = (
+  status: string,
+): domainTransactionMatchedStatus => {
+  switch status->String.toLowerCase {
   | "auto" => Auto
   | "manual" => Manual
   | "force" => Force
-  | _ => UnknownDomainTransactionPostedStatus
+  | _ => UnknownDomainTransactionMatchedStatus
   }
 }
 
@@ -104,7 +115,7 @@ let getDomainTransactionAmountMismatchStatusFromString = (
   switch status->String.toLowerCase {
   | "expected" => Expected
   | "mismatch" => Mismatch
-  | _ => Mismatch
+  | _ => UnknownDomainTransactionAmountMismatchStatus
   }
 }
 
@@ -117,6 +128,7 @@ let getDomainTransactionStatus = (
   | "expected" => Expected
   | "missing" => Missing
   | "posted" => Posted(subStatus->getDomainTransactionPostedStatusFromString)
+  | "matched" => Matched(subStatus->getDomainTransactionMatchedStatusFromString)
   | "over_amount" => OverAmount(subStatus->getDomainTransactionAmountMismatchStatusFromString)
   | "under_amount" => UnderAmount(subStatus->getDomainTransactionAmountMismatchStatusFromString)
   | "data_mismatch" => DataMismatch
@@ -127,15 +139,29 @@ let getDomainTransactionStatus = (
   }
 }
 
+let getAccountTypeVariantFromString = (accountType: string): accountTypeVariant => {
+  switch accountType->String.toLowerCase {
+  | "credit" => Credit
+  | "debit" => Debit
+  | _ => UnknownAccountTypeVariant
+  }
+}
+
 let accountItemToObjMapper = dict => {
   {
     account_name: dict->getString("account_name", ""),
     account_id: dict->getString("account_id", ""),
-    account_type: dict->getString("account_type", ""),
+    account_type: dict->getString("account_type", "")->getAccountTypeVariantFromString,
     profile_id: dict->getString("profile_id", ""),
     currency: dict->getDictfromDict("initial_balance")->getString("currency", ""),
     initial_balance: dict
     ->getDictfromDict("initial_balance")
+    ->getAmountPayload,
+    matched_debits: dict
+    ->getDictfromDict("matched_debits")
+    ->getAmountPayload,
+    matched_credits: dict
+    ->getDictfromDict("matched_credits")
     ->getAmountPayload,
     posted_debits: dict
     ->getDictfromDict("posted_debits")
@@ -328,10 +354,10 @@ let transactionItemToObjMapper = (dict): transactionType => {
       ->getDictfromDict("data")
       ->getString("status", "")
       ->getTransactionStatusVariantFromString,
-      posted_type: switch dict
+      matched_data_type: switch dict
       ->getDictfromDict("data")
-      ->getOptionString("posted_type") {
-      | Some(postedType) => Some(postedType->getTransactionPostedTypeVariantFromString)
+      ->getOptionString("matched_data_type") {
+      | Some(matchedDataType) => Some(matchedDataType->getMatchedDataTypeVariantFromString)
       | None => None
       },
       reason: dict
@@ -424,7 +450,7 @@ let stringValidationRuleMapper = (dict): stringValidationRule => {
   switch ruleType {
   | "max_length" => MaxLength(dict->getInt("value", 0))
   | "min_length" => MinLength(dict->getInt("value", 0))
-  | _ => MinLength(0)
+  | _ => UnknownStringValidationRule
   }
 }
 
@@ -433,7 +459,7 @@ let numberValidationRuleMapper = (dict): numberValidationRule => {
   switch ruleType {
   | "min_value" => MinValue(dict->getFloat("value", 0.0))
   | "max_value" => MaxValue(dict->getFloat("value", 0.0))
-  | _ => MinValue(0.0)
+  | _ => UnknownNumberValidationRule
   }
 }
 
@@ -443,7 +469,7 @@ let minorUnitValidationRuleMapper = (dict): minorUnitValidationRule => {
   | "positive_only" => PositiveOnly
   | "min_value" => MinValueMinorUnit(dict->getInt("value", 0))
   | "max_value" => MaxValueMinorUnit(dict->getInt("value", 0))
-  | _ => PositiveOnly
+  | _ => UnknownMinorUnitValidationRule
   }
 }
 
@@ -478,7 +504,7 @@ let fieldTypeMapper = (dict): fieldTypeVariant => {
       credit_values: dict->getStrArrayFromDict("credit_values", []),
       debit_values: dict->getStrArrayFromDict("debit_values", []),
     })
-  | _ => StringField([])
+  | _ => UnknownFieldType
   }
 }
 
