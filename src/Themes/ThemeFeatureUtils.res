@@ -5,6 +5,13 @@ let appendVersionParam = (url, ~version) => {
   }
 }
 
+let getImgSrc = (url, ~themeConfigVersion) =>
+  if url->String.startsWith("blob:") {
+    url
+  } else {
+    appendVersionParam(url, ~version=themeConfigVersion)
+  }
+
 let getStepVariantfromString = (stepString: string): ThemeTypes.lineageSelectionSteps => {
   switch stepString {
   | "entityselection" => EntitySelection
@@ -22,6 +29,9 @@ let getEntityTypeFromStep = (stepVariant: ThemeTypes.lineageSelectionSteps) =>
   | ProfileLevelConfig => "profile"
   | _ => ""
   }
+
+let createBlobUrl = file =>
+  DownloadUtils.createObjectURL((file->Identity.jsonToAnyType: DownloadUtils.blobInstanceType))
 
 let getFileFromEvent = ev => {
   let files = ReactEvent.Form.target(ev)["files"]

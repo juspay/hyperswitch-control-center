@@ -148,11 +148,7 @@ module AssetField = {
       <div className="flex items-center gap-3">
         {switch displayUrl {
         | Some(url) => {
-            let imgSrc = if url->String.startsWith("blob:") {
-              url
-            } else {
-              appendVersionParam(url, ~version=themeConfigVersion)
-            }
+            let imgSrc = getImgSrc(url, ~themeConfigVersion)
             <>
               <div
                 className="w-16 h-16 border border-nd_gray-200 rounded-md flex items-center justify-center overflow-hidden bg-white">
@@ -181,18 +177,12 @@ module IconSettings = {
     ~onFaviconRemove: unit => unit,
     ~themeConfigVersion,
   ) => {
-    let getDisplayUrl = (asset: option<ThemeTypes.assetValue>) => {
+    let getDisplayUrl = (asset: option<ThemeTypes.assetValue>) =>
       switch asset {
       | Some(Url(url)) => Some(url)
-      | Some(File(file)) =>
-        Some(
-          DownloadUtils.createObjectURL(
-            (file->Identity.jsonToAnyType: DownloadUtils.blobInstanceType),
-          ),
-        )
+      | Some(File(file)) => Some(createBlobUrl(file))
       | None => None
       }
-    }
 
     let handleFileChange = onSelect => {
       ev =>

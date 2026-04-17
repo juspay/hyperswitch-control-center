@@ -102,10 +102,8 @@ let themeTableEntity = (~orgId) =>
         let themeDict = theme->getDictFromJsonObject
         let merchantId = themeDict->getOptionString("merchant_id")->Option.getOr("all_merchants")
         let profileId = themeDict->getOptionString("profile_id")->Option.getOr("all_profiles")
-        let url = `/theme/${themeDict->getString(
-            "theme_id",
-            "",
-          )}/${profileId}/${merchantId}/${orgId}`
+        let themeId = themeDict->getString("theme_id", "")
+        let url = `/theme/${themeId}/${profileId}/${merchantId}/${orgId}`
         GlobalVars.appendDashboardPath(~url)
       }
     },
