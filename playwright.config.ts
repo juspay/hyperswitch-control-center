@@ -1,4 +1,54 @@
 import { defineConfig, devices } from "@playwright/test";
+import type { ReporterDescription } from "@playwright/test";
+
+function buildReporters(): ReporterDescription[] {
+  const coverageReporter: ReporterDescription = [
+    "monocart-reporter",
+    {
+      name: "Hyperswitch Control Center — E2E Coverage",
+      // Monocart test report (aggregated test results). Coverage itself
+      // lands in ./coverage-report/ (configured below) so these don't
+      // clobber each other.
+      outputFile: "./monocart-report/index.html",
+      coverage: {
+        entryFilter: (entry: { url?: string }): boolean => {
+          const url = entry.url || "";
+          if (!url) return false;
+          if (url.includes("node_modules")) return false;
+          if (url.includes("webpack-internal:")) return false;
+          return true;
+        },
+        sourceFilter: (sourcePath: string): boolean =>
+          sourcePath.includes("src/") && !sourcePath.includes("node_modules"),
+        reports: [
+          ["v8", { outputFile: "index.html" }],
+          ["console-summary"],
+          ["markdown-summary", { metrics: ["bytes", "lines"] }],
+          ["json-summary", { outputFile: "coverage-summary.json" }],
+        ],
+        name: "Hyperswitch E2E Coverage",
+        outputDir: "./coverage-report",
+      },
+    },
+  ];
+
+  if (process.env.CI) {
+    const base: ReporterDescription[] = [
+      ["html", { open: "never", outputFolder: "playwright-report" }],
+      ["json", { outputFile: "test-results/report.json" }],
+      ["line"],
+      ["playwright-ctrf-json-reporter", { outputDir: "ctrf" }],
+    ];
+    return process.env.PW_COVERAGE === "1"
+      ? [...base, coverageReporter]
+      : base;
+  }
+
+  // Local: attach coverage reporter on demand via PW_COVERAGE=1.
+  return process.env.PW_COVERAGE === "1"
+    ? [["list"], coverageReporter]
+    : [["html", { open: "on-failure" }]];
+}
 
 const PLAYWRIGHT_USERNAME =
   process.env.PLAYWRIGHT_USERNAME || "playwright@test.com";
@@ -29,14 +79,7 @@ export default defineConfig({
     viewport: { width: 1440, height: 1005 }, // Viewport - aligned with Cypress
   },
   outputDir: "test-results/", // Output directory for test artifacts
-  reporter: process.env.CI // Reporter configuration
-    ? [
-        ["html", { open: "never", outputFolder: "playwright-report" }],
-        ["json", { outputFile: "test-results/report.json" }],
-        ["line"],
-        ["playwright-ctrf-json-reporter", { outputDir: "ctrf" }],
-      ]
-    : [["html", { open: "on-failure" }]],
+  reporter: buildReporters(),
 
   // Configure projects for major browsers
   projects: [

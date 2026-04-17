@@ -16,7 +16,7 @@
  * trivially deletable when no longer needed.
  */
 
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../support/test";
 import * as fs from "fs";
 import * as path from "path";
 import { generateUniqueEmail } from "../support/helper";

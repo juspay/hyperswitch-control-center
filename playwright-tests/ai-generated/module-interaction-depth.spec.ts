@@ -9,7 +9,7 @@
  * ai-generated specs; this file adds the missing interaction depth.
  */
 
-import { test, expect, Page } from "@playwright/test";
+import { test, expect, Page } from "../support/test";
 import { generateUniqueEmail } from "../support/helper";
 import { signupUser, loginUI } from "../support/commands";
 
@@ -31,7 +31,7 @@ async function gatedOrAssert(
 
 async function setup(
   page: Page,
-  context: import("@playwright/test").BrowserContext,
+  context: import("../support/test").BrowserContext,
 ): Promise<void> {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);

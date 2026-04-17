@@ -4,7 +4,7 @@
  * Generated: 2026-04-17
  */
 
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../support/test";
 import { HomePage } from "../support/pages/homepage/HomePage";
 import { PaymentRouting } from "../support/pages/workflow/paymentRouting/PaymentRouting";
 import { VolumeBasedConfiguration } from "../support/pages/workflow/paymentRouting/VolumeBasedConfiguration";

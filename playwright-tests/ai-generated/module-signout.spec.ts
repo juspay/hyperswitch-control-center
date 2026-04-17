@@ -10,7 +10,7 @@
  * user to the login screen.
  */
 
-import { test, expect, Page, BrowserContext } from "@playwright/test";
+import { test, expect, Page, BrowserContext } from "../support/test";
 import { generateUniqueEmail } from "../support/helper";
 import { signupUser, loginUI } from "../support/commands";
 import { HomePage } from "../support/pages/homepage/HomePage";

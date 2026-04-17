@@ -11,7 +11,7 @@
  * both states; real assertions still run when the page renders.
  */
 
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../support/test";
 import { generateUniqueEmail } from "../support/helper";
 import { signupUser, loginUI } from "../support/commands";
 

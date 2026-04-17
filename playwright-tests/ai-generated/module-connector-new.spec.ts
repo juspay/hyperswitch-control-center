@@ -9,7 +9,7 @@
  * previously only reachable through list navigation.
  */
 
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../support/test";
 import { HomePage } from "../support/pages/homepage/HomePage";
 import { generateUniqueEmail } from "../support/helper";
 import { signupUser, loginUI } from "../support/commands";

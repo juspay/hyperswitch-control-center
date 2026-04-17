@@ -9,7 +9,7 @@
  * Generated: 2026-04-17
  */
 
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page } from "../support/test";
 import { HomePage } from "../support/pages/homepage/HomePage";
 import { PaymentConnector } from "../support/pages/connector/PaymentConnector";
 import { generateUniqueEmail } from "../support/helper";
@@ -20,7 +20,7 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Test@123456";
 interface ProcessorCase {
   describe: string;
   url: string;
-  sidebarGet: (hp: HomePage) => import("@playwright/test").Locator;
+  sidebarGet: (hp: HomePage) => import("../support/test").Locator;
   searchTerm: string;
   expectedConfigUrl: RegExp;
 }
@@ -56,7 +56,7 @@ const processors: ProcessorCase[] = [
   },
 ];
 
-async function login(page: Page, context: import("@playwright/test").BrowserContext) {
+async function login(page: Page, context: import("../support/test").BrowserContext) {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);

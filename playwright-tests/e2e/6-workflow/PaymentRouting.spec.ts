@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../../support/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { PaymentRouting } from "../../support/pages/workflow/paymentRouting/PaymentRouting";
 import { DefaultFallback } from "../../support/pages/workflow/paymentRouting/DefaultFallback";
