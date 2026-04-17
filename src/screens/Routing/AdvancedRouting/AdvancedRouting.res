@@ -319,7 +319,7 @@ module Wrapper = {
       </div>
 
     <div className="flex flex-col">
-      <div className={`flex flex-row items-center justify-between z-10 -mt-6 mx-2`}>
+      <div className={`flex flex-row justify-between z-10 -mt-6 mx-2`}>
         <RenderIf condition={!isMobileView}>
           <div className="hidden lg:flex w-1/3" />
         </RenderIf>

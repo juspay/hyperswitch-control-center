@@ -17,7 +17,7 @@ let make = () => {
     }
   }
   let buttonText = debitRoutingValue ? "Manage" : "Setup"
-  <div className="flex flex-1 flex-col bg-white border rounded p-4 gap-8">
+  <div className="flex flex-1 flex-col border rounded p-4 gap-8">
     <div className="flex flex-1 flex-col gap-7">
       <div className="flex w-full items-center flex-wrap justify-between">
         <Icon name="leastCostRouting" size=30 className="w-14" />
