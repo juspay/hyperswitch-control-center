@@ -213,7 +213,7 @@ let make = () => {
                 <FormRenderer.SubmitButton
                   text="Next"
                   buttonSize={Small}
-                  customSumbitButtonStyle="!w-full mt-8"
+                  customSubmitButtonStyle="!w-full mt-8"
                   tooltipForWidthClass="w-full"
                 />
               </div>
@@ -236,7 +236,7 @@ let make = () => {
                 <FormRenderer.SubmitButton
                   text="Next"
                   buttonSize={Small}
-                  customSumbitButtonStyle="!w-full mt-8"
+                  customSubmitButtonStyle="!w-full mt-8"
                   tooltipForWidthClass="w-full"
                 />
               </div>
@@ -268,7 +268,7 @@ let make = () => {
             customButtonStyle="w-full mt-8"
           />
         </div>
-      | #reviewAndConnect => <VaultProceesorReview connectorInfo=initialValues />
+      | #reviewAndConnect => <VaultProcessorReview connectorInfo=initialValues />
       | _ => React.null
       }}
     </div>

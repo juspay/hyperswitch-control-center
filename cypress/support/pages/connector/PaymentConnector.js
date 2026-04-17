@@ -1,6 +1,6 @@
 class PaymentConnector {
   get pageHeading() {
-    return cy.get('[class="text-fs-28 font-semibold leading-10 "]');
+    return cy.get('[class="flex items-center gap-4 "]');
   }
 
   get pageBanner() {

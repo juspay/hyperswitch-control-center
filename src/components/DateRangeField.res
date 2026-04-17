@@ -676,7 +676,7 @@ module Base = {
       }
     }
 
-    let customeRangeBg = switch predefinedOptionSelected {
+    let customRangeBg = switch predefinedOptionSelected {
     | Some(_) => "bg-white dark:bg-jp-gray-lightgray_background"
     | None => "bg-jp-gray-100 dark:bg-jp-gray-850"
     }
@@ -740,7 +740,7 @@ module Base = {
               ->React.array}
               <AddDataAttributes attributes=[("data-daterange-dropdown-value", "Custom Range")]>
                 <div
-                  className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-full hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 ${customeRangeBg}}`}
+                  className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-full hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 ${customRangeBg}}`}
                   onClick={_ => {
                     setCalendarVisibility(_ => true)
                     setIsCustomSelected(_ => true)
@@ -767,7 +767,7 @@ module Base = {
               disablePastDates
               disableFutureDates
               ?dateRangeLimit
-              calendarContaierStyle="md:mx-2 md:my-1 border-0 md:border"
+              calendarContainerStyle="md:mx-2 md:my-1 border-0 md:border"
               ?allowedDateRange
             />
             <div

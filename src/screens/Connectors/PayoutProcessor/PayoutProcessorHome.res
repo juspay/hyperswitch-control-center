@@ -233,7 +233,6 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           currentPageTitle={connector->ConnectorUtils.getDisplayNameForConnector(
             ~connectorType=PayoutProcessor,
           )}
-          cursorStyle="cursor-pointer"
         />
       </RenderIf>
       <RenderIf condition={currentStep !== Preview && showStepIndicator}>
@@ -241,11 +240,10 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
       </RenderIf>
       <RenderIf
         condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>
-        <HSwitchUtils.AlertBanner
-          bannerContent={<p>
-            {"This is a test connector and will not be reflected on your payment processor dashboard."->React.string}
-          </p>}
-          bannerType=Warning
+        <AlertV2Binding
+          alertType=Warning
+          slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
+          description="This is a test connector and will not be reflected on your payment processor dashboard."
         />
       </RenderIf>
       <div

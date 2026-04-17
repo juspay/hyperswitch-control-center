@@ -34,7 +34,6 @@ module.exports = {
       },
       margin: {
         "15-px": "15px",
-        "54-px": "54px",
         "300-px": "300px",
       },
       height: {
@@ -54,15 +53,15 @@ module.exports = {
         "45-rem": "45rem",
         "48-rem": "48rem",
         "50-rem": "50rem",
+        "4-per": "4%",
+        "8-per": "8%",
+        "11-per": "11%",
         "93-per": "93%",
         "80-vh": "80vh",
         "85-vh": "85vh",
         "30-vh": "30vh",
         "40-vh": "40vh",
         "75-vh": "75vh",
-        "32-px": "32px",
-        "36-px": "36px",
-        "40-px": "40px",
         "50-px": "50px",
         "68-px": "68px",
         "84-px": "84px",
@@ -82,7 +81,6 @@ module.exports = {
         modalContentHeight: "calc(100vh - 140px)",
       },
       padding: {
-        "10-px": "10px",
         "2-px": "2px",
       },
       minWidth: {
@@ -98,11 +96,15 @@ module.exports = {
         "500-px": "500px",
       },
       inset: {
+        "3-px": "3px",
         "5-px": "5px",
         "76-px": "76px",
         "120-px": "120px",
         "180-px": "180px",
         "500-px": "500px",
+        "10-per": "10%",
+        "16-per": "16%",
+        "26-per": "26%",
       },
       letterSpacing: {
         compressed: "-2px",
@@ -113,6 +115,7 @@ module.exports = {
       },
       width: {
         "1-px": "1px",
+        "3-px": "3px",
         "90-px": "90px",
         100: "25rem",
         133: "35rem",
@@ -142,15 +145,13 @@ module.exports = {
         "306-px": "306px",
         modalOverlay: "calc(100vw + 7rem)",
         pageWidth11: "75rem",
-        fixedPageWidth: "75.5rem",
         standardPageWidth: "67.5rem",
       },
       gap: {
-        "0.5-rem": "0.5rem",
         "72-px": "72px",
       },
       maxWidth: {
-        fixedPageWidth: "82.75rem",
+        fixedPageWidth: "120rem",
         860: "860px",
         600: "600px",
         700: "700px",
@@ -495,10 +496,11 @@ module.exports = {
       borderRadius: {
         DEFAULT: "var(--borders-default-radius)",
         "10-px": "10px",
+        "1.75-rem": "1.75rem",
+        "2-rem": "2rem",
       },
       spacing: {
         DEFAULT: "var(--spacing-padding)",
-        "104-px": "104px",
       },
     },
   },

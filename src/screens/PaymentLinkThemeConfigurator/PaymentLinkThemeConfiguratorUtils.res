@@ -159,7 +159,8 @@ let generateWasmPayload = (~paymentMethodsResponse, ~publishableKey, ~formValues
   let backgroundImage = getString(formValuesDict, "background_image", "")
   let backgroundImageObj = backgroundImage->isNonEmptyString ? Some({url: backgroundImage}) : None
 
-  let currency = getString(formValuesDict, "currency", "USD")
+  let countryCurrency = getString(formValuesDict, "country_currency", "US-USD")->String.split("-")
+  let currency = countryCurrency->getValueFromArray(1, "USD")
   let amount = formValuesDict->getFloat("amount", 100.0)
   let formattedAmount =
     CurrencyUtils.convertCurrencyFromLowestDenomination(~amount, ~currency)->Float.toString
@@ -181,7 +182,7 @@ let generateWasmPayload = (~paymentMethodsResponse, ~publishableKey, ~formValues
   {
     test_mode: Some(true),
     preload_sdk_with_params: Some(preloadSdkWithParams),
-    client_secret: "",
+    client_secret: "", // WASM skips client_secret validation when test_mode=true
     payment_id: "test_payment",
     session_expiry: "2099-12-31T23:59:59.000Z",
     status: "requires_payment_method",
