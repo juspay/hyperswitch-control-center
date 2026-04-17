@@ -76,7 +76,7 @@ If not met, inform orchestrator and STOP.
 
 ## CRITICAL: Browser Tool Usage Required
 
-You have access to Playwright MCP browser tools. You MUST use them to explore the application. Create test user with `signup_with_merchant_id` API, login, skip 2FA, and navigate to the target module/feature.
+You have access to Playwright MCP browser tools. You MUST use them to explore the application. Create test user with `signup_with_merchant_id` API, login, skip 2FA, and navigate to the target module/feature. Refer for navigation NAVIGATION_REFERENCE.md
 
 ### Required Browser Tools:
 
