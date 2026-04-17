@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.04.16.0
+
+### Features
+
+- Stripe - googlepay and applepay predecrtyped token support ([#4675](https://github.com/juspay/hyperswitch-control-center/pull/4675)) ([`cd4df96`](https://github.com/juspay/hyperswitch-control-center/commit/cd4df9677be50dda9ee05600105672457bf11255))
+
+### Bug Fixes
+
+- Recon engine append `match_force` when `match_manual` filter is applied ([#4718](https://github.com/juspay/hyperswitch-control-center/pull/4718)) ([`556f80c`](https://github.com/juspay/hyperswitch-control-center/commit/556f80c9b33ce188ea5d2b43d0f01887ab0b37c8))
+
+### Miscellaneous Tasks
+
+- Update support email from hyperswitch@juspay.in to support.glo… ([#4710](https://github.com/juspay/hyperswitch-control-center/pull/4710)) ([`4380457`](https://github.com/juspay/hyperswitch-control-center/commit/4380457bda5a790692f6c8d45f6e8991c176c97f))
+- Add recon permission group mappings ([#4712](https://github.com/juspay/hyperswitch-control-center/pull/4712)) ([`66733ef`](https://github.com/juspay/hyperswitch-control-center/commit/66733efbd7a5f985559ca287f2c69dfd722de3e9))
+
+**Full Changelog:** [`2026.04.15.0...2026.04.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.15.0...2026.04.16.0)
+
+- - -
+
 ## 2026.04.15.0
 
 ### Features
