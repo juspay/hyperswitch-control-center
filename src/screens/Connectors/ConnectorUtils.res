@@ -2438,6 +2438,26 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
   }
 }
 
+let getConnectorFilterOptions = (
+  ~connectorType=ConnectorTypes.Processor,
+  values: array<string>,
+): array<FilterSelectBox.dropdownOption> => {
+  values->Array.filterMap(str => {
+    switch str->String.toLowerCase->getConnectorNameTypeFromString(~connectorType) {
+    | UnknownConnector(_) => None
+    | _ =>
+      Some(
+        (
+          {
+            label: getDisplayNameForConnector(~connectorType, str),
+            value: str,
+          }: FilterSelectBox.dropdownOption
+        ),
+      )
+    }
+  })
+}
+
 // Need to remove connector and merge connector and connectorTypeVariants
 let connectorTypeTuple = connectorType => {
   switch connectorType {
