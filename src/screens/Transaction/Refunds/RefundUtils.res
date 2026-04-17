@@ -223,9 +223,13 @@ let initialFilters = (json, filtervalues, _, _, _, _) => {
     let options = switch key->getFilterTypeFromString {
     | #connector_label => getOptionsForRefundFilters(filterDict, filtervalues)
     | #connector =>
-      values->Array.map((str): FilterSelectBox.dropdownOption => {
-        label: ConnectorUtils.getDisplayNameForConnector(str),
-        value: str,
+      values->Array.filterMap(str => {
+        let label = ConnectorUtils.getDisplayNameForConnector(str)
+        if label == "Not known" {
+          None
+        } else {
+          Some(({label, value: str}: FilterSelectBox.dropdownOption))
+        }
       })
     | _ => values->FilterSelectBox.makeOptions
     }

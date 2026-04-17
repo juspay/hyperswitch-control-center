@@ -148,9 +148,13 @@ let initialFilters = (json, _, _, _, _, _) => {
         ->Array.map(item => item->JSON.Decode.string->Option.getOr(""))
       let options = switch key->getFilterTypeFromString {
       | #connector =>
-        items->Array.map((str): FilterSelectBox.dropdownOption => {
-          label: ConnectorUtils.getDisplayNameForConnector(str),
-          value: str,
+        items->Array.filterMap(str => {
+          let label = ConnectorUtils.getDisplayNameForConnector(str)
+          if label == "Not known" {
+            None
+          } else {
+            Some(({label, value: str}: FilterSelectBox.dropdownOption))
+          }
         })
       | _ => items->FilterSelectBox.makeOptions
       }
