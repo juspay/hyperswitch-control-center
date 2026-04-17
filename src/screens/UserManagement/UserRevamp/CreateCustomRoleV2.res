@@ -152,6 +152,8 @@ let make = () => {
   let (permissionModules, setPermissionModules) = React.useState(() => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (currentEntityType, setCurrentEntityType) = React.useState(() => #Merchant)
+  let merchantDetailsTypedValue =
+      HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let initialValues = React.useMemo(() => {
     let baseValues = getInitialValuesForForm(currentEntityType)
@@ -214,7 +216,7 @@ let make = () => {
         ~entityName=V1(USERS),
         ~userType=#ROLE_INFO,
         ~methodType=Get,
-        ~queryParameters=Some(`entity_type=${entityTypeString}`),
+        ~queryParameters=Some(`entity_type=${entityTypeString}&product_type=${merchantDetailsTypedValue.product_type->ProductUtils.getProductStringName}`),
       )
       let res = await fetchDetails(url)
       let modules = getArrayDataFromJson(res, permissionModuleMapper)
