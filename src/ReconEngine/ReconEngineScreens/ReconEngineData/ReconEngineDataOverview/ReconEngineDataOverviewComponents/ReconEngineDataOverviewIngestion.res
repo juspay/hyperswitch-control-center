@@ -9,7 +9,6 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
   open ReconEngineDataSourcesUtils
   open ReconEngineDataSourcesEntity
 
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let fetchApi = AuthHooks.useApiFetcher()
@@ -114,9 +113,8 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
         ->Array.mapWithIndex((action, index) => {
           switch action.buttonType {
           | Download =>
-            <ACLButton
+            <Button
               key={index->Int.toString}
-              authorization={userHasAccess(~groupAccess=UserManagementTypes.ReconSourcesManage)}
               buttonType=Secondary
               buttonState={action.disabled ? Disabled : Normal}
               text={(action.buttonType :> string)}
