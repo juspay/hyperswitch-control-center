@@ -219,11 +219,17 @@ let initialFilters = (json, filtervalues, _, _, _, _) => {
     | #connector_label => getOptionsForDisputeFilters(filterDict, filtervalues)
     | #connector =>
       values->Array.filterMap(str => {
-        let label = ConnectorUtils.getDisplayNameForConnector(str)
-        if label == "Not known" {
-          None
-        } else {
-          Some(({label, value: str}: FilterSelectBox.dropdownOption))
+        switch str->String.toLowerCase->ConnectorUtils.getConnectorNameTypeFromString {
+        | UnknownConnector(_) => None
+        | _ =>
+          Some(
+            (
+              {
+                label: ConnectorUtils.getDisplayNameForConnector(str),
+                value: str,
+              }: FilterSelectBox.dropdownOption
+            ),
+          )
         }
       })
     | _ => values->FilterSelectBox.makeOptions

@@ -149,11 +149,17 @@ let initialFilters = (json, _, _, _, _, _) => {
       let options = switch key->getFilterTypeFromString {
       | #connector =>
         items->Array.filterMap(str => {
-          let label = ConnectorUtils.getDisplayNameForConnector(str)
-          if label == "Not known" {
-            None
-          } else {
-            Some(({label, value: str}: FilterSelectBox.dropdownOption))
+          switch str->String.toLowerCase->ConnectorUtils.getConnectorNameTypeFromString {
+          | UnknownConnector(_) => None
+          | _ =>
+            Some(
+              (
+                {
+                  label: ConnectorUtils.getDisplayNameForConnector(str),
+                  value: str,
+                }: FilterSelectBox.dropdownOption
+              ),
+            )
           }
         })
       | _ => items->FilterSelectBox.makeOptions
