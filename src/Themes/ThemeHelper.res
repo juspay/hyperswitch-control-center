@@ -496,7 +496,6 @@ module ThemeUploadAssetsModal = {
   @react.component
   let make = (~showModal, ~setShowModal, ~themeId, ~redirectToList) => {
     open APIUtils
-    open LogicUtils
     open ThemeSettingsHelper
 
     let showToast = ToastState.useShowToast()
@@ -505,20 +504,20 @@ module ThemeUploadAssetsModal = {
     let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Success)
     let processAssets = ThemeHooks.useProcessAssets(~themeId)
     let (assets, setAssets) = React.useState(_ => Dict.make()->assetsMapper)
-    let formValues =
-      ReactFinalForm.useFormState(
-        ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
-      ).values->getDictFromJsonObject
+    let formValues = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    ).values
 
     let handleUpload = async () => {
       try {
         setScreenState(_ => Loading)
 
-        let urlsDict = await processAssets(~assets)
+        let urls = await processAssets(~assets)
+        let hasUrls = urls.logoUrl->Option.isSome || urls.faviconUrl->Option.isSome
 
-        if !(urlsDict->isEmptyDict) {
-          let settingsDict = formValues->getDictfromDict("theme_data")->getDictfromDict("settings")
-          let requestBody = buildThemeDataBody(~settingsDict, ~urlsDict)
+        if hasUrls {
+          let {theme_data: {settings}} = formValues->ThemeUpdateUtils.themeBodyMapper
+          let requestBody = buildThemeDataBody(~settings, ~urls)
           let updateUrl = getURL(
             ~entityName=V1(USERS),
             ~methodType=Put,

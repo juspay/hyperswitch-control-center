@@ -53,13 +53,15 @@ let assetsMapper = (dict): ThemeTypes.assets => {
   }
 }
 
-let buildThemeDataBody = (~settingsDict: Dict.t<JSON.t>, ~urlsDict: Dict.t<JSON.t>) => {
-  open LogicUtils
-  let themeDataEntries = [("settings", settingsDict->JSON.Encode.object)]
-  if !(urlsDict->isEmptyDict) {
-    themeDataEntries->Array.push(("urls", urlsDict->JSON.Encode.object))
+let buildThemeDataBody = (
+  ~settings: HyperSwitchConfigTypes.themeSettings,
+  ~urls: HyperSwitchConfigTypes.urlThemeConfig,
+): JSON.t => {
+  let body: ThemeUpdateType.themeUpdate = {
+    theme_data: {settings, urls},
+    email_config: None,
   }
-  [("theme_data", themeDataEntries->getJsonFromArrayOfJson)]->getJsonFromArrayOfJson
+  body->Identity.genericTypeToJson
 }
 
 let entities: array<ThemeTypes.themeOption> = [

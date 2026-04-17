@@ -101,17 +101,14 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
       setScreenState(_ => Loading)
-      let valuesDict = values->getDictFromJsonObject
-
-      let urlsDict = await processAssets(~assets)
-
-      let settingsDict = valuesDict->getDictfromDict("theme_data")->getDictfromDict("settings")
-      let requestBody = buildThemeDataBody(~settingsDict, ~urlsDict)
+      let {theme_data: {settings}} = values->themeBodyMapper
+      let urls = await processAssets(~assets)
+      let requestBody = buildThemeDataBody(~settings, ~urls)
 
       let updateUrl = getURL(
         ~entityName=V1(USERS),
         ~methodType=Put,
-        ~id=Some(`${themeId}`),
+        ~id=Some(themeId),
         ~userType=#THEME,
       )
 

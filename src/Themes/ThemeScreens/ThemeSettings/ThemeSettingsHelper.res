@@ -178,19 +178,15 @@ module IconSettings = {
     ~themeConfigVersion,
   ) => {
     let getDisplayUrl = (asset: option<ThemeTypes.assetValue>) =>
-      switch asset {
-      | Some(Url(url)) => Some(url)
-      | Some(File(file)) => Some(createBlobUrl(file))
-      | None => None
-      }
-
-    let handleFileChange = onSelect => {
-      ev =>
-        switch ThemeFeatureUtils.getFileFromEvent(ev) {
-        | Some(file) => onSelect(file)
-        | None => ()
+      asset->Option.map(value =>
+        switch value {
+        | Url(url) => url
+        | File(file) => createBlobUrl(file)
         }
-    }
+      )
+
+    let handleFileChange = (onSelect, ev) =>
+      ThemeFeatureUtils.getFileFromEvent(ev)->Option.forEach(onSelect)
 
     <div className="flex flex-col gap-4">
       <div className={`${body.lg.semibold}`}> {React.string("Icons")} </div>
@@ -198,7 +194,7 @@ module IconSettings = {
         <AssetField
           label="Logo"
           displayUrl={getDisplayUrl(assets.logo)}
-          onFileChange={handleFileChange(onLogoSelect)}
+          onFileChange={ev => handleFileChange(onLogoSelect, ev)}
           onRemove=onLogoRemove
           accept=".png,.jpg,.jpeg"
           inputId="logoFileInput"
@@ -207,7 +203,7 @@ module IconSettings = {
         <AssetField
           label="Favicon"
           displayUrl={getDisplayUrl(assets.favicon)}
-          onFileChange={handleFileChange(onFaviconSelect)}
+          onFileChange={ev => handleFileChange(onFaviconSelect, ev)}
           onRemove=onFaviconRemove
           accept=".png,.ico,.jpg,.jpeg"
           inputId="faviconFileInput"
