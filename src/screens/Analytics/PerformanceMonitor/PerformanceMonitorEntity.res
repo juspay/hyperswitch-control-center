@@ -19,7 +19,7 @@ let dimensionObjMapper = (dimensions: array<JSON.t>) => {
   dimensions->JSON.Encode.array->getArrayDataFromJson(dimensionMapper)
 }
 
-let defaultDimesions = {
+let defaultDimensions = {
   dimension: #no_value,
   values: [],
 }
@@ -51,7 +51,7 @@ let overallPaymentCount: entity<gaugeData, option<string>> = {
     name: #payment_count,
   },
   title: "Overall Payment Count",
-  getChartOption: GaugeFailureRateUtils.falureGaugeOption,
+  getChartOption: GaugeFailureRateUtils.failureGaugeOption,
 }
 
 let getFailureRateEntity: entity<gaugeData, float> = {
@@ -67,7 +67,7 @@ let getFailureRateEntity: entity<gaugeData, float> = {
     name: #payment_count,
   },
   title: "Payments Failure Rate",
-  getChartOption: GaugeFailureRateUtils.falureGaugeOption,
+  getChartOption: GaugeFailureRateUtils.failureGaugeOption,
 }
 
 let getStatusPerformanceEntity: entity<stackBarChartData, option<string>> = {

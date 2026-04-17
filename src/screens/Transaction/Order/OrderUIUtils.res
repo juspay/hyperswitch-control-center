@@ -59,7 +59,7 @@ let isParentChildFilterMatch = (name, key) => {
 module RenderAccordion = {
   @react.component
   let make = (~initialExpandedArray=[], ~accordion) => {
-    <Accordion
+    <AccordionAdapter
       initialExpandedArray
       accordion
       accordionTopContainerCss="border"
@@ -165,7 +165,7 @@ module NoData = {
   let make = (~isConfigureConnector, ~paymentModal, ~setPaymentModal) => {
     let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-    <BluredTableComponent
+    <BlurredTableComponent
       infoText={isConfigureConnector
         ? isLiveMode
             ? "There are no payments as of now."
@@ -366,7 +366,11 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys,
 
     let makeOptions = (options: array<string>): array<FilterSelectBox.dropdownOption> => {
       options->Array.map(str => {
-        let option: FilterSelectBox.dropdownOption = {label: str->snakeToTitle, value: str}
+        let label = switch key->getFilterTypeFromString {
+        | #connector => ConnectorUtils.getDisplayNameForConnector(str)
+        | _ => str->snakeToTitle
+        }
+        let option: FilterSelectBox.dropdownOption = {label, value: str}
         option
       })
     }
@@ -495,11 +499,11 @@ let isNonEmptyValue = value => {
 
 let orderViewList: OMPSwitchTypes.ompViews = [
   {
-    lable: "All Profiles",
+    label: "All Profiles",
     entity: #Merchant,
   },
   {
-    lable: "Profile",
+    label: "Profile",
     entity: #Profile,
   },
 ]

@@ -37,12 +37,12 @@ let customTooltipFormatter = (~title) => {
       let line2Point = this.points->getValueFromArray(2, defaultValue)
       let line3Point = this.points->getValueFromArray(3, defaultValue)
 
-      let getRowsHtml = (~iconColor, ~value, ~metricType, ~comparisionComponent="", ~name="") => {
+      let getRowsHtml = (~iconColor, ~value, ~metricType, ~comparisonComponent="", ~name="") => {
         let formattedValue = CurrencyFormatUtils.valueFormatter(value, metricType)
         let key = name
         `<div style="display: flex; align-items: center;">
             <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
-            <div style="margin-left: 8px;">${key}${comparisionComponent}</div>
+            <div style="margin-left: 8px;">${key}${comparisonComponent}</div>
             <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 50px;">${formattedValue}</div>
         </div>`
       }

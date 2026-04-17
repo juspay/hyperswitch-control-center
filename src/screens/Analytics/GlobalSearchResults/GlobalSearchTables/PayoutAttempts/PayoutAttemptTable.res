@@ -38,6 +38,7 @@ module PreviewTable = {
       isAnalyticsModule=false
       showResultsPerPageSelector=false
       paginationClass="hidden"
+      showAutoScroll=true
     />
   }
 }
@@ -131,6 +132,7 @@ let make = () => {
         tableDataBorderClass=tableBorderClass
         isAnalyticsModule=false
         showResultsPerPageSelector=false
+        showAutoScroll=true
       />
     </PageLoaderWrapper>
   </div>

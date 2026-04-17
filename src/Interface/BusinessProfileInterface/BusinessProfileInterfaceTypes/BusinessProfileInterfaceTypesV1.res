@@ -46,6 +46,7 @@ type profileEntityRequestType_v1 = {
   always_enable_overcapture: option<JSON.t>,
   is_external_vault_enabled: option<string>,
   external_vault_connector_details: option<externalVaultConnectorDetailsType_v1>,
+  payment_method_blocking: option<JSON.t>,
 }
 type webhookDetailsRequest_v1 = {
   webhook_url: option<JSON.t>,
@@ -133,4 +134,5 @@ type profileEntity_v1 = {
   payment_link_config: option<paymentLinkConfig_v1>,
   is_external_vault_enabled: option<string>,
   external_vault_connector_details: option<externalVaultConnectorDetailsType_v1>,
+  payment_method_blocking: option<BusinessProfileInterfaceTypes.paymentMethodBlocking>,
 }

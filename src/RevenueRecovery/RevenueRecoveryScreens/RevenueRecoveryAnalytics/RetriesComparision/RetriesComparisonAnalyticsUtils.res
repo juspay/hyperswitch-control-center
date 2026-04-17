@@ -1,4 +1,4 @@
-open RetriesComparisionAnalyticsTypes
+open RetriesComparisonAnalyticsTypes
 open LogicUtils
 
 let getStringFromVariant = (col: retryAttemptsTrendCols): string => {
