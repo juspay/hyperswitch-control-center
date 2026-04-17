@@ -93,7 +93,7 @@ let make = (
       <AddDataAttributes
         attributes=[("data-testid", heading->LogicUtils.titleToSnake->String.toLowerCase)]>
         <h2
-          className="font-semibold text-xl text-nd_gray-600  dark:text-white dark:text-opacity-75">
+          className={`${Typography.body.lg.semibold} text-nd_gray-600 dark:text-white dark:text-opacity-75`}>
           {heading->React.string}
         </h2>
       </AddDataAttributes>

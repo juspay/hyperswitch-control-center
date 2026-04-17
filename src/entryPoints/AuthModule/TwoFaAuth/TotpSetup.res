@@ -269,7 +269,7 @@ let make = (
   ~twoFaPageState,
   ~errorHandling,
   ~isSkippable,
-  ~checkTwoFaResonse: TwoFaTypes.checkTwofaResponseType,
+  ~checkTwoFaResponse: TwoFaTypes.checkTwofaResponseType,
 ) => {
   open HSwitchUtils
   open TwoFaTypes
@@ -362,7 +362,7 @@ let make = (
   }, [showNewQR])
 
   let (showOnlyTotp, showOnlyRc) = React.useMemo1(() => {
-    switch checkTwoFaResonse.status {
+    switch checkTwoFaResponse.status {
     | Some(value) =>
       if value.totp.attemptsRemaining === 0 && value.recoveryCode.attemptsRemaining > 0 {
         (false, true)
@@ -373,7 +373,7 @@ let make = (
       }
     | None => (true, true)
     }
-  }, [checkTwoFaResonse.status])
+  }, [checkTwoFaResponse.status])
 
   <PageLoaderWrapper screenState sectionHeight="h-screen">
     <BackgroundImageWrapper>

@@ -1,14 +1,10 @@
+open LogicUtils
+
 external formEventToJsonArr: ReactEvent.Form.t => array<JSON.t> = "%identity"
 
 module RangeSliderLocalFilter = {
   @react.component
-  let make = (
-    ~filterKey,
-    ~minVal: float,
-    ~maxVal: float,
-    ~maxSlide: ReactFinalForm.fieldRenderPropsInput,
-    ~minSlide: ReactFinalForm.fieldRenderPropsInput,
-  ) => {
+  let make = (~filterKey, ~minVal: float, ~maxVal: float) => {
     let (lclFiltrState, setLclFltrState) = React.useContext(DatatableContext.datatableContext)
     let dropdownRef = React.useRef(Nullable.null)
     let (showDropDown, setShowDropDown) = React.useState(() => false)
@@ -56,9 +52,26 @@ module RangeSliderLocalFilter = {
       },
     )
 
-    let min = minVal->Float.toString
+    let sliderValue = [
+      selectedFilterVal
+      ->Option.getOr([])
+      ->getValueFromArray(0, minVal->JSON.Encode.float)
+      ->getFloatFromJson(minVal),
+      selectedFilterVal
+      ->Option.getOr([])
+      ->getValueFromArray(1, maxVal->JSON.Encode.float)
+      ->getFloatFromJson(maxVal),
+    ]
 
-    let max = maxVal->Float.toString
+    let handleValueChange = values => {
+      setLclFltrState(
+        filterKey,
+        [
+          values->getValueFromArray(0, minVal)->JSON.Encode.float,
+          values->getValueFromArray(1, maxVal)->JSON.Encode.float,
+        ],
+      )
+    }
 
     <div className="flex relative flex-row flex-wrap">
       <div className="flex relative flex-row flex-wrap w-full">
@@ -68,12 +81,19 @@ module RangeSliderLocalFilter = {
           onClick={_ => setShowDropDown(prev => !prev)}>
           {rightIcon}
         </div>
-        <RenderIf condition={min !== max && showDropDown}>
+        <RenderIf condition={minVal !== maxVal && showDropDown}>
           <div
             ref={dropdownRef->ReactDOM.Ref.domRef}
-            className=" top-3.5 px-4 pt-4 pb-2 bg-white border dark:bg-jp-gray-lightgray_background border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded shadow-generic_shadow dark:shadow-generic_shadow_dark mt-8 absolute border border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded shadow-generic_shadow dark:shadow-generic_shadow_dark z-20 ">
+            className="w-56 absolute top-3.5 mt-8 px-4 pt-8 pb-4 bg-white dark:bg-jp-gray-lightgray_background border border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded shadow-generic_shadow dark:shadow-generic_shadow_dark z-20">
             <div className="flex">
-              <RangeSlider min max maxSlide minSlide />
+              <SliderBinding
+                min=minVal
+                max=maxVal
+                value=sliderValue
+                onValueChange=handleValueChange
+                showValueLabels=true
+                size=Small
+              />
             </div>
           </div>
         </RenderIf>
@@ -91,11 +111,11 @@ module FilterDropDown = {
 
     // Making the options Unique
     let dummyDict = Dict.make()
-    arr->LogicUtils.getStrArrayFromJsonArray->Array.forEach(item => Dict.set(dummyDict, item, ""))
+    arr->getStrArrayFromJsonArray->Array.forEach(item => Dict.set(dummyDict, item, ""))
     let options =
       dummyDict
       ->Dict.keysToArray
-      ->Array.filter(item => item->LogicUtils.isNonEmptyString)
+      ->Array.filter(item => item->isNonEmptyString)
       ->SelectBox.makeOptions
 
     let selectedValue = Dict.get(lclFiltrState, val)->Option.getOr([])
@@ -179,8 +199,7 @@ module TextFilterCell = {
     let selectedValue =
       Dict.get(lclFiltrState, val)
       ->Option.getOr([])
-      ->Array.get(0)
-      ->Option.getOr(""->JSON.Encode.string)
+      ->getValueFromArray(0, ""->JSON.Encode.string)
     let localInput = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
       {
         name: "--",
@@ -231,54 +250,8 @@ module TextFilterCell = {
 module RangeFilterCell = {
   @react.component
   let make = (~minVal, ~maxVal, ~val) => {
-    let (lclFiltrState, setLclFltrState) = React.useContext(DatatableContext.datatableContext)
     let minVal = Math.floor(minVal)
     let maxVal = Math.ceil(maxVal)
-    let selectedValueStr =
-      Dict.get(lclFiltrState, val)->Option.getOr([
-        minVal->JSON.Encode.float,
-        maxVal->JSON.Encode.float,
-      ])
-
-    let minSlide = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
-      {
-        name: "--",
-        onBlur: _ => (),
-        onChange: ev => {
-          let value = {ev->ReactEvent.Form.target}["value"]
-
-          let leftVal = value->Js.Float.fromString->JSON.Encode.float
-          let rightvalue = selectedValueStr[1]->Option.getOr(JSON.Encode.null)
-          switch selectedValueStr[1] {
-          | Some(ele) => setLclFltrState(val, [leftVal > rightvalue ? rightvalue : leftVal, ele])
-          | None => ()
-          }
-        },
-        onFocus: _ => (),
-        value: selectedValueStr[0]->Option.getOr(JSON.Encode.float(0.0)),
-        checked: false,
-      }
-    }, [selectedValueStr])
-
-    let maxSlide = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
-      {
-        name: "--",
-        onBlur: _ => (),
-        onChange: ev => {
-          let value = {ev->ReactEvent.Form.target}["value"]
-
-          let rightvalue = value->Js.Float.fromString->JSON.Encode.float
-          switch selectedValueStr[0] {
-          | Some(ele) => setLclFltrState(val, [ele, ele > rightvalue ? ele : rightvalue])
-          | None => ()
-          }
-        },
-        onFocus: _ => (),
-        value: selectedValueStr[1]->Option.getOr(JSON.Encode.float(0.0)),
-        checked: false,
-      }
-    }, [selectedValueStr])
-
-    <RangeSliderLocalFilter filterKey=val minVal maxVal maxSlide minSlide />
+    <RangeSliderLocalFilter filterKey=val minVal maxVal />
   }
 }

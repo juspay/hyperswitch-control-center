@@ -174,7 +174,7 @@ module TableWrapper = {
         ~startTimeFromUrl=weeklyDateRange.start_time,
         ~endTimeFromUrl=weeklyDateRange.end_time,
         ~filterValueFromUrl,
-        ~currenltySelectedTab=activeTab,
+        ~currentlySelectedTab=activeTab,
         ~deltaMetrics,
         ~isIndustry=false,
         ~distributionArray=None,
@@ -223,7 +223,7 @@ module TableWrapper = {
           ~startTimeFromUrl,
           ~endTimeFromUrl,
           ~filterValueFromUrl,
-          ~currenltySelectedTab=activeTab,
+          ~currentlySelectedTab=activeTab,
           ~deltaMetrics,
           ~isIndustry=false,
           ~distributionArray,
@@ -350,7 +350,7 @@ module TabDetails = {
           showTableLegend=false
           showMarkers=true
           legendType=HighchartTimeSeriesChart.Points
-          comparitionWidget=true
+          comparisonWidget=true
         />
         {switch tableEntity {
         | Some(tableEntity) =>
@@ -491,7 +491,7 @@ module OverallSummary = {
           updateUrlWithPrefix(dict)
         }}
         tabContainerClass="analyticsTabs"
-        initalTab=?activeTab
+        initialTab=?activeTab
       />
       <TabDetails
         chartEntity

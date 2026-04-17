@@ -678,7 +678,7 @@ let getCellForAboutPayment = (payoutData, aboutPaymentColType): Table.cell => {
 }
 
 let getCellForOtherDetails = (payoutData, otherDetailsColType): Table.cell => {
-  let splittedName = payoutData.name->String.split(" ")
+  let splitName = payoutData.name->String.split(" ")
   switch otherDetailsColType {
   | CustomerId => DisplayCopyCell(payoutData.customer_id)
   | Name => Text(payoutData.name)
@@ -689,8 +689,8 @@ let getCellForOtherDetails = (payoutData, otherDetailsColType): Table.cell => {
   | BillingEmail => Text(payoutData.billingEmail)
   | BillingPhone => Text(payoutData.billingPhone)
   | BillingAddress => Text(payoutData.billing)
-  | FirstName => Text(splittedName->getValueFromArray(0, ""))
-  | LastName => Text(splittedName->getValueFromArray(splittedName->Array.length - 1, ""))
+  | FirstName => Text(splitName->getValueFromArray(0, ""))
+  | LastName => Text(splitName->getValueFromArray(splitName->Array.length - 1, ""))
   | PayoutMethodEmail => Text(payoutData.email)
   | PayoutMethodAddress => Text(payoutData.billing)
   | AutoFulfill => Text(payoutData.auto_fulfill->getStringFromBool)

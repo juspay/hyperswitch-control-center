@@ -237,10 +237,10 @@ module DisputesInfoBarComponent = {
           ~id=Some(disputeId),
         )
         let response = await url->fetchDetails
-        let reponseArray = response->getArrayFromJson([])
-        if reponseArray->Array.length > 0 {
+        let responseArray = response->getArrayFromJson([])
+        if responseArray->Array.length > 0 {
           setFileUploadedDict(_ =>
-            DictionaryUtils.mergeDicts([fileUploadedDict, reponseArray->getDictFromFilesAvailable])
+            DictionaryUtils.mergeDicts([fileUploadedDict, responseArray->getDictFromFilesAvailable])
           )
           setDisputeEvidenceStatus(_ => EvidencePresent)
         }

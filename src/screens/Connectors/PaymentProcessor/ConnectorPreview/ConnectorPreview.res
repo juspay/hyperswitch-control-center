@@ -267,18 +267,14 @@ module ConnectorSummaryGrid = {
           <RenderIf
             condition={connectorInfo.connector_name->getConnectorNameTypeFromString ==
               Processors(FIUU)}>
-            <div
-              className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
-              <Icon name="info-vacant" size=18 />
-              <div>
-                <p className="mb-3">
-                  {"To ensure mandates work correctly with Fiuu, please verify that the Source Verification Key for webhooks is set accurately in your configuration. Without the correct Source Verification Key, mandates may not function as expected."->React.string}
-                </p>
-                <p>
-                  {"Please review your webhook settings and confirm that the Source Verification Key is properly configured to avoid any integration issues."->React.string}
-                </p>
-              </div>
-            </div>
+            <AlertV2Binding
+              alertType=Primary
+              slot={{
+                slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
+              }}
+              heading="To ensure mandates work correctly with Fiuu, please verify that the Source Verification Key for webhooks is set accurately in your configuration. Without the correct Source Verification Key, mandates may not function as expected."
+              description="Please review your webhook settings and confirm that the Source Verification Key is properly configured to avoid any integration issues."
+            />
           </RenderIf>
         </div>
         <div />
@@ -299,7 +295,7 @@ module ConnectorSummaryGrid = {
                     label={field.payment_method->LogicUtils.snakeToTitle}
                     render={Some(
                       field.payment_method_types
-                      ->Array.map(item => item.payment_method_type->LogicUtils.snakeToTitle)
+                      ->Array.map(item => item.payment_method_type->getPaymentMethodDisplayName)
                       ->Array.reduce([], (acc, curr) => {
                         if !(acc->Array.includes(curr)) {
                           acc->Array.push(curr)
@@ -330,22 +326,23 @@ module ConnectorSummaryGrid = {
                 </div>
               </RenderIf>
             </div>
-            <div
-              className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
-              <Icon name="info-vacant" size=18 />
-              <p>
-                {"Improve conversion rate by conditionally managing PMTs visibility on checkout . Visit Settings >"->React.string}
-                <a
-                  onClick={_ =>
+            <AlertV2Binding
+              alertType=Primary
+              slot={{
+                slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
+              }}
+              description="Improve conversion rate by conditionally managing PMTs visibility on checkout."
+              actions={{
+                position: Bottom,
+                primaryAction: {
+                  text: "Configure PMTs at Checkout",
+                  onClick: _ =>
                     RescriptReactRouter.push(
                       GlobalVars.appendDashboardPath(~url="/configure-pmts"),
-                    )}
-                  target="_blank"
-                  className="text-primary underline cursor-pointer">
-                  {"Configure PMTs at Checkout"->React.string}
-                </a>
-              </p>
-            </div>
+                    ),
+                },
+              }}
+            />
           </div>
         </div>
 

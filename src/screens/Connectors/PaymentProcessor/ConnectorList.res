@@ -43,7 +43,6 @@ module DummyProcessorBanner = {
       </RenderIf>
       <PageUtils.PageHeading
         title="Payment Processors"
-        customHeadingStyle="mb-10"
         subTitle="Connect a test processor and get started with testing your payments"
       />
     </>
@@ -131,7 +130,7 @@ let make = (
       <RenderIf condition={showDummyProcessorBanner}>
         <DummyProcessorBanner setProcessorModal configuredConnectors />
       </RenderIf>
-      <div className="flex flex-col gap-14">
+      <div className="flex flex-col gap-8">
         <RenderIf condition={showFeedbackModal}>
           <HSwitchFeedBackModal
             showModal={showFeedbackModal}
@@ -143,6 +142,7 @@ let make = (
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Connected Processors"
+            titleSize={Small}
             actualData=filteredConnectorData
             totalResults={filteredConnectorData->Array.length}
             filters={<TableSearchFilter
@@ -162,7 +162,7 @@ let make = (
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
               ~sendMixpanelEvent,
             )}
-            currrentFetchCount={filteredConnectorData->Array.length}
+            currentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false
             showAutoScroll=true
           />

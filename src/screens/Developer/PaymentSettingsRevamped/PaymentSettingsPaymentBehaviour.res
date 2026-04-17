@@ -185,6 +185,73 @@ module ClickToPaySection = {
   }
 }
 
+module PaymentMethodBlocking = {
+  @react.component
+  let make = () => {
+    open FormRenderer
+
+    let cardTypeOptions: array<SelectBox.dropdownOption> = ["credit", "debit"]->Array.map(item => {
+      SelectBox.label: item->LogicUtils.snakeToTitle,
+      value: item,
+    })
+
+    let blocklistCardTypes = makeFieldInfo(
+      ~label="Card Types",
+      ~name="payment_method_blocking.card.card_types",
+      ~customInput=InputFields.multiSelectInput(
+        ~options=cardTypeOptions,
+        ~buttonText="Select Card Types",
+        ~showSelectionAsChips=false,
+        ~customButtonStyle="!rounded-lg",
+        ~fixedDropDownDirection=BottomRight,
+        ~searchable=true,
+      ),
+    )
+
+    let blocklistWalletTypes = makeFieldInfo(
+      ~label="Card Types",
+      ~name="payment_method_blocking.wallet.card_types",
+      ~customInput=InputFields.multiSelectInput(
+        ~options=cardTypeOptions,
+        ~buttonText="Select Card Types",
+        ~showSelectionAsChips=false,
+        ~customButtonStyle="!rounded-lg",
+        ~fixedDropDownDirection=BottomRight,
+        ~searchable=true,
+      ),
+    )
+
+    <DesktopRow itemWrapperClass="mx-1">
+      <div className="w-full py-8 flex flex-col gap-6">
+        <div>
+          <p className={`${body.lg.semibold} text-nd_gray-700`}>
+            {"Payment Method Blocking"->React.string}
+          </p>
+          <p className={`${body.md.medium} text-nd_gray-400 pt-2`}>
+            {"Block specific card types for card and wallet payment methods"->React.string}
+          </p>
+        </div>
+        <div className="flex flex-col gap-2">
+          <p className={`${body.md.semibold} text-nd_gray-700`}> {"Card"->React.string} </p>
+          <FieldRenderer
+            field={blocklistCardTypes}
+            labelClass={`!${body.md.medium} !text-nd-gray-600`}
+            fieldWrapperClass="max-w-xl"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <p className={`${body.md.semibold} text-nd_gray-700`}> {"Wallet"->React.string} </p>
+          <FieldRenderer
+            field={blocklistWalletTypes}
+            labelClass={`!${body.md.medium} !text-nd-gray-600`}
+            fieldWrapperClass="max-w-xl"
+          />
+        </div>
+      </div>
+    </DesktopRow>
+  }
+}
+
 module WebHook = {
   @react.component
   let make = () => {
@@ -297,12 +364,13 @@ let make = () => {
   )
   let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version)
 
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let _ = await updateBusinessProfile(~body=values, ~shouldTransform=true)
-
+      mixpanelEvent(~eventName="payment_settings_payment_behaviour")
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -470,20 +538,24 @@ let make = () => {
             ~name="is_network_tokenization_enabled",
             ~label="Network Tokenization",
             ~customInput=InputFields.boolInput(
-              ~isDisabled=true,
+              ~isDisabled=!featureFlagDetails.networkTokenization,
               ~boolCustomClass="rounded-lg",
               ~toggleEnableColor="bg-nd_primary_blue-450",
             ),
           )}
         />
         <div className={`${body.md.medium} ml-1 text-nd_gray-400 pb-8`}>
-          {"Network Tokenization enables secure card storage and seamless future transactions, with Juspay as the Token Requestor-Token Service Provider (TR-TSP). To enable this feature for your merchant account, please reach out to us on "->React.string}
-          <a
-            href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
-            className="text-primary hover:cursor-pointer hover:underline"
-            target="_blank">
-            {"Slack"->React.string}
-          </a>
+          {`${"Network Tokenization enables secure card storage and seamless future transactions, with Juspay as the Token Requestor-Token Service Provider (TR-TSP)."}${featureFlagDetails.networkTokenization
+              ? ""
+              : " To enable this feature for your merchant account, please reach out to us on "}`->React.string}
+          <RenderIf condition={!featureFlagDetails.networkTokenization}>
+            <a
+              href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
+              className="text-primary hover:cursor-pointer hover:underline"
+              target="_blank">
+              {"Slack"->React.string}
+            </a>
+          </RenderIf>
         </div>
       </DesktopRow>
       <hr />
@@ -493,6 +565,10 @@ let make = () => {
       </RenderIf>
       <ClickToPaySection />
       <hr />
+      <RenderIfVersion visibleForVersion=V1>
+        <PaymentMethodBlocking />
+        <hr />
+      </RenderIfVersion>
       <ReturnUrl />
       <WebHook />
       <DesktopRow wrapperClass="mt-8">
