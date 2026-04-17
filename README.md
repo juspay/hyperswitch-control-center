@@ -347,6 +347,8 @@ For a detailed list of changes made in each version, please refer to the [CHANGE
 
 We welcome contributions from the community! If you would like to contribute to Hyperswitch, please follow our contribution guidelines.
 
+> 💡 **AI-Assisted Contributions**: This project supports AI-assisted development workflows. Contributors are encouraged to leverage AI tools responsibly to improve code quality, documentation, and test coverage.
+
 ---
 
 ## Spell Checker
@@ -367,7 +369,7 @@ To check only a specific folder, for example src/APIUtils, run:
 typos ./src/APIUtils
 ```
 
-If you don’t have typos installed, you can install it via Cargo (requires Rust):
+If you don't have typos installed, you can install it via Cargo (requires Rust):
 
 ```
 cargo install typos-cli
