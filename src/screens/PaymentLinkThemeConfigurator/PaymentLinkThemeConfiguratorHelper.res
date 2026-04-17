@@ -211,3 +211,66 @@ let makeColorIconCardCvcErrorField = (~defaultValue) => {
     ~customInput=InputFields.colorPickerInput(~defaultValue, ~showErrorWhenEmpty=false),
   )
 }
+
+let makeCurrencyField = () => {
+  makeFieldInfo(
+    ~label="Currency",
+    ~name="currency",
+    ~customInput=InputFields.textInput(),
+    ~placeholder="Enter currency (e.g. USD)",
+  )
+}
+
+let makeAmountField = () => {
+  makeFieldInfo(
+    ~label="Amount",
+    ~name="amount",
+    ~customInput=InputFields.numericTextInput(),
+    ~placeholder="Enter amount",
+  )
+}
+
+let makeSelectField = (~label, ~name, ~options, ~buttonText) =>
+  makeFieldInfo(
+    ~label,
+    ~name,
+    ~customInput=InputFields.selectInput(
+      ~options,
+      ~buttonText,
+      ~deselectDisable=true,
+      ~customButtonStyle="!w-full pr-4 pl-2 !rounded-md",
+      ~fullLength=true,
+    ),
+  )
+
+let makeCaptureMethodField = () =>
+  makeSelectField(
+    ~label="Capture Method",
+    ~name="capture_method",
+    ~options=PaymentLinkThemeConfiguratorUtils.captureMethodOptions,
+    ~buttonText="Select Capture Method",
+  )
+
+let makeSetupFutureUsageField = () =>
+  makeSelectField(
+    ~label="Setup Future Usage",
+    ~name="setup_future_usage_applied",
+    ~options=PaymentLinkThemeConfiguratorUtils.setupFutureUsageOptions,
+    ~buttonText="Select Setup Future Usage",
+  )
+
+let makeAuthenticationTypeField = () =>
+  makeSelectField(
+    ~label="Authentication Type",
+    ~name="authentication_type",
+    ~options=PaymentLinkThemeConfiguratorUtils.authenticationTypeOptions,
+    ~buttonText="Select Authentication Type",
+  )
+
+let makeRequestExternal3dsField = () => {
+  makeFieldInfo(
+    ~label="Request External 3DS Authentication",
+    ~name="request_external_three_ds_authentication",
+    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
+  )
+}
