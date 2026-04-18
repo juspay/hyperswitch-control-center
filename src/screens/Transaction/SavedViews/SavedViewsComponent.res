@@ -37,7 +37,7 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
       setSavedViews(_ => mappedRes.views)
     } catch {
     | err =>
-      Js.Console.error2("[SavedViews] fetchSavedViews failed", err)
+      Js.log2("FAILED TO LOAD SAVED VIEWS", err)
       showToast(~message="Failed to load saved views. Please try again.", ~toastType=ToastError)
     }
   }
@@ -126,7 +126,7 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
       fetchSavedViews()->ignore
     } catch {
     | err =>
-      Js.Console.error2("[SavedViews] performDelete failed", err)
+      Js.log2("FAILED TO DELETE SAVED VIEW", err)
       showToast(
         ~message=`Failed to delete view '${SavedViewsUtils.truncateName(
             viewName,
@@ -149,7 +149,7 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
       }
     } catch {
     | err =>
-      Js.Console.error2("[SavedViews] performRename failed", err)
+      Js.log2("FAILED TO RENAME SAVED VIEW", err)
       showToast(~message="Failed to rename view. Please try again.", ~toastType=ToastError)
     }
   }

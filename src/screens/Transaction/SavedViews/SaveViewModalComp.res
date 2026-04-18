@@ -233,7 +233,7 @@ let make = (
       setSavedViews(_ => mappedRes.views)
     } catch {
     | err =>
-      Js.Console.error2("[SaveViewModal] fetchSavedViews failed", err)
+      Js.log2("FAILED TO LOAD SAVED VIEWS", err)
       showToast(~message="Failed to load saved views. Please try again.", ~toastType=ToastError)
     }
   }
@@ -278,7 +278,7 @@ let make = (
       setShowModal(_ => false)
     } catch {
     | err =>
-      Js.Console.error2("[SaveViewModal] handleCreate failed", err)
+      Js.log2("FAILED TO CREATE SAVED VIEW", err)
       showToast(
         ~message=`Failed to create view '${SavedViewsUtils.truncateName(
             viewName,
@@ -316,7 +316,7 @@ let make = (
       }
     } catch {
     | err =>
-      Js.Console.error2("[SaveViewModal] handleOverwrite failed", err)
+      Js.log2("FAILED TO OVERWRITE SAVED VIEW", err)
       showToast(~message="Failed to overwrite view. Please try again.", ~toastType=ToastError)
     }
   }
