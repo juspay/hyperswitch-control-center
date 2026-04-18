@@ -75,6 +75,11 @@ let make = (~options) => {
   })
   let (isAmountRangeVisible, setIsAmountRangeVisible) = React.useState(_ => true)
 
+<<<<<<< HEAD
+=======
+  // Sync local state when amount_option changes from outside (e.g. saved view load),
+  // so the UI reflects the externally applied filter without round-tripping through form.
+>>>>>>> 79485e9e4 (fix: avoid duplicate filter API call when picking amount option)
   let amountOptionFromForm = React.useMemo(() => {
     formState.values->getDictFromJsonObject->getString("amount_option", "")
   }, [formState.values])
@@ -82,9 +87,17 @@ let make = (~options) => {
   React.useEffect(() => {
     let parsed =
       amountOptionFromForm->isNonEmptyString
+<<<<<<< HEAD
         ? amountOptionFromForm->mapStringToAmountRangeType
         : AmountFilterTypes.UnknownRange("Select Amount")
     parsed !== selectedOption ? setSelectedOption(_ => parsed) : ()
+=======
+        ? amountOptionFromForm->stringRangetoTypeAmount
+        : AmountFilterTypes.UnknownRange("Select Amount")
+    if parsed !== selectedOption {
+      setSelectedOption(_ => parsed)
+    }
+>>>>>>> 79485e9e4 (fix: avoid duplicate filter API call when picking amount option)
     None
   }, [amountOptionFromForm])
 
@@ -94,6 +107,12 @@ let make = (~options) => {
 
   let handleInputChange = newValue => {
     if newValue->isNonEmptyString {
+<<<<<<< HEAD
+=======
+      // Keep the selection local until the user clicks Apply. Writing to the
+      // form here triggers the filter subscription and fires the list API
+      // before the user has entered an amount.
+>>>>>>> 79485e9e4 (fix: avoid duplicate filter API call when picking amount option)
       setSelectedOption(_ => newValue->mapStringToRange)
     }
     setIsAmountRangeVisible(_ => true)
@@ -106,14 +125,29 @@ let make = (~options) => {
       handleInputChange(ev->Identity.formReactEventToString)
     },
     onFocus: _ => (),
+<<<<<<< HEAD
     value: selectedOption->mapRangeTypeToString->JSON.Encode.string,
+=======
+    value: selectedOption->mapRangeTypetoString->JSON.Encode.string,
+>>>>>>> 79485e9e4 (fix: avoid duplicate filter API call when picking amount option)
     checked: true,
   }
 
   let handleApply = _ => {
+<<<<<<< HEAD
     switch selectedOption {
     | GreaterThanOrEqualTo => form.change("end_amount", JSON.Encode.null)
     | LessThanOrEqualTo => form.change("start_amount", JSON.Encode.null)
+=======
+    // Commit the selected option and clear any stale amount fields that don't
+    // apply to the chosen range, then submit exactly once.
+    switch selectedOption {
+    | GreaterThanOrEqualTo => form.change("end_amount", JSON.Encode.null)
+    | LessThanOrEqualTo => form.change("start_amount", JSON.Encode.null)
+    // EqualTo: CustomAmountEqualField mirrors start_amount into end_amount, so both remain.
+    // InBetween: user enters both explicitly.
+    // UnknownRange: nothing to commit.
+>>>>>>> 79485e9e4 (fix: avoid duplicate filter API call when picking amount option)
     | _ => ()
     }
     form.change("amount_option", selectedOption->Identity.genericTypeToJson)
@@ -122,7 +156,7 @@ let make = (~options) => {
   }
 
   let renderFields = () =>
-    switch effectiveSelectedOption {
+    switch selectedOption {
     | GreaterThanOrEqualTo =>
       <div className="flex gap-5 items-center justify-center w-28">
         <FormRenderer.FieldRenderer field={startAmountField} />
@@ -152,7 +186,7 @@ let make = (~options) => {
     let start = dict->getOptionFloat("start_amount")
     let end = dict->getOptionFloat("end_amount")
 
-    switch (effectiveSelectedOption, start, end) {
+    switch (selectedOption, start, end) {
     | (GreaterThanOrEqualTo, Some(start), _) => (true, `More or Equal to ${start->Float.toString}`)
     | (EqualTo, Some(start), _) => (true, `Exactly ${start->Float.toString}`)
     | (LessThanOrEqualTo, _, Some(end)) => (true, `Less or Equal to ${end->Float.toString}`)
@@ -180,8 +214,7 @@ let make = (~options) => {
       fullLength=true
       customButtonStyle="bg-white rounded-md !px-4 !py-2 !h-10"
     />
-    <RenderIf
-      condition={effectiveSelectedOption != UnknownRange("Select Amount") && isAmountRangeVisible}>
+    <RenderIf condition={selectedOption != UnknownRange("Select Amount") && isAmountRangeVisible}>
       <div
         className="border border-jp-gray-940 border-opacity-50 bg-white rounded-md py-1.5 gap-2.5 flex justify-between px-2.5 pb-4 border-t-0 items-center">
         {renderFields()}
