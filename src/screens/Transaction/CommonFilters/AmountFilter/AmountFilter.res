@@ -122,7 +122,7 @@ let make = (~options) => {
   }
 
   let renderFields = () =>
-    switch selectedOption {
+    switch effectiveSelectedOption {
     | GreaterThanOrEqualTo =>
       <div className="flex gap-5 items-center justify-center w-28">
         <FormRenderer.FieldRenderer field={startAmountField} />
@@ -152,7 +152,7 @@ let make = (~options) => {
     let start = dict->getOptionFloat("start_amount")
     let end = dict->getOptionFloat("end_amount")
 
-    switch (selectedOption, start, end) {
+    switch (effectiveSelectedOption, start, end) {
     | (GreaterThanOrEqualTo, Some(start), _) => (true, `More or Equal to ${start->Float.toString}`)
     | (EqualTo, Some(start), _) => (true, `Exactly ${start->Float.toString}`)
     | (LessThanOrEqualTo, _, Some(end)) => (true, `Less or Equal to ${end->Float.toString}`)
@@ -180,7 +180,8 @@ let make = (~options) => {
       fullLength=true
       customButtonStyle="bg-white rounded-md !px-4 !py-2 !h-10"
     />
-    <RenderIf condition={selectedOption != UnknownRange("Select Amount") && isAmountRangeVisible}>
+    <RenderIf
+      condition={effectiveSelectedOption != UnknownRange("Select Amount") && isAmountRangeVisible}>
       <div
         className="border border-jp-gray-940 border-opacity-50 bg-white rounded-md py-1.5 gap-2.5 flex justify-between px-2.5 pb-4 border-t-0 items-center">
         {renderFields()}
