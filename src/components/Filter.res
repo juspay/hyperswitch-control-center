@@ -174,41 +174,41 @@ let make = (
     }
 
     switch initialValues->JSON.Decode.object {
-    | Some(_) => {
-        let selectedFilters = []
-        let filtersUnseletced = []
-
-        filterKeys->Array.forEach(key => {
-          let item = remoteFilters->Array.find(
-            item => {
-              item.field.inputNames->Array.get(0)->Option.getOr("") === key
-            },
-          )
-
-          switch item {
-          | Some(val) => selectedFilters->Array.push(val.field)->ignore
-          | _ => ()
-          }
-        })
-
-        remoteFilters->Array.forEach(item => {
-          if !(selectedFilters->Array.includes(item.field)) {
-            filtersUnseletced->Array.push(item.field)->ignore
-          }
-        })
-
-        setFilterList(_ => selectedFilters)
-        setCount(_prev => clearFilterJson + initialCount)
-        setAllFilters(_prev => filtersUnseletced)
-        let finalInitialValueJson =
-          initialValues->JsonFlattenUtils.unflattenObject->JSON.Encode.object
-        setInitialValueJson(_ => finalInitialValueJson)
-      }
-
+    | Some(_) =>
+      let finalInitialValueJson =
+        initialValues->JsonFlattenUtils.unflattenObject->JSON.Encode.object
+      setInitialValueJson(_ => finalInitialValueJson)
     | None => ()
     }
     None
-  }, (searchParams, filterKeys, remoteFilters->Array.length, remoteOptions->Array.length))
+  }, (searchParams, remoteFilters->Array.length, remoteOptions->Array.length))
+
+  React.useEffect(() => {
+    let selectedFilters = []
+    let filtersUnseletced = []
+
+    filterKeys->Array.forEach(key => {
+      let item = remoteFilters->Array.find(
+        item => item.field.inputNames->Array.get(0)->Option.getOr("") === key,
+      )
+
+      switch item {
+      | Some(val) => selectedFilters->Array.push(val.field)->ignore
+      | _ => ()
+      }
+    })
+
+    remoteFilters->Array.forEach(item => {
+      if !(selectedFilters->Array.includes(item.field)) {
+        filtersUnseletced->Array.push(item.field)->ignore
+      }
+    })
+
+    setFilterList(_ => selectedFilters)
+    setCount(_prev => clearFilterJson + initialCount)
+    setAllFilters(_prev => filtersUnseletced)
+    None
+  }, (filterKeys, remoteFilters->Array.length))
 
   let onSubmit = (values, _) => {
     let obj = values->JSON.Decode.object->Option.getOr(Dict.make())->Dict.toArray->Dict.fromArray

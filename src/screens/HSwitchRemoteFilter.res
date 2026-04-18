@@ -312,12 +312,22 @@ module RemoteTableFilters = {
       None
     }, [filterValueJson])
 
+    // Track the signature of the last filterValueJson we pushed down to the
+    // parent's list fetch. FilterContext sometimes triggers an additional
+    // render (e.g. during URL-sync ripples on first view apply) where the
+    // content is identical; without this guard setFilters would be called
+    // with a fresh reference, the parent's useEffect would see a new value
+    // and fire a second list API call.
+    let lastFiltersSignature = React.useRef("")
+
     React.useEffect(() => {
-      if filterValueJson->Dict.keysToArray->Array.length != 0 {
-        setFilters(_ => Some(filterValueJson))
-        setOffset(_ => 0)
-      } else {
-        setFilters(_ => Some(Dict.make()))
+      let next = filterValueJson->Dict.keysToArray->Array.length != 0
+        ? filterValueJson
+        : Dict.make()
+      let signature = next->JSON.Encode.object->JSON.stringify
+      if lastFiltersSignature.current !== signature {
+        lastFiltersSignature.current = signature
+        setFilters(_ => Some(next))
         setOffset(_ => 0)
       }
       None
