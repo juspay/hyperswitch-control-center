@@ -80,7 +80,7 @@ jobs:
             echo "⚠️ Coverage summary not generated (coverage-report/coverage-summary.md missing)." >> "$GITHUB_STEP_SUMMARY"
           fi
 
-      - name: Artifact - Failed Test Results Only
+      - name: Artifact - Failed Test Artifacts
         uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -88,15 +88,8 @@ jobs:
           path: |
             test-results/**/*-failed-*
             test-results/**/*-retry*/
+            playwright-report/
           if-no-files-found: ignore
-          retention-days: 7
-
-      - name: Artifact - Playwright HTML Report
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: playwright-report
-          path: playwright-report/
           retention-days: 7
 
       - name: Artifact - Playwright Coverage Report

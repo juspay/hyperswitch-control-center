@@ -1,4 +1,4 @@
-import { test, expect } from "../support/test";
+import { test, expect } from "./support/test";
 import { generateUniqueEmail } from "./support/helper";
 import { signupUser, loginUI } from "./support/commands";
 

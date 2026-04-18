@@ -5,11 +5,8 @@ function buildReporters(): ReporterDescription[] {
   const coverageReporter: ReporterDescription = [
     "monocart-reporter",
     {
-      name: "Hyperswitch Control Center — E2E Coverage",
-      // Monocart test report (aggregated test results). Coverage itself
-      // lands in ./coverage-report/ (configured below) so these don't
-      // clobber each other.
-      outputFile: "./monocart-report/index.html",
+      // Coverage only - disable monocart's test report (redundant with built-in HTML)
+      outputFile: "",
       coverage: {
         entryFilter: (entry: { url?: string }): boolean => {
           const url = entry.url || "";
@@ -35,7 +32,6 @@ function buildReporters(): ReporterDescription[] {
   if (process.env.CI) {
     const base: ReporterDescription[] = [
       ["html", { open: "never", outputFolder: "playwright-report" }],
-      ["json", { outputFile: "test-results/report.json" }],
       ["line"],
       ["playwright-ctrf-json-reporter", { outputDir: "ctrf" }],
     ];
