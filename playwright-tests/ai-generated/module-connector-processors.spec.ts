@@ -32,9 +32,7 @@ test.describe("PM Auth Processor", () => {
     const link = homePage.pmAuthConnectors;
     if ((await link.count().catch(() => 0)) > 0) {
       await link.click();
-      await expect(page).toHaveURL(
-        /.*dashboard\/pm-authentication-processor/,
-      );
+      await expect(page).toHaveURL(/.*dashboard\/pm-authentication-processor/);
     }
   });
 
@@ -112,9 +110,9 @@ test.describe("Billing Processor", () => {
     if ((await link.count().catch(() => 0)) > 0) {
       await link.click();
       await page.waitForLoadState("networkidle");
-      await expect(
-        page.getByText(/Billing|Processor/i).first(),
-      ).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText(/Billing|Processor/i).first()).toBeVisible({
+        timeout: 10000,
+      });
     }
   });
 });

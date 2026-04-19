@@ -53,9 +53,7 @@ test.describe("Settings - Navigation & Sub-Pages", () => {
     const orgSettings = homePage.organizationSettings;
     if ((await orgSettings.count().catch(() => 0)) > 0) {
       await orgSettings.click();
-      await expect(page).toHaveURL(
-        /.*(organization|settings|account)/,
-      );
+      await expect(page).toHaveURL(/.*(organization|settings|account)/);
     }
   });
 

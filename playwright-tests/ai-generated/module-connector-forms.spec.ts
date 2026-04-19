@@ -56,7 +56,10 @@ const processors: ProcessorCase[] = [
   },
 ];
 
-async function login(page: Page, context: import("../support/test").BrowserContext) {
+async function login(
+  page: Page,
+  context: import("../support/test").BrowserContext,
+) {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);

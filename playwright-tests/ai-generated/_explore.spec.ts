@@ -227,9 +227,7 @@ test("explore all dashboard pages", async ({ page, context }) => {
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
   fs.writeFileSync(outPath, JSON.stringify(results, null, 2));
 
-  console.log(
-    `[explore] wrote ${results.length} page findings to ${outPath}`,
-  );
+  console.log(`[explore] wrote ${results.length} page findings to ${outPath}`);
 
   expect(results.length).toBe(ROUTES.length);
 });

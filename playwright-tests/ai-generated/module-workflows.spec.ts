@@ -161,9 +161,9 @@ test.describe("Workflows - 3DS Decision Manager", () => {
     await homePage.workflow.click();
     await homePage.threeDSRouting.click();
 
-    await expect(
-      page.getByText(/3DS/i).first(),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/3DS/i).first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 });
 
@@ -183,9 +183,9 @@ test.describe("Workflows - 3DS Exemption Manager", () => {
     const exemption = homePage.threeDSExemptionManager;
     if ((await exemption.count().catch(() => 0)) > 0) {
       await exemption.click();
-      await expect(
-        page.getByText(/Exemption/i).first(),
-      ).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText(/Exemption/i).first()).toBeVisible({
+        timeout: 10000,
+      });
     }
   });
 });
@@ -204,9 +204,9 @@ test.describe("Workflows - Surcharge", () => {
     const surcharge = homePage.surchargeRouting;
     if ((await surcharge.count().catch(() => 0)) > 0) {
       await surcharge.click();
-      await expect(
-        page.getByText(/Surcharge/i).first(),
-      ).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText(/Surcharge/i).first()).toBeVisible({
+        timeout: 10000,
+      });
     }
   });
 });

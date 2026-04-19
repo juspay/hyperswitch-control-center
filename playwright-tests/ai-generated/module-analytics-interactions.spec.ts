@@ -44,17 +44,13 @@ async function gotoAnalyticsPayments(page: Page): Promise<boolean> {
 }
 
 test.describe("Analytics - Payments deep interactions", () => {
-  test("Payments Analytics page heading renders", async ({
-    page,
-    context,
-  }) => {
+  test("Payments Analytics page heading renders", async ({ page, context }) => {
     await setup(page, context);
     const ok = await gotoAnalyticsPayments(page);
-    if (!ok)
-      test.skip(true, "analytics gated off — fallback rendered");
-    await expect(
-      page.getByText(/Payments Analytics/i).first(),
-    ).toBeVisible({ timeout: 10000 });
+    if (!ok) test.skip(true, "analytics gated off — fallback rendered");
+    await expect(page.getByText(/Payments Analytics/i).first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test("Payments Overview and Amount Metrics sections render", async ({

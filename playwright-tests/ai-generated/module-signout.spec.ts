@@ -46,7 +46,10 @@ test.describe("User dropdown & sign-out", () => {
   }) => {
     const email = await setup(page, context);
     await page.getByText(email).first().click();
-    await page.getByText(/Sign out/i).first().click();
+    await page
+      .getByText(/Sign out/i)
+      .first()
+      .click();
 
     // After sign-out the app routes back to a login/landing page.
     // Accept any non-/dashboard/home URL that exposes the Sign In form,
@@ -74,7 +77,10 @@ test.describe("User dropdown & sign-out", () => {
       .first();
     const isVisible = await profile.isVisible().catch(() => false);
     if (!isVisible) {
-      test.skip(true, "profile link not exposed in this build — menu-only sign out");
+      test.skip(
+        true,
+        "profile link not exposed in this build — menu-only sign out",
+      );
     }
     await expect(profile).toBeVisible({ timeout: 5000 });
   });

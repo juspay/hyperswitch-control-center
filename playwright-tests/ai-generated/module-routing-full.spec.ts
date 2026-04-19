@@ -70,9 +70,7 @@ test.describe("Rule-based routing - configure", () => {
     await paymentRouting.ruleBasedRoutingSetupButton.click();
     await page.waitForLoadState("networkidle");
 
-    const nameInput = page.locator(
-      '[placeholder="Enter Configuration Name"]',
-    );
+    const nameInput = page.locator('[placeholder="Enter Configuration Name"]');
     if (await nameInput.isVisible().catch(() => false)) {
       await expect(nameInput).toBeVisible();
     }
@@ -276,8 +274,8 @@ test.describe("Default fallback - with connector", () => {
     await paymentRouting.defaultFallbackManageButton.click();
     await page.waitForLoadState("networkidle");
 
-    await expect(
-      page.getByText("stripe_test_fallback"),
-    ).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText("stripe_test_fallback")).toBeVisible({
+      timeout: 15000,
+    });
   });
 });

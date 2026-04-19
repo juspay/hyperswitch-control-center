@@ -62,9 +62,9 @@ test.describe("Processor list pages — search + request CTA", () => {
         await expect(
           page.getByRole("button", { name: "Request a Processor" }).first(),
         ).toBeVisible({ timeout: 10000 });
-        await expect(
-          page.getByPlaceholder("Search a processor"),
-        ).toBeVisible({ timeout: 10000 });
+        await expect(page.getByPlaceholder("Search a processor")).toBeVisible({
+          timeout: 10000,
+        });
       });
     });
 
@@ -209,9 +209,9 @@ test.describe("Vault Onboarding — processor picker", () => {
     await page.waitForTimeout(1000);
 
     await gatedOrAssert(page, async () => {
-      await expect(
-        page.getByPlaceholder("Search a processor"),
-      ).toBeVisible({ timeout: 10000 });
+      await expect(page.getByPlaceholder("Search a processor")).toBeVisible({
+        timeout: 10000,
+      });
       // At least one Connect button should be visible (vault onboarding had 38)
       const connectButtons = page.getByRole("button", { name: "Connect" });
       expect(await connectButtons.count()).toBeGreaterThan(0);
@@ -285,9 +285,7 @@ test.describe("Disputes/Payouts empty-state — 90-day expand CTA", () => {
     await page.waitForTimeout(1000);
 
     await expect(
-      page
-        .getByText("Expand the search to the previous 90 days")
-        .first(),
+      page.getByText("Expand the search to the previous 90 days").first(),
     ).toBeVisible({ timeout: 10000 });
   });
 
@@ -299,9 +297,7 @@ test.describe("Disputes/Payouts empty-state — 90-day expand CTA", () => {
 
     await gatedOrAssert(page, async () => {
       await expect(
-        page
-          .getByText("Expand the search to the previous 90 days")
-          .first(),
+        page.getByText("Expand the search to the previous 90 days").first(),
       ).toBeVisible({ timeout: 10000 });
     });
   });

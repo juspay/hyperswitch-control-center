@@ -35,9 +35,9 @@ test.describe("3DS Authenticators Module", () => {
     await homePage.connectors.click();
     await homePage.threeDSConnectors.click();
 
-    await expect(
-      page.getByText(/3DS Authenticator/i).first(),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/3DS Authenticator/i).first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test("should display list of available 3DS authenticators", async ({

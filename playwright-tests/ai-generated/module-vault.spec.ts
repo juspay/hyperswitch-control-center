@@ -45,9 +45,7 @@ test.describe("Vault Module", () => {
       const customers = homePage.vaultCustomersAndTokens;
       if ((await customers.count().catch(() => 0)) > 0) {
         await customers.click();
-        await expect(page).toHaveURL(
-          /.*dashboard\/vault-customers-tokens/,
-        );
+        await expect(page).toHaveURL(/.*dashboard\/vault-customers-tokens/);
       }
     }
   });

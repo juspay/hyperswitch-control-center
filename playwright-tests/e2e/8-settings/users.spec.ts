@@ -36,6 +36,8 @@ test.describe("Users", () => {
     await page.locator('[data-button-for="sendInvite"]').click();
 
     await page.goto(MAIL_URL);
-    await expect(page.locator("div.messages > div:nth-child(1)")).toContainText("You have been invited to join Hyperswitch Community");
+    await expect(page.locator("div.messages > div:nth-child(1)")).toContainText(
+      "You have been invited to join Hyperswitch Community",
+    );
   });
 });

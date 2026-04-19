@@ -42,9 +42,7 @@ test.describe("Users Module", () => {
 
     await homePage.users.click();
 
-    await expect(
-      page.locator('[data-button-for="inviteUsers"]'),
-    ).toBeVisible();
+    await expect(page.locator('[data-button-for="inviteUsers"]')).toBeVisible();
   });
 
   test("should open Invite Users modal", async ({ page }) => {
@@ -110,9 +108,9 @@ test.describe("Users Module", () => {
     await homePage.users.click();
     await page.waitForLoadState("networkidle");
 
-    await expect(
-      page.locator('[data-button-for="inviteUsers"]'),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-button-for="inviteUsers"]')).toBeVisible({
+      timeout: 10000,
+    });
 
     const rows = page.locator("table tbody tr");
     const cards = page.locator('[data-table-location^="Users_"]');

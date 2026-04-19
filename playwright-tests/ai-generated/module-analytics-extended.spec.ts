@@ -57,8 +57,7 @@ test.describe("Analytics - direct URL coverage", () => {
     await page.goto("/dashboard/analytics-authentication");
     await page.waitForLoadState("networkidle");
 
-    const expected =
-      /.*dashboard\/(analytics-authentication|home|login)/;
+    const expected = /.*dashboard\/(analytics-authentication|home|login)/;
     await expect(page).toHaveURL(expected);
   });
 

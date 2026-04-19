@@ -35,9 +35,9 @@ test.describe("FRM (Fraud & Risk) Connectors Module", () => {
     await homePage.connectors.click();
     await homePage.frmConnectors.click();
 
-    await expect(
-      page.getByText(/Fraud|Risk/i).first(),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/Fraud|Risk/i).first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test("should expose search input for FRM connectors", async ({ page }) => {
@@ -50,9 +50,9 @@ test.describe("FRM (Fraud & Risk) Connectors Module", () => {
     await homePage.frmConnectors.click();
     await page.waitForLoadState("networkidle");
 
-    await expect(
-      page.getByText("Fraud & Risk Management").first(),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("Fraud & Risk Management").first()).toBeVisible(
+      { timeout: 10000 },
+    );
   });
 
   test("should filter FRM connector list via search", async ({ page }) => {

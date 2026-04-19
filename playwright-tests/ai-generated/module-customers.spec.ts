@@ -115,9 +115,7 @@ test.describe("Customers Module", () => {
     await homePage.operations.click();
     await homePage.customers.click();
 
-    const searchInput = page
-      .locator('input[placeholder*="Search" i]')
-      .first();
+    const searchInput = page.locator('input[placeholder*="Search" i]').first();
     if (await searchInput.isVisible().catch(() => false)) {
       await searchInput.fill("cust_nonexistent_zzz");
       await searchInput.press("Enter");

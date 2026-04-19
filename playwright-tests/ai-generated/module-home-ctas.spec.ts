@@ -66,9 +66,9 @@ test.describe("Home page onboarding CTAs", () => {
     context,
   }) => {
     await setup(page, context);
-    await expect(
-      page.getByText(/it's great to see you/i).first(),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/it's great to see you/i).first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('"Developer resources" section renders on home', async ({
@@ -76,9 +76,9 @@ test.describe("Home page onboarding CTAs", () => {
     context,
   }) => {
     await setup(page, context);
-    await expect(
-      page.getByText(/Developer resources/i).first(),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/Developer resources/i).first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test("Visit button (developer resources) is clickable", async ({

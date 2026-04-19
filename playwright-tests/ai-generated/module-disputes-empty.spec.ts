@@ -32,17 +32,15 @@ test.describe("Disputes - Empty state coverage", () => {
     await expect(page.getByText("Disputes").first()).toBeVisible({
       timeout: 10000,
     });
-    await expect(
-      page.getByText(/View and manage all disputes/i),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/View and manage all disputes/i)).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test("shows search with exact placeholder 'Search for dispute ID'", async ({
     page,
   }) => {
-    const search = page.locator(
-      'input[placeholder="Search for dispute ID"]',
-    );
+    const search = page.locator('input[placeholder="Search for dispute ID"]');
     await expect(search).toBeVisible({ timeout: 10000 });
   });
 
@@ -93,9 +91,7 @@ test.describe("Disputes - Empty state coverage", () => {
   });
 
   test("search with non-matching id yields No results", async ({ page }) => {
-    const search = page.locator(
-      'input[placeholder="Search for dispute ID"]',
-    );
+    const search = page.locator('input[placeholder="Search for dispute ID"]');
     await search.fill("dp_nonexistent_zzz");
     await search.press("Enter");
     await expect(page.getByText("No results found")).toBeVisible({

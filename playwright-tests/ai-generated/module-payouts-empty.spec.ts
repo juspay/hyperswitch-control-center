@@ -44,9 +44,7 @@ test.describe("Payouts - Empty state coverage", () => {
   test("shows search with exact placeholder 'Search for payout ID'", async ({
     page,
   }) => {
-    const search = page.locator(
-      'input[placeholder="Search for payout ID"]',
-    );
+    const search = page.locator('input[placeholder="Search for payout ID"]');
     if (await search.count()) {
       await expect(search).toBeVisible({ timeout: 10000 });
     }
@@ -81,9 +79,7 @@ test.describe("Payouts - Empty state coverage", () => {
   });
 
   test("search for non-existent id shows empty state", async ({ page }) => {
-    const search = page.locator(
-      'input[placeholder="Search for payout ID"]',
-    );
+    const search = page.locator('input[placeholder="Search for payout ID"]');
     if (await search.isVisible().catch(() => false)) {
       await search.fill("po_nonexistent_zzz");
       await search.press("Enter");
