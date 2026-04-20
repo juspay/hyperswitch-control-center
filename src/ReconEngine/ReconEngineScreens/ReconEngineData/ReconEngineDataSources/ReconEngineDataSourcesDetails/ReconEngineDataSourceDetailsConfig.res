@@ -84,6 +84,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
     if ingestionType == "manual" {
       let hasManageAccess =
         userHasAccess(~groupAccess=UserManagementTypes.ReconSourcesManage) === Access
+      let cursorPointerClass = hasManageAccess ? "cursor-pointer" : "cursor-not-allowed"
       <div className="mt-10">
         <input
           ref={fileInputRef->ReactDOM.Ref.domRef}
@@ -95,10 +96,8 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
           id="fileUploadInput"
         />
         <label
-          htmlFor={hasManageAccess ? "fileUploadInput" : ""}
-          className={`flex flex-col items-center justify-center w-full border border-dashed border-nd_gray-300 rounded-xl ${hasManageAccess
-              ? "cursor-pointer"
-              : "cursor-not-allowed"} transition-colors hover:border-nd_gray-400`}>
+          htmlFor="fileUploadInput"
+          className={`flex flex-col items-center justify-center w-full border border-dashed border-nd_gray-300 rounded-xl ${cursorPointerClass} transition-colors hover:border-nd_gray-400`}>
           <div className="flex flex-col items-center justify-center py-8 gap-5">
             <Icon name="nd-upload" size=20 className="text-gray-400" />
             <div className="flex flex-col gap-1 items-center">

@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.04.20.0
+
+### Bug Fixes
+
+- Hide not known connectors from lists ([#4726](https://github.com/juspay/hyperswitch-control-center/pull/4726)) ([`dce6356`](https://github.com/juspay/hyperswitch-control-center/commit/dce635603fd4840897a3303c61ad5badda28932c))
+
+**Full Changelog:** [`2026.04.16.0...2026.04.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.16.0...2026.04.20.0)
+
+- - -
+
 ## 2026.04.16.0
 
 ### Features
