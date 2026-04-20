@@ -20,7 +20,7 @@ function buildReporters(): ReporterDescription[] {
         reports: [
           ["v8", { outputFile: "index.html" }],
           ["console-summary"],
-          ["markdown-summary", { metrics: ["bytes", "lines"] }],
+          ["markdown-summary", { metrics: ["bytes", "lines", "branches", "functions"] }],
           ["json-summary", { outputFile: "coverage-summary.json" }],
         ],
         name: "Hyperswitch E2E Coverage",
