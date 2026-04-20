@@ -500,9 +500,9 @@ Welcome to the standard process for raising a Pull Request (PR) directly from a 
 - Include relevant tests, documentation updates, or screenshots, if applicable.
 - Collaborate and communicate effectively with other contributors and maintainers throughout the review process.
 
-## Cypress Test Suite
+## Playwright Test Suite
 
-This guide walks you through running Cypress tests locally for the [Hyperswitch Control Center](https://github.com/juspay/hyperswitch-control-center) project. The tests simulate real user workflows on the dashboard UI and require a working Hyperswitch backend environment.
+This guide walks you through running Playwright tests locally for the [Hyperswitch Control Center](https://github.com/juspay/hyperswitch-control-center) project. The tests simulate real user workflows on the dashboard UI and require a working Hyperswitch backend environment.
 
 ---
 
@@ -512,7 +512,7 @@ This guide walks you through running Cypress tests locally for the [Hyperswitch 
 
 - [Node.js](https://nodejs.org/)
 - [npm](https://www.npmjs.com/)
-- [Cypress](https://docs.cypress.io/app/get-started/install-cypress)
+- [Playwright](https://playwright.dev/docs/intro)
 
 ---
 
@@ -529,34 +529,42 @@ cd hyperswitch-control-center
 npm install
 ```
 
-### 3. Start the local dashboard server
+### 3. Install Playwright browsers
+
+```bash
+npx playwright install
+```
+
+### 4. Start the local dashboard server
 
 ```
 npm run build:test && npm run test:start
 ```
 
-### 4. Running Cypress Tests
+### 5. Running Playwright Tests
 
 Open a second terminal and run the following commands
 
-#### Set environment variables for cypress
+#### Set environment variables for Playwright
 
 ```
-export CYPRESS_USERNAME="cypress@test.com"
-export CYPRESS_PASSWORD="Cypress00#"
+export PLAYWRIGHT_USERNAME="playwright@test.com"
+export PLAYWRIGHT_PASSWORD="Playwright00#"
 ```
 
-#### To run tests interactively in Cypress Test Runner:
+#### To run tests interactively in Playwright UI mode:
 
 ```
-npm run cy:open
+npx playwright test --ui
 ```
 
 #### To run tests in headless mode (CI/CD):
 
 ```
-npm run cy:run
+npx playwright test
 ```
+
+---
 
 ## License
 
