@@ -44,8 +44,6 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           COMMENT_ID: ${{ github.event.comment.id }}
         run: |
-          # Lets the user know the bot received the trigger.
-          # issue_comment and pull_request_review_comment live under different reaction endpoints.
           if [ "$EVENT_NAME" == "pull_request_review_comment" ]; then
             REACTION_ENDPOINT="repos/$SOURCE_REPO/pulls/comments/$COMMENT_ID/reactions"
           else
