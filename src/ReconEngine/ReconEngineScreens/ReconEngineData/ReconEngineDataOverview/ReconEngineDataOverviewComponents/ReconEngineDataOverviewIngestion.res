@@ -117,7 +117,7 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
             buttonState={action.disabled ? Disabled : Normal}
             text={(action.buttonType :> string)}
             onClick={action.onClick}
-            customButtonStyle="!w-fit !bg-red-500"
+            customButtonStyle="!w-fit"
           />
         })
         ->React.array}
