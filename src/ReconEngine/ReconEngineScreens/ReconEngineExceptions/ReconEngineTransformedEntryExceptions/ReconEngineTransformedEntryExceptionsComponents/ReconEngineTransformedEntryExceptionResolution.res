@@ -25,7 +25,7 @@ module IgnoreTransactionModalContent = {
             }}
           />
           <FormRenderer.SubmitButton
-            text="Ignore Entry" buttonType={Primary} customSumbitButtonStyle="!w-fit mt-4"
+            text="Ignore Entry" buttonType={Primary} customSubmitButtonStyle="!w-fit mt-4"
           />
         </div>
       </Form>
@@ -145,7 +145,7 @@ module EditEntryModalContent = {
               text="Save changes"
               buttonType={Primary}
               showToolTip=false
-              customSumbitButtonStyle="!w-full"
+              customSubmitButtonStyle="!w-full"
             />
           </div>
         </Form>

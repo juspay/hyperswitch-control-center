@@ -17,10 +17,26 @@ let make = (~ruleDetails: rulePayload) => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let accounts = await getAccounts()
       setAccountData(_ => accounts)
+
+      let statusList =
+        ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
+          Expected,
+          Missing,
+          OverAmount(Mismatch),
+          UnderAmount(Mismatch),
+          OverAmount(Expected),
+          UnderAmount(Expected),
+          Posted(Manual),
+          Matched(Auto),
+          Matched(Manual),
+          Matched(Force),
+          Void,
+          PartiallyReconciled,
+          DataMismatch,
+        ])->Array.joinWith(",")
+
       let transactionsData = await getTransactions(
-        ~queryParameters=Some(
-          `rule_id=${ruleDetails.rule_id}&transaction_status=posted,mismatched,expected,partially_reconciled`,
-        ),
+        ~queryParameters=Some(`rule_id=${ruleDetails.rule_id}&status=${statusList}`),
       )
       setAllTransactionsData(_ => transactionsData)
       setScreenState(_ => PageLoaderWrapper.Success)

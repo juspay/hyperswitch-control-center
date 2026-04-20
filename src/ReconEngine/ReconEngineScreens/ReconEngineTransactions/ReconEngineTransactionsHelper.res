@@ -205,7 +205,7 @@ module EntryAuditTrailInfo = {
               totalResults={[openedTransaction]->Array.length}
               offset={0}
               setOffset={_ => ()}
-              currrentFetchCount={[openedTransaction]->Array.length}
+              currentFetchCount={[openedTransaction]->Array.length}
             />
           </div>
         </div>
@@ -279,12 +279,7 @@ module AuditTrail = {
     }
 
     let sections = allTransactionDetails->Array.map((transaction: transactionType) => {
-      let reasonText = switch transaction.data.posted_type {
-      | Some(ManuallyReconciled)
-      | Some(ForceReconciled) =>
-        transaction.data.reason
-      | _ => None
-      }
+      let reasonText = transaction.data.reason->Option.mapOr(None, reason => Some(reason))
 
       let customComponent = {
         id: transaction.version->Int.toString,
@@ -318,13 +313,14 @@ module AuditTrail = {
             customTextCss={`max-w-36 truncate whitespace-nowrap ${heading.sm.semibold} text-nd_gray-800`}
             displayValue=Some(openedTransaction.transaction_id)
           />
-          <div
-            className={`px-3 py-1 rounded-lg ${body.sm.semibold} ${openedTransaction.transaction_status->getTransactionStatusLabel}`}>
-            {openedTransaction.transaction_status
+          <TableUtils.LabelCell
+            labelColor={ReconEngineTransactionsUtils.getTransactionStatusLabelColor(
+              openedTransaction.transaction_status,
+            )}
+            text={openedTransaction.transaction_status
             ->TransactionsTableEntity.getDomainTransactionStatusString
-            ->String.toUpperCase
-            ->React.string}
-          </div>
+            ->String.toUpperCase}
+          />
         </div>
         <Icon
           name="modal-close-icon"

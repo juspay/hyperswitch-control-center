@@ -75,7 +75,6 @@ let make = (
 
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let url = RescriptReactRouter.useUrl()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
@@ -142,17 +141,8 @@ let make = (
         {switch currentStep {
         | Preview =>
           <div className="flex gap-6 items-center">
-            <p
-              className={`text-fs-13 font-bold ${isfrmDisabled
-                  ? "text-red-800"
-                  : "text-green-700"}`}>
-              {(isfrmDisabled ? "INACTIVE" : "ACTIVE")->React.string}
-            </p>
-            <ConnectorPreview.MenuOption
-              updateStepValue={ConnectorTypes.PaymentMethods}
-              disableConnector={disableFRM}
-              isConnectorDisabled={isfrmDisabled}
-              pageName={url.path->LogicUtils.getListHead}
+            <ConnectorPreviewHelper.EnableDisableConnectorToggle
+              disableConnector={disableFRM} isConnectorDisabled={isfrmDisabled}
             />
           </div>
         | _ =>

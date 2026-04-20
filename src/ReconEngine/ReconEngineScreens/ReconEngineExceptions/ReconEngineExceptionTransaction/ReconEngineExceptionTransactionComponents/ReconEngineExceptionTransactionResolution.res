@@ -22,7 +22,7 @@ module IgnoreTransactionModalContent = {
             }}
           />
           <FormRenderer.SubmitButton
-            text="Ignore Transaction" buttonType={Primary} customSumbitButtonStyle="!w-fit mt-4"
+            text="Ignore Transaction" buttonType={Primary} customSubmitButtonStyle="!w-fit mt-4"
           />
         </div>
       </Form>
@@ -51,7 +51,7 @@ module ForceReconcileModalContent = {
             }}
           />
           <FormRenderer.SubmitButton
-            text="Force Reconcile" buttonType={Primary} customSumbitButtonStyle="!w-fit mt-4"
+            text="Force Match" buttonType={Primary} customSubmitButtonStyle="!w-fit mt-4"
           />
         </div>
       </Form>
@@ -179,7 +179,7 @@ module EditEntryModalContent = {
               text="Save changes"
               buttonType={Primary}
               showToolTip=false
-              customSumbitButtonStyle="!w-full"
+              customSubmitButtonStyle="!w-full"
             />
           </div>
         </Form>
@@ -303,7 +303,7 @@ module MarkAsReceivedModalContent = {
               text="Mark as Received"
               buttonType={Primary}
               showToolTip=false
-              customSumbitButtonStyle="!w-full"
+              customSubmitButtonStyle="!w-full"
             />
           </div>
         </Form>
@@ -391,7 +391,7 @@ module CreateEntryModalContent = {
               text="Create new entry"
               buttonType={Primary}
               showToolTip=false
-              customSumbitButtonStyle="!w-full"
+              customSubmitButtonStyle="!w-full"
             />
           </div>
         </Form>
@@ -604,7 +604,7 @@ module LinkStagingEntryModalContent = {
             onClick={_ => setActiveModal(_ => None)}
           />
           <FormRenderer.SubmitButton
-            showToolTip={false} text="Replace" buttonType=Primary customSumbitButtonStyle="!w-full"
+            showToolTip={false} text="Replace" buttonType=Primary customSubmitButtonStyle="!w-full"
           />
         </div>
       </div>

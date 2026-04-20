@@ -10,6 +10,7 @@ let make = () => {
   let (sampleReport, setSampleReport) = React.useState(_ => false)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let setConnectorList = HyperswitchAtom.connectorListAtom->Recoil.useSetRecoilState
+  let setIsOrchestrationVault = Recoil.useSetRecoilState(HyperswitchAtom.orchestrationVaultAtom)
 
   let setUpVaultContainer = async () => {
     try {
@@ -28,6 +29,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
+    setIsOrchestrationVault(_ => false)
     setUpVaultContainer()->ignore
     None
   }, [])

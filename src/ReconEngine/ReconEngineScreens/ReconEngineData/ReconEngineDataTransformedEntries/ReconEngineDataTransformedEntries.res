@@ -60,11 +60,14 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let enhancedFilterValueJson = Dict.copy(filterValueJson)
       let statusFilter = filterValueJson->getArrayFromDict("status", [])
+      let statusList = getProcessingEntryStatusValueFromStatusList([
+        Pending,
+        Processed,
+        NeedsManualReview,
+        Void,
+      ])
       if statusFilter->Array.length == 0 {
-        enhancedFilterValueJson->Dict.set(
-          "status",
-          ["pending", "processed", "needs_manual_review", "void"]->getJsonFromArrayOfString,
-        )
+        enhancedFilterValueJson->Dict.set("status", statusList->getJsonFromArrayOfString)
       }
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
         ~filterValueJson=enhancedFilterValueJson,
@@ -169,7 +172,7 @@ let make = () => {
           totalResults={filteredStagingData->Array.length}
           offset
           setOffset
-          currrentFetchCount={filteredStagingData->Array.length}
+          currentFetchCount={filteredStagingData->Array.length}
           tableheadingClass="h-12"
           tableHeadingTextClass="!font-normal"
           nonFrozenTableParentClass="!rounded-lg"

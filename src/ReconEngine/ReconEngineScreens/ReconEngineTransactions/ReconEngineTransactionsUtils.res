@@ -58,8 +58,9 @@ let getAccounts = (entries: array<transactionEntryType>, entryType: entryDirecti
 
 let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
   let statusOptions = getGroupedTransactionStatusOptions([
-    Posted(Auto),
     Posted(Manual),
+    Matched(Auto),
+    Matched(Manual),
     OverAmount(Mismatch),
     OverAmount(Expected),
     UnderAmount(Mismatch),
@@ -67,6 +68,7 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
     DataMismatch,
     PartiallyReconciled,
     Expected,
+    Missing,
     Void,
   ])
 
@@ -131,16 +133,27 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
   ]
 }
 
-let getTransactionStatusLabel = (status: domainTransactionStatus): string => {
+let getTransactionStatusLabelColor = (status: domainTransactionStatus): TableUtils.labelColor => {
   switch status {
-  | OverAmount(Mismatch) | UnderAmount(Mismatch) | DataMismatch => "bg-nd_red-50 text-nd_red-600"
-  | Posted(Auto) | Posted(Manual) | Posted(Force) => "bg-nd_green-50 text-nd_green-600"
-  | Expected
-  | OverAmount(Expected)
-  | UnderAmount(Expected) => "bg-nd_primary_blue-50 text-nd_primary_blue-600"
-  | Archived => "bg-nd_gray-150 text-nd_gray-600"
-  | PartiallyReconciled => "bg-nd_orange-50 text-nd_orange-600"
-  | _ => "bg-nd_gray-50 text-nd_gray_600"
+  | Posted(Manual)
+  | Matched(Force)
+  | Matched(Manual)
+  | Matched(Auto) =>
+    LabelGreen
+  | OverAmount(Mismatch)
+  | UnderAmount(Mismatch)
+  | DataMismatch =>
+    LabelRed
+  | Expected | UnderAmount(Expected) | OverAmount(Expected) => LabelBlue
+  | Archived => LabelGray
+  | PartiallyReconciled | Missing => LabelOrange
+  | Void
+  | UnknownDomainTransactionStatus
+  | Matched(UnknownDomainTransactionMatchedStatus)
+  | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
+  | UnderAmount(UnknownDomainTransactionAmountMismatchStatus)
+  | Posted(UnknownDomainTransactionPostedStatus) =>
+    LabelLightGray
   }
 }
 

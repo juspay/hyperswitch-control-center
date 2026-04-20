@@ -18,10 +18,26 @@ module RuleWiseStackedBarGraph = {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+        let statusList =
+          ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
+            Posted(Manual),
+            Matched(Auto),
+            Matched(Manual),
+            Matched(Force),
+            Expected,
+            Missing,
+            PartiallyReconciled,
+            OverAmount(Mismatch),
+            OverAmount(Expected),
+            UnderAmount(Mismatch),
+            UnderAmount(Expected),
+            DataMismatch,
+          ])->Array.joinWith(",")
+
         let queryString = if baseQueryString->isNonEmptyString {
-          `${baseQueryString}&rule_id=${rule.rule_id}&status=posted_auto,posted_manual,posted_force,expected,partially_reconciled,over_amount_mismatch,over_amount_expected,under_amount_mismatch,under_amount_expected,data_mismatch`
+          `${baseQueryString}&rule_id=${rule.rule_id}&status=${statusList}`
         } else {
-          `rule_id=${rule.rule_id}&status=posted_auto,posted_manual,posted_force,expected,partially_reconciled,over_amount_mismatch,over_amount_expected,under_amount_mismatch,under_amount_expected,data_mismatch`
+          `rule_id=${rule.rule_id}&status=${statusList}`
         }
         let transactionsData = await getTransactions(~queryParameters=Some(queryString))
         setAllTransactionsData(_ => transactionsData)
@@ -31,23 +47,23 @@ module RuleWiseStackedBarGraph = {
       }
     }
 
-    let (postedCount, mismatchedCount, expectedCount) = React.useMemo(() => {
+    let (matchedCount, mismatchedCount, expectedCount) = React.useMemo(() => {
       ReconEngineOverviewUtils.calculateTransactionCounts(allTransactionsData)
     }, [allTransactionsData])
 
-    let totalTransactions = postedCount + mismatchedCount + expectedCount
+    let totalTransactions = matchedCount + mismatchedCount + expectedCount
     let reconciliationPercentage =
       totalTransactions > 0
-        ? postedCount->Int.toFloat /. totalTransactions->Int.toFloat *. 100.0
+        ? matchedCount->Int.toFloat /. totalTransactions->Int.toFloat *. 100.0
         : 0.0
 
     let stackedBarGraphData = React.useMemo(() => {
       ReconEngineOverviewSummaryUtils.getSummaryStackedBarGraphData(
-        ~postedCount,
+        ~matchedCount,
         ~mismatchedCount,
         ~expectedCount,
       )
-    }, [postedCount, mismatchedCount, expectedCount])
+    }, [matchedCount, mismatchedCount, expectedCount])
 
     React.useEffect(() => {
       if !(filterValue->isEmptyDict) {

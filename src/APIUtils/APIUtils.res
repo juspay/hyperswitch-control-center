@@ -18,14 +18,14 @@ let getV2Url = (
   switch entityName {
   | CUSTOMERS =>
     switch (methodType, id) {
-    | (Get, None) => "v2/customers/list"
-    | (Get, Some(customerId)) => `v2/customers/${customerId}`
+    | (Get, None) => "v1/customers/list"
+    | (Get, Some(customerId)) => `v1/customers/${customerId}`
     | _ => ""
     }
   | CUSTOMERS_COUNT =>
     switch (methodType, id) {
-    | (Get, None) => "v2/customers/list_with_count"
-    | (Get, Some(customerId)) => `v2/customers/${customerId}`
+    | (Get, None) => "v1/customers/list_with_count"
+    | (Get, Some(customerId)) => `v1/customers/${customerId}`
     | _ => ""
     }
   | V2_CONNECTOR =>
@@ -81,6 +81,14 @@ let getV2Url = (
       }
     | _ => ""
     }
+  /* REPORTS */
+  | REVENUE_RECOVERY_REPORT =>
+    switch transactionEntity {
+    | #Tenant
+    | #Organization => `v2/analytics/org/report/payments`
+    | #Merchant => `v2/analytics/merchant/report/payments`
+    | #Profile => `v2/analytics/profile/report/payments`
+    }
   | V2_ATTEMPTS_LIST =>
     switch methodType {
     | Get =>
@@ -116,13 +124,13 @@ let getV2Url = (
     }
   | PAYMENT_METHOD_LIST =>
     switch id {
-    | Some(customerId) => `v2/customers/${customerId}/saved-payment-methods`
+    | Some(customerId) => `v1/customers/${customerId}/saved-payment-methods`
     | None => ""
     }
-  | TOTAL_TOKEN_COUNT => `v2/customers/total-payment-methods`
+  | TOTAL_TOKEN_COUNT => `v1/customers/total-payment-methods`
   | RETRIEVE_PAYMENT_METHOD =>
     switch id {
-    | Some(paymentMethodId) => `v2/payment-methods/${paymentMethodId}`
+    | Some(paymentMethodId) => `v1/payment-methods/${paymentMethodId}`
     | None => ""
     }
   /* MERCHANT ACCOUNT DETAILS (Get,Post and Put) */
@@ -275,15 +283,15 @@ let useGetURL = () => {
         }
       | PAYMENT_METHODS =>
         switch methodType {
-        | Get => "payemnt_methods"
+        | Get => "payment_methods"
         | _ => ""
         }
       | PAYMENT_METHODS_DETAILS =>
         switch methodType {
         | Get =>
           switch id {
-          | Some(id) => `payemnt_methods/${id}`
-          | None => `payemnt_methods`
+          | Some(id) => `payment_methods/${id}`
+          | None => `payment_methods`
           }
         | _ => ""
         }
@@ -618,7 +626,7 @@ let useGetURL = () => {
         switch methodType {
         | Get =>
           switch id {
-          // Need to write seperate enum for info api
+          // Need to write separate enum for info api
           | Some(domain) =>
             switch analyticsEntity {
             | #Tenant
@@ -792,6 +800,17 @@ let useGetURL = () => {
         | #Merchant => `analytics/v1/merchant/report/payments`
         | #Profile => `analytics/v1/profile/report/payments`
         }
+      | PAYMENTS_LIST =>
+        switch methodType {
+        | Post =>
+          switch transactionEntity {
+          | #Merchant => `analytics/v1/payments/list`
+          | #Profile => `analytics/v1/profile/payments/list`
+          | _ => `payments/list`
+          }
+
+        | _ => ""
+        }
       | PAYOUT_REPORT =>
         switch transactionEntity {
         | #Tenant
@@ -944,7 +963,7 @@ let useGetURL = () => {
       /* PMTS COUNTRY-CURRENCY DETAILS */
       | PAYMENT_METHOD_CONFIG => `payment_methods/filter`
 
-      /* USER MANGEMENT REVAMP */
+      /* USER MANAGEMENT REVAMP */
       | USER_MANAGEMENT => {
           let userUrl = `user`
           switch userRoleTypes {
@@ -1256,7 +1275,7 @@ let useGetURL = () => {
           | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
           }
 
-        // POST LOGIN QUESTIONARE
+        // POST LOGIN QUESTIONNAIRE
         | #SET_METADATA =>
           switch queryParameters {
           | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`

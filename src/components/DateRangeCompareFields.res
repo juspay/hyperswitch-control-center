@@ -211,7 +211,7 @@ module Base = {
         setEndDateVal(_ => localEndDate)
       }
     }
-    let resetToInitalValues = () => {
+    let resetToInitialValues = () => {
       setLocalStartDate(_ => startDateVal)
       setLocalEndDate(_ => endDateVal)
     }
@@ -223,7 +223,7 @@ module Base = {
         setIsDropdownExpanded(_ => false)
         setCalendarVisibility(p => !p)
         if isDropdownExpandedActual && isCustomSelected {
-          resetToInitalValues()
+          resetToInitialValues()
         }
       },
     )
@@ -355,7 +355,7 @@ module Base = {
     }
 
     let cancelButton = _ => {
-      resetToInitalValues()
+      resetToInitialValues()
       setCalendarVisibility(p => !p)
       setIsDropdownExpanded(_ => false)
     }
@@ -586,7 +586,7 @@ module Base = {
 
     let dropDownElement = () => {
       <div className={"flex flex-col tablet:flex-row w-full gap-2 p-2"}>
-        <AddDataAttributes attributes=[("data-date-picker-predifined", "predefined-options")]>
+        <AddDataAttributes attributes=[("data-date-picker-predefined", "predefined-options")]>
           <div className="flex flex-wrap gap-1 md:flex-col">
             {[No_Comparison, Previous_Period, Custom]
             ->Array.mapWithIndex((value, i) => {
@@ -621,7 +621,7 @@ module Base = {
                 ~startDate=compareWithStartTime,
                 ~endDate=compareWithEndTime,
               ) + 1}
-              calendarContaierStyle="md:mx-3 md:my-1 border-0 md:border"
+              calendarContainerStyle="md:mx-3 md:my-1 border-0 md:border"
               ?allowedDateRange
             />
             <div
@@ -665,7 +665,7 @@ module Base = {
         disable
         isDropdownOpen=isDropdownExpanded
         removeFilterOption
-        resetToInitalValues
+        resetToInitialValues
         showTime
         buttonText
         showSeconds
@@ -744,7 +744,7 @@ let make = (
       compareWithStartTime->LogicUtils.isNonEmptyString &&
         compareWithEndTime->LogicUtils.isNonEmptyString
     ) {
-      let (startTime, endTime) = DateRangeUtils.getComparisionTimePeriod(
+      let (startTime, endTime) = DateRangeUtils.getComparisonTimePeriod(
         ~startDate=compareWithStartTime,
         ~endDate=compareWithEndTime,
       )

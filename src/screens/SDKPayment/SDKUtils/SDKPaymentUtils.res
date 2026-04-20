@@ -79,7 +79,7 @@ let labels = ["Above", "Floating"]
 
 let initialValueForForm = (
   ~showSetupFutureUsage=false,
-  ~sendAuthType=true,
+  ~sendAuthType=false,
   ~customCustomerId="hyperswitch_sdk_demo_id",
   ~profileId,
 ): SDKPaymentTypes.paymentType => {
@@ -143,7 +143,7 @@ let getTypedPaymentData = (
   ~showBillingAddress,
   ~isGuestMode,
   ~showSetupFutureUsage=false,
-  ~sendAuthType=true,
+  ~sendAuthType=false,
 ) => {
   open LogicUtils
   open SDKPaymentTypes
@@ -236,8 +236,8 @@ let dropDownOptionsForCountryCurrency = Country.country->Array.map((
   item
 ): SelectBox.dropdownOption => {
   open CountryUtils
-  let countryName = item.countryName->getCountryNameFromVarient->toReadableCountryName
-  let countryCode = item.isoAlpha2->getCountryCodeStringFromVarient
+  let countryName = item.countryName->getCountryNameFromVariant->toReadableCountryName
+  let countryCode = item.isoAlpha2->getCountryCodeStringFromVariant
   {
     label: `${item.flag} ${countryName} - (${item.currency})`,
     value: `${countryCode}-${item.currency}`,

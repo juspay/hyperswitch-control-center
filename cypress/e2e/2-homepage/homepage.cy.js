@@ -6,6 +6,15 @@ const homePage = new HomePage();
 beforeEach(function () {
   const email = helper.generateUniqueEmail();
   cy.signup_API(email, Cypress.env("CYPRESS_PASSWORD"));
+
+  cy.intercept("GET", "/dashboard/config/feature?domain=", (req) => {
+    req.continue((res) => {
+      if (res.body && res.body.features) {
+        res.body.features.global_search = true;
+      }
+    });
+  }).as("getFeatureDataSearch");
+
   cy.login_UI(email, Cypress.env("CYPRESS_PASSWORD"));
 });
 
@@ -19,12 +28,9 @@ describe("Homepage", () => {
   };
 
   it("should verify all components on homepage", () => {
-    homePage.subHeaderText
-      .should("be.visible")
-      .and(
-        "have.text",
-        "Welcome to the home of your Payments Control Centre. It aims at providing your team with a 360-degree view of payments.",
-      );
+    cy.contains(
+      "Welcome to the home of your Payments Control Centre. It aims at providing your team with a 360-degree view of payments.",
+    ).should("be.visible");
 
     homePage.orgIcon.should("be.visible");
     homePage.merchantDropdown.should("be.visible");
@@ -84,10 +90,9 @@ describe("Homepage", () => {
         cy.contains("Payment Processors").should("be.visible");
         cy.get("[data-testid=overview]").first().click();
         cy.get("[data-button-for=tryItOut]").click();
-        cy.get('[class="text-fs-28 font-semibold leading-10 "]').should(
-          "contain",
-          "Setup Checkout",
-        );
+        cy.get(
+          '[class="text-fs-24 leading-32 font-semibold font-inter-style "]',
+        ).should("contain", "Setup Checkout");
         cy.get("[data-button-for=showPreview]").click();
         cy.wait(2000);
         getIframeBody()
@@ -107,6 +112,84 @@ describe("Homepage", () => {
       });
   });
 
-  //TODO verify sidebar and navigation
-  it.skip("should verify sidebar menu navigation", () => {});
+  it("should verify sidebar menu navigation for orchestrator", () => {
+    homePage.homeV2.should("be.visible").click();
+    cy.url().should("include", "/dashboard/v2/home");
+
+    homePage.users.should("be.visible").click();
+    cy.url().should("include", "/dashboard/users");
+
+    cy.contains("MY MODULES").should("be.visible");
+
+    cy.get('[data-testid="overview"]').should("be.visible").click();
+    cy.url().should("include", "/dashboard/home");
+
+    homePage.operations.should("be.visible").click();
+    homePage.paymentOperations.should("be.visible").click();
+    cy.url().should("include", "/dashboard/payments");
+    homePage.refundOperations.should("be.visible").click();
+    cy.url().should("include", "/dashboard/refunds");
+    homePage.disputesOperations.should("be.visible").click();
+    cy.url().should("include", "/dashboard/disputes");
+    homePage.payoutsOperations.should("be.visible").click();
+    cy.url().should("include", "/dashboard/payouts");
+    homePage.customers.should("be.visible").click();
+    cy.url().should("include", "/dashboard/customers");
+
+    homePage.connectors.should("be.visible").click();
+    homePage.paymentProcessors.should("be.visible").click();
+    cy.url().should("include", "/dashboard/connectors");
+    homePage.payoutConnectors.should("be.visible").click();
+    cy.url().should("include", "/dashboard/payoutconnectors");
+    homePage.threeDSConnectors.should("be.visible").click();
+    cy.url().should("include", "/dashboard/3ds-authenticators");
+    homePage.frmConnectors.should("be.visible").click();
+    cy.url().should("include", "/dashboard/fraud-risk-management");
+    homePage.pmAuthConnectors.should("be.visible").click();
+    cy.url().should("include", "/dashboard/pm-authentication-processor");
+    homePage.taxConnectors.should("be.visible").click();
+    cy.url().should("include", "/dashboard/tax-processor");
+    homePage.billingConnectors.should("be.visible").click();
+    cy.url().should("include", "/dashboard/billing-processor");
+    homePage.vaultConnectors.should("be.visible").click();
+    cy.url().should("include", "/dashboard/vault-processor");
+
+    homePage.analytics.should("be.visible").click();
+    homePage.paymentsAnalytics.should("be.visible").click();
+    cy.url().should("include", "/dashboard/analytics-payments");
+    homePage.refundAnalytics.should("be.visible").click();
+    cy.url().should("include", "/dashboard/analytics-refunds");
+
+    homePage.workflow.should("be.visible").click();
+    homePage.routing.should("be.visible").click();
+    cy.url().should("include", "/dashboard/routing");
+    homePage.surchargeRouting.should("be.visible").click();
+    cy.url().should("include", "/dashboard/surcharge");
+    homePage.threeDSRouting.should("be.visible").click();
+    cy.url().should("include", "/dashboard/3ds");
+    homePage.payoutRouting.should("be.visible").click();
+    cy.url().should("include", "/dashboard/payoutrouting");
+    homePage.threeDSExemptionManager.should("be.visible").click();
+    cy.url().should("include", "/dashboard/3ds-exemption");
+
+    homePage.vault.should("be.visible").click();
+    homePage.vaultConfiguration.should("be.visible").click();
+    cy.url().should("include", "/dashboard/vault-onboarding");
+    homePage.vaultCustomersAndTokens.should("be.visible").click();
+    cy.url().should("include", "/dashboard/vault-customers-tokens");
+
+    homePage.developer.should("be.visible").click();
+    homePage.paymentSettings.should("be.visible").click();
+    cy.url().should("include", "/dashboard/payment-settings");
+    homePage.apiKeys.should("be.visible").click();
+    cy.url().should("include", "/dashboard/developer-api-keys");
+    homePage.webhooks.should("be.visible").click();
+    cy.url().should("include", "/dashboard/webhooks");
+
+    homePage.settings.should("be.visible").click();
+    homePage.configurePMT.should("be.visible").click();
+    cy.url().should("include", "/dashboard/configure-pmts");
+    homePage.organizationSettings.should("be.visible").click();
+    cy.url().should("include", "/dashboard/organization-settings");
+  });
 });

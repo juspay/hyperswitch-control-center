@@ -10,7 +10,7 @@ module CustomToastElement = {
 
     let (message, description, link, linkText) = switch transaction.transaction_status {
     | PartiallyReconciled => (
-        "Transaction partially reconciled",
+        "Transaction partially matched",
         "Please review the exceptions page for details",
         `exceptions/recon/${transaction.transaction_id}`,
         "See Exception",
@@ -21,13 +21,25 @@ module CustomToastElement = {
         `transactions/${transaction.transaction_id}`,
         "See Transaction",
       )
-    | Posted(_) => (
+    | Posted(Manual) | Matched(Force) | Matched(Manual) | Matched(Auto) => (
         "Transaction matched successfully",
         "Your transaction has been moved to transactions page",
         `transactions/${transaction.transaction_id}`,
         "See Transaction",
       )
-    | _ => (
+    | Missing
+    | Expected
+    | UnderAmount(Expected)
+    | OverAmount(Expected)
+    | UnderAmount(Mismatch)
+    | OverAmount(Mismatch)
+    | DataMismatch
+    | Archived
+    | UnknownDomainTransactionStatus
+    | UnderAmount(UnknownDomainTransactionAmountMismatchStatus)
+    | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
+    | Matched(UnknownDomainTransactionMatchedStatus)
+    | Posted(UnknownDomainTransactionPostedStatus) => (
         "Transaction processed successfully",
         "Please review the transactions page for details",
         `transactions/${transaction.transaction_id}`,
@@ -164,8 +176,23 @@ module ExceptionDataDisplay = {
         entryDetails
         ->Array.filter(entry => entry.status == Mismatched)
         ->Array.map(entry => entry.data)
-        ->LogicUtils.getValueFromArray(0, Js.Json.null)
-      | _ => Js.Json.null
+        ->LogicUtils.getValueFromArray(0, JSON.Encode.null)
+      | Posted(Manual)
+      | Matched(Force)
+      | Matched(Manual)
+      | Matched(Auto)
+      | OverAmount(Expected)
+      | UnderAmount(Expected)
+      | Archived
+      | Void
+      | Missing
+      | Expected
+      | PartiallyReconciled
+      | Posted(UnknownDomainTransactionPostedStatus)
+      | Matched(UnknownDomainTransactionMatchedStatus)
+      | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
+      | UnderAmount(UnknownDomainTransactionAmountMismatchStatus)
+      | UnknownDomainTransactionStatus => JSON.Encode.null
       }
     }, [currentExceptionDetails.transaction_status])
 
@@ -180,11 +207,27 @@ module ExceptionDataDisplay = {
             "DD MMM YYYY, hh:mm A",
           )}`,
       )
+    | Missing => (
+        "Missing",
+        `This transaction is marked as expected since ${currentExceptionDetails.created_at->DateTimeUtils.getFormattedDate(
+            "DD MMM YYYY, hh:mm A",
+          )}`,
+      )
     | PartiallyReconciled => (
-        "Partially Reconciled",
+        "Partially Matched",
         "Please review the details and take necessary actions.",
       )
-    | _ => ("", "")
+    | Posted(Manual)
+    | Matched(Force)
+    | Matched(Manual)
+    | Matched(Auto)
+    | Archived
+    | Void
+    | Posted(UnknownDomainTransactionPostedStatus)
+    | Matched(UnknownDomainTransactionMatchedStatus)
+    | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
+    | UnderAmount(UnknownDomainTransactionAmountMismatchStatus)
+    | UnknownDomainTransactionStatus => ("", "")
     }
 
     <div className="flex flex-col">

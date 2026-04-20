@@ -49,6 +49,7 @@ type attemptColType =
   | ReferenceID
   | ClientSource
   | ClientVersion
+  | HyperswitchErrorDescription
 
 type colType =
   | PaymentId

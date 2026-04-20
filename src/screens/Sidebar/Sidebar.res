@@ -5,7 +5,11 @@ open ProductUtils
 open LogicUtils
 
 let defaultLinkSelectionCheck = (firstPart, tabLink) => {
-  firstPart->removeTrailingSlash === tabLink->removeTrailingSlash
+  let normalizedFirstPart = firstPart->removeTrailingSlash
+  let normalizedTabLink = tabLink->removeTrailingSlash
+  // Exact match or prefix match (for detail pages like /route/id)
+  normalizedFirstPart === normalizedTabLink ||
+    normalizedFirstPart->String.startsWith(normalizedTabLink ++ "/")
 }
 
 let getIconSize = buttonType => {
@@ -618,18 +622,21 @@ let make = (
     globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor, borderColor}},
   } = React.useContext(ThemeProvider.themeContext)
   let {roleId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
+  let {getCommonSessionDetails} = React.useContext(UserInfoProvider.defaultContext)
+  let {version} = getCommonSessionDetails()
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let {showSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {activeProduct, onProductSelectClick} = React.useContext(
     ProductSelectionProvider.defaultContext,
   )
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let handleLogout = APIUtils.useHandleLogout(~eventName="user_signout_manual")
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
   let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let (exploredModules, unexploredModules) = useGetSidebarProductModules()
-  let {devModularityV2, devSidebarV2, devTheme} =
+  let {devModularityV2, devSidebarV2, devTheme, devUsers} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let (openItem, setOpenItem) = React.useState(_ => "")
@@ -664,40 +671,8 @@ let make = (
     }
   }
 
-  let level3 = tail => {
-    switch List.tail(tail) {
-    | Some(tail2) =>
-      switch List.head(tail2) {
-      | Some(value2) => `/${value2}`
-      | None => "/"
-      }
-    | None => "/"
-    }
-  }
-
-  let level2 = tail => {
-    switch List.tail(tail) {
-    | Some(tail2) =>
-      switch List.head(tail2) {
-      | Some(value2) => `/${value2}` ++ level3(tail2)
-      | None => "/"
-      }
-    | None => "/"
-    }
-  }
-
   let firstPart = switch List.tail(path) {
-  | Some(tail) =>
-    switch List.head(tail) {
-    | Some(x) =>
-      /* condition is added to check for v2 routes . Eg: /v2/${productName}/${routeName} */
-      if x === "v2" || x === "v1" {
-        `/${x}` ++ level2(tail)
-      } else {
-        `/${x}`
-      }
-    | None => "/"
-    }
+  | Some(tail) => `/${tail->List.toArray->Array.joinWith("/")}`
   | None => "/"
   }
 
@@ -740,6 +715,7 @@ let make = (
 
   let isHomeSelected = linkSelectionCheck(firstPart, "/v2/home")
   let isThemeSelected = linkSelectionCheck(firstPart, "/theme")
+  let isUsersSelected = linkSelectionCheck(firstPart, "/users")
 
   <div className={`${backgroundColor.sidebarNormal} flex group relative `}>
     <div
@@ -903,6 +879,25 @@ let make = (
                         </div>
                       </Link>
                     </RenderIf>
+                    <RenderIf
+                      condition={devUsers &&
+                      userHasAccess(~groupAccess=UsersView) == Access &&
+                      version == UserInfoTypes.V1}>
+                      <Link to_={GlobalVars.appendDashboardPath(~url="/users")}>
+                        <div
+                          className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 ${isUsersSelected
+                              ? "bg-sidebar-hoverColor"
+                              : ""} ${isSidebarExpanded ? "" : "mx-1"} ${hoverColor}`}>
+                          <SidebarOption
+                            name="Users"
+                            icon="nd-settings"
+                            isSidebarExpanded
+                            isSelected={isUsersSelected}
+                            showIcon=true
+                          />
+                        </div>
+                      </Link>
+                    </RenderIf>
                   </div>
                   <div className={`${body.sm.semibold} px-3 py-2 text-nd_gray-400 tracking-widest`}>
                     {React.string("My Modules"->String.toUpperCase)}
@@ -999,6 +994,9 @@ let make = (
                           <MenuOption
                             onClick={_ => {
                               panelProps["close"]()
+                              if isMobileView {
+                                setIsSidebarExpanded(_ => false)
+                              }
                               RescriptReactRouter.replace(
                                 GlobalVars.appendDashboardPath(~url="/account-settings/profile"),
                               )

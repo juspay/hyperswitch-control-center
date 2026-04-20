@@ -96,7 +96,7 @@ let make = () => {
         filters={<TableSearchFilter
           data={usersData}
           filterLogic=filterLogicForUsers
-          placeholder="Search by name or email.."
+          placeholder="Search by name or email"
           customSearchBarWrapperWidth="w-full lg:w-1/3"
           customInputBoxWidth="w-full"
           searchVal=searchText
@@ -106,7 +106,7 @@ let make = () => {
         offset=userOffset
         setOffset=setUserOffset
         entity={ListUserTableEntity.userEntity}
-        currrentFetchCount={usersFilterData->Array.length}
+        currentFetchCount={usersFilterData->Array.length}
         collapseTableRow=false
         tableheadingClass="h-12"
         tableHeadingTextClass="!font-normal"
