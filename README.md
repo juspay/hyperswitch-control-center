@@ -533,7 +533,7 @@ npm install
 ### 3. Start the local dashboard server
 
 ```
-npm run build:test && npm run start:test
+npm run build:test && npm run test:start
 ```
 
 ### 4. Install Playwright Browsers

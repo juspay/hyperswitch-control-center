@@ -155,7 +155,7 @@ When editing any files in this workflow, you **MUST** use surgical edits (`edit`
      - Stop process: `kill -TERM $(lsof -ti:9000) 2>/dev/null; sleep 3; kill -9 $(lsof -ti:9000) 2>/dev/null`
    - **Start frontend:**
      - Run build: `npm run build:test`
-     - Start server in background: `npm run start:test`
+     - Start server in background: `npm run test:start`
      - Capture PID: `FRONTEND_PID=$!`
      - Poll every 5s, max 240s for `curl -s http://localhost:9000 > /dev/null` to return 0
      - Set `frontendWasStarted = true` and store `frontendPid: $FRONTEND_PID`
