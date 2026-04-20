@@ -23,6 +23,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(ADYENPLATFORM),
   PayoutProcessor(CYBERSOURCE),
   PayoutProcessor(EBANX),
+  PayoutProcessor(ITAUBANK),
   PayoutProcessor(PAYPAL),
   PayoutProcessor(STRIPE),
   PayoutProcessor(WISE),
@@ -1002,6 +1003,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | ADYENPLATFORM => "adyenplatform"
   | CYBERSOURCE => "cybersource"
   | EBANX => "ebanx"
+  | ITAUBANK => "itaubank"
   | PAYPAL => "paypal"
   | STRIPE => "stripe"
   | WISE => "wise"
@@ -1201,6 +1203,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "adyenplatform" => PayoutProcessor(ADYENPLATFORM)
     | "cybersource" => PayoutProcessor(CYBERSOURCE)
     | "ebanx" => PayoutProcessor(EBANX)
+    | "itaubank" => PayoutProcessor(ITAUBANK)
     | "paypal" => PayoutProcessor(PAYPAL)
     | "stripe" => PayoutProcessor(STRIPE)
     | "wise" => PayoutProcessor(WISE)
@@ -1379,6 +1382,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | ADYENPLATFORM => adyenPlatformInfo
   | CYBERSOURCE => cybersourceInfo
   | EBANX => ebanxInfo
+  | ITAUBANK => itauBankInfo
   | PAYPAL => paypalInfo
   | STRIPE => stripeInfo
   | WISE => wiseInfo
@@ -2371,6 +2375,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | ADYENPLATFORM => "Adyen Platform"
   | CYBERSOURCE => "Cybersource"
   | EBANX => "Ebanx"
+  | ITAUBANK => "Itaubank"
   | PAYPAL => "PayPal"
   | STRIPE => "Stripe"
   | WISE => "Wise"
@@ -2443,6 +2448,26 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
   | VaultProcessor(vaultProcessor) => vaultProcessor->getDisplayNameForVaultProcessor
   | UnknownConnector(str) => str
   }
+}
+
+let getConnectorFilterOptions = (
+  ~connectorType=ConnectorTypes.Processor,
+  values: array<string>,
+): array<FilterSelectBox.dropdownOption> => {
+  values->Array.filterMap(str => {
+    switch str->String.toLowerCase->getConnectorNameTypeFromString(~connectorType) {
+    | UnknownConnector(_) => None
+    | _ =>
+      Some(
+        (
+          {
+            label: getDisplayNameForConnector(~connectorType, str),
+            value: str,
+          }: FilterSelectBox.dropdownOption
+        ),
+      )
+    }
+  })
 }
 
 // Need to remove connector and merge connector and connectorTypeVariants
@@ -2548,7 +2573,8 @@ let checkIfPredecryptFlowEnabledForApplePay = connector => {
   | Processors(ADYEN)
   | Processors(CHECKOUT)
   | Processors(WORLDPAYVANTIV)
-  | Processors(NMI) => true
+  | Processors(NMI)
+  | Processors(STRIPE) => true
   | _ => false
   }
 }
@@ -2559,7 +2585,8 @@ let checkIfPredecryptFlowEnabledForGooglePay = connector => {
   | Processors(ADYEN)
   | Processors(CHECKOUT)
   | Processors(WORLDPAYVANTIV)
-  | Processors(NMI) => true
+  | Processors(NMI)
+  | Processors(STRIPE) => true
   | _ => false
   }
 }
