@@ -255,15 +255,13 @@ module IngestionHistoryActionsComponent = {
       />
       {ingestionHistoryIconActions
       ->Array.mapWithIndex((action, index) => {
-        let iconElement =
-          <Icon
-            key={index->Int.toString}
-            name={(action.iconType :> string)}
-            size=16
-            onClick={action.onClick}
-            className={action.disabled ? "cursor-not-allowed" : "cursor-pointer"}
-          />
-        iconElement
+        <Icon
+          key={index->Int.toString}
+          name={(action.iconType :> string)}
+          size=16
+          onClick={action.onClick}
+          className={action.disabled ? "cursor-not-allowed" : "cursor-pointer"}
+        />
       })
       ->React.array}
     </div>
