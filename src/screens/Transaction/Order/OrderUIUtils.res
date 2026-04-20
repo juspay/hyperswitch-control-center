@@ -364,20 +364,10 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys,
 
     let title = `Select ${key->snakeToTitle}`
 
-    let makeOptions = (options: array<string>): array<FilterSelectBox.dropdownOption> => {
-      options->Array.map(str => {
-        let label = switch key->getFilterTypeFromString {
-        | #connector => ConnectorUtils.getDisplayNameForConnector(str)
-        | _ => str->snakeToTitle
-        }
-        let option: FilterSelectBox.dropdownOption = {label, value: str}
-        option
-      })
-    }
-
     let options = switch key->getFilterTypeFromString {
     | #connector_label => getOptionsForOrderFilters(filterDict, filtervalues)
-    | _ => values->makeOptions
+    | #connector => values->ConnectorUtils.getConnectorFilterOptions
+    | _ => values->FilterSelectBox.makeOptions(~isTitle=true)
     }
 
     let customInput = switch key->getFilterTypeFromString {
