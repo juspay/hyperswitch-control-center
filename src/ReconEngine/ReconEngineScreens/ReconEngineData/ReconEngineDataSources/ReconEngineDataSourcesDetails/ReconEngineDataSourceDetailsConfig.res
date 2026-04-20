@@ -96,7 +96,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
           id="fileUploadInput"
         />
         <label
-          htmlFor={"fileUploadInput"}
+          htmlFor="fileUploadInput"
           className={`flex flex-col items-center justify-center w-full border border-dashed border-nd_gray-300 rounded-xl ${cursorPointerClass} transition-colors hover:border-nd_gray-400`}>
           <div className="flex flex-col items-center justify-center py-8 gap-5">
             <Icon name="nd-upload" size=20 className="text-gray-400" />
