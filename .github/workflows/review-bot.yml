@@ -39,6 +39,21 @@ jobs:
           echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
           echo "Resolved — PR: #$PR_NUMBER"
 
+      - name: Acknowledge trigger with eye reaction
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          COMMENT_ID: ${{ github.event.comment.id }}
+        run: |
+          # Lets the user know the bot received the trigger.
+          # issue_comment and pull_request_review_comment live under different reaction endpoints.
+          if [ "$EVENT_NAME" == "pull_request_review_comment" ]; then
+            REACTION_ENDPOINT="repos/$SOURCE_REPO/pulls/comments/$COMMENT_ID/reactions"
+          else
+            REACTION_ENDPOINT="repos/$SOURCE_REPO/issues/comments/$COMMENT_ID/reactions"
+          fi
+          gh api "$REACTION_ENDPOINT" --method POST -f content=eyes --silent \
+            || echo "Failed to add eye reaction (non-fatal, continuing)"
+
       - name: Sync review skill from spec repo
         run: |
           echo "Syncing $SKILL_NAME skill from juspay/hyperswitch-specs..."
