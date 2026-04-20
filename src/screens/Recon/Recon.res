@@ -2,15 +2,15 @@
 let make = () => {
   open APIUtils
   let getURL = useGetURL()
-  let (redirectToken, setRedirecToken) = React.useState(_ => "")
+  let (redirectToken, setRedirectToken) = React.useState(_ => "")
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
-  let merchentDetails = MerchantDetailsHook.useMerchantDetailsValue()
+  let merchantDetails = MerchantDetailsHook.useMerchantDetailsValue()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let isReconEnabled = merchentDetails.recon_status === Active
+  let isReconEnabled = merchantDetails.recon_status === Active
 
   let onClickForReconRequest = async () => {
     try {
@@ -33,7 +33,7 @@ let make = () => {
         let url = getURL(~entityName=V1(RECON), ~reconType=#TOKEN, ~methodType=Get)
         let res = await fetchDetails(url)
         let token = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("token", "")
-        setRedirecToken(_ => token)
+        setRedirectToken(_ => token)
         let link = "https://sandbox.hyperswitch.io/recon-dashboard/?token=" ++ token
         Window._open(link)
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -93,7 +93,7 @@ let make = () => {
         } else {
           <div
             className={`flex flex-col gap-5 bg-white dark:bg-jp-gray-lightgray_background border-2 rounded dark:border-jp-gray-850 md:gap-5 p-2 md:p-8 h-2/3 items-center justify-center`}>
-            {if merchentDetails.recon_status === Requested {
+            {if merchantDetails.recon_status === Requested {
               <div
                 className={`text-center text-semibold text-s text-grey-700 opacity-60 dark:text-white`}>
                 {"Thank you for your interest in our reconciliation module. We are currently reviewing your request for access. We will follow up with you soon regarding next steps."->React.string}

@@ -60,7 +60,7 @@ let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
   Table.Label({
     title: status->TransactionsTableEntity.getDomainTransactionStatusString->String.toUpperCase,
     color: switch status {
-    | Posted(_) => LabelGreen
+    | Posted(Manual) | Matched(Force) | Matched(Manual) | Matched(Auto) => LabelGreen
     | OverAmount(Mismatch)
     | UnderAmount(Mismatch)
     | DataMismatch =>
@@ -68,7 +68,13 @@ let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
     | Expected | UnderAmount(Expected) | OverAmount(Expected) => LabelBlue
     | Archived => LabelGray
     | PartiallyReconciled | Missing => LabelOrange
-    | Void | UnknownDomainTransactionStatus => LabelLightGray
+    | Void
+    | UnknownDomainTransactionStatus
+    | Matched(UnknownDomainTransactionMatchedStatus)
+    | Posted(UnknownDomainTransactionPostedStatus)
+    | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
+    | UnderAmount(UnknownDomainTransactionAmountMismatchStatus) =>
+      LabelLightGray
     },
   })
 }
@@ -174,7 +180,7 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
         ->Array.map(entry => {
           let amount = switch entry.entry_type {
           | Debit => entry.amount.value->Float.toString
-          | _ => "-"
+          | Credit | UnknownEntryDirectionType => "-"
           }
           <HierarchicalEntryRenderer fieldValue=amount key={randomString(~length=10)} />
         })
@@ -188,7 +194,7 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
         ->Array.map(entry => {
           let amount = switch entry.entry_type {
           | Credit => entry.amount.value->Float.toString
-          | _ => "-"
+          | Debit | UnknownEntryDirectionType => "-"
           }
           <HierarchicalEntryRenderer fieldValue=amount key={randomString(~length=10)} />
         })
@@ -211,9 +217,9 @@ let hierarchicalTransactionsLoadedTableEntity = (
     ~getCell,
     ~dataKey="hierarchical_transactions",
     ~getShowLink={
-      connec => {
+      connectorObj => {
         GroupAccessUtils.linkForGetShowLinkViaAccess(
-          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connec.transaction_id}`),
+          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connectorObj.transaction_id}`),
           ~authorization,
         )
       }

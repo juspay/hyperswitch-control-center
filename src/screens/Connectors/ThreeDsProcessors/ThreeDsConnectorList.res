@@ -65,10 +65,11 @@ let make = () => {
       subTitle={"Connect and manage 3DS authentication providers to enhance the conversions"}
     />
     <PageLoaderWrapper screenState>
-      <div className="flex flex-col gap-10">
+      <div className="flex flex-col gap-8">
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Connected Processors"
+            titleSize={Small}
             actualData={filteredConnectorData}
             totalResults={filteredConnectorData->Array.length}
             resultsPerPage=20
@@ -87,7 +88,7 @@ let make = () => {
             />}
             offset
             setOffset
-            currrentFetchCount={configuredConnectors->Array.map(Nullable.make)->Array.length}
+            currentFetchCount={configuredConnectors->Array.map(Nullable.make)->Array.length}
             collapseTableRow=false
             showAutoScroll=true
           />

@@ -25,7 +25,7 @@ let getColumn = string => {
   }
 }
 
-let tableItemToObjMapper: Dict.t<JSON.t> => failreResonsObjectType = dict => {
+let tableItemToObjMapper: Dict.t<JSON.t> => failureReasonsObjectType = dict => {
   {
     error_reason: dict->getString(Error_Reason->getStringFromVariant, ""),
     failure_reason_count: dict->getInt(Failure_Reason_Count->getStringFromVariant, 0),
@@ -38,7 +38,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => failreResonsObjectType = dict => {
   }
 }
 
-let getObjects: JSON.t => array<failreResonsObjectType> = json => {
+let getObjects: JSON.t => array<failureReasonsObjectType> = json => {
   json
   ->getArrayFromJson([])
   ->Array.map(item => {
@@ -140,7 +140,7 @@ let tabs = [
   },
 ]
 
-let defaulGroupBy = {
+let defaultGroupBy = {
   label: "Connector",
   value: Connector->getStringFromVariant,
 }

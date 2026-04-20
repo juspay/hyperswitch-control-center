@@ -97,7 +97,7 @@ let make = () => {
           <GenerateReport entityName={V1(PAYOUT_REPORT)} />
         </RenderIf>
       </div>
-      <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 my-8">
+      <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8">
         <TransactionView entity=TransactionViewTypes.Payouts />
       </div>
       <div className="flex justify-between gap-3">
@@ -131,7 +131,7 @@ let make = () => {
           totalResults={totalCount}
           offset
           setOffset
-          currrentFetchCount={payoutData->Array.length}
+          currentFetchCount={payoutData->Array.length}
           defaultColumns={PayoutsEntity.defaultColumns}
           customColumnMapper=TableAtoms.payoutsMapDefaultCols
           showSerialNumberInCustomizeColumns=false

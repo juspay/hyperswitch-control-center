@@ -13,7 +13,7 @@ let make = () => {
   let pageDetail = pageDetailDict->Dict.get("customers")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let (total, setTotal) = React.useState(_ => 100)
-  let limit = 20 // each api calls will retrun 50 results
+  let limit = 20 // each api calls will return 50 results
 
   let getCustomersList = async searchValue => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -118,7 +118,7 @@ let make = () => {
         totalResults=total
         offset
         setOffset
-        currrentFetchCount={customersData->Array.length}
+        currentFetchCount={customersData->Array.length}
         defaultColumns={defaultColumns}
         customColumnMapper={TableAtoms.customersMapDefaultCols}
         showSerialNumberInCustomizeColumns=false

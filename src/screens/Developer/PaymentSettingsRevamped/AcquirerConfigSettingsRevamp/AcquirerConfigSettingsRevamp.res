@@ -33,6 +33,7 @@ module SettingsForm = {
     let updateDetails = APIUtils.useUpdateMethod()
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
     let validateForm = values => validateAcquirerConfigForm(values, formKeys)
+    let mixpanelEvent = MixpanelHook.useSendEvent()
 
     let isUpdateMode = editingConfig->Option.isSome
     let initialValues =
@@ -113,6 +114,7 @@ module SettingsForm = {
       | Some({id}) => await updateAcquirerConfig(values, id)
       | _ => await createAcquirerConfig(values)
       }
+      mixpanelEvent(~eventName="payment_settings_acquirer_config_settings")
       Nullable.null
     }
 
@@ -246,7 +248,7 @@ module AcquirerConfigContentRevamp = {
           offset
           setOffset
           entity=entityWithEditHandler
-          currrentFetchCount=totalResults
+          currentFetchCount=totalResults
           showPagination={totalResults > resultsPerPage}
           tableLocalFilter=false
           showSerialNumber=false
@@ -266,20 +268,20 @@ module AcquirerConfigContentRevamp = {
 
 @react.component
 let make = () => {
-  let accordionData: array<Accordion.accordion> = [
+  let accordionData: array<AccordionAdapter.accordion> = [
     {
       title: "Acquirer Config Settings",
-      renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>
+      renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) =>
         <AcquirerConfigContentRevamp />,
       renderContentOnTop: None,
     },
   ]
 
   <div className="py-4 md:py-10 gap-10 h-full flex flex-col">
-    <Accordion
+    <AccordionAdapter
       accordion=accordionData
-      accordianTopContainerCss="border overflow-visible rounded-xl"
-      accordianBottomContainerCss="px-4 py-3"
+      accordionTopContainerCss="border overflow-visible rounded-xl"
+      accordionBottomContainerCss="px-4 py-3"
       contentExpandCss="p-0 rounded-xl"
       arrowFillColor="#6B7280"
       titleStyle="md:font-bold font-semibold md:text-fs-16 text-fs-13 text-jp-gray-900 text-opacity-75 dark:text-white dark:text-opacity-75 rounded-xl"

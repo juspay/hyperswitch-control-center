@@ -77,7 +77,7 @@ let getRoutingTrendsSuccessOverTimeLineGraphTooltipFormatter = (
     }
   )->LineGraphTypes.asTooltipPointFormatter
 
-let modifyQueryDataForSucessGraph = data => {
+let modifyQueryDataForSuccessGraph = data => {
   data->Array.map(item => {
     let valueDict = item->getDictFromJsonObject
     let connector = valueDict->getString((#connector: routingTrendsMetrics :> string), "Unknown")

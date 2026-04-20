@@ -179,6 +179,7 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity_v1 => {
 
   let paymentLinkConfig = jsonDict->getDictfromDict("payment_link_config")
   let externalVaultConnectorDetails = jsonDict->getDictfromDict("external_vault_connector_details")
+  let paymentMethodBlockingDict = jsonDict->getDictfromDict("payment_method_blocking")
   {
     profile_id: jsonDict->getString("profile_id", ""),
     merchant_id: jsonDict->getString("merchant_id", ""),
@@ -226,6 +227,9 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity_v1 => {
     external_vault_connector_details: externalVaultConnectorDetails->isEmptyDict
       ? None
       : Some(externalVaultConnectorDetails->externalVaultConnectorDetailsMapper),
+    payment_method_blocking: paymentMethodBlockingDict->isEmptyDict
+      ? None
+      : Some(paymentMethodBlockingDict->paymentMethodBlockingMapper),
   }
 }
 
@@ -325,6 +329,7 @@ let mapV1toCommonType: profileEntity_v1 => BusinessProfileInterfaceTypes.commonP
     split_txns_enabled: None,
     is_external_vault_enabled: profileRecord.is_external_vault_enabled,
     external_vault_connector_details: profileRecord.external_vault_connector_details->mapV1ExternalVaultConnectorDetailsToCommonType,
+    payment_method_blocking: profileRecord.payment_method_blocking,
   }
 }
 
@@ -414,5 +419,6 @@ let commonTypeJsonToV1ForRequest: JSON.t => profileEntityRequestType_v1 = json =
     external_vault_connector_details: externalVaultConnectorDetails->isEmptyDict
       ? None
       : Some(externalVaultConnectorDetails->externalVaultConnectorDetailsMapper),
+    payment_method_blocking: dict->Dict.get("payment_method_blocking"),
   }
 }
