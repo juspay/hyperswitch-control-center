@@ -125,7 +125,7 @@ test.describe("Volume based routing", () => {
     await expect(
       page.locator('[data-table-location="History_tr1_td2"]'),
     ).toContainText("Test volume based config");
-    await expect(page.locator('[data-testid="inactive"]')).toContainText(
+    await expect(page.locator('[data-label="INACTIVE"]')).toContainText(
       "INACTIVE",
     );
   });

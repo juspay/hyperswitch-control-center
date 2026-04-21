@@ -234,7 +234,12 @@ module LabelCell = {
     | LabelYellow => TagBinding.Warning
     | LabelLightGray => TagBinding.Neutral
     }
-    <TagBinding text color variant=Subtle shape=Squarical size=Xs />
+    // tests rely on [data-label] selector; div wrapper ensures cloneElement adds the attribute to a real DOM node
+    <AddDataAttributes attributes=[("data-label", text)]>
+      <div>
+        <TagBinding text color variant=Subtle shape=Squarical size=Xs />
+      </div>
+    </AddDataAttributes>
   }
 }
 
