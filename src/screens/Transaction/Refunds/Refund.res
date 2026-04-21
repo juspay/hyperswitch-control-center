@@ -107,7 +107,7 @@ let make = () => {
           </RenderIf>
         </div>
       </div>
-      <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 my-8">
+      <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8">
         <TransactionView entity=TransactionViewTypes.Refunds />
       </div>
       <div className="flex justify-between gap-3">
@@ -142,7 +142,7 @@ let make = () => {
           totalResults={totalCount}
           offset
           setOffset
-          currrentFetchCount={refundData->Array.length}
+          currentFetchCount={refundData->Array.length}
           defaultColumns={RefundEntity.defaultColumns}
           customColumnMapper=TableAtoms.refundsMapDefaultCols
           showSerialNumberInCustomizeColumns=false

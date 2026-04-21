@@ -283,15 +283,15 @@ let useGetURL = () => {
         }
       | PAYMENT_METHODS =>
         switch methodType {
-        | Get => "payemnt_methods"
+        | Get => "payment_methods"
         | _ => ""
         }
       | PAYMENT_METHODS_DETAILS =>
         switch methodType {
         | Get =>
           switch id {
-          | Some(id) => `payemnt_methods/${id}`
-          | None => `payemnt_methods`
+          | Some(id) => `payment_methods/${id}`
+          | None => `payment_methods`
           }
         | _ => ""
         }
@@ -800,6 +800,17 @@ let useGetURL = () => {
         | #Merchant => `analytics/v1/merchant/report/payments`
         | #Profile => `analytics/v1/profile/report/payments`
         }
+      | PAYMENTS_LIST =>
+        switch methodType {
+        | Post =>
+          switch transactionEntity {
+          | #Merchant => `analytics/v1/payments/list`
+          | #Profile => `analytics/v1/profile/payments/list`
+          | _ => `payments/list`
+          }
+
+        | _ => ""
+        }
       | PAYOUT_REPORT =>
         switch transactionEntity {
         | #Tenant
@@ -1264,7 +1275,7 @@ let useGetURL = () => {
           | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
           }
 
-        // POST LOGIN QUESTIONARE
+        // POST LOGIN QUESTIONNAIRE
         | #SET_METADATA =>
           switch queryParameters {
           | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`

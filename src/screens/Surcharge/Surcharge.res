@@ -188,7 +188,7 @@ let make = () => {
       let responseDict = surchargeRuleDetail->getDictFromJsonObject
       let programValue = responseDict->getObj("algorithm", Dict.make())
 
-      let intitialValue =
+      let initialValue =
         [
           ("name", responseDict->LogicUtils.getString("name", "")->JSON.Encode.string),
           (
@@ -198,7 +198,7 @@ let make = () => {
           ("algorithm", programValue->JSON.Encode.object),
         ]->Dict.fromArray
 
-      setInitialRule(_ => Some(intitialValue))
+      setInitialRule(_ => Some(initialValue))
       setInitialValues(_ => responseDict->mapResponseToFormValues->Identity.genericTypeToJson)
     } catch {
     | Exn.Error(e) =>

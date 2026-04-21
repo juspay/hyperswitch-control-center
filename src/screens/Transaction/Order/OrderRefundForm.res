@@ -23,6 +23,7 @@ let make = (
   let {merchantId, orgId, version} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
+  let {devSortEnabled} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let isSplitPayment =
     order.connector->String.toLowerCase->isSplitPaymentConnector &&
       !(order.split_payments->isEmptyDict)
@@ -200,7 +201,7 @@ let make = (
               heading="Initiate Refund" subHeading="" customSubHeadingStyle=""
             />
             <DisplayKeyValueParams
-              heading={getHeading(Status)}
+              heading={getHeading(~devSortEnabled, Status)}
               value={getCell(order, Status, merchantId, orgId)}
               showTitle=false
               labelMargin="mt-0 py-0 "
@@ -225,19 +226,22 @@ let make = (
           </FormRenderer.DesktopRow>
           <FormRenderer.DesktopRow>
             <DisplayKeyValueParams
-              heading={getHeading(PaymentId)} value={getCell(order, PaymentId, merchantId, orgId)}
+              heading={getHeading(~devSortEnabled, PaymentId)}
+              value={getCell(order, PaymentId, merchantId, orgId)}
             />
           </FormRenderer.DesktopRow>
         </div>
         <div className="grid grid-cols-2 gap-8 mb-2">
           <FormRenderer.DesktopRow>
             <DisplayKeyValueParams
-              heading={getHeading(CustomerId)} value={getCell(order, CustomerId, merchantId, orgId)}
+              heading={getHeading(~devSortEnabled, CustomerId)}
+              value={getCell(order, CustomerId, merchantId, orgId)}
             />
           </FormRenderer.DesktopRow>
           <FormRenderer.DesktopRow>
             <DisplayKeyValueParams
-              heading={getHeading(Email)} value={getCell(order, Email, merchantId, orgId)}
+              heading={getHeading(~devSortEnabled, Email)}
+              value={getCell(order, Email, merchantId, orgId)}
             />
           </FormRenderer.DesktopRow>
         </div>
@@ -326,7 +330,7 @@ let make = (
             customButtonStyle="w-20 !h-10"
           />
           <FormRenderer.SubmitButton
-            text={"Initiate Refund"} customSumbitButtonStyle="w-50 !h-10" showToolTip=false
+            text={"Initiate Refund"} customSubmitButtonStyle="w-50 !h-10" showToolTip=false
           />
         </div>
       </div>

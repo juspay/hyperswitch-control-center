@@ -205,7 +205,7 @@ module EntryAuditTrailInfo = {
               totalResults={[openedTransaction]->Array.length}
               offset={0}
               setOffset={_ => ()}
-              currrentFetchCount={[openedTransaction]->Array.length}
+              currentFetchCount={[openedTransaction]->Array.length}
             />
           </div>
         </div>
@@ -279,12 +279,7 @@ module AuditTrail = {
     }
 
     let sections = allTransactionDetails->Array.map((transaction: transactionType) => {
-      let reasonText = switch transaction.data.posted_type {
-      | Some(ManuallyReconciled)
-      | Some(ForceReconciled) =>
-        transaction.data.reason
-      | _ => None
-      }
+      let reasonText = transaction.data.reason->Option.mapOr(None, reason => Some(reason))
 
       let customComponent = {
         id: transaction.version->Int.toString,

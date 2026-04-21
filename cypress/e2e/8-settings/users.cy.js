@@ -11,8 +11,7 @@ beforeEach(function () {
 
 describe("Users", () => {
   it("should successfully invite a user and verify received invite", () => {
-    cy.get('[data-testid="settings"]').click();
-    cy.get('[data-testid="users"]').click();
+    homePage.users.click();
     cy.get('[data-button-for="inviteUsers"]').click();
     cy.get('[class="w-full cursor-text"]').type(helper.generateUniqueEmail());
     cy.get(

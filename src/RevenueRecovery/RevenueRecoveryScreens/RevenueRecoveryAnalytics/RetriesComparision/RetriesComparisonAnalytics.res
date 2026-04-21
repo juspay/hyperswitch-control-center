@@ -1,6 +1,6 @@
 open InsightsTypes
-open RetriesComparisionAnalyticsUtils
-open RetriesComparisionAnalyticsTypes
+open RetriesComparisonAnalyticsUtils
+open RetriesComparisonAnalyticsTypes
 open Typography
 
 @react.component
@@ -68,7 +68,7 @@ let make = (
   let staticRetryGraphOptions = chartEntity.getChatOptions(chartEntity.getObjects(~params=params1))
 
   let smartRetryGraphOptions = chartEntity.getChatOptions(
-    smartRetriesComparisionMapper(~params=params2),
+    smartRetriesComparisonMapper(~params=params2),
   )
 
   <div>

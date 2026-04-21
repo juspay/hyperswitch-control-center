@@ -27,14 +27,14 @@ let make = (
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let initalFormValue =
+  let initialFormValue =
     formState.values
     ->getDictFromJsonObject
     ->getDictfromDict("metadata")
     ->getDictfromDict("apple_pay_combined")
 
   let setFormData = () => {
-    let value = applePayCombined(initalFormValue, #simplified, connector)
+    let value = applePayCombined(initialFormValue, #simplified, connector)
     form.change("metadata.apple_pay_combined", value->Identity.genericTypeToJson)
   }
 
@@ -229,7 +229,7 @@ let make = (
           onSubmit()->ignore
         }}
         customButtonStyle="w-full"
-        buttonState={formState.values->validateSimplifedFlow}
+        buttonState={formState.values->validateSimplifiedFlow}
       />
     </div>
   </div>

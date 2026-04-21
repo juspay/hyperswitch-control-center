@@ -10,7 +10,7 @@ module DisplayKeyValueParams = {
     ~labelMargin="",
     ~customDateStyle="",
     ~wordBreak=true,
-    ~overiddingHeadingStyles="",
+    ~overridingHeadingStyles="",
     ~textColor="!font-medium !text-nd_gray-600",
   ) => {
     let marginClass = if labelMargin->LogicUtils.isEmptyString {
@@ -38,7 +38,7 @@ module DisplayKeyValueParams = {
             className={`flex flex-row text-fs-11  ${isHorizontal
                 ? "flex justify-start"
                 : ""} text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 `}>
-            <div className={overiddingHeadingStyles}>
+            <div className={overridingHeadingStyles}>
               {React.string(showTitle ? heading.title : " x")}
             </div>
             <RenderIf condition={description->LogicUtils.isNonEmptyString}>
@@ -93,7 +93,7 @@ module ListBaseComp = {
     let bgClass = subHeading->String.length > 0 ? "bg-white" : "bg-nd_gray-50"
 
     <div
-      className={`flex flex-row cursor-pointer items-center px-4 gap-2 min-w-44 justify-between h-36-px ${bgClass} border rounded-lg border-nd_gray-150 shadow-sm`}>
+      className={`flex flex-row cursor-pointer items-center px-4 gap-2 min-w-44 justify-between h-9 ${bgClass} border rounded-lg border-nd_gray-150 shadow-sm`}>
       <div className="flex flex-row items-center gap-2">
         <RenderIf condition={subHeading->String.length > 0}>
           <p
