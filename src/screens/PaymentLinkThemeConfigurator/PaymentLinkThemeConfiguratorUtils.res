@@ -50,6 +50,18 @@ let getDefaultStylesValue: BusinessProfileInterfaceTypes.paymentLinkConfig => Bu
   }
 }
 
+let allowedDomainsToArray = allowedDomainsOpt => {
+  let domainsStr =
+    allowedDomainsOpt->Option.getOr(JSON.Encode.null)->JSON.Decode.string->Option.getOr("")
+  Some(
+    domainsStr
+    ->String.split(",")
+    ->Array.map(String.trim)
+    ->Array.filter(s => s->isNonEmptyString)
+    ->getJsonFromArrayOfString,
+  )
+}
+
 let constructBusinessProfileBody = (~paymentLinkConfig, ~styleID) => {
   open BusinessProfileInterfaceUtils
 
@@ -65,6 +77,7 @@ let constructBusinessProfileBody = (~paymentLinkConfig, ~styleID) => {
 
   {
     ...paymentLinkConfig,
+    allowed_domains: paymentLinkConfig.allowed_domains->allowedDomainsToArray,
     business_specific_configs: Some(updatedBusinessSpecificDict->JSON.Encode.object),
   }
 }
@@ -105,7 +118,7 @@ let constructBusinessProfileBodyFromJson = (~json, ~paymentLinkConfig, ~styleID)
         is_setup_mandate_flow: styleConfig.is_setup_mandate_flow,
         color_icon_card_cvc_error: styleConfig.color_icon_card_cvc_error,
         domain_name: paymentLinkConfig.domain_name,
-        allowed_domains: paymentLinkConfig.allowed_domains,
+        allowed_domains: paymentLinkConfig.allowed_domains->allowedDomainsToArray,
         business_specific_configs: paymentLinkConfig.business_specific_configs,
         branding_visibility: paymentLinkConfig.branding_visibility,
       }
@@ -145,7 +158,7 @@ let constructBusinessProfileBodyFromJson = (~json, ~paymentLinkConfig, ~styleID)
         is_setup_mandate_flow: paymentLinkConfig.is_setup_mandate_flow,
         color_icon_card_cvc_error: paymentLinkConfig.color_icon_card_cvc_error,
         domain_name: paymentLinkConfig.domain_name,
-        allowed_domains: paymentLinkConfig.allowed_domains,
+        allowed_domains: paymentLinkConfig.allowed_domains->allowedDomainsToArray,
         branding_visibility: paymentLinkConfig.branding_visibility,
         business_specific_configs: Some(updatedBusinessSpecificDict->JSON.Encode.object),
       }
