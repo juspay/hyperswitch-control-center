@@ -554,11 +554,8 @@ module EllipsisText = {
     // If text character count is greater than ellipsisThreshold, it will render tooltip else we will have whole text in cell
     if ellipsesCondition {
       <ToolTip
-        contentAlign=Left
         description=text
         toolTipPosition
-        tooltipForWidthClass=ellipseClass
-        isRelative=isEllipsisTextRelative
         toolTipFor={<div className={`whitespace-pre text-ellipsis overflow-x-hidden ${width}`}>
           {highlightedText(modifiedText, highlightText)}
         </div>}
