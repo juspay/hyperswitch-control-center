@@ -89,7 +89,7 @@ let make = (
 
   // Batched onChange to handle rapid fire events from select-all / deselect-all
   let batchedRef: React.ref<array<string>> = React.useRef([])
-  let timerRef: React.ref<option<Js.Global.timeoutId>> = React.useRef(None)
+  let timerRef = React.useRef(None)
 
   let selectedValues = input.value->LogicUtils.getStrArrayFromJson
 
@@ -111,10 +111,10 @@ let make = (
 
     // Clear any pending timer and set a new one
     switch timerRef.current {
-    | Some(id) => Js.Global.clearTimeout(id)
+    | Some(id) => clearTimeout(id)
     | None => ()
     }
-    timerRef.current = Some(Js.Global.setTimeout(() => {
+    timerRef.current = Some(setTimeout(() => {
         commitChange()
         timerRef.current = None
       }, 10))
@@ -130,7 +130,7 @@ let make = (
     Some(
       () => {
         switch timerRef.current {
-          | Some(id) => Js.Global.clearTimeout(id)
+          | Some(id) => clearTimeout(id)
           | None => ()
           }
       },

@@ -308,7 +308,7 @@ let make = (
   ~maxHeight: string=?,
   ~searchable: bool=?,
   ~fill: string=?,
-  ~optionRigthElement: React.element=?,
+  ~optionRightElement: React.element=?,
   ~hideBorder: bool=?,
   ~allSelectType: SelectBox.allSelectType=?,
   ~customSearchStyle: string=?,
@@ -489,7 +489,7 @@ let make = (
       ?maxHeight
       ?searchable
       ?fill
-      ?optionRigthElement
+      ?optionRightElement
       ?hideBorder
       ?allSelectType
       ?customSearchStyle
