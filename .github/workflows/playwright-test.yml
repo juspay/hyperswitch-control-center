@@ -82,7 +82,7 @@ jobs:
 
       - name: Artifact - Failed Test Artifacts
         uses: actions/upload-artifact@v4
-        if: failure()
+        if: false #failure()
         with:
           name: playwright-failures
           path: |
@@ -94,7 +94,7 @@ jobs:
 
       - name: Artifact - Playwright Coverage Report
         uses: actions/upload-artifact@v4
-        if: always()
+        if: false #always()
         with:
           name: playwright-coverage
           path: coverage-report/
