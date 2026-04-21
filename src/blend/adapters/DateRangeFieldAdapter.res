@@ -18,7 +18,14 @@ module BlendView = {
       endInput.value->JSON.Decode.string->Option.flatMap(getNonEmptyString),
     ) {
     | (Some(start), Some(end)) =>
-      Some(({startDate: start->Js.Date.fromString, endDate: end->Js.Date.fromString}: DateRangePickerBinding.dateRange))
+      Some(
+        (
+          {
+            startDate: start->Js.Date.fromString,
+            endDate: end->Js.Date.fromString,
+          }: DateRangePickerBinding.dateRange
+        ),
+      )
     | _ => None
     }
 
