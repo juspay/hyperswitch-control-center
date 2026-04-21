@@ -4,16 +4,16 @@
  * Generated: 2026-04-17
  */
 
-import { test, expect } from "../support/test";
-import { HomePage } from "../support/pages/homepage/HomePage";
-import { generateUniqueEmail } from "../support/helper";
-import { signupUser, loginUI } from "../support/commands";
+import { test, expect } from "../../support/test";
+import { HomePage } from "../../support/pages/homepage/HomePage";
+import { generateUniqueEmail } from "../../support/helper";
+import { signupUser, loginUI } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Test@123456";
 
 async function signupAndLogin(
-  page: import("../support/test").Page,
-  context: import("../support/test").BrowserContext,
+  page: import("../../support/test").Page,
+  context: import("../../support/test").BrowserContext,
 ) {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
