@@ -233,7 +233,7 @@ let make = (
   let tabOuterClass = `gap-1.5`
   let bottomBorderClass = ""
 
-  let outerAllignmentClass = ""
+  let outerAlignmentClass = ""
 
   let availableTabUserPrefKey = `dynamicTab_available_tab_${tabId}`
   let updateTabNameWith = switch updateUrlDict {
@@ -259,16 +259,16 @@ let make = (
   let (selectedIndex, setSelectedIndex) = React.useState(_ => 0)
 
   let (initialIndex, updatedCollapsibleTabs) = React.useMemo(() => {
-    let defautTabValues = defaultTabs->Array.map(item => item.value)
+    let defaultTabValues = defaultTabs->Array.map(item => item.value)
     let collapsibleTabs = switch getConfig(availableTabUserPrefKey) {
     | Some(jsonVal) => {
         let tabsFromPreference =
           jsonVal
           ->getStrArrayFromJson
-          ->Array.filter(item => !(defautTabValues->Array.includes(item)))
+          ->Array.filter(item => !(defaultTabValues->Array.includes(item)))
 
         let tabsFromPreference =
-          Array.concat(defautTabValues, tabsFromPreference)->Array.map(item =>
+          Array.concat(defaultTabValues, tabsFromPreference)->Array.map(item =>
             item->String.split(",")
           )
 
@@ -279,10 +279,10 @@ let make = (
             ->Array.filter(item => !(tabs->Array.map(item => item.value)->Array.includes(item)))
             ->Array.length === 0
 
-          let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
+          let concatenatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
           if validated && tabName->Array.length <= maxSelection && tabName->Array.length > 0 {
             let newTab = {
-              title: concatinatedTabNames,
+              title: concatenatedTabNames,
               value: tabName->Array.joinWith(","),
               description: switch tabs->Array.find(
                 item => {
@@ -324,16 +324,16 @@ let make = (
       ->Array.filter(item => !(tabs->Array.map(item => item.value)->Array.includes(item)))
       ->Array.length === 0
 
-    let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
+    let concatenatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
 
     if validated && tabName->Array.length <= maxSelection && tabName->Array.length > 0 {
-      let concatinatedTabIndex =
-        collapsibleTabs->Array.map(item => item.title)->Array.indexOf(concatinatedTabNames)
+      let concatenatedTabIndex =
+        collapsibleTabs->Array.map(item => item.title)->Array.indexOf(concatenatedTabNames)
 
-      if concatinatedTabIndex === -1 {
+      if concatenatedTabIndex === -1 {
         let newTab = [
           {
-            title: concatinatedTabNames,
+            title: concatenatedTabNames,
             value: tabName->Array.joinWith(","),
             isRemovable: true,
           },
@@ -344,7 +344,7 @@ let make = (
 
         (Array.length(collapsibleTabs), updatedColllapsableTab)
       } else {
-        (concatinatedTabIndex, collapsibleTabs)
+        (concatenatedTabIndex, collapsibleTabs)
       }
     } else {
       setSelectedIndex(_ => 0)
@@ -520,7 +520,7 @@ let make = (
           />
         </RenderIf>
         <div
-          className={`overflow-x-auto no-scrollbar overflow-y-hidden ${outerAllignmentClass}`}
+          className={`overflow-x-auto no-scrollbar overflow-y-hidden ${outerAlignmentClass}`}
           ref={scrollRef->ReactDOM.Ref.domRef}
           onScroll>
           <div className="flex flex-row">

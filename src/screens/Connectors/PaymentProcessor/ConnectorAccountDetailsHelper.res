@@ -587,11 +587,10 @@ module ConnectorHeaderWrapper = {
         | Processors(BRAINTREE) => true
         | _ => false
         }}>
-        <HSwitchUtils.AlertBanner
-          bannerContent={<p>
-            {"Disclaimer: Please ensure the payment currency matches the Braintree-configured currency for the given Merchant Account ID."->React.string}
-          </p>}
-          bannerType=Warning
+        <AlertV2Binding
+          alertType=Warning
+          slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
+          description="Disclaimer: Please ensure the payment currency matches the Braintree-configured currency for the given Merchant Account ID."
         />
       </RenderIf>
       {children}

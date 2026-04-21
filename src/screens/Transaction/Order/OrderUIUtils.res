@@ -165,7 +165,7 @@ module NoData = {
   let make = (~isConfigureConnector, ~paymentModal, ~setPaymentModal) => {
     let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-    <BluredTableComponent
+    <BlurredTableComponent
       infoText={isConfigureConnector
         ? isLiveMode
             ? "There are no payments as of now."
@@ -364,16 +364,10 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys,
 
     let title = `Select ${key->snakeToTitle}`
 
-    let makeOptions = (options: array<string>): array<FilterSelectBox.dropdownOption> => {
-      options->Array.map(str => {
-        let option: FilterSelectBox.dropdownOption = {label: str->snakeToTitle, value: str}
-        option
-      })
-    }
-
     let options = switch key->getFilterTypeFromString {
     | #connector_label => getOptionsForOrderFilters(filterDict, filtervalues)
-    | _ => values->makeOptions
+    | #connector => values->ConnectorUtils.getConnectorFilterOptions
+    | _ => values->FilterSelectBox.makeOptions(~isTitle=true)
     }
 
     let customInput = switch key->getFilterTypeFromString {
@@ -495,11 +489,11 @@ let isNonEmptyValue = value => {
 
 let orderViewList: OMPSwitchTypes.ompViews = [
   {
-    lable: "All Profiles",
+    label: "All Profiles",
     entity: #Merchant,
   },
   {
-    lable: "Profile",
+    label: "Profile",
     entity: #Profile,
   },
 ]

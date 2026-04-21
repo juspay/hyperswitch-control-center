@@ -23,6 +23,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(ADYENPLATFORM),
   PayoutProcessor(CYBERSOURCE),
   PayoutProcessor(EBANX),
+  PayoutProcessor(ITAUBANK),
   PayoutProcessor(PAYPAL),
   PayoutProcessor(STRIPE),
   PayoutProcessor(WISE),
@@ -34,6 +35,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(WORLDPAYXML),
   PayoutProcessor(TRUELAYER),
   PayoutProcessor(ENVOY),
+  PayoutProcessor(TRUSTLY),
 ]
 
 let payoutConnectorListForLive: array<connectorTypes> = [
@@ -181,6 +183,7 @@ let connectorList: array<connectorTypes> = [
   Processors(SANTANDER),
   Processors(REVOLV3),
   Processors(TRUELAYER),
+  Processors(TRUSTLY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -256,6 +259,8 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "apple_pay" => ApplePay
   | "paypal" => PayPal
   | "pix" => Pix
+  | "pix_automatico_qr" => PixAutomaticoQr
+  | "pix_automatico_push" => PixAutomaticoPush
   | "boleto" => Boleto
   | "klarna" => Klarna
   | "open_banking_pis" => OpenBankingPIS
@@ -873,6 +878,10 @@ let fiservcommercehubInfo = {
   description: "Fiservcommercehub is a developer-friendly, flexible communication standards, unified APIs, and pre-certified integrations, Commerce Hub reduces development time and accelerates speed to market.",
 }
 
+let trustlyInfo = {
+  description: "Trustly provides a secure, efficient, and cost-effective payment solution for your businesses to offer customers a convenient and hassle-free payment experience.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -985,6 +994,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | REVOLV3 => "revolv3"
   | TRUELAYER => "truelayer"
   | FISERVCOMMERCEHUB => "fiservcommercehub"
+  | TRUSTLY => "trustly"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -993,6 +1003,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | ADYENPLATFORM => "adyenplatform"
   | CYBERSOURCE => "cybersource"
   | EBANX => "ebanx"
+  | ITAUBANK => "itaubank"
   | PAYPAL => "paypal"
   | STRIPE => "stripe"
   | WISE => "wise"
@@ -1004,6 +1015,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | WORLDPAYXML => "worldpayxml"
   | TRUELAYER => "truelayer"
   | ENVOY => "envoy"
+  | TRUSTLY => "trustly"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -1182,6 +1194,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "revolv3" => Processors(REVOLV3)
     | "truelayer" => Processors(TRUELAYER)
     | "fiservcommercehub" => Processors(FISERVCOMMERCEHUB)
+    | "trustly" => Processors(TRUSTLY)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1190,6 +1203,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "adyenplatform" => PayoutProcessor(ADYENPLATFORM)
     | "cybersource" => PayoutProcessor(CYBERSOURCE)
     | "ebanx" => PayoutProcessor(EBANX)
+    | "itaubank" => PayoutProcessor(ITAUBANK)
     | "paypal" => PayoutProcessor(PAYPAL)
     | "stripe" => PayoutProcessor(STRIPE)
     | "wise" => PayoutProcessor(WISE)
@@ -1201,6 +1215,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "worldpayxml" => PayoutProcessor(WORLDPAYXML)
     | "truelayer" => PayoutProcessor(TRUELAYER)
     | "envoy" => PayoutProcessor(ENVOY)
+    | "trustly" => PayoutProcessor(TRUSTLY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1357,6 +1372,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | REVOLV3 => revolv3Info
   | TRUELAYER => truelayerInfo
   | FISERVCOMMERCEHUB => fiservcommercehubInfo
+  | TRUSTLY => trustlyInfo
   }
 }
 
@@ -1366,6 +1382,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | ADYENPLATFORM => adyenPlatformInfo
   | CYBERSOURCE => cybersourceInfo
   | EBANX => ebanxInfo
+  | ITAUBANK => itauBankInfo
   | PAYPAL => paypalInfo
   | STRIPE => stripeInfo
   | WISE => wiseInfo
@@ -1377,6 +1394,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | WORLDPAYXML => worldpayxmlInfo
   | TRUELAYER => truelayerInfo
   | ENVOY => envoyInfo
+  | TRUSTLY => trustlyInfo
   }
 }
 
@@ -2029,7 +2047,7 @@ let getSuggestedAction = (~verifyErrorMessage, ~connector) => {
     | Processors(PAYPAL) => (
         {
           if msg->String.includes("Client Authentication failed") {
-            <PaypalClientAuthenticationFalied />
+            <PaypalClientAuthenticationFailed />
           } else {
             React.null
           }
@@ -2336,6 +2354,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | REVOLV3 => "Revolv3"
   | TRUELAYER => "Truelayer"
   | FISERVCOMMERCEHUB => "Fiserv Commerce Hub"
+  | TRUSTLY => "Trustly"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2344,6 +2363,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | ADYENPLATFORM => "Adyen Platform"
   | CYBERSOURCE => "Cybersource"
   | EBANX => "Ebanx"
+  | ITAUBANK => "Itaubank"
   | PAYPAL => "PayPal"
   | STRIPE => "Stripe"
   | WISE => "Wise"
@@ -2355,6 +2375,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | WORLDPAYXML => "Worldpay WPG"
   | TRUELAYER => "Truelayer"
   | ENVOY => "Worldpay Envoy"
+  | TRUSTLY => "Trustly"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
@@ -2415,6 +2436,26 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
   | VaultProcessor(vaultProcessor) => vaultProcessor->getDisplayNameForVaultProcessor
   | UnknownConnector(str) => str
   }
+}
+
+let getConnectorFilterOptions = (
+  ~connectorType=ConnectorTypes.Processor,
+  values: array<string>,
+): array<FilterSelectBox.dropdownOption> => {
+  values->Array.filterMap(str => {
+    switch str->String.toLowerCase->getConnectorNameTypeFromString(~connectorType) {
+    | UnknownConnector(_) => None
+    | _ =>
+      Some(
+        (
+          {
+            label: getDisplayNameForConnector(~connectorType, str),
+            value: str,
+          }: FilterSelectBox.dropdownOption
+        ),
+      )
+    }
+  })
 }
 
 // Need to remove connector and merge connector and connectorTypeVariants
@@ -2495,7 +2536,7 @@ let updateMetaData = (~metaData) => {
 
 let sortByDisableField = (arr: array<'a>, getDisabledStatus: 'a => bool) => {
   arr->Array.sort((a, b) =>
-    numericArraySortComperator(getDisabledStatus(a) ? 1.0 : 0.0, getDisabledStatus(b) ? 1.0 : 0.0)
+    numericArraySortComparator(getDisabledStatus(a) ? 1.0 : 0.0, getDisabledStatus(b) ? 1.0 : 0.0)
   )
 }
 
@@ -2520,7 +2561,8 @@ let checkIfPredecryptFlowEnabledForApplePay = connector => {
   | Processors(ADYEN)
   | Processors(CHECKOUT)
   | Processors(WORLDPAYVANTIV)
-  | Processors(NMI) => true
+  | Processors(NMI)
+  | Processors(STRIPE) => true
   | _ => false
   }
 }
@@ -2531,7 +2573,8 @@ let checkIfPredecryptFlowEnabledForGooglePay = connector => {
   | Processors(ADYEN)
   | Processors(CHECKOUT)
   | Processors(WORLDPAYVANTIV)
-  | Processors(NMI) => true
+  | Processors(NMI)
+  | Processors(STRIPE) => true
   | _ => false
   }
 }

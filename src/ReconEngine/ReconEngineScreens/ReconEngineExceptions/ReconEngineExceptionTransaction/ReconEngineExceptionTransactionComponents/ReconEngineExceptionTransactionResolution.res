@@ -51,7 +51,7 @@ module ForceReconcileModalContent = {
             }}
           />
           <FormRenderer.SubmitButton
-            text="Force Reconcile" buttonType={Primary} customSubmitButtonStyle="!w-fit mt-4"
+            text="Force Match" buttonType={Primary} customSubmitButtonStyle="!w-fit mt-4"
           />
         </div>
       </Form>

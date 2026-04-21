@@ -1,6 +1,6 @@
 open InsightsTypes
-open RetriesComparisionAnalyticsUtils
-open RetriesComparisionAnalyticsTypes
+open RetriesComparisonAnalyticsUtils
+open RetriesComparisonAnalyticsTypes
 open Typography
 
 @react.component
