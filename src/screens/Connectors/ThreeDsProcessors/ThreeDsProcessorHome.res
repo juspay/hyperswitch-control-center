@@ -164,6 +164,7 @@ let make = () => {
 
   React.useEffect(() => {
     let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
+    let metadataDict = initialValuesToDict->getDictfromDict("metadata")
 
     if !isUpdateFlow {
       initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
@@ -171,6 +172,9 @@ let make = () => {
         "connector_label",
         `${connectorName}_${businessProfileRecoilVal.profile_name}`->JSON.Encode.string,
       )
+
+      metadataDict->Dict.set("pull_mechanism_for_external_3ds_enabled", false->JSON.Encode.bool)
+      initialValuesToDict->Dict.set("metadata", metadataDict->JSON.Encode.object)
     }
     None
   }, [connectorName, profileId])
@@ -299,6 +303,7 @@ let make = () => {
                 />
               </div>
             </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
+            <FormValuesSpy />
           </Form>
 
         | Summary | Preview =>
