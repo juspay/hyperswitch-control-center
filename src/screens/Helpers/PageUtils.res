@@ -1,11 +1,12 @@
+open Typography
 module PageHeading = {
   @react.component
   let make = (
     ~title,
     ~subTitle=?,
     ~customTitleStyle="",
-    ~customSubTitleStyle="text-lg font-medium",
-    ~customHeadingStyle="py-2",
+    ~customSubTitleStyle=`${body.lg.medium}`,
+    ~customHeadingStyle="",
     ~isTag=false,
     ~tagText="",
     ~customTagStyle="bg-extra-light-grey border-light-grey",
@@ -14,14 +15,13 @@ module PageHeading = {
     ~customTitleSectionStyles="",
     ~showPermLink=true,
   ) => {
-    let headerTextStyle = HSwitchUtils.getTextClass((H1, Optional))
-    <div className={`${customHeadingStyle}`}>
+    <div className={`mb-6 ${customHeadingStyle}`}>
       {switch leftIcon {
       | Some(icon) => <Icon name={icon} size=56 />
       | None => React.null
       }}
       <div className={`flex items-center gap-4 ${customTitleSectionStyles}`}>
-        <div className={`${headerTextStyle} ${customTitleStyle}`}> {title->React.string} </div>
+        <div className={`${heading.lg.semibold} ${customTitleStyle}`}> {title->React.string} </div>
         <RenderIf condition=showPermLink>
           <OMPPermaLinkButton />
         </RenderIf>

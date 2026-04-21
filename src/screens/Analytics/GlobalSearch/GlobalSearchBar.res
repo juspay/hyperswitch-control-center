@@ -7,7 +7,7 @@ let make = () => {
 
   let getURL = APIUtils.useGetURL()
   let prefix = useUrlPrefix()
-  let setGLobalSearchResults = HyperswitchAtom.globalSeacrchAtom->Recoil.useSetRecoilState
+  let setGLobalSearchResults = HyperswitchAtom.globalSearchAtom->Recoil.useSetRecoilState
   let fetchDetails = APIUtils.useUpdateMethod()
   let (state, setState) = React.useState(_ => Idle)
   let (showModal, setShowModal) = React.useState(_ => false)
@@ -18,13 +18,13 @@ let make = () => {
   let (allOptions, setAllOptions) = React.useState(_ => [])
   let (selectedFilter, setSelectedFilter) = React.useState(_ => None)
   let (allFilters, setAllFilters) = React.useState(_ => [])
-  let (categorieSuggestionResponse, setCategorieSuggestionResponse) = React.useState(_ =>
+  let (categoriesSuggestionResponse, setCategoriesSuggestionResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
   )
   let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (searchResults, setSearchResults) = React.useState(_ => [])
-  let merchentDetails = MerchantDetailsHook.useMerchantDetailsValue()
-  let isReconEnabled = merchentDetails.recon_status === Active
+  let merchantDetails = MerchantDetailsHook.useMerchantDetailsValue()
+  let isReconEnabled = merchantDetails.recon_status === Active
   let hswitchTabs = SidebarHooks.useGetHsSidebarValues(~isReconEnabled)
   let loader = LottieFiles.useLottieJson("loader-circle.json")
   let {globalSearch, globalSearchFilters} =
@@ -58,7 +58,7 @@ let make = () => {
         paymentsGroupByNames->getFilterBody,
         Post,
       )
-      setCategorieSuggestionResponse(_ => paymentsResponse)
+      setCategoriesSuggestionResponse(_ => paymentsResponse)
 
       setState(_ => Idle)
     } catch {
@@ -239,7 +239,7 @@ let make = () => {
   }
 
   let viewType = getViewType(~state, ~searchResults)
-  let categorySuggestions = {getCategorySuggestions(categorieSuggestionResponse)}
+  let categorySuggestions = {getCategorySuggestions(categoriesSuggestionResponse)}
 
   <div className="w-max">
     <SearchBox openModalOnClickHandler />

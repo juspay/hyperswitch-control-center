@@ -262,7 +262,7 @@ let make = () => {
             customButtonStyle="w-full mt-8"
           />
         </div>
-      | #reviewAndConnect => <VaultProceesorReview connectorInfo=initialValues />
+      | #reviewAndConnect => <VaultProcessorReview connectorInfo=initialValues />
       | _ => React.null
       }}
     </div>
