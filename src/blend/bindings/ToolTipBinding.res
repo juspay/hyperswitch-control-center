@@ -28,4 +28,5 @@ external make: (
   ~maxWidth: string=?,
   ~fullWidth: bool=?,
   ~disableInteractive: bool=?,
+  ~onOpenChange: (bool => unit)=?,
 ) => React.element = "Tooltip"

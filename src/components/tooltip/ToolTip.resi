@@ -1,6 +1,4 @@
 type toolTipPosition = Top | Bottom | Left | Right | TopRight | TopLeft | BottomLeft | BottomRight
-type contentPosition = Left | Right | Middle | Default
-type toolTipSize = Large | Medium | Small | XSmall
 
 @react.component
 let make: (

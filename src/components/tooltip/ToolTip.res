@@ -1,6 +1,4 @@
 type toolTipPosition = Top | Bottom | Left | Right | TopRight | TopLeft | BottomLeft | BottomRight
-type contentPosition = Left | Right | Middle | Default
-type toolTipSize = Large | Medium | Small | XSmall
 
 @react.component
 let make = (
@@ -41,38 +39,35 @@ let make = (
   | None => <Icon name="nd-info-circle" size=14 />
   }
 
-  let delayDuration = {
-    let value = if visibleOnClick {
-      0
-    } else if enableTooltipDelay {
-      tooltipDelay->Option.getOr(500)
-    } else {
-      100
-    }
-    Some(value)
-  }
-
-  let open_ = if visibleOnClick {
-    Some(isOpen)
+  let delayDuration = if visibleOnClick {
+    0
+  } else if enableTooltipDelay {
+    tooltipDelay->Option.getOr(500)
   } else {
-    None
+    100
   }
 
   let descriptionExists =
     description->LogicUtils.isNonEmptyString || descriptionComponent != React.null
 
-  let trigger = if visibleOnClick {
-    <div onClick={_ => setIsOpen(prev => !prev)}> triggerElement </div>
-  } else {
-    triggerElement
-  }
-
   if !descriptionExists {
     triggerElement
+  } else if visibleOnClick {
+    <ToolTipBinding
+      content
+      size=Lg
+      ?side
+      ?align
+      delayDuration
+      open_=isOpen
+      onOpenChange={v => setIsOpen(_ => v)}
+      disableInteractive={!hoverOnToolTip}>
+      triggerElement
+    </ToolTipBinding>
   } else {
     <ToolTipBinding
-      content size=Lg ?side ?align ?delayDuration ?open_ disableInteractive={!hoverOnToolTip}>
-      trigger
+      content size=Lg ?side ?align delayDuration disableInteractive={!hoverOnToolTip}>
+      triggerElement
     </ToolTipBinding>
   }
 }
