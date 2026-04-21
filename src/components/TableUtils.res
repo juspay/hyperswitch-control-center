@@ -234,7 +234,12 @@ module LabelCell = {
     | LabelYellow => TagBinding.Warning
     | LabelLightGray => TagBinding.Neutral
     }
-    <TagBinding text color variant=Subtle shape=Squarical size=Xs />
+    // tests rely on [data-label] selector; div wrapper ensures cloneElement adds the attribute to a real DOM node
+    <AddDataAttributes attributes=[("data-label", text)]>
+      <div>
+        <TagBinding text color variant=Subtle shape=Squarical size=Xs />
+      </div>
+    </AddDataAttributes>
   }
 }
 
@@ -419,6 +424,31 @@ module LinkCell = {
 }
 
 module DateCell = {
+  open LogicUtils
+  let getMillisecondsPart = timestamp => {
+    let timestampParts = timestamp->String.replace("Z", "")->String.split("T")
+    let timePart = timestampParts->getValueFromArray(1, "")
+    let timeComponents = timePart->String.split(":")
+    let secondPart = timeComponents->getValueFromArray(2, "")
+    let secondComponents = secondPart->String.split(".")
+    let milliseconds =
+      secondComponents
+      ->getValueFromArray(1, "000")
+      ->String.replaceRegExp(%re("/\\D.*$/"), "")
+
+    if milliseconds->String.length == 1 {
+      `${milliseconds}00`
+    } else if milliseconds->String.length == 2 {
+      `${milliseconds}0`
+    } else if milliseconds->String.length >= 3 {
+      milliseconds->String.replaceRegExp(%re("/^(\\d{3}).*$/"), "$1")
+    } else {
+      "000"
+    }
+  }
+
+  let removeMilliseconds = format => format->String.replace(".SSS", "")
+
   @react.component
   let make = (
     ~timestamp,
@@ -432,16 +462,22 @@ module DateCell = {
     let isMobileView = MatchMedia.useMobileChecker()
     let dateFormat = React.useContext(DateFormatProvider.dateFormatContext)
     let dateFormat = isMobileView
-      ? "DD MMM HH:mm"
+      ? "DD MMM HH:mm:ss.SSS"
       : customDateStyle->LogicUtils.isNonEmptyString
       ? customDateStyle
       : dateFormat
+    let millisecondsPart = getMillisecondsPart(timestamp)
+    let showMilliseconds = millisecondsPart != "000"
+    let dateFormat = showMilliseconds ? dateFormat : dateFormat->removeMilliseconds
 
     let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZoneInFloat()
     let getFormattedDate = dateStr => {
       try {
         let customTimeZone = isoStringToCustomTimeZone(dateStr)
-        TimeZoneHook.formattedDateTimeFloat(customTimeZone, dateFormat)
+        let formattedDate = TimeZoneHook.formattedDateTimeFloat(customTimeZone, dateFormat)
+        showMilliseconds
+          ? formattedDate->String.replace(".000", `.${millisecondsPart}`)
+          : formattedDate
       } catch {
       | _ => `${dateStr} - unable to parse`
       }
@@ -518,11 +554,8 @@ module EllipsisText = {
     // If text character count is greater than ellipsisThreshold, it will render tooltip else we will have whole text in cell
     if ellipsesCondition {
       <ToolTip
-        contentAlign=Left
         description=text
         toolTipPosition
-        tooltipForWidthClass=ellipseClass
-        isRelative=isEllipsisTextRelative
         toolTipFor={<div className={`whitespace-pre text-ellipsis overflow-x-hidden ${width}`}>
           {highlightedText(modifiedText, highlightText)}
         </div>}

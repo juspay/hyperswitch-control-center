@@ -177,7 +177,7 @@ module PlatformInfoModal = {
             </ul>
           </div>
           <AlertV2Binding
-            \"type"=Primary
+            alertType=Primary
             slot={{
               slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
             }}

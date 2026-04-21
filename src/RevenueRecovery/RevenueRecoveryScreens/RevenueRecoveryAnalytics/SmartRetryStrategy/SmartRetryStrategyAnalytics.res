@@ -116,7 +116,6 @@ let make = (~entity: moduleEntity) => {
                         {"View Grouping"->React.string}
                       </div>}
                       toolTipPosition=ToolTip.Top
-                      newDesign=true
                     />
                   </div>
                   <div className="p-4">

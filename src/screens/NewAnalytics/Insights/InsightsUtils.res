@@ -158,11 +158,11 @@ let bargraphTooltipFormatter = (~title, ~metricType) => {
       let defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}}
       let primartPoint = this.points->getValueFromArray(0, defaultValue)
 
-      let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
+      let getRowsHtml = (~iconColor, ~date, ~value, ~comparisonComponent="") => {
         let valueString = valueFormatter(value, metricType)
         `<div style="display: flex; align-items: center;">
             <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
-            <div style="margin-left: 8px;">${date}${comparisionComponent}</div>
+            <div style="margin-left: 8px;">${date}${comparisonComponent}</div>
             <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
         </div>`
       }
@@ -228,7 +228,7 @@ let getRowsHtml = (
   ~date,
   ~name="",
   ~value,
-  ~comparisionComponent="",
+  ~comparisonComponent="",
   ~metricType,
   ~currency,
   ~suffix,
@@ -238,7 +238,7 @@ let getRowsHtml = (
   let key = showNameInTooltip ? name : date
   `<div style="display: flex; align-items: center;">
             <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
-            <div style="margin-left: 8px;">${key}${comparisionComponent}</div>
+            <div style="margin-left: 8px;">${key}${comparisonComponent}</div>
             <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
         </div>`
 }
@@ -305,7 +305,7 @@ let tooltipFormatter = (
           ~date=primartPoint.x,
           ~name=primartPoint.series.name,
           ~value=primartPoint.y,
-          ~comparisionComponent={
+          ~comparisonComponent={
             switch comparison {
             | Some(value) =>
               value == DateRangeUtils.EnableComparison
@@ -421,7 +421,7 @@ let getSampleDateRange = (~useSampleDates, ~sampleDateRange) => {
   let defaultDateRange: filterBody = getDateFilteredObject(~range=7)
   let dates = useSampleDates ? sampleDateRange : defaultDateRange
   let comparison = useSampleDates ? (EnableComparison :> string) : (DisableComparison :> string)
-  let (compareStart, compareEnd) = getComparisionTimePeriod(
+  let (compareStart, compareEnd) = getComparisonTimePeriod(
     ~startDate=dates.start_time,
     ~endDate=dates.end_time,
   )

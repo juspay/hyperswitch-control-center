@@ -73,12 +73,14 @@ let getStatusLabel = (entryStatus: entryStatus): Table.cell => {
   Table.Label({
     title: (entryStatus :> string)->String.toUpperCase,
     color: switch entryStatus {
-    | Posted => LabelGreen
+    | Posted
+    | Matched =>
+      LabelGreen
     | Mismatched => LabelRed
     | Expected => LabelBlue
     | Archived => LabelGray
     | Pending => LabelOrange
-    | _ => LabelLightGray
+    | Void | UnknownEntryStatus => LabelLightGray
     },
   })
 }

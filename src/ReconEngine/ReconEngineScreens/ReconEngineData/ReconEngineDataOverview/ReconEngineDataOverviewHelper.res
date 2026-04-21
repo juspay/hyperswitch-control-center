@@ -15,7 +15,7 @@ module SourceIngestionHeader = {
           textAlign=Table.Left
           labelMargin="!py-0"
         />
-      | _ =>
+      | Pending | Processing | Failed | Discarded | UnknownIngestionTransformationStatus =>
         <Table.TableCell
           cell={Label({
             title: "Attention Required",

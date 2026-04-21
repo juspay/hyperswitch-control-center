@@ -196,9 +196,9 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true, ~showBreadCrumbWarnin
     <DefaultLandingPage
       title="Oops, we hit a little bump on the road!"
       customStyle={`py-16 !m-0 `}
-      overriddingStylesTitle="text-2xl font-semibold"
+      overridingStylesTitle="text-2xl font-semibold"
       buttonText="Go back to processor"
-      overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
+      overridingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
       subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
       onClickHandler={_ => {
         RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
@@ -224,7 +224,6 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true, ~showBreadCrumbWarnin
                 },
           ]
           currentPageTitle={connector->getDisplayNameForConnector}
-          cursorStyle="cursor-pointer"
         />
       </RenderIf>
       <RenderIf condition={currentStep !== Preview && showStepIndicator}>
@@ -233,7 +232,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true, ~showBreadCrumbWarnin
       <RenderIf
         condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>
         <AlertV2Binding
-          \"type"=Warning
+          alertType=Warning
           slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
           description="This is a test connector and will not be reflected on your payment processor dashboard."
         />

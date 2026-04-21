@@ -86,7 +86,7 @@ let make = () => {
 
   let contactUsBanner =
     <AlertV2Binding
-      \"type"=Primary
+      alertType=Primary
       slot={{
         slot: <div className="flex items-center gap-2">
           <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />
@@ -120,7 +120,6 @@ let make = () => {
             <p className={`text-nd_gray-600 ${body.md.regular}`}> {orgId->React.string} </p>
             <ToolTip
               description="Copy Organization ID"
-              customStyle="!whitespace-nowrap"
               toolTipFor={<div className="cursor-pointer">
                 <HelperComponents.CopyTextCustomComp
                   customIconCss="text-nd_gray-500" displayValue=Some("") copyValue=Some(orgId)

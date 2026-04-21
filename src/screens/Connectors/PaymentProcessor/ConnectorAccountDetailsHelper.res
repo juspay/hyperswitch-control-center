@@ -270,6 +270,11 @@ module CashToCodeMethods = {
     })
     <Tabs
       tabs=tabList
+      disableIndicationArrow=true
+      showBorder=false
+      includeMargin=false
+      lightThemeColor="black"
+      defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
       onTitleClick={tabIndex => {
         setCashToCodeMthd(_ => tabs->LogicUtils.getValueFromArray(tabIndex, #Classic))
       }}
@@ -583,7 +588,7 @@ module ConnectorHeaderWrapper = {
         | _ => false
         }}>
         <AlertV2Binding
-          \"type"=Warning
+          alertType=Warning
           slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
           description="Disclaimer: Please ensure the payment currency matches the Braintree-configured currency for the given Merchant Account ID."
         />

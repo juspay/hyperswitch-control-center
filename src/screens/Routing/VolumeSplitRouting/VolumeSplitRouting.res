@@ -141,8 +141,7 @@ module VolumeRoutingView = {
                       text="Save Rule"
                       buttonSize=Button.Small
                       buttonType=Button.Secondary
-                      customSumbitButtonStyle="w-1/5 rounded-lg"
-                      tooltipWidthClass="w-48"
+                      customSubmitButtonStyle="w-1/5 rounded-lg"
                     />}
                     submitButton={<AdvancedRoutingUIUtils.SaveAndActivateButton
                       onSubmit handleActivateConfiguration

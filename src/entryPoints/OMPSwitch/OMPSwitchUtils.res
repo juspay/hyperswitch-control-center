@@ -73,15 +73,15 @@ let profileItemToObjMapper = dict => {
 }
 
 let org = {
-  lable: "Organization",
+  label: "Organization",
   entity: #Organization,
 }
 let merchant = {
-  lable: "Merchant",
+  label: "Merchant",
   entity: #Merchant,
 }
 let profile = {
-  lable: "Profile",
+  label: "Profile",
   entity: #Profile,
 }
 

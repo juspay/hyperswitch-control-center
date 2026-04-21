@@ -1,35 +1,24 @@
+open LogicUtils
 type accordion = Accordion.accordion
 type arrowPosition = Accordion.arrowPosition
 
-@react.component
-let make = (
-  ~accordion: array<accordion>,
-  ~arrowFillColor: string="#CED0DA",
-  ~accordionTopContainerCss: string="mt-5 rounded-lg",
-  ~accordionBottomContainerCss: string="p-4",
-  ~contentExpandCss="px-8 font-bold",
-  ~arrowPosition=Accordion.Left,
-  ~initialExpandedArray=[],
-  ~gapClass="",
-  ~titleStyle="font-bold text-lg text-jp-gray-700 dark:text-jp-gray-text_darktheme dark:text-opacity-50 hover:text-jp-gray-800 dark:hover:text-opacity-100",
-  ~accordionHeaderTextClass="",
-  ~expandedTitleStyle="",
-  ~singleOpen=false,
-  ~initialOpenIndex=-1,
-) => {
-  let isBlendEnabled = React.useContext(BlendContext.blendEnabledContext)
+module BlendAccordion = {
+  @react.component
+  let make = (
+    ~accordion: array<accordion>,
+    ~arrowPosition=Accordion.Left,
+    ~gapClass="",
+    ~singleOpen=false,
+    ~initialOpenIndex=-1,
+    ~initialExpandedArray=[],
+  ) => {
+    let initialOpen = if singleOpen {
+      initialOpenIndex >= 0 ? [initialOpenIndex->Int.toString] : []
+    } else {
+      initialExpandedArray->getNonEmptyArray->Option.mapOr([], arr => arr->Array.map(Int.toString))
+    }
+    let (openValues, setOpenValues) = React.useState(_ => initialOpen)
 
-  // Hoisted above conditional to satisfy React hook rules
-  let initialOpen = if initialExpandedArray->Array.length > 0 {
-    initialExpandedArray->Array.map(Int.toString)
-  } else if initialOpenIndex >= 0 {
-    [initialOpenIndex->Int.toString]
-  } else {
-    []
-  }
-  let (openValues, setOpenValues) = React.useState(_ => initialOpen)
-
-  if isBlendEnabled {
     let mapChevronPosition = pos =>
       switch pos {
       | Accordion.Left => AccordionBinding.Left
@@ -42,7 +31,7 @@ let make = (
         v->AccordionBinding.Value.toArray
       } else {
         let s = v->AccordionBinding.Value.toString
-        s->String.length === 0 ? [] : [s]
+        s->getNonEmptyString->Option.mapOr([], s => [s])
       }
     }
 
@@ -52,7 +41,7 @@ let make = (
       // Fire onItemExpandClick for newly opened items
       newValues->Array.forEach(v => {
         if !(openValues->Array.includes(v)) {
-          let idx = v->Int.fromString->Option.getOr(-1)
+          let idx = v->getIntFromString(-1)
           accordion
           ->Array.get(idx)
           ->Option.forEach(item => {
@@ -64,7 +53,7 @@ let make = (
       // Fire onItemCollapseClick for newly closed items
       openValues->Array.forEach(v => {
         if !(newValues->Array.includes(v)) {
-          let idx = v->Int.fromString->Option.getOr(-1)
+          let idx = v->getIntFromString(-1)
           accordion
           ->Array.get(idx)
           ->Option.forEach(item => {
@@ -81,9 +70,8 @@ let make = (
       setOpenValues(prev => prev->Array.filter(v => v !== i->Int.toString))
     }
 
-    // Blend expects string for single mode, array for multi mode
     let blendValue = if singleOpen {
-      openValues->Array.get(0)->Option.getOr("")->AccordionBinding.Value.fromString
+      openValues->getValueFromArray(0, "")->AccordionBinding.Value.fromString
     } else {
       openValues->AccordionBinding.Value.fromArray
     }
@@ -99,7 +87,6 @@ let make = (
       ->Array.mapWithIndex((item, i) => {
         let isOpen = openValues->Array.includes(i->Int.toString)
 
-        // Use renderContentOnTop as the Blend title element if present
         let titleElem = switch item.renderContentOnTop {
         | Some(fn) => fn()
         | None => React.string(item.title)
@@ -118,21 +105,49 @@ let make = (
       })
       ->React.array}
     </AccordionBinding>
-  } else {
-    <Accordion
-      accordion
-      arrowFillColor
-      accordionTopContainerCss
-      accordionBottomContainerCss
-      contentExpandCss
-      arrowPosition
-      initialExpandedArray
-      gapClass
-      titleStyle
-      accordionHeaderTextClass
-      expandedTitleStyle
-      singleOpen
-      initialOpenIndex
-    />
   }
+}
+
+@react.component
+let make = (
+  ~accordion: array<accordion>,
+  ~arrowFillColor: string="#CED0DA",
+  ~accordionTopContainerCss: string="mt-5 rounded-lg",
+  ~accordionBottomContainerCss: string="p-4",
+  ~contentExpandCss="px-8 font-bold",
+  ~arrowPosition=Accordion.Left,
+  ~initialExpandedArray=[],
+  ~gapClass="",
+  ~titleStyle="font-bold text-lg text-jp-gray-700 dark:text-jp-gray-text_darktheme dark:text-opacity-50 hover:text-jp-gray-800 dark:hover:text-opacity-100",
+  ~accordionHeaderTextClass="",
+  ~expandedTitleStyle="",
+  ~singleOpen=false,
+  ~initialOpenIndex=-1,
+) => {
+  let isBlendEnabled = BlendContext.useBlendEnabled()
+
+  <>
+    <RenderIf condition=isBlendEnabled>
+      <BlendAccordion
+        accordion arrowPosition gapClass singleOpen initialOpenIndex initialExpandedArray
+      />
+    </RenderIf>
+    <RenderIf condition={!isBlendEnabled}>
+      <Accordion
+        accordion
+        arrowFillColor
+        accordionTopContainerCss
+        accordionBottomContainerCss
+        contentExpandCss
+        arrowPosition
+        initialExpandedArray
+        gapClass
+        titleStyle
+        accordionHeaderTextClass
+        expandedTitleStyle
+        singleOpen
+        initialOpenIndex
+      />
+    </RenderIf>
+  </>
 }
