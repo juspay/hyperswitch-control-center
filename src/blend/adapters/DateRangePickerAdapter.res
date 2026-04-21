@@ -1,31 +1,31 @@
 open LogicUtils
-
+open DateRangePickerBinding
 let toBlendPreset = (
   day: DateRangeUtils.customDateRange,
   ~disableFutureDates: bool,
-): DateRangePickerBinding.PresetsConfig.t => {
+): PresetsConfig.t => {
   switch day {
   | Today =>
-    DateRangePickerBinding.PresetsConfig.fromPreset(DateRangePickerBinding.DateRangePreset.today)
+    PresetsConfig.fromPreset(DateRangePreset.today)
   | Yesterday =>
-    DateRangePickerBinding.PresetsConfig.fromPreset(
-      DateRangePickerBinding.DateRangePreset.yesterday,
+    PresetsConfig.fromPreset(
+      DateRangePreset.yesterday,
     )
   | Tomorrow =>
-    DateRangePickerBinding.PresetsConfig.fromPreset(DateRangePickerBinding.DateRangePreset.tomorrow)
+    PresetsConfig.fromPreset(DateRangePreset.tomorrow)
   | ThisMonth =>
-    DateRangePickerBinding.PresetsConfig.fromPreset(
-      DateRangePickerBinding.DateRangePreset.thisMonth,
+    PresetsConfig.fromPreset(
+      DateRangePreset.thisMonth,
     )
   | LastMonth =>
-    DateRangePickerBinding.PresetsConfig.fromPreset(
-      DateRangePickerBinding.DateRangePreset.lastMonth,
+    PresetsConfig.fromPreset(
+      DateRangePreset.lastMonth,
     )
   | LastSixMonths => {
       let now = Js.Date.make()
       let sixMonthsAgo = Js.Date.make()
       let _ = Js.Date.setMonth(sixMonthsAgo, Js.Date.getMonth(sixMonthsAgo) -. 6.0)
-      DateRangePickerBinding.PresetsConfig.fromCustom({
+      PresetsConfig.fromCustom({
         label: "Last 6 Months",
         startDate: sixMonthsAgo,
         endDate: now,
@@ -45,7 +45,7 @@ let toBlendPreset = (
         ~date=0.0,
         (),
       )
-      DateRangePickerBinding.PresetsConfig.fromCustom({
+      PresetsConfig.fromCustom({
         label: "Next Month",
         startDate: firstOfNextMonth,
         endDate: lastOfNextMonth,
@@ -54,17 +54,17 @@ let toBlendPreset = (
   | Hour(x) =>
     if disableFutureDates {
       if x === 0.5 {
-        DateRangePickerBinding.PresetsConfig.fromPreset(
-          DateRangePickerBinding.DateRangePreset.last30Minutes,
+        PresetsConfig.fromPreset(
+          DateRangePreset.last30Minutes,
         )
       } else if x === 1.0 {
-        DateRangePickerBinding.PresetsConfig.fromPreset(
-          DateRangePickerBinding.DateRangePreset.last1Hour,
+        PresetsConfig.fromPreset(
+          DateRangePreset.last1Hour,
         )
       } else {
         let now = Js.Date.make()
         let hoursAgo = Js.Date.fromFloat(Js.Date.getTime(now) -. x *. 3600.0 *. 1000.0)
-        DateRangePickerBinding.PresetsConfig.fromCustom({
+        PresetsConfig.fromCustom({
           label: `Last ${x->Float.toString->removeTrailingZero} Hours`,
           startDate: hoursAgo,
           endDate: now,
@@ -73,7 +73,7 @@ let toBlendPreset = (
     } else {
       let now = Js.Date.make()
       let hoursFromNow = Js.Date.fromFloat(Js.Date.getTime(now) +. x *. 3600.0 *. 1000.0)
-      DateRangePickerBinding.PresetsConfig.fromCustom({
+      PresetsConfig.fromCustom({
         label: `Next ${x->Float.toString->removeTrailingZero} Hours`,
         startDate: now,
         endDate: hoursFromNow,
@@ -81,17 +81,17 @@ let toBlendPreset = (
     }
   | Day(x) =>
     if x === 7.0 {
-      DateRangePickerBinding.PresetsConfig.fromPreset(
-        DateRangePickerBinding.DateRangePreset.last7Days,
+      PresetsConfig.fromPreset(
+        DateRangePreset.last7Days,
       )
     } else if x === 30.0 {
-      DateRangePickerBinding.PresetsConfig.fromPreset(
-        DateRangePickerBinding.DateRangePreset.last30Days,
+      PresetsConfig.fromPreset(
+        DateRangePreset.last30Days,
       )
     } else {
       let now = Js.Date.make()
       let daysAgo = Js.Date.fromFloat(Js.Date.getTime(now) -. x *. 86400.0 *. 1000.0)
-      DateRangePickerBinding.PresetsConfig.fromCustom({
+      PresetsConfig.fromCustom({
         label: `Last ${x->Float.toString->removeTrailingZero} Days`,
         startDate: daysAgo,
         endDate: now,
@@ -123,13 +123,13 @@ module BlendDateRangePicker = {
           {
             startDate: start->Js.Date.fromString,
             endDate: end->Js.Date.fromString,
-          }: DateRangePickerBinding.dateRange
+          }: dateRange
         ),
       )
     | _ => None
     }
 
-    let handleChange = React.useCallback((range: DateRangePickerBinding.dateRange) => {
+    let handleChange = React.useCallback((range: dateRange) => {
       startInput.onChange(range.startDate->Js.Date.toISOString->Identity.stringToFormReactEvent)
       endInput.onChange(range.endDate->Js.Date.toISOString->Identity.stringToFormReactEvent)
     }, [startInput.onChange, endInput.onChange])
