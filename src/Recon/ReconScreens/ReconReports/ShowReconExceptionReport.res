@@ -242,7 +242,7 @@ let make = (~showOnBoarding, ~id) => {
               tooltipForWidthClass="w-full"
               text="Done"
               buttonType={Primary}
-              customSumbitButtonStyle="!w-full mt-4"
+              customSubmitButtonStyle="!w-full mt-4"
             />
           </FormRenderer.DesktopRow>
         </Form>
