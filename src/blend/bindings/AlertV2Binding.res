@@ -24,7 +24,6 @@ type alertV2Actions = {
 
 type alertV2CloseButton = {show: bool}
 
-<<<<<<< HEAD
 module BaseAlertV2 = {
   @module("@juspay/blend-design-system") @react.component
   external make: (
