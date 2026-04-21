@@ -5,22 +5,11 @@ let toBlendPreset = (
   ~disableFutureDates: bool,
 ): PresetsConfig.t => {
   switch day {
-  | Today =>
-    PresetsConfig.fromPreset(DateRangePreset.today)
-  | Yesterday =>
-    PresetsConfig.fromPreset(
-      DateRangePreset.yesterday,
-    )
-  | Tomorrow =>
-    PresetsConfig.fromPreset(DateRangePreset.tomorrow)
-  | ThisMonth =>
-    PresetsConfig.fromPreset(
-      DateRangePreset.thisMonth,
-    )
-  | LastMonth =>
-    PresetsConfig.fromPreset(
-      DateRangePreset.lastMonth,
-    )
+  | Today => PresetsConfig.fromPreset(DateRangePreset.today)
+  | Yesterday => PresetsConfig.fromPreset(DateRangePreset.yesterday)
+  | Tomorrow => PresetsConfig.fromPreset(DateRangePreset.tomorrow)
+  | ThisMonth => PresetsConfig.fromPreset(DateRangePreset.thisMonth)
+  | LastMonth => PresetsConfig.fromPreset(DateRangePreset.lastMonth)
   | LastSixMonths => {
       let now = Js.Date.make()
       let sixMonthsAgo = Js.Date.make()
@@ -54,13 +43,9 @@ let toBlendPreset = (
   | Hour(x) =>
     if disableFutureDates {
       if x === 0.5 {
-        PresetsConfig.fromPreset(
-          DateRangePreset.last30Minutes,
-        )
+        PresetsConfig.fromPreset(DateRangePreset.last30Minutes)
       } else if x === 1.0 {
-        PresetsConfig.fromPreset(
-          DateRangePreset.last1Hour,
-        )
+        PresetsConfig.fromPreset(DateRangePreset.last1Hour)
       } else {
         let now = Js.Date.make()
         let hoursAgo = Js.Date.fromFloat(Js.Date.getTime(now) -. x *. 3600.0 *. 1000.0)
@@ -81,13 +66,9 @@ let toBlendPreset = (
     }
   | Day(x) =>
     if x === 7.0 {
-      PresetsConfig.fromPreset(
-        DateRangePreset.last7Days,
-      )
+      PresetsConfig.fromPreset(DateRangePreset.last7Days)
     } else if x === 30.0 {
-      PresetsConfig.fromPreset(
-        DateRangePreset.last30Days,
-      )
+      PresetsConfig.fromPreset(DateRangePreset.last30Days)
     } else {
       let now = Js.Date.make()
       let daysAgo = Js.Date.fromFloat(Js.Date.getTime(now) -. x *. 86400.0 *. 1000.0)
