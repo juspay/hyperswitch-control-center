@@ -1,21 +1,22 @@
 open LogicUtils
 open DateRangePickerBinding
 open DateRangePreset
+open PresetsConfig
 let toBlendPreset = (
   day: DateRangeUtils.customDateRange,
   ~disableFutureDates: bool,
 ): PresetsConfig.t => {
   switch day {
-  | Today => PresetsConfig.fromPreset(today)
-  | Yesterday => PresetsConfig.fromPreset(yesterday)
-  | Tomorrow => PresetsConfig.fromPreset(tomorrow)
-  | ThisMonth => PresetsConfig.fromPreset(thisMonth)
-  | LastMonth => PresetsConfig.fromPreset(lastMonth)
+  | Today => fromPreset(today)
+  | Yesterday => fromPreset(yesterday)
+  | Tomorrow => fromPreset(tomorrow)
+  | ThisMonth => fromPreset(thisMonth)
+  | LastMonth => fromPreset(lastMonth)
   | LastSixMonths => {
       let now = Js.Date.make()
       let sixMonthsAgo = Js.Date.make()
       let _ = Js.Date.setMonth(sixMonthsAgo, Js.Date.getMonth(sixMonthsAgo) -. 6.0)
-      PresetsConfig.fromCustom({
+      fromCustom({
         label: "Last 6 Months",
         startDate: sixMonthsAgo,
         endDate: now,
@@ -35,7 +36,7 @@ let toBlendPreset = (
         ~date=0.0,
         (),
       )
-      PresetsConfig.fromCustom({
+      fromCustom({
         label: "Next Month",
         startDate: firstOfNextMonth,
         endDate: lastOfNextMonth,
@@ -44,13 +45,13 @@ let toBlendPreset = (
   | Hour(x) =>
     if disableFutureDates {
       if x === 0.5 {
-        PresetsConfig.fromPreset(last30Minutes)
+        fromPreset(last30Minutes)
       } else if x === 1.0 {
-        PresetsConfig.fromPreset(last1Hour)
+        fromPreset(last1Hour)
       } else {
         let now = Js.Date.make()
         let hoursAgo = Js.Date.fromFloat(Js.Date.getTime(now) -. x *. 3600.0 *. 1000.0)
-        PresetsConfig.fromCustom({
+        fromCustom({
           label: `Last ${x->Float.toString->removeTrailingZero} Hours`,
           startDate: hoursAgo,
           endDate: now,
@@ -59,7 +60,7 @@ let toBlendPreset = (
     } else {
       let now = Js.Date.make()
       let hoursFromNow = Js.Date.fromFloat(Js.Date.getTime(now) +. x *. 3600.0 *. 1000.0)
-      PresetsConfig.fromCustom({
+      fromCustom({
         label: `Next ${x->Float.toString->removeTrailingZero} Hours`,
         startDate: now,
         endDate: hoursFromNow,
@@ -67,13 +68,13 @@ let toBlendPreset = (
     }
   | Day(x) =>
     if x === 7.0 {
-      PresetsConfig.fromPreset(last7Days)
+      fromPreset(last7Days)
     } else if x === 30.0 {
-      PresetsConfig.fromPreset(last30Days)
+      fromPreset(last30Days)
     } else {
       let now = Js.Date.make()
       let daysAgo = Js.Date.fromFloat(Js.Date.getTime(now) -. x *. 86400.0 *. 1000.0)
-      PresetsConfig.fromCustom({
+      fromCustom({
         label: `Last ${x->Float.toString->removeTrailingZero} Days`,
         startDate: daysAgo,
         endDate: now,
