@@ -126,6 +126,15 @@ let make = (
     None
   }, [selectedValues])
 
+  // Clear pending timer on unmount to avoid calling onChange on an unmounted component
+  React.useEffect0(() => {
+    Some(
+      () => {
+        timerRef.current->Option.forEach(Js.Global.clearTimeout)
+      },
+    )
+  })
+
   <MultiSelectBindings
     selectedValues
     onChange=handleChange
