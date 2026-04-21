@@ -197,10 +197,13 @@ module ConnectorSummaryGrid = {
       <div className="grid grid-cols-4 border-b md:px-10 py-8">
         <h4 className="text-lg font-semibold"> {"Integration status"->React.string} </h4>
         <AddDataAttributes attributes=[("data-testid", "connector_status"->String.toLowerCase)]>
-          <div
-            className={`text-black font-semibold text-sm ${connectorInfo.status->ConnectorInterfaceTableEntity.connectorStatusStyle}`}>
-            {connectorInfo.status->String.toUpperCase->React.string}
-          </div>
+          <TagBinding
+            text={connectorInfo.status->String.toUpperCase}
+            color={connectorInfo.status->ConnectorInterfaceTableEntity.connectorStatusColor}
+            variant=Subtle
+            shape=Squarical
+            size=Xs
+          />
         </AddDataAttributes>
       </div>
       <div className="grid grid-cols-4 border-b md:px-10 py-8">
