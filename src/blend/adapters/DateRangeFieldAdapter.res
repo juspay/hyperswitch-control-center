@@ -21,8 +21,8 @@ module BlendDateRangeField = {
       Some(
         (
           {
-            startDate: start->Js.Date.fromString,
-            endDate: end->Js.Date.fromString,
+            startDate: start->Date.fromString,
+            endDate: end->Date.fromString,
           }: DateRangePickerBinding.dateRange
         ),
       )
@@ -30,8 +30,8 @@ module BlendDateRangeField = {
     }
 
     let handleChange = React.useCallback((range: DateRangePickerBinding.dateRange) => {
-      startInput.onChange(range.startDate->Js.Date.toISOString->Identity.stringToFormReactEvent)
-      endInput.onChange(range.endDate->Js.Date.toISOString->Identity.stringToFormReactEvent)
+      startInput.onChange(range.startDate->Date.toISOString->Identity.stringToFormReactEvent)
+      endInput.onChange(range.endDate->Date.toISOString->Identity.stringToFormReactEvent)
     }, [startInput.onChange, endInput.onChange])
 
     let customPresets =

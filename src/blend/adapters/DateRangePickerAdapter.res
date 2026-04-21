@@ -2,6 +2,7 @@ open LogicUtils
 open DateRangePickerBinding
 open DateRangePreset
 open PresetsConfig
+
 let toBlendPreset = (
   day: DateRangeUtils.customDateRange,
   ~disableFutureDates: bool,
@@ -13,9 +14,9 @@ let toBlendPreset = (
   | ThisMonth => fromPreset(thisMonth)
   | LastMonth => fromPreset(lastMonth)
   | LastSixMonths => {
-      let now = Js.Date.make()
-      let sixMonthsAgo = Js.Date.make()
-      let _ = Js.Date.setMonth(sixMonthsAgo, Js.Date.getMonth(sixMonthsAgo) -. 6.0)
+      let now = Date.make()
+      let sixMonthsAgo = Date.make()
+      Date.setMonth(sixMonthsAgo, Date.getMonth(sixMonthsAgo) - 6)
       fromCustom({
         label: "Last 6 Months",
         startDate: sixMonthsAgo,
@@ -23,18 +24,16 @@ let toBlendPreset = (
       })
     }
   | NextMonth => {
-      let now = Js.Date.make()
-      let firstOfNextMonth = Js.Date.makeWithYMD(
-        ~year=Js.Date.getFullYear(now),
-        ~month=Js.Date.getMonth(now) +. 1.0,
-        ~date=1.0,
-        (),
+      let now = Date.make()
+      let firstOfNextMonth = Date.makeWithYMD(
+        ~year=Date.getFullYear(now),
+        ~month=Date.getMonth(now) + 1,
+        ~date=1,
       )
-      let lastOfNextMonth = Js.Date.makeWithYMD(
-        ~year=Js.Date.getFullYear(now),
-        ~month=Js.Date.getMonth(now) +. 2.0,
-        ~date=0.0,
-        (),
+      let lastOfNextMonth = Date.makeWithYMD(
+        ~year=Date.getFullYear(now),
+        ~month=Date.getMonth(now) + 2,
+        ~date=0,
       )
       fromCustom({
         label: "Next Month",
@@ -49,8 +48,8 @@ let toBlendPreset = (
       } else if x === 1.0 {
         fromPreset(last1Hour)
       } else {
-        let now = Js.Date.make()
-        let hoursAgo = Js.Date.fromFloat(Js.Date.getTime(now) -. x *. 3600.0 *. 1000.0)
+        let now = Date.make()
+        let hoursAgo = Date.fromTime(Date.getTime(now) -. x *. 3600.0 *. 1000.0)
         fromCustom({
           label: `Last ${x->Float.toString->removeTrailingZero} Hours`,
           startDate: hoursAgo,
@@ -58,8 +57,8 @@ let toBlendPreset = (
         })
       }
     } else {
-      let now = Js.Date.make()
-      let hoursFromNow = Js.Date.fromFloat(Js.Date.getTime(now) +. x *. 3600.0 *. 1000.0)
+      let now = Date.make()
+      let hoursFromNow = Date.fromTime(Date.getTime(now) +. x *. 3600.0 *. 1000.0)
       fromCustom({
         label: `Next ${x->Float.toString->removeTrailingZero} Hours`,
         startDate: now,
@@ -72,8 +71,8 @@ let toBlendPreset = (
     } else if x === 30.0 {
       fromPreset(last30Days)
     } else {
-      let now = Js.Date.make()
-      let daysAgo = Js.Date.fromFloat(Js.Date.getTime(now) -. x *. 86400.0 *. 1000.0)
+      let now = Date.make()
+      let daysAgo = Date.fromTime(Date.getTime(now) -. x *. 86400.0 *. 1000.0)
       fromCustom({
         label: `Last ${x->Float.toString->removeTrailingZero} Days`,
         startDate: daysAgo,
@@ -104,8 +103,8 @@ module BlendDateRangePicker = {
       Some(
         (
           {
-            startDate: start->Js.Date.fromString,
-            endDate: end->Js.Date.fromString,
+            startDate: start->Date.fromString,
+            endDate: end->Date.fromString,
           }: dateRange
         ),
       )
@@ -113,8 +112,8 @@ module BlendDateRangePicker = {
     }
 
     let handleChange = React.useCallback((range: dateRange) => {
-      startInput.onChange(range.startDate->Js.Date.toISOString->Identity.stringToFormReactEvent)
-      endInput.onChange(range.endDate->Js.Date.toISOString->Identity.stringToFormReactEvent)
+      startInput.onChange(range.startDate->Date.toISOString->Identity.stringToFormReactEvent)
+      endInput.onChange(range.endDate->Date.toISOString->Identity.stringToFormReactEvent)
     }, [startInput.onChange, endInput.onChange])
 
     let customPresets = predefinedDays->Array.map(day => toBlendPreset(day, ~disableFutureDates))
