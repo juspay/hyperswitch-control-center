@@ -1,6 +1,6 @@
 open LogicUtils
 
-module BlendView = {
+module BlendDateRangeField = {
   @react.component
   let make = (
     ~startKey: string,
@@ -83,7 +83,7 @@ let make = (
 
   <>
     <RenderIf condition={isBlendEnabled}>
-      <BlendView
+      <BlendDateRangeField
         startKey endKey showTime disable disablePastDates disableFutureDates predefinedDays
       />
     </RenderIf>

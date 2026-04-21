@@ -100,7 +100,7 @@ let toBlendPreset = (
   }
 }
 
-module BlendView = {
+module BlendDateRangePicker = {
   @react.component
   let make = (
     ~startKey: string,
@@ -179,7 +179,7 @@ let make = (
 
   <>
     <RenderIf condition={isBlendEnabled}>
-      <BlendView
+      <BlendDateRangePicker
         startKey endKey showTime disable disablePastDates disableFutureDates predefinedDays
       />
     </RenderIf>
