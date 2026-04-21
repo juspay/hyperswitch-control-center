@@ -129,7 +129,10 @@ let make = (
   React.useEffect0(() => {
     Some(
       () => {
-        timerRef.current->Option.forEach(Js.Global.clearTimeout)
+        switch timerRef.current {
+          | Some(id) => Js.Global.clearTimeout(id)
+          | None => ()
+          }
       },
     )
   })
