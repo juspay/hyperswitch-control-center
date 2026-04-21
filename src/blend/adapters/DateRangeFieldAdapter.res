@@ -1,5 +1,49 @@
 open LogicUtils
 
+module BlendView = {
+  @react.component
+  let make = (
+    ~startKey: string,
+    ~endKey: string,
+    ~showTime: bool,
+    ~disable: bool,
+    ~disablePastDates: bool,
+    ~disableFutureDates: bool,
+    ~predefinedDays: array<DateRangeUtils.customDateRange>,
+  ) => {
+    let startInput = ReactFinalForm.useField(startKey).input
+    let endInput = ReactFinalForm.useField(endKey).input
+    let blendValue = switch (
+      startInput.value->JSON.Decode.string->Option.flatMap(getNonEmptyString),
+      endInput.value->JSON.Decode.string->Option.flatMap(getNonEmptyString),
+    ) {
+    | (Some(start), Some(end)) =>
+      Some(({startDate: start->Js.Date.fromString, endDate: end->Js.Date.fromString}: DateRangePickerBinding.dateRange))
+    | _ => None
+    }
+
+    let handleChange = React.useCallback((range: DateRangePickerBinding.dateRange) => {
+      startInput.onChange(range.startDate->Js.Date.toISOString->Identity.stringToFormReactEvent)
+      endInput.onChange(range.endDate->Js.Date.toISOString->Identity.stringToFormReactEvent)
+    }, [startInput.onChange, endInput.onChange])
+
+    let customPresets =
+      predefinedDays->Array.map(day =>
+        DateRangePickerAdapter.toBlendPreset(day, ~disableFutureDates)
+      )
+
+    <DateRangePickerBinding
+      value=?blendValue
+      onChange=handleChange
+      showDateTimePicker=showTime
+      isDisabled=disable
+      disableFutureDates
+      disablePastDates
+      customPresets
+    />
+  }
+}
+
 @react.component
 let make = (
   ~startKey: string,
@@ -30,70 +74,40 @@ let make = (
 ) => {
   let isBlendEnabled = BlendContext.useBlendEnabled()
 
-  // Hoist hooks above conditional to satisfy React rules
-  let startInput = ReactFinalForm.useField(startKey).input
-  let endInput = ReactFinalForm.useField(endKey).input
-  let (startDateVal, setStartDateVal) = DateRangePickerAdapter.useStateForInput(startInput)
-  let (endDateVal, setEndDateVal) = DateRangePickerAdapter.useStateForInput(endInput)
-
-  if isBlendEnabled {
-    let blendValue: option<DateRangePickerBinding.dateRange> = if (
-      startDateVal->isNonEmptyString && endDateVal->isNonEmptyString
-    ) {
-      Some({
-        startDate: Js.Date.fromString(startDateVal),
-        endDate: Js.Date.fromString(endDateVal),
-      })
-    } else {
-      None
-    }
-
-    let handleChange = (range: DateRangePickerBinding.dateRange) => {
-      setStartDateVal(_ => Js.Date.toISOString(range.startDate))
-      setEndDateVal(_ => Js.Date.toISOString(range.endDate))
-    }
-
-    let customPresets =
-      predefinedDays->Array.map(day =>
-        DateRangePickerAdapter.toBlendPreset(day, ~disableFutureDates)
-      )
-
-    <DateRangePickerBinding
-      value=?blendValue
-      onChange=handleChange
-      showDateTimePicker=showTime
-      isDisabled=disable
-      disableFutureDates
-      disablePastDates
-      customPresets
-    />
-  } else {
-    <DateRangeField
-      startKey
-      endKey
-      showTime
-      disable
-      disablePastDates
-      disableFutureDates
-      predefinedDays
-      format
-      numMonths
-      disableApply
-      removeFilterOption
-      ?dateRangeLimit
-      ?optFieldKey
-      textHideInMobileView
-      showSeconds
-      hideDate
-      ?allowedDateRange
-      selectStandardTime
-      buttonText
-      ?textStyle
-      standardTimeToday
-      removeConversion
-      isTooltipVisible
-      ?events
-      customButtonStyle
-    />
-  }
+  <>
+    <RenderIf condition={isBlendEnabled}>
+      <BlendView
+        startKey endKey showTime disable disablePastDates disableFutureDates predefinedDays
+      />
+    </RenderIf>
+    <RenderIf condition={!isBlendEnabled}>
+      <DateRangeField
+        startKey
+        endKey
+        showTime
+        disable
+        disablePastDates
+        disableFutureDates
+        predefinedDays
+        format
+        numMonths
+        disableApply
+        removeFilterOption
+        ?dateRangeLimit
+        ?optFieldKey
+        textHideInMobileView
+        showSeconds
+        hideDate
+        ?allowedDateRange
+        selectStandardTime
+        buttonText
+        ?textStyle
+        standardTimeToday
+        removeConversion
+        isTooltipVisible
+        ?events
+        customButtonStyle
+      />
+    </RenderIf>
+  </>
 }

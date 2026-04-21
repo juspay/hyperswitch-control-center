@@ -1,16 +1,5 @@
 open LogicUtils
 
-let useStateForInput = (input: ReactFinalForm.fieldRenderPropsInput) => {
-  React.useMemo(() => {
-    let val = input.value->JSON.Decode.string->Option.getOr("")
-    let onChange = fn => {
-      let newVal = fn(val)
-      input.onChange(newVal->Identity.stringToFormReactEvent)
-    }
-    (val, onChange)
-  }, [input])
-}
-
 let toBlendPreset = (
   day: DateRangeUtils.customDateRange,
   ~disableFutureDates: bool,
@@ -76,7 +65,7 @@ let toBlendPreset = (
         let now = Js.Date.make()
         let hoursAgo = Js.Date.fromFloat(Js.Date.getTime(now) -. x *. 3600.0 *. 1000.0)
         DateRangePickerBinding.PresetsConfig.fromCustom({
-          label: `Last ${Float.toString(x)} Hours`,
+          label: `Last ${x->Float.toString->removeTrailingZero} Hours`,
           startDate: hoursAgo,
           endDate: now,
         })
@@ -85,7 +74,7 @@ let toBlendPreset = (
       let now = Js.Date.make()
       let hoursFromNow = Js.Date.fromFloat(Js.Date.getTime(now) +. x *. 3600.0 *. 1000.0)
       DateRangePickerBinding.PresetsConfig.fromCustom({
-        label: `Next ${Float.toString(x)} Hours`,
+        label: `Next ${x->Float.toString->removeTrailingZero} Hours`,
         startDate: now,
         endDate: hoursFromNow,
       })
@@ -103,11 +92,52 @@ let toBlendPreset = (
       let now = Js.Date.make()
       let daysAgo = Js.Date.fromFloat(Js.Date.getTime(now) -. x *. 86400.0 *. 1000.0)
       DateRangePickerBinding.PresetsConfig.fromCustom({
-        label: `Last ${Float.toString(x)} Days`,
+        label: `Last ${x->Float.toString->removeTrailingZero} Days`,
         startDate: daysAgo,
         endDate: now,
       })
     }
+  }
+}
+
+module BlendView = {
+  @react.component
+  let make = (
+    ~startKey: string,
+    ~endKey: string,
+    ~showTime: bool,
+    ~disable: bool,
+    ~disablePastDates: bool,
+    ~disableFutureDates: bool,
+    ~predefinedDays: array<DateRangeUtils.customDateRange>,
+  ) => {
+    let startInput = ReactFinalForm.useField(startKey).input
+    let endInput = ReactFinalForm.useField(endKey).input
+    let blendValue = switch (
+      startInput.value->JSON.Decode.string->Option.flatMap(getNonEmptyString),
+      endInput.value->JSON.Decode.string->Option.flatMap(getNonEmptyString),
+    ) {
+    | (Some(start), Some(end)) =>
+      Some(({startDate: start->Js.Date.fromString, endDate: end->Js.Date.fromString}: DateRangePickerBinding.dateRange))
+    | _ => None
+    }
+
+    let handleChange = React.useCallback((range: DateRangePickerBinding.dateRange) => {
+      startInput.onChange(range.startDate->Js.Date.toISOString->Identity.stringToFormReactEvent)
+      endInput.onChange(range.endDate->Js.Date.toISOString->Identity.stringToFormReactEvent)
+    }, [startInput.onChange, endInput.onChange])
+
+    let customPresets = predefinedDays->Array.map(day => toBlendPreset(day, ~disableFutureDates))
+
+    <DateRangePickerBinding
+      value=?blendValue
+      onChange=handleChange
+      showDateTimePicker=showTime
+      isDisabled=disable
+      disableFutureDates
+      disablePastDates
+      customPresets
+    />
   }
 }
 
@@ -140,66 +170,39 @@ let make = (
 ) => {
   let isBlendEnabled = BlendContext.useBlendEnabled()
 
-  // Hoist hooks above conditional to satisfy React rules
-  let startInput = ReactFinalForm.useField(startKey).input
-  let endInput = ReactFinalForm.useField(endKey).input
-  let (startDateVal, setStartDateVal) = useStateForInput(startInput)
-  let (endDateVal, setEndDateVal) = useStateForInput(endInput)
-
-  if isBlendEnabled {
-    let blendValue: option<DateRangePickerBinding.dateRange> = if (
-      startDateVal->isNonEmptyString && endDateVal->isNonEmptyString
-    ) {
-      Some({
-        startDate: Js.Date.fromString(startDateVal),
-        endDate: Js.Date.fromString(endDateVal),
-      })
-    } else {
-      None
-    }
-
-    let handleChange = (range: DateRangePickerBinding.dateRange) => {
-      setStartDateVal(_ => Js.Date.toISOString(range.startDate))
-      setEndDateVal(_ => Js.Date.toISOString(range.endDate))
-    }
-
-    let customPresets = predefinedDays->Array.map(day => toBlendPreset(day, ~disableFutureDates))
-
-    <DateRangePickerBinding
-      value=?blendValue
-      onChange=handleChange
-      showDateTimePicker=showTime
-      isDisabled=disable
-      disableFutureDates
-      disablePastDates
-      customPresets
-    />
-  } else {
-    <DateRangePicker
-      startKey
-      endKey
-      showTime
-      disable
-      disablePastDates
-      disableFutureDates
-      predefinedDays
-      format
-      numMonths
-      disableApply
-      removeFilterOption
-      ?dateRangeLimit
-      ?optFieldKey
-      textHideInMobileView
-      showSeconds
-      hideDate
-      ?allowedDateRange
-      selectStandardTime
-      ?customButtonStyle
-      buttonText
-      ?textStyle
-      standardTimeToday
-      removeConversion
-      isTooltipVisible
-    />
-  }
+  <>
+    <RenderIf condition={isBlendEnabled}>
+      <BlendView
+        startKey endKey showTime disable disablePastDates disableFutureDates predefinedDays
+      />
+    </RenderIf>
+    <RenderIf condition={!isBlendEnabled}>
+      <DateRangePicker
+        startKey
+        endKey
+        showTime
+        disable
+        disablePastDates
+        disableFutureDates
+        predefinedDays
+        format
+        numMonths
+        disableApply
+        removeFilterOption
+        ?dateRangeLimit
+        ?optFieldKey
+        textHideInMobileView
+        showSeconds
+        hideDate
+        ?allowedDateRange
+        selectStandardTime
+        ?customButtonStyle
+        buttonText
+        ?textStyle
+        standardTimeToday
+        removeConversion
+        isTooltipVisible
+      />
+    </RenderIf>
+  </>
 }
