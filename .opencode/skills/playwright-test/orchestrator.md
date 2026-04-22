@@ -76,7 +76,7 @@ When editing any files in this workflow, you **MUST** use surgical edits (`edit`
 
 ### Execute
 
-1. Extract raw user message, PR numbers, PR code diff, PR comments, PR description, module names, or scenario descriptions.
+1. Extract detailed raw user message, PR numbers, PR code diff, PR comments, PR description, module names, or scenario descriptions.
 2. Detect mode by keywords:
    - `full`: "generate tests", "create test", "test PR #N", "run playwright tests"
    - `heal-only`: "fix failing tests", "fix tests", "heal tests", "repair tests"
@@ -154,8 +154,8 @@ When editing any files in this workflow, you **MUST** use surgical edits (`edit`
    - **If UP:**
      - Stop process: `kill -TERM $(lsof -ti:9000) 2>/dev/null; sleep 3; kill -9 $(lsof -ti:9000) 2>/dev/null`
    - **Start frontend:**
-     - Run build: `npm run build:test`
-     - Start server in background: `npm run test:start`
+     - Run build: `npm run re:start`
+     - Start server in background: `npm run start`
      - Capture PID: `FRONTEND_PID=$!`
      - Poll every 5s, max 240s for `curl -s http://localhost:9000 > /dev/null` to return 0
      - Set `frontendWasStarted = true` and store `frontendPid: $FRONTEND_PID`
@@ -217,18 +217,20 @@ const plannerResult = await task({
     1. Read .opencode/skills/playwright-tests/SKILL.md for conventions and API helpers.
     2. Read .opencode/skills/playwright-tests/_planner.md for your specific instructions.
     3. Read .opencode/sessions/playwright-run/input-context.json for the test target.
-    4. Use browser tools to explore the application:
+    4. Use browser tools to explore the application: Refer for navigation NAVIGATION_REFERENCE.md
        - browser_navigate to http://localhost:9000/dashboard/login (or appropriate URL)
+       - create new user with signup_with_merchantid API and login and skip 2FA (Use test+{randomstring}@example.com for email and "Password123!" for password)
        - browser_snapshot to analyze page structure
        - Identify all interactive elements, forms, buttons, navigation
     5. Create .opencode/sessions/playwright-run/test-plan.json with detailed scenarios
     
     **Execute the planning workflow:**
     1. Read relevant source code, existing tests in playwright-tests/e2e/ for patterns
-    2. Use browser tools to explore the application
+    2. Use browser tools to explore the application. Refer for navigation NAVIGATION_REFERENCE.md
     3. Determine preconditions using module mapping from SKILL.md
     4. Create test-plan.json with scenarios
 
+    **Prepare TODO list from _planner.md and follow it strictly**
     **Refer Test Plan Structure in _planner.md**
     
     **Coverage Requirements:**
@@ -298,17 +300,19 @@ const generatorResult = await task({
     2. Read .opencode/skills/playwright-tests/_generator.md for your specific instructions.
     3. Read: .opencode/sessions/playwright-run/test-plan.json
     4. Read existing Page Object Models in playwright-tests/support/pages/ 
-    5. Use browser tools to verify selectors from the test plan actually exist:
+    5. Use browser tools to verify selectors from the test plan actually exist: (Refer for navigation NAVIGATION_REFERENCE.md)
        - browser_navigate to target page
        - browser_snapshot to verify selectors
     6. Generate test file: playwright-tests/ai-generated/{filename}.spec.ts
+    7. Create new user with signup_with_merchantid API and login and skip 2FA (Use test+{randomstring}@example.com for email and "Password123!" for password)
 
     **File Naming:**
     - PR: PR-{number}-{slug}.spec.ts
     - Module: module-{name}.spec.ts
     - Scenario: scenario-{slug}.spec.ts
 
-     **Refer Test File Structure in _generator.md**
+    **Prepare TODO list from _generator.md and follow it strictly**
+    **Refer Test File Structure in _generator.md**
 
     Execute the generation workflow:
     1. Check existing relevant tests in playwright-tests/e2e/ and related Page Objects in playwright-tests/support/pages/
@@ -378,18 +382,21 @@ const healerResult = await task({
     1. Read .opencode/skills/playwright-tests/SKILL.md for conventions, selector strategy, and API helpers.
     2. Read .opencode/skills/playwright-tests/_generator.md for your specific instructions.
 
+    **Prepare TODO list from _planner.md and follow it strictly**
+
     Execute the healing workflow:
     1. Run: npx playwright test playwright-tests/ai-generated/*.spec.ts --reporter=json
     2. Read run-results.json
     3. Segregate bugs by type (selector, timing, data, network, feature flag)
-    4. Use browser tools to diagnose and fix failing tests
+    4. Use browser tools to diagnose and fix failing tests (Refer for navigation NAVIGATION_REFERENCE.md)
        - Use browser_navigate to go to the test page
        - Use browser_console_messages to check for JS errors
        - Use browser_snapshot to inspect the DOM at failure point
        - Reproduce the failure steps manually
        - Identify the root cause (selector, timing, data, etc.)
-    5. Repeat up to 3 times or until all tests pass
-    6. Generate bug-report.md if failures remain
+    5. Create new user with signup_with_merchantid API and login and skip 2FA (Use test+{randomstring}@example.com for email and "Password123!" for password)
+    6. Repeat up to 3 times or until all tests pass
+    7. Generate bug-report.md if failures remain
 
     **Common Fixes:**
     - Add waits: await page.locator("...").waitFor({ state: "visible" })
