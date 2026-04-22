@@ -28,7 +28,9 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   let showToast = ToastState.useShowToast()
   let {updateExistingKeys, filterValueJson, filterKeys, setfilterKeys} =
     FilterContext.filterContext->React.useContext
-  let (aggregateResponse, setAggregateResponse) = React.useState(_ => Dict.make()->JSON.Encode.object)
+  let (aggregateResponse, setAggregateResponse) = React.useState(_ =>
+    Dict.make()->JSON.Encode.object
+  )
   let (activeView: TransactionViewTypes.viewTypes, setActiveView) = React.useState(_ =>
     TransactionViewTypes.All
   )

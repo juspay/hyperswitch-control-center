@@ -55,7 +55,10 @@ let make = (~previewOnly=false) => {
   let getOrdersList = async filterValueJson => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let res = await fetchOrdersWithStrategy(~payload=filterValueJson->JSON.Encode.object, ~version)
+      let res = await fetchOrdersWithStrategy(
+        ~payload=filterValueJson->JSON.Encode.object,
+        ~version,
+      )
       let data = res.data
       let total = res.total_count
 
@@ -71,7 +74,10 @@ let make = (~previewOnly=false) => {
           let newPaymentId = paymentId->String.replaceRegExp(%re("/_[0-9]$/g"), "")
           filterValueJson->Dict.set("payment_id", newPaymentId->JSON.Encode.string)
 
-          let res = await fetchOrdersWithStrategy(~payload=filterValueJson->JSON.Encode.object, ~version)
+          let res = await fetchOrdersWithStrategy(
+            ~payload=filterValueJson->JSON.Encode.object,
+            ~version,
+          )
           let data = res.data
           let total = res.total_count
 
