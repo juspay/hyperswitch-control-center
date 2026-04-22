@@ -1,0 +1,28 @@
+# Hyperswitch Control Center
+
+> Open-source payments dashboard for the Hyperswitch payments switch by Juspay.
+
+## Documentation
+
+- [Agent Onboarding](AGENTS.md): Primary entry point for all AI coding agents
+- [Claude Code Guide](CLAUDE.md): Claude Code-specific instructions and ReScript quick reference
+- [README](README.md): Project overview and getting started
+- [Changelog](CHANGELOG.md): Version history
+
+## Source Entry Points
+
+- [entryPoints/](src/entryPoints/): Application routing and auth entry
+- [screens/](src/screens/): Page-level screen modules
+- [components/](src/components/): Shared UI components
+- [APIUtils/](src/APIUtils/): API communication layer
+- [Recoils/](src/Recoils/): Global state atoms
+
+## Agent Context
+
+- [Memory Bank](memory-bank/): Architecture, patterns, and active context
+- [Audit](AUDIT.md): Existing AI scaffolding inventory
+- [AI Contributing Guide](docs/ai-contributing.md): Maintainer guide for AI scaffolding
+
+## Optional
+
+- [docs/](docs/): Additional documentation

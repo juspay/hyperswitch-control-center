@@ -1,0 +1,49 @@
+---
+description: Payments domain glossary and context for Hyperswitch Control Center. Apply when working on payments, routing, or connector code.
+alwaysApply: false
+---
+
+# Payments Domain
+
+## Glossary
+
+| Term | Definition |
+|------|-----------|
+| **connector** | A payment processor integration (e.g., Stripe connector, Adyen connector) |
+| **processor / PSP** | Payment Service Provider — the underlying payment company (Stripe, Adyen, Braintree, Checkout.com, etc.) |
+| **MIT** | Merchant-Initiated Transaction — charge triggered by the merchant without customer present |
+| **CIT** | Customer-Initiated Transaction — charge triggered by a customer action in real time |
+| **3DS / 3D Secure** | Authentication protocol adding a second layer of identity verification for card payments |
+| **FRM** | Fraud & Risk Management — rules and models to detect and block fraudulent transactions |
+| **payout** | Disbursement flow — sending money to a recipient (vendor, contractor, user) |
+| **recon** | Reconciliation — matching payment records across systems to detect discrepancies |
+| **routing rule** | Logic that selects which connector to use for a given payment (volume-based, rule-based) |
+| **surcharge** | Extra fee added on top of a payment amount |
+| **dispute** | A chargeback challenge initiated by a merchant contesting a reversal |
+| **chargeback** | Forced reversal of a payment, initiated by the cardholder through their bank |
+| **acquirer** | Bank that processes card payments on behalf of the merchant |
+| **issuer** | Bank that issued the customer's payment card |
+| **BIN / IIN** | Bank Identification Number / Issuer Identification Number — first 6–8 digits of a card number |
+| **tokenization** | Replacing sensitive card data with a non-sensitive token for storage/reuse |
+| **PCI-DSS** | Payment Card Industry Data Security Standard — compliance requirements for handling card data |
+| **webhook** | HTTP callback from the payment processor to notify of payment events asynchronously |
+| **idempotency key** | Unique key sent with an API request to ensure it is not processed more than once |
+| **payment intent** | A record representing the customer's intent to pay; tracks the payment lifecycle |
+| **payment attempt** | A single try to complete a payment intent (may retry on failure) |
+| **mandate** | Authorization to charge a customer repeatedly (subscriptions, recurring payments) |
+| **EMI** | Equated Monthly Instalment — splitting a payment into fixed monthly amounts |
+| **UPI** | Unified Payments Interface — Indian real-time payment system |
+| **NEFT / IMPS / RTGS** | Indian bank transfer methods (National Electronic Funds Transfer, Immediate Payment Service, Real-Time Gross Settlement) |
+
+## Canonical Reference
+For authoritative definitions see: https://hyperswitch.io/docs
+
+## Module Locations
+| Domain area | Source path |
+|-------------|-------------|
+| Routing rules | `src/IntelligentRouting/` |
+| Reconciliation | `src/Recon/`, `src/ReconEngine/` |
+| FRM | Feature-flagged; search `frm` in `src/screens/` |
+| Payouts | Feature-flagged; search `payout` in `src/screens/` |
+| Analytics | `src/Hypersense/`, analytics screens |
+| Connectors | `src/screens/` connector management screens |

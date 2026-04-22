@@ -1,0 +1,51 @@
+---
+description: ReScript coding rules for Hyperswitch Control Center. Always apply when editing .res or .resi files.
+alwaysApply: true
+---
+
+# ReScript Rules
+
+## Module & Naming Conventions
+- **PascalCase** for module files: `PaymentList.res`, `APIUtils.res`
+- **camelCase** for values and functions: `let fetchPayments`, `let handleSubmit`
+- Every significant `.res` module should have a `.resi` interface file
+
+## React Components
+- Always use `@react.component` decorator on component `let make`
+- JSX v4 classic mode — use `React.string`, `React.int`, `React.null`
+- Props are labeled arguments: `(~title: string, ~onClose: unit => unit)`
+
+```rescript
+@react.component
+let make = (~title: string, ~onClose: unit => unit) => {
+  <div className="flex flex-col gap-4">
+    <p> {title->React.string} </p>
+    <button onClick={_ => onClose()}> {"Close"->React.string} </button>
+  </div>
+}
+```
+
+## Pattern Matching
+- Must be **exhaustive** — the compiler enforces this
+- Never use a catch-all `_` when variants can be listed explicitly
+
+## Standard Library
+- `RescriptCore` is **globally opened** via `-open RescriptCore` in `bsc-flags`
+- Use `Array.map`, `Option.getOr`, `Dict.get`, `String.startsWith` directly
+- **Never** add `open RescriptCore` inside a module — it is redundant
+- Belt is available but prefer RescriptCore for new code
+
+## Types
+- Use records over JS object literals wherever possible
+- Variant types for domain states (not string constants)
+- Prefer explicit type annotations at module boundaries
+
+## JS Interop
+- JS nullable → `Js.Nullable.toOption`
+- Module bindings: `@module("pkg") @val external name: type = "export"`
+- `%raw` is an escape hatch — use only at JS interop boundaries, never for business logic
+
+## Prohibited
+- No TypeScript (`.ts`/`.tsx`) in `src/`
+- No JS object literals where records work
+- No editing `.res.js` compiled output directly

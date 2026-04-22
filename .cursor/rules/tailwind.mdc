@@ -1,0 +1,38 @@
+---
+description: Tailwind CSS rules for Hyperswitch Control Center. Apply when editing component styles.
+alwaysApply: false
+---
+
+# Tailwind CSS Rules
+
+## Configuration Files
+- `tailwind.config.js` — main application styles and theme
+- `tailwindHyperSwitch.config.js` — HyperSwitch-specific overrides
+
+## Class Ordering
+Always order Tailwind utility classes in this sequence:
+```
+layout → sizing → spacing → colors → typography → effects
+```
+
+Example:
+```
+"flex flex-col w-full max-w-lg p-4 bg-white text-gray-900 text-sm rounded shadow"
+ ^^^^^ ^^^^^^^^ ^^^^^^ ^^^^^^ ^^^^ ^^^^^^^^ ^^^^^^^^^^^ ^^^^^^ ^^^^^^^^^^^^ ^^^^^^
+ layout  layout  sizing spacing colors typography  typo    shape  effects
+```
+
+## Rules
+- **No inline styles** — use Tailwind utility classes only
+- **No custom CSS files** for component-specific styles
+- **No additional CSS frameworks** (e.g., Bootstrap, Material UI CSS)
+- Use `className` prop in ReScript JSX: `<div className="flex items-center">`
+- For conditional classes, build the string in ReScript using `if`/`switch`
+
+## Dark Mode
+- Use `dark:` prefix for dark mode variants
+- Ensure both light and dark variants are provided for color classes
+
+## Responsive Design
+- Mobile-first: base classes apply to smallest breakpoint
+- Use `sm:`, `md:`, `lg:`, `xl:` prefixes for larger breakpoints

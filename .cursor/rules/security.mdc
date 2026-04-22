@@ -1,0 +1,33 @@
+---
+description: Security guardrails for Hyperswitch Control Center. Always apply to prevent accidental exposure of secrets or auth regressions.
+alwaysApply: true
+---
+
+# Security Rules
+
+## Hard Prohibitions — NEVER DO
+- **Commit secrets or API keys** — no tokens, passwords, or credentials in any file
+- **Modify processor credential handling** — any file that handles `apiKey`, `secret`, or `credential`
+- **Bypass live-mode toggles** — the `is_live_mode` and `test_live_toggle` flags guard production access
+- **Modify `aws/` scripts** without explicit instruction — these affect production infrastructure
+- **Change `config/config.toml` defaults** — defaults ship to production; use env var overrides instead
+- **Create unsigned commits** — GPG signing is required for all commits
+
+## High-Risk Paths
+| Path | Risk |
+|------|------|
+| `src/entryPoints/` | Auth routing and session bootstrap — any change can break login/logout flows |
+| `src/Recoils/` | Global state atoms — changes propagate to every screen reading those atoms |
+| Any file with `apiKey`, `secret`, `credential` | Processor credentials — never log or expose |
+| `config/config.toml` | Feature flag defaults — unintended flag flips affect all users |
+| `aws/` | Deployment and infrastructure scripts |
+
+## Before Touching High-Risk Paths
+1. Re-read the task to confirm it requires touching these paths
+2. State the exact change and why it is necessary
+3. Ensure no credentials will be logged or exposed
+4. Verify auth flows still work after any `entryPoints/` change
+
+## Reporting
+If you encounter a potential security issue while working on a task, stop and report it
+before proceeding. Do not attempt to silently fix security issues as part of an unrelated task.

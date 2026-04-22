@@ -1,0 +1,42 @@
+---
+description: Feature flag rules for Hyperswitch Control Center. Apply when working with feature flags or config.toml.
+alwaysApply: false
+---
+
+# Feature Flag Rules
+
+## Where Flags Are Defined
+- `config/config.toml` under `[default.features]`
+- Flags are boolean values with defaults shipped to production
+
+## Key Feature Flags
+```toml
+[default.features]
+generate_report     = false   # CSV/report generation
+mixpanel            = false   # Analytics/tracking
+feedback            = false   # User feedback widget
+test_processors     = true    # Test payment processors
+recon               = false   # Reconciliation module
+payout              = true    # Disbursement flows
+frm                 = true    # Fraud & Risk Management
+sample_data         = false   # Demo/sample data mode
+audit_trail         = true    # Audit log visibility
+test_live_toggle    = false   # Toggle between test/live mode
+is_live_mode        = false   # Live vs sandbox mode
+email               = false   # Email notification features
+surcharge           = true    # Surcharge on payments
+branding            = false   # White-label branding
+totp                = true    # TOTP 2FA
+threeds_authenticator = true  # 3DS authentication
+```
+
+## How Flags Are Consumed
+- Flags are exposed at runtime via `window.__env__` through the JS interop layer
+- Components read flags through the feature flag Recoil atom or React context in `src/`
+- Do **not** import or read `config.toml` directly from ReScript components
+
+## Rules
+- **Never flip defaults** in `config/config.toml` — use environment variable overrides for local dev
+- To enable a flag locally: set env var `default__features__<flag_name>=true`
+- For production flag changes: update deployment config, not `config.toml` defaults
+- New flags must be added to `config.toml` and the feature flag type/context in `src/`
