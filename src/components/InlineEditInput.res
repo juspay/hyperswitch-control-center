@@ -32,9 +32,6 @@ module HoverInline = {
               toolTipPosition
               enableTooltipDelay=true
               tooltipDelay=800
-              flexClass="flex-1"
-              justifyClass=""
-              customStyle="!px-2 !py-1 !rounded-md"
             />
           </RenderIf>
           <RenderIf condition={!showTooltipOnHover}>

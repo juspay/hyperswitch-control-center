@@ -52,7 +52,7 @@ jobs:
         with:
           install: false
           build: npm run build:test
-          start: npm run test:start
+          start: npm run start:test
           # spec: cypress/e2e/1-auth/auth.cy.js
 
       - name: Artifact - Coverage Report

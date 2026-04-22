@@ -3,6 +3,47 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.04.22.0
+
+### Features
+
+- Migrate status labels to Blend Tag component ([#4428](https://github.com/juspay/hyperswitch-control-center/pull/4428)) ([`ce44f77`](https://github.com/juspay/hyperswitch-control-center/commit/ce44f77e378adbb480ee0726d56421a3e88d6b0e))
+- Migrate ToolTip to Blend Design System ([#4520](https://github.com/juspay/hyperswitch-control-center/pull/4520)) ([`296c7e9`](https://github.com/juspay/hyperswitch-control-center/commit/296c7e9b28604be2c15d38547c539db71cd1539f))
+- Migrate DateRangePicker and DateRangeField to Blend Design System ([#4504](https://github.com/juspay/hyperswitch-control-center/pull/4504)) ([`79e870a`](https://github.com/juspay/hyperswitch-control-center/commit/79e870a3c009e49d0f62e7f18d13c8405fe78812))
+
+**Full Changelog:** [`2026.04.20.0...2026.04.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.20.0...2026.04.22.0)
+
+- - -
+
+## 2026.04.20.0
+
+### Bug Fixes
+
+- Hide not known connectors from lists ([#4726](https://github.com/juspay/hyperswitch-control-center/pull/4726)) ([`dce6356`](https://github.com/juspay/hyperswitch-control-center/commit/dce635603fd4840897a3303c61ad5badda28932c))
+
+**Full Changelog:** [`2026.04.16.0...2026.04.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.16.0...2026.04.20.0)
+
+- - -
+
+## 2026.04.16.0
+
+### Features
+
+- Stripe - googlepay and applepay predecrtyped token support ([#4675](https://github.com/juspay/hyperswitch-control-center/pull/4675)) ([`cd4df96`](https://github.com/juspay/hyperswitch-control-center/commit/cd4df9677be50dda9ee05600105672457bf11255))
+
+### Bug Fixes
+
+- Recon engine append `match_force` when `match_manual` filter is applied ([#4718](https://github.com/juspay/hyperswitch-control-center/pull/4718)) ([`556f80c`](https://github.com/juspay/hyperswitch-control-center/commit/556f80c9b33ce188ea5d2b43d0f01887ab0b37c8))
+
+### Miscellaneous Tasks
+
+- Update support email from hyperswitch@juspay.in to support.glo… ([#4710](https://github.com/juspay/hyperswitch-control-center/pull/4710)) ([`4380457`](https://github.com/juspay/hyperswitch-control-center/commit/4380457bda5a790692f6c8d45f6e8991c176c97f))
+- Add recon permission group mappings ([#4712](https://github.com/juspay/hyperswitch-control-center/pull/4712)) ([`66733ef`](https://github.com/juspay/hyperswitch-control-center/commit/66733efbd7a5f985559ca287f2c69dfd722de3e9))
+
+**Full Changelog:** [`2026.04.15.0...2026.04.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.15.0...2026.04.16.0)
+
+- - -
+
 ## 2026.04.15.0
 
 ### Features
