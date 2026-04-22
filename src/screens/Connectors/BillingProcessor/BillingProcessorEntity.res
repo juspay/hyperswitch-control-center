@@ -1,5 +1,4 @@
 open ConnectorTypes
-open Typography
 
 type colType =
   | Name
@@ -22,8 +21,8 @@ let getHeading = colType => {
     Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector Id")
   }
 }
-let connectorStatusStyle = connectorStatus =>
-  connectorStatus->String.toLowerCase == "active" ? "text-green-700" : "text-grey-800 opacity-50"
+let connectorStatusColor = connectorStatus =>
+  connectorStatus->String.toLowerCase == "active" ? TagBinding.Success : TagBinding.Neutral
 
 let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
   switch colType {
@@ -42,9 +41,13 @@ let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
     })
   | Status =>
     Table.CustomCell(
-      <div className={`${body.xs.semibold} ${connector.status->connectorStatusStyle}`}>
-        {connector.status->String.toUpperCase->React.string}
-      </div>,
+      <TagBinding
+        text={connector.status->String.toUpperCase}
+        color={connector.status->connectorStatusColor}
+        variant=Subtle
+        shape=Squarical
+        size=Xs
+      />,
       "",
     )
   | ConnectorLabel => Text(connector.connector_label)

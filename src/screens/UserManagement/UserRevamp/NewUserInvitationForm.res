@@ -185,7 +185,6 @@ let make = () => {
           loadingText="Loading..."
           buttonSize={Small}
           customSubmitButtonStyle="w-full !h-12"
-          tooltipForWidthClass="w-full"
         />
       </div>
     </div>

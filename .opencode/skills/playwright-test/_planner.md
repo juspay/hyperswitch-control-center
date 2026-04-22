@@ -17,11 +17,11 @@ mode: subagent
 
 Analyze the input and create a comprehensive test plan with QA-grade coverage.
 
-**CRITICAL: You MUST use browser tools to explore the actual application. DO NOT guess selectors or page structure.**
+**CRITICAL: You MUST use browser tools to explore the actual application. DO NOT guess selectors or page structure. Refer for navigation NAVIGATION_REFERENCE.md**
 
 ## CRITICAL: Browser Tool Usage Required
 
-You have access to Playwright MCP browser tools. You MUST use them to explore the application. Create test user with `signup_with_merchant_id` API, login, skip 2FA, and navigate to the target module/feature.
+You have access to Playwright MCP browser tools. You MUST use them to explore the application. Create test user with `signup_with_merchant_id` API, login, skip 2FA, and navigate to the target module/feature. Refer for navigation NAVIGATION_REFERENCE.md
 
 ### Required Browser Tools:
 
@@ -127,6 +127,7 @@ Use module dependency mapping from SKILL.md:
 
 ### 3.4: Explore Application (Browser Tools REQUIRED)
 
+Refer for navigation NAVIGATION_REFERENCE.md
 Use authentication flow from SKILL.md to log in (Create test user with `signup_with_merchant_id` API, login, skip 2FA, and navigate to the target module/feature), then:
 
 - Navigate to login page
@@ -252,7 +253,7 @@ Before returning to orchestrator:
 - [ ] Scenarios cover all coverage requirements
 - [ ] Feature flags identified if module is FF-gated
 - [ ] test-plan.json is valid JSON
-- [ ] Browser tools were used to explore the page
+- [ ] Browser tools were used to explore the page Refer for navigation NAVIGATION_REFERENCE.md
 - [ ] Preconditions are deterministic
 
 ---
@@ -281,7 +282,7 @@ Report:
 
 ```
 Planning complete. {N} scenarios created.
-- Page explored using browser tools
+- Page explored using browser tools Refer for navigation NAVIGATION_REFERENCE.md
 - Preconditions determined from: [tests analyzed]
 - API helpers: [list]
 - Target module: {module} with prerequisites: [list]
