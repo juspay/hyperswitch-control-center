@@ -565,7 +565,7 @@ let make = (
 
   let sNoArr = Dict.get(columnFilter, "s_no")->Option.getOr([])
   // filtering for SNO
-  let nullableRows = filteredData->Array.mapWithIndex((nullableItem, index) => {
+  let nullableRows = React.useMemo(() => filteredData->Array.mapWithIndex((nullableItem, index) => {
     let actualRows = switch nullableItem->Nullable.toOption {
     | Some(item) => {
         let visibleCell =
@@ -633,7 +633,7 @@ let make = (
     }
 
     actualRows
-  })
+  }), (filteredData, visibleColumns, columnFilter, showSerialNumber, checkBoxProps.selectedData))
 
   let rows = if allowNullableRows {
     nullableRows

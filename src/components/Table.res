@@ -1,5 +1,6 @@
 include TableUtils
 module TableFilterRow = {
+  @react.memo
   @react.component
   let make = (
     ~item: array<filterRow>,
@@ -53,6 +54,7 @@ module TableFilterRow = {
 }
 
 module TableRow = {
+  @react.memo
   @react.component
   let make = (
     ~title,
@@ -328,6 +330,7 @@ module SortAction = {
 }
 
 module TableHeadingCell = {
+  @react.memo
   @react.component
   let make = (
     ~item,
