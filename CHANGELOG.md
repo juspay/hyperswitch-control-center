@@ -3,6 +3,28 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.04.22.0
+
+### Features
+
+- Migrate status labels to Blend Tag component ([#4428](https://github.com/juspay/hyperswitch-control-center/pull/4428)) ([`ce44f77`](https://github.com/juspay/hyperswitch-control-center/commit/ce44f77e378adbb480ee0726d56421a3e88d6b0e))
+- Migrate ToolTip to Blend Design System ([#4520](https://github.com/juspay/hyperswitch-control-center/pull/4520)) ([`296c7e9`](https://github.com/juspay/hyperswitch-control-center/commit/296c7e9b28604be2c15d38547c539db71cd1539f))
+- Migrate DateRangePicker and DateRangeField to Blend Design System ([#4504](https://github.com/juspay/hyperswitch-control-center/pull/4504)) ([`79e870a`](https://github.com/juspay/hyperswitch-control-center/commit/79e870a3c009e49d0f62e7f18d13c8405fe78812))
+
+**Full Changelog:** [`2026.04.20.0...2026.04.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.20.0...2026.04.22.0)
+
+- - -
+
+## 2026.04.20.0
+
+### Bug Fixes
+
+- Hide not known connectors from lists ([#4726](https://github.com/juspay/hyperswitch-control-center/pull/4726)) ([`dce6356`](https://github.com/juspay/hyperswitch-control-center/commit/dce635603fd4840897a3303c61ad5badda28932c))
+
+**Full Changelog:** [`2026.04.16.0...2026.04.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.16.0...2026.04.20.0)
+
+- - -
+
 ## 2026.04.16.0
 
 ### Features
