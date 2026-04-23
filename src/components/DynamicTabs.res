@@ -220,7 +220,7 @@ let make = (
   ~defaultTabs: option<array<tab>>=?,
   ~enableDescriptionHeader: bool=false,
   ~toolTipDescription="Add more tabs",
-  ~updateCollapsableTabs=false,
+  ~updateCollapsibleTabs=false,
   ~showAddMoreTabs=true,
 ) => {
   open LogicUtils
@@ -234,7 +234,7 @@ let make = (
   let tabOuterClass = `gap-1.5`
   let bottomBorderClass = ""
 
-  let outerAllignmentClass = ""
+  let outerAlignmentClass = ""
 
   let availableTabUserPrefKey = `dynamicTab_available_tab_${tabId}`
   let updateTabNameWith = switch updateUrlDict {
@@ -259,17 +259,17 @@ let make = (
 
   let (selectedIndex, setSelectedIndex) = React.useState(_ => 0)
 
-  let (initialIndex, updatedCollapsableTabs) = React.useMemo(() => {
-    let defautTabValues = defaultTabs->Array.map(item => item.value)
+  let (initialIndex, updatedCollapsibleTabs) = React.useMemo(() => {
+    let defaultTabValues = defaultTabs->Array.map(item => item.value)
     let collapsibleTabs = switch getConfig(availableTabUserPrefKey) {
     | Some(jsonVal) => {
         let tabsFromPreference =
           jsonVal
           ->getStrArrayFromJson
-          ->Array.filter(item => !(defautTabValues->Array.includes(item)))
+          ->Array.filter(item => !(defaultTabValues->Array.includes(item)))
 
         let tabsFromPreference =
-          Array.concat(defautTabValues, tabsFromPreference)->Array.map(item =>
+          Array.concat(defaultTabValues, tabsFromPreference)->Array.map(item =>
             item->String.split(",")
           )
 
@@ -280,10 +280,10 @@ let make = (
             ->Array.filter(item => !(tabs->Array.map(item => item.value)->Array.includes(item)))
             ->Array.length === 0
 
-          let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
+          let concatenatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
           if validated && tabName->Array.length <= maxSelection && tabName->Array.length > 0 {
             let newTab = {
-              title: concatinatedTabNames,
+              title: concatenatedTabNames,
               value: tabName->Array.joinWith(","),
               description: switch tabs->Array.find(
                 item => {
@@ -325,16 +325,16 @@ let make = (
       ->Array.filter(item => !(tabs->Array.map(item => item.value)->Array.includes(item)))
       ->Array.length === 0
 
-    let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
+    let concatenatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
 
     if validated && tabName->Array.length <= maxSelection && tabName->Array.length > 0 {
-      let concatinatedTabIndex =
-        collapsibleTabs->Array.map(item => item.title)->Array.indexOf(concatinatedTabNames)
+      let concatenatedTabIndex =
+        collapsibleTabs->Array.map(item => item.title)->Array.indexOf(concatenatedTabNames)
 
-      if concatinatedTabIndex === -1 {
+      if concatenatedTabIndex === -1 {
         let newTab = [
           {
-            title: concatinatedTabNames,
+            title: concatenatedTabNames,
             value: tabName->Array.joinWith(","),
             isRemovable: true,
           },
@@ -345,15 +345,15 @@ let make = (
 
         (Array.length(collapsibleTabs), updatedColllapsableTab)
       } else {
-        (concatinatedTabIndex, collapsibleTabs)
+        (concatenatedTabIndex, collapsibleTabs)
       }
     } else {
       setSelectedIndex(_ => 0)
       (0, collapsibleTabs)
     }
-  }, [updateCollapsableTabs])
+  }, [updateCollapsibleTabs])
 
-  let (collapsibleTabs, setCollapsibleTabs) = React.useState(_ => updatedCollapsableTabs)
+  let (collapsibleTabs, setCollapsibleTabs) = React.useState(_ => updatedCollapsibleTabs)
   let (formattedOptions, setFormattedOptions) = React.useState(_ => [])
 
   React.useEffect(_ => {
@@ -362,9 +362,9 @@ let make = (
   }, [initialIndex])
 
   React.useEffect(_ => {
-    setCollapsibleTabs(_ => updatedCollapsableTabs)
+    setCollapsibleTabs(_ => updatedCollapsibleTabs)
     None
-  }, [updatedCollapsableTabs])
+  }, [updatedCollapsibleTabs])
 
   // this will update the current available tabs to the userpreference
   React.useEffect(() => {
@@ -380,8 +380,8 @@ let make = (
     None
   }, [collapsibleTabs])
   let (tabStacksnames, setTabStacksnames) = React.useState(_ => [
-    getValueFromArrayTab(updatedCollapsableTabs, 0),
-    getValueFromArrayTab(updatedCollapsableTabs, initialIndex),
+    getValueFromArrayTab(updatedCollapsibleTabs, 0),
+    getValueFromArrayTab(updatedCollapsibleTabs, initialIndex),
   ])
 
   let (isLeftArrowVisible, setIsLeftArrowVisible) = React.useState(() => false)
@@ -457,11 +457,11 @@ let make = (
           isRemovable: true,
         },
       ]
-      let updatedCollapsableTabs = Array.concat(collapsibleTabs, newTab)
+      let updatedCollapsibleTabs = Array.concat(collapsibleTabs, newTab)
 
-      setCollapsibleTabs(_ => updatedCollapsableTabs)
+      setCollapsibleTabs(_ => updatedCollapsibleTabs)
       setTabDetails(_ => Array.concat(tabsDetails, newTab))
-      setSelectedIndex(_ => Array.length(updatedCollapsableTabs) - 1)
+      setSelectedIndex(_ => Array.length(updatedCollapsibleTabs) - 1)
       setTabStacksnames(prev => Array.concat(prev, [getValueFromArrayTab(newTab, 0)]))
       updateTabNameWith(Dict.fromArray([("tabName", `[${getValueFromArrayTab(newTab, 0)}]`)]))
       setActiveTab(getValueFromArrayTab(newTab, 0))
@@ -492,13 +492,7 @@ let make = (
             value: x.value,
             icon: CustomRightIcon(
               description->LogicUtils.isNonEmptyString
-                ? <ToolTip
-                    customStyle="-mr-1.5"
-                    arrowCustomStyle={isMobileView ? "" : "ml-1.5"}
-                    description
-                    toolTipPosition={ToolTip.BottomLeft}
-                    justifyClass="ml-2 h-auto mb-0.5"
-                  />
+                ? <ToolTip description toolTipPosition={ToolTip.BottomLeft} />
                 : React.null,
             ),
           }
@@ -521,7 +515,7 @@ let make = (
           />
         </RenderIf>
         <div
-          className={`overflow-x-auto no-scrollbar overflow-y-hidden ${outerAllignmentClass}`}
+          className={`overflow-x-auto no-scrollbar overflow-y-hidden ${outerAlignmentClass}`}
           ref={scrollRef->ReactDOM.Ref.domRef}
           onScroll>
           <div className="flex flex-row">
@@ -588,7 +582,6 @@ let make = (
                   onClick={_ => setShowModal(_ => true)}
                 />}
                 toolTipPosition=Top
-                tooltipWidthClass="w-fit"
               />
             </div>
           </RenderIf>

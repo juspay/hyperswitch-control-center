@@ -80,8 +80,6 @@ module PredefinedOption = {
     }
     let dateRangeDropdownVal = datetext(value, disableFutureDates)
     <ToolTip
-      tooltipWidthClass="w-fit"
-      tooltipForWidthClass="!block w-full"
       description={isTooltipVisible ? `${startDate} - ${endDate}` : ""}
       toolTipFor={<AddDataAttributes
         attributes=[("data-daterange-dropdown-value", dateRangeDropdownVal)]>
@@ -94,7 +92,6 @@ module PredefinedOption = {
         </div>
       </AddDataAttributes>}
       toolTipPosition=Right
-      contentAlign=Left
     />
   }
 }
@@ -621,7 +618,7 @@ module Base = {
                 ~startDate=compareWithStartTime,
                 ~endDate=compareWithEndTime,
               ) + 1}
-              calendarContaierStyle="md:mx-3 md:my-1 border-0 md:border"
+              calendarContainerStyle="md:mx-3 md:my-1 border-0 md:border"
               ?allowedDateRange
             />
             <div
@@ -744,7 +741,7 @@ let make = (
       compareWithStartTime->LogicUtils.isNonEmptyString &&
         compareWithEndTime->LogicUtils.isNonEmptyString
     ) {
-      let (startTime, endTime) = DateRangeUtils.getComparisionTimePeriod(
+      let (startTime, endTime) = DateRangeUtils.getComparisonTimePeriod(
         ~startDate=compareWithStartTime,
         ~endDate=compareWithEndTime,
       )

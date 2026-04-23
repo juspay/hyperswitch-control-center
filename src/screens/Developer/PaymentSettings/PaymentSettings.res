@@ -8,7 +8,7 @@ module InfoViewForWebhooks = {
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
     }
 
-    <div className={`flex flex-col gap-2 m-2 md:m-4 w-1/2`}>
+    <div className={`flex flex-col gap-2 mx-1 my-4 w-1/2`}>
       <p className="font-semibold text-fs-15"> {heading->React.string} </p>
       <div className="flex gap-2 break-all w-full items-start">
         <p className="font-medium text-fs-14 text-black opacity-50"> {subHeading->React.string} </p>
@@ -268,7 +268,7 @@ module WebHookSection = {
 
     <ReactFinalForm.Form
       key="auth"
-      initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+      initialValues={businessProfileDetails->parseBusinessProfileJson->JSON.Encode.object}
       subscription=ReactFinalForm.subscribeToValues
       onSubmit
       render={({handleSubmit}) => {
@@ -281,7 +281,7 @@ module WebHookSection = {
                   text="Update"
                   buttonType=Button.Primary
                   buttonSize=Button.Medium
-                  disabledParamter={!allowEdit}
+                  disabledParameter={!allowEdit}
                 />
                 <Button
                   buttonType=Button.Secondary
@@ -433,7 +433,7 @@ module PaymentLinkDomain = {
 
     <ReactFinalForm.Form
       key="payment_link_domain"
-      initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+      initialValues={businessProfileDetails->parseBusinessProfileJson->JSON.Encode.object}
       subscription=ReactFinalForm.subscribeToValues
       onSubmit
       validate={values =>
@@ -448,7 +448,7 @@ module PaymentLinkDomain = {
                   text="Update"
                   buttonType=Button.Primary
                   buttonSize=Button.Medium
-                  disabledParamter={!allowEdit}
+                  disabledParameter={!allowEdit}
                 />
                 <Button
                   buttonType=Button.Secondary
@@ -904,7 +904,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false) => {
               : "border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass} `}>
           <ReactFinalForm.Form
             key="merchantAccount"
-            initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+            initialValues={businessProfileDetails->parseBusinessProfileJson->JSON.Encode.object}
             subscription=ReactFinalForm.subscribeToValues
             validate={values => {
               validateMerchantAccountForm(
