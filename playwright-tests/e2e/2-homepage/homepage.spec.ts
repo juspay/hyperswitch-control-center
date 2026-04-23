@@ -80,6 +80,14 @@ test.describe("Homepage", () => {
     await expect(page).toHaveURL(/.*developer-api-keys/);
   });
 
+  test("should render a Visit button for developer resources that is enabled", async ({
+    page,
+  }) => {
+    const visit = page.getByRole("button", { name: "Visit" }).first();
+    await expect(visit).toBeVisible();
+    await expect(visit).toBeEnabled();
+  });
+
   test("should make a payment using SDK", async ({ page, context }) => {
     const homePage = new HomePage(page);
 
