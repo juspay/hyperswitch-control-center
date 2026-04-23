@@ -39,10 +39,10 @@ let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledTypeC
   paymentMethods
 }
 
-let connectorStatusStyle = connectorStatus =>
+let connectorStatusColor = connectorStatus =>
   switch connectorStatus->String.toLowerCase {
-  | "active" => "text-green-700"
-  | _ => "text-grey-800 opacity-50"
+  | "active" => TagBinding.Success
+  | _ => TagBinding.Neutral
   }
 
 let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
@@ -62,9 +62,13 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
       })
     | Status =>
       Table.CustomCell(
-        <div className={`font-semibold ${connector.status->connectorStatusStyle}`}>
-          {connector.status->String.toUpperCase->React.string}
-        </div>,
+        <TagBinding
+          text={connector.status->String.toUpperCase}
+          color={connector.status->connectorStatusColor}
+          variant=Subtle
+          shape=Squarical
+          size=Xs
+        />,
         "",
       )
     | ConnectorLabel => Text(connector.connector_label)

@@ -294,6 +294,147 @@ export async function createPaymentAPI(
   return await response.json();
 }
 
+export async function createPayoutConnectorAPI(
+  merchantId: string,
+  connectorLabel: string,
+  context?: APIRequestContext,
+): Promise<void> {
+  const ctx = context ?? (await request.newContext());
+  const apiKey = await createAPIKey(merchantId, "", ctx);
+
+  const response = await ctx.post(
+    `${API_URL}/account/${merchantId}/connectors`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": apiKey,
+      },
+      data: {
+        connector_type: "payout_processor",
+        connector_name: "adyen",
+        connector_label: connectorLabel,
+        disabled: false,
+        test_mode: true,
+        payment_methods_enabled: [
+          {
+            payment_method: "card",
+            payment_method_types: [
+              {
+                payment_method_type: "debit",
+                card_networks: ["Visa"],
+                minimum_amount: 0,
+                maximum_amount: 68607706,
+                recurring_enabled: true,
+                installment_payment_enabled: false,
+              },
+            ],
+          },
+        ],
+        metadata: {
+          "endpoint_prefix": "test_key"
+        },
+        connector_account_details: {
+          api_key: "test_key",
+          key1: "test_key",
+          api_secret: "test_key",
+          auth_type: "SignatureKey"
+        },
+        additional_merchant_data: null,
+        status: "active",
+        pm_auth_config: null,
+        connector_wallets_details: null
+      },
+    },
+  );
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `createPayoutConnectorAPI failed (${response.status()}): ${body}`,
+    );
+  }
+}
+
+export async function createPayoutAPI(
+  merchantId: string,
+  context?: APIRequestContext,
+): Promise<{
+  payment_id: string;
+  profile_id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  payment_method: string;
+  payment_method_type: string;
+  connector_transaction_id: string;
+  merchant_order_reference_id: string;
+  description: string;
+  metadata: Record<string, string>;
+}> {
+  const ctx = context ?? (await request.newContext());
+  const apiKey = await createAPIKey(merchantId, "", ctx);
+
+  const response = await ctx.post(`${API_URL}/payouts/create`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "api-key": apiKey,
+    },
+    data: {
+      amount: 12345,
+      currency: "EUR",
+      customer_id: "test_customer",
+      email: "abc@test.com",
+      name: "Joseph Doe",
+      phone: "999999999",
+      phone_country_code: "+65",
+      description: "Its my first payment",
+      payout_type: "card",
+      payout_method_data: {
+        card: {
+            card_number: "4111111111111111",
+            expiry_month: "3",
+            expiry_year: "2030",
+            card_holder_name: "John Doe"
+        }
+      },
+      billing: {
+        address: {
+          line1: "1562",
+          line2: "HarrisonStreet",
+          line3: "HarrisonStreet",
+          city: "Toronto",
+          state: "ON",
+          country: "CA",
+          zip: "M3C 0C1",
+          first_name: "Joseph",
+          last_name: "Doe",
+        },
+        phone: {
+          number: "8056594427",
+          country_code: "+91",
+        },
+        email: "abc@test.com",
+      },
+      entity_type: "NaturalPerson",
+      recurring: true,
+      metadata: {
+        key: "value",
+      },
+      confirm: true,
+      auto_fulfill: true
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(`createPayoutAPI failed (${response.status()}): ${body}`);
+  }
+
+  return await response.json();
+}
+
 export async function visitSignupPage(page: Page): Promise<void> {
   const signinPage = new SignInPage(page);
   await page.goto("/");
@@ -350,6 +491,16 @@ export async function loginAPI(
     const body = await response.text();
     throw new Error(`loginAPI failed (${response.status()}): ${body}`);
   }
+}
+
+export async function mockV2MerchantList(page: Page): Promise<void> {
+  await page.route("**/v2/user/list/merchant", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify([]),
+    });
+  });
 }
 
 export async function enableEmailFeatureFlag(page: Page): Promise<void> {
@@ -409,6 +560,11 @@ export async function loginUI(
   await signinPage.passwordInput.fill(password);
   await signinPage.signinButton.click();
   await signinPage.skip2FAButton.click();
+  await expect(
+    page.getByText(
+      "Welcome to the home of your Payments Control Centre. It aims at providing your team with a 360-degree view of payments.",
+    ),
+  ).toBeVisible();
 }
 
 export async function deleteConnector(
@@ -435,7 +591,11 @@ export async function deleteConnector(
   }
 }
 
-export async function createAuth(context?: APIRequestContext): Promise<void> {
+export async function createAuth(
+  context?: APIRequestContext,
+  ownerId: string = "okta_test",
+  emailDomain: string = "cypresstest.in",
+): Promise<void> {
   const ctx = context ?? (await request.newContext());
 
   const response = await ctx.post(`${API_URL}/user/auth`, {
@@ -444,7 +604,7 @@ export async function createAuth(context?: APIRequestContext): Promise<void> {
       "api-key": "test_admin",
     },
     data: {
-      owner_id: "okta_test",
+      owner_id: ownerId,
       owner_type: "organization",
       auth_method: {
         auth_type: "open_id_connect",
@@ -458,7 +618,7 @@ export async function createAuth(context?: APIRequestContext): Promise<void> {
         },
       },
       allow_signup: false,
-      email_domain: "cypresstest.in",
+      email_domain: emailDomain,
     },
   });
 
@@ -470,11 +630,12 @@ export async function createAuth(context?: APIRequestContext): Promise<void> {
 
 export async function getAuthIdByEmail(
   context?: APIRequestContext,
+  emailDomain: string = "cypresstest.in",
 ): Promise<string> {
   const ctx = context ?? (await request.newContext());
 
   const response = await ctx.get(
-    `${API_URL}/user/auth/list?email_domain=cypresstest.in`,
+    `${API_URL}/user/auth/list?email_domain=${emailDomain}`,
   );
 
   if (!response.ok()) {

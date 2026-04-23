@@ -3,6 +3,33 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.04.23.0
+
+### Testing
+
+- Add playwright visual tests ([#4679](https://github.com/juspay/hyperswitch-control-center/pull/4679)) ([`26eb44c`](https://github.com/juspay/hyperswitch-control-center/commit/26eb44c1a000d7eca0910c8cccd8d64d86eced38))
+
+### Miscellaneous Tasks
+
+- Add sidebar and route level permissions for recon engine ([#4713](https://github.com/juspay/hyperswitch-control-center/pull/4713)) ([`5a4e62b`](https://github.com/juspay/hyperswitch-control-center/commit/5a4e62b75285c490404224b900ca66130972bf62))
+- Add manage level permissions for recon data pages ([#4727](https://github.com/juspay/hyperswitch-control-center/pull/4727)) ([`9a151bc`](https://github.com/juspay/hyperswitch-control-center/commit/9a151bc4055264e203139179f851ed2776a1822a))
+
+**Full Changelog:** [`2026.04.22.0...2026.04.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.22.0...2026.04.23.0)
+
+- - -
+
+## 2026.04.22.0
+
+### Features
+
+- Migrate status labels to Blend Tag component ([#4428](https://github.com/juspay/hyperswitch-control-center/pull/4428)) ([`ce44f77`](https://github.com/juspay/hyperswitch-control-center/commit/ce44f77e378adbb480ee0726d56421a3e88d6b0e))
+- Migrate ToolTip to Blend Design System ([#4520](https://github.com/juspay/hyperswitch-control-center/pull/4520)) ([`296c7e9`](https://github.com/juspay/hyperswitch-control-center/commit/296c7e9b28604be2c15d38547c539db71cd1539f))
+- Migrate DateRangePicker and DateRangeField to Blend Design System ([#4504](https://github.com/juspay/hyperswitch-control-center/pull/4504)) ([`79e870a`](https://github.com/juspay/hyperswitch-control-center/commit/79e870a3c009e49d0f62e7f18d13c8405fe78812))
+
+**Full Changelog:** [`2026.04.20.0...2026.04.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.20.0...2026.04.22.0)
+
+- - -
+
 ## 2026.04.20.0
 
 ### Bug Fixes
