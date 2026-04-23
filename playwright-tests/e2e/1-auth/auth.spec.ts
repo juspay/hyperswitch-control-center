@@ -175,7 +175,7 @@ test.describe.serial("Sign up", () => {
   });
 });
 
-test.describe("Sign in", () => {
+test.describe.serial("Sign in", () => {
   test("should verify all components on the signin page", async ({ page }) => {
     const signinPage = new SignInPage(page);
     const signupPage = new SignUpPage(page);
@@ -548,12 +548,28 @@ const ssoBaseUrl = process.env.PLAYWRIGHT_SSO_BASE_URL;
     let authId = "";
 
     test.beforeAll(async ({ request }) => {
-      await signupUser(
-        process.env.PLAYWRIGHT_SSO_USERNAME!,
-        process.env.PLAYWRIGHT_SSO_PASSWORD!,
-        request,
-      );
-      await createAuth(request);
+      try {
+        await signupUser(
+          process.env.PLAYWRIGHT_SSO_USERNAME!,
+          process.env.PLAYWRIGHT_SSO_PASSWORD!,
+          request,
+        );
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        // Ignore "already exists" error on retries, rethrow all others
+        if (!errorMsg.includes("already exists")) {
+          throw error;
+        }
+      }
+      try {
+        await createAuth(request);
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        // Ignore "auth method already exists" error on retries, rethrow all others
+        if (!errorMsg.includes("already exists")) {
+          throw error;
+        }
+      }
       authId = await getAuthIdByEmail(request);
     });
 
@@ -734,6 +750,67 @@ test.describe("TOTP flows", () => {
     await signinPage.enable2FA.click();
 
     await page.locator('[data-button-for="download"]').click();
+
+    await expect(page).toHaveURL(/.*dashboard\/home/);
+  });
+
+  test("should successfully signin using 2FA", async ({ page, context }) => {
+    let totpSecret = "";
+    const email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+
+    const signinPage = new SignInPage(page);
+    const homePage = new HomePage(page);
+
+    await page.goto("/");
+    await signinPage.emailInput.fill(email);
+    await signinPage.passwordInput.fill(PLAYWRIGHT_PASSWORD);
+
+    await page.route("**/2fa/totp/begin", async (route) => {
+      const response = await route.fetch();
+      const body = await response.json();
+      totpSecret = body.secret?.secret || "";
+      await route.fulfill({ response });
+    });
+
+    const responsePromise = page.waitForResponse("**/2fa/totp/begin");
+    await signinPage.signinButton.click();
+    await responsePromise;
+
+    await expect(page.locator('[viewBox="0 0 41 41"]')).toBeVisible();
+
+    const token = authenticator.generate(totpSecret);
+
+    const textboxes = page.getByRole("textbox");
+    const count = await textboxes.count();
+    for (let i = 0; i < token.length && i < count; i++) {
+      await textboxes.nth(i).fill(token.charAt(i));
+    }
+
+    await signinPage.enable2FA.click();
+
+    await expect(page.getByText("Two factor recovery codes")).toBeVisible();
+
+    await page.locator('[data-button-for="download"]').click();
+
+    await homePage.userAccount.click();
+    await homePage.signOut.click();
+
+    await signinPage.emailInput.fill(email);
+    await signinPage.passwordInput.fill(PLAYWRIGHT_PASSWORD);
+    await signinPage.signinButton.click();
+
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(500);
+
+    // When user has 2FA already setup, they're shown verification page
+    await expect(signinPage.otpBox2FA).toBeVisible();
+
+    for (let i = 0; i < token.length && i < count; i++) {
+      await textboxes.nth(i).fill(token.charAt(i));
+    }
+
+    await page.getByRole("button", { name: "Verify OTP" }).click();
 
     await expect(page).toHaveURL(/.*dashboard\/home/);
   });

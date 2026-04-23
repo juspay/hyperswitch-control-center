@@ -209,12 +209,7 @@ module DateSelectorButton = {
       />
 
     if enableToolTip {
-      <ToolTip
-        description={tooltipText}
-        toolTipFor={button}
-        justifyClass="justify-end"
-        toolTipPosition={Top}
-      />
+      <ToolTip description={tooltipText} toolTipFor={button} toolTipPosition={Top} />
     } else {
       button
     }

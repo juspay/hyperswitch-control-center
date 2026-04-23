@@ -6,12 +6,6 @@ let make: (
   ~className: string=?,
   ~noAccessDescription: string=?,
   ~description: string=?,
-  ~tooltipWidthClass: string=?,
-  ~isRelative: bool=?,
   ~showTooltip: bool=?,
-  ~contentAlign: ToolTip.contentPosition=?,
-  ~justifyClass: string=?,
-  ~tooltipForWidthClass: string=?,
   ~dataAttrStr: string=?,
-  ~height: string=?,
 ) => React.element
