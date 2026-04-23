@@ -53,11 +53,11 @@ module CustomConnectorCellWithDefaultIcon = {
     open Typography
     let businessProfileRecoilVal =
       HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
-    let connector_Type = switch connectorType {
+    let connectorType = switch connectorType {
     | Some(connectorType) => connectorType
     | None => Processor
     }
-    let billing_processor_id = businessProfileRecoilVal.billing_processor_id->Option.getOr("")
+    let billingProcessorId = businessProfileRecoilVal.billing_processor_id->Option.getOr("")
     <>
       <RenderIf condition={connectorName->isNonEmptyString}>
         <div className="flex items-center">
@@ -67,11 +67,11 @@ module CustomConnectorCellWithDefaultIcon = {
             />
             <div>
               {connectorName
-              ->ConnectorUtils.getDisplayNameForConnector(~connectorType=connector_Type)
+              ->ConnectorUtils.getDisplayNameForConnector(~connectorType=connectorType)
               ->React.string}
             </div>
           </div>
-          <RenderIf condition={connector.id == billing_processor_id}>
+          <RenderIf condition={connector.id == billingProcessorId}>
             <div
               className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.sm.semibold}`}>
               {"Default"->React.string}

@@ -62,7 +62,9 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
   errors->JSON.Encode.object
 }
 
-let itemToObjMapperForRoleModuleInfo: Dict.t<JSON.t> => UserManagementTypes.userModuleType = dict => {
+let itemToObjMapperForRoleModuleInfo: Dict.t<
+  JSON.t,
+> => UserManagementTypes.userModuleType = dict => {
   open LogicUtils
   {
     parentGroup: getString(dict, "name", ""),

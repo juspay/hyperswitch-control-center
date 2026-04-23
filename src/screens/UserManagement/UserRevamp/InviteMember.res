@@ -163,9 +163,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
     </Form>
     <RenderIf condition={!email}>
       <LoaderModal
-        showModal={isInvitingUsers}
-        setShowModal={setIsInvitingUsers}
-        text="Inviting Users"
+        showModal={isInvitingUsers} setShowModal={setIsInvitingUsers} text="Inviting Users"
       />
     </RenderIf>
   </div>
