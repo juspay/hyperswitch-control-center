@@ -39,11 +39,13 @@ let make = (~tabs: array<tab>, ~initialIndex=?, ~onTitleClick=?, ~disabledTab=[]
     }
   })
 
-  <TabsBinding
-    value={selectedValue}
-    onValueChange={handleValueChange}
-    variant=TabsBinding.Underline
-    size=TabsBinding.Lg
-    items
-  />
+  <ErrorBoundary>
+    <TabsBinding
+      value={selectedValue}
+      onValueChange={handleValueChange}
+      variant=TabsBinding.Underline
+      size=TabsBinding.Lg
+      items
+    />
+  </ErrorBoundary>
 }

@@ -99,7 +99,7 @@ describe("Volume based routing", () => {
       "Successfully Created a new Configuration !",
     );
 
-    cy.get(`[class="flex flex-col cursor-pointer w-max"]`).eq(1).click();
+    cy.get(`[role="tab"]`).eq(1).click();
 
     cy.get(`[data-table-location="History_tr1_td2"]`).should(
       "contain",
