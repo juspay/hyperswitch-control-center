@@ -38,6 +38,7 @@ for tag in $(git tag --sort=-creatordate); do
   sed -i 's|"5432:5432"|"25432:5432"|g' docker-compose.yml
   sed -i 's|"6379:6379"|"26379:6379"|g' docker-compose.yml
   sed -i 's|"8081:8080"|"28081:8080"|g' docker-compose.yml
+  sed -i 's|"9050:9050"|"29050:9050"|g' docker-compose.yml
 
   # Specify the correct file path to the TOML file
   toml_file="config/docker_compose.toml"
