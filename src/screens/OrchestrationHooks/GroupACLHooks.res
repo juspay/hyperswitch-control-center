@@ -28,6 +28,7 @@ type userGroupACLType = {
   hasAllGroupsAccess: array<CommonAuthTypes.authorization> => CommonAuthTypes.authorization,
 }
 
+// Todo: Remove the fallback logic when Recon Engine permission groups are added in production backend
 let reconGroupFallback: array<UserManagementTypes.groupAccessType> = [
   ReconSourcesView,
   ReconSourcesManage,
