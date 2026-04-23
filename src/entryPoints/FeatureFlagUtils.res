@@ -78,7 +78,7 @@ type featureFlag = {
   networkTokenization: bool,
   devBlendEnabled: bool,
   devSortEnabled: bool,
-  reconPermissions: bool,
+  reconEnginePermissions: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -159,7 +159,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     networkTokenization: dict->getBool("network_tokenization", false),
     devBlendEnabled: dict->getBool("dev_blend_enabled", false),
     devSortEnabled: dict->getBool("dev_sort_enabled", false),
-    reconPermissions: dict->getBool("recon_engine_permissions", false),
+    reconEnginePermissions: dict->getBool("recon_engine_permissions", false),
   }
 }
 

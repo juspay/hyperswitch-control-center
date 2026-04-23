@@ -150,7 +150,7 @@ let make = () => {
   let updateDetails = useUpdateMethod()
   let {product_type} = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom
   let productType = product_type->ProductUtils.getProductStringName->String.toLowerCase
-  let {reconPermissions} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {reconEnginePermissions} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let (permissionModules, setPermissionModules) = React.useState(() => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -218,7 +218,7 @@ let make = () => {
         ~userType=#ROLE_INFO,
         ~methodType=Get,
         ~queryParameters=Some(
-          reconPermissions
+          reconEnginePermissions
             ? `entity_type=${entityTypeString}&product_type=${productType}`
             : `entity_type=${entityTypeString}`,
         ),

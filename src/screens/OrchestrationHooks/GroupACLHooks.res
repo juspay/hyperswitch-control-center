@@ -58,7 +58,7 @@ let useUserGroupACLHook = () => {
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let setuserPermissionJson = Recoil.useSetRecoilState(userPermissionAtom)
   let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
-  let {reconPermissions} = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {reconEnginePermissions} = featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchUserGroupACL = async () => {
     try {
@@ -71,10 +71,10 @@ let useUserGroupACLHook = () => {
       let resourcesAccessValue =
         getStrArrayFromDict(dict, "resources", [])->Array.map(mapStringToResourceAccessType)
 
-      let effectiveGroups = reconPermissions
+      let effectiveGroups = reconEnginePermissions
         ? groupsAccessValue
         : groupsAccessValue->Array.concat(reconGroupFallback)
-      let effectiveResources = reconPermissions
+      let effectiveResources = reconEnginePermissions
         ? resourcesAccessValue
         : resourcesAccessValue->Array.concat(reconResourceFallback)
 
