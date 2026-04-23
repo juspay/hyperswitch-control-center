@@ -89,7 +89,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
         <input
           ref={fileInputRef->ReactDOM.Ref.domRef}
           type_="file"
-          accept=".csv,.ext"
+          accept=".csv,.ext,.xlsx"
           disabled={!hasManageAccess}
           onChange={ev => ev->handleFileUpload->ignore}
           hidden=true
@@ -105,7 +105,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
                 {"Choose a file or drag & drop it here"->React.string}
               </div>
               <div className={`${body.md.medium} text-nd_gray-500`}>
-                {".csv only | Max size 8 MB"->React.string}
+                {".csv,.ext,.xlsx only | Max size 8 MB"->React.string}
               </div>
             </div>
             <div
