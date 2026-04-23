@@ -69,11 +69,9 @@ let make = (~options) => {
   let (selectedOption, setSelectedOption) = React.useState(_ => {
     let dict = formState.values->getDictFromJsonObject
     let amount_option = dict->getString("amount_option", "")
-    if amount_option->isNonEmptyString {
-      amount_option->stringRangetoTypeAmount
-    } else {
-      AmountFilterTypes.UnknownRange("Select Amount")
-    }
+    amount_option->isNonEmptyString
+      ? amount_option->stringRangetoTypeAmount
+      : AmountFilterTypes.UnknownRange("Select Amount")
   })
   let (isAmountRangeVisible, setIsAmountRangeVisible) = React.useState(_ => true)
 
@@ -86,9 +84,7 @@ let make = (~options) => {
       amountOptionFromForm->isNonEmptyString
         ? amountOptionFromForm->stringRangetoTypeAmount
         : AmountFilterTypes.UnknownRange("Select Amount")
-    if parsed !== selectedOption {
-      setSelectedOption(_ => parsed)
-    }
+    parsed !== selectedOption ? setSelectedOption(_ => parsed) : ()
     None
   }, [amountOptionFromForm])
 
