@@ -90,6 +90,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
           ref={fileInputRef->ReactDOM.Ref.domRef}
           type_="file"
           accept=".csv,.ext,.xlsx"
+          disabled={!hasManageAccess}
           onChange={ev => ev->handleFileUpload->ignore}
           hidden=true
           id="fileUploadInput"
