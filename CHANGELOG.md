@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.04.23.1
+
+### Features
+
+- Recon engine enable `excel | .xlsx` file input in sources ([#4758](https://github.com/juspay/hyperswitch-control-center/pull/4758)) ([`4da86a6`](https://github.com/juspay/hyperswitch-control-center/commit/4da86a69be8c3dc592d4ef4f43a28d52c141863c))
+
+### Miscellaneous Tasks
+
+- Add manage level permissions for recon exceptions ([#4734](https://github.com/juspay/hyperswitch-control-center/pull/4734)) ([`4af444d`](https://github.com/juspay/hyperswitch-control-center/commit/4af444dce8e161a11ac101e13bc9963b6ec1d748))
+
+**Full Changelog:** [`2026.04.23.0...2026.04.23.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.23.0...2026.04.23.1)
+
+- - -
+
 ## 2026.04.23.0
 
 ### Testing
