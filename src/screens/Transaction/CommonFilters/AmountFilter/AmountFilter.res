@@ -77,8 +77,6 @@ let make = (~options) => {
   })
   let (isAmountRangeVisible, setIsAmountRangeVisible) = React.useState(_ => true)
 
-  // Sync local state when amount_option changes from outside (e.g. saved view load),
-  // so the UI reflects the externally applied filter without round-tripping through form.
   let amountOptionFromForm = React.useMemo(() => {
     formState.values->getDictFromJsonObject->getString("amount_option", "")
   }, [formState.values])
@@ -100,9 +98,6 @@ let make = (~options) => {
 
   let handleInputChange = newValue => {
     if newValue->isNonEmptyString {
-      // Keep the selection local until the user clicks Apply. Writing to the
-      // form here triggers the filter subscription and fires the list API
-      // before the user has entered an amount.
       setSelectedOption(_ => newValue->mapStringToRange)
     }
     setIsAmountRangeVisible(_ => true)
@@ -120,14 +115,9 @@ let make = (~options) => {
   }
 
   let handleApply = _ => {
-    // Commit the selected option and clear any stale amount fields that don't
-    // apply to the chosen range, then submit exactly once.
     switch selectedOption {
     | GreaterThanOrEqualTo => form.change("end_amount", JSON.Encode.null)
     | LessThanOrEqualTo => form.change("start_amount", JSON.Encode.null)
-    // EqualTo: CustomAmountEqualField mirrors start_amount into end_amount, so both remain.
-    // InBetween: user enters both explicitly.
-    // UnknownRange: nothing to commit.
     | _ => ()
     }
     form.change("amount_option", selectedOption->Identity.genericTypeToJson)
