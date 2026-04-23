@@ -67,7 +67,7 @@ module CustomConnectorCellWithDefaultIcon = {
             />
             <div>
               {connectorName
-              ->ConnectorUtils.getDisplayNameForConnector(~connectorType=connectorType)
+              ->ConnectorUtils.getDisplayNameForConnector(~connectorType)
               ->React.string}
             </div>
           </div>
