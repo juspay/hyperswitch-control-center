@@ -16,10 +16,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Clear Docker cache
-        run: docker builder prune -af
-
-      - name: Execute Shell Script
+      - name: Start backend services
         run: |
           chmod +x playwright-tests/start_hyperswitch.sh
           sh playwright-tests/start_hyperswitch.sh
@@ -31,6 +28,15 @@ jobs:
 
       - name: Install dependencies
         run: npm install --force
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
 
       - name: Install Playwright Browsers
         # Installing only Chrome (Chromium) for now
@@ -84,10 +90,11 @@ jobs:
         uses: actions/upload-artifact@v4
         if: false #failure()
         with:
-          name: playwright-failures
+          name: playwright-artifacts
           path: |
             test-results/**/*-failed-*
             test-results/**/*-retry*/
+            playwright-report/
             playwright-report/
           if-no-files-found: ignore
           retention-days: 7

@@ -169,7 +169,6 @@ module EditEntryModalContent = {
           )}
           <div className="flex justify-end my-4">
             <FormRenderer.SubmitButton
-              tooltipForWidthClass="w-full"
               text="Save changes"
               buttonType={Primary}
               showToolTip=false
@@ -287,7 +286,6 @@ module MarkAsReceivedModalContent = {
           )}
           <div className="flex justify-end my-4">
             <FormRenderer.SubmitButton
-              tooltipForWidthClass="w-full"
               text="Mark as Received"
               buttonType={Primary}
               showToolTip=false
@@ -369,7 +367,6 @@ module CreateEntryModalContent = {
           )}
           <div className="flex justify-end my-4">
             <FormRenderer.SubmitButton
-              tooltipForWidthClass="w-full"
               text="Create new entry"
               buttonType={Primary}
               showToolTip=false
@@ -614,6 +611,7 @@ let make = (
   open ReconEngineUtils
   open APIUtils
 
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (activeModal, setActiveModal) = React.useState(_ => None)
   let (availableResolutions, setAvailableResolutions) = React.useState(_ => [])
   let showToast = ToastState.useShowToast()
@@ -882,7 +880,8 @@ let make = (
             condition={isResolutionAvailable(EditEntry) ||
             isResolutionAvailable(CreateNewEntry) ||
             isResolutionAvailable(LinkStagingEntriesToTransaction)}>
-            <Button
+            <ACLButton
+              authorization={userHasAccess(~groupAccess=ReconExceptionsManage)}
               buttonState=Normal
               buttonSize=Medium
               buttonType=Primary

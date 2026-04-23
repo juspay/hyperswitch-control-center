@@ -67,7 +67,6 @@ let make = () => {
                   buttonType=Primary
                   buttonSize={Small}
                   customSubmitButtonStyle={`${body.md.semibold} py-4`}
-                  tooltipForWidthClass="w-full"
                 />
               </div>
             </div>

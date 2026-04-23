@@ -70,9 +70,9 @@ export default defineConfig({
     screenshot: "only-on-failure", // Screenshot on failure for debugging
     video: "retain-on-failure",
     trace: "on-first-retry",
-    actionTimeout: 30000, // Action timeout - aligned with Cypress
-    navigationTimeout: 90000, // Navigation timeout - aligned with Cypress
-    viewport: { width: 1440, height: 1005 }, // Viewport - aligned with Cypress
+    actionTimeout: 30000, // Action timeout
+    navigationTimeout: 90000, // Navigation timeout
+    viewport: { width: 1620, height: 1080 }, // Viewport
   },
   outputDir: "test-results/", // Output directory for test artifacts
   reporter: buildReporters(),
@@ -81,7 +81,10 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 1620, height: 1080 }
+      },
     },
     /* Test against different browsers.
     {
@@ -111,7 +114,7 @@ export default defineConfig({
 
   // Run your local dev server before starting the tests
   webServer: {
-    command: "npm run test:start",
+    command: "npm run start:test",
     url: "http://localhost:9000",
     reuseExistingServer: !process.env.CI,
     timeout: 60000,

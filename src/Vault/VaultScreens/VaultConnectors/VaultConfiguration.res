@@ -9,7 +9,6 @@ let make = () => {
     <div className="flex gap-2 items-center">
       <ToolTip
         description="Hyperswitch securely converts card details into tokens from your existing PSP accounts (Stripe, Adyen, Worldpay, etc.), allowing you to process payments through these providers using these tokens rather than raw card data."
-        iconOpacityVal="100"
       />
       {"PSP Tokenisation"->React.string}
     </div>
@@ -18,7 +17,6 @@ let make = () => {
     <div className="flex gap-2 items-center">
       <ToolTip
         description="Hyperswitch securely replaces card details with network tokens from card networks (Visa, Mastercard, Amex, etc.), allowing you to process payments with enhanced security and authorization rates while reducing processing costs, fraud risk and compliance requirements."
-        iconOpacityVal="100"
       />
       {"Network Tokenisation"->React.string}
     </div>
