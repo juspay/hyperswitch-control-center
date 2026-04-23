@@ -49,11 +49,7 @@ module TabInfo = {
     ~setTabStacksnames,
     ~description="",
   ) => {
-    let fontClass = "font-inter-style"
-
-    let defaultThemeBasedClass = `${fontClass} px-2`
-
-    let defaultClasses = `font-medium ${defaultThemeBasedClass} w-max flex flex-auto flex-row items-center justify-center text-fs-14`
+    let defaultClasses = `${Typography.body.md.medium} px-2 w-max flex flex-auto flex-row items-center justify-center`
     let selectionClasses = if isSelected {
       "font-medium text-gray-700"
     } else {
