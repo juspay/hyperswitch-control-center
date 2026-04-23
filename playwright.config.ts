@@ -59,7 +59,7 @@ const PLAYWRIGHT_SSO_PASSWORD = process.env.CYPRESS_SSO_PASSWORD;
 export default defineConfig({
   testDir: "./playwright-tests",
   // Ignore stub files
-  testIgnore: ["*seed.spec.ts"],
+  testIgnore: ["*seed.spec.ts", "**/.archive/**"],
   fullyParallel: true, // Run tests in files in parallel
   forbidOnly: !!process.env.CI, // Fail the build on CI if you accidentally left test.only in the source code.
   retries: process.env.CI ? 2 : 0, // Retry on CI only
