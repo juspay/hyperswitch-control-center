@@ -492,13 +492,7 @@ let make = (
             value: x.value,
             icon: CustomRightIcon(
               description->LogicUtils.isNonEmptyString
-                ? <ToolTip
-                    customStyle="-mr-1.5"
-                    arrowCustomStyle={isMobileView ? "" : "ml-1.5"}
-                    description
-                    toolTipPosition={ToolTip.BottomLeft}
-                    justifyClass="ml-2 h-auto mb-0.5"
-                  />
+                ? <ToolTip description toolTipPosition={ToolTip.BottomLeft} />
                 : React.null,
             ),
           }
@@ -588,7 +582,6 @@ let make = (
                   onClick={_ => setShowModal(_ => true)}
                 />}
                 toolTipPosition=Top
-                tooltipWidthClass="w-fit"
               />
             </div>
           </RenderIf>

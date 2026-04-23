@@ -124,15 +124,7 @@ module ConnectButton = {
     <>
       <RenderIf condition={errorsList->Array.length === 0}> {button} </RenderIf>
       <RenderIf condition={errorsList->Array.length > 0}>
-        <ToolTip
-          description
-          toolTipFor=button
-          toolTipPosition=ToolTip.Top
-          tooltipPositioning=#fixed
-          tooltipWidthClass="w-auto"
-          height="h-full"
-          tooltipForWidthClass=""
-        />
+        <ToolTip description toolTipFor=button toolTipPosition=ToolTip.Top />
       </RenderIf>
     </>
   }
