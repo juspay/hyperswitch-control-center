@@ -80,8 +80,6 @@ module PredefinedOption = {
     }
     let dateRangeDropdownVal = datetext(value, disableFutureDates)
     <ToolTip
-      tooltipWidthClass="w-fit"
-      tooltipForWidthClass="!block w-full"
       description={isTooltipVisible ? `${startDate} - ${endDate}` : ""}
       toolTipFor={<AddDataAttributes
         attributes=[("data-daterange-dropdown-value", dateRangeDropdownVal)]>
@@ -94,7 +92,6 @@ module PredefinedOption = {
         </div>
       </AddDataAttributes>}
       toolTipPosition=Right
-      contentAlign=Left
     />
   }
 }
