@@ -41,7 +41,7 @@ module RoleAccessOverview = {
       roleDict
       ->getDictfromDict(role)
       ->getJsonObjectFromDict("parent_groups")
-      ->getArrayDataFromJson(UserUtils.itemToObjMapperFordetailedRoleInfo)
+      ->getArrayDataFromJson(UserUtils.itemToObjMapperForDetailedRoleInfo)
 
     let roleInfo = Recoil.useRecoilValueFromAtom(HyperswitchAtom.moduleListRecoil)
     let (modulesWithAccess, moduleWithoutAccess) = UserUtils.modulesWithUserAccess(

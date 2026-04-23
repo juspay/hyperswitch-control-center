@@ -8,7 +8,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let (loaderForInviteUsers, setLoaderForInviteUsers) = React.useState(_ => false)
+  let (isInvitingUsers, setIsInvitingUsers) = React.useState(_ => false)
   let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
   let {getCommonSessionDetails, getResolvedUserInfo} = React.useContext(
     UserInfoProvider.defaultContext,
@@ -25,33 +25,33 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
     Profile -> (Current orgId , Current merchantId , Current profileId) 
  */
 
-    let initialvalue = [("org_value", orgId->JSON.Encode.string)]
+    let initialValues = [("org_value", orgId->JSON.Encode.string)]
 
     if userEntity == #Tenant {
-      initialvalue->Array.pushMany([
+      initialValues->Array.pushMany([
         ("merchant_value", merchantId->JSON.Encode.string),
         ("profile_value", profileId->JSON.Encode.string),
       ])
     } else if userEntity == #Organization {
-      initialvalue->Array.pushMany([
+      initialValues->Array.pushMany([
         ("merchant_value", merchantId->JSON.Encode.string),
         ("profile_value", profileId->JSON.Encode.string),
       ])
     } else if userEntity == #Merchant {
-      initialvalue->Array.pushMany([
+      initialValues->Array.pushMany([
         ("merchant_value", merchantId->JSON.Encode.string),
         ("profile_value", profileId->JSON.Encode.string),
       ])
     } else if userEntity == #Profile {
-      initialvalue->Array.pushMany([
+      initialValues->Array.pushMany([
         ("merchant_value", merchantId->JSON.Encode.string),
         ("profile_value", profileId->JSON.Encode.string),
       ])
     }
-    initialvalue->getJsonFromArrayOfJson
+    initialValues->getJsonFromArrayOfJson
   }, [userEntity])
 
-  let inviteListOfUsersWithInviteMultiple = async values => {
+  let sendBulkInvites = async values => {
     let url = getURL(
       ~entityName=V1(USERS),
       ~userType=#INVITE_MULTIPLE,
@@ -60,11 +60,11 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
     )
 
     if !email {
-      setLoaderForInviteUsers(_ => true)
+      setIsInvitingUsers(_ => true)
     }
-    let valDict = values->getDictFromJsonObject
-    let role = valDict->getString("role_id", "")
-    let emailList = valDict->getStrArray("email_list")
+    let formValuesDict = values->getDictFromJsonObject
+    let role = formValuesDict->getString("role_id", "")
+    let emailList = formValuesDict->getStrArray("email_list")
 
     let body =
       emailList
@@ -100,7 +100,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
         })
         ->Array.filter(ele => ele !== JSON.Encode.null)
 
-      setLoaderForInviteUsers(_ => false)
+      setIsInvitingUsers(_ => false)
 
       if invitedUserData->Array.length > 0 {
         DownloadUtils.download(
@@ -144,7 +144,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
 
   let onSubmit = (values, _) => {
     mixpanelEvent(~eventName="send_invite", ~metadata=values)
-    inviteListOfUsersWithInviteMultiple(values)
+    sendBulkInvites(values)
   }
 
   <div className="flex flex-col overflow-y-scroll gap-4 h-85-vh">
@@ -163,8 +163,8 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
     </Form>
     <RenderIf condition={!email}>
       <LoaderModal
-        showModal={loaderForInviteUsers}
-        setShowModal={setLoaderForInviteUsers}
+        showModal={isInvitingUsers}
+        setShowModal={setIsInvitingUsers}
         text="Inviting Users"
       />
     </RenderIf>
