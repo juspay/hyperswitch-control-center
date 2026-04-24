@@ -1719,6 +1719,16 @@ let generateInitialValuesDict = (
   }
   dict->Dict.set("connector_webhook_details", connectorWebhookDict)
 
+  switch connectorType {
+  | ConnectorTypes.ThreeDsAuthenticator =>
+    let metadataDict = dict->getDictfromDict("metadata")
+    if metadataDict->Dict.get("pull_mechanism_for_external_3ds_enabled")->Option.isNone {
+      metadataDict->Dict.set("pull_mechanism_for_external_3ds_enabled", false->JSON.Encode.bool)
+    }
+    dict->Dict.set("metadata", metadataDict->JSON.Encode.object)
+  | _ => ()
+  }
+
   dict->JSON.Encode.object
 }
 
