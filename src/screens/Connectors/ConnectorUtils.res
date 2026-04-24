@@ -1983,18 +1983,6 @@ let getConnectorFields = connectorDetails => {
   }
 }
 
-let threeDsMetadataFieldDefaults: array<(string, JSON.t)> = [
-  ("pull_mechanism_for_external_3ds_enabled", true->JSON.Encode.bool),
-]
-
-let getStaticDefaultValuesForThreeDs = (initialValuesDict: dict<JSON.t>) => {
-  initialValuesDict->Dict.set(
-    "metadata",
-    Dict.fromArray(threeDsMetadataFieldDefaults)->JSON.Encode.object,
-  )
-  initialValuesDict->JSON.Encode.object
-}
-
 let validateRequiredFiled = (valuesFlattenJson, dict, fieldName, errors) => {
   let newDict = getDictFromJsonObject(errors)
   dict
