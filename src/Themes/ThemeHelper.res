@@ -502,7 +502,7 @@ module ThemeUploadAssetsModal = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod(~showErrorToast=false)
     let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Success)
-    let processAssets = ThemeHooks.useProcessAssets(~themeId)
+    let processAssets = ThemeHooks.useProcessAssets()
     let (assets, setAssets) = React.useState(_ => Dict.make()->assetsMapper)
     let formValues = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
@@ -512,7 +512,7 @@ module ThemeUploadAssetsModal = {
       try {
         setScreenState(_ => Loading)
 
-        let urls = await processAssets(~assets)
+        let urls = await processAssets(~assets, ~themeId)
         let hasUrls = urls.logoUrl->Option.isSome || urls.faviconUrl->Option.isSome
 
         if hasUrls {

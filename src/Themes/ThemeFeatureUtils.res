@@ -30,9 +30,6 @@ let getEntityTypeFromStep = (stepVariant: ThemeTypes.lineageSelectionSteps) =>
   | _ => ""
   }
 
-let createBlobUrl = file =>
-  DownloadUtils.createObjectURL((file->Identity.jsonToAnyType: DownloadUtils.blobInstanceType))
-
 let getFileFromEvent = ev => {
   let files = ReactEvent.Form.target(ev)["files"]
   files->LogicUtils.getValueFromArray(0, None)
@@ -42,14 +39,8 @@ let assetsMapper = (dict): ThemeTypes.assets => {
   open LogicUtils
   let toUrl = url => url->isNonEmptyString ? Some(ThemeTypes.Url(url)) : None
   {
-    logo: switch dict->getOptionString("logoUrl") {
-    | Some(url) => toUrl(url)
-    | None => None
-    },
-    favicon: switch dict->getOptionString("faviconUrl") {
-    | Some(url) => toUrl(url)
-    | None => None
-    },
+    logo: dict->getOptionString("logoUrl")->Option.flatMap(toUrl),
+    favicon: dict->getOptionString("faviconUrl")->Option.flatMap(toUrl),
   }
 }
 

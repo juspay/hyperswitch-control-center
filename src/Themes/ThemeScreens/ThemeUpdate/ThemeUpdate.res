@@ -24,7 +24,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
-  let processAssets = ThemeHooks.useProcessAssets(~themeId)
+  let processAssets = ThemeHooks.useProcessAssets()
   let (assets, setAssets) = React.useState(_ => Dict.make()->assetsMapper)
   let themeConfigVersion = HyperSwitchEntryUtils.getThemeConfigVersionfromStore()
   let getThemeByThemeId = async () => {
@@ -102,7 +102,12 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
     try {
       setScreenState(_ => Loading)
       let {theme_data: {settings}} = values->themeBodyMapper
-      let urls = await processAssets(~assets)
+      let urls = if !{assets.logo == None && assets.favicon == None} {
+        await processAssets(~assets, ~themeId)
+      } else {
+        {logoUrl: None, faviconUrl: None}
+      }
+
       let requestBody = buildThemeDataBody(~settings, ~urls)
 
       let updateUrl = getURL(

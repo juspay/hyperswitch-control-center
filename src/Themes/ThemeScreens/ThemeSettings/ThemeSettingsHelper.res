@@ -181,7 +181,10 @@ module IconSettings = {
       asset->Option.map(value =>
         switch value {
         | Url(url) => url
-        | File(file) => createBlobUrl(file)
+        | File(file) =>
+          DownloadUtils.createObjectURL(
+            (file->Identity.jsonToAnyType: DownloadUtils.blobInstanceType),
+          )
         }
       )
 
