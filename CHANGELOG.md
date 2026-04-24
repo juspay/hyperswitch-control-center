@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.04.24.0
+
+### Features
+
+- Add iMerchant Solutions Connector in Dashboard ([#4715](https://github.com/juspay/hyperswitch-control-center/pull/4715)) ([`84c3a41`](https://github.com/juspay/hyperswitch-control-center/commit/84c3a41ade55f2d18c215fbd9e95c2e30e23c7cb))
+
+### Bug Fixes
+
+- Amount filter triggers single API call on Apply and stays in sync with form state ([#4737](https://github.com/juspay/hyperswitch-control-center/pull/4737)) ([`4f66b5d`](https://github.com/juspay/hyperswitch-control-center/commit/4f66b5dc387516edce29a27a6b80664e21899ca2))
+
+### Refactors
+
+- Remove 1,028 unused icon symbols from solid.svg ([#4429](https://github.com/juspay/hyperswitch-control-center/pull/4429)) ([`01e4c2c`](https://github.com/juspay/hyperswitch-control-center/commit/01e4c2c625f07b7cc2cfac511d854e70e531b765))
+
+**Full Changelog:** [`2026.04.23.1...2026.04.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.23.1...2026.04.24.0)
+
+- - -
+
 ## 2026.04.23.1
 
 ### Features
