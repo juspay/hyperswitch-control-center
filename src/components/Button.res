@@ -676,11 +676,7 @@ let make = (
             if showBtnTextToolTip && !showTooltip {
               <div className=ellipsisParentClass>
                 <ToolTip
-                  description={tooltipText->Option.getOr("")}
-                  toolTipFor=btnContent
-                  contentAlign=Default
-                  justifyClass="justify-start"
-                  toolTipPosition
+                  description={tooltipText->Option.getOr("")} toolTipFor=btnContent toolTipPosition
                 />
               </div>
             } else {
@@ -728,12 +724,6 @@ let make = (
     </AddDataAttributes>
 
   showTooltip
-    ? <ToolTip
-        description={tooltipText->Option.getOr("")}
-        toolTipFor=buttonComp
-        contentAlign=Default
-        justifyClass="justify-start"
-        toolTipPosition
-      />
+    ? <ToolTip description={tooltipText->Option.getOr("")} toolTipFor=buttonComp toolTipPosition />
     : buttonComp
 }

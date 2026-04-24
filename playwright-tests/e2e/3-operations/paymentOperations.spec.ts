@@ -10,7 +10,7 @@ import {
   ompLineage,
 } from "../../support/commands";
 
-const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
+const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 const columnSize = 24;
 const requiredColumnsSize = 14;
 let email: string;
@@ -679,9 +679,9 @@ test.describe("Payment Operations", () => {
       .locator('[class="flex relative  flex-row  flex-wrap"]')
       .first()
       .click();
-    await page.locator('[value="Stripe Test"]').click();
+    await page.locator('[value="Stripe Dummy"]').click();
     await page.locator('[data-button-text="Apply"]').click();
-    await expect(page.getByText("Stripe Test").first()).toBeVisible();
+    await expect(page.getByText("Stripe Dummy").first()).toBeVisible();
 
     await paymentOperations.addFilters.click();
     await page.locator(".mr-5.text-left").getByText("Status").click();

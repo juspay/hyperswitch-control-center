@@ -148,7 +148,6 @@ module GenerateSampleDataButton = {
           leftIcon={CustomIcon(<Icon name="plus" size=13 />)}
         />
         <ACLDiv
-          height="h-fit"
           authorization={userHasAccess(~groupAccess=OperationsManage)}
           className="bg-jp-gray-button_gray text-opacity-75 hover:bg-jp-gray-secondary_hover hover:text-jp-gray-890  focus:outline-none border-border_gray cursor-pointer p-2.5 overflow-hidden text-jp-gray-950 hover:text-black
           border flex items-center justify-center rounded-r-md"
@@ -364,16 +363,10 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys,
 
     let title = `Select ${key->snakeToTitle}`
 
-    let makeOptions = (options: array<string>): array<FilterSelectBox.dropdownOption> => {
-      options->Array.map(str => {
-        let option: FilterSelectBox.dropdownOption = {label: str->snakeToTitle, value: str}
-        option
-      })
-    }
-
     let options = switch key->getFilterTypeFromString {
     | #connector_label => getOptionsForOrderFilters(filterDict, filtervalues)
-    | _ => values->makeOptions
+    | #connector => values->ConnectorUtils.getConnectorFilterOptions
+    | _ => values->FilterSelectBox.makeOptions(~isTitle=true)
     }
 
     let customInput = switch key->getFilterTypeFromString {
