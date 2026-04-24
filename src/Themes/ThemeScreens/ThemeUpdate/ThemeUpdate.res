@@ -29,13 +29,6 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
   let themeConfigVersion = HyperSwitchEntryUtils.getThemeConfigVersionfromStore()
   let getThemeByThemeId = async () => {
     try {
-      setScreenState(_ => Loading)
-
-      let _ = await internalSwitch(
-        ~expectedOrgId=orgId,
-        ~expectedMerchantId=merchantId,
-        ~expectedProfileId=profileId,
-      )
       let url = getURL(~entityName=V1(USERS), ~methodType=Get, ~id=Some(themeId), ~userType=#THEME)
       let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
       let mappedTheme = res->themeBodyMapper
@@ -44,15 +37,30 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
       setInitialValues(_ => mappedTheme->Identity.genericTypeToJson)
       setScreenState(_ => Success)
     } catch {
-    | _ => {
-        showToast(~message="Failed to fetch theme details", ~toastType=ToastState.ToastError)
-        setScreenState(_ => Error("Failed to fetch theme details"))
-      }
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Failed to switch!")
+      Exn.raiseError(err)
+    }
+  }
+
+  let loadPageData = async () => {
+    try {
+      let _ = await internalSwitch(
+        ~expectedOrgId=orgId,
+        ~expectedMerchantId=merchantId,
+        ~expectedProfileId=profileId,
+      )
+      let _ = await getThemeByThemeId()
+      setScreenState(_ => Success)
+    } catch {
+    | _ =>
+      showToast(~message="Failed to fetch theme details", ~toastType=ToastState.ToastError)
+      setScreenState(_ => Error("Failed to fetch theme details"))
     }
   }
 
   React.useEffect(() => {
-    getThemeByThemeId()->ignore
+    loadPageData()->ignore
     None
   }, [])
 
@@ -102,7 +110,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
     try {
       setScreenState(_ => Loading)
       let {theme_data: {settings}} = values->themeBodyMapper
-      let urls = if !{assets.logo == None && assets.favicon == None} {
+      let urls = if assets.logo->Option.isSome || assets.favicon->Option.isSome {
         await processAssets(~assets, ~themeId)
       } else {
         {logoUrl: None, faviconUrl: None}

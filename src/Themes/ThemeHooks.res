@@ -5,14 +5,13 @@ let useProcessAssets = () => {
   let showToast = ToastState.useShowToast()
   let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
   let getURL = APIUtils.useGetURL()
-  let processAsset = async (~asset: assetValue, ~fileName, ~assetUploadUrl, ~themeId): string =>
+  let uploadAsset = async (asset, fileName, themeId, assetUploadUrl) =>
     switch asset {
-    | Url(url) => url
-    | File(file) => {
+    | Some(Url(url)) => Some(url)
+    | Some(File(file)) => {
         let formData = FormDataUtils.formData()
         FormDataUtils.append(formData, "asset_name", fileName)
         FormDataUtils.append(formData, "asset_data", Some(file))
-
         let _ = await updateDetails(
           assetUploadUrl,
           Dict.make()->JSON.Encode.object,
@@ -21,23 +20,17 @@ let useProcessAssets = () => {
           ~headers=Dict.make(),
           ~contentType=AuthHooks.Unknown,
         )
-        `${getHostUrl}/themes/${themeId}/${fileName}`
+        Some(`${getHostUrl}/themes/${themeId}/${fileName}`)
       }
-    }
-
-  let toOptPromise = async (asset, fileName, assetUploadUrl, themeId) =>
-    switch asset {
-    | Some(a) => Some(await processAsset(~asset=a, ~fileName, ~assetUploadUrl, ~themeId))
     | None => None
     }
 
-  let resolveUrl = (result, label) =>
+  let resolve = (result, label) =>
     switch result {
-    | Some(Ok(url)) => url
-    | Some(Error(_)) =>
+    | Ok(url) => url
+    | Error(_) =>
       showToast(~message=`Failed to upload ${label}`, ~toastType=ToastError)
       None
-    | None => None
     }
 
   async (~assets: ThemeTypes.assets, ~themeId): HyperSwitchConfigTypes.urlThemeConfig => {
@@ -49,21 +42,17 @@ let useProcessAssets = () => {
     )
 
     let results = await PromiseUtils.allSettledResultPolyfill([
-      toOptPromise(assets.logo, "logo.png", assetUploadUrl, themeId),
-      toOptPromise(assets.favicon, "favicon.png", assetUploadUrl, themeId),
+      uploadAsset(assets.logo, "logo.png", themeId, assetUploadUrl),
+      uploadAsset(assets.favicon, "favicon.png", themeId, assetUploadUrl),
     ])
 
-    let logoUrl = resolveUrl(results->Array.get(0), "logo")
-    let faviconUrl = resolveUrl(results->Array.get(1), "favicon")
+    let logoResult = results->Array.get(0)->Option.getOr(Error("logo"))
+    let faviconResult = results->Array.get(1)->Option.getOr(Error("favicon"))
 
-    let allFailed = results->Array.every(result =>
-      switch result {
-      | Error(_) => true
-      | _ => false
-      }
-    )
+    let logoUrl = resolve(logoResult, "logo")
+    let faviconUrl = resolve(faviconResult, "favicon")
 
-    if allFailed {
+    if results->Array.every(Result.isError) {
       Exn.raiseError("Asset upload failed")
     }
 
