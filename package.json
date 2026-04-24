@@ -22,9 +22,6 @@
     "re:format": "rescript format -all",
     "start:test": "cross-env default__endpoints__api_url=http://localhost:8080 default__features__email=true node dist/server/server.js",
     "postinstall": "git config core.hooksPath .githooks && chmod +x .githooks/commit-msg && patch-package",
-    "cy:open": "sh cypress/start_hyperswitch.sh && cypress open",
-    "cy:run": "sh cypress/start_hyperswitch.sh && cypress run",
-    "local:cy:open": "cypress open",
     "pw:test": "playwright test",
     "pw:ui": "playwright test --ui",
     "pw:codegen": "playwright codegen",
@@ -40,7 +37,6 @@
     }
   },
   "devDependencies": {
-    "@cypress/code-coverage": "^3.12.24",
     "@eslint/create-config": "0.4.6",
     "@jsdevtools/coverage-istanbul-loader": "^3.0.5",
     "@playwright/test": "^1.58.2",
@@ -51,8 +47,6 @@
     "cross-env": "^7.0.3",
     "css-loader": "^5.0.1",
     "css-minimizer-webpack-plugin": "^5.0.1",
-    "cypress": "^13.6.0",
-    "cypress-wait-until": "^3.0.2",
     "eslint": "latest",
     "eslint-plugin-react-hooks": "^4.6.0",
     "file-loader": "^6.2.0",

@@ -11,7 +11,7 @@ import {
 } from "../../support/commands";
 import { payoutConnectorConfig } from "../../support/fixtures/payoutConnectorConfig";
 
-const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
+const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 test.describe("Payout Connector", () => {
   let email: string;

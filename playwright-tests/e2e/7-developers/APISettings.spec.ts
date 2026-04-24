@@ -3,7 +3,8 @@ import { signupUser, loginUI } from "../../support/commands";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { generateUniqueEmail } from "../../support/helper";
 
-const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
+const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
+
 
 test.describe("API Key Management", () => {
   test.beforeEach(async ({ page, context }) => {
@@ -55,9 +56,9 @@ test.describe("API Key Management", () => {
 
     await page.getByRole("button", { name: "Create", exact: true }).click();
 
-    await expect(page.getByText(/Please note down the API key/i)).toBeVisible({
-      timeout: 10000,
-    });
+    await expect(page.getByText(/Please note down the API key/i)).toBeVisible(
+      { timeout: 10000 },
+    );
 
     await expect(page.getByText(/snd_/i).first()).toBeVisible();
 
@@ -93,12 +94,13 @@ test.describe("API Key Management", () => {
     await expect(page.getByText("Create API Key")).toBeVisible();
   });
 
-  test("should handle very long name input appropriately", async ({ page }) => {
+  test("should handle very long name input appropriately", async ({
+    page,
+  }) => {
     const homePage = new HomePage(page);
     const longName =
       "ThisIsAVeryLongAPIKeyNameThatExceedsTheMaximumAllowedCharacterLimitForAPIKeyNamesInTheHyperswitchSystem";
-    const description =
-      "Very long API key name used to test validation limits in the Hyperswitch dashboard ensuring proper handling of oversized identifiers while maintaining stability enforcing strict maximum character constraints across all services and integrations consistently.";
+    const description = "Very long API key name used to test validation limits in the Hyperswitch dashboard ensuring proper handling of oversized identifiers while maintaining stability enforcing strict maximum character constraints across all services and integrations consistently.";
 
     await homePage.developer.click();
     await homePage.apiKeys.click();
@@ -110,22 +112,14 @@ test.describe("API Key Management", () => {
       .locator('input[name="description"]')
       .fill("API description for long name test");
 
-    await expect(
-      page.getByText("Name can't be more than 64 characters", { exact: true }),
-    ).toBeVisible();
+    await expect(page.getByText('Name can\'t be more than 64 characters', { exact: true })).toBeVisible();
 
     await page.locator('input[name="name"]').fill("API Key With Valid Name");
     await page.locator('input[name="description"]').fill(description);
-    await expect(
-      page.getByText("Description can't be more than 256 characters", {
-        exact: true,
-      }),
-    ).toBeVisible();
+    await expect(page.getByText('Description can\'t be more than 256 characters', { exact: true })).toBeVisible();
 
     await page.locator('input[name="description"]').clear();
-    await expect(
-      page.getByText("Please enter description", { exact: true }),
-    ).toBeVisible();
+    await expect(page.getByText('Please enter description', { exact: true })).toBeVisible();
   });
 
   test("should handle special characters in name", async ({ page }) => {
@@ -144,9 +138,9 @@ test.describe("API Key Management", () => {
       .fill("Key with special characters");
     await page.getByRole("button", { name: "Create", exact: true }).click();
 
-    await expect(page.getByText(/Please note down the API key/i)).toBeVisible({
-      timeout: 10000,
-    });
+    await expect(page.getByText(/Please note down the API key/i)).toBeVisible(
+      { timeout: 10000 },
+    );
 
     await expect(page.getByText(/snd_/i).first()).toBeVisible();
 
@@ -172,9 +166,9 @@ test.describe("API Key Management", () => {
       .fill("Test API key for automation");
     await page.getByRole("button", { name: "Create", exact: true }).click();
 
-    await expect(page.getByText(/Please note down the API key/i)).toBeVisible({
-      timeout: 10000,
-    });
+    await expect(page.getByText(/Please note down the API key/i)).toBeVisible(
+      { timeout: 10000 },
+    );
 
     await expect(page.getByText(/snd_/i).first()).toBeVisible();
 
@@ -221,14 +215,16 @@ test.describe("API Key Management", () => {
       .getByRole("button", { name: /close|done|ok/i })
       .first()
       .click()
-      .catch(() => {});
+      .catch(() => { });
     await page.waitForTimeout(1000);
 
     await expect(page.getByText(originalName)).toBeVisible();
 
     await page.getByText(originalName).hover();
     const editButton = page
-      .locator("[name='edit'], button:has-text('Edit'), [data-testid*='edit']")
+      .locator(
+        "[name='edit'], button:has-text('Edit'), [data-testid*='edit']",
+      )
       .first();
 
     if ((await editButton.count()) > 0) {
@@ -299,7 +295,7 @@ test.describe("API Key Management", () => {
       .getByRole("button", { name: /close|done|ok/i })
       .first()
       .click()
-      .catch(() => {});
+      .catch(() => { });
 
     await expect(page.getByText(keyName)).toBeVisible({ timeout: 10000 });
 

@@ -15,7 +15,7 @@ import {
 } from "../../support/commands";
 import { authenticator } from "otplib";
 
-const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
+const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 test.describe.serial("Sign up", () => {
   test("should verify all components on the sign-up page", async ({ page }) => {

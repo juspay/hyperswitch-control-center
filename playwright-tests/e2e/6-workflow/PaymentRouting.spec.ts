@@ -13,7 +13,7 @@ import {
   createDummyConnectorAPI,
 } from "../../support/commands";
 
-const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
+const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 test.describe("Volume based routing", () => {
   test.beforeEach(async ({ page, context }) => {

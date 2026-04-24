@@ -12,7 +12,7 @@ import {
 import { authenticator } from "otplib";
 import { HomePage } from "../support/pages/homepage/HomePage";
 
-const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
+const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 test.describe("Visual Testing - Auth Pages", () => {
   test("signup page should match visual snapshot", async ({ page }) => {

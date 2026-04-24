@@ -4,7 +4,7 @@ import { PaymentSettings } from "../../support/pages/developers/PaymentSettings"
 import { generateUniqueEmail } from "../../support/helper";
 import { signupUser, loginUI } from "../../support/commands";
 
-const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
+const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 test.describe("Payment Settings", () => {
   test.beforeEach(async ({ page, context }) => {
