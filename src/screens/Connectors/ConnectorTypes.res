@@ -139,12 +139,14 @@ type processorTypes =
   | TRUELAYER
   | FISERVCOMMERCEHUB
   | TRUSTLY
+  | IMERCHANTSOLUTIONS
 
 type payoutProcessorTypes =
   | ADYEN
   | ADYENPLATFORM
   | CYBERSOURCE
   | EBANX
+  | ITAUBANK
   | PAYPAL
   | STRIPE
   | WISE

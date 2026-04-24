@@ -23,6 +23,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(ADYENPLATFORM),
   PayoutProcessor(CYBERSOURCE),
   PayoutProcessor(EBANX),
+  PayoutProcessor(ITAUBANK),
   PayoutProcessor(PAYPAL),
   PayoutProcessor(STRIPE),
   PayoutProcessor(WISE),
@@ -183,6 +184,7 @@ let connectorList: array<connectorTypes> = [
   Processors(REVOLV3),
   Processors(TRUELAYER),
   Processors(TRUSTLY),
+  Processors(IMERCHANTSOLUTIONS),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -721,6 +723,10 @@ let nomupayInfo = {
   description: "A payment processing and software provider, that offers solutions such as e-commerce solutions, subscription billing services, payment gateways, and merchant accounts, to businesses of all sizes.",
 }
 
+let imerchantsolutionsInfo = {
+  description: "iMerchant Solutions is a modern payment processing platform that empowers businesses to accept payments globally with fast and low-friction onboarding.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -994,6 +1000,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | TRUELAYER => "truelayer"
   | FISERVCOMMERCEHUB => "fiservcommercehub"
   | TRUSTLY => "trustly"
+  | IMERCHANTSOLUTIONS => "imerchantsolutions"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1002,6 +1009,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | ADYENPLATFORM => "adyenplatform"
   | CYBERSOURCE => "cybersource"
   | EBANX => "ebanx"
+  | ITAUBANK => "itaubank"
   | PAYPAL => "paypal"
   | STRIPE => "stripe"
   | WISE => "wise"
@@ -1193,6 +1201,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "truelayer" => Processors(TRUELAYER)
     | "fiservcommercehub" => Processors(FISERVCOMMERCEHUB)
     | "trustly" => Processors(TRUSTLY)
+    | "imerchantsolutions" => Processors(IMERCHANTSOLUTIONS)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1201,6 +1210,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "adyenplatform" => PayoutProcessor(ADYENPLATFORM)
     | "cybersource" => PayoutProcessor(CYBERSOURCE)
     | "ebanx" => PayoutProcessor(EBANX)
+    | "itaubank" => PayoutProcessor(ITAUBANK)
     | "paypal" => PayoutProcessor(PAYPAL)
     | "stripe" => PayoutProcessor(STRIPE)
     | "wise" => PayoutProcessor(WISE)
@@ -1370,6 +1380,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | TRUELAYER => truelayerInfo
   | FISERVCOMMERCEHUB => fiservcommercehubInfo
   | TRUSTLY => trustlyInfo
+  | IMERCHANTSOLUTIONS => imerchantsolutionsInfo
   }
 }
 
@@ -1379,6 +1390,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | ADYENPLATFORM => adyenPlatformInfo
   | CYBERSOURCE => cybersourceInfo
   | EBANX => ebanxInfo
+  | ITAUBANK => itauBankInfo
   | PAYPAL => paypalInfo
   | STRIPE => stripeInfo
   | WISE => wiseInfo
@@ -2351,6 +2363,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | TRUELAYER => "Truelayer"
   | FISERVCOMMERCEHUB => "Fiserv Commerce Hub"
   | TRUSTLY => "Trustly"
+  | IMERCHANTSOLUTIONS => "iMerchant Solutions"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2359,6 +2372,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | ADYENPLATFORM => "Adyen Platform"
   | CYBERSOURCE => "Cybersource"
   | EBANX => "Ebanx"
+  | ITAUBANK => "Itaubank"
   | PAYPAL => "PayPal"
   | STRIPE => "Stripe"
   | WISE => "Wise"
@@ -2431,6 +2445,26 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
   | VaultProcessor(vaultProcessor) => vaultProcessor->getDisplayNameForVaultProcessor
   | UnknownConnector(str) => str
   }
+}
+
+let getConnectorFilterOptions = (
+  ~connectorType=ConnectorTypes.Processor,
+  values: array<string>,
+): array<FilterSelectBox.dropdownOption> => {
+  values->Array.filterMap(str => {
+    switch str->String.toLowerCase->getConnectorNameTypeFromString(~connectorType) {
+    | UnknownConnector(_) => None
+    | _ =>
+      Some(
+        (
+          {
+            label: getDisplayNameForConnector(~connectorType, str),
+            value: str,
+          }: FilterSelectBox.dropdownOption
+        ),
+      )
+    }
+  })
 }
 
 // Need to remove connector and merge connector and connectorTypeVariants
@@ -2536,7 +2570,8 @@ let checkIfPredecryptFlowEnabledForApplePay = connector => {
   | Processors(ADYEN)
   | Processors(CHECKOUT)
   | Processors(WORLDPAYVANTIV)
-  | Processors(NMI) => true
+  | Processors(NMI)
+  | Processors(STRIPE) => true
   | _ => false
   }
 }
@@ -2547,7 +2582,8 @@ let checkIfPredecryptFlowEnabledForGooglePay = connector => {
   | Processors(ADYEN)
   | Processors(CHECKOUT)
   | Processors(WORLDPAYVANTIV)
-  | Processors(NMI) => true
+  | Processors(NMI)
+  | Processors(STRIPE) => true
   | _ => false
   }
 }

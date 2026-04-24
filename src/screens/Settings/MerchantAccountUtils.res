@@ -774,6 +774,7 @@ let defaultValueForBusinessProfile: BusinessProfileInterfaceTypesV1.profileEntit
   payment_link_config: None,
   is_external_vault_enabled: None,
   external_vault_connector_details: None,
+  payment_method_blocking: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {

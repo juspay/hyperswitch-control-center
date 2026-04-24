@@ -184,11 +184,9 @@ let make = (
                     setShowEditForm(_ => true)
                   }}>
                   <ToolTip
-                    height=""
                     description={`Update the ${connectorName} creds`}
                     toolTipFor={<Icon size=18 name="edit" className={`mt-1 ml-1`} />}
                     toolTipPosition=Top
-                    tooltipWidthClass="w-fit"
                   />
                 </div>
               </RenderIf>

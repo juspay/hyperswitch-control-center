@@ -52,7 +52,6 @@ module ShowOrderDetails = {
               description="Original amount that was authorized for the payment"
               toolTipFor={<Icon name="tooltip_info" className={`mt-1 ml-1`} />}
               toolTipPosition=Top
-              tooltipWidthClass="w-fit"
             />
           </div>
           {statusUI}

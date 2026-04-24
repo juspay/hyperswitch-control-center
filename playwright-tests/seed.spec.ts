@@ -3,7 +3,7 @@ import { generateUniqueEmail } from "./support/helper";
 import { signupUser, loginUI } from "./support/commands";
 
 test.describe("Sign In - Happy Flow", () => {
-  const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
+  const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
   let email: string;
 
   test.beforeEach(async ({ page }) => {
