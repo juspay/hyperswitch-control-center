@@ -120,7 +120,6 @@ let make = () => {
             <p className={`text-nd_gray-600 ${body.md.regular}`}> {orgId->React.string} </p>
             <ToolTip
               description="Copy Organization ID"
-              customStyle="!whitespace-nowrap"
               toolTipFor={<div className="cursor-pointer">
                 <HelperComponents.CopyTextCustomComp
                   customIconCss="text-nd_gray-500" displayValue=Some("") copyValue=Some(orgId)
