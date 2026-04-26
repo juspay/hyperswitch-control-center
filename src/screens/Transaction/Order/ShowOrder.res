@@ -687,6 +687,13 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     None
   }, [id])
 
+  React.useEffect(() => {
+    let key = "last_viewed_" ++ id
+    let now = Date.make()->Date.toISOString
+    LocalStorage.setItem(key, now)
+    None
+  }, [id])
+
   let isRefundDataAvailable = orderData.refunds->Array.length !== 0
 
   let isDisputeDataVisible = orderData.disputes->Array.length !== 0

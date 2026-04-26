@@ -96,6 +96,7 @@ type colType =
   | MerchantOrderReferenceId
   | AttemptCount
   | PaymentType
+  | LastViewed
 
 type summaryColType =
   | Created

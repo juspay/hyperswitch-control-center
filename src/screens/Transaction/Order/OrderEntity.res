@@ -313,6 +313,7 @@ let defaultColumns: array<colType> = [
   Metadata,
   Created,
   Modified,
+  LastViewed,
 ]
 //Columns array for V1 Orders page
 let allColumnsV1 = [
@@ -340,6 +341,7 @@ let allColumnsV1 = [
   AttemptCount,
   CardNetwork,
   ErrorMessage,
+  LastViewed,
 ]
 
 //Columns array for V2 Orders page
@@ -368,6 +370,7 @@ let allColumnsV2 = [
   CardNetwork,
   PaymentType,
   ErrorMessage,
+  LastViewed,
 ]
 
 let getHeading = (~devSortEnabled, colType: colType) => {
@@ -425,6 +428,7 @@ let getHeading = (~devSortEnabled, colType: colType) => {
     Table.makeHeaderInfo(~key="merchant_order_reference_id", ~title="Merchant Order Reference Id")
   | AttemptCount => Table.makeHeaderInfo(~key="attempt_count", ~title="Attempt count")
   | PaymentType => Table.makeHeaderInfo(~key="payment_type", ~title="Payment Type")
+  | LastViewed => Table.makeHeaderInfo(~key="last_viewed", ~title="Last Viewed")
   }
 }
 
@@ -832,6 +836,12 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
     | Some(true) => Text("Split")
     | Some(false) => Text("Standard")
     | None => Text("N/A")
+    }
+  | LastViewed =>
+    let key = "last_viewed_" ++ order.payment_id
+    switch LocalStorage.getItem(key)->Nullable.toOption {
+    | Some(v) => Date(v)
+    | None => Text("Never")
     }
   }
 }
