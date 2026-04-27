@@ -47,7 +47,6 @@ module RetryUpliftCard = {
             <Icon name="info-vacent" size=15 />
           </div>}
           toolTipPosition=ToolTip.Top
-          newDesign=true
         />
       </div>
       <div className="flex items-center space-x-3 mb-3">
