@@ -431,9 +431,6 @@ module CreateNewStyleID = {
         authorization=Access
         noAccessDescription="You do not have the required permissions for this action. Please contact your admin."
         onClick={_ => setShowModal(_ => true)}
-        isRelative=false
-        contentAlign=Default
-        tooltipForWidthClass="!h-full"
         className="cursor-pointer w-full"
         showTooltip=true>
         {<>
