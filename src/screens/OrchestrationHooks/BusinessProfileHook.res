@@ -11,12 +11,13 @@ let useFetchBusinessProfileFromIdV1 = () => {
   async (~profileId) => {
     try {
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Get, ~id=profileId)
-      let res = await fetchDetails(url, ~version=V1)
-      //Todo: remove id atom once we start using businessProfileInterface
-      setBusinessProfileRecoil(_ => res->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1)
-      let commonTypedData = mapJsonToCommonType(businessProfileInterfaceV1, res)
+      let businessProfile = await fetchDetails(url, ~version=V1)
+      setBusinessProfileRecoil(_ =>
+        businessProfile->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
+      )
+      let commonTypedData = mapJsonToCommonType(businessProfileInterfaceV1, businessProfile)
       setBusinessProfileInterfaceRecoil(_ => commonTypedData)
-      res
+      businessProfile
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
@@ -35,12 +36,13 @@ let useFetchBusinessProfileFromIdV2 = () => {
   async (~profileId) => {
     try {
       let url = getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Get, ~id=profileId)
-      let res = await fetchDetails(url, ~version=V2)
-      //Todo: remove id atom once we start using businessProfileInterface
-      setBusinessProfileRecoil(_ => res->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1)
-      let commonTypedData = mapJsonToCommonType(businessProfileInterfaceV2, res)
+      let businessProfile = await fetchDetails(url, ~version=V2)
+      setBusinessProfileRecoil(_ =>
+        businessProfile->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
+      )
+      let commonTypedData = mapJsonToCommonType(businessProfileInterfaceV2, businessProfile)
       setBusinessProfileInterfaceRecoil(_ => commonTypedData)
-      res
+      businessProfile
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
@@ -75,10 +77,10 @@ let useUpdateBusinessProfileV1 = () => {
       let finalBody = shouldTransform ? transformedBody : body
 
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let res = await updateDetails(url, finalBody, Post)
-      let commonTypedData = mapJsonToCommonType(businessProfileInterfaceV1, res)
+      let updatedBusinessProfile = await updateDetails(url, finalBody, Post)
+      let commonTypedData = mapJsonToCommonType(businessProfileInterfaceV1, updatedBusinessProfile)
       setBusinessProfileRecoil(_ => commonTypedData)
-      res
+      updatedBusinessProfile
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
@@ -102,10 +104,10 @@ let useUpdateBusinessProfileV2 = () => {
       let finalBody = shouldTransform ? transformedBody : body
 
       let url = getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Put, ~id=Some(profileId))
-      let res = await updateDetails(url, finalBody, Put)
-      let commonTypedData = mapJsonToCommonType(businessProfileInterfaceV2, res)
+      let updatedBusinessProfile = await updateDetails(url, finalBody, Put)
+      let commonTypedData = mapJsonToCommonType(businessProfileInterfaceV2, updatedBusinessProfile)
       setBusinessProfileRecoil(_ => commonTypedData)
-      res
+      updatedBusinessProfile
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
