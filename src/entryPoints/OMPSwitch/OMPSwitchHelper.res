@@ -480,72 +480,9 @@ module MerchantDropdownItem = {
 }
 
 module ProfileDropdownItem = {
-  open APIUtils
-
-  let getProfileListV1 = async (
-    ~getURL,
-    ~fetchDetails,
-    ~profileId,
-    ~setProfileList,
-    ~showToast,
-  ) => {
-    try {
-      let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
-      let response = await fetchDetails(url)
-      setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
-    } catch {
-    | _ => {
-        setProfileList(_ => [OMPSwitchUtils.ompDefaultValue(profileId, "")])
-        showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
-      }
-    }
-  }
-
-  let getProfileListV2 = async (
-    ~getURL,
-    ~fetchDetails,
-    ~profileId,
-    ~setProfileList,
-    ~showToast,
-  ) => {
-    try {
-      let url = getURL(~entityName=V2(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
-      let response = await fetchDetails(url, ~version=V2)
-      setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
-    } catch {
-    | _ => {
-        setProfileList(_ => [OMPSwitchUtils.ompDefaultValue(profileId, "")])
-        showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
-      }
-    }
-  }
-
-  let updateProfileNameV1 = async (
-    ~getURL,
-    ~updateDetails,
-    ~profileId,
-    ~body,
-    ~setBusinessProfileRecoil,
-  ) => {
-    let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-    let res = await updateDetails(url, body, Post)
-    setBusinessProfileRecoil(_ => res->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1)
-  }
-
-  let updateProfileNameV2 = async (
-    ~getURL,
-    ~updateDetails,
-    ~profileId,
-    ~body,
-    ~setBusinessProfileRecoil,
-  ) => {
-    let url = getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Put, ~id=Some(profileId))
-    let res = await updateDetails(url, body, Put)
-    setBusinessProfileRecoil(_ => res->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1)
-  }
-
   @react.component
   let make = (~profileName, ~index: int, ~currentId, ~profileSwitch) => {
+    open APIUtils
     let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
     let handleIdUnderEdit = (selectedEditId: option<int>) => {
       setUnderEdit(_ => selectedEditId)
@@ -565,12 +502,53 @@ module ProfileDropdownItem = {
     let setBusinessProfileRecoil =
       HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
+
+    let getProfileListV1 = async () => {
+      try {
+        let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+        let response = await fetchDetails(url)
+        setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
+      } catch {
+      | _ => {
+          setProfileList(_ => [OMPSwitchUtils.ompDefaultValue(profileId, "")])
+          showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
+        }
+      }
+    }
+
+    let getProfileListV2 = async () => {
+      try {
+        let url = getURL(~entityName=V2(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+        let response = await fetchDetails(url, ~version=V2)
+        setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
+      } catch {
+      | _ => {
+          setProfileList(_ => [OMPSwitchUtils.ompDefaultValue(profileId, "")])
+          showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
+        }
+      }
+    }
+
+    let updateProfileNameV1 = async (~body) => {
+      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
+      let response = await updateDetails(url, body, Post)
+      setBusinessProfileRecoil(_ =>
+        response->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
+      )
+    }
+
+    let updateProfileNameV2 = async (~body) => {
+      let url = getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Put, ~id=Some(profileId))
+      let response = await updateDetails(url, body, Put)
+      setBusinessProfileRecoil(_ =>
+        response->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
+      )
+    }
+
     let getProfileList = async () => {
       switch version {
-      | V1 =>
-        await getProfileListV1(~getURL, ~fetchDetails, ~profileId, ~setProfileList, ~showToast)
-      | V2 =>
-        await getProfileListV2(~getURL, ~fetchDetails, ~profileId, ~setProfileList, ~showToast)
+      | V1 => await getProfileListV1()
+      | V2 => await getProfileListV2()
       }
     }
     let validateInput = (newProfileName: string) => {
@@ -596,22 +574,8 @@ module ProfileDropdownItem = {
       try {
         let body = [("profile_name", newProfileName->JSON.Encode.string)]->getJsonFromArrayOfJson
         switch version {
-        | V1 =>
-          await updateProfileNameV1(
-            ~getURL,
-            ~updateDetails,
-            ~profileId,
-            ~body,
-            ~setBusinessProfileRecoil,
-          )
-        | V2 =>
-          await updateProfileNameV2(
-            ~getURL,
-            ~updateDetails,
-            ~profileId,
-            ~body,
-            ~setBusinessProfileRecoil,
-          )
+        | V1 => await updateProfileNameV1(~body)
+        | V2 => await updateProfileNameV2(~body)
         }
         let _ = await getProfileList()
         showToast(~message="Updated Profile name!", ~toastType=ToastSuccess)
