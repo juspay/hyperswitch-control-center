@@ -1718,17 +1718,6 @@ let generateInitialValuesDict = (
   | _ => JSON.Encode.null
   }
   dict->Dict.set("connector_webhook_details", connectorWebhookDict)
-
-  switch connectorType {
-  | ConnectorTypes.ThreeDsAuthenticator =>
-    let metadataDict = dict->getDictfromDict("metadata")
-    if metadataDict->Dict.get("pull_mechanism_for_external_3ds_enabled")->Option.isNone {
-      metadataDict->Dict.set("pull_mechanism_for_external_3ds_enabled", false->JSON.Encode.bool)
-    }
-    dict->Dict.set("metadata", metadataDict->JSON.Encode.object)
-  | _ => ()
-  }
-
   dict->JSON.Encode.object
 }
 
@@ -2587,4 +2576,16 @@ let checkIfPredecryptFlowEnabledForGooglePay = connector => {
   | Processors(STRIPE) => true
   | _ => false
   }
+}
+
+let threeDsMetadataFieldDefaults: array<(string, JSON.t)> = [
+  ("pull_mechanism_for_external_3ds_enabled", true->JSON.Encode.bool),
+]
+
+let getStaticDefaultValuesForThreeDs = (initialValuesDict: dict<JSON.t>) => {
+  initialValuesDict->Dict.set(
+    "metadata",
+    Dict.fromArray(threeDsMetadataFieldDefaults)->JSON.Encode.object,
+  )
+  initialValuesDict->JSON.Encode.object
 }
