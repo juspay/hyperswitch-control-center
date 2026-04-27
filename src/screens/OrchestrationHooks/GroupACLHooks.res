@@ -28,6 +28,27 @@ type userGroupACLType = {
   hasAllGroupsAccess: array<CommonAuthTypes.authorization> => CommonAuthTypes.authorization,
 }
 
+// Todo: Remove the fallback logic when Recon Engine permission groups are added in production backend
+let reconGroupFallback: array<UserManagementTypes.groupAccessType> = [
+  ReconSourcesView,
+  ReconSourcesManage,
+  ReconTransactionsView,
+  ReconTransactionsManage,
+  ReconRulesView,
+  ReconRulesManage,
+  ReconExceptionsView,
+  ReconExceptionsManage,
+]
+
+let reconResourceFallback: array<UserManagementTypes.resourceAccessType> = [
+  ReconIngestion,
+  ReconTransformation,
+  ReconException,
+  ReconStagingEntry,
+  ReconTransaction,
+  ReconRule,
+]
+
 let useUserGroupACLHook = () => {
   open APIUtils
   open LogicUtils
@@ -38,6 +59,7 @@ let useUserGroupACLHook = () => {
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let setuserPermissionJson = Recoil.useSetRecoilState(userPermissionAtom)
   let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
+  let {reconEnginePermissions} = featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchUserGroupACL = async () => {
     try {
@@ -45,24 +67,27 @@ let useUserGroupACLHook = () => {
       let response = await fetchDetails(url)
       let dict = response->getDictFromJsonObject
 
-      let groupsAccessValue = getStrArrayFromDict(dict, "groups", [])
+      let groupsAccessValue =
+        getStrArrayFromDict(dict, "groups", [])->Array.map(mapStringToGroupAccessType)
+      let resourcesAccessValue =
+        getStrArrayFromDict(dict, "resources", [])->Array.map(mapStringToResourceAccessType)
 
-      let resourcesAccessValue = getStrArrayFromDict(dict, "resources", [])
+      let effectiveGroups = reconEnginePermissions
+        ? groupsAccessValue
+        : groupsAccessValue->Array.concat(reconGroupFallback)
+      let effectiveResources = reconEnginePermissions
+        ? resourcesAccessValue
+        : resourcesAccessValue->Array.concat(reconResourceFallback)
 
-      let userGroupACLMap =
-        groupsAccessValue->Array.map(ele => ele->mapStringToGroupAccessType)->convertValueToMapGroup
-      let resourceACLMap =
-        resourcesAccessValue
-        ->Array.map(ele => ele->mapStringToResourceAccessType)
-        ->convertValueToMapResources
+      let userGroupACLMap = effectiveGroups->convertValueToMapGroup
+      let resourceACLMap = effectiveResources->convertValueToMapResources
 
       setuserGroupACL(_ => Some({
         groups: userGroupACLMap,
         resources: resourceACLMap,
       }))
 
-      let permissionJson =
-        groupsAccessValue->Array.map(ele => ele->mapStringToGroupAccessType)->getGroupAccessJson
+      let permissionJson = effectiveGroups->getGroupAccessJson
       setuserPermissionJson(_ => permissionJson)
       permissionJson
     } catch {
