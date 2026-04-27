@@ -159,191 +159,165 @@ module ConfiguratorForm = {
 
     <PageLoaderWrapper screenState>
       <RenderIf condition={selectedStyleId->isNonEmptyString}>
-        <div className="bg-white rounded-lg">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8 w-full">
-            <div className="w-full">
-              <div className="space-y-4">
-                <h4 className={`text-nd_gray-700 mb-3 ${body.xl.semibold}`}>
-                  {"Payment Link Settings"->React.string}
-                </h4>
-                <Form
-                  formClass="space-y-4"
-                  initialValues
-                  onSubmit={(values, _) => onSubmit(values, false)}>
-                  <HelperComponents.AutoSubmitter
-                    autoApply=true
-                    submit={(values, _) => onSubmit(values, true)}
-                    submitInputOnEnter=true
-                  />
-                  <style> {React.string(configuratorScrollbarCss)} </style>
-                  <div
-                    className="flex flex-col gap-3 rounded-lg border border-nd_gray-150 p-4 h-650-px overflow-scroll configurator-scrollbar !m-0">
-                    <FieldRenderer field={makeLogoField()} fieldWrapperClass="!w-full" />
-                    <FieldRenderer field={makeAmountField()} fieldWrapperClass="!w-full" />
-                    <FieldRenderer field={makeCurrencyField()} fieldWrapperClass="!w-full" />
-                    <FieldRenderer field={makeCaptureMethodField()} fieldWrapperClass="!w-full" />
-                    <FieldRenderer
-                      field={makeAuthenticationTypeField()} fieldWrapperClass="!w-full"
-                    />
-                    <FieldRenderer
-                      field={makeSetupFutureUsageField()} fieldWrapperClass="!w-full"
-                    />
-                    <FieldRenderer
-                      field={makeRequestExternal3dsField()}
-                      fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
-                      labelPadding="py-0"
-                    />
-                    <FieldRenderer field={makeSellerNameField()} fieldWrapperClass="!w-full" />
-                    <FieldRenderer
-                      field={makeMerchantDescriptionField()} fieldWrapperClass="!w-full"
-                    />
-                    <FieldRenderer
-                      field={makePaymentButtonTextField()} fieldWrapperClass="!w-full"
-                    />
-                    <FieldRenderer
-                      field={makeCustomMessageForCardTermsField()} fieldWrapperClass="!w-full"
-                    />
-                    <FieldRenderer
-                      field={makeShowCardTermsField()}
-                      fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
-                      labelPadding="py-0"
-                    />
-                    <FieldRenderer
-                      field={makeHideCardNicknameField()}
-                      fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
-                      labelPadding="py-0"
-                    />
-                    <FieldRenderer
-                      field={makeDisplaySdkOnlyField()}
-                      fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
-                      labelPadding="py-0"
-                    />
-                    <FieldRenderer
-                      field={makeBrandingVisibilityField()}
-                      fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
-                      labelPadding="py-0"
-                    />
-                    <FieldRenderer
-                      field={makeThemeField(
-                        ~defaultValue=initialValues
-                        ->getDictFromJsonObject
-                        ->getString("theme", ""),
-                      )}
-                      fieldWrapperClass="!w-full"
-                    />
-                    <FieldRenderer
-                      field={makeBackgroundColorField(
-                        ~defaultValue=initialValues
-                        ->getDictFromJsonObject
-                        ->getString("background_color", ""),
-                      )}
-                      fieldWrapperClass="!w-full"
-                    />
-                    <FieldRenderer
-                      field={makePaymentButtonColorField(
-                        ~defaultValue=initialValues
-                        ->getDictFromJsonObject
-                        ->getString("payment_button_colour", ""),
-                      )}
-                      fieldWrapperClass="!w-full"
-                    />
-                    <FieldRenderer
-                      field={makePaymentButtonTextColorField(
-                        ~defaultValue=initialValues
-                        ->getDictFromJsonObject
-                        ->getString("payment_button_text_colour", ""),
-                      )}
-                      fieldWrapperClass="!w-full"
-                    />
-                    <FieldRenderer
-                      field={makeColorIconCardCvcErrorField(
-                        ~defaultValue=initialValues
-                        ->getDictFromJsonObject
-                        ->getString("color_icon_card_cvc_error", ""),
-                      )}
-                      fieldWrapperClass="!w-full"
-                    />
-                    <FieldRenderer field={makeDetailsLayoutField()} fieldWrapperClass="!w-full" />
-                    <FieldRenderer field={makeSdkLayoutField()} fieldWrapperClass="!w-full" />
-                  </div>
-                  <div className="flex justify-between pt-4">
-                    <SubmitButton
-                      text="Save Payment Link Theme" buttonType={Primary} buttonSize={Medium}
-                    />
-                  </div>
-                </Form>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8 w-full bg-white rounded-lg">
+          <div className="space-y-4">
+            <h4 className={`text-nd_gray-700 mb-3 ${body.xl.semibold}`}>
+              {"Payment Link Settings"->React.string}
+            </h4>
+            <Form
+              formClass="space-y-4" initialValues onSubmit={(values, _) => onSubmit(values, false)}>
+              <HelperComponents.AutoSubmitter
+                autoApply=true
+                submit={(values, _) => onSubmit(values, true)}
+                submitInputOnEnter=true
+              />
+              <style> {React.string(configuratorScrollbarCss)} </style>
+              <div
+                className="flex flex-col gap-3 rounded-lg border border-nd_gray-150 p-4 h-650-px overflow-scroll configurator-scrollbar !m-0">
+                <FieldRenderer field={makeLogoField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer field={makeAmountField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer field={makeCurrencyField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer field={makeCaptureMethodField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer field={makeAuthenticationTypeField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer field={makeSetupFutureUsageField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer
+                  field={makeRequestExternal3dsField()}
+                  fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
+                  labelPadding="py-0"
+                />
+                <FieldRenderer field={makeSellerNameField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer field={makeMerchantDescriptionField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer field={makePaymentButtonTextField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer
+                  field={makeCustomMessageForCardTermsField()} fieldWrapperClass="!w-full"
+                />
+                <FieldRenderer
+                  field={makeShowCardTermsField()}
+                  fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
+                  labelPadding="py-0"
+                />
+                <FieldRenderer
+                  field={makeHideCardNicknameField()}
+                  fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
+                  labelPadding="py-0"
+                />
+                <FieldRenderer
+                  field={makeDisplaySdkOnlyField()}
+                  fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
+                  labelPadding="py-0"
+                />
+                <FieldRenderer
+                  field={makeBrandingVisibilityField()}
+                  fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
+                  labelPadding="py-0"
+                />
+                <FieldRenderer
+                  field={makeThemeField(
+                    ~defaultValue=initialValues
+                    ->getDictFromJsonObject
+                    ->getString("theme", ""),
+                  )}
+                  fieldWrapperClass="!w-full"
+                />
+                <FieldRenderer
+                  field={makeBackgroundColorField(
+                    ~defaultValue=initialValues
+                    ->getDictFromJsonObject
+                    ->getString("background_color", ""),
+                  )}
+                  fieldWrapperClass="!w-full"
+                />
+                <FieldRenderer
+                  field={makePaymentButtonColorField(
+                    ~defaultValue=initialValues
+                    ->getDictFromJsonObject
+                    ->getString("payment_button_colour", ""),
+                  )}
+                  fieldWrapperClass="!w-full"
+                />
+                <FieldRenderer
+                  field={makePaymentButtonTextColorField(
+                    ~defaultValue=initialValues
+                    ->getDictFromJsonObject
+                    ->getString("payment_button_text_colour", ""),
+                  )}
+                  fieldWrapperClass="!w-full"
+                />
+                <FieldRenderer
+                  field={makeColorIconCardCvcErrorField(
+                    ~defaultValue=initialValues
+                    ->getDictFromJsonObject
+                    ->getString("color_icon_card_cvc_error", ""),
+                  )}
+                  fieldWrapperClass="!w-full"
+                />
+                <FieldRenderer field={makeDetailsLayoutField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer field={makeSdkLayoutField()} fieldWrapperClass="!w-full" />
               </div>
+              <div className="flex justify-between pt-4">
+                <SubmitButton
+                  text="Save Payment Link Theme" buttonType={Primary} buttonSize={Medium}
+                />
+              </div>
+            </Form>
+          </div>
+          <div className="sticky top-4">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className={`text-nd_gray-700 ${body.xl.semibold}`}>
+                {"Theme Preview"->React.string}
+              </h4>
             </div>
-            <div className="w-full">
-              <div className="sticky top-4 w-full">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className={`text-nd_gray-700 ${body.xl.semibold}`}>
-                    {"Theme Preview"->React.string}
-                  </h4>
-                </div>
-                <RenderIf condition={previewLoading}>
-                  <div
-                    className={`flex items-center gap-2 text-nd_gray-150 mb-2 ${body.md.medium}`}>
-                    <div
-                      className="animate-spin h-4 w-4 border-b-2 border-nd_primary_blue-500 rounded-full"
-                    />
-                    {"Generating..."->React.string}
-                  </div>
-                </RenderIf>
-                <div className="bg-nd_gray-25 rounded-lg border border-nd_gray-150 h-650-px">
-                  <MobilePreviewFrame>
-                    <div className=" rounded-lg w-full h-590-px flex flex-col bg-white">
-                      {switch (previewLoading, previewError, previewHtml) {
-                      | (true, _, _) =>
-                        <div className="flex items-center justify-center h-full w-full">
-                          <div className="text-center">
-                            <div className="animate-pulse space-y-4 w-full">
-                              <div className="h-4 bg-nd_gray-200 rounded w-3/4 mx-auto" />
-                              <div className="h-4 bg-nd_gray-200 rounded w-1/2 mx-auto" />
-                              <div className="h-32 bg-nd_gray-200 rounded w-full" />
-                              <div className="h-4 bg-nd_gray-200 rounded w-2/3 mx-auto" />
-                            </div>
-                            <p className={`text-nd_gray-500 mt-4 ${body.md.medium}`}>
-                              {"Generating preview..."->React.string}
-                            </p>
-                          </div>
+            <div className="bg-nd_gray-25 rounded-lg border border-nd_gray-150 h-650-px">
+              <MobilePreviewFrame>
+                <div className="rounded-lg w-full h-590-px flex flex-col bg-white">
+                  {switch (previewLoading, previewError, previewHtml) {
+                  | (true, _, _) =>
+                    <div className="flex items-center justify-center h-full w-full">
+                      <div className="text-center">
+                        <div className="animate-pulse space-y-4 w-full">
+                          <div className="h-32 bg-nd_gray-200 rounded w-full" />
+                          <div className="h-4 bg-nd_gray-200 rounded w-1/2 mx-auto" />
+                          <div className="h-4 bg-nd_gray-200 rounded w-2/3 mx-auto" />
+                          <div className="h-4 bg-nd_gray-200 rounded w-3/4 mx-auto" />
                         </div>
-                      | (false, Some(error), _) =>
-                        <div className="flex items-center justify-center h-full w-full">
-                          <div className="text-center">
-                            <div className="text-nd_red-500 mb-4">
-                              <Icon name="cross-icon" size=24 />
-                            </div>
-                            <p className={`text-nd_red-600 mb-2 ${body.md.medium}`}>
-                              {"Preview Generation Failed"->React.string}
-                            </p>
-                            <p className={`text-nd_gray-500 max-w-md ${body.md.medium}`}>
-                              {error->React.string}
-                            </p>
-                          </div>
-                        </div>
-                      | (false, None, html) =>
-                        <div
-                          className="w-full h-full flex-1 overflow-hidden rounded-lg bg-white relative">
-                          <iframe
-                            className="w-full h-full border-0"
-                            style={ReactDOM.Style.make(
-                              ~transform="scale(0.75)",
-                              ~transformOrigin="top left",
-                              ~width="133%",
-                              ~height="133%",
-                              (),
-                            )}
-                            srcDoc=html
-                            sandbox="allow-scripts allow-same-origin"
-                            title="Payment Link Preview"
-                          />
-                        </div>
-                      }}
+                        <p className={`text-nd_gray-500 mt-4 ${body.md.medium}`}>
+                          {"Generating preview..."->React.string}
+                        </p>
+                      </div>
                     </div>
-                  </MobilePreviewFrame>
+                  | (false, Some(error), _) =>
+                    <div className="flex items-center justify-center h-full w-full">
+                      <div className="text-center">
+                        <div className="text-nd_red-500 mb-4">
+                          <Icon name="cross-icon" size=24 />
+                        </div>
+                        <p className={`text-nd_red-600 mb-2 ${body.md.medium}`}>
+                          {"Preview Generation Failed"->React.string}
+                        </p>
+                        <p className={`text-nd_gray-500 max-w-md ${body.md.medium}`}>
+                          {error->React.string}
+                        </p>
+                      </div>
+                    </div>
+                  | (false, None, html) =>
+                    <div className="h-full flex-1 overflow-hidden rounded-lg bg-white relative">
+                      <iframe
+                        className="w-full h-full border-0"
+                        style={ReactDOM.Style.make(
+                          ~transform="scale(0.75)",
+                          ~transformOrigin="top left",
+                          ~width="133%",
+                          ~height="133%",
+                          (),
+                        )}
+                        srcDoc=html
+                        sandbox="allow-scripts allow-same-origin"
+                        title="Payment Link Preview"
+                      />
+                    </div>
+                  }}
                 </div>
-              </div>
+              </MobilePreviewFrame>
             </div>
           </div>
         </div>
@@ -363,12 +337,7 @@ module CreateNewStyleID = {
       HyperswitchAtom.businessProfileFromIdAtomInterface,
     )
     let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
-
-    let cursorStyles = authorization =>
-      authorization === CommonAuthTypes.Access ? "cursor-pointer" : "cursor-not-allowed"
-
     let customStyle = "text-primary bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full"
-    let addItemBtnStyle = "w-full"
 
     let styleIdField = makeFieldInfo(
       ~label="Payment Link Config ID",
@@ -424,6 +393,7 @@ module CreateNewStyleID = {
             heading="Create a new Payment Link Config ID"
             subHeading=""
             customSubHeadingStyle="w-full !max-w-none pr-10"
+            customHeadingStyle="text-black"
           />
           <div className="h-fit" onClick={_ => setShowModal(_ => false)}>
             <Icon name="modal-close-icon" className="cursor-pointer" size=30 />
@@ -464,7 +434,6 @@ module CreateNewStyleID = {
         isRelative=false
         contentAlign=Default
         tooltipForWidthClass="!h-full"
-        className={`${cursorStyles(Access)} ${addItemBtnStyle}`}
         showTooltip=true>
         {<>
           <hr />
