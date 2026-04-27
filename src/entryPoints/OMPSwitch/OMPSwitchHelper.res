@@ -1,5 +1,6 @@
 open Typography
 open LogicUtils
+open OMPSwitchUtils
 
 module PlatformMerchantModalContent = {
   @react.component
@@ -388,7 +389,7 @@ module MerchantDropdownItem = {
 
     let validateInput = (merchantName: string) => {
       let errors = Dict.make()
-      let errorMessage = OMPSwitchUtils.validateOmpName(
+      let errorMessage = validateOmpName(
         ~name=merchantName,
         ~list=merchantList,
         ~entityLabel="Merchant",
@@ -507,10 +508,10 @@ module ProfileDropdownItem = {
       try {
         let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
         let response = await fetchDetails(url)
-        setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
+        setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
       } catch {
       | _ => {
-          setProfileList(_ => [OMPSwitchUtils.ompDefaultValue(profileId, "")])
+          setProfileList(_ => [ompDefaultValue(profileId, "")])
           showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
         }
       }
@@ -520,10 +521,10 @@ module ProfileDropdownItem = {
       try {
         let url = getURL(~entityName=V2(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
         let response = await fetchDetails(url, ~version=V2)
-        setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
+        setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
       } catch {
       | _ => {
-          setProfileList(_ => [OMPSwitchUtils.ompDefaultValue(profileId, "")])
+          setProfileList(_ => [ompDefaultValue(profileId, "")])
           showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
         }
       }
@@ -553,7 +554,7 @@ module ProfileDropdownItem = {
     }
     let validateInput = (newProfileName: string) => {
       let errors = Dict.make()
-      let errorMessage = OMPSwitchUtils.validateOmpName(
+      let errorMessage = validateOmpName(
         ~name=newProfileName,
         ~list=profileList,
         ~entityLabel="Profile",
@@ -676,7 +677,7 @@ let generateDropdownOptionsCustomComponent: (
       ),
       optGroup: {
         switch item.type_ {
-        | Some(val) => val->OMPSwitchUtils.ompTypeHeading->String.toUpperCase
+        | Some(val) => val->ompTypeHeading->String.toUpperCase
         | None => ""
         }
       },
@@ -749,7 +750,7 @@ let merchantTypeCardInput = {
   (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
     let currentValue = input.value->getStringFromJson("")
     <div className="flex flex-col gap-3 w-full">
-      {OMPSwitchUtils.merchantTypeOptions
+      {merchantTypeOptions
       ->Array.map(item => {
         let valueStr = item.value
         let isSelected = currentValue == valueStr
