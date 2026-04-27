@@ -25,7 +25,7 @@ module IgnoreTransactionModalContent = {
             }}
           />
           <FormRenderer.SubmitButton
-            text="Ignore Entry" buttonType={Primary} customSumbitButtonStyle="!w-fit mt-4"
+            text="Ignore Entry" buttonType={Primary} customSubmitButtonStyle="!w-fit mt-4"
           />
         </div>
       </Form>
@@ -139,11 +139,10 @@ module EditEntryModalContent = {
           )}
           <div className="flex justify-end my-4">
             <FormRenderer.SubmitButton
-              tooltipForWidthClass="w-full"
               text="Save changes"
               buttonType={Primary}
               showToolTip=false
-              customSumbitButtonStyle="!w-full"
+              customSubmitButtonStyle="!w-full"
             />
           </div>
         </Form>

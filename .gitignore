@@ -27,3 +27,13 @@ downloads
 coverage
 .worktree/
 .sisyphus/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+
+# Playwright test generation working directory
+.opencode/playwright-run/

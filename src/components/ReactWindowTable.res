@@ -727,7 +727,7 @@ let make = (
 
   let {getShowLink} = entity
 
-  let columToConsider = React.useMemo(() => {
+  let columnToConsider = React.useMemo(() => {
     switch (entity.allColumns, visibleColumns) {
     | (Some(allCol), _) => Some(allCol)
     | (_, Some(visibleColumns)) => Some(visibleColumns)
@@ -754,7 +754,7 @@ let make = (
                 item->Nullable.toOption
               },
             )
-          switch columToConsider {
+          switch columnToConsider {
           | Some(allCol) =>
             newValues->Array.forEach(
               rows => {
@@ -801,7 +801,7 @@ let make = (
               let newArr =
                 filterValueArray
                 ->Array.map(item => item->JSON.Decode.float->Option.getOr(0.))
-                ->Array.toSorted(LogicUtils.numericArraySortComperator)
+                ->Array.toSorted(LogicUtils.numericArraySortComparator)
               let lengthOfArr = newArr->Array.length
 
               if lengthOfArr >= 2 {
@@ -830,7 +830,7 @@ let make = (
     } else {
       None
     }
-  }, (actualData, columToConsider, totalResults, visibleColumns, columnFilter))
+  }, (actualData, columnToConsider, totalResults, visibleColumns, columnFilter))
 
   let actualData = if tableLocalFilter {
     filteredData(actualData, columnFilter, visibleColumns, entity, dateFormatConvertor)

@@ -3,15 +3,23 @@ type balanceType = {
   currency: string,
 }
 
+@unboxed
+type accountTypeVariant =
+  | @as("credit") Credit
+  | @as("debit") Debit
+  | UnknownAccountTypeVariant
+
 type accountType = {
   account_name: string,
   account_id: string,
-  account_type: string,
+  account_type: accountTypeVariant,
   profile_id: string,
   currency: string,
   initial_balance: balanceType,
-  posted_debits: balanceType,
+  matched_debits: balanceType,
+  matched_credits: balanceType,
   posted_credits: balanceType,
+  posted_debits: balanceType,
   pending_debits: balanceType,
   pending_credits: balanceType,
   expected_debits: balanceType,
@@ -123,11 +131,13 @@ type ruleType = {
 @unboxed
 type transactionStatus =
   | @as("posted") Posted
+  | @as("matched") Matched
   | @as("mismatched") Mismatched
   | @as("expected") Expected
   | @as("archived") Archived
   | @as("void") Void
   | @as("partially_reconciled") PartiallyReconciled
+  | @as("unknown") UnknownTransactionStatus
 
 @unboxed
 type entryDirectionType =
@@ -138,6 +148,7 @@ type entryDirectionType =
 @unboxed
 type entryStatus =
   | @as("posted") Posted
+  | @as("matched") Matched
   | @as("mismatched") Mismatched
   | @as("expected") Expected
   | @as("archived") Archived
@@ -154,33 +165,40 @@ type transactionEntryType = {
   order_id: string,
 }
 
-type transactionPostedType =
-  | @as("auto") Reconciled
-  | @as("force_reconciled") ForceReconciled
-  | @as("manually_reconciled") ManuallyReconciled
-  | @as("N/A") UnknownTransactionPostedType
+type matchedDataType =
+  | @as("auto") Auto
+  | @as("force") Force
+  | @as("manual") Manual
+  | @as("unknown") UnknownMatchedDataType
 
 type transactionDataType = {
   status: transactionStatus,
-  posted_type: option<transactionPostedType>,
+  matched_data_type: option<matchedDataType>,
   reason: option<string>,
 }
 
 @unboxed
-type domainTransactionPostedStatus =
+type domainTransactionMatchedStatus =
   | Auto
   | Manual
   | Force
+  | UnknownDomainTransactionMatchedStatus
+
+@unboxed
+type domainTransactionPostedStatus =
+  | Manual
   | UnknownDomainTransactionPostedStatus
 
 @unboxed
 type domainTransactionAmountMismatchStatus =
   | Expected
   | Mismatch
+  | UnknownDomainTransactionAmountMismatchStatus
 
 type domainTransactionStatus =
   | Expected
   | Posted(domainTransactionPostedStatus)
+  | Matched(domainTransactionMatchedStatus)
   | OverAmount(domainTransactionAmountMismatchStatus)
   | UnderAmount(domainTransactionAmountMismatchStatus)
   | Missing
@@ -298,15 +316,18 @@ type processedEntryType = {
 type stringValidationRule =
   | MaxLength(int)
   | MinLength(int)
+  | UnknownStringValidationRule
 
 type numberValidationRule =
   | MinValue(float)
   | MaxValue(float)
+  | UnknownNumberValidationRule
 
 type minorUnitValidationRule =
   | PositiveOnly
   | MinValueMinorUnit(int)
   | MaxValueMinorUnit(int)
+  | UnknownMinorUnitValidationRule
 
 type fieldTypeVariant =
   | StringField(array<stringValidationRule>)
@@ -315,6 +336,7 @@ type fieldTypeVariant =
   | MinorUnitField(array<minorUnitValidationRule>)
   | DateTimeField
   | BalanceDirectionField({credit_values: array<string>, debit_values: array<string>})
+  | UnknownFieldType
 
 type entryField =
   | String

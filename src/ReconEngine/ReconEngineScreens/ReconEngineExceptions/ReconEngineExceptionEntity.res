@@ -53,7 +53,7 @@ let getStatusLabel = (status: processingEntryStatus): Table.cell => {
     | Pending => LabelBlue
     | Processed => LabelGreen
     | NeedsManualReview => LabelOrange
-    | _ => LabelGray
+    | Archived | Void | UnknownProcessingEntryStatus => LabelGray
     },
   })
 }

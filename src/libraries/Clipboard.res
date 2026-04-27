@@ -64,9 +64,6 @@ module Copy = {
       }}>
       <div onClick={onCopyClick}>
         <ToolTip
-          tooltipWidthClass="w-fit"
-          bgColor={tooltipText == "copy" ? "" : "bg-green-950 text-white"}
-          arrowBgClass={tooltipText == "copy" ? "" : "#36AF47"}
           description=tooltipText
           toolTipFor={switch copyElement {
           | Some(element) => element
@@ -76,7 +73,6 @@ module Copy = {
             </div>
           }}
           toolTipPosition
-          tooltipPositioning=#absolute
         />
       </div>
     </div>

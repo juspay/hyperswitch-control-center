@@ -197,21 +197,22 @@ module ConnectorSummaryGrid = {
       <div className="grid grid-cols-4 border-b md:px-10 py-8">
         <h4 className="text-lg font-semibold"> {"Integration status"->React.string} </h4>
         <AddDataAttributes attributes=[("data-testid", "connector_status"->String.toLowerCase)]>
-          <div
-            className={`text-black font-semibold text-sm ${connectorInfo.status->ConnectorInterfaceTableEntity.connectorStatusStyle}`}>
-            {connectorInfo.status->String.toUpperCase->React.string}
-          </div>
+          <TagBinding
+            text={connectorInfo.status->String.toUpperCase}
+            color={connectorInfo.status->ConnectorInterfaceTableEntity.connectorStatusColor}
+            variant=Subtle
+            shape=Squarical
+            size=Xs
+          />
         </AddDataAttributes>
       </div>
       <div className="grid grid-cols-4 border-b md:px-10 py-8">
         <div className="flex items-start">
           <h4 className="text-lg font-semibold"> {"Webhook Endpoint"->React.string} </h4>
           <ToolTip
-            height=""
             description="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor"
             toolTipFor={<Icon name="tooltip_info" className={`mt-1 ml-1`} />}
             toolTipPosition=Top
-            tooltipWidthClass="w-fit"
           />
         </div>
         <div className="col-span-3">
@@ -246,11 +247,9 @@ module ConnectorSummaryGrid = {
                     setCurrentActiveSection(_ => Some(AuthenticationKeys))
                   }}>
                   <ToolTip
-                    height=""
                     description={`Update the ${connectorName} creds`}
                     toolTipFor={<Icon size=18 name="edit" className={`mt-1 ml-1`} />}
                     toolTipPosition=Top
-                    tooltipWidthClass="w-fit"
                   />
                 </div>
               </RenderIf>
@@ -267,18 +266,14 @@ module ConnectorSummaryGrid = {
           <RenderIf
             condition={connectorInfo.connector_name->getConnectorNameTypeFromString ==
               Processors(FIUU)}>
-            <div
-              className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
-              <Icon name="info-vacent" size=18 />
-              <div>
-                <p className="mb-3">
-                  {"To ensure mandates work correctly with Fiuu, please verify that the Source Verification Key for webhooks is set accurately in your configuration. Without the correct Source Verification Key, mandates may not function as expected."->React.string}
-                </p>
-                <p>
-                  {"Please review your webhook settings and confirm that the Source Verification Key is properly configured to avoid any integration issues."->React.string}
-                </p>
-              </div>
-            </div>
+            <AlertV2Binding
+              alertType=Primary
+              slot={{
+                slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
+              }}
+              heading="To ensure mandates work correctly with Fiuu, please verify that the Source Verification Key for webhooks is set accurately in your configuration. Without the correct Source Verification Key, mandates may not function as expected."
+              description="Please review your webhook settings and confirm that the Source Verification Key is properly configured to avoid any integration issues."
+            />
           </RenderIf>
         </div>
         <div />
@@ -299,7 +294,7 @@ module ConnectorSummaryGrid = {
                     label={field.payment_method->LogicUtils.snakeToTitle}
                     render={Some(
                       field.payment_method_types
-                      ->Array.map(item => item.payment_method_type->LogicUtils.snakeToTitle)
+                      ->Array.map(item => item.payment_method_type->getPaymentMethodDisplayName)
                       ->Array.reduce([], (acc, curr) => {
                         if !(acc->Array.includes(curr)) {
                           acc->Array.push(curr)
@@ -321,31 +316,30 @@ module ConnectorSummaryGrid = {
                     setCurrentStep(_ => state)
                   }}>
                   <ToolTip
-                    height=""
                     description={`Update the ${connector} payment methods`}
                     toolTipFor={<Icon size=18 name="edit" className={` ml-2`} />}
                     toolTipPosition=Top
-                    tooltipWidthClass="w-fit"
                   />
                 </div>
               </RenderIf>
             </div>
-            <div
-              className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
-              <Icon name="info-vacent" size=18 />
-              <p>
-                {"Improve conversion rate by conditionally managing PMTs visibility on checkout . Visit Settings >"->React.string}
-                <a
-                  onClick={_ =>
+            <AlertV2Binding
+              alertType=Primary
+              slot={{
+                slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
+              }}
+              description="Improve conversion rate by conditionally managing PMTs visibility on checkout."
+              actions={{
+                position: Bottom,
+                primaryAction: {
+                  text: "Configure PMTs at Checkout",
+                  onClick: _ =>
                     RescriptReactRouter.push(
                       GlobalVars.appendDashboardPath(~url="/configure-pmts"),
-                    )}
-                  target="_blank"
-                  className="text-primary underline cursor-pointer">
-                  {"Configure PMTs at Checkout"->React.string}
-                </a>
-              </p>
-            </div>
+                    ),
+                },
+              }}
+            />
           </div>
         </div>
 
