@@ -630,11 +630,7 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
       | Some(val) => val->getDictFromJsonObject
       | _ => Dict.make()
       }
-      if order.payment_method_type == "network_token" {
-        Text(dict->getStringFromNestedDict("network_token", "card_network", ""))
-      } else {
-        Text(dict->getString("card_network", ""))
-      }
+      Text(dict->getString("card_network", ""))
     }
   }
 }
