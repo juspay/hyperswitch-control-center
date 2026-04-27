@@ -239,6 +239,41 @@ test.describe.serial("Sign in", () => {
     await expect(page).toHaveURL(/.*dashboard\/home/);
   });
 
+  test("should persist session and remain logged in after page reload", async ({
+    page,
+    context,
+  }) => {
+    const homePage = new HomePage(page);
+    const email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+    await expect(page).toHaveURL(/.*dashboard\/home/);
+
+    await page.reload();
+    await expect(page).toHaveURL(/.*dashboard\/home/);
+    await expect(page.getByRole('button', { name: email })).toBeVisible();
+  });
+
+  test("should redirect to login when session is expired or cleared", async ({
+    page,
+    context,
+  }) => {
+    const email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+    await expect(page).toHaveURL(/.*dashboard\/home/);
+
+    await page.evaluate(() => {
+      window.localStorage.removeItem("USER_INFO");
+    });
+
+    await page.reload();
+    await page.goto("/dashboard/home");
+    await expect(page).toHaveURL(/.*login/);
+  });
+
   test("should display an error message with invalid credentials", async ({
     page,
   }) => {
@@ -539,6 +574,45 @@ test.describe("Forgot password", () => {
     await signinPage.skip2FAButton.click();
     await expect(page).toHaveURL(/.*dashboard\/home/);
   });
+
+  test("should display validation error for weak password or mismatched confirmation on reset", async ({
+    page,
+    context,
+  }) => {
+    const email = generateUniqueEmail();
+    const signinPage = new SignInPage(page);
+    const resetPasswordPage = new ResetPasswordPage(page);
+
+    const weakPasswords = [
+      { password: "Weak1!", expectedError: "Password size must be more than 8" },
+      { password: "password123!", expectedError: /uppercase/ },
+      { password: "PASSWORD123!", expectedError: /lowercase/ },
+      { password: "Password!@#", expectedError: /numeric/ },
+      { password: "Password123", expectedError: /special/ },
+    ];
+
+    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+
+    await page.goto("/");
+    await signinPage.forgetPasswordLink.click();
+    await signinPage.emailInput.fill(email);
+    await signinPage.resetPasswordButton.click();
+    await redirectFromMailInbox(
+      page,
+      email,
+      "Get back to Hyperswitch - Reset Your Password Now!",
+    );
+
+    await signinPage.skip2FAButton.click();
+
+    for (const { password, expectedError } of weakPasswords) {
+      await resetPasswordPage.newPasswordField.fill(password);
+      await resetPasswordPage.newPasswordField.blur();
+      await resetPasswordPage.confirmPasswordField.fill(password);
+      await resetPasswordPage.confirmPasswordField.blur();
+      await expect(page.getByText('Your password is not strong')).toContainText(expectedError);
+    }
+  });
 });
 
 const ssoBaseUrl = process.env.PLAYWRIGHT_SSO_BASE_URL;
@@ -813,5 +887,143 @@ test.describe("TOTP flows", () => {
     await page.getByRole("button", { name: "Verify OTP" }).click();
 
     await expect(page).toHaveURL(/.*dashboard\/home/);
+  });
+});
+
+test.describe("Branding flag", () => {
+  test("should show T&C and footer links on auth pages when branding flag is OFF", async ({
+    page,
+  }) => {
+    const signinPage = new SignInPage(page);
+
+    await page.route("**/dashboard/config/feature*", async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      if (json && json.features) {
+        json.features.branding = false;
+      }
+      await route.fulfill({ response, json });
+    });
+
+    await page.goto("/login");
+
+    await expect(signinPage.tcText).toBeVisible();
+    await expect(signinPage.footerText).toBeVisible();
+  });
+
+  test("should hide T&C and footer links on auth pages when branding flag is ON", async ({
+    page,
+  }) => {
+    const signinPage = new SignInPage(page);
+
+    await page.route("**/dashboard/config/feature*", async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      if (json && json.features) {
+        json.features.branding = true;
+      }
+      await route.fulfill({ response, json });
+    });
+
+    await page.goto("/login");
+
+    await expect(signinPage.headerText).toContainText(
+      "Hey there, Welcome back!",
+    );
+    await expect(signinPage.tcText).not.toBeAttached();
+    await expect(signinPage.footerText).not.toBeAttached();
+  });
+});
+
+test.describe("Email flag behavior", () => {
+  test("should display Forgot Password link on login page when email flag is ON", async ({
+    page,
+  }) => {
+    const signinPage = new SignInPage(page);
+
+    await page.route("**/dashboard/config/feature*", async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      if (json && json.features) {
+        json.features.email = true;
+      }
+      await route.fulfill({ response, json });
+    });
+
+    await page.goto("/login");
+
+    await expect(signinPage.forgetPasswordLink).toBeVisible();
+    await expect(signinPage.forgetPasswordLink).toContainText(
+      "Forgot Password?",
+    );
+    await expect(signinPage.emailSigninLink).toBeVisible();
+    await expect(signinPage.emailSigninLink).toContainText(
+      "sign in with an email",
+    );
+  });
+
+  test("should not display Forgot Password link on login page when email flag is OFF", async ({
+    page,
+  }) => {
+    const signinPage = new SignInPage(page);
+
+    await page.route("**/dashboard/config/feature*", async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      if (json && json.features) {
+        json.features.email = false;
+      }
+      await route.fulfill({ response, json });
+    });
+
+    await page.goto("/login");
+
+    await expect(signinPage.headerText).toContainText(
+      "Hey there, Welcome back!",
+    );
+    await expect(signinPage.forgetPasswordLink).not.toBeVisible();
+    await expect(signinPage.emailSigninLink).not.toBeVisible();
+  });
+});
+
+test.describe("Maintenance mode and Down time", () => {
+  test("should display maintenance page instead of auth flow when downTime flag is ON", async ({
+    page,
+  }) => {
+    await page.route("**/dashboard/config/feature*", async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      if (json && json.features) {
+        json.features.down_time = true;
+      }
+      await route.fulfill({ response, json });
+    });
+
+    await page.goto("/");
+
+    await expect(page.getByText('Hyperswitch Control Center is under maintenance', { exact: true })).toBeVisible();
+    await expect(page.getByText('Hyperswitch Control Center is under maintenance will be back in an hour')).toBeVisible();
+    await expect(page.getByText("Hey there, Welcome back!")).not.toBeVisible();
+  });
+
+  test("should display maintenance alert banner in homepage when maintenance_alert is set", async ({
+    page, context
+  }) => {
+    const maintenanceAlert = "Scheduled maintenance window time from 01:30 AM to 06:00 AM IST on 21st Jun";
+
+    await page.route("**/dashboard/config/feature*", async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      if (json && json.features) {
+        json.features.maintenance_alert = maintenanceAlert;
+      }
+      await route.fulfill({ response, json });
+    });
+
+    const email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+
+    await expect(page.getByRole('alert')).toContainText(maintenanceAlert);
   });
 });
