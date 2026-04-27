@@ -434,6 +434,7 @@ module CreateNewStyleID = {
         isRelative=false
         contentAlign=Default
         tooltipForWidthClass="!h-full"
+        className="cursor-pointer w-full"
         showTooltip=true>
         {<>
           <hr />
