@@ -4,6 +4,50 @@ open ReconEngineTypes
 open ReconEngineUtils
 open ReconEngineTransactionsTypes
 
+let constructTransactionBulkRequestBody = (
+  ~bulkActionType: actionType,
+  ~valuesDict,
+  ~selectedRows,
+) => {
+  let postAction = [
+    (
+      "manual_post",
+      [("reason", valuesDict->getString("reason", "")->JSON.Encode.string)]
+      ->Dict.fromArray
+      ->JSON.Encode.object,
+    ),
+  ]->Dict.fromArray
+
+  let voidAction = [
+    (
+      "void",
+      [("reason", valuesDict->getString("reason", "")->JSON.Encode.string)]
+      ->Dict.fromArray
+      ->JSON.Encode.object,
+    ),
+  ]->Dict.fromArray
+
+  let action = switch bulkActionType {
+  | BulkTransactionPost => postAction
+  | BulkTransactionVoid => voidAction
+  | UnknownBulkTransactionActionType => Dict.make()
+  }
+
+  let selection = [
+    ("selection_type", "ids"->JSON.Encode.string),
+    (
+      "ids",
+      selectedRows
+      ->Array.map((txn: transactionType) => txn.id->JSON.Encode.string)
+      ->JSON.Encode.array,
+    ),
+  ]->Dict.fromArray
+
+  [("action", action->JSON.Encode.object), ("selection", selection->JSON.Encode.object)]
+  ->Dict.fromArray
+  ->JSON.Encode.object
+}
+
 let entriesMetadataKeyToString = key => {
   switch key {
   | Amount => "amount"

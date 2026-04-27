@@ -4,6 +4,31 @@ open ReconEngineTransformedEntryExceptionsTypes
 open ReconEngineExceptionsUtils
 open ReconEngineTransactionsUtils
 
+let constructTransformedEntryBulkVoidRequestBody = (~valuesDict, ~selectedRows) => {
+  let action = [
+    (
+      "void",
+      [("reason", valuesDict->getString("reason", "")->JSON.Encode.string)]
+      ->Dict.fromArray
+      ->JSON.Encode.object,
+    ),
+  ]->Dict.fromArray
+
+  let selection = [
+    ("selection_type", "ids"->JSON.Encode.string),
+    (
+      "ids",
+      selectedRows
+      ->Array.map((entry: processingEntryType) => entry.id->JSON.Encode.string)
+      ->JSON.Encode.array,
+    ),
+  ]->Dict.fromArray
+
+  [("action", action->JSON.Encode.object), ("selection", selection->JSON.Encode.object)]
+  ->Dict.fromArray
+  ->JSON.Encode.object
+}
+
 let sortByVersion = (c1: processingEntryType, c2: processingEntryType) => {
   compareLogic(c1.version, c2.version)
 }

@@ -5,7 +5,6 @@ let make = (~selectedRows, ~setSelectedRows) => {
   open ReconEngineTransformedEntryExceptionsTypes
   open ReconEngineTransformedEntryExceptionsUtils
   open APIUtils
-  open ReconEngineTypes
   open LogicUtils
 
   let getURL = useGetURL()
@@ -48,17 +47,7 @@ let make = (~selectedRows, ~setSelectedRows) => {
         ~methodType=Post,
         ~hyperswitchReconType=#STAGING_ENTRY_BULK_OPERATIONS,
       )
-      let body = {
-        "action": {
-          "void": {
-            "reason": valuesDict->getString("reason", ""),
-          },
-        },
-        "selection": {
-          "selection_type": "ids",
-          "ids": selectedRows->Array.map((entry: processingEntryType) => entry.id),
-        },
-      }
+      let body = constructTransformedEntryBulkVoidRequestBody(~valuesDict, ~selectedRows)
       let res = await updateDetails(url, body->Identity.genericTypeToJson, Post)
       let response = res->getArrayDataFromJson(bulkActionResponseToObjMapper)
       setBulkActionResponses(_ => response)

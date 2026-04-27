@@ -89,29 +89,27 @@ let getEventMetadata = (event: auditEvent): eventMetadata => {
   | IngestionsFailed({account, count, _}) => {
       eventType: EventError,
       color: "bg-red-500",
-      title: count === 1 ? "1 Ingestion Failed" : `${count->Int.toString} Ingestions Failed`,
+      title: `${count->Int.toString} Ingestion${count == 1 ? "" : "s"} Failed`,
       description: account.account_name,
     }
   | StagingEntriesCreated({account, count, _}) => {
       eventType: EventInfo,
       color: "bg-blue-500",
-      title: count === 1
-        ? "1 Transformed Entry Created"
-        : `${count->Int.toString} Transformed Entries Created`,
+      title: `${count->Int.toString} Transformed ${count == 1 ? "Entry" : "Entries"} Created`,
       description: account.account_name,
     }
   | StagingEntryNeedsManualReview({account, count, _}) => {
       eventType: EventWarning,
       color: "bg-yellow-500",
-      title: count === 1
-        ? "1 Transformed Entry Needs Manual Review"
-        : `${count->Int.toString} Transformed Entries Need Manual Review`,
+      title: `${count->Int.toString} Transformed ${count == 1
+          ? "Entry"
+          : "Entries"} Need Manual Review`,
       description: account.account_name,
     }
   | ExpectationsCreated({accounts, count, _}) => {
       eventType: EventSuccess,
       color: "bg-green-500",
-      title: count === 1 ? "1 Expectation Created" : `${count->Int.toString} Expectations Created`,
+      title: `${count->Int.toString} Expectation${count == 1 ? "" : "s"} Created`,
       description: {
         let accountNames =
           accounts
@@ -123,7 +121,7 @@ let getEventMetadata = (event: auditEvent): eventMetadata => {
   | TransactionsMatched({accounts, count, _}) => {
       eventType: EventSuccess,
       color: "bg-green-500",
-      title: count === 1 ? "1 Transaction Matched" : `${count->Int.toString} Transactions Matched`,
+      title: `${count->Int.toString} Transaction${count == 1 ? "" : "s"} Matched`,
       description: {
         let accountNames =
           accounts
@@ -135,7 +133,7 @@ let getEventMetadata = (event: auditEvent): eventMetadata => {
   | TransactionsReconciled({accounts, count, _}) => {
       eventType: EventSuccess,
       color: "bg-green-500",
-      title: count === 1 ? "1 Transaction Posted" : `${count->Int.toString} Transactions Posted`,
+      title: `${count->Int.toString} Transaction${count == 1 ? "" : "s"} Posted`,
       description: {
         let accountNames =
           accounts
@@ -147,9 +145,7 @@ let getEventMetadata = (event: auditEvent): eventMetadata => {
   | TransactionsMismatched({accounts, count, _}) => {
       eventType: EventError,
       color: "bg-red-500",
-      title: count === 1
-        ? "1 Transaction Mismatched"
-        : `${count->Int.toString} Transactions Mismatched`,
+      title: `${count->Int.toString} Transaction${count == 1 ? "" : "s"} Mismatched`,
       description: {
         let accountNames =
           accounts

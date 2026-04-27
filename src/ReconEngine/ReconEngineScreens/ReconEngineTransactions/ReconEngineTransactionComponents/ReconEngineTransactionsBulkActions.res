@@ -10,7 +10,6 @@ let make = (
   open ReconEngineTransactionsTypes
   open ReconEngineTransactionsUtils
   open APIUtils
-  open ReconEngineTypes
   open LogicUtils
 
   let getURL = useGetURL()
@@ -53,17 +52,11 @@ let make = (
         ~methodType=Post,
         ~hyperswitchReconType=#TRANSACTION_BULK_OPERATIONS,
       )
-      let body = {
-        "action": {
-          "manual_post": {
-            "reason": valuesDict->getString("reason", ""),
-          },
-        },
-        "selection": {
-          "selection_type": "ids",
-          "ids": selectedRows->Array.map((txn: transactionType) => txn.id),
-        },
-      }
+      let body = constructTransactionBulkRequestBody(
+        ~bulkActionType=BulkTransactionPost,
+        ~valuesDict,
+        ~selectedRows,
+      )
       let res = await updateDetails(url, body->Identity.genericTypeToJson, Post)
       let response = res->getArrayDataFromJson(bulkActionResponseToObjMapper)
       setBulkActionResponses(_ => response)
@@ -88,17 +81,11 @@ let make = (
         ~methodType=Post,
         ~hyperswitchReconType=#TRANSACTION_BULK_OPERATIONS,
       )
-      let body = {
-        "action": {
-          "void": {
-            "reason": valuesDict->getString("reason", ""),
-          },
-        },
-        "selection": {
-          "selection_type": "ids",
-          "ids": selectedRows->Array.map((txn: transactionType) => txn.id),
-        },
-      }
+      let body = constructTransactionBulkRequestBody(
+        ~bulkActionType=BulkTransactionVoid,
+        ~valuesDict,
+        ~selectedRows,
+      )
       let res = await updateDetails(url, body->Identity.genericTypeToJson, Post)
       let response = res->getArrayDataFromJson(bulkActionResponseToObjMapper)
       setBulkActionResponses(_ => response)
