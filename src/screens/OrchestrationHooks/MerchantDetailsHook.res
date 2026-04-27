@@ -1,9 +1,12 @@
 open HyperswitchAtom
+open APIUtils
 
-let fetchMerchantDetailsV1 = async (~getURL, ~fetchDetails, ~setMerchantDetailsValue) => {
+let fetchMerchantDetailsV1 = async (~setMerchantDetailsValue) => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   try {
-    let accountUrl = getURL(~entityName=V1(MERCHANT_ACCOUNT), ~methodType=Get)
-    let merchantDetailsJSON = await fetchDetails(accountUrl)
+    let accountUrl = getURL(~entityName=APIUtilsTypes.V1(MERCHANT_ACCOUNT), ~methodType=Get)
+    let merchantDetailsJSON = await fetchDetails(accountUrl, ~version=V1)
     let jsonToTypedValue =
       merchantDetailsJSON->MerchantAccountDetailsMapper.getMerchantDetails(~version=V1)
     setMerchantDetailsValue(_ => jsonToTypedValue)
@@ -16,9 +19,11 @@ let fetchMerchantDetailsV1 = async (~getURL, ~fetchDetails, ~setMerchantDetailsV
   }
 }
 
-let fetchMerchantDetailsV2 = async (~getURL, ~fetchDetails, ~setMerchantDetailsValue) => {
+let fetchMerchantDetailsV2 = async (~setMerchantDetailsValue) => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   try {
-    let accountUrl = getURL(~entityName=V2(MERCHANT_ACCOUNT), ~methodType=Get)
+    let accountUrl = getURL(~entityName=APIUtilsTypes.V2(MERCHANT_ACCOUNT), ~methodType=Get)
     let merchantDetailsJSON = await fetchDetails(accountUrl, ~version=V2)
     let jsonToTypedValue =
       merchantDetailsJSON->MerchantAccountDetailsMapper.getMerchantDetails(~version=V2)
@@ -33,14 +38,12 @@ let fetchMerchantDetailsV2 = async (~getURL, ~fetchDetails, ~setMerchantDetailsV
 }
 
 let useFetchMerchantDetails = () => {
-  let getURL = APIUtils.useGetURL()
   let setMerchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useSetRecoilState
-  let fetchDetails = APIUtils.useGetMethod()
 
   async (~version: UserInfoTypes.version=V1) => {
     switch version {
-    | V1 => await fetchMerchantDetailsV1(~getURL, ~fetchDetails, ~setMerchantDetailsValue)
-    | V2 => await fetchMerchantDetailsV2(~getURL, ~fetchDetails, ~setMerchantDetailsValue)
+    | V1 => await fetchMerchantDetailsV1(~setMerchantDetailsValue)
+    | V2 => await fetchMerchantDetailsV2(~setMerchantDetailsValue)
     }
   }
 }
