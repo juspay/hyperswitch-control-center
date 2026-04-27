@@ -7,7 +7,7 @@ let make = () => {
     | list{"v2", "dynamic-routing"} => <IntelligentRoutingHome />
     | list{"v2", "dynamic-routing", "home"} => <IntelligentRoutingConfiguration />
     | list{"v2", "dynamic-routing", "dashboard"} => <IntelligentRoutingAnalytics />
-    | _ => <EmptyPage path="/v2/dynamic-routing/home" />
+    | _ => <EmptyPage path="/v2/dynamic-routing" />
     }
   }
 }

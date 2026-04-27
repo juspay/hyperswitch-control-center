@@ -135,7 +135,7 @@ module ControlCenter = {
     let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
-    let connectorUrl = RouteUtils.Connectors.list(version)
+    let connectorUrl = RouteUtils.getPath(~path="/connectors", version)
 
     let liveModeStyles = isLiveMode || version == V2 ? "w-1/2 " : "flex flex-col md:flex-row gap-5 "
     <div className=liveModeStyles>
@@ -186,7 +186,7 @@ module DevResources = {
     let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let mixpanelEvent = MixpanelHook.useSendEvent()
 
-    let apiKeysUrl = RouteUtils.ApiKeys.list(version)
+    let apiKeysUrl = RouteUtils.getPath(~path="/developer-api-keys", version)
 
     <div className="flex flex-col mb-5 gap-6 ">
       <PageHeading
@@ -275,19 +275,20 @@ let responseDataMapper = (res: JSON.t, mapper: (Dict.t<JSON.t>, string) => JSON.
 module LowRecoveryCodeBanner = {
   @react.component
   let make = (~recoveryCode) => {
-    <HSwitchUtils.AlertBanner
-      bannerContent={<p>
-        {`You are low on recovery-codes. Only ${recoveryCode->Int.toString} left.`->React.string}
-      </p>}
-      bannerType=Warning
-      customRightAction={<Button
-        text="Regenerate recovery-codes"
-        buttonType={Secondary}
-        onClick={_ =>
-          RescriptReactRouter.push(
-            GlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
-          )}
-      />}
+    <AlertV2Binding
+      alertType=Warning
+      slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
+      description={`You are low on recovery-codes. Only ${recoveryCode->Int.toString} left.`}
+      actions={{
+        position: Bottom,
+        primaryAction: {
+          text: "Regenerate recovery-codes",
+          onClick: _ =>
+            RescriptReactRouter.push(
+              GlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
+            ),
+        },
+      }}
     />
   }
 }

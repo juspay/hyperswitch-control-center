@@ -243,7 +243,7 @@ module FieldWrapper = {
               {switch descriptionComponent {
               | Some(descriptionComponent) =>
                 <div className="text-sm text-gray-500 mx-2">
-                  <ToolTip descriptionComponent toolTipPosition tooltipWidthClass="w-80" />
+                  <ToolTip descriptionComponent toolTipPosition />
                 </div>
               | None => React.null
               }}
@@ -572,22 +572,18 @@ module SubmitButton = {
   @react.component
   let make = (
     ~text="Submit",
-    ~disabledParamter=false,
+    ~disabledParameter=false,
     ~icon=Button.NoIcon,
     ~rightIcon=Button.NoIcon,
     ~loginPageValidator=false,
-    ~customSumbitButtonStyle="",
+    ~customSubmitButtonStyle="",
     ~showToolTip=true,
     ~buttonType=Button.Primary,
     ~loadingText="",
     ~buttonSize=?,
     ~toolTipPosition=ToolTip.Top,
-    ~tooltipPositioning: ToolTip.tooltipPositioning=#fixed,
     ~withDialog=false,
     ~modalObj: option<modalObj>=?,
-    ~tooltipWidthClass="w-auto",
-    ~tooltipForWidthClass="",
-    ~tooltipForHeight="h-full",
     ~userInteractionRequired=false,
     ~customTextSize=?,
     ~customPaddingClass=?,
@@ -622,7 +618,7 @@ module SubmitButton = {
       }
     }
 
-    let disabled = hasError || disabledParamter
+    let disabled = hasError || disabledParameter
 
     let showPopUp = PopUpState.useShowPopUp()
     let (avoidDisable, setAvoidDisable) = React.useState(_ => userInteractionRequired)
@@ -666,7 +662,7 @@ module SubmitButton = {
         }}
         leftIcon=icon
         rightIcon
-        customButtonStyle={customSumbitButtonStyle}
+        customButtonStyle={customSubmitButtonStyle}
         ?buttonSize
         ?customTextSize
         ?customPaddingClass
@@ -695,7 +691,7 @@ module SubmitButton = {
           }} //either onclick or type_should be called #warning
           leftIcon=icon
           rightIcon
-          customButtonStyle={customSumbitButtonStyle}
+          customButtonStyle={customSubmitButtonStyle}
           ?buttonSize
           ?customHeightClass
           ?textStyle
@@ -718,15 +714,7 @@ module SubmitButton = {
         ->Array.joinWith("\n")
 
       if showToolTip && !avoidDisable {
-        <ToolTip
-          description
-          toolTipFor=button
-          toolTipPosition
-          tooltipPositioning
-          tooltipWidthClass
-          height=tooltipForHeight
-          tooltipForWidthClass
-        />
+        <ToolTip description toolTipFor=button toolTipPosition />
       } else {
         button
       }

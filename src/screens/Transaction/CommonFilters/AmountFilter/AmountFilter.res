@@ -66,10 +66,27 @@ let make = (~options) => {
   let formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
-  let (selectedOption, setSelectedOption) = React.useState(_ => AmountFilterTypes.UnknownRange(
-    "Select Amount",
-  ))
+  let (selectedOption, setSelectedOption) = React.useState(_ => {
+    let dict = formState.values->getDictFromJsonObject
+    let amount_option = dict->getString("amount_option", "")
+    amount_option->isNonEmptyString
+      ? amount_option->stringRangetoTypeAmount
+      : AmountFilterTypes.UnknownRange("Select Amount")
+  })
   let (isAmountRangeVisible, setIsAmountRangeVisible) = React.useState(_ => true)
+
+  let amountOptionFromForm = React.useMemo(() => {
+    formState.values->getDictFromJsonObject->getString("amount_option", "")
+  }, [formState.values])
+
+  React.useEffect(() => {
+    let parsed =
+      amountOptionFromForm->isNonEmptyString
+        ? amountOptionFromForm->stringRangetoTypeAmount
+        : AmountFilterTypes.UnknownRange("Select Amount")
+    parsed !== selectedOption ? setSelectedOption(_ => parsed) : ()
+    None
+  }, [amountOptionFromForm])
 
   let isApplyButtonDisabled = React.useMemo(() => {
     validateAmount(formState.values->getDictFromJsonObject)
@@ -77,17 +94,9 @@ let make = (~options) => {
 
   let handleInputChange = newValue => {
     if newValue->isNonEmptyString {
-      let mappedRange = newValue->mapStringToRange
-
-      form.change("start_amount", JSON.Encode.null)
-      form.change("end_amount", JSON.Encode.null)
-      form.change("amount_option", mappedRange->Identity.genericTypeToJson)
-
-      setSelectedOption(_ => {newValue->mapStringToRange})
-      setIsAmountRangeVisible(_ => true)
-    } else {
-      setIsAmountRangeVisible(_ => true)
+      setSelectedOption(_ => newValue->mapStringToRange)
     }
+    setIsAmountRangeVisible(_ => true)
   }
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
@@ -102,6 +111,12 @@ let make = (~options) => {
   }
 
   let handleApply = _ => {
+    switch selectedOption {
+    | GreaterThanOrEqualTo => form.change("end_amount", JSON.Encode.null)
+    | LessThanOrEqualTo => form.change("start_amount", JSON.Encode.null)
+    | _ => ()
+    }
+    form.change("amount_option", selectedOption->Identity.genericTypeToJson)
     form.submit()->ignore
     setIsAmountRangeVisible(_ => false)
   }

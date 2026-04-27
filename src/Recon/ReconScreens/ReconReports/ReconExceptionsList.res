@@ -5,7 +5,6 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (configuredReports, setConfiguredReports) = React.useState(_ => [])
   let (filteredReportsData, setFilteredReports) = React.useState(_ => [])
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
   let fetchApi = AuthHooks.useApiFetcher()
 
@@ -69,7 +68,7 @@ let make = () => {
             actualData={filteredReportsData}
             entity={ReportsExceptionTableEntity.exceptionReportsEntity(
               `v2/recon/reports`,
-              ~authorization=userHasAccess(~groupAccess=UsersManage),
+              ~authorization=Access,
             )}
             resultsPerPage=10
             filters={<TableSearchFilter

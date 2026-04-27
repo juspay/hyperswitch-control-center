@@ -24,9 +24,10 @@ let make = (~ruleId: string) => {
       )
       let statusList =
         ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
-          Posted(Auto),
           Posted(Manual),
-          Posted(Force),
+          Matched(Auto),
+          Matched(Manual),
+          Matched(Force),
         ])->Array.joinWith(",")
 
       let suffix = `rule_id=${ruleId}&status=${statusList}`
@@ -65,19 +66,15 @@ let make = (~ruleId: string) => {
   }, [filterValue])
 
   let volumeData = React.useMemo1(() => {
-    let countData = processCountGraphData(transactionsData, ~graphColor=reconciledVolumeColor)
-    createColumnGraphCountPayload(
-      ~countData,
-      ~title="Reconciled Volume",
-      ~color=reconciledVolumeColor,
-    )
+    let countData = processCountGraphData(transactionsData, ~graphColor=matchedVolumeColor)
+    createColumnGraphCountPayload(~countData, ~title="Matched Volume", ~color=matchedVolumeColor)
   }, [transactionsData])
 
   <div className="border rounded-xl border-nd_gray-200">
     <div
       className="flex flex-row justify-between items-center p-4 bg-nd_gray-25 rounded-t-xl border-b border-nd_gray-200">
       <div className={`text-nd_gray-600 ${body.md.semibold}`}>
-        {"Reconciled Volume"->React.string}
+        {"Matched Volume"->React.string}
       </div>
     </div>
     <PageLoaderWrapper

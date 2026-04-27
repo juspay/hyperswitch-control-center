@@ -8,7 +8,7 @@ let make = (
   ~showModal,
   ~setShowModal,
   ~isModalView=true,
-  ~orderdColumnBasedOnDefaultCol: bool=false,
+  ~orderedColumnBasedOnDefaultCol: bool=false,
   ~sortingBasedOnDisabled=true,
   ~showSerialNumber=true,
   ~isDraggable=false,
@@ -32,7 +32,7 @@ let make = (
     ))
     ->Dict.fromArray
 
-  let sortByOrderOderedArr = (a, b) => {
+  let sortByOrderOrderedArr = (a, b) => {
     let positionInHeader = headingDict->LogicUtils.getInt(getHeading(a).title, 0)
     let positionInHeading = headingDict->LogicUtils.getInt(getHeading(b).title, 0)
     if positionInHeader < positionInHeading {
@@ -63,8 +63,8 @@ let make = (
       heading[index]
     }
     let headers = values->Belt.Array.keepMap(getHeadingCol)
-    let headers = orderdColumnBasedOnDefaultCol
-      ? headers->Array.copy->Array.toSorted(sortByOrderOderedArr)
+    let headers = orderedColumnBasedOnDefaultCol
+      ? headers->Array.copy->Array.toSorted(sortByOrderOrderedArr)
       : headers
 
     setColumnValueInLocalStorage(values, title)

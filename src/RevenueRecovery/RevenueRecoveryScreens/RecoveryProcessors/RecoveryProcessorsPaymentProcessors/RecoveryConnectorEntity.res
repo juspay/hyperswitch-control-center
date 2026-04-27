@@ -36,10 +36,10 @@ let getHeading = colType => {
   | PaymentMethods => Table.makeHeaderInfo(~key="payment_methods", ~title="Payment Methods")
   }
 }
-let connectorStatusStyle = connectorStatus =>
+let connectorStatusColor = connectorStatus =>
   switch connectorStatus->String.toLowerCase {
-  | "active" => "text-green-700"
-  | _ => "text-grey-800 opacity-50"
+  | "active" => TagBinding.Success
+  | _ => TagBinding.Neutral
   }
 
 let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledTypeCommon>) => {
@@ -66,9 +66,13 @@ let getTableCell = (~connectorType: connector=Processor) => {
 
     | Status =>
       Table.CustomCell(
-        <div className={`font-semibold ${connector.status->connectorStatusStyle}`}>
-          {connector.status->String.toUpperCase->React.string}
-        </div>,
+        <TagBinding
+          text={connector.status->String.toUpperCase}
+          color={connector.status->connectorStatusColor}
+          variant=Subtle
+          shape=Squarical
+          size=Xs
+        />,
         "",
       )
     | ProfileId => DisplayCopyCell(connector.profile_id)
