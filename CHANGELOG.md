@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.04.27.0
+
+### Miscellaneous Tasks
+
+- Remove Cypress tests after Playwright migration ([#4742](https://github.com/juspay/hyperswitch-control-center/pull/4742)) ([`2431bf2`](https://github.com/juspay/hyperswitch-control-center/commit/2431bf2af4aa8068a912111f1cc3fe5db056eb7d))
+
+**Full Changelog:** [`2026.04.24.0...2026.04.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.24.0...2026.04.27.0)
+
+- - -
+
 ## 2026.04.24.0
 
 ### Features
