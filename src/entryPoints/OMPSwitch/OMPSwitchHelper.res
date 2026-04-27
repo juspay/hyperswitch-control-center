@@ -549,8 +549,6 @@ module ProfileDropdownItem = {
       switch version {
       | V1 => await getProfileListV1()
       | V2 => await getProfileListV2()
-      | V1 => await getProfileListV1()
-      | V2 => await getProfileListV2()
       }
     }
     let validateInput = (newProfileName: string) => {
@@ -576,8 +574,6 @@ module ProfileDropdownItem = {
       try {
         let body = [("profile_name", newProfileName->JSON.Encode.string)]->getJsonFromArrayOfJson
         switch version {
-        | V1 => await updateProfileNameV1(~body)
-        | V2 => await updateProfileNameV2(~body)
         | V1 => await updateProfileNameV1(~body)
         | V2 => await updateProfileNameV2(~body)
         }

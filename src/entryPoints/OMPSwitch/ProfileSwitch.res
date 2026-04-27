@@ -7,7 +7,6 @@ module NewProfileCreationModal = {
     ~profileList: array<OMPSwitchTypes.ompListTypes>,
   ) => {
     open APIUtils
-    open APIUtils
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
@@ -30,8 +29,6 @@ module NewProfileCreationModal = {
       try {
         mixpanelEvent(~eventName="create_new_profile", ~metadata=values)
         switch version {
-        | V1 => await createNewProfileV1(~values)
-        | V2 => await createNewProfileV2(~values)
         | V1 => await createNewProfileV1(~values)
         | V2 => await createNewProfileV2(~values)
         }
@@ -189,36 +186,8 @@ let make = () => {
     }
   }
 
-  let getProfileListV1 = async () => {
-    try {
-      let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
-      let response = await fetchDetails(url)
-      setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
-    } catch {
-    | _ => {
-        setProfileList(_ => [OMPSwitchUtils.ompDefaultValue(profileId, "")])
-        showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
-      }
-    }
-  }
-
-  let getProfileListV2 = async () => {
-    try {
-      let url = getURL(~entityName=V2(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
-      let response = await fetchDetails(url, ~version=V2)
-      setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
-    } catch {
-    | _ => {
-        setProfileList(_ => [OMPSwitchUtils.ompDefaultValue(profileId, "")])
-        showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
-      }
-    }
-  }
-
   let getProfileList = async () => {
     switch version {
-    | V1 => await getProfileListV1()
-    | V2 => await getProfileListV2()
     | V1 => await getProfileListV1()
     | V2 => await getProfileListV2()
     }
