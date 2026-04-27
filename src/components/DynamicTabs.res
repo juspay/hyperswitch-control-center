@@ -51,7 +51,7 @@ module TabInfo = {
   ) => {
     let defaultClasses = `${Typography.body.md.medium} px-2 w-max flex flex-auto flex-row items-center justify-center`
     let selectionClasses = if isSelected {
-      "font-medium text-gray-700"
+      "text-gray-700"
     } else {
       "text-gray-500 hover:text-gray-500"
     }
