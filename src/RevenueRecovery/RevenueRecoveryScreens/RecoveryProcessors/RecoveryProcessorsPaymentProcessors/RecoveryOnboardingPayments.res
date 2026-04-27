@@ -87,9 +87,9 @@ let make = (
       let updatedData = paymentMethodType->Array.map(
         val => {
           let wasmDict = val->getDictFromJsonObject
-          let exisitngData =
+          let existingData =
             wasmDict->ConnectorPaymentMethodV2Utils.getPaymentMethodDictV2(key, connector)
-          exisitngData
+          existingData
         },
       )
       updatedData
@@ -239,7 +239,7 @@ let make = (
           <ConnectorWebhookPreview
             merchantId
             connectorName=connectorInfoDict.id
-            textCss={`border border-nd_gray-400 ${body.md.medium} rounded-xl px-4 py-2 text-nd_gray-400 w-full !font-jetbrain-mono`}
+            textCss={`border border-nd_gray-400 ${body.md.medium} rounded-xl px-4 py-2 text-nd_gray-400 w-full !font-jetbrains-mono`}
             containerClass="flex flex-row items-center justify-between"
             displayTextLength=38
             hideLabel=true
@@ -370,10 +370,7 @@ let make = (
                   <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
                   <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
                   <FormRenderer.SubmitButton
-                    text="Next"
-                    buttonSize={Small}
-                    customSumbitButtonStyle="!w-full mt-8"
-                    tooltipForWidthClass="w-full"
+                    text="Next" buttonSize={Small} customSubmitButtonStyle="!w-full mt-8"
                   />
                 </div>
               </RenderIf>
@@ -398,10 +395,7 @@ let make = (
               <div className="flex flex-col mb-5 gap-3 ">
                 <ConnectorPaymentMethodV2 initialValues isInEditState=true />
                 <FormRenderer.SubmitButton
-                  text="Next"
-                  buttonSize={Small}
-                  customSumbitButtonStyle="!w-full mt-8"
-                  tooltipForWidthClass="w-full"
+                  text="Next" buttonSize={Small} customSubmitButtonStyle="!w-full mt-8"
                 />
               </div>
             </Form>

@@ -97,9 +97,6 @@ module AddNewOMPButton = {
       authorization={hasOMPCreateAccess}
       noAccessDescription="You do not have the required permissions for this action. Please contact your admin."
       onClick={_ => ()}
-      isRelative=false
-      contentAlign=Default
-      tooltipForWidthClass="!h-full"
       className={`${cursorStyles} ${customPadding} ${addItemBtnStyle}`}
       showTooltip={hasOMPCreateAccess == Access}>
       {<>
@@ -219,10 +216,7 @@ module ConnectProcessorsFields = {
       <div className="mt-10 w-full">
         <FormRenderer.DesktopRow wrapperClass="!w-full" itemWrapperClass="!mx-0">
           <FormRenderer.SubmitButton
-            text="Next"
-            customSumbitButtonStyle="rounded !w-full"
-            buttonType={Primary}
-            tooltipForWidthClass="w-full"
+            text="Next" customSubmitButtonStyle="rounded !w-full" buttonType={Primary}
           />
         </FormRenderer.DesktopRow>
       </div>

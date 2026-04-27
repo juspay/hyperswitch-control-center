@@ -3,7 +3,7 @@ type infoMetrics =
   | ApiName
   | Status_code
 
-let getStringFromVarient = value =>
+let getStringFromVariant = value =>
   switch value {
   | Latency => "latency"
   | ApiName => "api_name"
@@ -163,7 +163,7 @@ type commonMetrics = {
   payment_count: int,
   payment_success_count: int,
   retries_count: int,
-  retries_amount_processe: float,
+  retries_amount_processed: float,
   connector_success_rate: float,
   payment_processed_amount: float,
   payment_avg_ticket_size: float,
@@ -171,10 +171,12 @@ type commonMetrics = {
 type paymentsSingleState = {
   ...commonMetrics,
   currency: string,
+  authorised_uncaptured_payments: int,
 }
 
 type paymentsSingleStateSeries = {
   ...commonMetrics,
+  authorised_uncaptured_payments: int,
   time_series: string,
 }
 

@@ -1,4 +1,5 @@
 open ConnectorTypes
+open LogicUtils
 
 type data = {code?: string, message?: string, type_?: string}
 @scope("JSON") @val
@@ -22,6 +23,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(ADYENPLATFORM),
   PayoutProcessor(CYBERSOURCE),
   PayoutProcessor(EBANX),
+  PayoutProcessor(ITAUBANK),
   PayoutProcessor(PAYPAL),
   PayoutProcessor(STRIPE),
   PayoutProcessor(WISE),
@@ -31,6 +33,9 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(LOONIO),
   PayoutProcessor(WORLDPAY),
   PayoutProcessor(WORLDPAYXML),
+  PayoutProcessor(TRUELAYER),
+  PayoutProcessor(ENVOY),
+  PayoutProcessor(TRUSTLY),
 ]
 
 let payoutConnectorListForLive: array<connectorTypes> = [
@@ -172,7 +177,14 @@ let connectorList: array<connectorTypes> = [
   Processors(FINIX),
   Processors(ZIFT),
   Processors(PAYJUSTNOWINSTORE),
+  Processors(FISERVCOMMERCEHUB),
   Processors(AMAZONPAY),
+  Processors(WORLDPAYMODULAR),
+  Processors(SANTANDER),
+  Processors(REVOLV3),
+  Processors(TRUELAYER),
+  Processors(TRUSTLY),
+  Processors(IMERCHANTSOLUTIONS),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -191,6 +203,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(CYBERSOURCE),
   Processors(COINGATE),
   Processors(DATATRANS),
+  Processors(FINIX),
   Processors(FIUU),
   Processors(GIGADAT),
   Processors(IATAPAY),
@@ -204,6 +217,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(NUVEI),
   Processors(PAYPAL),
   Processors(PAYBOX),
+  Processors(PAYLOAD),
   Processors(PAYME),
   Processors(PEACHPAYMENTS),
   Processors(REDSYS),
@@ -215,6 +229,9 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(ZIFT),
   Processors(ZSL),
   Processors(ZEN),
+  Processors(WORLDPAYMODULAR),
+  Processors(PAYJUSTNOW),
+  Processors(PAYJUSTNOWINSTORE),
 ]
 
 let connectorListWithAutomaticFlow = [PAYPAL]
@@ -229,6 +246,8 @@ let getPaymentMethodFromString = paymentMethod => {
   | "bank_transfer" => BankTransfer
   | "crypto" => Crypto
   | "bank_debit" => BankDebit
+  | "network_token" => NetworkToken
+  | "voucher" => Voucher
   | _ => UnknownPaymentMethod(paymentMethod)
   }
 }
@@ -240,6 +259,10 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "google_pay" => GooglePay
   | "apple_pay" => ApplePay
   | "paypal" => PayPal
+  | "pix" => Pix
+  | "pix_automatico_qr" => PixAutomaticoQr
+  | "pix_automatico_push" => PixAutomaticoPush
+  | "boleto" => Boleto
   | "klarna" => Klarna
   | "open_banking_pis" => OpenBankingPIS
   | "samsung_pay" => SamsungPay
@@ -248,6 +271,8 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "wechatpay" => WeChatPay
   | "directcarrierbilling" => DirectCarrierBilling
   | "amazon_pay" => AmazonPay
+  | "network_token" => NetworkToken
+  | "ideal" => Ideal
   | _ => UnknownPaymentMethodType(paymentMethodType)
   }
 }
@@ -698,6 +723,10 @@ let nomupayInfo = {
   description: "A payment processing and software provider, that offers solutions such as e-commerce solutions, subscription billing services, payment gateways, and merchant accounts, to businesses of all sizes.",
 }
 
+let imerchantsolutionsInfo = {
+  description: "iMerchant Solutions is a modern payment processing platform that empowers businesses to accept payments globally with fast and low-friction onboarding.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -725,6 +754,33 @@ let riskifyedInfo = {
       placeholder: "Enter Domain name",
       label: "Domain name",
       name: "connector_account_details.key1",
+      isRequired: true,
+      encodeToBase64: false,
+    },
+  ],
+}
+
+let cyberSourceDecisionManagerInfo = {
+  description: "Comprehensive fraud management solution for businesses to detect and prevent fraudulent transactions in real-time.",
+  validate: [
+    {
+      placeholder: "Enter Api key",
+      label: "Api key",
+      name: "connector_account_details.api_key",
+      isRequired: true,
+      encodeToBase64: false,
+    },
+    {
+      placeholder: "Enter Merchant Id",
+      label: "Merchant Id",
+      name: "connector_account_details.key1",
+      isRequired: true,
+      encodeToBase64: false,
+    },
+    {
+      placeholder: "Enter Shared Secret",
+      label: "Shared Secret",
+      name: "connector_account_details.api_secret",
       isRequired: true,
       encodeToBase64: false,
     },
@@ -802,6 +858,33 @@ let payjustnowInStoreInfo = {
 
 let amazonpayinfo = {
   description: "Amazon Pay is an Alternative Payment Method (APM) connector that allows merchants to accept payments using customers' stored Amazon account details, providing a seamless checkout experience.",
+}
+
+let worldpayModularInfo = {
+  description: "Worldpaymodular is a payment gateway and PSP enabling secure online transactions, It utilizes modular API's of WorldPay.",
+}
+
+let santanderInfo = {
+  description: "Banco Santander is a Spanish multinational financial services group founded in 1857, with a global retail and commercial banking presence across Europe and the Americas, serving millions of customers with banking, credit, investment, and payment services.",
+}
+
+let revolv3Info = {
+  description: "Revolv3 is a specialized, AI-driven payment orchestration platform designed to maximize subscription billing approval rates and reduce involuntary churn for e-commerce merchant.",
+}
+
+let truelayerInfo = {
+  description: "A leading open banking payments and financial data platform that enables secure, real-time bank-to-bank payments, identity verification and direct access to bank account data via authorised APIs.",
+}
+
+let envoyInfo = {
+  description: "Envoy, specialized in providing single-point access to over 200 local payment methods worldwide, enhancing Worldpay's ability to handle international online and mobile transactions. ",
+}
+let fiservcommercehubInfo = {
+  description: "Fiservcommercehub is a developer-friendly, flexible communication standards, unified APIs, and pre-certified integrations, Commerce Hub reduces development time and accelerates speed to market.",
+}
+
+let trustlyInfo = {
+  description: "Trustly provides a secure, efficient, and cost-effective payment solution for your businesses to offer customers a convenient and hassle-free payment experience.",
 }
 
 let getConnectorNameString = (connector: processorTypes) =>
@@ -911,6 +994,13 @@ let getConnectorNameString = (connector: processorTypes) =>
   | ZIFT => "zift"
   | PAYJUSTNOWINSTORE => "payjustnowinstore"
   | AMAZONPAY => "amazonpay"
+  | WORLDPAYMODULAR => "worldpaymodular"
+  | SANTANDER => "santander"
+  | REVOLV3 => "revolv3"
+  | TRUELAYER => "truelayer"
+  | FISERVCOMMERCEHUB => "fiservcommercehub"
+  | TRUSTLY => "trustly"
+  | IMERCHANTSOLUTIONS => "imerchantsolutions"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -919,6 +1009,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | ADYENPLATFORM => "adyenplatform"
   | CYBERSOURCE => "cybersource"
   | EBANX => "ebanx"
+  | ITAUBANK => "itaubank"
   | PAYPAL => "paypal"
   | STRIPE => "stripe"
   | WISE => "wise"
@@ -928,6 +1019,9 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | LOONIO => "loonio"
   | WORLDPAY => "worldpay"
   | WORLDPAYXML => "worldpayxml"
+  | TRUELAYER => "truelayer"
+  | ENVOY => "envoy"
+  | TRUSTLY => "trustly"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -944,6 +1038,7 @@ let getFRMNameString = (frm: frmTypes) => {
   switch frm {
   | Signifyd => "signifyd"
   | Riskifyed => "riskified"
+  | CybersourceDecisionManager => "cybersourcedecisionmanager"
   }
 }
 
@@ -1100,6 +1195,13 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "zift" => Processors(ZIFT)
     | "payjustnowinstore" => Processors(PAYJUSTNOWINSTORE)
     | "amazonpay" => Processors(AMAZONPAY)
+    | "worldpaymodular" => Processors(WORLDPAYMODULAR)
+    | "santander" => Processors(SANTANDER)
+    | "revolv3" => Processors(REVOLV3)
+    | "truelayer" => Processors(TRUELAYER)
+    | "fiservcommercehub" => Processors(FISERVCOMMERCEHUB)
+    | "trustly" => Processors(TRUSTLY)
+    | "imerchantsolutions" => Processors(IMERCHANTSOLUTIONS)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1108,6 +1210,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "adyenplatform" => PayoutProcessor(ADYENPLATFORM)
     | "cybersource" => PayoutProcessor(CYBERSOURCE)
     | "ebanx" => PayoutProcessor(EBANX)
+    | "itaubank" => PayoutProcessor(ITAUBANK)
     | "paypal" => PayoutProcessor(PAYPAL)
     | "stripe" => PayoutProcessor(STRIPE)
     | "wise" => PayoutProcessor(WISE)
@@ -1117,6 +1220,9 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "loonio" => PayoutProcessor(LOONIO)
     | "worldpay" => PayoutProcessor(WORLDPAY)
     | "worldpayxml" => PayoutProcessor(WORLDPAYXML)
+    | "truelayer" => PayoutProcessor(TRUELAYER)
+    | "envoy" => PayoutProcessor(ENVOY)
+    | "trustly" => PayoutProcessor(TRUSTLY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1133,6 +1239,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     switch connector {
     | "riskified" => FRM(Riskifyed)
     | "signifyd" => FRM(Signifyd)
+    | "cybersourcedecisionmanager" => FRM(CybersourceDecisionManager)
     | _ => UnknownConnector("Not known")
     }
   | PMAuthenticationProcessor =>
@@ -1267,6 +1374,13 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | ZIFT => ziftInfo
   | PAYJUSTNOWINSTORE => payjustnowInStoreInfo
   | AMAZONPAY => amazonpayinfo
+  | WORLDPAYMODULAR => worldpayModularInfo
+  | SANTANDER => santanderInfo
+  | REVOLV3 => revolv3Info
+  | TRUELAYER => truelayerInfo
+  | FISERVCOMMERCEHUB => fiservcommercehubInfo
+  | TRUSTLY => trustlyInfo
+  | IMERCHANTSOLUTIONS => imerchantsolutionsInfo
   }
 }
 
@@ -1276,6 +1390,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | ADYENPLATFORM => adyenPlatformInfo
   | CYBERSOURCE => cybersourceInfo
   | EBANX => ebanxInfo
+  | ITAUBANK => itauBankInfo
   | PAYPAL => paypalInfo
   | STRIPE => stripeInfo
   | WISE => wiseInfo
@@ -1285,6 +1400,9 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | LOONIO => loonioInfo
   | WORLDPAY => worldpayInfo
   | WORLDPAYXML => worldpayxmlInfo
+  | TRUELAYER => truelayerInfo
+  | ENVOY => envoyInfo
+  | TRUSTLY => trustlyInfo
   }
 }
 
@@ -1301,6 +1419,7 @@ let getFrmInfo = frm =>
   switch frm {
   | Signifyd => signifydInfo
   | Riskifyed => riskifyedInfo
+  | CybersourceDecisionManager => cyberSourceDecisionManagerInfo
   }
 
 let getOpenBankingProcessorInfo = (
@@ -1347,7 +1466,6 @@ let getConnectorInfo = connector => {
 }
 
 let acceptedValues = dict => {
-  open LogicUtils
   let values = {
     type_: dict->getString("type", "enable_only"),
     list: dict->getStrArray("list"),
@@ -1356,7 +1474,6 @@ let acceptedValues = dict => {
 }
 
 let itemProviderMapper: dict<JSON.t> => ConnectorTypes.paymentMethodConfigType = dict => {
-  open LogicUtils
   {
     payment_method_type: dict->getString("payment_method_type", ""),
     accepted_countries: dict->getDictfromDict("accepted_countries")->acceptedValues,
@@ -1371,12 +1488,17 @@ let itemProviderMapper: dict<JSON.t> => ConnectorTypes.paymentMethodConfigType =
 }
 
 let getPaymentMethodMapper: JSON.t => array<paymentMethodConfigType> = json => {
-  open LogicUtils
   getArrayDataFromJson(json, itemProviderMapper)
 }
 
+let getPaymentMethodDisplayName = (paymentMethodType: string) => {
+  switch paymentMethodType->getPaymentMethodTypeFromString {
+  | Ideal => "iDEAL | Wero"
+  | _ => paymentMethodType->snakeToTitle
+  }
+}
+
 let itemToObjMapper = dict => {
-  open LogicUtils
   {
     payment_method: dict->getString("payment_method", ""),
     payment_method_type: dict->getString("payment_method_type", ""),
@@ -1389,7 +1511,6 @@ let itemToObjMapper = dict => {
 }
 
 let getPaymentMethodEnabled: JSON.t => array<paymentMethodEnabled> = json => {
-  open LogicUtils
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
@@ -1426,13 +1547,13 @@ let ignoreFields = (json, id, fields) => {
     json
   } else {
     json
-    ->LogicUtils.getDictFromJsonObject
+    ->getDictFromJsonObject
     ->Dict.toArray
     ->Array.filter(entry => {
       let (key, _val) = entry
       !(fields->Array.includes(key))
     })
-    ->LogicUtils.getJsonFromArrayOfJson
+    ->getJsonFromArrayOfJson
   }
 }
 
@@ -1573,7 +1694,6 @@ let generateInitialValuesDict = (
   ~isLiveMode=false,
   ~connectorType: ConnectorTypes.connector=ConnectorTypes.Processor,
 ) => {
-  open LogicUtils
   let dict = values->getDictFromJsonObject
 
   let connectorAccountDetails =
@@ -1606,7 +1726,6 @@ let generateInitialValuesDict = (
   | _ => JSON.Encode.null
   }
   dict->Dict.set("connector_webhook_details", connectorWebhookDict)
-
   dict->JSON.Encode.object
 }
 
@@ -1614,7 +1733,15 @@ let getDisableConnectorPayload = (connectorType, previousConnectorState) => {
   [
     ("connector_type", connectorType->JSON.Encode.string),
     ("disabled", !previousConnectorState->JSON.Encode.bool),
-  ]->Dict.fromArray
+  ]->getJsonFromArrayOfJson
+}
+
+let getDisableConnectorPayloadV2 = (connectorType, previousConnectorState, merchantId) => {
+  [
+    ("connector_type", connectorType->JSON.Encode.string),
+    ("disabled", !previousConnectorState->JSON.Encode.bool),
+    ("merchant_id", merchantId->JSON.Encode.string),
+  ]->getJsonFromArrayOfJson
 }
 
 let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) => {
@@ -1626,8 +1753,14 @@ let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) =>
   }
 }
 
+let checkAuthKeyMapRequiredFields = (connector: connectorTypes, fieldName) => {
+  switch (connector, fieldName) {
+  | (Processors(PAYLOAD), "processing_account_id") => false
+  | _ => true
+  }
+}
+
 let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
-  open LogicUtils
   let authKeyMap =
     connectorAccountFields
     ->getDictfromDict("auth_key_map")
@@ -1636,7 +1769,6 @@ let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
   convertMapObjectToDict(authKeyMap)
 }
 let checkCashtoCodeFields = (keys, country, valuesFlattenJson) => {
-  open LogicUtils
   keys->Array.map(field => {
     let key = `connector_account_details.auth_key_map.${country}.${field}`
     let value = valuesFlattenJson->getString(`${key}`, "")
@@ -1645,7 +1777,6 @@ let checkCashtoCodeFields = (keys, country, valuesFlattenJson) => {
 }
 
 let checkCashtoCodeInnerField = (valuesFlattenJson, dict, country: string): bool => {
-  open LogicUtils
   let value = dict->getDictfromDict(country)->Dict.keysToArray
   let result = value->Array.map(method => {
     let keys = dict->getDictfromDict(country)->getDictfromDict(method)->Dict.keysToArray
@@ -1655,15 +1786,46 @@ let checkCashtoCodeInnerField = (valuesFlattenJson, dict, country: string): bool
   result->Array.includes(true)
 }
 
-let checkPayloadFields = (dict, country, valuesFlattenJson) => {
-  open LogicUtils
-  let keys = dict->getDictfromDict(country)->Dict.keysToArray
+let checkPayloadFields = (dict, valuesFlattenJson) => {
+  let countries = dict->Dict.keysToArray
+  // 0: has non required filled but required not filled
+  // 1: has required filled
+  let flags = Js.Vector.make(2, false)
 
-  keys->Array.every(field => {
-    let key = `connector_account_details.auth_key_map.${country}.${field}`
-    let value = valuesFlattenJson->getString(key, "")
-    value->String.trim->String.length > 0
+  countries->Array.forEach(country => {
+    let fields =
+      dict
+      ->getDictfromDict(country)
+      ->Dict.keysToArray
+
+    let requiredFields =
+      fields->Array.filter(field => checkAuthKeyMapRequiredFields(Processors(PAYLOAD), field))
+
+    let nonRequiredFields =
+      fields->Array.filter(field => !checkAuthKeyMapRequiredFields(Processors(PAYLOAD), field))
+
+    let hasAnyRequiredFieldFilled = requiredFields->Array.some(field => {
+      let key = `connector_account_details.auth_key_map.${country}.${field}`
+      let value = valuesFlattenJson->getString(key, "")
+      value->String.trim->isNonEmptyString
+    })
+
+    let hasNonRequiredFieldFilled = nonRequiredFields->Array.some(field => {
+      let key = `connector_account_details.auth_key_map.${country}.${field}`
+      let value = valuesFlattenJson->getString(key, "")
+      value->String.trim->isNonEmptyString
+    })
+
+    if hasNonRequiredFieldFilled && !hasAnyRequiredFieldFilled {
+      flags->Js.Vector.set(0, true)
+    }
+
+    if hasAnyRequiredFieldFilled {
+      flags->Js.Vector.set(1, true)
+    }
   })
+
+  !(flags->Js.Vector.get(0)) && flags->Js.Vector.get(1)
 }
 
 let validateConnectorRequiredFields = (
@@ -1675,7 +1837,6 @@ let validateConnectorRequiredFields = (
   connectorLabelDetailField,
   errors,
 ) => {
-  open LogicUtils
   let newDict = getDictFromJsonObject(errors)
   switch connector {
   | Processors(CASHTOCODE) => {
@@ -1700,19 +1861,9 @@ let validateConnectorRequiredFields = (
 
   | Processors(PAYLOAD) => {
       let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
+      let isValid = checkPayloadFields(dict, valuesFlattenJson)
 
-      let indexLength = dict->Dict.keysToArray->Array.length
-      let vector = Js.Vector.make(indexLength, false)
-
-      dict
-      ->Dict.keysToArray
-      ->Array.forEachWithIndex((country, index) => {
-        let res = checkPayloadFields(dict, country, valuesFlattenJson)
-        vector->Js.Vector.set(index, res)
-      })
-
-      Js.Vector.filterInPlace(val => val, vector)
-      if vector->Js.Vector.length === 0 {
+      if !isValid {
         Dict.set(newDict, "Currency", `Please enter currency`->JSON.Encode.string)
       }
     }
@@ -1791,14 +1942,13 @@ let validateConnectorRequiredFields = (
 }
 
 let getPlaceHolder = label => {
-  `Enter ${label->LogicUtils.snakeToTitle}`
+  `Enter ${label->snakeToTitle}`
 }
 
 let connectorLabelDetailField = Dict.fromArray([
   ("connector_label", "Connector label"->JSON.Encode.string),
 ])
 let getConnectorFields = connectorDetails => {
-  open LogicUtils
   let connectorAccountDict =
     connectorDetails->getDictFromJsonObject->getJsonObjectFromDict("connector_auth")
   let bodyType = switch connectorAccountDict->JSON.Classify.classify {
@@ -1831,7 +1981,6 @@ let getConnectorFields = connectorDetails => {
 }
 
 let validateRequiredFiled = (valuesFlattenJson, dict, fieldName, errors) => {
-  open LogicUtils
   let newDict = getDictFromJsonObject(errors)
   dict
   ->Dict.keysToArray
@@ -1858,7 +2007,7 @@ let validate = (~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => values =>
       valuesFlattenJson
       ->Dict.get(key)
       ->Option.getOr(""->JSON.Encode.string)
-      ->LogicUtils.getStringFromJson("")
+      ->getStringFromJson("")
     let regexToUse = isLiveMode ? field.liveValidationRegex : field.testValidationRegex
     let validationResult = switch regexToUse {
     | Some(regex) => regex->RegExp.fromString->RegExp.test(value)
@@ -1869,7 +2018,7 @@ let validate = (~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => values =>
         labelArr
         ->Array.get(index)
         ->Option.getOr(""->JSON.Encode.string)
-        ->LogicUtils.getStringFromJson("")
+        ->getStringFromJson("")
       Dict.set(errors, key, `Please enter ${errorLabel}`->JSON.Encode.string)
     } else if !validationResult && value->String.length !== 0 {
       let expectedFormat = isLiveMode ? field.liveExpectedFormat : field.testExpectedFormat
@@ -1878,7 +2027,7 @@ let validate = (~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => values =>
     }
   })
 
-  let profileId = valuesFlattenJson->LogicUtils.getString("profile_id", "")
+  let profileId = valuesFlattenJson->getString("profile_id", "")
   if profileId->String.length === 0 {
     Dict.set(errors, "Profile Id", `Please select your business profile`->JSON.Encode.string)
   }
@@ -1905,7 +2054,7 @@ let getSuggestedAction = (~verifyErrorMessage, ~connector) => {
     | Processors(PAYPAL) => (
         {
           if msg->String.includes("Client Authentication failed") {
-            <PaypalClientAuthenticationFalied />
+            <PaypalClientAuthenticationFailed />
           } else {
             React.null
           }
@@ -1940,7 +2089,6 @@ let getWebhooksUrl = (~connectorName, ~merchantId) => {
 }
 
 let itemToPMAuthMapper = dict => {
-  open LogicUtils
   {
     payment_method: dict->getString("payment_method", ""),
     payment_method_type: dict->getString("payment_method_type", ""),
@@ -1950,7 +2098,6 @@ let itemToPMAuthMapper = dict => {
 }
 
 let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) => {
-  open LogicUtils
   let dict = payload->getDictFromJsonObject
   let connectorAccountDetails =
     dict->getDictfromDict("connector_account_details")->JSON.Encode.object
@@ -1976,6 +2123,7 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
         : connectorAdditionalMerchantData->JSON.Encode.object,
     ),
     ("connector_label", dict->getString("connector_label", "")->JSON.Encode.string),
+    ("disabled", dict->getBool("disabled", false)->JSON.Encode.bool),
     ("status", dict->getString("status", "active")->JSON.Encode.string),
     (
       "pm_auth_config",
@@ -2012,7 +2160,6 @@ let defaultSelectAllCards = (
   connector,
   updateDetails,
 ) => {
-  open LogicUtils
   if !isUpdateFlow {
     let config =
       (
@@ -2037,7 +2184,7 @@ let defaultSelectAllCards = (
           ->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
           ->Array.splice(~start=0, ~remove=length, ~insert=arr)
         }
-      | BankTransfer | BankRedirect => {
+      | BankRedirect => {
           let arr =
             config
             ->getArrayFromDict(val.payment_method_type, [])
@@ -2077,7 +2224,6 @@ let getConnectorPaymentMethodDetails = async (
   ~connector,
   ~updateDetails,
 ) => {
-  open LogicUtils
   try {
     let json = Window.getResponsePayload(initialValues)
     let metaData = initialValues->getDictFromJsonObject->getJsonObjectFromDict("metadata")
@@ -2123,7 +2269,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | ELAVON => "Elavon"
   | ACI => "ACI Worldwide"
   | WORLDLINE => "Worldline"
-  | FISERV => "Fiserv Commerce Hub"
+  | FISERV => "Fiserv IPG"
   | SHIFT4 => "Shift4"
   | RAPYD => "Rapyd"
   | PAYU => "PayU"
@@ -2172,7 +2318,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | SQUARE => "Square"
   | PAYBOX => "Paybox"
   | WELLSFARGO => "Wells Fargo"
-  | FISERVIPG => "Fiserv IPG"
+  | FISERVIPG => "Fiserv IPG (EMEA)"
   | FIUU => "Fiuu"
   | NOVALNET => "Novalnet"
   | DEUTSCHEBANK => "Deutsche Bank"
@@ -2210,6 +2356,13 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | PAYJUSTNOWINSTORE => "PayJustNow In-Store"
   | ZIFT => "Zift"
   | AMAZONPAY => "Amazon Pay"
+  | WORLDPAYMODULAR => "Worldpay Modular"
+  | SANTANDER => "Santander"
+  | REVOLV3 => "Revolv3"
+  | TRUELAYER => "Truelayer"
+  | FISERVCOMMERCEHUB => "Fiserv Commerce Hub"
+  | TRUSTLY => "Trustly"
+  | IMERCHANTSOLUTIONS => "iMerchant Solutions"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2218,6 +2371,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | ADYENPLATFORM => "Adyen Platform"
   | CYBERSOURCE => "Cybersource"
   | EBANX => "Ebanx"
+  | ITAUBANK => "Itaubank"
   | PAYPAL => "PayPal"
   | STRIPE => "Stripe"
   | WISE => "Wise"
@@ -2227,6 +2381,9 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | LOONIO => "Loonio"
   | WORLDPAY => "Worldpay"
   | WORLDPAYXML => "Worldpay WPG"
+  | TRUELAYER => "Truelayer"
+  | ENVOY => "Worldpay Envoy"
+  | TRUSTLY => "Trustly"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
@@ -2243,6 +2400,7 @@ let getDisplayNameForFRMConnector = frmConnector =>
   switch frmConnector {
   | Signifyd => "Signifyd"
   | Riskifyed => "Riskified"
+  | CybersourceDecisionManager => "Cybersource Decision Manager"
   }
 
 let getDisplayNameForOpenBankingProcessor = pmAuthenticationConnector => {
@@ -2286,6 +2444,26 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
   | VaultProcessor(vaultProcessor) => vaultProcessor->getDisplayNameForVaultProcessor
   | UnknownConnector(str) => str
   }
+}
+
+let getConnectorFilterOptions = (
+  ~connectorType=ConnectorTypes.Processor,
+  values: array<string>,
+): array<FilterSelectBox.dropdownOption> => {
+  values->Array.filterMap(str => {
+    switch str->String.toLowerCase->getConnectorNameTypeFromString(~connectorType) {
+    | UnknownConnector(_) => None
+    | _ =>
+      Some(
+        (
+          {
+            label: getDisplayNameForConnector(~connectorType, str),
+            value: str,
+          }: FilterSelectBox.dropdownOption
+        ),
+      )
+    }
+  })
 }
 
 // Need to remove connector and merge connector and connectorTypeVariants
@@ -2332,7 +2510,6 @@ let connectorTypeTypedValueToStringMapper = val => {
 }
 
 let sortByName = (c1, c2) => {
-  open LogicUtils
   compareLogic(c2->getConnectorNameString, c1->getConnectorNameString)
 }
 
@@ -2349,7 +2526,6 @@ let existsInArray = (element, connectorList) => {
 // Need to refactor
 
 let updateMetaData = (~metaData) => {
-  open LogicUtils
   let apple_pay_combined = metaData->getDictFromJsonObject->getDictfromDict("apple_pay_combined")
   let manual = apple_pay_combined->getDictfromDict("manual")
   switch manual->Dict.keysToArray->Array.length > 0 {
@@ -2368,10 +2544,7 @@ let updateMetaData = (~metaData) => {
 
 let sortByDisableField = (arr: array<'a>, getDisabledStatus: 'a => bool) => {
   arr->Array.sort((a, b) =>
-    LogicUtils.numericArraySortComperator(
-      getDisabledStatus(a) ? 1.0 : 0.0,
-      getDisabledStatus(b) ? 1.0 : 0.0,
-    )
+    numericArraySortComparator(getDisabledStatus(a) ? 1.0 : 0.0, getDisabledStatus(b) ? 1.0 : 0.0)
   )
 }
 
@@ -2388,4 +2561,40 @@ let stepsArr = (~connector) => {
   | Processors(PAYSAFE) => [IntegFields, PaymentMethods, CustomMetadata, SummaryAndTest]
   | _ => [IntegFields, PaymentMethods, SummaryAndTest]
   }
+}
+
+let checkIfPredecryptFlowEnabledForApplePay = connector => {
+  switch connector->getConnectorNameTypeFromString {
+  | Processors(NUVEI)
+  | Processors(ADYEN)
+  | Processors(CHECKOUT)
+  | Processors(WORLDPAYVANTIV)
+  | Processors(NMI)
+  | Processors(STRIPE) => true
+  | _ => false
+  }
+}
+
+let checkIfPredecryptFlowEnabledForGooglePay = connector => {
+  switch connector->getConnectorNameTypeFromString {
+  | Processors(NUVEI)
+  | Processors(ADYEN)
+  | Processors(CHECKOUT)
+  | Processors(WORLDPAYVANTIV)
+  | Processors(NMI)
+  | Processors(STRIPE) => true
+  | _ => false
+  }
+}
+
+let threeDsMetadataFieldDefaults: array<(string, JSON.t)> = [
+  ("pull_mechanism_for_external_3ds_enabled", true->JSON.Encode.bool),
+]
+
+let getStaticDefaultValuesForThreeDs = (initialValuesDict: dict<JSON.t>) => {
+  initialValuesDict->Dict.set(
+    "metadata",
+    Dict.fromArray(threeDsMetadataFieldDefaults)->JSON.Encode.object,
+  )
+  initialValuesDict->JSON.Encode.object
 }

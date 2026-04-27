@@ -28,18 +28,10 @@ type exceptionResolutionStage =
   | ConfirmResolution(resolvingException)
   | ExceptionResolved
 
-type metadataRow = {
-  id: string,
-  key: string,
-  value: string,
-}
-
 type accountInfo = {
   account_info_name: string,
-  account_info_type: string,
+  account_info_type: accountTypeVariant,
 }
-
-type validationRule = (string, Dict.t<JSON.t> => option<string>)
 
 type tableSection = {
   titleElement?: React.element,

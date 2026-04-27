@@ -75,6 +75,7 @@ let defaultValueOfUserInfoProvider = {
   setUpdatedEmbeddableSessionInfo: _ => (),
   getCommonSessionDetails: _ => defaultCommonInfo,
   checkUserEntity: _ => false,
+  isEmbeddableSession: _ => false,
 }
 
 open LogicUtils
@@ -95,6 +96,13 @@ let itemMapperToDashboardUserType = dict => {
   analyticsEntity: dict->getString("entity_type", "")->analyticsEntityMapper,
   transactionEntity: dict->getString("entity_type", "")->transactionEntityMapper,
   themeId: dict->getString("theme_id", ""),
+  version: dict->getString("version", "v1")->versionMapper,
+}
+
+let itemMapperToEmbeddableSessionType = dict => {
+  orgId: dict->getString("org_id", defaultValueOfEmbeddedInfo.orgId),
+  profileId: dict->getString("profile_id", defaultValueOfEmbeddedInfo.profileId),
+  merchantId: dict->getString("merchant_id", defaultValueOfEmbeddedInfo.merchantId),
   version: dict->getString("version", "v1")->versionMapper,
 }
 

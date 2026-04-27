@@ -1,7 +1,6 @@
 open InsightsTypes
 open InsightsHelper
 open ExemptionGraphsUtils
-open InsightsUtils
 open NewAnalyticsUtils
 
 @react.component
@@ -38,16 +37,16 @@ let make = (
     ->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let defaulGranularity = getDefaultGranularity(
+  let defaultGranularity = getDefaultGranularity(
     ~startTime=startTimeVal,
     ~endTime=endTimeVal,
     ~granularity=featureFlag.granularity,
   )
-  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
+  let (granularity, setGranularity) = React.useState(_ => defaultGranularity)
 
   React.useEffect(() => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
-      setGranularity(_ => defaulGranularity)
+      setGranularity(_ => defaultGranularity)
     }
     None
   }, (startTimeVal, endTimeVal))
@@ -63,7 +62,7 @@ let make = (
         ~id=Some((entity.domain: domain :> string)),
       )
       let primaryResponse = if isSampleDataEnabled {
-        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/authentication.json`
         let res = await fetchApi(
           paymentsUrl,
           ~method_=Get,
@@ -73,7 +72,7 @@ let make = (
         let paymentsResponse = await res->(res => res->Fetch.Response.json)
         paymentsResponse
         ->getDictFromJsonObject
-        ->getJsonObjectFromDict("authenticationLifeCycleData")
+        ->getJsonObjectFromDict(getDataKeyForMetric(metricXKey))
       } else {
         let primaryBody = InsightsUtils.requestBody(
           ~startTime=startTimeVal,
@@ -103,19 +102,11 @@ let make = (
 
       if primaryData->Array.length > 0 {
         let primaryModifiedData = [primaryData]->Array.map(data => {
-          fillMissingDataPoints(
+          ExemptionGraphsUtils.fillMissingDataPointsForConnectors(
             ~data,
             ~startDate=startTimeVal,
             ~endDate=endTimeVal,
             ~timeKey="time_bucket",
-            ~defaultValue={
-              "authentication_count": 0,
-              "authentication_success_count": 0,
-              "authentication_attempt_count": 0,
-              "authentication_exemption_requested": 0,
-              "authentication_exemption_accepted": 0,
-              "time_bucket": startTimeVal,
-            }->Identity.genericTypeToJson,
             ~granularity=granularity.value,
             ~isoStringToCustomTimeZone,
             ~granularityEnabled=featureFlag.granularity,

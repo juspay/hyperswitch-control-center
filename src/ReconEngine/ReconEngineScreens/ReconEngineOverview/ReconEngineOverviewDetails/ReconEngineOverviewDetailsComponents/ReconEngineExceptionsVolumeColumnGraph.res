@@ -4,6 +4,7 @@ open ReconEngineOverviewUtils
 @react.component
 let make = (~ruleId: string) => {
   open LogicUtils
+  open ReconEngineFilterUtils
 
   let (transactionsData, setTransactionsData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -18,11 +19,15 @@ let make = (~ruleId: string) => {
   let fetchTransactions = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let enhancedFilterValueJson = Dict.copy(filterValueJson)
-      let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
-        ~filterValueJson=enhancedFilterValueJson,
-      )
-      let suffix = `rule_id=${ruleId}&status=over_amount_mismatch,under_amount_mismatch,data_mismatch`
+      let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+      let statusList =
+        getTransactionStatusValueFromStatusList([
+          OverAmount(Mismatch),
+          UnderAmount(Mismatch),
+          DataMismatch,
+        ])->Array.joinWith(",")
+
+      let suffix = `rule_id=${ruleId}&status=${statusList}`
       let queryString = if baseQueryString->isNonEmptyString {
         `${baseQueryString}&${suffix}`
       } else {

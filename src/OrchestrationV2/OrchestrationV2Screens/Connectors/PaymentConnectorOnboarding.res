@@ -80,9 +80,9 @@ let make = () => {
       let updatedData = paymentMethodType->Array.map(
         val => {
           let wasmDict = val->getDictFromJsonObject
-          let exisitngData =
+          let existingData =
             wasmDict->ConnectorPaymentMethodV2Utils.getPaymentMethodDictV2(key, connector)
-          exisitngData
+          existingData
         },
       )
       updatedData
@@ -172,6 +172,11 @@ let make = () => {
     )
   }
 
+  React.useEffect(() => {
+    setShowSideBar(_ => false)
+    None
+  }, [])
+
   let titleElement =
     <>
       <GatewayIcon gateway={`${connector}`->String.toUpperCase} className="w-6 h-6" />
@@ -202,10 +207,7 @@ let make = () => {
                 <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
                 <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
                 <FormRenderer.SubmitButton
-                  text="Next"
-                  buttonSize={Small}
-                  customSumbitButtonStyle="!w-full mt-8"
-                  tooltipForWidthClass="w-full"
+                  text="Next" buttonSize={Small} customSubmitButtonStyle="!w-full mt-8"
                 />
               </div>
             </Form>
@@ -225,10 +227,7 @@ let make = () => {
               <div className="flex flex-col mb-5 gap-3">
                 <ConnectorPaymentMethodV2 initialValues isInEditState=true />
                 <FormRenderer.SubmitButton
-                  text="Next"
-                  buttonSize={Small}
-                  customSumbitButtonStyle="!w-full mt-8"
-                  tooltipForWidthClass="w-full"
+                  text="Next" buttonSize={Small} customSubmitButtonStyle="!w-full mt-8"
                 />
               </div>
             </Form>
@@ -246,7 +245,7 @@ let make = () => {
           <ConnectorWebhookPreview
             merchantId
             connectorName=connectorInfoDict.id
-            textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6 text-nd_gray-400 font-jetbrain-mono text-sm min-w-0 truncate"
+            textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6 text-nd_gray-400 font-jetbrains-mono text-sm min-w-0 truncate"
             containerClass="flex flex-col lg:flex-row items-center"
             hideLabel=true
             showFullCopy=true

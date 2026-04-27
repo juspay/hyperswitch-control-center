@@ -159,6 +159,7 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let showToast = ToastState.useShowToast()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let getTimeInCustomTimeZone = TimeZoneHook.useGetTimeInCustomTimeZone()
 
   let pageConfig = {
     pageTitle: "3DS Exemption Rules",
@@ -172,7 +173,9 @@ let make = () => {
   }
 
   let (initialValues, _setInitialValues) = React.useState(_ => {
-    buildInitial3DSValueFor3DsExemptions->Identity.genericTypeToJson
+    let currentTime = getTimeInCustomTimeZone("ddd, DD MMM YYYY HH:mm:ss", ~includeTimeZone=true)
+    let currentDate = getTimeInCustomTimeZone("YYYY-MM-DD")
+    getInitial3DSValueFor3DsExemptions(~currentDate, ~currentTime)->Identity.genericTypeToJson
   })
 
   let getWasm = async () => {
@@ -203,14 +206,14 @@ let make = () => {
 
         let programValue = responseDict->getDictfromDict("algorithm")->getDictfromDict("data")
 
-        let intitialValue =
+        let initialValue =
           [
             ("name", responseDict->getString("name", "")->JSON.Encode.string),
             ("description", responseDict->getString("description", "")->JSON.Encode.string),
             ("algorithm", programValue->JSON.Encode.object),
           ]->Dict.fromArray
 
-        setInitialRule(_ => Some(intitialValue))
+        setInitialRule(_ => Some(initialValue))
       }
     } catch {
     | Exn.Error(e) =>

@@ -4,7 +4,9 @@ let make = () => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {showFeedbackModal, setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
+  let {showFeedbackModal, setShowFeedbackModal, setShowSideBar} = React.useContext(
+    GlobalProvider.defaultContext,
+  )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
@@ -41,6 +43,7 @@ let make = () => {
 
   React.useEffect(() => {
     getConnectorListAndUpdateState()->ignore
+    setShowSideBar(_ => true)
     None
   }, [connectorsList->Array.length])
 
@@ -111,7 +114,7 @@ let make = () => {
           </RenderIf>
         </div>
       </RenderIf>
-      <div className="flex flex-col gap-14">
+      <div className="flex flex-col gap-8">
         <RenderIf condition={showFeedbackModal}>
           <HSwitchFeedBackModal
             showModal={showFeedbackModal}
@@ -123,6 +126,7 @@ let make = () => {
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Connected Processors"
+            titleSize={Small}
             actualData=filteredConnectorData
             totalResults={filteredConnectorData->Array.length}
             filters={<TableSearchFilter
@@ -142,7 +146,7 @@ let make = () => {
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
               ~sendMixpanelEvent,
             )}
-            currrentFetchCount={filteredConnectorData->Array.length}
+            currentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false
             showAutoScroll=true
           />

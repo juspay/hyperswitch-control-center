@@ -122,7 +122,6 @@ module ShowPayoutDetails = {
               description="Original amount that was authorized for the payout"
               toolTipFor={<Icon name="tooltip_info" className={`mt-1 ml-1`} />}
               toolTipPosition=Top
-              tooltipWidthClass="w-fit"
             />
           </div>
           {statusUI}
@@ -139,7 +138,7 @@ module ShowPayoutDetails = {
                 value={getCell(data, colType)}
                 customMoneyStyle="!font-normal !text-sm"
                 labelMargin="!py-0 mt-2"
-                overiddingHeadingStyles="text-black text-sm font-medium"
+                overridingHeadingStyles="text-black text-sm font-medium"
                 textColor="!font-normal !text-jp-gray-700"
               />
             </div>
@@ -257,6 +256,9 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open APIUtils
   let getURL = useGetURL()
   let fetchDetails = useUpdateMethod()
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (payoutData, setPayoutsData) = React.useState(_ => Dict.make()->PayoutsEntity.itemToObjMapper)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
@@ -303,36 +305,51 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         <div className="flex items-center">
           <div>
             <PageUtils.PageHeading title="Payouts" />
-            <BreadCrumbNavigation
-              path=[{title: "Payouts", link: "/payouts"}]
-              currentPageTitle=id
-              cursorStyle="cursor-pointer"
-            />
+            <BreadCrumbNavigation path=[{title: "Payouts", link: "/payouts"}] currentPageTitle=id />
           </div>
           <div />
         </div>
       </div>
       {<div className="flex flex-col gap-8">
         <PayoutInfo payoutData />
+        <RenderIf
+          condition={version == V1 &&
+          featureFlagDetails.auditTrail &&
+          userHasAccess(~groupAccess=AnalyticsView) === Access}>
+          <RenderAccordion
+            initialExpandedArray=[0]
+            accordion={[
+              {
+                title: "Events and logs",
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
+                  <LogsWrapper wrapperFor={#PAYOUT}>
+                    <PayoutLogs payoutId={id} />
+                  </LogsWrapper>
+                },
+                renderContentOnTop: None,
+              },
+            ]}
+          />
+        </RenderIf>
         <div className="overflow-scroll">
           <Attempts data=payoutData />
         </div>
-        <RenderAccordian
+        <RenderAccordion
           accordion=[
             {
               title: "Customer Details",
-              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+              renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                 <CustomerDetails payoutData />
               },
               renderContentOnTop: None,
             },
           ]
         />
-        <RenderAccordian
+        <RenderAccordion
           accordion=[
             {
               title: "More Payout Details",
-              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+              renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                 <MorePayoutDetails payoutData />
               },
               renderContentOnTop: None,
@@ -342,11 +359,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         <RenderIf
           condition={payoutData.payout_type === "card" &&
             payoutData.payout_method_data->Option.isSome}>
-          <RenderAccordian
+          <RenderAccordion
             accordion=[
               {
                 title: "Payout Method Details",
-                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                   <div className="bg-white p-2">
                     <PrettyPrintJson
                       jsonToDisplay={payoutData.payout_method_data
@@ -362,11 +379,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           />
         </RenderIf>
         <RenderIf condition={!(payoutData.metadata->LogicUtils.isEmptyDict)}>
-          <RenderAccordian
+          <RenderAccordion
             accordion=[
               {
                 title: "Payout Metadata",
-                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                   <div className="bg-white p-2">
                     <PrettyPrintJson
                       jsonToDisplay={payoutData.metadata->JSON.stringifyAny->Option.getOr("")}

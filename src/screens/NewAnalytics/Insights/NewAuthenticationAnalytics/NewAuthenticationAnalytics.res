@@ -85,7 +85,7 @@ let make = () => {
       if isSampleDataEnabled {
         setQueryData(_ => Dict.make()->itemToObjMapperForQueryData)
         setFunnelData(_ => Dict.make()->itemToObjMapperForFunnelData)
-        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/authentication.json`
         let res = await fetchApi(
           paymentsUrl,
           ~method_=Get,
@@ -130,7 +130,7 @@ let make = () => {
         let queryDataMapped = paymentData
         let funnelDict = Dict.make()->itemToObjMapperForFunnelData
         funnelDict.authentication_initiated = authenticationInitiated
-        funnelDict.authentication_attemped = authenticationAttempted
+        funnelDict.authentication_attempted = authenticationAttempted
         funnelDict.payments_requiring_3ds_2_authentication = queryDataMapped.authentication_count
         funnelDict.authentication_successful = queryDataMapped.authentication_success_count
 
@@ -155,9 +155,10 @@ let make = () => {
             #authentication_attempt_count,
             #authentication_success_count,
             #challenge_flow_count,
+            #challenge_success_count,
+            #challenge_attempt_count,
             #frictionless_flow_count,
             #frictionless_success_count,
-            #challenge_attempt_count,
             #authentication_exemption_approved_count,
             #authentication_exemption_requested_count,
           ],
@@ -210,7 +211,11 @@ let make = () => {
         )
         updatedFilters->Dict.set(
           "authentication_status",
-          ["success"->JSON.Encode.string, "failed"->JSON.Encode.string]->JSON.Encode.array,
+          [
+            "success"->JSON.Encode.string,
+            "pending"->JSON.Encode.string,
+            "failed"->JSON.Encode.string,
+          ]->JSON.Encode.array,
         )
 
         let thirdFunnelRequestBody = InsightsUtils.requestBody(
@@ -234,7 +239,7 @@ let make = () => {
 
         let funnelDict = Dict.make()->itemToObjMapperForFunnelData
         funnelDict.authentication_initiated = authenticationInitiated
-        funnelDict.authentication_attemped = authenticationAttempted
+        funnelDict.authentication_attempted = authenticationAttempted
         funnelDict.payments_requiring_3ds_2_authentication = valueOfQueryData.authentication_count
         funnelDict.authentication_successful = valueOfQueryData.authentication_success_count
 
@@ -342,7 +347,7 @@ let make = () => {
     () =>
       funnelData.authentication_initiated > 0 &&
       funnelData.payments_requiring_3ds_2_authentication > 0 &&
-      funnelData.authentication_attemped > 0 &&
+      funnelData.authentication_attempted > 0 &&
       funnelData.authentication_successful > 0,
     [funnelData],
   )

@@ -287,13 +287,7 @@ module ListItem = {
 
                     {
                       if showToolTipOptions {
-                        <ToolTip
-                          key={i->Int.toString}
-                          description=item
-                          toolTipFor=selectOptions
-                          contentAlign=Default
-                          justifyClass="justify-start"
-                        />
+                        <ToolTip key={i->Int.toString} description=item toolTipFor=selectOptions />
                       } else {
                         selectOptions
                       }
@@ -342,12 +336,7 @@ module ListItem = {
         if isDropDown {
           showDescriptionAsTool
             ? {
-                <ToolTip
-                  description={str}
-                  toolTipFor=comp
-                  contentAlign=Default
-                  justifyClass="justify-start"
-                />
+                <ToolTip description={str} toolTipFor=comp />
               }
             : {
                 <div>
@@ -451,7 +440,7 @@ module BaseSelect = {
     ~showSelectionAsChips=true,
     ~maxHeight="md:max-h-72",
     ~searchable=?,
-    ~optionRigthElement=?,
+    ~optionRightElement=?,
     ~searchInputPlaceHolder="",
     ~showSearchIcon=false,
     ~customStyle="",
@@ -628,7 +617,7 @@ module BaseSelect = {
     let selectBtnRef = insertselectBtnRef->Option.map(ReactDOM.Ref.callbackDomRef)
     let clearBtnRef = insertclearBtnRef->Option.map(ReactDOM.Ref.callbackDomRef)
     let (isChooseAllToggleSelected, setChooseAllToggleSelected) = React.useState(() => false)
-    let gapClass = switch optionRigthElement {
+    let gapClass = switch optionRightElement {
     | Some(_) => "flex gap-4"
     | None => ""
     }
@@ -758,7 +747,7 @@ module BaseSelect = {
           />
           {isDraggable ? dragIcon : React.null}
         </div>
-        {switch optionRigthElement {
+        {switch optionRightElement {
         | Some(rightElement) => rightElement
         | None => React.null
         }}
@@ -1320,21 +1309,31 @@ let getHashMappedOptionValues = (options: array<dropdownOptionWithoutOptional>) 
   hashMappedOptions
 }
 
-let getSortedKeys = (hashMappedOptions, ~reverseSort=false) => {
-  hashMappedOptions
-  ->Dict.keysToArray
-  ->Array.toSorted((a, b) => {
-    switch (a, b) {
-    | ("-", _) => 1.
-    | (_, "-") => -1.
-    | (_, _) =>
-      if reverseSort {
-        String.compare(b, a)
-      } else {
-        String.compare(a, b)
+let getSortedKeys = (hashMappedOptions, ~reverseSort=false, ~customSortOrder=?) => {
+  let keys = hashMappedOptions->Dict.keysToArray
+
+  switch customSortOrder {
+  | Some(order) =>
+    keys->Array.toSorted((a, b) => {
+      let aIndex = order->Array.findIndex(item => item === a)
+      let bIndex = order->Array.findIndex(item => item === b)
+
+      switch (aIndex, bIndex) {
+      | (-1, -1) => String.compare(a, b)
+      | (-1, _) => 1.
+      | (_, -1) => -1.
+      | (_, _) => Float.fromInt(aIndex - bIndex)
       }
-    }
-  })
+    })
+  | None =>
+    keys->Array.toSorted((a, b) => {
+      switch (a, b) {
+      | ("-", _) => 1.
+      | (_, "-") => -1.
+      | (_, _) => reverseSort ? String.compare(b, a) : String.compare(a, b)
+      }
+    })
+  }
 }
 
 module BaseRadio = {
@@ -1383,6 +1382,7 @@ module BaseRadio = {
     ~customSelectionIcon=Button.NoIcon,
     ~placeholderCss="",
     ~reverseSortGroupKeys=false,
+    ~customSortOrder=?,
   ) => {
     let options = React.useMemo(() => {
       options->Array.map(makeNonOptional)
@@ -1394,7 +1394,7 @@ module BaseRadio = {
       hashMappedOptions->Dict.get("-")->Option.getOr([])->Array.length === options->Array.length
 
     let (optgroupKeys, setOptgroupKeys) = React.useState(_ =>
-      getSortedKeys(hashMappedOptions, ~reverseSort=reverseSortGroupKeys)
+      getSortedKeys(hashMappedOptions, ~reverseSort=reverseSortGroupKeys, ~customSortOrder?)
     )
 
     let (searchString, setSearchString) = React.useState(() => "")
@@ -1506,12 +1506,15 @@ module BaseRadio = {
           let optgroupKeysForSearch = getSortedKeys(
             hashMappedSearchedOptions,
             ~reverseSort=reverseSortGroupKeys,
+            ~customSortOrder?,
           )
           setOptgroupKeys(_ => optgroupKeysForSearch)
           options
         }
       } else {
-        setOptgroupKeys(_ => getSortedKeys(hashMappedOptions, ~reverseSort=reverseSortGroupKeys))
+        setOptgroupKeys(_ =>
+          getSortedKeys(hashMappedOptions, ~reverseSort=reverseSortGroupKeys, ~customSortOrder?)
+        )
         options
       }
     }, (searchString, options, selectedString))
@@ -1720,6 +1723,7 @@ module BaseDropdown = {
     ~placeholderCss="",
     ~reverseSortGroupKeys=false,
     ~maxButtonWidth="",
+    ~customSortOrder=?,
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -1741,7 +1745,7 @@ module BaseDropdown = {
     let dropdownRef = React.useRef(Nullable.null)
     let selectBtnRef = React.useRef(Nullable.null)
     let (preservedAppliedOptions, setPreservedAppliedOptions) = React.useState(_ =>
-      newInputSelect.value->LogicUtils.getStrArryFromJson
+      newInputSelect.value->LogicUtils.getStrArrayFromJson
     )
 
     let onApply = ev => {
@@ -1750,7 +1754,7 @@ module BaseDropdown = {
       | None => ()
       }
 
-      setPreservedAppliedOptions(_ => newInputSelect.value->LogicUtils.getStrArryFromJson)
+      setPreservedAppliedOptions(_ => newInputSelect.value->LogicUtils.getStrArrayFromJson)
     }
 
     let clearBtnRef = React.useRef(Nullable.null)
@@ -1874,7 +1878,7 @@ module BaseDropdown = {
       addButton ? setShowDropDown(_ => true) : setShowDropDown(_ => false)
     }
 
-    let allSellectedOptions = React.useMemo(() => {
+    let allSelectedOptions = React.useMemo(() => {
       newInputSelect.value
       ->JSON.Decode.array
       ->Option.getOr([])
@@ -1887,7 +1891,7 @@ module BaseDropdown = {
       ->Option.getOr(buttonText)
     }, (transformedOptions, newInputSelect.value))
 
-    let title = showAllSelectedOptions ? allSellectedOptions : buttonText
+    let title = showAllSelectedOptions ? allSelectedOptions : buttonText
 
     let badgeForSelect = React.useMemo((): Button.badge => {
       let count = newInputSelect.value->JSON.Decode.array->Option.getOr([])->Array.length
@@ -1997,6 +2001,7 @@ module BaseDropdown = {
         customSearchStyle
         placeholderCss
         reverseSortGroupKeys
+        ?customSortOrder
       />
     }
 
@@ -2014,7 +2019,7 @@ module BaseDropdown = {
         size=arrowIconSize
         className={` text-nd_gray-400 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] ${showDropDown
             ? "-rotate-180"
-            : ""} ${disableSelect ? "text-nd_gray-600" : ""}`}
+            : ""} ${disableSelect ? "text-nd_gray-400" : ""}`}
       />
 
     let textStyle = if isSelectTextDark && selectButtonText !== buttonText {
@@ -2102,11 +2107,10 @@ module BaseDropdown = {
                       description={showNameAsToolTip
                         ? `Select ${LogicUtils.snakeToTitle(newInputSelect.name)}`
                         : newInputSelect.value
-                          ->LogicUtils.getStrArryFromJson
+                          ->LogicUtils.getStrArrayFromJson
                           ->Array.joinWith(",\n")}
                       toolTipFor=selectButton
                       toolTipPosition=Bottom
-                      tooltipWidthClass=""
                     />
                   } else {
                     selectButton
@@ -2275,7 +2279,7 @@ module ChipFilterSelectBox = {
   ) => {
     let transformedOptions = useTransformed(options)
 
-    let initalClassName = " m-2 bg-gray-200 dark:text-gray-800 border-jp-gray-800 inline-block text-s px-2 py-1 rounded-2xl"
+    let initialClassName = " m-2 bg-gray-200 dark:text-gray-800 border-jp-gray-800 inline-block text-s px-2 py-1 rounded-2xl"
     let passedClassName = "flex items-center m-2 bg-blue-400 dark:text-gray-800 border-gray-300 inline-block text-s px-2 py-1 rounded-2xl"
     let newInputSelect = input->ffInputToSelectInput
     let values = newInputSelect.value
@@ -2306,7 +2310,7 @@ module ChipFilterSelectBox = {
       {transformedOptions
       ->Array.mapWithIndex((option, i) => {
         let isSelected = saneValue->Array.includes(option.value)
-        let selectedClass = isSelected ? passedClassName : initalClassName
+        let selectedClass = isSelected ? passedClassName : initialClassName
         let chipsCss =
           customStyleForChips->LogicUtils.isEmptyString ? selectedClass : customStyleForChips
 
@@ -2358,7 +2362,7 @@ let make = (
   ~maxHeight=?,
   ~searchable=?,
   ~fill="#0EB025",
-  ~optionRigthElement=?,
+  ~optionRightElement=?,
   ~hideBorder=false,
   ~allSelectType=Icon,
   ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
@@ -2498,7 +2502,7 @@ let make = (
       options
       optionSize
       isSelectedStateMinus
-      ?optionRigthElement
+      ?optionRightElement
       onSelect=newInputSelect.onChange
       value=newInputSelect.value
       isDropDown

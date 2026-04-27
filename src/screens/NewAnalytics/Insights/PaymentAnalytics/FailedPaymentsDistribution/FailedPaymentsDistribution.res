@@ -39,7 +39,7 @@ module TableModule = {
         offset
         setOffset
         defaultSort
-        currrentFetchCount={tableData->Array.length}
+        currentFetchCount={tableData->Array.length}
         tableLocalFilter=false
         tableheadingClass=tableBorderClass
         tableBorderClass
@@ -89,7 +89,7 @@ let make = (
   )
   let fetchApi = AuthHooks.useApiFetcher()
   let (viewType, setViewType) = React.useState(_ => Graph)
-  let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
+  let (groupBy, setGroupBy) = React.useState(_ => defaultGroupBy)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let isSmartRetryEnabled =

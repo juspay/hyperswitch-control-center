@@ -28,6 +28,27 @@ type userGroupACLType = {
   hasAllGroupsAccess: array<CommonAuthTypes.authorization> => CommonAuthTypes.authorization,
 }
 
+// Todo: Remove the fallback logic when Recon Engine permission groups are added in production backend
+let reconGroupFallback: array<UserManagementTypes.groupAccessType> = [
+  ReconSourcesView,
+  ReconSourcesManage,
+  ReconTransactionsView,
+  ReconTransactionsManage,
+  ReconRulesView,
+  ReconRulesManage,
+  ReconExceptionsView,
+  ReconExceptionsManage,
+]
+
+let reconResourceFallback: array<UserManagementTypes.resourceAccessType> = [
+  ReconIngestion,
+  ReconTransformation,
+  ReconException,
+  ReconStagingEntry,
+  ReconTransaction,
+  ReconRule,
+]
+
 let useUserGroupACLHook = () => {
   open APIUtils
   open LogicUtils
@@ -37,6 +58,8 @@ let useUserGroupACLHook = () => {
   let fetchDetails = useGetMethod()
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let setuserPermissionJson = Recoil.useSetRecoilState(userPermissionAtom)
+  let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
+  let {reconEnginePermissions} = featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchUserGroupACL = async () => {
     try {
@@ -44,24 +67,27 @@ let useUserGroupACLHook = () => {
       let response = await fetchDetails(url)
       let dict = response->getDictFromJsonObject
 
-      let groupsAccessValue = getStrArrayFromDict(dict, "groups", [])
+      let groupsAccessValue =
+        getStrArrayFromDict(dict, "groups", [])->Array.map(mapStringToGroupAccessType)
+      let resourcesAccessValue =
+        getStrArrayFromDict(dict, "resources", [])->Array.map(mapStringToResourceAccessType)
 
-      let resourcesAccessValue = getStrArrayFromDict(dict, "resources", [])
+      let effectiveGroups = reconEnginePermissions
+        ? groupsAccessValue
+        : groupsAccessValue->Array.concat(reconGroupFallback)
+      let effectiveResources = reconEnginePermissions
+        ? resourcesAccessValue
+        : resourcesAccessValue->Array.concat(reconResourceFallback)
 
-      let userGroupACLMap =
-        groupsAccessValue->Array.map(ele => ele->mapStringToGroupAccessType)->convertValueToMapGroup
-      let resourceACLMap =
-        resourcesAccessValue
-        ->Array.map(ele => ele->mapStringToResourceAccessType)
-        ->convertValueToMapResources
+      let userGroupACLMap = effectiveGroups->convertValueToMapGroup
+      let resourceACLMap = effectiveResources->convertValueToMapResources
 
       setuserGroupACL(_ => Some({
         groups: userGroupACLMap,
         resources: resourceACLMap,
       }))
 
-      let permissionJson =
-        groupsAccessValue->Array.map(ele => ele->mapStringToGroupAccessType)->getGroupAccessJson
+      let permissionJson = effectiveGroups->getGroupAccessJson
       setuserPermissionJson(_ => permissionJson)
       permissionJson
     } catch {
@@ -73,32 +99,53 @@ let useUserGroupACLHook = () => {
   }
 
   let userHasAccess = (~groupAccess) => {
-    switch userGroupACL {
-    | Some(groupACLValue) =>
-      switch groupACLValue.groups->Map.get(groupAccess) {
-      | Some(value) => value
+    if isEmbeddableSession() {
+      Access
+    } else {
+      switch userGroupACL {
+      | Some(groupACLValue) =>
+        switch groupACLValue.groups->Map.get(groupAccess) {
+        | Some(value) => value
+        | None => NoAccess
+        }
       | None => NoAccess
       }
-    | None => NoAccess
     }
   }
+
   let userHasResourceAccess = (~resourceAccess) => {
-    switch userGroupACL {
-    | Some(groupACLValue) =>
-      switch groupACLValue.resources->Map.get(resourceAccess) {
-      | Some(value) => value
+    if isEmbeddableSession() {
+      Access
+    } else {
+      switch userGroupACL {
+      | Some(groupACLValue) =>
+        switch groupACLValue.resources->Map.get(resourceAccess) {
+        | Some(value) => value
+        | None => NoAccess
+        }
       | None => NoAccess
       }
-    | None => NoAccess
     }
   }
+
   let hasAnyGroupAccess = (group1, group2) =>
-    switch (group1, group2) {
-    | (NoAccess, NoAccess) => NoAccess
-    | (_, _) => Access
+    if isEmbeddableSession() {
+      Access
+    } else {
+      switch (group1, group2) {
+      | (NoAccess, NoAccess) => NoAccess
+      | (_, _) => Access
+      }
     }
+
   let hasAllGroupsAccess = groups => {
-    groups->Array.every(group => group === Access) ? Access : NoAccess
+    if isEmbeddableSession() {
+      Access
+    } else if groups->Array.every(group => group === Access) {
+      Access
+    } else {
+      NoAccess
+    }
   }
 
   {

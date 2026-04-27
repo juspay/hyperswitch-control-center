@@ -11,7 +11,7 @@ type commonInfoType = {
   version: version,
 }
 
-// TODO: chaneg this to have two enums one for normal user one for embeddable user
+// TODO: change this to have two enums one for normal user one for embeddable user
 type userInfo = {
   email: string,
   isTwoFactorAuthSetup: bool,
@@ -45,4 +45,5 @@ type userInfoProviderTypes = {
   setUpdatedEmbeddableSessionInfo: embeddableInfoType => unit,
   getCommonSessionDetails: unit => commonInfoType,
   checkUserEntity: array<entity> => bool,
+  isEmbeddableSession: unit => bool,
 }

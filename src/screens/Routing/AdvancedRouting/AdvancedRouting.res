@@ -526,9 +526,13 @@ let make = (
   let url = RescriptReactRouter.useUrl()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (profile, setProfile) = React.useState(_ => profileId)
-  let (initialValues, setInitialValues) = React.useState(_ =>
-    initialValues->Identity.genericTypeToJson
-  )
+  let getTimeInCustomTimeZone = TimeZoneHook.useGetTimeInCustomTimeZone()
+
+  let (initialValues, setInitialValues) = React.useState(_ => {
+    let currentTime = getTimeInCustomTimeZone("ddd, DD MMM YYYY HH:mm:ss", ~includeTimeZone=true)
+    let currentDate = getTimeInCustomTimeZone("YYYY-MM-DD")
+    getInitialValues(~currentDate, ~currentTime)->Identity.genericTypeToJson
+  })
   let (initialRule, setInitialRule) = React.useState(() => None)
   let showToast = ToastState.useShowToast()
   let fetchDetails = useGetMethod()
@@ -618,14 +622,14 @@ let make = (
       if connectorData->Array.length === 0 {
         Some("Need at least 1 Gateway")
       } else {
-        let isDistibuted = connectorData->Array.every(ele => {
+        let isDistributed = connectorData->Array.every(ele => {
           switch ele {
           | PriorityObject(_) => false
           | VolumeObject(_) => true
           }
         })
 
-        if isDistibuted {
+        if isDistributed {
           let distributionPercentageSum =
             connectorData->Array.reduce(0, (sum, value) =>
               sum + value->AdvancedRoutingUtils.getSplitFromConnectorSelectionData
@@ -848,11 +852,11 @@ let make = (
                           authorization={userHasAccess(~groupAccess=WorkflowsManage)}
                           onClick={_ => {
                             setPageState(_ => Create)
-                            let manipualtedJSONValue =
+                            let manipulatedJSONValue =
                               initialValues->DuplicateAndEditUtils.manipulateInitialValuesForDuplicate
 
                             let rulesValue =
-                              manipualtedJSONValue
+                              manipulatedJSONValue
                               ->getDictFromJsonObject
                               ->getObj("algorithm", Dict.make())
                               ->getDictfromDict("data")
@@ -902,8 +906,7 @@ let make = (
                     text="Save Rule"
                     buttonSize=Button.Small
                     buttonType=Button.Secondary
-                    customSumbitButtonStyle="w-1/5 rounded-xl"
-                    tooltipWidthClass="w-48"
+                    customSubmitButtonStyle="w-1/5 rounded-xl"
                   />}
                   submitButton={<AdvancedRoutingUIUtils.SaveAndActivateButton
                     onSubmit handleActivateConfiguration

@@ -3,7 +3,6 @@ open ReconEngineTypes
 open ReconEngineTransformedEntryExceptionsTypes
 open LogicUtils
 open ReconEngineUtils
-open ReconEngineExceptionsTypes
 
 let reasonMultiLineTextInputField = (~label) => {
   <FormRenderer.FieldRenderer
@@ -200,35 +199,6 @@ let currencySelectInputField = (
   />
 }
 
-let transformationConfigSelectInputField = (
-  ~transformationsList: array<ReconEngineTypes.transformationConfigType>,
-  ~disabled: bool=false,
-) => {
-  let transformationOptions = transformationsList->Array.map((config): SelectBox.dropdownOption => {
-    {
-      value: config.transformation_id,
-      label: config.name,
-    }
-  })
-
-  <FormRenderer.FieldRenderer
-    labelClass="font-semibold"
-    field={FormRenderer.makeFieldInfo(
-      ~label="Transformation Config",
-      ~name="transformation_id",
-      ~placeholder="Select transformation config",
-      ~customInput=InputFields.selectInput(
-        ~options=transformationOptions,
-        ~fullLength=true,
-        ~buttonText="Select transformation config",
-        ~disableSelect=disabled,
-      ),
-      ~isRequired=true,
-      ~disabled,
-    )}
-  />
-}
-
 let amountTextInputField = (~disabled: bool=false) => {
   <FormRenderer.FieldRenderer
     labelClass="font-semibold"
@@ -277,17 +247,6 @@ let effectiveAtDatePickerInputField = () => {
   />
 }
 
-let metadataCustomInputField = (~disabled: bool=false) => {
-  <FormRenderer.FieldRenderer
-    field={FormRenderer.makeFieldInfo(~label="", ~name="metadata", ~customInput=(
-      ~input,
-      ~placeholder,
-    ) =>
-      <ReconEngineExceptionTransactionHelper.MetadataInput input placeholder disabled={disabled} />
-    )}
-  />
-}
-
 module CustomToastElement = {
   @react.component
   let make = (~processingEntry: processingEntryType, ~toastKey: string, ~ingestionHistoryId) => {
@@ -320,7 +279,7 @@ module CustomToastElement = {
         `exceptions/transformed-entries/${processingEntry.staging_entry_id}`,
         "See Entry",
       )
-    | _ => (
+    | Archived | UnknownProcessingEntryStatus => (
         "Transformed entry processed successfully",
         "The entry has been moved to transformation entry page",
         `transformed-entries/ingestion-history/${ingestionHistoryId}?transformationHistoryId=${processingEntry.transformation_history_id}&stagingEntryId=${processingEntry.staging_entry_id}`,
@@ -499,6 +458,10 @@ module ExceptionDataDisplay = {
         "Currency Mismatch",
         "The currency of the transformed entry does not match the expected currency.",
       )
+    | MissingSearchIdentifierValue => (
+        "Missing Search Identifier Value",
+        "The transformed entry is missing a required search identifier value.",
+      )
     | DuplicateEntry => (
         "Duplicate Entry",
         "The transformed entry is identified as a duplicate of an existing entry.",
@@ -507,13 +470,21 @@ module ExceptionDataDisplay = {
         "No Expectation Entry Found",
         "No corresponding expectation entry was found for the transformed entry.",
       )
-    | MissingSearchIdentifierValue => (
-        "Missing Search Identifier Value",
-        "The transformed entry is missing a required search identifier value.",
+    | MultipleExceptedEntriesFound => (
+        "Multiple Excepted Entries Found",
+        "Multiple excepted entries were found for the transformed entry.",
+      )
+    | MissingMatchField => (
+        "Missing Match Field",
+        "The transformed entry is missing a required match field.",
       )
     | MissingUniqueField => (
         "Missing Unique Field",
         "The transformed entry is missing a unique field required for processing.",
+      )
+    | MissingGroupingField => (
+        "Missing Grouping Field",
+        "The transformed entry is missing a required grouping field.",
       )
     | UnknownNeedsManualReviewType => (
         "Unknown",
@@ -533,7 +504,7 @@ module ResolutionModal = {
   let make = (
     ~exceptionStage: exceptionResolutionStage,
     ~setExceptionStage,
-    ~config: resolutionConfig,
+    ~config: ReconEngineExceptionsTypes.resolutionConfig,
     ~children,
     ~activeModal,
     ~setActiveModal,

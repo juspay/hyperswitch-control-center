@@ -48,6 +48,7 @@ type singleStatBodyEntity = {
 type urlConfig = {
   uri: string,
   metrics: array<string>,
+  groupByNames?: array<string>,
   prefix?: string,
 }
 type deltaRange = {currentSr: AnalyticsUtils.timeRanges}
@@ -59,7 +60,7 @@ type entityType<'colType, 't, 't2> = {
   defaultColumns: array<columns<'colType>>, // (sectionName, defaultColumns)
   getData: ('t, array<'t2>, deltaRange, 'colType, string) => singleStatData,
   totalVolumeCol: option<string>,
-  matrixUriMapper: 'colType => string, // metrix uriMapper will contain the ${prefix}${url}
+  matrixUriMapper: 'colType => string, // metric uriMapper will contain the ${prefix}${url}
   source?: string,
   customFilterKey?: string,
   enableLoaders?: bool,
@@ -88,6 +89,7 @@ let singleStatBodyMake = (singleStatBodyEntity: singleStatBodyEntity) => {
       ~source=?singleStatBodyEntity.source,
       ~granularity=singleStatBodyEntity.granularity,
       ~prefix=singleStatBodyEntity.prefix,
+      ~groupByNames=singleStatBodyEntity.groupByNames,
     )->JSON.Encode.object,
   ]
   ->JSON.Encode.array
@@ -288,6 +290,7 @@ let make = (
         let singleStatBodyEntity = {
           filter: ?filterValueFromUrl,
           metrics,
+          groupByNames: ?urlConfig.groupByNames,
           delta: getDelta,
           startDateTime: startTime,
           endDateTime: endTimeFromUrl,
@@ -365,6 +368,7 @@ let make = (
         let singleStatBodyEntity = {
           filter: ?filterValueFromUrl,
           metrics,
+          groupByNames: ?urlConfig.groupByNames,
           delta: false,
           startDateTime: startTime,
           endDateTime: endTimeFromUrl,
@@ -589,7 +593,6 @@ let make = (
                     tooltipText=stateData.tooltipText
                     deltaTooltipComponent={stateData.deltaTooltipComponent(stateData.statType)}
                     value=stateData.value
-                    data=stateData.data
                     statType=stateData.statType
                     singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
                     showPercentage=stateData.showDelta
@@ -607,7 +610,6 @@ let make = (
                     tooltipText=""
                     deltaTooltipComponent=React.null
                     value=0.
-                    data=[]
                     statType=""
                     singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
                     loaderType=shimmerType
@@ -627,7 +629,6 @@ let make = (
                 tooltipText=""
                 deltaTooltipComponent=React.null
                 value=0.
-                data=[]
                 statType=""
                 singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
                 loaderType=shimmerType
@@ -647,7 +648,6 @@ let make = (
             tooltipText=""
             deltaTooltipComponent=React.null
             value=0.
-            data=[]
             statType=""
             singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
             loaderType=shimmerType

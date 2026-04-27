@@ -4,27 +4,29 @@ open LogicUtils
 let getTransactionStatusVariantFromString = (status: string): transactionStatus => {
   switch status {
   | "posted" => Posted
+  | "matched" => Matched
   | "mismatched" => Mismatched
   | "expected" => Expected
   | "archived" => Archived
   | "void" => Void
   | "partially_reconciled" => PartiallyReconciled
-  | _ => Expected
+  | _ => UnknownTransactionStatus
   }
 }
 
-let getTransactionPostedTypeVariantFromString = (postedType: string): transactionPostedType => {
-  switch postedType->String.toLowerCase {
-  | "reconciled" => Reconciled
-  | "force_reconciled" => ForceReconciled
-  | "manually_reconciled" => ManuallyReconciled
-  | _ => UnknownTransactionPostedType
+let getMatchedDataTypeVariantFromString = (matchedType: string): matchedDataType => {
+  switch matchedType->String.toLowerCase {
+  | "auto" => Auto
+  | "force" => Force
+  | "manual" => Manual
+  | _ => UnknownMatchedDataType
   }
 }
 
 let getEntryStatusVariantFromString = (entryType: string): entryStatus => {
   switch entryType->String.toLowerCase {
   | "posted" => Posted
+  | "matched" => Matched
   | "mismatched" => Mismatched
   | "expected" => Expected
   | "archived" => Archived
@@ -91,10 +93,19 @@ let getDomainTransactionPostedStatusFromString = (
   status: string,
 ): domainTransactionPostedStatus => {
   switch status->String.toLowerCase {
+  | "manual" => Manual
+  | _ => UnknownDomainTransactionPostedStatus
+  }
+}
+
+let getDomainTransactionMatchedStatusFromString = (
+  status: string,
+): domainTransactionMatchedStatus => {
+  switch status->String.toLowerCase {
   | "auto" => Auto
   | "manual" => Manual
   | "force" => Force
-  | _ => UnknownDomainTransactionPostedStatus
+  | _ => UnknownDomainTransactionMatchedStatus
   }
 }
 
@@ -104,7 +115,7 @@ let getDomainTransactionAmountMismatchStatusFromString = (
   switch status->String.toLowerCase {
   | "expected" => Expected
   | "mismatch" => Mismatch
-  | _ => Mismatch
+  | _ => UnknownDomainTransactionAmountMismatchStatus
   }
 }
 
@@ -115,7 +126,9 @@ let getDomainTransactionStatus = (
   let subStatus = dict->getString("sub_status", "")
   switch status->String.toLowerCase {
   | "expected" => Expected
+  | "missing" => Missing
   | "posted" => Posted(subStatus->getDomainTransactionPostedStatusFromString)
+  | "matched" => Matched(subStatus->getDomainTransactionMatchedStatusFromString)
   | "over_amount" => OverAmount(subStatus->getDomainTransactionAmountMismatchStatusFromString)
   | "under_amount" => UnderAmount(subStatus->getDomainTransactionAmountMismatchStatusFromString)
   | "data_mismatch" => DataMismatch
@@ -126,15 +139,29 @@ let getDomainTransactionStatus = (
   }
 }
 
+let getAccountTypeVariantFromString = (accountType: string): accountTypeVariant => {
+  switch accountType->String.toLowerCase {
+  | "credit" => Credit
+  | "debit" => Debit
+  | _ => UnknownAccountTypeVariant
+  }
+}
+
 let accountItemToObjMapper = dict => {
   {
     account_name: dict->getString("account_name", ""),
     account_id: dict->getString("account_id", ""),
-    account_type: dict->getString("account_type", ""),
+    account_type: dict->getString("account_type", "")->getAccountTypeVariantFromString,
     profile_id: dict->getString("profile_id", ""),
     currency: dict->getDictfromDict("initial_balance")->getString("currency", ""),
     initial_balance: dict
     ->getDictfromDict("initial_balance")
+    ->getAmountPayload,
+    matched_debits: dict
+    ->getDictfromDict("matched_debits")
+    ->getAmountPayload,
+    matched_credits: dict
+    ->getDictfromDict("matched_credits")
     ->getAmountPayload,
     posted_debits: dict
     ->getDictfromDict("posted_debits")
@@ -299,7 +326,16 @@ let getArrayOfTransactionsEntriesListPayloadType = json => {
   })
 }
 
+let linkedTransactionItemToObjMapper = dict => {
+  {
+    transaction_id: dict->getString("transaction_id", ""),
+    created_at: dict->getString("created_at", ""),
+    transaction_status: dict->getString("status", "")->getDomainTransactionStatus(dict),
+  }
+}
+
 let transactionItemToObjMapper = (dict): transactionType => {
+  let linkedTransactionDict = dict->getDictfromDict("linked_transaction")
   {
     id: dict->getString("id", ""),
     transaction_id: dict->getString("transaction_id", ""),
@@ -318,10 +354,10 @@ let transactionItemToObjMapper = (dict): transactionType => {
       ->getDictfromDict("data")
       ->getString("status", "")
       ->getTransactionStatusVariantFromString,
-      posted_type: switch dict
+      matched_data_type: switch dict
       ->getDictfromDict("data")
-      ->getOptionString("posted_type") {
-      | Some(postedType) => Some(postedType->getTransactionPostedTypeVariantFromString)
+      ->getOptionString("matched_data_type") {
+      | Some(matchedDataType) => Some(matchedDataType->getMatchedDataTypeVariantFromString)
       | None => None
       },
       reason: dict
@@ -337,6 +373,9 @@ let transactionItemToObjMapper = (dict): transactionType => {
     version: dict->getInt("version", 0),
     created_at: dict->getString("created_at", ""),
     effective_at: dict->getString("effective_at", ""),
+    linked_transaction: linkedTransactionDict->isEmptyDict
+      ? None
+      : Some(linkedTransactionDict->linkedTransactionItemToObjMapper),
   }
 }
 
@@ -358,6 +397,7 @@ let entryItemToObjMapper = dict => {
     created_at: dict->getString("created_at", ""),
     effective_at: dict->getString("effective_at", ""),
     staging_entry_id: dict->getOptionString("staging_entry_id"),
+    transformation_id: dict->getOptionString("transformation_id"),
   }
 }
 
@@ -405,41 +445,124 @@ let processingItemToObjMapper = (dict): processingEntryType => {
   }
 }
 
+let stringValidationRuleMapper = (dict): stringValidationRule => {
+  let ruleType = dict->getString("validation_rule_type", "")
+  switch ruleType {
+  | "max_length" => MaxLength(dict->getInt("value", 0))
+  | "min_length" => MinLength(dict->getInt("value", 0))
+  | _ => UnknownStringValidationRule
+  }
+}
+
+let numberValidationRuleMapper = (dict): numberValidationRule => {
+  let ruleType = dict->getString("validation_rule_type", "")
+  switch ruleType {
+  | "min_value" => MinValue(dict->getFloat("value", 0.0))
+  | "max_value" => MaxValue(dict->getFloat("value", 0.0))
+  | _ => UnknownNumberValidationRule
+  }
+}
+
+let minorUnitValidationRuleMapper = (dict): minorUnitValidationRule => {
+  let ruleType = dict->getString("validation_rule_type", "")
+  switch ruleType {
+  | "positive_only" => PositiveOnly
+  | "min_value" => MinValueMinorUnit(dict->getInt("value", 0))
+  | "max_value" => MaxValueMinorUnit(dict->getInt("value", 0))
+  | _ => UnknownMinorUnitValidationRule
+  }
+}
+
+let fieldTypeMapper = (dict): fieldTypeVariant => {
+  let fieldType = dict->getString("field_type", "")
+  switch fieldType {
+  | "string" => {
+      let validationRules =
+        dict
+        ->getArrayFromDict("validation_rules", [])
+        ->Array.map(item => item->getDictFromJsonObject->stringValidationRuleMapper)
+      StringField(validationRules)
+    }
+  | "number" => {
+      let validationRules =
+        dict
+        ->getArrayFromDict("validation_rules", [])
+        ->Array.map(item => item->getDictFromJsonObject->numberValidationRuleMapper)
+      NumberField(validationRules)
+    }
+  | "currency" => CurrencyField
+  | "minor_unit" => {
+      let validationRules =
+        dict
+        ->getArrayFromDict("validation_rules", [])
+        ->Array.map(item => item->getDictFromJsonObject->minorUnitValidationRuleMapper)
+      MinorUnitField(validationRules)
+    }
+  | "date_time" => DateTimeField
+  | "balance_direction" =>
+    BalanceDirectionField({
+      credit_values: dict->getStrArrayFromDict("credit_values", []),
+      debit_values: dict->getStrArrayFromDict("debit_values", []),
+    })
+  | _ => UnknownFieldType
+  }
+}
+
+let entryFieldFromString = (str: string): entryField => {
+  let metadataPrefix = "metadata."
+  if str->String.startsWith(metadataPrefix) {
+    let key = str->String.slice(~start=metadataPrefix->String.length, ~end=str->String.length)
+    Metadata(key)
+  } else {
+    String
+  }
+}
+
 let metadataFieldItemToObjMapper = (dict): metadataFieldType => {
   {
     identifier: dict->getString("identifier", ""),
+    field_name: dict->getString("field_name", "")->entryFieldFromString,
+    field_type: dict->fieldTypeMapper,
+    required: dict->getBool("required", false),
+    description: dict->getString("description", ""),
+  }
+}
+
+let mainFieldItemToObjMapper = (dict): mainFieldType => {
+  {
     field_name: dict->getString("field_name", ""),
-    field_type: dict->getString("field_type", ""),
+    identifier: dict->getString("identifier", ""),
+    credit_values: dict->getArrayFromDict("credit_values", [])->Array.length > 0
+      ? Some(dict->getStrArrayFromDict("credit_values", []))
+      : None,
+    debit_values: dict->getArrayFromDict("debit_values", [])->Array.length > 0
+      ? Some(dict->getStrArrayFromDict("debit_values", []))
+      : None,
   }
 }
 
-let basicFieldIdentifierItemToObjMapper = (dict): basicFieldIdentifierType => {
-  {
-    identifier: dict->getString("identifier", ""),
+let uniqueConstraintTypeItemToObjMapper = (dict): uniqueConstraintTypeVariant => {
+  let constraintType = dict->getString("unique_constraint_type", "")
+  switch constraintType {
+  | "single_field" => SingleField(dict->getString("field_name", ""))
+  | _ => UnknownConstraint
   }
 }
 
-let balanceDirectionFieldItemToObjMapper = (dict): balanceDirectionFieldType => {
+let uniqueConstraintItemToObjMapper = (dict): uniqueConstraintType => {
   {
-    identifier: dict->getString("identifier", ""),
-    credit_values: dict->getStrArrayFromDict("credit_values", []),
-    debit_values: dict->getStrArrayFromDict("debit_values", []),
+    unique_constraint_type: dict
+    ->getDictfromDict("constraint_type")
+    ->uniqueConstraintTypeItemToObjMapper,
+    description: dict->getString("description", ""),
   }
 }
 
 let schemaFieldsItemToObjMapper = (dict): schemaFieldsType => {
-  let currencyDict = dict->getDictfromDict("currency")
-  let amountDict = dict->getDictfromDict("amount")
-  let effectiveAtDict = dict->getDictfromDict("effective_at")
-  let balanceDirectionDict = dict->getDictfromDict("balance_direction")
-  let orderIdDict = dict->getDictfromDict("order_id")
-
   {
-    currency: currencyDict->basicFieldIdentifierItemToObjMapper,
-    amount: amountDict->basicFieldIdentifierItemToObjMapper,
-    effective_at: effectiveAtDict->basicFieldIdentifierItemToObjMapper,
-    balance_direction: balanceDirectionDict->balanceDirectionFieldItemToObjMapper,
-    order_id: orderIdDict->basicFieldIdentifierItemToObjMapper,
+    main_fields: dict
+    ->getArrayFromDict("main_fields", [])
+    ->Array.map(item => item->getDictFromJsonObject->mainFieldItemToObjMapper),
     metadata_fields: dict
     ->getArrayFromDict("metadata_fields", [])
     ->Array.map(item => item->getDictFromJsonObject->metadataFieldItemToObjMapper),
@@ -450,6 +573,9 @@ let schemaDataItemToObjMapper = (dict): schemaDataType => {
   {
     schema_type: dict->getString("schema_type", ""),
     fields: dict->getDictfromDict("fields")->schemaFieldsItemToObjMapper,
+    unique_constraint: dict
+    ->getDictfromDict("unique_constraint")
+    ->uniqueConstraintItemToObjMapper,
     processing_mode: dict->getString("processing_mode", ""),
   }
 }

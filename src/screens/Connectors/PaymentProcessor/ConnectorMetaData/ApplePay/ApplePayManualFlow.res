@@ -9,19 +9,19 @@ module PaymentProcessingDetailsAt = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
-    let initalFormValue =
+    let initialFormValue =
       formState.values
       ->getDictFromJsonObject
       ->getDictfromDict("metadata")
       ->getDictfromDict("apple_pay_combined")
       ->manual(connector)
 
-    let initalProcessingAt =
-      initalFormValue.session_token_data.payment_processing_details_at
+    let initialProcessingAt =
+      initialFormValue.session_token_data.payment_processing_details_at
       ->Option.getOr((#Connector: paymentProcessingState :> string))
       ->paymentProcessingMapper
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let (processingAt, setProcessingAt) = React.useState(_ => initalProcessingAt)
+    let (processingAt, setProcessingAt) = React.useState(_ => initialProcessingAt)
 
     let onChangeItem = (event: ReactEvent.Form.t) => {
       let value =
@@ -95,11 +95,11 @@ module PaymentProcessingDetailsAt = {
               ~placeholder={`Enter Processing Key`},
               ~customInput=InputFields.multiLineTextInput(
                 ~rows=Some(10),
-                ~cols=Some(100),
+                ~cols=None,
                 ~isDisabled=false,
-                ~customClass="",
                 ~leftIcon=React.null,
                 ~maxLength=10000,
+                ~customClass="w-full",
               ),
               ~isRequired=true,
             )}
@@ -120,18 +120,18 @@ module Initiative = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
-    let initalFormValue =
+    let initialFormValue =
       formState.values
       ->getDictFromJsonObject
       ->getDictfromDict("metadata")
       ->getDictfromDict("apple_pay_combined")
       ->manual(connector)
 
-    let initalInitiative =
-      initalFormValue.session_token_data.initiative
+    let initialInitiative =
+      initialFormValue.session_token_data.initiative
       ->Option.getOr((#ios: initiativeState :> string))
       ->initiativeMapper
-    let (initiative, setInitiative) = React.useState(_ => initalInitiative)
+    let (initiative, setInitiative) = React.useState(_ => initialInitiative)
 
     let onChangeItem = (event: ReactEvent.Form.t) => {
       let value = event->Identity.formReactEventToString->initiativeMapper
@@ -218,14 +218,14 @@ let make = (
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
-  let initalFormValue =
+  let initialFormValue =
     formState.values
     ->getDictFromJsonObject
     ->getDictfromDict("metadata")
     ->getDictfromDict("apple_pay_combined")
 
   let setFormData = () => {
-    let value = applePayCombined(initalFormValue, #manual, connector)
+    let value = applePayCombined(initialFormValue, #manual, connector)
     form.change("metadata.apple_pay_combined", value->Identity.genericTypeToJson)
   }
 
@@ -243,10 +243,12 @@ let make = (
       ->manual(connector)
 
     let domainName = data.session_token_data.initiative_context->Option.getOr("")
+
     setVefifiedDomainList(_ => [domainName])
     setApplePayIntegrationSteps(_ => ApplePayIntegrationTypes.Verify)
     Nullable.null->Promise.resolve
   }
+
   let applePayManualFields =
     applePayFields
     ->Array.mapWithIndex((field, index) => {
@@ -296,6 +298,21 @@ let make = (
       </span>
     </div>
     <div> {applePayManualFields} </div>
+    <RenderIf condition={ConnectorUtils.checkIfPredecryptFlowEnabledForApplePay(connector)}>
+      <FormRenderer.FieldRenderer
+        labelClass="font-semibold !text-hyperswitch_black"
+        fieldWrapperClass="w-full flex justify-between items-center pl-2 pr-4"
+        field={FormRenderer.makeFieldInfo(
+          ~name={"metadata.apple_pay_combined.support_predecrypted_token"},
+          ~label="Enable pre decrypted token",
+          ~customInput=InputFields.boolInput(
+            ~isDisabled=false,
+            ~boolCustomClass="rounded-lg ",
+            ~isCheckBox=false,
+          ),
+        )}
+      />
+    </RenderIf>
     <div className="w-full flex gap-2 justify-end">
       <Button
         text="Go Back"
@@ -303,6 +320,7 @@ let make = (
         onClick={_ => {
           setApplePayIntegrationSteps(_ => Landing)
         }}
+        customButtonStyle="w-full"
       />
       <Button
         text="Verify & Enable"

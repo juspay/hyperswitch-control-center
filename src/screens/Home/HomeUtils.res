@@ -133,7 +133,11 @@ module ControlCenter = {
   @react.component
   let make = () => {
     let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let liveModeStyles = isLiveMode ? "w-1/2 " : "flex flex-col md:flex-row gap-5 "
+    let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+
+    let connectorUrl = RouteUtils.getPath(~path="/connectors", version)
+
+    let liveModeStyles = isLiveMode || version == V2 ? "w-1/2 " : "flex flex-col md:flex-row gap-5 "
     <div className=liveModeStyles>
       <CardLayout width="" customStyle="flex-1 rounded-xl p-6 gap-4">
         <div className="flex flex-col gap-4">
@@ -148,13 +152,29 @@ module ControlCenter = {
           buttonType={Primary}
           buttonSize={Medium}
           onClick={_ => {
-            RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
+            RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=connectorUrl))
           }}
         />
       </CardLayout>
-      <RenderIf condition={!isLiveMode}>
+      <RenderIf condition={!isLiveMode && version == V1}>
         <CheckoutCard />
       </RenderIf>
+    </div>
+  }
+}
+module PlatformOverview = {
+  @react.component
+  let make = () => {
+    <div className="flex flex-col md:flex-row gap-5 w-1/2">
+      <CardLayout width="" customStyle="flex-1 rounded-xl p-6 gap-4">
+        <div className="flex flex-col gap-4">
+          <img alt="platform-merchant-account" src="/assets/PlatformMerchantAccount.svg" />
+          <CardHeader
+            heading="Platform Merchant Account"
+            subHeading="Platform merchant can create API keys for connected merchants and act on their behalf. This enables you to initiate and manage payments seamlessly for all connected accounts."
+          />
+        </div>
+      </CardLayout>
     </div>
   }
 }
@@ -163,7 +183,11 @@ module DevResources = {
   @react.component
   let make = () => {
     let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+    let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let mixpanelEvent = MixpanelHook.useSendEvent()
+
+    let apiKeysUrl = RouteUtils.getPath(~path="/developer-api-keys", version)
+
     <div className="flex flex-col mb-5 gap-6 ">
       <PageHeading
         title="Developer resources"
@@ -190,7 +214,7 @@ module DevResources = {
               buttonSize={Medium}
               onClick={_ => {
                 mixpanelEvent(~eventName="redirect_to_api_keys")
-                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/developer-api-keys"))
+                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=apiKeysUrl))
               }}
             />
           </CardLayout>
@@ -251,19 +275,20 @@ let responseDataMapper = (res: JSON.t, mapper: (Dict.t<JSON.t>, string) => JSON.
 module LowRecoveryCodeBanner = {
   @react.component
   let make = (~recoveryCode) => {
-    <HSwitchUtils.AlertBanner
-      bannerContent={<p>
-        {`You are low on recovery-codes. Only ${recoveryCode->Int.toString} left.`->React.string}
-      </p>}
-      bannerType=Warning
-      customRightAction={<Button
-        text="Regenerate recovery-codes"
-        buttonType={Secondary}
-        onClick={_ =>
-          RescriptReactRouter.push(
-            GlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
-          )}
-      />}
+    <AlertV2Binding
+      alertType=Warning
+      slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
+      description={`You are low on recovery-codes. Only ${recoveryCode->Int.toString} left.`}
+      actions={{
+        position: Bottom,
+        primaryAction: {
+          text: "Regenerate recovery-codes",
+          onClick: _ =>
+            RescriptReactRouter.push(
+              GlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
+            ),
+        },
+      }}
     />
   }
 }

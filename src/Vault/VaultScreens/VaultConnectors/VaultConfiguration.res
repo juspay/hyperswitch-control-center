@@ -1,5 +1,6 @@
 @react.component
 let make = () => {
+  open Typography
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
@@ -8,7 +9,6 @@ let make = () => {
     <div className="flex gap-2 items-center">
       <ToolTip
         description="Hyperswitch securely converts card details into tokens from your existing PSP accounts (Stripe, Adyen, Worldpay, etc.), allowing you to process payments through these providers using these tokens rather than raw card data."
-        iconOpacityVal="100"
       />
       {"PSP Tokenisation"->React.string}
     </div>
@@ -17,7 +17,6 @@ let make = () => {
     <div className="flex gap-2 items-center">
       <ToolTip
         description="Hyperswitch securely replaces card details with network tokens from card networks (Visa, Mastercard, Amex, etc.), allowing you to process payments with enhanced security and authorization rates while reducing processing costs, fraud risk and compliance requirements."
-        iconOpacityVal="100"
       />
       {"Network Tokenisation"->React.string}
     </div>
@@ -48,11 +47,16 @@ let make = () => {
   }, [])
 
   <div className="flex flex-col gap-12">
+    <PageUtils.PageHeading
+      title="Vault Configuration"
+      customTitleStyle={`${heading.lg.semibold}`}
+      customHeadingStyle="py-0"
+    />
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <p className="text-xl font-semibold"> {"PCI Vault Configuration"->React.string} </p>
         <p className="text-base text-nd_gray-400">
-          {"Tokenize and secure your customers' card data in our PCI-compliant vault:"->React.string}
+          {"Apart from tokenizing cards during payments flow, you can also directly tokenize and secure your customers’ card data in our PCI-compliant vault"->React.string}
         </p>
       </div>
       <div className="grid grid-cols-3 gap-8 w-full">
@@ -76,9 +80,9 @@ let make = () => {
         showBorder=true
         includeMargin=false
         defaultClasses="!w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body border "
-        onTitleClick={indx => {
-          setTabIndex(_ => indx)
-          setCurrentTabName(_ => getTabName(indx))
+        onTitleClick={index => {
+          setTabIndex(_ => index)
+          setCurrentTabName(_ => getTabName(index))
         }}
         selectTabBottomBorderColor="bg-primary"
       />

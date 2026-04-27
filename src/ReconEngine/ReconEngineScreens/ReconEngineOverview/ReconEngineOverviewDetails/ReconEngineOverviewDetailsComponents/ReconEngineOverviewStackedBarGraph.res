@@ -1,7 +1,7 @@
 open Typography
 
 @react.component
-let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
+let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   open CurrencyFormatUtils
 
   let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
@@ -11,10 +11,23 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
   let getAllTransactionsData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
+      let statusList =
+        ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
+          Expected,
+          Missing,
+          OverAmount(Expected),
+          UnderAmount(Expected),
+          PartiallyReconciled,
+          Posted(Manual),
+          Matched(Auto),
+          Matched(Manual),
+          Matched(Force),
+          OverAmount(Mismatch),
+          UnderAmount(Mismatch),
+          DataMismatch,
+        ])->Array.joinWith(",")
       let transactionsData = await getTransactions(
-        ~queryParameters=Some(
-          `rule_id=${ruleDetails.rule_id}&transaction_status=posted,mismatched,expected,partially_reconciled`,
-        ),
+        ~queryParameters=Some(`rule_id=${ruleDetails.rule_id}&status=${statusList}`),
       )
       setAllTransactionsData(_ => transactionsData)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -24,17 +37,17 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
   }
 
   let isMiniLaptopView = MatchMedia.useMatchMedia("(max-width: 1600px)")
-  let (postedCount, mismatchedCount, expectedCount) = React.useMemo(() => {
+  let (matchedCount, mismatchedCount, expectedCount) = React.useMemo(() => {
     ReconEngineOverviewUtils.calculateTransactionCounts(allTransactionsData)
   }, [allTransactionsData])
 
-  let totalTransactions = postedCount + mismatchedCount + expectedCount
+  let totalTransactions = matchedCount + mismatchedCount + expectedCount
   let stackedBarGraphData = React.useMemo(() => {
-    ReconEngineOverviewUtils.getStackedBarGraphData(~postedCount, ~mismatchedCount, ~expectedCount)
-  }, [postedCount, mismatchedCount, expectedCount])
+    ReconEngineOverviewUtils.getStackedBarGraphData(~matchedCount, ~mismatchedCount, ~expectedCount)
+  }, [matchedCount, mismatchedCount, expectedCount])
   let reconciliationPercentage =
     totalTransactions > 0
-      ? postedCount->Int.toFloat /. totalTransactions->Int.toFloat *. 100.0
+      ? matchedCount->Int.toFloat /. totalTransactions->Int.toFloat *. 100.0
       : 0.0
 
   React.useEffect(() => {

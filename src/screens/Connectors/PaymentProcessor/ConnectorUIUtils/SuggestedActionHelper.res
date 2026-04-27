@@ -53,7 +53,7 @@ module StripeInvalidAPIKey = {
   }
 }
 
-module PaypalClientAuthenticationFalied = {
+module PaypalClientAuthenticationFailed = {
   @react.component
   let make = () => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)

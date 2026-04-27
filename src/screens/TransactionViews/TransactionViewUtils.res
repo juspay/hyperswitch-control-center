@@ -1,6 +1,13 @@
 open TransactionViewTypes
 
-let paymentViewsArray: array<viewTypes> = [All, Succeeded, Failed, Dropoffs, Cancelled]
+let paymentViewsArray: array<viewTypes> = [
+  All,
+  Succeeded,
+  Failed,
+  Dropoffs,
+  Cancelled,
+  RequiresCapture,
+]
 
 let refundViewsArray: array<viewTypes> = [All, Succeeded, Failed, Pending]
 
@@ -26,6 +33,7 @@ let getViewsDisplayName = (view: viewTypes) => {
   | Pending => "Pending"
   | Expired => "Expired"
   | Reversed => "Reversed"
+  | RequiresCapture => "Requires Capture"
   | _ => ""
   }
 }
@@ -39,6 +47,7 @@ let getViewTypeFromString = (view, entity) => {
     | "failed" => Failed
     | "requires_payment_method" => Dropoffs
     | "pending" => Pending
+    | "requires_capture" => RequiresCapture
     | _ => All
     }
   | Refunds =>
@@ -86,6 +95,7 @@ let getViewsString = (view, obj, entity) => {
     | Dropoffs => "requires_payment_method"
     | Cancelled => "cancelled"
     | Pending => "pending"
+    | RequiresCapture => "requires_capture"
     | _ => ""
     }
   | Refunds =>

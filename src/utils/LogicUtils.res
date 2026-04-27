@@ -169,7 +169,7 @@ let getStrArrayFromJsonArray = jsonArr => {
   jsonArr->Belt.Array.keepMap(JSON.Decode.string)
 }
 
-let getStrArryFromJson = arr => {
+let getStrArrayFromJson = arr => {
   arr->JSON.Decode.array->Option.map(getStrArrayFromJsonArray)->Option.getOr([])
 }
 
@@ -285,6 +285,14 @@ let getFloatFromJson = (json, default) => {
   | String(str) => getFloatFromString(str, default)
   | Number(floatValue) => floatValue
   | _ => default
+  }
+}
+
+let getIntStringFromJson = json => {
+  switch json->JSON.Classify.classify {
+  | Number(num) => num->Float.toInt->Int.toString->JSON.Encode.string
+  | String(str) => str->JSON.Encode.string
+  | _ => JSON.Encode.string("")
   }
 }
 
@@ -418,7 +426,7 @@ let checkEmptyJson = json => {
   json == JSON.Encode.object(Dict.make())
 }
 
-let numericArraySortComperator = (a, b) => {
+let numericArraySortComparator = (a, b) => {
   if a < b {
     -1.
   } else if a > b {
@@ -638,6 +646,8 @@ let dateFormat = (timestamp, format) => (timestamp->DayJs.getDayJsForString).for
 
 let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) =>
   keys->Array.forEach(key => dict->Dict.delete(key))
+
+let isEmptyArray = arr => arr->Array.length === 0
 
 let removeTrailingSlash = str => {
   if str->String.endsWith("/") {

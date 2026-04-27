@@ -13,7 +13,7 @@ let getCustomGateWayName = connector => {
   | Processors(GLOBALPAY) => "globalpayments"
   | Processors(BANKOFAMERICA) | Processors(CYBERSOURCE) => "cybersource"
   | Processors(FIUU) => "molpay"
-  | Processors(WORLDPAYXML) => "worldpay"
+  | Processors(WORLDPAYXML) | Processors(WORLDPAYMODULAR) => "worldpay"
   | _ => connector
   }
 }
@@ -39,6 +39,11 @@ let tokenizationSpecificationParameters = (
       }
     }
   | #direct => {
+      public_key: dict->getString("public_key", ""),
+      private_key: dict->getString("private_key", ""),
+      recipient_id: dict->getString("recipient_id", ""),
+    }
+  | #predecrypt => {
       public_key: dict->getString("public_key", ""),
       private_key: dict->getString("private_key", ""),
       recipient_id: dict->getString("recipient_id", ""),
@@ -79,6 +84,7 @@ let googlePay = (
   ~googlePayIntegrationType: GPayFlowTypes.googlePayIntegrationType,
 ) => {
   {
+    support_predecrypted_token: dict->getOptionBool("support_predecrypted_token"),
     provider_details: {
       merchant_info: dict
       ->getDictfromDict("provider_details")
@@ -139,6 +145,7 @@ let validateGooglePay = (values, connector, ~googlePayIntegrationType) => {
     ->isNonEmptyStringWithoutSpaces
       ? Button.Normal
       : Button.Disabled
+  | #predecrypt => Button.Normal
   }
 }
 
@@ -154,6 +161,7 @@ let directFields = [
 let getMetadataFromConnectorWalletDetailsGooglePay = (dict, connector) => {
   open ConnectorUtils
   let googlePayDict = dict->getDictfromDict("google_pay")
+
   let merchantInfoDict =
     googlePayDict->getDictfromDict("provider_details")->getDictfromDict("merchant_info")
   let tokenSpecificationParametersDict =
@@ -178,6 +186,7 @@ let getMetadataFromConnectorWalletDetailsGooglePay = (dict, connector) => {
   }
 
   {
+    support_predecrypted_token: googlePayDict->getOptionBool("support_predecrypted_token"),
     merchant_info: {
       merchant_id: merchantInfoDict->getOptionString("merchant_id"),
       merchant_name: merchantInfoDict->getOptionString("merchant_name"),
@@ -226,6 +235,7 @@ let googlePayNameMapper = (
     | _ =>
       `connector_wallets_details.google_pay.provider_details.merchant_info.tokenization_specification.parameters.${name}`
     }
+  | #predecrypt => ""
   }
 }
 

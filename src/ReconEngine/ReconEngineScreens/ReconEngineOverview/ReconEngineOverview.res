@@ -20,7 +20,7 @@ let make = () => {
         ~methodType=Get,
       )
       let res = await fetchDetails(url)
-      let ruleDetails = res->getArrayDataFromJson(getRulePayloadFromDict)
+      let ruleDetails = res->getArrayDataFromJson(ruleItemToObjMapper)
       setReconRulesList(_ => ruleDetails)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -33,11 +33,17 @@ let make = () => {
     [
       {
         title: "Overview",
-        renderContent: () => <ReconEngineOverviewSummary reconRulesList />,
+        renderContent: () =>
+          <FilterContext key="recon-engine-overview-summary" index="recon-engine-overview-summary">
+            <ReconEngineOverviewSummary reconRulesList />
+          </FilterContext>,
       },
       ...reconRulesList->Array.map(ruleDetails => {
         title: ruleDetails.rule_name,
-        renderContent: () => <ReconEngineOverviewDetails ruleDetails />,
+        renderContent: () =>
+          <FilterContext key="recon-engine-overview-details" index="recon-engine-overview-details">
+            <ReconEngineOverviewDetails ruleDetails />
+          </FilterContext>,
       }),
     ]
   }, [reconRulesList])

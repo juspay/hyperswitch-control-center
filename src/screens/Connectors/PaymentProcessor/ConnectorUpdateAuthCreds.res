@@ -3,6 +3,7 @@ let make = (
   ~connectorInfo: ConnectorTypes.connectorPayload,
   ~getConnectorDetails,
   ~handleConnectorDetailsUpdate,
+  ~setCurrentActiveSection,
 ) => {
   open ConnectorUtils
   open APIUtils
@@ -71,6 +72,7 @@ let make = (
       ),
       ("connector_webhook_details", connectorInfo.connector_webhook_details),
       ("connector_label", connectorInfo.connector_label->JSON.Encode.string),
+      ("disabled", connectorInfo.disabled->JSON.Encode.bool),
       ("metadata", connectorInfo.metadata),
       (
         "additional_merchant_data",
@@ -82,6 +84,7 @@ let make = (
   }, (
     connectorInfo.connector_webhook_details,
     connectorInfo.connector_label,
+    connectorInfo.disabled,
     connectorInfo.metadata,
   ))
 
@@ -133,7 +136,10 @@ let make = (
       connectorLabelDetailField
       connectorAdditionalMerchantData
     />
-    <div className="flex p-1 justify-end mb-2">
+    <div className="flex p-1 justify-end mb-2 gap-4">
+      <Button
+        text="Cancel" buttonType={Secondary} onClick={_ => setCurrentActiveSection(_ => None)}
+      />
       <FormRenderer.SubmitButton text="Submit" />
     </div>
   </Form>

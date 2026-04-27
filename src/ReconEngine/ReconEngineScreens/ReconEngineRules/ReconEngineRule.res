@@ -4,6 +4,8 @@ open ReconEngineRulesEntity
 @react.component
 let make = () => {
   open APIUtils
+  open ReconEngineRulesUtils
+
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
@@ -48,7 +50,7 @@ let make = () => {
           totalResults={rulesData->Array.length}
           offset
           setOffset
-          currrentFetchCount={rulesData->Array.length}
+          currentFetchCount={rulesData->Array.length}
         />
       </div>
     </div>

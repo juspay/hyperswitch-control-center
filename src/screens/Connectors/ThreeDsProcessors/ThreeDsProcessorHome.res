@@ -1,3 +1,6 @@
+open LogicUtils
+
+// TODO: Remove this module - replaced by ConnectorPreviewHelper.EnableDisableConnectorToggle
 module MenuOption = {
   open HeadlessUI
   @react.component
@@ -50,16 +53,17 @@ let make = () => {
   open ThreeDsProcessorTypes
   open ConnectorUtils
   open APIUtils
-  open LogicUtils
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let url = RescriptReactRouter.useUrl()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchDetails = useGetMethod()
-  let connectorName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
+  let connectorName = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
+  let (initialValues, setInitialValues) = React.useState(_ =>
+    Dict.make()->getStaticDefaultValuesForThreeDs
+  )
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
@@ -109,7 +113,7 @@ let make = () => {
 
   let connectorDetails = React.useMemo(() => {
     try {
-      if connectorName->LogicUtils.isNonEmptyString {
+      if connectorName->isNonEmptyString {
         let dict = Window.getAuthenticationConnectorConfig(connectorName)
         dict
       } else {
@@ -126,7 +130,7 @@ let make = () => {
   }, [connectorName])
   let connectorInfo = ConnectorInterface.mapDictToTypedConnectorPayload(
     ConnectorInterface.connectorInterfaceV1,
-    initialValues->LogicUtils.getDictFromJsonObject,
+    initialValues->getDictFromJsonObject,
   )
 
   let isConnectorDisabled = connectorInfo.disabled
@@ -140,13 +144,16 @@ let make = () => {
       )
 
       let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
-      let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      let res = await updateDetails(url, disableConnectorPayload, Post)
       setInitialValues(_ => res)
       let _ = await fetchConnectorListResponse()
       setScreenState(_ => PageLoaderWrapper.Success)
       showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
     } catch {
-    | Exn.Error(_) => showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
+    | Exn.Error(_) => {
+        showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     }
   }
   let {
@@ -159,7 +166,7 @@ let make = () => {
   } = getConnectorFields(connectorDetails)
 
   React.useEffect(() => {
-    let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
+    let initialValuesToDict = initialValues->getDictFromJsonObject
 
     if !isUpdateFlow {
       initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
@@ -172,7 +179,7 @@ let make = () => {
   }, [connectorName, profileId])
 
   React.useEffect(() => {
-    if connectorName->LogicUtils.isNonEmptyString {
+    if connectorName->isNonEmptyString {
       getDetails()->ignore
     }
     None
@@ -229,20 +236,10 @@ let make = () => {
       errors->JSON.Encode.object,
     )
   }
-  let connectorStatusStyle = connectorStatus =>
-    switch connectorStatus {
-    | true => "border bg-red-600 bg-opacity-40 border-red-400 text-red-500"
-    | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-700"
-    }
-
   let summaryPageButton = switch currentStep {
   | Preview =>
     <div className="flex gap-6 items-center">
-      <div
-        className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
-        {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
-      </div>
-      <MenuOption disableConnector isConnectorDisabled />
+      <ConnectorPreviewHelper.EnableDisableConnectorToggle disableConnector isConnectorDisabled />
     </div>
   | _ =>
     <Button
@@ -261,7 +258,7 @@ let make = () => {
             ? {
                 title: "3DS Authenticator",
                 link: "/3ds-authenticators",
-                warning: `You have not yet completed configuring your ${connectorName->LogicUtils.snakeToTitle} connector. Are you sure you want to go back?`,
+                warning: `You have not yet completed configuring your ${connectorName->snakeToTitle} connector. Are you sure you want to go back?`,
               }
             : {
                 title: "3DS Authenticator",
@@ -271,7 +268,6 @@ let make = () => {
         currentPageTitle={connectorName->getDisplayNameForConnector(
           ~connectorType=ThreeDsAuthenticator,
         )}
-        cursorStyle="cursor-pointer"
       />
       <div
         className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">
@@ -316,7 +312,7 @@ let make = () => {
             <ConnectorPreview.ConnectorSummaryGrid
               connectorInfo={ConnectorInterface.mapDictToTypedConnectorPayload(
                 ConnectorInterface.connectorInterfaceV1,
-                initialValues->LogicUtils.getDictFromJsonObject,
+                initialValues->getDictFromJsonObject,
               )}
               connector=connectorName
               setCurrentStep={_ => ()}

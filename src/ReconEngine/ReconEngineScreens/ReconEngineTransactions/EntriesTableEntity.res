@@ -73,12 +73,14 @@ let getStatusLabel = (entryStatus: entryStatus): Table.cell => {
   Table.Label({
     title: (entryStatus :> string)->String.toUpperCase,
     color: switch entryStatus {
-    | Posted => LabelGreen
+    | Posted
+    | Matched =>
+      LabelGreen
     | Mismatched => LabelRed
     | Expected => LabelBlue
     | Archived => LabelGray
     | Pending => LabelOrange
-    | _ => LabelLightGray
+    | Void | UnknownEntryStatus => LabelLightGray
     },
   })
 }
@@ -87,7 +89,7 @@ let getCell = (entry: entryType, colType: entryColType): Table.cell => {
   switch colType {
   | EntryId => Text(entry.entry_id)
   | EntryType => Text((entry.entry_type :> string)->LogicUtils.capitalizeString)
-  | AccountName => Text(entry.account_name)
+  | AccountName => EllipsisText(entry.account_name, "")
   | TransactionId => DisplayCopyCell(entry.transaction_id)
   | Amount => Text(Float.toString(entry.amount))
   | Currency => Text(entry.currency)
@@ -127,9 +129,9 @@ let entriesEntity = (path: string, ~authorization: CommonAuthTypes.authorization
     ~getCell,
     ~dataKey="entries",
     ~getShowLink={
-      connec => {
+      connectorObj => {
         GroupAccessUtils.linkForGetShowLinkViaAccess(
-          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connec.entry_id}`),
+          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connectorObj.entry_id}`),
           ~authorization,
         )
       }
