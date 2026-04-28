@@ -191,6 +191,46 @@ export async function createDummyConnectorAPI(
   }
 }
 
+export async function createAuthenticationConnectorAPI(
+  merchantId: string,
+  connectorLabel: string,
+  context?: APIRequestContext,
+): Promise<void> {
+  const ctx = context ?? (await request.newContext());
+  const apiKey = await createAPIKey(merchantId, "", ctx);
+
+  const response = await ctx.post(
+    `${API_URL}/account/${merchantId}/connectors`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": apiKey,
+      },
+      data: {
+        connector_type: "authentication_processor",
+        connector_name: "juspaythreedsserver",
+        connector_label: connectorLabel,
+        connector_account_details: {
+          auth_type: "NoKey",
+        },
+        status: "active",
+        test_mode: true,
+        payment_methods_enabled: [],
+        connector_webhook_details: null,
+        disabled: false
+      },
+    },
+  );
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `createAuthenticationConnectorAPI failed (${response.status()}): ${body}`,
+    );
+  }
+}
+
 export async function createPaymentAPI(
   merchantId: string,
   context?: APIRequestContext,
