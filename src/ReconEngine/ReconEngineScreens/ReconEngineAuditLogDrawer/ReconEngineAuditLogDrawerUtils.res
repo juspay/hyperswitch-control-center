@@ -89,25 +89,27 @@ let getEventMetadata = (event: auditEvent): eventMetadata => {
   | IngestionsFailed({account, count, _}) => {
       eventType: EventError,
       color: "bg-red-500",
-      title: `${count->Int.toString} Ingestion(s) Failed`,
+      title: `${count->Int.toString} Ingestion (s) Failed`,
       description: account.account_name,
     }
   | StagingEntriesCreated({account, count, _}) => {
       eventType: EventInfo,
       color: "bg-blue-500",
-      title: `${count->Int.toString} Transformed Entry(s) Created`,
+      title: `${count->Int.toString} Transformed ${count == 1 ? "Entry" : "Entries"} Created`,
       description: account.account_name,
     }
   | StagingEntryNeedsManualReview({account, count, _}) => {
       eventType: EventWarning,
       color: "bg-yellow-500",
-      title: `${count->Int.toString} Transformed Entry(s) Need Manual Review`,
+      title: `${count->Int.toString} Transformed ${count == 1
+          ? "Entry"
+          : "Entries"} Need Manual Review`,
       description: account.account_name,
     }
   | ExpectationsCreated({accounts, count, _}) => {
       eventType: EventSuccess,
       color: "bg-green-500",
-      title: `${count->Int.toString} Expectation(s) Created`,
+      title: `${count->Int.toString} Expectation (s) Created`,
       description: {
         let accountNames =
           accounts
@@ -119,7 +121,7 @@ let getEventMetadata = (event: auditEvent): eventMetadata => {
   | TransactionsMatched({accounts, count, _}) => {
       eventType: EventSuccess,
       color: "bg-green-500",
-      title: `${count->Int.toString} Transaction(s) Matched`,
+      title: `${count->Int.toString} Transaction (s) Matched`,
       description: {
         let accountNames =
           accounts
@@ -131,7 +133,7 @@ let getEventMetadata = (event: auditEvent): eventMetadata => {
   | TransactionsReconciled({accounts, count, _}) => {
       eventType: EventSuccess,
       color: "bg-green-500",
-      title: `${count->Int.toString} Transaction(s) Posted`,
+      title: `${count->Int.toString} Transaction (s) Posted`,
       description: {
         let accountNames =
           accounts
@@ -143,7 +145,7 @@ let getEventMetadata = (event: auditEvent): eventMetadata => {
   | TransactionsMismatched({accounts, count, _}) => {
       eventType: EventError,
       color: "bg-red-500",
-      title: `${count->Int.toString} Transaction(s) Mismatched`,
+      title: `${count->Int.toString} Transaction (s) Mismatched`,
       description: {
         let accountNames =
           accounts
