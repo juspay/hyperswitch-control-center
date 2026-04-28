@@ -66,10 +66,9 @@ let make = () => {
               authorization={userHasAccess(~groupAccess=ThemeManage)}
               onClick={_ => setShowModal(_ => true)}
             />
-            <ThemeHelper.ThemeLineageModal showModal setShowModal />
           </RenderIf>
         </div>
-        <NoThemesFound themeListArray />
+        <NoThemesFound themeListArray setShowModal />
         <RenderIf condition={themeListArray->Array.length > 0}>
           <CurrentThemeCard currentTheme getNameForId />
           <LoadedTable
@@ -86,6 +85,7 @@ let make = () => {
           />
         </RenderIf>
       </div>
+      <ThemeHelper.ThemeLineageModal showModal setShowModal />
     </div>
   </PageLoaderWrapper>
 }

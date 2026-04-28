@@ -5,6 +5,13 @@ let appendVersionParam = (url, ~version) => {
   }
 }
 
+let getImgSrc = (url, ~themeConfigVersion) =>
+  if url->String.startsWith("blob:") {
+    url
+  } else {
+    appendVersionParam(url, ~version=themeConfigVersion)
+  }
+
 let getStepVariantfromString = (stepString: string): ThemeTypes.lineageSelectionSteps => {
   switch stepString {
   | "entityselection" => EntitySelection
@@ -22,6 +29,31 @@ let getEntityTypeFromStep = (stepVariant: ThemeTypes.lineageSelectionSteps) =>
   | ProfileLevelConfig => "profile"
   | _ => ""
   }
+
+let getFileFromEvent = ev => {
+  let files = ReactEvent.Form.target(ev)["files"]
+  files->LogicUtils.getValueFromArray(0, None)
+}
+
+let assetsMapper = (dict): ThemeTypes.assets => {
+  open LogicUtils
+  let toUrl = url => url->isNonEmptyString ? Some(ThemeTypes.Url(url)) : None
+  {
+    logo: dict->getOptionString("logoUrl")->Option.flatMap(toUrl),
+    favicon: dict->getOptionString("faviconUrl")->Option.flatMap(toUrl),
+  }
+}
+
+let buildThemeDataBody = (
+  ~settings: HyperSwitchConfigTypes.themeSettings,
+  ~urls: HyperSwitchConfigTypes.urlThemeConfig,
+): JSON.t => {
+  let body: ThemeUpdateType.themeUpdate = {
+    theme_data: {settings, urls},
+    email_config: None,
+  }
+  body->Identity.genericTypeToJson
+}
 
 let handleAssetFileSelect = (setAssets, key, ev) => {
   let files = ReactEvent.Form.target(ev)["files"]

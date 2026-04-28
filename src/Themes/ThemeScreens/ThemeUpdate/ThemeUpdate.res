@@ -24,59 +24,43 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
-  let processAssets = ThemeHooks.useProcessAssets(~themeId)
-  let (assets, setAssets) = React.useState(_ => Dict.make())
-  let handleFileSelect = (key, ev) => handleAssetFileSelect(setAssets, key, ev)
-  let handleRemove = key => handleAssetRemove(setAssets, key)
+  let processAssets = ThemeHooks.useProcessAssets()
+  let (assets, setAssets) = React.useState(_ => Dict.make()->assetsMapper)
   let themeConfigVersion = HyperSwitchEntryUtils.getThemeConfigVersionfromStore()
   let getThemeByThemeId = async () => {
     try {
-      setScreenState(_ => Loading)
+      let url = getURL(~entityName=V1(USERS), ~methodType=Get, ~id=Some(themeId), ~userType=#THEME)
+      let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
+      let mappedTheme = res->themeBodyMapper
+      let urlsDict = res->getDictFromJsonObject->getDictFromNestedDict("theme_data", "urls")
+      setAssets(_ => urlsDict->assetsMapper)
+      setInitialValues(_ => mappedTheme->Identity.genericTypeToJson)
+      setScreenState(_ => Success)
+    } catch {
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Failed to switch!")
+      Exn.raiseError(err)
+    }
+  }
 
+  let loadPageData = async () => {
+    try {
       let _ = await internalSwitch(
         ~expectedOrgId=orgId,
         ~expectedMerchantId=merchantId,
         ~expectedProfileId=profileId,
       )
-      let url = getURL(~entityName=V1(USERS), ~methodType=Get, ~id=Some(themeId), ~userType=#THEME)
-      let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
-      let mappedTheme = res->themeBodyMapper
-      let themeUrls = mappedTheme.theme_data.urls
-      let initialAssets = Dict.make()
-      switch themeUrls.logoUrl {
-      | Some(url) =>
-        if url->isNonEmptyString {
-          initialAssets->Dict.set("logo", url->JSON.Encode.string)
-        }
-      | None => ()
-      }
-      switch themeUrls.faviconUrl {
-      | Some(url) =>
-        if url->isNonEmptyString {
-          initialAssets->Dict.set("favicon", url->JSON.Encode.string)
-        }
-      | None => ()
-      }
-      switch mappedTheme.email_config {
-      | Some(ec) =>
-        if ec.entity_logo_url->isNonEmptyString {
-          initialAssets->Dict.set("emailLogo", ec.entity_logo_url->JSON.Encode.string)
-        }
-      | None => ()
-      }
-      setAssets(_ => initialAssets)
-      setInitialValues(_ => mappedTheme->Identity.genericTypeToJson)
+      let _ = await getThemeByThemeId()
       setScreenState(_ => Success)
     } catch {
-    | _ => {
-        showToast(~message="Failed to fetch theme details", ~toastType=ToastState.ToastError)
-        setScreenState(_ => Error("Failed to fetch theme details"))
-      }
+    | _ =>
+      showToast(~message="Failed to fetch theme details", ~toastType=ToastState.ToastError)
+      setScreenState(_ => Error("Failed to fetch theme details"))
     }
   }
 
   React.useEffect(() => {
-    getThemeByThemeId()->ignore
+    loadPageData()->ignore
     None
   }, [])
 
@@ -125,22 +109,19 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
       setScreenState(_ => Loading)
-      let valuesDict = values->getDictFromJsonObject
-
-      let (urlsDict, emailLogoUrl) = await processAssets(~assets)
-
-      let settingsDict = valuesDict->getDictfromDict("theme_data")->getDictfromDict("settings")
-      let emailConfigDict = valuesDict->getDictfromDict("email_config")
-      switch emailLogoUrl {
-      | Some(url) => emailConfigDict->Dict.set("entity_logo_url", url)
-      | None => ()
+      let {theme_data: {settings}} = values->themeBodyMapper
+      let urls = if assets.logo->Option.isSome || assets.favicon->Option.isSome {
+        await processAssets(~assets, ~themeId)
+      } else {
+        {logoUrl: None, faviconUrl: None}
       }
-      let requestBody = buildThemeDataBody(~settingsDict, ~urlsDict, ~emailConfigDict)
+
+      let requestBody = buildThemeDataBody(~settings, ~urls)
 
       let updateUrl = getURL(
         ~entityName=V1(USERS),
         ~methodType=Put,
-        ~id=Some(`${themeId}`),
+        ~id=Some(themeId),
         ~userType=#THEME,
       )
 
@@ -167,70 +148,30 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
             subTitle="Update your configuration."
             customSubTitleStyle={`${body.lg.medium} text-nd_gray-400`}
           />
-          {
-            let tabs: array<Tabs.tab> = [
-              {
-                title: "Dashboard Config",
-                renderContent: () =>
-                  <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
-                    <div className="flex flex-col gap-2">
-                      <ThemeSettingsHelper.IconSettings
-                        assets
-                        onFileSelect=handleFileSelect
-                        onRemove=handleRemove
-                        themeConfigVersion
-                      />
-                      <ThemeSettings />
-                    </div>
-                    <div className="flex flex-col gap-8 w-full lg:col-span-2">
-                      <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
-                      <div className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
-                        <div
-                          className="absolute top-3 right-3 z-10 bg-white bg-opacity-80 rounded-full p-1 flex items-center justify-center shadow">
-                          <Icon name="eye" size=18 className="text-nd_gray-500 opacity-70" />
-                        </div>
-                        <ThemeMockDashboard />
-                      </div>
-                      <ThemeUpdateHelper.ActionButtons handleDelete />
-                    </div>
-                  </div>,
-              },
-              {
-                title: "Email Config",
-                renderContent: () =>
-                  <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
-                    <div className="flex flex-col gap-4">
-                      <ThemeSettingsHelper.IconSettings
-                        forDashboardTheme=false
-                        forEmailTheme=true
-                        assets
-                        onFileSelect=handleFileSelect
-                        onRemove=handleRemove
-                        themeConfigVersion
-                      />
-                      <EmailConfigSettings />
-                    </div>
-                    <div className="flex flex-col gap-8 w-full lg:col-span-2">
-                      <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
-                      <div className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
-                        <div
-                          className="absolute top-3 right-3 z-10 bg-white bg-opacity-80 rounded-full p-1 flex items-center justify-center shadow">
-                          <Icon name="eye" size=18 className="text-nd_gray-500 opacity-70" />
-                        </div>
-                        <ThemeMockEmail />
-                      </div>
-                      <ThemeUpdateHelper.ActionButtons handleDelete />
-                    </div>
-                  </div>,
-              },
-            ]
-            <Tabs
-              tabs
-              showBottomBorder=true
-              tabBottomShadow=""
-              selectTabBottomBorderColor="bg-nd_primary_blue-400"
-            />
-          }
+          <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
+            <div className="flex flex-col gap-2">
+              <ThemeSettingsHelper.IconSettings
+                assets
+                onLogoSelect={file => setAssets(prev => {...prev, logo: Some(File(file))})}
+                onLogoRemove={() => setAssets(prev => {...prev, logo: None})}
+                onFaviconSelect={file => setAssets(prev => {...prev, favicon: Some(File(file))})}
+                onFaviconRemove={() => setAssets(prev => {...prev, favicon: None})}
+                themeConfigVersion
+              />
+              <ThemeSettings isUpdatePage=true />
+            </div>
+            <div className="flex flex-col gap-8 w-full lg:col-span-2">
+              <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
+              <div className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
+                <div
+                  className="absolute top-3 right-3 z-10 bg-white bg-opacity-80 rounded-full p-1 flex items-center justify-center shadow">
+                  <Icon name="eye" size=18 className="text-nd_gray-500 opacity-70" />
+                </div>
+                <ThemeMockDashboard />
+              </div>
+              <ThemeUpdateHelper.ActionButtons handleDelete />
+            </div>
+          </div>
         </div>
       </div>
     </Form>

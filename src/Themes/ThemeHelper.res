@@ -496,40 +496,28 @@ module ThemeUploadAssetsModal = {
   @react.component
   let make = (~showModal, ~setShowModal, ~themeId, ~redirectToList) => {
     open APIUtils
-    open LogicUtils
     open ThemeSettingsHelper
 
     let showToast = ToastState.useShowToast()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod(~showErrorToast=false)
     let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Success)
-    let fetchDetails = useGetMethod()
-    let processAssets = ThemeHooks.useProcessAssets(~themeId)
-    let (assets, setAssets) = React.useState(_ => Dict.make())
-    let handleFileSelect = (key, ev) => handleAssetFileSelect(setAssets, key, ev)
-    let handleRemove = key => handleAssetRemove(setAssets, key)
+    let processAssets = ThemeHooks.useProcessAssets()
+    let (assets, setAssets) = React.useState(_ => Dict.make()->assetsMapper)
+    let formValues = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    ).values
 
     let handleUpload = async () => {
       try {
         setScreenState(_ => Loading)
 
-        let (urlsDict, _) = await processAssets(~assets)
+        let urls = await processAssets(~assets, ~themeId)
+        let hasUrls = urls.logoUrl->Option.isSome || urls.faviconUrl->Option.isSome
 
-        if !(urlsDict->isEmptyDict) {
-          let themeUrl = getURL(
-            ~entityName=V1(USERS),
-            ~methodType=Get,
-            ~id=Some(themeId),
-            ~userType=#THEME,
-          )
-          let currentThemeData = await fetchDetails(themeUrl, ~version=UserInfoTypes.V1)
-          let settingsDict =
-            currentThemeData
-            ->getDictFromJsonObject
-            ->getDictfromDict("theme_data")
-            ->getDictfromDict("settings")
-
-          let requestBody = buildThemeDataBody(~settingsDict, ~urlsDict)
+        if hasUrls {
+          let {theme_data: {settings}} = formValues->ThemeUpdateUtils.themeBodyMapper
+          let requestBody = buildThemeDataBody(~settings, ~urls)
           let updateUrl = getURL(
             ~entityName=V1(USERS),
             ~methodType=Put,
@@ -575,7 +563,12 @@ module ThemeUploadAssetsModal = {
       <PageLoaderWrapper screenState={screenState} sectionHeight="h-20-vh">
         <div className="flex flex-col gap-2 p-3">
           <IconSettings
-            assets onFileSelect=handleFileSelect onRemove=handleRemove themeConfigVersion=None
+            assets
+            onLogoSelect={file => setAssets(prev => {...prev, logo: Some(File(file))})}
+            onLogoRemove={() => setAssets(prev => {...prev, logo: None})}
+            onFaviconSelect={file => setAssets(prev => {...prev, favicon: Some(File(file))})}
+            onFaviconRemove={() => setAssets(prev => {...prev, favicon: None})}
+            themeConfigVersion=None
           />
           <div className="flex justify-end gap-3 pt-4 border-t border-nd_gray-200">
             <Button
@@ -588,7 +581,9 @@ module ThemeUploadAssetsModal = {
             <Button
               text="Save & Upload"
               buttonType=Primary
-              buttonState={hasChanges ? Normal : Disabled}
+              buttonState={assets.logo->Option.isSome || assets.favicon->Option.isSome
+                ? Normal
+                : Disabled}
               buttonSize=Small
               onClick={_ => handleUpload()->ignore}
             />

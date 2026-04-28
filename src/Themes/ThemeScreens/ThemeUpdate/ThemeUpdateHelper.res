@@ -11,9 +11,7 @@ module ActionButtons = {
         customButtonStyle={`${body.md.semibold} py-4`}
         onClick={_ => handleDelete()}
       />
-      <FormRenderer.SubmitButton
-        text="Update Theme" buttonType=Primary buttonSize={Small} tooltipForWidthClass="w-full"
-      />
+      <FormRenderer.SubmitButton text="Update Theme" buttonType=Primary buttonSize={Small} />
     </div>
   }
 }

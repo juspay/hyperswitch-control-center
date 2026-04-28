@@ -7,7 +7,7 @@ import {
   createDummyConnectorAPI,
 } from "../../support/commands";
 
-const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
+const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 let email = "";
 
 test.describe("Homepage", () => {
