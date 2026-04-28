@@ -41,56 +41,21 @@ let assetsMapper = (dict): ThemeTypes.assets => {
   {
     logo: dict->getOptionString("logoUrl")->Option.flatMap(toUrl),
     favicon: dict->getOptionString("faviconUrl")->Option.flatMap(toUrl),
+    emailLogo: dict->getOptionString("emailLogoUrl")->Option.flatMap(toUrl),
   }
 }
 
 let buildThemeDataBody = (
   ~settings: HyperSwitchConfigTypes.themeSettings,
   ~urls: HyperSwitchConfigTypes.urlThemeConfig,
+  ~emailConfig: option<HyperSwitchConfigTypes.emailConfig>=None,
+  (),
 ): JSON.t => {
   let body: ThemeUpdateType.themeUpdate = {
     theme_data: {settings, urls},
-    email_config: None,
+    email_config: emailConfig,
   }
   body->Identity.genericTypeToJson
-}
-
-let handleAssetFileSelect = (setAssets, key, ev) => {
-  let files = ReactEvent.Form.target(ev)["files"]
-  switch files->LogicUtils.getValueFromArray(0, None) {
-  | Some(file) =>
-    setAssets(prev => {
-      let next = prev->Dict.copy
-      next->Dict.set(key, file)
-      next
-    })
-  | None => ()
-  }
-}
-
-let handleAssetRemove = (setAssets, key) => {
-  setAssets(prev => {
-    prev->Dict.toArray->Array.filter(((k, _)) => k !== key)->Dict.fromArray
-  })
-}
-
-let buildThemeDataBody = (
-  ~settingsDict: Dict.t<JSON.t>,
-  ~urlsDict: Dict.t<JSON.t>,
-  ~emailConfigDict: option<Dict.t<JSON.t>>=?,
-) => {
-  open LogicUtils
-  let themeDataEntries = [("settings", settingsDict->JSON.Encode.object)]
-  if !(urlsDict->isEmptyDict) {
-    themeDataEntries->Array.push(("urls", urlsDict->JSON.Encode.object))
-  }
-  let bodyEntries = [("theme_data", themeDataEntries->getJsonFromArrayOfJson)]
-  switch emailConfigDict {
-  | Some(dict) if !(dict->isEmptyDict) =>
-    bodyEntries->Array.push(("email_config", dict->JSON.Encode.object))
-  | _ => ()
-  }
-  bodyEntries->getJsonFromArrayOfJson
 }
 
 let entities: array<ThemeTypes.themeOption> = [

@@ -512,12 +512,23 @@ module ThemeUploadAssetsModal = {
       try {
         setScreenState(_ => Loading)
 
-        let urls = await processAssets(~assets, ~themeId)
-        let hasUrls = urls.logoUrl->Option.isSome || urls.faviconUrl->Option.isSome
+        let processed = await processAssets(~assets, ~themeId)
+        let hasUrls =
+          processed.urls.logoUrl->Option.isSome || processed.urls.faviconUrl->Option.isSome
+        let hasEmailLogo = processed.emailLogoUrl->Option.isSome
 
-        if hasUrls {
-          let {theme_data: {settings}} = formValues->ThemeUpdateUtils.themeBodyMapper
-          let requestBody = buildThemeDataBody(~settings, ~urls)
+        if hasUrls || hasEmailLogo {
+          let {theme_data: {settings}, email_config} = formValues->ThemeUpdateUtils.themeBodyMapper
+          let updatedEmailConfig = email_config->Option.map(ec => {
+            ...ec,
+            entity_logo_url: processed.emailLogoUrl->Option.getOr(ec.entity_logo_url),
+          })
+          let requestBody = buildThemeDataBody(
+            ~settings,
+            ~urls=processed.urls,
+            ~emailConfig=updatedEmailConfig,
+            (),
+          )
           let updateUrl = getURL(
             ~entityName=V1(USERS),
             ~methodType=Put,
@@ -547,8 +558,6 @@ module ThemeUploadAssetsModal = {
       redirectToList()
     }
 
-    let hasChanges = !{assets->isEmptyDict}
-
     <Modal
       showModal
       setShowModal
@@ -563,11 +572,14 @@ module ThemeUploadAssetsModal = {
       <PageLoaderWrapper screenState={screenState} sectionHeight="h-20-vh">
         <div className="flex flex-col gap-2 p-3">
           <IconSettings
+            forEmailTheme=true
             assets
             onLogoSelect={file => setAssets(prev => {...prev, logo: Some(File(file))})}
             onLogoRemove={() => setAssets(prev => {...prev, logo: None})}
             onFaviconSelect={file => setAssets(prev => {...prev, favicon: Some(File(file))})}
             onFaviconRemove={() => setAssets(prev => {...prev, favicon: None})}
+            onEmailLogoSelect={file => setAssets(prev => {...prev, emailLogo: Some(File(file))})}
+            onEmailLogoRemove={() => setAssets(prev => {...prev, emailLogo: None})}
             themeConfigVersion=None
           />
           <div className="flex justify-end gap-3 pt-4 border-t border-nd_gray-200">
@@ -581,7 +593,9 @@ module ThemeUploadAssetsModal = {
             <Button
               text="Save & Upload"
               buttonType=Primary
-              buttonState={assets.logo->Option.isSome || assets.favicon->Option.isSome
+              buttonState={assets.logo->Option.isSome ||
+              assets.favicon->Option.isSome ||
+              assets.emailLogo->Option.isSome
                 ? Normal
                 : Disabled}
               buttonSize=Small

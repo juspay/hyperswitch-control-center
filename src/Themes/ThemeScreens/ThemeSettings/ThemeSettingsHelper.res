@@ -131,3 +131,155 @@ module ButtonSettings = {
     </div>
   }
 }
+
+module EmailSettings = {
+  @react.component
+  let make = () => {
+    let labelClass = `${body.md.medium} text-nd_gray-700`
+
+    let entityNameField = makeFieldInfo(
+      ~label="Entity Name",
+      ~name="email_config.entity_name",
+      ~placeholder="Enter entity name for emails.",
+      ~customInput=InputFields.textInput(),
+    )
+
+    let primaryColorField = makeFieldInfo(
+      ~label="Primary Color",
+      ~name="email_config.primary_color",
+      ~placeholder="Enter primary color.",
+      ~customInput=InputFields.colorPickerInput(~defaultValue="#006DF9"),
+    )
+
+    let foregroundColorField = makeFieldInfo(
+      ~label="Foreground Color",
+      ~name="email_config.foreground_color",
+      ~placeholder="Enter foreground color.",
+      ~customInput=InputFields.colorPickerInput(~defaultValue="#111326"),
+    )
+
+    let backgroundColorField = makeFieldInfo(
+      ~label="Background Color",
+      ~name="email_config.background_color",
+      ~placeholder="Enter background color.",
+      ~customInput=InputFields.colorPickerInput(~defaultValue="#FFFFFF"),
+    )
+
+    <div className="flex flex-col gap-4">
+      <div className={`${body.lg.semibold}`}> {React.string("Email Settings")} </div>
+      <div className="space-y-4">
+        <FormRenderer.FieldRenderer field=entityNameField labelClass />
+        <FormRenderer.FieldRenderer field=primaryColorField labelClass />
+        <FormRenderer.FieldRenderer field=foregroundColorField labelClass />
+        <FormRenderer.FieldRenderer field=backgroundColorField labelClass />
+      </div>
+    </div>
+  }
+}
+
+module AssetField = {
+  @react.component
+  let make = (
+    ~label: string,
+    ~displayUrl: option<string>,
+    ~onFileChange: ReactEvent.Form.t => unit,
+    ~onRemove: unit => unit,
+    ~accept: string,
+    ~inputId: string,
+    ~themeConfigVersion: option<string>,
+  ) => {
+    <div className="flex flex-col gap-2">
+      <div className={`${body.md.medium} text-nd_gray-700`}> {React.string(label)} </div>
+      <div className="flex items-center gap-3">
+        {switch displayUrl {
+        | Some(url) => {
+            let imgSrc = getImgSrc(url, ~themeConfigVersion)
+            <>
+              <div
+                className="w-16 h-16 border border-nd_gray-200 rounded-md flex items-center justify-center overflow-hidden bg-white">
+                <img src={imgSrc} alt={label} className="max-w-full max-h-full object-contain" />
+              </div>
+              <div onClick={_ => onRemove()}>
+                <Icon name="nd-cross" size=16 className="text-nd_gray-500 cursor-pointer" />
+              </div>
+            </>
+          }
+        | None =>
+          <RawFileInput buttonText={`Upload ${label}`} accept inputId onChange=onFileChange />
+        }}
+      </div>
+    </div>
+  }
+}
+
+module IconSettings = {
+  @react.component
+  let make = (
+    ~assets: ThemeTypes.assets,
+    ~forDashboardTheme=true,
+    ~forEmailTheme=false,
+    ~onLogoSelect: JSON.t => unit=_ => (),
+    ~onLogoRemove: unit => unit=() => (),
+    ~onFaviconSelect: JSON.t => unit=_ => (),
+    ~onFaviconRemove: unit => unit=() => (),
+    ~onEmailLogoSelect: JSON.t => unit=_ => (),
+    ~onEmailLogoRemove: unit => unit=() => (),
+    ~themeConfigVersion,
+  ) => {
+    let getDisplayUrl = (asset: option<ThemeTypes.assetValue>) =>
+      asset->Option.map(value =>
+        switch value {
+        | Url(url) => url
+        | File(file) =>
+          DownloadUtils.createObjectURL(
+            (file->Identity.jsonToAnyType: DownloadUtils.blobInstanceType),
+          )
+        }
+      )
+
+    let handleFileChange = (onSelect, ev) =>
+      ThemeFeatureUtils.getFileFromEvent(ev)->Option.forEach(onSelect)
+
+    <>
+      <RenderIf condition=forDashboardTheme>
+        <div className="flex flex-col gap-4">
+          <div className={`${body.lg.semibold}`}> {React.string("Icons")} </div>
+          <div className="space-y-4">
+            <AssetField
+              label="Logo"
+              displayUrl={getDisplayUrl(assets.logo)}
+              onFileChange={ev => handleFileChange(onLogoSelect, ev)}
+              onRemove=onLogoRemove
+              accept=".png,.jpg,.jpeg"
+              inputId="logoFileInput"
+              themeConfigVersion
+            />
+            <AssetField
+              label="Favicon"
+              displayUrl={getDisplayUrl(assets.favicon)}
+              onFileChange={ev => handleFileChange(onFaviconSelect, ev)}
+              onRemove=onFaviconRemove
+              accept=".png,.ico,.jpg,.jpeg"
+              inputId="faviconFileInput"
+              themeConfigVersion
+            />
+          </div>
+        </div>
+      </RenderIf>
+      <RenderIf condition=forEmailTheme>
+        <div className="flex flex-col gap-4">
+          <div className={`${body.lg.semibold}`}> {React.string("Email Logo")} </div>
+          <AssetField
+            label="Email Logo"
+            displayUrl={getDisplayUrl(assets.emailLogo)}
+            onFileChange={ev => handleFileChange(onEmailLogoSelect, ev)}
+            onRemove=onEmailLogoRemove
+            accept=".png,.jpg,.jpeg"
+            inputId="emailLogoFileInput"
+            themeConfigVersion
+          />
+        </div>
+      </RenderIf>
+    </>
+  }
+}

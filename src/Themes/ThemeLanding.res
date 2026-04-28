@@ -28,7 +28,6 @@ let make = (~remainingPath) => {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Error fetching theme list"))
     }
   }
-  let toOption = (val, sentinel) => val->Option.flatMap(v => v == sentinel ? None : Some(v))
 
   React.useEffect(() => {
     fetchThemeList()->ignore
