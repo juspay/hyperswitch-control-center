@@ -70,7 +70,7 @@ let make = (~options) => {
     let dict = formState.values->getDictFromJsonObject
     let amount_option = dict->getString("amount_option", "")
     amount_option->isNonEmptyString
-      ? amount_option->stringRangetoTypeAmount
+      ? amount_option->mapStringToAmountRangeType
       : AmountFilterTypes.UnknownRange("Select Amount")
   })
   let (isAmountRangeVisible, setIsAmountRangeVisible) = React.useState(_ => true)
@@ -82,7 +82,7 @@ let make = (~options) => {
   React.useEffect(() => {
     let parsed =
       amountOptionFromForm->isNonEmptyString
-        ? amountOptionFromForm->stringRangetoTypeAmount
+        ? amountOptionFromForm->mapStringToAmountRangeType
         : AmountFilterTypes.UnknownRange("Select Amount")
     parsed !== selectedOption ? setSelectedOption(_ => parsed) : ()
     None
