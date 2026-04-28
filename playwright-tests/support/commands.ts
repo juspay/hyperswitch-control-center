@@ -336,6 +336,48 @@ export async function createPaymentAPI(
   return await response.json();
 }
 
+export async function createRefundAPI(
+  merchantId: string,
+  paymentId: string,
+  context?: APIRequestContext,
+  amount: number = 5000,
+  reason: string = "Test refund",
+): Promise<{
+  refund_id: string;
+  payment_id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  reason: string | null;
+  error_code: string | null;
+  error_message: string | null;
+  connector: string;
+  profile_id: string;
+}> {
+  const ctx = context ?? (await request.newContext());
+  const apiKey = await createAPIKey(merchantId, "", ctx);
+
+  const response = await ctx.post(`${API_URL}/refunds`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "api-key": apiKey,
+    },
+    data: {
+      payment_id: paymentId,
+      amount,
+      reason,
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(`createRefundAPI failed (${response.status()}): ${body}`);
+  }
+
+  return await response.json();
+}
+
 export async function createPayoutConnectorAPI(
   merchantId: string,
   connectorLabel: string,
