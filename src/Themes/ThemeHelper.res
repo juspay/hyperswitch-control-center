@@ -519,10 +519,11 @@ module ThemeUploadAssetsModal = {
 
         if hasUrls || hasEmailLogo {
           let {theme_data: {settings}, email_config} = formValues->ThemeUpdateUtils.themeBodyMapper
-          let updatedEmailConfig = email_config->Option.map(ec => {
-            ...ec,
-            entity_logo_url: processed.emailLogoUrl->Option.getOr(ec.entity_logo_url),
-          })
+          let updatedEmailConfig = if hasEmailLogo {
+            email_config->withEmailLogoUrl(~emailLogoUrl=processed.emailLogoUrl)
+          } else {
+            None
+          }
           let requestBody = buildThemeDataBody(
             ~settings,
             ~urls=processed.urls,

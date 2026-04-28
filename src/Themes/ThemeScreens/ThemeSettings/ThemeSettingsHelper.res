@@ -135,6 +135,13 @@ module ButtonSettings = {
 module EmailSettings = {
   @react.component
   let make = () => {
+    let formValues =
+      ReactFinalForm.useFormState(
+        ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+      ).values->LogicUtils.getDictFromJsonObject
+
+    let emailFromForm = ThemePreviewUtils.getEmailFormValues(~formValues)
+
     let labelClass = `${body.md.medium} text-nd_gray-700`
 
     let entityNameField = makeFieldInfo(
@@ -148,21 +155,21 @@ module EmailSettings = {
       ~label="Primary Color",
       ~name="email_config.primary_color",
       ~placeholder="Enter primary color.",
-      ~customInput=InputFields.colorPickerInput(~defaultValue="#006DF9"),
+      ~customInput=InputFields.colorPickerInput(~defaultValue=emailFromForm.primary_color),
     )
 
     let foregroundColorField = makeFieldInfo(
       ~label="Foreground Color",
       ~name="email_config.foreground_color",
       ~placeholder="Enter foreground color.",
-      ~customInput=InputFields.colorPickerInput(~defaultValue="#111326"),
+      ~customInput=InputFields.colorPickerInput(~defaultValue=emailFromForm.foreground_color),
     )
 
     let backgroundColorField = makeFieldInfo(
       ~label="Background Color",
       ~name="email_config.background_color",
       ~placeholder="Enter background color.",
-      ~customInput=InputFields.colorPickerInput(~defaultValue="#FFFFFF"),
+      ~customInput=InputFields.colorPickerInput(~defaultValue=emailFromForm.background_color),
     )
 
     <div className="flex flex-col gap-4">
@@ -269,15 +276,17 @@ module IconSettings = {
       <RenderIf condition=forEmailTheme>
         <div className="flex flex-col gap-4">
           <div className={`${body.lg.semibold}`}> {React.string("Email Logo")} </div>
-          <AssetField
-            label="Email Logo"
-            displayUrl={getDisplayUrl(assets.emailLogo)}
-            onFileChange={ev => handleFileChange(onEmailLogoSelect, ev)}
-            onRemove=onEmailLogoRemove
-            accept=".png,.jpg,.jpeg"
-            inputId="emailLogoFileInput"
-            themeConfigVersion
-          />
+          <div className="space-y-4">
+            <AssetField
+              label="Email Logo"
+              displayUrl={getDisplayUrl(assets.emailLogo)}
+              onFileChange={ev => handleFileChange(onEmailLogoSelect, ev)}
+              onRemove=onEmailLogoRemove
+              accept=".png,.jpg,.jpeg"
+              inputId="emailLogoFileInput"
+              themeConfigVersion
+            />
+          </div>
         </div>
       </RenderIf>
     </>

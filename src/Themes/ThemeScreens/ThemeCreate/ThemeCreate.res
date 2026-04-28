@@ -102,10 +102,7 @@ let make = () => {
               },
             ]
             <Tabs
-              tabs
-              showBottomBorder=true
-              tabBottomShadow=""
-              selectTabBottomBorderColor="bg-nd_primary_blue-400"
+              tabs showBottomBorder=true tabBottomShadow="" selectTabBottomBorderColor="bg-primary"
             />
           }
         </div>

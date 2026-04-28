@@ -58,6 +58,27 @@ let buildThemeDataBody = (
   body->Identity.genericTypeToJson
 }
 
+let withEmailLogoUrl = (
+  emailConfig: option<HyperSwitchConfigTypes.emailConfig>,
+  ~emailLogoUrl: option<string>,
+): option<HyperSwitchConfigTypes.emailConfig> => {
+  let resolvedUrl = switch emailLogoUrl {
+  | Some(url) => url
+  | None => ""
+  }
+  switch emailConfig {
+  | Some(ec) =>
+    Some({
+      entity_name: ec.entity_name,
+      entity_logo_url: resolvedUrl,
+      primary_color: ec.primary_color,
+      foreground_color: ec.foreground_color,
+      background_color: ec.background_color,
+    })
+  | None => None
+  }
+}
+
 let entities: array<ThemeTypes.themeOption> = [
   {
     label: "Organization",

@@ -125,10 +125,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
         {urls: {logoUrl: None, faviconUrl: None}, emailLogoUrl: None}
       }
 
-      let updatedEmailConfig = email_config->Option.map(ec => {
-        ...ec,
-        entity_logo_url: processed.emailLogoUrl->Option.getOr(""),
-      })
+      let updatedEmailConfig = email_config->withEmailLogoUrl(~emailLogoUrl=processed.emailLogoUrl)
 
       let requestBody = buildThemeDataBody(
         ~settings,
@@ -200,9 +197,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
               onEmailLogoRemove={() => setAssets(prev => {...prev, emailLogo: None})}
               themeConfigVersion
             />
-            <div className="flex flex-col gap-8 max-h-screen overflow-y-auto p-2">
-              <ThemeSettingsHelper.EmailSettings />
-            </div>
+            <ThemeSettingsHelper.EmailSettings />
           </div>
           <div className="flex flex-col gap-8 w-full lg:col-span-2">
             <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
@@ -229,10 +224,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
             customSubTitleStyle={`${body.lg.medium} text-nd_gray-400`}
           />
           <Tabs
-            tabs
-            showBottomBorder=true
-            tabBottomShadow=""
-            selectTabBottomBorderColor="bg-nd_primary_blue-400"
+            tabs showBottomBorder=true tabBottomShadow="" selectTabBottomBorderColor="bg-primary"
           />
         </div>
       </div>
