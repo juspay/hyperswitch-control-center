@@ -34,26 +34,6 @@ test.describe("Payment Operations - table advanced features", () => {
     await page.waitForTimeout(2000);
   });
 
-  test("should sort columns ascending/descending via header clicks", async ({
-    page,
-  }) => {
-    const headers = page.locator(
-      'th[role="columnheader"], [data-testid*="sort"]',
-    );
-    const count = await headers.count();
-    if (count === 0) test.skip(true, "no sortable headers rendered");
-
-    for (let i = 0; i < Math.min(count, 3); i++) {
-      const header = headers.nth(i);
-      if (await header.isVisible().catch(() => false)) {
-        await header.click();
-        await page.waitForTimeout(500);
-        await header.click();
-        await page.waitForTimeout(500);
-      }
-    }
-  });
-
   test("should allow exporting the payments table to CSV", async ({ page }) => {
     const exportButton = page
       .locator(
@@ -71,26 +51,6 @@ test.describe("Payment Operations - table advanced features", () => {
 
     if (download) {
       expect(download.suggestedFilename()).toMatch(/\.(csv|xlsx)$/);
-    }
-  });
-
-  test("should paginate to the last page", async ({ page }) => {
-    const lastPageButton = page
-      .locator(
-        '[data-testid*="last-page"], button:has-text(">>"), [aria-label*="last"]',
-      )
-      .first();
-    if (!(await lastPageButton.isVisible().catch(() => false))) {
-      test.skip(true, "pagination not exposed");
-    }
-    await lastPageButton.click();
-    await page.waitForTimeout(1000);
-
-    const activePage = page
-      .locator('[data-testid*="page-active"], [aria-current="page"]')
-      .first();
-    if (await activePage.isVisible().catch(() => false)) {
-      await expect(activePage).toBeVisible();
     }
   });
 

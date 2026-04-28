@@ -218,7 +218,7 @@ export async function createAuthenticationConnectorAPI(
         test_mode: true,
         payment_methods_enabled: [],
         connector_webhook_details: null,
-        disabled: false
+        disabled: false,
       },
     },
   );
@@ -234,6 +234,8 @@ export async function createAuthenticationConnectorAPI(
 export async function createPaymentAPI(
   merchantId: string,
   context?: APIRequestContext,
+  amount: number = 12345,
+  confirm: boolean = true,
 ): Promise<{
   payment_id: string;
   profile_id: string;
@@ -257,9 +259,9 @@ export async function createPaymentAPI(
       "api-key": apiKey,
     },
     data: {
-      amount: 12345,
+      amount,
       currency: "USD",
-      confirm: true,
+      confirm,
       capture_method: "automatic",
       customer_id: "test_customer",
       authentication_type: "no_three_ds",
@@ -372,18 +374,18 @@ export async function createPayoutConnectorAPI(
           },
         ],
         metadata: {
-          "endpoint_prefix": "test_key"
+          endpoint_prefix: "test_key",
         },
         connector_account_details: {
           api_key: "test_key",
           key1: "test_key",
           api_secret: "test_key",
-          auth_type: "SignatureKey"
+          auth_type: "SignatureKey",
         },
         additional_merchant_data: null,
         status: "active",
         pm_auth_config: null,
-        connector_wallets_details: null
+        connector_wallets_details: null,
       },
     },
   );
@@ -436,8 +438,8 @@ export async function createPayoutAPI(
           card_number: "4111111111111111",
           expiry_month: "3",
           expiry_year: "2030",
-          card_holder_name: "John Doe"
-        }
+          card_holder_name: "John Doe",
+        },
       },
       billing: {
         address: {
@@ -463,7 +465,7 @@ export async function createPayoutAPI(
         key: "value",
       },
       confirm: true,
-      auto_fulfill: true
+      auto_fulfill: true,
     },
   });
 

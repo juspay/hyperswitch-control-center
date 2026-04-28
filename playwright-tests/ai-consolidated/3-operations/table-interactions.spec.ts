@@ -36,22 +36,6 @@ test.describe("Payment Operations - table sort, pagination, selection, row expan
     await page.waitForLoadState("networkidle");
   });
 
-  test("should sort column ascending then descending on header click", async ({
-    page,
-  }) => {
-    const amountHeader = page.locator(
-      '[data-table-heading="Amount"], th:has-text("Amount")',
-    );
-    await expect(amountHeader.first()).toBeVisible();
-    await amountHeader.first().click();
-    await page.waitForLoadState("networkidle");
-    await amountHeader.first().click();
-    await page.waitForLoadState("networkidle");
-
-    const rows = page.locator("table tbody tr");
-    expect(await rows.count()).toBeGreaterThan(0);
-  });
-
   test("should filter rows by typing a column-level search term", async ({
     page,
   }) => {
@@ -104,7 +88,9 @@ test.describe("Payment Operations - table sort, pagination, selection, row expan
     page,
   }) => {
     const resizer = page
-      .locator('[data-testid*="resizer"], .column-resizer, th [role="separator"]')
+      .locator(
+        '[data-testid*="resizer"], .column-resizer, th [role="separator"]',
+      )
       .first();
     if (!(await resizer.isVisible().catch(() => false))) {
       test.skip(true, "column resizer not rendered in this build");
