@@ -3,6 +3,34 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.04.28.0
+
+### Bug Fixes
+
+- Pull_mechanism toggle should have true as the default value ([#4750](https://github.com/juspay/hyperswitch-control-center/pull/4750)) ([`2475827`](https://github.com/juspay/hyperswitch-control-center/commit/2475827acdf3a0b1befe59ae0e5d6505fe720103))
+
+### Refactors
+
+- Restrict production access CTA to Orchestration V1 only ([#4610](https://github.com/juspay/hyperswitch-control-center/pull/4610)) ([`2b04130`](https://github.com/juspay/hyperswitch-control-center/commit/2b0413031b4dc72573a1a9c8801052311abd24a6))
+
+### Miscellaneous Tasks
+
+- Apply recon engine permissions based on feature flag ([#4759](https://github.com/juspay/hyperswitch-control-center/pull/4759)) ([`34405a2`](https://github.com/juspay/hyperswitch-control-center/commit/34405a24ed4ced185c5c826b6c4347957b3de05c))
+
+**Full Changelog:** [`2026.04.27.0...2026.04.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.27.0...2026.04.28.0)
+
+- - -
+
+## 2026.04.27.0
+
+### Miscellaneous Tasks
+
+- Remove Cypress tests after Playwright migration ([#4742](https://github.com/juspay/hyperswitch-control-center/pull/4742)) ([`2431bf2`](https://github.com/juspay/hyperswitch-control-center/commit/2431bf2af4aa8068a912111f1cc3fe5db056eb7d))
+
+**Full Changelog:** [`2026.04.24.0...2026.04.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.24.0...2026.04.27.0)
+
+- - -
+
 ## 2026.04.24.0
 
 ### Features

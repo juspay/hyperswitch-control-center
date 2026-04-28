@@ -2,6 +2,7 @@
 let make = (~remainingPath) => {
   open APIUtils
   open APIUtilsTypes
+  open LogicUtils
 
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchDetails = useGetMethod()
@@ -47,8 +48,18 @@ let make = (~remainingPath) => {
         </AccessControl>}
       renderShow={(themeId, _) =>
         <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
-          <ThemeUpdate themeId />
+          <ThemeUpdate themeId orgId=None merchantId=None profileId=None />
         </AccessControl>}
+      renderCustomWithOMP={(themeId, profileId, merchantId, orgId) => {
+        <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
+          <ThemeUpdate
+            themeId
+            orgId={orgId->convertToNoneIfEqual("all_orgs")}
+            merchantId={merchantId->convertToNoneIfEqual("all_merchants")}
+            profileId={profileId->convertToNoneIfEqual("all_profiles")}
+          />
+        </AccessControl>
+      }}
     />
   </PageLoaderWrapper>
 }
