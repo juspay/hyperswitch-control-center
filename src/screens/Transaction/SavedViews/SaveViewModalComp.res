@@ -225,10 +225,10 @@ let make = (
         ~entityName=V1(USERS),
         ~userType=#USER_DATA,
         ~methodType=Get,
-        ~queryParameters=Some(SavedViewsAPI.savedViewsQueryParam(entity)),
+        ~queryParameters=Some(SavedViewsUtils.savedViewsQueryParam(entity)),
       )
       let res = await fetchDetails(url)
-      let mappedRes = res->HSwitchOrderUtils.savedViewsResponseMapper
+      let mappedRes = res->SavedViewsUtils.savedViewsResponseMapper
       setViewCount(_ => mappedRes.count)
       setSavedViews(_ => mappedRes.views)
     } catch {
@@ -260,19 +260,15 @@ let make = (
     filtersDict->JSON.Encode.object
   }
 
-  let postSavedViewsAction = async payload => {
-    let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
-    await updateDetails(url, payload, Post)
-  }
-
   let handleCreate = async _ => {
     try {
       let filters = buildFilters()
-      let payload = SavedViewsAPI.buildSavePayload(entity, "Create", viewName, filters, None)
-      let res = await postSavedViewsAction(payload)
+      let payload = SavedViewsUtils.buildSavePayload(entity, "Create", viewName, filters, None)
+      let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
+      let res = await updateDetails(url, payload, Post)
       onViewsUpdated(res, Some(viewName))
       showToast(
-        ~message=`New View '${SavedViewsUtils.truncateName(viewName)}' created successfully!`,
+        ~message=`New View '${viewName}' created successfully!`,
         ~toastType=ToastSuccess,
       )
       setShowModal(_ => false)
@@ -280,9 +276,7 @@ let make = (
     | err =>
       Js.log2("FAILED TO CREATE SAVED VIEW", err)
       showToast(
-        ~message=`Failed to create view '${SavedViewsUtils.truncateName(
-            viewName,
-          )}'. Please try again.`,
+        ~message=`Failed to create view '${viewName}'. Please try again.`,
         ~toastType=ToastError,
       )
     }
@@ -297,19 +291,18 @@ let make = (
           ->Array.find(view => view.view_name === viewToOverwrite)
           ->Option.map(v => v.view_id)
         let filters = buildFilters()
-        let payload = SavedViewsAPI.buildSavePayload(
+        let payload = SavedViewsUtils.buildSavePayload(
           entity,
           "Update",
           viewToOverwrite,
           filters,
           viewId,
         )
-        let res = await postSavedViewsAction(payload)
+        let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
+        let res = await updateDetails(url, payload, Post)
         onViewsUpdated(res, Some(viewToOverwrite))
         showToast(
-          ~message=`'${SavedViewsUtils.truncateName(
-              viewToOverwrite,
-            )}' has been overwritten successfully!`,
+          ~message=`'${viewToOverwrite}' has been overwritten successfully!`,
           ~toastType=ToastSuccess,
         )
         setShowModal(_ => false)

@@ -7,9 +7,9 @@ module ClearFilters = {
     ~outsidefilter=false,
   ) => {
     let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
-    let textStyle = "text-red-900"
+    let textStyle = "text-nd_red-500"
     let leftIcon: Button.iconType = CustomIcon(
-      <Icon name="trash-outline" size=24 className="text-red-900" />,
+      <Icon name="trash-outline" size=24 className="text-nd_red-500" />,
     )
 
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
@@ -185,7 +185,7 @@ let make = (
 
   React.useEffect(() => {
     let selectedFilters = []
-    let filtersUnseletced = []
+    let filtersUnselected = []
 
     filterKeys->Array.forEach(key => {
       let item = remoteFilters->Array.find(
@@ -200,13 +200,13 @@ let make = (
 
     remoteFilters->Array.forEach(item => {
       if !(selectedFilters->Array.includes(item.field)) {
-        filtersUnseletced->Array.push(item.field)->ignore
+        filtersUnselected->Array.push(item.field)->ignore
       }
     })
 
     setFilterList(_ => selectedFilters)
     setCount(_prev => clearFilterJson + initialCount)
-    setAllFilters(_prev => filtersUnseletced)
+    setAllFilters(_prev => filtersUnselected)
     None
   }, (filterKeys, remoteFilters->Array.length))
 
