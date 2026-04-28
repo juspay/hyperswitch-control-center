@@ -1,11 +1,12 @@
 open APIUtils
 open LogicUtils
 open Typography
+open SavedViewTypes
 
 let defaultViewName = "Default View"
 
 @react.component
-let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views") => {
+let make = (~version: UserInfoTypes.version=V1, ~entity: SavedViewTypes.entity=Payment) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
@@ -28,7 +29,7 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views")
         ~queryParameters=Some(SavedViewsUtils.savedViewsQueryParam(entity)),
       )
       let res = await fetchDetails(url)
-      let mappedRes = res->SavedViewsUtils.savedViewsResponseMapper
+      let mappedRes = res->SavedViewsUtils.savedViewsResponseMapper(entity)
       setSavedViews(_ => mappedRes.views)
     } catch {
     | err =>

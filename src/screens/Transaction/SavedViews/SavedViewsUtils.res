@@ -2,15 +2,6 @@ open LogicUtils
 
 let maxViews = 5
 
-let entityToKey = entity =>
-  switch entity {
-  | "payment_views" => "PaymentViews"
-  | "refund_views" => "RefundViews"
-  | "dispute_views" => "DisputeViews"
-  | "payout_views" => "PayoutViews"
-  | _ => "PaymentViews"
-  }
-
 let jsonValueToString = jsonValue => {
   switch jsonValue->JSON.Classify.classify {
   | String(s) => s
@@ -27,34 +18,31 @@ let jsonValueToString = jsonValue => {
 }
 
 let stringFromFilterValue = (dict, key) => {
-  switch dict->Dict.get(key) {
-  | Some(json) =>
+  dict
+  ->Dict.get(key)
+  ->Option.mapOr("", json =>
     switch json->JSON.Classify.classify {
     | String(s) => s
     | Number(n) => n->Float.toString
     | Array(arr) =>
-      switch arr->Array.get(0) {
-      | Some(ele) =>
-        switch ele->JSON.Classify.classify {
-        | String(s) => s
-        | Number(n) => n->Float.toString
-        | _ => ""
-        }
-      | None => ""
+      let ele = arr->getValueFromArray(0, JSON.Encode.null)
+      switch ele->JSON.Classify.classify {
+      | String(s) => s
+      | Number(n) => n->Float.toString
+      | _ => ""
       }
     | _ => ""
     }
-  | None => ""
-  }
+  )
 }
 
 let foldAmountOption = filtersDict => {
-  let amountOption = filtersDict->stringFromFilterValue("amount_option")
+  let amountOption = filtersDict->stringFromFilterValue(SavedViewTypes.FilterKeys.amountOption)
   if amountOption->isNonEmptyString {
-    let startAmountStr = filtersDict->stringFromFilterValue("start_amount")
-    let endAmountStr = filtersDict->stringFromFilterValue("end_amount")
-    filtersDict->Dict.delete("start_amount")
-    filtersDict->Dict.delete("end_amount")
+    let startAmountStr = filtersDict->stringFromFilterValue(SavedViewTypes.FilterKeys.startAmount)
+    let endAmountStr = filtersDict->stringFromFilterValue(SavedViewTypes.FilterKeys.endAmount)
+    filtersDict->Dict.delete(SavedViewTypes.FilterKeys.startAmount)
+    filtersDict->Dict.delete(SavedViewTypes.FilterKeys.endAmount)
 
     let amountFilterDict = Dict.make()
     let setIfSome = (key, str) =>
@@ -64,15 +52,15 @@ let foldAmountOption = filtersDict => {
       }
 
     switch amountOption->AmountFilterUtils.stringRangetoTypeAmount {
-    | GreaterThanOrEqualTo => setIfSome("start_amount", startAmountStr)
-    | LessThanOrEqualTo => setIfSome("end_amount", endAmountStr)
+    | GreaterThanOrEqualTo => setIfSome(SavedViewTypes.FilterKeys.startAmount, startAmountStr)
+    | LessThanOrEqualTo => setIfSome(SavedViewTypes.FilterKeys.endAmount, endAmountStr)
     | EqualTo =>
-      setIfSome("start_amount", startAmountStr)
-      setIfSome("end_amount", startAmountStr)
+      setIfSome(SavedViewTypes.FilterKeys.startAmount, startAmountStr)
+      setIfSome(SavedViewTypes.FilterKeys.endAmount, startAmountStr)
     | InBetween =>
-      setIfSome("start_amount", startAmountStr)
-      setIfSome("end_amount", endAmountStr)
-    | UnknownRange(_) => filtersDict->Dict.delete("amount_option")
+      setIfSome(SavedViewTypes.FilterKeys.startAmount, startAmountStr)
+      setIfSome(SavedViewTypes.FilterKeys.endAmount, endAmountStr)
+    | UnknownRange(_) => filtersDict->Dict.delete(SavedViewTypes.FilterKeys.amountOption)
     }
 
     if amountFilterDict->Dict.keysToArray->Array.length > 0 {
@@ -85,18 +73,21 @@ let flattenToDict = (dictToSet, key, value) => {
   let work = [(key, value)]
   let idx = ref(0)
   while idx.contents < work->Array.length {
-    let (k, v) = work->Array.getUnsafe(idx.contents)
-    idx := idx.contents + 1
-    switch v->JSON.Classify.classify {
-    | Null => ()
-    | _ if ["limit", "offset"]->Array.includes(k) => ()
-    | Object(objDict) =>
-      objDict->Dict.toArray->Array.forEach(item => work->Array.push(item)->ignore)
-    | _ =>
-      let strVal = jsonValueToString(v)
-      if strVal->isNonEmptyString {
-        dictToSet->Dict.set(k, strVal)
+    switch work->Array.get(idx.contents) {
+    | Some((k, v)) =>
+      idx := idx.contents + 1
+      switch v->JSON.Classify.classify {
+      | Null => ()
+      | _ if ["limit", "offset"]->Array.includes(k) => ()
+      | Object(objDict) =>
+        objDict->Dict.toArray->Array.forEach(item => work->Array.push(item)->ignore)
+      | _ =>
+        let strVal = jsonValueToString(v)
+        if strVal->isNonEmptyString {
+          dictToSet->Dict.set(k, strVal)
+        }
       }
+    | None => idx := idx.contents + 1
     }
   }
 }
@@ -106,12 +97,7 @@ let normalizeFilters = dict => {
   dict
   ->Dict.toArray
   ->Array.forEach(((key, value)) => {
-    if (
-      key->isNonEmptyString &&
-      value->isNonEmptyString &&
-      key !== "amount_option" &&
-      key !== "amount"
-    ) {
+    if key->isNonEmptyString && value->isNonEmptyString && !SavedViewTypes.isReservedKey(key) {
       normalized->Dict.set(key, value)
     }
   })
@@ -146,8 +132,14 @@ let getApplyFilters = (~filterDict, ~filterValue, ~version) => {
   let displayKeys =
     rawKeys
     ->Array.map(key => {
-      if ["amount_option", "start_amount", "end_amount"]->Array.includes(key) {
-        "amount"
+      if (
+        [
+          SavedViewTypes.FilterKeys.amountOption,
+          SavedViewTypes.FilterKeys.startAmount,
+          SavedViewTypes.FilterKeys.endAmount,
+        ]->Array.includes(key)
+      ) {
+        SavedViewTypes.FilterKeys.amount
       } else {
         key
       }
@@ -158,11 +150,12 @@ let getApplyFilters = (~filterDict, ~filterValue, ~version) => {
 
   let uniqueDisplayKeys = displayKeys->getUniqueArray
 
-  let startAmountStr = stringDict->Dict.get("start_amount")->Option.getOr("")
-  let endAmountStr = stringDict->Dict.get("end_amount")->Option.getOr("")
+  let startAmountStr = stringDict->Dict.get(SavedViewTypes.FilterKeys.startAmount)->Option.getOr("")
+  let endAmountStr = stringDict->Dict.get(SavedViewTypes.FilterKeys.endAmount)->Option.getOr("")
   let hasStart = startAmountStr->isNonEmptyString
   let hasEnd = endAmountStr->isNonEmptyString
-  let hasAmountOption = stringDict->Dict.get("amount_option")->Option.getOr("")->isNonEmptyString
+  let hasAmountOption =
+    stringDict->Dict.get(SavedViewTypes.FilterKeys.amountOption)->Option.getOr("")->isNonEmptyString
 
   if hasStart || hasEnd {
     if !hasAmountOption {
@@ -173,12 +166,12 @@ let getApplyFilters = (~filterDict, ~filterValue, ~version) => {
       | (false, false) => ""
       }
       if constructorName->isNonEmptyString {
-        stringDict->Dict.set("amount_option", constructorName)
+        stringDict->Dict.set(SavedViewTypes.FilterKeys.amountOption, constructorName)
       }
     }
 
-    if !(uniqueDisplayKeys->Array.includes("amount")) {
-      uniqueDisplayKeys->Array.push("amount")->ignore
+    if !(uniqueDisplayKeys->Array.includes(SavedViewTypes.FilterKeys.amount)) {
+      uniqueDisplayKeys->Array.push(SavedViewTypes.FilterKeys.amount)->ignore
     }
   }
 
@@ -269,7 +262,7 @@ let buildViewOptions = (
           bgClass="!bg-transparent !py-0"
           inputPaddingClass="!py-1 !px-2"
           customInputStyle="!py-1 !px-2 !bg-transparent text-nd_gray-700"
-          customIconStyle="text-nd_gray-300 hover:text-black"
+          customIconStyle="text-nd_gray-300 hover:text-nd_gray-900"
           customWidth="w-full"
           validateInput={newName => {
             let errors = Dict.make()
@@ -290,67 +283,83 @@ let buildViewOptions = (
   })
   [defaultOpt]->Array.concat(savedOptions)
 }
-let savedViewsQueryParam = entity => `keys=${entityToKey(entity)}`
+let savedViewsQueryParam = (entity: SavedViewTypes.entity) =>
+  `keys=${entity->SavedViewTypes.entityToKey}`
 
-let buildActionPayload = (entity, actionType, dataDict) => {
-  let keys = entityToKey(entity)
+let buildActionPayload = (
+  entity: SavedViewTypes.entity,
+  action: SavedViewTypes.action,
+  dataDict,
+) => {
+  let keys = entity->SavedViewTypes.entityToKey
   let actionDict =
-    [("type", actionType->JSON.Encode.string), ("data", dataDict->JSON.Encode.object)]
+    [
+      ("type", action->SavedViewTypes.actionToString->JSON.Encode.string),
+      ("data", dataDict->JSON.Encode.object),
+    ]
     ->Dict.fromArray
     ->JSON.Encode.object
-  [(keys, actionDict)]
-  ->Dict.fromArray
-  ->JSON.Encode.object
+  [(keys, actionDict)]->Dict.fromArray->JSON.Encode.object
 }
 
-let buildDeletePayload = (entity, viewId) => {
+let buildDeletePayload = (entity: SavedViewTypes.entity, viewId) => {
   let dataDict =
     [
-      ("entity", entity->JSON.Encode.string),
+      ("entity", entity->SavedViewTypes.entityToString->JSON.Encode.string),
       ("view_id", viewId->JSON.Encode.string),
     ]->Dict.fromArray
-  buildActionPayload(entity, "Delete", dataDict)
+  buildActionPayload(entity, Delete, dataDict)
 }
 
-let buildRenamePayload = (entity, view: SavedViewTypes.savedView, newName) => {
+let buildRenamePayload = (
+  entity: SavedViewTypes.entity,
+  view: SavedViewTypes.savedView,
+  newName,
+) => {
   let dataDict =
     [
       ("view_id", view.view_id->JSON.Encode.string),
       ("view_name", newName->JSON.Encode.string),
       ("filters", view.filters),
-      ("entity", entity->JSON.Encode.string),
+      ("entity", entity->SavedViewTypes.entityToString->JSON.Encode.string),
       ("version", "v1"->JSON.Encode.string),
     ]->Dict.fromArray
-  buildActionPayload(entity, "Update", dataDict)
+  buildActionPayload(entity, Update, dataDict)
 }
 
-let buildSavePayload = (entity, actionType, name, filters: JSON.t, viewId: option<string>) => {
+let buildSavePayload = (
+  entity: SavedViewTypes.entity,
+  action: SavedViewTypes.action,
+  name,
+  filters: JSON.t,
+  viewId: option<string>,
+) => {
   let dataDict =
     [
       ("view_name", name->JSON.Encode.string),
       ("filters", filters),
-      ("entity", entity->JSON.Encode.string),
+      ("entity", entity->SavedViewTypes.entityToString->JSON.Encode.string),
       ("version", "v1"->JSON.Encode.string),
     ]->Dict.fromArray
   switch viewId {
   | Some(id) => dataDict->Dict.set("view_id", id->JSON.Encode.string)
   | None => ()
   }
-  buildActionPayload(entity, actionType, dataDict)
+  buildActionPayload(entity, action, dataDict)
 }
 
 let filterNullValues = json => {
   json
   ->getDictFromJsonObject
   ->Dict.toArray
-  ->Belt.Array.keepMap(((key, value)) => {
+  ->Array.filterMap(((key, value)) => {
     switch value->JSON.Classify.classify {
     | Null => None
     | Object(innerDict) =>
       let filteredInner =
         innerDict
         ->Dict.toArray
-        ->Belt.Array.keepMap(((ik, iv)) => {
+        ->Array.filterMap(((ik, iv)) => {
           switch iv->JSON.Classify.classify {
           | Null => None
           | _ => Some((ik, iv))
@@ -380,13 +389,13 @@ let itemToSavedView = json => {
   savedView
 }
 
-let savedViewsResponseMapper = json => {
+let savedViewsResponseMapper = (json, entity: SavedViewTypes.entity) => {
   let viewsArray =
     json
     ->getArrayFromJson([])
     ->getValueFromArray(0, Dict.make()->JSON.Encode.object)
     ->getDictFromJsonObject
-    ->getArrayFromDict("PaymentViews", [])
+    ->getArrayFromDict(entity->SavedViewTypes.entityToKey, [])
 
   let response: SavedViewTypes.savedViewsResponse = {
     count: viewsArray->Array.length,

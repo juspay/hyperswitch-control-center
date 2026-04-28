@@ -1,3 +1,4 @@
+open LogicUtils
 module ClearFilters = {
   @react.component
   let make = (
@@ -57,7 +58,7 @@ module ClearFilters = {
       ->Array.filter(entry => {
         let (_, value) = entry
         let isEmptyValue = switch value->JSON.Classify.classify {
-        | String(str) => str->LogicUtils.isEmptyString
+        | String(str) => str->isEmptyString
         | Array(arr) => arr->Array.length === 0
         | Null => true
         | _ => false
@@ -121,7 +122,6 @@ let make = (
   ~showSelectFiltersSearch=false,
 ) => {
   open HeadlessUI
-  open LogicUtils
 
   let isSmallScreen = MatchMedia.useScreenSizeChecker(~screenSize="1512")
   let {query, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
@@ -189,9 +189,7 @@ let make = (
 
     filterKeys->Array.forEach(key => {
       let item =
-        remoteFilters->Array.find(
-          item => item.field.inputNames->Array.get(0)->Option.getOr("") === key,
-        )
+        remoteFilters->Array.find(item => item.field.inputNames->getValueFromArray(0, "") === key)
 
       switch item {
       | Some(val) => selectedFilters->Array.push(val.field)->ignore

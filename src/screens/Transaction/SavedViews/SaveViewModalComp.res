@@ -1,6 +1,7 @@
 open APIUtils
 open LogicUtils
 open Typography
+open SavedViewTypes
 
 module IncludeDateCheckbox = {
   @react.component
@@ -46,7 +47,7 @@ module CreateTab = {
       <div className={`flex flex-col gap-1`}>
         <div className={`${body.md.medium} text-nd_gray-400`}>
           {"View Name"->React.string}
-          <span className="text-red-500"> {"*"->React.string} </span>
+          <span className="text-nd_red-400"> {"*"->React.string} </span>
         </div>
         <TextInput
           input={
@@ -59,15 +60,15 @@ module CreateTab = {
           }
           placeholder="Enter view name"
           customPaddingClass="px-4"
-          customStyle={viewNameExists ? "border-red-500 focus:border-red-500" : ""}
+          customStyle={viewNameExists ? "border-nd_red-400 focus:border-nd_red-400" : ""}
         />
         <RenderIf condition=viewNameExists>
-          <div className="text-red-500 text-xs mt-1">
+          <div className="text-nd_red-400 text-xs mt-1">
             {"This view already exists. Please choose a different name."->React.string}
           </div>
         </RenderIf>
         <RenderIf condition={viewLimitReached && !viewNameExists}>
-          <div className="text-red-500 text-xs mt-1">
+          <div className="text-nd_red-400 text-xs mt-1">
             {`Maximum ${SavedViewsUtils.maxViews->Int.toString} views allowed. Please update or delete an existing view.`->React.string}
           </div>
         </RenderIf>
@@ -77,9 +78,7 @@ module CreateTab = {
         <Button text="Cancel" onClick={_ => setShowModal(_ => false)} buttonType=Secondary />
         <Button
           text="Save New View"
-          onClick={_ => {
-            let _ = handleCreate()
-          }}
+          onClick={_ => handleCreate()->ignore}
           buttonState={trimmedViewName->isEmptyString || viewNameExists || viewLimitReached
             ? Disabled
             : Normal}
@@ -106,7 +105,7 @@ module OverwriteTab = {
       <div className="flex flex-col gap-1">
         <div className={`${body.md.medium} text-nd_gray-400`}>
           {"Search View Name to Overwrite"->React.string}
-          <span className="text-red-500"> {"*"->React.string} </span>
+          <span className="text-nd_red-400"> {"*"->React.string} </span>
         </div>
         <SelectBox.BaseDropdown
           allowMultiSelect=false
@@ -132,7 +131,7 @@ module OverwriteTab = {
           dropdownCustomWidth="w-full"
           baseComponentMethod={_isOpen => {
             <div
-              className={`flex items-center justify-between w-full h-10 px-4 border border-jp-gray-lightmode_steelgray border-opacity-75 rounded bg-white cursor-pointer hover:border-opacity-100 overflow-hidden ${body.md.regular}`}>
+              className={`flex items-center justify-between w-full h-10 px-4 border border-nd_gray-300 rounded bg-white cursor-pointer hover:border-nd_gray-400 overflow-hidden ${body.md.regular}`}>
               <span
                 className={`truncate ${selectedViewToOverwrite->isEmptyString
                     ? "text-nd_gray-400"
@@ -151,9 +150,7 @@ module OverwriteTab = {
         <Button text="Cancel" onClick={_ => setShowModal(_ => false)} buttonType=Secondary />
         <Button
           text="Overwrite Existing View"
-          onClick={_ => {
-            let _ = handleOverwrite(selectedViewToOverwrite)
-          }}
+          onClick={_ => handleOverwrite(selectedViewToOverwrite)->ignore}
           buttonState={selectedViewToOverwrite->isEmptyString ? Disabled : Normal}
           buttonType=Primary
         />
@@ -168,7 +165,7 @@ let make = (
   ~setShowModal,
   ~onViewsUpdated: (JSON.t, option<string>) => unit,
   ~version: UserInfoTypes.version=V1,
-  ~entity: string,
+  ~entity: SavedViewTypes.entity,
 ) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -228,7 +225,7 @@ let make = (
         ~queryParameters=Some(SavedViewsUtils.savedViewsQueryParam(entity)),
       )
       let res = await fetchDetails(url)
-      let mappedRes = res->SavedViewsUtils.savedViewsResponseMapper
+      let mappedRes = res->SavedViewsUtils.savedViewsResponseMapper(entity)
       setViewCount(_ => mappedRes.count)
       setSavedViews(_ => mappedRes.views)
     } catch {
@@ -263,7 +260,7 @@ let make = (
   let handleCreate = async _ => {
     try {
       let filters = buildFilters()
-      let payload = SavedViewsUtils.buildSavePayload(entity, "Create", viewName, filters, None)
+      let payload = SavedViewsUtils.buildSavePayload(entity, Create, viewName, filters, None)
       let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
       let res = await updateDetails(url, payload, Post)
       onViewsUpdated(res, Some(viewName))
@@ -290,7 +287,7 @@ let make = (
         let filters = buildFilters()
         let payload = SavedViewsUtils.buildSavePayload(
           entity,
-          "Update",
+          Update,
           viewToOverwrite,
           filters,
           viewId,
@@ -318,9 +315,9 @@ let make = (
   let viewLimitReached = viewCount >= SavedViewsUtils.maxViews
 
   let tabs = [
-    (
-      "Create New View",
-      () =>
+    {
+      title: "Create New View",
+      render: () =>
         <CreateTab
           viewName
           setViewName
@@ -332,10 +329,10 @@ let make = (
           handleCreate
           setShowModal
         />,
-    ),
-    (
-      "Overwrite Existing View",
-      () =>
+    },
+    {
+      title: "Overwrite Existing View",
+      render: () =>
         <OverwriteTab
           savedViews
           selectedViewToOverwrite
@@ -346,7 +343,7 @@ let make = (
           handleOverwrite
           setShowModal
         />,
-    ),
+    },
   ]
   let (selectedTabIndex, setSelectedTabIndex) = React.useState(_ => 0)
 
@@ -367,15 +364,15 @@ let make = (
           )}
         />
         {tabs
-        ->Array.mapWithIndex(((tabTitle, _), index) => {
+        ->Array.mapWithIndex((tabItem, index) => {
           let isSelected = selectedTabIndex === index
           <div
-            key={tabTitle}
+            key={tabItem.title}
             onClick={_ => setSelectedTabIndex(_ => index)}
             className={`relative z-10 flex-1 py-2 text-center cursor-pointer transition-colors duration-200 ${body.md.medium} ${isSelected
                 ? "text-nd_gray-700"
                 : "text-nd_gray-400 hover:text-nd_gray-600"}`}>
-            {tabTitle->React.string}
+            {tabItem.title->React.string}
           </div>
         })
         ->React.array}
@@ -384,7 +381,7 @@ let make = (
         key={selectedTabIndex->Int.toString}
         className="p-6 pt-2 pb-8 min-h-[160px] animate-fadeIn animate-slideUp">
         {switch tabs->Array.get(selectedTabIndex) {
-        | Some((_, render)) => render()
+        | Some(tabItem) => tabItem.render()
         | None => React.null
         }}
       </div>
