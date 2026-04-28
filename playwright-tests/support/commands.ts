@@ -393,10 +393,10 @@ export async function createPayoutAPI(
       payout_type: "card",
       payout_method_data: {
         card: {
-            card_number: "4111111111111111",
-            expiry_month: "3",
-            expiry_year: "2030",
-            card_holder_name: "John Doe"
+          card_number: "4111111111111111",
+          expiry_month: "3",
+          expiry_year: "2030",
+          card_holder_name: "John Doe"
         }
       },
       billing: {
@@ -594,7 +594,7 @@ export async function deleteConnector(
 export async function createAuth(
   context?: APIRequestContext,
   ownerId: string = "okta_test",
-  emailDomain: string = "cypresstest.in",
+  emailDomain: string = "playwrighttest.in",
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
 
@@ -630,7 +630,7 @@ export async function createAuth(
 
 export async function getAuthIdByEmail(
   context?: APIRequestContext,
-  emailDomain: string = "cypresstest.in",
+  emailDomain: string = "playwrighttest.in",
 ): Promise<string> {
   const ctx = context ?? (await request.newContext());
 
