@@ -1,5 +1,3 @@
-type tabView = Compress | Expand
-
 type tab = {
   title: string,
   tabElement?: React.element,
@@ -8,7 +6,7 @@ type tab = {
 }
 
 @react.component
-let make = (~tabs: array<tab>, ~initialIndex=?, ~onTitleClick=?, ~disabledTab=[]) => {
+let make = (~tabs, ~initialIndex=?, ~onTitleClick=?, ~disabledTab=[]) => {
   let initialIndex = initialIndex->Option.getOr(0)
   let (selectedValue, setSelectedValue) = React.useState(() => initialIndex->Int.toString)
 
@@ -19,25 +17,27 @@ let make = (~tabs: array<tab>, ~initialIndex=?, ~onTitleClick=?, ~disabledTab=[]
 
   let handleValueChange = (newValue: string) => {
     setSelectedValue(_ => newValue)
-    let idx = newValue->Int.fromString->Option.getOr(0)
+    let idx = newValue->LogicUtils.getIntFromString(0)
     onTitleClick->Option.forEach(fn => fn(idx))
     tabs
     ->Array.get(idx)
     ->Option.forEach(tab => tab.onTabSelection->Option.forEach(fn => fn()))
   }
 
-  let items: array<TabsBinding.tabItem> = tabs->Array.mapWithIndex((tab, i) => {
-    let base: TabsBinding.tabItem = {
-      value: i->Int.toString,
-      label: tab.title,
-      content: tab.renderContent(),
-      disable: disabledTab->Array.includes(tab.title),
-    }
-    switch tab.tabElement {
-    | Some(elem) => {...base, leftSlot: elem}
-    | None => base
-    }
-  })
+  let items = React.useMemo(() => {
+    tabs->Array.mapWithIndex((tab, i) => {
+      let base: TabsBinding.tabItem = {
+        value: i->Int.toString,
+        label: tab.title,
+        content: tab.renderContent(),
+        disable: disabledTab->Array.includes(tab.title),
+      }
+      switch tab.tabElement {
+      | Some(elem) => {...base, leftSlot: elem}
+      | None => base
+      }
+    })
+  }, (tabs, disabledTab))
 
   <ErrorBoundary>
     <TabsBinding

@@ -1,4 +1,3 @@
-type tabView = Compress | Expand
 type tab = {
   title: string,
   tabElement?: React.element,
