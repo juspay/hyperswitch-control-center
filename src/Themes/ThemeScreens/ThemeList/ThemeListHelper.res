@@ -64,7 +64,7 @@ module CurrentThemeCard = {
           <span className={`${body.lg.semibold} text-nd_gray-800`}>
             {"Current Theme"->React.string}
           </span>
-          <div className="rounded-xl border border-gray-200 p-4 mb-8 flex flex-col gap-6">
+          <div className="rounded-xl border border-nd_gray-200 p-4 mb-8 flex flex-col gap-6">
             <div className="flex items-center gap-4">
               <span className={`${body.md.semibold}`}> {themeData.themeName->React.string} </span>
               <span

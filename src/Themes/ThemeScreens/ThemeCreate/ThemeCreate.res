@@ -84,7 +84,9 @@ let make = () => {
                 title: "Email Config",
                 renderContent: () =>
                   <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
-                    <EmailConfigSettings />
+                    <div className="flex flex-col gap-8 max-h-screen overflow-y-auto p-2">
+                      <ThemeSettingsHelper.EmailSettings />
+                    </div>
                     <div className="flex flex-col gap-8 w-full lg:col-span-2">
                       <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
                       <div className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
