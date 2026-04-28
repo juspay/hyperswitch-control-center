@@ -198,7 +198,7 @@ let make = () => {
                       headerLeftActions={
                         let logoElement = switch logoURL {
                         | Some(url) if url->LogicUtils.isNonEmptyString =>
-                          <img className="h-8 w-auto object-contain" alt="image" src={url} />
+                          <img className="h-8 w-auto object-contain" alt="image" src=url />
                         | _ => React.null
                         }
                         <div className="flex md:gap-4 gap-2 items-center">
@@ -216,13 +216,19 @@ let make = () => {
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
                     <RenderIf condition={maintenanceAlert->LogicUtils.isNonEmptyString}>
-                      <HSwitchUtils.AlertBanner
-                        bannerContent={<p> {maintenanceAlert->React.string} </p>} bannerType={Info}
+                      <AlertV2Binding
+                        alertType=Primary
+                        slot={{
+                          slot: <Icon
+                            name="nd-toast-info" size=20 className="text-nd_primary_blue-450"
+                          />,
+                        }}
+                        description=maintenanceAlert
                       />
                     </RenderIf>
                     <WorkflowSideDrawer />
                     <div
-                      className="p-6 md:px-12 md:py-8 flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
+                      className="p-6 md:px-12 md:py-8 flex flex-col gap-8 max-w-fixedPageWidth min-h-full">
                       <ErrorBoundary>
                         {switch (activeProduct, url.path->urlPath) {
                         // /* DEFAULT HOME */

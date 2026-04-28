@@ -52,7 +52,6 @@ module ShowOrderDetails = {
               description="Original amount that was authorized for the payment"
               toolTipFor={<Icon name="tooltip_info" className={`mt-1 ml-1`} />}
               toolTipPosition=Top
-              tooltipWidthClass="w-fit"
             />
           </div>
           {statusUI}
@@ -741,9 +740,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         <div className="w-full">
           <PageUtils.PageHeading title="Payments" />
           <BreadCrumbNavigation
-            path=[{title: "Payments", link: breadCrumbLink}]
-            currentPageTitle=id
-            cursorStyle="cursor-pointer"
+            path=[{title: "Payments", link: breadCrumbLink}] currentPageTitle=id
           />
         </div>
         <RenderIf condition={showSyncButton()}>

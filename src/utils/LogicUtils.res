@@ -185,6 +185,9 @@ let getOptionStrArrayFromDict = (dict, key) => {
   dict->Dict.get(key)->Option.flatMap(val => val->getOptionStrArrayFromJson)
 }
 
+let convertToNoneIfEqual = (val, sentinel) =>
+  val->Option.flatMap(v => v == sentinel ? None : Some(v))
+
 let getNonEmptyString = str => {
   if str->isEmptyString {
     None
@@ -426,7 +429,7 @@ let checkEmptyJson = json => {
   json == JSON.Encode.object(Dict.make())
 }
 
-let numericArraySortComperator = (a, b) => {
+let numericArraySortComparator = (a, b) => {
   if a < b {
     -1.
   } else if a > b {

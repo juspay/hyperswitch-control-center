@@ -240,7 +240,6 @@ let make = () => {
         currentPageTitle={connectorName->getDisplayNameForConnector(
           ~connectorType=BillingProcessor,
         )}
-        cursorStyle="cursor-pointer"
       />
       <div
         className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">

@@ -500,9 +500,9 @@ Welcome to the standard process for raising a Pull Request (PR) directly from a 
 - Include relevant tests, documentation updates, or screenshots, if applicable.
 - Collaborate and communicate effectively with other contributors and maintainers throughout the review process.
 
-## Cypress Test Suite
+## Playwright Test Suite
 
-This guide walks you through running Cypress tests locally for the [Hyperswitch Control Center](https://github.com/juspay/hyperswitch-control-center) project. The tests simulate real user workflows on the dashboard UI and require a working Hyperswitch backend environment.
+This guide walks you through running Playwright tests locally for the [Hyperswitch Control Center](https://github.com/juspay/hyperswitch-control-center) project. The tests simulate real user workflows on the dashboard UI and require a working Hyperswitch backend environment.
 
 ---
 
@@ -512,7 +512,8 @@ This guide walks you through running Cypress tests locally for the [Hyperswitch 
 
 - [Node.js](https://nodejs.org/)
 - [npm](https://www.npmjs.com/)
-- [Cypress](https://docs.cypress.io/app/get-started/install-cypress)
+- [Playwright](https://playwright.dev/docs/intro)
+- [Docker Compose](https://docs.docker.com/compose/install/)
 
 ---
 
@@ -532,30 +533,39 @@ npm install
 ### 3. Start the local dashboard server
 
 ```
-npm run build:test && npm run test:start
+npm run build:test && npm run start:test
 ```
 
-### 4. Running Cypress Tests
+### 4. Install Playwright Browsers
+
+Multiple browsers: `npx playwright install chromium firefox webkit --with-deps`
+
+(Available: chromium, chrome, chrome-beta, msedge, msedge-beta, msedge-dev, firefox, webkit)
+
+```
+npx playwright install chromium --with-deps
+```
+
+### 5. Start the backend server using Docker Compose
+
+```
+sh playwright-tests/start_hyperswitch.sh
+```
+
+### 6. Running Playwright Tests
 
 Open a second terminal and run the following commands
 
-#### Set environment variables for cypress
+#### To run tests interactively in Playwright Test Runner:
 
 ```
-export CYPRESS_USERNAME="cypress@test.com"
-export CYPRESS_PASSWORD="Cypress00#"
-```
-
-#### To run tests interactively in Cypress Test Runner:
-
-```
-npm run cy:open
+npx playwright test --ui
 ```
 
 #### To run tests in headless mode (CI/CD):
 
 ```
-npm run cy:run
+npx playwright test
 ```
 
 ## License

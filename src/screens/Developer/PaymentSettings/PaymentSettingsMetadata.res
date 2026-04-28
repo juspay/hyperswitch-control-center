@@ -9,7 +9,7 @@ module MetadataAuthenticationInput = {
     let (key, setKey) = React.useState(_ => "")
     let (metaValue, setValue) = React.useState(_ => "")
     let originalKeyRef = React.useRef("")
-    let getMetadatKeyValues = () => {
+    let getMetadataKeyValues = () => {
       let metadataKeyValueDict =
         formState.values
         ->getDictFromJsonObject
@@ -23,7 +23,7 @@ module MetadataAuthenticationInput = {
     }
 
     React.useEffect(() => {
-      let (metadataKey, customMetadataVal) = getMetadatKeyValues()
+      let (metadataKey, customMetadataVal) = getMetadataKeyValues()
       setValue(_ => customMetadataVal)
       setKey(_ => metadataKey)
       originalKeyRef.current = metadataKey
@@ -232,7 +232,7 @@ let make = (
   }
   <ReactFinalForm.Form
     key="auth"
-    initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+    initialValues={businessProfileDetails->parseBusinessProfileJson->JSON.Encode.object}
     subscription=ReactFinalForm.subscribeToValues
     onSubmit
     render={({handleSubmit}) => {
