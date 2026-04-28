@@ -6,6 +6,7 @@ let make = (~previewOnly=false) => {
 
   let fetchOrdersHook = OrdersHook.useFetchOrdersHook()
   let fetchAnalyticsOrdersHook = AnalyticsOrdersHook.useFetchAnalyticsOrdersHook()
+  let getSignal = AbortControllerHook.useAbortController()
   let {devOpensearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
@@ -15,10 +16,10 @@ let make = (~previewOnly=false) => {
   let {merchantId, orgId, version} = getCommonSessionDetails()
 
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
-  let fetchOrdersHook = (~payload, ~version) => {
+  let fetchOrdersHook = (~payload, ~version, ~signal=?) => {
     devOpensearch && userHasResourceAccess(~resourceAccess=Analytics) === Access
-      ? fetchAnalyticsOrdersHook(~payload, ~version)
-      : fetchOrdersHook(~payload, ~version)
+      ? fetchAnalyticsOrdersHook(~payload, ~version, ~signal?)
+      : fetchOrdersHook(~payload, ~version, ~signal?)
   }
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -52,10 +53,14 @@ let make = (~previewOnly=false) => {
     updateExistingKeys(Dict.fromArray([(endTimeFilterKey(version), {prevStartdate})]))
   }
 
-  let getOrdersList = async filterValueJson => {
+  let getOrdersList = async (filterValueJson, ~signal=?) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let res = await fetchOrdersHook(~payload=filterValueJson->JSON.Encode.object, ~version)
+      let res = await fetchOrdersHook(
+        ~payload=filterValueJson->JSON.Encode.object,
+        ~version,
+        ~signal?,
+      )
       let data = res.data
       let total = res.total_count
 
@@ -101,11 +106,18 @@ let make = (~previewOnly=false) => {
         )
       }
     } catch {
-    | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("")->String.toLowerCase
+        if !(err->String.includes("abort")) {
+          setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
+        }
+      }
     }
   }
 
   let fetchOrders = () => {
+    let signal = getSignal()
+
     if !previewOnly {
       switch filters {
       | Some(dict) =>
@@ -138,7 +150,7 @@ let make = (~previewOnly=false) => {
         //to delete unused keys
         filters->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
         filters
-        ->getOrdersList
+        ->getOrdersList(~signal)
         ->ignore
 
       | _ => ()
@@ -147,7 +159,7 @@ let make = (~previewOnly=false) => {
       let filters = Dict.make()
 
       filters
-      ->getOrdersList
+      ->getOrdersList(~signal)
       ->ignore
     }
   }

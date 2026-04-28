@@ -7,24 +7,24 @@ let useFetchAnalyticsOrdersHook = () => {
   let fetchDetails = useGetMethod()
   let {queryV2} = React.useContext(FilterContext.filterContext)
 
-  async (~payload, ~version: UserInfoTypes.version) => {
+  async (~payload, ~version: UserInfoTypes.version, ~signal=?) => {
     try {
       let paymentsData = switch version {
       | V1 =>
         try {
           let ordersUrl = getURL(~entityName=V1(PAYMENTS_LIST), ~methodType=Post)
-          let res = await updateDetails(ordersUrl, payload, Post)
+          let res = await updateDetails(ordersUrl, payload, Post, ~signal?)
           let mappedRes = res->mapAnalyticsResponseToOrdersObject
           mappedRes
         } catch {
         | Exn.Error(_e) => {
             let ordersUrl = getURL(~entityName=V1(ORDERS), ~methodType=Post)
-            let res = await updateDetails(ordersUrl, payload, Post)
+            let res = await updateDetails(ordersUrl, payload, Post, ~signal?)
             res->mapJsonToOrdersObject(paymentInterfaceV1)
           }
         | _ => {
             let ordersUrl = getURL(~entityName=V1(ORDERS), ~methodType=Post)
-            let res = await updateDetails(ordersUrl, payload, Post)
+            let res = await updateDetails(ordersUrl, payload, Post, ~signal?)
             res->mapJsonToOrdersObject(paymentInterfaceV1)
           }
         }
