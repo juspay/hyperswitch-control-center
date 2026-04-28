@@ -72,8 +72,7 @@ let foldAmountOption = filtersDict => {
     | InBetween =>
       setIfSome("start_amount", startAmountStr)
       setIfSome("end_amount", endAmountStr)
-    | UnknownRange(_) =>
-      filtersDict->Dict.delete("amount_option")
+    | UnknownRange(_) => filtersDict->Dict.delete("amount_option")
     }
 
     if amountFilterDict->Dict.keysToArray->Array.length > 0 {
@@ -163,8 +162,7 @@ let getApplyFilters = (~filterDict, ~filterValue, ~version) => {
   let endAmountStr = stringDict->Dict.get("end_amount")->Option.getOr("")
   let hasStart = startAmountStr->isNonEmptyString
   let hasEnd = endAmountStr->isNonEmptyString
-  let hasAmountOption =
-    stringDict->Dict.get("amount_option")->Option.getOr("")->isNonEmptyString
+  let hasAmountOption = stringDict->Dict.get("amount_option")->Option.getOr("")->isNonEmptyString
 
   if hasStart || hasEnd {
     if !hasAmountOption {
@@ -192,14 +190,18 @@ let buildCurrentFiltersDict = filterValue => {
   filterValue
   ->Dict.toArray
   ->Array.forEach(((key, value)) => {
-    if !([ "limit", "offset"]->Array.includes(key)) {
+    if !(["limit", "offset"]->Array.includes(key)) {
       currentFiltersDict->Dict.set(key, value)
     }
   })
   currentFiltersDict
 }
 
-let findMatchingView = (~savedViews: array<SavedViewTypes.savedView>, ~currentFiltersDict, ~version) => {
+let findMatchingView = (
+  ~savedViews: array<SavedViewTypes.savedView>,
+  ~currentFiltersDict,
+  ~version,
+) => {
   savedViews->Array.find(view => {
     let savedFilters = view.filters->getDictFromJsonObject
     let savedFiltersStringDict = Dict.make()
@@ -303,7 +305,10 @@ let buildActionPayload = (entity, actionType, dataDict) => {
 
 let buildDeletePayload = (entity, viewId) => {
   let dataDict =
-    [("entity", entity->JSON.Encode.string), ("view_id", viewId->JSON.Encode.string)]->Dict.fromArray
+    [
+      ("entity", entity->JSON.Encode.string),
+      ("view_id", viewId->JSON.Encode.string),
+    ]->Dict.fromArray
   buildActionPayload(entity, "Delete", dataDict)
 }
 

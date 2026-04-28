@@ -188,9 +188,10 @@ let make = (
     let filtersUnselected = []
 
     filterKeys->Array.forEach(key => {
-      let item = remoteFilters->Array.find(
-        item => item.field.inputNames->Array.get(0)->Option.getOr("") === key,
-      )
+      let item =
+        remoteFilters->Array.find(
+          item => item.field.inputNames->Array.get(0)->Option.getOr("") === key,
+        )
 
       switch item {
       | Some(val) => selectedFilters->Array.push(val.field)->ignore

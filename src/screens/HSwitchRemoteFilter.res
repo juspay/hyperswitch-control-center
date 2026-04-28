@@ -321,9 +321,8 @@ module RemoteTableFilters = {
     let lastFiltersSignature = React.useRef("")
 
     React.useEffect(() => {
-      let next = filterValueJson->Dict.keysToArray->Array.length != 0
-        ? filterValueJson
-        : Dict.make()
+      let next =
+        filterValueJson->Dict.keysToArray->Array.length != 0 ? filterValueJson : Dict.make()
       let signature = next->JSON.Encode.object->JSON.stringify
       if lastFiltersSignature.current !== signature {
         lastFiltersSignature.current = signature

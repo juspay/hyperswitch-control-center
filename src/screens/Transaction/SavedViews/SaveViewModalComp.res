@@ -267,10 +267,7 @@ let make = (
       let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
       let res = await updateDetails(url, payload, Post)
       onViewsUpdated(res, Some(viewName))
-      showToast(
-        ~message=`New View '${viewName}' created successfully!`,
-        ~toastType=ToastSuccess,
-      )
+      showToast(~message=`New View '${viewName}' created successfully!`, ~toastType=ToastSuccess)
       setShowModal(_ => false)
     } catch {
     | err =>
