@@ -353,7 +353,7 @@ let make = (
         ?maxHeight
         ?searchable
         fill
-        optionRigthElement=?optionRigthElement
+        ?optionRigthElement
         hideBorder
         allSelectType
         customSearchStyle
