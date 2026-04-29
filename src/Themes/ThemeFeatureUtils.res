@@ -58,7 +58,7 @@ let buildThemeDataBody = (
   body->Identity.genericTypeToJson
 }
 
-let withEmailLogoUrl = (
+let buildEmailConfigObject = (
   emailConfig: option<HyperSwitchConfigTypes.emailConfig>,
   ~emailLogoUrl: option<string>,
 ): option<HyperSwitchConfigTypes.emailConfig> => {

@@ -84,7 +84,7 @@ let make = () => {
                 title: "Email Config",
                 renderContent: () =>
                   <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
-                    <div className="flex flex-col gap-8 max-h-screen overflow-y-auto p-2">
+                    <div className="flex flex-col gap-8 p-2">
                       <ThemeSettingsHelper.EmailSettings />
                     </div>
                     <div className="flex flex-col gap-8 w-full lg:col-span-2">

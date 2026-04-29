@@ -125,7 +125,8 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
         {urls: {logoUrl: None, faviconUrl: None}, emailLogoUrl: None}
       }
 
-      let updatedEmailConfig = email_config->withEmailLogoUrl(~emailLogoUrl=processed.emailLogoUrl)
+      let updatedEmailConfig =
+        email_config->buildEmailConfigObject(~emailLogoUrl=processed.emailLogoUrl)
 
       let requestBody = buildThemeDataBody(
         ~settings,
