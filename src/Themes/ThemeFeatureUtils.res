@@ -48,8 +48,7 @@ let assetsMapper = (dict): ThemeTypes.assets => {
 let buildThemeDataBody = (
   ~settings: HyperSwitchConfigTypes.themeSettings,
   ~urls: HyperSwitchConfigTypes.urlThemeConfig,
-  ~emailConfig: option<HyperSwitchConfigTypes.emailConfig>=None,
-  (),
+  ~emailConfig: HyperSwitchConfigTypes.emailConfig,
 ): JSON.t => {
   let body: ThemeUpdateType.themeUpdate = {
     theme_data: {settings, urls},
@@ -59,23 +58,20 @@ let buildThemeDataBody = (
 }
 
 let buildEmailConfigObject = (
-  emailConfig: option<HyperSwitchConfigTypes.emailConfig>,
+  emailConfig: HyperSwitchConfigTypes.emailConfig,
   ~emailLogoUrl: option<string>,
-): option<HyperSwitchConfigTypes.emailConfig> => {
+): HyperSwitchConfigTypes.emailConfig => {
   let resolvedUrl = switch emailLogoUrl {
   | Some(url) => url
-  | None => ""
+  | None => "https://app.hyperswitch.io/email-assets/HyperswitchLogo.png"
   }
-  switch emailConfig {
-  | Some(ec) =>
-    Some({
-      entity_name: ec.entity_name,
-      entity_logo_url: resolvedUrl,
-      primary_color: ec.primary_color,
-      foreground_color: ec.foreground_color,
-      background_color: ec.background_color,
-    })
-  | None => None
+
+  {
+    entity_name: emailConfig.entity_name,
+    entity_logo_url: resolvedUrl,
+    primary_color: emailConfig.primary_color,
+    foreground_color: emailConfig.foreground_color,
+    background_color: emailConfig.background_color,
   }
 }
 

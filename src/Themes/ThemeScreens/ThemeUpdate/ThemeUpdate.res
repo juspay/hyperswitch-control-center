@@ -132,7 +132,6 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
         ~settings,
         ~urls=processed.urls,
         ~emailConfig=updatedEmailConfig,
-        (),
       )
 
       let updateUrl = getURL(

@@ -522,13 +522,13 @@ module ThemeUploadAssetsModal = {
           let updatedEmailConfig = if hasEmailLogo {
             email_config->buildEmailConfigObject(~emailLogoUrl=processed.emailLogoUrl)
           } else {
-            None
+            email_config
           }
+
           let requestBody = buildThemeDataBody(
             ~settings,
             ~urls=processed.urls,
             ~emailConfig=updatedEmailConfig,
-            (),
           )
           let updateUrl = getURL(
             ~entityName=V1(USERS),
