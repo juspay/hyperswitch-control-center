@@ -85,7 +85,7 @@ let make = (
   let keyValueFromForm = formState.values->getDictFromJsonObject->getString(formKey, "")
 
   let getNameByLabel = value => {
-    let filteredValueFromForm = options->Array.find(v => v.value === value)
+    let filteredValueFromForm = options->Array.find(opt => opt.value === value)
     switch filteredValueFromForm {
     | Some(value) => value.label->snakeToTitle
     | None => "Select a role"
