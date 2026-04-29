@@ -191,6 +191,193 @@ export async function createDummyConnectorAPI(
   }
 }
 
+export async function createBusinessProfileAPI(
+  merchantId: string,
+  profileName: string,
+  context?: APIRequestContext,
+): Promise<string> {
+  const ctx = context ?? (await request.newContext());
+  const apiKey = await createAPIKey(merchantId, "", ctx);
+
+  const response = await ctx.post(
+    `${API_URL}/account/${merchantId}/business_profile`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": apiKey,
+      },
+      data: {
+        profile_name: profileName,
+      },
+    },
+  );
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `createBusinessProfileAPI failed (${response.status()}): ${body}`,
+    );
+  }
+
+  const body = await response.json();
+  return body.profile_id as string;
+}
+
+export async function getDefaultProfileId(
+  merchantId: string,
+  context?: APIRequestContext,
+): Promise<string> {
+  const ctx = context ?? (await request.newContext());
+  const apiKey = await createAPIKey(merchantId, "", ctx);
+
+  const response = await ctx.get(
+    `${API_URL}/account/${merchantId}/business_profile`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": apiKey,
+      },
+    },
+  );
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `getDefaultProfileId failed (${response.status()}): ${body}`,
+    );
+  }
+
+  const profiles = await response.json();
+  const profileId = Array.isArray(profiles)
+    ? profiles[0]?.profile_id
+    : undefined;
+  if (!profileId) {
+    throw new Error("getDefaultProfileId: no profiles returned");
+  }
+  return profileId as string;
+}
+
+export async function createStripeConnectorAPI(
+  merchantId: string,
+  connectorLabel: string,
+  context?: APIRequestContext,
+  profileId?: string,
+): Promise<void> {
+  const ctx = context ?? (await request.newContext());
+  const apiKey = await createAPIKey(merchantId, "", ctx);
+
+  const resolvedProfileId =
+    profileId ?? (await getDefaultProfileId(merchantId, ctx));
+
+  const data: Record<string, unknown> = {
+    connector_type: "payment_processor",
+    connector_name: "stripe",
+    connector_label: connectorLabel,
+    profile_id: resolvedProfileId,
+    connector_account_details: {
+      api_key: "test_value",
+      auth_type: "HeaderKey",
+    },
+    status: "active",
+    test_mode: false,
+    payment_methods_enabled: [
+      {
+        payment_method: "card",
+        payment_method_types: [
+          {
+            payment_method_type: "credit",
+            card_networks: ["Visa", "Mastercard"],
+            minimum_amount: 0,
+            maximum_amount: 68607706,
+            recurring_enabled: true,
+            installment_payment_enabled: false,
+          },
+        ],
+      },
+    ],
+  };
+
+  const response = await ctx.post(
+    `${API_URL}/account/${merchantId}/connectors`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": apiKey,
+      },
+      data,
+    },
+  );
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `createStripeConnectorAPI failed (${response.status()}): ${body}`,
+    );
+  }
+}
+
+export async function createStripeConnectorAPIwithAPIKey(
+  merchantId: string,
+  connectorLabel: string,
+  apiKey: string,
+  context?: APIRequestContext,
+  profileId?: string,
+): Promise<void> {
+  const ctx = context ?? (await request.newContext());
+  const resolvedProfileId =
+    profileId ?? (await getDefaultProfileId(merchantId, ctx));
+
+  const data: Record<string, unknown> = {
+    connector_type: "payment_processor",
+    connector_name: "stripe",
+    connector_label: connectorLabel,
+    profile_id: resolvedProfileId,
+    connector_account_details: {
+      api_key: apiKey,
+      auth_type: "HeaderKey",
+    },
+    status: "active",
+    test_mode: false,
+    payment_methods_enabled: [
+      {
+        payment_method: "card",
+        payment_method_types: [
+          {
+            payment_method_type: "credit",
+            card_networks: ["Visa", "Mastercard"],
+            minimum_amount: 0,
+            maximum_amount: 68607706,
+            recurring_enabled: true,
+            installment_payment_enabled: false,
+          },
+        ],
+      },
+    ],
+  };
+
+  const response = await ctx.post(
+    `${API_URL}/account/${merchantId}/connectors`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": apiKey,
+      },
+      data,
+    },
+  );
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `createStripeConnectorAPI failed (${response.status()}): ${body}`,
+    );
+  }
+}
+
 export async function createAuthenticationConnectorAPI(
   merchantId: string,
   connectorLabel: string,
