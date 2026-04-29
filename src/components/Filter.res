@@ -1,4 +1,5 @@
 open Typography
+open LogicUtils
 module ClearFilters = {
   @react.component
   let make = (
@@ -118,8 +119,6 @@ let make = (
   ~initialCount=0,
   ~showSelectFiltersSearch=false,
 ) => {
-  open LogicUtils
-
   let isSmallScreen = MatchMedia.useScreenSizeChecker(~screenSize="1512")
   let {query, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
   let (allFilters, setAllFilters) = React.useState(_ =>
@@ -274,9 +273,8 @@ let make = (
     checked: false,
     onChange: ev => {
       let value = ev->Obj.magic->getStringFromJson("")
-      let matchedOption = allFilters->Array.find(opt =>
-        opt.inputNames->getValueFromArray(0, "") === value
-      )
+      let matchedOption =
+        allFilters->Array.find(opt => opt.inputNames->getValueFromArray(0, "") === value)
       switch matchedOption {
       | Some(opt) => addFilter(opt)
       | None => ()
