@@ -27,8 +27,8 @@ let getSideFromDirection = direction => {
   }
 }
 
-let makeFilterItems = (options: array<dropdownOption>, ~selectedValues) => {
-  let groups = Dict.make()
+let makeFilterItems = (options: array<dropdownOption>, ~selectedValues: array<string>) => {
+  let groups: Dict.t<array<dropdownOption>> = Dict.make()
   options->Array.forEach(opt => {
     let group = opt.optGroup->Option.getOr("-")
     let existing = groups->Dict.get(group)->Option.getOr([])
@@ -59,8 +59,8 @@ let makeFilterItems = (options: array<dropdownOption>, ~selectedValues) => {
   })
 }
 
-let makeFilterItemsSingle = (options: array<dropdownOption>, ~selectedValue) => {
-  let groups = Dict.make()
+let makeFilterItemsSingle = (options: array<dropdownOption>, ~selectedValue: string) => {
+  let groups: Dict.t<array<dropdownOption>> = Dict.make()
   options->Array.forEach(opt => {
     let group = opt.optGroup->Option.getOr("-")
     let existing = groups->Dict.get(group)->Option.getOr([])
@@ -111,7 +111,7 @@ module BlendMultiSelect = {
     let (pendingValues, setPendingValues) = React.useState(() => input.value->getStrArrayFromJson)
     let hasPendingChanges = React.useRef(false)
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if !hasPendingChanges.current {
         setPendingValues(_ => input.value->getStrArrayFromJson)
       }
@@ -353,7 +353,7 @@ let make = (
         ?maxHeight
         ?searchable
         fill
-        ?optionRigthElement
+        optionRigthElement=?optionRigthElement
         hideBorder
         allSelectType
         customSearchStyle

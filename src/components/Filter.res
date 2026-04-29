@@ -272,7 +272,7 @@ let make = (
     onFocus: _ => (),
     checked: false,
     onChange: ev => {
-      let value = ev->Obj.magic->getStringFromJson("")
+      let value = ev->Identity.formReactEventToString
       let matchedOption =
         allFilters->Array.find(opt => opt.inputNames->getValueFromArray(0, "") === value)
       switch matchedOption {
