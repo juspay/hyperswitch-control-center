@@ -184,6 +184,7 @@ let connectorList: array<connectorTypes> = [
   Processors(REVOLV3),
   Processors(TRUELAYER),
   Processors(TRUSTLY),
+  Processors(IMERCHANTSOLUTIONS),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -722,6 +723,10 @@ let nomupayInfo = {
   description: "A payment processing and software provider, that offers solutions such as e-commerce solutions, subscription billing services, payment gateways, and merchant accounts, to businesses of all sizes.",
 }
 
+let imerchantsolutionsInfo = {
+  description: "iMerchant Solutions is a modern payment processing platform that empowers businesses to accept payments globally with fast and low-friction onboarding.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -995,6 +1000,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | TRUELAYER => "truelayer"
   | FISERVCOMMERCEHUB => "fiservcommercehub"
   | TRUSTLY => "trustly"
+  | IMERCHANTSOLUTIONS => "imerchantsolutions"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1195,6 +1201,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "truelayer" => Processors(TRUELAYER)
     | "fiservcommercehub" => Processors(FISERVCOMMERCEHUB)
     | "trustly" => Processors(TRUSTLY)
+    | "imerchantsolutions" => Processors(IMERCHANTSOLUTIONS)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1373,6 +1380,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | TRUELAYER => truelayerInfo
   | FISERVCOMMERCEHUB => fiservcommercehubInfo
   | TRUSTLY => trustlyInfo
+  | IMERCHANTSOLUTIONS => imerchantsolutionsInfo
   }
 }
 
@@ -1718,7 +1726,6 @@ let generateInitialValuesDict = (
   | _ => JSON.Encode.null
   }
   dict->Dict.set("connector_webhook_details", connectorWebhookDict)
-
   dict->JSON.Encode.object
 }
 
@@ -2355,6 +2362,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | TRUELAYER => "Truelayer"
   | FISERVCOMMERCEHUB => "Fiserv Commerce Hub"
   | TRUSTLY => "Trustly"
+  | IMERCHANTSOLUTIONS => "iMerchant Solutions"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2438,6 +2446,26 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
   }
 }
 
+let getConnectorFilterOptions = (
+  ~connectorType=ConnectorTypes.Processor,
+  values: array<string>,
+): array<FilterSelectBox.dropdownOption> => {
+  values->Array.filterMap(str => {
+    switch str->String.toLowerCase->getConnectorNameTypeFromString(~connectorType) {
+    | UnknownConnector(_) => None
+    | _ =>
+      Some(
+        (
+          {
+            label: getDisplayNameForConnector(~connectorType, str),
+            value: str,
+          }: FilterSelectBox.dropdownOption
+        ),
+      )
+    }
+  })
+}
+
 // Need to remove connector and merge connector and connectorTypeVariants
 let connectorTypeTuple = connectorType => {
   switch connectorType {
@@ -2498,8 +2526,8 @@ let existsInArray = (element, connectorList) => {
 // Need to refactor
 
 let updateMetaData = (~metaData) => {
-  let apple_pay_combined = metaData->getDictFromJsonObject->getDictfromDict("apple_pay_combined")
-  let manual = apple_pay_combined->getDictfromDict("manual")
+  let applePayCombined = metaData->getDictFromJsonObject->getDictfromDict("apple_pay_combined")
+  let manual = applePayCombined->getDictfromDict("manual")
   switch manual->Dict.keysToArray->Array.length > 0 {
   | true => {
       let applepay =
@@ -2557,4 +2585,16 @@ let checkIfPredecryptFlowEnabledForGooglePay = connector => {
   | Processors(STRIPE) => true
   | _ => false
   }
+}
+
+let threeDsMetadataFieldDefaults: array<(string, JSON.t)> = [
+  ("pull_mechanism_for_external_3ds_enabled", true->JSON.Encode.bool),
+]
+
+let getStaticDefaultValuesForThreeDs = (initialValuesDict: dict<JSON.t>) => {
+  initialValuesDict->Dict.set(
+    "metadata",
+    Dict.fromArray(threeDsMetadataFieldDefaults)->JSON.Encode.object,
+  )
+  initialValuesDict->JSON.Encode.object
 }

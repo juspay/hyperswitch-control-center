@@ -192,6 +192,9 @@ let getOptionStrArrayFromDict = (dict, key) => {
   dict->Dict.get(key)->Option.flatMap(val => val->getOptionStrArrayFromJson)
 }
 
+let convertToNoneIfEqual = (val, sentinel) =>
+  val->Option.flatMap(v => v == sentinel ? None : Some(v))
+
 let getNonEmptyString = str => {
   if str->isEmptyString {
     None
