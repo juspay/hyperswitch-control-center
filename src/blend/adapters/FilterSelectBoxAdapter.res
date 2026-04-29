@@ -39,8 +39,8 @@ let makeFilterItems = (options: array<dropdownOption>, ~selectedValues: array<st
   ->Array.map(groupKey => {
     let groupOptions = groups->Dict.get(groupKey)->Option.getOr([])
     let items = groupOptions->Array.map(opt => {
-      let slot1 = getSlotElementFromIcon(opt.icon)
-      let slot2 = getSlot2FromIcon(opt.icon)
+      let slot1 = getLeftSlot(opt.icon)
+      let slot2 = getRightSlot(opt.icon)
       let isChecked = selectedValues->Array.includes(opt.value)
       {
         label: opt.label,
@@ -71,8 +71,8 @@ let makeFilterItemsSingle = (options: array<dropdownOption>, ~selectedValue: str
   ->Array.map(groupKey => {
     let groupOptions = groups->Dict.get(groupKey)->Option.getOr([])
     let items = groupOptions->Array.map(opt => {
-      let slot1 = getSlotElementFromIcon(opt.icon)
-      let slot2 = getSlot2FromIcon(opt.icon)
+      let slot1 = getLeftSlot(opt.icon)
+      let slot2 = getRightSlot(opt.icon)
       {
         label: opt.label,
         value: opt.value,
@@ -231,7 +231,7 @@ let make = (
   ~maxHeight: option<string>=?,
   ~searchable: option<bool>=?,
   ~fill="#0EB025",
-  ~optionRigthElement: option<React.element>=?,
+  ~optionRightElement: option<React.element>=?,
   ~hideBorder=false,
   ~allSelectType: allSelectType=FilterSelectBox.Icon,
   ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
@@ -353,7 +353,7 @@ let make = (
         ?maxHeight
         ?searchable
         fill
-        ?optionRigthElement
+        ?optionRightElement
         hideBorder
         allSelectType
         customSearchStyle
