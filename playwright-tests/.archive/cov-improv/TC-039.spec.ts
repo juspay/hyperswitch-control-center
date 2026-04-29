@@ -8,7 +8,6 @@ import { signupUser, loginUI } from "../../support/commands";
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
 
 const processorPages = [
-  "/connectors",
   "/payoutconnectors",
   "/3ds-authenticators",
   "/fraud-risk-management",

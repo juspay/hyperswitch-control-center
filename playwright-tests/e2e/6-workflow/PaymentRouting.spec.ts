@@ -3,10 +3,7 @@ import { HomePage } from "../../support/pages/homepage/HomePage";
 import { PaymentRouting } from "../../support/pages/workflow/paymentRouting/PaymentRouting";
 import { DefaultFallback } from "../../support/pages/workflow/paymentRouting/DefaultFallback";
 import { VolumeBasedConfiguration } from "../../support/pages/workflow/paymentRouting/VolumeBasedConfiguration";
-import {
-  generateUniqueEmail,
-  generateDateTimeString,
-} from "../../support/helper";
+import { generateUniqueEmail } from "../../support/helper";
 import {
   signupUser,
   loginUI,

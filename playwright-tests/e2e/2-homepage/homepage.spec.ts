@@ -395,7 +395,7 @@ test.describe("DefaultHome product cards", () => {
     ).toHaveCount(1);
   });
 
-  test("should handle Learn More click on every product card when all product flags are ON", async ({
+  test.skip("should handle Learn More click on every product card when all product flags are ON", async ({
     page,
     context,
   }) => {

@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: npm install --force
 
+      - name: Build application
+        run: npm run build:test
+        
       - name: Cache Playwright browsers
         id: playwright-cache
         uses: actions/cache@v4
@@ -44,9 +47,6 @@ jobs:
         #   - Multiple: npx playwright install chromium firefox webkit --with-deps
         #   - Available: chromium, chrome, chrome-beta, msedge, msedge-beta, msedge-dev, firefox, webkit
         run: npx playwright install chromium --with-deps
-
-      - name: Build application
-        run: npm run build:test
 
       - name: Health check for Backend
         run: |
