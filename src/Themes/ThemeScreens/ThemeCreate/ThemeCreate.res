@@ -17,6 +17,9 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (showUploadModal, setShowUploadModal) = React.useState(_ => false)
   let (themeId, setThemeId) = React.useState(_ => "")
+  let (initialValues, setInitialValues) = React.useState(() =>
+    defaultCreate(~lineage)->Identity.genericTypeToJson
+  )
 
   let redirectToList = () => {
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/theme"))
@@ -29,7 +32,7 @@ let make = () => {
       let res = await updateDetails(themeURL, values, Post)
       let newThemeId = res->getDictFromJsonObject->getString("theme_id", "")
       setThemeId(_ => newThemeId)
-
+      setInitialValues(_ => values)
       setScreenState(_ => Success)
       setShowUploadModal(_ => true)
     } catch {
@@ -92,7 +95,7 @@ let make = () => {
   ]
 
   <PageLoaderWrapper screenState>
-    <Form onSubmit initialValues={defaultCreate(~lineage)->Identity.genericTypeToJson}>
+    <Form onSubmit initialValues>
       <div className="flex flex-col h-screen gap-8">
         <div className="flex flex-col flex-1 h-full">
           <PageUtils.PageHeading

@@ -275,7 +275,7 @@ module IconSettings = {
       </RenderIf>
       <RenderIf condition=forEmailTheme>
         <div className="flex flex-col gap-4">
-          <div className={`${body.lg.semibold}`}> {React.string("Email Logo")} </div>
+          <div className={`${body.lg.semibold}`}> {React.string("Email Icons")} </div>
           <div className="space-y-4">
             <AssetField
               label="Email Logo"
