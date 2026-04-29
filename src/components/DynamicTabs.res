@@ -51,9 +51,9 @@ module TabInfo = {
   ) => {
     let defaultClasses = `${Typography.body.md.medium} px-2 w-max flex flex-auto flex-row items-center justify-center`
     let selectionClasses = if isSelected {
-      "text-gray-700"
+      "text-nd_gray-700"
     } else {
-      "text-gray-500 hover:text-gray-500"
+      "text-nd_gray-500 hover:text-nd_gray-500"
     }
     let handleClick = React.useCallback(_ => {
       handleSelectedTab(
@@ -71,7 +71,7 @@ module TabInfo = {
     let bottomBorderColor = ""
     let borderClass = ""
 
-    let lineStyle = "bg-gray-700 w-full h-0.5"
+    let lineStyle = "bg-nd_gray-700 w-full h-0.5"
 
     let crossIcon = switch isRemovable {
     | true =>
