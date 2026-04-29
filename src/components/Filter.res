@@ -209,12 +209,12 @@ let make = (
   let onSubmit = (values, _) => {
     let obj = values->JSON.Decode.object->Option.getOr(Dict.make())->Dict.toArray->Dict.fromArray
 
-    let flattendDict = obj->JSON.Encode.object->JsonFlattenUtils.flattenObject(false)
+    let flattenedDict = obj->JSON.Encode.object->JsonFlattenUtils.flattenObject(false)
     let localFilterDict = localFilterJson->JsonFlattenUtils.flattenObject(false)
     switch updateUrlWith {
     | Some(updateUrlWith) =>
       RemoteFiltersUtils.applyFilters(
-        ~currentFilterDict=flattendDict,
+        ~currentFilterDict=flattenedDict,
         ~options=remoteOptions,
         ~defaultFilters,
         ~setOffset,
@@ -226,7 +226,7 @@ let make = (
       )
     | None =>
       RemoteFiltersUtils.applyFilters(
-        ~currentFilterDict=flattendDict,
+        ~currentFilterDict=flattenedDict,
         ~options=remoteOptions,
         ~defaultFilters,
         ~setOffset,

@@ -220,7 +220,7 @@ module ConnectProcessorsFields = {
         <FormRenderer.DesktopRow wrapperClass="!w-full" itemWrapperClass="!mx-0">
           <FormRenderer.SubmitButton
             text="Next"
-            customSumbitButtonStyle="rounded !w-full"
+            customSubmitButtonStyle="rounded !w-full"
             buttonType={Primary}
             tooltipForWidthClass="w-full"
           />

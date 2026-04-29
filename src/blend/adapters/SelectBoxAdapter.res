@@ -120,164 +120,166 @@ module BaseDropdown = {
     let isBlendEnabled = BlendContext.useBlendEnabled()
     let useBlend = isBlendEnabled && baseComponentMethod->Option.isNone
 
-    if useBlend {
-      let alignment = switch alignment {
-      | Some(_) => alignment
-      | None => fixedDropDownDirection->Option.map(getAlignmentFromDirection)
-      }
-      let side = switch side {
-      | Some(_) => side
-      | None => fixedDropDownDirection->Option.map(getSideFromDirection)
-      }
-      let slot = MultiSelectWrapper.getSlotElementFromIcon(defaultLeftIcon)
-      // Wrap in a plain <div> so Radix asChild can inject onClick onto a DOM element.
-      // Custom React components (e.g. OMPViewBaseComp) don't forward injected props,
-      // causing the dropdown to never open.
-      let wrapTrigger = el => <div> el </div>
-      let customTrigger = switch baseComponent {
-      | Some(el) => Some(wrapTrigger(el))
-      | None => customButton->Option.map(wrapTrigger)
-      }
-      let selectedValues = input.value->LogicUtils.getStrArrayFromJson
-      let selectedValue = input.value->LogicUtils.getStringFromJson("")
-
-      if allowMultiSelect {
-        let blendItems = MultiSelectWrapper.makeItems(options, ~deselectDisable, ~selectedValues)
-        <MultiSelectWrapper
-          items=blendItems
-          placeholder=buttonText
-          input
-          disabled=disableSelect
-          fullWidth=fullLength
-          ?showSelectAll
-          allowCustomValue=addDynamicValue
-          ?slot
-          ?customTrigger
-          ?primaryAction
-          ?secondaryAction
-          ?variant
-          ?onFocus
-          ?onBlur
-          ?showClearButton
-          ?onClearAllClick
-          ?alignment
-          ?side
-          minMenuWidth={minMenuWidth->Option.getOr(300)}
-          maxMenuWidth={maxMenuWidth->Option.getOr(300)}
-        />
-      } else {
-        let blendItems = SingleSelectWrapper.makeItems(options, ~deselectDisable, ~selectedValue)
-        let totalItems = blendItems->Array.reduce(0, (acc, g) => acc + g.items->Array.length)
-        let computedEnableSearch = searchable->Option.getOr(false) || totalItems > 5
-        let searchPlaceholder = searchInputPlaceHolder->Option.map(v => v)
-        <SingleSelectWrapper
-          items=blendItems
-          placeholder=buttonText
-          input
-          enableSearch=computedEnableSearch
-          ?searchPlaceholder
-          disabled=disableSelect
-          fullWidth=fullLength
-          allowCustomValue=addDynamicValue
-          allowDeselect={!deselectDisable}
-          ?slot
-          ?customTrigger
-          ?variant
-          ?onFocus
-          ?onBlur
-          ?alignment
-          ?side
-          ?minMenuWidth
-          ?maxMenuWidth
-        />
-      }
-    } else {
-      <SelectBox.BaseDropdown
-        buttonText
-        ?buttonSize
-        allowMultiSelect
-        input
-        ?showClearAll
-        ?showSelectAll
-        options
-        ?optionSize
-        ?isSelectedStateMinus
-        hideMultiSelectButtons
-        deselectDisable
-        ?buttonType
-        ?baseComponent
-        ?baseComponentMethod
-        disableSelect
-        ?textStyle
-        ?buttonTextWeight
-        ?defaultLeftIcon
-        ?autoApply
-        fullLength
-        ?customButtonStyle
-        ?onAssignClick
-        ?fixedDropDownDirection
-        ?addButton
-        ?marginTop
-        ?customStyle
-        ?customSearchStyle
-        ?showSelectionAsChips
-        ?showToolTip
-        ?showNameAsToolTip
-        ?searchable
-        ?showBorder
-        ?dropDownCustomBtnClick
-        ?showCustomBtnAtEnd
-        ?customButton
-        ?descriptionOnHover
-        addDynamicValue
-        ?showMatchingRecordsText
-        ?hasApplyButton
-        ?dropdownCustomWidth
-        ?allowButtonTextMinWidth
-        ?customMarginStyle
-        ?customButtonLeftIcon
-        ?customTextPaddingClass
-        ?customButtonPaddingClass
-        ?customButtonIconMargin
-        ?textStyleClass
-        ?buttonStyleOnDropDownOpened
-        ?selectedString
-        ?setSelectedString
-        ?setExtSearchString
-        ?listFlexDirection
-        ?ellipsisOnly
-        ?isPhoneDropdown
-        ?onApply
-        ?showAllSelectedOptions
-        ?buttonClickFn
-        ?toggleChevronState
-        ?showSelectCountButton
-        ?maxHeight
-        ?customBackColor
-        ?showToolTipOptions
-        ?textEllipsisForDropDownOptions
-        ?showBtnTextToolTip
-        ?dropdownClassName
-        ?searchInputPlaceHolder
-        ?showSearchIcon
-        ?sortingBasedOnDisabled
-        ?customSelectStyle
-        ?baseComponentCustomStyle
-        ?bottomComponent
-        ?optionClass
-        ?selectClass
-        ?customDropdownOuterClass
-        ?customScrollStyle
-        ?dropdownContainerStyle
-        ?shouldDisplaySelectedOnTop
-        ?labelDescriptionClass
-        ?customSelectionIcon
-        ?placeholderCss
-        ?reverseSortGroupKeys
-        ?maxButtonWidth
-        ?customSortOrder
-      />
+    let blendAlignment = switch alignment {
+    | Some(_) => alignment
+    | None => fixedDropDownDirection->Option.map(getAlignmentFromDirection)
     }
+    let blendSide = switch side {
+    | Some(_) => side
+    | None => fixedDropDownDirection->Option.map(getSideFromDirection)
+    }
+    let blendSlot = MultiSelectWrapper.getLeftSlot(defaultLeftIcon)
+    // Wrap in a plain <div> so Radix asChild can inject onClick onto a DOM element.
+    // Custom React components (e.g. OMPViewBaseComp) don't forward injected props,
+    // causing the dropdown to never open.
+    let wrapTrigger = el => <div> el </div>
+    let blendCustomTrigger = switch baseComponent {
+    | Some(el) => Some(wrapTrigger(el))
+    | None => customButton->Option.map(wrapTrigger)
+    }
+    let selectedValues = input.value->LogicUtils.getStrArrayFromJson
+    let selectedValue = input.value->LogicUtils.getStringFromJson("")
+
+    <>
+      <RenderIf condition=useBlend>
+        {if allowMultiSelect {
+          let blendItems = MultiSelectWrapper.makeItems(options, ~deselectDisable, ~selectedValues)
+          <MultiSelectWrapper
+            items=blendItems
+            placeholder=buttonText
+            input
+            disabled=disableSelect
+            fullWidth=fullLength
+            ?showSelectAll
+            allowCustomValue=addDynamicValue
+            slot=?blendSlot
+            customTrigger=?blendCustomTrigger
+            ?primaryAction
+            ?secondaryAction
+            ?variant
+            ?onFocus
+            ?onBlur
+            ?showClearButton
+            ?onClearAllClick
+            alignment=?blendAlignment
+            side=?blendSide
+            minMenuWidth={minMenuWidth->Option.getOr(300)}
+            maxMenuWidth={maxMenuWidth->Option.getOr(300)}
+          />
+        } else {
+          let blendItems = SingleSelectWrapper.makeItems(options, ~deselectDisable, ~selectedValue)
+          let totalItems = blendItems->Array.reduce(0, (acc, g) => acc + g.items->Array.length)
+          let computedEnableSearch = searchable->Option.getOr(false) || totalItems > 5
+          <SingleSelectWrapper
+            items=blendItems
+            placeholder=buttonText
+            input
+            enableSearch=computedEnableSearch
+            searchPlaceholder=?searchInputPlaceHolder
+            disabled=disableSelect
+            fullWidth=fullLength
+            allowCustomValue=addDynamicValue
+            allowDeselect={!deselectDisable}
+            slot=?blendSlot
+            customTrigger=?blendCustomTrigger
+            ?variant
+            ?onFocus
+            ?onBlur
+            alignment=?blendAlignment
+            side=?blendSide
+            ?minMenuWidth
+            ?maxMenuWidth
+          />
+        }}
+      </RenderIf>
+      <RenderIf condition={!useBlend}>
+        <SelectBox.BaseDropdown
+          buttonText
+          ?buttonSize
+          allowMultiSelect
+          input
+          ?showClearAll
+          ?showSelectAll
+          options
+          ?optionSize
+          ?isSelectedStateMinus
+          hideMultiSelectButtons
+          deselectDisable
+          ?buttonType
+          ?baseComponent
+          ?baseComponentMethod
+          disableSelect
+          ?textStyle
+          ?buttonTextWeight
+          ?defaultLeftIcon
+          ?autoApply
+          fullLength
+          ?customButtonStyle
+          ?onAssignClick
+          ?fixedDropDownDirection
+          ?addButton
+          ?marginTop
+          ?customStyle
+          ?customSearchStyle
+          ?showSelectionAsChips
+          ?showToolTip
+          ?showNameAsToolTip
+          ?searchable
+          ?showBorder
+          ?dropDownCustomBtnClick
+          ?showCustomBtnAtEnd
+          ?customButton
+          ?descriptionOnHover
+          addDynamicValue
+          ?showMatchingRecordsText
+          ?hasApplyButton
+          ?dropdownCustomWidth
+          ?allowButtonTextMinWidth
+          ?customMarginStyle
+          ?customButtonLeftIcon
+          ?customTextPaddingClass
+          ?customButtonPaddingClass
+          ?customButtonIconMargin
+          ?textStyleClass
+          ?buttonStyleOnDropDownOpened
+          ?selectedString
+          ?setSelectedString
+          ?setExtSearchString
+          ?listFlexDirection
+          ?ellipsisOnly
+          ?isPhoneDropdown
+          ?onApply
+          ?showAllSelectedOptions
+          ?buttonClickFn
+          ?toggleChevronState
+          ?showSelectCountButton
+          ?maxHeight
+          ?customBackColor
+          ?showToolTipOptions
+          ?textEllipsisForDropDownOptions
+          ?showBtnTextToolTip
+          ?dropdownClassName
+          ?searchInputPlaceHolder
+          ?showSearchIcon
+          ?sortingBasedOnDisabled
+          ?customSelectStyle
+          ?baseComponentCustomStyle
+          ?bottomComponent
+          ?optionClass
+          ?selectClass
+          ?customDropdownOuterClass
+          ?customScrollStyle
+          ?dropdownContainerStyle
+          ?shouldDisplaySelectedOnTop
+          ?labelDescriptionClass
+          ?customSelectionIcon
+          ?placeholderCss
+          ?reverseSortGroupKeys
+          ?maxButtonWidth
+          ?customSortOrder
+        />
+      </RenderIf>
+    </>
   }
 }
 
@@ -308,7 +310,7 @@ let make = (
   ~maxHeight: string=?,
   ~searchable: bool=?,
   ~fill: string=?,
-  ~optionRigthElement: React.element=?,
+  ~optionRightElement: React.element=?,
   ~hideBorder: bool=?,
   ~allSelectType: SelectBox.allSelectType=?,
   ~customSearchStyle: string=?,
@@ -385,168 +387,166 @@ let make = (
 
   let useBlend = isBlendEnabled && isDropDown && baseComponentMethod->Option.isNone
 
-  if useBlend {
-    let alignment = switch alignment {
-    | Some(_) => alignment
-    | None => fixedDropDownDirection->Option.map(getAlignmentFromDirection)
-    }
-    let side = switch side {
-    | Some(_) => side
-    | None => fixedDropDownDirection->Option.map(getSideFromDirection)
-    }
-
-    let slot = MultiSelectWrapper.getSlotElementFromIcon(leftIcon)
-
-    // Wrap in a plain <div> so Radix asChild can inject onClick onto a DOM element.
-    // Custom React components don't forward injected props, causing dropdown to never open.
-    let wrapTrigger = el => <div> el </div>
-    let customTrigger = switch baseComponent {
-    | Some(el) => Some(wrapTrigger(el))
-    | None => customButton->Option.map(wrapTrigger)
-    }
-    let selectedValues = input.value->LogicUtils.getStrArrayFromJson
-    let selectedValue = input.value->LogicUtils.getStringFromJson("")
-
-    if allowMultiSelect {
-      let blendItems = MultiSelectWrapper.makeItems(options, ~deselectDisable, ~selectedValues)
-      <MultiSelectWrapper
-        items=blendItems
-        placeholder=buttonText
-        input
-        disabled=disableSelect
-        fullWidth=fullLength
-        ?showSelectAll
-        allowCustomValue=addDynamicValue
-        ?slot
-        ?customTrigger
-        ?primaryAction
-        ?secondaryAction
-        ?variant
-        ?onFocus
-        ?onBlur
-        ?showClearButton
-        ?onClearAllClick
-        ?alignment
-        ?side
-        minMenuWidth={minMenuWidth->Option.getOr(300)}
-        maxMenuWidth={maxMenuWidth->Option.getOr(300)}
-      />
-    } else {
-      let blendItems = SingleSelectWrapper.makeItems(options, ~deselectDisable, ~selectedValue)
-      // Auto-search: enable if searchable=true OR total items > 5
-      let totalItems = blendItems->Array.reduce(0, (acc, g) => acc + g.items->Array.length)
-      let computedEnableSearch = searchable->Option.getOr(false) || totalItems > 5
-      let searchPlaceholder = searchInputPlaceHolder
-
-      <SingleSelectWrapper
-        items=blendItems
-        placeholder=buttonText
-        input
-        enableSearch=computedEnableSearch
-        ?searchPlaceholder
-        disabled=disableSelect
-        fullWidth=fullLength
-        allowCustomValue=addDynamicValue
-        allowDeselect={!deselectDisable}
-        ?slot
-        ?customTrigger
-        ?variant
-        ?onFocus
-        ?onBlur
-        ?maxTriggerWidth
-        ?minTriggerWidth
-        ?alignment
-        ?side
-        ?minMenuWidth
-        ?maxMenuWidth
-      />
-    }
-  } else {
-    <SelectBox
-      input
-      buttonText
-      buttonSize
-      allowMultiSelect
-      isDropDown
-      options
-      deselectDisable
-      disableSelect
-      fullLength
-      addDynamicValue
-      ?hideMultiSelectButtons
-      ?optionSize
-      ?isSelectedStateMinus
-      ?isHorizontal
-      ?showClearAll
-      ?showSelectAll
-      ?buttonType
-      ?customButtonStyle
-      ?textStyle
-      ?marginTop
-      ?customStyle
-      ?showSelectionAsChips
-      ?showToggle
-      ?maxHeight
-      ?searchable
-      ?fill
-      ?optionRigthElement
-      ?hideBorder
-      ?allSelectType
-      ?customSearchStyle
-      ?searchInputPlaceHolder
-      ?showSearchIcon
-      ?customLabelStyle
-      ?customMargin
-      ?showToolTip
-      ?showNameAsToolTip
-      ?showBorder
-      ?showCustomBtnAtEnd
-      ?dropDownCustomBtnClick
-      ?showMatchingRecordsText
-      ?customButton
-      ?descriptionOnHover
-      ?fixedDropDownDirection
-      ?dropdownCustomWidth
-      ?allowButtonTextMinWidth
-      ?baseComponent
-      ?baseComponentMethod
-      ?customMarginStyle
-      ?buttonTextWeight
-      ?customButtonLeftIcon
-      ?customTextPaddingClass
-      ?customButtonPaddingClass
-      ?customButtonIconMargin
-      ?textStyleClass
-      ?setExtSearchString
-      ?buttonStyleOnDropDownOpened
-      ?listFlexDirection
-      ?baseComponentCustomStyle
-      ?ellipsisOnly
-      ?customSelectStyle
-      ?isPhoneDropdown
-      ?hasApplyButton
-      ?onApply
-      ?showAllSelectedOptions
-      ?buttonClickFn
-      ?showDescriptionAsTool
-      ?optionClass
-      ?selectClass
-      ?toggleProps
-      ?showSelectCountButton
-      ?leftIcon
-      ?customBackColor
-      ?customSelectAllStyle
-      ?checkboxDimension
-      ?showToolTipOptions
-      ?textEllipsisForDropDownOptions
-      ?showBtnTextToolTip
-      ?dropdownClassName
-      ?onItemSelect
-      ?wrapBasis
-      ?customScrollStyle
-      ?shouldDisplaySelectedOnTop
-      ?placeholderCss
-      ?maxButtonWidth
-    />
+  let blendAlignment = switch alignment {
+  | Some(_) => alignment
+  | None => fixedDropDownDirection->Option.map(getAlignmentFromDirection)
   }
+  let blendSide = switch side {
+  | Some(_) => side
+  | None => fixedDropDownDirection->Option.map(getSideFromDirection)
+  }
+  let blendSlot = MultiSelectWrapper.getLeftSlot(leftIcon)
+  // Wrap in a plain <div> so Radix asChild can inject onClick onto a DOM element.
+  // Custom React components don't forward injected props, causing dropdown to never open.
+  let wrapTrigger = el => <div> el </div>
+  let blendCustomTrigger = switch baseComponent {
+  | Some(el) => Some(wrapTrigger(el))
+  | None => customButton->Option.map(wrapTrigger)
+  }
+  let selectedValues = input.value->LogicUtils.getStrArrayFromJson
+  let selectedValue = input.value->LogicUtils.getStringFromJson("")
+
+  <>
+    <RenderIf condition=useBlend>
+      {if allowMultiSelect {
+        let blendItems = MultiSelectWrapper.makeItems(options, ~deselectDisable, ~selectedValues)
+        <MultiSelectWrapper
+          items=blendItems
+          placeholder=buttonText
+          input
+          disabled=disableSelect
+          fullWidth=fullLength
+          ?showSelectAll
+          allowCustomValue=addDynamicValue
+          slot=?blendSlot
+          customTrigger=?blendCustomTrigger
+          ?primaryAction
+          ?secondaryAction
+          ?variant
+          ?onFocus
+          ?onBlur
+          ?showClearButton
+          ?onClearAllClick
+          alignment=?blendAlignment
+          side=?blendSide
+          minMenuWidth={minMenuWidth->Option.getOr(300)}
+          maxMenuWidth={maxMenuWidth->Option.getOr(300)}
+        />
+      } else {
+        let blendItems = SingleSelectWrapper.makeItems(options, ~deselectDisable, ~selectedValue)
+        let totalItems = blendItems->Array.reduce(0, (acc, g) => acc + g.items->Array.length)
+        let computedEnableSearch = searchable->Option.getOr(false) || totalItems > 5
+        <SingleSelectWrapper
+          items=blendItems
+          placeholder=buttonText
+          input
+          enableSearch=computedEnableSearch
+          searchPlaceholder=?searchInputPlaceHolder
+          disabled=disableSelect
+          fullWidth=fullLength
+          allowCustomValue=addDynamicValue
+          allowDeselect={!deselectDisable}
+          slot=?blendSlot
+          customTrigger=?blendCustomTrigger
+          ?variant
+          ?onFocus
+          ?onBlur
+          ?maxTriggerWidth
+          ?minTriggerWidth
+          alignment=?blendAlignment
+          side=?blendSide
+          ?minMenuWidth
+          ?maxMenuWidth
+        />
+      }}
+    </RenderIf>
+    <RenderIf condition={!useBlend}>
+      <SelectBox
+        input
+        buttonText
+        buttonSize
+        allowMultiSelect
+        isDropDown
+        options
+        deselectDisable
+        disableSelect
+        fullLength
+        addDynamicValue
+        ?hideMultiSelectButtons
+        ?optionSize
+        ?isSelectedStateMinus
+        ?isHorizontal
+        ?showClearAll
+        ?showSelectAll
+        ?buttonType
+        ?customButtonStyle
+        ?textStyle
+        ?marginTop
+        ?customStyle
+        ?showSelectionAsChips
+        ?showToggle
+        ?maxHeight
+        ?searchable
+        ?fill
+        ?optionRightElement
+        ?hideBorder
+        ?allSelectType
+        ?customSearchStyle
+        ?searchInputPlaceHolder
+        ?showSearchIcon
+        ?customLabelStyle
+        ?customMargin
+        ?showToolTip
+        ?showNameAsToolTip
+        ?showBorder
+        ?showCustomBtnAtEnd
+        ?dropDownCustomBtnClick
+        ?showMatchingRecordsText
+        ?customButton
+        ?descriptionOnHover
+        ?fixedDropDownDirection
+        ?dropdownCustomWidth
+        ?allowButtonTextMinWidth
+        ?baseComponent
+        ?baseComponentMethod
+        ?customMarginStyle
+        ?buttonTextWeight
+        ?customButtonLeftIcon
+        ?customTextPaddingClass
+        ?customButtonPaddingClass
+        ?customButtonIconMargin
+        ?textStyleClass
+        ?setExtSearchString
+        ?buttonStyleOnDropDownOpened
+        ?listFlexDirection
+        ?baseComponentCustomStyle
+        ?ellipsisOnly
+        ?customSelectStyle
+        ?isPhoneDropdown
+        ?hasApplyButton
+        ?onApply
+        ?showAllSelectedOptions
+        ?buttonClickFn
+        ?showDescriptionAsTool
+        ?optionClass
+        ?selectClass
+        ?toggleProps
+        ?showSelectCountButton
+        ?leftIcon
+        ?customBackColor
+        ?customSelectAllStyle
+        ?checkboxDimension
+        ?showToolTipOptions
+        ?textEllipsisForDropDownOptions
+        ?showBtnTextToolTip
+        ?dropdownClassName
+        ?onItemSelect
+        ?wrapBasis
+        ?customScrollStyle
+        ?shouldDisplaySelectedOnTop
+        ?placeholderCss
+        ?maxButtonWidth
+      />
+    </RenderIf>
+  </>
 }

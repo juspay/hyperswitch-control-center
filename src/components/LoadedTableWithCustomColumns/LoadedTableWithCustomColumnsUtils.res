@@ -1,7 +1,7 @@
 open LogicUtils
 
 let setColumnValueInLocalStorage = (val, title) => {
-  let varianType = title->getNonEmptyString->Option.getOr("Unknown")->String.toLowerCase
+  let variantType = title->getNonEmptyString->Option.getOr("Unknown")->String.toLowerCase
 
   let optionalValueFromLocalStorage = HSLocalStorage.getCustomTableColumnsfromLocalStorage()
   let valueFromLocalStorage = optionalValueFromLocalStorage->Option.getOr("")
@@ -11,7 +11,7 @@ let setColumnValueInLocalStorage = (val, title) => {
     ->safeParse
     ->getDictFromJsonObject
 
-  valueDict->Dict.set((varianType :> string), val->Array.toString->JSON.Encode.string)
+  valueDict->Dict.set((variantType :> string), val->Array.toString->JSON.Encode.string)
 
   let finalValue =
     valueDict
