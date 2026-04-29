@@ -79,6 +79,8 @@ let getEventTypeFromJson = (json: JSON.t): auditEvent => {
 }
 
 let getEventMetadata = (event: auditEvent): eventMetadata => {
+  open ReconEngineUtils
+
   switch event {
   | FileUploaded({account, file_name, _}) => {
       eventType: EventInfo,
@@ -89,7 +91,7 @@ let getEventMetadata = (event: auditEvent): eventMetadata => {
   | IngestionsFailed({account, count, _}) => {
       eventType: EventError,
       color: "bg-red-500",
-      title: `${count->Int.toString} Ingestion (s) Failed`,
+      title: `${count->Int.toString} Ingestion${pluralText(~count)} Failed`,
       description: account.account_name,
     }
   | StagingEntriesCreated({account, count, _}) => {
@@ -109,7 +111,7 @@ let getEventMetadata = (event: auditEvent): eventMetadata => {
   | ExpectationsCreated({accounts, count, _}) => {
       eventType: EventSuccess,
       color: "bg-green-500",
-      title: `${count->Int.toString} Expectation (s) Created`,
+      title: `${count->Int.toString} Expectation${pluralText(~count)} Created`,
       description: {
         let accountNames =
           accounts
@@ -121,7 +123,7 @@ let getEventMetadata = (event: auditEvent): eventMetadata => {
   | TransactionsMatched({accounts, count, _}) => {
       eventType: EventSuccess,
       color: "bg-green-500",
-      title: `${count->Int.toString} Transaction (s) Matched`,
+      title: `${count->Int.toString} Transaction${pluralText(~count)} Matched`,
       description: {
         let accountNames =
           accounts
@@ -133,7 +135,7 @@ let getEventMetadata = (event: auditEvent): eventMetadata => {
   | TransactionsReconciled({accounts, count, _}) => {
       eventType: EventSuccess,
       color: "bg-green-500",
-      title: `${count->Int.toString} Transaction (s) Posted`,
+      title: `${count->Int.toString} Transaction${pluralText(~count)} Posted`,
       description: {
         let accountNames =
           accounts
@@ -145,7 +147,7 @@ let getEventMetadata = (event: auditEvent): eventMetadata => {
   | TransactionsMismatched({accounts, count, _}) => {
       eventType: EventError,
       color: "bg-red-500",
-      title: `${count->Int.toString} Transaction (s) Mismatched`,
+      title: `${count->Int.toString} Transaction${pluralText(~count)} Mismatched`,
       description: {
         let accountNames =
           accounts

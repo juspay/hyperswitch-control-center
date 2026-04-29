@@ -58,7 +58,8 @@ let make = (
         ~selectedRows,
       )
       let res = await updateDetails(url, body->Identity.genericTypeToJson, Post)
-      let response = res->getArrayDataFromJson(bulkActionResponseToObjMapper)
+      let response =
+        res->getArrayDataFromJson(ReconEngineExceptionsUtils.bulkActionResponseToObjMapper)
       setBulkActionResponses(_ => response)
       setIsLoading(_ => false)
       setShowSuccessModal(_ => true)
@@ -87,7 +88,8 @@ let make = (
         ~selectedRows,
       )
       let res = await updateDetails(url, body->Identity.genericTypeToJson, Post)
-      let response = res->getArrayDataFromJson(bulkActionResponseToObjMapper)
+      let response =
+        res->getArrayDataFromJson(ReconEngineExceptionsUtils.bulkActionResponseToObjMapper)
       setBulkActionResponses(_ => response)
       setIsLoading(_ => false)
       setShowSuccessModal(_ => true)
@@ -119,7 +121,7 @@ let make = (
       switch response.bulk_action_status {
       | BulkActionSuccess => (successCount + 1, failedCount, skippedCount, totalCount + 1)
       | BulkActionFailed => (successCount, failedCount + 1, skippedCount, totalCount + 1)
-      | BulkActionSkipped => (successCount, failedCount, skippedCount + 1, totalCount + 1)
+      | BulkActionInEligible => (successCount, failedCount, skippedCount + 1, totalCount + 1)
       | UnknownBulkActionStatus => (successCount, failedCount, skippedCount, totalCount + 1)
       }
     },
@@ -188,7 +190,9 @@ let make = (
           formClass="flex flex-col gap-4"
           onSubmit={handleConfirm}
           initialValues={Dict.make()->JSON.Encode.object}>
-          {bulkActionReasonMultiLineTextInputField(~label="Add Remark (Optional)")}
+          {ReconEngineExceptionsUtils.bulkActionReasonMultiLineTextInputField(
+            ~label="Add Remark (Optional)",
+          )}
           <div className="flex flex-row gap-3 justify-end">
             <Button
               buttonType=Secondary

@@ -388,14 +388,20 @@ let constructManualReconciliationBody = (~updatedEntry: processingEntryType, ~va
   ->JSON.Encode.object
 }
 
+let entryText = (~count) => count == 1 ? "entry" : "entries"
+
 let bulkActionVoidingModalConfig = (~count: int) => {
-  bulkActionModal: {
-    modalHeading: "Ignore Entry",
-    modalDescription: `This will permanently ignore ${count->Int.toString} transformed entry(s). These actions cannot be undone. Are you sure you want to proceed?`,
-    modalConfirmButtonText: "Ignore Entry",
-    modalConfirmButtonType: Delete,
-    modalLoadingText: "Ignoring transformed entry(s)...",
-  },
+  {
+    bulkActionModal: {
+      modalHeading: "Ignore Entry",
+      modalDescription: `This will permanently ignore ${count->Int.toString} transformed ${entryText(
+          ~count,
+        )}. These actions cannot be undone. Are you sure you want to proceed?`,
+      modalConfirmButtonText: "Ignore Entry",
+      modalConfirmButtonType: Delete,
+      modalLoadingText: `Ignoring transformed ${entryText(~count)}...`,
+    },
+  }
 }
 
 let getBulkActionModalConfig = (~action: actionType, ~count: int): bulkActionModalConfig => {
@@ -451,7 +457,9 @@ let bulkActionVoidingSuccessModalConfig = (
     {
       bulkActionModal: {
         modalHeading: "Ignoring Completed with Errors",
-        modalDescription: `${successCount->Int.toString}/${totalCount->Int.toString} transformed entry(s) were ignored successfully. This summary will be cleared after you close this window.`,
+        modalDescription: `${successCount->Int.toString}/${totalCount->Int.toString} transformed ${entryText(
+            ~count=successCount,
+          )} were ignored successfully. This summary will be cleared after you close this window.`,
         modalConfirmButtonText: "Download Voiding Report",
         modalConfirmButtonType: Primary,
         modalLoadingText: "",
@@ -487,52 +495,7 @@ let getBulkActionSuccessModalConfig = (
   }
 }
 
-let bulkActionReasonMultiLineTextInputField = (~label) => {
-  <FormRenderer.FieldRenderer
-    labelClass="font-semibold"
-    field={FormRenderer.makeFieldInfo(
-      ~label,
-      ~name="reason",
-      ~placeholder="Enter remark",
-      ~customInput=InputFields.multiLineTextInput(
-        ~isDisabled=false,
-        ~rows=Some(4),
-        ~cols=Some(50),
-        ~maxLength=500,
-        ~customClass="!h-28 !rounded-xl",
-      ),
-      ~isRequired=false,
-    )}
-  />
-}
-
-open ReconEngineTransactionsTypes
-
-let getBulkActionStatusType = (status: string): bulkActionStatusType => {
-  switch status {
-  | "success" => BulkActionSuccess
-  | "failed" => BulkActionFailed
-  | "skipped" => BulkActionSkipped
-  | _ => UnknownBulkActionStatus
-  }
-}
-
-let bulkActionResponseToObjMapper = (response): bulkActionResponse => {
-  let status = response->getString("status", "")->getBulkActionStatusType
-
-  let statusDetail = switch status {
-  | BulkActionFailed => response->getOptionString("error")
-  | BulkActionSkipped => response->getOptionString("reason")
-  | BulkActionSuccess => Some("Processed successfully")
-  | UnknownBulkActionStatus => None
-  }
-
-  {
-    logical_id: response->getOptionString("logical_id"),
-    bulk_action_status: status,
-    bulk_action_status_detail: statusDetail,
-  }
-}
+open ReconEngineExceptionsTypes
 
 let downloadBulkActionReport = (bulkActionResponses: array<bulkActionResponse>) => {
   let headers = ["ID", "Status", "Status Detail"]

@@ -1,6 +1,8 @@
 open ReconEngineTypes
 open LogicUtils
 
+let pluralText = (~count) => count == 1 ? "" : "s"
+
 let getTransactionStatusVariantFromString = (status: string): transactionStatus => {
   switch status {
   | "posted" => Posted

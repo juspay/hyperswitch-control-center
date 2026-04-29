@@ -1,5 +1,5 @@
 open Table
-open ReconEngineTransactionsTypes
+open ReconEngineExceptionsTypes
 
 type bulkActionSummaryColType =
   | LogicalId
@@ -35,7 +35,7 @@ let getBulkActionStatusLabel = (status: bulkActionStatusType) => {
     color: switch status {
     | BulkActionSuccess => LabelGreen
     | BulkActionFailed => LabelRed
-    | BulkActionSkipped => LabelOrange
+    | BulkActionInEligible => LabelOrange
     | UnknownBulkActionStatus => LabelLightGray
     },
   })

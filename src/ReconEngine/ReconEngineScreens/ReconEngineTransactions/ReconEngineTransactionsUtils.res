@@ -204,20 +204,24 @@ let getTransactionStatusLabelColor = (status: domainTransactionStatus): TableUti
 let bulkActionPostingModalConfig = (~count: int) => {
   bulkActionModal: {
     modalHeading: "Post Transaction",
-    modalDescription: `This will permanently post ${count->Int.toString} transaction(s) to the ledger. Once posted, these actions cannot be reversed. Are you sure you want to continue?`,
+    modalDescription: `This will permanently post ${count->Int.toString} transaction${pluralText(
+        ~count,
+      )} to the ledger. Once posted, these actions cannot be reversed. Are you sure you want to continue?`,
     modalConfirmButtonText: "Post Transaction",
     modalConfirmButtonType: Primary,
-    modalLoadingText: "Posting transaction(s)...",
+    modalLoadingText: `Posting transaction${pluralText(~count)}...`,
   },
 }
 
 let bulkActionVoidingModalConfig = (~count: int) => {
   bulkActionModal: {
     modalHeading: "Ignore Transaction",
-    modalDescription: `This will permanently ignore ${count->Int.toString} transaction(s) and exclude them from the ledger. These actions cannot be undone. Are you sure you want to proceed?`,
+    modalDescription: `This will permanently ignore ${count->Int.toString} transaction${pluralText(
+        ~count,
+      )} and exclude them from the ledger. These actions cannot be undone. Are you sure you want to proceed?`,
     modalConfirmButtonText: "Ignore Transaction",
     modalConfirmButtonType: Delete,
-    modalLoadingText: "Ignoring transaction(s)...",
+    modalLoadingText: `Ignoring transaction${pluralText(~count)}...`,
   },
 }
 
@@ -275,7 +279,9 @@ let bulkActionPostingSuccessModalConfig = (
     {
       bulkActionModal: {
         modalHeading: "Posting Completed with Errors",
-        modalDescription: `${successCount->Int.toString}/${totalCount->Int.toString} transaction(s) were posted successfully. This summary will be cleared after you close this window. Download the report to retain a record.`,
+        modalDescription: `${successCount->Int.toString}/${totalCount->Int.toString} transaction${pluralText(
+            ~count=successCount,
+          )} were posted successfully. This summary will be cleared after you close this window. Download the report to retain a record.`,
         modalConfirmButtonText: "Download Posting Report",
         modalConfirmButtonType: Primary,
         modalLoadingText: "",
@@ -297,7 +303,7 @@ let bulkActionVoidingSuccessModalConfig = (
   if successCount == totalCount {
     {
       bulkActionModal: {
-        modalHeading: "Transactions Ignored",
+        modalHeading: `Transaction${pluralText(~count=successCount)} Ignored`,
         modalDescription: "All transactions were ignored successfully. This summary will be cleared after you close this window. Download the report to retain a record.",
         modalConfirmButtonText: "Download Ignoring Report",
         modalConfirmButtonType: Primary,
@@ -311,7 +317,9 @@ let bulkActionVoidingSuccessModalConfig = (
   } else if failedCount + skippedCount == totalCount {
     {
       bulkActionModal: {
-        modalHeading: "Transactions Ignored Failed",
+        modalHeading: `Transaction${pluralText(
+            ~count={failedCount + skippedCount},
+          )} Ignored Failed`,
         modalDescription: "Selected transactions could not be ignored. This summary will be cleared after you close this window. Download the report to retain a record.",
         modalConfirmButtonText: "Download Ignoring Report",
         modalConfirmButtonType: Primary,
@@ -325,8 +333,10 @@ let bulkActionVoidingSuccessModalConfig = (
   } else {
     {
       bulkActionModal: {
-        modalHeading: "Transactions Ignored Completed with Errors",
-        modalDescription: `${successCount->Int.toString}/${totalCount->Int.toString} transaction(s) were ignored successfully. This summary will be cleared after you close this window. Download the report to retain a record.`,
+        modalHeading: `Transaction${pluralText(~count=successCount)} Ignored Completed with Errors`,
+        modalDescription: `${successCount->Int.toString}/${totalCount->Int.toString} transaction${pluralText(
+            ~count=successCount,
+          )} were ignored successfully. This summary will be cleared after you close this window. Download the report to retain a record.`,
         modalConfirmButtonText: "Download Ignoring Report",
         modalConfirmButtonType: Primary,
         modalLoadingText: "",
@@ -363,53 +373,8 @@ let getBulkActionSuccessModalConfig = (
   }
 }
 
-let bulkActionReasonMultiLineTextInputField = (~label) => {
-  <FormRenderer.FieldRenderer
-    labelClass="font-semibold"
-    field={FormRenderer.makeFieldInfo(
-      ~label,
-      ~name="reason",
-      ~placeholder="Enter remark",
-      ~customInput=InputFields.multiLineTextInput(
-        ~isDisabled=false,
-        ~rows=Some(4),
-        ~cols=Some(50),
-        ~maxLength=500,
-        ~customClass="!h-28 !rounded-xl",
-      ),
-      ~isRequired=false,
-    )}
-  />
-}
-
-let getBulkActionStatusType = (status: string): bulkActionStatusType => {
-  switch status {
-  | "success" => BulkActionSuccess
-  | "failed" => BulkActionFailed
-  | "skipped" => BulkActionSkipped
-  | _ => UnknownBulkActionStatus
-  }
-}
-
-let bulkActionResponseToObjMapper = (response): bulkActionResponse => {
-  let status = response->getString("status", "")->getBulkActionStatusType
-
-  let statusDetail = switch status {
-  | BulkActionFailed => response->getOptionString("error")
-  | BulkActionSkipped => response->getOptionString("reason")
-  | BulkActionSuccess => Some("Transaction processed successfully")
-  | UnknownBulkActionStatus => None
-  }
-
-  {
-    logical_id: response->getOptionString("logical_id"),
-    bulk_action_status: status,
-    bulk_action_status_detail: statusDetail,
-  }
-}
-
 let downloadBulkActionReport = (
-  bulkActionResponses: array<bulkActionResponse>,
+  bulkActionResponses: array<ReconEngineExceptionsTypes.bulkActionResponse>,
   ~action: actionType,
 ) => {
   let headers = ["ID", "Status", "Status Detail"]
