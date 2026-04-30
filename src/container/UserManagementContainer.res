@@ -30,7 +30,7 @@ let make = () => {
         )
         let res = await fetchDetails(url)
         let roleInfo =
-          res->LogicUtils.getArrayDataFromJson(UserUtils.itemToObjMapperForGetRoleInfro)
+          res->LogicUtils.getArrayDataFromJson(UserUtils.itemToObjMapperForRoleModuleInfo)
         setRoleInfo(_ => roleInfo)
       }
       setScreenState(_ => PageLoaderWrapper.Success)

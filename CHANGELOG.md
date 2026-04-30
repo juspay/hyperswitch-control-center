@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.04.29.0
+
+### Features
+
+- Add theme update page ([#4499](https://github.com/juspay/hyperswitch-control-center/pull/4499)) ([`2396c33`](https://github.com/juspay/hyperswitch-control-center/commit/2396c33b534187e2ad5d504db3a3fa560f69de98))
+- Sidebar values refactor for permissions ([#4010](https://github.com/juspay/hyperswitch-control-center/pull/4010)) ([`795a27a`](https://github.com/juspay/hyperswitch-control-center/commit/795a27abdd5bb072fbd809725865abf386298af7))
+
+### Miscellaneous Tasks
+
+- [iMerchant Solutions] Add WASM for iMerchant Solutions Connector ([#4764](https://github.com/juspay/hyperswitch-control-center/pull/4764)) ([`84dcd16`](https://github.com/juspay/hyperswitch-control-center/commit/84dcd1606f2143f1e1874a29a4c6a6b6b734a176))
+- Function name and variable fixes ([#4756](https://github.com/juspay/hyperswitch-control-center/pull/4756)) ([`b6eca37`](https://github.com/juspay/hyperswitch-control-center/commit/b6eca37a1529012dec9ece56d1ff753503c76c20))
+
+**Full Changelog:** [`2026.04.28.0...2026.04.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.28.0...2026.04.29.0)
+
+- - -
+
 ## 2026.04.28.0
 
 ### Bug Fixes
