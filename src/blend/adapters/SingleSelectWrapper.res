@@ -1,3 +1,5 @@
+open LogicUtils
+
 let makeItems = (
   options: array<SelectBox.dropdownOption>,
   ~deselectDisable: bool=false,
@@ -7,14 +9,14 @@ let makeItems = (
 
   options->Array.forEach(opt => {
     let group = opt.optGroup->Option.getOr("-")
-    let existing = groups->Dict.get(group)->Option.getOr([])
+    let existing = groups->getvalFromDict(group)->Option.getOr([])
     groups->Dict.set(group, Array.concat(existing, [opt]))
   })
 
   let groupKeys = groups->Dict.keysToArray
 
   groupKeys->Array.map(groupKey => {
-    let groupOptions = groups->Dict.get(groupKey)->Option.getOr([])
+    let groupOptions = groups->getvalFromDict(groupKey)->Option.getOr([])
     let items = groupOptions->Array.map(opt => {
       let slot1 = MultiSelectWrapper.getLeftSlot(opt.icon)
       let slot2 = MultiSelectWrapper.getRightSlot(opt.icon)
@@ -67,7 +69,7 @@ let make = (
   let authContext = React.useContext(FormAuthContext.formAuthContext)
   let isDisabled = disabled || authContext === CommonAuthTypes.NoAccess
 
-  let selectedValue = input.value->LogicUtils.getStringFromJson("")
+  let selectedValue = input.value->getStringFromJson("")
 
   let handleChange = value => {
     input.onChange(value->JSON.Encode.string->Identity.jsonToFormReactEvent)

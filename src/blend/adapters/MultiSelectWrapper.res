@@ -1,3 +1,5 @@
+open LogicUtils
+
 let getLeftSlot = (icon: option<Button.iconType>) =>
   switch icon {
   | Some(CustomIcon(el)) => Some(el)
@@ -20,14 +22,14 @@ let makeItems = (
 
   options->Array.forEach(opt => {
     let group = opt.optGroup->Option.getOr("-")
-    let existing = groups->Dict.get(group)->Option.getOr([])
+    let existing = groups->getvalFromDict(group)->Option.getOr([])
     groups->Dict.set(group, Array.concat(existing, [opt]))
   })
 
   let groupKeys = groups->Dict.keysToArray
 
   groupKeys->Array.map(groupKey => {
-    let groupOptions = groups->Dict.get(groupKey)->Option.getOr([])
+    let groupOptions = groups->getvalFromDict(groupKey)->Option.getOr([])
     let items = groupOptions->Array.map(opt => {
       let slot1 = getLeftSlot(opt.icon)
       let slot2 = getRightSlot(opt.icon)
@@ -89,7 +91,7 @@ let make = (
   let batchedRef = React.useRef([])
   let timerRef = React.useRef(None)
 
-  let selectedValues = input.value->LogicUtils.getStrArrayFromJson
+  let selectedValues = input.value->getStrArrayFromJson
 
   let cancelPendingTimer = () =>
     switch timerRef.current {
@@ -99,7 +101,7 @@ let make = (
 
   let commitChange = () => {
     let values = batchedRef.current
-    input.onChange(values->LogicUtils.getJsonFromArrayOfString->Identity.jsonToFormReactEvent)
+    input.onChange(values->getJsonFromArrayOfString->Identity.jsonToFormReactEvent)
   }
 
   let handleChange = value => {
@@ -130,7 +132,7 @@ let make = (
     items
     label
     disabled=isDisabled
-    helpIconHintText=?{helpIconHintText->LogicUtils.isEmptyString ? None : Some(helpIconHintText)}
+    helpIconHintText=?{helpIconHintText->isEmptyString ? None : Some(helpIconHintText)}
     required
     fullWidth
     placeholder

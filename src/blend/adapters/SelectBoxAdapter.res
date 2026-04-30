@@ -1,3 +1,6 @@
+open ReactFinalForm
+open LogicUtils
+
 type dropdownOption = SelectBox.dropdownOption
 type dropdownOptionWithoutOptional = SelectBox.dropdownOptionWithoutOptional
 type allSelectType = SelectBox.allSelectType
@@ -137,8 +140,8 @@ module BaseDropdown = {
     | Some(el) => Some(wrapTrigger(el))
     | None => customButton->Option.map(wrapTrigger)
     }
-    let selectedValues = input.value->LogicUtils.getStrArrayFromJson
-    let selectedValue = input.value->LogicUtils.getStringFromJson("")
+    let selectedValues = input.value->getStrArrayFromJson
+    let selectedValue = input.value->getStringFromJson("")
 
     <>
       <RenderIf condition={useBlend && allowMultiSelect}>
@@ -406,8 +409,8 @@ let make = (
   | Some(el) => Some(wrapTrigger(el))
   | None => customButton->Option.map(wrapTrigger)
   }
-  let selectedValues = input.value->LogicUtils.getStrArrayFromJson
-  let selectedValue = input.value->LogicUtils.getStringFromJson("")
+  let selectedValues = input.value->getStrArrayFromJson
+  let selectedValue = input.value->getStringFromJson("")
 
   <>
     <RenderIf condition={useBlend && allowMultiSelect}>
