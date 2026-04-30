@@ -130,11 +130,9 @@ let make = (
                                 | _ => React.null
                                 }}
                                 <RenderIf condition={selected && showTick}>
-                                  {if isCloseIcon {
-                                    <Icon name="close" size=10 className="text-red-500 mr-1" />
-                                  } else {
-                                    <Tick isSelected=selected />
-                                  }}
+                                  {isCloseIcon
+                                    ? <Icon name="close" size=10 className="text-red-500 mr-1" />
+                                  : <Tick isSelected=selected />}
                                 </RenderIf>
                               </div>
                             </div>
@@ -220,7 +218,7 @@ let make = (
                               }}
                               {selected && showTick
                                 ? props["active"] && deSelectAllowed
-                                    ? <Icon name="close" size=10 className="text-red-500 mr-1" />
+                                    ? <Icon name="close" size=10 className="text-nd_red-500 mr-1" />
                                     : <Tick isSelected=selected />
                                 : React.null}
                             </div>

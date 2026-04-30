@@ -96,9 +96,7 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: SavedViewTypes.entity=P
       )
       showToast(~message=`View renamed to '${newName}' successfully!`, ~toastType=ToastSuccess)
       fetchSavedViews()->ignore
-      if activeViewName === view.view_name {
-        setActiveViewName(_ => newName)
-      }
+      activeViewName === view.view_name ? setActiveViewName(_ => newName) : ()
     } catch {
     | err =>
       Js.log2("FAILED TO RENAME SAVED VIEW", err)
