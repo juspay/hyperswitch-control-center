@@ -132,7 +132,7 @@ let make = (
                                 <RenderIf condition={selected && showTick}>
                                   {isCloseIcon
                                     ? <Icon name="close" size=10 className="text-red-500 mr-1" />
-                                  : <Tick isSelected=selected />}
+                                    : <Tick isSelected=selected />}
                                 </RenderIf>
                               </div>
                             </div>
