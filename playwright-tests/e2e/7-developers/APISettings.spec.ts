@@ -30,6 +30,23 @@ test.describe("API Key Management", () => {
     ).toBeVisible();
   });
 
+  test("should show empty state with create button when no API keys exist", async ({
+    page,
+  }) => {
+    const homePage = new HomePage(page);
+
+    await homePage.developer.click();
+    await homePage.apiKeys.click();
+
+    await expect(page).toHaveURL(/.*dashboard\/developer-api-keys/);
+    await expect(page.getByText(/No Data Available/i)).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(
+      page.getByRole("button", { name: "Create New API Key" }),
+    ).toBeVisible();
+  });
+
   test("should successfully create an API key with valid name and description", async ({
     page,
   }) => {
@@ -78,6 +95,7 @@ test.describe("API Key Management", () => {
     page,
   }) => {
     const homePage = new HomePage(page);
+    const createButton = page.getByRole("button", { name: "Create", exact: true });
 
     await homePage.developer.click();
     await homePage.apiKeys.click();
@@ -85,13 +103,29 @@ test.describe("API Key Management", () => {
     await page.getByRole("button", { name: "Create New API Key" }).click();
     await expect(page.getByText("Create API Key")).toBeVisible();
 
-    const createButton = page.getByRole("button", {
-      name: "Create",
-      exact: true,
-    });
+    const nameInput = page.getByRole('textbox', { name: 'Name' });
+    const descriptionInput = page.getByRole('textbox', { name: 'Description' });
+
+    await nameInput.fill("temp");
+    await nameInput.clear();
+    await nameInput.blur();
+    await expect(page.getByText('Please enter name')).toBeVisible();
+
+    await descriptionInput.fill("temp");
+    await descriptionInput.clear();
+    await descriptionInput.blur();
+    await expect(page.getByText('Please enter description')).toBeVisible();
+
     await expect(createButton).toBeDisabled();
 
-    await expect(page.getByText("Create API Key")).toBeVisible();
+    await createButton.hover();
+    const tooltip = page
+      .locator('[role="tooltip"]')
+      .filter({ hasText: /Name|Description/i })
+      .first();
+    await expect(tooltip).toBeVisible({ timeout: 5000 });
+    await expect(tooltip).toContainText("Name: Please enter name");
+    await expect(tooltip).toContainText("Description: Please enter description");
   });
 
   test("should handle very long name input appropriately", async ({
@@ -151,7 +185,83 @@ test.describe("API Key Management", () => {
     await expect(page.getByText(keyName)).toBeVisible({ timeout: 10000 });
   });
 
-  test.skip("should delete created API key", async ({ page }) => {
+  test("should copy generated key to clipboard from success screen", async ({
+    page,
+    context,
+  }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+
+    const homePage = new HomePage(page);
+    const timestamp = Date.now();
+    const keyName = `Clipboard Test ${timestamp}`;
+
+    await homePage.developer.click();
+    await homePage.apiKeys.click();
+
+    await page.getByRole("button", { name: "Create New API Key" }).click();
+    await page.locator('input[name="name"]').fill(keyName);
+    await page
+      .locator('input[name="description"]')
+      .fill("Test clipboard copy of generated key");
+    await page.getByRole("button", { name: "Create", exact: true }).click();
+
+    await expect(page.getByText(/Please note down the API key/i)).toBeVisible({
+      timeout: 10000,
+    });
+
+    const generatedKey = page.getByText(/snd_/i).first();
+    await expect(generatedKey).toBeVisible();
+    await generatedKey.click();
+
+    await expect(page.getByText("Copied to Clipboard!")).toBeVisible({
+      timeout: 5000,
+    });
+
+    const clipboardContent = await page.evaluate(() =>
+      navigator.clipboard.readText(),
+    );
+    expect(clipboardContent).toMatch(/^snd_/);
+  });
+
+  test("should display all expected columns in API keys table", async ({
+    page,
+  }) => {
+    const homePage = new HomePage(page);
+    const timestamp = Date.now();
+    const keyName = `Columns Test ${timestamp}`;
+
+    await homePage.developer.click();
+    await homePage.apiKeys.click();
+
+    await page.getByRole("button", { name: "Create New API Key" }).click();
+    await page.locator('input[name="name"]').fill(keyName);
+    await page
+      .locator('input[name="description"]')
+      .fill("Verifying table columns");
+    await page.getByRole("button", { name: "Create", exact: true }).click();
+
+    await expect(page.getByText(/Please note down the API key/i)).toBeVisible({
+      timeout: 10000,
+    });
+    await page.keyboard.press("Escape");
+
+    await expect(page.getByText(keyName)).toBeVisible({ timeout: 10000 });
+
+    const expectedColumns = [
+      "API Key Prefix",
+      "Name",
+      "Description",
+      "Created",
+      "Expiration",
+    ];
+    for (const column of expectedColumns) {
+      await expect(
+        page.getByRole("columnheader", { name: column, exact: true }),
+      ).toBeVisible();
+    }
+  });
+
+  test("should delete created API key", async ({ page }) => {
     const homePage = new HomePage(page);
     const timestamp = Date.now();
     const keyName = `DeleteTestKey ${timestamp}`;
@@ -161,33 +271,36 @@ test.describe("API Key Management", () => {
 
     await page.getByRole("button", { name: "Create New API Key" }).click();
     await page.getByRole("textbox", { name: "Name" }).fill(keyName);
-    await page
-      .getByRole("textbox", { name: "Description" })
-      .fill("Test API key for automation");
+    await page.getByRole("textbox", { name: "Description" }).fill("Test API key for automation");
     await page.getByRole("button", { name: "Create", exact: true }).click();
 
-    await expect(page.getByText(/Please note down the API key/i)).toBeVisible(
-      { timeout: 10000 },
-    );
+    await expect(page.getByText(/Please note down the API key/i)).toBeVisible();
 
     await expect(page.getByText(/snd_/i).first()).toBeVisible();
 
-    const downloadButton = page.getByRole("button", {
-      name: "Download the key",
-    });
+    const downloadButton = page.getByRole("button", { name: "Download the key" });
     await expect(downloadButton).toBeVisible();
     await downloadButton.click();
 
     await page.keyboard.press("Escape");
     await page.waitForTimeout(500);
 
-    //scroll right to make delete button visible
-    const keyRow = page.getByText(keyName).locator("xpath=../..");
+    await expect(page.getByText(keyName)).toBeVisible();
+
+    const keyRow = page.getByRole("row").filter({ hasText: keyName });
     await keyRow.scrollIntoViewIfNeeded();
-    await page.locator('[data-icon="delete"]').click();
+    await keyRow.hover();
+
+    const deleteIcon = keyRow.locator('[data-icon="delete"]');
+    await expect(deleteIcon).toBeVisible();
+    await deleteIcon.click();
+
+    await page.getByRole("button", { name: "Yes, delete it", exact: true }).click();
+
+    await expect(page.getByText(keyName)).toBeHidden();
   });
 
-  test.skip("should update existing API key name", async ({
+  test("should update existing API key name and description", async ({
     page,
     context,
   }) => {
@@ -201,109 +314,85 @@ test.describe("API Key Management", () => {
 
     await page.getByRole("button", { name: "Create New API Key" }).click();
     await page.getByRole("textbox", { name: "Name" }).fill(originalName);
-    await page
-      .getByRole("textbox", { name: "Description" })
-      .fill("Test API key for automation");
+    await page.getByRole("textbox", { name: "Description" }).fill("Test API key for automation");
     await page.getByRole("button", { name: "Create", exact: true }).click();
 
-    await expect(
-      page.getByText(
-        /Please note down the API key|API key created|successfully/i,
-      ),
-    ).toBeVisible({ timeout: 10000 });
-    await page
-      .getByRole("button", { name: /close|done|ok/i })
-      .first()
-      .click()
-      .catch(() => { });
-    await page.waitForTimeout(1000);
+    await expect(page.getByText(/Please note down the API key/i)).toBeVisible();
+
+    await expect(page.getByText(/snd_/i).first()).toBeVisible();
+
+    const downloadButton = page.getByRole("button", { name: "Download the key" });
+    await expect(downloadButton).toBeVisible();
+    await downloadButton.click();
+
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(500);
 
     await expect(page.getByText(originalName)).toBeVisible();
 
-    await page.getByText(originalName).hover();
-    const editButton = page
-      .locator(
-        "[name='edit'], button:has-text('Edit'), [data-testid*='edit']",
-      )
-      .first();
+    const keyRow = page.getByRole("row").filter({ hasText: originalName });
+    await keyRow.scrollIntoViewIfNeeded();
+    await keyRow.hover();
 
-    if ((await editButton.count()) > 0) {
-      await editButton.click();
+    const editIcon = keyRow.locator('[data-icon="edit"]');
+    await expect(editIcon).toBeVisible();
+    await editIcon.click();
 
-      await expect(
-        page.getByText(/update.*api key|edit.*api key/i),
-      ).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/Update API Key/i)).toBeVisible();
 
-      const nameInput = page.getByRole("textbox", { name: "Name" });
-      await nameInput.clear();
-      await nameInput.fill(updatedName);
+    const nameInput = page.getByRole("textbox", { name: "Name" });
+    await nameInput.clear();
+    await nameInput.fill(updatedName);
 
-      await page.getByRole("button", { name: /update|save/i }).click();
+    const descriptionInput = page.getByRole("textbox", { name: "Description" });
+    await descriptionInput.clear();
+    await descriptionInput.fill("Updated API key for automation");
 
-      await expect(page.getByText(updatedName)).toBeVisible({
-        timeout: 10000,
-      });
-      await expect(page.getByText(originalName)).not.toBeVisible();
-    }
+    await page.getByRole("button", { name: /Update/i }).click();
+
+    await expect(page.getByText(updatedName)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(originalName)).not.toBeVisible();
+    await expect(page.getByText("Updated API key for automation")).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("Test API key for automation")).not.toBeVisible();
   });
 
-  test.skip("should create key with custom expiration", async ({ page }) => {
+  test("should create key with custom expiration", async ({ page }) => {
     const homePage = new HomePage(page);
     const timestamp = Date.now();
     const keyName = `ExpiryTestKey ${timestamp}`;
+
+    const today = new Date();
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 10);
+    const monthShort = nextMonth.toLocaleString("en-US", { month: "short" });
+    const expectedDateLabel = `${monthShort} 10, ${nextMonth.getFullYear()}`;
 
     await homePage.developer.click();
     await homePage.apiKeys.click();
 
     await page.getByRole("button", { name: "Create New API Key" }).click();
+    await expect(page.getByText("Create API Key")).toBeVisible();
 
-    await page.getByRole("textbox", { name: "Name" }).fill(keyName);
-    await page
-      .getByRole("textbox", { name: "Description" })
-      .fill("Test API key for automation");
+    await page.locator('input[name="name"]').fill(keyName);
+    await page.locator('input[name="description"]').fill("Test API key for automation");
 
-    const expirationDropdown = page
-      .locator("button:has-text('Never'), select[name='expiration']")
-      .first();
-    if (await expirationDropdown.isVisible().catch(() => false)) {
-      await expirationDropdown.click();
+    await page.getByRole("button", { name: "Never" }).click();
+    await page.getByText("Custom", { exact: true }).click();
 
-      const customOption = page
-        .getByText(/custom|30 days|60 days|90 days/i)
-        .first();
-      if ((await customOption.count()) > 0) {
-        await customOption.click();
+    await page.getByRole("button", { name: "Select Date" }).click();
 
-        const dateInput = page
-          .locator("input[type='date'], input[name='expiration_date']")
-          .first();
-        if ((await dateInput.count()) > 0) {
-          await dateInput.fill("2025-12-31");
-        }
-      }
-    }
-
+    await page.locator('[data-icon="chevron-right"]').first().click();
+    await page.getByText('10', { exact: true }).click();
     await page.getByRole("button", { name: "Create", exact: true }).click();
 
-    await expect(
-      page.getByText(
-        /Please note down the API key|API key created|successfully/i,
-      ),
-    ).toBeVisible({ timeout: 10000 });
+    await page.getByRole("button", { name: "Download the key" }).click();
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(500);
 
-    await page
-      .getByRole("button", { name: /close|done|ok/i })
-      .first()
-      .click()
-      .catch(() => { });
+    await expect(page.getByText(keyName)).toBeVisible();
 
-    await expect(page.getByText(keyName)).toBeVisible({ timeout: 10000 });
-
-    const keyRow = page.getByText(keyName).locator("xpath=../..");
-    const expirationCell = keyRow.locator("td").nth(4);
-    if ((await expirationCell.count()) > 0) {
-      const expirationText = await expirationCell.textContent();
-      expect(expirationText).toBeTruthy();
-    }
+    console.log(expectedDateLabel);
+    const keyRow = page.getByRole("row").filter({ hasText: keyName });
+    await expect(keyRow).not.toContainText("Never");
+    await expect(keyRow).toContainText(expectedDateLabel);
   });
 });
