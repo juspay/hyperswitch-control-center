@@ -103,9 +103,7 @@ let make = () => {
             subTitle="Personalize your dashboard look with a live preview."
             customSubTitleStyle={`${body.lg.medium} text-nd_gray-400`}
           />
-          <Tabs
-            tabs showBottomBorder=true tabBottomShadow="" selectTabBottomBorderColor="bg-primary"
-          />
+          <Tabs tabs />
         </div>
       </div>
       <ThemeHelper.ThemeUploadAssetsModal

@@ -223,9 +223,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
             subTitle="Update your configuration."
             customSubTitleStyle={`${body.lg.medium} text-nd_gray-400`}
           />
-          <Tabs
-            tabs showBottomBorder=true tabBottomShadow="" selectTabBottomBorderColor="bg-primary"
-          />
+          <Tabs tabs />
         </div>
       </div>
     </Form>
