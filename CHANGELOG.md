@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.01.0
+
+### Features
+
+- Migrate Tabs to Blend Design System ([#4500](https://github.com/juspay/hyperswitch-control-center/pull/4500)) ([`9774130`](https://github.com/juspay/hyperswitch-control-center/commit/9774130099fbd850d2489645e500530aac7824ce))
+
+### Bug Fixes
+
+- Add parsing of card_network from network token dict ([#4765](https://github.com/juspay/hyperswitch-control-center/pull/4765)) ([`04d92ea`](https://github.com/juspay/hyperswitch-control-center/commit/04d92ea994a325474281e0bfa1ed8859b79ccc78))
+
+**Full Changelog:** [`2026.04.29.0...2026.05.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.29.0...2026.05.01.0)
+
+- - -
+
 ## 2026.04.29.0
 
 ### Features
