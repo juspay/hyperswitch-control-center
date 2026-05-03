@@ -6,6 +6,7 @@ import {
   loginUI,
   createDummyConnectorAPI,
   createPaymentAPI,
+  createCustomerAPI,
 } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
@@ -162,6 +163,120 @@ test.describe("Customers page", () => {
     await expect(page.locator('[data-label="Created"]')).toBeVisible();
     await expect(
       page.locator('[data-label="Created"] [data-date]'),
+    ).toBeVisible();
+  });
+
+  test("should display matching customer when searched by customer ID", async ({
+    page,
+    context,
+  }) => {
+    const homePage = new HomePage(page);
+
+    const merchantId = await homePage.merchantID.nth(0).textContent();
+    if (!merchantId) return;
+
+    await createDummyConnectorAPI(merchantId, "stripe_test_1", context.request);
+    await createPaymentAPI(merchantId, context.request);
+
+    await homePage.operations.click();
+    await homePage.customers.click();
+
+    const searchInput = page.locator('input[placeholder="Search by Customer ID"]');
+    await expect(searchInput).toBeVisible();
+
+    await searchInput.fill("test_customer");
+    await searchInput.press("Enter");
+
+    await expect(
+      page.locator('[data-table-location="Customers_tr1_td2"]'),
+    ).toContainText("test_customer");
+    await expect(
+      page.locator('[data-table-location="Customers_tr2_td2"]'),
+    ).toHaveCount(0);
+  });
+
+  test("should toggle columns from the column toggler", async ({
+    page,
+    context,
+  }) => {
+    const homePage = new HomePage(page);
+
+    const merchantId = await homePage.merchantID.nth(0).textContent();
+    if (!merchantId) return;
+
+    await createDummyConnectorAPI(merchantId, "stripe_test_1", context.request);
+    await createPaymentAPI(merchantId, context.request);
+
+    await homePage.operations.click();
+    await homePage.customers.click();
+
+    const columnsToHide = ["Description", "Phone Country Code"];
+
+    for (const column of columnsToHide) {
+      await expect(
+        page.locator(`[data-table-heading="${column}"]`),
+      ).toBeAttached();
+    }
+
+    await page.locator('[data-button-for="CustomIcon"]').click();
+    await expect(
+      page.locator('[data-component="modal:Table Columns"]'),
+    ).toBeVisible();
+
+    for (const column of columnsToHide) {
+      await page.locator(`[data-dropdown-value="${column}"]`).click();
+    }
+    await page.locator('[data-button-text="Save"]').click();
+
+    for (const column of columnsToHide) {
+      await expect(
+        page.locator(`[data-table-heading="${column}"]`),
+      ).toHaveCount(0);
+    }
+
+    await page.locator('[data-button-for="CustomIcon"]').click();
+    for (const column of columnsToHide) {
+      await page.locator(`[data-dropdown-value="${column}"]`).click();
+    }
+    await page.locator('[data-button-text="Save"]').click();
+
+    for (const column of columnsToHide) {
+      await expect(
+        page.locator(`[data-table-heading="${column}"]`),
+      ).toBeAttached();
+    }
+  });
+
+  test("should paginate through customer pages", async ({ page, context }) => {
+    const homePage = new HomePage(page);
+
+    const merchantId = await homePage.merchantID.nth(0).textContent();
+    if (!merchantId) return;
+
+    const customerIds = Array.from(
+      { length: 22 },
+      (_, i) => `pw_customer_${i + 1}`,
+    );
+
+    for (const customerId of customerIds) {
+      await createCustomerAPI(merchantId, customerId, context.request);
+    }
+
+    await homePage.operations.click();
+    await homePage.customers.click();
+
+    await expect(page.locator("#table tbody tr")).toHaveCount(20);
+    const firstPageFirstId = await page
+      .locator('[data-table-location="Customers_tr1_td2"]')
+      .textContent();
+
+    await page.getByRole("button", { name: "2", exact: true }).click();
+
+    await expect(
+      page.locator('[data-table-location="Customers_tr1_td2"]'),
+    ).not.toHaveText(firstPageFirstId ?? "");
+    await expect(
+      page.locator('[data-table-location="Customers_tr1_td2"]'),
     ).toBeVisible();
   });
 });

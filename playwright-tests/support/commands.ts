@@ -418,6 +418,38 @@ export async function createAuthenticationConnectorAPI(
   }
 }
 
+export async function createCustomerAPI(
+  merchantId: string,
+  customerId: string,
+  context?: APIRequestContext,
+): Promise<{ customer_id: string }> {
+  const ctx = context ?? (await request.newContext());
+  const apiKey = await createAPIKey(merchantId, "", ctx);
+
+  const response = await ctx.post(`${API_URL}/customers`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "api-key": apiKey,
+    },
+    data: {
+      customer_id: customerId,
+      name: "Joseph Doe",
+      email: "abc@test.com",
+      phone: "999999999",
+      phone_country_code: "+65",
+      description: "Playwright customer",
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(`createCustomerAPI failed (${response.status()}): ${body}`);
+  }
+
+  return await response.json();
+}
+
 export async function createPaymentAPI(
   merchantId: string,
   context?: APIRequestContext,
