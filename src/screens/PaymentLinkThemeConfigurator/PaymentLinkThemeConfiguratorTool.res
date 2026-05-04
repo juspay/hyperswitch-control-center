@@ -498,7 +498,7 @@ module StyleIdSelection = {
       }
 
       None
-    }, [businessProfileRecoilVal])
+    }, [businessProfileRecoilVal.payment_link_config])
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "styleId",
