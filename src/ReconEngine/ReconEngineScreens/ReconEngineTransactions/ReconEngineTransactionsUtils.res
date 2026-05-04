@@ -401,7 +401,7 @@ let downloadBulkActionReport = (
   })
 
   let csvContent = PapaParse.unparse({"fields": headers, "data": data})
-  let timestamp = Js.Date.now()->Js.Float.toString
+  let timestamp = Date.now()->Js.Float.toString
 
   DownloadUtils.download(
     ~fileName=`${(action :> string)}_transaction_report_${timestamp}.csv`,
