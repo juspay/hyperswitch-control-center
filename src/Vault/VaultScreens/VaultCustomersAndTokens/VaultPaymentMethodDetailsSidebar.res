@@ -154,7 +154,7 @@ let make = (~paymentId, ~setShowModal, ~sampleReport, ~showModal) => {
       </div>
       <hr />
       <div className="px-8 py-6 flex flex-col gap-8 h-full">
-        <NetworkTokens data={paymentsDetailsData.network_tokens} />
+        <NetworkTokens data={paymentsDetailsData.network_token} />
         <PaymentMethodDetails data={paymentsDetailsData.payment_method_data.card} />
         <PSPTokens data={paymentsDetailsData.connector_tokens} />
       </div>
