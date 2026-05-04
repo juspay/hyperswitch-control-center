@@ -78,7 +78,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     | Configure =>
       switch googlePayIntegrationType {
       | #payment_gateway =>
-        <GpayMetadataFlowPaymentGateway
+        <GPayMetadataFlowPaymentGateway
           googlePayFields connector closeAccordionFn update closeModal
         />
       | _ => React.null

@@ -1726,7 +1726,6 @@ let generateInitialValuesDict = (
   | _ => JSON.Encode.null
   }
   dict->Dict.set("connector_webhook_details", connectorWebhookDict)
-
   dict->JSON.Encode.object
 }
 
@@ -2527,8 +2526,8 @@ let existsInArray = (element, connectorList) => {
 // Need to refactor
 
 let updateMetaData = (~metaData) => {
-  let apple_pay_combined = metaData->getDictFromJsonObject->getDictfromDict("apple_pay_combined")
-  let manual = apple_pay_combined->getDictfromDict("manual")
+  let applePayCombined = metaData->getDictFromJsonObject->getDictfromDict("apple_pay_combined")
+  let manual = applePayCombined->getDictfromDict("manual")
   switch manual->Dict.keysToArray->Array.length > 0 {
   | true => {
       let applepay =
@@ -2586,4 +2585,16 @@ let checkIfPredecryptFlowEnabledForGooglePay = connector => {
   | Processors(STRIPE) => true
   | _ => false
   }
+}
+
+let threeDsMetadataFieldDefaults: array<(string, JSON.t)> = [
+  ("pull_mechanism_for_external_3ds_enabled", true->JSON.Encode.bool),
+]
+
+let getStaticDefaultValuesForThreeDs = (initialValuesDict: dict<JSON.t>) => {
+  initialValuesDict->Dict.set(
+    "metadata",
+    Dict.fromArray(threeDsMetadataFieldDefaults)->JSON.Encode.object,
+  )
+  initialValuesDict->JSON.Encode.object
 }
