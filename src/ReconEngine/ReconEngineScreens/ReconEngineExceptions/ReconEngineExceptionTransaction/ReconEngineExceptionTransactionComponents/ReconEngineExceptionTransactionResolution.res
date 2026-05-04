@@ -629,6 +629,7 @@ let make = (
   open ReconEngineUtils
   open APIUtils
 
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (activeModal, setActiveModal) = React.useState(_ => None)
   let (availableResolutions, setAvailableResolutions) = React.useState(_ => [])
   let showToast = ToastState.useShowToast()
@@ -897,7 +898,8 @@ let make = (
             condition={isResolutionAvailable(EditEntry) ||
             isResolutionAvailable(CreateNewEntry) ||
             isResolutionAvailable(LinkStagingEntriesToTransaction)}>
-            <Button
+            <ACLButton
+              authorization={userHasAccess(~groupAccess=ReconExceptionsManage)}
               buttonState=Normal
               buttonSize=Medium
               buttonType=Primary

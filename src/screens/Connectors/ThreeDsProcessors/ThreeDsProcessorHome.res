@@ -61,7 +61,9 @@ let make = () => {
   let connectorName = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
+  let (initialValues, setInitialValues) = React.useState(_ =>
+    Dict.make()->getStaticDefaultValuesForThreeDs
+  )
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
@@ -132,16 +134,16 @@ let make = () => {
   )
 
   let isConnectorDisabled = connectorInfo.disabled
-  let disableConnector = async isConnectorDisabled => {
+  let disableConnector = async currentIsDisabled => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let connectorID = connectorInfo.merchant_connector_id
+      let mcaId = connectorInfo.merchant_connector_id
       let disableConnectorPayload = ConnectorUtils.getDisableConnectorPayload(
         connectorInfo.connector_type->ConnectorUtils.connectorTypeTypedValueToStringMapper,
-        isConnectorDisabled,
+        currentIsDisabled,
       )
 
-      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
+      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(mcaId))
       let res = await updateDetails(url, disableConnectorPayload, Post)
       setInitialValues(_ => res)
       let _ = await fetchConnectorListResponse()
