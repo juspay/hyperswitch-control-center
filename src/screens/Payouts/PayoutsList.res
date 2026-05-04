@@ -82,7 +82,7 @@ let make = () => {
   }, (offset, filters, searchText))
 
   <ErrorBoundary>
-    <div className="min-h-[50vh]">
+    <div className="flex flex-col gap-spacing-4xl min-h-[50vh]">
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Payouts" subTitle="View and manage all payouts" />
         <Portal to="PayoutsOMPView">
@@ -97,49 +97,51 @@ let make = () => {
           <GenerateReport entityName={V1(PAYOUT_REPORT)} />
         </RenderIf>
       </div>
-      <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8">
+      <div className="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-spacing-3xl">
         <TransactionView entity=TransactionViewTypes.Payouts />
       </div>
-      <div className="flex justify-between gap-3">
-        <div className="flex-1">
-          <RemoteTableFilters
-            title="Payouts"
-            apiType=Post
-            setFilters
-            endTimeFilterKey
-            startTimeFilterKey
-            initialFilters
-            initialFixedFilter
-            setOffset
-            customLeftView={<SearchBarFilter
-              placeholder="Search for payout ID" setSearchVal=setSearchText searchVal=searchText
-            />}
-            entityName=V1(PAYOUTS_FILTERS)
-            connectorTypes=[PayoutProcessor]
-          />
+      <div className="flex flex-col gap-spacing-3xl">
+        <div className="flex justify-between gap-spacing-3xl">
+          <div className="flex-1">
+            <RemoteTableFilters
+              title="Payouts"
+              apiType=Post
+              setFilters
+              endTimeFilterKey
+              startTimeFilterKey
+              initialFilters
+              initialFixedFilter
+              setOffset
+              customLeftView={<SearchBarFilter
+                placeholder="Search for payout ID" setSearchVal=setSearchText searchVal=searchText
+              />}
+              entityName=V1(PAYOUTS_FILTERS)
+              connectorTypes=[PayoutProcessor]
+            />
+          </div>
+          <PortalCapture key={`PayoutsCustomizeColumn`} name={`PayoutsCustomizeColumn`} />
         </div>
-        <PortalCapture key={`PayoutsCustomizeColumn`} name={`PayoutsCustomizeColumn`} />
+        <PageLoaderWrapper screenState customUI>
+          <LoadedTableWithCustomColumns
+            hideTitle=true
+            title="Payouts"
+            actualData=payoutData
+            entity={PayoutsEntity.payoutEntity(merchantId, orgId)}
+            resultsPerPage=20
+            showSerialNumber=true
+            totalResults={totalCount}
+            offset
+            setOffset
+            currentFetchCount={payoutData->Array.length}
+            defaultColumns={PayoutsEntity.defaultColumns}
+            customColumnMapper=TableAtoms.payoutsMapDefaultCols
+            showSerialNumberInCustomizeColumns=false
+            sortingBasedOnDisabled=false
+            showAutoScroll=true
+            isDraggable=true
+          />
+        </PageLoaderWrapper>
       </div>
-      <PageLoaderWrapper screenState customUI>
-        <LoadedTableWithCustomColumns
-          hideTitle=true
-          title="Payouts"
-          actualData=payoutData
-          entity={PayoutsEntity.payoutEntity(merchantId, orgId)}
-          resultsPerPage=20
-          showSerialNumber=true
-          totalResults={totalCount}
-          offset
-          setOffset
-          currentFetchCount={payoutData->Array.length}
-          defaultColumns={PayoutsEntity.defaultColumns}
-          customColumnMapper=TableAtoms.payoutsMapDefaultCols
-          showSerialNumberInCustomizeColumns=false
-          sortingBasedOnDisabled=false
-          showAutoScroll=true
-          isDraggable=true
-        />
-      </PageLoaderWrapper>
     </div>
   </ErrorBoundary>
 }

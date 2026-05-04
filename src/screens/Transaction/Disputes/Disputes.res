@@ -108,10 +108,10 @@ let make = () => {
       title="Disputes"
     />
 
-  <div>
+  <div className="flex flex-col gap-spacing-4xl">
     <div className="flex justify-between items-center">
       <PageUtils.PageHeading title="Disputes" subTitle="View and manage all disputes" />
-      <div className="flex gap-4">
+      <div className="flex gap-spacing-3xl">
         <Portal to="DisputesOMPView">
           <OMPSwitchHelper.OMPViews
             views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
@@ -125,18 +125,18 @@ let make = () => {
         </RenderIf>
       </div>
     </div>
-    <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8">
+    <div className="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-2 grid-cols-2 gap-spacing-3xl">
       <TransactionView entity=TransactionViewTypes.Disputes />
     </div>
-    <div className="flex-1"> {filtersUI} </div>
-    <RenderIf
-      condition={disputesData->Array.some(dispute => {
-        dispute.is_already_refunded
-      })}>
-      <DisputesHelper.DualRefundsAlert subText="Click on Dispute ID to learn more" />
-    </RenderIf>
-    <PageLoaderWrapper screenState customUI>
-      <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-spacing-3xl">
+      <div className="flex-1"> {filtersUI} </div>
+      <RenderIf
+        condition={disputesData->Array.some(dispute => {
+          dispute.is_already_refunded
+        })}>
+        <DisputesHelper.DualRefundsAlert subText="Click on Dispute ID to learn more" />
+      </RenderIf>
+      <PageLoaderWrapper screenState customUI>
         <LoadedTableWithCustomColumns
           title="Disputes"
           hideTitle=true
@@ -155,7 +155,7 @@ let make = () => {
           showAutoScroll=true
           isDraggable=true
         />
-      </div>
-    </PageLoaderWrapper>
+      </PageLoaderWrapper>
+    </div>
   </div>
 }

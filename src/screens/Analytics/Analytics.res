@@ -700,24 +700,21 @@ let make = (
   <RenderIf condition={filterValueDict->Dict.toArray->Array.length > 0}>
     {switch chartEntity1 {
     | Some(chartEntity) =>
-      <div>
+      <div className="flex flex-col gap-spacing-4xl">
         <div className="flex items-center justify-between">
           <PageUtils.PageHeading title=pageTitle />
-          // Refactor required
-          <div className="mr-4">
-            <RenderIf condition={moduleName == "Refunds" || moduleName == "Disputes"}>
-              <OMPSwitchHelper.OMPViews
-                views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
-                selectedEntity={analyticsEntity}
-                onChange={updateAnalytcisEntity}
-                entityMapper=UserInfoUtils.analyticsEntityMapper
-              />
-            </RenderIf>
-          </div>
+          <RenderIf condition={moduleName == "Refunds" || moduleName == "Disputes"}>
+            <OMPSwitchHelper.OMPViews
+              views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+              selectedEntity={analyticsEntity}
+              onChange={updateAnalytcisEntity}
+              entityMapper=UserInfoUtils.analyticsEntityMapper
+            />
+          </RenderIf>
         </div>
-        <div className="mt-2 -ml-1"> topFilterUi </div>
-        <div>
-          <div className="mt-5">
+        <div className="flex flex-col gap-spacing-3xl">
+          topFilterUi
+          <div>
             <DynamicSingleStat
               entity=singleStatEntity
               startTimeFilterKey

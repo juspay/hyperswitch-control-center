@@ -47,7 +47,7 @@ module CustomerInfo = {
   let make = (~dict) => {
     let customerData = itemToObjMapper(dict)
     <>
-      <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
+      <div className={`${Typography.body.lg.semibold} dark:text-white dark:text-opacity-75`}>
         {"Summary"->React.string}
       </div>
       <Details data=customerData getHeading getCell detailsFields=detailsColumns />
@@ -132,8 +132,8 @@ let make = (~id) => {
     None
   }, [])
   <PageLoaderWrapper screenState>
-    <div className="flex flex-col overflow-scroll">
-      <div className="mb-4 flex justify-between">
+    <div className="flex flex-col gap-spacing-4xl overflow-scroll">
+      <div className="flex justify-between">
         <div className="flex items-center">
           <div>
             <PageUtils.PageHeading title="Customers" />

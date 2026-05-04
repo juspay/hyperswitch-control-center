@@ -17,7 +17,7 @@ module NewProcessorCards = {
     let descriptedFRMs = (frmList: array<ConnectorTypes.connectorTypes>, heading) => {
       <>
         <h2
-          className={`${Typography.heading.sm.semibold} text-black text-opacity-75 dark:text-white dark:text-opacity-75`}>
+          className={`${Typography.body.lg.semibold} text-nd_gray-600 dark:text-white dark:text-opacity-75`}>
           {heading->React.string}
         </h2>
         <div className="grid gap-4 lg:grid-cols-3 grid-cols-1 mb-5">
@@ -139,7 +139,7 @@ let make = () => {
   }, ~wait=200)
 
   <PageLoaderWrapper screenState customUI>
-    <div className="flex flex-col gap-10 ">
+    <div className="flex flex-col gap-spacing-4xl">
       <PageUtils.PageHeading
         title="Fraud & Risk Management"
         subTitle="Connect and configure processors to screen transactions and mitigate fraud"

@@ -68,7 +68,7 @@ module Details = {
       customCssClass={`border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 ${bgColor} rounded-md p-6 flex flex-col gap-6`}>
       <div className="flex items-center justify-between">
         <div className="flex gap-2 items-center">
-          <p className="flex font-bold text-3xl gap-2">
+          <p className={`flex ${Typography.heading.xl.bold} gap-spacing-md`}>
             {amountValue(data.amount, data.currency->String.toUpperCase)->React.string}
           </p>
           {useGetStatus(data)}
@@ -157,7 +157,7 @@ module DisputesInfo = {
     )
 
     <>
-      <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
+      <div className={`${Typography.body.lg.semibold} dark:text-white dark:text-opacity-75`}>
         {"Summary"->React.string}
       </div>
       <RenderIf condition={disputesData.is_already_refunded}>
@@ -216,8 +216,8 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let paymentId = data->LogicUtils.getString("payment_id", "")
 
   <PageLoaderWrapper screenState>
-    <div className="flex flex-col overflow-scroll">
-      <div className="mb-4 flex justify-between">
+    <div className="flex flex-col gap-spacing-4xl overflow-scroll">
+      <div className="flex justify-between">
         <div className="flex items-center">
           <div>
             <PageUtils.PageHeading title="Disputes" />
@@ -229,7 +229,6 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         </div>
       </div>
       <DisputesInfo orderDict={data} setDisputeData merchantId orgId />
-      <div className="mt-5" />
       <RenderIf
         condition={featureFlagDetails.auditTrail &&
         userHasAccess(~groupAccess=AnalyticsView) == Access}>

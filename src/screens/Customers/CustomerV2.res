@@ -125,54 +125,56 @@ let make = () => {
     None
   }, (filterValueJson, offset, searchText))
 
-  <div>
+  <div className="flex flex-col gap-spacing-4xl">
     <PageUtils.PageHeading title="Customers" subTitle="View all customers" />
-    <div className="flex-1">
-      <Filter
-        customLeftView={<SearchBarFilter
-          placeholder="Search for Customer ID" setSearchVal=setSearchText searchVal=searchText
-        />}
-        defaultFilters={""->JSON.Encode.string}
-        fixedFilters={initialFixedFilter(version)}
-        requiredSearchFieldsList=[]
-        localFilters=[]
-        localOptions=[]
-        remoteOptions=[]
-        remoteFilters=[]
-        autoApply=false
-        submitInputOnEnter=false
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        updateUrlWith=updateExistingKeys
-        clearFilters={() => {
-          reset()
-        }}
-        title="Customers"
-      />
-    </div>
-    <PageLoaderWrapper screenState customUI>
-      <div className="relative">
-        <div className="pt-0">
-          <LoadedTableWithCustomColumns
-            title="Customers"
-            hideTitle=true
-            actualData=customersData
-            entity={customersEntity}
-            resultsPerPage=20
-            showSerialNumber=true
-            totalResults=total
-            offset
-            setOffset
-            currentFetchCount={customersData->Array.length}
-            defaultColumns={defaultColumns}
-            customColumnMapper={TableAtoms.customersMapDefaultCols}
-            showSerialNumberInCustomizeColumns=false
-            showResultsPerPageSelector=true
-            sortingBasedOnDisabled=false
-            showAutoScroll=true
-            isDraggable=true
-          />
-        </div>
+    <div className="flex flex-col gap-spacing-3xl">
+      <div className="flex-1">
+        <Filter
+          customLeftView={<SearchBarFilter
+            placeholder="Search for Customer ID" setSearchVal=setSearchText searchVal=searchText
+          />}
+          defaultFilters={""->JSON.Encode.string}
+          fixedFilters={initialFixedFilter(version)}
+          requiredSearchFieldsList=[]
+          localFilters=[]
+          localOptions=[]
+          remoteOptions=[]
+          remoteFilters=[]
+          autoApply=false
+          submitInputOnEnter=false
+          defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+          updateUrlWith=updateExistingKeys
+          clearFilters={() => {
+            reset()
+          }}
+          title="Customers"
+        />
       </div>
-    </PageLoaderWrapper>
+      <PageLoaderWrapper screenState customUI>
+        <div className="relative">
+          <div className="pt-0">
+            <LoadedTableWithCustomColumns
+              title="Customers"
+              hideTitle=true
+              actualData=customersData
+              entity={customersEntity}
+              resultsPerPage=20
+              showSerialNumber=true
+              totalResults=total
+              offset
+              setOffset
+              currentFetchCount={customersData->Array.length}
+              defaultColumns={defaultColumns}
+              customColumnMapper={TableAtoms.customersMapDefaultCols}
+              showSerialNumberInCustomizeColumns=false
+              showResultsPerPageSelector=true
+              sortingBasedOnDisabled=false
+              showAutoScroll=true
+              isDraggable=true
+            />
+          </div>
+        </div>
+      </PageLoaderWrapper>
+    </div>
   </div>
 }
