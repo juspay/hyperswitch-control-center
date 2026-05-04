@@ -3,9 +3,10 @@ open Typography
 module TransformedEntriesOverviewCard = {
   @react.component
   let make = (~title, ~value, ~onClick=None, ~isActive=false) => {
-    let borderClass = isActive ? "border-primary" : "border-nd_gray-200"
-    let titleClass = isActive ? "text-primary" : "text-nd_gray-400"
-    let valueClass = isActive ? "text-primary" : "text-nd_gray-800"
+    let (borderClass, titleClass, valueClass) = isActive
+      ? ("border-primary", "text-primary", "text-primary")
+      : ("border-nd_gray-200", "text-nd_gray-400", "text-nd_gray-800")
+
     let cursorClass = onClick->Option.isSome ? "cursor-pointer hover:bg-nd_gray-50" : ""
 
     <div

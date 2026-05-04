@@ -5,9 +5,13 @@ let make = (~selectedTransformationHistoryId: option<string>) => {
   open ReconEngineHooks
   open ReconEngineDataTransformedEntriesTypes
 
-  let {updateExistingKeys, filterValueJson, filterKeys, setfilterKeys} = React.useContext(
-    FilterContext.filterContext,
-  )
+  let {
+    updateExistingKeys,
+    filterValueJson,
+    filterValue,
+    filterKeys,
+    setfilterKeys,
+  } = React.useContext(FilterContext.filterContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (stagingData, setStagingData) = React.useState(_ => [
     Dict.make()->getProcessingEntryPayloadFromDict,
@@ -85,7 +89,7 @@ let make = (~selectedTransformationHistoryId: option<string>) => {
   React.useEffect(() => {
     settingActiveView()
     None
-  }, [filterValueJson])
+  }, [filterValue])
 
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-2">
     {cardDetails(~stagingData)
