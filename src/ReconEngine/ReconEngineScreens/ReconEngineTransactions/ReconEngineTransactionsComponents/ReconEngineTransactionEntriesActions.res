@@ -16,7 +16,7 @@ module LineageField = {
   let make = (~label: string, ~value: string, ~copyable: bool=false) => {
     <div className="flex flex-col gap-2">
       <p className={`${body.md.medium} text-nd_gray-400`}> {label->React.string} </p>
-      {if copyable {
+      <RenderIf condition={copyable}>
         <HelperComponents.CopyTextCustomComp
           customParentClass="flex flex-row items-center gap-x-2"
           displayValue=Some(value)
@@ -24,9 +24,10 @@ module LineageField = {
           copyValue={Some(value)}
           customIconCss=""
         />
-      } else {
+      </RenderIf>
+      <RenderIf condition={!copyable}>
         <p className={`${body.lg.medium} text-nd_gray-600`}> {value->React.string} </p>
-      }}
+      </RenderIf>
     </div>
   }
 }
@@ -52,51 +53,59 @@ module LineageContent = {
       Dict.make()->getTransactionsProcessingEntryPayloadFromDict
     )
 
+    let fetchProcessingEntry = async processingEntryId => {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
+        ~queryParameters=None,
+        ~id=processingEntryId,
+      )
+      let res = await fetchDetails(url)
+      res->getDictFromJsonObject->getTransactionsProcessingEntryPayloadFromDict
+    }
+
+    let fetchTransformationHistory = async transformationHistoryId => {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
+        ~queryParameters=None,
+        ~id=Some(transformationHistoryId),
+      )
+      let res = await fetchDetails(url)
+      res->getDictFromJsonObject->getTransactionsTransformationHistoryPayloadFromDict
+    }
+
+    let fetchLatestIngestionHistory = async ingestionHistoryId => {
+      let ingestionHistoryData = await getIngestionHistory(
+        ~queryParameters=Some(`ingestion_history_id=${ingestionHistoryId}`),
+      )
+      ingestionHistoryData->Array.sort((a, b) => compareLogic(a.version, b.version))
+      ingestionHistoryData->getValueFromArray(
+        0,
+        Dict.make()->getTransactionsIngestionHistoryPayloadFromDict,
+      )
+    }
+
     let fetchLineageData = async () => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let entryUrl = getURL(
-          ~entityName=V1(HYPERSWITCH_RECON),
-          ~methodType=Get,
-          ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
-          ~queryParameters=None,
-          ~id=entry.staging_entry_id,
-        )
-        let processingEntry = await fetchDetails(entryUrl)
-        let processingEntryData =
-          processingEntry
-          ->getDictFromJsonObject
-          ->getTransactionsProcessingEntryPayloadFromDict
+        let processingEntryData = await fetchProcessingEntry(entry.staging_entry_id)
         setProcessingEntryData(_ => processingEntryData)
-        let url = getURL(
-          ~entityName=V1(HYPERSWITCH_RECON),
-          ~methodType=Get,
-          ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
-          ~queryParameters=None,
-          ~id=Some(processingEntryData.transformation_history_id),
+
+        let transformationHistoryData = await fetchTransformationHistory(
+          processingEntryData.transformation_history_id,
         )
-        let res = await fetchDetails(url)
-        let transformationHistoryData =
-          res
-          ->getDictFromJsonObject
-          ->getTransactionsTransformationHistoryPayloadFromDict
-        let ingestionHistoryData = await getIngestionHistory(
-          ~queryParameters=Some(
-            `ingestion_history_id=${transformationHistoryData.ingestion_history_id}`,
-          ),
+        let latestIngestionHistory = await fetchLatestIngestionHistory(
+          transformationHistoryData.ingestion_history_id,
         )
-        ingestionHistoryData->Array.sort((ingestionHistory1, ingestionHistory2) =>
-          compareLogic(ingestionHistory1.version, ingestionHistory2.version)
-        )
-        let latestIngestionHistory =
-          ingestionHistoryData->getValueFromArray(
-            0,
-            Dict.make()->getTransactionsIngestionHistoryPayloadFromDict,
-          )
-        if (
+
+        let hasValidLineage =
           latestIngestionHistory.ingestion_history_id->isNonEmptyString ||
             transformationHistoryData.transformation_id->isNonEmptyString
-        ) {
+
+        if hasValidLineage {
           setTransformationHistoryData(_ => transformationHistoryData)
           setIngestionHistoryData(_ => latestIngestionHistory)
           setScreenState(_ => PageLoaderWrapper.Success)
