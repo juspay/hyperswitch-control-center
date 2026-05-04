@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.04.0
+
+### Miscellaneous Tasks
+
+- Updated wasm for trulayer payment method ([#4776](https://github.com/juspay/hyperswitch-control-center/pull/4776)) ([`812a7f9`](https://github.com/juspay/hyperswitch-control-center/commit/812a7f9b04609f1f85194f784cb06c214480193a))
+
+**Full Changelog:** [`2026.05.01.0...2026.05.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.01.0...2026.05.04.0)
+
+- - -
+
 ## 2026.05.01.0
 
 ### Features
