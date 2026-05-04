@@ -3,7 +3,7 @@ import { SignInPage } from "../../support/pages/auth/SignInPage";
 import { SignUpPage } from "../../support/pages/auth/SignUpPage";
 import { ResetPasswordPage } from "../../support/pages/auth/ResetPasswordPage";
 import { HomePage } from "../../support/pages/homepage/HomePage";
-import { generateUniqueEmail } from "../../support/helper";
+import { generateUniqueEmail, getInvalidEmails } from "../../support/helper";
 import {
   signupUser,
   loginUI,
@@ -44,23 +44,7 @@ test.describe.serial("Sign up", () => {
     const signupPage = new SignUpPage(page);
     const signinPage = new SignInPage(page);
 
-    const invalidEmails = [
-      "@#$%",
-      "plainaddress",
-      "missing@domain",
-      "user@.com",
-      "user@domain..com",
-      "user@domain,com",
-      "user@domain.123",
-      "user@domain.c",
-      "user@domain.",
-      "user@.com",
-      "12345678",
-      "abc@@xy.zi",
-      "@com.in",
-      "abc.in",
-      "abc..xyz@abc.com",
-    ];
+    const invalidEmails = getInvalidEmails();
 
     await visitSignupPage(page);
 

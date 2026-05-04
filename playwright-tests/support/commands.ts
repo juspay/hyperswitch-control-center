@@ -17,6 +17,7 @@ export async function signupUser(
   email: string,
   password: string,
   context?: APIRequestContext,
+  companyName?: string,
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
   const response = await ctx.post(`${API_URL}/user/signup_with_merchant_id`, {
@@ -27,7 +28,7 @@ export async function signupUser(
     data: {
       email,
       password,
-      company_name: generateDateTimeString(),
+      company_name: companyName ?? generateDateTimeString(),
       name: "Playwright_test_user",
     },
   });

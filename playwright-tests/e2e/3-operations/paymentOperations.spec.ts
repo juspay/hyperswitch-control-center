@@ -1102,6 +1102,148 @@ test.describe("Payment Operations", () => {
 
       await expect(paymentOperations.generateReports).not.toBeVisible();
     });
+
+    test("should close the report modal when close icon is clicked", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await createDummyConnectorAPI(
+          merchantId,
+          "stripe_test_1",
+          context.request,
+        );
+        await createPaymentAPI(merchantId, context.request);
+      }
+
+      await page.route("**/dashboard/config/feature?domain=", async (route) => {
+        const response = await route.fetch();
+        const json = await response.json();
+        if (json && json.features) {
+          json.features.generate_report = true;
+        }
+        await route.fulfill({ response, json });
+      });
+      await page.reload();
+
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+
+      await paymentOperations.generateReports.click();
+      const modal = page.locator(
+        '[data-component="modal:Generate Payment Reports"]',
+      );
+      await expect(modal).toBeVisible();
+
+      await modal.locator('[data-icon="modal-close-icon"]').click();
+      await expect(modal).toBeHidden();
+    });
+
+    test("should show success toast and close modal when download succeeds", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await createDummyConnectorAPI(
+          merchantId,
+          "stripe_test_1",
+          context.request,
+        );
+        await createPaymentAPI(merchantId, context.request);
+      }
+
+      await page.route("**/dashboard/config/feature?domain=", async (route) => {
+        const response = await route.fetch();
+        const json = await response.json();
+        if (json && json.features) {
+          json.features.generate_report = true;
+        }
+        await route.fulfill({ response, json });
+      });
+      await page.route("**/analytics/v1/**/report/payments", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ message: "ok" }),
+        });
+      });
+      await page.reload();
+
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+
+      await paymentOperations.generateReports.click();
+      const modal = page.locator(
+        '[data-component="modal:Generate Payment Reports"]',
+      );
+      await expect(modal).toBeVisible();
+
+      await page.getByRole("button", { name: "Generate", exact: true }).click();
+
+      await expect(page.locator('[data-toast="Email Sent"]')).toBeVisible();
+      await expect(modal).toBeHidden();
+    });
+
+    test("should show error toast and keep modal open when download fails", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await createDummyConnectorAPI(
+          merchantId,
+          "stripe_test_1",
+          context.request,
+        );
+        await createPaymentAPI(merchantId, context.request);
+      }
+
+      await page.route("**/dashboard/config/feature?domain=", async (route) => {
+        const response = await route.fetch();
+        const json = await response.json();
+        if (json && json.features) {
+          json.features.generate_report = true;
+        }
+        await route.fulfill({ response, json });
+      });
+      await page.route("**/analytics/v1/**/report/payments", async (route) => {
+        await route.fulfill({
+          status: 500,
+          contentType: "application/json",
+          body: JSON.stringify({
+            error: { message: "Internal server error" },
+          }),
+        });
+      });
+      await page.reload();
+
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+
+      await paymentOperations.generateReports.click();
+      const modal = page.locator(
+        '[data-component="modal:Generate Payment Reports"]',
+      );
+      await expect(modal).toBeVisible();
+
+      await page.getByRole("button", { name: "Generate", exact: true }).click();
+
+      await expect(
+        page.locator('[data-toast="Something went wrong. Please try again."]'),
+      ).toBeVisible();
+      await expect(modal).toBeVisible();
+    });
   });
 
   test.describe("Open in new tab button for payment ID", () => {
