@@ -78,6 +78,7 @@ dev_orchestration_v2_product=false
 dev_sidebar_v2=true
 dev_debit_routing=true
 dev_webhooks=true
+recon_engine_permissions=false
 dev_recon_engine_v1=false
 dev_ai_chat_bot=false
 dev_roles_v2=true

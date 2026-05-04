@@ -148,6 +148,9 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
+  let {product_type} = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom
+  let productType = product_type->ProductUtils.getProductStringName->String.toLowerCase
+  let {reconEnginePermissions} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let (permissionModules, setPermissionModules) = React.useState(() => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -214,7 +217,11 @@ let make = () => {
         ~entityName=V1(USERS),
         ~userType=#ROLE_INFO,
         ~methodType=Get,
-        ~queryParameters=Some(`entity_type=${entityTypeString}`),
+        ~queryParameters=Some(
+          reconEnginePermissions
+            ? `entity_type=${entityTypeString}&product_type=${productType}`
+            : `entity_type=${entityTypeString}`,
+        ),
       )
       let res = await fetchDetails(url)
       let modules = getArrayDataFromJson(res, permissionModuleMapper)

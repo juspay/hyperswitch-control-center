@@ -12,14 +12,14 @@ import {
 import { HomePage } from "../support/pages/homepage/HomePage";
 import { PaymentOperations } from "../support/pages/operations/PaymentOperations";
 
-const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
+const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 test.describe("Visual Testing - Payment Operations", () => {
   test("payment operations when no payment exists should match visual snapshot", async ({ page, context }) => {
     await mockV2MerchantList(page);
-    
+
     const homePage = new HomePage(page);
-    
+
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
 
@@ -37,10 +37,10 @@ test.describe("Visual Testing - Payment Operations", () => {
 
   test("payment operations when payment exists should match visual snapshot", async ({ page, context }) => {
     await mockV2MerchantList(page);
-    
+
     const homePage = new HomePage(page);
     const paymentOperations = new PaymentOperations(page);
-    
+
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
 
@@ -61,9 +61,9 @@ test.describe("Visual Testing - Payment Operations", () => {
     await homePage.paymentOperations.click();
 
     await expect(page).toHaveScreenshot("payment-operations-with-payment.png", {
-    fullPage: true,
-    animations: "disabled",
-    maxDiffPixelRatio: 0.01,
+      fullPage: true,
+      animations: "disabled",
+      maxDiffPixelRatio: 0.01,
     });
 
     await page.locator('[data-table-location="Orders_tr1_td1"]').click();
@@ -73,9 +73,9 @@ test.describe("Visual Testing - Payment Operations", () => {
 
     await page.locator('div').filter({ hasText: /^Events and logs$/ }).first().click();
     await expect(page).toHaveScreenshot("payment-details.png", {
-    fullPage: true,
-    animations: "disabled",
-    maxDiffPixelRatio: 0.01,
+      fullPage: true,
+      animations: "disabled",
+      maxDiffPixelRatio: 0.01,
     });
 
     await page.locator('div').filter({ hasText: /^1$/ }).nth(1).click();
@@ -133,9 +133,9 @@ test.describe("Visual Testing - Payment Operations", () => {
 test.describe("Visual Testing - Refund Operations", () => {
   test("refund operations when no refund exists should match visual snapshot", async ({ page, context }) => {
     await mockV2MerchantList(page);
-    
+
     const homePage = new HomePage(page);
-    
+
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
 
@@ -153,9 +153,9 @@ test.describe("Visual Testing - Refund Operations", () => {
 
   test("refund operations when refund exists should match visual snapshot", async ({ page, context }) => {
     await mockV2MerchantList(page);
-    
+
     const homePage = new HomePage(page);
-    
+
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -208,9 +208,9 @@ test.describe("Visual Testing - Refund Operations", () => {
 test.describe("Visual Testing - Payout Operations", () => {
   test("payout operations when no payouts exists should match visual snapshot", async ({ page, context }) => {
     await mockV2MerchantList(page);
-    
+
     const homePage = new HomePage(page);
-    
+
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
 
@@ -228,9 +228,9 @@ test.describe("Visual Testing - Payout Operations", () => {
 
   test("payout operations when payouts exist should match visual snapshot", async ({ page, context }) => {
     await mockV2MerchantList(page);
-    
+
     const homePage = new HomePage(page);
-    
+
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -290,16 +290,16 @@ test.describe("Visual Testing - Payout Operations", () => {
       animations: "disabled",
       maxDiffPixelRatio: 0.01,
     });
- 
+
   });
 });
 
 test.describe("Visual Testing - Dispute Operations", () => {
   test("dispute operations when no disputes exists should match visual snapshot", async ({ page, context }) => {
     await mockV2MerchantList(page);
-    
+
     const homePage = new HomePage(page);
-    
+
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
 
@@ -319,9 +319,9 @@ test.describe("Visual Testing - Dispute Operations", () => {
 test.describe("Visual Testing - Customers", () => {
   test("customers page when no customers exist should match visual snapshot", async ({ page, context }) => {
     await mockV2MerchantList(page);
-    
+
     const homePage = new HomePage(page);
-    
+
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
 
@@ -339,9 +339,9 @@ test.describe("Visual Testing - Customers", () => {
 
   test("customers page when customers exist should match visual snapshot", async ({ page, context }) => {
     await mockV2MerchantList(page);
-    
+
     const homePage = new HomePage(page);
-    
+
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
 

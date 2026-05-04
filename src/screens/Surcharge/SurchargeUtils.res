@@ -17,7 +17,7 @@ let surchargeRules: RoutingTypes.rule = {
   connectorSelection: {
     surcharge_details: defaultSurcharge->Nullable.make,
   },
-  statements: statementObject,
+  statements: defaultStatements,
 }
 
 let buildInitialSurchargeValue = (~currentDate, ~currentTime): threeDsRoutingType => {

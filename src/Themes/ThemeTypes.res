@@ -13,6 +13,13 @@ type lineage = {
   profile_id: option<string>,
 }
 
+type assetValue = Url(string) | File(JSON.t)
+
+type assets = {
+  logo: option<assetValue>,
+  favicon: option<assetValue>,
+}
+
 type themeOption = {
   label: string,
   value: string,

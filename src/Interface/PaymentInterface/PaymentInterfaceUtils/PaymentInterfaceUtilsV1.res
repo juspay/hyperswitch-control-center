@@ -111,8 +111,9 @@ let mapDictToPaymentPayload: dict<JSON.t> => order_v1 = dict => {
     payment_method_type: dict->getString("payment_method_type", ""),
     payment_method_data: {
       let paymentMethodData = dict->getJsonObjectFromDict("payment_method_data")
+      let paymentMethodString = dict->getString("payment_method", "")
       switch paymentMethodData->JSON.Classify.classify {
-      | Object(value) => Some(value->getJsonObjectFromDict("card"))
+      | Object(value) => Some(value->getJsonObjectFromDict(paymentMethodString))
       | _ => None
       }
     },

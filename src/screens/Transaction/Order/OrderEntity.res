@@ -630,7 +630,6 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
       | Some(val) => val->getDictFromJsonObject
       | _ => Dict.make()
       }
-
       Text(dict->getString("card_network", ""))
     }
   }
