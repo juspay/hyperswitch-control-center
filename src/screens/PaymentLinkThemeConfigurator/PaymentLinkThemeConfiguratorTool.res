@@ -457,45 +457,43 @@ module CreateNewStyleID = {
 module StyleIdSelection = {
   @react.component
   let make = (~selectedStyleId, ~setSelectedStyleId) => {
-    open BusinessProfileInterfaceUtils
     open Typography
     let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
       HyperswitchAtom.businessProfileFromIdAtomInterface,
     )
     let (availableStyles, setAvailableStyles) = React.useState(_ => [])
-
     React.useEffect(() => {
-      let defaultPaymentLinkConfigValues =
-        businessProfileRecoilVal.payment_link_config->Option.getOr(
-          paymentLinkConfigMapper(Dict.make()),
-        )
-
-      let stylesDict =
-        defaultPaymentLinkConfigValues.business_specific_configs->Option.getOr(JSON.Encode.null)
-      let styles = getDictFromJsonObject(stylesDict)->Dict.keysToArray
-
-      let stylesList = styles->Array.map(styleId => {
-        let dropdownOption: SelectBox.dropdownOption = {
-          label: styleId,
-          value: styleId,
-        }
-        dropdownOption
-      })
       let defaultOption: SelectBox.dropdownOption = {
         label: defaultStyleId,
         value: defaultStyleId,
       }
-      let stylesList = Array.concat([defaultOption], stylesList)
 
-      setAvailableStyles(_ => stylesList)
+      switch businessProfileRecoilVal.payment_link_config {
+      | None => setAvailableStyles(_ => [defaultOption])
+      | Some(paymentLinkConfig) => {
+          let stylesDict =
+            paymentLinkConfig.business_specific_configs->Option.getOr(JSON.Encode.null)
+          let styles = getDictFromJsonObject(stylesDict)->Dict.keysToArray
 
-      if selectedStyleId->isEmptyString {
-        let hasDefault = stylesList->Array.some(opt => opt.value == defaultStyleId)
-        let autoSelect = hasDefault
-          ? defaultStyleId
-          : stylesList->Array.get(0)->Option.mapOr("", opt => opt.value)
-        if autoSelect->isNonEmptyString {
-          setSelectedStyleId(_ => autoSelect)
+          let stylesList = styles->Array.map(styleId => {
+            let dropdownOption: SelectBox.dropdownOption = {
+              label: styleId,
+              value: styleId,
+            }
+            dropdownOption
+          })
+
+          let finalStylesList = stylesList->Array.length == 0 ? [defaultOption] : stylesList
+
+          setAvailableStyles(_ => finalStylesList)
+
+          if selectedStyleId->isEmptyString {
+            let hasDefault = finalStylesList->Array.some(opt => opt.value == defaultStyleId)
+            let autoSelect = hasDefault
+              ? defaultStyleId
+              : finalStylesList->Array.get(0)->Option.mapOr("", opt => opt.value)
+            autoSelect->isNonEmptyString ? setSelectedStyleId(_ => autoSelect) : ()
+          }
         }
       }
 
