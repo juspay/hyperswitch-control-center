@@ -42,7 +42,6 @@ module ShowOrderDetails = {
           {title->React.string}
         </div>
       | _ => React.null
-      
       }}
       <RenderIf condition=isButtonEnabled>
         <div className="flex items-center flex-wrap gap-3 m-3">
@@ -70,8 +69,7 @@ module ShowOrderDetails = {
               ? Normal
               : Disabled}
           />
-          <RenderIf
-            condition={typedPaymentStatus === RequiresCapture && !(paymentId->isTestData)}>
+          <RenderIf condition={typedPaymentStatus === RequiresCapture && !(paymentId->isTestData)}>
             <ACLButton
               authorization={userHasAccess(~groupAccess=OperationsManage)}
               text="+ Void"
