@@ -186,6 +186,7 @@ let make = (~ruleId: string) => {
         selectedRows={selectedRows->Array.map(json => json->Identity.jsonToAnyType)}
         setSelectedRows
         showVoidButton=true
+        refreshList={() => fetchExceptionsData()->ignore}
       />
     </RenderIf>
   </div>

@@ -177,7 +177,9 @@ let make = () => {
     </PageLoaderWrapper>
     <RenderIf condition={selectedRows->isNonEmptyArray}>
       <ReconEngineTransformedEntryBulkActions
-        selectedRows={selectedRows->Array.map(json => json->Identity.jsonToAnyType)} setSelectedRows
+        selectedRows={selectedRows->Array.map(json => json->Identity.jsonToAnyType)}
+        setSelectedRows
+        refreshList={() => fetchStagingData()->ignore}
       />
     </RenderIf>
   </div>

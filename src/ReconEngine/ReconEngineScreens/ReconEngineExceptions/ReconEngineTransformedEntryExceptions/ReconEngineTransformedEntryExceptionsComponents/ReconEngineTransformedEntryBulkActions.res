@@ -1,7 +1,7 @@
 open Typography
 
 @react.component
-let make = (~selectedRows, ~setSelectedRows) => {
+let make = (~selectedRows, ~setSelectedRows, ~refreshList) => {
   open ReconEngineTransformedEntryExceptionsTypes
   open ReconEngineTransformedEntryExceptionsUtils
   open APIUtils
@@ -35,6 +35,7 @@ let make = (~selectedRows, ~setSelectedRows) => {
     setShowSuccessModal(_ => false)
     setActionType(_ => UnknownBulkTransformedEntryActionType)
     setSelectedRows(_ => [])
+    refreshList()
   }
 
   let handleVoid = async values => {
@@ -52,7 +53,6 @@ let make = (~selectedRows, ~setSelectedRows) => {
       let response =
         res->getArrayDataFromJson(ReconEngineExceptionsUtils.bulkActionResponseToObjMapper)
       setBulkActionResponses(_ => response)
-      setIsLoading(_ => false)
       setShowSuccessModal(_ => true)
     } catch {
     | _ => {
@@ -60,10 +60,10 @@ let make = (~selectedRows, ~setSelectedRows) => {
           ~toastType=ToastError,
           ~message="Failed to ignore transformed entries. Please try again.",
         )
-        setIsLoading(_ => false)
         setActionType(_ => UnknownBulkTransformedEntryActionType)
       }
     }
+    setIsLoading(_ => false)
   }
 
   let handleConfirm = async (values, _formApi) => {
@@ -74,17 +74,8 @@ let make = (~selectedRows, ~setSelectedRows) => {
     Nullable.null
   }
 
-  let (successCount, failedCount, skippedCount, totalCount) = bulkActionResponses->Array.reduce(
-    (0, 0, 0, 0),
-    (acc, response) => {
-      let (successCount, failedCount, skippedCount, totalCount) = acc
-      switch response.bulk_action_status {
-      | BulkActionSuccess => (successCount + 1, failedCount, skippedCount, totalCount + 1)
-      | BulkActionFailed => (successCount, failedCount + 1, skippedCount, totalCount + 1)
-      | BulkActionInEligible => (successCount, failedCount, skippedCount + 1, totalCount + 1)
-      | UnknownBulkActionStatus => (successCount, failedCount, skippedCount, totalCount + 1)
-      }
-    },
+  let (successCount, failedCount, skippedCount, totalCount) = getTransformedEntryBulkActionsCount(
+    ~bulkActionResponses,
   )
 
   let bulkActionSuccessModalConfig = getBulkActionSuccessModalConfig(

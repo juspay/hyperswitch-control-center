@@ -6,6 +6,7 @@ let make = (
   ~setSelectedRows,
   ~showVoidButton: bool=false,
   ~showPostButton: bool=false,
+  ~refreshList,
 ) => {
   open ReconEngineTransactionsTypes
   open ReconEngineTransactionsUtils
@@ -40,6 +41,7 @@ let make = (
     setShowSuccessModal(_ => false)
     setActionType(_ => UnknownBulkTransactionActionType)
     setSelectedRows(_ => [])
+    refreshList()
   }
 
   let handlePost = async values => {
@@ -61,15 +63,14 @@ let make = (
       let response =
         res->getArrayDataFromJson(ReconEngineExceptionsUtils.bulkActionResponseToObjMapper)
       setBulkActionResponses(_ => response)
-      setIsLoading(_ => false)
       setShowSuccessModal(_ => true)
     } catch {
     | _ => {
         showToast(~toastType=ToastError, ~message="Failed to post transactions. Please try again.")
-        setIsLoading(_ => false)
         setActionType(_ => UnknownBulkTransactionActionType)
       }
     }
+    setIsLoading(_ => false)
   }
 
   let handleVoid = async values => {
@@ -91,7 +92,6 @@ let make = (
       let response =
         res->getArrayDataFromJson(ReconEngineExceptionsUtils.bulkActionResponseToObjMapper)
       setBulkActionResponses(_ => response)
-      setIsLoading(_ => false)
       setShowSuccessModal(_ => true)
     } catch {
     | _ => {
@@ -99,10 +99,10 @@ let make = (
           ~toastType=ToastError,
           ~message="Failed to ignore transactions. Please try again.",
         )
-        setIsLoading(_ => false)
         setActionType(_ => UnknownBulkTransactionActionType)
       }
     }
+    setIsLoading(_ => false)
   }
 
   let handleConfirm = async (values, _formApi) => {
@@ -114,17 +114,8 @@ let make = (
     Nullable.null
   }
 
-  let (successCount, failedCount, skippedCount, totalCount) = bulkActionResponses->Array.reduce(
-    (0, 0, 0, 0),
-    (acc, response) => {
-      let (successCount, failedCount, skippedCount, totalCount) = acc
-      switch response.bulk_action_status {
-      | BulkActionSuccess => (successCount + 1, failedCount, skippedCount, totalCount + 1)
-      | BulkActionFailed => (successCount, failedCount + 1, skippedCount, totalCount + 1)
-      | BulkActionInEligible => (successCount, failedCount, skippedCount + 1, totalCount + 1)
-      | UnknownBulkActionStatus => (successCount, failedCount, skippedCount, totalCount + 1)
-      }
-    },
+  let (successCount, failedCount, skippedCount, totalCount) = getTransactionBulkActionsCount(
+    ~bulkActionResponses,
   )
 
   let bulkActionSuccessModalConfig = getBulkActionSuccessModalConfig(

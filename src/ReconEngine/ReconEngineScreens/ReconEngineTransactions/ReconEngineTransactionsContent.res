@@ -220,6 +220,7 @@ let make = (~account: ReconEngineTypes.accountType) => {
           selectedRows={selectedRows->Array.map(json => json->Identity.jsonToAnyType)}
           setSelectedRows
           showPostButton=true
+          refreshList={() => fetchTransactionsData()->ignore}
         />
       </RenderIf>
     </PageLoaderWrapper>

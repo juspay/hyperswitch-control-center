@@ -5,14 +5,15 @@ open ReconEngineExceptionsUtils
 open ReconEngineTransactionsUtils
 
 let constructTransformedEntryBulkVoidRequestBody = (~valuesDict, ~selectedRows) => {
-  let action = [
-    (
-      "void",
-      [("reason", valuesDict->getString("reason", "")->JSON.Encode.string)]
-      ->Dict.fromArray
-      ->JSON.Encode.object,
-    ),
-  ]->Dict.fromArray
+  let action =
+    [
+      (
+        "void",
+        [
+          ("reason", valuesDict->getString("reason", "")->JSON.Encode.string),
+        ]->getJsonFromArrayOfJson,
+      ),
+    ]->getJsonFromArrayOfJson
 
   let selection = [
     ("selection_type", "ids"->JSON.Encode.string),
@@ -22,11 +23,23 @@ let constructTransformedEntryBulkVoidRequestBody = (~valuesDict, ~selectedRows) 
       ->Array.map((entry: processingEntryType) => entry.id->JSON.Encode.string)
       ->JSON.Encode.array,
     ),
-  ]->Dict.fromArray
+  ]->getJsonFromArrayOfJson
 
-  [("action", action->JSON.Encode.object), ("selection", selection->JSON.Encode.object)]
-  ->Dict.fromArray
-  ->JSON.Encode.object
+  [("action", action), ("selection", selection)]->getJsonFromArrayOfJson
+}
+
+let getTransformedEntryBulkActionsCount = (
+  ~bulkActionResponses: array<ReconEngineExceptionsTypes.bulkActionResponse>,
+) => {
+  bulkActionResponses->Array.reduce((0, 0, 0, 0), (acc, response) => {
+    let (successCount, failedCount, skippedCount, totalCount) = acc
+    switch response.bulk_action_status {
+    | BulkActionSuccess => (successCount + 1, failedCount, skippedCount, totalCount + 1)
+    | BulkActionFailed => (successCount, failedCount + 1, skippedCount, totalCount + 1)
+    | BulkActionInEligible => (successCount, failedCount, skippedCount + 1, totalCount + 1)
+    | UnknownBulkActionStatus => (successCount, failedCount, skippedCount, totalCount + 1)
+    }
+  })
 }
 
 let sortByVersion = (c1: processingEntryType, c2: processingEntryType) => {
@@ -508,7 +521,7 @@ let downloadBulkActionReport = (bulkActionResponses: array<bulkActionResponse>) 
   })
 
   let csvContent = PapaParse.unparse({"fields": headers, "data": data})
-  let timestamp = Js.Date.now()->Js.Float.toString
+  let timestamp = Date.now()->Js.Float.toString
   DownloadUtils.download(
     ~fileName=`bulk_ignore_transformed_entry_report_${timestamp}.csv`,
     ~content=csvContent,

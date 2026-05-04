@@ -9,28 +9,30 @@ let constructTransactionBulkRequestBody = (
   ~valuesDict,
   ~selectedRows,
 ) => {
-  let postAction = [
-    (
-      "manual_post",
-      [("reason", valuesDict->getString("reason", "")->JSON.Encode.string)]
-      ->Dict.fromArray
-      ->JSON.Encode.object,
-    ),
-  ]->Dict.fromArray
+  let postAction =
+    [
+      (
+        "manual_post",
+        [
+          ("reason", valuesDict->getString("reason", "")->JSON.Encode.string),
+        ]->getJsonFromArrayOfJson,
+      ),
+    ]->getJsonFromArrayOfJson
 
-  let voidAction = [
-    (
-      "void",
-      [("reason", valuesDict->getString("reason", "")->JSON.Encode.string)]
-      ->Dict.fromArray
-      ->JSON.Encode.object,
-    ),
-  ]->Dict.fromArray
+  let voidAction =
+    [
+      (
+        "void",
+        [
+          ("reason", valuesDict->getString("reason", "")->JSON.Encode.string),
+        ]->getJsonFromArrayOfJson,
+      ),
+    ]->getJsonFromArrayOfJson
 
   let action = switch bulkActionType {
   | BulkTransactionPost => postAction
   | BulkTransactionVoid => voidAction
-  | UnknownBulkTransactionActionType => Dict.make()
+  | UnknownBulkTransactionActionType => JSON.Encode.null
   }
 
   let selection = [
@@ -41,11 +43,23 @@ let constructTransactionBulkRequestBody = (
       ->Array.map((txn: transactionType) => txn.id->JSON.Encode.string)
       ->JSON.Encode.array,
     ),
-  ]->Dict.fromArray
+  ]->getJsonFromArrayOfJson
 
-  [("action", action->JSON.Encode.object), ("selection", selection->JSON.Encode.object)]
-  ->Dict.fromArray
-  ->JSON.Encode.object
+  [("action", action), ("selection", selection)]->getJsonFromArrayOfJson
+}
+
+let getTransactionBulkActionsCount = (
+  ~bulkActionResponses: array<ReconEngineExceptionsTypes.bulkActionResponse>,
+) => {
+  bulkActionResponses->Array.reduce((0, 0, 0, 0), (acc, response) => {
+    let (successCount, failedCount, skippedCount, totalCount) = acc
+    switch response.bulk_action_status {
+    | BulkActionSuccess => (successCount + 1, failedCount, skippedCount, totalCount + 1)
+    | BulkActionFailed => (successCount, failedCount + 1, skippedCount, totalCount + 1)
+    | BulkActionInEligible => (successCount, failedCount, skippedCount + 1, totalCount + 1)
+    | UnknownBulkActionStatus => (successCount, failedCount, skippedCount, totalCount + 1)
+    }
+  })
 }
 
 let entriesMetadataKeyToString = key => {
