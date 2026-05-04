@@ -103,9 +103,7 @@ let make = (~ruleId: string) => {
       let urlParams = urlSearch->getDictFromUrlSearchParams
       let filtersToApply = Dict.make()
 
-      urlParams
-      ->Dict.get("status")
-      ->Option.mapOr((), value => {
+      urlParams->getMappedValueFromDict("status", (), value => {
         let formattedValue = value->String.includes(",") ? `[${value}]` : value
         filtersToApply->Dict.set("status", formattedValue)
       })
@@ -113,8 +111,7 @@ let make = (~ruleId: string) => {
       if !(filtersToApply->isEmptyDict) {
         updateExistingKeys(filtersToApply)
         if !(filterKeys->Array.includes("status")) {
-          filterKeys->Array.push("status")
-          setfilterKeys(_ => filterKeys)
+          setfilterKeys(prev => prev->Array.concat(["status"]))
         }
       }
     }

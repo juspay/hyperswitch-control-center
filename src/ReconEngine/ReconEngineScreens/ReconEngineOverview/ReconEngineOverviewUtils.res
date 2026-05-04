@@ -254,7 +254,7 @@ let initialDisplayFilters = () => {
 
 let seriesTypeFromString = (str: string): ReconEngineOverviewSummaryTypes.seriesType => {
   switch str->String.toLowerCase {
-  | "reconciled" => ReconciledSeriesType
+  | "matched" => ReconciledSeriesType
   | "mismatched" => MismatchedSeriesType
   | "expected" => ExpectedSeriesType
   | _ => UnknownSeriesType
@@ -263,7 +263,7 @@ let seriesTypeFromString = (str: string): ReconEngineOverviewSummaryTypes.series
 
 let getStatusFilter = (seriesType: ReconEngineOverviewSummaryTypes.seriesType): string => {
   switch seriesType {
-  | ReconciledSeriesType => "posted_auto,posted_manual,posted_force"
+  | ReconciledSeriesType => "matched_auto,matched_manual,matched_force,posted_manual"
   | MismatchedSeriesType => "over_amount_mismatch,under_amount_mismatch"
   | ExpectedSeriesType => "expected,over_amount_expected,under_amount_expected,partially_reconciled"
   | UnknownSeriesType => ""
@@ -277,7 +277,6 @@ let handleBarClick = (~rule: ReconEngineRulesTypes.rulePayload, seriesName: stri
     switch seriesType {
     | MismatchedSeriesType | ExpectedSeriesType => {
         let filterQueryString = `rule_id=${rule.rule_id}&status=${statusFilter}`
-
         RescriptReactRouter.push(
           GlobalVars.appendDashboardPath(
             ~url=`/v1/recon-engine/exceptions/recon?${filterQueryString}`,

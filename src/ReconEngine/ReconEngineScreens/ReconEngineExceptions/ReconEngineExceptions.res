@@ -52,12 +52,11 @@ let make = () => {
   let initialTabIndex = React.useMemo(() => {
     let urlSearch = url.search
     if urlSearch->isNonEmptyString {
-      let urlParams = urlSearch->getDictFromUrlSearchParams
-      urlParams
-      ->Dict.get("rule_id")
-      ->Option.mapOr(0, ruleId => {
+      urlSearch
+      ->getDictFromUrlSearchParams
+      ->getMappedValueFromDict("rule_id", 0, ruleId =>
         reconRulesList->Array.findIndexOpt(rule => rule.rule_id === ruleId)->Option.getOr(0)
-      })
+      )
     } else {
       0
     }
