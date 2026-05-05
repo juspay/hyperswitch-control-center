@@ -748,13 +748,8 @@ test.describe("Stripe Connector", () => {
 });
 
 test.describe("Live Connectors", () => {
-  let email: string;
-
-  test.beforeAll(() => {
-    email = generateUniqueEmail();
-  });
-
   test.beforeEach(async ({ page, context }) => {
+    const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });

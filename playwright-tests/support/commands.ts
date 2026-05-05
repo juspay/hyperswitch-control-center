@@ -957,7 +957,10 @@ export async function assertConnectorFieldLabels(
 ): Promise<void> {
   for (const label of fieldLabels) {
     const labelElement = page.locator("label", { hasText: label });
-    await expect(labelElement).toBeVisible();
+    await labelElement.scrollIntoViewIfNeeded();
+    await expect(labelElement).toBeVisible({
+      timeout: 5000,
+    });
 
     const inputId = await labelElement.getAttribute("for");
     if (inputId) {
@@ -980,6 +983,7 @@ export async function fillConnectorFields(
   const count = await inputs.count();
   for (let i = 0; i < count; i++) {
     const input = inputs.nth(i);
+    await input.scrollIntoViewIfNeeded();
     const placeholder = (await input.getAttribute("placeholder")) || "";
     const value = fields.overrides?.[placeholder] ?? fields.default;
 
@@ -1000,16 +1004,43 @@ export async function assertPaymentMethodTypes(
 ): Promise<void> {
   for (const section of Object.values(sections)) {
     const sectionHeader = page.getByText(section.label, { exact: true });
-    await sectionHeader.scrollIntoViewIfNeeded();
-    await expect(sectionHeader).toBeVisible();
+    await expect(sectionHeader).toBeVisible({
+      timeout: 5000,
+    });
 
-    for (const method of section.methods.slice(0, 2)) {
-      const methodElement = page
-        .getByTestId(new RegExp(`.*_${method.toLowerCase()}$`))
+    // Find the section container (look for parent element with the section content)
+    // Navigate to the closest parent that contains the payment methods for this section
+    const sectionContainer = sectionHeader
+      .locator("..")
+      .locator("..")
+      .locator("..", { has: sectionHeader });
+
+    for (const method of section.methods) {
+      // Convert method name to snake_case for data-testid matching
+      const methodSnakeCase = method
+        .toLowerCase()
+        .replace(/\s+/g, "_")
+        .replace(/[^\w]/g, "");
+
+      // Try to find method within section container first, fallback to page-wide search
+      let methodElement = sectionContainer
+        .getByTestId(new RegExp(`.*_${methodSnakeCase}$`, "i"))
         .first();
-      const count = await methodElement.count().catch(() => 0);
+
+      let count = await methodElement.count().catch(() => 0);
+
+      // If not found in section, search globally (for backward compatibility)
+      if (count === 0) {
+        methodElement = page
+          .getByTestId(new RegExp(`.*_${methodSnakeCase}$`, "i"))
+          .first();
+        count = await methodElement.count().catch(() => 0);
+      }
+
       if (count > 0) {
-        await expect(methodElement).toBeVisible();
+        await expect(methodElement).toBeVisible({
+          timeout: 5000,
+        });
       }
     }
   }
