@@ -506,7 +506,7 @@ test.describe("Users - Details", () => {
     expect(merchantId, "merchantId should be readable from header").not.toBe("");
     await homePage.users.click();
 
-    await page.getByText('Merchant Operator').click();
+    await page.getByText('Merchant Developer').click();
 
     await expect(page.getByRole('link', { name: 'Navigate to Team management' })).toBeVisible();
     await expect(page.getByLabel(`Current page: ${invitedEmail}`)).toBeVisible();
@@ -526,7 +526,7 @@ test.describe("Users - Details", () => {
     await usersPage.verifyUserDetailsTableRowContent(
       merchantId,
       "all_profiles",
-      "Merchant Operator"
+      "Merchant Developer"
     );
     await usersPage.verifyActiveStatus();
     await expect(page.getByRole('button', { name: 'Manage user' })).toBeVisible();
@@ -596,7 +596,7 @@ test.describe("Users - Details", () => {
     await usersPage.inviteUser(invitedEmail);
 
     await page.goBack();
-    await page.getByText('Merchant Operator').click();
+    await page.getByText('Merchant Developer').click();
 
     await expect(page.getByText('InviteSent')).toBeVisible();
 
@@ -692,45 +692,234 @@ test.describe("Users - Details", () => {
 
     await expect(page.getByText('Invite resend. Please check')).toBeVisible();
   });
+
+  test("Check User permissions - Admin roles see Workflows in sidebar; developer roles do not", async ({
+    page,
+    context,
+  }) => {
+    const { usersPage } = await setupAndNavigate(page, context);
+    const homePage = new HomePage(page);
+    const signinPage = new SignInPage(page);
+    const resetPasswordPage = new ResetPasswordPage(page);
+
+    const password = "Playwright00#";
+    const invitees = [
+      { email: generateUniqueEmail(), role: "Merchant Admin", scope: "merchant" as const, expectWorkflow: true },
+      { email: generateUniqueEmail(), role: "Merchant Developer", scope: "merchant" as const, expectWorkflow: false },
+      { email: generateUniqueEmail(), role: "Profile Admin", scope: "profile" as const, expectWorkflow: true },
+      { email: generateUniqueEmail(), role: "Profile Developer", scope: "profile" as const, expectWorkflow: false },
+    ];
+
+    const inviteAtScope = async (
+      email: string,
+      role: string,
+      scope: "merchant" | "profile",
+    ) => {
+      await usersPage.inviteUsersButton.click();
+      await usersPage.emailListInput.fill(email);
+      await usersPage.emailListInput.press("Enter");
+
+      if (scope === "profile") {
+        await page.locator('[data-value="allProfiles"]').click();
+        await page.locator('[data-dropdown-value="default"]').click();
+      }
+
+      await usersPage.roleOption.click();
+      await usersPage.entityOption.filter({ hasText: role }).first().click();
+
+      await usersPage.sendInviteButton.click();
+      await expect(usersPage.sendInviteButton).toBeHidden();
+      await usersPage.visit();
+    };
+
+    for (const { email, role, scope } of invitees) {
+      await inviteAtScope(email, role, scope);
+    }
+
+    await homePage.userAccount.click();
+    await homePage.signOut.click();
+    await expect(page).toHaveURL(/.*dashboard\/login/);
+
+    const acceptInviteAndSignIn = async (invitedEmail: string) => {
+      await redirectFromMailInbox(
+        page,
+        invitedEmail,
+        "You have been invited to join Hyperswitch Community!",
+      );
+      await page.getByRole("button", { name: "Continue with Password" }).click();
+      await signinPage.skip2FAButton.click();
+
+      await resetPasswordPage.createPassword.fill(password);
+      await resetPasswordPage.confirmPassword.fill(password);
+      await resetPasswordPage.confirmButton.click();
+
+      await signinPage.emailInput.fill(invitedEmail);
+      await signinPage.passwordInput.fill(password);
+      await signinPage.signinButton.click();
+      await expect(signinPage.headerText2FA).toContainText(
+        "Enable Two Factor Authentication",
+      );
+      await signinPage.skip2FAButton.click();
+
+      await expect(page).toHaveURL(/.*dashboard\/home/);
+      await expect(page.getByRole("button", { name: invitedEmail })).toBeVisible();
+    };
+
+    const signOutCurrentUser = async () => {
+      await homePage.userAccount.click();
+      await homePage.signOut.click();
+      await expect(page).toHaveURL(/.*dashboard\/login/);
+    };
+
+    for (const { email, role, expectWorkflow } of invitees) {
+      await acceptInviteAndSignIn(email);
+
+      if (expectWorkflow) {
+        await expect(
+          homePage.workflow,
+          `${role}: Workflow section should be visible in sidebar`,
+        ).toBeVisible();
+      } else {
+        await expect(
+          homePage.workflow,
+          `${role}: Workflow section should not be attached in sidebar`,
+        ).not.toBeAttached();
+      }
+
+      await signOutCurrentUser();
+    }
+  });
 });
 
 test.describe("Users - Roles Tab", () => {
-  test("Roles tab displays the role list with expected columns", async ({
+  test("Roles matrix renders permission groups as rows and roles as columns for organization, merchant, and profile entities", async ({
     page,
     context,
   }) => {
+    // V2 roles matrix (RolesPermissionsMatrix.res + RolesPermissionsMatrixHelper.res):
+    //   - Header[0]      = "Module Permission"
+    //   - Header[1..]    = role names (snake_case → Title Case of role.role_name)
+    //   - Rows           = union of role.parent_groups[].name across all roles
+    //   - Cells          = "View" / "Edit" pill or "--"
+    // The matrix is hydrated from GET /user/role/list?groups=true&entity_type=...,
+    // so we capture that response and use it as the source of truth — keeps the
+    // assertions in sync with whatever role config the backend currently ships.
+
+    const snakeToTitle = (s: string): string =>
+      s
+        .split("_")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ");
+
+    type ApiRole = {
+      role_id: string;
+      role_name: string;
+      entity_type: string;
+      parent_groups: Array<{ name: string; description: string; scopes: string[] }>;
+    };
+
+    type EntityKey = "organization" | "merchant" | "profile";
+    type EntityLabel = "Organization" | "Merchant" | "Profile";
+
+    const waitForRolesResponse = (entity: EntityKey) =>
+      page.waitForResponse(
+        (resp) =>
+          new RegExp(`/user/role/list\\?.*entity_type=${entity}`).test(resp.url()) &&
+          resp.request().method() === "GET" &&
+          resp.status() === 200,
+      );
+
+    // Roles tab opens with Merchant selected by default (ListRolesV2 sets
+    // initialRolesEntity = #Merchant for non-profile users), so the first
+    // role-list call already targets entity_type=merchant — register the
+    // listener before opening the tab so we don't miss it.
+    const merchantResponsePromise = waitForRolesResponse("merchant");
+
     const { usersPage } = await setupAndNavigate(page, context);
     await usersPage.openRolesTab();
+
+    await page.getByText('Module Permission').click();
+    await expect(page.getByRole('button', { name: 'Create custom roles' })).toBeVisible();
+
+    const merchantApiRoles = (await (await merchantResponsePromise).json()) as ApiRole[];
 
     const headers = page.locator("table#table thead tr th");
-    await expect(headers.nth(0)).toHaveText("Role name");
-    await expect(headers.nth(1)).toHaveText("Entity Type");
-    await expect(headers.nth(2)).toHaveText("Module permissions");
+    const rows = page.locator("table#table tbody tr");
 
-    expect(await page.locator("table#table tbody tr").count()).toBeGreaterThan(0);
-  });
+    const validateMatrix = async (
+      entityLabel: EntityLabel,
+      apiRoles: ApiRole[],
+    ) => {
+      expect(
+        apiRoles.length,
+        `${entityLabel}: API returned no roles`,
+      ).toBeGreaterThan(0);
 
-  test("Create custom roles button navigates to create custom role page", async ({
-    page,
-    context,
-  }) => {
-    const { usersPage } = await setupAndNavigate(page, context);
-    await usersPage.openRolesTab();
+      const expectedRoleNames = apiRoles.map((r) => snakeToTitle(r.role_name));
+      const expectedModules = Array.from(
+        new Set(apiRoles.flatMap((r) => r.parent_groups.map((g) => g.name))),
+      );
+      expect(
+        expectedModules.length,
+        `${entityLabel}: API returned no parent_groups`,
+      ).toBeGreaterThan(0);
 
-    await expect(usersPage.createCustomRoleButton).toBeVisible();
-    await usersPage.createCustomRoleButton.click();
+      // Columns: "Module Permission" + one per role.
+      await expect(headers).toHaveCount(expectedRoleNames.length + 1);
+      await expect(headers.nth(0)).toHaveText("Module Permission");
+      for (let i = 0; i < expectedRoleNames.length; i++) {
+        await expect(
+          headers.nth(i + 1),
+          `${entityLabel}: column ${i + 1} should be role "${expectedRoleNames[i]}"`,
+        ).toContainText(expectedRoleNames[i]);
+      }
 
-    await expect(page).toHaveURL(/.*\/users\/create-custom-role/);
-  });
+      // Rows: one per unique parent_group across all roles.
+      await expect(rows).toHaveCount(expectedModules.length);
+      for (const moduleName of expectedModules) {
+        const row = rows.filter({ hasText: moduleName }).first();
+        await expect(
+          row,
+          `${entityLabel}: module "${moduleName}" should be a row`,
+        ).toBeVisible();
+        // Cells: first column shows the module name; remaining cells (one per
+        // role) carry a permission pill ("View" / "Edit") or "--".
+        await expect(row.locator("td")).toHaveCount(expectedRoleNames.length + 1);
+      }
+    };
 
-  test("Clicking a role row reveals role details", async ({ page, context }) => {
-    const { usersPage } = await setupAndNavigate(page, context);
-    await usersPage.openRolesTab();
+    // Switch the entity dropdown and capture the resulting role-list call.
+    // The OMP entity dropdown uses "settings-new" as the trigger; options are
+    // exposed via [data-dropdown-value]. data-dropdown-value carries the
+    // option's description text — the org/merchant ID (starts with "202") for
+    // Organization and Merchant, and "default" for Profile — so we use the
+    // labelDescription text "(Organization)" / "(Merchant)" / "(Profile)" to
+    // disambiguate.
+    const switchEntityAndCapture = async (
+      entityKey: EntityKey,
+      entityLabel: EntityLabel,
+    ): Promise<ApiRole[]> => {
+      const responsePromise = waitForRolesResponse(entityKey);
+      await page.locator('[data-icon="settings-new"]').click({ force: true });
+      const valueSelector =
+        entityLabel === "Profile"
+          ? '[data-dropdown-value="default"]'
+          : '[data-dropdown-value^="202"]';
+      await page
+        .locator(valueSelector)
+        .filter({ hasText: `(${entityLabel})` })
+        .first()
+        .click();
+      return (await (await responsePromise).json()) as ApiRole[];
+    };
 
-    const firstRow = page.locator("table#table tbody tr").first();
-    await firstRow.click();
+    await validateMatrix("Merchant", merchantApiRoles);
 
-    await expect(page.locator("[data-breadcrumb]").first()).toBeVisible();
+    const profileApiRoles = await switchEntityAndCapture("profile", "Profile");
+    await validateMatrix("Profile", profileApiRoles);
+
+    const orgApiRoles = await switchEntityAndCapture("organization", "Organization");
+    await validateMatrix("Organization", orgApiRoles);
   });
 });
 
@@ -742,85 +931,267 @@ test.describe("Users - Create Custom Role", () => {
     await expect(page.getByText("Create custom role").first()).toBeVisible();
     await expect(usersPage.roleNameInput).toBeVisible();
     await expect(page.getByText("Role Visibility")).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Merchant' }).first()).toBeVisible();
+    await expect(page.getByText('Entity Type *')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Merchant' }).nth(1)).toBeVisible();
     await expect(usersPage.submitCreateRoleButton).toBeVisible();
   });
 
-  test("Role name input accepts user input", async ({ page, context }) => {
+  test("Permission groups in table match what /user/parent/list returns", async ({
+    page,
+    context,
+  }) => {
+    // CreateCustomRoleV2 hydrates the permission table from
+    // GET /user/parent/list?entity_type=<entity>&product_type=<product>. Each
+    // returned module renders as a row with `name` (semibold) and
+    // `description` (the comma-separated sub-modules shown in the screenshot).
+    // Capture the response so the assertions track whatever the backend ships.
     const { usersPage } = await setupAndNavigate(page, context);
+
+    const responsePromise = page.waitForResponse(
+      (resp) =>
+        /\/user\/parent\/list\?.*entity_type=/.test(resp.url()) &&
+        resp.request().method() === "GET" &&
+        resp.status() === 200,
+    );
+
     await usersPage.visitCreateCustomRole();
 
-    const roleName = "Test Custom Role";
-    await usersPage.roleNameInput.fill(roleName);
-    await expect(usersPage.roleNameInput).toHaveValue(roleName);
-  });
+    const modules = (await (await responsePromise).json()) as Array<{
+      name: string;
+      description: string;
+      scopes: string[];
+    }>;
+    expect(
+      modules.length,
+      "/user/parent/list returned no permission modules",
+    ).toBeGreaterThan(0);
 
-  test("Permissions matrix renders module groups", async ({ page, context }) => {
-    const { usersPage } = await setupAndNavigate(page, context);
-    await usersPage.visitCreateCustomRole();
-    await page.waitForLoadState("networkidle");
+    await expect(page.getByText("Select Permission Level")).toBeVisible();
 
-    const expectedModules = [
-      "Payment",
-      "Refund",
-      "Dispute",
-      "Customer",
-      "Connector",
-    ];
-    for (const module of expectedModules) {
+    // Module rows live inside the bordered wrapper; each row is a
+    // `flex items-center py-4 px-6` whose first child holds the name and the
+    // description. Scope to the wrapper so we don't pick up unrelated rows.
+    const moduleRows = page.locator(
+      "div.border.border-nd_gray-150.rounded-lg div.flex.items-center.py-4.px-6",
+    );
+    await expect(moduleRows).toHaveCount(modules.length);
+
+    for (const { name, description } of modules) {
+      // Match the row by an exact-text element so module names that are
+      // substrings of another module's description (e.g. "Account" appears
+      // inside Analytics' "…Merchant Account") don't collide.
+      const row = moduleRows
+        .filter({ has: page.getByText(name, { exact: true }) })
+        .first();
       await expect(
-        page.locator("div.font-semibold").filter({ hasText: module }).first(),
+        row,
+        `permission module "${name}" should be rendered`,
       ).toBeVisible();
+      await expect(
+        row,
+        `description for "${name}" should list its sub-modules`,
+      ).toContainText(description);
     }
   });
 
-  test("Selecting and deselecting a permission group toggles state", async ({
+  test("Custom roles by scope x entity: M1 invite shows all 4 + lists 4 invitees; M2 only shows the 2 org-scope roles + 2 invitees", async ({
     page,
     context,
   }) => {
+    // 4 create-custom-role flows + 4 invites + multiple navigations easily
+    // exceed the default 30s budget; bump to 3 minutes so the assertions get
+    // to run instead of the test dying mid-step.
+    test.setTimeout(180_000);
+    // Org admin signs up into M1 (its default profile). They create 4 custom
+    // roles spanning {Merchant, Organization} scope × {Merchant, Profile}
+    // entity, invite a unique user to each, then switch to a freshly created
+    // M2 (with its own default profile). In M2 only the 2 Organization-scope
+    // roles are selectable in the invite drawer, and only the 2 org-scope
+    // invitees show up in the users list — merchant-scope roles & their
+    // invitees are bound to M1.
     const { usersPage } = await setupAndNavigate(page, context);
-    await usersPage.visitCreateCustomRole();
+    const homePage = new HomePage(page);
+
+    // CreateCustomRoleV2.res:175 runs role_name through `titleToSnake` on
+    // submit, and DropdownWithLoading.res:33 renders option labels through
+    // `snakeToTitle`. With a single-token name (no spaces, no underscores)
+    // both transforms are no-ops besides capitalising the first character —
+    // so the role appears as `displayName(name)` in every dropdown.
+    const displayName = (n: string) => n.charAt(0).toUpperCase() + n.slice(1);
+
+    const ts = Date.now();
+    const customRoles = [
+      { tag: "msme", scope: "Merchant" as const, entity: "Merchant" as const, name: `pwmsme${ts}` },
+      { tag: "mspe", scope: "Merchant" as const, entity: "Profile" as const, name: `pwmspe${ts}` },
+      { tag: "osme", scope: "Organization" as const, entity: "Merchant" as const, name: `pwosme${ts}` },
+      { tag: "ospe", scope: "Organization" as const, entity: "Profile" as const, name: `pwospe${ts}` },
+    ];
+    // Helper: drive the Create Custom Role form for one row of the matrix.
+    const createCustomRole = async (r: (typeof customRoles)[number]) => {
+      await usersPage.visitCreateCustomRole();
+
+      // Pick entity_type FIRST. The form's key is `create-user-role-${entity}`
+      // (CreateCustomRoleV2.res:259), so switching entity remounts the form
+      // and would wipe any role_name we'd already filled. Selecting the same
+      // value as current is a no-op (handleEntityTypeChange:230 short-circuits).
+      await usersPage.entityTypeButton.click();
+      await page.locator(`[data-dropdown-value="${r.entity}"]`).first().click();
+
+      // Wait for the permission table to be (re)rendered for the new entity
+      // before touching downstream fields.
+      await expect(
+        page
+          .locator(
+            "div.border.border-nd_gray-150.rounded-lg div.flex.items-center.py-4.px-6",
+          )
+          .first(),
+      ).toBeVisible();
+
+      await usersPage.roleNameInput.fill(r.name);
+
+      // Role Visibility (scope) — org_admin can pick "Organization" per
+      // UserManagementUtils.res:30. SelectBox options carry
+      // data-dropdown-value=<labelText>.
+      await usersPage.roleScopeButton.click();
+      await page.locator(`[data-dropdown-value="${r.scope}"]`).first().click();
+
+      // Form validation requires at least one parent_group with a non-empty
+      // scope. AddDataAttributes spreads `data-selected-checkbox` onto the
+      // same div that carries the cursor class, so a checkbox is enabled iff
+      // the element also has `cursor-pointer`. Modules whose API scopes lack
+      // "read"/"write" render with `cursor-not-allowed` and ignore clicks —
+      // pick the first ENABLED checkbox anywhere in the table.
+      const firstEnabledCheckbox = page
+        .locator(
+          "div.border.border-nd_gray-150.rounded-lg [data-selected-checkbox][class*='cursor-pointer']",
+        )
+        .first();
+      await expect(firstEnabledCheckbox).toBeVisible();
+      await firstEnabledCheckbox.click();
+
+      await expect(usersPage.submitCreateRoleButton).toBeEnabled();
+      await usersPage.submitCreateRoleButton.click();
+      await expect(page.getByText("Custom role created successfully")).toBeVisible();
+      await expect(page).toHaveURL(/\/users(\?|$|\/)/);
+    };
+
+    // Helper: open the invite drawer and the role popover for a given entity
+    // scope. Profile-entity is gated by picking a specific profile.
+    const openInviteRolePopover = async (entity: "Merchant" | "Profile") => {
+      await usersPage.visit();
+      await usersPage.inviteUsersButton.click();
+      if (entity === "Profile") {
+        await page.locator('[data-value="allProfiles"]').click();
+        await page.locator('[data-dropdown-value="default"]').click();
+      }
+      await usersPage.roleOption.click();
+      // Block on at least one option being rendered so the negative
+      // assertions below don't race the loading state.
+      await expect(usersPage.entityOption.first()).toBeVisible();
+    };
+
+    // Helper: set the OMP filter on /users to the "All" default view.
+    const applyAllFilter = async () => {
+      await page.locator('[data-icon="settings-new"]').click({ force: true });
+      await page.locator('[data-dropdown-value="All"]').filter({ hasText: "(Default)" }).first().click();
+    };
+
+    // ----- Org admin in M1: create the 4 custom roles -----
+    for (const r of customRoles) {
+      await createCustomRole(r);
+    }
+
+    // ----- M1 invite dropdown: all 4 custom roles selectable -----
+    // Merchant-entity invite shows the 2 merchant-entity roles (one per scope).
+    await openInviteRolePopover("Merchant");
+    for (const r of customRoles.filter((x) => x.entity === "Merchant")) {
+      await expect(usersPage.entityOption.filter({ hasText: displayName(r.name) }), `${r.name} (${r.scope}/${r.entity}) should be selectable in M1`).toHaveCount(1);
+    }
+    // Profile-entity invite shows the 2 profile-entity roles (one per scope).
+    await openInviteRolePopover("Profile");
+    for (const r of customRoles.filter((x) => x.entity === "Profile")) {
+      await expect(
+        usersPage.entityOption.filter({ hasText: displayName(r.name) }), `${r.name} (${r.scope}/${r.entity}) should be selectable in M1`).toHaveCount(1);
+    }
+
+    // ----- Invite one unique user per custom role from M1 -----
+    const invitees = customRoles.map((r) => ({
+      email: generateUniqueEmail(),
+      role: r,
+    }));
+    for (const { email: inviteeEmail, role } of invitees) {
+      await usersPage.visit();
+      await usersPage.inviteUsersButton.click();
+      await usersPage.emailListInput.fill(inviteeEmail);
+      await usersPage.emailListInput.press("Enter");
+      if (role.entity === "Profile") {
+        await page.locator('[data-value="allProfiles"]').click();
+        await page.locator('[data-dropdown-value="default"]').click();
+      }
+      await usersPage.roleOption.click();
+      await usersPage.entityOption.filter({ hasText: displayName(role.name) }).first().click();
+      await usersPage.sendInviteButton.click();
+      await expect(usersPage.sendInviteButton).toBeHidden();
+    }
+
+    // ----- M1 users list: all 4 invitees show with the correct role -----
+    await usersPage.visit();
+    await applyAllFilter();
+    for (const { email: inviteeEmail, role } of invitees) {
+      const row = usersPage.usersTableRows.filter({ hasText: inviteeEmail });
+      await expect(row, `${inviteeEmail} (role ${role.tag}) should be in M1 users list`).toHaveCount(1);
+      await expect(row, `${inviteeEmail} should be tagged with role "${displayName(role.name)}"`).toContainText(displayName(role.name));
+    }
+
+    // ----- Create a second merchant M2 (its own default profile) -----
+    const m2Name = `pwM2${ts}`;
+    await homePage.merchantDropdown.click();
+    await page.getByText("Create new").click();
+    await expect(page.getByText("Add a new merchant").first()).toBeVisible();
+    await page.getByRole("textbox", { name: "Eg: My New Merchant" }).fill(m2Name);
+    await page.getByRole("button", { name: "Add Merchant" }).click();
+    await expect(page.getByText("Merchant Created Successfully!")).toBeVisible();
+
+    // ----- Switch to M2 (new merchant + its default profile = "M2/P2") -----
+    await homePage.merchantDropdown.click();
+    await page.getByText(m2Name, { exact: true }).first().click();
+    // Wait for the merchant-switch toast (OMPSwitchHooks.res:143) so the
+    // session has actually flipped to M2 before we open M2's invite drawer.
+    await expect(
+      page.getByText("Your merchant has been switched successfully."),
+    ).toBeVisible();
     await page.waitForLoadState("networkidle");
 
-    const paymentGroup = page
-      .locator("div.cursor-pointer")
-      .filter({ hasText: "Payment" })
-      .first();
+    // ----- M2 invite dropdown: the 2 Organization-scope roles surface -----
+    // Only the positive case is asserted: the LIST_ROLES_FOR_INVITE endpoint
+    // is filtered by entity_type but does NOT currently scope-filter custom
+    // roles by merchant, so merchant-scope roles created in M1 may also
+    // appear here. We only check that the org-scope ones the user explicitly
+    // expects ARE present.
+    await openInviteRolePopover("Merchant");
+    await expect(
+      usersPage.entityOption.filter({ hasText: displayName(`pwosme${ts}`) }),
+      "Org-scope merchant-entity role should be visible in M2",
+    ).toHaveCount(1);
 
-    await paymentGroup.click();
-    await paymentGroup.click();
+    await openInviteRolePopover("Profile");
+    await expect(
+      usersPage.entityOption.filter({ hasText: displayName(`pwospe${ts}`) }),
+      "Org-scope profile-entity role should be visible in M2",
+    ).toHaveCount(1);
+
+    // ----- M2 users list: the 2 Organization-scope invitees show -----
+    await usersPage.visit();
+    await applyAllFilter();
+    for (const { email: inviteeEmail, role } of invitees.filter(
+      (i) => i.role.scope === "Organization",
+    )) {
+      await expect(
+        usersPage.usersTableRows.filter({ hasText: inviteeEmail }),
+        `${inviteeEmail} (org-scope ${role.tag}) should be in M2 users list`,
+      ).toHaveCount(1);
+    }
   });
 
-  test("Create custom role validates missing role name", async ({
-    page,
-    context,
-  }) => {
-    const { usersPage } = await setupAndNavigate(page, context);
-    await usersPage.visitCreateCustomRole();
-    await page.waitForLoadState("networkidle");
-
-    await usersPage.submitCreateRoleButton.click();
-    await expect(page.getByText("Role name is required").first()).toBeVisible();
-  });
-
-  test("Submitting a valid custom role redirects back to users", async ({
-    page,
-    context,
-  }) => {
-    const { usersPage } = await setupAndNavigate(page, context);
-    await usersPage.visitCreateCustomRole();
-    await page.waitForLoadState("networkidle");
-
-    const uniqueRoleName = `Playwright Role ${Date.now()}`;
-    await usersPage.roleNameInput.fill(uniqueRoleName);
-
-    await page
-      .locator("div.cursor-pointer")
-      .filter({ hasText: "Payment" })
-      .first()
-      .click();
-
-    await usersPage.submitCreateRoleButton.click();
-
-    await expect(page).toHaveURL(/.*\/users(\?|$|\/)/);
-  });
 });

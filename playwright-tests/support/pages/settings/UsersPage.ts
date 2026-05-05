@@ -97,12 +97,27 @@ export class UsersPage {
     return this.page.getByRole("button", { name: "Create custom roles" });
   }
 
+  // The role_name input is rendered with autoComplete="off", which strips the
+  // `name` attribute (see TextInput.res). The data-input-name attribute lives
+  // on a wrapper <div>, so target the inner <input> via the accessible label.
   get roleNameInput(): Locator {
-    return this.page.locator('[name="role_name"]');
+    return this.page.getByRole("textbox", { name: "Enter custom role name" });
   }
 
   get submitCreateRoleButton(): Locator {
     return this.page.getByRole("button", { name: "Create role" });
+  }
+
+  get roleScopeButton(): Locator {
+    return this.page.locator(
+      '[data-component-field-wrapper="field-role_scope"] button',
+    );
+  }
+
+  get entityTypeButton(): Locator {
+    return this.page.locator(
+      '[data-component-field-wrapper="field-entity_type"] button',
+    );
   }
 
   get modalCloseIcon(): Locator {
@@ -135,7 +150,7 @@ export class UsersPage {
     await this.emailListInput.fill(email);
     await this.roleDropdownTrigger.click();
     await this.roleOption.click();
-    await this.entityOption.nth(0).click();
+    await this.entityOption.filter({ hasText: "Developer" }).first().click();
     await this.sendInviteButton.click();
   }
 
