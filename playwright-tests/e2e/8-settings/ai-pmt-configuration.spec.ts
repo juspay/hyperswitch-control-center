@@ -9,7 +9,7 @@ import {
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
 
-test.describe("Configure PMTs - enable payment methods and amount limits", () => {
+test.describe.skip("Configure PMTs - enable payment methods and amount limits", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);

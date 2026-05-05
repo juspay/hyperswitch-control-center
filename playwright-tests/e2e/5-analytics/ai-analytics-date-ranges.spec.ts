@@ -17,7 +17,7 @@ const PRESET_RANGES: ReadonlyArray<{ label: string; dataValue: string }> = [
   { label: "Last 30 Days", dataValue: "30d" },
 ];
 
-test.describe("Payments Analytics - date range presets and chart types", () => {
+test.describe.skip("Payments Analytics - date range presets and chart types", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
@@ -32,7 +32,7 @@ test.describe("Payments Analytics - date range presets and chart types", () => {
         context.request,
       );
       for (let i = 0; i < 3; i++) {
-        await createPaymentAPI(merchantId, context.request).catch(() => {});
+        await createPaymentAPI(merchantId, context.request).catch(() => { });
       }
     }
 

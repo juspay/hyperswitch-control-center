@@ -250,6 +250,20 @@ test.describe("Rule based routing", () => {
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
+  async function setupRuleBasedRouting(page: Page, context: BrowserContext): Promise<string | null> {
+    const homePage = new HomePage(page);
+    const paymentRouting = new PaymentRouting(page);
+    const merchantId = await homePage.merchantID.nth(0).textContent();
+    if (merchantId) {
+      await createDummyConnectorAPI(merchantId, "stripe_operator_test", context.request);
+    }
+    await homePage.workflow.click();
+    await homePage.routing.click();
+    await paymentRouting.ruleBasedRoutingSetupButton.click();
+    await page.waitForLoadState("networkidle");
+    return merchantId;
+  }
+
   test("should display valid message when no connectors are connected", async ({
     page,
   }) => {
@@ -263,6 +277,62 @@ test.describe("Rule based routing", () => {
     await expect(page.locator('[class="px-3 text-fs-16"]')).toContainText(
       "Please configure at least 1 connector",
     );
+  });
+
+  test("Rule editor add condition row - Click Add Condition renders condition row with field, operator, value inputs", async ({ page, context }) => {
+    await setupRuleBasedRouting(page, context);
+    await page.locator('[placeholder*="Configuration Name"]').fill("Add Condition Row Test");
+
+    await page.getByRole('button', { name: 'Select Field' }).click();
+    await page.locator('div').filter({ hasText: /^currency$/ }).nth(5).click();
+
+    await page.getByRole('button', { name: 'Select Operator' }).click();
+    await page.locator('div').filter({ hasText: /^IS$/ }).nth(5).click();
+
+    await page.getByRole('button', { name: 'Select Value' }).click();
+    await page.locator('div').filter({ hasText: /^USD$/ }).nth(4).click();
+
+    await page.getByRole('button', { name: 'Add Processors' }).click();
+    await page.locator('div').filter({ hasText: /^stripe_operator_test$/ }).nth(5).click();
+
+    const addConditionButton = page.locator('.flex.items-center.justify-center.p-2.bg-gray-100').first();
+    await expect(addConditionButton).toBeVisible();
+    await addConditionButton.click();
+
+    await expect(page.getByRole('button', { name: 'Rule 2 Select Field Select' })).toBeVisible();
+  });
+
+  test("Rule editor operators - enum, numeric, and text input types render correctly", async ({ page, context }) => {
+    await setupRuleBasedRouting(page, context);
+    await page.locator('[placeholder*="Configuration Name"]').fill("Operator Types Test");
+
+    await page.getByRole('button', { name: 'Select Field' }).click();
+    await page.locator('div').filter({ hasText: /^currency$/ }).nth(5).click();
+    await page.getByRole('button', { name: 'Select Operator' }).click();
+    await expect(page.locator('div').filter({ hasText: /^ISCONTAINSIS_NOTNOT_CONTAINS$/ }).nth(1)).toBeVisible();
+
+    await page.getByRole('button', { name: 'currency' }).click();
+    await page.locator('div').filter({ hasText: /^amount$/ }).nth(5).click();
+    await page.getByRole('button', { name: 'Select Operator' }).click();
+    await expect(page.locator('div').filter({ hasText: /^EQUAL TOGREATER THANLESS THAN$/ }).nth(1)).toBeVisible();
+
+    await page.getByRole('button', { name: 'amount' }).click();
+    await page.locator('div').filter({ hasText: /^business_label$/ }).nth(5).click();
+    await page.getByRole('button', { name: 'Select Operator' }).click();
+    await expect(page.locator('div').filter({ hasText: /^EQUAL TONOT EQUAL_TO$/ }).first()).toBeVisible();
+  });
+
+  test("Rule editor logical operator AND OR toggle - changes logical operator value", async ({ page, context }) => {
+    await setupRuleBasedRouting(page, context);
+
+    const addConditionButton = page.locator('[data-icon="plus"]').nth(1);
+    await expect(addConditionButton).toBeVisible();
+    await addConditionButton.click();
+    const logicalToggle = page.locator('button').filter({ hasText: /^AND$|^OR$/ });
+    await expect(logicalToggle.first()).toBeVisible();
+
+    await page.locator('.flex.items-center.cursor-pointer.rounded-full').first().click();
+    await expect(logicalToggle.first()).not.toBeVisible();
   });
 });
 
@@ -659,6 +729,301 @@ test.describe("Routing list - Manage rules", () => {
 
     await openManageRulesTab(page);
     await expect(page.locator('[data-table-location="History_tr1_td2"]')).toContainText("Rule edit updated");
+  });
+});
+
+test.describe("Advanced rule connector selection modes", () => {
+  test.beforeEach(async ({ page, context }) => {
+    const email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+  });
+
+  async function navigateToRuleBasedRouting(page: Page, context: BrowserContext) {
+    const homePage = new HomePage(page);
+    const paymentRouting = new PaymentRouting(page);
+
+    const merchantId = await homePage.merchantID.nth(0).textContent();
+    if (merchantId) {
+      await createDummyConnectorAPI(merchantId, "stripe_rule_test_a", context.request);
+      await createDummyConnectorAPI(merchantId, "stripe_rule_test_b", context.request);
+      await createDummyConnectorAPI(merchantId, "stripe_rule_test_c", context.request);
+    }
+
+    await homePage.workflow.click();
+    await homePage.routing.click();
+    await paymentRouting.ruleBasedRoutingSetupButton.click();
+    await page.waitForLoadState("networkidle");
+  }
+
+  test("should render connectors without split fields in priority mode (distribute OFF)", async ({
+    page,
+    context,
+  }) => {
+    await navigateToRuleBasedRouting(page, context);
+
+    // Verify distribute checkbox is hidden initially (no connectors selected)
+    const distributeCheckbox = page.getByText('Distribute');
+    await expect(distributeCheckbox).not.toBeVisible();
+
+    // Select two connectors and enable distribute
+    await page.getByRole('button', { name: 'Add Processors' }).click();
+    await page.locator('div').filter({ hasText: /^stripe_rule_test_a$/ }).nth(5).click();
+    await page.locator('div').filter({ hasText: /^stripe_rule_test_b$/ }).nth(5).click();
+
+    // Verify distribute checkbox is now visible
+    await expect(distributeCheckbox).toBeVisible();
+
+    // Verify distribute is OFF by default
+    const isChecked = await distributeCheckbox.getAttribute('aria-checked');
+    expect(isChecked || 'false').toBe('false');
+
+    // Verify connectors render as badges WITHOUT percentage input fields
+    const connectorBadges = page.locator('.flex.flex-row.items-center.justify-around.gap-2');
+    const badgeCount = await connectorBadges.count();
+    expect(badgeCount).toBeGreaterThanOrEqual(2);
+
+    // Verify NO percentage input fields are visible
+    const percentageInputs = page.locator('input[name="1"], input[name="2"]');
+    const inputCount = await percentageInputs.count();
+    expect(inputCount).toBe(0);
+
+    // Verify connectors display with correct labels
+    await expect(page.getByText('stripe_rule_test_a').nth(1)).toBeVisible();
+    await expect(page.getByText('stripe_rule_test_b').nth(1)).toBeVisible();
+  });
+
+  test("should render connectors with split fields in volume mode (distribute ON)", async ({
+    page,
+    context,
+  }) => {
+    await navigateToRuleBasedRouting(page, context);
+
+    // Select multiple connectors
+    await page.getByRole('button', { name: 'Add Processors' }).click();
+    await page.locator('div').filter({ hasText: /^stripe_rule_test_a$/ }).nth(5).click();
+
+    await page.locator('div').filter({ hasText: /^stripe_rule_test_b$/ }).nth(5).click();
+
+    // Verify split fields are NOT visible before toggling distribute
+    let percentageInputs = page.locator('input[name="1"], input[name="2"]');
+    await expect(percentageInputs).toHaveCount(0);
+
+    // Toggle distribute ON
+    await page.locator('div').filter({ hasText: /^Distribute$/ }).nth(1).locator('[data-selected-checkbox="NotSelected"]').click();
+    await page.waitForTimeout(300);
+
+    // Verify split fields appear
+    percentageInputs = page.locator('input[name="1"], input[name="2"]');
+    await expect(percentageInputs).toHaveCount(2, { timeout: 5000 });
+
+    // Verify auto-calculated split percentages for 2 connectors (should be 50% each)
+    const input1 = page.locator('input[name="1"]');
+    const input2 = page.locator('input[name="2"]');
+
+    const value1 = await input1.inputValue();
+    const value2 = await input2.inputValue();
+
+    expect(Number(value1)).toBe(50);
+    expect(Number(value2)).toBe(50);
+  });
+
+  test("should render 3 connectors with auto-calculated split percentages (33/33/34)", async ({
+    page,
+    context,
+  }) => {
+    await navigateToRuleBasedRouting(page, context);
+
+    // Select three connectors
+    await page.getByRole('button', { name: 'Add Processors' }).click();
+    await page.locator('div').filter({ hasText: /^stripe_rule_test_a$/ }).nth(5).click();
+
+    await page.locator('div').filter({ hasText: /^stripe_rule_test_b$/ }).nth(5).click();
+
+    await page.locator('div').filter({ hasText: /^stripe_rule_test_c$/ }).nth(5).click();
+
+    // Toggle distribute ON
+    await page.locator('div').filter({ hasText: /^Distribute$/ }).nth(1).locator('[data-selected-checkbox="NotSelected"]').nth(0).click();
+    await page.waitForTimeout(300);
+
+    // Verify all 3 percentage input fields appear
+    const percentageInputs = page.locator('input[name="1"], input[name="2"], input[name="3"]');
+    await expect(percentageInputs).toHaveCount(3);
+
+    // Verify auto-calculated percentages (33, 33, 34 - last adjusted to reach 100)
+    const value1 = Number(await page.locator('input[name="1"]').inputValue());
+    const value2 = Number(await page.locator('input[name="2"]').inputValue());
+    const value3 = Number(await page.locator('input[name="3"]').inputValue());
+
+    expect(value1).toBe(33);
+    expect(value2).toBe(33);
+    expect(value3).toBe(34);
+    expect(value1 + value2 + value3).toBe(100);
+  });
+
+  test("should toggle distribute mode and update UI accordingly", async ({
+    page,
+    context,
+  }) => {
+    await navigateToRuleBasedRouting(page, context);
+
+    // Select two connectors
+    await page.getByRole('button', { name: 'Add Processors' }).click();
+    await page.locator('div').filter({ hasText: /^stripe_rule_test_a$/ }).nth(5).click();
+    await page.locator('div').filter({ hasText: /^stripe_rule_test_b$/ }).nth(5).click();
+
+    const distributeButton = page.locator('div').filter({ hasText: /^Distribute$/ }).nth(1).locator('[data-selected-checkbox="NotSelected"]');
+
+    // Toggle distribute ON
+    await distributeButton.click();
+    await page.waitForTimeout(300);
+
+    // Verify split fields appear
+    let percentageInputs = page.locator('input[name="1"], input[name="2"]');
+    await expect(percentageInputs).toHaveCount(2);
+
+    // Toggle distribute OFF
+    await page.locator('[data-selected-checkbox="Selected"]').click();
+    await page.waitForTimeout(300);
+
+    // Verify split fields disappear
+    percentageInputs = page.locator('input[name="1"], input[name="2"]');
+    await expect(percentageInputs).toHaveCount(0);
+
+    // Verify connectors are still displayed
+    await expect(page.getByText('stripe_rule_test_a')).toBeVisible();
+    await expect(page.getByText('stripe_rule_test_b')).toBeVisible();
+  });
+
+  test("should allow manual editing of split percentages", async ({
+    page,
+    context,
+  }) => {
+    await navigateToRuleBasedRouting(page, context);
+
+    // Select two connectors and enable distribute
+    await page.getByRole('button', { name: 'Add Processors' }).click();
+    await page.locator('div').filter({ hasText: /^stripe_rule_test_a$/ }).nth(5).click();
+
+    await page.locator('div').filter({ hasText: /^stripe_rule_test_b$/ }).nth(5).click();
+
+    const distributeCheckbox = page.locator('div').filter({ hasText: /^Distribute$/ }).nth(1).locator('[data-selected-checkbox="NotSelected"]');
+    await distributeCheckbox.click();
+    await page.waitForTimeout(300);
+
+    // Verify initial percentages are 50/50
+    const input1 = page.locator('input[name="1"]');
+    const input2 = page.locator('input[name="2"]');
+
+    expect(Number(await input1.inputValue())).toBe(50);
+    expect(Number(await input2.inputValue())).toBe(50);
+
+    // Edit first connector percentage to 40
+    await input1.clear();
+    await input1.fill('40');
+    await input1.blur();
+    await page.waitForTimeout(200);
+
+    // Verify the change is reflected
+    expect(Number(await input1.inputValue())).toBe(40);
+
+    await expect(page.getByRole('button', { name: 'Configure Rule' })).not.toBeEnabled();
+  });
+
+  test("should recalculate split percentages when removing a connector", async ({
+    page,
+    context,
+  }) => {
+    await navigateToRuleBasedRouting(page, context);
+
+    // Select three connectors and enable distribute
+    await page.getByRole('button', { name: 'Add Processors' }).click();
+    await page.locator('div').filter({ hasText: /^stripe_rule_test_a$/ }).nth(5).click();
+
+    await page.locator('div').filter({ hasText: /^stripe_rule_test_b$/ }).nth(5).click();
+
+    await page.locator('div').filter({ hasText: /^stripe_rule_test_c$/ }).nth(5).click();
+
+    const distributeCheckbox = page.locator('div').filter({ hasText: /^Distribute$/ }).nth(1).locator('[data-selected-checkbox="NotSelected"]');
+    await distributeCheckbox.click();
+    await page.waitForTimeout(300);
+
+    // Verify initial state: 3 connectors with 33/33/34
+    let percentageInputs = page.locator('input[name="1"], input[name="2"], input[name="3"]');
+    await expect(percentageInputs).toHaveCount(3);
+
+    // Remove the first connector by clicking X button
+    await page.locator('.w-min > .flex.flex-col').first().click();
+    await page.waitForTimeout(300);
+
+    // Verify only 2 connectors remain
+    percentageInputs = page.locator('input[name="1"], input[name="2"]');
+    await expect(percentageInputs).toHaveCount(2, { timeout: 5000 });
+
+    // Verify percentages are recalculated to 50/50
+    const value1 = Number(await page.locator('input[name="1"]').inputValue());
+    const value2 = Number(await page.locator('input[name="2"]').inputValue());
+
+    expect(value1).toBe(50);
+    expect(value2).toBe(50);
+  });
+
+  test("should show validation error for missing configuration name", async ({
+    page,
+    context,
+  }) => {
+    await navigateToRuleBasedRouting(page, context);
+
+    // Select a connector
+    await page.getByRole('button', { name: 'Add Processors' }).click();
+    await page.locator('div').filter({ hasText: /^stripe_rule_test_a$/ }).nth(5).click();
+
+    // Focus and blur the configuration name field without entering value
+    const nameInput = page.locator('input[placeholder*="Configuration Name"]');
+    await nameInput.click();
+    await nameInput.clear();
+    await nameInput.blur();
+    await page.waitForTimeout(300);
+
+    await expect(page.getByText('Please provide name field', { exact: false })).toBeVisible();
+
+    await page.getByRole('textbox', { name: 'Add a description for your' }).clear();
+    await page.getByRole('textbox', { name: 'Add a description for your' }).blur();
+    await expect(page.getByText('Please provide description field', { exact: false })).toBeVisible();
+  });
+
+  test("should show validation error for missing connectors", async ({
+    page,
+    context,
+  }) => {
+    await navigateToRuleBasedRouting(page, context);
+
+    // Fill configuration name but don't add any connectors
+    await page.locator('input[placeholder*="Configuration Name"]').fill("Test Rule");
+
+    // Try to configure rule without connectors
+    const configureBtn = page.getByRole('button', { name: 'Configure Rule' });
+    const isDisabled = await configureBtn.isDisabled();
+
+    // Configure button should be disabled when no connectors selected
+    if (!isDisabled) {
+      await configureBtn.click();
+
+      // Check for validation message about missing connectors
+      const connectorError = page.getByText(
+        /Add Processors|Please select|at least 1 connector/i,
+        { exact: false }
+      );
+
+      const hasError = await connectorError.isVisible().catch(() => false);
+
+      if (hasError) {
+        await expect(connectorError).toBeVisible();
+      }
+    } else {
+      // Button being disabled is also valid validation
+      expect(isDisabled).toBe(true);
+    }
   });
 });
 

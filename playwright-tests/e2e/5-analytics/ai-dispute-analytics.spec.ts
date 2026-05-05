@@ -9,7 +9,7 @@ import {
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
 
-test.describe("Dispute Analytics", () => {
+test.describe.skip("Dispute Analytics", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);

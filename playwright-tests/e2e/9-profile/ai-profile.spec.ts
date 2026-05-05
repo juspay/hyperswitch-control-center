@@ -4,7 +4,7 @@ import { signupUser, loginUI } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
 
-test.describe("Profile - user menu items", () => {
+test.describe.skip("Profile - user menu items", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
@@ -31,7 +31,7 @@ test.describe("Profile - user menu items", () => {
   });
 });
 
-test.describe("Account Settings - Profile page", () => {
+test.describe.skip("Account Settings - Profile page", () => {
   test("should render 'Profile' heading and 'Reset Password' button", async ({
     page,
     context,

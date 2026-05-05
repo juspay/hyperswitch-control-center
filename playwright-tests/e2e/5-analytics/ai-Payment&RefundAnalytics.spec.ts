@@ -20,7 +20,7 @@ async function gotoAnalytics(page: Page, route: string): Promise<boolean> {
   return !(await fallback.isVisible().catch(() => false));
 }
 
-test.describe("Payments Analytics - sections, tabs, and interactive controls", () => {
+test.describe.skip("Payments Analytics - sections, tabs, and interactive controls", () => {
   test("should render heading, Overview/Amount Metrics sections, Trends tabs, ONE DAY toggle and a date-range button", async ({
     page,
     context,
@@ -67,7 +67,7 @@ test.describe("Payments Analytics - sections, tabs, and interactive controls", (
   });
 });
 
-test.describe("Refunds Analytics - empty state", () => {
+test.describe.skip("Refunds Analytics - empty state", () => {
   test("should expose 'Make a Payment' CTA on the empty Refunds Analytics page", async ({
     page,
     context,

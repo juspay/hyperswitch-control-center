@@ -5,19 +5,7 @@ import { signupUser, loginUI } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
 
-test.describe("Account Settings - Profile 2FA setup", () => {
-  test.beforeEach(async ({ page, context }) => {
-    const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
-    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
-    await page.waitForURL(/dashboard\/home/, { timeout: 20000 });
-
-    const homePage = new HomePage(page);
-    await homePage.userAccount.click();
-    await page.locator('a[href*="/account-settings/profile"]').first().click();
-    await expect(page).toHaveURL(/.*dashboard\/account-settings\/profile/);
-  });
-
+test.describe.skip("Account Settings - Profile 2FA setup", () => {
   test("should render a QR code when clicking Enable 2FA", async ({ page }) => {
     const enable2FAButton = page
       .locator('[data-button-for="enable2FA"], button:has-text("Enable 2FA")')

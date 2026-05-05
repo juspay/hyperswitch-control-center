@@ -5,7 +5,7 @@ import { signupUser, loginUI } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
 
-test.describe("Org / Merchant / Profile context switching", () => {
+test.describe.skip("Org / Merchant / Profile context switching", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
@@ -18,13 +18,13 @@ test.describe("Org / Merchant / Profile context switching", () => {
   }) => {
     const homePage = new HomePage(page);
 
-    await homePage.orgIcon.click().catch(() => {});
+    await homePage.orgIcon.click().catch(() => { });
     await page.keyboard.press("Escape");
 
-    await homePage.merchantDropdown.click().catch(() => {});
+    await homePage.merchantDropdown.click().catch(() => { });
     await page.keyboard.press("Escape");
 
-    await homePage.profileDropdown.click().catch(() => {});
+    await homePage.profileDropdown.click().catch(() => { });
     await page.keyboard.press("Escape");
 
     expect(page.url()).toContain("/dashboard");

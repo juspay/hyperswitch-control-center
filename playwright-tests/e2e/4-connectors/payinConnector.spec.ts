@@ -662,8 +662,8 @@ test.describe("Stripe Connector", () => {
     await gotoConnectorList(page);
 
     await expect(page.getByText('Showing 20')).toBeVisible();
-    await expect(page.getByRole('button', { name: '2' })).toBeVisible();
-    await page.getByRole('button', { name: '2' }).click();
+    await expect(page.getByRole('button', { name: '2', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: '2', exact: true }).click();
     await expect(page.getByText('Showing 21')).toBeVisible();
   });
 

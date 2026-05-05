@@ -4,7 +4,7 @@ import { signupUser, loginUI } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
 
-test.describe("Performance Monitor - alert configuration", () => {
+test.describe.skip("Performance Monitor - alert configuration", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);

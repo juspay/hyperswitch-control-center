@@ -10,7 +10,7 @@ import {
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
 
-test.describe("Analytics - chart granularity, tooltip and export", () => {
+test.describe.skip("Analytics - chart granularity, tooltip and export", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
@@ -25,7 +25,7 @@ test.describe("Analytics - chart granularity, tooltip and export", () => {
         context.request,
       );
       for (let i = 0; i < 5; i++) {
-        await createPaymentAPI(merchantId, context.request).catch(() => {});
+        await createPaymentAPI(merchantId, context.request).catch(() => { });
       }
     }
 

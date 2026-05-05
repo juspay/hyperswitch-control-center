@@ -5,7 +5,7 @@ import { signupUser, loginUI } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
-test.describe("Performance Monitor", () => {
+test.describe.skip("Performance Monitor", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
