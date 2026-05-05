@@ -51,7 +51,7 @@ let foldAmountOption = filtersDict => {
       | None => ()
       }
 
-    switch amountOption->AmountFilterUtils.stringRangetoTypeAmount {
+    switch amountOption->AmountFilterUtils.mapStringToAmountRangeType {
     | GreaterThanOrEqualTo => setIfSome(SavedViewTypes.FilterKeys.startAmount, startAmountStr)
     | LessThanOrEqualTo => setIfSome(SavedViewTypes.FilterKeys.endAmount, endAmountStr)
     | EqualTo =>

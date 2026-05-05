@@ -75,11 +75,6 @@ let make = (~options) => {
   })
   let (isAmountRangeVisible, setIsAmountRangeVisible) = React.useState(_ => true)
 
-<<<<<<< HEAD
-=======
-  // Sync local state when amount_option changes from outside (e.g. saved view load),
-  // so the UI reflects the externally applied filter without round-tripping through form.
->>>>>>> 79485e9e4 (fix: avoid duplicate filter API call when picking amount option)
   let amountOptionFromForm = React.useMemo(() => {
     formState.values->getDictFromJsonObject->getString("amount_option", "")
   }, [formState.values])
@@ -87,17 +82,9 @@ let make = (~options) => {
   React.useEffect(() => {
     let parsed =
       amountOptionFromForm->isNonEmptyString
-<<<<<<< HEAD
         ? amountOptionFromForm->mapStringToAmountRangeType
         : AmountFilterTypes.UnknownRange("Select Amount")
     parsed !== selectedOption ? setSelectedOption(_ => parsed) : ()
-=======
-        ? amountOptionFromForm->stringRangetoTypeAmount
-        : AmountFilterTypes.UnknownRange("Select Amount")
-    if parsed !== selectedOption {
-      setSelectedOption(_ => parsed)
-    }
->>>>>>> 79485e9e4 (fix: avoid duplicate filter API call when picking amount option)
     None
   }, [amountOptionFromForm])
 
@@ -107,12 +94,6 @@ let make = (~options) => {
 
   let handleInputChange = newValue => {
     if newValue->isNonEmptyString {
-<<<<<<< HEAD
-=======
-      // Keep the selection local until the user clicks Apply. Writing to the
-      // form here triggers the filter subscription and fires the list API
-      // before the user has entered an amount.
->>>>>>> 79485e9e4 (fix: avoid duplicate filter API call when picking amount option)
       setSelectedOption(_ => newValue->mapStringToRange)
     }
     setIsAmountRangeVisible(_ => true)
@@ -125,29 +106,14 @@ let make = (~options) => {
       handleInputChange(ev->Identity.formReactEventToString)
     },
     onFocus: _ => (),
-<<<<<<< HEAD
     value: selectedOption->mapRangeTypeToString->JSON.Encode.string,
-=======
-    value: selectedOption->mapRangeTypetoString->JSON.Encode.string,
->>>>>>> 79485e9e4 (fix: avoid duplicate filter API call when picking amount option)
     checked: true,
   }
 
   let handleApply = _ => {
-<<<<<<< HEAD
     switch selectedOption {
     | GreaterThanOrEqualTo => form.change("end_amount", JSON.Encode.null)
     | LessThanOrEqualTo => form.change("start_amount", JSON.Encode.null)
-=======
-    // Commit the selected option and clear any stale amount fields that don't
-    // apply to the chosen range, then submit exactly once.
-    switch selectedOption {
-    | GreaterThanOrEqualTo => form.change("end_amount", JSON.Encode.null)
-    | LessThanOrEqualTo => form.change("start_amount", JSON.Encode.null)
-    // EqualTo: CustomAmountEqualField mirrors start_amount into end_amount, so both remain.
-    // InBetween: user enters both explicitly.
-    // UnknownRange: nothing to commit.
->>>>>>> 79485e9e4 (fix: avoid duplicate filter API call when picking amount option)
     | _ => ()
     }
     form.change("amount_option", selectedOption->Identity.genericTypeToJson)
