@@ -128,7 +128,7 @@ let make = (
   let fetchApi = AuthHooks.useApiFetcher()
   let url = RescriptReactRouter.useUrl()
   let searchParams = disableURIdecode ? url.search : url.search->decodeURI
-  let (refreshData, _setRefreshData) = React.useContext(RefreshStateContext.refreshStateContext)
+  let refreshData = RefreshStateContext.useRefreshTrigger()
   let (offset, setOffset) = React.useState(() => 0)
   let remoteFilters = initialFilters->Array.filter(item => item.localFilter->Option.isNone)
   let filtersFromUrl = getDictFromUrlSearchParams(searchParams)

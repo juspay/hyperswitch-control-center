@@ -4,6 +4,9 @@ module Provider = {
   let make = React.Context.provider(defaultContext)
 }
 
+let useActiveSession = (): UserInfoTypes.commonInfoType =>
+  React.useContext(defaultContext).getCommonSessionDetails()
+
 type userInfoScreenState = Loading | Success | Error
 @react.component
 let make = (~children, ~isEmbeddableApp=false) => {

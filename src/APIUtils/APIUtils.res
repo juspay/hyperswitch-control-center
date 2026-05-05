@@ -1632,18 +1632,10 @@ let catchHandler = (
   }
 }
 
-let useGetMethod = (~showErrorToast=true) => {
-  let {merchantId, profileId} = React.useContext(
-    UserInfoProvider.defaultContext,
-  ).getCommonSessionDetails()
-  let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
-  let fetchApi = AuthHooks.useApiFetcher()
-  let showToast = ToastState.useShowToast()
+let useSignUpPopUp = () => {
   let showPopUp = PopUpState.useShowPopUp()
   let handleLogout = useHandleLogout()
-  let sendEvent = MixpanelHook.useSendEvent()
-  let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
-  let popUpCallBack = () =>
+  () =>
     showPopUp({
       popUpType: (Warning, WithIcon),
       heading: "Sign Up to Access All Features!",
@@ -1657,6 +1649,18 @@ let useGetMethod = (~showErrorToast=true) => {
         },
       },
     })
+}
+
+let useGetMethod = (~showErrorToast=true) => {
+  let {merchantId, profileId} = UserInfoProvider.useActiveSession()
+  let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
+  let fetchApi = AuthHooks.useApiFetcher()
+  let showToast = ToastState.useShowToast()
+  let showPopUp = PopUpState.useShowPopUp()
+  let handleLogout = useHandleLogout()
+  let sendEvent = MixpanelHook.useSendEvent()
+  let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
+  let popUpCallBack = useSignUpPopUp()
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async (url, ~version=UserInfoTypes.V1) => {
@@ -1692,9 +1696,7 @@ let useGetMethod = (~showErrorToast=true) => {
 }
 
 let useUpdateMethod = (~showErrorToast=true) => {
-  let {merchantId, profileId} = React.useContext(
-    UserInfoProvider.defaultContext,
-  ).getCommonSessionDetails()
+  let {merchantId, profileId} = UserInfoProvider.useActiveSession()
   let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
@@ -1703,20 +1705,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
   let sendEvent = MixpanelHook.useSendEvent()
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
 
-  let popUpCallBack = () =>
-    showPopUp({
-      popUpType: (Warning, WithIcon),
-      heading: "Sign Up to Access All Features!",
-      description: {
-        "To unlock the potential and experience the full range of capabilities, simply sign up today. Join our community of explorers and gain access to an enhanced world of possibilities"->React.string
-      },
-      handleConfirm: {
-        text: "Sign up Now",
-        onClick: {
-          _ => handleLogout()->ignore
-        },
-      },
-    })
+  let popUpCallBack = useSignUpPopUp()
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async (
