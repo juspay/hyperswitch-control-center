@@ -221,12 +221,15 @@ let make = (~previewOnly=false) => {
           </RenderIf>
         </div>
       </div>
-      <div className="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-spacing-3xl">
+      <div
+        className="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-spacing-3xl">
         <TransactionView entity=TransactionViewTypes.Orders version />
       </div>
       <div className="flex flex-col gap-spacing-3xl">
         <RenderIf condition={!previewOnly}>
-          <div className="flex"> <div className="flex-1"> {filtersUI} </div> </div>
+          <div className="flex">
+            <div className="flex-1"> {filtersUI} </div>
+          </div>
         </RenderIf>
         <PageLoaderWrapper screenState customUI>
           <LoadedTableWithCustomColumns

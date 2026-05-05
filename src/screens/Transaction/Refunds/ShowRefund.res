@@ -184,26 +184,28 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     <PageLoaderWrapper
       screenState={screenStateForRefund}
       customUI={<DefaultLandingPage
-        height="90vh" title="Something Went Wrong!" overridingStylesTitle={Typography.heading.xl.semibold}
+        height="90vh"
+        title="Something Went Wrong!"
+        overridingStylesTitle={Typography.heading.xl.semibold}
       />}>
       <div className="flex flex-col gap-spacing-4xl">
         <RefundInfo orderDict={refundData->getDictFromJsonObject} />
         <RenderIf condition={auditTrail && userHasAccess(~groupAccess=AnalyticsView) === Access}>
-        <OrderUIUtils.RenderAccordion
-          initialExpandedArray=[0]
-          accordion={[
-            {
-              title: "Events and logs",
-              renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
-                <LogsWrapper wrapperFor={#REFUND}>
-                  <RefundLogs refundId=id paymentId />
-                </LogsWrapper>
+          <OrderUIUtils.RenderAccordion
+            initialExpandedArray=[0]
+            accordion={[
+              {
+                title: "Events and logs",
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
+                  <LogsWrapper wrapperFor={#REFUND}>
+                    <RefundLogs refundId=id paymentId />
+                  </LogsWrapper>
+                },
+                renderContentOnTop: None,
               },
-              renderContentOnTop: None,
-            },
-          ]}
-        />
-      </RenderIf>
+            ]}
+          />
+        </RenderIf>
         <RenderIf condition={userHasAccess(~groupAccess=OperationsView) === Access}>
           <LoadedTable
             title="Payment"

@@ -106,7 +106,8 @@ let make = () => {
           </RenderIf>
         </div>
       </div>
-      <div className="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-2 grid-cols-2 gap-spacing-3xl">
+      <div
+        className="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-2 grid-cols-2 gap-spacing-3xl">
         <TransactionView entity=TransactionViewTypes.Refunds />
       </div>
       <div className="flex flex-col gap-spacing-3xl">

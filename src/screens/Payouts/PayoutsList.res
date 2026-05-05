@@ -97,7 +97,8 @@ let make = () => {
           <GenerateReport entityName={V1(PAYOUT_REPORT)} />
         </RenderIf>
       </div>
-      <div className="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-spacing-3xl">
+      <div
+        className="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-spacing-3xl">
         <TransactionView entity=TransactionViewTypes.Payouts />
       </div>
       <div className="flex flex-col gap-spacing-3xl">

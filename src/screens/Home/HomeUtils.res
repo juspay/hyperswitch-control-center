@@ -137,7 +137,8 @@ module ControlCenter = {
 
     let connectorUrl = RouteUtils.getPath(~path="/connectors", version)
 
-    let liveModeStyles = isLiveMode || version == V2 ? "w-1/2 " : "flex flex-col md:flex-row gap-spacing-3xl "
+    let liveModeStyles =
+      isLiveMode || version == V2 ? "w-1/2 " : "flex flex-col md:flex-row gap-spacing-3xl "
     <div className=liveModeStyles>
       <CardLayout width="" customStyle="flex-1 rounded-xl p-6 gap-4">
         <div className="flex flex-col gap-4">
