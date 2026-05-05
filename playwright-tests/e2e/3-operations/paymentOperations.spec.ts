@@ -992,9 +992,9 @@ test.describe("Payment Operations", () => {
     await expect(
       page.locator('[class="font-bold text-lg mb-5"]').nth(0),
     ).toContainText("Summary");
-    await expect(page.locator('[class="md:text-5xl font-bold"]')).toContainText(
-      "123.45 USD",
-    );
+    await expect(
+      page.locator('[class="text-fs-32 leading-38 font-bold font-inter-style"]'),
+    ).toContainText("123.45 USD");
     await expect(
       page.locator(
         '[class="text-sm text-white font-bold px-3 py-2 rounded-md bg-hyperswitch_green dark:bg-opacity-50"]',
