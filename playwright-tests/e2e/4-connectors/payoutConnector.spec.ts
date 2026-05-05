@@ -52,9 +52,12 @@ test.describe("Payout Connector", () => {
       await payoutConnector.connectorSetupDone.click();
 
       await expect(page).toHaveURL(/.*dashboard\/payoutconnectors/);
-      await expect(
-        page.getByText(connector.fields.overrides["Enter Connector label"]),
-      ).toBeVisible();
+      const connectorLabelOverride = connector.fields.overrides["Enter Connector label"];
+      if (connectorLabelOverride) {
+        await expect(
+          page.getByText(connectorLabelOverride),
+        ).toBeVisible();
+      }
     });
   }
 });

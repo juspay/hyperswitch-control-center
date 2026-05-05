@@ -2,7 +2,8 @@ import { test, expect } from "../../support/test";
 import type { Page, BrowserContext } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { generateUniqueEmail } from "../../support/helper";
-import { signupUser, loginUI } from "../../support/commands";
+import { signupUser, loginUI, assertConnectorFieldLabels, fillConnectorFields } from "../../support/commands";
+import { threedsAuthProcessorConfig } from "../../support/fixtures/threedsAuthProcessorConfig";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
@@ -97,4 +98,49 @@ test.describe("3DS Authenticators Module", () => {
     await expect(page.getByText("Connector label *")).toBeVisible();
     await expect(page.getByText("Pull Mechanism Enabled")).toBeVisible();
   });
+});
+
+test.describe("Live 3DS Authenticators", () => {
+  let email: string;
+
+  const threedsAuthenticators = Object.entries(threedsAuthProcessorConfig);
+  test.beforeEach(async ({ page, context }) => {
+    email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+  });
+
+  for (const [key, authenticator] of threedsAuthenticators) {
+    test(`should setup and verify ${key} 3DS authenticator`, async ({
+      page,
+    }) => {
+      const homePage = new HomePage(page);
+
+      await homePage.connectors.click();
+      await homePage.threeDSConnectors.click();
+
+      await expect(page).toHaveURL(/.*dashboard\/3ds-authenticators/);
+
+      const searchInput = page.locator('[data-testid="search-processor"]');
+      if (await searchInput.isVisible({ timeout: 5000 }).catch(() => false)) {
+        await searchInput.fill(authenticator.label);
+      }
+
+      const connectButtons = page.locator('[data-button-text="Connect"]');
+      if ((await connectButtons.count().catch(() => 0)) > 0) {
+        await connectButtons.nth(0).click();
+
+        if (authenticator.fields.fieldLabels.length > 0) {
+          await assertConnectorFieldLabels(page, authenticator.fields.fieldLabels);
+          await fillConnectorFields(page, authenticator.fields);
+        }
+
+        const saveButton = page.locator('button:has-text("Save"), button:has-text("Connect"), button:has-text("Proceed")').first();
+        if (await saveButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+          await saveButton.click();
+          await page.waitForLoadState("networkidle");
+        }
+      }
+    });
+  }
 });

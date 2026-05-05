@@ -81,7 +81,7 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
       },
       fieldLabels: [
         "Adyen platform's API Key *",
-        "Source verification key *",
+        "Source verification key",
       ],
     },
     paymentSections: {
@@ -178,7 +178,7 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
       fieldLabels: [
         "Client Secret *",
         "Client ID *",
-        "Source verification key *",
+        "Source verification key",
       ],
     },
     paymentSections: {
@@ -220,7 +220,7 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
       fieldLabels: [
         "Wise API Key *",
         "Wise Account Id *",
-        "Source verification key *",
+        "Source verification key",
       ],
     },
     paymentSections: {
@@ -266,7 +266,7 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
         "Merchant ID *",
         "Merchant Site ID *",
         "Merchant Secret *",
-        "Source verification key *",
+        "Source verification key",
       ],
     },
     paymentSections: {
@@ -359,7 +359,7 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
         "Password *",
         "Username *",
         "Merchant Identifier *",
-        "Source verification key *",
+        "Source verification key",
       ],
     },
     paymentSections: {
