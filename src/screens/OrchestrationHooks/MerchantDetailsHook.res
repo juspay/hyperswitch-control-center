@@ -1,49 +1,32 @@
 open HyperswitchAtom
-open APIUtils
-
-let fetchMerchantDetailsV1 = async (~setMerchantDetailsValue) => {
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
-  try {
-    let accountUrl = getURL(~entityName=APIUtilsTypes.V1(MERCHANT_ACCOUNT), ~methodType=Get)
-    let merchantDetailsJSON = await fetchDetails(accountUrl, ~version=V1)
-    let jsonToTypedValue =
-      merchantDetailsJSON->MerchantAccountDetailsMapper.getMerchantDetails(~version=V1)
-    setMerchantDetailsValue(_ => jsonToTypedValue)
-    jsonToTypedValue
-  } catch {
-  | Exn.Error(e) => {
-      let err = Exn.message(e)->Option.getOr("Failed to fetch merchant details!")
-      Exn.raiseError(err)
-    }
-  }
-}
-
-let fetchMerchantDetailsV2 = async (~setMerchantDetailsValue) => {
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
-  try {
-    let accountUrl = getURL(~entityName=APIUtilsTypes.V2(MERCHANT_ACCOUNT), ~methodType=Get)
-    let merchantDetailsJSON = await fetchDetails(accountUrl, ~version=V2)
-    let jsonToTypedValue =
-      merchantDetailsJSON->MerchantAccountDetailsMapper.getMerchantDetails(~version=V2)
-    setMerchantDetailsValue(_ => jsonToTypedValue)
-    jsonToTypedValue
-  } catch {
-  | Exn.Error(e) => {
-      let err = Exn.message(e)->Option.getOr("Failed to fetch merchant details!")
-      Exn.raiseError(err)
-    }
-  }
-}
 
 let useFetchMerchantDetails = () => {
+  let getURL = APIUtils.useGetURL()
   let setMerchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useSetRecoilState
 
+  let fetchDetails = APIUtils.useGetMethod()
+
   async (~version: UserInfoTypes.version=V1) => {
-    switch version {
-    | V1 => await fetchMerchantDetailsV1(~setMerchantDetailsValue)
-    | V2 => await fetchMerchantDetailsV2(~setMerchantDetailsValue)
+    try {
+      let merchantDetailsJSON = switch version {
+      | V1 => {
+          let accountUrl = getURL(~entityName=V1(MERCHANT_ACCOUNT), ~methodType=Get)
+          await fetchDetails(accountUrl)
+        }
+      | V2 => {
+          let accountUrl = getURL(~entityName=V2(MERCHANT_ACCOUNT), ~methodType=Get)
+          await fetchDetails(accountUrl, ~version=V2)
+        }
+      }
+      let jsonToTypedValue =
+        merchantDetailsJSON->MerchantAccountDetailsMapper.getMerchantDetails(~version)
+      setMerchantDetailsValue(_ => jsonToTypedValue)
+      jsonToTypedValue
+    } catch {
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to fetch merchant details!")
+        Exn.raiseError(err)
+      }
     }
   }
 }
