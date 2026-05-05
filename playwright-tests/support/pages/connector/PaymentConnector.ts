@@ -8,7 +8,7 @@ export class PaymentConnector {
   }
 
   get pageHeading(): Locator {
-    return this.page.locator('[class="flex items-center gap-4 "]');
+    return this.page.locator('[class="flex items-center gap-spacing-xl "]');
   }
 
   get pageBanner(): Locator {
