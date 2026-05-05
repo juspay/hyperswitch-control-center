@@ -184,23 +184,14 @@ let make = (
   }, (searchParams, remoteFilters->Array.length, remoteOptions->Array.length))
 
   React.useEffect(() => {
-    let selectedFilters = []
-    let filtersUnselected = []
-
-    filterKeys->Array.forEach(key => {
-      let item =
-        remoteFilters->Array.find(item => item.field.inputNames->getValueFromArray(0, "") === key)
-
-      switch item {
-      | Some(val) => selectedFilters->Array.push(val.field)->ignore
-      | _ => ()
-      }
+    let selectedFilters = filterKeys->Array.filterMap(key => {
+      remoteFilters
+      ->Array.find(item => item.field.inputNames->getValueFromArray(0, "") === key)
+      ->Option.map(val => val.field)
     })
 
-    remoteFilters->Array.forEach(item => {
-      if !(selectedFilters->Array.includes(item.field)) {
-        filtersUnselected->Array.push(item.field)->ignore
-      }
+    let filtersUnselected = remoteFilters->Array.filterMap(item => {
+      !(selectedFilters->Array.includes(item.field)) ? Some(item.field) : None
     })
 
     setFilterList(_ => selectedFilters)

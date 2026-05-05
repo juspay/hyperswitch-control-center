@@ -70,17 +70,22 @@ let foldAmountOption = filtersDict => {
 }
 
 let flattenToDict = (dictToSet, key, value) => {
-  let work = [(key, value)]
+  let filtersToFlatten = [(key, value)]
   let idx = ref(0)
-  while idx.contents < work->Array.length {
-    switch work->Array.get(idx.contents) {
+  while idx.contents < filtersToFlatten->Array.length {
+    switch filtersToFlatten->Array.get(idx.contents) {
     | Some((k, v)) =>
       idx := idx.contents + 1
       switch v->JSON.Classify.classify {
       | Null => ()
       | _ if ["limit", "offset"]->Array.includes(k) => ()
-      | Object(objDict) =>
-        objDict->Dict.toArray->Array.forEach(item => work->Array.push(item)->ignore)
+      | Object(dict) =>
+        dict
+        ->Dict.toArray
+        ->Array.forEach(((innerK, innerV)) => {
+          let newK = k->isNonEmptyString ? `${k}.${innerK}` : innerK
+          filtersToFlatten->Array.push((newK, innerV))->ignore
+        })
       | _ =>
         let strVal = jsonValueToString(v)
         if strVal->isNonEmptyString {
@@ -272,7 +277,7 @@ let buildViewOptions = (
             errors
           }}
           customIconComponent={<div
-            className="text-nd_gray-300 hover:text-red-500 cursor-pointer ml-2"
+            className="text-nd_gray-300 hover:text-nd_red-500 cursor-pointer ml-2"
             onClick={ev => handleDelete(view, ev)}>
             <Icon name="trash-outline" size=18 />
           </div>}
@@ -315,14 +320,19 @@ let buildRenamePayload = (
   entity: SavedViewTypes.entity,
   view: SavedViewTypes.savedView,
   newName,
+  ~version,
 ) => {
+  let versionStr = switch version {
+  | UserInfoTypes.V1 => "v1"
+  | UserInfoTypes.V2 => "v2"
+  }
   let dataDict =
     [
       ("view_id", view.view_id->JSON.Encode.string),
       ("view_name", newName->JSON.Encode.string),
       ("filters", view.filters),
       ("entity", entity->SavedViewTypes.entityToString->JSON.Encode.string),
-      ("version", "v1"->JSON.Encode.string),
+      ("version", versionStr->JSON.Encode.string),
     ]->Dict.fromArray
   buildActionPayload(entity, Update, dataDict)
 }
@@ -333,13 +343,18 @@ let buildSavePayload = (
   name,
   filters: JSON.t,
   viewId: option<string>,
+  ~version,
 ) => {
+  let versionStr = switch version {
+  | UserInfoTypes.V1 => "v1"
+  | UserInfoTypes.V2 => "v2"
+  }
   let dataDict =
     [
       ("view_name", name->JSON.Encode.string),
       ("filters", filters),
       ("entity", entity->SavedViewTypes.entityToString->JSON.Encode.string),
-      ("version", "v1"->JSON.Encode.string),
+      ("version", versionStr->JSON.Encode.string),
     ]->Dict.fromArray
   switch viewId {
   | Some(id) => dataDict->Dict.set("view_id", id->JSON.Encode.string)

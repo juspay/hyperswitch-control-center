@@ -91,7 +91,6 @@ type entityName =
   | CHAT_BOT
   | OIDC_AUTHORIZE
   | PAYMENTS_LIST
-  | SAVED_VIEWS
 
 type v2entityNameType =
   | CUSTOMERS

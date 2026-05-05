@@ -1,4 +1,3 @@
-open APIUtils
 open LogicUtils
 open Typography
 open SavedViewTypes
@@ -7,9 +6,6 @@ let defaultViewName = "Default View"
 
 @react.component
 let make = (~version: UserInfoTypes.version=V1, ~entity: SavedViewTypes.entity=Payment) => {
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
-  let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let {updateExistingKeys, filterValue, reset, setfilterKeys} = React.useContext(
     FilterContext.filterContext,
@@ -20,22 +16,9 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: SavedViewTypes.entity=P
   let (currentlyEditingIndex, setCurrentlyEditingIndex) = React.useState(_ => None)
   let (isInternalUpdate, setIsInternalUpdate) = React.useState(_ => false)
 
+  let fetchSavedViewsHook = SavedViewsHooks.useFetchSavedViews(~entity, ~version)
   let fetchSavedViews = async () => {
-    try {
-      let url = getURL(
-        ~entityName=V1(USERS),
-        ~userType=#USER_DATA,
-        ~methodType=Get,
-        ~queryParameters=Some(SavedViewsUtils.savedViewsQueryParam(entity)),
-      )
-      let res = await fetchDetails(url)
-      let mappedRes = res->SavedViewsUtils.savedViewsResponseMapper(entity)
-      setSavedViews(_ => mappedRes.views)
-    } catch {
-    | err =>
-      Js.log2("FAILED TO LOAD SAVED VIEWS", err)
-      showToast(~message="Failed to load saved views. Please try again.", ~toastType=ToastError)
-    }
+    await fetchSavedViewsHook(~setSavedViews)
   }
 
   React.useEffect(() => {
@@ -63,45 +46,26 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: SavedViewTypes.entity=P
       }
     }
     None
-  }, (filterValue, savedViews, version))
+  }, (filterValue, savedViews, version, isInternalUpdate))
 
   let showPopUp = PopUpState.useShowPopUp()
 
+  let performDeleteHook = SavedViewsHooks.useDeleteSavedView(~entity, ~fetchSavedViews)
   let performDelete = async (view_id, viewName) => {
-    try {
-      let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
-      let _ = await updateDetails(url, SavedViewsUtils.buildDeletePayload(entity, view_id), Post)
-      showToast(~message=`'${viewName}' has been deleted successfully!`, ~toastType=ToastSuccess)
+    await performDeleteHook(view_id, viewName, ~onSuccess=() => {
       if activeViewName === viewName {
         setActiveViewName(_ => "")
       }
-      fetchSavedViews()->ignore
-    } catch {
-    | err =>
-      Js.log2("FAILED TO DELETE SAVED VIEW", err)
-      showToast(
-        ~message=`Failed to delete view '${viewName}'. Please try again.`,
-        ~toastType=ToastError,
-      )
-    }
+    })
   }
 
+  let performRenameHook = SavedViewsHooks.useRenameSavedView(~entity, ~version, ~fetchSavedViews)
   let performRename = async (view: SavedViewTypes.savedView, newName) => {
-    try {
-      let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
-      let _ = await updateDetails(
-        url,
-        SavedViewsUtils.buildRenamePayload(entity, view, newName),
-        Post,
-      )
-      showToast(~message=`View renamed to '${newName}' successfully!`, ~toastType=ToastSuccess)
-      fetchSavedViews()->ignore
-      activeViewName === view.view_name ? setActiveViewName(_ => newName) : ()
-    } catch {
-    | err =>
-      Js.log2("FAILED TO RENAME SAVED VIEW", err)
-      showToast(~message="Failed to rename view. Please try again.", ~toastType=ToastError)
-    }
+    await performRenameHook(view, newName, ~onSuccess=() => {
+      if activeViewName === view.view_name {
+        setActiveViewName(_ => newName)
+      }
+    })
   }
 
   let handleDelete = (view: SavedViewTypes.savedView, ev) => {

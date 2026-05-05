@@ -1,4 +1,3 @@
-open APIUtils
 open LogicUtils
 open Typography
 open SavedViewTypes
@@ -167,15 +166,11 @@ let make = (
   ~version: UserInfoTypes.version=V1,
   ~entity: SavedViewTypes.entity,
 ) => {
-  let getURL = useGetURL()
-  let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
   let (viewName, setViewName) = React.useState(_ => "")
   let (selectedViewToOverwrite, setSelectedViewToOverwrite) = React.useState(_ => "")
   let (includeDate, setIncludeDate) = React.useState(_ => false)
   let (savedViews: array<SavedViewTypes.savedView>, setSavedViews) = React.useState(_ => [])
   let (viewCount, setViewCount) = React.useState(_ => 0)
-  let fetchDetails = useGetMethod()
 
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let {values: formValues} = ReactFinalForm.useFormState(
@@ -216,23 +211,9 @@ let make = (
     }
   }, (mergedFilters, version))
 
+  let fetchSavedViewsHook = SavedViewsHooks.useFetchSavedViews(~entity, ~version)
   let fetchSavedViews = async () => {
-    try {
-      let url = getURL(
-        ~entityName=V1(USERS),
-        ~userType=#USER_DATA,
-        ~methodType=Get,
-        ~queryParameters=Some(SavedViewsUtils.savedViewsQueryParam(entity)),
-      )
-      let res = await fetchDetails(url)
-      let mappedRes = res->SavedViewsUtils.savedViewsResponseMapper(entity)
-      setViewCount(_ => mappedRes.count)
-      setSavedViews(_ => mappedRes.views)
-    } catch {
-    | err =>
-      Js.log2("FAILED TO LOAD SAVED VIEWS", err)
-      showToast(~message="Failed to load saved views. Please try again.", ~toastType=ToastError)
-    }
+    await fetchSavedViewsHook(~setSavedViews, ~setViewCount)
   }
 
   React.useEffect(() => {
@@ -257,55 +238,29 @@ let make = (
     filtersDict->JSON.Encode.object
   }
 
-  let handleCreate = async _ => {
-    try {
-      let filters = buildFilters()
-      let payload = SavedViewsUtils.buildSavePayload(entity, Create, viewName, filters, None)
-      let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
-      let res = await updateDetails(url, payload, Post)
-      onViewsUpdated(res, Some(viewName))
-      showToast(~message=`New View '${viewName}' created successfully!`, ~toastType=ToastSuccess)
-      setShowModal(_ => false)
-    } catch {
-    | err =>
-      Js.log2("FAILED TO CREATE SAVED VIEW", err)
-      showToast(
-        ~message=`Failed to create view '${viewName}'. Please try again.`,
-        ~toastType=ToastError,
-      )
-    }
+  let handleCreateHook = SavedViewsHooks.useCreateSavedView(
+    ~entity,
+    ~version,
+    ~onViewsUpdated,
+    ~setShowModal,
+  )
+  let handleCreate = async () => {
+    let trimmedName = viewName->String.trim
+    let filters = buildFilters()
+    await handleCreateHook(trimmedName, filters)
   }
 
+  let handleOverwriteHook = SavedViewsHooks.useOverwriteSavedView(
+    ~entity,
+    ~version,
+    ~onViewsUpdated,
+    ~setShowModal,
+    ~savedViews,
+  )
   let handleOverwrite = async name => {
-    try {
-      let viewToOverwrite = name->isNonEmptyString ? name : selectedViewToOverwrite
-      if viewToOverwrite->isNonEmptyString {
-        let viewId =
-          savedViews
-          ->Array.find(view => view.view_name === viewToOverwrite)
-          ->Option.map(v => v.view_id)
-        let filters = buildFilters()
-        let payload = SavedViewsUtils.buildSavePayload(
-          entity,
-          Update,
-          viewToOverwrite,
-          filters,
-          viewId,
-        )
-        let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
-        let res = await updateDetails(url, payload, Post)
-        onViewsUpdated(res, Some(viewToOverwrite))
-        showToast(
-          ~message=`'${viewToOverwrite}' has been overwritten successfully!`,
-          ~toastType=ToastSuccess,
-        )
-        setShowModal(_ => false)
-      }
-    } catch {
-    | err =>
-      Js.log2("FAILED TO OVERWRITE SAVED VIEW", err)
-      showToast(~message="Failed to overwrite view. Please try again.", ~toastType=ToastError)
-    }
+    let viewToOverwrite = name->isNonEmptyString ? name : selectedViewToOverwrite
+    let filters = buildFilters()
+    await handleOverwriteHook(viewToOverwrite, filters)
   }
 
   let trimmedViewName = viewName->String.trim
