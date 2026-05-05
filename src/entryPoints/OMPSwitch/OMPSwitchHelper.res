@@ -532,7 +532,7 @@ module ProfileDropdownItem = {
 
     let updateProfileNameV1 = async (~body) => {
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let response = await updateDetails(url, body, Post)
+      let response = await updateDetails(url, body, Post, ~version)
       setBusinessProfileRecoil(_ =>
         response->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
       )
@@ -540,7 +540,7 @@ module ProfileDropdownItem = {
 
     let updateProfileNameV2 = async (~body) => {
       let url = getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Put, ~id=Some(profileId))
-      let response = await updateDetails(url, body, Put)
+      let response = await updateDetails(url, body, Put, ~version)
       setBusinessProfileRecoil(_ =>
         response->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
       )
