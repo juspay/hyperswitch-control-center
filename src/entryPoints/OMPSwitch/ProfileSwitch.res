@@ -21,7 +21,7 @@ module NewProfileCreationModal = {
 
     let createNewProfileV2 = async (~values) => {
       let url = getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Post)
-      let _ = await updateDetails(url, values, Post)
+      let _ = await updateDetails(url, values, Post, ~version=V2)
       getProfileList()->ignore
     }
 

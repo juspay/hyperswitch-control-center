@@ -11,7 +11,7 @@ let useFetchBusinessProfileFromIdV1 = () => {
   async (~profileId) => {
     try {
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Get, ~id=profileId)
-      let businessProfile = await fetchDetails(url, ~version=V1)
+      let businessProfile = await fetchDetails(url)
       setBusinessProfileRecoil(_ =>
         businessProfile->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
       )
@@ -104,7 +104,7 @@ let useUpdateBusinessProfileV2 = () => {
       let finalBody = shouldTransform ? transformedBody : body
 
       let url = getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Put, ~id=Some(profileId))
-      let updatedBusinessProfile = await updateDetails(url, finalBody, Put)
+      let updatedBusinessProfile = await updateDetails(url, finalBody, Put, ~version=V2)
       let commonTypedData = mapJsonToCommonType(businessProfileInterfaceV2, updatedBusinessProfile)
       setBusinessProfileRecoil(_ => commonTypedData)
       updatedBusinessProfile
