@@ -16,12 +16,9 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 test.describe("Payout Connector", () => {
   let email: string;
 
-  test.beforeAll(() => {
-    email = generateUniqueEmail();
-  });
-
   const payoutConnectors = Object.entries(payoutConnectorConfig);
   test.beforeEach(async ({ page, context }) => {
+    email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
