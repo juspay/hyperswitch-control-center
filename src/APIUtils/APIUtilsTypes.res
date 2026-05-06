@@ -34,7 +34,6 @@ type entityName =
   | ROUTING_EVENT_LOGS
   | GENERATE_SAMPLE_DATA
   | USERS
-  | RECON
   | INTEGRATION_DETAILS
   | FRAUD_RISK_MANAGEMENT
   | USER_MANAGEMENT
@@ -114,7 +113,6 @@ type v2entityNameType =
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 
-type reconType = [#TOKEN | #REQUEST | #NONE]
 type hypersenseType = [#TOKEN | #HOME | #NONE]
 
 type hyperswitchReconType = [
@@ -215,7 +213,6 @@ type getUrlTypes = (
   ~connector: option<string>=?,
   ~userType: userType=?,
   ~userRoleTypes: userRoleTypes=?,
-  ~reconType: reconType=?,
   ~hyperswitchReconType: hyperswitchReconType=?,
   ~hypersenseType: hypersenseType=?,
   ~queryParameters: option<string>=?,
