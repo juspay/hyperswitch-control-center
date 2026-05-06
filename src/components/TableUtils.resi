@@ -233,3 +233,12 @@ module HeaderActions: {
     ~filterKey: string,
   ) => React.element
 }
+
+// Visited Rows Utility Types and Functions
+type visitedRowsConfig<'t> = {
+  getId: 't => string,
+  prefix: string,
+}
+let constructVisitedRowKey: (string, string) => string
+let isRowVisited: (visitedRowsConfig<'t>, RescriptCore.Nullable.t<'t>) => bool
+let markRowAsVisited: (visitedRowsConfig<'t>, RescriptCore.Nullable.t<'t>) => unit

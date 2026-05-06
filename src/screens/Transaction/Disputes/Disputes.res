@@ -154,6 +154,10 @@ let make = () => {
           sortingBasedOnDisabled=false
           showAutoScroll=true
           isDraggable=true
+          visitedRows={{
+            getId: dispute => dispute.dispute_id,
+            prefix: "dispute",
+          }}
         />
       </div>
     </PageLoaderWrapper>

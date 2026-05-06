@@ -118,6 +118,7 @@ type rowType = TableUtils.rowType = Filter | Row
 let getTableCellValue: cell => string
 module SortIcons = TableUtils.SortIcons
 module HeaderActions = TableUtils.HeaderActions
+type visitedRowsConfig<'t> = {getId: 't => string, prefix: string}
 module TableFilterRow: {
   @react.component
   let make: (
@@ -128,7 +129,7 @@ module TableFilterRow: {
     ~tableDataBorderClass: string,
     ~customFilterRowStyle: string,
     ~showCheckbox: bool,
-    ~customSeparationArray: array<(int, int)>=?,
+    ~customSeparationArray: array<(int, 'a)>=?,
   ) => React.element
 }
 module TableRow: {
@@ -169,7 +170,8 @@ module TableRow: {
     ~selectedIndex: int,
     ~setSelectedIndex: ('a => int) => unit,
     ~areLastCellsRounded: bool=?,
-    ~customSeparationArray: array<(int, int)>=?,
+    ~customSeparationArray: array<(int, 'b)>=?,
+    ~isVisited: bool=?,
   ) => React.element
 }
 module SortAction: {
@@ -311,4 +313,5 @@ let make: (
   ~highlightSelectedRow: bool=?,
   ~freezeFirstColumn: bool=?,
   ~customSeparation: array<(int, int)>=?,
+  ~visitedRows: visitedRowsConfig<'b>=?,
 ) => React.element
