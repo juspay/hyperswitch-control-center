@@ -13,6 +13,7 @@ let make = (~ruleId: string) => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (selectedRows, setSelectedRows) = React.useState(_ => [])
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let getTransactions = ReconEngineHooks.useGetTransactions()
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
@@ -148,7 +149,7 @@ let make = (~ruleId: string) => {
             "v1/recon-engine/exceptions/recon",
             ~authorization=Access,
           )}
-          resultsPerPage=6
+          resultsPerPage=3
           filters={<TableSearchFilter
             data={exceptionData->Array.map(Nullable.make)}
             filterLogic
@@ -172,8 +173,21 @@ let make = (~ruleId: string) => {
           hideRightTitleElement=true
           showAutoScroll=true
           customSeparation=[(2, 3)]
+          checkBoxProps={{
+            showCheckBox: true,
+            selectedData: selectedRows,
+            setSelectedData: setSelectedRows,
+          }}
         />
       </RenderIf>
     </PageLoaderWrapper>
+    <RenderIf condition={selectedRows->isNonEmptyArray}>
+      <ReconEngineTransactionsBulkActions
+        selectedRows={selectedRows->Array.map(json => json->Identity.jsonToAnyType)}
+        setSelectedRows
+        showVoidButton=true
+        refreshList={() => fetchExceptionsData()->ignore}
+      />
+    </RenderIf>
   </div>
 }
