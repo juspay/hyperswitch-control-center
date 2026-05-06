@@ -509,7 +509,7 @@ module TableHeadingCell = {
 
                           let maxHeight = filterDropdownMaxHeight
                           <div className={`${dropdownClass}`}>
-                            <SelectBox.BaseDropdown
+                            <SelectBoxAdapter.BaseDropdown
                               allowMultiSelect=true
                               hideMultiSelectButtons=true
                               buttonText=""

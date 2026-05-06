@@ -1,6 +1,18 @@
 open LogicUtils
 open PaymentInterfaceTypes
 
+let extractPaymentMethodDetails = (paymentMethodData, ~paymentMethod) => {
+  let pmd = paymentMethodData->getDictFromJsonObject
+  switch paymentMethod->ConnectorUtils.getPaymentMethodFromString {
+  | Wallet =>
+    pmd
+    ->getDictfromDict("wallet")
+    ->Dict.valuesToArray
+    ->getValueFromArray(0, JSON.Encode.null)
+  | _ => pmd->getJsonObjectFromDict(paymentMethod)
+  }
+}
+
 let concatAddressFromDict = (dict, keys) => {
   keys
   ->Array.map(key => dict->getString(key, ""))
@@ -119,8 +131,9 @@ let mapDictToPaymentPayload: dict<JSON.t> => PaymentInterfaceTypes.order = dict 
     payment_method_type: dict->getString("payment_method_type", ""),
     payment_method_data: {
       let paymentMethodData = dict->getJsonObjectFromDict("payment_method_data")
+      let paymentMethod = dict->getString("payment_method", "")
       switch paymentMethodData->JSON.Classify.classify {
-      | Object(value) => Some(value->getJsonObjectFromDict("card"))
+      | Object(_) => Some(extractPaymentMethodDetails(paymentMethodData, ~paymentMethod))
       | _ => None
       }
     },

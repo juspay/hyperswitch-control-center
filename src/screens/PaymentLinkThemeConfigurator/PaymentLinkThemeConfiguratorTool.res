@@ -393,9 +393,6 @@ module CreateNewStyleID = {
         authorization=Access
         noAccessDescription="You do not have the required permissions for this action. Please contact your admin."
         onClick={_ => setShowModal(_ => true)}
-        isRelative=false
-        contentAlign=Default
-        tooltipForWidthClass="!h-full"
         className={`${cursorStyles(Access)} ${addItemBtnStyle}`}
         showTooltip=true>
         {<>
@@ -492,7 +489,7 @@ module StyleIdSelection = {
       <div className={`text-nd_gray-700 py-2 ${body.md.medium}`}>
         {"Select Style ID"->React.string}
       </div>
-      <SelectBox.BaseDropdown
+      <SelectBoxAdapter.BaseDropdown
         allowMultiSelect=false
         buttonText="Select Style ID"
         input

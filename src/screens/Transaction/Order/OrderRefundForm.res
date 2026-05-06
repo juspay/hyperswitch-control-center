@@ -170,14 +170,14 @@ let make = (
       let enteredAmountInMinorUnits = Math.round(floatVal *. conversionFactor)
       let remainingAmountInMinorUnits = Math.round(amountAvailableToRefund *. conversionFactor)
       if enteredAmountInMinorUnits > remainingAmountInMinorUnits {
-        let formatted_amount = Float.toFixedWithPrecision(
+        let formattedAmount = Float.toFixedWithPrecision(
           amountAvailableToRefund,
           ~digits=precisionDigits,
         )
         Dict.set(
           errors,
           "amount",
-          `Refund amount should not exceed ${formatted_amount}`->JSON.Encode.string,
+          `Refund amount should not exceed ${formattedAmount}`->JSON.Encode.string,
         )
       } else if floatVal == 0.0 {
         Dict.set(

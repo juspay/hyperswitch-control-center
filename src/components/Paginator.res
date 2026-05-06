@@ -78,7 +78,7 @@ let make = (
               {React.string("Showing ")}
               <span className="text-nd_gray-700"> {React.string(toNum->Int.toString)} </span>
             </span>
-            <SelectBox.BaseDropdown
+            <SelectBoxAdapter.BaseDropdown
               options=selectInputOption
               fixedDropDownDirection={TopLeft}
               buttonText=""

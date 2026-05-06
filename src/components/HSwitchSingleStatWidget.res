@@ -71,7 +71,6 @@ let make = (
                 <Icon name="info-vacant" size=13 />
               </div>}
               toolTipPosition=ToolTip.Top
-              newDesign=true
             />
           </div>
         </div>

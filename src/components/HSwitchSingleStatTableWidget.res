@@ -198,7 +198,6 @@ let make = (
                 <Icon name="info-vacant" size=13 />
               </div>}
               toolTipPosition=ToolTip.Top
-              newDesign=true
             />
           </div>
           <div className="flex gap-1 flex-col w-full mt-1">

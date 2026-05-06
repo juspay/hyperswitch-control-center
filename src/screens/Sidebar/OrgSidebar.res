@@ -116,7 +116,6 @@ module OrgTile = {
             customInputStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} text-sm h-4 ${hoverInput2}`}
             customIconComponent={<ToolTip
               description="Copy Organization ID"
-              customStyle="!whitespace-nowrap"
               toolTipFor={<div className="cursor-pointer">
                 <HelperComponents.CopyTextCustomComp
                   customIconCss={`${secondaryTextColor}`}

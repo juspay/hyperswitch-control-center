@@ -224,7 +224,6 @@ module SmartRetryToggle = {
             <Icon name="info-vacant" size=13 className="mt-1" />
           </div>}
           toolTipPosition=ToolTip.Top
-          newDesign=true
         />
       </p>
     </div>

@@ -21,10 +21,10 @@ let getHeading = colType => {
     Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector ID")
   }
 }
-let connectorStatusStyle = connectorStatus =>
+let connectorStatusColor = connectorStatus =>
   switch connectorStatus->String.toLowerCase {
-  | "active" => "text-green-700"
-  | _ => "text-grey-800 opacity-50"
+  | "active" => TagBinding.Success
+  | _ => TagBinding.Neutral
   }
 
 let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
@@ -45,9 +45,13 @@ let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
 
   | Status =>
     Table.CustomCell(
-      <div className={`font-semibold ${connector.status->connectorStatusStyle}`}>
-        {connector.status->String.toUpperCase->React.string}
-      </div>,
+      <TagBinding
+        text={connector.status->String.toUpperCase}
+        color={connector.status->connectorStatusColor}
+        variant=Subtle
+        shape=Squarical
+        size=Xs
+      />,
       "",
     )
   | ConnectorLabel => Text(connector.connector_label)
