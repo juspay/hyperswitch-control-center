@@ -215,8 +215,7 @@ let make = (
   ~showAddMoreTabs=true,
 ) => {
   open LogicUtils
-  let eulerBgClass = "bg-jp-gray-100 dark:bg-jp-gray-darkgray_background"
-  let bgClass = eulerBgClass
+  let bgClass = "bg-jp-gray-100 dark:bg-jp-gray-darkgray_background"
   // this tabs will always loaded independent of user preference
   let isMobileView = MatchMedia.useMobileChecker()
   let defaultTabs =
