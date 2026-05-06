@@ -364,7 +364,7 @@ module MerchantDropdownItem = {
     let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
 
     let leftIcon = if isActive && !isUnderEdit {
-      <Icon name="nd-check" className={`${leftIconCss} ${secondaryTextColor}`} />
+      <Icon name="nd-check" size=14 className={`${leftIconCss} ${secondaryTextColor}`} />
     } else if isActive && isUnderEdit {
       React.null
     } else if !isActive && !isUnderEdit {
