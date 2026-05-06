@@ -26,9 +26,7 @@ module SwitchMerchantBody = {
     }, [])
     <div className="flex flex-col items-center gap-2">
       <Loader />
-      <div className={`${heading.md.semibold} mb-4`}>
-        {"Switching merchant..."->React.string}
-      </div>
+      <div className={`${heading.md.semibold} mb-4`}> {"Switching merchant..."->React.string} </div>
     </div>
   }
 }

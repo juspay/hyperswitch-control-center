@@ -207,9 +207,14 @@ module NewOrgCreationModal = {
         mixpanelEvent(~eventName="create_new_org", ~metadata=values)
         let _ = await updateDetails(url, values, Post)
         fetchOrganizationList()->ignore
-        showToast(~toastType=ToastSuccess, ~message="Organization created successfully!", ~autoClose=true)
+        showToast(
+          ~toastType=ToastSuccess,
+          ~message="Organization created successfully!",
+          ~autoClose=true,
+        )
       } catch {
-      | _ => showToast(~toastType=ToastError, ~message="Organization creation failed!", ~autoClose=true)
+      | _ =>
+        showToast(~toastType=ToastError, ~message="Organization creation failed!", ~autoClose=true)
       }
       setShowModal(_ => false)
       Nullable.null
@@ -276,7 +281,9 @@ module NewOrgCreationModal = {
       <div className="p-2 m-2">
         <div className="py-5 px-3 flex justify-between align-top ">
           <CardUtils.CardHeader
-            heading="Add a new organization" subHeading="" customSubHeadingStyle="w-full !max-w-none pr-10"
+            heading="Add a new organization"
+            subHeading=""
+            customSubHeadingStyle="w-full !max-w-none pr-10"
           />
           <div className="h-fit" onClick={_ => setShowModal(_ => false)}>
             <Icon
