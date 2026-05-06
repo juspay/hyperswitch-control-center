@@ -1,3 +1,6 @@
+open ReactFinalForm
+open LogicUtils
+
 type dropdownOption = SelectBox.dropdownOption
 type dropdownOptionWithoutOptional = SelectBox.dropdownOptionWithoutOptional
 type allSelectType = SelectBox.allSelectType
@@ -137,12 +140,12 @@ module BaseDropdown = {
     | Some(el) => Some(wrapTrigger(el))
     | None => customButton->Option.map(wrapTrigger)
     }
-    let selectedValues = input.value->LogicUtils.getStrArrayFromJson
-    let selectedValue = input.value->LogicUtils.getStringFromJson("")
+    let selectedValues = input.value->getStrArrayFromJson
+    let selectedValue = input.value->getStringFromJson("")
 
     <>
-      <RenderIf condition=useBlend>
-        {if allowMultiSelect {
+      <RenderIf condition={useBlend && allowMultiSelect}>
+        {
           let blendItems = MultiSelectWrapper.makeItems(options, ~deselectDisable, ~selectedValues)
           <MultiSelectWrapper
             items=blendItems
@@ -166,7 +169,10 @@ module BaseDropdown = {
             minMenuWidth={minMenuWidth->Option.getOr(300)}
             maxMenuWidth={maxMenuWidth->Option.getOr(300)}
           />
-        } else {
+        }
+      </RenderIf>
+      <RenderIf condition={useBlend && !allowMultiSelect}>
+        {
           let blendItems = SingleSelectWrapper.makeItems(options, ~deselectDisable, ~selectedValue)
           let totalItems = blendItems->Array.reduce(0, (acc, g) => acc + g.items->Array.length)
           let computedEnableSearch = searchable->Option.getOr(false) || totalItems > 5
@@ -190,7 +196,7 @@ module BaseDropdown = {
             ?minMenuWidth
             ?maxMenuWidth
           />
-        }}
+        }
       </RenderIf>
       <RenderIf condition={!useBlend}>
         <SelectBox.BaseDropdown
@@ -403,12 +409,12 @@ let make = (
   | Some(el) => Some(wrapTrigger(el))
   | None => customButton->Option.map(wrapTrigger)
   }
-  let selectedValues = input.value->LogicUtils.getStrArrayFromJson
-  let selectedValue = input.value->LogicUtils.getStringFromJson("")
+  let selectedValues = input.value->getStrArrayFromJson
+  let selectedValue = input.value->getStringFromJson("")
 
   <>
-    <RenderIf condition=useBlend>
-      {if allowMultiSelect {
+    <RenderIf condition={useBlend && allowMultiSelect}>
+      {
         let blendItems = MultiSelectWrapper.makeItems(options, ~deselectDisable, ~selectedValues)
         <MultiSelectWrapper
           items=blendItems
@@ -432,7 +438,10 @@ let make = (
           minMenuWidth={minMenuWidth->Option.getOr(300)}
           maxMenuWidth={maxMenuWidth->Option.getOr(300)}
         />
-      } else {
+      }
+    </RenderIf>
+    <RenderIf condition={useBlend && !allowMultiSelect}>
+      {
         let blendItems = SingleSelectWrapper.makeItems(options, ~deselectDisable, ~selectedValue)
         let totalItems = blendItems->Array.reduce(0, (acc, g) => acc + g.items->Array.length)
         let computedEnableSearch = searchable->Option.getOr(false) || totalItems > 5
@@ -458,7 +467,7 @@ let make = (
           ?minMenuWidth
           ?maxMenuWidth
         />
-      }}
+      }
     </RenderIf>
     <RenderIf condition={!useBlend}>
       <SelectBox

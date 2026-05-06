@@ -6,8 +6,10 @@ open LogicUtils
 module ResolutionButton = {
   @react.component
   let make = (~config: ReconEngineExceptionsTypes.buttonConfig) => {
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     <RenderIf condition={config.condition}>
-      <Button
+      <ACLButton
+        authorization={userHasAccess(~groupAccess=ReconExceptionsManage)}
         buttonState=Normal
         buttonSize=Medium
         buttonType={config.buttonType}

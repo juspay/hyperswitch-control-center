@@ -49,15 +49,11 @@ module TabInfo = {
     ~setTabStacksnames,
     ~description="",
   ) => {
-    let fontClass = "font-inter-style"
-
-    let defaultThemeBasedClass = `${fontClass} px-6`
-
-    let defaultClasses = `font-semibold ${defaultThemeBasedClass} w-max flex flex-auto flex-row items-center justify-center text-body mb-1`
+    let defaultClasses = `${Typography.body.md.medium} px-2 w-max flex flex-auto flex-row items-center justify-center`
     let selectionClasses = if isSelected {
-      "font-semibold text-black"
+      "text-nd_gray-700"
     } else {
-      "text-jp-gray-700 dark:text-jp-gray-tabset_gray dark:text-opacity-75  hover:text-jp-gray-800 dark:hover:text-opacity-100 font-medium"
+      "text-nd_gray-500 hover:text-nd_gray-500"
     }
     let handleClick = React.useCallback(_ => {
       handleSelectedTab(
@@ -75,7 +71,7 @@ module TabInfo = {
     let bottomBorderColor = ""
     let borderClass = ""
 
-    let lineStyle = "bg-black w-full h-0.5 rounded-full"
+    let lineStyle = "bg-nd_gray-700 w-full h-0.5"
 
     let crossIcon = switch isRemovable {
     | true =>
@@ -151,16 +147,11 @@ module TabInfo = {
           crossIcon
         </div>
         <div />
-        <RenderIf condition={isSelected}>
-          <FramerMotion.Motion.Div className=lineStyle layoutId="underline" />
-        </RenderIf>
-        <RenderIf condition={!isSelected}>
-          <div className="w-full h-0.5 rounded-full" />
-        </RenderIf>
+        <div className={isSelected ? lineStyle : "w-full h-0.5"} />
       </div>
 
     <div
-      className={`flex flex-row cursor-pointer pt-0.5 pb-0 ${borderClass} ${bottomBorderColor} items-center h-14`}>
+      className={`flex flex-row cursor-pointer py-1.5 ${borderClass} ${bottomBorderColor} items-center`}>
       {tab}
     </div>
   }
@@ -491,13 +482,7 @@ let make = (
             value: x.value,
             icon: CustomRightIcon(
               description->LogicUtils.isNonEmptyString
-                ? <ToolTip
-                    customStyle="-mr-1.5"
-                    arrowCustomStyle={isMobileView ? "" : "ml-1.5"}
-                    description
-                    toolTipPosition={ToolTip.BottomLeft}
-                    justifyClass="ml-2 h-auto mb-0.5"
-                  />
+                ? <ToolTip description toolTipPosition={ToolTip.BottomLeft} />
                 : React.null,
             ),
           }
@@ -587,7 +572,6 @@ let make = (
                   onClick={_ => setShowModal(_ => true)}
                 />}
                 toolTipPosition=Top
-                tooltipWidthClass="w-fit"
               />
             </div>
           </RenderIf>

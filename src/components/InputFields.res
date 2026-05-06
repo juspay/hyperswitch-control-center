@@ -500,7 +500,7 @@ let filterDateRangeField = (
   ~customButtonStyle="!rounded-lg !bg-none",
 ): comboCustomInputRecord => {
   let fn = (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
-    <DateRangeField
+    <DateRangeFieldAdapter
       disablePastDates
       disableFutureDates
       format
@@ -601,7 +601,7 @@ let dateRangeField = (
   ~isTooltipVisible=true,
 ): comboCustomInputRecord => {
   let fn = (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
-    <DateRangePicker
+    <DateRangePickerAdapter
       disablePastDates
       disableFutureDates
       format

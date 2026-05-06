@@ -139,6 +139,7 @@ type processorTypes =
   | TRUELAYER
   | FISERVCOMMERCEHUB
   | TRUSTLY
+  | IMERCHANTSOLUTIONS
 
 type payoutProcessorTypes =
   | ADYEN

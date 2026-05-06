@@ -28,7 +28,9 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   let showToast = ToastState.useShowToast()
   let {updateExistingKeys, filterValueJson, filterKeys, setfilterKeys} =
     FilterContext.filterContext->React.useContext
-  let (countRes, setCountRes) = React.useState(_ => Dict.make()->JSON.Encode.object)
+  let (aggregateResponse, setAggregateResponse) = React.useState(_ =>
+    Dict.make()->JSON.Encode.object
+  )
   let (activeView: TransactionViewTypes.viewTypes, setActiveView) = React.useState(_ =>
     TransactionViewTypes.All
   )
@@ -36,7 +38,7 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   let customFilterKey = getCustomFilterKey(entity)
 
   let updateViewsFilterValue = (view: TransactionViewTypes.viewTypes) => {
-    let customFilter = `[${view->getViewsString(countRes, entity)}]`
+    let customFilter = `[${view->getViewFilterValue(aggregateResponse, entity)}]`
     updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
 
     if !(filterKeys->Array.includes(customFilterKey)) {
@@ -56,7 +58,7 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   let endTime =
     filterValueJson->getString(OrderUIUtils.endTimeFilterKey(version), defaultDate.end_time)
 
-  let getAggregate = async () => {
+  let loadAggregateCounts = async () => {
     try {
       let url = switch entity {
       | Orders =>
@@ -91,18 +93,18 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
       }
 
       let response = await fetchDetails(url)
-      setCountRes(_ => response)
+      setAggregateResponse(_ => response)
     } catch {
     | _ => showToast(~toastType=ToastError, ~message="Failed to fetch views count", ~autoClose=true)
     }
   }
 
-  let settingActiveView = () => {
+  let syncActiveViewFromFilter = () => {
     let appliedStatusFilter = filterValueJson->getArrayFromDict(customFilterKey, [])
 
-    let setViewToAll =
+    let isAllViewSelected =
       appliedStatusFilter->getStrArrayFromJsonArray->Array.toSorted(compareLogic) ==
-        countRes
+        aggregateResponse
         ->getDictFromJsonObject
         ->getDictfromDict("status_with_count")
         ->Dict.keysToArray
@@ -120,7 +122,7 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
       | All => setActiveView(_ => None)
       | _ => setActiveView(_ => viewType)
       }
-    } else if setViewToAll {
+    } else if isAllViewSelected {
       setActiveView(_ => All)
     } else {
       setActiveView(_ => None)
@@ -128,12 +130,12 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   }
 
   React.useEffect(() => {
-    settingActiveView()
+    syncActiveViewFromFilter()
     None
-  }, (filterValueJson, countRes))
+  }, (filterValueJson, aggregateResponse))
 
   React.useEffect(() => {
-    getAggregate()->ignore
+    loadAggregateCounts()->ignore
     None
   }, (startTime, endTime))
 
@@ -149,7 +151,7 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
     <TransactionViewCard
       key={i->Int.toString}
       view={item}
-      count={getViewCount(item, countRes, entity)->Int.toString}
+      count={getViewCount(item, aggregateResponse, entity)->Int.toString}
       onViewClick
       isActiveView={item == activeView}
     />
