@@ -129,7 +129,7 @@ module TableFilterRow: {
     ~tableDataBorderClass: string,
     ~customFilterRowStyle: string,
     ~showCheckbox: bool,
-    ~customSeparationArray: array<(int, 'a)>=?,
+    ~customSeparationArray: array<(int, int)>=?,
   ) => React.element
 }
 module TableRow: {
@@ -170,7 +170,7 @@ module TableRow: {
     ~selectedIndex: int,
     ~setSelectedIndex: ('a => int) => unit,
     ~areLastCellsRounded: bool=?,
-    ~customSeparationArray: array<(int, 'b)>=?,
+    ~customSeparationArray: array<(int, int)>=?,
     ~isVisited: bool=?,
   ) => React.element
 }
