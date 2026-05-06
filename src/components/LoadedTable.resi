@@ -2,11 +2,11 @@ type sortTyp = ASC | DSC
 type sortOb = {sortKey: string, sortType: sortTyp}
 type checkBoxProps = {
   showCheckBox: bool,
-  selectedData: array<RescriptCore.JSON.t>,
-  setSelectedData: (array<RescriptCore.JSON.t> => array<RescriptCore.JSON.t>) => unit,
+  selectedData: array<JSON.t>,
+  setSelectedData: (array<JSON.t> => array<JSON.t>) => unit,
 }
 let checkBoxPropDefaultVal: checkBoxProps
-let sortAtom: Recoil.recoilAtom<RescriptCore.Dict.t<sortOb>>
+let sortAtom: Recoil.recoilAtom<Dict.t<sortOb>>
 let backgroundClass: string
 let useSortedObj: (
   string,
@@ -17,7 +17,7 @@ let useSortedObj: (
 )
 let sortArray: (array<'a>, string, Table.sortOrder) => array<'a>
 type pageDetails = {offset: int, resultsPerPage: int}
-let table_pageDetails: Recoil.recoilAtom<RescriptCore.Dict.t<pageDetails>>
+let table_pageDetails: Recoil.recoilAtom<Dict.t<pageDetails>>
 @react.component
 let make: (
   ~hideCustomisableColumnButton: bool=?,
@@ -33,7 +33,7 @@ let make: (
   ~clearFormattedDataButton: React.element=?,
   ~bottomActions: React.element=?,
   ~showSerialNumber: bool=?,
-  ~actualData: array<RescriptCore.Nullable.t<'b>>,
+  ~actualData: array<Nullable.t<'b>>,
   ~totalResults: int,
   ~resultsPerPage: int,
   ~offset: int,
@@ -58,7 +58,7 @@ let make: (
   ~tableDataLoading: bool=?,
   ~dataLoading: bool=?,
   ~advancedSearchComponent: React.element=?,
-  ~setData: ('e => option<array<RescriptCore.Nullable.t<'b>>>) => unit=?,
+  ~setData: ('e => option<array<Nullable.t<'b>>>) => unit=?,
   ~setSummary: ('f => EntityType.summary) => unit=?,
   ~dataNotFoundComponent: React.element=?,
   ~renderCard: (~index: int, ~item: 'b, ~onRowClick: int => unit) => React.element=?,
@@ -67,7 +67,7 @@ let make: (
   ~tableBorderClass: string=?,
   ~tableDataBorderClass: string=?,
   ~collapseTableRow: bool=?,
-  ~getRowDetails: RescriptCore.Nullable.t<'b> => React.element=?,
+  ~getRowDetails: Nullable.t<'b> => React.element=?,
   ~onMouseEnter: 'b => unit=?,
   ~onMouseLeave: 'b => unit=?,
   ~frozenUpto: int=?,
