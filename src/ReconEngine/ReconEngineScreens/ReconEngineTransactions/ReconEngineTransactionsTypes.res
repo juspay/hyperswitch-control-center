@@ -5,3 +5,27 @@ type accountGroup = {
   accountName: string,
   entries: array<ReconEngineTypes.entryType>,
 }
+
+@unboxed
+type actionType =
+  | @as("bulk_post") BulkTransactionPost
+  | @as("bulk_void") BulkTransactionVoid
+  | @as("unknown") UnknownBulkTransactionActionType
+
+type iconType = {
+  bulkActionIconName: string,
+  bulkActionIconClass: string,
+}
+
+type modalType = {
+  modalHeading: string,
+  modalDescription: string,
+  modalConfirmButtonText: string,
+  modalConfirmButtonType: Button.buttonType,
+  modalLoadingText: string,
+}
+
+type bulkActionModalConfig = {
+  bulkActionIcon?: iconType,
+  bulkActionModal: modalType,
+}

@@ -4,6 +4,44 @@ open ReconEngineTransformedEntryExceptionsTypes
 open ReconEngineExceptionsUtils
 open ReconEngineTransactionsUtils
 
+let constructTransformedEntryBulkVoidRequestBody = (~valuesDict, ~selectedRows) => {
+  let action =
+    [
+      (
+        "void",
+        [
+          ("reason", valuesDict->getString("reason", "")->JSON.Encode.string),
+        ]->getJsonFromArrayOfJson,
+      ),
+    ]->getJsonFromArrayOfJson
+
+  let selection = [
+    ("selection_type", "ids"->JSON.Encode.string),
+    (
+      "ids",
+      selectedRows
+      ->Array.map((entry: processingEntryType) => entry.id->JSON.Encode.string)
+      ->JSON.Encode.array,
+    ),
+  ]->getJsonFromArrayOfJson
+
+  [("action", action), ("selection", selection)]->getJsonFromArrayOfJson
+}
+
+let getTransformedEntryBulkActionsCount = (
+  ~bulkActionResponses: array<ReconEngineExceptionsTypes.bulkActionResponse>,
+) => {
+  bulkActionResponses->Array.reduce((0, 0, 0, 0), (acc, response) => {
+    let (successCount, failedCount, skippedCount, totalCount) = acc
+    switch response.bulk_action_status {
+    | BulkActionSuccess => (successCount + 1, failedCount, skippedCount, totalCount + 1)
+    | BulkActionFailed => (successCount, failedCount + 1, skippedCount, totalCount + 1)
+    | BulkActionInEligible => (successCount, failedCount, skippedCount + 1, totalCount + 1)
+    | UnknownBulkActionStatus => (successCount, failedCount, skippedCount, totalCount + 1)
+    }
+  })
+}
+
 let sortByVersion = (c1: processingEntryType, c2: processingEntryType) => {
   compareLogic(c1.version, c2.version)
 }
@@ -361,4 +399,132 @@ let constructManualReconciliationBody = (~updatedEntry: processingEntryType, ~va
   ]
   ->Dict.fromArray
   ->JSON.Encode.object
+}
+
+let entryText = (~count) => count == 1 ? "entry" : "entries"
+
+let bulkActionVoidingModalConfig = (~count: int) => {
+  {
+    bulkActionModal: {
+      modalHeading: "Ignore Entry",
+      modalDescription: `This will permanently ignore ${count->Int.toString} transformed ${entryText(
+          ~count,
+        )}. These actions cannot be undone. Are you sure you want to proceed?`,
+      modalConfirmButtonText: "Ignore Entry",
+      modalConfirmButtonType: Delete,
+      modalLoadingText: `Ignoring transformed ${entryText(~count)}...`,
+    },
+  }
+}
+
+let getBulkActionModalConfig = (~action: actionType, ~count: int): bulkActionModalConfig => {
+  switch action {
+  | BulkTransformedEntryVoid => bulkActionVoidingModalConfig(~count)
+  | UnknownBulkTransformedEntryActionType => {
+      bulkActionModal: {
+        modalHeading: "",
+        modalDescription: "",
+        modalConfirmButtonText: "",
+        modalConfirmButtonType: Secondary,
+        modalLoadingText: "",
+      },
+    }
+  }
+}
+
+let bulkActionVoidingSuccessModalConfig = (
+  ~successCount: int,
+  ~failedCount: int,
+  ~skippedCount: int,
+  ~totalCount: int,
+): bulkActionModalConfig => {
+  if successCount == totalCount {
+    {
+      bulkActionModal: {
+        modalHeading: "Transformed Entries Ignored",
+        modalDescription: "All transformed entries were ignored successfully. This summary will be cleared after you close this window.",
+        modalConfirmButtonText: "Download Voiding Report",
+        modalConfirmButtonType: Primary,
+        modalLoadingText: "",
+      },
+      bulkActionIcon: {
+        bulkActionIconName: "nd-check-circle-outline",
+        bulkActionIconClass: "text-nd_green-500",
+      },
+    }
+  } else if failedCount + skippedCount == totalCount {
+    {
+      bulkActionModal: {
+        modalHeading: "Ignoring Failed",
+        modalDescription: "Selected transformed entries could not be ignored. This summary will be cleared after you close this window.",
+        modalConfirmButtonText: "Download Voiding Report",
+        modalConfirmButtonType: Primary,
+        modalLoadingText: "",
+      },
+      bulkActionIcon: {
+        bulkActionIconName: "nd-multiple-cross",
+        bulkActionIconClass: "text-nd_red-400",
+      },
+    }
+  } else {
+    {
+      bulkActionModal: {
+        modalHeading: "Ignoring Completed with Errors",
+        modalDescription: `${successCount->Int.toString}/${totalCount->Int.toString} transformed ${entryText(
+            ~count=successCount,
+          )} were ignored successfully. This summary will be cleared after you close this window.`,
+        modalConfirmButtonText: "Download Voiding Report",
+        modalConfirmButtonType: Primary,
+        modalLoadingText: "",
+      },
+      bulkActionIcon: {
+        bulkActionIconName: "nd-alert-circle",
+        bulkActionIconClass: "text-nd_orange-300",
+      },
+    }
+  }
+}
+
+let getBulkActionSuccessModalConfig = (
+  action: actionType,
+  successCount: int,
+  failedCount: int,
+  skippedCount: int,
+  totalCount: int,
+): bulkActionModalConfig => {
+  switch action {
+  | BulkTransformedEntryVoid =>
+    bulkActionVoidingSuccessModalConfig(~successCount, ~failedCount, ~skippedCount, ~totalCount)
+  | UnknownBulkTransformedEntryActionType => {
+      bulkActionModal: {
+        modalHeading: "",
+        modalDescription: "",
+        modalConfirmButtonText: "",
+        modalConfirmButtonType: Secondary,
+        modalLoadingText: "",
+      },
+      bulkActionIcon: {bulkActionIconName: "", bulkActionIconClass: ""},
+    }
+  }
+}
+
+open ReconEngineExceptionsTypes
+
+let downloadBulkActionReport = (bulkActionResponses: array<bulkActionResponse>) => {
+  let headers = ["ID", "Status", "Status Detail"]
+  let data = bulkActionResponses->Array.map(item => {
+    [
+      item.logical_id->Option.getOr("N/A"),
+      (item.bulk_action_status :> string)->String.toUpperCase,
+      item.bulk_action_status_detail->Option.getOr(""),
+    ]
+  })
+
+  let csvContent = PapaParse.unparse({"fields": headers, "data": data})
+  let timestamp = Date.now()->Js.Float.toString
+  DownloadUtils.download(
+    ~fileName=`bulk_ignore_transformed_entry_report_${timestamp}.csv`,
+    ~content=csvContent,
+    ~fileType="text/csv",
+  )
 }
