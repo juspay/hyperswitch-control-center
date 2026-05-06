@@ -19,12 +19,6 @@ let make = (~setAppScreenState) => {
   <div>
     {switch url.path->urlPath {
     | list{"home"} => <Home setAppScreenState />
-    | list{"recon"} =>
-      <AccessControl
-        isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])}
-        authorization={userHasResourceAccess(~resourceAccess=ReconToken)}>
-        <Recon />
-      </AccessControl>
     | list{"upload-files"} =>
       <AccessControl
         isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])}

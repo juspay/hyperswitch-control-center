@@ -612,7 +612,6 @@ let make = (
   ~path,
   ~linkSelectionCheck=defaultLinkSelectionCheck,
   ~verticalOffset="120px",
-  ~isReconEnabled,
   ~sidebars,
   ~productSiebars: array<topLevelItem>,
 ) => {
@@ -647,11 +646,9 @@ let make = (
   }, [merchantList])
 
   let exploredSidebars = useGetAllProductSections(
-    ~isReconEnabled,
     ~products=hasMerchantData ? exploredModules : [],
   )
   let unexploredSidebars = useGetAllProductSections(
-    ~isReconEnabled,
     ~products=hasMerchantData ? unexploredModules : [],
   )
 
