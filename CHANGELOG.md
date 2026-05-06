@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.04.1
+
+### Miscellaneous Tasks
+
+- Changes vault retrieve payment method endpoint ([#4775](https://github.com/juspay/hyperswitch-control-center/pull/4775)) ([`2629fc2`](https://github.com/juspay/hyperswitch-control-center/commit/2629fc2c687a217b24185670503fad8d3d5ac57e))
+
+**Full Changelog:** [`2026.05.04.0...2026.05.04.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.04.0...2026.05.04.1)
+
+- - -
+
 ## 2026.05.04.0
 
 ### Miscellaneous Tasks
