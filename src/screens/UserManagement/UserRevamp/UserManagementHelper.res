@@ -163,11 +163,11 @@ module ProfileSelection = {
     | #Profile => true
     | #Tenant
     | #Organization => {
-        let selected_merchant =
+        let selectedMerchant =
           formState.values
           ->LogicUtils.getDictFromJsonObject
           ->LogicUtils.getString("merchant_value", "")
-        switch selected_merchant->stringToVariantForAllSelection {
+        switch selectedMerchant->stringToVariantForAllSelection {
         | Some(#All_Merchants) => {
             form.change(
               "profile_value",
@@ -276,7 +276,7 @@ module SwitchMerchantForUserAction = {
   }
 }
 
-let generateDropdownOptionsUserOMPViews = (
+let buildOmpViewDropdownOptions = (
   dropdownList: array<UserManagementTypes.usersOmpViewType>,
   getNameForId,
 ) => {
@@ -328,7 +328,7 @@ module UserOmpView = {
       checked: true,
     }
 
-    let options = views->generateDropdownOptionsUserOMPViews(getNameForId)
+    let options = views->buildOmpViewDropdownOptions(getNameForId)
 
     let displayName = switch selectedEntity {
     | #Default => "All"

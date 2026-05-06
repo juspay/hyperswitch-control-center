@@ -185,6 +185,9 @@ let getOptionStrArrayFromDict = (dict, key) => {
   dict->Dict.get(key)->Option.flatMap(val => val->getOptionStrArrayFromJson)
 }
 
+let convertToNoneIfEqual = (val, sentinel) =>
+  val->Option.flatMap(v => v == sentinel ? None : Some(v))
+
 let getNonEmptyString = str => {
   if str->isEmptyString {
     None
@@ -648,6 +651,8 @@ let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) =>
   keys->Array.forEach(key => dict->Dict.delete(key))
 
 let isEmptyArray = arr => arr->Array.length === 0
+
+let isNonEmptyArray = arr => arr->Array.length > 0
 
 let removeTrailingSlash = str => {
   if str->String.endsWith("/") {

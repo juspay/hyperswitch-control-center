@@ -90,13 +90,6 @@ let make = () => {
         />
       </div>
     </div>
-    <Tabs
-      initialIndex={tabIndex}
-      tabs
-      onTitleClick={tabId => handleTabChange(tabId)}
-      includeMargin=false
-      textStyle="text-blue-600"
-      selectTabBottomBorderColor="bg-blue-600"
-    />
+    <Tabs initialIndex={tabIndex} tabs onTitleClick={tabId => handleTabChange(tabId)} />
   </div>
 }

@@ -118,10 +118,7 @@ test.describe("Volume based routing", () => {
       page.locator('[data-toast="Successfully Created a new Configuration !"]'),
     ).toContainText("Successfully Created a new Configuration !");
 
-    await page
-      .locator('[class="flex flex-col cursor-pointer w-max"]')
-      .nth(1)
-      .click();
+    await page.getByRole("tab", { name: "Manage rules" }).click();
 
     await expect(
       page.locator('[data-table-location="History_tr1_td2"]'),

@@ -113,11 +113,10 @@ module Configure3DSRule = {
         let rule = ruleInput.value->JSON.Decode.array->Option.getOr([])
         let keyExtractor = (index, _rule, isDragging, _) => {
           let id = {`algorithm.rules[${Int.toString(index)}]`}
-          let i = 1
           <AdvancedRouting.Wrapper
             key={index->Int.toString}
             id
-            heading={`Rule ${Int.toString(index + i)}`}
+            heading={`Rule ${Int.toString(index + 1)}`}
             onClickAdd={_ => addRule(index, false)}
             onClickCopy={_ => addRule(index, true)}
             onClickRemove={_ => removeRule(index)}
@@ -175,7 +174,7 @@ let make = () => {
   let (initialValues, _setInitialValues) = React.useState(_ => {
     let currentTime = getTimeInCustomTimeZone("ddd, DD MMM YYYY HH:mm:ss", ~includeTimeZone=true)
     let currentDate = getTimeInCustomTimeZone("YYYY-MM-DD")
-    getInitial3DSValueFor3DsExemptions(~currentDate, ~currentTime)->Identity.genericTypeToJson
+    getInitialThreeDsExemptionValue(~currentDate, ~currentTime)->Identity.genericTypeToJson
   })
 
   let getWasm = async () => {
@@ -222,7 +221,7 @@ let make = () => {
     }
   }
 
-  let fetchDetails = async () => {
+  let loadPageData = async () => {
     try {
       setScreenState(_ => Loading)
       await getWasm()
@@ -243,7 +242,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    fetchDetails()->ignore
+    loadPageData()->ignore
     None
   }, [])
 
@@ -285,7 +284,7 @@ let make = () => {
       )
       setScreenState(_ => Loading)
       let _ = await updateDetails(activateUrl, body, Post)
-      let _ = await fetchDetails()
+      let _ = await loadPageData()
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=pageConfig.baseUrl))
       setPageView(_ => LANDING)
       setScreenState(_ => Success)

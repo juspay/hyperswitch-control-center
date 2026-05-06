@@ -267,7 +267,7 @@ module MetadataInput = {
             {"Metadata "->React.string}
           </p>
           <RenderIf condition={!disabled && unusedOptionalFields->Array.length > 0}>
-            <SelectBox
+            <SelectBoxAdapter
               input={
                 onChange: ev => {
                   let value = ev->Identity.formReactEventToString
@@ -433,7 +433,7 @@ module TransformationConfigSelectInput = {
       },
     }
 
-    <SelectBox
+    <SelectBoxAdapter
       input={modifiedInput}
       options={transformationsList->Array.map((config): SelectBox.dropdownOption => {
         {
