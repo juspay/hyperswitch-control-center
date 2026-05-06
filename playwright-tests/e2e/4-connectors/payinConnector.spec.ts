@@ -136,7 +136,7 @@ test.describe("Stripe Connector", () => {
       page.locator("[name=connector_account_details\\.api_key]"),
     ).toHaveValue("test_key");
 
-    await paymentConnector.connectAndProceedButton.click();
+    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
     await paymentConnector.pmtProceedButton.click();
 
     await expect(
@@ -381,7 +381,7 @@ test.describe("Stripe Connector", () => {
   }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
-    await paymentConnector.connectAndProceedButton.click();
+    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
 
     const stripePaymentSections = {
       Credit: {
@@ -453,7 +453,7 @@ test.describe("Stripe Connector", () => {
   test("should toggle card payment method", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
-    await paymentConnector.connectAndProceedButton.click();
+    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
     await expect(page.locator('.flex.items-center.transition.rounded-2\\.5').first()).toHaveAttribute('data-bool-value', 'on');
     await page.locator('.flex.items-center.transition.rounded-2\\.5').first().click();
     await expect(page.locator('.flex.items-center.transition.rounded-2\\.5').first()).toHaveAttribute('data-bool-value', 'off');
@@ -462,7 +462,7 @@ test.describe("Stripe Connector", () => {
   test("should configure Apple Pay web domain flow", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
-    await paymentConnector.connectAndProceedButton.click();
+    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
 
     await page.getByText("Apple Pay").click();
 
@@ -492,7 +492,7 @@ test.describe("Stripe Connector", () => {
   test("should configure Apple Pay iOS certificate flow", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
-    await paymentConnector.connectAndProceedButton.click();
+    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
 
     await page.getByText("Apple Pay").click();
 
@@ -540,7 +540,7 @@ test.describe("Stripe Connector", () => {
   test("should configure Google Pay flow", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
-    await paymentConnector.connectAndProceedButton.click();
+    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
 
     await page.getByText("Google Pay").click();
     await expect(page.getByText('Payment Gateway').nth(4)).toBeVisible();
@@ -575,7 +575,7 @@ test.describe("Stripe Connector", () => {
   test("should show summary preview after PMs step", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
-    await paymentConnector.connectAndProceedButton.click();
+    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
     await paymentConnector.pmtProceedButton.click();
 
     const summary = page.getByText(/Summary|Preview|Review/i).first();
@@ -740,7 +740,7 @@ test.describe("Stripe Connector", () => {
     await openStripeConnectorForm(page);
     await page.locator("[name=connector_label]").clear();
     await page.locator("[name=connector_label]").fill(createdLabel);
-    await paymentConnector.connectAndProceedButton.click();
+    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
     await paymentConnector.pmtProceedButton.click();
 
     await expect(page.locator('[data-toast*="Connector label already exist!"]').first()).toBeVisible();
@@ -766,15 +766,15 @@ test.describe("Payin Connectors", () => {
       await paymentConnector.connectorSearchInput.fill(connector.label);
 
       if (connector.label === 'hipay') {
-        await paymentConnector.addConnectButton.nth(1).click();
+        await paymentConnector.addConnectButton.nth(3).click();
       } else {
-        await paymentConnector.addConnectButton.nth(0).click();
+        await paymentConnector.addConnectButton.nth(2).click();
       }
 
       await assertConnectorFieldLabels(page, connector.fields.fieldLabels);
       await fillConnectorFields(page, connector.fields);
 
-      await paymentConnector.connectAndProceedButton.click();
+      await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
 
       await assertPaymentMethodTypes(page, connector.paymentSections);
 

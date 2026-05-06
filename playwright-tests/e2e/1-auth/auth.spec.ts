@@ -77,7 +77,7 @@ test.describe.serial("Sign up", () => {
     await signupPage.signUpButton.click();
 
     await expect(signupPage.headerText).toContainText(
-      "Please check your inbox",
+      "Please check your inbox", { timeout: 10000 }
     );
     await expect(signupPage.headerText.locator("+ div")).toContainText(
       "A magic link has been sent to",

@@ -1826,8 +1826,8 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
         "Enter Connector label": "affirm_default",
       },
       fieldLabels: [
-        "Public Key *",
-        "Private Key *",
+        "API Key *",
+        "API Secret *",
       ],
     },
     paymentSections: {

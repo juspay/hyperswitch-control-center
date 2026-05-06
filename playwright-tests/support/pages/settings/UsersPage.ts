@@ -80,10 +80,7 @@ export class UsersPage {
   }
 
   get rolesTabInactive(): Locator {
-    return this.page
-      .locator("div.text-jp-gray-900.text-opacity-50")
-      .filter({ hasText: "Roles" })
-      .first();
+    return this.page.getByRole('tab', { name: 'Roles' });
   }
 
   get usersTabInactive(): Locator {

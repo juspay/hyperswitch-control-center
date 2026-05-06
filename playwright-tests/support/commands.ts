@@ -2,6 +2,7 @@ import {
   request,
   type APIRequestContext,
   type Page,
+  type Locator,
   expect,
 } from "@playwright/test";
 import { generateDateTimeString } from "./helper";
@@ -960,6 +961,7 @@ export async function assertConnectorFieldLabels(
 ): Promise<void> {
   for (const label of fieldLabels) {
     const labelElement = page.locator("label", { hasText: label });
+    await labelElement.waitFor({ state: "attached", timeout: 10000 });
     await labelElement.scrollIntoViewIfNeeded();
     await expect(labelElement).toBeVisible({
       timeout: 5000,
@@ -986,6 +988,7 @@ export async function fillConnectorFields(
   const count = await inputs.count();
   for (let i = 0; i < count; i++) {
     const input = inputs.nth(i);
+    await input.waitFor({ state: "attached", timeout: 10000 });
     await input.scrollIntoViewIfNeeded();
     const placeholder = (await input.getAttribute("placeholder")) || "";
     const value = fields.overrides?.[placeholder] ?? fields.default;
@@ -1122,8 +1125,10 @@ export async function processPaymentSdkUI(page: Page): Promise<void> {
   await cardInput.waitFor({ state: "visible", timeout: 20000 });
   await cardInput.fill("4242424242424242");
   await iframe.locator("[data-testid=expiryInput]").fill("0127");
-  await iframe.locator("[data-testid=cvvInput]").scrollIntoViewIfNeeded();
-  await iframe.locator("[data-testid=cvvInput]").fill("492");
+  const cvvInput = iframe.locator("[data-testid=cvvInput]");
+  await cvvInput.waitFor({ state: "attached", timeout: 10000 });
+  await cvvInput.scrollIntoViewIfNeeded();
+  await cvvInput.fill("492");
 
   await page.locator("[data-button-for=payUSD77]").click();
   await expect(page.getByText("Payment Successful")).toBeAttached();
@@ -1278,4 +1283,12 @@ export async function generateCerts() {
     certBase64: cert.toString('base64'),
     keyBase64: key.toString('base64'),
   };
+}
+
+export async function safeScrollIntoView(
+  locator: Locator,
+  timeout: number = 10000,
+): Promise<void> {
+  await locator.waitFor({ state: "attached", timeout });
+  await locator.scrollIntoViewIfNeeded();
 }

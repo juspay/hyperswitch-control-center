@@ -1490,6 +1490,7 @@ test.describe("Payment Operations", () => {
         fields: Record<string, string>,
       ) => {
         const sectionHeader = page.getByText(new RegExp(`^${sectionName}$`));
+        await sectionHeader.waitFor({ state: "attached", timeout: 10000 });
         await sectionHeader.scrollIntoViewIfNeeded();
         await expect(sectionHeader).toBeVisible();
         for (const [label, value] of Object.entries(fields)) {
@@ -1542,6 +1543,7 @@ test.describe("Payment Operations", () => {
         const accordionHeader = page.getByText(
           new RegExp(`^${accordionTitle}$`),
         );
+        await accordionHeader.waitFor({ state: "attached", timeout: 10000 });
         await accordionHeader.scrollIntoViewIfNeeded();
         await accordionHeader.click();
         for (const [label, value] of Object.entries(fields)) {
@@ -1573,6 +1575,7 @@ test.describe("Payment Operations", () => {
       });
 
       const paymentMethodDetails = page.getByText(/^Payment Method Details$/);
+      await paymentMethodDetails.waitFor({ state: "attached", timeout: 10000 });
       await paymentMethodDetails.scrollIntoViewIfNeeded();
       await paymentMethodDetails.click();
       await expect(paymentMethodDetails.locator("xpath=../..")).toContainText(
@@ -1580,6 +1583,7 @@ test.describe("Payment Operations", () => {
       );
 
       const paymentMetadata = page.getByText(/^Payment Metadata$/);
+      await paymentMetadata.waitFor({ state: "attached", timeout: 10000 });
       await paymentMetadata.scrollIntoViewIfNeeded();
       await paymentMetadata.click();
       await expect(paymentMetadata.locator("xpath=../..")).toContainText("key");

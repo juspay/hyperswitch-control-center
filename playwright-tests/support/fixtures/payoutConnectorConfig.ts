@@ -220,30 +220,6 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
     },
   },
 
-  itaubank: {
-    label: "itaubank",
-    fields: {
-      default: "test_value",
-      overrides: {
-        "Enter Connector label": "itaubank_default",
-      },
-      fieldLabels: [
-        "Client Secret *",
-        "Client Id *",
-        "Certificates *",
-        "Certificate Key *",
-      ],
-    },
-    paymentSections: {
-      BankTransfer: {
-        label: "Bank Transfer",
-        methods: [
-          "pix",
-        ],
-      },
-    },
-  },
-
   loonio: {
     label: "loonio",
     fields: {

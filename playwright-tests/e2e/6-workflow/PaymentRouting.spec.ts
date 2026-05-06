@@ -512,7 +512,7 @@ test.describe("Routing list - Manage rules", () => {
     const homePage = new HomePage(page);
     await homePage.workflow.click();
     await homePage.routing.click();
-    await page.locator('[class="flex flex-col cursor-pointer w-max"]').nth(1).click();
+    await page.getByRole('tab', { name: 'Manage rules' }).click();
   }
 
   test("verify routing page when elements", async ({
