@@ -336,7 +336,7 @@ let make = (
         <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
           <PageLoaderWrapper screenState>
             <Form onSubmit initialValues validate=validateMandatoryField>
-              <SelectBox.BaseDropdown
+              <SelectBoxAdapter.BaseDropdown
                 allowMultiSelect=false
                 buttonText="Choose a processor"
                 input

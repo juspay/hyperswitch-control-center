@@ -130,7 +130,7 @@ let getV2Url = (
   | TOTAL_TOKEN_COUNT => `v1/customers/total-payment-methods`
   | RETRIEVE_PAYMENT_METHOD =>
     switch id {
-    | Some(paymentMethodId) => `v1/payment-methods/${paymentMethodId}`
+    | Some(paymentMethodId) => `v1/payment-methods/${paymentMethodId}/details`
     | None => ""
     }
   /* MERCHANT ACCOUNT DETAILS (Get,Post and Put) */
@@ -1218,6 +1218,16 @@ let useGetURL = () => {
             | Some(processingEntryId) => `${reconBaseURL}/staging_entries/${processingEntryId}/void`
             | None => ``
             }
+          | _ => ""
+          }
+        | #TRANSACTION_BULK_OPERATIONS =>
+          switch methodType {
+          | Post => `${reconBaseURL}/transactions/bulk_operations`
+          | _ => ""
+          }
+        | #STAGING_ENTRY_BULK_OPERATIONS =>
+          switch methodType {
+          | Post => `${reconBaseURL}/staging_entries/bulk_operations`
           | _ => ""
           }
         | #NONE => ""
