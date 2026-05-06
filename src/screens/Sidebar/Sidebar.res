@@ -645,9 +645,7 @@ let make = (
       merchantList->Array.some(merchant => merchant.id->isNonEmptyString)
   }, [merchantList])
 
-  let exploredSidebars = useGetAllProductSections(
-    ~products=hasMerchantData ? exploredModules : [],
-  )
+  let exploredSidebars = useGetAllProductSections(~products=hasMerchantData ? exploredModules : [])
   let unexploredSidebars = useGetAllProductSections(
     ~products=hasMerchantData ? unexploredModules : [],
   )

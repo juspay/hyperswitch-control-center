@@ -136,9 +136,7 @@ let make = () => {
             <div className="flex relative  h-screen ">
               <RenderIf condition={screenState === Success}>
                 <Sidebar
-                  path=url.path
-                  sidebars={hyperSwitchAppSidebars}
-                  productSiebars=productSidebars
+                  path=url.path sidebars={hyperSwitchAppSidebars} productSiebars=productSidebars
                 />
               </RenderIf>
               <PageLoaderWrapper

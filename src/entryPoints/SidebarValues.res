@@ -639,4 +639,3 @@ let developers = (
       })
     : emptyComponent
 }
-
