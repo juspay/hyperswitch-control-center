@@ -2,7 +2,8 @@ import { test, expect } from "../../support/test";
 import type { Page, BrowserContext } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { generateUniqueEmail } from "../../support/helper";
-import { signupUser, loginUI } from "../../support/commands";
+import { signupUser, loginUI, assertConnectorFieldLabels, fillConnectorFields } from "../../support/commands";
+import { frmConnectorConfig } from "../../support/fixtures/frmConnectorConfig";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
@@ -89,4 +90,49 @@ test.describe("FRM (Fraud & Risk) Connectors", () => {
     await homePage.frmConnectors.click();
     await expect(page).toHaveURL(/.*dashboard\/fraud-risk-management/);
   });
+});
+
+test.describe("Live FRM Connectors", () => {
+  let email: string;
+
+  const frmConnectors = Object.entries(frmConnectorConfig);
+  test.beforeEach(async ({ page, context }) => {
+    email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+  });
+
+  for (const [key, connector] of frmConnectors) {
+    test(`should setup and verify ${key} FRM connector`, async ({
+      page,
+    }) => {
+      const homePage = new HomePage(page);
+
+      await homePage.connectors.click();
+      await homePage.frmConnectors.click();
+
+      await expect(page).toHaveURL(/.*dashboard\/fraud-risk-management/);
+
+      const searchInput = page.locator('[data-testid="search-processor"]');
+      if (await searchInput.isVisible({ timeout: 5000 }).catch(() => false)) {
+        await searchInput.fill(connector.label);
+      }
+
+      const connectButtons = page.locator('[data-button-text="Connect"]');
+      if ((await connectButtons.count().catch(() => 0)) > 0) {
+        await connectButtons.nth(0).click();
+
+        if (connector.fields.fieldLabels.length > 0) {
+          await assertConnectorFieldLabels(page, connector.fields.fieldLabels);
+          await fillConnectorFields(page, connector.fields);
+        }
+
+        const saveButton = page.locator('button:has-text("Save"), button:has-text("Connect"), button:has-text("Proceed")').first();
+        if (await saveButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+          await saveButton.click();
+          await page.waitForLoadState("networkidle");
+        }
+      }
+    });
+  }
 });

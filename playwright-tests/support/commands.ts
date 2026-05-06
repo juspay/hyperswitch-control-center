@@ -8,6 +8,9 @@ import { generateDateTimeString } from "./helper";
 import { SignInPage } from "./pages/auth/SignInPage";
 import { SignUpPage } from "./pages/auth/SignUpPage";
 import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000";
 const API_URL = process.env.HYPERSWITCH_API_URL || "http://localhost:8080";
@@ -1252,5 +1255,27 @@ export async function ompLineage(
     orgId: body.org_id ?? "",
     merchantId: body.merchant_id ?? "",
     profileId: body.profile_id ?? "",
+  };
+}
+
+export async function generateCerts() {
+  const tmpDir = path.join(process.cwd(), 'tmp-certs');
+  if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
+
+  const keyPath = path.join(tmpDir, 'key.pem');
+  const certPath = path.join(tmpDir, 'cert.pem');
+
+  // Generate key + self-signed cert
+  execSync(
+    `openssl req -x509 -newkey rsa:2048 -keyout ${keyPath} -out ${certPath} -days 1 -nodes -subj "/CN=test.local"`,
+    { stdio: 'ignore' }
+  );
+
+  const cert = fs.readFileSync(certPath);
+  const key = fs.readFileSync(keyPath);
+
+  return {
+    certBase64: cert.toString('base64'),
+    keyBase64: key.toString('base64'),
   };
 }

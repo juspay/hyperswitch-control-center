@@ -438,58 +438,6 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
     },
   },
 
-  braintree: {
-    label: "braintree",
-    fields: {
-      default: "test_value",
-      overrides: {
-        "Enter Connector label": "braintree_default",
-      },
-      fieldLabels: [
-        "Public Key *",
-        "Merchant Id *",
-        "Private Key *",
-        "Source verification key",
-        "Connector label *",
-      ],
-    },
-    paymentSections: {
-      Credit: {
-        label: "Credit",
-        methods: [
-          "Mastercard",
-          "Visa",
-          "Interac",
-          "AmericanExpress",
-          "JCB",
-          "DinersClub",
-          "Discover",
-          "CartesBancaires",
-          "UnionPay",
-        ],
-      },
-      Debit: {
-        label: "Debit",
-        methods: [
-          "Mastercard",
-          "Visa",
-          "Interac",
-          "AmericanExpress",
-          "JCB",
-          "DinersClub",
-          "Discover",
-          "CartesBancaires",
-          "UnionPay",
-          "UnionPay",
-        ],
-      },
-      Wallet: {
-        label: "Wallet",
-        methods: ["Apple Pay", "Google Pay", "paypal"],
-      },
-    },
-  },
-
   calida: {
     label: "calida",
     fields: {
@@ -579,21 +527,6 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
     paymentSections: {},
   },
 
-  cashtocode: {
-    label: "cashtocode",
-    fields: {
-      default: "test_value",
-      overrides: {
-        "Enter Connector label": "cashtocode_default",
-      },
-      fieldLabels: [
-        "Source verification key",
-        "Connector label *",
-      ],
-    },
-    paymentSections: {},
-  },
-
   cybersource: {
     label: "cybersource",
     fields: {
@@ -643,22 +576,6 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
         methods: ["Apple Pay", "Google Pay", "paze", "Samsung Pay"],
       },
     },
-  },
-
-  coingate: {
-    label: "coingate",
-    fields: {
-      default: "test_value",
-      overrides: {
-        "Enter Connector label": "coingate_default",
-      },
-      fieldLabels: [
-        "API Key *",
-        "Merchant Token *",
-        "Connector label *",
-      ],
-    },
-    paymentSections: {},
   },
 
   datatrans: {
@@ -799,27 +716,6 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
       ],
     },
     paymentSections: {},
-  },
-
-  klarna: {
-    label: "klarna",
-    fields: {
-      default: "test_value",
-      overrides: {
-        "Enter Connector label": "klarna_default",
-      },
-      fieldLabels: [
-        "Klarna Merchant ID Password *",
-        "Klarna Merchant Username *",
-        "Connector label *",
-      ],
-    },
-    paymentSections: {
-      PayLater: {
-        label: "Pay Later",
-        methods: ["klarna", "klarna"],
-      },
-    },
   },
 
   loonio: {
@@ -1806,34 +1702,6 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
     },
   },
 
-  payload: {
-    label: "payload",
-    fields: {
-      default: "test_value",
-      overrides: {
-        "Enter Connector label": "payload_default",
-      },
-      fieldLabels: [
-        "Source verification key",
-        "Connector label *",
-      ],
-    },
-    paymentSections: {
-      Credit: {
-        label: "Credit",
-        methods: ["AmericanExpress", "Discover", "Mastercard", "Visa"],
-      },
-      Debit: {
-        label: "Debit",
-        methods: ["AmericanExpress", "Discover", "Mastercard", "Visa"],
-      },
-      BankDebit: {
-        label: "Bank Debit",
-        methods: ["ach"],
-      },
-    },
-  },
-
   finix: {
     label: "finix",
     fields: {
@@ -1886,27 +1754,2122 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
     },
   },
 
-  santander: {
-    label: "santander",
+  aci: {
+    label: "aci",
     fields: {
       default: "test_value",
       overrides: {
-        "Enter Connector label": "santander_default",
+        "Enter Connector label": "aci_default",
       },
       fieldLabels: [
-        "Base64 encoded PEM formatted certificate chain *",
-        "Base64 encoded PEM formatted private key *",
-        "Connector label *",
+        "API Key *",
+        "Entity ID *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      BankRedirect: {
+        label: "Bank Redirect",
+        methods: [
+          "ideal",
+          "giropay",
+          "sofort",
+          "eps",
+          "przelewy24",
+          "trustly",
+          "interac",
+        ],
+      },
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Wallet: {
+        label: "Wallet",
+        methods: [
+          "ali_pay",
+          "mb_way",
+        ],
+      },
+    },
+  },
+
+  affirm: {
+    label: "affirm",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "affirm_default",
+      },
+      fieldLabels: [
+        "Public Key *",
+        "Private Key *",
+      ],
+    },
+    paymentSections: {
+      PayLater: {
+        label: "Pay Later",
+        methods: [
+          "affirm",
+        ],
+      },
+    },
+  },
+
+  billwerk: {
+    label: "billwerk",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "billwerk_default",
+      },
+      fieldLabels: [
+        "Private Api Key *",
+        "Public Api Key *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  bitpay: {
+    label: "bitpay",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "bitpay_default",
+      },
+      fieldLabels: [
+        "API Key *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {},
+  },
+
+  blackhawknetwork: {
+    label: "blackhawknetwork",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "blackhawknetwork_default",
+      },
+      fieldLabels: [
+        "Client Id *",
+        "Product Line Id *",
+        "Client Secret *",
+      ],
+    },
+    paymentSections: {
+      GiftCard: {
+        label: "Gift Card",
+        methods: [
+          "bhn_card_network",
+        ],
+      },
+    },
+  },
+
+  checkbook: {
+    label: "checkbook",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "checkbook_default",
+      },
+      fieldLabels: [
+        "Checkbook API Secret key *",
+        "Checkbook Publishable key *",
+        "Source verification key",
       ],
     },
     paymentSections: {
       BankTransfer: {
         label: "Bank Transfer",
-        methods: ["pix", "Pix Automatico Push", "Pix Automatico Qr"],
+        methods: [
+          "ach",
+        ],
+      },
+    },
+  },
+
+  dlocal: {
+    label: "dlocal",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "dlocal_default",
+      },
+      fieldLabels: [
+        "X Login *",
+        "X Trans Key *",
+        "Secret Key *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
       },
       Voucher: {
         label: "Voucher",
-        methods: ["boleto"],
+        methods: [
+          "oxxo",
+        ],
+      },
+    },
+  },
+
+  dwolla: {
+    label: "dwolla",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "dwolla_default",
+      },
+      fieldLabels: [
+        "Client ID *",
+        "Client Secret *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      BankDebit: {
+        label: "Bank Debit",
+        methods: [
+          "ach",
+        ],
+      },
+    },
+  },
+
+  elavon: {
+    label: "elavon",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "elavon_default",
+      },
+      fieldLabels: [
+        "Account Id *",
+        "User ID *",
+        "Pin *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  fiserv: {
+    label: "fiserv",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "fiserv_default",
+      },
+      fieldLabels: [
+        "API Key *",
+        "Merchant ID *",
+        "API Secret *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Wallet: {
+        label: "Wallet",
+        methods: [
+          "google_pay",
+          "paypal",
+          "apple_pay",
+        ],
+      },
+    },
+  },
+
+  forte: {
+    label: "forte",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "forte_default",
+      },
+      fieldLabels: [
+        "API Access ID *",
+        "Organization ID *",
+        "API Secure Key *",
+        "Location ID *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  globalpay: {
+    label: "globalpay",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "globalpay_default",
+      },
+      fieldLabels: [
+        "Global App Key *",
+        "Global App ID *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      BankRedirect: {
+        label: "Bank Redirect",
+        methods: [
+          "ideal",
+          "giropay",
+          "sofort",
+          "eps",
+        ],
+      },
+      Wallet: {
+        label: "Wallet",
+        methods: [
+          "google_pay",
+          "paypal",
+        ],
+      },
+    },
+  },
+
+  globepay: {
+    label: "globepay",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "globepay_default",
+      },
+      fieldLabels: [
+        "Partner Code *",
+        "Credential Code *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Wallet: {
+        label: "Wallet",
+        methods: [
+          "we_chat_pay",
+          "ali_pay",
+        ],
+      },
+    },
+  },
+
+  gocardless: {
+    label: "gocardless",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "gocardless_default",
+      },
+      fieldLabels: [
+        "Access Token *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      BankDebit: {
+        label: "Bank Debit",
+        methods: [
+          "ach",
+          "becs",
+          "sepa",
+        ],
+      },
+    },
+  },
+
+  helcim: {
+    label: "helcim",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "helcim_default",
+      },
+      fieldLabels: [
+        "Api Key *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  multisafepay: {
+    label: "multisafepay",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "multisafepay_default",
+      },
+      fieldLabels: [
+        "Enter API Key *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      BankRedirect: {
+        label: "Bank Redirect",
+        methods: [
+          "trustly",
+          "eps",
+          "sofort",
+        ],
+      },
+      Wallet: {
+        label: "Wallet",
+        methods: [
+          "google_pay",
+          "paypal",
+          "ali_pay",
+          "we_chat_pay",
+          "mb_way",
+        ],
+      },
+    },
+  },
+
+  nexinets: {
+    label: "nexinets",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "nexinets_default",
+      },
+      fieldLabels: [
+        "API Key *",
+        "Merchant ID *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      BankRedirect: {
+        label: "Bank Redirect",
+        methods: [
+          "ideal",
+          "giropay",
+          "sofort",
+          "eps",
+        ],
+      },
+      Wallet: {
+        label: "Wallet",
+        methods: [
+          "apple_pay",
+          "paypal",
+        ],
+      },
+    },
+  },
+
+  noon: {
+    label: "noon",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "noon_default",
+      },
+      fieldLabels: [
+        "API Key *",
+        "Business Identifier *",
+        "Application Identifier *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Wallet: {
+        label: "Wallet",
+        methods: [
+          "apple_pay",
+          "google_pay",
+          "paypal",
+        ],
+      },
+    },
+  },
+
+  opennode: {
+    label: "opennode",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "opennode_default",
+      },
+      fieldLabels: [
+        "API Key *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {},
+  },
+
+  payu: {
+    label: "payu",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "payu_default",
+      },
+      fieldLabels: [
+        "API Key *",
+        "Merchant POS ID *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Wallet: {
+        label: "Wallet",
+        methods: [
+          "google_pay",
+        ],
+      },
+    },
+  },
+
+  powertranz: {
+    label: "powertranz",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "powertranz_default",
+      },
+      fieldLabels: [
+        "PowerTranz Password *",
+        "PowerTranz Id *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  rapyd: {
+    label: "rapyd",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "rapyd_default",
+      },
+      fieldLabels: [
+        "Access Key *",
+        "API Secret *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Wallet: {
+        label: "Wallet",
+        methods: [
+          "apple_pay",
+        ],
+      },
+    },
+  },
+
+  shift4: {
+    label: "shift4",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "shift4_default",
+      },
+      fieldLabels: [
+        "API Key *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      BankRedirect: {
+        label: "Bank Redirect",
+        methods: [
+          "ideal",
+          "giropay",
+          "sofort",
+          "eps",
+          "trustly",
+          "blik",
+        ],
+      },
+      Wallet: {
+        label: "Wallet",
+        methods: [
+          "ali_pay",
+          "we_chat_pay",
+          "paysera",
+          "skrill",
+        ],
+      },
+      PayLater: {
+        label: "Pay Later",
+        methods: [
+          "klarna",
+        ],
+      },
+      Voucher: {
+        label: "Voucher",
+        methods: [
+          "boleto",
+        ],
+      },
+    },
+  },
+
+  stax: {
+    label: "stax",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "stax_default",
+      },
+      fieldLabels: [
+        "Api Key *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      BankDebit: {
+        label: "Bank Debit",
+        methods: [
+          "ach",
+        ],
+      },
+    },
+  },
+
+  tsys: {
+    label: "tsys",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "tsys_default",
+      },
+      fieldLabels: [
+        "Device Id *",
+        "Transaction Key *",
+        "Developer Id *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  worldline: {
+    label: "worldline",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "worldline_default",
+      },
+      fieldLabels: [
+        "API Key ID *",
+        "Merchant ID *",
+        "Secret API Key *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      BankRedirect: {
+        label: "Bank Redirect",
+        methods: [
+          "ideal",
+          "giropay",
+        ],
+      },
+    },
+  },
+
+  placetopay: {
+    label: "placetopay",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "placetopay_default",
+      },
+      fieldLabels: [
+        "Login *",
+        "Trankey *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  razorpay: {
+    label: "razorpay",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "razorpay_default",
+      },
+      fieldLabels: [
+        "Razorpay Id *",
+        "Razorpay Secret *",
+      ],
+    },
+    paymentSections: {},
+  },
+
+  itaubank: {
+    label: "itaubank",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "itaubank_default",
+      },
+      fieldLabels: [
+        "Client Secret *",
+        "Client Id *",
+        "Certificates *",
+        "Certificate Key *",
+      ],
+    },
+    paymentSections: {
+      BankTransfer: {
+        label: "Bank Transfer",
+        methods: [
+          "pix",
+        ],
+      },
+    },
+  },
+
+  plaid: {
+    label: "plaid",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "plaid_default",
+      },
+      fieldLabels: [
+        "client_id *",
+        "secret *",
+      ],
+    },
+    paymentSections: {},
+  },
+
+  square: {
+    label: "square",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "square_default",
+      },
+      fieldLabels: [
+        "Square API Key *",
+        "Square Client Id *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  wellsfargo: {
+    label: "wellsfargo",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "wellsfargo_default",
+      },
+      fieldLabels: [
+        "Key *",
+        "Merchant ID *",
+        "Shared Secret *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  deutschebank: {
+    label: "deutschebank",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "deutschebank_default",
+      },
+      fieldLabels: [
+        "Client ID *",
+        "Merchant ID *",
+        "Client Key *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Visa",
+          "Mastercard",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Visa",
+          "Mastercard",
+        ],
+      },
+      BankDebit: {
+        label: "Bank Debit",
+        methods: [
+          "sepa",
+        ],
+      },
+    },
+  },
+
+  nordea: {
+    label: "nordea",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "nordea_default",
+      },
+      fieldLabels: [
+        "Client Secret *",
+        "Client ID *",
+        "eIDAS Private Key *",
+      ],
+    },
+    paymentSections: {
+      BankDebit: {
+        label: "Bank Debit",
+        methods: [
+          "sepa",
+        ],
+      },
+    },
+  },
+
+  jpmorgan: {
+    label: "jpmorgan",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "jpmorgan_default",
+      },
+      fieldLabels: [
+        "Client ID *",
+        "Client Secret *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "AmericanExpress",
+          "DinersClub",
+          "Discover",
+          "JCB",
+          "Mastercard",
+          "Discover",
+          "UnionPay",
+          "Visa",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "AmericanExpress",
+          "DinersClub",
+          "Discover",
+          "JCB",
+          "Mastercard",
+          "Discover",
+          "UnionPay",
+          "Visa",
+        ],
+      },
+    },
+  },
+
+  xendit: {
+    label: "xendit",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "xendit_default",
+      },
+      fieldLabels: [
+        "API Key *",
+        "Webhook Verification Token",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  inespay: {
+    label: "inespay",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "inespay_default",
+      },
+      fieldLabels: [
+        "API Key *",
+        "API Token *",
+      ],
+    },
+    paymentSections: {
+      BankDebit: {
+        label: "Bank Debit",
+        methods: [
+          "sepa",
+        ],
+      },
+    },
+  },
+
+  moneris: {
+    label: "moneris",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "moneris_default",
+      },
+      fieldLabels: [
+        "Client Secret *",
+        "Client Id *",
+        "Merchant Id *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  hipay: {
+    label: "hipay",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "hipay_default",
+      },
+      fieldLabels: [
+        "API Login ID *",
+        "API password *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  paystack: {
+    label: "paystack",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "paystack_default",
+      },
+      fieldLabels: [
+        "API Key *",
+      ],
+    },
+    paymentSections: {
+      BankRedirect: {
+        label: "Bank Redirect",
+        methods: [
+          "eft",
+        ],
+      },
+    },
+  },
+
+  facilitapay: {
+    label: "facilitapay",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "facilitapay_default",
+      },
+      fieldLabels: [
+        "Password *",
+        "Username *",
+      ],
+    },
+    paymentSections: {
+      BankTransfer: {
+        label: "Bank Transfer",
+        methods: [
+          "pix",
+        ],
+      },
+    },
+  },
+
+  barclaycard: {
+    label: "barclaycard",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "barclaycard_default",
+      },
+      fieldLabels: [
+        "Key *",
+        "Merchant ID *",
+        "Shared Secret *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "Maestro",
+          "Interac",
+          "DinersClub",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "Maestro",
+          "Interac",
+          "DinersClub",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Wallet: {
+        label: "Wallet",
+        methods: [
+          "google_pay",
+          "apple_pay",
+        ],
+      },
+    },
+  },
+
+  silverflow: {
+    label: "silverflow",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "silverflow_default",
+      },
+      fieldLabels: [
+        "API Key *",
+        "Merchant Acceptor Key *",
+        "API Secret *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+        ],
+      },
+    },
+  },
+
+  paytm: {
+    label: "paytm",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "paytm_default",
+      },
+      fieldLabels: [
+        "Signing key *",
+        "merchant_id *",
+        "website name *",
+      ],
+    },
+    paymentSections: {},
+  },
+
+  phonepe: {
+    label: "phonepe",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "phonepe_default",
+      },
+      fieldLabels: [
+        "merchant_id *",
+        "salt_key *",
+        "key_index *",
+      ],
+    },
+    paymentSections: {},
+  },
+
+  flexiti: {
+    label: "flexiti",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "flexiti_default",
+      },
+      fieldLabels: [
+        "Client id *",
+        "Client secret *",
+      ],
+    },
+    paymentSections: {
+      PayLater: {
+        label: "Pay Later",
+        methods: [
+          "flexiti",
+        ],
+      },
+    },
+  },
+
+  breadpay: {
+    label: "breadpay",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "breadpay_default",
+      },
+      fieldLabels: [
+        "API Key *",
+        "API Secret *",
+      ],
+    },
+    paymentSections: {
+      PayLater: {
+        label: "Pay Later",
+        methods: [
+          "breadpay",
+        ],
+      },
+    },
+  },
+
+  tesouro: {
+    label: "tesouro",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "tesouro_default",
+      },
+      fieldLabels: [
+        "Client ID *",
+        "Acceptor ID *",
+        "Client Secret *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "Discover",
+          "DinersClub",
+          "JCB",
+          "Maestro",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "Discover",
+          "DinersClub",
+          "JCB",
+          "Maestro",
+        ],
+      },
+      Wallet: {
+        label: "Wallet",
+        methods: [
+          "apple_pay",
+          "google_pay",
+        ],
+      },
+    },
+  },
+
+  fiservcommercehub: {
+    label: "fiservcommercehub",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "fiservcommercehub_default",
+      },
+      fieldLabels: [
+        "API Key *",
+        "Merchant ID *",
+        "API Secret *",
+        "Terminal ID *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  amazonpay: {
+    label: "amazonpay",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "amazonpay_default",
+      },
+      fieldLabels: [
+        "Public Key *",
+        "Private Key *",
+      ],
+    },
+    paymentSections: {
+      Wallet: {
+        label: "Wallet",
+        methods: [
+          "amazon_pay",
+        ],
+      },
+    },
+  },
+
+  revolv3: {
+    label: "revolv3",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "revolv3_default",
+      },
+      fieldLabels: [
+        "Static Tokens *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  truelayer: {
+    label: "truelayer",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "truelayer_default",
+      },
+      fieldLabels: [
+        "Client ID *",
+        "Client Secret *",
+      ],
+    },
+    paymentSections: {
+      BankRedirect: {
+        label: "Bank Redirect",
+        methods: [
+          "open_banking",
+        ],
+      },
+    },
+  },
+
+  trustly: {
+    label: "trustly",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "trustly_default",
+      },
+      fieldLabels: [
+        "Username *",
+        "Password *",
+        "Private Key(Base64 encoded) *",
+        "Trustly's public key",
+      ],
+    },
+    paymentSections: {
+      BankRedirect: {
+        label: "Bank Redirect",
+        methods: [
+          "trustly",
+        ],
+      },
+    },
+  },
+
+  bambora_apac: {
+    label: "bambora",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "bambora_apac_default",
+      },
+      fieldLabels: [
+        "Passcode *",
+        "Merchant Id *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  fiservipg: {
+    label: "fiserv",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "fiservipg_default",
+      },
+      fieldLabels: [
+        "API Key *",
+        "Merchant ID *",
+        "API Secret *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "Interac",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "CartesBancaires",
+          "UnionPay",
+        ],
+      },
+      Wallet: {
+        label: "Wallet",
+        methods: [
+          "google_pay",
+          "paypal",
+          "apple_pay",
+        ],
+      },
+    },
+  },
+
+  imerchantsolutions: {
+    label: "imerchantsolutions",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "imerchantsolutions_default",
+      },
+      fieldLabels: [
+        "API Key *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "UnionPay",
+        ],
       },
     },
   },

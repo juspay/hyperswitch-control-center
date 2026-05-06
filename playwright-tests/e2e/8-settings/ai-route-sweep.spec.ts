@@ -63,14 +63,15 @@ test.describe("Dashboard route coverage sweep", () => {
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
-  for (const route of routes) {
-    test(`deep link ${route} resolves without leaving /dashboard`, async ({
-      page,
-    }) => {
+  test("deep link all routes resolve without leaving /dashboard", async ({
+    page,
+  }) => {
+    test.setTimeout(60000);
+    for (const route of routes) {
       await page.goto(`/dashboard${route}`);
       await page.waitForLoadState("domcontentloaded");
       await page.waitForTimeout(800);
-      expect(page.url()).toContain("/dashboard");
-    });
-  }
+      expect(page.url()).toContain(`/dashboard${route}`);
+    }
+  });
 });

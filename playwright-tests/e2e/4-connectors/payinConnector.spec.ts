@@ -747,7 +747,7 @@ test.describe("Stripe Connector", () => {
   });
 });
 
-test.describe("Live Connectors", () => {
+test.describe("Payin Connectors", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
@@ -764,7 +764,12 @@ test.describe("Live Connectors", () => {
       await homePage.paymentProcessors.click();
 
       await paymentConnector.connectorSearchInput.fill(connector.label);
-      await paymentConnector.addConnectButton.nth(0).click();
+
+      if (connector.label === 'hipay') {
+        await paymentConnector.addConnectButton.nth(1).click();
+      } else {
+        await paymentConnector.addConnectButton.nth(0).click();
+      }
 
       await assertConnectorFieldLabels(page, connector.fields.fieldLabels);
       await fillConnectorFields(page, connector.fields);

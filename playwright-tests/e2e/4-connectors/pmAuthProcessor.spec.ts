@@ -2,14 +2,25 @@ import { test, expect } from "../../support/test";
 import type { Page, BrowserContext } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { generateUniqueEmail } from "../../support/helper";
-import { signupUser, loginUI } from "../../support/commands";
+import { signupUser, loginUI, fillConnectorFields, createDummyConnectorAPI, createPaymentAPI } from "../../support/commands";
+import { pmAuthProcessorConfig } from "../../support/fixtures/pmAuthProcessorConfig";
+
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 async function signupAndLogin(page: Page, context: BrowserContext) {
   const email = generateUniqueEmail();
+  const homePage = new HomePage(page);
   await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+  const merchantId = await homePage.merchantID.nth(0).textContent();
+  if (merchantId) {
+    await createDummyConnectorAPI(
+      merchantId,
+      "stripe_test_1",
+      context.request,
+    );
+  }
 }
 
 async function enableFeatureFlag(page: Page, flag: string) {
@@ -201,4 +212,52 @@ test.describe("PM Auth Processor", () => {
       await expect(authProviderList.first()).toBeVisible();
     }
   });
+});
+
+test.describe("All PM Auth Processors", () => {
+  let email: string;
+
+  const pmAuthProcessors = Object.entries(pmAuthProcessorConfig);
+  test.beforeEach(async ({ page, context }) => {
+    await signupAndLogin(page, context);
+  });
+
+  for (const [key, processor] of pmAuthProcessors) {
+    test(`should setup and verify ${key} PM Auth processor`, async ({
+      page,
+    }) => {
+      const homePage = new HomePage(page);
+
+      await homePage.connectors.click();
+      const pmAuthLink = homePage.pmAuthConnectors;
+      if ((await pmAuthLink.count().catch(() => 0)) === 0) {
+        test.skip(true, "PM Auth Processor not available");
+      }
+
+      await pmAuthLink.click();
+      await expect(page).toHaveURL(/.*dashboard\/pm-authentication-processor/);
+
+      const connectButtons = page.locator('[data-button-text="Connect"], button:has-text("Connect")');
+      await expect(connectButtons.first()).toBeVisible();
+      if ((await connectButtons.count().catch(() => 0)) > 0) {
+        await connectButtons.nth(0).click();
+
+        if (processor.fields.fieldLabels.length > 0) {
+          await fillConnectorFields(page, processor.fields);
+        }
+
+        const saveButton = page.locator('button:has-text("Save"), button:has-text("Connect"), button:has-text("Proceed")').first();
+        if (await saveButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+          await saveButton.click();
+          await page.waitForLoadState("networkidle");
+
+          await page.getByRole('button', { name: 'Done' }).click();
+
+          // Verify the connector appears in the vault processor list
+          const connectorLabel = processor.fields.overrides["Enter Connector label"] || processor.label;
+          await expect(page.getByText(connectorLabel, { exact: true })).toBeVisible({ timeout: 10000 });
+        }
+      }
+    });
+  }
 });

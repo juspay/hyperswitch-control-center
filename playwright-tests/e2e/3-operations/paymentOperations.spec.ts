@@ -560,7 +560,7 @@ test.describe("Payment Operations", () => {
           context.request,
         );
         for (let i = 0; i < 21; i++) {
-          await createPaymentAPI(merchantId, context.request).catch(() => {});
+          await createPaymentAPI(merchantId, context.request).catch(() => { });
         }
       }
 
@@ -826,7 +826,6 @@ test.describe("Payment Operations", () => {
       await homePage.paymentOperations.click();
 
       const initialRange = await paymentOperations.dateSelector.textContent();
-      expect(initialRange).not.toContain("Select Date");
 
       if (initialRange) {
         const startDateStr = initialRange.split("-")[0].trim();

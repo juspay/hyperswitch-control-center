@@ -2,7 +2,8 @@ import { test, expect } from "../../support/test";
 import type { Page, BrowserContext } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { generateUniqueEmail } from "../../support/helper";
-import { signupUser, loginUI } from "../../support/commands";
+import { signupUser, loginUI, fillConnectorFields } from "../../support/commands";
+import { taxProcessorConfig } from "../../support/fixtures/taxProcessorConfig";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
@@ -72,46 +73,6 @@ test.describe("Tax Processor", () => {
     await expect(search).toBeVisible({ timeout: 10000 });
     await search.fill("stripe");
     await expect(search).toHaveValue("stripe");
-  });
-
-  test("should configure TaxJar connector", async ({ page }) => {
-    if (!(await gotoTax(page))) {
-      test.skip(true, "Tax Processor not reachable");
-    }
-    const connectButton = page
-      .locator('[data-button-for="connectNow"], button:has-text("Connect")')
-      .first();
-    if (!(await connectButton.isVisible().catch(() => false))) {
-      test.skip(true, "Connect CTA not exposed");
-    }
-    await connectButton.click();
-
-    const taxJarOption = page
-      .locator('[data-testid="taxjar"], [data-testid*="taxjar"]')
-      .first();
-    if (await taxJarOption.isVisible().catch(() => false)) {
-      await taxJarOption.click();
-    }
-
-    await page
-      .locator('[name*="api_key"], [name*="apiKey"]')
-      .first()
-      .fill("taxjar_test_api_key");
-    await page
-      .locator('[name*="connector_label"], [name*="connectorLabel"]')
-      .first()
-      .fill("taxjar_test_label");
-
-    await page
-      .locator(
-        '[data-button-for="connectAndProceed"], button:has-text("Connect")',
-      )
-      .last()
-      .click();
-
-    await expect(
-      page.locator('[data-toast*="success"], [data-toast*="Successfully"]'),
-    ).toBeVisible({ timeout: 10000 });
   });
 
   test("should configure tax codes mapping", async ({ page }) => {
@@ -194,4 +155,54 @@ test.describe("Tax Processor", () => {
       }
     }
   });
+});
+
+test.describe("All Tax Processors", () => {
+  let email: string;
+
+  const taxProcessors = Object.entries(taxProcessorConfig);
+  test.beforeEach(async ({ page, context }) => {
+    email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+  });
+
+  for (const [key, processor] of taxProcessors) {
+    test(`should setup and verify ${key} tax processor`, async ({
+      page,
+    }) => {
+      const homePage = new HomePage(page);
+
+      await homePage.connectors.click();
+      const taxLink = homePage.taxConnectors;
+      if ((await taxLink.count().catch(() => 0)) === 0) {
+        test.skip(true, "Tax Processor not available");
+      }
+
+      await taxLink.click();
+      await expect(page).toHaveURL(/.*dashboard\/tax-processor/);
+
+      const connectButtons = page.locator('[data-button-text="Connect"], button:has-text("Connect")');
+      await expect(connectButtons.first()).toBeVisible();
+      if ((await connectButtons.count().catch(() => 0)) > 0) {
+        await connectButtons.nth(0).click();
+
+        if (processor.fields.fieldLabels.length > 0) {
+          await fillConnectorFields(page, processor.fields);
+        }
+
+        const saveButton = page.locator('button:has-text("Save"), button:has-text("Connect"), button:has-text("Proceed")').first();
+        if (await saveButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+          await saveButton.click();
+          await page.waitForLoadState("networkidle");
+
+          await page.getByRole('button', { name: 'Done' }).click();
+
+          // Verify the connector appears in the vault processor list
+          const connectorLabel = processor.fields.overrides["Enter Connector label"] || processor.label;
+          await expect(page.getByText(connectorLabel, { exact: true })).toBeVisible({ timeout: 10000 });
+        }
+      }
+    });
+  }
 });

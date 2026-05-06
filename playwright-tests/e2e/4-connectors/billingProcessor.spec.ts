@@ -2,7 +2,8 @@ import { test, expect } from "../../support/test";
 import type { Page, BrowserContext } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { generateUniqueEmail } from "../../support/helper";
-import { signupUser, loginUI } from "../../support/commands";
+import { signupUser, loginUI, fillConnectorFields } from "../../support/commands";
+import { billingProcessorConfig } from "../../support/fixtures/billingProcessorConfig";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
@@ -159,4 +160,54 @@ test.describe("Billing Processor", () => {
     }
     await page.locator('[data-button-for="saveWebhooks"]').click();
   });
+});
+
+test.describe("All Billing Processors", () => {
+  let email: string;
+
+  const billingProcessors = Object.entries(billingProcessorConfig);
+  test.beforeEach(async ({ page, context }) => {
+    email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+  });
+
+  for (const [key, processor] of billingProcessors) {
+    test(`should setup and verify ${key} billing processor`, async ({
+      page,
+    }) => {
+      const homePage = new HomePage(page);
+
+      await homePage.connectors.click();
+      const billingLink = homePage.billingConnectors;
+      if ((await billingLink.count().catch(() => 0)) === 0) {
+        test.skip(true, "Billing Processor not available");
+      }
+
+      await billingLink.click();
+      await expect(page).toHaveURL(/.*dashboard\/billing-processor/);
+
+      const connectButtons = page.locator('[data-button-text="Connect"], button:has-text("Connect")');
+      await expect(connectButtons.first()).toBeVisible();
+      if ((await connectButtons.count().catch(() => 0)) > 0) {
+        await connectButtons.nth(0).click();
+
+        if (processor.fields.fieldLabels.length > 0) {
+          await fillConnectorFields(page, processor.fields);
+        }
+
+        const saveButton = page.locator('button:has-text("Save"), button:has-text("Connect"), button:has-text("Proceed")').first();
+        if (await saveButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+          await saveButton.click();
+          await page.waitForLoadState("networkidle");
+
+          await page.getByRole('button', { name: 'Done' }).click();
+
+          // Verify the connector appears in the vault processor list
+          const connectorLabel = processor.fields.overrides["Enter Connector label"] || processor.label;
+          await expect(page.getByText(connectorLabel, { exact: true })).toBeVisible({ timeout: 10000 });
+        }
+      }
+    });
+  }
 });
