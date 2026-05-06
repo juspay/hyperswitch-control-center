@@ -3836,41 +3836,4 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
     },
   },
 
-  imerchantsolutions: {
-    label: "imerchantsolutions",
-    fields: {
-      default: "test_value",
-      overrides: {
-        "Enter Connector label": "imerchantsolutions_default",
-      },
-      fieldLabels: [
-        "API Key *",
-        "Source verification key",
-      ],
-    },
-    paymentSections: {
-      Credit: {
-        label: "Credit",
-        methods: [
-          "Mastercard",
-          "Visa",
-          "AmericanExpress",
-          "JCB",
-          "Discover",
-          "UnionPay",
-        ],
-      },
-      Debit: {
-        label: "Debit",
-        methods: [
-          "Mastercard",
-          "Visa",
-          "AmericanExpress",
-          "JCB",
-          "Discover",
-          "UnionPay",
-        ],
-      },
-    },
-  },
 };

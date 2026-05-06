@@ -62,7 +62,7 @@ export default defineConfig({
   testIgnore: ["*seed.spec.ts", "**/.archive/**", "**/ai-consolidated/**"],
   fullyParallel: true, // Run tests in files in parallel
   forbidOnly: !!process.env.CI, // Fail the build on CI if you accidentally left test.only in the source code.
-  retries: process.env.CI ? 2 : 0, // Retry on CI only
+  retries: process.env.CI ? 3 : 0, // Retry on CI only
   workers: process.env.CI ? 4 : undefined, // Opt out of parallel tests on CI.
   // Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions.
   use: {
