@@ -1,4 +1,4 @@
-let defaultEmailLogoUrl = "https://app.hyperswitch.io/email-assets/HyperswitchLogo.png"
+let defaultEmailLogoUrl = `${GlobalVars.getHostUrl}/email-assets/HyperswitchLogo.png`
 
 let appendVersionParam = (url, ~version) => {
   switch version {
