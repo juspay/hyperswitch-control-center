@@ -2536,7 +2536,8 @@ let checkIfPredecryptFlowEnabledForApplePay = connector => {
   | Processors(ADYEN)
   | Processors(CHECKOUT)
   | Processors(WORLDPAYVANTIV)
-  | Processors(NMI) => true
+  | Processors(NMI)
+  | Processors(WORLDPAYXML) => true
   | _ => false
   }
 }
