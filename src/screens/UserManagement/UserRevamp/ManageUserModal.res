@@ -62,7 +62,7 @@ module ChangeRoleSection = {
         </p>
       </div>
       <div className="flex gap-4 items-center">
-        <SelectBox.BaseDropdown
+        <SelectBoxAdapter.BaseDropdown
           options
           searchable=false
           input

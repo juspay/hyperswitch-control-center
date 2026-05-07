@@ -148,7 +148,7 @@ let make = (
       </div>
     </Modal>
   } else {
-    <SelectBox.BaseDropdown
+    <SelectBoxAdapter.BaseDropdown
       input
       options
       buttonText="Columns"
