@@ -136,6 +136,7 @@ test.describe("Stripe Connector", () => {
       page.locator("[name=connector_account_details\\.api_key]"),
     ).toHaveValue("test_key");
 
+    await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
     await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
     await paymentConnector.pmtProceedButton.click();
 
@@ -345,8 +346,6 @@ test.describe("Stripe Connector", () => {
 
     await page.reload();
 
-    // await expect(page.getByRole('paragraph').filter({ hasText: 'Connect a Dummy Processor' })).not.toBeAttached();
-    // await expect(page.getByRole("button", { name: "Request a Processor" }).first()).not.toBeAttached();
     await expect(page.getByTestId('adyen')).toBeVisible();
     await expect(page.getByTestId('affirm')).not.toBeAttached();
 
@@ -381,6 +380,7 @@ test.describe("Stripe Connector", () => {
   }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
+    await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
     await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
 
     const stripePaymentSections = {
@@ -453,6 +453,7 @@ test.describe("Stripe Connector", () => {
   test("should toggle card payment method", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
+    await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
     await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
     await expect(page.locator('.flex.items-center.transition.rounded-2\\.5').first()).toHaveAttribute('data-bool-value', 'on');
     await page.locator('.flex.items-center.transition.rounded-2\\.5').first().click();
@@ -462,6 +463,7 @@ test.describe("Stripe Connector", () => {
   test("should configure Apple Pay web domain flow", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
+    await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
     await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
 
     await page.getByText("Apple Pay").click();
@@ -492,6 +494,7 @@ test.describe("Stripe Connector", () => {
   test("should configure Apple Pay iOS certificate flow", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
+    await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
     await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
 
     await page.getByText("Apple Pay").click();
@@ -541,6 +544,7 @@ test.describe("Stripe Connector", () => {
   test("should configure Google Pay flow", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
+    await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
     await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
 
     await page.getByText("Google Pay").click();
@@ -576,6 +580,7 @@ test.describe("Stripe Connector", () => {
   test("should show summary preview after PMs step", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
+    await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
     await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
     await paymentConnector.pmtProceedButton.click();
 
@@ -756,8 +761,8 @@ test.describe("Stripe Connector", () => {
     await labelInput.fill(createdLabel);
     // 5s is too tight on CI: the form takes a moment to enable Connect &
     // Proceed after the label change. Use the standard 30s action timeout.
-    await expect(paymentConnector.connectAndProceedButton).toBeVisible();
-    await paymentConnector.connectAndProceedButton.click();
+    await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
+    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
     await expect(paymentConnector.pmtProceedButton).toBeVisible();
     await paymentConnector.pmtProceedButton.click();
 
@@ -794,6 +799,7 @@ test.describe("Payin Connectors", () => {
       await assertConnectorFieldLabels(page, connector.fields.fieldLabels);
       await fillConnectorFields(page, connector.fields);
 
+      await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
       await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
 
       await assertPaymentMethodTypes(page, connector.paymentSections);

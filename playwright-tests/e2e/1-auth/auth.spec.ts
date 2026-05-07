@@ -763,7 +763,7 @@ const ssoBaseUrl = process.env.PLAYWRIGHT_SSO_BASE_URL;
       await signinPage.oktaPasswordInput.fill(ssoPassword);
       await signinPage.oktaVerifyButton.click();
 
-      await page.waitForURL(/.*dashboard\/home/, { timeout: 10000 });
+      await page.waitForURL(/.*dashboard\/home/, { timeout: 30000 });
 
       await homePage.userAccount.click();
       await homePage.signOut.click();

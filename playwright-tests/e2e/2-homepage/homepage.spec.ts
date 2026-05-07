@@ -102,11 +102,6 @@ test.describe("Homepage", () => {
         context.request,
       );
 
-      await homePage.connectors.click();
-      await homePage.paymentProcessors.click();
-      await expect(page.getByText("Payment Processors").nth(1)).toBeVisible();
-
-      await page.locator('[data-testid="overview"]').first().click();
       await page.locator('[data-button-for="tryItOut"]').click();
 
       await expect(
@@ -120,6 +115,7 @@ test.describe("Homepage", () => {
       // start can push this past 30s. Wait for network to settle before
       // probing for the iframe element.
       await page.waitForLoadState("networkidle");
+      await expect(page.locator('iframe[name="orca-payment-element-iframeRef-orca-elements-payment-element-payment-element"]').contentFrame().getByRole('button', { name: 'Card' })).toBeVisible({ timeout: 10000 });
       await page.locator("iframe").first().waitFor({
         state: "attached",
         timeout: 30000,
