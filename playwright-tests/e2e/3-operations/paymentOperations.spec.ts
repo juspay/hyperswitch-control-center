@@ -587,7 +587,9 @@ test.describe("Payment Operations", () => {
 
     for (const filter of allFilters) {
       await expect(
-        page.locator(`[data-dropdown-value="${filter}"]`),
+        page.locator(
+          `[data-dropdown-value="${filter}"][data-dropdown-value-selected="False"]`,
+        ),
       ).toBeVisible();
     }
   });
@@ -625,7 +627,11 @@ test.describe("Payment Operations", () => {
 
     for (const filter of filterKeys) {
       await paymentOperations.addFilters.click();
-      await page.locator(`[data-dropdown-value="${filter}"]`).click();
+      await page
+        .locator(
+          `[data-dropdown-value="${filter}"][data-dropdown-value-selected="False"]`,
+        )
+        .click();
       await expect(
         page.locator('[class="flex relative  flex-row  flex-wrap"]').first(),
       ).toContainText(`Select ${filter}`);
@@ -633,7 +639,11 @@ test.describe("Payment Operations", () => {
     }
 
     await paymentOperations.addFilters.click();
-    await page.locator('[data-dropdown-value="Customer Id"]').click();
+    await page
+      .locator(
+        '[data-dropdown-value="Customer Id"][data-dropdown-value-selected="False"]',
+      )
+      .click();
     await expect(page.locator('[name="customer_id"]')).toHaveAttribute(
       "placeholder",
       "Enter Customer Id...",
@@ -642,7 +652,9 @@ test.describe("Payment Operations", () => {
 
     await paymentOperations.addFilters.click();
     await page
-      .locator('[data-dropdown-value="Merchant Order Reference Id"]')
+      .locator(
+        '[data-dropdown-value="Merchant Order Reference Id"][data-dropdown-value-selected="False"]',
+      )
       .click();
     await expect(
       page.locator('[name="merchant_order_reference_id"]'),
@@ -670,7 +682,11 @@ test.describe("Payment Operations", () => {
     await homePage.paymentOperations.click();
 
     await paymentOperations.addFilters.click();
-    await page.locator('[data-dropdown-value="Connector"]').click();
+    await page
+      .locator(
+        '[data-dropdown-value="Connector"][data-dropdown-value-selected="False"]',
+      )
+      .click();
     await page
       .locator('[class="flex relative  flex-row  flex-wrap"]')
       .first()
@@ -680,14 +696,22 @@ test.describe("Payment Operations", () => {
     await expect(page.getByText("Stripe Dummy").first()).toBeVisible();
 
     await paymentOperations.addFilters.click();
-    await page.locator('[data-dropdown-value="Status"]').click();
+    await page
+      .locator(
+        '[data-dropdown-value="Status"][data-dropdown-value-selected="False"]',
+      )
+      .click();
     await page.locator('[data-component-field-wrapper="field-status"]').click();
     await page.locator('[value="Succeeded"]').click();
     await page.locator('[data-button-text="Apply"]').click();
     await expect(page.getByText("Succeeded").first()).toBeVisible();
 
     await paymentOperations.addFilters.click();
-    await page.locator('[data-dropdown-value="Currency"]').click();
+    await page
+      .locator(
+        '[data-dropdown-value="Currency"][data-dropdown-value-selected="False"]',
+      )
+      .click();
     await page.getByText("Select Currency").click();
     await page.locator('[placeholder="Search..."]').fill("USD");
     await page.locator('[data-searched-text="USD"]').click();

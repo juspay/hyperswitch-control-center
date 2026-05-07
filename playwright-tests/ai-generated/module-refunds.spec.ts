@@ -156,13 +156,19 @@ test.describe("Refunds List Page", () => {
 
       // Wait for filter dropdown to open and verify filter options
       await expect(
-        page.locator('[data-dropdown-value="Connector"]'),
+        page.locator(
+          '[data-dropdown-value="Connector"][data-dropdown-value-selected="False"]',
+        ),
       ).toBeVisible();
       await expect(
-        page.locator('[data-dropdown-value="Currency"]'),
+        page.locator(
+          '[data-dropdown-value="Currency"][data-dropdown-value-selected="False"]',
+        ),
       ).toBeVisible();
       await expect(
-        page.locator('[data-dropdown-value="Refund Status"]'),
+        page.locator(
+          '[data-dropdown-value="Refund Status"][data-dropdown-value-selected="False"]',
+        ),
       ).toBeVisible();
     }
   });
