@@ -266,6 +266,9 @@ module CopyLinkTableCell = {
   ) => {
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
     let showToast = ToastState.useShowToast()
+    let {orgId, merchantId, profileId, version} = React.useContext(
+      UserInfoProvider.defaultContext,
+    ).getCommonSessionDetails()
     let handleClick = ev => {
       ev->ReactEvent.Mouse.stopPropagation
       setIsTextVisible(_ => true)
@@ -280,6 +283,18 @@ module CopyLinkTableCell = {
       Clipboard.writeText(copyVal)
       customOnCopyClick()
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
+    }
+
+    let onDeepLinkClick = ev => {
+      ev->ReactEvent.Mouse.stopPropagation
+      let version = (version :> string)
+      let deepLinkUrl = Window.URL.make(
+        `${Window.Location.origin}/${orgId}/${merchantId}/${profileId}/${version}/switch/user`,
+        `${Window.Location.origin}`,
+      )
+      deepLinkUrl->Window.URL.searchParams->Window.URL.append("path", url)
+      Clipboard.writeText(deepLinkUrl->Window.URL.href)
+      showToast(~message="Deep link copied to Clipboard!", ~toastType=ToastSuccess)
     }
 
     <div className="flex items-center">
@@ -321,6 +336,15 @@ module CopyLinkTableCell = {
             target="_blank">
             <Icon size={14} name="external-link-alt" />
           </a>
+          <ToolTip
+            description="Copy deep link to this specific record"
+            toolTipFor={<Icon
+              name="nd-permalink"
+              className="cursor-pointer opacity-0 group-hover:opacity-70 transition-opacity h-7 py-1"
+              onClick={ev => onDeepLinkClick(ev)}
+            />}
+            toolTipPosition=ToolTip.Top
+          />
         </div>
       } else {
         "NA"->React.string
