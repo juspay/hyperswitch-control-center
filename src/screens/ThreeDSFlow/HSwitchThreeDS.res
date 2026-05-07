@@ -100,11 +100,10 @@ module Configure3DSRule = {
         let rule = ruleInput.value->JSON.Decode.array->Option.getOr([])
         let keyExtractor = (index, _rule, isDragging, _) => {
           let id = {`algorithm.rules[${Int.toString(index)}]`}
-          let i = 1
           <AdvancedRouting.Wrapper
             key={index->Int.toString}
             id
-            heading={`Rule ${Int.toString(index + i)}`}
+            heading={`Rule ${Int.toString(index + 1)}`}
             onClickAdd={_ => addRule(index, false)}
             onClickCopy={_ => addRule(index, true)}
             onClickRemove={_ => removeRule(index)}
@@ -191,7 +190,7 @@ let make = () => {
     }
   }
 
-  let fetchDetails = async () => {
+  let loadPageData = async () => {
     try {
       setScreenState(_ => Loading)
       await getWasm()
@@ -212,7 +211,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    fetchDetails()->ignore
+    loadPageData()->ignore
     None
   }, [])
 
@@ -231,7 +230,7 @@ let make = () => {
 
       let getActivateUrl = getURL(~entityName=V1(THREE_DS), ~methodType=Put)
       let _ = await updateDetails(getActivateUrl, threeDsPayload->Identity.genericTypeToJson, Put)
-      fetchDetails()->ignore
+      loadPageData()->ignore
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/3ds"))
       setPageView(_ => LANDING)
       setScreenState(_ => Success)

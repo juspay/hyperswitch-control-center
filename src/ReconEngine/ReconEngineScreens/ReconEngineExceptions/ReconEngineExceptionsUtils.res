@@ -189,3 +189,50 @@ let validateMetadataField = (~metadataRows: array<ReconEngineExceptionsTypes.met
     }
   }
 }
+
+let bulkActionReasonMultiLineTextInputField = (~label) => {
+  <FormRenderer.FieldRenderer
+    labelClass="font-semibold"
+    field={FormRenderer.makeFieldInfo(
+      ~label,
+      ~name="reason",
+      ~placeholder="Enter remark",
+      ~customInput=InputFields.multiLineTextInput(
+        ~isDisabled=false,
+        ~rows=Some(4),
+        ~cols=Some(50),
+        ~maxLength=500,
+        ~customClass="!h-28 !rounded-xl",
+      ),
+      ~isRequired=false,
+    )}
+  />
+}
+
+open ReconEngineExceptionsTypes
+
+let getBulkActionStatusType = (status: string): bulkActionStatusType => {
+  switch status {
+  | "success" => BulkActionSuccess
+  | "failed" => BulkActionFailed
+  | "skipped" => BulkActionInEligible
+  | _ => UnknownBulkActionStatus
+  }
+}
+
+let bulkActionResponseToObjMapper = (response): bulkActionResponse => {
+  let status = response->getString("status", "")->getBulkActionStatusType
+
+  let statusDetail = switch status {
+  | BulkActionFailed => response->getOptionString("error")
+  | BulkActionInEligible => response->getOptionString("reason")
+  | BulkActionSuccess => Some("Processed successfully")
+  | UnknownBulkActionStatus => None
+  }
+
+  {
+    logical_id: response->getOptionString("logical_id"),
+    bulk_action_status: status,
+    bulk_action_status_detail: statusDetail,
+  }
+}
