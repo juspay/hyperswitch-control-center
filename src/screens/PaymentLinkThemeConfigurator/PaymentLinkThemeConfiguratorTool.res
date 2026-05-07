@@ -554,7 +554,7 @@ let make = () => {
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
 
-  let getSelectedStyleConfigs = {
+  let selectedStyleConfigs = {
     open BusinessProfileInterfaceUtils
     let paymentLinkConfig =
       businessProfileRecoilVal.payment_link_config->Option.getOr(
@@ -582,7 +582,7 @@ let make = () => {
       <RenderIf condition={selectedStyleId->isNonEmptyString}>
         <ConfiguratorForm
           key={`configurator-form-${selectedStyleId}`}
-          initialFormValues={getSelectedStyleConfigs}
+          initialFormValues={selectedStyleConfigs}
           selectedStyleId
         />
       </RenderIf>
