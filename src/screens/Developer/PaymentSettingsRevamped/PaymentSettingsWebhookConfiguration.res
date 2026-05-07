@@ -6,7 +6,7 @@ module WebhookEndpointSection = {
   let make = () => {
     open FormRenderer
 
-    let errorClass = "text-sm leading-4 font-medium text-start ml-1 mt-2"
+    let errorClass = `${body.md.medium} text-start ml-1 mt-2`
 
     <div className="flex flex-col gap-4">
       <p className={`${body.lg.semibold} text-nd_gray-700 pt-4`}>

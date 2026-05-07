@@ -84,9 +84,7 @@ let make = () => {
   ]
 
   let tabs = {
-    let baseTabs = [paymentBehaviourTab]
-
-    baseTabs->Array.push(webhookConfigTab)
+    let baseTabs = [paymentBehaviourTab, webhookConfigTab]
 
     if version == V1 || (version == V2 && isBusinessProfileHasThreeds) {
       baseTabs->Array.push(threeDsTab)
