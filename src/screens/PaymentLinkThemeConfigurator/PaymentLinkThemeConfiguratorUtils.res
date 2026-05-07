@@ -53,13 +53,12 @@ let getDefaultStylesValue: BusinessProfileInterfaceTypes.paymentLinkConfig => Bu
 let allowedDomainsToArray = allowedDomainsOpt => {
   let domainsStr =
     allowedDomainsOpt->Option.getOr(JSON.Encode.null)->JSON.Decode.string->Option.getOr("")
-  Some(
+  let allowedDomains =
     domainsStr
     ->String.split(",")
     ->Array.map(String.trim)
-    ->Array.filter(s => s->isNonEmptyString)
-    ->getJsonFromArrayOfString,
-  )
+    ->Array.filter(isNonEmptyString)
+  allowedDomains->Array.length === 0 ? None : Some(allowedDomains->getJsonFromArrayOfString)
 }
 
 let constructBusinessProfileBody = (~paymentLinkConfig, ~styleID) => {

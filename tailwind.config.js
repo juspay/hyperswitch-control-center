@@ -29,6 +29,12 @@ module.exports = {
         laptop: "67.5rem",
         desktop: "118.75rem",
       },
+      backgroundImage: {
+        "dot-pattern": "radial-gradient(#d9dee7 1px, transparent 1px)",
+      },
+      backgroundSize: {
+        "dot-pattern-size": "16px 16px",
+      },
       scale: {
         400: "4",
       },

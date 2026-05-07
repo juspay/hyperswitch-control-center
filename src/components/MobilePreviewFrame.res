@@ -3,7 +3,7 @@ let make = (~children, ~screenWidth="320px", ~screenHeight="590px") => {
   <div
     className="relative w-full h-full rounded-2xl bg-nd_gray-25 overflow-hidden flex items-center justify-center p-2">
     <div
-      className="absolute inset-0 pointer-events-none opacity-70 bg-[radial-gradient(#d9dee7_1px,transparent_1px)] bg-[length:16px_16px]"
+      className="absolute inset-0 pointer-events-none opacity-70 bg-dot-pattern bg-dot-pattern-size"
     />
     <div className="relative bg-black rounded-2-rem p-2 shadow-2xl max-h-full">
       <div className="absolute -left-3-px top-10-per w-3-px h-4-per bg-black rounded-l-sm" />

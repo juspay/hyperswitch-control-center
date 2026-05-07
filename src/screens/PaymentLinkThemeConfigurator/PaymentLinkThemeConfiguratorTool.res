@@ -31,11 +31,16 @@ module ConfiguratorForm = {
     let showToast = ToastState.useShowToast()
     let getURL = APIUtils.useGetURL()
     let fetchDetails = APIUtils.useGetMethod()
-    let (initialValues, setInitialValues) = React.useState(_ => initialFormValues)
+    let (initialValues, setInitialValues) = React.useState(_ => JSON.Encode.null)
     let (previewLoading, setPreviewLoading) = React.useState(_ => false)
     let (previewHtml, setPreviewHtml) = React.useState(_ => "")
     let (previewError, setPreviewError) = React.useState(_ => None)
     let (paymentMethodsResponse, setPaymentMethodsResponse) = React.useState(() => None)
+
+    React.useEffect(() => {
+      setInitialValues(_ => initialFormValues)
+      None
+    }, [initialFormValues])
 
     let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(
       HyperswitchAtom.merchantDetailsValueAtom,
@@ -361,15 +366,12 @@ module CreateNewStyleID = {
       try {
         let valuesDict = values->getDictFromJsonObject
         let styleId = valuesDict->getString("payment_link_config_id", "")->String.trim
-
-        if styleId->isNonEmptyString {
-          setShowModal(_ => false)
-          setSelectedStyleId(_ => styleId)
-        }
+        setShowModal(_ => false)
         let config = businessProfileRecoilVal.payment_link_config
         let body = constructBusinessProfileBody(~paymentLinkConfig=config, ~styleID=styleId)
         let dict = [("payment_link_config", body->Identity.genericTypeToJson)]->Dict.fromArray
         let _ = await updateBusinessProfile(~body=dict->JSON.Encode.object)
+        styleId->isNonEmptyString ? setSelectedStyleId(_ => styleId) : ()
         showToast(
           ~toastType=ToastSuccess,
           ~message="Payment Link Config ID Created Successfully!",
@@ -469,7 +471,6 @@ module StyleIdSelection = {
       }
 
       switch businessProfileRecoilVal.payment_link_config {
-      | None => setAvailableStyles(_ => [defaultOption])
       | Some(paymentLinkConfig) => {
           let stylesDict =
             paymentLinkConfig.business_specific_configs->Option.getOr(JSON.Encode.null)
@@ -486,14 +487,20 @@ module StyleIdSelection = {
           let finalStylesList = stylesList->Array.length == 0 ? [defaultOption] : stylesList
 
           setAvailableStyles(_ => finalStylesList)
-
-          if selectedStyleId->isEmptyString {
+          let isValid =
+            selectedStyleId->isNonEmptyString &&
+              finalStylesList->Array.some(opt => opt.value == selectedStyleId)
+          if !isValid {
             let hasDefault = finalStylesList->Array.some(opt => opt.value == defaultStyleId)
             let autoSelect = hasDefault
               ? defaultStyleId
               : finalStylesList->Array.get(0)->Option.mapOr("", opt => opt.value)
             autoSelect->isNonEmptyString ? setSelectedStyleId(_ => autoSelect) : ()
           }
+        }
+      | None => {
+          setSelectedStyleId(_ => defaultStyleId)
+          setAvailableStyles(_ => [defaultOption])
         }
       }
 
