@@ -73,11 +73,7 @@ let make = (~id) => {
       {
         title: "Entries",
         renderContent: () =>
-          <ReconEngineTransactionEntries
-            entriesList={entriesList}
-            currentTransactionDetails={currentTransactionDetails}
-            accountsData
-          />,
+          <ReconEngineTransactionEntries entriesList={entriesList} accountsData />,
       },
     ]
   }, (allTransactionDetails, entriesList, accountsData))

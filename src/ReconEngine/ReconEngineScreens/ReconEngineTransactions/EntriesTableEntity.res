@@ -54,6 +54,18 @@ let detailsFields = [
   EffectiveAt,
 ]
 
+let transactionEntriesDetailFields = [
+  EntryType,
+  Amount,
+  Currency,
+  Status,
+  EntryId,
+  OrderID,
+  EffectiveAt,
+  CreatedAt,
+  Actions,
+]
+
 let getHeading = (colType: entryColType) => {
   switch colType {
   | EntryId => Table.makeHeaderInfo(~key="entry_id", ~title="Entry ID")
