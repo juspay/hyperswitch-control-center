@@ -64,6 +64,10 @@ export default defineConfig({
   forbidOnly: !!process.env.CI, // Fail the build on CI if you accidentally left test.only in the source code.
   retries: process.env.CI ? 3 : 0, // Retry on CI only
   workers: process.env.CI ? 4 : undefined, // Opt out of parallel tests on CI.
+  // CI runners are slower than local dev — extend the default 30s test budget
+  // so multi-step flows (signup, connector setup, UI interactions) don't run
+  // out of time before the assertions that verify them.
+  timeout: process.env.CI ? 90000 : 30000,
   // Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions.
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000", // Base URL to use in actions like `await page.goto('')`.

@@ -275,6 +275,9 @@ test.describe.serial("Sign in", () => {
     page,
     context,
   }) => {
+    // Magic-link flow chains signup, mail inbox redirect, password reset, then
+    // a second mail inbox round-trip. Each hop is independently slow on CI.
+    test.setTimeout(90000);
     const email = generateUniqueEmail();
     const password = PLAYWRIGHT_PASSWORD;
 
@@ -302,7 +305,7 @@ test.describe.serial("Sign in", () => {
     await signinFromMailInbox(page);
     await signinPage.skip2FAButton.click();
 
-    await expect(page).toHaveURL(/.*dashboard\/home/);
+    await expect(page).toHaveURL(/.*dashboard\/home/, { timeout: 30000 });
   });
 
   test("should display only email field when 'sign in with an email' is clicked", async ({
@@ -667,12 +670,15 @@ const ssoBaseUrl = process.env.PLAYWRIGHT_SSO_BASE_URL;
       await page.goto(`/?auth_id=${authId}`);
       await signinPage.continueWithOktaButton.click();
 
-      await page.waitForURL(/.*okta\.com.*/, { timeout: 10000 });
+      await page.waitForURL(/.*okta\.com.*/, { timeout: 30000 });
     });
 
     test("should redirect to dashboard homepage after entering valid Okta credentials", async ({
       page,
     }) => {
+      // Cross-domain Okta round-trip + dashboard load is too slow for the
+      // default 30s test budget on CI; bump it before chaining waits.
+      test.setTimeout(90000);
       const signinPage = new SignInPage(page);
       const ssoUsername = process.env.PLAYWRIGHT_SSO_USERNAME || "";
       const ssoPassword = process.env.PLAYWRIGHT_SSO_PASSWORD || "";
@@ -680,14 +686,14 @@ const ssoBaseUrl = process.env.PLAYWRIGHT_SSO_BASE_URL;
       await page.goto(`/?auth_id=${authId}`);
       await signinPage.continueWithOktaButton.click();
 
-      await page.waitForURL(/.*okta\.com.*/, { timeout: 10000 });
+      await page.waitForURL(/.*okta\.com.*/, { timeout: 30000 });
 
       await signinPage.oktaEmailInput.fill(ssoUsername);
       await signinPage.oktaNextButton.click();
       await signinPage.oktaPasswordInput.fill(ssoPassword);
       await signinPage.oktaVerifyButton.click();
 
-      await page.waitForURL(/.*dashboard\/home/, { timeout: 10000 });
+      await page.waitForURL(/.*dashboard\/home/, { timeout: 30000 });
     });
 
     test("should show authentication error after entering invalid Okta credentials and stay on Okta login page", async ({

@@ -92,18 +92,30 @@ export async function createAPIKey(
   context?: APIRequestContext,
 ): Promise<string> {
   const ctx = context ?? (await request.newContext());
-  const response = await ctx.post(`${API_URL}/api_keys/${merchantId}`, {
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      "api-key": "test_admin",
-    },
-    data: {
-      name: "API Key 1",
-      description: null,
-      expiration: "2060-09-23T01:02:03.000Z",
-    },
-  });
+  // CI backends occasionally take >30s on the first request when the worker
+  // pool is cold. One retry with a fresh context recovers from transient
+  // socket hangs without masking persistent failures.
+  const attempt = async () =>
+    ctx.post(`${API_URL}/api_keys/${merchantId}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": "test_admin",
+      },
+      data: {
+        name: "API Key 1",
+        description: null,
+        expiration: "2060-09-23T01:02:03.000Z",
+      },
+      timeout: 60000,
+    });
+
+  let response: Awaited<ReturnType<typeof attempt>>;
+  try {
+    response = await attempt();
+  } catch (err) {
+    response = await attempt();
+  }
 
   if (!response.ok()) {
     const body = await response.text();

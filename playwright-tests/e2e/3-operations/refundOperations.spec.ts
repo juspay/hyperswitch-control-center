@@ -287,6 +287,7 @@ test.describe("Refunds Operations", () => {
         await page.locator('[value="Stripe Dummy"]').click();
         await page.locator('[data-button-text="Apply"]').click();
         await expect(page.getByText("Stripe Dummy").first()).toBeVisible();
+        await expect(page.locator('[placeholder="Search..."]')).not.toBeVisible();
 
         // Currency — select USD (first matching value)
         await page.locator('[data-icon="plus"]').click();

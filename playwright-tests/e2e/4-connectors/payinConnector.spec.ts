@@ -532,6 +532,7 @@ test.describe("Stripe Connector", () => {
     await page.getByRole('button', { name: 'Verify & Enable' }).click();
 
     await page.getByRole('button', { name: 'Proceed' }).nth(1).click();
+    await expect(page.getByText('Default', { exact: true })).not.toBeVisible();
     await page.getByRole('button', { name: 'Proceed' }).click();
 
     await expect(page.getByRole('heading', { name: 'Apple Pay' })).toBeVisible();
@@ -625,13 +626,23 @@ test.describe("Stripe Connector", () => {
     page,
     context,
   }) => {
+    test.setTimeout(60000);
     await setupConfiguredStripeConnector(page, context);
     await gotoConnectorList(page);
-    await page.locator('div').filter({ hasText: /^Stripe$/ }).first().click();
+    const stripeRow = page
+      .locator('div')
+      .filter({ hasText: /^Stripe$/ })
+      .first();
+    await expect(stripeRow).toBeVisible();
+    await stripeRow.click();
+    await page.waitForLoadState("networkidle");
 
-    await page.locator('.transition.rounded-full').click();
+    const toggle = page.locator('.transition.rounded-full');
+    await expect(toggle).toBeVisible();
+    await toggle.click();
     await expect(page.locator('div').filter({ hasText: /^Disabled$/ }).nth(2)).toBeVisible();
     await page.goBack();
+    await page.waitForLoadState("networkidle");
     await expect(page.locator('div').filter({ hasText: /^DISABLED$/ }).first()).toBeVisible();
   });
 
@@ -735,15 +746,24 @@ test.describe("Stripe Connector", () => {
     page,
     context,
   }) => {
+    test.setTimeout(60000);
     const createdLabel = await setupConfiguredStripeConnector(page, context);
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
-    await page.locator("[name=connector_label]").clear();
-    await page.locator("[name=connector_label]").fill(createdLabel);
-    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
+    const labelInput = page.locator("[name=connector_label]");
+    await expect(labelInput).toBeVisible();
+    await labelInput.clear();
+    await labelInput.fill(createdLabel);
+    // 5s is too tight on CI: the form takes a moment to enable Connect &
+    // Proceed after the label change. Use the standard 30s action timeout.
+    await expect(paymentConnector.connectAndProceedButton).toBeVisible();
+    await paymentConnector.connectAndProceedButton.click();
+    await expect(paymentConnector.pmtProceedButton).toBeVisible();
     await paymentConnector.pmtProceedButton.click();
 
-    await expect(page.locator('[data-toast*="Connector label already exist!"]').first()).toBeVisible();
+    await expect(page.locator('[data-toast*="Connector label already exist!"]').first()).toBeVisible({
+      timeout: 15000,
+    });
   });
 });
 

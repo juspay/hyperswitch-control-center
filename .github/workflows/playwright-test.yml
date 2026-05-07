@@ -5,10 +5,59 @@ permissions:
 on:
   pull_request:
   merge_group:
+  workflow_dispatch:
+    inputs:
+      shard:
+        description: "Shard to run: 'all' or one of 1, 2, 3"
+        default: "all"
+        type: choice
+        options:
+          - all
+          - "1"
+          - "2"
+          - "3"
 
 jobs:
-  playwright-tests:
+  setup:
     runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install --force
+
+      - name: Build application
+        run: npm run build:test
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
+
+      - name: Install Playwright Browsers
+        run: npx playwright install chromium --with-deps
+
+  playwright-tests:
+    needs: setup
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ (github.event_name == 'workflow_dispatch' && inputs.shard != 'all') && fromJSON(format('[{0}]', inputs.shard)) || fromJSON('[1, 2, 3]') }}
 
     steps:
       - name: Checkout code
@@ -29,24 +78,13 @@ jobs:
       - name: Install dependencies
         run: npm install --force
 
-      - name: Build application
-        run: npm run build:test
-        
-      - name: Cache Playwright browsers
-        id: playwright-cache
+      - name: Restore Playwright browsers
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             playwright-${{ runner.os }}-
-
-      - name: Install Playwright Browsers
-        # Installing only Chrome (Chromium) for now
-        # To add other browsers later:
-        #   - Multiple: npx playwright install chromium firefox webkit --with-deps
-        #   - Available: chromium, chrome, chrome-beta, msedge, msedge-beta, msedge-dev, firefox, webkit
-        run: npx playwright install chromium --with-deps
 
       - name: Health check for Backend
         run: |
@@ -55,8 +93,8 @@ jobs:
           echo "Response:"
           echo "$response"
 
-      - name: Run Playwright tests
-        run: npx playwright test
+      - name: Run Playwright tests (Shard ${{ matrix.shard }}/3)
+        run: npx playwright test --shard=${{ matrix.shard }}/3
         env:
           PW_COVERAGE: "1"
           PLAYWRIGHT_USERNAME: ${{ secrets.CYPRESS_USERNAME }}

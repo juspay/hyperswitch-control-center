@@ -129,6 +129,7 @@ test.describe("Payment Settings", () => {
       const expectedToggleStates: Record<string, "on" | "off"> = {};
       for (const label of toggleLabels) {
         const toggle = paymentSettings.toggleSwitchByLabel(label);
+        await expect(toggle).toBeVisible();
         const initial = await toggle.getAttribute("data-bool-value");
         const expected = initial === "on" ? "off" : "on";
         await toggle.click();
@@ -152,8 +153,12 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
         timeout: 10000,
       });
+      // Wait for the PUT /merchant_account response to settle before reload —
+      // otherwise reload can race the persisted state and read stale toggles.
+      await page.waitForLoadState("networkidle");
 
       await page.reload();
+      await page.waitForLoadState("networkidle");
 
       await expect(paymentSettings.returnUrlInput).toHaveValue(returnUrl, {
         timeout: 10000,
@@ -166,7 +171,9 @@ test.describe("Payment Settings", () => {
       for (const label of toggleLabels) {
         await expect(
           paymentSettings.toggleSwitchByLabel(label),
-        ).toHaveAttribute("data-bool-value", expectedToggleStates[label]);
+        ).toHaveAttribute("data-bool-value", expectedToggleStates[label], {
+          timeout: 10000,
+        });
       }
     });
 
@@ -291,8 +298,10 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
         timeout: 10000,
       });
+      await page.waitForLoadState("networkidle");
 
       await page.reload();
+      await page.waitForLoadState("networkidle");
 
       await expect(
         paymentSettings.toggleSwitchByLabel("Network Tokenization"),
@@ -359,8 +368,10 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
         timeout: 10000,
       });
+      await page.waitForLoadState("networkidle");
 
       await page.reload();
+      await page.waitForLoadState("networkidle");
 
       await expect(
         paymentSettings.toggleSwitchByLabel("Click to Pay"),
@@ -407,6 +418,13 @@ test.describe("Payment Settings", () => {
       page,
       context,
     }) => {
+      // This flow chains a connector setup, several toggle/dropdown
+      // interactions, an update + reload, and then re-asserts persisted state.
+      // On CI the default 30s budget is too tight; one of the retries was
+      // killed mid-assertion ("browser has been closed") because the previous
+      // attempt was still tearing down. Give the test enough headroom.
+      test.setTimeout(120000);
+
       const homePage = new HomePage(page);
       const paymentSettings = new PaymentSettings(page);
 
@@ -420,6 +438,7 @@ test.describe("Payment Settings", () => {
         );
       }
       await page.reload();
+      await page.waitForLoadState("networkidle");
 
       await homePage.developer.click();
       await homePage.paymentSettings.click();
@@ -427,6 +446,7 @@ test.describe("Payment Settings", () => {
 
       const forceChallenge =
         paymentSettings.toggleSwitchByLabel("Force 3DS Challenge");
+      await expect(forceChallenge).toBeVisible();
       const initial = await forceChallenge.getAttribute("data-bool-value");
       if (initial !== "on") {
         await forceChallenge.click();
@@ -450,8 +470,10 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
         timeout: 10000,
       });
+      await page.waitForLoadState("networkidle");
 
       await page.reload();
+      await page.waitForLoadState("networkidle");
       await paymentSettings.threeDSTab.click();
 
       await expect(
@@ -586,6 +608,7 @@ test.describe("Payment Settings", () => {
     test("should validate fields, save, reload, update again, and persist", async ({
       page,
     }) => {
+      test.setTimeout(90000);
       const homePage = new HomePage(page);
       const paymentSettings = new PaymentSettings(page);
 
@@ -612,8 +635,10 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
         timeout: 10000,
       });
+      await page.waitForLoadState("networkidle");
 
       await page.reload();
+      await page.waitForLoadState("networkidle");
       await paymentSettings.customHeadersTab.click();
 
       await expect(paymentSettings.customHeadersKeyInput).toHaveValue(
@@ -627,8 +652,12 @@ test.describe("Payment Settings", () => {
       const updatedKey = "X-Updated-Header";
       const updatedValue = "UpdatedValue456";
 
-      await page.getByText('Edit', { exact: true }).click();
-      await page.getByRole('button', { name: 'Proceed' }).click();
+      const editButton = page.getByText('Edit', { exact: true });
+      await expect(editButton).toBeVisible();
+      await editButton.click();
+      const proceedButton = page.getByRole('button', { name: 'Proceed' });
+      await expect(proceedButton).toBeVisible();
+      await proceedButton.click();
       await paymentSettings.fillCustomHeader(updatedKey, updatedValue);
       await expect(paymentSettings.customHeadersKeyInput).toHaveValue(
         updatedKey,
@@ -641,8 +670,10 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
         timeout: 10000,
       });
+      await page.waitForLoadState("networkidle");
 
       await page.reload();
+      await page.waitForLoadState("networkidle");
       await paymentSettings.customHeadersTab.click();
 
       await expect(paymentSettings.customHeadersKeyInput).toHaveValue(
@@ -659,6 +690,7 @@ test.describe("Payment Settings", () => {
     test("should validate fields, save, reload, update again, and persist", async ({
       page,
     }) => {
+      test.setTimeout(90000);
       const homePage = new HomePage(page);
       const paymentSettings = new PaymentSettings(page);
 
@@ -686,8 +718,10 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
         timeout: 10000,
       });
+      await page.waitForLoadState("networkidle");
 
       await page.reload();
+      await page.waitForLoadState("networkidle");
       await paymentSettings.metadataHeadersTab.click();
 
       await expect(paymentSettings.customHeadersKeyInput).toHaveValue(
@@ -701,8 +735,12 @@ test.describe("Payment Settings", () => {
       const updatedKey = "metadata-key-updated";
       const updatedValue = "metadata-value-updated";
 
-      await page.getByText('Edit', { exact: true }).click();
-      await page.getByRole('button', { name: 'Proceed' }).click();
+      const editButton = page.getByText('Edit', { exact: true });
+      await expect(editButton).toBeVisible();
+      await editButton.click();
+      const proceedButton = page.getByRole('button', { name: 'Proceed' });
+      await expect(proceedButton).toBeVisible();
+      await proceedButton.click();
       await paymentSettings.fillCustomHeader(updatedKey, updatedValue);
       await expect(paymentSettings.customHeadersKeyInput).toHaveValue(
         updatedKey,
@@ -715,8 +753,10 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
         timeout: 10000,
       });
+      await page.waitForLoadState("networkidle");
 
       await page.reload();
+      await page.waitForLoadState("networkidle");
       await paymentSettings.metadataHeadersTab.click();
 
       await expect(paymentSettings.customHeadersKeyInput).toHaveValue(

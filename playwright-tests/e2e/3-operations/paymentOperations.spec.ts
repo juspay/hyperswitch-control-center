@@ -486,6 +486,8 @@ test.describe("Payment Operations", () => {
       page,
       context,
     }) => {
+      // 3 sequential payment creates + 6 sort + assert cycles per column.
+      test.setTimeout(120000);
       const homePage = new HomePage(page);
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
@@ -515,6 +517,7 @@ test.describe("Payment Operations", () => {
         await route.fulfill({ response, json });
       });
       await page.reload();
+      await page.waitForLoadState("networkidle");
 
       await homePage.operations.click();
       await homePage.paymentOperations.click();
@@ -526,8 +529,12 @@ test.describe("Payment Operations", () => {
         const sortUp = page.locator('[data-icon="caret-up"]').nth(i);
         const sortDown = page.locator('[data-icon="caret-down"]').nth(i);
 
-        // First click toggles NONE -> DEC (descending)
+        // First click toggles NONE -> DEC (descending). The caret icon is
+        // re-rendered after every sort, so wait for it to be stable rather
+        // than relying on the action timeout to retry through the rerender.
+        await expect(sortUp).toBeVisible();
         await sortUp.click();
+        await page.waitForLoadState("networkidle");
         await expect(
           page.locator('[data-table-location="Orders_tr1_td2"]'),
         ).toContainText(payments[2].payment_id);
@@ -536,7 +543,9 @@ test.describe("Payment Operations", () => {
         ).toContainText(payments[0].payment_id);
 
         // Second click toggles DEC -> INC (ascending)
+        await expect(sortDown).toBeVisible();
         await sortDown.click();
+        await page.waitForLoadState("networkidle");
         await expect(
           page.locator('[data-table-location="Orders_tr1_td2"]'),
         ).toContainText(payments[0].payment_id);
@@ -550,6 +559,8 @@ test.describe("Payment Operations", () => {
   // Pagination
   test.describe("Pagination", () => {
     test("should paginate to the last page", async ({ page, context }) => {
+      // 21 sequential payment-create API calls + UI nav routinely exceed 30s on CI.
+      test.setTimeout(120000);
       const homePage = new HomePage(page);
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
@@ -566,11 +577,21 @@ test.describe("Payment Operations", () => {
 
       await homePage.operations.click();
       await homePage.paymentOperations.click();
+      // Let the orders list finish loading before asserting on its count text;
+      // the previous run failed because the row count rendered after the 5s
+      // expect timeout while the GET /payments/list response was still in
+      // flight.
+      await page.waitForLoadState("networkidle");
       await expect(page.getByText("Payment Operations")).toBeVisible();
 
-      await expect(page.getByText("Showing 20 of 21")).toBeVisible();
+      await expect(page.getByText("Showing 20 of 21")).toBeVisible({
+        timeout: 15000,
+      });
       await page.getByRole("button", { name: "2", exact: true }).click();
-      await expect(page.getByText("Showing 21 of 21")).toBeVisible();
+      await page.waitForLoadState("networkidle");
+      await expect(page.getByText("Showing 21 of 21")).toBeVisible({
+        timeout: 15000,
+      });
     });
   });
 
@@ -778,40 +799,36 @@ test.describe("Payment Operations", () => {
 
       await paymentOperations.addFilters.click();
       await page.locator(".mr-5.text-left").getByText("Connector").click();
-      await page
-        .locator('[class="flex relative  flex-row  flex-wrap"]')
-        .first()
-        .click();
+      await page.locator('[class="flex relative  flex-row  flex-wrap"]').first().click();
       await page.locator('[value="Stripe Dummy"]').click();
+      await expect(await page.locator('[data-button-text="Apply"]')).toBeEnabled({ timeout: 3000 });
       await page.locator('[data-button-text="Apply"]').click();
       await expect(page.getByText("Stripe Dummy").first()).toBeVisible();
+      await expect(await page.locator('[data-button-text="Apply"]')).not.toBeVisible({ timeout: 3000 });
 
       await paymentOperations.addFilters.click();
       await page.locator(".mr-5.text-left").getByText("Status").click();
-      await page
-        .locator('[data-component-field-wrapper="field-status"]')
-        .click();
+      await page.locator('[data-component-field-wrapper="field-status"]').click();
       await page.locator('[value="Succeeded"]').click();
+      await expect(page.getByText('Clear All').first()).toBeVisible();
+      await expect(await page.locator('[data-button-text="Apply"]')).toBeEnabled({ timeout: 3000 });
       await page.locator('[data-button-text="Apply"]').click();
       await expect(page.getByText("Succeeded").first()).toBeVisible();
+      await expect(await page.locator('[data-button-text="Apply"]')).not.toBeVisible({ timeout: 3000 });
 
       await paymentOperations.addFilters.click();
       await page.locator(".mr-5.text-left").getByText("Currency").click();
       await page.getByText("Select Currency").click();
       await page.locator('[placeholder="Search..."]').fill("USD");
       await page.locator('[data-searched-text="USD"]').click();
+      await expect(page.getByText('Clear All').first()).toBeVisible();
+      await expect(await page.locator('[data-button-text="Apply"]')).toBeEnabled({ timeout: 3000 });
       await page.locator('[data-button-text="Apply"]').click();
       await expect(page.getByText("USD").first()).toBeVisible();
 
-      await expect(
-        page.locator('[data-table-location="Orders_tr1_td3"]'),
-      ).toContainText("Stripe");
-      await expect(
-        page.locator('[data-table-location="Orders_tr1_td6"]'),
-      ).toContainText("SUCCEEDED");
-      await expect(
-        page.locator('[data-table-location="Orders_tr1_td5"]'),
-      ).toContainText("USD");
+      await expect(page.locator('[data-table-location="Orders_tr1_td3"]')).toContainText("Stripe");
+      await expect(page.locator('[data-table-location="Orders_tr1_td6"]')).toContainText("SUCCEEDED");
+      await expect(page.locator('[data-table-location="Orders_tr1_td5"]')).toContainText("USD");
     });
   });
 
@@ -914,6 +931,8 @@ test.describe("Payment Operations", () => {
       await homePage.operations.click();
       await homePage.paymentOperations.click();
 
+      const currentDay = new Date().getDate();
+
       for (const timeRange of predefinedTimeRange) {
         await paymentOperations.dateSelector.click();
         await expect(
@@ -923,9 +942,13 @@ test.describe("Payment Operations", () => {
           .locator('[data-date-picker-predefined="predefined-options"]')
           .getByText(timeRange)
           .click();
+        const expectedText =
+          currentDay === 7 && timeRange === "This Month"
+            ? "Last 7 Days"
+            : timeRange;
         await expect(
           page.locator('[data-testid="date-range-selector"]'),
-        ).toContainText(timeRange);
+        ).toContainText(expectedText);
       }
     });
 

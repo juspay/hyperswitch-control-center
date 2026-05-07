@@ -82,6 +82,9 @@ test.describe("Users - UI", () => {
   });
 
   test("Verify different roles in list page", async ({ page }) => {
+    // Each invite cycle is a multi-step modal flow; chained twice plus four
+    // filter assertions runs over the default 30s budget on CI.
+    test.setTimeout(120000);
     const usersPage = new UsersPage(page);
     const merchantInvitee = generateUniqueEmail();
     const profileInvitee = generateUniqueEmail();
@@ -91,18 +94,25 @@ test.describe("Users - UI", () => {
       role: string,
       scope: "merchant" | "profile",
     ) => {
+      await expect(usersPage.inviteUsersButton).toBeVisible();
       await usersPage.inviteUsersButton.click();
 
+      await expect(usersPage.emailListInput).toBeVisible();
       await usersPage.emailListInput.fill(email);
       await usersPage.emailListInput.press("Enter");
 
       if (scope === "profile") {
-        await page.locator('[data-value="allProfiles"]').click();
-        await page.locator('[data-dropdown-value="default"]').click();
+        const allProfiles = page.locator('[data-value="allProfiles"]');
+        await expect(allProfiles).toBeVisible();
+        await allProfiles.click();
+        const defaultOption = page.locator('[data-dropdown-value="default"]');
+        await expect(defaultOption).toBeVisible();
+        await defaultOption.click();
       }
 
       // `roleOption` is the role dropdown trigger (DropdownWithLoading button).
       // Clicking it opens the menu; the menu items match `entityOption`.
+      await expect(usersPage.roleOption).toBeVisible();
       await usersPage.roleOption.click();
       await usersPage.entityOption
         .filter({ hasText: role })
@@ -112,6 +122,7 @@ test.describe("Users - UI", () => {
       await usersPage.sendInviteButton.click();
       await expect(usersPage.sendInviteButton).toBeHidden();
       await usersPage.visit();
+      await page.waitForLoadState("networkidle");
     };
 
     // Invite one user at merchant scope and one at profile scope
@@ -192,6 +203,10 @@ test.describe("Users - Invite Users", () => {
   test("should successfully invite a user and accept invite from email link", async ({
     page,
   }) => {
+    // Invite + sign-out + accept-invite-via-mail + 2FA skip + sign-in is a
+    // long chain of independent waits; the default 30s budget can't cover it
+    // on CI even when each individual step is fast.
+    test.setTimeout(120000);
     const homePage = new HomePage(page);
     const usersPage = new UsersPage(page);
     const signinPage = new SignInPage(page);
@@ -207,7 +222,9 @@ test.describe("Users - Invite Users", () => {
 
     await redirectFromMailInbox(page, invitedEmail, "You have been invited to join Hyperswitch Community!");
 
-    await page.getByRole('button', { name: 'Continue with Password' }).click();
+    const continueWithPassword = page.getByRole('button', { name: 'Continue with Password' });
+    await expect(continueWithPassword).toBeVisible();
+    await continueWithPassword.click();
 
     await signinPage.skip2FAButton.click();
 
@@ -223,7 +240,7 @@ test.describe("Users - Invite Users", () => {
     );
     await signinPage.skip2FAButton.click();
 
-    await expect(page).toHaveURL(/.*dashboard\/home/);
+    await expect(page).toHaveURL(/.*dashboard\/home/, { timeout: 30000 });
 
     await expect(page.getByRole('button', { name: invitedEmail })).toBeVisible();
 
@@ -459,6 +476,9 @@ test.describe("Users - Details", () => {
   });
 
   test("Verify the UI of the User Details page - Other user details", async ({ page, context }) => {
+    // Two full sign-in flows + invite acceptance round-trip + role inspection
+    // — the chained waits routinely overflow the 30s default on CI.
+    test.setTimeout(180000);
     const { email, usersPage } = await setupAndNavigate(page, context);
 
     const homePage = new HomePage(page);
@@ -475,7 +495,9 @@ test.describe("Users - Details", () => {
 
     await redirectFromMailInbox(page, invitedEmail, "You have been invited to join Hyperswitch Community!");
 
-    await page.getByRole('button', { name: 'Continue with Password' }).click();
+    const continueWithPassword = page.getByRole('button', { name: 'Continue with Password' });
+    await expect(continueWithPassword).toBeVisible();
+    await continueWithPassword.click();
 
     await signinPage.skip2FAButton.click();
 
@@ -491,22 +513,25 @@ test.describe("Users - Details", () => {
     );
     await signinPage.skip2FAButton.click();
 
-    await expect(page).toHaveURL(/.*dashboard\/home/);
+    await expect(page).toHaveURL(/.*dashboard\/home/, { timeout: 30000 });
 
     await expect(page.getByRole('button', { name: invitedEmail })).toBeVisible();
 
     await homePage.userAccount.click();
     await homePage.signOut.click();
 
-    await expect(page).toHaveURL(/.*dashboard\/login/);
+    await expect(page).toHaveURL(/.*dashboard\/login/, { timeout: 30000 });
 
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
     const merchantId = (await homePage.merchantID.nth(0).textContent()) ?? "";
     expect(merchantId, "merchantId should be readable from header").not.toBe("");
     await homePage.users.click();
+    await page.waitForLoadState("networkidle");
 
-    await page.getByText('Merchant Developer').click();
+    const merchantDeveloper = page.getByText('Merchant Developer');
+    await expect(merchantDeveloper).toBeVisible();
+    await merchantDeveloper.click();
 
     await expect(page.getByRole('link', { name: 'Navigate to Team management' })).toBeVisible();
     await expect(page.getByLabel(`Current page: ${invitedEmail}`)).toBeVisible();
@@ -590,13 +615,17 @@ test.describe("Users - Details", () => {
     page,
     context,
   }) => {
+    test.setTimeout(60000);
     const homePage = new HomePage(page);
     const invitedEmail = generateUniqueEmail();
     const { email, usersPage } = await setupAndNavigate(page, context);
     await usersPage.inviteUser(invitedEmail);
 
     await page.goBack();
-    await page.getByText('Merchant Developer').click();
+    await page.waitForLoadState("networkidle");
+    const merchantDeveloper = page.getByText('Merchant Developer');
+    await expect(merchantDeveloper).toBeVisible();
+    await merchantDeveloper.click();
 
     await expect(page.getByText('InviteSent')).toBeVisible();
 
@@ -616,26 +645,43 @@ test.describe("Users - Details", () => {
     page,
     context,
   }) => {
+    test.setTimeout(90000);
     const { usersPage } = await setupAndNavigate(page, context);
     const invitee = generateUniqueEmail();
 
+    await expect(usersPage.inviteUsersButton).toBeVisible();
     await usersPage.inviteUsersButton.click();
+    await expect(usersPage.emailListInput).toBeVisible();
     await usersPage.emailListInput.fill(invitee);
     await usersPage.emailListInput.press("Enter");
+    await expect(usersPage.roleOption).toBeVisible();
     await usersPage.roleOption.click();
     await usersPage.entityOption.filter({ hasText: "Merchant Developer" }).first().click();
     await usersPage.sendInviteButton.click();
     await expect(usersPage.sendInviteButton).toBeHidden();
     await usersPage.visit();
+    await page.waitForLoadState("networkidle");
 
-    await usersPage.usersTableRows.filter({ hasText: invitee }).first().click();
+    const inviteeRow = usersPage.usersTableRows.filter({ hasText: invitee }).first();
+    await expect(inviteeRow).toBeVisible();
+    await inviteeRow.click();
+    await page.waitForLoadState("networkidle");
+    await expect(usersPage.manageUserButton).toBeVisible();
     await usersPage.manageUserButton.click();
     await expect(usersPage.manageUserModalHeading).toBeVisible();
-    await page.getByRole('button', { name: 'merchant_developer' }).click();
-    await page.getByText('merchant_view_only').click();
-    await page.getByRole('button', { name: 'Update' }).click();
+    const roleDropdown = page.getByRole('button', { name: 'merchant_developer' });
+    await expect(roleDropdown).toBeVisible();
+    await roleDropdown.click();
+    const viewOnlyOption = page.getByText('merchant_view_only');
+    await expect(viewOnlyOption).toBeVisible();
+    await viewOnlyOption.click();
+    const updateButton = page.getByRole('button', { name: 'Update' });
+    await expect(updateButton).toBeVisible();
+    await updateButton.click();
 
-    await expect(page.getByText('Merchant View Only')).toBeVisible();
+    await expect(page.getByText('Merchant View Only')).toBeVisible({
+      timeout: 15000,
+    });
   });
 
   test("Delete user from modal removes them from the users list", async ({
@@ -697,6 +743,9 @@ test.describe("Users - Details", () => {
     page,
     context,
   }) => {
+    // Four invite cycles plus four full sign-in flows in a single test —
+    // by far the longest in the suite. Allow significant headroom on CI.
+    test.setTimeout(360000);
     const { usersPage } = await setupAndNavigate(page, context);
     const homePage = new HomePage(page);
     const signinPage = new SignInPage(page);

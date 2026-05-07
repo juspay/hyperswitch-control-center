@@ -89,6 +89,9 @@ test.describe("Homepage", () => {
   });
 
   test("should make a payment using SDK", async ({ page, context }) => {
+    // SDK iframe boots a separate JS bundle and a Stripe sandbox handshake.
+    // CI cold-start adds 10–20s of overhead on top of the dashboard flow.
+    test.setTimeout(90000);
     const homePage = new HomePage(page);
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
@@ -113,12 +116,18 @@ test.describe("Homepage", () => {
       ).toContainText("Setup Checkout");
 
       await page.locator('[data-button-for="showPreview"]').click();
-      await page.waitForTimeout(2000);
+      // Wait for the SDK bundle to load + iframe to attach instead of a fixed
+      // delay; CI sometimes needs >2s for the iframe element to appear at all.
+      await page.locator("iframe").first().waitFor({
+        state: "attached",
+        timeout: 30000,
+      });
+      await page.waitForLoadState("networkidle");
 
       const iframe = page.frameLocator("iframe").first();
       await iframe
         .locator("[data-testid=cardNoInput]")
-        .waitFor({ state: "visible", timeout: 20000 });
+        .waitFor({ state: "visible", timeout: 45000 });
       await iframe
         .locator("[data-testid=cardNoInput]")
         .fill("4242424242424242");
@@ -126,7 +135,9 @@ test.describe("Homepage", () => {
       await iframe.locator("[data-testid=cvvInput]").fill("492");
 
       await page.locator('[data-button-for="payUSD100"]').click();
-      await expect(page.getByText("Payment Successful")).toBeAttached();
+      await expect(page.getByText("Payment Successful")).toBeAttached({
+        timeout: 30000,
+      });
     }
   });
 

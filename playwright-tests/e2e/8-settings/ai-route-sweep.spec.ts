@@ -66,9 +66,11 @@ test.describe("Dashboard route coverage sweep", () => {
   test("deep link all routes resolve without leaving /dashboard", async ({
     page,
   }) => {
-    test.setTimeout(60000);
+    // Sweeping ~40 routes with a per-route load + settle adds up; CI runners
+    // need significantly more headroom than the previous 60s budget.
+    test.setTimeout(180000);
     for (const route of routes) {
-      await page.goto(`/dashboard${route}`);
+      await page.goto(`/dashboard${route}`, { timeout: 30000 });
       await page.waitForLoadState("domcontentloaded");
       await page.waitForTimeout(800);
       expect(page.url()).toContain(`/dashboard${route}`);

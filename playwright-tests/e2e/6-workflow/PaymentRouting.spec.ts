@@ -40,6 +40,7 @@ test.describe("Volume based routing", () => {
     page,
     context,
   }) => {
+    test.setTimeout(60000);
     const homePage = new HomePage(page);
     const paymentRouting = new PaymentRouting(page);
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
@@ -59,6 +60,10 @@ test.describe("Volume based routing", () => {
     await paymentRouting.volumeBasedRoutingSetupButton.click();
 
     await expect(page).toHaveURL(/.*routing\/volume/);
+    // The configuration form mounts asynchronously after the route resolves;
+    // wait for network to settle so the prefilled name input has its default
+    // value before assertions read from it.
+    await page.waitForLoadState("networkidle");
 
     await expect(paymentRouting.volumeBasedRoutingHeader).toContainText(
       "Smart routing configuration",
@@ -69,7 +74,7 @@ test.describe("Volume based routing", () => {
     });
     await expect(
       page.locator('[placeholder="Enter Configuration Name"]'),
-    ).toHaveValue("Volume Based Routing-" + currentDate);
+    ).toHaveValue("Volume Based Routing-" + currentDate, { timeout: 15000 });
 
     await expect(page.locator('[name="description"]')).toContainText(
       "This is a volume based routing created at",
@@ -639,6 +644,10 @@ test.describe("Routing list - Manage rules", () => {
   });
 
   test("should duplicate and edit volume routing - update name and add a different connector", async ({ page, context }) => {
+    // Test chains: create active rule (UI flow) + 2 API calls + manage tab
+    // navigation + duplicate/edit/save flow + tab re-navigation. The previous
+    // 30s budget routinely tripped on the API-key creation alone.
+    test.setTimeout(120000);
     await createActiveVolumeRule(page, context, "Volume edit original", "stripe_test_volume_a");
 
     const merchantId = await getMerchantId(page);
@@ -647,20 +656,27 @@ test.describe("Routing list - Manage rules", () => {
     }
 
     await openManageRulesTab(page);
-    await page.locator('[data-table-location="History_tr1_td2"]').click();
+    const historyRow = page.locator('[data-table-location="History_tr1_td2"]');
+    await expect(historyRow).toBeVisible();
+    await historyRow.click();
     await page.waitForLoadState("networkidle");
 
     const duplicateBtn = page.getByRole('button', { name: 'Duplicate & Edit Configuration' });
-    await expect(duplicateBtn).toBeVisible({ timeout: 10000 });
+    await expect(duplicateBtn).toBeVisible({ timeout: 15000 });
     await duplicateBtn.click();
+    await page.waitForLoadState("networkidle");
 
     const nameInput = page.locator('[placeholder="Enter Configuration Name"]');
+    await expect(nameInput).toBeVisible();
     await nameInput.clear();
     await nameInput.fill("Volume edit updated");
 
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
+    await expect(volumeBasedConfiguration.connectorDropdown).toBeVisible();
     await volumeBasedConfiguration.connectorDropdown.click();
-    await page.locator('[value="stripe_test_volume_b"]').click();
+    const newConnectorOption = page.locator('[value="stripe_test_volume_b"]');
+    await expect(newConnectorOption).toBeVisible();
+    await newConnectorOption.click();
 
     await page.locator('[data-button-for="configureRule"]').click();
     await page.getByRole('button', { name: 'Save and Activate Rule' }).click();
