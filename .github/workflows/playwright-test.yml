@@ -202,22 +202,22 @@ jobs:
           shopt -s nullglob
           shard_count=0
           total_added=0
-          # MCR raw files are named `coverage-<id>.json` / `source-<id>.json`.
-          # Recurse into each shard download instead of assuming a fixed
-          # raw/ subdir, so monocart path-resolution quirks don't cost us
-          # the coverage data.
+          # MCR raw cache files are `coverage-<uid>.json` / `source-<uid>.json`
+          # and live under a `raw/` directory created by the raw reporter.
+          # We MUST scope to */raw/* — the artifact root also contains
+          # `coverage-summary.json` (json-summary reporter output), which
+          # matches the same name glob but has shape {summary,files} not
+          # {id,type,data}, and crashes mergeV8DataList at v8.js:183
+          # ("Cannot read properties of undefined (reading 'empty')").
           for shard_dir in coverage-shards/playwright-coverage-shard-*/; do
             shard_count=$((shard_count + 1))
             added=0
             while IFS= read -r -d '' f; do
-              # `cp -n` preserves uniqueness in the rare collision case;
-              # MCR uids are timestamp+random so collisions across shards
-              # are not expected, but the guard is cheap.
               cp -n "$f" "merged-raw/" && added=$((added + 1)) || true
-            done < <(find "${shard_dir}" -type f \( -name 'coverage-*.json' -o -name 'source-*.json' \) -print0)
+            done < <(find "${shard_dir}" -type f -path '*/raw/*' \( -name 'coverage-*.json' -o -name 'source-*.json' \) -print0)
             total_added=$((total_added + added))
             if [ "$added" -eq 0 ]; then
-              echo "⚠️  No raw V8 files found in ${shard_dir}"
+              echo "⚠️  No raw V8 files found under ${shard_dir}**/raw/"
             else
               echo "✓ ${shard_dir}: added ${added} raw file(s)"
             fi
