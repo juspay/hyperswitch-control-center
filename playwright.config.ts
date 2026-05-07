@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 import type { ReporterDescription } from "@playwright/test";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const mcrConfig = require("./mcr.config.js");
 
 function buildReporters(): ReporterDescription[] {
   const coverageReporter: ReporterDescription = [
@@ -8,23 +10,13 @@ function buildReporters(): ReporterDescription[] {
       // Coverage only - disable monocart's test report (redundant with built-in HTML)
       outputFile: "",
       coverage: {
-        entryFilter: (entry: { url?: string }): boolean => {
-          const url = entry.url || "";
-          if (!url) return false;
-          if (url.includes("node_modules")) return false;
-          if (url.includes("webpack-internal:")) return false;
-          return true;
-        },
-        sourceFilter: (sourcePath: string): boolean =>
-          sourcePath.includes("src/") && !sourcePath.includes("node_modules"),
+        ...mcrConfig,
+        // Preserve raw V8 data per shard so the merge-coverage CI job can
+        // re-aggregate across shards into one unified report.
         reports: [
-          ["v8", { outputFile: "index.html" }],
-          ["console-summary"],
-          ["markdown-summary", { metrics: ["bytes", "lines", "branches", "functions"] }],
-          ["json-summary", { outputFile: "coverage-summary.json" }],
+          ...mcrConfig.reports,
+          ["raw", { outputDir: "./coverage-report/raw" }],
         ],
-        name: "Hyperswitch E2E Coverage",
-        outputDir: "./coverage-report",
       },
     },
   ];

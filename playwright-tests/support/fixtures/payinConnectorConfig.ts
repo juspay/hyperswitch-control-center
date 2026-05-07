@@ -1818,28 +1818,6 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
     },
   },
 
-  affirm: {
-    label: "affirm",
-    fields: {
-      default: "test_value",
-      overrides: {
-        "Enter Connector label": "affirm_default",
-      },
-      fieldLabels: [
-        "API Key *",
-        "API Secret *",
-      ],
-    },
-    paymentSections: {
-      PayLater: {
-        label: "Pay Later",
-        methods: [
-          "affirm",
-        ],
-      },
-    },
-  },
-
   billwerk: {
     label: "billwerk",
     fields: {

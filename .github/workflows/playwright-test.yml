@@ -146,32 +146,113 @@ jobs:
         if: always()
         run: |
           if [ -f coverage-report/coverage-summary.md ]; then
-            echo "## 📊 Playwright Code Coverage" >> "$GITHUB_STEP_SUMMARY"
+            echo "## 📊 Playwright Code Coverage — Shard ${{ matrix.shard }}/3" >> "$GITHUB_STEP_SUMMARY"
+            echo "_Shard-scoped only. See the \`merge-coverage\` job for the unified suite report._" >> "$GITHUB_STEP_SUMMARY"
             cat coverage-report/coverage-summary.md >> "$GITHUB_STEP_SUMMARY"
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "_Full HTML report: download the \`playwright-coverage\` artifact below._" >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "⚠️ Coverage summary not generated (coverage-report/coverage-summary.md missing)." >> "$GITHUB_STEP_SUMMARY"
+            echo "⚠️ Coverage summary not generated for shard ${{ matrix.shard }} (coverage-report/coverage-summary.md missing)." >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Artifact - Failed Test Artifacts
         uses: actions/upload-artifact@v4
-        if: false #failure()
+        if: failure()
         with:
-          name: playwright-artifacts
+          name: playwright-artifacts-shard-${{ matrix.shard }}
           path: |
             test-results/**/*-failed-*
             test-results/**/*-retry*/
-            playwright-report/
             playwright-report/
           if-no-files-found: ignore
           retention-days: 7
 
       - name: Artifact - Playwright Coverage Report
         uses: actions/upload-artifact@v4
-        if: false #always()
+        if: always()
         with:
-          name: playwright-coverage
+          name: playwright-coverage-shard-${{ matrix.shard }}
           path: coverage-report/
           if-no-files-found: warn
           retention-days: 7
+
+  merge-coverage:
+    needs: playwright-tests
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 24
+
+      - name: Restore node_modules
+        id: node-modules-cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-node24-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm install --force
+
+      - name: Download all shard coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: playwright-coverage-shard-*
+          path: coverage-shards/
+
+      - name: Combine raw V8 data from each shard
+        run: |
+          mkdir -p merged-raw
+          shopt -s nullglob
+          shard_count=0
+          for shard_dir in coverage-shards/playwright-coverage-shard-*/; do
+            shard_count=$((shard_count + 1))
+            if [ -d "${shard_dir}raw" ]; then
+              # Each raw V8 file is uniquely named (test id + hash) so a flat
+              # copy across shards won't collide.
+              cp -a "${shard_dir}raw/." merged-raw/ 2>/dev/null || true
+            else
+              echo "⚠️  No raw/ dir in ${shard_dir} — that shard's coverage will be missing from the merge."
+            fi
+          done
+          raw_files=$(find merged-raw -type f | wc -l)
+          echo "Combined raw files: ${raw_files} (from ${shard_count} shard artifact(s))"
+          if [ "$raw_files" -eq 0 ]; then
+            echo "::warning::No raw coverage data found in any shard; merged report will be empty."
+          fi
+
+      - name: Generate merged coverage report
+        run: |
+          if [ -z "$(ls -A merged-raw 2>/dev/null)" ]; then
+            echo "Skipping mcr — merged-raw is empty."
+            exit 0
+          fi
+          npx mcr -c mcr.config.js -i merged-raw -o coverage-report-merged
+
+      - name: Publish merged coverage to job summary
+        if: always()
+        run: |
+          if [ -f coverage-report-merged/coverage-summary.md ]; then
+            echo "## 📊 Playwright Code Coverage — Merged (all shards)" >> "$GITHUB_STEP_SUMMARY"
+            cat coverage-report-merged/coverage-summary.md >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "_Full HTML report: download the \`playwright-coverage-merged\` artifact below._" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "⚠️ Merged coverage summary not generated (coverage-report-merged/coverage-summary.md missing)." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Artifact - Merged Coverage Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-coverage-merged
+          path: coverage-report-merged/
+          if-no-files-found: warn
+          retention-days: 14
