@@ -9,7 +9,7 @@ import { generateDateTimeString } from "./helper";
 import { SignInPage } from "./pages/auth/SignInPage";
 import { SignUpPage } from "./pages/auth/SignUpPage";
 import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
@@ -1283,8 +1283,18 @@ export async function generateCerts() {
   const certPath = path.join(tmpDir, 'cert.pem');
 
   // Generate key + self-signed cert
-  execSync(
-    `openssl req -x509 -newkey rsa:2048 -keyout ${keyPath} -out ${certPath} -days 1 -nodes -subj "/CN=test.local"`,
+  execFileSync(
+    'openssl',
+    [
+      'req',
+      '-x509',
+      '-newkey', 'rsa:2048',
+      '-keyout', keyPath,
+      '-out', certPath,
+      '-days', '1',
+      '-nodes',
+      '-subj', '/CN=test.local',
+    ],
     { stdio: 'ignore' }
   );
 
