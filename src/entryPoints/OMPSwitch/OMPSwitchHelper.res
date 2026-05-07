@@ -1,5 +1,6 @@
 open Typography
 open LogicUtils
+open OMPSwitchUtils
 
 module PlatformMerchantModalContent = {
   @react.component
@@ -383,7 +384,7 @@ module MerchantDropdownItem = {
 
     let validateInput = (merchantName: string) => {
       let errors = Dict.make()
-      let errorMessage = OMPSwitchUtils.validateOmpName(
+      let errorMessage = validateOmpName(
         ~name=merchantName,
         ~list=merchantList,
         ~entityLabel="Merchant",
@@ -497,29 +498,58 @@ module ProfileDropdownItem = {
     let setBusinessProfileRecoil =
       HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-    let getProfileList = async () => {
+
+    let getProfileListV1 = async () => {
       try {
-        let response = switch version {
-        | V1 => {
-            let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
-            await fetchDetails(url)
-          }
-        | V2 => {
-            let url = getURL(~entityName=V2(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
-            await fetchDetails(url, ~version=V2)
-          }
-        }
-        setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
+        let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+        let response = await fetchDetails(url)
+        setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
       } catch {
       | _ => {
-          setProfileList(_ => [OMPSwitchUtils.ompDefaultValue(profileId, "")])
+          setProfileList(_ => [ompDefaultValue(profileId, "")])
           showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
         }
       }
     }
+
+    let getProfileListV2 = async () => {
+      try {
+        let url = getURL(~entityName=V2(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+        let response = await fetchDetails(url, ~version=V2)
+        setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
+      } catch {
+      | _ => {
+          setProfileList(_ => [ompDefaultValue(profileId, "")])
+          showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
+        }
+      }
+    }
+
+    let updateProfileNameV1 = async (~body) => {
+      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
+      let response = await updateDetails(url, body, Post)
+      setBusinessProfileRecoil(_ =>
+        response->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
+      )
+    }
+
+    let updateProfileNameV2 = async (~body) => {
+      let url = getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Put, ~id=Some(profileId))
+      let response = await updateDetails(url, body, Put, ~version=V2)
+      setBusinessProfileRecoil(_ =>
+        response->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
+      )
+    }
+
+    let getProfileList = async () => {
+      switch version {
+      | V1 => await getProfileListV1()
+      | V2 => await getProfileListV2()
+      }
+    }
     let validateInput = (newProfileName: string) => {
       let errors = Dict.make()
-      let errorMessage = OMPSwitchUtils.validateOmpName(
+      let errorMessage = validateOmpName(
         ~name=newProfileName,
         ~list=profileList,
         ~entityLabel="Profile",
@@ -539,14 +569,10 @@ module ProfileDropdownItem = {
     let onSubmit = async (newProfileName: string) => {
       try {
         let body = [("profile_name", newProfileName->JSON.Encode.string)]->getJsonFromArrayOfJson
-        let accountUrl = switch version {
-        | V1 => getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-        | V2 => getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Put, ~id=Some(profileId))
+        switch version {
+        | V1 => await updateProfileNameV1(~body)
+        | V2 => await updateProfileNameV2(~body)
         }
-        let res = await updateDetails(accountUrl, body, version == V2 ? Put : Post)
-        setBusinessProfileRecoil(_ =>
-          res->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
-        )
         let _ = await getProfileList()
         showToast(~message="Updated Profile name!", ~toastType=ToastSuccess)
       } catch {
@@ -646,7 +672,7 @@ let generateDropdownOptionsCustomComponent: (
       ),
       optGroup: {
         switch item.type_ {
-        | Some(val) => val->OMPSwitchUtils.ompTypeHeading->String.toUpperCase
+        | Some(val) => val->ompTypeHeading->String.toUpperCase
         | None => ""
         }
       },
@@ -719,7 +745,7 @@ let merchantTypeCardInput = {
   (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
     let currentValue = input.value->getStringFromJson("")
     <div className="flex flex-col gap-3 w-full">
-      {OMPSwitchUtils.merchantTypeOptions
+      {merchantTypeOptions
       ->Array.map(item => {
         let valueStr = item.value
         let isSelected = currentValue == valueStr

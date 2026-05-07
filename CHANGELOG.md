@@ -3,6 +3,29 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.07.0
+
+### Features
+
+- Migrate SelectBox to Blend Design System ([#4532](https://github.com/juspay/hyperswitch-control-center/pull/4532)) ([`f49912f`](https://github.com/juspay/hyperswitch-control-center/commit/f49912ffde6daa5206073691102b7b712a2ecede))
+- Recon engine add bulk operations in `transactions` and `transformed_entries` ([#4258](https://github.com/juspay/hyperswitch-control-center/pull/4258)) ([`48d121b`](https://github.com/juspay/hyperswitch-control-center/commit/48d121be81ff4aa644d121b547707a9a46c81a64))
+
+### Bug Fixes
+
+- Align selected merchant name in merchant switch dropdown ([#4778](https://github.com/juspay/hyperswitch-control-center/pull/4778)) ([`db709b3`](https://github.com/juspay/hyperswitch-control-center/commit/db709b31faf5aaafbbee94d38b2f43449c0b267c))
+
+### Performance
+
+- Remove unused react-pdf dependency ([#4571](https://github.com/juspay/hyperswitch-control-center/pull/4571)) ([`601dad5`](https://github.com/juspay/hyperswitch-control-center/commit/601dad504e016fc5a0d704309d91e86b78421140))
+
+### Refactors
+
+- Extract V1/V2 functions for API URL selection ([#4526](https://github.com/juspay/hyperswitch-control-center/pull/4526)) ([`1424816`](https://github.com/juspay/hyperswitch-control-center/commit/142481672f3e165daa885d399fe0a96eb6ff6e6b))
+
+**Full Changelog:** [`2026.05.04.1...2026.05.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.04.1...2026.05.07.0)
+
+- - -
+
 ## 2026.05.04.1
 
 ### Miscellaneous Tasks
