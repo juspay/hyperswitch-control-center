@@ -1,3 +1,5 @@
+let defaultEmailLogoUrl = "https://app.hyperswitch.io/email-assets/HyperswitchLogo.png"
+
 let appendVersionParam = (url, ~version) => {
   switch version {
   | Some(v) if v->LogicUtils.isNonEmptyString => `${url}?version=${v}`
@@ -61,10 +63,7 @@ let buildEmailConfigObject = (
   emailConfig: HyperSwitchConfigTypes.emailConfig,
   ~emailLogoUrl: option<string>,
 ): HyperSwitchConfigTypes.emailConfig => {
-  let resolvedUrl = switch emailLogoUrl {
-  | Some(url) => url
-  | None => "https://app.hyperswitch.io/email-assets/HyperswitchLogo.png"
-  }
+  let resolvedUrl = emailLogoUrl->Option.getOr(defaultEmailLogoUrl)
 
   {
     entity_name: emailConfig.entity_name,

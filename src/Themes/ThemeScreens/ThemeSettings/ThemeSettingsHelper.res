@@ -223,8 +223,7 @@ module IconSettings = {
   @react.component
   let make = (
     ~assets: ThemeTypes.assets,
-    ~forDashboardTheme=true,
-    ~forEmailTheme=false,
+    ~mode: [#Dashboard | #Email]=#Dashboard,
     ~onLogoSelect: JSON.t => unit=_ => (),
     ~onLogoRemove: unit => unit=() => (),
     ~onFaviconSelect: JSON.t => unit=_ => (),
@@ -247,48 +246,46 @@ module IconSettings = {
     let handleFileChange = (onSelect, ev) =>
       ThemeFeatureUtils.getFileFromEvent(ev)->Option.forEach(onSelect)
 
-    <>
-      <RenderIf condition=forDashboardTheme>
-        <div className="flex flex-col gap-4">
-          <div className={`${body.lg.semibold}`}> {React.string("Icons")} </div>
-          <div className="space-y-4">
-            <AssetField
-              label="Logo"
-              displayUrl={getDisplayUrl(assets.logo)}
-              onFileChange={ev => handleFileChange(onLogoSelect, ev)}
-              onRemove=onLogoRemove
-              accept=".png,.jpg,.jpeg"
-              inputId="logoFileInput"
-              themeConfigVersion
-            />
-            <AssetField
-              label="Favicon"
-              displayUrl={getDisplayUrl(assets.favicon)}
-              onFileChange={ev => handleFileChange(onFaviconSelect, ev)}
-              onRemove=onFaviconRemove
-              accept=".png,.ico,.jpg,.jpeg"
-              inputId="faviconFileInput"
-              themeConfigVersion
-            />
-          </div>
+    switch mode {
+    | #Dashboard =>
+      <div className="flex flex-col gap-4">
+        <div className={`${body.lg.semibold}`}> {React.string("Icons")} </div>
+        <div className="space-y-4">
+          <AssetField
+            label="Logo"
+            displayUrl={getDisplayUrl(assets.logo)}
+            onFileChange={ev => handleFileChange(onLogoSelect, ev)}
+            onRemove=onLogoRemove
+            accept=".png,.jpg,.jpeg"
+            inputId="logoFileInput"
+            themeConfigVersion
+          />
+          <AssetField
+            label="Favicon"
+            displayUrl={getDisplayUrl(assets.favicon)}
+            onFileChange={ev => handleFileChange(onFaviconSelect, ev)}
+            onRemove=onFaviconRemove
+            accept=".png,.ico,.jpg,.jpeg"
+            inputId="faviconFileInput"
+            themeConfigVersion
+          />
         </div>
-      </RenderIf>
-      <RenderIf condition=forEmailTheme>
-        <div className="flex flex-col gap-4">
-          <div className={`${body.lg.semibold}`}> {React.string("Email Icons")} </div>
-          <div className="space-y-4">
-            <AssetField
-              label="Email Logo"
-              displayUrl={getDisplayUrl(assets.emailLogo)}
-              onFileChange={ev => handleFileChange(onEmailLogoSelect, ev)}
-              onRemove=onEmailLogoRemove
-              accept=".png,.jpg,.jpeg"
-              inputId="emailLogoFileInput"
-              themeConfigVersion
-            />
-          </div>
+      </div>
+    | #Email =>
+      <div className="flex flex-col gap-4">
+        <div className={`${body.lg.semibold}`}> {React.string("Email Icons")} </div>
+        <div className="space-y-4">
+          <AssetField
+            label="Email Logo"
+            displayUrl={getDisplayUrl(assets.emailLogo)}
+            onFileChange={ev => handleFileChange(onEmailLogoSelect, ev)}
+            onRemove=onEmailLogoRemove
+            accept=".png,.jpg,.jpeg"
+            inputId="emailLogoFileInput"
+            themeConfigVersion
+          />
         </div>
-      </RenderIf>
-    </>
+      </div>
+    }
   }
 }

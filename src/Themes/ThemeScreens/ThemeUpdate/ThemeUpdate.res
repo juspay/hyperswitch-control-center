@@ -162,6 +162,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
         <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
           <div className="flex flex-col gap-2">
             <ThemeSettingsHelper.IconSettings
+              mode={#Dashboard}
               assets
               onLogoSelect={file => setAssets(prev => {...prev, logo: Some(File(file))})}
               onLogoRemove={() => setAssets(prev => {...prev, logo: None})}
@@ -190,8 +191,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
         <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
           <div className="flex flex-col gap-4">
             <ThemeSettingsHelper.IconSettings
-              forDashboardTheme=false
-              forEmailTheme=true
+              mode=#Email
               assets
               onEmailLogoSelect={file => setAssets(prev => {...prev, emailLogo: Some(File(file))})}
               onEmailLogoRemove={() => setAssets(prev => {...prev, emailLogo: None})}

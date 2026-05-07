@@ -573,12 +573,17 @@ module ThemeUploadAssetsModal = {
       <PageLoaderWrapper screenState={screenState} sectionHeight="h-20-vh">
         <div className="flex flex-col gap-2 p-3">
           <IconSettings
-            forEmailTheme=true
+            mode=#Dashboard
             assets
             onLogoSelect={file => setAssets(prev => {...prev, logo: Some(File(file))})}
             onLogoRemove={() => setAssets(prev => {...prev, logo: None})}
             onFaviconSelect={file => setAssets(prev => {...prev, favicon: Some(File(file))})}
             onFaviconRemove={() => setAssets(prev => {...prev, favicon: None})}
+            themeConfigVersion=None
+          />
+          <IconSettings
+            mode=#Email
+            assets
             onEmailLogoSelect={file => setAssets(prev => {...prev, emailLogo: Some(File(file))})}
             onEmailLogoRemove={() => setAssets(prev => {...prev, emailLogo: None})}
             themeConfigVersion=None
