@@ -116,13 +116,14 @@ test.describe("Homepage", () => {
       ).toContainText("Setup Checkout");
 
       await page.locator('[data-button-for="showPreview"]').click();
-      // Wait for the SDK bundle to load + iframe to attach instead of a fixed
-      // delay; CI sometimes needs >2s for the iframe element to appear at all.
+      // SDK preview triggers a remote bundle fetch + iframe handshake; CI cold
+      // start can push this past 30s. Wait for network to settle before
+      // probing for the iframe element.
+      await page.waitForLoadState("networkidle");
       await page.locator("iframe").first().waitFor({
         state: "attached",
         timeout: 30000,
       });
-      await page.waitForLoadState("networkidle");
 
       const iframe = page.frameLocator("iframe").first();
       await iframe

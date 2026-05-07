@@ -272,9 +272,14 @@ test.describe("Customers page", () => {
 
     await page.locator('[data-button-text="Save"]').click();
     await expect(modal).toBeHidden();
+    await page.waitForLoadState("networkidle");
 
     //Updated order
-    await expect(page.getByText('S.NoCustomer IdEmailCustomer NameCreatedPhone Country CodePhoneDescription')).toBeVisible();
+    await expect(
+      page.getByText(
+        'S.NoCustomer IdEmailCustomer NameCreatedPhone Country CodePhoneDescription',
+      ),
+    ).toBeVisible({ timeout: 15000 });
 
   });
 

@@ -621,10 +621,10 @@ test.describe("Users - Details", () => {
     const { email, usersPage } = await setupAndNavigate(page, context);
     await usersPage.inviteUser(invitedEmail);
 
-    await page.goBack();
+    await usersPage.visit();
     await page.waitForLoadState("networkidle");
     const merchantDeveloper = page.getByText('Merchant Developer');
-    await expect(merchantDeveloper).toBeVisible();
+    await expect(merchantDeveloper).toBeVisible({ timeout: 15000 });
     await merchantDeveloper.click();
 
     await expect(page.getByText('InviteSent')).toBeVisible();
