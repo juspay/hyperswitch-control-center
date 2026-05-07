@@ -139,7 +139,7 @@ module BlendMultiSelect = {
       text: "Apply",
       onClick: _blendValues => {
         hasPendingChanges.current = false
-        let json = pendingValues->Array.map(JSON.Encode.string)->JSON.Encode.array
+        let json = pendingValues->getJsonFromArrayOfString
         input.onChange(json->Identity.jsonToFormReactEvent)
         form.submit()->ignore
       },
@@ -147,7 +147,7 @@ module BlendMultiSelect = {
 
     let menuWidth =
       dropdownCustomWidth
-      ->Option.flatMap(w => w->String.replace("px", "")->Int.fromString)
+      ->Option.flatMap(w => w->String.replace("px", "")->getOptionIntFromString)
       ->Option.getOr(300)
     let blendItems = makeFilterItems(options, ~selectedValues=pendingValues)
     <MultiSelectBindings

@@ -156,13 +156,13 @@ test.describe("Refunds List Page", () => {
 
       // Wait for filter dropdown to open and verify filter options
       await expect(
-        page.getByRole("menuitem").filter({ hasText: "Connector" }),
+        page.locator('[data-dropdown-value="Connector"]'),
       ).toBeVisible();
       await expect(
-        page.getByRole("menuitem").filter({ hasText: "Currency" }),
+        page.locator('[data-dropdown-value="Currency"]'),
       ).toBeVisible();
       await expect(
-        page.getByRole("menuitem").filter({ hasText: "Refund Status" }),
+        page.locator('[data-dropdown-value="Refund Status"]'),
       ).toBeVisible();
     }
   });
