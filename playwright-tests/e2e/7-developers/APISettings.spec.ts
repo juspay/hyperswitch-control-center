@@ -390,7 +390,6 @@ test.describe("API Key Management", () => {
 
     await expect(page.getByText(keyName)).toBeVisible();
 
-    console.log(expectedDateLabel);
     const keyRow = page.getByRole("row").filter({ hasText: keyName });
     await expect(keyRow).not.toContainText("Never");
     await expect(keyRow).toContainText(expectedDateLabel);

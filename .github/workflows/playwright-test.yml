@@ -32,11 +32,27 @@ jobs:
         with:
           node-version: 24
 
+      - name: Cache node_modules
+        id: node-modules-cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-node24-${{ hashFiles('package-lock.json') }}
+
       - name: Install dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: npm install --force
 
       - name: Build application
         run: npm run build:test
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-dist
+          path: dist/
+          if-no-files-found: error
+          retention-days: 1
 
       - name: Cache Playwright browsers
         id: playwright-cache
@@ -75,8 +91,22 @@ jobs:
         with:
           node-version: 24
 
+      - name: Restore node_modules
+        id: node-modules-cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-node24-${{ hashFiles('package-lock.json') }}
+
       - name: Install dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: npm install --force
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-dist
+          path: dist/
 
       - name: Restore Playwright browsers
         uses: actions/cache@v4
