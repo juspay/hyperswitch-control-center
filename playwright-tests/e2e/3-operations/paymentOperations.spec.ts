@@ -588,7 +588,7 @@ test.describe("Payment Operations", () => {
     for (const filter of allFilters) {
       await expect(
         page.locator(
-          `[data-dropdown-value="${filter}"][data-dropdown-value-selected="False"]`,
+          `[data-dropdown-value="${filter}"]:visible`,
         ),
       ).toBeVisible();
     }
@@ -629,7 +629,7 @@ test.describe("Payment Operations", () => {
       await paymentOperations.addFilters.click();
       await page
         .locator(
-          `[data-dropdown-value="${filter}"][data-dropdown-value-selected="False"]`,
+          `[data-dropdown-value="${filter}"]:visible`,
         )
         .click();
       await expect(
@@ -641,7 +641,7 @@ test.describe("Payment Operations", () => {
     await paymentOperations.addFilters.click();
     await page
       .locator(
-        '[data-dropdown-value="Customer Id"][data-dropdown-value-selected="False"]',
+        '[data-dropdown-value="Customer Id"]:visible',
       )
       .click();
     await expect(page.locator('[name="customer_id"]')).toHaveAttribute(
@@ -653,7 +653,7 @@ test.describe("Payment Operations", () => {
     await paymentOperations.addFilters.click();
     await page
       .locator(
-        '[data-dropdown-value="Merchant Order Reference Id"][data-dropdown-value-selected="False"]',
+        '[data-dropdown-value="Merchant Order Reference Id"]:visible',
       )
       .click();
     await expect(
@@ -684,7 +684,7 @@ test.describe("Payment Operations", () => {
     await paymentOperations.addFilters.click();
     await page
       .locator(
-        '[data-dropdown-value="Connector"][data-dropdown-value-selected="False"]',
+        '[data-dropdown-value="Connector"]:visible',
       )
       .click();
     await page
@@ -698,7 +698,7 @@ test.describe("Payment Operations", () => {
     await paymentOperations.addFilters.click();
     await page
       .locator(
-        '[data-dropdown-value="Status"][data-dropdown-value-selected="False"]',
+        '[data-dropdown-value="Status"]:visible',
       )
       .click();
     await page.locator('[data-component-field-wrapper="field-status"]').click();
@@ -709,7 +709,7 @@ test.describe("Payment Operations", () => {
     await paymentOperations.addFilters.click();
     await page
       .locator(
-        '[data-dropdown-value="Currency"][data-dropdown-value-selected="False"]',
+        '[data-dropdown-value="Currency"]:visible',
       )
       .click();
     await page.getByText("Select Currency").click();

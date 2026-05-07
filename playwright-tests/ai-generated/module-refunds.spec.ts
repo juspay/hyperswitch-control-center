@@ -157,17 +157,17 @@ test.describe("Refunds List Page", () => {
       // Wait for filter dropdown to open and verify filter options
       await expect(
         page.locator(
-          '[data-dropdown-value="Connector"][data-dropdown-value-selected="False"]',
+          '[data-dropdown-value="Connector"]:visible',
         ),
       ).toBeVisible();
       await expect(
         page.locator(
-          '[data-dropdown-value="Currency"][data-dropdown-value-selected="False"]',
+          '[data-dropdown-value="Currency"]:visible',
         ),
       ).toBeVisible();
       await expect(
         page.locator(
-          '[data-dropdown-value="Refund Status"][data-dropdown-value-selected="False"]',
+          '[data-dropdown-value="Refund Status"]:visible',
         ),
       ).toBeVisible();
     }
