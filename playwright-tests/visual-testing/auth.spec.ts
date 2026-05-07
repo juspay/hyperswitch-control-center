@@ -232,7 +232,7 @@ test.describe("Visual Testing - Auth Pages", () => {
     });
 
     await page.getByText("Use recovery code").click();
-    await expect(page.getByText("Enter a 8-digit recovery code")).toBeVisible();
+    await expect(page.getByText("Enter an 8-digit recovery code")).toBeVisible();
 
     await expect(page).toHaveScreenshot(
       "auth-2fa-recovery-code-input-page.png",
