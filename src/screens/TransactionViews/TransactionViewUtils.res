@@ -76,7 +76,7 @@ let getViewTypeFromString = (view, entity) => {
   }
 }
 
-let getAllViewsString = obj => {
+let buildAllStatusFilterString = obj => {
   open LogicUtils
   obj
   ->getDictFromJsonObject
@@ -85,11 +85,11 @@ let getAllViewsString = obj => {
   ->Array.joinWith(",")
 }
 
-let getViewsString = (view, obj, entity) => {
+let getViewFilterValue = (view, obj, entity) => {
   switch entity {
   | Orders =>
     switch view {
-    | All => getAllViewsString(obj)
+    | All => buildAllStatusFilterString(obj)
     | Succeeded => "succeeded"
     | Failed => "failed"
     | Dropoffs => "requires_payment_method"
@@ -100,7 +100,7 @@ let getViewsString = (view, obj, entity) => {
     }
   | Refunds =>
     switch view {
-    | All => getAllViewsString(obj)
+    | All => buildAllStatusFilterString(obj)
     | Succeeded => "success"
     | Failed => "failure"
     | Pending => "pending"
@@ -108,7 +108,7 @@ let getViewsString = (view, obj, entity) => {
     }
   | Disputes =>
     switch view {
-    | All => getAllViewsString(obj)
+    | All => buildAllStatusFilterString(obj)
     | Succeeded => "dispute_won"
     | Failed => "dispute_lost"
     | Pending => "dispute_opened"
@@ -116,7 +116,7 @@ let getViewsString = (view, obj, entity) => {
     }
   | Payouts =>
     switch view {
-    | All => getAllViewsString(obj)
+    | All => buildAllStatusFilterString(obj)
     | Succeeded => "success"
     | Failed => "failed"
     | Cancelled => "cancelled"
@@ -127,7 +127,7 @@ let getViewsString = (view, obj, entity) => {
   }
 }
 
-let getAllViewCount = obj => {
+let calculateTotalViewCount = obj => {
   open LogicUtils
   let countArray =
     obj
@@ -142,11 +142,11 @@ let getAllViewCount = obj => {
 let getViewCount = (view, obj, entity) => {
   open LogicUtils
   switch view {
-  | All => getAllViewCount(obj)
+  | All => calculateTotalViewCount(obj)
   | _ =>
     obj
     ->getDictFromJsonObject
     ->getDictfromDict("status_with_count")
-    ->getInt(view->getViewsString(obj, entity), 0)
+    ->getInt(view->getViewFilterValue(obj, entity), 0)
   }
 }

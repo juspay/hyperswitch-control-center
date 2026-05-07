@@ -3,6 +3,74 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.04.1
+
+### Miscellaneous Tasks
+
+- Changes vault retrieve payment method endpoint ([#4775](https://github.com/juspay/hyperswitch-control-center/pull/4775)) ([`2629fc2`](https://github.com/juspay/hyperswitch-control-center/commit/2629fc2c687a217b24185670503fad8d3d5ac57e))
+
+**Full Changelog:** [`2026.05.04.0...2026.05.04.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.04.0...2026.05.04.1)
+
+- - -
+
+## 2026.05.04.0
+
+### Miscellaneous Tasks
+
+- Updated wasm for trulayer payment method ([#4776](https://github.com/juspay/hyperswitch-control-center/pull/4776)) ([`812a7f9`](https://github.com/juspay/hyperswitch-control-center/commit/812a7f9b04609f1f85194f784cb06c214480193a))
+
+**Full Changelog:** [`2026.05.01.0...2026.05.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.01.0...2026.05.04.0)
+
+- - -
+
+## 2026.05.01.0
+
+### Features
+
+- Migrate Tabs to Blend Design System ([#4500](https://github.com/juspay/hyperswitch-control-center/pull/4500)) ([`9774130`](https://github.com/juspay/hyperswitch-control-center/commit/9774130099fbd850d2489645e500530aac7824ce))
+
+### Bug Fixes
+
+- Add parsing of card_network from network token dict ([#4765](https://github.com/juspay/hyperswitch-control-center/pull/4765)) ([`04d92ea`](https://github.com/juspay/hyperswitch-control-center/commit/04d92ea994a325474281e0bfa1ed8859b79ccc78))
+
+**Full Changelog:** [`2026.04.29.0...2026.05.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.29.0...2026.05.01.0)
+
+- - -
+
+## 2026.04.29.0
+
+### Features
+
+- Add theme update page ([#4499](https://github.com/juspay/hyperswitch-control-center/pull/4499)) ([`2396c33`](https://github.com/juspay/hyperswitch-control-center/commit/2396c33b534187e2ad5d504db3a3fa560f69de98))
+- Sidebar values refactor for permissions ([#4010](https://github.com/juspay/hyperswitch-control-center/pull/4010)) ([`795a27a`](https://github.com/juspay/hyperswitch-control-center/commit/795a27abdd5bb072fbd809725865abf386298af7))
+
+### Miscellaneous Tasks
+
+- [iMerchant Solutions] Add WASM for iMerchant Solutions Connector ([#4764](https://github.com/juspay/hyperswitch-control-center/pull/4764)) ([`84dcd16`](https://github.com/juspay/hyperswitch-control-center/commit/84dcd1606f2143f1e1874a29a4c6a6b6b734a176))
+- Function name and variable fixes ([#4756](https://github.com/juspay/hyperswitch-control-center/pull/4756)) ([`b6eca37`](https://github.com/juspay/hyperswitch-control-center/commit/b6eca37a1529012dec9ece56d1ff753503c76c20))
+
+**Full Changelog:** [`2026.04.28.0...2026.04.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.28.0...2026.04.29.0)
+
+- - -
+
+## 2026.04.28.0
+
+### Bug Fixes
+
+- Pull_mechanism toggle should have true as the default value ([#4750](https://github.com/juspay/hyperswitch-control-center/pull/4750)) ([`2475827`](https://github.com/juspay/hyperswitch-control-center/commit/2475827acdf3a0b1befe59ae0e5d6505fe720103))
+
+### Refactors
+
+- Restrict production access CTA to Orchestration V1 only ([#4610](https://github.com/juspay/hyperswitch-control-center/pull/4610)) ([`2b04130`](https://github.com/juspay/hyperswitch-control-center/commit/2b0413031b4dc72573a1a9c8801052311abd24a6))
+
+### Miscellaneous Tasks
+
+- Apply recon engine permissions based on feature flag ([#4759](https://github.com/juspay/hyperswitch-control-center/pull/4759)) ([`34405a2`](https://github.com/juspay/hyperswitch-control-center/commit/34405a24ed4ced185c5c826b6c4347957b3de05c))
+
+**Full Changelog:** [`2026.04.27.0...2026.04.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.04.27.0...2026.04.28.0)
+
+- - -
+
 ## 2026.04.27.0
 
 ### Miscellaneous Tasks
