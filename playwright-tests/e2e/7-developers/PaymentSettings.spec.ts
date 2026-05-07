@@ -169,7 +169,7 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.webhookConfigurationHeader).toBeVisible();
     });
 
-    // TODO: Assert additonal fields for acquirer config settings are visible and can be interacted with.
+    // TODO: Assert additional fields for acquirer config settings are visible and can be interacted with.
   });
 
   test.describe("3DS Tab", () => {
