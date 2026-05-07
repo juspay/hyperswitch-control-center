@@ -13,9 +13,14 @@ function buildReporters(): ReporterDescription[] {
         ...mcrConfig,
         // Preserve raw V8 data per shard so the merge-coverage CI job can
         // re-aggregate across shards into one unified report.
+        // NOTE: monocart resolves this `outputDir` against the parent
+        // coverage outputDir (see node_modules/monocart-coverage-reports/
+        // lib/reports/raw.js:84 -> path.resolve(parent, this)). Pass a
+        // bare segment ("raw"), not a "./coverage-report/raw" prefix, or
+        // it nests as coverage-report/coverage-report/raw.
         reports: [
           ...mcrConfig.reports,
-          ["raw", { outputDir: "./coverage-report/raw" }],
+          ["raw", { outputDir: "raw" }],
         ],
       },
     },

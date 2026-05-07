@@ -142,17 +142,6 @@ jobs:
           report-path: "./ctrf/*.json"
           github-report: true
 
-      - name: Publish coverage to job summary
-        if: always()
-        run: |
-          if [ -f coverage-report/coverage-summary.md ]; then
-            echo "## 📊 Playwright Code Coverage — Shard ${{ matrix.shard }}/3" >> "$GITHUB_STEP_SUMMARY"
-            echo "_Shard-scoped only. See the \`merge-coverage\` job for the unified suite report._" >> "$GITHUB_STEP_SUMMARY"
-            cat coverage-report/coverage-summary.md >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "⚠️ Coverage summary not generated for shard ${{ matrix.shard }} (coverage-report/coverage-summary.md missing)." >> "$GITHUB_STEP_SUMMARY"
-          fi
-
       - name: Artifact - Failed Test Artifacts
         uses: actions/upload-artifact@v4
         if: failure()
@@ -212,19 +201,29 @@ jobs:
           mkdir -p merged-raw
           shopt -s nullglob
           shard_count=0
+          total_added=0
+          # MCR raw files are named `coverage-<id>.json` / `source-<id>.json`.
+          # Recurse into each shard download instead of assuming a fixed
+          # raw/ subdir, so monocart path-resolution quirks don't cost us
+          # the coverage data.
           for shard_dir in coverage-shards/playwright-coverage-shard-*/; do
             shard_count=$((shard_count + 1))
-            if [ -d "${shard_dir}raw" ]; then
-              # Each raw V8 file is uniquely named (test id + hash) so a flat
-              # copy across shards won't collide.
-              cp -a "${shard_dir}raw/." merged-raw/ 2>/dev/null || true
+            added=0
+            while IFS= read -r -d '' f; do
+              # `cp -n` preserves uniqueness in the rare collision case;
+              # MCR uids are timestamp+random so collisions across shards
+              # are not expected, but the guard is cheap.
+              cp -n "$f" "merged-raw/" && added=$((added + 1)) || true
+            done < <(find "${shard_dir}" -type f \( -name 'coverage-*.json' -o -name 'source-*.json' \) -print0)
+            total_added=$((total_added + added))
+            if [ "$added" -eq 0 ]; then
+              echo "⚠️  No raw V8 files found in ${shard_dir}"
             else
-              echo "⚠️  No raw/ dir in ${shard_dir} — that shard's coverage will be missing from the merge."
+              echo "✓ ${shard_dir}: added ${added} raw file(s)"
             fi
           done
-          raw_files=$(find merged-raw -type f | wc -l)
-          echo "Combined raw files: ${raw_files} (from ${shard_count} shard artifact(s))"
-          if [ "$raw_files" -eq 0 ]; then
+          echo "Combined ${total_added} raw file(s) from ${shard_count} shard artifact(s)"
+          if [ "$total_added" -eq 0 ]; then
             echo "::warning::No raw coverage data found in any shard; merged report will be empty."
           fi
 
@@ -234,7 +233,12 @@ jobs:
             echo "Skipping mcr — merged-raw is empty."
             exit 0
           fi
-          npx mcr -c mcr.config.js -i merged-raw -o coverage-report-merged
+          # `merge` subcommand is required: without it the CLI just prints
+          # help (see node_modules/monocart-coverage-reports/lib/cli.js
+          # ~L237 — empty positional command short-circuits to outputHelp).
+          # CLI flags override config-file values (index.js L258-262), so
+          # -o here wins over the outputDir set in mcr.config.js.
+          npx mcr merge -c mcr.config.js -i merged-raw -o coverage-report-merged
 
       - name: Publish merged coverage to job summary
         if: always()
@@ -255,4 +259,4 @@ jobs:
           name: playwright-coverage-merged
           path: coverage-report-merged/
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 7
