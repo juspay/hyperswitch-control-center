@@ -6,7 +6,7 @@ let make = (~previewOnly=false) => {
 
   let fetchOrdersHook = OrdersHook.useFetchOrdersHook()
   let fetchAnalyticsOrdersHook = AnalyticsOrdersHook.useFetchAnalyticsOrdersHook()
-  let {devOpensearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {devOpensearch, savedViews} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
@@ -193,7 +193,9 @@ let make = (~previewOnly=false) => {
       customLeftView={<SearchBarFilter
         placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
       />}
-      customFilterActions={<SavedViewsComponent version entity=SavedViewTypes.Payment />}
+      customFilterActions={savedViews
+        ? <SavedViewsComponent version entity=SavedViewTypes.Payment />
+        : React.null}
       entityName={switch version {
       | V1 => V1(ORDER_FILTERS)
       | V2 => V2(V2_ORDER_FILTERS)

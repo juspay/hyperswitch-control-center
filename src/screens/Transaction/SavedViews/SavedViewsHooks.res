@@ -15,11 +15,11 @@ let useFetchSavedViews = (~entity, ~version) => {
         ~methodType=Get,
         ~queryParameters=Some(SavedViewsUtils.savedViewsQueryParam(entity)),
       )
-      let res = await fetchDetails(url, ~version)
-      let mappedRes = res->SavedViewsUtils.savedViewsResponseMapper(entity)
-      setSavedViews(_ => mappedRes.views)
+      let response = await fetchDetails(url, ~version)
+      let parsedResponse = response->SavedViewsUtils.savedViewsResponseMapper(entity)
+      setSavedViews(_ => parsedResponse.views)
       switch setViewCount {
-      | Some(setCount) => setCount(_ => mappedRes.count)
+      | Some(setCount) => setCount(_ => parsedResponse.count)
       | None => ()
       }
     } catch {
@@ -45,7 +45,7 @@ let useDeleteSavedView = (~entity, ~fetchSavedViews) => {
       showToast(~message=`'${viewName}' has been deleted successfully!`, ~toastType=ToastSuccess)
 
       switch onSuccess {
-      | Some(cb) => cb()
+      | Some(callback) => callback()
       | None => ()
       }
 
@@ -77,7 +77,7 @@ let useRenameSavedView = (~entity, ~version, ~fetchSavedViews) => {
       showToast(~message=`View renamed to '${newName}' successfully!`, ~toastType=ToastSuccess)
 
       switch onSuccess {
-      | Some(cb) => cb()
+      | Some(callback) => callback()
       | None => ()
       }
 
@@ -109,8 +109,8 @@ let useCreateSavedView = (~entity, ~version, ~onViewsUpdated, ~setShowModal) => 
         ~version,
       )
       let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
-      let res = await updateDetails(url, payload, Post)
-      onViewsUpdated(res, Some(trimmedName))
+      let response = await updateDetails(url, payload, Post)
+      onViewsUpdated(response, Some(trimmedName))
       showToast(~message=`New View '${trimmedName}' created successfully!`, ~toastType=ToastSuccess)
       setShowModal(_ => false)
     } catch {
@@ -146,8 +146,8 @@ let useOverwriteSavedView = (~entity, ~version, ~onViewsUpdated, ~setShowModal, 
           ~version,
         )
         let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
-        let res = await updateDetails(url, payload, Post)
-        onViewsUpdated(res, Some(viewToOverwrite))
+        let response = await updateDetails(url, payload, Post)
+        onViewsUpdated(response, Some(viewToOverwrite))
         showToast(
           ~message=`'${viewToOverwrite}' has been overwritten successfully!`,
           ~toastType=ToastSuccess,
