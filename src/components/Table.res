@@ -764,30 +764,29 @@ let make = (
     rowArr
     ->Array.mapWithIndex((item: array<cell>, rowIndex) => {
       let actualIndex = offset + rowIndex
-      let rowDataItem = switch actualData {
-      | Some(data) => data->Array.get(actualIndex)->Option.getOr(Nullable.null)
-      | None => Nullable.null
-      }
+      let rowDataItem: option<'t> =
+        actualData->Option.flatMap(data =>
+          data->Array.get(actualIndex)->Option.flatMap(n => n->Nullable.toOption)
+        )
 
-      // Check if this row is visited using utility function
-      let isVisited = switch visitedRows {
-      | Some(config) => TableUtils.isRowVisited(config, rowDataItem)
-      | None => false
-      }
+      let isVisited =
+        visitedRows->Option.mapOr(false, config => TableUtils.isRowVisited(config, rowDataItem))
 
-      let handleRowClick = _ => {
-        // Mark row as visited using utility function
+      let handleRowClick = React.useCallback(index => {
+        let currentRowData =
+          actualData->Option.flatMap(
+            data => data->Array.get(index)->Option.flatMap(n => n->Nullable.toOption),
+          )
+
         switch visitedRows {
-        | Some(config) => TableUtils.markRowAsVisited(config, rowDataItem)
+        | Some(config) => TableUtils.markRowAsVisited(config, currentRowData)
         | None => ()
         }
-
-        // Call original onRowClick
         switch onRowClick {
-        | Some(fn) => fn(actualIndex)
+        | Some(fn) => fn(index)
         | None => ()
         }
-      }
+      }, (actualData, visitedRows, onRowClick))
 
       <TableRow
         title

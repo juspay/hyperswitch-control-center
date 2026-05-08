@@ -1,4 +1,4 @@
-let regex: string => RescriptCore.RegExp.t
+let regex: string => RegExp.t
 let highlightedText: (Js.String.t, string) => React.element
 type labelColor =
   | LabelGreen
@@ -14,11 +14,11 @@ type customiseColumnConfig = {showDropDown: bool, customizeColumnUi: React.eleme
 type selectAllSubmitActions = {
   btnText: string,
   showMultiSelectCheckBox: bool,
-  onClick: array<RescriptCore.JSON.t> => unit,
+  onClick: array<JSON.t> => unit,
   disableParam: disableField,
 }
 type hideItem = {key: string, value: string}
-external jsonToStr: RescriptCore.JSON.t => string = "%identity"
+external jsonToStr: JSON.t => string = "%identity"
 type textAlign = Left | Right
 type fontBold = bool
 type labelMargin = string
@@ -30,7 +30,7 @@ let getSortOrderString: sortOrder => string
 type label = {title: string, color: labelColor, showIcon?: bool}
 type currency = string
 type filterRow =
-  | DropDownFilter(string, array<RescriptCore.JSON.t>)
+  | DropDownFilter(string, array<JSON.t>)
   | TextFilter(string)
   | Range(string, float, float)
 type cell =
@@ -97,7 +97,7 @@ module LabelCell: {
   @react.component
   let make: (
     ~labelColor: labelColor,
-    ~text: Js.String.t,
+    ~text: string,
     ~labelMargin: string=?,
     ~highlightText: string=?,
     ~fontStyle: string=?,
@@ -139,6 +139,8 @@ module LinkCell: {
   let make: (~data: Js.String.t, ~trimLength: int=?) => React.element
 }
 module DateCell: {
+  let getMillisecondsPart: string => string
+  let removeMilliseconds: string => string
   @react.component
   let make: (
     ~timestamp: string,
@@ -233,12 +235,7 @@ module HeaderActions: {
     ~filterKey: string,
   ) => React.element
 }
-
-// Visited Rows Utility Types and Functions
-type visitedRowsConfig<'t> = {
-  getId: 't => string,
-  prefix: string,
-}
+type visitedRowsConfig<'t> = {getId: 't => string, prefix_key: string}
 let constructVisitedRowKey: (string, string) => string
-let isRowVisited: (visitedRowsConfig<'t>, RescriptCore.Nullable.t<'t>) => bool
-let markRowAsVisited: (visitedRowsConfig<'t>, RescriptCore.Nullable.t<'t>) => unit
+let isRowVisited: (visitedRowsConfig<'t>, option<'t>) => bool
+let markRowAsVisited: (visitedRowsConfig<'t>, option<'t>) => unit

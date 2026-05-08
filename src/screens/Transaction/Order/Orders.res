@@ -244,7 +244,7 @@ let make = (~previewOnly=false) => {
           isDraggable=true
           visitedRows={{
             getId: (order: PaymentInterfaceTypes.order) => order.payment_id,
-            prefix: "orders",
+            prefix_key: "orders",
           }}
         />
       </PageLoaderWrapper>

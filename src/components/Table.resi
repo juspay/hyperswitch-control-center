@@ -118,7 +118,7 @@ type rowType = TableUtils.rowType = Filter | Row
 let getTableCellValue: cell => string
 module SortIcons = TableUtils.SortIcons
 module HeaderActions = TableUtils.HeaderActions
-type visitedRowsConfig<'t> = {getId: 't => string, prefix: string}
+type visitedRowsConfig<'t> = {getId: 't => string, prefix_key: string}
 module TableFilterRow: {
   @react.component
   let make: (

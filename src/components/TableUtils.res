@@ -881,35 +881,40 @@ module HeaderActions = {
   }
 }
 
-// Visited Rows Utility Functions
-
 type visitedRowsConfig<'t> = {
   getId: 't => string,
-  prefix: string,
+  prefix_key: string,
 }
 
 // Construct the storage key from prefix and id
-let constructVisitedRowKey = (prefix: string, id: string) => `visited_${prefix}_${id}`
+let constructVisitedRowKey = (prefix_key: string, id: string) => `visited:${prefix_key}:${id}`
 
 // Check if a row is visited by looking up sessionStorage
-let isRowVisited = (config: visitedRowsConfig<'t>, data: Nullable.t<'t>) => {
-  switch data->Nullable.toOption {
-  | Some(d) => {
+let isRowVisited = (config: visitedRowsConfig<'t>, data: option<'t>) => {
+  switch data {
+  | Some(d) =>
+    try {
       let id = config.getId(d)
-      let storageKey = constructVisitedRowKey(config.prefix, id)
+      let storageKey = constructVisitedRowKey(config.prefix_key, id)
       SessionStorage.sessionStorage.getItem(storageKey)->Nullable.toOption->Option.isSome
+    } catch {
+    | _ => false
     }
   | None => false
   }
 }
 
 // Mark a row as visited by storing in sessionStorage
-let markRowAsVisited = (config: visitedRowsConfig<'t>, data: Nullable.t<'t>) => {
-  switch data->Nullable.toOption {
+let markRowAsVisited = (config: visitedRowsConfig<'t>, data: option<'t>) => {
+  switch data {
   | Some(d) => {
       let id = config.getId(d)
-      let storageKey = constructVisitedRowKey(config.prefix, id)
-      SessionStorage.sessionStorage.setItem(storageKey, "true")
+      let storageKey = constructVisitedRowKey(config.prefix_key, id)
+      try {
+        SessionStorage.sessionStorage.setItem(storageKey, "true")
+      } catch {
+      | _ => ()
+      }
     }
   | None => ()
   }

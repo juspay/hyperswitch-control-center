@@ -148,7 +148,7 @@ let make = () => {
           isDraggable=true
           visitedRows={{
             getId: refund => refund.refund_id,
-            prefix: "refund",
+            prefix_key: "refund",
           }}
         />
       </PageLoaderWrapper>

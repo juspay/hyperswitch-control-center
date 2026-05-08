@@ -156,7 +156,7 @@ let make = () => {
           isDraggable=true
           visitedRows={{
             getId: dispute => dispute.dispute_id,
-            prefix: "dispute",
+            prefix_key: "dispute",
           }}
         />
       </div>

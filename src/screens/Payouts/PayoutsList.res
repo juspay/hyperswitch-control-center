@@ -140,7 +140,7 @@ let make = () => {
           isDraggable=true
           visitedRows={{
             getId: payout => payout.payout_id,
-            prefix: "payout",
+            prefix_key: "payout",
           }}
         />
       </PageLoaderWrapper>
