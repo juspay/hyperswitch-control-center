@@ -6,7 +6,8 @@ let make = (~previewOnly=false) => {
 
   let fetchOrdersHook = OrdersHook.useFetchOrdersHook()
   let fetchAnalyticsOrdersHook = AnalyticsOrdersHook.useFetchAnalyticsOrdersHook()
-  let {devOpensearch, savedViews} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {devOpensearch, devSavedViews} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
