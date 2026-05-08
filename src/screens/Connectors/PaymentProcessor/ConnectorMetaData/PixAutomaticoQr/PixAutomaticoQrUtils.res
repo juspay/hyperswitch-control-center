@@ -1,0 +1,51 @@
+open LogicUtils
+open PixAutomaticoQrIntegrationTypes
+
+let pixAutomaticoQrRequestToDictMapper = dict => {
+  {
+    pix_key_type: dict->getString("pix_key_type", ""),
+    pix_key_value: dict->getString("pix_key_value", ""),
+    client_id: dict->getString("client_id", ""),
+    client_secret: dict->getString("client_secret", ""),
+    account_number: dict->getString("account_number", ""),
+    account_type: dict->getString("account_type", ""),
+    branch_code: dict->getString("branch_code", ""),
+  }
+}
+
+let pixAutomaticoQrNameMapper = (~name) => {
+  `metadata.pix_automatico_qr.${name}`
+}
+
+let pixAutomaticoQrFieldInput = (~pixAutomaticoQrField: CommonConnectorTypes.inputField, ~fill) => {
+  open CommonConnectorHelper
+  let {\"type", name} = pixAutomaticoQrField
+  let formName = pixAutomaticoQrNameMapper(~name)
+
+  {
+    switch \"type" {
+    | Text => textInput(~field={pixAutomaticoQrField}, ~formName)
+    | Select => selectInput(~field={pixAutomaticoQrField}, ~formName)
+    | MultiSelect => multiSelectInput(~field={pixAutomaticoQrField}, ~formName)
+    | Radio => radioInput(~field={pixAutomaticoQrField}, ~formName, ~fill, ())
+    | _ => textInput(~field={pixAutomaticoQrField}, ~formName)
+    }
+  }
+}
+
+let validatePixAutomaticoQrFields = (json: JSON.t) => {
+  let fields =
+    json
+    ->getDictFromJsonObject
+    ->getDictFromNestedDict("metadata", "pix_automatico_qr")
+    ->pixAutomaticoQrRequestToDictMapper
+
+  fields.pix_key_type->isNonEmptyString &&
+  fields.pix_key_value->isNonEmptyString &&
+  fields.client_id->isNonEmptyString &&
+  fields.client_secret->isNonEmptyString &&
+  fields.account_number->isNonEmptyString &&
+  fields.branch_code->isNonEmptyString
+    ? Button.Normal
+    : Button.Disabled
+}

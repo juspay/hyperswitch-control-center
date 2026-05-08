@@ -1,27 +1,27 @@
 @react.component
 let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
   open LogicUtils
-  open PixQrUtils
+  open PixAutomaticoPushUtils
   open Typography
 
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-  let pixQrFieldsArray = React.useMemo(() => {
+  let fieldsArray = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
-        let pixQrInputFields =
+        let inputFields =
           Window.getConnectorConfig(connector)
           ->getDictFromJsonObject
           ->getDictfromDict("metadata")
-          ->getArrayFromDict("pix", [])
+          ->getArrayFromDict("pix_automatico_push", [])
 
-        pixQrInputFields
+        inputFields
       } else {
         []
       }
-    } catch {
+    } catch { 
     | Exn.Error(e) => {
         Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
         []
@@ -40,21 +40,24 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     onCloseClickCustomFun()
     closeAccordionFn()
   }
-  let pixQrFields =
-    pixQrFieldsArray
+  let fields =
+    fieldsArray
     ->Array.mapWithIndex((field, index) => {
-      let pixQrField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
-      <div key={`${pixQrField.name}_${index->Int.toString}`}>
+      let inputField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
+      <div key={`${inputField.name}_${index->Int.toString}`}>
         <FormRenderer.FieldRenderer
           labelClass={`${body.sm.semibold} !text-hyperswitch_black`}
-          field={pixQrFieldInput(~pixQrField, ~fill=textColor.primaryNormal)}
+          field={pixAutomaticoPushFieldInput(
+            ~pixAutomaticoPushField=inputField,
+            ~fill=textColor.primaryNormal,
+          )}
         />
       </div>
     })
     ->React.array
 
   <div className="flex flex-col gap-6 p-6">
-    <div> {pixQrFields} </div>
+    <div> {fields} </div>
     <div className={`flex gap-2 justify-end`}>
       <Button
         text="Cancel" buttonType={Secondary} onClick={_ => onCancel()} customButtonStyle="w-full"
@@ -64,7 +67,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
         text="Continue"
         buttonType={Primary}
         customButtonStyle="w-full"
-        buttonState={formState.values->PixQrUtils.validatePixQrFields}
+        buttonState={formState.values->validatePixAutomaticoPushFields}
       />
     </div>
   </div>
