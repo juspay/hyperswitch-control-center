@@ -3,7 +3,7 @@
 // merge-coverage CI job (`npx mcr -c mcr.config.js -i merged-raw -o ...`)
 // so filters + report shape stay in sync across both entry points.
 module.exports = {
-  name: "Hyperswitch E2E Coverage",
+  name: "Hyperswitch control center E2E Coverage",
   outputDir: "./coverage-report",
   entryFilter: (entry) => {
     const url = entry.url || "";
