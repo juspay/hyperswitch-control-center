@@ -886,10 +886,8 @@ type visitedRowsConfig<'t> = {
   prefix_key: string,
 }
 
-// Construct the storage key from prefix and id
 let constructVisitedRowKey = (prefix_key: string, id: string) => `visited:${prefix_key}:${id}`
 
-// Check if a row is visited by looking up sessionStorage
 let isRowVisited = (config: visitedRowsConfig<'t>, data: option<'t>) => {
   switch data {
   | Some(d) =>
@@ -904,7 +902,6 @@ let isRowVisited = (config: visitedRowsConfig<'t>, data: option<'t>) => {
   }
 }
 
-// Mark a row as visited by storing in sessionStorage
 let markRowAsVisited = (config: visitedRowsConfig<'t>, data: option<'t>) => {
   switch data {
   | Some(d) => {
