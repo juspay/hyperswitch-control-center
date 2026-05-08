@@ -554,7 +554,7 @@ let make = () => {
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
 
-  let selectedStyleConfigs = {
+  let selectedStyleConfigs = React.useMemo(() => {
     open BusinessProfileInterfaceUtils
     let paymentLinkConfig =
       businessProfileRecoilVal.payment_link_config->Option.getOr(
@@ -574,17 +574,13 @@ let make = () => {
         businessSpecificConfigsDict->getJsonFromDict(selectedStyleId)
       }
     }
-  }
+  }, (selectedStyleId, businessProfileRecoilVal.payment_link_config))
 
   <div className="flex flex-col gap-8 relative">
     <StyleIdSelection selectedStyleId setSelectedStyleId />
     <div>
       <RenderIf condition={selectedStyleId->isNonEmptyString}>
-        <ConfiguratorForm
-          key={`configurator-form-${selectedStyleId}`}
-          initialFormValues={selectedStyleConfigs}
-          selectedStyleId
-        />
+        <ConfiguratorForm initialFormValues={selectedStyleConfigs} selectedStyleId />
       </RenderIf>
       <RenderIf condition={selectedStyleId->isEmptyString}>
         <NoDataFound
