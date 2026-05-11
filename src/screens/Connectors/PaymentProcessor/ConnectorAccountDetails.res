@@ -234,9 +234,9 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
         </AddDataAttributes>}
         handleShowModal>
         <div className="flex flex-col gap-2 p-2 md:px-10">
-          // <ConnectorAccountDetailsHelper.BusinessProfileRender
-          //   isUpdateFlow selectedConnector={connector}
-          // />
+          <ConnectorAccountDetailsHelper.BusinessProfileRender
+            isUpdateFlow selectedConnector={connector}
+          />
         </div>
         <div className={`flex flex-col gap-2 p-2 md:px-10`}>
           <div className="grid grid-cols-2 flex-1">
