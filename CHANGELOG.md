@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.11.0
+
+### Miscellaneous Tasks
+
+- Add Playwright tests for pr 4412 ([`c50ad19`](https://github.com/juspay/hyperswitch-control-center/commit/c50ad190408bd5b4b0edf181eec97eb37ad168e6))
+
+**Full Changelog:** [`2026.05.08.0...2026.05.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.08.0...2026.05.11.0)
+
+- - -
+
 ## 2026.05.08.0
 
 ### Features
