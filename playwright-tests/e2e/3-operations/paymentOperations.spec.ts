@@ -651,7 +651,7 @@ test.describe("Payment Operations", () => {
     await paymentOperations.addFilters.click();
     await page
       .locator(
-        '[data-dropdown-value="Merchant Order Reference ID"]:visible',
+        '[data-dropdown-value="Merchant Order Reference Id"]:visible',
       )
       .click();
     await expect(
