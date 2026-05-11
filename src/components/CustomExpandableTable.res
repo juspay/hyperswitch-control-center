@@ -143,7 +143,7 @@ let make = (
                                 checked: true,
                               }
 
-                              <SelectBox.BaseDropdown
+                              <SelectBoxAdapter.BaseDropdown
                                 allowMultiSelect=true
                                 hideMultiSelectButtons=true
                                 buttonText=""

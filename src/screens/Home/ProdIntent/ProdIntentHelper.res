@@ -22,7 +22,7 @@ module CountryField = {
       checked: true,
     }
 
-    <SelectBox.BaseDropdown
+    <SelectBoxAdapter.BaseDropdown
       allowMultiSelect=false
       buttonText="Select Country"
       customButtonStyle="!rounded-md !py-5"
