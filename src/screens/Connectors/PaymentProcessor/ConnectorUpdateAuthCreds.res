@@ -12,7 +12,7 @@ let make = (
 
   let getURL = useGetURL()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   // Need to remove connector and merge connector and connectorTypeVariants
   let (processorType, connectorType) =

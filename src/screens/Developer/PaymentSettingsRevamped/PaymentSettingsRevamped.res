@@ -1,7 +1,7 @@
 module InfoViewForWebhooks = {
   @react.component
   let make = (~heading, ~subHeading, ~isCopy=false, ~isTruncated=false, ~copyValue="") => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let onCopyClick = ev => {
       ev->ReactEvent.Mouse.stopPropagation
       Clipboard.writeText(isTruncated ? copyValue : subHeading)

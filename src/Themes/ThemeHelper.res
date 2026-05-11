@@ -156,7 +156,7 @@ module LineageFormContent = {
     ).getResolvedUserInfo()
 
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
     let (_, getNameForId) = OMPSwitchHooks.useOMPData()
@@ -334,7 +334,7 @@ module ThemeLineageModal = {
       ->Option.getOr("entityselection")
     let (step, setStep) = React.useState(() => sessionStepValue->getStepVariantfromString)
     let {themeId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {orgId, merchantId, profileId} = React.useContext(
       UserInfoProvider.defaultContext,
     ).getCommonSessionDetails()

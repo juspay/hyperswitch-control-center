@@ -99,7 +99,7 @@ let make = () => {
 
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let mixpanelEvent = MixpanelHook.useSendEvent()

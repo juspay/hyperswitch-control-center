@@ -14,7 +14,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   open APIUtilsTypes
 
   let getURL = useGetURL()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {getCommonSessionDetails, getResolvedUserInfo} = React.useContext(

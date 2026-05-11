@@ -192,7 +192,7 @@ module WebHookAuthenticationHeaders = {
 @react.component
 let make = () => {
   open FormRenderer
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
   let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)

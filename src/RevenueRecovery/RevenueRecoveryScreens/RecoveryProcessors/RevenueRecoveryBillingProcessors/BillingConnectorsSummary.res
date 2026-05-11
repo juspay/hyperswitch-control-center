@@ -10,7 +10,7 @@ module WebhooksConfiguration = {
 
     let getURL = useGetURL()
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let updateDetails = useUpdateMethod()
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId(
       ~version=UserInfoTypes.V2,

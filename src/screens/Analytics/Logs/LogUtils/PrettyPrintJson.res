@@ -6,7 +6,7 @@ let make = (
   ~maxHeightClass="max-h-25-rem",
   ~overrideBackgroundColor="bg-hyperswitch_background",
 ) => {
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (parsedJson, setParsedJson) = React.useState(_ => "")
   let parseJsonValue = () => {
     try {
