@@ -882,7 +882,7 @@ export async function loginUI(
   await signinPage.skip2FAButton.click();
   await expect(
     page.getByText(
-      "Welcome to the home of your Payments Control Centre. It aims at providing your team with a 360-degree view of payments.",
+      "Welcome to the home of your Payments Control Center. It aims to provide your team with a 360-degree view of payments.",
     ),
   ).toBeVisible();
 }

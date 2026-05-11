@@ -259,7 +259,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "google_pay" => GooglePay
   | "apple_pay" => ApplePay
   | "paypal" => PayPal
-  | "pix" => Pix
+  | "pix_qr" => PixQr
   | "pix_automatico_qr" => PixAutomaticoQr
   | "pix_automatico_push" => PixAutomaticoPush
   | "boleto" => Boleto
@@ -2570,7 +2570,8 @@ let checkIfPredecryptFlowEnabledForApplePay = connector => {
   | Processors(CHECKOUT)
   | Processors(WORLDPAYVANTIV)
   | Processors(NMI)
-  | Processors(STRIPE) => true
+  | Processors(STRIPE)
+  | Processors(WORLDPAYXML) => true
   | _ => false
   }
 }

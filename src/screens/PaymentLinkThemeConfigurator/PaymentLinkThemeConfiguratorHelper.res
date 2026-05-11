@@ -1,4 +1,33 @@
 open FormRenderer
+
+let defaultForbiddenCharsRegex = %re("/[<>{}|\\`]/g")
+let nameForbiddenCharsRegex = %re("/[<>{}|\\`=;*@^~]/g")
+let urlForbiddenCharsRegex = %re("/[<>{}|\\`\"'\s]/g")
+
+let sanitizeTextInput = (~regex=defaultForbiddenCharsRegex, value) =>
+  value->String.replaceRegExp(regex, "")
+
+let makeSanitizedTextField = (
+  ~label,
+  ~name,
+  ~placeholder,
+  ~forbiddenCharsRegex=defaultForbiddenCharsRegex,
+) =>
+  makeFieldInfo(~label, ~name, ~customInput=(~input, ~placeholder as _) =>
+    InputFields.textInput()(
+      ~input={
+        ...input,
+        onChange: event =>
+          ReactEvent.Form.target(event)["value"]
+          ->String.trimStart
+          ->sanitizeTextInput(~regex=forbiddenCharsRegex)
+          ->Identity.stringToFormReactEvent
+          ->input.onChange,
+      },
+      ~placeholder,
+    )
+  )
+
 let makeThemeField = (~defaultValue) => {
   makeFieldInfo(
     ~label="Theme Color",
@@ -8,14 +37,13 @@ let makeThemeField = (~defaultValue) => {
   )
 }
 
-let makeLogoField = () => {
-  makeFieldInfo(
+let makeLogoField = () =>
+  makeSanitizedTextField(
     ~label="Logo URL",
     ~name="logo",
-    ~customInput=InputFields.textInput(),
     ~placeholder="Enter logo url",
+    ~forbiddenCharsRegex=urlForbiddenCharsRegex,
   )
-}
 
 let makeBackgroundImageField = () => {
   makeFieldInfo(
@@ -26,14 +54,13 @@ let makeBackgroundImageField = () => {
   )
 }
 
-let makeSellerNameField = () => {
-  makeFieldInfo(
+let makeSellerNameField = () =>
+  makeSanitizedTextField(
     ~label="Seller Name",
     ~name="seller_name",
-    ~customInput=InputFields.textInput(),
     ~placeholder="Enter Seller Name",
+    ~forbiddenCharsRegex=nameForbiddenCharsRegex,
   )
-}
 
 let makeSdkLayoutField = () => {
   let layoutOptions = ["accordion", "tabs", "spaced_accordion"]->SelectBox.makeOptions
@@ -83,23 +110,20 @@ let makeShowCardFormByDefaultField = () => {
   )
 }
 
-let makePaymentButtonTextField = () => {
-  makeFieldInfo(
+let makePaymentButtonTextField = () =>
+  makeSanitizedTextField(
     ~label="Payment Button Text",
     ~name="payment_button_text",
-    ~customInput=InputFields.textInput(),
     ~placeholder="Enter Payment Button Text",
+    ~forbiddenCharsRegex=nameForbiddenCharsRegex,
   )
-}
 
-let makeMerchantDescriptionField = () => {
-  makeFieldInfo(
+let makeMerchantDescriptionField = () =>
+  makeSanitizedTextField(
     ~label="Merchant Description",
     ~name="merchant_description",
-    ~customInput=InputFields.textInput(),
     ~placeholder="Enter description of your business",
   )
-}
 
 let makeReturnUrlField = () => {
   makeFieldInfo(
@@ -186,14 +210,12 @@ let makeDetailsLayoutField = () => {
   )
 }
 
-let makeCustomMessageForCardTermsField = () => {
-  makeFieldInfo(
+let makeCustomMessageForCardTermsField = () =>
+  makeSanitizedTextField(
     ~label="Custom Message for Card Terms",
     ~name="custom_message_for_card_terms",
-    ~customInput=InputFields.textInput(),
     ~placeholder="Enter custom message for card terms",
   )
-}
 
 let makeShowCardTermsField = () => {
   makeFieldInfo(
@@ -209,5 +231,73 @@ let makeColorIconCardCvcErrorField = (~defaultValue) => {
     ~name="color_icon_card_cvc_error",
     ~placeholder="",
     ~customInput=InputFields.colorPickerInput(~defaultValue, ~showErrorWhenEmpty=false),
+  )
+}
+
+let makeCurrencyField = () =>
+  makeFieldInfo(
+    ~label="Currency",
+    ~name="country_currency",
+    ~placeholder="",
+    ~customInput=InputFields.selectInput(
+      ~options=SDKPaymentUtils.dropDownOptionsForCountryCurrency,
+      ~buttonText="Select Currency",
+      ~deselectDisable=true,
+      ~fullLength=true,
+      ~textStyle="!font-normal",
+    ),
+  )
+
+let makeAmountField = () => {
+  makeFieldInfo(
+    ~label="Amount",
+    ~name="amount",
+    ~customInput=InputFields.numericTextInput(),
+    ~placeholder="Enter amount",
+  )
+}
+
+let makeSelectField = (~label, ~name, ~options, ~buttonText) =>
+  makeFieldInfo(
+    ~label,
+    ~name,
+    ~customInput=InputFields.selectInput(
+      ~options,
+      ~buttonText,
+      ~deselectDisable=true,
+      ~customButtonStyle="!w-full pr-4 pl-2 !rounded-md",
+      ~fullLength=true,
+    ),
+  )
+
+let makeCaptureMethodField = () =>
+  makeSelectField(
+    ~label="Capture Method",
+    ~name="capture_method",
+    ~options=PaymentLinkThemeConfiguratorUtils.captureMethodOptions,
+    ~buttonText="Select Capture Method",
+  )
+
+let makeSetupFutureUsageField = () =>
+  makeSelectField(
+    ~label="Setup Future Usage",
+    ~name="setup_future_usage_applied",
+    ~options=PaymentLinkThemeConfiguratorUtils.setupFutureUsageOptions,
+    ~buttonText="Select Setup Future Usage",
+  )
+
+let makeAuthenticationTypeField = () =>
+  makeSelectField(
+    ~label="Authentication Type",
+    ~name="authentication_type",
+    ~options=PaymentLinkThemeConfiguratorUtils.authenticationTypeOptions,
+    ~buttonText="Select Authentication Type",
+  )
+
+let makeRequestExternal3dsField = () => {
+  makeFieldInfo(
+    ~label="Request External 3DS Authentication",
+    ~name="request_external_three_ds_authentication",
+    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
   )
 }

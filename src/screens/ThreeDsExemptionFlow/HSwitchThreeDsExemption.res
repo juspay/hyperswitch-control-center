@@ -162,7 +162,7 @@ let make = () => {
 
   let pageConfig = {
     pageTitle: "3DS Exemption Rules",
-    pageSubtitle: "Optimize  3DS strategy by correctly applying 3DS exemptions to offer a seamless experience to the users while balancing fraud",
+    pageSubtitle: "Optimize 3DS strategy by correctly applying 3DS exemptions to offer a seamless experience to users while balancing fraud risk",
     configureTitle: "Configure 3DS Exemption Rules",
     configureDescription: "Configure advanced rules on parameters like amount, currency, and method to automatically apply 3DS exemptions, balancing regulatory compliance with seamless user experience.",
     baseUrl: "/3ds-exemption",
