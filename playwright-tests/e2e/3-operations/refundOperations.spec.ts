@@ -201,7 +201,7 @@ test.describe("Refunds Operations", () => {
           "Error Code",
           "Error Message",
           "Last Updated",
-          "MetaData",
+          "Metadata",
           "Refund Reason",
         ];
         for (const column of optionalColumns) {
@@ -424,7 +424,7 @@ test.describe("Refunds Operations", () => {
         page.locator('[data-label="Last Updated"]').first(),
       ).toBeVisible();
       await expect(
-        page.locator('[data-label="MetaData"]').first(),
+        page.locator('[data-label="Metadata"]').first(),
       ).toBeVisible();
       await expect(
         page.locator('[data-label="Payment ID"]').first(),

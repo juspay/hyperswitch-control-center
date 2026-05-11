@@ -571,7 +571,7 @@ test.describe("Forgot password", () => {
     const resetPasswordPage = new ResetPasswordPage(page);
 
     const weakPasswords = [
-      { password: "Weak1!", expectedError: "Password size must be more than 8" },
+      { password: "Weak1!", expectedError: "Password must be at least 8 characters long." },
       { password: "password123!", expectedError: /uppercase/ },
       { password: "PASSWORD123!", expectedError: /lowercase/ },
       { password: "Password!@#", expectedError: /numeric/ },

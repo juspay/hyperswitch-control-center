@@ -484,7 +484,7 @@ test.describe("Routing list - Manage rules", () => {
     await page.locator('[data-button-for="configureRule"]').click();
     await page.locator('[data-button-for="saveRule"]').click();
 
-    await expect(page.locator('[data-toast="Successfully Created a new Configuration !"]')).toContainText("Successfully Created a new Configuration !");
+    await expect(page.locator('[data-toast="Successfully created a new configuration!"]')).toContainText("Successfully created a new configuration!");
   }
 
   async function createActiveVolumeRule(page: Page, context: BrowserContext, configName: string, connectorLabel = "stripe_test_1") {
@@ -510,7 +510,7 @@ test.describe("Routing list - Manage rules", () => {
     await page.locator('[data-button-for="configureRule"]').click();
     await page.locator('[data-button-for="saveAndActivateRule"]').click();
 
-    await expect(page.locator('[data-toast="Successfully Activated !"]')).toContainText("Successfully Activated !");
+    await expect(page.locator('[data-toast="Successfully activated!"]')).toContainText("Successfully activated!");
   }
 
   async function openManageRulesTab(page: Page) {
@@ -627,7 +627,7 @@ test.describe("Routing list - Manage rules", () => {
     const activateBtn = page.getByRole("button", { name: /Activate Configuration/i }).first();
     await expect(activateBtn).toBeVisible({ timeout: 10000 });
     await activateBtn.click();
-    await expect(page.locator('[data-toast="Successfully Activated !"]')).toContainText("Successfully Activated !");
+    await expect(page.locator('[data-toast="Successfully activated!"]')).toContainText("Successfully activated!");
   });
 
   test("should expose Deactivate Configuration on active rule preview", async ({ page, context }) => {
@@ -640,7 +640,7 @@ test.describe("Routing list - Manage rules", () => {
     const deactivateBtn = page.getByRole("button", { name: /Deactivate Configuration/i }).first();
     await expect(deactivateBtn).toBeVisible();
     await deactivateBtn.click();
-    await expect(page.locator('[data-toast="Successfully Deactivated !"]')).toContainText("Successfully Deactivated !");
+    await expect(page.locator('[data-toast="Successfully deactivated!"]')).toContainText("Successfully deactivated!");
   });
 
   test("should duplicate and edit volume routing - update name and add a different connector", async ({ page, context }) => {
@@ -681,7 +681,7 @@ test.describe("Routing list - Manage rules", () => {
     await page.locator('[data-button-for="configureRule"]').click();
     await page.getByRole('button', { name: 'Save and Activate Rule' }).click();
 
-    await expect(page.locator('[data-toast="Successfully Created a new Configuration !"]')).toContainText("Successfully Created a new Configuration !");
+    await expect(page.locator('[data-toast="Successfully created a new configuration!"]')).toContainText("Successfully created a new configuration!");
 
     await openManageRulesTab(page);
     await expect(page.locator('[data-table-location="History_tr1_td2"]')).toContainText("Volume edit updated");

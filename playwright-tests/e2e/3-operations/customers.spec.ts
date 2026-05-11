@@ -126,7 +126,7 @@ test.describe("Customers page", () => {
     await expect(page.getByText("Summary")).toBeVisible();
 
     const summaryFields = [
-      { label: "Customer Id", value: "test_customer" },
+      { label: "Customer ID", value: "test_customer" },
       { label: "Customer Name", value: "Joseph Doe" },
       { label: "Email", value: "abc@test.com" },
       { label: "Phone Country Code", value: "+65" },

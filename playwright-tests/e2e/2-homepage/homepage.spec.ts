@@ -343,15 +343,15 @@ test.describe("DefaultHome product cards", () => {
     await expect(page.getByText("Explore composable services")).toBeVisible();
 
     await expect(page.locator('span').filter({ hasText: 'Orchestrator' })).toBeVisible();
-    await expect(page.getByText('Unified the diverse abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions and reporting systems')).toBeVisible();
+    await expect(page.getByText('Unifies diverse abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions, and reporting systems.')).toBeVisible();
     await expect(page.locator('span').filter({ hasText: /^Vault$/ })).toBeVisible();
-    await expect(page.getByText('A standalone, PCI-compliant vault that securely tokenizes and stores your customers’ card data—without requiring the use of our payment solutions. Supports card tokenization at PSPs and networks as well.')).toBeVisible();
+    await expect(page.getByText('A standalone, PCI-compliant vault that securely tokenizes and stores your customers’ card data — without requiring the use of our payment solutions. Supports card tokenization at PSPs and networks as well.')).toBeVisible();
     await expect(page.locator('span').filter({ hasText: /^Recon$/ })).toBeVisible();
     await expect(page.getByText('A robust tool for efficient reconciliation, providing real-time matching and error detection across transactions, ensuring data consistency and accuracy in financial operations.')).toBeVisible();
     await expect(page.locator('span').filter({ hasText: 'Revenue Recovery' })).toBeVisible();
     await expect(page.getByText('A resilient recovery system that ensures seamless restoration of critical data and transactions, safeguarding against unexpected disruptions and minimizing downtime.')).toBeVisible();
     await expect(page.locator('span').filter({ hasText: 'Cost Observability' })).toBeVisible();
-    await expect(page.getByText('Unified view of payment processing costs across acquirers, payment methods, & regions. Track every cent, detect anomalies, audit against contracted rates, & forecast the impact of card network changes.')).toBeVisible();
+    await expect(page.getByText('Unified view of payment processing costs across acquirers, payment methods, and regions. Track every cent, detect anomalies, audit against contracted rates, and forecast the impact of card network changes.')).toBeVisible();
 
     await expect(
       page.getByRole("button", { name: "Learn More" }),
@@ -383,7 +383,7 @@ test.describe("DefaultHome product cards", () => {
     await expect(
       page.locator('span').filter({ hasText: 'Orchestrator' }),
     ).toBeVisible();
-    await expect(page.getByText('Unified the diverse abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions and reporting systems')).toBeVisible();
+    await expect(page.getByText('Unifies diverse abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions, and reporting systems.')).toBeVisible();
 
     await expect(
       page.locator('span').filter({ hasText: /^Vault$/ }),
@@ -601,13 +601,13 @@ test.describe("Production access form", () => {
     await page.getByRole("textbox", { name: "Eg: jackryan@hyperswitch.io" }).fill("invalid-email");
     await page.getByRole("textbox", { name: "Eg: Jack Ryan" }).fill("Jack Ryan");
 
-    await expect(page.getByText('Please Enter Valid URL')).toBeVisible();
-    await expect(page.getByText("Please enter valid email id")).toBeVisible();
+    await expect(page.getByText('Please enter a valid URL')).toBeVisible();
+    await expect(page.getByText("Please enter a valid email address")).toBeVisible();
 
     // Fix website + email -> field-level errors clear
     await page.getByRole("textbox", { name: "Enter a website" }).fill("https://hyperswitch.io");
     await page.getByRole("textbox", { name: "Eg: jackryan@hyperswitch.io" }).fill("jackryan@hyperswitch.io");
-    await expect(page.getByText("Please Enter Valid URL")).not.toBeVisible();
-    await expect(page.getByText("Please enter valid email id")).not.toBeVisible();
+    await expect(page.getByText("Please enter a valid URL")).not.toBeVisible();
+    await expect(page.getByText("Please enter a valid email address")).not.toBeVisible();
   });
 });

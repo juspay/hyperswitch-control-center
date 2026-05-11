@@ -736,7 +736,7 @@ test.describe("Users - Details", () => {
 
     await usersPage.resendInviteButton.click();
 
-    await expect(page.getByText('Invite resend. Please check')).toBeVisible();
+    await expect(page.getByText('Invite resent. Please check your email.')).toBeVisible();
   });
 
   test("Check User permissions - Admin roles see Workflows in sidebar; developer roles do not", async ({
