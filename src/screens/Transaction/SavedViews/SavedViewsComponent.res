@@ -53,18 +53,14 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: SavedViewTypes.entity=P
   let performDeleteHook = SavedViewsHooks.useDeleteSavedView(~entity, ~fetchSavedViews)
   let performDelete = async (view_id, viewName) => {
     await performDeleteHook(view_id, viewName, ~onSuccess=() => {
-      if activeViewName === viewName {
-        setActiveViewName(_ => "")
-      }
+      activeViewName === viewName ? setActiveViewName(_ => "") : ()
     })
   }
 
   let performRenameHook = SavedViewsHooks.useRenameSavedView(~entity, ~version, ~fetchSavedViews)
   let performRename = async (view: SavedViewTypes.savedView, newName) => {
     await performRenameHook(view, newName, ~onSuccess=() => {
-      if activeViewName === view.view_name {
-        setActiveViewName(_ => newName)
-      }
+      activeViewName === view.view_name ? setActiveViewName(_ => newName) : ()
     })
   }
 
