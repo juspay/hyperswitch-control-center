@@ -1,4 +1,4 @@
-type pixRequest = {
+type pixQrRequest = {
   client_id: string,
   client_secret: string,
   pix_key_value: string,

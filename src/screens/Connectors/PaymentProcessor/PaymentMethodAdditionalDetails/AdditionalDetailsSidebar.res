@@ -57,8 +57,8 @@ let make = (
         <AmazonPayIntegration
           connector closeAccordionFn update=updatePaymentMethods onCloseClickCustomFun
         />
-      | Pix =>
-        <PixIntegration connector closeAccordionFn update=updateMetadata onCloseClickCustomFun />
+      | PixQr =>
+        <PixQrIntegration connector closeAccordionFn update=updateMetadata onCloseClickCustomFun />
       | PixAutomaticoQr =>
         <PixAutomaticoIntegration
           connector

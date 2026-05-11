@@ -230,7 +230,7 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType, ~check
               onClick={_ => {
                 TwoFaUtils.downloadRecoveryCodes(~recoveryCodes)
                 showToast(
-                  ~message="Successfully regenerated new recovery codes !",
+                  ~message="Successfully regenerated new recovery codes!",
                   ~toastType=ToastSuccess,
                 )
                 RescriptReactRouter.push(
