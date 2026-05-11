@@ -175,13 +175,13 @@ let getObjects: JSON.t => array<payoutsObject> = json => {
 let getHeading = colType => {
   let key = colType->colMapper
   switch colType {
-  | PayoutId => Table.makeHeaderInfo(~key, ~title="Payout Id", ~dataType=TextType)
-  | PayoutAttemptId => Table.makeHeaderInfo(~key, ~title="Payout Attempt Id", ~dataType=TextType)
-  | PayoutLinkId => Table.makeHeaderInfo(~key, ~title="Payout Link Id", ~dataType=TextType)
+  | PayoutId => Table.makeHeaderInfo(~key, ~title="Payout ID", ~dataType=TextType)
+  | PayoutAttemptId => Table.makeHeaderInfo(~key, ~title="Payout Attempt ID", ~dataType=TextType)
+  | PayoutLinkId => Table.makeHeaderInfo(~key, ~title="Payout Link ID", ~dataType=TextType)
   | MerchantOrderReferenceId =>
-    Table.makeHeaderInfo(~key, ~title="Merchant Order Reference Id", ~dataType=TextType)
+    Table.makeHeaderInfo(~key, ~title="Merchant Order Reference ID", ~dataType=TextType)
   | ConnectorPayoutId =>
-    Table.makeHeaderInfo(~key, ~title="Connector Payout Id", ~dataType=TextType)
+    Table.makeHeaderInfo(~key, ~title="Connector Payout ID", ~dataType=TextType)
   | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=TextType)
   | Amount => Table.makeHeaderInfo(~key, ~title="Amount", ~dataType=TextType)
   | SourceCurrency => Table.makeHeaderInfo(~key, ~title="Source Currency", ~dataType=TextType)
@@ -192,11 +192,11 @@ let getHeading = colType => {
   | AttemptCount => Table.makeHeaderInfo(~key, ~title="Attempt Count", ~dataType=TextType)
   | IsEligible => Table.makeHeaderInfo(~key, ~title="Is Eligible", ~dataType=TextType)
   | Connector => Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=TextType)
-  | PayoutMethodId => Table.makeHeaderInfo(~key, ~title="Payout Method Id", ~dataType=TextType)
-  | ProfileId => Table.makeHeaderInfo(~key, ~title="Profile Id", ~dataType=TextType)
-  | MerchantId => Table.makeHeaderInfo(~key, ~title="Merchant Id", ~dataType=TextType)
-  | OrganizationId => Table.makeHeaderInfo(~key, ~title="Organization Id", ~dataType=TextType)
-  | CustomerId => Table.makeHeaderInfo(~key, ~title="Customer Id", ~dataType=TextType)
+  | PayoutMethodId => Table.makeHeaderInfo(~key, ~title="Payout Method ID", ~dataType=TextType)
+  | ProfileId => Table.makeHeaderInfo(~key, ~title="Profile ID", ~dataType=TextType)
+  | MerchantId => Table.makeHeaderInfo(~key, ~title="Merchant ID", ~dataType=TextType)
+  | OrganizationId => Table.makeHeaderInfo(~key, ~title="Organization ID", ~dataType=TextType)
+  | CustomerId => Table.makeHeaderInfo(~key, ~title="Customer ID", ~dataType=TextType)
   | Recurring => Table.makeHeaderInfo(~key, ~title="Recurring", ~dataType=TextType)
   | AutoFulfill => Table.makeHeaderInfo(~key, ~title="Auto Fulfill", ~dataType=TextType)
   | Priority => Table.makeHeaderInfo(~key, ~title="Priority", ~dataType=TextType)
