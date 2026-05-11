@@ -24,7 +24,7 @@ let detailsColumns = [...allColumns, Address]
 
 let getHeading = colType => {
   switch colType {
-  | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer Id")
+  | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer ID")
   | Name => Table.makeHeaderInfo(~key="name", ~title="Customer Name")
   | Email => Table.makeHeaderInfo(~key="email", ~title="Email")
   | PhoneCountryCode => Table.makeHeaderInfo(~key="phone_country_code", ~title="Phone Country Code")
