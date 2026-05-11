@@ -34,9 +34,9 @@ test.describe("Refunds List Page", () => {
     await homePage.operations.click();
     await homePage.refundOperations.click();
 
-    await expect(page.locator('[class="flex justify-between items-center"]')).toContainText(
-      "Refunds",
-    );
+    await expect(
+      page.locator('[class="flex justify-between items-center"]'),
+    ).toContainText("Refunds");
 
     // Fixed (Attempt 2): Use paragraph text with has-text selector to target the tab labels specifically
     // The tabs contain paragraphs with text like "All" and count like "0"
@@ -83,9 +83,9 @@ test.describe("Refunds List Page", () => {
       await homePage.operations.click();
       await homePage.refundOperations.click();
 
-      await expect(page.locator('[class="flex justify-between items-center"]')).toContainText(
-        "Refunds",
-      );
+      await expect(
+        page.locator('[class="flex justify-between items-center"]'),
+      ).toContainText("Refunds");
 
       await expect(
         page.locator('[class*="items-center"][class*="text-2xl"]'),
@@ -219,12 +219,12 @@ test.describe("Refunds List Page", () => {
 
     await homePage.operations.click();
     await homePage.refundOperations.click();
-    
+
     await expect(page).toHaveURL(/.*dashboard\/refunds/);
 
-    await expect(page.locator('[class="flex justify-between items-center"]')).toContainText(
-      "Refunds",
-    );
+    await expect(
+      page.locator('[class="flex justify-between items-center"]'),
+    ).toContainText("Refunds");
   });
 
   test("should verify transaction view filters work correctly", async ({

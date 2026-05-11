@@ -260,7 +260,7 @@ module WebHookSection = {
       } catch {
       | _ => {
           setScreenState(_ => PageLoaderWrapper.Success)
-          showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+          showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
         }
       }
       Nullable.null
@@ -425,7 +425,7 @@ module PaymentLinkDomain = {
       } catch {
       | _ => {
           setScreenState(_ => PageLoaderWrapper.Success)
-          showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+          showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
         }
       }
       Nullable.null
@@ -876,7 +876,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false) => {
     } catch {
     | _ => {
         setScreenState(_ => PageLoaderWrapper.Success)
-        showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+        showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
       }
     }
     Nullable.null

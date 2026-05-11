@@ -3,6 +3,34 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.11.0
+
+### Miscellaneous Tasks
+
+- Add Playwright tests for pr 4412 ([`c50ad19`](https://github.com/juspay/hyperswitch-control-center/commit/c50ad190408bd5b4b0edf181eec97eb37ad168e6))
+
+**Full Changelog:** [`2026.05.08.0...2026.05.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.08.0...2026.05.11.0)
+
+- - -
+
+## 2026.05.08.0
+
+### Features
+
+- Worldpayxml applepay predecrypt ([#4790](https://github.com/juspay/hyperswitch-control-center/pull/4790)) ([`ea4d2ed`](https://github.com/juspay/hyperswitch-control-center/commit/ea4d2ede7d8f51eae4fa19218ac2238e29f82732))
+
+### Bug Fixes
+
+- Audit and fix user-facing text across the control center ([#4412](https://github.com/juspay/hyperswitch-control-center/pull/4412)) ([`4d0736a`](https://github.com/juspay/hyperswitch-control-center/commit/4d0736a6bdfbd3eb27ac515f97ae13b928a19c00))
+
+### Refactors
+
+- Rename Pix payment method type to PixQr ([#4716](https://github.com/juspay/hyperswitch-control-center/pull/4716)) ([`7f4407f`](https://github.com/juspay/hyperswitch-control-center/commit/7f4407f933ee4dc8a17ee6593361622db2b3ca38))
+
+**Full Changelog:** [`2026.05.07.0...2026.05.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.07.0...2026.05.08.0)
+
+- - -
+
 ## 2026.05.07.0
 
 ### Features
