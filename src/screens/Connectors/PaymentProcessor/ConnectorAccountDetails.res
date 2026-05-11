@@ -59,11 +59,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
 
   let (showModal, setShowModal) = React.useState(_ => false)
 
-  Js.log2("connectorAccountFields", connectorAccountFields)
-  Js.log2("connectorMetaDataFields", connectorMetaDataFields)
-  Js.log2("connectorWebhook", connectorWebHookDetails)
-  Js.log2("connectorLabelDetailField", connectorLabelDetailField)
-  Js.log2("connectorAdditionalMerchantData", connectorAdditionalMerchantData)
   let updatedInitialVal = React.useMemo(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
 
