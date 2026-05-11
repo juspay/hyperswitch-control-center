@@ -229,7 +229,7 @@ type paymentMethodTypes =
   | WeChatPay
   | DirectCarrierBilling
   | AmazonPay
-  | PixQr
+  | Pix
   | PixAutomaticoQr
   | PixAutomaticoPush
   | Boleto

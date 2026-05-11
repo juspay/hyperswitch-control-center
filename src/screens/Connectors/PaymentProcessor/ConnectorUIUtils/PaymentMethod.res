@@ -88,7 +88,7 @@ module CardRenderer = {
 
     let showAdditionalDetails = methodVariant => {
       switch (methodVariant, connector->getConnectorNameTypeFromString(~connectorType)) {
-      | (PixQr, Processors(SANTANDER))
+      | (Pix, Processors(SANTANDER))
       | (PixAutomaticoQr, Processors(SANTANDER))
       | (PixAutomaticoPush, Processors(SANTANDER))
       | (Boleto, Processors(SANTANDER))

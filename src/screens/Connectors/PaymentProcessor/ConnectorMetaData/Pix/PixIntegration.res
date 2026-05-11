@@ -1,23 +1,23 @@
 @react.component
 let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
   open LogicUtils
-  open PixQrUtils
+  open PixUtils
   open Typography
 
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-  let pixQrFieldsArray = React.useMemo(() => {
+  let pixFieldsArray = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
-        let pixQrInputFields =
+        let pixInputFields =
           Window.getConnectorConfig(connector)
           ->getDictFromJsonObject
           ->getDictfromDict("metadata")
-          ->getArrayFromDict("pix_qr", [])
+          ->getArrayFromDict("pix", [])
 
-        pixQrInputFields
+        pixInputFields
       } else {
         []
       }
@@ -40,21 +40,21 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     onCloseClickCustomFun()
     closeAccordionFn()
   }
-  let pixQrFields =
-    pixQrFieldsArray
+  let pixFields =
+    pixFieldsArray
     ->Array.mapWithIndex((field, index) => {
-      let pixQrField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
-      <div key={`${pixQrField.name}_${index->Int.toString}`}>
+      let pixField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
+      <div key={`${pixField.name}_${index->Int.toString}`}>
         <FormRenderer.FieldRenderer
           labelClass={`${body.sm.semibold} !text-hyperswitch_black`}
-          field={pixQrFieldInput(~pixQrField, ~fill=textColor.primaryNormal)}
+          field={pixFieldInput(~pixField, ~fill=textColor.primaryNormal)}
         />
       </div>
     })
     ->React.array
 
   <div className="flex flex-col gap-6 p-6">
-    <div> {pixQrFields} </div>
+    <div> {pixFields} </div>
     <div className={`flex gap-2 justify-end`}>
       <Button
         text="Cancel" buttonType={Secondary} onClick={_ => onCancel()} customButtonStyle="w-full"
@@ -64,7 +64,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
         text="Continue"
         buttonType={Primary}
         customButtonStyle="w-full"
-        buttonState={formState.values->PixQrUtils.validatePixQrFields}
+        buttonState={formState.values->PixUtils.validatePixFields}
       />
     </div>
   </div>
