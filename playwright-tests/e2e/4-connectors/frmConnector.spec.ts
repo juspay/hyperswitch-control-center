@@ -1,6 +1,7 @@
 import { test, expect } from "../../support/test";
 import type { Page, BrowserContext } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
+import { FrmConnector } from "../../support/pages/connector/FrmConnector";
 import { generateUniqueEmail } from "../../support/helper";
 import { signupUser, loginUI, assertConnectorFieldLabels, fillConnectorFields } from "../../support/commands";
 import { frmConnectorConfig } from "../../support/fixtures/frmConnectorConfig";
@@ -43,7 +44,8 @@ test.describe("FRM (Fraud & Risk) Connectors", () => {
 
   test("should accept typed text in the search input", async ({ page }) => {
     await gotoFrmList(page);
-    const searchInput = page.locator('[data-testid="search-processor"]');
+    const frmConnector = new FrmConnector(page);
+    const searchInput = frmConnector.connectorSearchInput;
     if (!(await searchInput.isVisible().catch(() => false))) {
       test.skip(true, "Search input not exposed on FRM landing page");
     }
@@ -56,7 +58,8 @@ test.describe("FRM (Fraud & Risk) Connectors", () => {
     page,
   }) => {
     await gotoFrmList(page);
-    const searchInput = page.locator('[data-testid="search-processor"]');
+    const frmConnector = new FrmConnector(page);
+    const searchInput = frmConnector.connectorSearchInput;
     if (!(await searchInput.isVisible().catch(() => false))) {
       test.skip(true, "Search input not exposed on FRM landing page");
     }
@@ -69,7 +72,8 @@ test.describe("FRM (Fraud & Risk) Connectors", () => {
     page,
   }) => {
     await gotoFrmList(page);
-    const connectButtons = page.locator('[data-button-text="Connect"]');
+    const frmConnector = new FrmConnector(page);
+    const connectButtons = frmConnector.connectButton;
     if ((await connectButtons.count().catch(() => 0)) === 0) {
       test.skip(true, "No FRM connectors exposed");
     }
@@ -107,18 +111,19 @@ test.describe("Live FRM Connectors", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
+      const frmConnector = new FrmConnector(page);
 
       await homePage.connectors.click();
       await homePage.frmConnectors.click();
 
       await expect(page).toHaveURL(/.*dashboard\/fraud-risk-management/);
 
-      const searchInput = page.locator('[data-testid="search-processor"]');
+      const searchInput = frmConnector.connectorSearchInput;
       if (await searchInput.isVisible({ timeout: 5000 }).catch(() => false)) {
         await searchInput.fill(connector.label);
       }
 
-      const connectButtons = page.locator('[data-button-text="Connect"]');
+      const connectButtons = frmConnector.connectButton;
       if ((await connectButtons.count().catch(() => 0)) > 0) {
         await connectButtons.nth(0).click();
 
@@ -127,7 +132,7 @@ test.describe("Live FRM Connectors", () => {
           await fillConnectorFields(page, connector.fields);
         }
 
-        const saveButton = page.locator('button:has-text("Save"), button:has-text("Connect"), button:has-text("Proceed")').first();
+        const saveButton = frmConnector.saveOrConnectOrProceedButton;
         if (await saveButton.isVisible({ timeout: 5000 }).catch(() => false)) {
           await saveButton.click();
           await page.waitForLoadState("networkidle");
