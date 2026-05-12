@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.12.0
+
+### Features
+
+- Saved views for transaction list filters ([#4739](https://github.com/juspay/hyperswitch-control-center/pull/4739)) ([`1768a2d`](https://github.com/juspay/hyperswitch-control-center/commit/1768a2db1c61218a1da1eb7e04f4d1ec4a778fbe))
+- Payment link theme feature production approach ([#4728](https://github.com/juspay/hyperswitch-control-center/pull/4728)) ([`99406d7`](https://github.com/juspay/hyperswitch-control-center/commit/99406d78118f6eecaf64869f5ae0c8002e2f1ba4))
+
+### Miscellaneous Tasks
+
+- Revert "refactor: rename Pix payment method type to PixQr" ([#4799](https://github.com/juspay/hyperswitch-control-center/pull/4799)) ([`8bf463f`](https://github.com/juspay/hyperswitch-control-center/commit/8bf463ffba0994fd573db41871a9f878d7ab5440))
+
+**Full Changelog:** [`2026.05.11.0...2026.05.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.11.0...2026.05.12.0)
+
+- - -
+
 ## 2026.05.11.0
 
 ### Miscellaneous Tasks
