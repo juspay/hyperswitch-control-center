@@ -1,5 +1,6 @@
+open CheckBoxBinding
+
 type size = CheckBoxIcon.size
-module CheckedValue = CheckBoxBinding.CheckedValue
 
 let mapSize = (s: size): CheckBoxBinding.size =>
   switch s {
