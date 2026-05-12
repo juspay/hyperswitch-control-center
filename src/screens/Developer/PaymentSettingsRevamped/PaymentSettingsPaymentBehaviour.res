@@ -570,7 +570,6 @@ let make = () => {
         <hr />
       </RenderIfVersion>
       <ReturnUrl />
-      <WebHook />
       <DesktopRow wrapperClass="mt-8">
         <div className="flex justify-end mt-4 w-full">
           <SubmitButton text="Update" buttonType=Button.Primary buttonSize=Button.Medium />
