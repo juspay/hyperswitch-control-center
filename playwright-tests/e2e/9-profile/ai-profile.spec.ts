@@ -2,12 +2,12 @@ import { test, expect } from "../../support/test";
 import { generateUniqueEmail } from "../../support/helper";
 import { signupUser, loginUI } from "../../support/commands";
 
-const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
+const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 test.describe.skip("Profile - user menu items", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
     await page.waitForURL(/dashboard\/home/, { timeout: 20000 });
   });
@@ -37,7 +37,7 @@ test.describe.skip("Account Settings - Profile page", () => {
     context,
   }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
     await page.waitForURL(/dashboard\/home/, { timeout: 20000 });
 

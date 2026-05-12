@@ -21,7 +21,7 @@ test.describe("Visual Testing - Payment Operations", () => {
     const homePage = new HomePage(page);
 
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
@@ -42,7 +42,7 @@ test.describe("Visual Testing - Payment Operations", () => {
     const paymentOperations = new PaymentOperations(page);
 
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
@@ -137,7 +137,7 @@ test.describe("Visual Testing - Refund Operations", () => {
     const homePage = new HomePage(page);
 
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
@@ -157,7 +157,7 @@ test.describe("Visual Testing - Refund Operations", () => {
     const homePage = new HomePage(page);
 
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
@@ -212,7 +212,7 @@ test.describe("Visual Testing - Payout Operations", () => {
     const homePage = new HomePage(page);
 
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
@@ -232,7 +232,7 @@ test.describe("Visual Testing - Payout Operations", () => {
     const homePage = new HomePage(page);
 
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
@@ -301,7 +301,7 @@ test.describe("Visual Testing - Dispute Operations", () => {
     const homePage = new HomePage(page);
 
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
@@ -323,7 +323,7 @@ test.describe("Visual Testing - Customers", () => {
     const homePage = new HomePage(page);
 
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
@@ -343,7 +343,7 @@ test.describe("Visual Testing - Customers", () => {
     const homePage = new HomePage(page);
 
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 

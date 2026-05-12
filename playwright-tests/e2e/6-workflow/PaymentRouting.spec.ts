@@ -17,7 +17,7 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 test.describe("Volume based routing", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
@@ -248,7 +248,7 @@ test.describe("Volume based routing", () => {
 test.describe("Rule based routing", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
@@ -341,7 +341,7 @@ test.describe("Rule based routing", () => {
 test.describe("Payment default fallback", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
@@ -447,7 +447,7 @@ test.describe("Payment default fallback", () => {
 test.describe("Routing list - Manage rules", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
@@ -748,7 +748,7 @@ test.describe("Routing list - Manage rules", () => {
 test.describe("Advanced rule connector selection modes", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
@@ -1043,7 +1043,7 @@ test.describe("Advanced rule connector selection modes", () => {
 test.describe("Auth rate based routing", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 

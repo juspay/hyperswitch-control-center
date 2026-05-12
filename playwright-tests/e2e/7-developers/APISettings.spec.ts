@@ -9,7 +9,7 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 test.describe("API Key Management", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 

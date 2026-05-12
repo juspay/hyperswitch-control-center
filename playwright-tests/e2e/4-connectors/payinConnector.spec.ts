@@ -26,7 +26,7 @@ async function signupAndLogin(
   context: BrowserContext,
 ): Promise<void> {
   const email = generateUniqueEmail();
-  await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+  await signupUser(email, PLAYWRIGHT_PASSWORD);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 }
 
@@ -775,7 +775,7 @@ test.describe("Stripe Connector", () => {
 test.describe("Payin Connectors", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 

@@ -15,7 +15,7 @@ import {
   redirectFromMailInbox,
 } from "../../support/commands";
 
-const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
+const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 const MAIL_URL = process.env.PLAYWRIGHT_MAIL_URL || "http://localhost:8025";
 const email = "playwright@test.com";
 
@@ -24,7 +24,7 @@ async function setupAndNavigate(
   context: BrowserContext,
 ): Promise<{ email: string; usersPage: UsersPage }> {
   const email = generateUniqueEmail();
-  await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+  await signupUser(email, PLAYWRIGHT_PASSWORD);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   const homePage = new HomePage(page);
   await homePage.users.click();
@@ -36,7 +36,7 @@ test.describe("Users - UI", () => {
 
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
     const homePage = new HomePage(page);
     await homePage.users.click();
@@ -77,7 +77,7 @@ test.describe("Users - UI", () => {
     await expect(page.locator('div').filter({ hasText: /^Organization Admin$/ }).first()).toBeAttached();
 
     await searchInput.clear();
-    await searchInput.fill("cypress+org_admin@example.com");
+    await searchInput.fill("playwright+org_admin@example.com");
     await expect(page.getByText("No Data Available")).toBeAttached();
   });
 
@@ -194,7 +194,7 @@ test.describe("Users - UI", () => {
 test.describe("Users - Invite Users", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
     const homePage = new HomePage(page);
     await homePage.users.click();

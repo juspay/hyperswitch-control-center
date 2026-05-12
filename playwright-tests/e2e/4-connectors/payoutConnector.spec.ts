@@ -19,7 +19,7 @@ test.describe("Payout Connector", () => {
   const payoutConnectors = Object.entries(payoutConnectorConfig);
   test.beforeEach(async ({ page, context }) => {
     email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 

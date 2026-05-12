@@ -9,7 +9,7 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 async function signupAndLogin(page: Page, context: BrowserContext) {
   const email = generateUniqueEmail();
-  await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+  await signupUser(email, PLAYWRIGHT_PASSWORD);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 }
 
@@ -163,7 +163,7 @@ test.describe("All Tax Processors", () => {
   const taxProcessors = Object.entries(taxProcessorConfig);
   test.beforeEach(async ({ page, context }) => {
     email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 

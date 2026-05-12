@@ -9,7 +9,7 @@ import {
     createDummyConnectorAPI,
 } from "../../support/commands";
 
-const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
+const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 async function gatedOrAssert(
     page: Page,
@@ -25,7 +25,7 @@ async function gatedOrAssert(
 test.describe("Surcharge - add percentage rule", () => {
     test.beforeEach(async ({ page, context }) => {
         const email = generateUniqueEmail();
-        await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+        await signupUser(email, PLAYWRIGHT_PASSWORD);
         await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
         await page.route("**/dashboard/config/feature*", async (route) => {
@@ -74,7 +74,7 @@ test.describe("Surcharge decision page", () => {
         context,
     }) => {
         const email = generateUniqueEmail();
-        await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+        await signupUser(email, PLAYWRIGHT_PASSWORD);
         await loginUI(page, email, PLAYWRIGHT_PASSWORD);
         await page.waitForURL(/dashboard\/home/, { timeout: 15000 });
 

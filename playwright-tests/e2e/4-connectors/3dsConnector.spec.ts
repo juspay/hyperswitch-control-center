@@ -9,7 +9,7 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 async function signupAndLogin(page: Page, context: BrowserContext) {
   const email = generateUniqueEmail();
-  await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+  await signupUser(email, PLAYWRIGHT_PASSWORD);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 }
 
@@ -103,7 +103,7 @@ test.describe("3DS Authenticators Module", () => {
 test.describe("3DS Authenticators Setup", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 

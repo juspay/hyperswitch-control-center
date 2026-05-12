@@ -13,7 +13,7 @@ let email = "";
 test.describe("Homepage", () => {
   test.beforeEach(async ({ page, context }) => {
     email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await page.route("**/dashboard/config/feature?domain=", async (route) => {
       const response = await route.fetch();
@@ -533,7 +533,7 @@ test.describe("Live Mode and Test mode Behavior", () => {
 test.describe("Production access form", () => {
   test.beforeEach(async ({ page, context }) => {
     email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 

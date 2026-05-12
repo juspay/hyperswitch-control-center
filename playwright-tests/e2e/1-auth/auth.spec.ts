@@ -217,7 +217,7 @@ test.describe.serial("Sign in", () => {
     context,
   }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
     await expect(page).toHaveURL(/.*dashboard\/home/);
@@ -229,7 +229,7 @@ test.describe.serial("Sign in", () => {
   }) => {
     const homePage = new HomePage(page);
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
     await expect(page).toHaveURL(/.*dashboard\/home/);
@@ -244,7 +244,7 @@ test.describe.serial("Sign in", () => {
     context,
   }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
     await expect(page).toHaveURL(/.*dashboard\/home/);
@@ -333,7 +333,7 @@ test.describe.serial("Sign in", () => {
     context,
   }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     const signinPage = new SignInPage(page);
 
@@ -379,7 +379,7 @@ test.describe.serial("Sign in", () => {
     context,
   }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     const signinPage = new SignInPage(page);
     const otp = "123456";
@@ -406,7 +406,7 @@ test.describe.serial("Sign in", () => {
     context,
   }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     const signinPage = new SignInPage(page);
 
@@ -429,7 +429,7 @@ test.describe.serial("Sign in", () => {
     context,
   }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     const signinPage = new SignInPage(page);
 
@@ -498,7 +498,7 @@ test.describe("Forgot password", () => {
     context,
   }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     const signinPage = new SignInPage(page);
 
@@ -534,7 +534,7 @@ test.describe("Forgot password", () => {
     const signinPage = new SignInPage(page);
     const resetPasswordPage = new ResetPasswordPage(page);
 
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await page.goto("/");
     await signinPage.forgetPasswordLink.click();
@@ -578,7 +578,7 @@ test.describe("Forgot password", () => {
       { password: "Password123", expectedError: /special/ },
     ];
 
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await page.goto("/");
     await signinPage.forgetPasswordLink.click();
@@ -785,7 +785,7 @@ test.describe("TOTP flows", () => {
     let totpSecret = "";
     const email = generateUniqueEmail();
 
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await page.goto("/");
     const signinPage = new SignInPage(page);
@@ -824,7 +824,7 @@ test.describe("TOTP flows", () => {
   test("should successfully signin using 2FA", async ({ page, context }) => {
     let totpSecret = "";
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     const signinPage = new SignInPage(page);
     const homePage = new HomePage(page);
@@ -1014,7 +1014,7 @@ test.describe("Maintenance mode and Down time", () => {
     });
 
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
     await expect(page.getByRole('alert')).toContainText(maintenanceAlert);

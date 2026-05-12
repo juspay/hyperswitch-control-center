@@ -137,7 +137,7 @@ test.describe("Visual Testing - Auth Pages", () => {
     context,
   }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     const signinPage = new SignInPage(page);
 
@@ -168,7 +168,7 @@ test.describe("Visual Testing - Auth Pages", () => {
     let totpSecret = "";
     await mockV2MerchantList(page);
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     const signinPage = new SignInPage(page);
     const homePage = new HomePage(page);

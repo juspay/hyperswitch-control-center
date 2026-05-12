@@ -15,7 +15,7 @@ test.describe("Visual Testing - Homepage", () => {
     await mockV2MerchantList(page);
 
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 

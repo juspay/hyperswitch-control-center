@@ -2,12 +2,12 @@ import { test, expect } from "../../support/test";
 import { generateUniqueEmail } from "../../support/helper";
 import { signupUser, loginUI } from "../../support/commands";
 
-const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
+const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 test.describe.skip("Performance Monitor - alert configuration", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await page.route("**/dashboard/config/feature*", async (route) => {
       const response = await route.fetch();

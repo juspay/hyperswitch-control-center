@@ -11,7 +11,7 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 async function signupAndLogin(page: Page, context: BrowserContext) {
   const email = generateUniqueEmail();
   const homePage = new HomePage(page);
-  await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+  await signupUser(email, PLAYWRIGHT_PASSWORD);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   const merchantId = await homePage.merchantID.nth(0).textContent();
   if (merchantId) {
