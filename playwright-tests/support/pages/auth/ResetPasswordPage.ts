@@ -30,6 +30,10 @@ export class ResetPasswordPage {
   get confirmPasswordField(): Locator {
     return this.page.locator('[data-testid="confirm_password"] input');
   }
+
+  get weakPasswordError(): Locator {
+    return this.page.getByText("Your password is not strong");
+  }
 }
 
 export default ResetPasswordPage;
