@@ -336,6 +336,9 @@ let getObj = (dict, key, default) => {
   dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.object)->Option.getOr(default)
 }
 
+let getMappedValueFromDict = (dict, key, default, mapper) =>
+  dict->Dict.get(key)->Option.mapOr(default, mapper)
+
 let getDictFromUrlSearchParams = searchParams => {
   searchParams
   ->String.split("&")
