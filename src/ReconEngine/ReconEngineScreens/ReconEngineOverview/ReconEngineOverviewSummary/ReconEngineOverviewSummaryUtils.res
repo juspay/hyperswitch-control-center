@@ -358,7 +358,7 @@ let getTransactionsData = (
   accountId: string,
 ): accountTransactionData => {
   accountTransactionData
-  ->getvalFromDict(accountId)
+  ->getOptionValFromDict(accountId)
   ->Option.getOr(Dict.make()->accountTransactionDataToObjMapper)
 }
 

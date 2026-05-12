@@ -772,9 +772,9 @@ let calculateSectionData = (
   ->Array.map(accountId => {
     let accountInfo =
       accountInfoMap
-      ->getvalFromDict(accountId)
+      ->getOptionValFromDict(accountId)
       ->Option.getOr({account_info_name: "", account_info_type: UnknownAccountTypeVariant})
-    let accountEntries = groupedEntries->getvalFromDict(accountId)->Option.getOr([])
+    let accountEntries = groupedEntries->getOptionValFromDict(accountId)->Option.getOr([])
 
     let (totalAmount, currency) = if accountInfo.account_info_type != UnknownAccountTypeVariant {
       getBalanceByAccountType(accountEntries, accountInfo.account_info_type)

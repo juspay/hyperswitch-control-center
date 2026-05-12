@@ -8,7 +8,7 @@ let themeBodyMapper = (json: JSON.t): themeUpdate => {
     ~uiConfig=themeJsonObject,
     ~fallbackThemeConfig=ThemeProvider.fallbackThemeConfig,
   )
-  let emailConfigJson = dict->getvalFromDict("email_config")
+  let emailConfigJson = dict->getOptionValFromDict("email_config")
   let email_config: option<HyperSwitchConfigTypes.emailConfig> = switch emailConfigJson {
   | Some(emailJson) => {
       let emailDict = getDictFromJsonObject(emailJson)
