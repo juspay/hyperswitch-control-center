@@ -139,8 +139,7 @@ let make = (
     None
   } else {
     switch (rightIcon, rightIconOnClick) {
-    | (Some(icon), Some(onClick)) =>
-      Some(<div onClick className="cursor-pointer"> icon </div>)
+    | (Some(icon), Some(onClick)) => Some(<div onClick className="cursor-pointer"> icon </div>)
     | (Some(icon), None) => Some(icon)
     | (None, _) => None
     }
