@@ -50,7 +50,6 @@ ZAR = "ZAR"  # South African Rand currency code
 JOD = "JOD" # Jordan currency code
 IST = "IST" # abbreviation for indian standard time
 ACI = "ACI" # Abbreviation for connector
-aci = "aci" # Connector name
 som = "som" # abbreviation for Kyrgyzstani som
 utcToIST = "utcToIST" # function to convert utc to indian standard time
 utcToISTDate = "utcToISTDate" # function to convert utc date to indian standard time date
