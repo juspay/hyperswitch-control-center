@@ -259,7 +259,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "google_pay" => GooglePay
   | "apple_pay" => ApplePay
   | "paypal" => PayPal
-  | "pix_qr" => PixQr
+  | "pix" => Pix
   | "pix_automatico_qr" => PixAutomaticoQr
   | "pix_automatico_push" => PixAutomaticoPush
   | "boleto" => Boleto
