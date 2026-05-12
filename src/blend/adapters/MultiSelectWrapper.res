@@ -22,14 +22,14 @@ let makeItems = (
 
   options->Array.forEach(opt => {
     let group = opt.optGroup->Option.getOr("-")
-    let existing = groups->getOptionValFromDict(group)->Option.getOr([])
+    let existing = groups->getValueFromDict(group, [])
     groups->Dict.set(group, Array.concat(existing, [opt]))
   })
 
   let groupKeys = groups->Dict.keysToArray
 
   groupKeys->Array.map(groupKey => {
-    let groupOptions = groups->getOptionValFromDict(groupKey)->Option.getOr([])
+    let groupOptions = groups->getValueFromDict(groupKey, [])
     let items = groupOptions->Array.map(opt => {
       let slot1 = getLeftSlot(opt.icon)
       let slot2 = getRightSlot(opt.icon)

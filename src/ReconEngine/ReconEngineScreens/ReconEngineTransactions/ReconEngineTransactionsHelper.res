@@ -118,7 +118,7 @@ module EntryAuditTrailInfo = {
     let accountGroups = React.useMemo(() => {
       let groupedByAccount = entriesList->Array.reduce(Dict.make(), (acc, entry) => {
         let accountId = entry.account_id
-        let existing = acc->getOptionValFromDict(accountId)->Option.getOr([])
+        let existing = acc->getValueFromDict(accountId, [])
         acc->Dict.set(accountId, [...existing, entry])
         acc
       })

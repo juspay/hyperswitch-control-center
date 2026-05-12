@@ -357,9 +357,10 @@ let getTransactionsData = (
   accountTransactionData: Dict.t<accountTransactionData>,
   accountId: string,
 ): accountTransactionData => {
-  accountTransactionData
-  ->getOptionValFromDict(accountId)
-  ->Option.getOr(Dict.make()->accountTransactionDataToObjMapper)
+  accountTransactionData->getValueFromDict(
+    accountId,
+    Dict.make()->accountTransactionDataToObjMapper,
+  )
 }
 
 let generateNodesAndEdgesWithTransactionAmounts = (
