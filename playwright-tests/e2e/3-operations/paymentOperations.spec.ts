@@ -91,9 +91,7 @@ test.describe("Payment Operations", () => {
       await homePage.operations.click();
       await homePage.paymentOperations.click();
 
-      await expect(
-        page.locator('[class="flex justify-between items-center"]'),
-      ).toContainText("Payment Operations");
+      await expect(page.getByText('Payment Operations')).toContainText("Payment Operations");
 
       await expect(
         paymentOperations.transactionView.locator("> div").nth(0),
@@ -116,14 +114,14 @@ test.describe("Payment Operations", () => {
         "S.No",
         "Payment ID",
         "Connector",
-        "Profile Id",
+        "Profile ID",
         "Amount",
         "Payment Status",
         "Payment Method",
         "Payment Method Type",
         "Card Network",
         "Connector Transaction ID",
-        "Merchant Order Reference Id",
+        "Merchant Order Reference ID",
         "Description",
         "Metadata",
         "Created",
@@ -180,7 +178,7 @@ test.describe("Payment Operations", () => {
     const columns = {
       expected: [
         "Card Network",
-        "Merchant Order Reference Id",
+        "Merchant Order Reference ID",
         "Metadata",
         "Payment Status",
         "Payment Method Type",
@@ -191,9 +189,9 @@ test.describe("Payment Operations", () => {
         "Modified",
         "Connector Transaction ID",
         "Connector",
-        "Profile Id",
+        "Profile ID",
         "Amount",
-        "AmountCapturable",
+        "Amount Capturable",
         "Authentication Type",
         "Capture Method",
         "Client Secret",
@@ -201,11 +199,11 @@ test.describe("Payment Operations", () => {
         "Customer ID",
         "Merchant ID",
         "Setup Future Usage",
-        "Attempt count",
+        "Attempt Count",
         "Error Message",
       ],
       optional: [
-        "AmountCapturable",
+        "Amount Capturable",
         "Authentication Type",
         "Capture Method",
         "Client Secret",
@@ -213,12 +211,12 @@ test.describe("Payment Operations", () => {
         "Customer ID",
         "Merchant ID",
         "Setup Future Usage",
-        "Attempt count",
+        "Attempt Count",
         "Error Message",
       ],
       mandatory: [
         "Card Network",
-        "Merchant Order Reference Id",
+        "Merchant Order Reference ID",
         "Metadata",
         "Payment Status",
         "Payment Method Type",
@@ -229,7 +227,7 @@ test.describe("Payment Operations", () => {
         "Modified",
         "Connector Transaction ID",
         "Connector",
-        "Profile Id",
+        "Profile ID",
         "Amount",
       ],
     };
@@ -306,7 +304,7 @@ test.describe("Payment Operations", () => {
   }) => {
     const columns = [
       "Card Network",
-      "Merchant Order Reference Id",
+      "Merchant Order Reference ID",
       "Metadata",
       "Payment Status",
       "Payment Method Type",
@@ -317,9 +315,9 @@ test.describe("Payment Operations", () => {
       "Modified",
       "Connector Transaction ID",
       "Connector",
-      "Profile Id",
+      "Profile ID",
       "Amount",
-      "AmountCapturable",
+      "Amount Capturable",
       "Authentication Type",
       "Capture Method",
       "Client Secret",
@@ -327,7 +325,7 @@ test.describe("Payment Operations", () => {
       "Customer ID",
       "Merchant ID",
       "Setup Future Usage",
-      "Attempt count",
+      "Attempt Count",
       "Error Message",
     ];
 
@@ -410,19 +408,19 @@ test.describe("Payment Operations", () => {
       "S.No",
       "Payment ID",
       "Connector",
-      "Profile Id",
+      "Profile ID",
       "Amount",
       "Payment Status",
       "Payment Method",
       "Payment Method Type",
       "Card Network",
       "Connector Transaction ID",
-      "Merchant Order Reference Id",
+      "Merchant Order Reference ID",
       "Description",
       "Metadata",
       "Created",
       "Modified",
-      "AmountCapturable",
+      "Amount Capturable",
       "Authentication Type",
       "Capture Method",
       "Client Secret",
@@ -430,7 +428,7 @@ test.describe("Payment Operations", () => {
       "Customer ID",
       "Merchant ID",
       "Setup Future Usage",
-      "Attempt count",
+      "Attempt Count",
       "Error Message",
     ];
 
@@ -646,7 +644,7 @@ test.describe("Payment Operations", () => {
     await paymentOperations.addFilters.click();
     await page
       .locator(".mr-5.text-left")
-      .getByText("Merchant Order Reference Id")
+      .getByText("Merchant Order Reference ID")
       .click();
     await expect(
       page.locator('[name="merchant_order_reference_id"]'),
@@ -1023,8 +1021,8 @@ test.describe("Payment Operations", () => {
     await expect(
       page.locator('[class="font-bold text-lg mb-5"]').nth(1),
     ).toContainText("About Payment");
-    await expect(page.locator('[data-label="Profile Id"]')).toContainText(
-      "Profile Id",
+    await expect(page.locator('[data-label="Profile ID"]')).toContainText(
+      "Profile ID",
     );
     await expect(page.locator('[data-label="Profile Name"]')).toContainText(
       "Profile Name",
@@ -1110,7 +1108,7 @@ test.describe("Payment Operations", () => {
     const expectedRefundAttemptColumns = [
       "S.No",
       "Refund ID",
-      "Payment Id",
+      "Payment ID",
       "Amount",
       "Refund Status",
       "Created",
