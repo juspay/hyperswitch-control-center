@@ -151,7 +151,7 @@ let filterMultiSelectInput = (
   ~disableSelect=false,
   (),
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
-  <FilterSelectBox
+  <FilterSelectBoxAdapter
     input
     options
     optionSize

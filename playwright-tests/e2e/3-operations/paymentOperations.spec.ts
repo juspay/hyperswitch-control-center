@@ -585,8 +585,10 @@ test.describe("Payment Operations", () => {
 
     for (const filter of allFilters) {
       await expect(
-        page.locator('[class="px-1 py-1 overflow-y-auto max-h-96"]'),
-      ).toContainText(filter);
+        page.locator(
+          `[data-dropdown-value="${filter}"]:visible`,
+        ),
+      ).toBeVisible();
     }
   });
 
@@ -624,8 +626,9 @@ test.describe("Payment Operations", () => {
     for (const filter of filterKeys) {
       await paymentOperations.addFilters.click();
       await page
-        .locator(".mr-5.text-left")
-        .getByText(filter, { exact: true })
+        .locator(
+          `[data-dropdown-value="${filter}"]:visible`,
+        )
         .click();
       await expect(
         page.locator('[class="flex relative  flex-row  flex-wrap"]').first(),
@@ -634,7 +637,11 @@ test.describe("Payment Operations", () => {
     }
 
     await paymentOperations.addFilters.click();
-    await page.locator(".mr-5.text-left").getByText("Customer Id").click();
+    await page
+      .locator(
+        '[data-dropdown-value="Customer Id"]:visible',
+      )
+      .click();
     await expect(page.locator('[name="customer_id"]')).toHaveAttribute(
       "placeholder",
       "Enter Customer Id...",
@@ -643,8 +650,9 @@ test.describe("Payment Operations", () => {
 
     await paymentOperations.addFilters.click();
     await page
-      .locator(".mr-5.text-left")
-      .getByText("Merchant Order Reference ID")
+      .locator(
+        '[data-dropdown-value="Merchant Order Reference Id"]:visible',
+      )
       .click();
     await expect(
       page.locator('[name="merchant_order_reference_id"]'),
@@ -672,7 +680,11 @@ test.describe("Payment Operations", () => {
     await homePage.paymentOperations.click();
 
     await paymentOperations.addFilters.click();
-    await page.locator(".mr-5.text-left").getByText("Connector").click();
+    await page
+      .locator(
+        '[data-dropdown-value="Connector"]:visible',
+      )
+      .click();
     await page
       .locator('[class="flex relative  flex-row  flex-wrap"]')
       .first()
@@ -682,14 +694,22 @@ test.describe("Payment Operations", () => {
     await expect(page.getByText("Stripe Dummy").first()).toBeVisible();
 
     await paymentOperations.addFilters.click();
-    await page.locator(".mr-5.text-left").getByText("Status").click();
+    await page
+      .locator(
+        '[data-dropdown-value="Status"]:visible',
+      )
+      .click();
     await page.locator('[data-component-field-wrapper="field-status"]').click();
     await page.locator('[value="Succeeded"]').click();
     await page.locator('[data-button-text="Apply"]').click();
     await expect(page.getByText("Succeeded").first()).toBeVisible();
 
     await paymentOperations.addFilters.click();
-    await page.locator(".mr-5.text-left").getByText("Currency").click();
+    await page
+      .locator(
+        '[data-dropdown-value="Currency"]:visible',
+      )
+      .click();
     await page.getByText("Select Currency").click();
     await page.locator('[placeholder="Search..."]').fill("USD");
     await page.locator('[data-searched-text="USD"]').click();
