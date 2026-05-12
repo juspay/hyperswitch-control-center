@@ -1,5 +1,6 @@
 import { test, expect } from "../../support/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
+import { DisputesOperations } from "../../support/pages/operations/DisputesOperations";
 import { generateUniqueEmail } from "../../support/helper";
 import {
   signupUser,
@@ -34,9 +35,9 @@ test.describe("Disputes - detail page and evidence upload", () => {
   test("should navigate to a dispute detail page when a row is clicked", async ({
     page,
   }) => {
-    const disputeRow = page
-      .locator('table tbody tr:first-child, [data-testid*="dispute-item"]')
-      .first();
+    const disputesOperations = new DisputesOperations(page);
+
+    const disputeRow = disputesOperations.disputeListFirstRow;
     if (!(await disputeRow.isVisible().catch(() => false))) {
       test.skip(true, "no dispute rows rendered (empty merchant)");
     }
@@ -47,21 +48,21 @@ test.describe("Disputes - detail page and evidence upload", () => {
   test("should open the evidence upload input and accept a file", async ({
     page,
   }) => {
-    const disputeRow = page.locator("table tbody tr:first-child").first();
+    const disputesOperations = new DisputesOperations(page);
+
+    const disputeRow = disputesOperations.firstDisputeRow;
     if (!(await disputeRow.isVisible().catch(() => false))) {
       test.skip(true, "no dispute rows rendered");
     }
     await disputeRow.click();
 
-    const uploadButton = page
-      .locator('[data-button-for="uploadEvidence"], button:has-text("Upload")')
-      .first();
+    const uploadButton = disputesOperations.uploadEvidenceButton;
     if (!(await uploadButton.isVisible().catch(() => false))) {
       test.skip(true, "upload evidence CTA not exposed");
     }
     await uploadButton.click();
 
-    const fileInput = page.locator('input[type="file"]').first();
+    const fileInput = disputesOperations.fileInput;
     if (!(await fileInput.isVisible().catch(() => false))) {
       test.skip(true, "file input not exposed");
     }
@@ -71,17 +72,15 @@ test.describe("Disputes - detail page and evidence upload", () => {
       buffer: Buffer.from("mock pdf content"),
     });
 
-    await expect(
-      page.locator('[data-toast*="upload"], [data-toast*="success"]'),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(disputesOperations.uploadToast).toBeVisible({ timeout: 10000 });
   });
 
   test("should render a deadline countdown string matching days/hours/minutes", async ({
     page,
   }) => {
-    const deadlineElement = page
-      .locator('[data-testid*="deadline"], [data-testid*="countdown"]')
-      .first();
+    const disputesOperations = new DisputesOperations(page);
+
+    const deadlineElement = disputesOperations.deadlineElement;
     if (!(await deadlineElement.isVisible().catch(() => false))) {
       test.skip(true, "deadline countdown not exposed");
     }
@@ -92,17 +91,15 @@ test.describe("Disputes - detail page and evidence upload", () => {
   test("should disable the Submit Evidence button for an expired dispute", async ({
     page,
   }) => {
-    const expiredDispute = page
-      .locator('[data-testid*="expired"], tr:has-text("Expired")')
-      .first();
+    const disputesOperations = new DisputesOperations(page);
+
+    const expiredDispute = disputesOperations.expiredDispute;
     if (!(await expiredDispute.isVisible().catch(() => false))) {
       test.skip(true, "no expired disputes in this merchant");
     }
     await expiredDispute.click();
 
-    const submitButton = page
-      .locator('[data-button-for="submitEvidence"]')
-      .first();
+    const submitButton = disputesOperations.submitEvidenceButton;
     if (!(await submitButton.isVisible().catch(() => false))) {
       test.skip(true, "submit evidence button not exposed");
     }

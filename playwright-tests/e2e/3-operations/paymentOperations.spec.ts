@@ -34,7 +34,7 @@ test.describe("Payment Operations", () => {
       await homePage.paymentOperations.click();
 
       await expect(
-        page.locator('[class="flex justify-between items-center"]'),
+        paymentOperations.pageHeader,
       ).toContainText("Payment Operations");
 
       await expect(
@@ -63,14 +63,12 @@ test.describe("Payment Operations", () => {
       await expect(paymentOperations.addFilters).toBeVisible();
 
       await expect(
-        page.locator(
-          '[class="items-center text-2xl text-black font-bold mb-4"]',
-        ),
+        paymentOperations.noResultsHeader,
       ).toHaveText("No results found");
       await expect(
-        page.locator('[data-button-for="expandTheSearchToThePrevious90Days"]'),
+        paymentOperations.expandSearch90Days,
       ).toHaveText("Expand the search to the previous 90 days");
-      await expect(page.locator('[class="flex justify-center"]')).toContainText(
+      await expect(paymentOperations.searchHelpText).toContainText(
         "Or try the following:Try a different search parameterAdjust or remove filters and search once more",
       );
     });
@@ -96,7 +94,7 @@ test.describe("Payment Operations", () => {
         await homePage.paymentOperations.click();
 
         await expect(
-          page.locator('[class="flex justify-between items-center"]'),
+          paymentOperations.pageHeader,
         ).toContainText("Payment Operations");
 
         await expect(
@@ -141,37 +139,37 @@ test.describe("Payment Operations", () => {
         }
 
         await expect(
-          page.locator('[data-table-location="Orders_tr1_td1"]'),
+          paymentOperations.orderCell(1, 1),
         ).toContainText("1");
         await expect(
-          page.locator('[data-table-location="Orders_tr1_td2"]'),
+          paymentOperations.orderCell(1, 2),
         ).toContainText(paymentData.payment_id);
         await expect(
-          page.locator('[data-table-location="Orders_tr1_td3"]'),
+          paymentOperations.orderCell(1, 3),
         ).toContainText("Stripe Dummy");
         await expect(
-          page.locator('[data-table-location="Orders_tr1_td4"]'),
+          paymentOperations.orderCell(1, 4),
         ).toContainText(paymentData.profile_id);
         await expect(
-          page.locator('[data-table-location="Orders_tr1_td5"]'),
+          paymentOperations.orderCell(1, 5),
         ).toContainText(`${paymentData.amount / 100} ${paymentData.currency}`);
         await expect(
-          page.locator('[data-table-location="Orders_tr1_td6"]'),
+          paymentOperations.orderCell(1, 6),
         ).toContainText(paymentData.status.toUpperCase());
         await expect(
-          page.locator('[data-table-location="Orders_tr1_td7"]'),
+          paymentOperations.orderCell(1, 7),
         ).toContainText(paymentData.payment_method);
         await expect(
-          page.locator('[data-table-location="Orders_tr1_td8"]'),
+          paymentOperations.orderCell(1, 8),
         ).toContainText(paymentData.payment_method_type);
         await expect(
-          page.locator('[data-table-location="Orders_tr1_td9"]'),
+          paymentOperations.orderCell(1, 9),
         ).toContainText("N/A");
         await expect(
-          page.locator('[data-table-location="Orders_tr1_td10"]'),
+          paymentOperations.orderCell(1, 10),
         ).toContainText(paymentData.connector_transaction_id);
         await expect(
-          page.locator('[data-table-location="Orders_tr1_td11"]'),
+          paymentOperations.orderCell(1, 11),
         ).toContainText(paymentData.merchant_order_reference_id);
       }
     });
@@ -260,48 +258,38 @@ test.describe("Payment Operations", () => {
       await paymentOperations.columnButton.click();
 
       for (const column of columns.expected) {
-        await expect(
-          page.locator(
-            '[class="overflow-hidden p-6 pb-12 border-b border-solid  border-slate-300 dark:border-slate-500"]',
-          ),
-        ).toContainText(column);
+        await expect(paymentOperations.columnsModalBody).toContainText(column);
       }
 
-      const dropdownItems = page.locator(
-        '[data-component="modal:Table Columns"] [data-dropdown-numeric]',
-      );
+      const dropdownItems = paymentOperations.tableColumnsDropdownItems;
       const count = await dropdownItems.count();
       for (let i = 0; i < count; i++) {
         await dropdownItems.nth(i).click();
       }
 
-      await expect(page.locator('[data-button-text="Save"]')).toContainText(
+      await expect(paymentOperations.saveButton).toContainText(
         "Save",
       );
 
       for (const column of columns.optional) {
-        await page.locator(`[data-dropdown-value="${column}"]`).click();
+        await paymentOperations.dropdownValue(column).click();
       }
 
-      await expect(page.locator('[data-button-text="Save"]')).toContainText(
+      await expect(paymentOperations.saveButton).toContainText(
         "Save",
       );
 
-      await page
-        .locator(
-          '[data-component="modal:Table Columns"] [data-icon="modal-close-icon"]',
-        )
-        .click();
+      await paymentOperations.tableColumnsModalCloseIcon.click();
 
       for (const column of columns.mandatory) {
         await expect(
-          page.locator(`[data-table-heading="${column}"]`),
+          paymentOperations.tableHeading(column),
         ).toBeAttached();
       }
 
       for (const column of columns.optional) {
         await expect(
-          page.locator(`[data-table-heading="${column}"]`),
+          paymentOperations.tableHeading(column),
         ).not.toBeAttached();
       }
     });
@@ -400,12 +388,10 @@ test.describe("Payment Operations", () => {
         await expect(page.getByText("No matching records found")).toBeVisible();
       }
 
-      await page.locator('[data-icon="searchExit"]').click();
-      await expect(
-        page.locator(
-          '[data-component="modal:Table Columns"] [data-dropdown-numeric]',
-        ),
-      ).toHaveCount(columnSize);
+      await paymentOperations.searchExitIcon.click();
+      await expect(paymentOperations.tableColumnsDropdownItems).toHaveCount(
+        columnSize,
+      );
     });
 
     test("should display all selected columns in payments table", async ({
@@ -459,19 +445,17 @@ test.describe("Payment Operations", () => {
 
       await paymentOperations.columnButton.click();
 
-      const dropdownItems = page.locator(
-        '[data-component="modal:Table Columns"] [data-dropdown-numeric]',
-      );
+      const dropdownItems = paymentOperations.tableColumnsDropdownItems;
       const count = await dropdownItems.count();
       for (let i = 0; i < count; i++) {
         await dropdownItems.nth(i).click();
       }
 
-      await expect(page.locator('[data-button-text="Save"]')).toContainText(
+      await expect(paymentOperations.saveButton).toContainText(
         "Save",
       );
 
-      await page.locator('[data-button-text="Save"]').click();
+      await paymentOperations.saveButton.click();
 
       for (let i = 0; i < expectedColumns.length; i++) {
         await expect(page.locator("table thead tr th").nth(i)).toHaveText(
@@ -490,6 +474,7 @@ test.describe("Payment Operations", () => {
       // 3 sequential payment creates + 6 sort + assert cycles per column.
       test.setTimeout(120000);
       const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
       const payments: { payment_id: string; amount: number }[] = [];
@@ -527,7 +512,7 @@ test.describe("Payment Operations", () => {
       const sortableColumns = ["Amount", "Created", "Modified"];
 
       for (const column of sortableColumns) {
-        const heading = page.locator(`[data-table-heading="${column}"]`);
+        const heading = paymentOperations.tableHeading(column);
         const sortUp = heading.locator('[data-icon="caret-up"]');
         const sortDown = heading.locator('[data-icon="caret-down"]');
 
@@ -535,23 +520,23 @@ test.describe("Payment Operations", () => {
         await expect(sortUp).toBeVisible();
         await sortUp.click();
         await page.waitForLoadState("networkidle");
-        await expect(page.locator('[data-table-location="Orders_tr1_td2"]')).toContainText(payments[2].payment_id);
-        await expect(page.locator('[data-table-location="Orders_tr3_td2"]')).toContainText(payments[0].payment_id);
+        await expect(paymentOperations.orderCell(1, 2)).toContainText(payments[2].payment_id);
+        await expect(paymentOperations.orderCell(3, 2)).toContainText(payments[0].payment_id);
 
         // Second click toggles DEC -> INC (ascending)
         await expect(sortDown).toBeVisible();
         await sortDown.click();
         await page.waitForLoadState("networkidle");
         await page.waitForTimeout(3000);
-        await expect(page.locator('[data-table-location="Orders_tr1_td2"]')).toContainText(payments[0].payment_id);
-        await expect(page.locator('[data-table-location="Orders_tr3_td2"]')).toContainText(payments[2].payment_id);
+        await expect(paymentOperations.orderCell(1, 2)).toContainText(payments[0].payment_id);
+        await expect(paymentOperations.orderCell(3, 2)).toContainText(payments[2].payment_id);
 
         // Third click toggles INC -> DEC (descending)
         await expect(sortUp).toBeVisible();
         await sortUp.click();
         await page.waitForLoadState("networkidle");
-        await expect(page.locator('[data-table-location="Orders_tr1_td2"]')).toContainText(payments[2].payment_id);
-        await expect(page.locator('[data-table-location="Orders_tr3_td2"]')).toContainText(payments[0].payment_id);
+        await expect(paymentOperations.orderCell(1, 2)).toContainText(payments[2].payment_id);
+        await expect(paymentOperations.orderCell(3, 2)).toContainText(payments[0].payment_id);
       }
     });
   });
@@ -626,7 +611,7 @@ test.describe("Payment Operations", () => {
         await paymentOperations.searchBox.press("Enter");
 
         await expect(
-          page.locator('[data-table-location="Orders_tr1_td2"]'),
+          paymentOperations.orderCell(1, 2),
         ).toContainText(firstPaymentId);
       }
 
@@ -640,7 +625,7 @@ test.describe("Payment Operations", () => {
         await paymentOperations.searchBox.press("Enter");
 
         await expect(
-          page.locator('[data-table-location="Orders_tr1_td2"]'),
+          paymentOperations.orderCell(1, 2),
         ).toContainText(secondPaymentId);
       }
     });
@@ -670,14 +655,12 @@ test.describe("Payment Operations", () => {
       await paymentOperations.searchBox.press("Enter");
 
       await expect(
-        page.locator(
-          '[class="items-center text-2xl text-black font-bold mb-4"]',
-        ),
+        paymentOperations.noResultsHeader,
       ).toHaveText("No results found");
       await expect(
-        page.locator('[data-button-for="expandTheSearchToThePrevious90Days"]'),
+        paymentOperations.expandSearch90Days,
       ).toHaveText("Expand the search to the previous 90 days");
-      await expect(page.locator('[class="flex justify-center"]')).toContainText(
+      await expect(paymentOperations.searchHelpText).toContainText(
         "Or try the following:Try a different search parameterAdjust or remove filters and search once more",
       );
     });
@@ -711,9 +694,7 @@ test.describe("Payment Operations", () => {
 
       for (const filter of allFilters) {
         await expect(
-          page.locator(
-            `[data-dropdown-value="${filter}"]:visible`,
-          ),
+          paymentOperations.visibleDropdownValue(filter),
         ).toBeVisible();
       }
     });
@@ -757,9 +738,9 @@ test.describe("Payment Operations", () => {
           )
           .click();
         await expect(
-          page.locator('[class="flex relative  flex-row  flex-wrap"]').first(),
+          paymentOperations.filterChipArea.first(),
         ).toContainText(`Select ${filter}`);
-        await page.locator('[data-icon="cross-outline"]').click();
+        await paymentOperations.crossOutlineIcon.click();
       }
 
       await paymentOperations.addFilters.click();
@@ -768,11 +749,11 @@ test.describe("Payment Operations", () => {
           '[data-dropdown-value="Customer Id"]:visible',
         )
         .click();
-      await expect(page.locator('[name="customer_id"]')).toHaveAttribute(
+      await expect(paymentOperations.customerIdInput).toHaveAttribute(
         "placeholder",
         "Enter Customer Id...",
       );
-      await page.locator('[data-icon="cross-outline"]').click();
+      await paymentOperations.crossOutlineIcon.click();
 
       await paymentOperations.addFilters.click();
       await page
@@ -781,7 +762,7 @@ test.describe("Payment Operations", () => {
         )
         .click();
       await expect(
-        page.locator('[name="merchant_order_reference_id"]'),
+        paymentOperations.merchantOrderRefIdInput,
       ).toHaveAttribute("placeholder", "Enter Merchant Order Reference Id...");
     });
 
@@ -816,7 +797,7 @@ test.describe("Payment Operations", () => {
         .first()
         .click();
       await page.locator('[value="Stripe Dummy"]').click();
-      await page.locator('[data-button-text="Apply"]').click();
+      await paymentOperations.applyButton.click();
       await expect(page.getByText("Stripe Dummy").first()).toBeVisible();
 
       await paymentOperations.addFilters.click();
@@ -825,9 +806,9 @@ test.describe("Payment Operations", () => {
           '[data-dropdown-value="Status"]:visible',
         )
         .click();
-      await page.locator('[data-component-field-wrapper="field-status"]').click();
+      await paymentOperations.statusFieldWrapper.click();
       await page.locator('[value="Succeeded"]').click();
-      await page.locator('[data-button-text="Apply"]').click();
+      await paymentOperations.applyButton.click();
       await expect(page.getByText("Succeeded").first()).toBeVisible();
 
       await paymentOperations.addFilters.click();
@@ -839,12 +820,12 @@ test.describe("Payment Operations", () => {
       await page.getByText("Select Currency").click();
       await page.locator('[placeholder="Search..."]').fill("USD");
       await page.locator('[data-searched-text="USD"]').click();
-      await page.locator('[data-button-text="Apply"]').click();
+      await paymentOperations.applyButton.click();
       await expect(page.getByText("USD").first()).toBeVisible();
 
-      await expect(page.locator('[data-table-location="Orders_tr1_td3"]')).toContainText("Stripe");
-      await expect(page.locator('[data-table-location="Orders_tr1_td6"]')).toContainText("SUCCEEDED");
-      await expect(page.locator('[data-table-location="Orders_tr1_td5"]')).toContainText("USD");
+      await expect(paymentOperations.orderCell(1, 3)).toContainText("Stripe");
+      await expect(paymentOperations.orderCell(1, 6)).toContainText("SUCCEEDED");
+      await expect(paymentOperations.orderCell(1, 5)).toContainText("USD");
     });
   });
 
@@ -915,12 +896,12 @@ test.describe("Payment Operations", () => {
       await paymentOperations.dateSelector.click();
 
       await expect(
-        page.locator('[data-date-picker-predefined="predefined-options"]'),
+        paymentOperations.predefinedDateOptions,
       ).toBeVisible();
 
       for (const filter of timeRangeFilters) {
         await expect(
-          page.locator('[data-date-picker-predefined="predefined-options"]'),
+          paymentOperations.predefinedDateOptions,
         ).toContainText(filter);
       }
     });
@@ -949,7 +930,7 @@ test.describe("Payment Operations", () => {
 
       const currentDay = new Date().getDate();
 
-      const predefinedOptions = page.locator('[data-date-picker-predefined="predefined-options"]');
+      const predefinedOptions = paymentOperations.predefinedDateOptions;
 
       for (const timeRange of predefinedTimeRange) {
         await paymentOperations.dateSelector.click({ force: true });
@@ -992,17 +973,17 @@ test.describe("Payment Operations", () => {
       await paymentOperations.dateSelector.click();
 
       await expect(
-        page.locator('[data-date-picker-predefined="predefined-options"]'),
+        paymentOperations.predefinedDateOptions,
       ).toBeVisible();
 
       await page
-        .locator('[data-daterange-dropdown-value="Custom Range"]')
+        paymentOperations.customRangeOption
         .click();
 
       await page.locator(`[data-testid*=" ${startDate},"]`).first().click();
       await page.locator(`[data-testid*=" ${endDate},"]`).first().click();
 
-      await page.locator('[data-button-text="Apply"]').click();
+      await paymentOperations.applyButton.click();
 
       await expect(
         page.locator(`[data-button-text="${expectedRange}"]`),
@@ -1062,7 +1043,7 @@ test.describe("Payment Operations", () => {
 
       for (const [view, filter] of Object.entries(viewFilters)) {
         await paymentOperations.transactionView.getByText(view).click();
-        await expect(page.locator('[data-component-field-wrapper="field-status"]')).toContainText(filter);
+        await expect(paymentOperations.statusFieldWrapper).toContainText(filter);
       }
     });
   });
@@ -1164,12 +1145,10 @@ test.describe("Payment Operations", () => {
       await homePage.paymentOperations.click();
 
       await paymentOperations.generateReports.click();
-      const modal = page.locator(
-        '[data-component="modal:Generate Payment Reports"]',
-      );
+      const modal = paymentOperations.generatePaymentReportsModal;
       await expect(modal).toBeVisible();
 
-      await modal.locator('[data-icon="modal-close-icon"]').click();
+      await paymentOperations.modalCloseIcon.click();
       await expect(modal).toBeHidden();
     });
 
@@ -1211,14 +1190,12 @@ test.describe("Payment Operations", () => {
       await homePage.paymentOperations.click();
 
       await paymentOperations.generateReports.click();
-      const modal = page.locator(
-        '[data-component="modal:Generate Payment Reports"]',
-      );
+      const modal = paymentOperations.generatePaymentReportsModal;
       await expect(modal).toBeVisible();
 
       await page.getByRole("button", { name: "Generate", exact: true }).click();
 
-      await expect(page.locator('[data-toast="Email Sent"]')).toBeVisible();
+      await expect(paymentOperations.emailSentToast).toBeVisible();
       await expect(modal).toBeHidden();
     });
 
@@ -1262,15 +1239,13 @@ test.describe("Payment Operations", () => {
       await homePage.paymentOperations.click();
 
       await paymentOperations.generateReports.click();
-      const modal = page.locator(
-        '[data-component="modal:Generate Payment Reports"]',
-      );
+      const modal = paymentOperations.generatePaymentReportsModal;
       await expect(modal).toBeVisible();
 
       await page.getByRole("button", { name: "Generate", exact: true }).click();
 
       await expect(
-        page.locator('[data-toast="Something went wrong. Please try again."]'),
+        paymentOperations.genericErrorToast,
       ).toBeVisible();
       await expect(modal).toBeVisible();
     });
@@ -1282,6 +1257,7 @@ test.describe("Payment Operations", () => {
       context,
     }) => {
       const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
@@ -1296,7 +1272,7 @@ test.describe("Payment Operations", () => {
         await homePage.paymentOperations.click();
 
         await expect(
-          page.locator('[data-icon="external-link-alt"]'),
+          paymentOperations.externalLinkIcon,
         ).toBeVisible();
 
         const href = await page
@@ -1333,11 +1309,11 @@ test.describe("Payment Operations", () => {
 
       await homePage.operations.click();
       await homePage.paymentOperations.click();
-      await page.locator('[data-table-location="Orders_tr1_td1"]').click();
+      await paymentOperations.orderCell(1, 1).click();
 
-      await page.locator('[data-button-text="+ Refund"]').click();
-      await page.locator('[name="amount"]').fill("12.34");
-      await page.locator('[data-button-text="Initiate Refund"]').click();
+      await paymentOperations.addRefundButton.click();
+      await paymentOperations.refundAmountInput.fill("12.34");
+      await paymentOperations.initiateRefundButton.click();
 
       await expect(
         page.locator('[class="font-bold text-lg mb-5"]').nth(0),
@@ -1351,50 +1327,50 @@ test.describe("Payment Operations", () => {
         ),
       ).toContainText("SUCCEEDED");
 
-      await expect(page.locator('[data-label="Created"]')).toContainText(
+      await expect(paymentOperations.dataLabel("Created")).toContainText(
         "Created",
       );
-      await expect(page.locator('[data-label="Last Updated"]')).toContainText(
+      await expect(paymentOperations.dataLabel("Last Updated")).toContainText(
         "Last Updated",
       );
       await expect(
-        page.locator('[data-label="Amount Received"]'),
+        paymentOperations.dataLabel("Amount Received"),
       ).toContainText("Amount Received");
       await expect(
-        page.locator('[data-label="Payment ID"]').first(),
+        paymentOperations.dataLabel("Payment ID").first(),
       ).toContainText("Payment ID");
       await expect(
-        page.locator('[data-label="Connector Transaction ID"]'),
+        paymentOperations.dataLabel("Connector Transaction ID"),
       ).toContainText("Connector Transaction ID");
-      await expect(page.locator('[data-label="Error Message"]')).toContainText(
+      await expect(paymentOperations.dataLabel("Error Message")).toContainText(
         "Error Message",
       );
 
       await expect(
         page.locator('[class="font-bold text-lg mb-5"]').nth(1),
       ).toContainText("About Payment");
-      await expect(page.locator('[data-label="Profile ID"]')).toContainText(
+      await expect(paymentOperations.dataLabel("Profile ID")).toContainText(
         "Profile ID",
       );
-      await expect(page.locator('[data-label="Profile Name"]')).toContainText(
+      await expect(paymentOperations.dataLabel("Profile Name")).toContainText(
         "Profile Name",
       );
       await expect(
-        page.locator('[data-label="Payment connector"]'),
+        paymentOperations.dataLabel("Payment connector"),
       ).toContainText("Payment connector");
-      await expect(page.locator('[data-label="Connector Label"]')).toContainText(
+      await expect(paymentOperations.dataLabel("Connector Label")).toContainText(
         "Connector Label",
       );
-      await expect(page.locator('[data-label="Payment Method"]')).toContainText(
+      await expect(paymentOperations.dataLabel("Payment Method")).toContainText(
         "Payment Method",
       );
       await expect(
-        page.locator('[data-label="Payment Method Type"]').first(),
+        paymentOperations.dataLabel("Payment Method Type").first(),
       ).toContainText("Payment Method Type");
-      await expect(page.locator('[data-label="Auth Type"]')).toContainText(
+      await expect(paymentOperations.dataLabel("Auth Type")).toContainText(
         "Auth Type",
       );
-      await expect(page.locator('[data-label="Card Network"]')).toContainText(
+      await expect(paymentOperations.dataLabel("Card Network")).toContainText(
         "Card Network",
       );
 
@@ -1420,7 +1396,7 @@ test.describe("Payment Operations", () => {
         );
       }
 
-      await page.locator('[data-table-location="Attempts_tr1_td1"]').click();
+      await paymentOperations.attemptCell(1, 1).click();
       await expect(
         page.locator('[data-heading="Attempt Details"]'),
       ).toBeVisible();
@@ -1449,7 +1425,7 @@ test.describe("Payment Operations", () => {
 
       for (const [label, value] of Object.entries(expectedValues)) {
         await expect(
-          page.locator(`[data-label="${label}"]`).first(),
+          paymentOperations.dataLabel(label).first(),
         ).toContainText(value);
       }
 
@@ -1467,16 +1443,13 @@ test.describe("Payment Operations", () => {
         "Last Updated",
       ];
 
-      const refundsTable = page.locator(
-        'table[data-expandable-table="Refunds"]',
-      );
       for (let i = 0; i < expectedRefundAttemptColumns.length; i++) {
-        await expect(refundsTable.locator("thead tr th").nth(i)).toHaveText(
-          expectedRefundAttemptColumns[i],
-        );
+        await expect(
+          paymentOperations.refundsTable.locator("thead tr th").nth(i),
+        ).toHaveText(expectedRefundAttemptColumns[i]);
       }
 
-      await page.locator('[data-table-location="Refunds_tr1_td1"]').click();
+      await paymentOperations.refundCell(1, 1).click();
 
       const expectedRefundValues: Record<string, string> = {
         "Refund Status": "SUCCEEDED",
@@ -1488,7 +1461,7 @@ test.describe("Payment Operations", () => {
 
       for (const [label, value] of Object.entries(expectedRefundValues)) {
         await expect(
-          page.locator(`[data-label="${label}"]`).first(),
+          paymentOperations.dataLabel(label).first(),
         ).toContainText(value);
       }
     });
@@ -1498,6 +1471,7 @@ test.describe("Payment Operations", () => {
       context,
     }) => {
       const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
@@ -1512,7 +1486,7 @@ test.describe("Payment Operations", () => {
 
       await homePage.operations.click();
       await homePage.paymentOperations.click();
-      await page.locator('[data-table-location="Orders_tr1_td1"]').click();
+      await paymentOperations.orderCell(1, 1).click();
 
       await page.getByText("Customer Details").click();
 
@@ -1557,14 +1531,14 @@ test.describe("Payment Operations", () => {
           "1562, HarrisonStreet, HarrisonStreet, Toronto, ON, CA, M3C 0C1.",
       });
 
-      await expect(page.locator('[data-label="Tag"]').first()).toContainText(
+      await expect(paymentOperations.dataLabel("Tag").first()).toContainText(
         "N/A",
       );
       await expect(
-        page.locator('[data-label="Transaction Flow"]').first(),
+        paymentOperations.dataLabel("Transaction Flow").first(),
       ).toContainText("N/A");
       await expect(
-        page.locator('[data-label="Message"]').first(),
+        paymentOperations.dataLabel("Message").first(),
       ).toContainText("N/A");
 
       const expandAccordionAndAssertFields = async (
@@ -1579,7 +1553,7 @@ test.describe("Payment Operations", () => {
         await accordionHeader.click();
         for (const [label, value] of Object.entries(fields)) {
           await expect(
-            page.locator(`[data-label="${label}"]`).first(),
+            paymentOperations.dataLabel(label).first(),
           ).toContainText(value);
         }
       };
@@ -1643,6 +1617,8 @@ test.describe("Payment Operations", () => {
     }) => {
       const homePage = new HomePage(page);
 
+      const paymentOperations = new PaymentOperations(page);
+
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
         await createDummyConnectorAPI(
@@ -1655,7 +1631,7 @@ test.describe("Payment Operations", () => {
 
       await homePage.operations.click();
       await homePage.paymentOperations.click();
-      await page.locator('[data-table-location="Orders_tr1_td1"]').click();
+      await paymentOperations.orderCell(1, 1).click();
 
       await expect(page.getByRole("button", { name: "Sync" })).toBeVisible();
     });
@@ -1666,6 +1642,8 @@ test.describe("Payment Operations", () => {
     }) => {
       const homePage = new HomePage(page);
 
+      const paymentOperations = new PaymentOperations(page);
+
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
         await createDummyConnectorAPI(
@@ -1678,7 +1656,7 @@ test.describe("Payment Operations", () => {
 
       await homePage.operations.click();
       await homePage.paymentOperations.click();
-      await page.locator('[data-table-location="Orders_tr1_td1"]').click();
+      await paymentOperations.orderCell(1, 1).click();
 
       const syncRequest = page.waitForRequest((req) =>
         req.url().includes("force_sync=true"),
@@ -1693,6 +1671,8 @@ test.describe("Payment Operations", () => {
     }) => {
       const homePage = new HomePage(page);
 
+      const paymentOperations = new PaymentOperations(page);
+
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
         await createDummyConnectorAPI(
@@ -1705,7 +1685,7 @@ test.describe("Payment Operations", () => {
 
       await homePage.operations.click();
       await homePage.paymentOperations.click();
-      await page.locator('[data-table-location="Orders_tr1_td1"]').click();
+      await paymentOperations.orderCell(1, 1).click();
 
       await expect(
         page.getByRole("button", { name: "Sync" }),
@@ -1715,11 +1695,15 @@ test.describe("Payment Operations", () => {
 
   // Refund cases
   test.describe("Refund cases", () => {
-    const openRefundModal = async (page: Page, homePage: HomePage) => {
+    const openRefundModal = async (
+      page: Page,
+      homePage: HomePage,
+      paymentOperations: PaymentOperations,
+    ) => {
       await homePage.operations.click();
       await homePage.paymentOperations.click();
-      await page.locator('[data-table-location="Orders_tr1_td1"]').click();
-      await page.locator('[data-button-text="+ Refund"]').click();
+      await paymentOperations.orderCell(1, 1).click();
+      await paymentOperations.addRefundButton.click();
       await expect(page.getByText("Initiate Refund").first()).toBeVisible();
     };
 
@@ -1728,6 +1712,8 @@ test.describe("Payment Operations", () => {
       context,
     }) => {
       const homePage = new HomePage(page);
+
+      const paymentOperations = new PaymentOperations(page);
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
@@ -1739,7 +1725,7 @@ test.describe("Payment Operations", () => {
         await createPaymentAPI(merchantId, context.request);
       }
 
-      await openRefundModal(page, homePage);
+      await openRefundModal(page, homePage, paymentOperations);
 
       await expect(
         page.getByText(
@@ -1747,28 +1733,28 @@ test.describe("Payment Operations", () => {
         ),
       ).toBeVisible();
 
-      await expect(page.locator('[data-label="Amount"]').first()).toContainText(
+      await expect(paymentOperations.dataLabel("Amount").first()).toContainText(
         "123.45 USD",
       );
       await expect(page.getByText("Payment ID").first()).toBeVisible();
       await expect(
-        page.locator('[data-label="Customer ID"]').first(),
+        paymentOperations.dataLabel("Customer ID").first(),
       ).toContainText("test_customer");
       await expect(
-        page.locator('[data-label="Customer Email"]').first(),
+        paymentOperations.dataLabel("Customer Email").first(),
       ).toContainText("abc@test.com");
       await expect(
-        page.locator('[data-label="Amount Refunded"]').first(),
+        paymentOperations.dataLabel("Amount Refunded").first(),
       ).toContainText("0 USD");
       await expect(
-        page.locator('[data-label="Pending Requested Amount"]').first(),
+        paymentOperations.dataLabel("Pending Requested Amount").first(),
       ).toContainText("0 USD");
 
-      await expect(page.locator('[name="amount"]')).toHaveAttribute(
+      await expect(paymentOperations.refundAmountInput).toHaveAttribute(
         "placeholder",
         "Enter Refund Amount",
       );
-      await expect(page.locator('[name="reason"]')).toHaveAttribute(
+      await expect(paymentOperations.refundReasonInput).toHaveAttribute(
         "placeholder",
         "Enter Refund Reason",
       );
@@ -1785,6 +1771,8 @@ test.describe("Payment Operations", () => {
     }) => {
       const homePage = new HomePage(page);
 
+      const paymentOperations = new PaymentOperations(page);
+
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
         await createDummyConnectorAPI(
@@ -1795,10 +1783,10 @@ test.describe("Payment Operations", () => {
         await createPaymentAPI(merchantId, context.request);
       }
 
-      await openRefundModal(page, homePage);
+      await openRefundModal(page, homePage, paymentOperations);
 
-      await page.locator('[name="amount"]').fill("0");
-      await page.locator('[name="amount"]').blur();
+      await paymentOperations.refundAmountInput.fill("0");
+      await paymentOperations.refundAmountInput.blur();
       await expect(
         page.getByText("Please enter refund amount greater than zero"),
       ).toBeVisible();
@@ -1811,6 +1799,8 @@ test.describe("Payment Operations", () => {
     }) => {
       const homePage = new HomePage(page);
 
+      const paymentOperations = new PaymentOperations(page);
+
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
         await createDummyConnectorAPI(
@@ -1821,10 +1811,10 @@ test.describe("Payment Operations", () => {
         await createPaymentAPI(merchantId, context.request);
       }
 
-      await openRefundModal(page, homePage);
+      await openRefundModal(page, homePage, paymentOperations);
 
-      await page.locator('[name="amount"]').fill("999.99");
-      await page.locator('[name="amount"]').blur();
+      await paymentOperations.refundAmountInput.fill("999.99");
+      await paymentOperations.refundAmountInput.blur();
       await expect(
         page.getByText("Refund amount should not exceed 123.45"),
       ).toBeVisible();
@@ -1837,6 +1827,8 @@ test.describe("Payment Operations", () => {
     }) => {
       const homePage = new HomePage(page);
 
+      const paymentOperations = new PaymentOperations(page);
+
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
         await createDummyConnectorAPI(
@@ -1847,24 +1839,21 @@ test.describe("Payment Operations", () => {
         await createPaymentAPI(merchantId, context.request);
       }
 
-      await openRefundModal(page, homePage);
+      await openRefundModal(page, homePage, paymentOperations);
 
-      await page.locator('[name="amount"]').fill("50.00");
-      await page.locator('[name="reason"]').fill("Partial refund test");
+      await paymentOperations.refundAmountInput.fill("50.00");
+      await paymentOperations.refundReasonInput.fill("Partial refund test");
       await page.getByRole("button", { name: "Initiate Refund" }).click();
 
       await expect(
         page.getByRole("button", { name: "Initiate Refund" }),
       ).not.toBeVisible();
 
-      const refundsTable = page.locator(
-        'table[data-expandable-table="Refunds"]',
-      );
       await expect(
-        refundsTable.locator('[data-table-location="Refunds_tr1_td4"]'),
+        paymentOperations.refundCell(1, 4),
       ).toContainText("50");
       await expect(
-        refundsTable.locator('[data-table-location="Refunds_tr1_td5"]'),
+        paymentOperations.refundCell(1, 5),
       ).toContainText("SUCCEEDED");
     });
 
@@ -1874,6 +1863,8 @@ test.describe("Payment Operations", () => {
     }) => {
       const homePage = new HomePage(page);
 
+      const paymentOperations = new PaymentOperations(page);
+
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
         await createDummyConnectorAPI(
@@ -1884,24 +1875,21 @@ test.describe("Payment Operations", () => {
         await createPaymentAPI(merchantId, context.request);
       }
 
-      await openRefundModal(page, homePage);
+      await openRefundModal(page, homePage, paymentOperations);
 
-      await page.locator('[name="amount"]').fill("123.45");
-      await page.locator('[name="reason"]').fill("Full refund test");
+      await paymentOperations.refundAmountInput.fill("123.45");
+      await paymentOperations.refundReasonInput.fill("Full refund test");
       await page.getByRole("button", { name: "Initiate Refund" }).click();
 
       await expect(
         page.getByRole("button", { name: "Initiate Refund" }),
       ).not.toBeVisible();
 
-      const refundsTable = page.locator(
-        'table[data-expandable-table="Refunds"]',
-      );
       await expect(
-        refundsTable.locator('[data-table-location="Refunds_tr1_td4"]'),
+        paymentOperations.refundCell(1, 4),
       ).toContainText("123.45");
       await expect(
-        refundsTable.locator('[data-table-location="Refunds_tr1_td5"]'),
+        paymentOperations.refundCell(1, 5),
       ).toContainText("SUCCEEDED");
     });
 
@@ -1911,6 +1899,8 @@ test.describe("Payment Operations", () => {
     }) => {
       const homePage = new HomePage(page);
 
+      const paymentOperations = new PaymentOperations(page);
+
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
         await createDummyConnectorAPI(
@@ -1921,7 +1911,7 @@ test.describe("Payment Operations", () => {
         await createPaymentAPI(merchantId, context.request);
       }
 
-      await openRefundModal(page, homePage);
+      await openRefundModal(page, homePage, paymentOperations);
 
       await page.getByRole("button", { name: "Cancel" }).click();
 
@@ -1936,6 +1926,8 @@ test.describe("Payment Operations", () => {
     }) => {
       const homePage = new HomePage(page);
 
+      const paymentOperations = new PaymentOperations(page);
+
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
         await createDummyConnectorAPI(
@@ -1948,7 +1940,7 @@ test.describe("Payment Operations", () => {
 
       await homePage.operations.click();
       await homePage.paymentOperations.click();
-      await page.locator('[data-table-location="Orders_tr1_td1"]').click();
+      await paymentOperations.orderCell(1, 1).click();
 
       await expect(
         page.getByRole("button", { name: "+ Refund" }),
