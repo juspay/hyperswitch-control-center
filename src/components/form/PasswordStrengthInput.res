@@ -82,7 +82,7 @@ let make = (
   }
   <div>
     <div>
-      <TextInputAdapter input=newInput placeholder type_="password" ?leftIcon />
+      <TextInputAdapter input=newInput placeholder inputType="password" ?leftIcon />
     </div>
     {displayStatus
       ? <div className=displayColor> {React.string(passwordStatus.message)} </div>

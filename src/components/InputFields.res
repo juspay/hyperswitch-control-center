@@ -369,7 +369,7 @@ let textInput = (
     placeholder
     description
     isDisabled
-    type_
+    inputType=type_
     inputMode
     ?pattern
     ?autoComplete

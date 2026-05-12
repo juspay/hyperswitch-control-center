@@ -118,7 +118,7 @@ let make = (
     customStyle
     placeholder
     isDisabled
-    type_
+    inputType=type_
     inputMode
     ?maxLength
     ?pattern

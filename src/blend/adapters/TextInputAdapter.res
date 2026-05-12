@@ -1,6 +1,5 @@
-external ffInputToStringInput: ReactFinalForm.fieldRenderPropsInput => ReactFinalForm.fieldRenderPropsCustomInput<
-  string,
-> = "%identity"
+open ReactFinalForm
+open LogicUtils
 
 @react.component
 let make = (
@@ -8,7 +7,7 @@ let make = (
   ~placeholder: string,
   ~description: string="",
   ~isDisabled: bool=false,
-  ~type_: string="text",
+  ~inputType: string="text",
   ~inputMode: string="text",
   ~pattern: option<string>=?,
   ~autoComplete: option<string>=?,
@@ -33,7 +32,7 @@ let make = (
   ~onHoverCss: string="",
   ~onDisabledStyle: string="",
   ~onActiveStyle: string="",
-  ~customDarkBackground: string="dark:bg-jp-gray-darkgray_background",
+  ~customDarkBackground: string="dark:bg-nd_gray-800",
   ~phoneInput: bool=false,
   ~removeValidationCheck: bool=false,
   ~focusOnKeyPress: option<ReactEvent.Keyboard.t => bool>=?,
@@ -41,31 +40,12 @@ let make = (
 ) => {
   let isBlendEnabled = BlendContext.useBlendEnabled()
   let showPopUp = PopUpState.useShowPopUp()
-  let inputRef = React.useRef(Nullable.null)
-  let {meta} = ReactFinalForm.useField(input.name)
+  let {meta} = useField(input.name)
 
-  let isPasswordType = type_ == "password" || type_ == "password_without_icon"
-
-  React.useEffect(() => {
-    switch widthMatchwithPlaceholderLength {
-    | Some(length) =>
-      switch inputRef.current->Nullable.toOption {
-      | Some(elem) =>
-        let size =
-          elem
-          ->Webapi.Dom.Element.getAttribute("placeholder")
-          ->Option.mapOr(length, str => Math.Int.max(length, str->String.length))
-          ->Int.toString
-        elem->Webapi.Dom.Element.setAttribute("size", size)
-      | None => ()
-      }
-    | None => ()
-    }
-    None
-  }, (inputRef.current, input.name))
+  let isPasswordType = inputType == "password" || inputType == "password_without_icon"
 
   React.useEffect(() => {
-    let val = input.value->JSON.Decode.string->Option.getOr("")
+    let val = input.value->getStringFromJson("")
     if val->String.includes("<script>") || val->String.includes("</script>") {
       showPopUp({
         popUpType: (Warning, WithIcon),
@@ -75,8 +55,8 @@ let make = (
       })
       input.onChange(
         val
-        ->String.replace("<script>", "")
-        ->String.replace("</script>", "")
+        ->stringReplaceAll("<script>", "")
+        ->stringReplaceAll("</script>", "")
         ->Identity.stringToFormReactEvent,
       )
     }
@@ -84,22 +64,15 @@ let make = (
   }, [input.value])
 
   React.useEffect(() => {
-    switch focusOnKeyPress {
-    | Some(func) => {
-        let keyDownFn = ev => {
-          if func(ev) {
-            ev->ReactEvent.Keyboard.preventDefault
-            switch inputRef.current->Nullable.toOption {
-            | Some(elem) => elem->TextInput.focus
-            | None => ()
-            }
-          }
+    focusOnKeyPress->Option.map(func => {
+      let keyDownFn = ev => {
+        if func(ev) {
+          ev->ReactEvent.Keyboard.preventDefault
         }
-        Window.addEventListener("keydown", keyDownFn)
-        Some(() => Window.removeEventListener("keydown", keyDownFn))
       }
-    | None => None
-    }
+      Window.addEventListener("keydown", keyDownFn)
+      () => Window.removeEventListener("keydown", keyDownFn)
+    })
   }, [focusOnKeyPress])
 
   let value = switch input.value->JSON.Classify.classify {
@@ -108,24 +81,16 @@ let make = (
   | _ => ""
   }
 
-  let isInValid = if !removeValidationCheck {
-    if !meta.valid && meta.touched {
-      (!(meta.submitError->Js.Nullable.isNullable) && !meta.dirtySinceLastSubmit) ||
-        !(meta.error->Js.Nullable.isNullable)
-    } else {
-      false
-    }
-  } else {
-    false
-  }
+  let hasSubmitError =
+    meta.submitError->getOptionalFromNullable->Option.isSome && !meta.dirtySinceLastSubmit
+  let hasFieldError = meta.error->getOptionalFromNullable->Option.isSome
+  let isInValid =
+    !removeValidationCheck && !meta.valid && meta.touched && (hasSubmitError || hasFieldError)
 
   let blendSize = switch customWidth {
-  | "w-full" => TextInputBinding.Lg
-  | "w-96" => TextInputBinding.Lg
-  | "w-80" => TextInputBinding.Md
-  | "w-64" => TextInputBinding.Md
-  | "w-48" => TextInputBinding.Sm
-  | "w-32" => TextInputBinding.Sm
+  | "w-full" | "w-96" => TextInputBinding.Lg
+  | "w-80" | "w-64" => TextInputBinding.Md
+  | "w-48" | "w-32" => TextInputBinding.Sm
   | _ => TextInputBinding.Lg
   }
 
@@ -133,7 +98,7 @@ let make = (
     let newValue = ReactEvent.Form.target(event)["value"]
     switch maxLength {
     | Some(maxLen) =>
-      let strValue = newValue->JSON.Decode.string->Option.getOr("")
+      let strValue = newValue->getStringFromJson("")
       if strValue->String.length <= maxLen {
         input.onChange(event)
       }
@@ -141,39 +106,30 @@ let make = (
     }
   }
 
-  let handleKeyDown = switch onKeyUp {
-  | Some(customHandler) =>
+  let preventEnterDefault = (event: ReactEvent.Keyboard.t) => {
+    if ReactEvent.Keyboard.key(event) === "Enter" {
+      ReactEvent.Keyboard.preventDefault(event)
+    }
+  }
+
+  let handleKeyDown = if shouldSubmitForm && onKeyUp->Option.isNone {
+    None
+  } else {
     Some(
       (event: ReactEvent.Keyboard.t) => {
         if !shouldSubmitForm {
-          let key = ReactEvent.Keyboard.key(event)
-          if key === "Enter" {
-            ReactEvent.Keyboard.preventDefault(event)
-          }
+          preventEnterDefault(event)
         }
-        customHandler(event)
+        onKeyUp->Option.forEach(fn => fn(event))
       },
     )
-  | None =>
-    if !shouldSubmitForm {
-      Some(
-        (event: ReactEvent.Keyboard.t) => {
-          let key = ReactEvent.Keyboard.key(event)
-          if key === "Enter" {
-            ReactEvent.Keyboard.preventDefault(event)
-          }
-        },
-      )
-    } else {
-      None
-    }
   }
 
   let leftSlot = switch leftIcon {
   | Some(icon) => Some(icon)
   | None =>
     if phoneInput {
-      Some(<span className="text-jp-gray-700"> {React.string("+91 ")} </span>)
+      Some(<span className="text-nd_gray-500"> {React.string("+91 ")} </span>)
     } else {
       None
     }
@@ -184,7 +140,7 @@ let make = (
   } else {
     switch (rightIcon, rightIconOnClick) {
     | (Some(icon), Some(onClick)) =>
-      Some(<div onClick={ev => onClick(ev)} className="cursor-pointer"> icon </div>)
+      Some(<div onClick className="cursor-pointer"> icon </div>)
     | (Some(icon), None) => Some(icon)
     | (None, _) => None
     }
@@ -196,75 +152,74 @@ let make = (
     leftSlot
   }
 
-  let hintText = if description->LogicUtils.isNonEmptyString {
-    Some(description)
-  } else {
-    None
-  }
+  let hintText = description->getNonEmptyString
 
-  if isBlendEnabled {
-    <TextInputBinding
-      value
-      onChange=handleChange
-      onBlur=input.onBlur
-      onFocus=input.onFocus
-      name=input.name
-      placeholder
-      size=blendSize
-      disabled=isDisabled
-      ?hintText
-      error=isInValid
-      leftSlot=?blendLeftSlot
-      rightSlot=?blendRightSlot
-      type_
-      ?pattern
-      ?autoComplete
-      ?maxLength
-      ?min
-      ?max
-      inputMode
-      ?readOnly
-      autoFocus
-      passwordToggle=isPasswordType
-      ?onKeyUp
-      onKeyDown=?handleKeyDown
-    />
-  } else {
-    <TextInput
-      input
-      placeholder
-      description
-      isDisabled
-      type_
-      inputMode
-      ?pattern
-      ?autoComplete
-      shouldSubmitForm
-      ?min
-      ?max
-      ?maxLength
-      autoFocus
-      ?leftIcon
-      ?rightIcon
-      ?rightIconOnClick
-      inputStyle
-      ?onKeyUp
-      customStyle
-      customWidth
-      ?readOnly
-      iconOpacity
-      customPaddingClass
-      widthMatchwithPlaceholderLength
-      rightIconCustomStyle
-      leftIconCustomStyle
-      onHoverCss
-      onDisabledStyle
-      onActiveStyle
-      customDarkBackground
-      phoneInput
-      removeValidationCheck
-      ?focusOnKeyPress
-      ?customDashboardClass
-    />
-  }
+  <>
+    <RenderIf condition={isBlendEnabled}>
+      <TextInputBinding
+        value
+        onChange=handleChange
+        onBlur=input.onBlur
+        onFocus=input.onFocus
+        name=input.name
+        placeholder
+        size=blendSize
+        disabled=isDisabled
+        ?hintText
+        error=isInValid
+        leftSlot=?blendLeftSlot
+        rightSlot=?blendRightSlot
+        type_=inputType
+        ?pattern
+        ?autoComplete
+        ?maxLength
+        ?min
+        ?max
+        inputMode
+        ?readOnly
+        autoFocus
+        passwordToggle=isPasswordType
+        ?onKeyUp
+        onKeyDown=?handleKeyDown
+      />
+    </RenderIf>
+    <RenderIf condition={!isBlendEnabled}>
+      <TextInput
+        input
+        placeholder
+        description
+        isDisabled
+        type_=inputType
+        inputMode
+        ?pattern
+        ?autoComplete
+        shouldSubmitForm
+        ?min
+        ?max
+        ?maxLength
+        autoFocus
+        ?leftIcon
+        ?rightIcon
+        ?rightIconOnClick
+        inputStyle
+        ?onKeyUp
+        customStyle
+        customWidth
+        ?readOnly
+        iconOpacity
+        customPaddingClass
+        widthMatchwithPlaceholderLength
+        rightIconCustomStyle
+        leftIconCustomStyle
+        onHoverCss
+        onDisabledStyle
+        onActiveStyle
+        customDarkBackground
+        phoneInput
+        removeValidationCheck
+        ?focusOnKeyPress
+        ?customDashboardClass
+      />
+    </RenderIf>
+  </>
 }
