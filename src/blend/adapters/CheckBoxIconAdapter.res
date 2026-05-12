@@ -2,10 +2,10 @@ open CheckBoxBinding
 
 type size = CheckBoxIcon.size
 
-let mapSize = (s: size): CheckBoxBinding.size =>
+let mapSize = (s: size) =>
   switch s {
-  | Small => CheckBoxBinding.Small
-  | Large => CheckBoxBinding.Medium
+  | Small => Small
+  | Large => Medium
   }
 
 @react.component
