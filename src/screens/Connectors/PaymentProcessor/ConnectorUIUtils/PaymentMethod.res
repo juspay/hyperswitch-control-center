@@ -630,8 +630,8 @@ module CardRenderer = {
                   }
                   accordionElem
                 })}
-                accordionTopContainerCss="border border-nd_gray-150 rounded-lg "
-                contentExpandCss="p-0 "
+                accordionTopContainerCss="border border-nd_gray-150 rounded-lg"
+                contentExpandCss="p-0"
                 accordionBottomContainerCss="!p-2 flex justify-between w-full"
                 gapClass="flex flex-col gap-4"
                 singleOpen=true
