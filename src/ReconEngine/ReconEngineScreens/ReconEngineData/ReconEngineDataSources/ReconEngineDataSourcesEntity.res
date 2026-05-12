@@ -137,7 +137,11 @@ let getTransformationConfigCell = (
         LabelRed
       },
     })
-  | LastModifiedAt => Date(data.last_modified_at)
+  | LastModifiedAt =>
+    CustomCell(
+      <TableUtils.DateCell timestamp={data.last_modified_at} textAlign=Left hideTimeZone=true />,
+      "",
+    )
   }
 }
 
