@@ -220,6 +220,10 @@ let getOptionValFromDict = (dict, key) => {
   dict->Dict.get(key)
 }
 
+let getValueFromDict = (dict, key, default) => {
+  dict->Dict.get(key)->Option.getOr(default)
+}
+
 let getBoolFromString = (boolString, default: bool) => {
   switch boolString->String.toLowerCase {
   | "true" => true
