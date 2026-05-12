@@ -3,6 +3,72 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.12.0
+
+### Features
+
+- Saved views for transaction list filters ([#4739](https://github.com/juspay/hyperswitch-control-center/pull/4739)) ([`1768a2d`](https://github.com/juspay/hyperswitch-control-center/commit/1768a2db1c61218a1da1eb7e04f4d1ec4a778fbe))
+- Payment link theme feature production approach ([#4728](https://github.com/juspay/hyperswitch-control-center/pull/4728)) ([`99406d7`](https://github.com/juspay/hyperswitch-control-center/commit/99406d78118f6eecaf64869f5ae0c8002e2f1ba4))
+
+### Miscellaneous Tasks
+
+- Revert "refactor: rename Pix payment method type to PixQr" ([#4799](https://github.com/juspay/hyperswitch-control-center/pull/4799)) ([`8bf463f`](https://github.com/juspay/hyperswitch-control-center/commit/8bf463ffba0994fd573db41871a9f878d7ab5440))
+
+**Full Changelog:** [`2026.05.11.0...2026.05.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.11.0...2026.05.12.0)
+
+- - -
+
+## 2026.05.11.0
+
+### Miscellaneous Tasks
+
+- Add Playwright tests for pr 4412 ([`c50ad19`](https://github.com/juspay/hyperswitch-control-center/commit/c50ad190408bd5b4b0edf181eec97eb37ad168e6))
+
+**Full Changelog:** [`2026.05.08.0...2026.05.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.08.0...2026.05.11.0)
+
+- - -
+
+## 2026.05.08.0
+
+### Features
+
+- Worldpayxml applepay predecrypt ([#4790](https://github.com/juspay/hyperswitch-control-center/pull/4790)) ([`ea4d2ed`](https://github.com/juspay/hyperswitch-control-center/commit/ea4d2ede7d8f51eae4fa19218ac2238e29f82732))
+
+### Bug Fixes
+
+- Audit and fix user-facing text across the control center ([#4412](https://github.com/juspay/hyperswitch-control-center/pull/4412)) ([`4d0736a`](https://github.com/juspay/hyperswitch-control-center/commit/4d0736a6bdfbd3eb27ac515f97ae13b928a19c00))
+
+### Refactors
+
+- Rename Pix payment method type to PixQr ([#4716](https://github.com/juspay/hyperswitch-control-center/pull/4716)) ([`7f4407f`](https://github.com/juspay/hyperswitch-control-center/commit/7f4407f933ee4dc8a17ee6593361622db2b3ca38))
+
+**Full Changelog:** [`2026.05.07.0...2026.05.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.07.0...2026.05.08.0)
+
+- - -
+
+## 2026.05.07.0
+
+### Features
+
+- Migrate SelectBox to Blend Design System ([#4532](https://github.com/juspay/hyperswitch-control-center/pull/4532)) ([`f49912f`](https://github.com/juspay/hyperswitch-control-center/commit/f49912ffde6daa5206073691102b7b712a2ecede))
+- Recon engine add bulk operations in `transactions` and `transformed_entries` ([#4258](https://github.com/juspay/hyperswitch-control-center/pull/4258)) ([`48d121b`](https://github.com/juspay/hyperswitch-control-center/commit/48d121be81ff4aa644d121b547707a9a46c81a64))
+
+### Bug Fixes
+
+- Align selected merchant name in merchant switch dropdown ([#4778](https://github.com/juspay/hyperswitch-control-center/pull/4778)) ([`db709b3`](https://github.com/juspay/hyperswitch-control-center/commit/db709b31faf5aaafbbee94d38b2f43449c0b267c))
+
+### Performance
+
+- Remove unused react-pdf dependency ([#4571](https://github.com/juspay/hyperswitch-control-center/pull/4571)) ([`601dad5`](https://github.com/juspay/hyperswitch-control-center/commit/601dad504e016fc5a0d704309d91e86b78421140))
+
+### Refactors
+
+- Extract V1/V2 functions for API URL selection ([#4526](https://github.com/juspay/hyperswitch-control-center/pull/4526)) ([`1424816`](https://github.com/juspay/hyperswitch-control-center/commit/142481672f3e165daa885d399fe0a96eb6ff6e6b))
+
+**Full Changelog:** [`2026.05.04.1...2026.05.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.04.1...2026.05.07.0)
+
+- - -
+
 ## 2026.05.04.1
 
 ### Miscellaneous Tasks

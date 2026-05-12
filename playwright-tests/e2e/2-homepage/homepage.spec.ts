@@ -32,7 +32,7 @@ test.describe("Homepage", () => {
 
     await expect(
       page.getByText(
-        "Welcome to the home of your Payments Control Centre. It aims at providing your team with a 360-degree view of payments.",
+        "Welcome to the home of your Payments Control Center. It aims to provide your team with a 360-degree view of payments.",
       ),
     ).toBeVisible();
 
@@ -49,7 +49,7 @@ test.describe("Homepage", () => {
 
     await expect(homePage.integrateConnectorCard).toBeVisible();
     await expect(homePage.integrateConnectorCard).toContainText(
-      "Integrate a ProcessorGive a headstart by connecting with more than 20+ gateways, payment methods, and networks.",
+      "Integrate a ProcessorGet a head start by connecting with 20+ gateways, payment methods, and networks.Connect Processors",
     );
     await expect(
       homePage.integrateConnectorCard.locator(

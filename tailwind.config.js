@@ -29,6 +29,12 @@ module.exports = {
         laptop: "67.5rem",
         desktop: "118.75rem",
       },
+      backgroundImage: {
+        "dot-pattern": "radial-gradient(#d9dee7 1px, transparent 1px)",
+      },
+      backgroundSize: {
+        "dot-pattern-size": "16px 16px",
+      },
       scale: {
         400: "4",
       },
@@ -53,6 +59,9 @@ module.exports = {
         "45-rem": "45rem",
         "48-rem": "48rem",
         "50-rem": "50rem",
+        "4-per": "4%",
+        "8-per": "8%",
+        "11-per": "11%",
         "93-per": "93%",
         "80-vh": "80vh",
         "85-vh": "85vh",
@@ -93,11 +102,15 @@ module.exports = {
         "500-px": "500px",
       },
       inset: {
+        "3-px": "3px",
         "5-px": "5px",
         "76-px": "76px",
         "120-px": "120px",
         "180-px": "180px",
         "500-px": "500px",
+        "10-per": "10%",
+        "16-per": "16%",
+        "26-per": "26%",
       },
       letterSpacing: {
         compressed: "-2px",
@@ -108,6 +121,7 @@ module.exports = {
       },
       width: {
         "1-px": "1px",
+        "3-px": "3px",
         "90-px": "90px",
         100: "25rem",
         133: "35rem",
@@ -488,6 +502,8 @@ module.exports = {
       borderRadius: {
         DEFAULT: "var(--borders-default-radius)",
         "10-px": "10px",
+        "1.75-rem": "1.75rem",
+        "2-rem": "2rem",
       },
       spacing: {
         DEFAULT: "var(--spacing-padding)",

@@ -1,3 +1,4 @@
+open LogicUtils
 module ClearFilters = {
   @react.component
   let make = (
@@ -7,8 +8,10 @@ module ClearFilters = {
     ~outsidefilter=false,
   ) => {
     let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
-    let textStyle = "text-red-900"
-    let leftIcon: Button.iconType = CustomIcon(<Icon name="trash-outline" size=24 />)
+    let textStyle = "text-nd_red-500"
+    let leftIcon: Button.iconType = CustomIcon(
+      <Icon name="trash-outline" size=24 className="text-nd_red-500" />,
+    )
 
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values", "initialValues"])->Nullable.make,
@@ -55,7 +58,7 @@ module ClearFilters = {
       ->Array.filter(entry => {
         let (_, value) = entry
         let isEmptyValue = switch value->JSON.Classify.classify {
-        | String(str) => str->LogicUtils.isEmptyString
+        | String(str) => str->isEmptyString
         | Array(arr) => arr->Array.length === 0
         | Null => true
         | _ => false
@@ -111,6 +114,7 @@ let make = (
   ~defaultFilterKeys=[],
   ~customRightView=React.null,
   ~customLeftView=React.null,
+  ~customFilterActions=React.null,
   ~updateUrlWith=?,
   ~clearFilters=?,
   ~showClearFilter=true,
@@ -118,7 +122,6 @@ let make = (
   ~showSelectFiltersSearch=false,
 ) => {
   open HeadlessUI
-  open LogicUtils
 
   let isSmallScreen = MatchMedia.useScreenSizeChecker(~screenSize="1512")
   let {query, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
@@ -171,41 +174,31 @@ let make = (
     }
 
     switch initialValues->JSON.Decode.object {
-    | Some(_) => {
-        let selectedFilters = []
-        let filtersUnseletced = []
-
-        filterKeys->Array.forEach(key => {
-          let item = remoteFilters->Array.find(
-            item => {
-              item.field.inputNames->Array.get(0)->Option.getOr("") === key
-            },
-          )
-
-          switch item {
-          | Some(val) => selectedFilters->Array.push(val.field)->ignore
-          | _ => ()
-          }
-        })
-
-        remoteFilters->Array.forEach(item => {
-          if !(selectedFilters->Array.includes(item.field)) {
-            filtersUnseletced->Array.push(item.field)->ignore
-          }
-        })
-
-        setFilterList(_ => selectedFilters)
-        setCount(_prev => clearFilterJson + initialCount)
-        setAllFilters(_prev => filtersUnseletced)
-        let finalInitialValueJson =
-          initialValues->JsonFlattenUtils.unflattenObject->JSON.Encode.object
-        setInitialValueJson(_ => finalInitialValueJson)
-      }
-
+    | Some(_) =>
+      let finalInitialValueJson =
+        initialValues->JsonFlattenUtils.unflattenObject->JSON.Encode.object
+      setInitialValueJson(_ => finalInitialValueJson)
     | None => ()
     }
     None
-  }, (searchParams, filterKeys))
+  }, (searchParams, remoteFilters->Array.length, remoteOptions->Array.length))
+
+  React.useEffect(() => {
+    let selectedFilters = filterKeys->Array.filterMap(key => {
+      remoteFilters
+      ->Array.find(item => item.field.inputNames->getValueFromArray(0, "") === key)
+      ->Option.map(val => val.field)
+    })
+
+    let filtersUnselected = remoteFilters->Array.filterMap(item => {
+      !(selectedFilters->Array.includes(item.field)) ? Some(item.field) : None
+    })
+
+    setFilterList(_ => selectedFilters)
+    setCount(_prev => clearFilterJson + initialCount)
+    setAllFilters(_prev => filtersUnselected)
+    None
+  }, (filterKeys, remoteFilters->Array.length))
 
   let onSubmit = (values, _) => {
     let obj = values->JSON.Decode.object->Option.getOr(Dict.make())->Dict.toArray->Dict.fromArray
@@ -334,6 +327,7 @@ let make = (
           <div className="flex gap-spacing-md flex-wrap items-center">
             <RenderIf condition={!isSmallScreen}> {customLeftView} </RenderIf>
             <RenderIf condition={allFilters->Array.length > 0}> {allFiltersUI} </RenderIf>
+            {customFilterActions}
             <RenderIf condition={isSmallScreen}>
               <PortalCapture key={`${title}OMPView`} name={`${title}OMPView`} />
             </RenderIf>

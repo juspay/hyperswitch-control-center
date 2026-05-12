@@ -13,11 +13,17 @@ let make = (~ruleId: string) => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let url = RescriptReactRouter.useUrl()
+  let (selectedRows, setSelectedRows) = React.useState(_ => [])
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let getTransactions = ReconEngineHooks.useGetTransactions()
-  let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
-    FilterContext.filterContext,
-  )
+  let {
+    updateExistingKeys,
+    filterValueJson,
+    filterValue,
+    filterKeys,
+    setfilterKeys,
+  } = React.useContext(FilterContext.filterContext)
   let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
   let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
 
@@ -93,6 +99,23 @@ let make = (~ruleId: string) => {
   )
 
   React.useEffect(() => {
+    let urlSearch = url.search
+    if urlSearch->isNonEmptyString {
+      let urlParams = urlSearch->getDictFromUrlSearchParams
+      let filtersToApply = Dict.make()
+
+      urlParams->getMappedValueFromDict("status", (), value => {
+        let formattedValue = value->String.includes(",") ? `[${value}]` : value
+        filtersToApply->Dict.set("status", formattedValue)
+      })
+
+      if !(filtersToApply->isEmptyDict) {
+        updateExistingKeys(filtersToApply)
+        if !(filterKeys->Array.includes("status")) {
+          setfilterKeys(prev => prev->Array.concat(["status"]))
+        }
+      }
+    }
     setInitialFilters()
     None
   }, [])
@@ -103,6 +126,37 @@ let make = (~ruleId: string) => {
     }
     None
   }, [filterValue])
+
+  let urlPathString = url.path->List.toArray->Array.joinWith("/")
+
+  let customUpdateUrlWith = React.useMemo(() => {
+    dict => {
+      updateExistingKeys(dict)
+
+      let filteredDict =
+        dict
+        ->Dict.toArray
+        ->Array.filter(((key, _value)) => {
+          key !== startTimeFilterKey && key !== endTimeFilterKey
+        })
+
+      let filteredArray = [
+        ("rule_id", ruleId),
+        ...filteredDict->Array.map(item => {
+          let (key, value) = item
+          (key, value)
+        }),
+      ]
+
+      let queryString = filteredArray->Dict.fromArray->FilterUtils.parseFilterDictV2
+      let finalUrl = if queryString->isNonEmptyString {
+        `/${urlPathString}?${queryString}`
+      } else {
+        `/${urlPathString}`
+      }
+      RescriptReactRouter.push(finalUrl)
+    }
+  }, [urlPathString, ruleId])
 
   let topFilterUi = {
     <div className="flex flex-row -ml-1.5">
@@ -118,7 +172,7 @@ let make = (~ruleId: string) => {
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames=filterKeys
         key="ReconEngineExceptionTransactionFilters"
-        updateUrlWith=updateExistingKeys
+        updateUrlWith=customUpdateUrlWith
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false
         refreshFilters=false
@@ -148,7 +202,7 @@ let make = (~ruleId: string) => {
             "v1/recon-engine/exceptions/recon",
             ~authorization=Access,
           )}
-          resultsPerPage=6
+          resultsPerPage=3
           filters={<TableSearchFilter
             data={exceptionData->Array.map(Nullable.make)}
             filterLogic
@@ -172,8 +226,21 @@ let make = (~ruleId: string) => {
           hideRightTitleElement=true
           showAutoScroll=true
           customSeparation=[(2, 3)]
+          checkBoxProps={{
+            showCheckBox: true,
+            selectedData: selectedRows,
+            setSelectedData: setSelectedRows,
+          }}
         />
       </RenderIf>
     </PageLoaderWrapper>
+    <RenderIf condition={selectedRows->isNonEmptyArray}>
+      <ReconEngineTransactionsBulkActions
+        selectedRows={selectedRows->Array.map(json => json->Identity.jsonToAnyType)}
+        setSelectedRows
+        showVoidButton=true
+        refreshList={() => fetchExceptionsData()->ignore}
+      />
+    </RenderIf>
   </div>
 }

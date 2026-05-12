@@ -23,15 +23,15 @@ let defaultColumns = [
 
 let getHeading = colType => {
   switch colType {
-  | EventId => Table.makeHeaderInfo(~key="event_id", ~title="Event Id")
+  | EventId => Table.makeHeaderInfo(~key="event_id", ~title="Event ID")
   | EventClass => Table.makeHeaderInfo(~key="event_class", ~title="Event Class")
   | EventType => Table.makeHeaderInfo(~key="event_type", ~title="Event Type")
-  | MerchantId => Table.makeHeaderInfo(~key="merchant_id", ~title="Merchant Id")
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
-  | ObjectId => Table.makeHeaderInfo(~key="object_id", ~title="Object Id")
+  | MerchantId => Table.makeHeaderInfo(~key="merchant_id", ~title="Merchant ID")
+  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile ID")
+  | ObjectId => Table.makeHeaderInfo(~key="object_id", ~title="Object ID")
   | IsDeliverySuccessful =>
     Table.makeHeaderInfo(~key="is_delivery_successful", ~title="Delivery Status")
-  | InitialAttemptId => Table.makeHeaderInfo(~key="initial_attempt_id", ~title="Initial Attempt Id")
+  | InitialAttemptId => Table.makeHeaderInfo(~key="initial_attempt_id", ~title="Initial Attempt ID")
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created")
   }
 }

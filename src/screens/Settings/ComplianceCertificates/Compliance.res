@@ -64,7 +64,7 @@ let make = () => {
       ->ignore
       setButtonState(_ => Button.Normal)
     } else {
-      showToast(~toastType=ToastError, ~message="Oops, something went wrong with the download ")
+      showToast(~toastType=ToastError, ~message="Oops, something went wrong with the download.")
       setButtonState(_ => Button.Normal)
     }
   }

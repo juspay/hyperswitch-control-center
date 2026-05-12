@@ -217,7 +217,7 @@ let getRefundHeading = (refundsColType: refundsColType) => {
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | LastUpdated => Table.makeHeaderInfo(~key="last_updated", ~title="Last Updated")
-  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment Id")
+  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID")
   | RefundStatus => Table.makeHeaderInfo(~key="status", ~title="Refund Status")
   | RefundId => Table.makeHeaderInfo(~key="refund_id", ~title="Refund ID")
   | RefundReason => Table.makeHeaderInfo(~key="reason", ~title="Refund Reason")
@@ -269,7 +269,7 @@ let getAttemptHeading = (attemptColType: attemptColType) => {
 
 let getFrmHeading = (frmDetailsColType: frmColType) => {
   switch frmDetailsColType {
-  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="PaymentId")
+  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID")
   | PaymentMethodType =>
     Table.makeHeaderInfo(~key="payment_method_type", ~title="Payment Method Type")
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
@@ -285,7 +285,7 @@ let getAuthenticationHeading = (authenticationDetailsColType: authenticationColT
   switch authenticationDetailsColType {
   | AuthenticationFlow =>
     Table.makeHeaderInfo(~key="authentication_flow", ~title="Authentication Flow")
-  | DsTransactionId => Table.makeHeaderInfo(~key="ds_transaction_id", ~title="Ds Transaction Id")
+  | DsTransactionId => Table.makeHeaderInfo(~key="ds_transaction_id", ~title="DS Transaction ID")
   | ElectronicCommerceIndicator =>
     Table.makeHeaderInfo(
       ~key="electronic_commerce_indicator",
@@ -378,7 +378,7 @@ let getHeading = (~devSortEnabled, colType: colType) => {
   | Status => Table.makeHeaderInfo(~key="status", ~title="Payment Status", ~dataType=DropDown)
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=true)
   | Connector => Table.makeHeaderInfo(~key="connector", ~title="Connector")
-  | AmountCapturable => Table.makeHeaderInfo(~key="amount_capturable", ~title="AmountCapturable")
+  | AmountCapturable => Table.makeHeaderInfo(~key="amount_capturable", ~title="Amount Capturable")
   | AmountReceived => Table.makeHeaderInfo(~key="amount_received", ~title="Amount Received")
   | ClientSecret => Table.makeHeaderInfo(~key="client_secret", ~title="Client Secret")
   | ConnectorTransactionID =>
@@ -406,11 +406,11 @@ let getHeading = (~devSortEnabled, colType: colType) => {
   | Email => Table.makeHeaderInfo(~key="email", ~title="Customer Email")
   | Name => Table.makeHeaderInfo(~key="name", ~title="Name")
   | Phone => Table.makeHeaderInfo(~key="phone", ~title="Phone")
-  | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="ReturnUrl")
+  | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="Return URL")
   | AuthenticationType =>
     Table.makeHeaderInfo(~key="authentication_type", ~title="Authentication Type")
   | StatementDescriptorName =>
-    Table.makeHeaderInfo(~key="statement_descriptor_name ", ~title="Statement Descriptor Name ")
+    Table.makeHeaderInfo(~key="statement_descriptor_name", ~title="Statement Descriptor Name")
   | StatementDescriptorSuffix =>
     Table.makeHeaderInfo(~key="statement_descriptor_suffix", ~title="Statement Descriptor Suffix")
   | NextAction => Table.makeHeaderInfo(~key="next_action", ~title="Next Action")
@@ -419,11 +419,11 @@ let getHeading = (~devSortEnabled, colType: colType) => {
   | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code")
   | ErrorMessage => Table.makeHeaderInfo(~key="error_message", ~title="Error Message")
   | Refunds => Table.makeHeaderInfo(~key="refunds", ~title="Refunds")
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
+  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile ID")
   | CardNetwork => Table.makeHeaderInfo(~key="CardNetwork", ~title="Card Network")
   | MerchantOrderReferenceId =>
-    Table.makeHeaderInfo(~key="merchant_order_reference_id", ~title="Merchant Order Reference Id")
-  | AttemptCount => Table.makeHeaderInfo(~key="attempt_count", ~title="Attempt count")
+    Table.makeHeaderInfo(~key="merchant_order_reference_id", ~title="Merchant Order Reference ID")
+  | AttemptCount => Table.makeHeaderInfo(~key="attempt_count", ~title="Attempt Count")
   | PaymentType => Table.makeHeaderInfo(~key="payment_type", ~title="Payment Type")
   }
 }
@@ -486,7 +486,7 @@ let getHeadingForSummary = summaryColType => {
 let getHeadingForAboutPayment = aboutPaymentColType => {
   switch aboutPaymentColType {
   | Connector => Table.makeHeaderInfo(~key="connector", ~title="Payment connector")
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
+  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile ID")
   | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
   | CardBrand => Table.makeHeaderInfo(~key="card_brand", ~title="Card Brand")
   | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
@@ -529,7 +529,7 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   | ShippingPhone => Table.makeHeaderInfo(~key="shipping", ~title="Phone")
   | BillingAddress => Table.makeHeaderInfo(~key="billing", ~title="Address")
   | BillingPhone => Table.makeHeaderInfo(~key="BillingPhone", ~title="Phone")
-  | AmountCapturable => Table.makeHeaderInfo(~key="amount_capturable", ~title="AmountCapturable")
+  | AmountCapturable => Table.makeHeaderInfo(~key="amount_capturable", ~title="Amount Capturable")
   | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code")
   | MandateData => Table.makeHeaderInfo(~key="mandate_data", ~title="Mandate Data")
   | FRMName => Table.makeHeaderInfo(~key="frm_name", ~title="Tag")
@@ -547,7 +547,7 @@ let getHeadingForOtherDetails = otherDetailsColType => {
     Table.makeHeaderInfo(~key="payment_method_firat_name", ~title="First Name")
   | PMBillingLastName => Table.makeHeaderInfo(~key="payment_method_last_name", ~title="Last Name")
   | MerchantOrderReferenceId =>
-    Table.makeHeaderInfo(~key="merchant_order_reference_id", ~title="Merchant Order Reference Id")
+    Table.makeHeaderInfo(~key="merchant_order_reference_id", ~title="Merchant Order Reference ID")
 
   | ExtendedAuthLastAppliedAt =>
     Table.makeHeaderInfo(

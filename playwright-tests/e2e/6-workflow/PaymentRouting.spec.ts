@@ -116,8 +116,8 @@ test.describe("Volume based routing", () => {
     await page.locator('[data-button-for="saveRule"]').click();
 
     await expect(
-      page.locator('[data-toast="Successfully Created a new Configuration !"]'),
-    ).toContainText("Successfully Created a new Configuration !");
+      page.locator('[data-toast="Successfully created a new configuration!"]'),
+    ).toContainText("Successfully created a new configuration!");
 
     await page.getByRole("tab", { name: "Manage rules" }).click();
 
@@ -163,12 +163,12 @@ test.describe("Volume based routing", () => {
     await page.locator('[data-button-for="saveAndActivateRule"]').click();
 
     await expect(
-      page.locator('[data-toast="Successfully Created a new Configuration !"]'),
-    ).toContainText("Successfully Created a new Configuration !");
+      page.locator('[data-toast="Successfully created a new configuration!"]'),
+    ).toContainText("Successfully created a new configuration!");
 
     await expect(
-      page.locator('[data-toast="Successfully Activated !"]'),
-    ).toContainText("Successfully Activated !");
+      page.locator('[data-toast="Successfully activated!"]'),
+    ).toContainText("Successfully activated!");
 
     await expect(page.locator('[class="flex flex-col gap-3"]')).toContainText(
       "Test volume based config",
@@ -220,7 +220,7 @@ test.describe("Payment default fallback", () => {
     await paymentRouting.defaultFallbackManageButton.click();
 
     await expect(page.locator('[class="px-3 text-2xl mt-32 "]')).toContainText(
-      "Please connect atleast 1 connector",
+      "Please connect at least 1 connector",
     );
   });
 
