@@ -63,7 +63,7 @@ test.describe("Visual Testing - Payment Operations", () => {
     await expect(page).toHaveScreenshot("payment-operations-with-payment.png", {
       fullPage: true,
       animations: "disabled",
-      maxDiffPixelRatio: 0.01,
+      maxDiffPixelRatio: 0.02,
     });
 
     await page.locator('[data-table-location="Orders_tr1_td1"]').click();

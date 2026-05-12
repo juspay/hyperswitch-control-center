@@ -568,6 +568,55 @@ npx playwright test --ui
 npx playwright test
 ```
 
+---
+
+### Visual Testing
+
+#### What is Visual Testing?
+
+Visual testing (also called visual regression testing) captures screenshots of pages or components and compares them against previously approved baseline images (snapshots). Any pixel-level difference fails the test, which helps catch unintended UI changes — broken layouts, styling regressions, or accidental visual side effects of code changes — that functional assertions alone would miss.
+
+Reference: [Playwright Visual Comparisons docs](https://playwright.dev/docs/test-snapshots)
+
+#### How to Run Visual Tests
+
+Visual tests live under `playwright-tests/visual-testing/`. After completing the [Local Testing Setup](#local-testing-setup) steps above, run:
+
+```
+npx playwright test playwright-tests/visual-testing
+```
+
+On the first run (or when snapshots are missing), the tests will fail until baseline snapshots are generated. See the next section for how to generate them.
+
+#### How to Update Snapshots
+
+Use the provided script to generate or refresh snapshots:
+
+```
+sh playwright-tests/update_snapshots.sh
+```
+
+**How the script works:**
+
+- Verifies Docker is running and the `hyperswitch_router_net` network plus the `hyperswitch-server` container are up (started via `start_hyperswitch.sh`).
+- Detects host architecture (x86_64 / arm64) and pulls the matching official `mcr.microsoft.com/playwright` Linux image, pinned to the project's Playwright version.
+- Builds the webapp on the host (`npm run build:test`) if `dist/` is not already present.
+- Verifies the backend is reachable from inside the Docker network.
+- Starts a Playwright container attached to `hyperswitch_router_net`, mounts the project directory into it, launches the FE server inside the container (pointed at `hyperswitch-server:8080`), waits for it to be ready, and then runs `npx playwright test playwright-tests/visual-testing --update-snapshots` inside that container.
+- On exit, prints a list of modified / newly created `*.png` snapshot files (tracked + untracked) so you can review the diff before committing.
+
+#### ⚠️ Note on Cross-OS Rendering
+
+Visual tests may fail when run directly on macOS or Windows because font rendering, anti-aliasing, and sub-pixel positioning differ across operating systems. Baseline snapshots in this repository are generated for the **Linux** environment used by the GitHub Actions runners.
+
+The recommended workflow:
+
+1. Write your visual tests and verify them locally (functional behavior, selectors, flow).
+2. Before raising a PR, run `sh playwright-tests/update_snapshots.sh` to (re)generate snapshots inside the Linux Docker container — these will match what CI produces.
+3. Commit the updated `*-snapshots/*.png` files along with your test changes.
+
+Do **not** commit snapshots generated directly on macOS or Windows — they will fail in CI.
+
 ## License
 
 This project is open-source and available under the Apache 2.0 license.
