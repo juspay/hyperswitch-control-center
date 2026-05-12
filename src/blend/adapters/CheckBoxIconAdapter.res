@@ -1,4 +1,5 @@
 open CheckBoxBinding
+open CheckedValue
 
 type size = CheckBoxIcon.size
 
@@ -23,14 +24,14 @@ let make = (
   let useBlend = isBlendEnabled && setIsSelected->Option.isSome
 
   let checkedValue = if isSelectedStateMinus && isSelected {
-    CheckedValue.fromIndeterminate("indeterminate")
+    fromIndeterminate("indeterminate")
   } else {
-    CheckedValue.fromBool(isSelected)
+    fromBool(isSelected)
   }
 
   let onCheckedChange = v =>
     switch setIsSelected {
-    | Some(fn) => fn(v->CheckedValue.toBool)
+    | Some(fn) => fn(v->toBool)
     | None => ()
     }
 
