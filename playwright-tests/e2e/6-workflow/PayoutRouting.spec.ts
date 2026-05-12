@@ -1,12 +1,9 @@
 import { test, expect } from "../../support/test";
-import type { Page } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
-import { PaymentRouting } from "../../support/pages/workflow/paymentRouting/PaymentRouting";
 import { generateUniqueEmail } from "../../support/helper";
 import {
     signupUser,
     loginUI,
-    createDummyConnectorAPI,
 } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
