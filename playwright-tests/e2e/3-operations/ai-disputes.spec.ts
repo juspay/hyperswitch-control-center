@@ -63,7 +63,7 @@ test.describe("Disputes list page", () => {
 
     await paymentOperations.addFilters.click();
     await expect(
-      page.locator('[class="px-1 py-1 overflow-y-auto max-h-96"]'),
+      page.locator('div').filter({ hasText: /^ConnectorDispute StatusDispute Stage$/ }).nth(1),
     ).toBeVisible({ timeout: 10000 });
   });
 

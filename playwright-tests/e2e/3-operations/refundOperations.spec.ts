@@ -260,9 +260,7 @@ test.describe("Refunds Operations", () => {
 
         await page.locator('[data-icon="plus"]').click();
 
-        const filterDropdown = page.locator(
-          '[class="px-1 py-1 overflow-y-auto max-h-96"]',
-        );
+        const filterDropdown = page.locator('div').filter({ hasText: /^ConnectorCurrencyRefund StatusAmount$/ }).nth(1);
         for (const filter of allFilters) {
           await expect(filterDropdown).toContainText(filter);
         }
@@ -280,8 +278,7 @@ test.describe("Refunds Operations", () => {
         // Connector — open dropdown and select first option (Stripe Dummy)
         await page.locator('[data-icon="plus"]').click();
         await page
-          .locator(".mr-5.text-left")
-          .getByText("Connector", { exact: true })
+          .locator('div').filter({ hasText: /^Connector$/ }).first()
           .click();
         await page.getByText("Select Connector").click();
         await page.locator('[value="Stripe Dummy"]').click();
@@ -292,8 +289,7 @@ test.describe("Refunds Operations", () => {
         // Currency — select USD (first matching value)
         await page.locator('[data-icon="plus"]').click();
         await page
-          .locator(".mr-5.text-left")
-          .getByText("Currency", { exact: true })
+          .locator('div').filter({ hasText: /^Currency$/ }).first()
           .click();
         await page.getByText("Select Currency").click();
         await page.locator('[placeholder="Search..."]').fill("USD");
@@ -304,8 +300,7 @@ test.describe("Refunds Operations", () => {
         // Refund Status — select Succeeded (first option)
         await page.locator('[data-icon="plus"]').click();
         await page
-          .locator(".mr-5.text-left")
-          .getByText("Refund Status", { exact: true })
+          .locator('div').filter({ hasText: /^Refund Status$/ }).first()
           .click();
         await page
           .locator('[data-component-field-wrapper="field-refund_status"]')

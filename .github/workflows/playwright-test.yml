@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       shard:
-        description: "Shard to run: 'all' or one of 1, 2, 3"
+        description: "Shard to run: 'all' or one of 1, 2, 3, 4"
         default: "all"
         type: choice
         options:
@@ -16,6 +16,7 @@ on:
           - "1"
           - "2"
           - "3"
+          - "4"
 
 jobs:
   setup:
@@ -73,7 +74,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: ${{ (github.event_name == 'workflow_dispatch' && inputs.shard != 'all') && fromJSON(format('[{0}]', inputs.shard)) || fromJSON('[1, 2, 3]') }}
+        shard: ${{ (github.event_name == 'workflow_dispatch' && inputs.shard != 'all') && fromJSON(format('[{0}]', inputs.shard)) || fromJSON('[1, 2, 3, 4]') }}
 
     steps:
       - name: Checkout code
@@ -123,8 +124,8 @@ jobs:
           echo "Response:"
           echo "$response"
 
-      - name: Run Playwright tests (Shard ${{ matrix.shard }}/3)
-        run: npx playwright test --shard=${{ matrix.shard }}/3
+      - name: Run Playwright tests (Shard ${{ matrix.shard }}/4)
+        run: npx playwright test --shard=${{ matrix.shard }}/4
         env:
           PW_COVERAGE: "1"
           PLAYWRIGHT_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
