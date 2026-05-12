@@ -3,6 +3,18 @@ open ReconEngineTypes
 open LogicUtils
 open ReconEngineUtils
 open ReconEngineTransactionsUtils
+open EntriesTableEntity
+
+let getDetailFieldsForTableSections = [
+  EntryType,
+  Amount,
+  Currency,
+  Status,
+  EntryId,
+  OrderID,
+  EffectiveAt,
+  CreatedAt,
+]
 
 let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
   let statusOptions = getGroupedTransactionStatusOptions([
