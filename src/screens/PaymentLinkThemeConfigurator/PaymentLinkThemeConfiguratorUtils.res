@@ -1,12 +1,24 @@
 open LogicUtils
 open PaymentLinkThemeConfiguratorTypes
 
-let selectedStyleVariant = styleID => {
-  switch styleID {
-  | "default" => Default
-  | _ => Custom
-  }
-}
+let defaultStyleId = (Default: PaymentLinkThemeConfiguratorTypes.styleType :> string)
+
+let selectedStyleVariant = styleID => styleID == defaultStyleId ? Default : Custom
+
+let captureMethodOptions: array<SelectBox.dropdownOption> = [
+  {label: "Automatic", value: (Automatic :> string)},
+  {label: "Manual", value: (Manual :> string)},
+]
+
+let setupFutureUsageOptions: array<SelectBox.dropdownOption> = [
+  {label: "Off Session", value: (OffSession :> string)},
+  {label: "On Session", value: (OnSession :> string)},
+]
+
+let authenticationTypeOptions: array<SelectBox.dropdownOption> = [
+  {label: "Three DS", value: (ThreeDS :> string)},
+  {label: "No Three DS", value: (NoThreeDS :> string)},
+]
 
 let getDefaultStylesValue: BusinessProfileInterfaceTypes.paymentLinkConfig => BusinessProfileInterfaceTypes.styleConfig = paymentLinkConfig => {
   {
@@ -38,6 +50,17 @@ let getDefaultStylesValue: BusinessProfileInterfaceTypes.paymentLinkConfig => Bu
   }
 }
 
+let allowedDomainsToArray = allowedDomainsOpt => {
+  let domainsStr =
+    allowedDomainsOpt->Option.getOr(JSON.Encode.null)->JSON.Decode.string->Option.getOr("")
+  let allowedDomains =
+    domainsStr
+    ->String.split(",")
+    ->Array.map(String.trim)
+    ->Array.filter(isNonEmptyString)
+  allowedDomains->Array.length === 0 ? None : Some(allowedDomains->getJsonFromArrayOfString)
+}
+
 let constructBusinessProfileBody = (~paymentLinkConfig, ~styleID) => {
   open BusinessProfileInterfaceUtils
 
@@ -53,6 +76,7 @@ let constructBusinessProfileBody = (~paymentLinkConfig, ~styleID) => {
 
   {
     ...paymentLinkConfig,
+    allowed_domains: paymentLinkConfig.allowed_domains->allowedDomainsToArray,
     business_specific_configs: Some(updatedBusinessSpecificDict->JSON.Encode.object),
   }
 }
@@ -93,7 +117,7 @@ let constructBusinessProfileBodyFromJson = (~json, ~paymentLinkConfig, ~styleID)
         is_setup_mandate_flow: styleConfig.is_setup_mandate_flow,
         color_icon_card_cvc_error: styleConfig.color_icon_card_cvc_error,
         domain_name: paymentLinkConfig.domain_name,
-        allowed_domains: paymentLinkConfig.allowed_domains,
+        allowed_domains: paymentLinkConfig.allowed_domains->allowedDomainsToArray,
         business_specific_configs: paymentLinkConfig.business_specific_configs,
         branding_visibility: paymentLinkConfig.branding_visibility,
       }
@@ -133,7 +157,7 @@ let constructBusinessProfileBodyFromJson = (~json, ~paymentLinkConfig, ~styleID)
         is_setup_mandate_flow: paymentLinkConfig.is_setup_mandate_flow,
         color_icon_card_cvc_error: paymentLinkConfig.color_icon_card_cvc_error,
         domain_name: paymentLinkConfig.domain_name,
-        allowed_domains: paymentLinkConfig.allowed_domains,
+        allowed_domains: paymentLinkConfig.allowed_domains->allowedDomainsToArray,
         branding_visibility: paymentLinkConfig.branding_visibility,
         business_specific_configs: Some(updatedBusinessSpecificDict->JSON.Encode.object),
       }
@@ -141,15 +165,15 @@ let constructBusinessProfileBodyFromJson = (~json, ~paymentLinkConfig, ~styleID)
   }
 }
 
-let generateWasmPayload = (~paymentDetails, ~publishableKey, ~formValues) => {
-  let paymentDetailsDict = paymentDetails->getDictFromJsonObject
+let generateWasmPayload = (~paymentMethodsResponse, ~publishableKey, ~formValues) => {
   let formValuesDict = formValues->getDictFromJsonObject
 
   let backgroundImage = getString(formValuesDict, "background_image", "")
   let backgroundImageObj = backgroundImage->isNonEmptyString ? Some({url: backgroundImage}) : None
 
-  let currency = getString(paymentDetailsDict, "currency", "USD")
-  let amount = paymentDetailsDict->getInt("amount", 0)->Int.toFloat
+  let countryCurrency = getString(formValuesDict, "country_currency", "US-USD")->String.split("-")
+  let currency = countryCurrency->getValueFromArray(1, "USD")
+  let amount = formValuesDict->getFloat("amount", 100.0)
   let formattedAmount =
     CurrencyUtils.convertCurrencyFromLowestDenomination(~amount, ~currency)->Float.toString
 
@@ -160,14 +184,23 @@ let generateWasmPayload = (~paymentDetails, ~publishableKey, ~formValues) => {
     }
   }
 
+  let preloadSdkWithParams = {
+    payment_methods_list: paymentMethodsResponse,
+    customer_methods_list: None,
+    session_tokens: None,
+    blocked_bins: None,
+  }
+
   {
+    test_mode: Some(true),
+    preload_sdk_with_params: Some(preloadSdkWithParams),
+    client_secret: "", // WASM skips client_secret validation when test_mode=true
+    payment_id: "test_payment",
+    session_expiry: "2099-12-31T23:59:59.000Z",
+    status: "requires_payment_method",
     pub_key: publishableKey,
     amount: formattedAmount,
     currency,
-    client_secret: getString(paymentDetailsDict, "client_secret", ""),
-    payment_id: getString(paymentDetailsDict, "payment_id", ""),
-    status: getString(paymentDetailsDict, "status", "incomplete"),
-    session_expiry: getString(paymentDetailsDict, "expires_on", ""),
     merchant_logo: getString(formValuesDict, "logo", ""),
     return_url: getString(formValuesDict, "return_url", "https://google.com"),
     merchant_name: getNonEmptyValue(formValuesDict, "seller_name", "Seller Name"),
@@ -206,24 +239,24 @@ let generateWasmPayload = (~paymentDetails, ~publishableKey, ~formValues) => {
 let validateStyleIdForm = (values: JSON.t) => {
   let errors = Dict.make()
 
-  let styleId = values->getDictFromJsonObject->getString("style_id", "")->String.trim
+  let styleId = values->getDictFromJsonObject->getString("payment_link_config_id", "")->String.trim
   let regexForStyleId = "^([a-zA-Z0-9_\\s-]+)$"
 
-  let isDefault = styleId == (Default: PaymentLinkThemeConfiguratorTypes.styleType :> string)
+  let isDefault = styleId == defaultStyleId
   let errorMessage = if styleId->isEmptyString {
-    "Style ID name cannot be empty"
+    "Payment Link Config ID name cannot be empty"
   } else if styleId->String.length > 32 {
-    "Style ID name cannot exceed 32 characters"
+    "Payment Link Config ID name cannot exceed 32 characters"
   } else if !RegExp.test(RegExp.fromString(regexForStyleId), styleId) {
-    "Style ID name should not contain special characters"
+    "Payment Link Config ID name should not contain special characters"
   } else if isDefault {
-    "Style ID with this name already exists in this organization"
+    "Payment Link Config ID with this name already exists in this organization"
   } else {
     ""
   }
 
   if errorMessage->isNonEmptyString {
-    Dict.set(errors, "style_id", errorMessage->JSON.Encode.string)
+    Dict.set(errors, "payment_link_config_id", errorMessage->JSON.Encode.string)
   }
 
   errors->JSON.Encode.object
