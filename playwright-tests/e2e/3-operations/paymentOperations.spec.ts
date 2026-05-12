@@ -531,9 +531,7 @@ test.describe("Payment Operations", () => {
         const sortUp = heading.locator('[data-icon="caret-up"]');
         const sortDown = heading.locator('[data-icon="caret-down"]');
 
-        // First click toggles NONE -> DEC (descending). The caret icon is
-        // re-rendered after every sort, so wait for it to be stable rather
-        // than relying on the action timeout to retry through the rerender.
+        // First click toggles NONE -> DEC (descending)
         await expect(sortUp).toBeVisible();
         await sortUp.click();
         await page.waitForLoadState("networkidle");
@@ -547,6 +545,13 @@ test.describe("Payment Operations", () => {
         await page.waitForTimeout(3000);
         await expect(page.locator('[data-table-location="Orders_tr1_td2"]')).toContainText(payments[0].payment_id);
         await expect(page.locator('[data-table-location="Orders_tr3_td2"]')).toContainText(payments[2].payment_id);
+
+        // Third click toggles INC -> DEC (descending)
+        await expect(sortUp).toBeVisible();
+        await sortUp.click();
+        await page.waitForLoadState("networkidle");
+        await expect(page.locator('[data-table-location="Orders_tr1_td2"]')).toContainText(payments[2].payment_id);
+        await expect(page.locator('[data-table-location="Orders_tr3_td2"]')).toContainText(payments[0].payment_id);
       }
     });
   });
