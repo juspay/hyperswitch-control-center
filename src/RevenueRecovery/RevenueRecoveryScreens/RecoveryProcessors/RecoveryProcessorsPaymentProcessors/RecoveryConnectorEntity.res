@@ -28,18 +28,18 @@ let getHeading = colType => {
   | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status")
   | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled")
   | Actions => Table.makeHeaderInfo(~key="actions", ~title="")
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
+  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile ID")
   | MerchantConnectorId =>
-    Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector Id")
+    Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector ID")
   | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
   | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
   | PaymentMethods => Table.makeHeaderInfo(~key="payment_methods", ~title="Payment Methods")
   }
 }
-let connectorStatusStyle = connectorStatus =>
+let connectorStatusColor = connectorStatus =>
   switch connectorStatus->String.toLowerCase {
-  | "active" => "text-green-700"
-  | _ => "text-grey-800 opacity-50"
+  | "active" => TagBinding.Success
+  | _ => TagBinding.Neutral
   }
 
 let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledTypeCommon>) => {
@@ -66,9 +66,13 @@ let getTableCell = (~connectorType: connector=Processor) => {
 
     | Status =>
       Table.CustomCell(
-        <div className={`font-semibold ${connector.status->connectorStatusStyle}`}>
-          {connector.status->String.toUpperCase->React.string}
-        </div>,
+        <TagBinding
+          text={connector.status->String.toUpperCase}
+          color={connector.status->connectorStatusColor}
+          variant=Subtle
+          shape=Squarical
+          size=Xs
+        />,
         "",
       )
     | ProfileId => DisplayCopyCell(connector.profile_id)

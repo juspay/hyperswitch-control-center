@@ -147,9 +147,7 @@ let make = () => {
       <AccessControl
         isEnabled={featureFlagDetails.paymentLinkThemeConfigurator}
         authorization={userHasAccess(~groupAccess=ConnectorsView)}>
-        <SDKProvider>
-          <PaymentLinkThemeConfigurator />
-        </SDKProvider>
+        <PaymentLinkThemeConfigurator />
       </AccessControl>
     // Routing
     | list{"routing", ...remainingPath} =>

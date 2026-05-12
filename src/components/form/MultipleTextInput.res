@@ -33,8 +33,8 @@ let make = (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~name="tag_value",
   ~disabled=false,
-  ~seperateByComma=false,
-  ~seperateBySpace=false,
+  ~separateByComma=false,
+  ~separateBySpace=false,
   ~customStyle=?,
   ~placeholder="",
   ~autoComplete=?,
@@ -73,7 +73,7 @@ let make = (
       setTags(currentTags->Array.slice(~start=0, ~end=-1))
     } else if text->String.length !== 0 {
       if e->key === "Enter" || e->keyCode === 13 || e->key === "Tab" || e->keyCode === 9 {
-        if seperateByComma {
+        if separateByComma {
           let arr = text->String.split(",")
           let newArr = []
           arr->Array.forEach(ele => {
@@ -88,7 +88,7 @@ let make = (
           })
 
           setTags(currentTags->Array.concat(newArr))
-        } else if seperateBySpace {
+        } else if separateBySpace {
           let arr = text->String.split(" ")
           let newArr = []
           arr->Array.forEach(ele => {

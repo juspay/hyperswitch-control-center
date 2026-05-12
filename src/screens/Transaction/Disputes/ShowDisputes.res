@@ -27,7 +27,7 @@ module DisputesNoteComponent = {
 
     <div
       className={`${borderColor.primaryNormal} flex  items-start  text-sm rounded-md gap-2 px-4 py-3 mt-5`}>
-      <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
+      <Icon name="info-vacant" className={`${textColor.primaryNormal} mt-1`} size=18 />
       <span>
         {"Coming soon! You would soon be able to upload evidences against disputes directly from your Hyperswitch dashboard. Until then, please use Hyperswitch dashboard to track any changes in dispute status while uploading evidences from your relevant connector "->React.string}
         {dashboardLink}
@@ -222,9 +222,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           <div>
             <PageUtils.PageHeading title="Disputes" />
             <BreadCrumbNavigation
-              path=[{title: "Disputes", link: "/disputes"}]
-              currentPageTitle=id
-              cursorStyle="cursor-pointer"
+              path=[{title: "Disputes", link: "/disputes"}] currentPageTitle=id
             />
           </div>
           <div />

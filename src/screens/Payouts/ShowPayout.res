@@ -122,7 +122,6 @@ module ShowPayoutDetails = {
               description="Original amount that was authorized for the payout"
               toolTipFor={<Icon name="tooltip_info" className={`mt-1 ml-1`} />}
               toolTipPosition=Top
-              tooltipWidthClass="w-fit"
             />
           </div>
           {statusUI}
@@ -306,11 +305,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         <div className="flex items-center">
           <div>
             <PageUtils.PageHeading title="Payouts" />
-            <BreadCrumbNavigation
-              path=[{title: "Payouts", link: "/payouts"}]
-              currentPageTitle=id
-              cursorStyle="cursor-pointer"
-            />
+            <BreadCrumbNavigation path=[{title: "Payouts", link: "/payouts"}] currentPageTitle=id />
           </div>
           <div />
         </div>

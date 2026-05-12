@@ -37,7 +37,7 @@ module WebhooksConfiguration = {
       } catch {
       | _ => {
           setScreenState(_ => PageLoaderWrapper.Success)
-          showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+          showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
         }
       }
       Nullable.null
@@ -104,7 +104,7 @@ module WebhooksConfiguration = {
                       customButtonStyle="w-fit"
                     />
                     <FormRenderer.SubmitButton
-                      text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+                      text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
                     />
                   </>
                 } else {
@@ -150,7 +150,7 @@ module BillingConnectorDetails = {
   open APIUtils
   open ConnectorUtils
   @react.component
-  let make = (~removeFieldsFromRespose, ~merchantId, ~setPaymentConnectorId) => {
+  let make = (~removeFieldsFromResponse, ~merchantId, ~setPaymentConnectorId) => {
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
     let (screenState, setScreenState) = React.useState(_ => Loading)
@@ -172,7 +172,7 @@ module BillingConnectorDetails = {
           ~id=Some(connectorID),
         )
         let json = await fetchDetails(connectorUrl, ~version=V2)
-        setInitialValues(_ => json->removeFieldsFromRespose)
+        setInitialValues(_ => json->removeFieldsFromResponse)
         setScreenState(_ => Success)
       } catch {
       | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch details"))
@@ -300,7 +300,7 @@ module PaymentConnectorDetails = {
   open APIUtils
   open ConnectorUtils
   @react.component
-  let make = (~connectorId, ~removeFieldsFromRespose, ~merchantId) => {
+  let make = (~connectorId, ~removeFieldsFromResponse, ~merchantId) => {
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
     let updateAPIHook = useUpdateMethod(~showErrorToast=false)
@@ -318,7 +318,7 @@ module PaymentConnectorDetails = {
         )
 
         let json = await fetchDetails(connectorUrl, ~version=V2)
-        setInitialValues(_ => json->removeFieldsFromRespose)
+        setInitialValues(_ => json->removeFieldsFromResponse)
         setScreenState(_ => Success)
       } catch {
       | _ =>
@@ -389,7 +389,7 @@ module PaymentConnectorDetails = {
         dict->Dict.set("merchant_id", merchantId->JSON.Encode.string)
         let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
         setCurrentActiveSection(_ => None)
-        setInitialValues(_ => response->removeFieldsFromRespose)
+        setInitialValues(_ => response->removeFieldsFromResponse)
         setScreenState(_ => Success)
       } catch {
       | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to update"))
@@ -475,7 +475,7 @@ module RetriesConfiguration = {
   open LogicUtils
   open APIUtils
   @react.component
-  let make = (~removeFieldsFromRespose) => {
+  let make = (~removeFieldsFromResponse) => {
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
     let (screenState, setScreenState) = React.useState(_ => Loading)
@@ -497,7 +497,7 @@ module RetriesConfiguration = {
           ~id=Some(connectorID),
         )
         let json = await fetchDetails(connectorUrl, ~version=V2)
-        setInitialValues(_ => json->removeFieldsFromRespose)
+        setInitialValues(_ => json->removeFieldsFromResponse)
         setScreenState(_ => Success)
       } catch {
       | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch details"))
@@ -549,7 +549,7 @@ let make = () => {
   let (paymentConnectorId, setPaymentConnectorId) = React.useState(_ => "")
   let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
-  let removeFieldsFromRespose = json => {
+  let removeFieldsFromResponse = json => {
     let dict = json->getDictFromJsonObject
     dict->Dict.delete("applepay_verified_domains")
     dict->Dict.delete("business_country")
@@ -565,9 +565,9 @@ let make = () => {
       title: "Processor details",
       renderContent: () => {
         <div className="flex flex-col gap-20 mt-10">
-          <BillingConnectorDetails removeFieldsFromRespose merchantId setPaymentConnectorId />
+          <BillingConnectorDetails removeFieldsFromResponse merchantId setPaymentConnectorId />
           <PaymentConnectorDetails
-            connectorId=paymentConnectorId removeFieldsFromRespose merchantId
+            connectorId=paymentConnectorId removeFieldsFromResponse merchantId
           />
         </div>
       },
@@ -580,7 +580,7 @@ let make = () => {
       title: "Retries Configuration",
       renderContent: () => {
         <div className="flex flex-col gap-20 mt-10">
-          <RetriesConfiguration removeFieldsFromRespose />
+          <RetriesConfiguration removeFieldsFromResponse />
         </div>
       },
     })
@@ -590,13 +590,6 @@ let make = () => {
     <div className="flex justify-between px-2 items-end">
       <PageUtils.PageHeading title="Configuration" />
     </div>
-    <Tabs
-      tabs
-      showBorder=true
-      includeMargin=false
-      initialIndex={tabIndex}
-      onTitleClick={index => setTabIndex(_ => index)}
-      selectTabBottomBorderColor="bg-nd_primary_blue-500"
-    />
+    <Tabs tabs initialIndex={tabIndex} onTitleClick={index => setTabIndex(_ => index)} />
   </div>
 }

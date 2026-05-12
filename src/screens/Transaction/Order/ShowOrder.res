@@ -52,7 +52,6 @@ module ShowOrderDetails = {
               description="Original amount that was authorized for the payment"
               toolTipFor={<Icon name="tooltip_info" className={`mt-1 ml-1`} />}
               toolTipPosition=Top
-              tooltipWidthClass="w-fit"
             />
           </div>
           {statusUI}
@@ -217,15 +216,15 @@ module Refunds = {
   open OrderEntity
   @react.component
   let make = (~refundData) => {
-    let expand = -1
+    let noExpandIndex = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
     let heading = refundColumns->Array.map(getRefundHeading)
     React.useEffect(() => {
-      if expand != -1 {
-        setExpandedRowIndexArray(_ => [expand])
+      if noExpandIndex != -1 {
+        setExpandedRowIndexArray(_ => [noExpandIndex])
       }
       None
-    }, [expand])
+    }, [noExpandIndex])
     let onExpandClick = idx => {
       setExpandedRowIndexArray(_ => {
         [idx]
@@ -280,15 +279,15 @@ module Attempts = {
   open OrderEntity
   @react.component
   let make = (~order) => {
-    let expand = -1
+    let noExpandIndex = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
 
     React.useEffect(() => {
-      if expand != -1 {
-        setExpandedRowIndexArray(_ => [expand])
+      if noExpandIndex != -1 {
+        setExpandedRowIndexArray(_ => [noExpandIndex])
       }
       None
-    }, [expand])
+    }, [noExpandIndex])
 
     let onExpandClick = idx => {
       setExpandedRowIndexArray(_ => {
@@ -315,10 +314,10 @@ module Attempts = {
     }
 
     let attemptsData = order.attempts->Array.toSorted((a, b) => {
-      let rowValue_a = a.attempt_id
-      let rowValue_b = b.attempt_id
+      let rowValueA = a.attempt_id
+      let rowValueB = b.attempt_id
 
-      rowValue_a <= rowValue_b ? 1. : -1.
+      rowValueA <= rowValueB ? 1. : -1.
     })
 
     let heading = attemptsColumns->Array.map(getAttemptHeading)
@@ -355,15 +354,15 @@ module Disputes = {
     let {orgId, merchantId, profileId} = React.useContext(
       UserInfoProvider.defaultContext,
     ).getCommonSessionDetails()
-    let expand = -1
+    let noExpandIndex = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
     let heading = columnsInPaymentPage->Array.map(getHeading)
     React.useEffect(() => {
-      if expand != -1 {
-        setExpandedRowIndexArray(_ => [expand])
+      if noExpandIndex != -1 {
+        setExpandedRowIndexArray(_ => [noExpandIndex])
       }
       None
-    }, [expand])
+    }, [noExpandIndex])
     let onExpandClick = idx => {
       setExpandedRowIndexArray(_ => {
         [idx]
@@ -741,9 +740,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         <div className="w-full">
           <PageUtils.PageHeading title="Payments" />
           <BreadCrumbNavigation
-            path=[{title: "Payments", link: breadCrumbLink}]
-            currentPageTitle=id
-            cursorStyle="cursor-pointer"
+            path=[{title: "Payments", link: breadCrumbLink}] currentPageTitle=id
           />
         </div>
         <RenderIf condition={showSyncButton()}>
@@ -770,7 +767,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     <PageLoaderWrapper
       screenState
       customUI={<NoDataFound
-        message="Payment does not exists in out record" renderType=NotFound
+        message="Payment does not exist in our records" renderType=NotFound
       />}>
       <div className="flex flex-col gap-8">
         <OrderInfo

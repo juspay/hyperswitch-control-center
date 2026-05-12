@@ -157,7 +157,7 @@ module UploadDisputeEvidenceModal = {
             {"Upload evidence that is most relevant to this dispute"->React.string}
           </p>
           <p className={`${p2RegularText} text-grey-800 opacity-50`}>
-            {"The evidence can be ANY ONE or MORE of the following:"->React.string}
+            {"The evidence can be one or more of the following:"->React.string}
           </p>
         </div>
         <div className="flex flex-col gap-4">
@@ -237,17 +237,17 @@ module DisputesInfoBarComponent = {
           ~id=Some(disputeId),
         )
         let response = await url->fetchDetails
-        let reponseArray = response->getArrayFromJson([])
-        if reponseArray->Array.length > 0 {
+        let responseArray = response->getArrayFromJson([])
+        if responseArray->Array.length > 0 {
           setFileUploadedDict(_ =>
-            DictionaryUtils.mergeDicts([fileUploadedDict, reponseArray->getDictFromFilesAvailable])
+            DictionaryUtils.mergeDicts([fileUploadedDict, responseArray->getDictFromFilesAvailable])
           )
           setDisputeEvidenceStatus(_ => EvidencePresent)
         }
         setScreenState(_ => Success)
       } catch {
       | _ =>
-        showToast(~message="Failed to retrieve evidence for the dispute !", ~toastType=ToastError)
+        showToast(~message="Failed to retrieve evidence for the dispute!", ~toastType=ToastError)
       }
     }
 

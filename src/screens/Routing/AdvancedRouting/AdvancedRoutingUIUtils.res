@@ -99,7 +99,7 @@ module OperatorInp = {
       }
     })
     let textColorStyle = disableSelect ? "text-hyperswitch_red opacity-50" : "text-hyperswitch_red"
-    <SelectBox.BaseDropdown
+    <SelectBoxAdapter.BaseDropdown
       allowMultiSelect=false
       buttonText="Select Operator"
       input
@@ -154,7 +154,7 @@ module ValueInp = {
 
     switch opField.value->getStringFromJson("")->operatorMapper {
     | CONTAINS | NOT_CONTAINS =>
-      <SelectBox.BaseDropdown
+      <SelectBoxAdapter.BaseDropdown
         allowMultiSelect=true
         buttonText="Select Value"
         input
@@ -166,7 +166,7 @@ module ValueInp = {
       />
     | IS | IS_NOT => {
         let val = valueField.value->getStringFromJson("")
-        <SelectBox.BaseDropdown
+        <SelectBoxAdapter.BaseDropdown
           allowMultiSelect=false
           buttonText={val->String.length === 0 ? "Select Value" : val}
           input
@@ -351,7 +351,7 @@ module FieldInp = {
       checked: true,
     }
 
-    <SelectBox.BaseDropdown
+    <SelectBoxAdapter.BaseDropdown
       allowMultiSelect=false
       buttonText="Select Field"
       input
