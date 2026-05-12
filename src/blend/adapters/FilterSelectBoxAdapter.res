@@ -1,3 +1,7 @@
+open MultiSelectBindings
+open MultiSelectWrapper
+open LogicUtils
+
 type dropdownOption = FilterSelectBox.dropdownOption
 type dropdownOptionWithoutOptional = FilterSelectBox.dropdownOptionWithoutOptional
 type allSelectType = FilterSelectBox.allSelectType
@@ -6,39 +10,40 @@ type direction = FilterSelectBox.direction
 let makeOptions = FilterSelectBox.makeOptions
 let makeNonOptional = FilterSelectBox.makeNonOptional
 
-let getAlignmentFromDirection = (direction: FilterSelectBox.direction) =>
+let getAlignmentFromDirection = direction => {
+  open FilterSelectBox
   switch direction {
-  | BottomLeft | TopLeft => MultiSelectBindings.End
-  | BottomMiddle | TopMiddle => MultiSelectBindings.Center
-  | BottomRight | TopRight => MultiSelectBindings.Start
+  | BottomLeft | TopLeft => End
+  | BottomMiddle | TopMiddle => Center
+  | BottomRight | TopRight => Start
   }
+}
 
-let getSideFromDirection = (direction: FilterSelectBox.direction) =>
+let getSideFromDirection = direction => {
+  open FilterSelectBox
   switch direction {
-  | TopLeft | TopMiddle | TopRight => MultiSelectBindings.Top
-  | BottomLeft | BottomMiddle | BottomRight => MultiSelectBindings.Bottom
+  | TopLeft | TopMiddle | TopRight => Top
+  | BottomLeft | BottomMiddle | BottomRight => Bottom
   }
+}
 
-let makeFilterItems = (
-  options: array<FilterSelectBox.dropdownOption>,
-  ~selectedValues: array<string>,
-): array<MultiSelectBindings.selectMenuGroupType> => {
-  let groups: Dict.t<array<FilterSelectBox.dropdownOption>> = Dict.make()
+let makeFilterItems = (options: array<dropdownOption>, ~selectedValues: array<string>) => {
+  let groups: Dict.t<array<dropdownOption>> = Dict.make()
   options->Array.forEach(opt => {
     let group = opt.optGroup->Option.getOr("-")
-    let existing = groups->Dict.get(group)->Option.getOr([])
+    let existing = groups->getValueFromDict(group, [])
     groups->Dict.set(group, Array.concat(existing, [opt]))
   })
   groups
   ->Dict.keysToArray
   ->Array.map(groupKey => {
-    let groupOptions = groups->Dict.get(groupKey)->Option.getOr([])
-    let items: array<MultiSelectBindings.selectMenuItemType> = groupOptions->Array.map(opt => {
-      let slot1 = MultiSelectWrapper.getSlotElementFromIcon(opt.icon)
-      let slot2 = MultiSelectWrapper.getSlot2FromIcon(opt.icon)
+    let groupOptions = groups->getValueFromDict(groupKey, [])
+    let items = groupOptions->Array.map(opt => {
+      let slot1 = getLeftSlot(opt.icon)
+      let slot2 = getRightSlot(opt.icon)
       let isChecked = selectedValues->Array.includes(opt.value)
       {
-        MultiSelectBindings.label: opt.label,
+        label: opt.label,
         value: opt.value,
         checked: isChecked,
         ?slot1,
@@ -48,31 +53,28 @@ let makeFilterItems = (
       }
     })
     {
-      MultiSelectBindings.groupLabel: ?(groupKey === "-" ? None : Some(groupKey)),
+      groupLabel: ?(groupKey === "-" ? None : Some(groupKey)),
       items,
     }
   })
 }
 
-let makeFilterItemsSingle = (
-  options: array<FilterSelectBox.dropdownOption>,
-  ~selectedValue: string,
-): array<MultiSelectBindings.selectMenuGroupType> => {
-  let groups: Dict.t<array<FilterSelectBox.dropdownOption>> = Dict.make()
+let makeFilterItemsSingle = (options: array<dropdownOption>, ~selectedValue: string) => {
+  let groups: Dict.t<array<dropdownOption>> = Dict.make()
   options->Array.forEach(opt => {
     let group = opt.optGroup->Option.getOr("-")
-    let existing = groups->Dict.get(group)->Option.getOr([])
+    let existing = groups->getValueFromDict(group, [])
     groups->Dict.set(group, Array.concat(existing, [opt]))
   })
   groups
   ->Dict.keysToArray
   ->Array.map(groupKey => {
-    let groupOptions = groups->Dict.get(groupKey)->Option.getOr([])
-    let items: array<MultiSelectBindings.selectMenuItemType> = groupOptions->Array.map(opt => {
-      let slot1 = MultiSelectWrapper.getSlotElementFromIcon(opt.icon)
-      let slot2 = MultiSelectWrapper.getSlot2FromIcon(opt.icon)
+    let groupOptions = groups->getValueFromDict(groupKey, [])
+    let items = groupOptions->Array.map(opt => {
+      let slot1 = getLeftSlot(opt.icon)
+      let slot2 = getRightSlot(opt.icon)
       {
-        MultiSelectBindings.label: opt.label,
+        label: opt.label,
         value: opt.value,
         checked: opt.value === selectedValue,
         ?slot1,
@@ -82,10 +84,124 @@ let makeFilterItemsSingle = (
       }
     })
     {
-      MultiSelectBindings.groupLabel: ?(groupKey === "-" ? None : Some(groupKey)),
+      groupLabel: ?(groupKey === "-" ? None : Some(groupKey)),
       items,
     }
   })
+}
+
+module BlendMultiSelect = {
+  @react.component
+  let make = (
+    ~input: ReactFinalForm.fieldRenderPropsInput,
+    ~buttonText: string,
+    ~options: array<dropdownOption>,
+    ~showSelectAll: bool,
+    ~fullLength: bool,
+    ~showSelectionAsChips: bool,
+    ~dropdownCustomWidth: option<string>=?,
+    ~isDisabled: bool,
+    ~customTrigger: option<React.element>=?,
+    ~alignment: option<selectMenuItemAlignment>=?,
+    ~side: option<selectMenuItemSide>=?,
+  ) => {
+    let form = ReactFinalForm.useForm()
+    let {removeKeys, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
+
+    let (pendingValues, setPendingValues) = React.useState(() => input.value->getStrArrayFromJson)
+    let hasPendingChanges = React.useRef(false)
+
+    React.useEffect(() => {
+      if !hasPendingChanges.current {
+        setPendingValues(_ => input.value->getStrArrayFromJson)
+      }
+      None
+    }, [input.value])
+
+    let handleChange = (value: string) => {
+      hasPendingChanges.current = true
+      setPendingValues(prev =>
+        if prev->Array.includes(value) {
+          prev->Array.filter(v => v !== value)
+        } else {
+          Array.concat(prev, [value])
+        }
+      )
+    }
+
+    let onClearAllClick = () => {
+      hasPendingChanges.current = false
+      [input.name]->removeKeys
+      setfilterKeys(_ => filterKeys->Array.filter(item => item !== input.name))
+    }
+
+    let primaryAction: actionButtonType = {
+      text: "Apply",
+      onClick: _blendValues => {
+        hasPendingChanges.current = false
+        let json = pendingValues->getJsonFromArrayOfString
+        input.onChange(json->Identity.jsonToFormReactEvent)
+        form.submit()->ignore
+      },
+    }
+
+    let menuWidth =
+      dropdownCustomWidth
+      ->Option.flatMap(w => w->String.replace("px", "")->getOptionIntFromString)
+      ->Option.getOr(300)
+    let blendItems = makeFilterItems(options, ~selectedValues=pendingValues)
+    <MultiSelectBindings
+      selectedValues=pendingValues
+      onChange=handleChange
+      items=blendItems
+      placeholder=buttonText
+      disabled=isDisabled
+      fullWidth=fullLength
+      enableSelectAll=showSelectAll
+      ?customTrigger
+      primaryAction
+      showActionButtons=true
+      selectionTagType={showSelectionAsChips ? Text : Count}
+      onClearAllClick
+      minMenuWidth=menuWidth
+      maxMenuWidth=menuWidth
+      ?alignment
+      ?side
+    />
+  }
+}
+
+module BlendSingleSelect = {
+  @react.component
+  let make = (
+    ~input: ReactFinalForm.fieldRenderPropsInput,
+    ~buttonText: string,
+    ~options: array<dropdownOption>,
+    ~searchable: option<bool>=?,
+    ~fullLength: bool,
+    ~deselectDisable: bool,
+    ~isDisabled: bool,
+    ~customTrigger: option<React.element>=?,
+    ~alignment: option<selectMenuItemAlignment>=?,
+    ~side: option<selectMenuItemSide>=?,
+  ) => {
+    let selectedValue = input.value->getStringFromJson("")
+    let blendItems = makeFilterItemsSingle(options, ~selectedValue)
+    let totalItems = blendItems->Array.reduce(0, (acc, g) => acc + g.items->Array.length)
+    let computedEnableSearch = searchable->Option.getOr(false) || totalItems > 5
+    <SingleSelectWrapper
+      items=blendItems
+      placeholder=buttonText
+      input
+      enableSearch=computedEnableSearch
+      disabled=isDisabled
+      fullWidth=fullLength
+      allowDeselect={!deselectDisable}
+      ?customTrigger
+      ?alignment
+      ?side
+    />
+  }
 }
 
 @react.component
@@ -115,9 +231,9 @@ let make = (
   ~maxHeight: option<string>=?,
   ~searchable: option<bool>=?,
   ~fill="#0EB025",
-  ~optionRigthElement: option<React.element>=?,
+  ~optionRightElement: option<React.element>=?,
   ~hideBorder=false,
-  ~allSelectType: FilterSelectBox.allSelectType=FilterSelectBox.Icon,
+  ~allSelectType: allSelectType=FilterSelectBox.Icon,
   ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
   ~searchInputPlaceHolder: option<string>=?,
   ~showSearchIcon=true,
@@ -132,7 +248,7 @@ let make = (
   ~showMatchingRecordsText=true,
   ~customButton=React.null,
   ~descriptionOnHover=false,
-  ~fixedDropDownDirection: option<FilterSelectBox.direction>=?,
+  ~fixedDropDownDirection: option<direction>=?,
   ~dropdownCustomWidth: option<string>=?,
   ~baseComponent: option<React.element>=?,
   ~baseComponentMethod: option<bool => React.element>=?,
@@ -174,169 +290,123 @@ let make = (
   let useBlend = isBlendEnabled && isDropDown && baseComponentMethod->Option.isNone
 
   let authContext = React.useContext(FormAuthContext.formAuthContext)
-  let form = ReactFinalForm.useForm()
-  let {removeKeys, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
+  let isDisabled = disableSelect || authContext === CommonAuthTypes.NoAccess
 
-  let (pendingValues, setPendingValues) = React.useState(() =>
-    input.value->LogicUtils.getStrArrayFromJson
-  )
+  let alignment = fixedDropDownDirection->Option.map(getAlignmentFromDirection)
+  let side = fixedDropDownDirection->Option.map(getSideFromDirection)
+  let customTrigger = baseComponent->Option.map(el => <div> el </div>)
 
-  React.useEffect1(() => {
-    setPendingValues(_ => input.value->LogicUtils.getStrArrayFromJson)
-    None
-  }, [input.value])
-
-  if useBlend {
-    let alignment = fixedDropDownDirection->Option.map(getAlignmentFromDirection)
-    let side = fixedDropDownDirection->Option.map(getSideFromDirection)
-
-    let wrapTrigger = el => <div> el </div>
-    let customTrigger = baseComponent->Option.map(wrapTrigger)
-
-    let isDisabled = disableSelect || authContext === CommonAuthTypes.NoAccess
-
-    let onClearAllClick = () => {
-      [input.name]->removeKeys
-      setfilterKeys(_ => filterKeys->Array.filter(item => item !== input.name))
-    }
-
-    if allowMultiSelect {
-      let handleChange = (value: string) => {
-        setPendingValues(prev =>
-          if prev->Array.includes(value) {
-            prev->Array.filter(v => v !== value)
-          } else {
-            Array.concat(prev, [value])
-          }
-        )
-      }
-
-      let primaryAction: MultiSelectBindings.actionButtonType = {
-        text: "Apply",
-        onClick: _blendValues => {
-          let json = pendingValues->Array.map(JSON.Encode.string)->JSON.Encode.array
-          input.onChange(json->Identity.jsonToFormReactEvent)
-          form.submit()->ignore
-        },
-      }
-
-      let blendItems = makeFilterItems(options, ~selectedValues=pendingValues)
-      <MultiSelectBindings
-        selectedValues=pendingValues
-        onChange=handleChange
-        items=blendItems
-        placeholder=buttonText
-        disabled=isDisabled
-        fullWidth=fullLength
-        enableSelectAll=showSelectAll
-        ?customTrigger
-        primaryAction
-        showActionButtons=true
-        selectionTagType=MultiSelectBindings.Count
-        onClearAllClick
-        minMenuWidth=300
-        maxMenuWidth=300
-        ?alignment
-        ?side
-      />
-    } else {
-      let selectedValue = input.value->LogicUtils.getStringFromJson("")
-      let blendItems = makeFilterItemsSingle(options, ~selectedValue)
-      let totalItems = blendItems->Array.reduce(0, (acc, g) => acc + g.items->Array.length)
-      let computedEnableSearch = searchable->Option.getOr(false) || totalItems > 5
-      <SingleSelectWrapper
-        items=blendItems
-        placeholder=buttonText
+  <>
+    <RenderIf condition={useBlend && allowMultiSelect}>
+      <BlendMultiSelect
         input
-        enableSearch=computedEnableSearch
-        disabled=isDisabled
-        fullWidth=fullLength
-        allowDeselect={!deselectDisable}
+        buttonText
+        options
+        showSelectAll
+        fullLength
+        showSelectionAsChips
+        ?dropdownCustomWidth
+        isDisabled
         ?customTrigger
         ?alignment
         ?side
       />
-    }
-  } else {
-    <FilterSelectBox
-      input
-      buttonText
-      ?buttonSize
-      allowMultiSelect
-      isDropDown
-      hideMultiSelectButtons
-      options
-      optionSize
-      isSelectedStateMinus
-      isHorizontal
-      deselectDisable
-      showClearAll
-      showSelectAll
-      buttonType
-      disableSelect
-      fullLength
-      customButtonStyle
-      textStyle
-      marginTop
-      customStyle
-      showSelectionAsChips
-      showToggle
-      ?maxHeight
-      ?searchable
-      fill
-      ?optionRigthElement
-      hideBorder
-      allSelectType
-      customSearchStyle
-      ?searchInputPlaceHolder
-      showSearchIcon
-      ?customLabelStyle
-      customMargin
-      showToolTip
-      showNameAsToolTip
-      ?showBorder
-      showCustomBtnAtEnd
-      dropDownCustomBtnClick
-      addDynamicValue
-      showMatchingRecordsText
-      customButton
-      descriptionOnHover
-      ?fixedDropDownDirection
-      ?dropdownCustomWidth
-      ?baseComponent
-      ?baseComponentMethod
-      ?customMarginStyle
-      ?buttonTextWeight
-      ?customButtonLeftIcon
-      ?customTextPaddingClass
-      ?customButtonPaddingClass
-      ?customButtonIconMargin
-      ?setExtSearchString
-      buttonStyleOnDropDownOpened
-      listFlexDirection
-      baseComponentCustomStyle
-      ellipsisOnly
-      customSelectStyle
-      isPhoneDropdown
-      ?hasApplyButton
-      ?onApply
-      ?showAllSelectedOptions
-      ?buttonClickFn
-      showDescriptionAsTool
-      optionClass
-      selectClass
-      toggleProps
-      showSelectCountButton
-      ?leftIcon
-      ?customBackColor
-      ?customSelectAllStyle
-      checkboxDimension
-      showToolTipOptions
-      textEllipsisForDropDownOptions
-      showBtnTextToolTip
-      dropdownClassName
-      onItemSelect
-      wrapBasis
-    />
-  }
+    </RenderIf>
+    <RenderIf condition={useBlend && !allowMultiSelect}>
+      <BlendSingleSelect
+        input
+        buttonText
+        options
+        ?searchable
+        fullLength
+        deselectDisable
+        isDisabled
+        ?customTrigger
+        ?alignment
+        ?side
+      />
+    </RenderIf>
+    <RenderIf condition={!useBlend}>
+      <FilterSelectBox
+        input
+        buttonText
+        ?buttonSize
+        allowMultiSelect
+        isDropDown
+        hideMultiSelectButtons
+        options
+        optionSize
+        isSelectedStateMinus
+        isHorizontal
+        deselectDisable
+        showClearAll
+        showSelectAll
+        buttonType
+        disableSelect
+        fullLength
+        customButtonStyle
+        textStyle
+        marginTop
+        customStyle
+        showSelectionAsChips
+        showToggle
+        ?maxHeight
+        ?searchable
+        fill
+        ?optionRightElement
+        hideBorder
+        allSelectType
+        customSearchStyle
+        ?searchInputPlaceHolder
+        showSearchIcon
+        ?customLabelStyle
+        customMargin
+        showToolTip
+        showNameAsToolTip
+        ?showBorder
+        showCustomBtnAtEnd
+        dropDownCustomBtnClick
+        addDynamicValue
+        showMatchingRecordsText
+        customButton
+        descriptionOnHover
+        ?fixedDropDownDirection
+        ?dropdownCustomWidth
+        ?baseComponent
+        ?baseComponentMethod
+        ?customMarginStyle
+        ?buttonTextWeight
+        ?customButtonLeftIcon
+        ?customTextPaddingClass
+        ?customButtonPaddingClass
+        ?customButtonIconMargin
+        ?setExtSearchString
+        buttonStyleOnDropDownOpened
+        listFlexDirection
+        baseComponentCustomStyle
+        ellipsisOnly
+        customSelectStyle
+        isPhoneDropdown
+        ?hasApplyButton
+        ?onApply
+        ?showAllSelectedOptions
+        ?buttonClickFn
+        showDescriptionAsTool
+        optionClass
+        selectClass
+        toggleProps
+        showSelectCountButton
+        ?leftIcon
+        ?customBackColor
+        ?customSelectAllStyle
+        checkboxDimension
+        showToolTipOptions
+        textEllipsisForDropDownOptions
+        showBtnTextToolTip
+        dropdownClassName
+        onItemSelect
+        wrapBasis
+      />
+    </RenderIf>
+  </>
 }

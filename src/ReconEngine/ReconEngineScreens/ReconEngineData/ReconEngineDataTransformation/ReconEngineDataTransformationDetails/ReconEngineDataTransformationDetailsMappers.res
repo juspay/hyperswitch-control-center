@@ -137,14 +137,7 @@ module ColumnMappingDisplay = {
     ]
 
     <div className="px-6">
-      <Tabs
-        tabs=tabList
-        disableIndicationArrow=true
-        showBorder=false
-        includeMargin=false
-        lightThemeColor="black"
-        defaultClasses={`font-ibm-plex w-max flex flex-auto flex-row items-center justify-center text-body ${body.md.semibold}`}
-      />
+      <Tabs tabs=tabList />
     </div>
   }
 }

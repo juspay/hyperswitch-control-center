@@ -1,7 +1,7 @@
 open AmountFilterTypes
 open LogicUtils
 
-let mapStringToamountFilterChild = key => {
+let mapStringToAmountFilterChild = key => {
   switch key {
   | "start_amount" => #start_amount
   | "end_amount" => #end_amount
@@ -26,7 +26,7 @@ let mapStringToRange = val =>
   | _ => UnknownRange(val)
   }
 
-let mapRangeTypetoString = amountFilter => {
+let mapRangeTypeToString = amountFilter => {
   switch amountFilter {
   | GreaterThanOrEqualTo => "Greater than or Equal to"
   | LessThanOrEqualTo => "Less than or Equal to"
@@ -36,7 +36,7 @@ let mapRangeTypetoString = amountFilter => {
   }
 }
 
-let stringRangetoTypeAmount = str =>
+let mapStringToAmountRangeType = str =>
   switch str {
   | "GreaterThanOrEqualTo" => GreaterThanOrEqualTo
   | "LessThanOrEqualTo" => LessThanOrEqualTo
@@ -51,7 +51,7 @@ let amountFilterOptions: array<FilterSelectBox.dropdownOption> = [
   EqualTo,
   InBetween,
 ]->Array.map(option => {
-  let label = option->mapRangeTypetoString
+  let label = option->mapRangeTypeToString
   {
     FilterSelectBox.label,
     value: label,
@@ -65,7 +65,7 @@ let validateAmount = dict => {
   let startAmountKey = dict->getFloat((#start_amount: amountFilterChild :> string), -1.0)
   let endAmountKey = dict->getFloat((#end_amount: amountFilterChild :> string), -1.0)
   let key = (#amount_option: amountFilterChild :> string)
-  let amountOption = dict->getString(key, "")->stringRangetoTypeAmount
+  let amountOption = dict->getString(key, "")->mapStringToAmountRangeType
   switch amountOption {
   | GreaterThanOrEqualTo
   | EqualTo =>
@@ -91,7 +91,7 @@ let createAmountQuery = (~dict) => {
   dict
 }
 
-let startamountField = FormRenderer.makeFieldInfo(
+let startAmountField = FormRenderer.makeFieldInfo(
   ~label="",
   ~name="start_amount",
   ~placeholder="0",

@@ -1,5 +1,4 @@
 open ConnectorTypes
-open Typography
 
 type colType =
   | Name
@@ -19,11 +18,11 @@ let getHeading = colType => {
   | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled")
   | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
   | MerchantConnectorId =>
-    Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector Id")
+    Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector ID")
   }
 }
-let connectorStatusStyle = connectorStatus =>
-  connectorStatus->String.toLowerCase == "active" ? "text-green-700" : "text-grey-800 opacity-50"
+let connectorStatusColor = connectorStatus =>
+  connectorStatus->String.toLowerCase == "active" ? TagBinding.Success : TagBinding.Neutral
 
 let getCell = (
   connector: connectorPayloadCommonType,
@@ -32,7 +31,7 @@ let getCell = (
     BusinessProfileInterfaceTypes.externalVaultConnectorDetails,
   >,
 ): Table.cell => {
-  let vault_connector_id =
+  let vaultConnectorId =
     external_vault_connector_details
     ->Option.map(details => details.vault_connector_id)
     ->Option.getOr("")
@@ -43,7 +42,7 @@ let getCell = (
       <HelperComponents.ConnectorCustomCell
         connectorName=connector.connector_name
         connectorType=VaultProcessor
-        showDefaultTag={connector.id == vault_connector_id}
+        showDefaultTag={connector.id == vaultConnectorId}
       />,
       "",
     )
@@ -55,9 +54,13 @@ let getCell = (
     })
   | Status =>
     Table.CustomCell(
-      <div className={`${body.xs.semibold} ${connector.status->connectorStatusStyle}`}>
-        {connector.status->String.toUpperCase->React.string}
-      </div>,
+      <TagBinding
+        text={connector.status->String.toUpperCase}
+        color={connector.status->connectorStatusColor}
+        variant=Subtle
+        shape=Squarical
+        size=Xs
+      />,
       "",
     )
   | ConnectorLabel => Text(connector.connector_label)

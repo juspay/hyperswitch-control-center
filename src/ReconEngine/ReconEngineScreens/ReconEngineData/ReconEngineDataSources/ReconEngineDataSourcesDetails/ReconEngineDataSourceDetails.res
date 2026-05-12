@@ -83,12 +83,6 @@ let make = (~accountId) => {
       <BreadCrumbNavigation
         path=[{title: "Sources", link: `/v1/recon-engine/sources`}]
         currentPageTitle=accountData.account_name
-        cursorStyle="cursor-pointer"
-        customTextClass="text-nd_gray-400"
-        titleTextClass="text-nd_gray-600 font-medium"
-        fontWeight="font-medium"
-        dividerVal=Slash
-        childGapClass="gap-2"
       />
       <Button
         text="Add New Source"
@@ -116,14 +110,7 @@ let make = (~accountId) => {
           </div>
         </RenderIf>
         <RenderIf condition={ingestionConfigs->Array.length > 0}>
-          <Tabs
-            tabs
-            showBorder=true
-            includeMargin=false
-            initialIndex={tabIndex->Option.getOr("0")->getIntFromString(0)}
-            defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center ${body.md.semibold}`}
-            selectTabBottomBorderColor="bg-primary"
-          />
+          <Tabs tabs initialIndex={tabIndex->Option.getOr("0")->getIntFromString(0)} />
         </RenderIf>
       </PageLoaderWrapper>
     </div>

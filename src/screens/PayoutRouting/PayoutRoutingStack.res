@@ -39,7 +39,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
                     height="90%"
                     title="No Routing Rule Configured!"
                     customStyle="py-16"
-                    overriddingStylesTitle="text-3xl font-semibold"
+                    overridingStylesTitle="text-3xl font-semibold"
                   />
             },
           },
@@ -143,11 +143,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
               <Tabs
                 initialIndex={tabIndex >= 0 ? tabIndex : 0}
                 tabs
-                showBorder=false
-                includeMargin=false
-                lightThemeColor="primary"
-                defaultClasses="!w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
-                selectTabBottomBorderColor="bg-primary"
                 onTitleClick={index => {
                   setTabIndex(_ => index)
                   setCurrentTabName(_ => getTabName(index))

@@ -6,8 +6,10 @@ open LogicUtils
 module ResolutionButton = {
   @react.component
   let make = (~config: ReconEngineExceptionsTypes.buttonConfig) => {
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     <RenderIf condition={config.condition}>
-      <Button
+      <ACLButton
+        authorization={userHasAccess(~groupAccess=ReconExceptionsManage)}
         buttonState=Normal
         buttonSize=Medium
         buttonType={config.buttonType}
@@ -113,7 +115,7 @@ module MetadataInput = {
         ? metadataSchema.schema_data.fields.metadata_fields->Array.some(field => {
             switch field.field_name {
             | Metadata(fieldKey) => fieldKey == key
-            | _ => false
+            | String => false
             }
           })
         : false
@@ -130,7 +132,7 @@ module MetadataInput = {
             optionalFields->Array.filter(field => {
               switch field.field_name {
               | Metadata(key) => !(metadataRows->Array.some(row => row.key == key))
-              | _ => false
+              | String => false
               }
             })
           }
@@ -141,7 +143,7 @@ module MetadataInput = {
       let field = metadataSchema.schema_data.fields.metadata_fields->Array.find(field => {
         switch field.field_name {
         | Metadata(fieldKey) => fieldKey == key
-        | _ => false
+        | String => false
         }
       })
       let displayKey = switch field {
@@ -173,7 +175,7 @@ module MetadataInput = {
         ? metadataSchema.schema_data.fields.metadata_fields->Array.some(field => {
             switch field.field_name {
             | Metadata(fieldKey) => fieldKey == key && field.required
-            | _ => false
+            | String => false
             }
           })
         : false

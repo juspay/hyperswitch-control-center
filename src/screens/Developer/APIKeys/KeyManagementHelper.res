@@ -80,7 +80,7 @@ module ApiEditModal = {
         | _ => getURL(~entityName, ~methodType=Post)
         }
 
-        let json = await updateDetails(url, body->JSON.Encode.object, methodType)
+        let json = await updateDetails(url, body->JSON.Encode.object, methodType, ~version)
         let keyDict = json->getDictFromJsonObject
 
         setApiKey(_ => keyDict->getString("api_key", ""))
@@ -98,7 +98,7 @@ module ApiEditModal = {
       | Exn.Error(e) =>
         switch Exn.message(e) {
         | Some(_error) =>
-          showToast(~message="Api Key Generation Failed", ~toastType=ToastState.ToastError)
+          showToast(~message="API Key Generation Failed", ~toastType=ToastState.ToastError)
         | None => ()
         }
         setModalState(_ => SettingApiModalError)
@@ -254,7 +254,7 @@ module TableActionsCell = {
         }
 
         let deleteUrl = getURL(~entityName, ~methodType=Delete, ~id=Some(keyId))
-        let _ = await deleteDetails(deleteUrl, body->JSON.Encode.object, Delete)
+        let _ = await deleteDetails(deleteUrl, body->JSON.Encode.object, Delete, ~version)
         getAPIKeyDetails()->ignore
       } catch {
       | Exn.Error(_) =>
@@ -339,7 +339,7 @@ module ApiKeysTable = {
         }
 
         let apiKeyListUrl = getURL(~entityName, ~methodType=Get)
-        let apiKeys = await fetchDetails(apiKeyListUrl)
+        let apiKeys = await fetchDetails(apiKeyListUrl, ~version)
         setData(_ => apiKeys->getItems)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {

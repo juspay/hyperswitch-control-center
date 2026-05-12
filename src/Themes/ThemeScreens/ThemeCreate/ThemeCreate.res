@@ -66,8 +66,7 @@ let make = () => {
                   text="Apply Theme"
                   buttonType=Primary
                   buttonSize={Small}
-                  customSumbitButtonStyle={`${body.md.semibold} py-4`}
-                  tooltipForWidthClass="w-full"
+                  customSubmitButtonStyle={`${body.md.semibold} py-4`}
                 />
               </div>
             </div>

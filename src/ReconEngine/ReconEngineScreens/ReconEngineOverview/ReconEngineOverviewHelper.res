@@ -34,14 +34,14 @@ module AccountDetailCard = {
 
     let (reconciledAmount, mismatchAmount, pendingAmount, pendingLabel) = if isSource {
       (
-        formatAmount(transactionData.posted_transaction_amount),
+        formatAmount(transactionData.matched_transaction_amount),
         formatAmount(transactionData.mismatched_transaction_amount),
         formatAmount(transactionData.pending_transaction_amount),
         "Pending",
       )
     } else {
       (
-        formatAmount(transactionData.posted_confirmation_amount),
+        formatAmount(transactionData.matched_confirmation_amount),
         formatAmount(transactionData.mismatched_confirmation_amount),
         formatAmount(transactionData.pending_confirmation_amount),
         "Expected",
@@ -50,13 +50,13 @@ module AccountDetailCard = {
 
     let (reconciledCount, mismatchCount, pendingCount) = if isSource {
       (
-        formatCount(transactionData.posted_transaction_count),
+        formatCount(transactionData.matched_transaction_count),
         formatCount(transactionData.mismatched_transaction_count),
         formatCount(transactionData.pending_transaction_count),
       )
     } else {
       (
-        formatCount(transactionData.posted_confirmation_count),
+        formatCount(transactionData.matched_confirmation_count),
         formatCount(transactionData.mismatched_confirmation_count),
         formatCount(transactionData.pending_confirmation_count),
       )
@@ -68,7 +68,7 @@ module AccountDetailCard = {
       </div>
       <div className="p-4 flex flex-col gap-4">
         <AmountRow
-          label={`Reconciled with ${otherAccountName}`}
+          label={`Matched with ${otherAccountName}`}
           amount={reconciledAmount}
           count={reconciledCount}
         />

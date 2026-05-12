@@ -195,10 +195,9 @@ let make = (
             <ToolTip
               description=tooltipText
               toolTipFor={<div className="cursor-pointer">
-                <Icon name="info-vacent" size=13 />
+                <Icon name="info-vacant" size=13 />
               </div>}
               toolTipPosition=ToolTip.Top
-              newDesign=true
             />
           </div>
           <div className="flex gap-1 flex-col w-full mt-1">

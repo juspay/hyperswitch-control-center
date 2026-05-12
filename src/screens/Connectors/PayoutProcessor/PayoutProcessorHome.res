@@ -168,16 +168,16 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
 
   let isConnectorDisabled = connectorInfo.disabled
 
-  let disableConnector = async isConnectorDisabled => {
+  let disableConnector = async currentIsDisabled => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let connectorID = connectorInfo.merchant_connector_id
+      let mcaId = connectorInfo.merchant_connector_id
       let disableConnectorPayload = getDisableConnectorPayload(
         connectorInfo.connector_type->connectorTypeTypedValueToStringMapper,
-        isConnectorDisabled,
+        currentIsDisabled,
       )
 
-      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
+      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(mcaId))
       let res = await updateDetails(url, disableConnectorPayload, Post)
       setInitialValues(_ => res)
       let _ = await fetchConnectorListResponse()
@@ -233,7 +233,6 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           currentPageTitle={connector->ConnectorUtils.getDisplayNameForConnector(
             ~connectorType=PayoutProcessor,
           )}
-          cursorStyle="cursor-pointer"
         />
       </RenderIf>
       <RenderIf condition={currentStep !== Preview && showStepIndicator}>
@@ -241,11 +240,10 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
       </RenderIf>
       <RenderIf
         condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>
-        <HSwitchUtils.AlertBanner
-          bannerContent={<p>
-            {"This is a test connector and will not be reflected on your payment processor dashboard."->React.string}
-          </p>}
-          bannerType=Warning
+        <AlertV2Binding
+          alertType=Warning
+          slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
+          description="This is a test connector and will not be reflected on your payment processor dashboard."
         />
       </RenderIf>
       <div
