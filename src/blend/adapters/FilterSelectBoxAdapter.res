@@ -31,13 +31,13 @@ let makeFilterItems = (options: array<dropdownOption>, ~selectedValues: array<st
   let groups: Dict.t<array<dropdownOption>> = Dict.make()
   options->Array.forEach(opt => {
     let group = opt.optGroup->Option.getOr("-")
-    let existing = groups->Dict.get(group)->Option.getOr([])
+    let existing = groups->getValueFromDict(group, [])
     groups->Dict.set(group, Array.concat(existing, [opt]))
   })
   groups
   ->Dict.keysToArray
   ->Array.map(groupKey => {
-    let groupOptions = groups->Dict.get(groupKey)->Option.getOr([])
+    let groupOptions = groups->getValueFromDict(groupKey, [])
     let items = groupOptions->Array.map(opt => {
       let slot1 = getLeftSlot(opt.icon)
       let slot2 = getRightSlot(opt.icon)
@@ -63,13 +63,13 @@ let makeFilterItemsSingle = (options: array<dropdownOption>, ~selectedValue: str
   let groups: Dict.t<array<dropdownOption>> = Dict.make()
   options->Array.forEach(opt => {
     let group = opt.optGroup->Option.getOr("-")
-    let existing = groups->Dict.get(group)->Option.getOr([])
+    let existing = groups->getValueFromDict(group, [])
     groups->Dict.set(group, Array.concat(existing, [opt]))
   })
   groups
   ->Dict.keysToArray
   ->Array.map(groupKey => {
-    let groupOptions = groups->Dict.get(groupKey)->Option.getOr([])
+    let groupOptions = groups->getValueFromDict(groupKey, [])
     let items = groupOptions->Array.map(opt => {
       let slot1 = getLeftSlot(opt.icon)
       let slot2 = getRightSlot(opt.icon)
