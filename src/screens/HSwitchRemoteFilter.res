@@ -312,26 +312,27 @@ module RemoteTableFilters = {
       None
     }, [filterValueJson])
 
+    let dict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
+    let defaultSort: LoadedTable.sortOb = {
+      sortKey: "",
+      sortType: DSC,
+    }
+    let value = dict->getvalFromDict(title)->Option.getOr(defaultSort)
+    let sortSignature = `${value.sortKey}|${value->OrderTypes.getSortString}`
+
     let lastFiltersSignature = React.useRef("")
 
     React.useEffect(() => {
       let next =
         filterValueJson->Dict.keysToArray->Array.length != 0 ? filterValueJson : Dict.make()
-      let signature = next->JSON.Encode.object->JSON.stringify
+      let signature = `${next->JSON.Encode.object->JSON.stringify}|${sortSignature}`
       if lastFiltersSignature.current !== signature {
         lastFiltersSignature.current = signature
         setFilters(_ => Some(next))
         setOffset(_ => 0)
       }
       None
-    }, [filterValue])
-
-    let dict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
-    let defaultSort: LoadedTable.sortOb = {
-      sortKey: "",
-      sortType: DSC,
-    }
-    let value = dict->Dict.get(title)->Option.getOr(defaultSort)
+    }, (filterValue, sortSignature))
 
     React.useEffect(() => {
       if value.sortKey->isNonEmptyString {
