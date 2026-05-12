@@ -122,8 +122,6 @@ let make = (
   ~initialCount=0,
   ~showSelectFiltersSearch=false,
 ) => {
-  open HeadlessUI
-
   let isSmallScreen = MatchMedia.useScreenSizeChecker(~screenSize="1512")
   let {query, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
   let (allFilters, setAllFilters) = React.useState(_ =>
