@@ -1,4 +1,3 @@
-// Re-export legacy type so call sites using CheckBoxIconAdapter.size need no changes
 type size = CheckBoxIcon.size
 module CheckedValue = CheckBoxBinding.CheckedValue
 
@@ -15,17 +14,11 @@ let make = (
   ~setIsSelected=?,
   ~size: size=Small,
   ~isSelectedStateMinus=false,
-  // Legacy-only styling props — Blend's Checkbox derives its visual size from `size`,
-  // so these are forwarded to <CheckBoxIcon> but ignored when Blend mode is active.
   ~checkboxDimension="w-4 h-4",
   ~isCheckboxSelectedClass=false,
   ~stopPropagationNeeded=false,
 ) => {
   let isBlendEnabled = BlendContext.useBlendEnabled()
-
-  // Blend's Checkbox is a button that calls stopPropagation internally.
-  // It can only work when setIsSelected is provided — otherwise the parent
-  // div click pattern is broken. Fall back to legacy when no setter is given.
   let useBlend = isBlendEnabled && setIsSelected->Option.isSome
 
   let checkedValue = if isSelectedStateMinus && isSelected {
