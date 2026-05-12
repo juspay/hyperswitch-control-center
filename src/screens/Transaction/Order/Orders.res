@@ -207,7 +207,7 @@ let make = (~previewOnly=false) => {
 
   <ErrorBoundary>
     <div
-      className={`flex flex-col gap-spacing-4xl mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
+      className={`flex flex-col gap-spacing-4xl mx-auto h-full ${widthClass} ${heightClass} min-h-50-vh`}>
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Payment Operations" subTitle="" customTitleStyle />
         <div className="flex gap-spacing-3xl">

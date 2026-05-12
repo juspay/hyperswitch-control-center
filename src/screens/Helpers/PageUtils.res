@@ -21,7 +21,8 @@ module PageHeading = {
       | None => React.null
       }}
       <div className="flex flex-col gap-spacing-xs">
-        <div className={`flex items-center gap-spacing-xl ${customTitleSectionStyles}`}>
+        <div
+          className={`flex items-center gap-spacing-xl ${customTitleSectionStyles}`->String.trim}>
           <div className={`${heading.md.semibold} ${customTitleStyle}`}>
             {title->React.string}
           </div>

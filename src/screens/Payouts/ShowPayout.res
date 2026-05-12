@@ -2,6 +2,7 @@ open PayoutsEntity
 open OrderUtils
 open OrderUIUtils
 open LogicUtils
+open Typography
 module AttemptsSection = {
   @react.component
   let make = (~data: payoutAttempts) => {
@@ -73,9 +74,7 @@ module Attempts = {
     }
 
     <div className="flex flex-col gap-4">
-      <p className={`${Typography.body.lg.semibold} text-nd_gray-800`}>
-        {"Payout Attempts"->React.string}
-      </p>
+      <p className={`${body.lg.semibold} text-nd_gray-800`}> {"Payout Attempts"->React.string} </p>
       <CustomExpandableTable
         title="Attempts"
         heading
@@ -116,7 +115,7 @@ module ShowPayoutDetails = {
       <RenderIf condition=isButtonEnabled>
         <div className="flex items-center flex-wrap gap-3 m-3">
           <div className="flex items-start">
-            <div className={Typography.heading.xl.bold}>
+            <div className={heading.xl.bold}>
               {`${(data.amount /. conversionFactor)
                   ->Float.toString} ${data.currency} `->React.string}
             </div>

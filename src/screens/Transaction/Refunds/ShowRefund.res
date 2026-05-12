@@ -1,5 +1,6 @@
 open OrderUtils
 open RefundEntity
+open Typography
 
 module RefundInfo = {
   module Details = {
@@ -19,7 +20,7 @@ module RefundInfo = {
       <Section
         customCssClass={`border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 ${bgColor} rounded-md p-5`}>
         <div className="flex items-center gap-spacing-md">
-          <div className={Typography.heading.xl.bold}>
+          <div className={heading.xl.bold}>
             {`${(data.amount /. conversionFactor)->Float.toString} ${data.currency} `->React.string}
           </div>
           {useGetStatus(data)}
@@ -61,7 +62,7 @@ module RefundInfo = {
       UserInfoProvider.defaultContext,
     ).getCommonSessionDetails()
     <>
-      <div className={`${Typography.body.lg.semibold} dark:text-white dark:text-opacity-75`}>
+      <div className={`${body.lg.semibold} dark:text-white dark:text-opacity-75`}>
         {"Summary"->React.string}
       </div>
       <Details
@@ -184,9 +185,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     <PageLoaderWrapper
       screenState={screenStateForRefund}
       customUI={<DefaultLandingPage
-        height="90vh"
-        title="Something Went Wrong!"
-        overridingStylesTitle={Typography.heading.xl.semibold}
+        height="90vh" title="Something Went Wrong!" overridingStylesTitle={heading.xl.semibold}
       />}>
       <div className="flex flex-col gap-spacing-4xl">
         <RefundInfo orderDict={refundData->getDictFromJsonObject} />

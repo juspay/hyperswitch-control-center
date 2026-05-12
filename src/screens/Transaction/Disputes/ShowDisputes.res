@@ -1,4 +1,5 @@
 open DisputesEntity
+open Typography
 module DisputesNoteComponent = {
   open ConnectorUtils
   @react.component
@@ -68,7 +69,7 @@ module Details = {
       customCssClass={`border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 ${bgColor} rounded-md p-6 flex flex-col gap-6`}>
       <div className="flex items-center justify-between">
         <div className="flex gap-2 items-center">
-          <p className={`flex ${Typography.heading.xl.bold} gap-spacing-md`}>
+          <p className={`flex ${heading.xl.bold} gap-spacing-md`}>
             {amountValue(data.amount, data.currency->String.toUpperCase)->React.string}
           </p>
           {useGetStatus(data)}
@@ -157,7 +158,7 @@ module DisputesInfo = {
     )
 
     <>
-      <div className={`${Typography.body.lg.semibold} dark:text-white dark:text-opacity-75`}>
+      <div className={`${body.lg.semibold} dark:text-white dark:text-opacity-75`}>
         {"Summary"->React.string}
       </div>
       <RenderIf condition={disputesData.is_already_refunded}>

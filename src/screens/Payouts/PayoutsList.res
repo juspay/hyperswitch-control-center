@@ -82,7 +82,7 @@ let make = () => {
   }, (offset, filters, searchText))
 
   <ErrorBoundary>
-    <div className="flex flex-col gap-spacing-4xl min-h-[50vh]">
+    <div className="flex flex-col gap-spacing-4xl min-h-50-vh">
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Payouts" subTitle="View and manage all payouts" />
         <Portal to="PayoutsOMPView">

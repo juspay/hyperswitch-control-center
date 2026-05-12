@@ -89,7 +89,7 @@ let make = () => {
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   <ErrorBoundary>
-    <div className="flex flex-col gap-spacing-4xl min-h-[50vh]">
+    <div className="flex flex-col gap-spacing-4xl min-h-50-vh">
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Refunds" />
         <div className="flex gap-spacing-3xl">
