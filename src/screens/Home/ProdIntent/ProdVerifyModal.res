@@ -53,7 +53,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
         <div className="py-5 px-3 flex justify-between align-top">
           <CardHeader
             heading="Get access to Live environment"
-            subHeading="We require some details for business verification. Once verified, our team will reach out and provide live credentials within a business day "
+            subHeading="We require some details for business verification. Once verified, our team will reach out and provide live credentials within one business day."
             customSubHeadingStyle="w-full !max-w-none pr-10"
           />
           <div className="h-fit" onClick={_ => setShowModal(_ => false)}>

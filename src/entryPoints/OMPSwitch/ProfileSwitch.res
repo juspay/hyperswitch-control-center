@@ -1,6 +1,11 @@
 module NewProfileCreationModal = {
   @react.component
-  let make = (~setShowModal, ~showModal, ~getProfileList) => {
+  let make = (
+    ~setShowModal,
+    ~showModal,
+    ~getProfileList,
+    ~profileList: array<OMPSwitchTypes.ompListTypes>,
+  ) => {
     open APIUtils
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -8,16 +13,25 @@ module NewProfileCreationModal = {
     let showToast = ToastState.useShowToast()
     let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
+    let createNewProfileV1 = async (~values) => {
+      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post)
+      let _ = await updateDetails(url, values, Post)
+      getProfileList()->ignore
+    }
+
+    let createNewProfileV2 = async (~values) => {
+      let url = getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Post)
+      let _ = await updateDetails(url, values, Post, ~version=V2)
+      getProfileList()->ignore
+    }
+
     let createNewProfile = async values => {
       try {
-        let url = switch version {
-        | V1 => getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post)
-        | V2 => getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Post)
-        }
-        let body = values
         mixpanelEvent(~eventName="create_new_profile", ~metadata=values)
-        let _ = await updateDetails(url, body, Post)
-        getProfileList()->ignore
+        switch version {
+        | V1 => await createNewProfileV1(~values)
+        | V2 => await createNewProfileV2(~values)
+        }
         showToast(
           ~toastType=ToastSuccess,
           ~message="Profile Created Successfully!",
@@ -61,17 +75,11 @@ module NewProfileCreationModal = {
       open LogicUtils
       let errors = Dict.make()
       let profileName = values->getDictFromJsonObject->getString("profile_name", "")->String.trim
-      let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
-
-      let errorMessage = if profileName->isEmptyString {
-        "Profile name cannot be empty"
-      } else if profileName->String.length > 64 {
-        "Profile name cannot exceed 64 characters"
-      } else if !RegExp.test(RegExp.fromString(regexForProfileName), profileName) {
-        "Profile name should not contain special characters"
-      } else {
-        ""
-      }
+      let errorMessage = OMPSwitchUtils.validateOmpName(
+        ~name=profileName,
+        ~list=profileList,
+        ~entityLabel="Profile",
+      )
 
       if errorMessage->isNonEmptyString {
         Dict.set(errors, "profile_name", errorMessage->JSON.Encode.string)
@@ -152,25 +160,36 @@ let make = () => {
   let widthClass = isMobileView ? "w-full" : "md:w-[14rem] md:max-w-[20rem]"
   let roundedClass = isMobileView ? "rounded-none" : "rounded-md"
 
-  let getProfileList = async () => {
+  let getProfileListV1 = async () => {
     try {
-      let response = switch version {
-      | V1 => {
-          let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
-          await fetchDetails(url)
-        }
-      | V2 => {
-          let url = getURL(~entityName=V2(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
-          await fetchDetails(url, ~version=V2)
-        }
-      }
-
-      setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
+      let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+      let response = await fetchDetails(url)
+      setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
     } catch {
     | _ => {
-        setProfileList(_ => [ompDefaultValue(profileId, "")])
+        setProfileList(_ => [OMPSwitchUtils.ompDefaultValue(profileId, "")])
         showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
       }
+    }
+  }
+
+  let getProfileListV2 = async () => {
+    try {
+      let url = getURL(~entityName=V2(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+      let response = await fetchDetails(url, ~version=V2)
+      setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
+    } catch {
+    | _ => {
+        setProfileList(_ => [OMPSwitchUtils.ompDefaultValue(profileId, "")])
+        showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
+      }
+    }
+  }
+
+  let getProfileList = async () => {
+    switch version {
+    | V1 => await getProfileListV1()
+    | V2 => await getProfileListV2()
     }
   }
   let customStyle = `${primaryNormal} bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full`
@@ -202,7 +221,7 @@ let make = () => {
     checked: true,
   }
 
-  // TODO : remove businessProfiles as dependancy in remove-business-profile-add-as-a-section pr
+  // TODO : remove businessProfiles as dependency in remove-business-profile-add-as-a-section pr
   React.useEffect(() => {
     getProfileList()->ignore
     None
@@ -253,7 +272,7 @@ let make = () => {
       placeholderCss="text-fs-13"
     />
     <RenderIf condition={showModal}>
-      <NewProfileCreationModal setShowModal showModal getProfileList />
+      <NewProfileCreationModal setShowModal showModal getProfileList profileList />
     </RenderIf>
     <LoaderModal
       showModal={showSwitchingProfile}

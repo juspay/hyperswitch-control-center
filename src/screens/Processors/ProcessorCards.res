@@ -2,8 +2,8 @@ let p1MediumTextStyle = HSwitchUtils.getTextClass((P1, Medium))
 
 module RequestConnector = {
   @react.component
-  let make = (~connectorList, ~setShowModal, ~showRequestConnectorBtn=true) => {
-    <RenderIf condition={connectorList->Array.length === 0 && showRequestConnectorBtn}>
+  let make = (~connectorListSorted, ~setShowModal, ~showRequestConnectorBtn=true) => {
+    <RenderIf condition={connectorListSorted->Array.length === 0 && showRequestConnectorBtn}>
       <div
         className="flex flex-col gap-6 items-center justify-center w-full bg-white rounded-lg border p-8">
         <div className="mb-8 mt-4 max-w-full h-auto">
@@ -102,14 +102,14 @@ let make = (
     ~showDummyConnectorButton=false,
     (),
   ) => {
-    if connectorList->Array.length > 0 {
-      connectorList->Array.sort(sortByName)
-    }
+    let connectorListSorted = connectorList->Array.toSorted(sortByName)
+    let customStyleClass = showTestProcessor ? "" : "2xl:grid-cols-4 lg:grid-cols-3"
+
     <>
       <AddDataAttributes
         attributes=[("data-testid", heading->LogicUtils.titleToSnake->String.toLowerCase)]>
         <h2
-          className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
+          className={`${Typography.body.lg.semibold} text-nd_gray-600 dark:text-white dark:text-opacity-75`}>
           {heading->React.string}
         </h2>
       </AddDataAttributes>
@@ -149,10 +149,9 @@ let make = (
         </RenderIf>
         <CantFindProcessor showRequestConnectorBtn setShowModal />
       </div>
-      <RenderIf condition={connectorList->Array.length > 0}>
-        <div
-          className="grid gap-x-5 gap-y-6 2xl:grid-cols-3 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 mb-5">
-          {connectorList
+      <RenderIf condition={connectorListSorted->Array.length > 0}>
+        <div className={`grid gap-x-5 gap-y-6 ${customStyleClass} md:grid-cols-2 grid-cols-1 mb-5`}>
+          {connectorListSorted
           ->Array.mapWithIndex((connector: ConnectorTypes.connectorTypes, i) => {
             let connectorName = connector->getConnectorNameString
             let connectorInfo = connector->getConnectorInfo
@@ -193,7 +192,7 @@ let make = (
           ->React.array}
         </div>
       </RenderIf>
-      <RequestConnector connectorList setShowModal showRequestConnectorBtn />
+      <RequestConnector connectorListSorted setShowModal showRequestConnectorBtn />
     </>
   }
 

@@ -59,9 +59,26 @@ let make = (
         />
       | Pix =>
         <PixIntegration connector closeAccordionFn update=updateMetadata onCloseClickCustomFun />
+      | PixAutomaticoQr =>
+        <PixAutomaticoIntegration
+          connector
+          metadataKey="pix_automatico_qr"
+          closeAccordionFn
+          update=updateMetadata
+          onCloseClickCustomFun
+        />
+      | PixAutomaticoPush =>
+        <PixAutomaticoIntegration
+          connector
+          metadataKey="pix_automatico_push"
+          closeAccordionFn
+          update=updateMetadata
+          onCloseClickCustomFun
+        />
       | Boleto =>
         <BoletoIntegration connector closeAccordionFn update=updateMetadata onCloseClickCustomFun />
-
+      | PayPal =>
+        <PayPalIntegration connector closeAccordionFn update=updateMetadata onCloseClickCustomFun />
       | _ => React.null
       }}
     </RenderIf>

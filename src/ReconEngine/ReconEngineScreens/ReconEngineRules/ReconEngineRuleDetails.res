@@ -93,7 +93,7 @@ module SearchIdentifier = {
                 <div className="flex items-center gap-10">
                   <div className="flex-1 max-w-325">
                     <label className=labelCss> {source_account_name->React.string} </label>
-                    <SelectBox.BaseDropdown
+                    <SelectBoxAdapter.BaseDropdown
                       allowMultiSelect=false
                       buttonText={getFieldDisplayName(identifier.source_field)}
                       input=sourceFieldInput
@@ -102,7 +102,7 @@ module SearchIdentifier = {
                       deselectDisable=true
                       disableSelect=true
                       fullLength=true
-                      customButtonStyle="w-147-px h-40-px"
+                      customButtonStyle="w-147-px h-10"
                     />
                   </div>
                   <div className="flex items-center mt-6">
@@ -110,7 +110,7 @@ module SearchIdentifier = {
                   </div>
                   <div className="flex-1 max-w-325">
                     <label className=labelCss> {target_account_name->React.string} </label>
-                    <SelectBox.BaseDropdown
+                    <SelectBoxAdapter.BaseDropdown
                       allowMultiSelect=false
                       buttonText={getFieldDisplayName(identifier.target_field)}
                       input=targetFieldInput
@@ -119,7 +119,7 @@ module SearchIdentifier = {
                       deselectDisable=true
                       disableSelect=true
                       fullLength=true
-                      customButtonStyle="w-147-px h-40-px"
+                      customButtonStyle="w-147-px h-10"
                     />
                   </div>
                 </div>
@@ -205,7 +205,7 @@ module MappingRules = {
                     <div className="flex items-center gap-10">
                       <div className="flex-1 max-w-325">
                         <label className=labelCss> {source_account_name->React.string} </label>
-                        <SelectBox.BaseDropdown
+                        <SelectBoxAdapter.BaseDropdown
                           allowMultiSelect=false
                           buttonText={getFieldDisplayName(mapping.source_field)}
                           input=sourceFieldInput
@@ -214,7 +214,7 @@ module MappingRules = {
                           deselectDisable=true
                           disableSelect=true
                           fullLength=true
-                          customButtonStyle="w-147-px h-40-px"
+                          customButtonStyle="w-147-px h-10"
                         />
                       </div>
                       <div className="flex items-center mt-6">
@@ -222,7 +222,7 @@ module MappingRules = {
                       </div>
                       <div className="flex-1 max-w-325">
                         <label className=labelCss> {target_account_name->React.string} </label>
-                        <SelectBox.BaseDropdown
+                        <SelectBoxAdapter.BaseDropdown
                           allowMultiSelect=false
                           buttonText={getFieldDisplayName(mapping.target_field)}
                           input=targetFieldInput
@@ -231,7 +231,7 @@ module MappingRules = {
                           deselectDisable=true
                           disableSelect=true
                           fullLength=true
-                          customButtonStyle="w-147-px h-40-px"
+                          customButtonStyle="w-147-px h-10"
                         />
                       </div>
                     </div>
@@ -303,7 +303,7 @@ module TriggerRules = {
       <p className={`${body.md.medium} text-nd_gray-700`}> {"Filters"->React.string} </p>
       <div className="flex flex-row gap-4">
         <div className="flex-1 flex flex-col gap-2 max-w-325">
-          <SelectBox.BaseDropdown
+          <SelectBoxAdapter.BaseDropdown
             allowMultiSelect=false
             buttonText={getFieldDisplayName(triggerField)}
             input=fieldInput
@@ -312,10 +312,10 @@ module TriggerRules = {
             deselectDisable=true
             disableSelect=true
             fullLength=true
-            customButtonStyle="w-147-px h-40-px"
+            customButtonStyle="w-147-px h-10"
           />
         </div>
-        <SelectBox.BaseDropdown
+        <SelectBoxAdapter.BaseDropdown
           allowMultiSelect=false
           buttonText={operatorOptions
           ->Array.find(opt => opt.value === triggerOperator)
@@ -325,13 +325,13 @@ module TriggerRules = {
           hideMultiSelectButtons=true
           deselectDisable=true
           disableSelect=true
-          customButtonStyle="w-16 h-40-px"
+          customButtonStyle="w-16 h-10"
         />
         <div className="flex-1 flex flex-col gap-2 max-w-325">
           {InputFields.textInput(
             ~isDisabled=true,
             ~inputStyle="rounded-lg",
-            ~customDashboardClass="h-40-px text-sm font-normal",
+            ~customDashboardClass="h-10 text-sm font-normal",
             ~onDisabledStyle=`!bg-nd_gray-50 border-nd_gray-200 !text-nd_gray-500 ${body.md.semibold}`,
           )(~input=valueInput, ~placeholder="Enter trigger value")}
         </div>
@@ -360,7 +360,7 @@ module GroupingField = {
           {InputFields.textInput(
             ~isDisabled=true,
             ~inputStyle="rounded-lg",
-            ~customDashboardClass="h-40-px text-sm font-normal",
+            ~customDashboardClass="h-10 text-sm font-normal",
             ~onDisabledStyle=`!bg-nd_gray-50 border-nd_gray-200 !text-nd_gray-500 ${body.md.semibold}`,
           )(~input=groupingFieldInput, ~placeholder="Enter grouping field")}
         </div>
@@ -404,7 +404,7 @@ module SourceTargetAccount = {
       <div className="flex items-center gap-10">
         <div className="flex-1 max-w-325">
           <label className=labelCss> {"Source Account"->React.string} </label>
-          <SelectBox.BaseDropdown
+          <SelectBoxAdapter.BaseDropdown
             allowMultiSelect=false
             buttonText={getAccountName(sourceAccountId)}
             input=sourceAccountInput
@@ -413,7 +413,7 @@ module SourceTargetAccount = {
             deselectDisable=true
             disableSelect=true
             fullLength=true
-            customButtonStyle="w-147-px h-40-px"
+            customButtonStyle="w-147-px h-10"
           />
           <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-1`}>
             {"Where the original transaction is recorded"->React.string}
@@ -441,7 +441,7 @@ module SourceTargetAccount = {
               | _ => ""
               }
               <div key={index->Int.toString} className="flex flex-col">
-                <SelectBox.BaseDropdown
+                <SelectBoxAdapter.BaseDropdown
                   allowMultiSelect=false
                   buttonText={getAccountName(targetInfo.account_id)}
                   input=targetInput
@@ -450,7 +450,7 @@ module SourceTargetAccount = {
                   deselectDisable=true
                   disableSelect=true
                   fullLength=true
-                  customButtonStyle="w-147-px h-40-px"
+                  customButtonStyle="w-147-px h-10"
                 />
                 <RenderIf condition={splitText->isNonEmptyString}>
                   <p className={`${body.md.semibold} text-nd_gray-600 my-3`}>
@@ -569,14 +569,7 @@ let make = (~id) => {
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-6">
       <BreadCrumbNavigation
-        path=[{title: "Rules Library", link: `/v1/recon-engine/rules`}]
-        currentPageTitle=id
-        cursorStyle="cursor-pointer"
-        customTextClass="text-nd_gray-400"
-        titleTextClass="text-nd_gray-600 font-medium"
-        fontWeight="font-medium"
-        dividerVal=Slash
-        childGapClass="gap-2"
+        path=[{title: "Rules Library", link: `/v1/recon-engine/rules`}] currentPageTitle=id
       />
       <PageUtils.PageHeading title="View Rule" customHeadingStyle="py-0" />
       {switch ruleData {

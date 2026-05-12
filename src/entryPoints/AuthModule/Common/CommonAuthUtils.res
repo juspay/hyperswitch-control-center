@@ -6,7 +6,7 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
       Dict.set(
         errors,
         key,
-        "Your password is not strong enough. Password size must be more than 8"->JSON.Encode.string,
+        "Your password is not strong enough. Password must be at least 8 characters long."->JSON.Encode.string,
       )
     } else {
       if !RegExp.test(%re("/^(?=.*[A-Z])/"), value) {
@@ -38,9 +38,9 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
         Dict.set(
           errors,
           key,
-          `Your password is not strong enough. A good password must contain atleast ${mustHave->Array.joinWith(
-              ",",
-            )} character`->JSON.Encode.string,
+          `Your password is not strong enough. A good password must contain at least ${mustHave->Array.joinWith(
+              ", ",
+            )} characters.`->JSON.Encode.string,
         )
       }
     }
@@ -59,7 +59,7 @@ let confirmPasswordCheck = (value, key, confirmKey, passwordKey, valuesDict, err
 
 let isValidEmail = value =>
   !RegExp.test(
-    %re(`/^(([^<>()[\]\.,;:\s@"]+(\.[^<>()[\]\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/`),
+    %re(`/^(([^<>()[\]\.,;:\s@"{}\/\\]+(\.[^<>()[\]\.,;:\s@"{}\/\\]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/`),
     value,
   )
 

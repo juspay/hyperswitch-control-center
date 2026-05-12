@@ -62,7 +62,7 @@ module BaseTableComponent = {
               offset
               setOffset
               defaultSort
-              currrentFetchCount={tableData->Array.length}
+              currentFetchCount={tableData->Array.length}
               tableLocalFilter=false
               tableheadingClass=tableBorderClass
               tableBorderClass
@@ -225,7 +225,7 @@ module TableWrapper = {
         ~startTimeFromUrl=weeklyDateRange.start_time,
         ~endTimeFromUrl=weeklyDateRange.end_time,
         ~filterValueFromUrl,
-        ~currenltySelectedTab=activeTab,
+        ~currentlySelectedTab=activeTab,
         ~deltaMetrics,
         ~isIndustry=false,
         ~distributionArray=None,
@@ -260,7 +260,7 @@ module TableWrapper = {
           ~startTimeFromUrl,
           ~endTimeFromUrl,
           ~filterValueFromUrl,
-          ~currenltySelectedTab=activeTab,
+          ~currentlySelectedTab=activeTab,
           ~deltaMetrics,
           ~isIndustry=false,
           ~distributionArray,
@@ -354,7 +354,7 @@ module TableWrapper = {
           <RenderIf condition={tableData->Array.length > 0}>
             <div
               className={`flex items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3`}>
-              <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
+              <Icon name="info-vacant" className={`${textColor.primaryNormal} mt-1`} size=18 />
               {"'NA' denotes those incomplete or failed payments with no assigned values for the corresponding parameters due to reasons like customer drop-offs, technical failures, etc."->React.string}
             </div>
           </RenderIf>
@@ -409,7 +409,7 @@ module TabDetails = {
     | _ => Dict.make()
     }
 
-    let comparitionWidget = switch analyticsType {
+    let comparisonWidget = switch analyticsType {
     | AUTHENTICATION => false
     | _ => true
     }
@@ -426,7 +426,7 @@ module TabDetails = {
           showMarkers=true
           legendType=HighchartTimeSeriesChart.Points
           tabTitleMapper
-          comparitionWidget
+          comparisonWidget
         />
         {switch tableEntity {
         | Some(tableEntity) =>
@@ -839,7 +839,7 @@ let make = (
                     updateUrlWithPrefix(dict)
                   }}
                   tabContainerClass="analyticsTabs"
-                  initalTab=?activeTab
+                  initialTab=?activeTab
                 />
                 <TabDetails
                   chartEntity

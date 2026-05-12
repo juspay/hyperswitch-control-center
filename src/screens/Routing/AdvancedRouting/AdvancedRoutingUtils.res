@@ -42,14 +42,14 @@ let getRoutingTypeName = (routingType: RoutingTypes.routingType) => {
   }
 }
 
-let getRoutingNameString = (~routingType) => {
+let getRoutingNameString = (~routingType, ~currentDate) => {
   let routingText = routingType->getRoutingTypeName
-  `${routingText->capitalizeString} Based Routing-${RoutingUtils.getCurrentUTCTime()}`
+  `${routingText->capitalizeString} Based Routing-${currentDate}`
 }
 
-let getRoutingDescriptionString = (~routingType) => {
+let getRoutingDescriptionString = (~routingType, ~currentTime) => {
   let routingText = routingType->getRoutingTypeName
-  `This is a ${routingText} based routing created at ${RoutingUtils.currentTimeInUTC}`
+  `This is a ${routingText} based routing created at ${currentTime}`
 }
 
 let getWasmKeyType = (wasm, value) => {
@@ -559,9 +559,9 @@ let defaultAlgorithmData: RoutingTypes.algorithmData = {
   },
 }
 
-let initialValues: RoutingTypes.advancedRouting = {
-  name: getRoutingNameString(~routingType=ADVANCED),
-  description: getRoutingDescriptionString(~routingType=ADVANCED),
+let getInitialValues = (~currentDate, ~currentTime): RoutingTypes.advancedRouting => {
+  name: getRoutingNameString(~routingType=ADVANCED, ~currentDate),
+  description: getRoutingDescriptionString(~routingType=ADVANCED, ~currentTime),
   algorithm: {
     data: defaultAlgorithmData,
     \"type": "",

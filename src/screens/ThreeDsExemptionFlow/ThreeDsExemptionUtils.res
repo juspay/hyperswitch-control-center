@@ -1,18 +1,21 @@
 open RoutingTypes
 
-let rules: rule = {
+let defaultThreeDsExemptionRule: rule = {
   name: "rule_1",
   connectorSelection: {
     decision: "three_ds",
   },
-  statements: ThreeDSUtils.statementObject,
+  statements: ThreeDSUtils.defaultStatements,
 }
 
-let buildInitial3DSValueFor3DsExemptions: ThreeDSUtils.threeDsRoutingType = {
-  name: `3DS Rule-${RoutingUtils.getCurrentUTCTime()}`,
-  description: `This is a Three-Ds Rule created at ${RoutingUtils.currentTimeInUTC}`,
+let getInitialThreeDsExemptionValue = (
+  ~currentDate,
+  ~currentTime,
+): ThreeDSUtils.threeDsRoutingType => {
+  name: `3DS Rule-${currentDate}`,
+  description: `This is a Three-Ds Rule created at ${currentTime}`,
   algorithm: {
-    rules: [rules],
+    rules: [defaultThreeDsExemptionRule],
     defaultSelection: {
       decision: "",
     },

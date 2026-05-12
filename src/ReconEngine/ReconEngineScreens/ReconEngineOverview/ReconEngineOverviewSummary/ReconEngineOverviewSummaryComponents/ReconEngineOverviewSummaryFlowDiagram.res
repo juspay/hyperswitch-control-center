@@ -1,5 +1,6 @@
 open Typography
 open ReconEngineOverviewSummaryTypes
+open LogicUtils
 
 module InOutComponent = {
   @react.component
@@ -63,7 +64,7 @@ module ReconNodeComponent = {
       <div className="absolute -top-0 -left-0">
         <div
           className={`${body.xs.medium} text-nd_gray-600 bg-nd_gray-100 px-3 py-1 rounded-tl-xl border border-t-0 border-l-0 border-nd_gray-200 rounded-br-xl `}>
-          {`${data.accountType->LogicUtils.capitalizeString} Account`->React.string}
+          {`${(data.accountType :> string)->capitalizeString} Account`->React.string}
         </div>
       </div>
       <div className="flex flex-row items-center border-b pb-2.5 pt-6">
@@ -81,9 +82,7 @@ module ReconNodeComponent = {
       </div>
       <div className="flex flex-col">
         {data.statusData
-        ->Array.map(statusItem =>
-          <InOutComponent statusItem key={LogicUtils.randomString(~length=10)} />
-        )
+        ->Array.map(statusItem => <InOutComponent statusItem key={randomString(~length=10)} />)
         ->React.array}
       </div>
     </div>
@@ -123,7 +122,6 @@ module FlowWithLayoutControls = {
 let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   open ReconEngineOverviewSummaryUtils
   open ReactFlow
-  open LogicUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (selectedNodeId, setSelectedNodeId) = React.useState(_ => None)
@@ -149,10 +147,24 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
       let accountData = await getAccounts()
 
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+      let statusList =
+        ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
+          Posted(Manual),
+          Matched(Auto),
+          Matched(Manual),
+          Matched(Force),
+          Expected,
+          Missing,
+          PartiallyReconciled,
+          OverAmount(Mismatch),
+          OverAmount(Expected),
+          UnderAmount(Mismatch),
+          UnderAmount(Expected),
+          DataMismatch,
+        ])->Array.joinWith(",")
+
       let allTransactions = await getTransactions(
-        ~queryParameters=Some(
-          `${queryString}&status=posted_auto,posted_manual,posted_force,expected,partially_reconciled,over_amount_mismatch,over_amount_expected,under_amount_mismatch,under_amount_expected,data_mismatch`,
-        ),
+        ~queryParameters=Some(`${queryString}&status=${statusList}`),
       )
       let accountTransactionData = processAllTransactionsWithAmounts(
         reconRulesList,

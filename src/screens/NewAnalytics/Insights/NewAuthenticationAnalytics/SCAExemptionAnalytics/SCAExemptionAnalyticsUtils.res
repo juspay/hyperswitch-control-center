@@ -11,10 +11,11 @@ let sankeyBlueFlow = "#BCD7FA"
 let sankeyYellowNode = "#D99530"
 let sankeyYellowFlow = "#F5D9A8"
 
-let scaExemptionResponseMapper = (json: JSON.t) => {
-  let sankeyDataArray = json->getArrayFromJson([])
+let incrementCounter = (dict, key, count) => {
+  dict->Dict.set(key, dict->getInt(key, 0) + count)
+}
 
-  // Initialize counters dictionary with meaningful names
+let scaExemptionResponseMapper = (sankeyDataArray: array<JSON.t>) => {
   let countersDict =
     [
       "total_3ds_payments",
@@ -22,15 +23,19 @@ let scaExemptionResponseMapper = (json: JSON.t) => {
       "exemption_not_requested",
       "exemption_accepted",
       "exemption_rejected",
-      "3ds_completed",
-      "3ds_incomplete",
-      "auth_success",
-      "auth_failure",
+      "not_requested_3ds_completed",
+      "not_requested_3ds_incomplete",
+      "rejected_3ds_completed",
+      "rejected_3ds_incomplete",
+      "accepted_auth_success",
+      "accepted_auth_failure",
+      "challenge_auth_success",
+      "challenge_auth_failure",
+      "challenge_incomplete_auth_failure",
     ]
-    ->Array.map(item => (item, 0))
+    ->Array.map(key => (key, 0))
     ->Dict.fromArray
 
-  // Process each item in the sankey data
   sankeyDataArray->Array.forEach(item => {
     let itemDict = item->getDictFromJsonObject
     let count = itemDict->getInt("count", 0)
@@ -38,130 +43,123 @@ let scaExemptionResponseMapper = (json: JSON.t) => {
     let exemptionRequestedValue = itemDict->getOptionBool("exemption_requested")
     let exemptionAcceptedValue = itemDict->getOptionBool("exemption_accepted")
 
-    // Total 3DS
-    countersDict->Dict.set(
-      "total_3ds_payments",
-      countersDict->getInt("total_3ds_payments", 0) + count,
-    )
+    incrementCounter(countersDict, "total_3ds_payments", count)
 
-    // Exemption requested
-    switch exemptionRequestedValue {
-    | Some(true) =>
-      countersDict->Dict.set(
-        "exemption_requested",
-        countersDict->getInt("exemption_requested", 0) + count,
-      )
-    | Some(false) | None =>
-      countersDict->Dict.set(
-        "exemption_not_requested",
-        countersDict->getInt("exemption_not_requested", 0) + count,
-      )
+    let isExemptionRequested = exemptionRequestedValue->Option.getOr(false)
+
+    let isExemptionAccepted =
+      exemptionRequestedValue->Option.getOr(false) && exemptionAcceptedValue->Option.getOr(false)
+
+    if isExemptionRequested {
+      incrementCounter(countersDict, "exemption_requested", count)
+    } else {
+      incrementCounter(countersDict, "exemption_not_requested", count)
     }
 
-    // Exemption accepted/rejected (only if requested)
-    switch (exemptionRequestedValue, exemptionAcceptedValue) {
-    | (Some(true), Some(true)) =>
-      countersDict->Dict.set(
-        "exemption_accepted",
-        countersDict->getInt("exemption_accepted", 0) + count,
-      )
-    | (Some(true), Some(false)) =>
-      countersDict->Dict.set(
-        "exemption_rejected",
-        countersDict->getInt("exemption_rejected", 0) + count,
-      )
-    | _ => ()
+    if isExemptionRequested && isExemptionAccepted {
+      incrementCounter(countersDict, "exemption_accepted", count)
+    } else if isExemptionRequested {
+      incrementCounter(countersDict, "exemption_rejected", count)
     }
 
+    let exemptionPath = if isExemptionRequested && isExemptionAccepted {
+      "exemptionAcceptedPath"
+    } else if isExemptionRequested {
+      "exemptionRejectedPath"
+    } else {
+      "exemptionNotRequestedPath"
+    }
+
+    // route counts
     switch authStatus {
-    | "success" => {
-        countersDict->Dict.set("auth_success", countersDict->getInt("auth_success", 0) + count)
-
-        // Count 3DS completed unless exemption accepted (no challenge)
-        switch (exemptionRequestedValue, exemptionAcceptedValue) {
-        | (Some(true), Some(true)) => () // skip challenge
-        | _ =>
-          countersDict->Dict.set("3ds_completed", countersDict->getInt("3ds_completed", 0) + count)
-        }
+    | "success" =>
+      switch exemptionPath {
+      | "exemptionAcceptedPath" => incrementCounter(countersDict, "accepted_auth_success", count)
+      | "exemptionRejectedPath" =>
+        incrementCounter(countersDict, "rejected_3ds_completed", count)
+        incrementCounter(countersDict, "challenge_auth_success", count)
+      | "exemptionNotRequestedPath" =>
+        incrementCounter(countersDict, "not_requested_3ds_completed", count)
+        incrementCounter(countersDict, "challenge_auth_success", count)
+      | _ => ()
       }
 
-    | "failed" => {
-        countersDict->Dict.set("auth_failure", countersDict->getInt("auth_failure", 0) + count)
-
-        // Count 3DS completed unless exemption accepted (no challenge)
-        switch (exemptionRequestedValue, exemptionAcceptedValue) {
-        | (Some(true), Some(true)) => () // skip challenge
-        | _ =>
-          countersDict->Dict.set("3ds_completed", countersDict->getInt("3ds_completed", 0) + count)
-        }
+    | "failed" =>
+      switch exemptionPath {
+      | "exemptionAcceptedPath" => incrementCounter(countersDict, "accepted_auth_failure", count)
+      | "exemptionRejectedPath" =>
+        incrementCounter(countersDict, "rejected_3ds_completed", count)
+        incrementCounter(countersDict, "challenge_auth_failure", count)
+      | "exemptionNotRequestedPath" =>
+        incrementCounter(countersDict, "not_requested_3ds_completed", count)
+        incrementCounter(countersDict, "challenge_auth_failure", count)
+      | _ => ()
       }
 
     | "pending" => {
-        countersDict->Dict.set("3ds_incomplete", countersDict->getInt("3ds_incomplete", 0) + count)
-        countersDict->Dict.set("auth_failure", countersDict->getInt("auth_failure", 0) + count)
+        switch exemptionPath {
+        | "exemptionRejectedPath" =>
+          incrementCounter(countersDict, "rejected_3ds_incomplete", count)
+        | "exemptionNotRequestedPath" =>
+          incrementCounter(countersDict, "not_requested_3ds_incomplete", count)
+        | _ => ()
+        }
+
+        incrementCounter(countersDict, "challenge_incomplete_auth_failure", count)
       }
     | _ =>
-      countersDict->Dict.set("3ds_incomplete", countersDict->getInt("3ds_incomplete", 0) + count)
+      switch exemptionPath {
+      | "exemptionRejectedPath" => incrementCounter(countersDict, "rejected_3ds_incomplete", count)
+      | "exemptionNotRequestedPath" =>
+        incrementCounter(countersDict, "not_requested_3ds_incomplete", count)
+      | _ => ()
+      }
     }
   })
+  let totalThreeDSPayments = countersDict->getInt("total_3ds_payments", 0)
+  let exemptionRequested = countersDict->getInt("exemption_requested", 0)
+  let exemptionNotRequested = countersDict->getInt("exemption_not_requested", 0)
+  let exemptionAccepted = countersDict->getInt("exemption_accepted", 0)
+  let exemptionRejected = countersDict->getInt("exemption_rejected", 0)
+
+  let notRequested3dsCompleted = countersDict->getInt("not_requested_3ds_completed", 0)
+  let notRequested3dsIncomplete = countersDict->getInt("not_requested_3ds_incomplete", 0)
+  let rejected3dsCompleted = countersDict->getInt("rejected_3ds_completed", 0)
+  let rejected3dsIncomplete = countersDict->getInt("rejected_3ds_incomplete", 0)
+
+  let acceptedAuthSuccess = countersDict->getInt("accepted_auth_success", 0)
+  let acceptedAuthFailure = countersDict->getInt("accepted_auth_failure", 0)
+
+  let challengeAuthSuccess = countersDict->getInt("challenge_auth_success", 0)
+  let challengeAuthFailure = countersDict->getInt("challenge_auth_failure", 0)
+  let challengeIncompleteAuthFailure = countersDict->getInt("challenge_incomplete_auth_failure", 0)
+
+  let threeDSCompleted = notRequested3dsCompleted + rejected3dsCompleted
+  let threeDSIncomplete = notRequested3dsIncomplete + rejected3dsIncomplete
+
+  let authSuccess = acceptedAuthSuccess + challengeAuthSuccess
+  let authFailure = acceptedAuthFailure + challengeAuthFailure + challengeIncompleteAuthFailure
 
   {
-    totalThreeDSPayments: countersDict->getInt("total_3ds_payments", 0),
-    exemptionRequested: countersDict->getInt("exemption_requested", 0),
-    exemptionNotRequested: countersDict->getInt("exemption_not_requested", 0),
-    exemptionAccepted: countersDict->getInt("exemption_accepted", 0),
-    exemptionRejected: countersDict->getInt("exemption_rejected", 0),
-    threeDSCompleted: countersDict->getInt("3ds_completed", 0),
-    threeDSIncomplete: countersDict->getInt("3ds_incomplete", 0),
-    authSuccess: countersDict->getInt("auth_success", 0),
-    authFailure: countersDict->getInt("auth_failure", 0),
+    totalThreeDSPayments,
+    exemptionRequested,
+    exemptionNotRequested,
+    exemptionAccepted,
+    exemptionRejected,
+    threeDSCompleted,
+    threeDSIncomplete,
+    authSuccess,
+    authFailure,
+    notRequested3dsCompleted,
+    notRequested3dsIncomplete,
+    rejected3dsCompleted,
+    rejected3dsIncomplete,
+    acceptedAuthSuccess,
+    acceptedAuthFailure,
+    challengeAuthSuccess,
+    challengeAuthFailure,
+    challengeIncompleteAuthFailure,
   }
-}
-
-let transformData = (data: array<(string, int)>) => {
-  let data = data->Array.map(item => {
-    let (key, value) = item
-    (key, value->Int.toFloat)
-  })
-  let arr = data->Array.map(item => {
-    let (_, value) = item
-    value
-  })
-  let minVal = arr->Math.minMany
-  let maxVal = arr->Math.maxMany
-  let total = arr->Array.reduce(0.0, (sum, count) => {
-    sum +. count
-  })
-  // Normalize Each Element
-  let updatedData = data->Array.map(item => {
-    let (key, count) = item
-    let num = count -. minVal
-    let dinom = maxVal -. minVal
-    let normalizedValue = maxVal != minVal ? num /. dinom : 1.0
-
-    (key, normalizedValue)
-  })
-  // Map to Target Range
-  let updatedData = updatedData->Array.map(item => {
-    let (key, count) = item
-    let scaledValue = count *. (100.0 -. 10.0) +. 10.0
-    (key, scaledValue)
-  })
-  // Adjust to Sum 100
-  let updatedData = updatedData->Array.map(item => {
-    let (key, count) = item
-    let mul = 100.0 /. total
-    let finalValue = count *. mul
-    (key, finalValue)
-  })
-  // Round to Integers
-  let updatedData = updatedData->Array.map(item => {
-    let (key, count) = item
-    let finalValue = (count *. 100.0)->Float.toInt
-    (key, finalValue)
-  })
-
-  updatedData->Dict.fromArray
 }
 
 let scaExemptionMapper = (
@@ -180,156 +178,203 @@ let scaExemptionMapper = (
   let authSuccess = data.authSuccess
   let authFailure = data.authFailure
 
-  // Create value dictionary for filtering
+  let notRequested3dsCompleted = data.notRequested3dsCompleted
+  let notRequested3dsIncomplete = data.notRequested3dsIncomplete
+  let rejected3dsCompleted = data.rejected3dsCompleted
+  let rejected3dsIncomplete = data.rejected3dsIncomplete
+
+  let acceptedAuthSuccess = data.acceptedAuthSuccess
+  let acceptedAuthFailure = data.acceptedAuthFailure
+  let challengeAuthSuccess = data.challengeAuthSuccess
+  let challengeAuthFailure = data.challengeAuthFailure
+  let challengeIncompleteAuthFailure = data.challengeIncompleteAuthFailure
+
   let valueDict =
     [
       ("Total 3DS Payment Request", totalThreeDSPayments),
-      ("Exemption Requested", exemptionRequested),
-      ("Exemption not Requested", exemptionNotRequested),
-      ("Exemption Accepted", exemptionAccepted),
-      ("Exemption not Accepted", exemptionRejected),
-      ("3DS Completed", threeDSCompleted),
-      ("3DS not Completed", threeDSIncomplete),
+      ("Exempt Req", exemptionRequested),
+      ("No Exempt Req", exemptionNotRequested),
+      ("Exempt Accept", exemptionAccepted),
+      ("Exempt Reject", exemptionRejected),
+      ("No Exempt 3DS Done", notRequested3dsCompleted),
+      ("No Exempt 3DS Pending", notRequested3dsIncomplete),
+      ("Rejected 3DS Done", rejected3dsCompleted),
+      ("Rejected 3DS Pending", rejected3dsIncomplete),
+      ("Exempted Success", acceptedAuthSuccess),
+      ("Exempted Failure", acceptedAuthFailure),
+      ("Challenge Success", challengeAuthSuccess),
+      ("Challenge Failure", challengeAuthFailure),
+      ("Challenge Pending", challengeIncompleteAuthFailure),
+      ("3DS Done", threeDSCompleted),
+      ("3DS Pending", threeDSIncomplete),
       ("Authentication Success", authSuccess),
       ("Authentication Failure", authFailure),
     ]
-    ->Array.filter(item => {
-      let (_, value) = item
-      value > 0
-    })
-    ->transformData
+    ->Array.filter(((_, v)) => v > 0)
+    ->PaymentsLifeCycleUtils.transformData
 
-  // Create sankey nodes using authentication_status names
   let sankeyNodes = [
     {
       id: "Total 3DS Payment Request",
-      dataLabels: {
-        align: "left",
-        x: -140,
-        name: totalThreeDSPayments,
-      },
+      dataLabels: {align: "left", x: -140, name: totalThreeDSPayments},
       column: 0,
     },
     {
-      id: "Exemption Requested",
-      dataLabels: {
-        align: "left",
-        x: 25,
-        name: exemptionRequested,
-      },
+      id: "Exempt Req",
+      dataLabels: {align: "left", x: 20, name: exemptionRequested},
       column: 1,
     },
     {
-      id: "Exemption not Requested",
-      dataLabels: {
-        align: "left",
-        x: 25,
-        name: exemptionNotRequested,
-      },
+      id: "No Exempt Req",
+      dataLabels: {align: "left", x: 20, name: exemptionNotRequested},
       column: 1,
     },
     {
-      id: "Exemption Accepted",
-      dataLabels: {
-        align: "left",
-        x: 25,
-        name: exemptionAccepted,
-      },
+      id: "Exempt Accept",
+      dataLabels: {align: "left", x: 20, name: exemptionAccepted},
       column: 2,
     },
     {
-      id: "Exemption not Accepted",
-      dataLabels: {
-        align: "left",
-        x: 25,
-        name: exemptionRejected,
-      },
+      id: "Exempt Reject",
+      dataLabels: {align: "left", x: 20, name: exemptionRejected},
       column: 2,
     },
     {
-      id: "3DS Completed",
-      dataLabels: {
-        align: "left",
-        x: 25,
-        name: threeDSCompleted,
-      },
-      column: 3,
-      offset: -25,
+      id: "No Exempt 3DS Done",
+      dataLabels: {align: "left", x: 20, name: notRequested3dsCompleted},
+      column: 2,
     },
     {
-      id: "3DS not Completed",
-      dataLabels: {
-        align: "left",
-        x: 25,
-        name: threeDSIncomplete,
-      },
+      id: "No Exempt 3DS Pending",
+      dataLabels: {align: "left", x: 20, name: notRequested3dsIncomplete},
+      column: 2,
+    },
+    {
+      id: "Rejected 3DS Done",
+      dataLabels: {align: "left", x: 20, name: rejected3dsCompleted},
       column: 3,
-      offset: 270,
+    },
+    {
+      id: "Rejected 3DS Pending",
+      dataLabels: {align: "left", x: 20, name: rejected3dsIncomplete},
+      column: 3,
+    },
+    {
+      id: "3DS Done",
+      dataLabels: {align: "left", x: 20, name: threeDSCompleted},
+      column: 4,
+    },
+    {
+      id: "3DS Pending",
+      dataLabels: {align: "left", x: 20, name: threeDSIncomplete},
+      column: 4,
+    },
+    {
+      id: "Exempted Success",
+      dataLabels: {align: "left", x: 20, name: acceptedAuthSuccess},
+      column: 5,
+    },
+    {
+      id: "Exempted Failure",
+      dataLabels: {align: "left", x: 20, name: acceptedAuthFailure},
+      column: 5,
+    },
+    {
+      id: "Challenge Success",
+      dataLabels: {align: "left", x: 20, name: challengeAuthSuccess},
+      column: 5,
+    },
+    {
+      id: "Challenge Failure",
+      dataLabels: {align: "left", x: 20, name: challengeAuthFailure},
+      column: 5,
+    },
+    {
+      id: "Challenge Pending",
+      dataLabels: {align: "left", x: 20, name: challengeIncompleteAuthFailure},
+      column: 5,
     },
     {
       id: "Authentication Success",
-      dataLabels: {
-        align: "right",
-        x: 155,
-        name: authSuccess,
-      },
-      column: 4,
+      dataLabels: {align: "right", x: 155, name: authSuccess},
+      column: 6,
     },
     {
       id: "Authentication Failure",
-      dataLabels: {
-        align: "right",
-        x: 145,
-        name: authFailure,
-      },
-      column: 4,
+      dataLabels: {align: "right", x: 145, name: authFailure},
+      column: 6,
     },
   ]
 
-  let exemptionRequestedVal = valueDict->getInt("Exemption Requested", 0)
-  let exemptionNotRequestedVal = valueDict->getInt("Exemption not Requested", 0)
-  let exemptionAcceptedVal = valueDict->getInt("Exemption Accepted", 0)
-  let exemptionRejectedVal = valueDict->getInt("Exemption not Accepted", 0)
-  let threeDSCompletedVal = valueDict->getInt("3DS Completed", 0)
-  let threeDSIncompleteVal = valueDict->getInt("3DS not Completed", 0)
-  let authSuccessVal = valueDict->getInt("Authentication Success", 0)
-  let authFailureVal = valueDict->getInt("Authentication Failure", 0)
+  let exemptionRequestedVal = valueDict->getInt("Exempt Req", 0)
+  let exemptionNotRequestedVal = valueDict->getInt("No Exempt Req", 0)
+  let exemptionAcceptedVal = valueDict->getInt("Exempt Accept", 0)
+  let exemptionRejectedVal = valueDict->getInt("Exempt Reject", 0)
 
-  // Create sankey flow data
+  let notRequested3dsCompletedVal = valueDict->getInt("No Exempt 3DS Done", 0)
+  let notRequested3dsIncompleteVal = valueDict->getInt("No Exempt 3DS Pending", 0)
+
+  let rejected3dsCompletedVal = valueDict->getInt("Rejected 3DS Done", 0)
+  let rejected3dsIncompleteVal = valueDict->getInt("Rejected 3DS Pending", 0)
+
+  let acceptedAuthSuccessVal = valueDict->getInt("Exempted Success", 0)
+  let acceptedAuthFailureVal = valueDict->getInt("Exempted Failure", 0)
+
+  let challengeAuthSuccessVal = valueDict->getInt("Challenge Success", 0)
+  let challengeAuthFailureVal = valueDict->getInt("Challenge Failure", 0)
+  let challengeIncompleteAuthFailureVal = valueDict->getInt("Challenge Pending", 0)
+
   let processedData = [
-    ("Total 3DS Payment Request", "Exemption Requested", exemptionRequestedVal, sankeyBlueFlow),
+    ("Total 3DS Payment Request", "Exempt Req", exemptionRequestedVal, sankeyBlueFlow),
+    ("Exempt Req", "Exempt Accept", exemptionAcceptedVal, sankeyBlueFlow),
+    ("Exempt Accept", "Exempted Success", acceptedAuthSuccessVal, sankeyGreenFlow),
+    ("Exempt Accept", "Exempted Failure", acceptedAuthFailureVal, sankeyRedFlow),
+    ("Exempt Req", "Exempt Reject", exemptionRejectedVal, sankeyYellowFlow),
+    ("Exempt Reject", "Rejected 3DS Done", rejected3dsCompletedVal, sankeyBlueFlow),
+    ("Exempt Reject", "Rejected 3DS Pending", rejected3dsIncompleteVal, sankeyRedFlow),
+    ("Total 3DS Payment Request", "No Exempt Req", exemptionNotRequestedVal, sankeyBlueFlow),
+    ("No Exempt Req", "No Exempt 3DS Done", notRequested3dsCompletedVal, sankeyBlueFlow),
+    ("No Exempt Req", "No Exempt 3DS Pending", notRequested3dsIncompleteVal, sankeyRedFlow),
+    ("Rejected 3DS Done", "3DS Done", rejected3dsCompletedVal, sankeyBlueFlow),
+    ("Rejected 3DS Pending", "3DS Pending", rejected3dsIncompleteVal, sankeyRedFlow),
+    ("No Exempt 3DS Done", "3DS Done", notRequested3dsCompletedVal, sankeyBlueFlow),
+    ("No Exempt 3DS Pending", "3DS Pending", notRequested3dsIncompleteVal, sankeyRedFlow),
+    ("3DS Done", "Challenge Success", challengeAuthSuccessVal, sankeyGreenFlow),
+    ("3DS Done", "Challenge Failure", challengeAuthFailureVal, sankeyRedFlow),
+    ("3DS Pending", "Challenge Pending", challengeIncompleteAuthFailureVal, sankeyRedFlow),
+    ("Exempted Success", "Authentication Success", acceptedAuthSuccessVal, sankeyGreenFlow),
+    ("Challenge Success", "Authentication Success", challengeAuthSuccessVal, sankeyGreenFlow),
+    ("Exempted Failure", "Authentication Failure", acceptedAuthFailureVal, sankeyRedFlow),
+    ("Challenge Failure", "Authentication Failure", challengeAuthFailureVal, sankeyRedFlow),
     (
-      "Total 3DS Payment Request",
-      "Exemption not Requested",
-      exemptionNotRequestedVal,
-      sankeyBlueFlow,
+      "Challenge Pending",
+      "Authentication Failure",
+      challengeIncompleteAuthFailureVal,
+      sankeyRedFlow,
     ),
-    ("Exemption Requested", "Exemption Accepted", exemptionAcceptedVal, sankeyBlueFlow),
-    ("Exemption Requested", "Exemption not Accepted", exemptionRejectedVal, sankeyYellowFlow),
-    ("Exemption not Requested", "3DS Completed", threeDSCompletedVal, sankeyBlueFlow),
-    ("Exemption not Requested", "3DS not Completed", threeDSIncompleteVal, sankeyRedFlow),
-    ("Exemption not Accepted", "3DS Completed", threeDSCompletedVal, sankeyYellowFlow),
-    ("Exemption Accepted", "Authentication Success", authSuccessVal, sankeyGreenFlow),
-    ("Exemption Accepted", "Authentication Failure", authFailureVal, sankeyRedFlow),
-    ("3DS Completed", "Authentication Success", authSuccessVal, sankeyGreenFlow),
-    ("3DS Completed", "Authentication Failure", authFailureVal, sankeyRedFlow),
-    ("3DS not Completed", "Authentication Failure", authFailureVal, sankeyRedFlow),
   ]
 
-  let title = {
-    text: "",
-  }
+  let title = {text: ""}
 
   let colors = [
-    sankeyBlueNode, // "Total 3DS Payment Request"
-    sankeyBlueNode, // "Exemption Requested"
-    sankeyBlueNode, // "Exemption not Requested"
-    sankeyBlueNode, // "Exemption Accepted"
-    sankeyYellowNode, // "Exemption not Accepted"
-    sankeyBlueNode, // "3DS Completed"
-    sankeyRedNode, // "3DS not Completed"
-    sankeyGreenNode, // "Authentication Success"
-    sankeyRedNode, // "Authentication Failure"
+    sankeyBlueNode, // Total 3DS Payment Request
+    sankeyBlueNode, // Exempt Req
+    sankeyBlueNode, // Exempt Accept
+    sankeyGreenNode, // Exempted Success
+    sankeyRedNode, // Exempted Failure
+    sankeyYellowNode, // Exempt Reject
+    sankeyBlueNode, // Rejected 3DS Done
+    sankeyRedNode, // Rejected 3DS Pending
+    sankeyBlueNode, // No Exempt Req
+    sankeyBlueNode, // No Exempt 3DS Done
+    sankeyRedNode, // No Exempt 3DS Pending
+    sankeyBlueNode, // 3DS Done
+    sankeyRedNode, // 3DS Pending
+    sankeyGreenNode, // Challenge Success
+    sankeyRedNode, // Challenge Failure
+    sankeyRedNode, // Challenge Pending
+    sankeyGreenNode, // Authentication Success
+    sankeyRedNode, // Authentication Failure
   ]
 
   {data: processedData, nodes: sankeyNodes, title, colors}

@@ -78,9 +78,9 @@ let reportsEntity = (path: string, ~authorization: CommonAuthTypes.authorization
     ~getCell,
     ~dataKey="reports",
     ~getShowLink={
-      connec => {
+      connectorObj => {
         GroupAccessUtils.linkForGetShowLinkViaAccess(
-          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connec.transaction_id}`),
+          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connectorObj.transaction_id}`),
           ~authorization,
         )
       }

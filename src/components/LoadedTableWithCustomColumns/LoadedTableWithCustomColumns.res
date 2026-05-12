@@ -15,11 +15,11 @@ let make = (
   ~handleRefetch=() => (),
   ~entity: EntityType.entityType<'colType, 't>,
   ~onEntityClick=?,
-  ~currrentFetchCount,
+  ~currentFetchCount,
   ~filters=React.null,
   ~tableDataBackgroundClass="",
   ~hideRightTitleElement=false,
-  ~evenVertivalLines=false,
+  ~evenVerticalLines=false,
   ~showPagination=true,
   ~downloadCsv=?,
   ~ignoreUrlUpdate=false,
@@ -69,6 +69,7 @@ let make = (
   ~customizeColumnButtonIcon="customise-columns",
   ~isDraggable=false,
   ~customSeparation=?,
+  ~checkBoxProps: option<LoadedTable.checkBoxProps>=?,
 ) => {
   let (showColumnSelector, setShowColumnSelector) = React.useState(() => false)
   let activeColumnsAtom = customColumnMapper->Some
@@ -120,7 +121,7 @@ let make = (
     ?tableActions
     showSerialNumber
     totalResults
-    currrentFetchCount
+    currentFetchCount
     offset
     resultsPerPage
     setOffset
@@ -160,5 +161,6 @@ let make = (
     showAutoScroll
     hideCustomisableColumnButton
     ?customSeparation
+    ?checkBoxProps
   />
 }

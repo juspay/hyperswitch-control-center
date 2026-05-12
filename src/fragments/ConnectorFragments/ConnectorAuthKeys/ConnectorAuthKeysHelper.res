@@ -184,7 +184,7 @@ module CashToCodeSelectBox = {
     let accordionItems = opts->Array.map(country => {
       let countryTitle = country->snakeToTitle
       let isCountrySelected = country->isSelected
-      let accordionItem: Accordion.accordion = {
+      let accordionItem: AccordionAdapter.accordion = {
         title: "",
         renderContentOnTop: Some(
           () =>
@@ -196,7 +196,7 @@ module CashToCodeSelectBox = {
               </span>
             </div>,
         ),
-        renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>
+        renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) =>
           <div className="p-4 pt-2">
             <RenderConnectorInputFields
               details={dict
@@ -214,10 +214,10 @@ module CashToCodeSelectBox = {
     })
 
     <div className="w-full">
-      <Accordion
+      <AccordionAdapter
         accordion=accordionItems
-        accordianTopContainerCss="mt-4 rounded-lg"
-        accordianBottomContainerCss="p-4"
+        accordionTopContainerCss="mt-4 rounded-lg"
+        accordionBottomContainerCss="p-4"
         contentExpandCss="px-0 py-0"
         titleStyle={`${body.sm.semibold} text-nd-gray-600 dark:text-jp-gray-text_darktheme hover:text-jp-gray-800 dark:hover:text-opacity-100`}
         accordionHeaderTextClass="flex-1"
@@ -253,11 +253,6 @@ module CashToCodeMethods = {
     })
     <Tabs
       tabs=tabList
-      disableIndicationArrow=true
-      showBorder=false
-      includeMargin=false
-      lightThemeColor="black"
-      defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
       onTitleClick={tabIndex => {
         setCashToCodeMthd(_ => tabs->LogicUtils.getValueFromArray(tabIndex, #Classic))
       }}

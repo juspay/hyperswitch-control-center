@@ -90,7 +90,7 @@ module TransactionsTable = {
         offset
         setOffset
         entity={IntelligentRoutingTransactionsEntity.transactionDetailsEntity()}
-        currrentFetchCount={data->Array.length}
+        currentFetchCount={data->Array.length}
         tableheadingClass="h-12"
         tableHeadingTextClass="!font-normal"
         nonFrozenTableParentClass="!rounded-lg"
@@ -127,14 +127,9 @@ module TransactionsTable = {
         <Tabs
           initialIndex={tabIndex >= 0 ? tabIndex : 0}
           tabs
-          showBorder=true
-          includeMargin=false
-          defaultClasses="!w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
           onTitleClick={index => {
             setTabIndex(_ => index)
           }}
-          selectTabBottomBorderColor="bg-primary"
-          customBottomBorderColor="bg-nd_gray-150"
         />
       </div>
     </PageLoaderWrapper>
@@ -431,7 +426,7 @@ let make = () => {
       <PageUtils.PageHeading title="Intelligent Routing Uplift Analysis" />
       <div className="flex items-center gap-4">
         <p className="text-nd_gray-500 font-medium"> {dateRange->React.string} </p>
-        <SelectBox.BaseDropdown
+        <SelectBoxAdapter.BaseDropdown
           allowMultiSelect=false
           buttonText=""
           input=inputFileDropdown
@@ -493,7 +488,7 @@ let make = () => {
         <div className="border rounded-lg p-4 flex flex-col">
           <div className="relative">
             <div className="!w-full flex justify-end absolute z-10 top-0 right-0 left-0">
-              <SelectBox.BaseDropdown
+              <SelectBoxAdapter.BaseDropdown
                 allowMultiSelect=false
                 buttonText="Select timestamp"
                 input

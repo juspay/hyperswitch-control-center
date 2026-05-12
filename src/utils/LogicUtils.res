@@ -169,7 +169,7 @@ let getStrArrayFromJsonArray = jsonArr => {
   jsonArr->Belt.Array.keepMap(JSON.Decode.string)
 }
 
-let getStrArryFromJson = arr => {
+let getStrArrayFromJson = arr => {
   arr->JSON.Decode.array->Option.map(getStrArrayFromJsonArray)->Option.getOr([])
 }
 
@@ -184,6 +184,9 @@ let getStrArrayFromDict = (dict, key, default) => {
 let getOptionStrArrayFromDict = (dict, key) => {
   dict->Dict.get(key)->Option.flatMap(val => val->getOptionStrArrayFromJson)
 }
+
+let convertToNoneIfEqual = (val, sentinel) =>
+  val->Option.flatMap(v => v == sentinel ? None : Some(v))
 
 let getNonEmptyString = str => {
   if str->isEmptyString {
@@ -333,6 +336,9 @@ let getObj = (dict, key, default) => {
   dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.object)->Option.getOr(default)
 }
 
+let getMappedValueFromDict = (dict, key, default, mapper) =>
+  dict->Dict.get(key)->Option.mapOr(default, mapper)
+
 let getDictFromUrlSearchParams = searchParams => {
   searchParams
   ->String.split("&")
@@ -426,7 +432,7 @@ let checkEmptyJson = json => {
   json == JSON.Encode.object(Dict.make())
 }
 
-let numericArraySortComperator = (a, b) => {
+let numericArraySortComparator = (a, b) => {
   if a < b {
     -1.
   } else if a > b {
@@ -646,6 +652,10 @@ let dateFormat = (timestamp, format) => (timestamp->DayJs.getDayJsForString).for
 
 let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) =>
   keys->Array.forEach(key => dict->Dict.delete(key))
+
+let isEmptyArray = arr => arr->Array.length === 0
+
+let isNonEmptyArray = arr => arr->Array.length > 0
 
 let removeTrailingSlash = str => {
   if str->String.endsWith("/") {

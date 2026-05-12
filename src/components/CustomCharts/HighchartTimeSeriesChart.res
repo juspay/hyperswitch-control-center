@@ -9,10 +9,8 @@ module TooltipString = {
     let class = showTableBelow ? "w-fit" : "w-20"
     if text->String.length > 15 && !showTableBelow {
       <ToolTip
-        contentAlign=Left
         description=text
         toolTipPosition={isMobileView ? TopRight : Top}
-        tooltipWidthClass={isMobileView ? "w-fit" : ""}
         toolTipFor={<div className={`whitespace-pre text-ellipsis overflow-x-hidden w-15`}>
           <AddDataAttributes attributes=[("data-text", text)]>
             <div> {React.string(`${String.slice(~start=0, ~end=12, text)}...`)} </div>
@@ -57,7 +55,7 @@ module LineChart1D = {
     ~isPartners=false,
     ~showIndicator=false,
     ~showMarkers=false,
-    ~comparitionWidget=false,
+    ~comparisonWidget=false,
     ~selectedTab: option<array<string>>=?,
   ) => {
     let {theme} = React.useContext(ThemeProvider.themeContext)
@@ -90,7 +88,7 @@ module LineChart1D = {
 
     let (chartData, xAxisMapInfo, chartDataOrig) = React.useMemo(() => {
       let chartdata: array<
-        LineChartUtils.timeSeriesDictWithSecondryMetrics<JSON.t>,
+        LineChartUtils.timeSeriesDictWithsecondaryMetrics<JSON.t>,
       > = LineChartUtils.timeSeriesDataMaker(
         ~data=rawChartData,
         ~groupKey,
@@ -159,7 +157,7 @@ module LineChart1D = {
       selectedChartData->Array.forEach(item => {
         item.data->Array.forEach(
           axes => {
-            let (x, y, secondryMetrics) = axes
+            let (x, y, secondaryMetrics) = axes
             xAxisMapInfo->LineChartUtils.appendToDictValue(
               ["run_date", "run_month", "run_week"]->Array.includes(groupKey)
                 ? x->JSON.Decode.string->Option.getOr("")
@@ -170,7 +168,7 @@ module LineChart1D = {
                   item.color->Option.getOr("#000000")
                 },
                 y,
-                secondryMetrics,
+                secondaryMetrics,
               ),
             )
           },
@@ -252,12 +250,12 @@ module LineChart1D = {
     }
 
     let legendData = React.useMemo(() => {
-      let data = LineChartUtils.getLegendDataForCurrentMetrix(
+      let data = LineChartUtils.getLegendDataForCurrentMetric(
         ~yAxis=selectedMetrics.metric_name_db,
         ~xAxis,
         ~timeSeriesData=rawChartData,
         ~groupedData=legendData,
-        ~metrixType=selectedMetrics.metric_type,
+        ~metricType=selectedMetrics.metric_type,
         ~activeTab=groupKey,
       )->Belt.Array.keepMap(item => {
         if (
@@ -281,7 +279,7 @@ module LineChart1D = {
       colType: LineChartUtils.chartLegendStatsType,
     ): Table.cell => {
       let formatter = value => {
-        LineChartUtils.formatStatsAccToMetrix(selectedMetrics.metric_type, value)
+        LineChartUtils.formatStatsAccToMetric(selectedMetrics.metric_type, value)
       }
       let colorOrig =
         chartDataOrig
@@ -616,14 +614,14 @@ module LineChart1D = {
                   let positions = NumericUtils.pretty([lower_bound, upper_bound], 5)
 
                   let positionArr =
-                    Array.concat(positions, [threshold])->Array.toSorted(numericArraySortComperator)
+                    Array.concat(positions, [threshold])->Array.toSorted(numericArraySortComparator)
                   positionArr
                 }
 
               | None => NumericUtils.pretty([0., param.dataMax], 5)
               }
 
-              //NOTE have to implment the NumericUtils.pretty perfactly to make it work
+              //NOTE have to implement the NumericUtils.pretty perfectly to make it work
 
               positions
             },
@@ -694,7 +692,7 @@ module LineChart1D = {
               className="flex flex-row items-center gap-2 w-fit self-end cursor-pointer mr-5 mb-2"
               onClick={_ => {setHideLegend(prev => !prev)}}>
               <Icon
-                name={hideLegend ? "collpase-alt" : "expand-alt"}
+                name={hideLegend ? "collapse-alt" : "expand-alt"}
                 size=12
                 className="text-neutral-400"
               />
@@ -716,7 +714,7 @@ module LineChart1D = {
                 setOffset
                 defaultSort
                 showPagination=false
-                currrentFetchCount={legendData->Array.length}
+                currentFetchCount={legendData->Array.length}
                 onEntityClick={val => {
                   setClickedRowNames(val)
                 }}

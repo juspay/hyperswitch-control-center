@@ -8,7 +8,7 @@ module InfoViewForWebhooks = {
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
     }
 
-    <div className={`flex flex-col gap-2 m-2 md:m-4 w-1/2`}>
+    <div className={`flex flex-col gap-2 mx-1 my-4 w-1/2`}>
       <p className="font-semibold text-fs-15"> {heading->React.string} </p>
       <div className="flex gap-2 break-all w-full items-start">
         <p className="font-medium text-fs-14 text-black opacity-50"> {subHeading->React.string} </p>
@@ -260,7 +260,7 @@ module WebHookSection = {
       } catch {
       | _ => {
           setScreenState(_ => PageLoaderWrapper.Success)
-          showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+          showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
         }
       }
       Nullable.null
@@ -268,7 +268,7 @@ module WebHookSection = {
 
     <ReactFinalForm.Form
       key="auth"
-      initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+      initialValues={businessProfileDetails->parseBusinessProfileJson->JSON.Encode.object}
       subscription=ReactFinalForm.subscribeToValues
       onSubmit
       render={({handleSubmit}) => {
@@ -281,7 +281,7 @@ module WebHookSection = {
                   text="Update"
                   buttonType=Button.Primary
                   buttonSize=Button.Medium
-                  disabledParamter={!allowEdit}
+                  disabledParameter={!allowEdit}
                 />
                 <Button
                   buttonType=Button.Secondary
@@ -425,7 +425,7 @@ module PaymentLinkDomain = {
       } catch {
       | _ => {
           setScreenState(_ => PageLoaderWrapper.Success)
-          showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+          showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
         }
       }
       Nullable.null
@@ -433,7 +433,7 @@ module PaymentLinkDomain = {
 
     <ReactFinalForm.Form
       key="payment_link_domain"
-      initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+      initialValues={businessProfileDetails->parseBusinessProfileJson->JSON.Encode.object}
       subscription=ReactFinalForm.subscribeToValues
       onSubmit
       validate={values =>
@@ -448,7 +448,7 @@ module PaymentLinkDomain = {
                   text="Update"
                   buttonType=Button.Primary
                   buttonSize=Button.Medium
-                  disabledParamter={!allowEdit}
+                  disabledParameter={!allowEdit}
                 />
                 <Button
                   buttonType=Button.Secondary
@@ -710,7 +710,7 @@ module Vault = {
     open FormRenderer
     open LogicUtils
     open PaymentSettingsUtils
-    open PaymentSettingsV2Utils
+    open PaymentSettingsRevampedUtils
 
     let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=VaultProcessor,
@@ -876,7 +876,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false) => {
     } catch {
     | _ => {
         setScreenState(_ => PageLoaderWrapper.Success)
-        showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+        showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
       }
     }
     Nullable.null
@@ -904,7 +904,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false) => {
               : "border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass} `}>
           <ReactFinalForm.Form
             key="merchantAccount"
-            initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+            initialValues={businessProfileDetails->parseBusinessProfileJson->JSON.Encode.object}
             subscription=ReactFinalForm.subscribeToValues
             validate={values => {
               validateMerchantAccountForm(
@@ -1004,19 +1004,23 @@ let make = (~webhookOnly=false, ~showFormOnly=false) => {
                       ~name="is_network_tokenization_enabled",
                       ~label="Network Tokenization",
                       ~customInput=InputFields.boolInput(
-                        ~isDisabled=true,
+                        ~isDisabled=!featureFlagDetails.networkTokenization,
                         ~boolCustomClass="rounded-lg",
                       ),
                     )}
                   />
                   <div className={`${body.md.medium} ml-1 text-jp-gray-text_muted`}>
-                    {"Network Tokenization enables secure card storage and seamless future transactions, with Juspay as the Token Requestor-Token Service Provider (TR-TSP). To enable this feature for your merchant account, please reach out to us on "->React.string}
-                    <a
-                      href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
-                      className="text-primary hover:cursor-pointer hover:underline"
-                      target="_blank">
-                      {"Slack"->React.string}
-                    </a>
+                    {`${"Network Tokenization enables secure card storage and seamless future transactions, with Juspay as the Token Requestor-Token Service Provider (TR-TSP)."}${featureFlagDetails.networkTokenization
+                        ? ""
+                        : " To enable this feature for your merchant account, please reach out to us on "}`->React.string}
+                    <RenderIf condition={!featureFlagDetails.networkTokenization}>
+                      <a
+                        href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
+                        className="text-primary hover:cursor-pointer hover:underline"
+                        target="_blank">
+                        {"Slack"->React.string}
+                      </a>
+                    </RenderIf>
                   </div>
                 </DesktopRow>
                 <DesktopRow>

@@ -17,12 +17,12 @@ let surchargeRules: RoutingTypes.rule = {
   connectorSelection: {
     surcharge_details: defaultSurcharge->Nullable.make,
   },
-  statements: statementObject,
+  statements: defaultStatements,
 }
 
-let buildInitialSurchargeValue: threeDsRoutingType = {
-  name: `Surcharge -${RoutingUtils.getCurrentUTCTime()}`,
-  description: `This is a new Surcharge created at ${RoutingUtils.currentTimeInUTC}`,
+let buildInitialSurchargeValue = (~currentDate, ~currentTime): threeDsRoutingType => {
+  name: `Surcharge -${currentDate}`,
+  description: `This is a new Surcharge created at ${currentTime}`,
   algorithm: {
     rules: [surchargeRules],
     defaultSelection: {
@@ -149,14 +149,14 @@ let conditionTypeMapper = (statementArr: array<JSON.t>) => {
       let statementDict = conditionJson->getDictFromJsonObject
 
       let variantType = getStatementValue(statementDict->getDictfromDict("value")).\"type"
-      let comparision =
+      let comparison =
         statementDict
         ->getString("comparison", "")
         ->getOperatorFromComparisonType(variantType)
 
       let returnValue: RoutingTypes.statement = {
         lhs: statementDict->getString("lhs", ""),
-        comparison: comparision,
+        comparison,
         logical: index === 0 ? "OR" : "AND",
         value: getStatementValue(statementDict->getDictfromDict("value")),
       }

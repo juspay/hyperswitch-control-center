@@ -1,3 +1,4 @@
+// TODO: Remove this module - replaced by ConnectorPreviewHelper.EnableDisableConnectorToggle
 module MenuOption = {
   open HeadlessUI
   @react.component
@@ -81,22 +82,25 @@ let make = () => {
 
   let isConnectorDisabled = connectorInfo.disabled
 
-  let disableConnector = async isConnectorDisabled => {
+  let disableConnector = async currentIsDisabled => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let connectorID = connectorInfo.merchant_connector_id
+      let mcaId = connectorInfo.merchant_connector_id
       let disableConnectorPayload = ConnectorUtils.getDisableConnectorPayload(
         connectorInfo.connector_type->ConnectorUtils.connectorTypeTypedValueToStringMapper,
-        isConnectorDisabled,
+        currentIsDisabled,
       )
-      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
+      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(mcaId))
       let res = await updateDetails(url, disableConnectorPayload, Post)
       setInitialValues(_ => res)
       let _ = await fetchConnectorListResponse()
       setScreenState(_ => PageLoaderWrapper.Success)
       showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
     } catch {
-    | Exn.Error(_) => showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
+    | Exn.Error(_) => {
+        showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     }
   }
 
@@ -235,20 +239,10 @@ let make = () => {
     )
   }
 
-  let connectorStatusStyle = connectorStatus =>
-    switch connectorStatus {
-    | true => "border bg-red-600 bg-opacity-40 border-red-400 text-red-500"
-    | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-700"
-    }
-
   let summaryPageButton = switch currentStep {
   | Preview =>
     <div className="flex gap-6 items-center">
-      <div
-        className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
-        {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
-      </div>
-      <MenuOption disableConnector isConnectorDisabled />
+      <ConnectorPreviewHelper.EnableDisableConnectorToggle disableConnector isConnectorDisabled />
     </div>
   | _ =>
     <Button
@@ -279,7 +273,6 @@ let make = () => {
         currentPageTitle={connectorName->ConnectorUtils.getDisplayNameForConnector(
           ~connectorType=PMAuthenticationProcessor,
         )}
-        cursorStyle="cursor-pointer"
       />
       <div
         className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">

@@ -5,7 +5,7 @@ let make = (
   ~resultsPerPage,
   ~setOffset,
   ~handleRefetch=?,
-  ~currrentFetchCount,
+  ~currentFetchCount,
   ~downloadCsv=?,
   ~isNewPaginator=false,
   ~actualData,
@@ -26,7 +26,7 @@ let make = (
   }
 
   let toNum = resultsPerPage + start > totalResults ? totalResults : resultsPerPage + start - 1
-  let shouldRefetch = toNum > currrentFetchCount && toNum <= totalResults && !tableDataLoading
+  let shouldRefetch = toNum > currentFetchCount && toNum <= totalResults && !tableDataLoading
   React.useEffect(() => {
     if shouldRefetch {
       switch handleRefetch {
@@ -63,7 +63,7 @@ let make = (
 
     let newOffset = (page - 1) * resultsPerPage
     setOffset(_ => newOffset)
-  }, (setOffset, resultsPerPage, currrentFetchCount, url.search, totalResults))
+  }, (setOffset, resultsPerPage, currentFetchCount, url.search, totalResults))
 
   let marginClass = "md:mr-0"
 
@@ -75,10 +75,10 @@ let make = (
           <div
             className="flex self-center gap-2 items-center text-center text-nd_gray-500 dark:text-gray-500 font-medium whitespace-pre">
             <span>
-              {React.string("Showing  ")}
+              {React.string("Showing ")}
               <span className="text-nd_gray-700"> {React.string(toNum->Int.toString)} </span>
             </span>
-            <SelectBox.BaseDropdown
+            <SelectBoxAdapter.BaseDropdown
               options=selectInputOption
               fixedDropDownDirection={TopLeft}
               buttonText=""
@@ -92,9 +92,9 @@ let make = (
               baseComponent={<Icon size=20 name="nd-chevron-down" />}
             />
             <span>
-              {React.string("  of")}
+              {React.string(" of")}
               <span className="text-nd_gray-700">
-                {React.string(`   ${totalResults->Int.toString}`)}
+                {React.string(` ${totalResults->Int.toString}`)}
               </span>
             </span>
           </div>

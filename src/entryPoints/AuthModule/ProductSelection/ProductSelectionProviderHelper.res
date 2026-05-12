@@ -26,9 +26,7 @@ module SwitchMerchantBody = {
     }, [])
     <div className="flex flex-col items-center gap-2">
       <Loader />
-      <div className={`${heading.md.semibold} mb-4`}>
-        {"Switching merchant...."->React.string}
-      </div>
+      <div className={`${heading.md.semibold} mb-4`}> {"Switching merchant..."->React.string} </div>
     </div>
   }
 }
@@ -138,7 +136,7 @@ module SelectMerchantBody = {
       <Form key="new-merchant-creation" onSubmit initialValues validate={validateForm}>
         <div className="flex flex-col h-full w-full">
           <span className={`${body.md.medium} text-nd_gray-400  mx-4 mt-4`}>
-            {"Select the appropriate Merchant from the list of ID's created for this module."->React.string}
+            {"Select the appropriate merchant from the list of IDs created for this module."->React.string}
           </span>
           <div className="py-4">
             <FormRenderer.DesktopRow>
@@ -153,7 +151,7 @@ module SelectMerchantBody = {
           </div>
           <div className="flex justify-end w-full p-3">
             <FormRenderer.SubmitButton
-              text="Select Merchant" buttonSize=Small customSumbitButtonStyle="w-full mb-2"
+              text="Select Merchant" buttonSize=Small customSubmitButtonStyle="w-full mb-2"
             />
           </div>
         </div>
@@ -255,22 +253,11 @@ module CreateNewMerchantBody = {
     let validateForm = (values: JSON.t) => {
       let errors = Dict.make()
       let companyName = values->getDictFromJsonObject->getString("company_name", "")->String.trim
-      let regexForCompanyName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
-      let isDuplicate =
-        merchantList->Array.some(merchant =>
-          merchant.name->String.toLowerCase == companyName->String.toLowerCase
-        )
-      let errorMessage = if companyName->isEmptyString {
-        "Merchant name cannot be empty"
-      } else if companyName->String.length > 64 {
-        "Merchant name cannot exceed 64 characters"
-      } else if !RegExp.test(RegExp.fromString(regexForCompanyName), companyName) {
-        "Merchant name should not contain special characters"
-      } else if isDuplicate {
-        "Merchant with this name already exists in this organization"
-      } else {
-        ""
-      }
+      let errorMessage = OMPSwitchUtils.validateOmpName(
+        ~name=companyName,
+        ~list=merchantList,
+        ~entityLabel="Merchant",
+      )
 
       if errorMessage->isNonEmptyString {
         Dict.set(errors, "company_name", errorMessage->JSON.Encode.string)

@@ -9,9 +9,15 @@ module NoDataFoundComponent = {
     ~total,
     ~fieldArray,
   ) => {
+    let isOrchestrationVault = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orchestrationVaultAtom)
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let handleSampleReportButtonClick = () => {
-      mixpanelEvent(~eventName="vault_get_sample_data")
+      mixpanelEvent(
+        ~eventName=VaultHomeUtils.getVaultMixpanelEventName(
+          ~isOrchestrationVault,
+          ~eventName="vault_get_sample_data",
+        ),
+      )
       let response = VaultSampleData.customersList
       let data = response->JSON.Decode.array->Option.getOr([])
       let arr = Array.make(~length=offset, Dict.make())
@@ -75,12 +81,13 @@ let make = (~sampleReport, ~setSampleReport) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (customersData, setCustomersData) = React.useState(_ => [])
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
+  let isOrchestrationVault = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orchestrationVaultAtom)
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
   let pageDetail = pageDetailDict->Dict.get("customers")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let (filteredCustomersData, setFilteredCustomersData) = React.useState(_ => [])
   let (searchVal, setSearchVal) = React.useState(_ => "")
-  let total = 100 // TODO: take this value from API response [currenctly set to 5 pages]
+  let total = 100 // TODO: take this value from API response [currently set to 5 pages]
   let limit = 10 // each api calls will return 50 results
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
@@ -152,7 +159,12 @@ let make = (~sampleReport, ~setSampleReport) => {
   }, ~wait=200)
 
   let sendMixpanelEvent = () => {
-    mixpanelEvent(~eventName="vault_view_customer_details")
+    mixpanelEvent(
+      ~eventName=VaultHomeUtils.getVaultMixpanelEventName(
+        ~isOrchestrationVault,
+        ~eventName="vault_view_customer_details",
+      ),
+    )
   }
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-5">
@@ -182,7 +194,7 @@ let make = (~sampleReport, ~setSampleReport) => {
           title="Vault Customers And tokens"
           hideTitle=true
           actualData=filteredCustomersData
-          entity={customersEntity(~sendMixpanelEvent)}
+          entity={customersEntity(~sendMixpanelEvent, ~isOrchestrationVault)}
           resultsPerPage=20
           filters={<TableSearchFilter
             data={customersData}
@@ -194,7 +206,7 @@ let make = (~sampleReport, ~setSampleReport) => {
           totalResults={filteredCustomersData->Array.length}
           offset
           setOffset
-          currrentFetchCount={filteredCustomersData->Array.length}
+          currentFetchCount={filteredCustomersData->Array.length}
           showResultsPerPageSelector=false
           showAutoScroll=true
           collapseTableRow=false

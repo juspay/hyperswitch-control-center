@@ -27,7 +27,7 @@ module DisputesNoteComponent = {
 
     <div
       className={`${borderColor.primaryNormal} flex  items-start  text-sm rounded-md gap-2 px-4 py-3 mt-5`}>
-      <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
+      <Icon name="info-vacant" className={`${textColor.primaryNormal} mt-1`} size=18 />
       <span>
         {"Coming soon! You would soon be able to upload evidences against disputes directly from your Hyperswitch dashboard. Until then, please use Hyperswitch dashboard to track any changes in dispute status while uploading evidences from your relevant connector "->React.string}
         {dashboardLink}
@@ -40,7 +40,6 @@ module Details = {
   let make = (
     ~data: DisputeTypes.disputes,
     ~getHeading,
-    ~getCell,
     ~excludeColKeys=[],
     ~detailsFields,
     ~justifyClassName="justify-start",
@@ -131,7 +130,7 @@ module Details = {
                   value={getCell(data, colType, merchantId, orgId)}
                   customMoneyStyle="!font-normal !text-sm"
                   labelMargin="!py-0 mt-2"
-                  overiddingHeadingStyles="text-black text-sm font-medium"
+                  overridingHeadingStyles="text-black text-sm font-medium"
                   textColor="!font-normal !text-jp-gray-700"
                 />
               </div>
@@ -169,7 +168,7 @@ module DisputesInfo = {
           subText="The chargeback has exceeded the dispute amount. Go to the Payments tab to learn more."
         />
       </RenderIf>
-      <Details data=disputesData getHeading getCell detailsFields=allColumns setDisputeData />
+      <Details data=disputesData getHeading detailsFields=allColumns setDisputeData />
       <RenderIf condition={!showNoteComponentCondition}>
         <DisputesNoteComponent disputesData />
       </RenderIf>
@@ -223,9 +222,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           <div>
             <PageUtils.PageHeading title="Disputes" />
             <BreadCrumbNavigation
-              path=[{title: "Disputes", link: "/disputes"}]
-              currentPageTitle=id
-              cursorStyle="cursor-pointer"
+              path=[{title: "Disputes", link: "/disputes"}] currentPageTitle=id
             />
           </div>
           <div />
@@ -236,11 +233,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       <RenderIf
         condition={featureFlagDetails.auditTrail &&
         userHasAccess(~groupAccess=AnalyticsView) == Access}>
-        <OrderUIUtils.RenderAccordian
+        <OrderUIUtils.RenderAccordion
           accordion={[
             {
               title: "Events and logs",
-              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+              renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                 <LogsWrapper wrapperFor={#DISPUTE}>
                   <DisputeLogs disputeId=id paymentId />
                 </LogsWrapper>

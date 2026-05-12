@@ -85,7 +85,7 @@ let make = (
   let keyValueFromForm = formState.values->getDictFromJsonObject->getString(formKey, "")
 
   let getNameByLabel = value => {
-    let filteredValueFromForm = options->Array.find(v => v.value === value)
+    let filteredValueFromForm = options->Array.find(opt => opt.value === value)
     switch filteredValueFromForm {
     | Some(value) => value.label->snakeToTitle
     | None => "Select a role"
@@ -122,7 +122,7 @@ let make = (
                 }
               }}>
               <span
-                className="px-1 text-fs-13 text-sm font-medium leading-5  whitespace-pre !text-gray-500">
+                className="px-1 text-fs-13 text-sm font-medium leading-5 truncate !text-gray-500">
                 {buttonValue->React.string}
               </span>
               <Icon

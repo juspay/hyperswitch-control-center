@@ -106,12 +106,6 @@ let make = (~accountId) => {
       <BreadCrumbNavigation
         path=[{title: "Transformation", link: `/v1/recon-engine/transformation`}]
         currentPageTitle=accountData.account_name
-        cursorStyle="cursor-pointer"
-        customTextClass="text-nd_gray-400"
-        titleTextClass="text-nd_gray-600 font-medium"
-        fontWeight="font-medium"
-        dividerVal=Slash
-        childGapClass="gap-2"
       />
       <div className="flex flex-row items-center gap-4">
         <Button
@@ -148,14 +142,7 @@ let make = (~accountId) => {
           </div>
         </RenderIf>
         <RenderIf condition={transformationConfigs->Array.length > 0}>
-          <Tabs
-            tabs
-            showBorder=true
-            includeMargin=false
-            initialIndex={getActiveTabIndex}
-            defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center ${body.md.semibold}`}
-            selectTabBottomBorderColor="bg-primary"
-          />
+          <Tabs tabs initialIndex={getActiveTabIndex} />
         </RenderIf>
       </PageLoaderWrapper>
     </div>
