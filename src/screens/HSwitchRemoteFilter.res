@@ -317,7 +317,7 @@ module RemoteTableFilters = {
       sortKey: "",
       sortType: DSC,
     }
-    let value = dict->Dict.get(title)->Option.getOr(defaultSort)
+    let value = dict->getvalFromDict(title)->Option.getOr(defaultSort)
     let sortSignature = `${value.sortKey}|${value->OrderTypes.getSortString}`
 
     let lastFiltersSignature = React.useRef("")
