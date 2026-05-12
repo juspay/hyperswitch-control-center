@@ -40,7 +40,6 @@ let make = (
 ) => {
   let isBlendEnabled = BlendContext.useBlendEnabled()
   let showPopUp = PopUpState.useShowPopUp()
-  let {meta} = useField(input.name)
 
   let isPasswordType = inputType == "password" || inputType == "password_without_icon"
 
@@ -81,11 +80,15 @@ let make = (
   | _ => ""
   }
 
-  let hasSubmitError =
-    meta.submitError->getOptionalFromNullable->Option.isSome && !meta.dirtySinceLastSubmit
-  let hasFieldError = meta.error->getOptionalFromNullable->Option.isSome
-  let isInValid =
+  let isInValid = try {
+    let {meta} = useField(input.name)
+    let hasSubmitError =
+      meta.submitError->getOptionalFromNullable->Option.isSome && !meta.dirtySinceLastSubmit
+    let hasFieldError = meta.error->getOptionalFromNullable->Option.isSome
     !removeValidationCheck && !meta.valid && meta.touched && (hasSubmitError || hasFieldError)
+  } catch {
+  | _ => false
+  }
 
   let blendSize = switch customWidth {
   | "w-full" | "w-96" => TextInputBinding.Lg
