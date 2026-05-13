@@ -95,6 +95,28 @@ export class PaymentSettings {
     return this.page.getByRole("button", { name: "Select Option" });
   }
 
+  get paymentMethodBlocking(): Locator {
+    return this.page.getByText("Payment Method Blocking");
+  }
+
+  get maxAutoRetriesInput(): Locator {
+    return this.page.getByPlaceholder("Enter number of max auto retries");
+  }
+
+  get clickToPayConnectorDropdown(): Locator {
+    return this.page.getByRole("button", {
+      name: "Select Click to Pay - Connector ID",
+    });
+  }
+
+  radioOption(label: string): Locator {
+    return this.page.locator("div.cursor-pointer", { hasText: label }).first();
+  }
+
+  isRadioSelected(label: string): Locator {
+    return this.radioOption(label).locator("svg, [class*='RadioIcon']").first();
+  }
+
   // 3DS Tab Elements
   get force3DSChallengeToggle(): Locator {
     return this.page.getByText("Force 3DS Challenge");
@@ -102,6 +124,47 @@ export class PaymentSettings {
 
   get acquirerConfigSettings(): Locator {
     return this.page.getByText("Acquirer Config Settings");
+  }
+
+  get authenticationConnectorsLabel(): Locator {
+    return this.page.getByText("Authentication Connectors", { exact: true });
+  }
+
+  get threeDsRequestorUrlInput(): Locator {
+    return this.page.getByPlaceholder("Enter 3DS Requestor URL");
+  }
+
+  get threeDsRequestorAppUrlInput(): Locator {
+    return this.page.getByPlaceholder("Enter 3DS Requestor App URL");
+  }
+
+  // Acquirer Config Settings
+  get acquirerMerchantNameInput(): Locator {
+    return this.page.getByPlaceholder("Enter Merchant Name");
+  }
+
+  get acquirerBinInput(): Locator {
+    return this.page.getByPlaceholder("Enter Acquirer Bin");
+  }
+
+  get acquirerAssignedMerchantIdInput(): Locator {
+    return this.page.getByPlaceholder("Enter Acquirer Assigned Merchant Id");
+  }
+
+  get acquirerFraudRateInput(): Locator {
+    return this.page.getByPlaceholder("Enter Acquirer Fraud Rate");
+  }
+
+  get acquirerNetworkDropdown(): Locator {
+    return this.page.getByRole("button", { name: "Select Network" });
+  }
+
+  get acquirerSaveButton(): Locator {
+    return this.page.getByRole("button", { name: "Save", exact: true });
+  }
+
+  get acquirerConfigCreatedToast(): Locator {
+    return this.page.locator('[data-toast="Acquirer config created"]');
   }
 
   // Custom Headers Tab Elements
@@ -138,6 +201,21 @@ export class PaymentSettings {
 
   get cancelButton(): Locator {
     return this.page.getByRole("button", { name: "Cancel" });
+  }
+
+  get detailsUpdatedToast(): Locator {
+    return this.page.locator('[data-toast="Details updated"]');
+  }
+
+  toggleSwitchByLabel(label: string): Locator {
+    return this.page
+      .locator("div", {
+        has: this.page.getByText(label, { exact: true }),
+      })
+      .filter({ has: this.page.locator("[data-bool-value]") })
+      .last()
+      .locator("[data-bool-value]")
+      .first();
   }
 
   // Helper Methods
@@ -186,6 +264,14 @@ export class PaymentSettings {
 
   async clickUpdate(): Promise<void> {
     await this.updateButton.click();
+  }
+
+  async selectFirstMerchantCategoryCode(): Promise<string> {
+    await this.merchantCategoryCodeDropdown.click();
+    const firstOption = this.page.locator('div').filter({ hasText: /^Wine producers$/ }).nth(4);
+    const optionText = (await firstOption.getAttribute("data-value")) ?? "";
+    await firstOption.click();
+    return optionText;
   }
 
   async clickCancel(): Promise<void> {
