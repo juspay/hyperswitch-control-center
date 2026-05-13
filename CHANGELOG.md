@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.13.0
+
+### Features
+
+- Migrate FilterSelectBox and CustomInputSelectBox to Blend Design System ([#4547](https://github.com/juspay/hyperswitch-control-center/pull/4547)) ([`e884df1`](https://github.com/juspay/hyperswitch-control-center/commit/e884df1750f64a336d09163f7718dd053353ff72))
+
+### Testing
+
+- Add playwright tests ([#4735](https://github.com/juspay/hyperswitch-control-center/pull/4735)) ([`74493bf`](https://github.com/juspay/hyperswitch-control-center/commit/74493bf525475aeed69c984ddc573201aa237b9a))
+
+**Full Changelog:** [`2026.05.12.1...2026.05.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.12.1...2026.05.13.0)
+
+- - -
+
 ## 2026.05.12.1
 
 ### Features
