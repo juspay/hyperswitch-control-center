@@ -30,7 +30,7 @@ let make = (
     value,
     checked: true,
   }
-  <SelectBox
+  <SelectBoxAdapter
     isDropDown
     allowMultiSelect
     hideMultiSelectButtons
