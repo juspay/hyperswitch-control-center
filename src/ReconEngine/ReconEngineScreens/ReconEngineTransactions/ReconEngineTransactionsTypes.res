@@ -6,6 +6,17 @@ type accountGroup = {
   entries: array<ReconEngineTypes.entryType>,
 }
 
+type lineageFieldType = {
+  lineageFieldLabel: string,
+  lineageFieldValue: string,
+  lineageFileCopyable: bool,
+}
+
+type lineageSectionType = {
+  lineageSectionTitle: string,
+  lineageSectionFields: array<lineageFieldType>,
+}
+
 @unboxed
 type actionType =
   | @as("bulk_post") BulkTransactionPost

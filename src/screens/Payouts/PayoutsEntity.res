@@ -147,7 +147,7 @@ let getAttemptHeading = colType => {
   | AttemptId =>
     Table.makeHeaderInfo(
       ~key="AttemptId",
-      ~title="Attempt Id",
+      ~title="Attempt ID",
       ~description="You can validate the information shown here by cross checking the payout attempt identifier (Attempt ID) in your payout processor portal.",
     )
   | Status => Table.makeHeaderInfo(~key="Status", ~title="Status")
@@ -159,7 +159,7 @@ let getAttemptHeading = colType => {
   | PaymentMethod => Table.makeHeaderInfo(~key="PaymentMethod", ~title="Payment Method")
   | PayoutMethodType => Table.makeHeaderInfo(~key="PayoutMethodType", ~title="Payout Method Type")
   | ConnectorTransactionId =>
-    Table.makeHeaderInfo(~key="ConnectorTransactionId", ~title="Connector Transaction Id")
+    Table.makeHeaderInfo(~key="ConnectorTransactionId", ~title="Connector Transaction ID")
   | CancellationReason =>
     Table.makeHeaderInfo(~key="CancellationReason", ~title="Cancellation Reason")
   | UnifiedCode => Table.makeHeaderInfo(~key="UnifiedCode", ~title="Unified Code")
@@ -351,31 +351,31 @@ let useGetStatus = order => {
 
 let getHeading = (colType: payoutsColType) => {
   switch colType {
-  | PayoutId => Table.makeHeaderInfo(~key="PayoutId", ~title="Payout Id")
-  | MerchantId => Table.makeHeaderInfo(~key="MerchantId", ~title="Merchant Id")
+  | PayoutId => Table.makeHeaderInfo(~key="PayoutId", ~title="Payout ID")
+  | MerchantId => Table.makeHeaderInfo(~key="MerchantId", ~title="Merchant ID")
   | Currency => Table.makeHeaderInfo(~key="Currency", ~title="Currency")
   | Connector => Table.makeHeaderInfo(~key="Connector", ~title="Connector")
   | Email => Table.makeHeaderInfo(~key="Email", ~title="Email")
   | Amount => Table.makeHeaderInfo(~key="Amount", ~title="Amount")
   | BusinessCountry => Table.makeHeaderInfo(~key="BusinessCountry", ~title="Business Country")
   | ErrorMessage => Table.makeHeaderInfo(~key="ErrorMessage", ~title="Error Message")
-  | ProfileId => Table.makeHeaderInfo(~key="ProfileId", ~title="Profile Id")
+  | ProfileId => Table.makeHeaderInfo(~key="ProfileId", ~title="Profile ID")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Payout Status", ~dataType=DropDown)
-  | CustomerId => Table.makeHeaderInfo(~key="CustomerId", ~title="Customer Id")
+  | CustomerId => Table.makeHeaderInfo(~key="CustomerId", ~title="Customer ID")
   | Created => Table.makeHeaderInfo(~key="Created", ~title="Created At")
   | PayoutType => Table.makeHeaderInfo(~key="PayoutType", ~title="Payout Type")
   | Billing => Table.makeHeaderInfo(~key="Billing", ~title="Billing")
-  | AutoFulfill => Table.makeHeaderInfo(~key="AutoFulfill", ~title="Auto Full fill")
+  | AutoFulfill => Table.makeHeaderInfo(~key="AutoFulfill", ~title="Auto Fulfill")
   | Name => Table.makeHeaderInfo(~key="Name", ~title="Name")
   | Phone => Table.makeHeaderInfo(~key="Phone", ~title="Phone")
   | PhoneCountryCode => Table.makeHeaderInfo(~key="PhoneCountryCode", ~title="Phone Country Code")
   | ClientSecret => Table.makeHeaderInfo(~key="ClientSecret", ~title="Client Secret")
-  | ReturnUrl => Table.makeHeaderInfo(~key="ReturnUrl", ~title="Return Url")
+  | ReturnUrl => Table.makeHeaderInfo(~key="ReturnUrl", ~title="Return URL")
   | BusinessLabel => Table.makeHeaderInfo(~key="BusinessLabel", ~title="Business Label")
   | Description => Table.makeHeaderInfo(~key="Description", ~title="Description")
   | Entity_type => Table.makeHeaderInfo(~key="Entity_type", ~title="Entity Type")
   | Recurring => Table.makeHeaderInfo(~key="Recurring", ~title="Recurring")
-  | ErrorCode => Table.makeHeaderInfo(~key="ErrorCode", ~title="ErrorCode")
+  | ErrorCode => Table.makeHeaderInfo(~key="ErrorCode", ~title="Error Code")
   | ConnectorTransactionId =>
     Table.makeHeaderInfo(~key="ConnectorTransactionId", ~title="Connector Transaction ID")
   | SendPriority => Table.makeHeaderInfo(~key="SendPriority", ~title="Send Priority")
@@ -615,8 +615,8 @@ let getHeadingForSummary = summaryColType => {
 
 let getHeadingForAboutPayment = aboutPaymentColType => {
   switch aboutPaymentColType {
-  | Connector => Table.makeHeaderInfo(~key="connector", ~title="Payout connector")
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
+  | Connector => Table.makeHeaderInfo(~key="connector", ~title="Payout Connector")
+  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile ID")
   | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
   | CardBrand => Table.makeHeaderInfo(~key="card_brand", ~title="Card Brand")
   | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")

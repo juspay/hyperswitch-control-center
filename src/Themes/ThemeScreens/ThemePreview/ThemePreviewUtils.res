@@ -66,3 +66,16 @@ let getThemeFormValues = (~formValues) => {
 
   (colors, sidebar, buttons)
 }
+
+let getEmailFormValues = (~formValues): HyperSwitchConfigTypes.emailConfig => {
+  open LogicUtils
+  let defaults = ThemeProvider.defaultEmailConfig
+  let emailDict = formValues->getDictfromDict("email_config")
+  {
+    entity_name: emailDict->getString("entity_name", defaults.entity_name),
+    entity_logo_url: emailDict->getString("entity_logo_url", defaults.entity_logo_url),
+    primary_color: emailDict->getString("primary_color", defaults.primary_color),
+    foreground_color: emailDict->getString("foreground_color", defaults.foreground_color),
+    background_color: emailDict->getString("background_color", defaults.background_color),
+  }
+}
