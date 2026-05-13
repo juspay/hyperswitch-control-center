@@ -132,6 +132,58 @@ module ButtonSettings = {
   }
 }
 
+module EmailSettings = {
+  @react.component
+  let make = () => {
+    let formValues =
+      ReactFinalForm.useFormState(
+        ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+      ).values->LogicUtils.getDictFromJsonObject
+
+    let emailFromForm = ThemePreviewUtils.getEmailFormValues(~formValues)
+
+    let labelClass = `${body.md.medium} text-nd_gray-700`
+
+    let entityNameField = makeFieldInfo(
+      ~label="Entity Name",
+      ~name="email_config.entity_name",
+      ~placeholder="Enter entity name for emails.",
+      ~customInput=InputFields.textInput(),
+    )
+
+    let primaryColorField = makeFieldInfo(
+      ~label="Primary Color",
+      ~name="email_config.primary_color",
+      ~placeholder="Enter primary color.",
+      ~customInput=InputFields.colorPickerInput(~defaultValue=emailFromForm.primary_color),
+    )
+
+    let foregroundColorField = makeFieldInfo(
+      ~label="Foreground Color",
+      ~name="email_config.foreground_color",
+      ~placeholder="Enter foreground color.",
+      ~customInput=InputFields.colorPickerInput(~defaultValue=emailFromForm.foreground_color),
+    )
+
+    let backgroundColorField = makeFieldInfo(
+      ~label="Background Color",
+      ~name="email_config.background_color",
+      ~placeholder="Enter background color.",
+      ~customInput=InputFields.colorPickerInput(~defaultValue=emailFromForm.background_color),
+    )
+
+    <div className="flex flex-col gap-4">
+      <div className={`${body.lg.semibold}`}> {React.string("Email Settings")} </div>
+      <div className="space-y-4">
+        <FormRenderer.FieldRenderer field=entityNameField labelClass />
+        <FormRenderer.FieldRenderer field=primaryColorField labelClass />
+        <FormRenderer.FieldRenderer field=foregroundColorField labelClass />
+        <FormRenderer.FieldRenderer field=backgroundColorField labelClass />
+      </div>
+    </div>
+  }
+}
+
 module AssetField = {
   @react.component
   let make = (
@@ -171,10 +223,13 @@ module IconSettings = {
   @react.component
   let make = (
     ~assets: ThemeTypes.assets,
-    ~onLogoSelect: JSON.t => unit,
-    ~onLogoRemove: unit => unit,
-    ~onFaviconSelect: JSON.t => unit,
-    ~onFaviconRemove: unit => unit,
+    ~mode: [#Dashboard | #Email]=#Dashboard,
+    ~onLogoSelect: JSON.t => unit=_ => (),
+    ~onLogoRemove: unit => unit=() => (),
+    ~onFaviconSelect: JSON.t => unit=_ => (),
+    ~onFaviconRemove: unit => unit=() => (),
+    ~onEmailLogoSelect: JSON.t => unit=_ => (),
+    ~onEmailLogoRemove: unit => unit=() => (),
     ~themeConfigVersion,
   ) => {
     let getDisplayUrl = (asset: option<ThemeTypes.assetValue>) =>
@@ -191,28 +246,46 @@ module IconSettings = {
     let handleFileChange = (onSelect, ev) =>
       ThemeFeatureUtils.getFileFromEvent(ev)->Option.forEach(onSelect)
 
-    <div className="flex flex-col gap-4">
-      <div className={`${body.lg.semibold}`}> {React.string("Icons")} </div>
-      <div className="space-y-4">
-        <AssetField
-          label="Logo"
-          displayUrl={getDisplayUrl(assets.logo)}
-          onFileChange={ev => handleFileChange(onLogoSelect, ev)}
-          onRemove=onLogoRemove
-          accept=".png,.jpg,.jpeg"
-          inputId="logoFileInput"
-          themeConfigVersion
-        />
-        <AssetField
-          label="Favicon"
-          displayUrl={getDisplayUrl(assets.favicon)}
-          onFileChange={ev => handleFileChange(onFaviconSelect, ev)}
-          onRemove=onFaviconRemove
-          accept=".png,.ico,.jpg,.jpeg"
-          inputId="faviconFileInput"
-          themeConfigVersion
-        />
+    switch mode {
+    | #Dashboard =>
+      <div className="flex flex-col gap-4">
+        <div className={`${body.lg.semibold}`}> {React.string("Icons")} </div>
+        <div className="space-y-4">
+          <AssetField
+            label="Logo"
+            displayUrl={getDisplayUrl(assets.logo)}
+            onFileChange={ev => handleFileChange(onLogoSelect, ev)}
+            onRemove=onLogoRemove
+            accept=".png,.jpg,.jpeg"
+            inputId="logoFileInput"
+            themeConfigVersion
+          />
+          <AssetField
+            label="Favicon"
+            displayUrl={getDisplayUrl(assets.favicon)}
+            onFileChange={ev => handleFileChange(onFaviconSelect, ev)}
+            onRemove=onFaviconRemove
+            accept=".png,.ico,.jpg,.jpeg"
+            inputId="faviconFileInput"
+            themeConfigVersion
+          />
+        </div>
       </div>
-    </div>
+    | #Email =>
+      <div className="flex flex-col gap-4">
+        <div className={`${body.lg.semibold}`}> {React.string("Email Icons")} </div>
+        <div className="space-y-4">
+          <AssetField
+            label="Email Logo"
+            displayUrl={getDisplayUrl(assets.emailLogo)}
+            onFileChange={ev => handleFileChange(onEmailLogoSelect, ev)}
+            onRemove=onEmailLogoRemove
+            accept=".png,.jpg,.jpeg"
+            inputId="emailLogoFileInput"
+            themeConfigVersion
+          />
+        </div>
+      </div>
+    }
   }
 }
