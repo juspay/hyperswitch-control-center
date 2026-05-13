@@ -176,6 +176,7 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity_v1 => {
   let authenticationConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
   let outgoingWebhookHeaders = getOptionalHeaders(jsonDict, "outgoing_webhook_custom_http_headers")
   let metadataHeaders = getOptionalHeaders(jsonDict, "metadata")
+  let acquirerConfigBucketDict = jsonDict->getDictfromDict("acquirer_config_bucket")
 
   let paymentLinkConfig = jsonDict->getDictfromDict("payment_link_config")
   let externalVaultConnectorDetails = jsonDict->getDictfromDict("external_vault_connector_details")
@@ -211,6 +212,9 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity_v1 => {
     max_auto_retries_enabled: jsonDict->getOptionInt("max_auto_retries_enabled"),
     is_click_to_pay_enabled: jsonDict->getOptionBool("is_click_to_pay_enabled"),
     acquirer_configs: jsonDict->getOptionalArrayFromDict("acquirer_configs"),
+    acquirer_config_bucket: !{acquirerConfigBucketDict->isEmptyDict}
+      ? Some(acquirerConfigBucketDict->BusinessProfileInterfaceUtils.constructAcquirerConfigBucket)
+      : None,
     authentication_product_ids: Some(jsonDict->getJsonObjectFromDict("authentication_product_ids")),
     merchant_category_code: jsonDict->getOptionString("merchant_category_code"),
     is_network_tokenization_enabled: jsonDict->getOptionBool("is_network_tokenization_enabled"),
@@ -317,6 +321,7 @@ let mapV1toCommonType: profileEntity_v1 => BusinessProfileInterfaceTypes.commonP
     force_3ds_challenge: profileRecord.force_3ds_challenge,
     is_debit_routing_enabled: profileRecord.is_debit_routing_enabled,
     acquirer_configs: profileRecord.acquirer_configs,
+    acquirer_config_bucket: profileRecord.acquirer_config_bucket,
     merchant_category_code: profileRecord.merchant_category_code,
     is_network_tokenization_enabled: profileRecord.is_network_tokenization_enabled,
     always_request_extended_authorization: profileRecord.always_request_extended_authorization,
