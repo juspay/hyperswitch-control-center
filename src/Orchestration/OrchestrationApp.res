@@ -14,17 +14,7 @@ let make = (~setScreenState) => {
 
   {
     switch url.path->HSwitchUtils.urlPath {
-    | list{"home", ..._}
-    | list{"recon"}
-    | list{"upload-files"}
-    | list{"run-recon"}
-    | list{"recon-analytics"}
-    | list{"reports"}
-    | list{"config-settings"} =>
-      <MerchantAccountContainer setAppScreenState=setScreenState />
-    // Commented as not needed now
-    // list{"file-processor"}
-
+    | list{"home", ..._} => <MerchantAccountContainer setAppScreenState=setScreenState />
     | list{"connectors", ..._}
     | list{"payoutconnectors", ..._}
     | list{"3ds-authenticators", ..._}
