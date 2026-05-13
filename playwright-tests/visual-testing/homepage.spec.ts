@@ -25,7 +25,11 @@ test.describe("Visual Testing - Homepage", () => {
     await expect(page).toHaveScreenshot("homepage.png", {
       fullPage: true,
       animations: "disabled",
-      maxDiffPixelRatio: 0.01,
+      mask: [
+        page.locator(".text-left.flex.gap-2.justify-between"),
+        page.locator(".flex.flex-col.gap-7 ").locator(".flex.items-center.gap-2"),
+        page.getByRole('button', { name: 'playwright-' })
+      ],
     });
 
     await homePage.homeV2.click();
@@ -34,21 +38,31 @@ test.describe("Visual Testing - Homepage", () => {
     await expect(page).toHaveScreenshot("homepage-v2.png", {
       fullPage: true,
       animations: "disabled",
-      maxDiffPixelRatio: 0.01,
+      mask: [
+        page.locator(".text-left.flex.gap-2.justify-between"),
+        page.getByRole('button', { name: 'playwright-' })
+      ],
     });
 
     await homePage.merchantDropdown.click();
     await expect(page).toHaveScreenshot("homepage-merchant-dropdown.png", {
       fullPage: true,
       animations: "disabled",
-      maxDiffPixelRatio: 0.01,
+      mask: [
+        page.locator(".text-left.flex.gap-2.justify-between"),
+        page.locator('[data-dropdown="dropdown"]').locator(".flex.justify-between.items-center.w-full"),
+        page.getByRole('button', { name: 'playwright-' })
+      ],
     });
 
     await homePage.profileDropdown.click();
     await expect(page).toHaveScreenshot("homepage-profile-dropdown.png", {
       fullPage: true,
       animations: "disabled",
-      maxDiffPixelRatio: 0.01,
+      mask: [
+        page.locator(".text-left.flex.gap-2.justify-between"),
+        page.getByRole('button', { name: 'playwright-' })
+      ],
     });
   });
 });

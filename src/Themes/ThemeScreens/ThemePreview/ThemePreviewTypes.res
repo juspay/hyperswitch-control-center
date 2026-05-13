@@ -20,6 +20,9 @@ type mockValues = {
   cardDescription: string,
   primaryButtonText: string,
   secondaryButtonText: string,
+  emailLogoPlaceholder: string,
+  emailGreeting: string,
+  emailLinkExpireText: string => string,
 }
 
 let mockValues: mockValues = {
@@ -33,4 +36,8 @@ let mockValues: mockValues = {
   cardDescription: "This is where the card description will go.",
   primaryButtonText: "Primary Button",
   secondaryButtonText: "Secondary Button",
+  emailLogoPlaceholder: "Your Logo Here",
+  emailGreeting: "Dear User, we are thrilled to welcome you into our community!",
+  emailLinkExpireText: name =>
+    `This link provides instant access to ${name} account. It will expire in 24 hours and can only be used once.`,
 }

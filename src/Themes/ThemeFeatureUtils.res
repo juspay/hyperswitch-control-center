@@ -1,3 +1,5 @@
+let defaultEmailLogoUrl = `${GlobalVars.getHostUrl}/email-assets/HyperswitchLogo.png`
+
 let appendVersionParam = (url, ~version) => {
   switch version {
   | Some(v) if v->LogicUtils.isNonEmptyString => `${url}?version=${v}`
@@ -41,18 +43,35 @@ let assetsMapper = (dict): ThemeTypes.assets => {
   {
     logo: dict->getOptionString("logoUrl")->Option.flatMap(toUrl),
     favicon: dict->getOptionString("faviconUrl")->Option.flatMap(toUrl),
+    emailLogo: dict->getOptionString("emailLogoUrl")->Option.flatMap(toUrl),
   }
 }
 
 let buildThemeDataBody = (
   ~settings: HyperSwitchConfigTypes.themeSettings,
   ~urls: HyperSwitchConfigTypes.urlThemeConfig,
+  ~emailConfig: HyperSwitchConfigTypes.emailConfig,
 ): JSON.t => {
   let body: ThemeUpdateType.themeUpdate = {
     theme_data: {settings, urls},
-    email_config: None,
+    email_config: emailConfig,
   }
   body->Identity.genericTypeToJson
+}
+
+let buildEmailConfigObject = (
+  emailConfig: HyperSwitchConfigTypes.emailConfig,
+  ~emailLogoUrl: option<string>,
+): HyperSwitchConfigTypes.emailConfig => {
+  let resolvedUrl = emailLogoUrl->Option.getOr(defaultEmailLogoUrl)
+
+  {
+    entity_name: emailConfig.entity_name,
+    entity_logo_url: resolvedUrl,
+    primary_color: emailConfig.primary_color,
+    foreground_color: emailConfig.foreground_color,
+    background_color: emailConfig.background_color,
+  }
 }
 
 let entities: array<ThemeTypes.themeOption> = [

@@ -203,7 +203,6 @@ let useGetURL = () => {
     ~connector=None,
     ~userType: userType=#NONE,
     ~userRoleTypes: userRoleTypes=NONE,
-    ~reconType: reconType=#NONE,
     ~hyperswitchReconType: hyperswitchReconType=#NONE,
     ~hypersenseType: hypersenseType=#NONE,
     ~queryParameters: option<string>=None,
@@ -788,8 +787,6 @@ let useGetURL = () => {
       /* SURCHARGE ROUTING */
       | SURCHARGE => `routing/decision/surcharge`
 
-      /* RECONCILIATION */
-      | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
       | HYPERSENSE => `hypersense/${(hypersenseType :> string)->String.toLowerCase}`
 
       /* REPORTS */
@@ -1220,6 +1217,16 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #TRANSACTION_BULK_OPERATIONS =>
+          switch methodType {
+          | Post => `${reconBaseURL}/transactions/bulk_operations`
+          | _ => ""
+          }
+        | #STAGING_ENTRY_BULK_OPERATIONS =>
+          switch methodType {
+          | Post => `${reconBaseURL}/staging_entries/bulk_operations`
+          | _ => ""
+          }
         | #NONE => ""
         }
 
@@ -1452,6 +1459,11 @@ let useGetURL = () => {
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
       | SDK_PAYMENT => "payments"
+      | ACCOUNT_PAYMENT_METHODS =>
+        switch methodType {
+        | Get => "account/payment_methods"
+        | _ => ""
+        }
       | CHAT_BOT => `chat/ai/data`
       }
 

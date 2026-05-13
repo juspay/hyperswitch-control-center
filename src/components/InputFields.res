@@ -42,7 +42,7 @@ let selectInput = (
   ~buttonSize=Button.Large,
   ~maxButtonWidth="",
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
-  <SelectBox
+  <SelectBoxAdapter
     input
     options
     buttonText
@@ -151,7 +151,7 @@ let filterMultiSelectInput = (
   ~disableSelect=false,
   (),
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
-  <FilterSelectBox
+  <FilterSelectBoxAdapter
     input
     options
     optionSize
@@ -253,7 +253,7 @@ let multiSelectInput = (
   ~baseComponentMethod=?,
   ~disableSelect=false,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
-  <SelectBox
+  <SelectBoxAdapter
     input
     options
     optionSize

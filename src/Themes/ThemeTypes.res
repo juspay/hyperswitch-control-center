@@ -18,6 +18,12 @@ type assetValue = Url(string) | File(JSON.t)
 type assets = {
   logo: option<assetValue>,
   favicon: option<assetValue>,
+  emailLogo: option<assetValue>,
+}
+
+type processedAssets = {
+  urls: HyperSwitchConfigTypes.urlThemeConfig,
+  emailLogoUrl: option<string>,
 }
 
 type themeOption = {
