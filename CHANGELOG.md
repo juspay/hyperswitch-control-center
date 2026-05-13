@@ -3,6 +3,36 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.13.0
+
+### Features
+
+- Migrate FilterSelectBox and CustomInputSelectBox to Blend Design System ([#4547](https://github.com/juspay/hyperswitch-control-center/pull/4547)) ([`e884df1`](https://github.com/juspay/hyperswitch-control-center/commit/e884df1750f64a336d09163f7718dd053353ff72))
+
+### Testing
+
+- Add playwright tests ([#4735](https://github.com/juspay/hyperswitch-control-center/pull/4735)) ([`74493bf`](https://github.com/juspay/hyperswitch-control-center/commit/74493bf525475aeed69c984ddc573201aa237b9a))
+
+**Full Changelog:** [`2026.05.12.1...2026.05.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.12.1...2026.05.13.0)
+
+- - -
+
+## 2026.05.12.1
+
+### Features
+
+- Recon engine overview to exceptions navigation from stacked bar graphs ([#4177](https://github.com/juspay/hyperswitch-control-center/pull/4177)) ([`174ca29`](https://github.com/juspay/hyperswitch-control-center/commit/174ca2940fba6084fb33efdf68ac30e17edf20dc))
+- Make recon engine transformed entry cards clickable ([#4180](https://github.com/juspay/hyperswitch-control-center/pull/4180)) ([`7fd4282`](https://github.com/juspay/hyperswitch-control-center/commit/7fd4282b610d69922a66e9f88baf060372863445))
+- Recon engine add lineage for transaction entries ([#4209](https://github.com/juspay/hyperswitch-control-center/pull/4209)) ([`1ff3f81`](https://github.com/juspay/hyperswitch-control-center/commit/1ff3f81987fc881c6cb23317847997f2b1a06762))
+
+### Bug Fixes
+
+- Fix column sort bug ([#4804](https://github.com/juspay/hyperswitch-control-center/pull/4804)) ([`2f9275c`](https://github.com/juspay/hyperswitch-control-center/commit/2f9275ce2d749507e106f878b6127f8175810fae))
+
+**Full Changelog:** [`2026.05.12.0...2026.05.12.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.12.0...2026.05.12.1)
+
+- - -
+
 ## 2026.05.12.0
 
 ### Features
