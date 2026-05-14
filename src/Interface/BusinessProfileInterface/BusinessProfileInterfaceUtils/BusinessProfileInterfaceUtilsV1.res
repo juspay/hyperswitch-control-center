@@ -212,7 +212,7 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity_v1 => {
     max_auto_retries_enabled: jsonDict->getOptionInt("max_auto_retries_enabled"),
     is_click_to_pay_enabled: jsonDict->getOptionBool("is_click_to_pay_enabled"),
     acquirer_configs: jsonDict->getOptionalArrayFromDict("acquirer_configs"),
-    acquirer_config_bucket: !{acquirerConfigBucketDict->isEmptyDict}
+    acquirer_config_bucket: !(acquirerConfigBucketDict->isEmptyDict)
       ? Some(acquirerConfigBucketDict->BusinessProfileInterfaceUtils.constructAcquirerConfigBucket)
       : None,
     authentication_product_ids: Some(jsonDict->getJsonObjectFromDict("authentication_product_ids")),

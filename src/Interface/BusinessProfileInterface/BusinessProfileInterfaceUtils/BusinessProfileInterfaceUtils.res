@@ -19,8 +19,7 @@ let constructAuthConnectorObject = authConnectorDict => {
   three_ds_requestor_app_url: authConnectorDict->getOptionString("three_ds_requestor_app_url"),
 }
 
-let constructAcquirerNetworkEntry = (json: JSON.t): acquirerNetworkEntry => {
-  let dict = json->getDictFromJsonObject
+let constructAcquirerNetworkEntry = (dict: Dict.t<JSON.t>): acquirerNetworkEntry => {
   {
     network: dict->getString("network", ""),
     acquirer_bin: dict->getString("acquirer_bin", ""),
@@ -39,7 +38,7 @@ let constructAcquirerConfigBucket = (dict): acquirerConfigBucket => {
     ->Dict.toArray
     ->Array.map(((bucketId, entriesJson)) => (
       bucketId,
-      entriesJson->getArrayFromJson([])->Array.map(constructAcquirerNetworkEntry),
+      entriesJson->getArrayDataFromJson(constructAcquirerNetworkEntry),
     ))
     ->Dict.fromArray
   {
@@ -255,7 +254,7 @@ let mapJsontoCommonType: JSON.t => commonProfileEntity = input => {
     force_3ds_challenge: jsonDict->getOptionBool("force_3ds_challenge"),
     is_debit_routing_enabled: jsonDict->getOptionBool("is_debit_routing_enabled"),
     acquirer_configs: jsonDict->getOptionalArrayFromDict("acquirer_configs"),
-    acquirer_config_bucket: !{acquirerConfigBucketDict->isEmptyDict}
+    acquirer_config_bucket: !(acquirerConfigBucketDict->isEmptyDict)
       ? Some(acquirerConfigBucketDict->constructAcquirerConfigBucket)
       : None,
     merchant_category_code: jsonDict->getOptionString("merchant_category_code"),
