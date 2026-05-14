@@ -83,7 +83,10 @@ let flattenToDict = (dictToSet, key, value) => {
         dict
         ->Dict.toArray
         ->Array.forEach(((innerK, innerV)) => {
-          let newK = k->isNonEmptyString ? `${k}.${innerK}` : innerK
+          let newK = switch k {
+          | "amount_filter" | "" => innerK
+          | _ => `${k}.${innerK}`
+          }
           filtersToFlatten->Array.push((newK, innerV))->ignore
         })
       | _ =>
