@@ -83,9 +83,9 @@ let flattenToDict = (dictToSet, key, value) => {
         dict
         ->Dict.toArray
         ->Array.forEach(((innerK, innerV)) => {
-          let newK = switch k {
-          | "amount_filter" | "" => innerK
-          | _ => `${k}.${innerK}`
+          let newK = switch SavedViewTypes.classifyFilterKey(k) {
+          | FlattenRoot => innerK
+          | Prefixed(prefix) => `${prefix}.${innerK}`
           }
           filtersToFlatten->Array.push((newK, innerV))->ignore
         })
