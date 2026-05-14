@@ -23,7 +23,7 @@ module Add3DSCondition = {
         <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
           <div className="flex flex-wrap gap-4 -mt-2">
             <div className=classStyle> {"Auth type"->React.string} </div>
-            <div className=classStyle> {"= is Equal to"->React.string} </div>
+            <div className=classStyle> {"= (is equal to)"->React.string} </div>
             <FormRenderer.FieldRenderer
               field={FormRenderer.makeFieldInfo(
                 ~label="",
@@ -70,7 +70,7 @@ module Add3DSConditionForThreeDsExemption = {
         <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
           <div className="flex flex-wrap gap-4 -mt-2">
             <div className=classStyle> {"Auth type"->React.string} </div>
-            <div className=classStyle> {"= is Equal to"->React.string} </div>
+            <div className=classStyle> {"= (is equal to)"->React.string} </div>
             <FormRenderer.FieldRenderer
               field={FormRenderer.makeFieldInfo(
                 ~label="",
@@ -319,7 +319,7 @@ module Wrapper = {
       </div>
 
     <div className="flex flex-col">
-      <div className={`flex flex-row tems-center justify-between z-10 -mt-6 mx-2`}>
+      <div className={`flex flex-row justify-between z-10 -mt-6 mx-2`}>
         <RenderIf condition={!isMobileView}>
           <div className="hidden lg:flex w-1/3" />
         </RenderIf>
@@ -691,7 +691,7 @@ let make = (
       setScreenState(_ => Loading)
       let activateRuleURL = getURL(~entityName=urlEntityName, ~methodType=Post, ~id=activatingId)
       let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post)
-      showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess)
+      showToast(~message="Successfully activated!", ~toastType=ToastState.ToastSuccess)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`))
       setScreenState(_ => Success)
     } catch {
@@ -720,7 +720,7 @@ let make = (
       let deactivateRoutingURL = `${getURL(~entityName=urlEntityName, ~methodType=Post)}/deactivate`
       let body = [("profile_id", profile->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
       let _ = await updateDetails(deactivateRoutingURL, body, Post)
-      showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess)
+      showToast(~message="Successfully deactivated!", ~toastType=ToastState.ToastSuccess)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`))
       setScreenState(_ => Success)
     } catch {
@@ -784,7 +784,7 @@ let make = (
       let response = await updateDetails(getActivateUrl, payload->Identity.genericTypeToJson, Post)
 
       showToast(
-        ~message="Successfully Created a new Configuration !",
+        ~message="Successfully created a new configuration!",
         ~toastType=ToastState.ToastSuccess,
       )
       setScreenState(_ => Success)

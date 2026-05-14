@@ -28,9 +28,9 @@ let getHeading = colType => {
   | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status")
   | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled")
   | Actions => Table.makeHeaderInfo(~key="actions", ~title="")
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
+  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile ID")
   | MerchantConnectorId =>
-    Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector Id")
+    Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector ID")
   | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
   | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
   | PaymentMethods => Table.makeHeaderInfo(~key="payment_methods", ~title="Payment Methods")

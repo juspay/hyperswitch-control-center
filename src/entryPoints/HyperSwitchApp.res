@@ -37,12 +37,9 @@ let make = () => {
 
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let {logoURL} = React.useContext(ThemeProvider.themeContext)
-  let isReconEnabled = React.useMemo(() => {
-    merchantDetailsTypedValue.recon_status === Active
-  }, [merchantDetailsTypedValue.merchant_id])
   let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
-  let hyperSwitchAppSidebars = SidebarHooks.useGetSidebarValuesForCurrentActive(~isReconEnabled)
+  let hyperSwitchAppSidebars = SidebarHooks.useGetSidebarValuesForCurrentActive()
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
 
   sessionExpired := false
@@ -139,10 +136,7 @@ let make = () => {
             <div className="flex relative  h-screen ">
               <RenderIf condition={screenState === Success}>
                 <Sidebar
-                  path=url.path
-                  isReconEnabled
-                  sidebars={hyperSwitchAppSidebars}
-                  productSiebars=productSidebars
+                  path=url.path sidebars={hyperSwitchAppSidebars} productSiebars=productSidebars
                 />
               </RenderIf>
               <PageLoaderWrapper

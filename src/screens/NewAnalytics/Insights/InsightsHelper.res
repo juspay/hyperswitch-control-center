@@ -168,7 +168,7 @@ module NoteSection = {
   @react.component
   let make = (~text) => {
     <div className="w-fit mx-7 mb-7 mt-3 py-3 px-4 bg-yellow-bg rounded-lg flex gap-2 font-medium">
-      <Icon name="info-vacent" size=16 />
+      <Icon name="info-vacant" size=16 />
       <p className="text-grey-text text-sm"> {text->React.string} </p>
     </div>
   }
@@ -221,7 +221,7 @@ module SmartRetryToggle = {
         <ToolTip
           description="Your data will consist of all the payment retries that contributed to the success rate"
           toolTipFor={<div className="cursor-pointer">
-            <Icon name="info-vacent" size=13 className="mt-1" />
+            <Icon name="info-vacant" size=13 className="mt-1" />
           </div>}
           toolTipPosition=ToolTip.Top
         />
@@ -260,7 +260,7 @@ module SampleDataBanner = {
       <div
         className={`${stickyToggleClass} text-nd_gray-600 py-3 px-4 bg-orange-50 flex justify-between items-center`}>
         <div className="flex gap-2 items-center">
-          <Icon name="info-vacent" size=13 />
+          <Icon name="info-vacant" size=13 />
           <p className={` ${body.md.medium}`}> {bannerText->React.string} </p>
         </div>
         <div className="flex flex-row gap-4 items-center">

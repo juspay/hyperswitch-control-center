@@ -158,7 +158,7 @@ let make = (
         Dict.set(metadataErrors, "address", `Required`->JSON.Encode.string)
       }
       if emailValue->CommonAuthUtils.isValidEmail {
-        Dict.set(metadataErrors, "email", `Please Enter Valid Email`->JSON.Encode.string)
+        Dict.set(metadataErrors, "email", `Please enter a valid email`->JSON.Encode.string)
       }
       if !(metadataErrors->isEmptyDict) {
         Dict.set(errors, "metadata", metadataErrors->JSON.Encode.object)
