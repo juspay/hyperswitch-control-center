@@ -222,7 +222,7 @@ export class HomePage {
   }
 
   get userProfile(): Locator {
-    return this.page.locator('[id="neglectTopbarTheme"]').first().locator(">>");
+    return this.page.getByRole('button', { name: 'Profile' });
   }
 
   get signOut(): Locator {

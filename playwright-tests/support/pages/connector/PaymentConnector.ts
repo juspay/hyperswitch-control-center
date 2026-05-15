@@ -8,15 +8,15 @@ export class PaymentConnector {
   }
 
   get pageHeading(): Locator {
-    return this.page.locator('[class="flex items-center gap-spacing-xl"]');
+    return this.page.locator('[class*="flex items-center gap-spacing-xl"]').first();
   }
 
   get pageBanner(): Locator {
-    return this.page.locator('[class="flex flex-col gap-2.5"]');
+    return this.page.locator('.flex.flex-col.justify-evenly').first();
   }
 
   get connectNowButton(): Locator {
-    return this.page.locator('[data-button-for="connectNow"]');
+    return this.page.getByRole("button", { name: /Connect Now/i });
   }
 
   get connectorSearchInput(): Locator {
@@ -28,19 +28,19 @@ export class PaymentConnector {
   }
 
   get addConnectButton(): Locator {
-    return this.page.locator('[data-button-text="Connect"]');
+    return this.page.getByRole('button', { name: 'Connect' });
   }
 
   get connectAndProceedButton(): Locator {
-    return this.page.locator("[data-button-for=connectAndProceed]");
+    return this.page.getByRole("button", { name: /Connect and Proceed/i });
   }
 
   get pmtProceedButton(): Locator {
-    return this.page.locator("[data-button-for=proceed]");
+    return this.page.getByRole("button", { name: /Proceed/i });
   }
 
   get connectorSetupDone(): Locator {
-    return this.page.locator("[data-button-for=done]");
+    return this.page.getByRole("button", { name: /Done/i });
   }
 }
 

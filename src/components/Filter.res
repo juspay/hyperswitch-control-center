@@ -1,3 +1,4 @@
+open Typography
 open LogicUtils
 module ClearFilters = {
   @react.component
@@ -121,8 +122,6 @@ let make = (
   ~initialCount=0,
   ~showSelectFiltersSearch=false,
 ) => {
-  open HeadlessUI
-
   let isSmallScreen = MatchMedia.useScreenSizeChecker(~screenSize="1512")
   let {query, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
   let (allFilters, setAllFilters) = React.useState(_ =>
@@ -249,70 +248,50 @@ let make = (
     setfilterKeys(_ => keys)
   }
 
+  let filterOptions: array<SelectBox.dropdownOption> = allFilters->Array.map(option => {
+    let label = if option.label->isNonEmptyString {
+      option.label->snakeToTitle
+    } else {
+      option.inputNames->getValueFromArray(0, "")->snakeToTitle
+    }
+    let value = option.inputNames->getValueFromArray(0, "")
+    {SelectBox.label, value}
+  })
+
+  let filterPickerInput: ReactFinalForm.fieldRenderPropsInput = {
+    name: "addFilter",
+    value: JSON.Encode.string(""),
+    onBlur: _ => (),
+    onFocus: _ => (),
+    checked: false,
+    onChange: ev => {
+      let value = ev->Identity.formReactEventToString
+      let matchedOption =
+        allFilters->Array.find(opt => opt.inputNames->getValueFromArray(0, "") === value)
+      switch matchedOption {
+      | Some(opt) => addFilter(opt)
+      | None => ()
+      }
+    },
+  }
+
+  let addFilterTrigger =
+    <button
+      className={`flex items-center gap-2 ${body.md.medium} text-nd_gray-700 border border-nd_gray-200 rounded-10-px px-3.5 h-9 bg-white`}>
+      <Icon name="plus" size=15 />
+      {"Add Filters"->React.string}
+    </button>
+
   let allFiltersUI =
-    <Menu \"as"="div" className="relative inline-block text-left">
-      {_ =>
-        <div>
-          <Menu.Button
-            className="flex items-center whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg h-10 hover:bg-opacity-80 bg-white border">
-            {_ => {
-              <>
-                <Icon className={"mr-2"} name="plus" size=15 />
-                {"Add Filters"->React.string}
-              </>
-            }}
-          </Menu.Button>
-          <Transition
-            \"as"="span"
-            enter="transition ease-out duration-100"
-            enterFrom="transform opacity-0 scale-95"
-            enterTo="transform opacity-100 scale-100"
-            leave="transition ease-in duration-75"
-            leaveFrom="transform opacity-100 scale-100"
-            leaveTo="transform opacity-0 scale-95">
-            <Menu.Items
-              className="absolute left-0 w-fit z-50 mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-              {_ => {
-                <>
-                  <div className="px-1 py-1 overflow-y-auto max-h-96">
-                    {allFilters
-                    ->Array.mapWithIndex((option, i) =>
-                      <Menu.Item key={i->Int.toString}>
-                        {props =>
-                          <div className="relative w-max">
-                            <button
-                              onClick={_ => addFilter(option)}
-                              className={
-                                let activeClasses = props["active"]
-                                  ? "bg-gray-100 dark:bg-black"
-                                  : ""
-                                `group flex rounded-md items-center w-48 px-2 py-2 text-sm font-medium ${activeClasses}`
-                              }>
-                              <RenderIf condition={option.label->isNonEmptyString}>
-                                <div className="mr-5 text-left">
-                                  {option.label->snakeToTitle->React.string}
-                                </div>
-                              </RenderIf>
-                              <RenderIf condition={option.label->isEmptyString}>
-                                <div className="mr-5 text-left">
-                                  {option.inputNames
-                                  ->getValueFromArray(0, "")
-                                  ->snakeToTitle
-                                  ->React.string}
-                                </div>
-                              </RenderIf>
-                            </button>
-                          </div>}
-                      </Menu.Item>
-                    )
-                    ->React.array}
-                  </div>
-                </>
-              }}
-            </Menu.Items>
-          </Transition>
-        </div>}
-    </Menu>
+    <SelectBoxAdapter.BaseDropdown
+      buttonText="Add Filters"
+      allowMultiSelect=false
+      input=filterPickerInput
+      options=filterOptions
+      hideMultiSelectButtons=false
+      baseComponent=addFilterTrigger
+      minMenuWidth=200
+    />
 
   <Form onSubmit initialValues=initialValueJson>
     <HelperComponents.AutoSubmitter

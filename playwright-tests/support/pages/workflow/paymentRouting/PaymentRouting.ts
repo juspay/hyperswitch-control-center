@@ -22,6 +22,10 @@ export class PaymentRouting {
   get defaultFallbackManageButton(): Locator {
     return this.page.locator('[data-button-for="manage"]').nth(0);
   }
+
+  get authRateBasedRoutingSetupButton(): Locator {
+    return this.page.locator('[data-button-for="setup"]').nth(2);
+  }
 }
 
 export default PaymentRouting;
