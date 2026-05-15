@@ -47,8 +47,7 @@ let make = (~order: PaymentInterfaceTypes.order, ~setShowModal, ~refetch) => {
 
   <Form onSubmit initialValues={Dict.make()->JSON.Encode.object}>
     <div className="flex flex-col w-full p-6">
-      <div
-        className="border-b border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 dark:border-opacity-75 pb-4 mb-5">
+      <div className="border-b border-nd_gray-200 pb-4 mb-5">
         <div className="flex flex-row justify-between items-center">
           <div className={Typography.body.lg.semibold}>
             {React.string("Confirm Void Payment")}
@@ -57,14 +56,14 @@ let make = (~order: PaymentInterfaceTypes.order, ~setShowModal, ~refetch) => {
             heading={getHeading(~devSortEnabled, Status)}
             value={getCell(order, Status, merchantId, orgId)}
             showTitle=false
-            labelMargin="mt-0 py-0 "
+            labelMargin="mt-0 py-0"
           />
         </div>
-        <div className="flex items-center text-fs-13 mt-3">
-          <Icon size={14} name="exclamation-circle" className="text-red-600 mr-2" />
-          <span className="font-medium text-jp-gray-700">
-            {React.string("This action is irreversible and cannot be undone.")}
-          </span>
+        <div className="mt-3">
+          <AlertV2Binding
+            alertType=AlertV2Binding.Warning
+            description="This action is irreversible and cannot be undone."
+          />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-5">
