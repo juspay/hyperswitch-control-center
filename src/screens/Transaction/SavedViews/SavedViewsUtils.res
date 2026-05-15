@@ -82,12 +82,12 @@ let flattenToDict = (dictToSet, key, value) => {
       | Object(dict) =>
         dict
         ->Dict.toArray
-        ->Array.forEach(((innerK, innerV)) => {
-          let newK = switch SavedViewTypes.classifyFilterKey(k) {
-          | FlattenRoot => innerK
-          | Prefixed(prefix) => `${prefix}.${innerK}`
+        ->Array.forEach(((nestedKey, nestedValue)) => {
+          let flattenedKey = switch SavedViewTypes.classifyFilterKey(k) {
+          | FlattenRoot => nestedKey
+          | Prefixed(prefix) => `${prefix}.${nestedKey}`
           }
-          filtersToFlatten->Array.push((newK, innerV))->ignore
+          filtersToFlatten->Array.push((flattenedKey, nestedValue))->ignore
         })
       | _ =>
         let strVal = jsonValueToString(v)

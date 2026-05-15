@@ -75,8 +75,8 @@ type filterKeyKind =
   | FlattenRoot
   | Prefixed(string)
 
-let classifyFilterKey = (k: string): filterKeyKind =>
-  switch k {
+let classifyFilterKey = (filterKey: string): filterKeyKind =>
+  switch filterKey {
   | "amount_filter" | "" => FlattenRoot
-  | k => Prefixed(k)
+  | filterKey => Prefixed(filterKey)
   }
