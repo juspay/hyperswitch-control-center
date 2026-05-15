@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../../support/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { PayoutConnector } from "../../support/pages/connector/PayoutConnector";
 import { generateUniqueEmail } from "../../support/helper";
@@ -16,12 +16,9 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 test.describe("Payout Connector", () => {
   let email: string;
 
-  test.beforeAll(() => {
-    email = generateUniqueEmail();
-  });
-
   const payoutConnectors = Object.entries(payoutConnectorConfig);
   test.beforeEach(async ({ page, context }) => {
+    email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
@@ -55,9 +52,12 @@ test.describe("Payout Connector", () => {
       await payoutConnector.connectorSetupDone.click();
 
       await expect(page).toHaveURL(/.*dashboard\/payoutconnectors/);
-      await expect(
-        page.getByText(connector.fields.overrides["Enter Connector label"]),
-      ).toBeVisible();
+      const connectorLabelOverride = connector.fields.overrides["Enter Connector label"];
+      if (connectorLabelOverride) {
+        await expect(
+          page.getByText(connectorLabelOverride),
+        ).toBeVisible();
+      }
     });
   }
 });

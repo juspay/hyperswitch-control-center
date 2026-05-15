@@ -1,3 +1,18 @@
+type acquirerNetworkEntry = {
+  network: string,
+  acquirer_bin: string,
+  acquirer_ica: option<string>,
+  acquirer_fraud_rate: option<float>,
+  acquirer_country_code: option<string>,
+  acquirer_assigned_merchant_id: option<string>,
+  merchant_name: option<string>,
+}
+
+type acquirerConfigBucket = {
+  default_acquirer_config: string,
+  configs: Dict.t<array<acquirerNetworkEntry>>,
+}
+
 type webhookDetails = {
   webhook_version: option<string>,
   webhook_username: option<string>,
@@ -89,6 +104,7 @@ type commonProfileEntity = {
   force_3ds_challenge: option<bool>,
   is_debit_routing_enabled: option<bool>,
   acquirer_configs: option<array<JSON.t>>,
+  acquirer_config_bucket: option<acquirerConfigBucket>,
   merchant_category_code: option<string>,
   is_network_tokenization_enabled: option<bool>,
   always_request_extended_authorization: option<bool>,

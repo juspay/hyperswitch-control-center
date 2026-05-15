@@ -1,6 +1,7 @@
 let useProcessAssets = () => {
   open GlobalVars
   open ThemeTypes
+  open LogicUtils
 
   let showToast = ToastState.useShowToast()
   let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
@@ -33,7 +34,7 @@ let useProcessAssets = () => {
       None
     }
 
-  async (~assets: ThemeTypes.assets, ~themeId): HyperSwitchConfigTypes.urlThemeConfig => {
+  async (~assets: ThemeTypes.assets, ~themeId): ThemeTypes.processedAssets => {
     let assetUploadUrl = getURL(
       ~entityName=V1(USERS),
       ~methodType=Post,
@@ -44,18 +45,21 @@ let useProcessAssets = () => {
     let results = await PromiseUtils.allSettledResultPolyfill([
       uploadAsset(assets.logo, "logo.png", themeId, assetUploadUrl),
       uploadAsset(assets.favicon, "favicon.png", themeId, assetUploadUrl),
+      uploadAsset(assets.emailLogo, "email_logo.png", themeId, assetUploadUrl),
     ])
 
-    let logoResult = results->Array.get(0)->Option.getOr(Error("logo"))
-    let faviconResult = results->Array.get(1)->Option.getOr(Error("favicon"))
+    let logoResult = results->getValueFromArray(0, Error("logo"))
+    let faviconResult = results->getValueFromArray(1, Error("favicon"))
+    let emailLogoResult = results->getValueFromArray(2, Error("email logo"))
 
     let logoUrl = resolve(logoResult, "logo")
     let faviconUrl = resolve(faviconResult, "favicon")
+    let emailLogoUrl = resolve(emailLogoResult, "email logo")
 
     if results->Array.every(Result.isError) {
       Exn.raiseError("Asset upload failed")
     }
 
-    {logoUrl, faviconUrl}
+    {urls: {logoUrl, faviconUrl}, emailLogoUrl}
   }
 }

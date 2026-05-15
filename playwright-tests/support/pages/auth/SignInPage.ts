@@ -48,7 +48,7 @@ export class SignInPage {
   }
 
   get continueWithOktaButton(): Locator {
-    return this.page.locator('[data-button-for="continueWithOkta"]');
+    return this.page.getByText(/Continue with Okta/i).first();
   }
 
   get headerText2FA(): Locator {
