@@ -45,40 +45,42 @@ test.describe("Users - UI", () => {
   test("Verify the UI of the Users page", async ({
     page,
   }) => {
-    await expect(page.getByText('Team management')).toBeVisible();
-    await expect(page.getByText('Users').nth(1)).toBeVisible();
-    await expect(page.getByText('Roles')).toBeVisible();
+    const usersPage = new UsersPage(page);
+    await expect(usersPage.teamManagementText).toBeVisible();
+    await expect(usersPage.usersTabText).toBeVisible();
+    await expect(usersPage.rolesText).toBeVisible();
 
-    await expect(page.getByRole('textbox', { name: 'Search by name or email' })).toBeAttached();
+    await expect(usersPage.searchInput).toBeAttached();
 
-    await page.locator('[data-icon="settings-new"]').click({ force: true });
+    await usersPage.settingsNewIcon.click({ force: true });
 
-    await expect(page.getByText('View data for:All')).toBeVisible();
-    await expect(page.locator('[data-dropdown-value="All"]').filter({ hasText: "(Default)" })).toBeAttached();
-    await expect(page.locator('[data-dropdown-value^="202"]').filter({ hasText: "(Organization)" })).toBeAttached();
-    await expect(page.locator('[data-dropdown-value^="202"]').filter({ hasText: "(Merchant)" })).toBeAttached();
-    await expect(page.locator('[data-dropdown-value="default"]').filter({ hasText: "(Profile)" })).toBeAttached();
+    await expect(usersPage.viewDataForText).toBeVisible();
+    await expect(usersPage.defaultFilterOption).toBeAttached();
+    await expect(usersPage.organizationFilterOption).toBeAttached();
+    await expect(usersPage.merchantFilterOption).toBeAttached();
+    await expect(usersPage.profileFilterOption).toBeAttached();
 
-    await expect(page.getByRole('button', { name: 'Invite users' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Invite users' })).toBeEnabled();
+    await expect(usersPage.inviteUsersRoleButton).toBeVisible();
+    await expect(usersPage.inviteUsersRoleButton).toBeEnabled();
   });
 
   test("Search filters the users table by email", async ({ page, context }) => {
-    const searchInput = page.getByRole('textbox', { name: 'Search by name or email' });
+    const usersPage = new UsersPage(page);
+    const searchInput = usersPage.searchInput;
     await expect(searchInput).toBeAttached();
 
     await searchInput.fill("@test.com");
-    await expect(page.locator("table#table tbody tr")).toHaveCount(1);
-    await expect(page.locator('div').filter({ hasText: /^Email$/ }).first()).toBeVisible();
-    await expect(page.getByRole('columnheader', { name: 'Role' })).toBeVisible();
-    await expect(page.locator("table#table tbody tr").first().locator("td").first()).toContainText("@test.com");
-    await expect(page.locator("table#table tbody tr").first().locator("td").first()).toBeAttached();
-    await expect(page.locator('div').filter({ hasText: /^Organization Admin$/ }).first()).toBeVisible();
-    await expect(page.locator('div').filter({ hasText: /^Organization Admin$/ }).first()).toBeAttached();
+    await expect(usersPage.usersTableRows).toHaveCount(1);
+    await expect(usersPage.emailColumnHeader).toBeVisible();
+    await expect(usersPage.roleColumnHeader).toBeVisible();
+    await expect(usersPage.usersTableRows.first().locator("td").first()).toContainText("@test.com");
+    await expect(usersPage.usersTableRows.first().locator("td").first()).toBeAttached();
+    await expect(usersPage.organizationAdminColumnText).toBeVisible();
+    await expect(usersPage.organizationAdminColumnText).toBeAttached();
 
     await searchInput.clear();
     await searchInput.fill("playwright+org_admin@example.com");
-    await expect(page.getByText("No Data Available")).toBeAttached();
+    await expect(usersPage.noDataAvailableText).toBeAttached();
   });
 
   test("Verify different roles in list page", async ({ page }) => {
@@ -102,10 +104,10 @@ test.describe("Users - UI", () => {
       await usersPage.emailListInput.press("Enter");
 
       if (scope === "profile") {
-        const allProfiles = page.locator('[data-value="allProfiles"]');
+        const allProfiles = usersPage.allProfilesValue;
         await expect(allProfiles).toBeVisible();
         await allProfiles.click();
-        const defaultOption = page.locator('[data-dropdown-value="default"]');
+        const defaultOption = usersPage.defaultDropdownValue;
         await expect(defaultOption).toBeVisible();
         await defaultOption.click();
       }
@@ -130,7 +132,7 @@ test.describe("Users - UI", () => {
     await inviteAtScope(profileInvitee, "Profile Developer", "profile");
 
     // Default view: Org Admin (logged-in user) + 2 invitees = 3 rows
-    const rows = page.locator("table#table tbody tr");
+    const rows = usersPage.usersTableRows;
     await expect(rows).toHaveCount(3);
     await expect(
       rows.filter({ hasText: "Organization Admin" }),
@@ -147,9 +149,7 @@ test.describe("Users - UI", () => {
     ).toHaveCount(1);
 
     const applyFilter = async (filterLabel: string) => {
-      await page
-        .locator('[data-icon="settings-new"]')
-        .click({ force: true });
+      await usersPage.settingsNewIcon.click({ force: true });
       const valueSelector =
         filterLabel === "(Default)"
           ? '[data-dropdown-value="All"]'
@@ -425,8 +425,8 @@ test.describe("Users - Invite Users", () => {
     }
 
     // Profile scope: switch profile to "default" and verify profile-level roles
-    await page.locator('[data-value="allProfiles"]').click();
-    await page.locator('[data-dropdown-value="default"]').click();
+    await usersPage.allProfilesValue.click();
+    await usersPage.defaultDropdownValue.click();
     const profileRoles = [
       "Profile Admin",
       "Profile Customer Support",
@@ -441,7 +441,7 @@ test.describe("Users - Invite Users", () => {
 
     // Organization scope: switch merchant to "All merchants" and verify org admin role
     await usersPage.merchantDropdown.click();
-    await page.locator('[data-dropdown-value="All merchants"]').click();
+    await usersPage.allMerchantsDropdownValue.click();
     await selectRoleAndVerifyPermissions("Organization Admin");
   });
 })
@@ -449,18 +449,18 @@ test.describe("Users - Invite Users", () => {
 test.describe("Users - Details", () => {
   test("Verify the UI of the User Details page - Same user details", async ({ page, context }) => {
     const { email, usersPage } = await setupAndNavigate(page, context);
-    await page.locator("table#table tbody tr").click();
+    await usersPage.usersTableRows.click();
 
-    await expect(page.getByRole('link', { name: 'Navigate to Team management' })).toBeVisible();
-    await expect(page.getByLabel('Current page: playwright-')).toBeVisible();
+    await expect(usersPage.navigateToTeamManagementLink).toBeVisible();
+    await expect(usersPage.currentPageBreadcrumb("playwright-")).toBeVisible();
 
     await usersPage.verifyUserDetailsUsernameDisplay(email);
     await usersPage.verifyUserDetailsEmailDisplay(email);
 
-    await expect(page.locator("table")).toBeAttached();
-    await expect(page.locator("table th")).toHaveCount(5);
+    await expect(usersPage.table).toBeAttached();
+    await expect(usersPage.tableHeaders).toHaveCount(5);
 
-    const headers = page.locator("table th");
+    const headers = usersPage.tableHeaders;
     await expect(headers.filter({ hasText: "Merchants" })).toHaveCount(1);
     await expect(headers.filter({ hasText: "Profile Name" })).toHaveCount(1);
     await expect(headers.filter({ hasText: "Role" })).toHaveCount(1);
@@ -472,7 +472,7 @@ test.describe("Users - Details", () => {
       "Organization Admin",
     );
     await usersPage.verifyActiveStatus();
-    await expect(page.getByRole('button', { name: 'Manage user' })).not.toBeAttached();
+    await expect(usersPage.manageUserRoleButton).not.toBeAttached();
   });
 
   test("Verify the UI of the User Details page - Other user details", async ({ page, context }) => {
@@ -529,20 +529,20 @@ test.describe("Users - Details", () => {
     await homePage.users.click();
     await page.waitForLoadState("networkidle");
 
-    const merchantDeveloper = page.getByText('Merchant Developer');
+    const merchantDeveloper = usersPage.merchantDeveloperText;
     await expect(merchantDeveloper).toBeVisible();
     await merchantDeveloper.click();
 
-    await expect(page.getByRole('link', { name: 'Navigate to Team management' })).toBeVisible();
-    await expect(page.getByLabel(`Current page: ${invitedEmail}`)).toBeVisible();
+    await expect(usersPage.navigateToTeamManagementLink).toBeVisible();
+    await expect(usersPage.currentPageBreadcrumb(invitedEmail)).toBeVisible();
 
     await usersPage.verifyUserDetailsUsernameDisplay(invitedEmail);
     await usersPage.verifyUserDetailsEmailDisplay(invitedEmail);
 
-    await expect(page.locator("table")).toBeAttached();
-    await expect(page.locator("table th")).toHaveCount(5);
+    await expect(usersPage.table).toBeAttached();
+    await expect(usersPage.tableHeaders).toHaveCount(5);
 
-    const headers = page.locator("table th");
+    const headers = usersPage.tableHeaders;
     await expect(headers.filter({ hasText: "Merchants" })).toHaveCount(1);
     await expect(headers.filter({ hasText: "Profile Name" })).toHaveCount(1);
     await expect(headers.filter({ hasText: "Role" })).toHaveCount(1);
@@ -554,7 +554,7 @@ test.describe("Users - Details", () => {
       "Merchant Developer"
     );
     await usersPage.verifyActiveStatus();
-    await expect(page.getByRole('button', { name: 'Manage user' })).toBeVisible();
+    await expect(usersPage.manageUserRoleButton).toBeVisible();
   });
 
   test("Verify the UI of the User Details page - Different merchant context", async ({
@@ -579,11 +579,11 @@ test.describe("Users - Details", () => {
     // create flow refreshes the merchant list but does not auto-switch, so the
     // admin stays on M1 and the invite below lands on M1.
     await homePage.merchantDropdown.click();
-    await page.getByText("Create new").click();
-    await expect(page.getByText("Add a new merchant").first()).toBeVisible();
-    await page.getByRole("textbox", { name: "Eg: My New Merchant" }).fill(newMerchantName);
-    await page.getByRole("button", { name: "Add Merchant" }).click();
-    await expect(page.getByText("Merchant Created Successfully!")).toBeVisible();
+    await usersPage.createNewText.click();
+    await expect(usersPage.addNewMerchantText).toBeVisible();
+    await homePage.merchantNameInput.fill(newMerchantName);
+    await homePage.addMerchantButton.click();
+    await expect(usersPage.merchantCreatedSuccessText).toBeVisible();
     await homePage.merchantDropdown.click();
 
     // Invite the user from M1.
@@ -597,16 +597,16 @@ test.describe("Users - Details", () => {
     // From M2's context, view all org users so the M1 invitee is visible.
     await usersPage.usersTableRows.filter({ hasText: invitedEmail }).first().click();
 
-    await expect(page.getByRole("link", { name: "Navigate to Team management" })).toBeVisible();
-    await expect(page.getByLabel(`Current page: ${invitedEmail}`)).toBeVisible();
+    await expect(usersPage.navigateToTeamManagementLink).toBeVisible();
+    await expect(usersPage.currentPageBreadcrumb(invitedEmail)).toBeVisible();
 
-    await expect(page.getByRole("button", { name: "Switch to update" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Manage user" })).not.toBeAttached();
+    await expect(usersPage.switchToUpdateButton).toBeVisible();
+    await expect(usersPage.manageUserRoleButton).not.toBeAttached();
 
-    await page.getByRole('button', { name: 'Switch to update' }).click();
+    await usersPage.switchToUpdateButton.click();
 
-    await expect(page.getByRole("button", { name: "Switch to update" })).not.toBeAttached();
-    await expect(page.getByRole("button", { name: "Manage user" })).toBeVisible();
+    await expect(usersPage.switchToUpdateButton).not.toBeAttached();
+    await expect(usersPage.manageUserRoleButton).toBeVisible();
 
     await expect(page.getByText(`Merchant Account${originalMerchantId}`)).toBeVisible()
   });
@@ -623,19 +623,19 @@ test.describe("Users - Details", () => {
 
     await usersPage.visit();
     await page.waitForLoadState("networkidle");
-    const merchantDeveloper = page.getByText('Merchant Developer');
+    const merchantDeveloper = usersPage.merchantDeveloperText;
     await expect(merchantDeveloper).toBeVisible({ timeout: 15000 });
     await merchantDeveloper.click();
 
-    await expect(page.getByText('InviteSent')).toBeVisible();
+    await expect(usersPage.inviteSentText).toBeVisible();
 
     await expect(usersPage.manageUserButton).toBeVisible();
     await usersPage.manageUserButton.click();
 
     await expect(usersPage.manageUserModalHeading).toBeVisible();
-    await expect(page.getByText("Change user role")).toBeVisible();
-    await expect(page.getByText("Resend invite", { exact: true })).toBeVisible();
-    await expect(page.getByText("Delete user role")).toBeVisible();
+    await expect(usersPage.changeUserRoleText).toBeVisible();
+    await expect(usersPage.resendInviteText).toBeVisible();
+    await expect(usersPage.deleteUserRoleText).toBeVisible();
     await expect(usersPage.updateRoleButton).toBeVisible();
     await expect(usersPage.resendInviteButton).toBeVisible();
     await expect(usersPage.deleteUserButton).toBeVisible();
@@ -669,17 +669,17 @@ test.describe("Users - Details", () => {
     await expect(usersPage.manageUserButton).toBeVisible();
     await usersPage.manageUserButton.click();
     await expect(usersPage.manageUserModalHeading).toBeVisible();
-    const roleDropdown = page.getByRole('button', { name: 'merchant_developer' });
+    const roleDropdown = usersPage.merchantDeveloperRoleDropdown;
     await expect(roleDropdown).toBeVisible();
     await roleDropdown.click();
-    const viewOnlyOption = page.getByText('merchant_view_only');
+    const viewOnlyOption = usersPage.merchantViewOnlyOption;
     await expect(viewOnlyOption).toBeVisible();
     await viewOnlyOption.click();
-    const updateButton = page.getByRole('button', { name: 'Update' });
+    const updateButton = usersPage.updateRoleButtonByRole;
     await expect(updateButton).toBeVisible();
     await updateButton.click();
 
-    await expect(page.getByText('Merchant View Only')).toBeVisible({
+    await expect(usersPage.merchantViewOnlyText).toBeVisible({
       timeout: 15000,
     });
   });
@@ -705,9 +705,7 @@ test.describe("Users - Details", () => {
     await expect(usersPage.manageUserModalHeading).toBeVisible();
 
     await usersPage.deleteUserButton.click();
-    await expect(
-      page.getByText("Are you sure you want to delete this user?"),
-    ).toBeVisible();
+    await expect(usersPage.areYouSureDeleteText).toBeVisible();
 
     await usersPage.confirmDeleteButton.click();
     await expect(page).toHaveURL(/.*\/users(\?|$|\/)/);
@@ -736,7 +734,7 @@ test.describe("Users - Details", () => {
 
     await usersPage.resendInviteButton.click();
 
-    await expect(page.getByText('Invite resent. Please check your email.')).toBeVisible();
+    await expect(usersPage.inviteResentText).toBeVisible();
   });
 
   test("Check User permissions - Admin roles see Workflows in sidebar; developer roles do not", async ({
@@ -769,8 +767,8 @@ test.describe("Users - Details", () => {
       await usersPage.emailListInput.press("Enter");
 
       if (scope === "profile") {
-        await page.locator('[data-value="allProfiles"]').click();
-        await page.locator('[data-dropdown-value="default"]').click();
+        await usersPage.allProfilesValue.click();
+        await usersPage.defaultDropdownValue.click();
       }
 
       await usersPage.roleOption.click();
@@ -887,13 +885,13 @@ test.describe("Users - Roles Tab", () => {
     const { usersPage } = await setupAndNavigate(page, context);
     await usersPage.openRolesTab();
 
-    await page.getByText('Module Permission').click();
-    await expect(page.getByRole('button', { name: 'Create custom roles' })).toBeVisible();
+    await usersPage.modulePermissionText.click();
+    await expect(usersPage.createCustomRoleButton).toBeVisible();
 
     const merchantApiRoles = (await (await merchantResponsePromise).json()) as ApiRole[];
 
-    const headers = page.locator("table#table thead tr th");
-    const rows = page.locator("table#table tbody tr");
+    const headers = usersPage.tableMatrixHeaders;
+    const rows = usersPage.usersTableRows;
 
     const validateMatrix = async (
       entityLabel: EntityLabel,
@@ -949,7 +947,7 @@ test.describe("Users - Roles Tab", () => {
       entityLabel: EntityLabel,
     ): Promise<ApiRole[]> => {
       const responsePromise = waitForRolesResponse(entityKey);
-      await page.locator('[data-icon="settings-new"]').click({ force: true });
+      await usersPage.settingsNewIcon.click({ force: true });
       const valueSelector =
         entityLabel === "Profile"
           ? '[data-dropdown-value="default"]'
@@ -977,12 +975,12 @@ test.describe("Users - Create Custom Role", () => {
     const { usersPage } = await setupAndNavigate(page, context);
     await usersPage.visitCreateCustomRole();
 
-    await expect(page.getByText("Create custom role").first()).toBeVisible();
+    await expect(usersPage.createCustomRoleHeader).toBeVisible();
     await expect(usersPage.roleNameInput).toBeVisible();
-    await expect(page.getByText("Role Visibility")).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Merchant' }).first()).toBeVisible();
-    await expect(page.getByText('Entity Type *')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Merchant' }).nth(1)).toBeVisible();
+    await expect(usersPage.roleVisibilityText).toBeVisible();
+    await expect(usersPage.merchantButton(0)).toBeVisible();
+    await expect(usersPage.entityTypeRequiredText).toBeVisible();
+    await expect(usersPage.merchantButton(1)).toBeVisible();
     await expect(usersPage.submitCreateRoleButton).toBeVisible();
   });
 
@@ -1016,7 +1014,7 @@ test.describe("Users - Create Custom Role", () => {
       "/user/parent/list returned no permission modules",
     ).toBeGreaterThan(0);
 
-    await expect(page.getByText("Select Permission Level")).toBeVisible();
+    await expect(usersPage.selectPermissionLevelText).toBeVisible();
 
     // Module rows live inside the bordered wrapper; each row is a
     // `flex items-center py-4 px-6` whose first child holds the name and the
@@ -1121,7 +1119,7 @@ test.describe("Users - Create Custom Role", () => {
 
       await expect(usersPage.submitCreateRoleButton).toBeEnabled();
       await usersPage.submitCreateRoleButton.click();
-      await expect(page.getByText("Custom role created successfully")).toBeVisible();
+      await expect(usersPage.customRoleCreatedText).toBeVisible();
       await expect(page).toHaveURL(/\/users(\?|$|\/)/);
     };
 
@@ -1131,8 +1129,8 @@ test.describe("Users - Create Custom Role", () => {
       await usersPage.visit();
       await usersPage.inviteUsersButton.click();
       if (entity === "Profile") {
-        await page.locator('[data-value="allProfiles"]').click();
-        await page.locator('[data-dropdown-value="default"]').click();
+        await usersPage.allProfilesValue.click();
+        await usersPage.defaultDropdownValue.click();
       }
       await usersPage.roleOption.click();
       // Block on at least one option being rendered so the negative
@@ -1142,8 +1140,8 @@ test.describe("Users - Create Custom Role", () => {
 
     // Helper: set the OMP filter on /users to the "All" default view.
     const applyAllFilter = async () => {
-      await page.locator('[data-icon="settings-new"]').click({ force: true });
-      await page.locator('[data-dropdown-value="All"]').filter({ hasText: "(Default)" }).first().click();
+      await usersPage.settingsNewIcon.click({ force: true });
+      await usersPage.defaultFilterOption.first().click();
     };
 
     // ----- Org admin in M1: create the 4 custom roles -----
@@ -1175,8 +1173,8 @@ test.describe("Users - Create Custom Role", () => {
       await usersPage.emailListInput.fill(inviteeEmail);
       await usersPage.emailListInput.press("Enter");
       if (role.entity === "Profile") {
-        await page.locator('[data-value="allProfiles"]').click();
-        await page.locator('[data-dropdown-value="default"]').click();
+        await usersPage.allProfilesValue.click();
+        await usersPage.defaultDropdownValue.click();
       }
       await usersPage.roleOption.click();
       await usersPage.entityOption.filter({ hasText: displayName(role.name) }).first().click();
@@ -1196,20 +1194,18 @@ test.describe("Users - Create Custom Role", () => {
     // ----- Create a second merchant M2 (its own default profile) -----
     const m2Name = `pwM2${ts}`;
     await homePage.merchantDropdown.click();
-    await page.getByText("Create new").click();
-    await expect(page.getByText("Add a new merchant").first()).toBeVisible();
-    await page.getByRole("textbox", { name: "Eg: My New Merchant" }).fill(m2Name);
-    await page.getByRole("button", { name: "Add Merchant" }).click();
-    await expect(page.getByText("Merchant Created Successfully!")).toBeVisible();
+    await usersPage.createNewText.click();
+    await expect(usersPage.addNewMerchantText).toBeVisible();
+    await homePage.merchantNameInput.fill(m2Name);
+    await homePage.addMerchantButton.click();
+    await expect(usersPage.merchantCreatedSuccessText).toBeVisible();
 
     // ----- Switch to M2 (new merchant + its default profile = "M2/P2") -----
     await homePage.merchantDropdown.click();
     await page.getByText(m2Name, { exact: true }).first().click();
     // Wait for the merchant-switch toast (OMPSwitchHooks.res:143) so the
     // session has actually flipped to M2 before we open M2's invite drawer.
-    await expect(
-      page.getByText("Your merchant has been switched successfully."),
-    ).toBeVisible();
+    await expect(usersPage.merchantSwitchedSuccessText).toBeVisible();
     await page.waitForLoadState("networkidle");
 
     // ----- M2 invite dropdown: the 2 Organization-scope roles surface -----

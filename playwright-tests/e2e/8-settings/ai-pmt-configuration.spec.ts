@@ -1,5 +1,6 @@
 import { test, expect } from "../../support/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
+import { ConfigurePMTPage } from "../../support/pages/settings/ConfigurePMTPage";
 import { generateUniqueEmail } from "../../support/helper";
 import {
   signupUser,
@@ -33,65 +34,51 @@ test.describe.skip("Configure PMTs - enable payment methods and amount limits", 
   test("should enable credit-card and wallet payment methods via toggles", async ({
     page,
   }) => {
-    const creditCardToggle = page
-      .locator('[data-testid*="credit"], input[type="checkbox"][name*="credit"]')
-      .first();
-    if (await creditCardToggle.isVisible().catch(() => false)) {
-      await creditCardToggle.check();
-      const visa = page
-        .locator('[data-testid*="visa"], input[type="checkbox"][name*="visa"]')
-        .first();
-      if (await visa.isVisible().catch(() => false)) await visa.check();
+    const pmtPage = new ConfigurePMTPage(page);
+    if (await pmtPage.creditCardToggle.isVisible().catch(() => false)) {
+      await pmtPage.creditCardToggle.check();
+      if (await pmtPage.visaCheckbox.isVisible().catch(() => false))
+        await pmtPage.visaCheckbox.check();
     }
 
-    const walletToggle = page
-      .locator('[data-testid*="wallet"], input[type="checkbox"][name*="wallet"]')
-      .first();
-    if (await walletToggle.isVisible().catch(() => false)) {
-      await walletToggle.check();
-      const gpay = page
-        .locator('[data-testid*="gpay"], [data-testid*="google"]')
-        .first();
-      if (await gpay.isVisible().catch(() => false)) await gpay.check();
+    if (await pmtPage.walletToggle.isVisible().catch(() => false)) {
+      await pmtPage.walletToggle.check();
+      if (await pmtPage.gpayCheckbox.isVisible().catch(() => false))
+        await pmtPage.gpayCheckbox.check();
     }
 
-    const save = page.locator('[data-button-for="save"]').first();
-    if (await save.isVisible().catch(() => false)) await save.click();
+    if (await pmtPage.saveButton.isVisible().catch(() => false))
+      await pmtPage.saveButton.click();
   });
 
   test("should surface an error when min > max amount limits", async ({
     page,
   }) => {
-    const minAmount = page.locator('[name*="min_amount"]').first();
-    const maxAmount = page.locator('[name*="max_amount"]').first();
+    const pmtPage = new ConfigurePMTPage(page);
     if (
-      !(await minAmount.isVisible().catch(() => false)) ||
-      !(await maxAmount.isVisible().catch(() => false))
+      !(await pmtPage.minAmountInput.isVisible().catch(() => false)) ||
+      !(await pmtPage.maxAmountInput.isVisible().catch(() => false))
     ) {
       test.skip(true, "amount limit inputs not exposed");
     }
 
-    await minAmount.fill("1000");
-    await maxAmount.fill("100");
+    await pmtPage.minAmountInput.fill("1000");
+    await pmtPage.maxAmountInput.fill("100");
 
-    await page.locator('[data-button-for="save"]').click();
+    await pmtPage.saveButton.click();
 
-    await expect(
-      page.locator('[data-field-error*="amount"], [data-toast*="error"]'),
-    ).toBeVisible({ timeout: 5000 });
+    await expect(pmtPage.amountErrorToast).toBeVisible({ timeout: 5000 });
   });
 
   test("should accept a country-restriction multi-select and persist values", async ({
     page,
   }) => {
-    const countrySelect = page
-      .locator('[name*="allowed_countries"], select[name*="country"]')
-      .first();
-    if (!(await countrySelect.isVisible().catch(() => false))) {
+    const pmtPage = new ConfigurePMTPage(page);
+    if (!(await pmtPage.countrySelect.isVisible().catch(() => false))) {
       test.skip(true, "country restriction control not exposed");
     }
-    await countrySelect.selectOption(["US", "CA", "GB"]);
-    await page.locator('[data-button-for="save"]').click();
-    await expect(countrySelect).toBeVisible();
+    await pmtPage.countrySelect.selectOption(["US", "CA", "GB"]);
+    await pmtPage.saveButton.click();
+    await expect(pmtPage.countrySelect).toBeVisible();
   });
 });

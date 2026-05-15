@@ -1,5 +1,6 @@
 import { test, expect } from "../../support/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
+import { TenantSwitchingPage } from "../../support/pages/settings/TenantSwitchingPage";
 import { generateUniqueEmail } from "../../support/helper";
 import { signupUser, loginUI } from "../../support/commands";
 
@@ -34,16 +35,13 @@ test.describe.skip("Org / Merchant / Profile context switching", () => {
     page,
   }) => {
     const homePage = new HomePage(page);
+    const tenantSwitching = new TenantSwitchingPage(page);
 
     const initialMerchantId = await homePage.merchantID.nth(0).textContent();
 
     await homePage.merchantDropdown.click();
 
-    const merchantOption = page
-      .locator(
-        '[data-testid*="merchant-option"], [role="option"]:has-text("Merchant")',
-      )
-      .nth(1);
+    const merchantOption = tenantSwitching.merchantOption.nth(1);
     if (!(await merchantOption.isVisible().catch(() => false))) {
       test.skip(true, "only one merchant in this test account");
     }
@@ -56,13 +54,10 @@ test.describe.skip("Org / Merchant / Profile context switching", () => {
 
   test("should switch profile within merchant", async ({ page }) => {
     const homePage = new HomePage(page);
+    const tenantSwitching = new TenantSwitchingPage(page);
 
     await homePage.profileDropdown.click();
-    const profileOption = page
-      .locator(
-        '[data-testid*="profile-option"], [role="option"]:has-text("Profile")',
-      )
-      .nth(1);
+    const profileOption = tenantSwitching.profileOption.nth(1);
     if (!(await profileOption.isVisible().catch(() => false))) {
       test.skip(true, "only one profile in this test account");
     }
@@ -76,11 +71,10 @@ test.describe.skip("Org / Merchant / Profile context switching", () => {
     page,
   }) => {
     const homePage = new HomePage(page);
+    const tenantSwitching = new TenantSwitchingPage(page);
 
     await homePage.merchantDropdown.click();
-    const merchantOption = page
-      .locator('[data-testid*="merchant-option"]')
-      .nth(1);
+    const merchantOption = tenantSwitching.merchantOptionByTestId.nth(1);
     if (!(await merchantOption.isVisible().catch(() => false))) {
       test.skip(true, "only one merchant available");
     }
