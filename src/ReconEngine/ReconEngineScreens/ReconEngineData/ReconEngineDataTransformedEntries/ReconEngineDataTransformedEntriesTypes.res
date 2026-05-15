@@ -1,8 +1,3 @@
-type cardDetail = {
-  title: string,
-  value: string,
-}
-
 @unboxed
 type iconActionType =
   | @as("nd-eye-on") ViewIcon
@@ -33,4 +28,16 @@ type lineageFieldType = {
 type lineageSectionType = {
   lineageSectionTitle: string,
   lineageSectionFields: array<lineageFieldType>,
+}
+
+type transformedEntriesViewType =
+  | AllViewType
+  | ProcessedViewType
+  | NeedsManualReviewViewType
+  | UnknownTransformedEntriesViewType
+
+type cardDetail = {
+  title: string,
+  value: string,
+  viewType: transformedEntriesViewType,
 }

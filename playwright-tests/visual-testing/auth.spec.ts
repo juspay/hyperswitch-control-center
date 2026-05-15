@@ -207,7 +207,9 @@ test.describe("Visual Testing - Auth Pages", () => {
       {
         fullPage: true,
         animations: "disabled",
-        maxDiffPixelRatio: 0.01,
+        mask: [
+          page.locator(".border.border-gray-200.rounded-md.bg-jp-gray-100.py-6.px-12.flex.gap-8.justify-evenly")
+        ],
       },
     );
 
@@ -231,8 +233,8 @@ test.describe("Visual Testing - Auth Pages", () => {
       animations: "disabled",
     });
 
-    await page.getByText("Use recovery-code").click();
-    await expect(page.getByText("Enter a 8-digit recovery code")).toBeVisible();
+    await page.getByText("Use recovery code").click();
+    await expect(page.getByText("Enter an 8-digit recovery code")).toBeVisible();
 
     await expect(page).toHaveScreenshot(
       "auth-2fa-recovery-code-input-page.png",

@@ -438,7 +438,7 @@ module AccountComboSelectInput = {
       },
     }
 
-    <SelectBox
+    <SelectBoxAdapter
       input
       options={accountsList->Array.map((account): SelectBox.dropdownOption => {
         {

@@ -89,7 +89,7 @@ module Render = {
         <div
           className="py-6 px-4 m-8 my-2 bg-amber-100/75 border rounded-lg font-medium border-transparent">
           {React.string("For making card payment via Adyen, you need to enable full card payments.
-              You would have to contact the Adyen customer support and ask them to enable it for you for testing payments.")}
+              You would have to contact Adyen customer support and ask them to enable it for testing payments.")}
         </div>
         <a href={`/icons/adyen_merchantID.png`} target="_blank">
           <img
@@ -122,8 +122,8 @@ module Render = {
         </ol>
         <div
           className="py-6 px-4 m-8 my-2 bg-amber-100/75 border rounded-lg font-medium border-transparent">
-          {React.string("For making card payment via Checkout, you need to enable full card payments. 
-               You would have to contact the checkout.com customer support and ask them to enable it for you for testing payments.")}
+          {React.string("For making card payment via Checkout, you need to enable full card payments.
+               You would have to contact Checkout customer support and ask them to enable it for testing payments.")}
         </div>
         <div className="mt-8 italic">
           {React.string("Note: Secret key is displayed only once during the key creation. 

@@ -32,7 +32,12 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
       let url = getURL(~entityName=V1(USERS), ~methodType=Get, ~id=Some(themeId), ~userType=#THEME)
       let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
       let mappedTheme = res->themeBodyMapper
-      let urlsDict = res->getDictFromJsonObject->getDictFromNestedDict("theme_data", "urls")
+      let resDict = res->getDictFromJsonObject
+      let urlsDict = resDict->getDictFromNestedDict("theme_data", "urls")
+      let emailLogoUrl = resDict->getDictfromDict("email_config")->getString("entity_logo_url", "")
+      if emailLogoUrl->isNonEmptyString {
+        urlsDict->Dict.set("emailLogoUrl", emailLogoUrl->JSON.Encode.string)
+      }
       setAssets(_ => urlsDict->assetsMapper)
       setInitialValues(_ => mappedTheme->Identity.genericTypeToJson)
       setScreenState(_ => Success)
@@ -109,14 +114,25 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
       setScreenState(_ => Loading)
-      let {theme_data: {settings}} = values->themeBodyMapper
-      let urls = if assets.logo->Option.isSome || assets.favicon->Option.isSome {
+      let {theme_data: {settings}, email_config} = values->themeBodyMapper
+      let processed = if (
+        assets.logo->Option.isSome ||
+        assets.favicon->Option.isSome ||
+        assets.emailLogo->Option.isSome
+      ) {
         await processAssets(~assets, ~themeId)
       } else {
-        {logoUrl: None, faviconUrl: None}
+        {urls: {logoUrl: None, faviconUrl: None}, emailLogoUrl: None}
       }
 
-      let requestBody = buildThemeDataBody(~settings, ~urls)
+      let updatedEmailConfig =
+        email_config->buildEmailConfigObject(~emailLogoUrl=processed.emailLogoUrl)
+
+      let requestBody = buildThemeDataBody(
+        ~settings,
+        ~urls=processed.urls,
+        ~emailConfig=updatedEmailConfig,
+      )
 
       let updateUrl = getURL(
         ~entityName=V1(USERS),
@@ -139,6 +155,65 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
     Nullable.null
   }
 
+  let tabs: array<Tabs.tab> = [
+    {
+      title: "Dashboard Config",
+      renderContent: () =>
+        <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
+          <div className="flex flex-col gap-2">
+            <ThemeSettingsHelper.IconSettings
+              mode={#Dashboard}
+              assets
+              onLogoSelect={file => setAssets(prev => {...prev, logo: Some(File(file))})}
+              onLogoRemove={() => setAssets(prev => {...prev, logo: None})}
+              onFaviconSelect={file => setAssets(prev => {...prev, favicon: Some(File(file))})}
+              onFaviconRemove={() => setAssets(prev => {...prev, favicon: None})}
+              themeConfigVersion
+            />
+            <ThemeSettings isUpdatePage=true />
+          </div>
+          <div className="flex flex-col gap-8 w-full lg:col-span-2">
+            <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
+            <div className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
+              <div
+                className="absolute top-3 right-3 z-10 bg-white bg-opacity-80 rounded-full p-1 flex items-center justify-center shadow">
+                <Icon name="eye" size=18 className="text-nd_gray-500 opacity-70" />
+              </div>
+              <ThemeMockDashboard />
+            </div>
+            <ThemeUpdateHelper.ActionButtons handleDelete />
+          </div>
+        </div>,
+    },
+    {
+      title: "Email Config",
+      renderContent: () =>
+        <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
+          <div className="flex flex-col gap-4">
+            <ThemeSettingsHelper.IconSettings
+              mode=#Email
+              assets
+              onEmailLogoSelect={file => setAssets(prev => {...prev, emailLogo: Some(File(file))})}
+              onEmailLogoRemove={() => setAssets(prev => {...prev, emailLogo: None})}
+              themeConfigVersion
+            />
+            <ThemeSettingsHelper.EmailSettings />
+          </div>
+          <div className="flex flex-col gap-8 w-full lg:col-span-2">
+            <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
+            <div className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
+              <div
+                className="absolute top-3 right-3 z-10 bg-white bg-opacity-80 rounded-full p-1 flex items-center justify-center shadow">
+                <Icon name="eye" size=18 className="text-nd_gray-500 opacity-70" />
+              </div>
+              <ThemeMockEmail />
+            </div>
+            <ThemeUpdateHelper.ActionButtons handleDelete />
+          </div>
+        </div>,
+    },
+  ]
+
   <PageLoaderWrapper screenState={screenState}>
     <Form key={themeId} onSubmit initialValues>
       <div className="flex flex-col h-screen gap-8">
@@ -148,30 +223,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
             subTitle="Update your configuration."
             customSubTitleStyle={`${body.lg.medium} text-nd_gray-400`}
           />
-          <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
-            <div className="flex flex-col gap-2">
-              <ThemeSettingsHelper.IconSettings
-                assets
-                onLogoSelect={file => setAssets(prev => {...prev, logo: Some(File(file))})}
-                onLogoRemove={() => setAssets(prev => {...prev, logo: None})}
-                onFaviconSelect={file => setAssets(prev => {...prev, favicon: Some(File(file))})}
-                onFaviconRemove={() => setAssets(prev => {...prev, favicon: None})}
-                themeConfigVersion
-              />
-              <ThemeSettings isUpdatePage=true />
-            </div>
-            <div className="flex flex-col gap-8 w-full lg:col-span-2">
-              <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
-              <div className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
-                <div
-                  className="absolute top-3 right-3 z-10 bg-white bg-opacity-80 rounded-full p-1 flex items-center justify-center shadow">
-                  <Icon name="eye" size=18 className="text-nd_gray-500 opacity-70" />
-                </div>
-                <ThemeMockDashboard />
-              </div>
-              <ThemeUpdateHelper.ActionButtons handleDelete />
-            </div>
-          </div>
+          <Tabs tabs />
         </div>
       </div>
     </Form>

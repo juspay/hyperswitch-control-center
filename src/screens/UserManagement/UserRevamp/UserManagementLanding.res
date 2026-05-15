@@ -18,15 +18,7 @@ let make = () => {
       <PageUtils.PageHeading title={"Team management"} />
     </div>
     <div className="relative">
-      <Tabs
-        tabs=tabList
-        showBorder=true
-        includeMargin=false
-        lightThemeColor="black"
-        defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
-        textStyle="text-blue-600"
-        selectTabBottomBorderColor="bg-blue-600"
-      />
+      <Tabs tabs=tabList />
     </div>
   </div>
 }

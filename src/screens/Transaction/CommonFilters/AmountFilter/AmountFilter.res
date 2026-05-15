@@ -70,7 +70,7 @@ let make = (~options) => {
     let dict = formState.values->getDictFromJsonObject
     let amount_option = dict->getString("amount_option", "")
     amount_option->isNonEmptyString
-      ? amount_option->stringRangetoTypeAmount
+      ? amount_option->mapStringToAmountRangeType
       : AmountFilterTypes.UnknownRange("Select Amount")
   })
   let (isAmountRangeVisible, setIsAmountRangeVisible) = React.useState(_ => true)
@@ -82,7 +82,7 @@ let make = (~options) => {
   React.useEffect(() => {
     let parsed =
       amountOptionFromForm->isNonEmptyString
-        ? amountOptionFromForm->stringRangetoTypeAmount
+        ? amountOptionFromForm->mapStringToAmountRangeType
         : AmountFilterTypes.UnknownRange("Select Amount")
     parsed !== selectedOption ? setSelectedOption(_ => parsed) : ()
     None
@@ -106,7 +106,7 @@ let make = (~options) => {
       handleInputChange(ev->Identity.formReactEventToString)
     },
     onFocus: _ => (),
-    value: selectedOption->mapRangeTypetoString->JSON.Encode.string,
+    value: selectedOption->mapRangeTypeToString->JSON.Encode.string,
     checked: true,
   }
 
@@ -125,7 +125,7 @@ let make = (~options) => {
     switch selectedOption {
     | GreaterThanOrEqualTo =>
       <div className="flex gap-5 items-center justify-center w-28">
-        <FormRenderer.FieldRenderer field={startamountField} />
+        <FormRenderer.FieldRenderer field={startAmountField} />
       </div>
     | LessThanOrEqualTo =>
       <div className="flex gap-5 items-center justify-center w-28">
@@ -160,14 +160,14 @@ let make = (~options) => {
         true,
         `In Between ${start->Float.toString} and ${end->Float.toString}`,
       )
-    | _ => (false, selectedOption->mapRangeTypetoString)
+    | _ => (false, selectedOption->mapRangeTypeToString)
     }
   }
 
   let (displayCustomCss, buttonText) = displaySelectedRange()
 
   <>
-    <FilterSelectBox.BaseDropdown
+    <FilterSelectBoxAdapter
       key={buttonText}
       allowMultiSelect=false
       buttonText={buttonText}

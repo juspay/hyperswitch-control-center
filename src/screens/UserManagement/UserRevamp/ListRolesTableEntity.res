@@ -52,13 +52,13 @@ let getCellForRoles = (data: rolesTableTypes, colType: rolesColTypes): Table.cel
   }
 }
 
-let getrolesData: JSON.t => array<rolesTableTypes> = json => {
+let getRolesData: JSON.t => array<rolesTableTypes> = json => {
   getArrayDataFromJson(json, itemToObjMapperForRoles)
 }
 
 let rolesEntity = EntityType.makeEntity(
   ~uri="",
-  ~getObjects=getrolesData,
+  ~getObjects=getRolesData,
   ~defaultColumns=defaultColumnsForRoles,
   ~allColumns=defaultColumnsForRoles,
   ~getHeading=getHeadingForRoles,

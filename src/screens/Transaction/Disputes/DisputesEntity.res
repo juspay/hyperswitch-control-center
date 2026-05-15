@@ -53,9 +53,9 @@ let useGetStatus = (dispute: disputes) => {
 
 let getHeading = colType => {
   switch colType {
-  | DisputeId => Table.makeHeaderInfo(~key="dispute_id", ~title="Dispute Id")
-  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment Id")
-  | AttemptId => Table.makeHeaderInfo(~key="attempt_id", ~title="Attempt Id")
+  | DisputeId => Table.makeHeaderInfo(~key="dispute_id", ~title="Dispute ID")
+  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID")
+  | AttemptId => Table.makeHeaderInfo(~key="attempt_id", ~title="Attempt ID")
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | DisputeStatus =>
@@ -63,16 +63,16 @@ let getHeading = colType => {
   | Connector => Table.makeHeaderInfo(~key="connector", ~title="Connector")
   | ConnectorStatus => Table.makeHeaderInfo(~key="connector_status", ~title="Connector Status")
   | ConnectorDisputeId =>
-    Table.makeHeaderInfo(~key="connector_dispute_id", ~title="Connector Dispute Id")
+    Table.makeHeaderInfo(~key="connector_dispute_id", ~title="Connector Dispute ID")
   | ConnectorReason => Table.makeHeaderInfo(~key="connector_reason", ~title="Connector Reason")
   | ConnectorReasonCode =>
     Table.makeHeaderInfo(~key="connector_reason_code", ~title="Connector Reason Code")
   | ChallengeRequiredBy =>
     Table.makeHeaderInfo(~key="connector_required_by", ~title="Connector Required By")
   | ConnectorCreatedAt =>
-    Table.makeHeaderInfo(~key="connector_created_at", ~title="Connector Created ")
+    Table.makeHeaderInfo(~key="connector_created_at", ~title="Connector Created At")
   | ConnectorUpdatedAt =>
-    Table.makeHeaderInfo(~key="connector_updated_at", ~title="Connector Updated ")
+    Table.makeHeaderInfo(~key="connector_updated_at", ~title="Connector Updated At")
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created")
   }
 }

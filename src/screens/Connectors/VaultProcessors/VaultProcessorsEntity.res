@@ -18,7 +18,7 @@ let getHeading = colType => {
   | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled")
   | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
   | MerchantConnectorId =>
-    Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector Id")
+    Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector ID")
   }
 }
 let connectorStatusColor = connectorStatus =>
@@ -31,7 +31,7 @@ let getCell = (
     BusinessProfileInterfaceTypes.externalVaultConnectorDetails,
   >,
 ): Table.cell => {
-  let vault_connector_id =
+  let vaultConnectorId =
     external_vault_connector_details
     ->Option.map(details => details.vault_connector_id)
     ->Option.getOr("")
@@ -42,7 +42,7 @@ let getCell = (
       <HelperComponents.ConnectorCustomCell
         connectorName=connector.connector_name
         connectorType=VaultProcessor
-        showDefaultTag={connector.id == vault_connector_id}
+        showDefaultTag={connector.id == vaultConnectorId}
       />,
       "",
     )

@@ -2526,8 +2526,8 @@ let existsInArray = (element, connectorList) => {
 // Need to refactor
 
 let updateMetaData = (~metaData) => {
-  let apple_pay_combined = metaData->getDictFromJsonObject->getDictfromDict("apple_pay_combined")
-  let manual = apple_pay_combined->getDictfromDict("manual")
+  let applePayCombined = metaData->getDictFromJsonObject->getDictfromDict("apple_pay_combined")
+  let manual = applePayCombined->getDictfromDict("manual")
   switch manual->Dict.keysToArray->Array.length > 0 {
   | true => {
       let applepay =
@@ -2570,7 +2570,8 @@ let checkIfPredecryptFlowEnabledForApplePay = connector => {
   | Processors(CHECKOUT)
   | Processors(WORLDPAYVANTIV)
   | Processors(NMI)
-  | Processors(STRIPE) => true
+  | Processors(STRIPE)
+  | Processors(WORLDPAYXML) => true
   | _ => false
   }
 }
