@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.14.0
+
+### Features
+
+- Email config features in theme ui ([#4698](https://github.com/juspay/hyperswitch-control-center/pull/4698)) ([`c4cfc6c`](https://github.com/juspay/hyperswitch-control-center/commit/c4cfc6c968765b4cfd3ba81ffc328de25f426a96))
+
+### Bug Fixes
+
+- Recon engine prevent recon transformation date overflow ([#4808](https://github.com/juspay/hyperswitch-control-center/pull/4808)) ([`0575a89`](https://github.com/juspay/hyperswitch-control-center/commit/0575a897caabbc9cd0977bf60f85a21ee88c3cb3))
+
+### Refactors
+
+- Remove old recon surface ([#4786](https://github.com/juspay/hyperswitch-control-center/pull/4786)) ([`d413860`](https://github.com/juspay/hyperswitch-control-center/commit/d4138600c4f43a2f792ec840e52215b74730051c))
+
+**Full Changelog:** [`2026.05.13.0...2026.05.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.13.0...2026.05.14.0)
+
+- - -
+
 ## 2026.05.13.0
 
 ### Features
