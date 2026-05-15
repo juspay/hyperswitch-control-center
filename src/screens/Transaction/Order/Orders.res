@@ -180,7 +180,7 @@ let make = (~previewOnly=false) => {
       renderType=ExtendDateUI
       handleClick=handleExtendDateButtonClick
     />
-
+  let hasSearchText = searchText->isNonEmptyString
   let filtersUI = React.useMemo(() => {
     <RemoteTableFilters
       title="Orders"
@@ -188,12 +188,14 @@ let make = (~previewOnly=false) => {
       endTimeFilterKey={endTimeFilterKey(version)}
       startTimeFilterKey={startTimeFilterKey(version)}
       initialFilters
-      initialFixedFilter
+      initialFixedFilter={version => initialFixedFilter(version, ~disable=hasSearchText)}
       setOffset
       submitInputOnEnter=true
-      customLeftView={<SearchBarFilter
-        placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
-      />}
+      customLeftView={<div className="flex flex-col gap-1">
+        <SearchBarFilter
+          placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
+        />
+      </div>}
       customFilterActions={devSavedViews
         ? <SavedViewsComponent version entity=SavedViewTypes.Payment />
         : React.null}
