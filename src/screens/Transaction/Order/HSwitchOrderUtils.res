@@ -78,22 +78,6 @@ let statusVariantMapper: string => status = statusLabel =>
   | _ => None
   }
 
-let statusToString: status => string = status =>
-  switch status {
-  | Succeeded => "Succeeded"
-  | Failed => "Failed"
-  | Cancelled => "Cancelled"
-  | Expired => "Expired"
-  | Processing => "Processing"
-  | RequiresCustomerAction => "Requires_Customer_Action"
-  | RequiresPaymentMethod => "Requires_Payment_Method"
-  | RequiresConfirmation => "Requires_Confirmation"
-  | PartiallyCaptured => "Partially_Captured"
-  | CancelledPostCapture => "Cancelled_Post_Capture"
-  | Review => "Review"
-  | None => ""
-  }
-
 let paymentAttemptStatusVariantMapper: string => paymentAttemptStatus = statusLabel =>
   switch statusLabel->String.toUpperCase {
   | "STARTED" => #STARTED

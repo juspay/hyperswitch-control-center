@@ -11,32 +11,33 @@ let make = (~order: order, ~refetch) => {
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let (showModal, setShowModal) = React.useState(_ => false)
-  let (selectedStatus, setSelectedStatus) = React.useState(_ => "")
+  let (selectedStatus, setSelectedStatus) = React.useState(_ => Succeeded)
 
-  let updatePaymentStatus = async intentStatus => {
+  let updatePaymentStatus = async (intentStatus: status) => {
     try {
       let url = getURL(
         ~entityName=V1(MANUAL_STATUS_UPDATE),
         ~methodType=Post,
         ~id=Some(order.payment_id),
       )
+      let intentLabel = (intentStatus :> string)
       let body =
         [
-          ("intent_status", intentStatus->String.toLowerCase->JSON.Encode.string),
+          ("intent_status", intentLabel->String.toLowerCase->JSON.Encode.string),
         ]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
-      showToast(~message=`Payment marked as ${intentStatus}`, ~toastType=ToastState.ToastSuccess)
+      showToast(~message=`Payment marked as ${intentLabel}`, ~toastType=ToastState.ToastSuccess)
       refetch()->ignore
     } catch {
     | _ => showToast(~message="Failed to update payment status", ~toastType=ToastState.ToastError)
     }
   }
 
-  let openConfirmationPopUp = intentStatus => {
+  let openConfirmationPopUp = (intentStatus: status) => {
     showPopUp({
       popUpType: (Warning, WithIcon),
       heading: "Confirm Status Update?",
-      description: `You are about to mark this payment as ${intentStatus}. This action is final and cannot be undone. Please confirm to proceed.`->React.string,
+      description: `You are about to mark this payment as ${(intentStatus :> string)}. This action is final and cannot be undone. Please confirm to proceed.`->React.string,
       handleConfirm: {
         text: "Confirm",
         onClick: _ => updatePaymentStatus(intentStatus)->ignore,
@@ -46,17 +47,15 @@ let make = (~order: order, ~refetch) => {
   }
 
   let statusOptions: array<selectMenuGroupType> = [Succeeded, Failed]->Array.map(item => {
-    let status = item->HSwitchOrderUtils.statusToString
+    let label = (item :> string)
     {
-      items: [{label: status, value: status->String.toLowerCase}],
+      items: [{label, value: label->String.toLowerCase}],
     }
   })
 
   let onUpdateClick = _ => {
-    let statusToConfirm = selectedStatus
     setShowModal(_ => false)
-    setSelectedStatus(_ => "")
-    openConfirmationPopUp(statusToConfirm)
+    openConfirmationPopUp(selectedStatus)
   }
 
   <>
@@ -69,7 +68,7 @@ let make = (~order: order, ~refetch) => {
         primaryAction: {
           text: "Update Payment Status",
           onClick: _ => {
-            setSelectedStatus(_ => "")
+            setSelectedStatus(_ => Succeeded)
             setShowModal(_ => true)
           },
         },
@@ -87,8 +86,8 @@ let make = (~order: order, ~refetch) => {
           {"Manually set the status for this payment. You will be asked to confirm before the change is applied."->React.string}
         </p>
         <SingleSelectBinding
-          selected=selectedStatus
-          onSelect={value => setSelectedStatus(_ => value)}
+          selected={(selectedStatus :> string)->String.toLowerCase}
+          onSelect={value => setSelectedStatus(_ => value->statusVariantMapper)}
           items=statusOptions
           label="New Status"
           placeholder="Select status"
@@ -99,15 +98,10 @@ let make = (~order: order, ~refetch) => {
             buttonType=Button.Secondary
             onClick={_ => {
               setShowModal(_ => false)
-              setSelectedStatus(_ => "")
+              setSelectedStatus(_ => Succeeded)
             }}
           />
-          <Button
-            text="Update Status"
-            buttonType=Button.Primary
-            buttonState={selectedStatus->LogicUtils.isEmptyString ? Button.Disabled : Button.Normal}
-            onClick=onUpdateClick
-          />
+          <Button text="Update Status" buttonType=Button.Primary onClick=onUpdateClick />
         </div>
       </div>
     </Modal>
