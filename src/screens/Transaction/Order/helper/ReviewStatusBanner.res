@@ -83,7 +83,7 @@ let make = (~order: order, ~refetch) => {
       childClass="p-0"
       bgClass="bg-white dark:bg-jp-gray-darkgray_background">
       <div className="flex flex-col gap-6 p-2 m-2">
-        <p className="text-jp-gray-700 dark:text-jp-gray-300 text-fs-14">
+        <p className={`${Typography.body.md.regular} text-nd_gray-700`}>
           {"Manually set the status for this payment. You will be asked to confirm before the change is applied."->React.string}
         </p>
         <SingleSelectBinding
