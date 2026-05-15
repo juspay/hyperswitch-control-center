@@ -1,12 +1,13 @@
 import { test, expect } from "../../support/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
+import { Webhooks } from "../../support/pages/developers/Webhooks";
 import { generateUniqueEmail } from "../../support/helper";
 import { signupUser, loginUI } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 test.describe("Webhooks - endpoint CRUD and subscriptions", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -20,66 +21,54 @@ test.describe("Webhooks - endpoint CRUD and subscriptions", () => {
   test("should create a webhook endpoint via Add Endpoint modal", async ({
     page,
   }) => {
-    const addWebhookButton = page
-      .locator('[data-button-for="addWebhook"], button:has-text("Add Endpoint")')
-      .first();
+    const webhooks = new Webhooks(page);
+    const addWebhookButton = webhooks.addEndpointButton;
     if (!(await addWebhookButton.isVisible().catch(() => false))) {
       test.skip(true, "Add Endpoint CTA not exposed");
     }
     await addWebhookButton.click();
 
-    await page
-      .locator('[name*="url"], [name*="endpoint_url"]')
-      .fill("https://example.com/webhooks/hyperswitch");
-    await page
-      .locator('[name*="description"]')
-      .fill("Production webhook endpoint");
+    await webhooks.urlInput.fill("https://example.com/webhooks/hyperswitch");
+    await webhooks.descriptionInput.fill("Production webhook endpoint");
 
-    await page.locator('[data-button-for="saveWebhook"]').click();
-    await expect(
-      page.locator('[data-toast*="created"], [data-toast*="success"]'),
-    ).toBeVisible({ timeout: 10000 });
+    await webhooks.saveWebhookButton.click();
+    await expect(webhooks.successOrCreatedToast).toBeVisible({ timeout: 10000 });
   });
 
   test("should subscribe to event types via checkbox list", async ({ page }) => {
-    const eventCheckbox = page
-      .locator(
-        'input[type="checkbox"][name*="event"], [data-testid*="event-checkbox"]',
-      )
-      .first();
+    const webhooks = new Webhooks(page);
+    const eventCheckbox = webhooks.firstEventCheckbox;
     if (!(await eventCheckbox.isVisible().catch(() => false))) {
       test.skip(true, "event checkboxes not exposed");
     }
     await eventCheckbox.check();
 
-    const saveButton = page.locator('[data-button-for="saveEvents"]').first();
+    const saveButton = webhooks.saveEventsButton;
     if (await saveButton.isVisible().catch(() => false)) {
       await saveButton.click();
     }
   });
 
   test("should accept retry attempts and interval values", async ({ page }) => {
-    const retryAttempts = page
-      .locator('[name*="retry_attempts"], [name*="max_retries"]')
-      .first();
+    const webhooks = new Webhooks(page);
+    const retryAttempts = webhooks.retryAttemptsInput;
     if (!(await retryAttempts.isVisible().catch(() => false))) {
       test.skip(true, "retry policy form not exposed");
     }
     await retryAttempts.fill("3");
 
-    const retryInterval = page.locator('[name*="retry_interval"]').first();
+    const retryInterval = webhooks.retryIntervalInput;
     if (await retryInterval.isVisible().catch(() => false)) {
       await retryInterval.fill("60");
     }
-    await page.locator('[data-button-for="saveRetryPolicy"]').click();
+    await webhooks.saveRetryPolicyButton.click();
   });
 
   test("should switch to Logs tab and render log rows or empty state", async ({
     page,
   }) => {
-    const logsTab = page
-      .locator('[role="tab"]:has-text("Logs"), [data-testid*="logs"]')
-      .first();
+    const webhooks = new Webhooks(page);
+    const logsTab = webhooks.logsTab;
     if (!(await logsTab.isVisible().catch(() => false))) {
       test.skip(true, "Logs tab not exposed");
     }
@@ -91,17 +80,12 @@ test.describe("Webhooks - endpoint CRUD and subscriptions", () => {
   test("should toggle a webhook endpoint off and emit a disabled/updated toast", async ({
     page,
   }) => {
-    const toggle = page
-      .locator(
-        '[data-testid*="webhook-toggle"], input[type="checkbox"][name*="enabled"]',
-      )
-      .first();
+    const webhooks = new Webhooks(page);
+    const toggle = webhooks.endpointToggle;
     if (!(await toggle.isVisible().catch(() => false))) {
       test.skip(true, "webhook toggle not exposed");
     }
     await toggle.uncheck();
-    await expect(
-      page.locator('[data-toast*="disabled"], [data-toast*="updated"]'),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(webhooks.disabledOrUpdatedToast).toBeVisible({ timeout: 10000 });
   });
 });

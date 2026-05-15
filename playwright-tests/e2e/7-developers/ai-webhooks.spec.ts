@@ -1,6 +1,7 @@
 import { test, expect } from "../../support/test";
 import type { Page } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
+import { Webhooks } from "../../support/pages/developers/Webhooks";
 import { generateUniqueEmail } from "../../support/helper";
 import { signupUser, loginUI } from "../../support/commands";
 
@@ -10,15 +11,15 @@ async function gatedOrAssert(
   page: Page,
   assertion: () => Promise<void>,
 ): Promise<void> {
-  const fallback = page.getByText("Go to Home", { exact: true }).first();
-  if (await fallback.isVisible().catch(() => false)) {
+  const webhooks = new Webhooks(page);
+  if (await webhooks.goToHomeFallback.isVisible().catch(() => false)) {
     test.skip(true, "page gated by feature flag — renders Go to Home fallback");
   }
   await assertion();
 }
 
 test.describe("Webhooks page", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -33,16 +34,11 @@ test.describe("Webhooks page", () => {
   test("should render Webhooks heading, Search by ID input, and Object ID filter", async ({
     page,
   }) => {
+    const webhooks = new Webhooks(page);
     await gatedOrAssert(page, async () => {
-      await expect(page.getByText(/Webhook/i).first()).toBeVisible({
-        timeout: 10000,
-      });
-      await expect(page.getByPlaceholder("Search by ID")).toBeVisible({
-        timeout: 10000,
-      });
-      await expect(page.getByText("Object ID").first()).toBeVisible({
-        timeout: 10000,
-      });
+      await expect(webhooks.webhookHeading).toBeVisible({ timeout: 10000 });
+      await expect(webhooks.searchByIdInput).toBeVisible({ timeout: 10000 });
+      await expect(webhooks.objectIdFilter).toBeVisible({ timeout: 10000 });
     });
   });
 });
