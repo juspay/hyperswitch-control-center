@@ -188,32 +188,26 @@ test.describe("Visual Testing - Auth Pages", () => {
     await signinPage.signinButton.click();
     await responsePromise;
 
-    await expect(page.locator('[viewBox="0 0 41 41"]')).toBeVisible();
+    await expect(signinPage.qrCode2FA).toBeVisible();
 
     const token = authenticator.generate(totpSecret);
 
-    const textboxes = page.getByRole("textbox");
-    const count = await textboxes.count();
-    for (let i = 0; i < token.length && i < count; i++) {
-      await textboxes.nth(i).fill(token.charAt(i));
-    }
+    await signinPage.fillOTP(token);
 
     await signinPage.enable2FA.click();
 
-    await expect(page.getByText("Two factor recovery codes")).toBeVisible();
+    await expect(signinPage.recoveryCodesText).toBeVisible();
 
     await expect(page).toHaveScreenshot(
       "auth-2fa-download-recovery-codes-page.png",
       {
         fullPage: true,
         animations: "disabled",
-        mask: [
-          page.locator(".border.border-gray-200.rounded-md.bg-jp-gray-100.py-6.px-12.flex.gap-8.justify-evenly")
-        ],
+        mask: [signinPage.recoveryCodesMask],
       },
     );
 
-    await page.locator('[data-button-for="download"]').click();
+    await signinPage.downloadRecoveryCodes.click();
 
     await homePage.userAccount.click();
     await homePage.signOut.click();
@@ -233,8 +227,8 @@ test.describe("Visual Testing - Auth Pages", () => {
       animations: "disabled",
     });
 
-    await page.getByText("Use recovery code").click();
-    await expect(page.getByText("Enter an 8-digit recovery code")).toBeVisible();
+    await signinPage.useRecoveryCodeLink.click();
+    await expect(signinPage.recoveryCodeInputHeader).toBeVisible();
 
     await expect(page).toHaveScreenshot(
       "auth-2fa-recovery-code-input-page.png",

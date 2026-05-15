@@ -362,6 +362,27 @@ export class HomePage {
   get addMerchantButton(): Locator {
     return this.page.getByRole("button", { name: "Add Merchant" });
   }
+
+  // Visual-testing masks (dynamic content excluded from snapshots)
+  get navHeaderMask(): Locator {
+    return this.page.locator(".text-left.flex.gap-2.justify-between");
+  }
+
+  get homeGreetingMask(): Locator {
+    return this.page
+      .locator(".flex.flex-col.gap-7 ")
+      .locator(".flex.items-center.gap-2");
+  }
+
+  get merchantDropdownItemsMask(): Locator {
+    return this.page
+      .locator('[data-dropdown="dropdown"]')
+      .locator(".flex.justify-between.items-center.w-full");
+  }
+
+  get merchantNameButton(): Locator {
+    return this.page.getByRole("button", { name: "playwright-" });
+  }
 }
 
 export default HomePage;

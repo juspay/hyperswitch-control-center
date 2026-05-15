@@ -26,9 +26,9 @@ test.describe("Visual Testing - Homepage", () => {
       fullPage: true,
       animations: "disabled",
       mask: [
-        page.locator(".text-left.flex.gap-2.justify-between"),
-        page.locator(".flex.flex-col.gap-7 ").locator(".flex.items-center.gap-2"),
-        page.getByRole('button', { name: 'playwright-' })
+        homePage.navHeaderMask,
+        homePage.homeGreetingMask,
+        homePage.merchantNameButton,
       ],
     });
 
@@ -38,10 +38,7 @@ test.describe("Visual Testing - Homepage", () => {
     await expect(page).toHaveScreenshot("homepage-v2.png", {
       fullPage: true,
       animations: "disabled",
-      mask: [
-        page.locator(".text-left.flex.gap-2.justify-between"),
-        page.getByRole('button', { name: 'playwright-' })
-      ],
+      mask: [homePage.navHeaderMask, homePage.merchantNameButton],
     });
 
     await homePage.merchantDropdown.click();
@@ -49,9 +46,9 @@ test.describe("Visual Testing - Homepage", () => {
       fullPage: true,
       animations: "disabled",
       mask: [
-        page.locator(".text-left.flex.gap-2.justify-between"),
-        page.locator('[data-dropdown="dropdown"]').locator(".flex.justify-between.items-center.w-full"),
-        page.getByRole('button', { name: 'playwright-' })
+        homePage.navHeaderMask,
+        homePage.merchantDropdownItemsMask,
+        homePage.merchantNameButton,
       ],
     });
 
@@ -59,10 +56,7 @@ test.describe("Visual Testing - Homepage", () => {
     await expect(page).toHaveScreenshot("homepage-profile-dropdown.png", {
       fullPage: true,
       animations: "disabled",
-      mask: [
-        page.locator(".text-left.flex.gap-2.justify-between"),
-        page.getByRole('button', { name: 'playwright-' })
-      ],
+      mask: [homePage.navHeaderMask, homePage.merchantNameButton],
     });
   });
 });

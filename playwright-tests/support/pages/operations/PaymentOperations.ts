@@ -260,6 +260,104 @@ export class PaymentOperations {
   get generateReportsModal(): Locator {
     return this.generatePaymentReportsModal;
   }
+
+  // Payment details accordions / section headers
+  get eventsAndLogsSection(): Locator {
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^Events and logs$/ })
+      .first();
+  }
+
+  get eventsAndLogsText(): Locator {
+    return this.page.getByText("Events and logs");
+  }
+
+  get customerDetailsSection(): Locator {
+    return this.page.getByText("Customer Details");
+  }
+
+  get morePaymentDetailsSection(): Locator {
+    return this.page.getByText("More Payment Details");
+  }
+
+  get paymentMethodDetailsSection(): Locator {
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^Payment Method Details$/ })
+      .first();
+  }
+
+  get paymentMetadataSection(): Locator {
+    return this.page.getByText("Payment Metadata");
+  }
+
+  get frmDetailsSection(): Locator {
+    return this.page.getByText("FRM Details");
+  }
+
+  get refundReasonField(): Locator {
+    return this.page.getByText("Refund ReasonN/A");
+  }
+
+  get merchantDecisionField(): Locator {
+    return this.page.getByText("Merchant DecisionN/A");
+  }
+
+  get connectorTransactionIdInTable(): Locator {
+    return this.page.getByRole("table").getByText("Connector Transaction ID");
+  }
+
+  get firstAttemptRowExpander(): Locator {
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^1$/ })
+      .nth(1);
+  }
+
+  get refundsSectionBlock(): Locator {
+    return this.page.locator('[class="flex flex-col gap-4"]').nth(1);
+  }
+
+  customerEmailTestId(email: string): Locator {
+    return this.page.getByTestId(email);
+  }
+
+  // Payouts table cells: data-table-location="Payouts_trX_tdY"
+  payoutCell(row: number, col: number): Locator {
+    return this.page.locator(
+      `[data-table-location="Payouts_tr${row}_td${col}"]`,
+    );
+  }
+
+  // Payout details accordions
+  get morePayoutDetailsSection(): Locator {
+    return this.page.getByText("More Payout Details");
+  }
+
+  get payoutMethodDetailsSection(): Locator {
+    return this.page.getByText("Payout Method Details");
+  }
+
+  get payoutMetadataSection(): Locator {
+    return this.page.getByText("Payout Metadata");
+  }
+
+  get payoutMethodText(): Locator {
+    return this.page.getByText("Payout Method", { exact: true });
+  }
+
+  get payoutErrorCodeText(): Locator {
+    return this.page.getByText("Error Code", { exact: true });
+  }
+
+  get payoutMetadataJsonText(): Locator {
+    return this.page.getByText('{ 2 "key": "value" 3}');
+  }
+
+  get paymentSectionText(): Locator {
+    return this.page.getByText("Payment", { exact: true });
+  }
 }
 
 export default PaymentOperations;
