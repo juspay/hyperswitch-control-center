@@ -1,4 +1,5 @@
 import { test, expect } from "../../support/test";
+import { ProfilePage } from "../../support/pages/profile/ProfilePage";
 import { generateUniqueEmail } from "../../support/helper";
 import { signupUser, loginUI } from "../../support/commands";
 
@@ -15,11 +16,10 @@ test.describe.skip("Profile - user menu items", () => {
   test("should expose a Profile / Account Settings entry in the user menu", async ({
     page,
   }) => {
-    await page.locator('[data-button-for="profile"]').click();
+    const profilePage = new ProfilePage(page);
+    await profilePage.profileButton.click();
 
-    const profile = page
-      .getByText(/Profile|Account Settings|Personal Details/i)
-      .first();
+    const profile = profilePage.profileMenuEntry;
     const isVisible = await profile.isVisible().catch(() => false);
     if (!isVisible) {
       test.skip(
@@ -41,15 +41,16 @@ test.describe.skip("Account Settings - Profile page", () => {
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
     await page.waitForURL(/dashboard\/home/, { timeout: 20000 });
 
-    await page.goto("/dashboard/account-settings/profile");
+    const profilePage = new ProfilePage(page);
+    await profilePage.visit();
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
 
-    await expect(page.getByText("Profile").first()).toBeVisible({
+    await expect(profilePage.profileHeading).toBeVisible({
       timeout: 10000,
     });
-    await expect(
-      page.getByRole("button", { name: "Reset Password" }).first(),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(profilePage.resetPasswordButton).toBeVisible({
+      timeout: 10000,
+    });
   });
 });

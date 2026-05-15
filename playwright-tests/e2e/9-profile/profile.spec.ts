@@ -1,5 +1,6 @@
 import { test, expect } from "../../support/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
+import { SignInPage } from "../../support/pages/auth/SignInPage";
 import { generateUniqueEmail } from "../../support/helper";
 import { signupUser, loginUI } from "../../support/commands";
 
@@ -22,12 +23,13 @@ test.describe("Profile", () => {
 
   test("should sign out successfully", async ({ page }) => {
     const homePage = new HomePage(page);
+    const signInPage = new SignInPage(page);
 
     await homePage.userAccount.click();
     await homePage.signOut.click();
 
     await expect(page).toHaveURL(/.*login/);
-    await expect(page.locator('[data-testid="card-header"]')).toContainText(
+    await expect(signInPage.headerText).toContainText(
       "Hey there, Welcome back!",
     );
   });
