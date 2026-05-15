@@ -70,3 +70,13 @@ type savedViewsResponse = {
   count: int,
   views: array<savedView>,
 }
+
+type filterKeyKind =
+  | FlattenRoot
+  | Prefixed(string)
+
+let classifyFilterKey = (filterKey: string): filterKeyKind =>
+  switch filterKey {
+  | "amount_filter" | "" => FlattenRoot
+  | filterKey => Prefixed(filterKey)
+  }
