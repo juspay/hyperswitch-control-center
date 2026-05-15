@@ -131,30 +131,18 @@ let make = (
   let leftSlot = switch leftIcon {
   | Some(icon) => Some(icon)
   | None =>
-    if phoneInput {
-      Some(<span className="text-nd_gray-500"> {React.string("+91 ")} </span>)
-    } else {
-      None
-    }
+    phoneInput ? Some(<span className="text-nd_gray-500"> {React.string("+91 ")} </span>) : None
   }
 
-  let blendRightSlot = if isPasswordType {
-    None
-  } else {
-    switch (rightIcon, rightIconOnClick) {
-    | (Some(icon), Some(onClick)) => Some(<div onClick className="cursor-pointer"> icon </div>)
-    | (Some(icon), None) => Some(icon)
-    | (None, _) => None
-    }
-  }
+  let blendRightSlot = isPasswordType
+    ? None
+    : switch (rightIcon, rightIconOnClick) {
+      | (Some(icon), Some(onClick)) => Some(<div onClick className="cursor-pointer"> icon </div>)
+      | (Some(icon), None) => Some(icon)
+      | (None, _) => None
+      }
 
-  let blendLeftSlot = if isPasswordType {
-    None
-  } else {
-    leftSlot
-  }
-
-  let hintText = description->getNonEmptyString
+  let blendLeftSlot = isPasswordType ? None : leftSlot
 
   <>
     <RenderIf condition={isBlendEnabled}>
@@ -167,7 +155,7 @@ let make = (
         placeholder
         size=blendSize
         disabled=isDisabled
-        ?hintText
+        hintText=?{description->getNonEmptyString}
         error=isInValid
         leftSlot=?blendLeftSlot
         rightSlot=?blendRightSlot
