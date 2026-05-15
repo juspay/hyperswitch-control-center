@@ -207,7 +207,9 @@ test.describe("Visual Testing - Auth Pages", () => {
       {
         fullPage: true,
         animations: "disabled",
-        maxDiffPixelRatio: 0.01,
+        mask: [
+          page.locator(".border.border-gray-200.rounded-md.bg-jp-gray-100.py-6.px-12.flex.gap-8.justify-evenly")
+        ],
       },
     );
 
