@@ -277,6 +277,7 @@ let make = (
 
   let addFilterTrigger =
     <button
+      type_="button"
       className={`flex items-center gap-2 ${body.md.medium} text-nd_gray-700 border border-nd_gray-200 rounded-10-px px-3.5 h-9 bg-white`}>
       <Icon name="plus" size=15 />
       {"Add Filters"->React.string}
