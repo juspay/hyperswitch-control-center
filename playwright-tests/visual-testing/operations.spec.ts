@@ -73,6 +73,11 @@ test.describe("Visual Testing - Payment Operations", () => {
     await paymentOperations.refundAmountInput.fill("12.34");
     await paymentOperations.initiateRefundButton.click();
 
+    await expect(page.locator('div').filter({ hasText: /^SDK Events not implemented for SQLX is not implemented\.$/ }).nth(1)).toBeHidden();
+    await expect(page.locator('div').filter({ hasText: /^Refund successful$/ }).nth(1)).toBeHidden();
+    await expect(page.locator('div').filter({ hasText: /^Details Updated$/ }).nth(1)).toBeHidden();
+    await expect(page.locator('div').filter({ hasText: /^SDK Events not implemented for SQLX is not implemented\.$/ }).nth(5)).toBeHidden();
+
     await paymentOperations.eventsAndLogsSection.click();
     await expect(page).toHaveScreenshot("payment-details.png", {
       fullPage: true,
@@ -81,6 +86,7 @@ test.describe("Visual Testing - Payment Operations", () => {
     });
 
     await paymentOperations.firstAttemptRowExpander.click();
+    await expect(paymentOperations.connectorTransactionIdInTable).toBeVisible();
     await paymentOperations.connectorTransactionIdInTable.scrollIntoViewIfNeeded();
     await expect(page).toHaveScreenshot("payment-attempt-details.png", {
       fullPage: true,

@@ -309,10 +309,7 @@ export class PaymentOperations {
   }
 
   get firstAttemptRowExpander(): Locator {
-    return this.page
-      .locator("div")
-      .filter({ hasText: /^1$/ })
-      .nth(1);
+    return this.page.locator('[data-table-location="Attempts_tr1_td1"]');
   }
 
   get refundsSectionBlock(): Locator {

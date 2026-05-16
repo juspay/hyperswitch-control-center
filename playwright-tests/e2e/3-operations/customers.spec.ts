@@ -244,7 +244,17 @@ test.describe("Customers page", () => {
     await homePage.customers.click();
 
     //Default order
-    await expect(page.getByText('S.NoCustomer IdCustomer NameEmailPhone Country CodePhoneDescriptionCreated')).toBeVisible();
+    const tableHeadings = page.locator('[data-table-heading]');
+    await expect(tableHeadings).toHaveText([
+      'S.No',
+      'Customer ID',
+      'Customer Name',
+      'Email',
+      'Phone Country Code',
+      'Phone',
+      'Description',
+      'Created',
+    ]);
 
     //logic to change order drag column up and down
     await paymentOperations.columnButton.click();
@@ -290,11 +300,19 @@ test.describe("Customers page", () => {
     await page.waitForLoadState("networkidle");
 
     //Updated order
-    await expect(
-      page.getByText(
-        'S.NoCustomer IdEmailCustomer NameCreatedPhone Country CodePhoneDescription',
-      ),
-    ).toBeVisible({ timeout: 15000 });
+    await expect(tableHeadings).toHaveText(
+      [
+        'S.No',
+        'Customer ID',
+        'Email',
+        'Customer Name',
+        'Created',
+        'Phone Country Code',
+        'Phone',
+        'Description',
+      ],
+      { timeout: 15000 },
+    );
 
   });
 
