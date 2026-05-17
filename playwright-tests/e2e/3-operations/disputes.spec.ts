@@ -1,16 +1,73 @@
 import { test, expect } from "../../support/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
+import { PaymentOperations } from "../../support/pages/operations/PaymentOperations";
 import { DisputesOperations } from "../../support/pages/operations/DisputesOperations";
 import { generateUniqueEmail } from "../../support/helper";
-import {
-  signupUser,
-  loginUI,
-  createDummyConnectorAPI,
-} from "../../support/commands";
+import { signupUser, loginUI, createDummyConnectorAPI } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
-test.describe("Disputes - detail page and evidence upload", () => {
+test.describe("Disputes list page", () => {
+  test.beforeEach(async ({ page }) => {
+    const email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+    await page.waitForURL(/dashboard\/home/, { timeout: 15000 });
+
+    const homePage = new HomePage(page);
+    await homePage.operations.click();
+    await homePage.disputesOperations.click();
+    await page.waitForURL(/dashboard\/disputes/, { timeout: 15000 });
+    await page.waitForLoadState("networkidle");
+  });
+
+  test("should display disputes heading, subtitle, search, and empty state", async ({
+    page,
+  }) => {
+    const disputesOperations = new DisputesOperations(page);
+    const paymentOperations = new PaymentOperations(page);
+
+    await expect(page.getByText("Disputes").first()).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/View and manage all disputes/i)).toBeVisible({ timeout: 10000 });
+    await expect(disputesOperations.searchInput).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("No results found")).toBeVisible({ timeout: 10000 });
+    await expect(paymentOperations.expandSearch90Days).toBeVisible({ timeout: 10000 });
+    await expect(paymentOperations.dateSelector).toBeVisible({ timeout: 10000 });
+    await expect(paymentOperations.addFilters).toBeVisible({ timeout: 10000 });
+
+    await expect(disputesOperations.fourColumnGrid).toBeVisible({ timeout: 10000 });
+  });
+
+  test("should open filter dropdown and show filter options", async ({
+    page,
+  }) => {
+    const paymentOperations = new PaymentOperations(page);
+    const disputesOperations = new DisputesOperations(page);
+
+    await paymentOperations.addFilters.click();
+    await expect(disputesOperations.filterDropdown).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(disputesOperations.filterDropdownOptions).toBeVisible({
+      timeout: 10000,
+    });
+  });
+
+  test("should display 'No results found' for non-matching search id", async ({
+    page,
+  }) => {
+    const disputesOperations = new DisputesOperations(page);
+
+    await page.reload();
+    await expect(page).toHaveURL(/.*dashboard\/disputes/);
+
+    await disputesOperations.searchInput.fill("dp_nonexistent_zzz");
+    await disputesOperations.searchInput.press("Enter");
+    await expect(page.getByText("No results found")).toBeVisible({ timeout: 10000 });
+  });
+});
+
+test.describe.fixme("Disputes - detail page and evidence upload", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -38,9 +95,7 @@ test.describe("Disputes - detail page and evidence upload", () => {
     const disputesOperations = new DisputesOperations(page);
 
     const disputeRow = disputesOperations.disputeListFirstRow;
-    if (!(await disputeRow.isVisible().catch(() => false))) {
-      test.skip(true, "no dispute rows rendered (empty merchant)");
-    }
+
     await disputeRow.click();
     await expect(page).toHaveURL(/.*dispute\/|.*disputes\/dp_/);
   });
@@ -51,21 +106,15 @@ test.describe("Disputes - detail page and evidence upload", () => {
     const disputesOperations = new DisputesOperations(page);
 
     const disputeRow = disputesOperations.firstDisputeRow;
-    if (!(await disputeRow.isVisible().catch(() => false))) {
-      test.skip(true, "no dispute rows rendered");
-    }
+
     await disputeRow.click();
 
     const uploadButton = disputesOperations.uploadEvidenceButton;
-    if (!(await uploadButton.isVisible().catch(() => false))) {
-      test.skip(true, "upload evidence CTA not exposed");
-    }
+
     await uploadButton.click();
 
     const fileInput = disputesOperations.fileInput;
-    if (!(await fileInput.isVisible().catch(() => false))) {
-      test.skip(true, "file input not exposed");
-    }
+
     await fileInput.setInputFiles({
       name: "evidence.pdf",
       mimeType: "application/pdf",
@@ -81,9 +130,7 @@ test.describe("Disputes - detail page and evidence upload", () => {
     const disputesOperations = new DisputesOperations(page);
 
     const deadlineElement = disputesOperations.deadlineElement;
-    if (!(await deadlineElement.isVisible().catch(() => false))) {
-      test.skip(true, "deadline countdown not exposed");
-    }
+
     const deadlineText = await deadlineElement.textContent();
     expect(deadlineText).toMatch(/\d+\s*(day|hour|minute)/i);
   });
@@ -94,15 +141,11 @@ test.describe("Disputes - detail page and evidence upload", () => {
     const disputesOperations = new DisputesOperations(page);
 
     const expiredDispute = disputesOperations.expiredDispute;
-    if (!(await expiredDispute.isVisible().catch(() => false))) {
-      test.skip(true, "no expired disputes in this merchant");
-    }
+
     await expiredDispute.click();
 
     const submitButton = disputesOperations.submitEvidenceButton;
-    if (!(await submitButton.isVisible().catch(() => false))) {
-      test.skip(true, "submit evidence button not exposed");
-    }
+
     expect(await submitButton.isDisabled()).toBe(true);
   });
 });

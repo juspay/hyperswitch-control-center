@@ -88,6 +88,19 @@ test.describe("Refunds Operations", () => {
       const refundOperations = new RefundOperations(page);
       await goToRefunds(page, homePage);
 
+      for (const view of ["All", "Succeeded", "Failed", "Pending"]) {
+        await expect(refundOperations.refundsTransactionView).toContainText(view);
+      }
+
+      await expect(refundOperations.searchBox).toHaveAttribute(
+        "placeholder",
+        "Search for payment ID or refund ID",
+      );
+      await expect(
+        refundOperations.dateSelector,
+      ).toBeVisible();
+      await expect(refundOperations.addFilters).toBeVisible();
+
       await expect(
         refundOperations.noResultsHeader,
       ).toHaveText("No results found");
@@ -445,19 +458,6 @@ test.describe("Refunds Operations", () => {
       await expect(
         refundOperations.dataLabel("Refund Reason").first(),
       ).toBeVisible();
-    });
-
-    test("should display Payment section with related payment details", async ({
-      page,
-      context,
-    }) => {
-      const homePage = new HomePage(page);
-
-      const refundOperations = new RefundOperations(page);
-      const { payment } = await setupRefund(homePage, context.request);
-
-      await goToRefunds(page, homePage);
-      await refundOperations.refundCell(1, 1).click();
 
       await expect(page.getByText("Payment", { exact: true })).toBeVisible();
       await expect(page.getByRole('columnheader', { name: 'Payment ID' })).toBeVisible();

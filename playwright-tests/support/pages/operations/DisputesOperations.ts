@@ -18,6 +18,10 @@ export class DisputesOperations {
       .nth(1);
   }
 
+  get filterDropdownOptions(): Locator {
+    return this.page.locator('div').filter({ hasText: /^ConnectorDispute StatusDispute Stage$/ }).first();
+  }
+
   get fourColumnGrid(): Locator {
     return this.page.locator('[class*="grid-cols-4"]').first();
   }

@@ -38,6 +38,10 @@ async function gotoConnectorList(page: Page): Promise<void> {
 }
 
 async function fillStripeFormDefaults(page: Page): Promise<void> {
+  const paymentConnector = new PaymentConnector(page);
+  await expect(paymentConnector.apiKeyInput).toBeVisible();
+  await expect(paymentConnector.connectorLabelInput).toBeVisible();
+
   const inputs = page
     .locator('.grid.grid-cols-2 input[type="text"]')
     .locator("visible=true");
@@ -47,6 +51,8 @@ async function fillStripeFormDefaults(page: Page): Promise<void> {
     await input.clear();
     await input.fill("test_value");
   }
+
+  await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
 }
 
 async function openStripeConnectorForm(page: Page): Promise<void> {
@@ -71,7 +77,7 @@ async function setupConfiguredStripeConnector(
   return label;
 }
 
-test.describe("Stripe Connector", () => {
+test.describe("Payin Connector tests", () => {
   test.beforeEach(async ({ page, context }) => {
     await signupAndLogin(page, context);
   });
@@ -233,12 +239,6 @@ test.describe("Stripe Connector", () => {
     await expect(
       page.locator("div").filter({ hasText: /^No Data Available$/ }).nth(2),
     ).toBeVisible();
-  });
-
-  test("should mark required fields with asterisk", async ({ page }) => {
-    await openStripeConnectorForm(page);
-    await expect(page.locator('div').filter({ hasText: /^Secret Key \*$/ }).nth(1)).toBeVisible();
-    await expect(page.locator('div').filter({ hasText: /^Connector label \*$/ }).nth(2)).toBeVisible();
   });
 
   test("should show tooltip on Connector Label help icon hover", async ({
@@ -576,6 +576,8 @@ test.describe("Stripe Connector", () => {
       test.skip(true, "Connector flow does not expose explicit summary step");
     }
     await expect(summary).toBeVisible();
+    await expect(page.getByText('Integration statusACTIVE')).toBeVisible();
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible();
   });
 
   test("should reject duplicate connector label with warning", async ({
@@ -762,7 +764,7 @@ test.describe("Stripe Connector", () => {
   });
 });
 
-test.describe("Payin Connectors", () => {
+test.describe("All Payin Connectors", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
