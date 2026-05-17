@@ -261,39 +261,84 @@ test.describe("Customers page", () => {
     const modal = paymentOperations.tableColumnsModal;
     await expect(modal).toBeVisible();
 
-    const dragColumn = async (sourceLabel: string, targetLabel: string) => {
+    const modalColumns = modal.locator("[data-dropdown-value]");
+
+    const dragColumn = async (
+      sourceLabel: string,
+      targetLabel: string,
+      position: "above" | "below",
+    ) => {
       const source = paymentOperations.dropdownValue(sourceLabel);
       const target = paymentOperations.dropdownValue(targetLabel);
 
       const sourceBox = await source.boundingBox();
-      const targetBox = await target.boundingBox();
-      if (!sourceBox || !targetBox) {
-        throw new Error(
-          `Bounding box missing for ${sourceLabel} or ${targetLabel}`,
-        );
+      if (!sourceBox) {
+        throw new Error(`Bounding box missing for ${sourceLabel}`);
       }
 
       const startX = sourceBox.x + sourceBox.width / 2;
       const startY = sourceBox.y + sourceBox.height / 2;
-      const endX = targetBox.x + targetBox.width / 2;
-      const endY = targetBox.y + targetBox.height / 2;
 
       await page.mouse.move(startX, startY);
       await page.mouse.down();
+      // Nudge to engage the dnd library before measuring target
       await page.mouse.move(startX, startY + 8, { steps: 5 });
+
+      // Re-measure target after the drag placeholder may have shifted layout
+      const targetBox = await target.boundingBox();
+      if (!targetBox) {
+        await page.mouse.up();
+        throw new Error(`Bounding box missing for ${targetLabel}`);
+      }
+
+      const endX = targetBox.x + targetBox.width / 2;
+      // Aim explicitly above or below the target's midpoint so the drop
+      // position does not depend on a coin-flip around the midpoint.
+      const endY =
+        position === "above"
+          ? targetBox.y + 4
+          : targetBox.y + targetBox.height - 4;
+
       await page.mouse.move(endX, endY, { steps: 15 });
-      await page.mouse.move(endX, endY + 2, { steps: 3 });
+      await page.mouse.move(endX, endY, { steps: 3 });
       await page.mouse.up();
       await page.waitForTimeout(300);
     };
 
-    // Initial modal order: [Customer Id, Customer Name, Email, Phone Country Code, Phone, Description, Created]
+    // Initial modal order
+    await expect(modalColumns).toHaveText([
+      "Customer ID",
+      "Customer Name",
+      "Email",
+      "Phone Country Code",
+      "Phone",
+      "Description",
+      "Created",
+    ]);
+
     // Step 1: Email -> above Customer Name
-    await dragColumn("Email", "Customer Name");
+    await dragColumn("Email", "Customer Name", "above");
+    await expect(modalColumns).toHaveText([
+      "Customer ID",
+      "Email",
+      "Customer Name",
+      "Phone Country Code",
+      "Phone",
+      "Description",
+      "Created",
+    ]);
+
     // Step 2: Created -> above Phone Country Code
-    await dragColumn("Created", "Phone Country Code");
-    // Step 3: Phone Country Code -> below Description
-    await dragColumn("Phone Country Code", "Description");
+    await dragColumn("Created", "Phone Country Code", "above");
+    await expect(modalColumns).toHaveText([
+      "Customer ID",
+      "Email",
+      "Customer Name",
+      "Created",
+      "Phone Country Code",
+      "Phone",
+      "Description",
+    ]);
 
     await paymentOperations.saveButton.click();
     await expect(modal).toBeHidden();

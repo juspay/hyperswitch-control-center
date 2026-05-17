@@ -70,11 +70,20 @@ test.describe("Volume based routing", () => {
       "Smart routing configuration",
     );
 
-    const currentDate = new Date().toLocaleDateString("en-CA", {
-      timeZone: "Asia/Kolkata"
+    // Ask the browser for the date — the UI builds the name suffix from its
+    // own `new Date()`, so evaluating in-page matches whatever timezone the
+    // browser is using (UTC in CI, IST locally, etc.). Accepting today or
+    // yesterday guards the millisecond race at midnight where the form
+    // mounts on one side of the boundary and we read on the other.
+    const [today, yesterday] = await page.evaluate(() => {
+      const fmt = (d: Date) => d.toLocaleDateString("en-CA");
+      const t = new Date();
+      const y = new Date(t);
+      y.setDate(y.getDate() - 1);
+      return [fmt(t), fmt(y)];
     });
     await expect(volumeBasedConfiguration.configurationNameInput).toHaveValue(
-      "Volume Based Routing-" + currentDate,
+      new RegExp(`^Volume Based Routing-(${today}|${yesterday})$`),
       { timeout: 15000 },
     );
 

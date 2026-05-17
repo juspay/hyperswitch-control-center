@@ -1396,12 +1396,18 @@ test.describe("Payment Operations", () => {
         );
       }
 
-      await paymentOperations.attemptCell(1, 1).click();
+      // Refund POST triggers the attempts table to re-render; wait for it to
+      // settle so the click below doesn't land on a detached node.
+      await page.waitForLoadState("networkidle");
+      const attemptCell = paymentOperations.attemptCell(1, 1);
+      await expect(attemptCell).toBeVisible();
+      await attemptCell.click();
       await expect(
         page.locator('[data-heading="Attempt Details"]'),
       ).toBeVisible();
 
-      const expectedValues: Record<string, string> = {
+      // Always-present fields: the panel is guaranteed to render these.
+      const requiredValues: Record<string, string> = {
         "Attempt ID": "Attempt ID",
         Status: "CHARGED",
         Amount: "123.45 USD",
@@ -1413,6 +1419,12 @@ test.describe("Payment Operations", () => {
         "Capture Method": "automatic",
         "Authentication Type": "three_ds",
         "Cancellation Reason": "N/A",
+      };
+
+      // Conditionally rendered: the UI omits the row entirely when the
+      // backend has no value, rather than printing "N/A". Assert only when
+      // the label is actually present.
+      const optionalValues: Record<string, string> = {
         "Mandate ID": "N/A",
         "Error Code": "N/A",
         "Payment Token": "N/A",
@@ -1423,10 +1435,17 @@ test.describe("Payment Operations", () => {
         "Client Version": "N/A",
       };
 
-      for (const [label, value] of Object.entries(expectedValues)) {
+      for (const [label, value] of Object.entries(requiredValues)) {
         await expect(
           paymentOperations.dataLabel(label).first(),
         ).toContainText(value);
+      }
+
+      for (const [label, value] of Object.entries(optionalValues)) {
+        const labelLocator = paymentOperations.dataLabel(label).first();
+        if (await labelLocator.count()) {
+          await expect(labelLocator).toContainText(value);
+        }
       }
 
       await expect(

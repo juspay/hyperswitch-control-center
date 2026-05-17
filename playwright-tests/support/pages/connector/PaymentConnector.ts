@@ -44,7 +44,7 @@ export class PaymentConnector {
   }
 
   get connectAndProceedButton(): Locator {
-    return this.page.getByRole("button", { name: /Connect and Proceed/i });
+    return this.page.locator('[data-button-for="connectAndProceed"]');
   }
 
   get pmtProceedButton(): Locator {
