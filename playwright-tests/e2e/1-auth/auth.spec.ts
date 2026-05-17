@@ -797,12 +797,22 @@ test.describe("TOTP flows", () => {
 
     await expect(signinPage.qrCode2FA).toBeVisible();
 
+    // TOTP codes are valid for a 30s window. If the current window is about
+    // to close, fill + network latency can push the submit into the next
+    // window and the server rejects the code. Wait for a fresh window when
+    // we're near the boundary.
+    if (authenticator.timeRemaining() < 5) {
+      await page.waitForTimeout((authenticator.timeRemaining() + 1) * 1000);
+    }
     const token = authenticator.generate(totpSecret);
 
     await signinPage.fillOTP(token);
 
     await signinPage.enable2FA.click();
 
+    await expect(signinPage.downloadRecoveryCodes).toBeVisible({
+      timeout: 10000,
+    });
     await signinPage.downloadRecoveryCodes.click();
 
     await expect(page).toHaveURL(/.*dashboard\/home/);

@@ -133,7 +133,7 @@ test.describe("Stripe Connector", () => {
 
     await expect(paymentConnector.apiKeyInput).toHaveValue("test_key");
 
-    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
+    await paymentConnector.connectAndProceedButton.click();
     await paymentConnector.pmtProceedButton.click();
 
     await expect(paymentConnector.connectorCreatedToast).toBeVisible();
@@ -373,7 +373,7 @@ test.describe("Stripe Connector", () => {
   }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
-    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
+    await paymentConnector.connectAndProceedButton.click();
 
     const stripePaymentSections = {
       Credit: {
@@ -445,7 +445,7 @@ test.describe("Stripe Connector", () => {
   test("should toggle card payment method", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
-    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
+    await paymentConnector.connectAndProceedButton.click();
     await expect(paymentConnector.paymentMethodToggle).toHaveAttribute('data-bool-value', 'on');
     await paymentConnector.paymentMethodToggle.click();
     await expect(paymentConnector.paymentMethodToggle).toHaveAttribute('data-bool-value', 'off');
@@ -454,7 +454,7 @@ test.describe("Stripe Connector", () => {
   test("should configure Apple Pay web domain flow", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
-    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
+    await paymentConnector.connectAndProceedButton.click();
 
     await page.getByText("Apple Pay").click();
 
@@ -484,7 +484,7 @@ test.describe("Stripe Connector", () => {
   test("should configure Apple Pay iOS certificate flow", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
-    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
+    await paymentConnector.connectAndProceedButton.click();
 
     await page.getByText("Apple Pay").click();
 
@@ -533,7 +533,7 @@ test.describe("Stripe Connector", () => {
   test("should configure Google Pay flow", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
-    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
+    await paymentConnector.connectAndProceedButton.click();
 
     await page.getByText("Google Pay").click();
     await expect(page.getByText('Payment Gateway').nth(4)).toBeVisible();
@@ -568,7 +568,7 @@ test.describe("Stripe Connector", () => {
   test("should show summary preview after PMs step", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
-    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
+    await paymentConnector.connectAndProceedButton.click();
     await paymentConnector.pmtProceedButton.click();
 
     const summary = page.getByText(/Summary|Preview|Review/i).first();
@@ -576,6 +576,29 @@ test.describe("Stripe Connector", () => {
       test.skip(true, "Connector flow does not expose explicit summary step");
     }
     await expect(summary).toBeVisible();
+  });
+
+  test("should reject duplicate connector label with warning", async ({
+    page,
+    context,
+  }) => {
+    test.setTimeout(60000);
+    const createdLabel = await setupConfiguredStripeConnector(page, context);
+    const paymentConnector = new PaymentConnector(page);
+    await openStripeConnectorForm(page);
+    const labelInput = paymentConnector.connectorLabelInput;
+    await expect(labelInput).toBeVisible();
+    await labelInput.clear();
+    await labelInput.fill(createdLabel);
+    // 5s is too tight on CI: the form takes a moment to enable Connect &
+    // Proceed after the label change. Use the standard 30s action timeout.
+    await paymentConnector.connectAndProceedButton.click();
+    await expect(paymentConnector.pmtProceedButton).toBeVisible();
+    await paymentConnector.pmtProceedButton.click();
+
+    await expect(paymentConnector.connectorLabelExistsToast).toBeVisible({
+      timeout: 15000,
+    });
   });
 
   test("should render connector table with expected columns for configured connector", async ({
@@ -736,29 +759,6 @@ test.describe("Stripe Connector", () => {
     await page.getByText(createdLabel).first().click();
     await expect(page.getByText('Integration statusACTIVE')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Credit' })).not.toBeVisible();
-  });
-
-  test("should reject duplicate connector label with warning", async ({
-    page,
-    context,
-  }) => {
-    test.setTimeout(60000);
-    const createdLabel = await setupConfiguredStripeConnector(page, context);
-    const paymentConnector = new PaymentConnector(page);
-    await openStripeConnectorForm(page);
-    const labelInput = paymentConnector.connectorLabelInput;
-    await expect(labelInput).toBeVisible();
-    await labelInput.clear();
-    await labelInput.fill(createdLabel);
-    // 5s is too tight on CI: the form takes a moment to enable Connect &
-    // Proceed after the label change. Use the standard 30s action timeout.
-    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
-    await expect(paymentConnector.pmtProceedButton).toBeVisible();
-    await paymentConnector.pmtProceedButton.click();
-
-    await expect(paymentConnector.connectorLabelExistsToast).toBeVisible({
-      timeout: 15000,
-    });
   });
 });
 

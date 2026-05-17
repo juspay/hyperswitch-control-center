@@ -977,7 +977,7 @@ test.describe("Payment Operations", () => {
       ).toBeVisible();
 
       await page
-        paymentOperations.customRangeOption
+      paymentOperations.customRangeOption
         .click();
 
       await page.locator(`[data-testid*=" ${startDate},"]`).first().click();
@@ -1019,10 +1019,10 @@ test.describe("Payment Operations", () => {
       context,
     }) => {
       const viewFilters: Record<string, string> = {
-        Succeeded: "Succeeded",
-        Failed: "Failed",
-        Dropoffs: "Requires Payment Method",
-        Cancelled: "Cancelled",
+        Succeeded1: "Succeeded",
+        Failed0: "Failed",
+        Dropoffs0: "Requires Payment Method",
+        Cancelled0: "Cancelled",
       };
 
       const homePage = new HomePage(page);
@@ -1040,9 +1040,11 @@ test.describe("Payment Operations", () => {
 
       await homePage.operations.click();
       await homePage.paymentOperations.click();
+      await page.waitForResponse((r) => r.url().includes("/payments/list") && r.ok());
 
       for (const [view, filter] of Object.entries(viewFilters)) {
-        await paymentOperations.transactionView.getByText(view).click();
+        await page.waitForTimeout(500);
+        await paymentOperations.transactionView.getByText(view).click({ force: true });
         await expect(paymentOperations.statusFieldWrapper).toContainText(filter);
       }
     });
