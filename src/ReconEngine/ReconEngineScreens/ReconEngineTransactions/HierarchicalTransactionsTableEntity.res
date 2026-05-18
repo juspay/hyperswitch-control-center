@@ -60,7 +60,7 @@ let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
   Table.Label({
     title: status->TransactionsTableEntity.getDomainTransactionStatusString->String.toUpperCase,
     color: switch status {
-    | Posted(_) => LabelGreen
+    | Posted(Manual) | Matched(Force) | Matched(Manual) | Matched(Auto) => LabelGreen
     | OverAmount(Mismatch)
     | UnderAmount(Mismatch)
     | DataMismatch =>
@@ -68,7 +68,13 @@ let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
     | Expected | UnderAmount(Expected) | OverAmount(Expected) => LabelBlue
     | Archived => LabelGray
     | PartiallyReconciled | Missing => LabelOrange
-    | Void | UnknownDomainTransactionStatus => LabelLightGray
+    | Void
+    | UnknownDomainTransactionStatus
+    | Matched(UnknownDomainTransactionMatchedStatus)
+    | Posted(UnknownDomainTransactionPostedStatus)
+    | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
+    | UnderAmount(UnknownDomainTransactionAmountMismatchStatus) =>
+      LabelLightGray
     },
   })
 }
@@ -88,9 +94,9 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
       <div className=hierarchicalContainerClassName>
         {transaction.entries
         ->Array.map(entry => {
-          <>
+          <React.Fragment key={entry.entry_id}>
             <RenderIf condition={entry.entry_id->isNonEmptyString}>
-              <div key={randomString(~length=10)} className="px-8 py-3.5">
+              <div className="px-8 py-3.5">
                 <HelperComponents.CopyTextCustomComp
                   customParentClass="flex flex-row items-center gap-2"
                   customTextCss="truncate whitespace-nowrap max-w-32"
@@ -99,11 +105,9 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
               </div>
             </RenderIf>
             <RenderIf condition={entry.entry_id->isEmptyString}>
-              <p key={randomString(~length=10)} className="px-8 py-3.5 text-nd_gray-600">
-                {"N/A"->React.string}
-              </p>
+              <p className="px-8 py-3.5 text-nd_gray-600"> {"N/A"->React.string} </p>
             </RenderIf>
-          </>
+          </React.Fragment>
         })
         ->React.array}
       </div>
@@ -113,9 +117,9 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
       <div className=hierarchicalContainerClassName>
         {transaction.entries
         ->Array.map(entry => {
-          <>
+          <React.Fragment key={entry.entry_id}>
             <RenderIf condition={entry.order_id->isNonEmptyString}>
-              <div key={randomString(~length=10)} className="px-8 py-3.5">
+              <div className="px-8 py-3.5">
                 <HelperComponents.CopyTextCustomComp
                   customParentClass="flex flex-row items-center gap-2"
                   customTextCss="truncate whitespace-nowrap max-w-48"
@@ -124,11 +128,9 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
               </div>
             </RenderIf>
             <RenderIf condition={entry.order_id->isEmptyString}>
-              <p key={randomString(~length=10)} className="px-8 py-3.5 text-nd_gray-600">
-                {"N/A"->React.string}
-              </p>
+              <p className="px-8 py-3.5 text-nd_gray-600"> {"N/A"->React.string} </p>
             </RenderIf>
-          </>
+          </React.Fragment>
         })
         ->React.array}
       </div>
@@ -138,9 +140,7 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
       <div className=hierarchicalContainerClassName>
         {transaction.entries
         ->Array.map(entry => {
-          <HierarchicalEntryRenderer
-            fieldValue=entry.account.account_name key={randomString(~length=10)}
-          />
+          <HierarchicalEntryRenderer fieldValue=entry.account.account_name key={entry.entry_id} />
         })
         ->React.array}
       </div>
@@ -151,7 +151,7 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
         {transaction.entries
         ->Array.map(entry => {
           <HierarchicalEntryRenderer
-            fieldValue={(entry.status :> string)->capitalizeString} key={randomString(~length=10)}
+            fieldValue={(entry.status :> string)->capitalizeString} key={entry.entry_id}
           />
         })
         ->React.array}
@@ -162,9 +162,7 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
       <div className=hierarchicalContainerClassName>
         {transaction.entries
         ->Array.map(entry => {
-          <HierarchicalEntryRenderer
-            fieldValue=entry.amount.currency key={randomString(~length=10)}
-          />
+          <HierarchicalEntryRenderer fieldValue=entry.amount.currency key={entry.entry_id} />
         })
         ->React.array}
       </div>
@@ -176,9 +174,9 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
         ->Array.map(entry => {
           let amount = switch entry.entry_type {
           | Debit => entry.amount.value->Float.toString
-          | _ => "-"
+          | Credit | UnknownEntryDirectionType => "-"
           }
-          <HierarchicalEntryRenderer fieldValue=amount key={randomString(~length=10)} />
+          <HierarchicalEntryRenderer fieldValue=amount key={entry.entry_id} />
         })
         ->React.array}
       </div>
@@ -190,9 +188,9 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
         ->Array.map(entry => {
           let amount = switch entry.entry_type {
           | Credit => entry.amount.value->Float.toString
-          | _ => "-"
+          | Debit | UnknownEntryDirectionType => "-"
           }
-          <HierarchicalEntryRenderer fieldValue=amount key={randomString(~length=10)} />
+          <HierarchicalEntryRenderer fieldValue=amount key={entry.entry_id} />
         })
         ->React.array}
       </div>

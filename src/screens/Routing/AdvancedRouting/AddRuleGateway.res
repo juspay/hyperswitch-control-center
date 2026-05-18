@@ -118,7 +118,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
 
   let updatePercentage = (item: RoutingTypes.connectorSelectionData, value) => {
     open RoutingTypes
-    let slectedConnector = switch item {
+    let selectedConnector = switch item {
     | PriorityObject(obj) => obj.connector
     | VolumeObject(obj) =>
       AdvancedRoutingUtils.getConnectorStringFromConnectorSelectionData(
@@ -132,7 +132,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
         | VolumeObject(obj) =>
           {
             ...obj,
-            split: slectedConnector ===
+            split: selectedConnector ===
               AdvancedRoutingUtils.getConnectorStringFromConnectorSelectionData(
                 VolumeObject(obj),
               ).merchant_connector_id
@@ -163,7 +163,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
       <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
         <div className="flex flex-wrap gap-4">
           <div className="flex">
-            <SelectBox.BaseDropdown
+            <SelectBoxAdapter.BaseDropdown
               allowMultiSelect=true
               buttonText="Add Processors"
               buttonType=Button.SecondaryFilled

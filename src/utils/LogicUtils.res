@@ -185,6 +185,9 @@ let getOptionStrArrayFromDict = (dict, key) => {
   dict->Dict.get(key)->Option.flatMap(val => val->getOptionStrArrayFromJson)
 }
 
+let convertToNoneIfEqual = (val, sentinel) =>
+  val->Option.flatMap(v => v == sentinel ? None : Some(v))
+
 let getNonEmptyString = str => {
   if str->isEmptyString {
     None
@@ -213,8 +216,12 @@ let getJsonObjectFromDict = (dict, key) => {
   dict->Dict.get(key)->Option.getOr(JSON.Encode.object(Dict.make()))
 }
 
-let getvalFromDict = (dict, key) => {
+let getOptionValFromDict = (dict, key) => {
   dict->Dict.get(key)
+}
+
+let getValueFromDict = (dict, key, default) => {
+  dict->Dict.get(key)->Option.getOr(default)
 }
 
 let getBoolFromString = (boolString, default: bool) => {
@@ -333,6 +340,9 @@ let getObj = (dict, key, default) => {
   dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.object)->Option.getOr(default)
 }
 
+let getMappedValueFromDict = (dict, key, default, mapper) =>
+  dict->Dict.get(key)->Option.mapOr(default, mapper)
+
 let getDictFromUrlSearchParams = searchParams => {
   searchParams
   ->String.split("&")
@@ -426,7 +436,7 @@ let checkEmptyJson = json => {
   json == JSON.Encode.object(Dict.make())
 }
 
-let numericArraySortComperator = (a, b) => {
+let numericArraySortComparator = (a, b) => {
   if a < b {
     -1.
   } else if a > b {
@@ -450,6 +460,31 @@ let isNullJson = val => {
 
 let stringReplaceAll = (str, old, new) => {
   str->String.split(old)->Array.joinWith(new)
+}
+
+let cleanNumericString = (rawValue, ~removeLeadingZeroes=false, ~precision=?) => {
+  let cleanedValue = switch rawValue->Js.String2.match_(%re("/[\d\.]/g")) {
+  | Some(strArr) =>
+    let parts =
+      strArr->Array.joinWithUnsafe("")->String.split(".")->Array.slice(~start=0, ~end=2)
+    if removeLeadingZeroes {
+      parts[0] = parts[0]->Option.getOr("")->String.replaceRegExp(%re("/\b0+/g"), "")
+      parts[0] = parts[0]->Option.getOr("")->isEmptyString ? "0" : parts[0]->Option.getOr("")
+    }
+    parts->Array.joinWith(".")
+  | None => ""
+  }
+  let indexOfDec = cleanedValue->String.indexOf(".")
+  let precisionCheckedVal = switch precision {
+  | Some(val) =>
+    if indexOfDec > 0 {
+      cleanedValue->String.slice(~start=0, ~end={indexOfDec + val + 1})
+    } else {
+      ""
+    }
+  | None => ""
+  }
+  precisionCheckedVal->isNonEmptyString ? precisionCheckedVal : cleanedValue
 }
 
 let getUniqueArray = (arr: array<'t>) => {
@@ -648,6 +683,8 @@ let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) =>
   keys->Array.forEach(key => dict->Dict.delete(key))
 
 let isEmptyArray = arr => arr->Array.length === 0
+
+let isNonEmptyArray = arr => arr->Array.length > 0
 
 let removeTrailingSlash = str => {
   if str->String.endsWith("/") {

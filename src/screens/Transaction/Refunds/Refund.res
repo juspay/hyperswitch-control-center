@@ -43,6 +43,7 @@ let make = () => {
       handleClick=handleExtendDateButtonClick
     />
   }
+  let hasSearchText = searchText->isNonEmptyString
   let fetchRefunds = () => {
     switch filters {
     | Some(dict) =>
@@ -106,7 +107,7 @@ let make = () => {
           </RenderIf>
         </div>
       </div>
-      <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 my-8">
+      <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8">
         <TransactionView entity=TransactionViewTypes.Refunds />
       </div>
       <div className="flex justify-between gap-3">
@@ -116,13 +117,15 @@ let make = () => {
             endTimeFilterKey
             startTimeFilterKey
             initialFilters
-            initialFixedFilter
+            initialFixedFilter={version => initialFixedFilter(version, ~disable=hasSearchText)}
             setOffset
-            customLeftView={<SearchBarFilter
-              placeholder="Search for payment ID or refund ID"
-              setSearchVal=setSearchText
-              searchVal=searchText
-            />}
+            customLeftView={<div className="flex flex-col gap-1">
+              <SearchBarFilter
+                placeholder="Search for payment ID or refund ID"
+                setSearchVal=setSearchText
+                searchVal=searchText
+              />
+            </div>}
             entityName=V1(REFUND_FILTERS)
             title="Refunds"
           />

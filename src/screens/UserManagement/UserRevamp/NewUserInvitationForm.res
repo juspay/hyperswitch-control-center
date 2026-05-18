@@ -41,7 +41,7 @@ module RoleAccessOverview = {
       roleDict
       ->getDictfromDict(role)
       ->getJsonObjectFromDict("parent_groups")
-      ->getArrayDataFromJson(UserUtils.itemToObjMapperFordetailedRoleInfo)
+      ->getArrayDataFromJson(UserUtils.itemToObjMapperForDetailedRoleInfo)
 
     let roleInfo = Recoil.useRecoilValueFromAtom(HyperswitchAtom.moduleListRecoil)
     let (modulesWithAccess, moduleWithoutAccess) = UserUtils.modulesWithUserAccess(
@@ -72,7 +72,7 @@ module NoteComponent = {
     let {userEntity} = getResolvedUserInfo()
     let {orgId, merchantId, profileId} = getCommonSessionDetails()
 
-    // TODO : Chnage id to name once backend starts sending name in userinfo
+    // TODO : Change id to name once backend starts sending name in userinfo
     let descriptionBasedOnEntity = switch userEntity {
     | #Tenant
     | #Organization =>
@@ -84,7 +84,7 @@ module NoteComponent = {
     }
 
     <div className="flex gap-2 items-start justify-start">
-      <Icon name="info-vacent" size=18 customIconColor="!text-gray-400" />
+      <Icon name="info-vacant" size=18 customIconColor="!text-gray-400" />
       <span className={`${p3RegularTextClass} text-gray-500`}>
         {descriptionBasedOnEntity->React.string}
       </span>
@@ -115,7 +115,7 @@ let make = () => {
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
 
-  let getMemberAcessBasedOnRole = async _ => {
+  let getMemberAccessBasedOnRole = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
@@ -142,7 +142,7 @@ let make = () => {
 
   React.useEffect(() => {
     if roleTypeValue->Option.isSome {
-      getMemberAcessBasedOnRole()->ignore
+      getMemberAccessBasedOnRole()->ignore
     }
     None
   }, [roleTypeValue])
@@ -184,8 +184,7 @@ let make = () => {
           text={"Send Invite"}
           loadingText="Loading..."
           buttonSize={Small}
-          customSumbitButtonStyle="w-full !h-12"
-          tooltipForWidthClass="w-full"
+          customSubmitButtonStyle="w-full !h-12"
         />
       </div>
     </div>

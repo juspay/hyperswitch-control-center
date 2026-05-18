@@ -3,14 +3,14 @@ type filterBody = {
   end_time: string,
 }
 
-let formateDateString = date => {
+let formatDateString = date => {
   date->Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:ss[Z]")
 }
 
 let getDateFilteredObject = (~range=7) => {
   let currentDate = Date.make()
 
-  let end_time = currentDate->formateDateString
+  let end_time = currentDate->formatDateString
 
   let start_time =
     Js.Date.makeWithYMD(
@@ -21,7 +21,7 @@ let getDateFilteredObject = (~range=7) => {
     )
     ->Js.Date.setDate((currentDate->Js.Date.getDate->Float.toInt - range)->Int.toFloat)
     ->Js.Date.fromFloat
-    ->formateDateString
+    ->formatDateString
 
   {
     start_time,
@@ -46,7 +46,7 @@ let useSetInitialFilters = (
   let {filterValueJson} = FilterContext.filterContext->React.useContext
 
   () => {
-    let inititalSearchParam = Dict.make()
+    let initialSearchParam = Dict.make()
 
     let defaultDate = getDateFilteredObject(~range)
 
@@ -83,12 +83,12 @@ let useSetInitialFilters = (
 
       timeRange->Array.forEach(item => {
         let (key, defaultValue) = item
-        switch inititalSearchParam->Dict.get(key) {
+        switch initialSearchParam->Dict.get(key) {
         | Some(_) => ()
-        | None => inititalSearchParam->Dict.set(key, defaultValue)
+        | None => initialSearchParam->Dict.set(key, defaultValue)
         }
       })
-      inititalSearchParam->updateExistingKeys
+      initialSearchParam->updateExistingKeys
     }
   }
 }
@@ -163,6 +163,7 @@ module RemoteTableFilters = {
     ~entityName: APIUtilsTypes.entityTypeWithVersion,
     ~version=UserInfoTypes.V1,
     ~connectorTypes: array<ConnectorTypes.connector>=[Processor, ThreeDsAuthenticator],
+    ~customFilterActions=React.null,
     (),
   ) => {
     open LogicUtils
@@ -311,23 +312,27 @@ module RemoteTableFilters = {
       None
     }, [filterValueJson])
 
-    React.useEffect(() => {
-      if filterValueJson->Dict.keysToArray->Array.length != 0 {
-        setFilters(_ => Some(filterValueJson))
-        setOffset(_ => 0)
-      } else {
-        setFilters(_ => Some(Dict.make()))
-        setOffset(_ => 0)
-      }
-      None
-    }, [filterValue])
-
     let dict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
     let defaultSort: LoadedTable.sortOb = {
       sortKey: "",
       sortType: DSC,
     }
-    let value = dict->Dict.get(title)->Option.getOr(defaultSort)
+    let value = dict->getValueFromDict(title, defaultSort)
+    let sortSignature = `${value.sortKey}|${value->OrderTypes.getSortString}`
+
+    let lastFiltersSignature = React.useRef("")
+
+    React.useEffect(() => {
+      let next =
+        filterValueJson->Dict.keysToArray->Array.length != 0 ? filterValueJson : Dict.make()
+      let signature = `${next->JSON.Encode.object->JSON.stringify}|${sortSignature}`
+      if lastFiltersSignature.current !== signature {
+        lastFiltersSignature.current = signature
+        setFilters(_ => Some(next))
+        setOffset(_ => 0)
+      }
+      None
+    }, (filterValue, sortSignature))
 
     React.useEffect(() => {
       if value.sortKey->isNonEmptyString {
@@ -356,43 +361,23 @@ module RemoteTableFilters = {
       )
     let remoteOptions = []
 
-    switch filterDataJson {
-    | Some(_) =>
-      <Filter
-        key="0"
-        customLeftView
-        defaultFilters
-        fixedFilters={initialFixedFilter(version)}
-        requiredSearchFieldsList=[]
-        localFilters={initialDisplayFilters}
-        localOptions=[]
-        remoteOptions
-        remoteFilters
-        autoApply=false
-        submitInputOnEnter
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        updateUrlWith={updateExistingKeys}
-        clearFilters={() => reset()}
-        title
-      />
-    | _ =>
-      <Filter
-        key="1"
-        customLeftView
-        defaultFilters
-        fixedFilters={initialFixedFilter(version)}
-        requiredSearchFieldsList=[]
-        localFilters=[]
-        localOptions=[]
-        remoteOptions=[]
-        remoteFilters=[]
-        autoApply=false
-        submitInputOnEnter
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        updateUrlWith={updateExistingKeys}
-        clearFilters={() => reset()}
-        title
-      />
-    }
+    <Filter
+      key="remoteFilters"
+      customLeftView
+      defaultFilters
+      fixedFilters={initialFixedFilter(version)}
+      requiredSearchFieldsList=[]
+      localFilters={initialDisplayFilters}
+      localOptions=[]
+      remoteOptions
+      remoteFilters
+      autoApply=false
+      submitInputOnEnter
+      defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+      updateUrlWith={updateExistingKeys}
+      clearFilters={() => reset()}
+      title
+      customFilterActions
+    />
   }
 }

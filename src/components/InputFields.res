@@ -42,7 +42,7 @@ let selectInput = (
   ~buttonSize=Button.Large,
   ~maxButtonWidth="",
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
-  <SelectBox
+  <SelectBoxAdapter
     input
     options
     buttonText
@@ -112,7 +112,7 @@ let filterMultiSelectInput = (
   ~isDropDown=true,
   ~searchable=false,
   ~showBorder=?,
-  ~optionRigthElement=?,
+  ~optionRightElement=?,
   ~customStyle="",
   ~customMargin="",
   ~customButtonStyle=?,
@@ -151,7 +151,7 @@ let filterMultiSelectInput = (
   ~disableSelect=false,
   (),
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
-  <FilterSelectBox
+  <FilterSelectBoxAdapter
     input
     options
     optionSize
@@ -166,7 +166,7 @@ let filterMultiSelectInput = (
     ?showBorder
     customStyle
     customMargin
-    ?optionRigthElement
+    ?optionRightElement
     hideBorder
     allSelectType
     ?customButtonStyle
@@ -215,7 +215,7 @@ let multiSelectInput = (
   ~isDropDown=true,
   ~searchable=false,
   ~showBorder=?,
-  ~optionRigthElement=?,
+  ~optionRightElement=?,
   ~customStyle="",
   ~customMargin="",
   ~customButtonStyle=?,
@@ -253,7 +253,7 @@ let multiSelectInput = (
   ~baseComponentMethod=?,
   ~disableSelect=false,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
-  <SelectBox
+  <SelectBoxAdapter
     input
     options
     optionSize
@@ -268,7 +268,7 @@ let multiSelectInput = (
     ?showBorder
     customStyle
     customMargin
-    ?optionRigthElement
+    ?optionRightElement
     hideBorder
     allSelectType
     ?customButtonStyle
@@ -401,12 +401,12 @@ let textTagInput = (
   ~name="",
   ~customStyle=?,
   ~disabled=false,
-  ~seperateByComma=false,
-  ~seperateBySpace=false,
+  ~separateByComma=false,
+  ~separateBySpace=false,
   ~customButtonStyle=?,
 ) => {
   <MultipleTextInput
-    input name disabled seperateByComma seperateBySpace ?customStyle ?customButtonStyle placeholder
+    input name disabled separateByComma separateBySpace ?customStyle ?customButtonStyle placeholder
   />
 }
 
@@ -417,30 +417,22 @@ let fileInput = () => (~input: ReactFinalForm.fieldRenderPropsInput) => {
 let numericTextInput = (
   ~isDisabled=false,
   ~customStyle="",
-  ~inputMode=?,
   ~precision=?,
   ~maxLength=?,
   ~removeLeadingZeroes=false,
-  ~leftIcon=?,
   ~rightIcon=?,
-  ~customPaddingClass=?,
   ~rightIconCustomStyle=?,
-  ~leftIconCustomStyle=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
   <NumericTextInputAdapter
     customStyle
     input
     placeholder
     isDisabled
-    ?inputMode
     ?precision
     ?maxLength
     removeLeadingZeroes
-    ?leftIcon
     ?rightIcon
-    ?customPaddingClass
     ?rightIconCustomStyle
-    ?leftIconCustomStyle
   />
 }
 
@@ -454,7 +446,7 @@ let singleDatePickerInput = (
   ~currentDateSecondsFormat="00",
   ~customButtonStyle=?,
   ~newThemeCustomButtonStyle=?,
-  ~calendarContaierStyle=?,
+  ~calendarContainerStyle=?,
   ~buttonSize=?,
   ~showTime=?,
   ~fullLength=?,
@@ -470,7 +462,7 @@ let singleDatePickerInput = (
     currentDateSecondsFormat
     ?customButtonStyle
     ?newThemeCustomButtonStyle
-    ?calendarContaierStyle
+    ?calendarContainerStyle
     ?buttonSize
     ?showTime
     ?fullLength
@@ -500,7 +492,7 @@ let filterDateRangeField = (
   ~customButtonStyle="!rounded-lg !bg-none",
 ): comboCustomInputRecord => {
   let fn = (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
-    <DateRangeField
+    <DateRangeFieldAdapter
       disablePastDates
       disableFutureDates
       format
@@ -601,7 +593,7 @@ let dateRangeField = (
   ~isTooltipVisible=true,
 ): comboCustomInputRecord => {
   let fn = (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
-    <DateRangePicker
+    <DateRangePickerAdapter
       disablePastDates
       disableFutureDates
       format

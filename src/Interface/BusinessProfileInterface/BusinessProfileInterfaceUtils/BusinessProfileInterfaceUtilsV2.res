@@ -119,6 +119,7 @@ let mapV2toCommonType: profileEntity_v2 => BusinessProfileInterfaceTypes.commonP
     force_3ds_challenge: None,
     is_debit_routing_enabled: profileRecord.is_debit_routing_enabled,
     acquirer_configs: None,
+    acquirer_config_bucket: None,
     merchant_category_code: profileRecord.merchant_category_code,
     is_network_tokenization_enabled: profileRecord.is_network_tokenization_enabled,
     always_request_extended_authorization: None,
@@ -131,6 +132,7 @@ let mapV2toCommonType: profileEntity_v2 => BusinessProfileInterfaceTypes.commonP
     payment_link_config: None,
     is_external_vault_enabled: None,
     external_vault_connector_details: None,
+    payment_method_blocking: None,
   }
 }
 

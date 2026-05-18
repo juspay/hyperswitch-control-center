@@ -22,6 +22,14 @@ type groupAccessType =
   | AccountManage
   | ThemeView
   | ThemeManage
+  | ReconSourcesView
+  | ReconSourcesManage
+  | ReconTransactionsView
+  | ReconTransactionsManage
+  | ReconRulesView
+  | ReconRulesManage
+  | ReconExceptionsView
+  | ReconExceptionsManage
   | UnknownGroupAccess(string)
 
 type resourceAccessType =
@@ -35,13 +43,6 @@ type resourceAccessType =
   | Routing
   | ThreeDsDecisionManager
   | SurchargeDecisionManager
-  | ReconToken
-  | ReconFiles
-  | ReconAndSettlementAnalytics
-  | ReconUpload
-  | ReconReports
-  | RunRecon
-  | ReconConfig
   | Account
   | ApiKey
   | User
@@ -49,6 +50,12 @@ type resourceAccessType =
   | WebhookEvent
   | Report
   | Theme
+  | ReconIngestion
+  | ReconTransformation
+  | ReconException
+  | ReconStagingEntry
+  | ReconTransaction
+  | ReconRule
   | UnknownResourceAccess(string)
 
 open CommonAuthTypes
@@ -69,6 +76,14 @@ type groupAccessJsonType = {
   accountManage: authorization,
   themeView: authorization,
   themeManage: authorization,
+  reconSourcesView: authorization,
+  reconSourcesManage: authorization,
+  reconTransactionsView: authorization,
+  reconTransactionsManage: authorization,
+  reconRulesView: authorization,
+  reconRulesManage: authorization,
+  reconExceptionsView: authorization,
+  reconExceptionsManage: authorization,
 }
 
 type getInfoType = {

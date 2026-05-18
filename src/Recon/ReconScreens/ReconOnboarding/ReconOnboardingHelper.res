@@ -287,7 +287,7 @@ module ReconciliationOverview = {
         <div className="flex flex-row gap-6 absolute bottom-0 right-0">
           <Form>
             <div className="flex flex-row gap-6">
-              <SelectBox.BaseDropdown
+              <SelectBoxAdapter.BaseDropdown
                 allowMultiSelect=false
                 buttonText=""
                 input
