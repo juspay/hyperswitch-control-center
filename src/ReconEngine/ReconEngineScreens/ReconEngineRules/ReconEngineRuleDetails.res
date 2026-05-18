@@ -292,7 +292,6 @@ module TriggerRules = {
     let triggerData = getTriggerData(rule.strategy)
     let conditions = triggerData->mapOptionOrDefault([], getTriggerConditions)
     let logic = triggerData->mapOptionOrDefault(UnknownTriggerLogic, getTriggerLogic)
-    let logicLabel = logic === UnknownTriggerLogic ? "" : (logic :> string)
 
     <div className="flex flex-col gap-2">
       <p className={`${body.md.medium} text-nd_gray-700`}> {"Filters"->React.string} </p>
@@ -300,7 +299,7 @@ module TriggerRules = {
         <p className={`${body.md.regular} text-nd_gray-600`}> {"Logic Type:"->React.string} </p>
         <span
           className={`px-2 py-0.5 ${body.sm.semibold} rounded-md bg-nd_gray-50 border border-nd_gray-200 text-nd_gray-700 uppercase`}>
-          {logicLabel->React.string}
+          {(logic :> string)->React.string}
         </span>
       </div>
       <div className="flex flex-col gap-3">
