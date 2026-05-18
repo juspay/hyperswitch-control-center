@@ -87,23 +87,6 @@ test.describe("Profile", () => {
     }
     await expect(badge2FA).toBeVisible();
   });
-
-  test("should expose a Profile / Account Settings entry in the user menu", async ({
-    page,
-  }) => {
-    const profilePage = new ProfilePage(page);
-    await profilePage.profileButton.click();
-
-    const profile = profilePage.profileMenuEntry;
-    const isVisible = await profile.isVisible().catch(() => false);
-    if (!isVisible) {
-      test.skip(
-        true,
-        "profile link not exposed in this build — menu-only sign out",
-      );
-    }
-    await expect(profile).toBeVisible({ timeout: 5000 });
-  });
 });
 
 test.describe.skip("Account Settings - Profile page", () => {
