@@ -450,7 +450,7 @@ module TableHeadingCell = {
               <div className={"flex flex-row"}>
                 <RenderIf condition={item.showMultiSelectCheckBox->Option.getOr(false)}>
                   <div className=" mt-1 mr-2">
-                    <CheckBoxIcon
+                    <CheckBoxIconAdapter
                       isSelected={isAllSelected}
                       setIsSelected
                       isSelectedStateMinus
