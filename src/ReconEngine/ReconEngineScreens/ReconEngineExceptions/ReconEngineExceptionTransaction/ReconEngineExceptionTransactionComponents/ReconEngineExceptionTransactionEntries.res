@@ -161,7 +161,7 @@ let make = (
       exceptionStage == ConfirmResolution(MarkAsReceived) ||
       exceptionStage == ConfirmResolution(LinkStagingEntriesToTransaction)}>
       <div
-        className="flex flex-row items-center gap-3 absolute right-1/2 bottom-10 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl p-3">
+        className="flex flex-row items-center gap-3 fixed left-1/2 -translate-x-1/2 bottom-4 z-50 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl p-3">
         <div className="flex gap-3">
           <Button
             text="Discard"
