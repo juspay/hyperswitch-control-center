@@ -62,7 +62,7 @@ module RenderPermissionModule = {
       </div>
       <div className="flex gap-8">
         <div className="w-20 flex justify-center">
-          <CheckBoxIcon
+          <CheckBoxIconAdapter
             isSelected=isReadSelected
             setIsSelected={isSelected => {
               handleScopeChange(Read, isSelected)
@@ -72,7 +72,7 @@ module RenderPermissionModule = {
           />
         </div>
         <div className="w-24 flex justify-center">
-          <CheckBoxIcon
+          <CheckBoxIconAdapter
             isSelected=isWriteSelected
             setIsSelected={isSelected => {
               handleScopeChange(Write, isSelected)
