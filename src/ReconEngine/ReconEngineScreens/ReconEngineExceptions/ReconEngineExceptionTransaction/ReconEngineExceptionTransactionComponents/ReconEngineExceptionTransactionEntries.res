@@ -64,7 +64,7 @@ let make = (
         rowData: entriesWithUniqueId->Array.map(entry => entry->Identity.genericTypeToJson),
       }
     })
-  }, (groupedEntries, accountInfoMap, detailsFields, currentExceptionDetails.transaction_status))
+  }, (groupedEntries, accountInfoMap, currentExceptionDetails.transaction_status))
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
@@ -144,7 +144,7 @@ let make = (
     />
     <ReconEngineCustomExpandableSelectionTable
       title=""
-      heading={detailsFields->Array.map(getHeading)}
+      heading={getDetailFieldsForTableSections->Array.map(getHeading)}
       getSectionRowDetails=sectionDetails
       showScrollBar=true
       showOptions={exceptionStage == ResolvingException(EditEntry) ||
