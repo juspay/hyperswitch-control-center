@@ -20,8 +20,8 @@ let make = (
     | Some(strArr) =>
       let parts = strArr->Array.joinWithUnsafe("")->String.split(".")->Array.slice(~start=0, ~end=2)
       if removeLeadingZeroes {
-        parts[0] = parts[0]->Option.getOr("")->String.replaceRegExp(%re("/\b0+/g"), "")
-        parts[0] = parts[0]->Option.getOr("")->isEmptyString ? "0" : parts[0]->Option.getOr("")
+        let stripped = parts[0]->Option.getOr("")->String.replaceRegExp(%re("/\b0+/g"), "")
+        parts[0] = stripped->isEmptyString ? "0" : stripped
       }
       parts->Array.joinWith(".")
     | None => ""
@@ -36,11 +36,11 @@ let make = (
       }
     | None => ""
     }
-    precisionCheckedVal->isNonEmptyString ? precisionCheckedVal : cleanedValue
+    precisionCheckedVal->getNonEmptyString->Option.getOr(cleanedValue)
   }
 
   let blendValue =
-    input.value->JSON.Decode.float->Option.mapOr(Nullable.null, f => Nullable.make(f))
+    input.value->getOptionFloatFromJson->Option.mapOr(Nullable.null, Nullable.make)
 
   let blendOnChange = ev => {
     let strValue: string = ReactEvent.Form.target(ev)["value"]
