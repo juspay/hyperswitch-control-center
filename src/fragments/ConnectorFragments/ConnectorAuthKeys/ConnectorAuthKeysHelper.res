@@ -23,7 +23,7 @@ module MultiConfigInp = {
       value: enabledList.value,
       checked: true,
     }
-    <TextInput input placeholder={`Enter ${label->LogicUtils.snakeToTitle}`} />
+    <TextInputAdapter input placeholder={`Enter ${label->LogicUtils.snakeToTitle}`} />
   }
 }
 
@@ -189,7 +189,7 @@ module CashToCodeSelectBox = {
         renderContentOnTop: Some(
           () =>
             <div className="flex items-center gap-3 w-full">
-              <CheckBoxIcon isSelected=isCountrySelected stopPropagationNeeded=true />
+              <CheckBoxIconAdapter isSelected=isCountrySelected stopPropagationNeeded=true />
               <span
                 className={`${body.sm.semibold} text-nd-gray-600 dark:text-jp-gray-text_darktheme`}>
                 {countryTitle->React.string}

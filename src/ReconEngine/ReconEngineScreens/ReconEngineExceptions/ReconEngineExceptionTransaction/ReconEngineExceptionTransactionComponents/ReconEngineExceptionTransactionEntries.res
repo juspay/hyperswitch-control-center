@@ -23,16 +23,6 @@ let make = (
   let (updatedEntriesList, setUpdatedEntriesList) = React.useState(_ =>
     entriesList->addUniqueIdsToEntries
   )
-  let detailsFields = [
-    EntryType,
-    Amount,
-    Currency,
-    Status,
-    EntryId,
-    OrderID,
-    EffectiveAt,
-    CreatedAt,
-  ]
   let (showConfirmationModal, setShowConfirmationModal) = React.useState(_ => false)
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -60,11 +50,15 @@ let make = (
   }
 
   let tableSections = React.useMemo(() => {
-    let sections = getEntriesSections(~groupedEntries, ~accountInfoMap, ~detailsFields)
+    let sections = getEntriesSections(
+      ~groupedEntries,
+      ~accountInfoMap,
+      ~detailsFields=getDetailFieldsForTableSections,
+    )
     let accountIds = groupedEntries->Dict.keysToArray
     sections->Array.mapWithIndex((section, index) => {
       let accountId = accountIds->getValueFromArray(index, "")
-      let entriesWithUniqueId = groupedEntries->Dict.get(accountId)->Option.getOr([])
+      let entriesWithUniqueId = groupedEntries->getValueFromDict(accountId, [])
       {
         ...section,
         rowData: entriesWithUniqueId->Array.map(entry => entry->Identity.genericTypeToJson),

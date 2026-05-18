@@ -808,7 +808,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     <PageLoaderWrapper
       screenState
       customUI={<NoDataFound
-        message="Payment does not exists in out record" renderType=NotFound
+        message="Payment does not exist in our records" renderType=NotFound
       />}>
       <div className="flex flex-col gap-8">
         <OrderInfo

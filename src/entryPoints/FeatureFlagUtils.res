@@ -13,7 +13,6 @@ type featureFlag = {
   sampleData: bool,
   frm: bool,
   payOut: bool,
-  recon: bool,
   testProcessors: bool,
   feedback: bool,
   generateReport: bool,
@@ -79,6 +78,7 @@ type featureFlag = {
   devBlendEnabled: bool,
   devSortEnabled: bool,
   reconEnginePermissions: bool,
+  devSavedViews: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -94,7 +94,6 @@ let featureFlagType = (featureFlags: JSON.t) => {
     sampleData: dict->getBool("sample_data", false),
     frm: dict->getBool("frm", false),
     payOut: dict->getBool("payout", false),
-    recon: dict->getBool("recon", false),
     testProcessors: dict->getBool("test_processors", false),
     clickToPay: dict->getBool("dev_click_to_pay", false),
     debitRouting: dict->getBool("dev_debit_routing", false),
@@ -160,6 +159,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devBlendEnabled: dict->getBool("dev_blend_enabled", false),
     devSortEnabled: dict->getBool("dev_sort_enabled", false),
     reconEnginePermissions: dict->getBool("recon_engine_permissions", false),
+    devSavedViews: dict->getBool("dev_saved_views", false),
   }
 }
 

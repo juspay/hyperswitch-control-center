@@ -119,7 +119,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
     </Form>
     <PageLoaderWrapper
       screenState
-      customUI={<NoDataFound message="Please connect atleast 1 connector" renderType=Painting />}>
+      customUI={<NoDataFound message="Please connect at least 1 connector" renderType=Painting />}>
       <div
         className="flex flex-col gap-4 p-6 my-6 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850">
         <div className="flex flex-col lg:flex-row ">

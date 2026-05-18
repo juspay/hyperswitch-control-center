@@ -170,7 +170,7 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Test@123456";
 test.describe("{Feature} - {Source}", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     // Enable feature flags if needed (from test-plan.json)
     await page.route("/dashboard/config/feature*", async (route) => {

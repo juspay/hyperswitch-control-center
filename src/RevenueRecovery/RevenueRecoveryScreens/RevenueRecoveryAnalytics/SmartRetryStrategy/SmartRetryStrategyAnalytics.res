@@ -112,7 +112,7 @@ let make = (~entity: moduleEntity) => {
                     <ToolTip
                       description
                       toolTipFor={<div className="cursor-pointer flex gap-2 text-gray-700">
-                        <Icon name="info-vacent" size=15 />
+                        <Icon name="info-vacant" size=15 />
                         {"View Grouping"->React.string}
                       </div>}
                       toolTipPosition=ToolTip.Top

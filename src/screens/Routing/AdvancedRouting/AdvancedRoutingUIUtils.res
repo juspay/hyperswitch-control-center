@@ -99,7 +99,7 @@ module OperatorInp = {
       }
     })
     let textColorStyle = disableSelect ? "text-hyperswitch_red opacity-50" : "text-hyperswitch_red"
-    <SelectBox.BaseDropdown
+    <SelectBoxAdapter.BaseDropdown
       allowMultiSelect=false
       buttonText="Select Operator"
       input
@@ -154,7 +154,7 @@ module ValueInp = {
 
     switch opField.value->getStringFromJson("")->operatorMapper {
     | CONTAINS | NOT_CONTAINS =>
-      <SelectBox.BaseDropdown
+      <SelectBoxAdapter.BaseDropdown
         allowMultiSelect=true
         buttonText="Select Value"
         input
@@ -166,7 +166,7 @@ module ValueInp = {
       />
     | IS | IS_NOT => {
         let val = valueField.value->getStringFromJson("")
-        <SelectBox.BaseDropdown
+        <SelectBoxAdapter.BaseDropdown
           allowMultiSelect=false
           buttonText={val->String.length === 0 ? "Select Value" : val}
           input
@@ -178,12 +178,12 @@ module ValueInp = {
       }
     | EQUAL_TO =>
       switch keyType->variantTypeMapper {
-      | String_value | Metadata_value => <TextInput input placeholder="Enter value" />
+      | String_value | Metadata_value => <TextInputAdapter input placeholder="Enter value" />
       | FixedNumber => <NumericTextInput placeholder={"Enter value"} input=valueField />
       | _ => <NumericTextInput placeholder={"Enter value"} input />
       }
 
-    | NOT_EQUAL_TO => <TextInput input placeholder="Enter value" />
+    | NOT_EQUAL_TO => <TextInputAdapter input placeholder="Enter value" />
     | LESS_THAN | GREATER_THAN => <NumericTextInput placeholder={"Enter value"} input />
 
     | _ => React.null
@@ -219,7 +219,7 @@ module MetadataInp = {
       checked: true,
     }
     <RenderIf condition={keyType->variantTypeMapper === Metadata_value}>
-      <TextInput placeholder={"Enter Key"} input=textInput />
+      <TextInputAdapter placeholder={"Enter Key"} input=textInput />
     </RenderIf>
   }
 }
@@ -351,7 +351,7 @@ module FieldInp = {
       checked: true,
     }
 
-    <SelectBox.BaseDropdown
+    <SelectBoxAdapter.BaseDropdown
       allowMultiSelect=false
       buttonText="Select Field"
       input

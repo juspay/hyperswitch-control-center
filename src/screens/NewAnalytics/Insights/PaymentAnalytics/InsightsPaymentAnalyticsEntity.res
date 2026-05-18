@@ -153,7 +153,7 @@ let failureReasonsEntity: moduleEntity = {
     metrics: [#failure_reasons],
     groupBy: [#error_reason],
   },
-  title: "Failure Reasons ",
+  title: "Failure Reasons",
   domain: #payments,
 }
 
