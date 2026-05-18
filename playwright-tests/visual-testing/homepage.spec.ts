@@ -12,6 +12,11 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 test.describe("Visual Testing - Homepage", () => {
   test("homepage should match visual snapshot", async ({ page, context }) => {
     const homePage = new HomePage(page);
+
+    // Freeze time so the greeting ("Good morning"/"afternoon"/"evening")
+    // is deterministic across runs and can be snapshotted without masking.
+    await page.clock.setFixedTime(new Date("2026-01-15T03:30:00Z"));
+
     await mockV2MerchantList(page);
 
     const email = generateUniqueEmail();
@@ -25,12 +30,10 @@ test.describe("Visual Testing - Homepage", () => {
     await expect(page).toHaveScreenshot("homepage.png", {
       fullPage: true,
       animations: "disabled",
-      mask: [
-        homePage.navHeaderMask,
-        homePage.homeGreetingMask,
-        homePage.merchantNameButton,
-      ],
+      mask: [homePage.navHeaderMask, homePage.merchantNameButton, page.locator('div.flex.items-center.gap-2').nth(9), page.locator('div.flex.items-center.gap-2').nth(10)],
     });
+
+    page.locator('div.flex.items-center.gap-2').filter({ hasText: 'merchant_' })
 
     await homePage.homeV2.click();
     await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
