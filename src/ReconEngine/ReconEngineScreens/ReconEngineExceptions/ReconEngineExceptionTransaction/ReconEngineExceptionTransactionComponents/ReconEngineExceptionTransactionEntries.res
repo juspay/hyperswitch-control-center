@@ -58,7 +58,7 @@ let make = (
     let accountIds = groupedEntries->Dict.keysToArray
     sections->Array.mapWithIndex((section, index) => {
       let accountId = accountIds->getValueFromArray(index, "")
-      let entriesWithUniqueId = groupedEntries->getvalFromDict(accountId)->Option.getOr([])
+      let entriesWithUniqueId = groupedEntries->getValueFromDict(accountId, [])
       {
         ...section,
         rowData: entriesWithUniqueId->Array.map(entry => entry->Identity.genericTypeToJson),
