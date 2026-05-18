@@ -1,28 +1,4 @@
-open LogicUtils
-
-let cleanNumericString = (rawValue, ~removeLeadingZeroes=false, ~precision=?) => {
-  let cleanedValue = switch rawValue->Js.String2.match_(%re("/[\d\.]/g")) {
-  | Some(strArr) =>
-    let parts = strArr->Array.joinWithUnsafe("")->String.split(".")->Array.slice(~start=0, ~end=2)
-    if removeLeadingZeroes {
-      parts[0] = parts[0]->Option.getOr("")->String.replaceRegExp(%re("/\b0+/g"), "")
-      parts[0] = parts[0]->Option.getOr("")->isEmptyString ? "0" : parts[0]->Option.getOr("")
-    }
-    parts->Array.joinWith(".")
-  | None => ""
-  }
-  let indexOfDec = cleanedValue->String.indexOf(".")
-  let precisionCheckedVal = switch precision {
-  | Some(val) =>
-    if indexOfDec > 0 {
-      cleanedValue->String.slice(~start=0, ~end={indexOfDec + val + 1})
-    } else {
-      ""
-    }
-  | None => ""
-  }
-  precisionCheckedVal->isNonEmptyString ? precisionCheckedVal : cleanedValue
-}
+let getFloat = strJson => strJson->JSON.Decode.string->Option.flatMap(val => val->Float.fromString)
 
 @react.component
 let make = (
@@ -76,14 +52,43 @@ let make = (
       value: localStrValue,
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
-        let strValue = getStringFromJson(value, "")
-        let finalVal = strValue->cleanNumericString(~removeLeadingZeroes, ~precision?)
+
+        let strValue = value->JSON.Decode.string->Option.getOr("")
+
+        let cleanedValue = switch strValue->Js.String2.match_(%re("/[\d\.]/g")) {
+        | Some(strArr) =>
+          let str =
+            strArr->Array.joinWithUnsafe("")->String.split(".")->Array.slice(~start=0, ~end=2)
+          let result = if removeLeadingZeroes {
+            str[0] = str[0]->Option.getOr("")->String.replaceRegExp(%re("/\b0+/g"), "")
+            str[0] =
+              str[0]->Option.getOr("")->LogicUtils.isEmptyString ? "0" : str[0]->Option.getOr("")
+            str->Array.joinWith(".")
+          } else {
+            str->Array.joinWith(".")
+          }
+          result
+        | None => ""
+        }
+        let indexOfDec = cleanedValue->String.indexOf(".")
+        let precisionCheckedVal = switch precision {
+        | Some(val) =>
+          if indexOfDec > 0 {
+            cleanedValue->String.slice(~start=0, ~end={indexOfDec + val + 1})
+          } else {
+            ""
+          }
+        | None => ""
+        }
+
+        let finalVal =
+          precisionCheckedVal->LogicUtils.isNonEmptyString ? precisionCheckedVal : cleanedValue
         setLocalStrValue(_ => finalVal->JSON.Encode.string)
 
-        switch finalVal->Float.fromString {
+        switch finalVal->JSON.Encode.string->getFloat {
         | Some(num) => input.onChange(num->Identity.anyTypeToReactEvent)
         | None =>
-          if value->isEmptyString {
+          if value->LogicUtils.isEmptyString {
             input.onChange(JSON.Encode.null->Identity.anyTypeToReactEvent)
           }
         }
