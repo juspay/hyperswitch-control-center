@@ -1,5 +1,29 @@
 open LogicUtils
 
+let cleanNumericString = (rawValue, ~removeLeadingZeroes=false, ~precision=?) => {
+  let cleanedValue = switch rawValue->Js.String2.match_(%re("/[\d\.]/g")) {
+  | Some(strArr) =>
+    let parts = strArr->Array.joinWithUnsafe("")->String.split(".")->Array.slice(~start=0, ~end=2)
+    if removeLeadingZeroes {
+      parts[0] = parts[0]->Option.getOr("")->String.replaceRegExp(%re("/\b0+/g"), "")
+      parts[0] = parts[0]->Option.getOr("")->isEmptyString ? "0" : parts[0]->Option.getOr("")
+    }
+    parts->Array.joinWith(".")
+  | None => ""
+  }
+  let indexOfDec = cleanedValue->String.indexOf(".")
+  let precisionCheckedVal = switch precision {
+  | Some(val) =>
+    if indexOfDec > 0 {
+      cleanedValue->String.slice(~start=0, ~end={indexOfDec + val + 1})
+    } else {
+      ""
+    }
+  | None => ""
+  }
+  precisionCheckedVal->isNonEmptyString ? precisionCheckedVal : cleanedValue
+}
+
 @react.component
 let make = (
   ~input: ReactFinalForm.fieldRenderPropsInput,

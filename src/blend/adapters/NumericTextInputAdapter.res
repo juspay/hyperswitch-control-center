@@ -20,7 +20,7 @@ let make = (
 
   let blendOnChange = ev => {
     let strValue: string = ReactEvent.Form.target(ev)["value"]
-    let finalVal = strValue->cleanNumericString(~removeLeadingZeroes, ~precision?)
+    let finalVal = strValue->NumericTextInput.cleanNumericString(~removeLeadingZeroes, ~precision?)
 
     switch finalVal->Float.fromString {
     | Some(num) => input.onChange(num->Identity.anyTypeToReactEvent)
