@@ -43,6 +43,7 @@ let make = () => {
       handleClick=handleExtendDateButtonClick
     />
   }
+  let hasSearchText = searchText->isNonEmptyString
   let fetchRefunds = () => {
     switch filters {
     | Some(dict) =>
@@ -118,7 +119,7 @@ let make = () => {
               endTimeFilterKey
               startTimeFilterKey
               initialFilters
-              initialFixedFilter
+              initialFixedFilter={version => initialFixedFilter(version, ~disable=hasSearchText)}
               setOffset
               customLeftView={<SearchBarFilter
                 placeholder="Search for payment ID or refund ID"
