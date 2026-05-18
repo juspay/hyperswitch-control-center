@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.18.2
+
+### Bug Fixes
+
+- Recon engine bulk operations modal z index ([#4830](https://github.com/juspay/hyperswitch-control-center/pull/4830)) ([`708f92c`](https://github.com/juspay/hyperswitch-control-center/commit/708f92c98e21bfc1229bb04ee887fcc78c5751a4))
+
+**Full Changelog:** [`2026.05.18.1...2026.05.18.2`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.18.1...2026.05.18.2)
+
+- - -
+
 ## 2026.05.18.1
 
 ### Features
