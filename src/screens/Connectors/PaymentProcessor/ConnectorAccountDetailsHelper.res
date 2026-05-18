@@ -23,7 +23,7 @@ module MultiConfigInp = {
       value: enabledList.value,
       checked: true,
     }
-    <TextInput input placeholder={`Enter ${label->LogicUtils.snakeToTitle}`} />
+    <TextInputAdapter input placeholder={`Enter ${label->LogicUtils.snakeToTitle}`} />
   }
 }
 
