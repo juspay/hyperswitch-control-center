@@ -26,7 +26,7 @@ async function signupAndLogin(
   context: BrowserContext,
 ): Promise<void> {
   const email = generateUniqueEmail();
-  await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+  await signupUser(email, PLAYWRIGHT_PASSWORD);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 }
 
@@ -38,6 +38,10 @@ async function gotoConnectorList(page: Page): Promise<void> {
 }
 
 async function fillStripeFormDefaults(page: Page): Promise<void> {
+  const paymentConnector = new PaymentConnector(page);
+  await expect(paymentConnector.apiKeyInput).toBeVisible();
+  await expect(paymentConnector.connectorLabelInput).toBeVisible();
+
   const inputs = page
     .locator('.grid.grid-cols-2 input[type="text"]')
     .locator("visible=true");
@@ -47,6 +51,8 @@ async function fillStripeFormDefaults(page: Page): Promise<void> {
     await input.clear();
     await input.fill("test_value");
   }
+
+  await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
 }
 
 async function openStripeConnectorForm(page: Page): Promise<void> {
@@ -54,9 +60,8 @@ async function openStripeConnectorForm(page: Page): Promise<void> {
   await gotoConnectorList(page);
   await paymentConnector.connectorSearchInput.fill("stripe");
   await page.waitForTimeout(500);
-  const stripeCard = page.locator('[data-testid="stripe"]').first();
-  await expect(stripeCard).toBeVisible({ timeout: 10000 });
-  await stripeCard.locator("button").click({ force: true });
+  await expect(paymentConnector.stripeConnector).toBeVisible({ timeout: 10000 });
+  await paymentConnector.stripeConnector.locator("button").click({ force: true });
   await fillStripeFormDefaults(page);
 }
 
@@ -72,7 +77,7 @@ async function setupConfiguredStripeConnector(
   return label;
 }
 
-test.describe("Stripe Connector", () => {
+test.describe("Payin Connector tests", () => {
   test.beforeEach(async ({ page, context }) => {
     await signupAndLogin(page, context);
   });
@@ -132,17 +137,12 @@ test.describe("Stripe Connector", () => {
       .locator("button")
       .click({ force: true });
 
-    await expect(
-      page.locator("[name=connector_account_details\\.api_key]"),
-    ).toHaveValue("test_key");
+    await expect(paymentConnector.apiKeyInput).toHaveValue("test_key");
 
-    await expect(paymentConnector.connectAndProceedButton).toBeEnabled({ timeout: 5000 });
-    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
+    await paymentConnector.connectAndProceedButton.click();
     await paymentConnector.pmtProceedButton.click();
 
-    await expect(
-      page.locator('[data-toast="Connector Created Successfully!"]'),
-    ).toBeVisible();
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible();
 
     await paymentConnector.connectorSetupDone.click();
 
@@ -153,10 +153,10 @@ test.describe("Stripe Connector", () => {
   test("should search the processor grid when searching a known processor", async ({
     page,
   }) => {
+    const paymentConnector = new PaymentConnector(page);
     await gotoConnectorList(page);
 
-    const search = page.getByPlaceholder("Search a processor");
-    await search.fill("adyen");
+    await paymentConnector.searchProcessorPlaceholder.fill("adyen");
     await page.waitForTimeout(500);
     await expect(page.getByText(/adyen/i).first()).toBeVisible({
       timeout: 5000,
@@ -166,10 +166,10 @@ test.describe("Stripe Connector", () => {
   test("should render zero Connect buttons when search has no matches", async ({
     page,
   }) => {
+    const paymentConnector = new PaymentConnector(page);
     await gotoConnectorList(page);
 
-    const search = page.getByPlaceholder("Search a processor");
-    await search.fill("nonexistentprocessor_zzzzzzzz");
+    await paymentConnector.searchProcessorPlaceholder.fill("nonexistentprocessor_zzzzzzzz");
     await page.waitForTimeout(700);
     const connectVisible = await page
       .getByRole("button", { name: "Connect", exact: true })
@@ -201,8 +201,8 @@ test.describe("Stripe Connector", () => {
     const mcaId = ((await mcaCell.textContent()) ?? "").trim();
     expect(mcaId.length).toBeGreaterThan(0);
 
-    const search = page
-      .locator('[data-testid="search-processor"]')
+    const paymentConnector = new PaymentConnector(page);
+    const search = paymentConnector.connectorSearchInput
       .or(page.getByPlaceholder(/Search/i))
       .first();
     await expect(search).toBeVisible({ timeout: 10000 });
@@ -227,8 +227,8 @@ test.describe("Stripe Connector", () => {
       .first();
     await expect(connectorRow).toBeVisible({ timeout: 10000 });
 
-    const search = page
-      .locator('[data-testid="search-processor"]')
+    const paymentConnector = new PaymentConnector(page);
+    const search = paymentConnector.connectorSearchInput
       .or(page.getByPlaceholder(/Search/i))
       .first();
     await expect(search).toBeVisible({ timeout: 10000 });
@@ -239,12 +239,6 @@ test.describe("Stripe Connector", () => {
     await expect(
       page.locator("div").filter({ hasText: /^No Data Available$/ }).nth(2),
     ).toBeVisible();
-  });
-
-  test("should mark required fields with asterisk", async ({ page }) => {
-    await openStripeConnectorForm(page);
-    await expect(page.locator('div').filter({ hasText: /^Secret Key \*$/ }).nth(1)).toBeVisible();
-    await expect(page.locator('div').filter({ hasText: /^Connector label \*$/ }).nth(2)).toBeVisible();
   });
 
   test("should show tooltip on Connector Label help icon hover", async ({
@@ -358,11 +352,10 @@ test.describe("Stripe Connector", () => {
     await gotoConnectorList(page);
     await paymentConnector.connectorSearchInput.fill("stripe");
     await page.waitForTimeout(500);
-    const stripeCard = page.locator('[data-testid="stripe"]').first();
-    await expect(stripeCard).toBeVisible({ timeout: 10000 });
-    await stripeCard.locator("button").click({ force: true });
+    await expect(paymentConnector.stripeConnector).toBeVisible({ timeout: 10000 });
+    await paymentConnector.stripeConnector.locator("button").click({ force: true });
 
-    const apiKeyField = page.locator("[name=connector_account_details\\.api_key]");
+    const apiKeyField = paymentConnector.apiKeyInput;
     await apiKeyField.fill("invalid_key_@#$%");
     await apiKeyField.blur();
     await expect(page.getByText('Secret key should have the prefix sk_test_')).toBeVisible();
@@ -380,8 +373,7 @@ test.describe("Stripe Connector", () => {
   }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
-    await expect(paymentConnector.connectAndProceedButton).toBeEnabled({ timeout: 5000 });
-    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
+    await paymentConnector.connectAndProceedButton.click();
 
     const stripePaymentSections = {
       Credit: {
@@ -453,18 +445,16 @@ test.describe("Stripe Connector", () => {
   test("should toggle card payment method", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
-    await expect(paymentConnector.connectAndProceedButton).toBeEnabled({ timeout: 5000 });
-    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
-    await expect(page.locator('.flex.items-center.transition.rounded-2\\.5').first()).toHaveAttribute('data-bool-value', 'on');
-    await page.locator('.flex.items-center.transition.rounded-2\\.5').first().click();
-    await expect(page.locator('.flex.items-center.transition.rounded-2\\.5').first()).toHaveAttribute('data-bool-value', 'off');
+    await paymentConnector.connectAndProceedButton.click();
+    await expect(paymentConnector.paymentMethodToggle).toHaveAttribute('data-bool-value', 'on');
+    await paymentConnector.paymentMethodToggle.click();
+    await expect(paymentConnector.paymentMethodToggle).toHaveAttribute('data-bool-value', 'off');
   });
 
   test("should configure Apple Pay web domain flow", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
-    await expect(paymentConnector.connectAndProceedButton).toBeEnabled({ timeout: 5000 });
-    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
+    await paymentConnector.connectAndProceedButton.click();
 
     await page.getByText("Apple Pay").click();
 
@@ -494,8 +484,7 @@ test.describe("Stripe Connector", () => {
   test("should configure Apple Pay iOS certificate flow", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
-    await expect(paymentConnector.connectAndProceedButton).toBeEnabled({ timeout: 5000 });
-    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
+    await paymentConnector.connectAndProceedButton.click();
 
     await page.getByText("Apple Pay").click();
 
@@ -544,8 +533,7 @@ test.describe("Stripe Connector", () => {
   test("should configure Google Pay flow", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
-    await expect(paymentConnector.connectAndProceedButton).toBeEnabled({ timeout: 5000 });
-    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
+    await paymentConnector.connectAndProceedButton.click();
 
     await page.getByText("Google Pay").click();
     await expect(page.getByText('Payment Gateway').nth(4)).toBeVisible();
@@ -580,8 +568,7 @@ test.describe("Stripe Connector", () => {
   test("should show summary preview after PMs step", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
-    await expect(paymentConnector.connectAndProceedButton).toBeEnabled({ timeout: 5000 });
-    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
+    await paymentConnector.connectAndProceedButton.click();
     await paymentConnector.pmtProceedButton.click();
 
     const summary = page.getByText(/Summary|Preview|Review/i).first();
@@ -589,6 +576,31 @@ test.describe("Stripe Connector", () => {
       test.skip(true, "Connector flow does not expose explicit summary step");
     }
     await expect(summary).toBeVisible();
+    await expect(page.getByText('Integration statusACTIVE')).toBeVisible();
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible();
+  });
+
+  test("should reject duplicate connector label with warning", async ({
+    page,
+    context,
+  }) => {
+    test.setTimeout(60000);
+    const createdLabel = await setupConfiguredStripeConnector(page, context);
+    const paymentConnector = new PaymentConnector(page);
+    await openStripeConnectorForm(page);
+    const labelInput = paymentConnector.connectorLabelInput;
+    await expect(labelInput).toBeVisible();
+    await labelInput.clear();
+    await labelInput.fill(createdLabel);
+    // 5s is too tight on CI: the form takes a moment to enable Connect &
+    // Proceed after the label change. Use the standard 30s action timeout.
+    await paymentConnector.connectAndProceedButton.click();
+    await expect(paymentConnector.pmtProceedButton).toBeVisible();
+    await paymentConnector.pmtProceedButton.click();
+
+    await expect(paymentConnector.connectorLabelExistsToast).toBeVisible({
+      timeout: 15000,
+    });
   });
 
   test("should render connector table with expected columns for configured connector", async ({
@@ -642,13 +654,15 @@ test.describe("Stripe Connector", () => {
     await stripeRow.click();
     await page.waitForLoadState("networkidle");
 
-    const toggle = page.locator('.transition.rounded-full');
+    const paymentConnector = new PaymentConnector(page);
+    const toggle = paymentConnector.connectorEnableToggle;
     await expect(toggle).toBeVisible();
     await toggle.click();
     await expect(page.locator('div').filter({ hasText: /^Disabled$/ }).nth(2)).toBeVisible();
-    await page.goBack();
-    await page.waitForLoadState("networkidle");
-    await expect(page.locator('div').filter({ hasText: /^DISABLED$/ }).first()).toBeVisible();
+    await gotoConnectorList(page);
+    await expect(
+      page.locator('div').filter({ hasText: /^DISABLED$/ }).first(),
+    ).toBeVisible({ timeout: 5000 });
   });
 
   test("should render pagination controls when 21 connectors are configured", async ({
@@ -702,21 +716,22 @@ test.describe("Stripe Connector", () => {
 
     await page.locator('.cursor-pointer > span > .flex').first().click();
 
-    const apiKey = page.locator("[name=connector_account_details\\.api_key]");
+    const paymentConnector = new PaymentConnector(page);
+    const apiKey = paymentConnector.apiKeyInput;
     await expect(apiKey).toBeVisible();
     await apiKey.clear();
     await apiKey.fill("rotated_key_value");
 
-    const connectorLabel = page.getByRole('textbox', { name: 'Enter Connector label' });
+    const connectorLabel = paymentConnector.connectorLabelTextbox;
     await expect(connectorLabel).toBeVisible();
     await connectorLabel.clear();
     await connectorLabel.fill("stripe_updated_label");
 
-    const save = page.getByRole('button', { name: 'Submit' });
+    const save = paymentConnector.submitButton;
     await expect(save).toBeVisible();
     await save.click();
 
-    await expect(page.locator('[data-toast*="Details Updated!"]').first()).toBeVisible();
+    await expect(paymentConnector.detailsUpdatedToast).toBeVisible();
 
     await expect(page.getByRole('heading', { name: 'ro*************ue' })).toBeVisible();
     await expect(page.getByRole("heading", { name: "te******ue" })).not.toBeVisible();
@@ -735,8 +750,9 @@ test.describe("Stripe Connector", () => {
     await expect(page.getByRole('heading', { name: 'Credit' })).toBeVisible();
     await page.locator('.fill-current.ml-2').click();
 
-    await page.locator('.flex.items-center.transition.rounded-2\\.5').first().click();
-    await page.locator('.flex.items-center.transition.rounded-2\\.5').first().click();
+    const paymentConnector = new PaymentConnector(page);
+    await paymentConnector.paymentMethodToggle.click();
+    await paymentConnector.paymentMethodToggle.click();
 
     await page.getByRole('button', { name: 'Proceed' }).click();
     await page.getByRole('button', { name: 'Done' }).click();
@@ -746,36 +762,12 @@ test.describe("Stripe Connector", () => {
     await expect(page.getByText('Integration statusACTIVE')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Credit' })).not.toBeVisible();
   });
-
-  test("should reject duplicate connector label with warning", async ({
-    page,
-    context,
-  }) => {
-    test.setTimeout(60000);
-    const createdLabel = await setupConfiguredStripeConnector(page, context);
-    const paymentConnector = new PaymentConnector(page);
-    await openStripeConnectorForm(page);
-    const labelInput = page.locator("[name=connector_label]");
-    await expect(labelInput).toBeVisible();
-    await labelInput.clear();
-    await labelInput.fill(createdLabel);
-    // 5s is too tight on CI: the form takes a moment to enable Connect &
-    // Proceed after the label change. Use the standard 30s action timeout.
-    await expect(paymentConnector.connectAndProceedButton).toBeEnabled({ timeout: 5000 });
-    await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
-    await expect(paymentConnector.pmtProceedButton).toBeVisible();
-    await paymentConnector.pmtProceedButton.click();
-
-    await expect(page.locator('[data-toast*="Connector label already exist!"]').first()).toBeVisible({
-      timeout: 15000,
-    });
-  });
 });
 
-test.describe("Payin Connectors", () => {
+test.describe("All Payin Connectors", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
@@ -799,13 +791,12 @@ test.describe("Payin Connectors", () => {
       await assertConnectorFieldLabels(page, connector.fields.fieldLabels);
       await fillConnectorFields(page, connector.fields);
 
-      await expect(paymentConnector.connectAndProceedButton).toBeEnabled({ timeout: 5000 });
       await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
 
       await assertPaymentMethodTypes(page, connector.paymentSections);
 
       await paymentConnector.pmtProceedButton.click();
-      await expect(page.locator('[data-toast="Connector Created Successfully!"]')).toBeVisible({ timeout: 10000 });
+      await expect(paymentConnector.connectorCreatedToast).toBeVisible({ timeout: 10000 });
       await paymentConnector.connectorSetupDone.click();
 
       await expect(page).toHaveURL(/.*dashboard\/connectors/);

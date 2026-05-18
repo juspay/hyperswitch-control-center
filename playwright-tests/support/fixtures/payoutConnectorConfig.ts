@@ -369,9 +369,9 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
     },
     paymentSections: {
       BankRedirect: {
-        label: "Bank Redirect",
+        label: "Bank Transfer",
         methods: [
-          "open_banking_uk",
+          "open_banking",
         ],
       },
     },
@@ -388,7 +388,7 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
         "Username *",
         "Password *",
         "Private Key(Base64 encoded) *",
-        "Trustly's public key",
+        "Trustly's public key(Base64 encoded)",
       ],
     },
     paymentSections: {

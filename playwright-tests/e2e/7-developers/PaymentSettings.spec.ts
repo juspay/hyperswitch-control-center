@@ -13,7 +13,7 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 test.describe("Payment Settings", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
@@ -146,7 +146,7 @@ test.describe("Payment Settings", () => {
 
       await paymentSettings.selectFirstMerchantCategoryCode();
       await expect(
-        page.getByRole("button", { name: expectedCategory }),
+        paymentSettings.buttonByName(expectedCategory),
       ).toBeVisible();
 
       await paymentSettings.clickUpdate();
@@ -165,7 +165,7 @@ test.describe("Payment Settings", () => {
       });
       await expect(paymentSettings.webhookUrlInput).toHaveValue(webhookUrl);
       await expect(
-        page.getByRole("button", { name: expectedCategory }),
+        paymentSettings.buttonByName(expectedCategory),
       ).toBeVisible();
 
       for (const label of toggleLabels) {
@@ -237,7 +237,7 @@ test.describe("Payment Settings", () => {
         await expect(shippingToggle).toHaveAttribute("data-bool-value", "on");
       }
       // The shipping section's "Always" is the second occurrence of that label
-      await page.getByText("Always", { exact: true }).last().click();
+      await paymentSettings.alwaysOption("last").click();
 
       await paymentSettings.clickUpdate();
       await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
@@ -358,11 +358,7 @@ test.describe("Payment Settings", () => {
 
       await expect(paymentSettings.clickToPayConnectorDropdown).toBeVisible();
       await paymentSettings.clickToPayConnectorDropdown.click();
-      await page
-        .locator("[data-dropdown-value]")
-        .filter({ hasText: connectorLabel })
-        .first()
-        .click();
+      await paymentSettings.dropdownValueByText(connectorLabel).click();
 
       await paymentSettings.clickUpdate();
       await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
@@ -377,7 +373,7 @@ test.describe("Payment Settings", () => {
         paymentSettings.toggleSwitchByLabel("Click to Pay"),
       ).toHaveAttribute("data-bool-value", "on", { timeout: 10000 });
       await expect(
-        page.getByRole("button", { name: new RegExp(connectorLabel) }),
+        paymentSettings.buttonByName(new RegExp(connectorLabel)),
       ).toBeVisible();
     });
   });
@@ -456,11 +452,8 @@ test.describe("Payment Settings", () => {
       const requestorUrl = "https://example.com/3ds-requestor";
       const requestorAppUrl = "https://example.com/3ds-requestor-app";
 
-      await page.getByRole("button", { name: "Select Field" }).first().click();
-      await page
-        .locator(`[data-dropdown-value="${connectorName}"]`)
-        .first()
-        .click();
+      await paymentSettings.selectFieldDropdown().click();
+      await paymentSettings.dropdownValue(connectorName).click();
       await page.keyboard.press("Escape");
 
       await paymentSettings.threeDsRequestorUrlInput.fill(requestorUrl);
@@ -487,10 +480,11 @@ test.describe("Payment Settings", () => {
       );
 
       // Verify the connector is the selected option in the multi-select
-      await page.getByRole('button', { name: 'juspaythreedsserver' }).first().click();
-      await expect(
-        page.locator(`[data-dropdown-value="${connectorName}"]`).first(),
-      ).toHaveAttribute("data-dropdown-value-selected", "True");
+      await paymentSettings.buttonByName("juspaythreedsserver").first().click();
+      await expect(paymentSettings.dropdownValue(connectorName)).toHaveAttribute(
+        "data-dropdown-value-selected",
+        "True",
+      );
     });
   });
 
@@ -533,10 +527,7 @@ test.describe("Payment Settings", () => {
       await paymentSettings.acquirerFraudRateInput.fill(acquirerFraudRate);
 
       await paymentSettings.acquirerNetworkDropdown.click();
-      await page
-        .locator(`[data-dropdown-value="${network}"]`)
-        .first()
-        .click();
+      await paymentSettings.dropdownValue(network).click();
 
       await paymentSettings.acquirerSaveButton.click();
       await expect(paymentSettings.acquirerConfigCreatedToast).toBeVisible({
@@ -547,11 +538,11 @@ test.describe("Payment Settings", () => {
       await paymentSettings.threeDSTab.click();
       await paymentSettings.acquirerConfigSettings.click();
 
-      await expect(page.getByTestId('acmemerchant001')).toBeVisible();
-      await expect(page.getByTestId('acmetestmerchant')).toBeVisible();
-      await expect(page.getByTestId('visa')).toBeVisible();
-      await expect(page.getByTestId('123456')).toBeVisible();
-      await expect(page.getByText('5%')).toBeVisible();
+      await expect(paymentSettings.acquirerResultByTestId("acmemerchant001")).toBeVisible();
+      await expect(paymentSettings.acquirerResultByTestId("acmetestmerchant")).toBeVisible();
+      await expect(paymentSettings.acquirerResultByTestId("visa")).toBeVisible();
+      await expect(paymentSettings.acquirerResultByTestId("123456")).toBeVisible();
+      await expect(page.getByText("5%")).toBeVisible();
     });
 
     test("should show validation errors for each field", async ({ page }) => {
@@ -560,44 +551,32 @@ test.describe("Payment Settings", () => {
       // Acquirer BIN — too short (< 5 digits)
       await paymentSettings.acquirerBinInput.fill("1234");
       await paymentSettings.acquirerBinInput.blur();
-      await expect(
-        page.getByText("Acquirer BIN must be between 5 and 20 digits"),
-      ).toBeVisible();
+      await expect(paymentSettings.acquirerBinError).toBeVisible();
 
       // Acquirer BIN — fix to a valid value, error clears
       await paymentSettings.acquirerBinInput.fill("123456");
       await paymentSettings.acquirerBinInput.blur();
-      await expect(
-        page.getByText("Acquirer BIN must be between 5 and 20 digits"),
-      ).toHaveCount(0);
+      await expect(paymentSettings.acquirerBinError).toHaveCount(0);
 
       // Acquirer Fraud Rate — out of range (> 100)
       await paymentSettings.acquirerFraudRateInput.fill("150");
       await paymentSettings.acquirerFraudRateInput.blur();
-      await expect(
-        page.getByText("Fraud rate should be between 0 and 100"),
-      ).toBeVisible();
+      await expect(paymentSettings.fraudRateError).toBeVisible();
 
       // Acquirer Fraud Rate — fix to a valid value, error clears
       await paymentSettings.acquirerFraudRateInput.fill("5");
       await paymentSettings.acquirerFraudRateInput.blur();
-      await expect(
-        page.getByText("Fraud rate should be between 0 and 100"),
-      ).toHaveCount(0);
+      await expect(paymentSettings.fraudRateError).toHaveCount(0);
 
       // Required: Merchant Name — focus then blur empty
       await paymentSettings.acquirerMerchantNameInput.focus();
       await paymentSettings.acquirerMerchantNameInput.blur();
-      await expect(
-        page.getByText("This field is required").first(),
-      ).toBeVisible();
+      await expect(paymentSettings.requiredFieldError(0)).toBeVisible();
 
       // Required: Acquirer Assigned Merchant Id — focus then blur empty
       await paymentSettings.acquirerAssignedMerchantIdInput.focus();
       await paymentSettings.acquirerAssignedMerchantIdInput.blur();
-      await expect(
-        page.getByText("This field is required").nth(1),
-      ).toBeVisible();
+      await expect(paymentSettings.requiredFieldError(1)).toBeVisible();
 
       // With required fields still empty, Save should remain disabled
       await expect(paymentSettings.acquirerSaveButton).toBeDisabled();
@@ -652,12 +631,10 @@ test.describe("Payment Settings", () => {
       const updatedKey = "X-Updated-Header";
       const updatedValue = "UpdatedValue456";
 
-      const editButton = page.getByText('Edit', { exact: true });
-      await expect(editButton).toBeVisible();
-      await editButton.click();
-      const proceedButton = page.getByRole('button', { name: 'Proceed' });
-      await expect(proceedButton).toBeVisible();
-      await proceedButton.click();
+      await expect(paymentSettings.editButton).toBeVisible();
+      await paymentSettings.editButton.click();
+      await expect(paymentSettings.proceedButton).toBeVisible();
+      await paymentSettings.proceedButton.click();
       await paymentSettings.fillCustomHeader(updatedKey, updatedValue);
       await expect(paymentSettings.customHeadersKeyInput).toHaveValue(
         updatedKey,
@@ -735,12 +712,10 @@ test.describe("Payment Settings", () => {
       const updatedKey = "metadata-key-updated";
       const updatedValue = "metadata-value-updated";
 
-      const editButton = page.getByText('Edit', { exact: true });
-      await expect(editButton).toBeVisible();
-      await editButton.click();
-      const proceedButton = page.getByRole('button', { name: 'Proceed' });
-      await expect(proceedButton).toBeVisible();
-      await proceedButton.click();
+      await expect(paymentSettings.editButton).toBeVisible();
+      await paymentSettings.editButton.click();
+      await expect(paymentSettings.proceedButton).toBeVisible();
+      await paymentSettings.proceedButton.click();
       await paymentSettings.fillCustomHeader(updatedKey, updatedValue);
       await expect(paymentSettings.customHeadersKeyInput).toHaveValue(
         updatedKey,
@@ -824,26 +799,22 @@ test.describe("Payment Settings", () => {
       // Domain Name — invalid → error appears
       await paymentSettings.domainNameInput.fill("not a valid url");
       await paymentSettings.domainNameInput.blur();
-      await expect(page.getByText("Please enter valid URL")).toBeVisible();
+      await expect(paymentSettings.validUrlError).toBeVisible();
 
       // Domain Name — valid → error clears
       await paymentSettings.domainNameInput.fill("example.com");
       await paymentSettings.domainNameInput.blur();
-      await expect(page.getByText("Please enter valid URL")).toHaveCount(0);
+      await expect(paymentSettings.validUrlError).toHaveCount(0);
 
       // Allowed Domains — invalid → error appears
       await paymentSettings.allowedDomainInput.fill("not a valid url");
       await paymentSettings.allowedDomainInput.blur();
-      await expect(
-        page.getByText("Please enter allowed domains"),
-      ).toBeVisible();
+      await expect(paymentSettings.allowedDomainsError).toBeVisible();
 
       // Allowed Domains — valid → error clears
       await paymentSettings.allowedDomainInput.fill("https://example.com");
       await paymentSettings.allowedDomainInput.blur();
-      await expect(
-        page.getByText("Please enter allowed domains"),
-      ).toHaveCount(0);
+      await expect(paymentSettings.allowedDomainsError).toHaveCount(0);
 
       // With both fields valid, Update should be enabled
       await expect(paymentSettings.updateButton).toBeEnabled();

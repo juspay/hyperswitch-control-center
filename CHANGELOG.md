@@ -3,6 +3,27 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.18.0
+
+### Bug Fixes
+
+- Disable date range filter on id search in orders and refunds ([#4378](https://github.com/juspay/hyperswitch-control-center/pull/4378)) ([`a6cd8d9`](https://github.com/juspay/hyperswitch-control-center/commit/a6cd8d95eceb374957dc1a95151738b8e474bf89))
+- Persist and restore amount filter correctly in saved views ([#4812](https://github.com/juspay/hyperswitch-control-center/pull/4812)) ([`f95ef85`](https://github.com/juspay/hyperswitch-control-center/commit/f95ef8570e1eedaa9ec936945da64b5013332b81))
+- Prevent add filters dropdown from expanding on search by id ([#4817](https://github.com/juspay/hyperswitch-control-center/pull/4817)) ([`186e6ba`](https://github.com/juspay/hyperswitch-control-center/commit/186e6ba64b6681256c95e6f3ce89125e1d1f5b38))
+
+### Refactors
+
+- Rename LogicUtils.getvalFromDict to getOptionValFromDict ([#4806](https://github.com/juspay/hyperswitch-control-center/pull/4806)) ([`a706bc1`](https://github.com/juspay/hyperswitch-control-center/commit/a706bc125ce67654886c65aded387c49cd2db724))
+
+### Miscellaneous Tasks
+
+- Add revamped acquirer config interface changes ([#4811](https://github.com/juspay/hyperswitch-control-center/pull/4811)) ([`5a25df4`](https://github.com/juspay/hyperswitch-control-center/commit/5a25df4da1787b6de60091140e0ccddc73d9cfd7))
+- Updated wasm for truelayer openbanking pmt ([#4819](https://github.com/juspay/hyperswitch-control-center/pull/4819)) ([`cade14a`](https://github.com/juspay/hyperswitch-control-center/commit/cade14a59c316ca95944197a0118fcccd86483dd))
+
+**Full Changelog:** [`2026.05.14.0...2026.05.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.14.0...2026.05.18.0)
+
+- - -
+
 ## 2026.05.14.0
 
 ### Features
