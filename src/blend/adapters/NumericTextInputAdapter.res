@@ -18,7 +18,12 @@ let make = (
   let cleanNumericString = rawValue => {
     let cleanedValue = switch rawValue->Js.String2.match_(%re("/[\d\.]/g")) {
     | Some(strArr) =>
-      let parts = strArr->Array.joinWithUnsafe("")->String.split(".")->Array.slice(~start=0, ~end=2)
+      let parts =
+        strArr
+        ->Belt.Array.keepMap(x => x)
+        ->Array.joinWith("")
+        ->String.split(".")
+        ->Array.slice(~start=0, ~end=2)
       if removeLeadingZeroes {
         let stripped = parts[0]->Option.getOr("")->String.replaceRegExp(%re("/\b0+/g"), "")
         parts[0] = stripped->isEmptyString ? "0" : stripped
@@ -29,18 +34,13 @@ let make = (
     let indexOfDec = cleanedValue->String.indexOf(".")
     let precisionCheckedVal = switch precision {
     | Some(val) =>
-      if indexOfDec > 0 {
-        cleanedValue->String.slice(~start=0, ~end={indexOfDec + val + 1})
-      } else {
-        ""
-      }
+      indexOfDec > 0 ? cleanedValue->String.slice(~start=0, ~end={indexOfDec + val + 1}) : ""
     | None => ""
     }
     precisionCheckedVal->getNonEmptyString->Option.getOr(cleanedValue)
   }
 
-  let blendValue =
-    input.value->getOptionFloatFromJson->Option.mapOr(Nullable.null, Nullable.make)
+  let blendValue = input.value->getOptionFloatFromJson->Option.mapOr(Nullable.null, Nullable.make)
 
   let blendOnChange = ev => {
     let strValue: string = ReactEvent.Form.target(ev)["value"]
