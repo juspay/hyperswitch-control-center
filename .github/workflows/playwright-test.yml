@@ -110,12 +110,17 @@ jobs:
           path: dist/
 
       - name: Restore Playwright browsers
+        id: playwright-cache
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             playwright-${{ runner.os }}-
+
+      - name: Install Playwright browsers (fallback on cache miss)
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium --with-deps
 
       - name: Health check for Backend
         run: |
@@ -160,14 +165,17 @@ jobs:
         if: always()
         with:
           name: playwright-coverage-shard-${{ matrix.shard }}
-          path: coverage-report/
+          path: coverage-report/raw/
           if-no-files-found: warn
-          retention-days: 7
+          retention-days: 1
 
   merge-coverage:
     needs: playwright-tests
     runs-on: ubuntu-latest
     if: always()
+    permissions:
+      contents: read
+      actions: write
 
     steps:
       - name: Checkout code
@@ -179,17 +187,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 24
-
-      - name: Restore node_modules
-        id: node-modules-cache
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: node-modules-${{ runner.os }}-node24-${{ hashFiles('package-lock.json') }}
-
-      - name: Install dependencies
-        if: steps.node-modules-cache.outputs.cache-hit != 'true'
-        run: npm install --force
 
       - name: Download all shard coverage artifacts
         uses: actions/download-artifact@v4
@@ -203,22 +200,15 @@ jobs:
           shopt -s nullglob
           shard_count=0
           total_added=0
-          # MCR raw cache files are `coverage-<uid>.json` / `source-<uid>.json`
-          # and live under a `raw/` directory created by the raw reporter.
-          # We MUST scope to */raw/* — the artifact root also contains
-          # `coverage-summary.json` (json-summary reporter output), which
-          # matches the same name glob but has shape {summary,files} not
-          # {id,type,data}, and crashes mergeV8DataList at v8.js:183
-          # ("Cannot read properties of undefined (reading 'empty')").
           for shard_dir in coverage-shards/playwright-coverage-shard-*/; do
             shard_count=$((shard_count + 1))
             added=0
             while IFS= read -r -d '' f; do
               cp -n "$f" "merged-raw/" && added=$((added + 1)) || true
-            done < <(find "${shard_dir}" -type f -path '*/raw/*' \( -name 'coverage-*.json' -o -name 'source-*.json' \) -print0)
+            done < <(find "${shard_dir}" -type f \( -name 'coverage-*.json' -o -name 'source-*.json' \) -print0)
             total_added=$((total_added + added))
             if [ "$added" -eq 0 ]; then
-              echo "⚠️  No raw V8 files found under ${shard_dir}**/raw/"
+              echo "⚠️  No raw V8 files found under ${shard_dir}"
             else
               echo "✓ ${shard_dir}: added ${added} raw file(s)"
             fi
@@ -239,7 +229,7 @@ jobs:
           # ~L237 — empty positional command short-circuits to outputHelp).
           # CLI flags override config-file values (index.js L258-262), so
           # -o here wins over the outputDir set in mcr.config.js.
-          npx mcr merge -c mcr.config.js -i merged-raw -o coverage-report-merged
+          npx -y -p monocart-coverage-reports@2 mcr merge -c mcr.config.js -i merged-raw -o coverage-report-merged
 
       - name: Publish merged coverage to job summary
         if: always()
@@ -261,3 +251,10 @@ jobs:
           path: coverage-report-merged/
           if-no-files-found: warn
           retention-days: 7
+
+      - name: Delete per-shard coverage artifacts
+        if: success() && hashFiles('coverage-report-merged/coverage-summary.md') != ''
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: playwright-coverage-shard-*
+          failOnError: false
