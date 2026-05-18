@@ -52,7 +52,7 @@ test.describe("Refunds Operations", () => {
       await goToRefunds(page, homePage);
 
       const transactionView = page.locator(
-        '[class="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8"]',
+        '[class="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-2 grid-cols-2 gap-spacing-3xl"]',
       );
       for (const view of ["All", "Succeeded", "Failed", "Pending"]) {
         await expect(transactionView).toContainText(view);
@@ -396,7 +396,7 @@ test.describe("Refunds Operations", () => {
 
       await expect(page.getByText("Summary", { exact: true })).toBeVisible();
       await expect(
-        page.locator('[class="font-bold text-4xl m-3"]'),
+        page.locator('[class="text-fs-32 leading-38 font-bold font-inter-style"]'),
       ).toContainText(`${refund.amount / 100} ${refund.currency}`);
 
       await expect(
