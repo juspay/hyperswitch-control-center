@@ -9,7 +9,7 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 async function signupAndLogin(page: Page, context: BrowserContext) {
   const email = generateUniqueEmail();
-  await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+  await signupUser(email, PLAYWRIGHT_PASSWORD);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 }
 
@@ -29,6 +29,7 @@ test.describe("3DS Authenticators Module", () => {
     page,
   }) => {
     const homePage = new HomePage(page);
+    const threeDSAuthenticator = new ThreeDSAuthenticator(page);
 
     await homePage.connectors.click();
     await homePage.threeDSConnectors.click();
@@ -39,18 +40,15 @@ test.describe("3DS Authenticators Module", () => {
       timeout: 10000,
     });
 
-    await expect(
-      page.locator('[data-testid="search-processor"]'),
-    ).toBeVisible();
+    await expect(threeDSAuthenticator.authenticatorSearchInput).toBeVisible();
   });
 
   test("should expose 'Request a Processor' CTA on 3DS list page", async ({
     page,
   }) => {
     await gotoThreeDS(page);
-    const cta = page
-      .getByRole("button", { name: "Request a Processor" })
-      .first();
+    const threeDSAuthenticator = new ThreeDSAuthenticator(page);
+    const cta = threeDSAuthenticator.requestProcessorButton;
     if (!(await cta.isVisible().catch(() => false))) {
       test.skip(true, "Request a Processor CTA not exposed");
     }
@@ -61,7 +59,8 @@ test.describe("3DS Authenticators Module", () => {
     page,
   }) => {
     await gotoThreeDS(page);
-    const searchInput = page.locator('[data-testid="search-processor"]');
+    const threeDSAuthenticator = new ThreeDSAuthenticator(page);
+    const searchInput = threeDSAuthenticator.authenticatorSearchInput;
     if (!(await searchInput.isVisible().catch(() => false))) {
       test.skip(true, "Search input not exposed on 3DS list");
     }
@@ -74,7 +73,8 @@ test.describe("3DS Authenticators Module", () => {
     page,
   }) => {
     await gotoThreeDS(page);
-    const searchInput = page.locator('[data-testid="search-processor"]');
+    const threeDSAuthenticator = new ThreeDSAuthenticator(page);
+    const searchInput = threeDSAuthenticator.authenticatorSearchInput;
     if (!(await searchInput.isVisible().catch(() => false))) {
       test.skip(true, "Search input not exposed on 3DS list");
     }
@@ -87,7 +87,8 @@ test.describe("3DS Authenticators Module", () => {
     page,
   }) => {
     await gotoThreeDS(page);
-    const connectButtons = page.locator('[data-button-text="Connect"]');
+    const threeDSAuthenticator = new ThreeDSAuthenticator(page);
+    const connectButtons = threeDSAuthenticator.connectButton;
     if ((await connectButtons.count().catch(() => 0)) === 0) {
       test.skip(true, "No 3DS authenticators exposed");
     }
@@ -103,7 +104,7 @@ test.describe("3DS Authenticators Module", () => {
 test.describe("3DS Authenticators Setup", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
@@ -122,7 +123,7 @@ test.describe("3DS Authenticators Setup", () => {
     await page.getByTestId('connector_account_details.private_key').getByRole('textbox', { name: 'Enter Base64 encoded PEM' }).fill(keyBase64);
 
     await expect(page.locator('div').filter({ hasText: /^Connector label \*$/ }).nth(2)).toBeVisible();
-    await page.getByRole('textbox', { name: 'Enter Connector label' }).fill("netcetera_default");
+    await threeDSAuthenticator.connectorLabelTextbox.fill("netcetera_default");
 
     await expect(page.getByText('Live endpoint prefix *')).toBeVisible();
     await page.getByRole('textbox', { name: 'string that will replace \'{' }).fill("test_value");
@@ -145,9 +146,9 @@ test.describe("3DS Authenticators Setup", () => {
     await expect(page.getByText('Merchant Configuration ID')).toBeVisible();
     await page.getByRole('textbox', { name: 'Enter Merchant Configuration' }).fill("test_value");
 
-    await page.locator('[data-button-for="connectAndProceed"]').click();
+    await threeDSAuthenticator.connectAndProceedButton.click();
 
-    await page.getByRole('button', { name: 'Done' }).click();
+    await threeDSAuthenticator.setupDoneButton.click();
 
     await expect(page.getByText("netcetera_default", { exact: true })).toBeVisible({ timeout: 10000 });
   });
@@ -182,9 +183,9 @@ test.describe("3DS Authenticators Setup", () => {
 
     await expect(page.getByText('Pull Mechanism Enabled')).toBeVisible();
 
-    await page.locator('[data-button-for="connectAndProceed"]').click();
+    await threeDSAuthenticator.connectAndProceedButton.click();
 
-    await page.getByRole('button', { name: 'Done' }).click();
+    await threeDSAuthenticator.setupDoneButton.click();
     await expect(page.getByText("threedsecureio_default", { exact: true })).toBeVisible({ timeout: 10000 });
   });
 
@@ -216,9 +217,9 @@ test.describe("3DS Authenticators Setup", () => {
     await expect(page.getByText('Merchant Category Code')).toBeVisible();
     await page.getByRole('textbox', { name: 'Enter Merchant Category Code' }).fill("test_value");
 
-    await page.locator('[data-button-for="connectAndProceed"]').click();
+    await threeDSAuthenticator.connectAndProceedButton.click();
 
-    await page.getByRole('button', { name: 'Done' }).click();
+    await threeDSAuthenticator.setupDoneButton.click();
     await expect(page.getByText("ctp_visa_default", { exact: true })).toBeVisible({ timeout: 10000 });
   });
 
@@ -253,9 +254,9 @@ test.describe("3DS Authenticators Setup", () => {
     await expect(page.getByText('Merchant Category Code')).toBeVisible();
     await page.getByRole('textbox', { name: 'Enter Merchant Category Code' }).fill("test_value");
 
-    await page.locator('[data-button-for="connectAndProceed"]').click();
+    await threeDSAuthenticator.connectAndProceedButton.click();
 
-    await page.getByRole('button', { name: 'Done' }).click();
+    await threeDSAuthenticator.setupDoneButton.click();
     await expect(page.getByText("ctp_mastercard_default", { exact: true })).toBeVisible({ timeout: 10000 });
   });
 
@@ -283,9 +284,9 @@ test.describe("3DS Authenticators Setup", () => {
     await expect(page.getByText('merchant_category_code *')).toBeVisible();
     await page.getByRole('textbox', { name: 'Enter Merchant Category Code' }).fill("test_value");
 
-    await page.locator('[data-button-for="connectAndProceed"]').click();
+    await threeDSAuthenticator.connectAndProceedButton.click();
 
-    await page.getByRole('button', { name: 'Done' }).click();
+    await threeDSAuthenticator.setupDoneButton.click();
     await expect(page.getByText("juspaythreedsserver_default", { exact: true })).toBeVisible({ timeout: 10000 });
   });
 
@@ -307,9 +308,9 @@ test.describe("3DS Authenticators Setup", () => {
 
     await expect(page.getByText('Pull Mechanism Enabled')).toBeVisible();
 
-    await page.locator('[data-button-for="connectAndProceed"]').click();
+    await threeDSAuthenticator.connectAndProceedButton.click();
 
-    await page.getByRole('button', { name: 'Done' }).click();
+    await threeDSAuthenticator.setupDoneButton.click();
     await expect(page.getByText("cardinal_default", { exact: true })).toBeVisible({ timeout: 10000 });
   });
 });
