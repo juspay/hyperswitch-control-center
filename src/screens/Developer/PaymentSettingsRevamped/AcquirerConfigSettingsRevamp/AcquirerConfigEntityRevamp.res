@@ -12,7 +12,7 @@ let makeAlphanumericInputField = (~label, ~name, ~placeholder) =>
         input.onChange(filteredValue->Identity.stringToFormReactEvent)
       }
 
-      <TextInput input={...input, onChange: handleChange} placeholder autoComplete="off" />
+      <TextInputAdapter input={...input, onChange: handleChange} placeholder autoComplete="off" />
     },
     ~isRequired=true,
   )
