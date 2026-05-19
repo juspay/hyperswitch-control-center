@@ -364,12 +364,12 @@ let textInput = (
   ~phoneInput=false,
   ~widthMatchwithPlaceholderLength=None,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
-  <TextInput
+  <TextInputAdapter
     input
     placeholder
     description
     isDisabled
-    type_
+    inputType=type_
     inputMode
     ?pattern
     ?autoComplete

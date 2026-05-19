@@ -178,12 +178,12 @@ module ValueInp = {
       }
     | EQUAL_TO =>
       switch keyType->variantTypeMapper {
-      | String_value | Metadata_value => <TextInput input placeholder="Enter value" />
+      | String_value | Metadata_value => <TextInputAdapter input placeholder="Enter value" />
       | FixedNumber => <NumericTextInputAdapter placeholder="Enter value" input=valueField />
       | _ => <NumericTextInputAdapter placeholder="Enter value" input />
       }
 
-    | NOT_EQUAL_TO => <TextInput input placeholder="Enter value" />
+    | NOT_EQUAL_TO => <TextInputAdapter input placeholder="Enter value" />
     | LESS_THAN | GREATER_THAN => <NumericTextInputAdapter placeholder="Enter value" input />
 
     | _ => React.null
@@ -219,7 +219,7 @@ module MetadataInp = {
       checked: true,
     }
     <RenderIf condition={keyType->variantTypeMapper === Metadata_value}>
-      <TextInput placeholder={"Enter Key"} input=textInput />
+      <TextInputAdapter placeholder={"Enter Key"} input=textInput />
     </RenderIf>
   }
 }

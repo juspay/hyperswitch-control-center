@@ -115,7 +115,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
         field={FormRenderer.makeFieldInfo(~label="Report Type", ~name="view", ~customInput=(
           ~input as _,
           ~placeholder as _,
-        ) => <TextInput input={viewInput} placeholder="" isDisabled=true />)}
+        ) => <TextInputAdapter input={viewInput} placeholder="" isDisabled=true />)}
       />
       <FormRenderer.FieldRenderer
         field={FormRenderer.makeFieldInfo(

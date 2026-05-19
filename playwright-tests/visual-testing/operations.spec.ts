@@ -11,6 +11,8 @@ import {
 } from "../support/commands";
 import { HomePage } from "../support/pages/homepage/HomePage";
 import { PaymentOperations } from "../support/pages/operations/PaymentOperations";
+import { RefundOperations } from "../support/pages/operations/RefundOperations";
+import { CustomerOperations } from "../support/pages/operations/CustomerOperations";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
@@ -21,7 +23,7 @@ test.describe("Visual Testing - Payment Operations", () => {
     const homePage = new HomePage(page);
 
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
@@ -42,7 +44,7 @@ test.describe("Visual Testing - Payment Operations", () => {
     const paymentOperations = new PaymentOperations(page);
 
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
@@ -66,61 +68,67 @@ test.describe("Visual Testing - Payment Operations", () => {
       maxDiffPixelRatio: 0.02,
     });
 
-    await page.locator('[data-table-location="Orders_tr1_td1"]').click();
-    await page.locator('[data-button-text="+ Refund"]').click();
-    await page.locator('[name="amount"]').fill("12.34");
-    await page.locator('[data-button-text="Initiate Refund"]').click();
+    await paymentOperations.orderCell(1, 1).click();
+    await paymentOperations.addRefundButton.click();
+    await paymentOperations.refundAmountInput.fill("12.34");
+    await paymentOperations.initiateRefundButton.click();
 
-    await page.locator('div').filter({ hasText: /^Events and logs$/ }).first().click();
+    await expect(page.locator('div').filter({ hasText: /^SDK Events not implemented for SQLX is not implemented\.$/ }).nth(1)).toBeHidden();
+    await expect(page.locator('div').filter({ hasText: /^Refund successful$/ }).nth(1)).toBeHidden();
+    await expect(page.locator('div').filter({ hasText: /^Details Updated$/ }).nth(1)).toBeHidden();
+    await expect(page.locator('div').filter({ hasText: /^SDK Events not implemented for SQLX is not implemented\.$/ }).nth(5)).toBeHidden();
+
+    await paymentOperations.eventsAndLogsSection.click();
     await expect(page).toHaveScreenshot("payment-details.png", {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.01,
     });
 
-    await page.locator('div').filter({ hasText: /^1$/ }).nth(1).click();
-    await page.getByRole('table').getByText('Connector Transaction ID').scrollIntoViewIfNeeded();
+    await paymentOperations.firstAttemptRowExpander.click();
+    await expect(paymentOperations.connectorTransactionIdInTable).toBeVisible();
+    await paymentOperations.connectorTransactionIdInTable.scrollIntoViewIfNeeded();
     await expect(page).toHaveScreenshot("payment-attempt-details.png", {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.01,
     });
 
-    await expect(page.locator('[class="flex flex-col gap-4"]').nth(1)).toContainText("Refunds");
-    await page.locator('[data-table-location="Refunds_tr1_td1"]').click();
-    await page.getByText('Refund ReasonN/A').scrollIntoViewIfNeeded();
+    await expect(paymentOperations.refundsSectionBlock).toContainText("Refunds");
+    await paymentOperations.refundCell(1, 1).click();
+    await paymentOperations.refundReasonField.scrollIntoViewIfNeeded();
     await expect(page).toHaveScreenshot("payment-refund-details.png", {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.01,
     });
 
-    await page.getByText('Customer Details').click();
-    await page.getByTestId('abc@test.com').nth(3).scrollIntoViewIfNeeded();
+    await paymentOperations.customerDetailsSection.click();
+    await paymentOperations.customerEmailTestId("abc@test.com").nth(3).scrollIntoViewIfNeeded();
     await expect(page).toHaveScreenshot("payment-customer-details.png", {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.01,
     });
 
-    await page.getByText('More Payment Details').click();
-    await page.locator('div').filter({ hasText: /^Payment Method Details$/ }).first().scrollIntoViewIfNeeded();
+    await paymentOperations.morePaymentDetailsSection.click();
+    await paymentOperations.paymentMethodDetailsSection.scrollIntoViewIfNeeded();
     await expect(page).toHaveScreenshot("payment-more-payment-details.png", {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.01,
     });
 
-    await page.getByText('Payment Metadata').click();
-    await page.getByText('FRM Details').scrollIntoViewIfNeeded();
+    await paymentOperations.paymentMetadataSection.click();
+    await paymentOperations.frmDetailsSection.scrollIntoViewIfNeeded();
     await expect(page).toHaveScreenshot("payment-payment-metadata.png", {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.01,
     });
 
-    await page.getByText('FRM Details').click();
-    await page.getByText('Merchant DecisionN/A').scrollIntoViewIfNeeded();
+    await paymentOperations.frmDetailsSection.click();
+    await paymentOperations.merchantDecisionField.scrollIntoViewIfNeeded();
     await expect(page).toHaveScreenshot("payment-frm-details.png", {
       fullPage: true,
       animations: "disabled",
@@ -137,7 +145,7 @@ test.describe("Visual Testing - Refund Operations", () => {
     const homePage = new HomePage(page);
 
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
@@ -155,9 +163,10 @@ test.describe("Visual Testing - Refund Operations", () => {
     await mockV2MerchantList(page);
 
     const homePage = new HomePage(page);
+    const refundOperations = new RefundOperations(page);
 
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
@@ -172,11 +181,11 @@ test.describe("Visual Testing - Refund Operations", () => {
 
     await homePage.operations.click();
     await homePage.paymentOperations.click();
-    await page.locator('[data-table-location="Orders_tr1_td1"]').click();
+    await refundOperations.orderCell(1, 1).click();
 
-    await page.locator('[data-button-text="+ Refund"]').click();
-    await page.locator('[name="amount"]').fill("12.34");
-    await page.locator('[data-button-text="Initiate Refund"]').click();
+    await refundOperations.addRefundButton.click();
+    await refundOperations.refundAmountInput.fill("12.34");
+    await refundOperations.initiateRefundButton.click();
 
     await homePage.refundOperations.click();
 
@@ -186,7 +195,7 @@ test.describe("Visual Testing - Refund Operations", () => {
       maxDiffPixelRatio: 0.01,
     });
 
-    await page.locator('[data-table-location="Refunds_tr1_td1"]').click();
+    await refundOperations.refundCell(1, 1).click();
 
     //await expect(page.locator('[class="font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4"]')).toBeVisible();
 
@@ -196,7 +205,7 @@ test.describe("Visual Testing - Refund Operations", () => {
       maxDiffPixelRatio: 0.01,
     });
 
-    await page.getByText('Payment', { exact: true }).scrollIntoViewIfNeeded();
+    await refundOperations.paymentSectionText.scrollIntoViewIfNeeded();
     await expect(page).toHaveScreenshot("refund-details-2.png", {
       fullPage: true,
       animations: "disabled",
@@ -212,7 +221,7 @@ test.describe("Visual Testing - Payout Operations", () => {
     const homePage = new HomePage(page);
 
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
@@ -230,9 +239,10 @@ test.describe("Visual Testing - Payout Operations", () => {
     await mockV2MerchantList(page);
 
     const homePage = new HomePage(page);
+    const paymentOperations = new PaymentOperations(page);
 
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
@@ -254,8 +264,8 @@ test.describe("Visual Testing - Payout Operations", () => {
       maxDiffPixelRatio: 0.01,
     });
 
-    await page.locator('[data-table-location="Payouts_tr1_td1"]').click();
-    await page.getByText('Events and logs').click();
+    await paymentOperations.payoutCell(1, 1).click();
+    await paymentOperations.eventsAndLogsText.click();
 
     await expect(page).toHaveScreenshot("payout-details-1.png", {
       fullPage: true,
@@ -263,8 +273,8 @@ test.describe("Visual Testing - Payout Operations", () => {
       maxDiffPixelRatio: 0.01,
     });
 
-    await page.getByText('Customer Details').click();
-    await page.getByText('Payout Method', { exact: true }).scrollIntoViewIfNeeded();
+    await paymentOperations.customerDetailsSection.click();
+    await paymentOperations.payoutMethodText.scrollIntoViewIfNeeded();
 
     await expect(page).toHaveScreenshot("payout-details-2.png", {
       fullPage: true,
@@ -272,8 +282,8 @@ test.describe("Visual Testing - Payout Operations", () => {
       maxDiffPixelRatio: 0.01,
     });
 
-    await page.getByText('More Payout Details').click();
-    await page.getByText('Error Code', { exact: true }).scrollIntoViewIfNeeded();
+    await paymentOperations.morePayoutDetailsSection.click();
+    await paymentOperations.payoutErrorCodeText.scrollIntoViewIfNeeded();
 
     await expect(page).toHaveScreenshot("payout-details-3.png", {
       fullPage: true,
@@ -281,10 +291,10 @@ test.describe("Visual Testing - Payout Operations", () => {
       maxDiffPixelRatio: 0.01,
     });
 
-    await page.getByText('Payout Method Details').click();
-    await page.getByText('Payout Metadata').click();
+    await paymentOperations.payoutMethodDetailsSection.click();
+    await paymentOperations.payoutMetadataSection.click();
 
-    await page.getByText('{ 2 "key": "value" 3}').scrollIntoViewIfNeeded();
+    await paymentOperations.payoutMetadataJsonText.scrollIntoViewIfNeeded();
     await expect(page).toHaveScreenshot("payout-details-4.png", {
       fullPage: true,
       animations: "disabled",
@@ -301,7 +311,7 @@ test.describe("Visual Testing - Dispute Operations", () => {
     const homePage = new HomePage(page);
 
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
@@ -323,7 +333,7 @@ test.describe("Visual Testing - Customers", () => {
     const homePage = new HomePage(page);
 
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
@@ -341,9 +351,10 @@ test.describe("Visual Testing - Customers", () => {
     await mockV2MerchantList(page);
 
     const homePage = new HomePage(page);
+    const customerOperations = new CustomerOperations(page);
 
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
@@ -367,7 +378,7 @@ test.describe("Visual Testing - Customers", () => {
       maxDiffPixelRatio: 0.01,
     });
 
-    await page.locator('[data-table-location="Customers_tr1_td1"]').click();
+    await customerOperations.customerCell(1, 1).click();
 
     await expect(page).toHaveScreenshot("customer-details.png", {
       fullPage: true,
