@@ -16,7 +16,25 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  typos:
+  pr-title:
+    name: Spell check PR title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Store PR title in a file
+        shell: bash
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: printf '%s\n' "$TITLE" > pr_title.txt
+
+      - name: Spell check
+        uses: crate-ci/typos@v1.46.2
+        with:
+          files: ./pr_title.txt
+
+  repo:
     name: Spell check
     runs-on: ubuntu-latest
     steps:
