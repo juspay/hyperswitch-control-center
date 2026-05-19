@@ -97,7 +97,7 @@ let filterByData = (txnArr, value) => {
   })
 }
 
-let initialFixedFilter = _ => [
+let initialFixedFilter = (~disable=false, _) => [
   (
     {
       localFilter: None,
@@ -125,6 +125,7 @@ let initialFixedFilter = _ => [
           ~numMonths=2,
           ~disableApply=false,
           ~dateRangeLimit=180,
+          ~disable,
         ),
         ~inputFields=[],
         ~isRequired=false,
@@ -195,7 +196,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let initialFilters = (json, filtervalues, _, _, _, _) => {
+let initialFilters = (json, filterValues, _, _, _, _) => {
   open LogicUtils
 
   let filterDict = json->getDictFromJsonObject
@@ -203,7 +204,7 @@ let initialFilters = (json, filtervalues, _, _, _, _) => {
     filterDict->Dict.keysToArray->Array.filterWithIndex((_item, index) => index <= 2)
   let filterData = filterDict->itemToObjMapper
 
-  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
+  let connectorFilter = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
   if connectorFilter->Array.length !== 0 {
     filtersArray->Array.push(#connector_label->getLabelFromFilterType)
   }
@@ -216,17 +217,13 @@ let initialFilters = (json, filtervalues, _, _, _, _) => {
     | #connector => filterData.connector
     | #currency => filterData.currency
     | #status => filterData.status
-    | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
+    | #connector_label => getConditionalFilter(key, filterDict, filterValues)
     | _ => []
     }
 
     let options = switch key->getFilterTypeFromString {
-    | #connector_label => getOptionsForRefundFilters(filterDict, filtervalues)
-    | #connector =>
-      values->Array.map((str): FilterSelectBox.dropdownOption => {
-        label: ConnectorUtils.getDisplayNameForConnector(str),
-        value: str,
-      })
+    | #connector_label => getOptionsForRefundFilters(filterDict, filterValues)
+    | #connector => values->ConnectorUtils.getConnectorFilterOptions
     | _ => values->FilterSelectBox.makeOptions
     }
     let customInput = switch key->getFilterTypeFromString {

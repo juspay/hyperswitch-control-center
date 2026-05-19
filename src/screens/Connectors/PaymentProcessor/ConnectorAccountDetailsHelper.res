@@ -23,7 +23,7 @@ module MultiConfigInp = {
       value: enabledList.value,
       checked: true,
     }
-    <TextInput input placeholder={`Enter ${label->LogicUtils.snakeToTitle}`} />
+    <TextInputAdapter input placeholder={`Enter ${label->LogicUtils.snakeToTitle}`} />
   }
 }
 
@@ -207,7 +207,7 @@ module CashToCodeSelectBox = {
         renderContentOnTop: Some(
           () =>
             <div className="flex items-center gap-3 w-full">
-              <CheckBoxIcon isSelected=isCountrySelected stopPropagationNeeded=true />
+              <CheckBoxIconAdapter isSelected=isCountrySelected stopPropagationNeeded=true />
               <span className={`${body.sm.semibold} text-nd-gray-600`}>
                 {countryTitle->React.string}
               </span>
@@ -270,11 +270,6 @@ module CashToCodeMethods = {
     })
     <Tabs
       tabs=tabList
-      disableIndicationArrow=true
-      showBorder=false
-      includeMargin=false
-      lightThemeColor="black"
-      defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
       onTitleClick={tabIndex => {
         setCashToCodeMthd(_ => tabs->LogicUtils.getValueFromArray(tabIndex, #Classic))
       }}
@@ -321,7 +316,7 @@ module Payload = {
           renderContentOnTop: Some(
             () =>
               <div className="flex items-center gap-3 w-full">
-                <CheckBoxIcon isSelected=isCountrySelected stopPropagationNeeded=true />
+                <CheckBoxIconAdapter isSelected=isCountrySelected stopPropagationNeeded=true />
                 <span className="font-medium text-jp-gray-700 dark:text-jp-gray-text_darktheme">
                   {React.string(countryTitle)}
                 </span>

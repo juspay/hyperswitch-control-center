@@ -2,12 +2,16 @@ import {
   request,
   type APIRequestContext,
   type Page,
+  type Locator,
   expect,
 } from "@playwright/test";
 import { generateDateTimeString } from "./helper";
 import { SignInPage } from "./pages/auth/SignInPage";
 import { SignUpPage } from "./pages/auth/SignUpPage";
 import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
+import { execFileSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000";
 const API_URL = process.env.HYPERSWITCH_API_URL || "http://localhost:8080";
@@ -17,6 +21,7 @@ export async function signupUser(
   email: string,
   password: string,
   context?: APIRequestContext,
+  companyName?: string,
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
   const response = await ctx.post(`${API_URL}/user/signup_with_merchant_id`, {
@@ -27,7 +32,7 @@ export async function signupUser(
     data: {
       email,
       password,
-      company_name: generateDateTimeString(),
+      company_name: companyName ?? generateDateTimeString(),
       name: "Playwright_test_user",
     },
   });
@@ -87,18 +92,30 @@ export async function createAPIKey(
   context?: APIRequestContext,
 ): Promise<string> {
   const ctx = context ?? (await request.newContext());
-  const response = await ctx.post(`${API_URL}/api_keys/${merchantId}`, {
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      "api-key": "test_admin",
-    },
-    data: {
-      name: "API Key 1",
-      description: null,
-      expiration: "2060-09-23T01:02:03.000Z",
-    },
-  });
+  // CI backends occasionally take >30s on the first request when the worker
+  // pool is cold. One retry with a fresh context recovers from transient
+  // socket hangs without masking persistent failures.
+  const attempt = async () =>
+    ctx.post(`${API_URL}/api_keys/${merchantId}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": "test_admin",
+      },
+      data: {
+        name: "API Key 1",
+        description: null,
+        expiration: "2060-09-23T01:02:03.000Z",
+      },
+      timeout: 60000,
+    });
+
+  let response: Awaited<ReturnType<typeof attempt>>;
+  try {
+    response = await attempt();
+  } catch (err) {
+    response = await attempt();
+  }
 
   if (!response.ok()) {
     const body = await response.text();
@@ -191,9 +208,270 @@ export async function createDummyConnectorAPI(
   }
 }
 
+export async function createBusinessProfileAPI(
+  merchantId: string,
+  profileName: string,
+  context?: APIRequestContext,
+): Promise<string> {
+  const ctx = context ?? (await request.newContext());
+  const apiKey = await createAPIKey(merchantId, "", ctx);
+
+  const response = await ctx.post(
+    `${API_URL}/account/${merchantId}/business_profile`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": apiKey,
+      },
+      data: {
+        profile_name: profileName,
+      },
+    },
+  );
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `createBusinessProfileAPI failed (${response.status()}): ${body}`,
+    );
+  }
+
+  const body = await response.json();
+  return body.profile_id as string;
+}
+
+export async function getDefaultProfileId(
+  merchantId: string,
+  context?: APIRequestContext,
+): Promise<string> {
+  const ctx = context ?? (await request.newContext());
+  const apiKey = await createAPIKey(merchantId, "", ctx);
+
+  const response = await ctx.get(
+    `${API_URL}/account/${merchantId}/business_profile`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": apiKey,
+      },
+    },
+  );
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `getDefaultProfileId failed (${response.status()}): ${body}`,
+    );
+  }
+
+  const profiles = await response.json();
+  const profileId = Array.isArray(profiles)
+    ? profiles[0]?.profile_id
+    : undefined;
+  if (!profileId) {
+    throw new Error("getDefaultProfileId: no profiles returned");
+  }
+  return profileId as string;
+}
+
+export async function createStripeConnectorAPI(
+  merchantId: string,
+  connectorLabel: string,
+  context?: APIRequestContext,
+  profileId?: string,
+): Promise<void> {
+  const ctx = context ?? (await request.newContext());
+  const apiKey = await createAPIKey(merchantId, "", ctx);
+
+  const resolvedProfileId =
+    profileId ?? (await getDefaultProfileId(merchantId, ctx));
+
+  const data: Record<string, unknown> = {
+    connector_type: "payment_processor",
+    connector_name: "stripe",
+    connector_label: connectorLabel,
+    profile_id: resolvedProfileId,
+    connector_account_details: {
+      api_key: "test_value",
+      auth_type: "HeaderKey",
+    },
+    status: "active",
+    test_mode: false,
+    payment_methods_enabled: [
+      {
+        payment_method: "card",
+        payment_method_types: [
+          {
+            payment_method_type: "credit",
+            card_networks: ["Visa", "Mastercard"],
+            minimum_amount: 0,
+            maximum_amount: 68607706,
+            recurring_enabled: true,
+            installment_payment_enabled: false,
+          },
+        ],
+      },
+    ],
+  };
+
+  const response = await ctx.post(
+    `${API_URL}/account/${merchantId}/connectors`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": apiKey,
+      },
+      data,
+    },
+  );
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `createStripeConnectorAPI failed (${response.status()}): ${body}`,
+    );
+  }
+}
+
+export async function createStripeConnectorAPIwithAPIKey(
+  merchantId: string,
+  connectorLabel: string,
+  apiKey: string,
+  context?: APIRequestContext,
+  profileId?: string,
+): Promise<void> {
+  const ctx = context ?? (await request.newContext());
+  const resolvedProfileId =
+    profileId ?? (await getDefaultProfileId(merchantId, ctx));
+
+  const data: Record<string, unknown> = {
+    connector_type: "payment_processor",
+    connector_name: "stripe",
+    connector_label: connectorLabel,
+    profile_id: resolvedProfileId,
+    connector_account_details: {
+      api_key: apiKey,
+      auth_type: "HeaderKey",
+    },
+    status: "active",
+    test_mode: false,
+    payment_methods_enabled: [
+      {
+        payment_method: "card",
+        payment_method_types: [
+          {
+            payment_method_type: "credit",
+            card_networks: ["Visa", "Mastercard"],
+            minimum_amount: 0,
+            maximum_amount: 68607706,
+            recurring_enabled: true,
+            installment_payment_enabled: false,
+          },
+        ],
+      },
+    ],
+  };
+
+  const response = await ctx.post(
+    `${API_URL}/account/${merchantId}/connectors`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": apiKey,
+      },
+      data,
+    },
+  );
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `createStripeConnectorAPI failed (${response.status()}): ${body}`,
+    );
+  }
+}
+
+export async function createAuthenticationConnectorAPI(
+  merchantId: string,
+  connectorLabel: string,
+  context?: APIRequestContext,
+): Promise<void> {
+  const ctx = context ?? (await request.newContext());
+  const apiKey = await createAPIKey(merchantId, "", ctx);
+
+  const response = await ctx.post(
+    `${API_URL}/account/${merchantId}/connectors`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": apiKey,
+      },
+      data: {
+        connector_type: "authentication_processor",
+        connector_name: "juspaythreedsserver",
+        connector_label: connectorLabel,
+        connector_account_details: {
+          auth_type: "NoKey",
+        },
+        status: "active",
+        test_mode: true,
+        payment_methods_enabled: [],
+        connector_webhook_details: null,
+        disabled: false,
+      },
+    },
+  );
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `createAuthenticationConnectorAPI failed (${response.status()}): ${body}`,
+    );
+  }
+}
+
+export async function createCustomerAPI(
+  merchantId: string,
+  customerId: string,
+  context?: APIRequestContext,
+): Promise<{ customer_id: string }> {
+  const ctx = context ?? (await request.newContext());
+  const apiKey = await createAPIKey(merchantId, "", ctx);
+
+  const response = await ctx.post(`${API_URL}/customers`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "api-key": apiKey,
+    },
+    data: {
+      customer_id: customerId,
+      name: "Joseph Doe",
+      email: "abc@test.com",
+      phone: "999999999",
+      phone_country_code: "+65",
+      description: "Playwright customer",
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(`createCustomerAPI failed (${response.status()}): ${body}`);
+  }
+
+  return await response.json();
+}
+
 export async function createPaymentAPI(
   merchantId: string,
   context?: APIRequestContext,
+  amount: number = 12345,
+  confirm: boolean = true,
 ): Promise<{
   payment_id: string;
   profile_id: string;
@@ -217,9 +495,9 @@ export async function createPaymentAPI(
       "api-key": apiKey,
     },
     data: {
-      amount: 12345,
+      amount,
       currency: "USD",
-      confirm: true,
+      confirm,
       capture_method: "automatic",
       customer_id: "test_customer",
       authentication_type: "no_three_ds",
@@ -294,6 +572,189 @@ export async function createPaymentAPI(
   return await response.json();
 }
 
+export async function createRefundAPI(
+  merchantId: string,
+  paymentId: string,
+  context?: APIRequestContext,
+  amount: number = 5000,
+  reason: string = "Test refund",
+): Promise<{
+  refund_id: string;
+  payment_id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  reason: string | null;
+  error_code: string | null;
+  error_message: string | null;
+  connector: string;
+  profile_id: string;
+}> {
+  const ctx = context ?? (await request.newContext());
+  const apiKey = await createAPIKey(merchantId, "", ctx);
+
+  const response = await ctx.post(`${API_URL}/refunds`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "api-key": apiKey,
+    },
+    data: {
+      payment_id: paymentId,
+      amount,
+      reason,
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(`createRefundAPI failed (${response.status()}): ${body}`);
+  }
+
+  return await response.json();
+}
+
+export async function createPayoutConnectorAPI(
+  merchantId: string,
+  connectorLabel: string,
+  context?: APIRequestContext,
+): Promise<void> {
+  const ctx = context ?? (await request.newContext());
+  const apiKey = await createAPIKey(merchantId, "", ctx);
+
+  const response = await ctx.post(
+    `${API_URL}/account/${merchantId}/connectors`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": apiKey,
+      },
+      data: {
+        connector_type: "payout_processor",
+        connector_name: "adyen",
+        connector_label: connectorLabel,
+        disabled: false,
+        test_mode: true,
+        payment_methods_enabled: [
+          {
+            payment_method: "card",
+            payment_method_types: [
+              {
+                payment_method_type: "debit",
+                card_networks: ["Visa"],
+                minimum_amount: 0,
+                maximum_amount: 68607706,
+                recurring_enabled: true,
+                installment_payment_enabled: false,
+              },
+            ],
+          },
+        ],
+        metadata: {
+          endpoint_prefix: "test_key",
+        },
+        connector_account_details: {
+          api_key: "test_key",
+          key1: "test_key",
+          api_secret: "test_key",
+          auth_type: "SignatureKey",
+        },
+        additional_merchant_data: null,
+        status: "active",
+        pm_auth_config: null,
+        connector_wallets_details: null,
+      },
+    },
+  );
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `createPayoutConnectorAPI failed (${response.status()}): ${body}`,
+    );
+  }
+}
+
+export async function createPayoutAPI(
+  merchantId: string,
+  context?: APIRequestContext,
+): Promise<{
+  payment_id: string;
+  profile_id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  payment_method: string;
+  payment_method_type: string;
+  connector_transaction_id: string;
+  merchant_order_reference_id: string;
+  description: string;
+  metadata: Record<string, string>;
+}> {
+  const ctx = context ?? (await request.newContext());
+  const apiKey = await createAPIKey(merchantId, "", ctx);
+
+  const response = await ctx.post(`${API_URL}/payouts/create`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "api-key": apiKey,
+    },
+    data: {
+      amount: 12345,
+      currency: "EUR",
+      customer_id: "test_customer",
+      email: "abc@test.com",
+      name: "Joseph Doe",
+      phone: "999999999",
+      phone_country_code: "+65",
+      description: "Its my first payment",
+      payout_type: "card",
+      payout_method_data: {
+        card: {
+          card_number: "4111111111111111",
+          expiry_month: "3",
+          expiry_year: "2030",
+          card_holder_name: "John Doe",
+        },
+      },
+      billing: {
+        address: {
+          line1: "1562",
+          line2: "HarrisonStreet",
+          line3: "HarrisonStreet",
+          city: "Toronto",
+          state: "ON",
+          country: "CA",
+          zip: "M3C 0C1",
+          first_name: "Joseph",
+          last_name: "Doe",
+        },
+        phone: {
+          number: "8056594427",
+          country_code: "+91",
+        },
+        email: "abc@test.com",
+      },
+      entity_type: "NaturalPerson",
+      recurring: true,
+      metadata: {
+        key: "value",
+      },
+      confirm: true,
+      auto_fulfill: true,
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(`createPayoutAPI failed (${response.status()}): ${body}`);
+  }
+
+  return await response.json();
+}
+
 export async function visitSignupPage(page: Page): Promise<void> {
   const signinPage = new SignInPage(page);
   await page.goto("/");
@@ -350,6 +811,16 @@ export async function loginAPI(
     const body = await response.text();
     throw new Error(`loginAPI failed (${response.status()}): ${body}`);
   }
+}
+
+export async function mockV2MerchantList(page: Page): Promise<void> {
+  await page.route("**/v2/user/list/merchant", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify([]),
+    });
+  });
 }
 
 export async function enableEmailFeatureFlag(page: Page): Promise<void> {
@@ -409,6 +880,11 @@ export async function loginUI(
   await signinPage.passwordInput.fill(password);
   await signinPage.signinButton.click();
   await signinPage.skip2FAButton.click();
+  await expect(
+    page.getByText(
+      "Welcome to the home of your Payments Control Center. It aims to provide your team with a 360-degree view of payments.",
+    ),
+  ).toBeVisible();
 }
 
 export async function deleteConnector(
@@ -435,7 +911,11 @@ export async function deleteConnector(
   }
 }
 
-export async function createAuth(context?: APIRequestContext): Promise<void> {
+export async function createAuth(
+  context?: APIRequestContext,
+  ownerId: string = "okta_test",
+  emailDomain: string = "playwrighttest.in",
+): Promise<void> {
   const ctx = context ?? (await request.newContext());
 
   const response = await ctx.post(`${API_URL}/user/auth`, {
@@ -444,7 +924,7 @@ export async function createAuth(context?: APIRequestContext): Promise<void> {
       "api-key": "test_admin",
     },
     data: {
-      owner_id: "okta_test",
+      owner_id: ownerId,
       owner_type: "organization",
       auth_method: {
         auth_type: "open_id_connect",
@@ -458,7 +938,7 @@ export async function createAuth(context?: APIRequestContext): Promise<void> {
         },
       },
       allow_signup: false,
-      email_domain: "cypresstest.in",
+      email_domain: emailDomain,
     },
   });
 
@@ -470,11 +950,12 @@ export async function createAuth(context?: APIRequestContext): Promise<void> {
 
 export async function getAuthIdByEmail(
   context?: APIRequestContext,
+  emailDomain: string = "playwrighttest.in",
 ): Promise<string> {
   const ctx = context ?? (await request.newContext());
 
   const response = await ctx.get(
-    `${API_URL}/user/auth/list?email_domain=cypresstest.in`,
+    `${API_URL}/user/auth/list?email_domain=${emailDomain}`,
   );
 
   if (!response.ok()) {
@@ -492,7 +973,11 @@ export async function assertConnectorFieldLabels(
 ): Promise<void> {
   for (const label of fieldLabels) {
     const labelElement = page.locator("label", { hasText: label });
-    await expect(labelElement).toBeVisible();
+    await labelElement.waitFor({ state: "attached", timeout: 10000 });
+    await labelElement.scrollIntoViewIfNeeded();
+    await expect(labelElement).toBeVisible({
+      timeout: 5000,
+    });
 
     const inputId = await labelElement.getAttribute("for");
     if (inputId) {
@@ -515,6 +1000,8 @@ export async function fillConnectorFields(
   const count = await inputs.count();
   for (let i = 0; i < count; i++) {
     const input = inputs.nth(i);
+    await input.waitFor({ state: "attached", timeout: 10000 });
+    await input.scrollIntoViewIfNeeded();
     const placeholder = (await input.getAttribute("placeholder")) || "";
     const value = fields.overrides?.[placeholder] ?? fields.default;
 
@@ -535,16 +1022,43 @@ export async function assertPaymentMethodTypes(
 ): Promise<void> {
   for (const section of Object.values(sections)) {
     const sectionHeader = page.getByText(section.label, { exact: true });
-    await sectionHeader.scrollIntoViewIfNeeded();
-    await expect(sectionHeader).toBeVisible();
+    await expect(sectionHeader).toBeVisible({
+      timeout: 5000,
+    });
 
-    for (const method of section.methods.slice(0, 2)) {
-      const methodElement = page
-        .getByTestId(new RegExp(`.*_${method.toLowerCase()}$`))
+    // Find the section container (look for parent element with the section content)
+    // Navigate to the closest parent that contains the payment methods for this section
+    const sectionContainer = sectionHeader
+      .locator("..")
+      .locator("..")
+      .locator("..", { has: sectionHeader });
+
+    for (const method of section.methods) {
+      // Convert method name to snake_case for data-testid matching
+      const methodSnakeCase = method
+        .toLowerCase()
+        .replace(/\s+/g, "_")
+        .replace(/[^\w]/g, "");
+
+      // Try to find method within section container first, fallback to page-wide search
+      let methodElement = sectionContainer
+        .getByTestId(new RegExp(`.*_${methodSnakeCase}$`, "i"))
         .first();
-      const count = await methodElement.count().catch(() => 0);
+
+      let count = await methodElement.count().catch(() => 0);
+
+      // If not found in section, search globally (for backward compatibility)
+      if (count === 0) {
+        methodElement = page
+          .getByTestId(new RegExp(`.*_${methodSnakeCase}$`, "i"))
+          .first();
+        count = await methodElement.count().catch(() => 0);
+      }
+
       if (count > 0) {
-        await expect(methodElement).toBeVisible();
+        await expect(methodElement).toBeVisible({
+          timeout: 5000,
+        });
       }
     }
   }
@@ -623,8 +1137,10 @@ export async function processPaymentSdkUI(page: Page): Promise<void> {
   await cardInput.waitFor({ state: "visible", timeout: 20000 });
   await cardInput.fill("4242424242424242");
   await iframe.locator("[data-testid=expiryInput]").fill("0127");
-  await iframe.locator("[data-testid=cvvInput]").scrollIntoViewIfNeeded();
-  await iframe.locator("[data-testid=cvvInput]").fill("492");
+  const cvvInput = iframe.locator("[data-testid=cvvInput]");
+  await cvvInput.waitFor({ state: "attached", timeout: 10000 });
+  await cvvInput.scrollIntoViewIfNeeded();
+  await cvvInput.fill("492");
 
   await page.locator("[data-button-for=payUSD77]").click();
   await expect(page.getByText("Payment Successful")).toBeAttached();
@@ -757,4 +1273,44 @@ export async function ompLineage(
     merchantId: body.merchant_id ?? "",
     profileId: body.profile_id ?? "",
   };
+}
+
+export async function generateCerts() {
+  const tmpDir = path.join(process.cwd(), 'tmp-certs');
+  if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
+
+  const keyPath = path.join(tmpDir, 'key.pem');
+  const certPath = path.join(tmpDir, 'cert.pem');
+
+  // Generate key + self-signed cert
+  execFileSync(
+    'openssl',
+    [
+      'req',
+      '-x509',
+      '-newkey', 'rsa:2048',
+      '-keyout', keyPath,
+      '-out', certPath,
+      '-days', '1',
+      '-nodes',
+      '-subj', '/CN=test.local',
+    ],
+    { stdio: 'ignore' }
+  );
+
+  const cert = fs.readFileSync(certPath);
+  const key = fs.readFileSync(keyPath);
+
+  return {
+    certBase64: cert.toString('base64'),
+    keyBase64: key.toString('base64'),
+  };
+}
+
+export async function safeScrollIntoView(
+  locator: Locator,
+  timeout: number = 10000,
+): Promise<void> {
+  await locator.waitFor({ state: "attached", timeout });
+  await locator.scrollIntoViewIfNeeded();
 }

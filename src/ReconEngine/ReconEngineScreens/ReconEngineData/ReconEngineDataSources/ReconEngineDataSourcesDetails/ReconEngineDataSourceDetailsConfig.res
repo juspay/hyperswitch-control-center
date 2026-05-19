@@ -4,6 +4,7 @@ open Typography
 
 @react.component
 let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsUploading) => {
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let dataDict = config.data->getDictFromJsonObject
   let ingestionType = dataDict->getString("ingestion_type", "")
   let allKeyValuePairs = getKeyValuePairsFromDict(dataDict)
@@ -81,18 +82,22 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
 
   {
     if ingestionType == "manual" {
+      let hasManageAccess =
+        userHasAccess(~groupAccess=UserManagementTypes.ReconSourcesManage) === Access
+      let cursorPointerClass = hasManageAccess ? "cursor-pointer" : "cursor-not-allowed"
       <div className="mt-10">
         <input
           ref={fileInputRef->ReactDOM.Ref.domRef}
           type_="file"
-          accept=".csv,.ext"
+          accept=".csv,.ext,.xlsx"
+          disabled={!hasManageAccess}
           onChange={ev => ev->handleFileUpload->ignore}
           hidden=true
           id="fileUploadInput"
         />
         <label
           htmlFor="fileUploadInput"
-          className="flex flex-col items-center justify-center w-full border border-dashed border-nd_gray-300 rounded-xl cursor-pointer transition-colors hover:border-nd_gray-400">
+          className={`flex flex-col items-center justify-center w-full border border-dashed border-nd_gray-300 rounded-xl ${cursorPointerClass} transition-colors hover:border-nd_gray-400`}>
           <div className="flex flex-col items-center justify-center py-8 gap-5">
             <Icon name="nd-upload" size=20 className="text-gray-400" />
             <div className="flex flex-col gap-1 items-center">
@@ -100,7 +105,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
                 {"Choose a file or drag & drop it here"->React.string}
               </div>
               <div className={`${body.md.medium} text-nd_gray-500`}>
-                {".csv only | Max size 8 MB"->React.string}
+                {".csv,.ext,.xlsx only | Max size 8 MB"->React.string}
               </div>
             </div>
             <div
@@ -123,7 +128,8 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
                     {`${(file["size"] / 1024)->Int.toString} KB`->React.string}
                   </span>
                 </div>
-                <Button
+                <ACLButton
+                  authorization={userHasAccess(~groupAccess=UserManagementTypes.ReconSourcesManage)}
                   text={isUploading ? "Uploading..." : "Upload"}
                   buttonType=Primary
                   onClick={_ => uploadFile()->ignore}

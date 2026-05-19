@@ -37,16 +37,16 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
     let value = valuesDict->getJsonObjectFromDict(key)
 
     switch value {
-    | Array(listofemails) =>
-      if listofemails->Array.length === 0 {
+    | Array(listOfEmails) =>
+      if listOfEmails->Array.length === 0 {
         key->validateEmptyValue(errors)
       } else {
-        listofemails->Array.forEach(ele => {
+        listOfEmails->Array.forEach(ele => {
           if ele->JSON.Decode.string->Option.getOr("")->HSwitchUtils.isValidEmail {
             errors->Dict.set("email", "Please enter a valid email"->JSON.Encode.string)
           }
         })
-        if listofemails->Array.length > 10 {
+        if listOfEmails->Array.length > 10 {
           errors->Dict.set("Invite limit exceeded", "Max 10 at a time."->JSON.Encode.string)
         }
         ()
@@ -62,7 +62,9 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
   errors->JSON.Encode.object
 }
 
-let itemToObjMapperForGetRoleInfro: Dict.t<JSON.t> => UserManagementTypes.userModuleType = dict => {
+let itemToObjMapperForRoleModuleInfo: Dict.t<
+  JSON.t,
+> => UserManagementTypes.userModuleType = dict => {
   open LogicUtils
   {
     parentGroup: getString(dict, "name", ""),
@@ -71,11 +73,11 @@ let itemToObjMapperForGetRoleInfro: Dict.t<JSON.t> => UserManagementTypes.userMo
   }
 }
 
-let itemToObjMapperFordetailedRoleInfo: Dict.t<
+let itemToObjMapperForDetailedRoleInfo: Dict.t<
   JSON.t,
 > => UserManagementTypes.detailedUserModuleType = dict => {
   open LogicUtils
-  let sortedscopes = getStrArrayFromDict(dict, "scopes", [])->Array.toSorted((item, _) =>
+  let sortedScopes = getStrArrayFromDict(dict, "scopes", [])->Array.toSorted((item, _) =>
     switch item {
     | "read" => -1.
     | "write" => 1.
@@ -85,7 +87,7 @@ let itemToObjMapperFordetailedRoleInfo: Dict.t<
   {
     parentGroup: getString(dict, "name", ""),
     description: getString(dict, "description", ""),
-    scopes: sortedscopes,
+    scopes: sortedScopes,
   }
 }
 
@@ -103,22 +105,22 @@ let modulesWithUserAccess = (
       let accessGroup = userAccessGroup->Array.find(group => group.parentGroup == item.parentGroup)
       switch accessGroup {
       | Some(val) => {
-          let manipulatedObject = {
+          let moduleEntry = {
             parentGroup: item.parentGroup,
             description: val.description,
             scopes: val.scopes,
           }
-          modulesWithAccess->Array.push(manipulatedObject)
+          modulesWithAccess->Array.push(moduleEntry)
         }
       | None => ()
       }
     } else {
-      let manipulatedObject = {
+      let moduleEntry = {
         parentGroup: item.parentGroup,
         description: item.description,
         scopes: [],
       }
-      modulesWithoutAccess->Array.push(manipulatedObject)
+      modulesWithoutAccess->Array.push(moduleEntry)
     }
   })
   (modulesWithAccess, modulesWithoutAccess)

@@ -42,7 +42,7 @@ let selectInput = (
   ~buttonSize=Button.Large,
   ~maxButtonWidth="",
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
-  <SelectBox
+  <SelectBoxAdapter
     input
     options
     buttonText
@@ -151,7 +151,7 @@ let filterMultiSelectInput = (
   ~disableSelect=false,
   (),
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
-  <FilterSelectBox
+  <FilterSelectBoxAdapter
     input
     options
     optionSize
@@ -253,7 +253,7 @@ let multiSelectInput = (
   ~baseComponentMethod=?,
   ~disableSelect=false,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
-  <SelectBox
+  <SelectBoxAdapter
     input
     options
     optionSize
@@ -364,12 +364,12 @@ let textInput = (
   ~phoneInput=false,
   ~widthMatchwithPlaceholderLength=None,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
-  <TextInput
+  <TextInputAdapter
     input
     placeholder
     description
     isDisabled
-    type_
+    inputType=type_
     inputMode
     ?pattern
     ?autoComplete
@@ -500,7 +500,7 @@ let filterDateRangeField = (
   ~customButtonStyle="!rounded-lg !bg-none",
 ): comboCustomInputRecord => {
   let fn = (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
-    <DateRangeField
+    <DateRangeFieldAdapter
       disablePastDates
       disableFutureDates
       format
@@ -601,7 +601,7 @@ let dateRangeField = (
   ~isTooltipVisible=true,
 ): comboCustomInputRecord => {
   let fn = (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
-    <DateRangePicker
+    <DateRangePickerAdapter
       disablePastDates
       disableFutureDates
       format

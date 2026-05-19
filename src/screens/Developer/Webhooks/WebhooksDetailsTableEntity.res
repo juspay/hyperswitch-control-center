@@ -13,7 +13,7 @@ let getHeading = colType => {
   | IsDeliverySuccessful =>
     Table.makeHeaderInfo(~key="is_delivery_successful", ~title="Delivery Status")
   | DeliveryAttempt => Table.makeHeaderInfo(~key="delivery_attempt", ~title="Delivery Attempt")
-  | EventId => Table.makeHeaderInfo(~key="event_id", ~title="Event Id")
+  | EventId => Table.makeHeaderInfo(~key="event_id", ~title="Event ID")
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created")
   }
 }

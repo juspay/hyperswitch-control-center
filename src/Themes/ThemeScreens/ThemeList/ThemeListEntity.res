@@ -1,4 +1,3 @@
-open ThemeHelper
 open LogicUtils
 
 type themeObj = {
@@ -86,15 +85,26 @@ let getCell = (themeObj, colType): Table.cell => {
     let sidebarObj = settings->getObj("sidebar", Dict.make())
     let primary = colors->getString("primary", fallbackThemeConfigSettings.colors.primary)
     let sidebar = sidebarObj->getString("primary", fallbackThemeConfigSettings.sidebar.primary)
-    Table.CustomCell(<OverlappingCircles colorA=primary colorB=sidebar />, "")
+    Table.CustomCell(<ThemeHelper.OverlappingCircles colorA=primary colorB=sidebar />, "")
   }
 }
 
-let themeTableEntity: EntityType.entityType<cols, Js.Json.t> = EntityType.makeEntity(
-  ~uri=``,
-  ~getObjects=json => json->getArrayFromJson([]),
-  ~defaultColumns=visibleColumns,
-  ~allColumns=visibleColumns,
-  ~getHeading,
-  ~getCell=(json, colType) => getCell(tableItemToObjMapper(json->getDictFromJsonObject), colType),
-)
+let themeTableEntity = (~orgId) =>
+  EntityType.makeEntity(
+    ~uri=``,
+    ~getObjects=json => json->getArrayFromJson([]),
+    ~defaultColumns=visibleColumns,
+    ~allColumns=visibleColumns,
+    ~getHeading,
+    ~getCell=(json, colType) => getCell(tableItemToObjMapper(json->getDictFromJsonObject), colType),
+    ~getShowLink={
+      theme => {
+        let themeDict = theme->getDictFromJsonObject
+        let merchantId = themeDict->getString("merchant_id", "all_merchants")
+        let profileId = themeDict->getString("profile_id", "all_profiles")
+        let themeId = themeDict->getString("theme_id", "")
+        let url = `/theme/${themeId}/${profileId}/${merchantId}/${orgId}`
+        GlobalVars.appendDashboardPath(~url)
+      }
+    },
+  )

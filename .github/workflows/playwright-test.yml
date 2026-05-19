@@ -5,9 +5,21 @@ permissions:
 on:
   pull_request:
   merge_group:
+  workflow_dispatch:
+    inputs:
+      shard:
+        description: "Shard to run: 'all' or one of 1, 2, 3, 4"
+        default: "all"
+        type: choice
+        options:
+          - all
+          - "1"
+          - "2"
+          - "3"
+          - "4"
 
 jobs:
-  playwright-tests:
+  setup:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,10 +28,61 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Clear Docker cache
-        run: docker builder prune -af
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 24
 
-      - name: Execute Shell Script
+      - name: Cache node_modules
+        id: node-modules-cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-node24-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm install --force
+
+      - name: Build application
+        run: npm run build:test
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-dist
+          path: dist/
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
+
+      - name: Install Playwright Browsers
+        run: npx playwright install chromium --with-deps
+
+  playwright-tests:
+    needs: setup
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ (github.event_name == 'workflow_dispatch' && inputs.shard != 'all') && fromJSON(format('[{0}]', inputs.shard)) || fromJSON('[1, 2, 3, 4]') }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Start backend services
         run: |
           chmod +x playwright-tests/start_hyperswitch.sh
           sh playwright-tests/start_hyperswitch.sh
@@ -29,18 +92,30 @@ jobs:
         with:
           node-version: 24
 
+      - name: Restore node_modules
+        id: node-modules-cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-node24-${{ hashFiles('package-lock.json') }}
+
       - name: Install dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: npm install --force
 
-      - name: Install Playwright Browsers
-        # Installing only Chrome (Chromium) for now
-        # To add other browsers later:
-        #   - Multiple: npx playwright install chromium firefox webkit --with-deps
-        #   - Available: chromium, chrome, chrome-beta, msedge, msedge-beta, msedge-dev, firefox, webkit
-        run: npx playwright install chromium --with-deps
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-dist
+          path: dist/
 
-      - name: Build application
-        run: npm run build:test
+      - name: Restore Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
 
       - name: Health check for Backend
         run: |
@@ -49,9 +124,10 @@ jobs:
           echo "Response:"
           echo "$response"
 
-      - name: Run Playwright tests
-        run: npx playwright test
+      - name: Run Playwright tests (Shard ${{ matrix.shard }}/4)
+        run: npx playwright test --shard=${{ matrix.shard }}/4
         env:
+          PW_COVERAGE: "1"
           PLAYWRIGHT_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           PLAYWRIGHT_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
           PLAYWRIGHT_SSO_BASE_URL: ${{ secrets.CYPRESS_SSO_BASE_URL }}
@@ -67,21 +143,121 @@ jobs:
           report-path: "./ctrf/*.json"
           github-report: true
 
-      - name: Artifact - Failed Test Results Only
+      - name: Artifact - Failed Test Artifacts
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: playwright-failures
+          name: playwright-artifacts-shard-${{ matrix.shard }}
           path: |
             test-results/**/*-failed-*
             test-results/**/*-retry*/
+            playwright-report/
           if-no-files-found: ignore
           retention-days: 7
 
-      - name: Artifact - Playwright HTML Report
+      - name: Artifact - Playwright Coverage Report
         uses: actions/upload-artifact@v4
-        if: failure()
+        if: always()
         with:
-          name: playwright-report
-          path: playwright-report/
+          name: playwright-coverage-shard-${{ matrix.shard }}
+          path: coverage-report/
+          if-no-files-found: warn
+          retention-days: 7
+
+  merge-coverage:
+    needs: playwright-tests
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 24
+
+      - name: Restore node_modules
+        id: node-modules-cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-node24-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm install --force
+
+      - name: Download all shard coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: playwright-coverage-shard-*
+          path: coverage-shards/
+
+      - name: Combine raw V8 data from each shard
+        run: |
+          mkdir -p merged-raw
+          shopt -s nullglob
+          shard_count=0
+          total_added=0
+          # MCR raw cache files are `coverage-<uid>.json` / `source-<uid>.json`
+          # and live under a `raw/` directory created by the raw reporter.
+          # We MUST scope to */raw/* — the artifact root also contains
+          # `coverage-summary.json` (json-summary reporter output), which
+          # matches the same name glob but has shape {summary,files} not
+          # {id,type,data}, and crashes mergeV8DataList at v8.js:183
+          # ("Cannot read properties of undefined (reading 'empty')").
+          for shard_dir in coverage-shards/playwright-coverage-shard-*/; do
+            shard_count=$((shard_count + 1))
+            added=0
+            while IFS= read -r -d '' f; do
+              cp -n "$f" "merged-raw/" && added=$((added + 1)) || true
+            done < <(find "${shard_dir}" -type f -path '*/raw/*' \( -name 'coverage-*.json' -o -name 'source-*.json' \) -print0)
+            total_added=$((total_added + added))
+            if [ "$added" -eq 0 ]; then
+              echo "⚠️  No raw V8 files found under ${shard_dir}**/raw/"
+            else
+              echo "✓ ${shard_dir}: added ${added} raw file(s)"
+            fi
+          done
+          echo "Combined ${total_added} raw file(s) from ${shard_count} shard artifact(s)"
+          if [ "$total_added" -eq 0 ]; then
+            echo "::warning::No raw coverage data found in any shard; merged report will be empty."
+          fi
+
+      - name: Generate merged coverage report
+        run: |
+          if [ -z "$(ls -A merged-raw 2>/dev/null)" ]; then
+            echo "Skipping mcr — merged-raw is empty."
+            exit 0
+          fi
+          # `merge` subcommand is required: without it the CLI just prints
+          # help (see node_modules/monocart-coverage-reports/lib/cli.js
+          # ~L237 — empty positional command short-circuits to outputHelp).
+          # CLI flags override config-file values (index.js L258-262), so
+          # -o here wins over the outputDir set in mcr.config.js.
+          npx mcr merge -c mcr.config.js -i merged-raw -o coverage-report-merged
+
+      - name: Publish merged coverage to job summary
+        if: always()
+        run: |
+          if [ -f coverage-report-merged/coverage-summary.md ]; then
+            echo "## 📊 Playwright Code Coverage — Merged (all shards)" >> "$GITHUB_STEP_SUMMARY"
+            cat coverage-report-merged/coverage-summary.md >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "_Full HTML report: download the \`playwright-coverage-merged\` artifact below._" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "⚠️ Merged coverage summary not generated (coverage-report-merged/coverage-summary.md missing)." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Artifact - Merged Coverage Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-coverage-merged
+          path: coverage-report-merged/
+          if-no-files-found: warn
           retention-days: 7

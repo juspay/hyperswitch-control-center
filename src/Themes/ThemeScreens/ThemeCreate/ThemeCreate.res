@@ -17,6 +17,9 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (showUploadModal, setShowUploadModal) = React.useState(_ => false)
   let (themeId, setThemeId) = React.useState(_ => "")
+  let (initialValues, setInitialValues) = React.useState(() =>
+    defaultCreate(~lineage)->Identity.genericTypeToJson
+  )
 
   let redirectToList = () => {
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/theme"))
@@ -29,7 +32,7 @@ let make = () => {
       let res = await updateDetails(themeURL, values, Post)
       let newThemeId = res->getDictFromJsonObject->getString("theme_id", "")
       setThemeId(_ => newThemeId)
-
+      setInitialValues(_ => values)
       setScreenState(_ => Success)
       setShowUploadModal(_ => true)
     } catch {
@@ -40,9 +43,59 @@ let make = () => {
     }
     Nullable.null
   }
+  let submitButton =
+    <div className="flex flex-row gap-4 justify-end w-full">
+      <FormRenderer.SubmitButton
+        text="Apply Theme"
+        buttonType=Primary
+        buttonSize={Small}
+        customSubmitButtonStyle={`${body.md.semibold} py-4`}
+      />
+    </div>
+
+  let tabs: array<Tabs.tab> = [
+    {
+      title: "Dashboard Config",
+      renderContent: () =>
+        <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
+          <ThemeSettings />
+          <div className="flex flex-col gap-8 w-full lg:col-span-2">
+            <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
+            <div className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
+              <div
+                className="absolute top-3 right-3 z-10 bg-white bg-opacity-80 rounded-full p-1 flex items-center justify-center shadow">
+                <Icon name="eye" size=18 className="text-nd_gray-500 opacity-70" />
+              </div>
+              <ThemeMockDashboard />
+            </div>
+            {submitButton}
+          </div>
+        </div>,
+    },
+    {
+      title: "Email Config",
+      renderContent: () =>
+        <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
+          <div className="flex flex-col gap-8 p-2">
+            <ThemeSettingsHelper.EmailSettings />
+          </div>
+          <div className="flex flex-col gap-8 w-full lg:col-span-2">
+            <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
+            <div className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
+              <div
+                className="absolute top-3 right-3 z-10 bg-white bg-opacity-80 rounded-full p-1 flex items-center justify-center shadow">
+                <Icon name="eye" size=18 className="text-nd_gray-500 opacity-70" />
+              </div>
+              <ThemeMockEmail />
+            </div>
+            {submitButton}
+          </div>
+        </div>,
+    },
+  ]
 
   <PageLoaderWrapper screenState>
-    <Form onSubmit initialValues={defaultCreate(~lineage)->Identity.genericTypeToJson}>
+    <Form onSubmit initialValues>
       <div className="flex flex-col h-screen gap-8">
         <div className="flex flex-col flex-1 h-full">
           <PageUtils.PageHeading
@@ -50,28 +103,7 @@ let make = () => {
             subTitle="Personalize your dashboard look with a live preview."
             customSubTitleStyle={`${body.lg.medium} text-nd_gray-400`}
           />
-          <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
-            <ThemeSettings />
-            <div className="flex flex-col gap-8 w-full lg:col-span-2">
-              <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
-              <div className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
-                <div
-                  className="absolute top-3 right-3 z-10 bg-white bg-opacity-80 rounded-full p-1 flex items-center justify-center shadow">
-                  <Icon name="eye" size=18 className="text-nd_gray-500 opacity-70" />
-                </div>
-                <ThemeMockDashboard />
-              </div>
-              <div className="flex flex-row gap-4 justify-end w-full">
-                <FormRenderer.SubmitButton
-                  text="Apply Theme"
-                  buttonType=Primary
-                  buttonSize={Small}
-                  customSubmitButtonStyle={`${body.md.semibold} py-4`}
-                  tooltipForWidthClass="w-full"
-                />
-              </div>
-            </div>
-          </div>
+          <Tabs tabs />
         </div>
       </div>
       <ThemeHelper.ThemeUploadAssetsModal
