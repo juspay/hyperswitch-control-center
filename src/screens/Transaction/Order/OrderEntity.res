@@ -424,7 +424,7 @@ let getHeading = (~devSortEnabled, colType: colType) => {
   | MerchantOrderReferenceId =>
     Table.makeHeaderInfo(~key="merchant_order_reference_id", ~title="Merchant Order Reference Id")
   | AttemptCount =>
-    Table.makeHeaderInfo(~key="attempt_count", ~title="Attempt count", ~showSort=true)
+    Table.makeHeaderInfo(~key="attempt_count", ~title="Attempt Count", ~showSort=true)
   | PaymentType => Table.makeHeaderInfo(~key="payment_type", ~title="Payment Type")
   }
 }
