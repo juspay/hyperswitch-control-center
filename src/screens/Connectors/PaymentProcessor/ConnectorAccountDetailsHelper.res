@@ -230,7 +230,7 @@ module CashToCodeSelectBox = {
       accordionItem
     })
 
-    <div className="w-full">
+    <div className="w-full mt-4">
       <AccordionAdapter
         accordion=accordionItems
         accordionTopContainerCss="mt-4 rounded-lg"
