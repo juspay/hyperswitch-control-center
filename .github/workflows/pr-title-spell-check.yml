@@ -8,6 +8,10 @@ on:
       - edited
       - synchronize
 
+concurrency:
+  group: pr-title-spell-check-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   typos:
     name: Spell check PR title
@@ -15,16 +19,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
 
       - name: Store PR title in a file
         shell: bash
         env:
           TITLE: ${{ github.event.pull_request.title }}
-        run: echo $TITLE > pr_title.txt
+        run: printf '%s\n' "$TITLE" > pr_title.txt
 
       - name: Spell check
-        uses: crate-ci/typos@master
+        uses: crate-ci/typos@v1.46.2
         with:
           files: ./pr_title.txt

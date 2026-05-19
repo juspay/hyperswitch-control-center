@@ -11,6 +11,10 @@ on:
       - edited
       - synchronize
 
+concurrency:
+  group: spellcheck-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   typos:
     name: Spell check
@@ -18,8 +22,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 2
 
       - name: Spell check
-        uses: crate-ci/typos@master
+        uses: crate-ci/typos@v1.46.2
