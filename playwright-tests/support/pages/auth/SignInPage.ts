@@ -15,6 +15,10 @@ export class SignInPage {
     return this.page.getByPlaceholder("Enter your Password");
   }
 
+  get passwordField(): Locator {
+    return this.page.locator('[data-testid="password"]');
+  }
+
   get signinButton(): Locator {
     return this.page.locator('[data-button-for="continue"]');
   }
@@ -47,6 +51,26 @@ export class SignInPage {
     return this.page.locator('[data-toast="Incorrect email or password"]');
   }
 
+  get forgotPasswordFailedToast(): Locator {
+    return this.page.locator('[data-toast="Forgot Password Failed, Try again"]');
+  }
+
+  get forgotPasswordSentToast(): Locator {
+    return this.page.locator('[data-toast="Please check your registered e-mail"]');
+  }
+
+  get passwordChangedToast(): Locator {
+    return this.page.locator('[data-toast="Password Changed Successfully"]');
+  }
+
+  get resetLinkSentContainer(): Locator {
+    return this.page.locator('[class="flex-col items-center justify-center"]');
+  }
+
+  get forgotPasswordCancelContainer(): Locator {
+    return this.page.locator('[class="w-full flex justify-center"]');
+  }
+
   get continueWithOktaButton(): Locator {
     return this.page.getByText(/Continue with Okta/i).first();
   }
@@ -67,6 +91,40 @@ export class SignInPage {
 
   get otpBox2FA(): Locator {
     return this.page.locator('[class="flex justify-center relative "]');
+  }
+
+  get qrCode2FA(): Locator {
+    return this.page.locator('[viewBox="0 0 41 41"]');
+  }
+
+  get downloadRecoveryCodes(): Locator {
+    return this.page.locator('[data-button-for="download"]');
+  }
+
+  get recoveryCodesText(): Locator {
+    return this.page.getByText("Two factor recovery codes");
+  }
+
+  get recoveryCodesMask(): Locator {
+    return this.page.locator(
+      ".border.border-gray-200.rounded-md.bg-jp-gray-100.py-6.px-12.flex.gap-8.justify-evenly",
+    );
+  }
+
+  get useRecoveryCodeLink(): Locator {
+    return this.page.getByText("Use recovery code");
+  }
+
+  get recoveryCodeInputHeader(): Locator {
+    return this.page.getByText("Enter an 8-digit recovery code");
+  }
+
+  get verifyOTPButton(): Locator {
+    return this.page.getByRole("button", { name: "Verify OTP" });
+  }
+
+  get incorrectCodeError(): Locator {
+    return this.page.getByText("Incorrect code, please try again");
   }
 
   async fillOTP(otp: string): Promise<void> {

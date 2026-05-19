@@ -3,6 +3,43 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.18.2
+
+### Bug Fixes
+
+- Recon engine bulk operations modal z index ([#4830](https://github.com/juspay/hyperswitch-control-center/pull/4830)) ([`708f92c`](https://github.com/juspay/hyperswitch-control-center/commit/708f92c98e21bfc1229bb04ee887fcc78c5751a4))
+
+**Full Changelog:** [`2026.05.18.1...2026.05.18.2`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.18.1...2026.05.18.2)
+
+- - -
+
+## 2026.05.18.1
+
+### Features
+
+- Migrate CheckBoxIcon to Blend Design System ([#4634](https://github.com/juspay/hyperswitch-control-center/pull/4634)) ([`5c48115`](https://github.com/juspay/hyperswitch-control-center/commit/5c481156b4a803860da12184fb9081133d17b136))
+- Migrate TextInput to Blend Design System ([#4582](https://github.com/juspay/hyperswitch-control-center/pull/4582)) ([`6c652a3`](https://github.com/juspay/hyperswitch-control-center/commit/6c652a3da2872b1ce996f43f62a1b991ecc4ff76))
+
+### Bug Fixes
+
+- Prevent recon bulk actions card from overlapping table rows and pagination ([#4826](https://github.com/juspay/hyperswitch-control-center/pull/4826)) ([`763952f`](https://github.com/juspay/hyperswitch-control-center/commit/763952fb1bfc85d4d051c25bd066c08e20c436fa))
+
+### Refactors
+
+- Model recon trigger as versioned variant (v1/v2) ([#4824](https://github.com/juspay/hyperswitch-control-center/pull/4824)) ([`1313f54`](https://github.com/juspay/hyperswitch-control-center/commit/1313f54f728d5c8f2261f2b42054b96a99188950))
+
+### Testing
+
+- Playwright migration cleanup ([#4810](https://github.com/juspay/hyperswitch-control-center/pull/4810)) ([`60ecd24`](https://github.com/juspay/hyperswitch-control-center/commit/60ecd2467f62b4debb4ba557efd99d8d29d2c62a))
+
+### Miscellaneous Tasks
+
+- Remove outdated dispute evidence upload banner ([#4821](https://github.com/juspay/hyperswitch-control-center/pull/4821)) ([`e0cf058`](https://github.com/juspay/hyperswitch-control-center/commit/e0cf05889325ef3cdb1184c12e5edfe1dc6776f5))
+
+**Full Changelog:** [`2026.05.18.0...2026.05.18.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.18.0...2026.05.18.1)
+
+- - -
+
 ## 2026.05.18.0
 
 ### Bug Fixes

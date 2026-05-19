@@ -1,6 +1,7 @@
 import { test, expect } from "../../support/test";
 import type { Page, BrowserContext } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
+import { BillingProcessor } from "../../support/pages/connector/BillingProcessor";
 import { generateUniqueEmail } from "../../support/helper";
 import { signupUser, loginUI, fillConnectorFields } from "../../support/commands";
 import { billingProcessorConfig } from "../../support/fixtures/billingProcessorConfig";
@@ -9,7 +10,7 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 async function signupAndLogin(page: Page, context: BrowserContext) {
   const email = generateUniqueEmail();
-  await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+  await signupUser(email, PLAYWRIGHT_PASSWORD);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 }
 
@@ -64,14 +65,13 @@ test.describe("Billing Processor", () => {
     if (!(await gotoBilling(page))) {
       test.skip(true, "Billing Processor not reachable");
     }
-    const fallback = page.getByText("Go to Home", { exact: true }).first();
+    const billingProcessor = new BillingProcessor(page);
+    const fallback = billingProcessor.goToHomeFallback;
     if (await fallback.isVisible().catch(() => false)) {
       test.skip(true, "Page gated by feature flag fallback");
     }
-    await expect(
-      page.getByRole("button", { name: "Request a Processor" }).first(),
-    ).toBeVisible({ timeout: 10000 });
-    const search = page.getByPlaceholder("Search a processor");
+    await expect(billingProcessor.requestProcessorButton).toBeVisible({ timeout: 10000 });
+    const search = billingProcessor.searchProcessorPlaceholder;
     await expect(search).toBeVisible({ timeout: 10000 });
     await search.fill("stripe");
     await expect(search).toHaveValue("stripe");
@@ -81,9 +81,8 @@ test.describe("Billing Processor", () => {
     if (!(await gotoBilling(page))) {
       test.skip(true, "Billing Processor not reachable");
     }
-    const connectButton = page
-      .locator('[data-button-for="connectNow"], button:has-text("Connect")')
-      .first();
+    const billingProcessor = new BillingProcessor(page);
+    const connectButton = billingProcessor.connectNowOrConnectButton;
     if (!(await connectButton.isVisible().catch(() => false))) {
       test.skip(true, "Connect CTA not exposed");
     }
@@ -105,11 +104,9 @@ test.describe("Billing Processor", () => {
       .first()
       .fill("chargebee_test_api_key");
 
-    await page.locator('[data-button-for="connectAndProceed"]').click();
+    await billingProcessor.connectAndProceedButton.click();
 
-    await expect(
-      page.locator('[data-toast*="success"], [data-toast*="Successfully"]'),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(billingProcessor.successToast).toBeVisible({ timeout: 10000 });
   });
 
   test("should configure subscription plans sync", async ({ page }) => {
@@ -168,7 +165,7 @@ test.describe("All Billing Processors", () => {
   const billingProcessors = Object.entries(billingProcessorConfig);
   test.beforeEach(async ({ page, context }) => {
     email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
@@ -177,6 +174,7 @@ test.describe("All Billing Processors", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
+      const billingProcessor = new BillingProcessor(page);
 
       await homePage.connectors.click();
       const billingLink = homePage.billingConnectors;
@@ -187,7 +185,7 @@ test.describe("All Billing Processors", () => {
       await billingLink.click();
       await expect(page).toHaveURL(/.*dashboard\/billing-processor/);
 
-      const connectButtons = page.locator('[data-button-text="Connect"], button:has-text("Connect")');
+      const connectButtons = billingProcessor.connectButton;
       await expect(connectButtons.first()).toBeVisible();
       if ((await connectButtons.count().catch(() => 0)) > 0) {
         await connectButtons.nth(0).click();
@@ -196,14 +194,13 @@ test.describe("All Billing Processors", () => {
           await fillConnectorFields(page, processor.fields);
         }
 
-        const saveButton = page.locator('button:has-text("Save"), button:has-text("Connect"), button:has-text("Proceed")').first();
+        const saveButton = billingProcessor.saveOrConnectOrProceedButton;
         if (await saveButton.isVisible({ timeout: 5000 }).catch(() => false)) {
           await saveButton.click();
           await page.waitForLoadState("networkidle");
 
-          await page.getByRole('button', { name: 'Done' }).click();
+          await billingProcessor.doneButton.click();
 
-          // Verify the connector appears in the vault processor list
           const connectorLabel = processor.fields.overrides["Enter Connector label"] || processor.label;
           await expect(page.getByText(connectorLabel, { exact: true })).toBeVisible({ timeout: 10000 });
         }
