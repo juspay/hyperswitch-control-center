@@ -46,6 +46,7 @@ module CardRenderer = {
       )
     }, [])
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
 
     let pmAuthProcessorList = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=PMAuthProcessor,
@@ -287,8 +288,10 @@ module CardRenderer = {
         if standardProviders->Array.some(obj => checkPaymentMethodType(obj, method)) {
           paymentMethodsEnabled->removeMethod(paymentMethod, method, connector)->updateDetails
         } else if (
-          !showAdditionalDetails(method.payment_method_type->getPaymentMethodTypeFromString)
+          showAdditionalDetails(method.payment_method_type->getPaymentMethodTypeFromString)
         ) {
+          setSelectedWallet(_ => method)
+        } else {
           paymentMethodsEnabled->addMethod(paymentMethod, method)->updateDetails
         }
       }
@@ -351,6 +354,7 @@ module CardRenderer = {
         "connector_wallets_details",
         connectorWalletsInitialValues->Identity.genericTypeToJson,
       )
+      setSelectedWallet(_ => Dict.make()->itemProviderMapper)
     }
 
     let checkIfAdditionalDetailsRequired = (
@@ -381,6 +385,10 @@ module CardRenderer = {
     let handleOnItemExpandClick = method => () => {
       if paymentMethod->getPaymentMethodFromString !== BankDebit {
         removeOrAddMethods(method)
+      }
+
+      if showAdditionalDetails(method.payment_method_type->getPaymentMethodTypeFromString) {
+        setSelectedWallet(_ => method)
       }
     }
 
@@ -583,13 +591,13 @@ module CardRenderer = {
                     renderContent: (~currentAccordionState as _, ~closeAccordionFn) =>
                       <AdditionalDetailsSidebar
                         key={`${value.payment_method_type}`}
-                        method={Some(value)}
+                        method={Some(selectedWallet)}
                         setMetaData
                         updateDetails
                         paymentMethodsEnabled
                         paymentMethod
                         onCloseClickCustomFun={removeSelectedWallet}
-                        pmtName={value.payment_method_type}
+                        pmtName={selectedWallet.payment_method_type}
                         closeAccordionFn
                       />,
                     onItemCollapseClick: handleOnItemCollapseClick(value),
