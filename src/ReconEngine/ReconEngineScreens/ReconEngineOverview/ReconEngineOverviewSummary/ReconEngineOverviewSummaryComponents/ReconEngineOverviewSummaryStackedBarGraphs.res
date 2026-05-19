@@ -78,23 +78,70 @@ module RuleWiseStackedBarGraph = {
       customLoader={<Shimmer styleClass="h-44 w-full rounded-xl" />}>
       <div
         key={rule.rule_id}
-        className="flex flex-col space-y-2 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
+        className="flex flex-col gap-3 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
         <p className={`text-nd_gray-500 ${body.sm.medium}`}> {rule.rule_name->React.string} </p>
         <p className={`text-nd_gray-800 ${heading.md.semibold}`}>
           {`${reconciliationPercentage->valueFormatter(Rate)}`->React.string}
         </p>
-        <div className="w-full">
-          <StackedBarGraph
-            options={StackedBarGraphUtils.getStackedBarGraphOptions(
-              stackedBarGraphData,
-              ~yMax=totalTransactions,
-              ~labelItemDistance={isMiniLaptopView ? 45 : 80},
-              ~pointWidth=12,
-              ~onPointClick=seriesName =>
-                ReconEngineOverviewUtils.handleBarClick(~rule, seriesName),
-            )}
-          />
-        </div>
+        {if totalTransactions > 0 {
+          <div className="w-full">
+            <StackedBarGraph
+              options={StackedBarGraphUtils.getStackedBarGraphOptions(
+                stackedBarGraphData,
+                ~yMax=totalTransactions,
+                ~labelItemDistance={isMiniLaptopView ? 45 : 80},
+                ~pointWidth=12,
+                ~onPointClick=seriesName =>
+                  ReconEngineOverviewUtils.handleBarClick(~rule, seriesName),
+              )}
+            />
+          </div>
+        } else {
+          <div className="flex gap-4 flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <span
+                className="inline-block w-2.5 h-2.5 rounded-sm flex-shrink-0"
+                style={ReactDOM.Style.make(~backgroundColor=ReconEngineOverviewUtils.matchedColor, ())}
+              />
+              <span className={`text-nd_gray-500 ${body.sm.medium}`}>
+                {"Matched"->React.string}
+              </span>
+              <span className="text-nd_gray-400 mx-0.5"> {"|"->React.string} </span>
+              <span className={`text-nd_gray-700 ${body.sm.semibold}`}>
+                {matchedCount->Int.toString->React.string}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span
+                className="inline-block w-2.5 h-2.5 rounded-sm flex-shrink-0"
+                style={ReactDOM.Style.make(~backgroundColor=ReconEngineOverviewUtils.expectedColor, ())}
+              />
+              <span className={`text-nd_gray-500 ${body.sm.medium}`}>
+                {"Expected"->React.string}
+              </span>
+              <span className="text-nd_gray-400 mx-0.5"> {"|"->React.string} </span>
+              <span className={`text-nd_gray-700 ${body.sm.semibold}`}>
+                {expectedCount->Int.toString->React.string}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span
+                className="inline-block w-2.5 h-2.5 rounded-sm flex-shrink-0"
+                style={ReactDOM.Style.make(
+                  ~backgroundColor=ReconEngineOverviewUtils.mismatchedColor,
+                  (),
+                )}
+              />
+              <span className={`text-nd_gray-500 ${body.sm.medium}`}>
+                {"Mismatched"->React.string}
+              </span>
+              <span className="text-nd_gray-400 mx-0.5"> {"|"->React.string} </span>
+              <span className={`text-nd_gray-700 ${body.sm.semibold}`}>
+                {mismatchedCount->Int.toString->React.string}
+              </span>
+            </div>
+          </div>
+        }}
       </div>
     </PageLoaderWrapper>
   }
