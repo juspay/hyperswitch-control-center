@@ -4,7 +4,7 @@ open FeatureFlagUtils
 open ProductTypes
 open HyperswitchAtom
 
-let useGetHsSidebarValues = (~isReconEnabled: bool) => {
+let useGetHsSidebarValues = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
@@ -12,7 +12,6 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
   let {
     frm,
     payOut,
-    recon,
     default,
     surcharge: isSurchargeEnabled,
     isLiveMode,
@@ -87,7 +86,6 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~isCurrentMerchantPlatform,
     ),
     ...standardModules,
-    recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
     default->developers(
       ~isWebhooksEnabled=devWebhooks,
       ~userHasResourceAccess,
@@ -108,7 +106,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
   ]
 }
 
-let useGetOrchestratorSidebars = (~isReconEnabled) => useGetHsSidebarValues(~isReconEnabled)
+let useGetOrchestratorSidebars = () => useGetHsSidebarValues()
 
 let getAllProductsBasedOnFeatureFlags = (
   ~featureFlagDetails,
@@ -151,12 +149,12 @@ let getAllProductsBasedOnFeatureFlags = (
   products
 }
 
-let useGetAllProductSections = (~isReconEnabled, ~products: array<productTypes>) => {
+let useGetAllProductSections = (~products: array<productTypes>) => {
   open ProductUtils
 
   let isLiveMode = (featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
 
-  let orchestratorSidebars = useGetOrchestratorSidebars(~isReconEnabled)
+  let orchestratorSidebars = useGetOrchestratorSidebars()
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
   let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
@@ -218,11 +216,11 @@ let useGetSidebarProductModules = () => {
   })
 }
 
-let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
+let useGetSidebarValuesForCurrentActive = () => {
   let isLiveMode = (featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
+  let hsSidebars = useGetHsSidebarValues()
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
   let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let defaultSidebar = []

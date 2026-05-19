@@ -81,7 +81,7 @@ module AuthenticationInput = {
 
     <DesktopRow wrapperClass="flex-1">
       <div className="mt-5">
-        <TextInput
+        <TextInputAdapter
           input={keyInput}
           placeholder={"Enter key"}
           isDisabled={isDisabled && !allowEdit}
@@ -89,7 +89,7 @@ module AuthenticationInput = {
         />
       </div>
       <div className="mt-5">
-        <TextInput
+        <TextInputAdapter
           input={valueInput}
           placeholder={"Enter value"}
           isDisabled={isDisabled && !allowEdit}

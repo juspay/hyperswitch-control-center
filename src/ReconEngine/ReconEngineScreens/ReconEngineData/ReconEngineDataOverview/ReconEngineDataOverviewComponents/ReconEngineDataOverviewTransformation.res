@@ -69,7 +69,7 @@ let make = (
     let urlTransformationHistoryId =
       url.search
       ->getDictFromUrlSearchParams
-      ->getvalFromDict("transformationHistoryId")
+      ->getOptionValFromDict("transformationHistoryId")
 
     switch urlTransformationHistoryId {
     | Some(historyId) => {

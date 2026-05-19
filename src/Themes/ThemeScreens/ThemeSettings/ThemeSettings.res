@@ -11,7 +11,7 @@ let make = (~isUpdatePage=false) => {
     ~formValues,
   )
 
-  <div className="flex flex-col gap-8 max-h-screen overflow-y-auto p-2">
+  <div className="flex flex-col gap-8">
     <BrandSettings colorsFromForm={colorsFromForm} isUpdatePage />
     <SidebarSettings sidebarFromForm={sidebarFromForm} />
     <ButtonSettings buttonsFromForm={buttonsFromForm} />

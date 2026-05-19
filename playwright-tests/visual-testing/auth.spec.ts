@@ -137,7 +137,7 @@ test.describe("Visual Testing - Auth Pages", () => {
     context,
   }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     const signinPage = new SignInPage(page);
 
@@ -168,7 +168,7 @@ test.describe("Visual Testing - Auth Pages", () => {
     let totpSecret = "";
     await mockV2MerchantList(page);
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     const signinPage = new SignInPage(page);
     const homePage = new HomePage(page);
@@ -188,30 +188,26 @@ test.describe("Visual Testing - Auth Pages", () => {
     await signinPage.signinButton.click();
     await responsePromise;
 
-    await expect(page.locator('[viewBox="0 0 41 41"]')).toBeVisible();
+    await expect(signinPage.qrCode2FA).toBeVisible();
 
     const token = authenticator.generate(totpSecret);
 
-    const textboxes = page.getByRole("textbox");
-    const count = await textboxes.count();
-    for (let i = 0; i < token.length && i < count; i++) {
-      await textboxes.nth(i).fill(token.charAt(i));
-    }
+    await signinPage.fillOTP(token);
 
     await signinPage.enable2FA.click();
 
-    await expect(page.getByText("Two factor recovery codes")).toBeVisible();
+    await expect(signinPage.recoveryCodesText).toBeVisible();
 
     await expect(page).toHaveScreenshot(
       "auth-2fa-download-recovery-codes-page.png",
       {
         fullPage: true,
         animations: "disabled",
-        maxDiffPixelRatio: 0.01,
+        mask: [signinPage.recoveryCodesMask],
       },
     );
 
-    await page.locator('[data-button-for="download"]').click();
+    await signinPage.downloadRecoveryCodes.click();
 
     await homePage.userAccount.click();
     await homePage.signOut.click();
@@ -231,8 +227,8 @@ test.describe("Visual Testing - Auth Pages", () => {
       animations: "disabled",
     });
 
-    await page.getByText("Use recovery code").click();
-    await expect(page.getByText("Enter an 8-digit recovery code")).toBeVisible();
+    await signinPage.useRecoveryCodeLink.click();
+    await expect(signinPage.recoveryCodeInputHeader).toBeVisible();
 
     await expect(page).toHaveScreenshot(
       "auth-2fa-recovery-code-input-page.png",

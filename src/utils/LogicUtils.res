@@ -216,8 +216,12 @@ let getJsonObjectFromDict = (dict, key) => {
   dict->Dict.get(key)->Option.getOr(JSON.Encode.object(Dict.make()))
 }
 
-let getvalFromDict = (dict, key) => {
+let getOptionValFromDict = (dict, key) => {
   dict->Dict.get(key)
+}
+
+let getValueFromDict = (dict, key, default) => {
+  dict->Dict.get(key)->Option.getOr(default)
 }
 
 let getBoolFromString = (boolString, default: bool) => {

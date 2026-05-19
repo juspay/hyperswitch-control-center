@@ -234,6 +234,7 @@ let make = (
       filtersDict->Dict.delete(OrderUIUtils.startTimeFilterKey(version))
       filtersDict->Dict.delete(OrderUIUtils.endTimeFilterKey(version))
     }
+    filtersDict->Dict.delete("amount_filter")
     SavedViewsUtils.foldAmountOption(filtersDict)
     filtersDict->JSON.Encode.object
   }

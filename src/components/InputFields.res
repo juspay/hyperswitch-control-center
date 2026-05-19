@@ -151,7 +151,7 @@ let filterMultiSelectInput = (
   ~disableSelect=false,
   (),
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
-  <FilterSelectBox
+  <FilterSelectBoxAdapter
     input
     options
     optionSize
@@ -364,12 +364,12 @@ let textInput = (
   ~phoneInput=false,
   ~widthMatchwithPlaceholderLength=None,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
-  <TextInput
+  <TextInputAdapter
     input
     placeholder
     description
     isDisabled
-    type_
+    inputType=type_
     inputMode
     ?pattern
     ?autoComplete
