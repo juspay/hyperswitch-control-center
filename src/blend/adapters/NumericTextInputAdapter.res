@@ -20,12 +20,12 @@ let make = (
     | Some(strArr) =>
       let parts =
         strArr
-        ->Belt.Array.keepMap(x => x)
+        ->Array.filterMap(x => x)
         ->Array.joinWith("")
         ->String.split(".")
         ->Array.slice(~start=0, ~end=2)
       if removeLeadingZeroes {
-        let stripped = parts[0]->Option.getOr("")->String.replaceRegExp(%re("/\b0+/g"), "")
+        let stripped = parts->getValueFromArray(0, "")->String.replaceRegExp(%re("/\b0+/g"), "")
         parts[0] = stripped->isEmptyString ? "0" : stripped
       }
       parts->Array.joinWith(".")
