@@ -215,7 +215,7 @@ jobs:
           # ~L237 — empty positional command short-circuits to outputHelp).
           # CLI flags override config-file values (index.js L258-262), so
           # -o here wins over the outputDir set in mcr.config.js.
-          npx -y -p monocart-coverage-reports@2 mcr merge -c mcr.config.js -i merged-raw -o coverage-report-merged
+          npx mcr merge -c mcr.config.js -i merged-raw -o coverage-report-merged
 
       - name: Publish merged coverage to job summary
         if: always()
