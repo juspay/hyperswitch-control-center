@@ -6,7 +6,7 @@ let make = (~previewOnly=false) => {
 
   let fetchOrdersHook = OrdersHook.useFetchOrdersHook()
   let fetchAnalyticsOrdersHook = AnalyticsOrdersHook.useFetchAnalyticsOrdersHook()
-  let {devOpensearch, devSavedViews, transactionViews} =
+  let {devOpensearch, devSavedViews, transactionView} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
@@ -226,7 +226,7 @@ let make = (~previewOnly=false) => {
           </RenderIf>
         </div>
       </div>
-      <RenderIf condition={transactionViews}>
+      <RenderIf condition={transactionView}>
         <div className="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-6 mb-8">
           <TransactionView entity=TransactionViewTypes.Orders version />
         </div>

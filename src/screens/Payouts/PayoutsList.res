@@ -15,7 +15,7 @@ let make = () => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Payouts")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let {generateReport, email, transactionViews} =
+  let {generateReport, email, transactionView} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
@@ -98,7 +98,7 @@ let make = () => {
           <GenerateReport entityName={V1(PAYOUT_REPORT)} />
         </RenderIf>
       </div>
-      <RenderIf condition={transactionViews}>
+      <RenderIf condition={transactionView}>
         <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8">
           <TransactionView entity=TransactionViewTypes.Payouts />
         </div>

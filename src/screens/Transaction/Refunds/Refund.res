@@ -87,7 +87,7 @@ let make = () => {
     None
   }, (offset, filters, searchText))
 
-  let {generateReport, transactionViews} =
+  let {generateReport, transactionView} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   <ErrorBoundary>
@@ -108,7 +108,7 @@ let make = () => {
           </RenderIf>
         </div>
       </div>
-      <RenderIf condition={transactionViews}>
+      <RenderIf condition={transactionView}>
         <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8">
           <TransactionView entity=TransactionViewTypes.Refunds />
         </div>

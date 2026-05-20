@@ -14,7 +14,7 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (filters, setFilters) = React.useState(_ => None)
 
-  let {generateReport, email, transactionViews} =
+  let {generateReport, email, transactionView} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
@@ -126,7 +126,7 @@ let make = () => {
         </RenderIf>
       </div>
     </div>
-    <RenderIf condition={transactionViews}>
+    <RenderIf condition={transactionView}>
       <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8">
         <TransactionView entity=TransactionViewTypes.Disputes />
       </div>
