@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.20.0
+
+### Features
+
+- Migrate NumericTextInput to Blend Design System ([#4641](https://github.com/juspay/hyperswitch-control-center/pull/4641)) ([`8d5ab59`](https://github.com/juspay/hyperswitch-control-center/commit/8d5ab598317134521335897c854774f94281c842))
+
+### Bug Fixes
+
+- Blend design bugfixes ([#4834](https://github.com/juspay/hyperswitch-control-center/pull/4834)) ([`31d703f`](https://github.com/juspay/hyperswitch-control-center/commit/31d703f4d64bd9873e8a18bafae5b3e486fab560))
+
+### Miscellaneous Tasks
+
+- Disable transaction views feature flag ([#4837](https://github.com/juspay/hyperswitch-control-center/pull/4837)) ([`d2da638`](https://github.com/juspay/hyperswitch-control-center/commit/d2da6380ebdc715be21294765ead7c317a31c529))
+
+**Full Changelog:** [`2026.05.18.2...2026.05.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.18.2...2026.05.20.0)
+
+- - -
+
 ## 2026.05.18.2
 
 ### Bug Fixes
