@@ -117,6 +117,27 @@ export class PaymentSettings {
     return this.radioOption(label).locator("svg, [class*='RadioIcon']").first();
   }
 
+  alwaysOption(position: "first" | "last" = "first"): Locator {
+    const option = this.page.getByText("Always", { exact: true });
+    return position === "first" ? option.first() : option.last();
+  }
+
+  buttonByName(name: string | RegExp): Locator {
+    return this.page.getByRole("button", { name });
+  }
+
+  dropdownValue(value: string): Locator {
+    return this.page.locator(`[data-dropdown-value="${value}"]`).first();
+  }
+
+  dropdownValueByText(text: string): Locator {
+    return this.page.locator("[data-dropdown-value]").filter({ hasText: text }).first();
+  }
+
+  selectFieldDropdown(): Locator {
+    return this.page.getByRole("button", { name: "Select Field" }).first();
+  }
+
   // 3DS Tab Elements
   get force3DSChallengeToggle(): Locator {
     return this.page.getByText("Force 3DS Challenge");
@@ -167,6 +188,22 @@ export class PaymentSettings {
     return this.page.locator('[data-toast="Acquirer config created"]');
   }
 
+  acquirerResultByTestId(id: string): Locator {
+    return this.page.getByTestId(id);
+  }
+
+  get acquirerBinError(): Locator {
+    return this.page.getByText("Acquirer BIN must be between 5 and 20 digits");
+  }
+
+  get fraudRateError(): Locator {
+    return this.page.getByText("Fraud rate should be between 0 and 100");
+  }
+
+  requiredFieldError(index: number = 0): Locator {
+    return this.page.getByText("This field is required").nth(index);
+  }
+
   // Custom Headers Tab Elements
   get customHeadersKeyInput(): Locator {
     return this.page.getByPlaceholder("Enter key").first();
@@ -174,6 +211,14 @@ export class PaymentSettings {
 
   get customHeadersValueInput(): Locator {
     return this.page.getByPlaceholder("Enter value").first();
+  }
+
+  get editButton(): Locator {
+    return this.page.getByText("Edit", { exact: true });
+  }
+
+  get proceedButton(): Locator {
+    return this.page.getByRole("button", { name: "Proceed" });
   }
 
   // Metadata Headers Tab Elements
@@ -192,6 +237,14 @@ export class PaymentSettings {
 
   get allowedDomainInput(): Locator {
     return this.page.getByPlaceholder("Enter Allowed Domain");
+  }
+
+  get validUrlError(): Locator {
+    return this.page.getByText("Please enter valid URL");
+  }
+
+  get allowedDomainsError(): Locator {
+    return this.page.getByText("Please enter allowed domains");
   }
 
   // Common Buttons
