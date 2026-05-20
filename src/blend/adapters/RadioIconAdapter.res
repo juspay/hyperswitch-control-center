@@ -1,4 +1,11 @@
 type size = CheckBoxIcon.size
+
+let mapSize = (s: size) =>
+  switch s {
+  | Small => RadioBinding.Small
+  | Large => RadioBinding.Medium
+  }
+
 @react.component
 let make = (
   ~isSelected,
@@ -9,19 +16,14 @@ let make = (
 ) => {
   let isBlendEnabled = BlendContext.useBlendEnabled()
 
-  if isBlendEnabled {
-    let blendSize = switch size {
-    | Small => RadioBinding.Small
-    | Large => RadioBinding.Medium
-    }
+  let onChange = setIsSelected->Option.map(fn => (_e: ReactEvent.Form.t) => fn(true))
 
-    let onChange = switch setIsSelected {
-    | Some(fn) => (_e: ReactEvent.Form.t) => fn(true)
-    | None => (_e: ReactEvent.Form.t) => ()
-    }
-
-    <RadioBinding checked={isSelected} onChange disabled={isDisabled} size={blendSize} />
-  } else {
-    <RadioIcon isSelected isDisabled size fill />
-  }
+  <>
+    <RenderIf condition={isBlendEnabled}>
+      <RadioBinding checked={isSelected} ?onChange disabled={isDisabled} size={mapSize(size)} />
+    </RenderIf>
+    <RenderIf condition={!isBlendEnabled}>
+      <RadioIcon isSelected isDisabled size fill />
+    </RenderIf>
+  </>
 }
