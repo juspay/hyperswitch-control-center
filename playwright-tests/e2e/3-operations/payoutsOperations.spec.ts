@@ -537,8 +537,8 @@ test.describe("Payouts Operations", () => {
           const requested = Array.isArray(filter.status)
             ? filter.status
             : filter.status
-            ? [filter.status]
-            : [];
+              ? [filter.status]
+              : [];
 
           let data = [succeeded, failed];
           if (requested.includes("success") && !requested.includes("failed")) {
@@ -675,7 +675,7 @@ test.describe("Payouts Operations", () => {
   });
 
   test.describe("Payout details page", () => {
-    test("should load the payout detail page when a row is clicked", async ({
+    test("should verify all elements in payout details page", async ({
       page,
       context,
     }) => {
@@ -686,37 +686,28 @@ test.describe("Payouts Operations", () => {
       await goToPayouts(page, homePage);
       await payoutOperations.payoutCell(1, 1).click();
 
-      await expect(page).toHaveURL(new RegExp(`/payouts/${payout.payout_id}`));
-
-      // Page header + Summary section are the smoke markers for a successful
-      // detail render.
       await expect(page.getByText("Summary", { exact: true })).toBeVisible();
+      await expect(page.getByText("About Payout", { exact: true })).toBeVisible();
+      await expect(page.getByText("Payout Attempts", { exact: true })).toBeVisible();
+
+      // Accordion sections rendered after the Summary block (ShowPayout.res:337–398).
+      // Payout Method Details renders only when payout_type === "card" + payout_method_data
+      // is present; Payout Metadata renders only when metadata is non-empty. createPayoutAPI
+      // satisfies both (card payout + metadata={key: "value"}).
+      await expect(page.getByText("Customer Details", { exact: true })).toBeVisible();
       await expect(
-        page.getByText("About Payout", { exact: true }),
+        page.getByText("More Payout Details", { exact: true }),
       ).toBeVisible();
       await expect(
-        page.getByText("Payout Attempts", { exact: true }),
+        page.getByText("Payout Method Details", { exact: true }),
       ).toBeVisible();
-    });
-
-    test("should display Summary and About Payout fields", async ({
-      page,
-      context,
-    }) => {
-      const homePage = new HomePage(page);
-      const payoutOperations = new PayoutOperations(page);
-      const { payout } = await setupPayout(homePage, context.request);
-
-      await goToPayouts(page, homePage);
-      await payoutOperations.payoutCell(1, 1).click();
+      await expect(
+        page.getByText("Payout Metadata", { exact: true }),
+      ).toBeVisible();
 
       // Big amount header + status badge (ShowPayout.res:117–128).
-      await expect(
-        page.locator('[class="md:text-5xl font-bold"]'),
-      ).toContainText(`${payout.amount / 100} ${payout.currency}`);
-      await expect(
-        page.getByText(payout.status.toUpperCase(), { exact: true }).first(),
-      ).toBeVisible();
+      await expect(page.locator('[class="md:text-5xl font-bold"]')).toContainText(`${payout.amount / 100} ${payout.currency}`);
+      await expect(page.getByText(payout.status.toUpperCase(), { exact: true }).first()).toBeVisible();
 
       // Summary detailsFields=[Created, AmountReceived, PayoutId, ConnectorTransactionID, ErrorMessage].
       for (const label of [
@@ -731,17 +722,109 @@ test.describe("Payouts Operations", () => {
         ).toBeVisible();
       }
 
-      // About Payout fields shown by ShowPayout.PayoutInfo.
+      // About Payout fields shown by ShowPayout.PayoutInfo
+      // (detailsFields=[ProfileId, ProfileName, Connector, ConnectorLabel,
+      //  PayoutType, CardNetwork], ShowPayout.res:175–182).
       for (const label of [
         "Profile ID",
+        "Profile Name",
         "Payout Connector",
         "Connector Label",
         "Payout Type",
+        "Card Network",
       ]) {
         await expect(
           payoutOperations.dataLabel(label).first(),
         ).toBeVisible();
       }
+
+      // Payout Attempts table columns (PayoutsUtils.attemptsColumns +
+      // showSerial=true, ShowPayout.res:75–86).
+      const expectedAttemptHeaders = [
+        "S.No",
+        "Attempt ID",
+        "Status",
+        "Amount",
+        "Currency",
+        "Connector",
+      ];
+      const attemptsTable = page
+        .locator('table[data-expandable-table="Attempts"]')
+        .first();
+      for (let i = 0; i < expectedAttemptHeaders.length; i++) {
+        await expect(attemptsTable.locator("thead tr th").nth(i)).toHaveText(
+          expectedAttemptHeaders[i],
+        );
+      }
+      // First attempt row should render with the data we created.
+      await expect(payoutOperations.attemptCell(1, 1)).toBeVisible();
+
+      // Expand each collapsible accordion and assert its inner fields render.
+      // The accordion <header> is the only element with the exact section name;
+      // clicking it toggles the body open.
+      const expandAccordionAndAssertLabels = async (
+        title: string,
+        labels: string[],
+      ) => {
+        const header = page.getByText(new RegExp(`^${title}$`));
+        await header.waitFor({ state: "attached", timeout: 10000 });
+        await header.scrollIntoViewIfNeeded();
+        await header.click();
+        for (const label of labels) {
+          await expect(
+            payoutOperations.dataLabel(label).first(),
+          ).toBeVisible();
+        }
+      };
+
+      // CustomerDetails: Customer + Billing + Payout Method sub-sections
+      // (ShowPayout.res:190–224, fields via getHeadingForOtherDetails).
+      await expandAccordionAndAssertLabels("Customer Details", [
+        "Customer ID",
+        "First Name",
+        "Last Name",
+        "Email",
+        "Phone",
+        "Phone Country Code",
+        "Description",
+        "Billing Email",
+        "Billing Phone",
+        "Billing Address",
+        "Payout Method Email",
+        "Payout Method Address",
+      ]);
+
+      // MorePayoutDetails detailsFields (ShowPayout.res:235–246).
+      await expandAccordionAndAssertLabels("More Payout Details", [
+        "Auto Fulfill",
+        "Recurring",
+        "Entity Type",
+        "Business Country",
+        "Business Label",
+        "Return URL",
+        "Client Secret",
+        "Priority",
+        "Error Code",
+        "Merchant ID",
+      ]);
+
+      // Payout Method Details + Payout Metadata are PrettyPrintJson dumps —
+      // no data-labels, just assert known keys from the payload appear in the
+      // section body once expanded.
+      const payoutMethodDetails = page.getByText(/^Payout Method Details$/);
+      await payoutMethodDetails.waitFor({ state: "attached", timeout: 10000 });
+      await payoutMethodDetails.scrollIntoViewIfNeeded();
+      await payoutMethodDetails.click();
+      await expect(payoutMethodDetails.locator("xpath=../..")).toContainText(
+        "card",
+      );
+
+      const payoutMetadata = page.getByText(/^Payout Metadata$/);
+      await payoutMetadata.waitFor({ state: "attached", timeout: 10000 });
+      await payoutMetadata.scrollIntoViewIfNeeded();
+      await payoutMetadata.click();
+      await expect(payoutMetadata.locator("xpath=../..")).toContainText("key");
+      await expect(payoutMetadata.locator("xpath=../..")).toContainText("value");
     });
 
     test.describe("Events and logs", () => {
@@ -798,15 +881,5 @@ test.describe("Payouts Operations", () => {
         await expect(page.getByText("Events and logs")).not.toBeVisible();
       });
     });
-  });
-
-  test.describe("Sync button", () => {
-    // ShowPayout.res does not render a Sync button (unlike ShowOrder.res /
-    // refund details). Marked as skip rather than asserting on absent UI so
-    // the gap stays visible in the test report.
-    test.skip(
-      "should display Sync button for a non-terminal status payout",
-      () => {},
-    );
   });
 });
