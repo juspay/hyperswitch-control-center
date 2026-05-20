@@ -118,7 +118,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
 
   let updatePercentage = (item: RoutingTypes.connectorSelectionData, value) => {
     open RoutingTypes
-    let slectedConnector = switch item {
+    let selectedConnector = switch item {
     | PriorityObject(obj) => obj.connector
     | VolumeObject(obj) =>
       AdvancedRoutingUtils.getConnectorStringFromConnectorSelectionData(
@@ -132,7 +132,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
         | VolumeObject(obj) =>
           {
             ...obj,
-            split: slectedConnector ===
+            split: selectedConnector ===
               AdvancedRoutingUtils.getConnectorStringFromConnectorSelectionData(
                 VolumeObject(obj),
               ).merchant_connector_id
@@ -158,7 +158,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
   if isExpanded {
     <div className="flex flex-row ml-2">
       <RenderIf condition={!isFirst}>
-        <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
+        <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l" />
       </RenderIf>
       <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
         <div className="flex flex-wrap gap-4">
@@ -218,7 +218,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
                 <Icon
                   name="close"
                   size=10
-                  className="mr-2 cursor-pointer "
+                  className="mr-2 cursor-pointer"
                   onClick={ev => {
                     ev->ReactEvent.Mouse.stopPropagation
                     removeItem(i)

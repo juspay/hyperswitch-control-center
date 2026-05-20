@@ -22,7 +22,10 @@ module RenderCustomRoles = {
     <div className="flex gap-6 items-start cursor-pointer" onClick={_ => onClickGroup(groupName)}>
       <div className="mt-1">
         <CheckBoxIconAdapter
-          isSelected={checkboxSelected} setIsSelected={_ => onClickGroup(groupName)} size={Large}
+          isSelected={checkboxSelected}
+          setIsSelected={_ => onClickGroup(groupName)}
+          size={Large}
+          stopPropagationNeeded=true
         />
       </div>
       <div className="flex flex-col gap-3 items-start">

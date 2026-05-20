@@ -17,7 +17,9 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
         </RenderIf>
       </>
     | Processors(NUVEI)
-    | Processors(TESOURO) =>
+    | Processors(TESOURO)
+    | Processors(NMI)
+    | Processors(STRIPE) =>
       <GPayFlow connector closeAccordionFn update onCloseClickCustomFun />
 
     | Processors(ADYEN) | Processors(CHECKOUT) =>

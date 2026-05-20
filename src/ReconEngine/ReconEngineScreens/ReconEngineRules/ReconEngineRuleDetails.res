@@ -102,7 +102,7 @@ module SearchIdentifier = {
                       deselectDisable=true
                       disableSelect=true
                       fullLength=true
-                      customButtonStyle="w-147-px h-40-px"
+                      customButtonStyle="w-147-px h-10"
                     />
                   </div>
                   <div className="flex items-center mt-6">
@@ -119,7 +119,7 @@ module SearchIdentifier = {
                       deselectDisable=true
                       disableSelect=true
                       fullLength=true
-                      customButtonStyle="w-147-px h-40-px"
+                      customButtonStyle="w-147-px h-10"
                     />
                   </div>
                 </div>
@@ -214,7 +214,7 @@ module MappingRules = {
                           deselectDisable=true
                           disableSelect=true
                           fullLength=true
-                          customButtonStyle="w-147-px h-40-px"
+                          customButtonStyle="w-147-px h-10"
                         />
                       </div>
                       <div className="flex items-center mt-6">
@@ -231,7 +231,7 @@ module MappingRules = {
                           deselectDisable=true
                           disableSelect=true
                           fullLength=true
-                          customButtonStyle="w-147-px h-40-px"
+                          customButtonStyle="w-147-px h-10"
                         />
                       </div>
                     </div>
@@ -278,6 +278,7 @@ module MappingRules = {
 module TriggerRules = {
   @react.component
   let make = (~rule: rulePayload) => {
+    open LogicUtils
     let getOperatorOptions = (): array<SelectBox.dropdownOption> => [
       createDropdownOption(~label="=", ~value="equals"),
       createDropdownOption(~label="≠", ~value="not_equals"),
@@ -289,52 +290,65 @@ module TriggerRules = {
     let fieldOptions = getFieldOptions()
 
     let triggerData = getTriggerData(rule.strategy)
-
-    let triggerField = triggerData->Option.map(trigger => trigger.field)->Option.getOr("")
-    let triggerOperator =
-      triggerData->Option.map(trigger => trigger.operator.value)->Option.getOr("")
-    let triggerValue = triggerData->Option.map(trigger => trigger.value)->Option.getOr("")
-
-    let fieldInput = createFormInput(~name="trigger_field", ~value=triggerField)
-    let operatorInput = createFormInput(~name="trigger_operator", ~value=triggerOperator)
-    let valueInput = createFormInput(~name="trigger_value", ~value=triggerValue)
+    let conditions = triggerData->mapOptionOrDefault([], getTriggerConditions)
+    let logic = triggerData->mapOptionOrDefault(UnknownTriggerLogic, getTriggerLogic)
 
     <div className="flex flex-col gap-2">
       <p className={`${body.md.medium} text-nd_gray-700`}> {"Filters"->React.string} </p>
-      <div className="flex flex-row gap-4">
-        <div className="flex-1 flex flex-col gap-2 max-w-325">
-          <SelectBoxAdapter.BaseDropdown
-            allowMultiSelect=false
-            buttonText={getFieldDisplayName(triggerField)}
-            input=fieldInput
-            options=fieldOptions
-            hideMultiSelectButtons=true
-            deselectDisable=true
-            disableSelect=true
-            fullLength=true
-            customButtonStyle="w-147-px h-40-px"
-          />
-        </div>
-        <SelectBoxAdapter.BaseDropdown
-          allowMultiSelect=false
-          buttonText={operatorOptions
-          ->Array.find(opt => opt.value === triggerOperator)
-          ->Option.mapOr("Select Operator", opt => opt.label)}
-          input=operatorInput
-          options=operatorOptions
-          hideMultiSelectButtons=true
-          deselectDisable=true
-          disableSelect=true
-          customButtonStyle="w-16 h-40-px"
-        />
-        <div className="flex-1 flex flex-col gap-2 max-w-325">
-          {InputFields.textInput(
-            ~isDisabled=true,
-            ~inputStyle="rounded-lg",
-            ~customDashboardClass="h-40-px text-sm font-normal",
-            ~onDisabledStyle=`!bg-nd_gray-50 border-nd_gray-200 !text-nd_gray-500 ${body.md.semibold}`,
-          )(~input=valueInput, ~placeholder="Enter trigger value")}
-        </div>
+      <div className="flex items-center gap-2">
+        <p className={`${body.md.regular} text-nd_gray-600`}> {"Logic Type:"->React.string} </p>
+        <span
+          className={`px-2 py-0.5 ${body.sm.semibold} rounded-md bg-nd_gray-50 border border-nd_gray-200 text-nd_gray-700 uppercase`}>
+          {(logic :> string)->React.string}
+        </span>
+      </div>
+      <div className="flex flex-col gap-3">
+        {conditions
+        ->Array.mapWithIndex((condition, idx) => {
+          let key = idx->Int.toString
+          let fieldInput = createFormInput(~name=`trigger_field_${key}`, ~value=condition.field)
+          let operatorInput = createFormInput(
+            ~name=`trigger_operator_${key}`,
+            ~value=condition.operator.value,
+          )
+          let valueInput = createFormInput(~name=`trigger_value_${key}`, ~value=condition.value)
+          <div key className="flex flex-row gap-4">
+            <div className="flex-1 flex flex-col gap-2 max-w-325">
+              <SelectBoxAdapter.BaseDropdown
+                allowMultiSelect=false
+                buttonText={getFieldDisplayName(condition.field)}
+                input=fieldInput
+                options=fieldOptions
+                hideMultiSelectButtons=true
+                deselectDisable=true
+                disableSelect=true
+                fullLength=true
+                customButtonStyle="w-147-px h-10"
+              />
+            </div>
+            <SelectBoxAdapter.BaseDropdown
+              allowMultiSelect=false
+              buttonText={operatorOptions
+              ->Array.find(opt => opt.value === condition.operator.value)
+              ->Option.mapOr("Select Operator", opt => opt.label)}
+              input=operatorInput
+              options=operatorOptions
+              hideMultiSelectButtons=true
+              deselectDisable=true
+              disableSelect=true
+              customButtonStyle="w-16 h-10"
+            />
+            <div className="flex-1 flex flex-col gap-2 max-w-325">
+              {InputFields.textInput(
+                ~isDisabled=true,
+                ~inputStyle="rounded-lg",
+                ~customDashboardClass="h-10 text-sm font-normal",
+                ~onDisabledStyle=`!bg-nd_gray-50 border-nd_gray-200 !text-nd_gray-500 ${body.md.semibold}`,
+              )(~input=valueInput, ~placeholder="Enter trigger value")}
+            </div>
+          </div>
+        })
+        ->React.array}
       </div>
       <p className={`${body.md.regular} text-nd_gray-500 ml-1 mb-1`}>
         {"Only records with these matching filters will create expectations"->React.string}
@@ -360,7 +374,7 @@ module GroupingField = {
           {InputFields.textInput(
             ~isDisabled=true,
             ~inputStyle="rounded-lg",
-            ~customDashboardClass="h-40-px text-sm font-normal",
+            ~customDashboardClass="h-10 text-sm font-normal",
             ~onDisabledStyle=`!bg-nd_gray-50 border-nd_gray-200 !text-nd_gray-500 ${body.md.semibold}`,
           )(~input=groupingFieldInput, ~placeholder="Enter grouping field")}
         </div>
@@ -413,7 +427,7 @@ module SourceTargetAccount = {
             deselectDisable=true
             disableSelect=true
             fullLength=true
-            customButtonStyle="w-147-px h-40-px"
+            customButtonStyle="w-147-px h-10"
           />
           <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-1`}>
             {"Where the original transaction is recorded"->React.string}
@@ -450,7 +464,7 @@ module SourceTargetAccount = {
                   deselectDisable=true
                   disableSelect=true
                   fullLength=true
-                  customButtonStyle="w-147-px h-40-px"
+                  customButtonStyle="w-147-px h-10"
                 />
                 <RenderIf condition={splitText->isNonEmptyString}>
                   <p className={`${body.md.semibold} text-nd_gray-600 my-3`}>
@@ -569,14 +583,7 @@ let make = (~id) => {
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-6">
       <BreadCrumbNavigation
-        path=[{title: "Rules Library", link: `/v1/recon-engine/rules`}]
-        currentPageTitle=id
-        cursorStyle="cursor-pointer"
-        customTextClass="text-nd_gray-400"
-        titleTextClass="text-nd_gray-600 font-medium"
-        fontWeight="font-medium"
-        dividerVal=Slash
-        childGapClass="gap-2"
+        path=[{title: "Rules Library", link: `/v1/recon-engine/rules`}] currentPageTitle=id
       />
       <PageUtils.PageHeading title="View Rule" customHeadingStyle="py-0" />
       {switch ruleData {

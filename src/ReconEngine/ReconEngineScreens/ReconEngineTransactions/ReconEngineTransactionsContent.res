@@ -17,6 +17,7 @@ let make = (~account: ReconEngineTypes.accountType) => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (selectedRows, setSelectedRows) = React.useState(_ => [])
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let dateDropDownTriggerMixpanelCallback = () => {
     mixpanelEvent(~eventName="recon_engine_transactions_date_filter_opened")
@@ -79,8 +80,8 @@ let make = (~account: ReconEngineTypes.accountType) => {
       let enhancedFilterValueJson = Dict.copy(filterValueJson)
       let statusFilter = filterValueJson->getArrayFromDict("status", [])
 
-      // If posted_manual is selected, automatically add posted_force
-      let finalStatusFilter = ReconEngineFilterUtils.getMergedPostedTransactionStatusFilter(
+      // If matched_manual is selected, automatically add matched_force
+      let finalStatusFilter = ReconEngineFilterUtils.getMergedMatchedTransactionStatusFilter(
         statusFilter,
       )
 
@@ -91,9 +92,10 @@ let make = (~account: ReconEngineTypes.accountType) => {
         UnderAmount(Mismatch),
         OverAmount(Expected),
         UnderAmount(Expected),
-        Posted(Auto),
         Posted(Manual),
-        Posted(Force),
+        Matched(Auto),
+        Matched(Manual),
+        Matched(Force),
         Void,
         PartiallyReconciled,
         DataMismatch,
@@ -184,7 +186,7 @@ let make = (~account: ReconEngineTypes.accountType) => {
           `v1/recon-engine/transactions`,
           ~authorization=Access,
         )}
-        resultsPerPage=6
+        resultsPerPage=3
         offset
         setOffset
         currentFetchCount={filteredTransactionsData->Array.length}
@@ -207,7 +209,20 @@ let make = (~account: ReconEngineTypes.accountType) => {
           customSearchBarWrapperWidth="w-full lg:w-1/3"
           customInputBoxWidth="w-full rounded-xl"
         />}
+        checkBoxProps={{
+          showCheckBox: true,
+          selectedData: selectedRows,
+          setSelectedData: setSelectedRows,
+        }}
       />
+      <RenderIf condition={selectedRows->isNonEmptyArray}>
+        <ReconEngineTransactionsBulkActions
+          selectedRows={selectedRows->Array.map(json => json->Identity.jsonToAnyType)}
+          setSelectedRows
+          showPostButton=true
+          refreshList={() => fetchTransactionsData()->ignore}
+        />
+      </RenderIf>
     </PageLoaderWrapper>
   </div>
 }

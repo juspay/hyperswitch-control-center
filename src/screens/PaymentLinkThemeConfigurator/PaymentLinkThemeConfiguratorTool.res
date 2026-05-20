@@ -7,6 +7,7 @@ module ConfiguratorForm = {
     open Typography
     open FormRenderer
     open PaymentLinkThemeConfiguratorHelper
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
     let configuratorScrollbarCss = `
       .configurator-scrollbar {
@@ -28,11 +29,18 @@ module ConfiguratorForm = {
     `
 
     let showToast = ToastState.useShowToast()
-    let (initialValues, setInitialValues) = React.useState(_ => initialFormValues)
+    let getURL = APIUtils.useGetURL()
+    let fetchDetails = APIUtils.useGetMethod()
+    let (initialValues, setInitialValues) = React.useState(_ => JSON.Encode.null)
     let (previewLoading, setPreviewLoading) = React.useState(_ => false)
     let (previewHtml, setPreviewHtml) = React.useState(_ => "")
     let (previewError, setPreviewError) = React.useState(_ => None)
-    let {paymentResult} = React.useContext(SDKProvider.defaultContext)
+    let (paymentMethodsResponse, setPaymentMethodsResponse) = React.useState(() => None)
+
+    React.useEffect(() => {
+      setInitialValues(_ => initialFormValues)
+      None
+    }, [initialFormValues])
 
     let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(
       HyperswitchAtom.merchantDetailsValueAtom,
@@ -42,6 +50,30 @@ module ConfiguratorForm = {
     )
     let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
 
+    let fetchAccountPaymentMethods = async () => {
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let url = getURL(~entityName=V1(ACCOUNT_PAYMENT_METHODS), ~methodType=Get)
+        let response = await fetchDetails(url)
+        // raw response from API is stored in state as it needs to be passed to WASM as part of payload for generating preview
+        setPaymentMethodsResponse(_ => Some(response))
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ =>
+        setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch payment methods"))
+        showToast(
+          ~toastType=ToastError,
+          ~message="Failed to fetch payment methods",
+          ~autoClose=true,
+        )
+      }
+    }
+
+    React.useEffect(() => {
+      fetchAccountPaymentMethods()->ignore
+      None
+    }, [])
+
     let generatePreview = React.useCallback((~values) => {
       let publishableKey = merchantDetailsTypedValue.publishable_key
 
@@ -50,7 +82,7 @@ module ConfiguratorForm = {
         setPreviewError(_ => None)
 
         let configs = generateWasmPayload(
-          ~paymentDetails=paymentResult,
+          ~paymentMethodsResponse,
           ~publishableKey,
           ~formValues=values,
         )
@@ -83,159 +115,175 @@ module ConfiguratorForm = {
           setPreviewLoading(_ => false)
         }
       }
-    }, [])
+    }, [paymentMethodsResponse])
+
+    let generatePreviewRef = React.useRef(generatePreview)
 
     React.useEffect(() => {
-      generatePreview(~values=initialValues)
+      generatePreviewRef.current = generatePreview
       None
-    }, [initialValues])
+    }, [generatePreview])
+
+    let debouncedGeneratePreview = ReactDebounce.useDebounced(
+      values => generatePreviewRef.current(~values),
+      ~wait=400,
+    )
+
+    React.useEffect(() => {
+      debouncedGeneratePreview(initialValues)
+      None
+    }, (initialValues, paymentMethodsResponse))
 
     let onSubmit = async (values, isAutoSubmit) => {
       setInitialValues(_ => values)
 
       if !isAutoSubmit {
-        let body = constructBusinessProfileBodyFromJson(
-          ~json=values,
-          ~paymentLinkConfig=businessProfileRecoilVal.payment_link_config,
-          ~styleID=selectedStyleId,
-        )
-        let dict = [("payment_link_config", body->Identity.genericTypeToJson)]->Dict.fromArray
-        let _ = await updateBusinessProfile(~body=dict->JSON.Encode.object)
-        showToast(
-          ~toastType=ToastSuccess,
-          ~message="Configuration Saved Successfully!",
-          ~autoClose=true,
-        )
+        try {
+          let body = constructBusinessProfileBodyFromJson(
+            ~json=values,
+            ~paymentLinkConfig=businessProfileRecoilVal.payment_link_config,
+            ~styleID=selectedStyleId,
+          )
+          let dict = [("payment_link_config", body->Identity.genericTypeToJson)]->Dict.fromArray
+          let _ = await updateBusinessProfile(~body=dict->JSON.Encode.object)
+          showToast(
+            ~toastType=ToastSuccess,
+            ~message="Configuration Saved Successfully!",
+            ~autoClose=true,
+          )
+        } catch {
+        | Exn.Error(e) =>
+          let errorMessage =
+            Exn.message(e)->Option.getOr("Failed to save payment link configuration")
+          showToast(~toastType=ToastError, ~message=errorMessage, ~autoClose=true)
+        }
       }
 
       Nullable.null
     }
 
-    <RenderIf condition={selectedStyleId->isNonEmptyString}>
-      <div className="bg-white rounded-lg">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
-          <div className="w-full">
-            <div className="space-y-4">
-              <Form
-                formClass="space-y-4"
-                initialValues
-                onSubmit={(values, _) => onSubmit(values, false)}>
-                <HelperComponents.AutoSubmitter
-                  autoApply=true
-                  submit={(values, _) => onSubmit(values, true)}
-                  submitInputOnEnter=true
+    <PageLoaderWrapper screenState>
+      <RenderIf condition={selectedStyleId->isNonEmptyString}>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8 w-full bg-white rounded-lg">
+          <div className="space-y-4">
+            <h4 className={`text-nd_gray-700 mb-3 ${body.xl.semibold}`}>
+              {"Payment Link Settings"->React.string}
+            </h4>
+            <Form
+              formClass="space-y-4" initialValues onSubmit={(values, _) => onSubmit(values, false)}>
+              <HelperComponents.AutoSubmitter
+                autoApply=true
+                submit={(values, _) => onSubmit(values, true)}
+                submitInputOnEnter=true
+              />
+              <style> {React.string(configuratorScrollbarCss)} </style>
+              <div
+                className="flex flex-col gap-3 rounded-lg border border-nd_gray-150 p-4 h-650-px overflow-scroll configurator-scrollbar !m-0">
+                <FieldRenderer field={makeLogoField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer field={makeAmountField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer field={makeCurrencyField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer field={makeCaptureMethodField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer field={makeAuthenticationTypeField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer field={makeSetupFutureUsageField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer
+                  field={makeRequestExternal3dsField()}
+                  fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
+                  labelPadding="py-0"
                 />
-                <style> {React.string(configuratorScrollbarCss)} </style>
-                <div
-                  className="flex flex-col gap-3 rounded-lg border border-nd_gray-300 p-4 h-650-px overflow-scroll configurator-scrollbar !m-0">
-                  <FieldRenderer field={makeLogoField()} fieldWrapperClass="!w-full" />
-                  <FieldRenderer field={makePaymentButtonTextField()} fieldWrapperClass="!w-full" />
-                  <FieldRenderer
-                    field={makeCustomMessageForCardTermsField()} fieldWrapperClass="!w-full"
-                  />
-                  <div className="flex flex-row">
-                    <FieldRenderer field={makeShowCardTermsField()} fieldWrapperClass="!w-full" />
-                    <FieldRenderer
-                      field={makeHideCardNicknameField()} fieldWrapperClass="!w-full"
-                    />
-                  </div>
-                  <div className="flex flex-row">
-                    <FieldRenderer field={makeDisplaySdkOnlyField()} fieldWrapperClass="!w-full" />
-                    <FieldRenderer
-                      field={makeBrandingVisibilityField()} fieldWrapperClass="!w-full"
-                    />
-                  </div>
-                  <div className="flex flex-row gap-4">
-                    <FieldRenderer
-                      field={makeThemeField(
-                        ~defaultValue=initialValues
-                        ->getDictFromJsonObject
-                        ->getString("theme", ""),
-                      )}
-                      fieldWrapperClass="!w-full"
-                    />
-                    <FieldRenderer
-                      field={makeBackgroundColorField(
-                        ~defaultValue=initialValues
-                        ->getDictFromJsonObject
-                        ->getString("background_color", ""),
-                      )}
-                      fieldWrapperClass="!w-full"
-                    />
-                  </div>
-                  <div className="flex flex-row gap-4">
-                    <FieldRenderer
-                      field={makePaymentButtonColorField(
-                        ~defaultValue=initialValues
-                        ->getDictFromJsonObject
-                        ->getString("payment_button_colour", ""),
-                      )}
-                      fieldWrapperClass="!w-full"
-                    />
-                    <FieldRenderer
-                      field={makePaymentButtonTextColorField(
-                        ~defaultValue=initialValues
-                        ->getDictFromJsonObject
-                        ->getString("payment_button_text_colour", ""),
-                      )}
-                      fieldWrapperClass="!w-full"
-                    />
-                  </div>
-                  <div className="flex flex-row gap-4">
-                    <FieldRenderer
-                      field={makeColorIconCardCvcErrorField(
-                        ~defaultValue=initialValues
-                        ->getDictFromJsonObject
-                        ->getString("color_icon_card_cvc_error", ""),
-                      )}
-                      fieldWrapperClass="!w-full"
-                    />
-                  </div>
-                  <div className="flex flex-row gap-4">
-                    <FieldRenderer field={makeSellerNameField()} fieldWrapperClass="!w-full" />
-                    <FieldRenderer
-                      field={makeMerchantDescriptionField()} fieldWrapperClass="!w-full"
-                    />
-                  </div>
-                  <div className="flex flex-row gap-4">
-                    <FieldRenderer field={makeDetailsLayoutField()} fieldWrapperClass="!w-full" />
-                    <FieldRenderer field={makeSdkLayoutField()} fieldWrapperClass="!w-full" />
-                  </div>
-                </div>
-                <div className="flex justify-between pt-4">
-                  <SubmitButton
-                    text="Save Configuration" buttonType={Primary} buttonSize={Medium}
-                  />
-                </div>
-              </Form>
-            </div>
+                <FieldRenderer field={makeSellerNameField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer field={makeMerchantDescriptionField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer field={makePaymentButtonTextField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer
+                  field={makeCustomMessageForCardTermsField()} fieldWrapperClass="!w-full"
+                />
+                <FieldRenderer
+                  field={makeShowCardTermsField()}
+                  fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
+                  labelPadding="py-0"
+                />
+                <FieldRenderer
+                  field={makeHideCardNicknameField()}
+                  fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
+                  labelPadding="py-0"
+                />
+                <FieldRenderer
+                  field={makeDisplaySdkOnlyField()}
+                  fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
+                  labelPadding="py-0"
+                />
+                <FieldRenderer
+                  field={makeBrandingVisibilityField()}
+                  fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
+                  labelPadding="py-0"
+                />
+                <FieldRenderer
+                  field={makeThemeField(
+                    ~defaultValue=initialValues
+                    ->getDictFromJsonObject
+                    ->getString("theme", ""),
+                  )}
+                  fieldWrapperClass="!w-full"
+                />
+                <FieldRenderer
+                  field={makeBackgroundColorField(
+                    ~defaultValue=initialValues
+                    ->getDictFromJsonObject
+                    ->getString("background_color", ""),
+                  )}
+                  fieldWrapperClass="!w-full"
+                />
+                <FieldRenderer
+                  field={makePaymentButtonColorField(
+                    ~defaultValue=initialValues
+                    ->getDictFromJsonObject
+                    ->getString("payment_button_colour", ""),
+                  )}
+                  fieldWrapperClass="!w-full"
+                />
+                <FieldRenderer
+                  field={makePaymentButtonTextColorField(
+                    ~defaultValue=initialValues
+                    ->getDictFromJsonObject
+                    ->getString("payment_button_text_colour", ""),
+                  )}
+                  fieldWrapperClass="!w-full"
+                />
+                <FieldRenderer
+                  field={makeColorIconCardCvcErrorField(
+                    ~defaultValue=initialValues
+                    ->getDictFromJsonObject
+                    ->getString("color_icon_card_cvc_error", ""),
+                  )}
+                  fieldWrapperClass="!w-full"
+                />
+                <FieldRenderer field={makeDetailsLayoutField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer field={makeSdkLayoutField()} fieldWrapperClass="!w-full" />
+              </div>
+              <div className="flex justify-between pt-4">
+                <SubmitButton
+                  text="Save Payment Link Theme" buttonType={Primary} buttonSize={Medium}
+                />
+              </div>
+            </Form>
           </div>
-          <div className="w-full">
-            <div className="sticky top-4 w-full">
-              <div className="bg-nd_gray-25 rounded-lg border border-nd_gray-300 p-3.5 h-650-px">
-                <div className="flex items-center justify-between">
-                  <h4 className={`text-nd_gray-600 mb-2 ${body.xl.medium}`}>
-                    {"Live Preview"->React.string}
-                  </h4>
-                  {previewLoading
-                    ? <div className={`flex items-center gap-2 text-nd_gray-500 ${body.md.medium}`}>
-                        <div
-                          className="animate-spin h-4 w-4 border-b-2 border-nd_primary_blue-500 rounded-full"
-                        />
-                        {"Generating..."->React.string}
-                      </div>
-                    : React.null}
-                </div>
-                <div className=" rounded-lg w-full h-590-px flex flex-col bg-white">
+          <div className="sticky top-4">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className={`text-nd_gray-700 ${body.xl.semibold}`}>
+                {"Theme Preview"->React.string}
+              </h4>
+            </div>
+            <div className="bg-nd_gray-25 rounded-lg border border-nd_gray-150 h-650-px">
+              <MobilePreviewFrame>
+                <div className="rounded-lg w-full h-590-px flex flex-col bg-white">
                   {switch (previewLoading, previewError, previewHtml) {
                   | (true, _, _) =>
                     <div className="flex items-center justify-center h-full w-full">
                       <div className="text-center">
                         <div className="animate-pulse space-y-4 w-full">
-                          <div className="h-4 bg-nd_gray-200 rounded w-3/4 mx-auto" />
-                          <div className="h-4 bg-nd_gray-200 rounded w-1/2 mx-auto" />
                           <div className="h-32 bg-nd_gray-200 rounded w-full" />
+                          <div className="h-4 bg-nd_gray-200 rounded w-1/2 mx-auto" />
                           <div className="h-4 bg-nd_gray-200 rounded w-2/3 mx-auto" />
+                          <div className="h-4 bg-nd_gray-200 rounded w-3/4 mx-auto" />
                         </div>
                         <p className={`text-nd_gray-500 mt-4 ${body.md.medium}`}>
                           {"Generating preview..."->React.string}
@@ -245,10 +293,10 @@ module ConfiguratorForm = {
                   | (false, Some(error), _) =>
                     <div className="flex items-center justify-center h-full w-full">
                       <div className="text-center">
-                        <div className="text-red-500 mb-4">
+                        <div className="text-nd_red-500 mb-4">
                           <Icon name="cross-icon" size=24 />
                         </div>
-                        <p className={`text-red-600 mb-2 ${body.md.medium}`}>
+                        <p className={`text-nd_red-600 mb-2 ${body.md.medium}`}>
                           {"Preview Generation Failed"->React.string}
                         </p>
                         <p className={`text-nd_gray-500 max-w-md ${body.md.medium}`}>
@@ -257,8 +305,7 @@ module ConfiguratorForm = {
                       </div>
                     </div>
                   | (false, None, html) =>
-                    <div
-                      className="w-full h-full flex-1 overflow-hidden rounded-lg bg-white relative">
+                    <div className="h-full flex-1 overflow-hidden rounded-lg bg-white relative">
                       <iframe
                         className="w-full h-full border-0"
                         style={ReactDOM.Style.make(
@@ -275,12 +322,12 @@ module ConfiguratorForm = {
                     </div>
                   }}
                 </div>
-              </div>
+              </MobilePreviewFrame>
             </div>
           </div>
         </div>
-      </div>
-    </RenderIf>
+      </RenderIf>
+    </PageLoaderWrapper>
   }
 }
 
@@ -295,16 +342,11 @@ module CreateNewStyleID = {
       HyperswitchAtom.businessProfileFromIdAtomInterface,
     )
     let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
-
-    let cursorStyles = authorization =>
-      authorization === CommonAuthTypes.Access ? "cursor-pointer" : "cursor-not-allowed"
-
     let customStyle = "text-primary bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full"
-    let addItemBtnStyle = "w-full"
 
     let styleIdField = makeFieldInfo(
-      ~label="Style ID",
-      ~name="style_id",
+      ~label="Payment Link Config ID",
+      ~name="payment_link_config_id",
       ~customInput=(~input, ~placeholder as _) =>
         InputFields.textInput()(
           ~input={
@@ -315,7 +357,7 @@ module CreateNewStyleID = {
               ->Identity.stringToFormReactEvent
               ->input.onChange,
           },
-          ~placeholder="Eg: my_style_id",
+          ~placeholder="Eg: my_payment_link_config_id",
         ),
       ~isRequired=true,
     )
@@ -323,26 +365,23 @@ module CreateNewStyleID = {
     let createNewStyleID = async (values, _) => {
       try {
         let valuesDict = values->getDictFromJsonObject
-        let styleId = valuesDict->getString("style_id", "")->String.trim
-
-        if styleId->isNonEmptyString {
-          setShowModal(_ => false)
-          setSelectedStyleId(_ => styleId)
-        }
+        let styleId = valuesDict->getString("payment_link_config_id", "")->String.trim
+        setShowModal(_ => false)
         let config = businessProfileRecoilVal.payment_link_config
         let body = constructBusinessProfileBody(~paymentLinkConfig=config, ~styleID=styleId)
         let dict = [("payment_link_config", body->Identity.genericTypeToJson)]->Dict.fromArray
         let _ = await updateBusinessProfile(~body=dict->JSON.Encode.object)
+        styleId->isNonEmptyString ? setSelectedStyleId(_ => styleId) : ()
         showToast(
           ~toastType=ToastSuccess,
-          ~message="Style ID Created Successfully!",
+          ~message="Payment Link Config ID Created Successfully!",
           ~autoClose=true,
         )
       } catch {
       | Exn.Error(_) =>
         showToast(
           ~toastType=ToastError,
-          ~message="Failed to create new Style ID. Please try again.",
+          ~message="Failed to create new Payment Link Config ID. Please try again.",
           ~autoClose=true,
         )
       }
@@ -353,9 +392,10 @@ module CreateNewStyleID = {
       <>
         <div className="pt-3 m-3 flex justify-between">
           <CardUtils.CardHeader
-            heading="Create a new style id"
+            heading="Create a new Payment Link Config ID"
             subHeading=""
             customSubHeadingStyle="w-full !max-w-none pr-10"
+            customHeadingStyle="text-black"
           />
           <div className="h-fit" onClick={_ => setShowModal(_ => false)}>
             <Icon name="modal-close-icon" className="cursor-pointer" size=30 />
@@ -363,7 +403,7 @@ module CreateNewStyleID = {
         </div>
         <hr />
         <Form
-          key="new-style-id-creation"
+          key="new-payment-link-config-id-creation"
           onSubmit=createNewStyleID
           initialValues={JSON.Encode.object(Dict.make())}
           validate=validateStyleIdForm>
@@ -381,7 +421,7 @@ module CreateNewStyleID = {
             </div>
             <hr className="mt-4" />
             <div className="flex justify-end w-full p-3">
-              <SubmitButton text="Create Style ID" buttonSize=Small />
+              <SubmitButton text="Create Payment Link Config ID" buttonSize=Small />
             </div>
           </div>
         </Form>
@@ -393,10 +433,7 @@ module CreateNewStyleID = {
         authorization=Access
         noAccessDescription="You do not have the required permissions for this action. Please contact your admin."
         onClick={_ => setShowModal(_ => true)}
-        isRelative=false
-        contentAlign=Default
-        tooltipForWidthClass="!h-full"
-        className={`${cursorStyles(Access)} ${addItemBtnStyle}`}
+        className="cursor-pointer w-full"
         showTooltip=true>
         {<>
           <hr />
@@ -422,57 +459,53 @@ module CreateNewStyleID = {
 module StyleIdSelection = {
   @react.component
   let make = (~selectedStyleId, ~setSelectedStyleId) => {
-    open PaymentLinkThemeConfiguratorTypes
-    open BusinessProfileInterfaceUtils
     open Typography
-    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-    let (businessProfileRecoilVal, setBusinessProfileRecoilVal) = Recoil.useRecoilState(
+    let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
       HyperswitchAtom.businessProfileFromIdAtomInterface,
     )
     let (availableStyles, setAvailableStyles) = React.useState(_ => [])
-    let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
-    let showToast = ToastState.useShowToast()
-
-    let fetchBusinessProfile = async () => {
-      try {
-        let businessProfileResponse = await fetchBusinessProfileFromId(~profileId=Some(profileId))
-        setBusinessProfileRecoilVal(_ => businessProfileResponse->mapJsontoCommonType)
-      } catch {
-      | _ =>
-        showToast(~toastType=ToastError, ~message="Failed to update style ids", ~autoClose=true)
+    React.useEffect(() => {
+      let defaultOption: SelectBox.dropdownOption = {
+        label: defaultStyleId,
+        value: defaultStyleId,
       }
-    }
 
-    React.useEffect(() => {
-      fetchBusinessProfile()->ignore
-      None
-    }, [])
+      switch businessProfileRecoilVal.payment_link_config {
+      | Some(paymentLinkConfig) => {
+          let stylesDict =
+            paymentLinkConfig.business_specific_configs->Option.getOr(JSON.Encode.null)
+          let styles = getDictFromJsonObject(stylesDict)->Dict.keysToArray
 
-    React.useEffect(() => {
-      let defaultPaymentLinkConfigValues =
-        businessProfileRecoilVal.payment_link_config->Option.getOr(
-          paymentLinkConfigMapper(Dict.make()),
-        )
+          let stylesList = styles->Array.map(styleId => {
+            let dropdownOption: SelectBox.dropdownOption = {
+              label: styleId,
+              value: styleId,
+            }
+            dropdownOption
+          })
 
-      let stylesDict =
-        defaultPaymentLinkConfigValues.business_specific_configs->Option.getOr(JSON.Encode.null)
-      let styles = getDictFromJsonObject(stylesDict)->Dict.keysToArray
+          let finalStylesList = stylesList->Array.length == 0 ? [defaultOption] : stylesList
 
-      let stylesList = styles->Array.map(styleId => {
-        let dropdownOption: SelectBox.dropdownOption = {
-          label: styleId,
-          value: styleId,
+          setAvailableStyles(_ => finalStylesList)
+          let isValid =
+            selectedStyleId->isNonEmptyString &&
+              finalStylesList->Array.some(opt => opt.value == selectedStyleId)
+          if !isValid {
+            let hasDefault = finalStylesList->Array.some(opt => opt.value == defaultStyleId)
+            let autoSelect = hasDefault
+              ? defaultStyleId
+              : finalStylesList->Array.get(0)->Option.mapOr("", opt => opt.value)
+            autoSelect->isNonEmptyString ? setSelectedStyleId(_ => autoSelect) : ()
+          }
         }
-        dropdownOption
-      })
-      stylesList->Array.unshift({
-        label: (Default :> string),
-        value: (Default :> string),
-      })
+      | None => {
+          setSelectedStyleId(_ => defaultStyleId)
+          setAvailableStyles(_ => [defaultOption])
+        }
+      }
 
-      setAvailableStyles(_ => stylesList)
       None
-    }, [businessProfileRecoilVal])
+    }, [businessProfileRecoilVal.payment_link_config])
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "styleId",
@@ -487,26 +520,27 @@ module StyleIdSelection = {
     }
 
     let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
+    let dropdownContainerStyle = "rounded-md border border-1 max-w-18-rem"
 
     <div>
       <div className={`text-nd_gray-700 py-2 ${body.md.medium}`}>
-        {"Select Style ID"->React.string}
+        {"Select Payment Link Config ID"->React.string}
       </div>
       <SelectBoxAdapter.BaseDropdown
         allowMultiSelect=false
-        buttonText="Select Style ID"
+        buttonText="Select Payment Link Config ID"
         input
         deselectDisable=true
         options={availableStyles}
         hideMultiSelectButtons=true
         marginTop="mt-12"
-        dropdownCustomWidth="w-fit"
         searchable=true
-        searchInputPlaceHolder="Search Style ID"
+        searchInputPlaceHolder="Search Payment Link Config ID"
         buttonType=SecondaryFilled
-        customButtonStyle="!w-32"
+        customButtonStyle="!w-40"
         customDropdownOuterClass="!border-none"
         customScrollStyle
+        dropdownContainerStyle
         bottomComponent={<CreateNewStyleID setSelectedStyleId />}
       />
     </div>
@@ -520,7 +554,7 @@ let make = () => {
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
 
-  let getSelectedStyleConfigs = {
+  let selectedStyleConfigs = React.useMemo(() => {
     open BusinessProfileInterfaceUtils
     let paymentLinkConfig =
       businessProfileRecoilVal.payment_link_config->Option.getOr(
@@ -540,22 +574,18 @@ let make = () => {
         businessSpecificConfigsDict->getJsonFromDict(selectedStyleId)
       }
     }
-  }
+  }, (selectedStyleId, businessProfileRecoilVal.payment_link_config))
 
   <div className="flex flex-col gap-8 relative">
     <StyleIdSelection selectedStyleId setSelectedStyleId />
     <div>
       <RenderIf condition={selectedStyleId->isNonEmptyString}>
-        <ConfiguratorForm
-          key={`configurator-form-${selectedStyleId}`}
-          initialFormValues={getSelectedStyleConfigs}
-          selectedStyleId
-        />
+        <ConfiguratorForm initialFormValues={selectedStyleConfigs} selectedStyleId />
       </RenderIf>
       <RenderIf condition={selectedStyleId->isEmptyString}>
         <NoDataFound
           customCssClass="my-6"
-          message="Please select a Style ID to Configure and Preview"
+          message="Please select a Payment Link Config ID to Configure and Preview"
           renderType=Painting
         />
       </RenderIf>

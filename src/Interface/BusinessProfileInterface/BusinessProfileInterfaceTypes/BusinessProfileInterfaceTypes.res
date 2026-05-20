@@ -1,3 +1,18 @@
+type acquirerNetworkEntry = {
+  network: string,
+  acquirer_bin: string,
+  acquirer_ica: option<string>,
+  acquirer_fraud_rate: option<float>,
+  acquirer_country_code: option<string>,
+  acquirer_assigned_merchant_id: option<string>,
+  merchant_name: option<string>,
+}
+
+type acquirerConfigBucket = {
+  default_acquirer_config: string,
+  configs: Dict.t<array<acquirerNetworkEntry>>,
+}
+
 type webhookDetails = {
   webhook_version: option<string>,
   webhook_username: option<string>,
@@ -60,6 +75,13 @@ type externalVaultConnectorDetails = {
   vault_token_selector: option<array<JSON.t>>,
 }
 
+type paymentMethodBlockingEntry = {card_types: option<array<string>>}
+
+type paymentMethodBlocking = {
+  card: option<paymentMethodBlockingEntry>,
+  wallet: option<paymentMethodBlockingEntry>,
+}
+
 type commonProfileEntity = {
   profile_id: string,
   merchant_id: string,
@@ -82,6 +104,7 @@ type commonProfileEntity = {
   force_3ds_challenge: option<bool>,
   is_debit_routing_enabled: option<bool>,
   acquirer_configs: option<array<JSON.t>>,
+  acquirer_config_bucket: option<acquirerConfigBucket>,
   merchant_category_code: option<string>,
   is_network_tokenization_enabled: option<bool>,
   always_request_extended_authorization: option<bool>,
@@ -94,4 +117,5 @@ type commonProfileEntity = {
   split_txns_enabled: option<string>,
   is_external_vault_enabled: option<string>,
   external_vault_connector_details: option<externalVaultConnectorDetails>,
+  payment_method_blocking: option<paymentMethodBlocking>,
 }

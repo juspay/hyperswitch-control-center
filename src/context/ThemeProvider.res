@@ -133,93 +133,11 @@ let make = (~children) => {
   | Light => ""
   }
 
-  let configCustomDomainTheme = React.useCallback((uiConfg: JSON.t) => {
-    let dict = uiConfg->getDictFromJsonObject
-    let settings = dict->getDictfromDict("settings")
-    let url = dict->getDictfromDict("urls")
-    let colorsConfig = settings->getDictfromDict("colors")
-    let sidebarConfig = settings->getDictfromDict("sidebar")
-    let typography = settings->getDictfromDict("typography")
-    let borders = settings->getDictfromDict("borders")
-    let spacing = settings->getDictfromDict("spacing")
-    let colorsBtnPrimary = settings->getDictfromDict("buttons")->getDictfromDict("primary")
-    let colorsBtnSecondary = settings->getDictfromDict("buttons")->getDictfromDict("secondary")
-    let {settings: defaultSettings, _} = fallbackThemeConfig
-    let value: HyperSwitchConfigTypes.customStylesTheme = {
-      settings: {
-        colors: {
-          primary: colorsConfig->getString("primary", defaultSettings.colors.primary),
-          secondary: colorsConfig->getString("secondary", defaultSettings.colors.secondary),
-          background: colorsConfig->getString("background", defaultSettings.colors.background),
-        },
-        sidebar: {
-          primary: sidebarConfig->getString("primary", defaultSettings.sidebar.primary),
-          textColor: sidebarConfig->getString("textColor", defaultSettings.sidebar.textColor),
-          textColorPrimary: sidebarConfig->getString(
-            "textColorPrimary",
-            defaultSettings.sidebar.textColorPrimary,
-          ),
-        },
-        typography: {
-          fontFamily: typography->getString("fontFamily", defaultSettings.typography.fontFamily),
-          fontSize: typography->getString("fontSize", defaultSettings.typography.fontSize),
-          headingFontSize: typography->getString(
-            "headingFontSize",
-            defaultSettings.typography.headingFontSize,
-          ),
-          textColor: typography->getString("textColor", defaultSettings.typography.textColor),
-          linkColor: typography->getString("linkColor", defaultSettings.typography.linkColor),
-          linkHoverColor: typography->getString(
-            "linkHoverColor",
-            defaultSettings.typography.linkHoverColor,
-          ),
-        },
-        buttons: {
-          primary: {
-            backgroundColor: colorsBtnPrimary->getString(
-              "backgroundColor",
-              defaultSettings.buttons.primary.backgroundColor,
-            ),
-            textColor: colorsBtnPrimary->getString(
-              "textColor",
-              defaultSettings.buttons.primary.textColor,
-            ),
-            hoverBackgroundColor: colorsBtnPrimary->getString(
-              "hoverBackgroundColor",
-              defaultSettings.buttons.primary.hoverBackgroundColor,
-            ),
-          },
-          secondary: {
-            backgroundColor: colorsBtnSecondary->getString(
-              "backgroundColor",
-              defaultSettings.buttons.secondary.backgroundColor,
-            ),
-            textColor: colorsBtnSecondary->getString(
-              "textColor",
-              defaultSettings.buttons.secondary.textColor,
-            ),
-            hoverBackgroundColor: colorsBtnSecondary->getString(
-              "hoverBackgroundColor",
-              defaultSettings.buttons.secondary.hoverBackgroundColor,
-            ),
-          },
-        },
-        borders: {
-          defaultRadius: borders->getString("defaultRadius", defaultSettings.borders.defaultRadius),
-          borderColor: borders->getString("borderColor", defaultSettings.borders.borderColor),
-        },
-        spacing: {
-          padding: spacing->getString("padding", defaultSettings.spacing.padding),
-          margin: spacing->getString("margin", defaultSettings.spacing.margin),
-        },
-      },
-      urls: {
-        faviconUrl: url->getOptionString("faviconUrl"),
-        logoUrl: url->getOptionString("logoUrl"),
-      },
-    }
+  let configCustomDomainTheme = React.useCallback((uiConfig: JSON.t) => {
+    let value = ThemeUtils.parseThemeJson(~uiConfig, ~fallbackThemeConfig)
     Window.appendStyle(value)
   }, [])
+
   let configureFavIcon = (faviconUrl: option<string>) => {
     open DOMUtils
     try {
@@ -243,7 +161,7 @@ let make = (~children) => {
     | _ => Exn.raiseError("Error on configuring favicon")
     }
   }
-  let updateThemeURLs = themesData => {
+  let updateThemeURLs = (~themesData, ~themeConfigVersion=None) => {
     open HyperSwitchConfigTypes
     try {
       let urlsDict = themesData->getDictFromJsonObject->getDictfromDict("urls")
@@ -268,10 +186,28 @@ let make = (~children) => {
           existingEnv.urlThemeConfig.logoUrl,
         ),
       }
-      let updatedUrlConfig = {...existingEnv, urlThemeConfig: val}
+
+      let logoUrlWithVersion = switch val.logoUrl {
+      | Some(url) if url !== "/assets/Dark/hyperswitchLogoIconWithText.svg" =>
+        Some(ThemeFeatureUtils.appendVersionParam(url, ~version=themeConfigVersion))
+      | Some(url) => Some(url)
+      | _ => val.logoUrl
+      }
+
+      let faviconUrlWithVersion = switch val.faviconUrl {
+      | Some(url) if url !== "/HyperswitchFavicon.png" =>
+        Some(ThemeFeatureUtils.appendVersionParam(url, ~version=themeConfigVersion))
+      | Some(url) => Some(url)
+      | _ => val.faviconUrl
+      }
+
+      let updatedUrlConfig = {
+        ...existingEnv,
+        urlThemeConfig: {logoUrl: logoUrlWithVersion, faviconUrl: faviconUrlWithVersion},
+      }
       DOMUtils.window._env_ = updatedUrlConfig
-      configureFavIcon(val.faviconUrl)
-      setContextLogoUrl(_ => val.logoUrl)
+      configureFavIcon(faviconUrlWithVersion)
+      setContextLogoUrl(_ => logoUrlWithVersion)
     } catch {
     | _ => Exn.raiseError("Error while updating theme URL and favicon")
     }
@@ -286,16 +222,36 @@ let make = (~children) => {
   }
 
   let applyThemeConfig = (config: JSON.t) => {
-    updateThemeURLs(config)
+    updateThemeURLs(~themesData=config)
     configCustomDomainTheme(config)
+  }
+
+  let getThemeConfigVersion = async (~themeId) => {
+    try {
+      let url = `${GlobalVars.getHostUrl}/api/user/theme/${themeId}/version`
+      let response = await fetchApi(url, ~method_=Get, ~xFeatureRoute=false, ~forceCookies=false)
+      await response->(res => res->Fetch.Response.json)
+    } catch {
+    | _ => JSON.Encode.null
+    }
   }
 
   let getThemesJson = async (~themesID, ~domain=None) => {
     try {
       let themeJson = {
-        if themesID->Option.isSome && themesID->Option.getOr("")->LogicUtils.isNonEmptyString {
+        if themesID->Option.isSome && themesID->Option.getOr("")->isNonEmptyString {
           let id = themesID->Option.getOr("")
-          let url = `${GlobalVars.getHostUrl}/themes/${id}/theme.json`
+          let versionApiResponse = await getThemeConfigVersion(~themeId=id)
+          let themeConfigVersion =
+            versionApiResponse
+            ->getDictFromJsonObject
+            ->getString("theme_config_version", "")
+          HyperSwitchEntryUtils.setThemeConfigVersiontoStore(themeConfigVersion)
+          let url = ThemeFeatureUtils.appendVersionParam(
+            `${GlobalVars.getHostUrl}/themes/${id}/theme.json`,
+            ~version=Some(themeConfigVersion),
+          )
+
           let themeResponse = await fetchApi(
             url,
             ~method_=Get,
@@ -305,7 +261,7 @@ let make = (~children) => {
           await themeResponse->(res => res->Fetch.Response.json)
         } // this need to be removed once all the existing user started consuming theme from the cdn
         // else if condition for backward compatibility
-        else if domain->Option.isSome && domain->Option.getOr("")->LogicUtils.isNonEmptyString {
+        else if domain->Option.isSome && domain->Option.getOr("")->isNonEmptyString {
           let domainValue = domain->Option.getOr("")
           let url = `${GlobalVars.getHostUrl}/themes?domain=${domainValue}`
           let themeResponse = await fetchApi(
@@ -326,12 +282,15 @@ let make = (~children) => {
           await themeResponse->(res => res->Fetch.Response.json)
         }
       }
-      applyThemeConfig(themeJson)
+      let themeConfigVersion = HyperSwitchEntryUtils.getThemeConfigVersionfromStore()
+      updateThemeURLs(~themesData={themeJson}, ~themeConfigVersion)->ignore
+      configCustomDomainTheme(themeJson)->ignore
       themeJson
     } catch {
     | _ => {
         let defaultStyle = getDefaultStyle()
-        applyThemeConfig(defaultStyle)
+        updateThemeURLs(~themesData=defaultStyle)->ignore
+        configCustomDomainTheme(defaultStyle)->ignore
         defaultStyle
       }
     }

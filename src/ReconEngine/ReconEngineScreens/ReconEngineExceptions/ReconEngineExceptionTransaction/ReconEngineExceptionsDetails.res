@@ -1,5 +1,3 @@
-open Typography
-
 @react.component
 let make = (~id) => {
   open LogicUtils
@@ -89,12 +87,6 @@ let make = (~id) => {
       <BreadCrumbNavigation
         path=[{title: "Recon Exceptions", link: "/v1/recon-engine/exceptions/recon"}]
         currentPageTitle=id
-        cursorStyle="cursor-pointer"
-        customTextClass="text-nd_gray-400"
-        titleTextClass="text-nd_gray-600 font-medium"
-        fontWeight="font-medium"
-        dividerVal=Slash
-        childGapClass="gap-2"
       />
       <PageUtils.PageHeading title="Recon Exceptions Detail" />
     </div>
@@ -108,13 +100,7 @@ let make = (~id) => {
           currentTransactionDetails={currentExceptionsDetails}
           detailsFields=[TransactionId, Status, Variance, CreatedAt]
         />
-        <Tabs
-          tabs
-          showBorder=true
-          includeMargin=false
-          defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center ${body.md.semibold}`}
-          selectTabBottomBorderColor="bg-primary"
-        />
+        <Tabs tabs />
       </div>
     </PageLoaderWrapper>
   </div>

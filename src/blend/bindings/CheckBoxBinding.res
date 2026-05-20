@@ -1,7 +1,3 @@
-// Blend Checkbox binding
-// Blend type: checked?: boolean | 'indeterminate'
-// We model this as a union via an opaque module
-
 module CheckedValue = {
   type t
   external fromBool: bool => t = "%identity"

@@ -280,13 +280,7 @@ module ListItem = {
 
                     {
                       if showToolTipOptions {
-                        <ToolTip
-                          key={i->Int.toString}
-                          description=item
-                          toolTipFor=selectOptions
-                          contentAlign=Default
-                          justifyClass="justify-start"
-                        />
+                        <ToolTip key={i->Int.toString} description=item toolTipFor=selectOptions />
                       } else {
                         selectOptions
                       }
@@ -332,12 +326,7 @@ module ListItem = {
         if isDropDown {
           showDescriptionAsTool
             ? {
-                <ToolTip
-                  description={str}
-                  toolTipFor=comp
-                  contentAlign=Default
-                  justifyClass="justify-start"
-                />
+                <ToolTip description={str} toolTipFor=comp />
               }
             : {
                 <div>
@@ -439,7 +428,7 @@ module BaseSelect = {
     ~showSelectionAsChips=true,
     ~maxHeight="md:max-h-72",
     ~searchable=?,
-    ~optionRigthElement=?,
+    ~optionRightElement=?,
     ~searchInputPlaceHolder="",
     ~showSearchIcon=true,
     ~customStyle="",
@@ -614,7 +603,7 @@ module BaseSelect = {
 
     let searchRef = React.useRef(Nullable.null)
     let (isChooseAllToggleSelected, setChooseAllToggleSelected) = React.useState(() => false)
-    let gapClass = switch optionRigthElement {
+    let gapClass = switch optionRightElement {
     | Some(_) => "flex gap-4"
     | None => ""
     }
@@ -863,7 +852,7 @@ module BaseSelect = {
                     checkboxDimension
                     iconStroke=item.iconStroke
                   />
-                  {switch optionRigthElement {
+                  {switch optionRightElement {
                   | Some(rightElement) => rightElement
                   | None => React.null
                   }}
@@ -1724,7 +1713,7 @@ module BaseDropdown = {
       addButton ? setShowDropDown(_ => true) : setShowDropDown(_ => false)
     }
 
-    let allSellectedOptions = React.useMemo(() => {
+    let allSelectedOptions = React.useMemo(() => {
       newInputSelect.value
       ->JSON.Decode.array
       ->Option.getOr([])
@@ -1737,7 +1726,7 @@ module BaseDropdown = {
       ->Option.getOr(buttonText)
     }, (transformedOptions, newInputSelect.value))
 
-    let title = showAllSelectedOptions ? allSellectedOptions : dropDowntext
+    let title = showAllSelectedOptions ? allSelectedOptions : dropDowntext
 
     let badgeForSelect = React.useMemo((): Button.badge => {
       let count = newInputSelect.value->JSON.Decode.array->Option.getOr([])->Array.length
@@ -1931,7 +1920,6 @@ module BaseDropdown = {
                             ->Array.joinWith(",\n")}
                         toolTipFor=selectButton
                         toolTipPosition=Bottom
-                        tooltipWidthClass=""
                       />
                     } else {
                       selectButton
@@ -2037,7 +2025,7 @@ module ChipFilterSelectBox = {
   ) => {
     let transformedOptions = useTransformed(options)
 
-    let initalClassName = " m-2 bg-gray-200 dark:text-gray-800 border-jp-gray-800 inline-block text-s px-2 py-1 rounded-2xl"
+    let initialClassName = " m-2 bg-gray-200 dark:text-gray-800 border-jp-gray-800 inline-block text-s px-2 py-1 rounded-2xl"
     let passedClassName = "flex items-center m-2 bg-blue-400 dark:text-gray-800 border-gray-300 inline-block text-s px-2 py-1 rounded-2xl"
     let newInputSelect = input->ffInputToSelectInput
     let values = newInputSelect.value
@@ -2068,7 +2056,7 @@ module ChipFilterSelectBox = {
       {transformedOptions
       ->Array.mapWithIndex((option, i) => {
         let isSelected = saneValue->Array.includes(option.value)
-        let selectedClass = isSelected ? passedClassName : initalClassName
+        let selectedClass = isSelected ? passedClassName : initialClassName
         let chipsCss =
           customStyleForChips->LogicUtils.isEmptyString ? selectedClass : customStyleForChips
 
@@ -2120,7 +2108,7 @@ let make = (
   ~maxHeight=?,
   ~searchable=?,
   ~fill="#0EB025",
-  ~optionRigthElement=?,
+  ~optionRightElement=?,
   ~hideBorder=false,
   ~allSelectType=Icon,
   ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
@@ -2251,7 +2239,7 @@ let make = (
       options
       optionSize
       isSelectedStateMinus
-      ?optionRigthElement
+      ?optionRightElement
       onSelect=newInputSelect.onChange
       value=newInputSelect.value
       isDropDown

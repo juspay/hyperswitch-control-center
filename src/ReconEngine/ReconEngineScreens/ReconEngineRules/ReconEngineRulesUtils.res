@@ -160,15 +160,35 @@ let getTriggerData = (strategy: reconStrategyType): option<triggerType> => {
   }
 }
 
+let getTriggerConditions = (trigger: triggerType): array<triggerConditionType> =>
+  switch trigger {
+  | V1(condition) => [condition]
+  | V2({conditions}) => conditions
+  | UnknownTrigger => []
+  }
+
+let getTriggerLogic = (trigger: triggerType): triggerLogicType =>
+  switch trigger {
+  | V1(_) => All
+  | V2({logic}) => logic
+  | UnknownTrigger => UnknownTriggerLogic
+  }
+
 let getGroupingField = (strategy: reconStrategyType): option<string> => {
   switch strategy {
   | OneToOne(oneToOne) =>
     switch oneToOne {
     | ManySingle(data) => Some(data.source_account.grouping_field)
     | ManyMany(data) => Some(data.source_account.grouping_field)
-    | _ => None
+    | UnknownOneToOneStrategy | SingleSingle(_) | SingleMany(_) => None
     }
-  | _ => None
+  | OneToMany(oneToMany) =>
+    switch oneToMany {
+    | SingleSingle(_)
+    | UnknownOneToManyStrategy =>
+      None
+    }
+  | UnknownReconStrategy => None
   }
 }
 
@@ -244,12 +264,36 @@ let operatorMapper: Dict.t<JSON.t> => operatorType = dict => {
   }
 }
 
-let triggerMapper: Dict.t<JSON.t> => triggerType = dict => {
+let triggerConditionMapper: Dict.t<JSON.t> => triggerConditionType = dict => {
   {
-    trigger_version: dict->getString("trigger_version", ""),
     field: dict->getString("field", ""),
     operator: dict->getDictfromDict("operator")->operatorMapper,
     value: dict->getString("value", ""),
+  }
+}
+
+let getTriggerLogicVariantFromString = (value: string): triggerLogicType => {
+  switch value->String.toLowerCase {
+  | "all" => All
+  | "any" => Any
+  | _ => UnknownTriggerLogic
+  }
+}
+
+let triggerV2Mapper: Dict.t<JSON.t> => triggerV2Type = dict => {
+  {
+    logic: dict->getString("logic", "")->getTriggerLogicVariantFromString,
+    conditions: dict
+    ->getArrayFromDict("conditions", [])
+    ->Array.map(item => item->getDictFromJsonObject->triggerConditionMapper),
+  }
+}
+
+let triggerMapper: Dict.t<JSON.t> => triggerType = dict => {
+  switch dict->getString("trigger_version", "") {
+  | "v1" => V1(dict->triggerConditionMapper)
+  | "v2" => V2(dict->triggerV2Mapper)
+  | _ => UnknownTrigger
   }
 }
 

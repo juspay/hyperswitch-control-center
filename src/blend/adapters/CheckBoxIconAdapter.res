@@ -1,5 +1,13 @@
-// Re-export legacy type so call sites using CheckBoxIconAdapter.size need no changes
+open CheckBoxBinding
+open CheckedValue
+
 type size = CheckBoxIcon.size
+
+let mapSize = (s: size) =>
+  switch s {
+  | Small => Small
+  | Large => Medium
+  }
 
 @react.component
 let make = (
@@ -13,48 +21,42 @@ let make = (
   ~stopPropagationNeeded=false,
 ) => {
   let isBlendEnabled = BlendContext.useBlendEnabled()
+  let useBlend = isBlendEnabled && setIsSelected->Option.isSome
 
-  // Blend's Checkbox is a button that calls stopPropagation internally.
-  // It can only work when setIsSelected is provided — otherwise the parent
-  // div click pattern is broken. Fall back to legacy when no setter is given.
-  if isBlendEnabled && setIsSelected->Option.isSome {
-    let checkedValue = if isSelectedStateMinus && isSelected {
-      CheckBoxBinding.CheckedValue.fromIndeterminate("indeterminate")
-    } else {
-      CheckBoxBinding.CheckedValue.fromBool(isSelected)
-    }
-
-    let onCheckedChange = (v: CheckBoxBinding.CheckedValue.t) =>
-      switch setIsSelected {
-      | Some(fn) => fn(v->CheckBoxBinding.CheckedValue.toBool)
-      | None => ()
-      }
-
-    let blendSize = switch size {
-    | Small => CheckBoxBinding.Small
-    | Large => CheckBoxBinding.Medium
-    }
-
-    let checkbox =
-      <CheckBoxBinding
-        checked={checkedValue} onCheckedChange disabled={isDisabled} size={blendSize}
-      />
-
-    if stopPropagationNeeded {
-      <div onClick={e => e->ReactEvent.Mouse.stopPropagation}> {checkbox} </div>
-    } else {
-      checkbox
-    }
+  let checkedValue = if isSelectedStateMinus && isSelected {
+    fromIndeterminate("indeterminate")
   } else {
-    <CheckBoxIcon
-      isSelected
-      isDisabled
-      ?setIsSelected
-      size
-      isSelectedStateMinus
-      checkboxDimension
-      isCheckboxSelectedClass
-      stopPropagationNeeded
-    />
+    fromBool(isSelected)
   }
+
+  let onCheckedChange = v =>
+    switch setIsSelected {
+    | Some(fn) => fn(v->toBool)
+    | None => ()
+    }
+
+  let blendCheckbox =
+    <CheckBoxBinding
+      checked={checkedValue} onCheckedChange disabled={isDisabled} size={mapSize(size)}
+    />
+
+  let blendNode = stopPropagationNeeded
+    ? <div onClick={e => e->ReactEvent.Mouse.stopPropagation}> {blendCheckbox} </div>
+    : blendCheckbox
+
+  <>
+    <RenderIf condition={useBlend}> {blendNode} </RenderIf>
+    <RenderIf condition={!useBlend}>
+      <CheckBoxIcon
+        isSelected
+        isDisabled
+        ?setIsSelected
+        size
+        isSelectedStateMinus
+        checkboxDimension
+        isCheckboxSelectedClass
+        stopPropagationNeeded
+      />
+    </RenderIf>
+  </>
 }
