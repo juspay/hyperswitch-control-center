@@ -1,5 +1,6 @@
 open OrderUtils
 open RefundEntity
+open Typography
 
 module RefundInfo = {
   module Details = {
@@ -18,8 +19,8 @@ module RefundInfo = {
       let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(data.currency)
       <Section
         customCssClass={`border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 ${bgColor} rounded-md p-5`}>
-        <div className="flex items-center">
-          <div className="font-bold text-4xl m-3">
+        <div className="flex items-center gap-spacing-md">
+          <div className={heading.xl.bold}>
             {`${(data.amount /. conversionFactor)->Float.toString} ${data.currency} `->React.string}
           </div>
           {useGetStatus(data)}
@@ -61,7 +62,7 @@ module RefundInfo = {
       UserInfoProvider.defaultContext,
     ).getCommonSessionDetails()
     <>
-      <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
+      <div className={`${body.lg.semibold} dark:text-white dark:text-opacity-75`}>
         {"Summary"->React.string}
       </div>
       <Details
@@ -158,7 +159,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     showToast(~message="Details Updated", ~toastType=ToastSuccess)
   }
 
-  <div className="flex flex-col overflow-scroll">
+  <div className="flex flex-col gap-spacing-4xl overflow-scroll">
     <div className="flex justify-between w-full">
       <div className="flex items-center justify-between w-full">
         <div>
@@ -184,43 +185,44 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     <PageLoaderWrapper
       screenState={screenStateForRefund}
       customUI={<DefaultLandingPage
-        height="90vh" title="Something Went Wrong!" overridingStylesTitle={`text-3xl font-semibold`}
+        height="90vh" title="Something Went Wrong!" overridingStylesTitle={heading.xl.semibold}
       />}>
-      <RefundInfo orderDict={refundData->getDictFromJsonObject} />
-      <div className="mt-5" />
-      <RenderIf condition={auditTrail && userHasAccess(~groupAccess=AnalyticsView) === Access}>
-        <OrderUIUtils.RenderAccordion
-          initialExpandedArray=[0]
-          accordion={[
-            {
-              title: "Events and logs",
-              renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
-                <LogsWrapper wrapperFor={#REFUND}>
-                  <RefundLogs refundId=id paymentId />
-                </LogsWrapper>
+      <div className="flex flex-col gap-spacing-4xl">
+        <RefundInfo orderDict={refundData->getDictFromJsonObject} />
+        <RenderIf condition={auditTrail && userHasAccess(~groupAccess=AnalyticsView) === Access}>
+          <OrderUIUtils.RenderAccordion
+            initialExpandedArray=[0]
+            accordion={[
+              {
+                title: "Events and logs",
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
+                  <LogsWrapper wrapperFor={#REFUND}>
+                    <RefundLogs refundId=id paymentId />
+                  </LogsWrapper>
+                },
+                renderContentOnTop: None,
               },
-              renderContentOnTop: None,
-            },
-          ]}
-        />
-      </RenderIf>
-      <RenderIf condition={userHasAccess(~groupAccess=OperationsView) === Access}>
-        <LoadedTable
-          title="Payment"
-          actualData=orderData
-          entity={OrderEntity.orderEntity(
-            merchantIdFromUserInfo,
-            orgIdFromUserInfo,
-            ~devSortEnabled,
-          )}
-          resultsPerPage=1
-          showSerialNumber=true
-          totalResults=1
-          offset
-          setOffset
-          currentFetchCount=1
-        />
-      </RenderIf>
+            ]}
+          />
+        </RenderIf>
+        <RenderIf condition={userHasAccess(~groupAccess=OperationsView) === Access}>
+          <LoadedTable
+            title="Payment"
+            actualData=orderData
+            entity={OrderEntity.orderEntity(
+              merchantIdFromUserInfo,
+              orgIdFromUserInfo,
+              ~devSortEnabled,
+            )}
+            resultsPerPage=1
+            showSerialNumber=true
+            totalResults=1
+            offset
+            setOffset
+            currentFetchCount=1
+          />
+        </RenderIf>
+      </div>
     </PageLoaderWrapper>
   </div>
 }

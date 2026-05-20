@@ -299,17 +299,20 @@ let make = (
       autoApply submit=onSubmit defaultFilterKeys submitInputOnEnter
     />
     {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
-      {<>
-        <div className="mb-4"> {customLeftView} </div>
-        <div className="flex lg:flex-row flex-col justify-between items-center gap-4 mb-2">
-          <div className="flex gap-2 flex-wrap items-center">
+      <div className="flex flex-col gap-spacing-md">
+        <RenderIf condition={isSmallScreen}>
+          <div> {customLeftView} </div>
+        </RenderIf>
+        <div className="flex lg:flex-row flex-col justify-between items-center gap-spacing-md">
+          <div className="flex gap-spacing-md flex-wrap items-center">
+            <RenderIf condition={!isSmallScreen}> {customLeftView} </RenderIf>
             <RenderIf condition={allFilters->Array.length > 0}> {allFiltersUI} </RenderIf>
             {customFilterActions}
             <RenderIf condition={isSmallScreen}>
               <PortalCapture key={`${title}OMPView`} name={`${title}OMPView`} />
             </RenderIf>
           </div>
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-spacing-md items-center">
             <RenderIf condition={fixedFilters->Array.length > 0}>
               <FormRenderer.FieldsRenderer
                 fields={fixedFilters->Array.map(item => item.field)}
@@ -323,7 +326,7 @@ let make = (
             <PortalCapture key={`${title}CustomizeColumn`} name={`${title}CustomizeColumn`} />
           </div>
         </div>
-        <div className="flex gap-2 flex-wrap items-center">
+        <div className="flex gap-spacing-md flex-wrap items-center">
           <FormRenderer.FieldsRenderer
             fields={filterList} labelClass="hidden" fieldWrapperClass="p-0"
           />
@@ -331,7 +334,7 @@ let make = (
             <ClearFilters defaultFilterKeys ?clearFilters outsidefilter={initialCount > 0} />
           </RenderIf>
         </div>
-      </>}
+      </div>
     </AddDataAttributes>}
   </Form>
 }

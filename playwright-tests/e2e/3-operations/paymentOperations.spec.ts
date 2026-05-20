@@ -1321,7 +1321,7 @@ test.describe("Payment Operations", () => {
         page.locator('[class="font-bold text-lg mb-5"]').nth(0),
       ).toContainText("Summary");
       await expect(
-        page.locator('[class="md:text-5xl font-bold"]'),
+        page.locator('[class="text-fs-32 leading-38 font-bold font-inter-style"]'),
       ).toContainText("123.45 USD");
       await expect(
         page.locator(

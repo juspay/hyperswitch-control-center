@@ -45,7 +45,7 @@ module ShowOrderDetails = {
       <RenderIf condition=isButtonEnabled>
         <div className="flex items-center flex-wrap gap-3 m-3">
           <div className="flex items-start">
-            <div className="md:text-5xl font-bold">
+            <div className={Typography.heading.xl.bold}>
               {`${amountToDisplay->Float.toString} ${data.currency} `->React.string}
             </div>
             <ToolTip
@@ -100,7 +100,7 @@ module OrderInfo = {
     let paymentStatus = order.status
     let headingStyles = "font-bold text-lg mb-5"
     <div className="md:flex md:flex-col md:gap-5">
-      <div className="md:flex md:gap-10 md:items-stretch md:mt-5 mb-10">
+      <div className="md:flex md:gap-spacing-3xl md:items-stretch">
         <div className="md:w-1/2 w-full">
           <div className={`${headingStyles}`}> {"Summary"->React.string} </div>
           <ShowOrderDetails
@@ -734,7 +734,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
 
   let breadCrumbLink = RouteUtils.getPath(~path="/payments", version)
 
-  <div className="flex flex-col overflow-scroll gap-8">
+  <div className="flex flex-col overflow-scroll gap-spacing-4xl">
     <div className="flex justify-between w-full">
       <div className="flex items-end justify-between w-full">
         <div className="w-full">
@@ -769,7 +769,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       customUI={<NoDataFound
         message="Payment does not exist in our records" renderType=NotFound
       />}>
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-spacing-4xl">
         <OrderInfo
           paymentId=id
           order={orderData}
@@ -825,7 +825,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             {
               title: "Customer Details",
               renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
-                <div>
+                <div className="flex flex-col gap-spacing-3xl">
                   <ShowOrderDetails
                     sectionTitle="Customer"
                     data=orderData
@@ -912,7 +912,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             {
               title: "More Payment Details",
               renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
-                <div className="mb-10">
+                <div>
                   <ShowOrderDetails
                     data=orderData
                     getHeading=OrderEntity.getHeadingForOtherDetails

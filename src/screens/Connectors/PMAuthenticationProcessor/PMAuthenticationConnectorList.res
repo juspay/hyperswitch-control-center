@@ -46,13 +46,13 @@ let make = () => {
     None
   }, [])
 
-  <div>
+  <div className="flex flex-col gap-spacing-4xl">
     <PageUtils.PageHeading
       title={"PM Authentication Processor"}
       subTitle={"Connect and configure open banking providers to verify customer bank accounts"}
     />
     <PageLoaderWrapper screenState>
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-spacing-4xl">
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Connected Processors"

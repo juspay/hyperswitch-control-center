@@ -65,14 +65,13 @@ let make = () => {
     ? payoutProcessorsLiveList
     : payoutConnectorList
 
-  <div>
+  <div className="flex flex-col gap-spacing-4xl">
     <PageLoaderWrapper screenState>
       <PageUtils.PageHeading
         title="Payout Processors"
-        customHeadingStyle="mb-10"
         subTitle="Connect and manage payout processors for disbursements and settlements"
       />
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-spacing-4xl">
         <RenderIf condition={showFeedbackModal}>
           <HSwitchFeedBackModal
             showModal={showFeedbackModal}

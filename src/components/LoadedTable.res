@@ -725,18 +725,14 @@ let make = (
     }
   }, (filteredData, getShowLink, onMouseLeave, url.search))
 
-  let filterBottomPadding = isMobileView ? "" : "pb-4"
-
-  let paddingClass = {rightTitleElement != React.null ? filterBottomPadding : ""}
-
   let customizeColumnsButtons = {
     switch clearFormattedDataButton {
     | Some(clearFormattedDataButton) =>
-      <div className={`flex flex-row mobile:gap-7 desktop:gap-10 ${filterBottomPadding}`}>
+      <div className="flex flex-row mobile:gap-7 desktop:gap-10">
         clearFormattedDataButton
         {rightTitleElement}
       </div>
-    | _ => <div className={paddingClass}> {rightTitleElement} </div>
+    | _ => rightTitleElement
     }
   }
 
@@ -887,12 +883,6 @@ let make = (
     tableActionBorder
   }
 
-  let filtersOuterMargin = if hideTitle {
-    ""
-  } else {
-    "my-2"
-  }
-
   let tableActionElements =
     <div className="flex flex-row">
       {switch advancedSearchComponent {
@@ -906,7 +896,7 @@ let make = (
       {switch tableActions {
       | Some(actions) =>
         <LoadedTableContext value={actualData->LoadedTableContext.toInfoData}>
-          <div className=filterBottomPadding> actions </div>
+          actions
         </LoadedTableContext>
       | None => React.null
       }}
@@ -922,10 +912,7 @@ let make = (
     <div className={`w-full ${loadedTableParentClass}`}>
       <div className=addDataAttributesClass style={zIndex: "2"}>
         //removed "sticky" -> to be tested with master
-        <div
-          className={`flex flex-row justify-between items-center` ++ (
-            hideTitle ? "" : ` mt-4 mb-2`
-          )}>
+        <div className="flex flex-row justify-between items-center">
           <div className="w-full">
             <RenderIf condition={!hideTitle}>
               <NewThemeHeading
@@ -955,20 +942,11 @@ let make = (
             />
           </div>
         </RenderIf>
-        <div
-          className={`flex flex-row mobile:flex-wrap items-center ${tableActionBorder} ${filtersOuterMargin}`}>
+        <div className={`flex flex-row mobile:flex-wrap items-center ${tableActionBorder}`}>
           <TableFilterSectionContext isFilterSection=true>
             <div className={`flex-1 ${tableDataBackgroundClass}`}>
               {switch filters {
-              | Some(filterSection) =>
-                filterSection->React.Children.map(element => {
-                  if element === React.null {
-                    React.null
-                  } else {
-                    <div className=filterBottomPadding> element </div>
-                  }
-                })
-
+              | Some(filterSection) => filterSection
               | None => React.null
               }}
               <PortalCapture key={`extraFilters-${title}`} name={`extraFilters-${title}`} />

@@ -208,10 +208,11 @@ let make = (~previewOnly=false) => {
   }, (searchText, version))
 
   <ErrorBoundary>
-    <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
+    <div
+      className={`flex flex-col gap-spacing-4xl mx-auto h-full ${widthClass} ${heightClass} min-h-50-vh`}>
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Payment Operations" subTitle="" customTitleStyle />
-        <div className="flex gap-4">
+        <div className="flex gap-spacing-3xl">
           <Portal to="OrdersOMPView">
             <OMPSwitchHelper.OMPViews
               views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
@@ -226,36 +227,39 @@ let make = (~previewOnly=false) => {
           </RenderIf>
         </div>
       </div>
-      <div className="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-6 mb-8">
+      <div
+        className="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-spacing-3xl">
         <TransactionView entity=TransactionViewTypes.Orders version />
       </div>
-      <div className="flex">
+      <div className="flex flex-col gap-spacing-3xl">
         <RenderIf condition={!previewOnly}>
-          <div className="flex-1"> {filtersUI} </div>
+          <div className="flex">
+            <div className="flex-1"> {filtersUI} </div>
+          </div>
         </RenderIf>
+        <PageLoaderWrapper screenState customUI>
+          <LoadedTableWithCustomColumns
+            title="Orders"
+            actualData=orderData
+            entity={OrderEntity.orderEntity(merchantId, orgId, ~version, ~devSortEnabled)}
+            resultsPerPage=20
+            showSerialNumber=true
+            totalResults={previewOnly ? orderData->Array.length : totalCount}
+            offset
+            setOffset
+            currentFetchCount={orderData->Array.length}
+            customColumnMapper=TableAtoms.ordersMapDefaultCols
+            defaultColumns={OrderEntity.defaultColumns}
+            showSerialNumberInCustomizeColumns=false
+            sortingBasedOnDisabled=false
+            hideTitle=true
+            previewOnly
+            remoteSortEnabled=true
+            showAutoScroll=true
+            isDraggable=true
+          />
+        </PageLoaderWrapper>
       </div>
-      <PageLoaderWrapper screenState customUI>
-        <LoadedTableWithCustomColumns
-          title="Orders"
-          actualData=orderData
-          entity={OrderEntity.orderEntity(merchantId, orgId, ~version, ~devSortEnabled)}
-          resultsPerPage=20
-          showSerialNumber=true
-          totalResults={previewOnly ? orderData->Array.length : totalCount}
-          offset
-          setOffset
-          currentFetchCount={orderData->Array.length}
-          customColumnMapper=TableAtoms.ordersMapDefaultCols
-          defaultColumns={OrderEntity.defaultColumns}
-          showSerialNumberInCustomizeColumns=false
-          sortingBasedOnDisabled=false
-          hideTitle=true
-          previewOnly
-          remoteSortEnabled=true
-          showAutoScroll=true
-          isDraggable=true
-        />
-      </PageLoaderWrapper>
     </div>
   </ErrorBoundary>
 }

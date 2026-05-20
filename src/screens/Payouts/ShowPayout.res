@@ -2,6 +2,7 @@ open PayoutsEntity
 open OrderUtils
 open OrderUIUtils
 open LogicUtils
+open Typography
 module AttemptsSection = {
   @react.component
   let make = (~data: payoutAttempts) => {
@@ -73,7 +74,7 @@ module Attempts = {
     }
 
     <div className="flex flex-col gap-4">
-      <p className="font-bold text-fs-16 text-jp-gray-900"> {"Payout Attempts"->React.string} </p>
+      <p className={`${body.lg.semibold} text-nd_gray-800`}> {"Payout Attempts"->React.string} </p>
       <CustomExpandableTable
         title="Attempts"
         heading
@@ -114,7 +115,7 @@ module ShowPayoutDetails = {
       <RenderIf condition=isButtonEnabled>
         <div className="flex items-center flex-wrap gap-3 m-3">
           <div className="flex items-start">
-            <div className="md:text-5xl font-bold">
+            <div className={heading.xl.bold}>
               {`${(data.amount /. conversionFactor)
                   ->Float.toString} ${data.currency} `->React.string}
             </div>
@@ -155,7 +156,7 @@ module PayoutInfo = {
   let make = (~payoutData) => {
     let headingStyles = "font-bold text-lg mb-5"
     <div className="md:flex md:flex-col md:gap-5">
-      <div className="md:flex md:gap-10 md:items-stretch md:mt-5 mb-10">
+      <div className="md:flex md:gap-spacing-3xl md:items-stretch">
         <div className="md:w-1/2 w-full">
           <div className={`${headingStyles}`}> {"Summary"->React.string} </div>
           <ShowPayoutDetails
@@ -190,7 +191,7 @@ module PayoutInfo = {
 module CustomerDetails = {
   @react.component
   let make = (~payoutData) => {
-    <div>
+    <div className="flex flex-col gap-spacing-3xl">
       <ShowPayoutDetails
         sectionTitle="Customer"
         data=payoutData
@@ -227,7 +228,7 @@ module CustomerDetails = {
 module MorePayoutDetails = {
   @react.component
   let make = (~payoutData) => {
-    <div className="mb-10">
+    <div>
       <ShowPayoutDetails
         data=payoutData
         getHeading=getHeadingForOtherDetails
@@ -300,8 +301,8 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   }, [id])
 
   <PageLoaderWrapper screenState>
-    <div className="flex flex-col overflow-scroll">
-      <div className="mb-4 flex justify-between">
+    <div className="flex flex-col gap-spacing-4xl overflow-scroll">
+      <div className="flex justify-between">
         <div className="flex items-center">
           <div>
             <PageUtils.PageHeading title="Payouts" />
@@ -310,7 +311,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           <div />
         </div>
       </div>
-      {<div className="flex flex-col gap-8">
+      {<div className="flex flex-col gap-spacing-4xl">
         <PayoutInfo payoutData />
         <RenderIf
           condition={version == V1 &&

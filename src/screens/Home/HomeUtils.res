@@ -137,7 +137,8 @@ module ControlCenter = {
 
     let connectorUrl = RouteUtils.getPath(~path="/connectors", version)
 
-    let liveModeStyles = isLiveMode || version == V2 ? "w-1/2 " : "flex flex-col md:flex-row gap-5 "
+    let liveModeStyles =
+      isLiveMode || version == V2 ? "w-1/2 " : "flex flex-col md:flex-row gap-spacing-3xl "
     <div className=liveModeStyles>
       <CardLayout width="" customStyle="flex-1 rounded-xl p-6 gap-4">
         <div className="flex flex-col gap-4">
@@ -165,7 +166,7 @@ module ControlCenter = {
 module PlatformOverview = {
   @react.component
   let make = () => {
-    <div className="flex flex-col md:flex-row gap-5 w-1/2">
+    <div className="flex flex-col md:flex-row gap-spacing-3xl w-1/2">
       <CardLayout width="" customStyle="flex-1 rounded-xl p-6 gap-4">
         <div className="flex flex-col gap-4">
           <img alt="platform-merchant-account" src="/assets/PlatformMerchantAccount.svg" />
@@ -188,15 +189,15 @@ module DevResources = {
 
     let apiKeysUrl = RouteUtils.getPath(~path="/developer-api-keys", version)
 
-    <div className="flex flex-col mb-5 gap-6 ">
+    <div className="flex flex-col mb-5 gap-spacing-3xl">
       <PageHeading
         title="Developer resources"
         subTitle="A couple of things developers need at hand can be found right here."
         customTitleStyle={`!${heading.md.semibold}`}
-        customSubTitleStyle="!text-fs-16 !text-nd_gray-400 !opacity-100 font-medium !mt-1"
+        customSubTitleStyle="!text-fs-16 !text-nd_gray-400 !opacity-100 font-medium"
         showPermLink=false
       />
-      <div className="flex flex-col md:flex-row  gap-5 ">
+      <div className="flex flex-col md:flex-row gap-spacing-3xl">
         <RenderIf condition={!checkUserEntity([#Profile])}>
           <CardLayout width="" customStyle={"flex-1 rounded-xl p-6 gap-6"}>
             <div className="flex flex-col gap-7 ">

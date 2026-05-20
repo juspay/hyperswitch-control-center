@@ -125,12 +125,12 @@ let make = (
     ? paymentProcessorsLiveList
     : connectorList
 
-  <div>
+  <div className="flex flex-col gap-spacing-4xl">
     <PageLoaderWrapper screenState>
       <RenderIf condition={showDummyProcessorBanner}>
         <DummyProcessorBanner setProcessorModal configuredConnectors />
       </RenderIf>
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-spacing-4xl">
         <RenderIf condition={showFeedbackModal}>
           <HSwitchFeedBackModal
             showModal={showFeedbackModal}

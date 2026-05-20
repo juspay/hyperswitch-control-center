@@ -124,8 +124,8 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let getTabName = index => index == 0 ? "active" : "history"
 
   <PageLoaderWrapper screenState>
-    <div className={`${widthClass} ${marginClass} gap-2.5`}>
-      <div className="flex flex-col gap-6 items-center justify-center">
+    <div className={`flex flex-col gap-spacing-6xl ${widthClass} ${marginClass}`}>
+      <div className="flex flex-col gap-spacing-4xl">
         <PageUtils.PageHeading
           title="Payout routing configuration"
           subTitle="Smart routing stack helps you to increase success rates and reduce costs by optimising your payment traffic across the various processors in the most customised yet reliable way. Set it up based on the preferred level of control"
@@ -135,7 +135,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
         />
       </div>
       <RenderIf condition={!previewOnly}>
-        <div className="flex flex-col gap-12">
+        <div className="flex flex-col gap-spacing-6xl">
           <EntityScaffold
             entityName="HyperSwitch Priority Logic"
             remainingPath

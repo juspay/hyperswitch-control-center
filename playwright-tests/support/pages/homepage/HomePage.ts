@@ -17,7 +17,7 @@ export class HomePage {
 
   get subHeaderText(): Locator {
     return this.page.locator(
-      '[class="opacity-50 mt-2 text-fs-16 text-nd_gray-400 !opacity-100 font-medium !mt-1"]',
+      '[class="opacity-50 !text-fs-16 !text-nd_gray-400 !opacity-100 font-medium"]',
     );
   }
 
@@ -257,7 +257,7 @@ export class HomePage {
 
   get setupCheckoutHeader(): Locator {
     return this.page.locator(
-      '[class="text-fs-24 leading-32 font-semibold font-inter-style "]',
+      '[class="text-fs-20 leading-26 font-semibold font-inter-style "]',
     );
   }
 

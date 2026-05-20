@@ -5,7 +5,7 @@ export class RefundOperations extends PaymentOperations {
   // Override transactionView grid layout (refunds shows 4 columns, not 5)
   get refundsTransactionView(): Locator {
     return this.page.locator(
-      '[class="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8"]',
+      '[class="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-2 grid-cols-2 gap-spacing-3xl"]',
     );
   }
 
@@ -22,7 +22,9 @@ export class RefundOperations extends PaymentOperations {
   }
 
   get refundSummaryAmount(): Locator {
-    return this.page.locator('[class="font-bold text-4xl m-3"]');
+    return this.page.locator(
+      '[class="text-fs-32 leading-38 font-bold font-inter-style"]',
+    );
   }
 
   get summaryAmount(): Locator {

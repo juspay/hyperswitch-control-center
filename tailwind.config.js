@@ -101,6 +101,7 @@ module.exports = {
       },
       minHeight: {
         "500-px": "500px",
+        "50-vh": "50vh",
       },
       inset: {
         "3-px": "3px",
@@ -508,6 +509,25 @@ module.exports = {
       },
       spacing: {
         DEFAULT: "var(--spacing-padding)",
+        // Spacing primitives (Untitled UI scale). Use semantic names, not raw `gap-4`/`gap-6`/etc.
+        // Decision rules: see docs/SPACING.md.
+        "spacing-none": "0px",
+        "spacing-xxs": "2px",
+        "spacing-xs": "4px", //   S1 — heading → its description
+        "spacing-sm": "6px",
+        "spacing-md": "8px",
+        "spacing-lg": "12px",
+        "spacing-xl": "16px",
+        "spacing-2xl": "20px",
+        "spacing-3xl": "24px", //  S2 — peer components / controls + content
+        "spacing-4xl": "32px", //  S3 — between sections on a page
+        "spacing-5xl": "40px",
+        "spacing-6xl": "48px", //  S4 — between major regions / outer page wrapper
+        "spacing-7xl": "64px",
+        "spacing-8xl": "80px",
+        "spacing-9xl": "96px",
+        "spacing-10xl": "128px",
+        "spacing-11xl": "160px",
       },
     },
   },

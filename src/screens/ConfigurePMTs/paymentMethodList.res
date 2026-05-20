@@ -63,27 +63,33 @@ let make = (~isPayoutFlow=false) => {
     reset()
   }
 
-  <div>
+  <div className="flex flex-col gap-spacing-4xl">
     <PageUtils.PageHeading
       title={`Configure PMTs at Checkout`}
       subTitle={"Control the visibility of your payment methods at the checkout"}
     />
     <PageLoaderWrapper screenState>
-      <Filter
-        key="0"
-        defaultFilters={Dict.make()->JSON.Encode.object}
-        fixedFilters=[]
-        requiredSearchFieldsList=[]
-        localFilters={configuredConnectors->initialFilters([businessProfileRecoilVal], ~profileId)}
-        localOptions=[]
-        remoteOptions=[]
-        remoteFilters={configuredConnectors->initialFilters([businessProfileRecoilVal], ~profileId)}
-        defaultFilterKeys=[]
-        updateUrlWith={updateExistingKeys}
-        clearFilters={() => handleClearFilter()->ignore}
-        setOffset
-      />
-      <div className="mt-4">
+      <div className="flex flex-col gap-spacing-3xl">
+        <Filter
+          key="0"
+          defaultFilters={Dict.make()->JSON.Encode.object}
+          fixedFilters=[]
+          requiredSearchFieldsList=[]
+          localFilters={configuredConnectors->initialFilters(
+            [businessProfileRecoilVal],
+            ~profileId,
+          )}
+          localOptions=[]
+          remoteOptions=[]
+          remoteFilters={configuredConnectors->initialFilters(
+            [businessProfileRecoilVal],
+            ~profileId,
+          )}
+          defaultFilterKeys=[]
+          updateUrlWith={updateExistingKeys}
+          clearFilters={() => handleClearFilter()->ignore}
+          setOffset
+        />
         <LoadedTable
           title="Payment Methods"
           hideTitle=true

@@ -12,7 +12,7 @@ export class PaymentRouting {
   }
 
   get volumeBasedRoutingHeader(): Locator {
-    return this.page.locator('[class="flex items-center gap-4 "]');
+    return this.page.locator('[class="flex items-center gap-spacing-xl"]');
   }
 
   get ruleBasedRoutingSetupButton(): Locator {

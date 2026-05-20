@@ -1,18 +1,21 @@
 module TransactionViewCard = {
+  open Typography
   @react.component
   let make = (~view, ~count="", ~onViewClick, ~isActiveView) => {
     open TransactionViewUtils
 
-    let textClass = isActiveView ? "text-primary" : "font-semibold text-jp-gray-700"
-    let countTextClass = isActiveView ? "text-primary" : "font-semibold text-jp-gray-900"
-    let borderClass = isActiveView ? "border-primary" : ""
+    let labelColor = isActiveView ? "text-nd_primary_blue-500" : "text-nd_gray-400"
+    let countColor = isActiveView ? "text-nd_primary_blue-500" : "text-nd_gray-800"
+    let borderClass = isActiveView ? "border-nd_primary_blue-500" : ""
 
     <div
-      className={`flex flex-col justify-center flex-auto gap-1 bg-white text-semibold border rounded-md px-4 py-2.5 cursor-pointer hover:bg-gray-50 ${borderClass}`}
+      className={`flex flex-col justify-center flex-auto gap-spacing-xs bg-white border rounded-md px-spacing-xl py-spacing-md cursor-pointer hover:bg-gray-50 ${borderClass}`}
       onClick={_ => onViewClick(view)}>
-      <p className={textClass}> {view->getViewsDisplayName->React.string} </p>
+      <p className={`${body.md.medium} ${labelColor}`}>
+        {view->getViewsDisplayName->React.string}
+      </p>
       <RenderIf condition={!(count->LogicUtils.isEmptyString)}>
-        <p className={countTextClass}> {count->React.string} </p>
+        <p className={`${heading.lg.semibold} ${countColor}`}> {count->React.string} </p>
       </RenderIf>
     </div>
   }

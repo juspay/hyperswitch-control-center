@@ -90,10 +90,10 @@ let make = () => {
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   <ErrorBoundary>
-    <div className="min-h-[50vh]">
+    <div className="flex flex-col gap-spacing-4xl min-h-50-vh">
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Refunds" />
-        <div className="flex gap-4">
+        <div className="flex gap-spacing-3xl">
           <Portal to="RefundsOMPView">
             <OMPSwitchHelper.OMPViews
               views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
@@ -107,50 +107,51 @@ let make = () => {
           </RenderIf>
         </div>
       </div>
-      <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8">
+      <div
+        className="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-2 grid-cols-2 gap-spacing-3xl">
         <TransactionView entity=TransactionViewTypes.Refunds />
       </div>
-      <div className="flex justify-between gap-3">
-        <div className="flex-1">
-          <RemoteTableFilters
-            setFilters
-            endTimeFilterKey
-            startTimeFilterKey
-            initialFilters
-            initialFixedFilter={version => initialFixedFilter(version, ~disable=hasSearchText)}
-            setOffset
-            customLeftView={<div className="flex flex-col gap-1">
-              <SearchBarFilter
+      <div className="flex flex-col gap-spacing-3xl">
+        <div className="flex justify-between">
+          <div className="flex-1">
+            <RemoteTableFilters
+              setFilters
+              endTimeFilterKey
+              startTimeFilterKey
+              initialFilters
+              initialFixedFilter={version => initialFixedFilter(version, ~disable=hasSearchText)}
+              setOffset
+              customLeftView={<SearchBarFilter
                 placeholder="Search for payment ID or refund ID"
                 setSearchVal=setSearchText
                 searchVal=searchText
-              />
-            </div>}
-            entityName=V1(REFUND_FILTERS)
-            title="Refunds"
-          />
+              />}
+              entityName=V1(REFUND_FILTERS)
+              title="Refunds"
+            />
+          </div>
         </div>
+        <PageLoaderWrapper screenState customUI>
+          <LoadedTableWithCustomColumns
+            hideTitle=true
+            title="Refunds"
+            actualData=refundData
+            entity={RefundEntity.refundEntity(merchantId, orgId)}
+            resultsPerPage=20
+            showSerialNumber=true
+            totalResults={totalCount}
+            offset
+            setOffset
+            currentFetchCount={refundData->Array.length}
+            defaultColumns={RefundEntity.defaultColumns}
+            customColumnMapper=TableAtoms.refundsMapDefaultCols
+            showSerialNumberInCustomizeColumns=false
+            sortingBasedOnDisabled=false
+            showAutoScroll=true
+            isDraggable=true
+          />
+        </PageLoaderWrapper>
       </div>
-      <PageLoaderWrapper screenState customUI>
-        <LoadedTableWithCustomColumns
-          hideTitle=true
-          title="Refunds"
-          actualData=refundData
-          entity={RefundEntity.refundEntity(merchantId, orgId)}
-          resultsPerPage=20
-          showSerialNumber=true
-          totalResults={totalCount}
-          offset
-          setOffset
-          currentFetchCount={refundData->Array.length}
-          defaultColumns={RefundEntity.defaultColumns}
-          customColumnMapper=TableAtoms.refundsMapDefaultCols
-          showSerialNumberInCustomizeColumns=false
-          sortingBasedOnDisabled=false
-          showAutoScroll=true
-          isDraggable=true
-        />
-      </PageLoaderWrapper>
     </div>
   </ErrorBoundary>
 }
