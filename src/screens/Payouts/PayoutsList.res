@@ -15,7 +15,8 @@ let make = () => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Payouts")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport, email, transactionViews} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
@@ -97,9 +98,11 @@ let make = () => {
           <GenerateReport entityName={V1(PAYOUT_REPORT)} />
         </RenderIf>
       </div>
-      <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8">
-        <TransactionView entity=TransactionViewTypes.Payouts />
-      </div>
+      <RenderIf condition={transactionViews}>
+        <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8">
+          <TransactionView entity=TransactionViewTypes.Payouts />
+        </div>
+      </RenderIf>
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
