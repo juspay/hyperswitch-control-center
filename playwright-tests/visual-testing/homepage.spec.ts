@@ -33,8 +33,6 @@ test.describe("Visual Testing - Homepage", () => {
       mask: [homePage.navHeaderMask, homePage.merchantNameButton, page.locator('div.flex.items-center.gap-2').nth(9), page.locator('div.flex.items-center.gap-2').nth(10)],
     });
 
-    page.locator('div.flex.items-center.gap-2').filter({ hasText: 'merchant_' })
-
     await homePage.homeV2.click();
     await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
 
