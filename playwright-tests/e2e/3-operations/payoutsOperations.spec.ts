@@ -377,6 +377,11 @@ test.describe("Payouts Operations", () => {
     });
 
     test.describe("Filters", () => {
+      // PayoutsUtils.res:127-134 — supported filter keys for payouts.
+      // Filter.res:251-256 snakeToTitle's the keys into Add-Filters labels.
+      const filterKeys = ["connector", "currency", "payout_method", "status"];
+      const filterLabels = ["Connector", "Currency", "Payout Method", "Status"];
+
       test("should apply a Status filter", async ({
         page,
         context,
@@ -387,10 +392,6 @@ test.describe("Payouts Operations", () => {
 
         await goToPayouts(page, homePage);
 
-        // The Add Filters dropdown lists filters by their snake_case API key
-        // run through snakeToTitle (see Filter.res:251–256). For payouts the
-        // available filter keys are connector, currency, payout_method, status
-        // — so Status (not Payout Status) is the label that appears here.
         await payoutOperations.addFilters.click();
         await page
           .locator('[data-dropdown-value="Status"]:visible')
@@ -402,6 +403,223 @@ test.describe("Payouts Operations", () => {
         await expect(
           payoutOperations.filterChipArea.first(),
         ).toContainText("Select status");
+      });
+
+      test("should list all available filter options in the Add Filters dropdown", async ({
+        page,
+        context,
+      }) => {
+        const homePage = new HomePage(page);
+        const payoutOperations = new PayoutOperations(page);
+        await setupPayout(homePage, context.request);
+
+        await goToPayouts(page, homePage);
+
+        await payoutOperations.addFilters.click();
+
+        for (const label of filterLabels) {
+          await expect(
+            payoutOperations.visibleDropdownValue(label),
+          ).toBeVisible();
+        }
+      });
+
+      test("should render a filter chip for each selected filter option", async ({
+        page,
+        context,
+      }) => {
+        const homePage = new HomePage(page);
+        const payoutOperations = new PayoutOperations(page);
+        await setupPayout(homePage, context.request);
+
+        await goToPayouts(page, homePage);
+
+        for (let i = 0; i < filterLabels.length; i++) {
+          const label = filterLabels[i];
+          const key = filterKeys[i];
+
+          await payoutOperations.addFilters.click();
+          await page
+            .locator(`[data-dropdown-value="${label}"]:visible`)
+            .click();
+
+          // PayoutsUtils.res renders the chip as `Select ${key}` with the
+          // raw snake_case API key (not snakeToTitle'd).
+          await expect(
+            payoutOperations.filterChipArea.first(),
+          ).toContainText(`Select ${key}`);
+
+          // Remove the chip so the next iteration starts clean.
+          await payoutOperations.crossOutlineIcon.first().click();
+        }
+      });
+
+      // Shared helpers + fixtures for the status-filter scenarios below.
+      const succeededId = "playwright_success_00000000000000000001";
+      const failedId = "playwright_failed_00000000000000000002";
+
+      const buildPayout = (payoutId: string, status: string) => ({
+        payout_id: payoutId,
+        merchant_id: "playwright_merchant",
+        merchant_order_reference_id: null,
+        amount: 4000,
+        currency: "USD",
+        connector: "adyen",
+        payout_type: "card",
+        payout_method_data: null,
+        billing: {
+          address: {
+            city: "San Francisco",
+            country: "US",
+            line1: "1467",
+            line2: "Harrison Street",
+            line3: "Harrison Street",
+            zip: "94122",
+            state: "CA",
+            first_name: "John",
+            last_name: "Doe",
+          },
+          phone: { number: "8056594427", country_code: "+91" },
+          email: null,
+        },
+        auto_fulfill: true,
+        customer_id: "new_cust",
+        customer: null,
+        client_secret: null,
+        return_url: null,
+        business_country: null,
+        business_label: null,
+        description: "Mocked payout",
+        entity_type: "Individual",
+        recurring: true,
+        metadata: { ref: "123" },
+        merchant_connector_id: "mca_test",
+        status,
+        error_message: status === "failed" ? "Card declined" : null,
+        error_code: status === "failed" ? "000" : null,
+        profile_id: "pro_test",
+        created: "2024-10-04T08:00:44.217Z",
+        connector_transaction_id: null,
+        priority: null,
+        attempts: [],
+        payout_link: null,
+        email: "payout_customer@example.com",
+        name: "John Doe",
+        phone: "999999999",
+        phone_country_code: "+65",
+        unified_code: null,
+        unified_message: null,
+        payout_method_id: null,
+      });
+
+      // Stand up the two mocked records + intelligent /payouts/list route so
+      // either status returns only its matching row.
+      const mockTwoPayoutList = async (page: Page) => {
+        const succeeded = buildPayout(succeededId, "success");
+        const failed = buildPayout(failedId, "failed");
+
+        await page.route("**/payouts/filter", async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              connector: ["adyen"],
+              currency: ["USD"],
+              payout_method: ["card"],
+              status: ["success", "failed"],
+            }),
+          });
+        });
+
+        await page.route("**/payouts/list", async (route) => {
+          const raw = route.request().postData();
+          const filter = raw ? JSON.parse(raw) : {};
+          const requested = Array.isArray(filter.status)
+            ? filter.status
+            : filter.status
+            ? [filter.status]
+            : [];
+
+          let data = [succeeded, failed];
+          if (requested.includes("success") && !requested.includes("failed")) {
+            data = [succeeded];
+          } else if (
+            requested.includes("failed") &&
+            !requested.includes("success")
+          ) {
+            data = [failed];
+          }
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              size: data.length,
+              data,
+              total_count: data.length,
+            }),
+          });
+        });
+      };
+
+      const applyStatusFilter = async (
+        page: Page,
+        payoutOperations: PayoutOperations,
+        statusValue: string,
+      ) => {
+        await payoutOperations.addFilters.click();
+        await page
+          .locator('[data-dropdown-value="Status"]:visible')
+          .click();
+        await payoutOperations.payoutStatusFieldWrapper.click();
+        await page.locator(`[value="${statusValue}"]`).click();
+        await payoutOperations.applyButton.click();
+        await page.waitForLoadState("networkidle");
+      };
+
+      test("should narrow the list to only the matching status when a status filter is applied", async ({
+        page,
+        context,
+      }) => {
+        const homePage = new HomePage(page);
+        const payoutOperations = new PayoutOperations(page);
+        await setupPayout(homePage, context.request);
+        await mockTwoPayoutList(page);
+
+        await goToPayouts(page, homePage);
+
+        // Baseline: both mocked payouts present.
+        await expect(payoutOperations.payoutCell(1, 2)).toContainText(
+          succeededId.slice(0, 20),
+        );
+        await expect(payoutOperations.payoutCell(2, 2)).toContainText(
+          failedId.slice(0, 20),
+        );
+
+        // Apply status=success: only the succeeded row remains.
+        await applyStatusFilter(page, payoutOperations, "success");
+
+        await expect(payoutOperations.payoutCell(1, 2)).toContainText(
+          succeededId.slice(0, 20),
+        );
+        await expect(payoutOperations.payoutCell(2, 2)).not.toBeVisible();
+        await expect(
+          page.getByText(failedId.slice(0, 20)),
+        ).not.toBeVisible();
+
+        // Dismiss the existing status chip so the next selection starts clean.
+        await payoutOperations.crossOutlineIcon.first().click();
+        await page.waitForLoadState("networkidle");
+
+        // Apply status=failed: only the failed row remains.
+        await applyStatusFilter(page, payoutOperations, "failed");
+
+        await expect(payoutOperations.payoutCell(1, 2)).toContainText(
+          failedId.slice(0, 20),
+        );
+        await expect(payoutOperations.payoutCell(2, 2)).not.toBeVisible();
+        await expect(
+          page.getByText(succeededId.slice(0, 20)),
+        ).not.toBeVisible();
       });
     });
 
