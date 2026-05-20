@@ -27,20 +27,21 @@ let make = (~remainingPath, ~previewOnly=false) => {
     let hasWorkflowsManageAccess = userHasAccess(~groupAccess=WorkflowsManage) === Access
     let baseTabs = [
       {
-        title: "Active configuration",
+        title: "Current Routing Setup",
         renderContent: () => <ActiveRouting routingType />,
       },
     ]
     hasWorkflowsManageAccess
       ? baseTabs->Array.concat([
           {
-            title: "Manage rules",
+            title: "Custom Routing Rules",
             renderContent: () => {
               records->Array.length > 0
                 ? <History records activeRoutingIds />
                 : <DefaultLandingPage
                     height="90%"
-                    title="No Routing Rule Configured!"
+                    title="No Custom Rules Configured"
+                    subtitle="Custom routing rules you create will appear here. Your payments are currently using system defaults visible in the Current Routing Setup tab."
                     customStyle="py-16"
                     overridingStylesTitle="text-3xl font-semibold"
                   />
