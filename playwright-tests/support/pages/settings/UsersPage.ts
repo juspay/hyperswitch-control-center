@@ -31,7 +31,7 @@ export class UsersPage {
 
   get roleOption(): Locator {
     return this.page.locator(
-      '[class="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"]',
+      '[class="relative inline-flex items-center whitespace-pre leading-5 justify-between text-sm py-2 px-3 font-medium rounded-lg hover:bg-opacity-80 bg-white border w-full"]',
     );
   }
 
