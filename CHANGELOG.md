@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.21.0
+
+### Features
+
+- Envoy payouts wasm ([#4840](https://github.com/juspay/hyperswitch-control-center/pull/4840)) ([`c053777`](https://github.com/juspay/hyperswitch-control-center/commit/c05377763aabeeb34153d29883bbf8960f79c2e9))
+
+**Full Changelog:** [`2026.05.20.0...2026.05.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.20.0...2026.05.21.0)
+
+- - -
+
 ## 2026.05.20.0
 
 ### Features
