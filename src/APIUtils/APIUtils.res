@@ -407,6 +407,15 @@ let useGetURL = () => {
           }
         | _ => `payments/aggregate`
         }
+      | MANUAL_STATUS_UPDATE =>
+        switch methodType {
+        | Post =>
+          switch id {
+          | Some(payment_id) => `payments/${payment_id}/manual-status-update`
+          | None => ""
+          }
+        | _ => ""
+        }
       | REFUNDS =>
         switch methodType {
         | Get =>
