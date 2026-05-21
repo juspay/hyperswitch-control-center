@@ -16,11 +16,11 @@ module AccordionTitle = {
       Clipboard.writeText(bucket.id)
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
     }
-    <div className="flex items-start w-full px-4 py-1">
-      <div className="flex items-start gap-3">
+    <div className="flex flex-col gap-1 w-full px-4 py-1">
+      <div className="flex items-center gap-3">
         <RenderIf condition={isSelectionMode}>
           <div
-            className="cursor-pointer mt-1 shrink-0"
+            className="cursor-pointer shrink-0"
             onClick={ev => {
               ev->ReactEvent.Mouse.stopPropagation
               onSelect()
@@ -28,31 +28,24 @@ module AccordionTitle = {
             <RadioIcon isSelected />
           </div>
         </RenderIf>
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <span className={`${body.lg.semibold} text-nd_gray-800`}>
-              {bucket.merchant_name->String.length === 0
-                ? "Unnamed Acquirer"->React.string
-                : bucket.merchant_name->React.string}
-            </span>
-            <RenderIf condition={bucket.is_default}>
-              <TagBinding
-                text="Default" color=TagBinding.Primary variant=TagBinding.Subtle size=TagBinding.Sm
-              />
-            </RenderIf>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className={`${body.sm.regular} text-nd_gray-400`}>
-              {`ID: ${bucket.id}`->React.string}
-            </span>
-            <Icon
-              name="nd-copy"
-              className="cursor-pointer text-nd_gray-400"
-              size=12
-              onClick={onCopyClick}
-            />
-          </div>
-        </div>
+        <span className={`${body.lg.semibold} text-nd_gray-800`}>
+          {bucket.merchant_name->LogicUtils.isEmptyString
+            ? "Unnamed Acquirer"->React.string
+            : bucket.merchant_name->React.string}
+        </span>
+        <RenderIf condition={bucket.is_default}>
+          <TagBinding
+            text="Default" color=TagBinding.Primary variant=TagBinding.Subtle size=TagBinding.Sm
+          />
+        </RenderIf>
+      </div>
+      <div className={`flex items-center gap-1 ${isSelectionMode ? "pl-7" : ""}`}>
+        <span className={`${body.sm.regular} text-nd_gray-400`}>
+          {`ID: ${bucket.id}`->React.string}
+        </span>
+        <Icon
+          name="nd-copy" className="cursor-pointer text-nd_gray-400" size=12 onClick={onCopyClick}
+        />
       </div>
     </div>
   }
@@ -64,7 +57,6 @@ module BucketBody = {
     let (offset, setOffset) = React.useState(_ => 0)
     let (showAddNetwork, setShowAddNetwork) = React.useState(_ => false)
     let (editNetworkEntry, setEditNetworkEntry) = React.useState(_ => None)
-    let resultsPerPage = 10
     let actualData = bucket.networks->Array.map(Nullable.make)
     let totalResults = bucket.networks->Array.length
 
@@ -75,7 +67,7 @@ module BucketBody = {
           hideTitle=true
           actualData
           totalResults
-          resultsPerPage
+          resultsPerPage=10
           offset
           setOffset
           entity={MerchantAcquirerDetailsEntity.makeEntityWithEditHandler(
@@ -83,7 +75,7 @@ module BucketBody = {
             ~networks=bucket.networks,
           )}
           currentFetchCount=totalResults
-          showPagination={totalResults > resultsPerPage}
+          showPagination={totalResults > 10}
           tableLocalFilter=false
           showSerialNumber=false
           tableheadingClass="bg-transparent text-nd_gray-600"

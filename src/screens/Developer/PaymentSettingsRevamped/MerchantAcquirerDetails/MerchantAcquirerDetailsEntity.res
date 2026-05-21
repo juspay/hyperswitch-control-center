@@ -24,7 +24,12 @@ let getHeading = colType => {
   }
 }
 
-let getCellWithEdit = (data: networkConfig, colType, onEdit, networks: array<networkConfig>) => {
+let getCellWithEdit = (
+  data: BusinessProfileInterfaceTypes.acquirerNetworkEntry,
+  colType,
+  onEdit,
+  networks: array<BusinessProfileInterfaceTypes.acquirerNetworkEntry>,
+) => {
   let usaNumberAbbreviation = labelValue => {
     shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat())
   }

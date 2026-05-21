@@ -3,6 +3,7 @@ open APIUtilsTypes
 open MerchantAcquirerDetailsTypes
 open MerchantAcquirerDetailsUtils
 open Typography
+open APIUtils
 
 module AddAcquirerModal = {
   let requiredKeys = ["merchant_name", "acquirer_assigned_merchant_id", "network", "acquirer_bin"]
@@ -12,8 +13,8 @@ module AddAcquirerModal = {
     open FormRenderer
     let showToast = ToastState.useShowToast()
     let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-    let getURL = APIUtils.useGetURL()
-    let updateDetails = APIUtils.useUpdateMethod()
+    let getURL = useGetURL()
+    let updateDetails = useUpdateMethod()
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
 
     let onSubmit = async (values, _) => {
@@ -146,7 +147,11 @@ module EditNetworkModal = {
   let requiredKeys = ["network", "acquirer_bin"]
 
   @react.component
-  let make = (~entry: option<networkConfig>, ~bucket: acquirerBucket, ~setEntry) => {
+  let make = (
+    ~entry: option<BusinessProfileInterfaceTypes.acquirerNetworkEntry>,
+    ~bucket: acquirerBucket,
+    ~setEntry,
+  ) => {
     open FormRenderer
     let showToast = ToastState.useShowToast()
     let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()

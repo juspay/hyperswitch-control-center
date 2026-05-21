@@ -83,18 +83,14 @@ let make = () => {
               leftIcon={isSelectionMode
                 ? NoIcon
                 : CustomIcon(<Icon name="nd-swap-arrow-horizontal" size=16 />)}
-              buttonState={if isSaving {
-                Loading
-              } else if isSelectionMode && selectedDefaultId === currentDefaultId {
-                Disabled
-              } else {
-                Normal
-              }}
+              buttonState={isSaving ? Loading : Normal}
               onClick={_ =>
                 if !isSelectionMode {
                   setIsSelectionMode(_ => true)
                 } else if selectedDefaultId !== currentDefaultId {
                   handleSaveDefault()->ignore
+                } else {
+                  setIsSelectionMode(_ => false)
                 }}
             />
           </RenderIf>

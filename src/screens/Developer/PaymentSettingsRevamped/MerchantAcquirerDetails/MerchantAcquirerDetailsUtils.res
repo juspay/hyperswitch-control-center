@@ -70,25 +70,36 @@ let parseAcquirerConfigBucket = (
 ): array<acquirerBucket> => {
   switch bucket {
   | Some(b) =>
-    b.configs
-    ->Dict.toArray
-    ->Array.map(((bucketId, entries)) => {
-      let merchantName =
-        entries
-        ->Array.findMap(e => e.merchant_name->Option.flatMap(getNonEmptyString))
-        ->Option.getOr("")
-      let merchantId =
-        entries
-        ->Array.findMap(e => e.acquirer_assigned_merchant_id->Option.flatMap(getNonEmptyString))
-        ->Option.getOr("")
-      {
-        id: bucketId,
-        merchant_name: merchantName,
-        acquirer_assigned_merchant_id: merchantId,
-        is_default: bucketId === b.default_acquirer_config,
-        networks: entries,
+    let buckets =
+      b.configs
+      ->Dict.toArray
+      ->Array.map(((bucketId, entries)) => {
+        let merchantName =
+          entries
+          ->Array.findMap(e => e.merchant_name->Option.flatMap(getNonEmptyString))
+          ->Option.getOr("")
+        let merchantId =
+          entries
+          ->Array.findMap(e => e.acquirer_assigned_merchant_id->Option.flatMap(getNonEmptyString))
+          ->Option.getOr("")
+        {
+          id: bucketId,
+          merchant_name: merchantName,
+          acquirer_assigned_merchant_id: merchantId,
+          is_default: bucketId === b.default_acquirer_config,
+          networks: entries,
+        }
+      })
+    buckets->Array.sort((first, second) =>
+      if first.is_default && !second.is_default {
+        -1.
+      } else if !first.is_default && second.is_default {
+        1.
+      } else {
+        compareLogic(second.id, first.id)
       }
-    })
+    )
+    buckets
   | None => []
   }
 }
@@ -123,33 +134,30 @@ let normalizeNumericStringFields = (body: Dict.t<JSON.t>) => {
   body
 }
 
-let valueAsString = (valuesDict: Dict.t<JSON.t>, key: string): string =>
-  switch valuesDict->Dict.get(key) {
-  | Some(json) =>
-    switch json->JSON.Classify.classify {
-    | String(s) => s
-    | Number(n) => n->Float.toString
-    | _ => ""
-    }
-  | None => ""
-  }
-
 let validateForm = (~requiredKeys, values: JSON.t): JSON.t => {
   let errors = []
   let valuesDict = values->getDictFromJsonObject
   let setErr = (key, msg) => errors->Array.push((key, msg->JSON.Encode.string))
 
   requiredKeys->Array.forEach(key => {
-    if valuesDict->valueAsString(key) === "" {
+    let present = switch key {
+    | "acquirer_bin" => valuesDict->getOptionFloat(key)->Option.isSome
+    | _ => valuesDict->getString(key, "") !== ""
+    }
+    if !present {
       setErr(key, "This field is required")
     }
   })
 
-  let bin = valuesDict->valueAsString("acquirer_bin")
-  if bin !== "" && (bin->String.length < 5 || bin->String.length > 20) {
-    setErr("acquirer_bin", "Acquirer BIN must be between 5 and 20 digits")
+  switch valuesDict->getOptionFloat("acquirer_bin") {
+  | Some(binFloat) =>
+    let binStr = binFloat->Float.toString
+    if binStr->String.length < 4 || binStr->String.length > 20 {
+      setErr("acquirer_bin", "Acquirer BIN must be between 4 and 20 digits")
+    }
+  | None => ()
   }
-  
+
   switch valuesDict->getOptionFloat("acquirer_fraud_rate") {
   | Some(rate) if rate < 0.0 || rate > 100.0 =>
     setErr("acquirer_fraud_rate", "Fraud rate should be between 0 and 100")
