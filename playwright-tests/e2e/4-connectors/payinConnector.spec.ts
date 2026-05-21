@@ -331,18 +331,34 @@ test.describe("Payin Connector tests", () => {
     await page.route("**/dashboard/config/feature?domain=", async (route) => {
       const response = await route.fetch();
       const json = await response.json();
-      if (json && json.features) {
-        json.features.is_live_mode = true;
-        json.connector_list_for_live.paymentProcessors = ["adyen"]
+      // Guard both branches: an unchecked write to a missing
+      // `connector_list_for_live` throws inside the handler, which makes
+      // Playwright error the request rather than fulfilling it — the page
+      // then never sees the live-mode config and Adyen never renders.
+      if (json) {
+        json.features = { ...(json.features ?? {}), is_live_mode: true };
+        json.connector_list_for_live = {
+          ...(json.connector_list_for_live ?? {}),
+          paymentProcessors: ["adyen"],
+        };
       }
       await route.fulfill({ response, json });
     });
 
+    // Subscribe before reload so we deterministically await the mocked
+    // response. Without this, `page.reload()` resolves on `load` and the
+    // assertion races against fetchConfig → parse → explicit 1s delay in
+    // HyperSwitchEntry → setScreenState(Success) → ConnectorList mount →
+    // ProcessorCards render, which can blow past the default 5s timeout on CI.
+    const configResponse = page.waitForResponse(
+      (resp) => resp.url().includes("/config/feature") && resp.ok(),
+    );
     await page.reload();
+    await configResponse;
+    await page.waitForLoadState("networkidle");
 
-    await expect(page.getByTestId('adyen')).toBeVisible();
-    await expect(page.getByTestId('affirm')).not.toBeAttached();
-
+    await expect(page.getByTestId("adyen")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId("affirm")).not.toBeAttached();
   });
 
   test("should validate field-level error for connector credentials page", async ({
