@@ -21,6 +21,7 @@ module ShowOrderDetails = {
     ~isNonRefundConnector,
     ~paymentStatus,
     ~openRefundModal,
+    ~openVoidModal=() => (),
     ~paymentId,
     ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
     ~sectionTitle=?,
@@ -68,6 +69,16 @@ module ShowOrderDetails = {
               ? Normal
               : Disabled}
           />
+          <RenderIf condition={typedPaymentStatus === RequiresCapture && !(paymentId->isTestData)}>
+            <ACLButton
+              authorization={userHasAccess(~groupAccess=OperationsManage)}
+              text="+ Void"
+              onClick={_ => {
+                openVoidModal()
+              }}
+              buttonType={Secondary}
+            />
+          </RenderIf>
         </div>
       </RenderIf>
       <FormRenderer.DesktopRow>
@@ -96,7 +107,7 @@ module ShowOrderDetails = {
 module OrderInfo = {
   open OrderEntity
   @react.component
-  let make = (~order, ~openRefundModal, ~isNonRefundConnector, ~paymentId) => {
+  let make = (~order, ~openRefundModal, ~openVoidModal, ~isNonRefundConnector, ~paymentId) => {
     let paymentStatus = order.status
     let headingStyles = "font-bold text-lg mb-5"
     <div className="md:flex md:flex-col md:gap-5">
@@ -119,6 +130,7 @@ module OrderInfo = {
             isNonRefundConnector
             paymentStatus
             openRefundModal
+            openVoidModal
             paymentId
           />
         </div>
@@ -141,6 +153,7 @@ module OrderInfo = {
             isNonRefundConnector
             paymentStatus
             openRefundModal
+            openVoidModal
             paymentId
           />
         </div>
@@ -414,7 +427,14 @@ module Disputes = {
 
 module OrderActions = {
   @react.component
-  let make = (~orderData, ~refetch, ~showModal, ~setShowModal) => {
+  let make = (
+    ~orderData,
+    ~refetch,
+    ~showModal,
+    ~setShowModal,
+    ~showVoidModal,
+    ~setShowVoidModal,
+  ) => {
     let (amountAvailableToRefund, setAmountAvailableToRefund) = React.useState(_ => 0.0)
     let refundData = orderData.refunds
     let disputeData = orderData.disputes
@@ -466,6 +486,15 @@ module OrderActions = {
           amountAvailableToRefund
           refetch
         />
+      </Modal>
+      <Modal
+        showModal=showVoidModal
+        setShowModal=setShowVoidModal
+        borderBottom=true
+        childClass=""
+        modalClass="w-full md:w-4/12 mx-auto mt-20"
+        bgClass="bg-white dark:bg-jp-gray-darkgray_background">
+        <OrderVoidForm order={orderData} setShowModal=setShowVoidModal refetch />
       </Modal>
     </div>
   }
@@ -625,6 +654,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (showModal, setShowModal) = React.useState(_ => false)
+  let (showVoidModal, setShowVoidModal) = React.useState(_ => false)
   let (orderData, setOrderData) = React.useState(_ =>
     Dict.make()->PaymentInterfaceUtils.mapDictToPaymentPayload
   )
@@ -695,6 +725,10 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     setShowModal(_ => true)
   }
 
+  let openVoidModal = _ => {
+    setShowVoidModal(_ => true)
+  }
+
   let showSyncButton = React.useCallback(_ => {
     let status = orderData.status->statusVariantMapper
 
@@ -759,7 +793,14 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         </RenderIf>
         <div />
       </div>
-      <OrderActions orderData={orderData} refetch={refreshStatus} showModal setShowModal />
+      <OrderActions
+        orderData={orderData}
+        refetch={refreshStatus}
+        showModal
+        setShowModal
+        showVoidModal
+        setShowVoidModal
+      />
     </div>
     <RenderIf condition={orderData.frm_message.frm_status === "fraud"}>
       <FraudRiskBanner frmMessage={orderData.frm_message} refElement=frmDetailsRef />
@@ -774,6 +815,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           paymentId=id
           order={orderData}
           openRefundModal
+          openVoidModal
           isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />
         // hide the logs section for V2 since the apis are failing
