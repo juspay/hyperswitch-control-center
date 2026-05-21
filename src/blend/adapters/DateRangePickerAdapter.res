@@ -85,7 +85,7 @@ let toBlendPreset = (
       fromPreset(last30Days)
     } else {
       let now = Date.make()
-      let daysAgo = Date.fromTime(Date.getTime(now) -. x *. 86400.0 *. 1000.0)
+      let daysAgo = (now->DayJs.getDayJsForJsDate).subtract(x->Float.toInt, "day").toDate()
       let label = `Last ${x->Float.toString->removeTrailingZero} Days`
       makeCustomPreset(
         ~id=`last_${x->Float.toString}_days`,
@@ -100,16 +100,13 @@ let toBlendPreset = (
 let formatIsoToFormat = (date: Date.t, format: string) =>
   date->Date.toISOString->TimeZoneHook.formattedISOString(format)
 
-let dayMs = 86400.0 *. 1000.0
-
 let getMinMaxDates = (~dateRangeLimit, ~disableFutureDates, ~disablePastDates) =>
   dateRangeLimit->mapOptionOrDefault((None, None), days => {
-    let offset = days->Int.toFloat *. dayMs
-    let now = Date.make()->Date.getTime
+    let now = Date.make()->DayJs.getDayJsForJsDate
 
     switch (disableFutureDates, disablePastDates) {
-    | (true, _) => (Some(Date.fromTime(now -. offset)), None)
-    | (_, true) => (None, Some(Date.fromTime(now +. offset)))
+    | (true, _) => (Some(now.subtract(days, "day").toDate()), None)
+    | (_, true) => (None, Some(now.add(days, "day").toDate()))
     | _ => (None, None)
     }
   })
