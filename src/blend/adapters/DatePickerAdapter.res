@@ -21,8 +21,10 @@ module BlendDatePicker = {
 
     let handleChange = React.useCallback((range: DateRangePickerBinding.dateRange) => {
       input.onChange(
-        DateRangePickerAdapter.formatIsoToFormat(range.startDate, format)
-        ->Identity.stringToFormReactEvent,
+        DateRangePickerAdapter.formatIsoToFormat(
+          range.startDate,
+          format,
+        )->Identity.stringToFormReactEvent,
       )
     }, (input.onChange, format))
 

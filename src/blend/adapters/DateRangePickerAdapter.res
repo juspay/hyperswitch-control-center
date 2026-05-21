@@ -60,13 +60,23 @@ let toBlendPreset = (
         let now = Date.make()
         let hoursAgo = Date.fromTime(Date.getTime(now) -. x *. 3600.0 *. 1000.0)
         let label = `Last ${x->Float.toString->removeTrailingZero} Hours`
-        makeCustomPreset(~id=`last_${x->Float.toString}_hours`, ~label, ~startDate=hoursAgo, ~endDate=now)
+        makeCustomPreset(
+          ~id=`last_${x->Float.toString}_hours`,
+          ~label,
+          ~startDate=hoursAgo,
+          ~endDate=now,
+        )
       }
     } else {
       let now = Date.make()
       let hoursFromNow = Date.fromTime(Date.getTime(now) +. x *. 3600.0 *. 1000.0)
       let label = `Next ${x->Float.toString->removeTrailingZero} Hours`
-      makeCustomPreset(~id=`next_${x->Float.toString}_hours`, ~label, ~startDate=now, ~endDate=hoursFromNow)
+      makeCustomPreset(
+        ~id=`next_${x->Float.toString}_hours`,
+        ~label,
+        ~startDate=now,
+        ~endDate=hoursFromNow,
+      )
     }
   | Day(x) =>
     if x === 7.0 {
@@ -77,7 +87,12 @@ let toBlendPreset = (
       let now = Date.make()
       let daysAgo = Date.fromTime(Date.getTime(now) -. x *. 86400.0 *. 1000.0)
       let label = `Last ${x->Float.toString->removeTrailingZero} Days`
-      makeCustomPreset(~id=`last_${x->Float.toString}_days`, ~label, ~startDate=daysAgo, ~endDate=now)
+      makeCustomPreset(
+        ~id=`last_${x->Float.toString}_days`,
+        ~label,
+        ~startDate=daysAgo,
+        ~endDate=now,
+      )
     }
   }
 }
@@ -131,17 +146,15 @@ module BlendDateRangePicker = {
 
     let handleChange = React.useCallback((range: DateRangePickerBinding.dateRange) => {
       let endDate = range.endDate->Option.getOr(range.startDate)
-      startInput.onChange(formatIsoToFormat(range.startDate, format)->Identity.stringToFormReactEvent)
+      startInput.onChange(
+        formatIsoToFormat(range.startDate, format)->Identity.stringToFormReactEvent,
+      )
       endInput.onChange(formatIsoToFormat(endDate, format)->Identity.stringToFormReactEvent)
     }, (startInput.onChange, endInput.onChange, format))
 
     let customPresets = predefinedDays->Array.map(day => toBlendPreset(day, ~disableFutureDates))
 
-    let (minDate, maxDate) = getMinMaxDates(
-      ~dateRangeLimit,
-      ~disableFutureDates,
-      ~disablePastDates,
-    )
+    let (minDate, maxDate) = getMinMaxDates(~dateRangeLimit, ~disableFutureDates, ~disablePastDates)
 
     <DateRangePickerBinding
       value=?blendValue
@@ -151,8 +164,8 @@ module BlendDateRangePicker = {
       disableFutureDates
       disablePastDates
       customPresets
-      minDate=?minDate
-      maxDate=?maxDate
+      ?minDate
+      ?maxDate
     />
   }
 }
