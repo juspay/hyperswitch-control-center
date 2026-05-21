@@ -13,7 +13,7 @@ export class Surcharge {
   }
 
   get pageSubtitle(): Locator {
-    return this.page.getByText("Configure advanced rules to apply surcharges");
+    return this.page.getByText("Configure advanced rules to apply surcharges", { exact: true });
   }
 
   // LANDING view — no active rule
@@ -88,6 +88,89 @@ export class Surcharge {
 
   get ruleHeading(): Locator {
     return this.page.getByText(/^Rule 1$/);
+  }
+
+  ruleHeadingByIndex(index: number): Locator {
+    return this.page.getByText(new RegExp(`^Rule ${index}$`));
+  }
+
+  // Rule action icons live inside `.bg-gray-100.rounded-xl` clickable wrappers.
+  // Filtering by the icon name disambiguates them from the condition-row plus
+  // button (which uses `.rounded-full`).
+  get addRuleButton(): Locator {
+    return this.page
+      .locator(".bg-gray-100.rounded-xl")
+      .filter({ has: this.page.locator('[data-icon="plus"]') })
+      .first();
+  }
+
+  get copyRuleButton(): Locator {
+    return this.page
+      .locator(".bg-gray-100.rounded-xl")
+      .filter({ has: this.page.locator('[data-icon="nd-copy"]') })
+      .first();
+  }
+
+  get deleteRuleButton(): Locator {
+    return this.page
+      .locator(".bg-gray-100.rounded-xl")
+      .filter({ has: this.page.locator('[data-icon="trash"]') })
+      .first();
+  }
+
+  get dragRuleHandle(): Locator {
+    return this.page
+      .locator(".bg-gray-100.rounded-xl")
+      .filter({ has: this.page.locator('[data-icon="grip-vertical"]') })
+      .first();
+  }
+
+  // Condition-row plus button uses a `.rounded-full` wrapper.
+  get addConditionRowButton(): Locator {
+    return this.page
+      .locator(".rounded-full")
+      .filter({ has: this.page.locator('[data-icon="plus"]') })
+      .first();
+  }
+
+  get selectFieldButton(): Locator {
+    return this.page.getByRole("button", { name: "Select Field" });
+  }
+
+  get selectOperatorButton(): Locator {
+    return this.page.getByRole("button", { name: "Select Operator" });
+  }
+
+  get selectValueButton(): Locator {
+    return this.page.getByRole("button", { name: "Select Value" });
+  }
+
+  // Surcharge type selector
+  get selectSurchargeTypeButton(): Locator {
+    return this.page.getByRole("button", { name: /Select Surcharge Type|Rate|Fixed/ }).first();
+  }
+
+  surchargeTypeOption(label: "Rate" | "Fixed"): Locator {
+    return this.page
+      .locator("div")
+      .filter({ hasText: new RegExp(`^${label}$`) })
+      .first();
+  }
+  // The value input's `name` swaps suffix between `.percentage` (rate) and
+  // `.amount` (fixed) — used to confirm a type toggle actually re-renders.
+  surchargeValueInput(type: "percentage" | "amount"): Locator {
+    return this.page.locator(`input[name$="surcharge.value.${type}"]`);
+  }
+
+  get taxOnSurchargeInput(): Locator {
+    return this.page.locator('input[name$="tax_on_surcharge.percentage"]');
+  }
+
+  dropdownOption(text: string, nth = 5): Locator {
+    return this.page
+      .locator("div")
+      .filter({ hasText: new RegExp(`^${text}$`) })
+      .nth(nth);
   }
 
   // Generic helpers reused from the rest of the workflow tests
