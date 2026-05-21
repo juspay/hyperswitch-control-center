@@ -1315,6 +1315,15 @@ test.describe("Payment Operations", () => {
 
       await paymentOperations.addRefundButton.click();
       await paymentOperations.refundAmountInput.fill("12.34");
+
+      // The refund POST resolves -> refetch() -> setScreenState(Loading)
+      // unmounts the Attempts component (via PageLoaderWrapper) -> force_sync
+      // GET -> setScreenState(Success) remounts it fresh with no expanded rows.
+      // Subscribe to the force_sync response before the click so we can await
+      // the full unmount/remount cycle before interacting with the panel.
+      const refreshResponse = page.waitForResponse(
+        (resp) => resp.url().includes("force_sync=true") && resp.ok(),
+      );
       await paymentOperations.initiateRefundButton.click();
 
       await expect(
@@ -1398,9 +1407,13 @@ test.describe("Payment Operations", () => {
         );
       }
 
-      // Refund POST triggers the attempts table to re-render; wait for it to
-      // settle so the click below doesn't land on a detached node.
-      await page.waitForLoadState("networkidle");
+      // Ensure the post-refund refetch has fully completed before clicking the
+      // attempt row. waitForLoadState("networkidle") isn't sufficient here:
+      // there's a brief window between the refund POST resolving and React
+      // dispatching the force_sync GET where the network is momentarily idle,
+      // and a click in that window lands on the Attempts component just before
+      // it unmounts/remounts (which resets the expanded-row state).
+      await refreshResponse;
       const attemptCell = paymentOperations.attemptCell(1, 1);
       await expect(attemptCell).toBeVisible();
       await attemptCell.click();
