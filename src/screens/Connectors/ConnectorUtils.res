@@ -2510,7 +2510,10 @@ let connectorTypeTypedValueToStringMapper = val => {
 }
 
 let sortByName = (c1, c2) => {
-  compareLogic(c2->getConnectorNameString, c1->getConnectorNameString)
+  compareLogic(
+    c2->getConnectorNameString->getDisplayNameForConnector->String.toLowerCase,
+    c1->getConnectorNameString->getDisplayNameForConnector->String.toLowerCase,
+  )
 }
 
 let existsInArray = (element, connectorList) => {

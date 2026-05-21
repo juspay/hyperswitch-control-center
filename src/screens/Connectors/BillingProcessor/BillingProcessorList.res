@@ -18,6 +18,13 @@ let make = () => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.connector_name, searchText) ||
+          isContainingStringLowercase(
+            ConnectorUtils.getDisplayNameForConnector(
+              ~connectorType=BillingProcessor,
+              obj.connector_name,
+            ),
+            searchText,
+          ) ||
           isContainingStringLowercase(obj.id, searchText) ||
           isContainingStringLowercase(obj.connector_label, searchText)
         | None => false

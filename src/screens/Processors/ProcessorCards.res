@@ -198,9 +198,15 @@ let make = (
 
   let connectorListFiltered = {
     if searchedConnector->LogicUtils.isNonEmptyString {
-      connectorsAvailableForIntegration->Array.filter(item =>
-        item->getConnectorNameString->String.includes(searchedConnector->String.toLowerCase)
-      )
+      connectorsAvailableForIntegration->Array.filter(item => {
+        let searchLower = searchedConnector->String.toLowerCase
+        item->getConnectorNameString->String.includes(searchLower) ||
+          item
+          ->getConnectorNameString
+          ->getDisplayNameForConnector
+          ->String.toLowerCase
+          ->String.includes(searchLower)
+      })
     } else {
       connectorsAvailableForIntegration
     }

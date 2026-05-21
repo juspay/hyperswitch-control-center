@@ -127,6 +127,10 @@ let make = () => {
         switch Nullable.toOption(frmPlayer) {
         | Some(frmPlayer) =>
           isContainingStringLowercase(frmPlayer.connector_name, searchText) ||
+          isContainingStringLowercase(
+            ConnectorUtils.getDisplayNameForConnector(frmPlayer.connector_name),
+            searchText,
+          ) ||
           isContainingStringLowercase(frmPlayer.id, searchText) ||
           isContainingStringLowercase(frmPlayer.connector_label, searchText)
         | None => false
