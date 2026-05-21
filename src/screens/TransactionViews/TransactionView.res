@@ -67,7 +67,8 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
           ~entityName={
             switch version {
             | V1 => devClickhouseAggregate ? V1(ORDERS_AGGREGATE_CLICKHOUSE) : V1(ORDERS_AGGREGATE)
-            | V2 => devClickhouseAggregate ? V2(V2_ORDERS_AGGREGATE_CLICKHOUSE) : V2(V2_ORDERS_AGGREGATE)
+            | V2 =>
+              devClickhouseAggregate ? V2(V2_ORDERS_AGGREGATE_CLICKHOUSE) : V2(V2_ORDERS_AGGREGATE)
             }
           },
           ~methodType=Get,
