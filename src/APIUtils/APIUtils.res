@@ -407,6 +407,20 @@ let useGetURL = () => {
           }
         | _ => `payments/aggregate`
         }
+      | ORDERS_AGGREGATE_CLICKHOUSE =>
+        switch methodType {
+        | Get =>
+          switch queryParameters {
+          | Some(queryParams) =>
+            switch transactionEntity {
+            | #Merchant => `analytics/v1/payment_intents/aggregate?${queryParams}`
+            | #Profile => `analytics/v1/profile/payment_intents/aggregate?${queryParams}`
+            | _ => `analytics/v1/payment_intents/aggregate?${queryParams}`
+            }
+          | None => `analytics/v1/payment_intents/aggregate`
+          }
+        | _ => `analytics/v1/payment_intents/aggregate`
+        }
       | REFUNDS =>
         switch methodType {
         | Get =>
