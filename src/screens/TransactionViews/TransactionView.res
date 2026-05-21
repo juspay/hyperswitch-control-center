@@ -28,6 +28,7 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   let showToast = ToastState.useShowToast()
   let {updateExistingKeys, filterValueJson, filterKeys, setfilterKeys} =
     FilterContext.filterContext->React.useContext
+  let {devClickhouseAggregate} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (aggregateResponse, setAggregateResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
   )
@@ -65,8 +66,9 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
         getURL(
           ~entityName={
             switch version {
-            | V1 => V1(ORDERS_AGGREGATE)
-            | V2 => V2(V2_ORDERS_AGGREGATE)
+            | V1 => devClickhouseAggregate ? V1(ORDERS_AGGREGATE_CLICKHOUSE) : V1(ORDERS_AGGREGATE)
+            | V2 =>
+              devClickhouseAggregate ? V2(V2_ORDERS_AGGREGATE_CLICKHOUSE) : V2(V2_ORDERS_AGGREGATE)
             }
           },
           ~methodType=Get,
