@@ -114,9 +114,7 @@ let networkTagColors: array<TagBinding.tagColor> = [
 ]
 
 let getNetworkTagColor = (~index: int): TagBinding.tagColor => {
-  networkTagColors
-  ->Array.get(mod(index, networkTagColors->Array.length))
-  ->Option.getOr(Neutral)
+  networkTagColors->getValueFromArray(mod(index, networkTagColors->Array.length), Neutral)
 }
 
 let stampProfileId = (body: Dict.t<JSON.t>, ~profileId: string) => {

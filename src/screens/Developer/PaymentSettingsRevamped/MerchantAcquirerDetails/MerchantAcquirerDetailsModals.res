@@ -6,8 +6,6 @@ open Typography
 open APIUtils
 
 module AddAcquirerModal = {
-  let requiredKeys = ["merchant_name", "acquirer_assigned_merchant_id", "network", "acquirer_bin"]
-
   @react.component
   let make = (~showModal, ~setShowModal) => {
     open FormRenderer
@@ -16,6 +14,7 @@ module AddAcquirerModal = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
+    let requiredKeys = ["merchant_name", "acquirer_assigned_merchant_id", "network", "acquirer_bin"]
 
     let onSubmit = async (values, _) => {
       try {
@@ -64,8 +63,6 @@ module AddAcquirerModal = {
 }
 
 module AddNetworkModal = {
-  let requiredKeys = ["network", "acquirer_bin"]
-
   @react.component
   let make = (~showModal, ~setShowModal, ~bucket: acquirerBucket) => {
     open FormRenderer
@@ -81,6 +78,7 @@ module AddNetworkModal = {
         !(usedNetworks->Array.includes(opt.value))
       )
     let allNetworksUsed = availableNetworks->Array.length === 0
+    let requiredKeys = ["network", "acquirer_bin"]
 
     let onSubmit = async (values, _) => {
       try {
