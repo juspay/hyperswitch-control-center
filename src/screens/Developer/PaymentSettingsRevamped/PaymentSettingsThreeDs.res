@@ -142,9 +142,10 @@ let make = () => {
           <SubmitButton text="Update" buttonType=Button.Primary buttonSize=Button.Medium />
         </div>
       </DesktopRow>
+      <hr className="mt-8" />
     </Form>
     <RenderIf condition={featureFlagDetails.acquirerConfigSettings && version == V1}>
-      <AcquirerConfigSettingsRevamp />
+      <MerchantAcquirerDetails />
     </RenderIf>
   </PageLoaderWrapper>
 }
