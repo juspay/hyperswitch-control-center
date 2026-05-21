@@ -16,7 +16,7 @@ module BlendDatePicker = {
       ->getNonEmptyString
       ->Option.map(str => {
         let date = str->Date.fromString
-        ({startDate: date, endDate: Some(date)}: DateRangePickerBinding.dateRange)
+        ({startDate: date, endDate: None}: DateRangePickerBinding.dateRange)
       })
 
     let handleChange = React.useCallback((range: DateRangePickerBinding.dateRange) => {
