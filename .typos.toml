@@ -60,3 +60,6 @@ indx = "indx" # common abbreviation for index
 
 [default.extend-words]
 automatico = "automatico" # Spanish translation of automatic
+Guarenteed = "Guarenteed" # intentional spelling in connector content
+ue = "ue" # substring flagged in connector identifiers
+aci = "aci" # Connector name

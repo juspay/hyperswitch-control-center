@@ -34,6 +34,12 @@ for tag in $(git tag --sort=-creatordate); do
   sed "s|juspaydotin/hyperswitch-router:standalone|$IMAGE:${tag}|g" docker-compose.yml > docker-compose.tmp
   mv docker-compose.tmp docker-compose.yml
 
+  # Remap host ports that clash with other users' services on shared host
+  sed -i 's|"5432:5432"|"25432:5432"|g' docker-compose.yml
+  sed -i 's|"6379:6379"|"26379:6379"|g' docker-compose.yml
+  sed -i 's|"8081:8080"|"28081:8080"|g' docker-compose.yml
+  sed -i 's|"9050:9050"|"29050:9050"|g' docker-compose.yml
+
   # Specify the correct file path to the TOML file
   toml_file="config/docker_compose.toml"
 
@@ -57,6 +63,7 @@ for tag in $(git tag --sort=-creatordate); do
   # Start Docker Compose services in detached mode
   docker-compose up -d pg redis-standalone migration_runner hyperswitch-server hyperswitch-web mailhog || {
     echo "Docker compose failed for tag $tag - cleaning up and trying next tag"
+    docker-compose down -v --remove-orphans || true
     docker rm -f hyperswitch-mailhog-1 || true
     docker rm -f hyperswitch-migration_runner-1 || true
     docker rm -f hyperswitch-hyperswitch-web-1 || true
@@ -65,9 +72,9 @@ for tag in $(git tag --sort=-creatordate); do
     docker rm -f hyperswitch-pg-1 || true
     docker rm -f hyperswitch-superposition-1 || true
     docker rm -f hyperswitch-init-1 || true
-    docker network rm hyperswitch_router_net || true
+    docker network rm -f hyperswitch_router_net || true
     attempt=$((attempt+1))
-    continue 
+    continue
   }
 
   if docker ps --format '{{.Names}}' | grep -q hyperswitch-server; then

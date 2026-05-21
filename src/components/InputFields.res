@@ -151,7 +151,7 @@ let filterMultiSelectInput = (
   ~disableSelect=false,
   (),
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
-  <FilterSelectBox
+  <FilterSelectBoxAdapter
     input
     options
     optionSize
@@ -364,12 +364,12 @@ let textInput = (
   ~phoneInput=false,
   ~widthMatchwithPlaceholderLength=None,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
-  <TextInput
+  <TextInputAdapter
     input
     placeholder
     description
     isDisabled
-    type_
+    inputType=type_
     inputMode
     ?pattern
     ?autoComplete
@@ -417,30 +417,22 @@ let fileInput = () => (~input: ReactFinalForm.fieldRenderPropsInput) => {
 let numericTextInput = (
   ~isDisabled=false,
   ~customStyle="",
-  ~inputMode=?,
   ~precision=?,
   ~maxLength=?,
   ~removeLeadingZeroes=false,
-  ~leftIcon=?,
   ~rightIcon=?,
-  ~customPaddingClass=?,
   ~rightIconCustomStyle=?,
-  ~leftIconCustomStyle=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
-  <NumericTextInput
+  <NumericTextInputAdapter
     customStyle
     input
     placeholder
     isDisabled
-    ?inputMode
     ?precision
     ?maxLength
     removeLeadingZeroes
-    ?leftIcon
     ?rightIcon
-    ?customPaddingClass
     ?rightIconCustomStyle
-    ?leftIconCustomStyle
   />
 }
 

@@ -186,7 +186,7 @@ let make = (
 
       <div key={Int.toString(i)}>
         <div className={`flex flex-row justify-between items-center px-6 pb-5 ${topPadding}`}>
-          <TextInput
+          <TextInputAdapter
             customDashboardClass="h-11 text-base font-normal shadow-jp-2-xs"
             customStyle="!text-[#344054] font-inter-style"
             input=inputFromDate
@@ -196,7 +196,7 @@ let make = (
             className="font-normal text-base text-jp-gray-800 dark:text-jp-gray-text_darktheme dark:text-opacity-75 px-4">
             {React.string("-")}
           </div>
-          <TextInput
+          <TextInputAdapter
             customDashboardClass="h-11 text-base font-normal shadow-jp-2-xs"
             customStyle="!text-[#344054] font-inter-style"
             input=inputtoDate

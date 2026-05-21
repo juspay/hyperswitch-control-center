@@ -64,15 +64,17 @@ let make = (
   <>
     <DesktopView>
       <tr
-        className={`group h-full ${borderRadius} bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100 dark:hover:bg-opacity-10 ${rowFontColor} ${rowFontStyle} transition duration-300 ease-in-out ${rowFontSize}}`}>
+        className={`group h-full ${borderRadius} bg-white dark:bg-nd_gray-800 hover:bg-nd_gray-25 dark:hover:bg-nd_gray-50 dark:hover:bg-opacity-10 ${rowFontColor} ${rowFontStyle} transition duration-300 ease-in-out ${rowFontSize}`}>
         <RenderIf condition={showOptions}>
           <td className="h-full p-0 align-top border-t border-jp-gray-500 dark:border-jp-gray-960">
             <div className="h-full box-border pl-4 py-3">
               <div className="flex flex-row gap-3 items-center">
                 <RenderIf condition={isSelectable}>
-                  <div onClick={_ => handleRowSelection()} className="cursor-pointer">
-                    <CheckBoxIcon isSelected={isRowSelected} checkboxDimension="h-4 w-4" />
-                  </div>
+                  <CheckBoxIconAdapter
+                    isSelected={isRowSelected}
+                    setIsSelected={_ => handleRowSelection()}
+                    checkboxDimension="h-4 w-4"
+                  />
                 </RenderIf>
               </div>
             </div>

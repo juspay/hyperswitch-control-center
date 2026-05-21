@@ -1,3 +1,3 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../support/test";
 
 test.describe("Start", () => {});
