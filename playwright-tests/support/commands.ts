@@ -755,6 +755,104 @@ export async function createPayoutAPI(
   return await response.json();
 }
 
+// Create / replace the merchant's active surcharge rule via the same PUT the
+// dashboard fires (routing/decision/surcharge). Lets Surcharge UI tests run
+// against real backend data instead of mocking GET /surcharge.
+//
+// IMPORTANT: this endpoint is JWT-authenticated and the JWT must include the
+// org_id / merchant_id / profile_id claims the dashboard mints after UI
+// login. The cleanest way to get that JWT is to pull it out of the page's
+// USER_INFO localStorage entry rather than re-issuing one via /user/v2/signin
+// (which yields a shorter-lived token that the routing endpoints reject).
+export async function createSurchargeAPI(
+  page: Page,
+  context?: APIRequestContext,
+  overrides: Partial<{
+    name: string;
+    surchargeType: "rate" | "fixed";
+    percentage: number;
+    fixedAmount: number;
+  }> = {},
+): Promise<{
+  name: string;
+}> {
+  const ctx = context ?? (await request.newContext());
+  const token = await page.evaluate(() => {
+    const raw = window.localStorage.getItem("USER_INFO");
+    if (!raw) return "";
+    try {
+      return (JSON.parse(raw) as { token?: string }).token ?? "";
+    } catch {
+      return "";
+    }
+  });
+  if (!token) {
+    throw new Error(
+      "createSurchargeAPI: no JWT in localStorage — make sure loginUI ran first",
+    );
+  }
+
+  const name = overrides.name ?? "playwright_surcharge";
+  const surchargeType = overrides.surchargeType ?? "rate";
+  const surchargeValue =
+    surchargeType === "rate"
+      ? { percentage: overrides.percentage ?? 2.5 }
+      : { amount: overrides.fixedAmount ?? 100 };
+
+  // Backend schema for PUT /routing/decision/surcharge only accepts
+  // { name, merchant_surcharge_configs, algorithm } — description is a
+  // dashboard-side metadata field that never leaves the form.
+  const response = await ctx.put(`${API_URL}/routing/decision/surcharge`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    data: {
+      name,
+      algorithm: {
+        defaultSelection: { surcharge_details: null },
+        rules: [
+          {
+            name: "rule_1",
+            connectorSelection: {
+              surcharge_details: {
+                surcharge: { type: surchargeType, value: surchargeValue },
+                tax_on_surcharge: { percentage: 0.0 },
+              },
+            },
+            // Statements are wrapped in { condition: [...] } per
+            // generateStatements (AdvancedRoutingUtils.res:446-493).
+            statements: [
+              {
+                condition: [
+                  {
+                    lhs: "amount",
+                    comparison: "greater_than",
+                    value: { type: "number", value: 0 },
+                    metadata: {},
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        metadata: {},
+      },
+      merchant_surcharge_configs: { show_surcharge_breakup_screen: true },
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `createSurchargeAPI failed (${response.status()}): ${body}`,
+    );
+  }
+
+  return { name };
+}
+
 export async function visitSignupPage(page: Page): Promise<void> {
   const signinPage = new SignInPage(page);
   await page.goto("/");
