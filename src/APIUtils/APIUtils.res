@@ -128,7 +128,6 @@ let getV2Url = (
       switch queryParameters {
       | Some(queryParams) =>
         switch transactionEntity {
-        | #Merchant => `v2/analytics/merchant/payment_intents/aggregate?${queryParams}`
         | #Profile => `v2/analytics/profile/payment_intents/aggregate?${queryParams}`
         | _ => `v2/analytics/merchant/payment_intents/aggregate?${queryParams}`
         }
@@ -427,8 +426,7 @@ let useGetURL = () => {
           switch queryParameters {
           | Some(queryParams) =>
             switch transactionEntity {
-            | #Merchant => `analytics/v1/payment_intents/aggregate?${queryParams}`
-            | #Profile => `analytics/v1/profile/payment_intents/aggregate?${queryParams}`
+            | #Profile => `analytics/v1/payment_intents/aggregate?${queryParams}`
             | _ => `analytics/v1/payment_intents/aggregate?${queryParams}`
             }
           | None => `analytics/v1/payment_intents/aggregate`
