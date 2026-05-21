@@ -97,7 +97,7 @@ let toBlendPreset = (
   }
 }
 
-let formatIsoToFormat = (date: Js.Date.t, format: string) =>
+let formatIsoToFormat = (date: Date.t, format: string) =>
   date->Date.toISOString->TimeZoneHook.formattedISOString(format)
 
 let dayMs = 86400.0 *. 1000.0

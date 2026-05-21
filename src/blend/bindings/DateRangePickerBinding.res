@@ -1,6 +1,6 @@
 type dateRange = {
-  startDate: Js.Date.t,
-  endDate: option<Js.Date.t>,
+  startDate: Date.t,
+  endDate: option<Date.t>,
 }
 
 module DateRangePreset = {
@@ -42,8 +42,8 @@ external make: (
   ~disableFutureDates: bool=?,
   ~disablePastDates: bool=?,
   ~customPresets: array<PresetsConfig.t>=?,
-  ~minDate: Js.Date.t=?,
-  ~maxDate: Js.Date.t=?,
+  ~minDate: Date.t=?,
+  ~maxDate: Date.t=?,
   ~isSingleDatePicker: bool=?,
   ~allowSingleDateSelection: bool=?,
   ~showPresets: bool=?,
