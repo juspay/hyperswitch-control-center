@@ -122,6 +122,20 @@ let getV2Url = (
       }
     | _ => ``
     }
+  | V2_ORDERS_AGGREGATE_CLICKHOUSE =>
+    switch methodType {
+    | Get =>
+      switch queryParameters {
+      | Some(queryParams) =>
+        switch transactionEntity {
+        | #Merchant => `v2/analytics/merchant/payment_intents/aggregate?${queryParams}`
+        | #Profile => `v2/analytics/profile/payment_intents/aggregate?${queryParams}`
+        | _ => `v2/analytics/merchant/payment_intents/aggregate?${queryParams}`
+        }
+      | None => ``
+      }
+    | _ => ``
+    }
   | PAYMENT_METHOD_LIST =>
     switch id {
     | Some(customerId) => `v1/customers/${customerId}/saved-payment-methods`
