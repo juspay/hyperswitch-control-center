@@ -53,11 +53,8 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
     updateViewsFilterValue(view)
   }
 
-  let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
-  let startTime =
-    filterValueJson->getString(OrderUIUtils.startTimeFilterKey(version), defaultDate.start_time)
-  let endTime =
-    filterValueJson->getString(OrderUIUtils.endTimeFilterKey(version), defaultDate.end_time)
+  let startTime = filterValueJson->getString(OrderUIUtils.startTimeFilterKey(version), "")
+  let endTime = filterValueJson->getString(OrderUIUtils.endTimeFilterKey(version), "")
 
   let loadAggregateCounts = async () => {
     try {
@@ -137,10 +134,7 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   }, (filterValueJson, aggregateResponse))
 
   React.useEffect(() => {
-    let hasStart =
-      filterValueJson->Dict.get(OrderUIUtils.startTimeFilterKey(version))->Option.isSome
-    let hasEnd = filterValueJson->Dict.get(OrderUIUtils.endTimeFilterKey(version))->Option.isSome
-    if hasStart && hasEnd {
+    if startTime->isNonEmptyString && endTime->isNonEmptyString {
       loadAggregateCounts()->ignore
     }
     None
