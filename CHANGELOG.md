@@ -3,6 +3,28 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.22.0
+
+### Features
+
+- Migrate RadioIcon to Blend Design System ([#4640](https://github.com/juspay/hyperswitch-control-center/pull/4640)) ([`62f3b50`](https://github.com/juspay/hyperswitch-control-center/commit/62f3b506def7929142be0e9ab100cb833d887fa2))
+
+### Refactors
+
+- Pix automatico fields ([#4801](https://github.com/juspay/hyperswitch-control-center/pull/4801)) ([`79246aa`](https://github.com/juspay/hyperswitch-control-center/commit/79246aa7cbd1439ac1cc82b90913ff31e4c1008e))
+
+### Testing
+
+- Add operations tests ([#4846](https://github.com/juspay/hyperswitch-control-center/pull/4846)) ([`07964c1`](https://github.com/juspay/hyperswitch-control-center/commit/07964c1443a19d3bea43161a1b8da62ba89e13b2))
+
+### Miscellaneous Tasks
+
+- CI workflow optimization ([#4828](https://github.com/juspay/hyperswitch-control-center/pull/4828)) ([`cd3683e`](https://github.com/juspay/hyperswitch-control-center/commit/cd3683e538d4b268567a58a930280ed3226dda05))
+
+**Full Changelog:** [`2026.05.21.0...2026.05.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.21.0...2026.05.22.0)
+
+- - -
+
 ## 2026.05.21.0
 
 ### Features
