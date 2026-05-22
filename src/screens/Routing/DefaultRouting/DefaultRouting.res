@@ -1,4 +1,5 @@
 open APIUtils
+open Typography
 
 @react.component
 let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
@@ -107,10 +108,10 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
       customUI={<NoDataFound message="Please connect at least 1 connector" renderType=Painting />}>
       <div className="flex flex-col gap-6 my-6">
         <div className="flex flex-col gap-2">
-          <h1 className="text-2xl font-semibold text-jp-gray-900 dark:text-jp-gray-100">
+          <h1 className={`${heading.lg.semibold} text-nd_gray-800`}>
             {React.string("Default Fallback")}
           </h1>
-          <p className="text-base text-jp-gray-700 dark:text-jp-gray-500">
+          <p className={`${body.lg.medium} text-nd_gray-500`}>
             {React.string(
               "Set which payment gateway should be tried first, second, and so on. Simply reorder them with drag and drop.",
             )}
@@ -118,7 +119,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
         </div>
         <AlertV2Binding
           alertType=Primary
-          slot={{slot: <Icon name="nd-info-circle" size=20 className="text-blue-500" />}}
+          slot={{slot: <Icon name="nd-info-circle" size=20 className="text-nd_primary_blue-500" />}}
           description="By default, payments are routed in the order shown here i.e. top to bottom. To change the priority, just drag and drop the processors to reorder them."
         />
         {
@@ -135,9 +136,9 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
             ).connector_label
 
             <div
-              className={`bg-white border border-jp-gray-300 rounded-lg p-4 shadow-sm ${dragStyle}`}>
+              className={`bg-nd_gray-0 border border-nd_gray-150 rounded-lg p-4 shadow-sm ${dragStyle}`}>
               <div className="flex flex-row items-center gap-4">
-                <Icon name="nd-grip-vertical" size=20 className={"cursor-pointer"} />
+                <Icon name="nd-grip-vertical" size=20 className="cursor-pointer text-nd_gray-400" />
                 <TagBinding
                   text={Int.toString(index + 1)}
                   variant=TagBinding.Subtle
@@ -146,15 +147,17 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
                 />
                 <div className="flex gap-2 items-center">
                   <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-6 h-6" />
-                  <p className="text-sm text-jp-gray-900 dark:text-jp-gray-100">
+                  <p className={`${body.md.medium} text-nd_gray-700`}>
                     {connectorName->capitalizeString->React.string}
                   </p>
-                  <p className="text-sm opacity-50"> {`(${connectorLabel})`->React.string} </p>
+                  <p className={`${body.sm.medium} text-nd_gray-400`}>
+                    {`(${connectorLabel})`->React.string}
+                  </p>
                 </div>
               </div>
             </div>
           }
-          <div className="border border-jp-gray-300 bg-nd_gray-25 rounded-lg p-4 max-w-[700px]">
+          <div className="border border-nd_gray-150 bg-nd_gray-25 rounded-lg p-4 max-w-700">
             <DragDropComponent
               listItems=gateways
               setListItems={v => setGateways(_ => v)}
@@ -164,7 +167,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
             />
           </div>
         }
-        <p className="text-sm text-jp-gray-700 ">
+        <p className={`${body.md.regular} text-nd_gray-500`}>
           {React.string(
             "This rule is enabled by default and acts as a fallback, it's used only when no other configuration fails or matches.",
           )}
