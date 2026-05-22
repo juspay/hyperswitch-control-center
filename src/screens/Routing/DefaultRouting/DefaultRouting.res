@@ -19,6 +19,17 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
+  let (subtitleCopy, alertCopy) = switch connectorVariant {
+  | ConnectorTypes.PayoutProcessor => (
+      "Set which payout processor should be tried first, second, and so on. Simply reorder them with drag and drop.",
+      "By default, payouts are routed in the order shown here i.e. top to bottom. To change the priority, just drag and drop the processors to reorder them.",
+    )
+  | _ => (
+      "Set which payment gateway should be tried first, second, and so on. Simply reorder them with drag and drop.",
+      "By default, payments are routed in the order shown here i.e. top to bottom. To change the priority, just drag and drop the processors to reorder them.",
+    )
+  }
+
   let settingUpConnectorsState = routingRespArray => {
     let profileList =
       routingRespArray->Array.filter(value =>
@@ -112,15 +123,13 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
             {React.string("Default Fallback")}
           </h1>
           <p className={`${body.lg.medium} text-nd_gray-500`}>
-            {React.string(
-              "Set which payment gateway should be tried first, second, and so on. Simply reorder them with drag and drop.",
-            )}
+            {React.string(subtitleCopy)}
           </p>
         </div>
         <AlertV2Binding
           alertType=Primary
           slot={{slot: <Icon name="nd-info-circle" size=20 className="text-nd_primary_blue-500" />}}
-          description="By default, payments are routed in the order shown here i.e. top to bottom. To change the priority, just drag and drop the processors to reorder them."
+          description=alertCopy
         />
         {
           let keyExtractor = (index, gateway: JSON.t, isDragging, _) => {
