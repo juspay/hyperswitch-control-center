@@ -1,5 +1,4 @@
 open APIUtils
-open MerchantAccountUtils
 
 @react.component
 let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
@@ -8,10 +7,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
   let updateDetails = useUpdateMethod()
   let fetchDetails = useGetMethod()
   let showPopUp = PopUpState.useShowPopUp()
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-  let (profile, setProfile) = React.useState(_ => profileId)
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (gateways, setGateways) = React.useState(() => [])
@@ -20,13 +16,12 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
   let typedConnectorValue = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=connectorVariant,
   )
-  let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let settingUpConnectorsState = routingRespArray => {
     let profileList =
       routingRespArray->Array.filter(value =>
-        value->getDictFromJsonObject->getString("profile_id", "") === profile
+        value->getDictFromJsonObject->getString("profile_id", "") === profileId
       )
 
     let connectorList = switch profileList->Array.get(0) {
@@ -70,7 +65,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
       settingUpConnectorsState(defaultRoutingResponse)
     }
     None
-  }, [profile])
+  }, [profileId])
 
   let handleChangeOrder = async () => {
     try {
@@ -80,7 +75,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
       let defaultFallbackUpdateUrl = `${getURL(
           ~entityName=urlEntityName,
           ~methodType=Post,
-        )}/profile/${profile}`
+        )}/profile/${profileId}`
 
       (
         await updateDetails(defaultFallbackUpdateUrl, defaultPayload->JSON.Encode.array, Post)
@@ -107,37 +102,27 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
   }
 
   <div>
-    <Form initialValues={Dict.make()->JSON.Encode.object}>
-      <div className="w-full flex justify-between">
-        <BasicDetailsForm.BusinessProfileInp
-          setProfile={setProfile}
-          profile={profile}
-          options={businessProfileNameDropDownOption([businessProfileRecoilVal], ~profileId)}
-          label="Profile"
-        />
-      </div>
-    </Form>
     <PageLoaderWrapper
       screenState
       customUI={<NoDataFound message="Please connect at least 1 connector" renderType=Painting />}>
-      <div
-        className="flex flex-col gap-4 p-6 my-6 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850">
-        <div className="flex flex-col lg:flex-row ">
-          <div>
-            <div className="font-bold mb-1"> {React.string("Default Fallback")} </div>
-            <div className="text-jp-gray-800 dark:text-jp-gray-700 text-sm flex flex-col">
-              <p>
-                {React.string(
-                  "Default Fallback is helpful when you wish to define a simple pecking order of priority among the configured connectors. You may add the gateway and do a simple drag and drop.",
-                )}
-              </p>
-              <p> {React.string("For example: 1. Stripe, 2. Adyen, 3.Braintree")} </p>
-            </div>
-          </div>
+      <div className="flex flex-col gap-6 my-6">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-2xl font-semibold text-jp-gray-900 dark:text-jp-gray-100">
+            {React.string("Default Fallback")}
+          </h1>
+          <p className="text-base text-jp-gray-700 dark:text-jp-gray-500">
+            {React.string(
+              "Set which payment gateway should be tried first, second, and so on. Simply reorder them with drag and drop.",
+            )}
+          </p>
         </div>
+        <AlertV2Binding
+          alertType=Primary
+          description="By default, payments are routed in the order shown here i.e. top to bottom. To change the priority, just drag and drop the processors to reorder them."
+        />
         {
           let keyExtractor = (index, gateway: JSON.t, isDragging, _) => {
-            let style = isDragging ? "border rounded-md bg-jp-gray-100 dark:bg-jp-gray-950" : ""
+            let dragStyle = isDragging ? "shadow-lg" : ""
 
             let connectorName = gateway->getDictFromJsonObject->getString("connector", "")
             let merchantConnectorId =
@@ -149,42 +134,51 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
             ).connector_label
 
             <div
-              className={`h-14 px-3 flex flex-row items-center justify-between text-jp-gray-900 dark:text-jp-gray-600 border-jp-gray-500 dark:border-jp-gray-960
-            ${index !== 0 ? "border-t" : ""} ${style}`}>
-              <div className="flex flex-row items-center gap-4 ml-2">
-                <Icon name="grip-vertical" size=14 className={"cursor-pointer"} />
-                <div
-                  className={`px-1.5 rounded-full ${primaryColor} text-white font-semibold text-sm`}>
-                  {React.string(Int.toString(index + 1))}
-                </div>
-                <div className="flex gap-1 items-center">
-                  <p> {connectorName->React.string} </p>
-                  <p className="text-sm opacity-50 "> {`(${connectorLabel})`->React.string} </p>
+              className={`bg-white border border-jp-gray-300 rounded-lg p-4 shadow-sm ${dragStyle}`}>
+              <div className="flex flex-row items-center gap-4">
+                <Icon name="nd-grip-vertical" size=20 className={"cursor-pointer"} />
+                <TagBinding
+                  text={Int.toString(index + 1)}
+                  variant=TagBinding.Subtle
+                  size=TagBinding.Xs
+                  color=TagBinding.Primary
+                />
+                <div className="flex gap-2 items-center">
+                  <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-6 h-6" />
+                  <p className="text-sm text-jp-gray-900 dark:text-jp-gray-100">
+                    {connectorName->capitalizeString->React.string}
+                  </p>
+                  <p className="text-sm opacity-50"> {`(${connectorLabel})`->React.string} </p>
                 </div>
               </div>
             </div>
           }
-          <div className="flex border border-jp-gray-500 dark:border-jp-gray-960 rounded-md ">
+          <div className="border border-jp-gray-300 bg-nd_gray-25 rounded-lg p-4 max-w-[700px]">
             <DragDropComponent
               listItems=gateways
               setListItems={v => setGateways(_ => v)}
               keyExtractor
               isHorizontal=false
+              gap="gap-4"
             />
           </div>
         }
+        <p className="text-sm text-jp-gray-700 ">
+          {React.string(
+            "This rule is enabled by default and acts as a fallback, it's used only when no other configuration fails or matches.",
+          )}
+        </p>
+        <ACLButton
+          onClick={_ => {
+            openConfirmationPopUp()
+          }}
+          text="Save Changes"
+          buttonSize=Large
+          buttonType=Primary
+          authorization={userHasAccess(~groupAccess=WorkflowsManage)}
+          buttonState={gateways->Array.length > 0 ? Button.Normal : Button.Disabled}
+        />
       </div>
-      <ACLButton
-        onClick={_ => {
-          openConfirmationPopUp()
-        }}
-        text="Save Changes"
-        buttonSize=Small
-        buttonType=Primary
-        authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-        leftIcon={FontAwesome("check")}
-        buttonState={gateways->Array.length > 0 ? Button.Normal : Button.Disabled}
-      />
     </PageLoaderWrapper>
   </div>
 }
