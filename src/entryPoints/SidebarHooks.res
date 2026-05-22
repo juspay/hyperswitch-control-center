@@ -35,6 +35,7 @@ let useGetHsSidebarValues = () => {
     devTheme,
     devVault,
     devUsers,
+    devSuperposition,
   } = featureFlagDetails
   let {
     isFeatureEnabledForDenyListMerchant,
@@ -103,6 +104,7 @@ let useGetHsSidebarValues = () => {
       ~devThemeEnabled=devTheme,
       ~devUsers,
     ),
+    devSuperposition->superposition,
   ]
 }
 

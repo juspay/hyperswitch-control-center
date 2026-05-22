@@ -80,6 +80,7 @@ type featureFlag = {
   devSortEnabled: bool,
   reconEnginePermissions: bool,
   devSavedViews: bool,
+  devSuperposition: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -162,6 +163,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devSortEnabled: dict->getBool("dev_sort_enabled", false),
     reconEnginePermissions: dict->getBool("recon_engine_permissions", false),
     devSavedViews: dict->getBool("dev_saved_views", false),
+    devSuperposition: dict->getBool("dev_superposition", false),
   }
 }
 

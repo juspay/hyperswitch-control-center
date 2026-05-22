@@ -639,3 +639,33 @@ let developers = (
       })
     : emptyComponent
 }
+
+let superposition = isEnabled =>
+  isEnabled
+    ? Section({
+        name: "Superposition",
+        icon: "nd-settings",
+        showSection: true,
+        links: [
+          SubLevelLink({
+            name: "Default Configs",
+            link: "/superposition/default-config",
+            access: Access,
+            searchOptions: [("View default configurations", "")],
+          }),
+          SubLevelLink({
+            name: "Overrides",
+            link: "/superposition/overrides",
+            access: Access,
+            searchOptions: [("View context overrides", "")],
+          }),
+          SubLevelLink({
+            name: "Dimensions",
+            link: "/superposition/dimensions",
+            access: Access,
+            searchOptions: [("View dimensions", "")],
+          }),
+        ],
+        selectedIcon: "nd-settings-fill",
+      })
+    : emptyComponent

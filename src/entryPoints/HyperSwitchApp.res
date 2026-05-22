@@ -264,6 +264,9 @@ let make = () => {
                         | (CostObservability, _) => <HypersenseApp />
                         | (DynamicRouting, _) => <IntelligentRoutingApp />
                         | (Orchestration(V2), _) => <OrchestrationV2App />
+                        | (Orchestration(V1), list{"superposition", ...remainingPath})
+                          if featureFlagDetails.devSuperposition =>
+                          <SuperpositionApp remainingPath />
                         | (Orchestration(V1), _) => <OrchestrationApp setScreenState />
                         | (UnknownProduct, _) => React.null
                         }}
