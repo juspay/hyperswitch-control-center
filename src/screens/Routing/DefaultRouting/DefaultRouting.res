@@ -118,6 +118,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
         </div>
         <AlertV2Binding
           alertType=Primary
+          slot={{slot: <Icon name="nd-info-circle" size=20 className="text-blue-500" />}}
           description="By default, payments are routed in the order shown here i.e. top to bottom. To change the priority, just drag and drop the processors to reorder them."
         />
         {
