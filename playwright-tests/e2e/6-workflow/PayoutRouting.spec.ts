@@ -135,7 +135,6 @@ test.describe("Volume based payout routing", () => {
     ).toContainText("Successfully created a new configuration!");
 
     await payoutRouting.manageRulesTab.click();
-    await page.waitForTimeout(3000);
     await expect(payoutRouting.historyCell(1, 2)).toContainText(
       "Test volume based payout config",
     );
@@ -443,7 +442,6 @@ test.describe("Payout default fallback", () => {
     await page.mouse.move(endX, endY, { steps: 15 });
     await page.mouse.move(endX, endY + 2, { steps: 3 });
     await page.mouse.up();
-    await page.waitForTimeout(300);
 
     await defaultFallback.saveChangesButton.click();
 
@@ -823,16 +821,12 @@ test.describe("Advanced payout rule connector selection modes", () => {
     await expect(percentageInputs).toHaveCount(0);
 
     await ruleBasedConfiguration.distributeCheckboxNotSelected.click();
-    await page.waitForTimeout(300);
 
     percentageInputs = page.locator('input[name="1"], input[name="2"]');
     await expect(percentageInputs).toHaveCount(2, { timeout: 5000 });
 
-    const value1 = await ruleBasedConfiguration.percentageInput(1).inputValue();
-    const value2 = await ruleBasedConfiguration.percentageInput(2).inputValue();
-
-    expect(Number(value1)).toBe(50);
-    expect(Number(value2)).toBe(50);
+    await expect(ruleBasedConfiguration.percentageInput(1)).toHaveValue("50");
+    await expect(ruleBasedConfiguration.percentageInput(2)).toHaveValue("50");
   });
 
   test("should render 3 connectors with auto-calculated split percentages (33/33/34)", async ({
@@ -853,14 +847,9 @@ test.describe("Advanced payout rule connector selection modes", () => {
     const percentageInputs = page.locator('input[name="1"], input[name="2"], input[name="3"]');
     await expect(percentageInputs).toHaveCount(3);
 
-    const value1 = Number(await ruleBasedConfiguration.percentageInput(1).inputValue());
-    const value2 = Number(await ruleBasedConfiguration.percentageInput(2).inputValue());
-    const value3 = Number(await ruleBasedConfiguration.percentageInput(3).inputValue());
-
-    expect(value1).toBe(33);
-    expect(value2).toBe(33);
-    expect(value3).toBe(34);
-    expect(value1 + value2 + value3).toBe(100);
+    await expect(ruleBasedConfiguration.percentageInput(1)).toHaveValue("33");
+    await expect(ruleBasedConfiguration.percentageInput(2)).toHaveValue("33");
+    await expect(ruleBasedConfiguration.percentageInput(3)).toHaveValue("34");
   });
 
   test("should toggle distribute mode and update UI accordingly", async ({
@@ -875,13 +864,11 @@ test.describe("Advanced payout rule connector selection modes", () => {
     await ruleBasedConfiguration.dropdownOption("adyen_payout_rule_b").click();
 
     await ruleBasedConfiguration.distributeCheckboxNotSelected.click();
-    await page.waitForTimeout(300);
 
     let percentageInputs = page.locator('input[name="1"], input[name="2"]');
     await expect(percentageInputs).toHaveCount(2);
 
     await ruleBasedConfiguration.distributeCheckboxSelected.click();
-    await page.waitForTimeout(300);
 
     percentageInputs = page.locator('input[name="1"], input[name="2"]');
     await expect(percentageInputs).toHaveCount(0);
@@ -907,15 +894,15 @@ test.describe("Advanced payout rule connector selection modes", () => {
     const input1 = ruleBasedConfiguration.percentageInput(1);
     const input2 = ruleBasedConfiguration.percentageInput(2);
 
-    expect(Number(await input1.inputValue())).toBe(50);
-    expect(Number(await input2.inputValue())).toBe(50);
+    await expect(input1).toHaveValue("50");
+    await expect(input2).toHaveValue("50");
 
     await input1.clear();
     await input1.fill('40');
     await input1.blur();
     await page.waitForTimeout(200);
 
-    expect(Number(await input1.inputValue())).toBe(40);
+    await expect(input1).toHaveValue("40");
 
     await expect(ruleBasedConfiguration.configureRuleButton).not.toBeEnabled();
   });
@@ -933,22 +920,17 @@ test.describe("Advanced payout rule connector selection modes", () => {
     await ruleBasedConfiguration.dropdownOption("adyen_payout_rule_c").click();
 
     await ruleBasedConfiguration.distributeCheckboxNotSelected.click();
-    await page.waitForTimeout(300);
 
     let percentageInputs = page.locator('input[name="1"], input[name="2"], input[name="3"]');
     await expect(percentageInputs).toHaveCount(3);
 
     await ruleBasedConfiguration.removeFirstConnectorButton.click();
-    await page.waitForTimeout(300);
 
     percentageInputs = page.locator('input[name="1"], input[name="2"]');
     await expect(percentageInputs).toHaveCount(2, { timeout: 5000 });
 
-    const value1 = Number(await ruleBasedConfiguration.percentageInput(1).inputValue());
-    const value2 = Number(await ruleBasedConfiguration.percentageInput(2).inputValue());
-
-    expect(value1).toBe(50);
-    expect(value2).toBe(50);
+    await expect(ruleBasedConfiguration.percentageInput(1)).toHaveValue("50");
+    await expect(ruleBasedConfiguration.percentageInput(2)).toHaveValue("50");
   });
 
   test("should show validation error for missing configuration name", async ({
@@ -966,7 +948,6 @@ test.describe("Advanced payout rule connector selection modes", () => {
     await nameInput.click();
     await nameInput.clear();
     await nameInput.blur();
-    await page.waitForTimeout(300);
 
     await expect(page.getByText('Please provide name field', { exact: false })).toBeVisible();
 

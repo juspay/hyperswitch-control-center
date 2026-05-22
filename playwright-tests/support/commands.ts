@@ -896,8 +896,14 @@ export async function createThreeDsExemptionAPI(
   // profile_id rides inside the JWT payload (the dashboard mints it after
   // login). Decode the middle JWT segment so the request body can include
   // it the same way buildThreeDsExemptionPayloadBody does on the UI side.
+  const segments = token.split(".");
+  if (segments.length !== 3) {
+    throw new Error(
+      "createThreeDsExemptionAPI: invalid JWT format (expected 3 segments)",
+    );
+  }
   const jwtPayload = JSON.parse(
-    Buffer.from(token.split(".")[1], "base64").toString("utf-8"),
+    Buffer.from(segments[1], "base64").toString("utf-8"),
   ) as { profile_id?: string };
   const profileId = jwtPayload.profile_id ?? "";
 

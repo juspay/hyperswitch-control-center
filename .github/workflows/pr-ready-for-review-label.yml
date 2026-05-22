@@ -108,7 +108,10 @@ jobs:
           all_green=true
           reason=""
           for ctx in "${required_checks[@]}"; do
-            match="$(jq --arg n "$ctx" '[.[] | select(.name == $n)] | sort_by(.started_at) | last // empty' <<<"$checks_json")"
+            # max_by picks the unambiguous latest started_at; sort_by|last is
+            # ordering-ambiguous when rapid re-runs land with near-identical
+            # timestamps.
+            match="$(jq --arg n "$ctx" '[.[] | select(.name == $n)] | max_by(.started_at) // empty' <<<"$checks_json")"
             if [[ -z "$match" || "$match" == "null" ]]; then
               all_green=false; reason="missing: $ctx"; break
             fi
