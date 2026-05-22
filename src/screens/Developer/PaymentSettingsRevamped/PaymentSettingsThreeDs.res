@@ -116,7 +116,7 @@ let make = () => {
               ~label="Force 3DS Challenge",
               ~customInput=InputFields.boolInput(
                 ~isDisabled=false,
-                ~boolCustomClass="rounded-lg ",
+                ~boolCustomClass="rounded-lg",
                 ~toggleEnableColor="bg-nd_primary_blue-450",
               ),
             )}
@@ -131,7 +131,7 @@ let make = () => {
             ->authenticationConnectors}
             errorClass
             labelClass={`!${body.lg.semibold} !text-nd_gray-700`}
-            fieldWrapperClass="max-w-sm  "
+            fieldWrapperClass="max-w-sm"
           />
           <ThreeDsRequestorUrl />
           <ThreeDsAppUrl />
