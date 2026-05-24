@@ -58,12 +58,9 @@ let make = (~previewOnly=false) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let res = await fetchOrdersWithStrategy(
-        
         ~payload=filterValueJson->JSON.Encode.object,
-       
         ~version,
         ~signal?,
-      ,
       )
       let data = res.data
       let total = res.total_count
