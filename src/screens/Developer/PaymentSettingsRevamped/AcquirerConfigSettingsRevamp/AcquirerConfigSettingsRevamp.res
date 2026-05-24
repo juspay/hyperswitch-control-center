@@ -59,7 +59,7 @@ module SettingsForm = {
       let errorMessage = switch Exn.message(e) {
       | Some(err) => {
           let errorCode =
-            err->JSON.parseExn->getDictFromJsonObject->LogicUtils.getString("code", "")
+            err->safeParse->getDictFromJsonObject->LogicUtils.getString("code", "")
           switch errorCode {
           | "IR_38" => "Duplicate entry found"
           | _ => defaultErrorMessage
