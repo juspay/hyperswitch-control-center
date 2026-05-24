@@ -106,11 +106,9 @@ let make = (~previewOnly=false) => {
         )
       }
     } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("")->String.toLowerCase
-        if !(err->String.includes("abort")) {
-          setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
-        }
+    | _ =>
+      if !(signal->Option.mapOr(false, AbortControllerHook.isAborted)) {
+        setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
       }
     }
   }

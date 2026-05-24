@@ -1,5 +1,11 @@
+@get external isAborted: Fetch.signal => bool = "aborted"
+
 let useAbortController = () => {
   let abortControllerRef = React.useRef(None)
+
+  React.useEffect(() => {
+    Some(() => abortControllerRef.current->Option.forEach(Fetch.AbortController.abort))
+  }, [])
 
   () => {
     abortControllerRef.current->Option.forEach(controller =>

@@ -148,7 +148,7 @@ let useApiFetcher = () => {
               ~profileId,
               ~version,
             ),
-            ~signal?,
+            ~signal?, // to be used in case of aborting requests
           ),
         )
         ->catch(
