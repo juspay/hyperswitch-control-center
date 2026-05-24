@@ -130,7 +130,7 @@ The following features are controlled via feature flags, allowing for progressiv
 ### Technical Health
 
 - ReScript compilation ensures type safety
-- Automated testing through Cypress
+- Automated testing through Playwright
 - Continuous integration for build validation
 
 ## Known Limitations

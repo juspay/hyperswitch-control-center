@@ -7,7 +7,8 @@ let make = (~previewOnly=false) => {
   let fetchOrdersHook = OrdersHook.useFetchOrdersHook()
   let fetchAnalyticsOrdersHook = AnalyticsOrdersHook.useFetchAnalyticsOrdersHook()
   let getSignal = AbortControllerHook.useAbortController()
-  let {devOpensearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {devOpensearch, devSavedViews, transactionView} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
@@ -16,7 +17,7 @@ let make = (~previewOnly=false) => {
   let {merchantId, orgId, version} = getCommonSessionDetails()
 
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
-  let fetchOrdersHook = (~payload, ~version, ~signal=?) => {
+  let fetchOrdersWithStrategy = (~payload, ~version, ~signal=?) => {
     devOpensearch && userHasResourceAccess(~resourceAccess=Analytics) === Access
       ? fetchAnalyticsOrdersHook(~payload, ~version, ~signal?)
       : fetchOrdersHook(~payload, ~version, ~signal?)
@@ -46,37 +47,43 @@ let make = (~previewOnly=false) => {
 
   let handleExtendDateButtonClick = _ => {
     let startDateObj = startTime->DayJs.getDayJsForString
-    let prevStartdate = startDateObj.toDate()->Date.toISOString
+    let prevStartDate = startDateObj.toDate()->Date.toISOString
     let extendedStartDate = startDateObj.subtract(90, "day").toDate()->Date.toISOString
 
     updateExistingKeys(Dict.fromArray([(startTimeFilterKey(version), {extendedStartDate})]))
-    updateExistingKeys(Dict.fromArray([(endTimeFilterKey(version), {prevStartdate})]))
+    updateExistingKeys(Dict.fromArray([(endTimeFilterKey(version), {prevStartDate})]))
   }
 
   let getOrdersList = async (filterValueJson, ~signal=?) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let res = await fetchOrdersHook(
+      let res = await fetchOrdersWithStrategy(
+        
         ~payload=filterValueJson->JSON.Encode.object,
+       
         ~version,
         ~signal?,
+      ,
       )
       let data = res.data
       let total = res.total_count
 
       if data->Array.length === 0 && filterValueJson->Dict.get("payment_id")->Option.isSome {
-        let payment_id =
+        let paymentId =
           filterValueJson
           ->Dict.get("payment_id")
           ->Option.getOr(""->JSON.Encode.string)
           ->JSON.Decode.string
           ->Option.getOr("")
 
-        if RegExp.test(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), payment_id) {
-          let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")
-          filterValueJson->Dict.set("payment_id", newID->JSON.Encode.string)
+        if RegExp.test(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), paymentId) {
+          let newPaymentId = paymentId->String.replaceRegExp(%re("/_[0-9]$/g"), "")
+          filterValueJson->Dict.set("payment_id", newPaymentId->JSON.Encode.string)
 
-          let res = await fetchOrdersHook(~payload=filterValueJson->JSON.Encode.object, ~version)
+          let res = await fetchOrdersWithStrategy(
+            ~payload=filterValueJson->JSON.Encode.object,
+            ~version,
+          )
           let data = res.data
           let total = res.total_count
 
@@ -119,17 +126,17 @@ let make = (~previewOnly=false) => {
     if !previewOnly {
       switch filters {
       | Some(dict) =>
-        let filters = Dict.make()
+        let filterParams = Dict.make()
 
-        filters->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
-        filters->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
+        filterParams->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
+        filterParams->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
         if !(searchText->isEmptyString) {
-          filters->Dict.set("payment_id", searchText->String.trim->JSON.Encode.string)
+          filterParams->Dict.set("payment_id", searchText->String.trim->JSON.Encode.string)
         }
 
         let sortObj = sortAtomValue->Dict.get("Orders")->Option.getOr(defaultSort)
         if sortObj.sortKey->isNonEmptyString {
-          filters->Dict.set(
+          filterParams->Dict.set(
             "order",
             [
               ("on", sortObj.sortKey->JSON.Encode.string),
@@ -143,20 +150,20 @@ let make = (~previewOnly=false) => {
         ->Dict.toArray
         ->Array.forEach(item => {
           let (key, value) = item
-          filters->Dict.set(key, value)
+          filterParams->Dict.set(key, value)
         })
         //to delete unused keys
-        filters->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
-        filters
+        filterParams->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
+        filterParams
         ->getOrdersList(~signal)
         ->ignore
 
       | _ => ()
       }
     } else {
-      let filters = Dict.make()
+      let filterParams = Dict.make()
 
-      filters
+      filterParams
       ->getOrdersList(~signal)
       ->ignore
     }
@@ -183,7 +190,7 @@ let make = (~previewOnly=false) => {
       renderType=ExtendDateUI
       handleClick=handleExtendDateButtonClick
     />
-
+  let hasSearchText = searchText->isNonEmptyString
   let filtersUI = React.useMemo(() => {
     <RemoteTableFilters
       title="Orders"
@@ -191,19 +198,24 @@ let make = (~previewOnly=false) => {
       endTimeFilterKey={endTimeFilterKey(version)}
       startTimeFilterKey={startTimeFilterKey(version)}
       initialFilters
-      initialFixedFilter
+      initialFixedFilter={version => initialFixedFilter(version, ~disable=hasSearchText)}
       setOffset
       submitInputOnEnter=true
-      customLeftView={<SearchBarFilter
-        placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
-      />}
+      customLeftView={<div className="flex flex-col gap-1">
+        <SearchBarFilter
+          placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
+        />
+      </div>}
+      customFilterActions={devSavedViews
+        ? <SavedViewsComponent version entity=SavedViewTypes.Payment />
+        : React.null}
       entityName={switch version {
       | V1 => V1(ORDER_FILTERS)
       | V2 => V2(V2_ORDER_FILTERS)
       }}
       version
     />
-  }, [searchText])
+  }, (searchText, version))
 
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
@@ -224,9 +236,11 @@ let make = (~previewOnly=false) => {
           </RenderIf>
         </div>
       </div>
-      <div className="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-6 my-8">
-        <TransactionView entity=TransactionViewTypes.Orders version />
-      </div>
+      <RenderIf condition={transactionView}>
+        <div className="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-6 mb-8">
+          <TransactionView entity=TransactionViewTypes.Orders version />
+        </div>
+      </RenderIf>
       <div className="flex">
         <RenderIf condition={!previewOnly}>
           <div className="flex-1"> {filtersUI} </div>

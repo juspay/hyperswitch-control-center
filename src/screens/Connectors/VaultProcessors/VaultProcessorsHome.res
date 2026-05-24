@@ -22,7 +22,7 @@ let make = () => {
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
-  let vault_processor_id =
+  let vaultProcessorId =
     businessProfileRecoilVal.external_vault_connector_details->Option.mapOr("", details =>
       details.vault_connector_id
     )
@@ -174,7 +174,7 @@ let make = () => {
   let summaryPageButton = switch currentStep {
   | Preview =>
     <div className="flex gap-6 items-center">
-      <RenderIf condition={connectorInfo.merchant_connector_id == vault_processor_id}>
+      <RenderIf condition={connectorInfo.merchant_connector_id == vaultProcessorId}>
         <div
           className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.md.medium}`}>
           {"Default"->React.string}
@@ -206,7 +206,6 @@ let make = () => {
               },
         ]
         currentPageTitle={connectorName->getDisplayNameForConnector(~connectorType=VaultProcessor)}
-        cursorStyle="cursor-pointer"
       />
       <div
         className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">

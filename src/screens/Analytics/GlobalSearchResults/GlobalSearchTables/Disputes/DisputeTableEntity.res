@@ -137,18 +137,18 @@ let getObjects: JSON.t => array<disputesObject> = json => {
 let getHeading = colType => {
   let key = colType->colMapper
   switch colType {
-  | DisputeId => Table.makeHeaderInfo(~key, ~title="Dispute Id", ~dataType=TextType)
+  | DisputeId => Table.makeHeaderInfo(~key, ~title="Dispute ID", ~dataType=TextType)
   | DisputeAmount => Table.makeHeaderInfo(~key, ~title="Dispute Amount", ~dataType=TextType)
   | Amount => Table.makeHeaderInfo(~key, ~title="Amount", ~dataType=TextType)
   | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType)
   | DisputeStatus => Table.makeHeaderInfo(~key, ~title="Dispute Status", ~dataType=TextType)
   | DisputeStage => Table.makeHeaderInfo(~key, ~title="Dispute Stage", ~dataType=TextType)
-  | PaymentId => Table.makeHeaderInfo(~key, ~title="Payment Id", ~dataType=TextType)
-  | AttemptId => Table.makeHeaderInfo(~key, ~title="Attempt Id", ~dataType=TextType)
-  | MerchantId => Table.makeHeaderInfo(~key, ~title="Merchant Id", ~dataType=TextType)
+  | PaymentId => Table.makeHeaderInfo(~key, ~title="Payment ID", ~dataType=TextType)
+  | AttemptId => Table.makeHeaderInfo(~key, ~title="Attempt ID", ~dataType=TextType)
+  | MerchantId => Table.makeHeaderInfo(~key, ~title="Merchant ID", ~dataType=TextType)
   | ConnectorStatus => Table.makeHeaderInfo(~key, ~title="Connector Status", ~dataType=TextType)
   | ConnectorDisputeId =>
-    Table.makeHeaderInfo(~key, ~title="Connector Dispute Id", ~dataType=TextType)
+    Table.makeHeaderInfo(~key, ~title="Connector Dispute ID", ~dataType=TextType)
   | ConnectorReason => Table.makeHeaderInfo(~key, ~title="Connector Reason", ~dataType=TextType)
   | ConnectorReasonCode =>
     Table.makeHeaderInfo(~key, ~title="Connector Reason Code", ~dataType=TextType)
@@ -162,12 +162,12 @@ let getHeading = colType => {
   | ModifiedAt => Table.makeHeaderInfo(~key, ~title="Modified At", ~dataType=TextType)
   | Connector => Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=TextType)
   | Evidence => Table.makeHeaderInfo(~key, ~title="Evidence", ~dataType=TextType)
-  | ProfileId => Table.makeHeaderInfo(~key, ~title="Profile Id", ~dataType=TextType)
+  | ProfileId => Table.makeHeaderInfo(~key, ~title="Profile ID", ~dataType=TextType)
   | MerchantConnectorId =>
-    Table.makeHeaderInfo(~key, ~title="Merchant Connector Id", ~dataType=TextType)
+    Table.makeHeaderInfo(~key, ~title="Merchant Connector ID", ~dataType=TextType)
   | SignFlag => Table.makeHeaderInfo(~key, ~title="Sign Flag", ~dataType=TextType)
   | Timestamp => Table.makeHeaderInfo(~key, ~title="Timestamp", ~dataType=TextType)
-  | OrganizationId => Table.makeHeaderInfo(~key, ~title="Organization Id", ~dataType=TextType)
+  | OrganizationId => Table.makeHeaderInfo(~key, ~title="Organization ID", ~dataType=TextType)
   }
 }
 

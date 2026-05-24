@@ -8,7 +8,7 @@ open NewCalendar
 let make = (
   ~forwardRef as _=?,
   ~changeHighlightCellStyle="",
-  ~calendarContaierStyle="",
+  ~calendarContainerStyle="",
   ~month: option<month>=?,
   ~year: option<int>=?,
   ~onDateClick=?,
@@ -141,7 +141,7 @@ let make = (
 
   let dummyRow = Array.make(~length=count, 1)
   <div
-    className={`flex flex-1 flex-row justify-center overflow-auto select-none ${calendarContaierStyle}`}>
+    className={`flex flex-1 flex-row justify-center overflow-auto select-none ${calendarContainerStyle}`}>
     {dummyRow
     ->Array.mapWithIndex((_item, i) => {
       let currDateTemp = Js.Date.fromFloat(Js.Date.valueOf(currDateIm))
@@ -186,7 +186,7 @@ let make = (
 
       <div key={Int.toString(i)}>
         <div className={`flex flex-row justify-between items-center px-6 pb-5 ${topPadding}`}>
-          <TextInput
+          <TextInputAdapter
             customDashboardClass="h-11 text-base font-normal shadow-jp-2-xs"
             customStyle="!text-[#344054] font-inter-style"
             input=inputFromDate
@@ -196,7 +196,7 @@ let make = (
             className="font-normal text-base text-jp-gray-800 dark:text-jp-gray-text_darktheme dark:text-opacity-75 px-4">
             {React.string("-")}
           </div>
-          <TextInput
+          <TextInputAdapter
             customDashboardClass="h-11 text-base font-normal shadow-jp-2-xs"
             customStyle="!text-[#344054] font-inter-style"
             input=inputtoDate

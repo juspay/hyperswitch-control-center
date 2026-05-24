@@ -100,11 +100,10 @@ module Configure3DSRule = {
         let rule = ruleInput.value->JSON.Decode.array->Option.getOr([])
         let keyExtractor = (index, _rule, isDragging, _) => {
           let id = {`algorithm.rules[${Int.toString(index)}]`}
-          let i = 1
           <AdvancedRouting.Wrapper
             key={index->Int.toString}
             id
-            heading={`Rule ${Int.toString(index + i)}`}
+            heading={`Rule ${Int.toString(index + 1)}`}
             onClickAdd={_ => addRule(index, false)}
             onClickCopy={_ => addRule(index, true)}
             onClickRemove={_ => removeRule(index)}
@@ -173,7 +172,7 @@ let make = () => {
       let responseDict = threeDsRuleDetail->getDictFromJsonObject
       let programValue = responseDict->getObj("program", Dict.make())
 
-      let intitialValue =
+      let initialValue =
         [
           ("name", responseDict->LogicUtils.getString("name", "")->JSON.Encode.string),
           (
@@ -183,7 +182,7 @@ let make = () => {
           ("algorithm", programValue->JSON.Encode.object),
         ]->Dict.fromArray
 
-      setInitialRule(_ => Some(intitialValue))
+      setInitialRule(_ => Some(initialValue))
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -191,7 +190,7 @@ let make = () => {
     }
   }
 
-  let fetchDetails = async () => {
+  let loadPageData = async () => {
     try {
       setScreenState(_ => Loading)
       await getWasm()
@@ -212,7 +211,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    fetchDetails()->ignore
+    loadPageData()->ignore
     None
   }, [])
 
@@ -231,7 +230,7 @@ let make = () => {
 
       let getActivateUrl = getURL(~entityName=V1(THREE_DS), ~methodType=Put)
       let _ = await updateDetails(getActivateUrl, threeDsPayload->Identity.genericTypeToJson, Put)
-      fetchDetails()->ignore
+      loadPageData()->ignore
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/3ds"))
       setPageView(_ => LANDING)
       setScreenState(_ => Success)
@@ -312,11 +311,10 @@ let make = () => {
         title={"3DS Decision Manager"}
         subTitle="Make your payments more secure by enforcing 3DS authentication through custom rules defined on payment parameters"
       />
-      <HSwitchUtils.AlertBanner
-        bannerContent={<p>
-          {"Deprecation Notice: 3DS Decision Manager will be deprecated soon. Please use 3DS Exemption Manager for managing 3DS rules."->React.string}
-        </p>}
-        bannerType=Warning
+      <AlertV2Binding
+        alertType=Warning
+        slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
+        description="Deprecation Notice: 3DS Decision Manager will be deprecated soon. Please use 3DS Exemption Manager for managing 3DS rules."
       />
       {switch pageView {
       | NEW =>
@@ -336,7 +334,7 @@ let make = () => {
                       {"For example:"->React.string}
                       <p className="flex gap-2 items-center">
                         <div className="p-1 h-fit rounded-full bg-jp-gray-700 ml-2" />
-                        {"If amount is > 100 and currency is USD, enforce 3DS authentication ."->React.string}
+                        {"If amount is > 100 and currency is USD, enforce 3DS authentication."->React.string}
                       </p>
                     </span>
                     <span className="text-jp-gray-700 text-sm">
@@ -375,7 +373,7 @@ let make = () => {
               {"Configure 3DS Rule"->React.string}
             </p>
             <p className="text-base font-normal text-grey-700 opacity-50">
-              {"Create advanced rules using various payment parameters like amount, currency,payment method etc to enforce 3DS authentication for specific payments to reduce fraudulent transactions"->React.string}
+              {"Create advanced rules using various payment parameters like amount, currency, payment method, etc. to enforce 3DS authentication for specific payments to reduce fraudulent transactions."->React.string}
             </p>
             <ACLButton
               text="Create New"

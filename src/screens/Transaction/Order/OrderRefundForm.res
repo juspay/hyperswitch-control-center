@@ -158,7 +158,7 @@ let make = (
         Dict.set(metadataErrors, "address", `Required`->JSON.Encode.string)
       }
       if emailValue->CommonAuthUtils.isValidEmail {
-        Dict.set(metadataErrors, "email", `Please Enter Valid Email`->JSON.Encode.string)
+        Dict.set(metadataErrors, "email", `Please enter a valid email`->JSON.Encode.string)
       }
       if !(metadataErrors->isEmptyDict) {
         Dict.set(errors, "metadata", metadataErrors->JSON.Encode.object)
@@ -170,14 +170,14 @@ let make = (
       let enteredAmountInMinorUnits = Math.round(floatVal *. conversionFactor)
       let remainingAmountInMinorUnits = Math.round(amountAvailableToRefund *. conversionFactor)
       if enteredAmountInMinorUnits > remainingAmountInMinorUnits {
-        let formatted_amount = Float.toFixedWithPrecision(
+        let formattedAmount = Float.toFixedWithPrecision(
           amountAvailableToRefund,
           ~digits=precisionDigits,
         )
         Dict.set(
           errors,
           "amount",
-          `Refund amount should not exceed ${formatted_amount}`->JSON.Encode.string,
+          `Refund amount should not exceed ${formattedAmount}`->JSON.Encode.string,
         )
       } else if floatVal == 0.0 {
         Dict.set(
@@ -330,7 +330,7 @@ let make = (
             customButtonStyle="w-20 !h-10"
           />
           <FormRenderer.SubmitButton
-            text={"Initiate Refund"} customSumbitButtonStyle="w-50 !h-10" showToolTip=false
+            text={"Initiate Refund"} customSubmitButtonStyle="w-50 !h-10" showToolTip=false
           />
         </div>
       </div>

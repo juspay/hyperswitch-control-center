@@ -122,12 +122,7 @@ module StepCard = {
 
     <>
       <RenderIf condition={isDisabled}>
-        <ToolTip
-          description=tooltipText
-          toolTipFor={stepComponent}
-          justifyClass="justify-end"
-          toolTipPosition=Right
-        />
+        <ToolTip description=tooltipText toolTipFor={stepComponent} toolTipPosition=Right />
       </RenderIf>
       <RenderIf condition={!isDisabled}> {stepComponent} </RenderIf>
     </>

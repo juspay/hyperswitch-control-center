@@ -63,11 +63,11 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
     let transformationHistoryId =
       url.search
       ->getDictFromUrlSearchParams
-      ->getvalFromDict("transformationHistoryId")
+      ->getOptionValFromDict("transformationHistoryId")
     let stagingEntryId =
       url.search
       ->getDictFromUrlSearchParams
-      ->getvalFromDict("stagingEntryId")
+      ->getOptionValFromDict("stagingEntryId")
     setTransformationHistoryId(_ => transformationHistoryId)
     setStagingEntryId(_ => stagingEntryId)
   }
@@ -90,14 +90,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-6 w-full">
       <BreadCrumbNavigation
-        path={breadCrumbNavigationPath}
-        currentPageTitle=accountData.account_name
-        cursorStyle="cursor-pointer"
-        customTextClass="text-nd_gray-400"
-        titleTextClass="text-nd_gray-600 font-medium"
-        fontWeight="font-medium"
-        dividerVal=Slash
-        childGapClass="gap-2"
+        path={breadCrumbNavigationPath} currentPageTitle=accountData.account_name
       />
       <div className="flex flex-col gap-10">
         <PageUtils.PageHeading

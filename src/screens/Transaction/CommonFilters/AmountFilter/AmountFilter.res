@@ -66,10 +66,27 @@ let make = (~options) => {
   let formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
-  let (selectedOption, setSelectedOption) = React.useState(_ => AmountFilterTypes.UnknownRange(
-    "Select Amount",
-  ))
+  let (selectedOption, setSelectedOption) = React.useState(_ => {
+    let dict = formState.values->getDictFromJsonObject
+    let amount_option = dict->getString("amount_option", "")
+    amount_option->isNonEmptyString
+      ? amount_option->mapStringToAmountRangeType
+      : AmountFilterTypes.UnknownRange("Select Amount")
+  })
   let (isAmountRangeVisible, setIsAmountRangeVisible) = React.useState(_ => true)
+
+  let amountOptionFromForm = React.useMemo(() => {
+    formState.values->getDictFromJsonObject->getString("amount_option", "")
+  }, [formState.values])
+
+  React.useEffect(() => {
+    let parsed =
+      amountOptionFromForm->isNonEmptyString
+        ? amountOptionFromForm->mapStringToAmountRangeType
+        : AmountFilterTypes.UnknownRange("Select Amount")
+    parsed !== selectedOption ? setSelectedOption(_ => parsed) : ()
+    None
+  }, [amountOptionFromForm])
 
   let isApplyButtonDisabled = React.useMemo(() => {
     validateAmount(formState.values->getDictFromJsonObject)
@@ -77,17 +94,9 @@ let make = (~options) => {
 
   let handleInputChange = newValue => {
     if newValue->isNonEmptyString {
-      let mappedRange = newValue->mapStringToRange
-
-      form.change("start_amount", JSON.Encode.null)
-      form.change("end_amount", JSON.Encode.null)
-      form.change("amount_option", mappedRange->Identity.genericTypeToJson)
-
-      setSelectedOption(_ => {newValue->mapStringToRange})
-      setIsAmountRangeVisible(_ => true)
-    } else {
-      setIsAmountRangeVisible(_ => true)
+      setSelectedOption(_ => newValue->mapStringToRange)
     }
+    setIsAmountRangeVisible(_ => true)
   }
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
@@ -97,11 +106,17 @@ let make = (~options) => {
       handleInputChange(ev->Identity.formReactEventToString)
     },
     onFocus: _ => (),
-    value: selectedOption->mapRangeTypetoString->JSON.Encode.string,
+    value: selectedOption->mapRangeTypeToString->JSON.Encode.string,
     checked: true,
   }
 
   let handleApply = _ => {
+    switch selectedOption {
+    | GreaterThanOrEqualTo => form.change("end_amount", JSON.Encode.null)
+    | LessThanOrEqualTo => form.change("start_amount", JSON.Encode.null)
+    | _ => ()
+    }
+    form.change("amount_option", selectedOption->Identity.genericTypeToJson)
     form.submit()->ignore
     setIsAmountRangeVisible(_ => false)
   }
@@ -110,7 +125,7 @@ let make = (~options) => {
     switch selectedOption {
     | GreaterThanOrEqualTo =>
       <div className="flex gap-5 items-center justify-center w-28">
-        <FormRenderer.FieldRenderer field={startamountField} />
+        <FormRenderer.FieldRenderer field={startAmountField} />
       </div>
     | LessThanOrEqualTo =>
       <div className="flex gap-5 items-center justify-center w-28">
@@ -145,14 +160,14 @@ let make = (~options) => {
         true,
         `In Between ${start->Float.toString} and ${end->Float.toString}`,
       )
-    | _ => (false, selectedOption->mapRangeTypetoString)
+    | _ => (false, selectedOption->mapRangeTypeToString)
     }
   }
 
   let (displayCustomCss, buttonText) = displaySelectedRange()
 
   <>
-    <FilterSelectBox.BaseDropdown
+    <FilterSelectBoxAdapter
       key={buttonText}
       allowMultiSelect=false
       buttonText={buttonText}

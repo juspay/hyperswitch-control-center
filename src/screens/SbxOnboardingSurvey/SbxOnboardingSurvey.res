@@ -26,11 +26,11 @@ module OtherfieldRender = {
     }
 
     <div className="flex gap-2 items-center">
-      <CheckBoxIcon
+      <CheckBoxIconAdapter
         key={`${field_name}_otherstring`}
         isSelected={textField.value->getStringFromJson("")->isNonEmptyString}
       />
-      <TextInput placeholder={"Others"} input=textInput />
+      <TextInputAdapter placeholder={"Others"} input=textInput />
     </div>
   }
 }
@@ -83,7 +83,7 @@ let make = (~showModal, ~setShowModal) => {
   //   }
   // }
 
-  let udpateMerchantDetails = async values => {
+  let updateMerchantDetails = async values => {
     try {
       let accountUrl = getURL(
         ~entityName=V1(MERCHANT_ACCOUNT),
@@ -107,7 +107,7 @@ let make = (~showModal, ~setShowModal) => {
 
   let onSubmit = async (values, _) => {
     try {
-      let _ = values->udpateMerchantDetails
+      let _ = values->updateMerchantDetails
       mixpanelEvent(~eventName="start_exploring_button_click")
       // TODO: Move this to prod onboarding form
       // let _ = values->updateOnboardingSurveyDetails

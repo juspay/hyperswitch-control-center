@@ -130,7 +130,7 @@ let getV2Url = (
   | TOTAL_TOKEN_COUNT => `v1/customers/total-payment-methods`
   | RETRIEVE_PAYMENT_METHOD =>
     switch id {
-    | Some(paymentMethodId) => `v1/payment-methods/${paymentMethodId}`
+    | Some(paymentMethodId) => `v1/payment-methods/${paymentMethodId}/details`
     | None => ""
     }
   /* MERCHANT ACCOUNT DETAILS (Get,Post and Put) */
@@ -203,7 +203,6 @@ let useGetURL = () => {
     ~connector=None,
     ~userType: userType=#NONE,
     ~userRoleTypes: userRoleTypes=NONE,
-    ~reconType: reconType=#NONE,
     ~hyperswitchReconType: hyperswitchReconType=#NONE,
     ~hypersenseType: hypersenseType=#NONE,
     ~queryParameters: option<string>=None,
@@ -283,15 +282,15 @@ let useGetURL = () => {
         }
       | PAYMENT_METHODS =>
         switch methodType {
-        | Get => "payemnt_methods"
+        | Get => "payment_methods"
         | _ => ""
         }
       | PAYMENT_METHODS_DETAILS =>
         switch methodType {
         | Get =>
           switch id {
-          | Some(id) => `payemnt_methods/${id}`
-          | None => `payemnt_methods`
+          | Some(id) => `payment_methods/${id}`
+          | None => `payment_methods`
           }
         | _ => ""
         }
@@ -788,8 +787,6 @@ let useGetURL = () => {
       /* SURCHARGE ROUTING */
       | SURCHARGE => `routing/decision/surcharge`
 
-      /* RECONCILIATION */
-      | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
       | HYPERSENSE => `hypersense/${(hypersenseType :> string)->String.toLowerCase}`
 
       /* REPORTS */
@@ -1220,6 +1217,16 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #TRANSACTION_BULK_OPERATIONS =>
+          switch methodType {
+          | Post => `${reconBaseURL}/transactions/bulk_operations`
+          | _ => ""
+          }
+        | #STAGING_ENTRY_BULK_OPERATIONS =>
+          switch methodType {
+          | Post => `${reconBaseURL}/staging_entries/bulk_operations`
+          | _ => ""
+          }
         | #NONE => ""
         }
 
@@ -1275,7 +1282,7 @@ let useGetURL = () => {
           | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
           }
 
-        // POST LOGIN QUESTIONARE
+        // POST LOGIN QUESTIONNAIRE
         | #SET_METADATA =>
           switch queryParameters {
           | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
@@ -1452,6 +1459,11 @@ let useGetURL = () => {
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
       | SDK_PAYMENT => "payments"
+      | ACCOUNT_PAYMENT_METHODS =>
+        switch methodType {
+        | Get => "account/payment_methods"
+        | _ => ""
+        }
       | CHAT_BOT => `chat/ai/data`
       }
 
