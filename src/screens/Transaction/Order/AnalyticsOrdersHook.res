@@ -34,7 +34,7 @@ let useFetchAnalyticsOrdersHook = () => {
             ~methodType=Get,
             ~queryParameters=Some(queryV2),
           )
-          let res = await fetchDetails(ordersUrl)
+          let res = await fetchDetails(ordersUrl, ~signal?)
           res->mapJsonToOrdersObject(paymentInterfaceV2)
         }
       }
