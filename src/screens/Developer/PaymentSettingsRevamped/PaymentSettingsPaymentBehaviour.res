@@ -59,7 +59,7 @@ module CollectDetails = {
                 key={index->Int.toString}
                 className="flex gap-2  items-center cursor-pointer"
                 onClick={_ => onClick(option.key)}>
-                <RadioIcon
+                <RadioIconAdapter
                   isSelected={valuesDict->getBool(option.key, false)}
                   fill="text-nd_primary_blue-450"
                 />
@@ -376,7 +376,7 @@ let make = () => {
     } catch {
     | _ => {
         setScreenState(_ => PageLoaderWrapper.Success)
-        showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+        showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
       }
     }
     Nullable.null

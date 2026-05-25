@@ -768,6 +768,7 @@ let defaultValueForBusinessProfile: BusinessProfileInterfaceTypesV1.profileEntit
   force_3ds_challenge: None,
   is_debit_routing_enabled: None,
   acquirer_configs: None,
+  acquirer_config_bucket: None,
   merchant_category_code: None,
   is_network_tokenization_enabled: None,
   always_request_extended_authorization: None,

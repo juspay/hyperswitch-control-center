@@ -83,8 +83,8 @@ let createAmountQuery = (~dict) => {
     dict->Dict.set(
       "amount_filter",
       [
-        ("start_amount", dict->getvalFromDict("start_amount")->encodeAmount),
-        ("end_amount", dict->getvalFromDict("end_amount")->encodeAmount),
+        ("start_amount", dict->getOptionValFromDict("start_amount")->encodeAmount),
+        ("end_amount", dict->getOptionValFromDict("end_amount")->encodeAmount),
       ]->getJsonFromArrayOfJson,
     )
   }
