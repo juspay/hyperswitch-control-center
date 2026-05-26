@@ -236,7 +236,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
         setScreenState(_ => PageLoaderWrapper.Error("Failed to Fetch!"))
       } else {
         setScreenState(_ => PageLoaderWrapper.Success)
-        logs->Array.sort(sortByCreatedAt)
+        logs->Array.sort(sortByStartTime)
         let reorderedLogs = logs->reorderLogs
         setData(_ => reorderedLogs)
         switch reorderedLogs->Array.get(0) {
