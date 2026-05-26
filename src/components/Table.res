@@ -774,8 +774,8 @@ let make = (
 
       let handleRowClick = index => {
         let currentRowData =
-          actualData->Option.flatMap(
-            data => data->Array.get(index)->Option.flatMap(n => n->Nullable.toOption),
+          actualData->Option.flatMap(data =>
+            data->Array.get(index)->Option.flatMap(n => n->Nullable.toOption)
           )
 
         switch visitedRows {
