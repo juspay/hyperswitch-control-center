@@ -32,7 +32,7 @@ let make = (
   }->nameToURLMapper
   let endMs = dataDict->getString("created_at", "")->Date.fromString->Date.getTime
   let latencyMs = dataDict->getFloat("latency", 0.0)
-  let startTime = (endMs -. latencyMs)->Js.Date.fromFloat->Date.toISOString
+  let startTime = (endMs -. latencyMs)->Date.fromTime->Date.toISOString
   let requestObject = switch logType {
   | API_EVENTS | CONNECTOR | ROUTING => dataDict->getString("request", "")
   | SDK =>
