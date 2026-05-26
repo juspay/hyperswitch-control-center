@@ -772,7 +772,7 @@ let make = (
       let isVisited =
         visitedRows->Option.mapOr(false, config => TableUtils.isRowVisited(config, rowDataItem))
 
-      let handleRowClick = React.useCallback(index => {
+      let handleRowClick = index => {
         let currentRowData =
           actualData->Option.flatMap(
             data => data->Array.get(index)->Option.flatMap(n => n->Nullable.toOption),
@@ -786,7 +786,7 @@ let make = (
         | Some(fn) => fn(index)
         | None => ()
         }
-      }, (actualData, visitedRows, onRowClick))
+      }
 
       <TableRow
         title
