@@ -162,10 +162,7 @@ let getStartAndEndTime = (filterValueJson, version) => {
             OrderUIUtils.startTimeFilterKey(version),
             defaultDate.start_time,
           ),
-          filterValueJson->getString(
-            OrderUIUtils.endTimeFilterKey(version),
-            defaultDate.end_time,
-          ),
+          filterValueJson->getString(OrderUIUtils.endTimeFilterKey(version), defaultDate.end_time),
         )
       }
 }
