@@ -130,16 +130,18 @@ module SearchBarFilter = {
       checked: true,
     }
 
-    <div className="w-max">
-      {InputFields.textInput(
-        ~customStyle="rounded-lg placeholder:opacity-90",
-        ~customPaddingClass="px-0",
-        ~leftIcon=<Icon size=14 name="search" />,
-        ~iconOpacity="opacity-100",
-        ~leftIconCustomStyle="pl-4",
-        ~inputStyle="!placeholder:opacity-90",
-        ~customWidth="w-72",
-      )(~input=inputSearch, ~placeholder)}
+    <div className="w-72">
+      <TextInputAdapter
+        input=inputSearch
+        placeholder
+        customStyle="rounded-lg placeholder:opacity-90"
+        customPaddingClass="px-0"
+        leftIcon={<Icon size=14 name="search" />}
+        iconOpacity="opacity-100"
+        leftIconCustomStyle="pl-4"
+        inputStyle="!placeholder:opacity-90"
+        customWidth="w-full"
+      />
     </div>
   }
 }

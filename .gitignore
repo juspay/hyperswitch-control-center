@@ -15,11 +15,10 @@ lib/
 /public/env-config.js
 env-config.js
 yarn.lock
-#package-lock.json
 user_data.sh
 *.pem
 .bsb.lock
-package-lock.json
+.opencode/package-lock.json
 screenshots
 downloads
 .env

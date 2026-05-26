@@ -158,7 +158,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
   if isExpanded {
     <div className="flex flex-row ml-2">
       <RenderIf condition={!isFirst}>
-        <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
+        <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l" />
       </RenderIf>
       <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
         <div className="flex flex-wrap gap-4">
@@ -218,7 +218,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
                 <Icon
                   name="close"
                   size=10
-                  className="mr-2 cursor-pointer "
+                  className="mr-2 cursor-pointer"
                   onClick={ev => {
                     ev->ReactEvent.Mouse.stopPropagation
                     removeItem(i)
@@ -233,7 +233,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
           <div
             className="flex flex-col md:flex-row md:items-center gap-4 md:gap-3 lg:gap-4 lg:ml-6">
             <div className={`flex flex-row items-center gap-4 md:gap-1 lg:gap-2`}>
-              <CheckBoxIcon
+              <CheckBoxIconAdapter
                 isSelected=isDistribute
                 setIsSelected={v => {
                   isDistributeInput.onChange(v->Identity.anyTypeToReactEvent)

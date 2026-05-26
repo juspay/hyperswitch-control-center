@@ -31,7 +31,7 @@ export class UsersPage {
 
   get roleOption(): Locator {
     return this.page.locator(
-      '[class="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"]',
+      '[class="relative inline-flex items-center whitespace-pre leading-5 justify-between text-sm py-2 px-3 font-medium rounded-lg hover:bg-opacity-80 bg-white border w-full"]',
     );
   }
 
@@ -119,6 +119,209 @@ export class UsersPage {
 
   get modalCloseIcon(): Locator {
     return this.page.locator('[data-icon="modal-close-icon"]').first();
+  }
+
+  get teamManagementText(): Locator {
+    return this.page.getByText("Team management");
+  }
+
+  get usersTabText(): Locator {
+    return this.page.getByText("Users").nth(1);
+  }
+
+  get rolesText(): Locator {
+    return this.page.getByText("Roles");
+  }
+
+  get searchInput(): Locator {
+    return this.page.getByRole("textbox", { name: "Search by name or email" });
+  }
+
+  get settingsNewIcon(): Locator {
+    return this.page.locator('[data-icon="settings-new"]');
+  }
+
+  get viewDataForText(): Locator {
+    return this.page.getByText("View data for:All");
+  }
+
+  get defaultFilterOption(): Locator {
+    return this.page
+      .locator('[data-dropdown-value="All"]')
+      .filter({ hasText: "(Default)" });
+  }
+
+  get organizationFilterOption(): Locator {
+    return this.page
+      .locator('[data-dropdown-value^="202"]')
+      .filter({ hasText: "(Organization)" });
+  }
+
+  get merchantFilterOption(): Locator {
+    return this.page
+      .locator('[data-dropdown-value^="202"]')
+      .filter({ hasText: "(Merchant)" });
+  }
+
+  get profileFilterOption(): Locator {
+    return this.page
+      .locator('[data-dropdown-value="default"]')
+      .filter({ hasText: "(Profile)" });
+  }
+
+  get inviteUsersRoleButton(): Locator {
+    return this.page.getByRole("button", { name: "Invite users" });
+  }
+
+  get emailColumnHeader(): Locator {
+    return this.page.locator("div").filter({ hasText: /^Email$/ }).first();
+  }
+
+  get roleColumnHeader(): Locator {
+    return this.page.getByRole("columnheader", { name: "Role" });
+  }
+
+  get organizationAdminColumnText(): Locator {
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^Organization Admin$/ })
+      .first();
+  }
+
+  get noDataAvailableText(): Locator {
+    return this.page.getByText("No Data Available");
+  }
+
+  get testMerchantValue(): Locator {
+    return this.page.locator('[data-value="testMerchant"]');
+  }
+
+  get allMerchantsDropdownValue(): Locator {
+    return this.page.locator('[data-dropdown-value="All merchants"]');
+  }
+
+  get allProfilesValue(): Locator {
+    return this.page.locator('[data-value="allProfiles"]');
+  }
+
+  get defaultDropdownValue(): Locator {
+    return this.page.locator('[data-dropdown-value="default"]');
+  }
+
+  get navigateToTeamManagementLink(): Locator {
+    return this.page.getByRole("link", { name: "Navigate to Team management" });
+  }
+
+  currentPageBreadcrumb(label: string): Locator {
+    return this.page.getByLabel(`Current page: ${label}`);
+  }
+
+  get table(): Locator {
+    return this.page.locator("table");
+  }
+
+  get tableHeaders(): Locator {
+    return this.page.locator("table th");
+  }
+
+  get tableMatrixHeaders(): Locator {
+    return this.page.locator("table#table thead tr th");
+  }
+
+  get manageUserRoleButton(): Locator {
+    return this.page.getByRole("button", { name: "Manage user" });
+  }
+
+  get switchToUpdateButton(): Locator {
+    return this.page.getByRole("button", { name: "Switch to update" });
+  }
+
+  get inviteSentText(): Locator {
+    return this.page.getByText("InviteSent");
+  }
+
+  get changeUserRoleText(): Locator {
+    return this.page.getByText("Change user role");
+  }
+
+  get resendInviteText(): Locator {
+    return this.page.getByText("Resend invite", { exact: true });
+  }
+
+  get deleteUserRoleText(): Locator {
+    return this.page.getByText("Delete user role");
+  }
+
+  get merchantDeveloperText(): Locator {
+    return this.page.getByText("Merchant Developer");
+  }
+
+  get merchantViewOnlyText(): Locator {
+    return this.page.getByText("Merchant View Only");
+  }
+
+  get merchantDeveloperRoleDropdown(): Locator {
+    return this.page.getByRole("button", { name: "merchant_developer" });
+  }
+
+  get merchantViewOnlyOption(): Locator {
+    return this.page.getByText("merchant_view_only");
+  }
+
+  get updateRoleButtonByRole(): Locator {
+    return this.page.getByRole("button", { name: "Update" });
+  }
+
+  get areYouSureDeleteText(): Locator {
+    return this.page.getByText("Are you sure you want to delete this user?");
+  }
+
+  get inviteResentText(): Locator {
+    return this.page.getByText("Invite resent. Please check your email.");
+  }
+
+  get merchantSwitchedSuccessText(): Locator {
+    return this.page.getByText("Your merchant has been switched successfully.");
+  }
+
+  get merchantCreatedSuccessText(): Locator {
+    return this.page.getByText("Merchant Created Successfully!");
+  }
+
+  get addNewMerchantText(): Locator {
+    return this.page.getByText("Add a new merchant").first();
+  }
+
+  get createNewText(): Locator {
+    return this.page.getByText("Create new");
+  }
+
+  get modulePermissionText(): Locator {
+    return this.page.getByText("Module Permission");
+  }
+
+  get createCustomRoleHeader(): Locator {
+    return this.page.getByText("Create custom role").first();
+  }
+
+  get roleVisibilityText(): Locator {
+    return this.page.getByText("Role Visibility");
+  }
+
+  get entityTypeRequiredText(): Locator {
+    return this.page.getByText("Entity Type *");
+  }
+
+  get selectPermissionLevelText(): Locator {
+    return this.page.getByText("Select Permission Level");
+  }
+
+  get customRoleCreatedText(): Locator {
+    return this.page.getByText("Custom role created successfully");
+  }
+
+  merchantButton(index: number = 0): Locator {
+    return this.page.getByRole("button", { name: "Merchant" }).nth(index);
   }
 
   async visit(): Promise<void> {

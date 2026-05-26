@@ -1,5 +1,7 @@
 import { test, expect } from "../../support/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
+import { CustomerOperations } from "../../support/pages/operations/CustomerOperations";
+import { PaymentOperations } from "../../support/pages/operations/PaymentOperations";
 import { generateUniqueEmail } from "../../support/helper";
 import {
   signupUser,
@@ -9,12 +11,12 @@ import {
   createCustomerAPI,
 } from "../../support/commands";
 
-const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
+const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 test.describe("Customers page", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
@@ -23,11 +25,15 @@ test.describe("Customers page", () => {
   }) => {
     const homePage = new HomePage(page);
 
+    const customerOperations = new CustomerOperations(page);
+
+    const paymentOperations = new PaymentOperations(page);
+
     await homePage.operations.click();
     await homePage.customers.click();
 
     await expect(page).toHaveURL(/.*dashboard\/customers/);
-    await expect(page.getByText('CustomersView all customers')).toBeVisible();
+    await expect(customerOperations.pageHeading).toBeVisible();
 
     const empty = page.getByText("No results found");
     const table = page.locator("table tbody tr");
@@ -36,10 +42,10 @@ test.describe("Customers page", () => {
     expect(hasEmpty || rowCount === 0).toBeTruthy();
 
     await expect(
-      page.locator('[data-testid="date-range-selector"]'),
+      paymentOperations.dateSelector,
     ).toBeVisible();
 
-    await expect(page.getByRole('textbox', { name: 'Search for Customer ID' })).toBeVisible();
+    await expect(customerOperations.searchInput).toBeVisible();
 
     await expect(page.getByRole('button').nth(3)).not.toBeAttached();
   });
@@ -50,6 +56,8 @@ test.describe("Customers page", () => {
   }) => {
     const homePage = new HomePage(page);
 
+    const customerOperations = new CustomerOperations(page);
+
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (!merchantId) return;
 
@@ -59,7 +67,7 @@ test.describe("Customers page", () => {
     await homePage.operations.click();
     await homePage.customers.click();
 
-    await expect(page.locator('.flex.flex-row.items-stretch')).toBeVisible();
+    await expect(customerOperations.filterRow).toBeVisible();
 
     const columns = [
       { text: "S.No", exact: false },
@@ -71,26 +79,27 @@ test.describe("Customers page", () => {
       { text: "Description", exact: false },
     ];
 
-    const table = page.locator("#table");
     for (const column of columns) {
       await expect(
-        table.getByText(column.text, { exact: column.exact }).first(),
+        customerOperations.table
+          .getByText(column.text, { exact: column.exact })
+          .first(),
       ).toBeVisible();
     }
 
-    const firstRowCells = [
-      { location: "Customers_tr1_td1", text: "1" },
-      { location: "Customers_tr1_td2", text: "test_customer" },
-      { location: "Customers_tr1_td3", text: "Joseph Doe" },
-      { location: "Customers_tr1_td4", text: "abc@test.com" },
-      { location: "Customers_tr1_td5", text: "+65" },
-      { location: "Customers_tr1_td6", text: "999999999" },
-      { location: "Customers_tr1_td7", text: "N/A" },
+    const firstRowCells: { row: number; col: number; text: string }[] = [
+      { row: 1, col: 1, text: "1" },
+      { row: 1, col: 2, text: "test_customer" },
+      { row: 1, col: 3, text: "Joseph Doe" },
+      { row: 1, col: 4, text: "abc@test.com" },
+      { row: 1, col: 5, text: "+65" },
+      { row: 1, col: 6, text: "999999999" },
+      { row: 1, col: 7, text: "N/A" },
     ];
 
     for (const cell of firstRowCells) {
       await expect(
-        page.locator(`[data-table-location="${cell.location}"]`),
+        customerOperations.customerCell(cell.row, cell.col),
       ).toHaveText(cell.text);
     }
   });
@@ -100,6 +109,8 @@ test.describe("Customers page", () => {
     context,
   }) => {
     const homePage = new HomePage(page);
+
+    const paymentOperations = new PaymentOperations(page);
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (!merchantId) return;
@@ -136,15 +147,15 @@ test.describe("Customers page", () => {
     ];
 
     for (const field of summaryFields) {
-      const container = page.locator(`[data-label="${field.label}"]`);
+      const container = paymentOperations.dataLabel(field.label);
       await expect(container).toBeVisible();
       await expect(container.getByText(field.label, { exact: true })).toBeVisible();
       await expect(container.getByText(field.value, { exact: true })).toBeVisible();
     }
 
-    await expect(page.locator('[data-label="Created"]')).toBeVisible();
+    await expect(paymentOperations.dataLabel("Created")).toBeVisible();
     await expect(
-      page.locator('[data-label="Created"] [data-date]'),
+      paymentOperations.dataLabel("Created").locator("[data-date]"),
     ).toBeVisible();
   });
 
@@ -153,6 +164,8 @@ test.describe("Customers page", () => {
     context,
   }) => {
     const homePage = new HomePage(page);
+
+    const customerOperations = new CustomerOperations(page);
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (!merchantId) return;
@@ -164,14 +177,14 @@ test.describe("Customers page", () => {
     await homePage.operations.click();
     await homePage.customers.click();
 
-    const searchInput = page.getByRole('textbox', { name: 'Search for Customer ID' });
+    const searchInput = customerOperations.searchInput;
     await expect(searchInput).toBeVisible();
 
     await searchInput.fill("test_customer");
     await searchInput.press("Enter");
 
-    await expect(page.locator('[data-table-location="Customers_tr1_td2"]')).toContainText("test_customer");
-    await expect(page.locator('[data-table-location="Customers_tr2_td2"]')).toHaveCount(0);
+    await expect(customerOperations.customerCell(1, 2)).toContainText("test_customer");
+    await expect(customerOperations.customerCell(2, 2)).toHaveCount(0);
     await expect(page.getByText('test_customer2')).not.toBeAttached();
   });
 
@@ -180,6 +193,10 @@ test.describe("Customers page", () => {
     context
   }) => {
     const homePage = new HomePage(page);
+
+    const customerOperations = new CustomerOperations(page);
+
+    const paymentOperations = new PaymentOperations(page);
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (!merchantId) return;
@@ -191,12 +208,12 @@ test.describe("Customers page", () => {
 
     await expect(page.getByText('test_customer2')).toBeVisible();
 
-    const searchInput = page.locator('input[placeholder*="Search" i]').first();
+    const searchInput = customerOperations.genericSearchInput;
 
     await searchInput.fill("cust_nonexistent_zzz");
     await searchInput.press("Enter");
 
-    await expect(page.getByText('CustomersView all customers')).toBeVisible();
+    await expect(customerOperations.pageHeading).toBeVisible();
 
     const empty = page.getByText("No results found");
     const table = page.locator("table tbody tr");
@@ -204,8 +221,8 @@ test.describe("Customers page", () => {
     const rowCount = await table.count().catch(() => 0);
     expect(hasEmpty || rowCount === 0).toBeTruthy();
 
-    await expect(page.locator('[data-testid="date-range-selector"]')).toBeVisible();
-    await expect(page.getByRole('textbox', { name: 'Search for Customer ID' })).toBeVisible();
+    await expect(paymentOperations.dateSelector).toBeVisible();
+    await expect(customerOperations.searchInput).toBeVisible();
     await expect(page.getByRole('button').nth(3)).not.toBeAttached();
     await expect(page.getByText('test_customer2')).not.toBeVisible();
   });
@@ -216,6 +233,8 @@ test.describe("Customers page", () => {
   }) => {
     const homePage = new HomePage(page);
 
+    const paymentOperations = new PaymentOperations(page);
+
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (!merchantId) return;
 
@@ -225,66 +244,127 @@ test.describe("Customers page", () => {
     await homePage.customers.click();
 
     //Default order
-    await expect(page.getByText('S.NoCustomer IdCustomer NameEmailPhone Country CodePhoneDescriptionCreated')).toBeVisible();
+    const tableHeadings = page.locator('[data-table-heading]');
+    await expect(tableHeadings).toHaveText([
+      'S.No',
+      'Customer ID',
+      'Customer Name',
+      'Email',
+      'Phone Country Code',
+      'Phone',
+      'Description',
+      'Created',
+    ]);
 
     //logic to change order drag column up and down
-    await page.locator('[data-button-for="CustomIcon"]').click();
-    const modal = page.locator('[data-component="modal:Table Columns"]');
+    await paymentOperations.columnButton.click();
+    const modal = paymentOperations.tableColumnsModal;
     await expect(modal).toBeVisible();
 
-    const dragColumn = async (sourceLabel: string, targetLabel: string) => {
-      const source = modal.locator(
-        `[data-dropdown-value="${sourceLabel}"]`,
-      );
-      const target = modal.locator(
-        `[data-dropdown-value="${targetLabel}"]`,
-      );
+    const modalColumns = modal.locator("[data-dropdown-value]");
+
+    const dragColumn = async (
+      sourceLabel: string,
+      targetLabel: string,
+      position: "above" | "below",
+    ) => {
+      const source = paymentOperations.dropdownValue(sourceLabel);
+      const target = paymentOperations.dropdownValue(targetLabel);
 
       const sourceBox = await source.boundingBox();
-      const targetBox = await target.boundingBox();
-      if (!sourceBox || !targetBox) {
-        throw new Error(
-          `Bounding box missing for ${sourceLabel} or ${targetLabel}`,
-        );
+      if (!sourceBox) {
+        throw new Error(`Bounding box missing for ${sourceLabel}`);
       }
 
       const startX = sourceBox.x + sourceBox.width / 2;
       const startY = sourceBox.y + sourceBox.height / 2;
-      const endX = targetBox.x + targetBox.width / 2;
-      const endY = targetBox.y + targetBox.height / 2;
 
       await page.mouse.move(startX, startY);
       await page.mouse.down();
+      // Nudge to engage the dnd library before measuring target
       await page.mouse.move(startX, startY + 8, { steps: 5 });
+
+      // Re-measure target after the drag placeholder may have shifted layout
+      const targetBox = await target.boundingBox();
+      if (!targetBox) {
+        await page.mouse.up();
+        throw new Error(`Bounding box missing for ${targetLabel}`);
+      }
+
+      const endX = targetBox.x + targetBox.width / 2;
+      // Aim explicitly above or below the target's midpoint so the drop
+      // position does not depend on a coin-flip around the midpoint.
+      const endY =
+        position === "above"
+          ? targetBox.y + 4
+          : targetBox.y + targetBox.height - 4;
+
       await page.mouse.move(endX, endY, { steps: 15 });
-      await page.mouse.move(endX, endY + 2, { steps: 3 });
+      await page.mouse.move(endX, endY, { steps: 3 });
       await page.mouse.up();
       await page.waitForTimeout(300);
     };
 
-    // Initial modal order: [Customer Id, Customer Name, Email, Phone Country Code, Phone, Description, Created]
-    // Step 1: Email -> above Customer Name
-    await dragColumn("Email", "Customer Name");
-    // Step 2: Created -> above Phone Country Code
-    await dragColumn("Created", "Phone Country Code");
-    // Step 3: Phone Country Code -> below Description
-    await dragColumn("Phone Country Code", "Description");
+    // Initial modal order
+    await expect(modalColumns).toHaveText([
+      "Customer ID",
+      "Customer Name",
+      "Email",
+      "Phone Country Code",
+      "Phone",
+      "Description",
+      "Created",
+    ]);
 
-    await page.locator('[data-button-text="Save"]').click();
+    // Step 1: Email -> above Customer Name
+    await dragColumn("Email", "Customer Name", "above");
+    await expect(modalColumns).toHaveText([
+      "Customer ID",
+      "Email",
+      "Customer Name",
+      "Phone Country Code",
+      "Phone",
+      "Description",
+      "Created",
+    ]);
+
+    // Step 2: Created -> above Phone Country Code
+    await dragColumn("Created", "Phone Country Code", "above");
+    await expect(modalColumns).toHaveText([
+      "Customer ID",
+      "Email",
+      "Customer Name",
+      "Created",
+      "Phone Country Code",
+      "Phone",
+      "Description",
+    ]);
+
+    await paymentOperations.saveButton.click();
     await expect(modal).toBeHidden();
     await page.waitForLoadState("networkidle");
 
     //Updated order
-    await expect(
-      page.getByText(
-        'S.NoCustomer IdEmailCustomer NameCreatedPhone Country CodePhoneDescription',
-      ),
-    ).toBeVisible({ timeout: 15000 });
+    await expect(tableHeadings).toHaveText(
+      [
+        'S.No',
+        'Customer ID',
+        'Email',
+        'Customer Name',
+        'Created',
+        'Phone Country Code',
+        'Phone',
+        'Description',
+      ],
+      { timeout: 15000 },
+    );
 
   });
 
   test("should paginate through customer pages", async ({ page, context }) => {
     const homePage = new HomePage(page);
+
+    const customerOperations = new CustomerOperations(page);
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (!merchantId) return;
@@ -301,18 +381,18 @@ test.describe("Customers page", () => {
     await homePage.operations.click();
     await homePage.customers.click();
 
-    await expect(page.locator("#table tbody tr")).toHaveCount(20);
-    const firstPageFirstId = await page
-      .locator('[data-table-location="Customers_tr1_td2"]')
+    await expect(customerOperations.tableRows).toHaveCount(20);
+    const firstPageFirstId = await customerOperations
+      .customerCell(1, 2)
       .textContent();
 
     await page.getByRole("button", { name: "2", exact: true }).click();
 
     await expect(
-      page.locator('[data-table-location="Customers_tr1_td2"]'),
+      customerOperations.customerCell(1, 2),
     ).not.toHaveText(firstPageFirstId ?? "");
     await expect(
-      page.locator('[data-table-location="Customers_tr1_td2"]'),
+      customerOperations.customerCell(1, 2),
     ).toBeVisible();
     await expect(page.getByText('Showing 22')).toBeVisible();
   });
