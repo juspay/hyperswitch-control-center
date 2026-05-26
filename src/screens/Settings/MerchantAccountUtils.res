@@ -772,6 +772,7 @@ let defaultValueForBusinessProfile: BusinessProfileInterfaceTypesV1.profileEntit
   is_manual_retry_enabled: None,
   always_enable_overcapture: None,
   billing_processor_id: None,
+  surcharge_connector_details: None,
   payment_link_config: None,
   is_external_vault_enabled: None,
   external_vault_connector_details: None,

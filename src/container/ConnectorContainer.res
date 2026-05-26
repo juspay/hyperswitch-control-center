@@ -118,6 +118,16 @@ let make = () => {
           renderShow={(_, _) => <VaultProcessorsHome />}
         />
       </AccessControl>
+    | list{"surcharge-processor", ...remainingPath} =>
+      <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
+        <EntityScaffold
+          entityName="Surcharge Processor"
+          remainingPath
+          renderList={() => <SurchargeProcessorList />}
+          renderNewForm={() => <SurchargeProcessorHome />}
+          renderShow={(_, _) => <SurchargeProcessorHome />}
+        />
+      </AccessControl>
     | list{"fraud-risk-management", ...remainingPath} =>
       <AccessControl
         isEnabled={featureFlagDetails.frm}
