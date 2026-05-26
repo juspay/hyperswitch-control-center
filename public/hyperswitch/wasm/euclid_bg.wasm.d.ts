@@ -22,6 +22,7 @@ export const getPayoutVariantValues: (a: number, b: number, c: number) => void;
 export const getRequestPayload: (a: number, b: number, c: number) => void;
 export const getResponsePayload: (a: number, b: number) => void;
 export const getSurchargeKeys: (a: number) => void;
+export const getSurchargeProcessorConfig: (a: number, b: number, c: number) => void;
 export const getTaxProcessorConfig: (a: number, b: number, c: number) => void;
 export const getThreeDsDecisionRuleKeys: (a: number) => void;
 export const getThreeDsKeys: (a: number) => void;

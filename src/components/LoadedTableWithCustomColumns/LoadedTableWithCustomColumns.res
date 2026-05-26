@@ -70,6 +70,7 @@ let make = (
   ~isDraggable=false,
   ~customSeparation=?,
   ~visitedRows=?,
+  ~checkBoxProps: option<LoadedTable.checkBoxProps>=?,
 ) => {
   let (showColumnSelector, setShowColumnSelector) = React.useState(() => false)
   let activeColumnsAtom = customColumnMapper->Some
@@ -162,5 +163,6 @@ let make = (
     hideCustomisableColumnButton
     ?customSeparation
     ?visitedRows
+    ?checkBoxProps
   />
 }

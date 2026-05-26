@@ -1,5 +1,6 @@
 open SidebarTypes
 open UserManagementTypes
+open CommonAuthTypes
 
 // * Custom Component
 module ProductHeaderComponent = {
@@ -71,7 +72,7 @@ let payouts = userHasResourceAccess => {
     name: "Payouts",
     link: `/payouts`,
     access: userHasResourceAccess(~resourceAccess=Payout),
-    searchOptions: [("View payouts operations", "")],
+    searchOptions: [("View payout operations", "")],
   })
 }
 
@@ -272,50 +273,50 @@ let connectors = (
     : emptyComponent
 }
 
-let paymentAnalytcis = SubLevelLink({
+let paymentAnalytcis = (~userHasResourceAccess) => SubLevelLink({
   name: "Payments",
   link: `/analytics-payments`,
-  access: Access,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("View analytics", "")],
 })
 
-let performanceMonitor = SubLevelLink({
+let performanceMonitor = (~userHasResourceAccess) => SubLevelLink({
   name: "Performance",
   link: `/performance-monitor`,
-  access: Access,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("View Performance", "")],
 })
 
-let newAnalytics = SubLevelLink({
+let newAnalytics = (~userHasResourceAccess) => SubLevelLink({
   name: "Insights",
   link: `/new-analytics`,
-  access: Access,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("Insights", "")],
 })
 
-let disputeAnalytics = SubLevelLink({
+let disputeAnalytics = (~userHasResourceAccess) => SubLevelLink({
   name: "Disputes",
   link: `/analytics-disputes`,
-  access: Access,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("View Dispute analytics", "")],
 })
-let routingAnalytics = SubLevelLink({
+let routingAnalytics = (~userHasResourceAccess) => SubLevelLink({
   name: "Routing",
   link: `/analytics-routing`,
-  access: Access,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("View routing analytics", "")],
 })
 
-let refundAnalytics = SubLevelLink({
+let refundAnalytics = (~userHasResourceAccess) => SubLevelLink({
   name: "Refunds",
   link: `/analytics-refunds`,
-  access: Access,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("View analytics", "")],
 })
-let authenticationAnalytics = SubLevelLink({
+let authenticationAnalytics = (~userHasResourceAccess) => SubLevelLink({
   name: "Authentication",
   link: `/analytics-authentication`,
-  access: Access,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
   iconTag: "betaTag",
   searchOptions: [("View analytics", "")],
 })
@@ -329,30 +330,30 @@ let analytics = (
   ~authenticationAnalyticsFlag,
   ~userHasResourceAccess,
 ) => {
-  let links = [paymentAnalytcis, refundAnalytics]
+  let links = [paymentAnalytcis(~userHasResourceAccess), refundAnalytics(~userHasResourceAccess)]
   if authenticationAnalyticsFlag {
-    links->Array.push(authenticationAnalytics)
+    links->Array.push(authenticationAnalytics(~userHasResourceAccess))
   }
   if disputeAnalyticsFlag {
-    links->Array.push(disputeAnalytics)
+    links->Array.push(disputeAnalytics(~userHasResourceAccess))
   }
 
   if newAnalyticsflag {
-    links->Array.unshift(newAnalytics)
+    links->Array.unshift(newAnalytics(~userHasResourceAccess))
   }
 
   if performanceMonitorFlag {
-    links->Array.push(performanceMonitor)
+    links->Array.push(performanceMonitor(~userHasResourceAccess))
   }
   if routingAnalyticsFlag {
-    links->Array.push(routingAnalytics)
+    links->Array.push(routingAnalytics(~userHasResourceAccess))
   }
 
   isAnalyticsEnabled
     ? Section({
         name: "Analytics",
         icon: "nd-analytics",
-        showSection: userHasResourceAccess(~resourceAccess=Analytics) === CommonAuthTypes.Access,
+        showSection: userHasResourceAccess(~resourceAccess=Analytics) === Access,
         links,
       })
     : emptyComponent
@@ -501,7 +502,7 @@ let configurePMTs = userHasResourceAccess => {
 
 let complianceCertificateSection = {
   SubLevelLink({
-    name: "Compliance ",
+    name: "Compliance",
     link: `/compliance`,
     access: Access,
     searchOptions: [("PCI certificate", "")],
@@ -584,7 +585,7 @@ let webhooks = userHasResourceAccess => {
   SubLevelLink({
     name: "Webhooks",
     link: `/webhooks`,
-    access: userHasResourceAccess(~resourceAccess=Account),
+    access: userHasResourceAccess(~resourceAccess=WebhookEvent),
     searchOptions: [("Webhooks", ""), ("Retry webhooks", "")],
   })
 }
@@ -637,101 +638,4 @@ let developers = (
         links,
       })
     : emptyComponent
-}
-
-let uploadReconFiles = {
-  SubLevelLink({
-    name: "Upload Recon Files",
-    link: `/upload-files`,
-    access: Access,
-    searchOptions: [("Upload recon files", "")],
-  })
-}
-
-let runRecon = {
-  SubLevelLink({
-    name: "Run Recon",
-    link: `/run-recon`,
-    access: Access,
-    searchOptions: [("Run recon", "")],
-  })
-}
-
-let reconAnalytics = {
-  SubLevelLink({
-    name: "Analytics",
-    link: `/recon-analytics`,
-    access: Access,
-    searchOptions: [("Recon analytics", "")],
-  })
-}
-let reconReports = {
-  SubLevelLink({
-    name: "Reports",
-    link: `/reports`,
-    access: Access,
-    searchOptions: [("Recon reports", "")],
-  })
-}
-
-let reconConfigurator = {
-  SubLevelLink({
-    name: "Configurator",
-    link: `/config-settings`,
-    access: Access,
-    searchOptions: [("Recon configurator", "")],
-  })
-}
-// Commented as not needed now
-// let reconFileProcessor = {
-//   SubLevelLink({
-//     name: "File Processor",
-//     link: `/file-processor`,
-//     access: Access,
-//     searchOptions: [("Recon file processor", "")],
-//   })
-// }
-
-let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourceAccess) => {
-  switch (recon, isReconEnabled, checkUserEntity([#Merchant, #Organization, #Tenant])) {
-  | (true, true, true) => {
-      let links = []
-      if userHasResourceAccess(~resourceAccess=ReconFiles) == CommonAuthTypes.Access {
-        links->Array.push(uploadReconFiles)
-      }
-      if userHasResourceAccess(~resourceAccess=RunRecon) == CommonAuthTypes.Access {
-        links->Array.push(runRecon)
-      }
-      if (
-        userHasResourceAccess(~resourceAccess=ReconAndSettlementAnalytics) == CommonAuthTypes.Access
-      ) {
-        links->Array.push(reconAnalytics)
-      }
-      if userHasResourceAccess(~resourceAccess=ReconReports) == CommonAuthTypes.Access {
-        links->Array.push(reconReports)
-      }
-      if userHasResourceAccess(~resourceAccess=ReconConfig) == CommonAuthTypes.Access {
-        links->Array.push(reconConfigurator)
-      }
-      // Commented as not needed now
-      // if userHasResourceAccess(~resourceAccess=ReconFiles) == CommonAuthTypes.Access {
-      //   links->Array.push(reconFileProcessor)
-      // }
-      Section({
-        name: "Recon And Settlement",
-        icon: "recon",
-        showSection: true,
-        links,
-      })
-    }
-  | (true, false, true) =>
-    Link({
-      name: "Reconciliation",
-      icon: isReconEnabled ? "recon" : "recon-lock",
-      link: `/recon`,
-      access: userHasResourceAccess(~resourceAccess=ReconToken),
-    })
-
-  | _ => emptyComponent
-  }
 }

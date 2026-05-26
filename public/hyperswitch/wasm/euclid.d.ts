@@ -1,7 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export function runProgram(program: any, input: any): any;
-export function getValidWebhookStatus(key: string): any;
+export function getCardTypeValues(): any;
 export function getDescriptionCategory(): any;
 /**
  * This function can be used to perform currency_conversion on the input amount, from_currency,
@@ -24,8 +24,8 @@ export function getThreeDsDecisionRuleKeys(): any;
 export function getAllConnectors(): any;
 export function getAllKeys(): any;
 export function addTwo(n1: bigint, n2: bigint): bigint;
-export function getPayoutDescriptionCategory(): any;
-export function getResponsePayload(input: any): any;
+export function getPayoutVariantValues(key: string): any;
+export function getRequestPayload(input: any, response: any): any;
 export function getVariantValues(key: string): any;
 /**
  * This function can be used by the frontend to provide the WASM with information about
@@ -33,18 +33,19 @@ export function getVariantValues(key: string): any;
  * connector accounts from the API.
  */
 export function seedKnowledgeGraph(mcas: any): any;
-export function getPayoutVariantValues(key: string): any;
-export function getPayoutConnectorConfig(key: string): any;
 export function getAllPayoutKeys(): any;
+export function getPayoutConnectorConfig(key: string): any;
+export function getResponsePayload(input: any): any;
 export function getKeyType(key: string): string;
+export function getValidWebhookStatus(key: string): any;
 export function parseToString(val: string): string;
 export function getBillingConnectorConfig(key: string): any;
 export function analyzeProgram(js_program: any): any;
+export function getPayoutDescriptionCategory(): any;
+export function getSurchargeProcessorConfig(key: string): any;
 export function getCardSubtypeValues(): any;
-export function getPMAuthenticationProcessorConfig(key: string): any;
-export function getCardTypeValues(): any;
 export function getSurchargeKeys(): any;
-export function getRequestPayload(input: any, response: any): any;
+export function getPMAuthenticationProcessorConfig(key: string): any;
 /**
  * This function allows the frontend to get all the merchant's configured
  * connectors that are valid for a rule based on the conditions specified in
@@ -92,6 +93,7 @@ export interface InitOutput {
   readonly getRequestPayload: (a: number, b: number, c: number) => void;
   readonly getResponsePayload: (a: number, b: number) => void;
   readonly getSurchargeKeys: (a: number) => void;
+  readonly getSurchargeProcessorConfig: (a: number, b: number, c: number) => void;
   readonly getTaxProcessorConfig: (a: number, b: number, c: number) => void;
   readonly getThreeDsDecisionRuleKeys: (a: number) => void;
   readonly getThreeDsKeys: (a: number) => void;

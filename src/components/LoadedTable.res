@@ -622,7 +622,7 @@ let make = (
         ->Array.unshift(
           CustomCell(
             <div onClick={ev => ev->ReactEvent.Mouse.stopPropagation}>
-              <CheckBoxIcon
+              <CheckBoxIconAdapter
                 isSelected={selectedRowIndex !== -1} setIsSelected checkboxDimension="h-4 w-4"
               />
             </div>,

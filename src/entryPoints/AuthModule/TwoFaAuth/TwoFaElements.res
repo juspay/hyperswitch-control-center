@@ -118,8 +118,8 @@ module RecoveryCodesInput = {
     }
 
     <div className="flex flex-col gap-4 items-center">
-      <p> {"Enter a 8-digit recovery code generated provided during signup."->React.string} </p>
-      <TextInput
+      <p> {"Enter an 8-digit recovery code provided during signup."->React.string} </p>
+      <TextInputAdapter
         input=recoveryCodeInput
         placeholder="XXXX-XXXX"
         customWidth="w-96"

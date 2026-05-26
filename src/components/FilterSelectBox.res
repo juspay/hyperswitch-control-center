@@ -208,19 +208,21 @@ module ListItem = {
             } else if multiSelect {
               <span className=toggleClass>
                 {checkboxDimension->LogicUtils.isNonEmptyString
-                  ? <CheckBoxIcon
+                  ? <CheckBoxIconAdapter
                       isSelected isDisabled size=optionSize isSelectedStateMinus checkboxDimension
                     />
-                  : <CheckBoxIcon isSelected isDisabled size=optionSize isSelectedStateMinus />}
+                  : <CheckBoxIconAdapter
+                      isSelected isDisabled size=optionSize isSelectedStateMinus
+                    />}
               </span>
             } else {
               <div className=toggleClass>
-                <RadioIcon isSelected size=optionSize fill isDisabled />
+                <RadioIconAdapter isSelected size=optionSize fill isDisabled />
               </div>
             }
           } else if multiSelect && !isMobileView {
             <span className="pl-3">
-              <CheckBoxIcon isSelected isDisabled isSelectedStateMinus />
+              <CheckBoxIconAdapter isSelected isDisabled isSelectedStateMinus />
             </span>
           } else {
             React.null
@@ -295,9 +297,9 @@ module ListItem = {
           </div>
           {if isMobileView && isDropDown {
             if multiSelect {
-              <CheckBoxIcon isSelected />
+              <CheckBoxIconAdapter isSelected />
             } else {
-              <RadioIcon isSelected isDisabled />
+              <RadioIconAdapter isSelected isDisabled />
             }
           } else if isDropDown {
             <div className="mr-2">
@@ -707,7 +709,7 @@ module BaseSelect = {
                   selectAll(noOfSelected === 0)(ev)
                 }}
                 className={`flex px-3 py-2 border-b-2 gap-3 text-jp-2-gray-300 items-center text-fs-14 font-medium cursor-pointer`}>
-                <CheckBoxIcon
+                <CheckBoxIconAdapter
                   isSelected={noOfSelected !== 0}
                   size=optionSize
                   isSelectedStateMinus=clearAllCondition
@@ -725,7 +727,7 @@ module BaseSelect = {
                   ? "flex-col"
                   : "flex-row"} justify-between pr-4 pl-5 pt-6 pb-1 text-base font-semibold ${font.textColor.primaryNormal} cursor-pointer`}>
               {"SELECT ALL"->React.string}
-              <CheckBoxIcon isSelected={noOfSelected === options->Array.length} />
+              <CheckBoxIconAdapter isSelected={noOfSelected === options->Array.length} />
             </div>
           }
         } else {

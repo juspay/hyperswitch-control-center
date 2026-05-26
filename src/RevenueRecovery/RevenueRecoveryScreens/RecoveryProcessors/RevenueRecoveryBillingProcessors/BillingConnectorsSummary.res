@@ -37,7 +37,7 @@ module WebhooksConfiguration = {
       } catch {
       | _ => {
           setScreenState(_ => PageLoaderWrapper.Success)
-          showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+          showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
         }
       }
       Nullable.null
@@ -590,13 +590,6 @@ let make = () => {
     <div className="flex justify-between px-2 items-end">
       <PageUtils.PageHeading title="Configuration" />
     </div>
-    <Tabs
-      tabs
-      showBorder=true
-      includeMargin=false
-      initialIndex={tabIndex}
-      onTitleClick={index => setTabIndex(_ => index)}
-      selectTabBottomBorderColor="bg-nd_primary_blue-500"
-    />
+    <Tabs tabs initialIndex={tabIndex} onTitleClick={index => setTabIndex(_ => index)} />
   </div>
 }
