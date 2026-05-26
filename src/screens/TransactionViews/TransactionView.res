@@ -43,8 +43,7 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
     updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
 
     if !(filterKeys->Array.includes(customFilterKey)) {
-      filterKeys->Array.push(customFilterKey)
-      setfilterKeys(_ => filterKeys)
+      setfilterKeys(prev => prev->Array.concat([customFilterKey]))
     }
   }
 
@@ -53,23 +52,23 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
     updateViewsFilterValue(view)
   }
 
-  let startTime = filterValueJson->getString(OrderUIUtils.startTimeFilterKey(version), "")
-  let endTime = filterValueJson->getString(OrderUIUtils.endTimeFilterKey(version), "")
-
-  React.useEffect(() => {
-    if startTime->isEmptyString || endTime->isEmptyString {
-      let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
-      let updates = Dict.make()
-      if startTime->isEmptyString {
-        updates->Dict.set(OrderUIUtils.startTimeFilterKey(version), defaultDate.start_time)
-      }
-      if endTime->isEmptyString {
-        updates->Dict.set(OrderUIUtils.endTimeFilterKey(version), defaultDate.end_time)
-      }
-      updateExistingKeys(updates)
-    }
-    None
-  }, [])
+  let (startTime, endTime) = React.useMemo(() => {
+    filterValueJson->Dict.keysToArray->Array.length === 0
+      ? ("", "")
+      : {
+          let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
+          (
+            filterValueJson->getString(
+              OrderUIUtils.startTimeFilterKey(version),
+              defaultDate.start_time,
+            ),
+            filterValueJson->getString(
+              OrderUIUtils.endTimeFilterKey(version),
+              defaultDate.end_time,
+            ),
+          )
+        }
+  }, (filterValueJson, version))
 
   let loadAggregateCounts = async () => {
     try {
