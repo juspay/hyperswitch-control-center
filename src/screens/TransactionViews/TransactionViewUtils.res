@@ -150,3 +150,22 @@ let getViewCount = (view, obj, entity) => {
     ->getInt(view->getViewFilterValue(obj, entity), 0)
   }
 }
+
+let getStartAndEndTime = (filterValueJson, version) => {
+  open LogicUtils
+  filterValueJson->Dict.keysToArray->Array.length === 0
+    ? ("", "")
+    : {
+        let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
+        (
+          filterValueJson->getString(
+            OrderUIUtils.startTimeFilterKey(version),
+            defaultDate.start_time,
+          ),
+          filterValueJson->getString(
+            OrderUIUtils.endTimeFilterKey(version),
+            defaultDate.end_time,
+          ),
+        )
+      }
+}

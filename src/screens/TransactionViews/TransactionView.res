@@ -53,21 +53,7 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   }
 
   let (startTime, endTime) = React.useMemo(() => {
-    filterValueJson->Dict.keysToArray->Array.length === 0
-      ? ("", "")
-      : {
-          let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
-          (
-            filterValueJson->getString(
-              OrderUIUtils.startTimeFilterKey(version),
-              defaultDate.start_time,
-            ),
-            filterValueJson->getString(
-              OrderUIUtils.endTimeFilterKey(version),
-              defaultDate.end_time,
-            ),
-          )
-        }
+    getStartAndEndTime(filterValueJson, version)
   }, (filterValueJson, version))
 
   let loadAggregateCounts = async () => {
