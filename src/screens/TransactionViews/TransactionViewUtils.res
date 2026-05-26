@@ -1,5 +1,5 @@
 open TransactionViewTypes
-
+open LogicUtils
 let paymentViewsArray: array<viewTypes> = [
   All,
   Succeeded,
@@ -77,7 +77,6 @@ let getViewTypeFromString = (view, entity) => {
 }
 
 let buildAllStatusFilterString = obj => {
-  open LogicUtils
   obj
   ->getDictFromJsonObject
   ->getDictfromDict("status_with_count")
@@ -128,7 +127,6 @@ let getViewFilterValue = (view, obj, entity) => {
 }
 
 let calculateTotalViewCount = obj => {
-  open LogicUtils
   let countArray =
     obj
     ->getDictFromJsonObject
@@ -140,7 +138,6 @@ let calculateTotalViewCount = obj => {
 }
 
 let getViewCount = (view, obj, entity) => {
-  open LogicUtils
   switch view {
   | All => calculateTotalViewCount(obj)
   | _ =>
@@ -152,8 +149,7 @@ let getViewCount = (view, obj, entity) => {
 }
 
 let getStartAndEndTime = (filterValueJson, version) => {
-  open LogicUtils
-  filterValueJson->Dict.keysToArray->Array.length === 0
+  filterValueJson->isEmptyDict
     ? ("", "")
     : {
         let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
