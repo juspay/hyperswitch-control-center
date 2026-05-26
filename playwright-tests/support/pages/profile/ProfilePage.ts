@@ -80,7 +80,7 @@ export class ProfilePage {
   }
 
   get confirmPasswordInput(): Locator {
-    return this.page.locator('input[name="confirm_password"]').first();
+    return this.page.getByRole('textbox', { name: 'Re-enter your Password' }).first();
   }
 
   get confirmSubmitButton(): Locator {
