@@ -28,6 +28,7 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   let showToast = ToastState.useShowToast()
   let {updateExistingKeys, filterValueJson, filterKeys, setfilterKeys} =
     FilterContext.filterContext->React.useContext
+  let {devClickhouseAggregate} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (aggregateResponse, setAggregateResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
   )
@@ -42,8 +43,7 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
     updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
 
     if !(filterKeys->Array.includes(customFilterKey)) {
-      filterKeys->Array.push(customFilterKey)
-      setfilterKeys(_ => filterKeys)
+      setfilterKeys(prev => prev->Array.concat([customFilterKey]))
     }
   }
 
@@ -52,11 +52,9 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
     updateViewsFilterValue(view)
   }
 
-  let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
-  let startTime =
-    filterValueJson->getString(OrderUIUtils.startTimeFilterKey(version), defaultDate.start_time)
-  let endTime =
-    filterValueJson->getString(OrderUIUtils.endTimeFilterKey(version), defaultDate.end_time)
+  let (startTime, endTime) = React.useMemo(() => {
+    getStartAndEndTime(filterValueJson, version)
+  }, (filterValueJson, version))
 
   let loadAggregateCounts = async () => {
     try {
@@ -65,8 +63,9 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
         getURL(
           ~entityName={
             switch version {
-            | V1 => V1(ORDERS_AGGREGATE)
-            | V2 => V2(V2_ORDERS_AGGREGATE)
+            | V1 => devClickhouseAggregate ? V1(ORDERS_AGGREGATE_CLICKHOUSE) : V1(ORDERS_AGGREGATE)
+            | V2 =>
+              devClickhouseAggregate ? V2(V2_ORDERS_AGGREGATE_CLICKHOUSE) : V2(V2_ORDERS_AGGREGATE)
             }
           },
           ~methodType=Get,
@@ -135,7 +134,9 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   }, (filterValueJson, aggregateResponse))
 
   React.useEffect(() => {
-    loadAggregateCounts()->ignore
+    if startTime->isNonEmptyString && endTime->isNonEmptyString {
+      loadAggregateCounts()->ignore
+    }
     None
   }, (startTime, endTime))
 
