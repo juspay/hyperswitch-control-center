@@ -20,8 +20,7 @@ let make = (
   ~isCheckboxSelectedClass=false,
   ~stopPropagationNeeded=false,
 ) => {
-  let isBlendEnabled = BlendContext.useBlendEnabled()
-  let useBlend = isBlendEnabled && setIsSelected->Option.isSome
+  let useBlend = BlendContext.useBlendEnabled()
 
   let checkedValue = if isSelectedStateMinus && isSelected {
     fromIndeterminate("indeterminate")
