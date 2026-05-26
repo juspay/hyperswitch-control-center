@@ -823,6 +823,163 @@ export async function mockV2MerchantList(page: Page): Promise<void> {
   });
 }
 
+// Disputes don't have a client-facing creation endpoint — in production they
+// arrive via connector webhooks. For UI tests we mock the list/detail routes
+// so we can drive the page with synthetic data and exercise different
+// statuses or connectors deterministically.
+export type DisputeOverrides = Partial<{
+  dispute_id: string;
+  payment_id: string;
+  attempt_id: string;
+  amount: string;
+  currency: string;
+  dispute_stage: string;
+  dispute_status: string;
+  connector: string;
+  connector_status: string;
+  connector_dispute_id: string;
+  connector_reason: string | null;
+  connector_reason_code: string | null;
+  challenge_required_by: string | null;
+  connector_created_at: string | null;
+  connector_updated_at: string | null;
+  created_at: string;
+  profile_id: string;
+  merchant_connector_id: string;
+  is_already_refunded: boolean;
+}>;
+
+export function buildDispute(overrides: DisputeOverrides = {}) {
+  return {
+    dispute_id: "dp_playwright_mock_0001",
+    payment_id: "pay_playwright_mock_0001",
+    attempt_id: "pay_playwright_mock_0001_1",
+    amount: "6500",
+    currency: "USD",
+    dispute_stage: "dispute",
+    dispute_status: "dispute_opened",
+    connector: "stripe",
+    connector_status: "NeedsResponse",
+    connector_dispute_id: "dsp_playwright_mock_0001",
+    connector_reason: "fraudulent" as string | null,
+    connector_reason_code: null as string | null,
+    challenge_required_by: "2026-06-08T18:00:00.000Z" as string | null,
+    connector_created_at: "2026-05-19T15:45:33.653Z" as string | null,
+    connector_updated_at: null as string | null,
+    created_at: "2026-05-19T15:45:34.196Z",
+    profile_id: "pro_playwright_mock",
+    merchant_connector_id: "mca_playwright_mock",
+    is_already_refunded: false,
+    ...overrides,
+  };
+}
+
+// Sets up route handlers for the four endpoints the disputes list page hits:
+//   GET  /disputes/list?...      → array filtered against ?dispute_status=, ?dispute_id=, ?payment_id=
+//   GET  /disputes/filter        → derives connector / dispute_status / dispute_stage option lists from `disputes`
+//   GET  /disputes/{id}          → returns the matching dispute, or 404
+//   GET  /disputes/aggregate?... → returns per-status counts derived from `disputes`
+// Pass an array built from buildDispute({...}) to vary status/connector/etc.
+export async function mockDisputesList(
+  page: Page,
+  disputes: ReturnType<typeof buildDispute>[],
+): Promise<void> {
+  await page.route(/\/disputes\/(profile\/)?list(\?|$)/, async (route) => {
+    const url = new URL(route.request().url());
+    const params = url.searchParams;
+    const statusParam = params.get("dispute_status");
+    const disputeIdParam = params.get("dispute_id");
+    const paymentIdParam = params.get("payment_id");
+
+    let data = [...disputes];
+    if (statusParam) {
+      const wanted = statusParam.split(",").filter(Boolean);
+      if (wanted.length > 0) {
+        data = data.filter((d) => wanted.includes(d.dispute_status));
+      }
+    }
+    // The disputes page sets BOTH `dispute_id` and `payment_id` to the
+    // search box value, so match when either field matches.
+    if (disputeIdParam || paymentIdParam) {
+      data = data.filter(
+        (d) =>
+          (disputeIdParam && d.dispute_id === disputeIdParam) ||
+          (paymentIdParam && d.payment_id === paymentIdParam),
+      );
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(data),
+    });
+  });
+
+  await page.route(/\/disputes\/(profile\/)?filter(\?|$)/, async (route) => {
+    const connectors = Array.from(new Set(disputes.map((d) => d.connector)));
+    const statuses = Array.from(
+      new Set(disputes.map((d) => d.dispute_status)),
+    );
+    const stages = Array.from(new Set(disputes.map((d) => d.dispute_stage)));
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        connector: connectors,
+        currency: ["USD"],
+        dispute_status: statuses,
+        dispute_stage: stages,
+      }),
+    });
+  });
+
+  await page.route(/\/disputes\/(profile\/)?aggregate(\?|$)/, async (route) => {
+    const counts: Record<string, number> = {};
+    for (const d of disputes) {
+      counts[d.dispute_status] = (counts[d.dispute_status] ?? 0) + 1;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ status_with_count: counts }),
+    });
+  });
+
+  await page.route(/\/disputes\/(dp_[^/?]+)(\?|$)/, async (route) => {
+    const match = route.request().url().match(/\/disputes\/(dp_[^/?]+)/);
+    const id = match ? match[1] : "";
+    const found = disputes.find((d) => d.dispute_id === id);
+    if (!found) {
+      await route.fulfill({
+        status: 404,
+        contentType: "application/json",
+        body: JSON.stringify({ error: { code: "HE_02", message: "not found" } }),
+      });
+      return;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(found),
+    });
+  });
+
+  // ShowDisputes mounts DisputeLogs which eagerly fires three analytics
+  // audit-log endpoints. With a synthetic dispute the real backend returns
+  // 401 for each, and the global 401 handler kicks the user to /sign-in.
+  // Stub them to empty arrays so the detail page can render.
+  await page.route(
+    /\/analytics\/v1\/(profile\/)?(api_event_logs|connector_event_logs|outgoing_webhook_event_logs|webhook_event_logs)(\?|$)/,
+    async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([]),
+      });
+    },
+  );
+}
+
 export async function enableEmailFeatureFlag(page: Page): Promise<void> {
   await page.route("**/dashboard/config/feature?domain=", async (route) => {
     await route.fulfill({
