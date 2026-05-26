@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.26.0
+
+### Bug Fixes
+
+- Guard JSON.parseExn on untrusted inputs ([#4732](https://github.com/juspay/hyperswitch-control-center/pull/4732)) ([#4858](https://github.com/juspay/hyperswitch-control-center/pull/4858)) ([`b649bb7`](https://github.com/juspay/hyperswitch-control-center/commit/b649bb75b14551fc96eb1560ee87e3feb08ef7b8))
+
+**Full Changelog:** [`2026.05.22.0...2026.05.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.22.0...2026.05.26.0)
+
+- - -
+
 ## 2026.05.22.0
 
 ### Features
