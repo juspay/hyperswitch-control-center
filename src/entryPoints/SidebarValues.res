@@ -665,6 +665,12 @@ let superposition = isEnabled =>
             access: Access,
             searchOptions: [("View dimensions", "")],
           }),
+          SubLevelLink({
+            name: "Audit Trail",
+            link: "/superposition/audit",
+            access: Access,
+            searchOptions: [("View audit trail", "")],
+          }),
         ],
         selectedIcon: "nd-settings-fill",
       })

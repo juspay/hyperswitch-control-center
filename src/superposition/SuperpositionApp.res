@@ -18,6 +18,7 @@ let make = (~remainingPath: list<string>) => {
   | list{"default-config", ..._} => <ConfigManager showResolvedValues=true />
   | list{"overrides", ..._} => <OverrideManager />
   | list{"dimensions", ..._} => <DimensionManager />
+  | list{"audit", ..._} => <AuditTrail />
   | _ => <ConfigManager showResolvedValues=true />
   }
 
@@ -33,6 +34,10 @@ let make = (~remainingPath: list<string>) => {
         mode: Bearer,
         token: AuthUtils.getUserInfoDetailsFromLocalStorage().token->Option.getOr(""),
       },
+      // filters: {
+      //   defaultConfigPrefix: [],
+      //   dimensions: [],
+      // },
       capabilities: {
         config: {
           create: true,
@@ -44,6 +49,11 @@ let make = (~remainingPath: list<string>) => {
         },
         overrides: {create: true, editContext: true},
         dimensions: {create: true, editContext: true},
+      },
+      theme: {
+        blend: {
+          foundationTokens: FoundationTokens.foundationTheme,
+        },
       },
     }}>
     <AlertProvider> {content} </AlertProvider>

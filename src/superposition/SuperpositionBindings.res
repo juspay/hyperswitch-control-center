@@ -1,11 +1,10 @@
-// %%raw(`import "superposition-embeddable-ui/styles.css"`)
-
 // ─── Enum types ──────────────────────────────────────────────────────────────
 
 type superpositionFeature =
   | @as("config") Config
   | @as("overrides") Overrides
   | @as("dimensions") Dimensions
+  | @as("audit") Audit
 
 type routeMode =
   | @as("internal") Internal
@@ -16,15 +15,6 @@ type authMode =
   | @as("bearer") Bearer
   | @as("custom") Custom
 
-// type themeMode =
-//   | @as("light") Light
-//   | @as("dark") Dark
-//   | @as("system") System
-
-// type scopeMatchMode =
-//   | @as("compatible") Compatible
-//   | @as("strict") Strict
-
 type workspaceHeaderName =
   | @as("x-workspace") XWorkspace
   | @as("x-tenant") XTenant
@@ -34,19 +24,9 @@ type requestCredentials =
   | @as("same-origin") SameOrigin
   | @as("include") Include
 
-// type notifyTone =
-//   | @as("info") Info
-//   | @as("success") Success
-//   | @as("warning") Warning
-//   | @as("error") Error_
-
-// type confirmVariant =
-//   | @as("default") Default
-//   | @as("destructive") Destructive
-
 type tableAlign =
   | @as("left") Left
-  | @as("center") Centerf
+  | @as("center") Center
   | @as("right") Right
 
 // ─── Abstract Web API types ──────────────────────────────────────────────────
@@ -104,6 +84,7 @@ type capabilitiesConfig = {
   config?: featureCapabilities,
   overrides?: featureCapabilities,
   dimensions?: featureCapabilities,
+  audit?: featureCapabilities,
 }
 
 type routingConfig = {
@@ -113,233 +94,6 @@ type routingConfig = {
   onNavigate?: superpositionFeature => unit,
   getFeatureHref?: superpositionFeature => string,
 }
-
-// type styling = {
-//   padding?: string,
-//   margin?: string,
-//   width?: string,
-//   height?: string,
-//   opacity?: string,
-//   textColor?: string,
-//   bgColor?: string,
-//   borderColor?: string,
-//   borderRadius?: string,
-//   fontSize?: string,
-//   fontWeight?: string,
-//   shadow?: string,
-//   textTransform?: string,
-// }
-
-// type themeColors = {
-//   bg?: string,
-//   panel?: string,
-//   text?: string,
-//   muted?: string,
-//   border?: string,
-//   primary?: string,
-//   success?: string,
-//   warning?: string,
-//   danger?: string,
-// }
-
-// type scaleConfig = {
-//   xs?: string,
-//   sm?: string,
-//   md?: string,
-//   lg?: string,
-// }
-
-// type shadowConfig = {
-//   sm?: string,
-//   md?: string,
-// }
-
-// type typographyConfig = {
-//   fontFamily?: string,
-//   fontSize?: string,
-// }
-
-// type buttonThemeConfig = {
-//   padding?: string,
-//   margin?: string,
-//   width?: string,
-//   height?: string,
-//   textColor?: string,
-//   bgColor?: string,
-//   borderColor?: string,
-//   borderRadius?: string,
-//   fontSize?: string,
-//   fontWeight?: string,
-//   shadow?: string,
-//   textTransform?: string,
-//   primary?: styling,
-//   secondary?: styling,
-//   danger?: styling,
-//   disabledOpacity?: string,
-// }
-
-// type tableThemeConfig = {
-//   padding?: string,
-//   margin?: string,
-//   width?: string,
-//   height?: string,
-//   textColor?: string,
-//   bgColor?: string,
-//   borderColor?: string,
-//   borderRadius?: string,
-//   fontSize?: string,
-//   fontWeight?: string,
-//   shadow?: string,
-//   textTransform?: string,
-//   header?: styling,
-// }
-
-// type formThemeConfig = {
-//   padding?: string,
-//   margin?: string,
-//   width?: string,
-//   height?: string,
-//   textColor?: string,
-//   bgColor?: string,
-//   borderColor?: string,
-//   borderRadius?: string,
-//   fontSize?: string,
-//   fontWeight?: string,
-//   shadow?: string,
-//   textTransform?: string,
-//   label?: styling,
-//   removeButton?: styling,
-//   helperTextColor?: string,
-// }
-
-// type dropdownOptionThemeConfig = {
-//   hoverBgColor?: string,
-//   selectedBgColor?: string,
-//   selectedTextColor?: string,
-// }
-
-// type dropdownThemeConfig = {
-//   padding?: string,
-//   margin?: string,
-//   width?: string,
-//   height?: string,
-//   textColor?: string,
-//   bgColor?: string,
-//   borderColor?: string,
-//   borderRadius?: string,
-//   fontSize?: string,
-//   fontWeight?: string,
-//   shadow?: string,
-//   textTransform?: string,
-//   control?: styling,
-//   menu?: styling,
-//   option?: dropdownOptionThemeConfig,
-// }
-
-// type iconLockConfig = {
-//   size?: string,
-//   color?: string,
-// }
-
-// type iconThemeConfig = {
-//   size?: string,
-//   color?: string,
-//   lock?: iconLockConfig,
-// }
-
-// type searchThemeConfig = {
-//   padding?: string,
-//   margin?: string,
-//   width?: string,
-//   height?: string,
-//   textColor?: string,
-//   bgColor?: string,
-//   borderColor?: string,
-//   borderRadius?: string,
-//   fontSize?: string,
-//   fontWeight?: string,
-//   shadow?: string,
-//   textTransform?: string,
-//   placeholderColor?: string,
-//   placeholderOpacity?: string,
-//   hoverBgColor?: string,
-//   hoverTextColor?: string,
-//   hoverBorderColor?: string,
-//   hoverIconColor?: string,
-//   hoverShadow?: string,
-//   focusBgColor?: string,
-//   focusTextColor?: string,
-//   focusBorderColor?: string,
-//   focusIconColor?: string,
-//   focusShadow?: string,
-//   focusOutline?: string,
-//   focusOutlineOffset?: string,
-//   icon?: iconThemeConfig,
-// }
-
-// type toastThemeConfig = {
-//   padding?: string,
-//   margin?: string,
-//   width?: string,
-//   height?: string,
-//   textColor?: string,
-//   bgColor?: string,
-//   borderColor?: string,
-//   borderRadius?: string,
-//   fontSize?: string,
-//   fontWeight?: string,
-//   shadow?: string,
-//   textTransform?: string,
-//   success?: styling,
-//   error?: styling,
-//   warning?: styling,
-//   info?: styling,
-// }
-
-// type bannerThemeConfig = {
-//   padding?: string,
-//   margin?: string,
-//   width?: string,
-//   height?: string,
-//   textColor?: string,
-//   bgColor?: string,
-//   borderColor?: string,
-//   borderRadius?: string,
-//   fontSize?: string,
-//   fontWeight?: string,
-//   shadow?: string,
-//   textTransform?: string,
-//   warning?: styling,
-//   info?: styling,
-//   error?: styling,
-//   success?: styling,
-// }
-
-// type blendThemeConfig = {
-//   foundationTokens?: JSON.t,
-//   componentTokens?: JSON.t,
-// }
-
-// type themeConfig = {
-//   mode?: themeMode,
-//   colors?: themeColors,
-//   radius?: scaleConfig,
-//   spacing?: scaleConfig,
-//   shadow?: shadowConfig,
-//   typography?: typographyConfig,
-//   button?: buttonThemeConfig,
-//   table?: tableThemeConfig,
-//   form?: formThemeConfig,
-//   dropdown?: dropdownThemeConfig,
-//   icon?: iconThemeConfig,
-//   search?: searchThemeConfig,
-//   toast?: toastThemeConfig,
-//   banner?: bannerThemeConfig,
-//   pageTitle?: styling,
-//   jsonValue?: styling,
-//   tooltip?: styling,
-//   blend?: blendThemeConfig,
-// }
 
 type tableSerialNumberConfig = {
   enabled?: bool,
@@ -351,50 +105,17 @@ type tableSerialNumberConfig = {
 
 type tableConfig = {serialNumber?: tableSerialNumberConfig}
 
-// type layoutConfig = {
-//   adminContentMinHeight?: string,
-//   modalWidth?: string,
-//   modalMinWidth?: string,
-//   modalMaxWidth?: string,
-//   modalMaxHeight?: string,
-//   confirmWidth?: string,
-//   alertMinWidth?: string,
-//   tableMinWidth?: string,
-//   tableEmptyMinHeight?: string,
-//   compactControlPadding?: string,
-// }
+// ─── Theme config ────────────────────────────────────────────────────────────
+// Forward blend's FOUNDATION_THEME so the embeddable UI's inner BlendThemeProvider
+// gets the same token shape it was built against, instead of inheriting the
+// dashboard's outer BlendThemeProvider tokens.
 
-// type notifyInput = {
-//   tone: notifyTone,
-//   title: string,
-//   description?: string,
-// }
+type blendThemeConfig = {foundationTokens?: FoundationTokens.foundationThemeType}
 
-// type confirmInput = {
-//   title: string,
-//   description?: string,
-//   confirmLabel?: string,
-//   cancelLabel?: string,
-//   variant?: confirmVariant,
-// }
-
-// type renderModalInput = {
-//   @as("open") isOpen: bool,
-//   onClose: unit => unit,
-//   title: string,
-//   children: React.element,
-//   footer?: React.element,
-// }
-
-// type uiConfig = {
-//   notify?: notifyInput => unit,
-//   confirm?: confirmInput => promise<bool>,
-//   renderModal?: renderModalInput => React.element,
-//   portalContainer?: string,
-//   modalZIndex?: int,
-//   alertZIndex?: int,
-//   showBoundaryFilter?: bool,
-// }
+type spThemeConfig = {
+  mode?: string,
+  blend?: blendThemeConfig,
+}
 
 // ─── Root config ─────────────────────────────────────────────────────────────
 
@@ -415,9 +136,7 @@ type embeddableConfig = {
   features?: array<superpositionFeature>,
   routing?: routingConfig,
   table?: tableConfig,
-  // theme?: themeConfig,
-  // layout?: layoutConfig,
-  // ui?: uiConfig,
+  theme?: spThemeConfig,
   messages?: Js.Dict.t<string>,
 }
 
@@ -463,4 +182,25 @@ module OverrideManager = {
 module DimensionManager = {
   @module("superposition-embeddable-ui/dimension-manager") @react.component
   external make: (~pageSize: int=?, ~editable: bool=?) => React.element = "DimensionManager"
+}
+
+type auditTrailDateRange = {
+  startDate: Js.Date.t,
+  endDate?: Js.Date.t,
+}
+
+type auditAction =
+  | @as("INSERT") Insert
+  | @as("UPDATE") Update
+  | @as("DELETE") Delete
+
+type auditTrailFilters = {
+  dateRange?: auditTrailDateRange,
+  tables?: array<string>,
+  actions?: array<auditAction>,
+}
+
+module AuditTrail = {
+  @module("superposition-embeddable-ui/audit-trail") @react.component
+  external make: (~pageSize: int=?, ~filters: auditTrailFilters=?) => React.element = "AuditTrail"
 }

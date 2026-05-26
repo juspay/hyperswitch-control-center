@@ -108,7 +108,7 @@
     "react-window": "^1.8.8",
     "recoil": "^0.1.2",
     "rescript-webapi": "0.10.0",
-    "superposition-embeddable-ui": "https://github.com/juspay/superposition-embeddable-ui/releases/download/v0.1.2/superposition-embeddable-ui-0.1.2.tgz",
+    "superposition-embeddable-ui": "file:./packages/superposition-embeddable-ui-0.1.2.tgz",
     "tailwindcss": "^3.0.0"
   },
   "packageManager": "yarn@3.2.1"
