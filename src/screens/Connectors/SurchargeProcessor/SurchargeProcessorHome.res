@@ -181,8 +181,9 @@ let make = () => {
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
-        let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
-        let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
+        let errJson = err->safeParse->getDictFromJsonObject
+        let errorCode = errJson->getString("code", "")
+        let errorMessage = errJson->getString("message", "")
 
         if errorCode === "HE_01" {
           showToast(~message="Connector label already exist!", ~toastType=ToastError)

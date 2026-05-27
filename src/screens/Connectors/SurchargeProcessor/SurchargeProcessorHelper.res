@@ -125,8 +125,8 @@ module ConnectButton = {
       ->Array.joinWith("\n")
 
     <>
-      <RenderIf condition={errorsList->Array.length === 0}> {button} </RenderIf>
-      <RenderIf condition={errorsList->Array.length > 0}>
+      <RenderIf condition={errorsList->isEmptyArray}> {button} </RenderIf>
+      <RenderIf condition={errorsList->isNonEmptyArray}>
         <ToolTip description toolTipFor=button toolTipPosition=ToolTip.Top />
       </RenderIf>
     </>
