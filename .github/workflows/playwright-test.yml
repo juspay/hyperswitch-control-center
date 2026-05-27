@@ -18,6 +18,10 @@ on:
           - "3"
           - "4"
 
+concurrency:
+  group: playwright-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -25,24 +29,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 1
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 24
-
-      - name: Cache node_modules
-        id: node-modules-cache
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: node-modules-${{ runner.os }}-node24-${{ hashFiles('package-lock.json') }}
+          cache: 'npm'
 
       - name: Install dependencies
-        if: steps.node-modules-cache.outputs.cache-hit != 'true'
-        run: npm install --force
+        run: npm ci
 
       - name: Build application
         run: npm run build:test
@@ -65,6 +60,7 @@ jobs:
             playwright-${{ runner.os }}-
 
       - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install chromium --with-deps
 
   playwright-tests:
@@ -79,8 +75,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 1
 
       - name: Start backend services
         run: |
@@ -88,20 +82,13 @@ jobs:
           sh playwright-tests/start_hyperswitch.sh
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 24
-
-      - name: Restore node_modules
-        id: node-modules-cache
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: node-modules-${{ runner.os }}-node24-${{ hashFiles('package-lock.json') }}
+          cache: 'npm'
 
       - name: Install dependencies
-        if: steps.node-modules-cache.outputs.cache-hit != 'true'
-        run: npm install --force
+        run: npm ci
 
       - name: Download build artifact
         uses: actions/download-artifact@v4
@@ -110,12 +97,17 @@ jobs:
           path: dist/
 
       - name: Restore Playwright browsers
+        id: playwright-cache
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             playwright-${{ runner.os }}-
+
+      - name: Install Playwright browsers (fallback on cache miss)
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium --with-deps
 
       - name: Health check for Backend
         run: |
@@ -160,36 +152,30 @@ jobs:
         if: always()
         with:
           name: playwright-coverage-shard-${{ matrix.shard }}
-          path: coverage-report/
+          path: coverage-report/raw/
           if-no-files-found: warn
-          retention-days: 7
+          retention-days: 1
 
   merge-coverage:
     needs: playwright-tests
     runs-on: ubuntu-latest
     if: always()
+    permissions:
+      contents: read
+      actions: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 1
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 24
-
-      - name: Restore node_modules
-        id: node-modules-cache
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: node-modules-${{ runner.os }}-node24-${{ hashFiles('package-lock.json') }}
+          cache: 'npm'
 
       - name: Install dependencies
-        if: steps.node-modules-cache.outputs.cache-hit != 'true'
-        run: npm install --force
+        run: npm ci
 
       - name: Download all shard coverage artifacts
         uses: actions/download-artifact@v4
@@ -203,22 +189,15 @@ jobs:
           shopt -s nullglob
           shard_count=0
           total_added=0
-          # MCR raw cache files are `coverage-<uid>.json` / `source-<uid>.json`
-          # and live under a `raw/` directory created by the raw reporter.
-          # We MUST scope to */raw/* — the artifact root also contains
-          # `coverage-summary.json` (json-summary reporter output), which
-          # matches the same name glob but has shape {summary,files} not
-          # {id,type,data}, and crashes mergeV8DataList at v8.js:183
-          # ("Cannot read properties of undefined (reading 'empty')").
           for shard_dir in coverage-shards/playwright-coverage-shard-*/; do
             shard_count=$((shard_count + 1))
             added=0
             while IFS= read -r -d '' f; do
               cp -n "$f" "merged-raw/" && added=$((added + 1)) || true
-            done < <(find "${shard_dir}" -type f -path '*/raw/*' \( -name 'coverage-*.json' -o -name 'source-*.json' \) -print0)
+            done < <(find "${shard_dir}" -type f \( -name 'coverage-*.json' -o -name 'source-*.json' \) -print0)
             total_added=$((total_added + added))
             if [ "$added" -eq 0 ]; then
-              echo "⚠️  No raw V8 files found under ${shard_dir}**/raw/"
+              echo "⚠️  No raw V8 files found under ${shard_dir}"
             else
               echo "✓ ${shard_dir}: added ${added} raw file(s)"
             fi
@@ -261,3 +240,10 @@ jobs:
           path: coverage-report-merged/
           if-no-files-found: warn
           retention-days: 7
+
+      - name: Delete per-shard coverage artifacts
+        if: success() && hashFiles('coverage-report-merged/coverage-summary.md') != ''
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: playwright-coverage-shard-*
+          failOnError: false
