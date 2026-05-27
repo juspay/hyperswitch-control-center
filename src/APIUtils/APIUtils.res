@@ -122,6 +122,19 @@ let getV2Url = (
       }
     | _ => ``
     }
+  | V2_ORDERS_AGGREGATE_CLICKHOUSE =>
+    switch methodType {
+    | Get =>
+      switch queryParameters {
+      | Some(queryParams) =>
+        switch transactionEntity {
+        | #Profile => `v2/analytics/profile/payment_intents/aggregate?${queryParams}`
+        | _ => `v2/analytics/merchant/payment_intents/aggregate?${queryParams}`
+        }
+      | None => ``
+      }
+    | _ => ``
+    }
   | PAYMENT_METHOD_LIST =>
     switch id {
     | Some(customerId) => `v1/customers/${customerId}/saved-payment-methods`
@@ -406,6 +419,19 @@ let useGetURL = () => {
           | None => `payments/aggregate`
           }
         | _ => `payments/aggregate`
+        }
+      | ORDERS_AGGREGATE_CLICKHOUSE =>
+        switch methodType {
+        | Get =>
+          switch queryParameters {
+          | Some(queryParams) =>
+            switch transactionEntity {
+            | #Profile => `analytics/v1/payment_intents/aggregate?${queryParams}`
+            | _ => `analytics/v1/payment_intents/aggregate?${queryParams}`
+            }
+          | None => `analytics/v1/payment_intents/aggregate`
+          }
+        | _ => `analytics/v1/payment_intents/aggregate`
         }
       | REFUNDS =>
         switch methodType {
@@ -1491,26 +1517,25 @@ let useHandleLogout = (~eventName="user_sign_out") => {
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
+  let showToast = ToastState.useShowToast()
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  () => {
+  async () => {
     try {
       let logoutUrl = getURL(~entityName=V1(USERS), ~methodType=Post, ~userType=#SIGNOUT)
-      open Promise
+      let _ = await fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute, ~forceCookies)
       mixpanelEvent(~eventName)
-      let _ =
-        fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute, ~forceCookies)
-        ->then(Fetch.Response.json)
-        ->then(json => {
-          json->resolve
-        })
-        ->catch(_err => {
-          JSON.Encode.null->resolve
-        })
       setAuthStateToLogout()
       clearRecoilValue()
       CommonAuthUtils.clearLocalStorage()
     } catch {
-    | _ => CommonAuthUtils.clearLocalStorage()
+    | _ => {
+        showToast(
+          ~toastType=ToastError,
+          ~message="Logout failed. Please try again.",
+          ~autoClose=true,
+        )
+        mixpanelEvent(~eventName="user_sign_out_failed")
+      }
     }
   }
 }
