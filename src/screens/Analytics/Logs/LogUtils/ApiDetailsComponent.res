@@ -255,7 +255,7 @@ let make = (
             }}
           </div>
           <div className={`${headerStyle} opacity-40 flex gap-1`}>
-            <TableUtils.DateCell timestamp={startTime} />
+            <TableUtils.DateCell timestamp=startTime />
           </div>
         </div>
       </div>
