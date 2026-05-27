@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.27.0
+
+### Features
+
+- Gate ClickHouse Aggregate API behind a feature flag ([#4849](https://github.com/juspay/hyperswitch-control-center/pull/4849)) ([`54be163`](https://github.com/juspay/hyperswitch-control-center/commit/54be16380ebe6736e0a963457ec1020344272456))
+
+### Bug Fixes
+
+- Blend adapter bugfixes for date pickers, multi-select, and icon checkbox ([#4844](https://github.com/juspay/hyperswitch-control-center/pull/4844)) ([`1e3e45e`](https://github.com/juspay/hyperswitch-control-center/commit/1e3e45e75524f36faf0115f5f1cd273b85f48311))
+- Await logout API before clearing auth state ([#4796](https://github.com/juspay/hyperswitch-control-center/pull/4796)) ([`34e8b45`](https://github.com/juspay/hyperswitch-control-center/commit/34e8b4578572fd8bfe972d58b3877cd33ae070c7))
+
+**Full Changelog:** [`2026.05.26.0...2026.05.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.26.0...2026.05.27.0)
+
+- - -
+
 ## 2026.05.26.0
 
 ### Bug Fixes
