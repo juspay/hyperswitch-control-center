@@ -1,19 +1,24 @@
+module LegacyRedirect = {
+  @react.component
+  let make = (~fileId: string) => {
+    React.useEffect0(() => {
+      RescriptReactRouter.replace(
+        GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/sources?file=${fileId}`),
+      )
+      None
+    })
+    React.null
+  }
+}
+
 @react.component
 let make = () => {
   let url = RescriptReactRouter.useUrl()
-
-  let breadCrumbNavigationPath: array<BreadCrumbNavigation.breadcrumb> = [
-    {title: "Transformed Entries", link: `/v1/recon-engine/transformed-entries`},
-  ]
   switch url.path->HSwitchUtils.urlPath {
+  /* Legacy drilldown — the file-centric story now lives in Sources. */
   | list{"v1", "recon-engine", "transformed-entries", "ingestion-history", ingestionHistoryId} =>
-    <ReconEngineDataOverview breadCrumbNavigationPath ingestionHistoryId={ingestionHistoryId} />
-  | list{"v1", "recon-engine", "transformed-entries"} =>
-    <FilterContext
-      key="recon-engine-accounts-transformed-entries"
-      index="recon-engine-accounts-transformed-entries">
-      <ReconEngineDataTransformedEntries />
-    </FilterContext>
+    <LegacyRedirect fileId={ingestionHistoryId} />
+  | list{"v1", "recon-engine", "transformed-entries"} => <ReconEngineTransformedEntriesPage />
   | _ => React.null
   }
 }

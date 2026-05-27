@@ -392,7 +392,9 @@ let entryItemToObjMapper = dict => {
     currency: dict->getDictfromDict("amount")->getString("currency", "N/A"),
     order_id: dict->getString("order_id", ""),
     status: dict->getString("status", "")->getEntryStatusVariantFromString,
-    discarded_status: dict->getOptionString("discarded_status"),
+    discarded_status: dict
+    ->getOptionString("discarded_status")
+    ->Belt.Option.map(getEntryStatusVariantFromString),
     version: dict->getInt("version", 0),
     metadata: dict->getJsonObjectFromDict("metadata"),
     data: dict->getJsonObjectFromDict("data"),

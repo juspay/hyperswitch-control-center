@@ -1,24 +1,26 @@
+module LegacyRedirect = {
+  @react.component
+  let make = (~fileId: string) => {
+    React.useEffect0(() => {
+      RescriptReactRouter.replace(
+        GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/sources?file=${fileId}`),
+      )
+      None
+    })
+    React.null
+  }
+}
+
 @react.component
 let make = () => {
   let url = RescriptReactRouter.useUrl()
-
-  let breadCrumbNavigationPath: array<BreadCrumbNavigation.breadcrumb> = [
-    {title: "Transformation", link: `/v1/recon-engine/transformation`},
-  ]
-
   switch url.path->HSwitchUtils.urlPath {
+  /* Legacy drilldown — file lineage moved into Sources. */
   | list{"v1", "recon-engine", "transformation", "ingestion-history", ingestionHistoryId} =>
-    <ReconEngineDataOverview
-      breadCrumbNavigationPath={breadCrumbNavigationPath} ingestionHistoryId={ingestionHistoryId}
-    />
-  | list{"v1", "recon-engine", "transformation", ...remainingPath} =>
-    <EntityScaffold
-      entityName="IngestionHistory"
-      remainingPath
-      access=Access
-      renderList={() => <ReconEngineDataTransformation />}
-      renderShow={(accountId, _) => <ReconEngineDataTransformationDetails accountId={accountId} />}
-    />
+    <LegacyRedirect fileId={ingestionHistoryId} />
+  /* Per-account legacy detail page now collapsed into the single Transformation page —
+   the left rail handles selection. */
+  | list{"v1", "recon-engine", "transformation", ..._} => <ReconEngineTransformationPage />
   | _ => React.null
   }
 }

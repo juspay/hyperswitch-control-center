@@ -109,8 +109,7 @@ let getCell = (entry: entryType, colType: entryColType): Table.cell => {
   | Currency => Text(entry.currency)
   | Status =>
     switch entry.discarded_status {
-    | Some(discardedStatus) =>
-      getStatusLabel(discardedStatus->ReconEngineUtils.getEntryStatusVariantFromString)
+    | Some(discardedStatus) => getStatusLabel(discardedStatus)
     | None => getStatusLabel(entry.status)
     }
   | Metadata => Text(entry.metadata->JSON.stringify)

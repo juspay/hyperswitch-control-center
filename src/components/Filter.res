@@ -300,13 +300,21 @@ let make = (
     />
     {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
       {<>
-        <div className="mb-4"> {customLeftView} </div>
+        <div className="mb-2"> {customLeftView} </div>
         <div className="flex lg:flex-row flex-col justify-between items-center gap-4 mb-2">
           <div className="flex gap-2 flex-wrap items-center">
             <RenderIf condition={allFilters->Array.length > 0}> {allFiltersUI} </RenderIf>
             {customFilterActions}
             <RenderIf condition={isSmallScreen}>
               <PortalCapture key={`${title}OMPView`} name={`${title}OMPView`} />
+            </RenderIf>
+          </div>
+          <div className="flex gap-2 flex-wrap items-center">
+            <FormRenderer.FieldsRenderer
+              fields={filterList} labelClass="hidden" fieldWrapperClass="p-0"
+            />
+            <RenderIf condition={count > 0}>
+              <ClearFilters defaultFilterKeys ?clearFilters outsidefilter={initialCount > 0} />
             </RenderIf>
           </div>
           <div className="flex gap-2 items-center">
@@ -322,14 +330,6 @@ let make = (
             </RenderIf>
             <PortalCapture key={`${title}CustomizeColumn`} name={`${title}CustomizeColumn`} />
           </div>
-        </div>
-        <div className="flex gap-2 flex-wrap items-center">
-          <FormRenderer.FieldsRenderer
-            fields={filterList} labelClass="hidden" fieldWrapperClass="p-0"
-          />
-          <RenderIf condition={count > 0}>
-            <ClearFilters defaultFilterKeys ?clearFilters outsidefilter={initialCount > 0} />
-          </RenderIf>
         </div>
       </>}
     </AddDataAttributes>}

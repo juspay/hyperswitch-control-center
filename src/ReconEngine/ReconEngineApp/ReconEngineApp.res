@@ -5,6 +5,17 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
+  /* FAB hidden on revamped routes — they surface activity in-page. */
+  let showActivityFab = switch url.path->urlPath {
+  | list{"v1", "recon-engine", "overview", ..._} => false
+  | list{"v1", "recon-engine", "transactions", ..._} => false
+  | list{"v1", "recon-engine", "sources", ..._} => false
+  | list{"v1", "recon-engine", "transformation", ..._} => false
+  | list{"v1", "recon-engine", "transformed-entries", ..._} => false
+  | list{"v1", "recon-engine", "exceptions", ..._} => false
+  | _ => true
+  }
+
   <>
     {switch url.path->urlPath {
     | list{"v1", "recon-engine", "overview"} => <ReconEngineOverviewContainer />
@@ -34,6 +45,8 @@ let make = () => {
       </AccessControl>
     | _ => <EmptyPage path="/v1/recon-engine/overview" />
     }}
-    <ReconEngineActivityFAB />
+    <RenderIf condition={showActivityFab}>
+      <ReconEngineActivityFAB />
+    </RenderIf>
   </>
 }

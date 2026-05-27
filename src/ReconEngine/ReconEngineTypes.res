@@ -241,7 +241,7 @@ type entryType = {
   currency: string,
   order_id: string,
   status: entryStatus,
-  discarded_status: option<string>,
+  discarded_status: option<entryStatus>,
   metadata: Js.Json.t,
   data: Js.Json.t,
   version: int,
