@@ -174,7 +174,7 @@ let make = (~index: string, ~children) => {
     let keys = []
     switch sessionStorage.getItem(`${index}-list`)->Nullable.toOption {
     | Some(value) =>
-      switch value->JSON.parseExn->JSON.Decode.array {
+      switch value->safeParseOpt->Option.flatMap(JSON.Decode.array) {
       | Some(arr) =>
         arr->Array.forEach(item => {
           switch item->JSON.Decode.string {
