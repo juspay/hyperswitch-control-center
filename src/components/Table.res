@@ -766,7 +766,7 @@ let make = (
       let actualIndex = offset + rowIndex
       let rowDataItem: option<'t> =
         actualData->Option.flatMap(data =>
-          data->Array.get(actualIndex)->Option.flatMap(n => n->Nullable.toOption)
+          data->Array.get(actualIndex)->Option.flatMap(LogicUtils.getOptionalFromNullable)
         )
 
       let isVisited =
@@ -775,7 +775,7 @@ let make = (
       let handleRowClick = index => {
         let currentRowData =
           actualData->Option.flatMap(data =>
-            data->Array.get(index)->Option.flatMap(n => n->Nullable.toOption)
+            data->Array.get(index)->Option.flatMap(LogicUtils.getOptionalFromNullable)
           )
 
         switch visitedRows {
