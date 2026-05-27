@@ -7,6 +7,9 @@ let pixAutomaticoRequestToDictMapper = dict => {
     client_secret: dict->getString("client_secret", ""),
     pix_key_type: dict->getString("pix_key_type", ""),
     pix_key_value: dict->getString("pix_key_value", ""),
+    account_number: dict->getString("account_number", ""),
+    account_type: dict->getString("account_type", ""),
+    branch_code: dict->getString("branch_code", ""),
   }
 }
 

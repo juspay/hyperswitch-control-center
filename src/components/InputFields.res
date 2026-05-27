@@ -451,7 +451,7 @@ let singleDatePickerInput = (
   ~showTime=?,
   ~fullLength=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
-  <DatePicker
+  <DatePickerAdapter
     input
     disablePastDates
     disableFutureDates
