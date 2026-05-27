@@ -34,7 +34,10 @@ let pixEmvFieldInput = (~pixEmvField: CommonConnectorTypes.inputField, ~fill) =>
 
 let validatePixEmvFields = (json: JSON.t) => {
   let pixEmvFields =
-    json->getDictFromJsonObject->getDictFromNestedDict("metadata", "pix_emv")->pixEmvRequestToDictMapper
+    json
+    ->getDictFromJsonObject
+    ->getDictFromNestedDict("metadata", "pix_emv")
+    ->pixEmvRequestToDictMapper
 
   pixEmvFields.client_id->isNonEmptyString &&
   pixEmvFields.client_secret->isNonEmptyString &&
