@@ -265,9 +265,14 @@ module OMPViewsComp = {
     ~customLabel="View data for:",
   ) => {
     let (arrow, setArrow) = React.useState(_ => false)
+    let isInitialMount = React.useRef(true)
 
     let toggleChevronState = () => {
-      setArrow(prev => !prev)
+      if isInitialMount.current {
+        isInitialMount.current = false
+      } else {
+        setArrow(prev => !prev)
+      }
     }
 
     let customScrollStyle = "md:max-h-72 md:overflow-scroll md:px-1 md:pt-1"
