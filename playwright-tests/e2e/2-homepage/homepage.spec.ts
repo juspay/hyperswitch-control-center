@@ -87,54 +87,6 @@ test.describe("Homepage", () => {
     await expect(visit).toBeEnabled();
   });
 
-  test.skip("should make a payment using SDK", async ({ page, context }) => {
-    // SDK iframe boots a separate JS bundle and a Stripe sandbox handshake.
-    // CI cold-start adds 10–20s of overhead on top of the dashboard flow.
-    test.setTimeout(90000);
-    const homePage = new HomePage(page);
-
-    const merchantId = await homePage.merchantID.nth(0).textContent();
-    if (merchantId) {
-      await createDummyConnectorAPI(
-        merchantId,
-        "stripe_test_1",
-        context.request,
-      );
-
-      await homePage.tryItOutButton.click();
-
-      await expect(homePage.setupCheckoutHeader).toContainText(
-        "Setup Checkout",
-      );
-
-      await homePage.showPreviewButton.click();
-      // SDK preview triggers a remote bundle fetch + iframe handshake; CI cold
-      // start can push this past 30s. Wait for network to settle before
-      // probing for the iframe element.
-      await page.waitForLoadState("networkidle");
-      await expect(page.locator('iframe[name="orca-payment-element-iframeRef-orca-elements-payment-element-payment-element"]').contentFrame().getByRole('button', { name: 'Card' })).toBeVisible({ timeout: 10000 });
-      await page.locator("iframe").first().waitFor({
-        state: "attached",
-        timeout: 30000,
-      });
-
-      const iframe = page.frameLocator("iframe").first();
-      await iframe
-        .locator("[data-testid=cardNoInput]")
-        .waitFor({ state: "visible", timeout: 45000 });
-      await iframe
-        .locator("[data-testid=cardNoInput]")
-        .fill("4242424242424242");
-      await iframe.locator("[data-testid=expiryInput]").fill("0127");
-      await iframe.locator("[data-testid=cvvInput]").fill("492");
-
-      await homePage.payButton.click();
-      await expect(homePage.paymentSuccessfulText).toBeAttached({
-        timeout: 30000,
-      });
-    }
-  });
-
   test("should verify sidebar menu navigation - overview and operations", async ({
     page,
   }) => {
@@ -594,5 +546,194 @@ test.describe("Production access form", () => {
     );
     await expect(productionAccessPage.invalidUrlError).not.toBeVisible();
     await expect(productionAccessPage.invalidEmailError).not.toBeVisible();
+  });
+});
+
+test.describe("SDK Payment", () => {
+  test.beforeEach(async ({ page, context }) => {
+    email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+
+    const homePage = new HomePage(page);
+    const merchantId = await homePage.merchantID.nth(0).textContent();
+    if (merchantId) {
+      await createDummyConnectorAPI(merchantId, "stripe_test_sdk", context.request);
+    }
+
+    await homePage.tryItOutButton.click();
+  });
+
+  test("should render the SDK hosted checkout preview section", async ({ page }) => {
+    const homePage = new HomePage(page);
+
+    await expect(homePage.setupCheckoutHeader).toContainText("Setup Checkout");
+    await expect(page.getByRole('tab', { name: 'Checkout Details' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Theme Customization' })).toBeVisible();
+    await expect(page.getByText('Customer ID')).toBeVisible();
+    await expect(page.locator('div').filter({ hasText: /^Guest Mode$/ })).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Enter Customer ID' })).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Enter Customer ID' })).toHaveValue("hyperswitch_sdk_demo_id");
+    await expect(page.getByText('Show Saved Card')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Yes' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Yes' })).toHaveAttribute("data-value", "yes");
+    await expect(page.locator('div').filter({ hasText: /^Currency$/ }).first()).toBeVisible();
+    await expect(page.getByRole('button', { name: '🇺🇸 United States Of America' })).toBeVisible();
+    await expect(page.getByText('Enter amount')).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Enter amount' })).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Enter amount' })).toHaveValue("100");
+    await expect(page.getByText('Edit Checkout Details')).toBeVisible();
+    await expect(homePage.showPreviewButton).toBeVisible();
+    await expect(homePage.showPreviewButton).toBeEnabled();
+    await expect(page.getByText('For Testing Stripe & Dummy')).toBeVisible();
+    await expect(page.getByText('Card Number :4242 4242 4242 4242')).toBeVisible();
+    await expect(page.getByText('Expiry:Any future date')).toBeVisible();
+    await expect(page.getByText('CVC:Any 3 Digits')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Test creds for other connectors here' })).toBeVisible();
+    await expect(homePage.sdkPreviewHeading).toBeVisible();
+    await expect(page.getByRole('img', { name: 'blurry-sdk' })).toBeVisible();
+  });
+
+  test("should render the SDK theme configuration form", async ({ page }) => {
+    const homePage = new HomePage(page);
+
+    await expect(homePage.sdkCheckoutDetailsTab).toBeVisible();
+    await homePage.sdkThemeCustomizationTab.click();
+    await expect(page.locator('div').filter({ hasText: /^Theme$/ }).first()).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Default' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Default' })).toHaveAttribute("data-value", "default");
+    await expect(page.locator('div').filter({ hasText: /^Locale$/ }).first()).toBeVisible();
+    await expect(page.getByRole('button', { name: 'English (Global)' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'English (Global)' })).toHaveAttribute("data-value", "english(Global)");
+    await expect(page.getByText('Layout')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Tabs' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Tabs' })).toHaveAttribute("data-value", "tabs");
+    await expect(page.locator('div').filter({ hasText: /^Labels$/ }).first()).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Above' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Above' })).toHaveAttribute("data-value", "above");
+    await expect(page.locator('div').filter({ hasText: /^Color Picker Input$/ }).nth(1)).toBeVisible();
+    await expect(page.getByRole('textbox', { name: '#FFFFFF' })).toBeVisible();
+    await expect(page.getByRole('textbox', { name: '#FFFFFF' })).toHaveValue("#006DF9");
+    await expect(page.getByRole('link', { name: 'Learn More About Customization' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Show preview' })).toBeVisible();
+  });
+
+  test("should bind SDK form inputs to user-typed values", async ({ page }) => {
+    const homePage = new HomePage(page);
+
+    await homePage.sdkCustomerIdInput.fill("cust_playwright_001");
+    await expect(homePage.sdkCustomerIdInput).toHaveValue("cust_playwright_001");
+
+    await page.getByRole('button', { name: 'Yes' }).click();
+    await page.locator('div').filter({ hasText: /^No$/ }).nth(1).click();
+    await expect(page.getByRole('button', { name: 'No' })).toHaveAttribute("data-value", "no");
+
+    await page.getByRole('button', { name: '🇺🇸 United States Of America' }).click();
+    await page.getByRole('textbox', { name: 'Search name or ID...' }).type("India");
+    await page.getByText('🇮🇳 India - (INR)').click();
+    await expect(page.getByRole('button', { name: '🇮🇳 India - (INR)' })).toBeVisible();
+
+    await homePage.sdkAmountInput.fill("250.50");
+    await expect(homePage.sdkAmountInput).toHaveValue("250.50");
+  });
+
+  test("should make a successfull payment using SDK", async ({ page, context }) => {
+    const homePage = new HomePage(page);
+
+    await page.getByRole('button', { name: '🇺🇸 United States Of America' }).click();
+    await page.getByRole('textbox', { name: 'Search name or ID...' }).type("India");
+    await page.getByText('🇮🇳 India - (INR)').click();
+
+    await homePage.sdkAmountInput.fill("123.45");
+
+    await homePage.showPreviewButton.click();
+    await page.waitForLoadState("networkidle");
+    await homePage.waitForSdkCardForm();
+
+    await homePage.fillSdkTestCard();
+
+    await expect(homePage.payButtonByCurrency("INR")).toContainText("Pay INR 123.45");
+    await homePage.payButtonByCurrency("INR").click();
+    await expect(homePage.paymentSuccessfulText).toBeAttached({ timeout: 10000 });
+
+    await homePage.goToPaymentOperationsButton.click();
+    expect(page.url()).toContain("/dashboard/payments/pay_");
+
+  });
+
+  test("should display failed payment status using SDK", async ({ page }) => {
+    const homePage = new HomePage(page);
+
+    await page.route("**/payments/*/confirm", async (route) => {
+      if (route.request().method() === "POST") {
+        const response = await route.fetch();
+        const json = await response.json();
+        json.status = "failed";
+        json.error_code = "CE_01";
+        json.error_message = "Payment declined by processor";
+        await route.fulfill({ response, json });
+      } else {
+        await route.continue();
+      }
+    });
+
+    await homePage.showPreviewButton.click();
+    await page.waitForLoadState("networkidle");
+    await homePage.waitForSdkCardForm();
+
+    await homePage.fillSdkTestCard();
+
+    await expect(homePage.payButtonByCurrency("USD")).toContainText("Pay USD 100");
+    await homePage.payButtonByCurrency("USD").click();
+    await expect(homePage.paymentFailedText).toBeVisible({ timeout: 10000 });
+    await expect(homePage.goToPaymentOperationsButton).toBeVisible();
+  });
+
+  test("should display processing payment status using SDK", async ({ page }) => {
+    const homePage = new HomePage(page);
+
+    await page.route("**/payments/*/confirm", async (route) => {
+      if (route.request().method() === "POST") {
+        const response = await route.fetch();
+        const json = await response.json();
+        json.status = "processing";
+        await route.fulfill({ response, json });
+      } else {
+        await route.continue();
+      }
+    });
+
+    await homePage.showPreviewButton.click();
+    await page.waitForLoadState("networkidle");
+    await homePage.waitForSdkCardForm();
+
+    await homePage.fillSdkTestCard();
+
+    await expect(homePage.payButtonByCurrency("USD")).toContainText("Pay USD 100");
+    await homePage.payButtonByCurrency("USD").click();
+    await expect(homePage.paymentPendingText).toBeVisible({ timeout: 10000 });
+    await expect(homePage.goToPaymentOperationsButton).toBeVisible();
+  });
+
+  test("should display error toast when SDK save (Show Preview) API fails", async ({ page }) => {
+    await page.route("**/payments", async (route) => {
+      if (route.request().method() === "POST") {
+        await route.fulfill({
+          status: 500,
+          contentType: "application/json",
+          body: JSON.stringify({ error: { message: "Internal Server Error" } }),
+        });
+      } else {
+        await route.continue();
+      }
+    });
+
+    const homePage = new HomePage(page);
+
+    await page.goto("/dashboard/sdk");
+    await expect(homePage.showPreviewButton).toBeEnabled();
+    await homePage.showPreviewButton.click();
+
+    await expect(homePage.sdkErrorToast).toBeVisible();
   });
 });

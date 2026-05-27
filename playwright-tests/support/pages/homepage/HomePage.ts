@@ -273,6 +273,89 @@ export class HomePage {
     return this.page.getByText("Payment Successful");
   }
 
+  get sdkCheckoutDetailsTab(): Locator {
+    return this.page.getByText("Checkout Details", { exact: true });
+  }
+
+  get sdkThemeCustomizationTab(): Locator {
+    return this.page.getByText("Theme Customization", { exact: true });
+  }
+
+  get sdkPreviewHeading(): Locator {
+    return this.page.getByText("Preview", { exact: true });
+  }
+
+  get sdkCustomerIdInput(): Locator {
+    return this.page.locator('[name="customer_id"]');
+  }
+
+  get sdkAmountInput(): Locator {
+    return this.page.locator('[name="amount"]');
+  }
+
+  get sdkCurrencySelectButton(): Locator {
+    return this.page.locator('[name="country_currency"]');
+  }
+
+  get sdkEditCheckoutDetailsLink(): Locator {
+    return this.page.getByText("Edit Checkout Details", { exact: true });
+  }
+
+  get sdkTestCredentialsCardNumber(): Locator {
+    return this.page.getByText("4242 4242 4242 4242");
+  }
+
+  get sdkErrorToast(): Locator {
+    return this.page.getByText("Something went wrong. Please try again");
+  }
+
+  get sdkIframe(): Locator {
+    return this.page.locator('iframe[name="orca-payment-element-iframeRef-orca-elements-payment-element-payment-element"]');
+  }
+
+  get sdkCardButton(): Locator {
+    return this.sdkIframe.contentFrame().getByRole('button', { name: 'Card' });
+  }
+
+  get sdkCardNoInput(): Locator {
+    return this.sdkIframe.contentFrame().locator("[data-testid=cardNoInput]");
+  }
+
+  get sdkExpiryInput(): Locator {
+    return this.sdkIframe.contentFrame().locator("[data-testid=expiryInput]");
+  }
+
+  get sdkCvvInput(): Locator {
+    return this.sdkIframe.contentFrame().locator("[data-testid=cvvInput]");
+  }
+
+  get paymentFailedText(): Locator {
+    return this.page.getByText("Payment Failed");
+  }
+
+  get paymentPendingText(): Locator {
+    return this.page.getByText("Payment Pending");
+  }
+
+  get goToPaymentOperationsButton(): Locator {
+    return this.page.getByRole('button', { name: 'Go to Payment Operations' });
+  }
+
+  payButtonByCurrency(currency: string): Locator {
+    return this.page.getByRole('button', { name: `Pay ${currency}` });
+  }
+
+  async waitForSdkCardForm(): Promise<void> {
+    await this.sdkCardButton.waitFor({ state: "visible", timeout: 10000 });
+    await this.sdkCardNoInput.waitFor({ state: "visible", timeout: 15000 });
+  }
+
+  async fillSdkTestCard(): Promise<void> {
+    await this.sdkCardNoInput.fill("4242424242424242");
+    await this.sdkExpiryInput.fill("0127");
+    await this.sdkCvvInput.fill("492");
+  }
+
   get visitButton(): Locator {
     return this.page.getByRole("button", { name: "Visit" });
   }
