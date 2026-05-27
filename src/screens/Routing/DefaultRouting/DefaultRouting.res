@@ -122,9 +122,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
           <h1 className={`${heading.lg.semibold} text-nd_gray-800`}>
             {React.string("Default Fallback")}
           </h1>
-          <p className={`${body.lg.medium} text-nd_gray-500`}>
-            {React.string(subtitleCopy)}
-          </p>
+          <p className={`${body.lg.medium} text-nd_gray-500`}> {React.string(subtitleCopy)} </p>
         </div>
         <AlertV2Binding
           alertType=Primary
