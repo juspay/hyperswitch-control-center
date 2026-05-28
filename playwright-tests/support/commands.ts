@@ -276,6 +276,46 @@ export async function getDefaultProfileId(
   return profileId as string;
 }
 
+export async function createMerchantAPI(
+  token: string,
+  merchantName: string,
+  context?: APIRequestContext,
+  retries = 3,
+): Promise<{ merchant_id: string }> {
+  const ctx = context ?? (await request.newContext());
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const response = await ctx.post(`${API_URL}/user/create_merchant`, {
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": "test_admin",
+        Authorization: `Bearer ${token}`,
+      },
+      data: {
+        company_name: merchantName,
+      },
+    });
+
+    if (response.ok()) {
+      return await response.json();
+    }
+
+    const body = await response.text();
+    // The backend generates merchant IDs from the current timestamp (per-second
+    // resolution), so parallel workers can collide. Any 500 (including the
+    // generic HE_00 "Something went wrong") is treated as transient: retry
+    // after a delay so the next attempt lands in a different second.
+    if (response.status() === 500 && attempt < retries) {
+      await new Promise((r) => setTimeout(r, 1100));
+      continue;
+    }
+
+    throw new Error(`createMerchantAPI failed (${response.status()}): ${body}`);
+  }
+
+  throw new Error("createMerchantAPI: exhausted retries");
+}
+
 export async function createStripeConnectorAPI(
   merchantId: string,
   connectorLabel: string,

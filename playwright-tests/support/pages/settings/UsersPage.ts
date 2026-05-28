@@ -284,6 +284,10 @@ export class UsersPage {
     return this.page.getByText("Your merchant has been switched successfully.");
   }
 
+  get profileSwitchedSuccessText(): Locator {
+    return this.page.getByText("Your profile has been switched successfully.");
+  }
+
   get merchantCreatedSuccessText(): Locator {
     return this.page.getByText("Merchant Created Successfully!");
   }

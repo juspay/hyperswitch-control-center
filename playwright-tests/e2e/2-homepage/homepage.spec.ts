@@ -1,12 +1,16 @@
 import { test, expect } from "../../support/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { ProductionAccessPage } from "../../support/pages/homepage/ProductionAccessPage";
-import { generateUniqueEmail } from "../../support/helper";
+import { OrganizationChartPage } from "../../support/pages/settings/OrganizationChartPage";
+import { generateUniqueEmail, generateDateTimeString } from "../../support/helper";
 import {
   signupUser,
   loginUI,
   createDummyConnectorAPI,
+  createBusinessProfileAPI,
+  createMerchantAPI,
 } from "../../support/commands";
+import UsersPage from "../../support/pages/settings/UsersPage";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 let email = "";
@@ -735,5 +739,200 @@ test.describe("SDK Payment", () => {
     await homePage.showPreviewButton.click();
 
     await expect(homePage.sdkErrorToast).toBeVisible();
+  });
+});
+
+test.describe("Organization Chart Tree", () => {
+  let companyName = "";
+
+  test.beforeEach(async ({ page }) => {
+    const email = generateUniqueEmail();
+    companyName = generateDateTimeString();
+    await signupUser(email, PLAYWRIGHT_PASSWORD, undefined, companyName);
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+    await page.waitForURL(/dashboard\/home/, { timeout: 20000 });
+  });
+
+  test("should render organization chart tree with org, merchant and profile columns with correct colour", async ({
+    page,
+  }) => {
+    const orgChart = new OrganizationChartPage(page);
+    await orgChart.visit();
+
+    await expect(orgChart.pageHeading).toBeVisible();
+    await expect(orgChart.pageSubtitle).toBeVisible();
+
+    await expect(orgChart.orgColumn).toBeVisible();
+    await expect(orgChart.merchantColumn).toBeVisible();
+    await expect(orgChart.profileColumn).toBeVisible();
+
+    await expect(page.getByText("Organization" + companyName)).toBeVisible();
+    await expect(page.getByText("Organization" + companyName).getByText(companyName)).toHaveClass(/border-blue-600/);
+    await expect(page.getByText("Organization" + companyName).getByText(companyName)).toHaveClass(/text-blue-600/);
+
+    await expect(page.getByText("Merchant" + companyName)).toBeVisible();
+    await expect(page.getByText("Merchant" + companyName).getByText(companyName + "Orchestrator")).toHaveClass(/border-blue-600/);
+    await expect(page.getByText("Merchant" + companyName).getByText(companyName + "Orchestrator")).toHaveClass(/text-blue-600/);
+
+    await expect(page.getByRole('button', { name: 'default' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'default' })).toHaveClass(/border-blue-600/);
+    await expect(page.getByRole('button', { name: 'default' })).toHaveClass(/text-blue-600/);
+  });
+
+  test("should render chart with newly created merchant and profile highlighting selected options", async ({
+    page,
+    context,
+  }) => {
+    const orgChart = new OrganizationChartPage(page);
+
+    const rawUserInfo = await page.evaluate(() =>
+      window.localStorage.getItem("USER_INFO"),
+    );
+    const userInfo = JSON.parse(rawUserInfo || "{}");
+    const token: string = userInfo.token || "";
+
+    const newMerchantName = generateDateTimeString();
+    const newMerchant = await createMerchantAPI(
+      token,
+      newMerchantName,
+      context.request,
+    );
+    const newMerchantId = newMerchant.merchant_id;
+
+    await createBusinessProfileAPI(
+      newMerchantId,
+      "new-test-profile",
+      context.request,
+    );
+
+    await orgChart.visit();
+
+    const orgName = page.getByRole('button', { name: companyName, exact: true });
+    const merchantOneName = page.getByText(companyName + "Orchestrator");
+    const merchantTwoName = page.getByText(newMerchantName + "Orchestrator");
+    const merchantOneProfileName = page.getByRole('button', { name: 'default' });
+    const merchantTwoProfileTwoName = page.getByRole('button', { name: 'new-test-profile' });
+
+    await expect(orgChart.pageHeading).toBeVisible();
+
+    //Organization button
+    await expect(orgName).toBeVisible();
+    await expect(orgName).toHaveClass(/border-blue-600/);
+    await expect(orgName).toHaveClass(/text-blue-600/);
+
+    //1st Merchant button - selected
+    await expect(merchantOneName).toBeVisible();
+    await expect(merchantOneName).toHaveClass(/border-blue-600/);
+    await expect(merchantOneName).toHaveClass(/text-blue-600/);
+
+    //2nd Merchant button - unselected
+    await expect(merchantTwoName).toBeVisible();
+    await expect(merchantTwoName).toHaveClass(/border-gray-200/);
+    await expect(merchantTwoName).toHaveClass(/border-gray-200/);
+
+    // 1st Merchant - Profile
+    await expect(merchantOneProfileName).toBeVisible();
+    await expect(merchantOneProfileName).toHaveClass(/border-blue-600/);
+    await expect(merchantOneProfileName).toHaveClass(/border-blue-600/);
+
+    //Switch merchant
+    await merchantTwoName.click();
+
+    //Organization button
+    await expect(orgName).toBeVisible();
+    await expect(orgName).toHaveClass(/border-blue-600/);
+    await expect(orgName).toHaveClass(/text-blue-600/);
+
+    //1st Merchant button - unselected
+    await expect(merchantOneName).toBeVisible();
+    await expect(merchantOneName).toHaveClass(/border-gray-200/);
+    await expect(merchantOneName).toHaveClass(/border-gray-200/);
+
+    //2nd Merchant button - selected
+    await expect(merchantTwoName).toBeVisible();
+    await expect(merchantTwoName).toHaveClass(/border-blue-600/);
+    await expect(merchantTwoName).toHaveClass(/text-blue-600/);
+
+    //1st Profile button
+    await expect(merchantOneProfileName).toBeVisible();
+    await expect(merchantOneProfileName).toHaveClass(/border-gray-200/);
+    await expect(merchantOneProfileName).toHaveClass(/border-gray-200/);
+
+    //2nd Profile button
+    await expect(merchantTwoProfileTwoName).toBeVisible();
+    await expect(merchantTwoProfileTwoName).toHaveClass(/border-blue-600/);
+    await expect(merchantTwoProfileTwoName).toHaveClass(/border-blue-600/);
+
+    //Switch profile
+    await merchantOneProfileName.click();
+
+    //Organization button
+    await expect(orgName).toBeVisible();
+    await expect(orgName).toHaveClass(/border-blue-600/);
+    await expect(orgName).toHaveClass(/text-blue-600/);
+
+    //1st Merchant button - unselected
+    await expect(merchantOneName).toBeVisible();
+    await expect(merchantOneName).toHaveClass(/border-gray-200/);
+    await expect(merchantOneName).toHaveClass(/border-gray-200/);
+
+    //2nd Merchant button - selected
+    await expect(merchantTwoName).toBeVisible();
+    await expect(merchantTwoName).toHaveClass(/border-blue-600/);
+    await expect(merchantTwoName).toHaveClass(/text-blue-600/);
+
+    //1st Profile button
+    await expect(merchantOneProfileName).toBeVisible();
+    await expect(merchantOneProfileName).toHaveClass(/border-blue-600/);
+    await expect(merchantOneProfileName).toHaveClass(/border-blue-600/);
+
+    //2nd Profile button
+    await expect(merchantTwoProfileTwoName).toBeVisible();
+    await expect(merchantTwoProfileTwoName).toHaveClass(/border-gray-200/);
+    await expect(merchantTwoProfileTwoName).toHaveClass(/border-gray-200/);
+  });
+
+  test("should display loading state while switching entities", async ({
+    page,
+    context,
+  }) => {
+    const orgChart = new OrganizationChartPage(page);
+    const usersPage = new UsersPage(page);
+
+    const rawUserInfo = await page.evaluate(() =>
+      window.localStorage.getItem("USER_INFO"),
+    );
+    const userInfo = JSON.parse(rawUserInfo || "{}");
+    const token: string = userInfo.token || "";
+
+    const newMerchantName = generateDateTimeString();
+    const newMerchant = await createMerchantAPI(
+      token,
+      newMerchantName,
+      context.request,
+    );
+    const newMerchantId = newMerchant.merchant_id;
+
+    await createBusinessProfileAPI(
+      newMerchantId,
+      "new-test-profile",
+      context.request,
+    );
+
+    await orgChart.visit();
+
+    const orgName = page.getByRole('button', { name: companyName, exact: true });
+    const merchantOneName = page.getByText(companyName + "Orchestrator");
+    const merchantTwoName = page.getByText(newMerchantName + "Orchestrator");
+    const merchantOneProfileName = page.getByRole('button', { name: 'default' });
+    const merchantTwoProfileTwoName = page.getByRole('button', { name: 'new-test-profile' });
+
+    await merchantTwoName.click();
+    await expect(orgChart.merchantSwitchingLoader).toBeVisible();
+    await expect(usersPage.merchantSwitchedSuccessText).toBeVisible();
+
+    await merchantOneProfileName.click();
+    await expect(orgChart.profileSwitchingLoader).toBeVisible();
+    await expect(usersPage.profileSwitchedSuccessText).toBeVisible();
   });
 });
