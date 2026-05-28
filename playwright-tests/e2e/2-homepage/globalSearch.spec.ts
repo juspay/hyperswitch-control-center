@@ -56,6 +56,83 @@ const MOCK_MULTI_CATEGORY_SEARCH_RESPONSE = [
   },
 ];
 
+const MOCK_REALISTIC_SEARCH_RESPONSE = [
+  { index: "payment_attempts", count: 0, hits: [], status: "Success" },
+  { index: "payment_intents", count: 0, hits: [], status: "Success" },
+  { index: "refunds", count: 0, hits: [], status: "Success" },
+  { index: "disputes", count: 0, hits: [], status: "Failure" },
+  {
+    index: "payouts",
+    count: 1,
+    hits: [{
+      payout_id: "payout_01BNUwJSWD3sDQmbuqi7",
+      amount: 4500,
+      destination_currency: "USD",
+      status: "requires_confirmation",
+      profile_id: "pro_E6k4XxWE3fVzTIYDMzJa",
+      merchant_id: "Allconnector123",
+      organization_id: "org_D5BSnrtTuxmW0WrsCXKZH",
+    }],
+    status: "Success",
+  },
+  {
+    index: "sessionizer_payment_attempts",
+    count: 1,
+    hits: [{
+      payment_id: "pay_0BxZy05aCo5K6X2IFf8y",
+      amount: 100,
+      currency: "USD",
+      status: "authentication_pending",
+      profile_id: "pro_E6k4XxWE3fVzTIYDMzJa",
+      merchant_id: "Allconnector123",
+      organization_id: "org_D5BSnrtTuxmW0WrsCXKZH",
+    }],
+    status: "Success",
+  },
+  {
+    index: "sessionizer_payment_intents",
+    count: 1,
+    hits: [{
+      payment_id: "pay_0BxZy05aCo5K6X2IFf8y",
+      amount: 100,
+      currency: "USD",
+      status: "requires_customer_action",
+      profile_id: "pro_E6k4XxWE3fVzTIYDMzJa",
+      merchant_id: "Allconnector123",
+      organization_id: "org_D5BSnrtTuxmW0WrsCXKZH",
+    }],
+    status: "Success",
+  },
+  {
+    index: "sessionizer_refunds",
+    count: 1,
+    hits: [{
+      refund_id: "ref_SKhG8QDYA27dUZseQE3t",
+      refund_amount: 4000,
+      currency: "USD",
+      refund_status: "success",
+      profile_id: "pro_E6k4XxWE3fVzTIYDMzJa",
+      merchant_id: "Allconnector123",
+      organization_id: "org_D5BSnrtTuxmW0WrsCXKZH",
+    }],
+    status: "Success",
+  },
+  {
+    index: "sessionizer_disputes",
+    count: 1,
+    hits: [{
+      dispute_id: "dp_ijU3BPdgQ2nwBkZaR2Pr",
+      dispute_amount: 1040,
+      currency: "USD",
+      dispute_status: "dispute_accepted",
+      profile_id: "pro_E6k4XxWE3fVzTIYDMzJa",
+      merchant_id: "Allconnector123",
+      organization_id: "org_D5BSnrtTuxmW0WrsCXKZH",
+    }],
+    status: "Success",
+  },
+];
+
 const MOCK_FILTER_RESPONSE = {
   queryData: [
     { dimension: "status", values: ["succeeded", "failed", "processing"] },
@@ -86,26 +163,31 @@ test.describe("Global Search Bar", () => {
     await expect(homePage.globalSearchInput).toBeVisible();
   });
 
-  test("should open search modal with focused input when search bar is clicked", async ({ page }) => {
+  test("should open search modal with focused input when search bar is clicked and close it", async ({ page }) => {
     const homePage = new HomePage(page);
     await homePage.globalSearchInput.click();
     await expect(homePage.globalSearchModalInput).toBeVisible();
     await expect(homePage.globalSearchModalInput).toBeFocused();
-  });
-
-  test("should close search modal when Esc button is clicked", async ({ page }) => {
-    const homePage = new HomePage(page);
-    await homePage.globalSearchInput.click();
-    await expect(homePage.globalSearchModalInput).toBeVisible();
     await homePage.globalSearchEscButton.click();
     await expect(homePage.globalSearchModalInput).not.toBeVisible();
   });
 
   test("should clear search results when search input is cleared", async ({ page }) => {
+    await page.route("**/analytics/v1/search", async (route) => {
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([]) });
+    });
     const homePage = new HomePage(page);
     await homePage.globalSearchInput.click();
     await homePage.globalSearchModalInput.fill("payment");
     await expect(homePage.globalSearchGoToHeader).toBeVisible();
+    await expect(page.getByText('Show all results for>payment')).toBeVisible();
+    await expect(page.locator('div').filter({ hasText: /^GO TO$/ }).first()).toBeVisible();
+    await expect(page.getByText('Operations>Payments', { exact: true })).toBeVisible();
+    await expect(page.getByText('Operations>Payments>View')).toBeVisible();
+    await expect(page.getByText('Connectors>Payment Processors')).toBeVisible();
+    await expect(page.getByText('Analytics>Payments')).toBeVisible();
+    await expect(page.getByText('Developers>Payment Settings', { exact: true })).toBeVisible();
+    await expect(page.getByText('Developers>Payment Settings>')).toBeVisible();
     await homePage.globalSearchModalInput.fill("");
     await expect(homePage.globalSearchGoToHeader).not.toBeVisible();
   });
@@ -129,7 +211,37 @@ test.describe("Global Search Bar - Feature Flag OFF", () => {
   });
 });
 
-test.describe("Global Search Results", () => {
+test.describe("Global Search Bar - Global search filters ON", () => {
+  test("should not render global search bar when globalSearch feature flag is disabled", async ({ page }) => {
+    const flagOffEmail = generateUniqueEmail();
+    await signupUser(flagOffEmail, PLAYWRIGHT_PASSWORD);
+    await page.route("**/dashboard/config/feature*", async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      if (json && json.features) {
+        json.features.global_search = true;
+        json.features.global_search_filters = true;
+      }
+      await route.fulfill({ response, json });
+    });
+    await loginUI(page, flagOffEmail, PLAYWRIGHT_PASSWORD);
+    const homePage = new HomePage(page);
+    await homePage.globalSearchInput.click();
+    await expect(homePage.globalSearchModalInput).toBeVisible();
+    await expect(page.getByText('SUGGESTED FILTERS')).toBeVisible();
+    await expect(page.getByText('payment_method_type : payment_method_type:credit')).toBeVisible();
+    await expect(page.getByText('currency : currency:USD')).toBeVisible();
+    await expect(page.getByText('connector : connector:stripe')).toBeVisible();
+    await expect(page.getByText('customer_email : customer_email:abc@abc.com')).toBeVisible();
+    await expect(page.getByText('card_network : card_network:visa')).toBeVisible();
+    await expect(page.getByText('card_last_4 : card_last_4:2326')).toBeVisible();
+    await expect(page.getByText('status : status:charged')).toBeVisible();
+    await expect(page.getByText('payment_id : payment_id:pay_xxxxxxxxx')).toBeVisible();
+    await expect(page.getByText('amount : amount:100')).toBeVisible();
+  });
+});
+
+test.describe("Global Search Results navigation", () => {
   let email = "";
 
   test.beforeEach(async ({ page }) => {
@@ -146,36 +258,21 @@ test.describe("Global Search Results", () => {
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
-  test("should show local navigation results under GO TO section when typing in search bar", async ({ page }) => {
-    const homePage = new HomePage(page);
-    await homePage.globalSearchInput.click();
-    await homePage.globalSearchModalInput.fill("payment");
-    await expect(homePage.globalSearchGoToHeader).toBeVisible();
-    await expect(homePage.globalSearchShowAllResults).toBeVisible();
-  });
-
-  test("should show remote payment results from API when user has OperationsView access", async ({ page }) => {
+  test("should navigate to desired page from search results", async ({ page }) => {
     await page.route("**/analytics/v1/search", async (route) => {
-      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(MOCK_PAYMENT_SEARCH_RESPONSE) });
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([]) });
     });
     const homePage = new HomePage(page);
     await homePage.globalSearchInput.click();
-    await homePage.globalSearchModalInput.fill("pay_mock");
-    await expect(homePage.globalSearchSectionHeader("PAYMENT ATTEMPTS")).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText("pay_mock_test_123").first()).toBeVisible();
-  });
-
-  test("should redirect to payments page when a local navigation result is clicked", async ({ page }) => {
-    const homePage = new HomePage(page);
-    await homePage.globalSearchInput.click();
     await homePage.globalSearchModalInput.fill("payment");
     await expect(homePage.globalSearchGoToHeader).toBeVisible();
-    await page.getByText("Payments").first().click();
+    await page.getByText('Operations>Payments', { exact: true }).click();
     await expect(page).toHaveURL(/.*dashboard\/payments/);
+
   });
 
   test("should display loading indicator while fetching remote search results", async ({ page }) => {
-    let resolveSearch: () => void = () => {};
+    let resolveSearch: () => void = () => { };
     const searchPending = new Promise<void>((resolve) => { resolveSearch = resolve; });
     await page.route("**/analytics/v1/search", async (route) => {
       await searchPending;
@@ -200,54 +297,58 @@ test.describe("Global Search Results", () => {
 
   test("should display results in separate sections for multiple result categories", async ({ page }) => {
     await page.route("**/analytics/v1/search", async (route) => {
-      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(MOCK_MULTI_CATEGORY_SEARCH_RESPONSE) });
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(MOCK_REALISTIC_SEARCH_RESPONSE) });
     });
     const homePage = new HomePage(page);
     await homePage.globalSearchInput.click();
-    await homePage.globalSearchModalInput.fill("multi");
+    await homePage.globalSearchModalInput.fill("USD");
+    await expect(homePage.globalSearchSectionHeader("PAYMENT INTENTS")).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('pay_0BxZy05aCo5K6X2IFf8y>1 USD>requires_customer_action')).toBeVisible();
+    await expect(homePage.globalSearchSectionHeader("PAYMENT ATTEMPTS")).toBeVisible();
+    await expect(page.getByText('pay_0BxZy05aCo5K6X2IFf8y>1 USD>authentication_pending')).toBeVisible();
+    await expect(homePage.globalSearchSectionHeader("REFUNDS")).toBeVisible();
+    await expect(page.getByText('ref_SKhG8QDYA27dUZseQE3t>40')).toBeVisible();
+    await expect(homePage.globalSearchSectionHeader("DISPUTES")).toBeVisible();
+    await expect(page.getByText('dp_ijU3BPdgQ2nwBkZaR2Pr>10.4')).toBeVisible();
+    await expect(homePage.globalSearchSectionHeader("PAYOUTS")).toBeVisible();
+    await expect(page.getByText('payout_01BNUwJSWD3sDQmbuqi7>')).toBeVisible();
+  });
+
+  test("should navigate to correct details page when clicking different result types in sequence", async ({ page }) => {
+    const searchMock = { response: MOCK_MULTI_CATEGORY_SEARCH_RESPONSE as unknown[] };
+    await page.route("**/analytics/v1/search", async (route) => {
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(searchMock.response) });
+    });
+    const homePage = new HomePage(page);
+
+    // Step 1: click payment result → land on payment details page
+    await homePage.globalSearchInput.click();
+    await homePage.globalSearchModalInput.fill("pay_multi_1");
     await expect(homePage.globalSearchSectionHeader("PAYMENT ATTEMPTS")).toBeVisible({ timeout: 10000 });
+    await page.getByText('pay_multi_1>100 USD>succeeded').click();
+    await expect(page).toHaveURL(/.*\/payments\/pay_multi_1\/pro_mock\/mer_mock\/org_mock/);
+
+    // Step 2: from payment page, click refund result → land on refund details page
+    await homePage.globalSearchInput.click();
+    await homePage.globalSearchModalInput.fill("ref_multi_1");
     await expect(homePage.globalSearchSectionHeader("REFUNDS")).toBeVisible({ timeout: 10000 });
-  });
-});
+    await page.getByText('ref_multi_1>50').click();
+    await expect(page).toHaveURL(/.*\/refunds\/ref_multi_1\/pro_mock\/mer_mock\/org_mock/);
 
-test.describe("Global Search Filters", () => {
-  test("should show filter controls when globalSearchFilters feature flag is enabled", async ({ page }) => {
-    const filterEmail = generateUniqueEmail();
-    await signupUser(filterEmail, PLAYWRIGHT_PASSWORD);
-    await page.route("**/dashboard/config/feature*", async (route) => {
-      const response = await route.fetch();
-      const json = await response.json();
-      if (json && json.features) {
-        json.features.global_search = true;
-        json.features.global_search_filters = true;
-      }
-      await route.fulfill({ response, json });
-    });
-    await page.route("**/analytics/v1/**/filters/payments", async (route) => {
-      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(MOCK_FILTER_RESPONSE) });
-    });
-    await loginUI(page, filterEmail, PLAYWRIGHT_PASSWORD);
-    const homePage = new HomePage(page);
+    // Step 3: from refund page, click dispute result → land on dispute details page
+    searchMock.response = MOCK_REALISTIC_SEARCH_RESPONSE;
     await homePage.globalSearchInput.click();
-    await expect(homePage.globalSearchSuggestedFiltersHeader).toBeVisible({ timeout: 10000 });
-  });
+    await homePage.globalSearchModalInput.fill("dp_ijU3BPdgQ2nwBkZaR2Pr");
+    await expect(homePage.globalSearchSectionHeader("DISPUTES")).toBeVisible({ timeout: 10000 });
+    await page.getByText('dp_ijU3BPdgQ2nwBkZaR2Pr>10.4').click();
+    await expect(page).toHaveURL(/.*\/disputes\/dp_ijU3BPdgQ2nwBkZaR2Pr\/pro_E6k4XxWE3fVzTIYDMzJa\/Allconnector123\/org_D5BSnrtTuxmW0WrsCXKZH/);
 
-  test("should not show filter controls when globalSearchFilters feature flag is disabled", async ({ page }) => {
-    const noFilterEmail = generateUniqueEmail();
-    await signupUser(noFilterEmail, PLAYWRIGHT_PASSWORD);
-    await page.route("**/dashboard/config/feature*", async (route) => {
-      const response = await route.fetch();
-      const json = await response.json();
-      if (json && json.features) {
-        json.features.global_search = true;
-        json.features.global_search_filters = false;
-      }
-      await route.fulfill({ response, json });
-    });
-    await loginUI(page, noFilterEmail, PLAYWRIGHT_PASSWORD);
-    const homePage = new HomePage(page);
+    // Step 4: from dispute page, click payout result → land on payout details page
     await homePage.globalSearchInput.click();
-    await expect(homePage.globalSearchSuggestedFiltersHeader).not.toBeAttached();
+    await homePage.globalSearchModalInput.fill("payout_01BNUwJSWD3sDQmbuqi7");
+    await expect(homePage.globalSearchSectionHeader("PAYOUTS")).toBeVisible({ timeout: 10000 });
+    await page.getByText('payout_01BNUwJSWD3sDQmbuqi7>').click();
+    await expect(page).toHaveURL(/.*\/payouts\/payout_01BNUwJSWD3sDQmbuqi7\/pro_E6k4XxWE3fVzTIYDMzJa\/Allconnector123\/org_D5BSnrtTuxmW0WrsCXKZH/);
   });
 });
 
@@ -260,13 +361,17 @@ test.describe("Global Search Validation", () => {
       const json = await response.json();
       if (json && json.features) {
         json.features.global_search = true;
+        json.features.global_search_filters = true;
       }
       await route.fulfill({ response, json });
     });
     await loginUI(page, validEmail, PLAYWRIGHT_PASSWORD);
     const homePage = new HomePage(page);
     await homePage.globalSearchInput.click();
-    await homePage.globalSearchModalInput.fill("foo bar baz");
+    await homePage.globalSearchModalInput.type("foo bar baz");
     await expect(homePage.globalSearchValidationError).toBeVisible();
+    await expect(homePage.globalSearchValidationError).toBeAttached();
   });
 });
+
+//----------------  add search using filters in above tests or new describe block
