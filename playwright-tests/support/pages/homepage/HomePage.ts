@@ -466,6 +466,42 @@ export class HomePage {
   get merchantNameButton(): Locator {
     return this.page.getByRole("button", { name: "playwright-" });
   }
+
+  get globalSearchModalInput(): Locator {
+    return this.page.locator('input[name="global_search"]');
+  }
+
+  get globalSearchLoader(): Locator {
+    return this.page.locator('[class="w-14 overflow-hidden mr-1"]');
+  }
+
+  get globalSearchEmptyResult(): Locator {
+    return this.page.getByText(/No Results for/);
+  }
+
+  get globalSearchGoToHeader(): Locator {
+    return this.page.getByText("GO TO", { exact: true });
+  }
+
+  get globalSearchSuggestedFiltersHeader(): Locator {
+    return this.page.getByText("SUGGESTED FILTERS", { exact: true });
+  }
+
+  get globalSearchValidationError(): Locator {
+    return this.page.getByText("Only one free-text search is allowed and additional text will be ignored.");
+  }
+
+  get globalSearchShowAllResults(): Locator {
+    return this.page.getByText("Show all results for");
+  }
+
+  get globalSearchEscButton(): Locator {
+    return this.page.getByText("Esc", { exact: true });
+  }
+
+  globalSearchSectionHeader(name: string): Locator {
+    return this.page.getByText(name, { exact: true });
+  }
 }
 
 export default HomePage;
