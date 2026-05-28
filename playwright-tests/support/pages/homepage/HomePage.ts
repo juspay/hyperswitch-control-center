@@ -8,7 +8,7 @@ export class HomePage {
   }
 
   get enterMerchantName(): Locator {
-    return this.page.locator('[name="merchant_name"]');
+    return this.page.getByRole('textbox', { name: 'Eg: HyperSwitch Pvt Ltd' });
   }
 
   get onboardingSubmitButton(): Locator {
