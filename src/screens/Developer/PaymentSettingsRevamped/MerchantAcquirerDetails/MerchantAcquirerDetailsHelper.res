@@ -35,9 +35,7 @@ module AccordionTitle = {
             : bucket.merchant_name->React.string}
         </span>
         <RenderIf condition={bucket.is_default}>
-          <TagBinding
-            text="Default" color=TagBinding.Primary variant=TagBinding.Subtle size=TagBinding.Sm
-          />
+          <TagBinding text="Default" variant=Subtle size=Sm />
         </RenderIf>
       </div>
       <div className={`flex items-center gap-1 ${isSelectionMode ? "pl-7" : ""}`}>
@@ -62,7 +60,7 @@ module BucketBody = {
     let totalResults = bucket.networks->Array.length
 
     <div className="flex flex-col w-full px-4 py-3">
-      <RenderIf condition={totalResults > 0}>
+      <RenderIf condition={bucket.networks->isNonEmptyArray}>
         <LoadedTable
           title="Networks"
           hideTitle=true

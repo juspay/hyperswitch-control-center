@@ -68,8 +68,8 @@ module AddNetworkModal = {
     open FormRenderer
     let showToast = ToastState.useShowToast()
     let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-    let getURL = APIUtils.useGetURL()
-    let updateDetails = APIUtils.useUpdateMethod()
+    let getURL = useGetURL()
+    let updateDetails = useUpdateMethod()
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
 
     let usedNetworks = bucket.networks->Array.map(n => n.network)
@@ -77,7 +77,7 @@ module AddNetworkModal = {
       AcquirerConfigUtils.networkDropDownOptions->Array.filter(opt =>
         !(usedNetworks->Array.includes(opt.value))
       )
-    let allNetworksUsed = availableNetworks->Array.length === 0
+    let allNetworksUsed = availableNetworks->isEmptyArray
     let requiredKeys = ["network", "acquirer_bin"]
 
     let onSubmit = async (values, _) => {
@@ -153,8 +153,8 @@ module EditNetworkModal = {
     open FormRenderer
     let showToast = ToastState.useShowToast()
     let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-    let getURL = APIUtils.useGetURL()
-    let updateDetails = APIUtils.useUpdateMethod()
+    let getURL = useGetURL()
+    let updateDetails = useUpdateMethod()
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
 
     switch entry {

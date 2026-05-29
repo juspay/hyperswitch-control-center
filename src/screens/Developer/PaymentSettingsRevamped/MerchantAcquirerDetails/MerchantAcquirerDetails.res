@@ -26,10 +26,10 @@ let make = () => {
     acquirerConfigGroups->Array.find(b => b.is_default)->Option.mapOr("", b => b.id)
 
   let (selectedDefaultId, setSelectedDefaultId) = React.useState(_ => currentDefaultId)
-  let (isSaving, setIsSaving) = React.useState(_ => false)
+  let (isLoading, setIsLoading) = React.useState(_ => false)
 
   let handleSaveDefault = async () => {
-    setIsSaving(_ => true)
+    setIsLoading(_ => true)
     try {
       let body = [("is_default", true->JSON.Encode.bool)]->Dict.fromArray
       let url = getURL(
@@ -44,7 +44,7 @@ let make = () => {
     } catch {
     | _ => showToast(~message="Failed to update default acquirer", ~toastType=ToastState.ToastError)
     }
-    setIsSaving(_ => false)
+    setIsLoading(_ => false)
   }
 
   let accordionItems: array<
@@ -83,7 +83,7 @@ let make = () => {
               leftIcon={isSelectionMode
                 ? NoIcon
                 : CustomIcon(<Icon name="nd-swap-arrow-horizontal" size=16 />)}
-              buttonState={isSaving ? Loading : Normal}
+              buttonState={isLoading ? Loading : Normal}
               onClick={_ =>
                 if !isSelectionMode {
                   setIsSelectionMode(_ => true)
