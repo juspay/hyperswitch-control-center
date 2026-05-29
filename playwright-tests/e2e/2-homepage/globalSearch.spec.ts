@@ -480,9 +480,9 @@ test.describe("Global Search - Payment Filter Subfilters", () => {
   test("should display all currency subfilters", async ({ page }) => {
     await verifySubfilters(
       page,
-      "currency : currency:INR",
+      "currency : currency:USD",
       "currency",
-      ["INR", "EUR", "NZD", "GBP", "CAD"],
+      ["USD", "INR", "EUR", "GBP", "CAD"],
     );
   });
 
@@ -539,12 +539,11 @@ test.describe("Global Search - Payment Filter Subfilters", () => {
   });
 
   test("should apply currency subfilter to search input when a currency value is clicked", async ({ page }) => {
-    // Stub search so the real backend 401 does not redirect to sign-in
     await page.route("**/analytics/v1/search", async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify([]),
+        body: JSON.stringify(MOCK_REALISTIC_SEARCH_RESPONSE),
       });
     });
 
@@ -554,13 +553,27 @@ test.describe("Global Search - Payment Filter Subfilters", () => {
     await expect(page.getByText("SUGGESTED FILTERS")).toBeVisible({ timeout: 10000 });
 
     // Expand currency subfilters
-    await page.getByText("currency : currency:INR").click();
-    await expect(page.getByText("currency : INR", { exact: true }).first()).toBeVisible({ timeout: 5000 });
+    await page.getByText("currency : currency:USD").click();
+    await expect(page.getByText("currency : USD", { exact: true }).first()).toBeVisible({ timeout: 5000 });
 
-    // Click the "EUR" subfilter
-    await page.getByText("currency : EUR", { exact: true }).first().click();
+    // Click the "USD" subfilter
+    await page.getByText("currency : USD", { exact: true }).first().click();
 
-    // onSuggestionClicked writes "<searchText>EUR" into the input (searchText already ends with ":")
-    await expect(homePage.globalSearchModalInput).toHaveValue(/currency:EUR/, { timeout: 5000 });
+    // onSuggestionClicked writes "<searchText>USD" into the input (searchText already ends with ":")
+    await expect(homePage.globalSearchModalInput).toHaveValue(/currency:USD/, { timeout: 5000 });
+
+    //await expect(page.getByText('Show all results for> currency:USD')).toBeVisible();
+
+    // Verify USD appears in search results for each section
+    await expect(homePage.globalSearchSectionHeader("PAYMENT INTENTS")).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('pay_0BxZy05aCo5K6X2IFf8y>1 USD>requires_customer_action')).toBeVisible();
+    await expect(homePage.globalSearchSectionHeader("PAYMENT ATTEMPTS")).toBeVisible();
+    await expect(page.getByText('pay_0BxZy05aCo5K6X2IFf8y>1 USD>authentication_pending')).toBeVisible();
+    await expect(homePage.globalSearchSectionHeader("REFUNDS")).toBeVisible();
+    await expect(page.getByText('ref_SKhG8QDYA27dUZseQE3t>40 USD>success')).toBeVisible();
+    await expect(homePage.globalSearchSectionHeader("DISPUTES")).toBeVisible();
+    await expect(page.getByText('dp_ijU3BPdgQ2nwBkZaR2Pr>10.4 USD>dispute_accepted')).toBeVisible();
+    await expect(homePage.globalSearchSectionHeader("PAYOUTS")).toBeVisible();
+    await expect(page.getByText('payout_01BNUwJSWD3sDQmbuqi7>45 USD>requires_confirmation')).toBeVisible();
   });
 });

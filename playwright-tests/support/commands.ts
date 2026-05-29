@@ -920,7 +920,7 @@ export async function mockPaymentFilters(page: Page): Promise<void> {
             },
             {
               dimension: "currency",
-              values: ["INR", "EUR", "NZD", "GBP", "CAD"],
+              values: ["USD", "INR", "EUR", "GBP", "CAD"],
             },
             {
               dimension: "status",
