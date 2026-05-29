@@ -147,14 +147,14 @@ let validateForm = (~requiredKeys, values: JSON.t): JSON.t => {
     }
   })
 
-  switch valuesDict->getOptionFloat("acquirer_bin") {
-  | Some(binFloat) =>
+  valuesDict
+  ->getOptionFloat("acquirer_bin")
+  ->mapOptionOrDefault((), binFloat => {
     let binStr = binFloat->Float.toString
     if binStr->String.length < 4 || binStr->String.length > 20 {
       setErr("acquirer_bin", "Acquirer BIN must be between 4 and 20 digits")
     }
-  | None => ()
-  }
+  })
 
   switch valuesDict->getOptionFloat("acquirer_fraud_rate") {
   | Some(rate) if rate < 0.0 || rate > 100.0 =>

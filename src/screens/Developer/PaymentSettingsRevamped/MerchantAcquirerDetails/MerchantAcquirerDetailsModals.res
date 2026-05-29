@@ -142,8 +142,6 @@ module AddNetworkModal = {
 }
 
 module EditNetworkModal = {
-  let requiredKeys = ["network", "acquirer_bin"]
-
   @react.component
   let make = (
     ~entry: option<BusinessProfileInterfaceTypes.acquirerNetworkEntry>,
@@ -156,79 +154,86 @@ module EditNetworkModal = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
-
-    switch entry {
-    | None => React.null
-    | Some(n) =>
-      let setShowModal: (bool => bool) => unit = _ => setEntry(_ => None)
-      let lockedNetworkOptions: array<SelectBox.dropdownOption> = [
-        {value: n.network, label: n.network},
-      ]
-      let initialValues = {
-        let initialValuesDict = Dict.make()
-        initialValuesDict->Dict.set("network", n.network->JSON.Encode.string)
-        initialValuesDict->Dict.set("acquirer_bin", n.acquirer_bin->JSON.Encode.string)
-        initialValuesDict->setOptionString("acquirer_ica", n.acquirer_ica)
-        initialValuesDict->setOptionFloat("acquirer_fraud_rate", n.acquirer_fraud_rate)
-        initialValuesDict->setOptionString("acquirer_country_code", n.acquirer_country_code)
-        initialValuesDict->JSON.Encode.object
+    let setShowModal: (bool => bool) => unit = _ => setEntry(_ => None)
+    let n = switch entry {
+    | Some(e) => e
+    | None => {
+        network: "",
+        acquirer_bin: "",
+        acquirer_ica: None,
+        acquirer_fraud_rate: None,
+        acquirer_country_code: None,
+        acquirer_assigned_merchant_id: None,
+        merchant_name: None,
       }
-
-      let onSubmit = async (values, _) => {
-        try {
-          let body = values->getDictFromJsonObject->normalizeNumericStringFields
-          body->Dict.set("network", n.network->JSON.Encode.string)
-          let url = getURL(
-            ~entityName=V1(ACQUIRER_CONFIG_SETTINGS),
-            ~methodType=Post,
-            ~id=Some(bucket.id),
-          )
-          let _ = await updateDetails(url, body->JSON.Encode.object, Post)
-          showToast(~message="Network updated", ~toastType=ToastState.ToastSuccess)
-          setEntry(_ => None)
-          let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
-        } catch {
-        | _ => showToast(~message="Failed to update network", ~toastType=ToastState.ToastError)
-        }
-        Nullable.null
-      }
-
-      let lockedNetworkField = makeFieldInfo(
-        ~label="Card Network",
-        ~name="network",
-        ~placeholder=n.network,
-        ~customInput=InputFields.selectInput(
-          ~options=lockedNetworkOptions,
-          ~buttonText=n.network,
-          ~deselectDisable=true,
-        ),
-        ~disabled=true,
-      )
-
-      <Modal
-        showModal=true
-        setShowModal
-        closeOnOutsideClick=true
-        modalHeading="Edit Network Configuration"
-        modalHeadingDescription={`Editing ${n.network} entry`}
-        modalClass="flex flex-col justify-start h-screen w-420-px float-right overflow-hidden !bg-white"
-        childClass="">
-        <Form
-          onSubmit
-          initialValues
-          validate={values => validateForm(~requiredKeys, values)}
-          formClass="flex flex-col gap-4 p-6">
-          <FieldRenderer field=lockedNetworkField />
-          <FieldRenderer field=binField />
-          <FieldRenderer field=icaField />
-          <FieldRenderer field=fraudRateField />
-          <FieldRenderer field=countryField />
-          <div className="flex justify-end gap-2 pt-4 border-t border-nd_gray-200 mt-4">
-            <Button buttonType=Button.Secondary text="Cancel" onClick={_ => setEntry(_ => None)} />
-            <SubmitButton text="Update" buttonType=Button.Primary />
-          </div>
-        </Form>
-      </Modal>
     }
+
+    let lockedNetworkOptions: array<SelectBox.dropdownOption> = [
+      {value: n.network, label: n.network},
+    ]
+    let initialValues = {
+      let initialValuesDict = Dict.make()
+      initialValuesDict->Dict.set("network", n.network->JSON.Encode.string)
+      initialValuesDict->Dict.set("acquirer_bin", n.acquirer_bin->JSON.Encode.string)
+      initialValuesDict->setOptionString("acquirer_ica", n.acquirer_ica)
+      initialValuesDict->setOptionFloat("acquirer_fraud_rate", n.acquirer_fraud_rate)
+      initialValuesDict->setOptionString("acquirer_country_code", n.acquirer_country_code)
+      initialValuesDict->JSON.Encode.object
+    }
+    let requiredKeys = ["network", "acquirer_bin"]
+    let onSubmit = async (values, _) => {
+      try {
+        let body = values->getDictFromJsonObject->normalizeNumericStringFields
+        body->Dict.set("network", n.network->JSON.Encode.string)
+        let url = getURL(
+          ~entityName=V1(ACQUIRER_CONFIG_SETTINGS),
+          ~methodType=Post,
+          ~id=Some(bucket.id),
+        )
+        let _ = await updateDetails(url, body->JSON.Encode.object, Post)
+        showToast(~message="Network updated", ~toastType=ToastState.ToastSuccess)
+        setEntry(_ => None)
+        let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
+      } catch {
+      | _ => showToast(~message="Failed to update network", ~toastType=ToastState.ToastError)
+      }
+      Nullable.null
+    }
+
+    let lockedNetworkField = makeFieldInfo(
+      ~label="Card Network",
+      ~name="network",
+      ~placeholder=n.network,
+      ~customInput=InputFields.selectInput(
+        ~options=lockedNetworkOptions,
+        ~buttonText=n.network,
+        ~deselectDisable=true,
+      ),
+      ~disabled=true,
+    )
+    <Modal
+      showModal=true
+      setShowModal
+      closeOnOutsideClick=true
+      modalHeading="Edit Network Configuration"
+      modalHeadingDescription={`Editing ${n.network} entry`}
+      modalClass="flex flex-col justify-start h-screen w-420-px float-right overflow-hidden !bg-white"
+      childClass="">
+      <Form
+        onSubmit
+        initialValues
+        validate={values => validateForm(~requiredKeys, values)}
+        formClass="flex flex-col gap-4 p-6">
+        <FieldRenderer field=lockedNetworkField />
+        <FieldRenderer field=binField />
+        <FieldRenderer field=icaField />
+        <FieldRenderer field=fraudRateField />
+        <FieldRenderer field=countryField />
+        <div className="flex justify-end gap-2 pt-4 border-t border-nd_gray-200 mt-4">
+          <Button buttonType=Button.Secondary text="Cancel" onClick={_ => setEntry(_ => None)} />
+          <SubmitButton text="Update" buttonType=Button.Primary />
+        </div>
+      </Form>
+    </Modal>
   }
 }
