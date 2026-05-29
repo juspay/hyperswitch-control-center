@@ -155,7 +155,7 @@ module EditNetworkModal = {
     let updateDetails = useUpdateMethod()
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
     let setShowModal: (bool => bool) => unit = _ => setEntry(_ => None)
-    let n = switch entry {
+    let networkEntry = switch entry {
     | Some(e) => e
     | None => {
         network: "",
@@ -169,22 +169,25 @@ module EditNetworkModal = {
     }
 
     let lockedNetworkOptions: array<SelectBox.dropdownOption> = [
-      {value: n.network, label: n.network},
+      {value: networkEntry.network, label: networkEntry.network},
     ]
     let initialValues = {
       let initialValuesDict = Dict.make()
-      initialValuesDict->Dict.set("network", n.network->JSON.Encode.string)
-      initialValuesDict->Dict.set("acquirer_bin", n.acquirer_bin->JSON.Encode.string)
-      initialValuesDict->setOptionString("acquirer_ica", n.acquirer_ica)
-      initialValuesDict->setOptionFloat("acquirer_fraud_rate", n.acquirer_fraud_rate)
-      initialValuesDict->setOptionString("acquirer_country_code", n.acquirer_country_code)
+      initialValuesDict->Dict.set("network", networkEntry.network->JSON.Encode.string)
+      initialValuesDict->Dict.set("acquirer_bin", networkEntry.acquirer_bin->JSON.Encode.string)
+      initialValuesDict->setOptionString("acquirer_ica", networkEntry.acquirer_ica)
+      initialValuesDict->setOptionFloat("acquirer_fraud_rate", networkEntry.acquirer_fraud_rate)
+      initialValuesDict->setOptionString(
+        "acquirer_country_code",
+        networkEntry.acquirer_country_code,
+      )
       initialValuesDict->JSON.Encode.object
     }
     let requiredKeys = ["network", "acquirer_bin"]
     let onSubmit = async (values, _) => {
       try {
         let body = values->getDictFromJsonObject->normalizeNumericStringFields
-        body->Dict.set("network", n.network->JSON.Encode.string)
+        body->Dict.set("network", networkEntry.network->JSON.Encode.string)
         let url = getURL(
           ~entityName=V1(ACQUIRER_CONFIG_SETTINGS),
           ~methodType=Post,
@@ -203,10 +206,10 @@ module EditNetworkModal = {
     let lockedNetworkField = makeFieldInfo(
       ~label="Card Network",
       ~name="network",
-      ~placeholder=n.network,
+      ~placeholder=networkEntry.network,
       ~customInput=InputFields.selectInput(
         ~options=lockedNetworkOptions,
-        ~buttonText=n.network,
+        ~buttonText=networkEntry.network,
         ~deselectDisable=true,
       ),
       ~disabled=true,
@@ -216,7 +219,7 @@ module EditNetworkModal = {
       setShowModal
       closeOnOutsideClick=true
       modalHeading="Edit Network Configuration"
-      modalHeadingDescription={`Editing ${n.network} entry`}
+      modalHeadingDescription={`Editing ${networkEntry.network} entry`}
       modalClass="flex flex-col justify-start h-screen w-420-px float-right overflow-hidden !bg-white"
       childClass="">
       <Form
