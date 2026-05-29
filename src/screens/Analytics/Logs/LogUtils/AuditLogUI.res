@@ -1,3 +1,5 @@
+open Typography
+
 module LogDetailsSection = {
   open LogTypes
   open LogicUtils
@@ -141,6 +143,60 @@ module TabDetails = {
   }
 }
 
+module TrailSummary = {
+  open LogTypes
+  open LogicUtils
+  @react.component
+  let make = (~summary: trailSummary, ~id) => {
+    let labelStyle = `${body.sm.medium} text-gray-400`
+    let valueStyle = `${body.sm.semibold} text-gray-800`
+    let stat = (label, value) =>
+      <div className="flex items-center gap-1.5">
+        <span className=labelStyle> {label->React.string} </span>
+        {value}
+      </div>
+    <div
+      className="flex flex-wrap items-center gap-x-6 gap-y-2 px-5 py-3 mb-3 border border-gray-200 rounded-xl bg-white">
+      {stat(
+        "Payment",
+        <HelperComponents.CopyTextCustomComp
+          displayValue=Some(id) copyValue=Some(id) customTextCss=valueStyle
+        />,
+      )}
+      <RenderIf condition={summary.finalStatus->isNonEmptyString}>
+        {stat(
+          "Status",
+          <TagBinding
+            text={summary.finalStatus->snakeToTitle}
+            color={summary.finalStatus->LogUtils.statusTagColor}
+            variant=Subtle
+            shape=Squarical
+            size=Sm
+          />,
+        )}
+      </RenderIf>
+      <RenderIf condition={summary.connector->isNonEmptyString}>
+        {stat(
+          "Connector",
+          <span className={`${valueStyle} capitalize`}> {summary.connector->React.string} </span>,
+        )}
+      </RenderIf>
+      {stat(
+        "Steps",
+        <span className=valueStyle> {summary.stepCount->Int.toString->React.string} </span>,
+      )}
+      <RenderIf condition={summary.totalDurationMs > 0.0}>
+        {stat(
+          "Total time",
+          <span className=valueStyle>
+            {LogUtils.formatDuration(summary.totalDurationMs)->React.string}
+          </span>,
+        )}
+      </RenderIf>
+    </div>
+  }
+}
+
 @react.component
 let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   open LogicUtils
@@ -237,7 +293,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
       } else {
         setScreenState(_ => PageLoaderWrapper.Success)
         logs->Array.sort(sortByStartTime)
-        let reorderedLogs = logs->reorderLogs
+        let reorderedLogs = logs->reorderLogs->collapseWebhookRetries
         setData(_ => reorderedLogs)
         switch reorderedLogs->Array.get(0) {
         | Some(value) => {
@@ -325,11 +381,14 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
         </div>
       </RenderIf>
       <RenderIf condition={!(id->HSwitchOrderUtils.isTestData || data->Array.length === 0)}>
-        <Section
-          customCssClass={`bg-white dark:bg-jp-gray-lightgray_background rounded-md pt-2 pb-4 flex gap-7 justify-between h-48-rem !max-h-50-rem !min-w-[55rem] max-w-[72rem] overflow-scroll`}>
-          {timeLine}
-          {codeBlock}
-        </Section>
+        <div className="flex flex-col">
+          <TrailSummary summary={data->getTrailSummary} id />
+          <Section
+            customCssClass={`bg-white dark:bg-jp-gray-lightgray_background rounded-md pt-2 pb-4 flex gap-7 justify-between h-48-rem !max-h-50-rem !min-w-[55rem] max-w-[72rem] overflow-scroll`}>
+            {timeLine}
+            {codeBlock}
+          </Section>
+        </div>
       </RenderIf>
     </>}
   </PageLoaderWrapper>

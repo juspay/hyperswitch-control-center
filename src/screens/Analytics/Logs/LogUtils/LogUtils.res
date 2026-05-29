@@ -167,3 +167,28 @@ let apiNameMapper = apiName => {
   | _ => apiName
   }
 }
+
+let formatDuration = ms => {
+  if ms <= 0.0 {
+    ""
+  } else if ms >= 1000.0 {
+    let tenths = (ms /. 100.0)->Float.toInt
+    let whole = tenths / 10
+    let frac = tenths - whole * 10
+    `${whole->Int.toString}.${frac->Int.toString} s`
+  } else {
+    `${ms->Float.toInt->Int.toString} ms`
+  }
+}
+
+let statusTagColor = status =>
+  switch status->HSwitchOrderUtils.statusVariantMapper {
+  | Succeeded | PartiallyCaptured => TagBinding.Success
+  | Failed | Cancelled | CancelledPostCapture | Expired => TagBinding.Error
+  | Processing
+  | RequiresCustomerAction
+  | RequiresConfirmation
+  | RequiresPaymentMethod =>
+    TagBinding.Warning
+  | _ => TagBinding.Neutral
+  }

@@ -15,6 +15,13 @@ type selectedObj = {
   optionType: logType,
 }
 
+type trailSummary = {
+  finalStatus: string,
+  connector: string,
+  totalDurationMs: float,
+  stepCount: int,
+}
+
 let tabkeys: array<eventLogs> = [Logdetails, Request, Response]
 
 let getLogType = dict => {
@@ -166,4 +173,92 @@ type urls = {
   url: string,
   apiMethod: Fetch.requestMethod,
   body?: JSON.t,
+}
+
+let getTrailSummary = (logs): trailSummary => {
+  open LogicUtils
+  let getCreatedMs = dict => dict->getString("created_at", "")->Date.fromString->Date.getTime
+
+  let (minStart, maxEnd) = logs->Array.reduce((None, None), (acc, log) => {
+    let (minS, maxE) = acc
+    let dict = log->getDictFromJsonObject
+    let endMs = dict->getCreatedMs
+    let startMs = endMs -. dict->getFloat("latency", 0.0)
+    let newMin = switch minS {
+    | Some(m) => startMs < m ? startMs : m
+    | None => startMs
+    }
+    let newMax = switch maxE {
+    | Some(m) => endMs > m ? endMs : m
+    | None => endMs
+    }
+    (Some(newMin), Some(newMax))
+  })
+  let totalDurationMs = switch (minStart, maxEnd) {
+  | (Some(minS), Some(maxE)) => maxE > minS ? maxE -. minS : 0.0
+  | _ => 0.0
+  }
+
+  let (finalStatus, _) = logs->Array.reduce(("", 0.0), (acc, log) => {
+    let (_, ms) = acc
+    let dict = log->getDictFromJsonObject
+    switch dict->getLogType {
+    | API_EVENTS => {
+        let createdMs = dict->getCreatedMs
+        let respStatus =
+          dict->getString("response", "")->safeParse->getDictFromJsonObject->getString("status", "")
+        respStatus->isNonEmptyString && createdMs >= ms ? (respStatus, createdMs) : acc
+      }
+    | _ => acc
+    }
+  })
+
+  let (connector, _) = logs->Array.reduce(("", 0.0), (acc, log) => {
+    let (_, ms) = acc
+    let dict = log->getDictFromJsonObject
+    let createdMs = dict->getCreatedMs
+    let candidate = switch dict->getLogType {
+    | CONNECTOR => dict->getString("connector_name", "")
+    | API_EVENTS =>
+      dict->getString("response", "")->safeParse->getDictFromJsonObject->getString("connector", "")
+    | _ => ""
+    }
+    candidate->isNonEmptyString && createdMs >= ms ? (candidate, createdMs) : acc
+  })
+
+  {finalStatus, connector, totalDurationMs, stepCount: logs->Array.length}
+}
+
+let collapseWebhookRetries = logs => {
+  open LogicUtils
+  logs->Array.reduce([], (acc, log) => {
+    let dict = log->getDictFromJsonObject
+    let isWebhook = dict->getLogType == WEBHOOKS
+    let eventType = dict->getString("event_type", "")
+    let isError = dict->getBool("is_error", false)
+    switch acc->Array.get(acc->Array.length - 1) {
+    | Some(prev) => {
+        let prevDict = prev->getDictFromJsonObject
+        let prevIsWebhook = prevDict->getLogType == WEBHOOKS
+        let prevEventType = prevDict->getString("event_type", "")
+        let prevIsError = prevDict->getBool("is_error", false)
+        if isWebhook && prevIsWebhook && eventType == prevEventType && isError == prevIsError {
+          let merged = dict->Dict.copy
+          merged->Dict.set("retry_count", (prevDict->getInt("retry_count", 1) + 1)->JSON.Encode.int)
+          if (
+            merged->getString("content", "")->isEmptyString &&
+              prevDict->getString("content", "")->isNonEmptyString
+          ) {
+            merged->Dict.set("content", prevDict->getString("content", "")->JSON.Encode.string)
+          }
+          acc
+          ->Array.slice(~start=0, ~end=acc->Array.length - 1)
+          ->Array.concat([merged->JSON.Encode.object])
+        } else {
+          acc->Array.concat([log])
+        }
+      }
+    | None => acc->Array.concat([log])
+    }
+  })
 }

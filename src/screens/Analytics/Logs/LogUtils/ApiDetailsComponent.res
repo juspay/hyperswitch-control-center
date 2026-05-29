@@ -1,5 +1,6 @@
 open LogicUtils
 open LogTypes
+open Typography
 @react.component
 let make = (
   ~dataDict,
@@ -14,7 +15,6 @@ let make = (
   ~showLogType=true,
 ) => {
   let {globalUIConfig: {border: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
-  let headerStyle = "text-sm font-medium text-gray-700 break-all"
   let logType = dataDict->getLogType
   let apiName = switch logType {
   | API_EVENTS => dataDict->getString("api_flow", "default value")->camelCaseToTitle
@@ -33,6 +33,32 @@ let make = (
   let endMs = dataDict->getString("created_at", "")->Date.fromString->Date.getTime
   let latencyMs = dataDict->getFloat("latency", 0.0)
   let startTime = (endMs -. latencyMs)->Date.fromTime->Date.toISOString
+  let latencyText = LogUtils.formatDuration(latencyMs)
+
+  let responseDict = switch logType {
+  | API_EVENTS => dataDict->getString("response", "")->safeParse->getDictFromJsonObject
+  | _ => Dict.make()
+  }
+  let paymentStatus = responseDict->getString("status", "")
+  let connectorName = dataDict->getString("connector_name", "")
+  let retryCount = dataDict->getInt("retry_count", 1)
+
+  let failureReason = switch logType {
+  | API_EVENTS =>
+    switch paymentStatus->HSwitchOrderUtils.statusVariantMapper {
+    | Failed =>
+      let msg = responseDict->getString("error_message", "")
+      msg->isNonEmptyString ? msg : responseDict->getString("unified_message", "")
+    | _ => ""
+    }
+  | CONNECTOR =>
+    dataDict->getInt("status_code", 200) >= 400
+      ? dataDict->getString("error", "")->safeParse->getDictFromJsonObject->getString("message", "")
+      : ""
+  | WEBHOOKS =>
+    dataDict->getBool("is_error", false) ? dataDict->getString("error", "")->camelCaseToTitle : ""
+  | SDK | ROUTING => ""
+  }
   let requestObject = switch logType {
   | API_EVENTS | CONNECTOR | ROUTING => dataDict->getString("request", "")
   | SDK =>
@@ -60,7 +86,7 @@ let make = (
   let statusCode = switch logType {
   | API_EVENTS | CONNECTOR | ROUTING => dataDict->getInt("status_code", 200)->Int.toString
   | SDK => dataDict->getString("log_type", "INFO")
-  | WEBHOOKS => dataDict->getBool("is_error", false) ? "500" : "200"
+  | WEBHOOKS => dataDict->getBool("is_error", false) ? "Failed" : "Delivered"
   }
 
   let method = switch logType {
@@ -80,8 +106,9 @@ let make = (
     }
   | WEBHOOKS =>
     switch statusCode {
-    | "200" => "green-700"
-    | "500" | _ => "gray-700 opacity-50"
+    | "Delivered" => "green-700"
+    | "Failed" => "red-500"
+    | _ => "gray-700 opacity-50"
     }
   | API_EVENTS | CONNECTOR | ROUTING =>
     switch statusCode {
@@ -102,8 +129,9 @@ let make = (
     }
   | WEBHOOKS =>
     switch statusCode {
-    | "200" => "green-50"
-    | "500" | _ => "gray-100"
+    | "Delivered" => "green-50"
+    | "Failed" => "red-50"
+    | _ => "gray-100"
     }
   | API_EVENTS | CONNECTOR | ROUTING =>
     switch statusCode {
@@ -127,8 +155,9 @@ let make = (
         }
       | WEBHOOKS =>
         switch statusCode {
-        | "200" => "green-700"
-        | "500" | _ => "gray-700 opacity-50"
+        | "Delivered" => "green-700"
+        | "Failed" => "red-400"
+        | _ => "gray-700 opacity-50"
         }
       | API_EVENTS | CONNECTOR | ROUTING =>
         switch statusCode {
@@ -150,8 +179,9 @@ let make = (
         }
       | WEBHOOKS =>
         switch statusCode {
-        | "200" => "green-700"
-        | "500" | _ => "gray-700 opacity-50"
+        | "Delivered" => "green-700"
+        | "Failed" => "red-400"
+        | _ => "gray-700 opacity-50"
         }
       | API_EVENTS | CONNECTOR | ROUTING =>
         switch statusCode {
@@ -173,8 +203,9 @@ let make = (
     }
   | WEBHOOKS =>
     switch statusCode {
-    | "200" => "border border-green-700"
-    | "500" | _ => "border border-gray-700 opacity-80"
+    | "Delivered" => "border border-green-700"
+    | "Failed" => "border border-red-400"
+    | _ => "border border-gray-700 opacity-80"
     }
   | API_EVENTS | CONNECTOR | ROUTING =>
     switch statusCode {
@@ -234,29 +265,55 @@ let make = (
           })
         }}>
         <div className="flex flex-col gap-1">
-          <div className="flex gap-3">
-            <div className={`bg-${statusCodeBg} h-fit w-fit px-2 py-1 rounded-md`}>
-              <p className={`text-${statusCodeTextColor} text-sm font-bold `}>
+          <div className="flex gap-3 items-center">
+            <div className={`bg-${statusCodeBg} h-fit w-fit px-2 py-0.5 rounded-md`}>
+              <p className={`${body.sm.semibold} text-${statusCodeTextColor}`}>
                 {statusCode->React.string}
               </p>
             </div>
             {switch logType {
             | SDK | ROUTING =>
-              <p className={`${headerStyle} mt-1 ${isSelected ? "" : "opacity-80"}`}>
+              <p className={`${body.md.semibold} text-gray-800 ${isSelected ? "" : "opacity-80"}`}>
                 {apiName->String.toLowerCase->snakeToTitle->React.string}
               </p>
             | API_EVENTS | WEBHOOKS | CONNECTOR =>
-              <p className={`${headerStyle} ${isSelected ? "" : "opacity-80"}`}>
-                <span className="mr-3 border-2 px-1 py-0.5 rounded text-sm">
+              <div
+                className={`flex flex-wrap items-center gap-x-2 gap-y-1 ${isSelected
+                    ? ""
+                    : "opacity-80"}`}>
+                <span
+                  className={`${code.md.medium} text-gray-500 border border-gray-200 px-2 py-0.5 rounded`}>
                   {method->String.toUpperCase->React.string}
                 </span>
-                <span className="leading-7"> {apiName->React.string} </span>
-              </p>
+                <span className={`${body.md.semibold} text-gray-800`}>
+                  {apiName->React.string}
+                </span>
+                <RenderIf condition={logType == CONNECTOR && connectorName->isNonEmptyString}>
+                  <span
+                    className={`${body.sm.semibold} text-gray-600 capitalize whitespace-nowrap`}>
+                    {connectorName->React.string}
+                  </span>
+                </RenderIf>
+                <RenderIf condition={logType == WEBHOOKS && retryCount > 1}>
+                  <span
+                    className={`${body.xs.medium} text-gray-500 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-full whitespace-nowrap`}>
+                    {`${retryCount->Int.toString} attempts`->React.string}
+                  </span>
+                </RenderIf>
+              </div>
             }}
           </div>
-          <div className={`${headerStyle} opacity-40 flex gap-1`}>
+          <div className={`${body.sm.regular} text-gray-400 flex gap-2 items-center`}>
             <TableUtils.DateCell timestamp=startTime />
+            <RenderIf condition={latencyText->isNonEmptyString}>
+              <span> {`• ${latencyText}`->React.string} </span>
+            </RenderIf>
           </div>
+          <RenderIf condition={failureReason->isNonEmptyString}>
+            <p className={`${body.sm.medium} text-red-500 mt-1 break-words`}>
+              {failureReason->React.string}
+            </p>
+          </RenderIf>
         </div>
       </div>
     </div>
