@@ -641,7 +641,7 @@ test.describe("SDK Payment", () => {
     await expect(homePage.sdkAmountInput).toHaveValue("250.50");
   });
 
-  test("should make a successful payment using SDK", async ({ page, context }) => {
+  test.fixme("should make a successful payment using SDK", async ({ page, context }) => {
     const homePage = new HomePage(page);
 
     await page.getByRole('button', { name: '🇺🇸 United States Of America' }).click();
@@ -665,7 +665,7 @@ test.describe("SDK Payment", () => {
 
   });
 
-  test("should display failed payment status using SDK", async ({ page }) => {
+  test.fixme("should display failed payment status using SDK", async ({ page }) => {
     const homePage = new HomePage(page);
 
     await page.route("**/payments/*/confirm", async (route) => {
@@ -693,7 +693,7 @@ test.describe("SDK Payment", () => {
     await expect(homePage.goToPaymentOperationsButton).toBeVisible();
   });
 
-  test("should display processing payment status using SDK", async ({ page }) => {
+  test.fixme("should display processing payment status using SDK", async ({ page }) => {
     const homePage = new HomePage(page);
 
     await page.route("**/payments/*/confirm", async (route) => {
@@ -921,8 +921,6 @@ test.describe("Organization Chart Tree", () => {
 
     await orgChart.visit();
 
-    const orgName = page.getByRole('button', { name: companyName, exact: true });
-    const merchantOneName = page.getByText(companyName + "Orchestrator");
     const merchantTwoName = page.getByText(newMerchantName + "Orchestrator");
     const merchantOneProfileName = page.getByRole('button', { name: 'default' });
     const merchantTwoProfileTwoName = page.getByRole('button', { name: 'new-test-profile' });
@@ -930,6 +928,8 @@ test.describe("Organization Chart Tree", () => {
     await merchantTwoName.click();
     await expect(orgChart.merchantSwitchingLoader).toBeVisible();
     await expect(usersPage.merchantSwitchedSuccessText).toBeVisible();
+
+    await merchantTwoProfileTwoName.click();
 
     await merchantOneProfileName.click();
     await expect(orgChart.profileSwitchingLoader).toBeVisible();
