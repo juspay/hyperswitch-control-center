@@ -863,6 +863,122 @@ export async function mockV2MerchantList(page: Page): Promise<void> {
   });
 }
 
+export async function mockPaymentFilters(page: Page): Promise<void> {
+  await page.route(
+    "**/analytics/v1/org/filters/payments",
+    async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          queryData: [
+            {
+              dimension: "connector",
+              values: ["stripe", "paypal", "adyen"],
+            },
+            {
+              dimension: "payment_method",
+              values: [
+                "card",
+                "wallet",
+                "bank_redirect",
+                "voucher",
+                "bank_debit",
+                "bank_transfer",
+                "card_redirect",
+                "pay_later",
+                "gift_card",
+                "open_banking",
+                "real_time_payment",
+                "reward",
+                "upi",
+                "crypto",
+                "network_token",
+              ],
+            },
+            {
+              dimension: "payment_method_type",
+              values: [
+                "debit",
+                "paypal",
+                "bancontact_card",
+                "credit",
+                "klarna",
+                "benefit",
+                "open_banking_pis",
+                "duit_now",
+                "classic",
+                "blik",
+                "pay_safe_card",
+                "sepa",
+                "upi_collect",
+                "pix",
+                "boleto",
+                "crypto_currency",
+                "network_token",
+              ],
+            },
+            {
+              dimension: "currency",
+              values: ["INR", "EUR", "NZD", "GBP", "CAD"],
+            },
+            {
+              dimension: "status",
+              values: [
+                "succeeded",
+                "failed",
+                "cancelled",
+                "cancelled_post_capture",
+                "processing",
+                "requires_customer_action",
+                "requires_merchant_action",
+                "requires_payment_method",
+                "requires_confirmation",
+                "requires_capture",
+                "partially_captured",
+                "partially_captured_and_capturable",
+                "partially_authorized_and_requires_capture",
+                "partially_captured_and_processing",
+                "conflicted",
+                "expired",
+                "review",
+              ],
+            },
+            {
+              dimension: "profile_id",
+              values: ["pro_cd68ISnwZqozMG7b2x7G"],
+            },
+            {
+              dimension: "card_network",
+              values: [
+                "Visa",
+                "Mastercard",
+                "AmericanExpress",
+                "JCB",
+                "DinersClub",
+                "Discover",
+                "CartesBancaires",
+                "UnionPay",
+                "Interac",
+                "RuPay",
+                "Maestro",
+                "Star",
+                "Pulse",
+                "Accel",
+                "Nyce",
+              ],
+            },
+            {
+              dimension: "merchant_id",
+              values: ["test_merchant"],
+            },
+          ],
+        }),
+      });
+    },
+  );
+}
+
 // Disputes don't have a client-facing creation endpoint — in production they
 // arrive via connector webhooks. For UI tests we mock the list/detail routes
 // so we can drive the page with synthetic data and exercise different

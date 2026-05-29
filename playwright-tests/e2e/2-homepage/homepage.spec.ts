@@ -641,7 +641,7 @@ test.describe("SDK Payment", () => {
     await expect(homePage.sdkAmountInput).toHaveValue("250.50");
   });
 
-  test("should make a successfull payment using SDK", async ({ page, context }) => {
+  test("should make a successful payment using SDK", async ({ page, context }) => {
     const homePage = new HomePage(page);
 
     await page.getByRole('button', { name: '🇺🇸 United States Of America' }).click();

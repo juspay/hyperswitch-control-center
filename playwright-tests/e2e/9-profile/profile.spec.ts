@@ -556,8 +556,6 @@ test.describe("Profile - Two Factor Authentication - Recovery codes", () => {
 
     const firstCodes = (await signinPage.recoveryCodesMask.innerText()).trim();
 
-    console.log(firstCodes);
-
     await page.getByRole('button', { name: 'Download' }).click();
     await expect(page.locator('[data-toast="Successfully regenerated new recovery codes!"]').first()).toBeVisible({ timeout: 10000 });
     await expect(page).toHaveURL(/.*\/account-settings\/profile(\?.*)?$/);

@@ -1,7 +1,8 @@
 import { test, expect } from "../../support/test";
+import type { Page } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { generateUniqueEmail } from "../../support/helper";
-import { signupUser, loginUI } from "../../support/commands";
+import { signupUser, loginUI, mockPaymentFilters } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
@@ -374,4 +375,192 @@ test.describe("Global Search Validation", () => {
   });
 });
 
-//----------------  add search using filters in above tests or new describe block
+test.describe("Global Search - Payment Filter Subfilters", () => {
+  let email = "";
+
+  test.beforeEach(async ({ page }) => {
+    email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
+    await page.route("**/dashboard/config/feature*", async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      if (json?.features) {
+        json.features.global_search = true;
+        json.features.global_search_filters = true;
+      }
+      await route.fulfill({ response, json });
+    });
+    await mockPaymentFilters(page);
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+  });
+
+  // Helper: open the search modal, wait for SUGGESTED FILTERS, click a chip,
+  // then assert every expected subfilter label is visible.
+  async function verifySubfilters(
+    page: Page,
+    chip: string,
+    dimension: string,
+    values: string[],
+  ): Promise<void> {
+    const homePage = new HomePage(page);
+    await homePage.globalSearchInput.click();
+    await expect(homePage.globalSearchModalInput).toBeVisible();
+    await expect(page.getByText("SUGGESTED FILTERS")).toBeVisible({ timeout: 10000 });
+    // Chip text = "{dimension} : {dimension}:{first_value}" (label + placeholder combined)
+    await page.getByText(chip).click();
+    await expect(page.getByText("SUGGESTED FILTERS")).toBeVisible();
+    for (const value of values) {
+      await expect(
+        page.getByText(`${dimension} : ${value}`, { exact: true }).first(),
+      ).toBeVisible({ timeout: 5000 });
+    }
+  }
+
+  test("should display all connector subfilters", async ({ page }) => {
+    await verifySubfilters(
+      page,
+      "connector : connector:stripe",
+      "connector",
+      ["stripe", "paypal", "adyen"],
+    );
+  });
+
+  test("should display all payment_method subfilters", async ({ page }) => {
+    await verifySubfilters(
+      page,
+      "payment_method : payment_method:card",
+      "payment_method",
+      [
+        "card",
+        "wallet",
+        "bank_redirect",
+        "voucher",
+        "bank_debit",
+        "bank_transfer",
+        "card_redirect",
+        "pay_later",
+        "gift_card",
+        "open_banking",
+        "real_time_payment",
+        "reward",
+        "upi",
+        "crypto",
+        "network_token",
+      ],
+    );
+  });
+
+  test("should display all payment_method_type subfilters", async ({ page }) => {
+    await verifySubfilters(
+      page,
+      "payment_method_type : payment_method_type:debit",
+      "payment_method_type",
+      [
+        "debit",
+        "paypal",
+        "bancontact_card",
+        "credit",
+        "klarna",
+        "benefit",
+        "open_banking_pis",
+        "duit_now",
+        "classic",
+        "blik",
+        "pay_safe_card",
+        "sepa",
+        "upi_collect",
+        "pix",
+        "boleto",
+        "crypto_currency",
+        "network_token",
+      ],
+    );
+  });
+
+  test("should display all currency subfilters", async ({ page }) => {
+    await verifySubfilters(
+      page,
+      "currency : currency:INR",
+      "currency",
+      ["INR", "EUR", "NZD", "GBP", "CAD"],
+    );
+  });
+
+  test("should display all status subfilters", async ({ page }) => {
+    await verifySubfilters(
+      page,
+      "status : status:succeeded",
+      "status",
+      [
+        "succeeded",
+        "failed",
+        "cancelled",
+        "cancelled_post_capture",
+        "processing",
+        "requires_customer_action",
+        "requires_merchant_action",
+        "requires_payment_method",
+        "requires_confirmation",
+        "requires_capture",
+        "partially_captured",
+        "partially_captured_and_capturable",
+        "partially_authorized_and_requires_capture",
+        "partially_captured_and_processing",
+        "conflicted",
+        "expired",
+        "review",
+      ],
+    );
+  });
+
+  test("should display all card_network subfilters", async ({ page }) => {
+    await verifySubfilters(
+      page,
+      "card_network : card_network:Visa",
+      "card_network",
+      [
+        "Visa",
+        "Mastercard",
+        "AmericanExpress",
+        "JCB",
+        "DinersClub",
+        "Discover",
+        "CartesBancaires",
+        "UnionPay",
+        "Interac",
+        "RuPay",
+        "Maestro",
+        "Star",
+        "Pulse",
+        "Accel",
+        "Nyce",
+      ],
+    );
+  });
+
+  test("should apply currency subfilter to search input when a currency value is clicked", async ({ page }) => {
+    // Stub search so the real backend 401 does not redirect to sign-in
+    await page.route("**/analytics/v1/search", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([]),
+      });
+    });
+
+    const homePage = new HomePage(page);
+    await homePage.globalSearchInput.click();
+    await expect(homePage.globalSearchModalInput).toBeVisible();
+    await expect(page.getByText("SUGGESTED FILTERS")).toBeVisible({ timeout: 10000 });
+
+    // Expand currency subfilters
+    await page.getByText("currency : currency:INR").click();
+    await expect(page.getByText("currency : INR", { exact: true }).first()).toBeVisible({ timeout: 5000 });
+
+    // Click the "EUR" subfilter
+    await page.getByText("currency : EUR", { exact: true }).first().click();
+
+    // onSuggestionClicked writes "<searchText>EUR" into the input (searchText already ends with ":")
+    await expect(homePage.globalSearchModalInput).toHaveValue(/currency:EUR/, { timeout: 5000 });
+  });
+});
