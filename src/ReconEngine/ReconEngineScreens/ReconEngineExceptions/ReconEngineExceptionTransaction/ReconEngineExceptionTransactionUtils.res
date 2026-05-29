@@ -3,6 +3,18 @@ open ReconEngineTypes
 open LogicUtils
 open ReconEngineUtils
 open ReconEngineTransactionsUtils
+open EntriesTableEntity
+
+let getDetailFieldsForTableSections = [
+  EntryType,
+  Amount,
+  Currency,
+  Status,
+  EntryId,
+  OrderID,
+  EffectiveAt,
+  CreatedAt,
+]
 
 let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
   let statusOptions = getGroupedTransactionStatusOptions([
@@ -103,7 +115,7 @@ let exceptionTransactionEntryItemToItemMapper = (
 
 let getBalanceByAccountType = (
   entries: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
-  accountType: string,
+  accountType: accountTypeVariant,
 ): (float, string) => {
   let (totalCredits, totalDebits) = entries->Array.reduce((0.0, 0.0), (
     (credits, debits),
@@ -116,10 +128,10 @@ let getBalanceByAccountType = (
     }
   })
 
-  let balance = switch accountType->String.toLowerCase {
-  | "credit" => totalCredits -. totalDebits
-  | "debit" => totalDebits -. totalCredits
-  | _ => totalCredits +. totalDebits
+  let balance = switch accountType {
+  | Credit => totalCredits -. totalDebits
+  | Debit => totalDebits -. totalCredits
+  | UnknownAccountTypeVariant => 0.0
   }
 
   let firstEntry =
@@ -610,8 +622,8 @@ let getResolutionModalConfig = (
       closeOnOutsideClick: true,
     }
   | ResolvingException(ForceReconcile) => {
-      heading: "Force Reconcile",
-      description: "This action will mark the transaction as reconciled.",
+      heading: "Force Match",
+      description: "This action will mark the transaction as matched.",
       layout: CenterModal,
       closeOnOutsideClick: true,
     }
@@ -771,12 +783,13 @@ let calculateSectionData = (
   ->Dict.keysToArray
   ->Array.map(accountId => {
     let accountInfo =
-      accountInfoMap
-      ->getvalFromDict(accountId)
-      ->Option.getOr({account_info_name: "", account_info_type: ""})
-    let accountEntries = groupedEntries->getvalFromDict(accountId)->Option.getOr([])
+      accountInfoMap->getValueFromDict(
+        accountId,
+        {account_info_name: "", account_info_type: UnknownAccountTypeVariant},
+      )
+    let accountEntries = groupedEntries->getValueFromDict(accountId, [])
 
-    let (totalAmount, currency) = if accountInfo.account_info_type->isNonEmptyString {
+    let (totalAmount, currency) = if accountInfo.account_info_type != UnknownAccountTypeVariant {
       getBalanceByAccountType(accountEntries, accountInfo.account_info_type)
     } else {
       getSumOfAmountWithCurrency(accountEntries)
@@ -793,9 +806,9 @@ let calculateOverallBalance = sectionData => {
     (creditSum, debitSum),
     (_, accountInfo, _, amount, _),
   ) => {
-    if accountInfo.account_info_type->String.toLowerCase == "credit" {
+    if accountInfo.account_info_type == Credit {
       (creditSum +. amount, debitSum)
-    } else if accountInfo.account_info_type->String.toLowerCase == "debit" {
+    } else if accountInfo.account_info_type == Debit {
       (creditSum, debitSum +. amount)
     } else {
       (creditSum, debitSum)
@@ -857,7 +870,7 @@ let getMainResolutionButtons = (~isResolutionAvailable, ~setExceptionStage, ~set
   open ReconEngineExceptionTransactionTypes
   [
     {
-      text: "Force Reconcile",
+      text: "Force Match",
       icon: "nd-check-circle-outline",
       iconClass: "text-nd_gray-600",
       condition: isResolutionAvailable(ForceReconcile),

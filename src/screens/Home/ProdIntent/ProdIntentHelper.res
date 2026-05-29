@@ -22,7 +22,7 @@ module CountryField = {
       checked: true,
     }
 
-    <SelectBox.BaseDropdown
+    <SelectBoxAdapter.BaseDropdown
       allowMultiSelect=false
       buttonText="Select Country"
       customButtonStyle="!rounded-md !py-5"
@@ -30,7 +30,7 @@ module CountryField = {
       options={CountryUtils.countriesList->Array.map(CountryUtils.getCountryOption)}
       hideMultiSelectButtons=true
       fullLength=true
-      dropdownClassName={`h-64 oveflow-scroll`}
+      dropdownClassName={`h-64 overflow-scroll`}
       dropdownCustomWidth="!w-full"
       addButton=false
       deselectDisable=true

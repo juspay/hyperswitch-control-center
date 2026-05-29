@@ -100,30 +100,30 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
   }
 }
 
-let getFrmCell = (orderDetais: order, frmColType: frmColType): Table.cell => {
-  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(orderDetais.currency)
+let getFrmCell = (orderDetails: order, frmColType: frmColType): Table.cell => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(orderDetails.currency)
   switch frmColType {
-  | PaymentId => Text(orderDetais.payment_id)
-  | PaymentMethodType => Text(orderDetais.payment_method_type)
+  | PaymentId => Text(orderDetails.payment_id)
+  | PaymentMethodType => Text(orderDetails.payment_method_type)
   | Amount =>
     CustomCell(
       <CurrencyCell
-        amount={(orderDetais.amount /. conversionFactor)->Float.toString}
-        currency={orderDetais.currency}
+        amount={(orderDetails.amount /. conversionFactor)->Float.toString}
+        currency={orderDetails.currency}
       />,
       "",
     )
-  | Currency => Text(orderDetais.currency)
-  | PaymentProcessor => Text(orderDetais.connector)
-  | FRMConnector => Text(orderDetais.frm_message.frm_name)
-  | FRMMessage => Text(orderDetais.frm_message.frm_reason)
-  | MerchantDecision => Text(orderDetais.frm_merchant_decision)
+  | Currency => Text(orderDetails.currency)
+  | PaymentProcessor => Text(orderDetails.connector)
+  | FRMConnector => Text(orderDetails.frm_message.frm_name)
+  | FRMMessage => Text(orderDetails.frm_message.frm_reason)
+  | MerchantDecision => Text(orderDetails.frm_merchant_decision)
   }
 }
 
-let getAuthenticationCell = (orderDetais: order, colType: authenticationColType): Table.cell => {
+let getAuthenticationCell = (orderDetails: order, colType: authenticationColType): Table.cell => {
   let authenticationDetails =
-    orderDetais.external_authentication_details
+    orderDetails.external_authentication_details
     ->Option.getOr(JSON.Encode.null)
     ->getDictFromJsonObject
   switch colType {
@@ -217,7 +217,7 @@ let getRefundHeading = (refundsColType: refundsColType) => {
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | LastUpdated => Table.makeHeaderInfo(~key="last_updated", ~title="Last Updated")
-  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment Id")
+  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID")
   | RefundStatus => Table.makeHeaderInfo(~key="status", ~title="Refund Status")
   | RefundId => Table.makeHeaderInfo(~key="refund_id", ~title="Refund ID")
   | RefundReason => Table.makeHeaderInfo(~key="reason", ~title="Refund Reason")
@@ -269,7 +269,7 @@ let getAttemptHeading = (attemptColType: attemptColType) => {
 
 let getFrmHeading = (frmDetailsColType: frmColType) => {
   switch frmDetailsColType {
-  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="PaymentId")
+  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID")
   | PaymentMethodType =>
     Table.makeHeaderInfo(~key="payment_method_type", ~title="Payment Method Type")
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
@@ -285,7 +285,7 @@ let getAuthenticationHeading = (authenticationDetailsColType: authenticationColT
   switch authenticationDetailsColType {
   | AuthenticationFlow =>
     Table.makeHeaderInfo(~key="authentication_flow", ~title="Authentication Flow")
-  | DsTransactionId => Table.makeHeaderInfo(~key="ds_transaction_id", ~title="Ds Transaction Id")
+  | DsTransactionId => Table.makeHeaderInfo(~key="ds_transaction_id", ~title="DS Transaction ID")
   | ElectronicCommerceIndicator =>
     Table.makeHeaderInfo(
       ~key="electronic_commerce_indicator",
@@ -370,7 +370,7 @@ let allColumnsV2 = [
   ErrorMessage,
 ]
 
-let getHeading = (colType: colType) => {
+let getHeading = (~devSortEnabled, colType: colType) => {
   switch colType {
   | Metadata => Table.makeHeaderInfo(~key="metadata", ~title="Metadata")
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID")
@@ -378,13 +378,13 @@ let getHeading = (colType: colType) => {
   | Status => Table.makeHeaderInfo(~key="status", ~title="Payment Status", ~dataType=DropDown)
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=true)
   | Connector => Table.makeHeaderInfo(~key="connector", ~title="Connector")
-  | AmountCapturable => Table.makeHeaderInfo(~key="amount_capturable", ~title="AmountCapturable")
+  | AmountCapturable => Table.makeHeaderInfo(~key="amount_capturable", ~title="Amount Capturable")
   | AmountReceived => Table.makeHeaderInfo(~key="amount_received", ~title="Amount Received")
   | ClientSecret => Table.makeHeaderInfo(~key="client_secret", ~title="Client Secret")
   | ConnectorTransactionID =>
     Table.makeHeaderInfo(~key="connector_transaction_id", ~title="Connector Transaction ID")
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created", ~showSort=true)
-  | Modified => Table.makeHeaderInfo(~key="modified", ~title="Modified", ~showSort=true)
+  | Modified => Table.makeHeaderInfo(~key="modified", ~title="Modified", ~showSort=devSortEnabled)
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer ID")
   | Description => Table.makeHeaderInfo(~key="description", ~title="Description")
@@ -406,11 +406,11 @@ let getHeading = (colType: colType) => {
   | Email => Table.makeHeaderInfo(~key="email", ~title="Customer Email")
   | Name => Table.makeHeaderInfo(~key="name", ~title="Name")
   | Phone => Table.makeHeaderInfo(~key="phone", ~title="Phone")
-  | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="ReturnUrl")
+  | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="Return URL")
   | AuthenticationType =>
     Table.makeHeaderInfo(~key="authentication_type", ~title="Authentication Type")
   | StatementDescriptorName =>
-    Table.makeHeaderInfo(~key="statement_descriptor_name ", ~title="Statement Descriptor Name ")
+    Table.makeHeaderInfo(~key="statement_descriptor_name", ~title="Statement Descriptor Name")
   | StatementDescriptorSuffix =>
     Table.makeHeaderInfo(~key="statement_descriptor_suffix", ~title="Statement Descriptor Suffix")
   | NextAction => Table.makeHeaderInfo(~key="next_action", ~title="Next Action")
@@ -419,11 +419,11 @@ let getHeading = (colType: colType) => {
   | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code")
   | ErrorMessage => Table.makeHeaderInfo(~key="error_message", ~title="Error Message")
   | Refunds => Table.makeHeaderInfo(~key="refunds", ~title="Refunds")
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
+  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile ID")
   | CardNetwork => Table.makeHeaderInfo(~key="CardNetwork", ~title="Card Network")
   | MerchantOrderReferenceId =>
-    Table.makeHeaderInfo(~key="merchant_order_reference_id", ~title="Merchant Order Reference Id")
-  | AttemptCount => Table.makeHeaderInfo(~key="attempt_count", ~title="Attempt count")
+    Table.makeHeaderInfo(~key="merchant_order_reference_id", ~title="Merchant Order Reference ID")
+  | AttemptCount => Table.makeHeaderInfo(~key="attempt_count", ~title="Attempt Count")
   | PaymentType => Table.makeHeaderInfo(~key="payment_type", ~title="Payment Type")
   }
 }
@@ -486,7 +486,7 @@ let getHeadingForSummary = summaryColType => {
 let getHeadingForAboutPayment = aboutPaymentColType => {
   switch aboutPaymentColType {
   | Connector => Table.makeHeaderInfo(~key="connector", ~title="Payment connector")
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
+  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile ID")
   | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
   | CardBrand => Table.makeHeaderInfo(~key="card_brand", ~title="Card Brand")
   | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
@@ -529,7 +529,7 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   | ShippingPhone => Table.makeHeaderInfo(~key="shipping", ~title="Phone")
   | BillingAddress => Table.makeHeaderInfo(~key="billing", ~title="Address")
   | BillingPhone => Table.makeHeaderInfo(~key="BillingPhone", ~title="Phone")
-  | AmountCapturable => Table.makeHeaderInfo(~key="amount_capturable", ~title="AmountCapturable")
+  | AmountCapturable => Table.makeHeaderInfo(~key="amount_capturable", ~title="Amount Capturable")
   | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code")
   | MandateData => Table.makeHeaderInfo(~key="mandate_data", ~title="Mandate Data")
   | FRMName => Table.makeHeaderInfo(~key="frm_name", ~title="Tag")
@@ -547,7 +547,7 @@ let getHeadingForOtherDetails = otherDetailsColType => {
     Table.makeHeaderInfo(~key="payment_method_firat_name", ~title="First Name")
   | PMBillingLastName => Table.makeHeaderInfo(~key="payment_method_last_name", ~title="Last Name")
   | MerchantOrderReferenceId =>
-    Table.makeHeaderInfo(~key="merchant_order_reference_id", ~title="Merchant Order Reference Id")
+    Table.makeHeaderInfo(~key="merchant_order_reference_id", ~title="Merchant Order Reference ID")
 
   | ExtendedAuthLastAppliedAt =>
     Table.makeHeaderInfo(
@@ -630,7 +630,6 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
       | Some(val) => val->getDictFromJsonObject
       | _ => Dict.make()
       }
-
       Text(dict->getString("card_network", ""))
     }
   }
@@ -638,7 +637,7 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
 
 let getCellForOtherDetails = (order, aboutPaymentColType: otherDetailsColType): Table.cell => {
   let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(order.currency)
-  let splittedName = order.name->Option.getOr("")->String.split(" ")
+  let splitName = order.name->Option.getOr("")->String.split(" ")
   switch aboutPaymentColType {
   | MerchantId => Text(order.merchant_id)
   | ReturnUrl => Text(order.return_url)
@@ -651,8 +650,8 @@ let getCellForOtherDetails = (order, aboutPaymentColType: otherDetailsColType): 
   | StatementDescriptorName => Text(order.statement_descriptor)
   | StatementDescriptorSuffix => Text(order.statement_descriptor_suffix->Option.getOr(""))
   | PaymentExperience => Text(order.payment_experience)
-  | FirstName => Text(splittedName->Array.get(0)->Option.getOr(""))
-  | LastName => Text(splittedName->Array.get(splittedName->Array.length - 1)->Option.getOr(""))
+  | FirstName => Text(splitName->Array.get(0)->Option.getOr(""))
+  | LastName => Text(splitName->Array.get(splitName->Array.length - 1)->Option.getOr(""))
   | Phone => Text(order.phone->Option.getOr(""))
   | Email => Text(order.email->Option.getOr(""))
   | CustomerId =>
@@ -840,13 +839,13 @@ let getOrders: JSON.t => array<order> = json => {
   getArrayDataFromJson(json, PaymentInterfaceUtils.mapDictToPaymentPayload)
 }
 
-let orderEntity = (merchantId, orgId, ~version: UserInfoTypes.version=V1) =>
+let orderEntity = (merchantId, orgId, ~version: UserInfoTypes.version=V1, ~devSortEnabled) =>
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getOrders,
     ~defaultColumns,
     ~allColumns=getAllColumns(version),
-    ~getHeading,
+    ~getHeading=colType => getHeading(~devSortEnabled, colType),
     ~getCell=(order, colType) => getCell(order, colType, merchantId, orgId),
     ~dataKey="",
     ~getShowLink={

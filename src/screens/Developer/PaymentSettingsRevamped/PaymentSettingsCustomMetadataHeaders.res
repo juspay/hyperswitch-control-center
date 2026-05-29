@@ -9,7 +9,7 @@ module MetadataAuthenticationInput = {
     let (key, setKey) = React.useState(_ => "")
     let (metaValue, setValue) = React.useState(_ => "")
     let originalKeyRef = React.useRef("")
-    let getMetadatKeyValues = () => {
+    let getMetadataKeyValues = () => {
       let metadataKeyValueDict =
         formState.values
         ->getDictFromJsonObject
@@ -23,7 +23,7 @@ module MetadataAuthenticationInput = {
     }
 
     React.useEffect(() => {
-      let (metadataKey, customMetadataVal) = getMetadatKeyValues()
+      let (metadataKey, customMetadataVal) = getMetadataKeyValues()
       setValue(_ => customMetadataVal)
       setKey(_ => metadataKey)
       originalKeyRef.current = metadataKey
@@ -87,7 +87,7 @@ module MetadataAuthenticationInput = {
 
     <DesktopRow wrapperClass="flex-1">
       <div className="mt-5">
-        <TextInput
+        <TextInputAdapter
           input={keyInput}
           placeholder={"Enter key"}
           isDisabled={isDisabled && !allowEdit}
@@ -95,7 +95,7 @@ module MetadataAuthenticationInput = {
         />
       </div>
       <div className="mt-5">
-        <TextInput
+        <TextInputAdapter
           input={valueInput}
           placeholder={"Enter value"}
           isDisabled={isDisabled && !allowEdit}
@@ -227,7 +227,7 @@ let make = () => {
     } catch {
     | _ => {
         setScreenState(_ => PageLoaderWrapper.Success)
-        showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+        showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
       }
     }
     Nullable.null

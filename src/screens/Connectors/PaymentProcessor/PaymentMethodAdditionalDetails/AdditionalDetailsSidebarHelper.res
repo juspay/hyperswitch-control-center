@@ -83,7 +83,7 @@ module Card = {
             {heading->React.string}
           </div>
           <div>
-            <RadioIcon isSelected fill={`${textColor.primaryNormal}`} />
+            <RadioIconAdapter isSelected fill={`${textColor.primaryNormal}`} />
           </div>
         </div>
         {children}

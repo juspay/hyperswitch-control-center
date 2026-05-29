@@ -28,6 +28,7 @@ let make = (~connectorInfo) => {
         | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
         | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
         | VaultProcessor => Window.getConnectorConfig(connectorName)
+        | SurchargeProcessor => Window.getSurchargeProcessorConfig(connectorName)
         | PaymentVas => JSON.Encode.null
         }
         let connectorAccountDict = dict->getDictFromJsonObject->getDictfromDict("connector_auth")
@@ -61,7 +62,7 @@ let make = (~connectorInfo) => {
         customSubTitleStyle="font-500 font-normal text-nd_gray-700"
       />
       <div className="flex flex-col py-4 gap-6">
-        <div className="flex flex-col gap-0.5-rem ">
+        <div className="flex flex-col gap-2 ">
           <h4 className="text-nd_gray-400 "> {"Profile"->React.string} </h4>
           {connectorInfodict.profile_id->React.string}
         </div>

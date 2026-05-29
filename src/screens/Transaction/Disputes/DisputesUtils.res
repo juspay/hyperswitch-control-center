@@ -27,23 +27,23 @@ let evidenceList = [
 ]
 
 let getDictFromFilesAvailable = arrayValue => {
-  let manipulatedDict = Dict.make()
+  let evidenceFilesDict = Dict.make()
   arrayValue->Array.forEach(val => {
     let dictFromJson = val->getDictFromJsonObject
-    let evidenceTypekey = dictFromJson->getString("evidence_type", "")
-    let filemetadata = dictFromJson->getDictfromDict("file_metadata_response")
-    let file_id = filemetadata->getString("file_id", "")
-    let file_name = filemetadata->getString("file_name", "")
+    let evidenceTypeKey = dictFromJson->getString("evidence_type", "")
+    let fileMetadata = dictFromJson->getDictfromDict("file_metadata_response")
+    let fileId = fileMetadata->getString("file_id", "")
+    let fileName = fileMetadata->getString("file_name", "")
 
     let fileVal =
       [
-        ("fileId", file_id->JSON.Encode.string),
-        ("fileName", file_name->JSON.Encode.string),
+        ("fileId", fileId->JSON.Encode.string),
+        ("fileName", fileName->JSON.Encode.string),
       ]->getJsonFromArrayOfJson
 
-    manipulatedDict->Dict.set(evidenceTypekey, fileVal)
+    evidenceFilesDict->Dict.set(evidenceTypeKey, fileVal)
   })
-  manipulatedDict
+  evidenceFilesDict
 }
 
 let constructDisputesBody = (dict, disputesId) => {
@@ -193,11 +193,11 @@ let itemToObjMapper = dict => {
   }
 }
 
-let initialFilters = (json, filtervalues, _, _, _, _) => {
+let initialFilters = (json, filterValues, _, _, _, _) => {
   let filterDict = json->getDictFromJsonObject
   let filtersArray = filterDict->Dict.keysToArray->Array.filter(item => item != "currency")
 
-  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
+  let connectorFilter = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
   if connectorFilter->Array.length !== 0 {
     filtersArray->Array.push(#connector_label->getLabelFromFilterType)
   }
@@ -211,13 +211,13 @@ let initialFilters = (json, filtervalues, _, _, _, _) => {
     | #currency => filterData.currency
     | #dispute_status => filterData.dispute_status
     | #dispute_stage => filterData.dispute_stage
-    | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
+    | #connector_label => getConditionalFilter(key, filterDict, filterValues)
     | _ => []
     }
 
     let options = switch key->getFilterTypeFromString {
-    | #connector_label => getOptionsForDisputeFilters(filterDict, filtervalues)
-    | #connector => values->FilterSelectBox.makeOptions(~isTitle=true)
+    | #connector_label => getOptionsForDisputeFilters(filterDict, filterValues)
+    | #connector => values->ConnectorUtils.getConnectorFilterOptions
     | _ => values->FilterSelectBox.makeOptions
     }
 

@@ -131,7 +131,7 @@ let make = () => {
   <PageLoaderWrapper key={(analyticsEntity :> string)} screenState>
     <div>
       <InsightsHelper.SampleDataBanner applySampleDateFilters />
-      <PageUtils.PageHeading customTitleStyle="mt-4" title="Insights" />
+      <PageUtils.PageHeading customHeadingStyle="mt-4" title="Insights" />
       <div className="-ml-1 top-0 z-20 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
         <DynamicFilter
           title="NewAnalytics"
@@ -169,18 +169,7 @@ let make = () => {
           disabledDisplayName="Hyperswitch_test"
         />
       </Portal>
-      <Tabs
-        initialIndex={url->getPageIndex}
-        tabs
-        onTitleClick={tabId => setTabIndex(_ => tabId)}
-        disableIndicationArrow=true
-        showBorder=true
-        includeMargin=false
-        lightThemeColor="black"
-        defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
-        textStyle="text-blue-600"
-        selectTabBottomBorderColor="bg-blue-600"
-      />
+      <Tabs initialIndex={url->getPageIndex} tabs onTitleClick={tabId => setTabIndex(_ => tabId)} />
     </div>
   </PageLoaderWrapper>
 }

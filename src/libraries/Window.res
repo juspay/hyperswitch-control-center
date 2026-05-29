@@ -113,6 +113,9 @@ external getTaxProcessorConfig: string => JSON.t = "getTaxProcessorConfig"
 external getBillingConnectorConfig: string => JSON.t = "getBillingConnectorConfig"
 
 @val @scope("window")
+external getSurchargeProcessorConfig: string => JSON.t = "getSurchargeProcessorConfig"
+
+@val @scope("window")
 external getAllPayoutKeys: unit => array<string> = "getAllPayoutKeys"
 
 @val @scope("window")

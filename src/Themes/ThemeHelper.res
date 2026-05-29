@@ -3,11 +3,11 @@ module OverlappingCircles = {
   let make = (~colorA: string, ~colorB: string) => {
     <div className="relative w-9 h-6 flex items-center">
       <div
-        className={`absolute left-0 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md `}
+        className="absolute left-0 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md"
         style={ReactDOM.Style.make(~backgroundColor=colorA, ())}
       />
       <div
-        className={`absolute left-4 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md `}
+        className="absolute left-4 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md"
         style={ReactDOM.Style.make(~backgroundColor=colorB, ())}
       />
     </div>
@@ -32,7 +32,7 @@ module RadioButtons = {
       }}>
       <div className="flex flex-col gap-4">
         <div
-          className="flex flex-row gap-2 items-start flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-4 rounded-lg">
+          className="flex gap-2 items-start flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-4 rounded-lg">
           <Icon name="nd-info-circle" size=20 />
           <span className={`text-nd_gray-600 ${body.md.regular}`}>
             {`You can only create theme for ${orgId} here. To create theme to another organisation, please switch the organisation.`->React.string}
@@ -46,11 +46,9 @@ module RadioButtons = {
               <div
                 className={`flex items-center justify-between border rounded-lg p-4 cursor-pointer transition ${borderClass}`}>
                 <div className="flex items-center gap-4 w-full">
-                  <div>
-                    <div
-                      className="w-8 h-8 border border-nd_br_gray-50 flex items-center justify-center rounded-md">
-                      {option.icon}
-                    </div>
+                  <div
+                    className="w-8 h-8 border border-nd_br_gray-50 flex items-center justify-center rounded-md">
+                    {option.icon}
                   </div>
                   <div className="flex flex-col flex-1">
                     <span className={`text-nd_gray-600 ${body.md.semibold}`}>
@@ -60,9 +58,7 @@ module RadioButtons = {
                       {option.desc->React.string}
                     </span>
                   </div>
-                  <div>
-                    <input type_="radio" checked={checked["checked"]} className="accent-primary" />
-                  </div>
+                  <input type_="radio" checked={checked["checked"]} className="accent-primary" />
                 </div>
               </div>
             }}
@@ -88,7 +84,7 @@ let orgDisplayField = (~getNameForId) =>
     ~name="display.organization_name",
     ~customInput=(~input as _, ~placeholder as _) =>
       <div
-        className="w-full border border-gray-200 bg-gray-50 rounded-lg px-3 py-2 flex items-center">
+        className="w-full border border-nd_gray-200 bg-nd_gray-50 rounded-lg px-3 py-2 flex items-center">
         <span className="text-nd_gray-600 font-medium">
           {getNameForId(#Organization)->React.string}
         </span>
@@ -220,7 +216,7 @@ module LineageFormContent = {
           field={orgDisplayField(~getNameForId)}
           showErrorOnChange=true
           errorClass={ProdVerifyModalUtils.errorClass}
-          labelClass={`${body.sm.semibold} `}
+          labelClass={`${body.sm.semibold}`}
         />
       | MerchantLevelConfig =>
         <>
@@ -232,17 +228,17 @@ module LineageFormContent = {
           />
           <div className="relative pl-8">
             <div
-              className="absolute left-4 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-gray-300"
+              className="absolute left-4 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-nd_gray-300"
             />
             <div
-              className="absolute left-4 top-12 w-4 h-px border-t-2 border-dashed border-gray-300"
+              className="absolute left-4 top-12 w-4 h-px border-t-2 border-dashed border-nd_gray-300"
             />
             <FormRenderer.FieldRenderer
               fieldWrapperClass="w-full"
               field={merchantField(~getNameForId, ~merchantList, ~merchantId, ~onMerchantSelect)}
               showErrorOnChange=true
               errorClass={ProdVerifyModalUtils.errorClass}
-              labelClass={`${body.sm.semibold} `}
+              labelClass={`${body.sm.semibold}`}
             />
           </div>
         </>
@@ -252,36 +248,36 @@ module LineageFormContent = {
             field={orgDisplayField(~getNameForId)}
             showErrorOnChange=true
             errorClass={ProdVerifyModalUtils.errorClass}
-            labelClass={`${body.sm.semibold} `}
+            labelClass={`${body.sm.semibold}`}
           />
           <div className="relative pl-8">
             <div
-              className="absolute left-4 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-gray-300"
+              className="absolute left-4 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-nd_gray-300"
             />
             <div
-              className="absolute left-4 top-12 w-4 h-px border-t-2 border-dashed border-gray-300"
+              className="absolute left-4 top-12 w-4 h-px border-t-2 border-dashed border-nd_gray-300"
             />
             <FormRenderer.FieldRenderer
               fieldWrapperClass="w-full"
               field={merchantField(~getNameForId, ~merchantList, ~merchantId, ~onMerchantSelect)}
               showErrorOnChange=true
               errorClass={ProdVerifyModalUtils.errorClass}
-              labelClass={`${body.sm.semibold} `}
+              labelClass={`${body.sm.semibold}`}
             />
           </div>
           <div className="relative pl-16">
             <div
-              className="absolute left-12 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-gray-300"
+              className="absolute left-12 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-nd_gray-300"
             />
             <div
-              className="absolute left-12 top-12 w-4 h-px border-t-2 border-dashed border-gray-300"
+              className="absolute left-12 top-12 w-4 h-px border-t-2 border-dashed border-nd_gray-300"
             />
             <FormRenderer.FieldRenderer
               fieldWrapperClass="w-full"
               field={profileField(~getNameForId, ~profileList, ~profileId, ~onProfileSelect)}
               showErrorOnChange=true
               errorClass={ProdVerifyModalUtils.errorClass}
-              labelClass={`${body.sm.semibold} `}
+              labelClass={`${body.sm.semibold}`}
             />
           </div>
         </>
@@ -295,11 +291,11 @@ module LineageFormContent = {
     }
 
     <>
-      <div className="flex flex-col h-full w-full p-4 gap-2 ">
+      <div className="flex flex-col h-full w-full p-4 gap-2">
         {renderStep()}
         <RenderIf condition={themeExists}>
           <div
-            className="flex flex-row gap-2 items-center flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-2 rounded-lg">
+            className="flex gap-2 items-center flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-2 rounded-lg">
             <Icon name="nd-info-circle" size=14 className="text-nd_gray-500" />
             <span className={`text-nd_gray-600 ${body.sm.regular}`}>
               {"A theme already exists for this lineage entity level. Continue to override."->React.string}
@@ -493,5 +489,127 @@ module ThemeLineageModal = {
         <LineageFormContent showModal setShowModal step setStep themeExists setThemeExists />
       </Modal>
     </Form>
+  }
+}
+
+module ThemeUploadAssetsModal = {
+  @react.component
+  let make = (~showModal, ~setShowModal, ~themeId, ~redirectToList) => {
+    open APIUtils
+    open ThemeSettingsHelper
+
+    let showToast = ToastState.useShowToast()
+    let getURL = useGetURL()
+    let updateDetails = useUpdateMethod(~showErrorToast=false)
+    let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Success)
+    let processAssets = ThemeHooks.useProcessAssets()
+    let (assets, setAssets) = React.useState(_ => Dict.make()->assetsMapper)
+    let formValues = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    ).values
+
+    let handleUpload = async () => {
+      try {
+        setScreenState(_ => Loading)
+
+        let processed = await processAssets(~assets, ~themeId)
+        let hasUrls =
+          processed.urls.logoUrl->Option.isSome || processed.urls.faviconUrl->Option.isSome
+        let hasEmailLogo = processed.emailLogoUrl->Option.isSome
+
+        if hasUrls || hasEmailLogo {
+          let {theme_data: {settings}, email_config} = formValues->ThemeUpdateUtils.themeBodyMapper
+          let updatedEmailConfig = if hasEmailLogo {
+            email_config->buildEmailConfigObject(~emailLogoUrl=processed.emailLogoUrl)
+          } else {
+            email_config
+          }
+
+          let requestBody = buildThemeDataBody(
+            ~settings,
+            ~urls=processed.urls,
+            ~emailConfig=updatedEmailConfig,
+          )
+          let updateUrl = getURL(
+            ~entityName=V1(USERS),
+            ~methodType=Put,
+            ~id=Some(themeId),
+            ~userType=#THEME,
+          )
+          let _ = await updateDetails(updateUrl, requestBody, Put)
+        }
+
+        showToast(~message="Theme has been created with assets", ~toastType=ToastState.ToastSuccess)
+        setScreenState(_ => Success)
+        setShowModal(_ => false)
+        redirectToList()
+      } catch {
+      | _ =>
+        showToast(~message="Failed to upload assets", ~toastType=ToastState.ToastError)
+        setScreenState(_ => Success)
+      }
+    }
+
+    let handleCancel = () => {
+      setShowModal(_ => false)
+      showToast(
+        ~message="Theme has been created. You can upload assets later",
+        ~toastType=ToastState.ToastInfo,
+      )
+      redirectToList()
+    }
+
+    <Modal
+      showModal
+      setShowModal
+      modalHeading="Upload Assets"
+      modalHeadingClass={`${heading.sm.semibold}`}
+      modalClass="w-1/2 m-auto"
+      childClass="p-0"
+      showCloseIcon=false
+      modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
+        {"Upload icon, favicon and email logo files for your theme."->React.string}
+      </div>}>
+      <PageLoaderWrapper screenState={screenState} sectionHeight="h-20-vh">
+        <div className="flex flex-col gap-2 p-3">
+          <IconSettings
+            mode=#Dashboard
+            assets
+            onLogoSelect={file => setAssets(prev => {...prev, logo: Some(File(file))})}
+            onLogoRemove={() => setAssets(prev => {...prev, logo: None})}
+            onFaviconSelect={file => setAssets(prev => {...prev, favicon: Some(File(file))})}
+            onFaviconRemove={() => setAssets(prev => {...prev, favicon: None})}
+            themeConfigVersion=None
+          />
+          <IconSettings
+            mode=#Email
+            assets
+            onEmailLogoSelect={file => setAssets(prev => {...prev, emailLogo: Some(File(file))})}
+            onEmailLogoRemove={() => setAssets(prev => {...prev, emailLogo: None})}
+            themeConfigVersion=None
+          />
+          <div className="flex justify-end gap-3 pt-4 border-t border-nd_gray-200">
+            <Button
+              text="Skip for now"
+              buttonType=Secondary
+              buttonState=Normal
+              buttonSize=Small
+              onClick={_ => handleCancel()->ignore}
+            />
+            <Button
+              text="Save & Upload"
+              buttonType=Primary
+              buttonState={assets.logo->Option.isSome ||
+              assets.favicon->Option.isSome ||
+              assets.emailLogo->Option.isSome
+                ? Normal
+                : Disabled}
+              buttonSize=Small
+              onClick={_ => handleUpload()->ignore}
+            />
+          </div>
+        </div>
+      </PageLoaderWrapper>
+    </Modal>
   }
 }

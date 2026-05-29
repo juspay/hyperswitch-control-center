@@ -42,7 +42,7 @@ let make = (
   ~customStyle="",
   ~customPaddingClass="",
   ~customTextStyle="",
-  ~specialCharatersInfoText="",
+  ~specialCharactersInfoText="",
   ~customDashboardClass=?,
 ) => {
   let initialPasswordState = {
@@ -117,10 +117,10 @@ let make = (
   let passwordChips = [MinEightChars, Lowercase, Number, SpecialChar, Uppercase]
 
   <>
-    <TextInput
+    <TextInputAdapter
       input=newInput
       placeholder
-      type_="password"
+      inputType="password"
       autoComplete
       ?leftIcon
       customStyle
@@ -133,10 +133,9 @@ let make = (
           : "hidden"} flex flex-row flex-wrap gap-y-3 gap-x-2 mt-3`}>
       {passwordChips
       ->Array.mapWithIndex((chipType, index) => {
-        if specialCharatersInfoText->LogicUtils.isNonEmptyString && chipType === SpecialChar {
+        if specialCharactersInfoText->LogicUtils.isNonEmptyString && chipType === SpecialChar {
           <ToolTip
-            tooltipWidthClass="w-fit"
-            description=specialCharatersInfoText
+            description=specialCharactersInfoText
             toolTipFor={<PasswordChip
               key={`check_${index->Int.toString}`} passwordChecks chipType customTextStyle
             />}

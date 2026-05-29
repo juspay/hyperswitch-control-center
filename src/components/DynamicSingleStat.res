@@ -60,7 +60,7 @@ type entityType<'colType, 't, 't2> = {
   defaultColumns: array<columns<'colType>>, // (sectionName, defaultColumns)
   getData: ('t, array<'t2>, deltaRange, 'colType, string) => singleStatData,
   totalVolumeCol: option<string>,
-  matrixUriMapper: 'colType => string, // metrix uriMapper will contain the ${prefix}${url}
+  matrixUriMapper: 'colType => string, // metric uriMapper will contain the ${prefix}${url}
   source?: string,
   customFilterKey?: string,
   enableLoaders?: bool,
@@ -593,7 +593,6 @@ let make = (
                     tooltipText=stateData.tooltipText
                     deltaTooltipComponent={stateData.deltaTooltipComponent(stateData.statType)}
                     value=stateData.value
-                    data=stateData.data
                     statType=stateData.statType
                     singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
                     showPercentage=stateData.showDelta
@@ -611,7 +610,6 @@ let make = (
                     tooltipText=""
                     deltaTooltipComponent=React.null
                     value=0.
-                    data=[]
                     statType=""
                     singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
                     loaderType=shimmerType
@@ -631,7 +629,6 @@ let make = (
                 tooltipText=""
                 deltaTooltipComponent=React.null
                 value=0.
-                data=[]
                 statType=""
                 singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
                 loaderType=shimmerType
@@ -651,7 +648,6 @@ let make = (
             tooltipText=""
             deltaTooltipComponent=React.null
             value=0.
-            data=[]
             statType=""
             singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
             loaderType=shimmerType

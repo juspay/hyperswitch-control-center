@@ -19,6 +19,14 @@ let mapGroupAccessTypeToString = groupAccessType =>
   | AccountManage => "account_manage"
   | ThemeView => "theme_view"
   | ThemeManage => "theme_manage"
+  | ReconSourcesView => "recon_sources_view"
+  | ReconSourcesManage => "recon_sources_manage"
+  | ReconTransactionsView => "recon_transactions_view"
+  | ReconTransactionsManage => "recon_transactions_manage"
+  | ReconRulesView => "recon_rules_view"
+  | ReconRulesManage => "recon_rules_manage"
+  | ReconExceptionsView => "recon_exceptions_view"
+  | ReconExceptionsManage => "recon_exceptions_manage"
   | UnknownGroupAccess(val) => val
   }
 
@@ -40,6 +48,14 @@ let mapStringToGroupAccessType = val =>
   | "account_manage" => AccountManage
   | "theme_view" => ThemeView
   | "theme_manage" => ThemeManage
+  | "recon_sources_view" => ReconSourcesView
+  | "recon_sources_manage" => ReconSourcesManage
+  | "recon_transactions_view" => ReconTransactionsView
+  | "recon_transactions_manage" => ReconTransactionsManage
+  | "recon_rules_view" => ReconRulesView
+  | "recon_rules_manage" => ReconRulesManage
+  | "recon_exceptions_view" => ReconExceptionsView
+  | "recon_exceptions_manage" => ReconExceptionsManage
   | val => UnknownGroupAccess(val)
   }
 
@@ -61,14 +77,13 @@ let mapStringToResourceAccessType = val =>
   | "webhook_event" => WebhookEvent
   | "payout" => Payout
   | "report" => Report
-  | "recon_token" => ReconToken
-  | "recon_files" => ReconFiles
-  | "recon_and_settlement_analytics" => ReconAndSettlementAnalytics
-  | "recon_upload" => ReconUpload
-  | "recon_reports" => ReconReports
-  | "run_recon" => RunRecon
-  | "recon_config" => ReconConfig
   | "theme" => Theme
+  | "recon_ingestion" => ReconIngestion
+  | "recon_transformation" => ReconTransformation
+  | "recon_exception" => ReconException
+  | "recon_staging_entry" => ReconStagingEntry
+  | "recon_transaction" => ReconTransaction
+  | "recon_rule" => ReconRule
   | _ => UnknownResourceAccess(val)
   }
 
@@ -89,29 +104,14 @@ let defaultValueForGroupAccessJson = {
   accountManage: NoAccess,
   themeView: NoAccess,
   themeManage: NoAccess,
-}
-
-let getAccessValue = (~groupAccess: groupAccessType, ~groupACL) =>
-  groupACL->Array.find(ele => ele == groupAccess)->Option.isSome ? Access : NoAccess
-
-// TODO: Refactor to not call function for every group
-let getGroupAccessJson = groupACL => {
-  operationsView: getAccessValue(~groupAccess=OperationsView, ~groupACL),
-  operationsManage: getAccessValue(~groupAccess=OperationsManage, ~groupACL),
-  connectorsView: getAccessValue(~groupAccess=ConnectorsView, ~groupACL),
-  connectorsManage: getAccessValue(~groupAccess=ConnectorsManage, ~groupACL),
-  workflowsView: getAccessValue(~groupAccess=WorkflowsView, ~groupACL),
-  workflowsManage: getAccessValue(~groupAccess=WorkflowsManage, ~groupACL),
-  analyticsView: getAccessValue(~groupAccess=AnalyticsView, ~groupACL),
-  usersView: getAccessValue(~groupAccess=UsersView, ~groupACL),
-  usersManage: getAccessValue(~groupAccess=UsersManage, ~groupACL),
-  merchantDetailsView: getAccessValue(~groupAccess=MerchantDetailsView, ~groupACL),
-  merchantDetailsManage: getAccessValue(~groupAccess=MerchantDetailsManage, ~groupACL),
-  organizationManage: getAccessValue(~groupAccess=OrganizationManage, ~groupACL),
-  accountView: getAccessValue(~groupAccess=AccountView, ~groupACL),
-  accountManage: getAccessValue(~groupAccess=AccountManage, ~groupACL),
-  themeView: getAccessValue(~groupAccess=ThemeView, ~groupACL),
-  themeManage: getAccessValue(~groupAccess=ThemeManage, ~groupACL),
+  reconSourcesView: NoAccess,
+  reconSourcesManage: NoAccess,
+  reconTransactionsView: NoAccess,
+  reconTransactionsManage: NoAccess,
+  reconRulesView: NoAccess,
+  reconRulesManage: NoAccess,
+  reconExceptionsView: NoAccess,
+  reconExceptionsManage: NoAccess,
 }
 
 let convertValueToMapGroup = arrayValue => {
@@ -119,8 +119,40 @@ let convertValueToMapGroup = arrayValue => {
   arrayValue->Array.forEach(value => userGroupACLMap->Map.set(value, Access))
   userGroupACLMap
 }
+
 let convertValueToMapResources = arrayValue => {
   let resourceACLMap: Map.t<resourceAccessType, authorization> = Map.make()
   arrayValue->Array.forEach(value => resourceACLMap->Map.set(value, Access))
   resourceACLMap
+}
+
+let getGroupAccessJson = groupACL => {
+  let accessMap = convertValueToMapGroup(groupACL)
+  let getAccess = key => accessMap->Map.get(key)->Option.isSome ? Access : NoAccess
+  {
+    operationsView: getAccess(OperationsView),
+    operationsManage: getAccess(OperationsManage),
+    connectorsView: getAccess(ConnectorsView),
+    connectorsManage: getAccess(ConnectorsManage),
+    workflowsView: getAccess(WorkflowsView),
+    workflowsManage: getAccess(WorkflowsManage),
+    analyticsView: getAccess(AnalyticsView),
+    usersView: getAccess(UsersView),
+    usersManage: getAccess(UsersManage),
+    merchantDetailsView: getAccess(MerchantDetailsView),
+    merchantDetailsManage: getAccess(MerchantDetailsManage),
+    organizationManage: getAccess(OrganizationManage),
+    accountView: getAccess(AccountView),
+    accountManage: getAccess(AccountManage),
+    themeView: getAccess(ThemeView),
+    themeManage: getAccess(ThemeManage),
+    reconSourcesView: getAccess(ReconSourcesView),
+    reconSourcesManage: getAccess(ReconSourcesManage),
+    reconTransactionsView: getAccess(ReconTransactionsView),
+    reconTransactionsManage: getAccess(ReconTransactionsManage),
+    reconRulesView: getAccess(ReconRulesView),
+    reconRulesManage: getAccess(ReconRulesManage),
+    reconExceptionsView: getAccess(ReconExceptionsView),
+    reconExceptionsManage: getAccess(ReconExceptionsManage),
+  }
 }

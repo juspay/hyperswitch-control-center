@@ -212,19 +212,21 @@ module ListItem = {
             } else if multiSelect {
               <span className=toggleClass>
                 {checkboxDimension->LogicUtils.isNonEmptyString
-                  ? <CheckBoxIcon
+                  ? <CheckBoxIconAdapter
                       isSelected isDisabled size=optionSize isSelectedStateMinus checkboxDimension
                     />
-                  : <CheckBoxIcon isSelected isDisabled size=optionSize isSelectedStateMinus />}
+                  : <CheckBoxIconAdapter
+                      isSelected isDisabled size=optionSize isSelectedStateMinus
+                    />}
               </span>
             } else {
               <div className={`${toggleClass} ${customSelectStyle}`}>
-                <RadioIcon isSelected size=optionSize fill isDisabled />
+                <RadioIconAdapter isSelected size=optionSize fill isDisabled />
               </div>
             }
           } else if multiSelect && !isMobileView {
             <span className="pl-3">
-              <CheckBoxIcon isSelected isDisabled isSelectedStateMinus />
+              <CheckBoxIconAdapter isSelected isDisabled isSelectedStateMinus />
             </span>
           } else {
             React.null
@@ -287,13 +289,7 @@ module ListItem = {
 
                     {
                       if showToolTipOptions {
-                        <ToolTip
-                          key={i->Int.toString}
-                          description=item
-                          toolTipFor=selectOptions
-                          contentAlign=Default
-                          justifyClass="justify-start"
-                        />
+                        <ToolTip key={i->Int.toString} description=item toolTipFor=selectOptions />
                       } else {
                         selectOptions
                       }
@@ -310,9 +306,9 @@ module ListItem = {
           </div>
           {if isMobileView && isDropDown {
             if multiSelect {
-              <CheckBoxIcon isSelected />
+              <CheckBoxIconAdapter isSelected />
             } else {
-              <RadioIcon isSelected isDisabled />
+              <RadioIconAdapter isSelected isDisabled />
             }
           } else if isDropDown {
             <div className="mr-2">
@@ -342,12 +338,7 @@ module ListItem = {
         if isDropDown {
           showDescriptionAsTool
             ? {
-                <ToolTip
-                  description={str}
-                  toolTipFor=comp
-                  contentAlign=Default
-                  justifyClass="justify-start"
-                />
+                <ToolTip description={str} toolTipFor=comp />
               }
             : {
                 <div>
@@ -451,7 +442,7 @@ module BaseSelect = {
     ~showSelectionAsChips=true,
     ~maxHeight="md:max-h-72",
     ~searchable=?,
-    ~optionRigthElement=?,
+    ~optionRightElement=?,
     ~searchInputPlaceHolder="",
     ~showSearchIcon=false,
     ~customStyle="",
@@ -628,7 +619,7 @@ module BaseSelect = {
     let selectBtnRef = insertselectBtnRef->Option.map(ReactDOM.Ref.callbackDomRef)
     let clearBtnRef = insertclearBtnRef->Option.map(ReactDOM.Ref.callbackDomRef)
     let (isChooseAllToggleSelected, setChooseAllToggleSelected) = React.useState(() => false)
-    let gapClass = switch optionRigthElement {
+    let gapClass = switch optionRightElement {
     | Some(_) => "flex gap-4"
     | None => ""
     }
@@ -758,7 +749,7 @@ module BaseSelect = {
           />
           {isDraggable ? dragIcon : React.null}
         </div>
-        {switch optionRigthElement {
+        {switch optionRightElement {
         | Some(rightElement) => rightElement
         | None => React.null
         }}
@@ -841,7 +832,7 @@ module BaseSelect = {
             <div
               onClick={selectAll(noOfSelected === 0)}
               className={`flex px-3 pt-2 pb-1 mx-1 rounded-lg gap-3 text-jp-2-gray-300 items-center text-fs-14 font-medium cursor-pointer`}>
-              <CheckBoxIcon
+              <CheckBoxIconAdapter
                 isSelected={noOfSelected !== 0}
                 size=optionSize
                 isSelectedStateMinus=clearAllCondition
@@ -856,7 +847,7 @@ module BaseSelect = {
                 ? "flex-col"
                 : "flex-row"} justify-between pr-4 pl-5 pt-6 pb-1 text-base font-semibold ${font.textColor.primaryNormal} cursor-pointer`}>
             {"SELECT ALL"->React.string}
-            <CheckBoxIcon isSelected={noOfSelected === options->Array.length} />
+            <CheckBoxIconAdapter isSelected={noOfSelected === options->Array.length} />
           </div>
         }
       } else {
@@ -1889,7 +1880,7 @@ module BaseDropdown = {
       addButton ? setShowDropDown(_ => true) : setShowDropDown(_ => false)
     }
 
-    let allSellectedOptions = React.useMemo(() => {
+    let allSelectedOptions = React.useMemo(() => {
       newInputSelect.value
       ->JSON.Decode.array
       ->Option.getOr([])
@@ -1902,7 +1893,7 @@ module BaseDropdown = {
       ->Option.getOr(buttonText)
     }, (transformedOptions, newInputSelect.value))
 
-    let title = showAllSelectedOptions ? allSellectedOptions : buttonText
+    let title = showAllSelectedOptions ? allSelectedOptions : buttonText
 
     let badgeForSelect = React.useMemo((): Button.badge => {
       let count = newInputSelect.value->JSON.Decode.array->Option.getOr([])->Array.length
@@ -2122,7 +2113,6 @@ module BaseDropdown = {
                           ->Array.joinWith(",\n")}
                       toolTipFor=selectButton
                       toolTipPosition=Bottom
-                      tooltipWidthClass=""
                     />
                   } else {
                     selectButton
@@ -2291,7 +2281,7 @@ module ChipFilterSelectBox = {
   ) => {
     let transformedOptions = useTransformed(options)
 
-    let initalClassName = " m-2 bg-gray-200 dark:text-gray-800 border-jp-gray-800 inline-block text-s px-2 py-1 rounded-2xl"
+    let initialClassName = " m-2 bg-gray-200 dark:text-gray-800 border-jp-gray-800 inline-block text-s px-2 py-1 rounded-2xl"
     let passedClassName = "flex items-center m-2 bg-blue-400 dark:text-gray-800 border-gray-300 inline-block text-s px-2 py-1 rounded-2xl"
     let newInputSelect = input->ffInputToSelectInput
     let values = newInputSelect.value
@@ -2322,7 +2312,7 @@ module ChipFilterSelectBox = {
       {transformedOptions
       ->Array.mapWithIndex((option, i) => {
         let isSelected = saneValue->Array.includes(option.value)
-        let selectedClass = isSelected ? passedClassName : initalClassName
+        let selectedClass = isSelected ? passedClassName : initialClassName
         let chipsCss =
           customStyleForChips->LogicUtils.isEmptyString ? selectedClass : customStyleForChips
 
@@ -2374,7 +2364,7 @@ let make = (
   ~maxHeight=?,
   ~searchable=?,
   ~fill="#0EB025",
-  ~optionRigthElement=?,
+  ~optionRightElement=?,
   ~hideBorder=false,
   ~allSelectType=Icon,
   ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
@@ -2514,7 +2504,7 @@ let make = (
       options
       optionSize
       isSelectedStateMinus
-      ?optionRigthElement
+      ?optionRightElement
       onSelect=newInputSelect.onChange
       value=newInputSelect.value
       isDropDown

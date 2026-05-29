@@ -161,7 +161,6 @@ module Landing = {
     }
     <div className="flex flex-col gap-6 p-6">
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
-      | Processors(STRIPE)
       | Processors(BANKOFAMERICA)
       | Processors(CYBERSOURCE)
       | Processors(FIUU)
@@ -172,7 +171,7 @@ module Landing = {
           <ApplePayManualLandingCard setApplePayIntegrationType appleIntegrationType />
         </>
 
-      | Processors(NUVEI) =>
+      | Processors(NUVEI) | Processors(NMI) | Processors(STRIPE) | Processors(WORLDPAYXML) =>
         <>
           <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
           <ApplePaySimplifiedLandingCard setApplePayIntegrationType appleIntegrationType />
@@ -293,6 +292,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
       | Processors(CYBERSOURCE)
       | Processors(NUVEI)
       | Processors(WORLDPAYVANTIV)
+      | Processors(WORLDPAYXML)
       | Processors(TESOURO) =>
         setApplePayIntegrationType(_ => #simplified)
 
@@ -306,7 +306,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
 
   <PageLoaderWrapper
     screenState={screenState}
-    customLoader={<div className="mt-60 w-scrren flex flex-col justify-center items-center">
+    customLoader={<div className="mt-60 flex flex-col justify-center items-center">
       <div className={`animate-spin mb-1`}>
         <Icon name="spinner" size=20 />
       </div>

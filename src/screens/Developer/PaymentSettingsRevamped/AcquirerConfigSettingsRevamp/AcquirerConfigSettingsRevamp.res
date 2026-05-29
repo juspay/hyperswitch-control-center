@@ -33,6 +33,7 @@ module SettingsForm = {
     let updateDetails = APIUtils.useUpdateMethod()
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
     let validateForm = values => validateAcquirerConfigForm(values, formKeys)
+    let mixpanelEvent = MixpanelHook.useSendEvent()
 
     let isUpdateMode = editingConfig->Option.isSome
     let initialValues =
@@ -57,8 +58,7 @@ module SettingsForm = {
       let defaultErrorMessage = "Failed to process acquirer config"
       let errorMessage = switch Exn.message(e) {
       | Some(err) => {
-          let errorCode =
-            err->JSON.parseExn->getDictFromJsonObject->LogicUtils.getString("code", "")
+          let errorCode = err->safeParse->getDictFromJsonObject->LogicUtils.getString("code", "")
           switch errorCode {
           | "IR_38" => "Duplicate entry found"
           | _ => defaultErrorMessage
@@ -113,6 +113,7 @@ module SettingsForm = {
       | Some({id}) => await updateAcquirerConfig(values, id)
       | _ => await createAcquirerConfig(values)
       }
+      mixpanelEvent(~eventName="payment_settings_acquirer_config_settings")
       Nullable.null
     }
 
@@ -266,7 +267,7 @@ module AcquirerConfigContentRevamp = {
 
 @react.component
 let make = () => {
-  let accordionData: array<Accordion.accordion> = [
+  let accordionData: array<AccordionAdapter.accordion> = [
     {
       title: "Acquirer Config Settings",
       renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) =>
@@ -276,7 +277,7 @@ let make = () => {
   ]
 
   <div className="py-4 md:py-10 gap-10 h-full flex flex-col">
-    <Accordion
+    <AccordionAdapter
       accordion=accordionData
       accordionTopContainerCss="border overflow-visible rounded-xl"
       accordionBottomContainerCss="px-4 py-3"

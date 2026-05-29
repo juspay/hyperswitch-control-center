@@ -85,7 +85,7 @@ module CheckoutCard = {
           popUpType: (Warning, WithIcon),
           heading: "Sign Up to Access All Features!",
           description: {
-            "To unlock the potential and experience the full range of capabilities, simply sign up today. Join our community of explorers and gain access to an enhanced world of possibilities"->React.string
+            "To unlock the full potential and experience the complete range of capabilities, simply sign up today. Join our community of explorers and gain access to an enhanced world of possibilities."->React.string
           },
           handleConfirm: {
             text: "Sign up Now",
@@ -103,7 +103,7 @@ module CheckoutCard = {
     let (title, description) = isConfigureConnector
       ? (
           "Make a test payment - Try our unified checkout",
-          "Test your payment connector by initiating a transaction and visualise the user checkout experience",
+          "Test your payment connector by initiating a transaction and visualize the user checkout experience",
         )
       : (
           "Demo our checkout experience",
@@ -135,10 +135,7 @@ module ControlCenter = {
     let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
-    let connectorUrl = switch version {
-    | V1 => "/connectors"
-    | V2 => "/v2/orchestration/connectors"
-    }
+    let connectorUrl = RouteUtils.getPath(~path="/connectors", version)
 
     let liveModeStyles = isLiveMode || version == V2 ? "w-1/2 " : "flex flex-col md:flex-row gap-5 "
     <div className=liveModeStyles>
@@ -147,7 +144,7 @@ module ControlCenter = {
           <img alt="sdk" src="/assets/IntegrateProcessorsOver.png" />
           <CardHeader
             heading="Integrate a Processor"
-            subHeading="Give a headstart by connecting with more than 20+ gateways, payment methods, and networks."
+            subHeading="Get a head start by connecting with 20+ gateways, payment methods, and networks."
           />
         </div>
         <Button
@@ -174,7 +171,7 @@ module PlatformOverview = {
           <img alt="platform-merchant-account" src="/assets/PlatformMerchantAccount.svg" />
           <CardHeader
             heading="Platform Merchant Account"
-            subHeading="Platform merchant can create API keys for connected merchants and act on their behalf. This enables you to initiate and manage payments seamlessly for all connected accounts."
+            subHeading="A Platform merchant can create API keys for connected merchants and act on their behalf. This enables you to initiate and manage payments seamlessly for all connected accounts."
           />
         </div>
       </CardLayout>
@@ -189,15 +186,12 @@ module DevResources = {
     let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let mixpanelEvent = MixpanelHook.useSendEvent()
 
-    let apiKeysUrl = switch version {
-    | V1 => "/developer-api-keys"
-    | V2 => "/v2/orchestration/developer-api-keys"
-    }
+    let apiKeysUrl = RouteUtils.getPath(~path="/developer-api-keys", version)
 
     <div className="flex flex-col mb-5 gap-6 ">
       <PageHeading
         title="Developer resources"
-        subTitle="Couple of things developers need in handy can be found right here."
+        subTitle="A couple of things developers need at hand can be found right here."
         customTitleStyle={`!${heading.md.semibold}`}
         customSubTitleStyle="!text-fs-16 !text-nd_gray-400 !opacity-100 font-medium !mt-1"
         showPermLink=false
@@ -229,7 +223,7 @@ module DevResources = {
           <div className="flex flex-col gap-4 ">
             <CardHeader
               heading="Developer docs"
-              subHeading="Everything you need to know to get the SDK up and running resides in here."
+              subHeading="Everything you need to know to get the SDK up and running is right here."
               customHeadingStyle={`!${heading.sm.semibold}`}
               customSubHeadingStyle="!text-fs-14 !text-nd_gray-400 !opacity-100 !-mt-0.5"
             />
@@ -281,19 +275,20 @@ let responseDataMapper = (res: JSON.t, mapper: (Dict.t<JSON.t>, string) => JSON.
 module LowRecoveryCodeBanner = {
   @react.component
   let make = (~recoveryCode) => {
-    <HSwitchUtils.AlertBanner
-      bannerContent={<p>
-        {`You are low on recovery-codes. Only ${recoveryCode->Int.toString} left.`->React.string}
-      </p>}
-      bannerType=Warning
-      customRightAction={<Button
-        text="Regenerate recovery-codes"
-        buttonType={Secondary}
-        onClick={_ =>
-          RescriptReactRouter.push(
-            GlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
-          )}
-      />}
+    <AlertV2Binding
+      alertType=Warning
+      slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
+      description={`You are low on recovery-codes. Only ${recoveryCode->Int.toString} left.`}
+      actions={{
+        position: Bottom,
+        primaryAction: {
+          text: "Regenerate recovery-codes",
+          onClick: _ =>
+            RescriptReactRouter.push(
+              GlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
+            ),
+        },
+      }}
     />
   }
 }

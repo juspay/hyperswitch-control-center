@@ -118,7 +118,7 @@ module EntryAuditTrailInfo = {
     let accountGroups = React.useMemo(() => {
       let groupedByAccount = entriesList->Array.reduce(Dict.make(), (acc, entry) => {
         let accountId = entry.account_id
-        let existing = acc->getvalFromDict(accountId)->Option.getOr([])
+        let existing = acc->getValueFromDict(accountId, [])
         acc->Dict.set(accountId, [...existing, entry])
         acc
       })
@@ -279,12 +279,7 @@ module AuditTrail = {
     }
 
     let sections = allTransactionDetails->Array.map((transaction: transactionType) => {
-      let reasonText = switch transaction.data.posted_type {
-      | Some(ManuallyReconciled)
-      | Some(ForceReconciled) =>
-        transaction.data.reason
-      | _ => None
-      }
+      let reasonText = transaction.data.reason->Option.mapOr(None, reason => Some(reason))
 
       let customComponent = {
         id: transaction.version->Int.toString,

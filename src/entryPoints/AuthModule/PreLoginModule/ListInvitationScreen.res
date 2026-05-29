@@ -83,7 +83,7 @@ let make = () => {
             {"Hey there, welcome to Hyperswitch!"->React.string}
           </p>
           <p className=textSubHeadingClass>
-            {"Please accept the your pending invitations"->React.string}
+            {"Please accept your pending invitations"->React.string}
           </p>
         </div>
         <div className="h-[50%] overflow-auto show-scrollbar flex flex-col gap-10 p-8">

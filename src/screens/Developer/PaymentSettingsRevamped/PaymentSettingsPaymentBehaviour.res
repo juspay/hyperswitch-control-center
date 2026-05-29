@@ -59,7 +59,7 @@ module CollectDetails = {
                 key={index->Int.toString}
                 className="flex gap-2  items-center cursor-pointer"
                 onClick={_ => onClick(option.key)}>
-                <RadioIcon
+                <RadioIconAdapter
                   isSelected={valuesDict->getBool(option.key, false)}
                   fill="text-nd_primary_blue-450"
                 />
@@ -182,6 +182,73 @@ module ClickToPaySection = {
         </RenderIf>
       </RenderIf>
     </>
+  }
+}
+
+module PaymentMethodBlocking = {
+  @react.component
+  let make = () => {
+    open FormRenderer
+
+    let cardTypeOptions: array<SelectBox.dropdownOption> = ["credit", "debit"]->Array.map(item => {
+      SelectBox.label: item->LogicUtils.snakeToTitle,
+      value: item,
+    })
+
+    let blocklistCardTypes = makeFieldInfo(
+      ~label="Card Types",
+      ~name="payment_method_blocking.card.card_types",
+      ~customInput=InputFields.multiSelectInput(
+        ~options=cardTypeOptions,
+        ~buttonText="Select Card Types",
+        ~showSelectionAsChips=false,
+        ~customButtonStyle="!rounded-lg",
+        ~fixedDropDownDirection=BottomRight,
+        ~searchable=true,
+      ),
+    )
+
+    let blocklistWalletTypes = makeFieldInfo(
+      ~label="Card Types",
+      ~name="payment_method_blocking.wallet.card_types",
+      ~customInput=InputFields.multiSelectInput(
+        ~options=cardTypeOptions,
+        ~buttonText="Select Card Types",
+        ~showSelectionAsChips=false,
+        ~customButtonStyle="!rounded-lg",
+        ~fixedDropDownDirection=BottomRight,
+        ~searchable=true,
+      ),
+    )
+
+    <DesktopRow itemWrapperClass="mx-1">
+      <div className="w-full py-8 flex flex-col gap-6">
+        <div>
+          <p className={`${body.lg.semibold} text-nd_gray-700`}>
+            {"Payment Method Blocking"->React.string}
+          </p>
+          <p className={`${body.md.medium} text-nd_gray-400 pt-2`}>
+            {"Block specific card types for card and wallet payment methods"->React.string}
+          </p>
+        </div>
+        <div className="flex flex-col gap-2">
+          <p className={`${body.md.semibold} text-nd_gray-700`}> {"Card"->React.string} </p>
+          <FieldRenderer
+            field={blocklistCardTypes}
+            labelClass={`!${body.md.medium} !text-nd-gray-600`}
+            fieldWrapperClass="max-w-xl"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <p className={`${body.md.semibold} text-nd_gray-700`}> {"Wallet"->React.string} </p>
+          <FieldRenderer
+            field={blocklistWalletTypes}
+            labelClass={`!${body.md.medium} !text-nd-gray-600`}
+            fieldWrapperClass="max-w-xl"
+          />
+        </div>
+      </div>
+    </DesktopRow>
   }
 }
 
@@ -309,7 +376,7 @@ let make = () => {
     } catch {
     | _ => {
         setScreenState(_ => PageLoaderWrapper.Success)
-        showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+        showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
       }
     }
     Nullable.null
@@ -498,6 +565,10 @@ let make = () => {
       </RenderIf>
       <ClickToPaySection />
       <hr />
+      <RenderIfVersion visibleForVersion=V1>
+        <PaymentMethodBlocking />
+        <hr />
+      </RenderIfVersion>
       <ReturnUrl />
       <WebHook />
       <DesktopRow wrapperClass="mt-8">
