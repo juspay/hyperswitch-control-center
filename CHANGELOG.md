@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.05.28.0
+
+### Features
+
+- Add wasm support for `surcharge processor` ([#4868](https://github.com/juspay/hyperswitch-control-center/pull/4868)) ([`a6b4aaa`](https://github.com/juspay/hyperswitch-control-center/commit/a6b4aaa834aba42dc71b8fe599a19ec57172ca5a))
+- Add support for `surcharge processor` type ([#4866](https://github.com/juspay/hyperswitch-control-center/pull/4866)) ([`beafea3`](https://github.com/juspay/hyperswitch-control-center/commit/beafea305e221c39521e0944971a44bc04bf7484))
+
+### Bug Fixes
+
+- Sort audit log timeline ([#4864](https://github.com/juspay/hyperswitch-control-center/pull/4864)) ([`5d5abba`](https://github.com/juspay/hyperswitch-control-center/commit/5d5abbabcffe201c7d1d1e691fda07b945769285))
+- Chevron direction on OMP view data chip ([#4870](https://github.com/juspay/hyperswitch-control-center/pull/4870)) ([`4fefdd3`](https://github.com/juspay/hyperswitch-control-center/commit/4fefdd3d357608d79c27b69f521055198fe49b99))
+
+**Full Changelog:** [`2026.05.27.0...2026.05.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.27.0...2026.05.28.0)
+
+- - -
+
 ## 2026.05.27.0
 
 ### Features
