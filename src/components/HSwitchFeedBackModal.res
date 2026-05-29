@@ -24,7 +24,7 @@ let make = (
         ]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
       let successMessage = switch modalType {
-      | FeedBackModal => "Thanks for feedback"
+      | FeedBackModal => "Thanks for your feedback"
       | RequestConnectorModal => "Request submitted successfully"
       }
       showToast(~toastType=ToastSuccess, ~message=successMessage, ~autoClose=false)

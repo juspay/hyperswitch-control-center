@@ -13,7 +13,6 @@ type featureFlag = {
   sampleData: bool,
   frm: bool,
   payOut: bool,
-  recon: bool,
   testProcessors: bool,
   feedback: bool,
   generateReport: bool,
@@ -26,6 +25,7 @@ type featureFlag = {
   globalSearch: bool,
   globalSearchFilters: bool,
   disputeAnalytics: bool,
+  transactionView: bool,
   configurePmts: bool,
   branding: bool,
   granularity: bool,
@@ -70,6 +70,7 @@ type featureFlag = {
   paymentLinkThemeConfigurator: bool,
   devSidebarV2: bool,
   vaultProcessor: bool,
+  surchargeProcessor: bool,
   devTheme: bool,
   devUsers: bool,
   allowConnectedMerchants: bool,
@@ -78,6 +79,9 @@ type featureFlag = {
   networkTokenization: bool,
   devBlendEnabled: bool,
   devSortEnabled: bool,
+  reconEnginePermissions: bool,
+  devSavedViews: bool,
+  devClickhouseAggregate: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -93,7 +97,6 @@ let featureFlagType = (featureFlags: JSON.t) => {
     sampleData: dict->getBool("sample_data", false),
     frm: dict->getBool("frm", false),
     payOut: dict->getBool("payout", false),
-    recon: dict->getBool("recon", false),
     testProcessors: dict->getBool("test_processors", false),
     clickToPay: dict->getBool("dev_click_to_pay", false),
     debitRouting: dict->getBool("dev_debit_routing", false),
@@ -108,6 +111,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     globalSearch: dict->getBool("global_search", false),
     globalSearchFilters: dict->getBool("global_search_filters", false),
     disputeAnalytics: dict->getBool("dispute_analytics", false),
+    transactionView: dict->getBool("transaction_view", false),
     configurePmts: dict->getBool("configure_pmts", false),
     branding: dict->getBool("branding", false),
     granularity: dict->getBool("granularity", false),
@@ -149,6 +153,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     paymentLinkThemeConfigurator: dict->getBool("payment_link_theme_configurator", false),
     devSidebarV2: dict->getBool("dev_sidebar_v2", false),
     vaultProcessor: dict->getBool("vault_processor", false),
+    surchargeProcessor: dict->getBool("surcharge_processor", false),
     devTheme: dict->getBool("dev_theme", false),
     devUsers: dict->getBool("dev_users", false),
     allowConnectedMerchants: dict->getBool("allow_connected_merchants", false),
@@ -158,6 +163,9 @@ let featureFlagType = (featureFlags: JSON.t) => {
     networkTokenization: dict->getBool("network_tokenization", false),
     devBlendEnabled: dict->getBool("dev_blend_enabled", false),
     devSortEnabled: dict->getBool("dev_sort_enabled", false),
+    reconEnginePermissions: dict->getBool("recon_engine_permissions", false),
+    devSavedViews: dict->getBool("dev_saved_views", false),
+    devClickhouseAggregate: dict->getBool("dev_clickhouse_aggregate", false),
   }
 }
 

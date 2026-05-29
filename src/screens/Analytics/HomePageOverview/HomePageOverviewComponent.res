@@ -92,7 +92,7 @@ module OverviewInfo = {
 
     <RenderIf condition={sampleData}>
       <div className="flex bg-white border rounded-md gap-2 px-9 py-3">
-        <Icon name="info-vacent" className={`${textColor.primaryNormal}`} size=20 />
+        <Icon name="info-vacant" className={`${textColor.primaryNormal}`} size=20 />
         <span>
           {"To view more points on the above graph, you need to make payments or"->React.string}
         </span>

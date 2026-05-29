@@ -122,6 +122,19 @@ let getV2Url = (
       }
     | _ => ``
     }
+  | V2_ORDERS_AGGREGATE_CLICKHOUSE =>
+    switch methodType {
+    | Get =>
+      switch queryParameters {
+      | Some(queryParams) =>
+        switch transactionEntity {
+        | #Profile => `v2/analytics/profile/payment_intents/aggregate?${queryParams}`
+        | _ => `v2/analytics/merchant/payment_intents/aggregate?${queryParams}`
+        }
+      | None => ``
+      }
+    | _ => ``
+    }
   | PAYMENT_METHOD_LIST =>
     switch id {
     | Some(customerId) => `v1/customers/${customerId}/saved-payment-methods`
@@ -130,7 +143,7 @@ let getV2Url = (
   | TOTAL_TOKEN_COUNT => `v1/customers/total-payment-methods`
   | RETRIEVE_PAYMENT_METHOD =>
     switch id {
-    | Some(paymentMethodId) => `v1/payment-methods/${paymentMethodId}`
+    | Some(paymentMethodId) => `v1/payment-methods/${paymentMethodId}/details`
     | None => ""
     }
   /* MERCHANT ACCOUNT DETAILS (Get,Post and Put) */
@@ -203,7 +216,6 @@ let useGetURL = () => {
     ~connector=None,
     ~userType: userType=#NONE,
     ~userRoleTypes: userRoleTypes=NONE,
-    ~reconType: reconType=#NONE,
     ~hyperswitchReconType: hyperswitchReconType=#NONE,
     ~hypersenseType: hypersenseType=#NONE,
     ~queryParameters: option<string>=None,
@@ -407,6 +419,19 @@ let useGetURL = () => {
           | None => `payments/aggregate`
           }
         | _ => `payments/aggregate`
+        }
+      | ORDERS_AGGREGATE_CLICKHOUSE =>
+        switch methodType {
+        | Get =>
+          switch queryParameters {
+          | Some(queryParams) =>
+            switch transactionEntity {
+            | #Profile => `analytics/v1/payment_intents/aggregate?${queryParams}`
+            | _ => `analytics/v1/payment_intents/aggregate?${queryParams}`
+            }
+          | None => `analytics/v1/payment_intents/aggregate`
+          }
+        | _ => `analytics/v1/payment_intents/aggregate`
         }
       | REFUNDS =>
         switch methodType {
@@ -788,8 +813,6 @@ let useGetURL = () => {
       /* SURCHARGE ROUTING */
       | SURCHARGE => `routing/decision/surcharge`
 
-      /* RECONCILIATION */
-      | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
       | HYPERSENSE => `hypersense/${(hypersenseType :> string)->String.toLowerCase}`
 
       /* REPORTS */
@@ -1220,6 +1243,16 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #TRANSACTION_BULK_OPERATIONS =>
+          switch methodType {
+          | Post => `${reconBaseURL}/transactions/bulk_operations`
+          | _ => ""
+          }
+        | #STAGING_ENTRY_BULK_OPERATIONS =>
+          switch methodType {
+          | Post => `${reconBaseURL}/staging_entries/bulk_operations`
+          | _ => ""
+          }
         | #NONE => ""
         }
 
@@ -1452,6 +1485,11 @@ let useGetURL = () => {
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
       | SDK_PAYMENT => "payments"
+      | ACCOUNT_PAYMENT_METHODS =>
+        switch methodType {
+        | Get => "account/payment_methods"
+        | _ => ""
+        }
       | CHAT_BOT => `chat/ai/data`
       }
 
@@ -1479,26 +1517,25 @@ let useHandleLogout = (~eventName="user_sign_out") => {
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
+  let showToast = ToastState.useShowToast()
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  () => {
+  async () => {
     try {
       let logoutUrl = getURL(~entityName=V1(USERS), ~methodType=Post, ~userType=#SIGNOUT)
-      open Promise
+      let _ = await fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute, ~forceCookies)
       mixpanelEvent(~eventName)
-      let _ =
-        fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute, ~forceCookies)
-        ->then(Fetch.Response.json)
-        ->then(json => {
-          json->resolve
-        })
-        ->catch(_err => {
-          JSON.Encode.null->resolve
-        })
       setAuthStateToLogout()
       clearRecoilValue()
       CommonAuthUtils.clearLocalStorage()
     } catch {
-    | _ => CommonAuthUtils.clearLocalStorage()
+    | _ => {
+        showToast(
+          ~toastType=ToastError,
+          ~message="Logout failed. Please try again.",
+          ~autoClose=true,
+        )
+        mixpanelEvent(~eventName="user_sign_out_failed")
+      }
     }
   }
 }

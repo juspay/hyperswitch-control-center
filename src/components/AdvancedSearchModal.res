@@ -110,7 +110,7 @@ module AdvanceSearch = {
         Dict.set(
           errors,
           optionalSearchFieldsList->Array.joinWith(","),
-          "Atleast One of Optional fields is Required"->JSON.Encode.string,
+          "At least one optional field is required"->JSON.Encode.string,
         )
       }
 

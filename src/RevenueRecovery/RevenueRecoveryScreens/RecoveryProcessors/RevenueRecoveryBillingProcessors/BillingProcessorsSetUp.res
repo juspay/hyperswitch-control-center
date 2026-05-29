@@ -122,13 +122,11 @@ let make = (
                 {"Start Retry After"->React.string}
                 <span className="text-red-900 mb-0.5"> {"*"->React.string} </span>
                 <ToolTip
-                  height="mt-0.5"
                   description="Sets the number of failed attempts that will be monitored before initiating retry scheduling"
                   toolTipFor={<div className="cursor-pointer">
-                    <Icon name="info-vacent" size=13 />
+                    <Icon name="info-vacant" size=13 />
                   </div>}
                   toolTipPosition=ToolTip.Top
-                  newDesign=true
                 />
               </div>
               <div className="-m-1 -mt-3">
@@ -149,13 +147,11 @@ let make = (
                 {"Max Retry Attempts"->React.string}
                 <span className="text-red-900 mb-0.5"> {"*"->React.string} </span>
                 <ToolTip
-                  height="mt-0.5"
                   description="Defines the maximum number of retry attempts before the system stops trying."
                   toolTipFor={<div className="cursor-pointer">
-                    <Icon name="info-vacent" size=13 />
+                    <Icon name="info-vacant" size=13 />
                   </div>}
                   toolTipPosition=ToolTip.Top
-                  newDesign=true
                 />
               </div>
               <div className="-m-1 -mt-3">
@@ -217,10 +213,7 @@ let make = (
             </div>
           </RenderIf>
           <FormRenderer.SubmitButton
-            text="Next"
-            buttonSize={Small}
-            customSubmitButtonStyle="!w-full"
-            tooltipForWidthClass="w-full"
+            text="Next" buttonSize={Small} customSubmitButtonStyle="!w-full"
           />
         </div>
       </Form>

@@ -243,7 +243,7 @@ module FieldWrapper = {
               {switch descriptionComponent {
               | Some(descriptionComponent) =>
                 <div className="text-sm text-gray-500 mx-2">
-                  <ToolTip descriptionComponent toolTipPosition tooltipWidthClass="w-80" />
+                  <ToolTip descriptionComponent toolTipPosition />
                 </div>
               | None => React.null
               }}
@@ -582,12 +582,8 @@ module SubmitButton = {
     ~loadingText="",
     ~buttonSize=?,
     ~toolTipPosition=ToolTip.Top,
-    ~tooltipPositioning: ToolTip.tooltipPositioning=#fixed,
     ~withDialog=false,
     ~modalObj: option<modalObj>=?,
-    ~tooltipWidthClass="w-auto",
-    ~tooltipForWidthClass="",
-    ~tooltipForHeight="h-full",
     ~userInteractionRequired=false,
     ~customTextSize=?,
     ~customPaddingClass=?,
@@ -718,15 +714,7 @@ module SubmitButton = {
         ->Array.joinWith("\n")
 
       if showToolTip && !avoidDisable {
-        <ToolTip
-          description
-          toolTipFor=button
-          toolTipPosition
-          tooltipPositioning
-          tooltipWidthClass
-          height=tooltipForHeight
-          tooltipForWidthClass
-        />
+        <ToolTip description toolTipFor=button toolTipPosition />
       } else {
         button
       }

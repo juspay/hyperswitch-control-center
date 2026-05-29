@@ -129,7 +129,7 @@ let make = (
   let setIsSelected = boolInput.onChange
 
   isCheckBox
-    ? <CheckBoxIcon isSelected setIsSelected isDisabled={isDisabled} />
+    ? <CheckBoxIconAdapter isSelected setIsSelected isDisabled={isDisabled} />
     : <BaseComponent
         isSelected
         setIsSelected

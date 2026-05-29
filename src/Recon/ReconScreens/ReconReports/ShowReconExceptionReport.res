@@ -239,10 +239,7 @@ let make = (~showOnBoarding, ~id) => {
           />
           <FormRenderer.DesktopRow wrapperClass="!w-full" itemWrapperClass="!mx-0.5">
             <FormRenderer.SubmitButton
-              tooltipForWidthClass="w-full"
-              text="Done"
-              buttonType={Primary}
-              customSubmitButtonStyle="!w-full mt-4"
+              text="Done" buttonType={Primary} customSubmitButtonStyle="!w-full mt-4"
             />
           </FormRenderer.DesktopRow>
         </Form>

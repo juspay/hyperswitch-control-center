@@ -76,7 +76,7 @@ If not met, inform orchestrator and STOP.
 
 ## CRITICAL: Browser Tool Usage Required
 
-You have access to Playwright MCP browser tools. You MUST use them to explore the application. Create test user with `signup_with_merchant_id` API, login, skip 2FA, and navigate to the target module/feature.
+You have access to Playwright MCP browser tools. You MUST use them to explore the application. Create test user with `signup_with_merchant_id` API, login, skip 2FA, and navigate to the target module/feature. Refer for navigation NAVIGATION_REFERENCE.md
 
 ### Required Browser Tools:
 
@@ -170,7 +170,7 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Test@123456";
 test.describe("{Feature} - {Source}", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     // Enable feature flags if needed (from test-plan.json)
     await page.route("/dashboard/config/feature*", async (route) => {

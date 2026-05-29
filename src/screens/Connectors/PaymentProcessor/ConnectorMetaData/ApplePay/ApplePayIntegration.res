@@ -171,7 +171,7 @@ module Landing = {
           <ApplePayManualLandingCard setApplePayIntegrationType appleIntegrationType />
         </>
 
-      | Processors(NUVEI) | Processors(NMI) | Processors(STRIPE) =>
+      | Processors(NUVEI) | Processors(NMI) | Processors(STRIPE) | Processors(WORLDPAYXML) =>
         <>
           <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
           <ApplePaySimplifiedLandingCard setApplePayIntegrationType appleIntegrationType />
@@ -292,6 +292,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
       | Processors(CYBERSOURCE)
       | Processors(NUVEI)
       | Processors(WORLDPAYVANTIV)
+      | Processors(WORLDPAYXML)
       | Processors(TESOURO) =>
         setApplePayIntegrationType(_ => #simplified)
 

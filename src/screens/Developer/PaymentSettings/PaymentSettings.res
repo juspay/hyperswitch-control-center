@@ -132,12 +132,12 @@ module AuthenticationInput = {
 
     <DesktopRow wrapperClass="flex-1">
       <div className="mt-5">
-        <TextInput
+        <TextInputAdapter
           input={keyInput} placeholder={"Enter key"} isDisabled={isDisabled && !allowEdit}
         />
       </div>
       <div className="mt-5">
-        <TextInput
+        <TextInputAdapter
           input={valueInput} placeholder={"Enter value"} isDisabled={isDisabled && !allowEdit}
         />
       </div>
@@ -260,7 +260,7 @@ module WebHookSection = {
       } catch {
       | _ => {
           setScreenState(_ => PageLoaderWrapper.Success)
-          showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+          showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
         }
       }
       Nullable.null
@@ -425,7 +425,7 @@ module PaymentLinkDomain = {
       } catch {
       | _ => {
           setScreenState(_ => PageLoaderWrapper.Success)
-          showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+          showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
         }
       }
       Nullable.null
@@ -563,7 +563,7 @@ module CollectDetails = {
                 key={index->Int.toString}
                 className="flex gap-2 mb-3 items-center cursor-pointer"
                 onClick={_ => onClick(option.key)}>
-                <RadioIcon
+                <RadioIconAdapter
                   isSelected={valuesDict->getBool(option.key, false)} fill="text-green-700"
                 />
                 <div className=p2RegularTextStyle> {option.name->snakeToTitle->React.string} </div>
@@ -876,7 +876,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false) => {
     } catch {
     | _ => {
         setScreenState(_ => PageLoaderWrapper.Success)
-        showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+        showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
       }
     }
     Nullable.null

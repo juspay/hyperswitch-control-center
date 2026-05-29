@@ -138,7 +138,7 @@ let make = () => {
     showToast(~message="Successfully Saved the Changes", ~toastType=ToastState.ToastSuccess)
   }
 
-  let billing_processor_id = businessProfileRecoilVal.billing_processor_id->Option.getOr("")
+  let billingProcessorId = businessProfileRecoilVal.billing_processor_id->Option.getOr("")
   let onSubmit = async (values, _) => {
     try {
       let body =
@@ -203,13 +203,13 @@ let make = () => {
   let summaryPageButton = switch currentStep {
   | Preview =>
     <>
-      <RenderIf condition={connectorInfo.merchant_connector_id == billing_processor_id}>
+      <RenderIf condition={connectorInfo.merchant_connector_id == billingProcessorId}>
         <div
           className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.md.medium}`}>
           {"Default"->React.string}
         </div>
       </RenderIf>
-      <RenderIf condition={connectorInfo.merchant_connector_id != billing_processor_id}>
+      <RenderIf condition={connectorInfo.merchant_connector_id != billingProcessorId}>
         <MenuOption handleMenuOptionSubmit connectorInfo />
       </RenderIf>
     </>

@@ -341,7 +341,6 @@ let make = (
                   buttonSize=Button.Small
                   buttonType=Button.Secondary
                   customSubmitButtonStyle="w-1/5 rounded-lg"
-                  tooltipWidthClass="w-48"
                 />}
                 showCancelButton=false
                 submitButton={<RoutingUtils.SaveAndActivateButton

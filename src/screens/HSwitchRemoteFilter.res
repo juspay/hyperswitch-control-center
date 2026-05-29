@@ -130,16 +130,18 @@ module SearchBarFilter = {
       checked: true,
     }
 
-    <div className="w-max">
-      {InputFields.textInput(
-        ~customStyle="rounded-lg placeholder:opacity-90",
-        ~customPaddingClass="px-0",
-        ~leftIcon=<Icon size=14 name="search" />,
-        ~iconOpacity="opacity-100",
-        ~leftIconCustomStyle="pl-4",
-        ~inputStyle="!placeholder:opacity-90",
-        ~customWidth="w-72",
-      )(~input=inputSearch, ~placeholder)}
+    <div className="w-72">
+      <TextInputAdapter
+        input=inputSearch
+        placeholder
+        customStyle="rounded-lg placeholder:opacity-90"
+        customPaddingClass="px-0"
+        leftIcon={<Icon size=14 name="search" />}
+        iconOpacity="opacity-100"
+        leftIconCustomStyle="pl-4"
+        inputStyle="!placeholder:opacity-90"
+        customWidth="w-full"
+      />
     </div>
   }
 }
@@ -163,6 +165,7 @@ module RemoteTableFilters = {
     ~entityName: APIUtilsTypes.entityTypeWithVersion,
     ~version=UserInfoTypes.V1,
     ~connectorTypes: array<ConnectorTypes.connector>=[Processor, ThreeDsAuthenticator],
+    ~customFilterActions=React.null,
     (),
   ) => {
     open LogicUtils
@@ -311,23 +314,27 @@ module RemoteTableFilters = {
       None
     }, [filterValueJson])
 
-    React.useEffect(() => {
-      if filterValueJson->Dict.keysToArray->Array.length != 0 {
-        setFilters(_ => Some(filterValueJson))
-        setOffset(_ => 0)
-      } else {
-        setFilters(_ => Some(Dict.make()))
-        setOffset(_ => 0)
-      }
-      None
-    }, [filterValue])
-
     let dict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
     let defaultSort: LoadedTable.sortOb = {
       sortKey: "",
       sortType: DSC,
     }
-    let value = dict->Dict.get(title)->Option.getOr(defaultSort)
+    let value = dict->getValueFromDict(title, defaultSort)
+    let sortSignature = `${value.sortKey}|${value->OrderTypes.getSortString}`
+
+    let lastFiltersSignature = React.useRef("")
+
+    React.useEffect(() => {
+      let next =
+        filterValueJson->Dict.keysToArray->Array.length != 0 ? filterValueJson : Dict.make()
+      let signature = `${next->JSON.Encode.object->JSON.stringify}|${sortSignature}`
+      if lastFiltersSignature.current !== signature {
+        lastFiltersSignature.current = signature
+        setFilters(_ => Some(next))
+        setOffset(_ => 0)
+      }
+      None
+    }, (filterValue, sortSignature))
 
     React.useEffect(() => {
       if value.sortKey->isNonEmptyString {
@@ -356,43 +363,23 @@ module RemoteTableFilters = {
       )
     let remoteOptions = []
 
-    switch filterDataJson {
-    | Some(_) =>
-      <Filter
-        key="0"
-        customLeftView
-        defaultFilters
-        fixedFilters={initialFixedFilter(version)}
-        requiredSearchFieldsList=[]
-        localFilters={initialDisplayFilters}
-        localOptions=[]
-        remoteOptions
-        remoteFilters
-        autoApply=false
-        submitInputOnEnter
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        updateUrlWith={updateExistingKeys}
-        clearFilters={() => reset()}
-        title
-      />
-    | _ =>
-      <Filter
-        key="1"
-        customLeftView
-        defaultFilters
-        fixedFilters={initialFixedFilter(version)}
-        requiredSearchFieldsList=[]
-        localFilters=[]
-        localOptions=[]
-        remoteOptions=[]
-        remoteFilters=[]
-        autoApply=false
-        submitInputOnEnter
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        updateUrlWith={updateExistingKeys}
-        clearFilters={() => reset()}
-        title
-      />
-    }
+    <Filter
+      key="remoteFilters"
+      customLeftView
+      defaultFilters
+      fixedFilters={initialFixedFilter(version)}
+      requiredSearchFieldsList=[]
+      localFilters={initialDisplayFilters}
+      localOptions=[]
+      remoteOptions
+      remoteFilters
+      autoApply=false
+      submitInputOnEnter
+      defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+      updateUrlWith={updateExistingKeys}
+      clearFilters={() => reset()}
+      title
+      customFilterActions
+    />
   }
 }

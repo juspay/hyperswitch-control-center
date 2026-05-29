@@ -122,7 +122,7 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType, ~check
           setShowVerifyModal(_ => false)
           generateNewSecret()->ignore
         } else {
-          showToast(~message="Successfully reset the totp !", ~toastType=ToastSuccess)
+          showToast(~message="Successfully reset TOTP!", ~toastType=ToastSuccess)
           RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/account-settings/profile"))
         }
         setOtp(_ => "")

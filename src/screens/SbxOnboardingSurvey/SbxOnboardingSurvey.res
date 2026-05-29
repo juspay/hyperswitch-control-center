@@ -26,11 +26,11 @@ module OtherfieldRender = {
     }
 
     <div className="flex gap-2 items-center">
-      <CheckBoxIcon
+      <CheckBoxIconAdapter
         key={`${field_name}_otherstring`}
         isSelected={textField.value->getStringFromJson("")->isNonEmptyString}
       />
-      <TextInput placeholder={"Others"} input=textInput />
+      <TextInputAdapter placeholder={"Others"} input=textInput />
     </div>
   }
 }

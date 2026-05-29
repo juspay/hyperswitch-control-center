@@ -232,7 +232,7 @@ module ConfigureTotpScreen = {
               <span
                 className="cursor-pointer underline underline-offset-2 text-blue-600"
                 onClick={_ => setTwoFaPageState(_ => TOTP_INPUT_RECOVERY_CODE)}>
-                {"Use recovery-code"->React.string}
+                {"Use recovery code"->React.string}
               </span>
             </p>
           </RenderIf>
@@ -322,7 +322,7 @@ let make = (
             errorCode->CommonAuthUtils.errorSubCodeMapper === UR_41
         ) {
           setTwoFaPageState(_ => TOTP_SHOW_QR)
-          showToast(~message="Failed to complete 2fa!", ~toastType=ToastError)
+          showToast(~message="Failed to complete 2FA.", ~toastType=ToastError)
           setShowNewQR(prev => !prev)
         } else {
           showToast(~message="Something went wrong", ~toastType=ToastError)

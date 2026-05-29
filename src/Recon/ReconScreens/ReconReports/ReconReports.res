@@ -140,7 +140,7 @@ let make = (~showOnBoarding) => {
             </p>
             <div className="flex flex-row gap-4">
               <div className="flex flex-row gap-6">
-                <SelectBox.BaseDropdown
+                <SelectBoxAdapter.BaseDropdown
                   allowMultiSelect=false
                   buttonText=""
                   input=reconInput
@@ -181,15 +181,10 @@ let make = (~showOnBoarding) => {
               <Tabs
                 initialIndex={tabIndex >= 0 ? tabIndex : 0}
                 tabs
-                showBorder=true
-                includeMargin=false
-                defaultClasses="!w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
                 onTitleClick={index => {
                   setTabIndex(_ => index)
                   setCurrentTabName(_ => getTabName(index))
                 }}
-                selectTabBottomBorderColor="bg-primary"
-                customBottomBorderColor="bg-nd_gray-150"
               />
             </div>
           </PageLoaderWrapper>

@@ -108,7 +108,11 @@ let validateCustom = (key, errors, value) => {
   switch key {
   | POCemail =>
     if value->HSwitchUtils.isValidEmail {
-      Dict.set(errors, key->getStringFromVariant, "Please enter valid email id"->JSON.Encode.string)
+      Dict.set(
+        errors,
+        key->getStringFromVariant,
+        "Please enter a valid email address"->JSON.Encode.string,
+      )
     }
   | Website =>
     if (
@@ -118,7 +122,7 @@ let validateCustom = (key, errors, value) => {
       ) ||
       value->String.includes("localhost")
     ) {
-      Dict.set(errors, key->getStringFromVariant, "Please Enter Valid URL"->JSON.Encode.string)
+      Dict.set(errors, key->getStringFromVariant, "Please enter a valid URL"->JSON.Encode.string)
     }
   | _ => ()
   }

@@ -3,11 +3,11 @@ module OverlappingCircles = {
   let make = (~colorA: string, ~colorB: string) => {
     <div className="relative w-9 h-6 flex items-center">
       <div
-        className={`absolute left-0 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md`}
+        className="absolute left-0 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md"
         style={ReactDOM.Style.make(~backgroundColor=colorA, ())}
       />
       <div
-        className={`absolute left-4 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md`}
+        className="absolute left-4 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md"
         style={ReactDOM.Style.make(~backgroundColor=colorB, ())}
       />
     </div>
@@ -32,7 +32,7 @@ module RadioButtons = {
       }}>
       <div className="flex flex-col gap-4">
         <div
-          className="flex flex-row gap-2 items-start flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-4 rounded-lg">
+          className="flex gap-2 items-start flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-4 rounded-lg">
           <Icon name="nd-info-circle" size=20 />
           <span className={`text-nd_gray-600 ${body.md.regular}`}>
             {`You can only create theme for ${orgId} here. To create theme to another organisation, please switch the organisation.`->React.string}
@@ -46,11 +46,9 @@ module RadioButtons = {
               <div
                 className={`flex items-center justify-between border rounded-lg p-4 cursor-pointer transition ${borderClass}`}>
                 <div className="flex items-center gap-4 w-full">
-                  <div>
-                    <div
-                      className="w-8 h-8 border border-nd_br_gray-50 flex items-center justify-center rounded-md">
-                      {option.icon}
-                    </div>
+                  <div
+                    className="w-8 h-8 border border-nd_br_gray-50 flex items-center justify-center rounded-md">
+                    {option.icon}
                   </div>
                   <div className="flex flex-col flex-1">
                     <span className={`text-nd_gray-600 ${body.md.semibold}`}>
@@ -60,9 +58,7 @@ module RadioButtons = {
                       {option.desc->React.string}
                     </span>
                   </div>
-                  <div>
-                    <input type_="radio" checked={checked["checked"]} className="accent-primary" />
-                  </div>
+                  <input type_="radio" checked={checked["checked"]} className="accent-primary" />
                 </div>
               </div>
             }}
@@ -220,7 +216,7 @@ module LineageFormContent = {
           field={orgDisplayField(~getNameForId)}
           showErrorOnChange=true
           errorClass={ProdVerifyModalUtils.errorClass}
-          labelClass={`${body.sm.semibold} `}
+          labelClass={`${body.sm.semibold}`}
         />
       | MerchantLevelConfig =>
         <>
@@ -242,7 +238,7 @@ module LineageFormContent = {
               field={merchantField(~getNameForId, ~merchantList, ~merchantId, ~onMerchantSelect)}
               showErrorOnChange=true
               errorClass={ProdVerifyModalUtils.errorClass}
-              labelClass={`${body.sm.semibold} `}
+              labelClass={`${body.sm.semibold}`}
             />
           </div>
         </>
@@ -252,7 +248,7 @@ module LineageFormContent = {
             field={orgDisplayField(~getNameForId)}
             showErrorOnChange=true
             errorClass={ProdVerifyModalUtils.errorClass}
-            labelClass={`${body.sm.semibold} `}
+            labelClass={`${body.sm.semibold}`}
           />
           <div className="relative pl-8">
             <div
@@ -266,7 +262,7 @@ module LineageFormContent = {
               field={merchantField(~getNameForId, ~merchantList, ~merchantId, ~onMerchantSelect)}
               showErrorOnChange=true
               errorClass={ProdVerifyModalUtils.errorClass}
-              labelClass={`${body.sm.semibold} `}
+              labelClass={`${body.sm.semibold}`}
             />
           </div>
           <div className="relative pl-16">
@@ -281,7 +277,7 @@ module LineageFormContent = {
               field={profileField(~getNameForId, ~profileList, ~profileId, ~onProfileSelect)}
               showErrorOnChange=true
               errorClass={ProdVerifyModalUtils.errorClass}
-              labelClass={`${body.sm.semibold} `}
+              labelClass={`${body.sm.semibold}`}
             />
           </div>
         </>
@@ -295,11 +291,11 @@ module LineageFormContent = {
     }
 
     <>
-      <div className="flex flex-col h-full w-full p-4 gap-2 ">
+      <div className="flex flex-col h-full w-full p-4 gap-2">
         {renderStep()}
         <RenderIf condition={themeExists}>
           <div
-            className="flex flex-row gap-2 items-center flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-2 rounded-lg">
+            className="flex gap-2 items-center flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-2 rounded-lg">
             <Icon name="nd-info-circle" size=14 className="text-nd_gray-500" />
             <span className={`text-nd_gray-600 ${body.sm.regular}`}>
               {"A theme already exists for this lineage entity level. Continue to override."->React.string}
@@ -496,150 +492,52 @@ module ThemeLineageModal = {
   }
 }
 
-module FileUploadField = {
-  @react.component
-  let make = (
-    ~label,
-    ~inputId,
-    ~acceptTypes,
-    ~tooltipDescription,
-    ~selectedFile,
-    ~onFileChange,
-  ) => {
-    <div className="flex justify-between gap-4">
-      <div className={`flex ${body.md.medium} text-nd_gray-700 gap-2 items-center`}>
-        {label->React.string}
-        <ToolTip
-          toolTipFor={<Icon name="info-vacent" size=13 className="cursor-pointer" />}
-          description=tooltipDescription
-          toolTipPosition=Right
-        />
-      </div>
-      <input type_="file" accept=acceptTypes hidden=true onChange=onFileChange id=inputId />
-      <div className="flex gap-4">
-        {switch selectedFile {
-        | Some(file) =>
-          <div className="mt-2 flex items-center gap-2  text-nd_gray-600">
-            <Icon name="file-icon" size=16 />
-            <span className={`${body.sm.regular}`}> {file["name"]->React.string} </span>
-          </div>
-        | None => React.null
-        }}
-        <label
-          htmlFor=inputId
-          className="flex items-center justify-center gap-2 rounded-md border border-nd_gray-300 cursor-pointer hover:border-nd_gray-400 p-4">
-          <Icon name="nd-upload-file" />
-        </label>
-      </div>
-    </div>
-  }
-}
-
 module ThemeUploadAssetsModal = {
   @react.component
   let make = (~showModal, ~setShowModal, ~themeId, ~redirectToList) => {
     open APIUtils
-    open LogicUtils
-    open FormDataUtils
+    open ThemeSettingsHelper
+
     let showToast = ToastState.useShowToast()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod(~showErrorToast=false)
     let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Success)
-    let fetchDetails = useGetMethod()
-    let (selectedFiles, setSelectedFiles) = React.useState(_ => Dict.make())
-
-    let handleFileChange = assetName => ev => {
-      let files = ReactEvent.Form.target(ev)["files"]
-      switch files[0] {
-      | Some(file) =>
-        setSelectedFiles(prev => {
-          let newDict = prev->Dict.copy
-          newDict->Dict.set(assetName, file)
-          newDict
-        })
-      | None => ()
-      }
-    }
-
-    let uploadAsset = async (~assetFile, ~assetName) => {
-      try {
-        let formData = formData()
-        append(formData, "asset_name", assetName)
-        append(formData, "asset_data", assetFile)
-        let url = getURL(
-          ~entityName=V1(USERS),
-          ~methodType=Post,
-          ~id=Some(themeId),
-          ~userType=#THEME_UPLOAD_ASSET,
-        )
-        let _ = await updateDetails(
-          ~bodyFormData=formData,
-          ~headers=Dict.make(),
-          url,
-          Dict.make()->JSON.Encode.object,
-          Post,
-          ~contentType=AuthHooks.Unknown,
-        )
-      } catch {
-      | _ => Exn.raiseError("Failed to upload asset.")
-      }
-    }
-    let getThemeByThemeId = async () => {
-      try {
-        let url = getURL(
-          ~entityName=V1(USERS),
-          ~methodType=Get,
-          ~id=Some(themeId),
-          ~userType=#THEME,
-        )
-        let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
-        res
-      } catch {
-      | _ => Exn.raiseError("Failed to fetch theme.json")
-      }
-    }
-
-    let updateThemeWithAssetUrls = async (~uploadedFiles) => {
-      try {
-        let currentThemeData = await getThemeByThemeId()
-        let currentThemeDict = currentThemeData->getDictFromJsonObject
-        let currentThemeDataDict = currentThemeDict->getDictfromDict("theme_data")
-        let existingUrls = currentThemeDataDict->getDictfromDict("urls")
-
-        if uploadedFiles->Dict.get("logo.png")->Option.isSome {
-          let logoUrl = `${GlobalVars.getHostUrl}/themes/${themeId}/logo.png`
-          existingUrls->Dict.set("logoUrl", logoUrl->JSON.Encode.string)
-        }
-        if uploadedFiles->Dict.get("favicon.png")->Option.isSome {
-          let faviconUrl = `${GlobalVars.getHostUrl}/themes/${themeId}/favicon.png`
-          existingUrls->Dict.set("faviconUrl", faviconUrl->JSON.Encode.string)
-        }
-
-        currentThemeDataDict->Dict.set("urls", existingUrls->JSON.Encode.object)
-        currentThemeDict->Dict.set("theme_data", currentThemeDataDict->JSON.Encode.object)
-
-        let updateUrl = getURL(
-          ~entityName=V1(USERS),
-          ~methodType=Put,
-          ~id=Some(themeId),
-          ~userType=#THEME,
-        )
-        let _ = await updateDetails(updateUrl, currentThemeDict->JSON.Encode.object, Put)
-      } catch {
-      | _ => Exn.raiseError("Failed to update theme")
-      }
-    }
+    let processAssets = ThemeHooks.useProcessAssets()
+    let (assets, setAssets) = React.useState(_ => Dict.make()->assetsMapper)
+    let formValues = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    ).values
 
     let handleUpload = async () => {
       try {
         setScreenState(_ => Loading)
-        let _ =
-          selectedFiles
-          ->Dict.toArray
-          ->Array.map(async ((assetName, assetFile)) => {
-            let _ = await uploadAsset(~assetFile, ~assetName)
-          })
-        let _ = await updateThemeWithAssetUrls(~uploadedFiles=selectedFiles)
+
+        let processed = await processAssets(~assets, ~themeId)
+        let hasUrls =
+          processed.urls.logoUrl->Option.isSome || processed.urls.faviconUrl->Option.isSome
+        let hasEmailLogo = processed.emailLogoUrl->Option.isSome
+
+        if hasUrls || hasEmailLogo {
+          let {theme_data: {settings}, email_config} = formValues->ThemeUpdateUtils.themeBodyMapper
+          let updatedEmailConfig = if hasEmailLogo {
+            email_config->buildEmailConfigObject(~emailLogoUrl=processed.emailLogoUrl)
+          } else {
+            email_config
+          }
+
+          let requestBody = buildThemeDataBody(
+            ~settings,
+            ~urls=processed.urls,
+            ~emailConfig=updatedEmailConfig,
+          )
+          let updateUrl = getURL(
+            ~entityName=V1(USERS),
+            ~methodType=Put,
+            ~id=Some(themeId),
+            ~userType=#THEME,
+          )
+          let _ = await updateDetails(updateUrl, requestBody, Put)
+        }
 
         showToast(~message="Theme has been created with assets", ~toastType=ToastState.ToastSuccess)
         setScreenState(_ => Success)
@@ -670,25 +568,25 @@ module ThemeUploadAssetsModal = {
       childClass="p-0"
       showCloseIcon=false
       modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
-        {"Upload icon and favicon files for your theme."->React.string}
+        {"Upload icon, favicon and email logo files for your theme."->React.string}
       </div>}>
       <PageLoaderWrapper screenState={screenState} sectionHeight="h-20-vh">
         <div className="flex flex-col gap-2 p-3">
-          <FileUploadField
-            label="Icon"
-            inputId="iconInput"
-            acceptTypes=".png,.jpg,.jpeg"
-            tooltipDescription="Supported formats: PNG, JPG, JPEG. Recommended size: 32x32px"
-            selectedFile={selectedFiles->Dict.get("logo.png")}
-            onFileChange={handleFileChange("logo.png")}
+          <IconSettings
+            mode=#Dashboard
+            assets
+            onLogoSelect={file => setAssets(prev => {...prev, logo: Some(File(file))})}
+            onLogoRemove={() => setAssets(prev => {...prev, logo: None})}
+            onFaviconSelect={file => setAssets(prev => {...prev, favicon: Some(File(file))})}
+            onFaviconRemove={() => setAssets(prev => {...prev, favicon: None})}
+            themeConfigVersion=None
           />
-          <FileUploadField
-            label="Favicon"
-            inputId="faviconInput"
-            acceptTypes=".png,.ico,.jpg,.jpeg"
-            tooltipDescription="Supported formats: ICO, PNG. Recommended size: 16x16px or 32x32px"
-            selectedFile={selectedFiles->Dict.get("favicon.png")}
-            onFileChange={handleFileChange("favicon.png")}
+          <IconSettings
+            mode=#Email
+            assets
+            onEmailLogoSelect={file => setAssets(prev => {...prev, emailLogo: Some(File(file))})}
+            onEmailLogoRemove={() => setAssets(prev => {...prev, emailLogo: None})}
+            themeConfigVersion=None
           />
           <div className="flex justify-end gap-3 pt-4 border-t border-nd_gray-200">
             <Button
@@ -701,7 +599,11 @@ module ThemeUploadAssetsModal = {
             <Button
               text="Save & Upload"
               buttonType=Primary
-              buttonState={selectedFiles->isEmptyDict ? Disabled : Normal}
+              buttonState={assets.logo->Option.isSome ||
+              assets.favicon->Option.isSome ||
+              assets.emailLogo->Option.isSome
+                ? Normal
+                : Disabled}
               buttonSize=Small
               onClick={_ => handleUpload()->ignore}
             />

@@ -147,7 +147,7 @@ module PlatformInfoModal = {
               {"What is a Platform Organization?"->React.string}
             </p>
             <p className={`text-nd_gray-600 ${body.md.regular}`}>
-              {"A Platform Organisation is built for Vertical SaaS use cases, where a single platform manages payments for multiple merchants. It includes a Platform Merchant Account that centrally controls API keys, integrations, and payment flows on behalf of connected merchants. This setup enables scalable onboarding while keeping platform and merchant responsibilities clearly separated."->React.string}
+              {"A Platform Organization is built for Vertical SaaS use cases, where a single platform manages payments for multiple merchants. It includes a Platform Merchant Account that centrally controls API keys, integrations, and payment flows on behalf of connected merchants. This setup enables scalable onboarding while keeping platform and merchant responsibilities clearly separated."->React.string}
             </p>
           </div>
           <div className="flex flex-col gap-3">
@@ -171,7 +171,7 @@ module PlatformInfoModal = {
             <ul
               className={`list-disc list-inside text-nd_gray-600 flex flex-col gap-2 ${body.md.regular}`}>
               <li> {"Marketplaces managing multiple sellers"->React.string} </li>
-              <li> {"SaaS platforms with serving businesses"->React.string} </li>
+              <li> {"SaaS platforms serving businesses"->React.string} </li>
               <li> {"Payment facilitators (PayFacs)"->React.string} </li>
               <li> {"Franchise or multi-location businesses"->React.string} </li>
             </ul>
