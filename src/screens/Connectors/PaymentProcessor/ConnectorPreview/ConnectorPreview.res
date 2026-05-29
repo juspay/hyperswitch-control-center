@@ -166,6 +166,7 @@ module ConnectorSummaryGrid = {
           | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
           | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
           | VaultProcessor => Window.getConnectorConfig(connectorName)
+          | SurchargeProcessor => Window.getSurchargeProcessorConfig(connectorName)
           | PaymentVas => JSON.Encode.null
           }
           dict

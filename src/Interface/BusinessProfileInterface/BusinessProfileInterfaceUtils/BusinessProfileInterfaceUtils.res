@@ -212,11 +212,16 @@ let externalVaultConnectorDetailsMapper = externalVaultConnectorDetailsDict => {
   ),
 }
 
+let surchargeConnectorDetailsMapper = surchargeConnectorDetailsDict => {
+  surcharge_connector_id: surchargeConnectorDetailsDict->getString("surcharge_connector_id", ""),
+}
+
 let mapJsontoCommonType: JSON.t => commonProfileEntity = input => {
   let jsonDict = input->getDictFromJsonObject
   let authConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
   let paymentLinkConfig = jsonDict->getDictfromDict("payment_link_config")
   let externalVaultConnectorDetails = jsonDict->getDictfromDict("external_vault_connector_details")
+  let surchargeConnectorDetails = jsonDict->getDictfromDict("surcharge_connector_details")
   let outgoingWebhookHeaders = getOptionalHeaders(jsonDict, "outgoing_webhook_custom_http_headers")
   let metadataHeaders = getOptionalHeaders(jsonDict, "metadata")
   let paymentMethodBlockingDict = jsonDict->getDictfromDict("payment_method_blocking")
@@ -271,6 +276,9 @@ let mapJsontoCommonType: JSON.t => commonProfileEntity = input => {
       "collect_billing_details_from_wallet_connector_if_required",
     ),
     billing_processor_id: jsonDict->getOptionString("billing_processor_id"),
+    surcharge_connector_details: surchargeConnectorDetails->isEmptyDict
+      ? None
+      : Some(surchargeConnectorDetails->surchargeConnectorDetailsMapper),
     payment_link_config: paymentLinkConfig->isEmptyDict
       ? None
       : Some(paymentLinkConfig->paymentLinkConfigMapper),
