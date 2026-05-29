@@ -40,8 +40,8 @@ let getCellWithEdit = (
       <TagBinding
         text={data.network}
         color={MerchantAcquirerDetailsUtils.getNetworkTagColor(~index=idx)}
-        variant=TagBinding.Subtle
-        size=TagBinding.Sm
+        variant=Subtle
+        size=Sm
       />,
       data.network,
     )

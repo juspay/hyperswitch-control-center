@@ -140,7 +140,7 @@ let validateForm = (~requiredKeys, values: JSON.t): JSON.t => {
   requiredKeys->Array.forEach(key => {
     let present = switch key {
     | "acquirer_bin" => valuesDict->getOptionFloat(key)->Option.isSome
-    | _ => valuesDict->getString(key, "") !== ""
+    | _ => valuesDict->getString(key, "")->isNonEmptyString
     }
     if !present {
       setErr(key, "This field is required")

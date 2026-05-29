@@ -168,15 +168,9 @@ module EditNetworkModal = {
         let initialValuesDict = Dict.make()
         initialValuesDict->Dict.set("network", n.network->JSON.Encode.string)
         initialValuesDict->Dict.set("acquirer_bin", n.acquirer_bin->JSON.Encode.string)
-        n.acquirer_ica->Option.forEach(s =>
-          initialValuesDict->Dict.set("acquirer_ica", s->JSON.Encode.string)
-        )
-        n.acquirer_fraud_rate->Option.forEach(f =>
-          initialValuesDict->Dict.set("acquirer_fraud_rate", f->JSON.Encode.float)
-        )
-        n.acquirer_country_code->Option.forEach(c =>
-          initialValuesDict->Dict.set("acquirer_country_code", c->JSON.Encode.string)
-        )
+        initialValuesDict->setOptionString("acquirer_ica", n.acquirer_ica)
+        initialValuesDict->setOptionFloat("acquirer_fraud_rate", n.acquirer_fraud_rate)
+        initialValuesDict->setOptionString("acquirer_country_code", n.acquirer_country_code)
         initialValuesDict->JSON.Encode.object
       }
 

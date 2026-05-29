@@ -3,6 +3,7 @@ open MerchantAcquirerDetailsModals
 open APIUtilsTypes
 open APIUtils
 open Typography
+open LogicUtils
 
 @react.component
 let make = () => {
@@ -23,7 +24,7 @@ let make = () => {
   let (isSelectionMode, setIsSelectionMode) = React.useState(_ => false)
 
   let currentDefaultId =
-    acquirerConfigGroups->Array.find(b => b.is_default)->Option.mapOr("", b => b.id)
+    acquirerConfigGroups->Array.find(b => b.is_default)->mapOptionOrDefault("", b => b.id)
 
   let (selectedDefaultId, setSelectedDefaultId) = React.useState(_ => currentDefaultId)
   let (isLoading, setIsLoading) = React.useState(_ => false)
@@ -67,7 +68,7 @@ let make = () => {
     item
   })
 
-  let isEmpty = acquirerConfigGroups->Array.length === 0
+  let isEmpty = acquirerConfigGroups->isEmptyArray
 
   <div className="flex flex-col gap-4 mt-8">
     <div className="flex items-center justify-between">
@@ -76,7 +77,7 @@ let make = () => {
       </span>
       <RenderIf condition={!isEmpty}>
         <div className="flex items-center gap-3">
-          <RenderIf condition={acquirerConfigGroups->Array.length > 1}>
+          <RenderIf condition={acquirerConfigGroups->isNonEmptyArray}>
             <Button
               buttonType={isSelectionMode ? Primary : Secondary}
               text={isSelectionMode ? "Save as Default" : "Change Default"}
