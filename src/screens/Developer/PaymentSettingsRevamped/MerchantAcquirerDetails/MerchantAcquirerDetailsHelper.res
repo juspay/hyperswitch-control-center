@@ -1,6 +1,7 @@
 open MerchantAcquirerDetailsTypes
 open MerchantAcquirerDetailsModals
 open Typography
+open LogicUtils
 
 module AccordionTitle = {
   @react.component
@@ -29,7 +30,7 @@ module AccordionTitle = {
           </div>
         </RenderIf>
         <span className={`${body.lg.semibold} text-nd_gray-800`}>
-          {bucket.merchant_name->LogicUtils.isEmptyString
+          {bucket.merchant_name->isEmptyString
             ? "Unnamed Acquirer"->React.string
             : bucket.merchant_name->React.string}
         </span>
@@ -81,7 +82,7 @@ module BucketBody = {
           tableheadingClass="bg-transparent text-nd_gray-600"
         />
       </RenderIf>
-      <RenderIf condition={totalResults === 0}>
+      <RenderIf condition={bucket.networks->isEmptyArray}>
         <div className={`px-4 py-6 ${body.sm.medium} text-nd_gray-500`}>
           {"No networks configured."->React.string}
         </div>
@@ -91,9 +92,8 @@ module BucketBody = {
           buttonType=Secondary
           onClick={_ => setShowAddNetwork(_ => true)}
           text="Add New Network"
-          leftIcon={FontAwesome("plus")}
-          customIconSize=16
-          customIconMargin="!pr-0"
+          leftIcon={CustomIcon(<Icon name="nd-plus" size=16 />)}
+          customIconMargin="pl-1"
         />
       </div>
       <AddNetworkModal showModal=showAddNetwork setShowModal=setShowAddNetwork bucket />

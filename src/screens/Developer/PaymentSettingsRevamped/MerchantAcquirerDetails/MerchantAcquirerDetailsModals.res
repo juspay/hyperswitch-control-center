@@ -36,7 +36,7 @@ module AddAcquirerModal = {
       setShowModal
       closeOnOutsideClick=true
       modalHeading="Add Acquirer Configuration"
-      modalClass="flex flex-col justify-start h-screen w-[420px] float-right overflow-hidden !bg-white"
+      modalClass="flex flex-col justify-start h-screen w-420-px float-right overflow-hidden !bg-white"
       childClass="">
       <Form
         onSubmit
@@ -104,7 +104,7 @@ module AddNetworkModal = {
       closeOnOutsideClick=true
       modalHeading="Add Network Configuration"
       modalHeadingDescription={`Acquirer: ${bucket.merchant_name} - ID: ${bucket.id}`}
-      modalClass="flex flex-col justify-start h-screen w-[420px] float-right overflow-hidden !bg-white"
+      modalClass="flex flex-col justify-start h-screen w-420-px float-right overflow-hidden !bg-white"
       childClass="">
       <RenderIf condition={allNetworksUsed}>
         <div className="p-6 flex flex-col gap-4">
@@ -217,7 +217,7 @@ module EditNetworkModal = {
         closeOnOutsideClick=true
         modalHeading="Edit Network Configuration"
         modalHeadingDescription={`Editing ${n.network} entry`}
-        modalClass="flex flex-col justify-start h-screen w-[420px] float-right overflow-hidden !bg-white"
+        modalClass="flex flex-col justify-start h-screen w-420-px float-right overflow-hidden !bg-white"
         childClass="">
         <Form
           onSubmit

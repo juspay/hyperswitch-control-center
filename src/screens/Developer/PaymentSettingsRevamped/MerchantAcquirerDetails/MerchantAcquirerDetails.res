@@ -98,9 +98,8 @@ let make = () => {
             buttonType=Secondary
             onClick={_ => setShowAddAcquirer(_ => true)}
             text="Acquirer config group"
-            leftIcon={FontAwesome("plus")}
-            customIconSize=16
-            customIconMargin="!pr-0"
+            leftIcon={CustomIcon(<Icon name="nd-plus" size=16 />)}
+            customIconMargin="pl-1"
           />
         </div>
       </RenderIf>
@@ -108,6 +107,7 @@ let make = () => {
     <RenderIf condition={!isEmpty}>
       <AccordionAdapter
         accordion=accordionItems
+        arrowPosition=Accordion.Right
         accordionTopContainerCss="border border-nd_gray-200 rounded-xl "
         accordionBottomContainerCss="py-4 px-6 !bg-nd_gray-25"
         gapClass="flex flex-col gap-4"
@@ -123,9 +123,8 @@ let make = () => {
           buttonType=Primary
           onClick={_ => setShowAddAcquirer(_ => true)}
           text="Acquirer config group"
-          leftIcon={FontAwesome("plus")}
-          customIconSize=16
-          customIconMargin="!pr-0"
+          leftIcon={CustomIcon(<Icon name="nd-plus" size=16 />)}
+          customIconMargin="pl-1"
         />
       </div>
     </RenderIf>
