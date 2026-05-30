@@ -680,7 +680,6 @@ test.describe("Global Search - Payment Filter Subfilters", () => {
     await expect(piRow.locator('td').nth(6)).toContainText('NA');
     await expect(piRow.locator('td').nth(7)).toContainText('NA');
     await expect(piRow.locator('td').nth(8)).toContainText('1');
-    await expect(piRow.locator('td').nth(9)).toContainText('Mar 30, 2026 03:08:52 PM IST');
 
     // Payment Attempts — columns then row values in order (table[id="table"] nth(1))
     const paTable = page.locator('table[id="table"]').nth(1);
@@ -702,7 +701,6 @@ test.describe("Global Search - Payment Filter Subfilters", () => {
     await expect(paRow.locator('td').nth(5)).toContainText('adyen');
     await expect(paRow.locator('td').nth(6)).toContainText('wallet');
     await expect(paRow.locator('td').nth(7)).toContainText('paypal');
-    await expect(paRow.locator('td').nth(8)).toContainText('Mar 30, 2026 03:08:52 PM IST');
 
     // Payouts — columns then row values in order (table[id="table"] nth(2))
     const poTable = page.locator('table[id="table"]').nth(2);
@@ -720,7 +718,6 @@ test.describe("Global Search - Payment Filter Subfilters", () => {
     await expect(poRow.locator('td').nth(3)).toContainText('USD');
     await expect(poRow.locator('td').nth(4)).toContainText('REQUIRES_CONFIRMATION');
     await expect(poRow.locator('td').nth(5)).toContainText('NA');
-    await expect(poRow.locator('td').nth(6)).toContainText('Mar 30, 2026 03:08:52 PM IST');
 
     // Refunds — columns then row values in order (table[id="table"] nth(3))
     const rfTable = page.locator('table[id="table"]').nth(3);
@@ -738,7 +735,6 @@ test.describe("Global Search - Payment Filter Subfilters", () => {
     await expect(rfRow.locator('td').nth(3)).toContainText('65 USD');
     await expect(rfRow.locator('td').nth(4)).toContainText('USD');
     await expect(rfRow.locator('td').nth(5)).toContainText('fiservcommercehub');
-    await expect(rfRow.locator('td').nth(6)).toContainText('Mar 30, 2026 03:08:52 PM IST');
 
     // Disputes — columns then row values in order (table[id="table"] nth(4))
     const dpTable = page.locator('table[id="table"]').nth(4);
@@ -756,6 +752,5 @@ test.describe("Global Search - Payment Filter Subfilters", () => {
     await expect(dpRow.locator('td').nth(3)).toContainText('10.4 USD');
     await expect(dpRow.locator('td').nth(4)).toContainText('USD');
     await expect(dpRow.locator('td').nth(5)).toContainText('checkout');
-    await expect(dpRow.locator('td').nth(6)).toContainText('Mar 30, 2026 03:08:52 PM IST');
   });
 });

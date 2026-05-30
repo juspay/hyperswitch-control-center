@@ -56,6 +56,16 @@ test.describe("Profile Settings - Change Password", () => {
   test.beforeEach(async ({ page }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
+
+    await page.route("**/dashboard/config/feature*", async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      if (json && json.features) {
+        json.features.email = false;
+      }
+      await route.fulfill({ response, json });
+    });
+
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
     const profilePage = new ProfilePage(page);
     await profilePage.visit();
@@ -175,6 +185,51 @@ test.describe("Profile Settings - Change Password", () => {
 
     await expect(profilePage.passwordChangeFailedToast).toBeVisible({ timeout: 10000 });
     await expect(profilePage.changePasswordModalHeader).toBeHidden();
+  });
+});
+
+test.describe("Profile Settings - Reset Password", () => {
+  test.beforeEach(async ({ page }) => {
+    const email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
+
+    await page.route("**/dashboard/config/feature*", async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      if (json && json.features) {
+        json.features.email = true;
+      }
+      await route.fulfill({ response, json });
+    });
+
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+    const profilePage = new ProfilePage(page);
+    await profilePage.visit();
+    await page.waitForLoadState("networkidle");
+  });
+
+  test("should show the Reset Password button", async ({ page }) => {
+    const profilePage = new ProfilePage(page);
+
+    await expect(profilePage.resetPasswordButton).toBeVisible();
+  });
+
+  test("should show a success toast when Reset Password is clicked", async ({ page }) => {
+    const profilePage = new ProfilePage(page);
+
+    await page.route(/\/user\/forgot_password(\?|$)/, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({}),
+      });
+    });
+
+    await profilePage.resetPasswordButton.click();
+
+    await expect(
+      profilePage.toastByMessage("Please check your registered e-mail"),
+    ).toBeVisible({ timeout: 10000 });
   });
 });
 
