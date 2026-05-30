@@ -75,7 +75,7 @@ test.describe("Org / Merchant / Profile context switching", () => {
     // Create a new profile from the profile dropdown
     await homePage.profileDropdown.click();
     await expect(homePage.profileDropdownList).toBeVisible();
-    await homePage.createNewOption.click();
+    await homePage.clickCreateNewOption();
 
     await expect(homePage.addNewProfileHeader).toBeVisible();
     await homePage.newProfileNameInput.fill(newProfileName);
@@ -119,7 +119,7 @@ test.describe("Org / Merchant / Profile context switching", () => {
     // Create a new profile inside the second merchant
     await homePage.profileDropdown.click();
     await expect(homePage.profileDropdownList).toBeVisible();
-    await homePage.createNewOption.click();
+    await homePage.clickCreateNewOption();
 
     await expect(homePage.addNewProfileHeader).toBeVisible();
     await homePage.newProfileNameInput.fill(newProfileName);
@@ -147,7 +147,7 @@ test.describe("Org / Merchant / Profile context switching", () => {
 
     await homePage.merchantDropdown.click();
     await expect(homePage.merchantDropdownSearchInput).toBeVisible();
-    await homePage.createNewOption.click();
+    await homePage.clickCreateNewOption();
 
     await expect(homePage.addNewMerchantHeader).toBeVisible();
     await homePage.newMerchantNameInput.fill(invalidMerchantName);
@@ -169,7 +169,7 @@ test.describe("Org / Merchant / Profile context switching", () => {
 
     await homePage.profileDropdown.click();
     await expect(homePage.profileDropdownList).toBeVisible();
-    await homePage.createNewOption.click();
+    await homePage.clickCreateNewOption();
 
     await expect(homePage.addNewProfileHeader).toBeVisible();
     await homePage.newProfileNameInput.fill(invalidProfileName);
@@ -206,7 +206,7 @@ test.describe("Org / Merchant / Profile context switching", () => {
     });
 
     // Attempt to create another merchant with the exact same name
-    await homePage.createNewOption.click();
+    await homePage.clickCreateNewOption();
     await expect(homePage.addNewMerchantHeader).toBeVisible();
     await homePage.newMerchantNameInput.fill(merchantName);
 
@@ -227,7 +227,7 @@ test.describe("Org / Merchant / Profile context switching", () => {
     // Create a profile
     await homePage.profileDropdown.click();
     await expect(homePage.profileDropdownList).toBeVisible();
-    await homePage.createNewOption.click();
+    await homePage.clickCreateNewOption();
     await expect(homePage.addNewProfileHeader).toBeVisible();
     await homePage.newProfileNameInput.fill(profileName);
     await expect(homePage.addProfileButton).toBeEnabled();
@@ -237,7 +237,7 @@ test.describe("Org / Merchant / Profile context switching", () => {
     });
 
     // Attempt to create another profile with the exact same name
-    await homePage.createNewOption.click();
+    await homePage.clickCreateNewOption();
     await expect(homePage.addNewProfileHeader).toBeVisible();
     await homePage.newProfileNameInput.fill(profileName);
     await homePage.newProfileNameInput.blur();
@@ -260,7 +260,7 @@ test.describe("Org / Merchant / Profile context switching", () => {
     // Create a merchant to switch into
     await homePage.merchantDropdown.click();
     await expect(homePage.merchantDropdownSearchInput).toBeVisible();
-    await homePage.createNewOption.click();
+    await homePage.clickCreateNewOption();
     await expect(homePage.addNewMerchantHeader).toBeVisible();
     await homePage.newMerchantNameInput.fill(merchantName);
     await expect(homePage.addMerchantButton).toBeEnabled();
@@ -294,7 +294,7 @@ test.describe("Org / Merchant / Profile context switching", () => {
     // Create a profile to switch into
     await homePage.profileDropdown.click();
     await expect(homePage.profileDropdownList).toBeVisible();
-    await homePage.createNewOption.click();
+    await homePage.clickCreateNewOption();
     await expect(homePage.addNewProfileHeader).toBeVisible();
     await homePage.newProfileNameInput.fill(profileName);
     await expect(homePage.addProfileButton).toBeEnabled();

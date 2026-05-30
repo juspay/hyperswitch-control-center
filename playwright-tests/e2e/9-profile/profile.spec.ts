@@ -5,7 +5,6 @@ import { generateUniqueEmail } from "../../support/helper";
 import { signupUser, loginUI } from "../../support/commands";
 import { ProfilePage } from "../../support/pages/profile/ProfilePage";
 import { authenticator } from "otplib";
-import { px } from "framer-motion";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 const STRONG_NEW_PASSWORD = "PlaywrightNew00#";
@@ -31,7 +30,14 @@ test.describe("Profile - User Account Menu", () => {
     await expect(page.locator('div').filter({ hasText: /^User Info$/ })).toBeVisible();
     await expect(page.getByText('Name:Playwright_test_user')).toBeVisible();
     await expect(page.getByText('Email:playwright-')).toBeVisible();
-    await expect(page.getByText('Password:********Change')).toBeVisible();
+    // The password row shows masked value plus an action button that is either
+    // "Change Password" or "Reset Password" depending on the `email` feature
+    // flag, so assert the stable parts and match either action button.
+    await expect(page.getByText('Password:', { exact: true })).toBeVisible();
+    await expect(page.getByText('********')).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: /Change Password|Reset Password/ }),
+    ).toBeVisible();
 
     await expect(page.locator('div').filter({ hasText: /^Two factor authentication$/ })).not.toBeVisible();
     await expect(page.getByText('Change app / deviceReset TOTP to regain access if you\'ve changed or lost your device.')).not.toBeVisible();

@@ -485,7 +485,7 @@ export class HomePage {
         await this.merchantDropdown.click();
       }
       await expect(this.merchantDropdownSearchInput).toBeVisible();
-      await this.createNewOption.click();
+      await this.clickCreateNewOption();
 
       await expect(this.addNewMerchantHeader).toBeVisible();
       await this.newMerchantNameInput.fill(name);
@@ -524,6 +524,24 @@ export class HomePage {
     return this.page
       .locator('[data-dropdown="dropdown"]')
       .getByText("Create new", { exact: true });
+  }
+
+  /**
+   * Opens the "Create new" entry inside whichever OMP dropdown is currently
+   * open.
+   *
+   * When the dropdown lists only a few items its panel renders right under the
+   * OMP trigger, whose truncated display-name <span> (the "…" ellipsis) can
+   * overlap the "Create new" option and persistently intercept pointer events.
+   * A normal click then times out with "<span>…</span> intercepts pointer
+   * events", and `force: true` doesn't help because the real DOM event would
+   * still land on the overlapping span. Dispatching the click directly on the
+   * option fires its handler regardless of the overlay, while the visibility
+   * assertion keeps the action honest if the option is genuinely missing.
+   */
+  async clickCreateNewOption(): Promise<void> {
+    await expect(this.createNewOption).toBeVisible();
+    await this.createNewOption.dispatchEvent("click");
   }
 
   // Merchant Name field in the "Add a new merchant" modal

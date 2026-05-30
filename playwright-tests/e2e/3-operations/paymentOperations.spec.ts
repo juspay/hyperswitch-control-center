@@ -892,12 +892,7 @@ test.describe("Payment Operations", () => {
       await homePage.operations.click();
       await homePage.paymentOperations.click();
 
-      await expect(paymentOperations.dateSelector).toBeVisible();
-      await paymentOperations.dateSelector.click();
-
-      await expect(
-        paymentOperations.predefinedDateOptions,
-      ).toBeVisible();
+      await paymentOperations.openPredefinedDateOptions();
 
       for (const filter of timeRangeFilters) {
         await expect(
@@ -925,19 +920,21 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
+      // Freeze the clock to a safe mid-month date so the "This Month" range
+      // (month-to-date) never coincides with a preset duration like "Last 7
+      // Days" or "Last 30 Days", which the selector would otherwise display in
+      // place of "This Month" (e.g. on the 7th or the 30th of the month).
+      await page.clock.setFixedTime(new Date("2025-06-15T10:00:00"));
+
       await homePage.operations.click();
       await homePage.paymentOperations.click();
-
-      const currentDay = new Date().getDate();
 
       const predefinedOptions = paymentOperations.predefinedDateOptions;
 
       for (const timeRange of predefinedTimeRange) {
-        await paymentOperations.dateSelector.click({ force: true });
-        await expect(predefinedOptions).toBeVisible();
+        await paymentOperations.openPredefinedDateOptions();
         await predefinedOptions.getByText(timeRange, { exact: true }).click();
-        const expectedText = currentDay === 7 && timeRange === "This Month" ? "Last 7 Days" : timeRange;
-        await expect(page.getByTestId('date-range-selector')).toContainText(expectedText);
+        await expect(page.getByTestId('date-range-selector')).toContainText(timeRange);
         await expect(predefinedOptions).toBeHidden();
         await page.waitForLoadState("networkidle");
       }
@@ -969,16 +966,9 @@ test.describe("Payment Operations", () => {
       await homePage.operations.click();
       await homePage.paymentOperations.click();
 
-      await expect(paymentOperations.dateSelector).toBeVisible();
-      await paymentOperations.dateSelector.click();
+      await paymentOperations.openPredefinedDateOptions();
 
-      await expect(
-        paymentOperations.predefinedDateOptions,
-      ).toBeVisible();
-
-      await page
-      paymentOperations.customRangeOption
-        .click();
+      await paymentOperations.customRangeOption.click();
 
       await page.locator(`[data-testid*=" ${startDate},"]`).first().click();
       await page.locator(`[data-testid*=" ${endDate},"]`).first().click();
