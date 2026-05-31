@@ -67,9 +67,8 @@ let countryField = makeFieldInfo(
 
 let parseAcquirerConfigBucket = (
   bucket: option<BusinessProfileInterfaceTypes.acquirerConfigBucket>,
-): array<acquirerBucket> => {
-  switch bucket {
-  | Some(b) =>
+): array<acquirerBucket> =>
+  bucket->mapOptionOrDefault([], b => {
     let buckets =
       b.configs
       ->Dict.toArray
@@ -100,9 +99,7 @@ let parseAcquirerConfigBucket = (
       }
     )
     buckets
-  | None => []
-  }
-}
+  })
 
 let networkTagColors: array<TagBinding.tagColor> = [
   Primary,
@@ -123,7 +120,8 @@ let stampProfileId = (body: Dict.t<JSON.t>, ~profileId: string) => {
 }
 
 let normalizeNumericStringFields = (body: Dict.t<JSON.t>) => {
-  ["acquirer_bin", "acquirer_ica"]->Array.forEach(key => {
+  [AcquirerBin, AcquirerIca]->Array.forEach(field => {
+    let key = (field :> string)
     let value = body->getFloat(key, 0.0)
     if value > 0.0 {
       body->Dict.set(key, value->Float.toString->JSON.Encode.string)
@@ -132,14 +130,15 @@ let normalizeNumericStringFields = (body: Dict.t<JSON.t>) => {
   body
 }
 
-let validateForm = (~requiredKeys, values: JSON.t): JSON.t => {
+let validateForm = (~requiredKeys: array<acquirerField>, values: JSON.t): JSON.t => {
   let errors = []
   let valuesDict = values->getDictFromJsonObject
   let setErr = (key, msg) => errors->Array.push((key, msg->JSON.Encode.string))
 
-  requiredKeys->Array.forEach(key => {
-    let present = switch key {
-    | "acquirer_bin" => valuesDict->getOptionFloat(key)->Option.isSome
+  requiredKeys->Array.forEach(field => {
+    let key = (field :> string)
+    let present = switch field {
+    | AcquirerBin => valuesDict->getOptionFloat(key)->Option.isSome
     | _ => valuesDict->getString(key, "")->isNonEmptyString
     }
     if !present {
@@ -148,19 +147,21 @@ let validateForm = (~requiredKeys, values: JSON.t): JSON.t => {
   })
 
   valuesDict
-  ->getOptionFloat("acquirer_bin")
+  ->getOptionFloat((AcquirerBin :> string))
   ->mapOptionOrDefault((), binFloat => {
     let binStr = binFloat->Float.toString
     if binStr->String.length < 4 || binStr->String.length > 20 {
-      setErr("acquirer_bin", "Acquirer BIN must be between 4 and 20 digits")
+      setErr((AcquirerBin :> string), "Acquirer BIN must be between 4 and 20 digits")
     }
   })
 
-  switch valuesDict->getOptionFloat("acquirer_fraud_rate") {
-  | Some(rate) if rate < 0.0 || rate > 100.0 =>
-    setErr("acquirer_fraud_rate", "Fraud rate should be between 0 and 100")
-  | _ => ()
-  }
+  valuesDict
+  ->getOptionFloat((AcquirerFraudRate :> string))
+  ->mapOptionOrDefault((), rate =>
+    if rate < 0.0 || rate > 100.0 {
+      setErr((AcquirerFraudRate :> string), "Fraud rate should be between 0 and 100")
+    }
+  )
 
   errors->getJsonFromArrayOfJson
 }

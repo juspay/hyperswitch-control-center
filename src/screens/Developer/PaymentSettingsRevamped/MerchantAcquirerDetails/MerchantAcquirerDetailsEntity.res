@@ -21,6 +21,8 @@ let getHeading = colType => {
   | AcquirerCountryCode =>
     makeHeaderInfo(~key="acquirer_country_code", ~title="Acquirer country code", ~dataType=TextType)
   | Update => makeHeaderInfo(~key="update", ~title="", ~dataType=TextType)
+  | MerchantName | AcquirerAssignedMerchantId =>
+    makeHeaderInfo(~key=(colType :> string), ~title="", ~dataType=TextType)
   }
 }
 
@@ -61,6 +63,8 @@ let getCellWithEdit = (
       </div>,
       "",
     )
+  | MerchantName => Text(data.merchant_name->Option.getOr("-"))
+  | AcquirerAssignedMerchantId => Text(data.acquirer_assigned_merchant_id->Option.getOr("-"))
   }
 }
 

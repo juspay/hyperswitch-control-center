@@ -14,7 +14,12 @@ module AddAcquirerModal = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
-    let requiredKeys = ["merchant_name", "acquirer_assigned_merchant_id", "network", "acquirer_bin"]
+    let requiredKeys: array<acquirerField> = [
+      MerchantName,
+      AcquirerAssignedMerchantId,
+      Network,
+      AcquirerBin,
+    ]
 
     let onSubmit = async (values, _) => {
       try {
@@ -78,7 +83,7 @@ module AddNetworkModal = {
         !(usedNetworks->Array.includes(opt.value))
       )
     let allNetworksUsed = availableNetworks->isEmptyArray
-    let requiredKeys = ["network", "acquirer_bin"]
+    let requiredKeys: array<acquirerField> = [Network, AcquirerBin]
 
     let onSubmit = async (values, _) => {
       try {
@@ -155,18 +160,15 @@ module EditNetworkModal = {
     let updateDetails = useUpdateMethod()
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
     let setShowModal: (bool => bool) => unit = _ => setEntry(_ => None)
-    let networkEntry = switch entry {
-    | Some(e) => e
-    | None => {
-        network: "",
-        acquirer_bin: "",
-        acquirer_ica: None,
-        acquirer_fraud_rate: None,
-        acquirer_country_code: None,
-        acquirer_assigned_merchant_id: None,
-        merchant_name: None,
-      }
-    }
+    let networkEntry = entry->Option.getOr({
+      network: "",
+      acquirer_bin: "",
+      acquirer_ica: None,
+      acquirer_fraud_rate: None,
+      acquirer_country_code: None,
+      acquirer_assigned_merchant_id: None,
+      merchant_name: None,
+    })
 
     let lockedNetworkOptions: array<SelectBox.dropdownOption> = [
       {value: networkEntry.network, label: networkEntry.network},
@@ -183,7 +185,7 @@ module EditNetworkModal = {
       )
       initialValuesDict->JSON.Encode.object
     }
-    let requiredKeys = ["network", "acquirer_bin"]
+    let requiredKeys: array<acquirerField> = [Network, AcquirerBin]
     let onSubmit = async (values, _) => {
       try {
         let body = values->getDictFromJsonObject->normalizeNumericStringFields

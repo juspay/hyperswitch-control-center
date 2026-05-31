@@ -6,10 +6,13 @@ type acquirerBucket = {
   networks: array<BusinessProfileInterfaceTypes.acquirerNetworkEntry>,
 }
 
-type colType =
-  | Network
-  | AcquirerBin
-  | AcquirerIca
-  | AcquirerFraudRate
-  | AcquirerCountryCode
-  | Update
+@unboxed
+type acquirerField =
+  | @as("network") Network
+  | @as("acquirer_bin") AcquirerBin
+  | @as("acquirer_ica") AcquirerIca
+  | @as("acquirer_fraud_rate") AcquirerFraudRate
+  | @as("acquirer_country_code") AcquirerCountryCode
+  | @as("merchant_name") MerchantName
+  | @as("acquirer_assigned_merchant_id") AcquirerAssignedMerchantId
+  | @as("update") Update
