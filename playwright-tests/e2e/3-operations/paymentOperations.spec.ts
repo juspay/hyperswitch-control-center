@@ -943,7 +943,16 @@ test.describe("Payment Operations", () => {
     test("should verify applied custom timerange is displayed correctly", async ({
       page,
     }) => {
-      const now = new Date();
+      // Freeze the clock to a safe mid-month date so the calendar renders
+      // deterministically. The expected range below must be derived from the
+      // SAME fixed date (page.clock only affects the browser, not this Node
+      // process). Mid-month also avoids the `setMonth(getMonth() - 1)` overflow
+      // on month-end dates like the 31st (e.g. April has no 31st), which would
+      // otherwise land the "previous month" back in the current month.
+      const fixedNow = new Date("2025-06-15T10:00:00");
+      await page.clock.setFixedTime(fixedNow);
+
+      const now = new Date(fixedNow);
       const today = now.getDate();
       const previousMonth = new Date(
         now.setMonth(now.getMonth() - 1),

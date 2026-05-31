@@ -217,7 +217,10 @@ test.describe("Profile Settings - Reset Password", () => {
   test("should show the Reset Password button", async ({ page }) => {
     const profilePage = new ProfilePage(page);
 
-    await expect(profilePage.resetPasswordButton).toBeVisible();
+    // The button is gated on the `email` feature flag, which propagates through
+    // the Recoil atom after the config endpoint is (re)fetched; allow the same
+    // 10s the rest of this suite uses for flag-dependent assertions.
+    await expect(profilePage.resetPasswordButton).toBeVisible({ timeout: 10000 });
   });
 
   test("should show a success toast when Reset Password is clicked", async ({ page }) => {
@@ -291,9 +294,15 @@ test.describe("Profile - Two Factor Authentication - TOTP", () => {
     await expect(signinPage.downloadRecoveryCodes).toBeVisible({
       timeout: 10000,
     });
-    recoveryCodes = (await signinPage.recoveryCodesMask.locator("p").allInnerTexts())
-      .map((c) => c.trim())
-      .filter((c) => c.length > 0);
+    // allInnerTexts() does not auto-wait, so the recovery-code <p> elements can
+    // still be unpopulated the instant the download button becomes visible.
+    // Poll until the codes are actually captured.
+    await expect(async () => {
+      recoveryCodes = (await signinPage.recoveryCodesMask.locator("p").allInnerTexts())
+        .map((c) => c.trim())
+        .filter((c) => c.length > 0);
+      expect(recoveryCodes.length).toBeGreaterThan(0);
+    }).toPass({ timeout: 10000 });
     await signinPage.downloadRecoveryCodes.click();
 
     await expect(page).toHaveURL(/.*dashboard\/home/);
@@ -304,7 +313,10 @@ test.describe("Profile - Two Factor Authentication - TOTP", () => {
 
   test("should render a 2FA options when 2FA is enabled", async ({ page }) => {
 
-    await expect(page.locator('div').filter({ hasText: /^Two factor authentication$/ })).toBeVisible();
+    // The 2FA section is gated on `isTwoFactorAuthSetup` from the resolved
+    // user-info context, which is refetched after navigating to the profile;
+    // allow the same 10s the rest of this suite uses for async-gated renders.
+    await expect(page.locator('div').filter({ hasText: /^Two factor authentication$/ })).toBeVisible({ timeout: 10000 });
     await expect(page.getByText('Change app / deviceReset TOTP to regain access if you\'ve changed or lost your device.')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Edit' }).first()).toBeVisible();
     await expect(page.getByText('Regenerate recovery codesRegenerate your access code to ensure continued access and security for your account.')).toBeVisible();
