@@ -34,10 +34,6 @@ let make = (~remainingPath: list<string>) => {
         mode: Bearer,
         token: AuthUtils.getUserInfoDetailsFromLocalStorage().token->Option.getOr(""),
       },
-      // filters: {
-      //   defaultConfigPrefix: [],
-      //   dimensions: [],
-      // },
       capabilities: {
         config: {
           create: true,
