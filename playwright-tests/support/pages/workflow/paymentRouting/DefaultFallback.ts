@@ -8,7 +8,7 @@ export class DefaultFallback {
   }
 
   get defaultFallbackList(): Locator {
-    return this.page.locator('[class="flex flex-col  w-full"]');
+    return this.page.locator('[class="flex flex-col gap-4 w-full"]');
   }
 
   get saveChangesButton(): Locator {
