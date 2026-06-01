@@ -123,11 +123,43 @@ export class PaymentAnalyticsPage {
     return this.page.locator(`[data-table-location="Summary Table_tr${row}_td${col}"]`);
   }
 
+  // ---- Payments Trends dimension tabs (DynamicTabs) ----
+  // The tab bar (Connector / Payment Method / Payment Method + Payment Method
+  // Type). A single tab is matched on its exact label inside the bar.
+  trendsTab(name: string): Locator {
+    return this.paymentsTrendsFilters.getByText(name, { exact: true });
+  }
+
+  // The "+" control that adds a custom dimension tab.
+  get addDimensionTabButton(): Locator {
+    return this.page.getByRole("button", { name: "+", exact: true });
+  }
+
   // ---- OMP (org/merchant/profile) view switcher ----
   // OMPSwitchHelper.OMPViews portalled into the page header, showing the
   // "View data for:" label and the active entity name.
   get ompViewSwitcher(): Locator {
     return this.page.getByText("View data for:");
+  }
+
+  // A view option inside the open OMP dropdown, matched on its static
+  // labelDescription text (e.g. "(Organization)" / "(Merchant)" / "(Profile)").
+  ompViewOption(label: string): Locator {
+    return this.page.getByText(`(${label})`, { exact: true });
+  }
+
+  async openOmpViewSwitcher(): Promise<void> {
+    await this.ompViewSwitcher.click({ timeout: 10000 });
+    await this.page.waitForTimeout(500);
+  }
+
+  // ---- Error state (PageLoaderWrapper Error -> DefaultLandingPage) ----
+  get errorTitle(): Locator {
+    return this.page.getByText("Oops, we hit a little bump on the road!", { exact: true });
+  }
+
+  get refreshButton(): Locator {
+    return this.page.getByRole("button", { name: "Refresh" });
   }
 
   // ---- Dimension filters (DynamicFilter "Add Filters" popup) ----

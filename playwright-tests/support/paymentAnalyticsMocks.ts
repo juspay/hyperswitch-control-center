@@ -203,6 +203,34 @@ function connectorRows(withBucket: boolean): Array<Record<string, any>> {
   return withBucket ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET })) : rows;
 }
 
+// Sample values per groupable dimension, used to render the Payments Trends
+// summary table whenever a Trends tab other than Connector is selected.
+const DIMENSION_SAMPLES: Record<string, string[]> = {
+  payment_method: ["card", "wallet"],
+  payment_method_type: ["credit", "debit"],
+  currency: ["USD", "EUR"],
+  authentication_type: ["three_ds", "no_three_ds"],
+  status: ["charged", "failure"],
+  client_source: ["payment"],
+  client_version: ["0.131.0"],
+  profile_id: ["pro_playwright_test"],
+  card_network: ["visa", "mastercard"],
+  merchant_id: ["merchant_playwright"],
+  routing_approach: ["default_fallback"],
+};
+
+// Per-dimension rows (the dimension column + the metric columns) for the
+// Payments Trends summary table when grouped by `dim`.
+function dimensionRows(dim: string, withBucket: boolean): Array<Record<string, any>> {
+  const rows = (DIMENSION_SAMPLES[dim] ?? ["sample"]).map((value, i) => ({
+    [dim]: value,
+    payment_success_rate: 94.2 - i * 3,
+    payment_count: 820 - i * 180,
+    payment_success_count: 772 - i * 170,
+  }));
+  return withBucket ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET })) : rows;
+}
+
 // Spread an aggregate row across every day bucket for the timeSeries query.
 function asSeries(row: Record<string, any>): Array<Record<string, any>> {
   return dayBuckets().map((time_bucket) => ({ ...row, time_bucket }));
@@ -241,6 +269,13 @@ function v1MetricsResponse(q: Record<string, any>) {
   if (metrics.length === 1 && metrics[0] === "payment_count") {
     const row = { currency: CURRENCY, payment_count: 1280 };
     return wrap(isSeries ? asSeries(row) : [row]);
+  }
+
+  // Payments Trends summary table / chart grouped by any other single dimension
+  // (Payment Method, Currency, Authentication Type, …) — when a Trends tab is
+  // switched. Keyed so the table's first column renders the dimension values.
+  if (groupBy.length === 1 && DIMENSION_SAMPLES[groupBy[0]]) {
+    return wrap(dimensionRows(groupBy[0], isSeries));
   }
 
   // General Metrics cards (Payments Overview, no groupBy).
@@ -293,6 +328,25 @@ export async function mockPaymentAnalytics(page: Page): Promise<void> {
   await page.route(/\/analytics\/v1\/(org|merchant|profile)\/metrics\/payments/, (route) =>
     json(route, v1MetricsResponse(firstQuery(route))),
   );
+}
+
+// Fails every analytics endpoint with HTTP 500 so the page's getPaymetsDetails
+// catch block flips PageLoaderWrapper to its Error state (the DefaultLandingPage
+// "Oops, we hit a little bump on the road!" view). The order-list call is the
+// first request the page makes, so failing it short-circuits straight to Error.
+export async function mockPaymentAnalyticsError(page: Page): Promise<void> {
+  const fail = (route: Route) =>
+    route.fulfill({
+      status: 500,
+      contentType: "application/json",
+      body: JSON.stringify({ error: { type: "server_error", message: "Internal Server Error" } }),
+    });
+
+  await page.route(/\/payments\/list/, fail);
+  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/payments\/info/, fail);
+  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/filters\/payments/, fail);
+  await page.route(/\/analytics\/v2\/(org|merchant|profile)\/metrics\/payments/, fail);
+  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/metrics\/payments/, fail);
 }
 
 export default mockPaymentAnalytics;
