@@ -8,7 +8,8 @@ let useGetHsSidebarValues = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let {userEntity} = getResolvedUserInfo()
+  let {userEntity, email} = getResolvedUserInfo()
+  let isJuspayUser = email->HyperSwitchUtils.checkIsJuspayUser
   let {
     frm,
     payOut,
@@ -104,7 +105,7 @@ let useGetHsSidebarValues = () => {
       ~devThemeEnabled=devTheme,
       ~devUsers,
     ),
-    devSuperposition->superposition,
+    (devSuperposition && isJuspayUser)->superposition,
   ]
 }
 
