@@ -50,7 +50,7 @@ module BlendAccordion = {
         }
       })
 
-      let isSwitch = singleOpen && newValues->Array.length > 0
+      let isSwitch = singleOpen && newValues->isNonEmptyArray
       if !isSwitch {
         openValues->Array.forEach(v => {
           if !(newValues->Array.includes(v)) {

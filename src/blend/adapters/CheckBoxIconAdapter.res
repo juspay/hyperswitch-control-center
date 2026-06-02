@@ -39,11 +39,12 @@ let make = (
       checked={checkedValue} onCheckedChange disabled={isDisabled} size={mapSize(size)}
     />
 
-  let blendNode = stopPropagationNeeded
-    ? <div className="relative" onClick={e => e->ReactEvent.Mouse.stopPropagation}>
-        {blendCheckbox}
-      </div>
-    : <div className="relative"> {blendCheckbox} </div>
+  let blendNode =
+    <div
+      className="relative"
+      onClick=?{stopPropagationNeeded ? Some(e => e->ReactEvent.Mouse.stopPropagation) : None}>
+      {blendCheckbox}
+    </div>
 
   <>
     <RenderIf condition={useBlend}> {blendNode} </RenderIf>

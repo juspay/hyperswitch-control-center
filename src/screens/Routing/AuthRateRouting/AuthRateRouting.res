@@ -222,6 +222,7 @@ let make = (
     let decisionEngineConfigs = dict->getDictfromDict("decision_engine_configs")
     let formErrors = Dict.make()
     let decisionEngineErrors = Dict.make()
+    let cannotExceedError = "Cannot exceed 100"->JSON.Encode.string
 
     requiredConfigKeys->Array.forEach(key => {
       switch key {
@@ -236,10 +237,7 @@ let make = (
           decisionEngineErrors->Dict.set(getFormFieldKey(key), "Required"->JSON.Encode.string)
           formErrors->Dict.set("decision_engine_configs", decisionEngineErrors->JSON.Encode.object)
         } else if value > 100 {
-          decisionEngineErrors->Dict.set(
-            getFormFieldKey(key),
-            "Cannot exceed 100"->JSON.Encode.string,
-          )
+          decisionEngineErrors->Dict.set(getFormFieldKey(key), cannotExceedError)
           formErrors->Dict.set("decision_engine_configs", decisionEngineErrors->JSON.Encode.object)
         }
       | RolloutPercent =>
@@ -247,7 +245,7 @@ let make = (
         if value == -1 {
           formErrors->Dict.set(key->getFormFieldKey, "Required"->JSON.Encode.string)
         } else if value > 100 {
-          formErrors->Dict.set(key->getFormFieldKey, "Cannot exceed 100"->JSON.Encode.string)
+          formErrors->Dict.set(key->getFormFieldKey, cannotExceedError)
         }
       }
     })
