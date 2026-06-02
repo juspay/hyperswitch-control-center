@@ -114,6 +114,9 @@ let detailsSectionFilterKeys = [
   "hs_latency",
   "latency",
   "status_code",
+  "api_auth_type",
+  "url_path",
+  "error",
 ]
 
 @module("js-sha256") external sha256: string => string = "sha256"
