@@ -266,9 +266,13 @@ let make = () => {
                         | (DynamicRouting, _) => <IntelligentRoutingApp />
                         | (Orchestration(V2), _) => <OrchestrationV2App />
                         | (Orchestration(V1), list{"superposition", ...remainingPath}) =>
-                          <RenderIf condition={featureFlagDetails.devSuperposition && isJuspayUser}>
-                            <SuperpositionApp remainingPath />
-                          </RenderIf>
+                          <AccessControl
+                            authorization={userHasAccess(~groupAccess=ConfigurationsView)}>
+                            <RenderIf
+                              condition={featureFlagDetails.devSuperposition && isJuspayUser}>
+                              <SuperpositionApp remainingPath />
+                            </RenderIf>
+                          </AccessControl>
                         | (Orchestration(V1), _) => <OrchestrationApp setScreenState />
                         | (UnknownProduct, _) => React.null
                         }}

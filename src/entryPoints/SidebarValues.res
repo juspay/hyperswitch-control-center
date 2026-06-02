@@ -640,7 +640,7 @@ let developers = (
     : emptyComponent
 }
 
-let superposition = isEnabled =>
+let superposition = (userHasAccess, isEnabled) =>
   isEnabled
     ? Section({
         name: "Superposition",
@@ -650,25 +650,25 @@ let superposition = isEnabled =>
           SubLevelLink({
             name: "Default Configs",
             link: "/superposition/default-config",
-            access: Access,
+            access: userHasAccess(~groupAccess=ConfigurationsView),
             searchOptions: [("View default configurations", "")],
           }),
           SubLevelLink({
             name: "Overrides",
             link: "/superposition/overrides",
-            access: Access,
+            access: userHasAccess(~groupAccess=ConfigurationsView),
             searchOptions: [("View context overrides", "")],
           }),
           SubLevelLink({
             name: "Dimensions",
             link: "/superposition/dimensions",
-            access: Access,
+            access: userHasAccess(~groupAccess=ConfigurationsView),
             searchOptions: [("View dimensions", "")],
           }),
           SubLevelLink({
             name: "Audit Trail",
             link: "/superposition/audit",
-            access: Access,
+            access: userHasAccess(~groupAccess=ConfigurationsView),
             searchOptions: [("View audit trail", "")],
           }),
         ],
