@@ -8,7 +8,7 @@ external toWasm: Dict.t<JSON.t> => RoutingTypes.wasmModule = "%identity"
 module Add3DSCondition = {
   @react.component
   let make = (~isFirst, ~id, ~isExpanded, ~threeDsType) => {
-    let classStyle = "flex justify-center relative py-2.5 h-fit min-w-min hover:bg-jp-2-light-gray-100 focus:outline-none  rounded-md items-center border-2 border-border_gray border-opacity-50 text-jp-2-light-gray-1200 px-4 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] overflow-hidden"
+    let classStyle = "flex justify-center relative py-2.5 h-fit min-w-min hover:bg-jp-2-light-gray-100 focus:outline-none  rounded-md items-center border border-nd_gray-200 text-jp-2-light-gray-1200 px-4 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] overflow-hidden"
 
     let options: array<SelectBox.dropdownOption> = [
       {value: "three_ds", label: "3DS"},
@@ -21,21 +21,24 @@ module Add3DSCondition = {
           <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
         </RenderIf>
         <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
-          <div className="flex flex-wrap gap-4 -mt-2">
+          <div className="flex flex-wrap gap-4 -mt-2 items-center">
             <div className=classStyle> {"Auth type"->React.string} </div>
             <div className=classStyle> {"= (is equal to)"->React.string} </div>
-            <FormRenderer.FieldRenderer
-              field={FormRenderer.makeFieldInfo(
-                ~label="",
-                ~name=`${id}.connectorSelection.override_3ds`,
-                ~customInput=InputFields.selectInput(
-                  ~options,
-                  ~buttonText="Select Field",
-                  ~customButtonStyle=`!-mt-5 ${classStyle} !py-0 !rounded-md`,
-                  ~deselectDisable=true,
-                ),
-              )}
-            />
+            <LabelVisibilityContext showLabel=false>
+              <FormRenderer.FieldRenderer
+                fieldWrapperClass="flex flex-col"
+                field={FormRenderer.makeFieldInfo(
+                  ~label="",
+                  ~name=`${id}.connectorSelection.override_3ds`,
+                  ~customInput=InputFields.selectInput(
+                    ~options,
+                    ~buttonText="Select Field",
+                    ~customButtonStyle=`${classStyle} !py-0 !rounded-md`,
+                    ~deselectDisable=true,
+                  ),
+                )}
+              />
+            </LabelVisibilityContext>
           </div>
         </div>
       </div>
@@ -48,7 +51,7 @@ module Add3DSCondition = {
 module Add3DSConditionForThreeDsExemption = {
   @react.component
   let make = (~isFirst, ~id, ~isExpanded, ~threeDsType) => {
-    let classStyle = "flex justify-center relative py-2.5 h-fit min-w-min hover:bg-jp-2-light-gray-100 focus:outline-none  rounded-md items-center border-2 border-border_gray border-opacity-50 text-jp-2-light-gray-1200 px-4 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] overflow-hidden"
+    let classStyle = "flex justify-center relative py-2.5 h-fit min-w-min hover:bg-jp-2-light-gray-100 focus:outline-none  rounded-md items-center border border-nd_gray-200 text-jp-2-light-gray-1200 px-4 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] overflow-hidden"
 
     let options: array<SelectBox.dropdownOption> = [
       {value: "no_three_ds", label: "Request No-3DS"},
@@ -68,21 +71,24 @@ module Add3DSConditionForThreeDsExemption = {
           <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
         </RenderIf>
         <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
-          <div className="flex flex-wrap gap-4 -mt-2">
+          <div className="flex flex-wrap gap-4 -mt-2 items-center">
             <div className=classStyle> {"Auth type"->React.string} </div>
             <div className=classStyle> {"= (is equal to)"->React.string} </div>
-            <FormRenderer.FieldRenderer
-              field={FormRenderer.makeFieldInfo(
-                ~label="",
-                ~name=`${id}.connectorSelection.override_3ds`,
-                ~customInput=InputFields.selectInput(
-                  ~options,
-                  ~buttonText="Select Field",
-                  ~customButtonStyle=`!-mt-5 ${classStyle} !py-0 !rounded-md`,
-                  ~deselectDisable=true,
-                ),
-              )}
-            />
+            <LabelVisibilityContext showLabel=false>
+              <FormRenderer.FieldRenderer
+                fieldWrapperClass="flex flex-col"
+                field={FormRenderer.makeFieldInfo(
+                  ~label="",
+                  ~name=`${id}.connectorSelection.override_3ds`,
+                  ~customInput=InputFields.selectInput(
+                    ~options,
+                    ~buttonText="Select Field",
+                    ~customButtonStyle=`${classStyle} !py-0 !rounded-md`,
+                    ~deselectDisable=true,
+                  ),
+                )}
+              />
+            </LabelVisibilityContext>
           </div>
         </div>
       </div>

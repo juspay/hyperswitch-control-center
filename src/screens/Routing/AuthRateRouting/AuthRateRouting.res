@@ -225,15 +225,29 @@ let make = (
 
     requiredConfigKeys->Array.forEach(key => {
       switch key {
-      | BucketSize
-      | ExplorationPercent =>
+      | BucketSize =>
         if decisionEngineConfigs->getInt(getFormFieldKey(key), -1) == -1 {
           decisionEngineErrors->Dict.set(getFormFieldKey(key), "Required"->JSON.Encode.string)
           formErrors->Dict.set("decision_engine_configs", decisionEngineErrors->JSON.Encode.object)
         }
+      | ExplorationPercent =>
+        let value = decisionEngineConfigs->getInt(getFormFieldKey(key), -1)
+        if value == -1 {
+          decisionEngineErrors->Dict.set(getFormFieldKey(key), "Required"->JSON.Encode.string)
+          formErrors->Dict.set("decision_engine_configs", decisionEngineErrors->JSON.Encode.object)
+        } else if value > 100 {
+          decisionEngineErrors->Dict.set(
+            getFormFieldKey(key),
+            "Cannot exceed 100"->JSON.Encode.string,
+          )
+          formErrors->Dict.set("decision_engine_configs", decisionEngineErrors->JSON.Encode.object)
+        }
       | RolloutPercent =>
-        if dict->getInt(key->getFormFieldKey, -1) == -1 {
+        let value = dict->getInt(key->getFormFieldKey, -1)
+        if value == -1 {
           formErrors->Dict.set(key->getFormFieldKey, "Required"->JSON.Encode.string)
+        } else if value > 100 {
+          formErrors->Dict.set(key->getFormFieldKey, "Cannot exceed 100"->JSON.Encode.string)
         }
       }
     })
