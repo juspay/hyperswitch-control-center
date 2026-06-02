@@ -161,7 +161,7 @@ module OrgTileGroup = {
     ~handleIdUnderEdit,
   ) => {
     let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-    
+
     <div className="flex flex-col justify-center gap-3">
       <RenderIf condition={hasPlatformOrg}>
         {switch customHeading {
