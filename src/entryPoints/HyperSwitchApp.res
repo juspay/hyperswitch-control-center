@@ -36,6 +36,7 @@ let make = () => {
   let {orgId, merchantId, profileId, version} = getCommonSessionDetails()
 
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
+  let {logoURL} = React.useContext(ThemeProvider.themeContext)
   let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
   let hyperSwitchAppSidebars = SidebarHooks.useGetSidebarValuesForCurrentActive()
@@ -188,12 +189,20 @@ let make = () => {
                           </RenderIf>
                         </div>
                       </div>}
-                      headerLeftActions={<div className="flex md:gap-4 gap-2 items-center">
-                        <RenderIf condition={!isCurrentMerchantPlatform}>
-                          <ProfileSwitch />
-                        </RenderIf>
-                        <LiveMode />
-                      </div>}
+                      headerLeftActions={
+                        let logoElement = switch logoURL {
+                        | Some(url) if url->LogicUtils.isNonEmptyString =>
+                          <img className="h-6 w-auto object-contain" alt="image" src=url />
+                        | _ => React.null
+                        }
+                        <div className="flex md:gap-4 gap-2 items-center">
+                          {logoElement}
+                          <RenderIf condition={!isCurrentMerchantPlatform}>
+                            <ProfileSwitch />
+                          </RenderIf>
+                          <LiveMode />
+                        </div>
+                      }
                       midUiActions={<TestMode />}
                       midUiActionsCustomClass={`top-0 relative flex justify-center ${leftCustomClass}`}
                     />

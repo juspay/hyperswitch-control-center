@@ -1,14 +1,12 @@
-type theme = Light | Dark
-
 @react.component
 let make = (
   ~logoClass="",
   ~handleClick=?,
   ~logoVariant=CommonAuthTypes.IconWithText,
   ~logoHeight="h-6",
-  ~theme=Dark,
   ~iconUrl=None,
 ) => {
+  let {theme} = React.useContext(ThemeProvider.themeContext)
   let iconFolder = switch theme {
   | Dark => "Dark"
   | Light => "Light"

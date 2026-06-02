@@ -27,7 +27,6 @@ module OrgTile = {
           borderColor: sidebarBorderColor,
         },
       },
-      logoURL,
     } = React.useContext(ThemeProvider.themeContext)
 
     let onSubmit = async (newOrgName: string) => {
@@ -105,16 +104,7 @@ module OrgTile = {
                 : "border-t-sidebar-textColor/30"}  border-l-transparent translate-x-1/2 -translate-y-1/2 rounded-tr-[5px]`}
           />
         </RenderIf>
-        <RenderIf condition={logoURL->Option.isSome && isActive}>
-          <img
-            className="h-6 w-6 object-contain rounded-sm"
-            alt="Organization Logo"
-            src={logoURL->Option.getOr("/juspayLogoIcon.svg")}
-          />
-        </RenderIf>
-        <RenderIf condition={!isActive || logoURL->Option.isNone}>
-          <span className={body.xs.medium}> {displayText->React.string} </span>
-        </RenderIf>
+        <span className={body.xs.medium}> {displayText->React.string} </span>
         <div
           className={`${currentEditCSS} ${nonEditCSS} border ${sidebarBorderColor} border-opacity-40`}>
           <InlineEditInput
@@ -171,6 +161,7 @@ module OrgTileGroup = {
     ~handleIdUnderEdit,
   ) => {
     let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+    
     <div className="flex flex-col justify-center gap-3">
       <RenderIf condition={hasPlatformOrg}>
         {switch customHeading {
