@@ -22,6 +22,7 @@ let make = (~setScreenState) => {
     | list{"tax-processor", ..._}
     | list{"billing-processor", ..._}
     | list{"vault-processor", ..._}
+    | list{"surcharge-processor", ..._}
     | list{"fraud-risk-management", ..._}
     | list{"configure-pmts", ..._}
     | list{"payment-link-theme", ..._}

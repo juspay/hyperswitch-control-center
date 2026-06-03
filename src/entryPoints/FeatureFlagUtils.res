@@ -70,6 +70,7 @@ type featureFlag = {
   paymentLinkThemeConfigurator: bool,
   devSidebarV2: bool,
   vaultProcessor: bool,
+  surchargeProcessor: bool,
   devTheme: bool,
   devUsers: bool,
   allowConnectedMerchants: bool,
@@ -80,6 +81,7 @@ type featureFlag = {
   devSortEnabled: bool,
   reconEnginePermissions: bool,
   devSavedViews: bool,
+  devClickhouseAggregate: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -151,6 +153,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     paymentLinkThemeConfigurator: dict->getBool("payment_link_theme_configurator", false),
     devSidebarV2: dict->getBool("dev_sidebar_v2", false),
     vaultProcessor: dict->getBool("vault_processor", false),
+    surchargeProcessor: dict->getBool("surcharge_processor", false),
     devTheme: dict->getBool("dev_theme", false),
     devUsers: dict->getBool("dev_users", false),
     allowConnectedMerchants: dict->getBool("allow_connected_merchants", false),
@@ -162,6 +165,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devSortEnabled: dict->getBool("dev_sort_enabled", false),
     reconEnginePermissions: dict->getBool("recon_engine_permissions", false),
     devSavedViews: dict->getBool("dev_saved_views", false),
+    devClickhouseAggregate: dict->getBool("dev_clickhouse_aggregate", false),
   }
 }
 

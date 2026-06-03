@@ -3,6 +3,57 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.06.01.0
+
+### Refactors
+
+- Default fallback routing ui ([#4852](https://github.com/juspay/hyperswitch-control-center/pull/4852)) ([`6dabbd7`](https://github.com/juspay/hyperswitch-control-center/commit/6dabbd70a1495e6cf5bb96d368163711b7c39203))
+
+**Full Changelog:** [`2026.05.28.0...2026.06.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.28.0...2026.06.01.0)
+
+- - -
+
+## 2026.05.28.0
+
+### Features
+
+- Add wasm support for `surcharge processor` ([#4868](https://github.com/juspay/hyperswitch-control-center/pull/4868)) ([`a6b4aaa`](https://github.com/juspay/hyperswitch-control-center/commit/a6b4aaa834aba42dc71b8fe599a19ec57172ca5a))
+- Add support for `surcharge processor` type ([#4866](https://github.com/juspay/hyperswitch-control-center/pull/4866)) ([`beafea3`](https://github.com/juspay/hyperswitch-control-center/commit/beafea305e221c39521e0944971a44bc04bf7484))
+
+### Bug Fixes
+
+- Sort audit log timeline ([#4864](https://github.com/juspay/hyperswitch-control-center/pull/4864)) ([`5d5abba`](https://github.com/juspay/hyperswitch-control-center/commit/5d5abbabcffe201c7d1d1e691fda07b945769285))
+- Chevron direction on OMP view data chip ([#4870](https://github.com/juspay/hyperswitch-control-center/pull/4870)) ([`4fefdd3`](https://github.com/juspay/hyperswitch-control-center/commit/4fefdd3d357608d79c27b69f521055198fe49b99))
+
+**Full Changelog:** [`2026.05.27.0...2026.05.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.27.0...2026.05.28.0)
+
+- - -
+
+## 2026.05.27.0
+
+### Features
+
+- Gate ClickHouse Aggregate API behind a feature flag ([#4849](https://github.com/juspay/hyperswitch-control-center/pull/4849)) ([`54be163`](https://github.com/juspay/hyperswitch-control-center/commit/54be16380ebe6736e0a963457ec1020344272456))
+
+### Bug Fixes
+
+- Blend adapter bugfixes for date pickers, multi-select, and icon checkbox ([#4844](https://github.com/juspay/hyperswitch-control-center/pull/4844)) ([`1e3e45e`](https://github.com/juspay/hyperswitch-control-center/commit/1e3e45e75524f36faf0115f5f1cd273b85f48311))
+- Await logout API before clearing auth state ([#4796](https://github.com/juspay/hyperswitch-control-center/pull/4796)) ([`34e8b45`](https://github.com/juspay/hyperswitch-control-center/commit/34e8b4578572fd8bfe972d58b3877cd33ae070c7))
+
+**Full Changelog:** [`2026.05.26.0...2026.05.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.26.0...2026.05.27.0)
+
+- - -
+
+## 2026.05.26.0
+
+### Bug Fixes
+
+- Guard JSON.parseExn on untrusted inputs ([#4732](https://github.com/juspay/hyperswitch-control-center/pull/4732)) ([#4858](https://github.com/juspay/hyperswitch-control-center/pull/4858)) ([`b649bb7`](https://github.com/juspay/hyperswitch-control-center/commit/b649bb75b14551fc96eb1560ee87e3feb08ef7b8))
+
+**Full Changelog:** [`2026.05.22.0...2026.05.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.22.0...2026.05.26.0)
+
+- - -
+
 ## 2026.05.22.0
 
 ### Features
