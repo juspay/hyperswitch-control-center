@@ -90,7 +90,7 @@ let make = () => {
     } catch {
     | _ => {
         setScreenState(_ => PageLoaderWrapper.Success)
-        showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+        showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
       }
     }
     Nullable.null
@@ -142,9 +142,10 @@ let make = () => {
           <SubmitButton text="Update" buttonType=Button.Primary buttonSize=Button.Medium />
         </div>
       </DesktopRow>
+      <hr className="mt-8" />
     </Form>
     <RenderIf condition={featureFlagDetails.acquirerConfigSettings && version == V1}>
-      <AcquirerConfigSettingsRevamp />
+      <MerchantAcquirerDetails />
     </RenderIf>
   </PageLoaderWrapper>
 }

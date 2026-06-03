@@ -166,6 +166,7 @@ module ConnectorSummaryGrid = {
           | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
           | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
           | VaultProcessor => Window.getConnectorConfig(connectorName)
+          | SurchargeProcessor => Window.getSurchargeProcessorConfig(connectorName)
           | PaymentVas => JSON.Encode.null
           }
           dict
@@ -385,21 +386,21 @@ let make = (
     feedback && !isUpdateFlow && connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors
 
   let isConnectorDisabled = connectorInfo.disabled
-  let disableConnector = async isConnectorDisabled => {
+  let disableConnector = async currentIsDisabled => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let connectorID = connectorInfo.merchant_connector_id
+      let mcaId = connectorInfo.merchant_connector_id
       let disableConnectorPayload = getDisableConnectorPayload(
         connectorInfo.connector_type->connectorTypeTypedValueToStringMapper,
-        isConnectorDisabled,
+        currentIsDisabled,
       )
-      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
+      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(mcaId))
       let res = await updateDetails(url, disableConnectorPayload, Post)
       let _ = await fetchConnectorListResponse()
       setInitialValues(_ => res)
       setScreenState(_ => PageLoaderWrapper.Success)
       showToast(
-        ~message=`Connector has been successfully ${isConnectorDisabled ? "Enabled" : "Disabled"}`,
+        ~message=`Connector has been successfully ${currentIsDisabled ? "Enabled" : "Disabled"}`,
         ~toastType=ToastSuccess,
       )
     } catch {

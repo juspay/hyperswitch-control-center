@@ -62,7 +62,7 @@ module RenderPermissionModule = {
       </div>
       <div className="flex gap-8">
         <div className="w-20 flex justify-center">
-          <CheckBoxIcon
+          <CheckBoxIconAdapter
             isSelected=isReadSelected
             setIsSelected={isSelected => {
               handleScopeChange(Read, isSelected)
@@ -72,7 +72,7 @@ module RenderPermissionModule = {
           />
         </div>
         <div className="w-24 flex justify-center">
-          <CheckBoxIcon
+          <CheckBoxIconAdapter
             isSelected=isWriteSelected
             setIsSelected={isSelected => {
               handleScopeChange(Write, isSelected)
@@ -252,7 +252,7 @@ let make = () => {
     <div className="flex flex-col gap-2">
       <PageUtils.PageHeading
         title="Create Custom Role"
-        subTitle="Adjust permissions to create roles that match your requirement"
+        subTitle="Adjust permissions to create roles that match your requirements"
       />
       <BreadCrumbNavigation
         path=[{title: "Team management", link: `/users`}] currentPageTitle="Create Custom Role"

@@ -222,11 +222,166 @@ export class HomePage {
   }
 
   get userProfile(): Locator {
-    return this.page.locator('[id="neglectTopbarTheme"]').first().locator(">>");
+    return this.page.getByRole('button', { name: 'Profile' });
   }
 
   get signOut(): Locator {
     return this.page.getByText("Sign out");
+  }
+
+  get welcomeText(): Locator {
+    return this.page.getByText(
+      "Welcome to the home of your Payments Control Center. It aims to provide your team with a 360-degree view of payments.",
+    );
+  }
+
+  get connectProcessorsButton(): Locator {
+    return this.page.locator('[data-button-for="connectProcessors"]');
+  }
+
+  get tryItOutButton(): Locator {
+    return this.page.locator('[data-button-for="tryItOut"]');
+  }
+
+  get goToApiKeysButton(): Locator {
+    return this.page.locator('[data-button-text="Go to API keys"]');
+  }
+
+  get overview(): Locator {
+    return this.page.locator('[data-testid="overview"]');
+  }
+
+  get myModulesHeader(): Locator {
+    return this.page.getByText("MY MODULES");
+  }
+
+  get setupCheckoutHeader(): Locator {
+    return this.page.locator(
+      '[class="text-fs-24 leading-32 font-semibold font-inter-style "]',
+    );
+  }
+
+  get showPreviewButton(): Locator {
+    return this.page.locator('[data-button-for="showPreview"]');
+  }
+
+  get payButton(): Locator {
+    return this.page.locator('[data-button-for="payUSD100"]');
+  }
+
+  get paymentSuccessfulText(): Locator {
+    return this.page.getByText("Payment Successful");
+  }
+
+  get visitButton(): Locator {
+    return this.page.getByRole("button", { name: "Visit" });
+  }
+
+  get exploreComposableServicesText(): Locator {
+    return this.page.getByText("Explore composable services");
+  }
+
+  get learnMoreButtons(): Locator {
+    return this.page.getByRole("button", { name: "Learn More" });
+  }
+
+  productCardName(name: string | RegExp): Locator {
+    return this.page.locator("span").filter({ hasText: name });
+  }
+
+  productCard(name: string): Locator {
+    return this.page
+      .locator("div")
+      .filter({ has: this.page.getByText(name, { exact: true }) })
+      .filter({ has: this.learnMoreButtons })
+      .last();
+  }
+
+  get orchestratorDescription(): Locator {
+    return this.page.getByText(
+      "Unifies diverse abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions, and reporting systems.",
+    );
+  }
+
+  get vaultDescription(): Locator {
+    return this.page.getByText(
+      "A standalone, PCI-compliant vault that securely tokenizes and stores your customers’ card data — without requiring the use of our payment solutions. Supports card tokenization at PSPs and networks as well.",
+    );
+  }
+
+  get reconDescription(): Locator {
+    return this.page.getByText(
+      "A robust tool for efficient reconciliation, providing real-time matching and error detection across transactions, ensuring data consistency and accuracy in financial operations.",
+    );
+  }
+
+  get revenueRecoveryDescription(): Locator {
+    return this.page.getByText(
+      "A resilient recovery system that ensures seamless restoration of critical data and transactions, safeguarding against unexpected disruptions and minimizing downtime.",
+    );
+  }
+
+  get costObservabilityDescription(): Locator {
+    return this.page.getByText(
+      "Unified view of payment processing costs across acquirers, payment methods, and regions. Track every cent, detect anomalies, audit against contracted rates, and forecast the impact of card network changes.",
+    );
+  }
+
+  get liveModeBadge(): Locator {
+    return this.page.locator("div").filter({ hasText: /^Live Mode$/ });
+  }
+
+  get testModeBannerText(): Locator {
+    return this.page.getByText("You're in Test Mode");
+  }
+
+  get navbar(): Locator {
+    return this.page.locator("#navbar");
+  }
+
+  get navbarGetProductionAccess(): Locator {
+    return this.navbar.getByText("Get Production Access");
+  }
+
+  get navbarTestMode(): Locator {
+    return this.navbar.getByText("You're in Test Mode");
+  }
+
+  get navbarProductionAccessRequested(): Locator {
+    return this.navbar.getByText("Production Access Requested");
+  }
+
+  get addNewMerchantHeader(): Locator {
+    return this.page.getByText("Add a new merchant");
+  }
+
+  get merchantNameInput(): Locator {
+    return this.page.getByRole("textbox", { name: "Eg: My New Merchant" });
+  }
+
+  get addMerchantButton(): Locator {
+    return this.page.getByRole("button", { name: "Add Merchant" });
+  }
+
+  // Visual-testing masks (dynamic content excluded from snapshots)
+  get navHeaderMask(): Locator {
+    return this.page.locator(".text-left.flex.gap-2.justify-between");
+  }
+
+  get homeGreetingMask(): Locator {
+    return this.page
+      .locator(".flex.flex-col.gap-7 ")
+      .locator(".flex.items-center.gap-2");
+  }
+
+  get merchantDropdownItemsMask(): Locator {
+    return this.page
+      .locator('[data-dropdown="dropdown"]')
+      .locator(".flex.justify-between.items-center.w-full");
+  }
+
+  get merchantNameButton(): Locator {
+    return this.page.getByRole("button", { name: "playwright-" });
   }
 }
 

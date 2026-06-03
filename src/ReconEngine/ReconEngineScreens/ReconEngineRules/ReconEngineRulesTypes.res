@@ -3,12 +3,27 @@ type operatorType = {
   value: string,
 }
 
-type triggerType = {
-  trigger_version: string,
+type triggerConditionType = {
   field: string,
   operator: operatorType,
   value: string,
 }
+
+@unboxed
+type triggerLogicType =
+  | @as("all") All
+  | @as("any") Any
+  | @as("unknown") UnknownTriggerLogic
+
+type triggerV2Type = {
+  logic: triggerLogicType,
+  conditions: array<triggerConditionType>,
+}
+
+type triggerType =
+  | V1(triggerConditionType)
+  | V2(triggerV2Type)
+  | UnknownTrigger
 
 type matchRuleType = {
   source_field: string,

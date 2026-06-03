@@ -30,7 +30,9 @@ let make = (
     ->Option.getOr("default_value")
     ->camelCaseToTitle
   }->nameToURLMapper
-  let createdTime = dataDict->getString("created_at", "00000")
+  let endMs = dataDict->getString("created_at", "")->Date.fromString->Date.getTime
+  let latencyMs = dataDict->getFloat("latency", 0.0)
+  let startTime = (endMs -. latencyMs)->Date.fromTime->Date.toISOString
   let requestObject = switch logType {
   | API_EVENTS | CONNECTOR | ROUTING => dataDict->getString("request", "")
   | SDK =>
@@ -253,7 +255,7 @@ let make = (
             }}
           </div>
           <div className={`${headerStyle} opacity-40 flex gap-1`}>
-            <TableUtils.DateCell timestamp={createdTime} />
+            <TableUtils.DateCell timestamp=startTime />
           </div>
         </div>
       </div>

@@ -48,7 +48,7 @@ let getFilterTypeFromString = filterType => {
 }
 let isParentChildFilterMatch = (name, key) => {
   let parentFilter = name->getFilterTypeFromString
-  let child = key->AmountFilterUtils.mapStringToamountFilterChild
+  let child = key->AmountFilterUtils.mapStringToAmountFilterChild
   switch (parentFilter, child) {
   | (#amount, #start_amount)
   | (#amount, #end_amount)
@@ -320,7 +320,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys, version) => {
+let initialFilters = (json, filterValues, removeKeys, filterKeys, setfilterKeys, version) => {
   open LogicUtils
 
   let filterDict = json->getDictFromJsonObject
@@ -332,7 +332,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys,
     setfilterKeys(_ => filterKeys->Array.filter(item => item !== name))
   }
 
-  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
+  let connectorFilter = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
   if connectorFilter->Array.length !== 0 {
     filtersArray->Array.push(#connector_label->getLabelFromFilterType)
   }
@@ -352,10 +352,10 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys,
     | #authentication_type => filterData.authentication_type
     | #status => filterData.status
     | #payment_method_type =>
-      getConditionalFilter(key, filterDict, filtervalues)->Array.length > 0
-        ? getConditionalFilter(key, filterDict, filtervalues)
+      getConditionalFilter(key, filterDict, filterValues)->Array.length > 0
+        ? getConditionalFilter(key, filterDict, filterValues)
         : filterData.payment_method_type
-    | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
+    | #connector_label => getConditionalFilter(key, filterDict, filterValues)
     | #card_network => filterData.card_network
     | #card_discovery => filterData.card_discovery
     | _ => []
@@ -364,7 +364,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys,
     let title = `Select ${key->snakeToTitle}`
 
     let options = switch key->getFilterTypeFromString {
-    | #connector_label => getOptionsForOrderFilters(filterDict, filtervalues)
+    | #connector_label => getOptionsForOrderFilters(filterDict, filterValues)
     | #connector => values->ConnectorUtils.getConnectorFilterOptions
     | _ => values->FilterSelectBox.makeOptions(~isTitle=true)
     }
@@ -414,7 +414,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys,
   })
 }
 
-let initialFixedFilter = (version: UserInfoTypes.version) => [
+let initialFixedFilter = (version: UserInfoTypes.version, ~disable=false) => [
   (
     {
       localFilter: None,
@@ -442,6 +442,7 @@ let initialFixedFilter = (version: UserInfoTypes.version) => [
           ~numMonths=2,
           ~disableApply=false,
           ~dateRangeLimit=180,
+          ~disable,
         ),
         ~inputFields=[],
         ~isRequired=false,

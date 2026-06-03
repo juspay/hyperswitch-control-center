@@ -90,6 +90,8 @@ module RuleWiseStackedBarGraph = {
               ~yMax=totalTransactions,
               ~labelItemDistance={isMiniLaptopView ? 45 : 80},
               ~pointWidth=12,
+              ~onPointClick=seriesName =>
+                ReconEngineOverviewUtils.handleBarClick(~rule, seriesName),
             )}
           />
         </div>

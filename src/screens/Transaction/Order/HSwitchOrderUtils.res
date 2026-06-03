@@ -187,10 +187,10 @@ let refundEmailField = FormRenderer.makeFieldInfo(
 )
 
 let nonRefundConnectors = ["braintree", "klarna", "airwallex"]
-let isSplitPaymentConnectors = ["stripe"]
+let splitPaymentConnectors = ["stripe"]
 
 let isSplitPaymentConnector = connector => {
-  isSplitPaymentConnectors->Array.includes(connector)
+  splitPaymentConnectors->Array.includes(connector)
 }
 
 let getStripeChargeVariantFromString = stripeChargeType => {

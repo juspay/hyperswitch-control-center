@@ -1,10 +1,12 @@
-let sortByCreatedAt = (log1, log2) => {
+let sortByStartTime = (log1, log2) => {
   open LogicUtils
-  let getKey = dict =>
-    dict->getDictFromJsonObject->getString("created_at", "")->Date.fromString->Date.getTime
-  let keyA = log1->getKey
-  let keyB = log2->getKey
-  compareLogic(keyB, keyA)
+  let getStartMs = log => {
+    let dict = log->getDictFromJsonObject
+    let endMs = dict->getString("created_at", "")->Date.fromString->Date.getTime
+    let latencyMs = dict->getFloat("latency", 0.0)
+    endMs -. latencyMs
+  }
+  compareLogic(log2->getStartMs, log1->getStartMs)
 }
 
 let reorderLogs = logs => {
@@ -110,6 +112,7 @@ let detailsSectionFilterKeys = [
   "masked_response",
   "http_method",
   "hs_latency",
+  "latency",
   "status_code",
 ]
 

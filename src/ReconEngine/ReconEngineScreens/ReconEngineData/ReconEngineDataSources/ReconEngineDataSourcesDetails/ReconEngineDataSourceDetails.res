@@ -69,7 +69,7 @@ let make = (~accountId) => {
     let tabIndexParam =
       url.search
       ->getDictFromUrlSearchParams
-      ->getvalFromDict("ingestionConfigTabIndex")
+      ->getOptionValFromDict("ingestionConfigTabIndex")
     setTabIndex(_ => tabIndexParam)
   }
 
@@ -110,14 +110,7 @@ let make = (~accountId) => {
           </div>
         </RenderIf>
         <RenderIf condition={ingestionConfigs->Array.length > 0}>
-          <Tabs
-            tabs
-            showBorder=true
-            includeMargin=false
-            initialIndex={tabIndex->Option.getOr("0")->getIntFromString(0)}
-            defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center ${body.md.semibold}`}
-            selectTabBottomBorderColor="bg-primary"
-          />
+          <Tabs tabs initialIndex={tabIndex->Option.getOr("0")->getIntFromString(0)} />
         </RenderIf>
       </PageLoaderWrapper>
     </div>
