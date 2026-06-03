@@ -53,7 +53,7 @@ let confirmPasswordCheck = (value, key, passwordKey, confirmKey, valuesDict, err
     value->LogicUtils.isNonEmptyString &&
     !Option.equal(Dict.get(valuesDict, passwordKey), Dict.get(valuesDict, key), (a, b) => a == b)
   ) {
-    Dict.set(errors, key, "The New password does not match!"->JSON.Encode.string)
+    Dict.set(errors, key, "Passwords do not match. Please try again."->JSON.Encode.string)
   }
 }
 
