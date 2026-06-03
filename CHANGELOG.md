@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.06.01.0
+
+### Refactors
+
+- Default fallback routing ui ([#4852](https://github.com/juspay/hyperswitch-control-center/pull/4852)) ([`6dabbd7`](https://github.com/juspay/hyperswitch-control-center/commit/6dabbd70a1495e6cf5bb96d368163711b7c39203))
+
+**Full Changelog:** [`2026.05.28.0...2026.06.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.05.28.0...2026.06.01.0)
+
+- - -
+
 ## 2026.05.28.0
 
 ### Features
