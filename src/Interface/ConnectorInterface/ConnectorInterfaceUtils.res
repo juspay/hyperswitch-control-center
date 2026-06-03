@@ -281,7 +281,7 @@ let mapV1DictToCommonConnectorPayload: connectorPayload => connectorPayloadCommo
   }
 }
 
-// v2 to commmon type mappers
+// v2 to common type mappers
 
 let paymentMethodsTypesMapperV2: paymentMethodConfigTypeV2 => paymentMethodConfigTypeCommon = paymentMethodsTypes => {
   {
@@ -335,7 +335,8 @@ let filter = (connectorType, ~retainInList) => {
   | (PMAuthProcessor, PMAuthProcessor)
   | (TaxProcessor, TaxProcessor)
   | (BillingProcessor, BillingProcessor)
-  | (VaultProcessor, VaultProcessor) => true
+  | (VaultProcessor, VaultProcessor)
+  | (SurchargeProcessor, SurchargeProcessor) => true
   | _ => false
   }
 }

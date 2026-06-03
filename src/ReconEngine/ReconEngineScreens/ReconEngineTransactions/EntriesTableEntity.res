@@ -13,6 +13,7 @@ type entryColType =
   | CreatedAt
   | EffectiveAt
   | OrderID
+  | Actions
 
 let defaultColumns: array<entryColType> = [
   EntryId,
@@ -53,6 +54,18 @@ let detailsFields = [
   EffectiveAt,
 ]
 
+let transactionEntriesDetailFields = [
+  EntryType,
+  Amount,
+  Currency,
+  Status,
+  EntryId,
+  OrderID,
+  EffectiveAt,
+  CreatedAt,
+  Actions,
+]
+
 let getHeading = (colType: entryColType) => {
   switch colType {
   | EntryId => Table.makeHeaderInfo(~key="entry_id", ~title="Entry ID")
@@ -66,6 +79,7 @@ let getHeading = (colType: entryColType) => {
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
   | EffectiveAt => Table.makeHeaderInfo(~key="effective_at", ~title="Effective At")
   | OrderID => Table.makeHeaderInfo(~key="order_id", ~title="Order ID")
+  | Actions => Table.makeHeaderInfo(~key="actions", ~title="Actions")
   }
 }
 
@@ -73,12 +87,14 @@ let getStatusLabel = (entryStatus: entryStatus): Table.cell => {
   Table.Label({
     title: (entryStatus :> string)->String.toUpperCase,
     color: switch entryStatus {
-    | Posted => LabelGreen
+    | Posted
+    | Matched =>
+      LabelGreen
     | Mismatched => LabelRed
     | Expected => LabelBlue
     | Archived => LabelGray
     | Pending => LabelOrange
-    | _ => LabelLightGray
+    | Void | UnknownEntryStatus => LabelLightGray
     },
   })
 }
@@ -87,7 +103,7 @@ let getCell = (entry: entryType, colType: entryColType): Table.cell => {
   switch colType {
   | EntryId => Text(entry.entry_id)
   | EntryType => Text((entry.entry_type :> string)->LogicUtils.capitalizeString)
-  | AccountName => Text(entry.account_name)
+  | AccountName => EllipsisText(entry.account_name, "")
   | TransactionId => DisplayCopyCell(entry.transaction_id)
   | Amount => Text(Float.toString(entry.amount))
   | Currency => Text(entry.currency)
@@ -114,6 +130,7 @@ let getCell = (entry: entryType, colType: entryColType): Table.cell => {
       </>,
       "",
     )
+  | Actions => CustomCell(<ReconEngineTransactionEntriesActions entry />, "")
   }
 }
 
@@ -127,9 +144,9 @@ let entriesEntity = (path: string, ~authorization: CommonAuthTypes.authorization
     ~getCell,
     ~dataKey="entries",
     ~getShowLink={
-      connec => {
+      connectorObj => {
         GroupAccessUtils.linkForGetShowLinkViaAccess(
-          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connec.entry_id}`),
+          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connectorObj.entry_id}`),
           ~authorization,
         )
       }

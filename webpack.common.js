@@ -8,6 +8,8 @@ const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 
 module.exports = () => {
   const isDevelopment = process.env.NODE_ENV !== "production";
+  const checkCoverage = process.env.CHECK_COVERAGE === "true";
+
   let entryObj = {
     app: `./src/entryPoints/HyperSwitchEntry.res.js`,
   };
@@ -39,15 +41,19 @@ module.exports = () => {
           test: /\.ttf$/,
           use: ["file-loader"],
         },
-        {
-          test: /\.js$/,
-          use: {
-            loader: "@jsdevtools/coverage-istanbul-loader",
-            options: { esModules: true },
-          },
-          enforce: "post",
-          exclude: /node_modules|\.spec\.js$/,
-        },
+        ...(checkCoverage
+          ? [
+              {
+                test: /\.js$/,
+                use: {
+                  loader: "@jsdevtools/coverage-istanbul-loader",
+                  options: { esModules: true },
+                },
+                enforce: "post",
+                exclude: /node_modules|\.spec\.js$/,
+              },
+            ]
+          : []),
         {
           test: /\.(woff|woff2|eot|ttf|otf)$/, // Fonts
           use: [

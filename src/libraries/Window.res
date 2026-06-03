@@ -8,6 +8,12 @@ type event = {data: string}
 external parent: 't = "parent"
 
 @val @scope("window")
+external self: 't = "self"
+
+@val @scope("window")
+external top: 't = "top"
+
+@val @scope("window")
 external addEventListener: (string, listener<'ev>) => unit = "addEventListener"
 
 @val @scope("window")
@@ -105,6 +111,9 @@ external getTaxProcessorConfig: string => JSON.t = "getTaxProcessorConfig"
 
 @val @scope("window")
 external getBillingConnectorConfig: string => JSON.t = "getBillingConnectorConfig"
+
+@val @scope("window")
+external getSurchargeProcessorConfig: string => JSON.t = "getSurchargeProcessorConfig"
 
 @val @scope("window")
 external getAllPayoutKeys: unit => array<string> = "getAllPayoutKeys"

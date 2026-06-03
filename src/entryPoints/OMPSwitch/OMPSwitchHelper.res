@@ -1,4 +1,6 @@
 open Typography
+open LogicUtils
+open OMPSwitchUtils
 
 module PlatformMerchantModalContent = {
   @react.component
@@ -113,8 +115,7 @@ module ListBaseComp = {
               </RenderIf>
             </div>
             <ToolTip
-              description="Organisation Chart"
-              customStyle="!whitespace-nowrap"
+              description="Organization Chart"
               toolTipFor={<button
                 className={`${backgroundColor.sidebarNormal} border ${borderColor} w-5 h-5 rounded-md flex items-center justify-center`}
                 onClick={ev => {
@@ -193,9 +194,6 @@ module AddNewOMPButton = {
       authorization={hasOMPCreateAccess}
       noAccessDescription="You do not have the required permissions for this action. Please contact your admin."
       onClick={_ => setShowModal(_ => true)}
-      isRelative=false
-      contentAlign=Default
-      tooltipForWidthClass="!h-full"
       className={`${cursorStyles} ${customPadding} ${addItemBtnStyle}`}
       showTooltip={hasOMPCreateAccess == Access}>
       {<>
@@ -213,16 +211,15 @@ module OMPViewBaseComp = {
   @react.component
   let make = (~displayName, ~arrow, ~disabled, ~customLabel="View data for:") => {
     let arrowClass = arrow
-      ? "rotate-180 transition duration-[250ms] opacity-70"
-      : "rotate-0 transition duration-[250ms] opacity-70"
+      ? "rotate-180 transition duration-[250ms]"
+      : "rotate-0 transition duration-[250ms]"
 
     let containerClass = disabled
-      ? "p-0.5 !bg-nd_gray-50 !text-nd_gray-400 cursor-not-allowed border-nd_br_gray-200"
-      : "cursor-pointer p-0.5 border-nd_br_gray-400"
+      ? "!bg-nd_gray-50 cursor-not-allowed border-nd_br_gray-200"
+      : "cursor-pointer border-nd_br_gray-400"
 
     let textClass = disabled ? "text-nd_gray-400" : "text-nd_gray-600"
-
-    let displayNameClass = disabled ? "text-nowrap text-nd_gray-400" : "text-nowrap text-primary"
+    let displayNameClass = disabled ? "text-nd_gray-400" : "text-primary"
 
     let truncatedDisplayName = if displayName->String.length > 15 {
       <HelperComponents.EllipsisText
@@ -232,16 +229,12 @@ module OMPViewBaseComp = {
       {displayName->React.string}
     }
 
-    <div className={`flex items-center border rounded-lg text-sm font-medium ${containerClass}`}>
-      <div className="flex flex-col items-start">
-        <div className="text-left flex items-center gap-1 p-2">
-          <Icon name="settings-new" size=18 className={textClass} />
-          <p className={`sm:block hidden fs-10 ${textClass} overflow-scroll text-nowrap`}>
-            {customLabel->React.string}
-          </p>
-          <span className={displayNameClass}> {truncatedDisplayName} </span>
-          <Icon className={`${arrowClass} ml-1`} name="angle-up" size=15 />
-        </div>
+    <div className={`flex items-center border rounded-lg ${containerClass}`}>
+      <div className={`flex items-center gap-2 p-2 ${body.md.medium}`}>
+        <Icon name="settings-new" size=18 className={textClass} />
+        <span className={`sm:block hidden ${textClass}`}> {customLabel->React.string} </span>
+        <span className={`text-nowrap ${displayNameClass}`}> {truncatedDisplayName} </span>
+        <Icon name="nd-angle-down" size=12 className={`${arrowClass} ${textClass}`} />
       </div>
     </div>
   }
@@ -254,7 +247,7 @@ let generateDropdownOptionsOMPViews = (dropdownList: OMPSwitchTypes.ompViews, ge
     {
       label: `${item.entity->getNameForId}`,
       value: `${(item.entity :> string)}`,
-      labelDescription: `(${item.lable})`,
+      labelDescription: `(${item.label})`,
       description: `${item.entity->getNameForId}`,
     }
   })
@@ -272,16 +265,21 @@ module OMPViewsComp = {
     ~customLabel="View data for:",
   ) => {
     let (arrow, setArrow) = React.useState(_ => false)
+    let isInitialMount = React.useRef(true)
 
     let toggleChevronState = () => {
-      setArrow(prev => !prev)
+      if isInitialMount.current {
+        isInitialMount.current = false
+      } else {
+        setArrow(prev => !prev)
+      }
     }
 
     let customScrollStyle = "md:max-h-72 md:overflow-scroll md:px-1 md:pt-1"
     let dropdownContainerStyle = "rounded-lg border md:w-full md:shadow-md"
 
     <div className="flex h-fit rounded-lg hover:bg-opacity-80">
-      <SelectBox.BaseDropdown
+      <SelectBoxAdapter.BaseDropdown
         allowMultiSelect=false
         buttonText=""
         input
@@ -345,7 +343,6 @@ module OMPViews = {
 module MerchantDropdownItem = {
   @react.component
   let make = (~merchantName, ~productType, ~index: int, ~currentId, ~switchMerch) => {
-    open LogicUtils
     open APIUtils
     open ProductUtils
     let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
@@ -373,13 +370,12 @@ module MerchantDropdownItem = {
     let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
 
     let leftIcon = if isActive && !isUnderEdit {
-      <Icon name="nd-check" className={`${leftIconCss} ${secondaryTextColor}`} />
+      <Icon name="nd-check" size=14 className={`${leftIconCss} ${secondaryTextColor}`} />
     } else if isActive && isUnderEdit {
       React.null
     } else if !isActive && !isUnderEdit {
       <ToolTip
         description={productType->getProductDisplayName}
-        customStyle="!whitespace-nowrap"
         toolTipFor={<Icon
           name={productType->ProductUtils.productTypeIconMapper}
           className={`${secondaryTextColor} opacity-50`}
@@ -393,22 +389,11 @@ module MerchantDropdownItem = {
 
     let validateInput = (merchantName: string) => {
       let errors = Dict.make()
-      let regexForMerchantName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
-      let isDuplicate =
-        merchantList->Array.some(merchant =>
-          merchant.name->String.toLowerCase == merchantName->String.toLowerCase
-        )
-      let errorMessage = if merchantName->isEmptyString {
-        "Merchant name cannot be empty"
-      } else if merchantName->String.length > 64 {
-        "Merchant name cannot exceed 64 characters"
-      } else if !RegExp.test(RegExp.fromString(regexForMerchantName), merchantName) {
-        "Merchant name should not contain special characters"
-      } else if isDuplicate {
-        "Merchant with this name already exists"
-      } else {
-        ""
-      }
+      let errorMessage = validateOmpName(
+        ~name=merchantName,
+        ~list=merchantList,
+        ~entityLabel="Merchant",
+      )
       if errorMessage->isNonEmptyString {
         Dict.set(errors, "merchant_name", errorMessage->JSON.Encode.string)
       }
@@ -475,7 +460,6 @@ module MerchantDropdownItem = {
           customInputStyle={`!py-0 ${secondaryTextColor}`}
           customIconComponent={<ToolTip
             description="Copy Merchant ID"
-            customStyle="!whitespace-nowrap"
             toolTipFor={<div className="cursor-pointer">
               <HelperComponents.CopyTextCustomComp
                 customIconCss={`${secondaryTextColor}`}
@@ -499,7 +483,6 @@ module MerchantDropdownItem = {
 module ProfileDropdownItem = {
   @react.component
   let make = (~profileName, ~index: int, ~currentId, ~profileSwitch) => {
-    open LogicUtils
     open APIUtils
     let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
     let handleIdUnderEdit = (selectedEditId: option<int>) => {
@@ -514,44 +497,68 @@ module ProfileDropdownItem = {
     ).getCommonSessionDetails()
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
-    let (_, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
+    let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
     let isMobileView = MatchMedia.useMobileChecker()
     let isActive = currentId == profileId
     let setBusinessProfileRecoil =
       HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-    let getProfileList = async () => {
+
+    let getProfileListV1 = async () => {
       try {
-        let response = switch version {
-        | V1 => {
-            let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
-            await fetchDetails(url)
-          }
-        | V2 => {
-            let url = getURL(~entityName=V2(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
-            await fetchDetails(url, ~version=V2)
-          }
-        }
-        setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
+        let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+        let response = await fetchDetails(url)
+        setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
       } catch {
       | _ => {
-          setProfileList(_ => [OMPSwitchUtils.ompDefaultValue(profileId, "")])
+          setProfileList(_ => [ompDefaultValue(profileId, "")])
           showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
         }
       }
     }
-    let validateInput = (profileName: string) => {
-      let errors = Dict.make()
-      let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
-      let errorMessage = if profileName->isEmptyString {
-        "Profile name cannot be empty"
-      } else if profileName->String.length > 64 {
-        "Profile name cannot exceed 64 characters"
-      } else if !RegExp.test(RegExp.fromString(regexForProfileName), profileName) {
-        "Profile name should not contain special characters"
-      } else {
-        ""
+
+    let getProfileListV2 = async () => {
+      try {
+        let url = getURL(~entityName=V2(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+        let response = await fetchDetails(url, ~version=V2)
+        setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
+      } catch {
+      | _ => {
+          setProfileList(_ => [ompDefaultValue(profileId, "")])
+          showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
+        }
       }
+    }
+
+    let updateProfileNameV1 = async (~body) => {
+      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
+      let response = await updateDetails(url, body, Post)
+      setBusinessProfileRecoil(_ =>
+        response->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
+      )
+    }
+
+    let updateProfileNameV2 = async (~body) => {
+      let url = getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Put, ~id=Some(profileId))
+      let response = await updateDetails(url, body, Put, ~version=V2)
+      setBusinessProfileRecoil(_ =>
+        response->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
+      )
+    }
+
+    let getProfileList = async () => {
+      switch version {
+      | V1 => await getProfileListV1()
+      | V2 => await getProfileListV2()
+      }
+    }
+    let validateInput = (newProfileName: string) => {
+      let errors = Dict.make()
+      let errorMessage = validateOmpName(
+        ~name=newProfileName,
+        ~list=profileList,
+        ~entityLabel="Profile",
+      )
       if errorMessage->isNonEmptyString {
         Dict.set(errors, "profile_name", errorMessage->JSON.Encode.string)
       }
@@ -567,15 +574,10 @@ module ProfileDropdownItem = {
     let onSubmit = async (newProfileName: string) => {
       try {
         let body = [("profile_name", newProfileName->JSON.Encode.string)]->getJsonFromArrayOfJson
-        let accountUrl = getURL(
-          ~entityName=V1(BUSINESS_PROFILE),
-          ~methodType=Post,
-          ~id=Some(profileId),
-        )
-        let res = await updateDetails(accountUrl, body, Post)
-        setBusinessProfileRecoil(_ =>
-          res->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
-        )
+        switch version {
+        | V1 => await updateProfileNameV1(~body)
+        | V2 => await updateProfileNameV2(~body)
+        }
         let _ = await getProfileList()
         showToast(~message="Updated Profile name!", ~toastType=ToastSuccess)
       } catch {
@@ -601,8 +603,7 @@ module ProfileDropdownItem = {
           hasAnyGroupAccess(
             userHasAccess(~groupAccess=MerchantDetailsManage),
             userHasAccess(~groupAccess=AccountManage),
-          ) === Access &&
-          version == V1}
+          ) === Access}
           showEditIconOnHover={!isMobileView}
           onSubmit
           labelTextCustomStyle={` truncate max-w-28  ${isActive ? " text-nd_gray-700" : ""}`}
@@ -610,7 +611,6 @@ module ProfileDropdownItem = {
           customInputStyle="!py-0 text-nd_gray-600"
           customIconComponent={<ToolTip
             description="Copy Profile ID"
-            customStyle="!whitespace-nowrap"
             toolTipFor={<div className="cursor-pointer">
               <HelperComponents.CopyTextCustomComp
                 displayValue=Some("") copyValue=Some(currentId) customIconCss="text-nd_gray-600"
@@ -642,7 +642,6 @@ let generateDropdownOptions: (
       icon: Button.CustomRightIcon(
         <ToolTip
           description={item.id}
-          customStyle="!whitespace-nowrap"
           toolTipFor={<div className="cursor-pointer">
             <HelperComponents.CopyTextCustomComp
               displayValue=Some("") copyValue=Some({item.id}) customIconCss
@@ -670,7 +669,6 @@ let generateDropdownOptionsCustomComponent: (
       icon: Button.CustomRightIcon(
         <ToolTip
           description={item.id}
-          customStyle="!whitespace-nowrap"
           toolTipFor={<div className="cursor-pointer">
             <HelperComponents.CopyTextCustomComp displayValue=Some("") copyValue=Some({item.id}) />
           </div>}
@@ -679,7 +677,7 @@ let generateDropdownOptionsCustomComponent: (
       ),
       optGroup: {
         switch item.type_ {
-        | Some(val) => val->OMPSwitchUtils.ompTypeHeading->String.toUpperCase
+        | Some(val) => val->ompTypeHeading->String.toUpperCase
         | None => ""
         }
       },
@@ -692,7 +690,6 @@ let generateDropdownOptionsCustomComponent: (
       icon: Button.CustomRightIcon(
         <ToolTip
           description={item.id}
-          customStyle="!whitespace-nowrap"
           toolTipFor={<div className="cursor-pointer">
             <HelperComponents.CopyTextCustomComp displayValue=Some("") copyValue=Some({item.id}) />
           </div>}
@@ -704,3 +701,76 @@ let generateDropdownOptionsCustomComponent: (
   })
   options
 }
+
+module MerchantTypeCard = {
+  @react.component
+  let make = (~header, ~subtext, ~description, ~isSelected, ~onClick) => {
+    let ringClass = isSelected
+      ? "border-blue-811 ring-blue-811/20 ring-offset-0 ring-2"
+      : "ring-grey-outline"
+
+    <div
+      className={`flex items-center gap-x-2.5 border ${ringClass} rounded-lg p-4 transition-shadow  cursor-pointer justify-between`}
+      onClick>
+      <div className="flex items-center gap-x-2.5">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <h3 className={`text-nd_gray-700 ${body.md.medium}`}> {header->React.string} </h3>
+            <ToolTip
+              description toolTipFor={<Icon size=14 name="nd-info-circle" />} toolTipPosition=Right
+            />
+          </div>
+          <p className={`text-nd_gray-400 ${body.md.regular}`}> {subtext->React.string} </p>
+        </div>
+      </div>
+      <Icon name={isSelected ? "blue-circle" : "hollow-circle"} customHeight="20" />
+    </div>
+  }
+}
+
+let merchantName = FormRenderer.makeFieldInfo(
+  ~label="Merchant Name",
+  ~name="company_name",
+  ~customInput=(~input, ~placeholder as _) =>
+    InputFields.textInput()(
+      ~input={
+        ...input,
+        onChange: event =>
+          ReactEvent.Form.target(event)["value"]
+          ->String.trimStart
+          ->Identity.stringToFormReactEvent
+          ->input.onChange,
+      },
+      ~placeholder="Eg: My New Merchant",
+    ),
+  ~isRequired=true,
+)
+
+let merchantTypeCardInput = {
+  (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
+    let currentValue = input.value->getStringFromJson("")
+    <div className="flex flex-col gap-3 w-full">
+      {merchantTypeOptions
+      ->Array.map(item => {
+        let valueStr = item.value
+        let isSelected = currentValue == valueStr
+        <MerchantTypeCard
+          key={valueStr}
+          header={item.label}
+          subtext={item.labelDescription->Option.getOr("")}
+          description={item.description->Option.getOr("")}
+          isSelected
+          onClick={_ => input.onChange(valueStr->JSON.Encode.string->Identity.anyTypeToReactEvent)}
+        />
+      })
+      ->React.array}
+    </div>
+  }
+}
+
+let merchantTypeField = FormRenderer.makeFieldInfo(
+  ~name="merchant_account_type",
+  ~label="Merchant Type",
+  ~isRequired=true,
+  ~customInput=merchantTypeCardInput,
+)

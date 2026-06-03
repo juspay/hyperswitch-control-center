@@ -85,7 +85,7 @@ let make = (
   let keyValueFromForm = formState.values->getDictFromJsonObject->getString(formKey, "")
 
   let getNameByLabel = value => {
-    let filteredValueFromForm = options->Array.find(v => v.value === value)
+    let filteredValueFromForm = options->Array.find(opt => opt.value === value)
     switch filteredValueFromForm {
     | Some(value) => value.label->snakeToTitle
     | None => "Select a role"
@@ -114,7 +114,7 @@ let make = (
               </RenderIf>
             </div>
             <div
-              className="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"
+              className="relative inline-flex items-center whitespace-pre leading-5 justify-between text-sm py-2 px-3 font-medium rounded-lg hover:bg-opacity-80 bg-white border w-full"
               onClick={_ => {
                 refDropdownState.contents = !refDropdownState.contents
                 if refDropdownState.contents {
@@ -122,15 +122,15 @@ let make = (
                 }
               }}>
               <span
-                className="px-1 text-fs-13 text-sm font-medium leading-5  whitespace-pre !text-gray-500">
+                className="px-1 text-fs-13 text-sm font-medium leading-5 truncate !text-gray-500">
                 {buttonValue->React.string}
               </span>
               <Icon
-                className={`transition duration-[250ms] ml-1 mt-1 opacity-60 ${arrow
-                    ? "rotate-0"
-                    : "rotate-180"}`}
-                name="arrow-without-tail"
-                size=15
+                className={`transition duration-[250ms] ml-1 opacity-60 ${arrow
+                    ? "rotate-180"
+                    : "rotate-0"}`}
+                name="nd-angle-down"
+                size=12
               />
             </div>
           </div>

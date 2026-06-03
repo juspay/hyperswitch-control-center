@@ -87,7 +87,7 @@ let getHeading = colType => {
   | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code")
   | ErrorMessage => Table.makeHeaderInfo(~key="error_message", ~title="Error Message")
   | RefundStatus => Table.makeHeaderInfo(~key="status", ~title="Refund Status", ~dataType=DropDown)
-  | MetaData => Table.makeHeaderInfo(~key="metaData", ~title="MetaData", ~dataType=DropDown)
+  | MetaData => Table.makeHeaderInfo(~key="metaData", ~title="Metadata", ~dataType=DropDown)
   | ConnectorName => Table.makeHeaderInfo(~key="connector", ~title="Connector")
   }
 }
@@ -121,6 +121,7 @@ let getCell = (refundData, colType, merchantId, orgId): Table.cell => {
         url={`/refunds/${refundData.refund_id}/${refundData.profile_id}/${merchantId}/${orgId}`}
         displayValue={refundData.refund_id}
         copyValue={Some(refundData.refund_id)}
+        endValue={idCellEndValue}
       />,
       "",
     )

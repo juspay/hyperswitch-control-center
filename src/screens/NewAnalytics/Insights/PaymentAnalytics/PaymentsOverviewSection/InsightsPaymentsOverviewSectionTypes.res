@@ -4,6 +4,7 @@ type overviewColumns =
   | Total_Payment_Processed_Amount
   | Total_Refund_Processed_Amount
   | Total_Dispute
+  | Total_Authorised_Uncaptured_Count
 
 type responseKeys = [
   | #total_smart_retried_amount
@@ -19,6 +20,7 @@ type responseKeys = [
   | #total_refund_processed_amount
   | #total_refund_processed_amount_in_usd
   | #total_dispute
+  | #total_authorised_uncaptured_count
 ]
 
 type dataObj = {
@@ -27,4 +29,5 @@ type dataObj = {
   total_payment_processed_amount: float,
   total_refund_processed_amount: float,
   total_dispute: int,
+  total_authorised_uncaptured_count: int,
 }

@@ -16,6 +16,7 @@ let make = () => {
   let (filters, _setFilters) = React.useState(_ => None)
   let (searchText, _setSearchText) = React.useState(_ => "")
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ => [])
+  let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let setData = (total, data) => {
     let arr = Array.make(~length=offset, Dict.make()->RevenueRecoveryEntity.itemToObjMapper)
@@ -116,6 +117,9 @@ let make = () => {
     <div className={`flex flex-col mx-auto h-full w-full min-h-[50vh]`}>
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="List of Invoices" customTitleStyle="py-0 !pt-0" />
+        <RenderIf condition={generateReport && email && revenueRecoveryData->Array.length > 0}>
+          <GenerateReport entityName={V2(REVENUE_RECOVERY_REPORT)} />
+        </RenderIf>
       </div>
       <PageLoaderWrapper screenState>
         <LoadedTableWithCustomColumns
@@ -127,7 +131,7 @@ let make = () => {
           totalResults={totalCount}
           offset
           setOffset
-          currrentFetchCount={revenueRecoveryData->Array.length}
+          currentFetchCount={revenueRecoveryData->Array.length}
           customColumnMapper=TableAtoms.revenueRecoveryMapDefaultCols
           defaultColumns={RevenueRecoveryEntity.defaultColumns}
           showSerialNumberInCustomizeColumns=false

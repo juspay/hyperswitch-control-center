@@ -52,6 +52,7 @@ module ConnectorCurrentStepIndicator = {
   }
 }
 
+// TODO: Remove this module - replaced by ConnectorPreviewHelper.EnableDisableConnectorToggle
 module MenuOption = {
   open HeadlessUI
   @react.component
@@ -165,42 +166,35 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
     }
   }
 
-  let connectorStatusStyle = connectorStatus =>
-    switch connectorStatus {
-    | true => "border bg-red-600 bg-opacity-40 border-red-400 text-red-500"
-    | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-700"
-    }
-
   let isConnectorDisabled = connectorInfo.disabled
 
-  let disableConnector = async isConnectorDisabled => {
+  let disableConnector = async currentIsDisabled => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let connectorID = connectorInfo.merchant_connector_id
+      let mcaId = connectorInfo.merchant_connector_id
       let disableConnectorPayload = getDisableConnectorPayload(
         connectorInfo.connector_type->connectorTypeTypedValueToStringMapper,
-        isConnectorDisabled,
+        currentIsDisabled,
       )
 
-      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
-      let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(mcaId))
+      let res = await updateDetails(url, disableConnectorPayload, Post)
       setInitialValues(_ => res)
       let _ = await fetchConnectorListResponse()
       setScreenState(_ => PageLoaderWrapper.Success)
       showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
     } catch {
-    | Exn.Error(_) => showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
+    | Exn.Error(_) => {
+        showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     }
   }
 
   let summaryPageButton = switch currentStep {
   | Preview =>
     <div className="flex gap-6 items-center">
-      <div
-        className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
-        {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
-      </div>
-      <MenuOption disableConnector isConnectorDisabled />
+      <ConnectorPreviewHelper.EnableDisableConnectorToggle disableConnector isConnectorDisabled />
     </div>
   | _ =>
     <Button
@@ -239,7 +233,6 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           currentPageTitle={connector->ConnectorUtils.getDisplayNameForConnector(
             ~connectorType=PayoutProcessor,
           )}
-          cursorStyle="cursor-pointer"
         />
       </RenderIf>
       <RenderIf condition={currentStep !== Preview && showStepIndicator}>
@@ -247,11 +240,10 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
       </RenderIf>
       <RenderIf
         condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>
-        <HSwitchUtils.AlertBanner
-          bannerContent={<p>
-            {"This is a test connector and will not be reflected on your payment processor dashboard."->React.string}
-          </p>}
-          bannerType=Warning
+        <AlertV2Binding
+          alertType=Warning
+          slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
+          description="This is a test connector and will not be reflected on your payment processor dashboard."
         />
       </RenderIf>
       <div

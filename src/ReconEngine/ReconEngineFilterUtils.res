@@ -74,8 +74,9 @@ let getTransactionStatusGroupedValueAndLabel = (status: domainTransactionStatus)
   string,
 ) => {
   switch status {
-  | Posted(Auto) => ("posted_auto", "Reconciled (Auto)", "Reconciled")
-  | Posted(Manual) => ("posted_manual", "Reconciled (Manual)", "Reconciled")
+  | Posted(Manual) => ("posted_manual", "Posted (Manual)", "Posted")
+  | Matched(Auto) => ("matched_auto", "Matched (Auto)", "Matched")
+  | Matched(Manual) => ("matched_manual", "Matched (Manual)", "Matched")
   | OverAmount(Expected) => (
       "over_amount_expected",
       "Positive Variance (Awaiting Match)",
@@ -97,20 +98,51 @@ let getTransactionStatusGroupedValueAndLabel = (status: domainTransactionStatus)
       "Negative Variance",
     )
   | DataMismatch => ("data_mismatch", "Data Mismatch", "Others")
-  | PartiallyReconciled => ("partially_reconciled", "Partially Reconciled", "Others")
+  | PartiallyReconciled => ("partially_reconciled", "Partially Matched", "Others")
+  | Missing => ("missing", "Missing", "Others")
   | Expected => ("expected", "Expected", "Others")
   | Void => ("void", "Void", "Others")
-  | _ => ("", "", "")
+  | Matched(Force) => ("matched_force", "", "")
+  | Archived
+  | Matched(UnknownDomainTransactionMatchedStatus)
+  | Posted(UnknownDomainTransactionPostedStatus)
+  | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
+  | UnderAmount(UnknownDomainTransactionAmountMismatchStatus)
+  | UnknownDomainTransactionStatus => ("", "", "")
   }
 }
 
-let getMergedPostedTransactionStatusFilter = statusFilter => {
-  if statusFilter->Array.some(v => v->getStringFromJson("") == "posted_manual") {
-    if !(statusFilter->Array.some(v => v->getStringFromJson("") == "posted_force")) {
-      [...statusFilter, "posted_force"->JSON.Encode.string]
-    } else {
-      statusFilter
-    }
+let getProcessingEntryStatusValueAndLabel = (status: processingEntryStatus): (string, string) => {
+  let value: string = (status :> string)->camelToSnake
+  let label = (status :> string)->snakeToTitle
+  (value, label)
+}
+
+let getProcessingEntryStatusValueFromStatusList = (statusList: array<processingEntryStatus>): array<
+  string,
+> => {
+  statusList->Array.map(status => {
+    let (value, _) = getProcessingEntryStatusValueAndLabel(status)
+    value
+  })
+}
+
+let getTransactionStatusValueFromStatusList = (statusList: array<domainTransactionStatus>): array<
+  string,
+> => {
+  statusList->Array.map(status => {
+    let (value, _, _) = getTransactionStatusGroupedValueAndLabel(status)
+    value
+  })
+}
+
+let getMergedMatchedTransactionStatusFilter = statusFilter => {
+  let (matchedManualValue, _, _) = getTransactionStatusGroupedValueAndLabel(Matched(Manual))
+  let (matchedForceValue, _, _) = getTransactionStatusGroupedValueAndLabel(Matched(Force))
+
+  let hasStatus = value => statusFilter->Array.some(v => v->getStringFromJson("") == value)
+  if hasStatus(matchedManualValue) && !hasStatus(matchedForceValue) {
+    [...statusFilter, matchedForceValue->JSON.Encode.string]
   } else {
     statusFilter
   }
@@ -134,8 +166,7 @@ let getStagingEntryStatusOptions = (statusList: array<processingEntryStatus>): a
   FilterSelectBox.dropdownOption,
 > => {
   statusList->Array.map(status => {
-    let value: string = (status :> string)->camelToSnake
-    let label = (status :> string)->camelCaseToTitle
+    let (value, label) = getProcessingEntryStatusValueAndLabel(status)
 
     {
       FilterSelectBox.label,

@@ -1,18 +1,16 @@
 open LogicUtils
-open ReconEngineOverviewTypes
 open ReconEngineTypes
-open ReconEngineAccountsUtils
+open ReconEngineDataUtils
 open ColumnGraphUtils
 open NewAnalyticsUtils
 open ReconEngineUtils
-open CurrencyFormatUtils
 
 // Color constants for ReconEngine graphs
 let mismatchedColor = "#EA8A8F"
 let expectedColor = "#8BC2F3"
-let postedColor = "#7AB891"
+let matchedColor = "#7AB891"
 let exceptionsVolumeColor = "#F39B8B"
-let reconciledVolumeColor = "#8BC2F3"
+let matchedVolumeColor = "#8BC2F3"
 
 // Flow diagram colors
 let highlightStrokeColor = "#3b82f6"
@@ -33,104 +31,36 @@ let getAccountNameAndCurrency = (accountData: array<accountType>, accountId: str
   (account.account_name, account.currency->isEmptyString ? "N/A" : account.currency)
 }
 
-let calculateAccountAmounts = (
-  transactionsData: array<ReconEngineTypes.transactionType>,
-  ~sourceAccountName: string,
-  ~sourceAccountCurrency: string,
-  ~targetAccountName: string,
-  ~targetAccountCurrency: string,
-) => {
-  let (
-    sourcePosted,
-    targetPosted,
-    sourceMismatched,
-    targetMismatched,
-    sourceExpected,
-    targetExpected,
-  ) = transactionsData->Array.reduce((0.0, 0.0, 0.0, 0.0, 0.0, 0.0), (
-    (sPosted, tPosted, sMismatched, tMismatched, sExpected, tExpected),
-    transaction,
-  ) => {
-    let creditAmount = transaction.credit_amount.value
-    let debitAmount = transaction.debit_amount.value
-
-    switch transaction.transaction_status {
-    | Posted(_) => (
-        sPosted +. creditAmount,
-        tPosted +. debitAmount,
-        sMismatched,
-        tMismatched,
-        sExpected,
-        tExpected,
-      )
-    | UnderAmount(Mismatch) | OverAmount(Mismatch) => (
-        sPosted,
-        tPosted,
-        sMismatched +. creditAmount,
-        tMismatched +. debitAmount,
-        sExpected,
-        tExpected,
-      )
-    | UnderAmount(Expected) | OverAmount(Expected) | Expected => (
-        sPosted,
-        tPosted,
-        sMismatched,
-        tMismatched,
-        sExpected +. creditAmount,
-        tExpected +. debitAmount,
-      )
-    | PartiallyReconciled => (
-        sPosted,
-        tPosted,
-        sMismatched,
-        tMismatched,
-        sExpected +. creditAmount,
-        tExpected +. debitAmount,
-      )
-    | _ => (sPosted, tPosted, sMismatched, tMismatched, sExpected, tExpected)
-    }
-  })
-
-  let totalSourceAmount = sourcePosted +. sourceMismatched +. sourceExpected
-  let totalTargetAmount = targetPosted +. targetMismatched
-  let variance = Math.abs(totalSourceAmount -. totalTargetAmount)
-
-  [
-    {
-      cardTitle: `Expectations from ${sourceAccountName}`,
-      cardValue: totalSourceAmount->valueFormatter(AmountWithSuffix, ~suffix=sourceAccountCurrency),
-    },
-    {
-      cardTitle: `Received by ${targetAccountName}`,
-      cardValue: totalTargetAmount->valueFormatter(AmountWithSuffix, ~suffix=targetAccountCurrency),
-    },
-    {
-      cardTitle: "Net Variance",
-      cardValue: variance->valueFormatter(AmountWithSuffix, ~suffix=sourceAccountCurrency),
-    },
-    {
-      cardTitle: `Missing in ${targetAccountName}`,
-      cardValue: targetExpected->valueFormatter(AmountWithSuffix, ~suffix=targetAccountCurrency),
-    },
-  ]
-}
-
 let calculateTransactionCounts = (transactionsData: array<ReconEngineTypes.transactionType>) => {
-  transactionsData->Array.reduce((0, 0, 0), ((posted, mismatched, expected), transaction) => {
+  transactionsData->Array.reduce((0, 0, 0), ((matched, mismatched, expected), transaction) => {
     switch transaction.transaction_status {
-    | Posted(_) => (posted + 1, mismatched, expected)
-    | UnderAmount(Mismatch) | OverAmount(Mismatch) => (posted, mismatched + 1, expected)
-    | Expected | UnderAmount(Expected) | OverAmount(Expected) | PartiallyReconciled => (
-        posted,
+    | Matched(Force) | Matched(Manual) | Matched(Auto) | Posted(Manual) => (
+        matched + 1,
+        mismatched,
+        expected,
+      )
+    | UnderAmount(Mismatch) | OverAmount(Mismatch) | DataMismatch => (
+        matched,
+        mismatched + 1,
+        expected,
+      )
+    | Expected | UnderAmount(Expected) | OverAmount(Expected) | PartiallyReconciled | Missing => (
+        matched,
         mismatched,
         expected + 1,
       )
-    | _ => (posted, mismatched, expected)
+    | Archived
+    | Void
+    | UnknownDomainTransactionStatus
+    | Matched(UnknownDomainTransactionMatchedStatus)
+    | Posted(UnknownDomainTransactionPostedStatus)
+    | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
+    | UnderAmount(UnknownDomainTransactionAmountMismatchStatus) => (matched, mismatched, expected)
     }
   })
 }
 
-let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expectedCount: int) => {
+let getStackedBarGraphData = (~matchedCount: int, ~mismatchedCount: int, ~expectedCount: int) => {
   {
     StackedBarGraphTypes.categories: ["Transactions"],
     data: [
@@ -145,9 +75,9 @@ let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expecte
         color: expectedColor,
       },
       {
-        name: "Reconciled",
-        data: [postedCount->Int.toFloat],
-        color: postedColor,
+        name: "Matched",
+        data: [matchedCount->Int.toFloat],
+        color: matchedColor,
       },
     ],
     labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(~statType=Default),
@@ -286,8 +216,9 @@ let createColumnGraphCountPayload = (
 
 let initialDisplayFilters = () => {
   let statusOptions = ReconEngineFilterUtils.getGroupedTransactionStatusOptions([
-    Posted(Auto),
     Posted(Manual),
+    Matched(Auto),
+    Matched(Manual),
     OverAmount(Mismatch),
     OverAmount(Expected),
     UnderAmount(Mismatch),
@@ -295,6 +226,7 @@ let initialDisplayFilters = () => {
     DataMismatch,
     PartiallyReconciled,
     Expected,
+    Missing,
     Void,
   ])
   [
@@ -318,4 +250,41 @@ let initialDisplayFilters = () => {
       }: EntityType.initialFilters<'t>
     ),
   ]
+}
+
+let seriesTypeFromString = (str: string): ReconEngineOverviewSummaryTypes.seriesType => {
+  switch str->String.toLowerCase {
+  | "matched" => ReconciledSeriesType
+  | "mismatched" => MismatchedSeriesType
+  | "expected" => ExpectedSeriesType
+  | _ => UnknownSeriesType
+  }
+}
+
+let getStatusFilter = (seriesType: ReconEngineOverviewSummaryTypes.seriesType): string => {
+  switch seriesType {
+  | ReconciledSeriesType => "matched_auto,matched_manual,matched_force,posted_manual"
+  | MismatchedSeriesType => "over_amount_mismatch,under_amount_mismatch"
+  | ExpectedSeriesType => "expected,over_amount_expected,under_amount_expected,partially_reconciled"
+  | UnknownSeriesType => ""
+  }
+}
+
+let handleBarClick = (~rule: ReconEngineRulesTypes.rulePayload, seriesName: string) => {
+  let seriesType = seriesName->seriesTypeFromString
+  let statusFilter = seriesType->getStatusFilter
+  if statusFilter->isNonEmptyString {
+    switch seriesType {
+    | MismatchedSeriesType | ExpectedSeriesType => {
+        let filterQueryString = `rule_id=${rule.rule_id}&status=${statusFilter}`
+        RescriptReactRouter.push(
+          GlobalVars.appendDashboardPath(
+            ~url=`/v1/recon-engine/exceptions/recon?${filterQueryString}`,
+          ),
+        )
+      }
+    | ReconciledSeriesType
+    | UnknownSeriesType => ()
+    }
+  }
 }

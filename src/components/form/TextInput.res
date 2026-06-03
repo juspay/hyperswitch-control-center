@@ -178,7 +178,7 @@ let make = (
   | _ => ""
   }
 
-  let passwordVisiblity = _ => {
+  let passwordVisibility = _ => {
     setShowPassword(prev => !prev)
   }
 
@@ -267,7 +267,7 @@ let make = (
           ?form
         />
         {if type_ !== "password_without_icon" {
-          <div className="cursor-pointer select-none -ml-8" onClick={passwordVisiblity}>
+          <div className="cursor-pointer select-none -ml-8" onClick={passwordVisibility}>
             <Icon name=eyeIcon size=eyeIconSize className=eyeClassName />
           </div>
         } else {
@@ -310,7 +310,6 @@ let make = (
           ? <ToolTip
               description
               toolTipPosition=Right
-              height="h-min"
               toolTipFor={<div className="cursor-pointer select-none -ml-8">
                 <Icon name="new-question-circle" size=16 className="stroke-jp-2-light-gray-1000" />
               </div>}

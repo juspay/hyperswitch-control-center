@@ -32,6 +32,7 @@ type metrics = [
   | #payments_distribution
   | #payment_success_rate
   | #failure_reasons
+  | #sessionized_payment_intent_count
   | // Refunds
   #sessionized_refund_processed_amount
   | #sessionized_refund_success_count

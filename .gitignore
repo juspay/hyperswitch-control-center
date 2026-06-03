@@ -15,13 +15,29 @@ lib/
 /public/env-config.js
 env-config.js
 yarn.lock
-#package-lock.json
 user_data.sh
 *.pem
 .bsb.lock
-package-lock.json
+.opencode/package-lock.json
 screenshots
 downloads
 .env
 .nyc_output
 coverage
+.worktree/
+.sisyphus/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+
+# Playwright test generation working directory
+.opencode/playwright-run/
+
+# Coverage / monocart test reports (regenerated in CI, uploaded as artifact)
+/coverage-report/
+/monocart-report/
+/assets/

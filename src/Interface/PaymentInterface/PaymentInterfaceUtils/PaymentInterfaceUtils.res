@@ -1,6 +1,18 @@
 open LogicUtils
 open PaymentInterfaceTypes
 
+let extractPaymentMethodDetails = (paymentMethodData, ~paymentMethod) => {
+  let pmd = paymentMethodData->getDictFromJsonObject
+  switch paymentMethod->ConnectorUtils.getPaymentMethodFromString {
+  | Wallet =>
+    pmd
+    ->getDictfromDict("wallet")
+    ->Dict.valuesToArray
+    ->getValueFromArray(0, JSON.Encode.null)
+  | _ => pmd->getJsonObjectFromDict(paymentMethod)
+  }
+}
+
 let concatAddressFromDict = (dict, keys) => {
   keys
   ->Array.map(key => dict->getString(key, ""))
@@ -29,6 +41,10 @@ let attemptsItemToObjMapper = dict => {
   reference_id: dict->getString("reference_id", ""),
   client_source: dict->getString("client_source", ""),
   client_version: dict->getString("client_version", ""),
+  hyperswitch_error_description: dict
+  ->getDictfromDict("error_details")
+  ->getDictfromDict("unified_details")
+  ->getString("description", ""),
 }
 
 let getAttempts: JSON.t => array<attempts> = json => {
@@ -103,6 +119,7 @@ let mapDictToPaymentPayload: dict<JSON.t> => PaymentInterfaceTypes.order = dict 
     amount_captured: dict->getFloat("amount_received", 0.0),
     client_secret: dict->getString("client_secret", ""),
     created_at: dict->getString("created", ""),
+    modified_at: dict->getString("modified_at", ""),
     currency: dict->getString("currency", ""),
     customer_id: dict->getString("customer_id", ""),
     description: dict->getString("description", ""),
@@ -114,8 +131,9 @@ let mapDictToPaymentPayload: dict<JSON.t> => PaymentInterfaceTypes.order = dict 
     payment_method_type: dict->getString("payment_method_type", ""),
     payment_method_data: {
       let paymentMethodData = dict->getJsonObjectFromDict("payment_method_data")
+      let paymentMethod = dict->getString("payment_method", "")
       switch paymentMethodData->JSON.Classify.classify {
-      | Object(value) => Some(value->getJsonObjectFromDict("card"))
+      | Object(_) => Some(extractPaymentMethodDetails(paymentMethodData, ~paymentMethod))
       | _ => None
       }
     },

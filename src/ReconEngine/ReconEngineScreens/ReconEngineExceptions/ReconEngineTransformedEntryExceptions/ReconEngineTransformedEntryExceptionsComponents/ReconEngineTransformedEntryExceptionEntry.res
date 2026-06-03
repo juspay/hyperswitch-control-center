@@ -26,8 +26,6 @@ let make = (
   ) = React.useState(_ => ShowTransformedEntryResolutionOptions(
     NoTransformedEntryResolutionOptionNeeded,
   ))
-  let (offset, setOffset) = React.useState(_ => 0)
-  let (resultsPerPage, setResultsPerPage) = React.useState(_ => 10)
   let (showConfirmationModal, setShowConfirmationModal) = React.useState(_ => false)
 
   let detailsFields = [
@@ -143,15 +141,10 @@ let make = (
       showScrollBar=true
       showOptions={exceptionStage == ResolvingTransformedEntry(EditTransformedEntry)}
       sections=tableSections
-      offset
-      setOffset
-      resultsPerPage
-      setResultsPerPage
-      totalResults=1
     />
     <RenderIf condition={exceptionStage == ConfirmTransformedEntryResolution(EditTransformedEntry)}>
       <div
-        className="flex flex-row items-center gap-3 absolute right-1/2 bottom-10 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl p-3">
+        className="flex flex-row items-center gap-3 fixed left-1/2 -translate-x-1/2 bottom-4 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl p-3">
         <div className="flex gap-3">
           <Button
             text="Discard"
@@ -218,7 +211,7 @@ let make = (
                 }}
               />
               <FormRenderer.SubmitButton
-                text="Save Changes" buttonType={Primary} customSumbitButtonStyle="!w-fit mt-4"
+                text="Save Changes" buttonType={Primary} customSubmitButtonStyle="!w-fit mt-4"
               />
             </div>
           </div>

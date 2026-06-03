@@ -49,15 +49,11 @@ module TabInfo = {
     ~setTabStacksnames,
     ~description="",
   ) => {
-    let fontClass = "font-inter-style"
-
-    let defaultThemeBasedClass = `${fontClass} px-6`
-
-    let defaultClasses = `font-semibold ${defaultThemeBasedClass} w-max flex flex-auto flex-row items-center justify-center text-body mb-1`
+    let defaultClasses = `${Typography.body.md.medium} px-2 w-max flex flex-auto flex-row items-center justify-center`
     let selectionClasses = if isSelected {
-      "font-semibold text-black"
+      "text-nd_gray-700"
     } else {
-      "text-jp-gray-700 dark:text-jp-gray-tabset_gray dark:text-opacity-75  hover:text-jp-gray-800 dark:hover:text-opacity-100 font-medium"
+      "text-nd_gray-500 hover:text-nd_gray-500"
     }
     let handleClick = React.useCallback(_ => {
       handleSelectedTab(
@@ -75,7 +71,7 @@ module TabInfo = {
     let bottomBorderColor = ""
     let borderClass = ""
 
-    let lineStyle = "bg-black w-full h-0.5 rounded-full"
+    let lineStyle = "bg-nd_gray-700 w-full h-0.5"
 
     let crossIcon = switch isRemovable {
     | true =>
@@ -151,16 +147,11 @@ module TabInfo = {
           crossIcon
         </div>
         <div />
-        <RenderIf condition={isSelected}>
-          <FramerMotion.Motion.Div className=lineStyle layoutId="underline" />
-        </RenderIf>
-        <RenderIf condition={!isSelected}>
-          <div className="w-full h-0.5 rounded-full" />
-        </RenderIf>
+        <div className={isSelected ? lineStyle : "w-full h-0.5"} />
       </div>
 
     <div
-      className={`flex flex-row cursor-pointer pt-0.5 pb-0 ${borderClass} ${bottomBorderColor} items-center h-14`}>
+      className={`flex flex-row cursor-pointer py-1.5 ${borderClass} ${bottomBorderColor} items-center`}>
       {tab}
     </div>
   }
@@ -216,16 +207,15 @@ let make = (
   ~tabId="",
   ~setActiveTab: string => unit,
   ~updateUrlDict=?,
-  ~initalTab: option<array<string>>=?,
+  ~initialTab: option<array<string>>=?,
   ~defaultTabs: option<array<tab>>=?,
   ~enableDescriptionHeader: bool=false,
   ~toolTipDescription="Add more tabs",
-  ~updateCollapsableTabs=false,
+  ~updateCollapsibleTabs=false,
   ~showAddMoreTabs=true,
 ) => {
   open LogicUtils
-  let eulerBgClass = "bg-jp-gray-100 dark:bg-jp-gray-darkgray_background"
-  let bgClass = eulerBgClass
+  let bgClass = "bg-jp-gray-100 dark:bg-jp-gray-darkgray_background"
   // this tabs will always loaded independent of user preference
   let isMobileView = MatchMedia.useMobileChecker()
   let defaultTabs =
@@ -234,7 +224,7 @@ let make = (
   let tabOuterClass = `gap-1.5`
   let bottomBorderClass = ""
 
-  let outerAllignmentClass = ""
+  let outerAlignmentClass = ""
 
   let availableTabUserPrefKey = `dynamicTab_available_tab_${tabId}`
   let updateTabNameWith = switch updateUrlDict {
@@ -259,17 +249,17 @@ let make = (
 
   let (selectedIndex, setSelectedIndex) = React.useState(_ => 0)
 
-  let (initialIndex, updatedCollapsableTabs) = React.useMemo(() => {
-    let defautTabValues = defaultTabs->Array.map(item => item.value)
+  let (initialIndex, updatedCollapsibleTabs) = React.useMemo(() => {
+    let defaultTabValues = defaultTabs->Array.map(item => item.value)
     let collapsibleTabs = switch getConfig(availableTabUserPrefKey) {
     | Some(jsonVal) => {
         let tabsFromPreference =
           jsonVal
-          ->getStrArryFromJson
-          ->Array.filter(item => !(defautTabValues->Array.includes(item)))
+          ->getStrArrayFromJson
+          ->Array.filter(item => !(defaultTabValues->Array.includes(item)))
 
         let tabsFromPreference =
-          Array.concat(defautTabValues, tabsFromPreference)->Array.map(item =>
+          Array.concat(defaultTabValues, tabsFromPreference)->Array.map(item =>
             item->String.split(",")
           )
 
@@ -280,10 +270,10 @@ let make = (
             ->Array.filter(item => !(tabs->Array.map(item => item.value)->Array.includes(item)))
             ->Array.length === 0
 
-          let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
+          let concatenatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
           if validated && tabName->Array.length <= maxSelection && tabName->Array.length > 0 {
             let newTab = {
-              title: concatinatedTabNames,
+              title: concatenatedTabNames,
               value: tabName->Array.joinWith(","),
               description: switch tabs->Array.find(
                 item => {
@@ -313,7 +303,7 @@ let make = (
 
     | None => defaultTabs
     }
-    let tabName = switch initalTab {
+    let tabName = switch initialTab {
     | Some(value) => value
     | None =>
       getTabNames->getStrArrayFromDict("tabName", [])->Array.filter(item => item->isNonEmptyString)
@@ -325,16 +315,16 @@ let make = (
       ->Array.filter(item => !(tabs->Array.map(item => item.value)->Array.includes(item)))
       ->Array.length === 0
 
-    let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
+    let concatenatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
 
     if validated && tabName->Array.length <= maxSelection && tabName->Array.length > 0 {
-      let concatinatedTabIndex =
-        collapsibleTabs->Array.map(item => item.title)->Array.indexOf(concatinatedTabNames)
+      let concatenatedTabIndex =
+        collapsibleTabs->Array.map(item => item.title)->Array.indexOf(concatenatedTabNames)
 
-      if concatinatedTabIndex === -1 {
+      if concatenatedTabIndex === -1 {
         let newTab = [
           {
-            title: concatinatedTabNames,
+            title: concatenatedTabNames,
             value: tabName->Array.joinWith(","),
             isRemovable: true,
           },
@@ -345,15 +335,15 @@ let make = (
 
         (Array.length(collapsibleTabs), updatedColllapsableTab)
       } else {
-        (concatinatedTabIndex, collapsibleTabs)
+        (concatenatedTabIndex, collapsibleTabs)
       }
     } else {
       setSelectedIndex(_ => 0)
       (0, collapsibleTabs)
     }
-  }, [updateCollapsableTabs])
+  }, [updateCollapsibleTabs])
 
-  let (collapsibleTabs, setCollapsibleTabs) = React.useState(_ => updatedCollapsableTabs)
+  let (collapsibleTabs, setCollapsibleTabs) = React.useState(_ => updatedCollapsibleTabs)
   let (formattedOptions, setFormattedOptions) = React.useState(_ => [])
 
   React.useEffect(_ => {
@@ -362,9 +352,9 @@ let make = (
   }, [initialIndex])
 
   React.useEffect(_ => {
-    setCollapsibleTabs(_ => updatedCollapsableTabs)
+    setCollapsibleTabs(_ => updatedCollapsibleTabs)
     None
-  }, [updatedCollapsableTabs])
+  }, [updatedCollapsibleTabs])
 
   // this will update the current available tabs to the userpreference
   React.useEffect(() => {
@@ -380,8 +370,8 @@ let make = (
     None
   }, [collapsibleTabs])
   let (tabStacksnames, setTabStacksnames) = React.useState(_ => [
-    getValueFromArrayTab(updatedCollapsableTabs, 0),
-    getValueFromArrayTab(updatedCollapsableTabs, initialIndex),
+    getValueFromArrayTab(updatedCollapsibleTabs, 0),
+    getValueFromArrayTab(updatedCollapsibleTabs, initialIndex),
   ])
 
   let (isLeftArrowVisible, setIsLeftArrowVisible) = React.useState(() => false)
@@ -457,11 +447,11 @@ let make = (
           isRemovable: true,
         },
       ]
-      let updatedCollapsableTabs = Array.concat(collapsibleTabs, newTab)
+      let updatedCollapsibleTabs = Array.concat(collapsibleTabs, newTab)
 
-      setCollapsibleTabs(_ => updatedCollapsableTabs)
+      setCollapsibleTabs(_ => updatedCollapsibleTabs)
       setTabDetails(_ => Array.concat(tabsDetails, newTab))
-      setSelectedIndex(_ => Array.length(updatedCollapsableTabs) - 1)
+      setSelectedIndex(_ => Array.length(updatedCollapsibleTabs) - 1)
       setTabStacksnames(prev => Array.concat(prev, [getValueFromArrayTab(newTab, 0)]))
       updateTabNameWith(Dict.fromArray([("tabName", `[${getValueFromArrayTab(newTab, 0)}]`)]))
       setActiveTab(getValueFromArrayTab(newTab, 0))
@@ -492,13 +482,7 @@ let make = (
             value: x.value,
             icon: CustomRightIcon(
               description->LogicUtils.isNonEmptyString
-                ? <ToolTip
-                    customStyle="-mr-1.5"
-                    arrowCustomStyle={isMobileView ? "" : "ml-1.5"}
-                    description
-                    toolTipPosition={ToolTip.BottomLeft}
-                    justifyClass="ml-2 h-auto mb-0.5"
-                  />
+                ? <ToolTip description toolTipPosition={ToolTip.BottomLeft} />
                 : React.null,
             ),
           }
@@ -521,7 +505,7 @@ let make = (
           />
         </RenderIf>
         <div
-          className={`overflow-x-auto no-scrollbar overflow-y-hidden ${outerAllignmentClass}`}
+          className={`overflow-x-auto no-scrollbar overflow-y-hidden ${outerAlignmentClass}`}
           ref={scrollRef->ReactDOM.Ref.domRef}
           onScroll>
           <div className="flex flex-row">
@@ -588,7 +572,6 @@ let make = (
                   onClick={_ => setShowModal(_ => true)}
                 />}
                 toolTipPosition=Top
-                tooltipWidthClass="w-fit"
               />
             </div>
           </RenderIf>

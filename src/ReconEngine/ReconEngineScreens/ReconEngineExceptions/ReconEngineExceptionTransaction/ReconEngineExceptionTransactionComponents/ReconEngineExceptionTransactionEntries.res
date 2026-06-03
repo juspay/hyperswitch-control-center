@@ -23,19 +23,7 @@ let make = (
   let (updatedEntriesList, setUpdatedEntriesList) = React.useState(_ =>
     entriesList->addUniqueIdsToEntries
   )
-  let detailsFields = [
-    EntryType,
-    Amount,
-    Currency,
-    Status,
-    EntryId,
-    OrderID,
-    EffectiveAt,
-    CreatedAt,
-  ]
   let (showConfirmationModal, setShowConfirmationModal) = React.useState(_ => false)
-  let (offset, setOffset) = React.useState(_ => 0)
-  let (resultsPerPage, setResultsPerPage) = React.useState(_ => 10)
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
 
@@ -62,17 +50,21 @@ let make = (
   }
 
   let tableSections = React.useMemo(() => {
-    let sections = getEntriesSections(~groupedEntries, ~accountInfoMap, ~detailsFields)
+    let sections = getEntriesSections(
+      ~groupedEntries,
+      ~accountInfoMap,
+      ~detailsFields=getDetailFieldsForTableSections,
+    )
     let accountIds = groupedEntries->Dict.keysToArray
     sections->Array.mapWithIndex((section, index) => {
       let accountId = accountIds->getValueFromArray(index, "")
-      let entriesWithUniqueId = groupedEntries->Dict.get(accountId)->Option.getOr([])
+      let entriesWithUniqueId = groupedEntries->getValueFromDict(accountId, [])
       {
         ...section,
         rowData: entriesWithUniqueId->Array.map(entry => entry->Identity.genericTypeToJson),
       }
     })
-  }, (groupedEntries, accountInfoMap, detailsFields, currentExceptionDetails.transaction_status))
+  }, (groupedEntries, accountInfoMap, currentExceptionDetails.transaction_status))
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
@@ -152,7 +144,7 @@ let make = (
     />
     <ReconEngineCustomExpandableSelectionTable
       title=""
-      heading={detailsFields->Array.map(getHeading)}
+      heading={getDetailFieldsForTableSections->Array.map(getHeading)}
       getSectionRowDetails=sectionDetails
       showScrollBar=true
       showOptions={exceptionStage == ResolvingException(EditEntry) ||
@@ -161,11 +153,6 @@ let make = (
       selectedRows
       onRowSelect=handleRowSelect
       sections=tableSections
-      offset
-      setOffset
-      resultsPerPage
-      setResultsPerPage
-      totalResults={updatedEntriesList->Array.length}
       ?isRowSelectable
     />
     <RenderIf
@@ -174,7 +161,7 @@ let make = (
       exceptionStage == ConfirmResolution(MarkAsReceived) ||
       exceptionStage == ConfirmResolution(LinkStagingEntriesToTransaction)}>
       <div
-        className="flex flex-row items-center gap-3 absolute right-1/2 bottom-10 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl p-3">
+        className="flex flex-row items-center gap-3 fixed left-1/2 -translate-x-1/2 bottom-4 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl p-3">
         <div className="flex gap-3">
           <Button
             text="Discard"
@@ -238,7 +225,7 @@ let make = (
                 }}
               />
               <FormRenderer.SubmitButton
-                text="Save Changes" buttonType={Primary} customSumbitButtonStyle="!w-fit mt-4"
+                text="Save Changes" buttonType={Primary} customSubmitButtonStyle="!w-fit mt-4"
               />
             </div>
           </div>

@@ -20,7 +20,7 @@ module.exports = {
   theme: {
     fontFamily: {
       "inter-style": '"InterDisplay"',
-      "jetbrain-mono": '"JetBrains Mono"',
+      "jetbrains-mono": '"JetBrains Mono"',
     },
     extend: {
       screens: {
@@ -29,12 +29,17 @@ module.exports = {
         laptop: "67.5rem",
         desktop: "118.75rem",
       },
+      backgroundImage: {
+        "dot-pattern": "radial-gradient(#d9dee7 1px, transparent 1px)",
+      },
+      backgroundSize: {
+        "dot-pattern-size": "16px 16px",
+      },
       scale: {
         400: "4",
       },
       margin: {
         "15-px": "15px",
-        "54-px": "54px",
         "300-px": "300px",
       },
       height: {
@@ -54,15 +59,16 @@ module.exports = {
         "45-rem": "45rem",
         "48-rem": "48rem",
         "50-rem": "50rem",
+        "4-per": "4%",
+        "8-per": "8%",
+        "11-per": "11%",
         "93-per": "93%",
         "80-vh": "80vh",
         "85-vh": "85vh",
         "30-vh": "30vh",
         "40-vh": "40vh",
         "75-vh": "75vh",
-        "32-px": "32px",
-        "36-px": "36px",
-        "40-px": "40px",
+        "50-px": "50px",
         "68-px": "68px",
         "84-px": "84px",
         "120-px": "120px",
@@ -77,11 +83,10 @@ module.exports = {
         "840-px": "840px",
         "890-px": "890px",
         "12.5-rem": "12.5rem",
-        onBordingSupplier: "calc(100vh - 300px)",
+        onBoardingSupplier: "calc(100vh - 300px)",
         modalContentHeight: "calc(100vh - 140px)",
       },
       padding: {
-        "10-px": "10px",
         "2-px": "2px",
       },
       minWidth: {
@@ -92,16 +97,21 @@ module.exports = {
         "25-rem": "25rem",
         "30-rem": "30rem",
         "750-px": "750px",
+        "890-px": "890px",
       },
       minHeight: {
         "500-px": "500px",
       },
       inset: {
+        "3-px": "3px",
         "5-px": "5px",
         "76-px": "76px",
         "120-px": "120px",
         "180-px": "180px",
         "500-px": "500px",
+        "10-per": "10%",
+        "16-per": "16%",
+        "26-per": "26%",
       },
       letterSpacing: {
         compressed: "-2px",
@@ -112,6 +122,7 @@ module.exports = {
       },
       width: {
         "1-px": "1px",
+        "3-px": "3px",
         "90-px": "90px",
         100: "25rem",
         133: "35rem",
@@ -134,6 +145,7 @@ module.exports = {
         "267-px": "267px",
         "298-px": "298px",
         "334-px": "334px",
+        "420-px": "420px",
         "499-px": "499px",
         "540-px": "540px",
         "500-px": "500px",
@@ -141,20 +153,19 @@ module.exports = {
         "306-px": "306px",
         modalOverlay: "calc(100vw + 7rem)",
         pageWidth11: "75rem",
-        fixedPageWidth: "75.5rem",
         standardPageWidth: "67.5rem",
       },
       gap: {
-        "0.5-rem": "0.5rem",
         "72-px": "72px",
       },
       maxWidth: {
-        fixedPageWidth: "82.75rem",
+        fixedPageWidth: "120rem",
         860: "860px",
         600: "600px",
         700: "700px",
         800: "800px",
         400: "400px",
+        325: "325px",
         250: "250px",
         200: "200px",
       },
@@ -198,6 +209,7 @@ module.exports = {
         cardShadow: "0px 2px 2px 0px rgba(0, 0, 0, 0.04)",
         rightDrawerShadow:
           "0px 4px 6px 0px rgba(0,0,0,0.05) , 0px 10px 15px -3px rgba(16,24,40,0.1)",
+        cardSelectedShadow: "0px 3px 16px 3px rgba(190, 219, 255, 0.6)",
       },
       fontSize: {
         base: "var(--base-font-size)",
@@ -474,10 +486,13 @@ module.exports = {
           600: "#9E5400",
         },
         nd_yellow: {
+          50: "#FEFCE8",
           100: "#FFFBEE",
           200: "#5E4200",
           300: "#FFDF20",
+          500: "#EFB100",
           600: "#D08700",
+          700: "#A65F00",
           800: "#998335",
         },
         nd_purple: {
@@ -489,10 +504,11 @@ module.exports = {
       borderRadius: {
         DEFAULT: "var(--borders-default-radius)",
         "10-px": "10px",
+        "1.75-rem": "1.75rem",
+        "2-rem": "2rem",
       },
       spacing: {
         DEFAULT: "var(--spacing-padding)",
-        "104-px": "104px",
       },
     },
   },
@@ -629,5 +645,5 @@ module.exports = {
 
 // clean jp-gray
 // refactor colors object
-// use Primar and seconday color for button
+// use Primary and secondary color for button
 // we should use UIConfigs value as placeholder in the button

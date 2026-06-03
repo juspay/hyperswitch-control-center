@@ -23,7 +23,7 @@ module MultiConfigInp = {
       value: enabledList.value,
       checked: true,
     }
-    <TextInput input placeholder={`Enter ${label->LogicUtils.snakeToTitle}`} />
+    <TextInputAdapter input placeholder={`Enter ${label->LogicUtils.snakeToTitle}`} />
   }
 }
 
@@ -202,18 +202,18 @@ module CashToCodeSelectBox = {
       let countryTitle = country->snakeToTitle
       let isCountrySelected = country->isSelected
 
-      let accordionItem: Accordion.accordion = {
+      let accordionItem: AccordionAdapter.accordion = {
         title: "",
         renderContentOnTop: Some(
           () =>
             <div className="flex items-center gap-3 w-full">
-              <CheckBoxIcon isSelected=isCountrySelected stopPropagationNeeded=true />
+              <CheckBoxIconAdapter isSelected=isCountrySelected stopPropagationNeeded=true />
               <span className={`${body.sm.semibold} text-nd-gray-600`}>
                 {countryTitle->React.string}
               </span>
             </div>,
         ),
-        renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>
+        renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) =>
           <div className="p-4 pt-2">
             <RenderConnectorInputFields
               details={dict
@@ -230,11 +230,11 @@ module CashToCodeSelectBox = {
       accordionItem
     })
 
-    <div className="w-full">
-      <Accordion
+    <div className="w-full mt-4">
+      <AccordionAdapter
         accordion=accordionItems
-        accordianTopContainerCss="mt-4 rounded-lg"
-        accordianBottomContainerCss="p-4"
+        accordionTopContainerCss="mt-4 rounded-lg"
+        accordionBottomContainerCss="p-4"
         contentExpandCss="px-0 py-0"
         titleStyle={`${body.sm.semibold} text-nd-gray-600 dark:text-jp-gray-text_darktheme hover:text-jp-gray-800 dark:hover:text-opacity-100`}
         accordionHeaderTextClass="flex-1"
@@ -270,11 +270,6 @@ module CashToCodeMethods = {
     })
     <Tabs
       tabs=tabList
-      disableIndicationArrow=true
-      showBorder=false
-      includeMargin=false
-      lightThemeColor="black"
-      defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
       onTitleClick={tabIndex => {
         setCashToCodeMthd(_ => tabs->LogicUtils.getValueFromArray(tabIndex, #Classic))
       }}
@@ -303,6 +298,7 @@ module Payload = {
         dict
         ->getDictfromDict(country)
         ->Dict.keysToArray
+        ->Array.filter(field => checkAuthKeyMapRequiredFields(Processors(PAYLOAD), field))
 
       wasmValues
       ->Array.find(ele => formValues->getString(ele, "")->String.length <= 0)
@@ -315,24 +311,25 @@ module Payload = {
         let countryTitle = country->snakeToTitle
         let isCountrySelected = country->isSelected
 
-        let accordionItem: Accordion.accordion = {
+        let accordionItem: AccordionAdapter.accordion = {
           title: "",
           renderContentOnTop: Some(
             () =>
               <div className="flex items-center gap-3 w-full">
-                <CheckBoxIcon isSelected=isCountrySelected stopPropagationNeeded=true />
+                <CheckBoxIconAdapter isSelected=isCountrySelected stopPropagationNeeded=true />
                 <span className="font-medium text-jp-gray-700 dark:text-jp-gray-text_darktheme">
                   {React.string(countryTitle)}
                 </span>
               </div>,
           ),
-          renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>
+          renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) =>
             <div className="p-4 pt-2">
               <RenderConnectorInputFields
                 details={dict->getDictfromDict(country)}
                 name={`connector_account_details.auth_key_map.${country}`}
                 connector
                 selectedConnector
+                checkRequiredFields={ConnectorUtils.checkAuthKeyMapRequiredFields}
               />
             </div>,
         }
@@ -340,10 +337,10 @@ module Payload = {
       })
 
     <div className="w-full space-y-4 ">
-      <Accordion
+      <AccordionAdapter
         accordion=accordionItems
-        accordianTopContainerCss="mt-2 rounded-lg border border-gray-200"
-        accordianBottomContainerCss="p-4"
+        accordionTopContainerCss="mt-2 rounded-lg border border-gray-200"
+        accordionBottomContainerCss="p-4"
         contentExpandCss="px-0 py-0"
         titleStyle="font-medium text-base text-jp-gray-700 dark:text-jp-gray-text_darktheme hover:text-jp-gray-800 dark:hover:text-opacity-100"
         accordionHeaderTextClass="flex-1"
@@ -585,11 +582,10 @@ module ConnectorHeaderWrapper = {
         | Processors(BRAINTREE) => true
         | _ => false
         }}>
-        <HSwitchUtils.AlertBanner
-          bannerContent={<p>
-            {"Disclaimer: Please ensure the payment currency matches the Braintree-configured currency for the given Merchant Account ID."->React.string}
-          </p>}
-          bannerType=Warning
+        <AlertV2Binding
+          alertType=Warning
+          slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
+          description="Disclaimer: Please ensure the payment currency matches the Braintree-configured currency for the given Merchant Account ID."
         />
       </RenderIf>
       {children}

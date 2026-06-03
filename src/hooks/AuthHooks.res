@@ -78,9 +78,12 @@ let useApiFetcher = () => {
   open Promise
   open LogicUtils
   open CommonAuthUtils
+
   let {authStatus, setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let url = RescriptReactRouter.useUrl()
   let setReqProgress = Recoil.useSetRecoilState(ApiProgressHooks.pendingRequestCount)
+  let {setEmbeddedStateToError} = React.useContext(EmbeddedCheckProvider.embeddedContext)
+
   React.useCallback(
     (
       uri,
@@ -99,7 +102,7 @@ let useApiFetcher = () => {
     ) => {
       let token = {
         if isEmbeddableSession {
-          Some(AuthUtils.getEmbeddableInfoDetailsFromLocalStorage())
+          Some(EmbeddedStorageUtils.LocalStorage.getEmbeddedTokenFromStorage())
         } else {
           switch authStatus {
           | PreLogin(info) => info.token
@@ -168,7 +171,9 @@ let useApiFetcher = () => {
                   let errorCode = errorDict->getObj("error", Dict.make())->getString("code", "")
 
                   if isEmbeddableSession && errorCode->errorSubCodeMapper == IR_48 {
-                    EmbeddableGlobalUtils.sendEventToParentForRefetchToken()
+                    EmbeddedIframeUtils.sendEventToParentForRefetchToken()
+                  } else if isEmbeddableSession && errorCode->errorSubCodeMapper == IR_47 {
+                    setEmbeddedStateToError()
                   } else {
                     switch authStatus {
                     | LoggedIn(_) =>

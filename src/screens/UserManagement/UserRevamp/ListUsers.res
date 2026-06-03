@@ -10,7 +10,7 @@ let make = () => {
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (usersData, setUsersData) = React.useState(_ => [])
-  let (usersFilterData, setUsersFilterData) = React.useState(_ => [])
+  let (filteredUsers, setFilteredUsers) = React.useState(_ => [])
   let (screenStateUsers, setScreenStateUsers) = React.useState(_ => PageLoaderWrapper.Loading)
   let (userOffset, setUserOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
@@ -41,7 +41,7 @@ let make = () => {
       let userData = res->getArrayDataFromJson(itemToObjMapperForUser)
       userData->Array.sort(sortByEmail)
       setUsersData(_ => userData->Array.map(Nullable.make))
-      setUsersFilterData(_ => userData->Array.map(Nullable.make))
+      setFilteredUsers(_ => userData->Array.map(Nullable.make))
       setUserModuleEntity(_ => userModuleEntity)
       setScreenStateUsers(_ => PageLoaderWrapper.Success)
     } catch {
@@ -66,7 +66,7 @@ let make = () => {
     } else {
       arr
     }
-    setUsersFilterData(_ => filteredList)
+    setFilteredUsers(_ => filteredList)
   }, ~wait=200)
 
   <PageLoaderWrapper screenState={screenStateUsers}>
@@ -91,12 +91,12 @@ let make = () => {
       <LoadedTable
         title="Users"
         hideTitle=true
-        actualData=usersFilterData
-        totalResults={usersFilterData->Array.length}
+        actualData=filteredUsers
+        totalResults={filteredUsers->Array.length}
         filters={<TableSearchFilter
           data={usersData}
           filterLogic=filterLogicForUsers
-          placeholder="Search by name or email.."
+          placeholder="Search by name or email"
           customSearchBarWrapperWidth="w-full lg:w-1/3"
           customInputBoxWidth="w-full"
           searchVal=searchText
@@ -106,7 +106,7 @@ let make = () => {
         offset=userOffset
         setOffset=setUserOffset
         entity={ListUserTableEntity.userEntity}
-        currrentFetchCount={usersFilterData->Array.length}
+        currentFetchCount={filteredUsers->Array.length}
         collapseTableRow=false
         tableheadingClass="h-12"
         tableHeadingTextClass="!font-normal"

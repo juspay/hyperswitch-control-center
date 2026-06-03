@@ -18,14 +18,14 @@ let getV2Url = (
   switch entityName {
   | CUSTOMERS =>
     switch (methodType, id) {
-    | (Get, None) => "v2/customers/list"
-    | (Get, Some(customerId)) => `v2/customers/${customerId}`
+    | (Get, None) => "v1/customers/list"
+    | (Get, Some(customerId)) => `v1/customers/${customerId}`
     | _ => ""
     }
   | CUSTOMERS_COUNT =>
     switch (methodType, id) {
-    | (Get, None) => "v2/customers/list_with_count"
-    | (Get, Some(customerId)) => `v2/customers/${customerId}`
+    | (Get, None) => "v1/customers/list_with_count"
+    | (Get, Some(customerId)) => `v1/customers/${customerId}`
     | _ => ""
     }
   | V2_CONNECTOR =>
@@ -54,7 +54,7 @@ let getV2Url = (
       | Some(key_id) =>
         switch queryParameters {
         | Some(queryParams) => `${paymentsBaseURL}/${key_id}?${queryParams}`
-        | None => `${paymentsBaseURL}/${key_id}/get-intent`
+        | None => `${paymentsBaseURL}/${key_id}`
         }
       | None =>
         switch queryParameters {
@@ -80,6 +80,14 @@ let getV2Url = (
         }
       }
     | _ => ""
+    }
+  /* REPORTS */
+  | REVENUE_RECOVERY_REPORT =>
+    switch transactionEntity {
+    | #Tenant
+    | #Organization => `v2/analytics/org/report/payments`
+    | #Merchant => `v2/analytics/merchant/report/payments`
+    | #Profile => `v2/analytics/profile/report/payments`
     }
   | V2_ATTEMPTS_LIST =>
     switch methodType {
@@ -114,15 +122,28 @@ let getV2Url = (
       }
     | _ => ``
     }
+  | V2_ORDERS_AGGREGATE_CLICKHOUSE =>
+    switch methodType {
+    | Get =>
+      switch queryParameters {
+      | Some(queryParams) =>
+        switch transactionEntity {
+        | #Profile => `v2/analytics/profile/payment_intents/aggregate?${queryParams}`
+        | _ => `v2/analytics/merchant/payment_intents/aggregate?${queryParams}`
+        }
+      | None => ``
+      }
+    | _ => ``
+    }
   | PAYMENT_METHOD_LIST =>
     switch id {
-    | Some(customerId) => `v2/customers/${customerId}/saved-payment-methods`
+    | Some(customerId) => `v1/customers/${customerId}/saved-payment-methods`
     | None => ""
     }
-  | TOTAL_TOKEN_COUNT => `v2/customers/total-payment-methods`
+  | TOTAL_TOKEN_COUNT => `v1/customers/total-payment-methods`
   | RETRIEVE_PAYMENT_METHOD =>
     switch id {
-    | Some(paymentMethodId) => `v2/payment-methods/${paymentMethodId}`
+    | Some(paymentMethodId) => `v1/payment-methods/${paymentMethodId}/details`
     | None => ""
     }
   /* MERCHANT ACCOUNT DETAILS (Get,Post and Put) */
@@ -137,6 +158,7 @@ let getV2Url = (
       }
     | #LIST_MERCHANT => `v2/${userUrl}/list/merchant`
     | #SWITCH_MERCHANT_NEW => `v2/${userUrl}/switch/merchant`
+    | #SWITCH_PROFILE_NEW => `v2/${userUrl}/switch/profile`
 
     | #LIST_PROFILE => `v2/${userUrl}/list/profile`
     | _ => ""
@@ -175,6 +197,11 @@ let getV2Url = (
 
     | _ => `v2/profiles`
     }
+  | REFUNDS =>
+    switch methodType {
+    | Post => `v2/refunds`
+    | _ => ""
+    }
   }
 }
 
@@ -189,7 +216,6 @@ let useGetURL = () => {
     ~connector=None,
     ~userType: userType=#NONE,
     ~userRoleTypes: userRoleTypes=NONE,
-    ~reconType: reconType=#NONE,
     ~hyperswitchReconType: hyperswitchReconType=#NONE,
     ~hypersenseType: hypersenseType=#NONE,
     ~queryParameters: option<string>=None,
@@ -269,15 +295,15 @@ let useGetURL = () => {
         }
       | PAYMENT_METHODS =>
         switch methodType {
-        | Get => "payemnt_methods"
+        | Get => "payment_methods"
         | _ => ""
         }
       | PAYMENT_METHODS_DETAILS =>
         switch methodType {
         | Get =>
           switch id {
-          | Some(id) => `payemnt_methods/${id}`
-          | None => `payemnt_methods`
+          | Some(id) => `payment_methods/${id}`
+          | None => `payment_methods`
           }
         | _ => ""
         }
@@ -393,6 +419,19 @@ let useGetURL = () => {
           | None => `payments/aggregate`
           }
         | _ => `payments/aggregate`
+        }
+      | ORDERS_AGGREGATE_CLICKHOUSE =>
+        switch methodType {
+        | Get =>
+          switch queryParameters {
+          | Some(queryParams) =>
+            switch transactionEntity {
+            | #Profile => `analytics/v1/payment_intents/aggregate?${queryParams}`
+            | _ => `analytics/v1/payment_intents/aggregate?${queryParams}`
+            }
+          | None => `analytics/v1/payment_intents/aggregate`
+          }
+        | _ => `analytics/v1/payment_intents/aggregate`
         }
       | REFUNDS =>
         switch methodType {
@@ -576,6 +615,13 @@ let useGetURL = () => {
           `account/${merchantId}/business_profile/${profileId}/dynamic_routing/get_volume_split`
         | _ => ""
         }
+
+      /* OIDC */
+      | OIDC_AUTHORIZE =>
+        switch methodType {
+        | Get => `oidc/authorize`
+        | _ => ""
+        }
       /* ANALYTICS V2 */
 
       | ANALYTICS_PAYMENTS_V2 =>
@@ -605,7 +651,7 @@ let useGetURL = () => {
         switch methodType {
         | Get =>
           switch id {
-          // Need to write seperate enum for info api
+          // Need to write separate enum for info api
           | Some(domain) =>
             switch analyticsEntity {
             | #Tenant
@@ -767,8 +813,6 @@ let useGetURL = () => {
       /* SURCHARGE ROUTING */
       | SURCHARGE => `routing/decision/surcharge`
 
-      /* RECONCILIATION */
-      | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
       | HYPERSENSE => `hypersense/${(hypersenseType :> string)->String.toLowerCase}`
 
       /* REPORTS */
@@ -778,6 +822,17 @@ let useGetURL = () => {
         | #Organization => `analytics/v1/org/report/payments`
         | #Merchant => `analytics/v1/merchant/report/payments`
         | #Profile => `analytics/v1/profile/report/payments`
+        }
+      | PAYMENTS_LIST =>
+        switch methodType {
+        | Post =>
+          switch transactionEntity {
+          | #Merchant => `analytics/v1/payments/list`
+          | #Profile => `analytics/v1/profile/payments/list`
+          | _ => `payments/list`
+          }
+
+        | _ => ""
         }
       | PAYOUT_REPORT =>
         switch transactionEntity {
@@ -931,7 +986,7 @@ let useGetURL = () => {
       /* PMTS COUNTRY-CURRENCY DETAILS */
       | PAYMENT_METHOD_CONFIG => `payment_methods/filter`
 
-      /* USER MANGEMENT REVAMP */
+      /* USER MANAGEMENT REVAMP */
       | USER_MANAGEMENT => {
           let userUrl = `user`
           switch userRoleTypes {
@@ -1188,6 +1243,16 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #TRANSACTION_BULK_OPERATIONS =>
+          switch methodType {
+          | Post => `${reconBaseURL}/transactions/bulk_operations`
+          | _ => ""
+          }
+        | #STAGING_ENTRY_BULK_OPERATIONS =>
+          switch methodType {
+          | Post => `${reconBaseURL}/staging_entries/bulk_operations`
+          | _ => ""
+          }
         | #NONE => ""
         }
 
@@ -1243,7 +1308,7 @@ let useGetURL = () => {
           | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
           }
 
-        // POST LOGIN QUESTIONARE
+        // POST LOGIN QUESTIONNAIRE
         | #SET_METADATA =>
           switch queryParameters {
           | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
@@ -1296,6 +1361,8 @@ let useGetURL = () => {
 
         // CREATE_ORG
         | #CREATE_ORG => `user/create_org`
+        // CREATE_PLATFORM
+        | #CREATE_PLATFORM => `user/create_platform`
         // CREATE MERCHANT
         | #CREATE_MERCHANT =>
           switch queryParameters {
@@ -1304,7 +1371,7 @@ let useGetURL = () => {
           }
         | #SWITCH_ORG => `${userUrl}/switch/org`
         | #SWITCH_MERCHANT_NEW => `${userUrl}/switch/merchant`
-        | #SWITCH_PROFILE => `${userUrl}/switch/profile`
+        | #SWITCH_PROFILE | #SWITCH_PROFILE_NEW => `${userUrl}/switch/profile`
 
         // Org-Merchant-Profile List
         | #LIST_ORG => `${userUrl}/list/org`
@@ -1418,6 +1485,11 @@ let useGetURL = () => {
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
       | SDK_PAYMENT => "payments"
+      | ACCOUNT_PAYMENT_METHODS =>
+        switch methodType {
+        | Get => "account/payment_methods"
+        | _ => ""
+        }
       | CHAT_BOT => `chat/ai/data`
       }
 
@@ -1445,26 +1517,25 @@ let useHandleLogout = (~eventName="user_sign_out") => {
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
+  let showToast = ToastState.useShowToast()
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  () => {
+  async () => {
     try {
       let logoutUrl = getURL(~entityName=V1(USERS), ~methodType=Post, ~userType=#SIGNOUT)
-      open Promise
+      let _ = await fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute, ~forceCookies)
       mixpanelEvent(~eventName)
-      let _ =
-        fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute, ~forceCookies)
-        ->then(Fetch.Response.json)
-        ->then(json => {
-          json->resolve
-        })
-        ->catch(_err => {
-          JSON.Encode.null->resolve
-        })
       setAuthStateToLogout()
       clearRecoilValue()
       CommonAuthUtils.clearLocalStorage()
     } catch {
-    | _ => CommonAuthUtils.clearLocalStorage()
+    | _ => {
+        showToast(
+          ~toastType=ToastError,
+          ~message="Logout failed. Please try again.",
+          ~autoClose=true,
+        )
+        mixpanelEvent(~eventName="user_sign_out_failed")
+      }
     }
   }
 }
@@ -1487,6 +1558,7 @@ let responseHandler = async (
     ~section: string=?,
     ~metadata: JSON.t=?,
   ) => unit,
+  ~isEmbeddableSession=false,
 ) => {
   let json = try {
     await res->(res => res->Fetch.Response.json)
@@ -1531,12 +1603,14 @@ let responseHandler = async (
             }
           }
         | 401 =>
-          if !sessionExpired.contents {
-            showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false)
+          if !isEmbeddableSession {
+            if !sessionExpired.contents {
+              showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false)
 
-            handleLogout()->ignore
-            AuthUtils.redirectToLogin()
-            sessionExpired := true
+              handleLogout()->ignore
+              AuthUtils.redirectToLogin()
+              sessionExpired := true
+            }
           }
 
         | 403 =>
@@ -1644,6 +1718,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~popUpCallBack,
         ~handleLogout,
         ~sendEvent,
+        ~isEmbeddableSession=isEmbeddableSession(),
       )
     } catch {
     | Exn.Error(e) =>
@@ -1715,6 +1790,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~popUpCallBack,
         ~handleLogout,
         ~sendEvent,
+        ~isEmbeddableSession=isEmbeddableSession(),
       )
     } catch {
     | Exn.Error(e) =>

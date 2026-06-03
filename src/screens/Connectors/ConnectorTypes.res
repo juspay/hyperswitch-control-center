@@ -134,12 +134,19 @@ type processorTypes =
   | PAYJUSTNOWINSTORE
   | AMAZONPAY
   | WORLDPAYMODULAR
+  | SANTANDER
+  | REVOLV3
+  | TRUELAYER
+  | FISERVCOMMERCEHUB
+  | TRUSTLY
+  | IMERCHANTSOLUTIONS
 
 type payoutProcessorTypes =
   | ADYEN
   | ADYENPLATFORM
   | CYBERSOURCE
   | EBANX
+  | ITAUBANK
   | PAYPAL
   | STRIPE
   | WISE
@@ -149,6 +156,9 @@ type payoutProcessorTypes =
   | LOONIO
   | WORLDPAY
   | WORLDPAYXML
+  | TRUELAYER
+  | ENVOY
+  | TRUSTLY
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO
@@ -161,6 +171,7 @@ type threeDsAuthenticatorTypes =
 type frmTypes =
   | Signifyd
   | Riskifyed
+  | CybersourceDecisionManager
 
 type pmAuthenticationProcessorTypes = PLAID
 
@@ -169,6 +180,8 @@ type taxProcessorTypes = TAXJAR
 type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING | CUSTOMBILLING
 
 type vaultProcessorTypes = VGS
+
+type surchargeProcessorTypes = INTERPAYMENTS
 
 type connectorTypeVariants =
   | PaymentProcessor
@@ -179,6 +192,7 @@ type connectorTypeVariants =
   | TaxProcessor
   | BillingProcessor
   | VaultProcessor
+  | SurchargeProcessor
 
 type connectorTypes =
   | Processors(processorTypes)
@@ -189,6 +203,7 @@ type connectorTypes =
   | TaxProcessor(taxProcessorTypes)
   | BillingProcessor(billingProcessorTypes)
   | VaultProcessor(vaultProcessorTypes)
+  | SurchargeProcessor(surchargeProcessorTypes)
   | UnknownConnector(string)
 
 type paymentMethod =
@@ -199,6 +214,8 @@ type paymentMethod =
   | BankTransfer
   | Crypto
   | BankDebit
+  | NetworkToken
+  | Voucher
   | UnknownPaymentMethod(string)
 
 type paymentMethodTypes =
@@ -216,6 +233,12 @@ type paymentMethodTypes =
   | WeChatPay
   | DirectCarrierBilling
   | AmazonPay
+  | Pix
+  | PixAutomaticoQr
+  | PixAutomaticoPush
+  | Boleto
+  | NetworkToken
+  | Ideal
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {
@@ -273,7 +296,7 @@ type googlePay = {
 
 type metaData = {
   apple_pay?: applePay,
-  goole_pay?: googlePay,
+  google_pay?: googlePay,
 }
 type pmAuthPaymentMethods = {
   payment_method: string,
@@ -449,6 +472,7 @@ type connector =
   | TaxProcessor
   | BillingProcessor
   | VaultProcessor
+  | SurchargeProcessor
 
 type connectorFieldTypes = {
   bodyType: string,

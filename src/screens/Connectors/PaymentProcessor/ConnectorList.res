@@ -43,7 +43,6 @@ module DummyProcessorBanner = {
       </RenderIf>
       <PageUtils.PageHeading
         title="Payment Processors"
-        customHeadingStyle="mb-10"
         subTitle="Connect a test processor and get started with testing your payments"
       />
     </>
@@ -51,7 +50,11 @@ module DummyProcessorBanner = {
 }
 
 @react.component
-let make = (~showDummyProcessorBanner=true) => {
+let make = (
+  ~showDummyProcessorBanner=true,
+  ~showRequestConnectorBtn=true,
+  ~showDummyConnectorButton=true,
+) => {
   open ConnectorUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {showFeedbackModal, setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
@@ -68,6 +71,8 @@ let make = (~showDummyProcessorBanner=true) => {
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {paymentProcessorsLiveList} =
+    HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
 
   let getConnectorListAndUpdateState = async () => {
     try {
@@ -117,7 +122,7 @@ let make = (~showDummyProcessorBanner=true) => {
   }, ~wait=200)
 
   let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
-    ? connectorListForLive
+    ? paymentProcessorsLiveList
     : connectorList
 
   <div>
@@ -125,7 +130,7 @@ let make = (~showDummyProcessorBanner=true) => {
       <RenderIf condition={showDummyProcessorBanner}>
         <DummyProcessorBanner setProcessorModal configuredConnectors />
       </RenderIf>
-      <div className="flex flex-col gap-14">
+      <div className="flex flex-col gap-8">
         <RenderIf condition={showFeedbackModal}>
           <HSwitchFeedBackModal
             showModal={showFeedbackModal}
@@ -137,6 +142,7 @@ let make = (~showDummyProcessorBanner=true) => {
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Connected Processors"
+            titleSize={Small}
             actualData=filteredConnectorData
             totalResults={filteredConnectorData->Array.length}
             filters={<TableSearchFilter
@@ -156,7 +162,7 @@ let make = (~showDummyProcessorBanner=true) => {
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
               ~sendMixpanelEvent,
             )}
-            currrentFetchCount={filteredConnectorData->Array.length}
+            currentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false
             showAutoScroll=true
           />
@@ -166,6 +172,8 @@ let make = (~showDummyProcessorBanner=true) => {
           connectorsAvailableForIntegration
           urlPrefix="connectors/new"
           setProcessorModal
+          showRequestConnectorBtn
+          showDummyConnectorButton
         />
         <RenderIf condition={processorModal}>
           <DummyProcessorModal

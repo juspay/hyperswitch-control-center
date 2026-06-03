@@ -10,20 +10,11 @@ let make = (~setScreenState) => {
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
 
   {
     switch url.path->HSwitchUtils.urlPath {
-    | list{"home", ..._}
-    | list{"recon"}
-    | list{"upload-files"}
-    | list{"run-recon"}
-    | list{"recon-analytics"}
-    | list{"reports"}
-    | list{"config-settings"} =>
-      <MerchantAccountContainer setAppScreenState=setScreenState />
-    // Commented as not needed now
-    // list{"file-processor"}
-
+    | list{"home", ..._} => <MerchantAccountContainer setAppScreenState=setScreenState />
     | list{"connectors", ..._}
     | list{"payoutconnectors", ..._}
     | list{"3ds-authenticators", ..._}
@@ -31,29 +22,37 @@ let make = (~setScreenState) => {
     | list{"tax-processor", ..._}
     | list{"billing-processor", ..._}
     | list{"vault-processor", ..._}
+    | list{"surcharge-processor", ..._}
     | list{"fraud-risk-management", ..._}
     | list{"configure-pmts", ..._}
     | list{"payment-link-theme", ..._}
     | list{"routing", ..._}
     | list{"payoutrouting", ..._}
     | list{"payment-settings", ..._}
-    | list{"payment-settings-new", ..._}
     | list{"webhooks", ..._}
-    | list{"sdk"} =>
-      <ConnectorContainer />
+    | list{"sdk"}
+    | list{"vault-onboarding", ..._}
+    | list{"vault-customers-tokens", ..._} =>
+      <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
+        <ConnectorContainer />
+      </AccessControl>
     | list{"apm"} => <APMContainer />
     | list{"payments", ..._}
     | list{"refunds", ..._}
     | list{"disputes", ..._}
     | list{"payouts", ..._} =>
-      <TransactionContainer />
+      <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
+        <TransactionContainer />
+      </AccessControl>
     | list{"analytics-payments"}
     | list{"performance-monitor"}
     | list{"analytics-refunds"}
     | list{"analytics-disputes"}
     | list{"analytics-authentication"}
     | list{"analytics-routing", ..._} =>
-      <AnalyticsContainer />
+      <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
+        <AnalyticsContainer />
+      </AccessControl>
 
     | list{"new-analytics"}
     | list{"new-analytics", "payment"}
@@ -81,7 +80,10 @@ let make = (~setScreenState) => {
           />
         </FilterContext>
       </AccessControl>
-    | list{"users", ..._} => <UserManagementContainer />
+    | list{"users", ..._} =>
+      <AccessControl authorization={userHasAccess(~groupAccess=UsersView)}>
+        <UserManagementContainer />
+      </AccessControl>
     | list{"developer-api-keys"} =>
       <AccessControl
         // TODO: Remove `MerchantDetailsView` permission in future
@@ -121,6 +123,12 @@ let make = (~setScreenState) => {
           userHasAccess(~groupAccess=AccountManage),
         )}>
         <HSwitchSettings />
+      </AccessControl>
+    | list{"organization-settings"} =>
+      <AccessControl
+        authorization={userHasAccess(~groupAccess=AccountManage)}
+        isEnabled={checkUserEntity([#Organization])}>
+        <OrganizationSettings />
       </AccessControl>
     | list{"search"} => <SearchResultsPage />
     | list{"payment-attempts"} =>

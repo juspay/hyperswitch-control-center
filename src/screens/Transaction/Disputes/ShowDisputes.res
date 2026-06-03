@@ -1,46 +1,9 @@
 open DisputesEntity
-module DisputesNoteComponent = {
-  open ConnectorUtils
-  @react.component
-  let make = (~disputesData: DisputeTypes.disputes) => {
-    let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
-      ThemeProvider.themeContext,
-    )
-    let connectorTypeFromName = disputesData.connector->getConnectorNameTypeFromString
-    let dashboardLink = {
-      switch connectorTypeFromName {
-      | Processors(BLUESNAP) | Processors(STRIPE) =>
-        <span
-          className="underline underline-offset-2 cursor-pointer"
-          onClick={_ => {
-            let link = switch connectorTypeFromName {
-            | Processors(BLUESNAP) => "https://cp.bluesnap.com/jsp/developer_login.jsp"
-            | Processors(STRIPE) | _ => " https://dashboard.stripe.com/disputes"
-            }
-            link->Window._open
-          }}>
-          {"dashboard."->React.string}
-        </span>
-      | _ => <span> {"dashboard."->React.string} </span>
-      }
-    }
-
-    <div
-      className={`${borderColor.primaryNormal} flex  items-start  text-sm rounded-md gap-2 px-4 py-3 mt-5`}>
-      <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
-      <span>
-        {"Coming soon! You would soon be able to upload evidences against disputes directly from your Hyperswitch dashboard. Until then, please use Hyperswitch dashboard to track any changes in dispute status while uploading evidences from your relevant connector "->React.string}
-        {dashboardLink}
-      </span>
-    </div>
-  }
-}
 module Details = {
   @react.component
   let make = (
     ~data: DisputeTypes.disputes,
     ~getHeading,
-    ~getCell,
     ~excludeColKeys=[],
     ~detailsFields,
     ~justifyClassName="justify-start",
@@ -131,7 +94,7 @@ module Details = {
                   value={getCell(data, colType, merchantId, orgId)}
                   customMoneyStyle="!font-normal !text-sm"
                   labelMargin="!py-0 mt-2"
-                  overiddingHeadingStyles="text-black text-sm font-medium"
+                  overridingHeadingStyles="text-black text-sm font-medium"
                   textColor="!font-normal !text-jp-gray-700"
                 />
               </div>
@@ -148,23 +111,22 @@ module Details = {
 }
 module DisputesInfo = {
   @react.component
-  let make = (~orderDict, ~setDisputeData) => {
+  let make = (~orderDict, ~setDisputeData, ~merchantId, ~orgId) => {
     let disputesData = DisputesEntity.itemToObjMapper(orderDict)
-    let connectorName = disputesData.connector->ConnectorUtils.getConnectorNameTypeFromString
-
-    let showNoteComponentCondition = ConnectorUtils.existsInArray(
-      connectorName,
-      DisputesUtils.connectorsSupportEvidenceUpload,
-    )
 
     <>
       <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
         {"Summary"->React.string}
       </div>
-      <Details data=disputesData getHeading getCell detailsFields=allColumns setDisputeData />
-      <RenderIf condition={!showNoteComponentCondition}>
-        <DisputesNoteComponent disputesData />
+      <RenderIf condition={disputesData.is_already_refunded}>
+        <DisputesHelper.DualRefundsAlert
+          customLearnMoreComponent={<DisputesHelper.LearnMoreComponent
+            disputesData merchantId orgId
+          />}
+          subText="The chargeback has exceeded the dispute amount. Go to the Payments tab to learn more."
+        />
       </RenderIf>
+      <Details data=disputesData getHeading detailsFields=allColumns setDisputeData />
     </>
   }
 }
@@ -215,24 +177,22 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           <div>
             <PageUtils.PageHeading title="Disputes" />
             <BreadCrumbNavigation
-              path=[{title: "Disputes", link: "/disputes"}]
-              currentPageTitle=id
-              cursorStyle="cursor-pointer"
+              path=[{title: "Disputes", link: "/disputes"}] currentPageTitle=id
             />
           </div>
           <div />
         </div>
       </div>
-      <DisputesInfo orderDict={data} setDisputeData />
+      <DisputesInfo orderDict={data} setDisputeData merchantId orgId />
       <div className="mt-5" />
       <RenderIf
         condition={featureFlagDetails.auditTrail &&
         userHasAccess(~groupAccess=AnalyticsView) == Access}>
-        <OrderUIUtils.RenderAccordian
+        <OrderUIUtils.RenderAccordion
           accordion={[
             {
               title: "Events and logs",
-              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+              renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                 <LogsWrapper wrapperFor={#DISPUTE}>
                   <DisputeLogs disputeId=id paymentId />
                 </LogsWrapper>

@@ -1,10 +1,16 @@
 type connectorSummarySection = AuthenticationKeys | Metadata | PMTs
 @react.component
-let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
+let make = (
+  ~baseUrl,
+  ~showProcessorStatus=true,
+  ~topPadding="p-6",
+  ~showCreditAndDebitOnly=false,
+) => {
   open ConnectorUtils
   open LogicUtils
   open APIUtils
   open PageLoaderWrapper
+  open Typography
   let (currentActiveSection, setCurrentActiveSection) = React.useState(_ => None)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (screenState, setScreenState) = React.useState(_ => Loading)
@@ -12,7 +18,9 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+  let updateDetails = useUpdateMethod()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
+  let showToast = ToastState.useShowToast()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
     ~entityName=V2(V2_CONNECTOR),
     ~version=V2,
@@ -21,7 +29,7 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
   let url = RescriptReactRouter.useUrl()
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
 
-  let removeFieldsFromRespose = json => {
+  let removeFieldsFromResponse = json => {
     let dict = json->getDictFromJsonObject
     dict->Dict.delete("applepay_verified_domains")
     dict->Dict.delete("business_country")
@@ -39,7 +47,7 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
         ~id=Some(connectorID),
       )
       let json = await fetchDetails(connectorUrl, ~version=V2)
-      setInitialValues(_ => json->removeFieldsFromRespose)
+      setInitialValues(_ => json->removeFieldsFromResponse)
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch details"))
@@ -70,7 +78,11 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
     ConnectorInterface.connectorInterfaceV2,
     data,
   )
-  let {connector_name: connectorName} = connectorInfodict
+  let {
+    connector_name: connectorName,
+    disabled: isConnectorDisabled,
+    id: merchant_connector_id,
+  } = connectorInfodict
 
   let connectorDetails = React.useMemo(() => {
     try {
@@ -88,6 +100,7 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
         | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
         | PaymentVas => JSON.Encode.null
         | VaultProcessor => Window.getConnectorConfig(connectorName)
+        | SurchargeProcessor => Window.getSurchargeProcessorConfig(connectorName)
         }
         dict
       } else {
@@ -136,13 +149,14 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
       let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
       let _ = await fetchConnectorListResponse()
       setCurrentActiveSection(_ => None)
-      setInitialValues(_ => response->removeFieldsFromRespose)
+      setInitialValues(_ => response->removeFieldsFromResponse)
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to update"))
     }
     Nullable.null
   }
+
   let validateMandatoryField = values => {
     let errors = Dict.make()
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
@@ -162,11 +176,37 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
       errors->JSON.Encode.object,
     )
   }
-  let ignoreKeys =
-    connectorDetails
-    ->getDictFromJsonObject
-    ->Dict.keysToArray
-    ->Array.filter(val => !Array.includes(["credit", "debit"], val))
+
+  let ignoreKeys = showCreditAndDebitOnly
+    ? connectorDetails
+      ->getDictFromJsonObject
+      ->Dict.keysToArray
+      ->Array.filter(val => !Array.includes(["credit", "debit"], val))
+    : []
+
+  let disableConnector = async () => {
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+
+      let disableConnectorPayload = getDisableConnectorPayloadV2(
+        connectorInfodict.connector_type->connectorTypeTypedValueToStringMapper,
+        isConnectorDisabled,
+        merchantId,
+      )
+      let url = getURL(
+        ~entityName=V2(V2_CONNECTOR),
+        ~methodType=Put,
+        ~id=Some(merchant_connector_id),
+      )
+      let res = await updateDetails(url, disableConnectorPayload, Put)
+      let _ = await fetchConnectorListResponse()
+      setInitialValues(_ => res)
+      setScreenState(_ => PageLoaderWrapper.Success)
+      showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
+    } catch {
+    | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Error("Failed to Disable connector!"))
+    }
+  }
 
   <PageLoaderWrapper screenState>
     <BreadCrumbNavigation
@@ -177,21 +217,20 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
         },
       ]
       currentPageTitle={`${connectorName->getDisplayNameForConnector}`}
-      dividerVal=Slash
-      customTextClass="text-nd_gray-400 font-medium "
-      childGapClass="gap-2"
-      titleTextClass="text-ng_gray-600 font-medium"
     />
     <Form onSubmit initialValues validate=validateMandatoryField>
       <div className={`flex flex-col gap-10 ${topPadding} `}>
         <div>
-          <div className="flex flex-row gap-4 items-center">
-            <GatewayIcon
-              gateway={connectorName->String.toUpperCase} className=" w-10 h-10 rounded-sm"
-            />
-            <p className={`text-2xl font-semibold break-all`}>
-              {`${connectorName->getDisplayNameForConnector} Summary`->React.string}
-            </p>
+          <div className="flex flex-row gap-4 justify-between items-center">
+            <div className="flex gap-4 items-center">
+              <GatewayIcon
+                gateway={connectorName->String.toUpperCase} className=" w-10 h-10 rounded-sm"
+              />
+              <p className={`${heading.lg.semibold} break-all`}>
+                {`${connectorName->getDisplayNameForConnector} Summary`->React.string}
+              </p>
+            </div>
+            <ConnectorHelperV2.DisableConnector isConnectorDisabled disableConnector />
           </div>
         </div>
         <div className="flex flex-col gap-12">
@@ -199,12 +238,12 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
             <ConnectorWebhookPreview
               merchantId connectorName=connectorInfodict.id truncateDisplayValue=true
             />
-            <div className="flex flex-col gap-0.5-rem ">
+            <div className="flex flex-col gap-2 ">
               <h4 className="text-nd_gray-400 "> {"Profile"->React.string} </h4>
               {connectorInfodict.profile_id->React.string}
             </div>
             <RenderIf condition=showProcessorStatus>
-              <div className="flex flex-col gap-0.5-rem ">
+              <div className="flex flex-col gap-2 ">
                 <h4 className="text-nd_gray-400 "> {"Processor status"->React.string} </h4>
                 <div className="flex flex-row gap-2 items-center ">
                   <ConnectorHelperV2.ProcessorStatus connectorInfo=connectorInfodict />
@@ -228,7 +267,7 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
                       customButtonStyle="w-fit"
                     />
                     <FormRenderer.SubmitButton
-                      text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+                      text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
                     />
                   </>
                 } else {
@@ -266,7 +305,7 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
                       customButtonStyle="w-fit"
                     />
                     <FormRenderer.SubmitButton
-                      text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+                      text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
                     />
                   </>
                 } else {
@@ -313,7 +352,7 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
                     customButtonStyle="w-fit"
                   />
                   <FormRenderer.SubmitButton
-                    text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+                    text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
                   />
                 </>
               } else {

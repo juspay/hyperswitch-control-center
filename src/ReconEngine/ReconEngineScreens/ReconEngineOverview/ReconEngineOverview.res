@@ -33,11 +33,17 @@ let make = () => {
     [
       {
         title: "Overview",
-        renderContent: () => <ReconEngineOverviewSummary reconRulesList />,
+        renderContent: () =>
+          <FilterContext key="recon-engine-overview-summary" index="recon-engine-overview-summary">
+            <ReconEngineOverviewSummary reconRulesList />
+          </FilterContext>,
       },
       ...reconRulesList->Array.map(ruleDetails => {
         title: ruleDetails.rule_name,
-        renderContent: () => <ReconEngineOverviewDetails ruleDetails />,
+        renderContent: () =>
+          <FilterContext key="recon-engine-overview-details" index="recon-engine-overview-details">
+            <ReconEngineOverviewDetails ruleDetails />
+          </FilterContext>,
       }),
     ]
   }, [reconRulesList])
@@ -62,13 +68,7 @@ let make = () => {
         </div>
       </RenderIf>
       <RenderIf condition={reconRulesList->Array.length > 0}>
-        <Tabs
-          tabs
-          showBorder=true
-          includeMargin=false
-          defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center ${body.md.semibold}`}
-          selectTabBottomBorderColor="bg-primary"
-        />
+        <Tabs tabs />
       </RenderIf>
     </PageLoaderWrapper>
   </div>

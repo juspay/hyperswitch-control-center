@@ -142,7 +142,7 @@ let currencyField = (
 module InfoField = {
   @react.component
   let make = (~label, ~str, ~customElementStyle="") => {
-    <div className={`flex flex-col justify-center gap-0.5-rem ${customElementStyle} `}>
+    <div className={`flex flex-col justify-center gap-2 ${customElementStyle} `}>
       <h2 className="flex-[1] text-nd_gray-400 "> {label->React.string} </h2>
       <h3 className="flex-[3]  overflow-scroll whitespace-nowrap"> {str->React.string} </h3>
     </div>
@@ -267,6 +267,32 @@ module ProcessorStatus = {
       setIsSelected={isSelected => updateConnectorStatus(isSelected)}
       isDisabled=false
       boolCustomClass="rounded-lg"
+    />
+  }
+}
+module DisableConnector = {
+  @react.component
+  let make = (~isConnectorDisabled, ~disableConnector) => {
+    let showPopUp = PopUpState.useShowPopUp()
+
+    let showConfirmationPopUp = _ => {
+      showPopUp({
+        popUpType: (Warning, WithIcon),
+        heading: "Confirm Action ? ",
+        description: `You are about to ${isConnectorDisabled
+            ? "Enable"
+            : "Disable"->String.toLowerCase} this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
+        handleConfirm: {
+          text: "Confirm",
+          onClick: _ => disableConnector()->ignore,
+        },
+        handleCancel: {text: "Cancel"},
+      })
+    }
+
+    <Button
+      text={isConnectorDisabled ? "Enable Processor" : "Disable Processor"}
+      onClick={_ => showConfirmationPopUp()}
     />
   }
 }

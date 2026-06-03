@@ -83,8 +83,6 @@ module PredefinedOption = {
     }
     let dateRangeDropdownVal = DateRangeUtils.datetext(value, disableFutureDates)
     <ToolTip
-      tooltipWidthClass="w-fit"
-      tooltipForWidthClass="!block w-full"
       description={isTooltipVisible ? `${startDate} - ${endDate}` : ""}
       toolTipFor={<AddDataAttributes
         attributes=[("data-daterange-dropdown-value", dateRangeDropdownVal)]>
@@ -97,7 +95,6 @@ module PredefinedOption = {
         </div>
       </AddDataAttributes>}
       toolTipPosition=Right
-      contentAlign=Left
     />
   }
 }
@@ -221,7 +218,7 @@ module Base = {
         setEndDateVal(_ => localEndDate)
       }
     }
-    let resetToInitalValues = () => {
+    let resetToInitialValues = () => {
       setLocalStartDate(_ => startDateVal)
       setLocalEndDate(_ => endDateVal)
       setLocalOpt(_ => "")
@@ -234,7 +231,7 @@ module Base = {
         setIsDropdownExpanded(_ => false)
         setCalendarVisibility(p => !p)
         if isDropdownExpandedActual && isCustomSelected {
-          resetToInitalValues()
+          resetToInitialValues()
         }
       },
     )
@@ -367,7 +364,7 @@ module Base = {
     }
 
     let cancelButton = _ => {
-      resetToInitalValues()
+      resetToInitialValues()
       setCalendarVisibility(p => !p)
       setIsDropdownExpanded(_ => false)
     }
@@ -638,14 +635,14 @@ module Base = {
       }
     }
 
-    let customeRangeBg = switch predefinedOptionSelected {
+    let customRangeBg = switch predefinedOptionSelected {
     | Some(_) => "bg-white dark:bg-jp-gray-lightgray_background"
     | None => "bg-jp-gray-100 dark:bg-jp-gray-850"
     }
 
     let removeApplyFilter = ev => {
       ev->ReactEvent.Mouse.stopPropagation
-      resetToInitalValues()
+      resetToInitialValues()
       setStartDateVal(_ => "")
       setEndDateVal(_ => "")
     }
@@ -675,7 +672,7 @@ module Base = {
     let calendarElement =
       <div className={`flex md:flex-row flex-col w-full`}>
         {if predefinedDays->Array.length > 0 && showOption {
-          <AddDataAttributes attributes=[("data-date-picker-predifined", "predefined-options")]>
+          <AddDataAttributes attributes=[("data-date-picker-predefined", "predefined-options")]>
             <div className="flex flex-wrap md:flex-col">
               {filteredPredefinedDays
               ->Array.mapWithIndex((value, i) => {
@@ -701,7 +698,7 @@ module Base = {
               })
               ->React.array}
               <div
-                className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-1/3 px-4 py-2  hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 cursor-pointer text-sm text-gray-500 dark:text-gray-400 ${customeRangeBg}}`}
+                className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-1/3 px-4 py-2  hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 cursor-pointer text-sm text-gray-500 dark:text-gray-400 ${customRangeBg}}`}
                 onClick={_ => {
                   setCalendarVisibility(_ => true)
                   setIsCustomSelected(_ => true)
@@ -728,7 +725,7 @@ module Base = {
               disableFutureDates
               ?dateRangeLimit
               setShowMsg
-              calendarContaierStyle="md:m-3 border-0 md:border"
+              calendarContainerStyle="md:m-3 border-0 md:border"
               ?allowedDateRange
             />
             <div

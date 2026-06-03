@@ -6,7 +6,7 @@ let allColumns = [CustomerId, Name, Email, Phone, PhoneCountryCode, Address, Cre
 
 let getHeading = colType => {
   switch colType {
-  | CustomerId => Table.makeHeaderInfo(~key="id", ~title="Customer Id")
+  | CustomerId => Table.makeHeaderInfo(~key="id", ~title="Customer ID")
   | Name => Table.makeHeaderInfo(~key="name", ~title="Customer Name")
   | Email => Table.makeHeaderInfo(~key="email", ~title="Email")
   | PhoneCountryCode => Table.makeHeaderInfo(~key="phone_country_code", ~title="Phone Country Code")
@@ -61,7 +61,7 @@ let getCustomers: JSON.t => array<customers> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let customersEntity = (~sendMixpanelEvent) => {
+let customersEntity = (~sendMixpanelEvent, ~isOrchestrationVault) => {
   EntityType.makeEntity(
     ~uri="",
     ~getObjects=getCustomers,
@@ -73,7 +73,11 @@ let customersEntity = (~sendMixpanelEvent) => {
     ~getShowLink={
       customerData => {
         sendMixpanelEvent()
-        GlobalVars.appendDashboardPath(~url=`/v2/vault/customers-tokens/${customerData.id}`)
+        GlobalVars.appendDashboardPath(
+          ~url=`${isOrchestrationVault
+              ? "/vault-customers-tokens/"
+              : "/v2/vault/customers-tokens/"}${customerData.id}`,
+        )
       }
     },
   )

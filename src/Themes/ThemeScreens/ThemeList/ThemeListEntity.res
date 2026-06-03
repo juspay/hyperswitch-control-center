@@ -1,4 +1,3 @@
-open ThemeHelper
 open LogicUtils
 
 type themeObj = {
@@ -66,7 +65,7 @@ let getHeading = colType => {
   | ThemeColours => Table.makeHeaderInfo(~key, ~title="Theme Colours", ~dataType=TextType)
   }
 }
-let newDefaultConfigSettings = ThemeProvider.newDefaultConfig.settings
+let fallbackThemeConfigSettings = ThemeProvider.fallbackThemeConfig.settings
 let getCell = (themeObj, colType): Table.cell => {
   open Table
   switch colType {
@@ -84,17 +83,28 @@ let getCell = (themeObj, colType): Table.cell => {
     let settings = themeDataDict->getObj("settings", Dict.make())
     let colors = settings->getObj("colors", Dict.make())
     let sidebarObj = settings->getObj("sidebar", Dict.make())
-    let primary = colors->getString("primary", newDefaultConfigSettings.colors.primary)
-    let sidebar = sidebarObj->getString("primary", newDefaultConfigSettings.sidebar.primary)
-    Table.CustomCell(<OverlappingCircles colorA=primary colorB=sidebar />, "")
+    let primary = colors->getString("primary", fallbackThemeConfigSettings.colors.primary)
+    let sidebar = sidebarObj->getString("primary", fallbackThemeConfigSettings.sidebar.primary)
+    Table.CustomCell(<ThemeHelper.OverlappingCircles colorA=primary colorB=sidebar />, "")
   }
 }
 
-let themeTableEntity: EntityType.entityType<cols, Js.Json.t> = EntityType.makeEntity(
-  ~uri=``,
-  ~getObjects=json => json->getArrayFromJson([]),
-  ~defaultColumns=visibleColumns,
-  ~allColumns=visibleColumns,
-  ~getHeading,
-  ~getCell=(json, colType) => getCell(tableItemToObjMapper(json->getDictFromJsonObject), colType),
-)
+let themeTableEntity = (~orgId) =>
+  EntityType.makeEntity(
+    ~uri=``,
+    ~getObjects=json => json->getArrayFromJson([]),
+    ~defaultColumns=visibleColumns,
+    ~allColumns=visibleColumns,
+    ~getHeading,
+    ~getCell=(json, colType) => getCell(tableItemToObjMapper(json->getDictFromJsonObject), colType),
+    ~getShowLink={
+      theme => {
+        let themeDict = theme->getDictFromJsonObject
+        let merchantId = themeDict->getString("merchant_id", "all_merchants")
+        let profileId = themeDict->getString("profile_id", "all_profiles")
+        let themeId = themeDict->getString("theme_id", "")
+        let url = `/theme/${themeId}/${profileId}/${merchantId}/${orgId}`
+        GlobalVars.appendDashboardPath(~url)
+      }
+    },
+  )

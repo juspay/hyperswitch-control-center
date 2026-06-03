@@ -9,7 +9,7 @@ module MetadataAuthenticationInput = {
     let (key, setKey) = React.useState(_ => "")
     let (metaValue, setValue) = React.useState(_ => "")
     let originalKeyRef = React.useRef("")
-    let getMetadatKeyValues = () => {
+    let getMetadataKeyValues = () => {
       let metadataKeyValueDict =
         formState.values
         ->getDictFromJsonObject
@@ -23,7 +23,7 @@ module MetadataAuthenticationInput = {
     }
 
     React.useEffect(() => {
-      let (metadataKey, customMetadataVal) = getMetadatKeyValues()
+      let (metadataKey, customMetadataVal) = getMetadataKeyValues()
       setValue(_ => customMetadataVal)
       setKey(_ => metadataKey)
       originalKeyRef.current = metadataKey
@@ -98,12 +98,12 @@ module MetadataAuthenticationInput = {
 
     <DesktopRow wrapperClass="flex-1">
       <div className="mt-5">
-        <TextInput
+        <TextInputAdapter
           input={keyInput} placeholder={"Enter key"} isDisabled={isDisabled && !allowEdit}
         />
       </div>
       <div className="mt-5">
-        <TextInput
+        <TextInputAdapter
           input={valueInput} placeholder={"Enter value"} isDisabled={isDisabled && !allowEdit}
         />
       </div>
@@ -215,7 +215,7 @@ let make = (
       setScreenState(_ => PageLoaderWrapper.Loading)
       let valuesDict = values->getDictFromJsonObject
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let body = valuesDict->JSON.Encode.object->getMetdataKeyValuePayload->JSON.Encode.object
+      let body = valuesDict->JSON.Encode.object->getMetadataKeyValuePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post)
       fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
       setBusinessProfile(_ => res->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1)
@@ -225,14 +225,14 @@ let make = (
     } catch {
     | _ => {
         setScreenState(_ => PageLoaderWrapper.Success)
-        showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+        showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
       }
     }
     Nullable.null
   }
   <ReactFinalForm.Form
     key="auth"
-    initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+    initialValues={businessProfileDetails->parseBusinessProfileJson->JSON.Encode.object}
     subscription=ReactFinalForm.subscribeToValues
     onSubmit
     render={({handleSubmit}) => {
@@ -245,7 +245,7 @@ let make = (
                 text="Update"
                 buttonType=Button.Primary
                 buttonSize=Button.Medium
-                disabledParamter={!allowEdit}
+                disabledParameter={!allowEdit}
               />
               <Button
                 buttonType=Button.Secondary

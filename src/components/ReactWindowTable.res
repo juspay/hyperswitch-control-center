@@ -374,7 +374,7 @@ module ReactWindowTableComponent = {
                   </div>
                   <RenderIf condition={item.showMultiSelectCheckBox->Option.getOr(false)}>
                     <div className=" mt-1 mr-2">
-                      <CheckBoxIcon
+                      <CheckBoxIconAdapter
                         isSelected={isAllSelected}
                         setIsSelected
                         isSelectedStateMinus
@@ -394,9 +394,9 @@ module ReactWindowTableComponent = {
                 {
                   let len = colFilter->Array.length
                   switch colFilter->Array.get(i) {
-                  | Some(fitlerRows) =>
+                  | Some(filterRows) =>
                     <FilterRow
-                      item=fitlerRows
+                      item=filterRows
                       hideFilter={showCheckBox && isFirstCol}
                       removeVerticalLines
                       tableDataBorderClass
@@ -666,8 +666,8 @@ let make = (
 
   let setColumnFilter = React.useMemo(() => {
     (filterKey, filterValue: array<JSON.t>) => {
-      setColumnFilterOrig(oldFitlers => {
-        let newObj = oldFitlers->Dict.toArray->Dict.fromArray
+      setColumnFilterOrig(oldFilters => {
+        let newObj = oldFilters->Dict.toArray->Dict.fromArray
         let filterValue = filterValue->Array.filter(
           item => {
             let updatedItem = item->String.make
@@ -699,8 +699,8 @@ let make = (
   let (isFilterOpen, setIsFilterOpenOrig) = React.useState(_ => Dict.make())
   let setIsFilterOpen = React.useMemo(() => {
     (filterKey, value: bool) => {
-      setIsFilterOpenOrig(oldFitlers => {
-        let newObj = oldFitlers->DictionaryUtils.copyOfDict
+      setIsFilterOpenOrig(oldFilters => {
+        let newObj = oldFilters->DictionaryUtils.copyOfDict
         newObj->Dict.set(filterKey, value)
         newObj
       })
@@ -727,7 +727,7 @@ let make = (
 
   let {getShowLink} = entity
 
-  let columToConsider = React.useMemo(() => {
+  let columnToConsider = React.useMemo(() => {
     switch (entity.allColumns, visibleColumns) {
     | (Some(allCol), _) => Some(allCol)
     | (_, Some(visibleColumns)) => Some(visibleColumns)
@@ -754,7 +754,7 @@ let make = (
                 item->Nullable.toOption
               },
             )
-          switch columToConsider {
+          switch columnToConsider {
           | Some(allCol) =>
             newValues->Array.forEach(
               rows => {
@@ -801,7 +801,7 @@ let make = (
               let newArr =
                 filterValueArray
                 ->Array.map(item => item->JSON.Decode.float->Option.getOr(0.))
-                ->Array.toSorted(LogicUtils.numericArraySortComperator)
+                ->Array.toSorted(LogicUtils.numericArraySortComparator)
               let lengthOfArr = newArr->Array.length
 
               if lengthOfArr >= 2 {
@@ -830,7 +830,7 @@ let make = (
     } else {
       None
     }
-  }, (actualData, columToConsider, totalResults, visibleColumns, columnFilter))
+  }, (actualData, columnToConsider, totalResults, visibleColumns, columnFilter))
 
   let actualData = if tableLocalFilter {
     filteredData(actualData, columnFilter, visibleColumns, entity, dateFormatConvertor)
@@ -950,7 +950,7 @@ let make = (
         ->Array.unshift(
           CustomCell(
             <div onClick={ev => ev->ReactEvent.Mouse.stopPropagation}>
-              <CheckBoxIcon
+              <CheckBoxIconAdapter
                 isSelected={selectedRowIndex !== -1} setIsSelected checkboxDimension="h-4 w-4"
               />
             </div>,

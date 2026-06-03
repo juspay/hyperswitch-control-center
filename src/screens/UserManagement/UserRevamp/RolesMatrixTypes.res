@@ -8,7 +8,7 @@ type roleData = {
   roleId: string,
   roleName: string,
   entityType: string,
-  parent_groups: array<parentGroup>,
+  parentGroups: array<parentGroup>,
   roleScope: string,
 }
 

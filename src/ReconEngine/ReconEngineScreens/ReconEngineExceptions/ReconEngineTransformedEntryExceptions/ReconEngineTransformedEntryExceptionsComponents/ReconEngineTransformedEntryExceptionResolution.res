@@ -25,7 +25,7 @@ module IgnoreTransactionModalContent = {
             }}
           />
           <FormRenderer.SubmitButton
-            text="Ignore Entry" buttonType={Primary} customSumbitButtonStyle="!w-fit mt-4"
+            text="Ignore Entry" buttonType={Primary} customSubmitButtonStyle="!w-fit mt-4"
           />
         </div>
       </Form>
@@ -40,6 +40,7 @@ module EditEntryModalContent = {
     open ReconEngineHooks
     open LogicUtils
     open ReconEngineExceptionsHelper
+    open ReconEngineUtils
 
     let getAccounts = useGetAccounts()
     let getURL = useGetURL()
@@ -50,7 +51,7 @@ module EditEntryModalContent = {
     let (accountsList, setAccountsList) = React.useState(_ => [])
     let (transformationsList, setTransformationsList) = React.useState(_ => [])
     let (metadataSchema, setMetadataSchema) = React.useState(_ =>
-      Dict.make()->ReconEngineUtils.metadataSchemaItemToObjMapper
+      Dict.make()->metadataSchemaItemToObjMapper
     )
     let (metadataRows, setMetadataRows) = React.useState(_ => [])
     let (isMetadataLoading, setIsMetadataLoading) = React.useState(_ => false)
@@ -69,11 +70,14 @@ module EditEntryModalContent = {
           )
           let res = await fetchDetails(url)
           setTransformationsList(_ =>
-            res->getArrayDataFromJson(ReconEngineUtils.transformationConfigItemToObjMapper)
+            res->getArrayDataFromJson(transformationConfigItemToObjMapper)
           )
         }
         if entryDetails.transformation_id->isNonEmptyString {
-          let schema = await fetchMetadataSchema(~transformationId=entryDetails.transformation_id)
+          let schema =
+            (await fetchMetadataSchema(~transformationId=entryDetails.transformation_id))
+            ->getDictFromJsonObject
+            ->metadataSchemaItemToObjMapper
           setMetadataSchema(_ => schema)
         }
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -96,52 +100,52 @@ module EditEntryModalContent = {
     }, [entryDetails.id])
 
     <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="h-full w-full" />}>
-      <div className="flex flex-col gap-4 mx-4">
-        <Form onSubmit validate initialValues>
-          <FormRenderer.FieldRenderer
-            labelClass="font-semibold"
-            field={FormRenderer.makeMultiInputFieldInfo(
-              ~label="Account",
-              ~comboCustomInput=accountComboSelectInputField(
-                ~accountsList,
-                ~disabled=false,
-                ~setTransformationsList,
-                ~initialAccountId=entryDetails.account.account_id,
-              ),
-              ~inputFields=[
-                FormRenderer.makeInputFieldInfo(~name="account.account_id"),
-                FormRenderer.makeInputFieldInfo(~name="account.account_name"),
-              ],
-              ~isRequired=true,
+      <div className="flex flex-col gap-4 mx-4 h-full">
+        <Form onSubmit validate initialValues formClass="h-full flex flex-col justify-between">
+          <div className="flex flex-col max-h-890-px overflow-y-auto">
+            <FormRenderer.FieldRenderer
+              labelClass="font-semibold"
+              field={FormRenderer.makeMultiInputFieldInfo(
+                ~label="Account",
+                ~comboCustomInput=accountComboSelectInputField(
+                  ~accountsList,
+                  ~disabled=false,
+                  ~setTransformationsList,
+                  ~initialAccountId=entryDetails.account.account_id,
+                ),
+                ~inputFields=[
+                  FormRenderer.makeInputFieldInfo(~name="account.account_id"),
+                  FormRenderer.makeInputFieldInfo(~name="account.account_name"),
+                ],
+                ~isRequired=true,
+              )}
+            />
+            {transformationConfigSelectInputField(
+              ~transformationsList,
+              ~disabled=false,
+              ~setMetadataSchema,
+              ~setIsMetadataLoading,
             )}
-          />
-          {transformationConfigSelectInputField(
-            ~transformationsList,
-            ~disabled=false,
-            ~setMetadataSchema,
-            ~setIsMetadataLoading,
-          )}
-          {entryTypeSelectInputField(~disabled=false)}
-          {currencySelectInputField(~entryDetails, ~disabled=false)}
-          {amountTextInputField(~disabled=false)}
-          {orderIdTextInputField(~disabled=false)}
-          {effectiveAtDatePickerInputField()}
-          {metadataCustomInputField(
-            ~disabled=false,
-            ~metadataSchema,
-            ~metadataRows,
-            ~setMetadataRows,
-            ~isMetadataLoading,
-          )}
-          <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
-            <FormRenderer.DesktopRow itemWrapperClass="" wrapperClass="items-center">
-              <FormRenderer.SubmitButton
-                tooltipForWidthClass="w-full"
-                text="Save changes"
-                buttonType={Primary}
-                customSumbitButtonStyle="!w-full"
-              />
-            </FormRenderer.DesktopRow>
+            {entryTypeSelectInputField(~disabled=false)}
+            {currencySelectInputField(~entryDetails, ~disabled=false)}
+            {amountTextInputField(~disabled=false)}
+            {orderIdTextInputField(~disabled=false)}
+            {effectiveAtDatePickerInputField()}
+            {metadataCustomInputField(
+              ~disabled=false,
+              ~metadataSchema,
+              ~metadataRows,
+              ~setMetadataRows,
+              ~isMetadataLoading,
+            )}
+          </div>
+          <div className="my-4">
+            <FormRenderer.SubmitButton
+              text="Save changes"
+              buttonType={Primary}
+              showToolTip=false
+              customSubmitButtonStyle="!w-full"
+            />
           </div>
         </Form>
       </div>

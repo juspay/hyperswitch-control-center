@@ -41,6 +41,7 @@ let make = (
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let temp: array<ConnectorTypes.paymentMethodEnabled> = [
     {
       payment_method: "",
@@ -204,7 +205,7 @@ let make = (
             })
             ->React.array}
           </div>
-          <RenderIf condition={methodsWithAdditionalDetails->Array.length > 0}>
+          <RenderIf condition={version == V1 && methodsWithAdditionalDetails->Array.length > 0}>
             <div className="flex flex-col gap-4">
               <p className={`${body.md.medium} text-grey-700 opacity-50`}>
                 {"Below payment method types requires additional details"->React.string}
@@ -212,20 +213,19 @@ let make = (
               <div className={`flex flex-col gap-4 w-full`}>
                 {methodsWithAdditionalDetails
                 ->Array.mapWithIndex((pmtData, i) => {
-                  <Accordion
+                  <AccordionAdapter
                     arrowPosition=Right
                     initialExpandedArray=[]
                     accordion={[
                       {
                         title: pmtData.payment_method_subtype,
-                        renderContent: (~currentAccordianState as _, ~closeAccordionFn) =>
-                          <AdditionalDetailsSidebarComp
+                        renderContent: (~currentAccordionState as _, ~closeAccordionFn) =>
+                          <AdditionalDetailsSidebar
                             method={None}
                             setMetaData={_ => ()}
                             updateDetails={_val => updateDetails(_val)}
                             paymentMethodsEnabled=temp
                             paymentMethod={pm}
-                            setInitialValues={_ => ()}
                             pmtName={selectedWallet.payment_method_subtype}
                             closeAccordionFn
                             onCloseClickCustomFun={resetValues}
@@ -285,9 +285,9 @@ let make = (
                         ),
                       },
                     ]}
-                    accordianTopContainerCss="border border-nd_gray-150 rounded-lg "
+                    accordionTopContainerCss="border border-nd_gray-150 rounded-lg "
                     contentExpandCss="p-0 "
-                    accordianBottomContainerCss="!p-2 flex justify-between w-full !font-normal !text-fs-16"
+                    accordionBottomContainerCss="!p-2 flex justify-between w-full !font-normal !text-fs-16"
                     gapClass="flex flex-col gap-8"
                   />
                 })

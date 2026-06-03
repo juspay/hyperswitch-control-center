@@ -1,0 +1,184 @@
+open LogicUtils
+open ReconEngineAuditLogDrawerTypes
+
+let parseAccountData = (json: JSON.t): accountData => {
+  let dict = json->getDictFromJsonObject
+  {
+    account_id: dict->getString("account_id", ""),
+    account_name: dict->getString("account_name", ""),
+  }
+}
+
+let getEventTypeFromJson = (json: JSON.t): auditEvent => {
+  let dict = json->getDictFromJsonObject
+  let eventType = dict->getString("event_type", "")
+
+  switch eventType {
+  | "file_uploaded" =>
+    FileUploaded({
+      account: dict->getObj("account", Dict.make())->JSON.Encode.object->parseAccountData,
+      ingestion_id: dict->getString("ingestion_id", ""),
+      file_name: dict->getString("file_name", ""),
+      timestamp: dict->getString("timestamp", ""),
+    })
+
+  | "ingestions_failed" =>
+    IngestionsFailed({
+      account: dict->getObj("account", Dict.make())->JSON.Encode.object->parseAccountData,
+      count: dict->getInt("count", 0),
+      last_failed_at: dict->getString("last_failed_at", ""),
+    })
+
+  | "staging_entries_created" =>
+    StagingEntriesCreated({
+      account: dict->getObj("account", Dict.make())->JSON.Encode.object->parseAccountData,
+      count: dict->getInt("count", 0),
+      timestamp: dict->getString("timestamp", ""),
+    })
+
+  | "staging_entry_needs_manual_review" =>
+    StagingEntryNeedsManualReview({
+      account: dict->getObj("account", Dict.make())->JSON.Encode.object->parseAccountData,
+      count: dict->getInt("count", 0),
+      timestamp: dict->getString("timestamp", ""),
+    })
+  | "expectations_created" =>
+    ExpectationsCreated({
+      accounts: dict
+      ->getArrayFromDict("accounts", [])
+      ->Array.map(parseAccountData),
+      count: dict->getInt("count", 0),
+      timestamp: dict->getString("timestamp", ""),
+    })
+  | "transactions_matched" =>
+    TransactionsMatched({
+      accounts: dict
+      ->getArrayFromDict("accounts", [])
+      ->Array.map(parseAccountData),
+      count: dict->getInt("count", 0),
+      timestamp: dict->getString("timestamp", ""),
+    })
+  | "transactions_reconciled" =>
+    TransactionsReconciled({
+      accounts: dict
+      ->getArrayFromDict("accounts", [])
+      ->Array.map(parseAccountData),
+      count: dict->getInt("count", 0),
+      timestamp: dict->getString("timestamp", ""),
+    })
+  | "transactions_mismatched" =>
+    TransactionsMismatched({
+      accounts: dict
+      ->getArrayFromDict("accounts", [])
+      ->Array.map(parseAccountData),
+      count: dict->getInt("count", 0),
+      timestamp: dict->getString("timestamp", ""),
+    })
+  | _ => UnknownAuditEvent
+  }
+}
+
+let getEventMetadata = (event: auditEvent): eventMetadata => {
+  open ReconEngineUtils
+
+  switch event {
+  | FileUploaded({account, file_name, _}) => {
+      eventType: EventInfo,
+      color: "bg-blue-500",
+      title: "File Uploaded",
+      description: `${file_name} \u2022 ${account.account_name}`,
+    }
+  | IngestionsFailed({account, count, _}) => {
+      eventType: EventError,
+      color: "bg-red-500",
+      title: `${count->Int.toString} Ingestion${pluralText(~count)} Failed`,
+      description: account.account_name,
+    }
+  | StagingEntriesCreated({account, count, _}) => {
+      eventType: EventInfo,
+      color: "bg-blue-500",
+      title: `${count->Int.toString} Transformed ${count == 1 ? "Entry" : "Entries"} Created`,
+      description: account.account_name,
+    }
+  | StagingEntryNeedsManualReview({account, count, _}) => {
+      eventType: EventWarning,
+      color: "bg-yellow-500",
+      title: `${count->Int.toString} Transformed ${count == 1
+          ? "Entry"
+          : "Entries"} Need Manual Review`,
+      description: account.account_name,
+    }
+  | ExpectationsCreated({accounts, count, _}) => {
+      eventType: EventSuccess,
+      color: "bg-green-500",
+      title: `${count->Int.toString} Expectation${pluralText(~count)} Created`,
+      description: {
+        let accountNames =
+          accounts
+          ->Array.map(acc => acc.account_name)
+          ->Array.joinWith(", ")
+        accountNames
+      },
+    }
+  | TransactionsMatched({accounts, count, _}) => {
+      eventType: EventSuccess,
+      color: "bg-green-500",
+      title: `${count->Int.toString} Transaction${pluralText(~count)} Matched`,
+      description: {
+        let accountNames =
+          accounts
+          ->Array.map(acc => acc.account_name)
+          ->Array.joinWith(", ")
+        accountNames
+      },
+    }
+  | TransactionsReconciled({accounts, count, _}) => {
+      eventType: EventSuccess,
+      color: "bg-green-500",
+      title: `${count->Int.toString} Transaction${pluralText(~count)} Posted`,
+      description: {
+        let accountNames =
+          accounts
+          ->Array.map(acc => acc.account_name)
+          ->Array.joinWith(", ")
+        accountNames
+      },
+    }
+  | TransactionsMismatched({accounts, count, _}) => {
+      eventType: EventError,
+      color: "bg-red-500",
+      title: `${count->Int.toString} Transaction${pluralText(~count)} Mismatched`,
+      description: {
+        let accountNames =
+          accounts
+          ->Array.map(acc => acc.account_name)
+          ->Array.joinWith(", ")
+        accountNames
+      },
+    }
+  | UnknownAuditEvent => {
+      eventType: EventNone,
+      color: "bg-gray-500",
+      title: "No Event",
+      description: "No audit event available",
+    }
+  }
+}
+
+let getTimestamp = (event: auditEvent): string => {
+  switch event {
+  | FileUploaded({timestamp, _})
+  | StagingEntriesCreated({timestamp, _})
+  | StagingEntryNeedsManualReview({timestamp, _})
+  | ExpectationsCreated({timestamp, _})
+  | TransactionsMatched({timestamp, _})
+  | TransactionsReconciled({timestamp, _})
+  | TransactionsMismatched({timestamp, _}) => timestamp
+  | IngestionsFailed({last_failed_at, _}) => last_failed_at
+  | UnknownAuditEvent => ""
+  }
+}
+
+let sortByTimeStamp = (a: auditEvent, b: auditEvent) => {
+  compareLogic(a->getTimestamp, b->getTimestamp)
+}

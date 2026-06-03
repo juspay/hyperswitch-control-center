@@ -5,8 +5,8 @@ type role = Admin | ViewOnly | Operator | Developer | OrgAdmin | CustomerSupport
 type userStatus = Active | InviteSent | None
 
 type rolesType = {
-  role_id: string,
-  role_name: string,
+  roleId: string,
+  roleName: string,
 }
 
 type userTableTypes = {
@@ -29,8 +29,8 @@ type roleColTypes =
 
 let itemToObjectMapperForRoles = dict => {
   {
-    role_id: dict->getString("role_id", ""),
-    role_name: dict->getString("role_name", ""),
+    roleId: dict->getString("role_id", ""),
+    roleName: dict->getString("role_name", ""),
   }
 }
 
@@ -58,14 +58,14 @@ let customCellForRoles = listOfRoles => {
     let firstRole = listOfRoles->LogicUtils.getValueFromArray(
       0,
       {
-        role_id: "",
-        role_name: "",
+        roleId: "",
+        roleName: "",
       },
     )
 
     <div className="flex gap-1 items-center">
       <Icon size=18 name="person" />
-      {firstRole.role_name->LogicUtils.snakeToTitle->LogicUtils.capitalizeString->React.string}
+      {firstRole.roleName->LogicUtils.snakeToTitle->LogicUtils.capitalizeString->React.string}
     </div>
   }
 }
@@ -90,5 +90,5 @@ let userEntity = EntityType.makeEntity(
   ~getCell=getCellForUser,
   ~dataKey="",
   ~getShowLink=userId =>
-    GlobalVars.appendDashboardPath(~url=`/users/details?email=${userId.email}`),
+    GlobalVars.appendDashboardPath(~url=`/users/details?email=${userId.email->encodeURIComponent}`),
 )

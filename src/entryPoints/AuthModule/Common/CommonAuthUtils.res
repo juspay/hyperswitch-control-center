@@ -6,7 +6,7 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
       Dict.set(
         errors,
         key,
-        "Your password is not strong enough. Password size must be more than 8"->JSON.Encode.string,
+        "Your password is not strong enough. Password must be at least 8 characters long."->JSON.Encode.string,
       )
     } else {
       if !RegExp.test(%re("/^(?=.*[A-Z])/"), value) {
@@ -38,28 +38,28 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
         Dict.set(
           errors,
           key,
-          `Your password is not strong enough. A good password must contain atleast ${mustHave->Array.joinWith(
-              ",",
-            )} character`->JSON.Encode.string,
+          `Your password is not strong enough. A good password must contain at least ${mustHave->Array.joinWith(
+              ", ",
+            )} characters.`->JSON.Encode.string,
         )
       }
     }
   }
 }
 
-let confirmPasswordCheck = (value, key, confirmKey, passwordKey, valuesDict, errors) => {
+let confirmPasswordCheck = (value, key, passwordKey, confirmKey, valuesDict, errors) => {
   if (
     key === confirmKey &&
     value->LogicUtils.isNonEmptyString &&
     !Option.equal(Dict.get(valuesDict, passwordKey), Dict.get(valuesDict, key), (a, b) => a == b)
   ) {
-    Dict.set(errors, key, "The New password does not match!"->JSON.Encode.string)
+    Dict.set(errors, key, "Passwords do not match. Please try again."->JSON.Encode.string)
   }
 }
 
 let isValidEmail = value =>
   !RegExp.test(
-    %re(`/^(([^<>()[\]\.,;:\s@"]+(\.[^<>()[\]\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/`),
+    %re(`/^(([^<>()[\]\.,;:\s@"{}\/\\]+(\.[^<>()[\]\.,;:\s@"{}\/\\]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/`),
     value,
   )
 
@@ -119,6 +119,7 @@ let errorSubCodeMapper = (subCode: string) => {
   switch subCode {
   | "HE_02" => HE_02
   | "IR_48" => IR_48
+  | "IR_47" => IR_47
   | "UR_01" => UR_01
   | "UR_03" => UR_03
   | "UR_05" => UR_05

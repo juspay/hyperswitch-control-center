@@ -99,7 +99,9 @@ let make = () => {
         />
       </AccessControl>
     | list{"billing-processor", ...remainingPath} =>
-      <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
+      <AccessControl
+        authorization={userHasAccess(~groupAccess=ConnectorsView)}
+        isEnabled={featureFlagDetails.billingProcessor}>
         <EntityScaffold
           entityName="Billing Processor"
           remainingPath
@@ -109,13 +111,27 @@ let make = () => {
         />
       </AccessControl>
     | list{"vault-processor", ...remainingPath} =>
-      <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
+      <AccessControl
+        authorization={userHasAccess(~groupAccess=ConnectorsView)}
+        isEnabled={featureFlagDetails.vaultProcessor}>
         <EntityScaffold
           entityName="Vault Processor"
           remainingPath
           renderList={() => <VaultProcessorsList />}
           renderNewForm={() => <VaultProcessorsHome />}
           renderShow={(_, _) => <VaultProcessorsHome />}
+        />
+      </AccessControl>
+    | list{"surcharge-processor", ...remainingPath} =>
+      <AccessControl
+        authorization={userHasAccess(~groupAccess=ConnectorsView)}
+        isEnabled={featureFlagDetails.surchargeProcessor}>
+        <EntityScaffold
+          entityName="Surcharge Processor"
+          remainingPath
+          renderList={() => <SurchargeProcessorList />}
+          renderNewForm={() => <SurchargeProcessorHome />}
+          renderShow={(_, _) => <SurchargeProcessorHome />}
         />
       </AccessControl>
     | list{"fraud-risk-management", ...remainingPath} =>
@@ -147,9 +163,7 @@ let make = () => {
       <AccessControl
         isEnabled={featureFlagDetails.paymentLinkThemeConfigurator}
         authorization={userHasAccess(~groupAccess=ConnectorsView)}>
-        <SDKProvider>
-          <PaymentLinkThemeConfigurator />
-        </SDKProvider>
+        <PaymentLinkThemeConfigurator />
       </AccessControl>
     // Routing
     | list{"routing", ...remainingPath} =>
@@ -173,18 +187,24 @@ let make = () => {
         />
       </AccessControl>
     | list{"payment-settings", ...remainingPath} =>
-      <EntityScaffold
-        entityName="PaymentSettings"
-        remainingPath
-        renderList={() => <PaymentSettings webhookOnly=false showFormOnly=false />}
-      />
-    | list{"payment-settings-new", ...remainingPath} =>
-      <AccessControl isEnabled={featureFlagDetails.paymentSettingsV2} authorization=Access>
-        <EntityScaffold
-          entityName="PaymentSettingsV2" remainingPath renderList={() => <PaymentSettingsV2 />}
-        />
-      </AccessControl>
-
+      <>
+        <RenderIf condition={featureFlagDetails.paymentSettingsRevamped}>
+          <AccessControl authorization=Access>
+            <EntityScaffold
+              entityName="PaymentSettingsRevamped"
+              remainingPath
+              renderList={() => <PaymentSettingsRevamped />}
+            />
+          </AccessControl>
+        </RenderIf>
+        <RenderIf condition={!featureFlagDetails.paymentSettingsRevamped}>
+          <AccessControl authorization=Access>
+            <EntityScaffold
+              entityName="PaymentSettings" remainingPath renderList={() => <PaymentSettings />}
+            />
+          </AccessControl>
+        </RenderIf>
+      </>
     | list{"webhooks", ...remainingPath} =>
       <AccessControl isEnabled={featureFlagDetails.devWebhooks} authorization=Access>
         <FilterContext key="webhooks" index="webhooks">
@@ -208,6 +228,9 @@ let make = () => {
           <SDKPage />
         </SDKProvider>
       </AccessControl>
+    | list{"vault-onboarding", ..._}
+    | list{"vault-customers-tokens", ..._} =>
+      <OrchestrationVaultContainer />
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
     }}

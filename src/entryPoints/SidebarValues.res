@@ -1,5 +1,6 @@
 open SidebarTypes
 open UserManagementTypes
+open CommonAuthTypes
 
 // * Custom Component
 module ProductHeaderComponent = {
@@ -71,7 +72,7 @@ let payouts = userHasResourceAccess => {
     name: "Payouts",
     link: `/payouts`,
     access: userHasResourceAccess(~resourceAccess=Payout),
-    searchOptions: [("View payouts operations", "")],
+    searchOptions: [("View payout operations", "")],
   })
 }
 
@@ -86,21 +87,33 @@ let alternatePaymentMethods = isApmEnabled =>
       })
     : emptyComponent
 
-let operations = (isOperationsEnabled, ~userHasResourceAccess, ~isPayoutsEnabled, ~userEntity) => {
-  let payments = payments(userHasResourceAccess)
-  let refunds = refunds(userHasResourceAccess)
-  let disputes = disputes(userHasResourceAccess)
+let operations = (
+  isOperationsEnabled,
+  ~userHasResourceAccess,
+  ~isPayoutsEnabled,
+  ~userEntity,
+  ~isCurrentMerchantPlatform,
+) => {
   let customers = customers(userHasResourceAccess)
-  let payouts = payouts(userHasResourceAccess)
 
-  let links = [payments, refunds, disputes]
-  let isCustomersEnabled = userEntity !== #Profile
+  let links = if isCurrentMerchantPlatform {
+    [customers]
+  } else {
+    let payments = payments(userHasResourceAccess)
+    let refunds = refunds(userHasResourceAccess)
+    let disputes = disputes(userHasResourceAccess)
+    let payouts = payouts(userHasResourceAccess)
 
-  if isPayoutsEnabled {
-    links->Array.push(payouts)->ignore
-  }
-  if isCustomersEnabled {
-    links->Array.push(customers)->ignore
+    let links = [payments, refunds, disputes]
+    let isCustomersEnabled = userEntity !== #Profile
+
+    if isPayoutsEnabled {
+      links->Array.push(payouts)->ignore
+    }
+    if isCustomersEnabled {
+      links->Array.push(customers)->ignore
+    }
+    links
   }
 
   isOperationsEnabled
@@ -209,6 +222,18 @@ let vaultProcessor = (~userHasResourceAccess) => {
   })
 }
 
+let surchargeProcessor = (~userHasResourceAccess) => {
+  SubLevelLink({
+    name: "Surcharge Processor",
+    link: `/surcharge-processor`,
+    access: userHasResourceAccess(~resourceAccess=Connector),
+    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
+      ~processorList=ConnectorUtils.surchargeProcessorList,
+      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    ),
+  })
+}
+
 let connectors = (
   isConnectorsEnabled,
   ~isLiveMode,
@@ -219,6 +244,7 @@ let connectors = (
   ~isTaxProcessor,
   ~isBillingProcessor,
   ~isVaultProcessor,
+  ~isSurchargeProcessor,
   ~userHasResourceAccess,
 ) => {
   let connectorLinkArray = [paymentProcessor(isLiveMode, userHasResourceAccess)]
@@ -249,6 +275,10 @@ let connectors = (
     connectorLinkArray->Array.push(vaultProcessor(~userHasResourceAccess))->ignore
   }
 
+  if isSurchargeProcessor {
+    connectorLinkArray->Array.push(surchargeProcessor(~userHasResourceAccess))->ignore
+  }
+
   isConnectorsEnabled
     ? Section({
         name: "Connectors",
@@ -260,50 +290,50 @@ let connectors = (
     : emptyComponent
 }
 
-let paymentAnalytcis = SubLevelLink({
+let paymentAnalytcis = (~userHasResourceAccess) => SubLevelLink({
   name: "Payments",
   link: `/analytics-payments`,
-  access: Access,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("View analytics", "")],
 })
 
-let performanceMonitor = SubLevelLink({
+let performanceMonitor = (~userHasResourceAccess) => SubLevelLink({
   name: "Performance",
   link: `/performance-monitor`,
-  access: Access,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("View Performance", "")],
 })
 
-let newAnalytics = SubLevelLink({
+let newAnalytics = (~userHasResourceAccess) => SubLevelLink({
   name: "Insights",
   link: `/new-analytics`,
-  access: Access,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("Insights", "")],
 })
 
-let disputeAnalytics = SubLevelLink({
+let disputeAnalytics = (~userHasResourceAccess) => SubLevelLink({
   name: "Disputes",
   link: `/analytics-disputes`,
-  access: Access,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("View Dispute analytics", "")],
 })
-let routingAnalytics = SubLevelLink({
+let routingAnalytics = (~userHasResourceAccess) => SubLevelLink({
   name: "Routing",
   link: `/analytics-routing`,
-  access: Access,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("View routing analytics", "")],
 })
 
-let refundAnalytics = SubLevelLink({
+let refundAnalytics = (~userHasResourceAccess) => SubLevelLink({
   name: "Refunds",
   link: `/analytics-refunds`,
-  access: Access,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("View analytics", "")],
 })
-let authenticationAnalytics = SubLevelLink({
+let authenticationAnalytics = (~userHasResourceAccess) => SubLevelLink({
   name: "Authentication",
   link: `/analytics-authentication`,
-  access: Access,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
   iconTag: "betaTag",
   searchOptions: [("View analytics", "")],
 })
@@ -317,30 +347,30 @@ let analytics = (
   ~authenticationAnalyticsFlag,
   ~userHasResourceAccess,
 ) => {
-  let links = [paymentAnalytcis, refundAnalytics]
+  let links = [paymentAnalytcis(~userHasResourceAccess), refundAnalytics(~userHasResourceAccess)]
   if authenticationAnalyticsFlag {
-    links->Array.push(authenticationAnalytics)
+    links->Array.push(authenticationAnalytics(~userHasResourceAccess))
   }
   if disputeAnalyticsFlag {
-    links->Array.push(disputeAnalytics)
+    links->Array.push(disputeAnalytics(~userHasResourceAccess))
   }
 
   if newAnalyticsflag {
-    links->Array.unshift(newAnalytics)
+    links->Array.unshift(newAnalytics(~userHasResourceAccess))
   }
 
   if performanceMonitorFlag {
-    links->Array.push(performanceMonitor)
+    links->Array.push(performanceMonitor(~userHasResourceAccess))
   }
   if routingAnalyticsFlag {
-    links->Array.push(routingAnalytics)
+    links->Array.push(routingAnalytics(~userHasResourceAccess))
   }
 
   isAnalyticsEnabled
     ? Section({
         name: "Analytics",
         icon: "nd-analytics",
-        showSection: userHasResourceAccess(~resourceAccess=Analytics) === CommonAuthTypes.Access,
+        showSection: userHasResourceAccess(~resourceAccess=Analytics) === Access,
         links,
       })
     : emptyComponent
@@ -398,6 +428,36 @@ let surcharge = userHasResourceAccess => {
     access: userHasResourceAccess(~resourceAccess=SurchargeDecisionManager),
     searchOptions: [("Add Surcharge", "")],
   })
+}
+
+let vaultOnboarding = userHasResourceAccess => SubLevelLink({
+  name: "Configuration",
+  link: `/vault-onboarding`,
+  access: userHasResourceAccess(~resourceAccess=Connector),
+  searchOptions: [("Vault onboarding", "")],
+})
+
+let vaultCustomerAndTokens = userHasResourceAccess => SubLevelLink({
+  name: "Customers & Tokens",
+  link: `/vault-customers-tokens`,
+  access: userHasResourceAccess(~resourceAccess=Connector),
+  searchOptions: [("Manage vault customers and tokens", "")],
+})
+
+let vault = (isVaultEnabled, ~userHasResourceAccess) => {
+  let defaultVault = [
+    vaultOnboarding(userHasResourceAccess),
+    vaultCustomerAndTokens(userHasResourceAccess),
+  ]
+
+  isVaultEnabled
+    ? Section({
+        name: "Vault",
+        icon: "vault-home",
+        showSection: true,
+        links: defaultVault,
+      })
+    : emptyComponent
 }
 
 let workflow = (
@@ -459,19 +519,36 @@ let configurePMTs = userHasResourceAccess => {
 
 let complianceCertificateSection = {
   SubLevelLink({
-    name: "Compliance ",
+    name: "Compliance",
     link: `/compliance`,
     access: Access,
     searchOptions: [("PCI certificate", "")],
   })
 }
 
+let organizationSettings = (userHasAccess, checkUserEntity) => {
+  SubLevelLink({
+    name: "Organization Settings",
+    link: `/organization-settings`,
+    access: {
+      userHasAccess(~groupAccess=AccountManage) == CommonAuthTypes.Access &&
+        checkUserEntity([#Organization])
+        ? Access
+        : NoAccess
+    },
+    searchOptions: [("Organization settings", "")],
+  })
+}
+
 let settings = (
   ~isConfigurePmtsEnabled,
   ~userHasResourceAccess,
+  ~userHasAccess,
+  ~checkUserEntity,
   ~complianceCertificate,
   ~devModularityV2Enabled,
   ~devThemeEnabled,
+  ~devUsers,
 ) => {
   let settingsLinkArray = []
 
@@ -487,8 +564,12 @@ let settings = (
     ->Array.push(ThemeSidebarValues.themeSublevelLinks(~userHasResourceAccess))
     ->ignore
   }
-
-  settingsLinkArray->Array.push(userManagement(userHasResourceAccess))->ignore
+  if userHasAccess(~groupAccess=AccountManage) == CommonAuthTypes.Access {
+    settingsLinkArray->Array.push(organizationSettings(userHasAccess, checkUserEntity))->ignore
+  }
+  if !(devUsers && devModularityV2Enabled) {
+    settingsLinkArray->Array.push(userManagement(userHasResourceAccess))->ignore
+  }
 
   Section({
     name: "Settings",
@@ -516,20 +597,12 @@ let paymentSettings = userHasResourceAccess => {
     searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
   })
 }
-let paymentSettingsV2 = userHasResourceAccess => {
-  SubLevelLink({
-    name: "Payment Settings V2",
-    link: `/payment-settings-new`,
-    access: userHasResourceAccess(~resourceAccess=Account),
-    searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
-  })
-}
 
 let webhooks = userHasResourceAccess => {
   SubLevelLink({
     name: "Webhooks",
     link: `/webhooks`,
-    access: userHasResourceAccess(~resourceAccess=Account),
+    access: userHasResourceAccess(~resourceAccess=WebhookEvent),
     searchOptions: [("Webhooks", ""), ("Retry webhooks", "")],
   })
 }
@@ -548,27 +621,30 @@ let developers = (
   ~isWebhooksEnabled,
   ~userHasResourceAccess,
   ~checkUserEntity,
-  ~isPaymentSettingsV2Enabled,
   ~paymentLinkThemeConfigurator,
+  ~isCurrentMerchantPlatform,
 ) => {
-  let isProfileUser = checkUserEntity([#Profile])
   let apiKeys = apiKeys(userHasResourceAccess)
-  let paymentSettings = paymentSettings(userHasResourceAccess)
-  let paymentSettingsV2 = paymentSettingsV2(userHasResourceAccess)
-  let webhooks = webhooks(userHasResourceAccess)
 
-  let defaultDevelopersOptions = [paymentSettings]
-  if isPaymentSettingsV2Enabled {
-    defaultDevelopersOptions->Array.push(paymentSettingsV2)
-  }
-  if !isProfileUser {
-    defaultDevelopersOptions->Array.push(apiKeys)
-  }
-  if isWebhooksEnabled {
-    defaultDevelopersOptions->Array.push(webhooks)
-  }
-  if paymentLinkThemeConfigurator {
-    defaultDevelopersOptions->Array.push(paymentLinkTheme)
+  let links = if isCurrentMerchantPlatform {
+    [apiKeys]
+  } else {
+    let isProfileUser = checkUserEntity([#Profile])
+    let paymentSettings = paymentSettings(userHasResourceAccess)
+    let webhooks = webhooks(userHasResourceAccess)
+
+    let defaultDevelopersOptions = [paymentSettings]
+
+    if !isProfileUser {
+      defaultDevelopersOptions->Array.push(apiKeys)
+    }
+    if isWebhooksEnabled {
+      defaultDevelopersOptions->Array.push(webhooks)
+    }
+    if paymentLinkThemeConfigurator {
+      defaultDevelopersOptions->Array.push(paymentLinkTheme)
+    }
+    defaultDevelopersOptions
   }
 
   isDevelopersEnabled
@@ -576,104 +652,7 @@ let developers = (
         name: "Developers",
         icon: "nd-developers",
         showSection: true,
-        links: defaultDevelopersOptions,
-      })
-    : emptyComponent
-}
-
-let uploadReconFiles = {
-  SubLevelLink({
-    name: "Upload Recon Files",
-    link: `/upload-files`,
-    access: Access,
-    searchOptions: [("Upload recon files", "")],
-  })
-}
-
-let runRecon = {
-  SubLevelLink({
-    name: "Run Recon",
-    link: `/run-recon`,
-    access: Access,
-    searchOptions: [("Run recon", "")],
-  })
-}
-
-let reconAnalytics = {
-  SubLevelLink({
-    name: "Analytics",
-    link: `/recon-analytics`,
-    access: Access,
-    searchOptions: [("Recon analytics", "")],
-  })
-}
-let reconReports = {
-  SubLevelLink({
-    name: "Reports",
-    link: `/reports`,
-    access: Access,
-    searchOptions: [("Recon reports", "")],
-  })
-}
-
-let reconConfigurator = {
-  SubLevelLink({
-    name: "Configurator",
-    link: `/config-settings`,
-    access: Access,
-    searchOptions: [("Recon configurator", "")],
-  })
-}
-// Commented as not needed now
-// let reconFileProcessor = {
-//   SubLevelLink({
-//     name: "File Processor",
-//     link: `/file-processor`,
-//     access: Access,
-//     searchOptions: [("Recon file processor", "")],
-//   })
-// }
-
-let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourceAccess) => {
-  switch (recon, isReconEnabled, checkUserEntity([#Merchant, #Organization, #Tenant])) {
-  | (true, true, true) => {
-      let links = []
-      if userHasResourceAccess(~resourceAccess=ReconFiles) == CommonAuthTypes.Access {
-        links->Array.push(uploadReconFiles)
-      }
-      if userHasResourceAccess(~resourceAccess=RunRecon) == CommonAuthTypes.Access {
-        links->Array.push(runRecon)
-      }
-      if (
-        userHasResourceAccess(~resourceAccess=ReconAndSettlementAnalytics) == CommonAuthTypes.Access
-      ) {
-        links->Array.push(reconAnalytics)
-      }
-      if userHasResourceAccess(~resourceAccess=ReconReports) == CommonAuthTypes.Access {
-        links->Array.push(reconReports)
-      }
-      if userHasResourceAccess(~resourceAccess=ReconConfig) == CommonAuthTypes.Access {
-        links->Array.push(reconConfigurator)
-      }
-      // Commented as not needed now
-      // if userHasResourceAccess(~resourceAccess=ReconFiles) == CommonAuthTypes.Access {
-      //   links->Array.push(reconFileProcessor)
-      // }
-      Section({
-        name: "Recon And Settlement",
-        icon: "recon",
-        showSection: true,
         links,
       })
-    }
-  | (true, false, true) =>
-    Link({
-      name: "Reconciliation",
-      icon: isReconEnabled ? "recon" : "recon-lock",
-      link: `/recon`,
-      access: userHasResourceAccess(~resourceAccess=ReconToken),
-    })
-
-  | _ => emptyComponent
-  }
+    : emptyComponent
 }

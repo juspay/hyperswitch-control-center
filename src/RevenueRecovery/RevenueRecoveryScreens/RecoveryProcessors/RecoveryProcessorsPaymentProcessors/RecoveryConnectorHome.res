@@ -151,6 +151,11 @@ let make = () => {
       </h1>
     </>
 
+  React.useEffect(() => {
+    setShowSideBar(_ => false)
+    None
+  }, [])
+
   <div className="flex flex-row gap-x-6">
     <VerticalStepIndicator titleElement=recoveryTitleElement sections currentStep backClick />
     {switch currentStep->getSectionVariant {
@@ -169,10 +174,7 @@ let make = () => {
               <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
               <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
               <FormRenderer.SubmitButton
-                text="Next"
-                buttonSize={Small}
-                customSumbitButtonStyle="!w-full mt-8"
-                tooltipForWidthClass="w-full"
+                text="Next" buttonSize={Small} customSubmitButtonStyle="!w-full mt-8"
               />
             </div>
           </Form>
@@ -190,10 +192,7 @@ let make = () => {
             <div className="flex flex-col mb-5 gap-3 ">
               <ConnectorPaymentMethodV2 initialValues isInEditState=true />
               <FormRenderer.SubmitButton
-                text="Next"
-                buttonSize={Small}
-                customSumbitButtonStyle="!w-full mt-8"
-                tooltipForWidthClass="w-full"
+                text="Next" buttonSize={Small} customSubmitButtonStyle="!w-full mt-8"
               />
             </div>
           </Form>
@@ -221,7 +220,7 @@ let make = () => {
           customButtonStyle="w-full mt-8"
         />
       </div>
-    | #ReviewAndConnect => <RecoveryProceesorReview connectorInfo=initialValues />
+    | #ReviewAndConnect => <RecoveryProcessorReview connectorInfo=initialValues />
     }}
   </div>
 }

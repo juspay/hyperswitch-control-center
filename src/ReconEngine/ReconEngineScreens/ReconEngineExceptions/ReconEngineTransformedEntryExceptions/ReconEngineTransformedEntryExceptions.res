@@ -19,6 +19,7 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (selectedRows, setSelectedRows) = React.useState(_ => [])
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
@@ -53,11 +54,9 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let enhancedFilterValueJson = Dict.copy(filterValueJson)
       let statusFilter = filterValueJson->getArrayFromDict("status", [])
+      let statusList = getProcessingEntryStatusValueFromStatusList([NeedsManualReview])
       if statusFilter->Array.length == 0 {
-        enhancedFilterValueJson->Dict.set(
-          "status",
-          ["needs_manual_review"]->getJsonFromArrayOfString,
-        )
+        enhancedFilterValueJson->Dict.set("status", statusList->getJsonFromArrayOfString)
       }
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
         ~filterValueJson=enhancedFilterValueJson,
@@ -151,7 +150,7 @@ let make = () => {
             totalResults={filteredStagingData->Array.length}
             offset
             setOffset
-            currrentFetchCount={filteredStagingData->Array.length}
+            currentFetchCount={filteredStagingData->Array.length}
             tableheadingClass="h-12"
             tableHeadingTextClass="!font-normal"
             nonFrozenTableParentClass="!rounded-lg"
@@ -161,15 +160,27 @@ let make = () => {
             filters={<TableSearchFilter
               data={stagingData->Array.map(Nullable.make)}
               filterLogic
-              placeholder="Search Staging Entry ID or Order ID or Status"
+              placeholder="Search Transformed Entry ID or Order ID or Status"
               customSearchBarWrapperWidth="w-full lg:w-1/3"
               customInputBoxWidth="w-full rounded-xl"
               searchVal=searchText
               setSearchVal=setSearchText
             />}
+            checkBoxProps={{
+              showCheckBox: true,
+              selectedData: selectedRows,
+              setSelectedData: setSelectedRows,
+            }}
           />
         </RenderIf>
       </div>
     </PageLoaderWrapper>
+    <RenderIf condition={selectedRows->isNonEmptyArray}>
+      <ReconEngineTransformedEntryBulkActions
+        selectedRows={selectedRows->Array.map(json => json->Identity.jsonToAnyType)}
+        setSelectedRows
+        refreshList={() => fetchStagingData()->ignore}
+      />
+    </RenderIf>
   </div>
 }

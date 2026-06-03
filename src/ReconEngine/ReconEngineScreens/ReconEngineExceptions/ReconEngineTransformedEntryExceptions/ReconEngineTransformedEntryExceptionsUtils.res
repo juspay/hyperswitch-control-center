@@ -4,6 +4,44 @@ open ReconEngineTransformedEntryExceptionsTypes
 open ReconEngineExceptionsUtils
 open ReconEngineTransactionsUtils
 
+let constructTransformedEntryBulkVoidRequestBody = (~valuesDict, ~selectedRows) => {
+  let action =
+    [
+      (
+        "void",
+        [
+          ("reason", valuesDict->getString("reason", "")->JSON.Encode.string),
+        ]->getJsonFromArrayOfJson,
+      ),
+    ]->getJsonFromArrayOfJson
+
+  let selection = [
+    ("selection_type", "ids"->JSON.Encode.string),
+    (
+      "ids",
+      selectedRows
+      ->Array.map((entry: processingEntryType) => entry.id->JSON.Encode.string)
+      ->JSON.Encode.array,
+    ),
+  ]->getJsonFromArrayOfJson
+
+  [("action", action), ("selection", selection)]->getJsonFromArrayOfJson
+}
+
+let getTransformedEntryBulkActionsCount = (
+  ~bulkActionResponses: array<ReconEngineExceptionsTypes.bulkActionResponse>,
+) => {
+  bulkActionResponses->Array.reduce((0, 0, 0, 0), (acc, response) => {
+    let (successCount, failedCount, skippedCount, totalCount) = acc
+    switch response.bulk_action_status {
+    | BulkActionSuccess => (successCount + 1, failedCount, skippedCount, totalCount + 1)
+    | BulkActionFailed => (successCount, failedCount + 1, skippedCount, totalCount + 1)
+    | BulkActionInEligible => (successCount, failedCount, skippedCount + 1, totalCount + 1)
+    | UnknownBulkActionStatus => (successCount, failedCount, skippedCount, totalCount + 1)
+    }
+  })
+}
+
 let sortByVersion = (c1: processingEntryType, c2: processingEntryType) => {
   compareLogic(c1.version, c2.version)
 }
@@ -186,10 +224,12 @@ let hasFormValuesChanged = (
     currentData->getString("effective_at", "") != initialEntryDetails.effective_at
 
   let isMetadataChanged = {
-    let currentMetadata = currentData->getJsonObjectFromDict("metadata")
-    let currentMetadataJson = currentMetadata
-    let initialMetadataJson = initialMetadata->JSON.Encode.object
-    currentMetadataJson->JSON.stringify != initialMetadataJson->JSON.stringify
+    let currentMetadataArray = currentData->getDictfromDict("metadata")->Dict.toArray
+    let initialMetadataArray = initialMetadata->Dict.toArray
+    currentMetadataArray->Array.length != initialMetadataArray->Array.length ||
+      currentMetadataArray->Array.some(((key, value)) => {
+        initialMetadata->Dict.get(key)->Option.mapOr(true, initialValue => initialValue != value)
+      })
   }
   let isOrderIdChanged = currentData->getString("order_id", "") != initialEntryDetails.order_id
   isAccountChanged ||
@@ -230,15 +270,16 @@ let validateEditEntryDetails = (
     let metadataDict = data->getJsonObjectFromDict("metadata")->getDictFromJsonObject
 
     metadataSchema.schema_data.fields.metadata_fields->Array.forEach(field => {
-      let value = metadataDict->getString(field.identifier, "")
+      let fieldKey = getFieldNameFromMetadataField(field)
+      let value = metadataDict->getString(fieldKey, "")
       let error = ReconEngineExceptionsUtils.validateMetadataFieldValue(
-        field.identifier,
+        fieldKey,
         value,
         metadataSchema,
       )
       switch error {
       | Some(err) => {
-          let errorKey = `metadata.${field.identifier}`
+          let errorKey = `metadata.${fieldKey}`
           fieldErrors->Dict.set(errorKey, err->JSON.Encode.string)
         }
       | None => ()
@@ -324,13 +365,19 @@ let generateResolutionSummary = (
     summary->Array.push(message)
   }
 
-  let initialMetadata = currentEntry.metadata->getFilteredMetadataFromEntries->JSON.Encode.object
-  let updatedMetadata = updatedEntry.metadata->getFilteredMetadataFromEntries->JSON.Encode.object
+  let initialMetadata = currentEntry.metadata->getFilteredMetadataFromEntries->Dict.toArray
 
-  if initialMetadata->JSON.stringify != updatedMetadata->JSON.stringify {
-    let message = "Metadata fields updated."
-    summary->Array.push(message)
-  }
+  initialMetadata->Array.forEach(((key, initialValue)) => {
+    let updatedStr =
+      updatedEntry.metadata
+      ->getFilteredMetadataFromEntries
+      ->getString(key, "")
+    let initialStr = initialValue->getStringFromJson("")
+    if initialStr != updatedStr {
+      let message = `Metadata field '${key}' changed from '${initialStr}' to '${updatedStr}'.`
+      summary->Array.push(message)
+    }
+  })
 
   summary
 }
@@ -352,4 +399,132 @@ let constructManualReconciliationBody = (~updatedEntry: processingEntryType, ~va
   ]
   ->Dict.fromArray
   ->JSON.Encode.object
+}
+
+let entryText = (~count) => count == 1 ? "entry" : "entries"
+
+let bulkActionVoidingModalConfig = (~count: int) => {
+  {
+    bulkActionModal: {
+      modalHeading: "Ignore Entry",
+      modalDescription: `This will permanently ignore ${count->Int.toString} transformed ${entryText(
+          ~count,
+        )}. These actions cannot be undone. Are you sure you want to proceed?`,
+      modalConfirmButtonText: "Ignore Entry",
+      modalConfirmButtonType: Delete,
+      modalLoadingText: `Ignoring transformed ${entryText(~count)}...`,
+    },
+  }
+}
+
+let getBulkActionModalConfig = (~action: actionType, ~count: int): bulkActionModalConfig => {
+  switch action {
+  | BulkTransformedEntryVoid => bulkActionVoidingModalConfig(~count)
+  | UnknownBulkTransformedEntryActionType => {
+      bulkActionModal: {
+        modalHeading: "",
+        modalDescription: "",
+        modalConfirmButtonText: "",
+        modalConfirmButtonType: Secondary,
+        modalLoadingText: "",
+      },
+    }
+  }
+}
+
+let bulkActionVoidingSuccessModalConfig = (
+  ~successCount: int,
+  ~failedCount: int,
+  ~skippedCount: int,
+  ~totalCount: int,
+): bulkActionModalConfig => {
+  if successCount == totalCount {
+    {
+      bulkActionModal: {
+        modalHeading: "Transformed Entries Ignored",
+        modalDescription: "All transformed entries were ignored successfully. This summary will be cleared after you close this window.",
+        modalConfirmButtonText: "Download Voiding Report",
+        modalConfirmButtonType: Primary,
+        modalLoadingText: "",
+      },
+      bulkActionIcon: {
+        bulkActionIconName: "nd-check-circle-outline",
+        bulkActionIconClass: "text-nd_green-500",
+      },
+    }
+  } else if failedCount + skippedCount == totalCount {
+    {
+      bulkActionModal: {
+        modalHeading: "Ignoring Failed",
+        modalDescription: "Selected transformed entries could not be ignored. This summary will be cleared after you close this window.",
+        modalConfirmButtonText: "Download Voiding Report",
+        modalConfirmButtonType: Primary,
+        modalLoadingText: "",
+      },
+      bulkActionIcon: {
+        bulkActionIconName: "nd-multiple-cross",
+        bulkActionIconClass: "text-nd_red-400",
+      },
+    }
+  } else {
+    {
+      bulkActionModal: {
+        modalHeading: "Ignoring Completed with Errors",
+        modalDescription: `${successCount->Int.toString}/${totalCount->Int.toString} transformed ${entryText(
+            ~count=successCount,
+          )} were ignored successfully. This summary will be cleared after you close this window.`,
+        modalConfirmButtonText: "Download Voiding Report",
+        modalConfirmButtonType: Primary,
+        modalLoadingText: "",
+      },
+      bulkActionIcon: {
+        bulkActionIconName: "nd-alert-circle",
+        bulkActionIconClass: "text-nd_orange-300",
+      },
+    }
+  }
+}
+
+let getBulkActionSuccessModalConfig = (
+  action: actionType,
+  successCount: int,
+  failedCount: int,
+  skippedCount: int,
+  totalCount: int,
+): bulkActionModalConfig => {
+  switch action {
+  | BulkTransformedEntryVoid =>
+    bulkActionVoidingSuccessModalConfig(~successCount, ~failedCount, ~skippedCount, ~totalCount)
+  | UnknownBulkTransformedEntryActionType => {
+      bulkActionModal: {
+        modalHeading: "",
+        modalDescription: "",
+        modalConfirmButtonText: "",
+        modalConfirmButtonType: Secondary,
+        modalLoadingText: "",
+      },
+      bulkActionIcon: {bulkActionIconName: "", bulkActionIconClass: ""},
+    }
+  }
+}
+
+open ReconEngineExceptionsTypes
+
+let downloadBulkActionReport = (bulkActionResponses: array<bulkActionResponse>) => {
+  let headers = ["ID", "Status", "Status Detail"]
+  let data = bulkActionResponses->Array.map(item => {
+    [
+      item.logical_id->Option.getOr("N/A"),
+      (item.bulk_action_status :> string)->String.toUpperCase,
+      item.bulk_action_status_detail->Option.getOr(""),
+    ]
+  })
+
+  let csvContent = PapaParse.unparse({"fields": headers, "data": data})
+  let timestamp = Date.now()->Js.Float.toString
+  DownloadUtils.download(
+    ~fileName=`bulk_ignore_transformed_entry_report_${timestamp}.csv`,
+    ~content=csvContent,
+    ~fileType="text/csv",
+  )
 }

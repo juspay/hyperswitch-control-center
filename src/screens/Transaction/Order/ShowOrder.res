@@ -52,7 +52,6 @@ module ShowOrderDetails = {
               description="Original amount that was authorized for the payment"
               toolTipFor={<Icon name="tooltip_info" className={`mt-1 ml-1`} />}
               toolTipPosition=Top
-              tooltipWidthClass="w-fit"
             />
           </div>
           {statusUI}
@@ -82,7 +81,7 @@ module ShowOrderDetails = {
                 value={getCell(data, colType)}
                 customMoneyStyle="!font-normal !text-sm"
                 labelMargin="!py-0 mt-2"
-                overiddingHeadingStyles="text-black text-sm font-medium"
+                overridingHeadingStyles="text-black text-sm font-medium"
                 textColor="!font-normal !text-jp-gray-700"
               />
             </div>
@@ -193,7 +192,7 @@ module AttemptsSection = {
 module DisputesSection = {
   @react.component
   let make = (~data: DisputeTypes.disputes) => {
-    let {orgId, merchantId} = React.useContext(
+    let {orgId, merchantId, profileId} = React.useContext(
       UserInfoProvider.defaultContext,
     ).getCommonSessionDetails()
     let widthClass = "w-1/3"
@@ -205,7 +204,7 @@ module DisputesSection = {
           detailsFields=DisputesEntity.columnsInPaymentPage
           getHeading=DisputesEntity.getHeading
           getCell={(disputes, disputesColsType) =>
-            DisputesEntity.getCell(disputes, disputesColsType, merchantId, orgId)}
+            DisputesEntity.getCell(disputes, disputesColsType, merchantId, orgId, ~profileId)}
           widthClass
         />
       </div>
@@ -217,15 +216,15 @@ module Refunds = {
   open OrderEntity
   @react.component
   let make = (~refundData) => {
-    let expand = -1
+    let noExpandIndex = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
     let heading = refundColumns->Array.map(getRefundHeading)
     React.useEffect(() => {
-      if expand != -1 {
-        setExpandedRowIndexArray(_ => [expand])
+      if noExpandIndex != -1 {
+        setExpandedRowIndexArray(_ => [noExpandIndex])
       }
       None
-    }, [expand])
+    }, [noExpandIndex])
     let onExpandClick = idx => {
       setExpandedRowIndexArray(_ => {
         [idx]
@@ -280,15 +279,15 @@ module Attempts = {
   open OrderEntity
   @react.component
   let make = (~order) => {
-    let expand = -1
+    let noExpandIndex = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
 
     React.useEffect(() => {
-      if expand != -1 {
-        setExpandedRowIndexArray(_ => [expand])
+      if noExpandIndex != -1 {
+        setExpandedRowIndexArray(_ => [noExpandIndex])
       }
       None
-    }, [expand])
+    }, [noExpandIndex])
 
     let onExpandClick = idx => {
       setExpandedRowIndexArray(_ => {
@@ -315,10 +314,10 @@ module Attempts = {
     }
 
     let attemptsData = order.attempts->Array.toSorted((a, b) => {
-      let rowValue_a = a.attempt_id
-      let rowValue_b = b.attempt_id
+      let rowValueA = a.attempt_id
+      let rowValueB = b.attempt_id
 
-      rowValue_a <= rowValue_b ? 1. : -1.
+      rowValueA <= rowValueB ? 1. : -1.
     })
 
     let heading = attemptsColumns->Array.map(getAttemptHeading)
@@ -352,18 +351,18 @@ module Disputes = {
   open DisputesEntity
   @react.component
   let make = (~disputesData) => {
-    let {orgId, merchantId} = React.useContext(
+    let {orgId, merchantId, profileId} = React.useContext(
       UserInfoProvider.defaultContext,
     ).getCommonSessionDetails()
-    let expand = -1
+    let noExpandIndex = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
     let heading = columnsInPaymentPage->Array.map(getHeading)
     React.useEffect(() => {
-      if expand != -1 {
-        setExpandedRowIndexArray(_ => [expand])
+      if noExpandIndex != -1 {
+        setExpandedRowIndexArray(_ => [noExpandIndex])
       }
       None
-    }, [expand])
+    }, [noExpandIndex])
     let onExpandClick = idx => {
       setExpandedRowIndexArray(_ => {
         [idx]
@@ -389,7 +388,9 @@ module Disputes = {
     }
 
     let rows = disputesData->Array.map(item => {
-      columnsInPaymentPage->Array.map(colType => getCell(item, colType, merchantId, orgId))
+      columnsInPaymentPage->Array.map(colType =>
+        getCell(item, colType, merchantId, orgId, ~profileId)
+      )
     })
 
     let getRowDetails = rowIndex => {
@@ -414,27 +415,38 @@ module Disputes = {
 module OrderActions = {
   @react.component
   let make = (~orderData, ~refetch, ~showModal, ~setShowModal) => {
-    let (amoutAvailableToRefund, setAmoutAvailableToRefund) = React.useState(_ => 0.0)
+    let (amountAvailableToRefund, setAmountAvailableToRefund) = React.useState(_ => 0.0)
     let refundData = orderData.refunds
+    let disputeData = orderData.disputes
 
     let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(orderData.currency)
-
     let amountRefunded = ref(0.0)
     let requestedRefundAmount = ref(0.0)
+    let disputeAmount = ref(0.0)
+
     let _ = refundData->Array.map(ele => {
-      if ele.status === "pending" {
+      let refundStatus = ele.status->HSwitchOrderUtils.refundStatusVariantMapper
+      if refundStatus === Pending {
         requestedRefundAmount := requestedRefundAmount.contents +. ele.amount
-      } else if ele.status === "succeeded" {
+      } else if refundStatus === Success {
         amountRefunded := amountRefunded.contents +. ele.amount
       }
     })
+
+    let _ = disputeData->Array.map(ele => {
+      let disputeStatus = ele.dispute_status->DisputesUtils.disputeStatusVariantMapper
+      if disputeStatus === DisputeLost {
+        disputeAmount := disputeAmount.contents +. ele.amount->Float.fromString->Option.getOr(0.0)
+      }
+    })
+
     React.useEffect(_ => {
-      setAmoutAvailableToRefund(_ =>
+      let amountToBeRefunded =
         orderData.amount_captured /. conversionFactor -.
         amountRefunded.contents /. conversionFactor -.
+        disputeAmount.contents /. conversionFactor -.
         requestedRefundAmount.contents /. conversionFactor
-      )
-
+      setAmountAvailableToRefund(_ => amountToBeRefunded > 0.0 ? amountToBeRefunded : 0.0)
       None
     }, [orderData])
 
@@ -451,7 +463,7 @@ module OrderActions = {
           setShowModal
           requestedRefundAmount
           amountRefunded
-          amoutAvailableToRefund
+          amountAvailableToRefund
           refetch
         />
       </Modal>
@@ -515,7 +527,7 @@ module FraudRiskBannerDetails = {
               value={getFrmCell(order, colType)}
               customMoneyStyle="!font-normal !text-sm"
               labelMargin="!py-0 mt-2"
-              overiddingHeadingStyles="text-black text-sm font-medium"
+              overridingHeadingStyles="text-black text-sm font-medium"
               textColor="!font-normal !text-jp-gray-700"
             />
           </div>
@@ -561,7 +573,7 @@ module AuthenticationDetails = {
               value={getAuthenticationCell(order, colType)}
               customMoneyStyle="!font-normal !text-sm"
               labelMargin="!py-0 mt-2"
-              overiddingHeadingStyles="text-black text-sm font-medium"
+              overridingHeadingStyles="text-black text-sm font-medium"
               textColor="!font-normal !text-jp-gray-700"
             />
           </div>
@@ -628,6 +640,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~expectedOrgId=orgId,
         ~expectedMerchantId=merchantId,
         ~expectedProfileId=profileId,
+        ~version,
       )
       let res = await fetchDetails(url)
       let order = switch version {
@@ -661,7 +674,13 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~id=Some(id),
         ~queryParameters=Some("expand_attempts=true"),
       )
-    | V2 => getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
+    | V2 =>
+      getURL(
+        ~entityName=V2(V2_ORDERS_LIST),
+        ~methodType=Get,
+        ~id=Some(id),
+        ~queryParameters=Some("expand_attempts=true"),
+      )
     }
 
     fetchOrderDetails(accountUrl)->ignore
@@ -684,7 +703,8 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     status !== Failed &&
     status !== Cancelled &&
     status !== Expired &&
-    status !== CancelledPostCapture
+    status !== CancelledPostCapture &&
+    status !== RequiresPaymentMethod
   }, [orderData])
 
   let refreshStatus = async () => {
@@ -712,10 +732,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     }
   }
 
-  let breadCrumbLink = switch version {
-  | V1 => "/payments"
-  | V2 => "/v2/orchestration/payments"
-  }
+  let breadCrumbLink = RouteUtils.getPath(~path="/payments", version)
 
   <div className="flex flex-col overflow-scroll gap-8">
     <div className="flex justify-between w-full">
@@ -723,9 +740,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         <div className="w-full">
           <PageUtils.PageHeading title="Payments" />
           <BreadCrumbNavigation
-            path=[{title: "Payments", link: breadCrumbLink}]
-            currentPageTitle=id
-            cursorStyle="cursor-pointer"
+            path=[{title: "Payments", link: breadCrumbLink}] currentPageTitle=id
           />
         </div>
         <RenderIf condition={showSyncButton()}>
@@ -752,7 +767,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     <PageLoaderWrapper
       screenState
       customUI={<NoDataFound
-        message="Payment does not exists in out record" renderType=NotFound
+        message="Payment does not exist in our records" renderType=NotFound
       />}>
       <div className="flex flex-col gap-8">
         <OrderInfo
@@ -766,12 +781,12 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           condition={version == V1 &&
           featureFlagDetails.auditTrail &&
           userHasAccess(~groupAccess=AnalyticsView) === Access}>
-          <RenderAccordian
+          <RenderAccordion
             initialExpandedArray=[0]
             accordion={[
               {
                 title: "Events and logs",
-                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                   <LogsWrapper wrapperFor={#PAYMENT}>
                     <PaymentLogs paymentId={id} createdAt={orderData.created_at} />
                   </LogsWrapper>
@@ -791,12 +806,12 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         </RenderIf>
         <RenderIf condition={isDisputeDataVisible}>
           <div className="overflow-scroll">
-            <RenderAccordian
+            <RenderAccordion
               initialExpandedArray={isDisputeDataVisible ? [0] : []}
               accordion={[
                 {
                   title: "Disputes",
-                  renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+                  renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                     <Disputes disputesData={orderData.disputes} />
                   },
                   renderContentOnTop: None,
@@ -805,11 +820,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             />
           </div>
         </RenderIf>
-        <RenderAccordian
+        <RenderAccordion
           accordion={[
             {
               title: "Customer Details",
-              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+              renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                 <div>
                   <ShowOrderDetails
                     sectionTitle="Customer"
@@ -892,11 +907,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             },
           ]}
         />
-        <RenderAccordian
+        <RenderAccordion
           accordion={[
             {
               title: "More Payment Details",
-              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+              renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                 <div className="mb-10">
                   <ShowOrderDetails
                     data=orderData
@@ -920,6 +935,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
                       ExtendedAuthApplied,
                       ExtendedAuthLastAppliedAt,
                       RequestExtendedAuth,
+                      HyperswitchErrorDescription,
                     ]
                     isNonRefundConnector={isNonRefundConnector(orderData.connector)}
                     paymentStatus={orderData.status}
@@ -937,11 +953,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         <RenderIf
           condition={orderData.payment_method === "card" &&
             orderData.payment_method_data->Option.isSome}>
-          <RenderAccordian
+          <RenderAccordion
             accordion={[
               {
                 title: "Payment Method Details",
-                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                   <div className="bg-white p-2">
                     <PrettyPrintJson
                       jsonToDisplay={orderData.payment_method_data
@@ -957,11 +973,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           />
         </RenderIf>
         <RenderIf condition={orderData.external_authentication_details->Option.isSome}>
-          <RenderAccordian
+          <RenderAccordion
             accordion={[
               {
                 title: "External Authentication Details",
-                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                   <div className="bg-white p-2">
                     <AuthenticationDetails order={orderData} />
                   </div>
@@ -972,11 +988,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           />
         </RenderIf>
         <RenderIf condition={!(orderData.metadata->LogicUtils.isEmptyDict)}>
-          <RenderAccordian
+          <RenderAccordion
             accordion={[
               {
                 title: "Payment Metadata",
-                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                   <div className="bg-white p-2">
                     <PrettyPrintJson
                       jsonToDisplay={orderData.metadata->JSON.stringifyAny->Option.getOr("")}
@@ -990,11 +1006,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           />
         </RenderIf>
         <div className="overflow-scroll">
-          <RenderAccordian
+          <RenderAccordion
             accordion={[
               {
                 title: "FRM Details",
-                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                   <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
                     <FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />
                   </div>

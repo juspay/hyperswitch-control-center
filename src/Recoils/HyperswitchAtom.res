@@ -9,11 +9,9 @@ let merchantDetailsValueAtom: Recoil.recoilAtom<HSwitchSettingTypes.merchantPayl
   JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails,
 )
 
-let organizationDetailsValueAtom: Recoil.recoilAtom<
-  HSwitchSettingTypes.organizationPayload,
-> = Recoil.atom(
+let organizationDetailsValueAtom: Recoil.recoilAtom<OMPSwitchTypes.ompListTypes> = Recoil.atom(
   "organizationDetailsValue",
-  JSON.Encode.null->OrganizationDetailsMapper.getOrganizationDetails,
+  ompDefaultValue,
 )
 
 let connectorListAtom: Recoil.recoilAtom<
@@ -39,6 +37,12 @@ let featureFlagAtom: Recoil.recoilAtom<FeatureFlagUtils.featureFlag> = Recoil.at
   "featureFlag",
   JSON.Encode.null->FeatureFlagUtils.featureFlagType,
 )
+let connectorListForLiveAtom: Recoil.recoilAtom<
+  ConnectorListForLiveFromConfigTypes.connectorListForLive,
+> = Recoil.atom(
+  "connectorListForLive",
+  JSON.Encode.null->ConnectorListForLiveFromConfigUtils.getConnectorListForLive,
+)
 let merchantSpecificConfigAtom: Recoil.recoilAtom<
   FeatureFlagUtils.merchantSpecificConfig,
 > = Recoil.atom("merchantSpecificConfig", JSON.Encode.null->FeatureFlagUtils.merchantSpecificConfig)
@@ -63,7 +67,7 @@ let switchMerchantListAtom: Recoil.recoilAtom<
 
 let currentTabNameRecoilAtom = Recoil.atom("currentTabName", "ActiveTab")
 
-let globalSeacrchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Recoil.atom(
+let globalSearchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Recoil.atom(
   "globalSearch",
   {
     GlobalSearchTypes.local_results: [],
@@ -91,3 +95,5 @@ let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType
   "moduleListRecoil",
   [],
 )
+
+let orchestrationVaultAtom: Recoil.recoilAtom<bool> = Recoil.atom("orchestrationVaultAtom", false)

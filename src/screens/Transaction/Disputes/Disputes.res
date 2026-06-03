@@ -14,7 +14,8 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (filters, setFilters) = React.useState(_ => None)
 
-  let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport, email, transactionView} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
@@ -63,7 +64,7 @@ let make = () => {
       let response = await fetchDetails(disputesUrl)
       let disputesValue = response->getArrayDataFromJson(DisputesEntity.itemToObjMapper)
       if disputesValue->Array.length > 0 {
-        setDisputesData(_ => disputesValue->Array.map(Nullable.make))
+        setDisputesData(_ => disputesValue)
         setScreenState(_ => Success)
       } else {
         setScreenState(_ => Custom)
@@ -125,23 +126,31 @@ let make = () => {
         </RenderIf>
       </div>
     </div>
-    <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 my-8">
-      <TransactionView entity=TransactionViewTypes.Disputes />
-    </div>
+    <RenderIf condition={transactionView}>
+      <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8">
+        <TransactionView entity=TransactionViewTypes.Disputes />
+      </div>
+    </RenderIf>
     <div className="flex-1"> {filtersUI} </div>
+    <RenderIf
+      condition={disputesData->Array.some(dispute => {
+        dispute.is_already_refunded
+      })}>
+      <DisputesHelper.DualRefundsAlert subText="Click on Dispute ID to learn more" />
+    </RenderIf>
     <PageLoaderWrapper screenState customUI>
       <div className="flex flex-col gap-4">
         <LoadedTableWithCustomColumns
           title="Disputes"
           hideTitle=true
-          actualData=disputesData
+          actualData={disputesData->Array.map(Nullable.make)}
           entity={DisputesEntity.disputesEntity(merchantId, orgId)}
           resultsPerPage=10
           showSerialNumber=true
           totalResults={disputesData->Array.length}
           offset
           setOffset
-          currrentFetchCount={disputesData->Array.length}
+          currentFetchCount={disputesData->Array.length}
           defaultColumns={DisputesEntity.defaultColumns}
           customColumnMapper={TableAtoms.disputesMapDefaultCols}
           showSerialNumberInCustomizeColumns=false

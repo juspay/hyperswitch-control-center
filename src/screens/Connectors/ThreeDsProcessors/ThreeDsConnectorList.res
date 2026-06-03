@@ -6,6 +6,8 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
+  let {threeDsAuthenticatorProcessorsLiveList} =
+    HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
   let (
     filteredConnectorData: array<
       RescriptCore.Nullable.t<ConnectorTypes.connectorPayloadCommonType>,
@@ -63,10 +65,11 @@ let make = () => {
       subTitle={"Connect and manage 3DS authentication providers to enhance the conversions"}
     />
     <PageLoaderWrapper screenState>
-      <div className="flex flex-col gap-10">
+      <div className="flex flex-col gap-8">
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Connected Processors"
+            titleSize={Small}
             actualData={filteredConnectorData}
             totalResults={filteredConnectorData->Array.length}
             resultsPerPage=20
@@ -85,7 +88,7 @@ let make = () => {
             />}
             offset
             setOffset
-            currrentFetchCount={configuredConnectors->Array.map(Nullable.make)->Array.length}
+            currentFetchCount={configuredConnectors->Array.map(Nullable.make)->Array.length}
             collapseTableRow=false
             showAutoScroll=true
           />
@@ -97,7 +100,7 @@ let make = () => {
             configuredConnectors,
           )}
           connectorsAvailableForIntegration={featureFlagDetails.isLiveMode
-            ? ConnectorUtils.threedsAuthenticatorListForLive
+            ? threeDsAuthenticatorProcessorsLiveList
             : ConnectorUtils.threedsAuthenticatorList}
           urlPrefix="3ds-authenticators/new"
           connectorType=ConnectorTypes.ThreeDsAuthenticator

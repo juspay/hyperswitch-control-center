@@ -1,4 +1,14 @@
-let metaDataInputKeysToIgnore = ["google_pay", "apple_pay", "zen_apple_pay", "account_id"]
+let metaDataInputKeysToIgnore = [
+  "google_pay",
+  "apple_pay",
+  "zen_apple_pay",
+  "paypal_sdk",
+  "account_id",
+  "boleto",
+  "pix",
+  "pix_automatico_qr",
+  "pix_automatico_push",
+]
 let connectorMetaDataNameMapper = name => {
   switch name {
   | _ => `metadata.${name}`

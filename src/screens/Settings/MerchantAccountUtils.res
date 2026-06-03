@@ -5,7 +5,7 @@ let parseKey = api_key => {
   api_key->String.slice(~start=0, ~end=6)->String.concat(String.repeat("*", 20))
 }
 
-let parseBussinessProfileJson = (
+let parseBusinessProfileJson = (
   profileRecord: BusinessProfileInterfaceTypesV1.profileEntity_v1,
 ) => {
   let {
@@ -219,7 +219,7 @@ let getCustomHeadersPayload = (values: JSON.t) => {
   customHeaderDict
 }
 
-let getMetdataKeyValuePayload = (values: JSON.t) => {
+let getMetadataKeyValuePayload = (values: JSON.t) => {
   let customHeaderDict = Dict.make()
   let valuesDict = values->getDictFromJsonObject
   let customMetadataVal = Dict.make()
@@ -765,15 +765,18 @@ let defaultValueForBusinessProfile: BusinessProfileInterfaceTypesV1.profileEntit
   force_3ds_challenge: None,
   is_debit_routing_enabled: None,
   acquirer_configs: None,
+  acquirer_config_bucket: None,
   merchant_category_code: None,
   is_network_tokenization_enabled: None,
   always_request_extended_authorization: None,
   is_manual_retry_enabled: None,
   always_enable_overcapture: None,
   billing_processor_id: None,
+  surcharge_connector_details: None,
   payment_link_config: None,
   is_external_vault_enabled: None,
   external_vault_connector_details: None,
+  payment_method_blocking: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {

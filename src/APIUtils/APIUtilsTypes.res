@@ -21,6 +21,7 @@ type entityName =
   | ORDERS
   | ORDER_FILTERS
   | ORDERS_AGGREGATE
+  | ORDERS_AGGREGATE_CLICKHOUSE
   | REFUNDS_AGGREGATE
   | DISPUTES_AGGREGATE
   | PAYOUTS_AGGREGATE
@@ -34,7 +35,6 @@ type entityName =
   | ROUTING_EVENT_LOGS
   | GENERATE_SAMPLE_DATA
   | USERS
-  | RECON
   | INTEGRATION_DETAILS
   | FRAUD_RISK_MANAGEMENT
   | USER_MANAGEMENT
@@ -89,6 +89,9 @@ type entityName =
   | THREE_DS_EXEMPTION_DELETE_RULE
   | HYPERSWITCH_RECON
   | CHAT_BOT
+  | OIDC_AUTHORIZE
+  | PAYMENTS_LIST
+  | ACCOUNT_PAYMENT_METHODS
 
 type v2entityNameType =
   | CUSTOMERS
@@ -97,20 +100,22 @@ type v2entityNameType =
   | V2_ATTEMPTS_LIST
   | V2_ORDERS_LIST
   | V2_RECOVERY_INVOICES_LIST
+  | REVENUE_RECOVERY_REPORT
   | PAYMENT_METHOD_LIST
   | RETRIEVE_PAYMENT_METHOD
   | V2_ORDER_FILTERS
   | V2_ORDERS_AGGREGATE
+  | V2_ORDERS_AGGREGATE_CLICKHOUSE
   | USERS
   | TOTAL_TOKEN_COUNT
   | MERCHANT_ACCOUNT
   | PROCESS_TRACKER
   | API_KEYS
   | BUSINESS_PROFILE
+  | REFUNDS
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 
-type reconType = [#TOKEN | #REQUEST | #NONE]
 type hypersenseType = [#TOKEN | #HOME | #NONE]
 
 type hyperswitchReconType = [
@@ -135,6 +140,8 @@ type hyperswitchReconType = [
   | #AUDIT_TRAIL
   | #PROCESSING_ENTRY_RESOLUTIONS
   | #VOID_PROCESSING_ENTRY
+  | #TRANSACTION_BULK_OPERATIONS
+  | #STAGING_ENTRY_BULK_OPERATIONS
   | #NONE
 ]
 
@@ -159,6 +166,7 @@ type userType = [
   | #INVITE_MULTIPLE
   | #RESEND_INVITE
   | #CREATE_ORG
+  | #CREATE_PLATFORM
   | #CREATE_MERCHANT
   | #GET_GROUP_ACL
   | #CREATE_CUSTOM_ROLE
@@ -180,13 +188,11 @@ type userType = [
   | #SWITCH_ORG
   | #SWITCH_MERCHANT_NEW
   | #SWITCH_PROFILE
+  | #SWITCH_PROFILE_NEW
   | #LIST_ORG
   | #LIST_MERCHANT
   | #LIST_PROFILE
   | #LIST_ROLES_FOR_INVITE
-  | #SWITCH_ORG
-  | #SWITCH_PROFILE
-  | #ROLE_INFO
   | #LIST_INVITATION
   | #ACCEPT_INVITATION_PRE_LOGIN
   | #USER_DETAILS
@@ -210,7 +216,6 @@ type getUrlTypes = (
   ~connector: option<string>=?,
   ~userType: userType=?,
   ~userRoleTypes: userRoleTypes=?,
-  ~reconType: reconType=?,
   ~hyperswitchReconType: hyperswitchReconType=?,
   ~hypersenseType: hypersenseType=?,
   ~queryParameters: option<string>=?,
