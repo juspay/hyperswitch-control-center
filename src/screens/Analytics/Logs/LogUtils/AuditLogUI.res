@@ -383,11 +383,11 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   )
 
   let focusFirstRow = rows =>
-    switch rows->Array.get(0) {
-    | Some(firstRow) =>
+    rows
+    ->Array.get(0)
+    ->Option.mapOr((), firstRow =>
       firstRow->getDictFromJsonObject->setDefaultValue(setLogDetails, setSelectedOption)
-    | None => ()
-    }
+    )
 
   let originTabs =
     <TabsBinding
@@ -486,7 +486,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
           <TabsBinding
             value={activeTab
             ->Option.flatMap(arr => arr->Array.get(0))
-            ->Option.getOr(tabKeys->Array.get(0)->Option.getOr(""))}
+            ->Option.getOr(tabKeys->getValueFromArray(0, ""))}
             onValueChange=setActiveTab
             variant=Underline
             size=Md>

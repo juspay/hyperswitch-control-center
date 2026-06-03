@@ -1,3 +1,5 @@
+open LogicUtils
+
 type logType = SDK | API_EVENTS | WEBHOOKS | CONNECTOR | ROUTING
 
 type pageType = [#PAYMENT | #REFUND | #DISPUTE | #PAYOUT]
@@ -42,8 +44,7 @@ let getTagName = tag => {
 }
 
 let isIncomingWebhook = dict =>
-  dict->getLogType === API_EVENTS &&
-    dict->LogicUtils.getString("api_flow", "") === "IncomingWebhookReceive"
+  dict->getLogType === API_EVENTS && dict->getString("api_flow", "") === "IncomingWebhookReceive"
 
 let getHeadingLabel = dict => dict->isIncomingWebhook ? "WEBHOOKS" : dict->getLogType->getTagName
 
@@ -58,7 +59,6 @@ let getHeadingIcon = dict =>
   }
 
 let getApiName = (dict, ~nameToURLMapper) => {
-  open LogicUtils
   switch dict->getLogType {
   | API_EVENTS => dict->getString("api_flow", "default value")->camelCaseToTitle
   | SDK => dict->getString("event_name", "default value")
@@ -68,14 +68,12 @@ let getApiName = (dict, ~nameToURLMapper) => {
     dict
     ->getString("flow", "")
     ->String.split(" ")
-    ->Array.get(1)
-    ->Option.getOr("default_value")
+    ->getValueFromArray(1, "default_value")
     ->camelCaseToTitle
   }->nameToURLMapper
 }
 
 let getRowTitle = (dict, ~nameToURLMapper) => {
-  open LogicUtils
   let apiName = dict->getApiName(~nameToURLMapper)
   switch dict->getLogType {
   | SDK | ROUTING => apiName->String.toLowerCase->snakeToTitle
@@ -84,7 +82,6 @@ let getRowTitle = (dict, ~nameToURLMapper) => {
 }
 
 let getStatusCodeString = dict => {
-  open LogicUtils
   switch dict->getLogType {
   | API_EVENTS | CONNECTOR | ROUTING => dict->getInt("status_code", 200)->Int.toString
   | SDK => dict->getString("log_type", "INFO")
@@ -93,7 +90,6 @@ let getStatusCodeString = dict => {
 }
 
 let getMethod = dict => {
-  open LogicUtils
   switch dict->getLogType {
   | API_EVENTS => dict->getString("http_method", "")
   | CONNECTOR | ROUTING => dict->getString("method", "")
@@ -103,7 +99,6 @@ let getMethod = dict => {
 }
 
 let getUrlPath = dict => {
-  open LogicUtils
   switch dict->getLogType {
   | API_EVENTS => dict->getString("url_path", "")
   | SDK | WEBHOOKS | CONNECTOR | ROUTING => ""
@@ -113,7 +108,7 @@ let getUrlPath = dict => {
 type authOrigin = Sdk | Backend | Dashboard | Webhook | UnknownAuth
 
 let getAuthOrigin = dict =>
-  switch dict->LogicUtils.getString("api_auth_type", "") {
+  switch dict->getString("api_auth_type", "") {
   | "publishable_key" => Sdk
   | "api_key" => Backend
   | "merchant_jwt" | "jwt" => Dashboard
@@ -129,7 +124,7 @@ let getRowOrigin = dict =>
   | WEBHOOKS => WebhookOrigin
   | SDK => SdkOrigin
   | API_EVENTS =>
-    dict->LogicUtils.getString("api_flow", "") === "IncomingWebhookReceive"
+    dict->getString("api_flow", "") === "IncomingWebhookReceive"
       ? WebhookOrigin
       : switch dict->getAuthOrigin {
         | Sdk => SdkOrigin
@@ -169,7 +164,7 @@ type sdkFilter = AllSdk | SdkUserEvent | SdkApiCall
 
 let getSdkSub = dict =>
   switch dict->getLogType {
-  | SDK => dict->LogicUtils.getString("category", "") === "API" ? SdkApiCall : SdkUserEvent
+  | SDK => dict->getString("category", "") === "API" ? SdkApiCall : SdkUserEvent
   | API_EVENTS | WEBHOOKS | CONNECTOR | ROUTING => SdkApiCall
   }
 
@@ -235,7 +230,6 @@ let getLogTypefromString = log => {
 }
 
 let setDefaultValue = (initialData, setLogDetails, setSelectedOption) => {
-  open LogicUtils
   switch initialData->getLogType {
   | API_EVENTS => {
       let request = initialData->getString("request", "")

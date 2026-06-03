@@ -215,10 +215,10 @@ let make = (
   | API_EVENTS | WEBHOOKS | CONNECTOR | ROUTING => ""
   }
 
-  let msText = ms => `${ms->Float.toInt->Int.toString}ms`
+  let formatMilliseconds = ms => `${ms->Float.toInt->Int.toString}ms`
 
   let latencyText = switch logType {
-  | API_EVENTS | CONNECTOR => latencyMs > 0.0 ? latencyMs->msText : ""
+  | API_EVENTS | CONNECTOR => latencyMs > 0.0 ? latencyMs->formatMilliseconds : ""
   | SDK | WEBHOOKS | ROUTING => ""
   }
 
