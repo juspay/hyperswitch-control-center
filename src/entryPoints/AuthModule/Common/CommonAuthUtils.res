@@ -47,7 +47,7 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
   }
 }
 
-let confirmPasswordCheck = (value, key, confirmKey, passwordKey, valuesDict, errors) => {
+let confirmPasswordCheck = (value, key, passwordKey, confirmKey, valuesDict, errors) => {
   if (
     key === confirmKey &&
     value->LogicUtils.isNonEmptyString &&
