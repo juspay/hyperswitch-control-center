@@ -1,5 +1,6 @@
 open LogicUtils
 open LogTypes
+open LogUtils
 open Typography
 @react.component
 let make = (
@@ -16,225 +17,44 @@ let make = (
 ) => {
   let {globalUIConfig: {border: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
   let logType = dataDict->getLogType
-  let endMs = dataDict->getString("created_at", "")->Date.fromString->Date.getTime
-  let latencyMs = dataDict->getFloat("latency", 0.0)
-  let startTime = (endMs -. latencyMs)->Date.fromTime->Date.toISOString
-  let requestObject = switch logType {
-  | API_EVENTS | CONNECTOR | ROUTING => dataDict->getString("request", "")
-  | SDK =>
-    dataDict
-    ->Dict.toArray
-    ->Array.filter(entry => {
-      let (key, _) = entry
-      filteredKeys->Array.includes(key)->not
-    })
-    ->getJsonFromArrayOfJson
-    ->JSON.stringify
-  | WEBHOOKS => dataDict->getString("content", "")
+  let startTime = {
+    let endMs = dataDict->getString("created_at", "")->Date.fromString->Date.getTime
+    let latencyMs = dataDict->getFloat("latency", 0.0)
+    (endMs -. latencyMs)->Date.fromTime->Date.toISOString
   }
-
-  let eventCode = switch logType {
-  | API_EVENTS | CONNECTOR | ROUTING | WEBHOOKS =>
-    let requestDict = requestObject->safeParse->getDictFromJsonObject
-    [requestDict->getString("eventCode", ""), requestDict->getString("event_code", "")]
-    ->Array.find(isNonEmptyString)
-    ->Option.getOr("")
-  | SDK => ""
-  }
-
-  let responseObject = switch logType {
-  | API_EVENTS | ROUTING => dataDict->getString("response", "")
-  | CONNECTOR => dataDict->getString("masked_response", "")
-  | SDK => {
-      let isErrorLog = dataDict->getString("log_type", "") === "ERROR"
-      isErrorLog ? dataDict->getString("value", "") : ""
-    }
-  | WEBHOOKS => dataDict->getString("outgoing_webhook_event_type", "")
-  }
-
+  let requestObject = dataDict->getRequestObject(~logType, ~filteredKeys)
+  let eventCode = requestObject->getEventCode(~logType)
+  let responseObject = dataDict->getResponseObject(~logType)
   let statusCode = dataDict->getStatusCodeString
-
   let method = dataDict->getMethod
-
-  let statusCodeTextColor = switch logType {
-  | SDK =>
-    switch statusCode {
-    | "INFO" => "blue-500"
-    | "ERROR" => "red-400"
-    | "WARNING" => "yellow-800"
-    | _ => "gray-700 opacity-50"
-    }
-  | WEBHOOKS =>
-    switch statusCode {
-    | "200" => "green-700"
-    | "500" => "red-700"
-    | _ => "gray-700 opacity-50"
-    }
-  | API_EVENTS | CONNECTOR | ROUTING =>
-    switch statusCode {
-    | "200" => "green-700"
-    | "500" => "red-700"
-    | "400" | "422" => "orange-950"
-    | _ => "gray-700 opacity-50"
-    }
-  }
-
-  let statusCodeBg = switch logType {
-  | SDK =>
-    switch statusCode {
-    | "INFO" => "blue-100"
-    | "ERROR" => "red-100"
-    | "WARNING" => "yellow-100"
-    | _ => "gray-100"
-    }
-  | WEBHOOKS =>
-    switch statusCode {
-    | "200" => "green-50"
-    | "500" => "red-50"
-    | _ => "gray-100"
-    }
-  | API_EVENTS | CONNECTOR | ROUTING =>
-    switch statusCode {
-    | "200" => "green-50"
-    | "500" => "red-50"
-    | "400" | "422" => "orange-100"
-    | _ => "gray-100"
-    }
-  }
-
+  let statusCodeTextColor = getStatusCodeTextColor(logType, statusCode)
+  let statusCodeBg = getStatusCodeBg(logType, statusCode)
   let isSelected = selectedOption.value === index
-
-  let stepperColor = isSelected
-    ? switch logType {
-      | SDK =>
-        switch statusCode {
-        | "INFO" => "blue-500"
-        | "ERROR" => "red-400"
-        | "WARNING" => "yellow-300"
-        | _ => "gray-700 opacity-50"
-        }
-      | WEBHOOKS =>
-        switch statusCode {
-        | "200" => "green-700"
-        | "500" | _ => "gray-700 opacity-50"
-        }
-      | API_EVENTS | CONNECTOR | ROUTING =>
-        switch statusCode {
-        | "200" => "green-700"
-        | "500" => "gray-700 opacity-50"
-        | "400" | "422" => "orange-950"
-        | _ => "gray-700 opacity-50"
-        }
-      }
-    : "gray-200"
-  let stepperBorderColor = isSelected
-    ? switch logType {
-      | SDK =>
-        switch statusCode {
-        | "INFO" => "blue-500"
-        | "ERROR" => "red-400"
-        | "WARNING" => "orange-500"
-        | _ => "gray-600"
-        }
-      | WEBHOOKS =>
-        switch statusCode {
-        | "200" => "green-700"
-        | "500" | _ => "gray-700 opacity-50"
-        }
-      | API_EVENTS | CONNECTOR | ROUTING =>
-        switch statusCode {
-        | "200" => "green-700"
-        | "500" => "gray-600"
-        | "400" | "422" => "orange-950"
-        | _ => "gray-600"
-        }
-      }
-    : "gray-200"
-
-  let statusCodeBorderColor = switch logType {
-  | SDK =>
-    switch statusCode {
-    | "INFO" => `${borderColor.primaryNormal}`
-    | "ERROR" => "border border-red-400"
-    | "WARNING" => "border border-yellow-800"
-    | _ => "border border-gray-700 opacity-50"
-    }
-  | WEBHOOKS =>
-    switch statusCode {
-    | "200" => "border border-green-700"
-    | "500" | _ => "border border-gray-700 opacity-80"
-    }
-  | API_EVENTS | CONNECTOR | ROUTING =>
-    switch statusCode {
-    | "200" => "border border-green-700"
-    | "500" => "border border-gray-700 opacity-50"
-    | "400" | "422" => "border border-orange-950"
-    | _ => "border border-gray-700 opacity-50"
-    }
-  }
-
+  let stepperColor = isSelected ? getStepperColor(logType, statusCode) : "gray-200"
+  let stepperBorderColor = isSelected ? getStepperBorderColor(logType, statusCode) : "gray-200"
+  let statusCodeBorderColor = getStatusCodeBorderColor(
+    logType,
+    statusCode,
+    ~primaryBorder=borderColor.primaryNormal,
+  )
   let borderClass = isSelected ? `${statusCodeBorderColor} rounded-md` : "border border-transparent"
-
   let rowOrigin = dataDict->getRowOrigin
-
-  let originLabel = switch rowOrigin {
-  | SdkOrigin => "SDK"
-  | BackendOrigin => "Backend"
-  | DashboardOrigin => "Dashboard"
-  | WebhookOrigin => "Webhook"
-  | AllOrigins => ""
-  }
-
-  let originIcon = switch rowOrigin {
-  | SdkOrigin => "desktop"
-  | BackendOrigin => "connector-icon"
-  | DashboardOrigin => "group-users"
-  | WebhookOrigin => "nd-webhook"
-  | AllOrigins => "api-icon"
-  }
-
-  let webhookDirection = switch logType {
-  | WEBHOOKS => "Outgoing"
-  | API_EVENTS =>
-    switch dataDict->getString("api_flow", "") {
-    | "IncomingWebhookReceive" => "Incoming"
-    | _ => ""
-    }
-  | SDK | CONNECTOR | ROUTING => ""
-  }
-
+  let originLabel = rowOrigin->getOriginLabel
+  let originIcon = rowOrigin->getOriginIcon
+  let webhookDirection = dataDict->getWebhookDirection(~logType)
   let urlPath = dataDict->getUrlPath
-
-  let sdkCategoryLabel = switch logType {
-  | SDK =>
-    switch dataDict->getString("category", "") {
-    | "API" => "API Call"
-    | "USER_EVENT" => "User Event"
-    | _ => ""
-    }
-  | API_EVENTS | WEBHOOKS | CONNECTOR | ROUTING => ""
-  }
-
-  let formatMilliseconds = ms => `${ms->Float.toInt->Int.toString}ms`
-
-  let latencyText = switch logType {
-  | API_EVENTS | CONNECTOR => latencyMs > 0.0 ? latencyMs->formatMilliseconds : ""
-  | SDK | WEBHOOKS | ROUTING => ""
-  }
-
-  let isFailed = switch logType {
-  | API_EVENTS | CONNECTOR => dataDict->getInt("status_code", 200) >= 400
-  | SDK | WEBHOOKS | ROUTING => false
-  }
-
+  let sdkCategoryLabel = dataDict->getSdkCategoryLabel(~logType)
+  let latencyText = dataDict->getLatencyText(~logType)
+  let isFailed = dataDict->getIsFailed(~logType)
   let title = dataDict->getRowTitle(~nameToURLMapper)
 
-  let (qualifierLabel, qualifierIcon) = if webhookDirection->isNonEmptyString {
-    (webhookDirection, webhookDirection === "Incoming" ? "arrow-down" : "arrow-up")
-  } else if sdkCategoryLabel->isNonEmptyString {
-    (sdkCategoryLabel, sdkCategoryLabel === "API Call" ? "api-icon" : "user")
-  } else {
-    ("", "")
+  let (qualifierLabel, qualifierIcon) = switch webhookDirection {
+  | Incoming => ("Incoming", "arrow-down")
+  | Outgoing => ("Outgoing", "arrow-up")
+  | NoDirection =>
+    sdkCategoryLabel->isNonEmptyString
+      ? (sdkCategoryLabel, sdkCategoryLabel === "API Call" ? "api-icon" : "user")
+      : ("", "")
   }
 
   <div className="flex items-start gap-4">

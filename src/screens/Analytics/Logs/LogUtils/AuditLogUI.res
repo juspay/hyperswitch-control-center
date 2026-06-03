@@ -1,6 +1,7 @@
 module LogDetailsSection = {
   open LogTypes
   open LogicUtils
+  open LogUtils
   open Typography
   @react.component
   let make = (~logDetails, ~nameToURLMapper, ~pageType: LogTypes.pageType) => {
@@ -177,6 +178,7 @@ module LogDetailsSection = {
 
 module TabDetails = {
   open LogTypes
+  open LogUtils
   @react.component
   let make = (
     ~activeTab,

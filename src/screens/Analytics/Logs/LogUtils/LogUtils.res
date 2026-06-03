@@ -1,5 +1,7 @@
+open LogicUtils
+open LogTypes
+
 let sortByStartTime = (log1, log2) => {
-  open LogicUtils
   let getStartMs = log => {
     let dict = log->getDictFromJsonObject
     let endMs = dict->getString("created_at", "")->Date.fromString->Date.getTime
@@ -10,8 +12,6 @@ let sortByStartTime = (log1, log2) => {
 }
 
 let reorderLogs = logs => {
-  open LogicUtils
-
   // Find the index of the log with "PaymentsCreate" in the "api_flow" field
   let index =
     logs->Array.findIndex(item =>
@@ -121,7 +121,6 @@ let detailsSectionFilterKeys = [
 
 @module("js-sha256") external sha256: string => string = "sha256"
 let parseSdkResponse = arr => {
-  open LogicUtils
   let sourceMapper = source => {
     switch source {
     | "ORCA-LOADER" => "HYPERLOADER"
@@ -168,5 +167,506 @@ let apiNameMapper = apiName => {
   switch apiName {
   | "PSync" => "Payments Sync"
   | _ => apiName
+  }
+}
+
+let tabkeys: array<eventLogs> = [Logdetails, Request, Response]
+
+let getLogType = dict => {
+  if dict->Dict.get("routing_engine")->Option.isSome {
+    ROUTING
+  } else if dict->Dict.get("connector_name")->Option.isSome {
+    CONNECTOR
+  } else if dict->Dict.get("request_id")->Option.isSome {
+    API_EVENTS
+  } else if dict->Dict.get("component")->Option.isSome {
+    SDK
+  } else {
+    WEBHOOKS
+  }
+}
+
+let getTagName = tag => {
+  switch tag {
+  | SDK => "SDK"
+  | API_EVENTS => "API"
+  | WEBHOOKS => "WEBHOOKS"
+  | CONNECTOR => "CONNECTOR"
+  | ROUTING => "ROUTING"
+  }
+}
+
+let isIncomingWebhook = dict =>
+  dict->getLogType === API_EVENTS && dict->getString("api_flow", "") === "IncomingWebhookReceive"
+
+let getHeadingLabel = dict => dict->isIncomingWebhook ? "WEBHOOKS" : dict->getLogType->getTagName
+
+let getHeadingIcon = dict =>
+  switch dict->getLogType {
+  | _ if dict->isIncomingWebhook => "nd-webhook"
+  | SDK => "desktop"
+  | API_EVENTS => "api-icon"
+  | WEBHOOKS => "nd-webhook"
+  | CONNECTOR => "connector-icon"
+  | ROUTING => "routing"
+  }
+
+let getApiName = (dict, ~nameToURLMapper) => {
+  switch dict->getLogType {
+  | API_EVENTS => dict->getString("api_flow", "default value")->camelCaseToTitle
+  | SDK => dict->getString("event_name", "default value")
+  | CONNECTOR => dict->getString("flow", "default value")->apiNameMapper->camelCaseToTitle
+  | WEBHOOKS => dict->getString("event_type", "default value")->snakeToTitle
+  | ROUTING =>
+    dict
+    ->getString("flow", "")
+    ->String.split(" ")
+    ->getValueFromArray(1, "default_value")
+    ->camelCaseToTitle
+  }->nameToURLMapper
+}
+
+let getRowTitle = (dict, ~nameToURLMapper) => {
+  let apiName = dict->getApiName(~nameToURLMapper)
+  switch dict->getLogType {
+  | SDK | ROUTING => apiName->String.toLowerCase->snakeToTitle
+  | API_EVENTS | WEBHOOKS | CONNECTOR => apiName
+  }
+}
+
+let getStatusCodeString = dict => {
+  switch dict->getLogType {
+  | API_EVENTS | CONNECTOR | ROUTING => dict->getInt("status_code", 200)->Int.toString
+  | SDK => dict->getString("log_type", "INFO")
+  | WEBHOOKS => dict->getBool("is_error", false) ? "500" : "200"
+  }
+}
+
+let getMethod = dict => {
+  switch dict->getLogType {
+  | API_EVENTS => dict->getString("http_method", "")
+  | CONNECTOR | ROUTING => dict->getString("method", "")
+  | SDK => ""
+  | WEBHOOKS => "POST"
+  }
+}
+
+let getUrlPath = dict => {
+  switch dict->getLogType {
+  | API_EVENTS => dict->getString("url_path", "")
+  | SDK | WEBHOOKS | CONNECTOR | ROUTING => ""
+  }
+}
+
+let getAuthOrigin = dict =>
+  switch dict->getString("api_auth_type", "") {
+  | "publishable_key" => Sdk
+  | "api_key" => Backend
+  | "merchant_jwt" | "jwt" => Dashboard
+  | "webhook_auth" => Webhook
+  | _ => UnknownAuth
+  }
+
+let getRowOrigin = dict =>
+  switch dict->getLogType {
+  | ROUTING | CONNECTOR => BackendOrigin
+  | WEBHOOKS => WebhookOrigin
+  | SDK => SdkOrigin
+  | API_EVENTS =>
+    dict->getString("api_flow", "") === "IncomingWebhookReceive"
+      ? WebhookOrigin
+      : switch dict->getAuthOrigin {
+        | Sdk => SdkOrigin
+        | Backend | UnknownAuth => BackendOrigin
+        | Dashboard => DashboardOrigin
+        | Webhook => WebhookOrigin
+        }
+  }
+
+let originFilterLabel = origin =>
+  switch origin {
+  | AllOrigins => "All"
+  | SdkOrigin => "SDK"
+  | BackendOrigin => "Backend"
+  | DashboardOrigin => "Dashboard"
+  | WebhookOrigin => "Webhooks"
+  }
+
+let rowMatchesOrigin = (origin, dict) =>
+  switch origin {
+  | AllOrigins => true
+  | SdkOrigin | BackendOrigin | DashboardOrigin | WebhookOrigin => dict->getRowOrigin == origin
+  }
+
+let originFromLabel = label =>
+  switch label {
+  | "SDK" => SdkOrigin
+  | "Backend" => BackendOrigin
+  | "Dashboard" => DashboardOrigin
+  | "Webhooks" => WebhookOrigin
+  | _ => AllOrigins
+  }
+
+let selectableOrigins = [SdkOrigin, BackendOrigin, DashboardOrigin, WebhookOrigin]
+
+let getSdkSub = dict =>
+  switch dict->getLogType {
+  | SDK => dict->getString("category", "") === "API" ? SdkApiCall : SdkUserEvent
+  | API_EVENTS | WEBHOOKS | CONNECTOR | ROUTING => SdkApiCall
+  }
+
+let sdkFilterLabel = filter =>
+  switch filter {
+  | AllSdk => "All"
+  | SdkUserEvent => "User Event"
+  | SdkApiCall => "API"
+  }
+
+let rowMatchesSdkFilter = (filter, dict) =>
+  switch filter {
+  | AllSdk => true
+  | SdkUserEvent | SdkApiCall => dict->getSdkSub == filter
+  }
+
+let sdkFilterFromLabel = label =>
+  switch label {
+  | "User Event" => SdkUserEvent
+  | "API" => SdkApiCall
+  | _ => AllSdk
+  }
+
+let selectableSdkFilters = [SdkUserEvent, SdkApiCall]
+
+let getWebhookDirection = (dict, ~logType) =>
+  switch logType {
+  | WEBHOOKS => Outgoing
+  | API_EVENTS =>
+    dict->getString("api_flow", "") === "IncomingWebhookReceive" ? Incoming : NoDirection
+  | SDK | CONNECTOR | ROUTING => NoDirection
+  }
+
+let webhookDirectionLabel = direction =>
+  switch direction {
+  | Incoming => "Incoming"
+  | Outgoing => "Outgoing"
+  | NoDirection => ""
+  }
+
+let getOriginLabel = origin =>
+  switch origin {
+  | SdkOrigin => "SDK"
+  | BackendOrigin => "Backend"
+  | DashboardOrigin => "Dashboard"
+  | WebhookOrigin => "Webhook"
+  | AllOrigins => ""
+  }
+
+let getOriginIcon = origin =>
+  switch origin {
+  | SdkOrigin => "desktop"
+  | BackendOrigin => "connector-icon"
+  | DashboardOrigin => "group-users"
+  | WebhookOrigin => "nd-webhook"
+  | AllOrigins => "api-icon"
+  }
+
+let getSdkCategoryLabel = (dict, ~logType) =>
+  switch logType {
+  | SDK =>
+    switch dict->getString("category", "") {
+    | "API" => "API Call"
+    | "USER_EVENT" => "User Event"
+    | _ => ""
+    }
+  | API_EVENTS | WEBHOOKS | CONNECTOR | ROUTING => ""
+  }
+
+let formatMilliseconds = ms => `${ms->Float.toInt->Int.toString}ms`
+
+let getLatencyText = (dict, ~logType) => {
+  let latencyMs = dict->getFloat("latency", 0.0)
+  switch logType {
+  | API_EVENTS | CONNECTOR => latencyMs > 0.0 ? latencyMs->formatMilliseconds : ""
+  | SDK | WEBHOOKS | ROUTING => ""
+  }
+}
+
+let getIsFailed = (dict, ~logType) =>
+  switch logType {
+  | API_EVENTS | CONNECTOR => dict->getInt("status_code", 200) >= 400
+  | SDK | WEBHOOKS | ROUTING => false
+  }
+
+let getRequestObject = (dict, ~logType, ~filteredKeys) =>
+  switch logType {
+  | API_EVENTS | CONNECTOR | ROUTING => dict->getString("request", "")
+  | SDK =>
+    dict
+    ->Dict.toArray
+    ->Array.filter(entry => {
+      let (key, _) = entry
+      filteredKeys->Array.includes(key)->not
+    })
+    ->getJsonFromArrayOfJson
+    ->JSON.stringify
+  | WEBHOOKS => dict->getString("content", "")
+  }
+
+let getEventCode = (requestObject, ~logType) =>
+  switch logType {
+  | API_EVENTS | CONNECTOR | ROUTING | WEBHOOKS =>
+    let requestDict = requestObject->safeParse->getDictFromJsonObject
+    [requestDict->getString("eventCode", ""), requestDict->getString("event_code", "")]
+    ->Array.find(isNonEmptyString)
+    ->Option.getOr("")
+  | SDK => ""
+  }
+
+let getResponseObject = (dict, ~logType) =>
+  switch logType {
+  | API_EVENTS | ROUTING => dict->getString("response", "")
+  | CONNECTOR => dict->getString("masked_response", "")
+  | SDK => {
+      let isErrorLog = dict->getString("log_type", "") === "ERROR"
+      isErrorLog ? dict->getString("value", "") : ""
+    }
+  | WEBHOOKS => dict->getString("outgoing_webhook_event_type", "")
+  }
+
+let getStatusCodeTextColor = (logType, statusCode) =>
+  switch logType {
+  | SDK =>
+    switch statusCode {
+    | "INFO" => "blue-500"
+    | "ERROR" => "red-400"
+    | "WARNING" => "yellow-800"
+    | _ => "gray-700 opacity-50"
+    }
+  | WEBHOOKS =>
+    switch statusCode {
+    | "200" => "green-700"
+    | "500" => "red-700"
+    | _ => "gray-700 opacity-50"
+    }
+  | API_EVENTS | CONNECTOR | ROUTING =>
+    switch statusCode {
+    | "200" => "green-700"
+    | "500" => "red-700"
+    | "400" | "422" => "orange-950"
+    | _ => "gray-700 opacity-50"
+    }
+  }
+
+let getStatusCodeBg = (logType, statusCode) =>
+  switch logType {
+  | SDK =>
+    switch statusCode {
+    | "INFO" => "nd_primary_blue-100"
+    | "ERROR" => "nd_red-100"
+    | "WARNING" => "nd_yellow-100"
+    | _ => "nd_gray-100"
+    }
+  | WEBHOOKS =>
+    switch statusCode {
+    | "200" => "nd_green-50"
+    | "500" => "nd_red-50"
+    | _ => "nd_gray-100"
+    }
+  | API_EVENTS | CONNECTOR | ROUTING =>
+    switch statusCode {
+    | "200" => "nd_green-50"
+    | "500" => "nd_red-50"
+    | "400" | "422" => "nd_orange-100"
+    | _ => "nd_gray-100"
+    }
+  }
+
+let getStepperColor = (logType, statusCode) =>
+  switch logType {
+  | SDK =>
+    switch statusCode {
+    | "INFO" => "blue-500"
+    | "ERROR" => "red-400"
+    | "WARNING" => "yellow-300"
+    | _ => "gray-700 opacity-50"
+    }
+  | WEBHOOKS =>
+    switch statusCode {
+    | "200" => "green-700"
+    | "500" => "red-700"
+    | _ => "gray-700 opacity-50"
+    }
+  | API_EVENTS | CONNECTOR | ROUTING =>
+    switch statusCode {
+    | "200" => "green-700"
+    | "500" => "red-700"
+    | "400" | "422" => "orange-950"
+    | _ => "gray-700 opacity-50"
+    }
+  }
+
+let getStepperBorderColor = (logType, statusCode) =>
+  switch logType {
+  | SDK =>
+    switch statusCode {
+    | "INFO" => "blue-500"
+    | "ERROR" => "red-400"
+    | "WARNING" => "orange-500"
+    | _ => "gray-600"
+    }
+  | WEBHOOKS =>
+    switch statusCode {
+    | "200" => "green-700"
+    | "500" | _ => "gray-700 opacity-50"
+    }
+  | API_EVENTS | CONNECTOR | ROUTING =>
+    switch statusCode {
+    | "200" => "green-700"
+    | "500" => "gray-600"
+    | "400" | "422" => "orange-950"
+    | _ => "gray-600"
+    }
+  }
+
+let getStatusCodeBorderColor = (logType, statusCode, ~primaryBorder) =>
+  switch logType {
+  | SDK =>
+    switch statusCode {
+    | "INFO" => `${primaryBorder}`
+    | "ERROR" => "border border-red-400"
+    | "WARNING" => "border border-yellow-800"
+    | _ => "border border-gray-700 opacity-50"
+    }
+  | WEBHOOKS =>
+    switch statusCode {
+    | "200" => "border border-green-700"
+    | "500" | _ => "border border-gray-700 opacity-80"
+    }
+  | API_EVENTS | CONNECTOR | ROUTING =>
+    switch statusCode {
+    | "200" => "border border-green-700"
+    | "500" => "border border-gray-700 opacity-50"
+    | "400" | "422" => "border border-orange-950"
+    | _ => "border border-gray-700 opacity-50"
+    }
+  }
+
+let getTabKeyName = (key: eventLogs, option: logType) => {
+  switch option {
+  | SDK =>
+    switch key {
+    | Logdetails => "Log Details"
+    | Request => "Event"
+    | Response => "Metadata"
+    | _ => ""
+    }
+  | WEBHOOKS =>
+    switch key {
+    | Logdetails => "Log Details"
+    | Request => "Event Data"
+    | Response => "Response"
+    | _ => ""
+    }
+  | _ =>
+    switch key {
+    | Logdetails => "Log Details"
+    | Request => "Request"
+    | Response => "Response"
+    | _ => ""
+    }
+  }
+}
+
+let getLogTypefromString = log => {
+  switch log {
+  | "Log Details" => Logdetails
+  | "Event Data"
+  | "Request" =>
+    Request
+  | "Response" => Response
+  | "Event" => Event
+  | "Metadata" => Metadata
+  | _ => UnknownEvent
+  }
+}
+
+let setDefaultValue = (initialData, setLogDetails, setSelectedOption) => {
+  switch initialData->getLogType {
+  | API_EVENTS => {
+      let request = initialData->getString("request", "")
+      let response = initialData->getString("response", "")
+      setLogDetails(_ => {
+        response,
+        request,
+        data: initialData,
+      })
+      setSelectedOption(_ => {
+        value: 0,
+        optionType: API_EVENTS,
+      })
+    }
+  | ROUTING => {
+      let request = initialData->getString("request", "")
+      let response = initialData->getString("response", "")
+      setLogDetails(_ => {
+        response,
+        request,
+        data: initialData,
+      })
+      setSelectedOption(_ => {
+        value: 0,
+        optionType: ROUTING,
+      })
+    }
+  | SDK => {
+      let request =
+        initialData
+        ->Dict.toArray
+        ->Array.filter(entry => {
+          let (key, _) = entry
+          filteredKeys->Array.includes(key)->not
+        })
+        ->getJsonFromArrayOfJson
+        ->JSON.stringify
+      let response =
+        initialData->getString("log_type", "") === "ERROR"
+          ? initialData->getString("value", "")
+          : ""
+      setLogDetails(_ => {
+        response,
+        request,
+        data: initialData,
+      })
+      setSelectedOption(_ => {
+        value: 0,
+        optionType: SDK,
+      })
+    }
+  | CONNECTOR => {
+      let request = initialData->getString("request", "")
+      let response = initialData->getString("masked_response", "")
+      setLogDetails(_ => {
+        response,
+        request,
+        data: initialData,
+      })
+      setSelectedOption(_ => {
+        value: 0,
+        optionType: CONNECTOR,
+      })
+    }
+  | WEBHOOKS => {
+      let request = initialData->getString("content", "")
+      let response = initialData->getString("outgoing_webhook_event_type", "")
+      setLogDetails(_ => {
+        response,
+        request,
+        data: initialData,
+      })
+      setSelectedOption(_ => {
+        value: 0,
+        optionType: WEBHOOKS,
+      })
+    }
   }
 }
