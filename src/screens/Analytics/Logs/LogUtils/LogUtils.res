@@ -430,7 +430,7 @@ let getStatusCodeTextColor = (logType, statusCode) =>
   switch logType {
   | SDK =>
     switch statusCode {
-    | "INFO" => "text-nd_primary_blue-500"
+    | "INFO" => "text-nd_primary_blue-400"
     | "ERROR" => "text-nd_red-400"
     | "WARNING" => "text-nd_yellow-700"
     | _ => "text-nd_gray-700 opacity-50"
@@ -454,7 +454,7 @@ let getStatusCodeBg = (logType, statusCode) =>
   switch logType {
   | SDK =>
     switch statusCode {
-    | "INFO" => "bg-nd_primary_blue-100"
+    | "INFO" => "bg-nd_primary_blue-50"
     | "ERROR" => "bg-nd_red-100"
     | "WARNING" => "bg-nd_yellow-100"
     | _ => "bg-nd_gray-100"
@@ -478,7 +478,7 @@ let getStepperColor = (logType, statusCode) =>
   switch logType {
   | SDK =>
     switch statusCode {
-    | "INFO" => "bg-nd_primary_blue-500"
+    | "INFO" => "bg-nd_primary_blue-50"
     | "ERROR" => "bg-nd_red-400"
     | "WARNING" => "bg-nd_yellow-300"
     | _ => "bg-nd_gray-700 opacity-50"
