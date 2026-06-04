@@ -1,5 +1,5 @@
 @react.component
-let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
+let make = (~connector, ~metadataKey="pix", ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
   open LogicUtils
   open PixUtils
   open Typography
@@ -15,7 +15,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
           Window.getConnectorConfig(connector)
           ->getDictFromJsonObject
           ->getDictfromDict("metadata")
-          ->getArrayFromDict("pix", [])
+          ->getArrayFromDict(metadataKey, [])
 
         pixInputFields
       } else {
@@ -47,7 +47,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
       <div key={`${pixField.name}_${index->Int.toString}`}>
         <FormRenderer.FieldRenderer
           labelClass={`${body.sm.semibold} !text-hyperswitch_black`}
-          field={pixFieldInput(~pixField, ~fill=textColor.primaryNormal)}
+          field={pixFieldInput(~metadataKey, ~pixField, ~fill=textColor.primaryNormal)}
         />
       </div>
     })
@@ -64,7 +64,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
         text="Continue"
         buttonType={Primary}
         customButtonStyle="w-full"
-        buttonState={formState.values->PixUtils.validatePixFields}
+        buttonState={formState.values->PixUtils.validatePixFields(~metadataKey)}
       />
     </div>
   </div>
