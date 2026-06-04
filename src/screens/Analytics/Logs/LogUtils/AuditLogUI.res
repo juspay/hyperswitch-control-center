@@ -232,7 +232,9 @@ module TabDetails = {
                   customTextCss="text-nowrap"
                 />
               </div>
-              <PrettyPrintJson jsonToDisplay={logDetails.response} wrapLines=true wrapLongLines=true />
+              <PrettyPrintJson
+                jsonToDisplay={logDetails.response} wrapLines=true wrapLongLines=true
+              />
             </RenderIf>
             <RenderIf
               condition={logDetails.response->isEmptyString ||
