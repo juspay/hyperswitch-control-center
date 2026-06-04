@@ -282,7 +282,10 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   let (activeTab, setActiveTab) = React.useState(_ => ["Log Details"])
 
   let tabKeys = tabkeys->Array.map(item => {
-    item->getTabKeyName(selectedOption.optionType)
+    item->getTabKeyName(
+      selectedOption.optionType,
+      ~isIncomingWebhook=logDetails.data->isIncomingWebhook,
+    )
   })
 
   React.useEffect(_ => {

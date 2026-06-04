@@ -544,7 +544,8 @@ let getStatusCodeBorderColor = (logType, statusCode, ~primaryBorder) =>
     }
   }
 
-let getTabKeyName = (key: eventLogs, option: logType) => {
+let getTabKeyName = (key: eventLogs, option: logType, ~isIncomingWebhook=false) => {
+  let option = isIncomingWebhook ? WEBHOOKS : option
   switch option {
   | SDK =>
     switch key {
