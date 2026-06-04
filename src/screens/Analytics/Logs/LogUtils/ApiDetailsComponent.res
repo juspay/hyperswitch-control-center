@@ -30,8 +30,10 @@ let make = (
   let statusCodeTextColor = getStatusCodeTextColor(logType, statusCode)
   let statusCodeBg = getStatusCodeBg(logType, statusCode)
   let isSelected = selectedOption.value === index
-  let stepperColor = isSelected ? getStepperColor(logType, statusCode) : "nd_gray-200"
-  let stepperBorderColor = isSelected ? getStepperBorderColor(logType, statusCode) : "nd_gray-200"
+  let stepperColor = isSelected ? getStepperColor(logType, statusCode) : "bg-nd_gray-200"
+  let stepperBorderColor = isSelected
+    ? getStepperBorderColor(logType, statusCode)
+    : "border-nd_gray-200"
   let statusCodeBorderColor = getStatusCodeBorderColor(
     logType,
     statusCode,
@@ -62,17 +64,15 @@ let make = (
       <RenderIf condition={showLogType}>
         <Icon name={dataDict->getHeadingIcon} size=12 className="text-nd_gray-800" />
         <div
-          className={`h-full border-${stepperBorderColor} border-dashed rounded  divide-x-2 border-2 my-1`}
+          className={`h-full ${stepperBorderColor} border-dashed rounded  divide-x-2 border-2 my-1`}
         />
       </RenderIf>
-      <div className={`w-fit h-fit p-1  border rounded-md bg-${stepperColor} border-nd_gray-300`} />
+      <div className={`w-fit h-fit p-1  border rounded-md ${stepperColor} border-nd_gray-300`} />
       <div
-        className={`h-full border-${stepperBorderColor} border-dashed rounded  divide-x-2 border-2 my-1`}
+        className={`h-full ${stepperBorderColor} border-dashed rounded  divide-x-2 border-2 my-1`}
       />
       <RenderIf condition={index === logsDataLength}>
-        <div
-          className={`w-fit h-fit p-1  border rounded-md bg-${stepperColor} border-nd_gray-300`}
-        />
+        <div className={`w-fit h-fit p-1  border rounded-md ${stepperColor} border-nd_gray-300`} />
       </RenderIf>
     </div>
     <div className="flex flex-col gap-3 w-full min-w-0">
@@ -99,8 +99,8 @@ let make = (
         <div className="flex flex-col gap-1.5 w-full min-w-0">
           <div className="flex items-start justify-between gap-3 w-full">
             <div className="flex items-center gap-2 flex-wrap">
-              <div className={`bg-${statusCodeBg} h-fit w-fit px-2 py-0.5 rounded-md`}>
-                <p className={`text-${statusCodeTextColor} ${body.md.bold}`}>
+              <div className={`${statusCodeBg} h-fit w-fit px-2 py-0.5 rounded-md`}>
+                <p className={`${statusCodeTextColor} ${body.md.bold}`}>
                   {statusCode->React.string}
                 </p>
               </div>
@@ -114,7 +114,7 @@ let make = (
             <RenderIf condition={latencyText->isNonEmptyString}>
               <p
                 className={`${code.md.regular} whitespace-nowrap pt-1 ${isFailed
-                    ? `text-${statusCodeTextColor}`
+                    ? statusCodeTextColor
                     : "text-nd_gray-400"}`}>
                 {latencyText->React.string}
               </p>
@@ -155,7 +155,7 @@ let make = (
             </RenderIf>
             <RenderIf condition={originLabel->isNonEmptyString}>
               <span className="inline-flex items-center gap-1">
-                <Icon name=originIcon size=12 className="text-nd_gray-400" />
+                <Icon name=originIcon size=14 className="text-nd_gray-400" />
                 {originLabel->React.string}
               </span>
             </RenderIf>

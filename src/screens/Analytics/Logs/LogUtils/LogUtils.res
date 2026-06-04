@@ -358,7 +358,7 @@ let getOriginIcon = origin =>
   switch origin {
   | SdkOrigin => "desktop"
   | BackendOrigin => "connector-icon"
-  | DashboardOrigin => "group-users"
+  | DashboardOrigin => "nd-overview"
   | WebhookOrigin => "nd-webhook"
   | AllOrigins => "api-icon"
   }
@@ -430,23 +430,23 @@ let getStatusCodeTextColor = (logType, statusCode) =>
   switch logType {
   | SDK =>
     switch statusCode {
-    | "INFO" => "nd_primary_blue-500"
-    | "ERROR" => "nd_red-400"
-    | "WARNING" => "nd_yellow-700"
-    | _ => "nd_gray-700 opacity-50"
+    | "INFO" => "text-nd_primary_blue-500"
+    | "ERROR" => "text-nd_red-400"
+    | "WARNING" => "text-nd_yellow-700"
+    | _ => "text-nd_gray-700 opacity-50"
     }
   | WEBHOOKS =>
     switch statusCode {
-    | "200" => "nd_green-600"
-    | "500" => "nd_red-500"
-    | _ => "nd_gray-700 opacity-50"
+    | "200" => "text-nd_green-600"
+    | "500" => "text-nd_red-500"
+    | _ => "text-nd_gray-700 opacity-50"
     }
   | API_EVENTS | CONNECTOR | ROUTING =>
     switch statusCode {
-    | "200" => "nd_green-600"
-    | "500" => "nd_red-500"
-    | "400" | "422" => "nd_orange-600"
-    | _ => "nd_gray-700 opacity-50"
+    | "200" => "text-nd_green-600"
+    | "500" => "text-nd_red-500"
+    | "400" | "422" => "text-nd_orange-600"
+    | _ => "text-nd_gray-700 opacity-50"
     }
   }
 
@@ -454,23 +454,23 @@ let getStatusCodeBg = (logType, statusCode) =>
   switch logType {
   | SDK =>
     switch statusCode {
-    | "INFO" => "nd_primary_blue-100"
-    | "ERROR" => "nd_red-100"
-    | "WARNING" => "nd_yellow-100"
-    | _ => "nd_gray-100"
+    | "INFO" => "bg-nd_primary_blue-100"
+    | "ERROR" => "bg-nd_red-100"
+    | "WARNING" => "bg-nd_yellow-100"
+    | _ => "bg-nd_gray-100"
     }
   | WEBHOOKS =>
     switch statusCode {
-    | "200" => "nd_green-50"
-    | "500" => "nd_red-50"
-    | _ => "nd_gray-100"
+    | "200" => "bg-nd_green-50"
+    | "500" => "bg-nd_red-50"
+    | _ => "bg-nd_gray-100"
     }
   | API_EVENTS | CONNECTOR | ROUTING =>
     switch statusCode {
-    | "200" => "nd_green-50"
-    | "500" => "nd_red-50"
-    | "400" | "422" => "nd_orange-100"
-    | _ => "nd_gray-100"
+    | "200" => "bg-nd_green-50"
+    | "500" => "bg-nd_red-50"
+    | "400" | "422" => "bg-nd_orange-100"
+    | _ => "bg-nd_gray-100"
     }
   }
 
@@ -478,23 +478,23 @@ let getStepperColor = (logType, statusCode) =>
   switch logType {
   | SDK =>
     switch statusCode {
-    | "INFO" => "nd_primary_blue-500"
-    | "ERROR" => "nd_red-400"
-    | "WARNING" => "nd_yellow-300"
-    | _ => "nd_gray-700 opacity-50"
+    | "INFO" => "bg-nd_primary_blue-500"
+    | "ERROR" => "bg-nd_red-400"
+    | "WARNING" => "bg-nd_yellow-300"
+    | _ => "bg-nd_gray-700 opacity-50"
     }
   | WEBHOOKS =>
     switch statusCode {
-    | "200" => "nd_green-500"
-    | "500" => "nd_red-500"
-    | _ => "nd_gray-700 opacity-50"
+    | "200" => "bg-nd_green-500"
+    | "500" => "bg-nd_red-500"
+    | _ => "bg-nd_gray-700 opacity-50"
     }
   | API_EVENTS | CONNECTOR | ROUTING =>
     switch statusCode {
-    | "200" => "nd_green-500"
-    | "500" => "nd_red-500"
-    | "400" | "422" => "nd_orange-300"
-    | _ => "nd_gray-700 opacity-50"
+    | "200" => "bg-nd_green-500"
+    | "500" => "bg-nd_red-500"
+    | "400" | "422" => "bg-nd_orange-300"
+    | _ => "bg-nd_gray-700 opacity-50"
     }
   }
 
@@ -502,22 +502,22 @@ let getStepperBorderColor = (logType, statusCode) =>
   switch logType {
   | SDK =>
     switch statusCode {
-    | "INFO" => "nd_primary_blue-500"
-    | "ERROR" => "nd_red-400"
-    | "WARNING" => "nd_orange-300"
-    | _ => "nd_gray-600"
+    | "INFO" => "border-nd_primary_blue-500"
+    | "ERROR" => "border-nd_red-400"
+    | "WARNING" => "border-nd_orange-300"
+    | _ => "border-nd_gray-600"
     }
   | WEBHOOKS =>
     switch statusCode {
-    | "200" => "nd_green-500"
-    | "500" | _ => "nd_gray-700 opacity-50"
+    | "200" => "border-nd_green-500"
+    | "500" | _ => "border-nd_gray-700 opacity-50"
     }
   | API_EVENTS | CONNECTOR | ROUTING =>
     switch statusCode {
-    | "200" => "nd_green-500"
-    | "500" => "nd_gray-600"
-    | "400" | "422" => "nd_orange-300"
-    | _ => "nd_gray-600"
+    | "200" => "border-nd_green-500"
+    | "500" => "border-nd_gray-600"
+    | "400" | "422" => "border-nd_orange-300"
+    | _ => "border-nd_gray-600"
     }
   }
 

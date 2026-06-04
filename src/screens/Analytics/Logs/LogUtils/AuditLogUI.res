@@ -211,7 +211,7 @@ module TabDetails = {
                   customTextCss="text-nowrap"
                 />
               </div>
-              <PrettyPrintJson jsonToDisplay=logDetails.request />
+              <PrettyPrintJson jsonToDisplay=logDetails.request wrapLines=true wrapLongLines=true />
             </RenderIf>
             <RenderIf condition={logDetails.request->isEmptyString}>
               <NoDataFound
@@ -232,7 +232,7 @@ module TabDetails = {
                   customTextCss="text-nowrap"
                 />
               </div>
-              <PrettyPrintJson jsonToDisplay={logDetails.response} />
+              <PrettyPrintJson jsonToDisplay={logDetails.response} wrapLines=true wrapLongLines=true />
             </RenderIf>
             <RenderIf
               condition={logDetails.response->isEmptyString ||
