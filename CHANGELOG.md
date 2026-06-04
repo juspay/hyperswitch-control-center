@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.06.04.0
+
+### Features
+
+- Add new acquirer config group ui ([#4836](https://github.com/juspay/hyperswitch-control-center/pull/4836)) ([`df9fca2`](https://github.com/juspay/hyperswitch-control-center/commit/df9fca2b9d90c3b840bfbdc52a765ebfb410c4b3))
+
+### Bug Fixes
+
+- Close confirmation popup on browser back navigation ([#4874](https://github.com/juspay/hyperswitch-control-center/pull/4874)) ([`3673327`](https://github.com/juspay/hyperswitch-control-center/commit/3673327b732520646a09703da5bc50703ca697c0))
+- Show password mismatch error only on confirm field ([#4895](https://github.com/juspay/hyperswitch-control-center/pull/4895)) ([`fa60b3c`](https://github.com/juspay/hyperswitch-control-center/commit/fa60b3c76aec2c881c26f043a1148a4b380086bf))
+
+### Miscellaneous Tasks
+
+- Remove memory-bank folder ([#4876](https://github.com/juspay/hyperswitch-control-center/pull/4876)) ([`bac3fc9`](https://github.com/juspay/hyperswitch-control-center/commit/bac3fc90cbcd0d85b6ed71e7d1e5455404de9e8a))
+
+**Full Changelog:** [`2026.06.01.0...2026.06.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.01.0...2026.06.04.0)
+
+- - -
+
 ## 2026.06.01.0
 
 ### Refactors
