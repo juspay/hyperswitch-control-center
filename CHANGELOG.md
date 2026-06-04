@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.06.04.1
+
+### Features
+
+- Added PixEmv PaymentMethodType for Santander ([#4872](https://github.com/juspay/hyperswitch-control-center/pull/4872)) ([`055d51f`](https://github.com/juspay/hyperswitch-control-center/commit/055d51f8d89375e8540e91e6d52f00329a47ad18))
+
+### Bug Fixes
+
+- Recon engine route gating via feature flag ([#4893](https://github.com/juspay/hyperswitch-control-center/pull/4893)) ([`39c322a`](https://github.com/juspay/hyperswitch-control-center/commit/39c322a6ff28e90f5a5bea16aa4762d44642b0c8))
+- Reset status filter form value when filter chip is removed ([#4882](https://github.com/juspay/hyperswitch-control-center/pull/4882)) ([`16c6fe6`](https://github.com/juspay/hyperswitch-control-center/commit/16c6fe6b1455c53fcc0516dc3549dea1894544a4))
+- Spacing inconsistencies in PaymentSettingsRevamped files ([#4854](https://github.com/juspay/hyperswitch-control-center/pull/4854)) ([`6112d16`](https://github.com/juspay/hyperswitch-control-center/commit/6112d169d7d68e061a4b3e7cc77134ac5b269caa))
+
+### Miscellaneous Tasks
+
+- Update branding across dashboard ([#4436](https://github.com/juspay/hyperswitch-control-center/pull/4436)) ([`45a7109`](https://github.com/juspay/hyperswitch-control-center/commit/45a7109cd568859e25f3204266c941207f0771dc))
+
+**Full Changelog:** [`2026.06.04.0...2026.06.04.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.04.0...2026.06.04.1)
+
+- - -
+
 ## 2026.06.04.0
 
 ### Features
