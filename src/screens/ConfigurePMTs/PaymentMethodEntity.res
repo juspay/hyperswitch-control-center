@@ -2,7 +2,7 @@ open PaymentMethodConfigTypes
 type colType =
   | Processor
   | ConnectorLabel
-  | ConnectorId
+  | MerchantConnectorId
   | PaymentMethodType
   | PaymentMethod
   | CardNetwork
@@ -12,7 +12,7 @@ type colType =
 let defaultColumns = [
   Processor,
   ConnectorLabel,
-  ConnectorId,
+  MerchantConnectorId,
   PaymentMethodType,
   PaymentMethod,
   CountriesAllowed,
@@ -24,7 +24,8 @@ let getHeading = colType => {
   switch colType {
   | Processor => Table.makeHeaderInfo(~key="connector_name", ~title="Processor")
   | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
-  | ConnectorId => Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Connector ID")
+  | MerchantConnectorId =>
+    Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector ID")
   | PaymentMethod => Table.makeHeaderInfo(~key="payment_method", ~title="Payment Method")
   | PaymentMethodType =>
     Table.makeHeaderInfo(~key="payment_method_type", ~title="Payment Method Type")
@@ -56,10 +57,15 @@ let getCell = (~setRefresh) => {
         />,
         "",
       )
-    | ConnectorId =>
+    | MerchantConnectorId =>
       Table.CustomCell(
         <PaymentMethodConfig
-          paymentMethodConfig config={paymentMethodConfig.merchant_connector_id} setRefresh
+          paymentMethodConfig
+          element={<HelperComponents.CopyTextCustomComp
+            customTextCss="w-36 truncate whitespace-nowrap"
+            displayValue=Some(paymentMethodConfig.merchant_connector_id)
+          />}
+          setRefresh
         />,
         "",
       )
