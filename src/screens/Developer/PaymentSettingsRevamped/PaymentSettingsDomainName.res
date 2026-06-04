@@ -32,7 +32,7 @@ module PaymentLinkDomainFields = {
 
     <>
       <div className="flex flex-row justify-between items-center gap-6">
-        <p className={`!text-nd_gray-700  !${heading.sm.semibold}`}>
+        <p className={`!text-nd_gray-700 !${heading.sm.semibold}`}>
           {"Payment Link Domain"->React.string}
         </p>
         <RenderIf condition={!(paymentLinkConfigDict->isEmptyDict) && isDisabled && !allowEdit}>
