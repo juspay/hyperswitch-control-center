@@ -1,3 +1,5 @@
+open APIUtilsTypes
+
 type operationsTypes = Orders | Refunds | Disputes | Payouts
 
 type viewTypes =
@@ -11,3 +13,12 @@ type viewTypes =
   | Reversed
   | RequiresCapture
   | None
+
+type clickhouseAggregateMetric = {
+  entityName: entityTypeWithVersion,
+  domain: string,
+  metric: string,
+  groupByField: string,
+  statusField: string,
+  countField: string,
+}

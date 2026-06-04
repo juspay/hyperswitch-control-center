@@ -24,15 +24,6 @@ let getCustomFilterKey = entity =>
   | Payouts => "status"
   }
 
-type clickhouseAggregateMetric = {
-  entityName: entityTypeWithVersion,
-  domain: string,
-  metric: string,
-  groupByField: string,
-  statusField: string,
-  countField: string,
-}
-
 let getClickhouseAggregateMetric = entity =>
   switch entity {
   | Orders =>
@@ -184,15 +175,17 @@ let getViewCount = (view, obj, entity) => {
 }
 
 let buildAggregateMetricsBody = (~startTime, ~endTime, ~metric, ~groupByField) => {
-  let timeRange = Dict.make()
-  timeRange->Dict.set("startTime", startTime->JSON.Encode.string)
-  timeRange->Dict.set("endTime", endTime->JSON.Encode.string)
+  let timeRange = Dict.fromArray([
+    ("startTime", startTime->JSON.Encode.string),
+    ("endTime", endTime->JSON.Encode.string),
+  ])
 
-  let body = Dict.make()
-  body->Dict.set("timeRange", timeRange->JSON.Encode.object)
-  body->Dict.set("groupByNames", [groupByField->JSON.Encode.string]->JSON.Encode.array)
-  body->Dict.set("metrics", [metric->JSON.Encode.string]->JSON.Encode.array)
-  body->Dict.set("source", "BATCH"->JSON.Encode.string)
+  let body = Dict.fromArray([
+    ("timeRange", timeRange->JSON.Encode.object),
+    ("groupByNames", [groupByField->JSON.Encode.string]->JSON.Encode.array),
+    ("metrics", [metric->JSON.Encode.string]->JSON.Encode.array),
+    ("source", "BATCH"->JSON.Encode.string),
+  ])
 
   [body->JSON.Encode.object]->JSON.Encode.array
 }
@@ -211,9 +204,9 @@ let metricsResponseToStatusWithCount = (~statusField, ~countField, response) => 
     }
   })
 
-  let wrapper = Dict.make()
-  wrapper->Dict.set("status_with_count", statusWithCount->JSON.Encode.object)
-  wrapper->JSON.Encode.object
+  Dict.fromArray([
+    ("status_with_count", statusWithCount->JSON.Encode.object),
+  ])->JSON.Encode.object
 }
 
 let getStartAndEndTime = (filterValueJson, version) => {
