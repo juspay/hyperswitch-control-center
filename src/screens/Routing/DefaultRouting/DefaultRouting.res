@@ -19,15 +19,9 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
-  let (subtitleCopy, alertCopy) = switch connectorVariant {
-  | ConnectorTypes.PayoutProcessor => (
-      "Set which payout processor should be tried first, second, and so on. Simply reorder them with drag and drop.",
-      "By default, payouts are routed in the order shown here i.e. top to bottom. To change the priority, just drag and drop the processors to reorder them.",
-    )
-  | _ => (
-      "Set which payment gateway should be tried first, second, and so on. Simply reorder them with drag and drop.",
-      "By default, payments are routed in the order shown here i.e. top to bottom. To change the priority, just drag and drop the processors to reorder them.",
-    )
+  let alertCopy = switch connectorVariant {
+  | ConnectorTypes.PayoutProcessor => "By default, payouts are routed in the order shown here i.e. top to bottom. To change the priority, just drag and drop the processors to reorder them."
+  | _ => "By default, payments are routed in the order shown here i.e. top to bottom. To change the priority, just drag and drop the processors to reorder them."
   }
 
   let settingUpConnectorsState = routingRespArray => {
@@ -113,83 +107,76 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
     })
   }
 
-  <div>
-    <PageLoaderWrapper
-      screenState
-      customUI={<NoDataFound message="Please connect at least 1 connector" renderType=Painting />}>
-      <div className="flex flex-col gap-6 my-6">
-        <div className="flex flex-col gap-2">
-          <h1 className={`${heading.lg.semibold} text-nd_gray-800`}>
-            {React.string("Default Fallback")}
-          </h1>
-          <p className={`${body.lg.medium} text-nd_gray-500`}> {React.string(subtitleCopy)} </p>
-        </div>
-        <AlertV2Binding
-          alertType=Primary
-          slot={{slot: <Icon name="nd-info-circle" size=20 className="text-nd_primary_blue-500" />}}
-          description=alertCopy
-        />
-        {
-          let keyExtractor = (index, gateway: JSON.t, isDragging, _) => {
-            let dragStyle = isDragging ? "shadow-lg" : ""
+  <PageLoaderWrapper
+    screenState
+    customUI={<NoDataFound message="Please connect at least 1 connector" renderType=Painting />}>
+    <div className="flex flex-col gap-6 my-6">
+      <AlertV2Binding
+        alertType=Primary
+        slot={{slot: <Icon name="nd-info-circle" size=20 className="text-nd_primary_blue-500" />}}
+        description=alertCopy
+      />
+      {
+        let keyExtractor = (index, gateway: JSON.t, isDragging, _) => {
+          let dragStyle = isDragging ? "shadow-lg" : ""
 
-            let connectorName = gateway->getDictFromJsonObject->getString("connector", "")
-            let merchantConnectorId =
-              gateway->getDictFromJsonObject->getString("merchant_connector_id", "")
-            let connectorLabel = ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(
-              typedConnectorValue,
-              merchantConnectorId,
-              ~version=V1,
-            ).connector_label
+          let connectorName = gateway->getDictFromJsonObject->getString("connector", "")
+          let merchantConnectorId =
+            gateway->getDictFromJsonObject->getString("merchant_connector_id", "")
+          let connectorLabel = ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(
+            typedConnectorValue,
+            merchantConnectorId,
+            ~version=V1,
+          ).connector_label
 
-            <div
-              className={`bg-nd_gray-0 border border-nd_gray-150 rounded-lg p-4 shadow-sm ${dragStyle}`}>
-              <div className="flex flex-row items-center gap-4">
-                <Icon name="nd-grip-vertical" size=20 className="cursor-pointer text-nd_gray-400" />
-                <TagBinding
-                  text={Int.toString(index + 1)}
-                  variant=TagBinding.Subtle
-                  size=TagBinding.Xs
-                  color=TagBinding.Primary
-                />
-                <div className="flex gap-2 items-center">
-                  <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-6 h-6" />
-                  <p className={`${body.md.medium} text-nd_gray-700`}>
-                    {connectorName->capitalizeString->React.string}
-                  </p>
-                  <p className={`${body.sm.medium} text-nd_gray-400`}>
-                    {`(${connectorLabel})`->React.string}
-                  </p>
-                </div>
+          <div
+            className={`bg-nd_gray-0 border border-nd_gray-150 rounded-lg p-4 shadow-sm ${dragStyle}`}>
+            <div className="flex flex-row items-center gap-4">
+              <Icon name="nd-grip-vertical" size=20 className="cursor-pointer text-nd_gray-400" />
+              <TagBinding
+                text={Int.toString(index + 1)}
+                variant=TagBinding.Subtle
+                size=TagBinding.Xs
+                color=TagBinding.Primary
+              />
+              <div className="flex gap-2 items-center">
+                <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-6 h-6" />
+                <p className={`${body.md.medium} text-nd_gray-700`}>
+                  {connectorName->capitalizeString->React.string}
+                </p>
+                <p className={`${body.sm.medium} text-nd_gray-400`}>
+                  {`(${connectorLabel})`->React.string}
+                </p>
               </div>
             </div>
-          }
-          <div className="border border-nd_gray-150 bg-nd_gray-25 rounded-lg p-4 max-w-700">
-            <DragDropComponent
-              listItems=gateways
-              setListItems={v => setGateways(_ => v)}
-              keyExtractor
-              isHorizontal=false
-              gap="gap-4"
-            />
           </div>
         }
-        <p className={`${body.md.regular} text-nd_gray-500`}>
-          {React.string(
-            "This rule is enabled by default and acts as a fallback, it's used only when no other configuration fails or matches.",
-          )}
-        </p>
-        <ACLButton
-          onClick={_ => {
-            openConfirmationPopUp()
-          }}
-          text="Save Changes"
-          buttonSize=Large
-          buttonType=Primary
-          authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-          buttonState={gateways->Array.length > 0 ? Button.Normal : Button.Disabled}
-        />
-      </div>
-    </PageLoaderWrapper>
-  </div>
+        <div className="border border-nd_gray-150 bg-nd_gray-25 rounded-lg p-4 max-w-700">
+          <DragDropComponent
+            listItems=gateways
+            setListItems={v => setGateways(_ => v)}
+            keyExtractor
+            isHorizontal=false
+            gap="gap-4"
+          />
+        </div>
+      }
+      <p className={`${body.md.regular} text-nd_gray-500`}>
+        {React.string(
+          "This rule is enabled by default and acts as a fallback, it's used only when no other configuration fails or matches.",
+        )}
+      </p>
+      <ACLButton
+        onClick={_ => {
+          openConfirmationPopUp()
+        }}
+        text="Save Changes"
+        buttonSize=Large
+        buttonType=Primary
+        authorization={userHasAccess(~groupAccess=WorkflowsManage)}
+        buttonState={gateways->Array.length > 0 ? Button.Normal : Button.Disabled}
+        customButtonStyle="ml-1"
+      />
+    </div>
+  </PageLoaderWrapper>
 }

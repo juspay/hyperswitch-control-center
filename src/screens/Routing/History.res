@@ -27,7 +27,7 @@ module BreadCrumbWrapper = {
   let make = (
     ~children,
     ~pageTitle,
-    ~title="Smart Routing Configuration",
+    ~title="Smart Routing Configurations",
     ~baseLink="/routing",
   ) => {
     <>

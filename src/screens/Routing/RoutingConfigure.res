@@ -33,7 +33,7 @@ let make = (~routingType) => {
   }, [url.search])
 
   <div className="flex flex-col overflow-auto gap-2">
-    <PageUtils.PageHeading title="Smart routing configuration" />
+    <PageUtils.PageHeading title="Smart Routing Configurations" customHeadingStyle="!mb-0" />
     <History.BreadCrumbWrapper pageTitle={getContent(currentRouting).heading} baseLink={"/routing"}>
       {switch currentRouting {
       | VOLUME_SPLIT =>

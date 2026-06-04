@@ -72,7 +72,7 @@ let getModalObj = (routingType, text) => {
 let getContent = routetype =>
   switch routetype {
   | DEFAULTFALLBACK => {
-      heading: "Default fallback ",
+      heading: "Default Fallback ",
       subHeading: "Fallback is the priority list of configured processors used for routing traffic alone or when other rules don’t apply. You can reorder it via drag and drop",
     }
   | VOLUME_SPLIT => {

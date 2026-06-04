@@ -34,7 +34,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
     hasWorkflowsManageAccess
       ? baseTabs->Array.concat([
           {
-            title: "Manage rules",
+            title: "Configuration History",
             renderContent: () => {
               records->Array.length > 0
                 ? <History records activeRoutingIds />
@@ -126,11 +126,8 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
   <PageLoaderWrapper screenState>
     <div className={`${widthClass} ${marginClass} gap-2.5`}>
-      <div className="flex flex-col gap-6">
-        <PageUtils.PageHeading
-          title="Smart routing configuration"
-          subTitle="Smart routing stack helps you to increase success rates and reduce costs by optimising your payment traffic across the various processors in the most customised yet reliable way. Set it up based on the preferred level of control"
-        />
+      <div className="flex flex-col">
+        <PageUtils.PageHeading title="Smart Routing Configurations" />
         <ActiveRouting.LevelWiseRoutingSection
           types=[VOLUME_SPLIT, ADVANCED, AUTH_RATE_ROUTING, DEFAULTFALLBACK]
           onRedirectBaseUrl="routing"
