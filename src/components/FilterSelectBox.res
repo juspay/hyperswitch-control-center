@@ -1593,11 +1593,12 @@ module BaseDropdown = {
         ->Dict.keysToArray
         ->Array.filter(item => item != "start_time" && item != "end_time" && item != "status")
       if nonStatusFilters->Array.length == 0 {
-        setPreservedAppliedOptions(_ =>
+        let statusValues =
           filterValueJson
           ->getArrayFromDict("status", [])
           ->getStrArrayFromJsonArray
-        )
+        setPreservedAppliedOptions(_ => statusValues)
+        newInputSelect.onChange(statusValues)
       }
       None
     }, [filterValueJson])
