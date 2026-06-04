@@ -339,10 +339,10 @@ let selectableSdkFilters = [SdkUserEvent, SdkApiCall]
 
 let getWebhookDirection = (dict, ~logType) =>
   switch logType {
-  | WEBHOOKS => Some(Outgoing)
+  | WEBHOOKS => Outgoing
   | API_EVENTS =>
-    dict->getString("api_flow", "") === "IncomingWebhookReceive" ? Some(Incoming) : None
-  | SDK | CONNECTOR | ROUTING => None
+    dict->getString("api_flow", "") === "IncomingWebhookReceive" ? Incoming : NoDirection
+  | SDK | CONNECTOR | ROUTING => NoDirection
   }
 
 let getOriginLabel = origin =>

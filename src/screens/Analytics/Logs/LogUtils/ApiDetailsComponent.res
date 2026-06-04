@@ -49,9 +49,9 @@ let make = (
   let title = dataDict->getRowTitle(~nameToURLMapper)
 
   let (qualifierLabel, qualifierIcon) = switch webhookDirection {
-  | Some(Incoming) => ("Incoming", "arrow-down")
-  | Some(Outgoing) => ("Outgoing", "arrow-up")
-  | None =>
+  | Incoming => ("Incoming", "arrow-down")
+  | Outgoing => ("Outgoing", "arrow-up")
+  | NoDirection =>
     sdkCategoryLabel->isNonEmptyString
       ? (sdkCategoryLabel, sdkCategoryLabel === "API Call" ? "api-icon" : "user")
       : ("", "")

@@ -21,7 +21,7 @@ type originFilter = AllOrigins | SdkOrigin | BackendOrigin | DashboardOrigin | W
 
 type sdkFilter = AllSdk | SdkUserEvent | SdkApiCall
 
-type webhookDirection = Incoming | Outgoing
+type webhookDirection = Incoming | Outgoing | NoDirection
 
 type urls = {
   url: string,
