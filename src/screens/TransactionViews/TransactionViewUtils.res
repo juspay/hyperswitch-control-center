@@ -175,17 +175,19 @@ let getViewCount = (view, obj, entity) => {
 }
 
 let buildAggregateMetricsBody = (~startTime, ~endTime, ~metric, ~groupByField) => {
-  let timeRange = Dict.fromArray([
-    ("startTime", startTime->JSON.Encode.string),
-    ("endTime", endTime->JSON.Encode.string),
-  ])
+  let timeRange =
+    [
+      ("startTime", startTime->JSON.Encode.string),
+      ("endTime", endTime->JSON.Encode.string),
+    ]->Dict.fromArray
 
-  let body = Dict.fromArray([
-    ("timeRange", timeRange->JSON.Encode.object),
-    ("groupByNames", [groupByField->JSON.Encode.string]->JSON.Encode.array),
-    ("metrics", [metric->JSON.Encode.string]->JSON.Encode.array),
-    ("source", "BATCH"->JSON.Encode.string),
-  ])
+  let body =
+    [
+      ("timeRange", timeRange->JSON.Encode.object),
+      ("groupByNames", [groupByField->JSON.Encode.string]->JSON.Encode.array),
+      ("metrics", [metric->JSON.Encode.string]->JSON.Encode.array),
+      ("source", "BATCH"->JSON.Encode.string),
+    ]->Dict.fromArray
 
   [body->JSON.Encode.object]->JSON.Encode.array
 }
@@ -204,7 +206,7 @@ let metricsResponseToStatusWithCount = (~statusField, ~countField, response) => 
     }
   })
 
-  Dict.fromArray([("status_with_count", statusWithCount->JSON.Encode.object)])->JSON.Encode.object
+  [("status_with_count", statusWithCount->JSON.Encode.object)]->Dict.fromArray->JSON.Encode.object
 }
 
 let getStartAndEndTime = (filterValueJson, version) => {

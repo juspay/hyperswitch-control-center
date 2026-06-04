@@ -61,19 +61,23 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   let loadAggregateCounts = async () => {
     try {
       switch (devClickhouseAggregate, getClickhouseAggregateMetric(entity)) {
-      | (true, Some(cfg)) =>
-        let url = getURL(~entityName=cfg.entityName, ~methodType=Post, ~id=Some(cfg.domain))
+      | (true, Some(metricConfig)) =>
+        let url = getURL(
+          ~entityName=metricConfig.entityName,
+          ~methodType=Post,
+          ~id=Some(metricConfig.domain),
+        )
         let body = buildAggregateMetricsBody(
           ~startTime,
           ~endTime,
-          ~metric=cfg.metric,
-          ~groupByField=cfg.groupByField,
+          ~metric=metricConfig.metric,
+          ~groupByField=metricConfig.groupByField,
         )
         let response = await updateDetails(url, body, Post)
         setAggregateResponse(_ =>
           response->metricsResponseToStatusWithCount(
-            ~statusField=cfg.statusField,
-            ~countField=cfg.countField,
+            ~statusField=metricConfig.statusField,
+            ~countField=metricConfig.countField,
           )
         )
       | _ =>
