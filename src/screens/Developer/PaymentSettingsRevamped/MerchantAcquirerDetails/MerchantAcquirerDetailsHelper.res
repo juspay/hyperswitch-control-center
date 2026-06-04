@@ -77,7 +77,8 @@ module BucketBody = {
           showPagination={totalResults > 10}
           tableLocalFilter=false
           showSerialNumber=false
-          tableheadingClass="bg-transparent text-nd_gray-600"
+          showAutoScroll=true
+          tableheadingClass="bg-transparent text-nd_gray-600 border-b border-nd_br_gray-150"
         />
       </RenderIf>
       <RenderIf condition={bucket.networks->isEmptyArray}>
