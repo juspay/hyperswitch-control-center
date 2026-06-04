@@ -339,17 +339,10 @@ let selectableSdkFilters = [SdkUserEvent, SdkApiCall]
 
 let getWebhookDirection = (dict, ~logType) =>
   switch logType {
-  | WEBHOOKS => Outgoing
+  | WEBHOOKS => Some(Outgoing)
   | API_EVENTS =>
-    dict->getString("api_flow", "") === "IncomingWebhookReceive" ? Incoming : NoDirection
-  | SDK | CONNECTOR | ROUTING => NoDirection
-  }
-
-let webhookDirectionLabel = direction =>
-  switch direction {
-  | Incoming => "Incoming"
-  | Outgoing => "Outgoing"
-  | NoDirection => ""
+    dict->getString("api_flow", "") === "IncomingWebhookReceive" ? Some(Incoming) : None
+  | SDK | CONNECTOR | ROUTING => None
   }
 
 let getOriginLabel = origin =>
@@ -437,23 +430,23 @@ let getStatusCodeTextColor = (logType, statusCode) =>
   switch logType {
   | SDK =>
     switch statusCode {
-    | "INFO" => "blue-500"
-    | "ERROR" => "red-400"
-    | "WARNING" => "yellow-800"
-    | _ => "gray-700 opacity-50"
+    | "INFO" => "nd_primary_blue-500"
+    | "ERROR" => "nd_red-400"
+    | "WARNING" => "nd_yellow-700"
+    | _ => "nd_gray-700 opacity-50"
     }
   | WEBHOOKS =>
     switch statusCode {
-    | "200" => "green-700"
-    | "500" => "red-700"
-    | _ => "gray-700 opacity-50"
+    | "200" => "nd_green-600"
+    | "500" => "nd_red-500"
+    | _ => "nd_gray-700 opacity-50"
     }
   | API_EVENTS | CONNECTOR | ROUTING =>
     switch statusCode {
-    | "200" => "green-700"
-    | "500" => "red-700"
-    | "400" | "422" => "orange-950"
-    | _ => "gray-700 opacity-50"
+    | "200" => "nd_green-600"
+    | "500" => "nd_red-500"
+    | "400" | "422" => "nd_orange-600"
+    | _ => "nd_gray-700 opacity-50"
     }
   }
 
@@ -485,23 +478,23 @@ let getStepperColor = (logType, statusCode) =>
   switch logType {
   | SDK =>
     switch statusCode {
-    | "INFO" => "blue-500"
-    | "ERROR" => "red-400"
-    | "WARNING" => "yellow-300"
-    | _ => "gray-700 opacity-50"
+    | "INFO" => "nd_primary_blue-500"
+    | "ERROR" => "nd_red-400"
+    | "WARNING" => "nd_yellow-300"
+    | _ => "nd_gray-700 opacity-50"
     }
   | WEBHOOKS =>
     switch statusCode {
-    | "200" => "green-700"
-    | "500" => "red-700"
-    | _ => "gray-700 opacity-50"
+    | "200" => "nd_green-500"
+    | "500" => "nd_red-500"
+    | _ => "nd_gray-700 opacity-50"
     }
   | API_EVENTS | CONNECTOR | ROUTING =>
     switch statusCode {
-    | "200" => "green-700"
-    | "500" => "red-700"
-    | "400" | "422" => "orange-950"
-    | _ => "gray-700 opacity-50"
+    | "200" => "nd_green-500"
+    | "500" => "nd_red-500"
+    | "400" | "422" => "nd_orange-300"
+    | _ => "nd_gray-700 opacity-50"
     }
   }
 
@@ -509,22 +502,22 @@ let getStepperBorderColor = (logType, statusCode) =>
   switch logType {
   | SDK =>
     switch statusCode {
-    | "INFO" => "blue-500"
-    | "ERROR" => "red-400"
-    | "WARNING" => "orange-500"
-    | _ => "gray-600"
+    | "INFO" => "nd_primary_blue-500"
+    | "ERROR" => "nd_red-400"
+    | "WARNING" => "nd_orange-300"
+    | _ => "nd_gray-600"
     }
   | WEBHOOKS =>
     switch statusCode {
-    | "200" => "green-700"
-    | "500" | _ => "gray-700 opacity-50"
+    | "200" => "nd_green-500"
+    | "500" | _ => "nd_gray-700 opacity-50"
     }
   | API_EVENTS | CONNECTOR | ROUTING =>
     switch statusCode {
-    | "200" => "green-700"
-    | "500" => "gray-600"
-    | "400" | "422" => "orange-950"
-    | _ => "gray-600"
+    | "200" => "nd_green-500"
+    | "500" => "nd_gray-600"
+    | "400" | "422" => "nd_orange-300"
+    | _ => "nd_gray-600"
     }
   }
 
@@ -533,21 +526,21 @@ let getStatusCodeBorderColor = (logType, statusCode, ~primaryBorder) =>
   | SDK =>
     switch statusCode {
     | "INFO" => `${primaryBorder}`
-    | "ERROR" => "border border-red-400"
-    | "WARNING" => "border border-yellow-800"
-    | _ => "border border-gray-700 opacity-50"
+    | "ERROR" => "border border-nd_red-400"
+    | "WARNING" => "border border-nd_yellow-700"
+    | _ => "border border-nd_gray-700 opacity-50"
     }
   | WEBHOOKS =>
     switch statusCode {
-    | "200" => "border border-green-700"
-    | "500" | _ => "border border-gray-700 opacity-80"
+    | "200" => "border border-nd_green-500"
+    | "500" | _ => "border border-nd_gray-700 opacity-80"
     }
   | API_EVENTS | CONNECTOR | ROUTING =>
     switch statusCode {
-    | "200" => "border border-green-700"
-    | "500" => "border border-gray-700 opacity-50"
-    | "400" | "422" => "border border-orange-950"
-    | _ => "border border-gray-700 opacity-50"
+    | "200" => "border border-nd_green-500"
+    | "500" => "border border-nd_gray-700 opacity-50"
+    | "400" | "422" => "border border-nd_orange-600"
+    | _ => "border border-nd_gray-700 opacity-50"
     }
   }
 

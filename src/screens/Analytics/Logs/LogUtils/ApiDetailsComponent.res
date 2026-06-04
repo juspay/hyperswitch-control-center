@@ -30,8 +30,8 @@ let make = (
   let statusCodeTextColor = getStatusCodeTextColor(logType, statusCode)
   let statusCodeBg = getStatusCodeBg(logType, statusCode)
   let isSelected = selectedOption.value === index
-  let stepperColor = isSelected ? getStepperColor(logType, statusCode) : "gray-200"
-  let stepperBorderColor = isSelected ? getStepperBorderColor(logType, statusCode) : "gray-200"
+  let stepperColor = isSelected ? getStepperColor(logType, statusCode) : "nd_gray-200"
+  let stepperBorderColor = isSelected ? getStepperBorderColor(logType, statusCode) : "nd_gray-200"
   let statusCodeBorderColor = getStatusCodeBorderColor(
     logType,
     statusCode,
@@ -49,9 +49,9 @@ let make = (
   let title = dataDict->getRowTitle(~nameToURLMapper)
 
   let (qualifierLabel, qualifierIcon) = switch webhookDirection {
-  | Incoming => ("Incoming", "arrow-down")
-  | Outgoing => ("Outgoing", "arrow-up")
-  | NoDirection =>
+  | Some(Incoming) => ("Incoming", "arrow-down")
+  | Some(Outgoing) => ("Outgoing", "arrow-up")
+  | None =>
     sdkCategoryLabel->isNonEmptyString
       ? (sdkCategoryLabel, sdkCategoryLabel === "API Call" ? "api-icon" : "user")
       : ("", "")
