@@ -44,6 +44,7 @@ pm_authentication_processor=true
 tax_processor=true
 billing_processor=true
 vault_processor=true
+surcharge_processor=false
 dispute_analytics=false
 authentication_analytics=false
 performance_monitor=false

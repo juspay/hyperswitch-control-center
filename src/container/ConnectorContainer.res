@@ -99,7 +99,9 @@ let make = () => {
         />
       </AccessControl>
     | list{"billing-processor", ...remainingPath} =>
-      <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
+      <AccessControl
+        authorization={userHasAccess(~groupAccess=ConnectorsView)}
+        isEnabled={featureFlagDetails.billingProcessor}>
         <EntityScaffold
           entityName="Billing Processor"
           remainingPath
@@ -109,13 +111,27 @@ let make = () => {
         />
       </AccessControl>
     | list{"vault-processor", ...remainingPath} =>
-      <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
+      <AccessControl
+        authorization={userHasAccess(~groupAccess=ConnectorsView)}
+        isEnabled={featureFlagDetails.vaultProcessor}>
         <EntityScaffold
           entityName="Vault Processor"
           remainingPath
           renderList={() => <VaultProcessorsList />}
           renderNewForm={() => <VaultProcessorsHome />}
           renderShow={(_, _) => <VaultProcessorsHome />}
+        />
+      </AccessControl>
+    | list{"surcharge-processor", ...remainingPath} =>
+      <AccessControl
+        authorization={userHasAccess(~groupAccess=ConnectorsView)}
+        isEnabled={featureFlagDetails.surchargeProcessor}>
+        <EntityScaffold
+          entityName="Surcharge Processor"
+          remainingPath
+          renderList={() => <SurchargeProcessorList />}
+          renderNewForm={() => <SurchargeProcessorHome />}
+          renderShow={(_, _) => <SurchargeProcessorHome />}
         />
       </AccessControl>
     | list{"fraud-risk-management", ...remainingPath} =>
