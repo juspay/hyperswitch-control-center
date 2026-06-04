@@ -51,9 +51,9 @@ module MockSidebarItem = {
 module MockNavbar = {
   @react.component
   let make = () =>
-    <div className="flex flex-row gap-8 justify-between items-center w-full p-2">
+    <div className="flex flex-row gap-4 justify-between items-center w-full p-2">
       <div
-        className={`flex items-center border rounded-lg px-3 py-1 bg-white ${body.xs.regular} text-nd_gray-400`}>
+        className={`flex items-center shrink-0 whitespace-nowrap border rounded-lg px-3 py-1 bg-white ${body.xs.regular} text-nd_gray-400`}>
         <span> {"Profile :"->React.string} </span>
         <span className={`ml-1 ${body.xs.semibold} text-nd_gray-500`}>
           {"Test_profile"->React.string}
@@ -61,14 +61,14 @@ module MockNavbar = {
         <Icon name="chevron-down" size=10 className="ml-1 text-nd_gray-400" />
       </div>
       <div
-        className={`flex items-center border rounded-lg px-3 py-1 bg-white ${body.xs.regular} text-nd_gray-400 w-72`}>
-        <Icon name="search" size=12 className="mr-2 text-nd_gray-400" />
+        className={`flex items-center min-w-0 w-72 border rounded-lg px-3 py-1 bg-white ${body.xs.regular} text-nd_gray-400`}>
+        <Icon name="search" size=12 className="mr-2 shrink-0 text-nd_gray-400" />
         <input
-          className={`flex-1 outline-none bg-transparent ${body.xs.regular} text-nd_gray-700`}
+          className={`flex-1 min-w-0 outline-none bg-transparent ${body.xs.regular} text-nd_gray-700`}
           placeholder="Search"
           style={ReactDOM.Style.make(~border="none", ())}
         />
-        <span className={`ml-2 ${body.xs.regular} text-nd_gray-300`}>
+        <span className={`ml-2 shrink-0 ${body.xs.regular} text-nd_gray-300`}>
           {"⌘ + K"->React.string}
         </span>
       </div>
