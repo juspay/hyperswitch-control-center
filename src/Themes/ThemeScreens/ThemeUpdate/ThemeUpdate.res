@@ -81,13 +81,13 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
       )
       let _ = await updateDetails(deleteUrl, JSON.Encode.object(Dict.make()), Delete)
 
-      let listUrl = getURL(
+      let url = getURL(
         ~entityName=V1(USERS),
         ~methodType=Get,
         ~queryParameters=Some(`entity_type=organization`),
         ~userType=#THEME_LIST,
       )
-      let updatedThemeList = await fetchDetails(listUrl, ~version=UserInfoTypes.V1)
+      let updatedThemeList = await fetchDetails(url, ~version=UserInfoTypes.V1)
       setThemeList(_ => updatedThemeList)
 
       let res = await getUserInfo()
