@@ -117,6 +117,7 @@ type processorTypes =
   | TOKENIO
   | PAYLOAD
   | PAYTM
+  | NEXTIVA
   | PHONEPE
   | FLEXITI
   | BREADPAY
