@@ -134,6 +134,7 @@ module ControlCenter = {
   let make = () => {
     let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     let connectorUrl = RouteUtils.getPath(~path="/connectors", version)
 
@@ -147,8 +148,9 @@ module ControlCenter = {
             subHeading="Get a head start by connecting with 20+ gateways, payment methods, and networks."
           />
         </div>
-        <Button
+        <ACLButton
           text="Connect Processors"
+          authorization={userHasAccess(~groupAccess=ConnectorsView)}
           buttonType={Primary}
           buttonSize={Medium}
           onClick={_ => {
@@ -185,6 +187,7 @@ module DevResources = {
     let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
     let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let mixpanelEvent = MixpanelHook.useSendEvent()
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
 
     let apiKeysUrl = RouteUtils.getPath(~path="/developer-api-keys", version)
 
@@ -197,7 +200,12 @@ module DevResources = {
         showPermLink=false
       />
       <div className="flex flex-col md:flex-row  gap-5 ">
-        <RenderIf condition={!checkUserEntity([#Profile])}>
+        <RenderIf
+          condition={!checkUserEntity([#Profile]) &&
+          hasAnyGroupAccess(
+            userHasAccess(~groupAccess=MerchantDetailsView),
+            userHasAccess(~groupAccess=AccountView),
+          ) === Access}>
           <CardLayout width="" customStyle={"flex-1 rounded-xl p-6 gap-6"}>
             <div className="flex flex-col gap-7 ">
               <CardHeader

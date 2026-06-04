@@ -1,9 +1,40 @@
 open HyperswitchAtom
-let useFetchMerchantDetails = () => {
+let useFetchUserMerchantDetails = () => {
   let getURL = APIUtils.useGetURL()
   let setMerchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useSetRecoilState
 
   let fetchDetails = APIUtils.useGetMethod()
+
+  async (~version: UserInfoTypes.version=V1) => {
+    try {
+      let merchantDetailsJSON = switch version {
+      | V1 => {
+          let detailsUrl = getURL(~entityName=V1(USER_MERCHANT_DETAILS), ~methodType=Get)
+          await fetchDetails(detailsUrl)
+        }
+      | V2 => {
+          let detailsUrl = getURL(~entityName=V2(USER_MERCHANT_DETAILS), ~methodType=Get)
+          await fetchDetails(detailsUrl, ~version=V2)
+        }
+      }
+      let (product_type, merchant_account_type) =
+        merchantDetailsJSON->MerchantAccountDetailsMapper.getUserMerchantDetails(~version)
+      setMerchantDetailsValue(prev => {...prev, product_type, merchant_account_type})
+      product_type
+    } catch {
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to fetch merchant details!")
+        Exn.raiseError(err)
+      }
+    }
+  }
+}
+
+let useFetchMerchantDetails = (~showErrorToast=true) => {
+  let getURL = APIUtils.useGetURL()
+  let setMerchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useSetRecoilState
+
+  let fetchDetails = APIUtils.useGetMethod(~showErrorToast)
 
   async (~version: UserInfoTypes.version=V1) => {
     try {
@@ -28,6 +59,28 @@ let useFetchMerchantDetails = () => {
       }
     }
   }
+}
+
+let useMerchantDetails = (~showErrorToast=false, ~shouldFetch=true) => {
+  let merchantDetails = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
+  let fetchMerchantDetails = useFetchMerchantDetails(~showErrorToast)
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+
+  React.useEffect(() => {
+    if shouldFetch && merchantDetails.publishable_key->LogicUtils.isEmptyString {
+      let loadDetails = async () => {
+        try {
+          let _ = await fetchMerchantDetails(~version)
+        } catch {
+        | _ => ()
+        }
+      }
+      loadDetails()->ignore
+    }
+    None
+  }, [])
+
+  merchantDetails
 }
 
 let useMerchantDetailsValue = () => Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
