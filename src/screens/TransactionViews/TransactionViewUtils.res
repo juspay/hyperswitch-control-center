@@ -1,5 +1,6 @@
 open TransactionViewTypes
 open LogicUtils
+open APIUtilsTypes
 let paymentViewsArray: array<viewTypes> = [
   All,
   Succeeded,
@@ -21,6 +22,40 @@ let getCustomFilterKey = entity =>
   | Refunds => "refund_status"
   | Disputes => "dispute_status"
   | Payouts => "status"
+  }
+
+type clickhouseAggregateMetric = {
+  entityName: entityTypeWithVersion,
+  domain: string,
+  metric: string,
+  groupByField: string,
+  statusField: string,
+  countField: string,
+}
+
+let getClickhouseAggregateMetric = entity =>
+  switch entity {
+  | Orders =>
+    Some({
+      entityName: V1(ANALYTICS_PAYMENTS_V2),
+      domain: "payments",
+      metric: "payment_intent_count",
+      groupByField: "status",
+      statusField: "status",
+      countField: "payment_intent_count",
+    })
+  | Refunds =>
+    Some({
+      entityName: V1(ANALYTICS_REFUNDS),
+      domain: "refunds",
+      metric: "refund_count",
+      groupByField: "refund_status",
+      statusField: "refund_status",
+      countField: "refund_count",
+    })
+  | Disputes
+  | Payouts =>
+    None
   }
 
 let getViewsDisplayName = (view: viewTypes) => {
@@ -146,6 +181,39 @@ let getViewCount = (view, obj, entity) => {
     ->getDictfromDict("status_with_count")
     ->getInt(view->getViewFilterValue(obj, entity), 0)
   }
+}
+
+let buildAggregateMetricsBody = (~startTime, ~endTime, ~metric, ~groupByField) => {
+  let timeRange = Dict.make()
+  timeRange->Dict.set("startTime", startTime->JSON.Encode.string)
+  timeRange->Dict.set("endTime", endTime->JSON.Encode.string)
+
+  let body = Dict.make()
+  body->Dict.set("timeRange", timeRange->JSON.Encode.object)
+  body->Dict.set("groupByNames", [groupByField->JSON.Encode.string]->JSON.Encode.array)
+  body->Dict.set("metrics", [metric->JSON.Encode.string]->JSON.Encode.array)
+  body->Dict.set("source", "BATCH"->JSON.Encode.string)
+
+  [body->JSON.Encode.object]->JSON.Encode.array
+}
+
+let metricsResponseToStatusWithCount = (~statusField, ~countField, response) => {
+  let statusWithCount = Dict.make()
+
+  response
+  ->getDictFromJsonObject
+  ->getArrayFromDict("queryData", [])
+  ->Array.forEach(row => {
+    let dict = row->getDictFromJsonObject
+    let status = dict->getString(statusField, "")
+    if status->isNonEmptyString {
+      statusWithCount->Dict.set(status, dict->getFloat(countField, 0.0)->JSON.Encode.float)
+    }
+  })
+
+  let wrapper = Dict.make()
+  wrapper->Dict.set("status_with_count", statusWithCount->JSON.Encode.object)
+  wrapper->JSON.Encode.object
 }
 
 let getStartAndEndTime = (filterValueJson, version) => {
