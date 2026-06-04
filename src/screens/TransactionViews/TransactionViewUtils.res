@@ -204,9 +204,7 @@ let metricsResponseToStatusWithCount = (~statusField, ~countField, response) => 
     }
   })
 
-  Dict.fromArray([
-    ("status_with_count", statusWithCount->JSON.Encode.object),
-  ])->JSON.Encode.object
+  Dict.fromArray([("status_with_count", statusWithCount->JSON.Encode.object)])->JSON.Encode.object
 }
 
 let getStartAndEndTime = (filterValueJson, version) => {
