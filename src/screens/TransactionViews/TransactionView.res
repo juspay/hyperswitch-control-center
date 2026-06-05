@@ -21,11 +21,15 @@ module TransactionViewCard = {
 @react.component
 let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version=V1) => {
   open APIUtils
+  open APIUtilsTypes
   open LogicUtils
   open TransactionViewUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+  let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
+  let {getResolvedUserInfo} = React.useContext(UserInfoProvider.defaultContext)
+  let {transactionEntity} = getResolvedUserInfo()
   let {updateExistingKeys, filterValueJson, filterKeys, setfilterKeys} =
     FilterContext.filterContext->React.useContext
   let (aggregateResponse, setAggregateResponse) = React.useState(_ =>
@@ -60,40 +64,57 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
 
   let loadAggregateCounts = async () => {
     try {
-      let url = switch entity {
-      | Orders =>
-        getURL(
-          ~entityName={
-            switch version {
-            | V1 => V1(ORDERS_AGGREGATE)
-            | V2 => V2(V2_ORDERS_AGGREGATE)
-            }
-          },
-          ~methodType=Get,
-          ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
+      switch (devClickhouseAggregate, getClickhouseAggregateMetric(entity)) {
+      | (true, Some(metricConfig)) =>
+        let url = buildAggregateMetricsUrl(~metricConfig, ~transactionEntity)
+        let body = buildAggregateMetricsBody(
+          ~startTime,
+          ~endTime,
+          ~metric=metricConfig.metric,
+          ~groupByField=metricConfig.groupByField,
         )
-      | Refunds =>
-        getURL(
-          ~entityName=V1(REFUNDS_AGGREGATE),
-          ~methodType=Get,
-          ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
+        let response = await updateDetails(url, body, Post)
+        setAggregateResponse(_ =>
+          response->metricsResponseToStatusWithCount(
+            ~statusField=metricConfig.statusField,
+            ~countField=metricConfig.countField,
+          )
         )
-      | Disputes =>
-        getURL(
-          ~entityName=V1(DISPUTES_AGGREGATE),
-          ~methodType=Get,
-          ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
-        )
-      | Payouts =>
-        getURL(
-          ~entityName=V1(PAYOUTS_AGGREGATE),
-          ~methodType=Get,
-          ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
-        )
+      | _ =>
+        let url = switch entity {
+        | Orders =>
+          getURL(
+            ~entityName={
+              switch version {
+              | V1 => V1(ORDERS_AGGREGATE)
+              | V2 => V2(V2_ORDERS_AGGREGATE)
+              }
+            },
+            ~methodType=Get,
+            ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
+          )
+        | Refunds =>
+          getURL(
+            ~entityName=V1(REFUNDS_AGGREGATE),
+            ~methodType=Get,
+            ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
+          )
+        | Disputes =>
+          getURL(
+            ~entityName=V1(DISPUTES_AGGREGATE),
+            ~methodType=Get,
+            ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
+          )
+        | Payouts =>
+          getURL(
+            ~entityName=V1(PAYOUTS_AGGREGATE),
+            ~methodType=Get,
+            ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
+          )
+        }
+        let response = await fetchDetails(url)
+        setAggregateResponse(_ => response)
       }
-
-      let response = await fetchDetails(url)
-      setAggregateResponse(_ => response)
     } catch {
     | _ => showToast(~toastType=ToastError, ~message="Failed to fetch views count", ~autoClose=true)
     }
