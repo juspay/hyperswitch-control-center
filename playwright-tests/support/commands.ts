@@ -795,6 +795,245 @@ export async function createPayoutAPI(
   return await response.json();
 }
 
+// Create / replace the merchant's active surcharge rule via the same PUT the
+// dashboard fires (routing/decision/surcharge). Lets Surcharge UI tests run
+// against real backend data instead of mocking GET /surcharge.
+//
+// IMPORTANT: this endpoint is JWT-authenticated and the JWT must include the
+// org_id / merchant_id / profile_id claims the dashboard mints after UI
+// login. The cleanest way to get that JWT is to pull it out of the page's
+// USER_INFO localStorage entry rather than re-issuing one via /user/v2/signin
+// (which yields a shorter-lived token that the routing endpoints reject).
+export async function createSurchargeAPI(
+  page: Page,
+  context?: APIRequestContext,
+  overrides: Partial<{
+    name: string;
+    surchargeType: "rate" | "fixed";
+    percentage: number;
+    fixedAmount: number;
+  }> = {},
+): Promise<{
+  name: string;
+}> {
+  const ctx = context ?? (await request.newContext());
+  const token = await page.evaluate(() => {
+    const raw = window.localStorage.getItem("USER_INFO");
+    if (!raw) return "";
+    try {
+      return (JSON.parse(raw) as { token?: string }).token ?? "";
+    } catch {
+      return "";
+    }
+  });
+  if (!token) {
+    throw new Error(
+      "createSurchargeAPI: no JWT in localStorage — make sure loginUI ran first",
+    );
+  }
+
+  const name = overrides.name ?? "playwright_surcharge";
+  const surchargeType = overrides.surchargeType ?? "rate";
+  const surchargeValue =
+    surchargeType === "rate"
+      ? { percentage: overrides.percentage ?? 2.5 }
+      : { amount: overrides.fixedAmount ?? 100 };
+
+  // Backend schema for PUT /routing/decision/surcharge only accepts
+  // { name, merchant_surcharge_configs, algorithm } — description is a
+  // dashboard-side metadata field that never leaves the form.
+  const response = await ctx.put(`${API_URL}/routing/decision/surcharge`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    data: {
+      name,
+      algorithm: {
+        defaultSelection: { surcharge_details: null },
+        rules: [
+          {
+            name: "rule_1",
+            connectorSelection: {
+              surcharge_details: {
+                surcharge: { type: surchargeType, value: surchargeValue },
+                tax_on_surcharge: { percentage: 0.0 },
+              },
+            },
+            // Statements are wrapped in { condition: [...] } per
+            // generateStatements (AdvancedRoutingUtils.res:446-493).
+            statements: [
+              {
+                condition: [
+                  {
+                    lhs: "amount",
+                    comparison: "greater_than",
+                    value: { type: "number", value: 0 },
+                    metadata: {},
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        metadata: {},
+      },
+      merchant_surcharge_configs: { show_surcharge_breakup_screen: true },
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `createSurchargeAPI failed (${response.status()}): ${body}`,
+    );
+  }
+
+  return { name };
+}
+
+// Seeds an active 3DS exemption rule via the routing API so spec tests can
+// assert against real backend data without driving the form UI.
+//
+// Mirrors createSurchargeAPI (JWT pulled from USER_INFO localStorage), but
+// the 3DS exemption flow is a two-step write: POST /routing creates the
+// rule and returns its id; POST /routing/{id}/activate publishes it as the
+// active rule for transaction_type=three_ds_authentication.
+export async function createThreeDsExemptionAPI(
+  page: Page,
+  context?: APIRequestContext,
+  overrides: Partial<{
+    name: string;
+    description: string;
+    authType:
+      | "no_three_ds"
+      | "challenge_requested"
+      | "challenge_preferred"
+      | "three_ds_exemption_requested_tra"
+      | "three_ds_exemption_requested_low_value"
+      | "issuer_three_ds_exemption_requested";
+  }> = {},
+): Promise<{
+  name: string;
+}> {
+  const ctx = context ?? (await request.newContext());
+  const token = await page.evaluate(() => {
+    const raw = window.localStorage.getItem("USER_INFO");
+    if (!raw) return "";
+    try {
+      return (JSON.parse(raw) as { token?: string }).token ?? "";
+    } catch {
+      return "";
+    }
+  });
+  if (!token) {
+    throw new Error(
+      "createThreeDsExemptionAPI: no JWT in localStorage — make sure loginUI ran first",
+    );
+  }
+
+  // profile_id rides inside the JWT payload (the dashboard mints it after
+  // login). Decode the middle JWT segment so the request body can include
+  // it the same way buildThreeDsExemptionPayloadBody does on the UI side.
+  const segments = token.split(".");
+  if (segments.length !== 3) {
+    throw new Error(
+      "createThreeDsExemptionAPI: invalid JWT format (expected 3 segments)",
+    );
+  }
+  const jwtPayload = JSON.parse(
+    Buffer.from(segments[1], "base64").toString("utf-8"),
+  ) as { profile_id?: string };
+  const profileId = jwtPayload.profile_id ?? "";
+
+  const name = overrides.name ?? "playwright_3ds_exemption";
+  const description = overrides.description ?? "";
+  const authType = overrides.authType ?? "three_ds_exemption_requested_tra";
+
+  // Step 1: create the routing record. Payload shape mirrors
+  // buildThreeDsExemptionPayloadBody (ThreeDsExemptionUtils.res:26-51) —
+  // statements are wrapped in { condition: [...] } per generateStatements.
+  const createResponse = await ctx.post(`${API_URL}/routing`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    data: {
+      name,
+      profile_id: profileId,
+      description,
+      transaction_type: "three_ds_authentication",
+      algorithm: {
+        type: "three_ds_decision_rule",
+        data: {
+          defaultSelection: { decision: "no_three_ds" },
+          rules: [
+            {
+              name: "rule_1",
+              connectorSelection: { decision: authType },
+              statements: [
+                {
+                  condition: [
+                    {
+                      lhs: "amount",
+                      comparison: "greater_than",
+                      value: { type: "number", value: 0 },
+                      metadata: {},
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          metadata: {},
+        },
+      },
+    },
+  });
+
+  if (!createResponse.ok()) {
+    const body = await createResponse.text();
+    throw new Error(
+      `createThreeDsExemptionAPI create failed (${createResponse.status()}): ${body}`,
+    );
+  }
+
+  const createBody = (await createResponse.json()) as { id?: string };
+  const routingId = createBody.id ?? "";
+  if (!routingId) {
+    throw new Error(
+      `createThreeDsExemptionAPI create returned no id: ${JSON.stringify(createBody)}`,
+    );
+  }
+
+  // Step 2: activate the rule. The body matches the dashboard's onSubmit
+  // path (HSwitchThreeDsExemption.res:275-286).
+  const activateResponse = await ctx.post(
+    `${API_URL}/routing/${routingId}/activate`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      data: {
+        transaction_type: "three_ds_authentication",
+      },
+    },
+  );
+
+  if (!activateResponse.ok()) {
+    const body = await activateResponse.text();
+    throw new Error(
+      `createThreeDsExemptionAPI activate failed (${activateResponse.status()}): ${body}`,
+    );
+  }
+
+  return { name };
+}
+
 export async function visitSignupPage(page: Page): Promise<void> {
   const signinPage = new SignInPage(page);
   await page.goto("/");

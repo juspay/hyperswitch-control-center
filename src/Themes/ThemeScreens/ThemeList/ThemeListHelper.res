@@ -27,14 +27,16 @@ module NoThemesFound = {
 module RenderEntityRow = {
   @react.component
   let make = (~label, ~value, ~entityType, ~getNameForId) => {
-    <React.Fragment key={label}>
-      <div className="text-nd_gray-500"> {label->React.string} </div>
-      <div>
+    <div key={label} className="flex gap-3">
+      <div className="w-36 shrink-0 whitespace-nowrap text-nd_gray-500">
+        {label->React.string}
+      </div>
+      <div className="min-w-0 break-all">
         {value->String.toLowerCase != "all"
           ? getNameForId(entityType)->React.string
           : `All ${label}s`->React.string}
       </div>
-    </React.Fragment>
+    </div>
   }
 }
 
@@ -60,7 +62,7 @@ module CurrentThemeCard = {
         let entityLevelLabelEntity: UserInfoTypes.entity =
           themeData.entityType->UserInfoUtils.entityMapper
 
-        <div className="flex flex-col gap-4 mt-4 w-1/2">
+        <div className="flex flex-col gap-4 mt-4 w-fit max-w-lg">
           <span className={`${body.lg.semibold} text-nd_gray-800`}>
             {"Current Theme"->React.string}
           </span>
@@ -72,7 +74,7 @@ module CurrentThemeCard = {
                 {`${(entityLevelLabelEntity :> string)} level`->React.string}
               </span>
             </div>
-            <div className={`grid grid-cols-2 text-nd_gray-600 ${body.md.medium}`}>
+            <div className={`flex flex-col gap-2 text-nd_gray-600 ${body.md.medium}`}>
               {ThemeListUtils.entityConfig(themeData)
               ->Array.map(((label, value, entityType)) => {
                 <RenderEntityRow label value entityType getNameForId />
