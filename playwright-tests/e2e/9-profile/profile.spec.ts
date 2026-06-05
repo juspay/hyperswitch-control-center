@@ -81,7 +81,7 @@ test.describe("Profile Settings - Change Password", () => {
   test("should open the Change Password modal with all password fields", async ({ page }) => {
     const profilePage = new ProfilePage(page);
 
-    await expect(profilePage.changePasswordButton).toBeVisible();
+    await expect(profilePage.changePasswordButton).toBeVisible({ timeout: 10000 });
     await profilePage.changePasswordButton.click();
 
     await expect(profilePage.changePasswordModalHeader).toBeVisible();

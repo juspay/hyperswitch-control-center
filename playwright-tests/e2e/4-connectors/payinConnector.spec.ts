@@ -268,7 +268,8 @@ test.describe("Payin Connector tests", () => {
     context,
   }) => {
     const homePage = new HomePage(page);
-    const { merchantId } = await ompLineage(page);
+    // `profileId` here is the active profile the logged-in UI renders against.
+    const { merchantId, profileId: defaultProfileId } = await ompLineage(page);
 
     const defaultLabel = "stripe_default_profile";
     const secondaryLabel = "stripe_secondary_profile";
@@ -279,10 +280,15 @@ test.describe("Payin Connector tests", () => {
       context.request,
     );
 
+    // Pin the default connector to the active profile explicitly. Relying on
+    // getDefaultProfileId() (profiles[0]) is unsafe once a second profile
+    // exists, since the business_profile list order is not guaranteed and the
+    // connector could land on the secondary profile, hiding it from this view.
     await createStripeConnectorAPI(
       merchantId,
       defaultLabel,
       context.request,
+      defaultProfileId,
     );
     await createStripeConnectorAPI(
       merchantId,

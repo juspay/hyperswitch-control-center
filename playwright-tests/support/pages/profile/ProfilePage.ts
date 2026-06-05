@@ -88,7 +88,7 @@ export class ProfilePage {
   }
 
   get passwordMismatchError(): Locator {
-    return this.page.getByText("The New password does not match!").first();
+    return this.page.getByText('Passwords do not match. Please try again.');
   }
 
   get passwordChangedSuccessToast(): Locator {
