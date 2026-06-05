@@ -95,7 +95,9 @@ module BucketBody = {
           customIconMargin="pl-1"
         />
       </div>
-      <AddNetworkModal showModal=showAddNetwork setShowModal=setShowAddNetwork bucket />
+      <RenderIf condition={showAddNetwork}>
+        <AddNetworkModal showModal=showAddNetwork setShowModal=setShowAddNetwork bucket />
+      </RenderIf>
       <RenderIf condition={editNetworkEntry->Option.isSome}>
         <EditNetworkModal entry=editNetworkEntry bucket setEntry=setEditNetworkEntry />
       </RenderIf>
