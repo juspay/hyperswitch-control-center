@@ -78,7 +78,7 @@ module SearchIdentifier = {
                     </p>
                     <span
                       className={`px-2 py-0.5 ${body.sm.semibold} rounded-md bg-nd_gray-50 border border-nd_gray-200 text-nd_gray-700`}>
-                      {`${(delimiter :> string)->LogicUtils.getTitle} ("${delimiter->compositeDelimiterToString}")`->React.string}
+                      {delimiter->getCompositeDelimiterDisplayName->React.string}
                     </span>
                   </div>
                 </RenderIf>
@@ -145,25 +145,20 @@ module SearchIdentifier = {
             })
             ->React.array}
             <RenderIf
-              condition={searchIdentifiersWithAccounts
-              ->Array.map(item => getSearchKeys(item.search_identifier))
-              ->Array.flat
-              ->isNonEmptyArray}>
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center gap-10">
-                    <div className="flex-1 max-w-325">
-                      <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-1`}>
-                        {"This value identifies the record on the source side"->React.string}
-                      </p>
-                    </div>
-                    <div className="flex items-center" />
-                    <div className="flex-1 max-w-325">
-                      <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-5`}>
-                        {"We match this value with the source field"->React.string}
-                      </p>
-                    </div>
-                  </div>
+              condition={searchIdentifiersWithAccounts->Array.some(item =>
+                item.search_identifier->getSearchKeys->isNonEmptyArray
+              )}>
+              <div className="flex items-center gap-10">
+                <div className="flex-1 max-w-325">
+                  <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-1`}>
+                    {"This value identifies the record on the source side"->React.string}
+                  </p>
+                </div>
+                <div className="flex items-center" />
+                <div className="flex-1 max-w-325">
+                  <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-5`}>
+                    {"We match this value with the source field"->React.string}
+                  </p>
                 </div>
               </div>
             </RenderIf>
@@ -225,7 +220,7 @@ module MappingRules = {
                       ~value=mapping.target_field,
                     ),
                   ]
-                  <div className="flex flex-col gap-4" key={LogicUtils.randomString(~length=10)}>
+                  <div className="flex flex-col gap-4" key={randomString(~length=10)}>
                     <div className="flex items-center gap-10">
                       <div className="flex-1 max-w-325">
                         <label className=labelCss> {source_account_name->React.string} </label>
@@ -272,10 +267,7 @@ module MappingRules = {
           })
           ->React.array}
           <RenderIf
-            condition={allMappingRules
-            ->Array.map(rules => rules.match_rules)
-            ->Array.flat
-            ->Array.length > 0}>
+            condition={allMappingRules->Array.some(rules => rules.match_rules->isNonEmptyArray)}>
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-10">
@@ -384,24 +376,24 @@ module GroupingField = {
   @react.component
   let make = (~rule: rulePayload) => {
     let groupingData = getGroupingField(rule.strategy)
-    let grouping_fields = groupingData->mapOptionOrDefault([], getGroupingFields)
+    let groupingFields = groupingData->mapOptionOrDefault([], getGroupingFields)
     let delimiter =
       groupingData->mapOptionOrDefault(UnknownCompositeDelimiter, getGroupingDelimiter)
 
     <RenderIf condition={groupingData->Option.isSome}>
       <div className="flex flex-col gap-2">
         <p className={`${body.md.medium} text-nd_gray-700`}> {"Grouping Fields"->React.string} </p>
-        <RenderIf condition={grouping_fields->Array.length > 1}>
+        <RenderIf condition={groupingFields->Array.length > 1}>
           <div className="flex items-center gap-2">
             <p className={`${body.md.regular} text-nd_gray-600`}> {"Delimiter:"->React.string} </p>
             <span
               className={`px-2 py-0.5 ${body.sm.semibold} rounded-md bg-nd_gray-50 border border-nd_gray-200 text-nd_gray-700`}>
-              {`${(delimiter :> string)->LogicUtils.getTitle} ("${delimiter->compositeDelimiterToString}")`->React.string}
+              {delimiter->getCompositeDelimiterDisplayName->React.string}
             </span>
           </div>
         </RenderIf>
         <div className="flex flex-col gap-3">
-          {grouping_fields
+          {groupingFields
           ->Array.mapWithIndex((grouping_field, idx) => {
             let key = idx->Int.toString
             let groupingFieldInput = createFormInput(
@@ -573,10 +565,7 @@ module RuleDetailsContent = {
   let make = (~rule: rulePayload) => {
     let fields = [
       ("Rule Name", rule.rule_name),
-      (
-        "Description",
-        rule.rule_description->LogicUtils.isNonEmptyString ? rule.rule_description : "NA",
-      ),
+      ("Description", rule.rule_description->isNonEmptyString ? rule.rule_description : "NA"),
       ("Aging Threshold", getReconAgingConfigDisplayName(rule.aging_config)),
     ]
 
@@ -585,7 +574,7 @@ module RuleDetailsContent = {
         <div className="grid md:grid-cols-3 gap-6">
           {fields
           ->Array.map(((label, value)) => {
-            <FieldDisplay key={LogicUtils.randomString(~length=10)} label={label} value={value} />
+            <FieldDisplay key={randomString(~length=10)} label={label} value={value} />
           })
           ->React.array}
           <RuleIDCopy.make ruleId={rule.rule_id} />

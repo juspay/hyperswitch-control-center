@@ -15,6 +15,9 @@ let compositeDelimiterToString = (delimiter: compositeDelimiterType): string =>
   | UnknownCompositeDelimiter => ""
   }
 
+let getCompositeDelimiterDisplayName = (delimiter: compositeDelimiterType): string =>
+  `${(delimiter :> string)->getTitle} ("${delimiter->compositeDelimiterToString}")`
+
 let getAccountName = (
   accountId: string,
   accountData: array<ReconEngineTypes.accountType>,
