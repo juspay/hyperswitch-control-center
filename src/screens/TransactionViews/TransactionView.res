@@ -28,6 +28,8 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
+  let {getResolvedUserInfo} = React.useContext(UserInfoProvider.defaultContext)
+  let {transactionEntity} = getResolvedUserInfo()
   let {updateExistingKeys, filterValueJson, filterKeys, setfilterKeys} =
     FilterContext.filterContext->React.useContext
   let {devClickhouseAggregate} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -62,11 +64,7 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
     try {
       switch (devClickhouseAggregate, getClickhouseAggregateMetric(entity)) {
       | (true, Some(metricConfig)) =>
-        let url = getURL(
-          ~entityName=metricConfig.entityName,
-          ~methodType=Post,
-          ~id=Some(metricConfig.domain),
-        )
+        let url = buildAggregateMetricsUrl(~metricConfig, ~transactionEntity)
         let body = buildAggregateMetricsBody(
           ~startTime,
           ~endTime,

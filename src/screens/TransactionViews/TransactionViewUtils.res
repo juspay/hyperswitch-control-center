@@ -1,6 +1,5 @@
 open TransactionViewTypes
 open LogicUtils
-open APIUtilsTypes
 let paymentViewsArray: array<viewTypes> = [
   All,
   Succeeded,
@@ -28,7 +27,7 @@ let getClickhouseAggregateMetric = entity =>
   switch entity {
   | Orders =>
     Some({
-      entityName: V1(ANALYTICS_PAYMENTS_V2),
+      urlPrefix: "analytics/v2",
       domain: "payments",
       metric: "payment_intent_count",
       groupByField: "status",
@@ -37,7 +36,7 @@ let getClickhouseAggregateMetric = entity =>
     })
   | Refunds =>
     Some({
-      entityName: V1(ANALYTICS_REFUNDS),
+      urlPrefix: "analytics/v1",
       domain: "refunds",
       metric: "refund_count",
       groupByField: "refund_status",
@@ -48,6 +47,14 @@ let getClickhouseAggregateMetric = entity =>
   | Payouts =>
     None
   }
+
+let buildAggregateMetricsUrl = (~metricConfig, ~transactionEntity) => {
+  let scope = switch transactionEntity {
+  | #Profile => "profile"
+  | _ => "merchant"
+  }
+  `${Window.env.apiBaseUrl}/${metricConfig.urlPrefix}/${scope}/metrics/${metricConfig.domain}`
+}
 
 let getViewsDisplayName = (view: viewTypes) => {
   switch view {
