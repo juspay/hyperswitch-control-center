@@ -1,43 +1,5 @@
 open Typography
-
-type feature = {
-  icon: string,
-  bgColor: string,
-  iconColor: string,
-  title: string,
-  description: string,
-}
-
-let features: array<feature> = [
-  {
-    icon: "arrow-increasing",
-    bgColor: "bg-nd_orange-150",
-    iconColor: "text-nd_orange-300",
-    title: "Dynamic Authorization Optimization",
-    description: "Maximizes approval rates by routing to best-performing processors.",
-  },
-  {
-    icon: "nd-swap-arrow-horizontal",
-    bgColor: "bg-nd_purple-200",
-    iconColor: "text-nd_purple-300",
-    title: "Adaptive Fallback & Rerouting",
-    description: "Automatically reroutes payments during outages or declines, ensuring uninterrupted payment flows.",
-  },
-  {
-    icon: "routing",
-    bgColor: "bg-pink-100",
-    iconColor: "text-pink-500",
-    title: "Cost-Efficient Routing",
-    description: "Optimizes paths to minimize processing and network scheme fees, enhancing your bottom line.",
-  },
-  {
-    icon: "filter",
-    bgColor: "bg-teal-100",
-    iconColor: "text-teal-500",
-    title: "Customizable Routing Rules",
-    description: "Define preferences based on payment method, currency, region, and more.",
-  },
-]
+open IntelligentRoutingTypes
 
 @react.component
 let make = () => {
@@ -74,10 +36,10 @@ let make = () => {
     />
     <div className="flex flex-col gap-4 items-center">
       <div className="flex flex-col gap-2 items-center">
-        <p className="text-xl font-bold text-center text-nd_gray-700">
+        <p className={`${heading.md.bold} text-center text-nd_gray-700`}>
           {"Maximize Payment Success & Optimize Costs"->React.string}
         </p>
-        <p className="text-sm font-normal text-center text-nd_gray-500 max-w-lg">
+        <p className={`${body.md.regular} text-center text-nd_gray-500 max-w-lg`}>
           {"Track processor performances in real-time to route payments optimally"->React.string}
         </p>
       </div>
@@ -89,12 +51,12 @@ let make = () => {
         buttonSize=Large
         buttonState=Normal
       />
-      <p className="text-xs text-nd_gray-400">
+      <p className={`${body.sm.regular} text-nd_gray-400`}>
         {"Experience Simulator, No Credentials Required !"->React.string}
       </p>
     </div>
     <div className="grid grid-cols-2 gap-x-10 gap-y-6 w-full max-w-2xl mt-2">
-      {features
+      {IntelligentRoutingUtils.features
       ->Array.map(feature => {
         <div key=feature.title className="flex flex-row gap-3 items-start">
           <div className={`${feature.bgColor} rounded-xl w-12 h-12 flex-shrink-0 flex items-center justify-center`}>
