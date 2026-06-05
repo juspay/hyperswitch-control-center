@@ -1,6 +1,7 @@
 open ReconEngineRulesTypes
 open Typography
 open ReconEngineRulesUtils
+open LogicUtils
 let labelCss = `block ${body.md.medium} text-nd_gray-700 mb-2`
 
 module FieldDisplay = {
@@ -147,7 +148,7 @@ module SearchIdentifier = {
               condition={searchIdentifiersWithAccounts
               ->Array.map(item => getSearchKeys(item.search_identifier))
               ->Array.flat
-              ->LogicUtils.isNonEmptyArray}>
+              ->isNonEmptyArray}>
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center gap-10">
@@ -301,7 +302,6 @@ module MappingRules = {
 module TriggerRules = {
   @react.component
   let make = (~rule: rulePayload) => {
-    open LogicUtils
     let getOperatorOptions = (): array<SelectBox.dropdownOption> => [
       createDropdownOption(~label="=", ~value="equals"),
       createDropdownOption(~label="≠", ~value="not_equals"),
@@ -383,7 +383,6 @@ module TriggerRules = {
 module GroupingField = {
   @react.component
   let make = (~rule: rulePayload) => {
-    open LogicUtils
     let groupingData = getGroupingField(rule.strategy)
     let grouping_fields = groupingData->mapOptionOrDefault([], getGroupingFields)
     let delimiter =
@@ -442,8 +441,6 @@ module GroupingField = {
 module SourceTargetAccount = {
   @react.component
   let make = (~rule: rulePayload, ~accountData: array<ReconEngineTypes.accountType>) => {
-    open LogicUtils
-
     let getAccountName = (accountId: string): string => {
       accountData
       ->Array.find(account => account.account_id === accountId)
@@ -603,7 +600,6 @@ module RuleDetailsContent = {
 @react.component
 let make = (~id) => {
   open APIUtils
-  open LogicUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
