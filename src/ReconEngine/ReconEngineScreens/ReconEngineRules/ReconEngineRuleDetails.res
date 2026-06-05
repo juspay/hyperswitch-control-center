@@ -147,7 +147,7 @@ module SearchIdentifier = {
               condition={searchIdentifiersWithAccounts
               ->Array.map(item => getSearchKeys(item.search_identifier))
               ->Array.flat
-              ->Array.length > 0}>
+              ->LogicUtils.isNonEmptyArray}>
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center gap-10">
