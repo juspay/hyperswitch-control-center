@@ -79,7 +79,7 @@ jobs:
       - name: Start backend services
         run: |
           chmod +x playwright-tests/start_hyperswitch.sh
-          sh playwright-tests/start_hyperswitch.sh
+          ./playwright-tests/start_hyperswitch.sh
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
