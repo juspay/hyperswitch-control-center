@@ -9,7 +9,6 @@ let make = () => {
 
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let connectorName = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
@@ -59,7 +58,9 @@ let make = () => {
       showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
     } catch {
     | Exn.Error(_) => {
-        showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
+        let action = currentIsDisabled ? "enable" : "disable"
+
+        showToast(~message=`Failed to ${action} connector!`, ~toastType=ToastError)
         setScreenState(_ => PageLoaderWrapper.Success)
       }
     }
@@ -191,7 +192,7 @@ let make = () => {
         ~methodType=Post,
         ~id=isUpdateFlow ? Some(connectorID) : None,
       )
-      let response = await updateAPIHook(connectorUrl, body, Post)
+      let response = await updateDetails(connectorUrl, body, Post)
 
       if !isUpdateFlow {
         let mcaId =
