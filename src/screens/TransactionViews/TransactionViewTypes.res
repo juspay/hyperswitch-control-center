@@ -11,3 +11,12 @@ type viewTypes =
   | Reversed
   | RequiresCapture
   | None
+
+type clickhouseAggregateMetric = {
+  urlPrefix: string,
+  domain: string,
+  metric: string,
+  groupByField: string,
+  statusField: string,
+  countField: string,
+}
