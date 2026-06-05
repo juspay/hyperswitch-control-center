@@ -11,7 +11,6 @@ let make = () => {
   let themeList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.themeListAtom)
   let (currentTheme, setCurrentTheme) = React.useState(_ => None)
   let themeListArray = themeList->getArrayFromJson([])
-  let showToast = ToastState.useShowToast()
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {themeId: themeIdFromUserInfo, orgId} = React.useContext(
@@ -33,7 +32,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => {
-        showToast(~toastType=ToastError, ~message="Failed to fetch current theme")
+        setCurrentTheme(_ => None)
         setScreenState(_ => PageLoaderWrapper.Success)
       }
     }
@@ -53,8 +52,9 @@ let make = () => {
           <div className="flex-1">
             <PageUtils.PageHeading
               title="Theme Configuration"
+              customTitleStyle="text-nd_gray-800"
               subTitle="Personalize your dashboard look with a live preview."
-              customSubTitleStyle={`${body.lg.medium} text-nd_gray-400`}
+              customSubTitleStyle={`${body.lg.medium} text-nd_gray-400 !opacity-100`}
             />
           </div>
           <RenderIf condition={themeListArray->Array.length > 0}>
@@ -62,7 +62,6 @@ let make = () => {
               text="Create Theme"
               buttonType=Primary
               buttonSize=Small
-              customButtonStyle={`${body.md.semibold} py-4`}
               authorization={userHasAccess(~groupAccess=ThemeManage)}
               onClick={_ => setShowModal(_ => true)}
             />
