@@ -115,7 +115,7 @@ let smartRetriesMapper = (
     @this
     this => {
       open LineScatterGraphTypes
-      let icon = this.name == "Smart Retry attempts" ? "/icons/smart-retry.svg" : ""
+      let icon = this.name == "Smart Retry attempts" ? "/assets/icons/smart-retry.svg" : ""
 
       icon->String.length > 0
         ? `<div style="display: flex; align-items: center;margin-bottom:15px;">

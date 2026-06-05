@@ -146,7 +146,7 @@ module StatisticsCard = {
     }
 
     let icon = switch direction {
-    | Downward => <img alt="image" className="h-6 w-5 mb-1 mr-1" src={`/icons/arrow.svg`} />
+    | Downward => <img alt="image" className="h-6 w-5 mb-1 mr-1" src={`/assets/icons/arrow.svg`} />
     | Upward | No_Change => <Icon className="mt-1 -mr-1" name="arrow-increasing" size=25 />
     }
 
