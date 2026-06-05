@@ -404,7 +404,6 @@ module BusinessProfileRender = {
   @react.component
   let make = (~isUpdateFlow: bool, ~selectedConnector) => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfileRecoilVal =
       HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
@@ -429,10 +428,7 @@ module BusinessProfileRender = {
               },
               ~customStyle="max-h-48",
               ~options={
-                MerchantAccountUtils.businessProfileNameDropDownOption(
-                  [businessProfileRecoilVal],
-                  ~profileId,
-                )
+                MerchantAccountUtils.businessProfileNameDropDownOption(businessProfileRecoilVal)
               },
               ~buttonText="Select Profile",
             )(

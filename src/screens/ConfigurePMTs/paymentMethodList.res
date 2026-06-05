@@ -13,7 +13,6 @@ let make = (~isPayoutFlow=false) => {
   let {updateExistingKeys, reset, filterValueJson, filterValue} =
     FilterContext.filterContext->React.useContext
   let (offset, setOffset) = React.useState(_ => 0)
-  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let allFilters: PaymentMethodConfigTypes.paymentMethodConfigFilters = React.useMemo(() => {
     filterValueJson->pmtConfigFilter
   }, [filterValueJson])
@@ -74,10 +73,10 @@ let make = (~isPayoutFlow=false) => {
         defaultFilters={Dict.make()->JSON.Encode.object}
         fixedFilters=[]
         requiredSearchFieldsList=[]
-        localFilters={configuredConnectors->initialFilters([businessProfileRecoilVal], ~profileId)}
+        localFilters={configuredConnectors->initialFilters(businessProfileRecoilVal)}
         localOptions=[]
         remoteOptions=[]
-        remoteFilters={configuredConnectors->initialFilters([businessProfileRecoilVal], ~profileId)}
+        remoteFilters={configuredConnectors->initialFilters(businessProfileRecoilVal)}
         defaultFilterKeys=[]
         updateUrlWith={updateExistingKeys}
         clearFilters={() => handleClearFilter()->ignore}

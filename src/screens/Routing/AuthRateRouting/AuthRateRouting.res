@@ -276,8 +276,7 @@ let make = (
                 setProfile={setProfile}
                 profile={profile}
                 options={MerchantAccountUtils.businessProfileNameDropDownOption(
-                  [businessProfileValues],
-                  ~profileId,
+                  businessProfileValues,
                 )}
                 label="Profile"
               />
