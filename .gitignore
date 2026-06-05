@@ -37,7 +37,9 @@ coverage
 # Playwright test generation working directory
 .opencode/playwright-run/
 
-# Coverage / monocart test reports (regenerated in CI, uploaded as artifact)
+# Coverage reports (regenerated in CI, uploaded as artifact)
 /coverage-report/
-/monocart-report/
+/coverage-report-merged/
+/coverage-shards/
+/coverage-shard-*.json
 /assets/
