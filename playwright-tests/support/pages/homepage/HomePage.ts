@@ -153,6 +153,10 @@ export class HomePage {
     return this.page.locator('[data-testid="refunds"]');
   }
 
+  get insightsAnalytics(): Locator {
+    return this.page.locator('[data-testid="insights"]');
+  }
+
   get workflow(): Locator {
     return this.page.locator('[data-testid="workflow"]');
   }
