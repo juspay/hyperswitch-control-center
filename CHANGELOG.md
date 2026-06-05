@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.06.05.0
+
+### Features
+
+- Show connector label and ID in configure PMTs table ([#4897](https://github.com/juspay/hyperswitch-control-center/pull/4897)) ([`72f382c`](https://github.com/juspay/hyperswitch-control-center/commit/72f382cfcd7994910fa104142a0dc708aa467968))
+- Revamp logs audit trail detail panel ([#4887](https://github.com/juspay/hyperswitch-control-center/pull/4887)) ([`e11481b`](https://github.com/juspay/hyperswitch-control-center/commit/e11481b7c5be4277456a3f6d5f72cd980ffe0d15))
+
+### Bug Fixes
+
+- Theme related bugs ([#4890](https://github.com/juspay/hyperswitch-control-center/pull/4890)) ([`16d2f63`](https://github.com/juspay/hyperswitch-control-center/commit/16d2f636db70d05fc16c527e41be36252e46248c))
+
+**Full Changelog:** [`2026.06.04.1...2026.06.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.04.1...2026.06.05.0)
+
+- - -
+
 ## 2026.06.04.1
 
 ### Features
