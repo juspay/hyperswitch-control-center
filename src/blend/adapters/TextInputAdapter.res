@@ -146,32 +146,34 @@ let make = (
 
   <>
     <RenderIf condition={isBlendEnabled}>
-      <TextInputBinding
-        value
-        onChange=handleChange
-        onBlur=input.onBlur
-        onFocus=input.onFocus
-        name=input.name
-        placeholder
-        size=blendSize
-        disabled=isDisabled
-        hintText=?{description->getNonEmptyString}
-        error=isInValid
-        leftSlot=?blendLeftSlot
-        rightSlot=?blendRightSlot
-        type_=inputType
-        ?pattern
-        ?autoComplete
-        ?maxLength
-        ?min
-        ?max
-        inputMode
-        ?readOnly
-        autoFocus
-        passwordToggle=isPasswordType
-        ?onKeyUp
-        onKeyDown=?handleKeyDown
-      />
+      <div className=customWidth>
+        <TextInputBinding
+          value
+          onChange=handleChange
+          onBlur=input.onBlur
+          onFocus=input.onFocus
+          name=input.name
+          placeholder
+          size=blendSize
+          disabled=isDisabled
+          hintText=?{description->getNonEmptyString}
+          error=isInValid
+          leftSlot=?blendLeftSlot
+          rightSlot=?blendRightSlot
+          type_=inputType
+          ?pattern
+          ?autoComplete
+          ?maxLength
+          ?min
+          ?max
+          inputMode
+          ?readOnly
+          autoFocus
+          passwordToggle=isPasswordType
+          ?onKeyUp
+          onKeyDown=?handleKeyDown
+        />
+      </div>
     </RenderIf>
     <RenderIf condition={!isBlendEnabled}>
       <TextInput

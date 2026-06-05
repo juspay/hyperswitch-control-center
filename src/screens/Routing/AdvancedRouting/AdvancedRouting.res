@@ -137,46 +137,49 @@ module AddSurchargeCondition = {
           <RenderIf condition={!isFirst}>
             <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
           </RenderIf>
-          <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
-            <div className="flex flex-wrap gap-4">
+          <LabelVisibilityContext showLabel=false>
+            <div
+              className="grid grid-cols-[max-content_max-content_max-content] gap-x-4 gap-y-6 mt-6 mb-4 pt-0.5 items-center w-fit">
               <div className=classStyle> {"Surcharge is"->React.string} </div>
               <FormRenderer.FieldRenderer
+                fieldWrapperClass="flex flex-col"
                 field={FormRenderer.makeFieldInfo(
                   ~label="",
                   ~name=`${id}.connectorSelection.surcharge_details.surcharge.type`,
                   ~customInput=InputFields.selectInput(
                     ~options,
                     ~buttonText="Select Surcharge Type",
-                    ~customButtonStyle=`!-mt-5 ${classStyle} !p-0 !rounded-md`,
+                    ~customButtonStyle=`${classStyle} !p-0 !rounded-md`,
                     ~deselectDisable=true,
                     ~textStyle="!px-2 !py-2",
                   ),
                 )}
               />
               <FormRenderer.FieldRenderer
+                fieldWrapperClass="flex flex-col"
                 field={FormRenderer.makeFieldInfo(
                   ~label="",
                   ~name=`${id}.connectorSelection.surcharge_details.surcharge.value.${surchargeValueType}`,
-                  ~customInput=InputFields.numericTextInput(~customStyle="!-mt-5", ~precision=2),
+                  ~customInput=InputFields.numericTextInput(~precision=2),
                 )}
               />
-            </div>
-            <div className="flex flex-wrap gap-4">
               <div className=classStyle> {"Tax on Surcharge"->React.string} </div>
-              <FormRenderer.FieldRenderer
-                field={FormRenderer.makeFieldInfo(
-                  ~label="",
-                  ~name=`${id}.connectorSelection.surcharge_details.tax_on_surcharge.percentage`,
-                  ~customInput=InputFields.numericTextInput(
-                    ~precision=2,
-                    ~customStyle="!-mt-5",
-                    ~rightIcon=<Icon name="percent" size=16 />,
-                    ~rightIconCustomStyle="-ml-7 -mt-5",
-                  ),
-                )}
-              />
+              <div className="col-span-2">
+                <FormRenderer.FieldRenderer
+                  fieldWrapperClass="flex flex-col"
+                  field={FormRenderer.makeFieldInfo(
+                    ~label="",
+                    ~name=`${id}.connectorSelection.surcharge_details.tax_on_surcharge.percentage`,
+                    ~customInput=InputFields.numericTextInput(
+                      ~precision=2,
+                      ~rightIcon=<Icon name="percent" size=16 />,
+                      ~rightIconCustomStyle="-ml-7",
+                    ),
+                  )}
+                />
+              </div>
             </div>
-          </div>
+          </LabelVisibilityContext>
         </div>
       } else {
         <RulePreviewer.SurchargeCompressedView
