@@ -43,3 +43,9 @@ coverage
 /coverage-shards/
 /coverage-shard-*.json
 /assets/
+
+# CTRF test reports (regenerated in CI, uploaded as artifact)
+/ctrf/
+/ctrf-shards/
+/ctrf-shard-*.json
+/merged-ctrf/

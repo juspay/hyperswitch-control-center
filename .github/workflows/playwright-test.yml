@@ -128,12 +128,27 @@ jobs:
           PLAYWRIGHT_SSO_USERNAME: ${{ secrets.CYPRESS_SSO_USERNAME }}
           PLAYWRIGHT_SSO_PASSWORD: ${{ secrets.CYPRESS_SSO_PASSWORD }}
 
-      - name: Publish Test Summary Results
-        uses: ctrf-io/github-test-reporter@v1
+      - name: Stage shard CTRF report
+        if: always()
+        run: |
+          src=$(ls ctrf/*.json 2>/dev/null | head -1 || true)
+          if [ -z "$src" ]; then
+            echo "No CTRF report found for shard ${{ matrix.shard }}."
+            exit 0
+          fi
+          # Renamed with the shard number so the merge job can attribute
+          # each failed/flaky test to the shard it ran in (re-runnable via
+          # the workflow_dispatch shard input).
+          cp "$src" "ctrf-shard-${{ matrix.shard }}.json"
+
+      - name: Artifact - Shard CTRF report
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          report-path: "./ctrf/*.json"
-          github-report: true
+          name: playwright-ctrf-shard-${{ matrix.shard }}
+          path: ctrf-shard-${{ matrix.shard }}.json
+          if-no-files-found: warn
+          retention-days: 1
 
       - name: Artifact - Failed Test Artifacts
         uses: actions/upload-artifact@v4
@@ -168,7 +183,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 1
 
-  merge-coverage:
+  merge-reports:
     needs: playwright-tests
     runs-on: ubuntu-latest
     if: always()
@@ -188,6 +203,27 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Download all shard CTRF reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: playwright-ctrf-shard-*
+          path: ctrf-shards/
+
+      - name: Publish merged test results to job summary
+        if: always()
+        run: |
+          node .github/scripts/ctrf-merge-summary.mjs \
+            ctrf-shards merged-ctrf/ctrf-report.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Artifact - Merged CTRF report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-ctrf-merged
+          path: merged-ctrf/
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Download all shard coverage artifacts
         uses: actions/download-artifact@v4
@@ -244,16 +280,8 @@ jobs:
       - name: Publish merged coverage to job summary
         if: always()
         run: |
-          echo "## 📊 Playwright Code Coverage — Merged (all shards)" >> "$GITHUB_STEP_SUMMARY"
-          if [ -s coverage-report-merged/text-summary.txt ]; then
-            echo '```' >> "$GITHUB_STEP_SUMMARY"
-            cat coverage-report-merged/text-summary.txt >> "$GITHUB_STEP_SUMMARY"
-            echo '```' >> "$GITHUB_STEP_SUMMARY"
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "_Full browsable HTML report (open \`index.html\`), plus json-summary + lcov: download the \`playwright-coverage-merged\` artifact below._" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "⚠️ Merged coverage summary not generated (no coverage data from shards)." >> "$GITHUB_STEP_SUMMARY"
-          fi
+          node .github/scripts/coverage-summary.mjs \
+            coverage-report-merged/coverage-summary.json >> "$GITHUB_STEP_SUMMARY"
 
       - name: Artifact - Merged Coverage Report
         uses: actions/upload-artifact@v4
@@ -269,4 +297,11 @@ jobs:
         uses: geekyeggo/delete-artifact@v5
         with:
           name: playwright-coverage-shard-*
+          failOnError: false
+
+      - name: Delete per-shard CTRF artifacts
+        if: success() && hashFiles('merged-ctrf/ctrf-report.json') != ''
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: playwright-ctrf-shard-*
           failOnError: false
