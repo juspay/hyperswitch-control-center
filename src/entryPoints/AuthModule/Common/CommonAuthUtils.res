@@ -1,4 +1,5 @@
 open CommonAuthTypes
+
 let passwordKeyValidation = (value, key, keyVal, errors) => {
   let mustHave: array<string> = []
   if value->LogicUtils.isNonEmptyString && key === keyVal {
@@ -141,15 +142,37 @@ let errorSubCodeMapper = (subCode: string) => {
   }
 }
 
-let clearLocalStorage = () => {
-  let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()->Option.getOr("")
-  let domain = HSLocalStorage.getDomainfromStore()->Option.getOr("")
-  let customTableColumns = HSLocalStorage.getCustomTableColumnsfromLocalStorage()->Option.getOr("")
-
+// Generalized utility to clear LocalStorage while preserving specified keys
+let clearLocalStorageExcept = (keysToPreserve: array<(unit => option<string>, string => unit)>) => {
+  // Capture values of specified keys before clearing
+  let preservedValues = keysToPreserve->Array.map(((getter, _setter)) => getter())
+  
   LocalStorage.clear()
-  HyperSwitchEntryUtils.setThemeIdtoStore(themeId) // Preserve theme id in url and login page
-  HSLocalStorage.setDomaintoStore(domain) // Preserve domain in url and login page
-  HSLocalStorage.setCustomTableHeadersInLocalStorage(customTableColumns) // Preserve tableColumnsOrder in login page
+  
+  // Restore preserved values
+  keysToPreserve->Array.forEachWithIndex(((_getter, setter), index) => {
+    switch preservedValues->Array.get(index) {
+    | Some(Some(value)) => setter(value)
+    | _ => ()
+    }
+  })
+}
+
+let clearLocalStorage = () => {
+  clearLocalStorageExcept([
+    (
+      () => HyperSwitchEntryUtils.getThemeIdfromStore(),
+      HyperSwitchEntryUtils.setThemeIdtoStore,
+    ),
+    (
+      () => HSLocalStorage.getDomainfromStore(),
+      HSLocalStorage.setDomaintoStore,
+    ),
+    (
+      () => HSLocalStorage.getCustomTableColumnsfromLocalStorage(),
+      HSLocalStorage.setCustomTableHeadersInLocalStorage,
+    ),
+  ])
 }
 
 module ToggleLiveTestMode = {
