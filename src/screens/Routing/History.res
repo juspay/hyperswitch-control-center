@@ -29,8 +29,9 @@ module BreadCrumbWrapper = {
     ~pageTitle,
     ~title="Smart Routing Configurations",
     ~baseLink="/routing",
+    ~breadCrumbCustomStyle=?,
   ) => {
-    <>
+    let breadCrumb =
       <BreadCrumbNavigation
         path=[
           {
@@ -40,6 +41,11 @@ module BreadCrumbWrapper = {
         ]
         currentPageTitle={pageTitle}
       />
+    <>
+      {switch breadCrumbCustomStyle {
+      | Some(className) => <div className> breadCrumb </div>
+      | None => breadCrumb
+      }}
       {children}
     </>
   }

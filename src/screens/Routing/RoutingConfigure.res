@@ -34,7 +34,10 @@ let make = (~routingType) => {
 
   <div className="flex flex-col overflow-auto gap-2">
     <PageUtils.PageHeading title="Smart Routing Configurations" customHeadingStyle="!mb-0" />
-    <History.BreadCrumbWrapper pageTitle={getContent(currentRouting).heading} baseLink={"/routing"}>
+    <History.BreadCrumbWrapper
+      pageTitle={getContent(currentRouting).heading}
+      baseLink={"/routing"}
+      breadCrumbCustomStyle="-ml-2">
       {switch currentRouting {
       | VOLUME_SPLIT =>
         <VolumeSplitRouting

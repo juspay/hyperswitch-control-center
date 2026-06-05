@@ -36,7 +36,8 @@ let make = (~routingType) => {
     <History.BreadCrumbWrapper
       pageTitle={getContent(currentRouting).heading}
       title="Payout Routing Configurations"
-      baseLink={"/payoutrouting"}>
+      baseLink={"/payoutrouting"}
+      breadCrumbCustomStyle="-ml-2">
       {switch currentRouting {
       | VOLUME_SPLIT =>
         <VolumeSplitRouting
