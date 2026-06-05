@@ -186,17 +186,17 @@ let buildAggregateMetricsBody = (~startTime, ~endTime, ~metric, ~groupByField) =
     [
       ("startTime", startTime->JSON.Encode.string),
       ("endTime", endTime->JSON.Encode.string),
-    ]->Dict.fromArray
+    ]->getJsonFromArrayOfJson
 
   let body =
     [
-      ("timeRange", timeRange->JSON.Encode.object),
+      ("timeRange", timeRange),
       ("groupByNames", [groupByField->JSON.Encode.string]->JSON.Encode.array),
       ("metrics", [metric->JSON.Encode.string]->JSON.Encode.array),
       ("source", "BATCH"->JSON.Encode.string),
-    ]->Dict.fromArray
+    ]->getJsonFromArrayOfJson
 
-  [body->JSON.Encode.object]->JSON.Encode.array
+  [body]->JSON.Encode.array
 }
 
 let metricsResponseToStatusWithCount = (~statusField, ~countField, response) => {
@@ -213,7 +213,7 @@ let metricsResponseToStatusWithCount = (~statusField, ~countField, response) => 
     }
   })
 
-  [("status_with_count", statusWithCount->JSON.Encode.object)]->Dict.fromArray->JSON.Encode.object
+  [("status_with_count", statusWithCount->JSON.Encode.object)]->getJsonFromArrayOfJson
 }
 
 let getStartAndEndTime = (filterValueJson, version) => {
