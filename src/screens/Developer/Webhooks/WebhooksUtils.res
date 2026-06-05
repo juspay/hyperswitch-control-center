@@ -77,7 +77,14 @@ let getAllowedDateRange = {
   dateObject
 }
 
-let initialFixedFilter = () => [
+// Type for filter options
+type filterOptions = {
+  eventClasses: array<dict<string>>,
+  eventTypes: array<dict<string>>,
+  deliveryStatusOptions: array<dict<string>>,
+}
+
+let initialFixedFilter = (~filterOptions: filterOptions) => [
   (
     {
       localFilter: None,
@@ -109,6 +116,55 @@ let initialFixedFilter = () => [
         ),
         ~inputFields=[],
         ~isRequired=false,
+      ),
+    }: EntityType.initialFilters<'t>
+  ),
+  // Event Class filter
+  (
+    {
+      localFilter: None,
+      field: FormRenderer.makeFieldInfo(
+        ~label="Event Class",
+        ~name="event_classes",
+        ~customInput=InputFields.multiSelectInput(
+          ~options=filterOptions.eventClasses,
+          ~showSelectionAsChips=true,
+          ~searchable=true,
+          ~showClearAll=true,
+          (),
+        ),
+      ),
+    }: EntityType.initialFilters<'t>
+  ),
+  // Event Type filter
+  (
+    {
+      localFilter: None,
+      field: FormRenderer.makeFieldInfo(
+        ~label="Event Type",
+        ~name="event_types",
+        ~customInput=InputFields.multiSelectInput(
+          ~options=filterOptions.eventTypes,
+          ~showSelectionAsChips=true,
+          ~searchable=true,
+          ~showClearAll=true,
+          (),
+        ),
+      ),
+    }: EntityType.initialFilters<'t>
+  ),
+  // Delivery Status filter
+  (
+    {
+      localFilter: None,
+      field: FormRenderer.makeFieldInfo(
+        ~label="Delivery Status",
+        ~name="delivery_status",
+        ~customInput=InputFields.singleSelectInput(
+          ~options=filterOptions.deliveryStatusOptions,
+          ~showClearSelection=true,
+          (),
+        ),
       ),
     }: EntityType.initialFilters<'t>
   ),
