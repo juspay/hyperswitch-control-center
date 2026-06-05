@@ -223,7 +223,7 @@ let initialFilters = (
   open FormRenderer
 
   open BusinessProfileInterfaceTypes
-  let businessprofileNameFilterDropdown = (
+  let businessProfileNameDropDownOption = (
     b: BusinessProfileInterfaceTypes.commonProfileEntity,
   ) => {
     let obj: FilterSelectBox.dropdownOption = {
@@ -238,7 +238,7 @@ let initialFilters = (
       field: makeFieldInfo(
         ~name="profileId",
         ~customInput=InputFields.filterMultiSelectInput(
-          ~options={businessProfiles->businessprofileNameFilterDropdown},
+          ~options={businessProfiles->businessProfileNameDropDownOption},
           ~buttonText="Select Profile",
           ~showSelectionAsChips=false,
           ~searchable=true,
