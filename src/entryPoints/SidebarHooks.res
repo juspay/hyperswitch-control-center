@@ -105,7 +105,7 @@ let useGetHsSidebarValues = () => {
       ~devThemeEnabled=devTheme,
       ~devUsers,
     ),
-    superposition(userHasAccess, devSuperposition && isJuspayUser),
+    superposition(userHasResourceAccess, devSuperposition && isJuspayUser),
   ]
 }
 

@@ -103,7 +103,16 @@ type tableSerialNumberConfig = {
   align?: tableAlign,
 }
 
-type tableConfig = {serialNumber?: tableSerialNumberConfig}
+type tablePageConfig = {searchAlign?: tableAlign}
+
+type tableConfig = {
+  serialNumber?: tableSerialNumberConfig,
+  searchAlign?: tableAlign,
+  defaultConfig?: tablePageConfig,
+  overrides?: tablePageConfig,
+  dimensions?: tablePageConfig,
+  audit?: tablePageConfig,
+}
 
 // ─── Theme config ────────────────────────────────────────────────────────────
 // Forward blend's FOUNDATION_THEME so the embeddable UI's inner BlendThemeProvider
@@ -112,9 +121,104 @@ type tableConfig = {serialNumber?: tableSerialNumberConfig}
 
 type blendThemeConfig = {foundationTokens?: FoundationTokens.foundationThemeType}
 
+type scaleThemeConfig = {
+  xs?: string,
+  sm?: string,
+  md?: string,
+  lg?: string,
+}
+
+type typographyThemeConfig = {
+  fontFamily?: string,
+  fontSize?: string,
+}
+
+type cardThemeConfig = {
+  padding?: string,
+  bgColor?: string,
+  borderColor?: string,
+  borderRadius?: string,
+  shadow?: string,
+}
+
+type styleThemeConfig = {
+  padding?: string,
+  margin?: string,
+  width?: string,
+  height?: string,
+  opacity?: string,
+  textColor?: string,
+  bgColor?: string,
+  borderColor?: string,
+  borderRadius?: string,
+  fontSize?: string,
+  fontWeight?: string,
+  shadow?: string,
+  textTransform?: string,
+}
+
+type buttonThemeConfig = {
+  primary?: styleThemeConfig,
+  secondary?: styleThemeConfig,
+  danger?: styleThemeConfig,
+  disabledOpacity?: string,
+}
+
+type searchThemeConfig = {
+  align?: tableAlign,
+  width?: string,
+  height?: string,
+  padding?: string,
+  borderRadius?: string,
+  fontSize?: string,
+  fontWeight?: string,
+  shadow?: string,
+}
+
+type colorsThemeConfig = {
+  bg?: string,
+  panel?: string,
+  surfaceMuted?: string,
+  text?: string,
+  muted?: string,
+  border?: string,
+  primary?: string,
+  success?: string,
+  warning?: string,
+  danger?: string,
+}
+
 type spThemeConfig = {
   mode?: string,
+  colors?: colorsThemeConfig,
   blend?: blendThemeConfig,
+  radius?: scaleThemeConfig,
+  spacing?: scaleThemeConfig,
+  typography?: typographyThemeConfig,
+  button?: buttonThemeConfig,
+  card?: cardThemeConfig,
+  search?: searchThemeConfig,
+}
+
+type layoutConfig = {
+  adminContentMinHeight?: string,
+  modalWidth?: string,
+  modalMinWidth?: string,
+  modalMaxWidth?: string,
+  modalMaxHeight?: string,
+  overrideEditorModalWidth?: string,
+  overrideEditorModalMaxWidth?: string,
+  overrideEditorModalMaxHeight?: string,
+  overrideDetailsModalWidth?: string,
+  overrideDetailsModalMaxWidth?: string,
+  overrideDetailsModalMaxHeight?: string,
+  overrideListGap?: string,
+  overrideCardPadding?: string,
+  confirmWidth?: string,
+  alertMinWidth?: string,
+  tableMinWidth?: string,
+  tableEmptyMinHeight?: string,
+  compactControlPadding?: string,
 }
 
 // ─── Root config ─────────────────────────────────────────────────────────────
@@ -137,6 +241,7 @@ type embeddableConfig = {
   routing?: routingConfig,
   table?: tableConfig,
   theme?: spThemeConfig,
+  layout?: layoutConfig,
   messages?: Js.Dict.t<string>,
 }
 
