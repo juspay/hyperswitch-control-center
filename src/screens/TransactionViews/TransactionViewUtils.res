@@ -23,6 +23,39 @@ let getCustomFilterKey = entity =>
   | Payouts => "status"
   }
 
+let getClickhouseAggregateMetric = entity =>
+  switch entity {
+  | Orders =>
+    Some({
+      urlPrefix: "analytics/v2",
+      domain: "payments",
+      metric: "payment_intent_count",
+      groupByField: "status",
+      statusField: "status",
+      countField: "payment_intent_count",
+    })
+  | Refunds =>
+    Some({
+      urlPrefix: "analytics/v1",
+      domain: "refunds",
+      metric: "refund_count",
+      groupByField: "refund_status",
+      statusField: "refund_status",
+      countField: "refund_count",
+    })
+  | Disputes
+  | Payouts =>
+    None
+  }
+
+let buildAggregateMetricsUrl = (~metricConfig, ~transactionEntity) => {
+  let scope = switch transactionEntity {
+  | #Profile => "profile"
+  | _ => "merchant"
+  }
+  `${Window.env.apiBaseUrl}/${metricConfig.urlPrefix}/${scope}/metrics/${metricConfig.domain}`
+}
+
 let getViewsDisplayName = (view: viewTypes) => {
   switch view {
   | All => "All"
@@ -146,6 +179,41 @@ let getViewCount = (view, obj, entity) => {
     ->getDictfromDict("status_with_count")
     ->getInt(view->getViewFilterValue(obj, entity), 0)
   }
+}
+
+let buildAggregateMetricsBody = (~startTime, ~endTime, ~metric, ~groupByField) => {
+  let timeRange =
+    [
+      ("startTime", startTime->JSON.Encode.string),
+      ("endTime", endTime->JSON.Encode.string),
+    ]->getJsonFromArrayOfJson
+
+  let body =
+    [
+      ("timeRange", timeRange),
+      ("groupByNames", [groupByField->JSON.Encode.string]->JSON.Encode.array),
+      ("metrics", [metric->JSON.Encode.string]->JSON.Encode.array),
+      ("source", "BATCH"->JSON.Encode.string),
+    ]->getJsonFromArrayOfJson
+
+  [body]->JSON.Encode.array
+}
+
+let metricsResponseToStatusWithCount = (~statusField, ~countField, response) => {
+  let statusWithCount = Dict.make()
+
+  response
+  ->getDictFromJsonObject
+  ->getArrayFromDict("queryData", [])
+  ->Array.forEach(row => {
+    let dict = row->getDictFromJsonObject
+    let status = dict->getString(statusField, "")
+    if status->isNonEmptyString {
+      statusWithCount->Dict.set(status, dict->getFloat(countField, 0.0)->JSON.Encode.float)
+    }
+  })
+
+  [("status_with_count", statusWithCount->JSON.Encode.object)]->getJsonFromArrayOfJson
 }
 
 let getStartAndEndTime = (filterValueJson, version) => {
