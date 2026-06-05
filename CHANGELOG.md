@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.06.05.1
+
+### Bug Fixes
+
+- New acquirer config ui bugs ([#4912](https://github.com/juspay/hyperswitch-control-center/pull/4912)) ([`d0f7e16`](https://github.com/juspay/hyperswitch-control-center/commit/d0f7e1661c0e6cf154d82db64d56a78ad1003cf6))
+
+### Testing
+
+- Add workflow tests ([#4850](https://github.com/juspay/hyperswitch-control-center/pull/4850)) ([`e960ac2`](https://github.com/juspay/hyperswitch-control-center/commit/e960ac2b748ec47562cc7d22fc89e93278e55a76))
+- Add analytics tests ([#4889](https://github.com/juspay/hyperswitch-control-center/pull/4889)) ([`6283150`](https://github.com/juspay/hyperswitch-control-center/commit/62831506cc7a173b0ef201242925d04cf7348011))
+
+**Full Changelog:** [`2026.06.05.0...2026.06.05.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.05.0...2026.06.05.1)
+
+- - -
+
 ## 2026.06.05.0
 
 ### Features
