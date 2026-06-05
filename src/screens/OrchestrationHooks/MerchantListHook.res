@@ -4,7 +4,7 @@ open LogicUtils
 let useFetchMerchantListV2 = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   async () => {
     try {
@@ -28,7 +28,7 @@ let useFetchMerchantList = () => {
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let setMerchantList = Recoil.useSetRecoilState(HyperswitchAtom.merchantListAtom)
   let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
