@@ -34,7 +34,10 @@ let pixFieldInput = (~metadataKey="pix", ~pixField: CommonConnectorTypes.inputFi
 
 let validatePixFields = (~metadataKey="pix", json: JSON.t) => {
   let pixFields =
-    json->getDictFromJsonObject->getDictFromNestedDict("metadata", metadataKey)->pixRequestToDictMapper
+    json
+    ->getDictFromJsonObject
+    ->getDictFromNestedDict("metadata", metadataKey)
+    ->pixRequestToDictMapper
 
   pixFields.client_id->isNonEmptyString &&
   pixFields.client_secret->isNonEmptyString &&
