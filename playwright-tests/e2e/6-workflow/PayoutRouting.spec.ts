@@ -30,7 +30,7 @@ test.describe("Payout Routing landing", () => {
         await expect(
             page
                 .getByText(
-                    /Volume Based Configuration|Rule Based Configuration|Default fallback|Active configuration|Manage rules/,
+                    /Volume Based Configuration|Rule Based Configuration|Default Fallback|Active configuration|Configuration History/,
                 )
                 .first(),
         ).toBeVisible({ timeout: 10000 });

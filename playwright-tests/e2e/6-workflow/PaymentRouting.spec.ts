@@ -613,7 +613,7 @@ test.describe("Routing list - Configuration History", () => {
     await homePage.routing.click();
 
     await expect(paymentRouting.activeBadge).toBeVisible();
-    await expect(page.getByText("Default fallback").nth(1)).toBeVisible();
+    await expect(page.getByText("Default Fallback").nth(1)).toBeVisible();
     await expect(paymentRouting.viewAndManageButton).toBeVisible();
 
     await expect(
@@ -691,7 +691,7 @@ test.describe("Routing list - Configuration History", () => {
     await homePage.workflow.click();
     await homePage.routing.click();
     await expect(paymentRouting.activeBadge).toBeVisible();
-    await expect(page.getByText("Default fallback").nth(1)).toBeVisible();
+    await expect(page.getByText("Default Fallback").nth(1)).toBeVisible();
     await expect(paymentRouting.viewAndManageButton).toBeVisible();
   });
 
