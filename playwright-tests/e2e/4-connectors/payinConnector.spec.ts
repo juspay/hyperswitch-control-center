@@ -472,13 +472,13 @@ test.describe("Payin Connector tests", () => {
     await openStripeConnectorForm(page);
     await paymentConnector.connectAndProceedButton.click();
 
-    await page.getByText("Apple Pay").click();
+    await page.getByText("Apple Pay").first().click();
 
-    await expect(page.getByText("Web Domain").nth(2)).toBeVisible();
-    await expect(page.getByText("iOS Certificate").nth(1)).toBeVisible();
-    await expect(page.getByText("Pre Decrypted Token").nth(1)).toBeVisible();
+    await expect(page.getByText("Web Domain").first()).toBeVisible();
+    await expect(page.getByText("iOS Certificate").first()).toBeVisible();
+    await expect(page.getByText("Pre Decrypted Token").first()).toBeVisible();
 
-    await page.getByText("Web Domain").nth(2).click();
+    await page.getByText("Web Domain").first().click();
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await expect(page.getByRole('button', { name: 'Verify & Enable' })).toBeDisabled();
@@ -502,13 +502,13 @@ test.describe("Payin Connector tests", () => {
     await openStripeConnectorForm(page);
     await paymentConnector.connectAndProceedButton.click();
 
-    await page.getByText("Apple Pay").click();
+    await page.getByText("Apple Pay").first().click();
 
-    await expect(page.getByText("Web Domain").nth(2)).toBeVisible();
-    await expect(page.getByText("iOS Certificate").nth(1)).toBeVisible();
-    await expect(page.getByText("Pre Decrypted Token").nth(1)).toBeVisible();
+    await expect(page.getByText("Web Domain").first()).toBeVisible();
+    await expect(page.getByText("iOS Certificate").first()).toBeVisible();
+    await expect(page.getByText("Pre Decrypted Token").first()).toBeVisible();
 
-    await page.getByText("iOS Certificate").nth(1).click();
+    await page.getByText("iOS Certificate").first().click();
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await expect(page.getByRole('button', { name: 'Verify & Enable' })).toBeDisabled();
@@ -551,8 +551,8 @@ test.describe("Payin Connector tests", () => {
     await openStripeConnectorForm(page);
     await paymentConnector.connectAndProceedButton.click();
 
-    await page.getByText("Google Pay").click();
-    await expect(page.getByText('Payment Gateway').nth(4)).toBeVisible();
+    await page.getByText("Google Pay").first().click();
+    await expect(page.getByText('Payment Gateway').first()).toBeVisible();
     await page.getByRole("button", { name: "Continue" }).click();
 
     await expect(page.getByRole("button", { name: "Proceed" }).nth(1)).toBeDisabled();
