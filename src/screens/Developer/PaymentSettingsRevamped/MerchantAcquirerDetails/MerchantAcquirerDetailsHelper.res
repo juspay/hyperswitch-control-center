@@ -77,7 +77,8 @@ module BucketBody = {
           showPagination={totalResults > 10}
           tableLocalFilter=false
           showSerialNumber=false
-          tableheadingClass="bg-transparent text-nd_gray-600"
+          showAutoScroll=true
+          tableheadingClass="bg-transparent text-nd_gray-600 border-b border-nd_br_gray-150"
         />
       </RenderIf>
       <RenderIf condition={bucket.networks->isEmptyArray}>
@@ -94,7 +95,9 @@ module BucketBody = {
           customIconMargin="pl-1"
         />
       </div>
-      <AddNetworkModal showModal=showAddNetwork setShowModal=setShowAddNetwork bucket />
+      <RenderIf condition={showAddNetwork}>
+        <AddNetworkModal showModal=showAddNetwork setShowModal=setShowAddNetwork bucket />
+      </RenderIf>
       <RenderIf condition={editNetworkEntry->Option.isSome}>
         <EditNetworkModal entry=editNetworkEntry bucket setEntry=setEditNetworkEntry />
       </RenderIf>
