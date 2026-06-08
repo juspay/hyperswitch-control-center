@@ -151,6 +151,9 @@ let getArrayFromDict = (dict, key, default) => {
   dict->getOptionalArrayFromDict(key)->Option.getOr(default)
 }
 
+let convertOptionalArrayToOptionalJson = optArray =>
+  optArray->Option.map(arr => arr->JSON.Encode.array)
+
 let getArrayDataFromJson = (json, itemToObjMapper) => {
   json
   ->JSON.Decode.array
