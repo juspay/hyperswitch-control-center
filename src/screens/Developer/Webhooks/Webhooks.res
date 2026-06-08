@@ -102,8 +102,6 @@ let make = () => {
     }
   }
 
-  Js.log2("offset", offset)
-
   React.useEffect(() => {
     if filterValueJson->isEmptyDict {
       setInitialFilters()
