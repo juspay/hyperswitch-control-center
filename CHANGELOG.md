@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.06.08.0
+
+### Features
+
+- Support composite search identifiers and grouping fields in recon rules ([#4919](https://github.com/juspay/hyperswitch-control-center/pull/4919)) ([`35557cd`](https://github.com/juspay/hyperswitch-control-center/commit/35557cd14f1ff17882af1209ac44967a2d77232e))
+
+### Bug Fixes
+
+- Card network not showing in wallet payments ([#4899](https://github.com/juspay/hyperswitch-control-center/pull/4899)) ([`4666f10`](https://github.com/juspay/hyperswitch-control-center/commit/4666f10a48cca96867df25bcfa254f6ac239d02c))
+
+### Refactors
+
+- Remove Clickhouse aggregate endpoints and related logic ([#4901](https://github.com/juspay/hyperswitch-control-center/pull/4901)) ([`c6936c9`](https://github.com/juspay/hyperswitch-control-center/commit/c6936c97aab2788d437132909dbf71bc9d7b9f48))
+
+**Full Changelog:** [`2026.06.05.1...2026.06.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.05.1...2026.06.08.0)
+
+- - -
+
 ## 2026.06.05.1
 
 ### Bug Fixes
