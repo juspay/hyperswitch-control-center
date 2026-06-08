@@ -133,12 +133,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
             className={`bg-nd_gray-0 border border-nd_gray-150 rounded-lg p-4 shadow-sm ${dragStyle}`}>
             <div className="flex flex-row items-center gap-4">
               <Icon name="nd-grip-vertical" size=20 className="cursor-pointer text-nd_gray-400" />
-              <TagBinding
-                text={Int.toString(index + 1)}
-                variant=TagBinding.Subtle
-                size=TagBinding.Xs
-                color=TagBinding.Primary
-              />
+              <TagBinding text={Int.toString(index + 1)} variant=Subtle size=Xs color=Primary />
               <div className="flex gap-2 items-center">
                 <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-6 h-6" />
                 <p className={`${body.md.medium} text-nd_gray-700`}>

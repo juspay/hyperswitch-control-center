@@ -34,36 +34,35 @@ let make = (~routingType) => {
 
   <div className="flex flex-col overflow-auto gap-2">
     <PageUtils.PageHeading title="Smart Routing Configurations" customHeadingStyle="!mb-0" />
-    <History.BreadCrumbWrapper
-      pageTitle={getContent(currentRouting).heading}
-      baseLink={"/routing"}
-      breadCrumbCustomStyle="-ml-2">
-      {switch currentRouting {
-      | VOLUME_SPLIT =>
-        <VolumeSplitRouting
-          routingRuleId=id isActive connectorList urlEntityName=V1(ROUTING) baseUrlForRedirection
-        />
-      | ADVANCED =>
-        <AdvancedRouting
-          routingRuleId=id
-          isActive
-          setCurrentRouting
-          connectorList
-          urlEntityName=V1(ROUTING)
-          baseUrlForRedirection
-        />
-      | AUTH_RATE_ROUTING =>
-        <AuthRateRouting
-          routingRuleId=id isActive connectorList urlEntityName=V1(ROUTING) baseUrlForRedirection
-        />
-      | DEFAULTFALLBACK =>
-        <DefaultRouting
-          urlEntityName=V1(DEFAULT_FALLBACK)
-          baseUrlForRedirection
-          connectorVariant=ConnectorTypes.PaymentProcessor
-        />
-      | _ => <> </>
-      }}
-    </History.BreadCrumbWrapper>
+    <BreadCrumbNavigation
+      path=[{title: "Smart Routing Configurations", link: "/routing"}]
+      currentPageTitle={getContent(currentRouting).heading}
+    />
+    {switch currentRouting {
+    | VOLUME_SPLIT =>
+      <VolumeSplitRouting
+        routingRuleId=id isActive connectorList urlEntityName=V1(ROUTING) baseUrlForRedirection
+      />
+    | ADVANCED =>
+      <AdvancedRouting
+        routingRuleId=id
+        isActive
+        setCurrentRouting
+        connectorList
+        urlEntityName=V1(ROUTING)
+        baseUrlForRedirection
+      />
+    | AUTH_RATE_ROUTING =>
+      <AuthRateRouting
+        routingRuleId=id isActive connectorList urlEntityName=V1(ROUTING) baseUrlForRedirection
+      />
+    | DEFAULTFALLBACK =>
+      <DefaultRouting
+        urlEntityName=V1(DEFAULT_FALLBACK)
+        baseUrlForRedirection
+        connectorVariant=ConnectorTypes.PaymentProcessor
+      />
+    | _ => <> </>
+    }}
   </div>
 }

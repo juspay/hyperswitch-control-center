@@ -33,37 +33,35 @@ let make = (~routingType) => {
 
   <div className="flex flex-col overflow-auto gap-2">
     <PageUtils.PageHeading title="Payout Routing Configurations" customHeadingStyle="!mb-0" />
-    <History.BreadCrumbWrapper
-      pageTitle={getContent(currentRouting).heading}
-      title="Payout Routing Configurations"
-      baseLink={"/payoutrouting"}
-      breadCrumbCustomStyle="-ml-2">
-      {switch currentRouting {
-      | VOLUME_SPLIT =>
-        <VolumeSplitRouting
-          routingRuleId=id
-          isActive
-          connectorList
-          urlEntityName=V1(PAYOUT_ROUTING)
-          baseUrlForRedirection
-        />
-      | ADVANCED =>
-        <AdvancedRouting
-          routingRuleId=id
-          isActive
-          setCurrentRouting
-          connectorList
-          urlEntityName=V1(PAYOUT_ROUTING)
-          baseUrlForRedirection
-        />
-      | DEFAULTFALLBACK =>
-        <DefaultRouting
-          urlEntityName=V1(PAYOUT_DEFAULT_FALLBACK)
-          baseUrlForRedirection
-          connectorVariant=ConnectorTypes.PayoutProcessor
-        />
-      | _ => React.null
-      }}
-    </History.BreadCrumbWrapper>
+    <BreadCrumbNavigation
+      path=[{title: "Payout Routing Configurations", link: "/payoutrouting"}]
+      currentPageTitle={getContent(currentRouting).heading}
+    />
+    {switch currentRouting {
+    | VOLUME_SPLIT =>
+      <VolumeSplitRouting
+        routingRuleId=id
+        isActive
+        connectorList
+        urlEntityName=V1(PAYOUT_ROUTING)
+        baseUrlForRedirection
+      />
+    | ADVANCED =>
+      <AdvancedRouting
+        routingRuleId=id
+        isActive
+        setCurrentRouting
+        connectorList
+        urlEntityName=V1(PAYOUT_ROUTING)
+        baseUrlForRedirection
+      />
+    | DEFAULTFALLBACK =>
+      <DefaultRouting
+        urlEntityName=V1(PAYOUT_DEFAULT_FALLBACK)
+        baseUrlForRedirection
+        connectorVariant=ConnectorTypes.PayoutProcessor
+      />
+    | _ => React.null
+    }}
   </div>
 }
