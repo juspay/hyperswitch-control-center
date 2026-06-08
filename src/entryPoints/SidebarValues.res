@@ -222,6 +222,18 @@ let vaultProcessor = (~userHasResourceAccess) => {
   })
 }
 
+let surchargeProcessor = (~userHasResourceAccess) => {
+  SubLevelLink({
+    name: "Surcharge Processor",
+    link: `/surcharge-processor`,
+    access: userHasResourceAccess(~resourceAccess=Connector),
+    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
+      ~processorList=ConnectorUtils.surchargeProcessorList,
+      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    ),
+  })
+}
+
 let connectors = (
   isConnectorsEnabled,
   ~isLiveMode,
@@ -232,6 +244,7 @@ let connectors = (
   ~isTaxProcessor,
   ~isBillingProcessor,
   ~isVaultProcessor,
+  ~isSurchargeProcessor,
   ~userHasResourceAccess,
 ) => {
   let connectorLinkArray = [paymentProcessor(isLiveMode, userHasResourceAccess)]
@@ -260,6 +273,10 @@ let connectors = (
 
   if isVaultProcessor {
     connectorLinkArray->Array.push(vaultProcessor(~userHasResourceAccess))->ignore
+  }
+
+  if isSurchargeProcessor {
+    connectorLinkArray->Array.push(surchargeProcessor(~userHasResourceAccess))->ignore
   }
 
   isConnectorsEnabled

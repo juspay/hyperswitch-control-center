@@ -755,6 +755,245 @@ export async function createPayoutAPI(
   return await response.json();
 }
 
+// Create / replace the merchant's active surcharge rule via the same PUT the
+// dashboard fires (routing/decision/surcharge). Lets Surcharge UI tests run
+// against real backend data instead of mocking GET /surcharge.
+//
+// IMPORTANT: this endpoint is JWT-authenticated and the JWT must include the
+// org_id / merchant_id / profile_id claims the dashboard mints after UI
+// login. The cleanest way to get that JWT is to pull it out of the page's
+// USER_INFO localStorage entry rather than re-issuing one via /user/v2/signin
+// (which yields a shorter-lived token that the routing endpoints reject).
+export async function createSurchargeAPI(
+  page: Page,
+  context?: APIRequestContext,
+  overrides: Partial<{
+    name: string;
+    surchargeType: "rate" | "fixed";
+    percentage: number;
+    fixedAmount: number;
+  }> = {},
+): Promise<{
+  name: string;
+}> {
+  const ctx = context ?? (await request.newContext());
+  const token = await page.evaluate(() => {
+    const raw = window.localStorage.getItem("USER_INFO");
+    if (!raw) return "";
+    try {
+      return (JSON.parse(raw) as { token?: string }).token ?? "";
+    } catch {
+      return "";
+    }
+  });
+  if (!token) {
+    throw new Error(
+      "createSurchargeAPI: no JWT in localStorage — make sure loginUI ran first",
+    );
+  }
+
+  const name = overrides.name ?? "playwright_surcharge";
+  const surchargeType = overrides.surchargeType ?? "rate";
+  const surchargeValue =
+    surchargeType === "rate"
+      ? { percentage: overrides.percentage ?? 2.5 }
+      : { amount: overrides.fixedAmount ?? 100 };
+
+  // Backend schema for PUT /routing/decision/surcharge only accepts
+  // { name, merchant_surcharge_configs, algorithm } — description is a
+  // dashboard-side metadata field that never leaves the form.
+  const response = await ctx.put(`${API_URL}/routing/decision/surcharge`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    data: {
+      name,
+      algorithm: {
+        defaultSelection: { surcharge_details: null },
+        rules: [
+          {
+            name: "rule_1",
+            connectorSelection: {
+              surcharge_details: {
+                surcharge: { type: surchargeType, value: surchargeValue },
+                tax_on_surcharge: { percentage: 0.0 },
+              },
+            },
+            // Statements are wrapped in { condition: [...] } per
+            // generateStatements (AdvancedRoutingUtils.res:446-493).
+            statements: [
+              {
+                condition: [
+                  {
+                    lhs: "amount",
+                    comparison: "greater_than",
+                    value: { type: "number", value: 0 },
+                    metadata: {},
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        metadata: {},
+      },
+      merchant_surcharge_configs: { show_surcharge_breakup_screen: true },
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `createSurchargeAPI failed (${response.status()}): ${body}`,
+    );
+  }
+
+  return { name };
+}
+
+// Seeds an active 3DS exemption rule via the routing API so spec tests can
+// assert against real backend data without driving the form UI.
+//
+// Mirrors createSurchargeAPI (JWT pulled from USER_INFO localStorage), but
+// the 3DS exemption flow is a two-step write: POST /routing creates the
+// rule and returns its id; POST /routing/{id}/activate publishes it as the
+// active rule for transaction_type=three_ds_authentication.
+export async function createThreeDsExemptionAPI(
+  page: Page,
+  context?: APIRequestContext,
+  overrides: Partial<{
+    name: string;
+    description: string;
+    authType:
+      | "no_three_ds"
+      | "challenge_requested"
+      | "challenge_preferred"
+      | "three_ds_exemption_requested_tra"
+      | "three_ds_exemption_requested_low_value"
+      | "issuer_three_ds_exemption_requested";
+  }> = {},
+): Promise<{
+  name: string;
+}> {
+  const ctx = context ?? (await request.newContext());
+  const token = await page.evaluate(() => {
+    const raw = window.localStorage.getItem("USER_INFO");
+    if (!raw) return "";
+    try {
+      return (JSON.parse(raw) as { token?: string }).token ?? "";
+    } catch {
+      return "";
+    }
+  });
+  if (!token) {
+    throw new Error(
+      "createThreeDsExemptionAPI: no JWT in localStorage — make sure loginUI ran first",
+    );
+  }
+
+  // profile_id rides inside the JWT payload (the dashboard mints it after
+  // login). Decode the middle JWT segment so the request body can include
+  // it the same way buildThreeDsExemptionPayloadBody does on the UI side.
+  const segments = token.split(".");
+  if (segments.length !== 3) {
+    throw new Error(
+      "createThreeDsExemptionAPI: invalid JWT format (expected 3 segments)",
+    );
+  }
+  const jwtPayload = JSON.parse(
+    Buffer.from(segments[1], "base64").toString("utf-8"),
+  ) as { profile_id?: string };
+  const profileId = jwtPayload.profile_id ?? "";
+
+  const name = overrides.name ?? "playwright_3ds_exemption";
+  const description = overrides.description ?? "";
+  const authType = overrides.authType ?? "three_ds_exemption_requested_tra";
+
+  // Step 1: create the routing record. Payload shape mirrors
+  // buildThreeDsExemptionPayloadBody (ThreeDsExemptionUtils.res:26-51) —
+  // statements are wrapped in { condition: [...] } per generateStatements.
+  const createResponse = await ctx.post(`${API_URL}/routing`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    data: {
+      name,
+      profile_id: profileId,
+      description,
+      transaction_type: "three_ds_authentication",
+      algorithm: {
+        type: "three_ds_decision_rule",
+        data: {
+          defaultSelection: { decision: "no_three_ds" },
+          rules: [
+            {
+              name: "rule_1",
+              connectorSelection: { decision: authType },
+              statements: [
+                {
+                  condition: [
+                    {
+                      lhs: "amount",
+                      comparison: "greater_than",
+                      value: { type: "number", value: 0 },
+                      metadata: {},
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          metadata: {},
+        },
+      },
+    },
+  });
+
+  if (!createResponse.ok()) {
+    const body = await createResponse.text();
+    throw new Error(
+      `createThreeDsExemptionAPI create failed (${createResponse.status()}): ${body}`,
+    );
+  }
+
+  const createBody = (await createResponse.json()) as { id?: string };
+  const routingId = createBody.id ?? "";
+  if (!routingId) {
+    throw new Error(
+      `createThreeDsExemptionAPI create returned no id: ${JSON.stringify(createBody)}`,
+    );
+  }
+
+  // Step 2: activate the rule. The body matches the dashboard's onSubmit
+  // path (HSwitchThreeDsExemption.res:275-286).
+  const activateResponse = await ctx.post(
+    `${API_URL}/routing/${routingId}/activate`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      data: {
+        transaction_type: "three_ds_authentication",
+      },
+    },
+  );
+
+  if (!activateResponse.ok()) {
+    const body = await activateResponse.text();
+    throw new Error(
+      `createThreeDsExemptionAPI activate failed (${activateResponse.status()}): ${body}`,
+    );
+  }
+
+  return { name };
+}
+
 export async function visitSignupPage(page: Page): Promise<void> {
   const signinPage = new SignInPage(page);
   await page.goto("/");
@@ -821,6 +1060,163 @@ export async function mockV2MerchantList(page: Page): Promise<void> {
       body: JSON.stringify([]),
     });
   });
+}
+
+// Disputes don't have a client-facing creation endpoint — in production they
+// arrive via connector webhooks. For UI tests we mock the list/detail routes
+// so we can drive the page with synthetic data and exercise different
+// statuses or connectors deterministically.
+export type DisputeOverrides = Partial<{
+  dispute_id: string;
+  payment_id: string;
+  attempt_id: string;
+  amount: string;
+  currency: string;
+  dispute_stage: string;
+  dispute_status: string;
+  connector: string;
+  connector_status: string;
+  connector_dispute_id: string;
+  connector_reason: string | null;
+  connector_reason_code: string | null;
+  challenge_required_by: string | null;
+  connector_created_at: string | null;
+  connector_updated_at: string | null;
+  created_at: string;
+  profile_id: string;
+  merchant_connector_id: string;
+  is_already_refunded: boolean;
+}>;
+
+export function buildDispute(overrides: DisputeOverrides = {}) {
+  return {
+    dispute_id: "dp_playwright_mock_0001",
+    payment_id: "pay_playwright_mock_0001",
+    attempt_id: "pay_playwright_mock_0001_1",
+    amount: "6500",
+    currency: "USD",
+    dispute_stage: "dispute",
+    dispute_status: "dispute_opened",
+    connector: "stripe",
+    connector_status: "NeedsResponse",
+    connector_dispute_id: "dsp_playwright_mock_0001",
+    connector_reason: "fraudulent" as string | null,
+    connector_reason_code: null as string | null,
+    challenge_required_by: "2026-06-08T18:00:00.000Z" as string | null,
+    connector_created_at: "2026-05-19T15:45:33.653Z" as string | null,
+    connector_updated_at: null as string | null,
+    created_at: "2026-05-19T15:45:34.196Z",
+    profile_id: "pro_playwright_mock",
+    merchant_connector_id: "mca_playwright_mock",
+    is_already_refunded: false,
+    ...overrides,
+  };
+}
+
+// Sets up route handlers for the four endpoints the disputes list page hits:
+//   GET  /disputes/list?...      → array filtered against ?dispute_status=, ?dispute_id=, ?payment_id=
+//   GET  /disputes/filter        → derives connector / dispute_status / dispute_stage option lists from `disputes`
+//   GET  /disputes/{id}          → returns the matching dispute, or 404
+//   GET  /disputes/aggregate?... → returns per-status counts derived from `disputes`
+// Pass an array built from buildDispute({...}) to vary status/connector/etc.
+export async function mockDisputesList(
+  page: Page,
+  disputes: ReturnType<typeof buildDispute>[],
+): Promise<void> {
+  await page.route(/\/disputes\/(profile\/)?list(\?|$)/, async (route) => {
+    const url = new URL(route.request().url());
+    const params = url.searchParams;
+    const statusParam = params.get("dispute_status");
+    const disputeIdParam = params.get("dispute_id");
+    const paymentIdParam = params.get("payment_id");
+
+    let data = [...disputes];
+    if (statusParam) {
+      const wanted = statusParam.split(",").filter(Boolean);
+      if (wanted.length > 0) {
+        data = data.filter((d) => wanted.includes(d.dispute_status));
+      }
+    }
+    // The disputes page sets BOTH `dispute_id` and `payment_id` to the
+    // search box value, so match when either field matches.
+    if (disputeIdParam || paymentIdParam) {
+      data = data.filter(
+        (d) =>
+          (disputeIdParam && d.dispute_id === disputeIdParam) ||
+          (paymentIdParam && d.payment_id === paymentIdParam),
+      );
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(data),
+    });
+  });
+
+  await page.route(/\/disputes\/(profile\/)?filter(\?|$)/, async (route) => {
+    const connectors = Array.from(new Set(disputes.map((d) => d.connector)));
+    const statuses = Array.from(
+      new Set(disputes.map((d) => d.dispute_status)),
+    );
+    const stages = Array.from(new Set(disputes.map((d) => d.dispute_stage)));
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        connector: connectors,
+        currency: ["USD"],
+        dispute_status: statuses,
+        dispute_stage: stages,
+      }),
+    });
+  });
+
+  await page.route(/\/disputes\/(profile\/)?aggregate(\?|$)/, async (route) => {
+    const counts: Record<string, number> = {};
+    for (const d of disputes) {
+      counts[d.dispute_status] = (counts[d.dispute_status] ?? 0) + 1;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ status_with_count: counts }),
+    });
+  });
+
+  await page.route(/\/disputes\/(dp_[^/?]+)(\?|$)/, async (route) => {
+    const match = route.request().url().match(/\/disputes\/(dp_[^/?]+)/);
+    const id = match ? match[1] : "";
+    const found = disputes.find((d) => d.dispute_id === id);
+    if (!found) {
+      await route.fulfill({
+        status: 404,
+        contentType: "application/json",
+        body: JSON.stringify({ error: { code: "HE_02", message: "not found" } }),
+      });
+      return;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(found),
+    });
+  });
+
+  // ShowDisputes mounts DisputeLogs which eagerly fires three analytics
+  // audit-log endpoints. With a synthetic dispute the real backend returns
+  // 401 for each, and the global 401 handler kicks the user to /sign-in.
+  // Stub them to empty arrays so the detail page can render.
+  await page.route(
+    /\/analytics\/v1\/(profile\/)?(api_event_logs|connector_event_logs|outgoing_webhook_event_logs|webhook_event_logs)(\?|$)/,
+    async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([]),
+      });
+    },
+  );
 }
 
 export async function enableEmailFeatureFlag(page: Page): Promise<void> {
