@@ -17,7 +17,7 @@ let make = () => {
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let (searchText, setSearchText) = React.useState(_ => "")
-  let (lastFilterState, setLastFilterState) = React.useState(_ => "")
+  let lastFiltersSignature = React.useRef("")
 
   let webhookURL = businessProfileRecoilVal.webhook_details.webhook_url->Option.getOr("")
 
@@ -103,31 +103,20 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    let currentFilterState = {
-      let filterDict = Dict.make()
-      filterValueJson
-      ->Dict.toArray
-      ->Array.forEach(((key, value)) => {
-        if key !== "offset" && key !== "limit" {
-          filterDict->Dict.set(key, value)
-        }
-      })
-      filterDict->JSON.Encode.object->JSON.stringify
-    }
-
-    if currentFilterState !== lastFilterState && searchText->isEmptyString {
-      setLastFilterState(_ => currentFilterState)
-      if offset !== 0 {
-        setOffset(_ => 0)
-      } else {
-        fetchWebhooks()->ignore
-      }
-    } else {
-      fetchWebhooks()->ignore
-    }
-
     if filterValueJson->isEmptyDict {
       setInitialFilters()
+    } else {
+      let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
+      let start_time = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
+      let end_time = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
+      let currentFilterState = `${start_time}|${end_time}|${offset->Int.toString}`
+
+      if currentFilterState !== lastFiltersSignature.current && searchText->isEmptyString {
+        lastFiltersSignature.current = currentFilterState
+        fetchWebhooks()->ignore
+      } else if searchText->isNonEmptyString {
+        fetchWebhooks()->ignore
+      }
     }
     None
   }, (filterValueJson, offset))
