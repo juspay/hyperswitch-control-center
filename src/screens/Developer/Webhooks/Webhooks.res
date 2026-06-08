@@ -102,14 +102,20 @@ let make = () => {
     }
   }
 
+  Js.log2("offset", offset)
+
   React.useEffect(() => {
     if filterValueJson->isEmptyDict {
       setInitialFilters()
     } else {
-      let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
-      let start_time = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
-      let end_time = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
-      let currentFilterState = `${start_time}|${end_time}|${offset->Int.toString}`
+      let currentFilterState = {
+        let filterDict = Dict.make()
+        filterValueJson
+        ->Dict.toArray
+        ->Array.forEach(((key, value)) => filterDict->Dict.set(key, value))
+        filterDict->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
+        filterDict->JSON.Encode.object->JSON.stringify
+      }
 
       if currentFilterState !== lastFiltersSignature.current && searchText->isEmptyString {
         lastFiltersSignature.current = currentFilterState
