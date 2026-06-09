@@ -101,7 +101,7 @@
     "react-dom": "18.3.1",
     "react-final-form": "^6.5.9",
     "react-ga4": "^2.0.0",
-    "react-qr-code": "^2.0.12",
+    "react-qr-code": "2.0.21",
     "react-syntax-highlighter": "^15.5.0",
     "react-window": "^1.8.8",
     "recoil": "^0.1.2",
