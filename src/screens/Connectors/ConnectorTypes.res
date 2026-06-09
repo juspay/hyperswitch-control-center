@@ -28,6 +28,7 @@ type authType = [#HeaderKey | #BodyKey | #SignatureKey | #MultiAuthKey | #Curren
 type cashToCodeMthd = [#Classic | #Evoucher]
 
 type processorTypes =
+  | ABSA
   | ADYEN
   | CHECKOUT
   | BRAINTREE
