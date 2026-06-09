@@ -13,6 +13,7 @@ agreement_version=""
 clarity_base_url=""
 dynamo_simulation_template_url=""
 [default.features]
+connector_clone_allow_list=["peachpayments",]
 branding=false
 mixpanel=false
 test_live_toggle=false

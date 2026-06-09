@@ -112,13 +112,16 @@ module ModalHeading = {
           React.null
         }}
       </div>
-      {if modalHeadingDescriptionElement !== React.null {
-        modalHeadingDescriptionElement
-      } else {
+      <RenderIf condition={modalHeadingDescriptionElement !== React.null}>
+        {modalHeadingDescriptionElement}
+      </RenderIf>
+      <RenderIf
+        condition={modalHeadingDescriptionElement === React.null &&
+          modalHeadingDescription->LogicUtils.isNonEmptyString}>
         <AddDataAttributes attributes=[("data-modal-description-text", modalHeading)]>
           <div className=descriptionStyle> {React.string(modalHeadingDescription)} </div>
         </AddDataAttributes>
-      }}
+      </RenderIf>
       <div className=subInfoStyle> {React.string(modalSubInfo)} </div>
     </div>
   }
