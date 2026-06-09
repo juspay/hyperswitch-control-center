@@ -39,7 +39,7 @@ module EvidenceUploadForm = {
             <input
               key={Int.toString(index)}
               type_="file"
-              accept=".pdf,.csv,.img,.jpeg"
+              accept=".pdf,.csv,.jpeg,.jpg,.png"
               onChange={ev => ev->handleBrowseChange(uploadEvidenceType)}
               hidden=true
             />
@@ -83,12 +83,14 @@ module UploadDisputeEvidenceModal = {
     open LogicUtils
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let acceptFile = (keyValue, fileValue) => {
+    let acceptFile = (keyValue, fileValue, fileName) => {
       let url = getURL(~entityName=V1(DISPUTES_ATTACH_EVIDENCE), ~methodType=Put)
       let formData = formData()
       append(formData, "dispute_id", disputeId)
       append(formData, "evidence_type", keyValue)
-      append(formData, "file", fileValue)
+      let contentType = DisputesUtils.getEvidenceFileContentType(fileValue, fileName)
+      let fileBlob = blob([fileValue], {"type": contentType})
+      appendBlob(formData, "file", fileBlob, fileName)
 
       updateDetails(
         ~bodyFormData=formData,
@@ -111,7 +113,8 @@ module UploadDisputeEvidenceModal = {
       let promisesOfAttachEvidence = dictToIterate->Array.map(ele => {
         let jsonObject = fileUploadedDict->Dict.get(ele)->Option.getOr(JSON.Encode.null)
         let fileValue = jsonObject->getDictFromJsonObject->getJsonObjectFromDict("uploadedFile")
-        let res = acceptFile(ele, fileValue)
+        let fileName = jsonObject->getDictFromJsonObject->getString("fileName", "")
+        let res = acceptFile(ele, fileValue, fileName)
         res
       })
 
