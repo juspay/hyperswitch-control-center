@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.06.08.1
+
+### Bug Fixes
+
+- Prevent duplicate events/profile/list API call on Webhooks page load ([#4938](https://github.com/juspay/hyperswitch-control-center/pull/4938)) ([`894142b`](https://github.com/juspay/hyperswitch-control-center/commit/894142b04d9524dbc64e44f6dff4acd6125515a2))
+
+### Miscellaneous Tasks
+
+- Replaced businessprofileid atom from businessprofileinterface atom ([#3696](https://github.com/juspay/hyperswitch-control-center/pull/3696)) ([`2970e4a`](https://github.com/juspay/hyperswitch-control-center/commit/2970e4a10ee24df27d6d6b2ea8c141087e5355e0))
+
+**Full Changelog:** [`2026.06.08.0...2026.06.08.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.08.0...2026.06.08.1)
+
+- - -
+
 ## 2026.06.08.0
 
 ### Features
