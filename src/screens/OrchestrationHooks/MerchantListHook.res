@@ -3,7 +3,7 @@ open LogicUtils
 
 let useFetchMerchantListV2 = () => {
   let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
+  let fetchDetails = useGetMethod(~showErrorToast=false)
 
   async () => {
     try {
