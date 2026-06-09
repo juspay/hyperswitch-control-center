@@ -28,6 +28,7 @@ type authType = [#HeaderKey | #BodyKey | #SignatureKey | #MultiAuthKey | #Curren
 type cashToCodeMthd = [#Classic | #Evoucher]
 
 type processorTypes =
+  | ABSA
   | ADYEN
   | CHECKOUT
   | BRAINTREE
@@ -181,6 +182,8 @@ type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING | CUSTOMBILLING
 
 type vaultProcessorTypes = VGS
 
+type surchargeProcessorTypes = INTERPAYMENTS
+
 type connectorTypeVariants =
   | PaymentProcessor
   | PaymentVas
@@ -190,6 +193,7 @@ type connectorTypeVariants =
   | TaxProcessor
   | BillingProcessor
   | VaultProcessor
+  | SurchargeProcessor
 
 type connectorTypes =
   | Processors(processorTypes)
@@ -200,6 +204,7 @@ type connectorTypes =
   | TaxProcessor(taxProcessorTypes)
   | BillingProcessor(billingProcessorTypes)
   | VaultProcessor(vaultProcessorTypes)
+  | SurchargeProcessor(surchargeProcessorTypes)
   | UnknownConnector(string)
 
 type paymentMethod =
@@ -230,6 +235,7 @@ type paymentMethodTypes =
   | DirectCarrierBilling
   | AmazonPay
   | Pix
+  | PixEmv
   | PixAutomaticoQr
   | PixAutomaticoPush
   | Boleto
@@ -468,6 +474,7 @@ type connector =
   | TaxProcessor
   | BillingProcessor
   | VaultProcessor
+  | SurchargeProcessor
 
 type connectorFieldTypes = {
   bodyType: string,

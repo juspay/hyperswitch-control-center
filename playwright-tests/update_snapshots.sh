@@ -13,7 +13,7 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 
 NETWORK="hyperswitch_router_net"
-PLAYWRIGHT_VERSION="v1.58.2"
+PLAYWRIGHT_VERSION="v1.60.0"
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 CONTAINER_NAME="playwright-snapshot-updater"
 FE_PORT=9000

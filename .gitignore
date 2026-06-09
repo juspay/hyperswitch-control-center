@@ -15,11 +15,10 @@ lib/
 /public/env-config.js
 env-config.js
 yarn.lock
-#package-lock.json
 user_data.sh
 *.pem
 .bsb.lock
-package-lock.json
+.opencode/package-lock.json
 screenshots
 downloads
 .env
@@ -38,7 +37,15 @@ coverage
 # Playwright test generation working directory
 .opencode/playwright-run/
 
-# Coverage / monocart test reports (regenerated in CI, uploaded as artifact)
+# Coverage reports (regenerated in CI, uploaded as artifact)
 /coverage-report/
-/monocart-report/
+/coverage-report-merged/
+/coverage-shards/
+/coverage-shard-*.json
 /assets/
+
+# CTRF test reports (regenerated in CI, uploaded as artifact)
+/ctrf/
+/ctrf-shards/
+/ctrf-shard-*.json
+/merged-ctrf/

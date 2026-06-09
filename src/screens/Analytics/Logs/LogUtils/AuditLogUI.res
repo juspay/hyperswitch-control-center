@@ -1,8 +1,60 @@
 module LogDetailsSection = {
   open LogTypes
   open LogicUtils
+  open LogUtils
+  open Typography
   @react.component
-  let make = (~logDetails) => {
+  let make = (~logDetails, ~nameToURLMapper, ~pageType: LogTypes.pageType) => {
+    let data = logDetails.data
+    let logType = data->getLogType
+    let statusCode = data->getStatusCodeString
+    let title = data->getRowTitle(~nameToURLMapper)
+    let method = data->getMethod
+    let mappedName = data->getApiName(~nameToURLMapper)
+    let urlPath = data->getUrlPath
+    let path = urlPath->isNonEmptyString ? urlPath : mappedName
+
+    let statusColor: TagBinding.tagColor = switch logType {
+    | SDK =>
+      switch statusCode {
+      | "ERROR" => Error
+      | "WARNING" => Warning
+      | "INFO" => Primary
+      | _ => Neutral
+      }
+    | API_EVENTS | CONNECTOR | ROUTING | WEBHOOKS =>
+      switch statusCode {
+      | "200" => Success
+      | "500" => Error
+      | "400" | "422" => Warning
+      | _ => Neutral
+      }
+    }
+
+    let isFailed = switch logType {
+    | API_EVENTS | CONNECTOR | ROUTING => data->getInt("status_code", 200) >= 400
+    | WEBHOOKS => data->getBool("is_error", false)
+    | SDK => data->getString("log_type", "") === "ERROR"
+    }
+
+    let errorStr = data->getString("error", "")
+    let errorDict =
+      errorStr->isNonEmptyString ? errorStr->safeParse->getDictFromJsonObject : Dict.make()
+    let nestedErrorDict = errorDict->getObj("error", errorDict)
+    let pickString = (dict, keys) =>
+      keys->Array.map(key => dict->getString(key, ""))->Array.find(isNonEmptyString)
+    let errorMessage =
+      nestedErrorDict
+      ->pickString(["error_description", "message", "reason", "error_message", "description"])
+      ->Option.getOr(errorStr)
+    let errorCode =
+      [
+        nestedErrorDict->getString("code", ""),
+        nestedErrorDict->getString("error_code", ""),
+        nestedErrorDict->getString("type", ""),
+        errorDict->getString("error", ""),
+      ]->Array.find(isNonEmptyString)
+
     let isValidNonEmptyValue = value => {
       switch value->JSON.Classify.classify {
       | Bool(_) | String(_) | Number(_) | Object(_) => true
@@ -35,50 +87,107 @@ module LogDetailsSection = {
 }
   `
 
-    <div className="pb-3 px-5 py-3">
-      {logDetails.data
-      ->Dict.toArray
-      ->Array.filter(item => {
-        let (key, value) = item
-        !(LogUtils.detailsSectionFilterKeys->Array.includes(key)) && value->isValidNonEmptyValue
-      })
-      ->Array.map(item => {
-        let (key, value) = item
-        <div className="text-sm font-medium text-gray-700 flex">
-          <span className="w-2/5"> {key->snakeToTitle->React.string} </span>
-          <span
-            className="w-3/5 overflow-scroll cursor-pointer relative hover:bg-gray-50 p-1 rounded">
-            <style> {React.string(auditLogScrollbar)} </style>
-            <ReactSyntaxHighlighter.SyntaxHighlighter
-              wrapLines={true}
-              wrapLongLines=true
-              style={ReactSyntaxHighlighter.lightfair}
-              language="json"
-              showLineNumbers={false}
-              lineNumberContainerStyle={{
-                paddingLeft: "0px",
-                backgroundColor: "red",
-                padding: "0px",
-              }}
-              customStyle={{
-                backgroundColor: "transparent",
-                fontSize: "0.875rem",
-                padding: "0px 0px 6px 0px",
-              }}>
-              {value->JSON.stringify}
-            </ReactSyntaxHighlighter.SyntaxHighlighter>
-          </span>
+    <div className="flex flex-col gap-5 px-5 py-4">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <TagBinding text=statusCode color=statusColor variant=Subtle shape=Squarical size=Sm />
+          <p className={`${heading.sm.semibold} text-nd_gray-800 break-all`}>
+            {title->React.string}
+          </p>
         </div>
-      })
-      ->React.array}
+        <RenderIf condition={method->isNonEmptyString || path->isNonEmptyString}>
+          <div className="flex items-center gap-2 min-w-0">
+            <RenderIf condition={method->isNonEmptyString}>
+              <span
+                className={`flex-none border border-nd_gray-300 text-nd_gray-500 px-1.5 py-0.5 rounded ${code.sm.medium}`}>
+                {method->String.toUpperCase->React.string}
+              </span>
+            </RenderIf>
+            <RenderIf condition={path->isNonEmptyString}>
+              <span className={`${code.md.medium} text-nd_gray-500 break-all`}>
+                {path->React.string}
+              </span>
+            </RenderIf>
+          </div>
+        </RenderIf>
+      </div>
+      <RenderIf condition={isFailed && errorMessage->isNonEmptyString}>
+        <AlertV2Binding
+          alertType=Error
+          heading={errorCode->mapOptionOrDefault("Request failed", code =>
+            `Request failed · ${code}`
+          )}
+          description=errorMessage
+        />
+      </RenderIf>
+      <div className="flex flex-col gap-3">
+        <p className={`${body.xs.semibold} text-nd_gray-400 uppercase tracking-wide`}>
+          {(pageType :> string)->React.string}
+        </p>
+        {data
+        ->Dict.toArray
+        ->Array.filter(((key, value)) =>
+          !(LogUtils.detailsSectionFilterKeys->Array.includes(key)) && value->isValidNonEmptyValue
+        )
+        ->Array.map(((key, value)) =>
+          <div key className="flex items-start gap-4">
+            <span className={`${body.sm.medium} text-nd_gray-500 w-2/5 flex-none`}>
+              {key->snakeToTitle->React.string}
+            </span>
+            <span className="w-3/5 min-w-0">
+              {switch value->JSON.Classify.classify {
+              | String(str) =>
+                <p className={`${code.md.medium} text-nd_gray-800 break-all`}>
+                  {str->React.string}
+                </p>
+              | Bool(_) | Number(_) =>
+                <p className={`${code.md.medium} text-nd_gray-800 break-all`}>
+                  {value->JSON.stringify->React.string}
+                </p>
+              | _ =>
+                <span className="block overflow-scroll relative">
+                  <style> {React.string(auditLogScrollbar)} </style>
+                  <ReactSyntaxHighlighter.SyntaxHighlighter
+                    wrapLines={true}
+                    wrapLongLines=true
+                    style={ReactSyntaxHighlighter.lightfair}
+                    language="json"
+                    showLineNumbers={false}
+                    lineNumberContainerStyle={{
+                      paddingLeft: "0px",
+                      backgroundColor: "red",
+                      padding: "0px",
+                    }}
+                    customStyle={{
+                      backgroundColor: "transparent",
+                      fontSize: "0.875rem",
+                      padding: "0px 0px 6px 0px",
+                    }}>
+                    {value->JSON.stringify}
+                  </ReactSyntaxHighlighter.SyntaxHighlighter>
+                </span>
+              }}
+            </span>
+          </div>
+        )
+        ->React.array}
+      </div>
     </div>
   }
 }
 
 module TabDetails = {
   open LogTypes
+  open LogUtils
   @react.component
-  let make = (~activeTab, ~moduleName="", ~logDetails, ~selectedOption) => {
+  let make = (
+    ~activeTab,
+    ~moduleName="",
+    ~logDetails,
+    ~selectedOption,
+    ~nameToURLMapper,
+    ~pageType,
+  ) => {
     open LogicUtils
     let id =
       activeTab
@@ -90,7 +199,7 @@ module TabDetails = {
     let tab =
       <div>
         {switch currTab->getLogTypefromString {
-        | Logdetails => <LogDetailsSection logDetails />
+        | Logdetails => <LogDetailsSection logDetails nameToURLMapper pageType />
         | Event
         | Request =>
           <div className="px-5 py-3">
@@ -102,7 +211,7 @@ module TabDetails = {
                   customTextCss="text-nowrap"
                 />
               </div>
-              <PrettyPrintJson jsonToDisplay=logDetails.request />
+              <PrettyPrintJson jsonToDisplay=logDetails.request wrapLines=true wrapLongLines=true />
             </RenderIf>
             <RenderIf condition={logDetails.request->isEmptyString}>
               <NoDataFound
@@ -123,7 +232,9 @@ module TabDetails = {
                   customTextCss="text-nowrap"
                 />
               </div>
-              <PrettyPrintJson jsonToDisplay={logDetails.response} />
+              <PrettyPrintJson
+                jsonToDisplay={logDetails.response} wrapLines=true wrapLongLines=true
+              />
             </RenderIf>
             <RenderIf
               condition={logDetails.response->isEmptyString ||
@@ -147,8 +258,10 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   open LogUtils
   open LogTypes
   open APIUtils
+  open Typography
   let {merchantId} =
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
+  let urlMapper = nameToURLMapper(~id, ~merchantId)
   let fetchDetails = useGetMethod(~showErrorToast=false)
   let fetchPostDetails = useUpdateMethod()
   let (data, setData) = React.useState(_ => [])
@@ -162,27 +275,21 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     value: 0,
     optionType: API_EVENTS,
   })
+  let (selectedOrigin, setSelectedOrigin) = React.useState(_ => AllOrigins)
+  let (selectedSdkFilter, setSelectedSdkFilter) = React.useState(_ => AllSdk)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
-  let (collapseTab, setCollapseTab) = React.useState(_ => false)
   let (activeTab, setActiveTab) = React.useState(_ => ["Log Details"])
 
   let tabKeys = tabkeys->Array.map(item => {
-    item->getTabKeyName(selectedOption.optionType)
-  })
-
-  let tabValues = tabKeys->Array.map(key => {
-    let a: DynamicTabs.tab = {
-      title: key,
-      value: key,
-      isRemovable: false,
-    }
-    a
+    item->getTabKeyName(
+      selectedOption.optionType,
+      ~isIncomingWebhook=logDetails.data->isIncomingWebhook,
+    )
   })
 
   React.useEffect(_ => {
     setActiveTab(_ => ["Log Details"])
-    setCollapseTab(prev => !prev)
     None
   }, [logDetails])
 
@@ -236,7 +343,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
         setScreenState(_ => PageLoaderWrapper.Error("Failed to Fetch!"))
       } else {
         setScreenState(_ => PageLoaderWrapper.Success)
-        logs->Array.sort(sortByCreatedAt)
+        logs->Array.sort(sortByStartTime)
         let reorderedLogs = logs->reorderLogs
         setData(_ => reorderedLogs)
         switch reorderedLogs->Array.get(0) {
@@ -258,14 +365,106 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   }, [])
   let prevLogType = ref("")
 
+  let isSdkSelected = switch selectedOrigin {
+  | SdkOrigin => true
+  | _ => false
+  }
+
+  let visibleData = data->Array.filter(row => {
+    let dict = row->getDictFromJsonObject
+    selectedOrigin->rowMatchesOrigin(dict) && (
+        isSdkSelected ? selectedSdkFilter->rowMatchesSdkFilter(dict) : true
+      )
+  })
+
+  let presentOrigins =
+    selectableOrigins->Array.filter(origin =>
+      data->Array.some(row => origin->rowMatchesOrigin(row->getDictFromJsonObject))
+    )
+
+  let presentSdkFilters = selectableSdkFilters->Array.filter(filter =>
+    data->Array.some(row => {
+      let dict = row->getDictFromJsonObject
+      SdkOrigin->rowMatchesOrigin(dict) && filter->rowMatchesSdkFilter(dict)
+    })
+  )
+
+  let focusFirstRow = rows =>
+    rows
+    ->Array.get(0)
+    ->Option.mapOr((), firstRow =>
+      firstRow->getDictFromJsonObject->setDefaultValue(setLogDetails, setSelectedOption)
+    )
+
+  let originTabs =
+    <TabsBinding
+      value={selectedOrigin->originFilterLabel}
+      onValueChange={label => {
+        let origin = label->originFromLabel
+        setSelectedOrigin(_ => origin)
+        setSelectedSdkFilter(_ => AllSdk)
+        data
+        ->Array.filter(row => origin->rowMatchesOrigin(row->getDictFromJsonObject))
+        ->focusFirstRow
+      }}
+      variant=Underline
+      size=Md>
+      <TabsBinding.List variant=Underline size=Md>
+        {[AllOrigins]
+        ->Array.concat(presentOrigins)
+        ->Array.map(origin => {
+          let label = origin->originFilterLabel
+          <TabsBinding.Trigger
+            key=label value=label variant=TabsBinding.Underline size=TabsBinding.Md>
+            {label->React.string}
+          </TabsBinding.Trigger>
+        })
+        ->React.array}
+      </TabsBinding.List>
+    </TabsBinding>
+
+  let sdkSubTabs =
+    <TabsBinding
+      value={selectedSdkFilter->sdkFilterLabel}
+      onValueChange={label => {
+        let filter = label->sdkFilterFromLabel
+        setSelectedSdkFilter(_ => filter)
+        data
+        ->Array.filter(row => {
+          let dict = row->getDictFromJsonObject
+          SdkOrigin->rowMatchesOrigin(dict) && filter->rowMatchesSdkFilter(dict)
+        })
+        ->focusFirstRow
+      }}
+      variant=Boxed
+      size=Md>
+      <TabsBinding.List variant=Boxed size=Md fitContent=true>
+        {[AllSdk]
+        ->Array.concat(presentSdkFilters)
+        ->Array.map(filter => {
+          let label = filter->sdkFilterLabel
+          <TabsBinding.Trigger key=label value=label variant=Boxed size=Md>
+            {label->React.string}
+          </TabsBinding.Trigger>
+        })
+        ->React.array}
+      </TabsBinding.List>
+    </TabsBinding>
+
   let timeLine =
-    <div className="flex flex-col w-2/5 overflow-y-scroll no-scrollbar pt-7 pl-5">
+    <div className="flex flex-col w-3/5 overflow-y-scroll overflow-x-hidden no-scrollbar pl-5">
+      <RenderIf condition={presentOrigins->Array.length > 1}>
+        <div className="pb-3"> {originTabs} </div>
+      </RenderIf>
+      <RenderIf condition={isSdkSelected}>
+        <div className="pb-4"> {sdkSubTabs} </div>
+      </RenderIf>
       <div className="flex flex-col">
-        {data
+        {visibleData
         ->Array.mapWithIndex((detailsValue, index) => {
-          let showLogType =
-            prevLogType.contents !== detailsValue->getDictFromJsonObject->getLogType->getTagName
-          prevLogType := detailsValue->getDictFromJsonObject->getLogType->getTagName
+          let rowHeading = detailsValue->getDictFromJsonObject->getHeadingLabel
+          let showLogType = prevLogType.contents !== rowHeading
+          prevLogType := rowHeading
 
           <ApiDetailsComponent
             key={index->Int.toString}
@@ -274,9 +473,9 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
             setSelectedOption
             selectedOption
             index
-            logsDataLength={data->Array.length - 1}
+            logsDataLength={visibleData->Array.length - 1}
             getLogType
-            nameToURLMapper={nameToURLMapper(~id={id}, ~merchantId)}
+            nameToURLMapper={urlMapper}
             filteredKeys
             showLogType
           />
@@ -289,26 +488,36 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     <RenderIf
       condition={logDetails.response->isNonEmptyString || logDetails.request->isNonEmptyString}>
       <div
-        className="flex flex-col gap-4 border-l-2 border-border-light-grey show-scrollbar scroll-smooth overflow-scroll  w-3/5">
-        <div className="sticky top-0 bg-white z-10">
-          <DynamicTabs
-            tabs=tabValues
-            maxSelection=1
-            setActiveTab
-            initialTab=tabKeys
-            tabContainerClass="px-2"
-            updateCollapsibleTabs=collapseTab
-            showAddMoreTabs=false
-          />
+        className="flex flex-col gap-4 border-l-2 border-nd_gray-200 show-scrollbar scroll-smooth overflow-scroll w-3/5">
+        <div className="sticky top-0 bg-white z-10 px-2">
+          <TabsBinding
+            value={activeTab
+            ->Option.flatMap(arr => arr->Array.get(0))
+            ->Option.getOr(tabKeys->getValueFromArray(0, ""))}
+            onValueChange=setActiveTab
+            variant=Underline
+            size=Md>
+            <TabsBinding.List variant=Underline size=Md>
+              {tabKeys
+              ->Array.map(tabKey =>
+                <TabsBinding.Trigger key=tabKey value=tabKey variant=Underline size=Md>
+                  {tabKey->React.string}
+                </TabsBinding.Trigger>
+              )
+              ->React.array}
+            </TabsBinding.List>
+          </TabsBinding>
         </div>
-        <TabDetails activeTab logDetails selectedOption />
+        <TabDetails
+          activeTab logDetails selectedOption nameToURLMapper=urlMapper pageType=logType
+        />
       </div>
     </RenderIf>
 
   open OrderUtils
   <PageLoaderWrapper
     screenState
-    customLoader={<p className=" text-center text-sm text-jp-gray-900 p-4">
+    customLoader={<p className={`text-center ${body.sm.regular} text-nd_gray-800 p-4`}>
       {"Crunching the latest data…"->React.string}
     </p>}
     customUI={<NoDataFound
@@ -317,9 +526,9 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     {<>
       <RenderIf condition={id->HSwitchOrderUtils.isTestData || data->Array.length === 0}>
         <div
-          className="flex items-center gap-2 bg-white w-full border-2 p-3 !opacity-100 rounded-lg text-md font-medium">
+          className="flex items-center gap-2 bg-white w-full border-2 p-3 !opacity-100 rounded-lg">
           <Icon name="info-circle-unfilled" size=16 />
-          <div className={`text-lg font-medium opacity-50`}>
+          <div className={`${heading.sm.medium} opacity-50`}>
             {`No logs available for this ${(logType :> string)->String.toLowerCase}`->React.string}
           </div>
         </div>
