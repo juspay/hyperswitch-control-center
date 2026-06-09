@@ -82,10 +82,7 @@ let make = () => {
               </RenderIf>
             | _ =>
               <DefaultHomeCard
-                heading=item.heading
-                description=item.description
-                img=item.imgSrc
-                action=item.action
+                heading=item.heading description=item.description img=item.imgSrc action=item.action
               />
             }}
           </React.Fragment>
