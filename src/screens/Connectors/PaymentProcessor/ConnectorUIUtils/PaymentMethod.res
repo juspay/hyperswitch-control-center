@@ -93,12 +93,12 @@ module CardRenderer = {
       | (PixAutomaticoQr, Processors(SANTANDER))
       | (PixAutomaticoPush, Processors(SANTANDER))
       | (Boleto, Processors(SANTANDER))
-      | (PayPal, Processors(BRAINTREE)) => true
+      | (PayPal, Processors(BRAINTREE))
+      | (AmazonPay, Processors(AMAZONPAY)) => true
       | _ =>
         ((methodVariant === GooglePay ||
         methodVariant === ApplePay ||
         methodVariant === SamsungPay ||
-        methodVariant === AmazonPay ||
         methodVariant === Paze) &&
           {
             switch connector->getConnectorNameTypeFromString(~connectorType) {

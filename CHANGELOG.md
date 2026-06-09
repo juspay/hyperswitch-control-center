@@ -3,6 +3,53 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.06.08.1
+
+### Bug Fixes
+
+- Prevent duplicate events/profile/list API call on Webhooks page load ([#4938](https://github.com/juspay/hyperswitch-control-center/pull/4938)) ([`894142b`](https://github.com/juspay/hyperswitch-control-center/commit/894142b04d9524dbc64e44f6dff4acd6125515a2))
+
+### Miscellaneous Tasks
+
+- Replaced businessprofileid atom from businessprofileinterface atom ([#3696](https://github.com/juspay/hyperswitch-control-center/pull/3696)) ([`2970e4a`](https://github.com/juspay/hyperswitch-control-center/commit/2970e4a10ee24df27d6d6b2ea8c141087e5355e0))
+
+**Full Changelog:** [`2026.06.08.0...2026.06.08.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.08.0...2026.06.08.1)
+
+- - -
+
+## 2026.06.08.0
+
+### Features
+
+- Support composite search identifiers and grouping fields in recon rules ([#4919](https://github.com/juspay/hyperswitch-control-center/pull/4919)) ([`35557cd`](https://github.com/juspay/hyperswitch-control-center/commit/35557cd14f1ff17882af1209ac44967a2d77232e))
+
+### Bug Fixes
+
+- Card network not showing in wallet payments ([#4899](https://github.com/juspay/hyperswitch-control-center/pull/4899)) ([`4666f10`](https://github.com/juspay/hyperswitch-control-center/commit/4666f10a48cca96867df25bcfa254f6ac239d02c))
+
+### Refactors
+
+- Remove Clickhouse aggregate endpoints and related logic ([#4901](https://github.com/juspay/hyperswitch-control-center/pull/4901)) ([`c6936c9`](https://github.com/juspay/hyperswitch-control-center/commit/c6936c97aab2788d437132909dbf71bc9d7b9f48))
+
+**Full Changelog:** [`2026.06.05.1...2026.06.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.05.1...2026.06.08.0)
+
+- - -
+
+## 2026.06.05.1
+
+### Bug Fixes
+
+- New acquirer config ui bugs ([#4912](https://github.com/juspay/hyperswitch-control-center/pull/4912)) ([`d0f7e16`](https://github.com/juspay/hyperswitch-control-center/commit/d0f7e1661c0e6cf154d82db64d56a78ad1003cf6))
+
+### Testing
+
+- Add workflow tests ([#4850](https://github.com/juspay/hyperswitch-control-center/pull/4850)) ([`e960ac2`](https://github.com/juspay/hyperswitch-control-center/commit/e960ac2b748ec47562cc7d22fc89e93278e55a76))
+- Add analytics tests ([#4889](https://github.com/juspay/hyperswitch-control-center/pull/4889)) ([`6283150`](https://github.com/juspay/hyperswitch-control-center/commit/62831506cc7a173b0ef201242925d04cf7348011))
+
+**Full Changelog:** [`2026.06.05.0...2026.06.05.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.05.0...2026.06.05.1)
+
+- - -
+
 ## 2026.06.05.0
 
 ### Features
