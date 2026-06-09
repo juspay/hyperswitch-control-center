@@ -6,6 +6,7 @@ let make = () => {
   open RefundUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
+  let fetchRefundsData = (url, body, method) => updateDetails(url, body, method)
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (refundData, setRefundsData) = React.useState(_ => [])
@@ -67,7 +68,7 @@ let make = () => {
       filters->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
       filters
       ->getRefundsList(
-        ~updateDetails,
+        ~updateDetails=fetchRefundsData,
         ~setRefundsData,
         ~setScreenState,
         ~offset,

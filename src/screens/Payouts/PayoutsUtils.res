@@ -1,15 +1,6 @@
 let getPayoutsList = async (
   filterValueJson,
-  ~updateDetails: (
-    string,
-    JSON.t,
-    Fetch.requestMethod,
-    ~bodyFormData: Fetch.formData=?,
-    ~headers: Dict.t<'a>=?,
-    ~contentType: AuthHooks.contentType=?,
-    ~version: UserInfoTypes.version=?,
-    ~signal: Fetch.signal=?,
-  ) => promise<JSON.t>,
+  ~updateDetails: (string, JSON.t, Fetch.requestMethod) => promise<JSON.t>,
   ~setPayoutsData,
   ~setScreenState,
   ~offset,

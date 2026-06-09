@@ -48,6 +48,7 @@ let make = () => {
   open APIUtils
   open PayoutAttemptEntity
   let updateDetails = useUpdateMethod()
+  let fetchGlobalSearchData = (url, body, method) => updateDetails(url, body, method)
   let fetchTableData = ResultsTableUtils.useGetData()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (data, setData) = React.useState(_ => [])
@@ -72,7 +73,12 @@ let make = () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
 
     try {
-      let (data, total) = await fetchTableData(~updateDetails, ~offset, ~query={searchText}, ~path)
+      let (data, total) = await fetchTableData(
+        ~updateDetails=fetchGlobalSearchData,
+        ~offset,
+        ~query={searchText},
+        ~path,
+      )
 
       let arr = Array.make(~length=offset, Dict.make())
       if total <= offset {

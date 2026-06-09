@@ -1,3 +1,5 @@
+exception AbortError
+
 @get external isAborted: Fetch.signal => bool = "aborted"
 
 let useAbortController = () => {

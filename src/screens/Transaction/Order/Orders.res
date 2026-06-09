@@ -17,10 +17,10 @@ let make = (~previewOnly=false) => {
   let {merchantId, orgId, version} = getCommonSessionDetails()
 
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
-  let fetchOrdersWithStrategy = (~payload, ~version, ~signal=?) => {
+  let fetchOrdersWithStrategy = (~payload, ~version, ~signal) => {
     devOpensearch && userHasResourceAccess(~resourceAccess=Analytics) === Access
-      ? fetchAnalyticsOrdersHook(~payload, ~version, ~signal?)
-      : fetchOrdersHook(~payload, ~version, ~signal?)
+      ? fetchAnalyticsOrdersHook(~payload, ~version, ~signal)
+      : fetchOrdersHook(~payload, ~version, ~signal)
   }
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -54,13 +54,14 @@ let make = (~previewOnly=false) => {
     updateExistingKeys(Dict.fromArray([(endTimeFilterKey(version), {prevStartDate})]))
   }
 
-  let getOrdersList = async (filterValueJson, ~signal=?) => {
+  let getOrdersList = async filterValueJson => {
+    let signal = getSignal()
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let res = await fetchOrdersWithStrategy(
         ~payload=filterValueJson->JSON.Encode.object,
         ~version,
-        ~signal?,
+        ~signal,
       )
       let data = res.data
       let total = res.total_count
@@ -80,6 +81,7 @@ let make = (~previewOnly=false) => {
           let res = await fetchOrdersWithStrategy(
             ~payload=filterValueJson->JSON.Encode.object,
             ~version,
+            ~signal,
           )
           let data = res.data
           let total = res.total_count
@@ -110,16 +112,12 @@ let make = (~previewOnly=false) => {
         )
       }
     } catch {
-    | _ =>
-      if !(signal->Option.mapOr(false, AbortControllerHook.isAborted)) {
-        setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
-      }
+    | AbortControllerHook.AbortError => ()
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
     }
   }
 
   let fetchOrders = () => {
-    let signal = getSignal()
-
     if !previewOnly {
       switch filters {
       | Some(dict) =>
@@ -152,7 +150,7 @@ let make = (~previewOnly=false) => {
         //to delete unused keys
         filterParams->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
         filterParams
-        ->getOrdersList(~signal)
+        ->getOrdersList
         ->ignore
 
       | _ => ()
@@ -161,7 +159,7 @@ let make = (~previewOnly=false) => {
       let filterParams = Dict.make()
 
       filterParams
-      ->getOrdersList(~signal)
+      ->getOrdersList
       ->ignore
     }
   }
