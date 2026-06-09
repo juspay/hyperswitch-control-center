@@ -649,27 +649,27 @@ let superposition = (userHasResourceAccess, isEnabled) =>
         links: [
           SubLevelLink({
             name: "Default Configs",
-            link: "/superposition/default-config",
+            link: "/configuration-management/default-config",
             access: userHasResourceAccess(~resourceAccess=SuperpositionConfigs),
             searchOptions: [("View default configurations", "")],
           }),
           SubLevelLink({
             name: "Overrides",
-            link: "/superposition/overrides",
+            link: "/configuration-management/overrides",
             access: userHasResourceAccess(~resourceAccess=SuperpositionConfigs),
             searchOptions: [("View context overrides", "")],
           }),
           SubLevelLink({
             name: "Dimensions",
-            link: "/superposition/dimensions",
+            link: "/configuration-management/dimensions",
             access: userHasResourceAccess(~resourceAccess=SuperpositionConfigs),
             searchOptions: [("View dimensions", "")],
           }),
           SubLevelLink({
-            name: "Audit Trail",
-            link: "/superposition/audit",
+            name: "Audit Log",
+            link: "/configuration-management/audit",
             access: userHasResourceAccess(~resourceAccess=SuperpositionConfigs),
-            searchOptions: [("View audit trail", "")],
+            searchOptions: [("View audit log", "")],
           }),
         ],
         selectedIcon: "nd-settings-fill",

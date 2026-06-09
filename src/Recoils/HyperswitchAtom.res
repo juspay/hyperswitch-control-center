@@ -46,6 +46,7 @@ let connectorListForLiveAtom: Recoil.recoilAtom<
 let merchantSpecificConfigAtom: Recoil.recoilAtom<
   FeatureFlagUtils.merchantSpecificConfig,
 > = Recoil.atom("merchantSpecificConfig", JSON.Encode.null->FeatureFlagUtils.merchantSpecificConfig)
+
 let paypalAccountStatusAtom: Recoil.recoilAtom<PayPalFlowTypes.setupAccountStatus> = Recoil.atom(
   "paypalAccountStatusAtom",
   PayPalFlowTypes.Connect_paypal_landing,

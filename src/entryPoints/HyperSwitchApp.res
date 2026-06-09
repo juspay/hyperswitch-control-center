@@ -32,11 +32,10 @@ let make = () => {
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
-  let {roleId, email} = getResolvedUserInfo()
+  let {roleId} = getResolvedUserInfo()
   let {orgId, merchantId, profileId, version} = getCommonSessionDetails()
 
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
-  let isJuspayUser = email->HyperSwitchUtils.checkIsJuspayUser
   let {logoURL} = React.useContext(ThemeProvider.themeContext)
   let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
@@ -265,14 +264,6 @@ let make = () => {
                         | (CostObservability, _) => <HypersenseApp />
                         | (DynamicRouting, _) => <IntelligentRoutingApp />
                         | (Orchestration(V2), _) => <OrchestrationV2App />
-                        | (Orchestration(V1), list{"superposition", ...remainingPath}) =>
-                          <AccessControl
-                            authorization={userHasAccess(~groupAccess=ConfigurationsView)}>
-                            <RenderIf
-                              condition={featureFlagDetails.devSuperposition && isJuspayUser}>
-                              <SuperpositionApp remainingPath />
-                            </RenderIf>
-                          </AccessControl>
                         | (Orchestration(V1), _) => <OrchestrationApp setScreenState />
                         | (UnknownProduct, _) => React.null
                         }}

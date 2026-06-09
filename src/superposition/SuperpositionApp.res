@@ -1,16 +1,17 @@
 open SuperpositionBindings
+open SuperpositionUtils
 
 @react.component
 let make = (~remainingPath: list<string>) => {
   let {getCommonSessionDetails} = React.useContext(UserInfoProvider.defaultContext)
   let {orgId, merchantId, profileId} = getCommonSessionDetails()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let superpositionApiBaseUrl = `${Window.env.apiBaseUrl}/v1/superposition`
-  // backend implementation required for get dimension to avoid frontend hardcoding
   let scopeContext =
     [
-      ("organization_id", JSON.Encode.string(orgId)),
-      ("processor_merchant_id", JSON.Encode.string(merchantId)),
-      ("profile_id", JSON.Encode.string(profileId)),
+      (getDimensionsForFixedContext(Org), JSON.Encode.string(orgId)),
+      (getDimensionsForFixedContext(Merchant), JSON.Encode.string(merchantId)),
+      (getDimensionsForFixedContext(Profile), JSON.Encode.string(profileId)),
     ]->Js.Dict.fromArray
 
   let content = switch remainingPath {
@@ -21,11 +22,19 @@ let make = (~remainingPath: list<string>) => {
   | _ => <ConfigManager showResolvedValues=true />
   }
 
+  let superpositionConfigs = switch Window.env.superpositionConfigs {
+  | Some(configs) => configs
+  | None => {
+      organization_id: "",
+      workspace: "",
+    }
+  }
+
   <SuperpositionUIProvider
     config={{
       apiBaseUrl: superpositionApiBaseUrl,
-      orgId: "localorg", // make this dynamic based on env
-      workspace: "dev", // make this dynamic based on env
+      orgId: superpositionConfigs.organization_id,
+      workspace: superpositionConfigs.workspace,
       scope: {
         context: scopeContext,
       },
@@ -35,8 +44,8 @@ let make = (~remainingPath: list<string>) => {
       },
       capabilities: {
         overrides: {
-          create: true,
-          update: true,
+          create: userHasAccess(~groupAccess=ConfigurationsManage) == Access,
+          update: userHasAccess(~groupAccess=ConfigurationsManage) == Access,
         },
       },
       table: {

@@ -42,3 +42,12 @@ let setThemeIdtoStore = themeId => {
     LocalStorage.setItem("theme_id", "") //to change back to default if no theme present on switch
   }
 }
+
+let getSuperpositionConfigMapper: Dict.t<
+  JSON.t,
+> => HyperSwitchConfigTypes.superpositionConfig = dict => {
+  {
+    organization_id: dict->getString("organization_id", ""),
+    workspace: dict->getString("workspace", ""),
+  }
+}

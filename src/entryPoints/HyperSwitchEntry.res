@@ -1,5 +1,7 @@
 module HyperSwitchEntryComponent = {
   open HyperswitchAtom
+  open LogicUtils
+
   @react.component
   let make = () => {
     open HyperSwitchEntryUtils
@@ -24,10 +26,11 @@ module HyperSwitchEntryComponent = {
     }
 
     let configEnv = (urlConfig: JSON.t) => {
-      open LogicUtils
       open HyperSwitchConfigTypes
       try {
         let dict = urlConfig->getDictFromJsonObject->getDictfromDict("endpoints")
+        let superpositionDict =
+          urlConfig->getDictFromJsonObject->getDictfromDict("superposition_configs")
         let value: urlConfig = {
           apiBaseUrl: dict->getString("api_url", ""),
           mixpanelToken: dict->getString("mixpanel_token", ""),
@@ -48,6 +51,9 @@ module HyperSwitchEntryComponent = {
           },
           hypersenseUrl: dict->getString("hypersense_url", ""),
           clarityBaseUrl: dict->getString("clarity_base_url", "")->getNonEmptyString,
+          superpositionConfigs: superpositionDict->isEmptyDict
+            ? None
+            : Some(superpositionDict->getSuperpositionConfigMapper),
         }
         DOMUtils.window._env_ = value
         configureFavIcon(value.urlThemeConfig.faviconUrl)->ignore
@@ -58,7 +64,7 @@ module HyperSwitchEntryComponent = {
     }
 
     let fetchThemeAndDomainFromUrl = () => {
-      let params = url.search->LogicUtils.getDictFromUrlSearchParams
+      let params = url.search->getDictFromUrlSearchParams
       let themeID = params->Dict.get("theme_id")
       let domainUrl = params->Dict.get("domain")
 
@@ -130,7 +136,7 @@ module HyperSwitchEntryComponent = {
     }, [])
 
     let setPageName = pageTitle => {
-      let page = pageTitle->LogicUtils.snakeToTitle
+      let page = pageTitle->snakeToTitle
       let title = `${page} - Dashboard`
       DOMUtils.document.title = title
       GoogleAnalytics.send({hitType: "pageview", page})

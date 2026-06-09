@@ -9,6 +9,12 @@ type emailConfig = {
   foreground_color: string,
   background_color: string,
 }
+
+type superpositionConfig = {
+  organization_id: string,
+  workspace: string,
+}
+
 type urlConfig = {
   apiBaseUrl: string,
   mixpanelToken: string,
@@ -22,6 +28,7 @@ type urlConfig = {
   urlThemeConfig: urlThemeConfig,
   hypersenseUrl: string,
   clarityBaseUrl: option<string>,
+  superpositionConfigs: option<superpositionConfig>,
 }
 
 // Type definition for themes
