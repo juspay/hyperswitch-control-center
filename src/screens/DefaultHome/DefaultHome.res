@@ -47,7 +47,6 @@ let make = () => {
             | Recovery =>
               <RenderIf condition=devRecoveryV2Product>
                 <DefaultHomeCard
-                  product=item.product
                   heading=item.heading
                   description=item.description
                   img=item.imgSrc
@@ -57,7 +56,6 @@ let make = () => {
             | Vault =>
               <RenderIf condition=devVaultV2Product>
                 <DefaultHomeCard
-                  product=item.product
                   heading=item.heading
                   description=item.description
                   img=item.imgSrc
@@ -67,7 +65,6 @@ let make = () => {
             | Recon(_) =>
               <RenderIf condition=devReconv2Product>
                 <DefaultHomeCard
-                  product=item.product
                   heading=item.heading
                   description=item.description
                   img=item.imgSrc
@@ -77,7 +74,6 @@ let make = () => {
             | CostObservability =>
               <RenderIf condition=devHypersenseV2Product>
                 <DefaultHomeCard
-                  product=item.product
                   heading=item.heading
                   description=item.description
                   img=item.imgSrc
@@ -86,7 +82,6 @@ let make = () => {
               </RenderIf>
             | _ =>
               <DefaultHomeCard
-                product=item.product
                 heading=item.heading
                 description=item.description
                 img=item.imgSrc
