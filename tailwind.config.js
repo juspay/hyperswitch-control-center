@@ -522,7 +522,12 @@ module.exports = {
         "*": {
           scrollbarWidth: "none", // firefox
         },
+        ".show-scrollbar": {
+          scrollbarWidth: "thin", // chrome 121+ / firefox — overrides the universal "none"
+          scrollbarColor: "#9CA3AF #F3F4F6", // thumb track
+        },
         ".show-scrollbar::-webkit-scrollbar": {
+          // safari fallback (ignored by chrome 121+ once scrollbar-width/color is set)
           display: "block",
           overflow: "scroll",
           height: "4px",
@@ -531,10 +536,10 @@ module.exports = {
         ".show-scrollbar::-webkit-scrollbar-thumb": {
           display: "block",
           borderRadius: "20rem",
-          backgroundColor: "#8A8C8F",
+          backgroundColor: "#9CA3AF",
         },
         ".show-scrollbar::-webkit-scrollbar-track": {
-          backgroundColor: "#FFFFFFF",
+          backgroundColor: "#F3F4F6",
         },
       };
       addUtilities(newUtilities);
