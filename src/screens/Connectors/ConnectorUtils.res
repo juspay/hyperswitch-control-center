@@ -77,6 +77,12 @@ let billingProcessorList: array<connectorTypes> = [BillingProcessor(CHARGEBEE)]
 
 let vaultProcessorList: array<connectorTypes> = [VaultProcessor(VGS)]
 
+let frmConnectorListForLive: array<connectorTypes> = [
+  FRM(CybersourceDecisionManager),
+  FRM(Signifyd),
+  FRM(Riskifyed),
+]
+
 let surchargeProcessorList: array<connectorTypes> = [SurchargeProcessor(INTERPAYMENTS)]
 
 let connectorList: array<connectorTypes> = [
