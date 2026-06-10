@@ -72,7 +72,7 @@ test.describe("Volume based payout routing", () => {
     await page.waitForLoadState("networkidle");
 
     await expect(payoutRouting.volumeBasedRoutingHeader).toContainText(
-      "Smart routing configuration",
+      "Payout Routing Configurations",
     );
 
     const [today, yesterday] = await page.evaluate(() => {
@@ -134,7 +134,7 @@ test.describe("Volume based payout routing", () => {
       payoutRouting.dataToast("Successfully created a new configuration!"),
     ).toContainText("Successfully created a new configuration!");
 
-    await payoutRouting.manageRulesTab.click();
+    await payoutRouting.configurationHistoryTab.click();
     await expect(payoutRouting.historyCell(1, 2)).toContainText(
       "Test volume based payout config",
     );
@@ -452,7 +452,7 @@ test.describe("Payout default fallback", () => {
   });
 });
 
-test.describe("Payout Routing list - Manage rules", () => {
+test.describe("Payout Routing list - Configuration History", () => {
   test.beforeEach(async ({ page }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -530,7 +530,7 @@ test.describe("Payout Routing list - Manage rules", () => {
     const payoutRouting = new PayoutRouting(page);
     await homePage.workflow.click();
     await homePage.payoutRouting.click();
-    await payoutRouting.manageRulesTab.click();
+    await payoutRouting.configurationHistoryTab.click();
   }
 
   test("verify payout routing page elements", async ({
@@ -593,7 +593,7 @@ test.describe("Payout Routing list - Manage rules", () => {
     await expect(payoutRouting.viewAndManageButton).toBeVisible();
   });
 
-  test("should display all existing payout routing configurations on Manage rules tab", async ({ page, context }) => {
+  test("should display all existing payout routing configurations on Configuration History tab", async ({ page, context }) => {
     const payoutRouting = new PayoutRouting(page);
     await createInactiveVolumePayoutRule(page, context, "List inactive payout smoke config");
     await createActiveVolumePayoutRule(page, context, "List active payout smoke config", "adyen_payout_2");

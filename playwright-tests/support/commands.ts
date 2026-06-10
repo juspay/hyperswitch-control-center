@@ -276,6 +276,46 @@ export async function getDefaultProfileId(
   return profileId as string;
 }
 
+export async function createMerchantAPI(
+  token: string,
+  merchantName: string,
+  context?: APIRequestContext,
+  retries = 3,
+): Promise<{ merchant_id: string }> {
+  const ctx = context ?? (await request.newContext());
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const response = await ctx.post(`${API_URL}/user/create_merchant`, {
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": "test_admin",
+        Authorization: `Bearer ${token}`,
+      },
+      data: {
+        company_name: merchantName,
+      },
+    });
+
+    if (response.ok()) {
+      return await response.json();
+    }
+
+    const body = await response.text();
+    // The backend generates merchant IDs from the current timestamp (per-second
+    // resolution), so parallel workers can collide. Any 500 (including the
+    // generic HE_00 "Something went wrong") is treated as transient: retry
+    // after a delay so the next attempt lands in a different second.
+    if (response.status() === 500 && attempt < retries) {
+      await new Promise((r) => setTimeout(r, 1100));
+      continue;
+    }
+
+    throw new Error(`createMerchantAPI failed (${response.status()}): ${body}`);
+  }
+
+  throw new Error("createMerchantAPI: exhausted retries");
+}
+
 export async function createStripeConnectorAPI(
   merchantId: string,
   connectorLabel: string,
@@ -1060,6 +1100,122 @@ export async function mockV2MerchantList(page: Page): Promise<void> {
       body: JSON.stringify([]),
     });
   });
+}
+
+export async function mockPaymentFilters(page: Page): Promise<void> {
+  await page.route(
+    "**/analytics/v1/org/filters/payments",
+    async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          queryData: [
+            {
+              dimension: "connector",
+              values: ["stripe", "paypal", "adyen"],
+            },
+            {
+              dimension: "payment_method",
+              values: [
+                "card",
+                "wallet",
+                "bank_redirect",
+                "voucher",
+                "bank_debit",
+                "bank_transfer",
+                "card_redirect",
+                "pay_later",
+                "gift_card",
+                "open_banking",
+                "real_time_payment",
+                "reward",
+                "upi",
+                "crypto",
+                "network_token",
+              ],
+            },
+            {
+              dimension: "payment_method_type",
+              values: [
+                "debit",
+                "paypal",
+                "bancontact_card",
+                "credit",
+                "klarna",
+                "benefit",
+                "open_banking_pis",
+                "duit_now",
+                "classic",
+                "blik",
+                "pay_safe_card",
+                "sepa",
+                "upi_collect",
+                "pix",
+                "boleto",
+                "crypto_currency",
+                "network_token",
+              ],
+            },
+            {
+              dimension: "currency",
+              values: ["USD", "INR", "EUR", "GBP", "CAD"],
+            },
+            {
+              dimension: "status",
+              values: [
+                "succeeded",
+                "failed",
+                "cancelled",
+                "cancelled_post_capture",
+                "processing",
+                "requires_customer_action",
+                "requires_merchant_action",
+                "requires_payment_method",
+                "requires_confirmation",
+                "requires_capture",
+                "partially_captured",
+                "partially_captured_and_capturable",
+                "partially_authorized_and_requires_capture",
+                "partially_captured_and_processing",
+                "conflicted",
+                "expired",
+                "review",
+              ],
+            },
+            {
+              dimension: "profile_id",
+              values: ["pro_cd68ISnwZqozMG7b2x7G"],
+            },
+            {
+              dimension: "card_network",
+              values: [
+                "Visa",
+                "Mastercard",
+                "AmericanExpress",
+                "JCB",
+                "DinersClub",
+                "Discover",
+                "CartesBancaires",
+                "UnionPay",
+                "Interac",
+                "RuPay",
+                "Maestro",
+                "Star",
+                "Pulse",
+                "Accel",
+                "Nyce",
+              ],
+            },
+            {
+              dimension: "merchant_id",
+              values: ["test_merchant"],
+            },
+          ],
+        }),
+      });
+    },
+  );
 }
 
 // Disputes don't have a client-facing creation endpoint — in production they

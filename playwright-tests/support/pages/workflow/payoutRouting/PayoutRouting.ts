@@ -31,8 +31,8 @@ export class PayoutRouting {
     return this.page.locator('[class="px-3 text-2xl mt-32 "]');
   }
 
-  get manageRulesTab(): Locator {
-    return this.page.getByRole("tab", { name: "Manage rules" });
+  get configurationHistoryTab(): Locator {
+    return this.page.getByRole("tab", { name: "Configuration History" });
   }
 
   get activeConfigurationTab(): Locator {
