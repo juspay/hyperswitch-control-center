@@ -1,33 +1,37 @@
 open RoutingTypes
+open Typography
 
 module GatewayView = {
   @react.component
   let make = (~gateways, ~connectorList=?) => {
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let getGatewayName = name => {
+    let getConnectorObj = name => {
       switch connectorList {
       | Some(list) =>
-        (
-          list->ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(name, ~version=V1)
-        ).connector_label
-      | None => name
+        Some(list->ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(name, ~version=V1))
+      | None => None
       }
     }
 
     <div className="flex flex-wrap gap-4 items-center">
       {gateways
       ->Array.mapWithIndex((ruleGateway, index) => {
+        let (connectorLabel, connectorName) = switch getConnectorObj(ruleGateway.gateway_name) {
+        | Some(obj) => (obj.connector_label, obj.connector_name)
+        | None => (ruleGateway.gateway_name, "")
+        }
+
         <div
           key={Int.toString(index)}
-          className={`my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 dark:border-jp-gray-960 font-medium ${textColor.primaryNormal} hover:${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-none px-2 gap-1`}>
-          {ruleGateway.gateway_name->getGatewayName->React.string}
-          {if ruleGateway.distribution !== 100 {
-            <span className="text-jp-gray-700 dark:text-jp-gray-600 ml-1">
+          className="flex items-center gap-2 h-10 px-3 bg-nd_gray-0 border border-nd_gray-300 rounded-[10px]">
+          <RenderIf condition={connectorName->LogicUtils.isNonEmptyString}>
+            <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-6 h-6" />
+          </RenderIf>
+          <p className={`${body.md.medium} text-nd_gray-600`}> {connectorLabel->React.string} </p>
+          <RenderIf condition={ruleGateway.distribution !== 100}>
+            <span className={`${body.md.medium} text-nd_gray-400`}>
               {(ruleGateway.distribution->Int.toString ++ "%")->React.string}
             </span>
-          } else {
-            React.null
-          }}
+          </RenderIf>
         </div>
       })
       ->React.array}

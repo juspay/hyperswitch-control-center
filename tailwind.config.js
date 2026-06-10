@@ -101,6 +101,7 @@ module.exports = {
       },
       minHeight: {
         "500-px": "500px",
+        "80-vh": "80vh",
       },
       inset: {
         "3-px": "3px",
