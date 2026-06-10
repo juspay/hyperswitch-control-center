@@ -2583,7 +2583,8 @@ let checkIfPredecryptFlowEnabledForGooglePay = connector => {
   | Processors(CHECKOUT)
   | Processors(WORLDPAYVANTIV)
   | Processors(NMI)
-  | Processors(STRIPE) => true
+  | Processors(STRIPE)
+  | Processors(WORLDPAYXML) => true
   | _ => false
   }
 }
