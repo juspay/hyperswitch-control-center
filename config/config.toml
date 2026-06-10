@@ -97,7 +97,9 @@ paymentProcessors = ["adyen","authorizedotnet","archipel","airwallex","bankofame
 threedsAuthProcessors = ["netcetera","juspaythreedsserver","ctp_visa"]
 payoutProcessors = ["adyen","adyenplatform","cybersource","ebanx","paypal","stripe","wise","nomupay","nuvei","gigadat","loonio","worldpay","worldpayxml"]
 vaultProcessors = ["vgs"]
-
+[default.superposition_configs]
+organization_id=""
+workspace=""
 [default.merchant_config]
 [default.merchant_config.allowlist]
 [default.merchant_config.allowlist.dev_recon_engine_v1]

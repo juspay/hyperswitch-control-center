@@ -48,6 +48,9 @@ let make = (~remainingPath: list<string>) => {
           update: userHasAccess(~groupAccess=ConfigurationsManage) == Access,
         },
       },
+      filters: {
+        defaultConfigPrefix: displayConfigs->Array.map(configEnumToString),
+      },
       table: {
         defaultConfig: {
           searchAlign: Left,
