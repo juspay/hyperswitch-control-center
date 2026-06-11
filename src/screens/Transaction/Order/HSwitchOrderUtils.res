@@ -296,7 +296,7 @@ module CopyLinkTableCell = {
             condition={!isTextVisible &&
             displayValue->isNonEmptyString &&
             displayValue->String.length > endValue}>
-            <div className="flex text-nowrap gap-1 ">
+            <div className="flex text-nowrap gap-1">
               <p className={`${customTextCss} overflow-hidden`}>
                 {`${displayValue->String.slice(~start=0, ~end=endValue)}`->React.string}
               </p>
