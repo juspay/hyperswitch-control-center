@@ -66,6 +66,27 @@ let getFileTypeFromFileName = fileName => {
   afterDotFileType
 }
 
+@get external getFileMimeType: 'a => string = "type"
+
+let getMimeTypeFromFileName = fileName => {
+  switch fileName->getFileTypeFromFileName->String.toLowerCase {
+  | "pdf" => "application/pdf"
+  | "csv" => "text/csv"
+  | "jpeg" | "jpg" => "image/jpeg"
+  | "png" => "image/png"
+  | _ => "application/octet-stream"
+  }
+}
+
+// Some browsers report an empty `File.type` (e.g. for csv or unrecognised files).
+// Uploading such a file leaves the multipart part without a Content-Type, which the
+// backend rejects with IR_36 ("File content type not found"). Fall back to a MIME
+// type derived from the file extension so a Content-Type is always present.
+let getEvidenceFileContentType = (fileValue, fileName) => {
+  let fileMimeType = fileValue->getFileMimeType
+  fileMimeType->isNonEmptyString ? fileMimeType : fileName->getMimeTypeFromFileName
+}
+
 let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
 
 let getFilterTypeFromString = filterType => {
