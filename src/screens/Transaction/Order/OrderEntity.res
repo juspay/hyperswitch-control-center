@@ -447,7 +447,8 @@ let useGetStatus = order => {
   | Processing
   | RequiresCustomerAction
   | RequiresConfirmation
-  | RequiresPaymentMethod =>
+  | RequiresPaymentMethod
+  | RequiresCapture =>
     <div className={`${fixedStatusCss} ${primaryColor} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
@@ -747,7 +748,8 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
       | Processing
       | RequiresCustomerAction
       | RequiresConfirmation
-      | RequiresPaymentMethod =>
+      | RequiresPaymentMethod
+      | RequiresCapture =>
         LabelBlue
       | _ => LabelLightGray
       },
