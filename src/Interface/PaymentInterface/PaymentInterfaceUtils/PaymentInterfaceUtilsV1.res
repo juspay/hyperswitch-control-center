@@ -190,7 +190,7 @@ let mapDictToPaymentPayload: dict<JSON.t> => order_v1 = dict => {
     attempts: dict->getArrayFromDict("attempts", [])->JSON.Encode.array->getAttempts,
     merchant_order_reference_id: dict->getString("merchant_order_reference_id", ""),
     attempt_count: dict->getInt("attempt_count", 0),
-    connector_label: dict->getString("connector_label", "NA"),
+    connector_label: dict->getString("connector_label", ""),
     split_payments: dict->getDictfromDict("split_payments"),
     extended_auth_last_applied_at: dict->getString("extended_auth_last_applied_at", ""),
     extended_auth_applied: dict->getBool("extended_auth_applied", false),
