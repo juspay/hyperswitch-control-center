@@ -89,15 +89,69 @@ module ReconNodeComponent = {
   }
 }
 
+module ReconEdgeComponent = {
+  @react.component
+  let make = (
+    ~sourceX: float,
+    ~sourceY: float,
+    ~sourcePosition: string,
+    ~targetX: float,
+    ~targetY: float,
+    ~targetPosition: string,
+    ~data: edgeData,
+    ~markerEnd: option<string>=?,
+    ~style: option<ReactDOM.Style.t>=?,
+  ) => {
+    let (edgePath, labelX, labelY, _, _) = ReactFlow.getSmoothStepPath({
+      sourceX,
+      sourceY,
+      sourcePosition,
+      targetX,
+      targetY,
+      targetPosition,
+    })
+
+    <>
+      <ReactFlow.BaseEdge path=edgePath ?markerEnd ?style />
+      <ReactFlow.EdgeLabelRenderer>
+        <div
+          className="nodrag nopan w-52 rounded-lg border border-nd_gray-200 bg-white px-2.5 py-1.5 text-center shadow-sm"
+          style={ReactDOM.Style.make(
+            ~position="absolute",
+            ~transform=`translate(-50%, -50%) translate(${labelX->Float.toString}px, ${labelY->Float.toString}px)`,
+            (),
+          )}>
+          <p className={`break-words ${body.xs.medium} text-nd_gray-500`}>
+            {data.ruleType->React.string}
+          </p>
+          <p className={`mt-0.5 ${body.sm.semibold} text-blue-600`}>
+            {data.percentageLabel->React.string}
+          </p>
+        </div>
+      </ReactFlow.EdgeLabelRenderer>
+    </>
+  }
+}
+
 module FlowWithLayoutControls = {
   @react.component
-  let make = (~nodes, ~edges, ~onNodesChange, ~onEdgesChange) => {
+  let make = (~nodes, ~edges, ~onNodesChange, ~onEdgesChange, ~isFullscreen, ~toggleFullscreen) => {
     open ReactFlow
+
+    let reactFlow = useReactFlow()
+
+    React.useEffect(() => {
+      let timeoutId = setTimeout(() => reactFlow.fitView()->ignore, 0)
+      Some(() => clearTimeout(timeoutId))
+    }, [isFullscreen])
+
+    let fullscreenLabel = isFullscreen ? "Exit fullscreen" : "Enter fullscreen"
 
     <ReactFlowComponent
       nodes={nodes}
       edges={edges}
       nodeTypes={{"reconNode": ReconNodeComponent.make}}
+      edgeTypes={{"reconEdge": ReconEdgeComponent.make}}
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       fitView={true}
@@ -114,6 +168,21 @@ module FlowWithLayoutControls = {
       proOptions={{"hideAttribution": true}}>
       <Background variant="dots" gap={20} size={1} />
       <Controls showZoom={true} showFitView={true} showInteractive={true} />
+      <Panel position="top-right">
+        <div
+          className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white border border-nd_gray-200 shadow-sm cursor-pointer"
+          title=fullscreenLabel
+          onClick={_ => toggleFullscreen()}>
+          <Icon
+            onClick={_ => toggleFullscreen()}
+            name={isFullscreen ? "compress-alt" : "expand-alt"}
+            size=13
+          />
+          <p className={`${body.sm.semibold} text-nd_gray-500`} onClick={_ => toggleFullscreen()}>
+            {fullscreenLabel->React.string}
+          </p>
+        </div>
+      </Panel>
     </ReactFlowComponent>
   }
 }
@@ -131,6 +200,45 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   let (reactFlowNodes, setNodes, onNodesChange) = useNodesState([])
   let (reactFlowEdges, setEdges, onEdgesChange) = useEdgesState([])
   let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
+  let graphContainerRef = React.useRef(Nullable.null)
+  let (isFullscreen, setIsFullscreen) = React.useState(_ => false)
+
+  let syncFullscreenState = _ => {
+    let isGraphFullscreen = switch (
+      Webapi.Dom.document->Document.Fullscreen.getElement,
+      graphContainerRef.current->Nullable.toOption,
+    ) {
+    | (Some(fullscreenElement), Some(graphElement)) => fullscreenElement === graphElement
+    | _ => false
+    }
+    setIsFullscreen(_ => isGraphFullscreen)
+  }
+
+  let toggleFullscreen = () => {
+    let fullscreenAction = switch Webapi.Dom.document->Document.Fullscreen.getElement {
+    | Some(_) => Webapi.Dom.document->Document.Fullscreen.exit
+    | None =>
+      switch graphContainerRef.current->Nullable.toOption {
+      | Some(graphElement) => graphElement->Document.Fullscreen.request
+      | None => Promise.resolve()
+      }
+    }
+    fullscreenAction->Promise.catch(_ => Promise.resolve())->ignore
+  }
+
+  React.useEffect(() => {
+    Webapi.Dom.document->Webapi.Dom.Document.addEventListener(
+      "fullscreenchange",
+      syncFullscreenState,
+    )
+    Some(
+      () =>
+        Webapi.Dom.document->Webapi.Dom.Document.removeEventListener(
+          "fullscreenchange",
+          syncFullscreenState,
+        ),
+    )
+  }, [])
 
   let handleNodeClick = (nodeId: string) => {
     setSelectedNodeId(prev => {
@@ -223,7 +331,11 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
     None
   }, [selectedNodeId])
 
-  <div className="border rounded-xl border-nd_gray-200 resize-y overflow-auto h-30-rem">
+  <div
+    ref={graphContainerRef->ReactDOM.Ref.domRef}
+    className={`border rounded-xl border-nd_gray-200 overflow-auto bg-white ${isFullscreen
+        ? "h-screen w-screen"
+        : "resize-y h-30-rem"}`}>
     <PageLoaderWrapper
       screenState
       customUI={<NewAnalyticsHelper.NoData height="h-30-rem" message="No data available." />}
@@ -235,6 +347,8 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
             edges={reactFlowEdges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
+            isFullscreen
+            toggleFullscreen
           />
         </ReactFlowProvider>
       </div>
