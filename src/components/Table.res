@@ -1,4 +1,5 @@
 include TableUtils
+
 module TableFilterRow = {
   @react.component
   let make = (
@@ -91,14 +92,17 @@ module TableRow = {
     ~setSelectedIndex,
     ~areLastCellsRounded=false,
     ~customSeparationArray=?,
+    ~isVisited=false,
   ) => {
     let customSeparationArray = customSeparationArray->Option.getOr([])
     open Window
     let (isCurrentRowExpanded, setIsCurrentRowExpanded) = React.useState(_ => false)
     let (expandedData, setExpandedData) = React.useState(_ => React.null)
     let actualIndex = offset + rowIndex
+
     let onClick = React.useCallback(_ => {
       let isRangeSelected = getSelection().\"type" == "Range"
+
       switch (onRowClick, isRangeSelected) {
       | (Some(fn), false) => {
           setSelectedIndex(_ => actualIndex)
@@ -145,6 +149,8 @@ module TableRow = {
       ? selectedRowColor
       : highlightSelectedRow && selectedIndex == actualIndex
       ? "bg-nd_gray-150"
+      : isVisited
+      ? "bg-nd_gray-50"
       : "bg-white dark:bg-jp-gray-lightgray_background"
     let fontSize = "text-fs-14"
     let fontWeight = "font-medium"
@@ -395,7 +401,7 @@ module TableHeadingCell = {
     let headerBgColor =
       headerCustomBgColor->Option.isSome
         ? headerCustomBgColor->Option.getOr("")
-        : " bg-nd_gray-50 dark:bg-jp-gray-darkgray_background"
+        : " bg-nd_gray-25 dark:bg-jp-gray-darkgray_background"
     let paddingClass = "px-8 py-3"
     let roundedClass = if isFirstCol {
       "rounded-tl"
@@ -695,6 +701,7 @@ let make = (
   ~highlightSelectedRow=false,
   ~freezeFirstColumn=false,
   ~customSeparation=?,
+  ~visitedRows=?,
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let rowInfo: array<array<cell>> = rows
@@ -756,13 +763,38 @@ let make = (
   let tableRows = (rowArr, isCustomiseColumn) => {
     rowArr
     ->Array.mapWithIndex((item: array<cell>, rowIndex) => {
+      let actualIndex = offset + rowIndex
+      let rowDataItem: option<'t> =
+        actualData->Option.flatMap(data =>
+          data->Array.get(actualIndex)->Option.flatMap(LogicUtils.getOptionalFromNullable)
+        )
+
+      let isVisited =
+        visitedRows->Option.mapOr(false, config => TableUtils.isRowVisited(config, rowDataItem))
+
+      let handleRowClick = index => {
+        let currentRowData =
+          actualData->Option.flatMap(data =>
+            data->Array.get(index)->Option.flatMap(LogicUtils.getOptionalFromNullable)
+          )
+
+        switch visitedRows {
+        | Some(config) => TableUtils.markRowAsVisited(config, currentRowData)
+        | None => ()
+        }
+        switch onRowClick {
+        | Some(fn) => fn(index)
+        | None => ()
+        }
+      }
+
       <TableRow
         title
-        key={Int.toString(offset + rowIndex)}
+        key={Int.toString(actualIndex)}
         item
         rowIndex
         offset
-        onRowClick
+        onRowClick={Some(handleRowClick)}
         onRowDoubleClick
         onRowClickPresent
         removeVerticalLines
@@ -771,7 +803,7 @@ let make = (
         highlightEnabledFieldsArray
         tableDataBorderClass
         collapseTableRow
-        expandedRow={_ => getRowDetails(offset + rowIndex)}
+        expandedRow={_ => getRowDetails(actualIndex)}
         onMouseEnter
         onMouseLeave
         highlightText
@@ -793,6 +825,7 @@ let make = (
         setSelectedIndex
         highlightSelectedRow
         customSeparationArray
+        isVisited
       />
     })
     ->React.array

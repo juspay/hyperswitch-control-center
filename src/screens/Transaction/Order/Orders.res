@@ -256,6 +256,10 @@ let make = (~previewOnly=false) => {
           remoteSortEnabled=true
           showAutoScroll=true
           isDraggable=true
+          visitedRows={{
+            getId: (order: PaymentInterfaceTypes.order) => order.payment_id,
+            prefix_key: "orders",
+          }}
         />
       </PageLoaderWrapper>
     </div>

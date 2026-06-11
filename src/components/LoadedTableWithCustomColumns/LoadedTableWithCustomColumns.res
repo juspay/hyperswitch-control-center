@@ -69,6 +69,7 @@ let make = (
   ~customizeColumnButtonIcon="customise-columns",
   ~isDraggable=false,
   ~customSeparation=?,
+  ~visitedRows=?,
   ~checkBoxProps: option<LoadedTable.checkBoxProps>=?,
 ) => {
   let (showColumnSelector, setShowColumnSelector) = React.useState(() => false)
@@ -161,6 +162,7 @@ let make = (
     showAutoScroll
     hideCustomisableColumnButton
     ?customSeparation
+    ?visitedRows
     ?checkBoxProps
   />
 }
