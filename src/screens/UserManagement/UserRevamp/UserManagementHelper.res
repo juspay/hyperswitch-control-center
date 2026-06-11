@@ -251,7 +251,9 @@ let inviteEmail = FormRenderer.makeFieldInfo(
 module SwitchMerchantForUserAction = {
   @react.component
   let make = (~userInfoValue: UserManagementTypes.userDetailstype) => {
+    open LogicUtils
     let showToast = ToastState.useShowToast()
+    let showPopUp = PopUpState.useShowPopUp()
     let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
     let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
 
@@ -267,11 +269,33 @@ module SwitchMerchantForUserAction = {
       }
     }
 
+    let merchantName =
+      userInfoValue.merchant.name->isEmptyString
+        ? userInfoValue.merchant.value
+        : userInfoValue.merchant.name
+
+    let profileName =
+      userInfoValue.profile.name->isEmptyString
+        ? userInfoValue.profile.value
+        : userInfoValue.profile.name
+
+    let switchConfirmation = () => {
+      showPopUp({
+        popUpType: (Warning, WithIcon),
+        heading: "Switch to manage this user?",
+        description: React.string(
+          `This user's role belongs to ${merchantName} (${profileName}), which is different from your current merchant and profile. To manage this user, your dashboard will be switched to that merchant and profile. Press Confirm to switch.`,
+        ),
+        handleConfirm: {text: "Confirm", onClick: _ => onSwitchForUserAction()->ignore},
+        handleCancel: {text: "Cancel"},
+      })
+    }
+
     <Button
-      text="Switch to update"
-      customButtonStyle="!p-2"
-      buttonType={PrimaryOutline}
-      onClick={_ => onSwitchForUserAction()->ignore}
+      text="Manage user"
+      buttonType={Secondary}
+      buttonSize=Medium
+      onClick={_ => switchConfirmation()}
     />
   }
 }
