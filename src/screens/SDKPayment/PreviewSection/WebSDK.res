@@ -8,9 +8,7 @@ let make = () => {
   let (isScriptLoaded, setIsScriptLoaded) = React.useState(() => false)
   let (isHyperReady, setIsHyperReady) = React.useState(() => false)
 
-  let publishableKey = Recoil.useRecoilValueFromAtom(
-    HyperswitchAtom.merchantDetailsValueAtom,
-  ).publishable_key
+  let publishableKey = MerchantDetailsHook.useMerchantDetails().publishable_key
 
   let clientSecret = paymentResult->getDictFromJsonObject->getString("client_secret", "")
   let themeConfig = sdkThemeInitialValues->getDictFromJsonObject

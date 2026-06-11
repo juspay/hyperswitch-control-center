@@ -1,4 +1,13 @@
 open HSwitchSettingTypes
+let getUserMerchantDetails = (values: JSON.t, ~version=UserInfoTypes.V1) => {
+  open LogicUtils
+  let valuesDict = values->getDictFromJsonObject
+  let product_type =
+    getString(valuesDict, "product_type", "")->ProductUtils.getProductVariantFromString(~version)
+  let merchant_account_type =
+    getString(valuesDict, "merchant_account_type", "")->OMPSwitchUtils.ompTypeMapper
+  (product_type, merchant_account_type)
+}
 let getMerchantDetails = (values: JSON.t, ~version=UserInfoTypes.V1) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject

@@ -10,7 +10,14 @@ let make = (~setAppScreenState) => {
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
+  let hasMerchantAccountAccess =
+    hasAnyGroupAccess(
+      userHasAccess(~groupAccess=MerchantDetailsView),
+      userHasAccess(~groupAccess=AccountView),
+    ) === Access
+  let merchantDetailsTypedValue = MerchantDetailsHook.useMerchantDetails(
+    ~shouldFetch=hasMerchantAccountAccess,
+  )
 
   <div>
     {switch url.path->urlPath {
