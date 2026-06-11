@@ -35,6 +35,10 @@ export class PaymentRouting {
     return this.page.locator('[class="px-3 text-2xl mt-32 "]');
   }
 
+  get noProcessorFoundMessage(): Locator {
+    return this.page.getByText("No Processor Found");
+  }
+
   get configurationHistoryTab(): Locator {
     return this.page.getByRole("tab", { name: "Configuration History" });
   }
