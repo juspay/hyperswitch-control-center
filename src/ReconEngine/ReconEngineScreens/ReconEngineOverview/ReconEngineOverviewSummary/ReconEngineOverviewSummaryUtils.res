@@ -266,11 +266,11 @@ let getPercentageLabel = (~matchedCount, ~totalCount) =>
 let getCompactRuleType = (strategy: ReconEngineRulesTypes.reconStrategyType) => {
   open ReconEngineRulesTypes
   switch strategy {
-  | OneToOne(SingleSingle(_)) => "1:1 Account + 1:1 Transaction"
-  | OneToOne(SingleMany(_)) => "1:1 Account + 1:M Transaction"
-  | OneToOne(ManySingle(_)) => "1:1 Account + M:1 Transaction"
-  | OneToOne(ManyMany(_)) => "1:1 Account + M:M Transaction"
-  | OneToMany(SingleSingle(_)) => "1:M Account + 1:1 Transaction"
+  | OneToOne(SingleSingle(_)) => "Direct Match"
+  | OneToOne(SingleMany(_)) => "Split Match"
+  | OneToOne(ManySingle(_)) => "Lumpsum Match"
+  | OneToOne(ManyMany(_)) => "Batch Match"
+  | OneToMany(SingleSingle(_)) => "Consolidated Match"
   | UnknownReconStrategy
   | OneToOne(UnknownOneToOneStrategy)
   | OneToMany(UnknownOneToManyStrategy) => "Unknown"
