@@ -48,6 +48,12 @@ let getConnectorListForLive = (
     ~connectorType=VaultProcessor,
   )
 
+  let frmProcessorListForLiveFromConfig = extractTypedConnectorValueFromConfig(
+    ~connectorDict,
+    ~key="frmProcessors",
+    ~connectorType=FRMPlayer,
+  )
+
   {
     paymentProcessorsLiveList: paymentsProcessorListForLiveFromConfig->Array.length > 0
       ? paymentsProcessorListForLiveFromConfig
@@ -61,5 +67,8 @@ let getConnectorListForLive = (
     vaultProcessorsLiveList: vaultProcessorListForLiveFromConfig->Array.length > 0
       ? vaultProcessorListForLiveFromConfig
       : vaultProcessorList,
+    frmProcessorsLiveList: frmProcessorListForLiveFromConfig->Array.length > 0
+      ? frmProcessorListForLiveFromConfig
+      : frmConnectorListForLive,
   }
 }

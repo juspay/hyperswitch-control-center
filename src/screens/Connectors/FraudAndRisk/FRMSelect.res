@@ -4,7 +4,10 @@ module NewProcessorCards = {
   let make = (~configuredFRMs: array<ConnectorTypes.connectorTypes>) => {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let frmAvailableForIntegration = frmList
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {frmProcessorsLiveList} =
+      HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
+    let frmAvailableForIntegration = featureFlagDetails.isLiveMode ? frmProcessorsLiveList : frmList
 
     let handleClick = frmName => {
       mixpanelEvent(~eventName=`connect_frm_${frmName}`)

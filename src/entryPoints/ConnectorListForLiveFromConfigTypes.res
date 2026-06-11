@@ -3,4 +3,5 @@ type connectorListForLive = {
   payoutProcessorsLiveList: array<ConnectorTypes.connectorTypes>,
   threeDsAuthenticatorProcessorsLiveList: array<ConnectorTypes.connectorTypes>,
   vaultProcessorsLiveList: array<ConnectorTypes.connectorTypes>,
+  frmProcessorsLiveList: array<ConnectorTypes.connectorTypes>,
 }
