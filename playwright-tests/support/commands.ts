@@ -5,7 +5,7 @@ import {
   type Locator,
   expect,
 } from "@playwright/test";
-import { generateDateTimeString } from "./helper";
+import { generateMerchantName } from "./helper";
 import { SignInPage } from "./pages/auth/SignInPage";
 import { SignUpPage } from "./pages/auth/SignUpPage";
 import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
@@ -32,7 +32,7 @@ export async function signupUser(
     data: {
       email,
       password,
-      company_name: companyName ?? generateDateTimeString(),
+      company_name: companyName ?? generateMerchantName(),
       name: "Playwright_test_user",
     },
   });
@@ -1058,7 +1058,7 @@ export async function signupAPI(
     data: {
       email: username,
       password: password,
-      company_name: generateDateTimeString(),
+      company_name: generateMerchantName(),
       name: "Playwright_test_user",
     },
   });

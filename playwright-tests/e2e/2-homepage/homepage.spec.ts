@@ -2,7 +2,7 @@ import { test, expect } from "../../support/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { ProductionAccessPage } from "../../support/pages/homepage/ProductionAccessPage";
 import { OrganizationChartPage } from "../../support/pages/settings/OrganizationChartPage";
-import { generateUniqueEmail, generateDateTimeString } from "../../support/helper";
+import { generateUniqueEmail, generateMerchantName } from "../../support/helper";
 import {
   signupUser,
   loginUI,
@@ -751,7 +751,7 @@ test.describe("Organization Chart Tree", () => {
 
   test.beforeEach(async ({ page }) => {
     const email = generateUniqueEmail();
-    companyName = generateDateTimeString();
+    companyName = generateMerchantName();
     await signupUser(email, PLAYWRIGHT_PASSWORD, undefined, companyName);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
     await page.waitForURL(/dashboard\/home/, { timeout: 20000 });
@@ -795,7 +795,7 @@ test.describe("Organization Chart Tree", () => {
     const userInfo = JSON.parse(rawUserInfo || "{}");
     const token: string = userInfo.token || "";
 
-    const newMerchantName = generateDateTimeString();
+    const newMerchantName = generateMerchantName();
     const newMerchant = await createMerchantAPI(
       token,
       newMerchantName,
@@ -909,7 +909,7 @@ test.describe("Organization Chart Tree", () => {
     const userInfo = JSON.parse(rawUserInfo || "{}");
     const token: string = userInfo.token || "";
 
-    const newMerchantName = generateDateTimeString();
+    const newMerchantName = generateMerchantName();
     const newMerchant = await createMerchantAPI(
       token,
       newMerchantName,

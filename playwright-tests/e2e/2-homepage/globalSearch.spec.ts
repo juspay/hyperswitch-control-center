@@ -228,6 +228,119 @@ const MOCK_SEARCH_PAGE_RESPONSE = [
   },
 ];
 
+// "View N results" link only renders when a section's count is > 10, and the
+// link text is `View ${count} results`. Each non-empty section therefore gets
+// 11 entries so the link reads "View 11 results"; clicking it opens that
+// category's full-page table (which fetches `analytics/v1/search/{source}`)
+// rendering all 11 rows. Empty (count 0) v1 indices are left untouched.
+const VIEW_RESULTS_COUNT = 11;
+// The inline preview tables (search-results / customer-details pages) cap the
+// rendered rows at resultsPerPage=10 with pagination hidden, so they show 10
+// rows even when a section reports 11 total results.
+const PREVIEW_TABLE_PAGE_SIZE = 10;
+
+const VIEW_RESULTS_PI_HIT = {
+  payment_id: "pay_0BxZy05aCo5K6X2I",
+  amount: 100,
+  currency: "USD",
+  status: "requires_customer_action",
+  merchant_id: "Allconnector123",
+  organization_id: "org_D5BSnrtTuxmW0WrsCXKZH",
+  profile_id: "pro_E6k4XxWE3fVzTIYDMzJa",
+  active_attempt_id: "pay_0BxZy05aCo5K6X2IFf8y_1",
+  business_country: null,
+  business_label: null,
+  attempt_count: 1,
+  created_at: 1774863532,
+};
+const VIEW_RESULTS_PA_HIT = {
+  payment_id: "pay_0BxZy05aCo5K6X2I",
+  amount: 100,
+  currency: "USD",
+  status: "authentication_pending",
+  merchant_id: "Allconnector123",
+  organization_id: "org_D5BSnrtTuxmW0WrsCXKZH",
+  profile_id: "pro_E6k4XxWE3fVzTIYDMzJa",
+  connector: "adyen",
+  payment_method: "wallet",
+  payment_method_type: "paypal",
+  created_at: 1774863532,
+};
+const VIEW_RESULTS_PO_HIT = {
+  payout_id: "payout_01BNUwJSWD3sD",
+  payout_attempt_id: "payout_01BNUwJSWD3sDQmbuqi7_1",
+  amount: 4500,
+  destination_currency: "USD",
+  status: "requires_confirmation",
+  merchant_id: "Allconnector123",
+  organization_id: "org_D5BSnrtTuxmW0WrsCXKZH",
+  profile_id: "pro_E6k4XxWE3fVzTIYDMzJa",
+  created_at: 1774863532,
+};
+const VIEW_RESULTS_RF_HIT = {
+  refund_id: "ref_SKhG8QDYA27dUZse",
+  payment_id: "pay_aHbu98KulzfsPGGQ9qcv",
+  refund_status: "success",
+  total_amount: 6500,
+  currency: "USD",
+  connector: "fiservcommercehub",
+  merchant_id: "Allconnector123",
+  organization_id: "org_D5BSnrtTuxmW0WrsCXKZH",
+  profile_id: "pro_E6k4XxWE3fVzTIYDMzJa",
+  created_at: 1774863532,
+};
+const VIEW_RESULTS_DP_HIT = {
+  dispute_id: "dp_ijU3BPdgQ2nwBkZaR",
+  payment_id: "pay_jPCuCQ9UUmVZxYVpwXM5",
+  dispute_status: "dispute_accepted",
+  dispute_amount: 1040,
+  currency: "USD",
+  connector: "checkout",
+  merchant_id: "Allconnector123",
+  organization_id: "org_D5BSnrtTuxmW0WrsCXKZH",
+  profile_id: "pro_E6k4XxWE3fVzTIYDMzJa",
+  created_at: 1774863532,
+};
+
+const buildHits = (hit: Record<string, unknown>) =>
+  Array.from({ length: VIEW_RESULTS_COUNT }, () => ({ ...hit }));
+
+// Multi-section response served to the search modal (`analytics/v1/search`).
+const MOCK_VIEW_RESULTS_SEARCH_RESPONSE = [
+  { index: "payment_attempts", count: 0, hits: [], status: "Success" },
+  { index: "payment_intents", count: 0, hits: [], status: "Success" },
+  { index: "refunds", count: 0, hits: [], status: "Success" },
+  { index: "disputes", count: 0, hits: [], status: "Success" },
+  { index: "payouts", count: VIEW_RESULTS_COUNT, hits: buildHits(VIEW_RESULTS_PO_HIT), status: "Success" },
+  { index: "sessionizer_payment_attempts", count: VIEW_RESULTS_COUNT, hits: buildHits(VIEW_RESULTS_PA_HIT), status: "Success" },
+  { index: "sessionizer_payment_intents", count: VIEW_RESULTS_COUNT, hits: buildHits(VIEW_RESULTS_PI_HIT), status: "Success" },
+  { index: "sessionizer_refunds", count: VIEW_RESULTS_COUNT, hits: buildHits(VIEW_RESULTS_RF_HIT), status: "Success" },
+  { index: "sessionizer_disputes", count: VIEW_RESULTS_COUNT, hits: buildHits(VIEW_RESULTS_DP_HIT), status: "Success" },
+];
+
+// Single-object responses served to each category's full-page table
+// (`analytics/v1/search/{source}`), keyed by the `source` path segment.
+const MOCK_VIEW_RESULTS_BY_SOURCE: Record<string, unknown> = {
+  sessionizer_payment_intents: { count: VIEW_RESULTS_COUNT, hits: buildHits(VIEW_RESULTS_PI_HIT), status: "Success" },
+  sessionizer_payment_attempts: { count: VIEW_RESULTS_COUNT, hits: buildHits(VIEW_RESULTS_PA_HIT), status: "Success" },
+  payouts: { count: VIEW_RESULTS_COUNT, hits: buildHits(VIEW_RESULTS_PO_HIT), status: "Success" },
+  sessionizer_refunds: { count: VIEW_RESULTS_COUNT, hits: buildHits(VIEW_RESULTS_RF_HIT), status: "Success" },
+  sessionizer_disputes: { count: VIEW_RESULTS_COUNT, hits: buildHits(VIEW_RESULTS_DP_HIT), status: "Success" },
+};
+
+const CUSTOMER_ID = "cus_test_global_search";
+
+const MOCK_CUSTOMER_DETAILS = {
+  customer_id: CUSTOMER_ID,
+  name: "Playwright Test Customer",
+  email: "pw.customer@example.com",
+  phone: "9876543210",
+  phone_country_code: "+91",
+  description: "Test customer for global search tables",
+  created_at: "2026-01-01T00:00:00.000Z",
+  metadata: {},
+};
+
 const MOCK_FILTER_RESPONSE = {
   queryData: [
     { dimension: "status", values: ["succeeded", "failed", "processing"] },
@@ -745,6 +858,357 @@ test.describe("Global Search - Payment Filter Subfilters", () => {
     await expect(dpTable.locator('thead th').nth(4)).toContainText('Currency');
     await expect(dpTable.locator('thead th').nth(5)).toContainText('Connector');
     await expect(dpTable.locator('thead th').nth(6)).toContainText('Created At');
+    const dpRow = dpTable.locator('tbody tr').first();
+    await expect(dpRow.locator('td').nth(0)).toContainText('dp_ijU3BPdgQ2nwBkZaR');
+    await expect(dpRow.locator('td').nth(1)).toContainText('pay_jPCuCQ9UUmVZxYVpwXM5');
+    await expect(dpRow.locator('td').nth(2)).toContainText('DISPUTE_ACCEPTED');
+    await expect(dpRow.locator('td').nth(3)).toContainText('10.4 USD');
+    await expect(dpRow.locator('td').nth(4)).toContainText('USD');
+    await expect(dpRow.locator('td').nth(5)).toContainText('checkout');
+  });
+});
+
+test.describe("Global Search - View all results per category", () => {
+  let email = "";
+
+  test.beforeEach(async ({ page }) => {
+    email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
+    await page.route("**/dashboard/config/feature*", async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      if (json?.features) {
+        json.features.global_search = true;
+      }
+      await route.fulfill({ response, json });
+    });
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+
+    // Search modal (multi-section) — counts > 10 so each section shows the link.
+    await page.route("**/analytics/v1/search", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(MOCK_VIEW_RESULTS_SEARCH_RESPONSE),
+      });
+    });
+    // Per-category full-page table — `analytics/v1/search/{source}`.
+    await page.route("**/analytics/v1/search/*", async (route) => {
+      const source = new URL(route.request().url()).pathname.split("/").pop() ?? "";
+      const body = MOCK_VIEW_RESULTS_BY_SOURCE[source] ?? { count: 0, hits: [], status: "Success" };
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(body),
+      });
+    });
+  });
+
+  // Opens the modal, types "USD", and clicks the "View N results" link that sits
+  // next to the given section header (its immediate sibling in the header row).
+  async function openCategory(page: Page, sectionHeader: string): Promise<void> {
+    const homePage = new HomePage(page);
+    await homePage.globalSearchInput.click();
+    await expect(homePage.globalSearchModalInput).toBeVisible();
+    await homePage.globalSearchModalInput.fill("USD");
+
+    const link = page
+      .getByText(sectionHeader, { exact: true })
+      .locator("xpath=following-sibling::div");
+    await expect(link).toHaveText(/View 11 results/, { timeout: 10000 });
+    await link.click();
+  }
+
+  test("should open the Payment Intent table when View 11 results is clicked for the intents section", async ({ page }) => {
+    await openCategory(page, "PAYMENT INTENTS");
+
+    await expect(page.getByText("Payment Intent", { exact: true })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("Download (11 records)", { exact: true })).toBeVisible({ timeout: 10000 });
+
+    const table = page.locator('table[id="table"]').first();
+    await expect(table.locator('thead th').nth(0)).toContainText('S.No');
+    await expect(table.locator('thead th').nth(1)).toContainText('Payment ID');
+    await expect(table.locator('thead th').nth(2)).toContainText('Merchant ID');
+    await expect(table.locator('thead th').nth(3)).toContainText('Status');
+    await expect(table.locator('thead th').nth(4)).toContainText('Amount');
+    await expect(table.locator('thead th').nth(5)).toContainText('Currency');
+    await expect(table.locator('thead th').nth(6)).toContainText('Active Attempt ID');
+    await expect(table.locator('thead th').nth(7)).toContainText('Business Country');
+    await expect(table.locator('thead th').nth(8)).toContainText('Business Label');
+    await expect(table.locator('thead th').nth(9)).toContainText('Attempt Count');
+    await expect(table.locator('thead th').nth(10)).toContainText('Created At');
+
+    await expect(table.locator('tbody tr')).toHaveCount(VIEW_RESULTS_COUNT);
+    const row = table.locator('tbody tr').first();
+    await expect(row.locator('td').nth(0)).toContainText('1');
+    await expect(row.locator('td').nth(1)).toContainText('pay_0BxZy05aCo5K6X2I');
+    await expect(row.locator('td').nth(2)).toContainText('Allconnector123');
+    await expect(row.locator('td').nth(3)).toContainText('REQUIRES_CUSTOMER_ACTION');
+    await expect(row.locator('td').nth(4)).toContainText('1 USD');
+    await expect(row.locator('td').nth(5)).toContainText('USD');
+    await expect(row.locator('td').nth(6)).toContainText('pay_0BxZy05aCo5K6X2IFf8y_1');
+    await expect(row.locator('td').nth(7)).toContainText('NA');
+    await expect(row.locator('td').nth(8)).toContainText('NA');
+    await expect(row.locator('td').nth(9)).toContainText('1');
+  });
+
+  test("should open the Payment Attempt table when View 11 results is clicked for the attempts section", async ({ page }) => {
+    await openCategory(page, "PAYMENT ATTEMPTS");
+
+    await expect(page.getByText("Payment Attempt", { exact: true })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("Download (11 records)", { exact: true })).toBeVisible({ timeout: 10000 });
+
+    const table = page.locator('table[id="table"]').first();
+    await expect(table.locator('thead th').nth(0)).toContainText('S.No');
+    await expect(table.locator('thead th').nth(1)).toContainText('Payment ID');
+    await expect(table.locator('thead th').nth(2)).toContainText('Merchant ID');
+    await expect(table.locator('thead th').nth(3)).toContainText('Status');
+    await expect(table.locator('thead th').nth(4)).toContainText('Amount');
+    await expect(table.locator('thead th').nth(5)).toContainText('Currency');
+    await expect(table.locator('thead th').nth(6)).toContainText('Connector');
+    await expect(table.locator('thead th').nth(7)).toContainText('Payment Method');
+    await expect(table.locator('thead th').nth(8)).toContainText('Payment Method Type');
+    await expect(table.locator('thead th').nth(9)).toContainText('Created At');
+
+    await expect(table.locator('tbody tr')).toHaveCount(VIEW_RESULTS_COUNT);
+    const row = table.locator('tbody tr').first();
+    await expect(row.locator('td').nth(0)).toContainText('1');
+    await expect(row.locator('td').nth(1)).toContainText('pay_0BxZy05aCo5K6X2I');
+    await expect(row.locator('td').nth(2)).toContainText('Allconnector123');
+    await expect(row.locator('td').nth(3)).toContainText('AUTHENTICATION_PENDING');
+    await expect(row.locator('td').nth(4)).toContainText('1 USD');
+    await expect(row.locator('td').nth(5)).toContainText('USD');
+    await expect(row.locator('td').nth(6)).toContainText('adyen');
+    await expect(row.locator('td').nth(7)).toContainText('wallet');
+    await expect(row.locator('td').nth(8)).toContainText('paypal');
+  });
+
+  test("should open the Payouts table when View 11 results is clicked for the payouts section", async ({ page }) => {
+    await openCategory(page, "PAYOUTS");
+
+    await expect(page.getByText("Payouts", { exact: true })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("Download (11 records)", { exact: true })).toBeVisible({ timeout: 10000 });
+
+    const table = page.locator('table[id="table"]').first();
+    await expect(table.locator('thead th').nth(0)).toContainText('S.No');
+    await expect(table.locator('thead th').nth(1)).toContainText('Payout ID');
+    await expect(table.locator('thead th').nth(2)).toContainText('Payout Attempt ID');
+    await expect(table.locator('thead th').nth(3)).toContainText('Amount');
+    await expect(table.locator('thead th').nth(4)).toContainText('Destination Currency');
+    await expect(table.locator('thead th').nth(5)).toContainText('Status');
+    await expect(table.locator('thead th').nth(6)).toContainText('Connector');
+    await expect(table.locator('thead th').nth(7)).toContainText('Created At');
+
+    await expect(table.locator('tbody tr')).toHaveCount(VIEW_RESULTS_COUNT);
+    const row = table.locator('tbody tr').first();
+    await expect(row.locator('td').nth(0)).toContainText('1');
+    await expect(row.locator('td').nth(1)).toContainText('payout_01BNUwJSWD3sD');
+    await expect(row.locator('td').nth(2)).toContainText('payout_01BNUwJSWD3sDQmbuqi7_1');
+    await expect(row.locator('td').nth(3)).toContainText('45 USD');
+    await expect(row.locator('td').nth(4)).toContainText('USD');
+    await expect(row.locator('td').nth(5)).toContainText('REQUIRES_CONFIRMATION');
+    await expect(row.locator('td').nth(6)).toContainText('NA');
+  });
+
+  test("should open the Refunds table when View 11 results is clicked for the refunds section", async ({ page }) => {
+    await openCategory(page, "REFUNDS");
+
+    await expect(page.getByText("Refunds", { exact: true })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("Download (11 records)", { exact: true })).toBeVisible({ timeout: 10000 });
+
+    const table = page.locator('table[id="table"]').first();
+    await expect(table.locator('thead th').nth(0)).toContainText('S.No');
+    await expect(table.locator('thead th').nth(1)).toContainText('Refund ID');
+    await expect(table.locator('thead th').nth(2)).toContainText('Payment ID');
+    await expect(table.locator('thead th').nth(3)).toContainText('Refund Status');
+    await expect(table.locator('thead th').nth(4)).toContainText('Total Amount');
+    await expect(table.locator('thead th').nth(5)).toContainText('Currency');
+    await expect(table.locator('thead th').nth(6)).toContainText('Connector');
+    await expect(table.locator('thead th').nth(7)).toContainText('Created At');
+
+    await expect(table.locator('tbody tr')).toHaveCount(VIEW_RESULTS_COUNT);
+    const row = table.locator('tbody tr').first();
+    await expect(row.locator('td').nth(0)).toContainText('1');
+    await expect(row.locator('td').nth(1)).toContainText('ref_SKhG8QDYA27dUZse');
+    await expect(row.locator('td').nth(2)).toContainText('pay_aHbu98KulzfsPGGQ9qcv');
+    await expect(row.locator('td').nth(3)).toContainText('SUCCESS');
+    await expect(row.locator('td').nth(4)).toContainText('65 USD');
+    await expect(row.locator('td').nth(5)).toContainText('USD');
+    await expect(row.locator('td').nth(6)).toContainText('fiservcommercehub');
+  });
+
+  test("should open the Disputes table when View 11 results is clicked for the disputes section", async ({ page }) => {
+    await openCategory(page, "DISPUTES");
+
+    await expect(page.getByText("Disputes", { exact: true })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("Download (11 records)", { exact: true })).toBeVisible({ timeout: 10000 });
+
+    const table = page.locator('table[id="table"]').first();
+    await expect(table.locator('thead th').nth(0)).toContainText('S.No');
+    await expect(table.locator('thead th').nth(1)).toContainText('Dispute ID');
+    await expect(table.locator('thead th').nth(2)).toContainText('Payment ID');
+    await expect(table.locator('thead th').nth(3)).toContainText('Dispute Status');
+    await expect(table.locator('thead th').nth(4)).toContainText('Dispute Amount');
+    await expect(table.locator('thead th').nth(5)).toContainText('Currency');
+    await expect(table.locator('thead th').nth(6)).toContainText('Connector');
+    await expect(table.locator('thead th').nth(7)).toContainText('Created At');
+
+    await expect(table.locator('tbody tr')).toHaveCount(VIEW_RESULTS_COUNT);
+    const row = table.locator('tbody tr').first();
+    await expect(row.locator('td').nth(0)).toContainText('1');
+    await expect(row.locator('td').nth(1)).toContainText('dp_ijU3BPdgQ2nwBkZaR');
+    await expect(row.locator('td').nth(2)).toContainText('pay_jPCuCQ9UUmVZxYVpwXM5');
+    await expect(row.locator('td').nth(3)).toContainText('DISPUTE_ACCEPTED');
+    await expect(row.locator('td').nth(4)).toContainText('10.4 USD');
+    await expect(row.locator('td').nth(5)).toContainText('USD');
+    await expect(row.locator('td').nth(6)).toContainText('checkout');
+  });
+});
+
+test.describe("Customer details - global search result tables", () => {
+  let email = "";
+
+  test.beforeEach(async ({ page }) => {
+    email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
+    await page.route("**/dashboard/config/feature*", async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      if (json?.features) {
+        json.features.global_search = true;
+      }
+      await route.fulfill({ response, json });
+    });
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+
+    // Customer detail fetch. The SPA route `/dashboard/customers/{id}` also
+    // matches this glob, so let the navigation document through and only
+    // fulfill the API (xhr/fetch) call.
+    await page.route(`**/customers/${CUSTOMER_ID}`, async (route) => {
+      if (route.request().resourceType() === "document") {
+        await route.fallback();
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(MOCK_CUSTOMER_DETAILS),
+      });
+    });
+    // The customer detail page issues the same global search call; counts > 10
+    // so each populated section also shows a "View 11 results" link.
+    await page.route("**/analytics/v1/search", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(MOCK_VIEW_RESULTS_SEARCH_RESPONSE),
+      });
+    });
+  });
+
+  test("should render all categorized result tables on the customer details page", async ({ page }) => {
+    await page.goto(`/dashboard/customers/${CUSTOMER_ID}`);
+
+    // Customer page chrome + the customer id from the breadcrumb.
+    await expect(page.getByText("Customers", { exact: true }).first()).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText(CUSTOMER_ID).first()).toBeVisible({ timeout: 10000 });
+
+    // One "View 11 results" link and one "Download (11 records)" button per
+    // populated section (intents, attempts, payouts, refunds, disputes).
+    await expect(page.getByText("View 11 results")).toHaveCount(5, { timeout: 15000 });
+    await expect(page.getByText("Download (11 records)", { exact: true })).toHaveCount(5);
+
+    // Payment Intents — columns then first row (table[id="table"] nth(0))
+    const piTable = page.locator('table[id="table"]').nth(0);
+    await expect(piTable.locator('thead th').nth(0)).toContainText('Payment ID');
+    await expect(piTable.locator('thead th').nth(1)).toContainText('Merchant ID');
+    await expect(piTable.locator('thead th').nth(2)).toContainText('Status');
+    await expect(piTable.locator('thead th').nth(3)).toContainText('Amount');
+    await expect(piTable.locator('thead th').nth(4)).toContainText('Currency');
+    await expect(piTable.locator('thead th').nth(5)).toContainText('Active Attempt ID');
+    await expect(piTable.locator('thead th').nth(6)).toContainText('Business Country');
+    await expect(piTable.locator('thead th').nth(7)).toContainText('Business Label');
+    await expect(piTable.locator('thead th').nth(8)).toContainText('Attempt Count');
+    await expect(piTable.locator('thead th').nth(9)).toContainText('Created At');
+    await expect(piTable.locator('tbody tr')).toHaveCount(PREVIEW_TABLE_PAGE_SIZE);
+    const piRow = piTable.locator('tbody tr').first();
+    await expect(piRow.locator('td').nth(0)).toContainText('pay_0BxZy05aCo5K6X2I');
+    await expect(piRow.locator('td').nth(1)).toContainText('Allconnector123');
+    await expect(piRow.locator('td').nth(2)).toContainText('REQUIRES_CUSTOMER_ACTION');
+    await expect(piRow.locator('td').nth(3)).toContainText('1 USD');
+    await expect(piRow.locator('td').nth(4)).toContainText('USD');
+    await expect(piRow.locator('td').nth(5)).toContainText('pay_0BxZy05aCo5K6X2IFf8y_1');
+    await expect(piRow.locator('td').nth(6)).toContainText('NA');
+    await expect(piRow.locator('td').nth(7)).toContainText('NA');
+
+    // Payment Attempts — columns then first row (table[id="table"] nth(1))
+    const paTable = page.locator('table[id="table"]').nth(1);
+    await expect(paTable.locator('thead th').nth(0)).toContainText('Payment ID');
+    await expect(paTable.locator('thead th').nth(1)).toContainText('Merchant ID');
+    await expect(paTable.locator('thead th').nth(2)).toContainText('Status');
+    await expect(paTable.locator('thead th').nth(3)).toContainText('Amount');
+    await expect(paTable.locator('thead th').nth(4)).toContainText('Currency');
+    await expect(paTable.locator('thead th').nth(5)).toContainText('Connector');
+    await expect(paTable.locator('thead th').nth(6)).toContainText('Payment Method');
+    await expect(paTable.locator('thead th').nth(7)).toContainText('Payment Method Type');
+    await expect(paTable.locator('thead th').nth(8)).toContainText('Created At');
+    await expect(paTable.locator('tbody tr')).toHaveCount(PREVIEW_TABLE_PAGE_SIZE);
+    const paRow = paTable.locator('tbody tr').first();
+    await expect(paRow.locator('td').nth(0)).toContainText('pay_0BxZy05aCo5K6X2I');
+    await expect(paRow.locator('td').nth(1)).toContainText('Allconnector123');
+    await expect(paRow.locator('td').nth(2)).toContainText('AUTHENTICATION_PENDING');
+    await expect(paRow.locator('td').nth(3)).toContainText('1 USD');
+    await expect(paRow.locator('td').nth(4)).toContainText('USD');
+    await expect(paRow.locator('td').nth(5)).toContainText('adyen');
+    await expect(paRow.locator('td').nth(6)).toContainText('wallet');
+    await expect(paRow.locator('td').nth(7)).toContainText('paypal');
+
+    // Payouts — columns then first row (table[id="table"] nth(2))
+    const poTable = page.locator('table[id="table"]').nth(2);
+    await expect(poTable.locator('thead th').nth(0)).toContainText('Payout ID');
+    await expect(poTable.locator('thead th').nth(1)).toContainText('Payout Attempt ID');
+    await expect(poTable.locator('thead th').nth(2)).toContainText('Amount');
+    await expect(poTable.locator('thead th').nth(3)).toContainText('Destination Currency');
+    await expect(poTable.locator('thead th').nth(4)).toContainText('Status');
+    await expect(poTable.locator('thead th').nth(5)).toContainText('Connector');
+    await expect(poTable.locator('thead th').nth(6)).toContainText('Created At');
+    await expect(poTable.locator('tbody tr')).toHaveCount(PREVIEW_TABLE_PAGE_SIZE);
+    const poRow = poTable.locator('tbody tr').first();
+    await expect(poRow.locator('td').nth(0)).toContainText('payout_01BNUwJSWD3sD');
+    await expect(poRow.locator('td').nth(1)).toContainText('payout_01BNUwJSWD3sDQmbuqi7_1');
+    await expect(poRow.locator('td').nth(2)).toContainText('45 USD');
+    await expect(poRow.locator('td').nth(3)).toContainText('USD');
+    await expect(poRow.locator('td').nth(4)).toContainText('REQUIRES_CONFIRMATION');
+    await expect(poRow.locator('td').nth(5)).toContainText('NA');
+
+    // Refunds — columns then first row (table[id="table"] nth(3))
+    const rfTable = page.locator('table[id="table"]').nth(3);
+    await expect(rfTable.locator('thead th').nth(0)).toContainText('Refund ID');
+    await expect(rfTable.locator('thead th').nth(1)).toContainText('Payment ID');
+    await expect(rfTable.locator('thead th').nth(2)).toContainText('Refund Status');
+    await expect(rfTable.locator('thead th').nth(3)).toContainText('Total Amount');
+    await expect(rfTable.locator('thead th').nth(4)).toContainText('Currency');
+    await expect(rfTable.locator('thead th').nth(5)).toContainText('Connector');
+    await expect(rfTable.locator('thead th').nth(6)).toContainText('Created At');
+    await expect(rfTable.locator('tbody tr')).toHaveCount(PREVIEW_TABLE_PAGE_SIZE);
+    const rfRow = rfTable.locator('tbody tr').first();
+    await expect(rfRow.locator('td').nth(0)).toContainText('ref_SKhG8QDYA27dUZse');
+    await expect(rfRow.locator('td').nth(1)).toContainText('pay_aHbu98KulzfsPGGQ9qcv');
+    await expect(rfRow.locator('td').nth(2)).toContainText('SUCCESS');
+    await expect(rfRow.locator('td').nth(3)).toContainText('65 USD');
+    await expect(rfRow.locator('td').nth(4)).toContainText('USD');
+    await expect(rfRow.locator('td').nth(5)).toContainText('fiservcommercehub');
+
+    // Disputes — columns then first row (table[id="table"] nth(4))
+    const dpTable = page.locator('table[id="table"]').nth(4);
+    await expect(dpTable.locator('thead th').nth(0)).toContainText('Dispute ID');
+    await expect(dpTable.locator('thead th').nth(1)).toContainText('Payment ID');
+    await expect(dpTable.locator('thead th').nth(2)).toContainText('Dispute Status');
+    await expect(dpTable.locator('thead th').nth(3)).toContainText('Dispute Amount');
+    await expect(dpTable.locator('thead th').nth(4)).toContainText('Currency');
+    await expect(dpTable.locator('thead th').nth(5)).toContainText('Connector');
+    await expect(dpTable.locator('thead th').nth(6)).toContainText('Created At');
+    await expect(dpTable.locator('tbody tr')).toHaveCount(PREVIEW_TABLE_PAGE_SIZE);
     const dpRow = dpTable.locator('tbody tr').first();
     await expect(dpRow.locator('td').nth(0)).toContainText('dp_ijU3BPdgQ2nwBkZaR');
     await expect(dpRow.locator('td').nth(1)).toContainText('pay_jPCuCQ9UUmVZxYVpwXM5');

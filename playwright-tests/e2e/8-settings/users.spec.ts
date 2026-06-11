@@ -155,7 +155,7 @@ test.describe("Users - UI", () => {
           ? '[data-dropdown-value="All"]'
           : filterLabel === "(Profile)"
             ? '[data-dropdown-value="default"]'
-            : '[data-dropdown-value^="202"]';
+            : '[data-dropdown-value^="playwright"]';
       await page
         .locator(valueSelector)
         .filter({ hasText: filterLabel })
@@ -938,8 +938,8 @@ test.describe("Users - Roles Tab", () => {
     // Switch the entity dropdown and capture the resulting role-list call.
     // The OMP entity dropdown uses "settings-new" as the trigger; options are
     // exposed via [data-dropdown-value]. data-dropdown-value carries the
-    // option's description text — the org/merchant ID (starts with "202") for
-    // Organization and Merchant, and "default" for Profile — so we use the
+    // option's description text — the org/merchant ID (starts with "playwright")
+    // for Organization and Merchant, and "default" for Profile — so we use the
     // labelDescription text "(Organization)" / "(Merchant)" / "(Profile)" to
     // disambiguate.
     const switchEntityAndCapture = async (
@@ -951,7 +951,7 @@ test.describe("Users - Roles Tab", () => {
       const valueSelector =
         entityLabel === "Profile"
           ? '[data-dropdown-value="default"]'
-          : '[data-dropdown-value^="202"]';
+          : '[data-dropdown-value^="playwright"]';
       await page
         .locator(valueSelector)
         .filter({ hasText: `(${entityLabel})` })

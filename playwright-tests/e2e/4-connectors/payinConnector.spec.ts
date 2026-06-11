@@ -784,6 +784,224 @@ test.describe("Payin Connector tests", () => {
     await expect(page.getByText('Integration statusACTIVE')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Credit' })).not.toBeVisible();
   });
+
+  test("should setup Stripe connector with Bank Debit PMT when no PM auth processor is setup", async ({
+    page,
+  }) => {
+    test.setTimeout(60000);
+    const homePage = new HomePage(page);
+    const paymentConnector = new PaymentConnector(page);
+
+    // --- Setup Stripe payment connector ---
+    await gotoConnectorList(page);
+    await paymentConnector.connectorSearchInput.fill("stripe");
+    await page.waitForTimeout(500);
+    await expect(paymentConnector.stripeConnector).toBeVisible({
+      timeout: 10000,
+    });
+    await paymentConnector.stripeConnector
+      .locator("button")
+      .click({ force: true });
+
+    // Fill only the API key so the auto-populated `stripe_default` connector
+    // label is preserved for the final list assertion.
+    await expect(paymentConnector.apiKeyInput).toBeVisible();
+    await paymentConnector.apiKeyInput.fill("test_value");
+    await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(page.getByText('Bank DebitAchBacsBecsSepa')).toBeVisible();
+    await page.getByTestId('bank_debit_ach').click();
+    await page.getByTestId('bank_debit_bacs').click();
+    await page.getByTestId('bank_debit_becs').click();
+    await page.getByTestId('bank_debit_sepa').click();
+
+    await paymentConnector.pmtProceedButton.click();
+
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(page.getByRole('heading', { name: 'Ach, Bacs, Becs, Sepa' })).toBeVisible();
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(page).toHaveURL(/.*dashboard\/connectors/);
+    await expect(page.getByText("stripe_default").first()).toBeVisible();
+  });
+
+  test("should setup Stripe connector with Bank Debit PMT + Plaid when PM auth processor is setup", async ({
+    page,
+  }) => {
+    test.setTimeout(60000);
+    const homePage = new HomePage(page);
+    const paymentConnector = new PaymentConnector(page);
+
+    // --- Setup PM Auth processor (Plaid) ---
+    await homePage.connectors.click();
+    await homePage.pmAuthConnectors.click();
+    await expect(page).toHaveURL(/.*dashboard\/pm-authentication-processor/);
+
+    // Plaid is the only PM auth processor surfaced, so the first Connect CTA
+    // opens its setup form.
+    await page.getByRole("button", { name: "Connect" }).first().click();
+    await expect(page).toHaveURL(/.*name=plaid/);
+
+    await page
+      .getByRole("textbox", { name: "Enter Client Id" })
+      .fill("test_value");
+    await page
+      .getByRole("textbox", { name: "Enter Secret" })
+      .fill("test_value");
+    await expect(
+      page.getByRole("textbox", { name: "Enter Connector label" }),
+    ).toHaveValue("plaid_default");
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(page.getByText("Integration status")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(page.getByText("ACTIVE", { exact: true }).first()).toBeVisible();
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(
+      page.getByText("plaid_default", { exact: true }).first(),
+    ).toBeVisible({ timeout: 10000 });
+
+    // --- Setup Stripe payment connector ---
+    await gotoConnectorList(page);
+    await paymentConnector.connectorSearchInput.fill("stripe");
+    await page.waitForTimeout(500);
+    await expect(paymentConnector.stripeConnector).toBeVisible({
+      timeout: 10000,
+    });
+    await paymentConnector.stripeConnector
+      .locator("button")
+      .click({ force: true });
+
+    // Fill only the API key so the auto-populated `stripe_default` connector
+    // label is preserved for the final list assertion.
+    await expect(paymentConnector.apiKeyInput).toBeVisible();
+    await paymentConnector.apiKeyInput.fill("test_value");
+    await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(page.getByText('Bank DebitBelow methods can be enabled independently. Add optional payment authenticator if needed.')).toBeVisible();
+    await expect(page.getByText('AchOptional Configuration')).toBeVisible();
+    await expect(page.getByText('BacsOptional Configuration')).toBeVisible();
+    await expect(page.getByText('BecsOptional Configuration')).toBeVisible();
+    await expect(page.getByText('SepaOptional Configuration')).toBeVisible();
+
+    await page.getByText('AchOptional Configuration').click();
+    await expect(page.getByText('Select PM Authenticator (optional)Select PM Authentication Processor(Enable method to choose an authenticator)CancelProceed').first()).toBeVisible();
+
+    await expect(page.locator('div').filter({ hasText: /^Select PM Authentication Processor$/ }).nth(1)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Proceed' }).nth(1)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Proceed' }).nth(1)).toBeDisabled();
+
+    await page.locator('.cursor-pointer > .w-4 > div > svg').first().click();
+    await expect(page.locator('div').filter({ hasText: /^Select PM Authentication Processor$/ }).nth(1)).not.toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Proceed' }).nth(1)).not.toBeDisabled();
+    await page.locator('div').filter({ hasText: /^Select PM Authentication Processor$/ }).nth(1).click();
+    await page.getByText('Plaid').click();
+    await page.getByRole('button', { name: 'Proceed' }).nth(1).click();
+
+    await paymentConnector.pmtProceedButton.click();
+
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible({
+      timeout: 10000,
+    });
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(page).toHaveURL(/.*dashboard\/connectors/);
+    await expect(page.getByText("stripe_default").first()).toBeVisible();
+  });
+
+  test("should setup Stripe connector without Plaid and Bank Debit PMT when PM auth processor is setup", async ({
+    page,
+  }) => {
+    test.setTimeout(60000);
+    const homePage = new HomePage(page);
+    const paymentConnector = new PaymentConnector(page);
+
+    // --- Setup PM Auth processor (Plaid) ---
+    await homePage.connectors.click();
+    await homePage.pmAuthConnectors.click();
+    await expect(page).toHaveURL(/.*dashboard\/pm-authentication-processor/);
+
+    // Plaid is the only PM auth processor surfaced, so the first Connect CTA
+    // opens its setup form.
+    await page.getByRole("button", { name: "Connect" }).first().click();
+    await expect(page).toHaveURL(/.*name=plaid/);
+
+    await page
+      .getByRole("textbox", { name: "Enter Client Id" })
+      .fill("test_value");
+    await page
+      .getByRole("textbox", { name: "Enter Secret" })
+      .fill("test_value");
+    await expect(
+      page.getByRole("textbox", { name: "Enter Connector label" }),
+    ).toHaveValue("plaid_default");
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(page.getByText("Integration status")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(page.getByText("ACTIVE", { exact: true }).first()).toBeVisible();
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(
+      page.getByText("plaid_default", { exact: true }).first(),
+    ).toBeVisible({ timeout: 10000 });
+
+    // --- Setup Stripe payment connector ---
+    await gotoConnectorList(page);
+    await paymentConnector.connectorSearchInput.fill("stripe");
+    await page.waitForTimeout(500);
+    await expect(paymentConnector.stripeConnector).toBeVisible({
+      timeout: 10000,
+    });
+    await paymentConnector.stripeConnector
+      .locator("button")
+      .click({ force: true });
+
+    // Fill only the API key so the auto-populated `stripe_default` connector
+    // label is preserved for the final list assertion.
+    await expect(paymentConnector.apiKeyInput).toBeVisible();
+    await paymentConnector.apiKeyInput.fill("test_value");
+    await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(page.getByText('Bank DebitBelow methods can be enabled independently. Add optional payment authenticator if needed.')).toBeVisible();
+    await expect(page.getByText('AchOptional Configuration')).toBeVisible();
+    await expect(page.getByText('BacsOptional Configuration')).toBeVisible();
+    await expect(page.getByText('BecsOptional Configuration')).toBeVisible();
+    await expect(page.getByText('SepaOptional Configuration')).toBeVisible();
+
+    await page.getByText('AchOptional Configuration').click();
+    await expect(page.getByText('Select PM Authenticator (optional)Select PM Authentication Processor(Enable method to choose an authenticator)CancelProceed').first()).toBeVisible();
+
+    await expect(page.locator('div').filter({ hasText: /^Select PM Authentication Processor$/ }).nth(1)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Proceed' }).nth(1)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Proceed' }).nth(1)).toBeDisabled();
+
+    await page.locator('.cursor-pointer > .w-4 > div > svg').first().click();
+    await page.getByRole('button', { name: 'Proceed' }).nth(1).click();
+
+    await paymentConnector.pmtProceedButton.click();
+
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible({
+      timeout: 10000,
+    });
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(page).toHaveURL(/.*dashboard\/connectors/);
+    await expect(page.getByText("stripe_default").first()).toBeVisible();
+  });
 });
 
 test.describe("All Payin Connectors", () => {

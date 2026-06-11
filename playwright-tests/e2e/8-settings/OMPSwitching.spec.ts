@@ -51,7 +51,7 @@ test.describe("Org / Merchant / Profile context switching", () => {
     const homePage = new HomePage(page);
     const usersPage = new UsersPage(page);
     // OMP names allow only letters, digits, underscores and spaces
-    const newMerchantName = `pw_merchant_${generateDateTimeString()}`;
+    const newMerchantName = `playwright_merchant_${generateDateTimeString()}`;
     const newProfileName = `pw_profile_${generateDateTimeString()}`;
 
     // Create a new merchant from the merchant dropdown (retries the flow if the
@@ -93,7 +93,7 @@ test.describe("Org / Merchant / Profile context switching", () => {
   }) => {
     const homePage = new HomePage(page);
     const usersPage = new UsersPage(page);
-    const merchantA = `pw_merchant_a_${generateDateTimeString()}`;
+    const merchantA = `playwright_merchant_a_${generateDateTimeString()}`;
     const newProfileName = `pw_profile_${generateDateTimeString()}`;
 
     // Create the first new merchant from the merchant dropdown (retries the
@@ -189,7 +189,7 @@ test.describe("Org / Merchant / Profile context switching", () => {
   }) => {
     const homePage = new HomePage(page);
     const usersPage = new UsersPage(page);
-    const merchantName = `pw_merchant_${generateDateTimeString()}`;
+    const merchantName = `playwright_merchant_${generateDateTimeString()}`;
 
     // Create a merchant (retries the flow if the create_merchant API
     // intermittently 500s)
@@ -255,7 +255,7 @@ test.describe("Org / Merchant / Profile context switching", () => {
   }) => {
     const homePage = new HomePage(page);
     const usersPage = new UsersPage(page);
-    const merchantName = `pw_merchant_${generateDateTimeString()}`;
+    const merchantName = `playwright_merchant_${generateDateTimeString()}`;
 
     // Create a merchant to switch into
     await homePage.merchantDropdown.click();
