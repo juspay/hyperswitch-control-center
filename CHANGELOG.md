@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.06.11.0
+
+### Features
+
+- Enable sorting on Attempt Count column ([#4627](https://github.com/juspay/hyperswitch-control-center/pull/4627)) ([`4fc1d07`](https://github.com/juspay/hyperswitch-control-center/commit/4fc1d073ad3ce907e31ce91c2fad05b5ab0f860d))
+
+**Full Changelog:** [`2026.06.10.0...2026.06.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.10.0...2026.06.11.0)
+
+- - -
+
 ## 2026.06.10.0
 
 ### Features
