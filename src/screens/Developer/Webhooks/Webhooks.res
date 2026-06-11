@@ -5,6 +5,7 @@ let make = () => {
   open LogicUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
+  let fetchDetails = useGetMethod()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (webhooksData, setWebhooksData) = React.useState(_ => [])
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
@@ -73,6 +74,15 @@ let make = () => {
     }
   }
 
+  // Helper function to convert UI delivery status to backend boolean
+  let mapDeliveryStatusToBackend = (status: string) => {
+    switch status {
+    | "delivered" => Some(true)
+    | "failed" => Some(false)
+    | _ => None
+    }
+  }
+
   let fetchWebhooks = async (~searchType=?) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -88,6 +98,23 @@ let make = () => {
         payload->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
         payload->Dict.set("created_after", start_time->JSON.Encode.string)
         payload->Dict.set("created_before", end_time->JSON.Encode.string)
+
+        // Add optional filters if present
+        let eventClasses = filterValueJson->getArrayFromDict("event_classes", [])
+        if eventClasses->Array.length > 0 {
+          payload->Dict.set("event_classes", eventClasses->JSON.Encode.array)
+        }
+
+        let eventTypes = filterValueJson->getArrayFromDict("event_types", [])
+        if eventTypes->Array.length > 0 {
+          payload->Dict.set("event_types", eventTypes->JSON.Encode.array)
+        }
+
+        let deliveryStatus = filterValueJson->getString("delivery_status", "")
+        switch mapDeliveryStatusToBackend(deliveryStatus) {
+        | Some(isDelivered) => payload->Dict.set("is_delivered", isDelivered->JSON.Encode.bool)
+        | None => ()
+        }
       }
 
       let url = getURL(~entityName=V1(WEBHOOK_EVENTS), ~methodType=Post)
@@ -101,6 +128,53 @@ let make = () => {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
   }
+
+  // Fetch filter options for dropdowns
+  let (filterOptions, setFilterOptions) = React.useState(_ => {
+    eventClasses: [],
+    eventTypes: [],
+    deliveryStatusOptions: [
+      {"label": "Delivered", "value": "delivered"},
+      {"label": "Failed", "value": "failed"},
+    ],
+  })
+
+  let fetchFilterOptions = async () => {
+    try {
+      let url = getURL(~entityName=V1(WEBHOOK_EVENTS_FILTERS), ~methodType=Get)
+      let response = await fetchDetails(url)
+      let responseDict = response->getDictFromJsonObject
+
+      let eventClasses =
+        responseDict
+        ->getArrayFromDict("event_classes", [])
+        ->Array.map(item => {
+          let str = item->JSON.Decode.string->Option.getOr("")
+          {"label": str, "value": str}
+        })
+
+      let eventTypes =
+        responseDict
+        ->getArrayFromDict("event_types", [])
+        ->Array.map(item => {
+          let str = item->JSON.Decode.string->Option.getOr("")
+          {"label": str, "value": str}
+        })
+
+      setFilterOptions(prev => {
+        ...prev,
+        eventClasses: eventClasses,
+        eventTypes: eventTypes,
+      })
+    } catch {
+    | _ => ()
+    }
+  }
+
+  React.useEffect(() => {
+    fetchFilterOptions()->ignore
+    None
+  }, [])
 
   React.useEffect(() => {
     if filterValueJson->isEmptyDict {
@@ -142,7 +216,7 @@ let make = () => {
       key="0"
       title="Webhooks"
       defaultFilters={""->JSON.Encode.string}
-      fixedFilters={initialFixedFilter()}
+      fixedFilters={initialFixedFilter(~filterOptions)}
       requiredSearchFieldsList=[]
       localFilters=[]
       localOptions=[]
