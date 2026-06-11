@@ -3,12 +3,48 @@ type operatorType = {
   value: string,
 }
 
-type triggerType = {
-  trigger_version: string,
+type triggerConditionType = {
   field: string,
   operator: operatorType,
   value: string,
 }
+
+@unboxed
+type triggerLogicType =
+  | @as("all") All
+  | @as("any") Any
+  | @as("unknown") UnknownTriggerLogic
+
+type triggerV2Type = {
+  logic: triggerLogicType,
+  conditions: array<triggerConditionType>,
+}
+
+type triggerType =
+  | V1(triggerConditionType)
+  | V2(triggerV2Type)
+  | UnknownTrigger
+
+@unboxed
+type compositeDelimiterType =
+  | @as("pipe") Pipe
+  | @as("unknown") UnknownCompositeDelimiter
+
+type singleGroupingFieldType = {field: string}
+
+type compositeGroupingFieldType = {
+  fields: array<string>,
+  delimiter: compositeDelimiterType,
+}
+
+type groupingFieldV1Type =
+  | Single(singleGroupingFieldType)
+  | Composite(compositeGroupingFieldType)
+  | UnknownGroupingFieldV1
+
+type groupingFieldType =
+  | V1(groupingFieldV1Type)
+  | UnknownGroupingField
 
 type matchRuleType = {
   source_field: string,
@@ -28,11 +64,27 @@ type matchRulesType = {
   rules: array<matchRuleType>,
 }
 
-type searchIdentifierType = {
-  search_version: string,
+type searchKeyType = {
   source_field: string,
   target_field: string,
 }
+
+type singleSearchIdentifierType = {key: searchKeyType}
+
+type compositeSearchIdentifierType = {
+  keys: array<searchKeyType>,
+  delimiter: compositeDelimiterType,
+}
+
+type searchIdentifierV2Type =
+  | Single(singleSearchIdentifierType)
+  | Composite(compositeSearchIdentifierType)
+  | UnknownSearchIdentifierV2
+
+type searchIdentifierType =
+  | V1(searchKeyType)
+  | V2(searchIdentifierV2Type)
+  | UnknownSearchIdentifier
 
 type targetAccountInfo = {
   account_id: string,
@@ -78,7 +130,7 @@ type oneToOneSingleManyType = {
 type oneToOneManySingleSourceType = {
   account_id: string,
   trigger: triggerType,
-  grouping_field: string,
+  grouping_field: groupingFieldType,
 }
 
 type oneToOneManySingleTargetType = {account_id: string}
@@ -93,7 +145,7 @@ type oneToOneManySingleType = {
 type oneToOneManyManySourceType = {
   account_id: string,
   trigger: triggerType,
-  grouping_field: string,
+  grouping_field: groupingFieldType,
 }
 
 type oneToOneManyManyTargetType = {account_id: string}

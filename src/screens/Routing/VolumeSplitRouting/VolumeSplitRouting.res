@@ -39,7 +39,7 @@ module VolumeRoutingView = {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let activateRuleURL = getURL(~entityName=urlEntityName, ~methodType=Post, ~id=activatingId)
         let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post)
-        showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess)
+        showToast(~message="Successfully activated!", ~toastType=ToastState.ToastSuccess)
         RescriptReactRouter.replace(
           GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
         )
@@ -73,7 +73,7 @@ module VolumeRoutingView = {
           )}/deactivate`
         let body = [("profile_id", profile->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
         let _ = await updateDetails(deactivateRoutingURL, body, Post)
-        showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess)
+        showToast(~message="Successfully deactivated!", ~toastType=ToastState.ToastSuccess)
         RescriptReactRouter.replace(
           GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
         )
@@ -142,7 +142,6 @@ module VolumeRoutingView = {
                       buttonSize=Button.Small
                       buttonType=Button.Secondary
                       customSubmitButtonStyle="w-1/5 rounded-lg"
-                      tooltipWidthClass="w-48"
                     />}
                     submitButton={<AdvancedRoutingUIUtils.SaveAndActivateButton
                       onSubmit handleActivateConfiguration
@@ -293,7 +292,7 @@ let make = (
     let validateGateways = dict => {
       let gateways = dict->getArrayFromDict("data", [])
       if gateways->Array.length === 0 {
-        Some("Need atleast 1 Gateway")
+        Some("Need at least 1 gateway")
       } else {
         let distributionPercentages = gateways->Belt.Array.keepMap(json => {
           json->JSON.Decode.object->Option.flatMap(val => val->(getOptionFloat(_, "split")))
@@ -329,7 +328,7 @@ let make = (
       let updateUrl = getURL(~entityName=urlEntityName, ~methodType=Post, ~id=None)
       let res = await updateDetails(updateUrl, values, Post)
       showToast(
-        ~message="Successfully Created a new Configuration !",
+        ~message="Successfully created a new configuration!",
         ~toastType=ToastState.ToastSuccess,
       )
       setScreenState(_ => Success)
@@ -340,7 +339,7 @@ let make = (
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Something went wrong!")
-      showToast(~message="Failed to Save the Configuration !", ~toastType=ToastState.ToastError)
+      showToast(~message="Failed to save the configuration!", ~toastType=ToastState.ToastError)
       setScreenState(_ => PageLoaderWrapper.Error(err))
       Exn.raiseError(err)
     }

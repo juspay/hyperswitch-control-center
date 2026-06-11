@@ -1,12 +1,12 @@
 module NoThemesFound = {
   @react.component
-  let make = (~themeListArray) => {
+  let make = (~themeListArray, ~setShowModal) => {
     open Typography
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     <RenderIf condition={themeListArray->Array.length == 0}>
       <div className="flex flex-col items-center justify-center text-center mt-300-px">
-        <div className="flex flex-col items-center gap-2 ">
+        <div className="flex flex-col items-center gap-2">
           <p className={`${heading.sm.semibold}`}> {"No Themes Available"->React.string} </p>
           <p className={`${body.md.regular} text-nd_gray-500 mb-6`}>
             {"Create your first theme, Make your dashboard for your personalized look."->React.string}
@@ -16,8 +16,9 @@ module NoThemesFound = {
           text="Create Theme"
           buttonType=Primary
           buttonSize=Small
-          customButtonStyle={`${body.md.semibold} `}
+          customButtonStyle={`${body.md.semibold}`}
           authorization={userHasAccess(~groupAccess=ThemeManage)}
+          onClick={_ => setShowModal(_ => true)}
         />
       </div>
     </RenderIf>
@@ -26,14 +27,16 @@ module NoThemesFound = {
 module RenderEntityRow = {
   @react.component
   let make = (~label, ~value, ~entityType, ~getNameForId) => {
-    <React.Fragment key={label}>
-      <div className="text-nd_gray-500"> {label->React.string} </div>
-      <div>
+    <div key={label} className="flex gap-3">
+      <div className="w-36 shrink-0 whitespace-nowrap text-nd_gray-500">
+        {label->React.string}
+      </div>
+      <div className="min-w-0 break-all">
         {value->String.toLowerCase != "all"
           ? getNameForId(entityType)->React.string
           : `All ${label}s`->React.string}
       </div>
-    </React.Fragment>
+    </div>
   }
 }
 
@@ -59,11 +62,11 @@ module CurrentThemeCard = {
         let entityLevelLabelEntity: UserInfoTypes.entity =
           themeData.entityType->UserInfoUtils.entityMapper
 
-        <div className="flex flex-col gap-4 mt-4 w-1/2">
+        <div className="flex flex-col gap-4 mt-4 w-fit max-w-lg">
           <span className={`${body.lg.semibold} text-nd_gray-800`}>
             {"Current Theme"->React.string}
           </span>
-          <div className="rounded-xl border border-gray-200 p-4 mb-8 flex flex-col gap-6 ">
+          <div className="rounded-xl border border-nd_gray-200 p-4 mb-8 flex flex-col gap-6">
             <div className="flex items-center gap-4">
               <span className={`${body.md.semibold}`}> {themeData.themeName->React.string} </span>
               <span
@@ -71,7 +74,7 @@ module CurrentThemeCard = {
                 {`${(entityLevelLabelEntity :> string)} level`->React.string}
               </span>
             </div>
-            <div className={`grid grid-cols-2  text-nd_gray-600 ${body.md.medium}`}>
+            <div className={`flex flex-col gap-2 text-nd_gray-600 ${body.md.medium}`}>
               {ThemeListUtils.entityConfig(themeData)
               ->Array.map(((label, value, entityType)) => {
                 <RenderEntityRow label value entityType getNameForId />

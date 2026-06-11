@@ -200,15 +200,11 @@ let fileInput: unit => (~input: ReactFinalForm.fieldRenderPropsInput) => React.e
 let numericTextInput: (
   ~isDisabled: bool=?,
   ~customStyle: string=?,
-  ~inputMode: string=?,
   ~precision: int=?,
   ~maxLength: int=?,
   ~removeLeadingZeroes: bool=?,
-  ~leftIcon: React.element=?,
   ~rightIcon: React.element=?,
-  ~customPaddingClass: string=?,
   ~rightIconCustomStyle: string=?,
-  ~leftIconCustomStyle: string=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: string) => React.element
 let singleDatePickerInput: (
   ~disablePastDates: bool=?,

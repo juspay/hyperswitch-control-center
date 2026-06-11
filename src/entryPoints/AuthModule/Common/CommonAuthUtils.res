@@ -6,7 +6,7 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
       Dict.set(
         errors,
         key,
-        "Your password is not strong enough. Password size must be more than 8"->JSON.Encode.string,
+        "Your password is not strong enough. Password must be at least 8 characters long."->JSON.Encode.string,
       )
     } else {
       if !RegExp.test(%re("/^(?=.*[A-Z])/"), value) {
@@ -38,22 +38,22 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
         Dict.set(
           errors,
           key,
-          `Your password is not strong enough. A good password must contain atleast ${mustHave->Array.joinWith(
-              ",",
-            )} character`->JSON.Encode.string,
+          `Your password is not strong enough. A good password must contain at least ${mustHave->Array.joinWith(
+              ", ",
+            )} characters.`->JSON.Encode.string,
         )
       }
     }
   }
 }
 
-let confirmPasswordCheck = (value, key, confirmKey, passwordKey, valuesDict, errors) => {
+let confirmPasswordCheck = (value, key, passwordKey, confirmKey, valuesDict, errors) => {
   if (
     key === confirmKey &&
     value->LogicUtils.isNonEmptyString &&
     !Option.equal(Dict.get(valuesDict, passwordKey), Dict.get(valuesDict, key), (a, b) => a == b)
   ) {
-    Dict.set(errors, key, "The New password does not match!"->JSON.Encode.string)
+    Dict.set(errors, key, "Passwords do not match. Please try again."->JSON.Encode.string)
   }
 }
 

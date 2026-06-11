@@ -1,0 +1,37 @@
+name: Build and Lint
+
+on:
+  merge_group:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-and-lint-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build-and-lint:
+    name: Build & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build ReScript
+        run: npm run re:build
+
+      - name: Run ESLint
+        run: npm run lint:hooks
+        env:
+          CI: true

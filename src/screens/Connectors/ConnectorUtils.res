@@ -77,6 +77,8 @@ let billingProcessorList: array<connectorTypes> = [BillingProcessor(CHARGEBEE)]
 
 let vaultProcessorList: array<connectorTypes> = [VaultProcessor(VGS)]
 
+let surchargeProcessorList: array<connectorTypes> = [SurchargeProcessor(INTERPAYMENTS)]
+
 let connectorList: array<connectorTypes> = [
   Processors(STRIPE),
   Processors(PAYPAL),
@@ -184,6 +186,7 @@ let connectorList: array<connectorTypes> = [
   Processors(REVOLV3),
   Processors(TRUELAYER),
   Processors(TRUSTLY),
+  Processors(IMERCHANTSOLUTIONS),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -259,6 +262,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "apple_pay" => ApplePay
   | "paypal" => PayPal
   | "pix" => Pix
+  | "pix_emv" => PixEmv
   | "pix_automatico_qr" => PixAutomaticoQr
   | "pix_automatico_push" => PixAutomaticoPush
   | "boleto" => Boleto
@@ -722,6 +726,10 @@ let nomupayInfo = {
   description: "A payment processing and software provider, that offers solutions such as e-commerce solutions, subscription billing services, payment gateways, and merchant accounts, to businesses of all sizes.",
 }
 
+let imerchantsolutionsInfo = {
+  description: "iMerchant Solutions is a modern payment processing platform that empowers businesses to accept payments globally with fast and low-friction onboarding.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -847,6 +855,10 @@ let vgsInfo = {
   description: "Very Good Security (VGS) is a data security platform that helps businesses protect sensitive information such as payment card data, personally identifiable information (PII), and other confidential data. VGS provides solutions for data tokenization, encryption, and secure data storage, allowing businesses to reduce their compliance scope and mitigate the risks associated with handling sensitive data.",
 }
 
+let interPaymentsInfo = {
+  description: "InterPayments is a managed surcharge provider that handles surcharge compliance while integrating seamlessly with your existing payment systems.",
+}
+
 let payjustnowInStoreInfo = {
   description: "PayJustNow In-Store provides a BNPL solution for online and in-store payments, enabling customers to pay in three interest-free installments while merchants get paid upfront.",
 }
@@ -882,8 +894,13 @@ let trustlyInfo = {
   description: "Trustly provides a secure, efficient, and cost-effective payment solution for your businesses to offer customers a convenient and hassle-free payment experience.",
 }
 
+let absaInfo = {
+  description: "Absa Bank is a leading African financial services provider offering a wide range of banking and payment solutions.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
+  | ABSA => "absa_sanlam"
   | ADYEN => "adyen"
   | AFFIRM => "affirm"
   | CHECKOUT => "checkout"
@@ -995,6 +1012,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | TRUELAYER => "truelayer"
   | FISERVCOMMERCEHUB => "fiservcommercehub"
   | TRUSTLY => "trustly"
+  | IMERCHANTSOLUTIONS => "imerchantsolutions"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1064,6 +1082,12 @@ let getVaultProcessorNameString = (vaultProcessor: vaultProcessorTypes) => {
   }
 }
 
+let getSurchargeProcessorNameString = (surchargeProcessor: surchargeProcessorTypes) => {
+  switch surchargeProcessor {
+  | INTERPAYMENTS => "interpayments"
+  }
+}
+
 let getConnectorNameString = (connector: connectorTypes) => {
   switch connector {
   | Processors(connector) => connector->getConnectorNameString
@@ -1076,6 +1100,7 @@ let getConnectorNameString = (connector: connectorTypes) => {
   | TaxProcessor(taxProcessor) => taxProcessor->getTaxProcessorNameString
   | BillingProcessor(billingProcessor) => billingProcessor->getBillingProcessorNameString
   | VaultProcessor(vaultProcessor) => vaultProcessor->getVaultProcessorNameString
+  | SurchargeProcessor(surchargeProcessor) => surchargeProcessor->getSurchargeProcessorNameString
   | UnknownConnector(str) => str
   }
 }
@@ -1084,6 +1109,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
   switch connectorType {
   | Processor =>
     switch connector {
+    | "absa_sanlam" => Processors(ABSA)
     | "adyen" => Processors(ADYEN)
     | "affirm" => Processors(AFFIRM)
     | "checkout" => Processors(CHECKOUT)
@@ -1195,6 +1221,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "truelayer" => Processors(TRUELAYER)
     | "fiservcommercehub" => Processors(FISERVCOMMERCEHUB)
     | "trustly" => Processors(TRUSTLY)
+    | "imerchantsolutions" => Processors(IMERCHANTSOLUTIONS)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1257,11 +1284,17 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "vgs" => VaultProcessor(VGS)
     | _ => UnknownConnector("Not known")
     }
+  | SurchargeProcessor =>
+    switch connector {
+    | "interpayments" => SurchargeProcessor(INTERPAYMENTS)
+    | _ => UnknownConnector("Not known")
+    }
   }
 }
 
 let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   switch connector {
+  | ABSA => absaInfo
   | STRIPE => stripeInfo
   | ADYEN => adyenInfo
   | AFFIRM => affirmInfo
@@ -1373,6 +1406,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | TRUELAYER => truelayerInfo
   | FISERVCOMMERCEHUB => fiservcommercehubInfo
   | TRUSTLY => trustlyInfo
+  | IMERCHANTSOLUTIONS => imerchantsolutionsInfo
   }
 }
 
@@ -1442,6 +1476,12 @@ let getVaultProcessorInfo = (vaultProcessor: ConnectorTypes.vaultProcessorTypes)
   }
 }
 
+let getSurchargeProcessorInfo = (surchargeProcessor: ConnectorTypes.surchargeProcessorTypes) => {
+  switch surchargeProcessor {
+  | INTERPAYMENTS => interPaymentsInfo
+  }
+}
+
 let getConnectorInfo = connector => {
   switch connector {
   | Processors(connector) => connector->getProcessorInfo
@@ -1453,6 +1493,7 @@ let getConnectorInfo = connector => {
   | TaxProcessor(taxProcessor) => taxProcessor->getTaxProcessorInfo
   | BillingProcessor(billingProcessor) => billingProcessor->getBillingProcessorInfo
   | VaultProcessor(vaultProcessor) => vaultProcessor->getVaultProcessorInfo
+  | SurchargeProcessor(surchargeProcessor) => surchargeProcessor->getSurchargeProcessorInfo
   | UnknownConnector(_) => unknownConnectorInfo
   }
 }
@@ -1571,6 +1612,7 @@ let getConnectorType = (connector: ConnectorTypes.connectorTypes) => {
   | FRM(_) => "payment_vas"
   | BillingProcessor(_) => "billing_processor"
   | VaultProcessor(_) => "vault_processor"
+  | SurchargeProcessor(_) => "surcharge_processor"
   | UnknownConnector(str) => str
   }
 }
@@ -1718,7 +1760,6 @@ let generateInitialValuesDict = (
   | _ => JSON.Encode.null
   }
   dict->Dict.set("connector_webhook_details", connectorWebhookDict)
-
   dict->JSON.Encode.object
 }
 
@@ -2256,6 +2297,7 @@ let getConnectorPaymentMethodDetails = async (
 
 let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   switch connector {
+  | ABSA => "Absa"
   | ADYEN => "Adyen"
   | AFFIRM => "Affirm"
   | CHECKOUT => "Checkout"
@@ -2367,6 +2409,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | TRUELAYER => "Truelayer"
   | FISERVCOMMERCEHUB => "Fiserv Commerce Hub"
   | TRUSTLY => "Trustly"
+  | IMERCHANTSOLUTIONS => "iMerchant Solutions"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2433,6 +2476,12 @@ let getDisplayNameForVaultProcessor = vaultProcessor => {
   }
 }
 
+let getDisplayNameForSurchargeProcessor = surchargeProcessor => {
+  switch surchargeProcessor {
+  | INTERPAYMENTS => "InterPayments"
+  }
+}
+
 let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, connector) => {
   let connectorType = connector->String.toLowerCase->getConnectorNameTypeFromString(~connectorType)
   switch connectorType {
@@ -2446,6 +2495,8 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
   | TaxProcessor(taxProcessor) => taxProcessor->getDisplayNameForTaxProcessor
   | BillingProcessor(billingProcessor) => billingProcessor->getDisplayNameForBillingProcessor
   | VaultProcessor(vaultProcessor) => vaultProcessor->getDisplayNameForVaultProcessor
+  | SurchargeProcessor(surchargeProcessor) =>
+    surchargeProcessor->getDisplayNameForSurchargeProcessor
   | UnknownConnector(str) => str
   }
 }
@@ -2481,6 +2532,7 @@ let connectorTypeTuple = connectorType => {
   | "tax_processor" => (TaxProcessor, TaxProcessor)
   | "billing_processor" => (BillingProcessor, BillingProcessor)
   | "vault_processor" => (VaultProcessor, VaultProcessor)
+  | "surcharge_processor" => (SurchargeProcessor, SurchargeProcessor)
   | _ => (PaymentProcessor, Processor)
   }
 }
@@ -2494,6 +2546,7 @@ let connectorTypeStringToTypeMapper = connector_type => {
   | "tax_processor" => TaxProcessor
   | "billing_processor" => BillingProcessor
   | "vault_processor" => VaultProcessor
+  | "surcharge_processor" => SurchargeProcessor
   | "payment_processor"
   | _ =>
     PaymentProcessor
@@ -2510,6 +2563,7 @@ let connectorTypeTypedValueToStringMapper = val => {
   | PaymentProcessor => "payment_processor"
   | BillingProcessor => "billing_processor"
   | VaultProcessor => "vault_processor"
+  | SurchargeProcessor => "surcharge_processor"
   }
 }
 
@@ -2530,8 +2584,8 @@ let existsInArray = (element, connectorList) => {
 // Need to refactor
 
 let updateMetaData = (~metaData) => {
-  let apple_pay_combined = metaData->getDictFromJsonObject->getDictfromDict("apple_pay_combined")
-  let manual = apple_pay_combined->getDictfromDict("manual")
+  let applePayCombined = metaData->getDictFromJsonObject->getDictfromDict("apple_pay_combined")
+  let manual = applePayCombined->getDictfromDict("manual")
   switch manual->Dict.keysToArray->Array.length > 0 {
   | true => {
       let applepay =
@@ -2574,7 +2628,8 @@ let checkIfPredecryptFlowEnabledForApplePay = connector => {
   | Processors(CHECKOUT)
   | Processors(WORLDPAYVANTIV)
   | Processors(NMI)
-  | Processors(STRIPE) => true
+  | Processors(STRIPE)
+  | Processors(WORLDPAYXML) => true
   | _ => false
   }
 }
@@ -2589,4 +2644,16 @@ let checkIfPredecryptFlowEnabledForGooglePay = connector => {
   | Processors(STRIPE) => true
   | _ => false
   }
+}
+
+let threeDsMetadataFieldDefaults: array<(string, JSON.t)> = [
+  ("pull_mechanism_for_external_3ds_enabled", true->JSON.Encode.bool),
+]
+
+let getStaticDefaultValuesForThreeDs = (initialValuesDict: dict<JSON.t>) => {
+  initialValuesDict->Dict.set(
+    "metadata",
+    Dict.fromArray(threeDsMetadataFieldDefaults)->JSON.Encode.object,
+  )
+  initialValuesDict->JSON.Encode.object
 }

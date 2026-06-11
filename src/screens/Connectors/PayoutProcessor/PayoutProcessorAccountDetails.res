@@ -23,7 +23,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
 
   let connectorDetails = React.useMemo(() => {
     try {

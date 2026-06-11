@@ -21,14 +21,21 @@ module TransactionViewCard = {
 @react.component
 let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version=V1) => {
   open APIUtils
+  open APIUtilsTypes
   open LogicUtils
   open TransactionViewUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+  let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
+  let {getResolvedUserInfo} = React.useContext(UserInfoProvider.defaultContext)
+  let {transactionEntity} = getResolvedUserInfo()
   let {updateExistingKeys, filterValueJson, filterKeys, setfilterKeys} =
     FilterContext.filterContext->React.useContext
-  let (countRes, setCountRes) = React.useState(_ => Dict.make()->JSON.Encode.object)
+  let {devClickhouseAggregate} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let (aggregateResponse, setAggregateResponse) = React.useState(_ =>
+    Dict.make()->JSON.Encode.object
+  )
   let (activeView: TransactionViewTypes.viewTypes, setActiveView) = React.useState(_ =>
     TransactionViewTypes.All
   )
@@ -36,12 +43,11 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   let customFilterKey = getCustomFilterKey(entity)
 
   let updateViewsFilterValue = (view: TransactionViewTypes.viewTypes) => {
-    let customFilter = `[${view->getViewsString(countRes, entity)}]`
+    let customFilter = `[${view->getViewFilterValue(aggregateResponse, entity)}]`
     updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
 
     if !(filterKeys->Array.includes(customFilterKey)) {
-      filterKeys->Array.push(customFilterKey)
-      setfilterKeys(_ => filterKeys)
+      setfilterKeys(prev => prev->Array.concat([customFilterKey]))
     }
   }
 
@@ -50,59 +56,74 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
     updateViewsFilterValue(view)
   }
 
-  let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
-  let startTime =
-    filterValueJson->getString(OrderUIUtils.startTimeFilterKey(version), defaultDate.start_time)
-  let endTime =
-    filterValueJson->getString(OrderUIUtils.endTimeFilterKey(version), defaultDate.end_time)
+  let (startTime, endTime) = React.useMemo(() => {
+    getStartAndEndTime(filterValueJson, version)
+  }, (filterValueJson, version))
 
-  let getAggregate = async () => {
+  let loadAggregateCounts = async () => {
     try {
-      let url = switch entity {
-      | Orders =>
-        getURL(
-          ~entityName={
-            switch version {
-            | V1 => V1(ORDERS_AGGREGATE)
-            | V2 => V2(V2_ORDERS_AGGREGATE)
-            }
-          },
-          ~methodType=Get,
-          ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
+      switch (devClickhouseAggregate, getClickhouseAggregateMetric(entity)) {
+      | (true, Some(metricConfig)) =>
+        let url = buildAggregateMetricsUrl(~metricConfig, ~transactionEntity)
+        let body = buildAggregateMetricsBody(
+          ~startTime,
+          ~endTime,
+          ~metric=metricConfig.metric,
+          ~groupByField=metricConfig.groupByField,
         )
-      | Refunds =>
-        getURL(
-          ~entityName=V1(REFUNDS_AGGREGATE),
-          ~methodType=Get,
-          ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
+        let response = await updateDetails(url, body, Post)
+        setAggregateResponse(_ =>
+          response->metricsResponseToStatusWithCount(
+            ~statusField=metricConfig.statusField,
+            ~countField=metricConfig.countField,
+          )
         )
-      | Disputes =>
-        getURL(
-          ~entityName=V1(DISPUTES_AGGREGATE),
-          ~methodType=Get,
-          ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
-        )
-      | Payouts =>
-        getURL(
-          ~entityName=V1(PAYOUTS_AGGREGATE),
-          ~methodType=Get,
-          ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
-        )
+      | _ =>
+        let url = switch entity {
+        | Orders =>
+          getURL(
+            ~entityName={
+              switch version {
+              | V1 => V1(ORDERS_AGGREGATE)
+              | V2 => V2(V2_ORDERS_AGGREGATE)
+              }
+            },
+            ~methodType=Get,
+            ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
+          )
+        | Refunds =>
+          getURL(
+            ~entityName=V1(REFUNDS_AGGREGATE),
+            ~methodType=Get,
+            ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
+          )
+        | Disputes =>
+          getURL(
+            ~entityName=V1(DISPUTES_AGGREGATE),
+            ~methodType=Get,
+            ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
+          )
+        | Payouts =>
+          getURL(
+            ~entityName=V1(PAYOUTS_AGGREGATE),
+            ~methodType=Get,
+            ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
+          )
+        }
+        let response = await fetchDetails(url)
+        setAggregateResponse(_ => response)
       }
-
-      let response = await fetchDetails(url)
-      setCountRes(_ => response)
     } catch {
     | _ => showToast(~toastType=ToastError, ~message="Failed to fetch views count", ~autoClose=true)
     }
   }
 
-  let settingActiveView = () => {
+  let syncActiveViewFromFilter = () => {
     let appliedStatusFilter = filterValueJson->getArrayFromDict(customFilterKey, [])
 
-    let setViewToAll =
+    let isAllViewSelected =
       appliedStatusFilter->getStrArrayFromJsonArray->Array.toSorted(compareLogic) ==
-        countRes
+        aggregateResponse
         ->getDictFromJsonObject
         ->getDictfromDict("status_with_count")
         ->Dict.keysToArray
@@ -120,7 +141,7 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
       | All => setActiveView(_ => None)
       | _ => setActiveView(_ => viewType)
       }
-    } else if setViewToAll {
+    } else if isAllViewSelected {
       setActiveView(_ => All)
     } else {
       setActiveView(_ => None)
@@ -128,12 +149,14 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   }
 
   React.useEffect(() => {
-    settingActiveView()
+    syncActiveViewFromFilter()
     None
-  }, (filterValueJson, countRes))
+  }, (filterValueJson, aggregateResponse))
 
   React.useEffect(() => {
-    getAggregate()->ignore
+    if startTime->isNonEmptyString && endTime->isNonEmptyString {
+      loadAggregateCounts()->ignore
+    }
     None
   }, (startTime, endTime))
 
@@ -149,7 +172,7 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
     <TransactionViewCard
       key={i->Int.toString}
       view={item}
-      count={getViewCount(item, countRes, entity)->Int.toString}
+      count={getViewCount(item, aggregateResponse, entity)->Int.toString}
       onViewClick
       isActiveView={item == activeView}
     />

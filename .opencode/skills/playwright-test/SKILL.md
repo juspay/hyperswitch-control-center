@@ -53,7 +53,7 @@ await task({
     You are the playwright-planner agent.
     
     Read: .opencode/sessions/playwright-run/input-context.json
-    Use browser tools to explore the app, then create test-plan.json.
+    Use browser tools (Refer for navigation NAVIGATION_REFERENCE.md) to explore the app, then create test-plan.json.
     
     OUTPUT: .opencode/sessions/playwright-run/test-plan.json
   `,
@@ -208,7 +208,7 @@ await browser_click({ element: "Skip now button", ref: "skip-now" });
 
 ## Playwright MCP Browser Tools
 
-All sub-agents (planner, generator, healer) **MUST** use browser tools to explore and verify the application.
+All sub-agents (planner, generator, healer) **MUST** use browser tools to explore and verify the application. Refer for navigation NAVIGATION_REFERENCE.md
 
 ## Browser Tools (All Sub-Agents)
 

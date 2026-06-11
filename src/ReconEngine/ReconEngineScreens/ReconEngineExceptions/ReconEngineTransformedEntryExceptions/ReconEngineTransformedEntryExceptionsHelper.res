@@ -113,7 +113,7 @@ module AccountComboSelectInput = {
       },
     }
 
-    <SelectBox
+    <SelectBoxAdapter
       input
       options=accountsOptions
       buttonText="Select account"

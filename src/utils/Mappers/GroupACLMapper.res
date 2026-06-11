@@ -77,13 +77,6 @@ let mapStringToResourceAccessType = val =>
   | "webhook_event" => WebhookEvent
   | "payout" => Payout
   | "report" => Report
-  | "recon_token" => ReconToken
-  | "recon_files" => ReconFiles
-  | "recon_and_settlement_analytics" => ReconAndSettlementAnalytics
-  | "recon_upload" => ReconUpload
-  | "recon_reports" => ReconReports
-  | "run_recon" => RunRecon
-  | "recon_config" => ReconConfig
   | "theme" => Theme
   | "recon_ingestion" => ReconIngestion
   | "recon_transformation" => ReconTransformation

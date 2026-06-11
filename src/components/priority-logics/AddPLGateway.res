@@ -159,7 +159,7 @@ let make = (
       <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
         <div className="flex flex-wrap gap-4">
           <div className="flex">
-            <SelectBox.BaseDropdown
+            <SelectBoxAdapter.BaseDropdown
               allowMultiSelect=true
               buttonText=dropDownButtonText
               buttonType=Button.SecondaryFilled

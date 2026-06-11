@@ -15,7 +15,7 @@ let make = (
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let businessProfileValues =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (profile, setProfile) = React.useState(_ => profileId)
   let (initialValues, setInitialValues) = React.useState(_ => initialValues)
@@ -276,8 +276,7 @@ let make = (
                 setProfile={setProfile}
                 profile={profile}
                 options={MerchantAccountUtils.businessProfileNameDropDownOption(
-                  [businessProfileValues],
-                  ~profileId,
+                  businessProfileValues,
                 )}
                 label="Profile"
               />
@@ -341,7 +340,6 @@ let make = (
                   buttonSize=Button.Small
                   buttonType=Button.Secondary
                   customSubmitButtonStyle="w-1/5 rounded-lg"
-                  tooltipWidthClass="w-48"
                 />}
                 showCancelButton=false
                 submitButton={<RoutingUtils.SaveAndActivateButton

@@ -1,6 +1,7 @@
 open ReconEngineRulesTypes
 open Typography
 open ReconEngineRulesUtils
+open LogicUtils
 let labelCss = `block ${body.md.medium} text-nd_gray-700 mb-2`
 
 module FieldDisplay = {
@@ -66,83 +67,101 @@ module SearchIdentifier = {
               {search_identifier, source_account_name, target_account_name},
               index,
             ) => {
-              let identifier = search_identifier
-              let sourceFieldInput = createFormInput(
-                ~name=`search_source_field_${index->Int.toString}`,
-                ~value=identifier.source_field,
-              )
-              let targetFieldInput = createFormInput(
-                ~name=`search_target_field_${index->Int.toString}`,
-                ~value=identifier.target_field,
-              )
-
-              let sourceFieldOptions = [
-                createDropdownOption(
-                  ~label=getFieldDisplayName(identifier.source_field),
-                  ~value=identifier.source_field,
-                ),
-              ]
-              let targetFieldOptions = [
-                createDropdownOption(
-                  ~label=getFieldDisplayName(identifier.target_field),
-                  ~value=identifier.target_field,
-                ),
-              ]
+              let searchKeys = getSearchKeys(search_identifier)
+              let delimiter = getSearchDelimiter(search_identifier)
 
               <div key={index->Int.toString} className="flex flex-col gap-3">
-                <div className="flex items-center gap-10">
-                  <div className="flex-1 max-w-325">
-                    <label className=labelCss> {source_account_name->React.string} </label>
-                    <SelectBox.BaseDropdown
-                      allowMultiSelect=false
-                      buttonText={getFieldDisplayName(identifier.source_field)}
-                      input=sourceFieldInput
-                      options=sourceFieldOptions
-                      hideMultiSelectButtons=true
-                      deselectDisable=true
-                      disableSelect=true
-                      fullLength=true
-                      customButtonStyle="w-147-px h-10"
-                    />
+                <RenderIf condition={searchKeys->Array.length > 1}>
+                  <div className="flex items-center gap-2">
+                    <p className={`${body.md.regular} text-nd_gray-600`}>
+                      {"Delimiter:"->React.string}
+                    </p>
+                    <span
+                      className={`px-2 py-0.5 ${body.sm.semibold} rounded-md bg-nd_gray-50 border border-nd_gray-200 text-nd_gray-700`}>
+                      {delimiter->getCompositeDelimiterDisplayName->React.string}
+                    </span>
                   </div>
-                  <div className="flex items-center mt-6">
-                    <Icon name="nd-arrow-right" size=16 className="text-nd_gray-500" />
+                </RenderIf>
+                {searchKeys
+                ->Array.mapWithIndex((searchKey, keyIndex) => {
+                  let sourceFieldInput = createFormInput(
+                    ~name=`search_source_field_${index->Int.toString}_${keyIndex->Int.toString}`,
+                    ~value=searchKey.source_field,
+                  )
+                  let targetFieldInput = createFormInput(
+                    ~name=`search_target_field_${index->Int.toString}_${keyIndex->Int.toString}`,
+                    ~value=searchKey.target_field,
+                  )
+
+                  let sourceFieldOptions = [
+                    createDropdownOption(
+                      ~label=getFieldDisplayName(searchKey.source_field),
+                      ~value=searchKey.source_field,
+                    ),
+                  ]
+                  let targetFieldOptions = [
+                    createDropdownOption(
+                      ~label=getFieldDisplayName(searchKey.target_field),
+                      ~value=searchKey.target_field,
+                    ),
+                  ]
+
+                  <div key={keyIndex->Int.toString} className="flex items-center gap-10">
+                    <div className="flex-1 max-w-325">
+                      <label className=labelCss> {source_account_name->React.string} </label>
+                      <SelectBoxAdapter.BaseDropdown
+                        allowMultiSelect=false
+                        buttonText={getFieldDisplayName(searchKey.source_field)}
+                        input=sourceFieldInput
+                        options=sourceFieldOptions
+                        hideMultiSelectButtons=true
+                        deselectDisable=true
+                        disableSelect=true
+                        fullLength=true
+                        customButtonStyle="w-147-px h-10"
+                      />
+                    </div>
+                    <div className="flex items-center mt-6">
+                      <Icon name="nd-arrow-right" size=16 className="text-nd_gray-500" />
+                    </div>
+                    <div className="flex-1 max-w-325">
+                      <label className=labelCss> {target_account_name->React.string} </label>
+                      <SelectBoxAdapter.BaseDropdown
+                        allowMultiSelect=false
+                        buttonText={getFieldDisplayName(searchKey.target_field)}
+                        input=targetFieldInput
+                        options=targetFieldOptions
+                        hideMultiSelectButtons=true
+                        deselectDisable=true
+                        disableSelect=true
+                        fullLength=true
+                        customButtonStyle="w-147-px h-10"
+                      />
+                    </div>
                   </div>
-                  <div className="flex-1 max-w-325">
-                    <label className=labelCss> {target_account_name->React.string} </label>
-                    <SelectBox.BaseDropdown
-                      allowMultiSelect=false
-                      buttonText={getFieldDisplayName(identifier.target_field)}
-                      input=targetFieldInput
-                      options=targetFieldOptions
-                      hideMultiSelectButtons=true
-                      deselectDisable=true
-                      disableSelect=true
-                      fullLength=true
-                      customButtonStyle="w-147-px h-10"
-                    />
-                  </div>
-                </div>
+                })
+                ->React.array}
               </div>
             })
             ->React.array}
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-10">
-                  <div className="flex-1 max-w-325">
-                    <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-1`}>
-                      {"This value identifies the record on the source side"->React.string}
-                    </p>
-                  </div>
-                  <div className="flex items-center" />
-                  <div className="flex-1 max-w-325">
-                    <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-5`}>
-                      {"We match this value with the source field"->React.string}
-                    </p>
-                  </div>
+            <RenderIf
+              condition={searchIdentifiersWithAccounts->Array.some(item =>
+                item.search_identifier->getSearchKeys->isNonEmptyArray
+              )}>
+              <div className="flex items-center gap-10">
+                <div className="flex-1 max-w-325">
+                  <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-1`}>
+                    {"This value identifies the record on the source side"->React.string}
+                  </p>
+                </div>
+                <div className="flex items-center" />
+                <div className="flex-1 max-w-325">
+                  <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-5`}>
+                    {"We match this value with the source field"->React.string}
+                  </p>
                 </div>
               </div>
-            </div>
+            </RenderIf>
           </>}
         </RenderIf>
         <RenderIf condition={searchIdentifiersWithAccounts->Array.length === 0}>
@@ -201,11 +220,11 @@ module MappingRules = {
                       ~value=mapping.target_field,
                     ),
                   ]
-                  <div className="flex flex-col gap-4" key={LogicUtils.randomString(~length=10)}>
+                  <div className="flex flex-col gap-4" key={randomString(~length=10)}>
                     <div className="flex items-center gap-10">
                       <div className="flex-1 max-w-325">
                         <label className=labelCss> {source_account_name->React.string} </label>
-                        <SelectBox.BaseDropdown
+                        <SelectBoxAdapter.BaseDropdown
                           allowMultiSelect=false
                           buttonText={getFieldDisplayName(mapping.source_field)}
                           input=sourceFieldInput
@@ -222,7 +241,7 @@ module MappingRules = {
                       </div>
                       <div className="flex-1 max-w-325">
                         <label className=labelCss> {target_account_name->React.string} </label>
-                        <SelectBox.BaseDropdown
+                        <SelectBoxAdapter.BaseDropdown
                           allowMultiSelect=false
                           buttonText={getFieldDisplayName(mapping.target_field)}
                           input=targetFieldInput
@@ -248,10 +267,7 @@ module MappingRules = {
           })
           ->React.array}
           <RenderIf
-            condition={allMappingRules
-            ->Array.map(rules => rules.match_rules)
-            ->Array.flat
-            ->Array.length > 0}>
+            condition={allMappingRules->Array.some(rules => rules.match_rules->isNonEmptyArray)}>
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-10">
@@ -289,52 +305,65 @@ module TriggerRules = {
     let fieldOptions = getFieldOptions()
 
     let triggerData = getTriggerData(rule.strategy)
-
-    let triggerField = triggerData->Option.map(trigger => trigger.field)->Option.getOr("")
-    let triggerOperator =
-      triggerData->Option.map(trigger => trigger.operator.value)->Option.getOr("")
-    let triggerValue = triggerData->Option.map(trigger => trigger.value)->Option.getOr("")
-
-    let fieldInput = createFormInput(~name="trigger_field", ~value=triggerField)
-    let operatorInput = createFormInput(~name="trigger_operator", ~value=triggerOperator)
-    let valueInput = createFormInput(~name="trigger_value", ~value=triggerValue)
+    let conditions = triggerData->mapOptionOrDefault([], getTriggerConditions)
+    let logic = triggerData->mapOptionOrDefault(UnknownTriggerLogic, getTriggerLogic)
 
     <div className="flex flex-col gap-2">
       <p className={`${body.md.medium} text-nd_gray-700`}> {"Filters"->React.string} </p>
-      <div className="flex flex-row gap-4">
-        <div className="flex-1 flex flex-col gap-2 max-w-325">
-          <SelectBox.BaseDropdown
-            allowMultiSelect=false
-            buttonText={getFieldDisplayName(triggerField)}
-            input=fieldInput
-            options=fieldOptions
-            hideMultiSelectButtons=true
-            deselectDisable=true
-            disableSelect=true
-            fullLength=true
-            customButtonStyle="w-147-px h-10"
-          />
-        </div>
-        <SelectBox.BaseDropdown
-          allowMultiSelect=false
-          buttonText={operatorOptions
-          ->Array.find(opt => opt.value === triggerOperator)
-          ->Option.mapOr("Select Operator", opt => opt.label)}
-          input=operatorInput
-          options=operatorOptions
-          hideMultiSelectButtons=true
-          deselectDisable=true
-          disableSelect=true
-          customButtonStyle="w-16 h-10"
-        />
-        <div className="flex-1 flex flex-col gap-2 max-w-325">
-          {InputFields.textInput(
-            ~isDisabled=true,
-            ~inputStyle="rounded-lg",
-            ~customDashboardClass="h-10 text-sm font-normal",
-            ~onDisabledStyle=`!bg-nd_gray-50 border-nd_gray-200 !text-nd_gray-500 ${body.md.semibold}`,
-          )(~input=valueInput, ~placeholder="Enter trigger value")}
-        </div>
+      <div className="flex items-center gap-2">
+        <p className={`${body.md.regular} text-nd_gray-600`}> {"Logic Type:"->React.string} </p>
+        <span
+          className={`px-2 py-0.5 ${body.sm.semibold} rounded-md bg-nd_gray-50 border border-nd_gray-200 text-nd_gray-700 uppercase`}>
+          {(logic :> string)->React.string}
+        </span>
+      </div>
+      <div className="flex flex-col gap-3">
+        {conditions
+        ->Array.mapWithIndex((condition, idx) => {
+          let key = idx->Int.toString
+          let fieldInput = createFormInput(~name=`trigger_field_${key}`, ~value=condition.field)
+          let operatorInput = createFormInput(
+            ~name=`trigger_operator_${key}`,
+            ~value=condition.operator.value,
+          )
+          let valueInput = createFormInput(~name=`trigger_value_${key}`, ~value=condition.value)
+          <div key className="flex flex-row gap-4">
+            <div className="flex-1 flex flex-col gap-2 max-w-325">
+              <SelectBoxAdapter.BaseDropdown
+                allowMultiSelect=false
+                buttonText={getFieldDisplayName(condition.field)}
+                input=fieldInput
+                options=fieldOptions
+                hideMultiSelectButtons=true
+                deselectDisable=true
+                disableSelect=true
+                fullLength=true
+                customButtonStyle="w-147-px h-10"
+              />
+            </div>
+            <SelectBoxAdapter.BaseDropdown
+              allowMultiSelect=false
+              buttonText={operatorOptions
+              ->Array.find(opt => opt.value === condition.operator.value)
+              ->Option.mapOr("Select Operator", opt => opt.label)}
+              input=operatorInput
+              options=operatorOptions
+              hideMultiSelectButtons=true
+              deselectDisable=true
+              disableSelect=true
+              customButtonStyle="w-16 h-10"
+            />
+            <div className="flex-1 flex flex-col gap-2 max-w-325">
+              {InputFields.textInput(
+                ~isDisabled=true,
+                ~inputStyle="rounded-lg",
+                ~customDashboardClass="h-10 text-sm font-normal",
+                ~onDisabledStyle=`!bg-nd_gray-50 border-nd_gray-200 !text-nd_gray-500 ${body.md.semibold}`,
+              )(~input=valueInput, ~placeholder="Enter trigger value")}
+            </div>
+          </div>
+        })
+        ->React.array}
       </div>
       <p className={`${body.md.regular} text-nd_gray-500 ml-1 mb-1`}>
         {"Only records with these matching filters will create expectations"->React.string}
@@ -346,23 +375,52 @@ module TriggerRules = {
 module GroupingField = {
   @react.component
   let make = (~rule: rulePayload) => {
-    let groupingField = getGroupingField(rule.strategy)
+    let groupingData = getGroupingField(rule.strategy)
+    let groupingFields = groupingData->mapOptionOrDefault([], getGroupingFields)
+    let delimiter =
+      groupingData->mapOptionOrDefault(UnknownCompositeDelimiter, getGroupingDelimiter)
 
-    let groupingFieldInput = createFormInput(
-      ~name="grouping_field",
-      ~value=groupingField->Option.getOr(""),
-    )
-
-    <RenderIf condition={groupingField->Option.isSome}>
+    <RenderIf condition={groupingData->Option.isSome}>
       <div className="flex flex-col gap-2">
-        <p className={`${body.md.medium} text-nd_gray-700`}> {"Grouping Field"->React.string} </p>
-        <div className="flex flex-col gap-2 max-w-325">
-          {InputFields.textInput(
-            ~isDisabled=true,
-            ~inputStyle="rounded-lg",
-            ~customDashboardClass="h-10 text-sm font-normal",
-            ~onDisabledStyle=`!bg-nd_gray-50 border-nd_gray-200 !text-nd_gray-500 ${body.md.semibold}`,
-          )(~input=groupingFieldInput, ~placeholder="Enter grouping field")}
+        <p className={`${body.md.medium} text-nd_gray-700`}> {"Grouping Fields"->React.string} </p>
+        <RenderIf condition={groupingFields->Array.length > 1}>
+          <div className="flex items-center gap-2">
+            <p className={`${body.md.regular} text-nd_gray-600`}> {"Delimiter:"->React.string} </p>
+            <span
+              className={`px-2 py-0.5 ${body.sm.semibold} rounded-md bg-nd_gray-50 border border-nd_gray-200 text-nd_gray-700`}>
+              {delimiter->getCompositeDelimiterDisplayName->React.string}
+            </span>
+          </div>
+        </RenderIf>
+        <div className="flex flex-col gap-3">
+          {groupingFields
+          ->Array.mapWithIndex((grouping_field, idx) => {
+            let key = idx->Int.toString
+            let groupingFieldInput = createFormInput(
+              ~name=`grouping_field_${key}`,
+              ~value=grouping_field,
+            )
+            let groupingFieldOptions = [
+              createDropdownOption(
+                ~label=getFieldDisplayName(grouping_field),
+                ~value=grouping_field,
+              ),
+            ]
+            <div key className="max-w-325">
+              <SelectBoxAdapter.BaseDropdown
+                allowMultiSelect=false
+                buttonText={getFieldDisplayName(grouping_field)}
+                input=groupingFieldInput
+                options=groupingFieldOptions
+                hideMultiSelectButtons=true
+                deselectDisable=true
+                disableSelect=true
+                fullLength=true
+                customButtonStyle="w-147-px h-10"
+              />
+            </div>
+          })
+          ->React.array}
         </div>
         <p className={`${body.md.regular} text-nd_gray-500 ml-1 mb-1`}>
           {"Transactions with the same value in this field will be grouped together during reconciliation"->React.string}
@@ -375,8 +433,6 @@ module GroupingField = {
 module SourceTargetAccount = {
   @react.component
   let make = (~rule: rulePayload, ~accountData: array<ReconEngineTypes.accountType>) => {
-    open LogicUtils
-
     let getAccountName = (accountId: string): string => {
       accountData
       ->Array.find(account => account.account_id === accountId)
@@ -404,7 +460,7 @@ module SourceTargetAccount = {
       <div className="flex items-center gap-10">
         <div className="flex-1 max-w-325">
           <label className=labelCss> {"Source Account"->React.string} </label>
-          <SelectBox.BaseDropdown
+          <SelectBoxAdapter.BaseDropdown
             allowMultiSelect=false
             buttonText={getAccountName(sourceAccountId)}
             input=sourceAccountInput
@@ -441,7 +497,7 @@ module SourceTargetAccount = {
               | _ => ""
               }
               <div key={index->Int.toString} className="flex flex-col">
-                <SelectBox.BaseDropdown
+                <SelectBoxAdapter.BaseDropdown
                   allowMultiSelect=false
                   buttonText={getAccountName(targetInfo.account_id)}
                   input=targetInput
@@ -509,10 +565,7 @@ module RuleDetailsContent = {
   let make = (~rule: rulePayload) => {
     let fields = [
       ("Rule Name", rule.rule_name),
-      (
-        "Description",
-        rule.rule_description->LogicUtils.isNonEmptyString ? rule.rule_description : "NA",
-      ),
+      ("Description", rule.rule_description->isNonEmptyString ? rule.rule_description : "NA"),
       ("Aging Threshold", getReconAgingConfigDisplayName(rule.aging_config)),
     ]
 
@@ -521,7 +574,7 @@ module RuleDetailsContent = {
         <div className="grid md:grid-cols-3 gap-6">
           {fields
           ->Array.map(((label, value)) => {
-            <FieldDisplay key={LogicUtils.randomString(~length=10)} label={label} value={value} />
+            <FieldDisplay key={randomString(~length=10)} label={label} value={value} />
           })
           ->React.array}
           <RuleIDCopy.make ruleId={rule.rule_id} />
@@ -536,7 +589,6 @@ module RuleDetailsContent = {
 @react.component
 let make = (~id) => {
   open APIUtils
-  open LogicUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()

@@ -5,42 +5,109 @@ permissions:
 on:
   pull_request:
   merge_group:
+  workflow_dispatch:
+    inputs:
+      shard:
+        description: "Shard to run: 'all' or one of 1, 2, 3, 4"
+        default: "all"
+        type: choice
+        options:
+          - all
+          - "1"
+          - "2"
+          - "3"
+          - "4"
+
+concurrency:
+  group: playwright-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  playwright-tests:
+  setup:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 1
-
-      - name: Clear Docker cache
-        run: docker builder prune -af
-
-      - name: Execute Shell Script
-        run: |
-          chmod +x playwright-tests/start_hyperswitch.sh
-          sh playwright-tests/start_hyperswitch.sh
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 24
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install --force
-
-      - name: Install Playwright Browsers
-        # Installing only Chrome (Chromium) for now
-        # To add other browsers later:
-        #   - Multiple: npx playwright install chromium firefox webkit --with-deps
-        #   - Available: chromium, chrome, chrome-beta, msedge, msedge-beta, msedge-dev, firefox, webkit
-        run: npx playwright install chromium --with-deps
+        run: npm ci
 
       - name: Build application
         run: npm run build:test
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-dist
+          path: dist/
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
+
+      - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium --with-deps
+
+  playwright-tests:
+    needs: setup
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ (github.event_name == 'workflow_dispatch' && inputs.shard != 'all') && fromJSON(format('[{0}]', inputs.shard)) || fromJSON('[1, 2, 3, 4]') }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Start backend services
+        run: |
+          chmod +x playwright-tests/start_hyperswitch.sh
+          ./playwright-tests/start_hyperswitch.sh
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-dist
+          path: dist/
+
+      - name: Restore Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
+
+      - name: Install Playwright browsers (fallback on cache miss)
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium --with-deps
 
       - name: Health check for Backend
         run: |
@@ -49,9 +116,10 @@ jobs:
           echo "Response:"
           echo "$response"
 
-      - name: Run Playwright tests
-        run: npx playwright test
+      - name: Run Playwright tests (Shard ${{ matrix.shard }}/4)
+        run: npx playwright test --shard=${{ matrix.shard }}/4
         env:
+          PW_COVERAGE: "1"
           PLAYWRIGHT_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           PLAYWRIGHT_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
           PLAYWRIGHT_SSO_BASE_URL: ${{ secrets.CYPRESS_SSO_BASE_URL }}
@@ -60,28 +128,180 @@ jobs:
           PLAYWRIGHT_SSO_USERNAME: ${{ secrets.CYPRESS_SSO_USERNAME }}
           PLAYWRIGHT_SSO_PASSWORD: ${{ secrets.CYPRESS_SSO_PASSWORD }}
 
-      - name: Publish Test Summary Results
-        uses: ctrf-io/github-test-reporter@v1
+      - name: Stage shard CTRF report
+        if: always()
+        run: |
+          src=$(ls ctrf/*.json 2>/dev/null | head -1 || true)
+          if [ -z "$src" ]; then
+            echo "No CTRF report found for shard ${{ matrix.shard }}."
+            exit 0
+          fi
+          # Renamed with the shard number so the merge job can attribute
+          # each failed/flaky test to the shard it ran in (re-runnable via
+          # the workflow_dispatch shard input).
+          cp "$src" "ctrf-shard-${{ matrix.shard }}.json"
+
+      - name: Artifact - Shard CTRF report
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          report-path: "./ctrf/*.json"
-          github-report: true
+          name: playwright-ctrf-shard-${{ matrix.shard }}
+          path: ctrf-shard-${{ matrix.shard }}.json
+          if-no-files-found: warn
+          retention-days: 1
 
-      - name: Artifact - Failed Test Results Only
+      - name: Artifact - Failed Test Artifacts
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: playwright-failures
+          name: playwright-artifacts-shard-${{ matrix.shard }}
           path: |
             test-results/**/*-failed-*
             test-results/**/*-retry*/
+            playwright-report/
           if-no-files-found: ignore
           retention-days: 7
 
-      - name: Artifact - Playwright HTML Report
+      - name: Merge shard Istanbul coverage
+        if: always()
+        run: |
+          if [ -z "$(ls -A .nyc_output 2>/dev/null)" ]; then
+            echo "No coverage data in .nyc_output for shard ${{ matrix.shard }}; skipping."
+            exit 0
+          fi
+          # nyc merge sums Istanbul counters from every per-test file into a
+          # single compact file — cheap (no V8 reprocessing, no source maps).
+          npx nyc merge .nyc_output "coverage-shard-${{ matrix.shard }}.json"
+          echo "Merged $(ls .nyc_output | wc -l) per-test file(s) for shard ${{ matrix.shard }}."
+
+      - name: Artifact - Playwright Coverage Report
         uses: actions/upload-artifact@v4
-        if: failure()
+        if: always()
         with:
-          name: playwright-report
-          path: playwright-report/
+          name: playwright-coverage-shard-${{ matrix.shard }}
+          path: coverage-shard-${{ matrix.shard }}.json
+          if-no-files-found: warn
+          retention-days: 1
+
+  merge-reports:
+    needs: playwright-tests
+    runs-on: ubuntu-latest
+    if: always()
+    permissions:
+      contents: read
+      actions: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download all shard CTRF reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: playwright-ctrf-shard-*
+          path: ctrf-shards/
+
+      - name: Publish merged test results to job summary
+        if: always()
+        run: |
+          node .github/scripts/ctrf-merge-summary.mjs \
+            ctrf-shards merged-ctrf/ctrf-report.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Artifact - Merged CTRF report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-ctrf-merged
+          path: merged-ctrf/
+          if-no-files-found: warn
           retention-days: 7
+
+      - name: Download all shard coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: playwright-coverage-shard-*
+          path: coverage-shards/
+
+      - name: Collect per-shard Istanbul data
+        run: |
+          mkdir -p .nyc_output
+          count=0
+          while IFS= read -r -d '' f; do
+            cp "$f" ".nyc_output/shard-${count}.json"
+            count=$((count + 1))
+          done < <(find coverage-shards -type f -name 'coverage-shard-*.json' -print0)
+          echo "Collected ${count} shard coverage file(s)."
+          if [ "$count" -eq 0 ]; then
+            echo "::warning::No shard coverage data found; merged report will be empty."
+          fi
+
+      - name: Regenerate ReScript sources for annotated HTML report
+        if: always()
+        run: |
+          if [ -z "$(ls -A .nyc_output 2>/dev/null)" ]; then
+            echo "No coverage data; skipping ReScript rebuild."
+            exit 0
+          fi
+          # The Istanbul HTML report annotates source files at the absolute
+          # paths baked into the coverage data (…/src/**/*.res.js). Those
+          # compiled files are gitignored, so regenerate them here. ReScript
+          # output is deterministic for a given commit + version, so the line
+          # numbers match the coverage data captured during the test run.
+          npm run re:build
+
+      - name: Generate merged coverage report
+        run: |
+          if [ -z "$(ls -A .nyc_output 2>/dev/null)" ]; then
+            echo "Skipping nyc — .nyc_output is empty."
+            exit 0
+          fi
+          # nyc report merges the per-shard Istanbul counters (integer
+          # addition) and renders the reports. No raw V8, no source maps,
+          # no big heap — this cannot OOM the way `mcr merge` did.
+          mkdir -p coverage-report-merged
+          npx nyc report \
+            --temp-dir .nyc_output \
+            --report-dir coverage-report-merged \
+            --reporter=html \
+            --reporter=text-summary \
+            --reporter=json-summary \
+            --reporter=lcovonly \
+            | tee coverage-report-merged/text-summary.txt
+
+      - name: Publish merged coverage to job summary
+        if: always()
+        run: |
+          node .github/scripts/coverage-summary.mjs \
+            coverage-report-merged/coverage-summary.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Artifact - Merged Coverage Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-coverage-merged
+          path: coverage-report-merged/
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Delete per-shard coverage artifacts
+        if: success() && hashFiles('coverage-report-merged/coverage-summary.json') != ''
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: playwright-coverage-shard-*
+          failOnError: false
+
+      - name: Delete per-shard CTRF artifacts
+        if: success() && hashFiles('merged-ctrf/ctrf-report.json') != ''
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: playwright-ctrf-shard-*
+          failOnError: false

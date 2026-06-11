@@ -6,8 +6,10 @@ open LogicUtils
 module ResolutionButton = {
   @react.component
   let make = (~config: ReconEngineExceptionsTypes.buttonConfig) => {
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     <RenderIf condition={config.condition}>
-      <Button
+      <ACLButton
+        authorization={userHasAccess(~groupAccess=ReconExceptionsManage)}
         buttonState=Normal
         buttonSize=Medium
         buttonType={config.buttonType}
@@ -265,7 +267,7 @@ module MetadataInput = {
             {"Metadata "->React.string}
           </p>
           <RenderIf condition={!disabled && unusedOptionalFields->Array.length > 0}>
-            <SelectBox
+            <SelectBoxAdapter
               input={
                 onChange: ev => {
                   let value = ev->Identity.formReactEventToString
@@ -431,7 +433,7 @@ module TransformationConfigSelectInput = {
       },
     }
 
-    <SelectBox
+    <SelectBoxAdapter
       input={modifiedInput}
       options={transformationsList->Array.map((config): SelectBox.dropdownOption => {
         {

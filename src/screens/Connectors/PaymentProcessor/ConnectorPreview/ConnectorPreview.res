@@ -141,7 +141,7 @@ module ConnectorSummaryGrid = {
     let url = RescriptReactRouter.useUrl()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let businessProfileRecoilVal =
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
 
     let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let copyValueOfWebhookEndpoint = getWebhooksUrl(
@@ -166,6 +166,7 @@ module ConnectorSummaryGrid = {
           | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
           | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
           | VaultProcessor => Window.getConnectorConfig(connectorName)
+          | SurchargeProcessor => Window.getSurchargeProcessorConfig(connectorName)
           | PaymentVas => JSON.Encode.null
           }
           dict
@@ -197,21 +198,22 @@ module ConnectorSummaryGrid = {
       <div className="grid grid-cols-4 border-b md:px-10 py-8">
         <h4 className="text-lg font-semibold"> {"Integration status"->React.string} </h4>
         <AddDataAttributes attributes=[("data-testid", "connector_status"->String.toLowerCase)]>
-          <div
-            className={`text-black font-semibold text-sm ${connectorInfo.status->ConnectorInterfaceTableEntity.connectorStatusStyle}`}>
-            {connectorInfo.status->String.toUpperCase->React.string}
-          </div>
+          <TagBinding
+            text={connectorInfo.status->String.toUpperCase}
+            color={connectorInfo.status->ConnectorInterfaceTableEntity.connectorStatusColor}
+            variant=Subtle
+            shape=Squarical
+            size=Xs
+          />
         </AddDataAttributes>
       </div>
       <div className="grid grid-cols-4 border-b md:px-10 py-8">
         <div className="flex items-start">
           <h4 className="text-lg font-semibold"> {"Webhook Endpoint"->React.string} </h4>
           <ToolTip
-            height=""
             description="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor"
             toolTipFor={<Icon name="tooltip_info" className={`mt-1 ml-1`} />}
             toolTipPosition=Top
-            tooltipWidthClass="w-fit"
           />
         </div>
         <div className="col-span-3">
@@ -246,11 +248,9 @@ module ConnectorSummaryGrid = {
                     setCurrentActiveSection(_ => Some(AuthenticationKeys))
                   }}>
                   <ToolTip
-                    height=""
                     description={`Update the ${connectorName} creds`}
                     toolTipFor={<Icon size=18 name="edit" className={`mt-1 ml-1`} />}
                     toolTipPosition=Top
-                    tooltipWidthClass="w-fit"
                   />
                 </div>
               </RenderIf>
@@ -317,11 +317,9 @@ module ConnectorSummaryGrid = {
                     setCurrentStep(_ => state)
                   }}>
                   <ToolTip
-                    height=""
                     description={`Update the ${connector} payment methods`}
                     toolTipFor={<Icon size=18 name="edit" className={` ml-2`} />}
                     toolTipPosition=Top
-                    tooltipWidthClass="w-fit"
                   />
                 </div>
               </RenderIf>
@@ -388,21 +386,21 @@ let make = (
     feedback && !isUpdateFlow && connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors
 
   let isConnectorDisabled = connectorInfo.disabled
-  let disableConnector = async isConnectorDisabled => {
+  let disableConnector = async currentIsDisabled => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let connectorID = connectorInfo.merchant_connector_id
+      let mcaId = connectorInfo.merchant_connector_id
       let disableConnectorPayload = getDisableConnectorPayload(
         connectorInfo.connector_type->connectorTypeTypedValueToStringMapper,
-        isConnectorDisabled,
+        currentIsDisabled,
       )
-      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
+      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(mcaId))
       let res = await updateDetails(url, disableConnectorPayload, Post)
       let _ = await fetchConnectorListResponse()
       setInitialValues(_ => res)
       setScreenState(_ => PageLoaderWrapper.Success)
       showToast(
-        ~message=`Connector has been successfully ${isConnectorDisabled ? "Enabled" : "Disabled"}`,
+        ~message=`Connector has been successfully ${currentIsDisabled ? "Enabled" : "Disabled"}`,
         ~toastType=ToastSuccess,
       )
     } catch {
