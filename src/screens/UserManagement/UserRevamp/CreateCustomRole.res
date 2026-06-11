@@ -47,7 +47,7 @@ module NewCustomRoleInputFields = {
     <div className="flex justify-between">
       <div className="flex flex-col gap-4 w-full">
         <FormRenderer.FieldRenderer
-          field={userRole->roleScope}
+          field={roleScope(userRole, #Merchant)}
           fieldWrapperClass="w-4/5"
           labelClass="!text-black !text-base !-ml-[0.5px]"
         />
