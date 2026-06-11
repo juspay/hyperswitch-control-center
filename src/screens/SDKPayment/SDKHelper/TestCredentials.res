@@ -39,7 +39,7 @@ let make = () => {
           target="_blank"
           rel="noopener noreferrer">
           {"Test creds for other connectors here"->React.string}
-          <img alt="open-new-tab" src="/icons/open-new-tab.svg" />
+          <img alt="open-new-tab" src="/assets/icons/open-new-tab.svg" />
         </a>
       </div>
     </div>
