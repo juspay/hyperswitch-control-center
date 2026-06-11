@@ -3,6 +3,7 @@ let make = () => {
   open APIUtils
   open WebhooksUtils
   open LogicUtils
+  open GlobalVars
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -31,11 +32,22 @@ let make = () => {
     reset()
   }
 
+  let navigateToPaymentSettings = () => {
+    appendDashboardPath(~url="/payment-settings")->RescriptReactRouter.push
+  }
+
   let customUI =
     <NoDataFound message renderType=Painting>
       <RenderIf condition={isWebhookUrlConfigured}>
         <div className="m-2">
           <Button text="Refresh" buttonType=Primary onClick={_ => refreshPage()} />
+        </div>
+      </RenderIf>
+      <RenderIf condition={!isWebhookUrlConfigured}>
+        <div className="m-2">
+          <Button
+            text="Configure Webhook" buttonType=Primary onClick={_ => navigateToPaymentSettings()}
+          />
         </div>
       </RenderIf>
     </NoDataFound>
