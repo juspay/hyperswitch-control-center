@@ -114,14 +114,6 @@ let getAccounts = (entries: array<transactionEntryType>, entryType: entryDirecti
   uniqueAccounts->Array.joinWith(", ")
 }
 
-// let getTransactionFlowTypeString = (flowType: transactionFlowType): string => {
-//   switch flowType {
-//   | InFlow => "INFLOW"
-//   | OutFlow => "OUTFLOW"
-//   | UnknownTransactionFlowType => "UNKNOWN"
-//   }
-// }
-
 let getTransactionFlowType = (
   ~transaction: transactionType,
   ~reconRulesList: array<ReconEngineRulesTypes.rulePayload>,
