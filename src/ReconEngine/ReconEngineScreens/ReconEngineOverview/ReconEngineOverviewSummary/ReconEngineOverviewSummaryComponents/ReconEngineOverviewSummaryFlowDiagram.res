@@ -173,12 +173,8 @@ module FlowWithLayoutControls = {
           className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white border border-nd_gray-200 shadow-sm cursor-pointer"
           title=fullscreenLabel
           onClick={_ => toggleFullscreen()}>
-          <Icon
-            onClick={_ => toggleFullscreen()}
-            name={isFullscreen ? "compress-alt" : "expand-alt"}
-            size=13
-          />
-          <p className={`${body.sm.semibold} text-nd_gray-500`} onClick={_ => toggleFullscreen()}>
+          <Icon name={isFullscreen ? "compress-alt" : "expand-alt"} size=13 />
+          <p className={`${body.sm.semibold} text-nd_gray-500`}>
             {fullscreenLabel->React.string}
           </p>
         </div>
