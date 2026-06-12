@@ -1,45 +1,23 @@
 import { defineConfig, devices } from "@playwright/test";
 import type { ReporterDescription } from "@playwright/test";
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const mcrConfig = require("./mcr.config.js");
 
+// Coverage is collected via the Istanbul fixture in
+// playwright-tests/support/test.ts (writes per-test data to .nyc_output/);
+// it needs no Playwright reporter. nyc produces the per-shard and merged
+// reports in CI. See .github/workflows/playwright-test.yml.
 function buildReporters(): ReporterDescription[] {
-  const coverageReporter: ReporterDescription = [
-    "monocart-reporter",
-    {
-      // Coverage only - disable monocart's test report (redundant with built-in HTML)
-      outputFile: "",
-      coverage: {
-        ...mcrConfig,
-        // Preserve raw V8 data per shard so the merge-coverage CI job can
-        // re-aggregate across shards into one unified report.
-        // NOTE: monocart resolves this `outputDir` against the parent
-        // coverage outputDir (see node_modules/monocart-coverage-reports/
-        // lib/reports/raw.js:84 -> path.resolve(parent, this)). Pass a
-        // bare segment ("raw"), not a "./coverage-report/raw" prefix, or
-        // it nests as coverage-report/coverage-report/raw.
-        reports: [
-          ...mcrConfig.reports,
-          ["raw", { outputDir: "raw" }],
-        ],
-      },
-    },
-  ];
-
   if (process.env.CI) {
-    const base: ReporterDescription[] = [
+    return [
       ["html", { open: "never", outputFolder: "playwright-report" }],
       ["line"],
       ["playwright-ctrf-json-reporter", { outputDir: "ctrf" }],
     ];
-    return process.env.PW_COVERAGE === "1"
-      ? [...base, coverageReporter]
-      : base;
   }
 
-  // Local: attach coverage reporter on demand via PW_COVERAGE=1.
+  // Local: plain list output when collecting coverage (PW_COVERAGE=1),
+  // otherwise the usual on-failure HTML report.
   return process.env.PW_COVERAGE === "1"
-    ? [["list"], coverageReporter]
+    ? [["list"]]
     : [["html", { open: "on-failure" }]];
 }
 
