@@ -77,6 +77,10 @@ let refunditemToObjMapper = dict => {
 let mapDictToPaymentPayload: dict<JSON.t> => order_v1 = dict => {
   let addressKeys = ["line1", "line2", "line3", "city", "state", "country", "zip"]
 
+  let getOptionalFloat = (dict, key) => {
+    dict->Dict.get(key)->Option.flatMap(JSON.Decode.float)
+  }
+
   let getPhoneNumberString = (phone, ~phoneKey="number", ~codeKey="country_code") => {
     `${phone->getString(codeKey, "")} ${phone->getString(phoneKey, "NA")}`
   }
@@ -90,6 +94,9 @@ let mapDictToPaymentPayload: dict<JSON.t> => order_v1 = dict => {
     payment_id: dict->getString("payment_id", ""),
     merchant_id: dict->getString("merchant_id", ""),
     net_amount: dict->getFloat("net_amount", 0.0),
+    surcharge_amount: dict
+    ->getDictfromDict("surcharge_details")
+    ->getOptionalFloat("surcharge_amount"),
     connector: dict->getString("connector", ""),
     status: dict->getString("status", ""),
     amount: dict->getFloat("amount", 0.0),
@@ -277,6 +284,7 @@ let mapPaymentV1ToCommonType: order_v1 => PaymentInterfaceTypes.order = order =>
     payment_id: order.payment_id,
     merchant_id: order.merchant_id,
     net_amount: order.net_amount,
+    surcharge_amount: order.surcharge_amount,
     connector: order.connector,
     status: order.status,
     amount: order.amount,

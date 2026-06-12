@@ -88,6 +88,10 @@ let getRefundMetaData: JSON.t => refundMetaData = json => {
   json->JSON.Decode.object->Option.getOr(Dict.make())->refundMetaitemToObjMapper
 }
 
+let getOptionalFloat = (dict, key) => {
+  dict->Dict.get(key)->Option.flatMap(JSON.Decode.float)
+}
+
 let refunditemToObjMapper = dict => {
   refund_id: dict->getString("refund_id", ""),
   payment_id: dict->getString("payment_id", ""),
@@ -112,6 +116,9 @@ let mapDictToPaymentPayload: dict<JSON.t> => PaymentInterfaceTypes.order = dict 
     payment_id: dict->getString("payment_id", ""),
     merchant_id: dict->getString("merchant_id", ""),
     net_amount: dict->getFloat("net_amount", 0.0),
+    surcharge_amount: dict
+    ->getDictfromDict("surcharge_details")
+    ->getOptionalFloat("surcharge_amount"),
     connector: dict->getString("connector", ""),
     status: dict->getString("status", ""),
     amount: dict->getFloat("amount", 0.0),
