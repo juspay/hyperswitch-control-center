@@ -200,7 +200,7 @@ test.describe("Users - Invite Users", () => {
     await homePage.users.click();
   });
 
-  test("should successfully invite a user and accept invite from email link", async ({
+  test("should successfully invite a user and accept invite from email link", { tag: "@mail" }, async ({
     page,
   }) => {
     // Invite + sign-out + accept-invite-via-mail + 2FA skip + sign-in is a
@@ -475,7 +475,7 @@ test.describe("Users - Details", () => {
     await expect(usersPage.manageUserRoleButton).not.toBeAttached();
   });
 
-  test("Verify the UI of the User Details page - Other user details", async ({ page, context }) => {
+  test("Verify the UI of the User Details page - Other user details", { tag: "@mail" }, async ({ page, context }) => {
     // Two full sign-in flows + invite acceptance round-trip + role inspection
     // — the chained waits routinely overflow the 30s default on CI.
     test.setTimeout(180000);
@@ -737,7 +737,7 @@ test.describe("Users - Details", () => {
     await expect(usersPage.inviteResentText).toBeVisible();
   });
 
-  test("Check User permissions - Admin roles see Workflows in sidebar; developer roles do not", async ({
+  test("Check User permissions - Admin roles see Workflows in sidebar; developer roles do not", { tag: "@mail" }, async ({
     page,
     context,
   }) => {
