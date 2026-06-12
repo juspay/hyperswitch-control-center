@@ -115,10 +115,10 @@ module ReconEdgeComponent = {
       <ReactFlow.BaseEdge path=edgePath ?markerEnd ?style />
       <ReactFlow.EdgeLabelRenderer>
         <div
-          className="nodrag nopan w-52 rounded-lg border border-nd_gray-200 bg-white px-2.5 py-1.5 text-center shadow-sm"
+          className="nodrag nopan absolute -translate-x-1/2 -translate-y-1/2 w-52 rounded-lg border border-nd_gray-200 bg-white px-2.5 py-1.5 text-center shadow-sm"
           style={ReactDOM.Style.make(
-            ~position="absolute",
-            ~transform=`translate(-50%, -50%) translate(${labelX->Float.toString}px, ${labelY->Float.toString}px)`,
+            ~left=`${labelX->Float.toString}px`,
+            ~top=`${labelY->Float.toString}px`,
             (),
           )}>
           <p className={`break-words ${body.xs.medium} text-nd_gray-500`}>
@@ -331,11 +331,11 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
     None
   }, [selectedNodeId])
 
+  let fullScreenClass = isFullscreen ? "h-screen w-screen" : "h-30-rem w-full"
+
   <div
     ref={graphContainerRef->ReactDOM.Ref.domRef}
-    className={`border rounded-xl border-nd_gray-200 overflow-auto bg-white ${isFullscreen
-        ? "h-screen w-screen"
-        : "resize-y h-30-rem"}`}>
+    className={`border rounded-xl border-nd_gray-200 overflow-auto bg-white ${fullScreenClass}`}>
     <PageLoaderWrapper
       screenState
       customUI={<NewAnalyticsHelper.NoData height="h-30-rem" message="No data available." />}
