@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 
 export class PaymentOperations {
   readonly page: Page;
@@ -151,6 +151,27 @@ export class PaymentOperations {
     return this.page.locator(
       '[data-date-picker-predefined="predefined-options"]',
     );
+  }
+
+  /**
+   * Opens the date-range picker and waits for the predefined options panel.
+   *
+   * The selector is a toggle button: the panel is only mounted while the picker
+   * is expanded. Because the surrounding filter bar re-renders as the table
+   * refetches after a range is applied, a single click can land before the
+   * control is interactive (or toggle the panel the wrong way), leaving the
+   * options unmounted and the next assertion failing with "element(s) not
+   * found". Retry the open until the panel is actually showing, clicking only
+   * when it is still closed so an already-open panel is never toggled shut.
+   */
+  async openPredefinedDateOptions(): Promise<void> {
+    await expect(this.dateSelector).toBeVisible();
+    await expect(async () => {
+      if (!(await this.predefinedDateOptions.isVisible())) {
+        await this.dateSelector.click({ force: true });
+      }
+      await expect(this.predefinedDateOptions).toBeVisible({ timeout: 2000 });
+    }).toPass({ timeout: 15000 });
   }
 
   get predefinedOptions(): Locator {
