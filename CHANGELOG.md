@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.06.12.0
+
+### Features
+
+- **surcharge-processor:** Add disable/enable toggle ([#4913](https://github.com/juspay/hyperswitch-control-center/pull/4913)) ([`817599c`](https://github.com/juspay/hyperswitch-control-center/commit/817599cdaffa63c7ba3bcdbf2703b2e6955bd48e))
+
+**Full Changelog:** [`2026.06.11.0...2026.06.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.11.0...2026.06.12.0)
+
+- - -
+
 ## 2026.06.11.0
 
 ### Features
