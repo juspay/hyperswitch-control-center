@@ -187,6 +187,7 @@ let connectorList: array<connectorTypes> = [
   Processors(TRUELAYER),
   Processors(TRUSTLY),
   Processors(IMERCHANTSOLUTIONS),
+  Processors(PAYCONEX),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
