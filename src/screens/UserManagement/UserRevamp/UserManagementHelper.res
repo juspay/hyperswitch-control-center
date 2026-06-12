@@ -248,12 +248,38 @@ let inviteEmail = FormRenderer.makeFieldInfo(
   },
   ~isRequired=true,
 )
+// The dashboard can remount while the OMP context switch is in flight, so the
+// auto-open intent for the manage user modal is kept in a Recoil atom rather
+// than component state. The stored key identifies the exact role row the
+// switch was triggered for.
+let autoOpenManageUserModalAtom: Recoil.recoilAtom<option<string>> = Recoil.atom(
+  "autoOpenManageUserModal",
+  None,
+)
+
+let getUserActionRowKey = (~userInfoValue: UserManagementTypes.userDetailstype, ~userEmail) => {
+  let orgId = userInfoValue.org.id->Option.getOr("")
+  let merchantId = userInfoValue.merchant.id->Option.getOr("")
+  let profileId = userInfoValue.profile.id->Option.getOr("")
+  `${userEmail}-${orgId}-${merchantId}-${profileId}-${userInfoValue.roleId}`
+}
+
 module SwitchMerchantForUserAction = {
   @react.component
   let make = (~userInfoValue: UserManagementTypes.userDetailstype) => {
+    open LogicUtils
+    let url = RescriptReactRouter.useUrl()
     let showToast = ToastState.useShowToast()
+    let showPopUp = PopUpState.useShowPopUp()
+    let setAutoOpenManageUserModal = Recoil.useSetRecoilState(autoOpenManageUserModalAtom)
     let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
     let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
+    let userEmail =
+      url.search
+      ->getDictFromUrlSearchParams
+      ->Dict.get("email")
+      ->Option.getOr("")
+      ->decodeURIComponent
 
     let onSwitchForUserAction = async () => {
       try {
@@ -262,16 +288,39 @@ module SwitchMerchantForUserAction = {
           ~expectedMerchantId=userInfoValue.merchant.id,
           ~expectedProfileId=userInfoValue.profile.id,
         )
+        setAutoOpenManageUserModal(_ => Some(getUserActionRowKey(~userInfoValue, ~userEmail)))
       } catch {
       | _ => showToast(~message="Failed to perform operation!", ~toastType=ToastError)
       }
     }
 
+    let merchantName =
+      userInfoValue.merchant.name->isEmptyString
+        ? userInfoValue.merchant.value
+        : userInfoValue.merchant.name
+
+    let profileName =
+      userInfoValue.profile.name->isEmptyString
+        ? userInfoValue.profile.value
+        : userInfoValue.profile.name
+
+    let switchConfirmation = () => {
+      showPopUp({
+        popUpType: (Warning, WithIcon),
+        heading: "Switch to manage this user?",
+        description: React.string(
+          `This user's role belongs to ${merchantName} (${profileName}), which is different from your current merchant and profile. To manage this user, your dashboard will be switched to that merchant and profile. Press Confirm to switch.`,
+        ),
+        handleConfirm: {text: "Confirm", onClick: _ => onSwitchForUserAction()->ignore},
+        handleCancel: {text: "Cancel"},
+      })
+    }
+
     <Button
-      text="Switch to update"
-      customButtonStyle="!p-2"
-      buttonType={PrimaryOutline}
-      onClick={_ => onSwitchForUserAction()->ignore}
+      text="Manage user"
+      buttonType={Secondary}
+      buttonSize=Medium
+      onClick={_ => switchConfirmation()}
     />
   }
 }

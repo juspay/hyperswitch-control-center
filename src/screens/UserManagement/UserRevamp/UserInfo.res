@@ -20,6 +20,21 @@ module UserAction = {
 
     let {orgId, merchantId, profileId} = getCommonSessionDetails()
 
+    let (autoOpenRowKey, setAutoOpenRowKey) = Recoil.useRecoilState(
+      UserManagementHelper.autoOpenManageUserModalAtom,
+    )
+    let rowKey = UserManagementHelper.getUserActionRowKey(~userInfoValue=value, ~userEmail)
+    let openModalByDefault = autoOpenRowKey->Option.mapOr(false, key => key === rowKey)
+
+    React.useEffect(() => {
+      // Consume the auto-open intent set before the context switch so the
+      // modal does not reopen on later visits to this page
+      if openModalByDefault {
+        setAutoOpenRowKey(_ => None)
+      }
+      None
+    }, [openModalByDefault])
+
     let decideWhatToShow = {
       if userEmail === email {
         // User cannot update its own role
@@ -54,7 +69,7 @@ module UserAction = {
     }
 
     switch decideWhatToShow {
-    | ManageUser => <ManageUserModal userInfoValue={value} />
+    | ManageUser => <ManageUserModal userInfoValue={value} openModalByDefault />
     | SwitchUser => <UserManagementHelper.SwitchMerchantForUserAction userInfoValue={value} />
     | NoActionAccess => React.null
     }

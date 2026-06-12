@@ -288,8 +288,8 @@ module ManageUserModal = {
 }
 
 @react.component
-let make = (~userInfoValue: UserManagementTypes.userDetailstype) => {
-  let (showModal, setShowModal) = React.useState(_ => false)
+let make = (~userInfoValue: UserManagementTypes.userDetailstype, ~openModalByDefault=false) => {
+  let (showModal, setShowModal) = React.useState(_ => openModalByDefault)
   <>
     <Button
       text="Manage user"

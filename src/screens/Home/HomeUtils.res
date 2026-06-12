@@ -144,7 +144,7 @@ module ControlCenter = {
           <img alt="sdk" src="/assets/IntegrateProcessorsOver.png" />
           <CardHeader
             heading="Integrate a Processor"
-            subHeading="Get a head start by connecting with 20+ gateways, payment methods, and networks."
+            subHeading="Get a head start by connecting with 180+ gateways, payment methods, and networks."
           />
         </div>
         <Button
