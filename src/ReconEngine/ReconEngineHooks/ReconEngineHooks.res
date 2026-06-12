@@ -75,6 +75,29 @@ let useGetAccounts = () => {
   }
 }
 
+let useGetReconRuleList = () => {
+  open APIUtils
+  open LogicUtils
+
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~queryParameters=None) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#RECON_RULES,
+        ~queryParameters,
+      )
+      let res = await fetchDetails(url)
+      res->getArrayDataFromJson(ReconEngineRulesUtils.ruleItemToObjMapper)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
 let useGetProcessingEntries = () => {
   open APIUtils
   open LogicUtils
