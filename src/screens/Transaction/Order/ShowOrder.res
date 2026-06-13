@@ -764,6 +764,9 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     <RenderIf condition={orderData.frm_message.frm_status === "fraud"}>
       <FraudRiskBanner frmMessage={orderData.frm_message} refElement=frmDetailsRef />
     </RenderIf>
+    <RenderIf condition={orderData.status->statusVariantMapper === Review}>
+      <ReviewStatusBanner order={orderData} refetch={refreshStatus} />
+    </RenderIf>
     <PageLoaderWrapper
       screenState
       customUI={<NoDataFound

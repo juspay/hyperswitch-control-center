@@ -233,6 +233,7 @@ let getCell = (paymentObj, colType): Table.cell => {
       | RequiresConfirmation
       | RequiresPaymentMethod =>
         LabelBlue
+      | Review => LabelOrange
       | _ => LabelLightGray
       },
     })
