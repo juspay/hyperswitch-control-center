@@ -480,9 +480,14 @@ test.describe("Visual Testing - Connectors", () => {
       });
 
       await page.getByRole('textbox', { name: 'Enter API Key' }).fill('test_key');
+      await page.getByRole('button', { name: 'Connect and Finish' }).click();
+      await expect(page.getByText('FRM Player Created')).toBeVisible({ timeout: 10000 });
 
-
-
+      await expect(page).toHaveScreenshot("connectors-fraud-risk-created.png", {
+        fullPage: true,
+        animations: "disabled",
+        maxDiffPixelRatio: 0.01,
+      });
     });
   });
 
@@ -549,6 +554,12 @@ test.describe("Visual Testing - Connectors", () => {
       // Section 2 — connector created and listed.
       await pmAuthProcessor.saveOrConnectOrProceedButton.click();
       await page.waitForLoadState("networkidle");
+      await expect(page).toHaveScreenshot("connectors-pm-auth-created-details.png", {
+        fullPage: true,
+        animations: "disabled",
+        maxDiffPixelRatio: 0.01,
+      });
+
       await pmAuthProcessor.doneButton.click();
 
       await expect(
@@ -632,6 +643,15 @@ test.describe("Visual Testing - Connectors", () => {
       // Section 2 — connector created and listed.
       await taxProcessor.saveOrConnectOrProceedButton.click();
       await page.waitForLoadState("networkidle");
+      await expect(page).toHaveScreenshot(
+        "connectors-tax-processor-created-details.png",
+        {
+          fullPage: true,
+          animations: "disabled",
+          maxDiffPixelRatio: 0.01,
+        },
+      );
+
       await taxProcessor.doneButton.click();
 
       await expect(
@@ -721,6 +741,14 @@ test.describe("Visual Testing - Connectors", () => {
       // Section 2 — connector created and listed.
       await billingProcessor.saveOrConnectOrProceedButton.click();
       await page.waitForLoadState("networkidle");
+      await expect(page).toHaveScreenshot(
+        "connectors-billing-processor-created-details.png",
+        {
+          fullPage: true,
+          animations: "disabled",
+          maxDiffPixelRatio: 0.01,
+        },
+      );
       await billingProcessor.doneButton.click();
 
       await expect(
@@ -810,6 +838,14 @@ test.describe("Visual Testing - Connectors", () => {
       // Section 2 — connector created and listed.
       await vaultProcessor.saveOrConnectOrProceedButton.click();
       await page.waitForLoadState("networkidle");
+      await expect(page).toHaveScreenshot(
+        "connectors-vault-processor-created-details.png",
+        {
+          fullPage: true,
+          animations: "disabled",
+          maxDiffPixelRatio: 0.01,
+        },
+      );
       await vaultProcessor.doneButton.click();
 
       await expect(
