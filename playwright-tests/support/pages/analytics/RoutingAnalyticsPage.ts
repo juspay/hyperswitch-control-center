@@ -71,7 +71,7 @@ export class RoutingAnalyticsPage {
 
   // ---- Least Cost Routing tab — Summary Table section ----
   get leastCostSummaryHeading(): Locator {
-    return this.page.getByText("Summary Table", { exact: true }).first();
+    return this.page.locator('div').filter({ hasText: /^Mastercard$/ }).first();
   }
 
   // A column header in the Least Cost summary LoadedTable, matched on its exact
@@ -109,8 +109,8 @@ export class RoutingAnalyticsPage {
   }
 
   // ---- Routing Distribution section (RoutingAnalyticsDistribution) ----
-  get distributionHeading(): Locator {
-    return this.page.getByText("Routing Distribution", { exact: true }).first();
+  get performanceSummary(): Locator {
+    return this.page.locator('div').filter({ hasText: /^Rule Based$/ }).first();
   }
 
   get connectorVolumeDistribution(): Locator {

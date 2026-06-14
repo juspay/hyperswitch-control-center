@@ -369,6 +369,58 @@ test.describe("Visual Testing - Analytics", () => {
         "analytics-routing-populated.png",
         SCREENSHOT_OPTS,
       );
+
+      // Routing Distribution section (two pie charts).
+      await analytics.performanceSummary.scrollIntoViewIfNeeded();
+      await expect(page).toHaveScreenshot(
+        "analytics-routing-performanceSummary.png",
+        SCREENSHOT_OPTS,
+      );
+
+      // Time Series Distribution section (two trend line charts).
+      await analytics.volumeOverTime.scrollIntoViewIfNeeded();
+      await expect(page).toHaveScreenshot(
+        "analytics-routing-volumeOverTime.png",
+        SCREENSHOT_OPTS,
+      );
+    });
+
+    test("least cost routing analytics with mocked data should match visual snapshot", async ({
+      page,
+    }) => {
+      // Least Cost Routing is a tab within Routing Analytics, also gated behind
+      // the routing_analytics flag.
+      await signupAndLogin(page, mockRoutingAnalytics, {
+        routing_analytics: true,
+      });
+
+      const analytics = new RoutingAnalyticsPage(page);
+      await analytics.visit();
+
+      await expect(analytics.pageHeading).toBeVisible({ timeout: 15000 });
+
+      // Switch to the Least Cost Routing tab; the helper waits for network idle.
+      await analytics.openLeastCostRoutingTab();
+
+      // KPI cards.
+      await expect(analytics.leastCostTotalSavingsCard).toBeVisible({ timeout: 15000 });
+      await expect(analytics.leastCostDebitRoutedTransactionsCard).toBeVisible({ timeout: 15000 });
+      await expect(analytics.charts.first()).toBeVisible({ timeout: 15000 });
+
+      await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(1000);
+
+      await expect(page).toHaveScreenshot(
+        "analytics-leastcost-populated.png",
+        SCREENSHOT_OPTS,
+      );
+
+      // Summary Table section.
+      await analytics.leastCostSummaryHeading.scrollIntoViewIfNeeded();
+      await expect(page).toHaveScreenshot(
+        "analytics-leastcost-summary.png",
+        SCREENSHOT_OPTS,
+      );
     });
   });
 });
