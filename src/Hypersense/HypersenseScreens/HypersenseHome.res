@@ -1,8 +1,27 @@
+module FeatureBlock = {
+  @react.component
+  let make = (~iconName, ~iconClass, ~title, ~description) => {
+    <div className="flex items-start gap-4">
+      <div
+        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md ${iconClass}`}>
+        <Icon name=iconName size=16 />
+      </div>
+      <div className="flex flex-col gap-0.5">
+        <p className="text-fs-14 leading-5 font-semibold text-nd_gray-600">
+          {title->React.string}
+        </p>
+        <p className="text-fs-14 leading-5 font-medium text-nd_gray-400">
+          {description->React.string}
+        </p>
+      </div>
+    </div>
+  }
+}
+
 @react.component
 let make = () => {
   open APIUtils
   open LogicUtils
-  open PageUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -21,34 +40,66 @@ let make = () => {
     url->Window._open
   }
 
-  <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
-    <object
-      type_="image/svg+xml" data="/assets/DefaultHomeHypersenseCard.svg" alt="hypersenseOnboarding"
-    />
-    <div className="flex flex-col gap-8 items-center">
-      <div
-        className="border rounded-md text-nd_green-200 border-nd_green-200 font-semibold p-1.5 text-sm w-fit">
-        {"Cost Observability"->React.string}
+  <div className="min-h-screen w-full overflow-y-auto bg-white">
+    <div className="mx-auto flex w-full max-w-[933px] flex-col items-center gap-16 px-4 py-12">
+      <div className="flex w-full max-w-[877px] flex-col items-center gap-5">
+        <object
+          className="h-[360px] w-auto object-contain"
+          type_="image/svg+xml"
+          data="/assets/DefaultHomeHypersenseCard.svg"
+          alt="hypersenseOnboarding"
+        />
+        <div className="flex w-full flex-col items-center gap-10">
+          <div className="flex flex-col items-center gap-2.5 text-center">
+            <p className="text-fs-24 font-semibold text-nd_gray-700">
+              {"Gain Control & Optimize Payment Costs"->React.string}
+            </p>
+            <p className="text-fs-16 font-medium text-nd_gray-500">
+              {"Reduce your payment processing costs by up to 10%"->React.string}
+            </p>
+          </div>
+          <Button
+            text="Explore Cost Observability"
+            onClick={_ => {
+              mixpanelEvent(~eventName="cost_observability_explore")
+              onExploreClick()->ignore
+            }}
+            customTextPaddingClass="pr-0"
+            rightIcon={CustomIcon(
+              <Icon name="nd-angle-right" size=16 className="cursor-pointer" />,
+            )}
+            buttonType=Primary
+            buttonSize=Medium
+            buttonState=Normal
+          />
+        </div>
       </div>
-      <PageHeading
-        customHeadingStyle="gap-3 flex flex-col items-center"
-        title="AI Ops tool built for Payments Cost Observability "
-        customTitleStyle="text-2xl text-center font-bold text-nd_gray-700 font-500"
-        customSubTitleStyle="text-fs-16 font-normal text-center max-w-700"
-        subTitle="Audit, Observe and Optimize payment costs to uncover cost-saving opportunities"
-      />
-      <Button
-        text="Explore Cost Observability"
-        onClick={_ => {
-          mixpanelEvent(~eventName="cost_observability_explore")
-          onExploreClick()->ignore
-        }}
-        customTextPaddingClass="pr-0"
-        rightIcon={CustomIcon(<Icon name="nd-angle-right" size=16 className="cursor-pointer" />)}
-        buttonType=Primary
-        buttonSize=Large
-        buttonState=Normal
-      />
+      <div className="grid w-full max-w-[877px] grid-cols-1 gap-10 px-7 md:grid-cols-2">
+        <FeatureBlock
+          iconName="clock"
+          iconClass="bg-orange-50 text-orange-600"
+          title="Track Every Dollar"
+          description="Access a unified, drill-down view of your payment costs. Compare costs across Providers, payment methods, regions and uncover what's driving your spend"
+        />
+        <FeatureBlock
+          iconName="file-icon"
+          iconClass="bg-purple-50 text-purple-600"
+          title="Audit Your Invoices"
+          description="Perform integrity check on your invoices seamlessly, verify your fee markups and contractual discounts with providers"
+        />
+        <FeatureBlock
+          iconName="nd-piggy-bank"
+          iconClass="bg-pink-50 text-pink-600"
+          title="Optimize Your Payment Fees"
+          description="Identify unexpected cost spikes and understand detailed root causes to take decisive actions and avoid unnecessary costs"
+        />
+        <FeatureBlock
+          iconName="nd-analytics"
+          iconClass="bg-teal-50 text-teal-600"
+          title="Forecast Impact of Network Changes"
+          description="Get clear insights into upcoming card network fee changes. Break down what's changing, how it affects your costs, and prepare your business accordingly"
+        />
+      </div>
     </div>
   </div>
 }
