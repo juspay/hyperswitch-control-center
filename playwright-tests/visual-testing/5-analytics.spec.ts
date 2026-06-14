@@ -56,7 +56,7 @@ async function signupAndLogin(
 const SCREENSHOT_OPTS = {
   fullPage: true,
   animations: "disabled",
-  maxDiffPixelRatio: 0.02,
+  maxDiffPixelRatio: 0.01,
 } as const;
 
 test.describe("Visual Testing - Analytics", () => {
@@ -82,6 +82,20 @@ test.describe("Visual Testing - Analytics", () => {
 
       await expect(page).toHaveScreenshot(
         "analytics-payments-populated.png",
+        SCREENSHOT_OPTS,
+      );
+
+      await page.getByRole('img', { name: 'Success Rate' }).scrollIntoViewIfNeeded();
+
+      await expect(page).toHaveScreenshot(
+        "analytics-payments-charts1-.png",
+        SCREENSHOT_OPTS,
+      );
+
+      await page.getByText('\'NA\' denotes those incomplete').scrollIntoViewIfNeeded();
+
+      await expect(page).toHaveScreenshot(
+        "analytics-payments-charts2-.png",
         SCREENSHOT_OPTS,
       );
     });
@@ -110,46 +124,16 @@ test.describe("Visual Testing - Analytics", () => {
         "analytics-refunds-populated.png",
         SCREENSHOT_OPTS,
       );
+
+      await page.getByText('\'NA\' denotes those incomplete').scrollIntoViewIfNeeded();
+      await expect(page).toHaveScreenshot(
+        "analytics-refunds-chart.png",
+        SCREENSHOT_OPTS,
+      );
     });
   });
 
   test.describe("Insights", () => {
-    test("insights with mocked data should match visual snapshot", async ({
-      page,
-    }) => {
-      // Insights (New Analytics) is gated behind the new_analytics flag family.
-      await signupAndLogin(page, mockInsightsAnalytics, {
-        new_analytics: true,
-        new_analytics_smart_retries: true,
-        new_analytics_refunds: true,
-        sample_data_analytics: true,
-        new_analytics_filters: false,
-        granularity: false,
-      });
-
-      const homePage = new HomePage(page);
-      const insights = new InsightsPaymentsPage(page);
-
-      await homePage.analytics.click();
-      await homePage.insightsAnalytics.click();
-
-      await expect(insights.pageHeading).toBeVisible({ timeout: 15000 });
-      await expect(insights.authorizationRateCard).toBeVisible({ timeout: 15000 });
-      await expect(insights.failureReasonsTable).toBeVisible({ timeout: 15000 });
-
-      // Scroll every section on-screen so each Highcharts SVG draws fully.
-      await insights.revealAllCharts();
-      await expect(insights.sankeyChart).toBeVisible({ timeout: 20000 });
-
-      await page.waitForLoadState("networkidle");
-      await page.waitForTimeout(1000);
-
-      await expect(page).toHaveScreenshot(
-        "analytics-insights-populated.png",
-        SCREENSHOT_OPTS,
-      );
-    });
-
     test("insights with no data should match visual snapshot", async ({
       page,
     }) => {
@@ -181,6 +165,182 @@ test.describe("Visual Testing - Analytics", () => {
         "analytics-insights-empty.png",
         SCREENSHOT_OPTS,
       );
+
+      await page.getByRole('tab', { name: 'Smart Retries' }).click();
+      await expect(page).toHaveScreenshot(
+        "analytics-smartretries-empty.png",
+        SCREENSHOT_OPTS,
+      );
+
+      await page.getByRole('tab', { name: 'Refunds' }).click();
+      await expect(page).toHaveScreenshot(
+        "analytics-refunds-empty.png",
+        SCREENSHOT_OPTS,
+      );
+    });
+
+    test("insights with mocked data should match visual snapshot", async ({
+      page,
+    }) => {
+      // Insights (New Analytics) is gated behind the new_analytics flag family.
+      await signupAndLogin(page, mockInsightsAnalytics, {
+        new_analytics: true,
+        new_analytics_smart_retries: true,
+        new_analytics_refunds: true,
+        sample_data_analytics: true,
+        new_analytics_filters: false,
+        granularity: false,
+      });
+
+      const homePage = new HomePage(page);
+      const insights = new InsightsPaymentsPage(page);
+
+      await homePage.analytics.click();
+      await homePage.insightsAnalytics.click();
+
+      await expect(insights.pageHeading).toBeVisible({ timeout: 15000 });
+      await expect(insights.authorizationRateCard).toBeVisible({ timeout: 15000 });
+      await expect(insights.failureReasonsTable).toBeVisible({ timeout: 15000 });
+
+      // Scroll every section on-screen so each Highcharts SVG draws fully.
+      await insights.revealAllCharts();
+      await expect(insights.sankeyChart).toBeVisible({ timeout: 20000 });
+
+      await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(1000);
+
+      await expect(page).toHaveScreenshot(
+        "analytics-insights1-populated.png",
+        SCREENSHOT_OPTS,
+      );
+
+      await page.getByRole('heading', { name: 'Payments Processed' }).scrollIntoViewIfNeeded();
+      await expect(page).toHaveScreenshot(
+        "analytics-insights2-populated.png",
+        SCREENSHOT_OPTS,
+      );
+
+      await page.getByRole('heading', { name: 'Payments Success Rate' }).scrollIntoViewIfNeeded();
+      await expect(page).toHaveScreenshot(
+        "analytics-insights3-populated.png",
+        SCREENSHOT_OPTS,
+      );
+
+      await page.getByRole('heading', { name: 'Successful Payments' }).scrollIntoViewIfNeeded();
+      await expect(page).toHaveScreenshot(
+        "analytics-insights4-populated.png",
+        SCREENSHOT_OPTS,
+      );
+
+      await page.getByRole('heading', { name: 'Failed Payments Distribution' }).scrollIntoViewIfNeeded();
+      await expect(page).toHaveScreenshot(
+        "analytics-insights5-populated.png",
+        SCREENSHOT_OPTS,
+      );
+
+      await page.getByRole('heading', { name: 'Failure Reasons' }).scrollIntoViewIfNeeded();
+      await expect(page).toHaveScreenshot(
+        "analytics-insights6-populated.png",
+        SCREENSHOT_OPTS,
+      );
+    });
+
+    test("smart retries with mocked data should match visual snapshot", async ({
+      page,
+    }) => {
+      // Smart Retries tab shares the new_analytics flag family with Payments.
+      await signupAndLogin(page, mockInsightsAnalytics, {
+        new_analytics: true,
+        new_analytics_smart_retries: true,
+        new_analytics_refunds: true,
+        sample_data_analytics: true,
+        new_analytics_filters: false,
+        granularity: false,
+      });
+
+      const homePage = new HomePage(page);
+      const insights = new InsightsPaymentsPage(page);
+
+      await homePage.analytics.click();
+      await homePage.insightsAnalytics.click();
+
+      await expect(insights.pageHeading).toBeVisible({ timeout: 15000 });
+
+      // Switch to the Smart Retries tab; the helper waits for network idle and
+      // scrolls every section so each Highcharts SVG draws fully.
+      await insights.openSmartRetriesTab();
+
+      await expect(insights.charts.first()).toBeVisible({ timeout: 20000 });
+
+      await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(1000);
+
+      await expect(page).toHaveScreenshot(
+        "analytics-smartretries1-populated.png",
+        SCREENSHOT_OPTS,
+      );
+
+      await insights.failedSmartRetryDistributionHeading.scrollIntoViewIfNeeded();
+      await expect(page).toHaveScreenshot(
+        "analytics-smartretries2-populated.png",
+        SCREENSHOT_OPTS,
+      );
+    });
+
+    test("refunds tab with mocked data should match visual snapshot", async ({
+      page,
+    }) => {
+      // Refunds tab shares the new_analytics flag family with Payments.
+      await signupAndLogin(page, mockInsightsAnalytics, {
+        new_analytics: true,
+        new_analytics_smart_retries: true,
+        new_analytics_refunds: true,
+        sample_data_analytics: true,
+        new_analytics_filters: false,
+        granularity: false,
+      });
+
+      const homePage = new HomePage(page);
+      const insights = new InsightsPaymentsPage(page);
+
+      await homePage.analytics.click();
+      await homePage.insightsAnalytics.click();
+
+      await expect(insights.pageHeading).toBeVisible({ timeout: 15000 });
+
+      // Switch to the Refunds tab; the helper waits for network idle and scrolls
+      // every section so each Highcharts SVG draws fully.
+      await insights.openRefundsTab();
+
+      await expect(insights.refundSuccessRateCard).toBeVisible({ timeout: 15000 });
+      await expect(insights.refundReasonsTable).toBeVisible({ timeout: 15000 });
+
+      await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(1000);
+
+      await expect(page).toHaveScreenshot(
+        "analytics-refundstab1-populated.png",
+        SCREENSHOT_OPTS,
+      );
+
+      await insights.refundsSuccessRateHeading.scrollIntoViewIfNeeded();
+      await expect(page).toHaveScreenshot(
+        "analytics-refundstab2-populated.png",
+        SCREENSHOT_OPTS,
+      );
+
+      await page.getByRole('heading', { name: 'Failed Refunds Distribution' }).scrollIntoViewIfNeeded();
+      await expect(page).toHaveScreenshot(
+        "analytics-refundstab3-populated.png",
+        SCREENSHOT_OPTS,
+      );
+
+      await page.getByRole('heading', { name: 'Failed Refund Error Reasons' }).scrollIntoViewIfNeeded();
+      await expect(page).toHaveScreenshot(
+        "analytics-refundstab4-populated.png",
+        SCREENSHOT_OPTS,
+      );
+
     });
   });
 

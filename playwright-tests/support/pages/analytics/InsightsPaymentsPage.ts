@@ -134,7 +134,7 @@ export class InsightsPaymentsPage {
   }
 
   get refundsSuccessRateHeading(): Locator {
-    return this.page.getByText("Refunds Success Rate", { exact: true }).first();
+    return this.page.getByRole('heading', { name: 'Refunds Success Rate' });
   }
 
   // ---- Refunds tab KPI cards ----
@@ -198,13 +198,6 @@ export class InsightsPaymentsPage {
     return this.page.getByText("Error ReasonCountRatioConnectorprocessor_declined00.00%stripe");
   }
 
-  // ---- Smart Retries tab content ----
-  get smartRetryPaymentsProcessedHeading(): Locator {
-    return this.page
-      .getByText("Smart Retry Payments Processed", { exact: true })
-      .first();
-  }
-
   // Granularity-agnostic (see paymentsProcessedChartHeading) — matched on the
   // always-present "By Amount" metric dropdown on the Smart Retries tab.
   get smartRetryPaymentsProcessedChartHeading(): Locator {
@@ -214,15 +207,12 @@ export class InsightsPaymentsPage {
   }
 
   get successfulSmartRetryDistributionHeading(): Locator {
-    return this.page
-      .getByText("Successful Distribution of Smart Retry Payments", { exact: true })
-      .first();
+    return this.page.getByRole('heading', { name: 'Successful Distribution of' })
   }
 
   get failedSmartRetryDistributionHeading(): Locator {
     return this.page
-      .getByText("Failed Distribution of Smart Retry Payments", { exact: true })
-      .first();
+      .getByRole('heading', { name: 'Failed Distribution of Smart' })
   }
 
   // The Smart Retry distribution charts share the same groupBy tab bar as the
