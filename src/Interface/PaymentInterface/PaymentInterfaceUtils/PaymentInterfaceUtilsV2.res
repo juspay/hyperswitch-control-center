@@ -90,17 +90,11 @@ let mapDictToPaymentPayload: dict<JSON.t> => order_v2 = dict => {
   let addressKeys = ["line1", "line2", "line3", "city", "state", "country", "zip"]
   let amountDict = dict->getDictfromDict("amount")
 
-  let getOptionalFloat = (dict, key) => {
-    dict->Dict.get(key)->Option.flatMap(JSON.Decode.float)
-  }
-
   {
     payment_id: dict->getString("id", ""),
     merchant_id: dict->getString("processor_merchant_id", ""),
     net_amount: amountDict->getFloat("net_amount", 0.0),
-    surcharge_amount: dict
-    ->getDictfromDict("surcharge_details")
-    ->getOptionalFloat("surcharge_amount"),
+    surcharge_amount: amountDict->getOptionFloat("surcharge_amount"),
     connector: dict->getString("connector", ""),
     status: dict->getString("status", ""),
     amount: amountDict->getFloat("order_amount", 0.0),
