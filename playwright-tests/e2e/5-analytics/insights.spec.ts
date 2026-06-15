@@ -101,8 +101,6 @@ test.describe("New Analytics - Insights Payments", () => {
     await insights.revealAllCharts();
     await expect(insights.sankeyChart).toBeVisible({ timeout: 20000 });
     await expect.poll(async () => await insights.charts.count(), { timeout: 20000 }).toBeGreaterThanOrEqual(4);
-
-    await page.locator('.highcharts-series.highcharts-series-0.highcharts-bar-series > rect').first().hover();
   });
 
   test("should populate the Smart Retries tab with mocked data", async ({ page }) => {
@@ -120,8 +118,6 @@ test.describe("New Analytics - Insights Payments", () => {
     await expect
       .poll(async () => await insights.charts.count(), { timeout: 20000 })
       .toBeGreaterThanOrEqual(3);
-
-    await page.locator('.highcharts-series.highcharts-series-0.highcharts-bar-series > rect').first().hover();
   });
 
   test("should populate the Refunds tab with mocked data", async () => {

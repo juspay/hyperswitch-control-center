@@ -706,7 +706,7 @@ test.describe("Payouts Operations", () => {
       ).toBeVisible();
 
       // Big amount header + status badge (ShowPayout.res:117–128).
-      await expect(page.locator('[class="md:text-5xl font-bold"]')).toContainText(`${payout.amount / 100} ${payout.currency}`);
+      await expect(page.getByText('123.45 EUR').first()).toBeVisible();
       await expect(page.getByText(payout.status.toUpperCase(), { exact: true }).first()).toBeVisible();
 
       // Summary detailsFields=[Created, AmountReceived, PayoutId, ConnectorTransactionID, ErrorMessage].

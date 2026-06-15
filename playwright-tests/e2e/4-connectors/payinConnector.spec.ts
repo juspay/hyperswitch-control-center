@@ -387,8 +387,8 @@ test.describe("Payin Connector tests", () => {
     await apiKeyField.blur();
     await expect(page.getByText('Please enter Secret Key')).toBeVisible();
 
-    await page.locator('.grid.grid-cols-2 input[type="text"]').nth(1).clear();
-    await page.locator('.grid.grid-cols-2 input[type="text"]').nth(1).blur();
+    await page.getByRole('textbox', { name: 'Enter Connector label' }).clear();
+    await page.getByRole('textbox', { name: 'Enter Connector label' }).blur();
     await expect(page.getByText('Please enter Connector label').nth(1)).toBeVisible();
   });
 

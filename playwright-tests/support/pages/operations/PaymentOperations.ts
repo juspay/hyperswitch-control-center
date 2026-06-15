@@ -334,7 +334,7 @@ export class PaymentOperations {
   }
 
   get refundsSectionBlock(): Locator {
-    return this.page.locator('[class="flex flex-col gap-4"]').nth(1);
+    return this.page.getByRole('paragraph').filter({ hasText: 'Refunds' });
   }
 
   customerEmailTestId(email: string): Locator {

@@ -793,8 +793,7 @@ test.describe("Payment Operations", () => {
         )
         .click();
       await page
-        .locator('[class="flex relative  flex-row  flex-wrap"]')
-        .first()
+        .getByText('Select Connector')
         .click();
       await page.locator('[value="Stripe Dummy"]').click();
       await paymentOperations.applyButton.click();
@@ -1325,17 +1324,9 @@ test.describe("Payment Operations", () => {
       );
       await paymentOperations.initiateRefundButton.click();
 
-      await expect(
-        page.locator('[class="font-bold text-lg mb-5"]').nth(0),
-      ).toContainText("Summary");
-      await expect(
-        page.locator('[class="md:text-5xl font-bold"]'),
-      ).toContainText("123.45 USD");
-      await expect(
-        page.locator(
-          '[class="text-sm text-white font-bold px-3 py-2 rounded-md bg-hyperswitch_green dark:bg-opacity-50"]',
-        ),
-      ).toContainText("SUCCEEDED");
+      await expect(page.getByText('Summary')).toBeVisible();
+      await expect(page.getByText('123.45 USD').nth(1)).toBeVisible();
+      await expect(page.getByText('SUCCEEDED').nth(1)).toBeVisible();
 
       await expect(paymentOperations.dataLabel("Created")).toContainText(
         "Created",
@@ -1356,9 +1347,7 @@ test.describe("Payment Operations", () => {
         "Error Message",
       );
 
-      await expect(
-        page.locator('[class="font-bold text-lg mb-5"]').nth(1),
-      ).toContainText("About Payment");
+      await expect(page.getByText('About Payment')).toBeVisible();
       await expect(paymentOperations.dataLabel("Profile ID")).toContainText(
         "Profile ID",
       );
@@ -1386,9 +1375,7 @@ test.describe("Payment Operations", () => {
 
       await expect(page.getByText("Events and logs")).toBeVisible();
 
-      await expect(
-        page.locator('[class="flex flex-col gap-4"]').nth(0),
-      ).toContainText("Payment Attempts");
+      await expect(page.getByText('Payment Attempts')).toBeVisible();
 
       const expectedAttemptColumns = [
         "S.No",
@@ -1462,9 +1449,7 @@ test.describe("Payment Operations", () => {
         }
       }
 
-      await expect(
-        page.locator('[class="flex flex-col gap-4"]').nth(1),
-      ).toContainText("Refunds");
+      await expect(page.getByRole('paragraph').filter({ hasText: 'Refunds' })).toBeVisible();
 
       const expectedRefundAttemptColumns = [
         "S.No",

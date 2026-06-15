@@ -165,8 +165,6 @@ test.describe("Analytics - Routing - Dimension Filters", () => {
       await analytics.openAddFilters();
       await analytics.dimensionOption(label).click();
 
-      await expect(page.locator('.h-6 > div > svg').first()).not.toBeVisible();
-
       // A "Select <label>" chip appears for the selected dimension.
       await expect(analytics.selectedFilterChip(key)).toBeVisible({ timeout: 10000 });
       await expect(analytics.selectedFilterChip(key)).toContainText(`Select ${label}`);

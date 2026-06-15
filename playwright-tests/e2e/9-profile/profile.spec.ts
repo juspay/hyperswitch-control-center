@@ -335,7 +335,7 @@ test.describe("Profile - Two Factor Authentication - TOTP", () => {
     await expect(page.getByText('2Enter the 6-digit code shown in your app below')).toBeVisible();
     await expect(signinPage.qrCode2FA).toBeVisible({ timeout: 10000 });
     await expect(page.getByText('Then, Enter a 6-digit code')).toBeVisible();
-    await expect(page.locator('.flex.flex-col.justify-center.items-center.gap-4')).toBeVisible();
+    await expect(page.getByRole('textbox')).toHaveCount(6);
     await expect(page.getByRole('button', { name: 'Verify new OTP' })).toBeVisible();
   });
 
@@ -490,13 +490,13 @@ test.describe("Profile - Two Factor Authentication - TOTP", () => {
     await expect(page.getByText('Verify recovery code').first()).not.toBeVisible();
     await expect(page.locator('path').nth(1)).toBeVisible();
 
-    await expect(page.locator('.flex.flex-col.justify-center.items-center.gap-4')).not.toBeVisible();
+    await expect(page.getByRole('textbox').first()).not.toBeVisible();
     await expect(page.getByRole('button', { name: 'Regenerate QR' })).toBeVisible();
 
     await page.getByRole('button', { name: 'Regenerate QR' }).click();
 
     await expect(signInPage.qrCode2FA).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('.flex.flex-col.justify-center.items-center.gap-4')).toBeVisible();
+    await expect(page.getByRole('textbox')).toHaveCount(6);
 
     // Scan the new QR — the /reset interceptor above has populated newSecret
     // from the response that drove this QR render. Mint a fresh token with

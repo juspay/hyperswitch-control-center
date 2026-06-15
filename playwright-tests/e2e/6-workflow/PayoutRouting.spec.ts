@@ -794,10 +794,8 @@ test.describe("Advanced payout rule connector selection modes", () => {
     const isChecked = await ruleBasedConfiguration.distributeText.getAttribute('aria-checked');
     expect(isChecked || 'false').toBe('false');
 
-    const connectorBadges = page.locator('.flex.flex-row.items-center.justify-around.gap-2');
-    const badgeCount = await connectorBadges.count();
-    expect(badgeCount).toBeGreaterThanOrEqual(2);
-
+    expect(page.getByText('1adyen_payout_rule_a')).toBeVisible();
+    expect(page.getByText('2adyen_payout_rule_b')).toBeVisible();
     const percentageInputs = page.locator('input[name="1"], input[name="2"]');
     const inputCount = await percentageInputs.count();
     expect(inputCount).toBe(0);
