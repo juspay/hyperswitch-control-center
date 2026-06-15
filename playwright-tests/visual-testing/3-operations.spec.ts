@@ -239,8 +239,6 @@ test.describe("Visual Testing - Refund Operations", () => {
 
     await refundOperations.refundCell(1, 1).click();
 
-    //await expect(page.locator('[class="font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4"]')).toBeVisible();
-
     await expect(page).toHaveScreenshot("refund-details-1.png", {
       fullPage: true,
       animations: "disabled",
