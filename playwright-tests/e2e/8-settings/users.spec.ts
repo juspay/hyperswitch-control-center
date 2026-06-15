@@ -548,10 +548,10 @@ test.describe("Users - Details", () => {
     await expect(headers.filter({ hasText: "Role" })).toHaveCount(1);
     await expect(headers.filter({ hasText: "Status" })).toHaveCount(1);
 
-    const updatedMerchnatId = merchantId.charAt(0).toUpperCase() + merchantId.slice(1);
+    const updatedMerchantId = merchantId.charAt(0).toUpperCase() + merchantId.slice(1);
 
     await usersPage.verifyUserDetailsTableRowContent(
-      updatedMerchnatId,
+      updatedMerchantId,
       "all_profiles",
       "Merchant Developer"
     );
