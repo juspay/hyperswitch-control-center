@@ -769,7 +769,15 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   | Modified => Date(order.modified_at)
   | Currency => Text(order.currency)
   | CustomerId => Text(order.customer_id)
-  | Description => CustomCell(<EllipsisText displayValue={order.description} endValue={15} />, "")
+  | Description =>
+    CustomCell(
+      <CopyTextCustomComp
+        customTextCss="w-28 truncate whitespace-nowrap"
+        displayValue=Some(order.description)
+        showTooltip=true
+      />,
+      "",
+    )
   | MandateId => Text(order.mandate_id->Option.getOr(""))
   | MandateData => Text(order.mandate_data->Option.getOr(""))
   | SetupFutureUsage => Text(order.setup_future_usage)
