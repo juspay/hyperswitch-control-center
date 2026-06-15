@@ -169,23 +169,31 @@ let make = (
         maxHeight="max-h-full sm:max-h-64"
       />
       <RenderIf condition={selectedOptions->LogicUtils.isNonEmptyArray}>
-        <div className="flex flex-wrap gap-4 items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
           {selectedOptions
           ->Array.mapWithIndex((item, i) => {
             let key = Int.toString(i + 1)
+            let connectorLabel = gateWayName(item.connector.merchant_connector_id).connector_label
 
             <div
               key
               className="flex items-center h-10 bg-nd_gray-0 border border-nd_gray-300 rounded-10-px overflow-hidden">
-              <div className="flex items-center gap-2 pl-3.5 pr-2">
+              <div className="flex items-center gap-2 pl-3.5 pr-2 flex-1 min-w-0">
                 <GatewayIcon
-                  gateway={item.connector.connector->String.toUpperCase} className="w-6 h-6"
+                  gateway={item.connector.connector->String.toUpperCase}
+                  className="w-6 h-6 shrink-0"
                 />
-                <p className={`${body.md.medium} text-nd_gray-600 whitespace-nowrap`}>
-                  {gateWayName(item.connector.merchant_connector_id).connector_label->React.string}
-                </p>
+                <div className="flex-1 min-w-0">
+                  <ToolTip
+                    description=connectorLabel
+                    toolTipPosition=Top
+                    toolTipFor={<p className={`${body.md.medium} text-nd_gray-600 truncate w-full`}>
+                      {connectorLabel->React.string}
+                    </p>}
+                  />
+                </div>
               </div>
-              <div className="flex items-center gap-3 pr-3">
+              <div className="flex items-center gap-3 pr-3 shrink-0">
                 <RenderIf condition={isDistribute}>
                   <div
                     className="flex items-center gap-2.5 bg-nd_gray-0 border border-nd_gray-200 rounded px-2 py-0.5">

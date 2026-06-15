@@ -12,7 +12,7 @@ module GatewayView = {
       }
     }
 
-    <div className="flex flex-wrap gap-4 items-center">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
       {gateways
       ->Array.mapWithIndex((ruleGateway, index) => {
         let (connectorLabel, connectorName) = switch getConnectorObj(ruleGateway.gateway_name) {
@@ -22,13 +22,21 @@ module GatewayView = {
 
         <div
           key={Int.toString(index)}
-          className="flex items-center gap-2 h-10 px-3 bg-nd_gray-0 border border-nd_gray-300 rounded-10-px">
+          className="flex items-center gap-2 h-10 px-3 overflow-hidden bg-nd_gray-0 border border-nd_gray-300 rounded-10-px">
           <RenderIf condition={connectorName->LogicUtils.isNonEmptyString}>
-            <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-6 h-6" />
+            <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-6 h-6 shrink-0" />
           </RenderIf>
-          <p className={`${body.md.medium} text-nd_gray-600`}> {connectorLabel->React.string} </p>
+          <div className="flex-1 min-w-0">
+            <ToolTip
+              description=connectorLabel
+              toolTipPosition=Top
+              toolTipFor={<p className={`${body.md.medium} text-nd_gray-600 truncate w-full`}>
+                {connectorLabel->React.string}
+              </p>}
+            />
+          </div>
           <RenderIf condition={ruleGateway.distribution !== 100}>
-            <span className={`${body.md.medium} text-nd_gray-400`}>
+            <span className={`${body.md.medium} text-nd_gray-400 shrink-0`}>
               {(ruleGateway.distribution->Int.toString ++ "%")->React.string}
             </span>
           </RenderIf>
