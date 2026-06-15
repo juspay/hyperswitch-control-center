@@ -249,7 +249,7 @@ export class HomePage {
 
   get welcomeText(): Locator {
     return this.page.getByText(
-      "Welcome to the home of your Payments Control Center. It aims to provide your team with a 360-degree view of payments.",
+      "Welcome to your Payments Control Center — one place for your team to track and manage every payment",
     );
   }
 
