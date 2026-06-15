@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.06.15.0
+
+### Features
+
+- Recon engine improve graph labels, fullscreen, and file upload ([#4974](https://github.com/juspay/hyperswitch-control-center/pull/4974)) ([`fc783b7`](https://github.com/juspay/hyperswitch-control-center/commit/fc783b7f85072fa90d175218ecd318d6df01594a))
+
+### Refactors
+
+- Analytics - remove Microsoft Clarity integration ([#4920](https://github.com/juspay/hyperswitch-control-center/pull/4920)) ([`dd505d4`](https://github.com/juspay/hyperswitch-control-center/commit/dd505d47cdf1f09a6e3aeeb9ad9e2539cd933fc7))
+- Auth rate routing ui ([#4972](https://github.com/juspay/hyperswitch-control-center/pull/4972)) ([`60589a7`](https://github.com/juspay/hyperswitch-control-center/commit/60589a7254669130a5c8099a1fc912896468daf9))
+
+**Full Changelog:** [`2026.06.12.0...2026.06.15.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.12.0...2026.06.15.0)
+
+- - -
+
 ## 2026.06.12.0
 
 ### Features
