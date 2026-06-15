@@ -175,7 +175,7 @@ module SaveAndActivateButton = {
 }
 module ConfigureRuleButton = {
   @react.component
-  let make = (~setShowModal, ~customButtonStyle="") => {
+  let make = (~setShowModal, ~customButtonStyle="w-1/5") => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )

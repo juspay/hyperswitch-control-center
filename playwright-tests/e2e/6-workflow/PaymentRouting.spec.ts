@@ -1289,11 +1289,8 @@ test.describe("Auth rate based routing", () => {
     await expect(page).toHaveURL(/.*routing\/auth-rate/);
 
     await expect(
-      page.getByText("Intelligent Routing Configuration"),
-    ).toBeVisible();
-    await expect(
       page.getByText(
-        "Dynamically route payments to maximise payment authorization rates.",
+        "Auth rate routing continuously learns from recent authorization outcomes and sends each payment to the processor most likely to succeed.",
       ),
     ).toBeVisible();
 

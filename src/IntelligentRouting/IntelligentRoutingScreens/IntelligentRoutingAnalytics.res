@@ -106,14 +106,13 @@ module TransactionsTable = {
     )
 
     let tabs: array<Tabs.tab> = React.useMemo(() => {
-      open Tabs
       [
         {
-          title: "All",
+          Tabs.title: "All",
           renderContent: () => {table(tableData)},
         },
         {
-          title: "Failed",
+          Tabs.title: "Failed",
           renderContent: () => {table(failedTxnTableData)},
         },
       ]
@@ -163,14 +162,14 @@ module Card = {
         ~secondaryValue,
       )
 
-      let (textColor, icon) = switch direction {
-      | Upward => ("#12B76A", "nd-arrow-up-no-underline")
-      | Downward => ("#F04E42", "nd-arrow-down-no-underline")
-      | No_Change => ("#A0A0A0", "")
+      let (textColor, iconColor, icon) = switch direction {
+      | Upward => ("#12B76A", "text-nd_green-600", "nd-arrow-up-no-underline")
+      | Downward => ("#F04E42", "text-nd_red-600", "nd-arrow-down-no-underline")
+      | No_Change => ("#A0A0A0", "", "")
       }
 
       <div className={`flex gap-2`}>
-        <Icon name={icon} size=12 />
+        <Icon name={icon} size=12 className={iconColor} />
         <p className={textColor}> {value->valueFormatter(Rate)->React.string} </p>
       </div>
     }
