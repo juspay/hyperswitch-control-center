@@ -125,7 +125,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
         VolumeObject(obj),
       ).merchant_connector_id
     }
-    if value < 100 {
+    if value <= 100 {
       let newList = selectedOptions->Array.map(option => {
         switch option {
         | PriorityObject(obj) => obj.connector->Identity.genericTypeToJson
