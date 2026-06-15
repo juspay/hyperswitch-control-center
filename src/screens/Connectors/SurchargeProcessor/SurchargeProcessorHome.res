@@ -242,7 +242,7 @@ let make = () => {
   let summaryPageButton = switch currentStep {
   | Preview =>
     <div className="flex gap-6 items-center">
-      <>
+      {<>
         <RenderIf condition={connectorInfo.merchant_connector_id == surchargeProcessorId}>
           <div
             className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.md.medium}`}>
@@ -252,7 +252,7 @@ let make = () => {
         <RenderIf condition={connectorInfo.merchant_connector_id != surchargeProcessorId}>
           <MenuOption handleMenuOptionSubmit connectorInfo />
         </RenderIf>
-      </>
+      </>}
       <ConnectorPreviewHelper.EnableDisableConnectorToggle disableConnector isConnectorDisabled />
     </div>
   | _ =>
