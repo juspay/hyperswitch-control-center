@@ -154,23 +154,21 @@ let make = (
 
   if isExpanded {
     <div className="flex flex-col gap-6 w-full">
-      <div className="flex">
-        <SelectBoxAdapter.BaseDropdown
-          allowMultiSelect=true
-          buttonText=dropDownButtonText
-          buttonType=Button.SecondaryFilled
-          hideMultiSelectButtons=true
-          showSelectionAsChips=true
-          showAllSelectedOptions=false
-          customButtonStyle="bg-nd_gray-0 !w-full"
-          input
-          options={gatewayOptions}
-          fixedDropDownDirection=SelectBox.TopRight
-          searchable=true
-          maxHeight="max-h-full sm:max-h-64"
-        />
-      </div>
-      <RenderIf condition={selectedOptions->Array.length > 0}>
+      <SelectBoxAdapter.BaseDropdown
+        allowMultiSelect=true
+        buttonText=dropDownButtonText
+        buttonType=Button.SecondaryFilled
+        hideMultiSelectButtons=true
+        showSelectionAsChips=true
+        showAllSelectedOptions=false
+        customButtonStyle="bg-nd_gray-0 !w-full"
+        input
+        options={gatewayOptions}
+        fixedDropDownDirection=TopRight
+        searchable=true
+        maxHeight="max-h-full sm:max-h-64"
+      />
+      <RenderIf condition={selectedOptions->LogicUtils.isNonEmptyArray}>
         <div className="flex flex-wrap gap-4 items-center">
           {selectedOptions
           ->Array.mapWithIndex((item, i) => {
@@ -178,7 +176,7 @@ let make = (
 
             <div
               key
-              className="flex items-center h-10 bg-nd_gray-0 border border-nd_gray-300 rounded-[10px] overflow-hidden">
+              className="flex items-center h-10 bg-nd_gray-0 border border-nd_gray-300 rounded-10-px overflow-hidden">
               <div className="flex items-center gap-2 pl-3.5 pr-2">
                 <GatewayIcon
                   gateway={item.connector.connector->String.toUpperCase} className="w-6 h-6"

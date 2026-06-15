@@ -22,7 +22,7 @@ module GatewayView = {
 
         <div
           key={Int.toString(index)}
-          className="flex items-center gap-2 h-10 px-3 bg-nd_gray-0 border border-nd_gray-300 rounded-[10px]">
+          className="flex items-center gap-2 h-10 px-3 bg-nd_gray-0 border border-nd_gray-300 rounded-10-px">
           <RenderIf condition={connectorName->LogicUtils.isNonEmptyString}>
             <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-6 h-6" />
           </RenderIf>

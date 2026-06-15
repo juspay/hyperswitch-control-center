@@ -25,7 +25,6 @@ module VolumeRoutingView = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod(~showErrorToast=false)
     let showToast = ToastState.useShowToast()
-    let listLength = connectors->Array.length
     let (showModal, setShowModal) = React.useState(_ => false)
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let url = RescriptReactRouter.useUrl()
@@ -115,56 +114,56 @@ module VolumeRoutingView = {
       {switch pageState {
       | Create =>
         <div className="flex flex-col gap-6 w-full">
-          {listLength > 0
-            ? <>
-                <div className="flex flex-col gap-4 w-full">
-                  <div
-                    className="flex flex-col gap-4 p-6 border border-nd_gray-150 rounded-lg w-full">
-                    <div className="flex flex-col gap-1">
-                      <p className={`${body.lg.semibold} text-nd_gray-950`}>
-                        {React.string("Volume Based Rule Builder")}
-                      </p>
-                      <p className={`${body.md.medium} text-nd_gray-400`}>
-                        {React.string(
-                          "Split incoming traffic across your configured connectors by assigning a percentage to each.",
-                        )}
-                      </p>
-                    </div>
-                    <div className="p-4 bg-nd_gray-25 border border-nd_gray-150 rounded-lg w-full">
-                      <AddPLGateway
-                        id="algorithm.data"
-                        gatewayOptions={connectorOptions}
-                        isExpanded={true}
-                        isFirst={true}
-                        showPriorityIcon={false}
-                        showDistributionIcon={false}
-                        showFallbackIcon={false}
-                        dropDownButtonText="Select Processors"
-                        connectorList
-                      />
-                    </div>
-                  </div>
+          <RenderIf condition={connectors->isNonEmptyArray}>
+            <div className="flex flex-col gap-4 w-full">
+              <div className="flex flex-col gap-4 p-6 border border-nd_gray-150 rounded-lg w-full">
+                <div className="flex flex-col gap-1">
+                  <p className={`${body.lg.semibold} text-nd_gray-950`}>
+                    {React.string("Volume Based Rule Builder")}
+                  </p>
+                  <p className={`${body.md.medium} text-nd_gray-400`}>
+                    {React.string(
+                      "Split incoming traffic across your configured connectors by assigning a percentage to each.",
+                    )}
+                  </p>
                 </div>
-                <ConfigureRuleButton setShowModal customButtonStyle="!ml-1" />
-                <CustomModal.RoutingCustomModal
-                  showModal
-                  setShowModal
-                  cancelButton={<FormRenderer.SubmitButton
-                    text="Save Rule"
-                    buttonSize=Button.Small
-                    buttonType=Button.Secondary
-                    customSubmitButtonStyle="w-1/5 rounded-lg"
-                  />}
-                  submitButton={<AdvancedRoutingUIUtils.SaveAndActivateButton
-                    onSubmit handleActivateConfiguration
-                  />}
-                  headingText="Activate Current Configuration?"
-                  subHeadingText="Activating this configuration will override the current one. Alternatively, save it to access later from the configuration history. Please confirm."
-                  leftIcon="warning-modal"
-                  iconSize=35
-                />
-              </>
-            : <RoutingHelper.NoProcessorFound connectorPath />}
+                <div className="p-4 bg-nd_gray-25 border border-nd_gray-150 rounded-lg w-full">
+                  <AddPLGateway
+                    id="algorithm.data"
+                    gatewayOptions={connectorOptions}
+                    isExpanded={true}
+                    isFirst={true}
+                    showPriorityIcon={false}
+                    showDistributionIcon={false}
+                    showFallbackIcon={false}
+                    dropDownButtonText="Select Processors"
+                    connectorList
+                  />
+                </div>
+              </div>
+            </div>
+            <ConfigureRuleButton setShowModal customButtonStyle="!ml-1" />
+            <CustomModal.RoutingCustomModal
+              showModal
+              setShowModal
+              cancelButton={<FormRenderer.SubmitButton
+                text="Save Rule"
+                buttonSize=Button.Small
+                buttonType=Button.Secondary
+                customSubmitButtonStyle="w-1/5 rounded-lg"
+              />}
+              submitButton={<AdvancedRoutingUIUtils.SaveAndActivateButton
+                onSubmit handleActivateConfiguration
+              />}
+              headingText="Activate Current Configuration?"
+              subHeadingText="Activating this configuration will override the current one. Alternatively, save it to access later from the configuration history. Please confirm."
+              leftIcon="warning-modal"
+              iconSize=35
+            />
+          </RenderIf>
+          <RenderIf condition={connectors->isEmptyArray}>
+            <RoutingHelper.NoProcessorFound connectorPath />
+          </RenderIf>
         </div>
       | Preview =>
         <div className="flex flex-col w-full gap-3">
