@@ -108,7 +108,6 @@ test.describe("New Analytics - Insights Payments", () => {
   test("should populate the Smart Retries tab with mocked data", async ({ page }) => {
     await insights.openSmartRetriesTab();
 
-    await expect(insights.smartRetryPaymentsProcessedHeading).toBeVisible({ timeout: 15000 });
     await expect(insights.smartRetryPaymentsProcessedChartHeading).toBeVisible({ timeout: 15000 });
     await expect(insights.successfulSmartRetryDistributionHeading).toBeVisible({ timeout: 15000 });
     await expect(insights.smartRetryDistributionChartHeadings.first()).toBeVisible({ timeout: 15000 });

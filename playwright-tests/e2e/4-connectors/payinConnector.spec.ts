@@ -21,6 +21,8 @@ import { exec } from "node:child_process";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
+const CONNECTOR_SETUP_TIMEOUT = 60000;
+
 async function signupAndLogin(
   page: Page,
   context: BrowserContext,
@@ -606,7 +608,7 @@ test.describe("Payin Connector tests", () => {
     page,
     context,
   }) => {
-    test.setTimeout(60000);
+    test.setTimeout(CONNECTOR_SETUP_TIMEOUT);
     const createdLabel = await setupConfiguredStripeConnector(page, context);
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
@@ -665,7 +667,7 @@ test.describe("Payin Connector tests", () => {
     page,
     context,
   }) => {
-    test.setTimeout(60000);
+    test.setTimeout(CONNECTOR_SETUP_TIMEOUT);
     await setupConfiguredStripeConnector(page, context);
     await gotoConnectorList(page);
     const stripeRow = page
@@ -691,7 +693,7 @@ test.describe("Payin Connector tests", () => {
     page,
     context,
   }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(CONNECTOR_SETUP_TIMEOUT);
     const { merchantId } = await ompLineage(page);
     const apiKey = await createAPIKey(merchantId, "", context.request);
     const profileId = await getDefaultProfileId(merchantId, context.request);
@@ -788,7 +790,7 @@ test.describe("Payin Connector tests", () => {
   test("should setup Stripe connector with Bank Debit PMT when no PM auth processor is setup", async ({
     page,
   }) => {
-    test.setTimeout(60000);
+    test.setTimeout(CONNECTOR_SETUP_TIMEOUT);
     const homePage = new HomePage(page);
     const paymentConnector = new PaymentConnector(page);
 
@@ -832,7 +834,7 @@ test.describe("Payin Connector tests", () => {
   test("should setup Stripe connector with Bank Debit PMT + Plaid when PM auth processor is setup", async ({
     page,
   }) => {
-    test.setTimeout(60000);
+    test.setTimeout(CONNECTOR_SETUP_TIMEOUT);
     const homePage = new HomePage(page);
     const paymentConnector = new PaymentConnector(page);
 
@@ -896,14 +898,14 @@ test.describe("Payin Connector tests", () => {
     await page.getByText('AchOptional Configuration').click();
     await expect(page.getByText('Select PM Authenticator (optional)Select PM Authentication Processor(Enable method to choose an authenticator)CancelProceed').first()).toBeVisible();
 
-    await expect(page.locator('div').filter({ hasText: /^Select PM Authentication Processor$/ }).nth(1)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Select PM Authentication' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Proceed' }).nth(1)).toBeVisible();
     await expect(page.getByRole('button', { name: 'Proceed' }).nth(1)).toBeDisabled();
 
     await page.locator('.cursor-pointer > .w-4 > div > svg').first().click();
-    await expect(page.locator('div').filter({ hasText: /^Select PM Authentication Processor$/ }).nth(1)).not.toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Select PM Authentication' })).not.toBeDisabled();
     await expect(page.getByRole('button', { name: 'Proceed' }).nth(1)).not.toBeDisabled();
-    await page.locator('div').filter({ hasText: /^Select PM Authentication Processor$/ }).nth(1).click();
+    await page.getByRole('button', { name: 'Select PM Authentication' }).click();
     await page.getByText('Plaid').click();
     await page.getByRole('button', { name: 'Proceed' }).nth(1).click();
 
@@ -921,7 +923,7 @@ test.describe("Payin Connector tests", () => {
   test("should setup Stripe connector without Plaid and Bank Debit PMT when PM auth processor is setup", async ({
     page,
   }) => {
-    test.setTimeout(60000);
+    test.setTimeout(CONNECTOR_SETUP_TIMEOUT);
     const homePage = new HomePage(page);
     const paymentConnector = new PaymentConnector(page);
 
@@ -985,7 +987,7 @@ test.describe("Payin Connector tests", () => {
     await page.getByText('AchOptional Configuration').click();
     await expect(page.getByText('Select PM Authenticator (optional)Select PM Authentication Processor(Enable method to choose an authenticator)CancelProceed').first()).toBeVisible();
 
-    await expect(page.locator('div').filter({ hasText: /^Select PM Authentication Processor$/ }).nth(1)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Select PM Authentication' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Proceed' }).nth(1)).toBeVisible();
     await expect(page.getByRole('button', { name: 'Proceed' }).nth(1)).toBeDisabled();
 

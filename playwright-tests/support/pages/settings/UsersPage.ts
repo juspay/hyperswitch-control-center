@@ -153,13 +153,13 @@ export class UsersPage {
 
   get organizationFilterOption(): Locator {
     return this.page
-      .locator('[data-dropdown-value^="202"]')
+      .locator('[data-dropdown-value^="playwright_"]')
       .filter({ hasText: "(Organization)" });
   }
 
   get merchantFilterOption(): Locator {
     return this.page
-      .locator('[data-dropdown-value^="202"]')
+      .locator('[data-dropdown-value^="playwright_"]')
       .filter({ hasText: "(Merchant)" });
   }
 

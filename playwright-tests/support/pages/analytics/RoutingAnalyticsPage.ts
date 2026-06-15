@@ -113,6 +113,10 @@ export class RoutingAnalyticsPage {
     return this.page.locator('div').filter({ hasText: /^Rule Based$/ }).first();
   }
 
+  get distributionHeading(): Locator {
+    return this.page.getByText('Routing Distribution')
+  }
+
   get connectorVolumeDistribution(): Locator {
     return this.page.getByText("Connector Volume Distribution", { exact: true }).first();
   }
