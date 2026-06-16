@@ -41,10 +41,19 @@ const json = (route: Route, body: unknown) =>
     body: JSON.stringify(body),
   });
 
+// Shape of a single analytics metrics query (the dispatchers only read these
+// keys off the request body to decide which canned rows to return).
+interface AnalyticsQuery {
+  metrics?: string[];
+  groupByNames?: string[];
+  timeSeries?: unknown;
+  granularity?: unknown;
+}
+
 // Returns the first element of an analytics request body (the body is a
 // single-element array `[{ ... }]`); falls back to the raw object.
-function firstQuery(route: Route): Record<string, any> {
-  let body: any;
+function firstQuery(route: Route): AnalyticsQuery {
+  let body: AnalyticsQuery | AnalyticsQuery[] | undefined;
   try {
     body = route.request().postDataJSON();
   } catch {
@@ -120,7 +129,10 @@ const FILTER_VALUES = {
   ],
 };
 
-const wrap = (queryData: Array<Record<string, any>>, metaData: Array<Record<string, any>> = [{}]) => ({
+const wrap = (
+  queryData: Array<Record<string, unknown>>,
+  metaData: Array<Record<string, unknown>> = [{}],
+) => ({
   queryData,
   metaData,
 });
@@ -130,12 +142,15 @@ const wrap = (queryData: Array<Record<string, any>>, metaData: Array<Record<stri
 // ---------------------------------------------------------------------------
 
 // Connector Volume Distribution pie (payment_count grouped by connector).
-function connectorVolumeRows(): Array<Record<string, any>> {
-  return CONNECTORS.map((connector, i) => ({ connector, payment_count: 820 - i * 180 }));
+function connectorVolumeRows(): Array<Record<string, unknown>> {
+  return CONNECTORS.map((connector, i) => ({
+    connector,
+    payment_count: 820 - i * 180,
+  }));
 }
 
 // Routing Logic Distribution pie (payment_count grouped by routing_approach).
-function routingApproachDistRows(): Array<Record<string, any>> {
+function routingApproachDistRows(): Array<Record<string, unknown>> {
   return ROUTING_APPROACHES.map((routing_approach, i) => ({
     routing_approach,
     payment_count: 900 - i * 250,
@@ -144,8 +159,8 @@ function routingApproachDistRows(): Array<Record<string, any>> {
 
 // Summary table — connector + routing_approach grouping (drives the expandable
 // per-connector detail rows). Amounts are minor units (÷100 on display).
-function summaryConnectorRoutingRows(): Array<Record<string, any>> {
-  const rows: Array<Record<string, any>> = [];
+function summaryConnectorRoutingRows(): Array<Record<string, unknown>> {
+  const rows: Array<Record<string, unknown>> = [];
   ROUTING_APPROACHES.forEach((routing_approach, ri) => {
     CONNECTORS.forEach((connector, ci) => {
       const count = 300 - ri * 60 - ci * 40;
@@ -163,7 +178,7 @@ function summaryConnectorRoutingRows(): Array<Record<string, any>> {
 }
 
 // Summary table — routing_approach grouping (the top-level summary rows).
-function summaryRoutingRows(): Array<Record<string, any>> {
+function summaryRoutingRows(): Array<Record<string, unknown>> {
   return ROUTING_APPROACHES.map((routing_approach, i) => {
     const count = 700 - i * 150;
     return {
@@ -179,7 +194,7 @@ function summaryRoutingRows(): Array<Record<string, any>> {
 // Trends — "Success Over Time" line (payment_success_rate grouped by connector,
 // one row per connector per day bucket).
 function routingSuccessSeries() {
-  const queryData: Array<Record<string, any>> = [];
+  const queryData: Array<Record<string, unknown>> = [];
   dayBuckets().forEach((day, i) => {
     CONNECTORS.forEach((connector, ci) => {
       queryData.push({
@@ -194,7 +209,7 @@ function routingSuccessSeries() {
 
 // Trends — "Volume Over Time" line (payment_count grouped by connector).
 function routingVolumeSeries() {
-  const queryData: Array<Record<string, any>> = [];
+  const queryData: Array<Record<string, unknown>> = [];
   dayBuckets().forEach((day, i) => {
     CONNECTORS.forEach((connector, ci) => {
       queryData.push({
@@ -213,13 +228,18 @@ function routingVolumeSeries() {
 
 // Basic metrics card — "Total Savings" + "Debit Routed Transactions" (no
 // groupBy; the page sums these fields). Amount is minor units (÷100 on display).
-function leastCostBasicRows(): Array<Record<string, any>> {
-  return [{ debit_routing_savings_in_usd: 1845000, debit_routed_transaction_count: 920 }];
+function leastCostBasicRows(): Array<Record<string, unknown>> {
+  return [
+    {
+      debit_routing_savings_in_usd: 1845000,
+      debit_routed_transaction_count: 920,
+    },
+  ];
 }
 
 // Regulation card — "Regulated / Unregulated Transactions Percentage" (grouped
 // by is_issuer_regulated).
-function leastCostRegulationRows(): Array<Record<string, any>> {
+function leastCostRegulationRows(): Array<Record<string, unknown>> {
   return [
     { is_issuer_regulated: true, debit_routed_transaction_count: 600 },
     { is_issuer_regulated: false, debit_routed_transaction_count: 320 },
@@ -227,7 +247,7 @@ function leastCostRegulationRows(): Array<Record<string, any>> {
 }
 
 // Volume Distribution pie (grouped by card_network).
-function leastCostDistributionRows(): Array<Record<string, any>> {
+function leastCostDistributionRows(): Array<Record<string, unknown>> {
   return CARD_NETWORKS.map((card_network, i) => {
     const count = 600 - i * 280;
     return {
@@ -239,8 +259,8 @@ function leastCostDistributionRows(): Array<Record<string, any>> {
 }
 
 // Summary table (grouped by card_network, signature_network, is_issuer_regulated).
-function leastCostSummaryRows(): Array<Record<string, any>> {
-  const rows: Array<Record<string, any>> = [];
+function leastCostSummaryRows(): Array<Record<string, unknown>> {
+  const rows: Array<Record<string, unknown>> = [];
   CARD_NETWORKS.forEach((card_network, i) => {
     [true, false].forEach((isRegulated) => {
       const count = isRegulated ? 200 - i * 80 : 100 - i * 40;
@@ -279,7 +299,9 @@ function routingMetricsResponse(route: Route) {
 
   // Trend line charts (granularity). Success-rate vs volume differ only by metric.
   if (hasGranularity) {
-    return metrics.includes("payment_success_rate") ? routingSuccessSeries() : routingVolumeSeries();
+    return metrics.includes("payment_success_rate")
+      ? routingSuccessSeries()
+      : routingVolumeSeries();
   }
 
   // Summary table — connector + routing_approach grouping (the expandable detail).
@@ -312,7 +334,10 @@ function routingMetricsResponse(route: Route) {
 // POST analytics/v2/{scope}/metrics/payments — First Attempt Authorization Rate
 // card reads metaData[0].total_success_rate_without_smart_retries.
 function routingPaymentsV2Response() {
-  return { queryData: [], metaData: [{ total_success_rate_without_smart_retries: 86.4 }] };
+  return {
+    queryData: [],
+    metaData: [{ total_success_rate_without_smart_retries: 86.4 }],
+  };
 }
 
 // POST analytics/v1/{scope}/metrics/payments — serves both the Overall Routing
@@ -327,9 +352,12 @@ function routingPaymentsV1Response(route: Route) {
   // Least Cost Routing tab — debit-routing widgets.
   if (metrics.includes("sessionized_debit_routing")) {
     if (hasGranularity) return leastCostSavingsSeries();
-    if (groupBy.includes("signature_network")) return wrap(leastCostSummaryRows());
-    if (groupBy.includes("is_issuer_regulated")) return wrap(leastCostRegulationRows());
-    if (groupBy.includes("card_network")) return wrap(leastCostDistributionRows());
+    if (groupBy.includes("signature_network"))
+      return wrap(leastCostSummaryRows());
+    if (groupBy.includes("is_issuer_regulated"))
+      return wrap(leastCostRegulationRows());
+    if (groupBy.includes("card_network"))
+      return wrap(leastCostDistributionRows());
     return wrap(leastCostBasicRows());
   }
 
@@ -349,28 +377,33 @@ function routingPaymentsV1Response(route: Route) {
 // page navigates (i.e. before loginAndVisit opens the analytics route).
 export async function mockRoutingAnalytics(page: Page): Promise<void> {
   // Dimension catalogue.
-  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/routing\/info/, (route) =>
-    json(route, ROUTING_INFO),
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/routing\/info/,
+    (route) => json(route, ROUTING_INFO),
   );
 
   // Dimension filter values.
-  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/filters\/routing/, (route) =>
-    json(route, FILTER_VALUES),
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/filters\/routing/,
+    (route) => json(route, FILTER_VALUES),
   );
 
   // v2 payments metrics (FAAR card).
-  await page.route(/\/analytics\/v2\/(org|merchant|profile)\/metrics\/payments/, (route) =>
-    json(route, routingPaymentsV2Response()),
+  await page.route(
+    /\/analytics\/v2\/(org|merchant|profile)\/metrics\/payments/,
+    (route) => json(route, routingPaymentsV2Response()),
   );
 
   // v1 payments metrics (Total Failure card).
-  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/metrics\/payments/, (route) =>
-    json(route, routingPaymentsV1Response(route)),
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/metrics\/payments/,
+    (route) => json(route, routingPaymentsV1Response(route)),
   );
 
   // v1 routing metrics (cards / distribution / summary / trends).
-  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/metrics\/routing/, (route) =>
-    json(route, routingMetricsResponse(route)),
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/metrics\/routing/,
+    (route) => json(route, routingMetricsResponse(route)),
   );
 }
 
@@ -383,14 +416,31 @@ export async function mockRoutingAnalyticsError(page: Page): Promise<void> {
     route.fulfill({
       status: 500,
       contentType: "application/json",
-      body: JSON.stringify({ error: { type: "server_error", message: "Internal Server Error" } }),
+      body: JSON.stringify({
+        error: { type: "server_error", message: "Internal Server Error" },
+      }),
     });
 
-  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/routing\/info/, fail);
-  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/filters\/routing/, fail);
-  await page.route(/\/analytics\/v2\/(org|merchant|profile)\/metrics\/payments/, fail);
-  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/metrics\/payments/, fail);
-  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/metrics\/routing/, fail);
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/routing\/info/,
+    fail,
+  );
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/filters\/routing/,
+    fail,
+  );
+  await page.route(
+    /\/analytics\/v2\/(org|merchant|profile)\/metrics\/payments/,
+    fail,
+  );
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/metrics\/payments/,
+    fail,
+  );
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/metrics\/routing/,
+    fail,
+  );
 }
 
 export default mockRoutingAnalytics;

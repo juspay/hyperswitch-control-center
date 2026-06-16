@@ -1,14 +1,19 @@
 import { test, expect } from "../../support/test";
-import type { Page, BrowserContext } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { FrmConnector } from "../../support/pages/connector/FrmConnector";
 import { generateUniqueEmail } from "../../support/helper";
-import { signupUser, loginUI, assertConnectorFieldLabels, fillConnectorFields } from "../../support/commands";
+import {
+  signupUser,
+  loginUI,
+  assertConnectorFieldLabels,
+  fillConnectorFields,
+} from "../../support/commands";
 import { frmConnectorConfig } from "../../support/fixtures/frmConnectorConfig";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
-async function signupAndLogin(page: Page, context: BrowserContext) {
+async function signupAndLogin(page: Page) {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -22,8 +27,8 @@ async function gotoFrmList(page: Page) {
 }
 
 test.describe("FRM (Fraud & Risk) Connectors", () => {
-  test.beforeEach(async ({ page, context }) => {
-    await signupAndLogin(page, context);
+  test.beforeEach(async ({ page }) => {
+    await signupAndLogin(page);
   });
 
   test("should navigate to FRM connectors page via sidebar", async ({
@@ -79,9 +84,9 @@ test.describe("FRM (Fraud & Risk) Connectors", () => {
     }
     await connectButtons.nth(0).click();
     await page.waitForTimeout(1500);
-    await expect(
-      page.getByText(/Credential|API Key|Key/i).first(),
-    ).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText(/Credential|API Key|Key/i).first()).toBeVisible(
+      { timeout: 15000 },
+    );
   });
 
   test("should preserve route across navigation", async ({ page }) => {
@@ -100,16 +105,14 @@ test.describe("Live FRM Connectors", () => {
   let email: string;
 
   const frmConnectors = Object.entries(frmConnectorConfig);
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
   for (const [key, connector] of frmConnectors) {
-    test(`should setup and verify ${key} FRM connector`, async ({
-      page,
-    }) => {
+    test(`should setup and verify ${key} FRM connector`, async ({ page }) => {
       const homePage = new HomePage(page);
       const frmConnector = new FrmConnector(page);
 

@@ -1,16 +1,12 @@
 import { test, expect } from "@playwright/test";
 import { generateUniqueEmail } from "../support/helper";
-import {
-  signupUser,
-  loginUI,
-  mockV2MerchantList,
-} from "../support/commands";
+import { signupUser, loginUI, mockV2MerchantList } from "../support/commands";
 import { HomePage } from "../support/pages/homepage/HomePage";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 test.describe("Visual Testing - Homepage", () => {
-  test("homepage should match visual snapshot", async ({ page, context }) => {
+  test("homepage should match visual snapshot", async ({ page }) => {
     const homePage = new HomePage(page);
 
     // Freeze time so the greeting ("Good morning"/"afternoon"/"evening")
@@ -30,7 +26,12 @@ test.describe("Visual Testing - Homepage", () => {
     await expect(page).toHaveScreenshot("homepage.png", {
       fullPage: true,
       animations: "disabled",
-      mask: [homePage.navHeaderMask, homePage.merchantNameButton, page.locator('div.flex.items-center.gap-2').nth(9), page.locator('div.flex.items-center.gap-2').nth(10)],
+      mask: [
+        homePage.navHeaderMask,
+        homePage.merchantNameButton,
+        page.locator("div.flex.items-center.gap-2").nth(9),
+        page.locator("div.flex.items-center.gap-2").nth(10),
+      ],
     });
 
     await homePage.homeV2.click();

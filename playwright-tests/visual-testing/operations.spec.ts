@@ -17,7 +17,9 @@ import { CustomerOperations } from "../support/pages/operations/CustomerOperatio
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 test.describe("Visual Testing - Payment Operations", () => {
-  test("payment operations when no payment exists should match visual snapshot", async ({ page, context }) => {
+  test("payment operations when no payment exists should match visual snapshot", async ({
+    page,
+  }) => {
     await mockV2MerchantList(page);
 
     const homePage = new HomePage(page);
@@ -37,7 +39,10 @@ test.describe("Visual Testing - Payment Operations", () => {
     });
   });
 
-  test("payment operations when payment exists should match visual snapshot", async ({ page, context }) => {
+  test("payment operations when payment exists should match visual snapshot", async ({
+    page,
+    context,
+  }) => {
     await mockV2MerchantList(page);
 
     const homePage = new HomePage(page);
@@ -56,7 +61,7 @@ test.describe("Visual Testing - Payment Operations", () => {
         "stripe_test_1",
         context.request,
       );
-      const paymentData = await createPaymentAPI(merchantId, context.request);
+      await createPaymentAPI(merchantId, context.request);
     }
 
     await homePage.operations.click();
@@ -73,10 +78,34 @@ test.describe("Visual Testing - Payment Operations", () => {
     await paymentOperations.refundAmountInput.fill("12.34");
     await paymentOperations.initiateRefundButton.click();
 
-    await expect(page.locator('div').filter({ hasText: /^SDK Events not implemented for SQLX is not implemented\.$/ }).nth(1)).toBeHidden();
-    await expect(page.locator('div').filter({ hasText: /^Refund successful$/ }).nth(1)).toBeHidden();
-    await expect(page.locator('div').filter({ hasText: /^Details Updated$/ }).nth(1)).toBeHidden();
-    await expect(page.locator('div').filter({ hasText: /^SDK Events not implemented for SQLX is not implemented\.$/ }).nth(5)).toBeHidden();
+    await expect(
+      page
+        .locator("div")
+        .filter({
+          hasText: /^SDK Events not implemented for SQLX is not implemented\.$/,
+        })
+        .nth(1),
+    ).toBeHidden();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Refund successful$/ })
+        .nth(1),
+    ).toBeHidden();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Details Updated$/ })
+        .nth(1),
+    ).toBeHidden();
+    await expect(
+      page
+        .locator("div")
+        .filter({
+          hasText: /^SDK Events not implemented for SQLX is not implemented\.$/,
+        })
+        .nth(5),
+    ).toBeHidden();
 
     await paymentOperations.eventsAndLogsSection.click();
     await expect(page).toHaveScreenshot("payment-details.png", {
@@ -94,7 +123,9 @@ test.describe("Visual Testing - Payment Operations", () => {
       maxDiffPixelRatio: 0.01,
     });
 
-    await expect(paymentOperations.refundsSectionBlock).toContainText("Refunds");
+    await expect(paymentOperations.refundsSectionBlock).toContainText(
+      "Refunds",
+    );
     await paymentOperations.refundCell(1, 1).click();
     await paymentOperations.refundReasonField.scrollIntoViewIfNeeded();
     await expect(page).toHaveScreenshot("payment-refund-details.png", {
@@ -104,7 +135,10 @@ test.describe("Visual Testing - Payment Operations", () => {
     });
 
     await paymentOperations.customerDetailsSection.click();
-    await paymentOperations.customerEmailTestId("abc@test.com").nth(3).scrollIntoViewIfNeeded();
+    await paymentOperations
+      .customerEmailTestId("abc@test.com")
+      .nth(3)
+      .scrollIntoViewIfNeeded();
     await expect(page).toHaveScreenshot("payment-customer-details.png", {
       fullPage: true,
       animations: "disabled",
@@ -134,12 +168,13 @@ test.describe("Visual Testing - Payment Operations", () => {
       animations: "disabled",
       maxDiffPixelRatio: 0.01,
     });
-
   });
 });
 
 test.describe("Visual Testing - Refund Operations", () => {
-  test("refund operations when no refund exists should match visual snapshot", async ({ page, context }) => {
+  test("refund operations when no refund exists should match visual snapshot", async ({
+    page,
+  }) => {
     await mockV2MerchantList(page);
 
     const homePage = new HomePage(page);
@@ -159,7 +194,10 @@ test.describe("Visual Testing - Refund Operations", () => {
     });
   });
 
-  test("refund operations when refund exists should match visual snapshot", async ({ page, context }) => {
+  test("refund operations when refund exists should match visual snapshot", async ({
+    page,
+    context,
+  }) => {
     await mockV2MerchantList(page);
 
     const homePage = new HomePage(page);
@@ -215,7 +253,9 @@ test.describe("Visual Testing - Refund Operations", () => {
 });
 
 test.describe("Visual Testing - Payout Operations", () => {
-  test("payout operations when no payouts exists should match visual snapshot", async ({ page, context }) => {
+  test("payout operations when no payouts exists should match visual snapshot", async ({
+    page,
+  }) => {
     await mockV2MerchantList(page);
 
     const homePage = new HomePage(page);
@@ -235,7 +275,10 @@ test.describe("Visual Testing - Payout Operations", () => {
     });
   });
 
-  test("payout operations when payouts exist should match visual snapshot", async ({ page, context }) => {
+  test("payout operations when payouts exist should match visual snapshot", async ({
+    page,
+    context,
+  }) => {
     await mockV2MerchantList(page);
 
     const homePage = new HomePage(page);
@@ -300,12 +343,13 @@ test.describe("Visual Testing - Payout Operations", () => {
       animations: "disabled",
       maxDiffPixelRatio: 0.01,
     });
-
   });
 });
 
 test.describe("Visual Testing - Dispute Operations", () => {
-  test("dispute operations when no disputes exists should match visual snapshot", async ({ page, context }) => {
+  test("dispute operations when no disputes exists should match visual snapshot", async ({
+    page,
+  }) => {
     await mockV2MerchantList(page);
 
     const homePage = new HomePage(page);
@@ -327,7 +371,9 @@ test.describe("Visual Testing - Dispute Operations", () => {
 });
 
 test.describe("Visual Testing - Customers", () => {
-  test("customers page when no customers exist should match visual snapshot", async ({ page, context }) => {
+  test("customers page when no customers exist should match visual snapshot", async ({
+    page,
+  }) => {
     await mockV2MerchantList(page);
 
     const homePage = new HomePage(page);
@@ -347,7 +393,10 @@ test.describe("Visual Testing - Customers", () => {
     });
   });
 
-  test("customers page when customers exist should match visual snapshot", async ({ page, context }) => {
+  test("customers page when customers exist should match visual snapshot", async ({
+    page,
+    context,
+  }) => {
     await mockV2MerchantList(page);
 
     const homePage = new HomePage(page);

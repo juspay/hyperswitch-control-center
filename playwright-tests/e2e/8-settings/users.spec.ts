@@ -4,11 +4,7 @@ import { HomePage } from "../../support/pages/homepage/HomePage";
 import { UsersPage } from "../../support/pages/settings/UsersPage";
 import { SignInPage } from "../../support/pages/auth/SignInPage";
 import { ResetPasswordPage } from "../../support/pages/auth/ResetPasswordPage";
-import {
-  generateUniqueEmail,
-  getInvalidEmails,
-  generateDateTimeString,
-} from "../../support/helper";
+import { generateUniqueEmail } from "../../support/helper";
 import {
   signupUser,
   loginUI,
@@ -17,11 +13,10 @@ import {
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 const MAIL_URL = process.env.PLAYWRIGHT_MAIL_URL || "http://localhost:8025";
-const email = "playwright@test.com";
 
 async function setupAndNavigate(
   page: Page,
-  context: BrowserContext,
+  _context: BrowserContext,
 ): Promise<{ email: string; usersPage: UsersPage }> {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -31,10 +26,8 @@ async function setupAndNavigate(
   return { email, usersPage: new UsersPage(page) };
 }
 
-
 test.describe("Users - UI", () => {
-
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -42,9 +35,7 @@ test.describe("Users - UI", () => {
     await homePage.users.click();
   });
 
-  test("Verify the UI of the Users page", async ({
-    page,
-  }) => {
+  test("Verify the UI of the Users page", async ({ page }) => {
     const usersPage = new UsersPage(page);
     await expect(usersPage.teamManagementText).toBeVisible();
     await expect(usersPage.usersTabText).toBeVisible();
@@ -64,7 +55,7 @@ test.describe("Users - UI", () => {
     await expect(usersPage.inviteUsersRoleButton).toBeEnabled();
   });
 
-  test("Search filters the users table by email", async ({ page, context }) => {
+  test("Search filters the users table by email", async ({ page }) => {
     const usersPage = new UsersPage(page);
     const searchInput = usersPage.searchInput;
     await expect(searchInput).toBeAttached();
@@ -73,8 +64,12 @@ test.describe("Users - UI", () => {
     await expect(usersPage.usersTableRows).toHaveCount(1);
     await expect(usersPage.emailColumnHeader).toBeVisible();
     await expect(usersPage.roleColumnHeader).toBeVisible();
-    await expect(usersPage.usersTableRows.first().locator("td").first()).toContainText("@test.com");
-    await expect(usersPage.usersTableRows.first().locator("td").first()).toBeAttached();
+    await expect(
+      usersPage.usersTableRows.first().locator("td").first(),
+    ).toContainText("@test.com");
+    await expect(
+      usersPage.usersTableRows.first().locator("td").first(),
+    ).toBeAttached();
     await expect(usersPage.organizationAdminColumnText).toBeVisible();
     await expect(usersPage.organizationAdminColumnText).toBeAttached();
 
@@ -116,10 +111,7 @@ test.describe("Users - UI", () => {
       // Clicking it opens the menu; the menu items match `entityOption`.
       await expect(usersPage.roleOption).toBeVisible();
       await usersPage.roleOption.click();
-      await usersPage.entityOption
-        .filter({ hasText: role })
-        .first()
-        .click();
+      await usersPage.entityOption.filter({ hasText: role }).first().click();
 
       await usersPage.sendInviteButton.click();
       await expect(usersPage.sendInviteButton).toBeHidden();
@@ -134,9 +126,7 @@ test.describe("Users - UI", () => {
     // Default view: Org Admin (logged-in user) + 2 invitees = 3 rows
     const rows = usersPage.usersTableRows;
     await expect(rows).toHaveCount(3);
-    await expect(
-      rows.filter({ hasText: "Organization Admin" }),
-    ).toHaveCount(1);
+    await expect(rows.filter({ hasText: "Organization Admin" })).toHaveCount(1);
     await expect(
       rows
         .filter({ hasText: merchantInvitee })
@@ -165,9 +155,7 @@ test.describe("Users - UI", () => {
 
     // Filter by Organization → Org Admin shows
     await applyFilter("(Organization)");
-    await expect(
-      rows.filter({ hasText: "Organization Admin" }),
-    ).toHaveCount(1);
+    await expect(rows.filter({ hasText: "Organization Admin" })).toHaveCount(1);
 
     // Filter by Merchant → Merchant Developer shows with the right role
     await applyFilter("(Merchant)");
@@ -192,7 +180,7 @@ test.describe("Users - UI", () => {
 });
 
 test.describe("Users - Invite Users", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -220,9 +208,15 @@ test.describe("Users - Invite Users", () => {
     await homePage.userAccount.click();
     await homePage.signOut.click();
 
-    await redirectFromMailInbox(page, invitedEmail, "You have been invited to join Hyperswitch Community!");
+    await redirectFromMailInbox(
+      page,
+      invitedEmail,
+      "You have been invited to join Hyperswitch Community!",
+    );
 
-    const continueWithPassword = page.getByRole('button', { name: 'Continue with Password' });
+    const continueWithPassword = page.getByRole("button", {
+      name: "Continue with Password",
+    });
     await expect(continueWithPassword).toBeVisible();
     await continueWithPassword.click();
 
@@ -242,8 +236,9 @@ test.describe("Users - Invite Users", () => {
 
     await expect(page).toHaveURL(/.*dashboard\/home/, { timeout: 30000 });
 
-    await expect(page.getByRole('button', { name: invitedEmail })).toBeVisible();
-
+    await expect(
+      page.getByRole("button", { name: invitedEmail }),
+    ).toBeVisible();
   });
 
   test("should redirect to login when accepting invite with an invalid or expired token", async ({
@@ -264,7 +259,9 @@ test.describe("Users - Invite Users", () => {
     await page.locator('[id="search"]').press("Enter");
     await page
       .locator("div.msglist-message")
-      .filter({ hasText: "You have been invited to join Hyperswitch Community" })
+      .filter({
+        hasText: "You have been invited to join Hyperswitch Community",
+      })
       .filter({ hasText: invitedEmail })
       .first()
       .click();
@@ -276,12 +273,13 @@ test.describe("Users - Invite Users", () => {
     await page.goto(tamperedLink);
 
     await expect(page).toHaveURL(/.*login/);
-    await expect(page.getByTestId('card-header')).toHaveText("Hey there, Welcome back!");
+    await expect(page.getByTestId("card-header")).toHaveText(
+      "Hey there, Welcome back!",
+    );
   });
 
   test("should accept multiple emails as pills in invite list", async ({
     page,
-    context,
   }) => {
     const usersPage = new UsersPage(page);
     const email1 = generateUniqueEmail();
@@ -300,7 +298,6 @@ test.describe("Users - Invite Users", () => {
 
   test("Send Invite button is disabled when invite list is empty", async ({
     page,
-    context,
   }) => {
     const usersPage = new UsersPage(page);
 
@@ -319,7 +316,9 @@ test.describe("Users - Invite Users", () => {
     await usersPage.sendInviteButton.hover();
 
     const tooltip = page.getByRole("tooltip");
-    await expect(tooltip).toContainText("Email List: Please enter a Email List");
+    await expect(tooltip).toContainText(
+      "Email List: Please enter a Email List",
+    );
     await expect(tooltip).toContainText("Role Id: Please enter a Role Id");
   });
 
@@ -444,10 +443,13 @@ test.describe("Users - Invite Users", () => {
     await usersPage.allMerchantsDropdownValue.click();
     await selectRoleAndVerifyPermissions("Organization Admin");
   });
-})
+});
 
 test.describe("Users - Details", () => {
-  test("Verify the UI of the User Details page - Same user details", async ({ page, context }) => {
+  test("Verify the UI of the User Details page - Same user details", async ({
+    page,
+    context,
+  }) => {
     const { email, usersPage } = await setupAndNavigate(page, context);
     await usersPage.usersTableRows.click();
 
@@ -475,7 +477,10 @@ test.describe("Users - Details", () => {
     await expect(usersPage.manageUserRoleButton).not.toBeAttached();
   });
 
-  test("Verify the UI of the User Details page - Other user details", async ({ page, context }) => {
+  test("Verify the UI of the User Details page - Other user details", async ({
+    page,
+    context,
+  }) => {
     // Two full sign-in flows + invite acceptance round-trip + role inspection
     // — the chained waits routinely overflow the 30s default on CI.
     test.setTimeout(180000);
@@ -493,9 +498,15 @@ test.describe("Users - Details", () => {
     await homePage.userAccount.click();
     await homePage.signOut.click();
 
-    await redirectFromMailInbox(page, invitedEmail, "You have been invited to join Hyperswitch Community!");
+    await redirectFromMailInbox(
+      page,
+      invitedEmail,
+      "You have been invited to join Hyperswitch Community!",
+    );
 
-    const continueWithPassword = page.getByRole('button', { name: 'Continue with Password' });
+    const continueWithPassword = page.getByRole("button", {
+      name: "Continue with Password",
+    });
     await expect(continueWithPassword).toBeVisible();
     await continueWithPassword.click();
 
@@ -515,7 +526,9 @@ test.describe("Users - Details", () => {
 
     await expect(page).toHaveURL(/.*dashboard\/home/, { timeout: 30000 });
 
-    await expect(page.getByRole('button', { name: invitedEmail })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: invitedEmail }),
+    ).toBeVisible();
 
     await homePage.userAccount.click();
     await homePage.signOut.click();
@@ -525,7 +538,9 @@ test.describe("Users - Details", () => {
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
     const merchantId = (await homePage.merchantID.nth(0).textContent()) ?? "";
-    expect(merchantId, "merchantId should be readable from header").not.toBe("");
+    expect(merchantId, "merchantId should be readable from header").not.toBe(
+      "",
+    );
     await homePage.users.click();
     await page.waitForLoadState("networkidle");
 
@@ -551,7 +566,7 @@ test.describe("Users - Details", () => {
     await usersPage.verifyUserDetailsTableRowContent(
       merchantId,
       "all_profiles",
-      "Merchant Developer"
+      "Merchant Developer",
     );
     await usersPage.verifyActiveStatus();
     await expect(usersPage.manageUserRoleButton).toBeVisible();
@@ -561,19 +576,20 @@ test.describe("Users - Details", () => {
     page,
     context,
   }) => {
-    const { email, usersPage } = await setupAndNavigate(page, context);
+    const { usersPage } = await setupAndNavigate(page, context);
 
     const homePage = new HomePage(page);
-    const signinPage = new SignInPage(page);
-    const resetPasswordPage = new ResetPasswordPage(page);
     const invitedEmail = generateUniqueEmail();
-    const password = "Playwright00#";
     const newMerchantName = `pwMerchant${Date.now()}`;
 
-    await page.getByRole('link', { name: 'Overview' }).click();
+    await page.getByRole("link", { name: "Overview" }).click();
     // Capture the merchant the org admin signed up into (M1).
-    const originalMerchantId = (await homePage.merchantID.nth(0).textContent()) ?? "";
-    expect(originalMerchantId, "originalMerchantId should be readable").not.toBe("");
+    const originalMerchantId =
+      (await homePage.merchantID.nth(0).textContent()) ?? "";
+    expect(
+      originalMerchantId,
+      "originalMerchantId should be readable",
+    ).not.toBe("");
 
     // Org admin creates a second merchant (M2) before inviting the user. The
     // create flow refreshes the merchant list but does not auto-switch, so the
@@ -595,7 +611,10 @@ test.describe("Users - Details", () => {
     await page.getByText(newMerchantName, { exact: true }).first().click();
 
     // From M2's context, view all org users so the M1 invitee is visible.
-    await usersPage.usersTableRows.filter({ hasText: invitedEmail }).first().click();
+    await usersPage.usersTableRows
+      .filter({ hasText: invitedEmail })
+      .first()
+      .click();
 
     await expect(usersPage.navigateToTeamManagementLink).toBeVisible();
     await expect(usersPage.currentPageBreadcrumb(invitedEmail)).toBeVisible();
@@ -608,7 +627,9 @@ test.describe("Users - Details", () => {
     await expect(usersPage.switchToUpdateButton).not.toBeAttached();
     await expect(usersPage.manageUserRoleButton).toBeVisible();
 
-    await expect(page.getByText(`Merchant Account${originalMerchantId}`)).toBeVisible()
+    await expect(
+      page.getByText(`Merchant Account${originalMerchantId}`),
+    ).toBeVisible();
   });
 
   test("Manage user modal renders with user data and action sections", async ({
@@ -616,9 +637,8 @@ test.describe("Users - Details", () => {
     context,
   }) => {
     test.setTimeout(60000);
-    const homePage = new HomePage(page);
     const invitedEmail = generateUniqueEmail();
-    const { email, usersPage } = await setupAndNavigate(page, context);
+    const { usersPage } = await setupAndNavigate(page, context);
     await usersPage.inviteUser(invitedEmail);
 
     await usersPage.visit();
@@ -656,13 +676,18 @@ test.describe("Users - Details", () => {
     await usersPage.emailListInput.press("Enter");
     await expect(usersPage.roleOption).toBeVisible();
     await usersPage.roleOption.click();
-    await usersPage.entityOption.filter({ hasText: "Merchant Developer" }).first().click();
+    await usersPage.entityOption
+      .filter({ hasText: "Merchant Developer" })
+      .first()
+      .click();
     await usersPage.sendInviteButton.click();
     await expect(usersPage.sendInviteButton).toBeHidden();
     await usersPage.visit();
     await page.waitForLoadState("networkidle");
 
-    const inviteeRow = usersPage.usersTableRows.filter({ hasText: invitee }).first();
+    const inviteeRow = usersPage.usersTableRows
+      .filter({ hasText: invitee })
+      .first();
     await expect(inviteeRow).toBeVisible();
     await inviteeRow.click();
     await page.waitForLoadState("networkidle");
@@ -695,7 +720,10 @@ test.describe("Users - Details", () => {
     await usersPage.emailListInput.fill(invitee);
     await usersPage.emailListInput.press("Enter");
     await usersPage.roleOption.click();
-    await usersPage.entityOption.filter({ hasText: "Merchant Developer" }).first().click();
+    await usersPage.entityOption
+      .filter({ hasText: "Merchant Developer" })
+      .first()
+      .click();
     await usersPage.sendInviteButton.click();
     await expect(usersPage.sendInviteButton).toBeHidden();
     await usersPage.visit();
@@ -709,7 +737,9 @@ test.describe("Users - Details", () => {
 
     await usersPage.confirmDeleteButton.click();
     await expect(page).toHaveURL(/.*\/users(\?|$|\/)/);
-    await expect(usersPage.usersTableRows.filter({ hasText: invitee })).toHaveCount(0);
+    await expect(
+      usersPage.usersTableRows.filter({ hasText: invitee }),
+    ).toHaveCount(0);
   });
 
   test("Resend invite to pending invite user from modal", async ({
@@ -723,7 +753,10 @@ test.describe("Users - Details", () => {
     await usersPage.emailListInput.fill(invitee);
     await usersPage.emailListInput.press("Enter");
     await usersPage.roleOption.click();
-    await usersPage.entityOption.filter({ hasText: "Merchant Developer" }).first().click();
+    await usersPage.entityOption
+      .filter({ hasText: "Merchant Developer" })
+      .first()
+      .click();
     await usersPage.sendInviteButton.click();
     await expect(usersPage.sendInviteButton).toBeHidden();
     await usersPage.visit();
@@ -751,10 +784,30 @@ test.describe("Users - Details", () => {
 
     const password = "Playwright00#";
     const invitees = [
-      { email: generateUniqueEmail(), role: "Merchant Admin", scope: "merchant" as const, expectWorkflow: true },
-      { email: generateUniqueEmail(), role: "Merchant Developer", scope: "merchant" as const, expectWorkflow: false },
-      { email: generateUniqueEmail(), role: "Profile Admin", scope: "profile" as const, expectWorkflow: true },
-      { email: generateUniqueEmail(), role: "Profile Developer", scope: "profile" as const, expectWorkflow: false },
+      {
+        email: generateUniqueEmail(),
+        role: "Merchant Admin",
+        scope: "merchant" as const,
+        expectWorkflow: true,
+      },
+      {
+        email: generateUniqueEmail(),
+        role: "Merchant Developer",
+        scope: "merchant" as const,
+        expectWorkflow: false,
+      },
+      {
+        email: generateUniqueEmail(),
+        role: "Profile Admin",
+        scope: "profile" as const,
+        expectWorkflow: true,
+      },
+      {
+        email: generateUniqueEmail(),
+        role: "Profile Developer",
+        scope: "profile" as const,
+        expectWorkflow: false,
+      },
     ];
 
     const inviteAtScope = async (
@@ -793,7 +846,9 @@ test.describe("Users - Details", () => {
         invitedEmail,
         "You have been invited to join Hyperswitch Community!",
       );
-      await page.getByRole("button", { name: "Continue with Password" }).click();
+      await page
+        .getByRole("button", { name: "Continue with Password" })
+        .click();
       await signinPage.skip2FAButton.click();
 
       await resetPasswordPage.createPassword.fill(password);
@@ -809,7 +864,9 @@ test.describe("Users - Details", () => {
       await signinPage.skip2FAButton.click();
 
       await expect(page).toHaveURL(/.*dashboard\/home/);
-      await expect(page.getByRole("button", { name: invitedEmail })).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: invitedEmail }),
+      ).toBeVisible();
     };
 
     const signOutCurrentUser = async () => {
@@ -862,7 +919,11 @@ test.describe("Users - Roles Tab", () => {
       role_id: string;
       role_name: string;
       entity_type: string;
-      parent_groups: Array<{ name: string; description: string; scopes: string[] }>;
+      parent_groups: Array<{
+        name: string;
+        description: string;
+        scopes: string[];
+      }>;
     };
 
     type EntityKey = "organization" | "merchant" | "profile";
@@ -871,7 +932,9 @@ test.describe("Users - Roles Tab", () => {
     const waitForRolesResponse = (entity: EntityKey) =>
       page.waitForResponse(
         (resp) =>
-          new RegExp(`/user/role/list\\?.*entity_type=${entity}`).test(resp.url()) &&
+          new RegExp(`/user/role/list\\?.*entity_type=${entity}`).test(
+            resp.url(),
+          ) &&
           resp.request().method() === "GET" &&
           resp.status() === 200,
       );
@@ -888,7 +951,9 @@ test.describe("Users - Roles Tab", () => {
     await usersPage.modulePermissionText.click();
     await expect(usersPage.createCustomRoleButton).toBeVisible();
 
-    const merchantApiRoles = (await (await merchantResponsePromise).json()) as ApiRole[];
+    const merchantApiRoles = (await (
+      await merchantResponsePromise
+    ).json()) as ApiRole[];
 
     const headers = usersPage.tableMatrixHeaders;
     const rows = usersPage.usersTableRows;
@@ -931,7 +996,9 @@ test.describe("Users - Roles Tab", () => {
         ).toBeVisible();
         // Cells: first column shows the module name; remaining cells (one per
         // role) carry a permission pill ("View" / "Edit") or "--".
-        await expect(row.locator("td")).toHaveCount(expectedRoleNames.length + 1);
+        await expect(row.locator("td")).toHaveCount(
+          expectedRoleNames.length + 1,
+        );
       }
     };
 
@@ -965,13 +1032,19 @@ test.describe("Users - Roles Tab", () => {
     const profileApiRoles = await switchEntityAndCapture("profile", "Profile");
     await validateMatrix("Profile", profileApiRoles);
 
-    const orgApiRoles = await switchEntityAndCapture("organization", "Organization");
+    const orgApiRoles = await switchEntityAndCapture(
+      "organization",
+      "Organization",
+    );
     await validateMatrix("Organization", orgApiRoles);
   });
 });
 
 test.describe("Users - Create Custom Role", () => {
-  test("Create custom role page renders form fields", async ({ page, context }) => {
+  test("Create custom role page renders form fields", async ({
+    page,
+    context,
+  }) => {
     const { usersPage } = await setupAndNavigate(page, context);
     await usersPage.visitCreateCustomRole();
 
@@ -1069,10 +1142,30 @@ test.describe("Users - Create Custom Role", () => {
 
     const ts = Date.now();
     const customRoles = [
-      { tag: "msme", scope: "Merchant" as const, entity: "Merchant" as const, name: `pwmsme${ts}` },
-      { tag: "mspe", scope: "Merchant" as const, entity: "Profile" as const, name: `pwmspe${ts}` },
-      { tag: "osme", scope: "Organization" as const, entity: "Merchant" as const, name: `pwosme${ts}` },
-      { tag: "ospe", scope: "Organization" as const, entity: "Profile" as const, name: `pwospe${ts}` },
+      {
+        tag: "msme",
+        scope: "Merchant" as const,
+        entity: "Merchant" as const,
+        name: `pwmsme${ts}`,
+      },
+      {
+        tag: "mspe",
+        scope: "Merchant" as const,
+        entity: "Profile" as const,
+        name: `pwmspe${ts}`,
+      },
+      {
+        tag: "osme",
+        scope: "Organization" as const,
+        entity: "Merchant" as const,
+        name: `pwosme${ts}`,
+      },
+      {
+        tag: "ospe",
+        scope: "Organization" as const,
+        entity: "Profile" as const,
+        name: `pwospe${ts}`,
+      },
     ];
     // Helper: drive the Create Custom Role form for one row of the matrix.
     const createCustomRole = async (r: (typeof customRoles)[number]) => {
@@ -1153,13 +1246,18 @@ test.describe("Users - Create Custom Role", () => {
     // Merchant-entity invite shows the 2 merchant-entity roles (one per scope).
     await openInviteRolePopover("Merchant");
     for (const r of customRoles.filter((x) => x.entity === "Merchant")) {
-      await expect(usersPage.entityOption.filter({ hasText: displayName(r.name) }), `${r.name} (${r.scope}/${r.entity}) should be selectable in M1`).toHaveCount(1);
+      await expect(
+        usersPage.entityOption.filter({ hasText: displayName(r.name) }),
+        `${r.name} (${r.scope}/${r.entity}) should be selectable in M1`,
+      ).toHaveCount(1);
     }
     // Profile-entity invite shows the 2 profile-entity roles (one per scope).
     await openInviteRolePopover("Profile");
     for (const r of customRoles.filter((x) => x.entity === "Profile")) {
       await expect(
-        usersPage.entityOption.filter({ hasText: displayName(r.name) }), `${r.name} (${r.scope}/${r.entity}) should be selectable in M1`).toHaveCount(1);
+        usersPage.entityOption.filter({ hasText: displayName(r.name) }),
+        `${r.name} (${r.scope}/${r.entity}) should be selectable in M1`,
+      ).toHaveCount(1);
     }
 
     // ----- Invite one unique user per custom role from M1 -----
@@ -1177,7 +1275,10 @@ test.describe("Users - Create Custom Role", () => {
         await usersPage.defaultDropdownValue.click();
       }
       await usersPage.roleOption.click();
-      await usersPage.entityOption.filter({ hasText: displayName(role.name) }).first().click();
+      await usersPage.entityOption
+        .filter({ hasText: displayName(role.name) })
+        .first()
+        .click();
       await usersPage.sendInviteButton.click();
       await expect(usersPage.sendInviteButton).toBeHidden();
     }
@@ -1187,8 +1288,14 @@ test.describe("Users - Create Custom Role", () => {
     await applyAllFilter();
     for (const { email: inviteeEmail, role } of invitees) {
       const row = usersPage.usersTableRows.filter({ hasText: inviteeEmail });
-      await expect(row, `${inviteeEmail} (role ${role.tag}) should be in M1 users list`).toHaveCount(1);
-      await expect(row, `${inviteeEmail} should be tagged with role "${displayName(role.name)}"`).toContainText(displayName(role.name));
+      await expect(
+        row,
+        `${inviteeEmail} (role ${role.tag}) should be in M1 users list`,
+      ).toHaveCount(1);
+      await expect(
+        row,
+        `${inviteeEmail} should be tagged with role "${displayName(role.name)}"`,
+      ).toContainText(displayName(role.name));
     }
 
     // ----- Create a second merchant M2 (its own default profile) -----
@@ -1238,5 +1345,4 @@ test.describe("Users - Create Custom Role", () => {
       ).toHaveCount(1);
     }
   });
-
 });

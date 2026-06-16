@@ -42,10 +42,19 @@ const json = (route: Route, body: unknown) =>
     body: JSON.stringify(body),
   });
 
+// Shape of a single analytics metrics query (the dispatcher only reads these
+// keys off the request body to decide which canned rows to return).
+interface AnalyticsQuery {
+  metrics?: string[];
+  groupByNames?: string[];
+  timeSeries?: unknown;
+  granularity?: unknown;
+}
+
 // Returns the first element of an analytics request body (the body is a
 // single-element array `[{ ... }]`); falls back to the raw object.
-function firstQuery(route: Route): Record<string, any> {
-  let body: any;
+function firstQuery(route: Route): AnalyticsQuery {
+  let body: AnalyticsQuery | AnalyticsQuery[] | undefined;
   try {
     body = route.request().postDataJSON();
   } catch {
@@ -115,14 +124,16 @@ const OVERVIEW_ROW = {
 };
 
 // Per-connector rows for the Refunds chart + summary table.
-function connectorRows(withBucket: boolean): Array<Record<string, any>> {
+function connectorRows(withBucket: boolean): Array<Record<string, unknown>> {
   const rows = CONNECTORS.map((connector, i) => ({
     connector,
     refund_success_rate: 94.2 - i * 3,
     refund_count: 820 - i * 180,
     refund_success_count: 772 - i * 170,
   }));
-  return withBucket ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET })) : rows;
+  return withBucket
+    ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET }))
+    : rows;
 }
 
 // Sample values per groupable dimension, used to render the summary table
@@ -135,22 +146,29 @@ const DIMENSION_SAMPLES: Record<string, string[]> = {
 
 // Per-dimension rows (the dimension column + the metric columns) for the
 // summary table when grouped by `dim`.
-function dimensionRows(dim: string, withBucket: boolean): Array<Record<string, any>> {
+function dimensionRows(
+  dim: string,
+  withBucket: boolean,
+): Array<Record<string, unknown>> {
   const rows = (DIMENSION_SAMPLES[dim] ?? ["sample"]).map((value, i) => ({
     [dim]: value,
     refund_success_rate: 94.2 - i * 3,
     refund_count: 820 - i * 180,
     refund_success_count: 772 - i * 170,
   }));
-  return withBucket ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET })) : rows;
+  return withBucket
+    ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET }))
+    : rows;
 }
 
 // Spread an aggregate row across every day bucket for the timeSeries query.
-function asSeries(row: Record<string, any>): Array<Record<string, any>> {
+function asSeries(
+  row: Record<string, unknown>,
+): Array<Record<string, unknown>> {
   return dayBuckets().map((time_bucket) => ({ ...row, time_bucket }));
 }
 
-const wrap = (queryData: Array<Record<string, any>>) => ({
+const wrap = (queryData: Array<Record<string, unknown>>) => ({
   queryData,
   metaData: [],
 });
@@ -159,7 +177,7 @@ const wrap = (queryData: Array<Record<string, any>>) => ({
 // Dispatcher
 // ---------------------------------------------------------------------------
 
-function metricsResponse(q: Record<string, any>) {
+function metricsResponse(q: AnalyticsQuery) {
   const groupBy: string[] = q.groupByNames ?? [];
   const isSeries = !!q.timeSeries;
 
@@ -189,22 +207,27 @@ export async function mockRefundAnalytics(page: Page): Promise<void> {
   // Refund list — return a non-empty list so the page never drops to its
   // Custom (no-data) screen state.
   await page.route(/\/refunds\/(profile\/)?list/, (route) =>
-    json(route, { data: [{ refund_id: "ref_playwright_mock", status: "success" }] }),
+    json(route, {
+      data: [{ refund_id: "ref_playwright_mock", status: "success" }],
+    }),
   );
 
   // Metric + dimension catalogue.
-  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/refunds\/info/, (route) =>
-    json(route, REFUNDS_INFO),
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/refunds\/info/,
+    (route) => json(route, REFUNDS_INFO),
   );
 
   // Dimension filter values.
-  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/filters\/refunds/, (route) =>
-    json(route, FILTER_VALUES),
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/filters\/refunds/,
+    (route) => json(route, FILTER_VALUES),
   );
 
   // Metrics (single-stat cards / table / chart).
-  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/metrics\/refunds/, (route) =>
-    json(route, metricsResponse(firstQuery(route))),
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/metrics\/refunds/,
+    (route) => json(route, metricsResponse(firstQuery(route))),
   );
 }
 
@@ -217,13 +240,24 @@ export async function mockRefundAnalyticsError(page: Page): Promise<void> {
     route.fulfill({
       status: 500,
       contentType: "application/json",
-      body: JSON.stringify({ error: { type: "server_error", message: "Internal Server Error" } }),
+      body: JSON.stringify({
+        error: { type: "server_error", message: "Internal Server Error" },
+      }),
     });
 
   await page.route(/\/refunds\/(profile\/)?list/, fail);
-  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/refunds\/info/, fail);
-  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/filters\/refunds/, fail);
-  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/metrics\/refunds/, fail);
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/refunds\/info/,
+    fail,
+  );
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/filters\/refunds/,
+    fail,
+  );
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/metrics\/refunds/,
+    fail,
+  );
 }
 
 export default mockRefundAnalytics;

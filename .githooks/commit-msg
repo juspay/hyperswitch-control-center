@@ -19,8 +19,11 @@ if [ -n "$unformatted_js_files" ]; then
   exit 1
 fi
 
-# Check for unformatted ReScript files
-npm run re:format
+# Check for unformatted ReScript files (fail, don't silently reformat)
+if ! npm run --silent re:format:check; then
+  echo "Error: Unformatted ReScript files found. Run 'npm run re:format' and stage the changes."
+  exit 1
+fi
 
 echo
 echo "*****~~~~~ All files are formatted. ~~~~~~*****"

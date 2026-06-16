@@ -1,6 +1,5 @@
 import { test, expect } from "../../support/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
-import { ProductionAccessPage } from "../../support/pages/homepage/ProductionAccessPage";
 import { generateUniqueEmail } from "../../support/helper";
 import { signupUser, loginUI } from "../../support/commands";
 
@@ -27,24 +26,38 @@ test.describe("Onboarding Survey", () => {
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
-  test("should display the onboarding survey modal with business name field for a new merchant", async ({ page }) => {
+  test("should display the onboarding survey modal with business name field for a new merchant", async ({
+    page,
+  }) => {
     const homePage = new HomePage(page);
 
-    await expect(page.getByText("Welcome aboard! Let's get started")).toBeVisible();
+    await expect(
+      page.getByText("Welcome aboard! Let's get started"),
+    ).toBeVisible();
     await expect(page.getByText("Business details").first()).toBeVisible();
-    await expect(page.getByText('Business name *', { exact: true })).toBeVisible();
+    await expect(
+      page.getByText("Business name *", { exact: true }),
+    ).toBeVisible();
     await expect(homePage.enterMerchantName).toBeVisible();
     await expect(homePage.onboardingSubmitButton).toBeVisible();
-    await expect(homePage.onboardingSubmitButton).toContainText("Start Exploring");
+    await expect(homePage.onboardingSubmitButton).toContainText(
+      "Start Exploring",
+    );
   });
 
-  test("should submit merchant name via survey form and show success toast", async ({ page }) => {
+  test("should submit merchant name via survey form and show success toast", async ({
+    page,
+  }) => {
     const homePage = new HomePage(page);
 
-    await expect(page.getByText("Welcome aboard! Let's get started")).toBeVisible();
+    await expect(
+      page.getByText("Welcome aboard! Let's get started"),
+    ).toBeVisible();
     await homePage.enterMerchantName.fill("Playwright Test Corp");
     await homePage.onboardingSubmitButton.click();
 
-    await expect(page.getByText("Successfully updated onboarding survey")).toBeVisible();
+    await expect(
+      page.getByText("Successfully updated onboarding survey"),
+    ).toBeVisible();
   });
 });

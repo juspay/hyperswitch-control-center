@@ -23,15 +23,26 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Check ReScript formatting
+        run: npm run re:format:check
+
+      - name: Check Prettier formatting
+        run: npm run format:check
 
       - name: Build ReScript
         run: npm run re:build
 
       - name: Run ESLint
         run: npm run lint:hooks
+        env:
+          CI: true
+
+      - name: Run ESLint on tests
+        run: npm run lint:tests
         env:
           CI: true

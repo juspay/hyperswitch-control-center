@@ -88,7 +88,9 @@ export class PaymentOperations {
   }
 
   get modalCloseIcon(): Locator {
-    return this.page.locator('.border.border-jp-gray-500.dark\\:border-jp-gray-900.bg-white.dark\\:bg-jp-gray-lightgray_background.shadow.rounded-lg.dark\\:text-opacity-75.dark\\:bg-jp-gray-darkgray_background.animate-slideUp > .\\!p-4 > .flex.items-center > .flex.flex-col > .fill-current.cursor-pointer');
+    return this.page.locator(
+      ".border.border-jp-gray-500.dark\\:border-jp-gray-900.bg-white.dark\\:bg-jp-gray-lightgray_background.shadow.rounded-lg.dark\\:text-opacity-75.dark\\:bg-jp-gray-darkgray_background.animate-slideUp > .\\!p-4 > .flex.items-center > .flex.flex-col > .fill-current.cursor-pointer",
+    );
   }
 
   get crossOutlineIcon(): Locator {
@@ -184,9 +186,7 @@ export class PaymentOperations {
 
   // Filters
   get filterChipArea(): Locator {
-    return this.page.locator(
-      '[class="flex relative  flex-row  flex-wrap"]',
-    );
+    return this.page.locator('[class="flex relative  flex-row  flex-wrap"]');
   }
 
   get filterChipContainer(): Locator {

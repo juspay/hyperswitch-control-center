@@ -1,14 +1,18 @@
 import { test, expect } from "../../support/test";
-import type { Page, BrowserContext } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { BillingProcessor } from "../../support/pages/connector/BillingProcessor";
 import { generateUniqueEmail } from "../../support/helper";
-import { signupUser, loginUI, fillConnectorFields } from "../../support/commands";
+import {
+  signupUser,
+  loginUI,
+  fillConnectorFields,
+} from "../../support/commands";
 import { billingProcessorConfig } from "../../support/fixtures/billingProcessorConfig";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
-async function signupAndLogin(page: Page, context: BrowserContext) {
+async function signupAndLogin(page: Page) {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -36,8 +40,8 @@ async function gotoBilling(page: Page): Promise<boolean> {
 }
 
 test.describe("Billing Processor", () => {
-  test.beforeEach(async ({ page, context }) => {
-    await signupAndLogin(page, context);
+  test.beforeEach(async ({ page }) => {
+    await signupAndLogin(page);
     await enableFeatureFlag(page, "billing_processor");
   });
 
@@ -70,7 +74,9 @@ test.describe("Billing Processor", () => {
     if (await fallback.isVisible().catch(() => false)) {
       test.skip(true, "Page gated by feature flag fallback");
     }
-    await expect(billingProcessor.requestProcessorButton).toBeVisible({ timeout: 10000 });
+    await expect(billingProcessor.requestProcessorButton).toBeVisible({
+      timeout: 10000,
+    });
     const search = billingProcessor.searchProcessorPlaceholder;
     await expect(search).toBeVisible({ timeout: 10000 });
     await search.fill("stripe");
@@ -88,9 +94,7 @@ test.describe("Billing Processor", () => {
     }
     await connectButton.click();
 
-    const chargebeeOption = page
-      .locator('[data-testid*="chargebee"]')
-      .first();
+    const chargebeeOption = page.locator('[data-testid*="chargebee"]').first();
     if (await chargebeeOption.isVisible().catch(() => false)) {
       await chargebeeOption.click();
     }
@@ -163,7 +167,7 @@ test.describe("All Billing Processors", () => {
   let email: string;
 
   const billingProcessors = Object.entries(billingProcessorConfig);
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -201,8 +205,12 @@ test.describe("All Billing Processors", () => {
 
           await billingProcessor.doneButton.click();
 
-          const connectorLabel = processor.fields.overrides["Enter Connector label"] || processor.label;
-          await expect(page.getByText(connectorLabel, { exact: true })).toBeVisible({ timeout: 10000 });
+          const connectorLabel =
+            processor.fields.overrides["Enter Connector label"] ||
+            processor.label;
+          await expect(
+            page.getByText(connectorLabel, { exact: true }),
+          ).toBeVisible({ timeout: 10000 });
         }
       }
     });

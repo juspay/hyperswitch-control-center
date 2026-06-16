@@ -1,14 +1,18 @@
 import { test, expect } from "../../support/test";
-import type { Page, BrowserContext } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { TaxProcessor } from "../../support/pages/connector/TaxProcessor";
 import { generateUniqueEmail } from "../../support/helper";
-import { signupUser, loginUI, fillConnectorFields } from "../../support/commands";
+import {
+  signupUser,
+  loginUI,
+  fillConnectorFields,
+} from "../../support/commands";
 import { taxProcessorConfig } from "../../support/fixtures/taxProcessorConfig";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
-async function signupAndLogin(page: Page, context: BrowserContext) {
+async function signupAndLogin(page: Page) {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -36,8 +40,8 @@ async function gotoTax(page: Page): Promise<boolean> {
 }
 
 test.describe("Tax Processor", () => {
-  test.beforeEach(async ({ page, context }) => {
-    await signupAndLogin(page, context);
+  test.beforeEach(async ({ page }) => {
+    await signupAndLogin(page);
     await enableFeatureFlag(page, "tax_processor");
   });
 
@@ -68,7 +72,9 @@ test.describe("Tax Processor", () => {
     if (await fallback.isVisible().catch(() => false)) {
       test.skip(true, "Page gated by feature flag fallback");
     }
-    await expect(taxProcessor.requestProcessorButton).toBeVisible({ timeout: 10000 });
+    await expect(taxProcessor.requestProcessorButton).toBeVisible({
+      timeout: 10000,
+    });
     const search = taxProcessor.searchProcessorPlaceholder;
     await expect(search).toBeVisible({ timeout: 10000 });
     await search.fill("stripe");
@@ -150,7 +156,12 @@ test.describe("Tax Processor", () => {
       );
       if (await saveButton.isVisible().catch(() => false)) {
         await saveButton.click();
-      } else if (await taxProcessor.saveButton.first().isVisible().catch(() => false)) {
+      } else if (
+        await taxProcessor.saveButton
+          .first()
+          .isVisible()
+          .catch(() => false)
+      ) {
         await taxProcessor.saveButton.first().click();
       }
     }
@@ -161,16 +172,14 @@ test.describe("All Tax Processors", () => {
   let email: string;
 
   const taxProcessors = Object.entries(taxProcessorConfig);
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
   for (const [key, processor] of taxProcessors) {
-    test(`should setup and verify ${key} tax processor`, async ({
-      page,
-    }) => {
+    test(`should setup and verify ${key} tax processor`, async ({ page }) => {
       const homePage = new HomePage(page);
       const taxProcessor = new TaxProcessor(page);
 
@@ -199,8 +208,12 @@ test.describe("All Tax Processors", () => {
 
           await taxProcessor.doneButton.click();
 
-          const connectorLabel = processor.fields.overrides["Enter Connector label"] || processor.label;
-          await expect(page.getByText(connectorLabel, { exact: true })).toBeVisible({ timeout: 10000 });
+          const connectorLabel =
+            processor.fields.overrides["Enter Connector label"] ||
+            processor.label;
+          await expect(
+            page.getByText(connectorLabel, { exact: true }),
+          ).toBeVisible({ timeout: 10000 });
         }
       }
     });

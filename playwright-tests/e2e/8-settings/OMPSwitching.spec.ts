@@ -1,6 +1,5 @@
 import { test, expect } from "../../support/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
-import { TenantSwitchingPage } from "../../support/pages/settings/TenantSwitchingPage";
 import {
   generateUniqueEmail,
   generateDateTimeString,
@@ -11,7 +10,7 @@ import UsersPage from "../../support/pages/settings/UsersPage";
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 test.describe("Org / Merchant / Profile context switching", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -211,9 +210,7 @@ test.describe("Org / Merchant / Profile context switching", () => {
     await homePage.newMerchantNameInput.fill(merchantName);
 
     await expect(
-      homePage.ompNameValidationError(
-        "Merchant with this name already exists",
-      ),
+      homePage.ompNameValidationError("Merchant with this name already exists"),
     ).toBeVisible();
     await expect(homePage.addMerchantButton).toBeDisabled();
   });
@@ -243,9 +240,7 @@ test.describe("Org / Merchant / Profile context switching", () => {
     await homePage.newProfileNameInput.blur();
 
     await expect(
-      homePage.ompNameValidationError(
-        "Profile with this name already exists",
-      ),
+      homePage.ompNameValidationError("Profile with this name already exists"),
     ).toBeVisible();
     await expect(homePage.addProfileButton).toBeDisabled();
   });

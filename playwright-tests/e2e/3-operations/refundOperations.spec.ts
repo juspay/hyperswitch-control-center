@@ -40,7 +40,7 @@ const goToRefunds = async (
 };
 
 test.describe("Refunds Operations", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -59,25 +59,21 @@ test.describe("Refunds Operations", () => {
       await goToRefunds(page, homePage);
 
       for (const view of ["All", "Succeeded", "Failed", "Pending"]) {
-        await expect(refundOperations.refundsTransactionView).toContainText(view);
+        await expect(refundOperations.refundsTransactionView).toContainText(
+          view,
+        );
       }
 
       await expect(refundOperations.searchBox).toHaveAttribute(
         "placeholder",
         "Search for payment ID or refund ID",
       );
-      await expect(
-        refundOperations.dateSelector,
-      ).toBeVisible();
+      await expect(refundOperations.dateSelector).toBeVisible();
       await expect(refundOperations.addFilters).toBeVisible();
-      await expect(
-        refundOperations.columnButton,
-      ).toBeVisible();
+      await expect(refundOperations.columnButton).toBeVisible();
 
       await expect(page.locator("table thead tr th")).toHaveCount(7);
-      await expect(
-        refundOperations.refundCell(1, 1),
-      ).toBeVisible();
+      await expect(refundOperations.refundCell(1, 1)).toBeVisible();
     });
 
     test("should show 'No results found' empty state when no refunds exist", async ({
@@ -89,24 +85,24 @@ test.describe("Refunds Operations", () => {
       await goToRefunds(page, homePage);
 
       for (const view of ["All", "Succeeded", "Failed", "Pending"]) {
-        await expect(refundOperations.refundsTransactionView).toContainText(view);
+        await expect(refundOperations.refundsTransactionView).toContainText(
+          view,
+        );
       }
 
       await expect(refundOperations.searchBox).toHaveAttribute(
         "placeholder",
         "Search for payment ID or refund ID",
       );
-      await expect(
-        refundOperations.dateSelector,
-      ).toBeVisible();
+      await expect(refundOperations.dateSelector).toBeVisible();
       await expect(refundOperations.addFilters).toBeVisible();
 
-      await expect(
-        refundOperations.noResultsHeader,
-      ).toHaveText("No results found");
-      await expect(
-        refundOperations.expandSearch90Days,
-      ).toHaveText("Expand the search to the previous 90 days");
+      await expect(refundOperations.noResultsHeader).toHaveText(
+        "No results found",
+      );
+      await expect(refundOperations.expandSearch90Days).toHaveText(
+        "Expand the search to the previous 90 days",
+      );
     });
 
     test.describe("Search bar", () => {
@@ -128,17 +124,17 @@ test.describe("Refunds Operations", () => {
 
         await searchBox.fill(payment.payment_id);
         await searchBox.press("Enter");
-        await expect(
-          refundOperations.refundCell(1, 6),
-        ).toContainText(payment.payment_id);
+        await expect(refundOperations.refundCell(1, 6)).toContainText(
+          payment.payment_id,
+        );
 
         await searchBox.clear();
 
         await searchBox.fill(refund.refund_id);
         await searchBox.press("Enter");
-        await expect(
-          refundOperations.refundCell(1, 2),
-        ).toContainText(refund.refund_id);
+        await expect(refundOperations.refundCell(1, 2)).toContainText(
+          refund.refund_id,
+        );
       });
 
       test("should display empty state when searched with invalid ID", async ({
@@ -155,9 +151,9 @@ test.describe("Refunds Operations", () => {
         await refundOperations.searchBox.fill("invalid_refund_id_xyz");
         await refundOperations.searchBox.press("Enter");
 
-        await expect(
-          refundOperations.noResultsHeader,
-        ).toHaveText("No results found");
+        await expect(refundOperations.noResultsHeader).toHaveText(
+          "No results found",
+        );
       });
     });
 
@@ -201,9 +197,9 @@ test.describe("Refunds Operations", () => {
 
         await refundOperations.columnButton.click();
 
-        await expect(
-          refundOperations.tableColumnsDropdownItems,
-        ).toHaveCount(refundColumnSize);
+        await expect(refundOperations.tableColumnsDropdownItems).toHaveCount(
+          refundColumnSize,
+        );
 
         const expectedHeaders = [
           "S.No",
@@ -230,15 +226,11 @@ test.describe("Refunds Operations", () => {
         await refundOperations.saveButton.click();
 
         for (const column of expectedHeaders) {
-          await expect(
-            refundOperations.tableHeading(column),
-          ).toBeAttached();
+          await expect(refundOperations.tableHeading(column)).toBeAttached();
         }
 
         for (const column of optionalColumns) {
-          await expect(
-            refundOperations.tableHeading(column),
-          ).toBeAttached();
+          await expect(refundOperations.tableHeading(column)).toBeAttached();
         }
       });
     });
@@ -281,7 +273,10 @@ test.describe("Refunds Operations", () => {
 
         await refundOperations.addFilters.click();
 
-        const filterDropdown = page.locator('div').filter({ hasText: /^ConnectorCurrencyRefund StatusAmount$/ }).nth(1);
+        const filterDropdown = page
+          .locator("div")
+          .filter({ hasText: /^ConnectorCurrencyRefund StatusAmount$/ })
+          .nth(1);
         for (const filter of allFilters) {
           await expect(filterDropdown).toContainText(filter);
         }
@@ -301,18 +296,24 @@ test.describe("Refunds Operations", () => {
         // Connector — open dropdown and select first option (Stripe Dummy)
         await refundOperations.addFilters.click();
         await page
-          .locator('div').filter({ hasText: /^Connector$/ }).first()
+          .locator("div")
+          .filter({ hasText: /^Connector$/ })
+          .first()
           .click();
         await page.getByText("Select Connector").click();
         await page.locator('[value="Stripe Dummy"]').click();
         await refundOperations.applyButton.click();
         await expect(page.getByText("Stripe Dummy").first()).toBeVisible();
-        await expect(page.locator('[placeholder="Search..."]')).not.toBeVisible();
+        await expect(
+          page.locator('[placeholder="Search..."]'),
+        ).not.toBeVisible();
 
         // Currency — select USD (first matching value)
         await refundOperations.addFilters.click();
         await page
-          .locator('div').filter({ hasText: /^Currency$/ }).first()
+          .locator("div")
+          .filter({ hasText: /^Currency$/ })
+          .first()
           .click();
         await page.getByText("Select Currency").click();
         await page.locator('[placeholder="Search..."]').fill("USD");
@@ -323,7 +324,9 @@ test.describe("Refunds Operations", () => {
         // Refund Status — select Succeeded (first option)
         await refundOperations.addFilters.click();
         await page
-          .locator('div').filter({ hasText: /^Refund Status$/ }).first()
+          .locator("div")
+          .filter({ hasText: /^Refund Status$/ })
+          .first()
           .click();
         await page
           .locator('[data-component-field-wrapper="field-refund_status"]')
@@ -348,12 +351,12 @@ test.describe("Refunds Operations", () => {
 
         await page.getByText("Succeeded", { exact: true }).first().click();
 
-        await expect(
-          refundOperations.refundCell(1, 2),
-        ).toContainText(refund.refund_id);
-        await expect(
-          refundOperations.refundCell(1, 5),
-        ).toContainText("SUCCEEDED");
+        await expect(refundOperations.refundCell(1, 2)).toContainText(
+          refund.refund_id,
+        );
+        await expect(refundOperations.refundCell(1, 5)).toContainText(
+          "SUCCEEDED",
+        );
       });
     });
 
@@ -400,9 +403,7 @@ test.describe("Refunds Operations", () => {
 
         await goToRefunds(page, homePage);
 
-        await expect(
-          refundOperations.generateReports,
-        ).not.toBeVisible();
+        await expect(refundOperations.generateReports).not.toBeVisible();
       });
     });
   });
@@ -430,9 +431,7 @@ test.describe("Refunds Operations", () => {
       await expect(
         refundOperations.dataLabel("Connector").first(),
       ).toBeVisible();
-      await expect(
-        refundOperations.dataLabel("Created").first(),
-      ).toBeVisible();
+      await expect(refundOperations.dataLabel("Created").first()).toBeVisible();
       await expect(
         refundOperations.dataLabel("Currency").first(),
       ).toBeVisible();
@@ -460,8 +459,12 @@ test.describe("Refunds Operations", () => {
       ).toBeVisible();
 
       await expect(page.getByText("Payment", { exact: true })).toBeVisible();
-      await expect(page.getByRole('columnheader', { name: 'Payment ID' })).toBeVisible();
-      await expect(refundOperations.paymentCell(1, 2)).toContainText(payment.payment_id);
+      await expect(
+        page.getByRole("columnheader", { name: "Payment ID" }),
+      ).toBeVisible();
+      await expect(refundOperations.paymentCell(1, 2)).toContainText(
+        payment.payment_id,
+      );
     });
 
     test.describe("Sync button", () => {
