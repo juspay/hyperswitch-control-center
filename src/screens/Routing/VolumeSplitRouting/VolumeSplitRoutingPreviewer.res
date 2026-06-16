@@ -4,21 +4,19 @@ open Typography
 module GatewayView = {
   @react.component
   let make = (~gateways, ~connectorList=?) => {
-    let getConnectorObj = name => {
-      switch connectorList {
-      | Some(list) =>
-        Some(list->ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(name, ~version=V1))
-      | None => None
-      }
-    }
+    let getConnectorObj = name =>
+      connectorList->Option.map(list =>
+        list->ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(name, ~version=V1)
+      )
 
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
       {gateways
       ->Array.mapWithIndex((ruleGateway, index) => {
-        let (connectorLabel, connectorName) = switch getConnectorObj(ruleGateway.gateway_name) {
-        | Some(obj) => (obj.connector_label, obj.connector_name)
-        | None => (ruleGateway.gateway_name, "")
-        }
+        let (connectorLabel, connectorName) =
+          getConnectorObj(ruleGateway.gateway_name)->LogicUtils.mapOptionOrDefault(
+            (ruleGateway.gateway_name, ""),
+            obj => (obj.connector_label, obj.connector_name),
+          )
 
         <div
           key={Int.toString(index)}
