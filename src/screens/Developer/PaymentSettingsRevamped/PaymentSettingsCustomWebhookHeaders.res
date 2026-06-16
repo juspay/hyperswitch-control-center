@@ -81,7 +81,7 @@ module AuthenticationInput = {
 
     <DesktopRow wrapperClass="flex-1">
       <div className="mt-5">
-        <TextInput
+        <TextInputAdapter
           input={keyInput}
           placeholder={"Enter key"}
           isDisabled={isDisabled && !allowEdit}
@@ -89,7 +89,7 @@ module AuthenticationInput = {
         />
       </div>
       <div className="mt-5">
-        <TextInput
+        <TextInputAdapter
           input={valueInput}
           placeholder={"Enter value"}
           isDisabled={isDisabled && !allowEdit}
@@ -130,7 +130,7 @@ module WebHookAuthenticationHeaders = {
     }, [])
 
     <div className="flex-1">
-      <div className="flex flex-row justify-between items-center gap-4 ">
+      <div className="flex flex-row justify-between items-center gap-4">
         <p
           className={`${body.lg.semibold} dark:text-jp-gray-text_darktheme dark:text-opacity-50 !text-nd_gray-700 ml-1 mt-6`}>
           {"Custom Headers"->React.string}
@@ -144,7 +144,7 @@ module WebHookAuthenticationHeaders = {
           </div>
         </RenderIf>
       </div>
-      <div className="grid grid-cols-5 ">
+      <div className="grid grid-cols-5">
         {Array.fromInitializer(~length=4, i => i)
         ->Array.mapWithIndex((_, index) =>
           <div key={index->Int.toString} className="-ml-3 col-span-4">
@@ -222,7 +222,7 @@ let make = () => {
     } catch {
     | _ => {
         setScreenState(_ => PageLoaderWrapper.Success)
-        showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+        showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
       }
     }
     Nullable.null

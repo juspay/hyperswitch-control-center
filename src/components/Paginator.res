@@ -75,7 +75,7 @@ let make = (
           <div
             className="flex self-center gap-2 items-center text-center text-nd_gray-500 dark:text-gray-500 font-medium whitespace-pre">
             <span>
-              {React.string("Showing  ")}
+              {React.string("Showing ")}
               <span className="text-nd_gray-700"> {React.string(toNum->Int.toString)} </span>
             </span>
             <SelectBoxAdapter.BaseDropdown
@@ -92,9 +92,9 @@ let make = (
               baseComponent={<Icon size=20 name="nd-chevron-down" />}
             />
             <span>
-              {React.string("  of")}
+              {React.string(" of")}
               <span className="text-nd_gray-700">
-                {React.string(`   ${totalResults->Int.toString}`)}
+                {React.string(` ${totalResults->Int.toString}`)}
               </span>
             </span>
           </div>

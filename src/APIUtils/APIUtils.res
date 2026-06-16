@@ -203,7 +203,6 @@ let useGetURL = () => {
     ~connector=None,
     ~userType: userType=#NONE,
     ~userRoleTypes: userRoleTypes=NONE,
-    ~reconType: reconType=#NONE,
     ~hyperswitchReconType: hyperswitchReconType=#NONE,
     ~hypersenseType: hypersenseType=#NONE,
     ~queryParameters: option<string>=None,
@@ -788,8 +787,6 @@ let useGetURL = () => {
       /* SURCHARGE ROUTING */
       | SURCHARGE => `routing/decision/surcharge`
 
-      /* RECONCILIATION */
-      | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
       | HYPERSENSE => `hypersense/${(hypersenseType :> string)->String.toLowerCase}`
 
       /* REPORTS */
@@ -1462,6 +1459,11 @@ let useGetURL = () => {
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
       | SDK_PAYMENT => "payments"
+      | ACCOUNT_PAYMENT_METHODS =>
+        switch methodType {
+        | Get => "account/payment_methods"
+        | _ => ""
+        }
       | CHAT_BOT => `chat/ai/data`
       }
 
@@ -1489,26 +1491,25 @@ let useHandleLogout = (~eventName="user_sign_out") => {
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
+  let showToast = ToastState.useShowToast()
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  () => {
+  async () => {
     try {
       let logoutUrl = getURL(~entityName=V1(USERS), ~methodType=Post, ~userType=#SIGNOUT)
-      open Promise
+      let _ = await fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute, ~forceCookies)
       mixpanelEvent(~eventName)
-      let _ =
-        fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute, ~forceCookies)
-        ->then(Fetch.Response.json)
-        ->then(json => {
-          json->resolve
-        })
-        ->catch(_err => {
-          JSON.Encode.null->resolve
-        })
       setAuthStateToLogout()
       clearRecoilValue()
       CommonAuthUtils.clearLocalStorage()
     } catch {
-    | _ => CommonAuthUtils.clearLocalStorage()
+    | _ => {
+        showToast(
+          ~toastType=ToastError,
+          ~message="Logout failed. Please try again.",
+          ~autoClose=true,
+        )
+        mixpanelEvent(~eventName="user_sign_out_failed")
+      }
     }
   }
 }

@@ -69,7 +69,7 @@ let make = (~accountId) => {
     let tabIndexParam =
       url.search
       ->getDictFromUrlSearchParams
-      ->getvalFromDict("ingestionConfigTabIndex")
+      ->getOptionValFromDict("ingestionConfigTabIndex")
     setTabIndex(_ => tabIndexParam)
   }
 

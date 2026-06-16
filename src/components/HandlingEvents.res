@@ -6,14 +6,8 @@ external convertToCookieCustomEvent: Webapi.Dom.Event.t => cookieData = "%identi
 
 let getEventDict = (ev: Dom.event) => {
   let objData = ev->convertToCustomEvent
-  try {
-    objData.data
-    ->JSON.Decode.string
-    ->Option.map(JSON.parseExn)
-    ->Option.flatMap(parsedMsg => {
-      parsedMsg->JSON.Decode.object
-    })
-  } catch {
-  | _ => None
-  }
+  objData.data
+  ->JSON.Decode.string
+  ->Option.flatMap(LogicUtils.safeParseOpt)
+  ->Option.flatMap(JSON.Decode.object)
 }

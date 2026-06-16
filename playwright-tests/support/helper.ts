@@ -16,3 +16,25 @@ export function generateDateTimeString(): string {
       .slice(0, 14) + randomSuffix
   );
 }
+
+export function getInvalidEmails(): string[] {
+  return [
+    "username",
+    "@test.com",
+    "missing@test",
+    "multiple@domains@test.com",
+    "abc@@xy.zi",
+    "dots..in@test.com",
+    ".starts.with.dot@test.com",
+    "ends.with.dot.@test.com",
+    "username@.com",
+    "username@test..com",
+    "@#$%",
+    "user@domain,com",
+    "user@domain.123",
+    "user@domain.c",
+    "user@domain.",
+    "12345678",
+    "abc.in",
+  ];
+}

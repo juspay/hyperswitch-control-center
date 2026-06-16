@@ -72,7 +72,7 @@ let payouts = userHasResourceAccess => {
     name: "Payouts",
     link: `/payouts`,
     access: userHasResourceAccess(~resourceAccess=Payout),
-    searchOptions: [("View payouts operations", "")],
+    searchOptions: [("View payout operations", "")],
   })
 }
 
@@ -222,6 +222,18 @@ let vaultProcessor = (~userHasResourceAccess) => {
   })
 }
 
+let surchargeProcessor = (~userHasResourceAccess) => {
+  SubLevelLink({
+    name: "Surcharge Processor",
+    link: `/surcharge-processor`,
+    access: userHasResourceAccess(~resourceAccess=Connector),
+    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
+      ~processorList=ConnectorUtils.surchargeProcessorList,
+      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    ),
+  })
+}
+
 let connectors = (
   isConnectorsEnabled,
   ~isLiveMode,
@@ -232,6 +244,7 @@ let connectors = (
   ~isTaxProcessor,
   ~isBillingProcessor,
   ~isVaultProcessor,
+  ~isSurchargeProcessor,
   ~userHasResourceAccess,
 ) => {
   let connectorLinkArray = [paymentProcessor(isLiveMode, userHasResourceAccess)]
@@ -260,6 +273,10 @@ let connectors = (
 
   if isVaultProcessor {
     connectorLinkArray->Array.push(vaultProcessor(~userHasResourceAccess))->ignore
+  }
+
+  if isSurchargeProcessor {
+    connectorLinkArray->Array.push(surchargeProcessor(~userHasResourceAccess))->ignore
   }
 
   isConnectorsEnabled
@@ -502,7 +519,7 @@ let configurePMTs = userHasResourceAccess => {
 
 let complianceCertificateSection = {
   SubLevelLink({
-    name: "Compliance ",
+    name: "Compliance",
     link: `/compliance`,
     access: Access,
     searchOptions: [("PCI certificate", "")],
@@ -638,99 +655,4 @@ let developers = (
         links,
       })
     : emptyComponent
-}
-
-let uploadReconFiles = (~userHasResourceAccess) => {
-  SubLevelLink({
-    name: "Upload Recon Files",
-    link: `/upload-files`,
-    access: userHasResourceAccess(~resourceAccess=ReconUpload),
-    searchOptions: [("Upload recon files", "")],
-  })
-}
-
-let runRecon = (~userHasResourceAccess) => {
-  SubLevelLink({
-    name: "Run Recon",
-    link: `/run-recon`,
-    access: userHasResourceAccess(~resourceAccess=RunRecon),
-    searchOptions: [("Run recon", "")],
-  })
-}
-
-let reconAnalytics = (~userHasResourceAccess) => {
-  SubLevelLink({
-    name: "Analytics",
-    link: `/recon-analytics`,
-    access: userHasResourceAccess(~resourceAccess=ReconAndSettlementAnalytics),
-    searchOptions: [("Recon analytics", "")],
-  })
-}
-let reconReports = (~userHasResourceAccess) => {
-  SubLevelLink({
-    name: "Reports",
-    link: `/reports`,
-    access: userHasResourceAccess(~resourceAccess=ReconReports),
-    searchOptions: [("Recon reports", "")],
-  })
-}
-
-let reconConfigurator = (~userHasResourceAccess) => {
-  SubLevelLink({
-    name: "Configurator",
-    link: `/config-settings`,
-    access: userHasResourceAccess(~resourceAccess=ReconConfig),
-    searchOptions: [("Recon configurator", "")],
-  })
-}
-// Commented as not needed now
-// let reconFileProcessor = {
-//   SubLevelLink({
-//     name: "File Processor",
-//     link: `/file-processor`,
-//     access: Access,
-//     searchOptions: [("Recon file processor", "")],
-//   })
-// }
-
-let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourceAccess) => {
-  switch (recon, isReconEnabled, checkUserEntity([#Merchant, #Organization, #Tenant])) {
-  | (true, true, true) => {
-      let links = []
-      if userHasResourceAccess(~resourceAccess=ReconFiles) == Access {
-        links->Array.push(uploadReconFiles(~userHasResourceAccess))
-      }
-      if userHasResourceAccess(~resourceAccess=RunRecon) == Access {
-        links->Array.push(runRecon(~userHasResourceAccess))
-      }
-      if userHasResourceAccess(~resourceAccess=ReconAndSettlementAnalytics) == Access {
-        links->Array.push(reconAnalytics(~userHasResourceAccess))
-      }
-      if userHasResourceAccess(~resourceAccess=ReconReports) == Access {
-        links->Array.push(reconReports(~userHasResourceAccess))
-      }
-      if userHasResourceAccess(~resourceAccess=ReconConfig) == Access {
-        links->Array.push(reconConfigurator(~userHasResourceAccess))
-      }
-      // Commented as not needed now
-      // if userHasResourceAccess(~resourceAccess=ReconFiles) == CommonAuthTypes.Access {
-      //   links->Array.push(reconFileProcessor)
-      // }
-      Section({
-        name: "Recon And Settlement",
-        icon: "recon",
-        showSection: true,
-        links,
-      })
-    }
-  | (true, false, true) =>
-    Link({
-      name: "Reconciliation",
-      icon: isReconEnabled ? "recon" : "recon-lock",
-      link: `/recon`,
-      access: userHasResourceAccess(~resourceAccess=ReconToken),
-    })
-
-  | _ => emptyComponent
-  }
 }

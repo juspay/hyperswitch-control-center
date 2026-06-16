@@ -3,6 +3,18 @@ open ReconEngineTypes
 open LogicUtils
 open ReconEngineUtils
 open ReconEngineTransactionsUtils
+open EntriesTableEntity
+
+let getDetailFieldsForTableSections = [
+  EntryType,
+  Amount,
+  Currency,
+  Status,
+  EntryId,
+  OrderID,
+  EffectiveAt,
+  CreatedAt,
+]
 
 let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
   let statusOptions = getGroupedTransactionStatusOptions([
@@ -164,7 +176,11 @@ let getHeadingAndSubHeadingForMismatch = (
 
   let mismatchSubHeading = switch mismatchType {
   | AmountMismatch =>
-    `There is a ${mismatchHeading} of ${currency} ${mismatchAmount->Float.toString} found between the transaction entries`
+    `There is a ${mismatchHeading} of ${CurrencyFormatUtils.valueFormatter(
+        mismatchAmount,
+        AmountWithSuffix,
+        ~currency,
+      )} found between the transaction entries`
   | MetadataMismatch =>
     `There is a ${mismatchHeading} found between ${accountNames->Array.joinWith(", ")}`
   | BalanceDirectionMismatch =>
@@ -771,10 +787,11 @@ let calculateSectionData = (
   ->Dict.keysToArray
   ->Array.map(accountId => {
     let accountInfo =
-      accountInfoMap
-      ->getvalFromDict(accountId)
-      ->Option.getOr({account_info_name: "", account_info_type: UnknownAccountTypeVariant})
-    let accountEntries = groupedEntries->getvalFromDict(accountId)->Option.getOr([])
+      accountInfoMap->getValueFromDict(
+        accountId,
+        {account_info_name: "", account_info_type: UnknownAccountTypeVariant},
+      )
+    let accountEntries = groupedEntries->getValueFromDict(accountId, [])
 
     let (totalAmount, currency) = if accountInfo.account_info_type != UnknownAccountTypeVariant {
       getBalanceByAccountType(accountEntries, accountInfo.account_info_type)

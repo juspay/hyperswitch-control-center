@@ -89,15 +89,16 @@ module CardRenderer = {
     let showAdditionalDetails = methodVariant => {
       switch (methodVariant, connector->getConnectorNameTypeFromString(~connectorType)) {
       | (Pix, Processors(SANTANDER))
+      | (PixEmv, Processors(SANTANDER))
       | (PixAutomaticoQr, Processors(SANTANDER))
       | (PixAutomaticoPush, Processors(SANTANDER))
       | (Boleto, Processors(SANTANDER))
-      | (PayPal, Processors(BRAINTREE)) => true
+      | (PayPal, Processors(BRAINTREE))
+      | (AmazonPay, Processors(AMAZONPAY)) => true
       | _ =>
         ((methodVariant === GooglePay ||
         methodVariant === ApplePay ||
         methodVariant === SamsungPay ||
-        methodVariant === AmazonPay ||
         methodVariant === Paze) &&
           {
             switch connector->getConnectorNameTypeFromString(~connectorType) {
@@ -497,17 +498,18 @@ module CardRenderer = {
                               ->getString("klarna_region", "") !== "Europe"
 
                           <RenderIf condition={!klarnaCheck}>
-                            <div
-                              onClick={_ => removeOrAddMethods(value)} className="cursor-pointer">
-                              <CheckBoxIcon isSelected={isSelected(value)} />
-                            </div>
+                            <CheckBoxIconAdapter
+                              isSelected={isSelected(value)}
+                              setIsSelected={_ => removeOrAddMethods(value)}
+                            />
                           </RenderIf>
                         }
 
                       | _ =>
-                        <div onClick={_ => removeOrAddMethods(value)} className="cursor-pointer">
-                          <CheckBoxIcon isSelected={isSelected(value)} />
-                        </div>
+                        <CheckBoxIconAdapter
+                          isSelected={isSelected(value)}
+                          setIsSelected={_ => removeOrAddMethods(value)}
+                        />
                       }}
                       {switch (
                         value.payment_method_type->getPaymentMethodTypeFromString,
@@ -575,7 +577,7 @@ module CardRenderer = {
             </RenderIf>
             <RenderIf condition={paymentMethod->getPaymentMethodFromString != BankDebit}>
               <p className={`${body.md.medium} text-grey-700 opacity-50`}>
-                {"Below payment method types requires additional details"->React.string}
+                {"The following payment method types require additional details"->React.string}
               </p>
             </RenderIf>
             <div className={`flex flex-col gap-4 `}>
@@ -607,7 +609,7 @@ module CardRenderer = {
                           className="flex gap-2 items-center cursor-pointer flex-1 justify-between w-full">
                           <div className="flex gap-2 items-center">
                             <div className="cursor-pointer">
-                              <CheckBoxIcon
+                              <CheckBoxIconAdapter
                                 isSelected={isSelected(value)}
                                 setIsSelected={handleBankDebitCheckboxClick(~method=value)}
                                 stopPropagationNeeded=true
@@ -629,8 +631,8 @@ module CardRenderer = {
                   }
                   accordionElem
                 })}
-                accordionTopContainerCss="border border-nd_gray-150 rounded-lg "
-                contentExpandCss="p-0 "
+                accordionTopContainerCss="border border-nd_gray-150 rounded-lg"
+                contentExpandCss="p-0"
                 accordionBottomContainerCss="!p-2 flex justify-between w-full"
                 gapClass="flex flex-col gap-4"
                 singleOpen=true

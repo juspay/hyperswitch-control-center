@@ -87,7 +87,7 @@ module MetadataAuthenticationInput = {
 
     <DesktopRow wrapperClass="flex-1">
       <div className="mt-5">
-        <TextInput
+        <TextInputAdapter
           input={keyInput}
           placeholder={"Enter key"}
           isDisabled={isDisabled && !allowEdit}
@@ -95,7 +95,7 @@ module MetadataAuthenticationInput = {
         />
       </div>
       <div className="mt-5">
-        <TextInput
+        <TextInputAdapter
           input={valueInput}
           placeholder={"Enter value"}
           isDisabled={isDisabled && !allowEdit}
@@ -133,7 +133,7 @@ module MetadataHeaders = {
     }, [])
 
     <div className="flex-1">
-      <div className="flex flex-row justify-between items-center gap-4 ">
+      <div className="flex flex-row justify-between items-center gap-4">
         <p
           className={`ml-1 ${body.lg.semibold} dark:text-jp-gray-text_darktheme dark:text-opacity-50 !text-nd_gray-700 mt-6 `}>
           {"Custom Metadata Headers"->React.string}
@@ -227,7 +227,7 @@ let make = () => {
     } catch {
     | _ => {
         setScreenState(_ => PageLoaderWrapper.Success)
-        showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+        showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
       }
     }
     Nullable.null

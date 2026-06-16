@@ -23,6 +23,8 @@ module RadioButtons = {
   let make = (~input: ReactFinalForm.fieldRenderPropsInput) => {
     open HeadlessUI
     let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+    let (_, getNameForId) = OMPSwitchHooks.useOMPData()
+    let orgName = getNameForId(#Organization)
     let value = input.value->LogicUtils.getStringFromJson("")
 
     <RadioGroup
@@ -35,7 +37,7 @@ module RadioButtons = {
           className="flex gap-2 items-start flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-4 rounded-lg">
           <Icon name="nd-info-circle" size=20 />
           <span className={`text-nd_gray-600 ${body.md.regular}`}>
-            {`You can only create theme for ${orgId} here. To create theme to another organisation, please switch the organisation.`->React.string}
+            {`You can only create theme for ${orgName} (${orgId}) here. To create theme to another organisation, please switch the organisation.`->React.string}
           </span>
         </div>
         {entities
@@ -512,12 +514,24 @@ module ThemeUploadAssetsModal = {
       try {
         setScreenState(_ => Loading)
 
-        let urls = await processAssets(~assets, ~themeId)
-        let hasUrls = urls.logoUrl->Option.isSome || urls.faviconUrl->Option.isSome
+        let processed = await processAssets(~assets, ~themeId)
+        let hasUrls =
+          processed.urls.logoUrl->Option.isSome || processed.urls.faviconUrl->Option.isSome
+        let hasEmailLogo = processed.emailLogoUrl->Option.isSome
 
-        if hasUrls {
-          let {theme_data: {settings}} = formValues->ThemeUpdateUtils.themeBodyMapper
-          let requestBody = buildThemeDataBody(~settings, ~urls)
+        if hasUrls || hasEmailLogo {
+          let {theme_data: {settings}, email_config} = formValues->ThemeUpdateUtils.themeBodyMapper
+          let updatedEmailConfig = if hasEmailLogo {
+            email_config->buildEmailConfigObject(~emailLogoUrl=processed.emailLogoUrl)
+          } else {
+            email_config
+          }
+
+          let requestBody = buildThemeDataBody(
+            ~settings,
+            ~urls=processed.urls,
+            ~emailConfig=updatedEmailConfig,
+          )
           let updateUrl = getURL(
             ~entityName=V1(USERS),
             ~methodType=Put,
@@ -527,7 +541,10 @@ module ThemeUploadAssetsModal = {
           let _ = await updateDetails(updateUrl, requestBody, Put)
         }
 
-        showToast(~message="Theme has been created with assets", ~toastType=ToastState.ToastSuccess)
+        showToast(
+          ~message="Theme has been created with assets. Refresh the page to apply any changes.",
+          ~toastType=ToastState.ToastSuccess,
+        )
         setScreenState(_ => Success)
         setShowModal(_ => false)
         redirectToList()
@@ -541,7 +558,7 @@ module ThemeUploadAssetsModal = {
     let handleCancel = () => {
       setShowModal(_ => false)
       showToast(
-        ~message="Theme has been created. You can upload assets later",
+        ~message="Theme has been created, you can upload assets later. Refresh the page to apply any changes.",
         ~toastType=ToastState.ToastInfo,
       )
       redirectToList()
@@ -556,16 +573,24 @@ module ThemeUploadAssetsModal = {
       childClass="p-0"
       showCloseIcon=false
       modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
-        {"Upload icon and favicon files for your theme."->React.string}
+        {"Upload icon, favicon and email logo files for your theme."->React.string}
       </div>}>
       <PageLoaderWrapper screenState={screenState} sectionHeight="h-20-vh">
         <div className="flex flex-col gap-2 p-3">
           <IconSettings
+            mode=#Dashboard
             assets
             onLogoSelect={file => setAssets(prev => {...prev, logo: Some(File(file))})}
             onLogoRemove={() => setAssets(prev => {...prev, logo: None})}
             onFaviconSelect={file => setAssets(prev => {...prev, favicon: Some(File(file))})}
             onFaviconRemove={() => setAssets(prev => {...prev, favicon: None})}
+            themeConfigVersion=None
+          />
+          <IconSettings
+            mode=#Email
+            assets
+            onEmailLogoSelect={file => setAssets(prev => {...prev, emailLogo: Some(File(file))})}
+            onEmailLogoRemove={() => setAssets(prev => {...prev, emailLogo: None})}
             themeConfigVersion=None
           />
           <div className="flex justify-end gap-3 pt-4 border-t border-nd_gray-200">
@@ -579,7 +604,9 @@ module ThemeUploadAssetsModal = {
             <Button
               text="Save & Upload"
               buttonType=Primary
-              buttonState={assets.logo->Option.isSome || assets.favicon->Option.isSome
+              buttonState={assets.logo->Option.isSome ||
+              assets.favicon->Option.isSome ||
+              assets.emailLogo->Option.isSome
                 ? Normal
                 : Disabled}
               buttonSize=Small
