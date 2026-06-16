@@ -24,7 +24,6 @@ let make = (
     }
   }
 
-  let vao = "bacd"
   let enterCheckBoxJson = useLottieJson(enterCheckBox)
   let exitCheckBoxJson = useLottieJson(exitCheckBox)
   let (defaultState, autoplay) = LottieIcons.useLottieIcon(
