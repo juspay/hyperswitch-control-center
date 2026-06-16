@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.06.16.0
+
+### Features
+
+- **home:** Update welcome text to be more concise ([#4930](https://github.com/juspay/hyperswitch-control-center/pull/4930)) ([`dbad7d6`](https://github.com/juspay/hyperswitch-control-center/commit/dbad7d688e4374e968bfff4701434a32ef14974d))
+
+### Bug Fixes
+
+- Permalink - resolve double slash in generated permalink path ([#4934](https://github.com/juspay/hyperswitch-control-center/pull/4934)) ([`5b069ae`](https://github.com/juspay/hyperswitch-control-center/commit/5b069ae1e36518a74d87abc94f41c90fa209a7d4))
+- Blend UI and routing existing bug fixes ([#4886](https://github.com/juspay/hyperswitch-control-center/pull/4886)) ([`875cce2`](https://github.com/juspay/hyperswitch-control-center/commit/875cce2e19b185d8f5dfd3ceab20cf84a42396cb))
+
+**Full Changelog:** [`2026.06.15.0...2026.06.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.15.0...2026.06.16.0)
+
+- - -
+
 ## 2026.06.15.0
 
 ### Features
