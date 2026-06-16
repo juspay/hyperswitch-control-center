@@ -1,15 +1,16 @@
+open ToastState
+open SnackbarBinding
+
 type toastType = ToastState.toastType
 
-type showToastFn = ToastState.showToastFn
-
-let useShowToast = (): showToastFn => {
+let useShowToast = () => {
   let isBlendEnabled = React.useContext(BlendContext.blendEnabledContext)
   let legacyShowToast = ToastState.useShowToast()
 
   React.useMemo1(() => {
     (
       ~message,
-      ~toastType: ToastState.toastType,
+      ~toastType: toastType,
       ~toastDuration=0,
       ~autoClose=false,
       ~buttonText=?,
@@ -17,7 +18,7 @@ let useShowToast = (): showToastFn => {
       ~toastElement=React.null,
       ~toastKey=?,
     ) => {
-      if !isBlendEnabled || toastElement != React.null {
+      if !isBlendEnabled || toastElement !== React.null {
         legacyShowToast(
           ~message,
           ~toastType,
@@ -30,23 +31,23 @@ let useShowToast = (): showToastFn => {
         )
       } else {
         let variant = switch toastType {
-        | ToastState.ToastSuccess => SnackbarBinding.Success
-        | ToastState.ToastError => SnackbarBinding.Error
-        | ToastState.ToastWarning => SnackbarBinding.Warning
-        | ToastState.ToastInfo => SnackbarBinding.Info
+        | ToastSuccess => Success
+        | ToastError => SnackbarBinding.Error
+        | ToastWarning => Warning
+        | ToastInfo => Info
         }
 
         let duration = toastDuration > 0 ? toastDuration : 3000
 
-        let toastOptions: SnackbarBinding.addToastOptions = {
+        let toastOptions: addToastOptions = {
           header: "",
           description: message,
           variant,
           duration,
-          position: SnackbarBinding.TopCenter,
+          position: TopCenter,
         }
 
-        let _ = SnackbarBinding.addSnackbar(toastOptions)
+        let _ = addSnackbar(toastOptions)
       }
     }
   }, [isBlendEnabled])
