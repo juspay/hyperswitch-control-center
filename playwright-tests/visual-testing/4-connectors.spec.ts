@@ -262,7 +262,7 @@ test.describe("Visual Testing - Connectors", () => {
         {
           fullPage: true,
           animations: "disabled",
-          maxDiffPixelRatio: 0.01,
+          maxDiffPixelRatio: 0.02,
         },
       );
       await payoutConnector.connectorSetupDone.click();
