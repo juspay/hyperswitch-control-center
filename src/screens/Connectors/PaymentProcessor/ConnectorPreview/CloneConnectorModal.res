@@ -5,7 +5,7 @@ open Typography
 @react.component
 let make = (~connectorInfo: ConnectorTypes.connectorPayload) => {
   let getURL = useGetURL()
-  let updateDetails = useUpdateMethod()
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -104,7 +104,14 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload) => {
       setShowModal(_ => false)
       showToast(~message="Connector cloned successfully.", ~toastType=ToastSuccess)
     } catch {
-    | _ => ()
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Failed to clone connector")
+      let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
+      let message =
+        errorCode === "HE_01"
+          ? "A connector with this label already exists in the destination profile. Try a different label."
+          : "Failed to clone connector. Please try again."
+      showToast(~message, ~toastType=ToastError)
     }
     Nullable.null
   }
