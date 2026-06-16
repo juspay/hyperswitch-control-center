@@ -88,7 +88,7 @@ module UploadDisputeEvidenceModal = {
       let formData = formData()
       append(formData, "dispute_id", disputeId)
       append(formData, "evidence_type", keyValue)
-      let contentType = DisputesUtils.getEvidenceFileContentType(fileValue, fileName)
+      let contentType = DisputesUtils.getMimeTypeFromFileName(fileName)
       let fileBlob = blob([fileValue], {"type": contentType})
       appendBlob(formData, "file", fileBlob, fileName)
 
@@ -304,9 +304,10 @@ module DisputesInfoBarComponent = {
                     ->Array.map(value => {
                       let fileName =
                         fileUploadedDict->getDictfromDict(value)->getString("fileName", "")
-                      let iconName = switch fileName->getFileTypeFromFileName {
+                      let fileType = fileName->getFileTypeFromFileName
+                      let iconName = switch fileType {
                       | "jpeg" | "jpg" | "png" => "image-icon"
-                      | _ => `${fileName->getFileTypeFromFileName}-icon`
+                      | _ => `${fileType}-icon`
                       }
                       <div
                         className={`p-2 border rounded-md bg-white w-fit flex gap-2 items-center border-grey-200`}>
