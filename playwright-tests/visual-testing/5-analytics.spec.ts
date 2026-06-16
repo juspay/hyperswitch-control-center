@@ -73,9 +73,13 @@ test.describe("Visual Testing - Analytics", () => {
       await homePage.paymentsAnalytics.click();
 
       await expect(analytics.pageHeading).toBeVisible({ timeout: 15000 });
-      await expect(analytics.paymentsOverviewHeading).toBeVisible({ timeout: 15000 });
+      await expect(analytics.paymentsOverviewHeading).toBeVisible({
+        timeout: 15000,
+      });
       // Wait on the canned mock data so the page is fully populated before capture.
-      await expect(analytics.summaryTableCell(1, 1)).toHaveText("Stripe", { timeout: 15000 });
+      await expect(analytics.summaryTableCell(1, 1)).toHaveText("Stripe", {
+        timeout: 15000,
+      });
 
       await page.waitForLoadState("networkidle");
       await page.waitForTimeout(1000);
@@ -85,14 +89,18 @@ test.describe("Visual Testing - Analytics", () => {
         SCREENSHOT_OPTS,
       );
 
-      await page.getByRole('img', { name: 'Success Rate' }).scrollIntoViewIfNeeded();
+      await page
+        .getByRole("img", { name: "Success Rate" })
+        .scrollIntoViewIfNeeded();
 
       await expect(page).toHaveScreenshot(
         "analytics-payments-charts1-.png",
         SCREENSHOT_OPTS,
       );
 
-      await page.getByText('\'NA\' denotes those incomplete').scrollIntoViewIfNeeded();
+      await page
+        .getByText("'NA' denotes those incomplete")
+        .scrollIntoViewIfNeeded();
 
       await expect(page).toHaveScreenshot(
         "analytics-payments-charts2-.png",
@@ -115,7 +123,9 @@ test.describe("Visual Testing - Analytics", () => {
 
       await expect(analytics.pageHeading).toBeVisible({ timeout: 15000 });
       await expect(analytics.successRateCard).toBeVisible({ timeout: 15000 });
-      await expect(analytics.summaryTableCell(1, 1)).toHaveText("Stripe", { timeout: 15000 });
+      await expect(analytics.summaryTableCell(1, 1)).toHaveText("Stripe", {
+        timeout: 15000,
+      });
 
       await page.waitForLoadState("networkidle");
       await page.waitForTimeout(1000);
@@ -125,7 +135,9 @@ test.describe("Visual Testing - Analytics", () => {
         SCREENSHOT_OPTS,
       );
 
-      await page.getByText('\'NA\' denotes those incomplete').scrollIntoViewIfNeeded();
+      await page
+        .getByText("'NA' denotes those incomplete")
+        .scrollIntoViewIfNeeded();
       await expect(page).toHaveScreenshot(
         "analytics-refunds-chart.png",
         SCREENSHOT_OPTS,
@@ -155,7 +167,9 @@ test.describe("Visual Testing - Analytics", () => {
       await homePage.insightsAnalytics.click();
 
       await expect(insights.pageHeading).toBeVisible({ timeout: 15000 });
-      await expect(insights.paymentsProcessedHeading).toBeVisible({ timeout: 15000 });
+      await expect(insights.paymentsProcessedHeading).toBeVisible({
+        timeout: 15000,
+      });
       await expect(insights.noDataMessage).toBeVisible({ timeout: 15000 });
 
       await page.waitForLoadState("networkidle");
@@ -166,13 +180,13 @@ test.describe("Visual Testing - Analytics", () => {
         SCREENSHOT_OPTS,
       );
 
-      await page.getByRole('tab', { name: 'Smart Retries' }).click();
+      await page.getByRole("tab", { name: "Smart Retries" }).click();
       await expect(page).toHaveScreenshot(
         "analytics-smartretries-empty.png",
         SCREENSHOT_OPTS,
       );
 
-      await page.getByRole('tab', { name: 'Refunds' }).click();
+      await page.getByRole("tab", { name: "Refunds" }).click();
       await expect(page).toHaveScreenshot(
         "analytics-refunds-empty.png",
         SCREENSHOT_OPTS,
@@ -199,8 +213,12 @@ test.describe("Visual Testing - Analytics", () => {
       await homePage.insightsAnalytics.click();
 
       await expect(insights.pageHeading).toBeVisible({ timeout: 15000 });
-      await expect(insights.authorizationRateCard).toBeVisible({ timeout: 15000 });
-      await expect(insights.failureReasonsTable).toBeVisible({ timeout: 15000 });
+      await expect(insights.authorizationRateCard).toBeVisible({
+        timeout: 15000,
+      });
+      await expect(insights.failureReasonsTable).toBeVisible({
+        timeout: 15000,
+      });
 
       // Scroll every section on-screen so each Highcharts SVG draws fully.
       await insights.revealAllCharts();
@@ -214,31 +232,41 @@ test.describe("Visual Testing - Analytics", () => {
         SCREENSHOT_OPTS,
       );
 
-      await page.getByRole('heading', { name: 'Payments Processed' }).scrollIntoViewIfNeeded();
+      await page
+        .getByRole("heading", { name: "Payments Processed" })
+        .scrollIntoViewIfNeeded();
       await expect(page).toHaveScreenshot(
         "analytics-insights2-populated.png",
         SCREENSHOT_OPTS,
       );
 
-      await page.getByRole('heading', { name: 'Payments Success Rate' }).scrollIntoViewIfNeeded();
+      await page
+        .getByRole("heading", { name: "Payments Success Rate" })
+        .scrollIntoViewIfNeeded();
       await expect(page).toHaveScreenshot(
         "analytics-insights3-populated.png",
         SCREENSHOT_OPTS,
       );
 
-      await page.getByRole('heading', { name: 'Successful Payments' }).scrollIntoViewIfNeeded();
+      await page
+        .getByRole("heading", { name: "Successful Payments" })
+        .scrollIntoViewIfNeeded();
       await expect(page).toHaveScreenshot(
         "analytics-insights4-populated.png",
         SCREENSHOT_OPTS,
       );
 
-      await page.getByRole('heading', { name: 'Failed Payments Distribution' }).scrollIntoViewIfNeeded();
+      await page
+        .getByRole("heading", { name: "Failed Payments Distribution" })
+        .scrollIntoViewIfNeeded();
       await expect(page).toHaveScreenshot(
         "analytics-insights5-populated.png",
         SCREENSHOT_OPTS,
       );
 
-      await page.getByRole('heading', { name: 'Failure Reasons' }).scrollIntoViewIfNeeded();
+      await page
+        .getByRole("heading", { name: "Failure Reasons" })
+        .scrollIntoViewIfNeeded();
       await expect(page).toHaveScreenshot(
         "analytics-insights6-populated.png",
         SCREENSHOT_OPTS,
@@ -312,7 +340,9 @@ test.describe("Visual Testing - Analytics", () => {
       // every section so each Highcharts SVG draws fully.
       await insights.openRefundsTab();
 
-      await expect(insights.refundSuccessRateCard).toBeVisible({ timeout: 15000 });
+      await expect(insights.refundSuccessRateCard).toBeVisible({
+        timeout: 15000,
+      });
       await expect(insights.refundReasonsTable).toBeVisible({ timeout: 15000 });
 
       await page.waitForLoadState("networkidle");
@@ -329,18 +359,21 @@ test.describe("Visual Testing - Analytics", () => {
         SCREENSHOT_OPTS,
       );
 
-      await page.getByRole('heading', { name: 'Failed Refunds Distribution' }).scrollIntoViewIfNeeded();
+      await page
+        .getByRole("heading", { name: "Failed Refunds Distribution" })
+        .scrollIntoViewIfNeeded();
       await expect(page).toHaveScreenshot(
         "analytics-refundstab3-populated.png",
         SCREENSHOT_OPTS,
       );
 
-      await page.getByRole('heading', { name: 'Failed Refund Error Reasons' }).scrollIntoViewIfNeeded();
+      await page
+        .getByRole("heading", { name: "Failed Refund Error Reasons" })
+        .scrollIntoViewIfNeeded();
       await expect(page).toHaveScreenshot(
         "analytics-refundstab4-populated.png",
         SCREENSHOT_OPTS,
       );
-
     });
   });
 
@@ -403,8 +436,12 @@ test.describe("Visual Testing - Analytics", () => {
       await analytics.openLeastCostRoutingTab();
 
       // KPI cards.
-      await expect(analytics.leastCostTotalSavingsCard).toBeVisible({ timeout: 15000 });
-      await expect(analytics.leastCostDebitRoutedTransactionsCard).toBeVisible({ timeout: 15000 });
+      await expect(analytics.leastCostTotalSavingsCard).toBeVisible({
+        timeout: 15000,
+      });
+      await expect(analytics.leastCostDebitRoutedTransactionsCard).toBeVisible({
+        timeout: 15000,
+      });
       await expect(analytics.charts.first()).toBeVisible({ timeout: 15000 });
 
       await page.waitForLoadState("networkidle");

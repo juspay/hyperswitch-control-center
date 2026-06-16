@@ -157,15 +157,20 @@ test.describe("Visual Testing - Developers", () => {
       // its (empty-state) content renders before capturing.
       await paymentSettings.acquirerConfigSettingsHeading.scrollIntoViewIfNeeded();
 
-      await expect(page).toHaveScreenshot("developers-payment-settings-3ds.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.01,
-        mask: [infoCardValues(page)],
-      });
+      await expect(page).toHaveScreenshot(
+        "developers-payment-settings-3ds.png",
+        {
+          fullPage: true,
+          animations: "disabled",
+          maxDiffPixelRatio: 0.01,
+          mask: [infoCardValues(page)],
+        },
+      );
     });
 
-    test("3ds tab with acquirer config should match visual snapshot", async ({ page }) => {
+    test("3ds tab with acquirer config should match visual snapshot", async ({
+      page,
+    }) => {
       const paymentSettings = await openPaymentSettings(page);
 
       await paymentSettings.clickTab("3ds");
@@ -173,33 +178,51 @@ test.describe("Visual Testing - Developers", () => {
         timeout: 10000,
       });
 
-      await page.getByRole('button', { name: 'Acquirer config group' }).click();
+      await page.getByRole("button", { name: "Acquirer config group" }).click();
 
-      await expect(page).toHaveScreenshot("developers-payment-settings-3ds-acquirer-config-sidebar.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.01,
-        mask: [infoCardValues(page)],
-      });
+      await expect(page).toHaveScreenshot(
+        "developers-payment-settings-3ds-acquirer-config-sidebar.png",
+        {
+          fullPage: true,
+          animations: "disabled",
+          maxDiffPixelRatio: 0.01,
+          mask: [infoCardValues(page)],
+        },
+      );
 
-      await page.getByRole('textbox', { name: 'e.g. Demo Merchant' }).fill("Hyperswitch");
-      await page.getByTestId('acquirer_assigned_merchant_id').getByRole('textbox', { name: 'e.g.' }).fill("12345678");
-      await page.getByRole('button', { name: 'Select Network' }).click();
-      await page.locator('div').filter({ hasText: /^Visa$/ }).nth(4).click();
-      await page.getByTestId('acquirer_bin').getByRole('textbox', { name: 'e.g.' }).fill("12345678");
-      await page.getByRole('button', { name: 'Save' }).click();
+      await page
+        .getByRole("textbox", { name: "e.g. Demo Merchant" })
+        .fill("Hyperswitch");
+      await page
+        .getByTestId("acquirer_assigned_merchant_id")
+        .getByRole("textbox", { name: "e.g." })
+        .fill("12345678");
+      await page.getByRole("button", { name: "Select Network" }).click();
+      await page
+        .locator("div")
+        .filter({ hasText: /^Visa$/ })
+        .nth(4)
+        .click();
+      await page
+        .getByTestId("acquirer_bin")
+        .getByRole("textbox", { name: "e.g." })
+        .fill("12345678");
+      await page.getByRole("button", { name: "Save" }).click();
 
-      await expect(page).toHaveScreenshot("developers-payment-settings-3ds-acquirer-config.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.01,
-        mask: [infoCardValues(page)],
-      });
-
-
+      await expect(page).toHaveScreenshot(
+        "developers-payment-settings-3ds-acquirer-config.png",
+        {
+          fullPage: true,
+          animations: "disabled",
+          maxDiffPixelRatio: 0.01,
+          mask: [infoCardValues(page)],
+        },
+      );
     });
 
-    test("custom headers tab should match visual snapshot", async ({ page }) => {
+    test("custom headers tab should match visual snapshot", async ({
+      page,
+    }) => {
       const paymentSettings = await openPaymentSettings(page);
 
       await paymentSettings.clickTab("customHeaders");
@@ -364,12 +387,15 @@ test.describe("Visual Testing - Developers", () => {
 
       // List page snapshot. The date-range filter surfaces "Now" + current
       // dates, so mask it to keep the snapshot stable.
-      await expect(page).toHaveScreenshot("developers-webhooks-list-mocked.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.01,
-        mask: [webhooks.dateRangeFilter],
-      });
+      await expect(page).toHaveScreenshot(
+        "developers-webhooks-list-mocked.png",
+        {
+          fullPage: true,
+          animations: "disabled",
+          maxDiffPixelRatio: 0.01,
+          mask: [webhooks.dateRangeFilter],
+        },
+      );
 
       // Drill into the event detail view.
       await webhooks.cellByText("payment_succeeded").click();

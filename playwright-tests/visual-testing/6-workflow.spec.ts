@@ -43,7 +43,9 @@ const seedConnector = async (
   label: string,
 ): Promise<void> => {
   const homePage = new HomePage(page);
-  await homePage.merchantID.nth(0).waitFor({ state: "visible", timeout: 20000 });
+  await homePage.merchantID
+    .nth(0)
+    .waitFor({ state: "visible", timeout: 20000 });
   const merchantId = (await homePage.merchantID.nth(0).textContent())?.trim();
   if (!merchantId) {
     throw new Error("Routing visual test: could not read merchant id");
@@ -77,9 +79,11 @@ const createActiveVolumeConfig = async (
   await volume.configureRuleButton.click();
   await volume.saveAndActivateRuleButton.click();
 
-  await expect(paymentRouting.dataToast("Successfully activated!")).toBeVisible({
-    timeout: 15000,
-  });
+  await expect(paymentRouting.dataToast("Successfully activated!")).toBeVisible(
+    {
+      timeout: 15000,
+    },
+  );
 };
 
 // Payout equivalents of the helpers above. Payout routing seeds an Adyen
@@ -91,7 +95,9 @@ const seedPayoutConnector = async (
   label: string,
 ): Promise<void> => {
   const homePage = new HomePage(page);
-  await homePage.merchantID.nth(0).waitFor({ state: "visible", timeout: 20000 });
+  await homePage.merchantID
+    .nth(0)
+    .waitFor({ state: "visible", timeout: 20000 });
   const merchantId = (await homePage.merchantID.nth(0).textContent())?.trim();
   if (!merchantId) {
     throw new Error("Payout routing visual test: could not read merchant id");
@@ -257,11 +263,14 @@ test.describe("Visual Testing - Workflow", () => {
         { timeout: 15000 },
       );
 
-      await expect(page).toHaveScreenshot("workflow-routing-default-fallback.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.01,
-      });
+      await expect(page).toHaveScreenshot(
+        "workflow-routing-default-fallback.png",
+        {
+          fullPage: true,
+          animations: "disabled",
+          maxDiffPixelRatio: 0.01,
+        },
+      );
     });
 
     test("auth based routing configuration should match visual snapshot", async ({
@@ -285,7 +294,9 @@ test.describe("Visual Testing - Workflow", () => {
       await paymentRouting.authRateBasedRoutingSetupButton.click();
       await page.waitForURL(/.*routing\/auth-rate/, { timeout: 15000 });
 
-      await expect(authRateBased.bucketSizeInput).toBeVisible({ timeout: 15000 });
+      await expect(authRateBased.bucketSizeInput).toBeVisible({
+        timeout: 15000,
+      });
       await expect(authRateBased.explorationPercentInput).toBeVisible();
       await expect(authRateBased.rolloutPercentInput).toBeVisible();
 
@@ -353,7 +364,9 @@ test.describe("Visual Testing - Workflow", () => {
         "PW Visual History Config",
         { timeout: 15000 },
       );
-      await expect(paymentRouting.historyCell(1, 3)).toContainText("Volume Based");
+      await expect(paymentRouting.historyCell(1, 3)).toContainText(
+        "Volume Based",
+      );
       await expect(paymentRouting.historyCell(1, 5)).toContainText("ACTIVE");
 
       // The Description cell carries "...created at <timestamp>" — mask it.
@@ -394,7 +407,9 @@ test.describe("Visual Testing - Workflow", () => {
       await paymentRouting.historyCell(1, 2).click();
       await page.waitForLoadState("networkidle");
 
-      await expect(page.getByText("PW Visual Preview Config").first()).toBeVisible({
+      await expect(
+        page.getByText("PW Visual Preview Config").first(),
+      ).toBeVisible({
         timeout: 15000,
       });
       await expect(page.getByText("stripe_test_history").first()).toBeVisible();
@@ -679,7 +694,9 @@ test.describe("Visual Testing - Workflow", () => {
         "PW Visual Payout History Config",
         { timeout: 15000 },
       );
-      await expect(payoutRouting.historyCell(1, 3)).toContainText("Volume Based");
+      await expect(payoutRouting.historyCell(1, 3)).toContainText(
+        "Volume Based",
+      );
       await expect(payoutRouting.historyCell(1, 5)).toContainText("ACTIVE");
 
       // The Description cell carries "...created at <timestamp>" — mask it.
@@ -726,7 +743,9 @@ test.describe("Visual Testing - Workflow", () => {
       await expect(
         page.getByText("PW Visual Payout Preview Config").first(),
       ).toBeVisible({ timeout: 15000 });
-      await expect(page.getByText("adyen_payout_history").first()).toBeVisible();
+      await expect(
+        page.getByText("adyen_payout_history").first(),
+      ).toBeVisible();
 
       // The description block renders "...created at <timestamp>" — mask it.
       await expect(page).toHaveScreenshot(
@@ -838,14 +857,11 @@ test.describe("Visual Testing - Workflow", () => {
       await expect(exemption.authTypeDropdown).toBeVisible();
       await expect(exemption.saveButton).toBeVisible();
 
-      await expect(page).toHaveScreenshot(
-        "workflow-3ds-exemption-config.png",
-        {
-          fullPage: true,
-          animations: "disabled",
-          maxDiffPixelRatio: 0.01,
-        },
-      );
+      await expect(page).toHaveScreenshot("workflow-3ds-exemption-config.png", {
+        fullPage: true,
+        animations: "disabled",
+        maxDiffPixelRatio: 0.01,
+      });
     });
   });
 });

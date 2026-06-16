@@ -420,7 +420,8 @@ test.describe("Visual Testing - Connectors", () => {
     });
 
     test("fraud & risk setup flow should match visual snapshot at each section", async ({
-      page, context
+      page,
+      context,
     }) => {
       await mockV2MerchantList(page);
 
@@ -473,15 +474,22 @@ test.describe("Visual Testing - Connectors", () => {
       await frmConnector.saveOrConnectOrProceedButton.click();
       await page.waitForLoadState("networkidle");
 
-      await expect(page).toHaveScreenshot("connectors-fraud-risk-config-2.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.01,
-      });
+      await expect(page).toHaveScreenshot(
+        "connectors-fraud-risk-config-2.png",
+        {
+          fullPage: true,
+          animations: "disabled",
+          maxDiffPixelRatio: 0.01,
+        },
+      );
 
-      await page.getByRole('textbox', { name: 'Enter API Key' }).fill('test_key');
-      await page.getByRole('button', { name: 'Connect and Finish' }).click();
-      await expect(page.getByText('FRM Player Created')).toBeVisible({ timeout: 10000 });
+      await page
+        .getByRole("textbox", { name: "Enter API Key" })
+        .fill("test_key");
+      await page.getByRole("button", { name: "Connect and Finish" }).click();
+      await expect(page.getByText("FRM Player Created")).toBeVisible({
+        timeout: 10000,
+      });
 
       await expect(page).toHaveScreenshot("connectors-fraud-risk-created.png", {
         fullPage: true,
@@ -545,20 +553,26 @@ test.describe("Visual Testing - Connectors", () => {
       await fillConnectorFields(page, processor.fields);
       await page.waitForLoadState("networkidle");
 
-      await expect(page).toHaveScreenshot("connectors-pm-auth-credentials.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.01,
-      });
+      await expect(page).toHaveScreenshot(
+        "connectors-pm-auth-credentials.png",
+        {
+          fullPage: true,
+          animations: "disabled",
+          maxDiffPixelRatio: 0.01,
+        },
+      );
 
       // Section 2 — connector created and listed.
       await pmAuthProcessor.saveOrConnectOrProceedButton.click();
       await page.waitForLoadState("networkidle");
-      await expect(page).toHaveScreenshot("connectors-pm-auth-created-details.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.01,
-      });
+      await expect(page).toHaveScreenshot(
+        "connectors-pm-auth-created-details.png",
+        {
+          fullPage: true,
+          animations: "disabled",
+          maxDiffPixelRatio: 0.01,
+        },
+      );
 
       await pmAuthProcessor.doneButton.click();
 
@@ -599,11 +613,14 @@ test.describe("Visual Testing - Connectors", () => {
         timeout: 10000,
       });
 
-      await expect(page).toHaveScreenshot("connectors-tax-processor-empty.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.01,
-      });
+      await expect(page).toHaveScreenshot(
+        "connectors-tax-processor-empty.png",
+        {
+          fullPage: true,
+          animations: "disabled",
+          maxDiffPixelRatio: 0.01,
+        },
+      );
     });
 
     test("tax processor setup flow should match visual snapshot at each section", async ({

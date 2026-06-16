@@ -211,9 +211,7 @@ test.describe("Org / Merchant / Profile context switching", () => {
     await homePage.newMerchantNameInput.fill(merchantName);
 
     await expect(
-      homePage.ompNameValidationError(
-        "Merchant with this name already exists",
-      ),
+      homePage.ompNameValidationError("Merchant with this name already exists"),
     ).toBeVisible();
     await expect(homePage.addMerchantButton).toBeDisabled();
   });
@@ -243,9 +241,7 @@ test.describe("Org / Merchant / Profile context switching", () => {
     await homePage.newProfileNameInput.blur();
 
     await expect(
-      homePage.ompNameValidationError(
-        "Profile with this name already exists",
-      ),
+      homePage.ompNameValidationError("Profile with this name already exists"),
     ).toBeVisible();
     await expect(homePage.addProfileButton).toBeDisabled();
   });

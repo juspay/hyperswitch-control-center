@@ -68,11 +68,17 @@ test.describe("Visual Testing - Settings", () => {
       await homePage.merchantID
         .nth(0)
         .waitFor({ state: "visible", timeout: 20000 });
-      const merchantId = (await homePage.merchantID.nth(0).textContent())?.trim();
+      const merchantId = (
+        await homePage.merchantID.nth(0).textContent()
+      )?.trim();
       if (!merchantId) {
         throw new Error("Could not read merchant ID after login");
       }
-      await createDummyConnectorAPI(merchantId, "stripe_test_pmt", context.request);
+      await createDummyConnectorAPI(
+        merchantId,
+        "stripe_test_pmt",
+        context.request,
+      );
 
       await homePage.settings.click();
       await homePage.configurePMT.click();
@@ -105,10 +111,18 @@ test.describe("Visual Testing - Settings", () => {
       await expect(configurePMT.configureModalSubHeading).toBeVisible({
         timeout: 10000,
       });
-      await expect(configurePMT.countriesDropdown).toBeVisible({ timeout: 10000 });
-      await expect(configurePMT.currenciesDropdown).toBeVisible({ timeout: 10000 });
-      await expect(configurePMT.minimumAmountInput).toBeVisible({ timeout: 10000 });
-      await expect(configurePMT.maximumAmountInput).toBeVisible({ timeout: 10000 });
+      await expect(configurePMT.countriesDropdown).toBeVisible({
+        timeout: 10000,
+      });
+      await expect(configurePMT.currenciesDropdown).toBeVisible({
+        timeout: 10000,
+      });
+      await expect(configurePMT.minimumAmountInput).toBeVisible({
+        timeout: 10000,
+      });
+      await expect(configurePMT.maximumAmountInput).toBeVisible({
+        timeout: 10000,
+      });
       await expect(configurePMT.submitButton).toBeVisible({ timeout: 10000 });
 
       await expect(page).toHaveScreenshot("settings-configure-pmts-modal.png", {
@@ -183,7 +197,9 @@ test.describe("Visual Testing - Settings", () => {
       await homePage.users.click();
       await page.waitForLoadState("networkidle");
 
-      await expect(usersPage.teamManagementText).toBeVisible({ timeout: 10000 });
+      await expect(usersPage.teamManagementText).toBeVisible({
+        timeout: 10000,
+      });
       await expect(usersPage.usersTabText).toBeVisible({ timeout: 10000 });
 
       // The only row is the logged-in org admin, whose first column shows their
@@ -218,7 +234,9 @@ test.describe("Visual Testing - Settings", () => {
       await homePage.users.click();
       await page.waitForLoadState("networkidle");
 
-      await expect(usersPage.teamManagementText).toBeVisible({ timeout: 10000 });
+      await expect(usersPage.teamManagementText).toBeVisible({
+        timeout: 10000,
+      });
 
       await usersPage.openRolesTab();
 
@@ -241,7 +259,9 @@ test.describe("Visual Testing - Settings", () => {
       });
     });
 
-    test("invite user drawer should match visual snapshot", async ({ page }) => {
+    test("invite user drawer should match visual snapshot", async ({
+      page,
+    }) => {
       await mockV2MerchantList(page);
 
       const homePage = new HomePage(page);
@@ -255,7 +275,9 @@ test.describe("Visual Testing - Settings", () => {
       await homePage.users.click();
       await page.waitForLoadState("networkidle");
 
-      await expect(usersPage.teamManagementText).toBeVisible({ timeout: 10000 });
+      await expect(usersPage.teamManagementText).toBeVisible({
+        timeout: 10000,
+      });
       await usersPage.inviteUsersButton.click();
 
       // The invite drawer's email + role form is the stable content; wait for
@@ -293,7 +315,9 @@ test.describe("Visual Testing - Settings", () => {
       await homePage.users.click();
       await page.waitForLoadState("networkidle");
 
-      await expect(usersPage.teamManagementText).toBeVisible({ timeout: 10000 });
+      await expect(usersPage.teamManagementText).toBeVisible({
+        timeout: 10000,
+      });
       // The only row is the logged-in org admin; opening it shows the user
       // details view.
       await usersPage.usersTableRows.first().click();
@@ -306,7 +330,9 @@ test.describe("Visual Testing - Settings", () => {
       // The username heading, email and breadcrumb are derived from the per-run
       // email (playwright-<uuid>@test.com), so mask them. The details table
       // (All_merchants / all_profiles / Organization Admin / Active) is static.
-      const usernameHeading = page.locator("p.text-2xl.font-semibold.leading-8");
+      const usernameHeading = page.locator(
+        "p.text-2xl.font-semibold.leading-8",
+      );
       const emailText = page.locator("p.text-grey-600.opacity-40");
       const breadcrumbEmail = page.locator("[data-breadcrumb]").nth(1);
 
@@ -350,16 +376,19 @@ test.describe("Visual Testing - Settings", () => {
         timeout: 10000,
       });
 
-      await expect(page).toHaveScreenshot("settings-users-create-custom-role.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.01,
-        mask: [
-          homePage.navHeaderMask,
-          homePage.merchantNameButton,
-          homePage.merchantID,
-        ],
-      });
+      await expect(page).toHaveScreenshot(
+        "settings-users-create-custom-role.png",
+        {
+          fullPage: true,
+          animations: "disabled",
+          maxDiffPixelRatio: 0.01,
+          mask: [
+            homePage.navHeaderMask,
+            homePage.merchantNameButton,
+            homePage.merchantID,
+          ],
+        },
+      );
     });
   });
 });
