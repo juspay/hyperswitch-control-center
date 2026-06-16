@@ -8,7 +8,7 @@ type colType =
   | MerchantConnectorId
   | ConnectorLabel
 
-let defaultColumns = [Name, MerchantConnectorId, ConnectorLabel, Status]
+let defaultColumns = [Name, MerchantConnectorId, ConnectorLabel, Status, Disabled]
 
 let getHeading = colType => {
   switch colType {
