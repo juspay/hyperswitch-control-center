@@ -23,6 +23,8 @@ module RadioButtons = {
   let make = (~input: ReactFinalForm.fieldRenderPropsInput) => {
     open HeadlessUI
     let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+    let (_, getNameForId) = OMPSwitchHooks.useOMPData()
+    let orgName = getNameForId(#Organization)
     let value = input.value->LogicUtils.getStringFromJson("")
 
     <RadioGroup
@@ -35,7 +37,7 @@ module RadioButtons = {
           className="flex gap-2 items-start flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-4 rounded-lg">
           <Icon name="nd-info-circle" size=20 />
           <span className={`text-nd_gray-600 ${body.md.regular}`}>
-            {`You can only create theme for ${orgId} here. To create theme to another organisation, please switch the organisation.`->React.string}
+            {`You can only create theme for ${orgName} (${orgId}) here. To create theme to another organisation, please switch the organisation.`->React.string}
           </span>
         </div>
         {entities
@@ -539,7 +541,10 @@ module ThemeUploadAssetsModal = {
           let _ = await updateDetails(updateUrl, requestBody, Put)
         }
 
-        showToast(~message="Theme has been created with assets", ~toastType=ToastState.ToastSuccess)
+        showToast(
+          ~message="Theme has been created with assets. Refresh the page to apply any changes.",
+          ~toastType=ToastState.ToastSuccess,
+        )
         setScreenState(_ => Success)
         setShowModal(_ => false)
         redirectToList()
@@ -553,7 +558,7 @@ module ThemeUploadAssetsModal = {
     let handleCancel = () => {
       setShowModal(_ => false)
       showToast(
-        ~message="Theme has been created. You can upload assets later",
+        ~message="Theme has been created, you can upload assets later. Refresh the page to apply any changes.",
         ~toastType=ToastState.ToastInfo,
       )
       redirectToList()

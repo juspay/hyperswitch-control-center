@@ -143,10 +143,6 @@ export class PaymentSettings {
     return this.page.getByText("Force 3DS Challenge");
   }
 
-  get acquirerConfigSettings(): Locator {
-    return this.page.getByText("Acquirer Config Settings");
-  }
-
   get authenticationConnectorsLabel(): Locator {
     return this.page.getByText("Authentication Connectors", { exact: true });
   }
@@ -159,41 +155,120 @@ export class PaymentSettings {
     return this.page.getByPlaceholder("Enter 3DS Requestor App URL");
   }
 
-  // Acquirer Config Settings
-  get acquirerMerchantNameInput(): Locator {
-    return this.page.getByPlaceholder("Enter Merchant Name");
+  // Acquirer Config Settings (MerchantAcquirerDetails — new flow)
+  get acquirerConfigSettingsHeading(): Locator {
+    return this.page.getByText("Acquirer Config Settings", { exact: true });
   }
 
-  get acquirerBinInput(): Locator {
-    return this.page.getByPlaceholder("Enter Acquirer Bin");
+  get noAcquirerConfigsText(): Locator {
+    return this.page.getByText("No acquirer configurations yet", {
+      exact: true,
+    });
   }
 
-  get acquirerAssignedMerchantIdInput(): Locator {
-    return this.page.getByPlaceholder("Enter Acquirer Assigned Merchant Id");
+  get acquirerConfigGroupButton(): Locator {
+    return this.page.getByRole("button", { name: "Acquirer config group" });
   }
 
-  get acquirerFraudRateInput(): Locator {
-    return this.page.getByPlaceholder("Enter Acquirer Fraud Rate");
+  get addNewNetworkButton(): Locator {
+    return this.page.getByRole("button", { name: "Add New Network" });
   }
 
-  get acquirerNetworkDropdown(): Locator {
-    return this.page.getByRole("button", { name: "Select Network" });
+  get changeDefaultButton(): Locator {
+    return this.page.getByRole("button", { name: "Change Default" });
   }
 
-  get acquirerSaveButton(): Locator {
-    return this.page.getByRole("button", { name: "Save", exact: true });
+  get saveAsDefaultButton(): Locator {
+    return this.page.getByRole("button", { name: "Save as Default" });
   }
 
-  get acquirerConfigCreatedToast(): Locator {
-    return this.page.locator('[data-toast="Acquirer config created"]');
+  // Modal scoping helpers
+  acquirerModal(heading: string): Locator {
+    return this.page.locator(`[data-component="modal:${heading}"]`);
   }
 
-  acquirerResultByTestId(id: string): Locator {
-    return this.page.getByTestId(id);
+  get addAcquirerModal(): Locator {
+    return this.acquirerModal("Add Acquirer Configuration");
   }
 
+  get addNetworkModal(): Locator {
+    return this.acquirerModal("Add Network Configuration");
+  }
+
+  get editNetworkModal(): Locator {
+    return this.acquirerModal("Edit Network Configuration");
+  }
+
+  // Modal field locators (scoped to the currently-open modal)
+  acquirerModalSaveButton(modal: Locator): Locator {
+    return modal.getByRole("button", { name: "Save", exact: true });
+  }
+
+  acquirerModalUpdateButton(modal: Locator): Locator {
+    return modal.getByRole("button", { name: "Update", exact: true });
+  }
+
+  acquirerModalCancelButton(modal: Locator): Locator {
+    return modal.getByRole("button", { name: "Cancel", exact: true });
+  }
+
+  // TextInput / NumericTextInput wrap each field in a div that carries
+  // data-input-name="<form field name>", so we can target inputs by their
+  // form key. This is more stable than placeholder lookup (placeholders are
+  // shared between BIN/ICA and Blend's floating-label rendering can hide
+  // them when a value is bound in the Edit modal).
+  inputByName(modal: Locator, name: string): Locator {
+    return modal.locator(`[data-input-name="${name}"] input`);
+  }
+
+  acquirerMerchantNameInput(modal: Locator): Locator {
+    return this.inputByName(modal, "merchant_name");
+  }
+
+  acquirerMerchantIdInput(modal: Locator): Locator {
+    return this.inputByName(modal, "acquirer_assigned_merchant_id");
+  }
+
+  acquirerBinInput(modal: Locator): Locator {
+    return this.inputByName(modal, "acquirer_bin");
+  }
+
+  acquirerIcaInput(modal: Locator): Locator {
+    return this.inputByName(modal, "acquirer_ica");
+  }
+
+  acquirerFraudRateInput(modal: Locator): Locator {
+    return this.inputByName(modal, "acquirer_fraud_rate");
+  }
+
+  acquirerNetworkDropdownInModal(modal: Locator): Locator {
+    return modal.getByRole("button", { name: "Select Network" });
+  }
+
+  acquirerCountryDropdownInModal(modal: Locator): Locator {
+    return modal.getByRole("button", { name: "Select Acquirer Country" });
+  }
+
+  // Toasts
+  get acquirerCreatedToast(): Locator {
+    return this.page.locator('[data-toast="Acquirer created"]');
+  }
+
+  get networkAddedToast(): Locator {
+    return this.page.locator('[data-toast="Network added"]');
+  }
+
+  get networkUpdatedToast(): Locator {
+    return this.page.locator('[data-toast="Network updated"]');
+  }
+
+  get defaultAcquirerUpdatedToast(): Locator {
+    return this.page.locator('[data-toast="Default acquirer updated"]');
+  }
+
+  // Validation errors
   get acquirerBinError(): Locator {
-    return this.page.getByText("Acquirer BIN must be between 5 and 20 digits");
+    return this.page.getByText("Acquirer BIN must be between 4 and 20 digits");
   }
 
   get fraudRateError(): Locator {
@@ -202,6 +277,24 @@ export class PaymentSettings {
 
   requiredFieldError(index: number = 0): Locator {
     return this.page.getByText("This field is required").nth(index);
+  }
+
+  // Accordion / table helpers
+  defaultTag(): Locator {
+    return this.page.getByText("Default", { exact: true });
+  }
+
+  acquirerNetworkRow(network: string): Locator {
+    // Table cell tagged with the network name (TagBinding)
+    return this.page.getByText(network, { exact: true });
+  }
+
+  editIconForRow(rowText: string): Locator {
+    // Edit pencil icon lives in the trailing Update column of the row
+    return this.page
+      .locator("tr", { hasText: rowText })
+      .locator("svg")
+      .last();
   }
 
   // Custom Headers Tab Elements

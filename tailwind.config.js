@@ -101,6 +101,7 @@ module.exports = {
       },
       minHeight: {
         "500-px": "500px",
+        "40-rem": "40rem",
       },
       inset: {
         "3-px": "3px",
@@ -145,6 +146,7 @@ module.exports = {
         "267-px": "267px",
         "298-px": "298px",
         "334-px": "334px",
+        "420-px": "420px",
         "499-px": "499px",
         "540-px": "540px",
         "500-px": "500px",
@@ -436,6 +438,7 @@ module.exports = {
           600: "#525866",
           700: "#2B303B",
           800: "#222530",
+          950: "#0E121B",
         },
         nd_primary_blue: {
           25: "#F6FAFE",

@@ -122,19 +122,6 @@ let getV2Url = (
       }
     | _ => ``
     }
-  | V2_ORDERS_AGGREGATE_CLICKHOUSE =>
-    switch methodType {
-    | Get =>
-      switch queryParameters {
-      | Some(queryParams) =>
-        switch transactionEntity {
-        | #Profile => `v2/analytics/profile/payment_intents/aggregate?${queryParams}`
-        | _ => `v2/analytics/merchant/payment_intents/aggregate?${queryParams}`
-        }
-      | None => ``
-      }
-    | _ => ``
-    }
   | PAYMENT_METHOD_LIST =>
     switch id {
     | Some(customerId) => `v1/customers/${customerId}/saved-payment-methods`
@@ -419,19 +406,6 @@ let useGetURL = () => {
           | None => `payments/aggregate`
           }
         | _ => `payments/aggregate`
-        }
-      | ORDERS_AGGREGATE_CLICKHOUSE =>
-        switch methodType {
-        | Get =>
-          switch queryParameters {
-          | Some(queryParams) =>
-            switch transactionEntity {
-            | #Profile => `analytics/v1/payment_intents/aggregate?${queryParams}`
-            | _ => `analytics/v1/payment_intents/aggregate?${queryParams}`
-            }
-          | None => `analytics/v1/payment_intents/aggregate`
-          }
-        | _ => `analytics/v1/payment_intents/aggregate`
         }
       | REFUNDS =>
         switch methodType {

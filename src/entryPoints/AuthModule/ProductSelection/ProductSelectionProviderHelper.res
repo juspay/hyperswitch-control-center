@@ -139,9 +139,9 @@ module SelectMerchantBody = {
             {"Select the appropriate merchant from the list of IDs created for this module."->React.string}
           </span>
           <div className="py-4">
-            <FormRenderer.DesktopRow>
+            <FormRenderer.DesktopRow itemWrapperClass="mx-4 min-w-0">
               <FormRenderer.FieldRenderer
-                fieldWrapperClass="w-full"
+                fieldWrapperClass="w-full min-w-0"
                 field={merchantName}
                 showErrorOnChange=true
                 errorClass={ProdVerifyModalUtils.errorClass}

@@ -19,7 +19,6 @@ let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.urlConfig = dict
       logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
     },
     hypersenseUrl: dict->getString("hypersense_url", ""),
-    clarityBaseUrl: dict->getString("clarity_base_url", "")->getNonEmptyString,
   }
 }
 

@@ -1,6 +1,7 @@
 open Typography
 open LogicUtils
 open OMPSwitchUtils
+open BusinessProfileInterface
 
 module PlatformMerchantModalContent = {
   @react.component
@@ -501,7 +502,7 @@ module ProfileDropdownItem = {
     let isMobileView = MatchMedia.useMobileChecker()
     let isActive = currentId == profileId
     let setBusinessProfileRecoil =
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useSetRecoilState
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
 
     let getProfileListV1 = async () => {
@@ -533,17 +534,13 @@ module ProfileDropdownItem = {
     let updateProfileNameV1 = async (~body) => {
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
       let response = await updateDetails(url, body, Post)
-      setBusinessProfileRecoil(_ =>
-        response->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
-      )
+      setBusinessProfileRecoil(_ => mapJsonToCommonType(businessProfileInterfaceV1, response))
     }
 
     let updateProfileNameV2 = async (~body) => {
       let url = getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Put, ~id=Some(profileId))
       let response = await updateDetails(url, body, Put, ~version=V2)
-      setBusinessProfileRecoil(_ =>
-        response->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
-      )
+      setBusinessProfileRecoil(_ => mapJsonToCommonType(businessProfileInterfaceV2, response))
     }
 
     let getProfileList = async () => {

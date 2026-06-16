@@ -262,6 +262,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "apple_pay" => ApplePay
   | "paypal" => PayPal
   | "pix" => Pix
+  | "pix_emv" => PixEmv
   | "pix_automatico_qr" => PixAutomaticoQr
   | "pix_automatico_push" => PixAutomaticoPush
   | "boleto" => Boleto
@@ -893,8 +894,13 @@ let trustlyInfo = {
   description: "Trustly provides a secure, efficient, and cost-effective payment solution for your businesses to offer customers a convenient and hassle-free payment experience.",
 }
 
+let absaInfo = {
+  description: "Absa Bank is a leading African financial services provider offering a wide range of banking and payment solutions.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
+  | ABSA => "absa_sanlam"
   | ADYEN => "adyen"
   | AFFIRM => "affirm"
   | CHECKOUT => "checkout"
@@ -1103,6 +1109,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
   switch connectorType {
   | Processor =>
     switch connector {
+    | "absa_sanlam" => Processors(ABSA)
     | "adyen" => Processors(ADYEN)
     | "affirm" => Processors(AFFIRM)
     | "checkout" => Processors(CHECKOUT)
@@ -1287,6 +1294,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
 
 let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   switch connector {
+  | ABSA => absaInfo
   | STRIPE => stripeInfo
   | ADYEN => adyenInfo
   | AFFIRM => affirmInfo
@@ -2277,6 +2285,7 @@ let getConnectorPaymentMethodDetails = async (
 
 let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   switch connector {
+  | ABSA => "Absa"
   | ADYEN => "Adyen"
   | AFFIRM => "Affirm"
   | CHECKOUT => "Checkout"

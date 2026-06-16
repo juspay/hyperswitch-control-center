@@ -169,7 +169,6 @@ module VolumeRoutingView = {
                   setFormState(_ => RoutingTypes.EditConfig)
                   setPageState(_ => Create)
                 }}
-                customButtonStyle="w-1/5"
               />
               <RenderIf condition={!isActive}>
                 <ACLButton

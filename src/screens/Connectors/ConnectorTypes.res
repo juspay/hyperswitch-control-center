@@ -28,6 +28,7 @@ type authType = [#HeaderKey | #BodyKey | #SignatureKey | #MultiAuthKey | #Curren
 type cashToCodeMthd = [#Classic | #Evoucher]
 
 type processorTypes =
+  | ABSA
   | ADYEN
   | CHECKOUT
   | BRAINTREE
@@ -234,6 +235,7 @@ type paymentMethodTypes =
   | DirectCarrierBilling
   | AmazonPay
   | Pix
+  | PixEmv
   | PixAutomaticoQr
   | PixAutomaticoPush
   | Boleto
