@@ -65,14 +65,14 @@ let make = (
     </div>
     <RenderIf condition={ConnectorUtils.checkIfPredecryptFlowEnabledForGooglePay(connector)}>
       <FormRenderer.FieldRenderer
-        labelClass="font-semibold !text-hyperswitch_black"
+        labelClass={`${Typography.body.md.semibold} !text-hyperswitch_black`}
         fieldWrapperClass="w-full flex justify-between items-center pl-2 pr-4"
         field={FormRenderer.makeFieldInfo(
           ~name={"metadata.google_pay.support_predecrypted_token"},
           ~label="Enable pre decrypted token",
           ~customInput=InputFields.boolInput(
             ~isDisabled=false,
-            ~boolCustomClass="rounded-lg ",
+            ~boolCustomClass="rounded-lg",
             ~isCheckBox=false,
           ),
         )}
