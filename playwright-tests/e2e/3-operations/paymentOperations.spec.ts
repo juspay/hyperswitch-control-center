@@ -892,12 +892,7 @@ test.describe("Payment Operations", () => {
       await homePage.operations.click();
       await homePage.paymentOperations.click();
 
-      await expect(paymentOperations.dateSelector).toBeVisible();
-      await paymentOperations.dateSelector.click();
-
-      await expect(
-        paymentOperations.predefinedDateOptions,
-      ).toBeVisible();
+      await paymentOperations.openPredefinedDateOptions();
 
       for (const filter of timeRangeFilters) {
         await expect(
@@ -925,19 +920,21 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
+      // Freeze the clock to a safe mid-month date so the "This Month" range
+      // (month-to-date) never coincides with a preset duration like "Last 7
+      // Days" or "Last 30 Days", which the selector would otherwise display in
+      // place of "This Month" (e.g. on the 7th or the 30th of the month).
+      await page.clock.setFixedTime(new Date("2025-06-15T10:00:00"));
+
       await homePage.operations.click();
       await homePage.paymentOperations.click();
-
-      const currentDay = new Date().getDate();
 
       const predefinedOptions = paymentOperations.predefinedDateOptions;
 
       for (const timeRange of predefinedTimeRange) {
-        await paymentOperations.dateSelector.click({ force: true });
-        await expect(predefinedOptions).toBeVisible();
+        await paymentOperations.openPredefinedDateOptions();
         await predefinedOptions.getByText(timeRange, { exact: true }).click();
-        const expectedText = currentDay === 7 && timeRange === "This Month" ? "Last 7 Days" : timeRange;
-        await expect(page.getByTestId('date-range-selector')).toContainText(expectedText);
+        await expect(page.getByTestId('date-range-selector')).toContainText(timeRange);
         await expect(predefinedOptions).toBeHidden();
         await page.waitForLoadState("networkidle");
       }
@@ -946,7 +943,16 @@ test.describe("Payment Operations", () => {
     test("should verify applied custom timerange is displayed correctly", async ({
       page,
     }) => {
-      const now = new Date();
+      // Freeze the clock to a safe mid-month date so the calendar renders
+      // deterministically. The expected range below must be derived from the
+      // SAME fixed date (page.clock only affects the browser, not this Node
+      // process). Mid-month also avoids the `setMonth(getMonth() - 1)` overflow
+      // on month-end dates like the 31st (e.g. April has no 31st), which would
+      // otherwise land the "previous month" back in the current month.
+      const fixedNow = new Date("2025-06-15T10:00:00");
+      await page.clock.setFixedTime(fixedNow);
+
+      const now = new Date(fixedNow);
       const today = now.getDate();
       const previousMonth = new Date(
         now.setMonth(now.getMonth() - 1),
@@ -969,16 +975,9 @@ test.describe("Payment Operations", () => {
       await homePage.operations.click();
       await homePage.paymentOperations.click();
 
-      await expect(paymentOperations.dateSelector).toBeVisible();
-      await paymentOperations.dateSelector.click();
+      await paymentOperations.openPredefinedDateOptions();
 
-      await expect(
-        paymentOperations.predefinedDateOptions,
-      ).toBeVisible();
-
-      await page
-      paymentOperations.customRangeOption
-        .click();
+      await paymentOperations.customRangeOption.click();
 
       await page.locator(`[data-testid*=" ${startDate},"]`).first().click();
       await page.locator(`[data-testid*=" ${endDate},"]`).first().click();
@@ -1315,6 +1314,15 @@ test.describe("Payment Operations", () => {
 
       await paymentOperations.addRefundButton.click();
       await paymentOperations.refundAmountInput.fill("12.34");
+
+      // The refund POST resolves -> refetch() -> setScreenState(Loading)
+      // unmounts the Attempts component (via PageLoaderWrapper) -> force_sync
+      // GET -> setScreenState(Success) remounts it fresh with no expanded rows.
+      // Subscribe to the force_sync response before the click so we can await
+      // the full unmount/remount cycle before interacting with the panel.
+      const refreshResponse = page.waitForResponse(
+        (resp) => resp.url().includes("force_sync=true") && resp.ok(),
+      );
       await paymentOperations.initiateRefundButton.click();
 
       await expect(
@@ -1398,9 +1406,13 @@ test.describe("Payment Operations", () => {
         );
       }
 
-      // Refund POST triggers the attempts table to re-render; wait for it to
-      // settle so the click below doesn't land on a detached node.
-      await page.waitForLoadState("networkidle");
+      // Ensure the post-refund refetch has fully completed before clicking the
+      // attempt row. waitForLoadState("networkidle") isn't sufficient here:
+      // there's a brief window between the refund POST resolving and React
+      // dispatching the force_sync GET where the network is momentarily idle,
+      // and a click in that window lands on the Attempts component just before
+      // it unmounts/remounts (which resets the expanded-row state).
+      await refreshResponse;
       const attemptCell = paymentOperations.attemptCell(1, 1);
       await expect(attemptCell).toBeVisible();
       await attemptCell.click();

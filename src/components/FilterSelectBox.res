@@ -217,7 +217,7 @@ module ListItem = {
               </span>
             } else {
               <div className=toggleClass>
-                <RadioIcon isSelected size=optionSize fill isDisabled />
+                <RadioIconAdapter isSelected size=optionSize fill isDisabled />
               </div>
             }
           } else if multiSelect && !isMobileView {
@@ -299,7 +299,7 @@ module ListItem = {
             if multiSelect {
               <CheckBoxIconAdapter isSelected />
             } else {
-              <RadioIcon isSelected isDisabled />
+              <RadioIconAdapter isSelected isDisabled />
             }
           } else if isDropDown {
             <div className="mr-2">
@@ -1593,11 +1593,12 @@ module BaseDropdown = {
         ->Dict.keysToArray
         ->Array.filter(item => item != "start_time" && item != "end_time" && item != "status")
       if nonStatusFilters->Array.length == 0 {
-        setPreservedAppliedOptions(_ =>
+        let statusValues =
           filterValueJson
           ->getArrayFromDict("status", [])
           ->getStrArrayFromJsonArray
-        )
+        setPreservedAppliedOptions(_ => statusValues)
+        newInputSelect.onChange(statusValues)
       }
       None
     }, [filterValueJson])

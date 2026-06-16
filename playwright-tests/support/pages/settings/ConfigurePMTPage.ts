@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import type { Page, Locator } from "@playwright/test";
 
 export class ConfigurePMTPage {
   readonly page: Page;
@@ -7,53 +7,135 @@ export class ConfigurePMTPage {
     this.page = page;
   }
 
-  get creditCardToggle(): Locator {
+  // ---- Navigation ----
+  async visit() {
+    await this.page.goto("/dashboard/configure-pmts");
+  }
+
+  // ---- Page heading / subtitle ----
+  get pageHeading(): Locator {
     return this.page
-      .locator('[data-testid*="credit"], input[type="checkbox"][name*="credit"]')
+      .getByText("Configure PMTs at Checkout", { exact: true })
       .first();
   }
 
-  get visaCheckbox(): Locator {
-    return this.page
-      .locator('[data-testid*="visa"], input[type="checkbox"][name*="visa"]')
-      .first();
-  }
-
-  get walletToggle(): Locator {
-    return this.page
-      .locator('[data-testid*="wallet"], input[type="checkbox"][name*="wallet"]')
-      .first();
-  }
-
-  get gpayCheckbox(): Locator {
-    return this.page
-      .locator('[data-testid*="gpay"], [data-testid*="google"]')
-      .first();
-  }
-
-  get saveButton(): Locator {
-    return this.page.locator('[data-button-for="save"]').first();
-  }
-
-  get minAmountInput(): Locator {
-    return this.page.locator('[name*="min_amount"]').first();
-  }
-
-  get maxAmountInput(): Locator {
-    return this.page.locator('[name*="max_amount"]').first();
-  }
-
-  get amountErrorToast(): Locator {
-    return this.page.locator(
-      '[data-field-error*="amount"], [data-toast*="error"]',
+  get pageSubtitle(): Locator {
+    return this.page.getByText(
+      "Control the visibility of your payment methods at the checkout",
+      { exact: true },
     );
   }
 
-  get countrySelect(): Locator {
-    return this.page
-      .locator('[name*="allowed_countries"], select[name*="country"]')
-      .first();
+  // ---- Empty state (no configured payment connectors) ----
+  get noDataMessage(): Locator {
+    return this.page.getByText("No Data Available", { exact: true });
+  }
+
+  get addFiltersButton(): Locator {
+    return this.page.getByRole("button", { name: "Add Filters" });
+  }
+
+  async openFilters(): Promise<void> {
+    await this.addFiltersButton.waitFor({ state: "visible", timeout: 10000 });
+    await this.addFiltersButton.scrollIntoViewIfNeeded();
+    await this.addFiltersButton.click({ force: true });
+  }
+
+  // ---- Table (rendered once connectors are configured) ----
+  columnHeader(title: string): Locator {
+    return this.page.getByText(title, { exact: true }).first();
+  }
+
+  cellByText(text: string): Locator {
+    return this.page.getByText(text, { exact: true }).first();
+  }
+
+  // A freshly seeded connector is eventually consistent on the list endpoint, so
+  // the first render can show the empty state. Reload until the row appears.
+  async waitForConnectorRow(text: string, reloads = 4): Promise<void> {
+    for (let attempt = 0; attempt < reloads; attempt++) {
+      if (
+        await this.cellByText(text)
+          .isVisible()
+          .catch(() => false)
+      )
+        return;
+      await this.page.reload();
+      await this.page.waitForLoadState("networkidle");
+      await this.page.waitForTimeout(1000);
+    }
+    await this.cellByText(text).waitFor({ state: "visible", timeout: 10000 });
+  }
+
+  // ---- Filters ----
+  get selectProfileFilter(): Locator {
+    return this.page.getByText("Select Profile", { exact: true });
+  }
+
+  get selectConnectorFilter(): Locator {
+    return this.page.getByText("Select Connector", { exact: true });
+  }
+
+  get selectPaymentMethodFilter(): Locator {
+    return this.page.getByText("Select Payment Method", { exact: true });
+  }
+
+  get selectPaymentMethodTypeFilter(): Locator {
+    return this.page.getByText("Select Payment Method Type", { exact: true });
+  }
+
+  // ---- Configure PMT modal (per-row "Configure PMTs" dialog) ----
+  get configureModalHeading(): Locator {
+    return this.page.getByText('DEBIT', { exact: true });
+  }
+
+  get configureModalSubHeading(): Locator {
+    return this.page.locator('#table').getByText('Configure PMTs');
+  }
+
+  get countriesLabel(): Locator {
+    return this.page.getByText("Countries", { exact: true });
+  }
+
+  get countriesDropdown(): Locator {
+    return this.page.getByRole('button', { name: 'Select Value' }).first();
+  }
+
+  get currenciesLabel(): Locator {
+    return this.page.getByText("Currencies", { exact: true });
+  }
+
+  get currenciesDropdown(): Locator {
+    return this.page.getByRole('button', { name: 'Select Value' }).nth(1);
+  }
+
+  get minimumAmountInputHeading(): Locator {
+    return this.page.getByText('Minimum Amount *');
+  }
+
+  get minimumAmountInput(): Locator {
+    return this.page.getByPlaceholder("Enter Minimum Amount");
+  }
+
+  get maximumAmountInputHeading(): Locator {
+    return this.page.getByText('Maximum Amount *');
+  }
+
+  get maximumAmountInput(): Locator {
+    return this.page.getByPlaceholder("Enter Maximum Amount");
+  }
+
+  get submitButton(): Locator {
+    return this.page.getByRole("button", { name: "Submit" });
+  }
+
+  // The Modal renders its dismiss control as a cross icon in the header.
+  get modalCloseButton(): Locator {
+    return this.page.getByText('DEBITConfigure PMTs').locator('[data-icon="modal-close-icon"]');
+  }
+
+  // ---- Feature-flag fallback (rendered when configure_pmts is disabled) ----
+  get goToHomeButton(): Locator {
+    return this.page.getByRole("button", { name: "Go to Home" });
   }
 }
-
-export default ConfigurePMTPage;

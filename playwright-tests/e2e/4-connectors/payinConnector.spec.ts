@@ -268,7 +268,8 @@ test.describe("Payin Connector tests", () => {
     context,
   }) => {
     const homePage = new HomePage(page);
-    const { merchantId } = await ompLineage(page);
+    // `profileId` here is the active profile the logged-in UI renders against.
+    const { merchantId, profileId: defaultProfileId } = await ompLineage(page);
 
     const defaultLabel = "stripe_default_profile";
     const secondaryLabel = "stripe_secondary_profile";
@@ -279,10 +280,15 @@ test.describe("Payin Connector tests", () => {
       context.request,
     );
 
+    // Pin the default connector to the active profile explicitly. Relying on
+    // getDefaultProfileId() (profiles[0]) is unsafe once a second profile
+    // exists, since the business_profile list order is not guaranteed and the
+    // connector could land on the secondary profile, hiding it from this view.
     await createStripeConnectorAPI(
       merchantId,
       defaultLabel,
       context.request,
+      defaultProfileId,
     );
     await createStripeConnectorAPI(
       merchantId,
@@ -331,18 +337,34 @@ test.describe("Payin Connector tests", () => {
     await page.route("**/dashboard/config/feature?domain=", async (route) => {
       const response = await route.fetch();
       const json = await response.json();
-      if (json && json.features) {
-        json.features.is_live_mode = true;
-        json.connector_list_for_live.paymentProcessors = ["adyen"]
+      // Guard both branches: an unchecked write to a missing
+      // `connector_list_for_live` throws inside the handler, which makes
+      // Playwright error the request rather than fulfilling it — the page
+      // then never sees the live-mode config and Adyen never renders.
+      if (json) {
+        json.features = { ...(json.features ?? {}), is_live_mode: true };
+        json.connector_list_for_live = {
+          ...(json.connector_list_for_live ?? {}),
+          paymentProcessors: ["adyen"],
+        };
       }
       await route.fulfill({ response, json });
     });
 
+    // Subscribe before reload so we deterministically await the mocked
+    // response. Without this, `page.reload()` resolves on `load` and the
+    // assertion races against fetchConfig → parse → explicit 1s delay in
+    // HyperSwitchEntry → setScreenState(Success) → ConnectorList mount →
+    // ProcessorCards render, which can blow past the default 5s timeout on CI.
+    const configResponse = page.waitForResponse(
+      (resp) => resp.url().includes("/config/feature") && resp.ok(),
+    );
     await page.reload();
+    await configResponse;
+    await page.waitForLoadState("networkidle");
 
-    await expect(page.getByTestId('adyen')).toBeVisible();
-    await expect(page.getByTestId('affirm')).not.toBeAttached();
-
+    await expect(page.getByTestId("adyen")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId("affirm")).not.toBeAttached();
   });
 
   test("should validate field-level error for connector credentials page", async ({
@@ -458,11 +480,11 @@ test.describe("Payin Connector tests", () => {
 
     await page.getByText("Apple Pay").click();
 
-    await expect(page.getByText("Web Domain").nth(2)).toBeVisible();
-    await expect(page.getByText("iOS Certificate").nth(1)).toBeVisible();
-    await expect(page.getByText("Pre Decrypted Token").nth(1)).toBeVisible();
+    await expect(page.getByText("Web Domain").locator("visible=true").first()).toBeVisible();
+    await expect(page.getByText("iOS Certificate").locator("visible=true").first()).toBeVisible();
+    await expect(page.getByText("Pre Decrypted Token").locator("visible=true").first()).toBeVisible();
 
-    await page.getByText("Web Domain").nth(2).click();
+    await page.getByText("Web Domain").locator("visible=true").first().click();
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await expect(page.getByRole('button', { name: 'Verify & Enable' })).toBeDisabled();
@@ -488,11 +510,11 @@ test.describe("Payin Connector tests", () => {
 
     await page.getByText("Apple Pay").click();
 
-    await expect(page.getByText("Web Domain").nth(2)).toBeVisible();
-    await expect(page.getByText("iOS Certificate").nth(1)).toBeVisible();
-    await expect(page.getByText("Pre Decrypted Token").nth(1)).toBeVisible();
+    await expect(page.getByText("Web Domain").locator("visible=true").first()).toBeVisible();
+    await expect(page.getByText("iOS Certificate").locator("visible=true").first()).toBeVisible();
+    await expect(page.getByText("Pre Decrypted Token").locator("visible=true").first()).toBeVisible();
 
-    await page.getByText("iOS Certificate").nth(1).click();
+    await page.getByText("iOS Certificate").locator("visible=true").first().click();
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await expect(page.getByRole('button', { name: 'Verify & Enable' })).toBeDisabled();
@@ -536,7 +558,7 @@ test.describe("Payin Connector tests", () => {
     await paymentConnector.connectAndProceedButton.click();
 
     await page.getByText("Google Pay").click();
-    await expect(page.getByText('Payment Gateway').nth(4)).toBeVisible();
+    await expect(page.getByText('Payment Gateway').locator("visible=true").first()).toBeVisible();
     await page.getByRole("button", { name: "Continue" }).click();
 
     await expect(page.getByRole("button", { name: "Proceed" }).nth(1)).toBeDisabled();
