@@ -500,7 +500,7 @@ module ThemeUploadAssetsModal = {
     open APIUtils
     open ThemeSettingsHelper
 
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod(~showErrorToast=false)
     let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Success)

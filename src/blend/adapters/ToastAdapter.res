@@ -7,7 +7,7 @@ let useShowToast = () => {
   let isBlendEnabled = React.useContext(BlendContext.blendEnabledContext)
   let legacyShowToast = ToastState.useShowToast()
 
-  React.useMemo1(() => {
+  React.useMemo(() => {
     (
       ~message,
       ~toastType: toastType,
