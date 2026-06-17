@@ -1227,6 +1227,29 @@ let useGetURL = () => {
           | Post => `${reconBaseURL}/staging_entries/bulk_operations`
           | _ => ""
           }
+        | #OVERVIEW_TRANSACTIONS =>
+          switch methodType {
+          | Get =>
+            switch queryParameters {
+            | Some(queryParams) => `${reconBaseURL}/overview/transactions?${queryParams}`
+            | None => `${reconBaseURL}/overview/transactions`
+            }
+          | _ => ""
+          }
+        | #OVERVIEW_ENTRIES =>
+          switch methodType {
+          | Get =>
+            switch queryParameters {
+            | Some(queryParams) => `${reconBaseURL}/overview/entries?${queryParams}`
+            | None => `${reconBaseURL}/overview/entries`
+            }
+          | _ => ""
+          }
+        | #RECON_STATUS =>
+          switch methodType {
+          | Get => `${reconBaseURL}/recon_engine/processor/status`
+          | _ => ""
+          }
         | #NONE => ""
         }
 

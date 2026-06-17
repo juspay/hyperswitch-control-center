@@ -12,6 +12,9 @@ module BlendDateRangeField = {
     ~predefinedDays: array<DateRangeUtils.customDateRange>,
     ~format: string,
     ~dateRangeLimit: option<int>,
+    ~useDrawerOnMobile=true,
+    ~skipQuickFiltersOnMobile=true,
+    ~size=DateRangePickerBinding.Sm,
   ) => {
     let startInput = useField(startKey).input
     let endInput = useField(endKey).input
@@ -53,6 +56,9 @@ module BlendDateRangeField = {
       customPresets
       ?minDate
       ?maxDate
+      useDrawerOnMobile
+      skipQuickFiltersOnMobile
+      size
     />
   }
 }
@@ -84,6 +90,9 @@ let make = (
   ~isTooltipVisible=true,
   ~events=?,
   ~customButtonStyle="",
+  ~useDrawerOnMobile=true,
+  ~skipQuickFiltersOnMobile=true,
+  ~size=DateRangePickerBinding.Sm,
 ) => {
   let isBlendEnabled = BlendContext.useBlendEnabled()
 
@@ -98,6 +107,9 @@ let make = (
         predefinedDays
         format
         dateRangeLimit
+        useDrawerOnMobile
+        skipQuickFiltersOnMobile
+        size
       />
     </RenderIf>
     <RenderIf condition={!isBlendEnabled}>

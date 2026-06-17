@@ -26,6 +26,11 @@ type customPresetConfig = {
   visible: bool,
 }
 
+type dateRangePickerSize =
+  | @as("sm") Sm
+  | @as("md") Md
+  | @as("lg") Lg
+
 module PresetsConfig = {
   type t
   external fromCustomConfig: customPresetConfig => t = "%identity"
@@ -47,4 +52,7 @@ external make: (
   ~isSingleDatePicker: bool=?,
   ~allowSingleDateSelection: bool=?,
   ~showPresets: bool=?,
+  ~useDrawerOnMobile: bool=?,
+  ~skipQuickFiltersOnMobile: bool=?,
+  ~size: dateRangePickerSize=?,
 ) => React.element = "DateRangePicker"
