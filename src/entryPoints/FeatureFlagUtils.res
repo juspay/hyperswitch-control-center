@@ -3,7 +3,11 @@ type config = {
   merchantId: option<string>,
   profileId: option<string>,
 }
-type merchantSpecificConfig = {newAnalytics: config, devReconEngineV1: config}
+type merchantSpecificConfig = {
+  newAnalytics: config,
+  devReconEngineV1: config,
+  devReconEngineRevamped: config,
+}
 type featureFlag = {
   default: bool,
   testLiveToggle: bool,
@@ -61,6 +65,7 @@ type featureFlag = {
   exploreRecipes: bool,
   devOrchestrationV2Product: bool,
   devReconEngineV1: bool,
+  devReconEngineRevamped: bool,
   devAiChatBot: bool,
   routingAnalytics: bool,
   devRolesV2: bool,
@@ -144,6 +149,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     threedsExemptionRules: dict->getBool("threeds_exemption", false),
     devOrchestrationV2Product: dict->getBool("dev_orchestration_v2_product", false),
     devReconEngineV1: dict->getBool("dev_recon_engine_v1", false),
+    devReconEngineRevamped: dict->getBool("dev_recon_engine_modular", false),
     devAiChatBot: dict->getBool("dev_ai_chat_bot", false),
     routingAnalytics: dict->getBool("routing_analytics", false),
     devRolesV2: dict->getBool("dev_roles_v2", false),
@@ -188,9 +194,12 @@ let merchantSpecificConfig = (config: JSON.t) => {
   let allowlistDict = dict->getDictfromDict("allowlist")
   let devReconEngineV1Allowlist =
     allowlistDict->getDictfromDict("dev_recon_engine_v1")->configMapper
+  let devReconEngineRevampedAllowlist =
+    allowlistDict->getDictfromDict("dev_recon_engine_modular")->configMapper
 
   {
     newAnalytics: newAnalyticsDenylist,
     devReconEngineV1: devReconEngineV1Allowlist,
+    devReconEngineRevamped: devReconEngineRevampedAllowlist,
   }
 }

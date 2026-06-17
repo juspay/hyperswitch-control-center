@@ -222,7 +222,7 @@ let make = () => {
                     </RenderIf>
                     <WorkflowSideDrawer />
                     <div
-                      className="p-6 md:px-12 md:py-8 flex flex-col gap-8 max-w-fixedPageWidth min-h-full">
+                      className="p-6 md:px-12 flex flex-col gap-8 max-w-fixedPageWidth min-h-full">
                       <ErrorBoundary>
                         {switch (activeProduct, url.path->urlPath) {
                         // /* DEFAULT HOME */
@@ -250,7 +250,15 @@ let make = () => {
                         | (OnBoarding(_), _) => <DefaultOnboardingPage />
                         /* RECON V1 PRODUCT */
 
-                        | (Recon(V1), _) => <ReconEngineApp />
+                        | (Recon(V1), _) =>
+                          <>
+                            <RenderIf condition={featureFlagDetails.devReconEngineV1}>
+                              <ReconEngineApp />
+                            </RenderIf>
+                            <RenderIf condition={featureFlagDetails.devReconEngineRevamped}>
+                              <ReconEngineRevampedApp />
+                            </RenderIf>
+                          </>
 
                         /* RECON V2 PRODUCT */
 

@@ -6,6 +6,7 @@ type optionType = {
   searchOptions?: array<(string, string)>,
   remoteIcon?: bool,
   selectedIcon?: string,
+  showIcon?: bool,
 }
 type optionTypeWithTag = {
   name: string,

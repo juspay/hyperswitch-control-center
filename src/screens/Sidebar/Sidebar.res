@@ -561,6 +561,7 @@ module ProductTypeSectionItem = {
                   isSidebarExpanded
                   setOpenItem
                   onItemClickCustom=handleClick
+                  showIcon={record.showIcon->Option.getOr(false)}
                 />
               }
             | LinkWithTag(record) => {
@@ -591,7 +592,7 @@ module ProductTypeSectionItem = {
             | Heading(headingOptions) =>
               <div
                 key={Int.toString(index)}
-                className={`${body.sm.medium} text-nd_gray-600 overflow-hidden border-l-2 rounded-lg border-transparent px-3 mx-1 mt-5 mb-3`}>
+                className={`${body.sm.medium} text-nd_gray-600 overflow-hidden border-l-2 rounded-lg border-transparent my-1.5 mx-1`}>
                 {{isSidebarExpanded ? headingOptions.name : ""}->React.string}
               </div>
             | CustomComponent(customComponentOptions) =>
@@ -660,9 +661,9 @@ let make = (
     | true =>
       switch isMobileView {
       | true => "100%"
-      | false => "300px"
+      | false => "275px"
       }
-    | false => "300px"
+    | false => "275px"
     }
   }
 
@@ -674,7 +675,7 @@ let make = (
   let expansionClass = !isSidebarExpanded ? "-translate-x-full" : ""
 
   let sidebarMaxWidth = isMobileView ? "w-screen" : "w-max"
-  let sidebarCollapseWidth = showSideBar ? "356px" : "56px"
+  let sidebarCollapseWidth = showSideBar ? "325px" : "56px"
   let sidebarContainerClassWidth = isMobileView ? "0px" : `${sidebarCollapseWidth}`
 
   let transformClass = "transform md:translate-x-0 transition"

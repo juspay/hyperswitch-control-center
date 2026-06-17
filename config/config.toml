@@ -80,6 +80,7 @@ dev_debit_routing=true
 dev_webhooks=true
 recon_engine_permissions=true
 dev_recon_engine_v1=false
+dev_recon_engine_modular=false
 dev_ai_chat_bot=false
 dev_roles_v2=true
 dev_customer=true
@@ -101,6 +102,10 @@ vaultProcessors = ["vgs"]
 [default.merchant_config]
 [default.merchant_config.allowlist]
 [default.merchant_config.allowlist.dev_recon_engine_v1]
+org_ids=[]
+merchant_ids=[]
+profile_ids=[]
+[default.merchant_config.allowlist.dev_recon_engine_modular]
 org_ids=[]
 merchant_ids=[]
 profile_ids=[]

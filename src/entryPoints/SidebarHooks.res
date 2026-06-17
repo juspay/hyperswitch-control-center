@@ -141,10 +141,14 @@ let getAllProductsBasedOnFeatureFlags = (
     products->Array.push(Orchestration(V2))->ignore
   }
 
-  if (
+  let isReconEngineModularEnabled =
+    featureFlagDetails.devReconEngineRevamped &&
+    isFeatureEnabledForAllowListMerchant(merchantSpecificConfig.devReconEngineRevamped)
+  let isReconEngineV1Enabled =
     featureFlagDetails.devReconEngineV1 &&
     isFeatureEnabledForAllowListMerchant(merchantSpecificConfig.devReconEngineV1)
-  ) {
+
+  if isReconEngineModularEnabled || isReconEngineV1Enabled {
     products->Array.push(Recon(V1))->ignore
   }
 
@@ -153,19 +157,24 @@ let getAllProductsBasedOnFeatureFlags = (
 
 let useGetAllProductSections = (~products: array<productTypes>) => {
   open ProductUtils
-
-  let isLiveMode = (featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let orchestratorSidebars = useGetOrchestratorSidebars()
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
   let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
+  let reconSidebar = featureFlagDetails.devReconEngineRevamped
+    ? ReconEngineRevampedSidebarValues.reconEngineRevampedSidebars(
+        ~userHasResourceAccess,
+        ~userHasAccess,
+      )
+    : ReconEngineSidebarValues.reconEngineSidebars(~userHasResourceAccess, ~userHasAccess)
+
   products->Array.map(productType => {
     let links = switch productType {
-    | Recon(V1) =>
-      ReconEngineSidebarValues.reconEngineSidebars(~userHasResourceAccess, ~userHasAccess)
+    | Recon(V1) => reconSidebar
     | Recon(V2) => ReconSidebarValues.reconSidebars
-    | Recovery => RevenueRecoverySidebarValues.recoverySidebars(isLiveMode)
+    | Recovery => RevenueRecoverySidebarValues.recoverySidebars(featureFlagDetails.isLiveMode)
     | Vault => VaultSidebarValues.vaultSidebars
     | CostObservability => HypersenseSidebarValues.hypersenseSidebars
     | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
