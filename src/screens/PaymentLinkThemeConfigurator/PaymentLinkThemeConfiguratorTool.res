@@ -571,27 +571,20 @@ let make = () => {
       businessProfileRecoilVal.payment_link_config->Option.getOr(
         paymentLinkConfigMapper(Dict.make()),
       )
-
-    switch selectedStyleId->selectedStyleVariant {
-    | Default =>
-      paymentLinkConfig
-      ->getDefaultStylesValue
-      ->Identity.genericTypeToJson
-    | Custom => {
-        let businessSpecificConfigsDict =
-          paymentLinkConfig.business_specific_configs->Option.mapOr(Dict.make(), json =>
-            json->getDictFromJsonObject
-          )
-        businessSpecificConfigsDict->getJsonFromDict(selectedStyleId)
-      }
-    }
+    let businessSpecificConfigsDict =
+      paymentLinkConfig.business_specific_configs->Option.mapOr(Dict.make(), json =>
+        json->getDictFromJsonObject
+      )
+    businessSpecificConfigsDict->getJsonFromDict(selectedStyleId)
   }, (selectedStyleId, businessProfileRecoilVal.payment_link_config))
 
   <div className="flex flex-col gap-8 relative">
     <StyleIdSelection selectedStyleId setSelectedStyleId />
     <div>
       <RenderIf condition={selectedStyleId->isNonEmptyString}>
-        <ConfiguratorForm initialFormValues={selectedStyleConfigs} selectedStyleId />
+        <ConfiguratorForm
+          key={selectedStyleId} initialFormValues={selectedStyleConfigs} selectedStyleId
+        />
       </RenderIf>
       <RenderIf condition={selectedStyleId->isEmptyString}>
         <NoDataFound
