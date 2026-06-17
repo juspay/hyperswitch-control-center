@@ -6,7 +6,6 @@ import { generateUniqueEmail } from "../../support/helper";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
-
 test.describe("API Key Management", () => {
   test.beforeEach(async ({ page }) => {
     const email = generateUniqueEmail();
@@ -57,7 +56,10 @@ test.describe("API Key Management", () => {
 
     await expect(apiSettings.createApiKeyModalHeading).toBeVisible();
 
-    await apiSettings.fillNameAndDescription(keyName, "Test API key for automation");
+    await apiSettings.fillNameAndDescription(
+      keyName,
+      "Test API key for automation",
+    );
 
     await apiSettings.createButton.click();
 
@@ -105,17 +107,18 @@ test.describe("API Key Management", () => {
     const tooltip = apiSettings.validationTooltip();
     await expect(tooltip).toBeVisible({ timeout: 5000 });
     await expect(tooltip).toContainText("Name: Please enter name");
-    await expect(tooltip).toContainText("Description: Please enter description");
+    await expect(tooltip).toContainText(
+      "Description: Please enter description",
+    );
   });
 
-  test("should handle very long name input appropriately", async ({
-    page,
-  }) => {
+  test("should handle very long name input appropriately", async ({ page }) => {
     const homePage = new HomePage(page);
     const apiSettings = new APISettings(page);
     const longName =
       "ThisIsAVeryLongAPIKeyNameThatExceedsTheMaximumAllowedCharacterLimitForAPIKeyNamesInTheHyperswitchSystem";
-    const description = "Very long API key name used to test validation limits in the Hyperswitch dashboard ensuring proper handling of oversized identifiers while maintaining stability enforcing strict maximum character constraints across all services and integrations consistently.";
+    const description =
+      "Very long API key name used to test validation limits in the Hyperswitch dashboard ensuring proper handling of oversized identifiers while maintaining stability enforcing strict maximum character constraints across all services and integrations consistently.";
 
     await homePage.developer.click();
     await homePage.apiKeys.click();
@@ -123,7 +126,9 @@ test.describe("API Key Management", () => {
     await apiSettings.createNewApiKeyButton.click();
 
     await apiSettings.nameInput.fill(longName);
-    await apiSettings.descriptionInput.fill("API description for long name test");
+    await apiSettings.descriptionInput.fill(
+      "API description for long name test",
+    );
 
     await expect(apiSettings.nameTooLongError).toBeVisible();
 
@@ -146,7 +151,10 @@ test.describe("API Key Management", () => {
 
     await apiSettings.createNewApiKeyButton.click();
 
-    await apiSettings.fillNameAndDescription(keyName, "Key with special characters");
+    await apiSettings.fillNameAndDescription(
+      keyName,
+      "Key with special characters",
+    );
     await apiSettings.createButton.click();
 
     await expect(apiSettings.pleaseNoteApiKey).toBeVisible({ timeout: 10000 });
@@ -175,7 +183,10 @@ test.describe("API Key Management", () => {
     await homePage.apiKeys.click();
 
     await apiSettings.createNewApiKeyButton.click();
-    await apiSettings.fillNameAndDescription(keyName, "Test clipboard copy of generated key");
+    await apiSettings.fillNameAndDescription(
+      keyName,
+      "Test clipboard copy of generated key",
+    );
     await apiSettings.createButton.click();
 
     await expect(apiSettings.pleaseNoteApiKey).toBeVisible({ timeout: 10000 });
@@ -184,7 +195,9 @@ test.describe("API Key Management", () => {
     await expect(generatedKey).toBeVisible();
     await generatedKey.click();
 
-    await expect(apiSettings.copiedToClipboardToast).toBeVisible({ timeout: 5000 });
+    await expect(apiSettings.copiedToClipboardToast).toBeVisible({
+      timeout: 5000,
+    });
 
     const clipboardContent = await page.evaluate(() =>
       navigator.clipboard.readText(),
@@ -204,7 +217,10 @@ test.describe("API Key Management", () => {
     await homePage.apiKeys.click();
 
     await apiSettings.createNewApiKeyButton.click();
-    await apiSettings.fillNameAndDescription(keyName, "Verifying table columns");
+    await apiSettings.fillNameAndDescription(
+      keyName,
+      "Verifying table columns",
+    );
     await apiSettings.createButton.click();
 
     await expect(apiSettings.pleaseNoteApiKey).toBeVisible({ timeout: 10000 });
@@ -307,8 +323,12 @@ test.describe("API Key Management", () => {
 
     await expect(page.getByText(updatedName)).toBeVisible({ timeout: 10000 });
     await expect(page.getByText(originalName)).not.toBeVisible();
-    await expect(page.getByText("Updated API key for automation")).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText("Test API key for automation")).not.toBeVisible();
+    await expect(page.getByText("Updated API key for automation")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(
+      page.getByText("Test API key for automation"),
+    ).not.toBeVisible();
   });
 
   test("should create key with custom expiration", async ({ page }) => {
@@ -328,7 +348,10 @@ test.describe("API Key Management", () => {
     await apiSettings.createNewApiKeyButton.click();
     await expect(apiSettings.createApiKeyModalHeading).toBeVisible();
 
-    await apiSettings.fillNameAndDescription(keyName, "Test API key for automation");
+    await apiSettings.fillNameAndDescription(
+      keyName,
+      "Test API key for automation",
+    );
 
     await apiSettings.neverExpiryButton.click();
     await apiSettings.customExpiryOption.click();
