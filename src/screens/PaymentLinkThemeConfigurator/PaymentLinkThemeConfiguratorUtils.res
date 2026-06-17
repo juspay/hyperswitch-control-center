@@ -20,6 +20,12 @@ let authenticationTypeOptions: array<SelectBox.dropdownOption> = [
   {label: "No Three DS", value: (NoThreeDS :> string)},
 ]
 
+let showCardTermsOptions: array<SelectBox.dropdownOption> = [
+  {label: "Always", value: (Always :> string)},
+  {label: "Auto", value: (Auto :> string)},
+  {label: "Never", value: (Never :> string)},
+]
+
 let getDefaultStylesValue: BusinessProfileInterfaceTypes.paymentLinkConfig => BusinessProfileInterfaceTypes.styleConfig = paymentLinkConfig => {
   {
     theme: paymentLinkConfig.theme,

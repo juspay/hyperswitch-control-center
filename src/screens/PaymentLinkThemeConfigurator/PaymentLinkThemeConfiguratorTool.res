@@ -32,10 +32,11 @@ module ConfiguratorForm = {
     let getURL = APIUtils.useGetURL()
     let fetchDetails = APIUtils.useGetMethod()
     let (initialValues, setInitialValues) = React.useState(_ => JSON.Encode.null)
-    let (previewLoading, setPreviewLoading) = React.useState(_ => false)
+    let (previewLoading, setPreviewLoading) = React.useState(_ => true)
     let (previewHtml, setPreviewHtml) = React.useState(_ => "")
     let (previewError, setPreviewError) = React.useState(_ => None)
     let (paymentMethodsResponse, setPaymentMethodsResponse) = React.useState(() => None)
+    let (wasmReady, setWasmReady) = React.useState(() => false)
 
     React.useEffect(() => {
       setInitialValues(_ => initialFormValues)
@@ -69,53 +70,67 @@ module ConfiguratorForm = {
       }
     }
 
+    let initPaymentLinkWasm = async () => {
+      try {
+        let _ = await Window.paymentLinkWasmInit()
+        setWasmReady(_ => true)
+      } catch {
+      | _ => ()
+      }
+    }
+
     React.useEffect(() => {
       fetchAccountPaymentMethods()->ignore
+      initPaymentLinkWasm()->ignore
       None
     }, [])
 
     let generatePreview = React.useCallback((~values) => {
-      let publishableKey = merchantDetailsTypedValue.publishable_key
+      switch (wasmReady, paymentMethodsResponse) {
+      | (true, Some(_)) =>
+        let publishableKey = merchantDetailsTypedValue.publishable_key
 
-      try {
-        setPreviewLoading(_ => true)
-        setPreviewError(_ => None)
+        try {
+          setPreviewLoading(_ => true)
+          setPreviewError(_ => None)
 
-        let configs = generateWasmPayload(
-          ~paymentMethodsResponse,
-          ~publishableKey,
-          ~formValues=values,
-        )
+          let configs = generateWasmPayload(
+            ~paymentMethodsResponse,
+            ~publishableKey,
+            ~formValues=values,
+          )
 
-        let validationResult = Window.validatePaymentLinkConfig(
-          JSON.stringify(configs->Identity.genericTypeToJson),
-        )
-        let validationDict = validationResult->JSON.parseExn->getDictFromJsonObject
-        let isValid = validationDict->getBool("valid", false)
-        let errors = validationDict->getArrayFromDict("errors", [])
-
-        if !isValid {
-          let errorMessages =
-            errors->Array.map(error => error->getStringFromJson("Unknown validation error"))
-
-          let combinedErrors = errorMessages->Array.joinWith(", ")
-          setPreviewError(_ => Some(`Validation failed: ${combinedErrors}`))
-        } else {
-          let response = Window.generatePaymentLinkPreview(
+          let validationResult = Window.validatePaymentLinkConfig(
             JSON.stringify(configs->Identity.genericTypeToJson),
           )
-          setPreviewHtml(_ => response)
-        }
+          let validationDict = validationResult->JSON.parseExn->getDictFromJsonObject
+          let isValid = validationDict->getBool("valid", false)
+          let errors = validationDict->getArrayFromDict("errors", [])
 
-        setPreviewLoading(_ => false)
-      } catch {
-      | Exn.Error(e) => {
-          let errorMessage = Exn.message(e)->Option.getOr("WASM function failed")
-          setPreviewError(_ => Some(errorMessage))
+          if !isValid {
+            let errorMessages =
+              errors->Array.map(error => error->getStringFromJson("Unknown validation error"))
+
+            let combinedErrors = errorMessages->Array.joinWith(", ")
+            setPreviewError(_ => Some(`Validation failed: ${combinedErrors}`))
+          } else {
+            let response = Window.generatePaymentLinkPreview(
+              JSON.stringify(configs->Identity.genericTypeToJson),
+            )
+            setPreviewHtml(_ => response)
+          }
+
           setPreviewLoading(_ => false)
+        } catch {
+        | Exn.Error(e) => {
+            let errorMessage = Exn.message(e)->Option.getOr("WASM function failed")
+            setPreviewError(_ => Some(errorMessage))
+            setPreviewLoading(_ => false)
+          }
         }
+      | _ => setPreviewLoading(_ => true)
       }
-    }, [paymentMethodsResponse])
+    }, (wasmReady, paymentMethodsResponse))
 
     let generatePreviewRef = React.useRef(generatePreview)
 
@@ -132,7 +147,7 @@ module ConfiguratorForm = {
     React.useEffect(() => {
       debouncedGeneratePreview(initialValues)
       None
-    }, (initialValues, paymentMethodsResponse))
+    }, (initialValues, paymentMethodsResponse, wasmReady))
 
     let onSubmit = async (values, isAutoSubmit) => {
       setInitialValues(_ => values)
@@ -196,11 +211,7 @@ module ConfiguratorForm = {
                 <FieldRenderer
                   field={makeCustomMessageForCardTermsField()} fieldWrapperClass="!w-full"
                 />
-                <FieldRenderer
-                  field={makeShowCardTermsField()}
-                  fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
-                  labelPadding="py-0"
-                />
+                <FieldRenderer field={makeShowCardTermsField()} fieldWrapperClass="!w-full" />
                 <FieldRenderer
                   field={makeHideCardNicknameField()}
                   fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
