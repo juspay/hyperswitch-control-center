@@ -41,7 +41,9 @@ export const test = base.extend<AutoFixtures>({
       // Read it at the end of the test; a fresh page per test means the
       // counters reflect just this test's execution.
       const coverage = await page
-        .evaluate(() => (window as unknown as { __coverage__?: unknown }).__coverage__)
+        .evaluate(
+          () => (window as unknown as { __coverage__?: unknown }).__coverage__,
+        )
         .catch(() => undefined);
       if (coverage && Object.keys(coverage).length > 0) {
         fs.mkdirSync(NYC_OUTPUT_DIR, { recursive: true });
