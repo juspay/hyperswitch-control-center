@@ -18,15 +18,15 @@ export class OrganizationChartPage {
   }
 
   get orgColumn(): Locator {
-    return this.page.getByText('Organization').nth(4);
+    return this.page.getByText("Organization").nth(4);
   }
 
   get merchantColumn(): Locator {
-    return this.page.getByText('Merchant', { exact: true });
+    return this.page.getByText("Merchant", { exact: true });
   }
 
   get profileColumn(): Locator {
-    return this.page.getByText('Profile', { exact: true });
+    return this.page.getByText("Profile", { exact: true });
   }
 
   get firstOrgButton(): Locator {
@@ -42,7 +42,10 @@ export class OrganizationChartPage {
   }
 
   profileButtonByName(name: string): Locator {
-    return this.profileColumn.locator("button").filter({ hasText: name }).first();
+    return this.profileColumn
+      .locator("button")
+      .filter({ hasText: name })
+      .first();
   }
 
   get merchantSwitchingLoader(): Locator {

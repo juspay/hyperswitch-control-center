@@ -130,7 +130,9 @@ export class Webhooks {
   // Add Endpoint
   get addEndpointButton(): Locator {
     return this.page
-      .locator('[data-button-for="addWebhook"], button:has-text("Add Endpoint")')
+      .locator(
+        '[data-button-for="addWebhook"], button:has-text("Add Endpoint")',
+      )
       .first();
   }
 
@@ -147,7 +149,9 @@ export class Webhooks {
   }
 
   get successOrCreatedToast(): Locator {
-    return this.page.locator('[data-toast*="created"], [data-toast*="success"]');
+    return this.page.locator(
+      '[data-toast*="created"], [data-toast*="success"]',
+    );
   }
 
   // Event Subscription
@@ -195,7 +199,9 @@ export class Webhooks {
   }
 
   get disabledOrUpdatedToast(): Locator {
-    return this.page.locator('[data-toast*="disabled"], [data-toast*="updated"]');
+    return this.page.locator(
+      '[data-toast*="disabled"], [data-toast*="updated"]',
+    );
   }
 }
 
