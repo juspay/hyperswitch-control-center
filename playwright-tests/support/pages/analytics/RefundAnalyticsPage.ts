@@ -72,7 +72,9 @@ export class RefundAnalyticsPage {
   // A cell in the summary table. The table emits a data-table-location of the
   // form "Summary Table_tr{row}_td{col}" (1-indexed).
   summaryTableCell(row: number, col: number): Locator {
-    return this.page.locator(`[data-table-location="Summary Table_tr${row}_td${col}"]`);
+    return this.page.locator(
+      `[data-table-location="Summary Table_tr${row}_td${col}"]`,
+    );
   }
 
   // ---- Refund trends chart (DynamicChart) ----
@@ -121,7 +123,9 @@ export class RefundAnalyticsPage {
 
   // ---- Error state (PageLoaderWrapper Error -> DefaultLandingPage) ----
   get errorTitle(): Locator {
-    return this.page.getByText("Oops, we hit a little bump on the road!", { exact: true });
+    return this.page.getByText("Oops, we hit a little bump on the road!", {
+      exact: true,
+    });
   }
 
   get refreshButton(): Locator {
@@ -151,25 +155,35 @@ export class RefundAnalyticsPage {
   // dimensions, so it has no search input — wait for the first dimension row.
   async openAddFilters(): Promise<void> {
     await this.addFiltersButton.click({ force: true });
-    await this.dimensionOption("Connector").waitFor({ state: "visible", timeout: 10000 });
+    await this.dimensionOption("Connector").waitFor({
+      state: "visible",
+      timeout: 10000,
+    });
   }
 
   // A selected dimension-filter chip ("Select <Label>"), rendered once a
   // dimension is picked from the Add Filters popup. Keyed by the snake_case
   // field name (e.g. "connector", "refund_status").
   selectedFilterChip(fieldKey: string): Locator {
-    return this.page.locator(`[data-component-field-wrapper="field-${fieldKey}"]`);
+    return this.page.locator(
+      `[data-component-field-wrapper="field-${fieldKey}"]`,
+    );
   }
 
   // The remove (cross) control inside a selected filter chip.
   clearFilterChipIcon(fieldKey: string): Locator {
-    return this.selectedFilterChip(fieldKey).locator('[data-icon="cross-outline"]');
+    return this.selectedFilterChip(fieldKey).locator(
+      '[data-icon="cross-outline"]',
+    );
   }
 
   // Remove a selected filter chip and wait for it to detach.
   async clearFilterChip(fieldKey: string): Promise<void> {
     await this.clearFilterChipIcon(fieldKey).click();
-    await this.selectedFilterChip(fieldKey).waitFor({ state: "detached", timeout: 10000 });
+    await this.selectedFilterChip(fieldKey).waitFor({
+      state: "detached",
+      timeout: 10000,
+    });
   }
 
   // ---- Date range selector ----
@@ -181,7 +195,9 @@ export class RefundAnalyticsPage {
 
   // The predefined-options column inside the open date picker dropdown.
   get predefinedDateOptions(): Locator {
-    return this.page.locator('[data-date-picker-predefined="predefined-options"]');
+    return this.page.locator(
+      '[data-date-picker-predefined="predefined-options"]',
+    );
   }
 
   // A single preset row (e.g. "Last 7 Days", "Last 30 Days", "This Month").
@@ -195,13 +211,19 @@ export class RefundAnalyticsPage {
     for (let attempt = 0; attempt < 3; attempt++) {
       await this.dateRangeSelector.click({ timeout: 10000 });
       try {
-        await this.predefinedDateOptions.waitFor({ state: "visible", timeout: 4000 });
+        await this.predefinedDateOptions.waitFor({
+          state: "visible",
+          timeout: 4000,
+        });
         return;
       } catch {
         await this.page.waitForTimeout(300);
       }
     }
-    await this.predefinedDateOptions.waitFor({ state: "visible", timeout: 8000 });
+    await this.predefinedDateOptions.waitFor({
+      state: "visible",
+      timeout: 8000,
+    });
   }
 
   async selectPredefinedRange(label: string): Promise<void> {

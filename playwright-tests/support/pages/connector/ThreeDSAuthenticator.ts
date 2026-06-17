@@ -20,7 +20,9 @@ export class ThreeDSAuthenticator {
   }
 
   get requestProcessorButton(): Locator {
-    return this.page.getByRole("button", { name: "Request a Processor" }).first();
+    return this.page
+      .getByRole("button", { name: "Request a Processor" })
+      .first();
   }
 
   get connectButton(): Locator {
@@ -40,7 +42,7 @@ export class ThreeDSAuthenticator {
   }
 
   get connectorLabelTextbox(): Locator {
-    return this.page.getByRole('textbox', { name: 'Enter Connector label' });
+    return this.page.getByRole("textbox", { name: "Enter Connector label" });
   }
 }
 

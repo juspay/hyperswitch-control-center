@@ -3,7 +3,11 @@ import type { Page, BrowserContext } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { VaultProcessor } from "../../support/pages/connector/VaultProcessor";
 import { generateUniqueEmail } from "../../support/helper";
-import { signupUser, loginUI, fillConnectorFields } from "../../support/commands";
+import {
+  signupUser,
+  loginUI,
+  fillConnectorFields,
+} from "../../support/commands";
 import { vaultProcessorConfig } from "../../support/fixtures/vaultProcessorConfig";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
@@ -72,7 +76,9 @@ test.describe("Vault Processor", () => {
     if (await fallback.isVisible().catch(() => false)) {
       test.skip(true, "Page gated by feature flag fallback");
     }
-    await expect(vaultProcessor.requestProcessorButton).toBeVisible({ timeout: 10000 });
+    await expect(vaultProcessor.requestProcessorButton).toBeVisible({
+      timeout: 10000,
+    });
     const search = vaultProcessor.searchProcessorPlaceholder;
     await expect(search).toBeVisible({ timeout: 10000 });
     await search.fill("stripe");
@@ -98,9 +104,7 @@ test.describe("Vault Processor", () => {
     await page
       .locator('[name*="environment_key"]')
       .fill("spreedly_test_env_key");
-    await page
-      .locator('[name*="access_secret"]')
-      .fill("spreedly_test_secret");
+    await page.locator('[name*="access_secret"]').fill("spreedly_test_secret");
 
     await vaultProcessor.connectAndProceedButton.click();
 
@@ -128,9 +132,7 @@ test.describe("Vault Processor", () => {
     await addRuleButton.click();
     await page.locator('[name*="rule_name"]').fill("Auto Tokenize Cards");
 
-    const conditionDropdown = page
-      .locator('[name*="condition_type"]')
-      .first();
+    const conditionDropdown = page.locator('[name*="condition_type"]').first();
     if (await conditionDropdown.isVisible().catch(() => false)) {
       await conditionDropdown.selectOption("payment_method_card");
     }
@@ -195,9 +197,7 @@ test.describe("All Vault Processors", () => {
   });
 
   for (const [key, processor] of vaultProcessors) {
-    test(`should setup and verify ${key} vault processor`, async ({
-      page,
-    }) => {
+    test(`should setup and verify ${key} vault processor`, async ({ page }) => {
       const homePage = new HomePage(page);
       const vaultProcessor = new VaultProcessor(page);
 
@@ -226,8 +226,12 @@ test.describe("All Vault Processors", () => {
 
           await vaultProcessor.doneButton.click();
 
-          const connectorLabel = processor.fields.overrides["Enter Connector label"] || processor.label;
-          await expect(page.getByText(connectorLabel, { exact: true })).toBeVisible({ timeout: 10000 });
+          const connectorLabel =
+            processor.fields.overrides["Enter Connector label"] ||
+            processor.label;
+          await expect(
+            page.getByText(connectorLabel, { exact: true }),
+          ).toBeVisible({ timeout: 10000 });
         }
       }
     });

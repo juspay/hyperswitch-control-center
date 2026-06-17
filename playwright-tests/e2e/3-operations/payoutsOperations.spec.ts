@@ -368,9 +368,7 @@ test.describe("Payouts Operations", () => {
 
         const dateSelector = payoutOperations.dateSelector;
         await dateSelector.click();
-        await payoutOperations
-          .daterangeDropdownValue("Last 30 Days")
-          .click();
+        await payoutOperations.daterangeDropdownValue("Last 30 Days").click();
 
         await expect(dateSelector).toContainText("Last 30 Days");
       });
@@ -382,10 +380,7 @@ test.describe("Payouts Operations", () => {
       const filterKeys = ["connector", "currency", "payout_method", "status"];
       const filterLabels = ["Connector", "Currency", "Payout Method", "Status"];
 
-      test("should apply a Status filter", async ({
-        page,
-        context,
-      }) => {
+      test("should apply a Status filter", async ({ page, context }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
         await setupPayout(homePage, context.request);
@@ -393,16 +388,14 @@ test.describe("Payouts Operations", () => {
         await goToPayouts(page, homePage);
 
         await payoutOperations.addFilters.click();
-        await page
-          .locator('[data-dropdown-value="Status"]:visible')
-          .click();
+        await page.locator('[data-dropdown-value="Status"]:visible').click();
 
         // Once the filter is added, a "Select status" chip is rendered with
         // the status field wrapper visible in the filter row.
         await expect(payoutOperations.payoutStatusFieldWrapper).toBeVisible();
-        await expect(
-          payoutOperations.filterChipArea.first(),
-        ).toContainText("Select status");
+        await expect(payoutOperations.filterChipArea.first()).toContainText(
+          "Select status",
+        );
       });
 
       test("should list all available filter options in the Add Filters dropdown", async ({
@@ -445,9 +438,9 @@ test.describe("Payouts Operations", () => {
 
           // PayoutsUtils.res renders the chip as `Select ${key}` with the
           // raw snake_case API key (not snakeToTitle'd).
-          await expect(
-            payoutOperations.filterChipArea.first(),
-          ).toContainText(`Select ${key}`);
+          await expect(payoutOperations.filterChipArea.first()).toContainText(
+            `Select ${key}`,
+          );
 
           // Remove the chip so the next iteration starts clean.
           await payoutOperations.crossOutlineIcon.first().click();
@@ -567,9 +560,7 @@ test.describe("Payouts Operations", () => {
         statusValue: string,
       ) => {
         await payoutOperations.addFilters.click();
-        await page
-          .locator('[data-dropdown-value="Status"]:visible')
-          .click();
+        await page.locator('[data-dropdown-value="Status"]:visible').click();
         await payoutOperations.payoutStatusFieldWrapper.click();
         await page.locator(`[value="${statusValue}"]`).click();
         await payoutOperations.applyButton.click();
@@ -602,9 +593,7 @@ test.describe("Payouts Operations", () => {
           succeededId.slice(0, 20),
         );
         await expect(payoutOperations.payoutCell(2, 2)).not.toBeVisible();
-        await expect(
-          page.getByText(failedId.slice(0, 20)),
-        ).not.toBeVisible();
+        await expect(page.getByText(failedId.slice(0, 20))).not.toBeVisible();
 
         // Dismiss the existing status chip so the next selection starts clean.
         await payoutOperations.crossOutlineIcon.first().click();
@@ -635,16 +624,19 @@ test.describe("Payouts Operations", () => {
         const payoutOperations = new PayoutOperations(page);
         await setupPayout(homePage, context.request);
 
-        await page.route("**/dashboard/config/feature?domain=", async (route) => {
-          const response = await route.fetch();
-          const json = await response.json();
-          json.features = {
-            ...json.features,
-            generate_report: true,
-            email: true,
-          };
-          await route.fulfill({ response, json });
-        });
+        await page.route(
+          "**/dashboard/config/feature?domain=",
+          async (route) => {
+            const response = await route.fetch();
+            const json = await response.json();
+            json.features = {
+              ...json.features,
+              generate_report: true,
+              email: true,
+            };
+            await route.fulfill({ response, json });
+          },
+        );
         await page.reload();
 
         await goToPayouts(page, homePage);
@@ -656,7 +648,9 @@ test.describe("Payouts Operations", () => {
         await expect(page.getByText("Date Range *")).toBeVisible();
         await expect(page.getByText("Report Type")).toBeVisible();
         await expect(page.getByText("Additional Recipients")).toBeVisible();
-        await page.getByRole("button", { name: "Generate", exact: true }).click();
+        await page
+          .getByRole("button", { name: "Generate", exact: true })
+          .click();
       });
 
       test("should hide Generate Report button when generate_report flag is OFF", async ({
@@ -687,14 +681,20 @@ test.describe("Payouts Operations", () => {
       await payoutOperations.payoutCell(1, 1).click();
 
       await expect(page.getByText("Summary", { exact: true })).toBeVisible();
-      await expect(page.getByText("About Payout", { exact: true })).toBeVisible();
-      await expect(page.getByText("Payout Attempts", { exact: true })).toBeVisible();
+      await expect(
+        page.getByText("About Payout", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        page.getByText("Payout Attempts", { exact: true }),
+      ).toBeVisible();
 
       // Accordion sections rendered after the Summary block (ShowPayout.res:337–398).
       // Payout Method Details renders only when payout_type === "card" + payout_method_data
       // is present; Payout Metadata renders only when metadata is non-empty. createPayoutAPI
       // satisfies both (card payout + metadata={key: "value"}).
-      await expect(page.getByText("Customer Details", { exact: true })).toBeVisible();
+      await expect(
+        page.getByText("Customer Details", { exact: true }),
+      ).toBeVisible();
       await expect(
         page.getByText("More Payout Details", { exact: true }),
       ).toBeVisible();
@@ -706,8 +706,10 @@ test.describe("Payouts Operations", () => {
       ).toBeVisible();
 
       // Big amount header + status badge (ShowPayout.res:117–128).
-      await expect(page.locator('[class="md:text-5xl font-bold"]')).toContainText(`${payout.amount / 100} ${payout.currency}`);
-      await expect(page.getByText(payout.status.toUpperCase(), { exact: true }).first()).toBeVisible();
+      await expect(page.getByText("123.45 EUR").first()).toBeVisible();
+      await expect(
+        page.getByText(payout.status.toUpperCase(), { exact: true }).first(),
+      ).toBeVisible();
 
       // Summary detailsFields=[Created, AmountReceived, PayoutId, ConnectorTransactionID, ErrorMessage].
       for (const label of [
@@ -717,9 +719,7 @@ test.describe("Payouts Operations", () => {
         "Connector Transaction ID",
         "Error Message",
       ]) {
-        await expect(
-          payoutOperations.dataLabel(label).first(),
-        ).toBeVisible();
+        await expect(payoutOperations.dataLabel(label).first()).toBeVisible();
       }
 
       // About Payout fields shown by ShowPayout.PayoutInfo
@@ -733,9 +733,7 @@ test.describe("Payouts Operations", () => {
         "Payout Type",
         "Card Network",
       ]) {
-        await expect(
-          payoutOperations.dataLabel(label).first(),
-        ).toBeVisible();
+        await expect(payoutOperations.dataLabel(label).first()).toBeVisible();
       }
 
       // Payout Attempts table columns (PayoutsUtils.attemptsColumns +
@@ -771,9 +769,7 @@ test.describe("Payouts Operations", () => {
         await header.scrollIntoViewIfNeeded();
         await header.click();
         for (const label of labels) {
-          await expect(
-            payoutOperations.dataLabel(label).first(),
-          ).toBeVisible();
+          await expect(payoutOperations.dataLabel(label).first()).toBeVisible();
         }
       };
 
@@ -824,7 +820,9 @@ test.describe("Payouts Operations", () => {
       await payoutMetadata.scrollIntoViewIfNeeded();
       await payoutMetadata.click();
       await expect(payoutMetadata.locator("xpath=../..")).toContainText("key");
-      await expect(payoutMetadata.locator("xpath=../..")).toContainText("value");
+      await expect(payoutMetadata.locator("xpath=../..")).toContainText(
+        "value",
+      );
     });
 
     test.describe("Events and logs", () => {

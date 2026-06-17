@@ -37,7 +37,9 @@ export class PaymentAnalyticsPage {
   }
 
   get smartRetriesSubHeading(): Locator {
-    return this.page.getByText('Note: Only date range filters are supported currently for Smart Retry metrics');
+    return this.page.getByText(
+      "Note: Only date range filters are supported currently for Smart Retry metrics",
+    );
   }
 
   get paymentsTrendsHeading(): Locator {
@@ -45,55 +47,87 @@ export class PaymentAnalyticsPage {
   }
 
   get paymentsTrendsFilters(): Locator {
-    return this.page.getByText('ConnectorPayment MethodPayment Method + Payment Method Type');
+    return this.page.getByText(
+      "ConnectorPayment MethodPayment Method + Payment Method Type",
+    );
   }
 
   get paymentsTrendsTimeRange(): Locator {
-    return this.page.getByRole('button', { name: 'ONE DAY' });
+    return this.page.getByRole("button", { name: "ONE DAY" });
   }
 
   // ---- Payments Overview KPI cards (general metrics) ----
   // Matched on the stable single-stat label text.
   get overallSuccessRateCard(): Locator {
-    return this.page.locator('div').filter({ hasText: /^92\.50%Overall Success Rate$/ }).nth(1);
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^92\.50%Overall Success Rate$/ })
+      .nth(1);
   }
 
   get confirmedSuccessRateCard(): Locator {
-    return this.page.locator('div').filter({ hasText: /^95\.30%Confirmed Success Rate$/ }).nth(1);
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^95\.30%Confirmed Success Rate$/ })
+      .nth(1);
   }
 
   get overallPaymentsCard(): Locator {
-    return this.page.locator('div').filter({ hasText: /^1\.28kOverall Payments$/ }).nth(1);
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^1\.28kOverall Payments$/ })
+      .nth(1);
   }
 
   get successPaymentsCard(): Locator {
-    return this.page.locator('div').filter({ hasText: /^1\.18kSuccess Payments$/ }).nth(1);
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^1\.18kSuccess Payments$/ })
+      .nth(1);
   }
 
   get authorisedUncapturedCard(): Locator {
-    return this.page.locator('div').filter({ hasText: /^42Authorised Uncaptured Payments$/ }).nth(1);
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^42Authorised Uncaptured Payments$/ })
+      .nth(1);
   }
 
   // ---- Amount Metrics KPI cards ----
   get processedAmountCard(): Locator {
-    return this.page.locator('div').filter({ hasText: /^Processed AmountUSD52\.34K$/ }).nth(1);
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^Processed AmountUSD52\.34K$/ })
+      .nth(1);
   }
 
   get avgTicketSizeCard(): Locator {
-    return this.page.locator('div').filter({ hasText: /^Avg Ticket SizeUSD87\.5$/ }).nth(1);
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^Avg Ticket SizeUSD87\.5$/ })
+      .nth(1);
   }
 
   // ---- Smart Retries section cards ----
   get successfulSmartRetriesCard(): Locator {
-    return this.page.locator('div').filter({ hasText: /^312Successful Smart Retries$/ }).nth(1);
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^312Successful Smart Retries$/ })
+      .nth(1);
   }
 
   get smartRetriesMadeCard(): Locator {
-    return this.page.locator('div').filter({ hasText: /^480Smart Retries made$/ }).nth(1);
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^480Smart Retries made$/ })
+      .nth(1);
   }
 
   get smartRetriesSavingsCard(): Locator {
-    return this.page.locator('div').filter({ hasText: /^Smart Retries SavingsUSD18\.45K$/ }).nth(4);
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^Smart Retries SavingsUSD18\.45K$/ })
+      .nth(4);
   }
 
   // ---- Payments Trends section ----
@@ -120,7 +154,9 @@ export class PaymentAnalyticsPage {
   // A cell in the Payments Trends "Summary Table". The table emits a
   // data-table-location of the form "Summary Table_tr{row}_td{col}" (1-indexed).
   summaryTableCell(row: number, col: number): Locator {
-    return this.page.locator(`[data-table-location="Summary Table_tr${row}_td${col}"]`);
+    return this.page.locator(
+      `[data-table-location="Summary Table_tr${row}_td${col}"]`,
+    );
   }
 
   // ---- Payments Trends dimension tabs (DynamicTabs) ----
@@ -155,7 +191,9 @@ export class PaymentAnalyticsPage {
 
   // ---- Error state (PageLoaderWrapper Error -> DefaultLandingPage) ----
   get errorTitle(): Locator {
-    return this.page.getByText("Oops, we hit a little bump on the road!", { exact: true });
+    return this.page.getByText("Oops, we hit a little bump on the road!", {
+      exact: true,
+    });
   }
 
   get refreshButton(): Locator {
@@ -198,23 +236,29 @@ export class PaymentAnalyticsPage {
   // dimension is picked from the Add Filters popup. Keyed by the snake_case
   // field name (e.g. "connector", "payment_method_type").
   selectedFilterChip(fieldKey: string): Locator {
-    return this.page.locator(`[data-component-field-wrapper="field-${fieldKey}"]`);
+    return this.page.locator(
+      `[data-component-field-wrapper="field-${fieldKey}"]`,
+    );
   }
 
   // The remove (cross) control inside a selected filter chip.
   clearFilterChipIcon(fieldKey: string): Locator {
-    return this.selectedFilterChip(fieldKey).locator('[data-icon="cross-outline"]');
+    return this.selectedFilterChip(fieldKey).locator(
+      '[data-icon="cross-outline"]',
+    );
   }
 
   // Remove a selected filter chip and wait for it to detach.
   async clearFilterChip(fieldKey: string): Promise<void> {
     await this.clearFilterChipIcon(fieldKey).click();
-    await this.selectedFilterChip(fieldKey).waitFor({ state: "detached", timeout: 10000 });
+    await this.selectedFilterChip(fieldKey).waitFor({
+      state: "detached",
+      timeout: 10000,
+    });
   }
 
-
   get filterSelector(): Locator {
-    return this.page.getByRole('button', { name: 'Add Filters' });
+    return this.page.getByRole("button", { name: "Add Filters" });
   }
   // ---- Date range selector ----
   // Shared with the Insights page — the trigger button carries
@@ -225,7 +269,9 @@ export class PaymentAnalyticsPage {
 
   // The predefined-options column inside the open date picker dropdown.
   get predefinedDateOptions(): Locator {
-    return this.page.locator('[data-date-picker-predefined="predefined-options"]');
+    return this.page.locator(
+      '[data-date-picker-predefined="predefined-options"]',
+    );
   }
 
   // A single preset row (e.g. "Last 7 Days", "Last 30 Days", "This Month").
@@ -252,13 +298,19 @@ export class PaymentAnalyticsPage {
     for (let attempt = 0; attempt < 3; attempt++) {
       await this.dateRangeSelector.click({ timeout: 10000 });
       try {
-        await this.predefinedDateOptions.waitFor({ state: "visible", timeout: 4000 });
+        await this.predefinedDateOptions.waitFor({
+          state: "visible",
+          timeout: 4000,
+        });
         return;
       } catch {
         await this.page.waitForTimeout(300);
       }
     }
-    await this.predefinedDateOptions.waitFor({ state: "visible", timeout: 8000 });
+    await this.predefinedDateOptions.waitFor({
+      state: "visible",
+      timeout: 8000,
+    });
   }
 
   async selectPredefinedRange(label: string): Promise<void> {
