@@ -112,6 +112,8 @@ module OrderInfo = {
               LastUpdated,
               AmountReceived,
               PaymentId,
+              NetAmount,
+              SurchargeAmount,
               ConnectorTransactionID,
               ErrorMessage,
             ]
