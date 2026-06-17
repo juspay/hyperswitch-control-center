@@ -31,7 +31,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
     hasWorkflowsManageAccess
       ? baseTabs->Array.concat([
           {
-            title: "Manage rules",
+            title: "Configuration History",
             renderContent: () => {
               records->Array.length > 0
                 ? <PayoutHistoryTable records activeRoutingIds />
@@ -125,11 +125,8 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
   <PageLoaderWrapper screenState>
     <div className={`${widthClass} ${marginClass} gap-2.5`}>
-      <div className="flex flex-col gap-6 items-center justify-center">
-        <PageUtils.PageHeading
-          title="Payout routing configuration"
-          subTitle="Smart routing stack helps you to increase success rates and reduce costs by optimising your payment traffic across the various processors in the most customised yet reliable way. Set it up based on the preferred level of control"
-        />
+      <div className="flex flex-col">
+        <PageUtils.PageHeading title="Payout Routing Configurations" />
         <ActiveRouting.LevelWiseRoutingSection
           types=[VOLUME_SPLIT, ADVANCED, DEFAULTFALLBACK] onRedirectBaseUrl="payoutrouting"
         />
@@ -143,11 +140,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
               <Tabs
                 initialIndex={tabIndex >= 0 ? tabIndex : 0}
                 tabs
-                showBorder=false
-                includeMargin=false
-                lightThemeColor="primary"
-                defaultClasses="!w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
-                selectTabBottomBorderColor="bg-primary"
                 onTitleClick={index => {
                   setTabIndex(_ => index)
                   setCurrentTabName(_ => getTabName(index))

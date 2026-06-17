@@ -16,7 +16,7 @@ export class ResetPasswordPage {
   }
 
   get eyeIcon(): Locator {
-    return this.page.locator('[data-icon="eye-slash"]');
+    return this.page.locator('[data-icon="eye"]');
   }
 
   get confirmButton(): Locator {
@@ -29,6 +29,10 @@ export class ResetPasswordPage {
 
   get confirmPasswordField(): Locator {
     return this.page.locator('[data-testid="confirm_password"] input');
+  }
+
+  get weakPasswordError(): Locator {
+    return this.page.getByText("Your password is not strong");
   }
 }
 

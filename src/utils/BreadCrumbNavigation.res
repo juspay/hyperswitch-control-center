@@ -45,6 +45,7 @@ let make = (~path: array<breadcrumb>=[], ~currentPageTitle="") => {
   }
 
   let items = Array.concat(pathItems, [currentItem])
-
-  <BreadcrumbBinding items />
+  <div className="-ml-2">
+    <BreadcrumbBinding items />
+  </div>
 }

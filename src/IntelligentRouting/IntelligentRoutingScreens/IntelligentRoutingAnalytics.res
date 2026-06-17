@@ -106,14 +106,13 @@ module TransactionsTable = {
     )
 
     let tabs: array<Tabs.tab> = React.useMemo(() => {
-      open Tabs
       [
         {
-          title: "All",
+          Tabs.title: "All",
           renderContent: () => {table(tableData)},
         },
         {
-          title: "Failed",
+          Tabs.title: "Failed",
           renderContent: () => {table(failedTxnTableData)},
         },
       ]
@@ -127,14 +126,9 @@ module TransactionsTable = {
         <Tabs
           initialIndex={tabIndex >= 0 ? tabIndex : 0}
           tabs
-          showBorder=true
-          includeMargin=false
-          defaultClasses="!w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
           onTitleClick={index => {
             setTabIndex(_ => index)
           }}
-          selectTabBottomBorderColor="bg-primary"
-          customBottomBorderColor="bg-nd_gray-150"
         />
       </div>
     </PageLoaderWrapper>
@@ -168,14 +162,14 @@ module Card = {
         ~secondaryValue,
       )
 
-      let (textColor, icon) = switch direction {
-      | Upward => ("#12B76A", "nd-arrow-up-no-underline")
-      | Downward => ("#F04E42", "nd-arrow-down-no-underline")
-      | No_Change => ("#A0A0A0", "")
+      let (textColor, iconColor, icon) = switch direction {
+      | Upward => ("#12B76A", "text-nd_green-600", "nd-arrow-up-no-underline")
+      | Downward => ("#F04E42", "text-nd_red-600", "nd-arrow-down-no-underline")
+      | No_Change => ("#A0A0A0", "", "")
       }
 
       <div className={`flex gap-2`}>
-        <Icon name={icon} size=12 />
+        <Icon name={icon} size=12 className={iconColor} />
         <p className={textColor}> {value->valueFormatter(Rate)->React.string} </p>
       </div>
     }
@@ -431,7 +425,7 @@ let make = () => {
       <PageUtils.PageHeading title="Intelligent Routing Uplift Analysis" />
       <div className="flex items-center gap-4">
         <p className="text-nd_gray-500 font-medium"> {dateRange->React.string} </p>
-        <SelectBox.BaseDropdown
+        <SelectBoxAdapter.BaseDropdown
           allowMultiSelect=false
           buttonText=""
           input=inputFileDropdown
@@ -493,7 +487,7 @@ let make = () => {
         <div className="border rounded-lg p-4 flex flex-col">
           <div className="relative">
             <div className="!w-full flex justify-end absolute z-10 top-0 right-0 left-0">
-              <SelectBox.BaseDropdown
+              <SelectBoxAdapter.BaseDropdown
                 allowMultiSelect=false
                 buttonText="Select timestamp"
                 input

@@ -76,13 +76,18 @@ type edgeStyleType = {
 
 type edgeMarkerType = {@as("type") edgeMarkerType: string}
 
+type edgeData = {
+  ruleType: string,
+  percentageLabel: string,
+}
+
 type edgeType = {
   id: string,
   source: string,
   target: string,
   @as("type") edgeType: string,
   animated?: bool,
-  label?: string,
+  data: edgeData,
   markerEnd?: edgeMarkerType,
   style?: edgeStyleType,
 }
@@ -90,3 +95,6 @@ type edgeType = {
 type viewType =
   | Graph
   | Table
+
+type seriesType =
+  ReconciledSeriesType | MismatchedSeriesType | ExpectedSeriesType | UnknownSeriesType

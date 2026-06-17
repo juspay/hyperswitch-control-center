@@ -122,7 +122,7 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType, ~check
           setShowVerifyModal(_ => false)
           generateNewSecret()->ignore
         } else {
-          showToast(~message="Successfully reset the totp !", ~toastType=ToastSuccess)
+          showToast(~message="Successfully reset TOTP!", ~toastType=ToastSuccess)
           RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/account-settings/profile"))
         }
         setOtp(_ => "")
@@ -296,7 +296,7 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType, ~check
         showOnlyRc
       />
     }}
-    <div className={`bg-white h-40-rem w-200 rounded-2xl flex flex-col border`}>
+    <div className={`bg-white min-h-40-rem w-200 rounded-2xl flex flex-col border`}>
       <div className="p-6 border-b-2 flex justify-between items-center">
         <p className={`${h2TextStyle} text-grey-900`}> {"Enable new 2FA"->React.string} </p>
       </div>

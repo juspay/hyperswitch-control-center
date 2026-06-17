@@ -262,14 +262,30 @@ let getPercentageLabel = (~matchedCount, ~totalCount) =>
   } else {
     "0% Matched"
   }
+
+let getCompactRuleType = (strategy: ReconEngineRulesTypes.reconStrategyType) => {
+  open ReconEngineRulesTypes
+  switch strategy {
+  | OneToOne(SingleSingle(_)) => "Direct Match"
+  | OneToOne(SingleMany(_)) => "Split Match"
+  | OneToOne(ManySingle(_)) => "Lumpsum Match"
+  | OneToOne(ManyMany(_)) => "Batch Match"
+  | OneToMany(SingleSingle(_)) => "Consolidated Match"
+  | UnknownReconStrategy
+  | OneToOne(UnknownOneToOneStrategy)
+  | OneToMany(UnknownOneToManyStrategy) => "Unknown"
+  }
+}
+
 let makeEdge = (
+  ~rule: ReconEngineRulesTypes.rulePayload,
   ~sourceAccountId: string,
   ~targetAccountId: string,
   ~ruleTransactions,
   ~selectedNodeId,
 ) => {
   let (matchedCount, totalCount) = summarizeTransactions(ruleTransactions)
-  let label = getPercentageLabel(~matchedCount, ~totalCount)
+  let percentageLabel = getPercentageLabel(~matchedCount, ~totalCount)
   let sourceNodeId = `${sourceAccountId}-node`
   let targetNodeId = `${targetAccountId}-node`
   let isHighlighted = Some(sourceNodeId) == selectedNodeId || Some(targetNodeId) == selectedNodeId
@@ -277,13 +293,16 @@ let makeEdge = (
     id: `${sourceAccountId}-to-${targetAccountId}`,
     ReconEngineOverviewSummaryTypes.source: sourceNodeId,
     target: targetNodeId,
-    edgeType: "smoothstep",
+    edgeType: "reconEdge",
     animated: isHighlighted,
     markerEnd: {edgeMarkerType: ReactFlow.markerTypeArrowClosed},
-    label,
+    data: {
+      ruleType: getCompactRuleType(rule.strategy),
+      percentageLabel,
+    },
     style: isHighlighted
-      ? {stroke: highlightStrokeColor, strokeWidth: 1.5}
-      : {stroke: normalStrokeColor, strokeWidth: 1.5},
+      ? {stroke: highlightStrokeColor, strokeWidth: 2.0}
+      : {stroke: normalStrokeColor, strokeWidth: 2.0},
   }
 }
 let getEdges = (
@@ -298,6 +317,7 @@ let getEdges = (
       switch oneToOne {
       | SingleSingle(data) => [
           makeEdge(
+            ~rule,
             ~sourceAccountId=data.source_account.account_id,
             ~targetAccountId=data.target_account.account_id,
             ~ruleTransactions,
@@ -306,6 +326,7 @@ let getEdges = (
         ]
       | SingleMany(data) => [
           makeEdge(
+            ~rule,
             ~sourceAccountId=data.source_account.account_id,
             ~targetAccountId=data.target_account.account_id,
             ~ruleTransactions,
@@ -314,6 +335,7 @@ let getEdges = (
         ]
       | ManySingle(data) => [
           makeEdge(
+            ~rule,
             ~sourceAccountId=data.source_account.account_id,
             ~targetAccountId=data.target_account.account_id,
             ~ruleTransactions,
@@ -322,6 +344,7 @@ let getEdges = (
         ]
       | ManyMany(data) => [
           makeEdge(
+            ~rule,
             ~sourceAccountId=data.source_account.account_id,
             ~targetAccountId=data.target_account.account_id,
             ~ruleTransactions,
@@ -340,6 +363,7 @@ let getEdges = (
           }
           targetAccounts->Array.map(((target, _)) =>
             makeEdge(
+              ~rule,
               ~sourceAccountId=data.source_account.account_id,
               ~targetAccountId=target.account_id,
               ~ruleTransactions,
@@ -357,9 +381,10 @@ let getTransactionsData = (
   accountTransactionData: Dict.t<accountTransactionData>,
   accountId: string,
 ): accountTransactionData => {
-  accountTransactionData
-  ->getvalFromDict(accountId)
-  ->Option.getOr(Dict.make()->accountTransactionDataToObjMapper)
+  accountTransactionData->getValueFromDict(
+    accountId,
+    Dict.make()->accountTransactionDataToObjMapper,
+  )
 }
 
 let generateNodesAndEdgesWithTransactionAmounts = (

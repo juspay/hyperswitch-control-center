@@ -1,5 +1,3 @@
-open Typography
-
 @react.component
 let make = (~id) => {
   open LogicUtils
@@ -95,20 +93,14 @@ let make = (~id) => {
     <PageLoaderWrapper
       screenState
       customUI={<NoDataFound
-        message="Payment does not exists in out record" renderType=NotFound
+        message="Transaction does not exists in out record" renderType=NotFound
       />}>
       <div className="flex flex-col gap-4">
         <TransactionDetailInfo
           currentTransactionDetails={currentExceptionsDetails}
           detailsFields=[TransactionId, Status, Variance, CreatedAt]
         />
-        <Tabs
-          tabs
-          showBorder=true
-          includeMargin=false
-          defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center ${body.md.semibold}`}
-          selectTabBottomBorderColor="bg-primary"
-        />
+        <Tabs tabs />
       </div>
     </PageLoaderWrapper>
   </div>

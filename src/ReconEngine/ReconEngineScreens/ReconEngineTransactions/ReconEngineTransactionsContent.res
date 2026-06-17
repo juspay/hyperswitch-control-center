@@ -1,7 +1,12 @@
+open ReconEngineTypes
+
 @react.component
-let make = (~account: ReconEngineTypes.accountType) => {
+let make = (
+  ~account: accountType,
+  ~accountData: array<accountType>,
+  ~reconRulesList: array<ReconEngineRulesTypes.rulePayload>,
+) => {
   open LogicUtils
-  open ReconEngineTypes
   open ReconEngineTransactionsUtils
   open ReconEngineFilterUtils
   open HierarchicalTransactionsTableEntity
@@ -17,6 +22,7 @@ let make = (~account: ReconEngineTypes.accountType) => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (selectedRows, setSelectedRows) = React.useState(_ => [])
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let dateDropDownTriggerMixpanelCallback = () => {
     mixpanelEvent(~eventName="recon_engine_transactions_date_filter_opened")
@@ -27,13 +33,22 @@ let make = (~account: ReconEngineTypes.accountType) => {
     let filteredList = if searchText->isNonEmptyString {
       arr->Array.filter((obj: Nullable.t<transactionType>) => {
         switch Nullable.toOption(obj) {
-        | Some(obj) =>
-          isContainingStringLowercase(obj.transaction_id, searchText) ||
-          isContainingStringLowercase(
-            obj.transaction_status->TransactionsTableEntity.getDomainTransactionStatusString,
-            searchText,
-          ) ||
-          obj.entries->Array.some(entry => isContainingStringLowercase(entry.order_id, searchText))
+        | Some(obj) => {
+            let transactionFlowType = getTransactionFlowType(
+              ~transaction=obj,
+              ~reconRulesList,
+              ~accountData,
+            )
+            isContainingStringLowercase(obj.transaction_id, searchText) ||
+            isContainingStringLowercase(
+              obj.transaction_status->TransactionsTableEntity.getDomainTransactionStatusString,
+              searchText,
+            ) ||
+            isContainingStringLowercase((transactionFlowType :> string), searchText) ||
+            obj.entries->Array.some(
+              entry => isContainingStringLowercase(entry.order_id, searchText),
+            )
+          }
         | None => false
         }
       })
@@ -184,8 +199,10 @@ let make = (~account: ReconEngineTypes.accountType) => {
         entity={HierarchicalTransactionsTableEntity.hierarchicalTransactionsLoadedTableEntity(
           `v1/recon-engine/transactions`,
           ~authorization=Access,
+          ~reconRulesList,
+          ~accountData,
         )}
-        resultsPerPage=6
+        resultsPerPage=3
         offset
         setOffset
         currentFetchCount={filteredTransactionsData->Array.length}
@@ -198,17 +215,30 @@ let make = (~account: ReconEngineTypes.accountType) => {
         tableheadingClass="bg-gray-50"
         showAutoScroll=true
         hideCustomisableColumnButton=true
-        customSeparation=[(2, 3)]
+        customSeparation=[(3, 4)]
         filters={<TableSearchFilter
           data={configuredTransactions->Array.map(Nullable.make)}
           filterLogic
-          placeholder="Search Transaction ID or Order ID or Status"
+          placeholder="Search Transaction ID or Order ID or Status or Type"
           searchVal=searchText
           setSearchVal=setSearchText
           customSearchBarWrapperWidth="w-full lg:w-1/3"
           customInputBoxWidth="w-full rounded-xl"
         />}
+        checkBoxProps={{
+          showCheckBox: true,
+          selectedData: selectedRows,
+          setSelectedData: setSelectedRows,
+        }}
       />
+      <RenderIf condition={selectedRows->isNonEmptyArray}>
+        <ReconEngineTransactionsBulkActions
+          selectedRows={selectedRows->Array.map(json => json->Identity.jsonToAnyType)}
+          setSelectedRows
+          showPostButton=true
+          refreshList={() => fetchTransactionsData()->ignore}
+        />
+      </RenderIf>
     </PageLoaderWrapper>
   </div>
 }

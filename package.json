@@ -27,6 +27,7 @@
     "pw:codegen": "playwright codegen",
     "pw:debug": "playwright test --debug",
     "pw:report": "playwright show-report",
+    "pw:coverage": "cross-env CI=1 PW_COVERAGE=1 playwright test",
     "lint:hooks": "eslint src/ --max-warnings 0",
     "lint:fix": "eslint src/ --fix && prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
@@ -100,8 +101,7 @@
     "react-dom": "18.3.1",
     "react-final-form": "^6.5.9",
     "react-ga4": "^2.0.0",
-    "react-pdf": "^9.1.1",
-    "react-qr-code": "^2.0.12",
+    "react-qr-code": "2.0.21",
     "react-syntax-highlighter": "^15.5.0",
     "react-window": "^1.8.8",
     "recoil": "^0.1.2",

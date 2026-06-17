@@ -126,6 +126,7 @@ let mapPaymentMethodTypeValues = (
   payment_method_types_index: pmtIndex,
   merchant_connector_id: connectorPayload.id,
   connector_name: connectorPayload.connector_name,
+  connector_label: connectorPayload.connector_label,
   profile_id: connectorPayload.profile_id,
   payment_method: paymentMethod,
   payment_method_type: paymentMethodType.payment_method_subtype,
@@ -217,20 +218,20 @@ let filterItemObjMapper = (
 
 let initialFilters = (
   configuredConnectors: array<PaymentMethodConfigTypes.paymentMethodConfiguration>,
-  businessProfiles,
-  ~profileId,
+  businessProfiles: BusinessProfileInterfaceTypes.commonProfileEntity,
 ): array<EntityType.initialFilters<'t>> => {
   open FormRenderer
 
-  open BusinessProfileInterfaceTypesV1
-  let businessProfileNameDropDownOption = arrBusinessProfile =>
-    arrBusinessProfile->Array.map(ele => {
-      let obj: FilterSelectBox.dropdownOption = {
-        label: {`${ele.profile_name} (${profileId})`},
-        value: profileId,
-      }
-      obj
-    })
+  open BusinessProfileInterfaceTypes
+  let businessProfileNameDropDownOption = (
+    b: BusinessProfileInterfaceTypes.commonProfileEntity,
+  ) => {
+    let obj: FilterSelectBox.dropdownOption = {
+      label: {`${b.profile_name} (${b.profile_id})`},
+      value: b.profile_id,
+    }
+    [obj]
+  }
 
   [
     {

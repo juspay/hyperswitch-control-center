@@ -68,13 +68,7 @@ let make = () => {
         </div>
       </RenderIf>
       <RenderIf condition={reconRulesList->Array.length > 0}>
-        <Tabs
-          tabs
-          showBorder=true
-          includeMargin=false
-          defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center ${body.md.semibold}`}
-          selectTabBottomBorderColor="bg-primary"
-        />
+        <Tabs tabs />
       </RenderIf>
     </PageLoaderWrapper>
   </div>

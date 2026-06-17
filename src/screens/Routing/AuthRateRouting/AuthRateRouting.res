@@ -15,7 +15,7 @@ let make = (
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let businessProfileValues =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (profile, setProfile) = React.useState(_ => profileId)
   let (initialValues, setInitialValues) = React.useState(_ => initialValues)
@@ -222,18 +222,30 @@ let make = (
     let decisionEngineConfigs = dict->getDictfromDict("decision_engine_configs")
     let formErrors = Dict.make()
     let decisionEngineErrors = Dict.make()
+    let cannotExceedError = "Cannot exceed 100"->JSON.Encode.string
 
     requiredConfigKeys->Array.forEach(key => {
       switch key {
-      | BucketSize
-      | ExplorationPercent =>
+      | BucketSize =>
         if decisionEngineConfigs->getInt(getFormFieldKey(key), -1) == -1 {
           decisionEngineErrors->Dict.set(getFormFieldKey(key), "Required"->JSON.Encode.string)
           formErrors->Dict.set("decision_engine_configs", decisionEngineErrors->JSON.Encode.object)
         }
+      | ExplorationPercent =>
+        let value = decisionEngineConfigs->getInt(getFormFieldKey(key), -1)
+        if value == -1 {
+          decisionEngineErrors->Dict.set(getFormFieldKey(key), "Required"->JSON.Encode.string)
+          formErrors->Dict.set("decision_engine_configs", decisionEngineErrors->JSON.Encode.object)
+        } else if value > 100 {
+          decisionEngineErrors->Dict.set(getFormFieldKey(key), cannotExceedError)
+          formErrors->Dict.set("decision_engine_configs", decisionEngineErrors->JSON.Encode.object)
+        }
       | RolloutPercent =>
-        if dict->getInt(key->getFormFieldKey, -1) == -1 {
+        let value = dict->getInt(key->getFormFieldKey, -1)
+        if value == -1 {
           formErrors->Dict.set(key->getFormFieldKey, "Required"->JSON.Encode.string)
+        } else if value > 100 {
+          formErrors->Dict.set(key->getFormFieldKey, cannotExceedError)
         }
       }
     })
@@ -244,8 +256,11 @@ let make = (
   let formFields = allFormFields->Array.mapWithIndex((field, index) => {
     <FormRenderer.FieldRenderer
       key={Int.toString(index)}
+      showErrorOnChange=true
       field={FormRenderer.makeFieldInfo(
         ~label=getFormFieldLabel(field),
+        ~description=getFormFieldDescription(field),
+        ~toolTipPosition=ToolTip.Right,
         ~isRequired=requiredFormFields->Array.includes(field),
         ~name=getFormFieldName(field),
         ~customInput=InputFields.numericTextInput(~precision=-1, ~isDisabled=disableFields),
@@ -271,28 +286,27 @@ let make = (
             onSubmit={(values, _) => onSubmit(values, true)}
             initialValues
             validate={values => validateForm(values, requiredConfigKeys)}>
-            <div className="w-full flex justify-between">
-              <BasicDetailsForm.BusinessProfileInp
-                setProfile={setProfile}
-                profile={profile}
-                options={MerchantAccountUtils.businessProfileNameDropDownOption(
-                  [businessProfileValues],
-                  ~profileId,
-                )}
-                label="Profile"
-              />
-            </div>
-            <div
-              className="flex flex-col gap-4 mt-5 mb-6 p-4 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850">
-              <div>
-                <div className="font-bold py-2">
-                  {"Intelligent Routing Configuration"->React.string}
-                </div>
-                <div className="w-full text-jp-gray-700 dark:text-jp-gray-700 text-justify">
-                  {"Dynamically route payments to maximise payment authorization rates."->React.string}
-                </div>
+            <div className="flex flex-col gap-6">
+              <div className="w-full flex justify-between">
+                <BasicDetailsForm.BusinessProfileInp
+                  setProfile={setProfile}
+                  profile={profile}
+                  options={MerchantAccountUtils.businessProfileNameDropDownOption(
+                    businessProfileValues,
+                  )}
+                  label="Profile"
+                />
               </div>
-              <div className="max-w-[500px]"> {formFields->React.array} </div>
+              <AlertV2Binding
+                alertType=Primary
+                slot={{
+                  slot: <Icon name="nd-info-circle" size=20 className="text-nd_primary_blue-500" />,
+                }}
+                description="Auth rate routing continuously learns from recent authorization outcomes and sends each payment to the processor most likely to succeed. Use the settings below to control how it learns and how much of your traffic it manages."
+              />
+              <div className="border border-nd_gray-150 bg-nd_gray-25 rounded-lg p-4 max-w-700">
+                {formFields->React.array}
+              </div>
             </div>
             <div>
               {switch pageState {
@@ -329,7 +343,7 @@ let make = (
                 </div>
               | Create =>
                 <div className="mt-5">
-                  <RoutingUtils.ConfigureRuleButton setShowModal />
+                  <RoutingUtils.ConfigureRuleButton setShowModal customButtonStyle="ml-1" />
                 </div>
               | _ => React.null
               }}
@@ -352,7 +366,6 @@ let make = (
                 iconSize=35
               />
             </div>
-            <FormValuesSpy />
           </Form>
         : <NoDataFound message="Please configure at least 1 connector" renderType=InfoBox />}
     </PageLoaderWrapper>

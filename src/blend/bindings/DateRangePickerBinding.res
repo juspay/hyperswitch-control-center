@@ -1,6 +1,6 @@
 type dateRange = {
-  startDate: Js.Date.t,
-  endDate: Js.Date.t,
+  startDate: Date.t,
+  endDate: option<Date.t>,
 }
 
 module DateRangePreset = {
@@ -16,15 +16,21 @@ module DateRangePreset = {
 }
 
 type customPresetDefinition = {
+  id: string,
   label: string,
-  startDate: Js.Date.t,
-  endDate: Js.Date.t,
+  getDateRange: unit => dateRange,
+}
+
+type customPresetConfig = {
+  preset: string,
+  visible: bool,
 }
 
 module PresetsConfig = {
   type t
-  external fromPreset: string => t = "%identity"
+  external fromCustomConfig: customPresetConfig => t = "%identity"
   external fromCustom: customPresetDefinition => t = "%identity"
+  let fromPreset = (preset: string): t => fromCustomConfig({preset, visible: true})
 }
 
 @module("@juspay/blend-design-system") @react.component
@@ -36,4 +42,9 @@ external make: (
   ~disableFutureDates: bool=?,
   ~disablePastDates: bool=?,
   ~customPresets: array<PresetsConfig.t>=?,
+  ~minDate: Date.t=?,
+  ~maxDate: Date.t=?,
+  ~isSingleDatePicker: bool=?,
+  ~allowSingleDateSelection: bool=?,
+  ~showPresets: bool=?,
 ) => React.element = "DateRangePicker"

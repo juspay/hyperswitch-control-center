@@ -163,6 +163,9 @@ let keyExpiryCustomDate = FormRenderer.makeFieldInfo(
   ~customInput=InputFields.singleDatePickerInput(
     ~disablePastDates=true,
     ~format="YYYY-MM-DDTHH:mm:ss.SSS[Z]",
+    ~currentDateHourFormat="23",
+    ~currentDateMinuteFormat="59",
+    ~currentDateSecondsFormat="59",
   ),
 )
 
@@ -266,7 +269,7 @@ module ErrorUI = {
         </div>
         <div
           className="whitespace-pre-line flex flex-col gap-1 p-2 ml-4 text-fs-13 dark:text-jp-gray-text_darktheme dark:text-opacity-50">
-          {`Unable to ${text} a API key. Please try again later.`->React.string}
+          {`Unable to ${text} an API key. Please try again later.`->React.string}
         </div>
       </div>
     </div>

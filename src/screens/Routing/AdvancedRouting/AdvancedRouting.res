@@ -8,7 +8,7 @@ external toWasm: Dict.t<JSON.t> => RoutingTypes.wasmModule = "%identity"
 module Add3DSCondition = {
   @react.component
   let make = (~isFirst, ~id, ~isExpanded, ~threeDsType) => {
-    let classStyle = "flex justify-center relative py-2.5 h-fit min-w-min hover:bg-jp-2-light-gray-100 focus:outline-none  rounded-md items-center border-2 border-border_gray border-opacity-50 text-jp-2-light-gray-1200 px-4 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] overflow-hidden"
+    let classStyle = "flex justify-center relative py-2.5 h-fit min-w-min hover:bg-jp-2-light-gray-100 focus:outline-none  rounded-md items-center border border-nd_gray-200 text-jp-2-light-gray-1200 px-4 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] overflow-hidden"
 
     let options: array<SelectBox.dropdownOption> = [
       {value: "three_ds", label: "3DS"},
@@ -21,21 +21,24 @@ module Add3DSCondition = {
           <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
         </RenderIf>
         <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
-          <div className="flex flex-wrap gap-4 -mt-2">
+          <div className="flex flex-wrap gap-4 -mt-2 items-center">
             <div className=classStyle> {"Auth type"->React.string} </div>
-            <div className=classStyle> {"= is Equal to"->React.string} </div>
-            <FormRenderer.FieldRenderer
-              field={FormRenderer.makeFieldInfo(
-                ~label="",
-                ~name=`${id}.connectorSelection.override_3ds`,
-                ~customInput=InputFields.selectInput(
-                  ~options,
-                  ~buttonText="Select Field",
-                  ~customButtonStyle=`!-mt-5 ${classStyle} !py-0 !rounded-md`,
-                  ~deselectDisable=true,
-                ),
-              )}
-            />
+            <div className=classStyle> {"= (is equal to)"->React.string} </div>
+            <LabelVisibilityContext showLabel=false>
+              <FormRenderer.FieldRenderer
+                fieldWrapperClass="flex flex-col"
+                field={FormRenderer.makeFieldInfo(
+                  ~label="",
+                  ~name=`${id}.connectorSelection.override_3ds`,
+                  ~customInput=InputFields.selectInput(
+                    ~options,
+                    ~buttonText="Select Field",
+                    ~customButtonStyle=`${classStyle} !py-0 !rounded-md`,
+                    ~deselectDisable=true,
+                  ),
+                )}
+              />
+            </LabelVisibilityContext>
           </div>
         </div>
       </div>
@@ -48,7 +51,7 @@ module Add3DSCondition = {
 module Add3DSConditionForThreeDsExemption = {
   @react.component
   let make = (~isFirst, ~id, ~isExpanded, ~threeDsType) => {
-    let classStyle = "flex justify-center relative py-2.5 h-fit min-w-min hover:bg-jp-2-light-gray-100 focus:outline-none  rounded-md items-center border-2 border-border_gray border-opacity-50 text-jp-2-light-gray-1200 px-4 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] overflow-hidden"
+    let classStyle = "flex justify-center relative py-2.5 h-fit min-w-min hover:bg-jp-2-light-gray-100 focus:outline-none  rounded-md items-center border border-nd_gray-200 text-jp-2-light-gray-1200 px-4 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] overflow-hidden"
 
     let options: array<SelectBox.dropdownOption> = [
       {value: "no_three_ds", label: "Request No-3DS"},
@@ -68,21 +71,24 @@ module Add3DSConditionForThreeDsExemption = {
           <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
         </RenderIf>
         <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
-          <div className="flex flex-wrap gap-4 -mt-2">
+          <div className="flex flex-wrap gap-4 -mt-2 items-center">
             <div className=classStyle> {"Auth type"->React.string} </div>
-            <div className=classStyle> {"= is Equal to"->React.string} </div>
-            <FormRenderer.FieldRenderer
-              field={FormRenderer.makeFieldInfo(
-                ~label="",
-                ~name=`${id}.connectorSelection.override_3ds`,
-                ~customInput=InputFields.selectInput(
-                  ~options,
-                  ~buttonText="Select Field",
-                  ~customButtonStyle=`!-mt-5 ${classStyle} !py-0 !rounded-md`,
-                  ~deselectDisable=true,
-                ),
-              )}
-            />
+            <div className=classStyle> {"= (is equal to)"->React.string} </div>
+            <LabelVisibilityContext showLabel=false>
+              <FormRenderer.FieldRenderer
+                fieldWrapperClass="flex flex-col"
+                field={FormRenderer.makeFieldInfo(
+                  ~label="",
+                  ~name=`${id}.connectorSelection.override_3ds`,
+                  ~customInput=InputFields.selectInput(
+                    ~options,
+                    ~buttonText="Select Field",
+                    ~customButtonStyle=`${classStyle} !py-0 !rounded-md`,
+                    ~deselectDisable=true,
+                  ),
+                )}
+              />
+            </LabelVisibilityContext>
           </div>
         </div>
       </div>
@@ -131,46 +137,49 @@ module AddSurchargeCondition = {
           <RenderIf condition={!isFirst}>
             <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
           </RenderIf>
-          <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
-            <div className="flex flex-wrap gap-4">
+          <LabelVisibilityContext showLabel=false>
+            <div
+              className="grid grid-cols-[max-content_max-content_max-content] gap-x-4 gap-y-6 mt-6 mb-4 pt-0.5 items-center w-fit">
               <div className=classStyle> {"Surcharge is"->React.string} </div>
               <FormRenderer.FieldRenderer
+                fieldWrapperClass="flex flex-col"
                 field={FormRenderer.makeFieldInfo(
                   ~label="",
                   ~name=`${id}.connectorSelection.surcharge_details.surcharge.type`,
                   ~customInput=InputFields.selectInput(
                     ~options,
                     ~buttonText="Select Surcharge Type",
-                    ~customButtonStyle=`!-mt-5 ${classStyle} !p-0 !rounded-md`,
+                    ~customButtonStyle=`${classStyle} !p-0 !rounded-md`,
                     ~deselectDisable=true,
                     ~textStyle="!px-2 !py-2",
                   ),
                 )}
               />
               <FormRenderer.FieldRenderer
+                fieldWrapperClass="flex flex-col"
                 field={FormRenderer.makeFieldInfo(
                   ~label="",
                   ~name=`${id}.connectorSelection.surcharge_details.surcharge.value.${surchargeValueType}`,
-                  ~customInput=InputFields.numericTextInput(~customStyle="!-mt-5", ~precision=2),
+                  ~customInput=InputFields.numericTextInput(~precision=2),
                 )}
               />
-            </div>
-            <div className="flex flex-wrap gap-4">
               <div className=classStyle> {"Tax on Surcharge"->React.string} </div>
-              <FormRenderer.FieldRenderer
-                field={FormRenderer.makeFieldInfo(
-                  ~label="",
-                  ~name=`${id}.connectorSelection.surcharge_details.tax_on_surcharge.percentage`,
-                  ~customInput=InputFields.numericTextInput(
-                    ~precision=2,
-                    ~customStyle="!-mt-5",
-                    ~rightIcon=<Icon name="percent" size=16 />,
-                    ~rightIconCustomStyle="-ml-7 -mt-5",
-                  ),
-                )}
-              />
+              <div className="col-span-2">
+                <FormRenderer.FieldRenderer
+                  fieldWrapperClass="flex flex-col"
+                  field={FormRenderer.makeFieldInfo(
+                    ~label="",
+                    ~name=`${id}.connectorSelection.surcharge_details.tax_on_surcharge.percentage`,
+                    ~customInput=InputFields.numericTextInput(
+                      ~precision=2,
+                      ~rightIcon=<Icon name="percent" size=16 />,
+                      ~rightIconCustomStyle="-ml-7",
+                    ),
+                  )}
+                />
+              </div>
             </div>
-          </div>
+          </LabelVisibilityContext>
         </div>
       } else {
         <RulePreviewer.SurchargeCompressedView
@@ -319,7 +328,7 @@ module Wrapper = {
       </div>
 
     <div className="flex flex-col">
-      <div className={`flex flex-row tems-center justify-between z-10 -mt-6 mx-2`}>
+      <div className={`flex flex-row justify-between z-10 -mt-6 mx-2`}>
         <RenderIf condition={!isMobileView}>
           <div className="hidden lg:flex w-1/3" />
         </RenderIf>
@@ -691,7 +700,7 @@ let make = (
       setScreenState(_ => Loading)
       let activateRuleURL = getURL(~entityName=urlEntityName, ~methodType=Post, ~id=activatingId)
       let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post)
-      showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess)
+      showToast(~message="Successfully activated!", ~toastType=ToastState.ToastSuccess)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`))
       setScreenState(_ => Success)
     } catch {
@@ -720,7 +729,7 @@ let make = (
       let deactivateRoutingURL = `${getURL(~entityName=urlEntityName, ~methodType=Post)}/deactivate`
       let body = [("profile_id", profile->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
       let _ = await updateDetails(deactivateRoutingURL, body, Post)
-      showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess)
+      showToast(~message="Successfully deactivated!", ~toastType=ToastState.ToastSuccess)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`))
       setScreenState(_ => Success)
     } catch {
@@ -784,7 +793,7 @@ let make = (
       let response = await updateDetails(getActivateUrl, payload->Identity.genericTypeToJson, Post)
 
       showToast(
-        ~message="Successfully Created a new Configuration !",
+        ~message="Successfully created a new configuration!",
         ~toastType=ToastState.ToastSuccess,
       )
       setScreenState(_ => Success)

@@ -9,7 +9,7 @@ let make = () => {
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
   let formValues = formState.values->LogicUtils.getDictFromJsonObject
-  let (_, sidebarFromForm, buttonsFromForm) = getThemeFormValues(~formValues)
+  let (colorsFromForm, sidebarFromForm, buttonsFromForm) = getThemeFormValues(~formValues)
 
   <div className="bg-white rounded-lg overflow-hidden w-full shadow-xl h-3/4">
     <div className="flex h-full">
@@ -59,6 +59,7 @@ let make = () => {
           </span>
           <div className={`flex flex-row gap-2 mt-2 ${body.xs.semibold}`}>
             <button
+              type_="button"
               className="px-2 py-3 h-4 rounded flex items-center justify-between cursor-pointer"
               style={ReactDOM.Style.make(
                 ~backgroundColor=buttonsFromForm.primary.backgroundColor,
@@ -68,6 +69,7 @@ let make = () => {
               {React.string(mockValues.primaryButtonText)}
             </button>
             <button
+              type_="button"
               className="px-2 py-3 rounded h-4 flex justify-between items-center cursor-pointer"
               style={ReactDOM.Style.make(
                 ~backgroundColor=buttonsFromForm.secondary.backgroundColor,
@@ -78,6 +80,11 @@ let make = () => {
             </button>
           </div>
         </div>
+        <span
+          className={`px-2 mt-2 cursor-pointer ${body.xs.semibold}`}
+          style={ReactDOM.Style.make(~color=colorsFromForm.primary, ())}>
+          {React.string(mockValues.linkText)}
+        </span>
       </div>
     </div>
   </div>
