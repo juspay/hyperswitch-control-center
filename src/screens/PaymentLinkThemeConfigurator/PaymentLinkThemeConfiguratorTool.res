@@ -35,8 +35,8 @@ module ConfiguratorForm = {
     let (previewLoading, setPreviewLoading) = React.useState(_ => true)
     let (previewHtml, setPreviewHtml) = React.useState(_ => "")
     let (previewError, setPreviewError) = React.useState(_ => None)
-    let (paymentMethodsResponse, setPaymentMethodsResponse) = React.useState(() => None)
-    let (wasmReady, setWasmReady) = React.useState(() => false)
+    let (paymentMethodsResponse, setPaymentMethodsResponse) = React.useState(_ => None)
+    let (wasmReady, setWasmReady) = React.useState(_ => false)
 
     React.useEffect(() => {
       setInitialValues(_ => initialFormValues)
@@ -75,7 +75,13 @@ module ConfiguratorForm = {
         let _ = await Window.paymentLinkWasmInit()
         setWasmReady(_ => true)
       } catch {
-      | _ => ()
+      | _ => {
+          setWasmReady(_ => false)
+          setPreviewLoading(_ => false)
+          setPreviewError(_ => Some(
+            "Failed to initialize payment link preview. Please refresh the page.",
+          ))
+        }
       }
     }
 
