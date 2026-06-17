@@ -23,17 +23,12 @@ export const pmAuthProcessorConfig: Record<string, ConnectorConfig> = {
       overrides: {
         "Enter Connector label": "plaid_default",
       },
-      fieldLabels: [
-        "client_id *",
-        "secret *",
-      ],
+      fieldLabels: ["client_id *", "secret *"],
     },
     paymentSections: {
       OpenBanking: {
         label: "Open Banking",
-        methods: [
-          "open_banking_pis",
-        ],
+        methods: ["open_banking_pis"],
       },
     },
   },

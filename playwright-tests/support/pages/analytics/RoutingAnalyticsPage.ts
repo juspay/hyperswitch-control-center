@@ -45,15 +45,21 @@ export class RoutingAnalyticsPage {
   }
 
   get leastCostDebitRoutedTransactionsCard(): Locator {
-    return this.page.getByText("Debit Routed Transactions", { exact: true }).first();
+    return this.page
+      .getByText("Debit Routed Transactions", { exact: true })
+      .first();
   }
 
   get leastCostRegulatedCard(): Locator {
-    return this.page.getByText("Regulated Transactions Percentage", { exact: true }).first();
+    return this.page
+      .getByText("Regulated Transactions Percentage", { exact: true })
+      .first();
   }
 
   get leastCostUnregulatedCard(): Locator {
-    return this.page.getByText("Unregulated Transactions Percentage", { exact: true }).first();
+    return this.page
+      .getByText("Unregulated Transactions Percentage", { exact: true })
+      .first();
   }
 
   // ---- Least Cost Routing tab — Distribution section ----
@@ -71,7 +77,10 @@ export class RoutingAnalyticsPage {
 
   // ---- Least Cost Routing tab — Summary Table section ----
   get leastCostSummaryHeading(): Locator {
-    return this.page.getByText("Summary Table", { exact: true }).first();
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^Mastercard$/ })
+      .first();
   }
 
   // A column header in the Least Cost summary LoadedTable, matched on its exact
@@ -83,11 +92,15 @@ export class RoutingAnalyticsPage {
   // ---- Routing Metrics KPI cards (RoutingAnalyticsMetrics) ----
   // Each card is matched on its stable display-name label text.
   get overallAuthorizationRateCard(): Locator {
-    return this.page.getByText("Overall Authorization Rate", { exact: true }).first();
+    return this.page
+      .getByText("Overall Authorization Rate", { exact: true })
+      .first();
   }
 
   get firstAttemptAuthorizationRateCard(): Locator {
-    return this.page.getByText("First Attempt Authorization Rate (FAAR)", { exact: true }).first();
+    return this.page
+      .getByText("First Attempt Authorization Rate (FAAR)", { exact: true })
+      .first();
   }
 
   get totalSuccessfulCard(): Locator {
@@ -109,21 +122,34 @@ export class RoutingAnalyticsPage {
   }
 
   // ---- Routing Distribution section (RoutingAnalyticsDistribution) ----
+  get performanceSummary(): Locator {
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^Rule Based$/ })
+      .first();
+  }
+
   get distributionHeading(): Locator {
-    return this.page.getByText("Routing Distribution", { exact: true }).first();
+    return this.page.getByText("Routing Distribution");
   }
 
   get connectorVolumeDistribution(): Locator {
-    return this.page.getByText("Connector Volume Distribution", { exact: true }).first();
+    return this.page
+      .getByText("Connector Volume Distribution", { exact: true })
+      .first();
   }
 
   get routingLogicDistribution(): Locator {
-    return this.page.getByText("Routing Logic Distribution", { exact: true }).first();
+    return this.page
+      .getByText("Routing Logic Distribution", { exact: true })
+      .first();
   }
 
   // ---- Routing Logic Performance Summary table (RoutingAnalyticsSummary) ----
   get summaryHeading(): Locator {
-    return this.page.getByText("Routing Logic Performance Summary", { exact: true }).first();
+    return this.page
+      .getByText("Routing Logic Performance Summary", { exact: true })
+      .first();
   }
 
   // A column header in the summary CustomExpandableTable. Each heading cell
@@ -134,7 +160,9 @@ export class RoutingAnalyticsPage {
 
   // ---- Routing Trends section (RoutingAnalyticsTrends) ----
   get trendsHeading(): Locator {
-    return this.page.getByText("Time Series Distribution", { exact: true }).first();
+    return this.page
+      .getByText("Time Series Distribution", { exact: true })
+      .first();
   }
 
   get successOverTime(): Locator {
@@ -153,7 +181,9 @@ export class RoutingAnalyticsPage {
 
   // ---- Error state (PageLoaderWrapper Error -> DefaultLandingPage) ----
   get errorTitle(): Locator {
-    return this.page.getByText("Oops, we hit a little bump on the road!", { exact: true });
+    return this.page.getByText("Oops, we hit a little bump on the road!", {
+      exact: true,
+    });
   }
 
   get refreshButton(): Locator {
@@ -192,18 +222,25 @@ export class RoutingAnalyticsPage {
   // dimension is picked from the Add Filters popup. Keyed by the snake_case
   // field name (e.g. "connector", "routing_approach").
   selectedFilterChip(fieldKey: string): Locator {
-    return this.page.locator(`[data-component-field-wrapper="field-${fieldKey}"]`);
+    return this.page.locator(
+      `[data-component-field-wrapper="field-${fieldKey}"]`,
+    );
   }
 
   // The remove (cross) control inside a selected filter chip.
   clearFilterChipIcon(fieldKey: string): Locator {
-    return this.selectedFilterChip(fieldKey).locator('[data-icon="cross-outline"]');
+    return this.selectedFilterChip(fieldKey).locator(
+      '[data-icon="cross-outline"]',
+    );
   }
 
   // Remove a selected filter chip and wait for it to detach.
   async clearFilterChip(fieldKey: string): Promise<void> {
     await this.clearFilterChipIcon(fieldKey).click();
-    await this.selectedFilterChip(fieldKey).waitFor({ state: "detached", timeout: 10000 });
+    await this.selectedFilterChip(fieldKey).waitFor({
+      state: "detached",
+      timeout: 10000,
+    });
   }
 
   // ---- OMP (org/merchant/profile) view switcher ----
@@ -233,7 +270,9 @@ export class RoutingAnalyticsPage {
 
   // The predefined-options column inside the open date picker dropdown.
   get predefinedDateOptions(): Locator {
-    return this.page.locator('[data-date-picker-predefined="predefined-options"]');
+    return this.page.locator(
+      '[data-date-picker-predefined="predefined-options"]',
+    );
   }
 
   // A single preset row (e.g. "Last 7 Days", "Last 30 Days", "This Month").
@@ -260,13 +299,19 @@ export class RoutingAnalyticsPage {
     for (let attempt = 0; attempt < 3; attempt++) {
       await this.dateRangeSelector.click({ timeout: 10000 });
       try {
-        await this.predefinedDateOptions.waitFor({ state: "visible", timeout: 4000 });
+        await this.predefinedDateOptions.waitFor({
+          state: "visible",
+          timeout: 4000,
+        });
         return;
       } catch {
         await this.page.waitForTimeout(300);
       }
     }
-    await this.predefinedDateOptions.waitFor({ state: "visible", timeout: 8000 });
+    await this.predefinedDateOptions.waitFor({
+      state: "visible",
+      timeout: 8000,
+    });
   }
 
   async selectPredefinedRange(label: string): Promise<void> {
