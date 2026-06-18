@@ -16,48 +16,65 @@ let make = () => {
     failedTransformationHistoryList,
     setFailedTransformationHistoryList,
   ) = React.useState(_ => [])
+  let (manualReviewStagingEntries, setManualReviewStagingEntries) = React.useState(_ => [])
 
   let fetchOverviewRules = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let queryParams = ReconEngineRevampedUtils.getQueryParamFromFilters(~filterValueJson)
-      let url = getURL(
+      let overviewRulesUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~hyperswitchReconType=#OVERVIEW_RULES,
         ~methodType=Get,
         ~queryParameters=Some(queryParams),
       )
-      let overviewRes = await fetchDetails(url)
-
       let queryString =
         queryParams->isNonEmptyString ? `${queryParams}&status=failed` : "status=failed"
 
-      let overviewRules = overviewRes->getArrayDataFromJson(overviewRulesResponseMapper)
       let ingestionHistoryUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#INGESTION_HISTORY,
         ~queryParameters=Some(queryString),
       )
-      let failedIngestionHistoryListRes = await fetchDetails(ingestionHistoryUrl)
-      let failedIngestionHistory =
-        failedIngestionHistoryListRes->getArrayDataFromJson(overviewIngestionHistoryResponseMapper)
-
       let transformationHistoryUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
         ~queryParameters=Some(queryString),
       )
-      let failedTransformationHistoryListRes = await fetchDetails(transformationHistoryUrl)
+      let manualReviewUrl = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
+        ~queryParameters=Some(`${queryParams}&status=needs_manual_review`),
+      )
+      let results = await Promise.all([
+        fetchDetails(overviewRulesUrl),
+        fetchDetails(ingestionHistoryUrl),
+        fetchDetails(transformationHistoryUrl),
+        fetchDetails(manualReviewUrl),
+      ])
+
+      let overviewRes = results->Array.get(0)->Option.getExn
+      let failedIngestionHistoryListRes = results->Array.get(1)->Option.getExn
+      let failedTransformationHistoryListRes = results->Array.get(2)->Option.getExn
+      let manualReviewStagingEntriesRes = results->Array.get(3)->Option.getExn
+
+      let overviewRules = overviewRes->getArrayDataFromJson(overviewRulesResponseMapper)
+      let failedIngestionHistory =
+        failedIngestionHistoryListRes->getArrayDataFromJson(overviewIngestionHistoryResponseMapper)
       let failedTransformationHistory =
         failedTransformationHistoryListRes->getArrayDataFromJson(
           overviewTransformationHistoryResponseMapper,
         )
+      let manualReviewStagingEntries =
+        manualReviewStagingEntriesRes->getArrayDataFromJson(overviewStagingEntryResponseMapper)
 
       setOverviewRules(_ => overviewRules)
       setFailedIngestionHistoryList(_ => failedIngestionHistory)
       setFailedTransformationHistoryList(_ => failedTransformationHistory)
+      setManualReviewStagingEntries(_ => manualReviewStagingEntries)
 
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -73,7 +90,7 @@ let make = () => {
   }, [filterValue])
 
   let (statCards, connectedStatCards) = React.useMemo(() => {
-    let statCards = getStatCards(~overviewRules)
+    let statCards = getStatCards(~overviewRules, ~manualReviewStagingEntries)
     let connectedStatCards = getConnectedStatCards(
       ~overviewRules,
       ~failedIngestionHistoryList,

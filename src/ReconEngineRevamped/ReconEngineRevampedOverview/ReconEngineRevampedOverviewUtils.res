@@ -92,20 +92,63 @@ let getValueAtRisk = (~overviewRules: array<overviewRulesResponse>) =>
   })
 
 let getOpenExceptions = (~overviewRules: array<overviewRulesResponse>) => {
-  let totalCount = getTotalCount(~overviewRules)
-  let matchedCount = overviewRules->Array.reduce(0, (acc, rule) => {
-    let matchedCount = rule.statuses->Array.reduce(0, (statusAcc, status) => {
+  overviewRules->Array.reduce(0, (acc, rule) => {
+    let exceptionCount = rule.statuses->Array.reduce(0, (statusAcc, status) => {
       switch status.status {
-      | MatchedAuto | MatchedManual | MatchedForce | MatchedWithTolerance | PostedManual =>
+      | OverAmountExpected
+      | UnderAmountExpected
+      | OverAmountMismatch
+      | UnderAmountMismatch
+      | DataMismatch
+      | CurrencyMismatch
+      | SplitMismatch
+      | PartiallyReconciled =>
         statusAcc + status.count
-      | _ => statusAcc
+      | Expected
+      | Missing
+      | PostedManual
+      | MatchedAuto
+      | MatchedManual
+      | MatchedForce
+      | MatchedWithTolerance
+      | Void
+      | Archived
+      | UnknownStatus(_) => statusAcc
       }
     })
 
-    acc + matchedCount
+    acc + exceptionCount
   })
+}
 
-  totalCount - matchedCount
+let getMatchedCount = (~overviewRules: array<overviewRulesResponse>) => {
+  overviewRules->Array.reduce(0, (acc, rule) => {
+    let exceptionCount = rule.statuses->Array.reduce(0, (statusAcc, status) => {
+      switch status.status {
+      | MatchedAuto
+      | MatchedForce
+      | MatchedWithTolerance
+      | MatchedManual
+      | PostedManual =>
+        statusAcc + status.count
+      | CurrencyMismatch
+      | SplitMismatch
+      | OverAmountExpected
+      | Expected
+      | Missing
+      | OverAmountMismatch
+      | UnderAmountExpected
+      | UnderAmountMismatch
+      | DataMismatch
+      | PartiallyReconciled
+      | Void
+      | Archived
+      | UnknownStatus(_) => statusAcc
+      }
+    })
+
+    acc + exceptionCount
+  })
 }
 
 let getOverviewChartPoint = (~label, ~tooltipLabel, ~overviewRules) => {
@@ -206,7 +249,7 @@ let getOverviewChartOptions = (
         name: "Reconciliation Volume",
         \"type": "column",
         data: points->Array.map(point => point.totalCount),
-        color: "#93BCF6",
+        color: "#A9C8F6",
         yAxis: 1,
       },
       {
@@ -214,7 +257,7 @@ let getOverviewChartOptions = (
         name: "Match Rate",
         \"type": "line",
         data: points->Array.map(point => point.matchRate),
-        color: "#247DF9",
+        color: "#2F73E0",
         yAxis: 0,
         lineWidth: 2,
       },
@@ -287,11 +330,11 @@ let getOverviewStatusDistribution = (~overviewRules: array<overviewRulesResponse
   let (reconciled, matched, exceptionCount, pending, voidCount) = counts
 
   [
-    {name: "Reconciled", count: reconciled, color: "#6fb89e"},
-    {name: "Matched", count: matched, color: "#7797cf"},
-    {name: "Exception", count: exceptionCount, color: "#d2817f"},
-    {name: "Pending", count: pending, color: "#cdac79"},
-    {name: "Void", count: voidCount, color: "#98A2B3"},
+    {name: "Reconciled", count: reconciled, color: "#4F86D9"},
+    {name: "Exception", count: exceptionCount, color: "#EA8A8F"},
+    {name: "Matched", count: matched, color: "#7AB891"},
+    {name: "Expected", count: pending, color: "#C9A35B"},
+    {name: "Void", count: voidCount, color: "#8B97A8"},
   ]
 }
 
@@ -399,10 +442,13 @@ let getCurrency = (~overviewRules: array<overviewRulesResponse>) =>
   ->Array.map(status => status.currency)
   ->getValueFromArray(0, "")
 
-let getStatCards = (~overviewRules: array<overviewRulesResponse>) => {
+let getStatCards = (
+  ~overviewRules: array<overviewRulesResponse>,
+  ~manualReviewStagingEntries: array<overviewStagingEntryResponse>,
+) => {
   let totalCount = getTotalCount(~overviewRules)
-  let matchedCount = getTotalCount(~overviewRules) - getOpenExceptions(~overviewRules)
-  let openExceptions = getOpenExceptions(~overviewRules)
+  let matchedCount = getMatchedCount(~overviewRules)
+  let openExceptions = getOpenExceptions(~overviewRules) + manualReviewStagingEntries->Array.length
   let valueAtRisk = getValueAtRisk(~overviewRules)
   let expectedValue = getExpectedValue(~overviewRules)
   let currency = getCurrency(~overviewRules)
@@ -605,5 +651,52 @@ let overviewTransformationHistoryResponseMapper = (dict): overviewTransformation
     ->transformationDataMapper,
     processed_at: dict->getString("processed_at", ""),
     created_at: dict->getString("created_at", ""),
+  }
+}
+
+let processingEntryDiscardedDataItemToObjMapper = (dataDict): processingEntryDiscardedDataType => {
+  {
+    reason: dataDict->getString("reason", ""),
+    status: dataDict->getString("status", ""),
+  }
+}
+
+let accountRefItemToObjMapper = dict => {
+  {
+    account_id: dict->getString("account_id", ""),
+    account_name: dict->getString("account_name", ""),
+  }
+}
+
+let processingEntryDataItemToObjMapper = (dataDict): processingEntryDataType => {
+  {
+    status: dataDict->getString("status", ""),
+    needs_manual_review_type: dataDict->getString("needs_manual_review_type", ""),
+  }
+}
+
+let overviewStagingEntryResponseMapper = (dict): overviewStagingEntryResponse => {
+  let discardedDataDict =
+    dict->getDictfromDict("discarded_data")->processingEntryDiscardedDataItemToObjMapper
+  {
+    id: dict->getString("id", ""),
+    staging_entry_id: dict->getString("staging_entry_id", ""),
+    account: dict
+    ->getDictfromDict("account")
+    ->accountRefItemToObjMapper,
+    entry_type: dict->getString("entry_type", ""),
+    amount: dict->getDictfromDict("amount")->getFloat("value", 0.0),
+    currency: dict->getDictfromDict("amount")->getString("currency", ""),
+    status: dict->getString("status", ""),
+    effective_at: dict->getString("effective_at", ""),
+    processing_mode: dict->getString("processing_mode", ""),
+    metadata: dict->getJsonObjectFromDict("metadata"),
+    transformation_id: dict->getString("transformation_id", ""),
+    transformation_history_id: dict->getString("transformation_history_id", ""),
+    order_id: dict->getString("order_id", ""),
+    version: dict->getInt("version", 0),
+    discarded_status: dict->getOptionString("discarded_status"),
+    data: dict->getDictfromDict("data")->processingEntryDataItemToObjMapper,
+    discarded_data: Some(discardedDataDict),
   }
 }

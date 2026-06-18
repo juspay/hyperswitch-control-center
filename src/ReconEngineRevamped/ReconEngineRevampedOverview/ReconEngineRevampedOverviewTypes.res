@@ -134,3 +134,38 @@ type overviewTransformationHistoryResponse = {
   processed_at: string,
   created_at: string,
 }
+
+type accountRefType = {
+  account_id: string,
+  account_name: string,
+}
+
+type processingEntryDataType = {
+  status: string,
+  needs_manual_review_type: string,
+}
+
+type processingEntryDiscardedDataType = {
+  status: string,
+  reason: string,
+}
+
+type overviewStagingEntryResponse = {
+  id: string,
+  staging_entry_id: string,
+  account: accountRefType,
+  entry_type: string,
+  amount: float,
+  currency: string,
+  status: string,
+  processing_mode: string,
+  metadata: Js.Json.t,
+  transformation_id: string,
+  transformation_history_id: string,
+  effective_at: string,
+  order_id: string,
+  version: int,
+  discarded_status: option<string>,
+  data: processingEntryDataType,
+  discarded_data: option<processingEntryDiscardedDataType>,
+}
