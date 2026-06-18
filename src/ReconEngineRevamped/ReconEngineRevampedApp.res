@@ -13,7 +13,9 @@ let make = () => {
     {switch url.path->urlPath {
     | list{"v1", "recon-engine", "overview"} =>
       <AccessControl isEnabled={featureFlagDetails.devReconEngineRevamped} authorization=Access>
-        <ReconEngineRevampedOverviewContainer />
+        <FilterContext key="recon-engine-revamped-overview" index="recon-engine-revamped-overview">
+          <ReconEngineRevampedOverviewContainer />
+        </FilterContext>
       </AccessControl>
     | list{"v1", "recon-engine", "inbox", ..._} =>
       <AccessControl

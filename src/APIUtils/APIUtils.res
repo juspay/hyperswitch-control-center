@@ -1227,7 +1227,7 @@ let useGetURL = () => {
           | Post => `${reconBaseURL}/staging_entries/bulk_operations`
           | _ => ""
           }
-        | #OVERVIEW_TRANSACTIONS =>
+        | #OVERVIEW_RULES =>
           switch methodType {
           | Get =>
             switch queryParameters {
@@ -1236,7 +1236,7 @@ let useGetURL = () => {
             }
           | _ => ""
           }
-        | #OVERVIEW_ENTRIES =>
+        | #OVERVIEW_ACCOUNTS =>
           switch methodType {
           | Get =>
             switch queryParameters {

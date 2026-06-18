@@ -37,7 +37,7 @@ let make = (~setShowOnBoarding, ~currentStep, ~setCurrentStep) => {
         <div
           className="absolute z-10 top-76-px left-0 w-full py-4 px-10 bg-orange-50 flex justify-between items-center">
           <div className="flex gap-4 items-center">
-            <Icon name="nd-information-triangle" size=24 />
+            <Icon name="nd-information-triangle" size=24 className="text-nd_yellow-600" />
             <p className="text-nd_gray-600 text-base leading-6 font-medium">
               {"You're viewing sample analytics to help you understand how the reports will look with real data"->React.string}
             </p>
