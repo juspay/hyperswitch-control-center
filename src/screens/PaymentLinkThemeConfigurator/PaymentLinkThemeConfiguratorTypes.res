@@ -24,6 +24,11 @@ type showCardTerms =
   | @as("auto") Auto
   | @as("never") Never
 
+type previewState =
+  | PreviewLoading
+  | PreviewError(string)
+  | PreviewSuccess(string)
+
 type background_image = {url: string}
 
 type preloadSdkWithParams = {
