@@ -70,5 +70,13 @@ let make = () => {
     <div className="mt-6">
       <ReconEngineRevampedOverviewAccountsAttention />
     </div>
+    <div className="flex flex-col lg:flex-row gap-4 mt-6">
+      <div className="w-full lg:w-3/5">
+        <ReconEngineRevampedOverviewRulesActivity />
+      </div>
+      <div className="w-full lg:w-2/5">
+        <ReconEngineRevampedOverviewPipelineFreshness />
+      </div>
+    </div>
   </div>
 }

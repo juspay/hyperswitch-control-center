@@ -115,7 +115,7 @@ let make = () => {
               )}
             />
             <div className="relative flex items-center justify-between px-3 py-2.5">
-              <span className={`${body.sm.regular} text-nd_gray-700`}>
+              <span className={`${body.sm.medium} text-nd_gray-700`}>
                 {item.label->React.string}
               </span>
               <span className={`${body.sm.semibold} text-nd_gray-800`}>
