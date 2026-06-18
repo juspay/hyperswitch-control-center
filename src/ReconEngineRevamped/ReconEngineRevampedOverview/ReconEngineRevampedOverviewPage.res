@@ -67,5 +67,8 @@ let make = () => {
         <ReconEngineRevampedOverviewExceptionTriage />
       </div>
     </div>
+    <div className="mt-6">
+      <ReconEngineRevampedOverviewAccountsAttention />
+    </div>
   </div>
 }

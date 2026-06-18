@@ -95,7 +95,7 @@ let make = () => {
       <div className="px-5 py-4">
         <div className="flex items-start gap-3 mb-4">
           <span className={`text-4xl font-bold text-nd_red-500`}>
-            {agedOver3Days->Int.toString->React.string}
+            <ReconEngineRevampedHelper.NumberCell value={agedOver3Days} />
           </span>
           <div className="flex flex-col pt-1">
             <span className={`${body.sm.semibold} text-nd_gray-800`}>
@@ -162,7 +162,7 @@ let make = () => {
                   {`${pctStr}%`->React.string}
                 </span>
                 <span className={`${body.sm.semibold} text-nd_gray-800 w-8 text-right`}>
-                  {item.count->Int.toString->React.string}
+                  <ReconEngineRevampedHelper.NumberCell value={item.count} />
                 </span>
               </div>
             </div>

@@ -599,6 +599,30 @@ let overviewRuleStatusMapper: Dict.t<JSON.t> => overviewRuleStatus = dict => {
   }
 }
 
+let overviewAccountEntryMapper = (dict): overviewAccountEntry => {
+  let statusesArr = dict->getArrayFromDict("statuses", [])
+
+  let getCount = (statusKey: string) =>
+    statusesArr
+    ->Array.find(item => item->getDictFromJsonObject->getString("status", "") == statusKey)
+    ->Option.map(item => item->getDictFromJsonObject->getInt("count", 0))
+    ->Option.getOr(0)
+
+  {
+    account_id: dict->getString("account_id", ""),
+    account_name: dict->getString("account_name", ""),
+    status_counts: {
+      matched: getCount("matched"),
+      mismatched: getCount("mismatched"),
+      pending: getCount("pending"),
+      expected: getCount("expected"),
+      posted: getCount("posted"),
+      archived: getCount("archived"),
+      void: getCount("void"),
+    },
+  }
+}
+
 let overviewRulesResponseMapper: Dict.t<JSON.t> => overviewRulesResponse = dict => {
   {
     rule_id: dict->getString("rule_id", ""),

@@ -119,7 +119,7 @@ let make = () => {
                 {item.label->React.string}
               </span>
               <span className={`${body.sm.semibold} text-nd_gray-800`}>
-                {item.count->Int.toString->React.string}
+                <ReconEngineRevampedHelper.NumberCell value={item.count} />
               </span>
             </div>
           </div>

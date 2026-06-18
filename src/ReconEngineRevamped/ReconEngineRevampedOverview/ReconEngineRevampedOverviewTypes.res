@@ -187,3 +187,19 @@ type exceptionTriageItem = {
   label: string,
   count: int,
 }
+
+type overviewAccountStatusCounts = {
+  matched: int,
+  mismatched: int,
+  pending: int,
+  expected: int,
+  posted: int,
+  archived: int,
+  void: int,
+}
+
+type overviewAccountEntry = {
+  account_id: string,
+  account_name: string,
+  status_counts: overviewAccountStatusCounts,
+}
