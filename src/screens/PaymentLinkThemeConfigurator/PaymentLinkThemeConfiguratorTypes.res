@@ -18,6 +18,17 @@ type authenticationType =
   | @as("three_ds") ThreeDS
   | @as("no_three_ds") NoThreeDS
 
+@unboxed
+type showCardTerms =
+  | @as("always") Always
+  | @as("auto") Auto
+  | @as("never") Never
+
+type previewState =
+  | PreviewLoading
+  | PreviewError(string)
+  | PreviewSuccess(string)
+
 type background_image = {url: string}
 
 type preloadSdkWithParams = {
