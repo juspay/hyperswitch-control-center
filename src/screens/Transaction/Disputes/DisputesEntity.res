@@ -100,6 +100,7 @@ let getCell = (disputesData, colType, merchantId, orgId, ~profileId=""): Table.c
               <Icon name="nd-alert-triangle-outline" size={16} className="text-nd_red-600" />,
             )
           : NoIcon}
+        endValue={HSwitchOrderUtils.idCellEndValue}
       />,
       "",
     )
