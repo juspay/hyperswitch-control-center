@@ -15,13 +15,13 @@ type statCardsTitle =
   | @as("Match Rate") MatchRate
   | @as("Open Exceptions") OpenExceptions
   | @as("Value at Risk") ValueAtRisk
-  | @as("Unreconciled Value") UnreconciledValue
+  | @as("Expected Value") ExpectedValue
 
 @unboxed
 type connectedStatCardsTitle =
   | @as("Auto Match Rate") AutoMatchRate
   | @as("Aged") Aged
-  | @as("Sources Healthy") SourcesHealthy
+  | @as("Failed Transformations") FailedTransformations
   | @as("Failed Ingestions") FailedIngestions
   | @as("Manual Corrections") ManualCorrections
 
@@ -38,33 +38,72 @@ type connectedStatCardData = {
   value: valueType,
 }
 
-type overviewRulesStatusCountItemType = {
+type overviewRuleStatusType =
+  | Expected
+  | Missing
+  | OverAmountExpected
+  | OverAmountMismatch
+  | UnderAmountExpected
+  | UnderAmountMismatch
+  | DataMismatch
+  | CurrencyMismatch
+  | SplitMismatch
+  | Archived
+  | Void
+  | PartiallyReconciled
+  | MatchedAuto
+  | MatchedManual
+  | MatchedForce
+  | MatchedWithTolerance
+  | PostedManual
+  | UnknownStatus(string)
+
+type overviewRuleStatus = {
+  status: overviewRuleStatusType,
   count: int,
   credit_sum: float,
   debit_sum: float,
-}
-
-type overviewRulesStatusCountType = {
-  partially_reconciled: overviewRulesStatusCountItemType,
-  matched_force: overviewRulesStatusCountItemType,
-  expected: overviewRulesStatusCountItemType,
-  matched_auto: overviewRulesStatusCountItemType,
-  matched_manual: overviewRulesStatusCountItemType,
-  under_amount_expected: overviewRulesStatusCountItemType,
-  under_amount_mismatch: overviewRulesStatusCountItemType,
-  data_mismatch: overviewRulesStatusCountItemType,
-  void: overviewRulesStatusCountItemType,
-  over_amount_expected: overviewRulesStatusCountItemType,
-  over_amount_mismatch: overviewRulesStatusCountItemType,
-  posted_manual: overviewRulesStatusCountItemType,
-  currency_mismatch: overviewRulesStatusCountItemType,
-  matched_with_tolerance: overviewRulesStatusCountItemType,
-  archived: overviewRulesStatusCountItemType,
-  split_mismatch: overviewRulesStatusCountItemType,
+  currency: string,
 }
 
 type overviewRulesResponse = {
   rule_id: string,
   rule_name: string,
-  status_counts: overviewRulesStatusCountType,
+  statuses: array<overviewRuleStatus>,
+}
+
+type overviewIngestionHistoryResponse = {
+  id: string,
+  ingestion_id: string,
+  ingestion_history_id: string,
+  file_name: string,
+  account_id: string,
+  status: string,
+  upload_type: string,
+  created_at: string,
+  ingestion_name: string,
+  version: int,
+  discarded_at: string,
+  discarded_status: string,
+}
+
+type transformationData = {
+  transformation_result: string,
+  total_count: int,
+  transformed_count: int,
+  ignored_count: int,
+  staging_entry_ids: array<string>,
+  errors: array<string>,
+}
+
+type overviewTransformationHistoryResponse = {
+  transformation_history_id: string,
+  transformation_id: string,
+  transformation_name: string,
+  ingestion_history_id: string,
+  account_id: string,
+  status: string,
+  data: transformationData,
+  processed_at: string,
+  created_at: string,
 }
