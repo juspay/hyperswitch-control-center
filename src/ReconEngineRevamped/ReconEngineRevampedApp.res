@@ -3,7 +3,7 @@ let make = () => {
   open HSwitchUtils
   open UserManagementTypes
   open HyperswitchAtom
-  open ReconEngineRevampedHelper
+  // open ReconEngineRevampedHelper
 
   let url = RescriptReactRouter.useUrl()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -49,6 +49,6 @@ let make = () => {
       </AccessControl>
     | _ => <EmptyPage path="/v1/recon-engine/overview" />
     }}
-    <ReconEngineStatus />
+    // <ReconEngineStatus />
   </>
 }
