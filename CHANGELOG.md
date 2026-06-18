@@ -3,6 +3,23 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.06.18.0
+
+### Features
+
+- Worldpayxml hs decrypt + pre decrypt ([#4965](https://github.com/juspay/hyperswitch-control-center/pull/4965)) ([`1dbc9fe`](https://github.com/juspay/hyperswitch-control-center/commit/1dbc9fe7c60e5a6ce9f4c9f34d9507576ab6fa7d))
+- Add wasm changes for `payconex` connector ([#4990](https://github.com/juspay/hyperswitch-control-center/pull/4990)) ([`034d03b`](https://github.com/juspay/hyperswitch-control-center/commit/034d03b56a8097a27fd5fb9c2d9dbf89a939b4b8))
+- Add payconex connector in dashboard ([#4978](https://github.com/juspay/hyperswitch-control-center/pull/4978)) ([`807d0d1`](https://github.com/juspay/hyperswitch-control-center/commit/807d0d1a5797fbc027d7e076429915af376d56fe))
+- Show net and surcharge amounts in payment details ([#4984](https://github.com/juspay/hyperswitch-control-center/pull/4984)) ([`8eda3b2`](https://github.com/juspay/hyperswitch-control-center/commit/8eda3b2f1f0e1e20c5180eeadb883c899ae89a87))
+
+### Testing
+
+- Add Playwright visual tests ([#4985](https://github.com/juspay/hyperswitch-control-center/pull/4985)) ([`c656838`](https://github.com/juspay/hyperswitch-control-center/commit/c656838f99e3b8e2ee6f0a76eef694f79b5b334f))
+
+**Full Changelog:** [`2026.06.16.0...2026.06.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.16.0...2026.06.18.0)
+
+- - -
+
 ## 2026.06.16.0
 
 ### Features
