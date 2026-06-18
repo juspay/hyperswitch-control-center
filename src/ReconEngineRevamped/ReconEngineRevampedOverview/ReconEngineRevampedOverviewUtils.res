@@ -700,3 +700,96 @@ let overviewStagingEntryResponseMapper = (dict): overviewStagingEntryResponse =>
     discarded_data: Some(discardedDataDict),
   }
 }
+
+let getExceptionCount = (~overviewRules: array<overviewRulesResponse>) =>
+  overviewRules->Array.reduce(0, (acc, rule) =>
+    acc +
+    rule.statuses->Array.reduce(0, (statusAcc, status) =>
+      switch status.status {
+      | OverAmountExpected
+      | UnderAmountExpected
+      | OverAmountMismatch
+      | UnderAmountMismatch
+      | DataMismatch
+      | CurrencyMismatch
+      | SplitMismatch
+      | PartiallyReconciled
+      | Missing =>
+        statusAcc + status.count
+      | _ => statusAcc
+      }
+    )
+  )
+
+let getExceptionTriageItems = (~overviewRules: array<overviewRulesResponse>): array<
+  exceptionTriageItem,
+> => {
+  let dataMismatch = ref(0)
+  let underAmount = ref(0)
+  let overAmount = ref(0)
+  let missing = ref(0)
+  let splitMismatch = ref(0)
+  let currencyMismatch = ref(0)
+  let partiallyReconciled = ref(0)
+
+  overviewRules->Array.forEach(rule =>
+    rule.statuses->Array.forEach(status =>
+      switch status.status {
+      | DataMismatch => dataMismatch := dataMismatch.contents + status.count
+      | UnderAmountExpected | UnderAmountMismatch =>
+        underAmount := underAmount.contents + status.count
+      | OverAmountExpected | OverAmountMismatch => overAmount := overAmount.contents + status.count
+      | Missing => missing := missing.contents + status.count
+      | SplitMismatch => splitMismatch := splitMismatch.contents + status.count
+      | CurrencyMismatch => currencyMismatch := currencyMismatch.contents + status.count
+      | PartiallyReconciled => partiallyReconciled := partiallyReconciled.contents + status.count
+      | _ => ()
+      }
+    )
+  )
+
+  let items =
+    [
+      {label: "Data mismatch", count: dataMismatch.contents},
+      {label: "Under amount", count: underAmount.contents},
+      {label: "Over amount", count: overAmount.contents},
+      {label: "Missing", count: missing.contents},
+      {label: "Split mismatch", count: splitMismatch.contents},
+      {label: "Currency mismatch", count: currencyMismatch.contents},
+      {label: "Partially reconciled", count: partiallyReconciled.contents},
+    ]->Array.filter(item => item.count > 0)
+
+  items->Js.Array2.sortInPlaceWith((a, b) => b.count - a.count)
+}
+
+let getStagingTriageItems = (~stagingEntries: array<overviewStagingEntryResponse>): array<
+  exceptionTriageItem,
+> => {
+  let counts: Dict.t<int> = Dict.make()
+  stagingEntries->Array.forEach(entry => {
+    let key = entry.data.needs_manual_review_type
+    if key->isNonEmptyString {
+      let current = counts->Dict.get(key)->Option.getOr(0)
+      counts->Dict.set(key, current + 1)
+    }
+  })
+  let items =
+    counts
+    ->Dict.toArray
+    ->Array.map(((key, count)) => {
+      let label =
+        key
+        ->String.split("_")
+        ->Array.map(word =>
+          if word->String.length > 0 {
+            word->String.slice(~start=0, ~end=1)->String.toUpperCase ++
+              word->String.slice(~start=1, ~end=word->String.length)
+          } else {
+            word
+          }
+        )
+        ->Array.joinWith(" ")
+      {label, count}
+    })
+  items->Js.Array2.sortInPlaceWith((a, b) => b.count - a.count)
+}

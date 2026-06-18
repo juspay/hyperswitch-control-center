@@ -169,3 +169,21 @@ type overviewStagingEntryResponse = {
   data: processingEntryDataType,
   discarded_data: option<processingEntryDiscardedDataType>,
 }
+
+type exceptionAgingBucket = {
+  label: string,
+  color: string,
+  startTime: string,
+  endTime: string,
+}
+
+type exceptionAgingData = {
+  label: string,
+  color: string,
+  count: int,
+}
+
+type exceptionTriageItem = {
+  label: string,
+  count: int,
+}
