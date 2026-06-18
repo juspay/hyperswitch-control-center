@@ -241,6 +241,146 @@ let getOverviewChartOptions = (
   }
 }
 
+let getOverviewStatusDistribution = (~overviewRules: array<overviewRulesResponse>): array<
+  overviewStatusDistributionItem,
+> => {
+  let counts = overviewRules->Array.reduce((0, 0, 0, 0, 0), (acc, rule) => {
+    rule.statuses->Array.reduce(acc, (
+      (reconciled, matched, exceptionCount, pending, voidCount),
+      status,
+    ) => {
+      switch status.status {
+      | PostedManual => (reconciled + status.count, matched, exceptionCount, pending, voidCount)
+      | MatchedAuto | MatchedManual | MatchedForce | MatchedWithTolerance => (
+          reconciled,
+          matched + status.count,
+          exceptionCount,
+          pending,
+          voidCount,
+        )
+      | Expected | Missing => (
+          reconciled,
+          matched,
+          exceptionCount,
+          pending + status.count,
+          voidCount,
+        )
+      | Void => (reconciled, matched, exceptionCount, pending, voidCount + status.count)
+      | OverAmountExpected
+      | UnderAmountExpected
+      | OverAmountMismatch
+      | UnderAmountMismatch
+      | DataMismatch
+      | CurrencyMismatch
+      | SplitMismatch
+      | PartiallyReconciled => (
+          reconciled,
+          matched,
+          exceptionCount + status.count,
+          pending,
+          voidCount,
+        )
+      | Archived | UnknownStatus(_) => (reconciled, matched, exceptionCount, pending, voidCount)
+      }
+    })
+  })
+  let (reconciled, matched, exceptionCount, pending, voidCount) = counts
+
+  [
+    {name: "Reconciled", count: reconciled, color: "#6fb89e"},
+    {name: "Matched", count: matched, color: "#7797cf"},
+    {name: "Exception", count: exceptionCount, color: "#d2817f"},
+    {name: "Pending", count: pending, color: "#cdac79"},
+    {name: "Void", count: voidCount, color: "#98A2B3"},
+  ]
+}
+
+let overviewStatusTooltipFormatter = (~totalCount) => {
+  (
+    @this
+    (this: PieGraphTypes.pointFormatter) => {
+      let count = this.y->Float.toInt
+      let percentage = if totalCount == 0 {
+        0
+      } else {
+        Math.round(this.y /. totalCount->Int.toFloat *. 100.0)->Float.toInt
+      }
+
+      `<div style="padding:10px 12px;border-radius:10px;background:#fff;box-shadow:0 6px 18px rgba(29,41,57,.12);border:1px solid #E1E4EA;color:#525866;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;">
+          <span style="width:8px;height:8px;border-radius:9999px;background:${this.color};flex-shrink:0;"></span>
+          <span>${this.point.name}</span>
+        </div>
+        <div style="font-size:13px;font-weight:400;margin-top:4px;">
+          ${count->ReconEngineRevampedUtils.formatNumber} &middot; ${percentage->Int.toString}%
+        </div>
+      </div>`
+    }
+  )->PieGraphTypes.asTooltipPointFormatter
+}
+
+let getOverviewStatusDistributionOptions = (
+  distribution: array<overviewStatusDistributionItem>,
+): PieGraphTypes.pieGraphOptions<int> => {
+  let totalCount = distribution->Array.reduce(0, (total, item) => total + item.count)
+  let data: array<PieGraphTypes.pieGraphDataType> = distribution->Array.map(item => {
+    let point: PieGraphTypes.pieGraphDataType = {
+      name: item.name,
+      y: item.count->Int.toFloat,
+      color: item.color,
+    }
+    point
+  })
+  let payload: PieGraphTypes.pieGraphPayload<int> = {
+    data: [
+      {
+        \"type": "pie",
+        innerSize: "72%",
+        showInLegend: false,
+        name: "Status distribution",
+        data,
+      },
+    ],
+    title: {text: ""},
+    tooltipFormatter: overviewStatusTooltipFormatter(~totalCount),
+    legendFormatter: PieGraphUtils.pieGraphLegendFormatter(),
+    chartSize: "88%",
+    startAngle: 0,
+    endAngle: 360,
+    legend: {
+      enabled: false,
+    },
+  }
+  let options = payload->PieGraphUtils.getPieChartOptions
+
+  {
+    ...options,
+    chart: {
+      ...options.chart,
+      width: 220,
+      height: 220,
+    },
+    title: {
+      text: `<div style="display:flex;flex-direction:column;align-items:center;">
+        <span style="font-size:24px;font-weight:600;color:#1F2937;line-height:28px;">${totalCount->ReconEngineRevampedUtils.formatNumber}</span>
+        <span style="font-size:12px;font-weight:400;color:#667085;line-height:18px;">Total</span>
+      </div>`,
+      align: "center",
+      verticalAlign: "middle",
+      y: 8,
+      useHTML: true,
+    },
+    plotOptions: {
+      pie: {
+        ...options.plotOptions.pie,
+        innerSize: "72%",
+        showInLegend: false,
+        borderRadius: 4,
+      },
+    },
+  }
+}
+
 let getExpectedValue = (~overviewRules: array<overviewRulesResponse>) =>
   overviewRules->Array.reduce(0.0, (acc, rule) => {
     let expectedValue = rule.statuses->Array.reduce(0.0, (statusAcc, status) => {

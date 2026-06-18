@@ -93,6 +93,12 @@ type overviewChartPoint = {
   matchRate: float,
 }
 
+type overviewStatusDistributionItem = {
+  name: string,
+  count: int,
+  color: string,
+}
+
 type overviewIngestionHistoryResponse = {
   id: string,
   ingestion_id: string,

@@ -51,9 +51,12 @@ let make = () => {
       </div>
     </div>
     <ReconEngineRevampedOverviewStatCards />
-    <div className="flex flex-row mt-5">
+    <div className="flex flex-col lg:flex-row gap-4 mt-5">
       <div className="w-full lg:w-3/5">
         <ReconEngineRevampedOverviewTrendChart />
+      </div>
+      <div className="w-full lg:w-2/5">
+        <ReconEngineRevampedOverviewStatusDistribution />
       </div>
     </div>
   </div>
