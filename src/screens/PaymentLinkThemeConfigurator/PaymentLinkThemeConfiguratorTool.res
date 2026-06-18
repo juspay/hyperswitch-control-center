@@ -554,21 +554,20 @@ let make = () => {
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
 
-  React.useEffect(() => {
-    let initPaymentLinkWasm = async () => {
-      try {
-        setScreenState(_ => PageLoaderWrapper.Loading)
-        let _ = await Window.paymentLinkWasmInit()
-        setScreenState(_ => PageLoaderWrapper.Success)
-      } catch {
-      | Exn.Error(e) =>
-        let errorMessage = Exn.message(e)->Option.getOr("Failed to initialize payment link preview")
-        setScreenState(_ => PageLoaderWrapper.Error(errorMessage))
-      | _ =>
-        setScreenState(_ => PageLoaderWrapper.Error("Failed to initialize payment link preview"))
-      }
+  let initPaymentLinkWasm = async () => {
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let _ = await Window.paymentLinkWasmInit()
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } catch {
+    | Exn.Error(e) =>
+      let errorMessage = Exn.message(e)->Option.getOr("Failed to initialize payment link preview")
+      setScreenState(_ => PageLoaderWrapper.Error(errorMessage))
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to initialize payment link preview"))
     }
+  }
 
+  React.useEffect(() => {
     initPaymentLinkWasm()->ignore
     None
   }, [])
