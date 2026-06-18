@@ -1787,7 +1787,10 @@ let useCancellableGetMethod = (~showErrorToast=true) => {
   let getSignal = AbortControllerHook.useAbortController()
 
   async (url, ~version=UserInfoTypes.V1, ~signal=?) => {
-    let requestSignal = signal->Option.mapOr(getSignal(), signal => signal)
+    let requestSignal = switch signal {
+    | Some(signal) => signal
+    | None => getSignal()
+    }
     let res = await fetchDetails(url, ~version, ~signal=requestSignal)
 
     if requestSignal->AbortControllerHook.isAborted {
@@ -1812,7 +1815,10 @@ let useCancellableUpdateMethod = (~showErrorToast=true) => {
     ~version=UserInfoTypes.V1,
     ~signal=?,
   ) => {
-    let requestSignal = signal->Option.mapOr(getSignal(), signal => signal)
+    let requestSignal = switch signal {
+    | Some(signal) => signal
+    | None => getSignal()
+    }
     let res = await updateDetails(
       url,
       body,
