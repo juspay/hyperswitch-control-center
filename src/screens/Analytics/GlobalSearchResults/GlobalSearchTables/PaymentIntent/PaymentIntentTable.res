@@ -50,7 +50,6 @@ let make = () => {
   open PaymentIntentEntity
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
-  let fetchGlobalSearchData = (url, body, method) => updateDetails(url, body, method)
   let fetchTableData = ResultsTableUtils.useGetData()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (data, setData) = React.useState(_ => [])
@@ -77,7 +76,7 @@ let make = () => {
 
     try {
       let (data, total) = await fetchTableData(
-        ~updateDetails=fetchGlobalSearchData,
+        ~updateDetails=(url, body, method) => updateDetails(url, body, method),
         ~offset,
         ~query={searchText},
         ~path,

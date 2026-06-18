@@ -6,7 +6,6 @@ let make = () => {
   open PayoutsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let fetchPayoutsData = (url, body, method) => updateDetails(url, body, method)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (payoutData, setPayoutsData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
@@ -63,7 +62,7 @@ let make = () => {
 
       filters
       ->getPayoutsList(
-        ~updateDetails=fetchPayoutsData,
+        ~updateDetails=(url, body, method) => updateDetails(url, body, method),
         ~setPayoutsData,
         ~setScreenState,
         ~offset,
