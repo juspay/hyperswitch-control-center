@@ -19,10 +19,14 @@ let authenticationTypeOptions: array<SelectBox.dropdownOption> = [
 ]
 
 let showCardTermsOptions: array<SelectBox.dropdownOption> = [
-  {label: "Always", value: (Always :> string)},
-  {label: "Auto", value: (Auto :> string)},
-  {label: "Never", value: (Never :> string)},
-]
+  Always,
+  Auto,
+  Never,
+]->Array.map(item => {
+  let value = (item :> string)
+  let option: SelectBox.dropdownOption = {label: value->capitalizeString, value}
+  option
+})
 
 let allowedDomainsToArray = allowedDomainsOpt => {
   let domainsStr =

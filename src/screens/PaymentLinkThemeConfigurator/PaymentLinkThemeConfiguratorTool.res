@@ -1,4 +1,5 @@
 open LogicUtils
+open PaymentLinkThemeConfiguratorTypes
 open PaymentLinkThemeConfiguratorUtils
 
 module ConfiguratorForm = {
@@ -32,11 +33,8 @@ module ConfiguratorForm = {
     let getURL = APIUtils.useGetURL()
     let fetchDetails = APIUtils.useGetMethod()
     let (initialValues, setInitialValues) = React.useState(_ => JSON.Encode.null)
-    let (previewLoading, setPreviewLoading) = React.useState(_ => true)
-    let (previewHtml, setPreviewHtml) = React.useState(_ => "")
-    let (previewError, setPreviewError) = React.useState(_ => None)
+    let (previewState, setPreviewState) = React.useState(_ => PreviewLoading)
     let (paymentMethodsResponse, setPaymentMethodsResponse) = React.useState(_ => None)
-    let (wasmReady, setWasmReady) = React.useState(_ => false)
 
     React.useEffect(() => {
       setInitialValues(_ => initialFormValues)
@@ -70,35 +68,18 @@ module ConfiguratorForm = {
       }
     }
 
-    let initPaymentLinkWasm = async () => {
-      try {
-        let _ = await Window.paymentLinkWasmInit()
-        setWasmReady(_ => true)
-      } catch {
-      | _ => {
-          setWasmReady(_ => false)
-          setPreviewLoading(_ => false)
-          setPreviewError(_ => Some(
-            "Failed to initialize payment link preview. Please refresh the page.",
-          ))
-        }
-      }
-    }
-
     React.useEffect(() => {
       fetchAccountPaymentMethods()->ignore
-      initPaymentLinkWasm()->ignore
       None
     }, [])
 
     let generatePreview = React.useCallback((~values) => {
-      switch (wasmReady, paymentMethodsResponse) {
-      | (true, Some(_)) =>
+      switch paymentMethodsResponse {
+      | Some(_) =>
         let publishableKey = merchantDetailsTypedValue.publishable_key
 
         try {
-          setPreviewLoading(_ => true)
-          setPreviewError(_ => None)
+          setPreviewState(_ => PreviewLoading)
 
           let configs = generateWasmPayload(
             ~paymentMethodsResponse,
@@ -109,34 +90,35 @@ module ConfiguratorForm = {
           let validationResult = Window.validatePaymentLinkConfig(
             JSON.stringify(configs->Identity.genericTypeToJson),
           )
-          let validationDict = validationResult->JSON.parseExn->getDictFromJsonObject
-          let isValid = validationDict->getBool("valid", false)
-          let errors = validationDict->getArrayFromDict("errors", [])
+          switch validationResult->safeParseOpt {
+          | Some(validationJson) =>
+            let validationDict = validationJson->getDictFromJsonObject
+            let isValid = validationDict->getBool("valid", false)
+            let errors = validationDict->getArrayFromDict("errors", [])
 
-          if !isValid {
-            let errorMessages =
-              errors->Array.map(error => error->getStringFromJson("Unknown validation error"))
+            if !isValid {
+              let errorMessages =
+                errors->Array.map(error => error->getStringFromJson("Unknown validation error"))
 
-            let combinedErrors = errorMessages->Array.joinWith(", ")
-            setPreviewError(_ => Some(`Validation failed: ${combinedErrors}`))
-          } else {
-            let response = Window.generatePaymentLinkPreview(
-              JSON.stringify(configs->Identity.genericTypeToJson),
-            )
-            setPreviewHtml(_ => response)
+              let combinedErrors = errorMessages->Array.joinWith(", ")
+              setPreviewState(_ => PreviewError(`Validation failed: ${combinedErrors}`))
+            } else {
+              let response = Window.generatePaymentLinkPreview(
+                JSON.stringify(configs->Identity.genericTypeToJson),
+              )
+              setPreviewState(_ => PreviewSuccess(response))
+            }
+          | None => setPreviewState(_ => PreviewError("Invalid preview validation response"))
           }
-
-          setPreviewLoading(_ => false)
         } catch {
         | Exn.Error(e) => {
             let errorMessage = Exn.message(e)->Option.getOr("WASM function failed")
-            setPreviewError(_ => Some(errorMessage))
-            setPreviewLoading(_ => false)
+            setPreviewState(_ => PreviewError(errorMessage))
           }
         }
-      | _ => setPreviewLoading(_ => true)
+      | _ => setPreviewState(_ => PreviewLoading)
       }
-    }, (wasmReady, paymentMethodsResponse))
+    }, paymentMethodsResponse)
 
     let generatePreviewRef = React.useRef(generatePreview)
 
@@ -153,7 +135,7 @@ module ConfiguratorForm = {
     React.useEffect(() => {
       debouncedGeneratePreview(initialValues)
       None
-    }, (initialValues, paymentMethodsResponse, wasmReady))
+    }, (initialValues, paymentMethodsResponse))
 
     let onSubmit = async (values, isAutoSubmit) => {
       setInitialValues(_ => values)
@@ -292,8 +274,8 @@ module ConfiguratorForm = {
             <div className="bg-nd_gray-25 rounded-lg border border-nd_gray-150 h-650-px">
               <MobilePreviewFrame>
                 <div className="rounded-lg w-full h-590-px flex flex-col bg-white">
-                  {switch (previewLoading, previewError, previewHtml) {
-                  | (true, _, _) =>
+                  {switch previewState {
+                  | PreviewLoading =>
                     <div className="flex items-center justify-center h-full w-full">
                       <div className="text-center">
                         <div className="animate-pulse space-y-4 w-full">
@@ -307,7 +289,7 @@ module ConfiguratorForm = {
                         </p>
                       </div>
                     </div>
-                  | (false, Some(error), _) =>
+                  | PreviewError(error) =>
                     <div className="flex items-center justify-center h-full w-full">
                       <div className="text-center">
                         <div className="text-nd_red-500 mb-4">
@@ -321,7 +303,7 @@ module ConfiguratorForm = {
                         </p>
                       </div>
                     </div>
-                  | (false, None, html) =>
+                  | PreviewSuccess(html) =>
                     <div className="h-full flex-1 overflow-hidden rounded-lg bg-white relative">
                       <iframe
                         className="w-full h-full border-0"
@@ -567,9 +549,29 @@ module StyleIdSelection = {
 @react.component
 let make = () => {
   let (selectedStyleId, setSelectedStyleId) = React.useState(() => "")
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
+
+  React.useEffect(() => {
+    let initPaymentLinkWasm = async () => {
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let _ = await Window.paymentLinkWasmInit()
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | Exn.Error(e) =>
+        let errorMessage = Exn.message(e)->Option.getOr("Failed to initialize payment link preview")
+        setScreenState(_ => PageLoaderWrapper.Error(errorMessage))
+      | _ =>
+        setScreenState(_ => PageLoaderWrapper.Error("Failed to initialize payment link preview"))
+      }
+    }
+
+    initPaymentLinkWasm()->ignore
+    None
+  }, [])
 
   let selectedStyleConfigs = React.useMemo(() => {
     open BusinessProfileInterfaceUtils
@@ -584,21 +586,23 @@ let make = () => {
     businessSpecificConfigsDict->getJsonFromDict(selectedStyleId)
   }, (selectedStyleId, businessProfileRecoilVal.payment_link_config))
 
-  <div className="flex flex-col gap-8 relative">
-    <StyleIdSelection selectedStyleId setSelectedStyleId />
-    <div>
-      <RenderIf condition={selectedStyleId->isNonEmptyString}>
-        <ConfiguratorForm
-          key={selectedStyleId} initialFormValues={selectedStyleConfigs} selectedStyleId
-        />
-      </RenderIf>
-      <RenderIf condition={selectedStyleId->isEmptyString}>
-        <NoDataFound
-          customCssClass="my-6"
-          message="Please select a Payment Link Config ID to Configure and Preview"
-          renderType=Painting
-        />
-      </RenderIf>
+  <PageLoaderWrapper screenState>
+    <div className="flex flex-col gap-8 relative">
+      <StyleIdSelection selectedStyleId setSelectedStyleId />
+      <div>
+        <RenderIf condition={selectedStyleId->isNonEmptyString}>
+          <ConfiguratorForm
+            key={selectedStyleId} initialFormValues={selectedStyleConfigs} selectedStyleId
+          />
+        </RenderIf>
+        <RenderIf condition={selectedStyleId->isEmptyString}>
+          <NoDataFound
+            customCssClass="my-6"
+            message="Please select a Payment Link Config ID to Configure and Preview"
+            renderType=Painting
+          />
+        </RenderIf>
+      </div>
     </div>
-  </div>
+  </PageLoaderWrapper>
 }
