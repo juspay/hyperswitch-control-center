@@ -16,6 +16,7 @@ let labelFormatter = (
 )->asLegendsFormatter
 
 let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload) => {
+  let chartHeight = lineColumnGraphOptions.chartHeight
   let {
     categories,
     data,
@@ -25,6 +26,8 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
     minValY2,
     maxValY2,
     legend,
+    columnPointWidth,
+    hideAxisLabels,
   } = lineColumnGraphOptions
 
   let stepInterval = Js.Math.max_int(
@@ -40,6 +43,7 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
       gridLineColor,
       gridLineDashStyle: "Dash",
       labels: {
+        enabled: !hideAxisLabels,
         align: "center",
         style: {
           color: lightGray,
@@ -58,6 +62,7 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
       gridLineColor,
       gridLineDashStyle: "Dash",
       labels: {
+        enabled: !hideAxisLabels,
         align: "center",
         style: {
           color: lightGray,
@@ -74,6 +79,7 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
       zoomType: "xy",
       spacingLeft: 20,
       spacingRight: 20,
+      height: ?chartHeight,
       style: {
         color: darkGray,
         fontFamily,
@@ -88,6 +94,7 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
       lineWidth: 1,
       tickWidth: 1,
       labels: {
+        enabled: !hideAxisLabels,
         align: "center",
         style: {
           color: lightGray,
@@ -141,7 +148,7 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
         },
       },
       column: {
-        pointWidth: 10, // Adjust width of bars
+        pointWidth: columnPointWidth->Option.getOr(10),
         borderRadius: 3, // Rounds the top corners
       },
     },

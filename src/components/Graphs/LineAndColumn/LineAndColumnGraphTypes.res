@@ -55,6 +55,7 @@ type column = {
 }
 type plotOptions = {line: line, column: column}
 type labels = {
+  enabled: bool,
   align: align,
   style: style,
   y?: y,
@@ -65,6 +66,7 @@ type chart = {
   zoomType: zoomType,
   spacingLeft: spacingLeft,
   spacingRight: spacingRight,
+  height?: int,
   style: style,
 }
 
@@ -75,6 +77,7 @@ type dataObj = {
   data: array<float>,
   color: color,
   yAxis: int,
+  lineWidth?: int,
 }
 
 type data = array<dataObj>
@@ -185,4 +188,7 @@ type lineColumnGraphPayload = {
   minValY2: int,
   maxValY2: int,
   legend: legend,
+  columnPointWidth: option<int>,
+  hideAxisLabels: bool,
+  chartHeight?: int,
 }

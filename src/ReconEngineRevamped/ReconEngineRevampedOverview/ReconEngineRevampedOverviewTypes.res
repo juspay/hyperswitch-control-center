@@ -72,6 +72,27 @@ type overviewRulesResponse = {
   statuses: array<overviewRuleStatus>,
 }
 
+type overviewChartGranularity =
+  | FifteenMinutes
+  | Hourly
+  | Daily
+  | Weekly
+
+type overviewChartBucket = {
+  startTime: string,
+  endTime: string,
+  label: string,
+  tooltipLabel: string,
+}
+
+type overviewChartPoint = {
+  label: string,
+  tooltipLabel: string,
+  totalCount: float,
+  matchedCount: float,
+  matchRate: float,
+}
+
 type overviewIngestionHistoryResponse = {
   id: string,
   ingestion_id: string,

@@ -1,6 +1,71 @@
 open LogicUtils
 open ReconEngineRevampedOverviewTypes
 
+let getOverviewChartGranularity = (~startTime, ~endTime) => {
+  let rangeMilliseconds = DateRangeUtils.getStartEndDiff(startTime, endTime)
+  let rangeMinutes = rangeMilliseconds /. (1000.0 *. 60.0)
+
+  if rangeMinutes <= 60.0 {
+    FifteenMinutes
+  } else if rangeMinutes <= 24.0 *. 60.0 {
+    Hourly
+  } else if rangeMinutes <= 30.0 *. 24.0 *. 60.0 {
+    Daily
+  } else {
+    Weekly
+  }
+}
+
+let getOverviewChartGranularityDuration = granularity =>
+  switch granularity {
+  | FifteenMinutes => 15.0 *. 60.0 *. 1000.0
+  | Hourly => 60.0 *. 60.0 *. 1000.0
+  | Daily => 24.0 *. 60.0 *. 60.0 *. 1000.0
+  | Weekly => 7.0 *. 24.0 *. 60.0 *. 60.0 *. 1000.0
+  }
+
+let getOverviewChartBucketLabel = (~timestamp, ~granularity) => {
+  let date = timestamp->Js.Date.fromFloat->DayJs.getDayJsForJsDate
+  switch granularity {
+  | FifteenMinutes | Hourly => date.format("DD MMM, h A")
+  | Daily => date.format("DD MMM")
+  | Weekly => date.format("DD MMM")
+  }
+}
+
+let getOverviewChartTooltipLabel = (~timestamp, ~granularity) => {
+  let date = timestamp->Js.Date.fromFloat->DayJs.getDayJsForJsDate
+  switch granularity {
+  | FifteenMinutes | Hourly => date.format("MMM DD, YYYY, h:mm A")
+  | Daily | Weekly => date.format("MMM DD, YYYY")
+  }
+}
+
+let getOverviewChartBuckets = (~startTime, ~endTime, ~granularity) => {
+  let startTimestamp = startTime->Date.fromString->Date.getTime
+  let endTimestamp = endTime->Date.fromString->Date.getTime
+  let duration = getOverviewChartGranularityDuration(granularity)
+
+  let rec buildBuckets = (currentTimestamp, buckets) => {
+    if currentTimestamp >= endTimestamp {
+      buckets
+    } else {
+      let nextBucketTimestamp = Math.min(currentTimestamp +. duration, endTimestamp)
+      let bucketEndTimestamp =
+        nextBucketTimestamp < endTimestamp ? nextBucketTimestamp -. 1.0 : nextBucketTimestamp
+      let bucket = {
+        startTime: currentTimestamp->Js.Date.fromFloat->Date.toISOString,
+        endTime: bucketEndTimestamp->Js.Date.fromFloat->Date.toISOString,
+        label: getOverviewChartBucketLabel(~timestamp=currentTimestamp, ~granularity),
+        tooltipLabel: getOverviewChartTooltipLabel(~timestamp=currentTimestamp, ~granularity),
+      }
+      buildBuckets(nextBucketTimestamp, buckets->Array.concat([bucket]))
+    }
+  }
+
+  buildBuckets(startTimestamp, [])
+}
+
 let getTotalCount = (~overviewRules: array<overviewRulesResponse>) =>
   overviewRules->Array.reduce(0, (acc, rule) => {
     let totalCount = rule.statuses->Array.reduce(0, (statusAcc, status) => {
@@ -41,6 +106,139 @@ let getOpenExceptions = (~overviewRules: array<overviewRulesResponse>) => {
   })
 
   totalCount - matchedCount
+}
+
+let getOverviewChartPoint = (~label, ~tooltipLabel, ~overviewRules) => {
+  let totalCount = getTotalCount(~overviewRules)
+  let openExceptions = getOpenExceptions(~overviewRules)
+  let matchedCount = totalCount - openExceptions
+  let matchRate =
+    totalCount === 0 ? 0.0 : matchedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
+
+  {
+    label,
+    tooltipLabel,
+    totalCount: totalCount->Int.toFloat,
+    matchedCount: matchedCount->Int.toFloat,
+    matchRate,
+  }
+}
+
+let overviewChartTooltipFormatter = (~points) =>
+  (
+    @this
+    (this: LineAndColumnGraphTypes.pointFormatter) => {
+      let defaultPoint: LineAndColumnGraphTypes.point = {
+        color: "",
+        x: "",
+        y: 0.0,
+        point: {index: 0},
+        key: "",
+        series: {name: ""},
+      }
+      let totalPoint = this.points->getValueFromArray(0, defaultPoint)
+      let matchRatePoint = this.points->getValueFromArray(1, defaultPoint)
+      let chartPoint = points->Array.get(totalPoint.point.index)
+      let totalCount =
+        chartPoint
+        ->Option.map(point => point.totalCount)
+        ->Option.getOr(totalPoint.y)
+        ->Float.toInt
+      let matchedCount =
+        chartPoint
+        ->Option.map(point => point.matchedCount)
+        ->Option.getOr(0.0)
+        ->Float.toInt
+      let percentage =
+        matchRatePoint.y
+        ->Float.toFixedWithPrecision(~digits=2)
+        ->removeTrailingZero
+      let tooltipLabel =
+        chartPoint
+        ->Option.map(point => point.tooltipLabel)
+        ->Option.getOr(totalPoint.key)
+
+      `<div style="padding:12px 14px;border-radius:10px;background:#fff;box-shadow:0 6px 18px rgba(29,41,57,.12);border:1px solid #E1E4EA;color:#525866;">
+        <div style="font-size:12px;margin-bottom:7px;font-weight:700;">${tooltipLabel}</div>
+        <div style="font-size:14px;font-weight:400;">${ReconEngineRevampedUtils.formatNumber(
+          totalCount,
+        )} transactions</div>
+        <div style="font-size:13px;font-weight:500;color:#247DF9;margin-top:5px;">${percentage}% matched (${ReconEngineRevampedUtils.formatNumber(
+          matchedCount,
+        )})</div>
+      </div>`
+    }
+  )->LineAndColumnGraphTypes.asTooltipPointFormatter
+
+let getOverviewChartOptions = (
+  points: array<overviewChartPoint>,
+): LineAndColumnGraphTypes.lineColumnGraphPayload => {
+  let style: LineAndColumnGraphTypes.style = {
+    fontFamily: LineAndColumnGraphUtils.fontFamily,
+    color: LineAndColumnGraphUtils.darkGray,
+    fontSize: "14px",
+  }
+
+  {
+    titleObj: {
+      chartTitle: {
+        text: "",
+        align: "left",
+        style,
+      },
+      xAxisTitle: {
+        text: "",
+        style,
+      },
+      yAxisTitle: {
+        text: "",
+        style,
+      },
+      oppositeYAxisTitle: {
+        text: "",
+        style,
+      },
+    },
+    categories: points->Array.map(point => point.label),
+    data: [
+      {
+        showInLegend: false,
+        name: "Reconciliation Volume",
+        \"type": "column",
+        data: points->Array.map(point => point.totalCount),
+        color: "#93BCF6",
+        yAxis: 1,
+      },
+      {
+        showInLegend: false,
+        name: "Match Rate",
+        \"type": "line",
+        data: points->Array.map(point => point.matchRate),
+        color: "#247DF9",
+        yAxis: 0,
+        lineWidth: 2,
+      },
+    ],
+    tooltipFormatter: overviewChartTooltipFormatter(~points),
+    yAxisFormatter: LineAndColumnGraphUtils.lineColumnGraphYAxisFormatter(
+      ~statType=AmountWithSuffix,
+      ~suffix="%",
+    ),
+    minValY2: 0,
+    maxValY2: 100,
+    legend: {
+      useHTML: true,
+      labelFormatter: LineAndColumnGraphUtils.labelFormatter,
+      align: "left",
+      verticalAlign: "top",
+      floating: false,
+      itemDistance: 24,
+      margin: 24,
+    },
+    columnPointWidth: Some(14),
+    hideAxisLabels: false,
+    chartHeight: 280,
+  }
 }
 
 let getExpectedValue = (~overviewRules: array<overviewRulesResponse>) =>

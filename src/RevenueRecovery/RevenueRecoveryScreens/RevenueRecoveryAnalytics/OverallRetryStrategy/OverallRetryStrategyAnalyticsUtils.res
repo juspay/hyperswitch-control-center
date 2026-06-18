@@ -207,6 +207,8 @@ let retryStrategiesMapper = (~params: InsightsTypes.getObjects<JSON.t>) => {
     ),
     minValY2: 0,
     maxValY2: 100,
+    columnPointWidth: None,
+    hideAxisLabels: false,
     legend: {
       useHTML: true,
       labelFormatter: LineAndColumnGraphUtils.labelFormatter,
