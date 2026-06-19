@@ -1,7 +1,16 @@
+type stepType =
+  | Checkout
+  | Configurator
+
 @unboxed
 type styleType =
   | @as("default") Default
   | @as("") Custom
+
+type previewState =
+  | PreviewLoading
+  | PreviewError(string)
+  | PreviewSuccess(string)
 
 @unboxed
 type captureMethod =
@@ -24,23 +33,9 @@ type showCardTerms =
   | @as("auto") Auto
   | @as("never") Never
 
-type previewState =
-  | PreviewLoading
-  | PreviewError(string)
-  | PreviewSuccess(string)
-
 type background_image = {url: string}
 
-type preloadSdkWithParams = {
-  payment_methods_list: option<JSON.t>,
-  customer_methods_list: option<JSON.t>,
-  session_tokens: option<JSON.t>,
-  blocked_bins: option<JSON.t>,
-}
-
 type paymentLinkWasmPayload = {
-  test_mode: option<bool>,
-  preload_sdk_with_params: option<preloadSdkWithParams>,
   client_secret: string,
   payment_id: string,
   session_expiry: string,

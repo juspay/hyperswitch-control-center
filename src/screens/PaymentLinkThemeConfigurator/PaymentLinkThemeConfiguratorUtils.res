@@ -101,15 +101,15 @@ let constructBusinessProfileBodyFromJson = (~json, ~paymentLinkConfig, ~styleID)
   paymentLinkConfig
 }
 
-let generateWasmPayload = (~paymentMethodsResponse, ~publishableKey, ~formValues) => {
+let generateWasmPayload = (~paymentDetails, ~publishableKey, ~formValues) => {
+  let paymentDetailsDict = paymentDetails->getDictFromJsonObject
   let formValuesDict = formValues->getDictFromJsonObject
 
   let backgroundImage = getString(formValuesDict, "background_image", "")
   let backgroundImageObj = backgroundImage->isNonEmptyString ? Some({url: backgroundImage}) : None
 
-  let countryCurrency = getString(formValuesDict, "country_currency", "US-USD")->String.split("-")
-  let currency = countryCurrency->getValueFromArray(1, "USD")
-  let amount = formValuesDict->getFloat("amount", 100.0)
+  let currency = getString(paymentDetailsDict, "currency", "USD")
+  let amount = paymentDetailsDict->getInt("amount", 0)->Int.toFloat
   let formattedAmount =
     CurrencyUtils.convertCurrencyFromLowestDenomination(~amount, ~currency)->Float.toString
 
@@ -120,23 +120,14 @@ let generateWasmPayload = (~paymentMethodsResponse, ~publishableKey, ~formValues
     }
   }
 
-  let preloadSdkWithParams = {
-    payment_methods_list: paymentMethodsResponse,
-    customer_methods_list: None,
-    session_tokens: None,
-    blocked_bins: None,
-  }
-
   {
-    test_mode: Some(true),
-    preload_sdk_with_params: Some(preloadSdkWithParams),
-    client_secret: "", // WASM skips client_secret validation when test_mode=true
-    payment_id: "test_payment",
-    session_expiry: "2099-12-31T23:59:59.000Z",
-    status: "requires_payment_method",
     pub_key: publishableKey,
     amount: formattedAmount,
     currency,
+    client_secret: getString(paymentDetailsDict, "client_secret", ""),
+    payment_id: getString(paymentDetailsDict, "payment_id", ""),
+    status: getString(paymentDetailsDict, "status", "incomplete"),
+    session_expiry: getString(paymentDetailsDict, "expires_on", ""),
     merchant_logo: getString(formValuesDict, "logo", ""),
     return_url: getString(formValuesDict, "return_url", "https://google.com"),
     merchant_name: getNonEmptyValue(formValuesDict, "seller_name", "Seller Name"),
