@@ -38,6 +38,9 @@ let make = (~statusFilter: string, ~setStatusFilter: (string => string) => unit)
   let (accountFilter, setAccountFilter) = React.useState(_ => "all")
   let (connectorFilter, setConnectorFilter) = React.useState(_ => "all")
   let (sortOrder, setSortOrder) = React.useState(_ => "recent")
+  let (auditItem, setAuditItem) = React.useState((_): option<
+    ReconEngineRevampedPipelinesTypes.pipelineIngestionItem,
+  > => None)
 
   let fetchData = async () => {
     try {
@@ -137,79 +140,89 @@ let make = (~statusFilter: string, ~setStatusFilter: (string => string) => unit)
 
   let sortOptions = [("recent", "Most recent"), ("oldest", "Oldest first")]
 
-  <div className="mt-6">
-    <div className="flex items-center justify-between mb-3">
-      <p className={`${body.md.semibold} text-nd_gray-800 uppercase tracking-wide`}>
-        {`Ingestion Histories`->React.string}
-      </p>
-      <p className={`${body.sm.medium} text-nd_gray-400`}>
-        {`${filtered->Array.length->Int.toString} runs`->React.string}
-      </p>
-    </div>
-    <div className="flex flex-row items-center gap-3 flex-wrap mb-3">
-      <div
-        className="flex items-center gap-2 border border-nd_gray-200 rounded-lg px-3 py-2 w-56 bg-white">
-        <Icon name="nd-search" size=13 className="text-nd_gray-400 flex-shrink-0" />
-        <input
-          className={`${body.sm.regular} w-full outline-none text-nd_gray-700 placeholder:text-nd_gray-400 bg-transparent`}
-          placeholder="Search feed, file, id"
-          value=searchText
-          onChange={e => {
-            let v = ReactEvent.Form.target(e)["value"]
-            setSearchText(_ => v)
+  <>
+    <div className="mt-6">
+      <div className="flex items-center justify-between mb-3">
+        <p className={`${body.md.semibold} text-nd_gray-800 uppercase tracking-wide`}>
+          {`Ingestion Histories`->React.string}
+        </p>
+        <p className={`${body.sm.medium} text-nd_gray-400`}>
+          {`${filtered->Array.length->Int.toString} runs`->React.string}
+        </p>
+      </div>
+      <div className="flex flex-row items-center gap-3 flex-wrap mb-3">
+        <div
+          className="flex items-center gap-2 border border-nd_gray-200 rounded-lg px-3 py-2 w-56 bg-white">
+          <Icon name="nd-search" size=13 className="text-nd_gray-400 flex-shrink-0" />
+          <input
+            className={`${body.sm.regular} w-full outline-none text-nd_gray-700 placeholder:text-nd_gray-400 bg-transparent`}
+            placeholder="Search feed, file, id"
+            value=searchText
+            onChange={e => {
+              let v = ReactEvent.Form.target(e)["value"]
+              setSearchText(_ => v)
+              setOffset(_ => 0)
+            }}
+          />
+        </div>
+        <FilterDropdown
+          value=accountFilter
+          options=accountOptions
+          onChange={v => {
+            setAccountFilter(_ => v)
             setOffset(_ => 0)
           }}
         />
-      </div>
-      <FilterDropdown
-        value=accountFilter
-        options=accountOptions
-        onChange={v => {
-          setAccountFilter(_ => v)
-          setOffset(_ => 0)
-        }}
-      />
-      <FilterDropdown
-        value=statusFilter
-        options=statusOptions
-        onChange={v => {
-          setStatusFilter(_ => v)
-          setOffset(_ => 0)
-        }}
-      />
-      <FilterDropdown
-        value=connectorFilter
-        options=connectorOptions
-        onChange={v => {
-          setConnectorFilter(_ => v)
-          setOffset(_ => 0)
-        }}
-      />
-      <FilterDropdown value=sortOrder options=sortOptions onChange={v => setSortOrder(_ => v)} />
-    </div>
-    <div className="border border-nd_gray-200 rounded-xl overflow-hidden">
-      <PageLoaderWrapper
-        screenState
-        customUI={<NewAnalyticsHelper.NoData height="h-64" message="No ingestion history found." />}
-        customLoader={<Shimmer styleClass="h-64 w-full" />}>
-        <LoadedTable
-          title="Ingestion Histories"
-          hideTitle=true
-          actualData=nullableData
-          entity={ReconEngineRevampedPipelinesUtils.pipelineTableEntity(~authorization=Access)}
-          resultsPerPage=10
-          totalResults={filtered->Array.length}
-          offset
-          setOffset
-          currentFetchCount={filtered->Array.length}
-          tableheadingClass="h-11"
-          tableHeadingTextClass="!font-normal"
-          nonFrozenTableParentClass="!rounded-none !border-0 !shadow-none"
-          loadedTableParentClass="flex flex-col"
-          enableEqualWidthCol=false
-          showAutoScroll=true
+        <FilterDropdown
+          value=statusFilter
+          options=statusOptions
+          onChange={v => {
+            setStatusFilter(_ => v)
+            setOffset(_ => 0)
+          }}
         />
-      </PageLoaderWrapper>
+        <FilterDropdown
+          value=connectorFilter
+          options=connectorOptions
+          onChange={v => {
+            setConnectorFilter(_ => v)
+            setOffset(_ => 0)
+          }}
+        />
+        <FilterDropdown value=sortOrder options=sortOptions onChange={v => setSortOrder(_ => v)} />
+      </div>
+      <div className="border border-nd_gray-200 rounded-xl overflow-hidden">
+        <PageLoaderWrapper
+          screenState
+          customUI={<NewAnalyticsHelper.NoData
+            height="h-64" message="No ingestion history found."
+          />}
+          customLoader={<Shimmer styleClass="h-64 w-full" />}>
+          <LoadedTable
+            title="Ingestion Histories"
+            hideTitle=true
+            actualData=nullableData
+            entity={ReconEngineRevampedPipelinesUtils.pipelineTableEntity(
+              ~authorization=Access,
+              ~onTimelineClick={item => setAuditItem(_ => Some(item))},
+            )}
+            resultsPerPage=10
+            totalResults={filtered->Array.length}
+            offset
+            setOffset
+            currentFetchCount={filtered->Array.length}
+            tableheadingClass="h-11"
+            tableHeadingTextClass="!font-normal"
+            nonFrozenTableParentClass="!rounded-none !border-0 !shadow-none"
+            loadedTableParentClass="flex flex-col"
+            enableEqualWidthCol=false
+            showAutoScroll=true
+          />
+        </PageLoaderWrapper>
+      </div>
     </div>
-  </div>
+    <ReconEngineRevampedPipelinesAuditDrawer
+      item=auditItem onClose={() => setAuditItem(_ => None)}
+    />
+  </>
 }

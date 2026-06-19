@@ -14,6 +14,7 @@ let pipelineIngestionItemFromHistory = (
     upload_type: history.upload_type,
     status: history.status,
     created_at: history.created_at,
+    version: history.version,
   }
 }
 
@@ -98,6 +99,26 @@ let getUploadTypeLabel = (uploadType: string) => {
   }
 }
 
+module ActionCell = {
+  @react.component
+  let make = (~item: pipelineIngestionItem, ~onTimelineClick: pipelineIngestionItem => unit) => {
+    <div className="flex items-center gap-1">
+      <div
+        className="p-1.5 rounded hover:bg-nd_gray-100 cursor-pointer text-nd_gray-400 hover:text-nd_gray-600 transition-colors"
+        onClick={ev => {
+          ev->ReactEvent.Mouse.stopPropagation
+          onTimelineClick(item)
+        }}>
+        <Icon name="history" size=14 />
+      </div>
+      <div
+        className="p-1.5 rounded hover:bg-nd_gray-100 cursor-pointer text-nd_gray-400 hover:text-nd_gray-600 transition-colors">
+        <Icon name="nd-arrow-right" size=14 />
+      </div>
+    </div>
+  }
+}
+
 let getPipelineColHeading = (colType: pipelineColType) => {
   switch colType {
   | Account => Table.makeHeaderInfo(~key="account_name", ~title="Account")
@@ -106,7 +127,7 @@ let getPipelineColHeading = (colType: pipelineColType) => {
   | Connector => Table.makeHeaderInfo(~key="upload_type", ~title="Connector")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
   | Created => Table.makeHeaderInfo(~key="created_at", ~title="Created")
-  | Staging => Table.makeHeaderInfo(~key="staging", ~title="Staging")
+  | Actions => Table.makeHeaderInfo(~key="actions", ~title="")
   }
 }
 
@@ -146,7 +167,7 @@ let getPipelineColCell = (item: pipelineIngestionItem, colType: pipelineColType)
       },
     })
   | Created => Date(item.created_at)
-  | Staging => Text("—")
+  | Actions => Text("")
   }
 }
 
@@ -157,16 +178,23 @@ let defaultPipelineCols: array<pipelineColType> = [
   Connector,
   Status,
   Created,
-  Staging,
+  Actions,
 ]
 
-let pipelineTableEntity = (~authorization: CommonAuthTypes.authorization) => {
+let pipelineTableEntity = (
+  ~authorization: CommonAuthTypes.authorization,
+  ~onTimelineClick: pipelineIngestionItem => unit,
+) => {
   EntityType.makeEntity(
     ~uri="",
     ~getObjects=_ => [],
     ~defaultColumns=defaultPipelineCols,
     ~getHeading=getPipelineColHeading,
-    ~getCell=getPipelineColCell,
+    ~getCell=(item, colType) =>
+      switch colType {
+      | Actions => CustomCell(<ActionCell item onTimelineClick />, "")
+      | other => getPipelineColCell(item, other)
+      },
     ~dataKey="",
     ~getShowLink={
       _ => GroupAccessUtils.linkForGetShowLinkViaAccess(~url="", ~authorization)

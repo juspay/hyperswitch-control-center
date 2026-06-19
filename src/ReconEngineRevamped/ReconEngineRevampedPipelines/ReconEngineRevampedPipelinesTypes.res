@@ -35,6 +35,7 @@ type pipelineIngestionItem = {
   upload_type: string,
   status: ReconEngineTypes.ingestionTransformationStatusType,
   created_at: string,
+  version: int,
 }
 
 type pipelineColType =
@@ -44,4 +45,4 @@ type pipelineColType =
   | Connector
   | Status
   | Created
-  | Staging
+  | Actions
