@@ -1,5 +1,85 @@
 open Typography
 
+let triageColors = ["#8B97A8", "#E8956A", "#5BAD91", "#4A90E2", "#C87880", "#7BABC8", "#D4AA55"]
+
+let tooltipFormatter = (~totalCount) =>
+  (
+    @this
+    (this: PieGraphTypes.pointFormatter) => {
+      let pct =
+        totalCount > 0 ? Math.round(this.y /. totalCount->Int.toFloat *. 100.0)->Float.toInt : 0
+      `<div style="min-width:190px;border-radius:12px;background:#1A1F2E;box-shadow:0 8px 24px rgba(0,0,0,.25);overflow:hidden;">
+        <div style="padding:10px 14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <div style="display:flex;align-items:center;gap:7px;">
+              <span style="width:8px;height:8px;border-radius:2px;background:${this.color};flex-shrink:0;"></span>
+              <span style="font-size:12px;color:rgba(255,255,255,.7);">${this.point.name}</span>
+            </div>
+            <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,.9);">${this.y
+        ->Float.toInt
+        ->Int.toString}</span>
+          </div>
+          <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:0.4px;">exceptions</span>
+            <span style="font-size:11px;font-weight:600;color:${this.color};">${pct->Int.toString}%</span>
+          </div>
+        </div>
+      </div>`
+    }
+  )->PieGraphTypes.asTooltipPointFormatter
+
+let makePieOptions = (
+  items: array<ReconEngineRevampedOverviewTypes.exceptionTriageItem>,
+  totalCount: int,
+): PieGraphTypes.pieGraphOptions<int> => {
+  let data: array<PieGraphTypes.pieGraphDataType> = items->Array.mapWithIndex((item, i) => {
+    let point: PieGraphTypes.pieGraphDataType = {
+      name: item.label,
+      y: item.count->Int.toFloat,
+      color: triageColors
+      ->Array.get(i->mod(triageColors->Array.length))
+      ->Option.getOr("#D95F5F"),
+    }
+    point
+  })
+
+  let payload: PieGraphTypes.pieGraphPayload<int> = {
+    data: [
+      {
+        \"type": "pie",
+        innerSize: "72%",
+        showInLegend: false,
+        name: "Exception triage",
+        data,
+      },
+    ],
+    title: {text: ""},
+    tooltipFormatter: tooltipFormatter(~totalCount),
+    legendFormatter: PieGraphUtils.pieGraphLegendFormatter(),
+    chartSize: "88%",
+    startAngle: 0,
+    endAngle: 360,
+    legend: {enabled: false},
+  }
+
+  let options = payload->PieGraphUtils.getPieChartOptions
+  {
+    ...options,
+    chart: {...options.chart, width: 220, height: 220},
+    title: {
+      text: `<div style="display:flex;flex-direction:column;align-items:center;">
+        <span style="font-size:22px;font-weight:600;color:#1F2937;line-height:26px;">${totalCount->ReconEngineRevampedUtils.formatNumber}</span>
+        <span style="font-size:11px;font-weight:400;color:#667085;line-height:16px;">exceptions</span>
+      </div>`,
+      align: "center",
+      verticalAlign: "middle",
+      y: 8,
+      x: 0,
+      useHTML: true,
+    },
+  }
+}
+
 @react.component
 let make = () => {
   open APIUtils
@@ -99,54 +179,20 @@ let make = () => {
     }
   }
 
-  let renderList = (items: array<ReconEngineRevampedOverviewTypes.exceptionTriageItem>) => {
-    let maxCount = items->Array.get(0)->Option.map(item => item.count)->Option.getOr(1)->Int.toFloat
-    <div className="flex flex-col gap-1.5 py-3">
-      <RenderIf condition={items->Array.length > 0}>
-        {items
-        ->Array.map(item => {
-          let pct = maxCount > 0.0 ? item.count->Int.toFloat /. maxCount *. 100.0 : 0.0
-          <div key={item.label} className="relative overflow-hidden rounded-md">
-            <div
-              className="absolute inset-y-0 left-0 bg-nd_primary_blue-25 rounded-md"
-              style={ReactDOM.Style.make(
-                ~width=`${pct->Float.toFixedWithPrecision(~digits=1)}%`,
-                (),
-              )}
-            />
-            <div className="relative flex items-center justify-between px-3 py-2.5">
-              <span className={`${body.sm.medium} text-nd_gray-700`}>
-                {item.label->React.string}
-              </span>
-              <span className={`${body.sm.semibold} text-nd_gray-800`}>
-                <ReconEngineRevampedHelper.NumberCell value={item.count} />
-              </span>
-            </div>
-          </div>
-        })
-        ->React.array}
-      </RenderIf>
-      <RenderIf condition={items->Array.length == 0}>
-        <div className={`${body.sm.regular} text-nd_gray-400 text-center py-8`}>
-          {"No exceptions"->React.string}
-        </div>
-      </RenderIf>
-    </div>
-  }
-
   let tabButton = (~label, ~count, ~index) => {
     let isActive = selectedTab == index
-    let activeStyle = "bg-white text-nd_gray-800 shadow-sm"
-    let inactiveStyle = "text-nd_gray-500"
     <div
       key={index->Int.toString}
       className={`px-3 py-1 rounded-md cursor-pointer ${body.sm.medium} ${isActive
-          ? activeStyle
-          : inactiveStyle} transition-colors`}
+          ? "bg-white text-nd_gray-800 shadow-sm"
+          : "text-nd_gray-500"} transition-colors`}
       onClick={_ => setSelectedTab(_ => index)}>
       {`${label} (${count->Int.toString})`->React.string}
     </div>
   }
+
+  let activeItems = selectedTab == 0 ? txnItems : stagingItems
+  let activeTotal = selectedTab == 0 ? txnTotal : stagingTotal
 
   <div className="border border-nd_gray-200 rounded-xl bg-white h-full">
     <div
@@ -170,10 +216,52 @@ let make = () => {
         height="h-64" message="No exception data for this date range."
       />}
       customLoader={<Shimmer styleClass="w-full h-64" />}>
-      <div className="px-4">
-        <RenderIf condition={selectedTab == 0}> {renderList(txnItems)} </RenderIf>
-        <RenderIf condition={selectedTab == 1}> {renderList(stagingItems)} </RenderIf>
-      </div>
+      <RenderIf condition={activeItems->Array.length > 0}>
+        <div
+          className="flex flex-col sm:flex-row items-center justify-center gap-6 px-6 py-4 min-h-56">
+          <PieGraph options={makePieOptions(activeItems, activeTotal)} className="shrink-0" />
+          <div className="flex flex-col gap-2.5 w-full max-w-52">
+            {activeItems
+            ->Array.mapWithIndex((item, i) => {
+              let color =
+                triageColors
+                ->Array.get(i->mod(triageColors->Array.length))
+                ->Option.getOr("#D95F5F")
+              let pct =
+                activeTotal > 0
+                  ? Math.round(
+                      item.count->Int.toFloat /. activeTotal->Int.toFloat *. 100.0,
+                    )->Float.toInt
+                  : 0
+              <div key={item.label} className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span
+                    className="w-2.5 h-2.5 rounded-sm shrink-0"
+                    style={ReactDOM.Style.make(~backgroundColor=color, ())}
+                  />
+                  <span className={`${body.sm.regular} text-nd_gray-700 truncate`}>
+                    {item.label->React.string}
+                  </span>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className={`${body.sm.semibold} text-nd_gray-800`}>
+                    {`${pct->Int.toString}%`->React.string}
+                  </p>
+                  <p className={`${body.xs.regular} text-nd_gray-500`}>
+                    {item.count->ReconEngineRevampedUtils.formatNumber->React.string}
+                  </p>
+                </div>
+              </div>
+            })
+            ->React.array}
+          </div>
+        </div>
+      </RenderIf>
+      <RenderIf condition={activeItems->Array.length == 0}>
+        <div className={`${body.sm.regular} text-nd_gray-400 text-center py-10`}>
+          {"No exceptions"->React.string}
+        </div>
+      </RenderIf>
     </PageLoaderWrapper>
   </div>
 }

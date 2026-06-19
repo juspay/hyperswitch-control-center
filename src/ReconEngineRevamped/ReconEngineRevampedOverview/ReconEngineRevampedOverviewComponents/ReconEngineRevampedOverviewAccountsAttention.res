@@ -81,7 +81,7 @@ let make = () => {
 
     <div
       key={entry.account_id}
-      className="grid grid-cols-[1fr_180px_80px_80px] items-center border-b border-nd_gray-100 last:border-0">
+      className="grid grid-cols-[1fr_180px_80px_80px] items-center border-b border-nd_gray-100 last:border-0 hover:bg-nd_gray-50 cursor-pointer transition-colors">
       <div className="flex items-center gap-3 pl-5 py-3">
         <div
           className={`w-7 h-7 rounded-md bg-nd_gray-150 flex items-center justify-center flex-shrink-0 ${body.sm.semibold} text-nd_gray-600`}>
@@ -133,14 +133,16 @@ let make = () => {
             {"Missing"->React.string}
           </div>
         </div>
-        <RenderIf condition={accounts->Array.length > 0}>
-          {accounts->Array.map(renderRow)->React.array}
-        </RenderIf>
-        <RenderIf condition={accounts->Array.length == 0}>
-          <div className={`${body.sm.regular} text-nd_gray-400 text-center py-8`}>
-            {"No accounts found"->React.string}
-          </div>
-        </RenderIf>
+        <div className="max-h-80 overflow-y-auto pb-4">
+          <RenderIf condition={accounts->Array.length > 0}>
+            {accounts->Array.map(renderRow)->React.array}
+          </RenderIf>
+          <RenderIf condition={accounts->Array.length == 0}>
+            <div className={`${body.sm.regular} text-nd_gray-400 text-center py-8`}>
+              {"No accounts found"->React.string}
+            </div>
+          </RenderIf>
+        </div>
       </div>
     </PageLoaderWrapper>
   </div>

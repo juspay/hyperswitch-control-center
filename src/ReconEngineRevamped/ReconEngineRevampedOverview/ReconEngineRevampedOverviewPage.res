@@ -51,13 +51,8 @@ let make = () => {
       </div>
     </div>
     <ReconEngineRevampedOverviewStatCards />
-    <div className="flex flex-col lg:flex-row gap-4 mt-6">
-      <div className="w-full lg:w-3/5">
-        <ReconEngineRevampedOverviewTrendChart />
-      </div>
-      <div className="w-full lg:w-2/5">
-        <ReconEngineRevampedOverviewStatusDistribution />
-      </div>
+    <div className="mt-6">
+      <ReconEngineRevampedOverviewTrendChart />
     </div>
     <div className="flex flex-col lg:flex-row gap-4 mt-6">
       <div className="w-full lg:w-2/5">
@@ -68,11 +63,11 @@ let make = () => {
       </div>
     </div>
     <div className="mt-6">
-      <ReconEngineRevampedOverviewAccountsAttention />
+      <ReconEngineRevampedOverviewRulesActivity />
     </div>
     <div className="flex flex-col lg:flex-row gap-4 mt-6">
       <div className="w-full lg:w-3/5">
-        <ReconEngineRevampedOverviewRulesActivity />
+        <ReconEngineRevampedOverviewAccountsAttention />
       </div>
       <div className="w-full lg:w-2/5">
         <ReconEngineRevampedOverviewPipelineFreshness />

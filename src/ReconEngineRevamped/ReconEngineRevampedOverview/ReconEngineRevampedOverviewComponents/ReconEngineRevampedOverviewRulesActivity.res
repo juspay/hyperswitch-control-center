@@ -98,30 +98,30 @@ let make = () => {
 
     <div
       key={item.rule.rule_id}
-      className="grid grid-cols-[40px_1fr_80px_90px_150px] items-center border-b border-nd_gray-100 last:border-0">
-      <div className="pl-5 py-2 flex items-center">
+      className="grid grid-cols-[48px_1fr_140px_140px_220px] items-center border-b border-nd_gray-100 last:border-0 hover:bg-nd_gray-50 cursor-pointer transition-colors">
+      <div className="pl-6 py-3.5 flex items-center">
         <div
           className={`w-5 h-5 rounded-full bg-nd_gray-100 flex items-center justify-center flex-shrink-0 ${body.xs.semibold} text-nd_gray-500`}>
           {(index + 1)->Int.toString->React.string}
         </div>
       </div>
-      <div className={`${body.sm.medium} text-nd_gray-800 py-2 truncate pr-3`}>
+      <div className={`${body.sm.medium} text-nd_gray-800 py-3.5 truncate pr-4`}>
         {item.rule.rule_name->React.string}
       </div>
-      <div className={`${body.sm.semibold} text-nd_gray-700 py-2 text-right pr-3`}>
+      <div className={`${body.sm.semibold} text-nd_gray-700 py-3.5 text-right pr-6`}>
         <ReconEngineRevampedHelper.NumberCell value={item.volume} />
       </div>
-      <div className={`${body.sm.semibold} ${excColor} py-2 text-right pr-3`}>
+      <div className={`${body.sm.semibold} ${excColor} py-3.5 text-right pr-6`}>
         <ReconEngineRevampedHelper.NumberCell value={item.exceptions} />
       </div>
-      <div className="flex items-center gap-2 py-2 pl-3 pr-5">
-        <div className="w-14 h-1.5 bg-nd_gray-150 rounded-full overflow-hidden flex-shrink-0">
+      <div className="flex items-center gap-3 py-3.5 pl-4 pr-6">
+        <div className="flex-1 h-1.5 bg-nd_gray-150 rounded-full overflow-hidden">
           <div
             className={`h-full ${rateBarColor} rounded-full`}
             style={ReactDOM.Style.make(~width=`${matchRateStr}%`, ())}
           />
         </div>
-        <span className={`${body.sm.medium} ${rateTextColor}`}>
+        <span className={`${body.sm.medium} ${rateTextColor} w-12 text-right shrink-0`}>
           {`${matchRateStr}%`->React.string}
         </span>
       </div>
@@ -145,22 +145,24 @@ let make = () => {
       customLoader={<Shimmer styleClass="w-full h-48" />}>
       <div>
         <div
-          className="grid grid-cols-[40px_1fr_80px_90px_150px] pt-3 pb-2 border-b border-nd_gray-200">
-          <div className="pl-5" />
-          <div className={`${body.xs.medium} text-nd_gray-400 uppercase`}>
+          className="grid grid-cols-[48px_1fr_140px_140px_220px] pt-3.5 pb-2.5 border-b border-nd_gray-200">
+          <div className="pl-6" />
+          <div className={`${body.xs.medium} text-nd_gray-400 uppercase tracking-wide`}>
             {"Rule"->React.string}
           </div>
-          <div className={`${body.xs.medium} text-nd_gray-400 uppercase text-right pr-3`}>
-            {"Vol"->React.string}
+          <div
+            className={`${body.xs.medium} text-nd_gray-400 uppercase tracking-wide text-right pr-6`}>
+            {"Volume"->React.string}
           </div>
-          <div className={`${body.xs.medium} text-nd_gray-400 uppercase text-right pr-3`}>
-            {"Exc"->React.string}
+          <div
+            className={`${body.xs.medium} text-nd_gray-400 uppercase tracking-wide text-right pr-6`}>
+            {"Exceptions"->React.string}
           </div>
-          <div className={`${body.xs.medium} text-nd_gray-400 uppercase pl-3 pr-5`}>
+          <div className={`${body.xs.medium} text-nd_gray-400 uppercase tracking-wide pl-4 pr-6`}>
             {"Match Rate"->React.string}
           </div>
         </div>
-        <div className="max-h-72 overflow-y-auto">
+        <div className="max-h-80 overflow-y-auto pb-4">
           <RenderIf condition={computedRules->Array.length > 0}>
             {computedRules->Array.mapWithIndex(ruleRow)->React.array}
           </RenderIf>

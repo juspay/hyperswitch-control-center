@@ -71,16 +71,16 @@ let make = () => {
   <div className="border border-nd_gray-200 rounded-xl bg-white">
     <div className="flex flex-col gap-1 px-5 py-3.5 border-b border-nd_gray-200 shadow-sm">
       <p className={`${body.md.semibold} text-nd_gray-800`}>
-        {"Reconciliation volume & match rate"->React.string}
+        {"Match & exception trend"->React.string}
       </p>
       <p className={`${body.sm.regular} text-nd_gray-600`}>
-        {"Daily transaction volume with match-rate overlay"->React.string}
+        {"Matched vs exceptions with match rate over time"->React.string}
       </p>
     </div>
     <PageLoaderWrapper
       screenState
-      customUI={<NoData height="h-72" message="No reconciliation data for this date range." />}
-      customLoader={<Shimmer styleClass="w-full h-72" />}>
+      customUI={<NoData height="h-96" message="No reconciliation data for this date range." />}
+      customLoader={<Shimmer styleClass="w-full h-96" />}>
       <div className="py-4 overflow-hidden">
         <LineAndColumnGraph options className="w-full" />
       </div>

@@ -151,10 +151,52 @@ let getMatchedCount = (~overviewRules: array<overviewRulesResponse>) => {
   })
 }
 
+let getExpectedCount = (~overviewRules: array<overviewRulesResponse>) => {
+  overviewRules->Array.reduce(0, (acc, rule) => {
+    let count = rule.statuses->Array.reduce(0, (statusAcc, status) => {
+      switch status.status {
+      | Expected => statusAcc + status.count
+      | Missing
+      | MatchedAuto
+      | MatchedForce
+      | MatchedWithTolerance
+      | MatchedManual
+      | PostedManual
+      | OverAmountExpected
+      | UnderAmountExpected
+      | OverAmountMismatch
+      | UnderAmountMismatch
+      | DataMismatch
+      | CurrencyMismatch
+      | SplitMismatch
+      | PartiallyReconciled
+      | Void
+      | Archived
+      | UnknownStatus(_) => statusAcc
+      }
+    })
+    acc + count
+  })
+}
+
+let getMissingCount = (~overviewRules: array<overviewRulesResponse>) => {
+  overviewRules->Array.reduce(0, (acc, rule) => {
+    let count = rule.statuses->Array.reduce(0, (statusAcc, status) => {
+      switch status.status {
+      | Missing => statusAcc + status.count
+      | _ => statusAcc
+      }
+    })
+    acc + count
+  })
+}
+
 let getOverviewChartPoint = (~label, ~tooltipLabel, ~overviewRules) => {
   let totalCount = getTotalCount(~overviewRules)
   let openExceptions = getOpenExceptions(~overviewRules)
-  let matchedCount = totalCount - openExceptions
+  let matchedCount = getMatchedCount(~overviewRules)
+  let expectedCount = getExpectedCount(~overviewRules)
+  let missingCount = getMissingCount(~overviewRules)
   let matchRate =
     totalCount === 0 ? 0.0 : matchedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
 
@@ -163,6 +205,9 @@ let getOverviewChartPoint = (~label, ~tooltipLabel, ~overviewRules) => {
     tooltipLabel,
     totalCount: totalCount->Int.toFloat,
     matchedCount: matchedCount->Int.toFloat,
+    exceptionCount: openExceptions->Int.toFloat,
+    expectedCount: expectedCount->Int.toFloat,
+    missingCount: missingCount->Int.toFloat,
     matchRate,
   }
 }
@@ -179,36 +224,87 @@ let overviewChartTooltipFormatter = (~points) =>
         key: "",
         series: {name: ""},
       }
-      let totalPoint = this.points->getValueFromArray(0, defaultPoint)
-      let matchRatePoint = this.points->getValueFromArray(1, defaultPoint)
-      let chartPoint = points->Array.get(totalPoint.point.index)
+      let matchedPoint = this.points->getValueFromArray(0, defaultPoint)
+      let exceptionPoint = this.points->getValueFromArray(1, defaultPoint)
+      let expectedPoint = this.points->getValueFromArray(2, defaultPoint)
+      let missingPoint = this.points->getValueFromArray(3, defaultPoint)
+      let matchRatePoint = this.points->getValueFromArray(4, defaultPoint)
+      let chartPoint = points->Array.get(matchedPoint.point.index)
       let totalCount =
+        chartPoint->Option.map(point => point.totalCount)->Option.getOr(0.0)->Float.toInt
+      let exceptionCount =
         chartPoint
-        ->Option.map(point => point.totalCount)
-        ->Option.getOr(totalPoint.y)
+        ->Option.map(point => point.exceptionCount)
+        ->Option.getOr(exceptionPoint.y)
         ->Float.toInt
       let matchedCount =
         chartPoint
         ->Option.map(point => point.matchedCount)
-        ->Option.getOr(0.0)
+        ->Option.getOr(matchedPoint.y)
         ->Float.toInt
-      let percentage =
-        matchRatePoint.y
-        ->Float.toFixedWithPrecision(~digits=2)
-        ->removeTrailingZero
-      let tooltipLabel =
+      let expectedCount =
         chartPoint
-        ->Option.map(point => point.tooltipLabel)
-        ->Option.getOr(totalPoint.key)
+        ->Option.map(point => point.expectedCount)
+        ->Option.getOr(expectedPoint.y)
+        ->Float.toInt
+      let missingCount =
+        chartPoint
+        ->Option.map(point => point.missingCount)
+        ->Option.getOr(missingPoint.y)
+        ->Float.toInt
+      let percentage = matchRatePoint.y->Float.toFixedWithPrecision(~digits=2)->removeTrailingZero
+      let tooltipLabel =
+        chartPoint->Option.map(point => point.tooltipLabel)->Option.getOr(matchedPoint.key)
 
-      `<div style="padding:12px 14px;border-radius:10px;background:#fff;box-shadow:0 6px 18px rgba(29,41,57,.12);border:1px solid #E1E4EA;color:#525866;">
-        <div style="font-size:12px;margin-bottom:7px;font-weight:700;">${tooltipLabel}</div>
-        <div style="font-size:14px;font-weight:400;">${ReconEngineRevampedUtils.formatNumber(
+      `<div style="min-width:240px;border-radius:12px;background:#1A1F2E;box-shadow:0 8px 24px rgba(0,0,0,.25);overflow:hidden;">
+        <div style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.08);">
+          <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.9);letter-spacing:0.2px;">${tooltipLabel}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;">${ReconEngineRevampedUtils.formatNumber(
           totalCount,
-        )} transactions</div>
-        <div style="font-size:13px;font-weight:500;color:#247DF9;margin-top:5px;">${percentage}% matched (${ReconEngineRevampedUtils.formatNumber(
+        )} transactions total</div>
+        </div>
+        <div style="padding:10px 14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <div style="display:flex;align-items:center;gap:7px;">
+              <span style="width:8px;height:8px;border-radius:2px;background:#52A87A;flex-shrink:0;"></span>
+              <span style="font-size:12px;color:rgba(255,255,255,.55);">Matched</span>
+            </div>
+            <span style="font-size:12px;font-weight:600;color:#52A87A;">${ReconEngineRevampedUtils.formatNumber(
           matchedCount,
-        )})</div>
+        )}</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <div style="display:flex;align-items:center;gap:7px;">
+              <span style="width:8px;height:8px;border-radius:2px;background:#D95F5F;flex-shrink:0;"></span>
+              <span style="font-size:12px;color:rgba(255,255,255,.55);">Exceptions</span>
+            </div>
+            <span style="font-size:12px;font-weight:600;color:#D95F5F;">${ReconEngineRevampedUtils.formatNumber(
+          exceptionCount,
+        )}</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <div style="display:flex;align-items:center;gap:7px;">
+              <span style="width:8px;height:8px;border-radius:2px;background:#4A90E2;flex-shrink:0;"></span>
+              <span style="font-size:12px;color:rgba(255,255,255,.55);">Expected</span>
+            </div>
+            <span style="font-size:12px;font-weight:600;color:#4A90E2;">${ReconEngineRevampedUtils.formatNumber(
+          expectedCount,
+        )}</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div style="display:flex;align-items:center;gap:7px;">
+              <span style="width:8px;height:8px;border-radius:2px;background:#D4A032;flex-shrink:0;"></span>
+              <span style="font-size:12px;color:rgba(255,255,255,.55);">Missing</span>
+            </div>
+            <span style="font-size:12px;font-weight:600;color:#D4A032;">${ReconEngineRevampedUtils.formatNumber(
+          missingCount,
+        )}</span>
+          </div>
+          <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:8px;display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:0.4px;">Match rate</span>
+            <span style="font-size:13px;font-weight:700;color:#8B72CC;">${percentage}%</span>
+          </div>
+        </div>
       </div>`
     }
   )->LineAndColumnGraphTypes.asTooltipPointFormatter
@@ -245,19 +341,47 @@ let getOverviewChartOptions = (
     categories: points->Array.map(point => point.label),
     data: [
       {
-        showInLegend: false,
-        name: "Reconciliation Volume",
+        showInLegend: true,
+        name: "Matched",
         \"type": "column",
-        data: points->Array.map(point => point.totalCount),
-        color: "#A9C8F6",
+        data: points->Array.map(point => point.matchedCount),
+        color: "#52A87A",
         yAxis: 1,
+        stacking: "normal",
       },
       {
-        showInLegend: false,
+        showInLegend: true,
+        name: "Exception",
+        \"type": "column",
+        data: points->Array.map(point => point.exceptionCount),
+        color: "#D95F5F",
+        yAxis: 1,
+        stacking: "normal",
+      },
+      {
+        showInLegend: true,
+        name: "Expected",
+        \"type": "column",
+        data: points->Array.map(point => point.expectedCount),
+        color: "#4A90E2",
+        yAxis: 1,
+        stacking: "normal",
+      },
+      {
+        showInLegend: true,
+        name: "Missing",
+        \"type": "column",
+        data: points->Array.map(point => point.missingCount),
+        color: "#D4A032",
+        yAxis: 1,
+        stacking: "normal",
+      },
+      {
+        showInLegend: true,
         name: "Match Rate",
         \"type": "line",
         data: points->Array.map(point => point.matchRate),
-        color: "#2F73E0",
+        color: "#8B72CC",
         yAxis: 0,
         lineWidth: 2,
       },
@@ -280,7 +404,7 @@ let getOverviewChartOptions = (
     },
     columnPointWidth: Some(14),
     hideAxisLabels: false,
-    chartHeight: 280,
+    chartHeight: 420,
   }
 }
 
@@ -330,10 +454,10 @@ let getOverviewStatusDistribution = (~overviewRules: array<overviewRulesResponse
   let (reconciled, matched, exceptionCount, pending, voidCount) = counts
 
   [
-    {name: "Reconciled", count: reconciled, color: "#4F86D9"},
-    {name: "Exception", count: exceptionCount, color: "#EA8A8F"},
-    {name: "Matched", count: matched, color: "#7AB891"},
-    {name: "Expected", count: pending, color: "#C9A35B"},
+    {name: "Reconciled", count: reconciled, color: "#7AB891"},
+    {name: "Exception", count: exceptionCount, color: "#D95F5F"},
+    {name: "Matched", count: matched, color: "#52A87A"},
+    {name: "Expected", count: pending, color: "#4A90E2"},
     {name: "Void", count: voidCount, color: "#8B97A8"},
   ]
 }
@@ -349,13 +473,18 @@ let overviewStatusTooltipFormatter = (~totalCount) => {
         Math.round(this.y /. totalCount->Int.toFloat *. 100.0)->Float.toInt
       }
 
-      `<div style="padding:10px 12px;border-radius:10px;background:#fff;box-shadow:0 6px 18px rgba(29,41,57,.12);border:1px solid #E1E4EA;color:#525866;">
-        <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;">
-          <span style="width:8px;height:8px;border-radius:9999px;background:${this.color};flex-shrink:0;"></span>
-          <span>${this.point.name}</span>
-        </div>
-        <div style="font-size:13px;font-weight:400;margin-top:4px;">
-          ${count->ReconEngineRevampedUtils.formatNumber} &middot; ${percentage->Int.toString}%
+      `<div style="min-width:180px;border-radius:12px;background:#1A1F2E;box-shadow:0 8px 24px rgba(0,0,0,.25);overflow:hidden;">
+        <div style="padding:10px 14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <div style="display:flex;align-items:center;gap:7px;">
+              <span style="width:8px;height:8px;border-radius:9999px;background:${this.color};flex-shrink:0;"></span>
+              <span style="font-size:12px;color:rgba(255,255,255,.7);">${this.point.name}</span>
+            </div>
+            <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,.9);">${count->ReconEngineRevampedUtils.formatNumber}</span>
+          </div>
+          <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.08);display:flex;justify-content:flex-end;">
+            <span style="font-size:11px;font-weight:600;color:${this.color};">${percentage->Int.toString}%</span>
+          </div>
         </div>
       </div>`
     }

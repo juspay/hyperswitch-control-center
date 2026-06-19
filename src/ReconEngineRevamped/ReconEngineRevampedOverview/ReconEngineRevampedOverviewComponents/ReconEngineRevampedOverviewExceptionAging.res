@@ -71,13 +71,6 @@ let make = () => {
   }, (startTime, filterValue))
 
   let total = agingData->Array.reduce(0, (acc, item) => acc + item.count)
-  let agedOver3Days = agingData->Array.reduce(0, (acc, item) =>
-    if item.label == "3–7 days" || item.label == "> 7 days" {
-      acc + item.count
-    } else {
-      acc
-    }
-  )
 
   <div className="border border-nd_gray-200 rounded-xl bg-white h-full">
     <div className="flex flex-col gap-1 px-5 py-3.5 border-b border-nd_gray-200 shadow-sm">
@@ -95,16 +88,8 @@ let make = () => {
       <div className="px-5 py-4">
         <div className="flex items-start gap-3 mb-4">
           <span className={`text-4xl font-bold text-nd_red-500`}>
-            <ReconEngineRevampedHelper.NumberCell value={agedOver3Days} />
+            <ReconEngineRevampedHelper.NumberCell value={total} />
           </span>
-          <div className="flex flex-col pt-1">
-            <span className={`${body.sm.semibold} text-nd_gray-800`}>
-              {"breaks aged"->React.string}
-            </span>
-            <span className={`${body.sm.regular} text-nd_gray-500`}>
-              {`of ${total->Int.toString} open`->React.string}
-            </span>
-          </div>
         </div>
         <RenderIf condition={total > 0}>
           <div className="flex h-2 w-full rounded-full overflow-hidden mb-5">

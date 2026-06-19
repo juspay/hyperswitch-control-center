@@ -78,6 +78,7 @@ type dataObj = {
   color: color,
   yAxis: int,
   lineWidth?: int,
+  stacking?: string,
 }
 
 type data = array<dataObj>

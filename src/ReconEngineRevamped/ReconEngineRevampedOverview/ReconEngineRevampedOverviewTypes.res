@@ -90,6 +90,9 @@ type overviewChartPoint = {
   tooltipLabel: string,
   totalCount: float,
   matchedCount: float,
+  exceptionCount: float,
+  expectedCount: float,
+  missingCount: float,
   matchRate: float,
 }
 
