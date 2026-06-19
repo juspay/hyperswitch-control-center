@@ -27,7 +27,8 @@ let make = () => {
     <object
       type_="image/svg+xml"
       data="/assets/CostObservabilityHomePreview.svg"
-      className="w-4/5 rounded-2xl"
+      className="w-full sm:w-4/5 rounded-2xl"
+      ariaLabel="Cost Observability Dashboard Preview"
     />
     <div className="flex flex-col gap-4 items-center">
       <div className="flex flex-col gap-2 items-center">
@@ -49,13 +50,18 @@ let make = () => {
         buttonState=Normal
       />
     </div>
-    <div className="grid grid-cols-2 gap-x-10 gap-y-6 w-full max-w-2xl mt-2">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6 w-full max-w-2xl mt-2">
       {HypersenseUtils.features
       ->Array.map(feature => {
         <div key=feature.title className="flex flex-row gap-3 items-start">
           <div
             className={`${feature.bgColor} rounded-xl w-12 h-12 flex-shrink-0 flex items-center justify-center`}>
-            <Icon name=feature.icon size=28 className=feature.iconColor />
+            <Icon
+              name=feature.icon
+              size=28
+              className=feature.iconColor
+              parentClass="w-full h-full flex items-center justify-center"
+            />
           </div>
           <div className="flex flex-col gap-0.5">
             <p className={`${body.md.semibold} text-nd_gray-700`}>
