@@ -193,13 +193,24 @@ type overviewAccountStatusCounts = {
   mismatched: int,
   pending: int,
   expected: int,
-  posted: int,
   archived: int,
   void: int,
+}
+
+type overviewAccountStatusAmounts = {
+  matched_credit: float,
+  matched_debit: float,
+  mismatched_credit: float,
+  mismatched_debit: float,
+  pending_credit: float,
+  pending_debit: float,
+  currency: string,
 }
 
 type overviewAccountEntry = {
   account_id: string,
   account_name: string,
+  account_type: string,
   status_counts: overviewAccountStatusCounts,
+  status_amounts: overviewAccountStatusAmounts,
 }

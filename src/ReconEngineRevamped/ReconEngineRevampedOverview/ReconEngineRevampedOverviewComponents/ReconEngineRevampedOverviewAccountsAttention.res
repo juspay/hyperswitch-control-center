@@ -57,7 +57,7 @@ let make = () => {
 
   let renderRow = (entry: ReconEngineRevampedOverviewTypes.overviewAccountEntry) => {
     let sc = entry.status_counts
-    let total = sc.matched + sc.mismatched + sc.pending + sc.expected + sc.posted
+    let total = sc.matched + sc.mismatched + sc.pending + sc.expected
     let matchRate = total > 0 ? sc.matched->Int.toFloat /. total->Int.toFloat *. 100.0 : 0.0
     let matchRateStr = matchRate->Float.toFixedWithPrecision(~digits=1)
     let rateTextColor = matchRate == 100.0 ? goodColor : badColor

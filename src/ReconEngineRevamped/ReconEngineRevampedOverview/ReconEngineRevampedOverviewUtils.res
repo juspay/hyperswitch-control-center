@@ -602,23 +602,82 @@ let overviewRuleStatusMapper: Dict.t<JSON.t> => overviewRuleStatus = dict => {
 let overviewAccountEntryMapper = (dict): overviewAccountEntry => {
   let statusesArr = dict->getArrayFromDict("statuses", [])
 
-  let getCount = (statusKey: string) =>
+  let matchedKeys = [
+    "matched",
+    "posted",
+    "matched_auto",
+    "matched_manual",
+    "matched_force",
+    "matched_with_tolerance",
+    "posted_manual",
+  ]
+  let mismatchedKeys = [
+    "mismatched",
+    "over_amount_mismatch",
+    "under_amount_mismatch",
+    "data_mismatch",
+    "currency_mismatch",
+    "split_mismatch",
+  ]
+  let pendingKeys = [
+    "pending",
+    "partially_reconciled",
+    "over_amount_expected",
+    "under_amount_expected",
+  ]
+  let expectedKeys = ["expected", "missing"]
+
+  let filterByKeys = (keys: array<string>) =>
+    statusesArr->Array.filter(item =>
+      keys->Array.some(k => item->getDictFromJsonObject->getString("status", "") == k)
+    )
+
+  let sumCount = items =>
+    items->Array.reduce(0, (acc, item) => acc + item->getDictFromJsonObject->getInt("count", 0))
+  let sumCredit = items =>
+    items->Array.reduce(0.0, (acc, item) =>
+      acc +. item->getDictFromJsonObject->getFloat("credit_sum", 0.0)
+    )
+  let sumDebit = items =>
+    items->Array.reduce(0.0, (acc, item) =>
+      acc +. item->getDictFromJsonObject->getFloat("debit_sum", 0.0)
+    )
+
+  let matchedItems = filterByKeys(matchedKeys)
+  let mismatchedItems = filterByKeys(mismatchedKeys)
+  let pendingItems = filterByKeys(pendingKeys)
+  let expectedItems = filterByKeys(expectedKeys)
+
+  let topLevelCurrency = dict->getString("currency", "")
+  let currency = if topLevelCurrency != "" {
+    topLevelCurrency
+  } else {
     statusesArr
-    ->Array.find(item => item->getDictFromJsonObject->getString("status", "") == statusKey)
-    ->Option.map(item => item->getDictFromJsonObject->getInt("count", 0))
-    ->Option.getOr(0)
+    ->Array.find(item => item->getDictFromJsonObject->getString("currency", "") != "")
+    ->Option.map(item => item->getDictFromJsonObject->getString("currency", ""))
+    ->Option.getOr("")
+  }
 
   {
     account_id: dict->getString("account_id", ""),
     account_name: dict->getString("account_name", ""),
+    account_type: dict->getString("account_type", ""),
     status_counts: {
-      matched: getCount("matched"),
-      mismatched: getCount("mismatched"),
-      pending: getCount("pending"),
-      expected: getCount("expected"),
-      posted: getCount("posted"),
-      archived: getCount("archived"),
-      void: getCount("void"),
+      matched: sumCount(matchedItems),
+      mismatched: sumCount(mismatchedItems),
+      pending: sumCount(pendingItems),
+      expected: sumCount(expectedItems),
+      archived: sumCount(filterByKeys(["archived"])),
+      void: sumCount(filterByKeys(["void"])),
+    },
+    status_amounts: {
+      matched_credit: sumCredit(matchedItems),
+      matched_debit: sumDebit(matchedItems),
+      mismatched_credit: sumCredit(mismatchedItems),
+      mismatched_debit: sumDebit(mismatchedItems),
+      pending_credit: sumCredit(pendingItems) +. sumCredit(expectedItems),
+      pending_debit: sumDebit(pendingItems) +. sumDebit(expectedItems),
+      currency,
     },
   }
 }

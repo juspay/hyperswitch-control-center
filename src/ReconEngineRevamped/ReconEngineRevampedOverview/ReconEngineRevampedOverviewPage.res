@@ -78,5 +78,8 @@ let make = () => {
         <ReconEngineRevampedOverviewPipelineFreshness />
       </div>
     </div>
+    <div className="mt-6">
+      <ReconEngineRevampedOverviewFlowDiagram />
+    </div>
   </div>
 }
