@@ -11,6 +11,7 @@ type status =
   | RequiresCustomerAction
   | RequiresPaymentMethod
   | RequiresConfirmation
+  | RequiresCapture
   | PartiallyCaptured
   | CancelledPostCapture
   | None
@@ -70,6 +71,7 @@ let statusVariantMapper: string => status = statusLabel =>
   | "REQUIRES_CUSTOMER_ACTION" => RequiresCustomerAction
   | "REQUIRES_PAYMENT_METHOD" => RequiresPaymentMethod
   | "REQUIRES_CONFIRMATION" => RequiresConfirmation
+  | "REQUIRES_CAPTURE" => RequiresCapture
   | "PARTIALLY_CAPTURED" => PartiallyCaptured
   | "CANCELLED_POST_CAPTURE" => CancelledPostCapture
   | "EXPIRED" => Expired
@@ -135,12 +137,17 @@ let amountField = FormRenderer.makeFieldInfo(
 )
 
 // Amount field with precision based on currency
-let amountFieldWithPrecision = (~precisionDigits) => {
+let amountFieldWithPrecision = (
+  ~precisionDigits,
+  ~name="amount",
+  ~label="Refund Amount",
+  ~placeholder="Enter Refund Amount",
+) => {
   FormRenderer.makeFieldInfo(
-    ~name="amount",
-    ~label="Refund Amount",
+    ~name,
+    ~label,
     ~customInput=InputFields.numericTextInput(~precision=precisionDigits),
-    ~placeholder="Enter Refund Amount",
+    ~placeholder,
     ~isRequired=true,
   )
 }

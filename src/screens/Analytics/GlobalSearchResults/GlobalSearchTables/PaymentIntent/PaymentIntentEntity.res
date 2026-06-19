@@ -231,6 +231,7 @@ let getCell = (paymentObj, colType): Table.cell => {
       | Processing
       | RequiresCustomerAction
       | RequiresConfirmation
+      | RequiresCapture
       | RequiresPaymentMethod =>
         LabelBlue
       | _ => LabelLightGray
