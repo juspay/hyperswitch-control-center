@@ -33,7 +33,10 @@ let make = () => {
       <AccessControl
         isEnabled={featureFlagDetails.devReconEngineRevamped}
         authorization={userHasAccess(~groupAccess=ReconSourcesView)}>
-        <ReconEngineRevampedPipelinesContainer />
+        <FilterContext
+          key="recon-engine-revamped-pipelines" index="recon-engine-revamped-pipelines">
+          <ReconEngineRevampedPipelinesContainer />
+        </FilterContext>
       </AccessControl>
     | list{"v1", "recon-engine", "rules", ..._} =>
       <AccessControl
