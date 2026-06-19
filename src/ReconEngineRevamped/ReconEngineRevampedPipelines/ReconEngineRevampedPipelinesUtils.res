@@ -111,8 +111,7 @@ module ActionCell = {
         }}>
         <Icon name="history" size=14 />
       </div>
-      <div
-        className="p-1.5 rounded hover:bg-nd_gray-100 cursor-pointer text-nd_gray-400 hover:text-nd_gray-600 transition-colors">
+      <div className="p-1.5 text-nd_gray-400">
         <Icon name="nd-arrow-right" size=14 />
       </div>
     </div>
@@ -197,7 +196,13 @@ let pipelineTableEntity = (
       },
     ~dataKey="",
     ~getShowLink={
-      _ => GroupAccessUtils.linkForGetShowLinkViaAccess(~url="", ~authorization)
+      item =>
+        GroupAccessUtils.linkForGetShowLinkViaAccess(
+          ~url=GlobalVars.appendDashboardPath(
+            ~url=`/v1/recon-engine/pipelines/detail/${item.ingestion_history_id}`,
+          ),
+          ~authorization,
+        )
     },
   )
 }

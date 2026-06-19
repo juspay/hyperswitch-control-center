@@ -99,7 +99,7 @@ let make = () => {
           </span>
           <div className="flex flex-col pt-1">
             <span className={`${body.sm.semibold} text-nd_gray-800`}>
-              {"breaks aged > 3 days"->React.string}
+              {"breaks aged"->React.string}
             </span>
             <span className={`${body.sm.regular} text-nd_gray-500`}>
               {`of ${total->Int.toString} open`->React.string}

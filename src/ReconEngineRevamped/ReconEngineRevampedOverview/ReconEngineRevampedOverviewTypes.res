@@ -20,7 +20,7 @@ type statCardsTitle =
 @unboxed
 type connectedStatCardsTitle =
   | @as("Auto Match Rate") AutoMatchRate
-  | @as("Aged") Aged
+  | @as("Missing") Missing
   | @as("Failed Transformations") FailedTransformations
   | @as("Failed Ingestions") FailedIngestions
   | @as("Manual Corrections") ManualCorrections

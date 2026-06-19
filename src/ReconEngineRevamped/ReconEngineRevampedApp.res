@@ -29,6 +29,12 @@ let make = () => {
         authorization={userHasAccess(~groupAccess=ReconTransactionsView)}>
         <ReconEngineRevampedTransactionsContainer />
       </AccessControl>
+    | list{"v1", "recon-engine", "pipelines", "detail", ingestionHistoryId} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.devReconEngineRevamped}
+        authorization={userHasAccess(~groupAccess=ReconSourcesView)}>
+        <ReconEngineRevampedPipelinesDetailPage ingestionHistoryId />
+      </AccessControl>
     | list{"v1", "recon-engine", "pipelines", ..._} =>
       <AccessControl
         isEnabled={featureFlagDetails.devReconEngineRevamped}

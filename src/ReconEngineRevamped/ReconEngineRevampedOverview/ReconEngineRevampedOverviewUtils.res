@@ -553,7 +553,7 @@ let getConnectedStatCards = (
       value: Number(failedIngestionHistoryList->Array.length),
     },
     {
-      title: Aged,
+      title: Missing,
       value: OutOf(agedCount, totalCount),
     },
     {
