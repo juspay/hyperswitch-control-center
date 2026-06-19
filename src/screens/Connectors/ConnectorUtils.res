@@ -187,6 +187,7 @@ let connectorList: array<connectorTypes> = [
   Processors(TRUELAYER),
   Processors(TRUSTLY),
   Processors(IMERCHANTSOLUTIONS),
+  Processors(PAYCONEX),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -730,6 +731,10 @@ let imerchantsolutionsInfo = {
   description: "iMerchant Solutions is a modern payment processing platform that empowers businesses to accept payments globally with fast and low-friction onboarding.",
 }
 
+let payconexInfo = {
+  description: "PayConex is Bluefin's payment gateway platform, offering secure card payment processing with PCI-validated point-to-point encryption and tokenization.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -894,8 +899,13 @@ let trustlyInfo = {
   description: "Trustly provides a secure, efficient, and cost-effective payment solution for your businesses to offer customers a convenient and hassle-free payment experience.",
 }
 
+let absaInfo = {
+  description: "Absa Bank is a leading African financial services provider offering a wide range of banking and payment solutions.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
+  | ABSA => "absa_sanlam"
   | ADYEN => "adyen"
   | AFFIRM => "affirm"
   | CHECKOUT => "checkout"
@@ -1008,6 +1018,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | FISERVCOMMERCEHUB => "fiservcommercehub"
   | TRUSTLY => "trustly"
   | IMERCHANTSOLUTIONS => "imerchantsolutions"
+  | PAYCONEX => "payconex"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1104,6 +1115,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
   switch connectorType {
   | Processor =>
     switch connector {
+    | "absa_sanlam" => Processors(ABSA)
     | "adyen" => Processors(ADYEN)
     | "affirm" => Processors(AFFIRM)
     | "checkout" => Processors(CHECKOUT)
@@ -1216,6 +1228,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "fiservcommercehub" => Processors(FISERVCOMMERCEHUB)
     | "trustly" => Processors(TRUSTLY)
     | "imerchantsolutions" => Processors(IMERCHANTSOLUTIONS)
+    | "payconex" => Processors(PAYCONEX)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1288,6 +1301,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
 
 let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   switch connector {
+  | ABSA => absaInfo
   | STRIPE => stripeInfo
   | ADYEN => adyenInfo
   | AFFIRM => affirmInfo
@@ -1400,6 +1414,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | FISERVCOMMERCEHUB => fiservcommercehubInfo
   | TRUSTLY => trustlyInfo
   | IMERCHANTSOLUTIONS => imerchantsolutionsInfo
+  | PAYCONEX => payconexInfo
   }
 }
 
@@ -2278,6 +2293,7 @@ let getConnectorPaymentMethodDetails = async (
 
 let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   switch connector {
+  | ABSA => "Absa"
   | ADYEN => "Adyen"
   | AFFIRM => "Affirm"
   | CHECKOUT => "Checkout"
@@ -2390,6 +2406,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | FISERVCOMMERCEHUB => "Fiserv Commerce Hub"
   | TRUSTLY => "Trustly"
   | IMERCHANTSOLUTIONS => "iMerchant Solutions"
+  | PAYCONEX => "PayConex"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2621,7 +2638,8 @@ let checkIfPredecryptFlowEnabledForGooglePay = connector => {
   | Processors(CHECKOUT)
   | Processors(WORLDPAYVANTIV)
   | Processors(NMI)
-  | Processors(STRIPE) => true
+  | Processors(STRIPE)
+  | Processors(WORLDPAYXML) => true
   | _ => false
   }
 }

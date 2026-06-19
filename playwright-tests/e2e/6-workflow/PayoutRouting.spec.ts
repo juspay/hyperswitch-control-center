@@ -72,7 +72,7 @@ test.describe("Volume based payout routing", () => {
     await page.waitForLoadState("networkidle");
 
     await expect(payoutRouting.volumeBasedRoutingHeader).toContainText(
-      "Smart routing configuration",
+      "Payout Routing Configurations",
     );
 
     const [today, yesterday] = await page.evaluate(() => {
@@ -134,13 +134,11 @@ test.describe("Volume based payout routing", () => {
       payoutRouting.dataToast("Successfully created a new configuration!"),
     ).toContainText("Successfully created a new configuration!");
 
-    await payoutRouting.manageRulesTab.click();
+    await payoutRouting.configurationHistoryTab.click();
     await expect(payoutRouting.historyCell(1, 2)).toContainText(
       "Test volume based payout config",
     );
-    await expect(payoutRouting.dataLabel("INACTIVE")).toContainText(
-      "INACTIVE",
-    );
+    await expect(payoutRouting.dataLabel("INACTIVE")).toContainText("INACTIVE");
   });
 
   test("should save and activate Volume based payout configuration", async ({
@@ -191,10 +189,7 @@ test.describe("Volume based payout routing", () => {
     await expect(volumeBasedConfiguration.activeIndicator).toBeVisible();
   });
 
-  test("should validate volume percentage split", async ({
-    page,
-    context,
-  }) => {
+  test("should validate volume percentage split", async ({ page, context }) => {
     const homePage = new HomePage(page);
     const payoutRouting = new PayoutRouting(page);
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
@@ -246,11 +241,11 @@ test.describe("Volume based payout routing", () => {
 
     await volumeBasedConfiguration.configurationNameTextbox.clear();
     await volumeBasedConfiguration.configurationNameTextbox.blur();
-    await expect(page.getByText('Please provide name field')).toBeVisible();
+    await expect(page.getByText("Please provide name field")).toBeVisible();
 
     await volumeBasedConfiguration.descriptionTextbox.clear();
     await volumeBasedConfiguration.descriptionTextbox.blur();
-    await expect(page.getByText('Please provide description')).toBeVisible();
+    await expect(page.getByText("Please provide description")).toBeVisible();
   });
 });
 
@@ -261,12 +256,19 @@ test.describe("Rule based payout routing", () => {
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
-  async function setupRuleBasedPayoutRouting(page: Page, context: BrowserContext): Promise<string | null> {
+  async function setupRuleBasedPayoutRouting(
+    page: Page,
+    context: BrowserContext,
+  ): Promise<string | null> {
     const homePage = new HomePage(page);
     const payoutRouting = new PayoutRouting(page);
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (merchantId) {
-      await createPayoutConnectorAPI(merchantId, "adyen_payout_operator_test", context.request);
+      await createPayoutConnectorAPI(
+        merchantId,
+        "adyen_payout_operator_test",
+        context.request,
+      );
     }
     await homePage.workflow.click();
     await homePage.payoutRouting.click();
@@ -290,7 +292,10 @@ test.describe("Rule based payout routing", () => {
     );
   });
 
-  test("Rule editor add condition row - Click Add Condition renders condition row with field, operator, value inputs", async ({ page, context }) => {
+  test("Rule editor add condition row - Click Add Condition renders condition row with field, operator, value inputs", async ({
+    page,
+    context,
+  }) => {
     await setupRuleBasedPayoutRouting(page, context);
     const ruleBasedConfiguration = new RuleBasedConfiguration(page);
 
@@ -308,15 +313,22 @@ test.describe("Rule based payout routing", () => {
     await ruleBasedConfiguration.dropdownOption("USD", 4).click();
 
     await ruleBasedConfiguration.addProcessorsButton.click();
-    await ruleBasedConfiguration.dropdownOption("adyen_payout_operator_test").click();
+    await ruleBasedConfiguration
+      .dropdownOption("adyen_payout_operator_test")
+      .click();
 
-    await expect(ruleBasedConfiguration.firstAddConditionRowButton).toBeVisible();
+    await expect(
+      ruleBasedConfiguration.firstAddConditionRowButton,
+    ).toBeVisible();
     await ruleBasedConfiguration.firstAddConditionRowButton.click();
 
     await expect(ruleBasedConfiguration.rule2Button).toBeVisible();
   });
 
-  test("Rule editor operators - enum, numeric, and text input types render correctly", async ({ page, context }) => {
+  test("Rule editor operators - enum, numeric, and text input types render correctly", async ({
+    page,
+    context,
+  }) => {
     await setupRuleBasedPayoutRouting(page, context);
     const ruleBasedConfiguration = new RuleBasedConfiguration(page);
 
@@ -327,29 +339,51 @@ test.describe("Rule based payout routing", () => {
     await ruleBasedConfiguration.selectFieldButton.click();
     await ruleBasedConfiguration.dropdownOption("currency").click();
     await ruleBasedConfiguration.selectOperatorButton.click();
-    await expect(page.locator('div').filter({ hasText: /^ISCONTAINSIS_NOTNOT_CONTAINS$/ }).nth(1)).toBeVisible();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^ISCONTAINSIS_NOTNOT_CONTAINS$/ })
+        .nth(1),
+    ).toBeVisible();
 
-    await page.getByRole('button', { name: 'currency' }).click();
+    await page.getByRole("button", { name: "currency" }).click();
     await ruleBasedConfiguration.dropdownOption("amount").click();
     await ruleBasedConfiguration.selectOperatorButton.click();
-    await expect(page.locator('div').filter({ hasText: /^EQUAL TOGREATER THANLESS THAN$/ }).nth(1)).toBeVisible();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^EQUAL TOGREATER THANLESS THAN$/ })
+        .nth(1),
+    ).toBeVisible();
 
-    await page.getByRole('button', { name: 'amount' }).click();
+    await page.getByRole("button", { name: "amount" }).click();
     await ruleBasedConfiguration.dropdownOption("business_label").click();
     await ruleBasedConfiguration.selectOperatorButton.click();
-    await expect(page.locator('div').filter({ hasText: /^EQUAL TONOT EQUAL_TO$/ }).first()).toBeVisible();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^EQUAL TONOT EQUAL_TO$/ })
+        .first(),
+    ).toBeVisible();
   });
 
-  test("Rule editor logical operator AND OR toggle - changes logical operator value", async ({ page, context }) => {
+  test("Rule editor logical operator AND OR toggle - changes logical operator value", async ({
+    page,
+    context,
+  }) => {
     await setupRuleBasedPayoutRouting(page, context);
     const ruleBasedConfiguration = new RuleBasedConfiguration(page);
 
     await expect(ruleBasedConfiguration.addConditionButton).toBeVisible();
     await ruleBasedConfiguration.addConditionButton.click();
-    await expect(ruleBasedConfiguration.logicalOperatorToggle.first()).toBeVisible();
+    await expect(
+      ruleBasedConfiguration.logicalOperatorToggle.first(),
+    ).toBeVisible();
 
     await ruleBasedConfiguration.logicalOperatorSwitch.click();
-    await expect(ruleBasedConfiguration.logicalOperatorToggle.first()).not.toBeVisible();
+    await expect(
+      ruleBasedConfiguration.logicalOperatorToggle.first(),
+    ).not.toBeVisible();
   });
 });
 
@@ -399,7 +433,9 @@ test.describe("Payout default fallback", () => {
     await homePage.payoutRouting.click();
     await payoutRouting.defaultFallbackManageButton.click();
 
-    await expect(defaultFallback.connectorAt(0)).toContainText("adyen_payout_1");
+    await expect(defaultFallback.connectorAt(0)).toContainText(
+      "adyen_payout_1",
+    );
   });
 
   test("should be able to change the order by dragging and updating", async ({
@@ -412,9 +448,21 @@ test.describe("Payout default fallback", () => {
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (merchantId) {
-      await createPayoutConnectorAPI(merchantId, "adyen_payout_1", context.request);
-      await createPayoutConnectorAPI(merchantId, "adyen_payout_2", context.request);
-      await createPayoutConnectorAPI(merchantId, "adyen_payout_3", context.request);
+      await createPayoutConnectorAPI(
+        merchantId,
+        "adyen_payout_1",
+        context.request,
+      );
+      await createPayoutConnectorAPI(
+        merchantId,
+        "adyen_payout_2",
+        context.request,
+      );
+      await createPayoutConnectorAPI(
+        merchantId,
+        "adyen_payout_3",
+        context.request,
+      );
     }
 
     await homePage.workflow.click();
@@ -445,14 +493,17 @@ test.describe("Payout default fallback", () => {
 
     await defaultFallback.saveChangesButton.click();
 
-    await defaultFallback.yesSaveItButton.waitFor({ state: "visible", timeout: 5000 });
+    await defaultFallback.yesSaveItButton.waitFor({
+      state: "visible",
+      timeout: 5000,
+    });
     await defaultFallback.yesSaveItButton.click();
 
     await expect(defaultFallback.configurationSavedToast).toBeVisible();
   });
 });
 
-test.describe("Payout Routing list - Manage rules", () => {
+test.describe("Payout Routing list - Configuration History", () => {
   test.beforeEach(async ({ page }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -469,14 +520,23 @@ test.describe("Payout Routing list - Manage rules", () => {
     return await merchantLocator.textContent();
   }
 
-  async function createInactiveVolumePayoutRule(page: Page, context: BrowserContext, configName: string, connectorLabel = "adyen_payout_1") {
+  async function createInactiveVolumePayoutRule(
+    page: Page,
+    context: BrowserContext,
+    configName: string,
+    connectorLabel = "adyen_payout_1",
+  ) {
     const homePage = new HomePage(page);
     const payoutRouting = new PayoutRouting(page);
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
 
     const merchantId = await getMerchantId(page);
     if (merchantId) {
-      await createPayoutConnectorAPI(merchantId, connectorLabel, context.request);
+      await createPayoutConnectorAPI(
+        merchantId,
+        connectorLabel,
+        context.request,
+      );
     }
 
     await homePage.workflow.click();
@@ -497,14 +557,23 @@ test.describe("Payout Routing list - Manage rules", () => {
     ).toContainText("Successfully created a new configuration!");
   }
 
-  async function createActiveVolumePayoutRule(page: Page, context: BrowserContext, configName: string, connectorLabel = "adyen_payout_1") {
+  async function createActiveVolumePayoutRule(
+    page: Page,
+    context: BrowserContext,
+    configName: string,
+    connectorLabel = "adyen_payout_1",
+  ) {
     const homePage = new HomePage(page);
     const payoutRouting = new PayoutRouting(page);
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
 
     const merchantId = await getMerchantId(page);
     if (merchantId) {
-      await createPayoutConnectorAPI(merchantId, connectorLabel, context.request);
+      await createPayoutConnectorAPI(
+        merchantId,
+        connectorLabel,
+        context.request,
+      );
     }
 
     await homePage.workflow.click();
@@ -530,12 +599,10 @@ test.describe("Payout Routing list - Manage rules", () => {
     const payoutRouting = new PayoutRouting(page);
     await homePage.workflow.click();
     await homePage.payoutRouting.click();
-    await payoutRouting.manageRulesTab.click();
+    await payoutRouting.configurationHistoryTab.click();
   }
 
-  test("verify payout routing page elements", async ({
-    page,
-  }) => {
+  test("verify payout routing page elements", async ({ page }) => {
     const homePage = new HomePage(page);
     const payoutRouting = new PayoutRouting(page);
 
@@ -546,13 +613,22 @@ test.describe("Payout Routing list - Manage rules", () => {
     await homePage.payoutRouting.click();
 
     await expect(payoutRouting.activeBadge).toBeVisible();
-    await expect(page.getByText('Default fallback').nth(1)).toBeVisible();
+    await expect(page.getByText("Default fallback").nth(1)).toBeVisible();
     await expect(payoutRouting.viewAndManageButton).toBeVisible();
 
-    await expect(page.getByText("Volume Based Configuration", { exact: true })).toBeVisible();
-    await expect(page.getByText("Rule Based Configuration", { exact: true })).toBeVisible();
+    await expect(
+      page.getByText("Volume Based Configuration", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Rule Based Configuration", { exact: true }),
+    ).toBeVisible();
 
-    await expect(page.getByText("Fallback is the priority list of configured processors used for routing traffic alone or when other rules don’t apply. You can reorder it via drag and drop", { exact: true })).toBeVisible();
+    await expect(
+      page.getByText(
+        "Fallback is the priority list of configured processors used for routing traffic alone or when other rules don’t apply. You can reorder it via drag and drop",
+        { exact: true },
+      ),
+    ).toBeVisible();
 
     await expect(payoutRouting.setupButton).toHaveCount(2);
     await expect(payoutRouting.manageButton).toBeVisible();
@@ -580,50 +656,86 @@ test.describe("Payout Routing list - Manage rules", () => {
     await homePage.workflow.click();
     await homePage.payoutRouting.click();
     await expect(payoutRouting.activeBadge).toBeVisible();
-    await expect(page.getByText('Default fallback').nth(1)).toBeVisible();
+    await expect(page.getByText("Default fallback").nth(1)).toBeVisible();
     await expect(payoutRouting.viewAndManageButton).toBeVisible();
   });
 
-  test("should display active payout routing configurations on Active configuration tab", async ({ page, context }) => {
+  test("should display active payout routing configurations on Active configuration tab", async ({
+    page,
+    context,
+  }) => {
     const payoutRouting = new PayoutRouting(page);
-    await createActiveVolumePayoutRule(page, context, "List active payout smoke config");
+    await createActiveVolumePayoutRule(
+      page,
+      context,
+      "List active payout smoke config",
+    );
 
     await expect(payoutRouting.activeBadge).toBeVisible();
-    await expect(page.getByText('List active payout smoke config -')).toBeVisible();
+    await expect(
+      page.getByText("List active payout smoke config -"),
+    ).toBeVisible();
     await expect(payoutRouting.viewAndManageButton).toBeVisible();
   });
 
-  test("should display all existing payout routing configurations on Manage rules tab", async ({ page, context }) => {
+  test("should display all existing payout routing configurations on Configuration History tab", async ({
+    page,
+    context,
+  }) => {
     const payoutRouting = new PayoutRouting(page);
-    await createInactiveVolumePayoutRule(page, context, "List inactive payout smoke config");
-    await createActiveVolumePayoutRule(page, context, "List active payout smoke config", "adyen_payout_2");
+    await createInactiveVolumePayoutRule(
+      page,
+      context,
+      "List inactive payout smoke config",
+    );
+    await createActiveVolumePayoutRule(
+      page,
+      context,
+      "List active payout smoke config",
+      "adyen_payout_2",
+    );
 
-    await expect(page.getByText('List active payout smoke config -')).toBeVisible();
+    await expect(
+      page.getByText("List active payout smoke config -"),
+    ).toBeVisible();
     await expect(payoutRouting.viewAndManageButton).toBeVisible();
     await openManageRulesTab(page);
 
-    await expect(payoutRouting.historyCell(1, 2)).toContainText("List active payout smoke config");
+    await expect(payoutRouting.historyCell(1, 2)).toContainText(
+      "List active payout smoke config",
+    );
     await expect(payoutRouting.historyCell(1, 3)).toContainText("Volume Based");
     await expect(payoutRouting.historyCell(1, 5)).toContainText("ACTIVE");
 
-    await expect(payoutRouting.historyCell(2, 2)).toContainText("List inactive payout smoke config");
+    await expect(payoutRouting.historyCell(2, 2)).toContainText(
+      "List inactive payout smoke config",
+    );
     await expect(payoutRouting.historyCell(2, 3)).toContainText("Volume Based");
     await expect(payoutRouting.historyCell(2, 5)).toContainText("INACTIVE");
   });
 
-  test("should expose Activate Configuration on inactive payout rule preview", async ({ page, context }) => {
+  test("should expose Activate Configuration on inactive payout rule preview", async ({
+    page,
+    context,
+  }) => {
     const payoutRouting = new PayoutRouting(page);
-    await createInactiveVolumePayoutRule(page, context, "Activate payout via preview");
+    await createInactiveVolumePayoutRule(
+      page,
+      context,
+      "Activate payout via preview",
+    );
 
     await openManageRulesTab(page);
     await payoutRouting.historyCell(1, 2).click();
     await page.waitForLoadState("networkidle");
 
-    await expect(page.getByText('Configuration NameActivate')).toBeVisible();
-    await expect(page.getByText('DescriptionThis is a volume')).toBeVisible();
-    await expect(page.getByText('adyen_payout_1')).toBeVisible();
+    await expect(page.getByText("Configuration NameActivate")).toBeVisible();
+    await expect(page.getByText("DescriptionThis is a volume")).toBeVisible();
+    await expect(page.getByText("adyen_payout_1")).toBeVisible();
 
-    const activateBtn = page.getByRole("button", { name: /Activate Configuration/i }).first();
+    const activateBtn = page
+      .getByRole("button", { name: /Activate Configuration/i })
+      .first();
     await expect(activateBtn).toBeVisible({ timeout: 10000 });
     await activateBtn.click();
     await expect(
@@ -631,15 +743,24 @@ test.describe("Payout Routing list - Manage rules", () => {
     ).toContainText("Successfully activated!");
   });
 
-  test("should expose Deactivate Configuration on active payout rule preview", async ({ page, context }) => {
+  test("should expose Deactivate Configuration on active payout rule preview", async ({
+    page,
+    context,
+  }) => {
     const payoutRouting = new PayoutRouting(page);
-    await createActiveVolumePayoutRule(page, context, "Deactivate payout via preview");
+    await createActiveVolumePayoutRule(
+      page,
+      context,
+      "Deactivate payout via preview",
+    );
 
     await openManageRulesTab(page);
     await payoutRouting.historyCell(1, 2).click();
     await page.waitForLoadState("networkidle");
 
-    const deactivateBtn = page.getByRole("button", { name: /Deactivate Configuration/i }).first();
+    const deactivateBtn = page
+      .getByRole("button", { name: /Deactivate Configuration/i })
+      .first();
     await expect(deactivateBtn).toBeVisible();
     await deactivateBtn.click();
     await expect(
@@ -647,15 +768,27 @@ test.describe("Payout Routing list - Manage rules", () => {
     ).toContainText("Successfully deactivated!");
   });
 
-  test("should duplicate and edit volume payout routing - update name and add a different connector", async ({ page, context }) => {
+  test("should duplicate and edit volume payout routing - update name and add a different connector", async ({
+    page,
+    context,
+  }) => {
     test.setTimeout(120000);
     const payoutRouting = new PayoutRouting(page);
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
-    await createActiveVolumePayoutRule(page, context, "Volume payout edit original", "adyen_payout_volume_a");
+    await createActiveVolumePayoutRule(
+      page,
+      context,
+      "Volume payout edit original",
+      "adyen_payout_volume_a",
+    );
 
     const merchantId = await getMerchantId(page);
     if (merchantId) {
-      await createPayoutConnectorAPI(merchantId, "adyen_payout_volume_b", context.request);
+      await createPayoutConnectorAPI(
+        merchantId,
+        "adyen_payout_volume_b",
+        context.request,
+      );
     }
 
     await openManageRulesTab(page);
@@ -664,7 +797,8 @@ test.describe("Payout Routing list - Manage rules", () => {
     await historyRow.click();
     await page.waitForLoadState("networkidle");
 
-    const duplicateBtn = volumeBasedConfiguration.duplicateAndEditConfigurationButton;
+    const duplicateBtn =
+      volumeBasedConfiguration.duplicateAndEditConfigurationButton;
     await expect(duplicateBtn).toBeVisible({ timeout: 15000 });
     await duplicateBtn.click();
     await page.waitForLoadState("networkidle");
@@ -690,17 +824,26 @@ test.describe("Payout Routing list - Manage rules", () => {
     ).toContainText("Successfully created a new configuration!");
 
     await openManageRulesTab(page);
-    await expect(payoutRouting.historyCell(1, 2)).toContainText("Volume payout edit updated");
+    await expect(payoutRouting.historyCell(1, 2)).toContainText(
+      "Volume payout edit updated",
+    );
   });
 
-  test("should duplicate and edit rule payout routing - update name and configure a different value for a route", async ({ page, context }) => {
+  test("should duplicate and edit rule payout routing - update name and configure a different value for a route", async ({
+    page,
+    context,
+  }) => {
     const homePage = new HomePage(page);
     const payoutRouting = new PayoutRouting(page);
     const ruleBasedConfiguration = new RuleBasedConfiguration(page);
 
     const merchantId = await getMerchantId(page);
     if (merchantId) {
-      await createPayoutConnectorAPI(merchantId, "adyen_payout_routing_edit", context.request);
+      await createPayoutConnectorAPI(
+        merchantId,
+        "adyen_payout_routing_edit",
+        context.request,
+      );
     }
 
     await homePage.workflow.click();
@@ -709,7 +852,9 @@ test.describe("Payout Routing list - Manage rules", () => {
     await page.waitForLoadState("networkidle");
 
     await ruleBasedConfiguration.configurationNameInput.clear();
-    await ruleBasedConfiguration.configurationNameInput.fill("Rule payout edit original");
+    await ruleBasedConfiguration.configurationNameInput.fill(
+      "Rule payout edit original",
+    );
 
     await ruleBasedConfiguration.selectFieldButton.click();
     await ruleBasedConfiguration.dropdownOption("currency").click();
@@ -721,7 +866,9 @@ test.describe("Payout Routing list - Manage rules", () => {
     await ruleBasedConfiguration.dropdownOption("USD", 4).click();
 
     await ruleBasedConfiguration.addProcessorsButton.click();
-    await ruleBasedConfiguration.dropdownOption("adyen_payout_routing_edit").click();
+    await ruleBasedConfiguration
+      .dropdownOption("adyen_payout_routing_edit")
+      .click();
 
     await ruleBasedConfiguration.configureRuleButton.click();
 
@@ -740,7 +887,7 @@ test.describe("Payout Routing list - Manage rules", () => {
     await nameInput.clear();
     await nameInput.fill("Rule payout edit updated");
 
-    await page.getByRole('button', { name: 'USD' }).click();
+    await page.getByRole("button", { name: "USD" }).click();
     await ruleBasedConfiguration.dropdownOption("EUR", 4).click();
     await ruleBasedConfiguration.configureRuleButton.click();
 
@@ -748,7 +895,9 @@ test.describe("Payout Routing list - Manage rules", () => {
     await page.waitForLoadState("networkidle");
 
     await openManageRulesTab(page);
-    await expect(payoutRouting.historyCell(1, 2)).toContainText("Rule payout edit updated");
+    await expect(payoutRouting.historyCell(1, 2)).toContainText(
+      "Rule payout edit updated",
+    );
   });
 });
 
@@ -759,15 +908,30 @@ test.describe("Advanced payout rule connector selection modes", () => {
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
-  async function navigateToRuleBasedPayoutRouting(page: Page, context: BrowserContext) {
+  async function navigateToRuleBasedPayoutRouting(
+    page: Page,
+    context: BrowserContext,
+  ) {
     const homePage = new HomePage(page);
     const payoutRouting = new PayoutRouting(page);
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (merchantId) {
-      await createPayoutConnectorAPI(merchantId, "adyen_payout_rule_a", context.request);
-      await createPayoutConnectorAPI(merchantId, "adyen_payout_rule_b", context.request);
-      await createPayoutConnectorAPI(merchantId, "adyen_payout_rule_c", context.request);
+      await createPayoutConnectorAPI(
+        merchantId,
+        "adyen_payout_rule_a",
+        context.request,
+      );
+      await createPayoutConnectorAPI(
+        merchantId,
+        "adyen_payout_rule_b",
+        context.request,
+      );
+      await createPayoutConnectorAPI(
+        merchantId,
+        "adyen_payout_rule_c",
+        context.request,
+      );
     }
 
     await homePage.workflow.click();
@@ -791,19 +955,18 @@ test.describe("Advanced payout rule connector selection modes", () => {
 
     await expect(ruleBasedConfiguration.distributeText).toBeVisible();
 
-    const isChecked = await ruleBasedConfiguration.distributeText.getAttribute('aria-checked');
-    expect(isChecked || 'false').toBe('false');
+    const isChecked =
+      await ruleBasedConfiguration.distributeText.getAttribute("aria-checked");
+    expect(isChecked || "false").toBe("false");
 
-    const connectorBadges = page.locator('.flex.flex-row.items-center.justify-around.gap-2');
-    const badgeCount = await connectorBadges.count();
-    expect(badgeCount).toBeGreaterThanOrEqual(2);
-
+    expect(page.getByText("1adyen_payout_rule_a")).toBeVisible();
+    expect(page.getByText("2adyen_payout_rule_b")).toBeVisible();
     const percentageInputs = page.locator('input[name="1"], input[name="2"]');
     const inputCount = await percentageInputs.count();
     expect(inputCount).toBe(0);
 
-    await expect(page.getByText('adyen_payout_rule_a').nth(1)).toBeVisible();
-    await expect(page.getByText('adyen_payout_rule_b').nth(1)).toBeVisible();
+    await expect(page.getByText("adyen_payout_rule_a").nth(1)).toBeVisible();
+    await expect(page.getByText("adyen_payout_rule_b").nth(1)).toBeVisible();
   });
 
   test("should render connectors with split fields in volume mode (distribute ON)", async ({
@@ -844,7 +1007,9 @@ test.describe("Advanced payout rule connector selection modes", () => {
     await ruleBasedConfiguration.distributeCheckboxNotSelected.nth(0).click();
     await page.waitForTimeout(300);
 
-    const percentageInputs = page.locator('input[name="1"], input[name="2"], input[name="3"]');
+    const percentageInputs = page.locator(
+      'input[name="1"], input[name="2"], input[name="3"]',
+    );
     await expect(percentageInputs).toHaveCount(3);
 
     await expect(ruleBasedConfiguration.percentageInput(1)).toHaveValue("33");
@@ -873,8 +1038,8 @@ test.describe("Advanced payout rule connector selection modes", () => {
     percentageInputs = page.locator('input[name="1"], input[name="2"]');
     await expect(percentageInputs).toHaveCount(0);
 
-    await expect(page.getByText('adyen_payout_rule_a')).toBeVisible();
-    await expect(page.getByText('adyen_payout_rule_b')).toBeVisible();
+    await expect(page.getByText("adyen_payout_rule_a")).toBeVisible();
+    await expect(page.getByText("adyen_payout_rule_b")).toBeVisible();
   });
 
   test("should allow manual editing of split percentages", async ({
@@ -898,7 +1063,7 @@ test.describe("Advanced payout rule connector selection modes", () => {
     await expect(input2).toHaveValue("50");
 
     await input1.clear();
-    await input1.fill('40');
+    await input1.fill("40");
     await input1.blur();
     await page.waitForTimeout(200);
 
@@ -921,7 +1086,9 @@ test.describe("Advanced payout rule connector selection modes", () => {
 
     await ruleBasedConfiguration.distributeCheckboxNotSelected.click();
 
-    let percentageInputs = page.locator('input[name="1"], input[name="2"], input[name="3"]');
+    let percentageInputs = page.locator(
+      'input[name="1"], input[name="2"], input[name="3"]',
+    );
     await expect(percentageInputs).toHaveCount(3);
 
     await ruleBasedConfiguration.removeFirstConnectorButton.click();
@@ -949,11 +1116,15 @@ test.describe("Advanced payout rule connector selection modes", () => {
     await nameInput.clear();
     await nameInput.blur();
 
-    await expect(page.getByText('Please provide name field', { exact: false })).toBeVisible();
+    await expect(
+      page.getByText("Please provide name field", { exact: false }),
+    ).toBeVisible();
 
     await volumeBasedConfiguration.descriptionTextbox.clear();
     await volumeBasedConfiguration.descriptionTextbox.blur();
-    await expect(page.getByText('Please provide description field', { exact: false })).toBeVisible();
+    await expect(
+      page.getByText("Please provide description field", { exact: false }),
+    ).toBeVisible();
   });
 });
 
@@ -965,7 +1136,9 @@ test.describe("Payout Routing feature flag", () => {
     await page.waitForURL(/dashboard\/home/, { timeout: 15000 });
   });
 
-  test("should expose the Payout Routing menu under Workflows when payout flag is ON", async ({ page }) => {
+  test("should expose the Payout Routing menu under Workflows when payout flag is ON", async ({
+    page,
+  }) => {
     const homePage = new HomePage(page);
     await setPayoutFeatureFlag(page, true);
     await page.reload();
@@ -974,7 +1147,9 @@ test.describe("Payout Routing feature flag", () => {
     await expect(homePage.payoutRouting).toBeVisible();
   });
 
-  test("should hide the Payout Routing menu when payout flag is OFF", async ({ page }) => {
+  test("should hide the Payout Routing menu when payout flag is OFF", async ({
+    page,
+  }) => {
     const homePage = new HomePage(page);
     await setPayoutFeatureFlag(page, false);
     await page.reload();

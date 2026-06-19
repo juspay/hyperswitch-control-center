@@ -72,7 +72,7 @@ let getModalObj = (routingType, text) => {
 let getContent = routetype =>
   switch routetype {
   | DEFAULTFALLBACK => {
-      heading: "Default fallback ",
+      heading: "Default Fallback ",
       subHeading: "Fallback is the priority list of configured processors used for routing traffic alone or when other rules don’t apply. You can reorder it via drag and drop",
     }
   | VOLUME_SPLIT => {
@@ -175,7 +175,7 @@ module SaveAndActivateButton = {
 }
 module ConfigureRuleButton = {
   @react.component
-  let make = (~setShowModal) => {
+  let make = (~setShowModal, ~customButtonStyle="w-1/5") => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
@@ -189,7 +189,7 @@ module ConfigureRuleButton = {
       onClick={_ => {
         setShowModal(_ => true)
       }}
-      customButtonStyle="w-1/5"
+      customButtonStyle
     />
   }
 }

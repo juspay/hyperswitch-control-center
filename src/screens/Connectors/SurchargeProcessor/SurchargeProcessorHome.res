@@ -9,8 +9,8 @@ let make = () => {
 
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchDetails = useGetMethod()
+  let updateDetails = useUpdateMethod()
   let connectorName = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
   let showToast = ToastState.useShowToast()
 
@@ -39,6 +39,32 @@ let make = () => {
     ConnectorInterface.connectorInterfaceV1,
     initialValues->getDictFromJsonObject,
   )
+
+  let isConnectorDisabled = connectorInfo.disabled
+
+  let disableConnector = async currentIsDisabled => {
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let mcaId = connectorInfo.merchant_connector_id
+      let disableConnectorPayload = ConnectorUtils.getDisableConnectorPayload(
+        connectorInfo.connector_type->ConnectorUtils.connectorTypeTypedValueToStringMapper,
+        currentIsDisabled,
+      )
+      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(mcaId))
+      let res = await updateDetails(url, disableConnectorPayload, Post)
+      setInitialValues(_ => res)
+      let _ = await fetchConnectorListResponse()
+      setScreenState(_ => PageLoaderWrapper.Success)
+      showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
+    } catch {
+    | Exn.Error(_) => {
+        let action = currentIsDisabled ? "enable" : "disable"
+
+        showToast(~message=`Failed to ${action} connector!`, ~toastType=ToastError)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
+    }
+  }
 
   let getConnectorDetails = async () => {
     try {
@@ -166,7 +192,7 @@ let make = () => {
         ~methodType=Post,
         ~id=isUpdateFlow ? Some(connectorID) : None,
       )
-      let response = await updateAPIHook(connectorUrl, body, Post)
+      let response = await updateDetails(connectorUrl, body, Post)
 
       if !isUpdateFlow {
         let mcaId =
@@ -215,17 +241,20 @@ let make = () => {
 
   let summaryPageButton = switch currentStep {
   | Preview =>
-    <>
-      <RenderIf condition={connectorInfo.merchant_connector_id == surchargeProcessorId}>
-        <div
-          className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.md.medium}`}>
-          {"Default"->React.string}
-        </div>
-      </RenderIf>
-      <RenderIf condition={connectorInfo.merchant_connector_id != surchargeProcessorId}>
-        <MenuOption handleMenuOptionSubmit connectorInfo />
-      </RenderIf>
-    </>
+    <div className="flex gap-6 items-center">
+      {<>
+        <RenderIf condition={connectorInfo.merchant_connector_id == surchargeProcessorId}>
+          <div
+            className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.md.medium}`}>
+            {"Default"->React.string}
+          </div>
+        </RenderIf>
+        <RenderIf condition={connectorInfo.merchant_connector_id != surchargeProcessorId}>
+          <MenuOption handleMenuOptionSubmit connectorInfo />
+        </RenderIf>
+      </>}
+      <ConnectorPreviewHelper.EnableDisableConnectorToggle disableConnector isConnectorDisabled />
+    </div>
   | _ =>
     <Button
       text="Done"
