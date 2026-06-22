@@ -479,7 +479,7 @@ let make = () => {
     <LoaderModal
       showModal={showSwitchingOrg}
       setShowModal={setShowSwitchingOrg}
-      text="Switching organisation..."
+      text="Switching organization..."
     />
   </div>
 }

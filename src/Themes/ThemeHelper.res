@@ -112,7 +112,7 @@ let entityTypeField = FormRenderer.makeFieldInfo(
 
 let orgDisplayField = (~getNameForId) =>
   FormRenderer.makeFieldInfo(
-    ~label="Current Organisation",
+    ~label="Current Organization",
     ~name="display.organization_name",
     ~customInput=(~input as _, ~placeholder as _) =>
       <div
@@ -329,7 +329,7 @@ module LineageFormContent = {
             className="flex gap-2 items-center flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-2 rounded-lg">
             <Icon name="nd-info-circle" size=14 className="text-nd_yellow-700" />
             <span className={`text-nd_yellow-700 ${body.sm.regular}`}>
-              {"A theme already exists for this entity level. Continue to override it."->React.string}
+              {"A theme already exists for this hierarchy. Continue to edit it."->React.string}
             </span>
           </div>
         </RenderIf>
@@ -516,7 +516,7 @@ module ThemeLineageModal = {
         childClass="p-0"
         onCloseClickCustomFun=handleModalClose
         modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
-          {"Select the level at which you want to create a theme."->React.string}
+          {"Select the entity-level at which you want to create a theme."->React.string}
         </div>}>
         <LineageFormContent showModal setShowModal step setStep themeExists setThemeExists />
       </Modal>

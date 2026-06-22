@@ -53,7 +53,7 @@ module CurrentThemeCard = {
             {"Current Theme"->React.string}
           </span>
           <div className={`text-nd_gray-500 ${body.lg.regular}`}>
-            {"No active theme exists for this lineage. Please create a new theme to proceed."->React.string}
+            {"No active theme exists for this hierarchy. Please create a new theme to proceed."->React.string}
           </div>
         </div>
       | Some(themeObj) =>
