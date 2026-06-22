@@ -87,6 +87,10 @@ module Editor = {
     type t
 
     @send external deltaDecorations: (t, 'arr1, 'arr2) => 'decorators = "deltaDecorations"
+    @send external trigger: (t, string, string, Js.Json.t) => unit = "trigger"
+    @send external focus: t => unit = "focus"
+    @send external revealLineInCenter: (t, int) => unit = "revealLineInCenter"
+    @send external setPosition: (t, {"lineNumber": int, "column": int}) => unit = "setPosition"
   }
 
   @react.component @module("@monaco-editor/react")
@@ -99,4 +103,45 @@ module Editor = {
     ~beforeMount: monaco => unit,
     ~options: options=?,
   ) => React.element = "default"
+}
+
+// Minimal namespace bindings for registering a custom language (Monarch
+// tokenizer) and theme. The `t` instance is the `monaco` object handed to the
+// editor's `beforeMount` callback, so this needs no eager `monaco-editor` import.
+module Setup = {
+  type languagesApi
+  type editorApi
+  type t = {
+    languages: languagesApi,
+    editor: editorApi,
+  }
+
+  // A line tokenizer state. Monaco calls clone()/equals() on it; our tokenizer
+  // is stateless (each line restarts), so a single shared state is enough.
+  type rec tokenState = {
+    clone: unit => tokenState,
+    equals: tokenState => bool,
+  }
+  type token = {
+    startIndex: int,
+    scopes: string,
+  }
+  type lineTokens = {
+    tokens: array<token>,
+    endState: tokenState,
+  }
+  type tokensProvider = {
+    getInitialState: unit => tokenState,
+    tokenize: (string, tokenState) => lineTokens,
+  }
+
+  let rec makeState = (): tokenState => {
+    clone: () => makeState(),
+    equals: _ => true,
+  }
+
+  @send external register: (languagesApi, {"id": string}) => unit = "register"
+  @send
+  external setTokensProvider: (languagesApi, string, tokensProvider) => unit = "setTokensProvider"
+  @send external defineTheme: (editorApi, string, 'theme) => unit = "defineTheme"
 }

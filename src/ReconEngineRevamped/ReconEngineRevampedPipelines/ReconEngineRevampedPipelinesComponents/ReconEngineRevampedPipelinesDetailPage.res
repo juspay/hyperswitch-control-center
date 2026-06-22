@@ -758,6 +758,7 @@ let make = (~ingestionHistoryId: string) => {
   let (sortOrder, setSortOrder) = React.useState(_ => "recent")
   let (selectedEntry, setSelectedEntry) = React.useState((_): option<processingEntryType> => None)
   let (selectedTx, setSelectedTx) = React.useState((_): option<transformationHistoryType> => None)
+  let (showViewer, setShowViewer) = React.useState(_ => false)
 
   let onDownloadFile = async () => {
     try {
@@ -772,12 +773,15 @@ let make = (~ingestionHistoryId: string) => {
         ~id=Some(fileId),
       )
       let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute, ~forceCookies)
-      let csvContent = await res->Fetch.Response.text
       let fileName = switch historyItem {
       | Some(h) => h.file_name
       | None => `${ingestionHistoryId}.csv`
       }
-      DownloadUtils.download(~fileName, ~content=csvContent, ~fileType="text/csv")
+      // Download the raw response bytes as a blob so binary files (xlsx/xls)
+      // aren't corrupted by text decoding. octet-stream works for every type —
+      // the browser saves it under the original file name/extension.
+      let blobContent = await res->Fetch.Response.blob
+      DownloadUtils.download(~fileName, ~content=blobContent, ~fileType="application/octet-stream")
       showToast(~message="File downloaded successfully", ~toastType=ToastSuccess)
     } catch {
     | _ => showToast(~message="Failed to download file. Please try again.", ~toastType=ToastError)
@@ -955,14 +959,24 @@ let make = (~ingestionHistoryId: string) => {
         <Icon name="nd-arrow-left" size=13 />
         {"Pipelines"->React.string}
       </button>
-      <Button
-        text="Download file"
-        leftIcon={CustomIcon(<Icon name="nd-download-down" size=12 />)}
-        buttonType=Secondary
-        buttonSize=Small
-        onClick={_ => onDownloadFile()->ignore}
-        maxButtonWidth="!w-fit"
-      />
+      <div className="flex items-center gap-2">
+        <Button
+          text="View file"
+          leftIcon={CustomIcon(<Icon name="nd-eye-on" size=12 />)}
+          buttonType=Secondary
+          buttonSize=Small
+          onClick={_ => setShowViewer(_ => true)}
+          maxButtonWidth="!w-fit"
+        />
+        <Button
+          text="Download file"
+          leftIcon={CustomIcon(<Icon name="nd-download-down" size=12 />)}
+          buttonType=Secondary
+          buttonSize=Small
+          onClick={_ => onDownloadFile()->ignore}
+          maxButtonWidth="!w-fit"
+        />
+      </div>
     </div>
     <PageLoaderWrapper
       screenState
@@ -1155,5 +1169,14 @@ let make = (~ingestionHistoryId: string) => {
       <TransformationRunModal tx configJson schema onClose={() => setSelectedTx(_ => None)} />
     | None => React.null
     }}
+    <RenderIf condition=showViewer>
+      <ReconEngineRevampedPipelinesFileViewer
+        historyItem
+        transformations
+        txConfigs
+        onClose={() => setShowViewer(_ => false)}
+        onDownload={() => onDownloadFile()->ignore}
+      />
+    </RenderIf>
   </div>
 }

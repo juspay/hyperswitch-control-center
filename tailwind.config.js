@@ -642,6 +642,32 @@ module.exports = {
 
       addUtilities(newUtilities, ["responsive", "hover"]);
     }),
+    plugin(function ({ addUtilities }) {
+      // Recon file-viewer gutter glyphs (Monaco glyph margin): a stop sign on
+      // error lines (a bigger deal) and a warning sign on skipped lines.
+      addUtilities({
+        ".recon-glyph-error": {
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "12px",
+          lineHeight: "1",
+        },
+        ".recon-glyph-error::before": {
+          content: '"🛑"',
+        },
+        ".recon-glyph-skip": {
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "12px",
+          lineHeight: "1",
+        },
+        ".recon-glyph-skip::before": {
+          content: '"⚠️"',
+        },
+      });
+    }),
   ],
 };
 

@@ -245,14 +245,39 @@ let ingestionHistoryItemToObjMapper = (dict): ingestionHistoryType => {
   }
 }
 
+let lineSkipReasonItemToObjMapper = (dict): lineSkipReasonType => {
+  {
+    skip_type: dict->getString("skip_type", ""),
+    identifier: dict->getString("identifier", ""),
+    operator: dict->getString("operator", ""),
+    value: dict->getString("value", ""),
+  }
+}
+
+let lineOutcomeItemToObjMapper = (dict): lineOutcomeType => {
+  let outcome = dict->getDictfromDict("outcome")
+  {
+    line_number: dict->getInt("line_number", 0),
+    status: outcome->getString("status", ""),
+    staging_entry_id: outcome->getOptionString("staging_entry_id"),
+    reasons: outcome
+    ->getArrayFromDict("reasons", [])
+    ->Array.map(r => r->getDictFromJsonObject->lineSkipReasonItemToObjMapper),
+  }
+}
+
 let transformationDataMapper = (dict): transformationData => {
   {
     total_count: dict->getInt("total_count", 0),
     transformed_count: dict->getInt("transformed_count", 0),
     transformation_result: dict->getString("transformation_result", ""),
     ignored_count: dict->getInt("ignored_count", 0),
+    error_count: dict->getInt("error_count", 0),
     staging_entry_ids: dict->getStrArrayFromDict("staging_entry_ids", []),
     errors: dict->getStrArrayFromDict("errors", []),
+    line_outcomes: dict
+    ->getArrayFromDict("line_outcomes", [])
+    ->Array.map(o => o->getDictFromJsonObject->lineOutcomeItemToObjMapper),
   }
 }
 

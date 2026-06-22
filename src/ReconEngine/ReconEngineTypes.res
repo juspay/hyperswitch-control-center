@@ -63,13 +63,31 @@ type ingestionTransformationStatusType =
   | Discarded
   | UnknownIngestionTransformationStatus
 
+// A single reason a line was skipped (e.g. a field-value condition that excluded it).
+type lineSkipReasonType = {
+  skip_type: string,
+  identifier: string,
+  operator: string,
+  value: string,
+}
+
+// Per-line result of a transformation run (from transformation history `data.line_outcomes`).
+type lineOutcomeType = {
+  line_number: int,
+  status: string, // "transformed" | "skipped" | "error"
+  staging_entry_id: option<string>,
+  reasons: array<lineSkipReasonType>,
+}
+
 type transformationData = {
   transformation_result: string,
   total_count: int,
   transformed_count: int,
   ignored_count: int,
+  error_count: int,
   staging_entry_ids: array<string>,
   errors: array<string>,
+  line_outcomes: array<lineOutcomeType>,
 }
 
 type ingestionHistoryType = {
