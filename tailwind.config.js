@@ -85,6 +85,7 @@ module.exports = {
         "12.5-rem": "12.5rem",
         onBoardingSupplier: "calc(100vh - 300px)",
         modalContentHeight: "calc(100vh - 140px)",
+        themePreview: "calc(75vh - 200px)",
       },
       padding: {
         "2-px": "2px",
@@ -98,6 +99,7 @@ module.exports = {
         "30-rem": "30rem",
         "750-px": "750px",
         "890-px": "890px",
+        themeConfigPanel: "calc(100vh - 270px)",
       },
       minHeight: {
         "500-px": "500px",
