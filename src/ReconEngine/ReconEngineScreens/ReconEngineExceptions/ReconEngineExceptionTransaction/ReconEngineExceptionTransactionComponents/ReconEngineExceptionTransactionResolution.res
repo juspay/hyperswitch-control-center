@@ -742,7 +742,7 @@ let make = (
     } catch {
     | _ =>
       showToast(
-        ~message="Failed to ignore the transaction. Please try again.",
+        ~message="Failed to force reconcile the transaction. Please try again.",
         ~toastType=ToastError,
       )
     }
