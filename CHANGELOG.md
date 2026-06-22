@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.06.22.0
+
+### Features
+
+- Add AbortController support to cancel stale API requests ([#4512](https://github.com/juspay/hyperswitch-control-center/pull/4512)) ([`63f7073`](https://github.com/juspay/hyperswitch-control-center/commit/63f70738d4a85515f893bd78f0c7680c989c9678))
+
+**Full Changelog:** [`2026.06.19.0...2026.06.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.19.0...2026.06.22.0)
+
+- - -
+
 ## 2026.06.19.0
 
 ### Miscellaneous Tasks
