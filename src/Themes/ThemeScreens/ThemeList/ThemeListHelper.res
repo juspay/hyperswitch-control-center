@@ -42,7 +42,7 @@ module RenderEntityRow = {
 
 module CurrentThemeCard = {
   @react.component
-  let make = (~currentTheme, ~getNameForId) => {
+  let make = (~currentTheme, ~getNameForId, ~themeId, ~orgId) => {
     open Typography
 
     {
@@ -62,11 +62,22 @@ module CurrentThemeCard = {
         let entityLevelLabelEntity: UserInfoTypes.entity =
           themeData.entityType->UserInfoUtils.entityMapper
 
+        let redirectToTheme = () => {
+          open LogicUtils
+          let profileId = themeData.profileId->isEmptyString ? "all_profiles" : themeData.profileId
+          let merchantId =
+            themeData.merchantId->isEmptyString ? "all_merchants" : themeData.merchantId
+          let url = `/theme/${themeId}/${profileId}/${merchantId}/${orgId}`
+          RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url))
+        }
+
         <div className="flex flex-col gap-4 mt-4 w-fit max-w-lg">
           <span className={`${body.lg.semibold} text-nd_gray-800`}>
             {"Current Theme"->React.string}
           </span>
-          <div className="rounded-xl border border-nd_gray-200 p-4 mb-8 flex flex-col gap-6">
+          <div
+            className="rounded-xl border border-nd_gray-200 p-4 mb-8 flex flex-col gap-6 cursor-pointer hover:border-nd_gray-300 transition"
+            onClick={_ => redirectToTheme()}>
             <div className="flex items-center gap-4">
               <span className={`${body.md.semibold}`}> {themeData.themeName->React.string} </span>
               <span

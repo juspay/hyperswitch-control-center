@@ -37,6 +37,8 @@ let getFileFromEvent = ev => {
   files->LogicUtils.getValueFromArray(0, None)
 }
 
+let maxAssetFileSizeBytes = 2 * 1024 * 1024
+
 let assetsMapper = (dict): ThemeTypes.assets => {
   open LogicUtils
   let toUrl = url => url->isNonEmptyString ? Some(ThemeTypes.Url(url)) : None
