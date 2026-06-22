@@ -241,6 +241,8 @@ module IconSettings = {
     ~onEmailLogoRemove: unit => unit=() => (),
     ~themeConfigVersion,
   ) => {
+    let (resetKey, setResetKey) = React.useState(() => 0)
+
     let getDisplayUrl = (asset: option<ThemeTypes.assetValue>) =>
       asset->Option.map(value =>
         switch value {
@@ -253,9 +255,6 @@ module IconSettings = {
       )
 
     let showToast = ToastState.useShowToast()
-    // Bumped after every selection to remount the file <input>s, so picking the same
-    // file again (e.g. after a size-rejection) still fires onChange.
-    let (resetKey, setResetKey) = React.useState(() => 0)
 
     let handleFileChange = (onSelect, ev) => {
       switch ThemeFeatureUtils.getFileFromEvent(ev) {

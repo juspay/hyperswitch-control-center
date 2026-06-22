@@ -40,8 +40,6 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
         urlsDict->Dict.set("emailLogoUrl", emailLogoUrl->JSON.Encode.string)
       }
       setAssets(_ => urlsDict->assetsMapper)
-      // Keep theme_name / entity_type on the form values so the header can read them back
-      // (themeBodyMapper drops them; they're ignored on submit).
       let initialValuesDict = mappedTheme->Identity.genericTypeToJson->getDictFromJsonObject
       initialValuesDict->Dict.set(
         "theme_name",
