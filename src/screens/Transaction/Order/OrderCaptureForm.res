@@ -27,8 +27,7 @@ let make = (~order: PaymentInterfaceTypes.order, ~setShowModal, ~refetch) => {
   )
 
   let initiateValueJson =
-    [("amount", amountCapturableInMajorUnits->JSON.Encode.float)]
-    ->getJsonFromArrayOfJson
+    [("amount", amountCapturableInMajorUnits->JSON.Encode.float)]->getJsonFromArrayOfJson
 
   let capturePayment = async values => {
     try {
@@ -42,8 +41,9 @@ let make = (~order: PaymentInterfaceTypes.order, ~setShowModal, ~refetch) => {
       let dict = values->getDictFromJsonObject
       let amount = dict->getFloat("amount", 0.0)
       let body =
-        [("amount_to_capture", Math.round(amount *. conversionFactor)->JSON.Encode.float)]
-        ->getJsonFromArrayOfJson
+        [
+          ("amount_to_capture", Math.round(amount *. conversionFactor)->JSON.Encode.float),
+        ]->getJsonFromArrayOfJson
 
       let _ = await updateDetails(captureUrl, body, Post)
       refetch()->ignore
@@ -66,8 +66,7 @@ let make = (~order: PaymentInterfaceTypes.order, ~setShowModal, ~refetch) => {
   let validate = values => {
     let errors = Dict.make()
     let valuesDict = values->getDictFromJsonObject
-    let amountValue = valuesDict->Dict.get("amount")
-    switch amountValue->Option.flatMap(obj => obj->JSON.Decode.float) {
+    switch valuesDict->getOptionFloat("amount") {
     | Some(floatVal) =>
       let enteredAmountInMinorUnits = Math.round(floatVal *. conversionFactor)
       let capturableInMinorUnits = Math.round(amountCapturableInMajorUnits *. conversionFactor)
