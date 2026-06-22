@@ -7,7 +7,7 @@ let make = () => {
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
-  let {setPaymentResult, setInitialValuesForCheckoutForm, setClientSecretStatus} = React.useContext(
+  let {setPaymentResult, setInitialValuesForCheckoutForm} = React.useContext(
     SDKProvider.defaultContext,
   )
   let paymentConnectorList = ConnectorListInterface.useFilteredConnectorList(
@@ -32,34 +32,23 @@ let make = () => {
 
   let getClientSecret = async (~typedValues: SDKPaymentTypes.paymentType) => {
     try {
-      setClientSecretStatus(_ => Loading)
       let url = getURL(~entityName=V1(SDK_PAYMENT), ~methodType=Post)
       let body = typedValues->Identity.genericTypeToJson
       let response = await updateDetails(url, body, Fetch.Post)
       setPaymentResult(_ => response)
-      setClientSecretStatus(_ => Success)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to update!")
-        setClientSecretStatus(_ => Error)
         Exn.raiseError(err)
       }
     }
-  }
-
-  let onSubmitClick = () => {
-    setCurrentStep(_ => Configurator)
-  }
-
-  let onEditCheckoutDetails = () => {
-    setCurrentStep(_ => Checkout)
   }
 
   <div className="flex flex-col gap-8">
     <div className="flex justify-between items-center">
       <PageUtils.PageHeading title="Payment Link Theme Configuration" subTitle={subtitle} />
       <RenderIf condition={currentStep == Configurator}>
-        <Button text="Edit checkout details" onClick={_ => onEditCheckoutDetails()} />
+        <Button text="Edit checkout details" onClick={_ => setCurrentStep(_ => Checkout)} />
       </RenderIf>
     </div>
     {switch currentStep {
@@ -84,7 +73,7 @@ let make = () => {
           </RenderIf>
           <CheckoutDetails
             getClientSecret
-            onSubmitClick
+            onSubmitClick={_ => setCurrentStep(_ => Configurator)}
             navigationPath="/payment-link-theme"
             submitButtonText="Configure Payment Link"
           />

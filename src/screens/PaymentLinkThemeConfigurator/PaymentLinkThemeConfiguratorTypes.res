@@ -13,19 +13,9 @@ type previewState =
   | PreviewSuccess(string)
 
 @unboxed
-type captureMethod =
-  | @as("automatic") Automatic
-  | @as("manual") Manual
-
-@unboxed
 type setupFutureUsage =
   | @as("off_session") OffSession
   | @as("on_session") OnSession
-
-@unboxed
-type authenticationType =
-  | @as("three_ds") ThreeDS
-  | @as("no_three_ds") NoThreeDS
 
 @unboxed
 type showCardTerms =

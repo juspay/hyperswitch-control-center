@@ -3,21 +3,6 @@ open PaymentLinkThemeConfiguratorTypes
 
 let defaultStyleId = (Default: PaymentLinkThemeConfiguratorTypes.styleType :> string)
 
-let captureMethodOptions: array<SelectBox.dropdownOption> = [
-  {label: "Automatic", value: (Automatic :> string)},
-  {label: "Manual", value: (Manual :> string)},
-]
-
-let setupFutureUsageOptions: array<SelectBox.dropdownOption> = [
-  {label: "Off Session", value: (OffSession :> string)},
-  {label: "On Session", value: (OnSession :> string)},
-]
-
-let authenticationTypeOptions: array<SelectBox.dropdownOption> = [
-  {label: "Three DS", value: (ThreeDS :> string)},
-  {label: "No Three DS", value: (NoThreeDS :> string)},
-]
-
 let showCardTermsOptions: array<SelectBox.dropdownOption> = [
   Always,
   Auto,
@@ -157,8 +142,8 @@ let generateWasmPayload = (~paymentDetails, ~publishableKey, ~formValues) => {
     payment_form_label_type: getOptionString(formValuesDict, "payment_form_label_type"),
     show_card_terms: getOptionString(formValuesDict, "show_card_terms"),
     is_setup_mandate_flow: getOptionBool(formValuesDict, "is_setup_mandate_flow"),
-    capture_method: getOptionString(formValuesDict, "capture_method"),
-    setup_future_usage_applied: getOptionString(formValuesDict, "setup_future_usage_applied"),
+    capture_method: getOptionString(paymentDetailsDict, "capture_method"),
+    setup_future_usage_applied: getOptionString(paymentDetailsDict, "setup_future_usage"),
     color_icon_card_cvc_error: getOptionString(formValuesDict, "color_icon_card_cvc_error"),
   }
 }

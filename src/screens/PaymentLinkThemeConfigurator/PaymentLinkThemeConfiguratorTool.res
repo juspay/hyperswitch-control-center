@@ -1,6 +1,6 @@
 open LogicUtils
-open PaymentLinkThemeConfiguratorUtils
 open PaymentLinkThemeConfiguratorTypes
+open PaymentLinkThemeConfiguratorUtils
 
 module ConfiguratorForm = {
   @react.component
@@ -35,7 +35,7 @@ module ConfiguratorForm = {
       None
     }, [initialFormValues])
 
-    let (previewState, setPreviewState) = React.useState(_ => PreviewSuccess(""))
+    let (previewState, setPreviewState) = React.useState(_ => PreviewLoading)
     let {paymentResult, initialValuesForCheckoutForm} = React.useContext(SDKProvider.defaultContext)
 
     let isOffSession =
@@ -49,7 +49,7 @@ module ConfiguratorForm = {
     )
     let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
 
-    let generatePreview = React.useCallback((~values) => {
+    let generatePreview = (~values) => {
       let publishableKey = merchantDetailsTypedValue.publishable_key
 
       try {
@@ -90,7 +90,7 @@ module ConfiguratorForm = {
           setPreviewState(_ => PreviewError(errorMessage))
         }
       }
-    }, [paymentResult])
+    }
 
     let debouncedGeneratePreview = ReactDebounce.useDebounced(
       values => generatePreview(~values),
@@ -148,10 +148,10 @@ module ConfiguratorForm = {
               <FieldRenderer field={makeSellerNameField()} fieldWrapperClass="!w-full" />
               <FieldRenderer field={makeMerchantDescriptionField()} fieldWrapperClass="!w-full" />
               <FieldRenderer field={makePaymentButtonTextField()} fieldWrapperClass="!w-full" />
-              <FieldRenderer
-                field={makeCustomMessageForCardTermsField()} fieldWrapperClass="!w-full"
-              />
               <RenderIf condition={isOffSession}>
+                <FieldRenderer
+                  field={makeCustomMessageForCardTermsField()} fieldWrapperClass="!w-full"
+                />
                 <FieldRenderer field={makeShowCardTermsField()} fieldWrapperClass="!w-full" />
               </RenderIf>
               <FieldRenderer
@@ -181,7 +181,7 @@ module ConfiguratorForm = {
                 field={makeBackgroundColorField(
                   ~defaultValue=initialValues
                   ->getDictFromJsonObject
-                  ->getString("background_color", ""),
+                  ->getString("background_colour", ""),
                 )}
                 fieldWrapperClass="!w-full"
               />
@@ -544,7 +544,9 @@ let make = () => {
       <StyleIdSelection selectedStyleId setSelectedStyleId />
       <div>
         <RenderIf condition={selectedStyleId->isNonEmptyString}>
-          <ConfiguratorForm initialFormValues={selectedStyleConfigs} selectedStyleId />
+          <ConfiguratorForm
+            key={selectedStyleId} initialFormValues={selectedStyleConfigs} selectedStyleId
+          />
         </RenderIf>
         <RenderIf condition={selectedStyleId->isEmptyString}>
           <NoDataFound
