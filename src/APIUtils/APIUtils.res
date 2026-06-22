@@ -1670,7 +1670,7 @@ let useGetMethod = (~showErrorToast=true) => {
     })
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  async (url, ~version=UserInfoTypes.V1) => {
+  async (url, ~version=UserInfoTypes.V1, ~signal=?) => {
     try {
       let res = await fetchApi(
         url,
@@ -1681,6 +1681,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~profileId,
         ~version,
         ~isEmbeddableSession=isEmbeddableSession(),
+        ~signal?,
       )
       await responseHandler(
         ~url,
@@ -1695,6 +1696,8 @@ let useGetMethod = (~showErrorToast=true) => {
         ~isEmbeddableSession=isEmbeddableSession(),
       )
     } catch {
+    | _ if signal->Option.mapOr(false, AbortControllerHook.isAborted) =>
+      raise(AbortControllerHook.AbortError)
     | Exn.Error(e) =>
       catchHandler(~err={e}, ~showErrorToast, ~showToast, ~isPlayground, ~popUpCallBack)
     | _ => Exn.raiseError("Something went wrong")
@@ -1738,6 +1741,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
     ~headers=Dict.make(),
     ~contentType=AuthHooks.Headers("application/json"),
     ~version=UserInfoTypes.V1,
+    ~signal=?,
   ) => {
     try {
       let res = await fetchApi(
@@ -1753,6 +1757,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~profileId,
         ~version,
         ~isEmbeddableSession=isEmbeddableSession(),
+        ~signal?,
       )
       await responseHandler(
         ~url,
@@ -1767,9 +1772,67 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~isEmbeddableSession=isEmbeddableSession(),
       )
     } catch {
+    | _ if signal->Option.mapOr(false, AbortControllerHook.isAborted) =>
+      raise(AbortControllerHook.AbortError)
     | Exn.Error(e) =>
       catchHandler(~err={e}, ~showErrorToast, ~showToast, ~isPlayground, ~popUpCallBack)
     | _ => Exn.raiseError("Something went wrong")
     }
+  }
+}
+
+let useCancellableGetMethod = (~showErrorToast=true) => {
+  let fetchDetails = useGetMethod(~showErrorToast)
+  let getSignal = AbortControllerHook.useAbortController()
+
+  async (url, ~version=UserInfoTypes.V1, ~signal=?) => {
+    let requestSignal = switch signal {
+    | Some(signal) => signal
+    | None => getSignal()
+    }
+    let res = await fetchDetails(url, ~version, ~signal=requestSignal)
+
+    if requestSignal->AbortControllerHook.isAborted {
+      raise(AbortControllerHook.AbortError)
+    }
+
+    res
+  }
+}
+
+let useCancellableUpdateMethod = (~showErrorToast=true) => {
+  let updateDetails = useUpdateMethod(~showErrorToast)
+  let getSignal = AbortControllerHook.useAbortController()
+
+  async (
+    url,
+    body,
+    method,
+    ~bodyFormData=?,
+    ~headers=Dict.make(),
+    ~contentType=AuthHooks.Headers("application/json"),
+    ~version=UserInfoTypes.V1,
+    ~signal=?,
+  ) => {
+    let requestSignal = switch signal {
+    | Some(signal) => signal
+    | None => getSignal()
+    }
+    let res = await updateDetails(
+      url,
+      body,
+      method,
+      ~bodyFormData?,
+      ~headers,
+      ~contentType,
+      ~version,
+      ~signal=requestSignal,
+    )
+
+    if requestSignal->AbortControllerHook.isAborted {
+      raise(AbortControllerHook.AbortError)
+    }
+
+    res
   }
 }
