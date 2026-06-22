@@ -18,15 +18,15 @@ export class InsightsPaymentsPage {
   }
 
   get paymentsTab(): Locator {
-    return this.page.getByRole('tab', { name: 'Payments' });
+    return this.page.getByRole("tab", { name: "Payments" });
   }
 
   get smartRetriesTab(): Locator {
-    return this.page.getByRole('tab', { name: 'Smart Retries' });
+    return this.page.getByRole("tab", { name: "Smart Retries" });
   }
 
   get refundsTab(): Locator {
-    return this.page.getByRole('tab', { name: 'Refunds' });
+    return this.page.getByRole("tab", { name: "Refunds" });
   }
 
   // ---- Overview KPI cards (rendered on success) ----
@@ -34,27 +34,39 @@ export class InsightsPaymentsPage {
   // whether the cards show 0 (no data) or mocked non-zero amounts.
 
   get totalPaymentSavingsCard(): Locator {
-    return this.page.getByText('Total Payment SavingsSaved 18.5K USD*Amount saved via payment retries');
+    return this.page.getByText(
+      "Total Payment SavingsSaved 18.5K USD*Amount saved via payment retries",
+    );
   }
 
   get authorizationRateCard(): Locator {
-    return this.page.getByText('88.00%Total Authorization RateOverall successful payment intents divided by total payment intents excluding dropoffs');
+    return this.page.getByText(
+      "88.00%Total Authorization RateOverall successful payment intents divided by total payment intents excluding dropoffs",
+    );
   }
 
   get paymentsProcessedCard(): Locator {
-    return this.page.getByText('524K USD*Total Payments ProcessedThe total amount of payments processed in the selected time range');
+    return this.page.getByText(
+      "524K USD*Total Payments ProcessedThe total amount of payments processed in the selected time range",
+    );
   }
 
   get authorisedUncapturedCard(): Locator {
-    return this.page.getByText('320Authorised Uncaptured Payments CountTotal amount of authorised but uncaptured payments in the selected time range');
+    return this.page.getByText(
+      "320Authorised Uncaptured Payments CountTotal amount of authorised but uncaptured payments in the selected time range",
+    );
   }
 
   get refundsProcessedCard(): Locator {
-    return this.page.getByText('26.4K USD*Total Refunds ProcessedThe total amount of refund payments processed in the selected time range');
+    return this.page.getByText(
+      "26.4K USD*Total Refunds ProcessedThe total amount of refund payments processed in the selected time range",
+    );
   }
 
   get disputesCard(): Locator {
-    return this.page.getByText('6All DisputesTotal number of disputes irrespective of status in the selected time range');
+    return this.page.getByText(
+      "6All DisputesTotal number of disputes irrespective of status in the selected time range",
+    );
   }
 
   // ---- Section headings (ModuleHeader h2, rendered regardless of data) ----
@@ -79,7 +91,9 @@ export class InsightsPaymentsPage {
   }
 
   get paymentsSuccessRateHeading(): Locator {
-    return this.page.getByText("Payments Success Rate", { exact: true }).first();
+    return this.page
+      .getByText("Payments Success Rate", { exact: true })
+      .first();
   }
 
   get paymentsSuccessRateChartHeading(): Locator {
@@ -90,19 +104,35 @@ export class InsightsPaymentsPage {
   }
 
   get successfulPaymentsDistributionHeading(): Locator {
-    return this.page.getByText("Successful Payments Distribution", { exact: true }).first();
+    return this.page
+      .getByText("Successful Payments Distribution", { exact: true })
+      .first();
   }
 
   get successfulPaymentsDistributionChartHeading(): Locator {
-    return this.page.locator('div').filter({ hasText: /^ConnectorPayment MethodPayment Method TypeAuthentication Type$/ }).first();
+    return this.page
+      .locator("div")
+      .filter({
+        hasText:
+          /^ConnectorPayment MethodPayment Method TypeAuthentication Type$/,
+      })
+      .first();
   }
 
   get failedPaymentsDistributionHeading(): Locator {
-    return this.page.getByText("Failed Payments Distribution", { exact: true }).first();
+    return this.page
+      .getByText("Failed Payments Distribution", { exact: true })
+      .first();
   }
 
   get failedPaymentsDistributionChartHeading(): Locator {
-    return this.page.locator('div').filter({ hasText: /^ConnectorPayment MethodPayment Method TypeAuthentication Type$/ }).nth(2);
+    return this.page
+      .locator("div")
+      .filter({
+        hasText:
+          /^ConnectorPayment MethodPayment Method TypeAuthentication Type$/,
+      })
+      .nth(2);
   }
 
   get failureReasonsHeading(): Locator {
@@ -110,11 +140,15 @@ export class InsightsPaymentsPage {
   }
 
   get failureReasonsChartHeading(): Locator {
-    return this.page.getByText('ConnectorPayment MethodPayment Method TypeAuthentication TypePayment Method + Payment Method Type');
+    return this.page.getByText(
+      "ConnectorPayment MethodPayment Method TypeAuthentication TypePayment Method + Payment Method Type",
+    );
   }
 
   get failureReasonsTable(): Locator {
-    return this.page.getByText('Error ReasonCountRatio (%)ConnectorInsufficient funds8044.44%stripeCard');
+    return this.page.getByText(
+      "Error ReasonCountRatio (%)ConnectorInsufficient funds8044.44%stripeCard",
+    );
   }
 
   // ---- Chart render assertions (populated with mocked data) ----
@@ -134,28 +168,38 @@ export class InsightsPaymentsPage {
   }
 
   get refundsSuccessRateHeading(): Locator {
-    return this.page.getByText("Refunds Success Rate", { exact: true }).first();
+    return this.page.getByRole("heading", { name: "Refunds Success Rate" });
   }
 
   // ---- Refunds tab KPI cards ----
   get refundSuccessRateCard(): Locator {
-    return this.page.getByText("84.20%Refund Success RateSuccessful refunds divided by total refunds");
+    return this.page.getByText(
+      "84.20%Refund Success RateSuccessful refunds divided by total refunds",
+    );
   }
 
   get totalRefundsProcessedKpiCard(): Locator {
-    return this.page.getByText("26.4K USD*Total Refunds ProcessedTotal refunds processed amount on all successful refunds");
+    return this.page.getByText(
+      "26.4K USD*Total Refunds ProcessedTotal refunds processed amount on all successful refunds",
+    );
   }
 
   get successfulRefundsCard(): Locator {
-    return this.page.getByText("0Successful RefundsTotal number of refunds that were successfully processed");
+    return this.page.getByText(
+      "0Successful RefundsTotal number of refunds that were successfully processed",
+    );
   }
 
   get failedRefundsCard(): Locator {
-    return this.page.getByText("0Failed RefundsTotal number of refunds that were failed during processing");
+    return this.page.getByText(
+      "0Failed RefundsTotal number of refunds that were failed during processing",
+    );
   }
 
   get pendingRefundsCard(): Locator {
-    return this.page.getByText("0Pending RefundsTotal number of refunds currently in pending state");
+    return this.page.getByText(
+      "0Pending RefundsTotal number of refunds currently in pending state",
+    );
   }
 
   // ---- Refunds tab chart controls / sections / tables ----
@@ -175,11 +219,15 @@ export class InsightsPaymentsPage {
   }
 
   get successfulRefundsDistributionHeading(): Locator {
-    return this.page.getByRole("heading", { name: "Successful Refunds Distribution By Connector" });
+    return this.page.getByRole("heading", {
+      name: "Successful Refunds Distribution By Connector",
+    });
   }
 
   get failedRefundsDistributionHeading(): Locator {
-    return this.page.getByRole("heading", { name: "Failed Refunds Distribution By Connector" });
+    return this.page.getByRole("heading", {
+      name: "Failed Refunds Distribution By Connector",
+    });
   }
 
   get refundReasonsHeading(): Locator {
@@ -187,22 +235,21 @@ export class InsightsPaymentsPage {
   }
 
   get refundReasonsTable(): Locator {
-    return this.page.getByText("Refund ReasonCountRatioConnectorcustomer_request400.00%stripe");
+    return this.page.getByText(
+      "Refund ReasonCountRatioConnectorcustomer_request400.00%stripe",
+    );
   }
 
   get failedRefundErrorReasonsHeading(): Locator {
-    return this.page.getByRole("heading", { name: "Failed Refund Error Reasons" });
+    return this.page.getByRole("heading", {
+      name: "Failed Refund Error Reasons",
+    });
   }
 
   get refundErrorReasonsTable(): Locator {
-    return this.page.getByText("Error ReasonCountRatioConnectorprocessor_declined00.00%stripe");
-  }
-
-  // ---- Smart Retries tab content ----
-  get smartRetryPaymentsProcessedHeading(): Locator {
-    return this.page
-      .getByText("Smart Retry Payments Processed", { exact: true })
-      .first();
+    return this.page.getByText(
+      "Error ReasonCountRatioConnectorprocessor_declined00.00%stripe",
+    );
   }
 
   // Granularity-agnostic (see paymentsProcessedChartHeading) — matched on the
@@ -214,15 +261,15 @@ export class InsightsPaymentsPage {
   }
 
   get successfulSmartRetryDistributionHeading(): Locator {
-    return this.page
-      .getByText("Successful Distribution of Smart Retry Payments", { exact: true })
-      .first();
+    return this.page.getByRole("heading", {
+      name: "Successful Distribution of",
+    });
   }
 
   get failedSmartRetryDistributionHeading(): Locator {
-    return this.page
-      .getByText("Failed Distribution of Smart Retry Payments", { exact: true })
-      .first();
+    return this.page.getByRole("heading", {
+      name: "Failed Distribution of Smart",
+    });
   }
 
   // The Smart Retry distribution charts share the same groupBy tab bar as the
@@ -231,13 +278,18 @@ export class InsightsPaymentsPage {
   get smartRetryDistributionChartHeadings(): Locator {
     return this.page
       .locator("div")
-      .filter({ hasText: /^ConnectorPayment MethodPayment Method TypeAuthentication Type$/ });
+      .filter({
+        hasText:
+          /^ConnectorPayment MethodPayment Method TypeAuthentication Type$/,
+      });
   }
 
   // First bar of the first bar chart — hovered to surface its tooltip.
   get firstBar(): Locator {
     return this.page
-      .locator(".highcharts-series.highcharts-series-0.highcharts-bar-series > rect")
+      .locator(
+        ".highcharts-series.highcharts-series-0.highcharts-bar-series > rect",
+      )
       .first();
   }
 
@@ -248,7 +300,10 @@ export class InsightsPaymentsPage {
   // for Payments, Smart Retries and Refunds.
   async revealAllCharts(): Promise<void> {
     const vp = this.page.viewportSize();
-    await this.page.mouse.move((vp?.width ?? 1200) / 2, (vp?.height ?? 800) / 2);
+    await this.page.mouse.move(
+      (vp?.width ?? 1200) / 2,
+      (vp?.height ?? 800) / 2,
+    );
     for (let i = 0; i < 12; i++) {
       await this.page.mouse.wheel(0, 700);
       await this.page.waitForTimeout(200);
@@ -276,7 +331,9 @@ export class InsightsPaymentsPage {
 
   // ---- Sample data banner / toggle (gated by sample_data_analytics flag) ----
   get sampleDataBannerOff(): Locator {
-    return this.page.getByText("No data yet? View sample data to explore the analytics.");
+    return this.page.getByText(
+      "No data yet? View sample data to explore the analytics.",
+    );
   }
 
   get viewSampleDataText(): Locator {
@@ -284,7 +341,9 @@ export class InsightsPaymentsPage {
   }
 
   get sampleDataBannerOn(): Locator {
-    return this.page.getByText("Currently viewing sample data. Toggle it off to return to your real insights.");
+    return this.page.getByText(
+      "Currently viewing sample data. Toggle it off to return to your real insights.",
+    );
   }
 
   get hideSampleDataText(): Locator {
@@ -294,7 +353,11 @@ export class InsightsPaymentsPage {
   // The banner toggle is a BoolInput switch ([data-bool-value]) inside the
   // orange banner.
   get sampleDataToggle(): Locator {
-    return this.page.locator(".bg-orange-50").first().locator("[data-bool-value]").first();
+    return this.page
+      .locator(".bg-orange-50")
+      .first()
+      .locator("[data-bool-value]")
+      .first();
   }
 
   async enableSampleData(): Promise<void> {
@@ -348,7 +411,9 @@ export class InsightsPaymentsPage {
 
   // The predefined-options column inside the open date picker dropdown.
   get predefinedDateOptions(): Locator {
-    return this.page.locator('[data-date-picker-predefined="predefined-options"]');
+    return this.page.locator(
+      '[data-date-picker-predefined="predefined-options"]',
+    );
   }
 
   // A single preset row (e.g. "Last 7 Days", "Last 30 Days", "This Month").
@@ -376,13 +441,19 @@ export class InsightsPaymentsPage {
     for (let attempt = 0; attempt < 3; attempt++) {
       await this.dateRangeSelector.click({ timeout: 10000 });
       try {
-        await this.predefinedDateOptions.waitFor({ state: "visible", timeout: 4000 });
+        await this.predefinedDateOptions.waitFor({
+          state: "visible",
+          timeout: 4000,
+        });
         return;
       } catch {
         await this.page.waitForTimeout(300);
       }
     }
-    await this.predefinedDateOptions.waitFor({ state: "visible", timeout: 8000 });
+    await this.predefinedDateOptions.waitFor({
+      state: "visible",
+      timeout: 8000,
+    });
   }
 
   async selectPredefinedRange(label: string): Promise<void> {
@@ -464,7 +535,9 @@ export class InsightsPaymentsPage {
   // Both an empty data set and a failed metric fetch flip a tile's screenState
   // to Custom, which renders NewAnalyticsHelper.NoData with this message.
   get noDataMessage(): Locator {
-    return this.page.getByText("No entries in the selected time period.").first();
+    return this.page
+      .getByText("No entries in the selected time period.")
+      .first();
   }
 
   // ---- Smart Retry toggle (InsightsHelper.SmartRetryToggle, Payments tab) ----

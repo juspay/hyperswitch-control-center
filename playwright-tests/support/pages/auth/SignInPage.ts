@@ -52,11 +52,15 @@ export class SignInPage {
   }
 
   get forgotPasswordFailedToast(): Locator {
-    return this.page.locator('[data-toast="Forgot Password Failed, Try again"]');
+    return this.page.locator(
+      '[data-toast="Forgot Password Failed, Try again"]',
+    );
   }
 
   get forgotPasswordSentToast(): Locator {
-    return this.page.locator('[data-toast="Please check your registered e-mail"]');
+    return this.page.locator(
+      '[data-toast="Please check your registered e-mail"]',
+    );
   }
 
   get passwordChangedToast(): Locator {

@@ -13,7 +13,9 @@ export class Surcharge {
   }
 
   get pageSubtitle(): Locator {
-    return this.page.getByText("Configure advanced rules to apply surcharges", { exact: true });
+    return this.page.getByText("Configure advanced rules to apply surcharges", {
+      exact: true,
+    });
   }
 
   // LANDING view — no active rule
@@ -147,7 +149,9 @@ export class Surcharge {
 
   // Surcharge type selector
   get selectSurchargeTypeButton(): Locator {
-    return this.page.getByRole("button", { name: /Select Surcharge Type|Rate|Fixed/ }).first();
+    return this.page
+      .getByRole("button", { name: /Select Surcharge Type|Rate|Fixed/ })
+      .first();
   }
 
   surchargeTypeOption(label: "Rate" | "Fixed"): Locator {
