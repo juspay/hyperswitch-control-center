@@ -67,6 +67,9 @@ module.exports = {
         "85-vh": "85vh",
         "30-vh": "30vh",
         "40-vh": "40vh",
+        "48-vh": "48vh",
+        "55-vh": "55vh",
+        "62-vh": "62vh",
         "75-vh": "75vh",
         "50-px": "50px",
         "68-px": "68px",
@@ -85,7 +88,6 @@ module.exports = {
         "12.5-rem": "12.5rem",
         onBoardingSupplier: "calc(100vh - 300px)",
         modalContentHeight: "calc(100vh - 140px)",
-        themePreview: "calc(75vh - 200px)",
       },
       padding: {
         "2-px": "2px",
@@ -99,7 +101,9 @@ module.exports = {
         "30-rem": "30rem",
         "750-px": "750px",
         "890-px": "890px",
-        themeConfigPanel: "calc(100vh - 270px)",
+        "62-vh": "62vh",
+        "68-vh": "68vh",
+        "74-vh": "74vh",
       },
       minHeight: {
         "500-px": "500px",

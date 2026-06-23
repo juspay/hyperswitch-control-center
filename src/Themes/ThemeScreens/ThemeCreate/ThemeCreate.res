@@ -67,13 +67,13 @@ let make = () => {
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div
-              className="self-start max-h-themeConfigPanel overflow-y-auto theme-config-scrollbar rounded-lg border border-nd_gray-150 p-4 flex flex-col gap-4">
+              className="self-start max-h-62-vh md:max-h-68-vh lg:max-h-74-vh overflow-y-auto theme-config-scrollbar rounded-lg border border-nd_gray-150 p-4 flex flex-col gap-4">
               <ThemeHelper.DashboardConfigScrollbarStyle />
               <ThemeSettings />
             </div>
             <div className="flex flex-col gap-8 w-full lg:col-span-2">
               <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
-              <div className="border h-themePreview rounded-xl p-8 flex items-center relative">
+              <div className="border h-48-vh md:h-55-vh rounded-xl p-8 flex items-center relative">
                 <ThemeMockDashboard />
               </div>
               {submitButton}
@@ -86,13 +86,13 @@ let make = () => {
       renderContent: () =>
         <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
           <div
-            className="self-start max-h-themeConfigPanel overflow-y-auto theme-config-scrollbar rounded-lg border border-nd_gray-150 p-4 flex flex-col gap-4">
+            className="self-start max-h-62-vh md:max-h-68-vh lg:max-h-74-vh overflow-y-auto theme-config-scrollbar rounded-lg border border-nd_gray-150 p-4 flex flex-col gap-4">
             <ThemeHelper.DashboardConfigScrollbarStyle />
             <ThemeSettingsHelper.EmailSettings />
           </div>
           <div className="flex flex-col gap-8 w-full lg:col-span-2">
             <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
-            <div className="border h-2/3 rounded-xl p-8 flex items-center relative">
+            <div className="border h-48-vh md:h-55-vh rounded-xl p-8 flex items-center relative">
               <ThemeMockEmail />
             </div>
             {submitButton}
