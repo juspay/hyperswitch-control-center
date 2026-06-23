@@ -88,7 +88,7 @@ test.describe.serial("Sign up", () => {
     await expect(signupPage.footerText).toContainText("Cancel");
   });
 
-  test("should be able to sign up using magic link and verify password masking while signup", async ({
+  test("should be able to sign up using magic link and verify password masking while signup", { tag: "@mail" }, async ({
     page,
   }) => {
     const email = generateUniqueEmail();
@@ -272,7 +272,7 @@ test.describe.serial("Sign in", () => {
     await expect(signinPage.invalidCredsToast).toBeVisible();
   });
 
-  test("should successfully login using magic link for registered user", async ({
+  test("should successfully login using magic link for registered user", { tag: "@mail" }, async ({
     page,
     context,
   }) => {
@@ -516,7 +516,7 @@ test.describe("Forgot password", () => {
     );
   });
 
-  test("should reset password through mail and login successfully", async ({
+  test("should reset password through mail and login successfully", { tag: "@mail" }, async ({
     page,
     context,
   }) => {
@@ -554,7 +554,7 @@ test.describe("Forgot password", () => {
     await expect(page).toHaveURL(/.*dashboard\/home/);
   });
 
-  test("should display validation error for weak password or mismatched confirmation on reset", async ({
+  test("should display validation error for weak password or mismatched confirmation on reset", { tag: "@mail" }, async ({
     page,
     context,
   }) => {
