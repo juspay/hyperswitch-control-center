@@ -156,3 +156,21 @@ type overviewChartPoint = {
   missingCount: float,
   matchRate: float,
 }
+
+type exceptionAgingBucket = {
+  label: string,
+  color: string,
+  startTime: string,
+  endTime: string,
+}
+
+type exceptionAgingData = {
+  label: string,
+  color: string,
+  total: int,
+}
+
+type exceptionTriageItem = {
+  label: string,
+  total: int,
+}
