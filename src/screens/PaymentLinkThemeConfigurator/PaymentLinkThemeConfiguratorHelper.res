@@ -45,15 +45,6 @@ let makeLogoField = () =>
     ~forbiddenCharsRegex=urlForbiddenCharsRegex,
   )
 
-let makeBackgroundImageField = () => {
-  makeFieldInfo(
-    ~label="Background Image URL",
-    ~name="background_image.url",
-    ~customInput=InputFields.textInput(),
-    ~placeholder="Enter background image url",
-  )
-}
-
 let makeSellerNameField = () =>
   makeSanitizedTextField(
     ~label="Seller Name",
@@ -86,26 +77,10 @@ let makeDisplaySdkOnlyField = () => {
   )
 }
 
-let makeEnabledSavedPaymentMethodField = () => {
-  makeFieldInfo(
-    ~label="Enable Saved Payment Methods",
-    ~name="enabled_saved_payment_method",
-    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
-  )
-}
-
 let makeHideCardNicknameField = () => {
   makeFieldInfo(
     ~label="Hide Card Nickname Field",
     ~name="hide_card_nickname_field",
-    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
-  )
-}
-
-let makeShowCardFormByDefaultField = () => {
-  makeFieldInfo(
-    ~label="Show Card Form by Default",
-    ~name="show_card_form_by_default",
     ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
   )
 }
@@ -125,36 +100,10 @@ let makeMerchantDescriptionField = () =>
     ~placeholder="Enter description of your business",
   )
 
-let makeReturnUrlField = () => {
-  makeFieldInfo(
-    ~label="Return URL",
-    ~name="return_url",
-    ~customInput=InputFields.textInput(),
-    ~placeholder="Enter return URL",
-  )
-}
-
-let makeMaxItemsVisibleAfterCollapseField = () => {
-  makeFieldInfo(
-    ~label="Max Items Visible After Collapse",
-    ~name="max_items_visible_after_collapse",
-    ~customInput=InputFields.numericTextInput(),
-    ~placeholder="Enter a number",
-  )
-}
-
 let makeBrandingVisibilityField = () => {
   makeFieldInfo(
     ~label="Branding Visibility",
     ~name="branding_visibility",
-    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
-  )
-}
-
-let makeSkipStatusScreenField = () => {
-  makeFieldInfo(
-    ~label="Skip Status Screen",
-    ~name="skip_status_screen",
     ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
   )
 }
@@ -174,14 +123,6 @@ let makePaymentButtonTextColorField = (~defaultValue) => {
     ~name="payment_button_text_colour",
     ~placeholder="",
     ~customInput=InputFields.colorPickerInput(~defaultValue, ~showErrorWhenEmpty=false),
-  )
-}
-
-let makeIsSetupMandateFlowField = () => {
-  makeFieldInfo(
-    ~label="Is Setup Mandate Flow",
-    ~name="is_setup_mandate_flow",
-    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
   )
 }
 
@@ -226,29 +167,6 @@ let makeColorIconCardCvcErrorField = (~defaultValue) => {
   )
 }
 
-let makeCurrencyField = () =>
-  makeFieldInfo(
-    ~label="Currency",
-    ~name="country_currency",
-    ~placeholder="",
-    ~customInput=InputFields.selectInput(
-      ~options=SDKPaymentUtils.dropDownOptionsForCountryCurrency,
-      ~buttonText="Select Currency",
-      ~deselectDisable=true,
-      ~fullLength=true,
-      ~textStyle="!font-normal",
-    ),
-  )
-
-let makeAmountField = () => {
-  makeFieldInfo(
-    ~label="Amount",
-    ~name="amount",
-    ~customInput=InputFields.numericTextInput(),
-    ~placeholder="Enter amount",
-  )
-}
-
 let makeSelectField = (~label, ~name, ~options, ~buttonText) =>
   makeFieldInfo(
     ~label,
@@ -262,30 +180,6 @@ let makeSelectField = (~label, ~name, ~options, ~buttonText) =>
     ),
   )
 
-let makeCaptureMethodField = () =>
-  makeSelectField(
-    ~label="Capture Method",
-    ~name="capture_method",
-    ~options=PaymentLinkThemeConfiguratorUtils.captureMethodOptions,
-    ~buttonText="Select Capture Method",
-  )
-
-let makeSetupFutureUsageField = () =>
-  makeSelectField(
-    ~label="Setup Future Usage",
-    ~name="setup_future_usage_applied",
-    ~options=PaymentLinkThemeConfiguratorUtils.setupFutureUsageOptions,
-    ~buttonText="Select Setup Future Usage",
-  )
-
-let makeAuthenticationTypeField = () =>
-  makeSelectField(
-    ~label="Authentication Type",
-    ~name="authentication_type",
-    ~options=PaymentLinkThemeConfiguratorUtils.authenticationTypeOptions,
-    ~buttonText="Select Authentication Type",
-  )
-
 let makeShowCardTermsField = () =>
   makeSelectField(
     ~label="Show Card Terms",
@@ -293,11 +187,3 @@ let makeShowCardTermsField = () =>
     ~options=PaymentLinkThemeConfiguratorUtils.showCardTermsOptions,
     ~buttonText="Select Show Card Terms",
   )
-
-let makeRequestExternal3dsField = () => {
-  makeFieldInfo(
-    ~label="Request External 3DS Authentication",
-    ~name="request_external_three_ds_authentication",
-    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
-  )
-}

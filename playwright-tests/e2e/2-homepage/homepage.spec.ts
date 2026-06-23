@@ -850,6 +850,7 @@ test.describe("SDK Payment", () => {
     await homePage.showPreviewButton.click();
 
     await expect(homePage.sdkErrorToast).toBeVisible();
+    await expect(homePage.sdkErrorToast).toContainText("Something went wrong");
   });
 });
 
