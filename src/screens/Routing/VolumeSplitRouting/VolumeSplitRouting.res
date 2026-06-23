@@ -25,7 +25,6 @@ module VolumeRoutingView = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod(~showErrorToast=false)
     let showToast = ToastAdapter.useShowToast()
-    let listLength = connectors->Array.length
     let (showModal, setShowModal) = React.useState(_ => false)
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let url = RescriptReactRouter.useUrl()
