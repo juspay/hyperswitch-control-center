@@ -9,7 +9,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
   let fetchDetails = useGetMethod()
   let showPopUp = PopUpState.useShowPopUp()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (gateways, setGateways) = React.useState(() => [])
   let (defaultRoutingResponse, setDefaultRoutingResponse) = React.useState(_ => [])

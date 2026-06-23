@@ -22,7 +22,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
   let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Loading)
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let processAssets = ThemeHooks.useProcessAssets()

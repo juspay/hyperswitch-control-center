@@ -207,7 +207,7 @@ module Wrapper = {
     ~isFrom3DsExemptions=false,
   ) => {
     let {globalUIConfig: {border: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let isMobileView = MatchMedia.useMobileChecker()
     let (isExpanded, setIsExpanded) = React.useState(_ => true)
     let gateWaysInput = ReactFinalForm.useField(`${id}.connectorSelection.data`).input
@@ -383,7 +383,7 @@ module RuleBasedUI = {
   ) => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let rulesJsonPath = `algorithm.data.rules`
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let ruleInput = ReactFinalForm.useField(rulesJsonPath).input
     let (rules, setRules) = React.useState(_ => ruleInput.value->getArrayFromJson([]))
 
@@ -543,7 +543,7 @@ let make = (
     getInitialValues(~currentDate, ~currentTime)->Identity.genericTypeToJson
   })
   let (initialRule, setInitialRule) = React.useState(() => None)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
