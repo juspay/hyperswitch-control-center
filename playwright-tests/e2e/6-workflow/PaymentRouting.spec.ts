@@ -288,7 +288,7 @@ test.describe("Rule based routing", () => {
     await homePage.routing.click();
     await paymentRouting.ruleBasedRoutingSetupButton.click();
 
-    await expect(paymentRouting.noConnectorsMessage).toContainText(
+    await expect(page.getByText('Please configure at least 1')).toContainText(
       "Please configure at least 1 connector",
     );
   });
@@ -1260,7 +1260,7 @@ test.describe("Auth rate based routing", () => {
     await homePage.routing.click();
     await paymentRouting.authRateBasedRoutingSetupButton.click();
 
-    await expect(paymentRouting.noConnectorsMessage).toContainText(
+    await expect(page.getByText('Please configure at least 1')).toContainText(
       "Please configure at least 1 connector",
     );
   });
