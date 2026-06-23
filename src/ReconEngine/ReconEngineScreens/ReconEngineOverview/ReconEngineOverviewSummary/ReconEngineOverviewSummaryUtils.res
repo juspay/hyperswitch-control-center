@@ -884,6 +884,83 @@ let getStatCards = (
   ]
 }
 
+let getAutoMatchCount = (~overviewRules: array<overviewRulesResponse>) => {
+  overviewRules->Array.reduce(0, (acc, rule) => {
+    let autoMatchedCount = rule.status_breakdown->Array.reduce(0, (statusAcc, status) => {
+      switch status.status {
+      | Matched(Auto) | Matched(WithTolerance) => statusAcc + status.count
+      | _ => statusAcc
+      }
+    })
+
+    acc + autoMatchedCount
+  })
+}
+
+let getManualCorrectionsCount = (~overviewRules: array<overviewRulesResponse>) => {
+  overviewRules->Array.reduce(0, (acc, rule) => {
+    let manualCorrectionsCount = rule.status_breakdown->Array.reduce(0, (statusAcc, status) => {
+      switch status.status {
+      | Matched(Manual) | Posted(Manual) | Matched(Force) | PartiallyReconciled =>
+        statusAcc + status.count
+      | _ => statusAcc
+      }
+    })
+
+    acc + manualCorrectionsCount
+  })
+}
+
+let getAgedCount = (~overviewRules: array<overviewRulesResponse>) => {
+  overviewRules->Array.reduce(0, (acc, rule) => {
+    let missingCount = rule.status_breakdown->Array.reduce(0, (statusAcc, status) => {
+      switch status.status {
+      | Missing => statusAcc + status.count
+      | _ => statusAcc
+      }
+    })
+
+    acc + missingCount
+  })
+}
+
+let getConnectedStatCards = (
+  ~overviewRules: array<overviewRulesResponse>,
+  ~failedTransformationHistory: array<transformationHistoryType>,
+  ~failedIngestionHistory: array<ingestionHistoryType>,
+) => {
+  let totalCount = getTotalCount(~overviewRules)
+  let autoMatchedCount = getAutoMatchCount(~overviewRules)
+  let manualCorrectionsCount = getManualCorrectionsCount(~overviewRules)
+  let agedCount = getAgedCount(~overviewRules)
+
+  let autoMatchRate =
+    totalCount === 0 ? 0.0 : autoMatchedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
+
+  [
+    {
+      connectedStatCardTitle: AutoMatchRate,
+      connectedStatCardValue: Percentage(autoMatchRate),
+    },
+    {
+      connectedStatCardTitle: FailedIngestions,
+      connectedStatCardValue: Number(failedIngestionHistory->Array.length),
+    },
+    {
+      connectedStatCardTitle: MissingTransactions,
+      connectedStatCardValue: OutOf(agedCount, totalCount),
+    },
+    {
+      connectedStatCardTitle: FailedTransformations,
+      connectedStatCardValue: Number(failedTransformationHistory->Array.length),
+    },
+    {
+      connectedStatCardTitle: ManualCorrections,
+      connectedStatCardValue: Number(manualCorrectionsCount),
+    },
+  ]
+}
+
 let rec addCommas = str => {
   let len = String.length(str)
   if len <= 3 {

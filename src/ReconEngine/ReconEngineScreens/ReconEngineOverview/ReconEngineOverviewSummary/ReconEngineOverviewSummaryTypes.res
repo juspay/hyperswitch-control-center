@@ -126,3 +126,16 @@ type statCardData = {
   statCardType: statCardType,
   onStatCardClick: unit => unit,
 }
+
+@unboxed
+type connectedStatCardsTitle =
+  | @as("Auto Match Rate") AutoMatchRate
+  | @as("Missing") MissingTransactions
+  | @as("Failed Transformations") FailedTransformations
+  | @as("Failed Ingestions") FailedIngestions
+  | @as("Manual Corrections") ManualCorrections
+
+type connectedStatCardData = {
+  connectedStatCardTitle: connectedStatCardsTitle,
+  connectedStatCardValue: valueType,
+}
