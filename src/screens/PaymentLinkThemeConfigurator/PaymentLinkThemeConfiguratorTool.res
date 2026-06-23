@@ -38,8 +38,11 @@ module ConfiguratorForm = {
     let (previewState, setPreviewState) = React.useState(_ => PreviewLoading)
     let {paymentResult, initialValuesForCheckoutForm} = React.useContext(SDKProvider.defaultContext)
 
-    let isOffSession =
-      initialValuesForCheckoutForm.setup_future_usage == Some((OffSession :> string))
+    let isOffSession = Option.equal(
+      initialValuesForCheckoutForm.setup_future_usage,
+      Some((OffSession :> string)),
+      (a, b) => a == b,
+    )
 
     let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(
       HyperswitchAtom.merchantDetailsValueAtom,
