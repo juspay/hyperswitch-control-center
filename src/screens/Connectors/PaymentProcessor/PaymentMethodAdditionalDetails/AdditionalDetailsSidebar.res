@@ -67,6 +67,8 @@ let make = (
           update=updateMetadata
           onCloseClickCustomFun
         />
+      | PixQr =>
+        <PixIntegration connector metadataKey="pix_qr" closeAccordionFn update=updateMetadata onCloseClickCustomFun />
       | PixAutomaticoQr =>
         <PixAutomaticoIntegration
           connector
