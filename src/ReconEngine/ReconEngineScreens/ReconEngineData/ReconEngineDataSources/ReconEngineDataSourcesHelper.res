@@ -207,7 +207,7 @@ module IngestionHistoryActionsComponent = {
     let (showModal, setShowModal) = React.useState(_ => false)
     let getURL = useGetURL()
     let fetchApi = AuthHooks.useApiFetcher()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {xFeatureRoute, forceCookies} =
       HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
