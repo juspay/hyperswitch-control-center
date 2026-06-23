@@ -6,7 +6,7 @@ module ActiveRulePreview = {
     let rule = initialRule->Option.getOr(Dict.make())
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let showPopUp = PopUpState.useShowPopUp()
     let name = rule->getString("name", "")
     let description = rule->getString("description", "")
@@ -151,7 +151,7 @@ let make = () => {
   open ThreeDSUtils
   open SurchargeUtils
   let getURL = useGetURL()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let fetchDetails = useGetMethod(~showErrorToast=false)
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (wasm, setWasm) = React.useState(_ => None)

@@ -6,7 +6,7 @@ module TransactionsTable = {
     open IntelligentRoutingTypes
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let (tableData, setTableData) = React.useState(() => [])
     let (offset, setOffset) = React.useState(() => 0)
     let (totalCount, setTotalCount) = React.useState(_ => 0)
@@ -295,7 +295,7 @@ let make = () => {
   open APIUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Success)
   let (stats, setStats) = React.useState(_ => JSON.Encode.null)

@@ -8,7 +8,7 @@ let make = (
   ~wrapLines=false,
   ~wrapLongLines=false,
 ) => {
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (parsedJson, setParsedJson) = React.useState(_ => "")
   let parseJsonValue = () => {
     try {

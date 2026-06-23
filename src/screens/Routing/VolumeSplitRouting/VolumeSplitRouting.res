@@ -24,7 +24,8 @@ module VolumeRoutingView = {
   ) => {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod(~showErrorToast=false)
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
+    let listLength = connectors->Array.length
     let (showModal, setShowModal) = React.useState(_ => false)
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let url = RescriptReactRouter.useUrl()
@@ -230,7 +231,7 @@ let make = (
   let (pageState, setPageState) = React.useState(() => Create)
   let (connectors, setConnectors) = React.useState(_ => [])
   let currentTabName = Recoil.useRecoilValueFromAtom(HyperswitchAtom.currentTabNameRecoilAtom)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let getConnectorsList = () => {
     setConnectors(_ => connectorList)
   }

@@ -13,7 +13,7 @@ module CopyTextCustomComp = {
     ~customIconSize=15,
     ~customComponent=None,
   ) => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
 
     let copyVal = switch copyValue {
     | Some(val) => val
@@ -61,7 +61,7 @@ module EllipsisText = {
     ~customOnCopyClick=_ => (),
   ) => {
     open LogicUtils
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
 
     let handleClick = ev => {
@@ -111,7 +111,7 @@ module EllipsisText = {
 module KeyAndCopyArea = {
   @react.component
   let make = (~copyValue, ~shadowClass="") => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
 
     <div className={`flex gap-4 border rounded-md py-2 px-4 items-center bg-white ${shadowClass}`}>
       <p className="text-base text-grey-700 opacity-70 col-span-2 truncate">
