@@ -525,7 +525,7 @@ module StyleIdSelection = {
       <div className={`text-nd_gray-700 py-2 ${body.md.medium}`}>
         {"Select Payment Link Config ID"->React.string}
       </div>
-      <SelectBoxAdapter.BaseDropdown
+      <SelectBox.BaseDropdown
         allowMultiSelect=false
         buttonText="Select Payment Link Config ID"
         input
