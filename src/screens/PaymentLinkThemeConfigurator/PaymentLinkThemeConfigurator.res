@@ -55,7 +55,7 @@ let make = () => {
     | Checkout =>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div>
-          <RenderIf condition={paymentConnectorList->Array.length == 0}>
+          <RenderIf condition={paymentConnectorList->LogicUtils.isEmptyArray}>
             <div className="mb-4">
               <AlertV2Binding
                 alertType=Warning
@@ -63,7 +63,7 @@ let make = () => {
               />
             </div>
           </RenderIf>
-          <RenderIf condition={paymentConnectorList->Array.length > 0}>
+          <RenderIf condition={paymentConnectorList->LogicUtils.isNonEmptyArray}>
             <div className="mb-4">
               <AlertV2Binding
                 alertType=Primary
