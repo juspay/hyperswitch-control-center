@@ -16,7 +16,7 @@ module ApiEditModal = {
   ) => {
     let getURL = APIUtils.useGetURL()
     let updateDetails = APIUtils.useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let (apiKey, setApiKey) = React.useState(_ => "")
     let (modalState, setModalState) = React.useState(_ => action)
@@ -229,7 +229,7 @@ module TableActionsCell = {
   let make = (~keyId, ~getAPIKeyDetails: unit => promise<unit>, ~data: apiKey) => {
     let getURL = APIUtils.useGetURL()
     let deleteDetails = APIUtils.useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let showPopUp = PopUpState.useShowPopUp()
     let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 

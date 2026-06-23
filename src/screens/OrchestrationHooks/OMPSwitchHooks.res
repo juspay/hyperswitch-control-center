@@ -60,7 +60,7 @@ let useOrgSwitch = (~setActiveProductValue) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {getUserInfo} = useUserInfo()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
@@ -99,7 +99,7 @@ let useMerchantSwitch = (~setActiveProductValue) => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let {getUserInfo} = useUserInfo()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
@@ -158,7 +158,7 @@ let useProfileSwitch = () => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let {getUserInfo} = useUserInfo()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
