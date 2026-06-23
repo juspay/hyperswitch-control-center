@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.06.23.0
+
+### Bug Fixes
+
+- Recon engine change download to octet stream ([#5008](https://github.com/juspay/hyperswitch-control-center/pull/5008)) ([`03fbdde`](https://github.com/juspay/hyperswitch-control-center/commit/03fbddefd9054e312d940dcbcc37c4baad130205))
+
+**Full Changelog:** [`2026.06.22.0...2026.06.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.22.0...2026.06.23.0)
+
+- - -
+
 ## 2026.06.22.0
 
 ### Features
