@@ -1,9 +1,8 @@
 open ReconEngineUtils
+open APIUtils
+open LogicUtils
 
 let useGetIngestionHistory = () => {
-  open APIUtils
-  open LogicUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -26,9 +25,6 @@ let useGetIngestionHistory = () => {
 }
 
 let useGetTransactions = () => {
-  open APIUtils
-  open LogicUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -51,9 +47,6 @@ let useGetTransactions = () => {
 }
 
 let useGetAccounts = () => {
-  open APIUtils
-  open LogicUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -76,9 +69,6 @@ let useGetAccounts = () => {
 }
 
 let useGetReconRuleList = () => {
-  open APIUtils
-  open LogicUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -99,9 +89,6 @@ let useGetReconRuleList = () => {
 }
 
 let useGetOverviewRules = () => {
-  open APIUtils
-  open LogicUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -122,9 +109,6 @@ let useGetOverviewRules = () => {
 }
 
 let useGetProcessingEntries = () => {
-  open APIUtils
-  open LogicUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -147,9 +131,6 @@ let useGetProcessingEntries = () => {
 }
 
 let useGetTransformationHistory = () => {
-  open APIUtils
-  open LogicUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -172,8 +153,6 @@ let useGetTransformationHistory = () => {
 }
 
 let useFetchMetadataSchema = () => {
-  open APIUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 

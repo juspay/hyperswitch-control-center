@@ -59,24 +59,11 @@ let make = () => {
             icon=card.statCardIcon
             description=card.statCardDescription
             cardType=card.statCardType
-            onClick=card.onStatCardClick
+            onStatCardClick=card.onStatCardClick
           />
         </PageLoaderWrapper>
       )
       ->React.array}
     </div>
-    // <div
-    //   className="grid xl:grid-cols-5 lg:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-0 rounded-xl border border-nd_gray-200 overflow-hidden shadow-sm bg-white">
-    //   {connectedStatCards
-    //   ->Array.mapWithIndex((card, index) => {
-    //     <PageLoaderWrapper
-    //       screenState
-    //       customUI={<NewAnalyticsHelper.NoData height="h-24" message="No data available." />}
-    //       customLoader={<Shimmer styleClass="h-24 w-full" />}>
-    //       <ConnectedStatCard key={index->Int.toString} title=card.title value=card.value />
-    //     </PageLoaderWrapper>
-    //   })
-    //   ->React.array}
-    // </div>
   </div>
 }

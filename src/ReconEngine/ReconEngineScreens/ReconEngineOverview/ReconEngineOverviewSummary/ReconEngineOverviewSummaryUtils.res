@@ -718,7 +718,7 @@ let getTotalCount = (~overviewRules: array<overviewRulesResponse>) =>
 
 let getMatchedCount = (~overviewRules: array<overviewRulesResponse>) => {
   overviewRules->Array.reduce(0, (acc, rule) => {
-    let exceptionCount = rule.status_breakdown->Array.reduce(0, (statusAcc, status) => {
+    let matchedCount = rule.status_breakdown->Array.reduce(0, (statusAcc, status) => {
       switch status.status {
       | Matched(Auto)
       | Matched(Force)
@@ -746,7 +746,7 @@ let getMatchedCount = (~overviewRules: array<overviewRulesResponse>) => {
       }
     })
 
-    acc + exceptionCount
+    acc + matchedCount
   })
 }
 
@@ -835,10 +835,10 @@ let getStatCards = (
   let expectedValue = getExpectedValue(~overviewRules)
   let currency = getCurrency(~overviewRules)
 
-  Js.log2("openExceptions", openExceptions)
-
   let matchRate =
     totalCount === 0 ? 0.0 : matchedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
+
+  let pathToNavigate = GlobalVars.appendDashboardPath(~url="v1/recon-engine/exceptions/recon")
 
   [
     {
@@ -858,9 +858,7 @@ let getStatCards = (
       statCardDescription: "staging + txn exceptions",
       statCardType: Attention,
       onStatCardClick: () => {
-        RescriptReactRouter.push(
-          GlobalVars.appendDashboardPath(~url="v1/recon-engine/exceptions/recon"),
-        )
+        RescriptReactRouter.push(pathToNavigate)
       },
     },
     {
@@ -870,9 +868,7 @@ let getStatCards = (
       statCardDescription: "mismatch variance exposure",
       statCardType: Attention,
       onStatCardClick: () => {
-        RescriptReactRouter.push(
-          GlobalVars.appendDashboardPath(~url="v1/recon-engine/exceptions/recon"),
-        )
+        RescriptReactRouter.push(pathToNavigate)
       },
     },
     {
@@ -882,11 +878,7 @@ let getStatCards = (
       statCardDescription: "amount expected",
       statCardType: Info,
       onStatCardClick: () => {
-        RescriptReactRouter.push(
-          GlobalVars.appendDashboardPath(
-            ~url="v1/recon-engine/exceptions/recon?status=expected,missing",
-          ),
-        )
+        RescriptReactRouter.push(pathToNavigate)
       },
     },
   ]

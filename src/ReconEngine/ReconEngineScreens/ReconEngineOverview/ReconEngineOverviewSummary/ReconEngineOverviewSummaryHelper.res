@@ -46,9 +46,7 @@ module FloatCell = {
     let actualValueContent =
       <span className="block max-w-64 break-all text-center"> {actualValue->React.string} </span>
 
-    <ToolTip
-      descriptionComponent=actualValueContent toolTipFor=floatText toolTipPosition={ToolTip.Top}
-    />
+    <ToolTip descriptionComponent=actualValueContent toolTipFor=floatText toolTipPosition=Top />
   }
 }
 
@@ -64,7 +62,7 @@ module NumberCell = {
         {displayValue->React.string}
       </span>
 
-    <ToolTip description=actualValue toolTipFor={numberText} toolTipPosition={ToolTip.Top} />
+    <ToolTip description=actualValue toolTipFor={numberText} toolTipPosition=Top />
   }
 }
 
@@ -83,9 +81,7 @@ module AmountCell = {
     let actualValueContent =
       <span className="block max-w-64 break-all text-center"> {actualValue->React.string} </span>
 
-    <ToolTip
-      descriptionComponent=actualValueContent toolTipFor=amountText toolTipPosition={ToolTip.Top}
-    />
+    <ToolTip descriptionComponent=actualValueContent toolTipFor=amountText toolTipPosition=Top />
   }
 }
 
@@ -114,7 +110,7 @@ module OutOfCell = {
         </span>
       </span>
 
-    <ToolTip description=actualValue toolTipFor=outOfText toolTipPosition={ToolTip.Top} />
+    <ToolTip description=actualValue toolTipFor=outOfText toolTipPosition=Top />
   }
 }
 
@@ -131,7 +127,7 @@ module SlashOutOfCell = {
         <span> {`${displayValue1} / ${displayValue2}`->React.string} </span>
       </span>
 
-    <ToolTip description=actualValue toolTipFor=slashOutOfText toolTipPosition={ToolTip.Top} />
+    <ToolTip description=actualValue toolTipFor=slashOutOfText toolTipPosition=Top />
   }
 }
 
@@ -143,7 +139,7 @@ module StatCard = {
     ~icon: Button.iconType,
     ~description,
     ~cardType: statCardType,
-    ~onClick=() => (),
+    ~onStatCardClick=() => (),
   ) => {
     let textColorClass = switch cardType {
     | Info => "text-nd_gray-700"
@@ -156,7 +152,7 @@ module StatCard = {
     }
 
     <div
-      onClick={_ => onClick()}
+      onClick={_ => onStatCardClick()}
       className={`px-4 py-3.5 transition-all cursor-pointer ${hoverBorderClass} hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 bg-white rounded-xl border border-nd_gray-200 shadow-sm`}>
       <div className="flex items-center justify-between">
         <p className={`${body.sm.medium} text-nd_gray-600`}>
