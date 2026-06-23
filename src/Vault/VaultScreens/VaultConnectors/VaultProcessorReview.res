@@ -15,7 +15,7 @@ let make = (~connectorInfo) => {
     ->ConnectorUtils.connectorTypeTuple
   let {connector_name: connectorName} = connectorInfodict
   let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   let connectorAccountFields = React.useMemo(() => {
     try {

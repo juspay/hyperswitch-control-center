@@ -15,7 +15,7 @@ let make = (~children, ~setData=?, ~entity: EntityType.entityType<'colType, 't>,
   let {getObjects, searchUrl: url} = entity
   let fetchApi = AuthHooks.useApiFetcher()
   let initialValueJson = JSON.Encode.object(Dict.make())
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (showModal, setShowModal) = React.useState(_ => false)
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {merchantId, profileId} = React.useContext(

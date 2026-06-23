@@ -14,7 +14,7 @@ let make = () => {
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
     ~entityName=V2(V2_CONNECTOR),
