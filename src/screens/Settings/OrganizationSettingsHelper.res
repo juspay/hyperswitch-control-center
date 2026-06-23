@@ -7,7 +7,7 @@ module NewPlatformCreationModal = {
     open APIUtils
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let fetchOrganizationList = OrganizationHooks.useFetchOrganizationList()
 
     let onSubmit = async (values, _) => {

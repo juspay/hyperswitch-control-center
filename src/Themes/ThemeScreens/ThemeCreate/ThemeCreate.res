@@ -12,7 +12,7 @@ let make = () => {
 
   let getURL = useGetURL()
   let lineage = ThemeCreateUtils.createLineage(~orgId, ~merchantId, ~profileId)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (showUploadModal, setShowUploadModal) = React.useState(_ => false)

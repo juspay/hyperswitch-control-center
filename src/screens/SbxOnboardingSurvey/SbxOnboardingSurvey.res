@@ -43,7 +43,7 @@ let make = (~showModal, ~setShowModal) => {
   open CommonAuthHooks
   let getURL = useGetURL()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let {merchantId, email: userEmail} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let (merchantDetailsTypedValue, setMerchantDetailsValue) =

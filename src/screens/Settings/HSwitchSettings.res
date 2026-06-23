@@ -24,7 +24,7 @@ module TileComponent = {
     open GlobalVars
     let getURL = useGetURL()
     let showPopUp = PopUpState.useShowPopUp()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let updateDetails = useUpdateMethod()
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 

@@ -12,7 +12,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let connectorName = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
