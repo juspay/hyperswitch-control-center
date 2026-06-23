@@ -28,7 +28,7 @@ let make = (
     ThemeProvider.themeContext,
   )
   let (showModal, setShowModal) = React.useState(() => false)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let paymentConnectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=PaymentProcessor,
   )

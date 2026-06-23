@@ -217,14 +217,6 @@ let makeCustomMessageForCardTermsField = () =>
     ~placeholder="Enter custom message for card terms",
   )
 
-let makeShowCardTermsField = () => {
-  makeFieldInfo(
-    ~label="Show Card Terms",
-    ~name="show_card_terms",
-    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
-  )
-}
-
 let makeColorIconCardCvcErrorField = (~defaultValue) => {
   makeFieldInfo(
     ~label="Color Icon Card CVC Error",
@@ -292,6 +284,14 @@ let makeAuthenticationTypeField = () =>
     ~name="authentication_type",
     ~options=PaymentLinkThemeConfiguratorUtils.authenticationTypeOptions,
     ~buttonText="Select Authentication Type",
+  )
+
+let makeShowCardTermsField = () =>
+  makeSelectField(
+    ~label="Show Card Terms",
+    ~name="show_card_terms",
+    ~options=PaymentLinkThemeConfiguratorUtils.showCardTermsOptions,
+    ~buttonText="Select Show Card Terms",
   )
 
 let makeRequestExternal3dsField = () => {

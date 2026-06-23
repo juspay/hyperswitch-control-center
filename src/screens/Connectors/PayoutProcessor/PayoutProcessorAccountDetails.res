@@ -6,7 +6,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
   open ConnectorAccountDetailsHelper
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
