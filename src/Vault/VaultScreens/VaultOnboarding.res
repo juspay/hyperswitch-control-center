@@ -16,7 +16,7 @@ let make = () => {
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (screenState, setScreenState) = React.useState(_ => Success)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let connectorInfoDict = ConnectorInterface.mapDictToTypedConnectorPayload(

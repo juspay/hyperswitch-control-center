@@ -189,7 +189,9 @@ function statusRows(withBucket: boolean): Array<Record<string, any>> {
     { status: "charged", payment_count: 1184 },
     { status: "failure", payment_count: 96 },
   ];
-  return withBucket ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET })) : rows;
+  return withBucket
+    ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET }))
+    : rows;
 }
 
 // Per-connector rows for the Payments Trends chart + summary table.
@@ -200,7 +202,9 @@ function connectorRows(withBucket: boolean): Array<Record<string, any>> {
     payment_count: 820 - i * 180,
     payment_success_count: 772 - i * 170,
   }));
-  return withBucket ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET })) : rows;
+  return withBucket
+    ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET }))
+    : rows;
 }
 
 // Sample values per groupable dimension, used to render the Payments Trends
@@ -221,14 +225,19 @@ const DIMENSION_SAMPLES: Record<string, string[]> = {
 
 // Per-dimension rows (the dimension column + the metric columns) for the
 // Payments Trends summary table when grouped by `dim`.
-function dimensionRows(dim: string, withBucket: boolean): Array<Record<string, any>> {
+function dimensionRows(
+  dim: string,
+  withBucket: boolean,
+): Array<Record<string, any>> {
   const rows = (DIMENSION_SAMPLES[dim] ?? ["sample"]).map((value, i) => ({
     [dim]: value,
     payment_success_rate: 94.2 - i * 3,
     payment_count: 820 - i * 180,
     payment_success_count: 772 - i * 170,
   }));
-  return withBucket ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET })) : rows;
+  return withBucket
+    ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET }))
+    : rows;
 }
 
 // Spread an aggregate row across every day bucket for the timeSeries query.
@@ -256,7 +265,10 @@ function v1MetricsResponse(q: Record<string, any>) {
   }
 
   // Amount Metrics cards (currency-grouped processed amount / avg ticket size).
-  if (metrics.includes("payment_processed_amount") || metrics.includes("avg_ticket_size")) {
+  if (
+    metrics.includes("payment_processed_amount") ||
+    metrics.includes("avg_ticket_size")
+  ) {
     return wrap(isSeries ? asSeries(AMOUNT_ROW) : [AMOUNT_ROW]);
   }
 
@@ -289,7 +301,9 @@ function v2MetricsResponse(q: Record<string, any>) {
     ? { currency: CURRENCY, ...SMART_RETRY_ROW }
     : SMART_RETRY_ROW;
   return {
-    queryData: isSeries ? asSeries({ currency: CURRENCY, ...SMART_RETRY_ROW }) : [row],
+    queryData: isSeries
+      ? asSeries({ currency: CURRENCY, ...SMART_RETRY_ROW })
+      : [row],
     metaData: V2_META,
   };
 }
@@ -305,28 +319,35 @@ export async function mockPaymentAnalytics(page: Page): Promise<void> {
   // Order list — return a non-empty list so the page never drops to its Custom
   // (no-data) screen state.
   await page.route(/\/payments\/list/, (route) =>
-    json(route, { size: 1, data: [{ payment_id: "pay_playwright_mock", status: "succeeded" }] }),
+    json(route, {
+      size: 1,
+      data: [{ payment_id: "pay_playwright_mock", status: "succeeded" }],
+    }),
   );
 
   // Metric + dimension catalogue.
-  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/payments\/info/, (route) =>
-    json(route, PAYMENTS_INFO),
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/payments\/info/,
+    (route) => json(route, PAYMENTS_INFO),
   );
 
   // Dimension filter values.
-  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/filters\/payments/, (route) =>
-    json(route, FILTER_VALUES),
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/filters\/payments/,
+    (route) => json(route, FILTER_VALUES),
   );
 
   // v2 metrics (smart retries) — register before the v1 catch-all so the more
   // specific path wins.
-  await page.route(/\/analytics\/v2\/(org|merchant|profile)\/metrics\/payments/, (route) =>
-    json(route, v2MetricsResponse(firstQuery(route))),
+  await page.route(
+    /\/analytics\/v2\/(org|merchant|profile)\/metrics\/payments/,
+    (route) => json(route, v2MetricsResponse(firstQuery(route))),
   );
 
   // v1 metrics (overview / amount / status / connector).
-  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/metrics\/payments/, (route) =>
-    json(route, v1MetricsResponse(firstQuery(route))),
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/metrics\/payments/,
+    (route) => json(route, v1MetricsResponse(firstQuery(route))),
   );
 }
 
@@ -339,14 +360,28 @@ export async function mockPaymentAnalyticsError(page: Page): Promise<void> {
     route.fulfill({
       status: 500,
       contentType: "application/json",
-      body: JSON.stringify({ error: { type: "server_error", message: "Internal Server Error" } }),
+      body: JSON.stringify({
+        error: { type: "server_error", message: "Internal Server Error" },
+      }),
     });
 
   await page.route(/\/payments\/list/, fail);
-  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/payments\/info/, fail);
-  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/filters\/payments/, fail);
-  await page.route(/\/analytics\/v2\/(org|merchant|profile)\/metrics\/payments/, fail);
-  await page.route(/\/analytics\/v1\/(org|merchant|profile)\/metrics\/payments/, fail);
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/payments\/info/,
+    fail,
+  );
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/filters\/payments/,
+    fail,
+  );
+  await page.route(
+    /\/analytics\/v2\/(org|merchant|profile)\/metrics\/payments/,
+    fail,
+  );
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/metrics\/payments/,
+    fail,
+  );
 }
 
 export default mockPaymentAnalytics;

@@ -3,10 +3,10 @@ name: PR Ready for Review Label
 on:
   workflow_run:
     workflows:
-      - 'Build and Lint'
-      - 'Playwright Tests'
-      - 'Pull Request Convention Checks'
-      - 'Spell Check'
+      - "Build and Lint"
+      - "Playwright Tests"
+      - "Pull Request Convention Checks"
+      - "Spell Check"
     types:
       - completed
 

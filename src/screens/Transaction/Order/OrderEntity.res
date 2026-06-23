@@ -423,7 +423,8 @@ let getHeading = (~devSortEnabled, colType: colType) => {
   | CardNetwork => Table.makeHeaderInfo(~key="CardNetwork", ~title="Card Network")
   | MerchantOrderReferenceId =>
     Table.makeHeaderInfo(~key="merchant_order_reference_id", ~title="Merchant Order Reference ID")
-  | AttemptCount => Table.makeHeaderInfo(~key="attempt_count", ~title="Attempt Count")
+  | AttemptCount =>
+    Table.makeHeaderInfo(~key="attempt_count", ~title="Attempt Count", ~showSort=true)
   | PaymentType => Table.makeHeaderInfo(~key="payment_type", ~title="Payment Type")
   }
 }
@@ -465,6 +466,7 @@ let getHeadingForSummary = summaryColType => {
   switch summaryColType {
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created")
   | NetAmount => Table.makeHeaderInfo(~key="net_amount", ~title="Net Amount")
+  | SurchargeAmount => Table.makeHeaderInfo(~key="surcharge_amount", ~title="Surcharge Amount")
   | LastUpdated => Table.makeHeaderInfo(~key="last_updated", ~title="Last Updated")
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
@@ -578,6 +580,17 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
       />,
       "",
     )
+  | SurchargeAmount =>
+    switch order.surcharge_amount {
+    | Some(amount) =>
+      CustomCell(
+        <CurrencyCell
+          amount={(amount /. conversionFactor)->Float.toString} currency={order.currency}
+        />,
+        "",
+      )
+    | None => Text("N/A")
+    }
   | LastUpdated => Date(order.last_updated->Option.getOr(""))
   | PaymentId => DisplayCopyCell(order.payment_id)
   | Currency => Text(order.currency)

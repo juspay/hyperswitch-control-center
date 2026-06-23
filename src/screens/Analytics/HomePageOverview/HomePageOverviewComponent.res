@@ -73,7 +73,7 @@ module OverviewInfo = {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
 
     let generateSampleData = async () => {
       try {

@@ -5,13 +5,13 @@ import {
   type Locator,
   expect,
 } from "@playwright/test";
-import { generateDateTimeString } from "./helper";
+import { generateMerchantName } from "./helper";
 import { SignInPage } from "./pages/auth/SignInPage";
 import { SignUpPage } from "./pages/auth/SignUpPage";
 import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
-import { execFileSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
+import { execFileSync } from "child_process";
+import fs from "fs";
+import path from "path";
 
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000";
 const API_URL = process.env.HYPERSWITCH_API_URL || "http://localhost:8080";
@@ -33,7 +33,7 @@ export async function signupUser(
     data: {
       email,
       password,
-      company_name: companyName ?? generateDateTimeString(),
+      company_name: companyName ?? generateMerchantName(),
       name: "Playwright_test_user",
     },
   });
@@ -1059,7 +1059,7 @@ export async function signupAPI(
     data: {
       email: username,
       password: password,
-      company_name: generateDateTimeString(),
+      company_name: generateMerchantName(),
       name: "Playwright_test_user",
     },
   });
@@ -1104,119 +1104,116 @@ export async function mockV2MerchantList(page: Page): Promise<void> {
 }
 
 export async function mockPaymentFilters(page: Page): Promise<void> {
-  await page.route(
-    "**/analytics/v1/org/filters/payments",
-    async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          queryData: [
-            {
-              dimension: "connector",
-              values: ["stripe", "paypal", "adyen"],
-            },
-            {
-              dimension: "payment_method",
-              values: [
-                "card",
-                "wallet",
-                "bank_redirect",
-                "voucher",
-                "bank_debit",
-                "bank_transfer",
-                "card_redirect",
-                "pay_later",
-                "gift_card",
-                "open_banking",
-                "real_time_payment",
-                "reward",
-                "upi",
-                "crypto",
-                "network_token",
-              ],
-            },
-            {
-              dimension: "payment_method_type",
-              values: [
-                "debit",
-                "paypal",
-                "bancontact_card",
-                "credit",
-                "klarna",
-                "benefit",
-                "open_banking_pis",
-                "duit_now",
-                "classic",
-                "blik",
-                "pay_safe_card",
-                "sepa",
-                "upi_collect",
-                "pix",
-                "boleto",
-                "crypto_currency",
-                "network_token",
-              ],
-            },
-            {
-              dimension: "currency",
-              values: ["USD", "INR", "EUR", "GBP", "CAD"],
-            },
-            {
-              dimension: "status",
-              values: [
-                "succeeded",
-                "failed",
-                "cancelled",
-                "cancelled_post_capture",
-                "processing",
-                "requires_customer_action",
-                "requires_merchant_action",
-                "requires_payment_method",
-                "requires_confirmation",
-                "requires_capture",
-                "partially_captured",
-                "partially_captured_and_capturable",
-                "partially_authorized_and_requires_capture",
-                "partially_captured_and_processing",
-                "conflicted",
-                "expired",
-                "review",
-              ],
-            },
-            {
-              dimension: "profile_id",
-              values: ["pro_cd68ISnwZqozMG7b2x7G"],
-            },
-            {
-              dimension: "card_network",
-              values: [
-                "Visa",
-                "Mastercard",
-                "AmericanExpress",
-                "JCB",
-                "DinersClub",
-                "Discover",
-                "CartesBancaires",
-                "UnionPay",
-                "Interac",
-                "RuPay",
-                "Maestro",
-                "Star",
-                "Pulse",
-                "Accel",
-                "Nyce",
-              ],
-            },
-            {
-              dimension: "merchant_id",
-              values: ["test_merchant"],
-            },
-          ],
-        }),
-      });
-    },
-  );
+  await page.route("**/analytics/v1/org/filters/payments", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        queryData: [
+          {
+            dimension: "connector",
+            values: ["stripe", "paypal", "adyen"],
+          },
+          {
+            dimension: "payment_method",
+            values: [
+              "card",
+              "wallet",
+              "bank_redirect",
+              "voucher",
+              "bank_debit",
+              "bank_transfer",
+              "card_redirect",
+              "pay_later",
+              "gift_card",
+              "open_banking",
+              "real_time_payment",
+              "reward",
+              "upi",
+              "crypto",
+              "network_token",
+            ],
+          },
+          {
+            dimension: "payment_method_type",
+            values: [
+              "debit",
+              "paypal",
+              "bancontact_card",
+              "credit",
+              "klarna",
+              "benefit",
+              "open_banking_pis",
+              "duit_now",
+              "classic",
+              "blik",
+              "pay_safe_card",
+              "sepa",
+              "upi_collect",
+              "pix",
+              "boleto",
+              "crypto_currency",
+              "network_token",
+            ],
+          },
+          {
+            dimension: "currency",
+            values: ["USD", "INR", "EUR", "GBP", "CAD"],
+          },
+          {
+            dimension: "status",
+            values: [
+              "succeeded",
+              "failed",
+              "cancelled",
+              "cancelled_post_capture",
+              "processing",
+              "requires_customer_action",
+              "requires_merchant_action",
+              "requires_payment_method",
+              "requires_confirmation",
+              "requires_capture",
+              "partially_captured",
+              "partially_captured_and_capturable",
+              "partially_authorized_and_requires_capture",
+              "partially_captured_and_processing",
+              "conflicted",
+              "expired",
+              "review",
+            ],
+          },
+          {
+            dimension: "profile_id",
+            values: ["pro_cd68ISnwZqozMG7b2x7G"],
+          },
+          {
+            dimension: "card_network",
+            values: [
+              "Visa",
+              "Mastercard",
+              "AmericanExpress",
+              "JCB",
+              "DinersClub",
+              "Discover",
+              "CartesBancaires",
+              "UnionPay",
+              "Interac",
+              "RuPay",
+              "Maestro",
+              "Star",
+              "Pulse",
+              "Accel",
+              "Nyce",
+            ],
+          },
+          {
+            dimension: "merchant_id",
+            values: ["test_merchant"],
+          },
+        ],
+      }),
+    });
+  });
 }
 
 // Disputes don't have a client-facing creation endpoint — in production they
@@ -1313,9 +1310,7 @@ export async function mockDisputesList(
 
   await page.route(/\/disputes\/(profile\/)?filter(\?|$)/, async (route) => {
     const connectors = Array.from(new Set(disputes.map((d) => d.connector)));
-    const statuses = Array.from(
-      new Set(disputes.map((d) => d.dispute_status)),
-    );
+    const statuses = Array.from(new Set(disputes.map((d) => d.dispute_status)));
     const stages = Array.from(new Set(disputes.map((d) => d.dispute_stage)));
     await route.fulfill({
       status: 200,
@@ -1342,14 +1337,19 @@ export async function mockDisputesList(
   });
 
   await page.route(/\/disputes\/(dp_[^/?]+)(\?|$)/, async (route) => {
-    const match = route.request().url().match(/\/disputes\/(dp_[^/?]+)/);
+    const match = route
+      .request()
+      .url()
+      .match(/\/disputes\/(dp_[^/?]+)/);
     const id = match ? match[1] : "";
     const found = disputes.find((d) => d.dispute_id === id);
     if (!found) {
       await route.fulfill({
         status: 404,
         contentType: "application/json",
-        body: JSON.stringify({ error: { code: "HE_02", message: "not found" } }),
+        body: JSON.stringify({
+          error: { code: "HE_02", message: "not found" },
+        }),
       });
       return;
     }
@@ -1435,7 +1435,7 @@ export async function loginUI(
   await signinPage.skip2FAButton.click();
   await expect(
     page.getByText(
-      "Welcome to the home of your Payments Control Center. It aims to provide your team with a 360-degree view of payments.",
+      "Welcome to your Payments Control Center — one place for your team to track and manage every payment",
     ),
   ).toBeVisible();
 }
@@ -1829,34 +1829,39 @@ export async function ompLineage(
 }
 
 export async function generateCerts() {
-  const tmpDir = path.join(process.cwd(), 'tmp-certs');
+  const tmpDir = path.join(process.cwd(), "tmp-certs");
   if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
 
-  const keyPath = path.join(tmpDir, 'key.pem');
-  const certPath = path.join(tmpDir, 'cert.pem');
+  const keyPath = path.join(tmpDir, "key.pem");
+  const certPath = path.join(tmpDir, "cert.pem");
 
   // Generate key + self-signed cert
   execFileSync(
-    'openssl',
+    "openssl",
     [
-      'req',
-      '-x509',
-      '-newkey', 'rsa:2048',
-      '-keyout', keyPath,
-      '-out', certPath,
-      '-days', '1',
-      '-nodes',
-      '-subj', '/CN=test.local',
+      "req",
+      "-x509",
+      "-newkey",
+      "rsa:2048",
+      "-keyout",
+      keyPath,
+      "-out",
+      certPath,
+      "-days",
+      "1",
+      "-nodes",
+      "-subj",
+      "/CN=test.local",
     ],
-    { stdio: 'ignore' }
+    { stdio: "ignore" },
   );
 
   const cert = fs.readFileSync(certPath);
   const key = fs.readFileSync(keyPath);
 
   return {
-    certBase64: cert.toString('base64'),
-    keyBase64: key.toString('base64'),
+    certBase64: cert.toString("base64"),
+    keyBase64: key.toString("base64"),
   };
 }
 

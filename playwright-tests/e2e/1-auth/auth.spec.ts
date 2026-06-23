@@ -77,7 +77,8 @@ test.describe.serial("Sign up", () => {
     await signupPage.signUpButton.click();
 
     await expect(signupPage.headerText).toContainText(
-      "Please check your inbox", { timeout: 10000 }
+      "Please check your inbox",
+      { timeout: 10000 },
     );
     await expect(signupPage.headerText.locator("+ div")).toContainText(
       "A magic link has been sent to",
@@ -236,7 +237,7 @@ test.describe.serial("Sign in", () => {
 
     await page.reload();
     await expect(page).toHaveURL(/.*dashboard\/home/);
-    await expect(page.getByRole('button', { name: email })).toBeVisible();
+    await expect(page.getByRole("button", { name: email })).toBeVisible();
   });
 
   test("should redirect to login when session is expired or cleared", async ({
@@ -562,7 +563,10 @@ test.describe("Forgot password", () => {
     const resetPasswordPage = new ResetPasswordPage(page);
 
     const weakPasswords = [
-      { password: "Weak1!", expectedError: "Password must be at least 8 characters long." },
+      {
+        password: "Weak1!",
+        expectedError: "Password must be at least 8 characters long.",
+      },
       { password: "password123!", expectedError: /uppercase/ },
       { password: "PASSWORD123!", expectedError: /lowercase/ },
       { password: "Password!@#", expectedError: /numeric/ },
@@ -588,7 +592,9 @@ test.describe("Forgot password", () => {
       await resetPasswordPage.newPasswordField.blur();
       await resetPasswordPage.confirmPasswordField.fill(password);
       await resetPasswordPage.confirmPasswordField.blur();
-      await expect(resetPasswordPage.weakPasswordError).toContainText(expectedError);
+      await expect(resetPasswordPage.weakPasswordError).toContainText(
+        expectedError,
+      );
     }
   });
 });
@@ -985,15 +991,25 @@ test.describe("Maintenance mode and Down time", () => {
 
     await page.goto("/");
 
-    await expect(page.getByText('Hyperswitch Control Center is under maintenance', { exact: true })).toBeVisible();
-    await expect(page.getByText('Hyperswitch Control Center is under maintenance will be back in an hour')).toBeVisible();
+    await expect(
+      page.getByText("Hyperswitch Control Center is under maintenance", {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByText(
+        "Hyperswitch Control Center is under maintenance will be back in an hour",
+      ),
+    ).toBeVisible();
     await expect(page.getByText("Hey there, Welcome back!")).not.toBeVisible();
   });
 
   test("should display maintenance alert banner in homepage when maintenance_alert is set", async ({
-    page, context
+    page,
+    context,
   }) => {
-    const maintenanceAlert = "Scheduled maintenance window time from 01:30 AM to 06:00 AM IST on 21st Jun";
+    const maintenanceAlert =
+      "Scheduled maintenance window time from 01:30 AM to 06:00 AM IST on 21st Jun";
 
     await page.route("**/dashboard/config/feature*", async (route) => {
       const response = await route.fetch();
@@ -1008,6 +1024,6 @@ test.describe("Maintenance mode and Down time", () => {
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
-    await expect(page.getByRole('alert')).toContainText(maintenanceAlert);
+    await expect(page.getByRole("alert")).toContainText(maintenanceAlert);
   });
 });
