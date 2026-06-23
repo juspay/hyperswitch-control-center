@@ -252,7 +252,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
                 path=[{title: "Themes", link: "/theme"}] currentPageTitle={themeName}
               />
               <span
-                className={`px-3 py-1 rounded-full bg-purple-100 text-purple-700 ${body.xs.semibold}`}>
+                className={`px-3 py-1 rounded-full bg-nd_purple-100 text-nd_purple-700 ${body.xs.semibold}`}>
                 {`${(entityLevelLabel :> string)} level`->React.string}
               </span>
             </div>

@@ -195,7 +195,6 @@ module AssetField = {
     ~inputId: string,
     ~themeConfigVersion: option<string>,
     ~hint: string="",
-    ~resetKey: string="0",
   ) => {
     <div className="flex items-start justify-between gap-3">
       <div className="flex flex-col gap-1 min-w-0">
@@ -222,7 +221,7 @@ module AssetField = {
             </div>
           </div>
         }
-      | None => <RawFileInput accept inputId onChange=onFileChange resetKey />
+      | None => <RawFileInput accept inputId onChange=onFileChange />
       }}
     </div>
   }
@@ -241,8 +240,6 @@ module IconSettings = {
     ~onEmailLogoRemove: unit => unit=() => (),
     ~themeConfigVersion,
   ) => {
-    let (resetKey, setResetKey) = React.useState(() => 0)
-
     let getDisplayUrl = (asset: option<ThemeTypes.assetValue>) =>
       asset->Option.map(value =>
         switch value {
@@ -269,9 +266,7 @@ module IconSettings = {
         }
       | None => ()
       }
-      setResetKey(prev => prev + 1)
     }
-    let resetKey = resetKey->Int.toString
 
     switch mode {
     | #Dashboard =>
@@ -287,7 +282,6 @@ module IconSettings = {
             inputId="logoFileInput"
             themeConfigVersion
             hint="PNG or JPG · Recommended: 200 × 50 px · Up to 2MB"
-            resetKey
           />
           <AssetField
             label="Favicon"
@@ -298,7 +292,6 @@ module IconSettings = {
             inputId="faviconFileInput"
             themeConfigVersion
             hint="PNG, ICO or JPG · Recommended 32×32px · Up to 2MB"
-            resetKey
           />
         </div>
       </div>
@@ -315,7 +308,6 @@ module IconSettings = {
             inputId="emailLogoFileInput"
             themeConfigVersion
             hint="PNG or JPG · Recommended: 200 × 50 px · Up to 2MB"
-            resetKey
           />
         </div>
       </div>
