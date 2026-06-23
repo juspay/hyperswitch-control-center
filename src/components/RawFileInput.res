@@ -4,7 +4,7 @@ let make = (~accept: string, ~inputId: string, ~onChange: ReactEvent.Form.t => u
 
   let clearFileInput = () =>
     fileInputRef.current
-    ->Nullable.toOption
+    ->LogicUtils.getOptionalFromNullable
     ->Option.forEach(elem => elem->DOMUtils.toInputElement->DOMUtils.setInputValue(""))
 
   let handleChange = ev => {
