@@ -48,7 +48,7 @@ module PreviewTable = {
 let make = () => {
   open APIUtils
   open RefundsTableEntity
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let updateDetails = useUpdateMethod()
   let fetchTableData = ResultsTableUtils.useGetData()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)

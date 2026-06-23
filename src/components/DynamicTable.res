@@ -133,7 +133,7 @@ let make = (
   let remoteFilters = initialFilters->Array.filter(item => item.localFilter->Option.isNone)
   let filtersFromUrl = getDictFromUrlSearchParams(searchParams)
   let localFilters = initialFilters->Array.filter(item => item.localFilter->Option.isSome)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()

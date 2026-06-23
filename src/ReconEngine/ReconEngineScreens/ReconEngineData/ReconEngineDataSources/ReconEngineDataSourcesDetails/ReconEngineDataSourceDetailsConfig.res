@@ -12,7 +12,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
   let keyValuePairs = allKeyValuePairs->Array.filter(((key, _)) => {
     !(key->titleToSnake == "ingestion_type")
   })
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (selectedFile, setSelectedFile) = React.useState(_ => None)
   let (isDraggingFile, setIsDraggingFile) = React.useState(_ => false)
   let dragDepthRef = React.useRef(0)

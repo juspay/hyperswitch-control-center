@@ -17,7 +17,7 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
   let (ingestionConfigData, setIngestionConfigData) = React.useState(_ =>
     Dict.make()->getIngestionConfigPayloadFromDict
   )
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (showModal, setShowModal) = React.useState(_ => false)
 
   let fetchIngestionConfigDetails = async () => {
