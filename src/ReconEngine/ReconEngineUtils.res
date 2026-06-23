@@ -648,15 +648,27 @@ let overviewRulesTimeSeriesMapper: Dict.t<JSON.t> => overviewRulesTimeSeries = d
   }
 }
 
+let overviewRulesTimeSeriesArrayFromDict = dict =>
+  dict
+  ->getArrayFromDict("time_series", [])
+  ->Array.map(timeSeries => timeSeries->getDictFromJsonObject->overviewRulesTimeSeriesMapper)
+
 let overviewRulesResponseMapper: Dict.t<JSON.t> => overviewRulesResponse = dict => {
   {
     rule_id: dict->getString("rule_id", ""),
     rule_name: dict->getString("rule_name", ""),
     status_breakdown: dict
-    ->getArrayFromDict("status_breakdown", [])
-    ->overviewRulesStatusBreakdownArrayMapper,
-    time_series: dict
-    ->getArrayFromDict("time_series", [])
-    ->Array.map(timeSeries => timeSeries->getDictFromJsonObject->overviewRulesTimeSeriesMapper),
+    ->overviewRulesTimeSeriesArrayFromDict
+    ->Array.flatMap(timeSeries => timeSeries.status_breakdown),
+  }
+}
+
+let overviewRulesTimeSeriesResponseMapper: Dict.t<
+  JSON.t,
+> => overviewRulesTimeSeriesResponse = dict => {
+  {
+    rule_id: dict->getString("rule_id", ""),
+    rule_name: dict->getString("rule_name", ""),
+    time_series: dict->overviewRulesTimeSeriesArrayFromDict,
   }
 }

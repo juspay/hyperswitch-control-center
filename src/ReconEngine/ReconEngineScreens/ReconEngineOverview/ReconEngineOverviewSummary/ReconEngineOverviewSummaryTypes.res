@@ -139,3 +139,20 @@ type connectedStatCardData = {
   connectedStatCardTitle: connectedStatCardsTitle,
   connectedStatCardValue: valueType,
 }
+
+type overviewChartGranularity =
+  | Hourly
+  | Daily
+  | Weekly
+  | Monthly
+
+type overviewChartPoint = {
+  label: string,
+  tooltipLabel: string,
+  totalCount: float,
+  matchedCount: float,
+  exceptionCount: float,
+  expectedCount: float,
+  missingCount: float,
+  matchRate: float,
+}

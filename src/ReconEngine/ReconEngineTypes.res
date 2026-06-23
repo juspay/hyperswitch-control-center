@@ -415,5 +415,10 @@ type overviewRulesResponse = {
   rule_id: string,
   rule_name: string,
   status_breakdown: array<overviewRuleStatusBreakdown>,
+}
+
+type overviewRulesTimeSeriesResponse = {
+  rule_id: string,
+  rule_name: string,
   time_series: array<overviewRulesTimeSeries>,
 }
