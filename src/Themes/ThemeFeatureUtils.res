@@ -1,8 +1,10 @@
+open LogicUtils
+
 let defaultEmailLogoUrl = `${GlobalVars.getHostUrl}/email-assets/HyperswitchLogo.png`
 
 let appendVersionParam = (url, ~version) => {
   switch version {
-  | Some(v) if v->LogicUtils.isNonEmptyString => `${url}?version=${v}`
+  | Some(v) if v->isNonEmptyString => `${url}?version=${v}`
   | _ => url
   }
 }
@@ -34,13 +36,12 @@ let getEntityTypeFromStep = (stepVariant: ThemeTypes.lineageSelectionSteps) =>
 
 let getFileFromEvent = ev => {
   let files = ReactEvent.Form.target(ev)["files"]
-  files->LogicUtils.getValueFromArray(0, None)
+  files->getValueFromArray(0, None)
 }
 
 let maxAssetFileSizeBytes = 2 * 1024 * 1024
 
 let assetsMapper = (dict): ThemeTypes.assets => {
-  open LogicUtils
   let toUrl = url => url->isNonEmptyString ? Some(ThemeTypes.Url(url)) : None
   {
     logo: dict->getOptionString("logoUrl")->Option.flatMap(toUrl),
