@@ -141,6 +141,7 @@ type processorTypes =
   | FISERVCOMMERCEHUB
   | TRUSTLY
   | IMERCHANTSOLUTIONS
+  | PAYCONEX
 
 type payoutProcessorTypes =
   | ADYEN

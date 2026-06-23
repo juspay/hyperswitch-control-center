@@ -54,10 +54,14 @@ test.describe("Webhooks page", () => {
     await webhooks.descriptionInput.fill("Production webhook endpoint");
 
     await webhooks.saveWebhookButton.click();
-    await expect(webhooks.successOrCreatedToast).toBeVisible({ timeout: 10000 });
+    await expect(webhooks.successOrCreatedToast).toBeVisible({
+      timeout: 10000,
+    });
   });
 
-  test.fixme("should subscribe to event types via checkbox list", async ({ page }) => {
+  test.fixme("should subscribe to event types via checkbox list", async ({
+    page,
+  }) => {
     const webhooks = new Webhooks(page);
     const eventCheckbox = webhooks.firstEventCheckbox;
 
@@ -65,10 +69,11 @@ test.describe("Webhooks page", () => {
 
     const saveButton = webhooks.saveEventsButton;
     await saveButton.click();
-
   });
 
-  test.fixme("should accept retry attempts and interval values", async ({ page }) => {
+  test.fixme("should accept retry attempts and interval values", async ({
+    page,
+  }) => {
     const webhooks = new Webhooks(page);
     const retryAttempts = webhooks.retryAttemptsInput;
 
@@ -96,6 +101,8 @@ test.describe("Webhooks page", () => {
     const webhooks = new Webhooks(page);
     const toggle = webhooks.endpointToggle;
     await toggle.uncheck();
-    await expect(webhooks.disabledOrUpdatedToast).toBeVisible({ timeout: 10000 });
+    await expect(webhooks.disabledOrUpdatedToast).toBeVisible({
+      timeout: 10000,
+    });
   });
 });

@@ -21,6 +21,8 @@ import { exec } from "node:child_process";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
+const CONNECTOR_SETUP_TIMEOUT = 60000;
+
 async function signupAndLogin(
   page: Page,
   context: BrowserContext,
@@ -60,8 +62,12 @@ async function openStripeConnectorForm(page: Page): Promise<void> {
   await gotoConnectorList(page);
   await paymentConnector.connectorSearchInput.fill("stripe");
   await page.waitForTimeout(500);
-  await expect(paymentConnector.stripeConnector).toBeVisible({ timeout: 10000 });
-  await paymentConnector.stripeConnector.locator("button").click({ force: true });
+  await expect(paymentConnector.stripeConnector).toBeVisible({
+    timeout: 10000,
+  });
+  await paymentConnector.stripeConnector
+    .locator("button")
+    .click({ force: true });
   await fillStripeFormDefaults(page);
 }
 
@@ -112,8 +118,14 @@ test.describe("Payin Connector tests", () => {
 
     await page.reload();
 
-    await expect(page.getByRole('paragraph').filter({ hasText: 'Connect a Dummy Processor' })).not.toBeAttached();
-    await expect(page.getByRole("button", { name: "Request a Processor" }).first()).not.toBeAttached();
+    await expect(
+      page
+        .getByRole("paragraph")
+        .filter({ hasText: "Connect a Dummy Processor" }),
+    ).not.toBeAttached();
+    await expect(
+      page.getByRole("button", { name: "Request a Processor" }).first(),
+    ).not.toBeAttached();
   });
 
   test("should setup a dummy connector end-to-end", async ({ page }) => {
@@ -169,7 +181,9 @@ test.describe("Payin Connector tests", () => {
     const paymentConnector = new PaymentConnector(page);
     await gotoConnectorList(page);
 
-    await paymentConnector.searchProcessorPlaceholder.fill("nonexistentprocessor_zzzzzzzz");
+    await paymentConnector.searchProcessorPlaceholder.fill(
+      "nonexistentprocessor_zzzzzzzz",
+    );
     await page.waitForTimeout(700);
     const connectVisible = await page
       .getByRole("button", { name: "Connect", exact: true })
@@ -187,9 +201,7 @@ test.describe("Payin Connector tests", () => {
     await createStripeConnectorAPI(merchantId, stripeLabel, context.request);
     await gotoConnectorList(page);
 
-    const connectorRow = page
-      .locator("tr", { hasText: stripeLabel })
-      .first();
+    const connectorRow = page.locator("tr", { hasText: stripeLabel }).first();
     await expect(connectorRow).toBeVisible({ timeout: 10000 });
 
     const mcaCell = connectorRow
@@ -222,9 +234,7 @@ test.describe("Payin Connector tests", () => {
     await createStripeConnectorAPI(merchantId, stripeLabel, context.request);
     await gotoConnectorList(page);
 
-    const connectorRow = page
-      .locator("tr", { hasText: stripeLabel })
-      .first();
+    const connectorRow = page.locator("tr", { hasText: stripeLabel }).first();
     await expect(connectorRow).toBeVisible({ timeout: 10000 });
 
     const paymentConnector = new PaymentConnector(page);
@@ -237,7 +247,10 @@ test.describe("Payin Connector tests", () => {
     await page.waitForTimeout(500);
 
     await expect(
-      page.locator("div").filter({ hasText: /^No Data Available$/ }).nth(2),
+      page
+        .locator("div")
+        .filter({ hasText: /^No Data Available$/ })
+        .nth(2),
     ).toBeVisible();
   });
 
@@ -258,7 +271,13 @@ test.describe("Payin Connector tests", () => {
     await expect(helpIcon).toBeVisible();
     await helpIcon.hover();
 
-    await expect(page.getByText(/This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'/i).first()).toBeVisible({
+    await expect(
+      page
+        .getByText(
+          /This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'/i,
+        )
+        .first(),
+    ).toBeVisible({
       timeout: 5000,
     });
   });
@@ -329,9 +348,7 @@ test.describe("Payin Connector tests", () => {
     });
   });
 
-  test("should show processors from config in live mode", async ({
-    page,
-  }) => {
+  test("should show processors from config in live mode", async ({ page }) => {
     await gotoConnectorList(page);
 
     await page.route("**/dashboard/config/feature?domain=", async (route) => {
@@ -374,20 +391,28 @@ test.describe("Payin Connector tests", () => {
     await gotoConnectorList(page);
     await paymentConnector.connectorSearchInput.fill("stripe");
     await page.waitForTimeout(500);
-    await expect(paymentConnector.stripeConnector).toBeVisible({ timeout: 10000 });
-    await paymentConnector.stripeConnector.locator("button").click({ force: true });
+    await expect(paymentConnector.stripeConnector).toBeVisible({
+      timeout: 10000,
+    });
+    await paymentConnector.stripeConnector
+      .locator("button")
+      .click({ force: true });
 
     const apiKeyField = paymentConnector.apiKeyInput;
     await apiKeyField.fill("invalid_key_@#$%");
     await apiKeyField.blur();
-    await expect(page.getByText('Secret key should have the prefix sk_test_')).toBeVisible();
+    await expect(
+      page.getByText("Secret key should have the prefix sk_test_"),
+    ).toBeVisible();
     await apiKeyField.clear();
     await apiKeyField.blur();
-    await expect(page.getByText('Please enter Secret Key')).toBeVisible();
+    await expect(page.getByText("Please enter Secret Key")).toBeVisible();
 
-    await page.locator('.grid.grid-cols-2 input[type="text"]').nth(1).clear();
-    await page.locator('.grid.grid-cols-2 input[type="text"]').nth(1).blur();
-    await expect(page.getByText('Please enter Connector label').nth(1)).toBeVisible();
+    await page.getByRole("textbox", { name: "Enter Connector label" }).clear();
+    await page.getByRole("textbox", { name: "Enter Connector label" }).blur();
+    await expect(
+      page.getByText("Please enter Connector label").nth(1),
+    ).toBeVisible();
   });
 
   test("should group payment methods by category in step 2", async ({
@@ -468,9 +493,15 @@ test.describe("Payin Connector tests", () => {
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
     await paymentConnector.connectAndProceedButton.click();
-    await expect(paymentConnector.paymentMethodToggle).toHaveAttribute('data-bool-value', 'on');
+    await expect(paymentConnector.paymentMethodToggle).toHaveAttribute(
+      "data-bool-value",
+      "on",
+    );
     await paymentConnector.paymentMethodToggle.click();
-    await expect(paymentConnector.paymentMethodToggle).toHaveAttribute('data-bool-value', 'off');
+    await expect(paymentConnector.paymentMethodToggle).toHaveAttribute(
+      "data-bool-value",
+      "off",
+    );
   });
 
   test("should configure Apple Pay web domain flow", async ({ page }) => {
@@ -480,27 +511,50 @@ test.describe("Payin Connector tests", () => {
 
     await page.getByText("Apple Pay").click();
 
-    await expect(page.getByText("Web Domain").locator("visible=true").first()).toBeVisible();
-    await expect(page.getByText("iOS Certificate").locator("visible=true").first()).toBeVisible();
-    await expect(page.getByText("Pre Decrypted Token").locator("visible=true").first()).toBeVisible();
+    await expect(
+      page.getByText("Web Domain").locator("visible=true").first(),
+    ).toBeVisible();
+    await expect(
+      page.getByText("iOS Certificate").locator("visible=true").first(),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Pre Decrypted Token").locator("visible=true").first(),
+    ).toBeVisible();
 
     await page.getByText("Web Domain").locator("visible=true").first().click();
-    await page.getByRole('button', { name: 'Continue' }).click();
+    await page.getByRole("button", { name: "Continue" }).click();
 
-    await expect(page.getByRole('button', { name: 'Verify & Enable' })).toBeDisabled();
+    await expect(
+      page.getByRole("button", { name: "Verify & Enable" }),
+    ).toBeDisabled();
 
-    await expect(page.locator('div').filter({ hasText: /^Domain Name \*$/ }).nth(2)).toBeVisible();
-    await page.getByRole('textbox', { name: 'Enter Domain Name' }).fill("hyperswitch.io")
-    await expect(page.getByText('Merchant Business Country *')).toBeVisible();
-    await page.getByRole('button', { name: 'Select Value' }).click();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Domain Name \*$/ })
+        .nth(2),
+    ).toBeVisible();
+    await page
+      .getByRole("textbox", { name: "Enter Domain Name" })
+      .fill("hyperswitch.io");
+    await expect(page.getByText("Merchant Business Country *")).toBeVisible();
+    await page.getByRole("button", { name: "Select Value" }).click();
     await page.getByPlaceholder("Search name or ID...").fill("US");
-    await page.locator('div').filter({ hasText: /^UnitedStatesOfAmerica$/ }).nth(4).click();
+    await page
+      .locator("div")
+      .filter({ hasText: /^UnitedStatesOfAmerica$/ })
+      .nth(4)
+      .click();
 
-    await page.getByRole('button', { name: 'Download File' }).click();
-    await expect(page.locator('[data-toast="File download complete"]')).toContainText("File download complete");
+    await page.getByRole("button", { name: "Download File" }).click();
+    await expect(
+      page.locator('[data-toast="File download complete"]'),
+    ).toContainText("File download complete");
 
-    await expect(page.getByRole('button', { name: 'Verify & Enable' })).not.toBeDisabled();
-    await page.getByRole('button', { name: 'Verify & Enable' }).click();
+    await expect(
+      page.getByRole("button", { name: "Verify & Enable" }),
+    ).not.toBeDisabled();
+    await page.getByRole("button", { name: "Verify & Enable" }).click();
   });
 
   test("should configure Apple Pay iOS certificate flow", async ({ page }) => {
@@ -510,46 +564,91 @@ test.describe("Payin Connector tests", () => {
 
     await page.getByText("Apple Pay").click();
 
-    await expect(page.getByText("Web Domain").locator("visible=true").first()).toBeVisible();
-    await expect(page.getByText("iOS Certificate").locator("visible=true").first()).toBeVisible();
-    await expect(page.getByText("Pre Decrypted Token").locator("visible=true").first()).toBeVisible();
+    await expect(
+      page.getByText("Web Domain").locator("visible=true").first(),
+    ).toBeVisible();
+    await expect(
+      page.getByText("iOS Certificate").locator("visible=true").first(),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Pre Decrypted Token").locator("visible=true").first(),
+    ).toBeVisible();
 
-    await page.getByText("iOS Certificate").locator("visible=true").first().click();
-    await page.getByRole('button', { name: 'Continue' }).click();
+    await page
+      .getByText("iOS Certificate")
+      .locator("visible=true")
+      .first()
+      .click();
+    await page.getByRole("button", { name: "Continue" }).click();
 
-    await expect(page.getByRole('button', { name: 'Verify & Enable' })).toBeDisabled();
-    await expect(page.getByText('Merchant Certificate (Base64')).toBeVisible();
-    await page.getByRole('textbox', { name: 'Enter Merchant Certificate (' }).fill("test_value");
+    await expect(
+      page.getByRole("button", { name: "Verify & Enable" }),
+    ).toBeDisabled();
+    await expect(page.getByText("Merchant Certificate (Base64")).toBeVisible();
+    await page
+      .getByRole("textbox", { name: "Enter Merchant Certificate (" })
+      .fill("test_value");
 
-    await expect(page.getByText('Merchant PrivateKey (Base64')).toBeVisible();
-    await page.getByRole('textbox', { name: 'Enter Merchant PrivateKey (' }).fill("test_value");
+    await expect(page.getByText("Merchant PrivateKey (Base64")).toBeVisible();
+    await page
+      .getByRole("textbox", { name: "Enter Merchant PrivateKey (" })
+      .fill("test_value");
 
-    await expect(page.getByText('Apple Merchant Identifier *')).toBeVisible();
-    await page.getByRole('textbox', { name: 'Enter Apple Merchant' }).fill("test_value");
+    await expect(page.getByText("Apple Merchant Identifier *")).toBeVisible();
+    await page
+      .getByRole("textbox", { name: "Enter Apple Merchant" })
+      .fill("test_value");
 
-    await expect(page.locator('div').filter({ hasText: /^Display Name \*$/ }).nth(2)).toBeVisible();
-    await page.getByRole('textbox', { name: 'Enter Display Name' }).fill("test_value");
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Display Name \*$/ })
+        .nth(2),
+    ).toBeVisible();
+    await page
+      .getByRole("textbox", { name: "Enter Display Name" })
+      .fill("test_value");
 
-    await expect(page.locator('div').filter({ hasText: /^Domain \*$/ }).first()).toBeVisible();
-    await page.getByRole('button', { name: 'Select Value' }).first().click();
-    await page.locator('div').filter({ hasText: /^IOS$/ }).first().click();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Domain \*$/ })
+        .first(),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Select Value" }).first().click();
+    await page.locator("div").filter({ hasText: /^IOS$/ }).first().click();
 
-    await expect(page.locator('div').filter({ hasText: /^Merchant Business Country \*$/ }).first()).toBeVisible();
-    await page.getByRole('button', { name: 'Select Value' }).click();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Merchant Business Country \*$/ })
+        .first(),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Select Value" }).click();
 
     await page.getByPlaceholder("Search name or ID...").fill("US");
-    await page.locator('div').filter({ hasText: /^UnitedStatesOfAmerica$/ }).nth(4).click();
+    await page
+      .locator("div")
+      .filter({ hasText: /^UnitedStatesOfAmerica$/ })
+      .nth(4)
+      .click();
 
-    await expect(page.getByText('Payment Processing Details At')).toBeVisible();
+    await expect(page.getByText("Payment Processing Details At")).toBeVisible();
 
-    await page.locator('div').filter({ hasText: /^Connector$/ }).first().click();
-    await page.getByRole('button', { name: 'Verify & Enable' }).click();
+    await page
+      .locator("div")
+      .filter({ hasText: /^Connector$/ })
+      .first()
+      .click();
+    await page.getByRole("button", { name: "Verify & Enable" }).click();
 
-    await page.getByRole('button', { name: 'Proceed' }).nth(1).click();
-    await expect(page.getByText('Default', { exact: true })).not.toBeVisible();
-    await page.getByRole('button', { name: 'Proceed' }).click();
+    await page.getByRole("button", { name: "Proceed" }).nth(1).click();
+    await expect(page.getByText("Default", { exact: true })).not.toBeVisible();
+    await page.getByRole("button", { name: "Proceed" }).click();
 
-    await expect(page.getByRole('heading', { name: 'Apple Pay' })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Apple Pay" }),
+    ).toBeVisible();
   });
 
   test("should configure Google Pay flow", async ({ page }) => {
@@ -558,33 +657,47 @@ test.describe("Payin Connector tests", () => {
     await paymentConnector.connectAndProceedButton.click();
 
     await page.getByText("Google Pay").click();
-    await expect(page.getByText('Payment Gateway').locator("visible=true").first()).toBeVisible();
+    await expect(
+      page.getByText("Payment Gateway").locator("visible=true").first(),
+    ).toBeVisible();
     await page.getByRole("button", { name: "Continue" }).click();
 
-    await expect(page.getByRole("button", { name: "Proceed" }).nth(1)).toBeDisabled();
+    await expect(
+      page.getByRole("button", { name: "Proceed" }).nth(1),
+    ).toBeDisabled();
 
     await expect(page.getByText("Google Pay Merchant Name")).toBeVisible();
-    await page.getByRole("textbox", { name: "Enter Google Pay Merchant Name" }).fill("test_value");
+    await page
+      .getByRole("textbox", { name: "Enter Google Pay Merchant Name" })
+      .fill("test_value");
 
     await expect(page.getByText("Google Pay Merchant Id")).toBeVisible();
-    await page.getByRole("textbox", { name: "Enter Google Pay Merchant Id" }).fill("test_value");
+    await page
+      .getByRole("textbox", { name: "Enter Google Pay Merchant Id" })
+      .fill("test_value");
 
-    await expect(page.getByText('Stripe Publishable Key *')).toBeVisible();
-    await page.getByRole('textbox', { name: 'Enter Stripe Publishable Key' }).fill("test_value");
+    await expect(page.getByText("Stripe Publishable Key *")).toBeVisible();
+    await page
+      .getByRole("textbox", { name: "Enter Stripe Publishable Key" })
+      .fill("test_value");
 
-    await expect(page.getByText('Allowed Auth Methods *')).toBeVisible();
-    await page.getByRole('button', { name: 'Select Value' }).click();
+    await expect(page.getByText("Allowed Auth Methods *")).toBeVisible();
+    await page.getByRole("button", { name: "Select Value" }).click();
 
     await page.getByText("PAN_ONLY").click();
     await page.getByText("CRYPTOGRAM_3DS").click();
 
-    await expect(page.getByRole("button", { name: "Proceed" }).nth(1)).not.toBeDisabled();
+    await expect(
+      page.getByRole("button", { name: "Proceed" }).nth(1),
+    ).not.toBeDisabled();
 
     await page.getByRole("button", { name: "Proceed" }).nth(1).click();
 
-    await page.getByRole('button', { name: 'Proceed' }).click();
+    await page.getByRole("button", { name: "Proceed" }).click();
 
-    await expect(page.getByRole("heading", { name: "Google Pay" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Google Pay" }),
+    ).toBeVisible();
   });
 
   test("should show summary preview after PMs step", async ({ page }) => {
@@ -598,7 +711,7 @@ test.describe("Payin Connector tests", () => {
       test.skip(true, "Connector flow does not expose explicit summary step");
     }
     await expect(summary).toBeVisible();
-    await expect(page.getByText('Integration statusACTIVE')).toBeVisible();
+    await expect(page.getByText("Integration statusACTIVE")).toBeVisible();
     await expect(paymentConnector.connectorCreatedToast).toBeVisible();
   });
 
@@ -606,7 +719,7 @@ test.describe("Payin Connector tests", () => {
     page,
     context,
   }) => {
-    test.setTimeout(60000);
+    test.setTimeout(CONNECTOR_SETUP_TIMEOUT);
     const createdLabel = await setupConfiguredStripeConnector(page, context);
     const paymentConnector = new PaymentConnector(page);
     await openStripeConnectorForm(page);
@@ -657,19 +770,24 @@ test.describe("Payin Connector tests", () => {
     const createdLabel = await setupConfiguredStripeConnector(page, context);
     await gotoConnectorList(page);
     await expect(page.getByText(createdLabel).first()).toBeVisible({});
-    await expect(page.locator('div').filter({ hasText: /^ACTIVE$/ }).first()).toBeVisible();
-    await expect(page.getByText('ENABLED')).toBeVisible();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^ACTIVE$/ })
+        .first(),
+    ).toBeVisible();
+    await expect(page.getByText("ENABLED")).toBeVisible();
   });
 
   test("should render disabled/enabled label per connector", async ({
     page,
     context,
   }) => {
-    test.setTimeout(60000);
+    test.setTimeout(CONNECTOR_SETUP_TIMEOUT);
     await setupConfiguredStripeConnector(page, context);
     await gotoConnectorList(page);
     const stripeRow = page
-      .locator('div')
+      .locator("div")
       .filter({ hasText: /^Stripe$/ })
       .first();
     await expect(stripeRow).toBeVisible();
@@ -680,10 +798,18 @@ test.describe("Payin Connector tests", () => {
     const toggle = paymentConnector.connectorEnableToggle;
     await expect(toggle).toBeVisible();
     await toggle.click();
-    await expect(page.locator('div').filter({ hasText: /^Disabled$/ }).nth(2)).toBeVisible();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Disabled$/ })
+        .nth(2),
+    ).toBeVisible();
     await gotoConnectorList(page);
     await expect(
-      page.locator('div').filter({ hasText: /^DISABLED$/ }).first(),
+      page
+        .locator("div")
+        .filter({ hasText: /^DISABLED$/ })
+        .first(),
     ).toBeVisible({ timeout: 5000 });
   });
 
@@ -691,7 +817,7 @@ test.describe("Payin Connector tests", () => {
     page,
     context,
   }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(CONNECTOR_SETUP_TIMEOUT);
     const { merchantId } = await ompLineage(page);
     const apiKey = await createAPIKey(merchantId, "", context.request);
     const profileId = await getDefaultProfileId(merchantId, context.request);
@@ -713,10 +839,12 @@ test.describe("Payin Connector tests", () => {
 
     await gotoConnectorList(page);
 
-    await expect(page.getByText('Showing 20')).toBeVisible();
-    await expect(page.getByRole('button', { name: '2', exact: true })).toBeVisible();
-    await page.getByRole('button', { name: '2', exact: true }).click();
-    await expect(page.getByText('Showing 21')).toBeVisible();
+    await expect(page.getByText("Showing 20")).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "2", exact: true }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "2", exact: true }).click();
+    await expect(page.getByText("Showing 21")).toBeVisible();
   });
 
   test("should open edit form, validate pre-populated values, update credentials, and persist changes", async ({
@@ -730,13 +858,21 @@ test.describe("Payin Connector tests", () => {
     await expect(page.getByText("Integration statusACTIVE")).toBeVisible();
     await expect(page.getByText("Webhook Endpointhttp://")).toBeVisible();
     await expect(page.getByText("Profiledefault -")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Secret Key" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "te******ue" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Connector Label" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: createdLabel })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Secret Key" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "te******ue" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Connector Label" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: createdLabel }),
+    ).toBeVisible();
     await expect(page.getByRole("heading", { name: "Credit" })).toBeVisible();
 
-    await page.locator('.cursor-pointer > span > .flex').first().click();
+    await page.locator(".cursor-pointer > span > .flex").first().click();
 
     const paymentConnector = new PaymentConnector(page);
     const apiKey = paymentConnector.apiKeyInput;
@@ -755,10 +891,18 @@ test.describe("Payin Connector tests", () => {
 
     await expect(paymentConnector.detailsUpdatedToast).toBeVisible();
 
-    await expect(page.getByRole('heading', { name: 'ro*************ue' })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "te******ue" })).not.toBeVisible();
-    await expect(page.getByRole("heading", { name: "stripe_updated_label" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "stripe_configured" })).not.toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "ro*************ue" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "te******ue" }),
+    ).not.toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "stripe_updated_label" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "stripe_configured" }),
+    ).not.toBeVisible();
   });
 
   test("should toggle individual payment method on existing connector", async ({
@@ -769,20 +913,286 @@ test.describe("Payin Connector tests", () => {
     await gotoConnectorList(page);
     await page.getByText(createdLabel).first().click();
 
-    await expect(page.getByRole('heading', { name: 'Credit' })).toBeVisible();
-    await page.locator('.fill-current.ml-2').click();
+    await expect(page.getByRole("heading", { name: "Credit" })).toBeVisible();
+    await page.locator(".fill-current.ml-2").click();
 
     const paymentConnector = new PaymentConnector(page);
     await paymentConnector.paymentMethodToggle.click();
     await paymentConnector.paymentMethodToggle.click();
 
-    await page.getByRole('button', { name: 'Proceed' }).click();
-    await page.getByRole('button', { name: 'Done' }).click();
-    await expect(page.getByRole('heading', { name: 'Credit' })).not.toBeVisible();
+    await page.getByRole("button", { name: "Proceed" }).click();
+    await page.getByRole("button", { name: "Done" }).click();
+    await expect(
+      page.getByRole("heading", { name: "Credit" }),
+    ).not.toBeVisible();
 
     await page.getByText(createdLabel).first().click();
-    await expect(page.getByText('Integration statusACTIVE')).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Credit' })).not.toBeVisible();
+    await expect(page.getByText("Integration statusACTIVE")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Credit" }),
+    ).not.toBeVisible();
+  });
+
+  test("should setup Stripe connector with Bank Debit PMT when no PM auth processor is setup", async ({
+    page,
+  }) => {
+    test.setTimeout(CONNECTOR_SETUP_TIMEOUT);
+    const homePage = new HomePage(page);
+    const paymentConnector = new PaymentConnector(page);
+
+    // --- Setup Stripe payment connector ---
+    await gotoConnectorList(page);
+    await paymentConnector.connectorSearchInput.fill("stripe");
+    await page.waitForTimeout(500);
+    await expect(paymentConnector.stripeConnector).toBeVisible({
+      timeout: 10000,
+    });
+    await paymentConnector.stripeConnector
+      .locator("button")
+      .click({ force: true });
+
+    // Fill only the API key so the auto-populated `stripe_default` connector
+    // label is preserved for the final list assertion.
+    await expect(paymentConnector.apiKeyInput).toBeVisible();
+    await paymentConnector.apiKeyInput.fill("test_value");
+    await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(page.getByText("Bank DebitAchBacsBecsSepa")).toBeVisible();
+    await page.getByTestId("bank_debit_ach").click();
+    await page.getByTestId("bank_debit_bacs").click();
+    await page.getByTestId("bank_debit_becs").click();
+    await page.getByTestId("bank_debit_sepa").click();
+
+    await paymentConnector.pmtProceedButton.click();
+
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(
+      page.getByRole("heading", { name: "Ach, Bacs, Becs, Sepa" }),
+    ).toBeVisible();
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(page).toHaveURL(/.*dashboard\/connectors/);
+    await expect(page.getByText("stripe_default").first()).toBeVisible();
+  });
+
+  test("should setup Stripe connector with Bank Debit PMT + Plaid when PM auth processor is setup", async ({
+    page,
+  }) => {
+    test.setTimeout(CONNECTOR_SETUP_TIMEOUT);
+    const homePage = new HomePage(page);
+    const paymentConnector = new PaymentConnector(page);
+
+    // --- Setup PM Auth processor (Plaid) ---
+    await homePage.connectors.click();
+    await homePage.pmAuthConnectors.click();
+    await expect(page).toHaveURL(/.*dashboard\/pm-authentication-processor/);
+
+    // Plaid is the only PM auth processor surfaced, so the first Connect CTA
+    // opens its setup form.
+    await page.getByRole("button", { name: "Connect" }).first().click();
+    await expect(page).toHaveURL(/.*name=plaid/);
+
+    await page
+      .getByRole("textbox", { name: "Enter Client Id" })
+      .fill("test_value");
+    await page
+      .getByRole("textbox", { name: "Enter Secret" })
+      .fill("test_value");
+    await expect(
+      page.getByRole("textbox", { name: "Enter Connector label" }),
+    ).toHaveValue("plaid_default");
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(page.getByText("Integration status")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(
+      page.getByText("ACTIVE", { exact: true }).first(),
+    ).toBeVisible();
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(
+      page.getByText("plaid_default", { exact: true }).first(),
+    ).toBeVisible({ timeout: 10000 });
+
+    // --- Setup Stripe payment connector ---
+    await gotoConnectorList(page);
+    await paymentConnector.connectorSearchInput.fill("stripe");
+    await page.waitForTimeout(500);
+    await expect(paymentConnector.stripeConnector).toBeVisible({
+      timeout: 10000,
+    });
+    await paymentConnector.stripeConnector
+      .locator("button")
+      .click({ force: true });
+
+    // Fill only the API key so the auto-populated `stripe_default` connector
+    // label is preserved for the final list assertion.
+    await expect(paymentConnector.apiKeyInput).toBeVisible();
+    await paymentConnector.apiKeyInput.fill("test_value");
+    await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(
+      page.getByText(
+        "Bank DebitBelow methods can be enabled independently. Add optional payment authenticator if needed.",
+      ),
+    ).toBeVisible();
+    await expect(page.getByText("AchOptional Configuration")).toBeVisible();
+    await expect(page.getByText("BacsOptional Configuration")).toBeVisible();
+    await expect(page.getByText("BecsOptional Configuration")).toBeVisible();
+    await expect(page.getByText("SepaOptional Configuration")).toBeVisible();
+
+    await page.getByText("AchOptional Configuration").click();
+    await expect(
+      page
+        .getByText(
+          "Select PM Authenticator (optional)Select PM Authentication Processor(Enable method to choose an authenticator)CancelProceed",
+        )
+        .first(),
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole("button", { name: "Select PM Authentication" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Proceed" }).nth(1),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Proceed" }).nth(1),
+    ).toBeDisabled();
+
+    await page.locator(".cursor-pointer > .w-4 > div > svg").first().click();
+    await expect(
+      page.getByRole("button", { name: "Select PM Authentication" }),
+    ).not.toBeDisabled();
+    await expect(
+      page.getByRole("button", { name: "Proceed" }).nth(1),
+    ).not.toBeDisabled();
+    await page
+      .getByRole("button", { name: "Select PM Authentication" })
+      .click();
+    await page.getByText("Plaid").click();
+    await page.getByRole("button", { name: "Proceed" }).nth(1).click();
+
+    await paymentConnector.pmtProceedButton.click();
+
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible({
+      timeout: 10000,
+    });
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(page).toHaveURL(/.*dashboard\/connectors/);
+    await expect(page.getByText("stripe_default").first()).toBeVisible();
+  });
+
+  test("should setup Stripe connector without Plaid and Bank Debit PMT when PM auth processor is setup", async ({
+    page,
+  }) => {
+    test.setTimeout(CONNECTOR_SETUP_TIMEOUT);
+    const homePage = new HomePage(page);
+    const paymentConnector = new PaymentConnector(page);
+
+    // --- Setup PM Auth processor (Plaid) ---
+    await homePage.connectors.click();
+    await homePage.pmAuthConnectors.click();
+    await expect(page).toHaveURL(/.*dashboard\/pm-authentication-processor/);
+
+    // Plaid is the only PM auth processor surfaced, so the first Connect CTA
+    // opens its setup form.
+    await page.getByRole("button", { name: "Connect" }).first().click();
+    await expect(page).toHaveURL(/.*name=plaid/);
+
+    await page
+      .getByRole("textbox", { name: "Enter Client Id" })
+      .fill("test_value");
+    await page
+      .getByRole("textbox", { name: "Enter Secret" })
+      .fill("test_value");
+    await expect(
+      page.getByRole("textbox", { name: "Enter Connector label" }),
+    ).toHaveValue("plaid_default");
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(page.getByText("Integration status")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(
+      page.getByText("ACTIVE", { exact: true }).first(),
+    ).toBeVisible();
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(
+      page.getByText("plaid_default", { exact: true }).first(),
+    ).toBeVisible({ timeout: 10000 });
+
+    // --- Setup Stripe payment connector ---
+    await gotoConnectorList(page);
+    await paymentConnector.connectorSearchInput.fill("stripe");
+    await page.waitForTimeout(500);
+    await expect(paymentConnector.stripeConnector).toBeVisible({
+      timeout: 10000,
+    });
+    await paymentConnector.stripeConnector
+      .locator("button")
+      .click({ force: true });
+
+    // Fill only the API key so the auto-populated `stripe_default` connector
+    // label is preserved for the final list assertion.
+    await expect(paymentConnector.apiKeyInput).toBeVisible();
+    await paymentConnector.apiKeyInput.fill("test_value");
+    await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(
+      page.getByText(
+        "Bank DebitBelow methods can be enabled independently. Add optional payment authenticator if needed.",
+      ),
+    ).toBeVisible();
+    await expect(page.getByText("AchOptional Configuration")).toBeVisible();
+    await expect(page.getByText("BacsOptional Configuration")).toBeVisible();
+    await expect(page.getByText("BecsOptional Configuration")).toBeVisible();
+    await expect(page.getByText("SepaOptional Configuration")).toBeVisible();
+
+    await page.getByText("AchOptional Configuration").click();
+    await expect(
+      page
+        .getByText(
+          "Select PM Authenticator (optional)Select PM Authentication Processor(Enable method to choose an authenticator)CancelProceed",
+        )
+        .first(),
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole("button", { name: "Select PM Authentication" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Proceed" }).nth(1),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Proceed" }).nth(1),
+    ).toBeDisabled();
+
+    await page.locator(".cursor-pointer > .w-4 > div > svg").first().click();
+    await page.getByRole("button", { name: "Proceed" }).nth(1).click();
+
+    await paymentConnector.pmtProceedButton.click();
+
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible({
+      timeout: 10000,
+    });
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(page).toHaveURL(/.*dashboard\/connectors/);
+    await expect(page.getByText("stripe_default").first()).toBeVisible();
   });
 });
 
@@ -804,7 +1214,7 @@ test.describe("All Payin Connectors", () => {
 
       await paymentConnector.connectorSearchInput.fill(connector.label);
 
-      if (connector.label === 'hipay') {
+      if (connector.label === "hipay") {
         await paymentConnector.addConnectButton.nth(3).click();
       } else {
         await paymentConnector.addConnectButton.nth(2).click();
@@ -818,18 +1228,22 @@ test.describe("All Payin Connectors", () => {
       await assertPaymentMethodTypes(page, connector.paymentSections);
 
       await paymentConnector.pmtProceedButton.click();
-      await expect(paymentConnector.connectorCreatedToast).toBeVisible({ timeout: 10000 });
+      await expect(paymentConnector.connectorCreatedToast).toBeVisible({
+        timeout: 10000,
+      });
       await paymentConnector.connectorSetupDone.click();
 
       await expect(page).toHaveURL(/.*dashboard\/connectors/);
       await expect(
         page.getByTestId(
-          connector.fields.overrides["Enter Connector label"] || connector.label,
+          connector.fields.overrides["Enter Connector label"] ||
+            connector.label,
         ),
       ).toBeVisible();
       await page
         .getByTestId(
-          connector.fields.overrides["Enter Connector label"] || connector.label,
+          connector.fields.overrides["Enter Connector label"] ||
+            connector.label,
         )
         .click();
     });

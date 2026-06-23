@@ -187,6 +187,7 @@ let connectorList: array<connectorTypes> = [
   Processors(TRUELAYER),
   Processors(TRUSTLY),
   Processors(IMERCHANTSOLUTIONS),
+  Processors(PAYCONEX),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -731,6 +732,10 @@ let imerchantsolutionsInfo = {
   description: "iMerchant Solutions is a modern payment processing platform that empowers businesses to accept payments globally with fast and low-friction onboarding.",
 }
 
+let payconexInfo = {
+  description: "PayConex is Bluefin's payment gateway platform, offering secure card payment processing with PCI-validated point-to-point encryption and tokenization.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -1014,6 +1019,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | FISERVCOMMERCEHUB => "fiservcommercehub"
   | TRUSTLY => "trustly"
   | IMERCHANTSOLUTIONS => "imerchantsolutions"
+  | PAYCONEX => "payconex"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1223,6 +1229,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "fiservcommercehub" => Processors(FISERVCOMMERCEHUB)
     | "trustly" => Processors(TRUSTLY)
     | "imerchantsolutions" => Processors(IMERCHANTSOLUTIONS)
+    | "payconex" => Processors(PAYCONEX)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1408,6 +1415,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | FISERVCOMMERCEHUB => fiservcommercehubInfo
   | TRUSTLY => trustlyInfo
   | IMERCHANTSOLUTIONS => imerchantsolutionsInfo
+  | PAYCONEX => payconexInfo
   }
 }
 
@@ -2403,6 +2411,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | FISERVCOMMERCEHUB => "Fiserv Commerce Hub"
   | TRUSTLY => "Trustly"
   | IMERCHANTSOLUTIONS => "iMerchant Solutions"
+  | PAYCONEX => "PayConex"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2634,7 +2643,8 @@ let checkIfPredecryptFlowEnabledForGooglePay = connector => {
   | Processors(CHECKOUT)
   | Processors(WORLDPAYVANTIV)
   | Processors(NMI)
-  | Processors(STRIPE) => true
+  | Processors(STRIPE)
+  | Processors(WORLDPAYXML) => true
   | _ => false
   }
 }

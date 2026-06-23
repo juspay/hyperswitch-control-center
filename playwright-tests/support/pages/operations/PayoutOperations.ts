@@ -11,9 +11,7 @@ export class PayoutOperations extends PaymentOperations {
   }
 
   get payoutStatusFieldWrapper(): Locator {
-    return this.page.locator(
-      '[data-component-field-wrapper="field-status"]',
-    );
+    return this.page.locator('[data-component-field-wrapper="field-status"]');
   }
 
   daterangeDropdownValue(value: string): Locator {
