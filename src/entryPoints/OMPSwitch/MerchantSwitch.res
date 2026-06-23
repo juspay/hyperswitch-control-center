@@ -10,7 +10,7 @@ module NewMerchantCreationModal = {
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let getMerchantList = MerchantListHook.useFetchMerchantList()
@@ -155,7 +155,7 @@ module NewMerchantCreationModal = {
 let make = () => {
   open OMPSwitchUtils
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
   let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (showModal, setShowModal) = React.useState(_ => false)

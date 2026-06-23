@@ -197,7 +197,7 @@ let make = (
     setCount(_prev => clearFilterJson + initialCount)
     setAllFilters(_prev => filtersUnselected)
     None
-  }, (filterKeys, remoteFilters->Array.length))
+  }, (filterKeys, remoteFilters->Array.length, searchParams))
 
   let onSubmit = (values, _) => {
     let obj = values->JSON.Decode.object->Option.getOr(Dict.make())->Dict.toArray->Dict.fromArray

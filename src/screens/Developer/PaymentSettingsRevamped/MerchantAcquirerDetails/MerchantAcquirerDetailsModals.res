@@ -24,7 +24,7 @@ module AddAcquirerModal = {
   @react.component
   let make = (~showModal, ~setShowModal) => {
     open FormRenderer
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
@@ -86,7 +86,7 @@ module AddNetworkModal = {
   @react.component
   let make = (~showModal, ~setShowModal, ~bucket: acquirerBucket) => {
     open FormRenderer
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
@@ -169,7 +169,7 @@ module EditNetworkModal = {
     ~setEntry,
   ) => {
     open FormRenderer
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()

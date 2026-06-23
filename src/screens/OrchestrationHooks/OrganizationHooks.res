@@ -4,7 +4,7 @@ let useFetchOrganizationList = () => {
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let setOrgList = Recoil.useSetRecoilState(HyperswitchAtom.orgListAtom)
   let setOrganizationDetailsValue = Recoil.useSetRecoilState(
     HyperswitchAtom.organizationDetailsValueAtom,

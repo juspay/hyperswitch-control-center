@@ -3,8 +3,24 @@
 
 @module("@xyflow/react") external useNodesState: array<'a> => (array<'a>, 'b, 'c) = "useNodesState"
 @module("@xyflow/react") external useEdgesState: array<'a> => (array<'a>, 'b, 'c) = "useEdgesState"
-@module("@xyflow/react") external useReactFlow: unit => {..} = "useReactFlow"
+
+type reactFlowInstance = {fitView: unit => promise<bool>}
+
+@module("@xyflow/react") external useReactFlow: unit => reactFlowInstance = "useReactFlow"
 @module("@xyflow/react") external handle: React.component<'a> = "Handle"
+
+type smoothStepPathParams = {
+  sourceX: float,
+  sourceY: float,
+  sourcePosition: string,
+  targetX: float,
+  targetY: float,
+  targetPosition: string,
+}
+
+@module("@xyflow/react")
+external getSmoothStepPath: smoothStepPathParams => (string, float, float, float, float) =
+  "getSmoothStepPath"
 
 @module("@xyflow/react") @scope("MarkerType") external markerTypeArrowClosed: string = "ArrowClosed"
 @module("@xyflow/react") @scope("Position") external positionLeft: string = "Left"
@@ -51,7 +67,7 @@ let setGraphDirection = (graph, direction) => {
     {
       rankdir: direction,
       nodesep: 100,
-      ranksep: 150,
+      ranksep: 300,
     },
   )
 }
@@ -78,6 +94,7 @@ module ReactFlowComponent = {
     ~nodes: array<'a>,
     ~edges: array<'b>,
     ~nodeTypes: 'c,
+    ~edgeTypes: 'i=?,
     ~onNodesChange: 'd,
     ~onEdgesChange: 'e,
     ~fitView: bool=?,
@@ -96,6 +113,20 @@ module ReactFlowComponent = {
     ~proOptions: 'g=?,
     ~children: React.element=?,
   ) => React.element = "ReactFlow"
+}
+
+module BaseEdge = {
+  @react.component @module("@xyflow/react")
+  external make: (
+    ~path: string,
+    ~markerEnd: string=?,
+    ~style: ReactDOM.Style.t=?,
+  ) => React.element = "BaseEdge"
+}
+
+module EdgeLabelRenderer = {
+  @react.component @module("@xyflow/react")
+  external make: (~children: React.element=?) => React.element = "EdgeLabelRenderer"
 }
 
 module Background = {

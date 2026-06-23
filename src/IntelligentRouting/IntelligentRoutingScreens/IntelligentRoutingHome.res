@@ -59,11 +59,14 @@ let make = () => {
       {IntelligentRoutingUtils.features
       ->Array.map(feature => {
         <div key=feature.title className="flex flex-row gap-3 items-start">
-          <div className={`${feature.bgColor} rounded-xl w-12 h-12 flex-shrink-0 flex items-center justify-center`}>
+          <div
+            className={`${feature.bgColor} rounded-xl w-12 h-12 flex-shrink-0 flex items-center justify-center`}>
             <Icon name=feature.icon size=28 className=feature.iconColor />
           </div>
           <div className="flex flex-col gap-0.5">
-            <p className={`${body.md.semibold} text-nd_gray-700`}>{feature.title->React.string}</p>
+            <p className={`${body.md.semibold} text-nd_gray-700`}>
+              {feature.title->React.string}
+            </p>
             <p className={`${body.sm.regular} text-nd_gray-500`}>
               {feature.description->React.string}
             </p>
