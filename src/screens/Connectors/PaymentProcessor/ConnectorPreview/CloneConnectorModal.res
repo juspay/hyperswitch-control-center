@@ -25,6 +25,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload) => {
       : OMPSwitchUtils.currentOMPName(profileList, connectorInfo.profile_id)
 
   let isCloneable =
+    featureFlag.connectorClone &&
     featureFlag.connectorCloneAllowList->Array.includes(
       connectorInfo.connector_name->String.toLowerCase,
     )
