@@ -9,7 +9,10 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
   let fetchDetails = useGetMethod()
   let showPopUp = PopUpState.useShowPopUp()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-  let showToast = ToastAdapter.useShowToast()
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
+  let (profile, setProfile) = React.useState(_ => profileId)
+  let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (gateways, setGateways) = React.useState(() => [])
   let (defaultRoutingResponse, setDefaultRoutingResponse) = React.useState(_ => [])
@@ -24,10 +27,15 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
   | _ => "By default, payments are routed in the order shown here i.e. top to bottom. To change the priority, just drag and drop the processors to reorder them."
   }
 
+  let connectorPath = switch connectorVariant {
+  | ConnectorTypes.PayoutProcessor => "/payoutconnectors"
+  | _ => "/connectors"
+  }
+
   let settingUpConnectorsState = routingRespArray => {
     let profileList =
       routingRespArray->Array.filter(value =>
-        value->getDictFromJsonObject->getString("profile_id", "") === profileId
+        value->getDictFromJsonObject->getString("profile_id", "") === profile
       )
 
     let connectorList = switch profileList->Array.get(0) {
@@ -71,7 +79,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
       settingUpConnectorsState(defaultRoutingResponse)
     }
     None
-  }, [profileId])
+  }, [profile])
 
   let handleChangeOrder = async () => {
     try {
@@ -81,7 +89,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
       let defaultFallbackUpdateUrl = `${getURL(
           ~entityName=urlEntityName,
           ~methodType=Post,
-        )}/profile/${profileId}`
+        )}/profile/${profile}`
 
       (
         await updateDetails(defaultFallbackUpdateUrl, defaultPayload->JSON.Encode.array, Post)
@@ -109,8 +117,24 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
 
   <PageLoaderWrapper
     screenState
-    customUI={<NoDataFound message="Please connect at least 1 connector" renderType=Painting />}>
+    customUI={<div className="mt-2 mb-6">
+      <RoutingHelper.NoProcessorFound
+        connectorPath subtitle="Please connect at least 1 connector to manage this configuration."
+      />
+    </div>}>
     <div className="flex flex-col gap-6 my-6">
+      <Form initialValues={Dict.make()->JSON.Encode.object}>
+        <div className="w-full md:w-1/2 lg:w-1/3">
+          <BasicDetailsForm.BusinessProfileInp
+            setProfile
+            profile
+            options={MerchantAccountUtils.businessProfileNameDropDownOption(
+              businessProfileRecoilVal,
+            )}
+            label="Profile"
+          />
+        </div>
+      </Form>
       <AlertV2Binding
         alertType=Primary
         slot={{slot: <Icon name="nd-info-circle" size=20 className="text-nd_primary_blue-500" />}}
