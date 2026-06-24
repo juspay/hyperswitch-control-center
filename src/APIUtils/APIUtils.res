@@ -1236,15 +1236,6 @@ let useGetURL = () => {
             }
           | _ => ""
           }
-        | #OVERVIEW_ACCOUNTS =>
-          switch methodType {
-          | Get =>
-            switch queryParameters {
-            | Some(queryParams) => `${reconBaseURL}/overview/entries?${queryParams}`
-            | None => `${reconBaseURL}/overview/entries`
-            }
-          | _ => ""
-          }
         | #NONE => ""
         }
 
