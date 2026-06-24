@@ -401,6 +401,12 @@ type overviewRuleStatusBreakdown = {
   debit_amount: balanceType,
 }
 
+type overviewRulesResponse = {
+  rule_id: string,
+  rule_name: string,
+  status_breakdown: array<overviewRuleStatusBreakdown>,
+}
+
 type overviewRulesTimeRange = {
   start_time: string,
   end_time: string,
@@ -408,12 +414,6 @@ type overviewRulesTimeRange = {
 
 type overviewRulesTimeSeries = {
   time_range: overviewRulesTimeRange,
-  status_breakdown: array<overviewRuleStatusBreakdown>,
-}
-
-type overviewRulesResponse = {
-  rule_id: string,
-  rule_name: string,
   status_breakdown: array<overviewRuleStatusBreakdown>,
 }
 

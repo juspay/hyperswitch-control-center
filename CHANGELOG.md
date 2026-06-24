@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.06.24.0
+
+### Features
+
+- Add payment method type PixQr ([#4989](https://github.com/juspay/hyperswitch-control-center/pull/4989)) ([`29d2a32`](https://github.com/juspay/hyperswitch-control-center/commit/29d2a32c772bcf9b38b3cd907866af8666421acc))
+
+**Full Changelog:** [`2026.06.23.1...2026.06.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.23.1...2026.06.24.0)
+
+- - -
+
 ## 2026.06.23.1
 
 ### Features

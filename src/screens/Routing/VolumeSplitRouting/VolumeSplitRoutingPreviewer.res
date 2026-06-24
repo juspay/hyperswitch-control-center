@@ -1,33 +1,43 @@
 open RoutingTypes
+open Typography
 
 module GatewayView = {
   @react.component
   let make = (~gateways, ~connectorList=?) => {
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let getGatewayName = name => {
-      switch connectorList {
-      | Some(list) =>
-        (
-          list->ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(name, ~version=V1)
-        ).connector_label
-      | None => name
-      }
-    }
+    let getConnectorObj = name =>
+      connectorList->Option.map(list =>
+        list->ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(name, ~version=V1)
+      )
 
-    <div className="flex flex-wrap gap-4 items-center">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
       {gateways
       ->Array.mapWithIndex((ruleGateway, index) => {
+        let (connectorLabel, connectorName) =
+          getConnectorObj(ruleGateway.gateway_name)->LogicUtils.mapOptionOrDefault(
+            (ruleGateway.gateway_name, ""),
+            obj => (obj.connector_label, obj.connector_name),
+          )
+
         <div
           key={Int.toString(index)}
-          className={`my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 dark:border-jp-gray-960 font-medium ${textColor.primaryNormal} hover:${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-none px-2 gap-1`}>
-          {ruleGateway.gateway_name->getGatewayName->React.string}
-          {if ruleGateway.distribution !== 100 {
-            <span className="text-jp-gray-700 dark:text-jp-gray-600 ml-1">
+          className="flex items-center gap-2 h-10 px-3 overflow-hidden bg-nd_gray-0 border border-nd_gray-300 rounded-10-px">
+          <RenderIf condition={connectorName->LogicUtils.isNonEmptyString}>
+            <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-6 h-6 shrink-0" />
+          </RenderIf>
+          <div className="flex-1 min-w-0">
+            <ToolTip
+              description=connectorLabel
+              toolTipPosition=Top
+              toolTipFor={<p className={`${body.md.medium} text-nd_gray-600 truncate w-full`}>
+                {connectorLabel->React.string}
+              </p>}
+            />
+          </div>
+          <RenderIf condition={ruleGateway.distribution !== 100}>
+            <span className={`${body.md.medium} text-nd_gray-400 shrink-0`}>
               {(ruleGateway.distribution->Int.toString ++ "%")->React.string}
             </span>
-          } else {
-            React.null
-          }}
+          </RenderIf>
         </div>
       })
       ->React.array}

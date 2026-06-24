@@ -1236,12 +1236,13 @@ let useGetURL = () => {
             }
           | _ => ""
           }
-        | #OVERVIEW_ACCOUNTS =>
+        | #OVERVIEW_RULES_TIME_SERIES =>
           switch methodType {
           | Get =>
             switch queryParameters {
-            | Some(queryParams) => `${reconBaseURL}/overview/entries?${queryParams}`
-            | None => `${reconBaseURL}/overview/entries`
+            | Some(queryParams) =>
+              `${reconBaseURL}/overview/transactions/time_series?${queryParams}`
+            | None => `${reconBaseURL}/overview/transactions/time_series`
             }
           | _ => ""
           }

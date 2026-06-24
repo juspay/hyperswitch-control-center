@@ -117,7 +117,7 @@ let useGetOverviewRulesTimeSeries = () => {
       let url = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
-        ~hyperswitchReconType=#OVERVIEW_RULES,
+        ~hyperswitchReconType=#OVERVIEW_RULES_TIME_SERIES,
         ~queryParameters,
       )
       let res = await fetchDetails(url)
