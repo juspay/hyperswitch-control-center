@@ -99,9 +99,14 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   ).getCommonSessionDetails()
 
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-  let fetchRefundData = async () => {
+  let fetchRefundData = async (~forceSync=false) => {
     try {
-      let refundUrl = getURL(~entityName=V1(REFUNDS), ~methodType=Get, ~id=Some(id))
+      let refundUrl = getURL(
+        ~entityName=V1(REFUNDS),
+        ~methodType=Get,
+        ~id=Some(id),
+        ~queryParameters=forceSync ? Some("force_sync=true") : None,
+      )
       let _ = await internalSwitch(
         ~expectedOrgId=orgId,
         ~expectedMerchantId=merchantId,
@@ -154,7 +159,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   }, [refundData])
 
   let syncData = () => {
-    fetchRefundData()->ignore
+    fetchRefundData(~forceSync=true)->ignore
     showToast(~message="Details Updated", ~toastType=ToastSuccess)
   }
 
