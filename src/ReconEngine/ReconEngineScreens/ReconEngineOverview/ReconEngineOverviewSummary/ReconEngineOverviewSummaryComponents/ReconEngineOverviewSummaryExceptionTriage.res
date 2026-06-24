@@ -121,10 +121,8 @@ let make = () => {
           </div>
         </div>
       </RenderIf>
-      <RenderIf condition={activeItems->Array.length == 0}>
-        <div className={`${body.sm.regular} text-nd_gray-400 text-center py-10`}>
-          {"No exceptions"->React.string}
-        </div>
+      <RenderIf condition={activeItems->isEmptyArray}>
+        <NewAnalyticsHelper.NoData height="h-64" message="No exception data for this date range." />
       </RenderIf>
     </PageLoaderWrapper>
   </div>

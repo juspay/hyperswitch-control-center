@@ -658,7 +658,9 @@ let overviewRulesTimeSeriesMapper: Dict.t<JSON.t> => overviewRulesTimeSeries = d
   }
 }
 
-let overviewRulesTimeSeriesResponseMapper: Dict.t<JSON.t> => overviewRulesTimeSeriesResponse = dict => {
+let overviewRulesTimeSeriesResponseMapper: Dict.t<
+  JSON.t,
+> => overviewRulesTimeSeriesResponse = dict => {
   {
     rule_id: dict->getString("rule_id", ""),
     rule_name: dict->getString("rule_name", ""),

@@ -194,7 +194,7 @@ let make = (~ruleId: string) => {
   <div className="flex flex-col gap-4">
     <PageLoaderWrapper screenState>
       <div className="flex-shrink-0"> {topFilterUi} </div>
-      <RenderIf condition={exceptionData->Array.length == 0}>
+      <RenderIf condition={exceptionData->isEmptyArray}>
         <div className="h-40-vh flex flex-col justify-center items-center gap-2">
           <p className={`${heading.sm.semibold} text-gray-800`}>
             {"No exceptions to show."->React.string}
@@ -204,7 +204,7 @@ let make = (~ruleId: string) => {
           </p>
         </div>
       </RenderIf>
-      <RenderIf condition={exceptionData->Array.length > 0}>
+      <RenderIf condition={exceptionData->isNonEmptyArray}>
         <LoadedTableWithCustomColumns
           title="Exception Entries - Expected & Mismatched"
           actualData={filteredExceptionData}
