@@ -50,6 +50,15 @@ let assetsMapper = (dict): ThemeTypes.assets => {
   }
 }
 
+let getAssetDisplayUrl = (asset: option<ThemeTypes.assetValue>): option<string> =>
+  asset->Option.map(value =>
+    switch value {
+    | Url(url) => url
+    | File(file) =>
+      DownloadUtils.createObjectURL((file->Identity.jsonToAnyType: DownloadUtils.blobInstanceType))
+    }
+  )
+
 let buildThemeDataBody = (
   ~settings: HyperSwitchConfigTypes.themeSettings,
   ~urls: HyperSwitchConfigTypes.urlThemeConfig,

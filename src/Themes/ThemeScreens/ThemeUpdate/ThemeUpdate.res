@@ -177,6 +177,11 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
     Nullable.null
   }
 
+  let logoUrl =
+    getAssetDisplayUrl(assets.logo)->Option.map(url => getImgSrc(url, ~themeConfigVersion))
+  let faviconUrl =
+    getAssetDisplayUrl(assets.favicon)->Option.map(url => getImgSrc(url, ~themeConfigVersion))
+
   let tabs: array<Tabs.tab> = [
     {
       title: "Dashboard Config",
@@ -200,7 +205,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
             <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
             <div
               className="border h-48-vh md:h-55-vh lg:h-55-vh rounded-xl py-2 px-10 flex items-center relative ">
-              <ThemeMockDashboard />
+              <ThemeMockDashboard ?logoUrl ?faviconUrl />
             </div>
             <ThemeUpdateHelper.ActionButtons handleDelete />
           </div>

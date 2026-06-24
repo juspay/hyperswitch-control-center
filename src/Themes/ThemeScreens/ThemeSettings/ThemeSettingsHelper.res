@@ -240,17 +240,6 @@ module IconSettings = {
     ~onEmailLogoRemove: unit => unit=() => (),
     ~themeConfigVersion,
   ) => {
-    let getDisplayUrl = (asset: option<ThemeTypes.assetValue>) =>
-      asset->Option.map(value =>
-        switch value {
-        | Url(url) => url
-        | File(file) =>
-          DownloadUtils.createObjectURL(
-            (file->Identity.jsonToAnyType: DownloadUtils.blobInstanceType),
-          )
-        }
-      )
-
     let showToast = ToastState.useShowToast()
 
     let handleFileChange = (onSelect, ev) => {
@@ -275,7 +264,7 @@ module IconSettings = {
         <div className="space-y-4">
           <AssetField
             label="Logo"
-            displayUrl={getDisplayUrl(assets.logo)}
+            displayUrl={getAssetDisplayUrl(assets.logo)}
             onFileChange={ev => handleFileChange(onLogoSelect, ev)}
             onRemove=onLogoRemove
             accept=".png,.jpg,.jpeg"
@@ -285,7 +274,7 @@ module IconSettings = {
           />
           <AssetField
             label="Favicon"
-            displayUrl={getDisplayUrl(assets.favicon)}
+            displayUrl={getAssetDisplayUrl(assets.favicon)}
             onFileChange={ev => handleFileChange(onFaviconSelect, ev)}
             onRemove=onFaviconRemove
             accept=".png,.ico,.jpg,.jpeg"
@@ -301,7 +290,7 @@ module IconSettings = {
         <div className="space-y-4">
           <AssetField
             label="Email Logo"
-            displayUrl={getDisplayUrl(assets.emailLogo)}
+            displayUrl={getAssetDisplayUrl(assets.emailLogo)}
             onFileChange={ev => handleFileChange(onEmailLogoSelect, ev)}
             onRemove=onEmailLogoRemove
             accept=".png,.jpg,.jpeg"
