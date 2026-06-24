@@ -61,7 +61,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true, ~showBreadCrumbWarnin
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorTypeFromName = connector->getConnectorNameTypeFromString
   let profileIdFromUrl =

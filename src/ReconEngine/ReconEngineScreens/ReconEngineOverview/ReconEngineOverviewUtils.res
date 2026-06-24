@@ -264,7 +264,7 @@ let seriesTypeFromString = (str: string): ReconEngineOverviewSummaryTypes.series
 let getStatusFilter = (seriesType: ReconEngineOverviewSummaryTypes.seriesType): string => {
   switch seriesType {
   | ReconciledSeriesType => "matched_auto,matched_manual,matched_force,posted_manual"
-  | MismatchedSeriesType => "over_amount_mismatch,under_amount_mismatch"
+  | MismatchedSeriesType => "over_amount_mismatch,under_amount_mismatch,data_mismatch"
   | ExpectedSeriesType => "expected,over_amount_expected,under_amount_expected,partially_reconciled"
   | UnknownSeriesType => ""
   }

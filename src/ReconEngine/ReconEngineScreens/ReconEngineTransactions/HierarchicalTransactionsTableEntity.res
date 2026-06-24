@@ -4,6 +4,7 @@ open Table
 open LogicUtils
 
 type hierarchicalColType =
+  | Flow
   | Date
   | TransactionId
   | Status
@@ -16,6 +17,7 @@ type hierarchicalColType =
   | CreditAmount
 
 let defaultColumns: array<hierarchicalColType> = [
+  Flow,
   Date,
   TransactionId,
   Status,
@@ -29,6 +31,7 @@ let defaultColumns: array<hierarchicalColType> = [
 ]
 
 let allColumns: array<hierarchicalColType> = [
+  Flow,
   Date,
   TransactionId,
   Status,
@@ -43,6 +46,7 @@ let allColumns: array<hierarchicalColType> = [
 
 let getHeading = (colType: hierarchicalColType) => {
   switch colType {
+  | Flow => makeHeaderInfo(~key="flow", ~title="", ~customWidth="!w-28")
   | Date => makeHeaderInfo(~key="date", ~title="Date", ~customWidth="!w-24")
   | TransactionId => makeHeaderInfo(~key="transaction_id", ~title="Transaction ID")
   | Status => makeHeaderInfo(~key="status", ~title="Status")
@@ -79,9 +83,38 @@ let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
   })
 }
 
-let getCell = (transaction: transactionType, colType: hierarchicalColType): cell => {
+let getTransactionFlowBadge = (
+  flowType: ReconEngineTransactionsTypes.transactionFlowType,
+): React.element => {
+  let (iconName, badgeClass, rotationClass) = switch flowType {
+  | InFlow => ("nd-arrow-down-no-underline", "bg-nd_green-50 text-nd_green-600", "-rotate-45")
+  | OutFlow => ("nd-arrow-up-no-underline", "bg-nd_red-50 text-nd_red-600", "rotate-45")
+  | UnknownTransactionFlowType => ("nd-alert-triangle-outline", "bg-nd_red-50 text-nd_red-600", "")
+  }
+  <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-md shrink-0 ${badgeClass}`}>
+    <Icon name=iconName size=12 className=rotationClass />
+    <span className="text-xs font-medium">
+      {(flowType :> string)->String.toUpperCase->React.string}
+    </span>
+  </div>
+}
+
+let getCell = (
+  transaction: transactionType,
+  colType: hierarchicalColType,
+  ~reconRulesList: array<ReconEngineRulesTypes.rulePayload>=[],
+  ~accountData: array<accountType>=[],
+): cell => {
   let hierarchicalContainerClassName = "-mx-8 border-r-gray-400 divide-y divide-gray-200"
   switch colType {
+  | Flow =>
+    let flowBadge =
+      ReconEngineTransactionsUtils.getTransactionFlowType(
+        ~transaction,
+        ~reconRulesList,
+        ~accountData,
+      )->getTransactionFlowBadge
+    CustomCell(<div className="flex items-center justify-center"> {flowBadge} </div>, "")
   | Date => DateWithoutTime(transaction.effective_at)
   | TransactionId => DisplayCopyCell(transaction.transaction_id)
   | Status =>
@@ -201,6 +234,8 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
 let hierarchicalTransactionsLoadedTableEntity = (
   path: string,
   ~authorization: CommonAuthTypes.authorization,
+  ~reconRulesList: array<ReconEngineRulesTypes.rulePayload>=[],
+  ~accountData: array<accountType>=[],
 ) => {
   EntityType.makeEntity(
     ~uri=``,
@@ -208,7 +243,7 @@ let hierarchicalTransactionsLoadedTableEntity = (
     ~defaultColumns,
     ~allColumns,
     ~getHeading,
-    ~getCell,
+    ~getCell=(transaction, colType) => getCell(transaction, colType, ~reconRulesList, ~accountData),
     ~dataKey="hierarchical_transactions",
     ~getShowLink={
       connectorObj => {

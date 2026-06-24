@@ -90,7 +90,6 @@ type entityName =
   | CHAT_BOT
   | OIDC_AUTHORIZE
   | PAYMENTS_LIST
-  | ACCOUNT_PAYMENT_METHODS
 
 type v2entityNameType =
   | CUSTOMERS
