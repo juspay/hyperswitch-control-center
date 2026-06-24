@@ -174,3 +174,10 @@ type exceptionTriageItem = {
   label: string,
   total: int,
 }
+
+type ruleActivityItem = {
+  overview_rule: ReconEngineTypes.overviewRulesResponse,
+  volume: int,
+  exceptions: int,
+  matchRate: float,
+}

@@ -203,6 +203,48 @@ module StatCard = {
   }
 }
 
+module RuleActivityRow = {
+  @react.component
+  let make = (~item: ruleActivityItem, ~index: int, ~onClick) => {
+    let matchRateStr = item.matchRate->Float.toFixedWithPrecision(~digits=1)
+    let rateTextColor = item.matchRate == 100.0 ? "text-nd_green-400" : "text-nd_red-500"
+    let rateBarColor = item.matchRate == 100.0 ? "bg-nd_green-400" : "bg-nd_red-500"
+    let excColor = item.exceptions == 0 ? "text-nd_green-400" : "text-nd_red-500"
+
+    <div
+      key={item.overview_rule.rule_id}
+      onClick={_ => onClick()}
+      className="grid grid-cols-[48px_1fr_140px_140px_220px] items-center border-b border-nd_gray-100 last:border-0 hover:bg-nd_gray-50 cursor-pointer transition-colors">
+      <div className="pl-6 py-3.5 flex items-center">
+        <div
+          className={`w-5 h-5 rounded-full bg-nd_gray-100 flex items-center justify-center flex-shrink-0 ${body.xs.semibold} text-nd_gray-500`}>
+          {(index + 1)->Int.toString->React.string}
+        </div>
+      </div>
+      <div className={`${body.sm.medium} text-nd_gray-800 py-3.5 truncate pr-4`}>
+        {item.overview_rule.rule_name->React.string}
+      </div>
+      <div className={`${body.sm.semibold} text-nd_gray-700 py-3.5 text-right pr-6`}>
+        <NumberCell value={item.volume} />
+      </div>
+      <div className={`${body.sm.semibold} ${excColor} py-3.5 text-right pr-6`}>
+        <NumberCell value={item.exceptions} />
+      </div>
+      <div className="flex items-center gap-3 py-3.5 pl-4 pr-6">
+        <div className="flex-1 h-1.5 bg-nd_gray-150 rounded-full overflow-hidden">
+          <div
+            className={`h-full ${rateBarColor} rounded-full`}
+            style={ReactDOM.Style.make(~width=`${matchRateStr}%`, ())}
+          />
+        </div>
+        <span className={`${body.sm.medium} ${rateTextColor} w-12 text-right shrink-0`}>
+          <PercentageCell value={item.matchRate} />
+        </span>
+      </div>
+    </div>
+  }
+}
+
 module ConnectedStatCard = {
   @react.component
   let make = (~title: connectedStatCardsTitle, ~value: valueType) => {

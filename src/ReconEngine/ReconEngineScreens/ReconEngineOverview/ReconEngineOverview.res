@@ -4,12 +4,41 @@ open Typography
 let make = () => {
   open APIUtils
   open LogicUtils
+  open ReconEngineRulesTypes
   open ReconEngineRulesUtils
 
+  let url = RescriptReactRouter.useUrl()
+  let basePath = GlobalVars.appendDashboardPath(~url="v1/recon-engine/overview")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (reconRulesList, setReconRulesList) = React.useState(_ => [])
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+
+  let navigateToRule = (ruleId: string) => {
+    RescriptReactRouter.push(`${basePath}?rule_id=${ruleId}`)
+  }
+
+  let onTitleClick = idx => {
+    switch reconRulesList->Array.get(idx - 1) {
+    | Some(ruleDetails) => navigateToRule(ruleDetails.rule_id)
+    | None => RescriptReactRouter.push(basePath)
+    }
+  }
+
+  let initialTabIndex = React.useMemo(() => {
+    let urlSearch = url.search
+    if urlSearch->isNonEmptyString {
+      urlSearch
+      ->getDictFromUrlSearchParams
+      ->getMappedValueFromDict("rule_id", 0, ruleId =>
+        reconRulesList
+        ->Array.findIndexOpt(rule => rule.rule_id === ruleId)
+        ->mapOptionOrDefault(0, idx => idx + 1)
+      )
+    } else {
+      0
+    }
+  }, (url.search, reconRulesList))
 
   let getReconRulesData = async _ => {
     try {
@@ -35,7 +64,7 @@ let make = () => {
         title: "Overview",
         renderContent: () =>
           <FilterContext key="recon-engine-overview-summary" index="recon-engine-overview-summary">
-            <ReconEngineOverviewSummary reconRulesList />
+            <ReconEngineOverviewSummary reconRulesList onRuleClick=navigateToRule />
           </FilterContext>,
       },
       ...reconRulesList->Array.map(ruleDetails => {
@@ -68,7 +97,7 @@ let make = () => {
         </div>
       </RenderIf>
       <RenderIf condition={reconRulesList->isNonEmptyArray}>
-        <Tabs tabs />
+        <Tabs tabs initialIndex=initialTabIndex onTitleClick />
       </RenderIf>
     </PageLoaderWrapper>
   </div>
