@@ -2,6 +2,7 @@ open APIUtils
 open RoutingTypes
 open VolumeSplitRoutingPreviewer
 open LogicUtils
+open Typography
 
 module VolumeRoutingView = {
   open RoutingUtils
@@ -24,9 +25,14 @@ module VolumeRoutingView = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod(~showErrorToast=false)
     let showToast = ToastAdapter.useShowToast()
-    let listLength = connectors->Array.length
     let (showModal, setShowModal) = React.useState(_ => false)
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let url = RescriptReactRouter.useUrl()
+
+    let connectorPath = switch url->urlToVariantMapper {
+    | PayoutRouting => "/payoutconnectors"
+    | _ => "/connectors"
+    }
 
     let gateways =
       initialValues
@@ -104,24 +110,24 @@ module VolumeRoutingView = {
       })
     }, [profile])
 
-    <>
-      <div
-        className="flex flex-col gap-4 p-6 my-2 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850">
-        <div className="flex flex-col lg:flex-row  ">
-          <div>
-            <div className="font-bold mb-1"> {React.string("Volume Based Configuration")} </div>
-            <div className="text-jp-gray-800 dark:text-jp-gray-700 text-sm">
-              {"Volume Based Configuration is helpful when you want a specific traffic distribution for each of the configured connectors. For eg: Stripe (70%), Adyen (20%), Checkout (10%)."->React.string}
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="flex w-full flex-start">
-        {switch pageState {
-        | Create =>
-          <div className="flex flex-col gap-4">
-            {listLength > 0
-              ? <>
+    <div className="flex w-full flex-start">
+      {switch pageState {
+      | Create =>
+        <div className="flex flex-col gap-6 w-full">
+          <RenderIf condition={connectors->isNonEmptyArray}>
+            <div className="flex flex-col gap-4 w-full">
+              <div className="flex flex-col gap-4 p-6 border border-nd_gray-150 rounded-lg w-full">
+                <div className="flex flex-col gap-1">
+                  <p className={`${body.lg.semibold} text-nd_gray-950`}>
+                    {React.string("Volume Based Rule Builder")}
+                  </p>
+                  <p className={`${body.md.medium} text-nd_gray-400`}>
+                    {React.string(
+                      "Split incoming traffic across your configured connectors by assigning a percentage to each.",
+                    )}
+                  </p>
+                </div>
+                <div className="p-4 bg-nd_gray-25 border border-nd_gray-150 rounded-lg w-full">
                   <AddPLGateway
                     id="algorithm.data"
                     gatewayOptions={connectorOptions}
@@ -130,74 +136,78 @@ module VolumeRoutingView = {
                     showPriorityIcon={false}
                     showDistributionIcon={false}
                     showFallbackIcon={false}
-                    dropDownButtonText="Add Processors"
+                    dropDownButtonText="Select Processors"
                     connectorList
                   />
-                  <ConfigureRuleButton setShowModal />
-                  <CustomModal.RoutingCustomModal
-                    showModal
-                    setShowModal
-                    cancelButton={<FormRenderer.SubmitButton
-                      text="Save Rule"
-                      buttonSize=Button.Small
-                      buttonType=Button.Secondary
-                      customSubmitButtonStyle="w-1/5 rounded-lg"
-                    />}
-                    submitButton={<AdvancedRoutingUIUtils.SaveAndActivateButton
-                      onSubmit handleActivateConfiguration
-                    />}
-                    headingText="Activate Current Configuration?"
-                    subHeadingText="Activating this configuration will override the current one. Alternatively, save it to access later from the configuration history. Please confirm."
-                    leftIcon="warning-modal"
-                    iconSize=35
-                  />
-                </>
-              : <NoDataFound message="Please configure at least 1 connector" renderType=InfoBox />}
-          </div>
-        | Preview =>
-          <div className="flex flex-col w-full gap-3">
-            <div
-              className="flex flex-col gap-4 p-6 my-2 bg-white rounded-md border border-jp-gray-600 ">
-              <GatewayView gateways={gateways->getGatewayTypes} connectorList />
+                </div>
+              </div>
             </div>
-            <div className="flex flex-col md:flex-row gap-4">
+            <ConfigureRuleButton setShowModal customButtonStyle="!ml-1" />
+            <CustomModal.RoutingCustomModal
+              showModal
+              setShowModal
+              cancelButton={<FormRenderer.SubmitButton
+                text="Save Rule"
+                buttonSize=Button.Small
+                buttonType=Button.Secondary
+                customSubmitButtonStyle="w-1/5 rounded-lg"
+              />}
+              submitButton={<AdvancedRoutingUIUtils.SaveAndActivateButton
+                onSubmit handleActivateConfiguration
+              />}
+              headingText="Activate Current Configuration?"
+              subHeadingText="Activating this configuration will override the current one. Alternatively, save it to access later from the configuration history. Please confirm."
+              leftIcon="warning-modal"
+              iconSize=35
+            />
+          </RenderIf>
+          <RenderIf condition={connectors->isEmptyArray}>
+            <RoutingHelper.NoProcessorFound connectorPath />
+          </RenderIf>
+        </div>
+      | Preview =>
+        <div className="flex flex-col w-full gap-3">
+          <div className="flex flex-col gap-4 p-6 border border-nd_gray-150 rounded-lg">
+            <GatewayView gateways={gateways->getGatewayTypes} connectorList />
+          </div>
+          <div className="flex flex-col md:flex-row gap-4">
+            <ACLButton
+              text={"Duplicate & Edit Configuration"}
+              buttonType={Secondary}
+              authorization={userHasAccess(~groupAccess=WorkflowsManage)}
+              onClick={_ => {
+                setFormState(_ => RoutingTypes.EditConfig)
+                setPageState(_ => Create)
+              }}
+              customButtonStyle="w-1/5"
+            />
+            <RenderIf condition={!isActive}>
               <ACLButton
-                text={"Duplicate & Edit Configuration"}
-                buttonType={Secondary}
+                text={"Activate Configuration"}
+                buttonType={Primary}
                 authorization={userHasAccess(~groupAccess=WorkflowsManage)}
                 onClick={_ => {
-                  setFormState(_ => RoutingTypes.EditConfig)
-                  setPageState(_ => Create)
+                  handleActivateConfiguration(routingId)->ignore
                 }}
+                buttonState={Normal}
               />
-              <RenderIf condition={!isActive}>
-                <ACLButton
-                  text={"Activate Configuration"}
-                  buttonType={Primary}
-                  authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-                  onClick={_ => {
-                    handleActivateConfiguration(routingId)->ignore
-                  }}
-                  buttonState={Normal}
-                />
-              </RenderIf>
-              <RenderIf condition={isActive}>
-                <ACLButton
-                  text={"Deactivate Configuration"}
-                  buttonType={Primary}
-                  authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-                  onClick={_ => {
-                    handleDeactivateConfiguration()->ignore
-                  }}
-                  buttonState=Normal
-                />
-              </RenderIf>
-            </div>
+            </RenderIf>
+            <RenderIf condition={isActive}>
+              <ACLButton
+                text={"Deactivate Configuration"}
+                buttonType={Primary}
+                authorization={userHasAccess(~groupAccess=WorkflowsManage)}
+                onClick={_ => {
+                  handleDeactivateConfiguration()->ignore
+                }}
+                buttonState=Normal
+              />
+            </RenderIf>
           </div>
-        | _ => React.null
-        }}
-      </div>
-    </>
+        </div>
+      | _ => React.null
+      }}
+    </div>
   }
 }
 
@@ -349,36 +359,36 @@ let make = (
     None
   }, [routingRuleId])
 
-  <div className="my-6">
+  <div className="mt-2 mb-6">
     <PageLoaderWrapper screenState>
       <Form
         onSubmit={(values, _) => onSubmit(values, true)}
         validate
         initialValues={initialValues->JSON.Encode.object}>
-        <div className="w-full flex justify-between">
-          <div className="w-full">
+        <div className="flex flex-col gap-8">
+          <RenderIf condition={connectorList->isNonEmptyArray}>
             <BasicDetailsForm
               currentTabName formState setInitialValues profile setProfile routingType=VOLUME_SPLIT
             />
-          </div>
+          </RenderIf>
+          <RenderIf condition={formState != CreateConfig}>
+            <VolumeRoutingView
+              setScreenState
+              pageState
+              setPageState
+              connectors
+              routingId={routingRuleId}
+              isActive
+              initialValues
+              profile
+              setFormState
+              onSubmit
+              urlEntityName
+              connectorList
+              baseUrlForRedirection
+            />
+          </RenderIf>
         </div>
-        <RenderIf condition={formState != CreateConfig}>
-          <VolumeRoutingView
-            setScreenState
-            pageState
-            setPageState
-            connectors
-            routingId={routingRuleId}
-            isActive
-            initialValues
-            profile
-            setFormState
-            onSubmit
-            urlEntityName
-            connectorList
-            baseUrlForRedirection
-          />
-        </RenderIf>
       </Form>
     </PageLoaderWrapper>
   </div>
