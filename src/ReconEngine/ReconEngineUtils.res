@@ -632,43 +632,12 @@ let overviewRulesStatusBreakdownArrayMapper = statusBreakdownArr =>
     status->getDictFromJsonObject->overviewRuleStatusBreakdownMapper
   )
 
-let overviewRulesTimeRangeMapper: Dict.t<JSON.t> => overviewRulesTimeRange = dict => {
-  {
-    start_time: dict->getString("start_time", ""),
-    end_time: dict->getString("end_time", ""),
-  }
-}
-
-let overviewRulesTimeSeriesMapper: Dict.t<JSON.t> => overviewRulesTimeSeries = dict => {
-  {
-    time_range: dict->getDictfromDict("time_range")->overviewRulesTimeRangeMapper,
-    status_breakdown: dict
-    ->getArrayFromDict("status_breakdown", [])
-    ->overviewRulesStatusBreakdownArrayMapper,
-  }
-}
-
-let overviewRulesTimeSeriesArrayFromDict = dict =>
-  dict
-  ->getArrayFromDict("time_series", [])
-  ->Array.map(timeSeries => timeSeries->getDictFromJsonObject->overviewRulesTimeSeriesMapper)
-
 let overviewRulesResponseMapper: Dict.t<JSON.t> => overviewRulesResponse = dict => {
   {
     rule_id: dict->getString("rule_id", ""),
     rule_name: dict->getString("rule_name", ""),
     status_breakdown: dict
-    ->overviewRulesTimeSeriesArrayFromDict
-    ->Array.flatMap(timeSeries => timeSeries.status_breakdown),
-  }
-}
-
-let overviewRulesTimeSeriesResponseMapper: Dict.t<
-  JSON.t,
-> => overviewRulesTimeSeriesResponse = dict => {
-  {
-    rule_id: dict->getString("rule_id", ""),
-    rule_name: dict->getString("rule_name", ""),
-    time_series: dict->overviewRulesTimeSeriesArrayFromDict,
+    ->getArrayFromDict("status_breakdown", [])
+    ->overviewRulesStatusBreakdownArrayMapper,
   }
 }

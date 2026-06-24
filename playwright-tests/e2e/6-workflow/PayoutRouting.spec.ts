@@ -40,9 +40,7 @@ test.describe("Volume based payout routing", () => {
     await homePage.payoutRouting.click();
     await payoutRouting.volumeBasedRoutingSetupButton.click();
 
-    await expect(payoutRouting.noConnectorsMessage).toContainText(
-      "Please configure at least 1 connector",
-    );
+    await expect(payoutRouting.noProcessorFoundMessage).toBeVisible();
   });
 
   test("should display all elements in volume based payout routing page", async ({
@@ -287,7 +285,7 @@ test.describe("Rule based payout routing", () => {
     await homePage.payoutRouting.click();
     await payoutRouting.ruleBasedRoutingSetupButton.click();
 
-    await expect(payoutRouting.noConnectorsMessage).toContainText(
+    await expect(page.getByText('Please configure at least 1')).toContainText(
       "Please configure at least 1 connector",
     );
   });
@@ -404,9 +402,7 @@ test.describe("Payout default fallback", () => {
     await homePage.payoutRouting.click();
     await payoutRouting.defaultFallbackManageButton.click();
 
-    await expect(payoutRouting.noConnectorsMessageLarge).toContainText(
-      "Please connect at least 1 connector",
-    );
+    await expect(payoutRouting.noProcessorFoundMessage).toBeVisible();
   });
 
   test("should display connected payout connectors in the list", async ({

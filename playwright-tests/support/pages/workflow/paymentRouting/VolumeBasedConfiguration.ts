@@ -8,7 +8,7 @@ export class VolumeBasedConfiguration {
   }
 
   get connectorDropdown(): Locator {
-    return this.page.locator('[data-value="addProcessors"]');
+    return this.page.getByRole("button", { name: "Select Processors" });
   }
 
   get configurationNameInput(): Locator {
