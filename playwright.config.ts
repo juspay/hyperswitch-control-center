@@ -34,7 +34,8 @@ const PLAYWRIGHT_SSO_PASSWORD = process.env.CYPRESS_SSO_PASSWORD;
 // If PLAYWRIGHT_BASE_URL targets a remote env, skip the local dev server.
 // Local/CI runs use localhost and start the webServer.
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000";
-const IS_LOCAL_TARGET = BASE_URL.includes("localhost") || BASE_URL.includes("127.0.0.1");
+const IS_LOCAL_TARGET =
+  BASE_URL.includes("localhost") || BASE_URL.includes("127.0.0.1");
 
 export default defineConfig({
   testDir: "./playwright-tests",
@@ -96,15 +97,15 @@ export default defineConfig({
     }, */
   ],
 
-  // Run your local dev server before starting the tests. 
-  // Skipped entirely when targeting a remote environment 
+  // Run your local dev server before starting the tests.
+  // Skipped entirely when targeting a remote environment
   // (PLAYWRIGHT_BASE_URL is non-localhost).
   webServer: IS_LOCAL_TARGET
     ? {
-      command: "npm run start:test",
-      url: "http://localhost:9000",
-      reuseExistingServer: !process.env.CI,
-      timeout: 60000,
-    }
+        command: "npm run start:test",
+        url: "http://localhost:9000",
+        reuseExistingServer: !process.env.CI,
+        timeout: 60000,
+      }
     : undefined,
 });
