@@ -29,12 +29,13 @@
     {
       "files": ["*.ts", "*.tsx"],
       "parser": "@typescript-eslint/parser",
-      "plugins": ["@typescript-eslint", "react-hooks"],
+      "plugins": ["@typescript-eslint", "react-hooks", "unused-imports"],
       "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended"
       ],
       "rules": {
+        "unused-imports/no-unused-imports": "error",
         "@typescript-eslint/no-unused-vars": [
           "error",
           {

@@ -21,7 +21,7 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 let email = "";
 
 test.describe("Homepage", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
 
@@ -496,7 +496,7 @@ test.describe("Live Mode and Test mode Behavior", () => {
 });
 
 test.describe("Production access form", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -736,7 +736,7 @@ test.describe("SDK Payment", () => {
 
   test.fixme("should make a successful payment using SDK", async ({
     page,
-    context,
+    _context,
   }) => {
     const homePage = new HomePage(page);
 
