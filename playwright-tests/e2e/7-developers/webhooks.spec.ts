@@ -79,7 +79,7 @@ test.describe("Webhooks page", () => {
 
     await retryAttempts.fill("3");
 
-    const retryInterval = webhooks.retryIntervalInput;
+    const _retryInterval = webhooks.retryIntervalInput;
 
     await webhooks.saveRetryPolicyButton.click();
   });

@@ -4,11 +4,7 @@ import { HomePage } from "../../support/pages/homepage/HomePage";
 import { UsersPage } from "../../support/pages/settings/UsersPage";
 import { SignInPage } from "../../support/pages/auth/SignInPage";
 import { ResetPasswordPage } from "../../support/pages/auth/ResetPasswordPage";
-import {
-  generateUniqueEmail,
-  getInvalidEmails,
-  generateDateTimeString,
-} from "../../support/helper";
+import { generateUniqueEmail } from "../../support/helper";
 import {
   signupUser,
   loginUI,
@@ -17,11 +13,11 @@ import {
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 const MAIL_URL = process.env.PLAYWRIGHT_MAIL_URL || "http://localhost:8025";
-const email = "playwright@test.com";
+const _email = "playwright@test.com";
 
 async function setupAndNavigate(
   page: Page,
-  context: BrowserContext,
+  _context: BrowserContext,
 ): Promise<{ email: string; usersPage: UsersPage }> {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -32,7 +28,7 @@ async function setupAndNavigate(
 }
 
 test.describe("Users - UI", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, _context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -60,7 +56,10 @@ test.describe("Users - UI", () => {
     await expect(usersPage.inviteUsersRoleButton).toBeEnabled();
   });
 
-  test("Search filters the users table by email", async ({ page, context }) => {
+  test("Search filters the users table by email", async ({
+    page,
+    _context,
+  }) => {
     const usersPage = new UsersPage(page);
     const searchInput = usersPage.searchInput;
     await expect(searchInput).toBeAttached();
@@ -185,7 +184,7 @@ test.describe("Users - UI", () => {
 });
 
 test.describe("Users - Invite Users", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, _context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -287,7 +286,7 @@ test.describe("Users - Invite Users", () => {
 
   test("should accept multiple emails as pills in invite list", async ({
     page,
-    context,
+    _context,
   }) => {
     const usersPage = new UsersPage(page);
     const email1 = generateUniqueEmail();
@@ -306,7 +305,7 @@ test.describe("Users - Invite Users", () => {
 
   test("Send Invite button is disabled when invite list is empty", async ({
     page,
-    context,
+    _context,
   }) => {
     const usersPage = new UsersPage(page);
 
@@ -589,13 +588,13 @@ test.describe("Users - Details", () => {
     page,
     context,
   }) => {
-    const { email, usersPage } = await setupAndNavigate(page, context);
+    const { _email, usersPage } = await setupAndNavigate(page, context);
 
     const homePage = new HomePage(page);
-    const signinPage = new SignInPage(page);
-    const resetPasswordPage = new ResetPasswordPage(page);
+    const _signinPage = new SignInPage(page);
+    const _resetPasswordPage = new ResetPasswordPage(page);
     const invitedEmail = generateUniqueEmail();
-    const password = "Playwright00#";
+    const _password = "Playwright00#";
     const newMerchantName = `pwMerchant${Date.now()}`;
 
     await page.getByRole("link", { name: "Overview" }).click();
@@ -653,9 +652,9 @@ test.describe("Users - Details", () => {
     context,
   }) => {
     test.setTimeout(60000);
-    const homePage = new HomePage(page);
+    const _homePage = new HomePage(page);
     const invitedEmail = generateUniqueEmail();
-    const { email, usersPage } = await setupAndNavigate(page, context);
+    const { _email, usersPage } = await setupAndNavigate(page, context);
     await usersPage.inviteUser(invitedEmail);
 
     await usersPage.visit();

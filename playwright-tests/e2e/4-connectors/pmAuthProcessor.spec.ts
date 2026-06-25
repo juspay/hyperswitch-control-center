@@ -8,7 +8,6 @@ import {
   loginUI,
   fillConnectorFields,
   createDummyConnectorAPI,
-  createPaymentAPI,
 } from "../../support/commands";
 import { pmAuthProcessorConfig } from "../../support/fixtures/pmAuthProcessorConfig";
 
@@ -211,7 +210,7 @@ test.describe("PM Auth Processor", () => {
 });
 
 test.describe("All PM Auth Processors", () => {
-  let email: string;
+  let _email: string;
 
   const pmAuthProcessors = Object.entries(pmAuthProcessorConfig);
   test.beforeEach(async ({ page, context }) => {

@@ -11,7 +11,7 @@ import {
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 test.describe("Payment Settings", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, _context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);

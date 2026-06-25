@@ -44,7 +44,9 @@ const json = (route: Route, body: unknown) =>
 
 // Returns the first element of an analytics request body (the body is a
 // single-element array `[{ ... }]`); falls back to the raw object.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function firstQuery(route: Route): Record<string, any> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let body: any;
   try {
     body = route.request().postDataJSON();
@@ -115,6 +117,7 @@ const OVERVIEW_ROW = {
 };
 
 // Per-connector rows for the Refunds chart + summary table.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function connectorRows(withBucket: boolean): Array<Record<string, any>> {
   const rows = CONNECTORS.map((connector, i) => ({
     connector,
@@ -140,6 +143,7 @@ const DIMENSION_SAMPLES: Record<string, string[]> = {
 function dimensionRows(
   dim: string,
   withBucket: boolean,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Array<Record<string, any>> {
   const rows = (DIMENSION_SAMPLES[dim] ?? ["sample"]).map((value, i) => ({
     [dim]: value,
@@ -153,10 +157,12 @@ function dimensionRows(
 }
 
 // Spread an aggregate row across every day bucket for the timeSeries query.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function asSeries(row: Record<string, any>): Array<Record<string, any>> {
   return dayBuckets().map((time_bucket) => ({ ...row, time_bucket }));
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const wrap = (queryData: Array<Record<string, any>>) => ({
   queryData,
   metaData: [],
@@ -166,6 +172,7 @@ const wrap = (queryData: Array<Record<string, any>>) => ({
 // Dispatcher
 // ---------------------------------------------------------------------------
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function metricsResponse(q: Record<string, any>) {
   const groupBy: string[] = q.groupByNames ?? [];
   const isSeries = !!q.timeSeries;
