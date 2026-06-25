@@ -40,8 +40,7 @@ let useShowToast = () => {
         let duration = toastDuration > 0 ? toastDuration : 3000
 
         let toastOptions: addToastOptions = {
-          header: "",
-          description: message,
+          header: message,
           variant,
           duration,
           position: TopCenter,
