@@ -190,7 +190,7 @@ test.describe("All Vault Processors", () => {
   let email: string;
 
   const vaultProcessors = Object.entries(vaultProcessorConfig);
-  test.beforeEach(async ({ page, _context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);

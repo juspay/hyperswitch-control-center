@@ -146,7 +146,7 @@ test.describe("New Analytics - Insights Payments", () => {
   });
 
   test("should populate the Smart Retries tab with mocked data", async ({
-    _page,
+    page: _page,
   }) => {
     await insights.openSmartRetriesTab();
 

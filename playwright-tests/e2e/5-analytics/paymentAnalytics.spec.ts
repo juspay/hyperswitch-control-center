@@ -210,7 +210,9 @@ test.describe("Analytics - Payments - Dimension Filters", () => {
     }
   });
 
-  test("should add and clear each dimension filter chip", async ({ _page }) => {
+  test("should add and clear each dimension filter chip", async ({
+    page: _page,
+  }) => {
     for (const { label, key } of DIMENSION_FILTERS) {
       // Open the dropdown and select the dimension.
       await analytics.openAddFilters();

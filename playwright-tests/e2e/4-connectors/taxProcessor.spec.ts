@@ -172,7 +172,7 @@ test.describe("All Tax Processors", () => {
   let email: string;
 
   const taxProcessors = Object.entries(taxProcessorConfig);
-  test.beforeEach(async ({ page, _context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);

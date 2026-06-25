@@ -1196,7 +1196,7 @@ test.describe("Payin Connector tests", () => {
 });
 
 test.describe("All Payin Connectors", () => {
-  test.beforeEach(async ({ page, _context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);

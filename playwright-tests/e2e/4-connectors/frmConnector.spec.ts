@@ -105,7 +105,7 @@ test.describe("Live FRM Connectors", () => {
   let email: string;
 
   const frmConnectors = Object.entries(frmConnectorConfig);
-  test.beforeEach(async ({ page, _context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);

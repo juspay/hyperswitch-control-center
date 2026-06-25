@@ -102,7 +102,7 @@ test.describe("3DS Authenticators Module", () => {
 });
 
 test.describe("3DS Authenticators Setup", () => {
-  test.beforeEach(async ({ page, _context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);

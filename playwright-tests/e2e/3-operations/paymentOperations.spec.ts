@@ -17,7 +17,7 @@ const _requiredColumnsSize = 14;
 let email: string;
 
 test.describe("Payment Operations", () => {
-  test.beforeEach(async ({ page, _context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);

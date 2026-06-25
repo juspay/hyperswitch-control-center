@@ -28,7 +28,7 @@ async function setupAndNavigate(
 }
 
 test.describe("Users - UI", () => {
-  test.beforeEach(async ({ page, _context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -58,7 +58,7 @@ test.describe("Users - UI", () => {
 
   test("Search filters the users table by email", async ({
     page,
-    _context,
+    context: _context,
   }) => {
     const usersPage = new UsersPage(page);
     const searchInput = usersPage.searchInput;
@@ -184,7 +184,7 @@ test.describe("Users - UI", () => {
 });
 
 test.describe("Users - Invite Users", () => {
-  test.beforeEach(async ({ page, _context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -286,7 +286,7 @@ test.describe("Users - Invite Users", () => {
 
   test("should accept multiple emails as pills in invite list", async ({
     page,
-    _context,
+    context: _context,
   }) => {
     const usersPage = new UsersPage(page);
     const email1 = generateUniqueEmail();
@@ -305,7 +305,7 @@ test.describe("Users - Invite Users", () => {
 
   test("Send Invite button is disabled when invite list is empty", async ({
     page,
-    _context,
+    context: _context,
   }) => {
     const usersPage = new UsersPage(page);
 
