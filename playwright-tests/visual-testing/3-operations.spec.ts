@@ -23,7 +23,7 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 test.describe("Visual Testing - Payment Operations", () => {
   test("payment operations when no payment exists should match visual snapshot", async ({
     page,
-    context,
+    context: _context,
   }) => {
     await mockV2MerchantList(page);
 
@@ -258,7 +258,7 @@ test.describe("Visual Testing - Payment Operations", () => {
 test.describe("Visual Testing - Refund Operations", () => {
   test("refund operations when no refund exists should match visual snapshot", async ({
     page,
-    context,
+    context: _context,
   }) => {
     await mockV2MerchantList(page);
 
@@ -357,7 +357,7 @@ test.describe("Visual Testing - Refund Operations", () => {
 test.describe("Visual Testing - Payout Operations", () => {
   test("payout operations when no payouts exists should match visual snapshot", async ({
     page,
-    context,
+    context: _context,
   }) => {
     await mockV2MerchantList(page);
 
@@ -453,7 +453,7 @@ test.describe("Visual Testing - Payout Operations", () => {
 test.describe("Visual Testing - Dispute Operations", () => {
   test("dispute operations when no disputes exists should match visual snapshot", async ({
     page,
-    context,
+    context: _context,
   }) => {
     await mockV2MerchantList(page);
 
@@ -533,7 +533,7 @@ test.describe("Visual Testing - Dispute Operations", () => {
 test.describe("Visual Testing - Customers", () => {
   test("customers page when no customers exist should match visual snapshot", async ({
     page,
-    context,
+    context: _context,
   }) => {
     await mockV2MerchantList(page);
 
