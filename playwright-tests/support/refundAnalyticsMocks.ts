@@ -134,6 +134,9 @@ function connectorRows(withBucket: boolean): Array<Record<string, unknown>> {
   return withBucket
     ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET }))
     : rows;
+  return withBucket
+    ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET }))
+    : rows;
 }
 
 // Sample values per groupable dimension, used to render the summary table
@@ -156,6 +159,9 @@ function dimensionRows(
     refund_count: 820 - i * 180,
     refund_success_count: 772 - i * 170,
   }));
+  return withBucket
+    ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET }))
+    : rows;
   return withBucket
     ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET }))
     : rows;
@@ -210,25 +216,37 @@ export async function mockRefundAnalytics(page: Page): Promise<void> {
     json(route, {
       data: [{ refund_id: "ref_playwright_mock", status: "success" }],
     }),
+    json(route, {
+      data: [{ refund_id: "ref_playwright_mock", status: "success" }],
+    }),
   );
 
   // Metric + dimension catalogue.
   await page.route(
     /\/analytics\/v1\/(org|merchant|profile)\/refunds\/info/,
     (route) => json(route, REFUNDS_INFO),
-  );
+    await page.route(
+      /\/analytics\/v1\/(org|merchant|profile)\/refunds\/info/,
+      (route) => json(route, REFUNDS_INFO),
+    );
 
   // Dimension filter values.
   await page.route(
     /\/analytics\/v1\/(org|merchant|profile)\/filters\/refunds/,
     (route) => json(route, FILTER_VALUES),
-  );
+    await page.route(
+      /\/analytics\/v1\/(org|merchant|profile)\/filters\/refunds/,
+      (route) => json(route, FILTER_VALUES),
+    );
 
   // Metrics (single-stat cards / table / chart).
   await page.route(
     /\/analytics\/v1\/(org|merchant|profile)\/metrics\/refunds/,
     (route) => json(route, metricsResponse(firstQuery(route))),
-  );
+    await page.route(
+      /\/analytics\/v1\/(org|merchant|profile)\/metrics\/refunds/,
+      (route) => json(route, metricsResponse(firstQuery(route))),
+    );
 }
 
 // Fails every analytics endpoint with HTTP 500 so the page's getRefundDetails
@@ -243,9 +261,24 @@ export async function mockRefundAnalyticsError(page: Page): Promise<void> {
       body: JSON.stringify({
         error: { type: "server_error", message: "Internal Server Error" },
       }),
+      body: JSON.stringify({
+        error: { type: "server_error", message: "Internal Server Error" },
+      }),
     });
 
   await page.route(/\/refunds\/(profile\/)?list/, fail);
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/refunds\/info/,
+    fail,
+  );
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/filters\/refunds/,
+    fail,
+  );
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/metrics\/refunds/,
+    fail,
+  );
   await page.route(
     /\/analytics\/v1\/(org|merchant|profile)\/refunds\/info/,
     fail,

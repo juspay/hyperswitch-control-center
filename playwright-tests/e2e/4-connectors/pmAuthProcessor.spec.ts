@@ -21,6 +21,7 @@ async function signupAndLogin(page: Page, context: BrowserContext) {
   const merchantId = await homePage.merchantID.nth(0).textContent();
   if (merchantId) {
     await createDummyConnectorAPI(merchantId, "stripe_test_1", context.request);
+    await createDummyConnectorAPI(merchantId, "stripe_test_1", context.request);
   }
 }
 
@@ -83,6 +84,9 @@ test.describe("PM Auth Processor", () => {
     await expect(pmAuthProcessor.requestProcessorButton).toBeVisible({
       timeout: 10000,
     });
+    await expect(pmAuthProcessor.requestProcessorButton).toBeVisible({
+      timeout: 10000,
+    });
     const search = pmAuthProcessor.searchProcessorPlaceholder;
     await expect(search).toBeVisible({ timeout: 10000 });
     await search.fill("stripe");
@@ -117,6 +121,9 @@ test.describe("PM Auth Processor", () => {
     const proceed = pmAuthProcessor.connectAndProceedOrConnectButton;
     if (await proceed.isEnabled().catch(() => false)) {
       await proceed.click();
+      await expect(pmAuthProcessor.successToast).toBeVisible({
+        timeout: 10000,
+      });
       await expect(pmAuthProcessor.successToast).toBeVisible({
         timeout: 10000,
       });
@@ -247,6 +254,12 @@ test.describe("All PM Auth Processors", () => {
 
           await pmAuthProcessor.doneButton.click();
 
+          const connectorLabel =
+            processor.fields.overrides["Enter Connector label"] ||
+            processor.label;
+          await expect(
+            page.getByText(connectorLabel, { exact: true }),
+          ).toBeVisible({ timeout: 10000 });
           const connectorLabel =
             processor.fields.overrides["Enter Connector label"] ||
             processor.label;

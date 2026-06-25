@@ -2,7 +2,7 @@
 let make = () => {
   open APIUtils
 
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let url = RescriptReactRouter.useUrl()
   let twofactorAuthType = url.search->LogicUtils.getDictFromUrlSearchParams->Dict.get("type")
   let getURL = useGetURL()

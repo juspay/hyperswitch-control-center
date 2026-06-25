@@ -77,6 +77,8 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Start backend services
+        env:
+          HYPERSWITCH_TAG: ${{ vars.HYPERSWITCH_TAG }}
         run: |
           chmod +x playwright-tests/start_hyperswitch.sh
           ./playwright-tests/start_hyperswitch.sh

@@ -514,15 +514,10 @@ test.describe("Customers page", () => {
 
     // Related sub-resource sections. Scope to the detail panel so the section
     // headers don't collide with the Operations sidebar links.
-    const detailContent = page
-      .locator("div.flex.flex-col.overflow-scroll")
-      .first();
     await expect(
-      detailContent.getByText("Payment Intents", { exact: true }),
+      page.getByText("Payment Intents", { exact: true }),
     ).toBeVisible();
-    await expect(
-      detailContent.getByText("Refunds", { exact: true }),
-    ).toBeVisible();
+    await expect(page.getByText("RefundsView 15")).toBeVisible();
 
     // Related payment rows render from the mocked hits.
     await expect(

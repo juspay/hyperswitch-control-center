@@ -369,6 +369,7 @@ test.describe("Payouts Operations", () => {
         const dateSelector = payoutOperations.dateSelector;
         await dateSelector.click();
         await payoutOperations.daterangeDropdownValue("Last 30 Days").click();
+        await payoutOperations.daterangeDropdownValue("Last 30 Days").click();
 
         await expect(dateSelector).toContainText("Last 30 Days");
       });
@@ -381,505 +382,546 @@ test.describe("Payouts Operations", () => {
       const filterLabels = ["Connector", "Currency", "Payout Method", "Status"];
 
       test("should apply a Status filter", async ({ page, context }) => {
-        const homePage = new HomePage(page);
-        const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        test("should apply a Status filter", async ({ page, context }) => {
+          const homePage = new HomePage(page);
+          const payoutOperations = new PayoutOperations(page);
+          await setupPayout(homePage, context.request);
 
-        await goToPayouts(page, homePage);
-
-        await payoutOperations.addFilters.click();
-        await page.locator('[data-dropdown-value="Status"]:visible').click();
-
-        // Once the filter is added, a "Select status" chip is rendered with
-        // the status field wrapper visible in the filter row.
-        await expect(payoutOperations.payoutStatusFieldWrapper).toBeVisible();
-        await expect(payoutOperations.filterChipArea.first()).toContainText(
-          "Select status",
-        );
-      });
-
-      test("should list all available filter options in the Add Filters dropdown", async ({
-        page,
-        context,
-      }) => {
-        const homePage = new HomePage(page);
-        const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
-
-        await goToPayouts(page, homePage);
-
-        await payoutOperations.addFilters.click();
-
-        for (const label of filterLabels) {
-          await expect(
-            payoutOperations.visibleDropdownValue(label),
-          ).toBeVisible();
-        }
-      });
-
-      test("should render a filter chip for each selected filter option", async ({
-        page,
-        context,
-      }) => {
-        const homePage = new HomePage(page);
-        const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
-
-        await goToPayouts(page, homePage);
-
-        for (let i = 0; i < filterLabels.length; i++) {
-          const label = filterLabels[i];
-          const key = filterKeys[i];
+          await goToPayouts(page, homePage);
 
           await payoutOperations.addFilters.click();
-          await page
-            .locator(`[data-dropdown-value="${label}"]:visible`)
-            .click();
+          await page.locator('[data-dropdown-value="Status"]:visible').click();
+          await page.locator('[data-dropdown-value="Status"]:visible').click();
 
-          // PayoutsUtils.res renders the chip as `Select ${key}` with the
-          // raw snake_case API key (not snakeToTitle'd).
+          // Once the filter is added, a "Select status" chip is rendered with
+          // the status field wrapper visible in the filter row.
+          await expect(payoutOperations.payoutStatusFieldWrapper).toBeVisible();
           await expect(payoutOperations.filterChipArea.first()).toContainText(
-            `Select ${key}`,
+            "Select status",
+          );
+          await expect(payoutOperations.filterChipArea.first()).toContainText(
+            "Select status",
+          );
+        });
+
+        test("should list all available filter options in the Add Filters dropdown", async ({
+          page,
+          context,
+        }) => {
+          const homePage = new HomePage(page);
+          const payoutOperations = new PayoutOperations(page);
+          await setupPayout(homePage, context.request);
+
+          await goToPayouts(page, homePage);
+
+          await payoutOperations.addFilters.click();
+
+          for (const label of filterLabels) {
+            await expect(
+              payoutOperations.visibleDropdownValue(label),
+            ).toBeVisible();
+          }
+        });
+
+        test("should render a filter chip for each selected filter option", async ({
+          page,
+          context,
+        }) => {
+          const homePage = new HomePage(page);
+          const payoutOperations = new PayoutOperations(page);
+          await setupPayout(homePage, context.request);
+
+          await goToPayouts(page, homePage);
+
+          for (let i = 0; i < filterLabels.length; i++) {
+            const label = filterLabels[i];
+            const key = filterKeys[i];
+
+            await payoutOperations.addFilters.click();
+            await page
+              .locator(`[data-dropdown-value="${label}"]:visible`)
+              .click();
+
+            // PayoutsUtils.res renders the chip as `Select ${key}` with the
+            // raw snake_case API key (not snakeToTitle'd).
+            await expect(payoutOperations.filterChipArea.first()).toContainText(
+              `Select ${key}`,
+            );
+            await expect(payoutOperations.filterChipArea.first()).toContainText(
+              `Select ${key}`,
+            );
+
+            // Remove the chip so the next iteration starts clean.
+            await payoutOperations.crossOutlineIcon.first().click();
+          }
+        });
+
+        // Shared helpers + fixtures for the status-filter scenarios below.
+        const succeededId = "playwright_success_00000000000000000001";
+        const failedId = "playwright_failed_00000000000000000002";
+
+        const buildPayout = (payoutId: string, status: string) => ({
+          payout_id: payoutId,
+          merchant_id: "playwright_merchant",
+          merchant_order_reference_id: null,
+          amount: 4000,
+          currency: "USD",
+          connector: "adyen",
+          payout_type: "card",
+          payout_method_data: null,
+          billing: {
+            address: {
+              city: "San Francisco",
+              country: "US",
+              line1: "1467",
+              line2: "Harrison Street",
+              line3: "Harrison Street",
+              zip: "94122",
+              state: "CA",
+              first_name: "John",
+              last_name: "Doe",
+            },
+            phone: { number: "8056594427", country_code: "+91" },
+            email: null,
+          },
+          auto_fulfill: true,
+          customer_id: "new_cust",
+          customer: null,
+          client_secret: null,
+          return_url: null,
+          business_country: null,
+          business_label: null,
+          description: "Mocked payout",
+          entity_type: "Individual",
+          recurring: true,
+          metadata: { ref: "123" },
+          merchant_connector_id: "mca_test",
+          status,
+          error_message: status === "failed" ? "Card declined" : null,
+          error_code: status === "failed" ? "000" : null,
+          profile_id: "pro_test",
+          created: "2024-10-04T08:00:44.217Z",
+          connector_transaction_id: null,
+          priority: null,
+          attempts: [],
+          payout_link: null,
+          email: "payout_customer@example.com",
+          name: "John Doe",
+          phone: "999999999",
+          phone_country_code: "+65",
+          unified_code: null,
+          unified_message: null,
+          payout_method_id: null,
+        });
+
+        // Stand up the two mocked records + intelligent /payouts/list route so
+        // either status returns only its matching row.
+        const mockTwoPayoutList = async (page: Page) => {
+          const succeeded = buildPayout(succeededId, "success");
+          const failed = buildPayout(failedId, "failed");
+
+          await page.route("**/payouts/filter", async (route) => {
+            await route.fulfill({
+              status: 200,
+              contentType: "application/json",
+              body: JSON.stringify({
+                connector: ["adyen"],
+                currency: ["USD"],
+                payout_method: ["card"],
+                status: ["success", "failed"],
+              }),
+            });
+          });
+
+          await page.route("**/payouts/list", async (route) => {
+            const raw = route.request().postData();
+            const filter = raw ? JSON.parse(raw) : {};
+            const requested = Array.isArray(filter.status)
+              ? filter.status
+              : filter.status
+                ? [filter.status]
+                : [];
+
+            let data = [succeeded, failed];
+            if (requested.includes("success") && !requested.includes("failed")) {
+              data = [succeeded];
+            } else if (
+              requested.includes("failed") &&
+              !requested.includes("success")
+            ) {
+              data = [failed];
+            }
+            await route.fulfill({
+              status: 200,
+              contentType: "application/json",
+              body: JSON.stringify({
+                size: data.length,
+                data,
+                total_count: data.length,
+              }),
+            });
+          });
+        };
+
+        const applyStatusFilter = async (
+          page: Page,
+          payoutOperations: PayoutOperations,
+          statusValue: string,
+        ) => {
+          await payoutOperations.addFilters.click();
+          await page.locator('[data-dropdown-value="Status"]:visible').click();
+          await page.locator('[data-dropdown-value="Status"]:visible').click();
+          await payoutOperations.payoutStatusFieldWrapper.click();
+          await page.locator(`[value="${statusValue}"]`).click();
+          await payoutOperations.applyButton.click();
+          await page.waitForLoadState("networkidle");
+        };
+
+        test("should narrow the list to only the matching status when a status filter is applied", async ({
+          page,
+          context,
+        }) => {
+          const homePage = new HomePage(page);
+          const payoutOperations = new PayoutOperations(page);
+          await setupPayout(homePage, context.request);
+          await mockTwoPayoutList(page);
+
+          await goToPayouts(page, homePage);
+
+          // Baseline: both mocked payouts present.
+          await expect(payoutOperations.payoutCell(1, 2)).toContainText(
+            succeededId.slice(0, 20),
+          );
+          await expect(payoutOperations.payoutCell(2, 2)).toContainText(
+            failedId.slice(0, 20),
           );
 
-          // Remove the chip so the next iteration starts clean.
+          // Apply status=success: only the succeeded row remains.
+          await applyStatusFilter(page, payoutOperations, "success");
+
+          await expect(payoutOperations.payoutCell(1, 2)).toContainText(
+            succeededId.slice(0, 20),
+          );
+          await expect(payoutOperations.payoutCell(2, 2)).not.toBeVisible();
+          await expect(page.getByText(failedId.slice(0, 20))).not.toBeVisible();
+          await expect(page.getByText(failedId.slice(0, 20))).not.toBeVisible();
+
+          // Dismiss the existing status chip so the next selection starts clean.
           await payoutOperations.crossOutlineIcon.first().click();
-        }
+          await page.waitForLoadState("networkidle");
+
+          // Apply status=failed: only the failed row remains.
+          await applyStatusFilter(page, payoutOperations, "failed");
+
+          await expect(payoutOperations.payoutCell(1, 2)).toContainText(
+            failedId.slice(0, 20),
+          );
+          await expect(payoutOperations.payoutCell(2, 2)).not.toBeVisible();
+          await expect(
+            page.getByText(succeededId.slice(0, 20)),
+          ).not.toBeVisible();
+        });
       });
 
-      // Shared helpers + fixtures for the status-filter scenarios below.
-      const succeededId = "playwright_success_00000000000000000001";
-      const failedId = "playwright_failed_00000000000000000002";
+      test.describe("Generate Report", () => {
+        // Both `generate_report` AND `email` flags must be true for the button
+        // to render (see PayoutsList.res:96), and at least one payout has to be
+        // present in the list.
+        test("should display Generate Report button when generate_report flag is ON", async ({
+          page,
+          context,
+        }) => {
+          const homePage = new HomePage(page);
+          const payoutOperations = new PayoutOperations(page);
+          await setupPayout(homePage, context.request);
 
-      const buildPayout = (payoutId: string, status: string) => ({
-        payout_id: payoutId,
-        merchant_id: "playwright_merchant",
-        merchant_order_reference_id: null,
-        amount: 4000,
-        currency: "USD",
-        connector: "adyen",
-        payout_type: "card",
-        payout_method_data: null,
-        billing: {
-          address: {
-            city: "San Francisco",
-            country: "US",
-            line1: "1467",
-            line2: "Harrison Street",
-            line3: "Harrison Street",
-            zip: "94122",
-            state: "CA",
-            first_name: "John",
-            last_name: "Doe",
-          },
-          phone: { number: "8056594427", country_code: "+91" },
-          email: null,
-        },
-        auto_fulfill: true,
-        customer_id: "new_cust",
-        customer: null,
-        client_secret: null,
-        return_url: null,
-        business_country: null,
-        business_label: null,
-        description: "Mocked payout",
-        entity_type: "Individual",
-        recurring: true,
-        metadata: { ref: "123" },
-        merchant_connector_id: "mca_test",
-        status,
-        error_message: status === "failed" ? "Card declined" : null,
-        error_code: status === "failed" ? "000" : null,
-        profile_id: "pro_test",
-        created: "2024-10-04T08:00:44.217Z",
-        connector_transaction_id: null,
-        priority: null,
-        attempts: [],
-        payout_link: null,
-        email: "payout_customer@example.com",
-        name: "John Doe",
-        phone: "999999999",
-        phone_country_code: "+65",
-        unified_code: null,
-        unified_message: null,
-        payout_method_id: null,
-      });
+          await page.route(
+            "**/dashboard/config/feature?domain=",
+            async (route) => {
+              const response = await route.fetch();
+              const json = await response.json();
+              json.features = {
+                ...json.features,
+                generate_report: true,
+                email: true,
+              };
+              await route.fulfill({ response, json });
+            },
+          );
+          await page.route(
+            "**/dashboard/config/feature?domain=",
+            async (route) => {
+              const response = await route.fetch();
+              const json = await response.json();
+              json.features = {
+                ...json.features,
+                generate_report: true,
+                email: true,
+              };
+              await route.fulfill({ response, json });
+            },
+          );
+          await page.reload();
 
-      // Stand up the two mocked records + intelligent /payouts/list route so
-      // either status returns only its matching row.
-      const mockTwoPayoutList = async (page: Page) => {
-        const succeeded = buildPayout(succeededId, "success");
-        const failed = buildPayout(failedId, "failed");
+          await goToPayouts(page, homePage);
 
-        await page.route("**/payouts/filter", async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({
-              connector: ["adyen"],
-              currency: ["USD"],
-              payout_method: ["card"],
-              status: ["success", "failed"],
-            }),
-          });
+          await expect(payoutOperations.generateReports).toBeVisible();
+
+          await payoutOperations.generateReports.click();
+          await expect(page.getByText("Generate Payout Reports")).toBeVisible();
+          await expect(page.getByText("Date Range *")).toBeVisible();
+          await expect(page.getByText("Report Type")).toBeVisible();
+          await expect(page.getByText("Additional Recipients")).toBeVisible();
+          await page
+            .getByRole("button", { name: "Generate", exact: true })
+            .click();
+          await page
+            .getByRole("button", { name: "Generate", exact: true })
+            .click();
         });
 
-        await page.route("**/payouts/list", async (route) => {
-          const raw = route.request().postData();
-          const filter = raw ? JSON.parse(raw) : {};
-          const requested = Array.isArray(filter.status)
-            ? filter.status
-            : filter.status
-              ? [filter.status]
-              : [];
+        test("should hide Generate Report button when generate_report flag is OFF", async ({
+          page,
+          context,
+        }) => {
+          const homePage = new HomePage(page);
+          const payoutOperations = new PayoutOperations(page);
+          await setupPayout(homePage, context.request);
 
-          let data = [succeeded, failed];
-          if (requested.includes("success") && !requested.includes("failed")) {
-            data = [succeeded];
-          } else if (
-            requested.includes("failed") &&
-            !requested.includes("success")
-          ) {
-            data = [failed];
-          }
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({
-              size: data.length,
-              data,
-              total_count: data.length,
-            }),
-          });
+          await goToPayouts(page, homePage);
+
+          await expect(payoutOperations.generateReports).not.toBeVisible();
         });
-      };
-
-      const applyStatusFilter = async (
-        page: Page,
-        payoutOperations: PayoutOperations,
-        statusValue: string,
-      ) => {
-        await payoutOperations.addFilters.click();
-        await page.locator('[data-dropdown-value="Status"]:visible').click();
-        await payoutOperations.payoutStatusFieldWrapper.click();
-        await page.locator(`[value="${statusValue}"]`).click();
-        await payoutOperations.applyButton.click();
-        await page.waitForLoadState("networkidle");
-      };
-
-      test("should narrow the list to only the matching status when a status filter is applied", async ({
-        page,
-        context,
-      }) => {
-        const homePage = new HomePage(page);
-        const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
-        await mockTwoPayoutList(page);
-
-        await goToPayouts(page, homePage);
-
-        // Baseline: both mocked payouts present.
-        await expect(payoutOperations.payoutCell(1, 2)).toContainText(
-          succeededId.slice(0, 20),
-        );
-        await expect(payoutOperations.payoutCell(2, 2)).toContainText(
-          failedId.slice(0, 20),
-        );
-
-        // Apply status=success: only the succeeded row remains.
-        await applyStatusFilter(page, payoutOperations, "success");
-
-        await expect(payoutOperations.payoutCell(1, 2)).toContainText(
-          succeededId.slice(0, 20),
-        );
-        await expect(payoutOperations.payoutCell(2, 2)).not.toBeVisible();
-        await expect(page.getByText(failedId.slice(0, 20))).not.toBeVisible();
-
-        // Dismiss the existing status chip so the next selection starts clean.
-        await payoutOperations.crossOutlineIcon.first().click();
-        await page.waitForLoadState("networkidle");
-
-        // Apply status=failed: only the failed row remains.
-        await applyStatusFilter(page, payoutOperations, "failed");
-
-        await expect(payoutOperations.payoutCell(1, 2)).toContainText(
-          failedId.slice(0, 20),
-        );
-        await expect(payoutOperations.payoutCell(2, 2)).not.toBeVisible();
-        await expect(
-          page.getByText(succeededId.slice(0, 20)),
-        ).not.toBeVisible();
       });
     });
 
-    test.describe("Generate Report", () => {
-      // Both `generate_report` AND `email` flags must be true for the button
-      // to render (see PayoutsList.res:96), and at least one payout has to be
-      // present in the list.
-      test("should display Generate Report button when generate_report flag is ON", async ({
+    test.describe("Payout details page", () => {
+      test("should verify all elements in payout details page", async ({
         page,
         context,
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
-
-        await page.route(
-          "**/dashboard/config/feature?domain=",
-          async (route) => {
-            const response = await route.fetch();
-            const json = await response.json();
-            json.features = {
-              ...json.features,
-              generate_report: true,
-              email: true,
-            };
-            await route.fulfill({ response, json });
-          },
-        );
-        await page.reload();
-
-        await goToPayouts(page, homePage);
-
-        await expect(payoutOperations.generateReports).toBeVisible();
-
-        await payoutOperations.generateReports.click();
-        await expect(page.getByText("Generate Payout Reports")).toBeVisible();
-        await expect(page.getByText("Date Range *")).toBeVisible();
-        await expect(page.getByText("Report Type")).toBeVisible();
-        await expect(page.getByText("Additional Recipients")).toBeVisible();
-        await page
-          .getByRole("button", { name: "Generate", exact: true })
-          .click();
-      });
-
-      test("should hide Generate Report button when generate_report flag is OFF", async ({
-        page,
-        context,
-      }) => {
-        const homePage = new HomePage(page);
-        const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
-
-        await goToPayouts(page, homePage);
-
-        await expect(payoutOperations.generateReports).not.toBeVisible();
-      });
-    });
-  });
-
-  test.describe("Payout details page", () => {
-    test("should verify all elements in payout details page", async ({
-      page,
-      context,
-    }) => {
-      const homePage = new HomePage(page);
-      const payoutOperations = new PayoutOperations(page);
-      const { payout } = await setupPayout(homePage, context.request);
-
-      await goToPayouts(page, homePage);
-      await payoutOperations.payoutCell(1, 1).click();
-
-      await expect(page.getByText("Summary", { exact: true })).toBeVisible();
-      await expect(
-        page.getByText("About Payout", { exact: true }),
-      ).toBeVisible();
-      await expect(
-        page.getByText("Payout Attempts", { exact: true }),
-      ).toBeVisible();
-
-      // Accordion sections rendered after the Summary block (ShowPayout.res:337–398).
-      // Payout Method Details renders only when payout_type === "card" + payout_method_data
-      // is present; Payout Metadata renders only when metadata is non-empty. createPayoutAPI
-      // satisfies both (card payout + metadata={key: "value"}).
-      await expect(
-        page.getByText("Customer Details", { exact: true }),
-      ).toBeVisible();
-      await expect(
-        page.getByText("More Payout Details", { exact: true }),
-      ).toBeVisible();
-      await expect(
-        page.getByText("Payout Method Details", { exact: true }),
-      ).toBeVisible();
-      await expect(
-        page.getByText("Payout Metadata", { exact: true }),
-      ).toBeVisible();
-
-      // Big amount header + status badge (ShowPayout.res:117–128).
-      await expect(
-        page.locator('[class="md:text-5xl font-bold"]'),
-      ).toContainText(`${payout.amount / 100} ${payout.currency}`);
-      await expect(
-        page.getByText(payout.status.toUpperCase(), { exact: true }).first(),
-      ).toBeVisible();
-
-      // Summary detailsFields=[Created, AmountReceived, PayoutId, ConnectorTransactionID, ErrorMessage].
-      for (const label of [
-        "Created",
-        "Amount Received",
-        "Payout ID",
-        "Connector Transaction ID",
-        "Error Message",
-      ]) {
-        await expect(payoutOperations.dataLabel(label).first()).toBeVisible();
-      }
-
-      // About Payout fields shown by ShowPayout.PayoutInfo
-      // (detailsFields=[ProfileId, ProfileName, Connector, ConnectorLabel,
-      //  PayoutType, CardNetwork], ShowPayout.res:175–182).
-      for (const label of [
-        "Profile ID",
-        "Profile Name",
-        "Payout Connector",
-        "Connector Label",
-        "Payout Type",
-        "Card Network",
-      ]) {
-        await expect(payoutOperations.dataLabel(label).first()).toBeVisible();
-      }
-
-      // Payout Attempts table columns (PayoutsUtils.attemptsColumns +
-      // showSerial=true, ShowPayout.res:75–86).
-      const expectedAttemptHeaders = [
-        "S.No",
-        "Attempt ID",
-        "Status",
-        "Amount",
-        "Currency",
-        "Connector",
-      ];
-      const attemptsTable = page
-        .locator('table[data-expandable-table="Attempts"]')
-        .first();
-      for (let i = 0; i < expectedAttemptHeaders.length; i++) {
-        await expect(attemptsTable.locator("thead tr th").nth(i)).toHaveText(
-          expectedAttemptHeaders[i],
-        );
-      }
-      // First attempt row should render with the data we created.
-      await expect(payoutOperations.attemptCell(1, 1)).toBeVisible();
-
-      // Expand each collapsible accordion and assert its inner fields render.
-      // The accordion <header> is the only element with the exact section name;
-      // clicking it toggles the body open.
-      const expandAccordionAndAssertLabels = async (
-        title: string,
-        labels: string[],
-      ) => {
-        const header = page.getByText(new RegExp(`^${title}$`));
-        await header.waitFor({ state: "attached", timeout: 10000 });
-        await header.scrollIntoViewIfNeeded();
-        await header.click();
-        for (const label of labels) {
-          await expect(payoutOperations.dataLabel(label).first()).toBeVisible();
-        }
-      };
-
-      // CustomerDetails: Customer + Billing + Payout Method sub-sections
-      // (ShowPayout.res:190–224, fields via getHeadingForOtherDetails).
-      await expandAccordionAndAssertLabels("Customer Details", [
-        "Customer ID",
-        "First Name",
-        "Last Name",
-        "Email",
-        "Phone",
-        "Phone Country Code",
-        "Description",
-        "Billing Email",
-        "Billing Phone",
-        "Billing Address",
-        "Payout Method Email",
-        "Payout Method Address",
-      ]);
-
-      // MorePayoutDetails detailsFields (ShowPayout.res:235–246).
-      await expandAccordionAndAssertLabels("More Payout Details", [
-        "Auto Fulfill",
-        "Recurring",
-        "Entity Type",
-        "Business Country",
-        "Business Label",
-        "Return URL",
-        "Client Secret",
-        "Priority",
-        "Error Code",
-        "Merchant ID",
-      ]);
-
-      // Payout Method Details + Payout Metadata are PrettyPrintJson dumps —
-      // no data-labels, just assert known keys from the payload appear in the
-      // section body once expanded.
-      const payoutMethodDetails = page.getByText(/^Payout Method Details$/);
-      await payoutMethodDetails.waitFor({ state: "attached", timeout: 10000 });
-      await payoutMethodDetails.scrollIntoViewIfNeeded();
-      await payoutMethodDetails.click();
-      await expect(payoutMethodDetails.locator("xpath=../..")).toContainText(
-        "card",
-      );
-
-      const payoutMetadata = page.getByText(/^Payout Metadata$/);
-      await payoutMetadata.waitFor({ state: "attached", timeout: 10000 });
-      await payoutMetadata.scrollIntoViewIfNeeded();
-      await payoutMetadata.click();
-      await expect(payoutMetadata.locator("xpath=../..")).toContainText("key");
-      await expect(payoutMetadata.locator("xpath=../..")).toContainText(
-        "value",
-      );
-    });
-
-    test.describe("Events and logs", () => {
-      test("should display Events and logs accordion when auditTrail flag is ON", async ({
-        page,
-        context,
-      }) => {
-        const homePage = new HomePage(page);
-        const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
-
-        // audit_trail defaults to true locally; force it on explicitly so the
-        // test does not depend on env state.
-        await page.route(
-          "**/dashboard/config/feature?domain=",
-          async (route) => {
-            const response = await route.fetch();
-            const json = await response.json();
-            json.features = { ...json.features, audit_trail: true };
-            await route.fulfill({ response, json });
-          },
-        );
-        await page.reload();
-
-        await goToPayouts(page, homePage);
-        await payoutOperations.payoutCell(1, 1).click();
-
-        await expect(page.getByText("Events and logs")).toBeVisible();
-      });
-
-      test("should hide Events and logs accordion when auditTrail flag is OFF", async ({
-        page,
-        context,
-      }) => {
-        const homePage = new HomePage(page);
-        const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
-
-        await page.route(
-          "**/dashboard/config/feature?domain=",
-          async (route) => {
-            const response = await route.fetch();
-            const json = await response.json();
-            json.features = { ...json.features, audit_trail: false };
-            await route.fulfill({ response, json });
-          },
-        );
-        await page.reload();
+        const { payout } = await setupPayout(homePage, context.request);
 
         await goToPayouts(page, homePage);
         await payoutOperations.payoutCell(1, 1).click();
 
         await expect(page.getByText("Summary", { exact: true })).toBeVisible();
-        await expect(page.getByText("Events and logs")).not.toBeVisible();
+        await expect(
+          page.getByText("About Payout", { exact: true }),
+        ).toBeVisible();
+        await expect(
+          page.getByText("Payout Attempts", { exact: true }),
+        ).toBeVisible();
+        await expect(
+          page.getByText("About Payout", { exact: true }),
+        ).toBeVisible();
+        await expect(
+          page.getByText("Payout Attempts", { exact: true }),
+        ).toBeVisible();
+
+        // Accordion sections rendered after the Summary block (ShowPayout.res:337–398).
+        // Payout Method Details renders only when payout_type === "card" + payout_method_data
+        // is present; Payout Metadata renders only when metadata is non-empty. createPayoutAPI
+        // satisfies both (card payout + metadata={key: "value"}).
+        await expect(
+          page.getByText("Customer Details", { exact: true }),
+        ).toBeVisible();
+        await expect(
+          page.getByText("Customer Details", { exact: true }),
+        ).toBeVisible();
+        await expect(
+          page.getByText("More Payout Details", { exact: true }),
+        ).toBeVisible();
+        await expect(
+          page.getByText("Payout Method Details", { exact: true }),
+        ).toBeVisible();
+        await expect(
+          page.getByText("Payout Metadata", { exact: true }),
+        ).toBeVisible();
+
+        // Big amount header + status badge (ShowPayout.res:117–128).
+        await expect(
+          page.locator('[class="md:text-5xl font-bold"]'),
+        ).toContainText(`${payout.amount / 100} ${payout.currency}`);
+        await expect(
+          page.getByText(payout.status.toUpperCase(), { exact: true }).first(),
+        ).toBeVisible();
+
+        // Summary detailsFields=[Created, AmountReceived, PayoutId, ConnectorTransactionID, ErrorMessage].
+        for (const label of [
+          "Created",
+          "Amount Received",
+          "Payout ID",
+          "Connector Transaction ID",
+          "Error Message",
+        ]) {
+          await expect(payoutOperations.dataLabel(label).first()).toBeVisible();
+          await expect(payoutOperations.dataLabel(label).first()).toBeVisible();
+        }
+
+        // About Payout fields shown by ShowPayout.PayoutInfo
+        // (detailsFields=[ProfileId, ProfileName, Connector, ConnectorLabel,
+        //  PayoutType, CardNetwork], ShowPayout.res:175–182).
+        for (const label of [
+          "Profile ID",
+          "Profile Name",
+          "Payout Connector",
+          "Connector Label",
+          "Payout Type",
+          "Card Network",
+        ]) {
+          await expect(payoutOperations.dataLabel(label).first()).toBeVisible();
+          await expect(payoutOperations.dataLabel(label).first()).toBeVisible();
+        }
+
+        // Payout Attempts table columns (PayoutsUtils.attemptsColumns +
+        // showSerial=true, ShowPayout.res:75–86).
+        const expectedAttemptHeaders = [
+          "S.No",
+          "Attempt ID",
+          "Status",
+          "Amount",
+          "Currency",
+          "Connector",
+        ];
+        const attemptsTable = page
+          .locator('table[data-expandable-table="Attempts"]')
+          .first();
+        for (let i = 0; i < expectedAttemptHeaders.length; i++) {
+          await expect(attemptsTable.locator("thead tr th").nth(i)).toHaveText(
+            expectedAttemptHeaders[i],
+          );
+        }
+        // First attempt row should render with the data we created.
+        await expect(payoutOperations.attemptCell(1, 1)).toBeVisible();
+
+        // Expand each collapsible accordion and assert its inner fields render.
+        // The accordion <header> is the only element with the exact section name;
+        // clicking it toggles the body open.
+        const expandAccordionAndAssertLabels = async (
+          title: string,
+          labels: string[],
+        ) => {
+          const header = page.getByText(new RegExp(`^${title}$`));
+          await header.waitFor({ state: "attached", timeout: 10000 });
+          await header.scrollIntoViewIfNeeded();
+          await header.click();
+          for (const label of labels) {
+            await expect(payoutOperations.dataLabel(label).first()).toBeVisible();
+            await expect(payoutOperations.dataLabel(label).first()).toBeVisible();
+          }
+        };
+
+        // CustomerDetails: Customer + Billing + Payout Method sub-sections
+        // (ShowPayout.res:190–224, fields via getHeadingForOtherDetails).
+        await expandAccordionAndAssertLabels("Customer Details", [
+          "Customer ID",
+          "First Name",
+          "Last Name",
+          "Email",
+          "Phone",
+          "Phone Country Code",
+          "Description",
+          "Billing Email",
+          "Billing Phone",
+          "Billing Address",
+          "Payout Method Email",
+          "Payout Method Address",
+        ]);
+
+        // MorePayoutDetails detailsFields (ShowPayout.res:235–246).
+        await expandAccordionAndAssertLabels("More Payout Details", [
+          "Auto Fulfill",
+          "Recurring",
+          "Entity Type",
+          "Business Country",
+          "Business Label",
+          "Return URL",
+          "Client Secret",
+          "Priority",
+          "Error Code",
+          "Merchant ID",
+        ]);
+
+        // Payout Method Details + Payout Metadata are PrettyPrintJson dumps —
+        // no data-labels, just assert known keys from the payload appear in the
+        // section body once expanded.
+        const payoutMethodDetails = page.getByText(/^Payout Method Details$/);
+        await payoutMethodDetails.waitFor({ state: "attached", timeout: 10000 });
+        await payoutMethodDetails.scrollIntoViewIfNeeded();
+        await payoutMethodDetails.click();
+        await expect(payoutMethodDetails.locator("xpath=../..")).toContainText(
+          "card",
+        );
+
+        const payoutMetadata = page.getByText(/^Payout Metadata$/);
+        await payoutMetadata.waitFor({ state: "attached", timeout: 10000 });
+        await payoutMetadata.scrollIntoViewIfNeeded();
+        await payoutMetadata.click();
+        await expect(payoutMetadata.locator("xpath=../..")).toContainText("key");
+        await expect(payoutMetadata.locator("xpath=../..")).toContainText(
+          "value",
+        );
+        await expect(payoutMetadata.locator("xpath=../..")).toContainText(
+          "value",
+        );
+      });
+
+      test.describe("Events and logs", () => {
+        test("should display Events and logs accordion when auditTrail flag is ON", async ({
+          page,
+          context,
+        }) => {
+          const homePage = new HomePage(page);
+          const payoutOperations = new PayoutOperations(page);
+          await setupPayout(homePage, context.request);
+
+          // audit_trail defaults to true locally; force it on explicitly so the
+          // test does not depend on env state.
+          await page.route(
+            "**/dashboard/config/feature?domain=",
+            async (route) => {
+              const response = await route.fetch();
+              const json = await response.json();
+              json.features = { ...json.features, audit_trail: true };
+              await route.fulfill({ response, json });
+            },
+          );
+          await page.reload();
+
+          await goToPayouts(page, homePage);
+          await payoutOperations.payoutCell(1, 1).click();
+
+          await expect(page.getByText("Events and logs")).toBeVisible();
+        });
+
+        test("should hide Events and logs accordion when auditTrail flag is OFF", async ({
+          page,
+          context,
+        }) => {
+          const homePage = new HomePage(page);
+          const payoutOperations = new PayoutOperations(page);
+          await setupPayout(homePage, context.request);
+
+          await page.route(
+            "**/dashboard/config/feature?domain=",
+            async (route) => {
+              const response = await route.fetch();
+              const json = await response.json();
+              json.features = { ...json.features, audit_trail: false };
+              await route.fulfill({ response, json });
+            },
+          );
+          await page.reload();
+
+          await goToPayouts(page, homePage);
+          await payoutOperations.payoutCell(1, 1).click();
+
+          await expect(page.getByText("Summary", { exact: true })).toBeVisible();
+          await expect(page.getByText("Events and logs")).not.toBeVisible();
+        });
       });
     });
   });
-});

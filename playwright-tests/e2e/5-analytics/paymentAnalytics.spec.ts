@@ -62,8 +62,20 @@ test.describe("Analytics - Payments", () => {
     await expect(analytics.confirmedSuccessRateCard).toBeVisible({
       timeout: 15000,
     });
+    await expect(analytics.paymentsOverviewHeading).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(analytics.overallSuccessRateCard).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(analytics.confirmedSuccessRateCard).toBeVisible({
+      timeout: 15000,
+    });
     await expect(analytics.overallPaymentsCard).toBeVisible({ timeout: 15000 });
     await expect(analytics.successPaymentsCard).toBeVisible({ timeout: 15000 });
+    await expect(analytics.authorisedUncapturedCard).toBeVisible({
+      timeout: 15000,
+    });
     await expect(analytics.authorisedUncapturedCard).toBeVisible({
       timeout: 15000,
     });
@@ -71,10 +83,25 @@ test.describe("Analytics - Payments", () => {
     await expect(analytics.amountMetricsHeading).toBeVisible({
       timeout: 15000,
     });
+    await expect(analytics.amountMetricsHeading).toBeVisible({
+      timeout: 15000,
+    });
     await expect(analytics.processedAmountCard).toBeVisible({ timeout: 15000 });
     await expect(analytics.avgTicketSizeCard).toBeVisible({ timeout: 15000 });
 
     await expect(analytics.smartRetriesHeading).toBeVisible({ timeout: 15000 });
+    await expect(analytics.smartRetriesSubHeading).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(analytics.successfulSmartRetriesCard).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(analytics.smartRetriesMadeCard).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(analytics.smartRetriesSavingsCard).toBeVisible({
+      timeout: 15000,
+    });
     await expect(analytics.smartRetriesSubHeading).toBeVisible({
       timeout: 15000,
     });
@@ -97,9 +124,36 @@ test.describe("Analytics - Payments", () => {
     await expect(analytics.paymentsTrendsTimeRange).toBeVisible({
       timeout: 15000,
     });
+    await expect(analytics.paymentsTrendsHeading).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(analytics.paymentsTrendsFilters).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(analytics.paymentsTrendsTimeRange).toBeVisible({
+      timeout: 15000,
+    });
     await expect(analytics.paymentsSummary).toBeVisible({ timeout: 15000 });
 
     // Payments Summary table — column headings.
+    await expect(analytics.summaryTableHeading("Connector")).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(analytics.summaryTableHeading("Success Rate")).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(analytics.summaryTableHeading("Current Week S.R")).toBeVisible(
+      { timeout: 15000 },
+    );
+    await expect(analytics.summaryTableHeading("Payment Count")).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(
+      analytics.summaryTableHeading("Payment Success Count"),
+    ).toBeVisible({ timeout: 15000 });
+    await expect(
+      analytics.summaryTableHeading("Top 5 Error Reasons"),
+    ).toBeVisible({ timeout: 15000 });
     await expect(analytics.summaryTableHeading("Connector")).toBeVisible({
       timeout: 15000,
     });
@@ -172,6 +226,12 @@ test.describe("Analytics - Payments - Date Range Selector", () => {
     await expect(analytics.overallSuccessRateCard).toBeVisible({
       timeout: 15000,
     });
+    await expect(analytics.paymentsOverviewHeading).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(analytics.overallSuccessRateCard).toBeVisible({
+      timeout: 15000,
+    });
   });
 });
 
@@ -207,6 +267,9 @@ test.describe("Analytics - Payments - Dimension Filters", () => {
       await expect(analytics.dimensionOption(label)).toBeVisible({
         timeout: 10000,
       });
+      await expect(analytics.dimensionOption(label)).toBeVisible({
+        timeout: 10000,
+      });
     }
   });
 
@@ -219,6 +282,12 @@ test.describe("Analytics - Payments - Dimension Filters", () => {
       await expect(page.locator(".h-6 > div > svg").first()).not.toBeVisible();
 
       // A "Select <label>" chip appears for the selected dimension.
+      await expect(analytics.selectedFilterChip(key)).toBeVisible({
+        timeout: 10000,
+      });
+      await expect(analytics.selectedFilterChip(key)).toContainText(
+        `Select ${label}`,
+      );
       await expect(analytics.selectedFilterChip(key)).toBeVisible({
         timeout: 10000,
       });
@@ -254,93 +323,133 @@ test.describe("Analytics - Payments - OMP Switch", () => {
     await expect(analytics.ompViewOption("Profile")).toBeVisible({
       timeout: 10000,
     });
+    await expect(analytics.ompViewOption("Organization")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(analytics.ompViewOption("Merchant")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(analytics.ompViewOption("Profile")).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test("should switch the analytics entity when a view is selected", async ({
     page,
   }) => {
-    await analytics.openOmpViewSwitcher();
-    await expect(analytics.ompViewOption("Profile")).toBeVisible({
-      timeout: 10000,
-    });
+    test("should switch the analytics entity when a view is selected", async ({
+      page,
+    }) => {
+      await analytics.openOmpViewSwitcher();
+      await expect(analytics.ompViewOption("Profile")).toBeVisible({
+        timeout: 10000,
+      });
+      await expect(analytics.ompViewOption("Profile")).toBeVisible({
+        timeout: 10000,
+      });
 
-    await analytics.ompViewOption("Profile").click();
-    await analytics.page.waitForLoadState("networkidle");
+      await analytics.ompViewOption("Profile").click();
+      await analytics.page.waitForLoadState("networkidle");
 
-    await expect(page.getByText("View data for:default")).toBeVisible();
-  });
-});
-
-test.describe("Analytics - Payments - Multi-Tab Navigation", () => {
-  let analytics: PaymentAnalyticsPage;
-
-  test.beforeEach(async ({ page }) => {
-    analytics = await loginAndVisit(page);
-  });
-
-  // The Payments Trends DynamicTabs render the first three dimensions (the
-  // non-removable defaults) plus a "+" control to add custom dimensions.
-  test("should render the default dimension tabs and the add-dimension control", async () => {
-    await expect(analytics.paymentsTrendsHeading).toBeVisible({
-      timeout: 15000,
-    });
-
-    await expect(analytics.trendsTab("Connector")).toBeVisible({
-      timeout: 15000,
-    });
-    await expect(analytics.trendsTab("Payment Method")).toBeVisible({
-      timeout: 15000,
-    });
-    await expect(
-      analytics.trendsTab("Payment Method + Payment Method Type"),
-    ).toBeVisible({ timeout: 15000 });
-    await expect(analytics.addDimensionTabButton).toBeVisible({
-      timeout: 15000,
+      await expect(page.getByText("View data for:default")).toBeVisible();
+      await expect(page.getByText("View data for:default")).toBeVisible();
     });
   });
 
-  // Switching the active tab re-groups the summary table — its first column
-  // header reflects the selected dimension.
-  test("should update the summary table grouping when a different tab is selected", async () => {
-    // Default grouping is Connector.
-    await expect(analytics.summaryTableHeading("Connector")).toBeVisible({
-      timeout: 15000,
-    });
-    await expect(analytics.summaryTableCell(1, 1)).toHaveText("Stripe");
+  test.describe("Analytics - Payments - Multi-Tab Navigation", () => {
+    let analytics: PaymentAnalyticsPage;
 
-    // Switch to the Payment Method tab.
-    await analytics.trendsTab("Payment Method").click();
-    await analytics.page.waitForLoadState("networkidle");
-
-    await expect(analytics.summaryTableHeading("Payment Method")).toBeVisible({
-      timeout: 15000,
+    test.beforeEach(async ({ page }) => {
+      analytics = await loginAndVisit(page);
     });
 
-    // Switch back to Connector and the connector grouping returns.
-    await analytics.trendsTab("Connector").click();
-    await analytics.page.waitForLoadState("networkidle");
+    // The Payments Trends DynamicTabs render the first three dimensions (the
+    // non-removable defaults) plus a "+" control to add custom dimensions.
+    test("should render the default dimension tabs and the add-dimension control", async () => {
+      await expect(analytics.paymentsTrendsHeading).toBeVisible({
+        timeout: 15000,
+      });
+      await expect(analytics.paymentsTrendsHeading).toBeVisible({
+        timeout: 15000,
+      });
 
-    await expect(analytics.summaryTableHeading("Connector")).toBeVisible({
-      timeout: 15000,
+      await expect(analytics.trendsTab("Connector")).toBeVisible({
+        timeout: 15000,
+      });
+      await expect(analytics.trendsTab("Payment Method")).toBeVisible({
+        timeout: 15000,
+      });
+      await expect(
+        analytics.trendsTab("Payment Method + Payment Method Type"),
+      ).toBeVisible({ timeout: 15000 });
+      await expect(analytics.addDimensionTabButton).toBeVisible({
+        timeout: 15000,
+      });
+      await expect(analytics.trendsTab("Connector")).toBeVisible({
+        timeout: 15000,
+      });
+      await expect(analytics.trendsTab("Payment Method")).toBeVisible({
+        timeout: 15000,
+      });
+      await expect(
+        analytics.trendsTab("Payment Method + Payment Method Type"),
+      ).toBeVisible({ timeout: 15000 });
+      await expect(analytics.addDimensionTabButton).toBeVisible({
+        timeout: 15000,
+      });
     });
-    await expect(analytics.summaryTableCell(1, 1)).toHaveText("Stripe");
+
+    // Switching the active tab re-groups the summary table — its first column
+    // header reflects the selected dimension.
+    test("should update the summary table grouping when a different tab is selected", async () => {
+      // Default grouping is Connector.
+      await expect(analytics.summaryTableHeading("Connector")).toBeVisible({
+        timeout: 15000,
+      });
+      await expect(analytics.summaryTableHeading("Connector")).toBeVisible({
+        timeout: 15000,
+      });
+      await expect(analytics.summaryTableCell(1, 1)).toHaveText("Stripe");
+
+      // Switch to the Payment Method tab.
+      await analytics.trendsTab("Payment Method").click();
+      await analytics.page.waitForLoadState("networkidle");
+
+      await expect(analytics.summaryTableHeading("Payment Method")).toBeVisible({
+        timeout: 15000,
+      });
+      await expect(analytics.summaryTableHeading("Payment Method")).toBeVisible({
+        timeout: 15000,
+      });
+
+      // Switch back to Connector and the connector grouping returns.
+      await analytics.trendsTab("Connector").click();
+      await analytics.page.waitForLoadState("networkidle");
+
+      await expect(analytics.summaryTableHeading("Connector")).toBeVisible({
+        timeout: 15000,
+      });
+      await expect(analytics.summaryTableHeading("Connector")).toBeVisible({
+        timeout: 15000,
+      });
+      await expect(analytics.summaryTableCell(1, 1)).toHaveText("Stripe");
+    });
   });
-});
 
-test.describe("Analytics - Payments - Error State", () => {
-  let analytics: PaymentAnalyticsPage;
+  test.describe("Analytics - Payments - Error State", () => {
+    let analytics: PaymentAnalyticsPage;
 
-  test.beforeEach(async ({ page }) => {
-    analytics = await loginAndVisit(page, mockPaymentAnalyticsError);
+    test.beforeEach(async ({ page }) => {
+      analytics = await loginAndVisit(page, mockPaymentAnalyticsError);
+    });
+
+    // When the analytics endpoints fail with HTTP 500 the page's catch block flips
+    // PageLoaderWrapper to its Error state (DefaultLandingPage), rather than
+    // rendering the metric sections.
+    test("should render the error state when the analytics APIs fail", async () => {
+      await expect(analytics.errorTitle).toBeVisible({ timeout: 15000 });
+      await expect(analytics.refreshButton).toBeVisible({ timeout: 10000 });
+
+      await expect(analytics.paymentsOverviewHeading).not.toBeVisible();
+    });
   });
-
-  // When the analytics endpoints fail with HTTP 500 the page's catch block flips
-  // PageLoaderWrapper to its Error state (DefaultLandingPage), rather than
-  // rendering the metric sections.
-  test("should render the error state when the analytics APIs fail", async () => {
-    await expect(analytics.errorTitle).toBeVisible({ timeout: 15000 });
-    await expect(analytics.refreshButton).toBeVisible({ timeout: 10000 });
-
-    await expect(analytics.paymentsOverviewHeading).not.toBeVisible();
-  });
-});

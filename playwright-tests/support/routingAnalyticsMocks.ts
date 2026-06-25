@@ -302,6 +302,9 @@ function routingMetricsResponse(route: Route) {
     return metrics.includes("payment_success_rate")
       ? routingSuccessSeries()
       : routingVolumeSeries();
+    return metrics.includes("payment_success_rate")
+      ? routingSuccessSeries()
+      : routingVolumeSeries();
   }
 
   // Summary table — connector + routing_approach grouping (the expandable detail).
@@ -338,6 +341,10 @@ function routingPaymentsV2Response() {
     queryData: [],
     metaData: [{ total_success_rate_without_smart_retries: 86.4 }],
   };
+  return {
+    queryData: [],
+    metaData: [{ total_success_rate_without_smart_retries: 86.4 }],
+  };
 }
 
 // POST analytics/v1/{scope}/metrics/payments — serves both the Overall Routing
@@ -352,6 +359,12 @@ function routingPaymentsV1Response(route: Route) {
   // Least Cost Routing tab — debit-routing widgets.
   if (metrics.includes("sessionized_debit_routing")) {
     if (hasGranularity) return leastCostSavingsSeries();
+    if (groupBy.includes("signature_network"))
+      return wrap(leastCostSummaryRows());
+    if (groupBy.includes("is_issuer_regulated"))
+      return wrap(leastCostRegulationRows());
+    if (groupBy.includes("card_network"))
+      return wrap(leastCostDistributionRows());
     if (groupBy.includes("signature_network"))
       return wrap(leastCostSummaryRows());
     if (groupBy.includes("is_issuer_regulated"))
@@ -380,31 +393,46 @@ export async function mockRoutingAnalytics(page: Page): Promise<void> {
   await page.route(
     /\/analytics\/v1\/(org|merchant|profile)\/routing\/info/,
     (route) => json(route, ROUTING_INFO),
-  );
+    await page.route(
+      /\/analytics\/v1\/(org|merchant|profile)\/routing\/info/,
+      (route) => json(route, ROUTING_INFO),
+    );
 
   // Dimension filter values.
   await page.route(
     /\/analytics\/v1\/(org|merchant|profile)\/filters\/routing/,
     (route) => json(route, FILTER_VALUES),
-  );
+    await page.route(
+      /\/analytics\/v1\/(org|merchant|profile)\/filters\/routing/,
+      (route) => json(route, FILTER_VALUES),
+    );
 
   // v2 payments metrics (FAAR card).
   await page.route(
     /\/analytics\/v2\/(org|merchant|profile)\/metrics\/payments/,
     (route) => json(route, routingPaymentsV2Response()),
-  );
+    await page.route(
+      /\/analytics\/v2\/(org|merchant|profile)\/metrics\/payments/,
+      (route) => json(route, routingPaymentsV2Response()),
+    );
 
   // v1 payments metrics (Total Failure card).
   await page.route(
     /\/analytics\/v1\/(org|merchant|profile)\/metrics\/payments/,
     (route) => json(route, routingPaymentsV1Response(route)),
-  );
+    await page.route(
+      /\/analytics\/v1\/(org|merchant|profile)\/metrics\/payments/,
+      (route) => json(route, routingPaymentsV1Response(route)),
+    );
 
   // v1 routing metrics (cards / distribution / summary / trends).
   await page.route(
     /\/analytics\/v1\/(org|merchant|profile)\/metrics\/routing/,
     (route) => json(route, routingMetricsResponse(route)),
-  );
+    await page.route(
+      /\/analytics\/v1\/(org|merchant|profile)\/metrics\/routing/,
+      (route) => json(route, routingMetricsResponse(route)),
+    );
 }
 
 // Fails the routing info endpoint (and every metric endpoint) with HTTP 500 so
@@ -419,8 +447,31 @@ export async function mockRoutingAnalyticsError(page: Page): Promise<void> {
       body: JSON.stringify({
         error: { type: "server_error", message: "Internal Server Error" },
       }),
+      body: JSON.stringify({
+        error: { type: "server_error", message: "Internal Server Error" },
+      }),
     });
 
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/routing\/info/,
+    fail,
+  );
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/filters\/routing/,
+    fail,
+  );
+  await page.route(
+    /\/analytics\/v2\/(org|merchant|profile)\/metrics\/payments/,
+    fail,
+  );
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/metrics\/payments/,
+    fail,
+  );
+  await page.route(
+    /\/analytics\/v1\/(org|merchant|profile)\/metrics\/routing/,
+    fail,
+  );
   await page.route(
     /\/analytics\/v1\/(org|merchant|profile)\/routing\/info/,
     fail,

@@ -201,6 +201,9 @@ function statusRows(withBucket: boolean): Array<Record<string, unknown>> {
   return withBucket
     ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET }))
     : rows;
+  return withBucket
+    ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET }))
+    : rows;
 }
 
 // Per-connector rows for the Payments Trends chart + summary table.
@@ -211,6 +214,9 @@ function connectorRows(withBucket: boolean): Array<Record<string, unknown>> {
     payment_count: 820 - i * 180,
     payment_success_count: 772 - i * 170,
   }));
+  return withBucket
+    ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET }))
+    : rows;
   return withBucket
     ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET }))
     : rows;
@@ -244,6 +250,9 @@ function dimensionRows(
     payment_count: 820 - i * 180,
     payment_success_count: 772 - i * 170,
   }));
+  return withBucket
+    ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET }))
+    : rows;
   return withBucket
     ? rows.map((r) => ({ ...r, time_bucket: FROZEN_BUCKET }))
     : rows;
@@ -283,119 +292,161 @@ function v1MetricsResponse(q: AnalyticsQuery) {
     metrics.includes("payment_processed_amount") ||
     metrics.includes("avg_ticket_size")
   ) {
-    return wrap(isSeries ? asSeries(AMOUNT_ROW) : [AMOUNT_ROW]);
+    if (
+      metrics.includes("payment_processed_amount") ||
+      metrics.includes("avg_ticket_size")
+    ) {
+      return wrap(isSeries ? asSeries(AMOUNT_ROW) : [AMOUNT_ROW]);
+    }
+
+    // Payments Trends chart + summary table (connector-grouped).
+    if (groupBy.includes("connector")) {
+      return wrap(connectorRows(isSeries));
+    }
+
+    // Secondary payment_count-by-currency queries.
+    if (metrics.length === 1 && metrics[0] === "payment_count") {
+      const row = { currency: CURRENCY, payment_count: 1280 };
+      return wrap(isSeries ? asSeries(row) : [row]);
+    }
+
+    // Payments Trends summary table / chart grouped by any other single dimension
+    // (Payment Method, Currency, Authentication Type, …) — when a Trends tab is
+    // switched. Keyed so the table's first column renders the dimension values.
+    if (groupBy.length === 1 && DIMENSION_SAMPLES[groupBy[0]]) {
+      return wrap(dimensionRows(groupBy[0], isSeries));
+    }
+
+    // General Metrics cards (Payments Overview, no groupBy).
+    return wrap(isSeries ? asSeries(OVERVIEW_ROW) : [OVERVIEW_ROW]);
   }
 
-  // Payments Trends chart + summary table (connector-grouped).
-  if (groupBy.includes("connector")) {
-    return wrap(connectorRows(isSeries));
+  function v2MetricsResponse(q: AnalyticsQuery) {
+    const groupBy: string[] = q.groupByNames ?? [];
+    const isSeries = !!q.timeSeries;
+    const row = groupBy.includes("currency")
+      ? { currency: CURRENCY, ...SMART_RETRY_ROW }
+      : SMART_RETRY_ROW;
+    return {
+      queryData: isSeries
+        ? asSeries({ currency: CURRENCY, ...SMART_RETRY_ROW })
+        : [row],
+      queryData: isSeries
+        ? asSeries({ currency: CURRENCY, ...SMART_RETRY_ROW })
+        : [row],
+      metaData: V2_META,
+    };
   }
 
-  // Secondary payment_count-by-currency queries.
-  if (metrics.length === 1 && metrics[0] === "payment_count") {
-    const row = { currency: CURRENCY, payment_count: 1280 };
-    return wrap(isSeries ? asSeries(row) : [row]);
-  }
+  // ===========================================================================
+  // Route registration
+  // ===========================================================================
 
-  // Payments Trends summary table / chart grouped by any other single dimension
-  // (Payment Method, Currency, Authentication Type, …) — when a Trends tab is
-  // switched. Keyed so the table's first column renders the dimension values.
-  if (groupBy.length === 1 && DIMENSION_SAMPLES[groupBy[0]]) {
-    return wrap(dimensionRows(groupBy[0], isSeries));
-  }
-
-  // General Metrics cards (Payments Overview, no groupBy).
-  return wrap(isSeries ? asSeries(OVERVIEW_ROW) : [OVERVIEW_ROW]);
-}
-
-function v2MetricsResponse(q: AnalyticsQuery) {
-  const groupBy: string[] = q.groupByNames ?? [];
-  const isSeries = !!q.timeSeries;
-  const row = groupBy.includes("currency")
-    ? { currency: CURRENCY, ...SMART_RETRY_ROW }
-    : SMART_RETRY_ROW;
-  return {
-    queryData: isSeries
-      ? asSeries({ currency: CURRENCY, ...SMART_RETRY_ROW })
-      : [row],
-    metaData: V2_META,
-  };
-}
-
-// ===========================================================================
-// Route registration
-// ===========================================================================
-
-// Intercepts and overrides every API the Payments Analytics page calls on load
-// so the whole page renders with canned, non-zero data. Register before the
-// page navigates (i.e. before loginAndVisit opens the analytics route).
-export async function mockPaymentAnalytics(page: Page): Promise<void> {
-  // Order list — return a non-empty list so the page never drops to its Custom
-  // (no-data) screen state.
-  await page.route(/\/payments\/list/, (route) =>
-    json(route, {
-      size: 1,
-      data: [{ payment_id: "pay_playwright_mock", status: "succeeded" }],
-    }),
-  );
-
-  // Metric + dimension catalogue.
-  await page.route(
-    /\/analytics\/v1\/(org|merchant|profile)\/payments\/info/,
-    (route) => json(route, PAYMENTS_INFO),
-  );
-
-  // Dimension filter values.
-  await page.route(
-    /\/analytics\/v1\/(org|merchant|profile)\/filters\/payments/,
-    (route) => json(route, FILTER_VALUES),
-  );
-
-  // v2 metrics (smart retries) — register before the v1 catch-all so the more
-  // specific path wins.
-  await page.route(
-    /\/analytics\/v2\/(org|merchant|profile)\/metrics\/payments/,
-    (route) => json(route, v2MetricsResponse(firstQuery(route))),
-  );
-
-  // v1 metrics (overview / amount / status / connector).
-  await page.route(
-    /\/analytics\/v1\/(org|merchant|profile)\/metrics\/payments/,
-    (route) => json(route, v1MetricsResponse(firstQuery(route))),
-  );
-}
-
-// Fails every analytics endpoint with HTTP 500 so the page's getPaymetsDetails
-// catch block flips PageLoaderWrapper to its Error state (the DefaultLandingPage
-// "Oops, we hit a little bump on the road!" view). The order-list call is the
-// first request the page makes, so failing it short-circuits straight to Error.
-export async function mockPaymentAnalyticsError(page: Page): Promise<void> {
-  const fail = (route: Route) =>
-    route.fulfill({
-      status: 500,
-      contentType: "application/json",
-      body: JSON.stringify({
-        error: { type: "server_error", message: "Internal Server Error" },
+  // Intercepts and overrides every API the Payments Analytics page calls on load
+  // so the whole page renders with canned, non-zero data. Register before the
+  // page navigates (i.e. before loginAndVisit opens the analytics route).
+  export async function mockPaymentAnalytics(page: Page): Promise<void> {
+    // Order list — return a non-empty list so the page never drops to its Custom
+    // (no-data) screen state.
+    await page.route(/\/payments\/list/, (route) =>
+      json(route, {
+        size: 1,
+        data: [{ payment_id: "pay_playwright_mock", status: "succeeded" }],
       }),
-    });
+      json(route, {
+        size: 1,
+        data: [{ payment_id: "pay_playwright_mock", status: "succeeded" }],
+      }),
+    );
 
-  await page.route(/\/payments\/list/, fail);
-  await page.route(
-    /\/analytics\/v1\/(org|merchant|profile)\/payments\/info/,
-    fail,
-  );
-  await page.route(
-    /\/analytics\/v1\/(org|merchant|profile)\/filters\/payments/,
-    fail,
-  );
-  await page.route(
-    /\/analytics\/v2\/(org|merchant|profile)\/metrics\/payments/,
-    fail,
-  );
-  await page.route(
-    /\/analytics\/v1\/(org|merchant|profile)\/metrics\/payments/,
-    fail,
-  );
-}
+    // Metric + dimension catalogue.
+    await page.route(
+      /\/analytics\/v1\/(org|merchant|profile)\/payments\/info/,
+      (route) => json(route, PAYMENTS_INFO),
+      await page.route(
+        /\/analytics\/v1\/(org|merchant|profile)\/payments\/info/,
+        (route) => json(route, PAYMENTS_INFO),
+      );
 
-export default mockPaymentAnalytics;
+    // Dimension filter values.
+    await page.route(
+      /\/analytics\/v1\/(org|merchant|profile)\/filters\/payments/,
+      (route) => json(route, FILTER_VALUES),
+      await page.route(
+        /\/analytics\/v1\/(org|merchant|profile)\/filters\/payments/,
+        (route) => json(route, FILTER_VALUES),
+      );
+
+    // v2 metrics (smart retries) — register before the v1 catch-all so the more
+    // specific path wins.
+    await page.route(
+      /\/analytics\/v2\/(org|merchant|profile)\/metrics\/payments/,
+      (route) => json(route, v2MetricsResponse(firstQuery(route))),
+      await page.route(
+        /\/analytics\/v2\/(org|merchant|profile)\/metrics\/payments/,
+        (route) => json(route, v2MetricsResponse(firstQuery(route))),
+      );
+
+    // v1 metrics (overview / amount / status / connector).
+    await page.route(
+      /\/analytics\/v1\/(org|merchant|profile)\/metrics\/payments/,
+      (route) => json(route, v1MetricsResponse(firstQuery(route))),
+      await page.route(
+        /\/analytics\/v1\/(org|merchant|profile)\/metrics\/payments/,
+        (route) => json(route, v1MetricsResponse(firstQuery(route))),
+      );
+  }
+
+  // Fails every analytics endpoint with HTTP 500 so the page's getPaymetsDetails
+  // catch block flips PageLoaderWrapper to its Error state (the DefaultLandingPage
+  // "Oops, we hit a little bump on the road!" view). The order-list call is the
+  // first request the page makes, so failing it short-circuits straight to Error.
+  export async function mockPaymentAnalyticsError(page: Page): Promise<void> {
+    const fail = (route: Route) =>
+      route.fulfill({
+        status: 500,
+        contentType: "application/json",
+        body: JSON.stringify({
+          error: { type: "server_error", message: "Internal Server Error" },
+        }),
+        body: JSON.stringify({
+          error: { type: "server_error", message: "Internal Server Error" },
+        }),
+      });
+
+    await page.route(/\/payments\/list/, fail);
+    await page.route(
+      /\/analytics\/v1\/(org|merchant|profile)\/payments\/info/,
+      fail,
+    );
+    await page.route(
+      /\/analytics\/v1\/(org|merchant|profile)\/filters\/payments/,
+      fail,
+    );
+    await page.route(
+      /\/analytics\/v2\/(org|merchant|profile)\/metrics\/payments/,
+      fail,
+    );
+    await page.route(
+      /\/analytics\/v1\/(org|merchant|profile)\/metrics\/payments/,
+      fail,
+    );
+    await page.route(
+      /\/analytics\/v1\/(org|merchant|profile)\/payments\/info/,
+      fail,
+    );
+    await page.route(
+      /\/analytics\/v1\/(org|merchant|profile)\/filters\/payments/,
+      fail,
+    );
+    await page.route(
+      /\/analytics\/v2\/(org|merchant|profile)\/metrics\/payments/,
+      fail,
+    );
+    await page.route(
+      /\/analytics\/v1\/(org|merchant|profile)\/metrics\/payments/,
+      fail,
+    );
+  }
+
+  export default mockPaymentAnalytics;
