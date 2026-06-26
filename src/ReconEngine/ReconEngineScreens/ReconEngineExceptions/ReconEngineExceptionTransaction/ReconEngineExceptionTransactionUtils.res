@@ -361,6 +361,7 @@ let getConvertedEntriesFromStagingEntry = (stagingEntry: processingEntryType) =>
     ("status", "pending"->JSON.Encode.string),
     ("data", [("status", "pending"->JSON.Encode.string)]->getJsonFromArrayOfJson),
     ("entry_key", uniqueId->JSON.Encode.string),
+    ("transformation_id", stagingEntry.transformation_id->JSON.Encode.string),
   ]
   ->Dict.fromArray
   ->JSON.Encode.object
@@ -605,6 +606,13 @@ let constructManualReconciliationBody = (
         },
       ),
       ("data", backendEntry.data),
+      (
+        "transformation_id",
+        switch backendEntry.transformation_id {
+        | Some(id) => id->JSON.Encode.string
+        | None => JSON.Encode.null
+        },
+      ),
     ]
     ->Dict.fromArray
     ->JSON.Encode.object
