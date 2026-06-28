@@ -27,10 +27,16 @@ if [ -n "$unformatted_js_files" ]; then
   exit 1
 fi
 
-# Check for unformatted ReScript files (fail, don't silently reformat).
-if ! npm run --silent re:format:check; then
-  echo "Error: Unformatted ReScript files found. Run 'npm run re:format' and stage the changes."
-  exit 1
+# Check staged ReScript files only (fail, don't silently reformat).
+# CI still runs `npm run re:format:check` on the full tree, so the local hook
+# stays fast and only blocks commits that introduce unformatted changes.
+if [ -n "$(git diff --cached --name-only --diff-filter=ACM -- '*.res' '*.resi')" ]; then
+  if ! git diff --cached --name-only -z --diff-filter=ACM -- \
+         '*.res' '*.resi' \
+         | xargs -0 rescript format -check; then
+    echo "Error: Unformatted staged ReScript files found. Run 'npm run re:format' and stage the changes."
+    exit 1
+  fi
 fi
 
 echo
