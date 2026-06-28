@@ -444,7 +444,7 @@ test.describe("Dispute detail page", () => {
     // Dates are formatted with the user's locale TZ — assert on the
     // date portion only to keep this stable across machines.
     await expect(
-      paymentOperations.dataLabel("Connector Required By").first(),
+      paymentOperations.dataLabel("Challenge Required By").first(),
     ).toContainText("Jun 08, 2026");
     await expect(
       paymentOperations.dataLabel("Connector").first(),
