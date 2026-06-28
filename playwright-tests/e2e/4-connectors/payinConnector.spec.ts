@@ -1237,15 +1237,313 @@ test.describe("All Payin Connectors", () => {
       await expect(
         page.getByTestId(
           connector.fields.overrides["Enter Connector label"] ||
-            connector.label,
+          connector.label,
         ),
       ).toBeVisible();
       await page
         .getByTestId(
           connector.fields.overrides["Enter Connector label"] ||
-            connector.label,
+          connector.label,
         )
         .click();
     });
   }
+
+  test("should setup and verify cashtocode connector", async ({ page }) => {
+    const homePage = new HomePage(page);
+    const paymentConnector = new PaymentConnector(page);
+
+    await homePage.connectors.click();
+    await homePage.paymentProcessors.click();
+
+    await paymentConnector.connectorSearchInput.fill("cashtocode");
+    await paymentConnector.addConnectButton.nth(2).click();
+
+    await expect(page.getByRole('tab', { name: 'Classic' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Evoucher' })).toBeVisible();
+
+    await page.locator('div').filter({ hasText: /^USD$/ }).first().click();
+    await page.getByRole('textbox', { name: 'Enter Password Classic' }).fill("test_value");
+    await page.getByRole('textbox', { name: 'Enter Username Classic' }).fill("Username Classic");
+    await page.getByRole('textbox', { name: 'Enter MerchantId Classic' }).fill("MerchantId Classic");
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(page.getByText('RewardSelect allClassicEvoucher')).toBeVisible();
+    await paymentConnector.pmtProceedButton.click();
+
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible();
+
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(page).toHaveURL(/.*dashboard\/connectors/);
+    await expect(page.getByText("cashtocode_default")).toBeVisible();
+  });
+
+  test("should setup and verify braintree connector", async ({ page }) => {
+    const homePage = new HomePage(page);
+    const paymentConnector = new PaymentConnector(page);
+
+    await homePage.connectors.click();
+    await homePage.paymentProcessors.click();
+
+    await paymentConnector.connectorSearchInput.fill("braintree");
+    await paymentConnector.addConnectButton.nth(2).click();
+
+    await page.getByRole('textbox', { name: 'Enter Public Key' }).fill("test_value");
+    await page.getByRole('textbox', { name: 'Enter Merchant Id' }).fill("Username Classic");
+    await page.getByRole('textbox', { name: 'Enter Private Key' }).fill("MerchantId Classic");
+    await page.getByRole('button', { name: 'Select Currency' }).click();
+    await page.locator('div').filter({ hasText: /^AED$/ }).first().click();
+    await page.getByRole('textbox', { name: 'Enter Merchant Account Id' }).fill("Merchant Account Id");
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(page.getByText('CreditSelect all')).toBeVisible();
+    await expect(page.getByText('DebitSelect all')).toBeVisible();
+    await expect(page.getByText('Wallet')).toBeVisible();
+    await paymentConnector.pmtProceedButton.click();
+
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible();
+
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(page).toHaveURL(/.*dashboard\/connectors/);
+    await expect(page.getByText("braintree_default")).toBeVisible();
+  });
+
+  test("should setup and verify klarna connector", async ({ page }) => {
+    const homePage = new HomePage(page);
+    const paymentConnector = new PaymentConnector(page);
+
+    await homePage.connectors.click();
+    await homePage.paymentProcessors.click();
+
+    await paymentConnector.connectorSearchInput.fill("klarna");
+    await paymentConnector.addConnectButton.nth(2).click();
+
+    await page.getByRole('textbox', { name: 'Enter Klarna Merchant ID' }).fill("test_value");
+    await page.getByRole('textbox', { name: 'Enter Klarna Merchant Username' }).fill("Username Classic");
+    await page.getByRole('button', { name: 'Select Value' }).click();
+    await page.locator('div').filter({ hasText: /^Europe$/ }).first().click();
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(page.getByText('Pay LaterSelect allKlarna SDKKlarna Checkout')).toBeVisible();
+    await paymentConnector.pmtProceedButton.click();
+
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible();
+
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(page).toHaveURL(/.*dashboard\/connectors/);
+    await expect(page.getByText("klarna_default")).toBeVisible();
+  });
+
+  test("should setup and verify payload connector", async ({ page }) => {
+    const homePage = new HomePage(page);
+    const paymentConnector = new PaymentConnector(page);
+
+    await homePage.connectors.click();
+    await homePage.paymentProcessors.click();
+
+    await paymentConnector.connectorSearchInput.fill("payload");
+    await paymentConnector.addConnectButton.nth(2).click();
+
+    await page.locator('div').filter({ hasText: /^USD$/ }).first().click();
+    await page.getByRole('textbox', { name: 'Enter API Key' }).fill("test_value");
+    await page.getByRole('textbox', { name: 'Enter Processing Account Id' }).fill("Username Classic");
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(page.getByText('CreditSelect all')).toBeVisible();
+    await expect(page.getByText('DebitSelect all')).toBeVisible();
+    await expect(page.getByText('Bank Debit')).toBeVisible();
+    await paymentConnector.pmtProceedButton.click();
+
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible();
+
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(page).toHaveURL(/.*dashboard\/connectors/);
+    await expect(page.getByText("payload_default")).toBeVisible();
+  });
+
+  test("should setup and verify coinbase connector", async ({ page }) => {
+    const homePage = new HomePage(page);
+    const paymentConnector = new PaymentConnector(page);
+
+    await homePage.connectors.click();
+    await homePage.paymentProcessors.click();
+
+    await paymentConnector.connectorSearchInput.fill("coinbase");
+    await paymentConnector.addConnectButton.nth(2).click();
+
+    await page.getByRole('textbox', { name: 'Enter API Key' }).fill("test_value");
+    await page.getByRole('button', { name: 'Select Value' }).click();
+    await page.locator('div').filter({ hasText: /^fixed_price$/ }).first().click();
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(page.getByText('CryptoSelect allCrypto')).toBeVisible();
+    await paymentConnector.pmtProceedButton.click();
+
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible();
+
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(page).toHaveURL(/.*dashboard\/connectors/);
+    await expect(page.getByText("coinbase_default")).toBeVisible();
+  });
+
+  test("should setup and verify prophetpay connector", async ({ page }) => {
+    const homePage = new HomePage(page);
+    const paymentConnector = new PaymentConnector(page);
+
+    await homePage.connectors.click();
+    await homePage.paymentProcessors.click();
+
+    await paymentConnector.connectorSearchInput.fill("prophetpay");
+    await paymentConnector.addConnectButton.nth(2).click();
+
+    await page.getByRole('textbox', { name: 'Enter Username' }).fill("test_value");
+    await page.getByRole('textbox', { name: 'Enter Token' }).fill("test_value");
+    await page.getByRole('textbox', { name: 'Enter Profile' }).fill("test_value");
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(page.getByText('Card RedirectSelect allCard Redirect')).toBeVisible();
+    await paymentConnector.pmtProceedButton.click();
+
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible();
+
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(page).toHaveURL(/.*dashboard\/connectors/);
+    await expect(page.getByText("prophetpay_default")).toBeVisible();
+  });
+
+  test("should setup and verify worldpayvantiv connector", async ({ page }) => {
+    const homePage = new HomePage(page);
+    const paymentConnector = new PaymentConnector(page);
+
+    await homePage.connectors.click();
+    await homePage.paymentProcessors.click();
+
+    await paymentConnector.connectorSearchInput.fill("worldpayvantiv");
+    await paymentConnector.addConnectButton.nth(2).click();
+
+    await page.getByRole('textbox', { name: 'Enter Username' }).fill("test_value");
+    await page.getByRole('textbox', { name: 'Enter Merchant ID' }).fill("test_value");
+    await page.getByRole('textbox', { name: 'Enter Password' }).fill("test_value");
+    await page.getByRole('button', { name: 'Select Currency' }).click();
+    await page.locator('div').filter({ hasText: /^AED$/ }).first().click();
+    await page.getByRole('textbox', { name: 'Enter Default Report Group' }).fill("test_value");
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(page.getByText('CreditSelect all')).toBeVisible();
+    await expect(page.getByText('DebitSelect all')).toBeVisible();
+    await expect(page.getByText('Wallet')).toBeVisible();
+    await paymentConnector.pmtProceedButton.click();
+
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible();
+
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(page).toHaveURL(/.*dashboard\/connectors/);
+    await expect(page.getByText("worldpayvantiv_default")).toBeVisible();
+  });
+
+  test("should setup and verify paysafe connector", async ({ page }) => {
+    const homePage = new HomePage(page);
+    const paymentConnector = new PaymentConnector(page);
+
+    await homePage.connectors.click();
+    await homePage.paymentProcessors.click();
+
+    await paymentConnector.connectorSearchInput.fill("paysafe");
+    await paymentConnector.addConnectButton.nth(2).click();
+
+    await page.getByRole('textbox', { name: 'Enter Username' }).fill("test_value");
+    await page.getByRole('textbox', { name: 'Enter Password' }).fill("test_value");
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(page.getByText('CreditSelect all')).toBeVisible();
+    await expect(page.getByText('DebitSelect all')).toBeVisible();
+    await expect(page.getByText('Wallet')).toBeVisible();
+    await paymentConnector.pmtProceedButton.click();
+
+    await expect(page.getByText('APPLE PAYUSDEncryptDecrypt')).toBeVisible();
+    await expect(page.getByText('CARDEURThree DsNo Three DsUSDThree DsNo Three Ds')).toBeVisible();
+
+    await page.locator('div').filter({ hasText: /^Encrypt$/ }).click();
+
+    await page.getByRole('textbox', { name: 'Enter encrypt value' }).fill("test_value");
+
+    await paymentConnector.pmtProceedButton.nth(1).click();
+    await paymentConnector.pmtProceedButton.click();
+
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible();
+
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(page).toHaveURL(/.*dashboard\/connectors/);
+    await expect(page.getByText("paysafe_default")).toBeVisible();
+  });
+
+  test("should setup and verify affirm connector", async ({ page }) => {
+    const homePage = new HomePage(page);
+    const paymentConnector = new PaymentConnector(page);
+
+    await homePage.connectors.click();
+    await homePage.paymentProcessors.click();
+
+    await paymentConnector.connectorSearchInput.fill("affirm");
+    await paymentConnector.addConnectButton.nth(2).click();
+
+    await page.getByRole('textbox', { name: 'Enter Public Key' }).fill("test_value");
+    await page.getByRole('textbox', { name: 'Enter Private Key' }).fill("test_value");
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(page.getByText('Pay LaterSelect allAffirm')).toBeVisible();
+    await paymentConnector.pmtProceedButton.click();
+
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible();
+
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(page).toHaveURL(/.*dashboard\/connectors/);
+    await expect(page.getByText("affirm_default")).toBeVisible();
+  });
+
+  test.skip("should setup and verify tokenio connector", async ({ page }) => {
+    const homePage = new HomePage(page);
+    const paymentConnector = new PaymentConnector(page);
+
+    await homePage.connectors.click();
+    await homePage.paymentProcessors.click();
+
+    await paymentConnector.connectorSearchInput.fill("tokenio");
+    await paymentConnector.addConnectButton.nth(2).click();
+
+    await page.getByRole('textbox', { name: 'Enter Key Id' }).fill("test_value");
+    await page.getByRole('textbox', { name: 'Enter Merchant Id' }).fill("test_value");
+    await page.getByRole('textbox', { name: 'Enter Private Key' }).fill("test_value");
+    await page.getByRole('textbox', { name: 'Enter Key Algorithm' }).fill("test_value");
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(page.getByText('Open BankingSelect allOpen Banking PIS')).toBeVisible();
+    await paymentConnector.pmtProceedButton.click();
+
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible();
+
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(page).toHaveURL(/.*dashboard\/connectors/);
+    await expect(page.getByText("tokenio_default")).toBeVisible();
+  });
 });
