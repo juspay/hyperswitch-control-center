@@ -90,7 +90,7 @@ Follow these simple steps to set up Hyperswitch on your local machine.
 A `commit-msg` hook is automatically installed when you run `npm install` (`postinstall` sets `core.hooksPath` to `.githooks` and makes the hook executable). The hook runs on every `git commit` and checks:
 
 - **Formatting** of staged JavaScript, JSON, and YAML files with Prettier.
-- **Formatting** of ReScript files (`*.res`, `*.resi`).
+- **Formatting** of staged ReScript files (`*.res`, `*.resi`).
 - **Conventional commit** message format (`feat:`, `fix:`, `chore:`, `refactor:`, `docs:`, `test:`, `style:`, `enhancement:`, `ci:`).
 
 TypeScript formatting (`*.ts`, `*.tsx`) and ESLint checks run in CI rather than in the hook, to keep local commits fast.
