@@ -9,6 +9,7 @@ module SwitchMerchantBody = {
     open Typography
     let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
     let showToast = ToastAdapter.useShowToast()
+    let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
 
     let switchMerch = async () => {
       try {
