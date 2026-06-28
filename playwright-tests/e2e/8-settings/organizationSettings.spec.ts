@@ -31,20 +31,32 @@ test.describe("Organization Settings - Page & Details", () => {
 
   test("should load the page with heading, subtitle and organization details", async () => {
     await expect(orgSettings.pageHeading).toBeVisible({ timeout: 10000 });
-    await expect(orgSettings.organizationDetailsHeading).toBeVisible({ timeout: 10000 });
+    await expect(orgSettings.organizationDetailsHeading).toBeVisible({
+      timeout: 10000,
+    });
 
-    await expect(orgSettings.organizationIdLabel).toBeVisible({ timeout: 10000 });
+    await expect(orgSettings.organizationIdLabel).toBeVisible({
+      timeout: 10000,
+    });
     await expect(orgSettings.copyOrgIdIcon).toBeVisible({ timeout: 10000 });
     await orgSettings.copyOrgIdIcon.click();
-    await expect(orgSettings.toast("Copied to Clipboard!")).toBeVisible({ timeout: 10000 });
+    await expect(orgSettings.toast("Copied to Clipboard!")).toBeVisible({
+      timeout: 10000,
+    });
 
-    await expect(orgSettings.organizationNameLabel).toBeVisible({ timeout: 10000 });
-    await expect(orgSettings.editOrganizationNameButton).toBeVisible({ timeout: 10000 });
+    await expect(orgSettings.organizationNameLabel).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(orgSettings.editOrganizationNameButton).toBeVisible({
+      timeout: 10000,
+    });
 
     await expect(orgSettings.createPlatformOrganizationCard).toBeVisible();
 
     await expect(orgSettings.learnMoreButton).toBeVisible({ timeout: 10000 });
-    await expect(orgSettings.createPlatformOrganizationButton).toBeVisible({ timeout: 10000 });
+    await expect(orgSettings.createPlatformOrganizationButton).toBeVisible({
+      timeout: 10000,
+    });
 
     await expect(orgSettings.convertToPlatformHeading).toBeVisible();
     await expect(orgSettings.convertToPlatformDescription).toBeVisible();
@@ -61,9 +73,15 @@ test.describe("Organization Settings - Edit Organization Name", () => {
 
   test("should switch the name field to an editable input on edit", async () => {
     await orgSettings.editOrganizationNameButton.click();
-    await expect(orgSettings.organizationNameInput).toBeVisible({ timeout: 10000 });
-    await expect(orgSettings.saveOrganizationNameButton).toBeVisible({ timeout: 10000 });
-    await expect(orgSettings.cancelOrganizationNameButton).toBeVisible({ timeout: 10000 });
+    await expect(orgSettings.organizationNameInput).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(orgSettings.saveOrganizationNameButton).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(orgSettings.cancelOrganizationNameButton).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test("should discard changes and exit edit mode on cancel", async ({
@@ -74,8 +92,12 @@ test.describe("Organization Settings - Edit Organization Name", () => {
     await orgSettings.cancelOrganizationNameButton.click();
 
     await expect(orgSettings.organizationNameInput).toBeHidden();
-    await expect(orgSettings.editOrganizationNameButton).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText("Discarded Name 123", { exact: true })).toBeHidden();
+    await expect(orgSettings.editOrganizationNameButton).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(
+      page.getByText("Discarded Name 123", { exact: true }),
+    ).toBeHidden();
   });
 
   test("should block a name with invalid formatss", async () => {
@@ -102,11 +124,16 @@ test.describe("Organization Settings - Edit Organization Name", () => {
     await orgSettings.organizationNameInput.fill(newName);
     await orgSettings.saveOrganizationNameButton.click();
 
-    await expect(orgSettings.toast("Updated organization name!")).toBeVisible({ timeout: 10000 });
+    await expect(orgSettings.toast("Updated organization name!")).toBeVisible({
+      timeout: 10000,
+    });
     // The name also renders (collapsed/hidden) in the sidebar org switcher, so
     // scope to the visible Organization Details field.
     await expect(
-      page.getByText(newName, { exact: true }).filter({ visible: true }).first(),
+      page
+        .getByText(newName, { exact: true })
+        .filter({ visible: true })
+        .first(),
     ).toBeVisible({ timeout: 10000 });
   });
 
@@ -130,7 +157,9 @@ test.describe("Organization Settings - Edit Organization Name", () => {
     await orgSettings.organizationNameInput.fill(`Org ${Date.now()}`);
     await orgSettings.saveOrganizationNameButton.click();
 
-    await expect(orgSettings.toast("Failed to update organization name!")).toBeVisible({ timeout: 10000 });
+    await expect(
+      orgSettings.toast("Failed to update organization name!"),
+    ).toBeVisible({ timeout: 10000 });
   });
 });
 
@@ -143,15 +172,21 @@ test.describe("Organization Settings - Platform Organization", () => {
 
   test("should open the About Platform Organizations info modal", async () => {
     await orgSettings.learnMoreButton.click();
-    await expect(orgSettings.aboutPlatformHeading).toBeVisible({ timeout: 10000 });
+    await expect(orgSettings.aboutPlatformHeading).toBeVisible({
+      timeout: 10000,
+    });
   });
 
-  test("should open the Create Platform Organization modal with a name input", async ({ page }) => {
+  test("should open the Create Platform Organization modal with a name input", async ({
+    page,
+  }) => {
     await orgSettings.createPlatformOrganizationButton.click();
-    await expect(page.getByText('Create New Platform').nth(1)).toBeVisible();
-    await expect(page.getByText('Organization Name *')).toBeVisible();
+    await expect(page.getByText("Create New Platform").nth(1)).toBeVisible();
+    await expect(page.getByText("Organization Name *")).toBeVisible();
     await expect(orgSettings.platformNameInput).toBeVisible({ timeout: 10000 });
-    await expect(orgSettings.createPlatformSubmitButton).toBeVisible({ timeout: 10000 });
+    await expect(orgSettings.createPlatformSubmitButton).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test("should reject a platform organization name with special characters", async () => {
@@ -182,7 +217,9 @@ test.describe("Organization Settings - Platform Organization", () => {
     await orgSettings.platformNameInput.fill("My Platform Org 123");
     await orgSettings.createPlatformSubmitButton.click();
 
-    await expect(orgSettings.toast("Platform Organization Created Successfully!")).toBeVisible({ timeout: 10000 });
+    await expect(
+      orgSettings.toast("Platform Organization Created Successfully!"),
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test("should show an error toast when platform creation fails", async ({
@@ -201,7 +238,8 @@ test.describe("Organization Settings - Platform Organization", () => {
     await orgSettings.platformNameInput.fill("My Platform Org 123");
     await orgSettings.createPlatformSubmitButton.click();
 
-    await expect(orgSettings.toast("Platform Organization Creation Failed")).toBeVisible({ timeout: 10000 });
+    await expect(
+      orgSettings.toast("Platform Organization Creation Failed"),
+    ).toBeVisible({ timeout: 10000 });
   });
 });
-

@@ -57,7 +57,10 @@ export class APISettings {
   }
 
   get yesDeleteItButton(): Locator {
-    return this.page.getByRole("button", { name: "Yes, delete it", exact: true });
+    return this.page.getByRole("button", {
+      name: "Yes, delete it",
+      exact: true,
+    });
   }
 
   // Modal Headings
@@ -115,9 +118,12 @@ export class APISettings {
   }
 
   get descriptionTooLongError(): Locator {
-    return this.page.getByText("Description can't be more than 256 characters", {
-      exact: true,
-    });
+    return this.page.getByText(
+      "Description can't be more than 256 characters",
+      {
+        exact: true,
+      },
+    );
   }
 
   get descriptionRequiredErrorExact(): Locator {
@@ -161,7 +167,10 @@ export class APISettings {
     await this.createNewApiKeyButton.click();
   }
 
-  async fillNameAndDescription(name: string, description: string): Promise<void> {
+  async fillNameAndDescription(
+    name: string,
+    description: string,
+  ): Promise<void> {
     await this.nameInput.fill(name);
     await this.descriptionInput.fill(description);
   }

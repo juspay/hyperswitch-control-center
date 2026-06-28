@@ -141,6 +141,7 @@ type processorTypes =
   | FISERVCOMMERCEHUB
   | TRUSTLY
   | IMERCHANTSOLUTIONS
+  | PAYCONEX
 
 type payoutProcessorTypes =
   | ADYEN
@@ -236,6 +237,7 @@ type paymentMethodTypes =
   | AmazonPay
   | Pix
   | PixEmv
+  | PixQr
   | PixAutomaticoQr
   | PixAutomaticoPush
   | Boleto

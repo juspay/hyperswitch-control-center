@@ -14,7 +14,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
   let fetchConnectorList = ConnectorListHook.useFetchConnectorList()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let getURL = useGetURL()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   let connectorDetails = React.useMemo(() => {
     try {

@@ -18,7 +18,7 @@ let make = () => {
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
   let (screenState, setScreenState) = React.useState(_ => Success)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   let connectorInfo = initialValues->LogicUtils.getDictFromJsonObject
   let connectorInfoDict = ConnectorInterface.mapDictToTypedConnectorPayload(

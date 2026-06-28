@@ -8,8 +8,7 @@ module SwitchMerchantBody = {
   ) => {
     open Typography
     let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
-    let showToast = ToastState.useShowToast()
-    let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+    let showToast = ToastAdapter.useShowToast()
 
     let switchMerch = async () => {
       try {
@@ -46,7 +45,7 @@ module SelectMerchantBody = {
     open Typography
     open LogicUtils
     let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let merchantDetailsTypedValue =
       HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom
     let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
@@ -147,9 +146,9 @@ module SelectMerchantBody = {
             {"Select the appropriate merchant from the list of IDs created for this module."->React.string}
           </span>
           <div className="py-4">
-            <FormRenderer.DesktopRow>
+            <FormRenderer.DesktopRow itemWrapperClass="mx-4 min-w-0">
               <FormRenderer.FieldRenderer
-                fieldWrapperClass="w-full"
+                fieldWrapperClass="w-full min-w-0"
                 field={merchantName}
                 showErrorOnChange=true
                 errorClass={ProdVerifyModalUtils.errorClass}
@@ -177,7 +176,7 @@ module CreateNewMerchantBody = {
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
     let merchantDetailsTypedValue =
       HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom

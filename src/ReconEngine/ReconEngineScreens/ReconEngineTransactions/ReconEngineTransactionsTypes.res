@@ -1,3 +1,8 @@
+type transactionFlowType =
+  | InFlow
+  | OutFlow
+  | UnknownTransactionFlowType
+
 type entriesMetadataKeysToExclude = Amount | Currency
 
 type accountGroup = {

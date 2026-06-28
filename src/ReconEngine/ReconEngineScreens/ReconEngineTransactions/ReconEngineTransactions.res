@@ -4,14 +4,18 @@ open Typography
 let make = () => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let (accountData, setAccountData) = React.useState(_ => [])
+  let (reconRulesList, setReconRulesList) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let getAccounts = ReconEngineHooks.useGetAccounts()
+  let getReconRuleList = ReconEngineHooks.useGetReconRuleList()
 
   let getAccountsData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let accountData = await getAccounts()
+      let reconRulesList = await getReconRuleList()
       setAccountData(_ => accountData)
+      setReconRulesList(_ => reconRulesList)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -32,11 +36,11 @@ let make = () => {
           <FilterContext
             key={`recon-engine-transaction-${account.account_id}`}
             index={`recon-engine-transaction-${account.account_id}`}>
-            <ReconEngineTransactionsContent account />
+            <ReconEngineTransactionsContent account accountData reconRulesList />
           </FilterContext>,
       }
     })
-  }, [accountData])
+  }, (accountData, reconRulesList))
 
   <div className="flex flex-col gap-4 w-full">
     <div className="flex flex-row justify-between items-center">

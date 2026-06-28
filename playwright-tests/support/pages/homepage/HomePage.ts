@@ -8,7 +8,7 @@ export class HomePage {
   }
 
   get enterMerchantName(): Locator {
-    return this.page.getByRole('textbox', { name: 'Eg: HyperSwitch Pvt Ltd' });
+    return this.page.getByRole("textbox", { name: "Eg: HyperSwitch Pvt Ltd" });
   }
 
   get onboardingSubmitButton(): Locator {
@@ -74,9 +74,11 @@ export class HomePage {
   }
 
   get integrateConnectorCard(): Locator {
-    return this.page.locator(
-      '[class="relative bg-white  border p-6 rounded flex flex-col justify-between flex-1 rounded-xl p-6 gap-4"]',
-    ).first();
+    return this.page
+      .locator(
+        '[class="relative bg-white  border p-6 rounded flex flex-col justify-between flex-1 rounded-xl p-6 gap-4"]',
+      )
+      .first();
   }
 
   get demoCheckoutCard(): Locator {
@@ -240,7 +242,7 @@ export class HomePage {
   }
 
   get userProfile(): Locator {
-    return this.page.getByRole('button', { name: 'Profile' });
+    return this.page.getByRole("button", { name: "Profile" });
   }
 
   get signOut(): Locator {
@@ -249,7 +251,7 @@ export class HomePage {
 
   get welcomeText(): Locator {
     return this.page.getByText(
-      "Welcome to the home of your Payments Control Center. It aims to provide your team with a 360-degree view of payments.",
+      "Welcome to your Payments Control Center — one place for your team to track and manage every payment",
     );
   }
 
@@ -324,15 +326,17 @@ export class HomePage {
   }
 
   get sdkErrorToast(): Locator {
-    return this.page.getByText("Something went wrong. Please try again");
+    return this.page.getByTestId('paymentStatus');
   }
 
   get sdkIframe(): Locator {
-    return this.page.locator('iframe[name="orca-payment-element-iframeRef-orca-elements-payment-element-payment-element"]');
+    return this.page.locator(
+      'iframe[name="orca-payment-element-iframeRef-orca-elements-payment-element-payment-element"]',
+    );
   }
 
   get sdkCardButton(): Locator {
-    return this.sdkIframe.contentFrame().getByRole('button', { name: 'Card' });
+    return this.sdkIframe.contentFrame().getByRole("button", { name: "Card" });
   }
 
   get sdkCardNoInput(): Locator {
@@ -356,11 +360,11 @@ export class HomePage {
   }
 
   get goToPaymentOperationsButton(): Locator {
-    return this.page.getByRole('button', { name: 'Go to Payment Operations' });
+    return this.page.getByRole("button", { name: "Go to Payment Operations" });
   }
 
   payButtonByCurrency(currency: string): Locator {
-    return this.page.getByRole('button', { name: `Pay ${currency}` });
+    return this.page.getByRole("button", { name: `Pay ${currency}` });
   }
 
   async waitForSdkCardForm(): Promise<void> {
@@ -621,7 +625,9 @@ export class HomePage {
   }
 
   get globalSearchValidationError(): Locator {
-    return this.page.getByText("Only one free-text search is allowed and additional text will be ignored.");
+    return this.page.getByText(
+      "Only one free-text search is allowed and additional text will be ignored.",
+    );
   }
 
   get globalSearchShowAllResults(): Locator {
