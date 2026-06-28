@@ -16,6 +16,7 @@ import path from "path";
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000";
 const API_URL = process.env.HYPERSWITCH_API_URL || "http://localhost:8080";
 const MAIL_URL = process.env.PLAYWRIGHT_MAIL_URL || "http://localhost:8025";
+const ADMIN_API_KEY = process.env.HYPERSWITCH_ADMIN_API_KEY || "test_admin";
 
 export async function signupUser(
   email: string,
@@ -27,7 +28,7 @@ export async function signupUser(
   const response = await ctx.post(`${API_URL}/user/signup_with_merchant_id`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": "test_admin",
+      "api-key": ADMIN_API_KEY,
     },
     data: {
       email,
@@ -52,7 +53,7 @@ export async function loginUser(
   const response = await ctx.post(`${API_URL}/user/v2/signin`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": "test_admin",
+      "api-key": ADMIN_API_KEY,
     },
     data: { email, password },
   });
@@ -71,7 +72,7 @@ export async function loginUser(
     const skipResponse = await ctx.post(`${API_URL}/user/v2/2fa/skip`, {
       headers: {
         "Content-Type": "application/json",
-        "api-key": "test_admin",
+        "api-key": ADMIN_API_KEY,
         Authorization: `Bearer ${body.interim_token ?? body.token}`,
       },
     });
@@ -100,7 +101,7 @@ export async function createAPIKey(
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        "api-key": "test_admin",
+        "api-key": ADMIN_API_KEY,
       },
       data: {
         name: "API Key 1",
@@ -288,7 +289,7 @@ export async function createMerchantAPI(
     const response = await ctx.post(`${API_URL}/user/create_merchant`, {
       headers: {
         "Content-Type": "application/json",
-        "api-key": "test_admin",
+        "api-key": ADMIN_API_KEY,
         Authorization: `Bearer ${token}`,
       },
       data: {
@@ -1053,7 +1054,7 @@ export async function signupAPI(
   const response = await ctx.post(`${API_URL}/user/signup_with_merchant_id`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": "test_admin",
+      "api-key": ADMIN_API_KEY,
     },
     data: {
       email: username,
@@ -1081,7 +1082,7 @@ export async function loginAPI(
   const response = await ctx.post(`${API_URL}/user/v2/signin`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": "test_admin",
+      "api-key": ADMIN_API_KEY,
     },
     data: { email: username, password },
   });
@@ -1473,7 +1474,7 @@ export async function createAuth(
   const response = await ctx.post(`${API_URL}/user/auth`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": "test_admin",
+      "api-key": ADMIN_API_KEY,
     },
     data: {
       owner_id: ownerId,

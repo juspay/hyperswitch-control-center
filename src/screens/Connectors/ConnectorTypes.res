@@ -237,6 +237,7 @@ type paymentMethodTypes =
   | AmazonPay
   | Pix
   | PixEmv
+  | PixQr
   | PixAutomaticoQr
   | PixAutomaticoPush
   | Boleto
