@@ -28,7 +28,9 @@ export class PaymentRouting {
   }
 
   get noConnectorsMessage(): Locator {
-    return this.page.getByText('No Processor FoundPlease connect at least 1 processor in order to create a rule.');
+    return this.page.getByText(
+      "No Processor FoundPlease connect at least 1 processor in order to create a rule.",
+    );
   }
 
   get noConnectorsMessageLarge(): Locator {

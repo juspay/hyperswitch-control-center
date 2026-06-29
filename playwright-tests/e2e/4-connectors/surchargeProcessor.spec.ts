@@ -3,10 +3,7 @@ import type { Page, BrowserContext } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { SurchargeProcessor } from "../../support/pages/connector/SurchargeProcessor";
 import { generateUniqueEmail } from "../../support/helper";
-import {
-  signupUser,
-  loginUI,
-} from "../../support/commands";
+import { signupUser, loginUI } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
@@ -54,6 +51,6 @@ test.describe("Surcharge Processor", () => {
 
     await surchargeProcessor.connectAndProceedButton.click();
     await surchargeProcessor.doneButton.click();
-    await expect(page.getByTestId('interpayments_default')).toBeVisible();
+    await expect(page.getByTestId("interpayments_default")).toBeVisible();
   });
 });

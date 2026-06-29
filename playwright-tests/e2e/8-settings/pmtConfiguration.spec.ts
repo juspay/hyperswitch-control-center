@@ -259,7 +259,9 @@ test.describe("Configure PMTs - Configured Connector", () => {
     await expect(configurePMT.columnHeader("Connector Label")).toBeVisible({
       timeout: 10000,
     });
-    await expect(configurePMT.columnHeader("Merchant Connector ID")).toBeVisible({
+    await expect(
+      configurePMT.columnHeader("Merchant Connector ID"),
+    ).toBeVisible({
       timeout: 10000,
     });
     await expect(configurePMT.columnHeader("Payment Method Type")).toBeVisible({

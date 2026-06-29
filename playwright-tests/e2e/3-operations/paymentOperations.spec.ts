@@ -585,9 +585,7 @@ test.describe("Payment Operations", () => {
           attempt_count: attemptCounts[item.payment_id] ?? item.attempt_count,
         }));
 
-        const order = postData?.order as
-          | { on: string; by: string }
-          | undefined;
+        const order = postData?.order as { on: string; by: string } | undefined;
         if (order?.on === "attempt_count") {
           patched.sort((a, b) => {
             const diff =
@@ -606,7 +604,9 @@ test.describe("Payment Operations", () => {
       await expect(paymentOperations.saveButton).toContainText("Save");
       await paymentOperations.saveButton.click();
 
-      await expect(paymentOperations.tableHeading("Attempt Count")).toBeVisible();
+      await expect(
+        paymentOperations.tableHeading("Attempt Count"),
+      ).toBeVisible();
 
       const attemptCountCol = await getColumnIndex(
         paymentOperations,
@@ -621,35 +621,35 @@ test.describe("Payment Operations", () => {
       await expect(sortUp).toBeVisible();
       await sortUp.click();
       await page.waitForLoadState("networkidle");
-      await expect(paymentOperations.orderCell(1, attemptCountCol)).toContainText(
-        "3",
-      );
-      await expect(paymentOperations.orderCell(3, attemptCountCol)).toContainText(
-        "1",
-      );
+      await expect(
+        paymentOperations.orderCell(1, attemptCountCol),
+      ).toContainText("3");
+      await expect(
+        paymentOperations.orderCell(3, attemptCountCol),
+      ).toContainText("1");
 
       // Second click: DEC -> INC (ascending). 1 attempt first.
       await expect(sortDown).toBeVisible();
       await sortDown.click();
       await page.waitForLoadState("networkidle");
       await page.waitForTimeout(3000);
-      await expect(paymentOperations.orderCell(1, attemptCountCol)).toContainText(
-        "1",
-      );
-      await expect(paymentOperations.orderCell(3, attemptCountCol)).toContainText(
-        "3",
-      );
+      await expect(
+        paymentOperations.orderCell(1, attemptCountCol),
+      ).toContainText("1");
+      await expect(
+        paymentOperations.orderCell(3, attemptCountCol),
+      ).toContainText("3");
 
       // Third click: INC -> DEC (descending).
       await expect(sortUp).toBeVisible();
       await sortUp.click();
       await page.waitForLoadState("networkidle");
-      await expect(paymentOperations.orderCell(1, attemptCountCol)).toContainText(
-        "3",
-      );
-      await expect(paymentOperations.orderCell(3, attemptCountCol)).toContainText(
-        "1",
-      );
+      await expect(
+        paymentOperations.orderCell(1, attemptCountCol),
+      ).toContainText("3");
+      await expect(
+        paymentOperations.orderCell(3, attemptCountCol),
+      ).toContainText("1");
     });
   });
 

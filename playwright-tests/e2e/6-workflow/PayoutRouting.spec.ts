@@ -285,7 +285,7 @@ test.describe("Rule based payout routing", () => {
     await homePage.payoutRouting.click();
     await payoutRouting.ruleBasedRoutingSetupButton.click();
 
-    await expect(page.getByText('Please configure at least 1')).toContainText(
+    await expect(page.getByText("Please configure at least 1")).toContainText(
       "Please configure at least 1 connector",
     );
   });
