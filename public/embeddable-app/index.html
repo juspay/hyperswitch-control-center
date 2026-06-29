@@ -197,6 +197,19 @@
       .clickable {
         cursor: pointer;
       }
+
+      /* TODO: to be removed once Blend introduces height/collision handling on the DateRangePicker calendar popover */
+      [data-popover]:has([data-calendar-date-today]) {
+        max-height: var(--radix-popper-available-height);
+        overflow-y: auto;
+      }
+
+      /* TODO: to be removed once Blend allows the toast/snackbar header to wrap instead of truncating */
+      [data-snackbar] [data-element="header"] {
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+      }
     </style>
     <link rel="stylesheet" href="app.css" />
   </head>

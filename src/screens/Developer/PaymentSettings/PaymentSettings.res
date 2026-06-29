@@ -548,7 +548,7 @@ module CollectDetails = {
               {subTitle->React.string}
             </p>
           </div>
-          <BoolInput.BaseComponent
+          <SwitchAdapter
             isSelected
             setIsSelected={_ => setIsSelected(val => !val)}
             isDisabled=false
@@ -754,7 +754,7 @@ module Vault = {
                     form.change("external_vault_connector_details", JSON.Encode.null)
                   }
                 }
-                <BoolInput.BaseComponent
+                <SwitchAdapter
                   isSelected={currentValue}
                   setIsSelected={handleChange}
                   isDisabled=false

@@ -301,15 +301,16 @@ let make = (
     {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
       {<>
         <div className="mb-4"> {customLeftView} </div>
-        <div className="flex lg:flex-row flex-col justify-between items-center gap-4 mb-2">
-          <div className="flex gap-2 flex-wrap items-center">
+        <div
+          className="flex lg:flex-row flex-col flex-wrap justify-between items-center gap-4 mb-2">
+          <div className="flex gap-2 flex-wrap items-center min-w-0">
             <RenderIf condition={allFilters->Array.length > 0}> {allFiltersUI} </RenderIf>
             {customFilterActions}
             <RenderIf condition={isSmallScreen}>
               <PortalCapture key={`${title}OMPView`} name={`${title}OMPView`} />
             </RenderIf>
           </div>
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center flex-wrap justify-end min-w-0">
             <RenderIf condition={fixedFilters->Array.length > 0}>
               <FormRenderer.FieldsRenderer
                 fields={fixedFilters->Array.map(item => item.field)}

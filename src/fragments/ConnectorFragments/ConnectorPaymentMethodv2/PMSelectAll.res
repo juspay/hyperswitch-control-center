@@ -136,7 +136,7 @@ module PMSelectAll = {
     }, [lengthoFPMSubTypes])
     <div className="flex gap-2 items-center">
       <p className="font-normal"> {"Select All"->React.string} </p>
-      <BoolInput.BaseComponent
+      <SwitchAdapter
         isSelected={isSelectedAll}
         setIsSelected={isSelectedAll => onClickSelectAll(isSelectedAll)}
         isDisabled={false}
