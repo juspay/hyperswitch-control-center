@@ -15,6 +15,7 @@ import {
   createAPIKey,
   createStripeConnectorAPIwithAPIKey,
   getDefaultProfileId,
+  generateCerts,
 } from "../../support/commands";
 import { connectorConfig } from "../../support/fixtures/payinConnectorConfig";
 import { exec } from "node:child_process";
@@ -1517,6 +1518,94 @@ test.describe("All Payin Connectors", () => {
 
     await expect(page).toHaveURL(/.*dashboard\/connectors/);
     await expect(page.getByText("affirm_default")).toBeVisible();
+  });
+
+  test("should setup and verify santander connector", async ({ page }) => {
+    const { certBase64, keyBase64 } = await generateCerts();
+    const homePage = new HomePage(page);
+    const paymentConnector = new PaymentConnector(page);
+
+    await homePage.connectors.click();
+    await homePage.paymentProcessors.click();
+
+    await paymentConnector.connectorSearchInput.fill("santander");
+    await paymentConnector.addConnectButton.nth(2).click();
+
+    await page.getByRole('textbox', { name: 'Base64 encoded PEM formatted certificate chain' }).fill(certBase64);
+    await page.getByRole('textbox', { name: 'Base64 encoded PEM formatted private key' }).fill(keyBase64);
+
+    await paymentConnector.connectAndProceedButton.click();
+
+    await expect(page.getByText('Bank TransferThe following payment method types require additional detailsPix EmvPix Automatico PushPix Automatico Qr')).toBeVisible();
+    await expect(page.getByText('VoucherThe following payment method types require additional detailsBoleto')).toBeVisible();
+
+    await page.locator('div').filter({ hasText: /^Pix Emv$/ }).nth(1).click();
+    await expect(page.getByText('Client ID *').first()).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Enter your Client Id' })).toBeVisible();
+    await expect(page.getByText('Client Secret *').first()).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Enter your Client Secret' })).toBeVisible();
+    await expect(page.getByText('Chave Key Type *').first()).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Select Value' })).toBeVisible();
+    await page.getByRole('button', { name: 'Select Value' }).click();
+    await expect(page.locator('div').filter({ hasText: /^CPFCNPJEMAILCELLULAREVP$/ }).nth(1)).toBeVisible();
+    await expect(page.getByText('Chave Key *').first()).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Enter your Chave/Pix Key' })).toBeVisible();
+    await expect(page.getByText('Merchant City *').first()).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Enter the city the merchant' })).toBeVisible();
+    await expect(page.getByText('Merchant Name *').nth(2)).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Enter the merchant name' })).toBeVisible();
+    await expect(page.getByText('CancelContinue').first()).toBeVisible();
+
+    await page.locator('div').filter({ hasText: /^Pix Automatico Push$/ }).nth(1).click();
+    await expect(page.getByText('Client ID *').nth(1)).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Enter your Client Id' })).toBeVisible();
+    await expect(page.getByText('Client Secret *').nth(1)).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Enter your Client Secret' })).toBeVisible();
+    await expect(page.getByText('Chave Key Type *').nth(1)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Select Value' }).first()).toBeVisible();
+    await page.getByRole('button', { name: 'Select Value' }).first().click();
+    await expect(page.locator('div').filter({ hasText: /^CPFCNPJEMAILCELLULAREVP$/ }).nth(1)).toBeVisible();
+    await expect(page.getByText('Chave Key *').nth(1)).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Enter your Chave/Pix Key' })).toBeVisible();
+    await expect(page.getByText('Account Number').nth(1)).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Enter your Account Number' })).toBeVisible();
+    await expect(page.getByText('Account Type').nth(1)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Select Value' }).nth(1)).toBeVisible();
+    await page.getByRole('button', { name: 'Select Value' }).nth(1).click();
+    await expect(page.locator('div').filter({ hasText: /^currentsavingspayment$/ }).nth(1)).toBeVisible();
+    await expect(page.getByText('Branch Code').nth(1)).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Enter your branch code' })).toBeVisible();
+    await expect(page.getByText('CancelContinue').nth(1)).toBeVisible();
+
+    await page.locator('div').filter({ hasText: /^Pix Automatico Qr$/ }).nth(1).click();
+    await expect(page.getByText('Client ID *').nth(2)).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Enter your Client Id' })).toBeVisible();
+    await expect(page.getByText('Client Secret *').nth(2)).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Enter your Client Secret' })).toBeVisible();
+    await expect(page.getByText('Chave Key Type *').nth(2)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Select Value' }).first()).toBeVisible();
+    await page.getByRole('button', { name: 'Select Value' }).first().click();
+    await expect(page.locator('div').filter({ hasText: /^CPFCNPJEMAILCELLULAREVP$/ }).nth(2)).toBeVisible();
+    await expect(page.getByText('Chave Key *').nth(2)).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Enter your Chave/Pix Key' })).toBeVisible();
+    await expect(page.getByText('Account Number').nth(2)).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Enter your Account Number' })).toBeVisible();
+    await expect(page.getByText('Account Type').nth(2)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Select Value' }).nth(1)).toBeVisible();
+    await page.getByRole('button', { name: 'Select Value' }).nth(1).click();
+    await expect(page.locator('div').filter({ hasText: /^currentsavingspayment$/ }).nth(2)).toBeVisible();
+    await expect(page.getByText('Branch Code').nth(2)).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Enter your branch code' })).toBeVisible();
+    await expect(page.getByText('CancelContinue').nth(2)).toBeVisible();
+
+    await paymentConnector.pmtProceedButton.click();
+
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible();
+
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(page).toHaveURL(/.*dashboard\/connectors/);
+    await expect(page.getByText("santander_default")).toBeVisible();
   });
 
   test.skip("should setup and verify tokenio connector", async ({ page }) => {

@@ -3533,4 +3533,38 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
       },
     },
   },
+
+  payconex: {
+    label: "payconex",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "payconex_default",
+      },
+      fieldLabels: [
+        "API Key *",
+        "Account ID *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Visa",
+          "Mastercard",
+          "AmericanExpress",
+          "Discover",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Visa",
+          "Mastercard",
+          "AmericanExpress",
+          "Discover",
+        ],
+      },
+    },
+  },
 };
