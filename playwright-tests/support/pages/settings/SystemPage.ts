@@ -19,7 +19,9 @@ export class SystemPage {
 
   // Surfaced by PageLoaderWrapper when setUpDashboard's API calls reject.
   get dashboardSetupError(): Locator {
-    return this.page.getByText("Failed to setup dashboard!", { exact: true }).first();
+    return this.page
+      .getByText("Failed to setup dashboard!", { exact: true })
+      .first();
   }
 
   async navigateToHome(): Promise<void> {

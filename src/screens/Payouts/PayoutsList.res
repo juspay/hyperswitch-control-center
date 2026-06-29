@@ -62,7 +62,7 @@ let make = () => {
 
       filters
       ->getPayoutsList(
-        ~updateDetails,
+        ~updateDetails=(url, body, method) => updateDetails(url, body, method),
         ~setPayoutsData,
         ~setScreenState,
         ~offset,

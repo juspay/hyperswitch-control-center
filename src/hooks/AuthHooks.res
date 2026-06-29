@@ -99,6 +99,7 @@ let useApiFetcher = () => {
       ~profileId="",
       ~version=UserInfoTypes.V1,
       ~isEmbeddableSession=false,
+      ~signal=?,
     ) => {
       let token = {
         if isEmbeddableSession {
@@ -147,6 +148,7 @@ let useApiFetcher = () => {
               ~profileId,
               ~version,
             ),
+            ~signal?, // to be used in case of aborting requests
           ),
         )
         ->catch(

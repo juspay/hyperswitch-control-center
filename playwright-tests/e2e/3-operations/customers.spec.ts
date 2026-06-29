@@ -136,13 +136,11 @@ test.describe("Customers page", () => {
     const rowCount = await table.count().catch(() => 0);
     expect(hasEmpty || rowCount === 0).toBeTruthy();
 
-    await expect(
-      paymentOperations.dateSelector,
-    ).toBeVisible();
+    await expect(paymentOperations.dateSelector).toBeVisible();
 
     await expect(customerOperations.searchInput).toBeVisible();
 
-    await expect(page.getByRole('button').nth(3)).not.toBeAttached();
+    await expect(page.getByRole("button").nth(3)).not.toBeAttached();
   });
 
   test("should navigate to customer list page after creating a payment", async ({
@@ -199,10 +197,7 @@ test.describe("Customers page", () => {
     }
   });
 
-  test("should validate customer details page", async ({
-    page,
-    context,
-  }) => {
+  test("should validate customer details page", async ({ page, context }) => {
     const homePage = new HomePage(page);
 
     const paymentOperations = new PaymentOperations(page);
@@ -216,7 +211,7 @@ test.describe("Customers page", () => {
     await homePage.operations.click();
     await homePage.customers.click();
 
-    await page.getByText('1', { exact: true }).click();
+    await page.getByText("1", { exact: true }).click();
 
     await expect(page).toHaveURL(/.*dashboard\/customers\/test_customer/);
 
@@ -225,9 +220,7 @@ test.describe("Customers page", () => {
     await expect(
       page.getByRole("link", { name: "Navigate to Customers" }),
     ).toBeVisible();
-    await expect(
-      page.getByLabel("Current page: test_customer"),
-    ).toBeVisible();
+    await expect(page.getByLabel("Current page: test_customer")).toBeVisible();
 
     await expect(page.getByText("Summary")).toBeVisible();
 
@@ -244,8 +237,12 @@ test.describe("Customers page", () => {
     for (const field of summaryFields) {
       const container = paymentOperations.dataLabel(field.label);
       await expect(container).toBeVisible();
-      await expect(container.getByText(field.label, { exact: true })).toBeVisible();
-      await expect(container.getByText(field.value, { exact: true })).toBeVisible();
+      await expect(
+        container.getByText(field.label, { exact: true }),
+      ).toBeVisible();
+      await expect(
+        container.getByText(field.value, { exact: true }),
+      ).toBeVisible();
     }
 
     await expect(paymentOperations.dataLabel("Created")).toBeVisible();
@@ -278,14 +275,16 @@ test.describe("Customers page", () => {
     await searchInput.fill("test_customer");
     await searchInput.press("Enter");
 
-    await expect(customerOperations.customerCell(1, 2)).toContainText("test_customer");
+    await expect(customerOperations.customerCell(1, 2)).toContainText(
+      "test_customer",
+    );
     await expect(customerOperations.customerCell(2, 2)).toHaveCount(0);
-    await expect(page.getByText('test_customer2')).not.toBeAttached();
+    await expect(page.getByText("test_customer2")).not.toBeAttached();
   });
 
   test("should show empty state on non-existent customer search", async ({
     page,
-    context
+    context,
   }) => {
     const homePage = new HomePage(page);
 
@@ -301,7 +300,7 @@ test.describe("Customers page", () => {
     await homePage.operations.click();
     await homePage.customers.click();
 
-    await expect(page.getByText('test_customer2')).toBeVisible();
+    await expect(page.getByText("test_customer2")).toBeVisible();
 
     const searchInput = customerOperations.genericSearchInput;
 
@@ -318,8 +317,8 @@ test.describe("Customers page", () => {
 
     await expect(paymentOperations.dateSelector).toBeVisible();
     await expect(customerOperations.searchInput).toBeVisible();
-    await expect(page.getByRole('button').nth(3)).not.toBeAttached();
-    await expect(page.getByText('test_customer2')).not.toBeVisible();
+    await expect(page.getByRole("button").nth(3)).not.toBeAttached();
+    await expect(page.getByText("test_customer2")).not.toBeVisible();
   });
 
   test("should toggle columns from the column toggler", async ({
@@ -339,16 +338,16 @@ test.describe("Customers page", () => {
     await homePage.customers.click();
 
     //Default order
-    const tableHeadings = page.locator('[data-table-heading]');
+    const tableHeadings = page.locator("[data-table-heading]");
     await expect(tableHeadings).toHaveText([
-      'S.No',
-      'Customer ID',
-      'Customer Name',
-      'Email',
-      'Phone Country Code',
-      'Phone',
-      'Description',
-      'Created',
+      "S.No",
+      "Customer ID",
+      "Customer Name",
+      "Email",
+      "Phone Country Code",
+      "Phone",
+      "Description",
+      "Created",
     ]);
 
     //logic to change order drag column up and down
@@ -442,18 +441,17 @@ test.describe("Customers page", () => {
     //Updated order
     await expect(tableHeadings).toHaveText(
       [
-        'S.No',
-        'Customer ID',
-        'Email',
-        'Customer Name',
-        'Created',
-        'Phone Country Code',
-        'Phone',
-        'Description',
+        "S.No",
+        "Customer ID",
+        "Email",
+        "Customer Name",
+        "Created",
+        "Phone Country Code",
+        "Phone",
+        "Description",
       ],
       { timeout: 15000 },
     );
-
   });
 
   test("should paginate through customer pages", async ({ page, context }) => {
@@ -483,13 +481,11 @@ test.describe("Customers page", () => {
 
     await page.getByRole("button", { name: "2", exact: true }).click();
 
-    await expect(
-      customerOperations.customerCell(1, 2),
-    ).not.toHaveText(firstPageFirstId ?? "");
-    await expect(
-      customerOperations.customerCell(1, 2),
-    ).toBeVisible();
-    await expect(page.getByText('Showing 22')).toBeVisible();
+    await expect(customerOperations.customerCell(1, 2)).not.toHaveText(
+      firstPageFirstId ?? "",
+    );
+    await expect(customerOperations.customerCell(1, 2)).toBeVisible();
+    await expect(page.getByText("Showing 22")).toBeVisible();
   });
 
   test("should display related payments and refunds for a customer with many related records", async ({
@@ -518,15 +514,10 @@ test.describe("Customers page", () => {
 
     // Related sub-resource sections. Scope to the detail panel so the section
     // headers don't collide with the Operations sidebar links.
-    const detailContent = page
-      .locator("div.flex.flex-col.overflow-scroll")
-      .first();
     await expect(
-      detailContent.getByText("Payment Intents", { exact: true }),
+      page.getByText("Payment Intents", { exact: true }),
     ).toBeVisible();
-    await expect(
-      detailContent.getByText("Refunds", { exact: true }),
-    ).toBeVisible();
+    await expect(page.getByText("RefundsView 15")).toBeVisible();
 
     // Related payment rows render from the mocked hits.
     await expect(

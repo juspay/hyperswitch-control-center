@@ -131,6 +131,7 @@ let mapAnalyticsRowToCommonType = (row: analytics_row): PaymentInterfaceTypes.or
     payment_id: row.payment_id,
     merchant_id: row.merchant_id,
     net_amount: row.net_amount,
+    surcharge_amount: None,
     status: row.status,
     amount: row.amount,
     amount_capturable,
