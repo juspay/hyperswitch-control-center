@@ -1,8 +1,9 @@
+@unboxed
 type operator =
-  | Equal
-  | NotEqual
-  | GreaterThan
-  | LessThan
+  | @as("equal") Equal
+  | @as("not_equal") NotEqual
+  | @as("greater_than") GreaterThan
+  | @as("less_than") LessThan
   | UnknownOperator(string)
 
 type metadataKV = {key: string, value: string}

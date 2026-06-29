@@ -10,6 +10,7 @@ let defaultCondition: comparison = {
   value: EnumOne({value: ""}),
   metadata: emptyMetadata(),
 }
+
 let defaultGroup: statement = {condition: [defaultCondition]}
 let defaultConnectorSelection: connectorSelection = Priority({data: []})
 
@@ -19,6 +20,27 @@ let defaultRule = (): rule => {
   connectorSelection: defaultConnectorSelection,
   statements: [defaultGroup],
 }
+let defaultOperatorChoice: operatorChoice = {
+  label: "Is",
+  selectValue: "is",
+  comparison: Equal,
+  valueVariant: EnumOne({value: ""}),
+}
+
+let defaultConfig: config = {
+  name: "",
+  description: "",
+  algorithm: {
+    \"type": "advanced",
+    data: {
+      defaultSelection: defaultConnectorSelection,
+      metadata: emptyMetadata(),
+      rules: [defaultRule()],
+    },
+  },
+}
+
+let defaultInitialValues = (): JSON.t => defaultConfig->Identity.genericTypeToJson
 
 let isCardBinField = (lhs: string): bool => lhs === "card_bin" || lhs === "extended_card_bin"
 
@@ -43,32 +65,10 @@ let variantTypeOfLhs = (lhs): value => {
 }
 
 let operatorToBEKey = (operator: operator): string =>
-  switch operator {
-  | Equal => "equal"
-  | NotEqual => "not_equal"
-  | GreaterThan => "greater_than"
-  | LessThan => "less_than"
-  | UnknownOperator(str) => str
-  }
-
-let valueVariantFromType = (typeStr: string): value =>
-  switch typeStr {
-  | "number" => Number({value: 0.0})
-  | "enum_variant_array" => EnumMany({value: []})
-  | "str_value" => StrValue({value: ""})
-  | "metadata_value" | "metadata_variant" => MetadataValue({value: {key: "", value: ""}})
-  | _ => EnumOne({value: ""})
-  }
+  operator->Identity.genericTypeToJson->getStringFromJson("")
 
 let valueTypeKey = (v: value): string =>
   v->Identity.genericTypeToJson->getDictFromJsonObject->getString("type", "")
-
-let defaultOperatorChoice: operatorChoice = {
-  label: "Is",
-  selectValue: "is",
-  comparison: Equal,
-  valueVariant: EnumOne({value: ""}),
-}
 
 let operatorChoicesForVariant = (variantType: value): array<operatorChoice> =>
   switch variantType {
@@ -153,10 +153,9 @@ let selectedOperatorValue = (
   )
   ->mapOptionOrDefault("", c => c.selectValue)
 
-let operatorLabelForStoredValue = (~comparison: string, ~valueType: string): string =>
-  valueType
-  ->valueVariantFromType
-  ->operatorChoicesForVariant
+let operatorLabelForStoredValue = (~lhs: string, ~comparison: string, ~valueType: string): string =>
+  lhs
+  ->operatorChoicesForLhs
   ->Array.find(c =>
     c.comparison->operatorToBEKey === comparison && c.valueVariant->valueTypeKey === valueType
   )
@@ -195,79 +194,49 @@ let idsFromConnectorSelection = (selection: connectorSelection): array<string> =
   }
 
 let ensureMetadataObject = (dict: Dict.t<JSON.t>) => {
-  let metadata = dict->Dict.get("metadata")->Option.getOr(emptyMetadata())
+  let metadata = dict->getJsonObjectFromDict("metadata")
   switch metadata->JSON.Classify.classify {
   | Object(_) => ()
   | _ => dict->Dict.set("metadata", emptyMetadata())
   }
 }
 
-let normalizeRuleConditionMetadata = (data: Dict.t<JSON.t>) => {
+let forEachCondition = (data: Dict.t<JSON.t>, fn: Dict.t<JSON.t> => unit) =>
   data
   ->getArrayFromDict("rules", [])
-  ->Array.forEach(ruleJson => {
+  ->Array.forEach(ruleJson =>
     ruleJson
     ->getDictFromJsonObject
     ->getArrayFromDict("statements", [])
-    ->Array.forEach(statementJson => {
+    ->Array.forEach(statementJson =>
       statementJson
       ->getDictFromJsonObject
       ->getArrayFromDict("condition", [])
-      ->Array.forEach(conditionJson => conditionJson->getDictFromJsonObject->ensureMetadataObject)
-    })
-  })
+      ->Array.forEach(conditionJson => fn(conditionJson->getDictFromJsonObject))
+    )
+  )
+
+let normalizeRuleConditionMetadata = (data: Dict.t<JSON.t>) =>
+  data->forEachCondition(ensureMetadataObject)
+
+let stringifyStrValueNumber = (conditionDict: Dict.t<JSON.t>) => {
+  let valueDict = conditionDict->getDictfromDict("value")
+  let rawValue = valueDict->getJsonObjectFromDict("value")
+  switch (valueDict->getString("type", ""), rawValue->JSON.Classify.classify) {
+  | ("str_value", Number(_)) => valueDict->Dict.set("value", rawValue->getIntStringFromJson)
+  | _ => ()
+  }
 }
 
-
-let normalizeStrValueNumbers = (data: Dict.t<JSON.t>) => {
-  data
-  ->getArrayFromDict("rules", [])
-  ->Array.forEach(ruleJson => {
-    ruleJson
-    ->getDictFromJsonObject
-    ->getArrayFromDict("statements", [])
-    ->Array.forEach(statementJson => {
-      statementJson
-      ->getDictFromJsonObject
-      ->getArrayFromDict("condition", [])
-      ->Array.forEach(
-        conditionJson => {
-          let valueDict = conditionJson->getDictFromJsonObject->getDictfromDict("value")
-          let rawValue = valueDict->getJsonObjectFromDict("value")
-          switch (valueDict->getString("type", ""), rawValue->JSON.Classify.classify) {
-          | ("str_value", Number(_)) => valueDict->Dict.set("value", rawValue->getIntStringFromJson)
-          | _ => ()
-          }
-        },
-      )
-    })
-  })
-}
+let normalizeStrValueNumbers = (data: Dict.t<JSON.t>) =>
+  data->forEachCondition(stringifyStrValueNumber)
 
 let normalizeRulePayload = (json: JSON.t): JSON.t => {
-  let data = json->getDictFromJsonObject->getDictfromDict("algorithm")->getDictfromDict("data")
+  let data = json->getDictFromJsonObject->getDictFromNestedDict("algorithm", "data")
   data->ensureMetadataObject
   data->normalizeStrValueNumbers
   json
 }
-
-let defaultConfig: config = {
-  name: "",
-  description: "",
-  algorithm: {
-    \"type": "advanced",
-    data: {
-      defaultSelection: defaultConnectorSelection,
-      metadata: emptyMetadata(),
-      rules: [defaultRule()],
-    },
-  },
-}
-
-let defaultInitialValues = (): JSON.t => defaultConfig->Identity.genericTypeToJson
-
-let loadInitialValues = (json: JSON.t): JSON.t => json->normalizeRulePayload
-let toWirePayload = (values: JSON.t): JSON.t => values->normalizeRulePayload
 
 let forDuplicate = (values: JSON.t): JSON.t => {
   let dict = values->getDictFromJsonObject
@@ -275,67 +244,74 @@ let forDuplicate = (values: JSON.t): JSON.t => {
   dict->JSON.Encode.object
 }
 
-let isConditionComplete = (c: comparison) => {
-  let valueJson =
-    c.value
-    ->Identity.genericTypeToJson
-    ->getDictFromJsonObject
-    ->Dict.get("value")
-    ->Option.getOr(JSON.Encode.null)
+let isConditionComplete = (conditionJson: JSON.t) => {
+  let dict = conditionJson->getDictFromJsonObject
+  let lhs = dict->getString("lhs", "")
+  let valueJson = dict->getDictfromDict("value")->getJsonObjectFromDict("value")
   let valueOk = switch valueJson->JSON.Classify.classify {
-  | Array(arr) => arr->Array.length > 0
-  | String(str) => AdvancedRoutingUtils.validateStringNumericField(str, c.lhs)
+  | Array(arr) => arr->isNonEmptyArray
+  | String(str) => AdvancedRoutingUtils.validateStringNumericField(str, lhs)
   | Number(num) => num >= 0.0
   | Object(obj) =>
     obj->getString("key", "")->isNonEmptyString && obj->getString("value", "")->isNonEmptyString
   | _ => false
   }
-  c.lhs->isNonEmptyString && valueOk
+  lhs->isNonEmptyString && valueOk
 }
 
-let connectorSelectionError = (selection: connectorSelection) =>
-  switch selection {
-  | Priority({data}) => data->isEmptyArray ? Some("Need at least 1 processor") : None
-  | VolumeSplit({data}) =>
-    if data->isEmptyArray {
-      Some("Need at least 1 processor")
-    } else {
-      let sum = data->Array.reduce(0, (acc, w) => acc + w.split)
-      let hasZero = data->Array.some(w => w.split === 0)
-      sum !== 100 || hasZero ? Some("Distribution percent not correct") : None
-    }
+let connectorSelectionError = (selectionJson: JSON.t) => {
+  let dict = selectionJson->getDictFromJsonObject
+  let data = dict->getArrayFromDict("data", [])
+  let splitOf = item => item->getDictFromJsonObject->getInt("split", 0)
+  if data->isEmptyArray {
+    Some("Need at least 1 processor")
+  } else if dict->getString("type", "") === "volume_split" {
+    let sum = data->Array.reduce(0, (acc, item) => acc + item->splitOf)
+    let hasZero = data->Array.some(item => item->splitOf === 0)
+    sum !== 100 || hasZero ? Some("Distribution percent not correct") : None
+  } else {
+    None
   }
+}
 
 let validate = (values: JSON.t): JSON.t => {
   let errors = Dict.make()
-  let config: config = values->Identity.jsonToAnyType
+  let dict = values->getDictFromJsonObject
 
-  let name = config.name->String.trim
+  let name = dict->getString("name", "")->String.trim
   if name->isEmptyString {
     errors->Dict.set("name", "Please provide Configuration Name"->JSON.Encode.string)
   } else if name->String.length > 64 {
     errors->Dict.set("name", "Configuration Name cannot exceed 64 characters"->JSON.Encode.string)
   }
 
-  let description = config.description->String.trim
+  let description = dict->getString("description", "")->String.trim
   if description->isEmptyString {
     errors->Dict.set("description", "Please provide Description"->JSON.Encode.string)
   } else if description->String.length > 256 {
     errors->Dict.set("description", "Description cannot exceed 256 characters"->JSON.Encode.string)
   }
 
-  let rules = config.algorithm.data.rules
+  let rules = dict->getDictFromNestedDict("algorithm", "data")->getArrayFromDict("rules", [])
   if rules->isEmptyArray {
     errors->Dict.set("rules", "Minimum 1 rule needed"->JSON.Encode.string)
   } else {
-    rules->Array.forEachWithIndex((rule, i) => {
+    rules->Array.forEachWithIndex((ruleJson, i) => {
       let n = (i + 1)->Int.toString
-      switch rule.connectorSelection->connectorSelectionError {
+      let ruleDict = ruleJson->getDictFromJsonObject
+      switch ruleDict->getJsonObjectFromDict("connectorSelection")->connectorSelectionError {
       | Some(err) => errors->Dict.set(`rule_${n}_processors`, err->JSON.Encode.string)
       | None => ()
       }
       let allComplete =
-        rule.statements->Array.every(s => s.condition->Array.every(isConditionComplete))
+        ruleDict
+        ->getArrayFromDict("statements", [])
+        ->Array.every(statementJson =>
+          statementJson
+          ->getDictFromJsonObject
+          ->getArrayFromDict("condition", [])
+          ->Array.every(isConditionComplete)
+        )
       if !allComplete {
         errors->Dict.set(`rule_${n}_conditions`, "Invalid condition"->JSON.Encode.string)
       }
