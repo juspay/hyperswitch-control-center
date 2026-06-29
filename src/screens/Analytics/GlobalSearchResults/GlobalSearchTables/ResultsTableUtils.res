@@ -4,15 +4,7 @@ let useGetData = () => {
   open LogicUtils
   let getURL = APIUtils.useGetURL()
   async (
-    ~updateDetails: (
-      string,
-      JSON.t,
-      Fetch.requestMethod,
-      ~bodyFormData: Fetch.formData=?,
-      ~headers: Dict.t<'a>=?,
-      ~contentType: AuthHooks.contentType=?,
-      ~version: UserInfoTypes.version=?,
-    ) => promise<JSON.t>,
+    ~updateDetails: (string, JSON.t, Fetch.requestMethod) => promise<JSON.t>,
     ~offset,
     ~query,
     ~path,

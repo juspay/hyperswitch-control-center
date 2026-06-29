@@ -162,7 +162,10 @@ function paymentsProcessedSeries() {
     const noRetryAmount = Math.round(amount * 0.9);
     return {
       time_bucket: `${day} 00:00:00`,
-      time_range: { start_time: `${day}T12:00:00.000Z`, end_time: `${day}T12:00:00.000Z` },
+      time_range: {
+        start_time: `${day}T12:00:00.000Z`,
+        end_time: `${day}T12:00:00.000Z`,
+      },
       currency: "USD",
       payment_processed_amount: amount,
       payment_processed_amount_in_usd: amount,
@@ -199,12 +202,17 @@ function paymentsSuccessRateSeries() {
     const count = 120 + (i % 14) * 18;
     return {
       time_bucket: `${day} 00:00:00`,
-      time_range: { start_time: `${day}T12:00:00.000Z`, end_time: `${day}T12:00:00.000Z` },
+      time_range: {
+        start_time: `${day}T12:00:00.000Z`,
+        end_time: `${day}T12:00:00.000Z`,
+      },
       currency: null,
       payments_success_rate: rate,
       payments_success_rate_without_smart_retries: Math.max(0, rate - 6),
       successful_payments: Math.round((count * rate) / 100),
-      successful_payments_without_smart_retries: Math.round((count * (rate - 6)) / 100),
+      successful_payments_without_smart_retries: Math.round(
+        (count * (rate - 6)) / 100,
+      ),
       total_payments: count,
     };
   });
@@ -296,8 +304,14 @@ const CAPTURED_FAILURE_REASONS = {
     },
   ],
   metaData: [
-    { total_failure_reasons_count: 180, total_failure_reasons_count_without_smart_retries: 180 },
-    { total_failure_reasons_count: 162, total_failure_reasons_count_without_smart_retries: 162 },
+    {
+      total_failure_reasons_count: 180,
+      total_failure_reasons_count_without_smart_retries: 180,
+    },
+    {
+      total_failure_reasons_count: 162,
+      total_failure_reasons_count_without_smart_retries: 162,
+    },
   ],
 };
 
@@ -305,10 +319,22 @@ const CAPTURED_FAILURE_REASONS = {
 // Authorised/Uncaptured card reads the requires_capture row's payment_intent_count.
 const CAPTURED_STATUS_COUNTS = {
   queryData: [
-    { payment_intent_count: 4200, status: "succeeded", time_bucket: FROZEN_BUCKET },
-    { payment_intent_count: 320, status: "requires_capture", time_bucket: FROZEN_BUCKET },
+    {
+      payment_intent_count: 4200,
+      status: "succeeded",
+      time_bucket: FROZEN_BUCKET,
+    },
+    {
+      payment_intent_count: 320,
+      status: "requires_capture",
+      time_bucket: FROZEN_BUCKET,
+    },
     { payment_intent_count: 600, status: "failed", time_bucket: FROZEN_BUCKET },
-    { payment_intent_count: 180, status: "requires_payment_method", time_bucket: FROZEN_BUCKET },
+    {
+      payment_intent_count: 180,
+      status: "requires_payment_method",
+      time_bucket: FROZEN_BUCKET,
+    },
   ],
   metaData: [
     {
@@ -373,10 +399,34 @@ const CAPTURED_DISPUTES = {
 // supply positive counts across every lifecycle path (first_attempt 1 = normal,
 // 0 = smart-retried; succeeded+refund/dispute drives the downstream nodes).
 const CAPTURED_SANKEY = [
-  { count: 60, status: "succeeded", refunds_status: null, dispute_status: null, first_attempt: 1 },
-  { count: 18, status: "succeeded", refunds_status: null, dispute_status: null, first_attempt: 0 },
-  { count: 22, status: "failed", refunds_status: null, dispute_status: null, first_attempt: 1 },
-  { count: 9, status: "failed", refunds_status: null, dispute_status: null, first_attempt: 0 },
+  {
+    count: 60,
+    status: "succeeded",
+    refunds_status: null,
+    dispute_status: null,
+    first_attempt: 1,
+  },
+  {
+    count: 18,
+    status: "succeeded",
+    refunds_status: null,
+    dispute_status: null,
+    first_attempt: 0,
+  },
+  {
+    count: 22,
+    status: "failed",
+    refunds_status: null,
+    dispute_status: null,
+    first_attempt: 1,
+  },
+  {
+    count: 9,
+    status: "failed",
+    refunds_status: null,
+    dispute_status: null,
+    first_attempt: 0,
+  },
   {
     count: 14,
     status: "requires_payment_method",
@@ -391,7 +441,13 @@ const CAPTURED_SANKEY = [
     dispute_status: null,
     first_attempt: 1,
   },
-  { count: 7, status: "cancelled", refunds_status: null, dispute_status: null, first_attempt: 1 },
+  {
+    count: 7,
+    status: "cancelled",
+    refunds_status: null,
+    dispute_status: null,
+    first_attempt: 1,
+  },
   {
     count: 8,
     status: "succeeded",
@@ -428,7 +484,10 @@ function refundsMeta() {
     total_refund_success_rate: 84.2,
   };
   const comparison = Object.fromEntries(
-    Object.entries(primary).map(([k, v]) => [k, Math.round((v as number) * 0.9)]),
+    Object.entries(primary).map(([k, v]) => [
+      k,
+      Math.round((v as number) * 0.9),
+    ]),
   );
   return [primary, comparison];
 }
@@ -440,7 +499,10 @@ function refundsTimeSeries() {
     const successRate = 78 + ((i * 5) % 20);
     return {
       time_bucket: `${day} 00:00:00`,
-      time_range: { start_time: `${day}T12:00:00.000Z`, end_time: `${day}T12:00:00.000Z` },
+      time_range: {
+        start_time: `${day}T12:00:00.000Z`,
+        end_time: `${day}T12:00:00.000Z`,
+      },
       currency: "USD",
       refund_processed_amount: amount,
       refund_processed_amount_in_usd: amount,
@@ -468,7 +530,12 @@ function refundsReasons() {
   const reasons = ["customer_request", "duplicate", "fraudulent", "other"];
   const queryData = reasons.map((reason, i) => ({
     refund_reason: reason,
-    refund_error_message: ["processor_declined", "network_error", "timeout", "other"][i % 4],
+    refund_error_message: [
+      "processor_declined",
+      "network_error",
+      "timeout",
+      "other",
+    ][i % 4],
     connector: CONNECTORS[i % CONNECTORS.length],
     refund_reason_count: 40 - i * 8,
     total_refund_reason_count: 120,
@@ -491,15 +558,22 @@ function handlePayments(route: Route) {
   const hasGranularity = q?.timeSeries != null || q?.granularity != null;
 
   // v1 payments — distribution / failure reasons tables.
-  if (metrics.includes("payments_distribution")) return json(route, paymentsDistributionData());
-  if (metrics.includes("failure_reasons")) return json(route, CAPTURED_FAILURE_REASONS);
+  if (metrics.includes("payments_distribution"))
+    return json(route, paymentsDistributionData());
+  if (metrics.includes("failure_reasons"))
+    return json(route, CAPTURED_FAILURE_REASONS);
 
   // v2 payments — line tiles. Success-rate vs processed differ only by metric.
   if (hasGranularity) {
     const isSuccessRate = metrics.some(
-      (m) => m === "sessionized_payments_success_rate" || m === "payments_success_rate",
+      (m) =>
+        m === "sessionized_payments_success_rate" ||
+        m === "payments_success_rate",
     );
-    return json(route, isSuccessRate ? paymentsSuccessRateSeries() : paymentsProcessedSeries());
+    return json(
+      route,
+      isSuccessRate ? paymentsSuccessRateSeries() : paymentsProcessedSeries(),
+    );
   }
 
   // v2 payments — Authorised / Uncaptured intent count grouped by status.
@@ -515,7 +589,10 @@ function handleRefunds(route: Route) {
   const hasGranularity = q?.timeSeries != null || q?.granularity != null;
 
   if (hasGranularity) return json(route, refundsTimeSeries());
-  if (groupBy.includes("refund_reason") || groupBy.includes("refund_error_message"))
+  if (
+    groupBy.includes("refund_reason") ||
+    groupBy.includes("refund_error_message")
+  )
     return json(route, refundsReasons());
   if (groupBy.includes("connector")) return json(route, refundsDistribution());
 
@@ -566,7 +643,9 @@ export async function mockInsightsErrorAnalytics(page: Page): Promise<void> {
     route.fulfill({
       status: 500,
       contentType: "application/json",
-      body: JSON.stringify({ error: { type: "server_error", message: "Internal Server Error" } }),
+      body: JSON.stringify({
+        error: { type: "server_error", message: "Internal Server Error" },
+      }),
     });
   await page.route(
     /\/analytics\/v1\/(org|merchant|profile)\/payments\/info(\?|$)/,

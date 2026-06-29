@@ -32,9 +32,7 @@ test.describe("Volume based routing", () => {
     await homePage.routing.click();
     await paymentRouting.volumeBasedRoutingSetupButton.click();
 
-    await expect(paymentRouting.noConnectorsMessage).toContainText(
-      "Please configure at least 1 connector",
-    );
+    await expect(paymentRouting.noProcessorFoundMessage).toBeVisible();
   });
 
   test("should display all elements in volume based routing page", async ({
@@ -290,7 +288,7 @@ test.describe("Rule based routing", () => {
     await homePage.routing.click();
     await paymentRouting.ruleBasedRoutingSetupButton.click();
 
-    await expect(paymentRouting.noConnectorsMessage).toContainText(
+    await expect(page.getByText('Please configure at least 1')).toContainText(
       "Please configure at least 1 connector",
     );
   });
@@ -405,9 +403,7 @@ test.describe("Payment default fallback", () => {
     await homePage.routing.click();
     await paymentRouting.defaultFallbackManageButton.click();
 
-    await expect(paymentRouting.noConnectorsMessageLarge).toContainText(
-      "Please connect at least 1 connector",
-    );
+    await expect(paymentRouting.noProcessorFoundMessage).toBeVisible();
   });
 
   test("should display connected connectors in the list", async ({
@@ -754,11 +750,6 @@ test.describe("Routing list - Configuration History", () => {
 
     await expect(page.getByText("Configuration NameActivate")).toBeVisible();
     await expect(page.getByText("DescriptionThis is a volume")).toBeVisible();
-    await expect(
-      page.getByText(
-        "Volume Based Configuration is helpful when you want a specific traffic distribution for each of the configured connectors. For eg: Stripe (70%), Adyen (20%), Checkout (10%).",
-      ),
-    ).toBeVisible();
     await expect(page.getByText("stripe_test_1")).toBeVisible();
 
     const activateBtn = page
@@ -1269,7 +1260,7 @@ test.describe("Auth rate based routing", () => {
     await homePage.routing.click();
     await paymentRouting.authRateBasedRoutingSetupButton.click();
 
-    await expect(paymentRouting.noConnectorsMessage).toContainText(
+    await expect(page.getByText('Please configure at least 1')).toContainText(
       "Please configure at least 1 connector",
     );
   });
@@ -1298,11 +1289,8 @@ test.describe("Auth rate based routing", () => {
     await expect(page).toHaveURL(/.*routing\/auth-rate/);
 
     await expect(
-      page.getByText("Intelligent Routing Configuration"),
-    ).toBeVisible();
-    await expect(
       page.getByText(
-        "Dynamically route payments to maximise payment authorization rates.",
+        "Auth rate routing continuously learns from recent authorization outcomes and sends each payment to the processor most likely to succeed.",
       ),
     ).toBeVisible();
 

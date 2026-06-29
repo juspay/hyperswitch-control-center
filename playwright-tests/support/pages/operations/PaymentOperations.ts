@@ -8,9 +8,7 @@ export class PaymentOperations {
   }
 
   get transactionView(): Locator {
-    return this.page.locator(
-      '[class="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-6 mb-8"]',
-    );
+    return this.page.locator('[class="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-3 grid-cols-2 gap-6 mb-8"]');
   }
 
   get searchBox(): Locator {
@@ -88,7 +86,9 @@ export class PaymentOperations {
   }
 
   get modalCloseIcon(): Locator {
-    return this.page.locator('.border.border-jp-gray-500.dark\\:border-jp-gray-900.bg-white.dark\\:bg-jp-gray-lightgray_background.shadow.rounded-lg.dark\\:text-opacity-75.dark\\:bg-jp-gray-darkgray_background.animate-slideUp > .\\!p-4 > .flex.items-center > .flex.flex-col > .fill-current.cursor-pointer');
+    return this.page.locator(
+      ".border.border-jp-gray-500.dark\\:border-jp-gray-900.bg-white.dark\\:bg-jp-gray-lightgray_background.shadow.rounded-lg.dark\\:text-opacity-75.dark\\:bg-jp-gray-darkgray_background.animate-slideUp > .\\!p-4 > .flex.items-center > .flex.flex-col > .fill-current.cursor-pointer",
+    );
   }
 
   get crossOutlineIcon(): Locator {
@@ -184,9 +184,7 @@ export class PaymentOperations {
 
   // Filters
   get filterChipArea(): Locator {
-    return this.page.locator(
-      '[class="flex relative  flex-row  flex-wrap"]',
-    );
+    return this.page.locator('[class="flex relative  flex-row  flex-wrap"]');
   }
 
   get filterChipContainer(): Locator {
@@ -334,7 +332,7 @@ export class PaymentOperations {
   }
 
   get refundsSectionBlock(): Locator {
-    return this.page.locator('[class="flex flex-col gap-4"]').nth(1);
+    return this.page.getByRole("paragraph").filter({ hasText: "Refunds" });
   }
 
   customerEmailTestId(email: string): Locator {

@@ -12,7 +12,9 @@ export class ProfilePage {
   }
 
   get profileMenuEntry(): Locator {
-    return this.page.getByText(/Profile|Account Settings|Personal Details/i).first();
+    return this.page
+      .getByText(/Profile|Account Settings|Personal Details/i)
+      .first();
   }
 
   get profileHeading(): Locator {
@@ -28,7 +30,9 @@ export class ProfilePage {
   }
 
   get twoFactorAuthSectionHeading(): Locator {
-    return this.page.getByText("Two factor authentication", { exact: true }).first();
+    return this.page
+      .getByText("Two factor authentication", { exact: true })
+      .first();
   }
 
   get nameLabel(): Locator {
@@ -56,7 +60,9 @@ export class ProfilePage {
   }
 
   get signOutAllSessionsButton(): Locator {
-    return this.page.getByRole("button", { name: /Sign Out All Sessions/i }).first();
+    return this.page
+      .getByRole("button", { name: /Sign Out All Sessions/i })
+      .first();
   }
 
   get resetPasswordButton(): Locator {
@@ -68,7 +74,9 @@ export class ProfilePage {
   }
 
   get changePasswordModalHeader(): Locator {
-    return this.page.locator('[data-modal-header-text="Change Password"]').first();
+    return this.page
+      .locator('[data-modal-header-text="Change Password"]')
+      .first();
   }
 
   get oldPasswordInput(): Locator {
@@ -80,7 +88,9 @@ export class ProfilePage {
   }
 
   get confirmPasswordInput(): Locator {
-    return this.page.getByRole('textbox', { name: 'Re-enter your Password' }).first();
+    return this.page
+      .getByRole("textbox", { name: "Re-enter your Password" })
+      .first();
   }
 
   get confirmSubmitButton(): Locator {
@@ -88,15 +98,19 @@ export class ProfilePage {
   }
 
   get passwordMismatchError(): Locator {
-    return this.page.getByText('Passwords do not match. Please try again.');
+    return this.page.getByText("Passwords do not match. Please try again.");
   }
 
   get passwordChangedSuccessToast(): Locator {
-    return this.page.locator('[data-toast="Password Changed Successfully"]').first();
+    return this.page
+      .locator('[data-toast="Password Changed Successfully"]')
+      .first();
   }
 
   get passwordChangeFailedToast(): Locator {
-    return this.page.locator('[data-toast="Password Change Failed, Try again"]').first();
+    return this.page
+      .locator('[data-toast="Password Change Failed, Try again"]')
+      .first();
   }
 
   toastByMessage(message: string): Locator {
