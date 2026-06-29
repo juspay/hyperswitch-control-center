@@ -1,14 +1,12 @@
 name: PR Ready for Review Label
 
 on:
-  # workflow_run fires after the listed workflows complete on any branch.
-  # The labeler workflow itself must live on the default branch to receive these events.
   workflow_run:
     workflows:
-      - 'Build and Lint'
-      - 'Playwright Tests'
-      - 'Pull Request Convention Checks'
-      - 'Spell Check'
+      - "Build and Lint"
+      - "Playwright Tests"
+      - "Pull Request Convention Checks"
+      - "Spell Check"
     types:
       - completed
 
@@ -28,9 +26,7 @@ on:
       - converted_to_draft
 
 concurrency:
-  # Serialize evaluations per PR so simultaneous workflow completions cannot race.
-  # head_sha is the fallback when workflow_run does not expose a PR number (fork PRs).
-  group: pr-ready-label-${{ github.event.pull_request.number || github.event.workflow_run.head_sha }}
+  group: pr-ready-label-${{ github.workflow }}-${{ github.event.pull_request.number || github.event.workflow_run.head_sha }}
   cancel-in-progress: true
 
 jobs:
@@ -39,137 +35,102 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
-      actions: read
+      checks: read
       contents: read
 
     steps:
-      - name: Generate GitHub app token
-        id: app_token
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.HYPERSWITCH_BOT_APP_ID }}
-          private-key: ${{ secrets.HYPERSWITCH_BOT_APP_PRIVATE_KEY }}
-          owner: ${{ github.event.repository.owner.login }}
-
-      - name: Resolve target PR number(s)
+      - name: Resolve target PR number
         id: prs
-        env:
-          GH_TOKEN: ${{ steps.app_token.outputs.token }}
-          EVENT_NAME: ${{ github.event_name }}
-          REPO: ${{ github.event.repository.full_name }}
-          WORKFLOW_RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-          PR_NUMBER_FROM_PR_EVENT: ${{ github.event.pull_request.number }}
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          if [[ "$EVENT_NAME" == "pull_request_target" ]]; then
-            pr_numbers="$PR_NUMBER_FROM_PR_EVENT"
+          if [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
+            pr_number="${{ github.event.pull_request.number }}"
           else
             # workflow_run.pull_requests is empty for fork PRs; resolve via commit -> PR lookup.
-            pr_numbers="$(gh api "repos/${REPO}/commits/${WORKFLOW_RUN_HEAD_SHA}/pulls" \
-              --jq '[.[] | select(.state == "open") | .number] | join(" ")')"
+            pr_number="$(gh api "repos/${{ github.event.repository.full_name }}/commits/${{ github.event.workflow_run.head_sha }}/pulls" \
+              --jq '[.[] | select(.state == "open") | .number] | first // empty')"
           fi
-          if [[ -z "$pr_numbers" ]]; then
-            echo "No open PR resolved for this event; nothing to do."
-          fi
-          echo "pr_numbers=$pr_numbers" >> "$GITHUB_OUTPUT"
+          echo "pr_number=${pr_number}" >> "$GITHUB_OUTPUT"
 
       - name: Evaluate required checks and toggle label
-        if: ${{ steps.prs.outputs.pr_numbers != '' }}
-        env:
-          GH_TOKEN: ${{ steps.app_token.outputs.token }}
-          REPO: ${{ github.event.repository.full_name }}
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-          PR_NUMBERS: ${{ steps.prs.outputs.pr_numbers }}
-          EVENT_NAME: ${{ github.event_name }}
-          EVENT_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-          LABEL_NAME: R-ready-for-review
+        if: ${{ steps.prs.outputs.pr_number != '' }}
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.prs.outputs.pr_number }}
         run: |
           set -euo pipefail
 
-          # Read required checks dynamically from branch protection on the default branch.
-          # Missing protection or no required checks => bail out without labeling (safe default).
-          if ! required_json="$(gh api "repos/${REPO}/branches/${DEFAULT_BRANCH}/protection/required_status_checks" 2>/dev/null)"; then
-            echo "::warning::Could not read required status checks from branch protection on ${DEFAULT_BRANCH}; skipping."
-            exit 0
-          fi
-
-          # Prefer the newer `checks[].context` shape; fall back to legacy `contexts[]`.
-          mapfile -t required_checks < <(
-            echo "$required_json" | jq -r '
-              ((.checks // []) | map(.context))
-              + ((.contexts // []))
-              | unique | .[]
-            '
+          # Keep in sync with required status checks in branch protection on the default branch.
+          required_checks=(
+            "Build & Lint"
+            "Spell check"
+            "Spell check PR title"
+            "Verify PR contains one or more linked issues"
+            "Verify PR title follows conventional commit standards"
+            "playwright-tests (1)"
+            "playwright-tests (2)"
+            "playwright-tests (3)"
+            "playwright-tests (4)"
           )
-          if [[ ${#required_checks[@]} -eq 0 ]]; then
-            echo "No required checks configured on ${DEFAULT_BRANCH}; skipping."
+
+          repo="${{ github.event.repository.full_name }}"
+          label="R-ready-for-review"
+
+          pr_json="$(gh api "repos/${repo}/pulls/${PR_NUMBER}")"
+          pr_state="$(jq -r '.state' <<<"$pr_json")"
+          is_draft="$(jq -r '.draft' <<<"$pr_json")"
+          pr_head_sha="$(jq -r '.head.sha' <<<"$pr_json")"
+
+          if [[ "$pr_state" != "open" ]]; then
+            echo "PR #${PR_NUMBER} is not open (state=$pr_state); skipping."
             exit 0
           fi
-          echo "Required checks (${#required_checks[@]}): ${required_checks[*]}"
 
-          for pr in $PR_NUMBERS; do
-            echo "----- PR #$pr -----"
-            pr_json="$(gh api "repos/${REPO}/pulls/$pr")"
-            pr_state="$(jq -r '.state' <<<"$pr_json")"
-            is_draft="$(jq -r '.draft' <<<"$pr_json")"
-            pr_head_sha="$(jq -r '.head.sha' <<<"$pr_json")"
+          if [[ "$is_draft" == "true" ]]; then
+            echo "PR #${PR_NUMBER} is a draft; ensuring label is absent."
+            gh --repo "$repo" pr edit "$PR_NUMBER" --remove-label "$label"
+            exit 0
+          fi
 
-            if [[ "$pr_state" != "open" ]]; then
-              echo "PR #$pr is not open (state=$pr_state); skipping."
-              continue
+          # A workflow_run completion for an outdated SHA must not overwrite the latest state.
+          if [[ "${{ github.event_name }}" == "workflow_run" && "${{ github.event.workflow_run.head_sha }}" != "$pr_head_sha" ]]; then
+            echo "workflow_run head_sha does not match PR head; skipping stale evaluation."
+            exit 0
+          fi
+
+          checks_json="$(gh api "repos/${repo}/commits/${pr_head_sha}/check-runs?per_page=100" \
+            --jq '[.check_runs[] | {name, status, conclusion, started_at}]')"
+
+          all_green=true
+          reason=""
+          for ctx in "${required_checks[@]}"; do
+            # max_by picks the unambiguous latest started_at; sort_by|last is
+            # ordering-ambiguous when rapid re-runs land with near-identical
+            # timestamps.
+            match="$(jq --arg n "$ctx" '[.[] | select(.name == $n)] | max_by(.started_at) // empty' <<<"$checks_json")"
+            if [[ -z "$match" || "$match" == "null" ]]; then
+              all_green=false; reason="missing: $ctx"; break
             fi
-
-            if [[ "$is_draft" == "true" ]]; then
-              echo "PR #$pr is a draft; ensuring label is absent."
-              gh --repo "$REPO" pr edit "$pr" --remove-label "$LABEL_NAME"
-              continue
+            status="$(jq -r '.status' <<<"$match")"
+            conclusion="$(jq -r '.conclusion' <<<"$match")"
+            if [[ "$status" != "completed" ]]; then
+              all_green=false; reason="pending: $ctx (status=$status)"; break
             fi
-
-            # A workflow_run completion for an outdated SHA must not overwrite the latest state.
-            if [[ "$EVENT_NAME" == "workflow_run" && "$EVENT_HEAD_SHA" != "$pr_head_sha" ]]; then
-              echo "workflow_run head_sha ($EVENT_HEAD_SHA) does not match PR head ($pr_head_sha); skipping."
-              continue
-            fi
-
-            # Latest check-run per name on the PR head. Default GitHub behavior returns one row per name.
-            checks_json="$(gh api "repos/${REPO}/commits/${pr_head_sha}/check-runs?per_page=100" \
-              --jq '[.check_runs[] | {name, status, conclusion}]')"
-
-            all_green=true
-            reason=""
-            for ctx in "${required_checks[@]}"; do
-              match="$(jq --arg n "$ctx" '[.[] | select(.name == $n)] | last // empty' <<<"$checks_json")"
-              if [[ -z "$match" || "$match" == "null" ]]; then
-                all_green=false
-                reason="missing: $ctx"
-                break
-              fi
-              status="$(jq -r '.status' <<<"$match")"
-              conclusion="$(jq -r '.conclusion' <<<"$match")"
-              if [[ "$status" != "completed" ]]; then
-                all_green=false
-                reason="pending: $ctx (status=$status)"
-                break
-              fi
-              case "$conclusion" in
-                success|skipped|neutral) ;;
-                *)
-                  all_green=false
-                  reason="failed: $ctx (conclusion=$conclusion)"
-                  break
-                  ;;
-              esac
-            done
-
-            # GitHub CLI returns a successful error code even if the PR has the label already attached
-            # GitHub CLI returns a successful error code even if the PR does not have the label attached
-            if $all_green; then
-              echo "PR #$pr: all required checks green; adding '$LABEL_NAME'."
-              gh --repo "$REPO" pr edit "$pr" --add-label "$LABEL_NAME"
-            else
-              echo "PR #$pr: not ready ($reason); removing '$LABEL_NAME' if present."
-              gh --repo "$REPO" pr edit "$pr" --remove-label "$LABEL_NAME"
-            fi
+            case "$conclusion" in
+              success|skipped|neutral) ;;
+              *) all_green=false; reason="failed: $ctx (conclusion=$conclusion)"; break ;;
+            esac
           done
+
+          # GitHub CLI returns a successful exit code whether or not the label is already attached/absent.
+          if $all_green; then
+            echo "PR #${PR_NUMBER}: all required checks green; adding '$label'."
+            gh --repo "$repo" pr edit "$PR_NUMBER" --add-label "$label"
+          else
+            echo "PR #${PR_NUMBER}: not ready ($reason); removing '$label' if present."
+            gh --repo "$repo" pr edit "$PR_NUMBER" --remove-label "$label"
+          fi

@@ -11,7 +11,7 @@ module ChangePasswordModal = {
     open LogicUtils
     open CommonAuthUtils
     let getURL = useGetURL()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let updateDetails = useUpdateMethod(~showErrorToast=false)
     let handleLogout = useHandleLogout()
     let onSubmit = async (values, _) => {
@@ -115,7 +115,7 @@ module ResetPassword = {
     let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()->Option.getOr("")
     let domain = HSLocalStorage.getDomainfromStore()->Option.getOr("")
     let updateDetails = useUpdateMethod(~showErrorToast=false)
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
 
     let resetPassword = async body => {
       setIsLoading(_ => true)

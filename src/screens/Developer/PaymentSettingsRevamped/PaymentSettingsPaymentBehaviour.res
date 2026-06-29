@@ -37,7 +37,7 @@ module CollectDetails = {
     }
 
     <DesktopRow itemWrapperClass="mx-1">
-      <div className="w-full py-8 ">
+      <div className="w-full py-8">
         <div className="flex justify-between items-center">
           <div className="flex-1 ">
             <p className={`${body.lg.semibold} text-nd_gray-700`}> {title->React.string} </p>
@@ -47,7 +47,7 @@ module CollectDetails = {
             isSelected={initValue}
             setIsSelected={handleToggle}
             isDisabled=false
-            boolCustomClass="rounded-lg  "
+            boolCustomClass="rounded-lg"
             toggleEnableColor="bg-nd_primary_blue-450"
           />
         </div>
@@ -57,13 +57,13 @@ module CollectDetails = {
             ->Array.mapWithIndex((option, index) =>
               <div
                 key={index->Int.toString}
-                className="flex gap-2  items-center cursor-pointer"
+                className="flex gap-2 items-center cursor-pointer"
                 onClick={_ => onClick(option.key)}>
                 <RadioIconAdapter
                   isSelected={valuesDict->getBool(option.key, false)}
                   fill="text-nd_primary_blue-450"
                 />
-                <div className={`${body.md.medium}text-nd_gray-700`}>
+                <div className={`${body.md.medium} text-nd_gray-700`}>
                   {option.name->LogicUtils.snakeToTitle->React.string}
                 </div>
               </div>
@@ -91,7 +91,7 @@ module AutoRetries = {
       <DesktopRow itemWrapperClass="mx-1">
         <FieldRenderer
           labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
-          fieldWrapperClass="w-full flex justify-between items-center py-8 "
+          fieldWrapperClass="w-full flex justify-between items-center py-8"
           field={makeFieldInfo(
             ~name="is_auto_retries_enabled",
             ~label="Auto Retries",
@@ -145,7 +145,7 @@ module ClickToPaySection = {
           <div>
             <FieldRenderer
               labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
-              fieldWrapperClass="w-full flex justify-between items-center pt-8 pb-8  "
+              fieldWrapperClass="w-full flex justify-between items-center pt-8 pb-8"
               field={makeFieldInfo(
                 ~name="is_click_to_pay_enabled",
                 ~label="Click to Pay",
@@ -304,7 +304,7 @@ module MerchantCategoryCode = {
         field={merchantCodeWithNameArray->DeveloperUtils.merchantCategoryCode}
         errorClass
         labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
-        fieldWrapperClass="max-w-xl py-8 "
+        fieldWrapperClass="max-w-xl py-8"
       />
     </DesktopRow>
   }
@@ -356,7 +356,7 @@ let make = () => {
   open FormRenderer
 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
@@ -429,7 +429,7 @@ let make = () => {
         <DesktopRow itemWrapperClass="mx-1">
           <FieldRenderer
             labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
-            fieldWrapperClass="w-full flex justify-between sitems-center border-nd_gray-200 py-8"
+            fieldWrapperClass="w-full flex justify-between items-center border-nd_gray-200 py-8"
             field={makeFieldInfo(
               ~name="is_manual_retry_enabled",
               ~label="Manual Retries",
@@ -523,7 +523,7 @@ let make = () => {
             ~label="Connector Agnostic",
             ~customInput=InputFields.boolInput(
               ~isDisabled=false,
-              ~boolCustomClass="rounded-lg ",
+              ~boolCustomClass="rounded-lg",
               ~toggleEnableColor="bg-nd_primary_blue-450",
             ),
           )}

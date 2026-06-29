@@ -101,6 +101,8 @@ module.exports = {
       },
       minHeight: {
         "500-px": "500px",
+        "40-rem": "40rem",
+        "80-vh": "80vh",
       },
       inset: {
         "3-px": "3px",
@@ -145,6 +147,7 @@ module.exports = {
         "267-px": "267px",
         "298-px": "298px",
         "334-px": "334px",
+        "420-px": "420px",
         "499-px": "499px",
         "540-px": "540px",
         "500-px": "500px",
@@ -436,6 +439,7 @@ module.exports = {
           600: "#525866",
           700: "#2B303B",
           800: "#222530",
+          950: "#0E121B",
         },
         nd_primary_blue: {
           25: "#F6FAFE",
@@ -558,16 +562,16 @@ module.exports = {
           boxShadow:
             "0px 0px 0px 1px hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 1) calc(l + 2) / 1)",
           backgroundImage: `linear-gradient(180deg, hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 1) calc(l - 7) / 1) -5%, rgb(var(--btn-primary-background-color)) 107.5%),
-            linear-gradient(180deg, hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 2) calc(l + 10) / 1) -6.25%, rgb(var(--btn-primary-hover-background-color)) 100%)`,
+            linear-gradient(180deg, hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 2) calc(l + 10) / 1) -6.25%, rgb(var(--btn-primary-background-color)) 100%)`,
           transition: "ease-out 120ms",
           backgroundOrigin: "border-box",
           backgroundClip: "content-box, border-box",
         },
         ".primary-gradient-button:hover": {
           boxShadow:
-            "0px 0px 0px 1px hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 1) calc(l + 2) / 1)",
-          backgroundImage: `linear-gradient(180deg, rgb(var(--btn-primary-background-color)) 0%, hsl(from rgb(var(--btn-primary-background-color)) h s calc(l + 4) / 1) 100%),
-            linear-gradient(180deg, hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 2) calc(l + 10) / 1) -6.25%, rgb(var(--btn-primary-hover-background-color)) 100%)`,
+            "0px 0px 0px 1px hsl(from rgb(var(--btn-primary-hover-background-color)) h calc(s + 1) calc(l + 2) / 1)",
+          backgroundImage: `linear-gradient(180deg, rgb(var(--btn-primary-hover-background-color)) 0%, hsl(from rgb(var(--btn-primary-hover-background-color)) h s calc(l + 4) / 1) 100%),
+            linear-gradient(180deg, hsl(from rgb(var(--btn-primary-hover-background-color)) h calc(s + 2) calc(l + 10) / 1) -6.25%, rgb(var(--btn-primary-hover-background-color)) 100%)`,
           transition: "ease-out 120ms",
           backgroundOrigin: "border-box",
           backgroundClip: "content-box, border-box",

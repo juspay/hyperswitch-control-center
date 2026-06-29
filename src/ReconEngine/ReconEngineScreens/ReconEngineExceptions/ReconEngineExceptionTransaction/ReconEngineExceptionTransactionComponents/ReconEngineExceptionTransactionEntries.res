@@ -18,7 +18,7 @@ let make = (
   let (exceptionStage, setExceptionStage) = React.useState(_ => ShowResolutionOptions(
     NoResolutionOptionNeeded,
   ))
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
   let (updatedEntriesList, setUpdatedEntriesList) = React.useState(_ =>
     entriesList->addUniqueIdsToEntries

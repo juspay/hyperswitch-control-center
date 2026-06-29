@@ -3,7 +3,12 @@ import type { Page, BrowserContext } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { FrmConnector } from "../../support/pages/connector/FrmConnector";
 import { generateUniqueEmail } from "../../support/helper";
-import { signupUser, loginUI, assertConnectorFieldLabels, fillConnectorFields } from "../../support/commands";
+import {
+  signupUser,
+  loginUI,
+  assertConnectorFieldLabels,
+  fillConnectorFields,
+} from "../../support/commands";
 import { frmConnectorConfig } from "../../support/fixtures/frmConnectorConfig";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
@@ -79,9 +84,9 @@ test.describe("FRM (Fraud & Risk) Connectors", () => {
     }
     await connectButtons.nth(0).click();
     await page.waitForTimeout(1500);
-    await expect(
-      page.getByText(/Credential|API Key|Key/i).first(),
-    ).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText(/Credential|API Key|Key/i).first()).toBeVisible(
+      { timeout: 15000 },
+    );
   });
 
   test("should preserve route across navigation", async ({ page }) => {
@@ -107,9 +112,7 @@ test.describe("Live FRM Connectors", () => {
   });
 
   for (const [key, connector] of frmConnectors) {
-    test(`should setup and verify ${key} FRM connector`, async ({
-      page,
-    }) => {
+    test(`should setup and verify ${key} FRM connector`, async ({ page }) => {
       const homePage = new HomePage(page);
       const frmConnector = new FrmConnector(page);
 

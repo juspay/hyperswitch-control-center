@@ -1,45 +1,23 @@
 import { defineConfig, devices } from "@playwright/test";
 import type { ReporterDescription } from "@playwright/test";
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const mcrConfig = require("./mcr.config.js");
 
+// Coverage is collected via the Istanbul fixture in
+// playwright-tests/support/test.ts (writes per-test data to .nyc_output/);
+// it needs no Playwright reporter. nyc produces the per-shard and merged
+// reports in CI. See .github/workflows/playwright-test.yml.
 function buildReporters(): ReporterDescription[] {
-  const coverageReporter: ReporterDescription = [
-    "monocart-reporter",
-    {
-      // Coverage only - disable monocart's test report (redundant with built-in HTML)
-      outputFile: "",
-      coverage: {
-        ...mcrConfig,
-        // Preserve raw V8 data per shard so the merge-coverage CI job can
-        // re-aggregate across shards into one unified report.
-        // NOTE: monocart resolves this `outputDir` against the parent
-        // coverage outputDir (see node_modules/monocart-coverage-reports/
-        // lib/reports/raw.js:84 -> path.resolve(parent, this)). Pass a
-        // bare segment ("raw"), not a "./coverage-report/raw" prefix, or
-        // it nests as coverage-report/coverage-report/raw.
-        reports: [
-          ...mcrConfig.reports,
-          ["raw", { outputDir: "raw" }],
-        ],
-      },
-    },
-  ];
-
   if (process.env.CI) {
-    const base: ReporterDescription[] = [
+    return [
       ["html", { open: "never", outputFolder: "playwright-report" }],
       ["line"],
       ["playwright-ctrf-json-reporter", { outputDir: "ctrf" }],
     ];
-    return process.env.PW_COVERAGE === "1"
-      ? [...base, coverageReporter]
-      : base;
   }
 
-  // Local: attach coverage reporter on demand via PW_COVERAGE=1.
+  // Local: plain list output when collecting coverage (PW_COVERAGE=1),
+  // otherwise the usual on-failure HTML report.
   return process.env.PW_COVERAGE === "1"
-    ? [["list"], coverageReporter]
+    ? [["list"]]
     : [["html", { open: "on-failure" }]];
 }
 
@@ -52,6 +30,11 @@ const PLAYWRIGHT_SSO_CLIENT_ID = process.env.CYPRESS_SSO_CLIENT_ID;
 const PLAYWRIGHT_SSO_CLIENT_SECRET = process.env.CYPRESS_SSO_CLIENT_SECRET;
 const PLAYWRIGHT_SSO_USERNAME = process.env.CYPRESS_SSO_USERNAME;
 const PLAYWRIGHT_SSO_PASSWORD = process.env.CYPRESS_SSO_PASSWORD;
+
+// If PLAYWRIGHT_BASE_URL targets a remote env, skip the local dev server.
+// Local/CI runs use localhost and start the webServer.
+const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000";
+const IS_LOCAL_TARGET = BASE_URL.includes("localhost") || BASE_URL.includes("127.0.0.1");
 
 export default defineConfig({
   testDir: "./playwright-tests",
@@ -67,7 +50,7 @@ export default defineConfig({
   timeout: process.env.CI ? 90000 : 30000,
   // Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions.
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000", // Base URL to use in actions like `await page.goto('')`.
+    baseURL: BASE_URL,
     screenshot: "only-on-failure", // Screenshot on failure for debugging
     video: "retain-on-failure",
     trace: "on-first-retry",
@@ -113,11 +96,15 @@ export default defineConfig({
     }, */
   ],
 
-  // Run your local dev server before starting the tests
-  webServer: {
-    command: "npm run start:test",
-    url: "http://localhost:9000",
-    reuseExistingServer: !process.env.CI,
-    timeout: 60000,
-  },
+  // Run your local dev server before starting the tests. 
+  // Skipped entirely when targeting a remote environment 
+  // (PLAYWRIGHT_BASE_URL is non-localhost).
+  webServer: IS_LOCAL_TARGET
+    ? {
+      command: "npm run start:test",
+      url: "http://localhost:9000",
+      reuseExistingServer: !process.env.CI,
+      timeout: 60000,
+    }
+    : undefined,
 });

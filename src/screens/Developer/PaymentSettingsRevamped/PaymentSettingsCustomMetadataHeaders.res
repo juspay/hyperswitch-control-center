@@ -133,7 +133,7 @@ module MetadataHeaders = {
     }, [])
 
     <div className="flex-1">
-      <div className="flex flex-row justify-between items-center gap-4 ">
+      <div className="flex flex-row justify-between items-center gap-4">
         <p
           className={`ml-1 ${body.lg.semibold} dark:text-jp-gray-text_darktheme dark:text-opacity-50 !text-nd_gray-700 mt-6 `}>
           {"Custom Metadata Headers"->React.string}
@@ -197,7 +197,7 @@ let make = () => {
   open FormRenderer
   let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(

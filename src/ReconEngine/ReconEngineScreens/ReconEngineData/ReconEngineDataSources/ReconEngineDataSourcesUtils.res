@@ -2,6 +2,22 @@ open ReconEngineTypes
 open LogicUtils
 open ReconEngineUtils
 
+let bytesPerKilobyte = 1000
+let bytesPerMegabyte = bytesPerKilobyte * 1000
+let maxFileSizeBytes = 8 * bytesPerMegabyte
+
+let formatFileSize = (sizeInBytes: int) => {
+  let size = sizeInBytes->Int.toFloat
+  let (displaySize, unit) = if sizeInBytes >= bytesPerMegabyte {
+    (size /. bytesPerMegabyte->Int.toFloat, "MB")
+  } else {
+    (size /. bytesPerKilobyte->Int.toFloat, "KB")
+  }
+  let formattedSize = displaySize->Float.toFixedWithPrecision(~digits=2)->removeTrailingZero
+
+  `${formattedSize} ${unit}`
+}
+
 let getIngestionConfigPayloadFromDict = dict => {
   dict->ingestionConfigItemToObjMapper
 }
@@ -203,4 +219,17 @@ let getTimelineConfig = (
       },
     }
   }
+}
+
+let supportedFileTypes: array<ReconEngineDataSourcesTypes.supportedFileExtensions> = [
+  Csv,
+  Ext,
+  Xlsx,
+]
+
+let isSupportedFileType = (fileName: string): bool => {
+  let lowerFileName = fileName->String.toLowerCase
+  supportedFileTypes
+  ->Array.map(ft => `.${(ft :> string)->String.toLowerCase}`)
+  ->Array.find(ext => lowerFileName->String.endsWith(ext)) != None
 }

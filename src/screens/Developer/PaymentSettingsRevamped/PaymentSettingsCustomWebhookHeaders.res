@@ -130,7 +130,7 @@ module WebHookAuthenticationHeaders = {
     }, [])
 
     <div className="flex-1">
-      <div className="flex flex-row justify-between items-center gap-4 ">
+      <div className="flex flex-row justify-between items-center gap-4">
         <p
           className={`${body.lg.semibold} dark:text-jp-gray-text_darktheme dark:text-opacity-50 !text-nd_gray-700 ml-1 mt-6`}>
           {"Custom Headers"->React.string}
@@ -144,7 +144,7 @@ module WebHookAuthenticationHeaders = {
           </div>
         </RenderIf>
       </div>
-      <div className="grid grid-cols-5 ">
+      <div className="grid grid-cols-5">
         {Array.fromInitializer(~length=4, i => i)
         ->Array.mapWithIndex((_, index) =>
           <div key={index->Int.toString} className="-ml-3 col-span-4">
@@ -192,7 +192,7 @@ module WebHookAuthenticationHeaders = {
 @react.component
 let make = () => {
   open FormRenderer
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
   let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)

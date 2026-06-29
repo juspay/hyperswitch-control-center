@@ -61,6 +61,7 @@ type order_v2 = {
   payment_id: string,
   merchant_id: string,
   net_amount: float,
+  surcharge_amount: option<float>,
   status: string,
   amount: float,
   amount_capturable: float,

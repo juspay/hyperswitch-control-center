@@ -100,6 +100,7 @@ type colType =
 type summaryColType =
   | Created
   | NetAmount
+  | SurchargeAmount
   | LastUpdated
   | PaymentId
   | Currency

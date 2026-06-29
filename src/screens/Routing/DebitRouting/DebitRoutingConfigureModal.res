@@ -1,7 +1,7 @@
 @react.component
 let make = (~showModal, ~setShowModal) => {
   open Typography
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()

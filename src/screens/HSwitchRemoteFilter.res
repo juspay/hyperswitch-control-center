@@ -187,7 +187,7 @@ module RemoteTableFilters = {
     } =
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->JSON.Encode.string}
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
 
     React.useEffect(() => {
       if filterValueJson->Dict.keysToArray->Array.length === 0 {

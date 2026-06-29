@@ -346,14 +346,10 @@ test.describe("Payment Settings", () => {
         paymentSettings.toggleSwitchByLabel("Click to Pay");
       await expect(clickToPayToggle).toBeVisible();
 
-      const initial =
-        await clickToPayToggle.getAttribute("data-bool-value");
+      const initial = await clickToPayToggle.getAttribute("data-bool-value");
       if (initial !== "on") {
         await clickToPayToggle.click();
-        await expect(clickToPayToggle).toHaveAttribute(
-          "data-bool-value",
-          "on",
-        );
+        await expect(clickToPayToggle).toHaveAttribute("data-bool-value", "on");
       }
 
       await expect(paymentSettings.clickToPayConnectorDropdown).toBeVisible();
@@ -389,8 +385,9 @@ test.describe("Payment Settings", () => {
       await homePage.paymentSettings.click();
       await paymentSettings.threeDSTab.click();
 
-      const forceChallenge =
-        paymentSettings.toggleSwitchByLabel("Force 3DS Challenge");
+      const forceChallenge = paymentSettings.toggleSwitchByLabel(
+        "Force 3DS Challenge",
+      );
       const initial = await forceChallenge.getAttribute("data-bool-value");
       if (initial !== "on") {
         await forceChallenge.click();
@@ -440,8 +437,9 @@ test.describe("Payment Settings", () => {
       await homePage.paymentSettings.click();
       await paymentSettings.threeDSTab.click();
 
-      const forceChallenge =
-        paymentSettings.toggleSwitchByLabel("Force 3DS Challenge");
+      const forceChallenge = paymentSettings.toggleSwitchByLabel(
+        "Force 3DS Challenge",
+      );
       await expect(forceChallenge).toBeVisible();
       const initial = await forceChallenge.getAttribute("data-bool-value");
       if (initial !== "on") {
@@ -481,10 +479,9 @@ test.describe("Payment Settings", () => {
 
       // Verify the connector is the selected option in the multi-select
       await paymentSettings.buttonByName("juspaythreedsserver").first().click();
-      await expect(paymentSettings.dropdownValue(connectorName)).toHaveAttribute(
-        "data-dropdown-value-selected",
-        "True",
-      );
+      await expect(
+        paymentSettings.dropdownValue(connectorName),
+      ).toHaveAttribute("data-dropdown-value-selected", "True");
     });
   });
 
@@ -496,90 +493,254 @@ test.describe("Payment Settings", () => {
       await homePage.developer.click();
       await homePage.paymentSettings.click();
       await paymentSettings.threeDSTab.click();
-      await paymentSettings.acquirerConfigSettings.click();
     });
 
-    test("should fill all fields, save, and persist after reload", async ({
+    test("should show empty state with heading and Acquirer config group button", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await expect(paymentSettings.acquirerConfigSettingsHeading).toBeVisible();
+      await expect(paymentSettings.noAcquirerConfigsText).toBeVisible();
+      await expect(paymentSettings.acquirerConfigGroupButton).toBeVisible();
+    });
+
+    test("should open Add Acquirer Configuration modal with all fields and buttons", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await paymentSettings.acquirerConfigGroupButton.click();
+
+      const modal = paymentSettings.addAcquirerModal;
+      await expect(modal).toBeVisible();
+      await expect(
+        modal.getByText("Add Acquirer Configuration", { exact: true }),
+      ).toBeVisible();
+
+      // Field labels
+      await expect(
+        modal.getByText("Acquirer merchant name", { exact: false }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("Acquirer Merchant ID", { exact: false }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("Card Network", { exact: false }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("Acquirer BIN", { exact: false }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("Acquirer ICA (optional)", { exact: false }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("Fraud Rate (%) (optional)", { exact: false }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("Acquirer Country (optional)", { exact: false }),
+      ).toBeVisible();
+
+      // Inputs
+      await expect(
+        paymentSettings.acquirerMerchantNameInput(modal),
+      ).toBeVisible();
+      await expect(
+        paymentSettings.acquirerMerchantIdInput(modal),
+      ).toBeVisible();
+      await expect(paymentSettings.acquirerBinInput(modal)).toBeVisible();
+      await expect(paymentSettings.acquirerIcaInput(modal)).toBeVisible();
+      await expect(paymentSettings.acquirerFraudRateInput(modal)).toBeVisible();
+
+      // Dropdowns
+      await expect(
+        paymentSettings.acquirerNetworkDropdownInModal(modal),
+      ).toBeVisible();
+      await expect(
+        paymentSettings.acquirerCountryDropdownInModal(modal),
+      ).toBeVisible();
+
+      // Buttons
+      await expect(
+        paymentSettings.acquirerModalSaveButton(modal),
+      ).toBeVisible();
+      await expect(
+        paymentSettings.acquirerModalCancelButton(modal),
+      ).toBeVisible();
+    });
+
+    test("should close modal when Cancel is clicked without saving", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await paymentSettings.acquirerConfigGroupButton.click();
+      const modal = paymentSettings.addAcquirerModal;
+      await expect(modal).toBeVisible();
+
+      await paymentSettings.acquirerModalCancelButton(modal).click();
+      // Modal hides — empty state remains
+      await expect(paymentSettings.noAcquirerConfigsText).toBeVisible();
+    });
+
+    test("should show validation errors for BIN and fraud rate in the modal", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await paymentSettings.acquirerConfigGroupButton.click();
+      const modal = paymentSettings.addAcquirerModal;
+      await expect(modal).toBeVisible();
+
+      // BIN too short (< 4 digits)
+      await paymentSettings.acquirerBinInput(modal).fill("12");
+      await paymentSettings.acquirerBinInput(modal).blur();
+      await expect(paymentSettings.acquirerBinError).toBeVisible();
+
+      // BIN valid → error clears
+      await paymentSettings.acquirerBinInput(modal).fill("56688");
+      await paymentSettings.acquirerBinInput(modal).blur();
+      await expect(paymentSettings.acquirerBinError).toHaveCount(0);
+
+      // Fraud rate out of range (> 100)
+      await paymentSettings.acquirerFraudRateInput(modal).fill("150");
+      await paymentSettings.acquirerFraudRateInput(modal).blur();
+      await expect(paymentSettings.fraudRateError).toBeVisible();
+
+      // Fraud rate valid → error clears
+      await paymentSettings.acquirerFraudRateInput(modal).fill("25");
+      await paymentSettings.acquirerFraudRateInput(modal).blur();
+      await expect(paymentSettings.fraudRateError).toHaveCount(0);
+    });
+
+    test("should create an acquirer config group and display it as default", async ({
       page,
     }) => {
       const paymentSettings = new PaymentSettings(page);
 
       const merchantName = "Acme Test Merchant";
-      const acquirerBin = "123456";
-      const acquirerAssignedMerchantId = "acmeMerchant001";
-      const acquirerFraudRate = "5";
+      const merchantId = "acmeMerchant001";
       const network = "Visa";
+      const bin = "56688";
+      const ica = "12345";
+      const fraudRate = "5";
 
-      await expect(paymentSettings.acquirerMerchantNameInput).toBeVisible();
-      await expect(paymentSettings.acquirerBinInput).toBeVisible();
-      await expect(
-        paymentSettings.acquirerAssignedMerchantIdInput,
-      ).toBeVisible();
-      await expect(paymentSettings.acquirerFraudRateInput).toBeVisible();
-      await expect(paymentSettings.acquirerNetworkDropdown).toBeVisible();
-      await expect(paymentSettings.acquirerSaveButton).toBeVisible();
+      await paymentSettings.acquirerConfigGroupButton.click();
+      const modal = paymentSettings.addAcquirerModal;
+      await expect(modal).toBeVisible();
 
-      await paymentSettings.acquirerMerchantNameInput.fill(merchantName);
-      await paymentSettings.acquirerBinInput.fill(acquirerBin);
-      await paymentSettings.acquirerAssignedMerchantIdInput.fill(
-        acquirerAssignedMerchantId,
-      );
-      await paymentSettings.acquirerFraudRateInput.fill(acquirerFraudRate);
-
-      await paymentSettings.acquirerNetworkDropdown.click();
+      await paymentSettings.acquirerMerchantNameInput(modal).fill(merchantName);
+      await paymentSettings.acquirerMerchantIdInput(modal).fill(merchantId);
+      await paymentSettings.acquirerNetworkDropdownInModal(modal).click();
       await paymentSettings.dropdownValue(network).click();
+      await paymentSettings.acquirerBinInput(modal).fill(bin);
+      await paymentSettings.acquirerIcaInput(modal).fill(ica);
+      await paymentSettings.acquirerFraudRateInput(modal).fill(fraudRate);
 
-      await paymentSettings.acquirerSaveButton.click();
-      await expect(paymentSettings.acquirerConfigCreatedToast).toBeVisible({
+      await paymentSettings.acquirerModalSaveButton(modal).click();
+      await expect(paymentSettings.acquirerCreatedToast).toBeVisible({
         timeout: 10000,
       });
 
-      await page.reload();
-      await paymentSettings.threeDSTab.click();
-      await paymentSettings.acquirerConfigSettings.click();
-
-      await expect(paymentSettings.acquirerResultByTestId("acmemerchant001")).toBeVisible();
-      await expect(paymentSettings.acquirerResultByTestId("acmetestmerchant")).toBeVisible();
-      await expect(paymentSettings.acquirerResultByTestId("visa")).toBeVisible();
-      await expect(paymentSettings.acquirerResultByTestId("123456")).toBeVisible();
-      await expect(page.getByText("5%")).toBeVisible();
+      // Bucket renders with merchant name and a Default tag (only bucket)
+      await expect(page.getByText(merchantName, { exact: true })).toBeVisible();
+      await expect(paymentSettings.defaultTag().first()).toBeVisible();
     });
 
-    test("should show validation errors for each field", async ({ page }) => {
+    test("should add a new network to an existing acquirer bucket", async ({
+      page,
+    }) => {
+      test.setTimeout(60000);
       const paymentSettings = new PaymentSettings(page);
 
-      // Acquirer BIN — too short (< 5 digits)
-      await paymentSettings.acquirerBinInput.fill("1234");
-      await paymentSettings.acquirerBinInput.blur();
-      await expect(paymentSettings.acquirerBinError).toBeVisible();
+      // Seed: create initial bucket with Visa
+      await paymentSettings.acquirerConfigGroupButton.click();
+      const addModal = paymentSettings.addAcquirerModal;
+      await paymentSettings
+        .acquirerMerchantNameInput(addModal)
+        .fill("Seed Merchant");
+      await paymentSettings
+        .acquirerMerchantIdInput(addModal)
+        .fill("seedmerchant1");
+      await paymentSettings.acquirerNetworkDropdownInModal(addModal).click();
+      await paymentSettings.dropdownValue("Visa").click();
+      await paymentSettings.acquirerBinInput(addModal).fill("56688");
+      await paymentSettings.acquirerModalSaveButton(addModal).click();
+      await expect(paymentSettings.acquirerCreatedToast).toBeVisible({
+        timeout: 10000,
+      });
 
-      // Acquirer BIN — fix to a valid value, error clears
-      await paymentSettings.acquirerBinInput.fill("123456");
-      await paymentSettings.acquirerBinInput.blur();
-      await expect(paymentSettings.acquirerBinError).toHaveCount(0);
+      // Expand the accordion to reach the Add New Network button
+      await page.getByText("Seed Merchant", { exact: true }).click();
+      await expect(paymentSettings.addNewNetworkButton).toBeVisible();
+      await paymentSettings.addNewNetworkButton.click();
 
-      // Acquirer Fraud Rate — out of range (> 100)
-      await paymentSettings.acquirerFraudRateInput.fill("150");
-      await paymentSettings.acquirerFraudRateInput.blur();
-      await expect(paymentSettings.fraudRateError).toBeVisible();
+      const netModal = paymentSettings.addNetworkModal;
+      await expect(netModal).toBeVisible();
+      await expect(
+        netModal.getByText("Add Network Configuration", { exact: true }),
+      ).toBeVisible();
 
-      // Acquirer Fraud Rate — fix to a valid value, error clears
-      await paymentSettings.acquirerFraudRateInput.fill("5");
-      await paymentSettings.acquirerFraudRateInput.blur();
-      await expect(paymentSettings.fraudRateError).toHaveCount(0);
+      await paymentSettings.acquirerNetworkDropdownInModal(netModal).click();
+      await paymentSettings.dropdownValue("Mastercard").click();
+      await paymentSettings.acquirerBinInput(netModal).fill("99887");
+      await paymentSettings.acquirerModalSaveButton(netModal).click();
 
-      // Required: Merchant Name — focus then blur empty
-      await paymentSettings.acquirerMerchantNameInput.focus();
-      await paymentSettings.acquirerMerchantNameInput.blur();
-      await expect(paymentSettings.requiredFieldError(0)).toBeVisible();
+      await expect(paymentSettings.networkAddedToast).toBeVisible({
+        timeout: 10000,
+      });
+      await expect(page.getByText("Mastercard", { exact: true })).toBeVisible();
+    });
 
-      // Required: Acquirer Assigned Merchant Id — focus then blur empty
-      await paymentSettings.acquirerAssignedMerchantIdInput.focus();
-      await paymentSettings.acquirerAssignedMerchantIdInput.blur();
-      await expect(paymentSettings.requiredFieldError(1)).toBeVisible();
+    test("should edit an existing network entry with the network field locked", async ({
+      page,
+    }) => {
+      test.setTimeout(60000);
+      const paymentSettings = new PaymentSettings(page);
 
-      // With required fields still empty, Save should remain disabled
-      await expect(paymentSettings.acquirerSaveButton).toBeDisabled();
+      // Seed: create initial bucket with Visa BIN 56688
+      await paymentSettings.acquirerConfigGroupButton.click();
+      const addModal = paymentSettings.addAcquirerModal;
+      await paymentSettings
+        .acquirerMerchantNameInput(addModal)
+        .fill("Edit Merchant");
+      await paymentSettings
+        .acquirerMerchantIdInput(addModal)
+        .fill("editmerchant1");
+      await paymentSettings.acquirerNetworkDropdownInModal(addModal).click();
+      await paymentSettings.dropdownValue("Visa").click();
+      await paymentSettings.acquirerBinInput(addModal).fill("56688");
+      await paymentSettings.acquirerModalSaveButton(addModal).click();
+      await expect(paymentSettings.acquirerCreatedToast).toBeVisible({
+        timeout: 10000,
+      });
+
+      await page.getByText("Edit Merchant", { exact: true }).click();
+      await paymentSettings.editIconForRow("Visa").click();
+
+      const editModal = paymentSettings.editNetworkModal;
+      await expect(editModal).toBeVisible();
+      await expect(
+        editModal.getByText("Edit Network Configuration", { exact: true }),
+      ).toBeVisible();
+
+      // The locked network field renders the current network as button text
+      // (buttonText=n.network) — its mere presence proves the field is
+      // pre-filled with the existing network. We don't open the dropdown
+      // because Escape (the only way to close it without selecting) also
+      // closes the surrounding modal in this codebase.
+      await expect(
+        editModal.getByRole("button", { name: "Visa" }),
+      ).toBeVisible();
+
+      // Change BIN and save
+      await paymentSettings.acquirerBinInput(editModal).fill("77777");
+      await paymentSettings.acquirerModalUpdateButton(editModal).click();
+
+      await expect(paymentSettings.networkUpdatedToast).toBeVisible({
+        timeout: 10000,
+      });
+      await expect(page.getByText("77777", { exact: true })).toBeVisible();
     });
   });
 

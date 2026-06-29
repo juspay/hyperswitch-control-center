@@ -140,7 +140,7 @@ let make = (~setAppScreenState) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (showModal, setShowModal) = React.useState(_ => false)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let fetchDetails = useGetMethod()
   let (pendingInvites, setPendingInvites) = React.useState(_ => [])
 
