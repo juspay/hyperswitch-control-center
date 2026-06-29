@@ -14,7 +14,7 @@ let defaultCondition: comparison = {
 let defaultGroup: statement = {condition: [defaultCondition]}
 let defaultConnectorSelection: connectorSelection = Priority({data: []})
 
-let defaultRule = (): rule => {
+let defaultRule: rule = {
   id: `rule_${LogicUtils.randomString(~length=6)}`,
   name: "",
   connectorSelection: defaultConnectorSelection,
@@ -35,7 +35,7 @@ let defaultConfig: config = {
     data: {
       defaultSelection: defaultConnectorSelection,
       metadata: emptyMetadata(),
-      rules: [defaultRule()],
+      rules: [defaultRule],
     },
   },
 }
@@ -215,9 +215,6 @@ let forEachCondition = (data: Dict.t<JSON.t>, fn: Dict.t<JSON.t> => unit) =>
       ->Array.forEach(conditionJson => fn(conditionJson->getDictFromJsonObject))
     )
   )
-
-let normalizeRuleConditionMetadata = (data: Dict.t<JSON.t>) =>
-  data->forEachCondition(ensureMetadataObject)
 
 let stringifyStrValueNumber = (conditionDict: Dict.t<JSON.t>) => {
   let valueDict = conditionDict->getDictfromDict("value")
