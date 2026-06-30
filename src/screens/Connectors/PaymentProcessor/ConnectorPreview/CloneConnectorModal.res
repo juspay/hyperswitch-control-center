@@ -10,6 +10,8 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload) => {
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let connectorCloneAllowList =
+    HyperswitchAtom.connectorCloneAllowListAtom->Recoil.useRecoilValueFromAtom
   let {getCommonSessionDetails, isEmbeddableSession} = React.useContext(
     UserInfoProvider.defaultContext,
   )
@@ -26,7 +28,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload) => {
 
   let isCloneable =
     featureFlag.connectorClone &&
-    featureFlag.connectorCloneAllowList->Array.includes(
+    connectorCloneAllowList->Array.includes(
       connectorInfo.connector_name->String.toLowerCase,
     )
   let isEligible = isCloneable && hasCloneAccess === Access && !isEmbeddableSession()

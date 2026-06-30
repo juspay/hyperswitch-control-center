@@ -83,7 +83,6 @@ type featureFlag = {
   devSavedViews: bool,
   devClickhouseAggregate: bool,
   connectorClone: bool,
-  connectorCloneAllowList: array<string>,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -169,9 +168,6 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devSavedViews: dict->getBool("dev_saved_views", false),
     devClickhouseAggregate: dict->getBool("dev_clickhouse_aggregate", false),
     connectorClone: dict->getBool("connector_clone", false),
-    connectorCloneAllowList: dict
-    ->getArrayFromDict("connector_clone_allow_list", [])
-    ->Array.map(item => item->getStringFromJson("")->String.toLowerCase),
   }
 }
 
