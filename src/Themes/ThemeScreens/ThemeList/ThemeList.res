@@ -39,7 +39,8 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if themeIdFromUserInfo->isNonEmptyString {
+    let storeThemeId = HyperSwitchEntryUtils.getThemeIdfromStore()->Option.getOr("")
+    if themeIdFromUserInfo->isNonEmptyString && themeIdFromUserInfo == storeThemeId {
       fetchCurrentTheme()->ignore
     }
     None
