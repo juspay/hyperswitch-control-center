@@ -102,6 +102,7 @@ let make = () => {
             key={index->Int.toString}
             title=card.connectedStatCardTitle
             value=card.connectedStatCardValue
+            onConnectedStatCardClick=card.onConnectedStatCardClick
           />
         </PageLoaderWrapper>
       })

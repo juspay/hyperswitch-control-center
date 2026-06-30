@@ -119,7 +119,11 @@ module Landing = {
           <PaymentGatewayFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
           <PaymentGatewayPreDecryptFlow setGooglePayIntegrationType googlePayIntegrationType />
         </>
-
+      | Processors(IMERCHANTSOLUTIONS) =>
+        <>
+          <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
+          <PaymentGatewayPreDecryptFlow setGooglePayIntegrationType googlePayIntegrationType />
+        </>
       | _ =>
         <>
           <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
