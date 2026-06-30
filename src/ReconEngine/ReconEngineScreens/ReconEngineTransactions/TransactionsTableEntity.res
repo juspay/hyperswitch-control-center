@@ -67,11 +67,14 @@ let getDomainTransactionStatusString = (status: domainTransactionStatus) => {
   | Matched(Auto) => "Matched (Auto)"
   | Matched(Manual) => "Matched (Manual)"
   | Matched(Force) => "Matched (Force)"
+  | Matched(WithTolerance) => "Matched (With Tolerance)"
   | OverAmount(Mismatch) => "Positive Variance (Requires Attention)"
   | OverAmount(Expected) => "Positive Variance (Awaiting Match)"
   | UnderAmount(Mismatch) => "Negative Variance (Requires Attention)"
   | UnderAmount(Expected) => "Negative Variance (Awaiting Match)"
   | DataMismatch => "Data Mismatch"
+  | CurrencyMismatch => "Currency Mismatch"
+  | SplitMismatch => "Split Mismatch"
   | Expected => "Expected"
   | Missing => "Missing"
   | Archived => "Archived"
@@ -89,10 +92,13 @@ let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
   Table.Label({
     title: status->getDomainTransactionStatusString->String.toUpperCase,
     color: switch status {
-    | Posted(Manual) | Matched(Force) | Matched(Manual) | Matched(Auto) => LabelGreen
+    | Posted(Manual) | Matched(Force) | Matched(Manual) | Matched(Auto) | Matched(WithTolerance) =>
+      LabelGreen
     | OverAmount(Mismatch)
     | UnderAmount(Mismatch)
-    | DataMismatch =>
+    | DataMismatch
+    | CurrencyMismatch
+    | SplitMismatch =>
       LabelRed
     | Expected | UnderAmount(Expected) | OverAmount(Expected) => LabelBlue
     | Archived => LabelGray
