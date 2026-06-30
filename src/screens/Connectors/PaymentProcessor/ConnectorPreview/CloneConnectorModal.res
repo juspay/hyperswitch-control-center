@@ -28,9 +28,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload) => {
 
   let isCloneable =
     featureFlag.connectorClone &&
-    connectorCloneAllowList->Array.includes(
-      connectorInfo.connector_name->String.toLowerCase,
-    )
+    connectorCloneAllowList->Array.includes(connectorInfo.connector_name->String.toLowerCase)
   let isEligible = isCloneable && hasCloneAccess === Access && !isEmbeddableSession()
 
   let getProfileList = async () => {
