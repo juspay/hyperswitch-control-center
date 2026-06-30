@@ -67,6 +67,9 @@ module.exports = {
         "85-vh": "85vh",
         "30-vh": "30vh",
         "40-vh": "40vh",
+        "48-vh": "48vh",
+        "55-vh": "55vh",
+        "62-vh": "62vh",
         "75-vh": "75vh",
         "50-px": "50px",
         "68-px": "68px",
@@ -98,6 +101,9 @@ module.exports = {
         "30-rem": "30rem",
         "750-px": "750px",
         "890-px": "890px",
+        "62-vh": "62vh",
+        "68-vh": "68vh",
+        "74-vh": "74vh",
       },
       minHeight: {
         "500-px": "500px",
@@ -502,6 +508,7 @@ module.exports = {
           100: "#FAF5FF",
           200: "#F3E8FF",
           300: "#AD46FF",
+          700: "#8200DB",
         },
       },
       borderRadius: {

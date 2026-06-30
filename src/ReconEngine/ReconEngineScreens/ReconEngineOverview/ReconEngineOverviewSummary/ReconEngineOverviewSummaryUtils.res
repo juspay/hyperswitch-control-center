@@ -3,6 +3,12 @@ open LogicUtils
 open CurrencyFormatUtils
 open ReconEngineTypes
 
+let matchedColor = "#52A87A"
+let exceptionColor = "#D95F5F"
+let expectedColor = "#4A90E2"
+let missingColor = "#D4A032"
+let matchRateColor = "#8B72CC"
+
 let roundCurrency = (value: float, currency: string): float => {
   let precision = CurrencyUtils.getAmountPrecisionDigits(currency)
   let factor = Math.pow(10.0, ~exp=precision->Int.toFloat)
@@ -1048,22 +1054,37 @@ let getConnectedStatCards = (
     {
       connectedStatCardTitle: AutoMatchRate,
       connectedStatCardValue: Percentage(autoMatchRate),
+      onConnectedStatCardClick: () => (),
     },
     {
       connectedStatCardTitle: FailedIngestions,
       connectedStatCardValue: Number(failedIngestionHistory->Array.length),
+      onConnectedStatCardClick: () => {
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v1/recon-engine/sources"))
+      },
     },
     {
       connectedStatCardTitle: MissingTransactions,
       connectedStatCardValue: OutOf(agedCount, totalCount),
+      onConnectedStatCardClick: () => {
+        RescriptReactRouter.push(
+          GlobalVars.appendDashboardPath(~url="v1/recon-engine/exceptions/recon"),
+        )
+      },
     },
     {
       connectedStatCardTitle: FailedTransformations,
       connectedStatCardValue: Number(failedTransformationHistory->Array.length),
+      onConnectedStatCardClick: () => {
+        RescriptReactRouter.push(
+          GlobalVars.appendDashboardPath(~url="v1/recon-engine/transformation"),
+        )
+      },
     },
     {
       connectedStatCardTitle: ManualCorrections,
       connectedStatCardValue: Number(manualCorrectionsCount),
+      onConnectedStatCardClick: () => (),
     },
   ]
 }
@@ -1097,29 +1118,21 @@ let getOverviewChartGranularity = (~startTime, ~endTime): overviewChartGranulari
     DateRangeUtils.getStartEndDiff(startTime, endTime) /. (1000.0 *. 60.0 *. 60.0 *. 24.0)
 
   if rangeDays <= 2.0 {
-    Hourly
+    Hour
   } else if rangeDays <= 90.0 {
-    Daily
+    Day
   } else if rangeDays <= 365.0 {
-    Weekly
+    Week
   } else {
-    Monthly
+    Month
   }
 }
 
-let getOverviewChartGranularityQueryValue = granularity =>
-  switch granularity {
-  | Hourly => "hour"
-  | Daily => "day"
-  | Weekly => "week"
-  | Monthly => "month"
-  }
-
 let getOverviewChartBucketLabels = (~startTime, ~granularity) =>
   switch granularity {
-  | Hourly => (dateFormat(startTime, "DD MMM, h A"), dateFormat(startTime, "MMM DD, YYYY, h:mm A"))
-  | Daily | Weekly => (dateFormat(startTime, "DD MMM"), dateFormat(startTime, "MMM DD, YYYY"))
-  | Monthly => (dateFormat(startTime, "MMM YYYY"), dateFormat(startTime, "MMM DD, YYYY"))
+  | Hour => (dateFormat(startTime, "DD MMM, h A"), dateFormat(startTime, "MMM DD, YYYY, h:mm A"))
+  | Day | Week => (dateFormat(startTime, "DD MMM"), dateFormat(startTime, "MMM DD, YYYY"))
+  | Month => (dateFormat(startTime, "MMM YYYY"), dateFormat(startTime, "MMM DD, YYYY"))
   }
 
 let getBreakdownCategoryCounts = (
@@ -1156,18 +1169,15 @@ let getOverviewChartPoints = (
   ~overviewRules: array<overviewRulesTimeSeriesResponse>,
   ~granularity: overviewChartGranularity,
 ): array<overviewChartPoint> => {
-  let canonicalBuckets =
-    overviewRules->Array.reduce([], (longest, rule) =>
-      rule.time_series->Array.length > longest->Array.length ? rule.time_series : longest
-    )
-  let emptyBucket: ReconEngineTypes.overviewRulesTimeSeries = {
-    time_range: {start_time: "", end_time: ""},
-    status_breakdown: [],
-  }
+  let timeSeriesBuckets = overviewRules->Array.get(0)->Option.mapOr([], rule => rule.time_series)
 
-  canonicalBuckets->Array.mapWithIndex((bucket, index) => {
+  timeSeriesBuckets->Array.mapWithIndex((bucket, index) => {
     let statusBreakdown = overviewRules->Array.flatMap(rule => {
-      let ruleBucket = rule.time_series->getValueFromArray(index, emptyBucket)
+      let ruleBucket =
+        rule.time_series->getValueFromArray(
+          index,
+          Dict.make()->ReconEngineUtils.overviewRulesTimeSeriesMapper,
+        )
       ruleBucket.status_breakdown
     })
     let (matchedCount, exceptionCount, expectedCount, missingCount) = getBreakdownCategoryCounts(
@@ -1194,14 +1204,12 @@ let getOverviewChartPoints = (
   })
 }
 
-let overviewChartTooltipRow = (~label, ~color, ~value) =>
-  `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-    <div style="display:flex;align-items:center;gap:7px;">
-      <span style="width:8px;height:8px;border-radius:2px;background:${color};flex-shrink:0;"></span>
-      <span style="font-size:12px;color:rgba(255,255,255,.55);">${label}</span>
-    </div>
-    <span style="font-size:12px;font-weight:600;color:${color};">${formatNumber(value)}</span>
-  </div>`
+let overviewChartStatusConfig = [
+  ("Matched", matchedColor, point => point.matchedCount),
+  ("Exception", exceptionColor, point => point.exceptionCount),
+  ("Expected", expectedColor, point => point.expectedCount),
+  ("Missing", missingColor, point => point.missingCount),
+]
 
 let overviewChartTooltipFormatter = (~points: array<overviewChartPoint>) =>
   (
@@ -1229,6 +1237,22 @@ let overviewChartTooltipFormatter = (~points: array<overviewChartPoint>) =>
       let point = points->getValueFromArray(hoveredIndex, defaultChartPoint)
       let percentage = point.matchRate->Float.toFixedWithPrecision(~digits=2)->removeTrailingZero
 
+      let statusRows =
+        overviewChartStatusConfig
+        ->Array.map(((label, color, getValue)) => {
+          let value = getValue(point)->Float.toInt
+          `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <div style="display:flex;align-items:center;gap:7px;">
+              <span style="width:8px;height:8px;border-radius:2px;background:${color};flex-shrink:0;"></span>
+              <span style="font-size:12px;color:rgba(255,255,255,.55);">${label}</span>
+            </div>
+            <span style="font-size:12px;font-weight:600;color:${color};">${formatNumber(
+              value,
+            )}</span>
+          </div>`
+        })
+        ->Array.joinWith("")
+
       `<div style="min-width:240px;border-radius:12px;background:#1A1F2E;box-shadow:0 8px 24px rgba(0,0,0,.25);overflow:hidden;">
         <div style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.08);">
           <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.9);letter-spacing:0.2px;">${point.tooltipLabel}</div>
@@ -1237,29 +1261,10 @@ let overviewChartTooltipFormatter = (~points: array<overviewChartPoint>) =>
         )} transactions total</div>
         </div>
         <div style="padding:10px 14px;">
-          ${overviewChartTooltipRow(
-          ~label="Matched",
-          ~color="#52A87A",
-          ~value=point.matchedCount->Float.toInt,
-        )}
-          ${overviewChartTooltipRow(
-          ~label="Exception",
-          ~color="#D95F5F",
-          ~value=point.exceptionCount->Float.toInt,
-        )}
-          ${overviewChartTooltipRow(
-          ~label="Expected",
-          ~color="#4A90E2",
-          ~value=point.expectedCount->Float.toInt,
-        )}
-          ${overviewChartTooltipRow(
-          ~label="Missing",
-          ~color="#D4A032",
-          ~value=point.missingCount->Float.toInt,
-        )}
+          ${statusRows}
           <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:8px;margin-top:4px;display:flex;align-items:center;justify-content:space-between;">
             <span style="font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:0.4px;">Match rate</span>
-            <span style="font-size:13px;font-weight:700;color:#8B72CC;">${percentage}%</span>
+            <span style="font-size:13px;font-weight:700;color:${matchRateColor};">${percentage}%</span>
           </div>
         </div>
       </div>`
@@ -1275,12 +1280,7 @@ let getOverviewChartOptions = (
     fontSize: "14px",
   }
 
-  let columnSeries = [
-    ("Matched", "#52A87A", point => point.matchedCount),
-    ("Exception", "#D95F5F", point => point.exceptionCount),
-    ("Expected", "#4A90E2", point => point.expectedCount),
-    ("Missing", "#D4A032", point => point.missingCount),
-  ]->Array.map(((name, color, getValue)) => {
+  let columnSeries = overviewChartStatusConfig->Array.map(((name, color, getValue)) => {
     LineAndColumnGraphTypes.showInLegend: true,
     name,
     \"type": "column",
@@ -1295,7 +1295,7 @@ let getOverviewChartOptions = (
     name: "Match Rate",
     \"type": "line",
     data: points->Array.map(point => point.matchRate),
-    color: "#8B72CC",
+    color: matchRateColor,
     yAxis: 0,
   }
 
