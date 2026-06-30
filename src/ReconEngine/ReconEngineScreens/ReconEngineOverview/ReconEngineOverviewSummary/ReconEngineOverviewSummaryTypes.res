@@ -141,7 +141,6 @@ type connectedStatCardData = {
   onConnectedStatCardClick: unit => unit,
 }
 
-@unboxed
 type overviewChartGranularity =
   | @as("hour") Hour
   | @as("day") Day

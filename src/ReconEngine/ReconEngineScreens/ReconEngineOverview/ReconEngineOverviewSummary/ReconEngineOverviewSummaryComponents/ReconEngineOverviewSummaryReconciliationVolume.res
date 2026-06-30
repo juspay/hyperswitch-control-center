@@ -4,6 +4,7 @@ open Typography
 let make = () => {
   open LogicUtils
   open ReconEngineOverviewSummaryUtils
+  open HSAnalyticsUtils
 
   let getOverviewRulesTimeSeries = ReconEngineHooks.useGetOverviewRulesTimeSeries()
 
@@ -11,8 +12,8 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (chartPoints, setChartPoints) = React.useState(_ => [])
 
-  let startTime = filterValueJson->getString(HSAnalyticsUtils.startTimeFilterKey, "")
-  let endTime = filterValueJson->getString(HSAnalyticsUtils.endTimeFilterKey, "")
+  let startTime = filterValueJson->getString(startTimeFilterKey, "")
+  let endTime = filterValueJson->getString(endTimeFilterKey, "")
 
   let fetchReconciliationVolume = async () => {
     open ReconEngineFilterUtils
