@@ -15,7 +15,7 @@ module PageHeading = {
     ~customTitleSectionStyles="",
     ~showPermLink=true,
   ) => {
-    <div className={`mb-6 ${customHeadingStyle}`}>
+    <div className={`mb-4 ${customHeadingStyle}`}>
       {switch leftIcon {
       | Some(icon) => <Icon name={icon} size=56 />
       | None => React.null
