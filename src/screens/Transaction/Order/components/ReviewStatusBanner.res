@@ -60,11 +60,11 @@ let make = (~order: order, ~refetch) => {
 
   <>
     <AlertV2Binding
-      alertType=AlertV2Binding.Warning
+      alertType=Warning
       heading="This payment needs manual attention"
       description="Hyperswitch received an anomalous response from the connector for this payment. Review it and update the status to Succeeded or Failed."
       actions={{
-        position: AlertV2Binding.Bottom,
+        position: Bottom,
         primaryAction: {
           text: "Update Payment Status",
           onClick: _ => {
@@ -78,13 +78,11 @@ let make = (~order: order, ~refetch) => {
       showModal
       setShowModal
       modalHeading="Update Payment Status"
+      modalHeadingDescription="Manually set the status for this payment."
       modalClass="w-full md:w-4/12 mx-auto mt-40"
       childClass="p-0"
-      bgClass="bg-white dark:bg-jp-gray-darkgray_background">
+      bgClass="bg-nd_gray-0">
       <div className="flex flex-col gap-6 p-2 m-2">
-        <p className={`${Typography.body.md.regular} text-nd_gray-700`}>
-          {"Manually set the status for this payment. You will be asked to confirm before the change is applied."->React.string}
-        </p>
         <SingleSelectBinding
           selected={(selectedStatus :> string)->String.toLowerCase}
           onSelect={value => setSelectedStatus(_ => value->statusVariantMapper)}
@@ -95,13 +93,13 @@ let make = (~order: order, ~refetch) => {
         <div className="flex justify-end gap-3 mt-2">
           <Button
             text="Cancel"
-            buttonType=Button.Secondary
+            buttonType=Secondary
             onClick={_ => {
               setShowModal(_ => false)
               setSelectedStatus(_ => Succeeded)
             }}
           />
-          <Button text="Update Status" buttonType=Button.Primary onClick=onUpdateClick />
+          <Button text="Update Status" buttonType=Primary onClick=onUpdateClick />
         </div>
       </div>
     </Modal>
