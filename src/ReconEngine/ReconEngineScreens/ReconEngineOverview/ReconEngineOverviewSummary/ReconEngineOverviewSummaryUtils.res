@@ -941,22 +941,37 @@ let getConnectedStatCards = (
     {
       connectedStatCardTitle: AutoMatchRate,
       connectedStatCardValue: Percentage(autoMatchRate),
+      onConnectedStatCardClick: () => (),
     },
     {
       connectedStatCardTitle: FailedIngestions,
       connectedStatCardValue: Number(failedIngestionHistory->Array.length),
+      onConnectedStatCardClick: () => {
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v1/recon-engine/sources"))
+      },
     },
     {
       connectedStatCardTitle: MissingTransactions,
       connectedStatCardValue: OutOf(agedCount, totalCount),
+      onConnectedStatCardClick: () => {
+        RescriptReactRouter.push(
+          GlobalVars.appendDashboardPath(~url="v1/recon-engine/exceptions/recon"),
+        )
+      },
     },
     {
       connectedStatCardTitle: FailedTransformations,
       connectedStatCardValue: Number(failedTransformationHistory->Array.length),
+      onConnectedStatCardClick: () => {
+        RescriptReactRouter.push(
+          GlobalVars.appendDashboardPath(~url="v1/recon-engine/transformation"),
+        )
+      },
     },
     {
       connectedStatCardTitle: ManualCorrections,
       connectedStatCardValue: Number(manualCorrectionsCount),
+      onConnectedStatCardClick: () => (),
     },
   ]
 }

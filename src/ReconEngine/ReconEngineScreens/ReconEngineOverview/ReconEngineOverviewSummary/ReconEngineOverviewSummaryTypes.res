@@ -138,6 +138,7 @@ type connectedStatCardsTitle =
 type connectedStatCardData = {
   connectedStatCardTitle: connectedStatCardsTitle,
   connectedStatCardValue: valueType,
+  onConnectedStatCardClick: unit => unit,
 }
 
 type overviewChartGranularity =

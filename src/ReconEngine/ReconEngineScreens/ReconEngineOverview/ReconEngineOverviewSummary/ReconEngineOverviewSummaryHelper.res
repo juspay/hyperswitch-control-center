@@ -192,11 +192,17 @@ module StatCard = {
 
 module ConnectedStatCard = {
   @react.component
-  let make = (~title: connectedStatCardsTitle, ~value: valueType) => {
+  let make = (
+    ~title: connectedStatCardsTitle,
+    ~value: valueType,
+    ~onConnectedStatCardClick=() => (),
+  ) => {
     <div
-      className="px-4 py-3.5 transition-colors bg-white border-r border-b border-nd_gray-200 last:border-r-0">
+      onClick={_ => onConnectedStatCardClick()}
+      className="group px-4 py-3.5 transition-colors duration-200 cursor-pointer bg-white hover:bg-nd_gray-50 border-r border-b border-nd_gray-200 last:border-r-0">
       <div className="flex items-center justify-between">
-        <p className={`${body.sm.medium} text-nd_gray-600`}>
+        <p
+          className={`${body.sm.medium} text-nd_gray-600 transition-colors duration-200 group-hover:text-nd_gray-700`}>
           {(title :> string)->String.toUpperCase->React.string}
         </p>
       </div>
