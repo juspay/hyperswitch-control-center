@@ -58,7 +58,12 @@ let make = (
   <>
     <RenderIf condition=isBlendEnabled>
       <NumberInputBinding
-        value=blendValue onChange=blendOnChange disabled=isDisabled placeholder ?maxLength
+        value=blendValue
+        onChange=blendOnChange
+        disabled=isDisabled
+        placeholder
+        ?maxLength
+        preventNegative=true
       />
     </RenderIf>
     <RenderIf condition={!isBlendEnabled}>

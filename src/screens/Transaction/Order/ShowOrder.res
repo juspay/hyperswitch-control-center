@@ -123,6 +123,8 @@ module OrderInfo = {
               LastUpdated,
               AmountReceived,
               PaymentId,
+              NetAmount,
+              SurchargeAmount,
               ConnectorTransactionID,
               ErrorMessage,
             ]
@@ -507,7 +509,7 @@ module FraudRiskBannerDetails = {
   let make = (~order: order, ~refetch) => {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let showPopUp = PopUpState.useShowPopUp()
 
     let updateMerchantDecision = async (~decision) => {
@@ -651,7 +653,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (showVoidModal, setShowVoidModal) = React.useState(_ => false)

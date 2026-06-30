@@ -10,7 +10,7 @@ let make = (
 
   let getURL = useGetURL()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   let connectorName = connectorInfo.connector_name
 

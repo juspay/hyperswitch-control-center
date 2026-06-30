@@ -54,6 +54,7 @@ export const ffi_superposition_types_rustbuffer_from_bytes: (a: number, b: numbe
 export const ffi_superposition_types_rustbuffer_reserve: (a: number, b: number, c: bigint, d: number) => void;
 export const ffi_superposition_types_uniffi_contract_version: () => number;
 export const parseToString: (a: number, b: number, c: number) => void;
+export const ffi_superposition_types_rust_future_cancel_void: (a: bigint) => void;
 export const ffi_superposition_types_rust_future_cancel_u64: (a: bigint) => void;
 export const ffi_superposition_types_rust_future_cancel_u16: (a: bigint) => void;
 export const ffi_superposition_types_rust_future_cancel_pointer: (a: bigint) => void;
@@ -70,7 +71,6 @@ export const ffi_superposition_types_rust_future_complete_u64: (a: bigint, b: nu
 export const ffi_superposition_types_rust_future_cancel_i8: (a: bigint) => void;
 export const ffi_superposition_types_rust_future_free_u64: (a: bigint) => void;
 export const ffi_superposition_types_rust_future_poll_u64: (a: bigint, b: number, c: bigint) => void;
-export const ffi_superposition_types_rust_future_cancel_void: (a: bigint) => void;
 export const ffi_superposition_types_rust_future_free_void: (a: bigint) => void;
 export const ffi_superposition_types_rust_future_poll_void: (a: bigint, b: number, c: bigint) => void;
 export const ffi_superposition_types_rust_future_free_u16: (a: bigint) => void;

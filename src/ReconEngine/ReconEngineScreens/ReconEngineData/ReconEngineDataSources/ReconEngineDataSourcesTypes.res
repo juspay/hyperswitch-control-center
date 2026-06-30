@@ -10,6 +10,11 @@ type sourceConfigDataType = {
   valueType: [#text | #date | #status],
 }
 
+type supportedFileExtensions =
+  | Csv
+  | Ext
+  | Xlsx
+
 @unboxed
 type buttonActionType =
   | Download
