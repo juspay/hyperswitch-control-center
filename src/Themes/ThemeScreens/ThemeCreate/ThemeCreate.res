@@ -53,21 +53,24 @@ let make = () => {
       />
     </div>
 
+  let infoBanner =
+    <div
+      className="flex gap-2 items-start border border-nd_yellow-500 bg-nd_yellow-50 p-3 rounded-lg">
+      <Icon name="nd-info-circle" size=16 className="text-nd_gray-500" />
+      <span className={`text-nd_gray-600 ${body.sm.regular}`}>
+        {"Add your logo, favicon and email logo after clicking apply theme or update them later from theme settings."->React.string}
+      </span>
+    </div>
+
   let tabs: array<Tabs.tab> = [
     {
       title: "Dashboard Config",
       renderContent: () =>
         <div className="flex flex-col gap-4 mt-4">
-          <div
-            className="flex gap-2 items-start border border-nd_yellow-500 bg-nd_yellow-50 p-3 rounded-lg">
-            <Icon name="nd-info-circle" size=16 className="text-nd_gray-500" />
-            <span className={`text-nd_gray-600 ${body.sm.regular}`}>
-              {"Add your logo, favicon and email logo after clicking apply theme or update them later from theme settings."->React.string}
-            </span>
-          </div>
+          {infoBanner}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div
-              className="self-start max-h-62-vh md:max-h-68-vh lg:max-h-74-vh overflow-y-auto theme-config-scrollbar rounded-lg border border-nd_gray-150 p-4 flex flex-col gap-4">
+              className="self-start flex flex-col gap-4 h-62-vh lg:h-75-vh overflow-y-scroll theme-config-scrollbar p-4">
               <ThemeHelper.DashboardConfigScrollbarStyle />
               <ThemeSettings />
             </div>
@@ -84,18 +87,21 @@ let make = () => {
     {
       title: "Email Config",
       renderContent: () =>
-        <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
-          <div
-            className="self-start max-h-62-vh md:max-h-68-vh lg:max-h-74-vh overflow-y-auto theme-config-scrollbar rounded-lg border border-nd_gray-150 p-4 flex flex-col gap-4">
-            <ThemeHelper.DashboardConfigScrollbarStyle />
-            <ThemeSettingsHelper.EmailSettings />
-          </div>
-          <div className="flex flex-col gap-8 w-full lg:col-span-2">
-            <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
-            <div className="border h-48-vh md:h-55-vh rounded-xl p-8 flex items-center relative">
-              <ThemeMockEmail />
+        <div className="flex flex-col gap-4 mt-4">
+          {infoBanner}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div
+              className="self-start flex flex-col gap-4 h-75-vh lg:h-80-vh overflow-y-scroll theme-config-scrollbar p-4">
+              <ThemeHelper.DashboardConfigScrollbarStyle />
+              <ThemeSettingsHelper.EmailSettings />
             </div>
-            {submitButton}
+            <div className="flex flex-col gap-8 w-full lg:col-span-2">
+              <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
+              <div className="border h-48-vh md:h-55-vh rounded-xl p-8 flex items-center relative">
+                <ThemeMockEmail />
+              </div>
+              {submitButton}
+            </div>
           </div>
         </div>,
     },

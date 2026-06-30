@@ -138,7 +138,7 @@ module MockNavbar = {
         </div>
       </div>
       <div
-        className={`flex items-center min-w-0 w-72 border rounded-lg px-3 py-1 bg-white ${body.xs.regular} text-nd_gray-400`}>
+        className={`flex items-center flex-1 min-w-0 border rounded-lg px-3 py-1 bg-white ${body.xs.regular} text-nd_gray-400`}>
         <Icon name="search" size=12 className="mr-2 shrink-0 text-nd_gray-400" />
         <input
           className={`flex-1 min-w-0 outline-none bg-transparent ${body.xs.regular} text-nd_gray-700`}

@@ -190,7 +190,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
       renderContent: () =>
         <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
           <div
-            className="self-start flex flex-col gap-2 max-h-62-vh md:max-h-68-vh lg:max-h-74-vh overflow-y-auto theme-config-scrollbar rounded-lg border border-nd_gray-150 p-4 ">
+            className="self-start flex flex-col gap-2 h-62-vh lg:h-75-vh overflow-y-scroll theme-config-scrollbar p-4">
             <ThemeHelper.DashboardConfigScrollbarStyle />
             <ThemeSettingsHelper.IconSettings
               mode={#Dashboard}
@@ -218,7 +218,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
       renderContent: () =>
         <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
           <div
-            className="self-start flex flex-col gap-4 max-h-62-vh md:max-h-68-vh lg:max-h-55-vh overflow-y-auto theme-config-scrollbar rounded-lg border border-nd_gray-150 p-4 ">
+            className="self-start flex flex-col gap-4 h-75-vh lg:h-80-vh overflow-y-scroll theme-config-scrollbar p-4">
             <ThemeHelper.DashboardConfigScrollbarStyle />
             <ThemeSettingsHelper.IconSettings
               mode=#Email

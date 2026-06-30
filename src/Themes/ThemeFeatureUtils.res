@@ -41,6 +41,16 @@ let getFileFromEvent = ev => {
 
 let maxAssetFileSizeBytes = 2 * 1024 * 1024
 
+let isSupportedAssetType = (~fileName, ~accept) => {
+  let lowerFileName = fileName->String.toLowerCase
+  accept
+  ->String.split(",")
+  ->Array.some(ext => {
+    let trimmedExt = ext->String.trim->String.toLowerCase
+    trimmedExt->isNonEmptyString && lowerFileName->String.endsWith(trimmedExt)
+  })
+}
+
 let assetsMapper = (dict): ThemeTypes.assets => {
   let toUrl = url => url->isNonEmptyString ? Some(ThemeTypes.Url(url)) : None
   {
