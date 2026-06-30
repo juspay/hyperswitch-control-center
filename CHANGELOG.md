@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.06.30.0
+
+### Miscellaneous Tasks
+
+- Themes ui enhancements ([#5006](https://github.com/juspay/hyperswitch-control-center/pull/5006)) ([`79f98f8`](https://github.com/juspay/hyperswitch-control-center/commit/79f98f8c05dcfdf465540e20621772320c455ad0))
+
+**Full Changelog:** [`2026.06.26.0...2026.06.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.26.0...2026.06.30.0)
+
+- - -
+
 ## 2026.06.26.0
 
 ### Miscellaneous Tasks
