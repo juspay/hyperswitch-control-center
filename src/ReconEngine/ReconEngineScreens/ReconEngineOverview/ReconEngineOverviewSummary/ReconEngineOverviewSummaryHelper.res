@@ -189,29 +189,3 @@ module StatCard = {
     </div>
   }
 }
-
-module ConnectedStatCard = {
-  @react.component
-  let make = (~title: connectedStatCardsTitle, ~value: valueType) => {
-    <div
-      className="px-4 py-3.5 transition-colors bg-white border-r border-b border-nd_gray-200 last:border-r-0">
-      <div className="flex items-center justify-between">
-        <p className={`${body.sm.medium} text-nd_gray-600`}>
-          {(title :> string)->String.toUpperCase->React.string}
-        </p>
-      </div>
-      <div className="flex flex-col gap-y-2.5 items-start mt-1.5">
-        <p className={`${heading.sm.semibold} min-w-0 max-w-full text-nd_gray-700`}>
-          {switch value {
-          | Percentage(v) => <PercentageCell value=v />
-          | Float(v) => <FloatCell value=v />
-          | Number(v) => <NumberCell value=v />
-          | Amount(v, currency) => <AmountCell value=v currency />
-          | OutOf(v1, v2) => <OutOfCell value1=v1 value2=v2 />
-          | SlashOutOf(v1, v2) => <SlashOutOfCell value1=v1 value2=v2 />
-          }}
-        </p>
-      </div>
-    </div>
-  }
-}
