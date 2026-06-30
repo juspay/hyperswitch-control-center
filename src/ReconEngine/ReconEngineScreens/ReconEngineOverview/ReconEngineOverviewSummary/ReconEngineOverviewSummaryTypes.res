@@ -141,11 +141,12 @@ type connectedStatCardData = {
   onConnectedStatCardClick: unit => unit,
 }
 
+@unboxed
 type overviewChartGranularity =
-  | Hourly
-  | Daily
-  | Weekly
-  | Monthly
+  | @as("hour") Hour
+  | @as("day") Day
+  | @as("week") Week
+  | @as("month") Month
 
 type overviewChartPoint = {
   label: string,

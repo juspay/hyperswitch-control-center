@@ -20,7 +20,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let granularity = getOverviewChartGranularity(~startTime, ~endTime)
       let baseQueryParams = buildQueryStringFromFilters(~filterValueJson)
-      let granularityParam = `granularity=${granularity->getOverviewChartGranularityQueryValue}`
+      let granularityParam = `granularity=${(granularity :> string)}`
       let queryParams =
         baseQueryParams->isNonEmptyString
           ? `${baseQueryParams}&${granularityParam}`
