@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.06.30.0
+
+### Miscellaneous Tasks
+
+- Themes ui enhancements ([#5006](https://github.com/juspay/hyperswitch-control-center/pull/5006)) ([`79f98f8`](https://github.com/juspay/hyperswitch-control-center/commit/79f98f8c05dcfdf465540e20621772320c455ad0))
+
+**Full Changelog:** [`2026.06.26.0...2026.06.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.26.0...2026.06.30.0)
+
+- - -
+
+## 2026.06.26.0
+
+### Miscellaneous Tasks
+
+- Update wasm for worldpay xml ([#5028](https://github.com/juspay/hyperswitch-control-center/pull/5028)) ([`cb7fd07`](https://github.com/juspay/hyperswitch-control-center/commit/cb7fd07f75828d740d9a886d927d2233d94e94c2))
+
+**Full Changelog:** [`2026.06.25.0...2026.06.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.25.0...2026.06.26.0)
+
+- - -
+
 ## 2026.06.25.0
 
 ### Bug Fixes
