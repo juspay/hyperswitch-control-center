@@ -1197,7 +1197,7 @@ let getOverviewChartPoints = (
       exceptionCount: exceptionCount->Int.toFloat,
       expectedCount: expectedCount->Int.toFloat,
       missingCount: missingCount->Int.toFloat,
-      matchRate: totalCount === 0
+      matchRate: totalCount == 0
         ? 0.0
         : matchedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0,
     }
