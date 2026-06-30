@@ -880,3 +880,39 @@ module HeaderActions = {
     />
   }
 }
+
+type visitedRowsConfig<'t> = {
+  getId: 't => string,
+  prefix_key: string,
+}
+
+let constructVisitedRowKey = (prefix_key: string, id: string) => `visited:${prefix_key}:${id}`
+
+let isRowVisited = (config: visitedRowsConfig<'t>, data: option<'t>) => {
+  switch data {
+  | Some(d) =>
+    try {
+      let id = config.getId(d)
+      let storageKey = constructVisitedRowKey(config.prefix_key, id)
+      SessionStorage.sessionStorage.getItem(storageKey)->Nullable.toOption->Option.isSome
+    } catch {
+    | _ => false
+    }
+  | None => false
+  }
+}
+
+let markRowAsVisited = (config: visitedRowsConfig<'t>, data: option<'t>) => {
+  switch data {
+  | Some(d) => {
+      let id = config.getId(d)
+      let storageKey = constructVisitedRowKey(config.prefix_key, id)
+      try {
+        SessionStorage.sessionStorage.setItem(storageKey, "true")
+      } catch {
+      | _ => ()
+      }
+    }
+  | None => ()
+  }
+}
