@@ -12,8 +12,8 @@ let make = () => {
   let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (txnItems, setTxnItems) = React.useState((_): array<exceptionTriageItem> => [])
-  let (stagingItems, setStagingItems) = React.useState((_): array<exceptionTriageItem> => [])
+  let (txnItems, setTxnItems) = React.useState(_ => [])
+  let (stagingItems, setStagingItems) = React.useState(_ => [])
   let (selectedTab, setSelectedTab) = React.useState(_ => 0)
 
   let fetchTriageData = async () => {
@@ -89,34 +89,9 @@ let make = () => {
           />
           <div className="flex flex-col gap-2.5 w-full max-w-52">
             {activeItems
-            ->Array.mapWithIndex((item, index) => {
-              let color = getTriageColor(index)
-              let pct =
-                activeTotal > 0
-                  ? Math.round(
-                      item.total->Int.toFloat /. activeTotal->Int.toFloat *. 100.0,
-                    )->Float.toInt
-                  : 0
-              <div key={item.label} className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span
-                    className="w-2.5 h-2.5 rounded-sm shrink-0"
-                    style={ReactDOM.Style.make(~backgroundColor=color, ())}
-                  />
-                  <span className={`${body.sm.regular} text-nd_gray-700 truncate`}>
-                    {item.label->React.string}
-                  </span>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className={`${body.sm.semibold} text-nd_gray-800`}>
-                    {`${pct->Int.toString}%`->React.string}
-                  </p>
-                  <p className={`${body.xs.regular} text-nd_gray-500`}>
-                    {item.total->formatNumber->React.string}
-                  </p>
-                </div>
-              </div>
-            })
+            ->Array.mapWithIndex((item, index) =>
+              <ExceptionTriageRow key={item.label} item total=activeTotal index />
+            )
             ->React.array}
           </div>
         </div>

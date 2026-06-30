@@ -203,6 +203,59 @@ module StatCard = {
   }
 }
 
+module ExceptionAgingRow = {
+  @react.component
+  let make = (~item: exceptionAgingData, ~total: int) => {
+    let pct = total > 0 ? item.total->Int.toFloat /. total->Int.toFloat *. 100.0 : 0.0
+
+    <div className="flex items-center justify-between py-1.5">
+      <div className="flex items-center gap-2">
+        <span
+          className="w-2 h-2 rounded-full flex-shrink-0"
+          style={ReactDOM.Style.make(~backgroundColor=item.color, ())}
+        />
+        <span className={`${body.sm.regular} text-nd_gray-700`}> {item.label->React.string} </span>
+      </div>
+      <div className="flex items-center gap-4">
+        <span className={`${body.sm.regular} text-nd_gray-400 w-14 text-right`}>
+          <PercentageCell value=pct />
+        </span>
+        <span className={`${body.sm.semibold} text-nd_gray-800 w-8 text-right`}>
+          <NumberCell value={item.total} />
+        </span>
+      </div>
+    </div>
+  }
+}
+
+module ExceptionTriageRow = {
+  @react.component
+  let make = (~item: exceptionTriageItem, ~total: int, ~index: int) => {
+    let color = getTriageColor(index)
+    let pct = total > 0 ? item.total->Int.toFloat /. total->Int.toFloat *. 100.0 : 0.0
+
+    <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center gap-2 min-w-0">
+        <span
+          className="w-2.5 h-2.5 rounded-sm shrink-0"
+          style={ReactDOM.Style.make(~backgroundColor=color, ())}
+        />
+        <span className={`${body.sm.regular} text-nd_gray-700 truncate`}>
+          {item.label->React.string}
+        </span>
+      </div>
+      <div className="text-right shrink-0">
+        <p className={`${body.sm.semibold} text-nd_gray-800`}>
+          <PercentageCell value=pct />
+        </p>
+        <p className={`${body.xs.regular} text-nd_gray-500`}>
+          {item.total->formatNumber->React.string}
+        </p>
+      </div>
+    </div>
+  }
+}
+
 module ConnectedStatCard = {
   @react.component
   let make = (

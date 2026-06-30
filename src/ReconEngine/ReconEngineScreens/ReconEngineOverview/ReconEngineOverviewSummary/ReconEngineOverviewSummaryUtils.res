@@ -9,6 +9,13 @@ let expectedColor = "#4A90E2"
 let missingColor = "#D4A032"
 let matchRateColor = "#8B72CC"
 
+let lessThan24HrsColor = "#CBD5E1"
+let oneToThreeDaysColor = "#FCA5A5"
+let threeToSevenDaysColor = "#F87171"
+let greaterThanSevenDaysColor = "#DC2626"
+
+let triageColors = ["#8B97A8", "#E8956A", "#5BAD91", "#4A90E2", "#C87880", "#7BABC8", "#D4AA55"]
+
 let roundCurrency = (value: float, currency: string): float => {
   let precision = CurrencyUtils.getAmountPrecisionDigits(currency)
   let factor = Math.pow(10.0, ~exp=precision->Int.toFloat)
@@ -795,37 +802,67 @@ let getOpenExceptions = (
   txnExceptions + processingEntries->Array.length
 }
 
-let getExceptionCount = (~overviewRules: array<overviewRulesResponse>) =>
-  overviewRules->Array.reduce(0, (acc, rule) =>
-    acc +
-    rule.status_breakdown->Array.reduce(0, (statusAcc, status) =>
-      switch status.status {
-      | OverAmount(Expected)
-      | UnderAmount(Expected)
-      | OverAmount(Mismatch)
-      | UnderAmount(Mismatch)
-      | DataMismatch
-      | CurrencyMismatch
-      | SplitMismatch
-      | PartiallyReconciled
-      | Missing =>
-        statusAcc + status.count
-      | _ => statusAcc
-      }
-    )
+let getExceptionCountFromBreakdown = (
+  statusBreakdown: array<ReconEngineTypes.overviewRuleStatusBreakdown>,
+) =>
+  statusBreakdown->Array.reduce(0, (statusAcc, status) =>
+    switch status.status {
+    | OverAmount(Expected)
+    | UnderAmount(Expected)
+    | OverAmount(Mismatch)
+    | UnderAmount(Mismatch)
+    | DataMismatch
+    | CurrencyMismatch
+    | SplitMismatch
+    | PartiallyReconciled
+    | Missing =>
+      statusAcc + status.count
+    | _ => statusAcc
+    }
   )
 
-let getExceptionAgingBuckets = (~startTime: string): array<exceptionAgingBucket> => {
-  let now = DayJs.getDayJs()
-  let toIso = dayJs => dayJs.DayJs.toDate()->Date.toISOString
-  let daysAgo = days => now.subtract(days, "day")->toIso
+let getExceptionCount = (~overviewRules: array<overviewRulesResponse>) =>
+  overviewRules->Array.reduce(0, (acc, rule) =>
+    acc + getExceptionCountFromBreakdown(rule.status_breakdown)
+  )
 
-  [
-    {label: "< 24h", color: "#CBD5E1", startTime: daysAgo(1), endTime: now->toIso},
-    {label: "1–3 days", color: "#FCA5A5", startTime: daysAgo(3), endTime: daysAgo(1)},
-    {label: "3–7 days", color: "#F87171", startTime: daysAgo(7), endTime: daysAgo(3)},
-    {label: "> 7 days", color: "#DC2626", startTime, endTime: daysAgo(7)},
-  ]
+let exceptionAgingBucketConfig = [
+  ("< 24h", lessThan24HrsColor),
+  ("1–3 days", oneToThreeDaysColor),
+  ("3–7 days", threeToSevenDaysColor),
+  ("> 7 days", greaterThanSevenDaysColor),
+]
+
+let getAgingBucketIndex = (~bucketStartTime: string) => {
+  let now = DayJs.getDayJs()
+  let hoursAgo = now.diff(bucketStartTime, "hour")
+  if hoursAgo < 24 {
+    0
+  } else if hoursAgo < 24 * 3 {
+    1
+  } else if hoursAgo < 24 * 7 {
+    2
+  } else {
+    3
+  }
+}
+
+let getExceptionAgingDataFromTimeSeries = (
+  ~overviewRules: array<overviewRulesTimeSeriesResponse>,
+): array<exceptionAgingData> => {
+  let contributions =
+    overviewRules->Array.flatMap(rule =>
+      rule.time_series->Array.map(bucket => (
+        getAgingBucketIndex(~bucketStartTime=bucket.time_range.start_time),
+        getExceptionCountFromBreakdown(bucket.status_breakdown),
+      ))
+    )
+
+  exceptionAgingBucketConfig->Array.mapWithIndex(((label, color), index): exceptionAgingData => {
+    label,
+    color,
+    total: contributions->Array.reduce(0, (acc, (i, count)) => i == index ? acc + count : acc),
+  })
 }
 
 let getExceptionTriageItems = (~overviewRules: array<overviewRulesResponse>): array<
@@ -859,7 +896,7 @@ let getExceptionTriageItems = (~overviewRules: array<overviewRulesResponse>): ar
 let getStagingTriageItems = (~processingEntries: array<processingEntryType>): array<
   exceptionTriageItem,
 > => {
-  let counts: Dict.t<int> = Dict.make()
+  let counts = Dict.make()
   processingEntries->Array.forEach(entry => {
     let label = (entry.data.needs_manual_review_type :> string)->snakeToTitle
     counts->Dict.set(label, counts->getValueFromDict(label, 0) + 1)
@@ -871,17 +908,15 @@ let getStagingTriageItems = (~processingEntries: array<processingEntryType>): ar
   ->Array.toSorted((a, b) => Int.compare(b.total, a.total))
 }
 
-let triageColors = ["#8B97A8", "#E8956A", "#5BAD91", "#4A90E2", "#C87880", "#7BABC8", "#D4AA55"]
-
 let getTriageColor = index =>
-  triageColors->getValueFromArray(mod(index, triageColors->Array.length), "#D95F5F")
+  triageColors->getValueFromArray(mod(index, triageColors->Array.length), exceptionColor)
 
 let exceptionTriageTooltipFormatter = (~totalCount) =>
   (
     @this
     (this: PieGraphTypes.pointFormatter) => {
       let pct =
-        totalCount > 0 ? Math.round(this.y /. totalCount->Int.toFloat *. 100.0)->Float.toInt : 0
+        (totalCount > 0 ? this.y /. totalCount->Int.toFloat *. 100.0 : 0.0)->valueFormatter(Rate)
       `<div style="min-width:190px;max-width:260px;border-radius:12px;background:#1A1F2E;box-shadow:0 8px 24px rgba(0,0,0,.25);overflow:hidden;">
         <div style="padding:10px 14px;">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
@@ -895,7 +930,7 @@ let exceptionTriageTooltipFormatter = (~totalCount) =>
           </div>
           <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;">
             <span style="font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:0.4px;">exceptions</span>
-            <span style="font-size:11px;font-weight:600;color:${this.color};">${pct->Int.toString}%</span>
+            <span style="font-size:11px;font-weight:600;color:${this.color};">${pct}</span>
           </div>
         </div>
       </div>`
@@ -1235,7 +1270,7 @@ let overviewChartTooltipFormatter = (~points: array<overviewChartPoint>) =>
       }
       let hoveredIndex = (this.points->getValueFromArray(0, defaultPoint)).point.index
       let point = points->getValueFromArray(hoveredIndex, defaultChartPoint)
-      let percentage = point.matchRate->Float.toFixedWithPrecision(~digits=2)->removeTrailingZero
+      let percentage = point.matchRate->valueFormatter(Rate)
 
       let statusRows =
         overviewChartStatusConfig
@@ -1264,7 +1299,7 @@ let overviewChartTooltipFormatter = (~points: array<overviewChartPoint>) =>
           ${statusRows}
           <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:8px;margin-top:4px;display:flex;align-items:center;justify-content:space-between;">
             <span style="font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:0.4px;">Match rate</span>
-            <span style="font-size:13px;font-weight:700;color:${matchRateColor};">${percentage}%</span>
+            <span style="font-size:13px;font-weight:700;color:${matchRateColor};">${percentage}</span>
           </div>
         </div>
       </div>`
