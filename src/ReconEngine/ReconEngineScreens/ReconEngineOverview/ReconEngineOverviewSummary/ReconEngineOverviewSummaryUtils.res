@@ -868,7 +868,7 @@ let getExceptionAgingDataFromTimeSeries = (
 let getExceptionTriageItems = (~overviewRules: array<overviewRulesResponse>): array<
   exceptionTriageItem,
 > => {
-  let counts: Dict.t<int> = Dict.make()
+  let counts = Dict.make()
   let add = (label, count) => counts->Dict.set(label, counts->getValueFromDict(label, 0) + count)
 
   overviewRules->Array.forEach(rule =>

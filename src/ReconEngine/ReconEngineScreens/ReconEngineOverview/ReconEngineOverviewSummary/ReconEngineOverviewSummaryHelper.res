@@ -228,6 +228,43 @@ module ExceptionAgingRow = {
   }
 }
 
+module ExceptionAgingBar = {
+  @react.component
+  let make = (~agingData: array<exceptionAgingData>, ~total: int) => {
+    <div className="flex h-2 w-full rounded-full overflow-hidden mb-5">
+      {agingData
+      ->Array.filter(item => item.total > 0)
+      ->Array.mapWithIndex((item, index) => {
+        let pct = item.total->Int.toFloat /. total->Int.toFloat *. 100.0
+        let tooltipContent =
+          <div className="flex flex-col gap-0.5 px-1">
+            <p className={body.xs.semibold}> {item.label->React.string} </p>
+            <p className={body.xs.regular}>
+              {`${item.total->Int.toString} exceptions · `->React.string}
+              <PercentageCell value=pct />
+            </p>
+          </div>
+        let segment =
+          <div
+            className="h-full cursor-default"
+            style={ReactDOM.Style.make(
+              ~width=`${pct->Float.toFixedWithPrecision(~digits=1)}%`,
+              ~backgroundColor=item.color,
+              (),
+            )}
+          />
+        <ToolTip
+          key={index->Int.toString}
+          descriptionComponent=tooltipContent
+          toolTipFor=segment
+          toolTipPosition=Top
+        />
+      })
+      ->React.array}
+    </div>
+  }
+}
+
 module ExceptionTriageRow = {
   @react.component
   let make = (~item: exceptionTriageItem, ~total: int, ~index: int) => {

@@ -168,3 +168,5 @@ type exceptionTriageItem = {
   label: string,
   total: int,
 }
+
+type triageTab = Transactions | Staging
