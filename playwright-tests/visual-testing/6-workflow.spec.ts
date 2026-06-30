@@ -181,7 +181,7 @@ test.describe("Visual Testing - Workflow", () => {
       // Fresh signup → no connectors, so the setup CTA lands on the
       // "configure at least 1 connector" guard screen.
       await expect(paymentRouting.noConnectorsMessage).toContainText(
-        "Please configure at least 1 connector",
+        "Please connect at least 1 processor in order to create a rule.",
       );
 
       await expect(page).toHaveScreenshot(
@@ -570,7 +570,7 @@ test.describe("Visual Testing - Workflow", () => {
       await payoutRouting.volumeBasedRoutingSetupButton.click();
 
       await expect(payoutRouting.noConnectorsMessage).toContainText(
-        "Please configure at least 1 connector",
+        "Please connect at least 1 processor in order to create a rule.",
       );
 
       await expect(page).toHaveScreenshot(

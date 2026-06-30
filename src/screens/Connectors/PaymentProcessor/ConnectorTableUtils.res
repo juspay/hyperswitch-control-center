@@ -46,7 +46,7 @@ let getHeading = colType => {
   | Name => Table.makeHeaderInfo(~key="connector_name", ~title="Processor")
   | TestMode => Table.makeHeaderInfo(~key="test_mode", ~title="Test Mode")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status")
-  | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled")
+  | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Status")
   | Actions => Table.makeHeaderInfo(~key="actions", ~title="")
   | MerchantConnectorId =>
     Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector ID")
@@ -104,7 +104,9 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
     | MerchantConnectorId =>
       CustomCell(
         <HelperComponents.CopyTextCustomComp
-          customTextCss="w-36 truncate whitespace-nowrap" displayValue=Some(connector.id)
+          customTextCss="w-36 truncate whitespace-nowrap"
+          displayValue=Some(connector.id)
+          showTooltip=true
         />,
         "",
       )

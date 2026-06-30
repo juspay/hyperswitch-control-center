@@ -570,6 +570,40 @@ npx playwright test
 
 ---
 
+### Running Against a Remote Environment
+
+The suite defaults to the local stack, but every environment-specific value is
+read from environment variables. Supply
+the values for the target environment from your shell or a local `.env` file.
+
+| Variable | Purpose | Default (local) |
+| --- | --- | --- |
+| `PLAYWRIGHT_BASE_URL` | Dashboard URL under test | `http://localhost:9000` |
+| `HYPERSWITCH_API_URL` | Backend API base URL | `http://localhost:8080` |
+| `HYPERSWITCH_ADMIN_API_KEY` | Admin api-key used to provision test data | `test_admin` |
+| `PLAYWRIGHT_USERNAME` / `PLAYWRIGHT_PASSWORD` | Login credentials | test defaults |
+
+When `PLAYWRIGHT_BASE_URL` is non-localhost, the local dev server is **not**
+started automatically — the tests run directly against the remote URL, so no
+local build or `npm run start:test` is needed.
+
+Mail-dependent tests (magic link, password reset, user invitation) rely on a
+local mail inbox and cannot run against a real environment. They are tagged
+`@mail` and excluded by the `pw:test:remote` script:
+
+```bash
+PLAYWRIGHT_BASE_URL='https://dashboard.example.com' \
+HYPERSWITCH_API_URL='https://api.example.com' \
+HYPERSWITCH_ADMIN_API_KEY='<admin-key>' \
+PLAYWRIGHT_USERNAME='<user-email>' \
+PLAYWRIGHT_PASSWORD='<password>' \
+npm run pw:test:remote
+```
+
+Swap the values for sandbox to target the sandbox environment.
+
+---
+
 ### Visual Testing
 
 #### What is Visual Testing?
