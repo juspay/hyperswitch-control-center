@@ -2,10 +2,6 @@ open FormRenderer
 open Typography
 open ThemeFeatureUtils
 
-// Theme color fields flip the picker above the field near the bottom of the settings box
-// so it isn't clipped; fields with room below open downward as usual.
-let themeColorPicker = (~defaultValue) => InputFields.colorPickerInput(~defaultValue)
-
 module BrandSettings = {
   @react.component
   let make = (~colorsFromForm: HyperSwitchConfigTypes.colorPalette, ~isUpdatePage=false) => {
@@ -14,7 +10,7 @@ module BrandSettings = {
       ~label="Primary Color",
       ~name="theme_data.settings.colors.primary",
       ~placeholder="Enter Primary Color.",
-      ~customInput=themeColorPicker(~defaultValue=colorsFromForm.primary),
+      ~customInput=InputFields.colorPickerInput(~defaultValue=colorsFromForm.primary),
     )
 
     let themeNameField = makeFieldInfo(
@@ -44,20 +40,20 @@ module SidebarSettings = {
       ~label="Background Color",
       ~name="theme_data.settings.sidebar.primary",
       ~placeholder="Enter sidebar background color.",
-      ~customInput=themeColorPicker(~defaultValue=sidebarFromForm.primary),
+      ~customInput=InputFields.colorPickerInput(~defaultValue=sidebarFromForm.primary),
     )
 
     let textColorSidebar = makeFieldInfo(
       ~label="Text Color",
       ~name="theme_data.settings.sidebar.textColor",
       ~placeholder="Enter sidebar text color.",
-      ~customInput=themeColorPicker(~defaultValue=sidebarFromForm.textColor),
+      ~customInput=InputFields.colorPickerInput(~defaultValue=sidebarFromForm.textColor),
     )
     let activeItemColor = makeFieldInfo(
       ~label="Active Item Color",
       ~name="theme_data.settings.sidebar.textColorPrimary",
       ~placeholder="Enter active item color.",
-      ~customInput=themeColorPicker(~defaultValue=sidebarFromForm.textColorPrimary),
+      ~customInput=InputFields.colorPickerInput(~defaultValue=sidebarFromForm.textColorPrimary),
     )
     <div className="flex flex-col gap-4">
       <div className={`${body.lg.semibold}`}> {React.string("Sidebar Settings")} </div>
@@ -77,33 +73,41 @@ module ButtonSettings = {
     let primaryButtonBackground = makeFieldInfo(
       ~label="Background",
       ~name="theme_data.settings.buttons.primary.backgroundColor",
-      ~customInput=themeColorPicker(~defaultValue=buttonsFromForm.primary.backgroundColor),
+      ~customInput=InputFields.colorPickerInput(
+        ~defaultValue=buttonsFromForm.primary.backgroundColor,
+      ),
     )
     let primaryButtonTextColor = makeFieldInfo(
       ~label="Text Color",
       ~name="theme_data.settings.buttons.primary.textColor",
-      ~customInput=themeColorPicker(~defaultValue=buttonsFromForm.primary.textColor),
+      ~customInput=InputFields.colorPickerInput(~defaultValue=buttonsFromForm.primary.textColor),
     )
     let primaryButtonHoverBackground = makeFieldInfo(
       ~label="Hover Background",
       ~name="theme_data.settings.buttons.primary.hoverBackgroundColor",
-      ~customInput=themeColorPicker(~defaultValue=buttonsFromForm.primary.hoverBackgroundColor),
+      ~customInput=InputFields.colorPickerInput(
+        ~defaultValue=buttonsFromForm.primary.hoverBackgroundColor,
+      ),
     )
 
     let secondaryButtonBackground = makeFieldInfo(
       ~label="Background",
       ~name="theme_data.settings.buttons.secondary.backgroundColor",
-      ~customInput=themeColorPicker(~defaultValue=buttonsFromForm.secondary.backgroundColor),
+      ~customInput=InputFields.colorPickerInput(
+        ~defaultValue=buttonsFromForm.secondary.backgroundColor,
+      ),
     )
     let secondaryButtonTextColor = makeFieldInfo(
       ~label="Text Color",
       ~name="theme_data.settings.buttons.secondary.textColor",
-      ~customInput=themeColorPicker(~defaultValue=buttonsFromForm.secondary.textColor),
+      ~customInput=InputFields.colorPickerInput(~defaultValue=buttonsFromForm.secondary.textColor),
     )
     let secondaryButtonHoverBackground = makeFieldInfo(
       ~label="Hover Background",
       ~name="theme_data.settings.buttons.secondary.hoverBackgroundColor",
-      ~customInput=themeColorPicker(~defaultValue=buttonsFromForm.secondary.hoverBackgroundColor),
+      ~customInput=InputFields.colorPickerInput(
+        ~defaultValue=buttonsFromForm.secondary.hoverBackgroundColor,
+      ),
     )
 
     <div className="flex flex-col gap-4">
@@ -151,7 +155,6 @@ module EmailSettings = {
       ~label="Primary Color",
       ~name="email_config.primary_color",
       ~placeholder="Enter primary color.",
-      // Always opens downward (no auto-flip) — it's the top field in the email box.
       ~customInput=InputFields.colorPickerInput(~defaultValue=emailFromForm.primary_color),
     )
 
@@ -159,14 +162,14 @@ module EmailSettings = {
       ~label="Foreground Color",
       ~name="email_config.foreground_color",
       ~placeholder="Enter foreground color.",
-      ~customInput=themeColorPicker(~defaultValue=emailFromForm.foreground_color),
+      ~customInput=InputFields.colorPickerInput(~defaultValue=emailFromForm.foreground_color),
     )
 
     let backgroundColorField = makeFieldInfo(
       ~label="Background Color",
       ~name="email_config.background_color",
       ~placeholder="Enter background color.",
-      ~customInput=themeColorPicker(~defaultValue=emailFromForm.background_color),
+      ~customInput=InputFields.colorPickerInput(~defaultValue=emailFromForm.background_color),
     )
 
     <div className="flex flex-col gap-4">
