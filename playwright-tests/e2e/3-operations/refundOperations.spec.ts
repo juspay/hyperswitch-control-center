@@ -40,7 +40,7 @@ const goToRefunds = async (
 };
 
 test.describe("Refunds Operations", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);

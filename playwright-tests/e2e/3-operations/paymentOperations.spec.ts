@@ -13,11 +13,11 @@ import {
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 const columnSize = 24;
-const requiredColumnsSize = 14;
+const _requiredColumnsSize = 14;
 let email: string;
 
 test.describe("Payment Operations", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -833,7 +833,7 @@ test.describe("Payment Operations", () => {
 
         const expectedStart = formatDate(previousStartDate);
         const expectedEnd = formatDate(parsedStartDate);
-        const expectedRange = `${expectedStart} - ${expectedEnd}`;
+        const _expectedRange = `${expectedStart} - ${expectedEnd}`;
 
         await page
           .locator('[data-button-for="expandTheSearchToThePrevious90Days"]')

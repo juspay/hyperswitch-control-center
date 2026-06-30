@@ -13,7 +13,7 @@ import { frmConnectorConfig } from "../../support/fixtures/frmConnectorConfig";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
-async function signupAndLogin(page: Page, context: BrowserContext) {
+async function signupAndLogin(page: Page, _context: BrowserContext) {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -105,7 +105,7 @@ test.describe("Live FRM Connectors", () => {
   let email: string;
 
   const frmConnectors = Object.entries(frmConnectorConfig);
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);

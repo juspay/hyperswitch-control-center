@@ -12,7 +12,7 @@ import { billingProcessorConfig } from "../../support/fixtures/billingProcessorC
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
-async function signupAndLogin(page: Page, context: BrowserContext) {
+async function signupAndLogin(page: Page, _context: BrowserContext) {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -167,7 +167,7 @@ test.describe("All Billing Processors", () => {
   let email: string;
 
   const billingProcessors = Object.entries(billingProcessorConfig);
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);

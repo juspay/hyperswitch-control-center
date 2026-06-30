@@ -6,7 +6,10 @@ import { HomePage } from "../support/pages/homepage/HomePage";
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 test.describe("Visual Testing - Homepage", () => {
-  test("homepage should match visual snapshot", async ({ page, context }) => {
+  test("homepage should match visual snapshot", async ({
+    page,
+    context: _context,
+  }) => {
     const homePage = new HomePage(page);
 
     // Freeze time so the greeting ("Good morning"/"afternoon"/"evening")

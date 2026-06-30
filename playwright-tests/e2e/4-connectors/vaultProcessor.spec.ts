@@ -12,7 +12,7 @@ import { vaultProcessorConfig } from "../../support/fixtures/vaultProcessorConfi
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
-async function signupAndLogin(page: Page, context: BrowserContext) {
+async function signupAndLogin(page: Page, _context: BrowserContext) {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -190,7 +190,7 @@ test.describe("All Vault Processors", () => {
   let email: string;
 
   const vaultProcessors = Object.entries(vaultProcessorConfig);
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);

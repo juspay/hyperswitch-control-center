@@ -8,7 +8,9 @@ export class PaymentOperations {
   }
 
   get transactionView(): Locator {
-    return this.page.locator('[class="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-3 grid-cols-2 gap-6 mb-8"]');
+    return this.page.locator(
+      '[class="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-3 grid-cols-2 gap-6 mb-8"]',
+    );
   }
 
   get searchBox(): Locator {

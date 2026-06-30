@@ -134,7 +134,7 @@ test.describe("Visual Testing - Auth Pages", () => {
 
   test("2FA setup page for new user should match visual snapshot", async ({
     page,
-    context,
+    context: _context,
   }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -163,7 +163,7 @@ test.describe("Visual Testing - Auth Pages", () => {
 
   test("2FA verification and recovery code pages for returning user with 2FA enabled", async ({
     page,
-    context,
+    context: _context,
   }) => {
     let totpSecret = "";
     await mockV2MerchantList(page);

@@ -5,13 +5,48 @@
     "node": true,
     "shelljs": true
   },
-  "extends": [],
+  "extends": ["eslint:recommended"],
   "parserOptions": {
     "ecmaVersion": "latest",
-    "sourceType": "module"
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
   },
   "plugins": ["react-hooks"],
+  "ignorePatterns": [
+    "*.res.js",
+    "dist/",
+    "coverage/",
+    "public/",
+    "node_modules/"
+  ],
   "rules": {
-    "react-hooks/rules-of-hooks": "error"
-  }
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "parser": "@typescript-eslint/parser",
+      "plugins": ["@typescript-eslint", "react-hooks", "unused-imports"],
+      "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended"
+      ],
+      "rules": {
+        "unused-imports/no-unused-imports": "error",
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+            "argsIgnorePattern": "^_",
+            "varsIgnorePattern": "^_",
+            "caughtErrorsIgnorePattern": "^_"
+          }
+        ],
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "warn"
+      }
+    }
+  ]
 }

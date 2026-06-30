@@ -4,11 +4,7 @@ import { HomePage } from "../../support/pages/homepage/HomePage";
 import { UsersPage } from "../../support/pages/settings/UsersPage";
 import { SignInPage } from "../../support/pages/auth/SignInPage";
 import { ResetPasswordPage } from "../../support/pages/auth/ResetPasswordPage";
-import {
-  generateUniqueEmail,
-  getInvalidEmails,
-  generateDateTimeString,
-} from "../../support/helper";
+import { generateUniqueEmail } from "../../support/helper";
 import {
   signupUser,
   loginUI,
@@ -17,11 +13,11 @@ import {
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 const MAIL_URL = process.env.PLAYWRIGHT_MAIL_URL || "http://localhost:8025";
-const email = "playwright@test.com";
+const _email = "playwright@test.com";
 
 async function setupAndNavigate(
   page: Page,
-  context: BrowserContext,
+  _context: BrowserContext,
 ): Promise<{ email: string; usersPage: UsersPage }> {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -32,7 +28,7 @@ async function setupAndNavigate(
 }
 
 test.describe("Users - UI", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -60,7 +56,10 @@ test.describe("Users - UI", () => {
     await expect(usersPage.inviteUsersRoleButton).toBeEnabled();
   });
 
-  test("Search filters the users table by email", async ({ page, context }) => {
+  test("Search filters the users table by email", async ({
+    page,
+    context: _context,
+  }) => {
     const usersPage = new UsersPage(page);
     const searchInput = usersPage.searchInput;
     await expect(searchInput).toBeAttached();
@@ -185,7 +184,7 @@ test.describe("Users - UI", () => {
 });
 
 test.describe("Users - Invite Users", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -193,58 +192,60 @@ test.describe("Users - Invite Users", () => {
     await homePage.users.click();
   });
 
-  test("should successfully invite a user and accept invite from email link", { tag: "@mail" }, async ({
-    page,
-  }) => {
-    // Invite + sign-out + accept-invite-via-mail + 2FA skip + sign-in is a
-    // long chain of independent waits; the default 30s budget can't cover it
-    // on CI even when each individual step is fast.
-    test.setTimeout(120000);
-    const homePage = new HomePage(page);
-    const usersPage = new UsersPage(page);
-    const signinPage = new SignInPage(page);
-    const resetPasswordPage = new ResetPasswordPage(page);
-    const invitedEmail = generateUniqueEmail();
-    const password = "Playwright00#";
+  test(
+    "should successfully invite a user and accept invite from email link",
+    { tag: "@mail" },
+    async ({ page }) => {
+      // Invite + sign-out + accept-invite-via-mail + 2FA skip + sign-in is a
+      // long chain of independent waits; the default 30s budget can't cover it
+      // on CI even when each individual step is fast.
+      test.setTimeout(120000);
+      const homePage = new HomePage(page);
+      const usersPage = new UsersPage(page);
+      const signinPage = new SignInPage(page);
+      const resetPasswordPage = new ResetPasswordPage(page);
+      const invitedEmail = generateUniqueEmail();
+      const password = "Playwright00#";
 
-    await homePage.users.click();
-    await usersPage.inviteUser(invitedEmail);
+      await homePage.users.click();
+      await usersPage.inviteUser(invitedEmail);
 
-    await homePage.userAccount.click();
-    await homePage.signOut.click();
+      await homePage.userAccount.click();
+      await homePage.signOut.click();
 
-    await redirectFromMailInbox(
-      page,
-      invitedEmail,
-      "You have been invited to join Hyperswitch Community!",
-    );
+      await redirectFromMailInbox(
+        page,
+        invitedEmail,
+        "You have been invited to join Hyperswitch Community!",
+      );
 
-    const continueWithPassword = page.getByRole("button", {
-      name: "Continue with Password",
-    });
-    await expect(continueWithPassword).toBeVisible();
-    await continueWithPassword.click();
+      const continueWithPassword = page.getByRole("button", {
+        name: "Continue with Password",
+      });
+      await expect(continueWithPassword).toBeVisible();
+      await continueWithPassword.click();
 
-    await signinPage.skip2FAButton.click();
+      await signinPage.skip2FAButton.click();
 
-    await resetPasswordPage.createPassword.fill(password);
-    await resetPasswordPage.confirmPassword.fill(password);
-    await resetPasswordPage.confirmButton.click();
+      await resetPasswordPage.createPassword.fill(password);
+      await resetPasswordPage.confirmPassword.fill(password);
+      await resetPasswordPage.confirmButton.click();
 
-    await signinPage.emailInput.fill(invitedEmail);
-    await signinPage.passwordInput.fill(password);
-    await signinPage.signinButton.click();
-    await expect(signinPage.headerText2FA).toContainText(
-      "Enable Two Factor Authentication",
-    );
-    await signinPage.skip2FAButton.click();
+      await signinPage.emailInput.fill(invitedEmail);
+      await signinPage.passwordInput.fill(password);
+      await signinPage.signinButton.click();
+      await expect(signinPage.headerText2FA).toContainText(
+        "Enable Two Factor Authentication",
+      );
+      await signinPage.skip2FAButton.click();
 
-    await expect(page).toHaveURL(/.*dashboard\/home/, { timeout: 30000 });
+      await expect(page).toHaveURL(/.*dashboard\/home/, { timeout: 30000 });
 
-    await expect(
-      page.getByRole("button", { name: invitedEmail }),
-    ).toBeVisible();
-  });
+      await expect(
+        page.getByRole("button", { name: invitedEmail }),
+      ).toBeVisible();
+    },
+  );
 
   test("should redirect to login when accepting invite with an invalid or expired token", async ({
     page,
@@ -285,7 +286,7 @@ test.describe("Users - Invite Users", () => {
 
   test("should accept multiple emails as pills in invite list", async ({
     page,
-    context,
+    context: _context,
   }) => {
     const usersPage = new UsersPage(page);
     const email1 = generateUniqueEmail();
@@ -304,7 +305,7 @@ test.describe("Users - Invite Users", () => {
 
   test("Send Invite button is disabled when invite list is empty", async ({
     page,
-    context,
+    context: _context,
   }) => {
     const usersPage = new UsersPage(page);
 
@@ -484,112 +485,116 @@ test.describe("Users - Details", () => {
     await expect(usersPage.manageUserRoleButton).not.toBeAttached();
   });
 
-  test("Verify the UI of the User Details page - Other user details", { tag: "@mail" }, async ({ page, context }) => {
-    // Two full sign-in flows + invite acceptance round-trip + role inspection
-    // — the chained waits routinely overflow the 30s default on CI.
-    test.setTimeout(180000);
-    const { email, usersPage } = await setupAndNavigate(page, context);
+  test(
+    "Verify the UI of the User Details page - Other user details",
+    { tag: "@mail" },
+    async ({ page, context }) => {
+      // Two full sign-in flows + invite acceptance round-trip + role inspection
+      // — the chained waits routinely overflow the 30s default on CI.
+      test.setTimeout(180000);
+      const { email, usersPage } = await setupAndNavigate(page, context);
 
-    const homePage = new HomePage(page);
-    const signinPage = new SignInPage(page);
-    const resetPasswordPage = new ResetPasswordPage(page);
-    const invitedEmail = generateUniqueEmail();
-    const password = "Playwright00#";
+      const homePage = new HomePage(page);
+      const signinPage = new SignInPage(page);
+      const resetPasswordPage = new ResetPasswordPage(page);
+      const invitedEmail = generateUniqueEmail();
+      const password = "Playwright00#";
 
-    await homePage.users.click();
-    await usersPage.inviteUser(invitedEmail);
+      await homePage.users.click();
+      await usersPage.inviteUser(invitedEmail);
 
-    await homePage.userAccount.click();
-    await homePage.signOut.click();
+      await homePage.userAccount.click();
+      await homePage.signOut.click();
 
-    await redirectFromMailInbox(
-      page,
-      invitedEmail,
-      "You have been invited to join Hyperswitch Community!",
-    );
+      await redirectFromMailInbox(
+        page,
+        invitedEmail,
+        "You have been invited to join Hyperswitch Community!",
+      );
 
-    const continueWithPassword = page.getByRole("button", {
-      name: "Continue with Password",
-    });
-    await expect(continueWithPassword).toBeVisible();
-    await continueWithPassword.click();
+      const continueWithPassword = page.getByRole("button", {
+        name: "Continue with Password",
+      });
+      await expect(continueWithPassword).toBeVisible();
+      await continueWithPassword.click();
 
-    await signinPage.skip2FAButton.click();
+      await signinPage.skip2FAButton.click();
 
-    await resetPasswordPage.createPassword.fill(password);
-    await resetPasswordPage.confirmPassword.fill(password);
-    await resetPasswordPage.confirmButton.click();
+      await resetPasswordPage.createPassword.fill(password);
+      await resetPasswordPage.confirmPassword.fill(password);
+      await resetPasswordPage.confirmButton.click();
 
-    await signinPage.emailInput.fill(invitedEmail);
-    await signinPage.passwordInput.fill(password);
-    await signinPage.signinButton.click();
-    await expect(signinPage.headerText2FA).toContainText(
-      "Enable Two Factor Authentication",
-    );
-    await signinPage.skip2FAButton.click();
+      await signinPage.emailInput.fill(invitedEmail);
+      await signinPage.passwordInput.fill(password);
+      await signinPage.signinButton.click();
+      await expect(signinPage.headerText2FA).toContainText(
+        "Enable Two Factor Authentication",
+      );
+      await signinPage.skip2FAButton.click();
 
-    await expect(page).toHaveURL(/.*dashboard\/home/, { timeout: 30000 });
+      await expect(page).toHaveURL(/.*dashboard\/home/, { timeout: 30000 });
 
-    await expect(
-      page.getByRole("button", { name: invitedEmail }),
-    ).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: invitedEmail }),
+      ).toBeVisible();
 
-    await homePage.userAccount.click();
-    await homePage.signOut.click();
+      await homePage.userAccount.click();
+      await homePage.signOut.click();
 
-    await expect(page).toHaveURL(/.*dashboard\/login/, { timeout: 30000 });
+      await expect(page).toHaveURL(/.*dashboard\/login/, { timeout: 30000 });
 
-    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+      await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
-    const merchantId = (await homePage.merchantID.nth(0).textContent()) ?? "";
-    expect(merchantId, "merchantId should be readable from header").not.toBe(
-      "",
-    );
-    await homePage.users.click();
-    await page.waitForLoadState("networkidle");
+      const merchantId = (await homePage.merchantID.nth(0).textContent()) ?? "";
+      expect(merchantId, "merchantId should be readable from header").not.toBe(
+        "",
+      );
+      await homePage.users.click();
+      await page.waitForLoadState("networkidle");
 
-    const merchantDeveloper = usersPage.merchantDeveloperText;
-    await expect(merchantDeveloper).toBeVisible();
-    await merchantDeveloper.click();
+      const merchantDeveloper = usersPage.merchantDeveloperText;
+      await expect(merchantDeveloper).toBeVisible();
+      await merchantDeveloper.click();
 
-    await expect(usersPage.navigateToTeamManagementLink).toBeVisible();
-    await expect(usersPage.currentPageBreadcrumb(invitedEmail)).toBeVisible();
+      await expect(usersPage.navigateToTeamManagementLink).toBeVisible();
+      await expect(usersPage.currentPageBreadcrumb(invitedEmail)).toBeVisible();
 
-    await usersPage.verifyUserDetailsUsernameDisplay(invitedEmail);
-    await usersPage.verifyUserDetailsEmailDisplay(invitedEmail);
+      await usersPage.verifyUserDetailsUsernameDisplay(invitedEmail);
+      await usersPage.verifyUserDetailsEmailDisplay(invitedEmail);
 
-    await expect(usersPage.table).toBeAttached();
-    await expect(usersPage.tableHeaders).toHaveCount(5);
+      await expect(usersPage.table).toBeAttached();
+      await expect(usersPage.tableHeaders).toHaveCount(5);
 
-    const headers = usersPage.tableHeaders;
-    await expect(headers.filter({ hasText: "Merchants" })).toHaveCount(1);
-    await expect(headers.filter({ hasText: "Profile Name" })).toHaveCount(1);
-    await expect(headers.filter({ hasText: "Role" })).toHaveCount(1);
-    await expect(headers.filter({ hasText: "Status" })).toHaveCount(1);
+      const headers = usersPage.tableHeaders;
+      await expect(headers.filter({ hasText: "Merchants" })).toHaveCount(1);
+      await expect(headers.filter({ hasText: "Profile Name" })).toHaveCount(1);
+      await expect(headers.filter({ hasText: "Role" })).toHaveCount(1);
+      await expect(headers.filter({ hasText: "Status" })).toHaveCount(1);
 
-    const updatedMerchantId =
-      merchantId.charAt(0).toUpperCase() + merchantId.slice(1);
+      const updatedMerchantId =
+        merchantId.charAt(0).toUpperCase() + merchantId.slice(1);
 
-    await usersPage.verifyUserDetailsTableRowContent(
-      updatedMerchantId,
-      "all_profiles",
-      "Merchant Developer",
-    );
-    await usersPage.verifyActiveStatus();
-    await expect(usersPage.manageUserRoleButton).toBeVisible();
-  });
+      await usersPage.verifyUserDetailsTableRowContent(
+        updatedMerchantId,
+        "all_profiles",
+        "Merchant Developer",
+      );
+      await usersPage.verifyActiveStatus();
+      await expect(usersPage.manageUserRoleButton).toBeVisible();
+    },
+  );
 
   test("Verify the UI of the User Details page - Different merchant context", async ({
     page,
     context,
   }) => {
-    const { email, usersPage } = await setupAndNavigate(page, context);
+    const { _email, usersPage } = await setupAndNavigate(page, context);
 
     const homePage = new HomePage(page);
-    const signinPage = new SignInPage(page);
-    const resetPasswordPage = new ResetPasswordPage(page);
+    const _signinPage = new SignInPage(page);
+    const _resetPasswordPage = new ResetPasswordPage(page);
     const invitedEmail = generateUniqueEmail();
-    const password = "Playwright00#";
+    const _password = "Playwright00#";
     const newMerchantName = `pwMerchant${Date.now()}`;
 
     await page.getByRole("link", { name: "Overview" }).click();
@@ -647,9 +652,9 @@ test.describe("Users - Details", () => {
     context,
   }) => {
     test.setTimeout(60000);
-    const homePage = new HomePage(page);
+    const _homePage = new HomePage(page);
     const invitedEmail = generateUniqueEmail();
-    const { email, usersPage } = await setupAndNavigate(page, context);
+    const { _email, usersPage } = await setupAndNavigate(page, context);
     await usersPage.inviteUser(invitedEmail);
 
     await usersPage.visit();
@@ -781,129 +786,130 @@ test.describe("Users - Details", () => {
     await expect(usersPage.inviteResentText).toBeVisible();
   });
 
-  test("Check User permissions - Admin roles see Workflows in sidebar; developer roles do not", { tag: "@mail" }, async ({
-    page,
-    context,
-  }) => {
-    // Four invite cycles plus four full sign-in flows in a single test —
-    // by far the longest in the suite. Allow significant headroom on CI.
-    test.setTimeout(360000);
-    const { usersPage } = await setupAndNavigate(page, context);
-    const homePage = new HomePage(page);
-    const signinPage = new SignInPage(page);
-    const resetPasswordPage = new ResetPasswordPage(page);
+  test(
+    "Check User permissions - Admin roles see Workflows in sidebar; developer roles do not",
+    { tag: "@mail" },
+    async ({ page, context }) => {
+      // Four invite cycles plus four full sign-in flows in a single test —
+      // by far the longest in the suite. Allow significant headroom on CI.
+      test.setTimeout(360000);
+      const { usersPage } = await setupAndNavigate(page, context);
+      const homePage = new HomePage(page);
+      const signinPage = new SignInPage(page);
+      const resetPasswordPage = new ResetPasswordPage(page);
 
-    const password = "Playwright00#";
-    const invitees = [
-      {
-        email: generateUniqueEmail(),
-        role: "Merchant Admin",
-        scope: "merchant" as const,
-        expectWorkflow: true,
-      },
-      {
-        email: generateUniqueEmail(),
-        role: "Merchant Developer",
-        scope: "merchant" as const,
-        expectWorkflow: false,
-      },
-      {
-        email: generateUniqueEmail(),
-        role: "Profile Admin",
-        scope: "profile" as const,
-        expectWorkflow: true,
-      },
-      {
-        email: generateUniqueEmail(),
-        role: "Profile Developer",
-        scope: "profile" as const,
-        expectWorkflow: false,
-      },
-    ];
+      const password = "Playwright00#";
+      const invitees = [
+        {
+          email: generateUniqueEmail(),
+          role: "Merchant Admin",
+          scope: "merchant" as const,
+          expectWorkflow: true,
+        },
+        {
+          email: generateUniqueEmail(),
+          role: "Merchant Developer",
+          scope: "merchant" as const,
+          expectWorkflow: false,
+        },
+        {
+          email: generateUniqueEmail(),
+          role: "Profile Admin",
+          scope: "profile" as const,
+          expectWorkflow: true,
+        },
+        {
+          email: generateUniqueEmail(),
+          role: "Profile Developer",
+          scope: "profile" as const,
+          expectWorkflow: false,
+        },
+      ];
 
-    const inviteAtScope = async (
-      email: string,
-      role: string,
-      scope: "merchant" | "profile",
-    ) => {
-      await usersPage.inviteUsersButton.click();
-      await usersPage.emailListInput.fill(email);
-      await usersPage.emailListInput.press("Enter");
+      const inviteAtScope = async (
+        email: string,
+        role: string,
+        scope: "merchant" | "profile",
+      ) => {
+        await usersPage.inviteUsersButton.click();
+        await usersPage.emailListInput.fill(email);
+        await usersPage.emailListInput.press("Enter");
 
-      if (scope === "profile") {
-        await usersPage.allProfilesValue.click();
-        await usersPage.defaultDropdownValue.click();
+        if (scope === "profile") {
+          await usersPage.allProfilesValue.click();
+          await usersPage.defaultDropdownValue.click();
+        }
+
+        await usersPage.roleOption.click();
+        await usersPage.entityOption.filter({ hasText: role }).first().click();
+
+        await usersPage.sendInviteButton.click();
+        await expect(usersPage.sendInviteButton).toBeHidden();
+        await usersPage.visit();
+      };
+
+      for (const { email, role, scope } of invitees) {
+        await inviteAtScope(email, role, scope);
       }
 
-      await usersPage.roleOption.click();
-      await usersPage.entityOption.filter({ hasText: role }).first().click();
-
-      await usersPage.sendInviteButton.click();
-      await expect(usersPage.sendInviteButton).toBeHidden();
-      await usersPage.visit();
-    };
-
-    for (const { email, role, scope } of invitees) {
-      await inviteAtScope(email, role, scope);
-    }
-
-    await homePage.userAccount.click();
-    await homePage.signOut.click();
-    await expect(page).toHaveURL(/.*dashboard\/login/);
-
-    const acceptInviteAndSignIn = async (invitedEmail: string) => {
-      await redirectFromMailInbox(
-        page,
-        invitedEmail,
-        "You have been invited to join Hyperswitch Community!",
-      );
-      await page
-        .getByRole("button", { name: "Continue with Password" })
-        .click();
-      await signinPage.skip2FAButton.click();
-
-      await resetPasswordPage.createPassword.fill(password);
-      await resetPasswordPage.confirmPassword.fill(password);
-      await resetPasswordPage.confirmButton.click();
-
-      await signinPage.emailInput.fill(invitedEmail);
-      await signinPage.passwordInput.fill(password);
-      await signinPage.signinButton.click();
-      await expect(signinPage.headerText2FA).toContainText(
-        "Enable Two Factor Authentication",
-      );
-      await signinPage.skip2FAButton.click();
-
-      await expect(page).toHaveURL(/.*dashboard\/home/);
-      await expect(
-        page.getByRole("button", { name: invitedEmail }),
-      ).toBeVisible();
-    };
-
-    const signOutCurrentUser = async () => {
       await homePage.userAccount.click();
       await homePage.signOut.click();
       await expect(page).toHaveURL(/.*dashboard\/login/);
-    };
 
-    for (const { email, role, expectWorkflow } of invitees) {
-      await acceptInviteAndSignIn(email);
+      const acceptInviteAndSignIn = async (invitedEmail: string) => {
+        await redirectFromMailInbox(
+          page,
+          invitedEmail,
+          "You have been invited to join Hyperswitch Community!",
+        );
+        await page
+          .getByRole("button", { name: "Continue with Password" })
+          .click();
+        await signinPage.skip2FAButton.click();
 
-      if (expectWorkflow) {
+        await resetPasswordPage.createPassword.fill(password);
+        await resetPasswordPage.confirmPassword.fill(password);
+        await resetPasswordPage.confirmButton.click();
+
+        await signinPage.emailInput.fill(invitedEmail);
+        await signinPage.passwordInput.fill(password);
+        await signinPage.signinButton.click();
+        await expect(signinPage.headerText2FA).toContainText(
+          "Enable Two Factor Authentication",
+        );
+        await signinPage.skip2FAButton.click();
+
+        await expect(page).toHaveURL(/.*dashboard\/home/);
         await expect(
-          homePage.workflow,
-          `${role}: Workflow section should be visible in sidebar`,
+          page.getByRole("button", { name: invitedEmail }),
         ).toBeVisible();
-      } else {
-        await expect(
-          homePage.workflow,
-          `${role}: Workflow section should not be attached in sidebar`,
-        ).not.toBeAttached();
-      }
+      };
 
-      await signOutCurrentUser();
-    }
-  });
+      const signOutCurrentUser = async () => {
+        await homePage.userAccount.click();
+        await homePage.signOut.click();
+        await expect(page).toHaveURL(/.*dashboard\/login/);
+      };
+
+      for (const { email, role, expectWorkflow } of invitees) {
+        await acceptInviteAndSignIn(email);
+
+        if (expectWorkflow) {
+          await expect(
+            homePage.workflow,
+            `${role}: Workflow section should be visible in sidebar`,
+          ).toBeVisible();
+        } else {
+          await expect(
+            homePage.workflow,
+            `${role}: Workflow section should not be attached in sidebar`,
+          ).not.toBeAttached();
+        }
+
+        await signOutCurrentUser();
+      }
+    },
+  );
 });
 
 test.describe("Users - Roles Tab", () => {

@@ -3,44 +3,58 @@
 echo "*****~~~~~ Commit hook initiated ~~~~~~*****"
 
 commit_msg_file=$1
-commit_msg=$(cat "$commit_msg_file")
+if [ -n "$commit_msg_file" ]; then
+  commit_msg=$(cat "$commit_msg_file")
+else
+  commit_msg=""
+fi
 
-# For formatting your code
 echo
 echo "*****~~~~~ Formatting - Check for unformatted files ~~~~~~*****"
 
-# Check for unformatted JavaScript and JSON files using Prettier
-unformatted_js_files=$(git ls-files | grep '\.js\|\.json' | xargs npx prettier --list-different)
+# Check staged JavaScript, JSON, and YAML files using Prettier.
+# TypeScript (.ts/.tsx) formatting is enforced in CI, not in this hook, to keep
+# commits in the Playwright test suite lightweight.
+unformatted_js_files=$(
+  git diff --cached --name-only -z --diff-filter=ACM -- \
+    '*.js' '*.jsx' '*.json' '*.yml' '*.yaml' \
+    | xargs -0 --no-run-if-empty npx prettier --list-different
+)
 
-# If there are unformatted JavaScript, TypeScript, or JSON files, print an error message and exit with a non-zero status code
 if [ -n "$unformatted_js_files" ]; then
-  echo "Error: Unformatted JavaScript, YML or JSON files found. Please run 'npx prettier --write .' for formatting whole repository or 'npx prettier --write' on the following files:"
+  echo "Error: Unformatted JavaScript, JSON, or YAML files found. Please run 'npx prettier --write .' to format the whole repository or format the following files:"
   echo "$unformatted_js_files"
   exit 1
 fi
 
-# Check for unformatted ReScript files
-npm run re:format
+# Check staged ReScript files only (fail, don't silently reformat).
+# CI still runs `npm run re:format:check` on the full tree, so the local hook
+# stays fast and only blocks commits that introduce unformatted changes.
+if [ -n "$(git diff --cached --name-only --diff-filter=ACM -- '*.res' '*.resi')" ]; then
+  if ! git diff --cached --name-only -z --diff-filter=ACM -- \
+         '*.res' '*.resi' \
+         | xargs -0 rescript format -check; then
+    echo "Error: Unformatted staged ReScript files found. Run 'npm run re:format' and stage the changes."
+    exit 1
+  fi
+fi
 
 echo
-echo "*****~~~~~ All files are formatted. ~~~~~~*****"
+echo "*****~~~~~ All checked files are formatted. ~~~~~~*****"
 echo
 
 echo
 echo "*****~~~~~ Commit message validation! ~~~~~*****"
 echo
-# Define your commit message convention (e.g., starts with "feat:", "fix:", etc.)
-commit_regex="^(Merge branch|(feat|fix|chore|refactor|docs|test|style|enhancement|ci):).+"
 
+commit_regex="^(Merge (branch|pull request|remote-tracking branch|tag)|(feat|fix|chore|refactor|docs|test|style|enhancement|ci):).+"
 
-
-if ! echo "$commit_msg" | grep -Ei "$commit_regex" ; then
-    echo "Aborting commit. Your commit message does not follow the conventional format."
-    echo "The commit message should begin with one of the following keywords followed by a colon: 'feat', 'fix', 'chore', 'refactor', 'docs', 'test', 'ci' or 'style'. For example, it should be formatted like this: 'feat: <subject> - <description>'"
-    exit 1
+if ! echo "$commit_msg" | grep -Ei "$commit_regex" >/dev/null; then
+  echo "Aborting commit. Your commit message does not follow the conventional format."
+  echo "The commit message should begin with one of the following keywords followed by a colon: 'feat', 'fix', 'chore', 'refactor', 'docs', 'test', 'ci' or 'style'. For example, it should be formatted like this: 'feat: <subject> - <description>'"
+  exit 1
 fi
 
-# If the commit message matches the convention, the script exits successfully.
 echo
 echo "*****~~~~~ Commit hook completed ~~~~~~*****"
 echo

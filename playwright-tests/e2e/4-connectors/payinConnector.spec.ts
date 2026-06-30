@@ -17,7 +17,6 @@ import {
   getDefaultProfileId,
 } from "../../support/commands";
 import { connectorConfig } from "../../support/fixtures/payinConnectorConfig";
-import { exec } from "node:child_process";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
@@ -25,7 +24,7 @@ const CONNECTOR_SETUP_TIMEOUT = 60000;
 
 async function signupAndLogin(
   page: Page,
-  context: BrowserContext,
+  _context: BrowserContext,
 ): Promise<void> {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -937,7 +936,7 @@ test.describe("Payin Connector tests", () => {
     page,
   }) => {
     test.setTimeout(CONNECTOR_SETUP_TIMEOUT);
-    const homePage = new HomePage(page);
+    const _homePage = new HomePage(page);
     const paymentConnector = new PaymentConnector(page);
 
     // --- Setup Stripe payment connector ---
@@ -1197,7 +1196,7 @@ test.describe("Payin Connector tests", () => {
 });
 
 test.describe("All Payin Connectors", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
