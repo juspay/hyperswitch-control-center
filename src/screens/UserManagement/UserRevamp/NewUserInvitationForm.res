@@ -76,7 +76,7 @@ module NoteComponent = {
     let descriptionBasedOnEntity = switch userEntity {
     | #Tenant
     | #Organization =>
-      `You can only invite people for ${orgId} here. To invite users to another organisation, please switch the organisation.`
+      `You can only invite people for ${orgId} here. To invite users to another organization, please switch the organization.`
     | #Merchant =>
       `You can only invite people for ${merchantId} here. To invite users to another merchant, please switch the merchant.`
     | #Profile =>

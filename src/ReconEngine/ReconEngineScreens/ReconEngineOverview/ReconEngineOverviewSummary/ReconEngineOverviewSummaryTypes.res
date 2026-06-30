@@ -138,13 +138,14 @@ type connectedStatCardsTitle =
 type connectedStatCardData = {
   connectedStatCardTitle: connectedStatCardsTitle,
   connectedStatCardValue: valueType,
+  onConnectedStatCardClick: unit => unit,
 }
 
 type overviewChartGranularity =
-  | Hourly
-  | Daily
-  | Weekly
-  | Monthly
+  | @as("hour") Hour
+  | @as("day") Day
+  | @as("week") Week
+  | @as("month") Month
 
 type overviewChartPoint = {
   label: string,
@@ -157,13 +158,6 @@ type overviewChartPoint = {
   matchRate: float,
 }
 
-type exceptionAgingBucket = {
-  label: string,
-  color: string,
-  startTime: string,
-  endTime: string,
-}
-
 type exceptionAgingData = {
   label: string,
   color: string,
@@ -174,6 +168,8 @@ type exceptionTriageItem = {
   label: string,
   total: int,
 }
+
+type triageTab = Transactions | Staging
 
 type ruleActivityItem = {
   overview_rule: ReconEngineTypes.overviewRulesResponse,

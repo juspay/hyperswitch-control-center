@@ -3,6 +3,40 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.06.30.0
+
+### Miscellaneous Tasks
+
+- Themes ui enhancements ([#5006](https://github.com/juspay/hyperswitch-control-center/pull/5006)) ([`79f98f8`](https://github.com/juspay/hyperswitch-control-center/commit/79f98f8c05dcfdf465540e20621772320c455ad0))
+
+**Full Changelog:** [`2026.06.26.0...2026.06.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.26.0...2026.06.30.0)
+
+- - -
+
+## 2026.06.26.0
+
+### Miscellaneous Tasks
+
+- Update wasm for worldpay xml ([#5028](https://github.com/juspay/hyperswitch-control-center/pull/5028)) ([`cb7fd07`](https://github.com/juspay/hyperswitch-control-center/commit/cb7fd07f75828d740d9a886d927d2233d94e94c2))
+
+**Full Changelog:** [`2026.06.25.0...2026.06.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.25.0...2026.06.26.0)
+
+- - -
+
+## 2026.06.25.0
+
+### Bug Fixes
+
+- Payment link create new button ([#5011](https://github.com/juspay/hyperswitch-control-center/pull/5011)) ([`0fb03df`](https://github.com/juspay/hyperswitch-control-center/commit/0fb03df8def5dcedab4ec4ca162aec83bb11b9ab))
+
+### Refactors
+
+- Volume based routing ui ([#4971](https://github.com/juspay/hyperswitch-control-center/pull/4971)) ([`6f487c5`](https://github.com/juspay/hyperswitch-control-center/commit/6f487c508df805d93b09f47fe354c599805d8a8b))
+
+**Full Changelog:** [`2026.06.24.0...2026.06.25.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.06.24.0...2026.06.25.0)
+
+- - -
+
 ## 2026.06.24.0
 
 ### Features

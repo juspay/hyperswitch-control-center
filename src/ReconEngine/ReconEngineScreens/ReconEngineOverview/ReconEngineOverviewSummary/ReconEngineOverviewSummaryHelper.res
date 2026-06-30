@@ -203,6 +203,96 @@ module StatCard = {
   }
 }
 
+module ExceptionAgingRow = {
+  @react.component
+  let make = (~item: exceptionAgingData, ~total: int) => {
+    let pct = total > 0 ? item.total->Int.toFloat /. total->Int.toFloat *. 100.0 : 0.0
+
+    <div className="flex items-center justify-between py-1.5">
+      <div className="flex items-center gap-2">
+        <span
+          className="w-2 h-2 rounded-full flex-shrink-0"
+          style={ReactDOM.Style.make(~backgroundColor=item.color, ())}
+        />
+        <span className={`${body.sm.regular} text-nd_gray-700`}> {item.label->React.string} </span>
+      </div>
+      <div className="flex items-center gap-4">
+        <span className={`${body.sm.regular} text-nd_gray-400 w-14 text-right`}>
+          <PercentageCell value=pct />
+        </span>
+        <span className={`${body.sm.semibold} text-nd_gray-800 w-8 text-right`}>
+          <NumberCell value={item.total} />
+        </span>
+      </div>
+    </div>
+  }
+}
+
+module ExceptionAgingBar = {
+  @react.component
+  let make = (~agingData: array<exceptionAgingData>, ~total: int) => {
+    <div className="flex h-2 w-full rounded-full overflow-hidden mb-5">
+      {agingData
+      ->Array.filter(item => item.total > 0)
+      ->Array.mapWithIndex((item, index) => {
+        let pct = item.total->Int.toFloat /. total->Int.toFloat *. 100.0
+        let tooltipContent =
+          <div className="flex flex-col gap-0.5 px-1">
+            <p className={body.xs.semibold}> {item.label->React.string} </p>
+            <p className={body.xs.regular}>
+              {`${item.total->Int.toString} exceptions · `->React.string}
+              <PercentageCell value=pct />
+            </p>
+          </div>
+        let segment =
+          <div
+            className="h-full cursor-default"
+            style={ReactDOM.Style.make(
+              ~width=`${pct->Float.toFixedWithPrecision(~digits=1)}%`,
+              ~backgroundColor=item.color,
+              (),
+            )}
+          />
+        <ToolTip
+          key={index->Int.toString}
+          descriptionComponent=tooltipContent
+          toolTipFor=segment
+          toolTipPosition=Top
+        />
+      })
+      ->React.array}
+    </div>
+  }
+}
+
+module ExceptionTriageRow = {
+  @react.component
+  let make = (~item: exceptionTriageItem, ~total: int, ~index: int) => {
+    let color = getTriageColor(index)
+    let pct = total > 0 ? item.total->Int.toFloat /. total->Int.toFloat *. 100.0 : 0.0
+
+    <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center gap-2 min-w-0">
+        <span
+          className="w-2.5 h-2.5 rounded-sm shrink-0"
+          style={ReactDOM.Style.make(~backgroundColor=color, ())}
+        />
+        <span className={`${body.sm.regular} text-nd_gray-700 truncate`}>
+          {item.label->React.string}
+        </span>
+      </div>
+      <div className="text-right shrink-0">
+        <p className={`${body.sm.semibold} text-nd_gray-800`}>
+          <PercentageCell value=pct />
+        </p>
+        <p className={`${body.xs.regular} text-nd_gray-500`}>
+          {item.total->formatNumber->React.string}
+        </p>
+      </div>
+    </div>
+  }
+}
+
 module RuleActivityRow = {
   @react.component
   let make = (~item: ruleActivityItem, ~index: int, ~onClick) => {
@@ -247,11 +337,17 @@ module RuleActivityRow = {
 
 module ConnectedStatCard = {
   @react.component
-  let make = (~title: connectedStatCardsTitle, ~value: valueType) => {
+  let make = (
+    ~title: connectedStatCardsTitle,
+    ~value: valueType,
+    ~onConnectedStatCardClick=() => (),
+  ) => {
     <div
-      className="px-4 py-3.5 transition-colors bg-white border-r border-b border-nd_gray-200 last:border-r-0">
+      onClick={_ => onConnectedStatCardClick()}
+      className="group px-4 py-3.5 transition-colors duration-200 cursor-pointer bg-white hover:bg-nd_gray-50 border-r border-b border-nd_gray-200 last:border-r-0">
       <div className="flex items-center justify-between">
-        <p className={`${body.sm.medium} text-nd_gray-600`}>
+        <p
+          className={`${body.sm.medium} text-nd_gray-600 transition-colors duration-200 group-hover:text-nd_gray-700`}>
           {(title :> string)->String.toUpperCase->React.string}
         </p>
       </div>

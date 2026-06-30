@@ -276,12 +276,10 @@ export class InsightsPaymentsPage {
   // Payments distributions (Connector / Payment Method / …). Two appear on the
   // tab — one per distribution chart.
   get smartRetryDistributionChartHeadings(): Locator {
-    return this.page
-      .locator("div")
-      .filter({
-        hasText:
-          /^ConnectorPayment MethodPayment Method TypeAuthentication Type$/,
-      });
+    return this.page.locator("div").filter({
+      hasText:
+        /^ConnectorPayment MethodPayment Method TypeAuthentication Type$/,
+    });
   }
 
   // First bar of the first bar chart — hovered to surface its tooltip.

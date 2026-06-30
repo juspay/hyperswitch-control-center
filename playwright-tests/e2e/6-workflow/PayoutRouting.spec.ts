@@ -95,49 +95,51 @@ test.describe("Volume based payout routing", () => {
     ).toContainText(connectorLabel);
   });
 
-  test.fixme("should save new Volume based payout configuration", async ({
-    page,
-    context,
-  }) => {
-    const homePage = new HomePage(page);
-    const payoutRouting = new PayoutRouting(page);
-    const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
+  test.fixme(
+    "should save new Volume based payout configuration",
+    async ({ page, context }) => {
+      const homePage = new HomePage(page);
+      const payoutRouting = new PayoutRouting(page);
+      const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
-    if (merchantId) {
-      await createPayoutConnectorAPI(
-        merchantId,
-        "adyen_payout_1",
-        context.request,
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await createPayoutConnectorAPI(
+          merchantId,
+          "adyen_payout_1",
+          context.request,
+        );
+      }
+
+      await homePage.workflow.click();
+      await homePage.payoutRouting.click();
+      await payoutRouting.volumeBasedRoutingSetupButton.click();
+
+      await expect(page).toHaveURL(/.*payoutrouting\/volume/);
+
+      await volumeBasedConfiguration.configurationNameInput.clear();
+      await volumeBasedConfiguration.configurationNameInput.fill(
+        "Test volume based payout config",
       );
-    }
 
-    await homePage.workflow.click();
-    await homePage.payoutRouting.click();
-    await payoutRouting.volumeBasedRoutingSetupButton.click();
+      await volumeBasedConfiguration.connectorDropdown.click();
+      await volumeBasedConfiguration.connectorOption("adyen_payout_1").click();
+      await volumeBasedConfiguration.configureRuleButton.click();
+      await volumeBasedConfiguration.saveRuleButton.click();
 
-    await expect(page).toHaveURL(/.*payoutrouting\/volume/);
+      await expect(
+        payoutRouting.dataToast("Successfully created a new configuration!"),
+      ).toContainText("Successfully created a new configuration!");
 
-    await volumeBasedConfiguration.configurationNameInput.clear();
-    await volumeBasedConfiguration.configurationNameInput.fill(
-      "Test volume based payout config",
-    );
-
-    await volumeBasedConfiguration.connectorDropdown.click();
-    await volumeBasedConfiguration.connectorOption("adyen_payout_1").click();
-    await volumeBasedConfiguration.configureRuleButton.click();
-    await volumeBasedConfiguration.saveRuleButton.click();
-
-    await expect(
-      payoutRouting.dataToast("Successfully created a new configuration!"),
-    ).toContainText("Successfully created a new configuration!");
-
-    await payoutRouting.configurationHistoryTab.click();
-    await expect(payoutRouting.historyCell(1, 2)).toContainText(
-      "Test volume based payout config",
-    );
-    await expect(payoutRouting.dataLabel("INACTIVE")).toContainText("INACTIVE");
-  });
+      await payoutRouting.configurationHistoryTab.click();
+      await expect(payoutRouting.historyCell(1, 2)).toContainText(
+        "Test volume based payout config",
+      );
+      await expect(payoutRouting.dataLabel("INACTIVE")).toContainText(
+        "INACTIVE",
+      );
+    },
+  );
 
   test("should save and activate Volume based payout configuration", async ({
     page,
@@ -285,7 +287,7 @@ test.describe("Rule based payout routing", () => {
     await homePage.payoutRouting.click();
     await payoutRouting.ruleBasedRoutingSetupButton.click();
 
-    await expect(page.getByText('Please configure at least 1')).toContainText(
+    await expect(page.getByText("Please configure at least 1")).toContainText(
       "Please configure at least 1 connector",
     );
   });
