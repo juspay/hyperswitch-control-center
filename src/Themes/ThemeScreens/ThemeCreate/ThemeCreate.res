@@ -54,13 +54,11 @@ let make = () => {
     </div>
 
   let infoBanner =
-    <div
-      className="flex gap-2 items-start border border-nd_yellow-500 bg-nd_yellow-50 p-3 rounded-lg">
-      <Icon name="nd-info-circle" size=16 className="text-nd_gray-500" />
-      <span className={`text-nd_gray-600 ${body.sm.regular}`}>
-        {"Add your logo, favicon and email logo after clicking apply theme or update them later from theme settings."->React.string}
-      </span>
-    </div>
+    <AlertV2Binding
+      alertType=Warning
+      slot={{slot: <Icon name="nd-info-circle" size=16 className="text-nd_gray-500" />}}
+      description="Add your logo, favicon and email logo after clicking apply theme or update them later from theme settings."
+    />
 
   let tabs: array<Tabs.tab> = [
     {

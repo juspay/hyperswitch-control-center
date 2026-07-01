@@ -66,12 +66,12 @@ let make = () => {
           </RenderIf>
         </div>
         <RenderIf condition={themeListArray->isNonEmptyArray}>
-          <div
-            className="flex gap-2 items-start border border-nd_yellow-500 bg-nd_yellow-50 p-3 rounded-lg mt-2">
-            <Icon name="nd-info-circle" size=16 className="text-nd_gray-500" />
-            <span className={`text-nd_gray-600 ${Typography.body.sm.regular}`}>
-              {"Theme changes take effect after the page is refreshed."->React.string}
-            </span>
+          <div className="mt-2">
+            <AlertV2Binding
+              alertType=Warning
+              slot={{slot: <Icon name="nd-info-circle" size=16 className="text-nd_gray-500" />}}
+              description="Theme changes take effect after the page is refreshed."
+            />
           </div>
         </RenderIf>
         <NoThemesFound themeListArray setShowModal />
