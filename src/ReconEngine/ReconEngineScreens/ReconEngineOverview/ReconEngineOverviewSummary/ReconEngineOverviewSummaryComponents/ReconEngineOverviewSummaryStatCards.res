@@ -23,26 +23,36 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let queryParams = buildQueryStringFromFilters(~filterValueJson)
 
-      let overviewRules = await getOverviewRules(~queryParameters=Some(queryParams))
-
       let statusList = getProcessingEntryStatusValueFromStatusList([NeedsManualReview])
-      let processingEntries = await getProcessingEntries(
-        ~queryParameters=Some(`${queryParams}&status=${statusList->Array.joinWith(",")}`),
-      )
-
       let ingestionTransformationStatusList = getIngestionTransformationHistoryStatusValueFromStatusList([
         Failed,
       ])
-      let failedTransformationHistory = await getTransformationHistory(
+      let overviewRulesFetch = getOverviewRules(~queryParameters=Some(queryParams))
+      let processingEntriesFetch = getProcessingEntries(
+        ~queryParameters=Some(`${queryParams}&status=${statusList->Array.joinWith(",")}`),
+      )
+      let failedTransformationHistoryFetch = getTransformationHistory(
         ~queryParameters=Some(
           `${queryParams}&status=${ingestionTransformationStatusList->Array.joinWith(",")}`,
         ),
       )
-      let failedIngestionHistory = await getIngestionHistory(
+      let failedIngestionHistoryFetch = getIngestionHistory(
         ~queryParameters=Some(
           `${queryParams}&status=${ingestionTransformationStatusList->Array.joinWith(",")}`,
         ),
       )
+
+      let (
+        overviewRules,
+        processingEntries,
+        failedTransformationHistory,
+        failedIngestionHistory,
+      ) = await Promise.all4((
+        overviewRulesFetch,
+        processingEntriesFetch,
+        failedTransformationHistoryFetch,
+        failedIngestionHistoryFetch,
+      ))
 
       setOverviewRules(_ => overviewRules)
       setProcessingEntries(_ => processingEntries)
@@ -85,16 +95,14 @@ let make = () => {
             description=card.statCardDescription
             cardType=card.statCardType
             onStatCardClick={() =>
-              card.statCardUrl->Option.mapOr((), url =>
-                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url))
-              )}
+              card.statCardPath->Option.mapOr((), path => RescriptReactRouter.push(path))}
           />
         </PageLoaderWrapper>
       })
       ->React.array}
     </div>
     <div
-      className="grid xl:grid-cols-5 lg:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-0 rounded-xl border border-nd_gray-200 overflow-hidden shadow-sm bg-white">
+      className="grid xl:grid-cols-5 lg:grid-cols-4 sm:grid-cols-3 grid-cols-2 rounded-xl border border-nd_gray-200 overflow-hidden shadow-sm bg-white">
       {connectedStatCards
       ->Array.mapWithIndex((card, index) => {
         <PageLoaderWrapper
@@ -106,9 +114,7 @@ let make = () => {
             title=card.connectedStatCardTitle
             value=card.connectedStatCardValue
             onConnectedStatCardClick={() => {
-              card.connectedStatCardUrl->Option.mapOr((), url =>
-                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url))
-              )
+              card.connectedStatCardPath->Option.mapOr((), path => RescriptReactRouter.push(path))
             }}
           />
         </PageLoaderWrapper>

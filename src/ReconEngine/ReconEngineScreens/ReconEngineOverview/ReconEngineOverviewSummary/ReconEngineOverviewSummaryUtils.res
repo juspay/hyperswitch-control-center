@@ -844,7 +844,7 @@ let getStatCards = (
   let matchRate =
     totalCount === 0 ? 0.0 : matchedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
 
-  let path = "v1/recon-engine/exceptions/recon"
+  let reconExceptionsPath = GlobalVars.appendDashboardPath(~url="v1/recon-engine/exceptions/recon")
 
   [
     {
@@ -853,7 +853,7 @@ let getStatCards = (
       statCardIcon: FontAwesome("percent"),
       statCardDescription: `${matchedCount->Int.toString} of ${totalCount->Int.toString} matched`,
       statCardType: Info,
-      statCardUrl: None,
+      statCardPath: None,
     },
     {
       statCardTitle: OpenExceptions,
@@ -863,7 +863,7 @@ let getStatCards = (
       ),
       statCardDescription: "staging + txn exceptions",
       statCardType: Attention,
-      statCardUrl: Some(path),
+      statCardPath: Some(reconExceptionsPath),
     },
     {
       statCardTitle: ValueAtRisk,
@@ -871,7 +871,7 @@ let getStatCards = (
       statCardIcon: CustomIcon(<Icon name="lock-icon" size=14 className="text-nd_gray-500" />),
       statCardDescription: "mismatch variance exposure",
       statCardType: Attention,
-      statCardUrl: Some(path),
+      statCardPath: Some(reconExceptionsPath),
     },
     {
       statCardTitle: ExpectedValue,
@@ -879,7 +879,7 @@ let getStatCards = (
       statCardIcon: CustomIcon(<Icon name="history" size=14 className="text-nd_gray-500" />),
       statCardDescription: "amount expected",
       statCardType: Info,
-      statCardUrl: Some(path),
+      statCardPath: Some(reconExceptionsPath),
     },
   ]
 }
@@ -911,7 +911,7 @@ let getManualCorrectionsCount = (~overviewRules: array<overviewRulesResponse>) =
   })
 }
 
-let getAgedCount = (~overviewRules: array<overviewRulesResponse>) => {
+let getMissingCount = (~overviewRules: array<overviewRulesResponse>) => {
   overviewRules->Array.reduce(0, (acc, rule) => {
     let missingCount = rule.status_breakdown->Array.reduce(0, (statusAcc, status) => {
       switch status.status {
@@ -932,7 +932,7 @@ let getConnectedStatCards = (
   let totalCount = getTotalCount(~overviewRules)
   let autoMatchedCount = getAutoMatchCount(~overviewRules)
   let manualCorrectionsCount = getManualCorrectionsCount(~overviewRules)
-  let agedCount = getAgedCount(~overviewRules)
+  let missingCount = getMissingCount(~overviewRules)
 
   let autoMatchRate =
     totalCount === 0 ? 0.0 : autoMatchedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
@@ -941,27 +941,31 @@ let getConnectedStatCards = (
     {
       connectedStatCardTitle: AutoMatchRate,
       connectedStatCardValue: Percentage(autoMatchRate),
-      connectedStatCardUrl: None,
+      connectedStatCardPath: None,
     },
     {
       connectedStatCardTitle: FailedIngestions,
       connectedStatCardValue: Number(failedIngestionHistory->Array.length),
-      connectedStatCardUrl: Some("v1/recon-engine/sources"),
+      connectedStatCardPath: Some(GlobalVars.appendDashboardPath(~url="v1/recon-engine/sources")),
     },
     {
       connectedStatCardTitle: MissingTransactions,
-      connectedStatCardValue: OutOf(agedCount, totalCount),
-      connectedStatCardUrl: Some("v1/recon-engine/exceptions/recon"),
+      connectedStatCardValue: OutOf(missingCount, totalCount),
+      connectedStatCardPath: Some(
+        GlobalVars.appendDashboardPath(~url="v1/recon-engine/exceptions/recon"),
+      ),
     },
     {
       connectedStatCardTitle: FailedTransformations,
       connectedStatCardValue: Number(failedTransformationHistory->Array.length),
-      connectedStatCardUrl: Some("v1/recon-engine/transformation"),
+      connectedStatCardPath: Some(
+        GlobalVars.appendDashboardPath(~url="v1/recon-engine/transformation"),
+      ),
     },
     {
       connectedStatCardTitle: ManualCorrections,
       connectedStatCardValue: Number(manualCorrectionsCount),
-      connectedStatCardUrl: None,
+      connectedStatCardPath: None,
     },
   ]
 }
