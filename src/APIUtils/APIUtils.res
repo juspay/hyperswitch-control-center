@@ -853,6 +853,7 @@ let useGetURL = () => {
       | SDK_EVENT_LOGS => `analytics/v1/profile/sdk_event_logs`
 
       | WEBHOOK_EVENTS => `events/profile/list`
+      | WEBHOOK_EVENTS_FILTERS => `events/profile/filter`
       | WEBHOOK_EVENTS_ATTEMPTS =>
         switch id {
         | Some(id) => `events/${merchantId}/${id}/attempts`
@@ -1204,7 +1205,7 @@ let useGetURL = () => {
             switch queryParameters {
             | Some(queryParams) => `${reconBaseURL}/audit_trail?${queryParams}`
             | None => `${reconBaseURL}/audit_trail`
-            }
+              }
           | _ => ""
           }
         | #PROCESSING_ENTRY_RESOLUTIONS =>
