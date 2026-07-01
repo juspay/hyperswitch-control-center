@@ -13,10 +13,9 @@ let getCloneConnectorPayload = (values, connectorInfo) => {
 }
 
 let getCloneErrorMessage = errorCode =>
-  switch errorCode->ConnectorUtils.mapConnectorErrorCode {
-  | ConnectorLabelAlreadyExists => "A connector with this label already exists in the destination profile. Try a different label."
-  | UnknownConnectorError => "Failed to clone connector. Please try again."
-  }
+  errorCode === "HE_01"
+    ? "Connector label already exists. Try a different one."
+    : "Failed to clone connector."
 
 let getDestinationOptions = (profileList: array<OMPSwitchTypes.ompListTypes>, ~sourceProfileId) =>
   profileList->Array.filterMap(profile =>
