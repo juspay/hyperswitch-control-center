@@ -326,7 +326,7 @@ export class HomePage {
   }
 
   get sdkErrorToast(): Locator {
-    return this.page.getByTestId('paymentStatus');
+    return this.page.getByTestId("paymentStatus");
   }
 
   get sdkIframe(): Locator {

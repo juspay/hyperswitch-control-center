@@ -28,7 +28,7 @@ let make = (~reconRulesList) => {
     None
   }, [])
 
-  <div className="flex flex-col gap-8 mt-8 pb-40">
+  <div className="flex flex-col gap-4 mt-8 pb-40">
     <div className="flex flex-row justify-end">
       <DynamicFilter
         title="ReconEngineOverviewSummaryFilters"
@@ -48,7 +48,7 @@ let make = (~reconRulesList) => {
         refreshFilters=false
       />
     </div>
-    <ReconEngineOverviewSummaryStackedBarGraphs reconRulesList />
+    <ReconEngineOverviewSummaryStatCards />
     <div className="flex flex-row justify-between items-center">
       <div className="flex flex-col gap-2">
         <p className={`text-nd_gray-800 ${heading.sm.semibold}`}>
