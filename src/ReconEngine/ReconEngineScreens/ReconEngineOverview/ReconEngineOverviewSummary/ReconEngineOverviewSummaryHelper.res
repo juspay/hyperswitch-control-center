@@ -203,6 +203,38 @@ module StatCard = {
   }
 }
 
+module ConnectedStatCard = {
+  @react.component
+  let make = (
+    ~title: connectedStatCardsTitle,
+    ~value: valueType,
+    ~onConnectedStatCardClick=() => (),
+  ) => {
+    <div
+      onClick={_ => onConnectedStatCardClick()}
+      className="group px-4 py-3.5 transition-colors duration-200 cursor-pointer bg-white hover:bg-nd_gray-50 border-r border-b border-nd_gray-200 last:border-r-0">
+      <div className="flex items-center justify-between">
+        <p
+          className={`${body.sm.medium} text-nd_gray-600 transition-colors duration-200 group-hover:text-nd_gray-700`}>
+          {(title :> string)->String.toUpperCase->React.string}
+        </p>
+      </div>
+      <div className="flex flex-col gap-y-2.5 items-start mt-1.5">
+        <p className={`${heading.sm.semibold} min-w-0 max-w-full text-nd_gray-700`}>
+          {switch value {
+          | Percentage(v) => <PercentageCell value=v />
+          | Float(v) => <FloatCell value=v />
+          | Number(v) => <NumberCell value=v />
+          | Amount(v, currency) => <AmountCell value=v currency />
+          | OutOf(v1, v2) => <OutOfCell value1=v1 value2=v2 />
+          | SlashOutOf(v1, v2) => <SlashOutOfCell value1=v1 value2=v2 />
+          }}
+        </p>
+      </div>
+    </div>
+  }
+}
+
 module ExceptionAgingRow = {
   @react.component
   let make = (~item: exceptionAgingData, ~total: int) => {
@@ -236,27 +268,23 @@ module ExceptionAgingBar = {
       ->Array.filter(item => item.total > 0)
       ->Array.mapWithIndex((item, index) => {
         let pct = item.total->Int.toFloat /. total->Int.toFloat *. 100.0
-        let tooltipContent =
-          <div className="flex flex-col gap-0.5 px-1">
+        <ToolTip
+          key={index->Int.toString}
+          descriptionComponent={<div className="flex flex-col gap-0.5 px-1">
             <p className={body.xs.semibold}> {item.label->React.string} </p>
             <p className={body.xs.regular}>
               {`${item.total->Int.toString} exceptions · `->React.string}
               <PercentageCell value=pct />
             </p>
-          </div>
-        let segment =
-          <div
+          </div>}
+          toolTipFor={<div
             className="h-full cursor-default"
             style={ReactDOM.Style.make(
               ~width=`${pct->Float.toFixedWithPrecision(~digits=1)}%`,
               ~backgroundColor=item.color,
               (),
             )}
-          />
-        <ToolTip
-          key={index->Int.toString}
-          descriptionComponent=tooltipContent
-          toolTipFor=segment
+          />}
           toolTipPosition=Top
         />
       })
@@ -330,38 +358,6 @@ module RuleActivityRow = {
         <span className={`${body.sm.medium} ${rateTextColor} w-12 text-right shrink-0`}>
           <PercentageCell value={item.matchRate} />
         </span>
-      </div>
-    </div>
-  }
-}
-
-module ConnectedStatCard = {
-  @react.component
-  let make = (
-    ~title: connectedStatCardsTitle,
-    ~value: valueType,
-    ~onConnectedStatCardClick=() => (),
-  ) => {
-    <div
-      onClick={_ => onConnectedStatCardClick()}
-      className="group px-4 py-3.5 transition-colors duration-200 cursor-pointer bg-white hover:bg-nd_gray-50 border-r border-b border-nd_gray-200 last:border-r-0">
-      <div className="flex items-center justify-between">
-        <p
-          className={`${body.sm.medium} text-nd_gray-600 transition-colors duration-200 group-hover:text-nd_gray-700`}>
-          {(title :> string)->String.toUpperCase->React.string}
-        </p>
-      </div>
-      <div className="flex flex-col gap-y-2.5 items-start mt-1.5">
-        <p className={`${heading.sm.semibold} min-w-0 max-w-full text-nd_gray-700`}>
-          {switch value {
-          | Percentage(v) => <PercentageCell value=v />
-          | Float(v) => <FloatCell value=v />
-          | Number(v) => <NumberCell value=v />
-          | Amount(v, currency) => <AmountCell value=v currency />
-          | OutOf(v1, v2) => <OutOfCell value1=v1 value2=v2 />
-          | SlashOutOf(v1, v2) => <SlashOutOfCell value1=v1 value2=v2 />
-          }}
-        </p>
       </div>
     </div>
   }

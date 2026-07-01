@@ -21,7 +21,7 @@ module DashboardConfigScrollbarStyle = {
   @supports (-webkit-appearance: none) {
     .theme-config-scrollbar {
       scrollbar-width: thin;
-      scrollbar-color: #CACFD8 transparent;
+      scrollbar-color: #CACFD8 #F0F1F3;
     }
 
     .theme-config-scrollbar::-webkit-scrollbar {
@@ -36,7 +36,8 @@ module DashboardConfigScrollbarStyle = {
     }
 
     .theme-config-scrollbar::-webkit-scrollbar-track {
-      display: none;
+      background-color: #F0F1F3;
+      border-radius: 3px;
     }
   }
     `

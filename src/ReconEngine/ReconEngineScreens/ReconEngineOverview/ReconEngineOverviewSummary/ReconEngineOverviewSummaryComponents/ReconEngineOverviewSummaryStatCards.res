@@ -23,26 +23,36 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let queryParams = buildQueryStringFromFilters(~filterValueJson)
 
-      let overviewRules = await getOverviewRules(~queryParameters=Some(queryParams))
-
       let statusList = getProcessingEntryStatusValueFromStatusList([NeedsManualReview])
-      let processingEntries = await getProcessingEntries(
-        ~queryParameters=Some(`${queryParams}&status=${statusList->Array.joinWith(",")}`),
-      )
-
       let ingestionTransformationStatusList = getIngestionTransformationHistoryStatusValueFromStatusList([
         Failed,
       ])
-      let failedTransformationHistory = await getTransformationHistory(
+      let overviewRulesFetch = getOverviewRules(~queryParameters=Some(queryParams))
+      let processingEntriesFetch = getProcessingEntries(
+        ~queryParameters=Some(`${queryParams}&status=${statusList->Array.joinWith(",")}`),
+      )
+      let failedTransformationHistoryFetch = getTransformationHistory(
         ~queryParameters=Some(
           `${queryParams}&status=${ingestionTransformationStatusList->Array.joinWith(",")}`,
         ),
       )
-      let failedIngestionHistory = await getIngestionHistory(
+      let failedIngestionHistoryFetch = getIngestionHistory(
         ~queryParameters=Some(
           `${queryParams}&status=${ingestionTransformationStatusList->Array.joinWith(",")}`,
         ),
       )
+
+      let (
+        overviewRules,
+        processingEntries,
+        failedTransformationHistory,
+        failedIngestionHistory,
+      ) = await Promise.all4((
+        overviewRulesFetch,
+        processingEntriesFetch,
+        failedTransformationHistoryFetch,
+        failedIngestionHistoryFetch,
+      ))
 
       setOverviewRules(_ => overviewRules)
       setProcessingEntries(_ => processingEntries)
@@ -72,7 +82,7 @@ let make = () => {
     <div
       className="grid xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-x-4 gap-y-6 mt-4">
       {statCards
-      ->Array.mapWithIndex((card, index) =>
+      ->Array.mapWithIndex((card, index) => {
         <PageLoaderWrapper
           screenState
           customUI={<NewAnalyticsHelper.NoData height="h-40" message="No data available." />}
@@ -84,14 +94,15 @@ let make = () => {
             icon=card.statCardIcon
             description=card.statCardDescription
             cardType=card.statCardType
-            onStatCardClick=card.onStatCardClick
+            onStatCardClick={() =>
+              card.statCardPath->Option.mapOr((), path => RescriptReactRouter.push(path))}
           />
         </PageLoaderWrapper>
-      )
+      })
       ->React.array}
     </div>
     <div
-      className="grid xl:grid-cols-5 lg:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-0 rounded-xl border border-nd_gray-200 overflow-hidden shadow-sm bg-white">
+      className="grid xl:grid-cols-5 lg:grid-cols-4 sm:grid-cols-3 grid-cols-2 rounded-xl border border-nd_gray-200 overflow-hidden shadow-sm bg-white">
       {connectedStatCards
       ->Array.mapWithIndex((card, index) => {
         <PageLoaderWrapper
@@ -102,7 +113,9 @@ let make = () => {
             key={index->Int.toString}
             title=card.connectedStatCardTitle
             value=card.connectedStatCardValue
-            onConnectedStatCardClick=card.onConnectedStatCardClick
+            onConnectedStatCardClick={() => {
+              card.connectedStatCardPath->Option.mapOr((), path => RescriptReactRouter.push(path))
+            }}
           />
         </PageLoaderWrapper>
       })
