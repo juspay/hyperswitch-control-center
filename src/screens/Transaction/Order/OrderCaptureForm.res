@@ -64,13 +64,17 @@ let make = (~order: PaymentInterfaceTypes.order, ~setShowModal, ~refetch) => {
   }
 
   let validate = values =>
-    validateCaptureAmount(~conversionFactor, ~amountCapturableInMajorUnits, ~precisionDigits, values)
+    validateCaptureAmount(
+      ~conversionFactor,
+      ~amountCapturableInMajorUnits,
+      ~precisionDigits,
+      values,
+    )
 
   <div>
     <Form onSubmit validate initialValues=initiateValueJson>
       <div className="flex flex-col w-full max-w-4xl mx-auto p-6">
-        <div
-          className="border-b border-nd_gray-200 pb-4 mb-6">
+        <div className="border-b border-nd_gray-200 pb-4 mb-6">
           <div className="flex flex-row justify-between items-center ">
             <CardUtils.CardHeader
               heading="Confirm Capture Payment" subHeading="" customSubHeadingStyle=""

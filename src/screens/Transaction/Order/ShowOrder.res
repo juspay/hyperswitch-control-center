@@ -493,7 +493,7 @@ module OrderActions = {
         borderBottom=true
         childClass=""
         modalClass="w-full md:w-4/12 mx-auto mt-20"
-        bgClass="bg-white dark:bg-jp-gray-darkgray_background">
+        bgClass="bg-nd_gray-0">
         <OrderCaptureForm order={orderData} setShowModal=setShowCaptureModal refetch />
       </Modal>
     </div>

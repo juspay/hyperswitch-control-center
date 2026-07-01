@@ -152,6 +152,43 @@ let amountFieldWithPrecision = (
   )
 }
 
+let getCaptureInitialValues = (~amountCapturableInMajorUnits) =>
+  [("amount", amountCapturableInMajorUnits->JSON.Encode.float)]->getJsonFromArrayOfJson
+
+let validateCaptureAmount = (
+  ~conversionFactor,
+  ~amountCapturableInMajorUnits,
+  ~precisionDigits,
+  values,
+) => {
+  let errors = Dict.make()
+  let valuesDict = values->getDictFromJsonObject
+  switch valuesDict->getOptionFloat("amount") {
+  | Some(floatVal) =>
+    let enteredAmountInMinorUnits = Math.round(floatVal *. conversionFactor)
+    let capturableInMinorUnits = Math.round(amountCapturableInMajorUnits *. conversionFactor)
+    if enteredAmountInMinorUnits > capturableInMinorUnits {
+      let formattedAmount = Float.toFixedWithPrecision(
+        amountCapturableInMajorUnits,
+        ~digits=precisionDigits,
+      )
+      Dict.set(
+        errors,
+        "amount",
+        `Capture amount should not exceed ${formattedAmount}`->JSON.Encode.string,
+      )
+    } else if floatVal <= 0.0 {
+      Dict.set(
+        errors,
+        "amount",
+        "Please enter capture amount greater than zero"->JSON.Encode.string,
+      )
+    }
+  | None => Dict.set(errors, "amount", "Required"->JSON.Encode.string)
+  }
+  errors->JSON.Encode.object
+}
+
 let reasonField = FormRenderer.makeFieldInfo(
   ~name="reason",
   ~label="Reason",
