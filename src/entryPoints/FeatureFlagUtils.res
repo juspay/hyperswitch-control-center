@@ -82,6 +82,7 @@ type featureFlag = {
   reconEnginePermissions: bool,
   devSavedViews: bool,
   devClickhouseAggregate: bool,
+  connectorClone: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -166,6 +167,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     reconEnginePermissions: dict->getBool("recon_engine_permissions", false),
     devSavedViews: dict->getBool("dev_saved_views", false),
     devClickhouseAggregate: dict->getBool("dev_clickhouse_aggregate", false),
+    connectorClone: dict->getBool("connector_clone", false),
   }
 }
 
