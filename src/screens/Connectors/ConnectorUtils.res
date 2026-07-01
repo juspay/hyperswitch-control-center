@@ -168,6 +168,7 @@ let connectorList: array<connectorTypes> = [
   Processors(TOKENIO),
   Processors(PAYLOAD),
   Processors(PAYTM),
+  Processors(NEXTIVA),
   Processors(PHONEPE),
   Processors(FLEXITI),
   Processors(BREADPAY),
@@ -806,6 +807,10 @@ let paytmInfo = {
   description: "Paytm is an Indian multinational fintech company specializing in digital payments and financial services. Initially known for its mobile wallet, it has expanded to include a payment bank, e-commerce, ticketing, and wealth management services.",
 }
 
+let nextivaInfo = {
+  description: "Nextiva (PayConex by Bluefin) is a US payment gateway that provides card processing and secure payment services for merchants.",
+}
+
 let phonepeInfo = {
   description: "PhonePe is a digital payments and financial services platform built on the UPI system. It allows users to make instant payments, recharge mobiles, pay bills, and access financial services like investments and insurance.",
 }
@@ -996,6 +1001,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | TOKENIO => "tokenio"
   | PAYLOAD => "payload"
   | PAYTM => "paytm"
+  | NEXTIVA => "nextiva"
   | PHONEPE => "phonepe"
   | FLEXITI => "flexiti"
   | BREADPAY => "breadpay"
@@ -1206,6 +1212,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "tokenio" => Processors(TOKENIO)
     | "payload" => Processors(PAYLOAD)
     | "paytm" => Processors(PAYTM)
+    | "nextiva" => Processors(NEXTIVA)
     | "phonepe" => Processors(PHONEPE)
     | "flexiti" => Processors(FLEXITI)
     | "breadpay" => Processors(BREADPAY)
@@ -1392,6 +1399,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | PAYLOAD => payloadInfo
   | TOKENIO => tokenioInfo
   | PAYTM => paytmInfo
+  | NEXTIVA => nextivaInfo
   | PHONEPE => phonepeInfo
   | FLEXITI => flexitiInfo
   | BREADPAY => breadpayInfo
@@ -2388,6 +2396,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | PAYLOAD => "Payload"
   | TOKENIO => "Token.io"
   | PAYTM => "Paytm"
+  | NEXTIVA => "Nextiva"
   | PHONEPE => "PhonePe"
   | FLEXITI => "Flexiti"
   | BREADPAY => "Breadpay"
