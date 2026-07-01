@@ -1361,6 +1361,9 @@ let useGetURL = () => {
         | #LIST_MERCHANT => `${userUrl}/list/merchant`
         | #LIST_PROFILE => `${userUrl}/list/profile`
 
+        // Clone connector across profiles of the same merchant
+        | #CLONE_CONNECTOR => `${userUrl}/clone_connector`
+
         // CREATE ROLES
         | #CREATE_CUSTOM_ROLE => `${userUrl}/role`
         | #CREATE_CUSTOM_ROLE_V2 => `${userUrl}/role/v2`
