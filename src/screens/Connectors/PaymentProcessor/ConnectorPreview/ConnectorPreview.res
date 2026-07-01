@@ -435,6 +435,7 @@ let make = (
             <Button text="Sync" buttonType={Primary} onClick={_ => getPayPalStatus()->ignore} />
           | (Preview, _, _, _) =>
             <div className="flex gap-6 items-center">
+              <CloneConnectorModal connectorInfo />
               <RenderIf condition={showMenuOption}>
                 {switch (connector->getConnectorNameTypeFromString, paypalAutomaticFlow) {
                 | (Processors(PAYPAL), true) =>

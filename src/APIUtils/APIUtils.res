@@ -407,6 +407,15 @@ let useGetURL = () => {
           }
         | _ => `payments/aggregate`
         }
+      | MANUAL_STATUS_UPDATE =>
+        switch methodType {
+        | Post =>
+          switch id {
+          | Some(payment_id) => `payments/${payment_id}/manual-status-update`
+          | None => ""
+          }
+        | _ => ""
+        }
       | REFUNDS =>
         switch methodType {
         | Get =>
@@ -1370,6 +1379,9 @@ let useGetURL = () => {
         | #LIST_ORG => `${userUrl}/list/org`
         | #LIST_MERCHANT => `${userUrl}/list/merchant`
         | #LIST_PROFILE => `${userUrl}/list/profile`
+
+        // Clone connector across profiles of the same merchant
+        | #CLONE_CONNECTOR => `${userUrl}/clone_connector`
 
         // CREATE ROLES
         | #CREATE_CUSTOM_ROLE => `${userUrl}/role`
