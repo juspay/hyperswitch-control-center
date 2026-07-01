@@ -1,8 +1,10 @@
+open LogicUtils
+
 let defaultEmailLogoUrl = `${GlobalVars.getHostUrl}/email-assets/HyperswitchLogo.png`
 
 let appendVersionParam = (url, ~version) => {
   switch version {
-  | Some(v) if v->LogicUtils.isNonEmptyString => `${url}?version=${v}`
+  | Some(v) if v->isNonEmptyString => `${url}?version=${v}`
   | _ => url
   }
 }
@@ -34,11 +36,12 @@ let getEntityTypeFromStep = (stepVariant: ThemeTypes.lineageSelectionSteps) =>
 
 let getFileFromEvent = ev => {
   let files = ReactEvent.Form.target(ev)["files"]
-  files->LogicUtils.getValueFromArray(0, None)
+  files->getValueFromArray(0, None)
 }
 
+let maxAssetFileSizeBytes = 2 * 1024 * 1024
+
 let assetsMapper = (dict): ThemeTypes.assets => {
-  open LogicUtils
   let toUrl = url => url->isNonEmptyString ? Some(ThemeTypes.Url(url)) : None
   {
     logo: dict->getOptionString("logoUrl")->Option.flatMap(toUrl),
@@ -79,18 +82,18 @@ let entities: array<ThemeTypes.themeOption> = [
     label: "Organization",
     value: "organization",
     icon: <Icon name="organization-entity" size=20 />,
-    desc: "Change themes to all merchants and profiles",
+    desc: "Applies the theme to all merchants and profiles",
   },
   {
     label: "Merchant",
     value: "merchant",
     icon: <Icon name="merchant-entity" size=20 />,
-    desc: "Change themes to specific merchant and its profiles",
+    desc: "Applies the theme to a specific merchant and its profiles",
   },
   {
     label: "Profile",
     value: "profile",
     icon: <Icon name="profile-entity" size=20 />,
-    desc: "Change themes to specific profile only",
+    desc: "Applies the theme to a specific profile only",
   },
 ]

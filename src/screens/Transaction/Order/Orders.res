@@ -6,7 +6,8 @@ let make = (~previewOnly=false) => {
 
   let fetchOrdersHook = OrdersHook.useFetchOrdersHook()
   let fetchAnalyticsOrdersHook = AnalyticsOrdersHook.useFetchAnalyticsOrdersHook()
-  let {devOpensearch, devSavedViews} =
+  let getSignal = AbortControllerHook.useAbortController()
+  let {devOpensearch, devSavedViews, transactionView} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
@@ -16,10 +17,10 @@ let make = (~previewOnly=false) => {
   let {merchantId, orgId, version} = getCommonSessionDetails()
 
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
-  let fetchOrdersWithStrategy = (~payload, ~version) => {
+  let fetchOrdersWithStrategy = (~payload, ~version, ~signal) => {
     devOpensearch && userHasResourceAccess(~resourceAccess=Analytics) === Access
-      ? fetchAnalyticsOrdersHook(~payload, ~version)
-      : fetchOrdersHook(~payload, ~version)
+      ? fetchAnalyticsOrdersHook(~payload, ~version, ~signal)
+      : fetchOrdersHook(~payload, ~version, ~signal)
   }
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -54,11 +55,13 @@ let make = (~previewOnly=false) => {
   }
 
   let getOrdersList = async filterValueJson => {
+    let signal = getSignal()
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let res = await fetchOrdersWithStrategy(
         ~payload=filterValueJson->JSON.Encode.object,
         ~version,
+        ~signal,
       )
       let data = res.data
       let total = res.total_count
@@ -78,6 +81,7 @@ let make = (~previewOnly=false) => {
           let res = await fetchOrdersWithStrategy(
             ~payload=filterValueJson->JSON.Encode.object,
             ~version,
+            ~signal,
           )
           let data = res.data
           let total = res.total_count
@@ -108,7 +112,8 @@ let make = (~previewOnly=false) => {
         )
       }
     } catch {
-    | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
+    | AbortControllerHook.AbortError => ()
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
     }
   }
 
@@ -180,7 +185,7 @@ let make = (~previewOnly=false) => {
       renderType=ExtendDateUI
       handleClick=handleExtendDateButtonClick
     />
-
+  let hasSearchText = searchText->isNonEmptyString
   let filtersUI = React.useMemo(() => {
     <RemoteTableFilters
       title="Orders"
@@ -188,12 +193,14 @@ let make = (~previewOnly=false) => {
       endTimeFilterKey={endTimeFilterKey(version)}
       startTimeFilterKey={startTimeFilterKey(version)}
       initialFilters
-      initialFixedFilter
+      initialFixedFilter={version => initialFixedFilter(version, ~disable=hasSearchText)}
       setOffset
       submitInputOnEnter=true
-      customLeftView={<SearchBarFilter
-        placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
-      />}
+      customLeftView={<div className="flex flex-col gap-1">
+        <SearchBarFilter
+          placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
+        />
+      </div>}
       customFilterActions={devSavedViews
         ? <SavedViewsComponent version entity=SavedViewTypes.Payment />
         : React.null}
@@ -224,9 +231,11 @@ let make = (~previewOnly=false) => {
           </RenderIf>
         </div>
       </div>
-      <div className="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-6 mb-8">
-        <TransactionView entity=TransactionViewTypes.Orders version />
-      </div>
+      <RenderIf condition={transactionView}>
+        <div className="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-3 grid-cols-2 gap-6 mb-8">
+          <TransactionView entity=TransactionViewTypes.Orders version />
+        </div>
+      </RenderIf>
       <div className="flex">
         <RenderIf condition={!previewOnly}>
           <div className="flex-1"> {filtersUI} </div>

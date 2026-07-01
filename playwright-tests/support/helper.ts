@@ -17,6 +17,13 @@ export function generateDateTimeString(): string {
   );
 }
 
+// Test merchants derive their merchant_id from company_name, so prefix every
+// generated merchant/company name with "playwright" to make test-created
+// merchant_ids identifiable (merchant_id = company_name lowercased).
+export function generateMerchantName(): string {
+  return `playwright_${generateDateTimeString()}`;
+}
+
 export function getInvalidEmails(): string[] {
   return [
     "username",

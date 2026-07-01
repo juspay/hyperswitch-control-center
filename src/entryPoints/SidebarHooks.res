@@ -31,6 +31,7 @@ let useGetHsSidebarValues = () => {
     billingProcessor,
     paymentLinkThemeConfigurator,
     vaultProcessor,
+    surchargeProcessor,
     devModularityV2,
     devTheme,
     devVault,
@@ -56,6 +57,7 @@ let useGetHsSidebarValues = () => {
           ~userHasResourceAccess,
           ~isBillingProcessor=billingProcessor,
           ~isVaultProcessor=vaultProcessor,
+          ~isSurchargeProcessor=surchargeProcessor,
         ),
         default->analytics(
           disputeAnalytics,

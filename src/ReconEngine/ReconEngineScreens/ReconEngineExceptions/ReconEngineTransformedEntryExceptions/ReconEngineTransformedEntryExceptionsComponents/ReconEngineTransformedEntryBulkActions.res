@@ -16,7 +16,7 @@ let make = (~selectedRows, ~setSelectedRows, ~refreshList) => {
   let (isLoading, setIsLoading) = React.useState(_ => false)
   let (showSuccessModal, setShowSuccessModal) = React.useState(_ => false)
   let modalConfig = getBulkActionModalConfig(~action=actionType, ~count=selectedRows->Array.length)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (bulkActionResponses, setBulkActionResponses) = React.useState(_ => [])
 
   let openModal = (action: actionType) => {
@@ -88,7 +88,7 @@ let make = (~selectedRows, ~setSelectedRows, ~refreshList) => {
 
   <div>
     <div
-      className="flex flex-row items-center gap-3 absolute right-1/2 bottom-8 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl p-3">
+      className="flex flex-row items-center gap-3 fixed left-1/2 -translate-x-1/2 bottom-4 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl p-3">
       <p className={`${body.md.semibold} text-nd_gray-500`}>
         {`${selectedRows->Array.length->Int.toString} Selected`->React.string}
       </p>

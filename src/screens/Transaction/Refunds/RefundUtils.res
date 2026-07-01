@@ -28,15 +28,7 @@ let getFilterTypeFromString = filterType => {
 
 let getRefundsList = async (
   filterValueJson,
-  ~updateDetails: (
-    string,
-    JSON.t,
-    Fetch.requestMethod,
-    ~bodyFormData: Fetch.formData=?,
-    ~headers: Dict.t<'a>=?,
-    ~contentType: AuthHooks.contentType=?,
-    ~version: UserInfoTypes.version=?,
-  ) => promise<JSON.t>,
+  ~updateDetails: (string, JSON.t, Fetch.requestMethod) => promise<JSON.t>,
   ~setRefundsData,
   ~setScreenState,
   ~offset,
@@ -97,7 +89,7 @@ let filterByData = (txnArr, value) => {
   })
 }
 
-let initialFixedFilter = _ => [
+let initialFixedFilter = (~disable=false, _) => [
   (
     {
       localFilter: None,
@@ -125,6 +117,7 @@ let initialFixedFilter = _ => [
           ~numMonths=2,
           ~disableApply=false,
           ~dateRangeLimit=180,
+          ~disable,
         ),
         ~inputFields=[],
         ~isRequired=false,

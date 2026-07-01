@@ -18,7 +18,7 @@ let make = (
   let (exceptionStage, setExceptionStage) = React.useState(_ => ShowResolutionOptions(
     NoResolutionOptionNeeded,
   ))
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
   let (updatedEntriesList, setUpdatedEntriesList) = React.useState(_ =>
     entriesList->addUniqueIdsToEntries
@@ -58,13 +58,13 @@ let make = (
     let accountIds = groupedEntries->Dict.keysToArray
     sections->Array.mapWithIndex((section, index) => {
       let accountId = accountIds->getValueFromArray(index, "")
-      let entriesWithUniqueId = groupedEntries->getvalFromDict(accountId)->Option.getOr([])
+      let entriesWithUniqueId = groupedEntries->getValueFromDict(accountId, [])
       {
         ...section,
         rowData: entriesWithUniqueId->Array.map(entry => entry->Identity.genericTypeToJson),
       }
     })
-  }, (groupedEntries, accountInfoMap, detailsFields, currentExceptionDetails.transaction_status))
+  }, (groupedEntries, accountInfoMap, currentExceptionDetails.transaction_status))
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
@@ -144,7 +144,7 @@ let make = (
     />
     <ReconEngineCustomExpandableSelectionTable
       title=""
-      heading={detailsFields->Array.map(getHeading)}
+      heading={getDetailFieldsForTableSections->Array.map(getHeading)}
       getSectionRowDetails=sectionDetails
       showScrollBar=true
       showOptions={exceptionStage == ResolvingException(EditEntry) ||
@@ -161,7 +161,7 @@ let make = (
       exceptionStage == ConfirmResolution(MarkAsReceived) ||
       exceptionStage == ConfirmResolution(LinkStagingEntriesToTransaction)}>
       <div
-        className="flex flex-row items-center gap-3 absolute right-1/2 bottom-10 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl p-3">
+        className="flex flex-row items-center gap-3 fixed left-1/2 -translate-x-1/2 bottom-4 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl p-3">
         <div className="flex gap-3">
           <Button
             text="Discard"

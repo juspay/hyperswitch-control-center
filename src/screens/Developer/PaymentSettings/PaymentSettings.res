@@ -1,7 +1,7 @@
 module InfoViewForWebhooks = {
   @react.component
   let make = (~heading, ~subHeading, ~isCopy=false) => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let onCopyClick = ev => {
       ev->ReactEvent.Mouse.stopPropagation
       Clipboard.writeText(subHeading)
@@ -132,12 +132,12 @@ module AuthenticationInput = {
 
     <DesktopRow wrapperClass="flex-1">
       <div className="mt-5">
-        <TextInput
+        <TextInputAdapter
           input={keyInput} placeholder={"Enter key"} isDisabled={isDisabled && !allowEdit}
         />
       </div>
       <div className="mt-5">
-        <TextInput
+        <TextInputAdapter
           input={valueInput} placeholder={"Enter value"} isDisabled={isDisabled && !allowEdit}
         />
       </div>
@@ -241,7 +241,7 @@ module WebHookSection = {
     open MerchantAccountUtils
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let (allowEdit, setAllowEdit) = React.useState(_ => false)
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
     let profileId = businessProfileDetails.profile_id
@@ -402,7 +402,7 @@ module PaymentLinkDomain = {
 
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let (allowEdit, setAllowEdit) = React.useState(_ => false)
     let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
@@ -563,7 +563,7 @@ module CollectDetails = {
                 key={index->Int.toString}
                 className="flex gap-2 mb-3 items-center cursor-pointer"
                 onClick={_ => onClick(option.key)}>
-                <RadioIcon
+                <RadioIconAdapter
                   isSelected={valuesDict->getBool(option.key, false)} fill="text-green-700"
                 />
                 <div className=p2RegularTextStyle> {option.name->snakeToTitle->React.string} </div>
@@ -839,7 +839,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false) => {
   open Typography
   let getURL = useGetURL()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let updateDetails = useUpdateMethod()
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom

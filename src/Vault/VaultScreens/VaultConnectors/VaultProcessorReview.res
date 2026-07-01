@@ -15,7 +15,7 @@ let make = (~connectorInfo) => {
     ->ConnectorUtils.connectorTypeTuple
   let {connector_name: connectorName} = connectorInfodict
   let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   let connectorAccountFields = React.useMemo(() => {
     try {
@@ -28,6 +28,7 @@ let make = (~connectorInfo) => {
         | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
         | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
         | VaultProcessor => Window.getConnectorConfig(connectorName)
+        | SurchargeProcessor => Window.getSurchargeProcessorConfig(connectorName)
         | PaymentVas => JSON.Encode.null
         }
         let connectorAccountDict = dict->getDictFromJsonObject->getDictfromDict("connector_auth")

@@ -19,7 +19,7 @@ test.describe("Payout Connector", () => {
   const payoutConnectors = Object.entries(payoutConnectorConfig);
   test.beforeEach(async ({ page, context }) => {
     email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
@@ -52,11 +52,10 @@ test.describe("Payout Connector", () => {
       await payoutConnector.connectorSetupDone.click();
 
       await expect(page).toHaveURL(/.*dashboard\/payoutconnectors/);
-      const connectorLabelOverride = connector.fields.overrides["Enter Connector label"];
+      const connectorLabelOverride =
+        connector.fields.overrides["Enter Connector label"];
       if (connectorLabelOverride) {
-        await expect(
-          page.getByText(connectorLabelOverride),
-        ).toBeVisible();
+        await expect(page.getByText(connectorLabelOverride)).toBeVisible();
       }
     });
   }

@@ -17,7 +17,7 @@ let make = (
   let getURL = useGetURL()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchApi = AuthHooks.useApiFetcher()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   let url = RescriptReactRouter.useUrl()
   let form = ReactFinalForm.useForm()

@@ -18,10 +18,11 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
   )
   let {getUserInfo} = OMPSwitchHooks.useUserInfo()
   let {setApplicationState} = React.useContext(UserInfoProvider.defaultContext)
+  let setThemeList = HyperswitchAtom.themeListAtom->Recoil.useSetRecoilState
   let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Loading)
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let processAssets = ThemeHooks.useProcessAssets()
@@ -39,7 +40,16 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
         urlsDict->Dict.set("emailLogoUrl", emailLogoUrl->JSON.Encode.string)
       }
       setAssets(_ => urlsDict->assetsMapper)
-      setInitialValues(_ => mappedTheme->Identity.genericTypeToJson)
+      let initialValuesDict = mappedTheme->Identity.genericTypeToJson->getDictFromJsonObject
+      initialValuesDict->Dict.set(
+        "theme_name",
+        resDict->getString("theme_name", "")->JSON.Encode.string,
+      )
+      initialValuesDict->Dict.set(
+        "entity_type",
+        resDict->getString("entity_type", "")->JSON.Encode.string,
+      )
+      setInitialValues(_ => initialValuesDict->JSON.Encode.object)
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
@@ -79,8 +89,17 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
         ~userType=#THEME,
       )
       let _ = await updateDetails(deleteUrl, JSON.Encode.object(Dict.make()), Delete)
-      let res = await getUserInfo()
 
+      let url = getURL(
+        ~entityName=V1(USERS),
+        ~methodType=Get,
+        ~queryParameters=Some(`entity_type=organization`),
+        ~userType=#THEME_LIST,
+      )
+      let updatedThemeList = await fetchDetails(url, ~version=UserInfoTypes.V1)
+      setThemeList(_ => updatedThemeList)
+
+      let res = await getUserInfo()
       setApplicationState(_ => DashboardSession(res))
 
       showToast(~message="Theme deleted successfully", ~toastType=ToastSuccess)
@@ -143,7 +162,10 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
 
       let _ = await updateDetails(updateUrl, requestBody, Put)
 
-      showToast(~message="Theme updated successfully", ~toastType=ToastSuccess)
+      showToast(
+        ~message="Theme updated successfully. Refresh the page to apply any changes.",
+        ~toastType=ToastSuccess,
+      )
       setScreenState(_ => Success)
       redirectToList()
     } catch {
@@ -160,7 +182,9 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
       title: "Dashboard Config",
       renderContent: () =>
         <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
-          <div className="flex flex-col gap-2">
+          <div
+            className="self-start flex flex-col gap-2 max-h-62-vh md:max-h-68-vh lg:max-h-74-vh overflow-y-auto theme-config-scrollbar rounded-lg border border-nd_gray-150 p-4 ">
+            <ThemeHelper.DashboardConfigScrollbarStyle />
             <ThemeSettingsHelper.IconSettings
               mode={#Dashboard}
               assets
@@ -174,11 +198,8 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
           </div>
           <div className="flex flex-col gap-8 w-full lg:col-span-2">
             <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
-            <div className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
-              <div
-                className="absolute top-3 right-3 z-10 bg-white bg-opacity-80 rounded-full p-1 flex items-center justify-center shadow">
-                <Icon name="eye" size=18 className="text-nd_gray-500 opacity-70" />
-              </div>
+            <div
+              className="border h-48-vh md:h-55-vh lg:h-55-vh rounded-xl py-2 px-10 flex items-center relative ">
               <ThemeMockDashboard />
             </div>
             <ThemeUpdateHelper.ActionButtons handleDelete />
@@ -189,7 +210,9 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
       title: "Email Config",
       renderContent: () =>
         <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
-          <div className="flex flex-col gap-4">
+          <div
+            className="self-start flex flex-col gap-4 max-h-62-vh md:max-h-68-vh lg:max-h-55-vh overflow-y-auto theme-config-scrollbar rounded-lg border border-nd_gray-150 p-4 ">
+            <ThemeHelper.DashboardConfigScrollbarStyle />
             <ThemeSettingsHelper.IconSettings
               mode=#Email
               assets
@@ -201,11 +224,8 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
           </div>
           <div className="flex flex-col gap-8 w-full lg:col-span-2">
             <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
-            <div className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
-              <div
-                className="absolute top-3 right-3 z-10 bg-white bg-opacity-80 rounded-full p-1 flex items-center justify-center shadow">
-                <Icon name="eye" size=18 className="text-nd_gray-500 opacity-70" />
-              </div>
+            <div
+              className="border h-48-vh md:h-55-vh rounded-xl py-2 px-10 flex items-center relative">
               <ThemeMockEmail />
             </div>
             <ThemeUpdateHelper.ActionButtons handleDelete />
@@ -214,15 +234,29 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
     },
   ]
 
+  let initialValuesDict = initialValues->getDictFromJsonObject
+  let themeName = initialValuesDict->getString("theme_name", "")
+  let entityLevelLabel: UserInfoTypes.entity =
+    initialValuesDict->getString("entity_type", "")->UserInfoUtils.entityMapper
+
   <PageLoaderWrapper screenState={screenState}>
     <Form key={themeId} onSubmit initialValues>
-      <div className="flex flex-col h-screen gap-8">
-        <div className="flex flex-col flex-1 h-full">
-          <PageUtils.PageHeading
-            title="Theme Configuration"
-            subTitle="Update your configuration."
-            customSubTitleStyle={`${body.lg.medium} text-nd_gray-400`}
-          />
+      <div className="flex flex-col gap-8">
+        <div className="flex flex-col flex-1">
+          <div className="flex flex-col mb-6">
+            <PageUtils.PageHeading
+              title="Theme Configuration" customTitleStyle="text-nd_gray-800"
+            />
+            <div className="flex items-center gap-3">
+              <BreadCrumbNavigation
+                path=[{title: "Themes", link: "/theme"}] currentPageTitle={themeName}
+              />
+              <span
+                className={`px-3 py-1 rounded-full bg-nd_purple-100 text-nd_purple-700 ${body.xs.semibold}`}>
+                {`${(entityLevelLabel :> string)} level`->React.string}
+              </span>
+            </div>
+          </div>
           <Tabs tabs />
         </div>
       </div>

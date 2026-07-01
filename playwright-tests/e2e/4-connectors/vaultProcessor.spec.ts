@@ -1,15 +1,20 @@
 import { test, expect } from "../../support/test";
 import type { Page, BrowserContext } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
+import { VaultProcessor } from "../../support/pages/connector/VaultProcessor";
 import { generateUniqueEmail } from "../../support/helper";
-import { signupUser, loginUI, fillConnectorFields } from "../../support/commands";
+import {
+  signupUser,
+  loginUI,
+  fillConnectorFields,
+} from "../../support/commands";
 import { vaultProcessorConfig } from "../../support/fixtures/vaultProcessorConfig";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 async function signupAndLogin(page: Page, context: BrowserContext) {
   const email = generateUniqueEmail();
-  await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+  await signupUser(email, PLAYWRIGHT_PASSWORD);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 }
 
@@ -66,14 +71,15 @@ test.describe("Vault Processor", () => {
     if (!(await gotoVault(page))) {
       test.skip(true, "Vault Processor not reachable");
     }
-    const fallback = page.getByText("Go to Home", { exact: true }).first();
+    const vaultProcessor = new VaultProcessor(page);
+    const fallback = vaultProcessor.goToHomeFallback;
     if (await fallback.isVisible().catch(() => false)) {
       test.skip(true, "Page gated by feature flag fallback");
     }
-    await expect(
-      page.getByRole("button", { name: "Request a Processor" }).first(),
-    ).toBeVisible({ timeout: 10000 });
-    const search = page.getByPlaceholder("Search a processor");
+    await expect(vaultProcessor.requestProcessorButton).toBeVisible({
+      timeout: 10000,
+    });
+    const search = vaultProcessor.searchProcessorPlaceholder;
     await expect(search).toBeVisible({ timeout: 10000 });
     await search.fill("stripe");
     await expect(search).toHaveValue("stripe");
@@ -83,11 +89,8 @@ test.describe("Vault Processor", () => {
     if (!(await gotoVault(page))) {
       test.skip(true, "Vault Processor not reachable");
     }
-    const connectButton = page
-      .locator(
-        '[data-button-for="connectNow"], button:has-text("Connect Vault"), button:has-text("Connect")',
-      )
-      .first();
+    const vaultProcessor = new VaultProcessor(page);
+    const connectButton = vaultProcessor.connectNowOrConnectButton;
     if (!(await connectButton.isVisible().catch(() => false))) {
       test.skip(true, "Connect CTA not exposed");
     }
@@ -101,15 +104,11 @@ test.describe("Vault Processor", () => {
     await page
       .locator('[name*="environment_key"]')
       .fill("spreedly_test_env_key");
-    await page
-      .locator('[name*="access_secret"]')
-      .fill("spreedly_test_secret");
+    await page.locator('[name*="access_secret"]').fill("spreedly_test_secret");
 
-    await page.locator('[data-button-for="connectAndProceed"]').click();
+    await vaultProcessor.connectAndProceedButton.click();
 
-    await expect(
-      page.locator('[data-toast*="success"], [data-toast*="Connected"]'),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(vaultProcessor.successToast).toBeVisible({ timeout: 10000 });
   });
 
   test("should configure tokenization rules", async ({ page }) => {
@@ -133,9 +132,7 @@ test.describe("Vault Processor", () => {
     await addRuleButton.click();
     await page.locator('[name*="rule_name"]').fill("Auto Tokenize Cards");
 
-    const conditionDropdown = page
-      .locator('[name*="condition_type"]')
-      .first();
+    const conditionDropdown = page.locator('[name*="condition_type"]').first();
     if (await conditionDropdown.isVisible().catch(() => false)) {
       await conditionDropdown.selectOption("payment_method_card");
     }
@@ -195,15 +192,14 @@ test.describe("All Vault Processors", () => {
   const vaultProcessors = Object.entries(vaultProcessorConfig);
   test.beforeEach(async ({ page, context }) => {
     email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
   for (const [key, processor] of vaultProcessors) {
-    test(`should setup and verify ${key} vault processor`, async ({
-      page,
-    }) => {
+    test(`should setup and verify ${key} vault processor`, async ({ page }) => {
       const homePage = new HomePage(page);
+      const vaultProcessor = new VaultProcessor(page);
 
       await homePage.connectors.click();
       const vaultLink = homePage.vaultConnectors;
@@ -214,9 +210,7 @@ test.describe("All Vault Processors", () => {
       await vaultLink.click();
       await expect(page).toHaveURL(/.*dashboard\/vault-processor/);
 
-      //await expect(page.getByText('VGS', { exact: true })).toBeVisible();
-
-      const connectButtons = page.locator('[data-button-text="Connect"], button:has-text("Connect")');
+      const connectButtons = vaultProcessor.connectButton;
       await expect(connectButtons.first()).toBeVisible();
       if ((await connectButtons.count().catch(() => 0)) > 0) {
         await connectButtons.nth(0).click();
@@ -225,16 +219,19 @@ test.describe("All Vault Processors", () => {
           await fillConnectorFields(page, processor.fields);
         }
 
-        const saveButton = page.locator('button:has-text("Save"), button:has-text("Connect"), button:has-text("Proceed")').first();
+        const saveButton = vaultProcessor.saveOrConnectOrProceedButton;
         if (await saveButton.isVisible({ timeout: 5000 }).catch(() => false)) {
           await saveButton.click();
           await page.waitForLoadState("networkidle");
 
-          await page.getByRole('button', { name: 'Done' }).click();
+          await vaultProcessor.doneButton.click();
 
-          // Verify the connector appears in the vault processor list
-          const connectorLabel = processor.fields.overrides["Enter Connector label"] || processor.label;
-          await expect(page.getByText(connectorLabel, { exact: true })).toBeVisible({ timeout: 10000 });
+          const connectorLabel =
+            processor.fields.overrides["Enter Connector label"] ||
+            processor.label;
+          await expect(
+            page.getByText(connectorLabel, { exact: true }),
+          ).toBeVisible({ timeout: 10000 });
         }
       }
     });

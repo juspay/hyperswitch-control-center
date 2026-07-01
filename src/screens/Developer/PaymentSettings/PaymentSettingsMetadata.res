@@ -98,12 +98,12 @@ module MetadataAuthenticationInput = {
 
     <DesktopRow wrapperClass="flex-1">
       <div className="mt-5">
-        <TextInput
+        <TextInputAdapter
           input={keyInput} placeholder={"Enter key"} isDisabled={isDisabled && !allowEdit}
         />
       </div>
       <div className="mt-5">
-        <TextInput
+        <TextInputAdapter
           input={valueInput} placeholder={"Enter value"} isDisabled={isDisabled && !allowEdit}
         />
       </div>
@@ -206,7 +206,7 @@ let make = (
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let profileId = businessProfileDetails.profile_id
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
 

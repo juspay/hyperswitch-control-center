@@ -1,0 +1,136 @@
+name: PR Ready for Review Label
+
+on:
+  workflow_run:
+    workflows:
+      - "Build and Lint"
+      - "Playwright Tests"
+      - "Pull Request Convention Checks"
+      - "Spell Check"
+    types:
+      - completed
+
+  # This is a dangerous event trigger as it causes the workflow to run in the
+  # context of the target repository.
+  # Avoid checking out the head of the pull request or building code from the
+  # pull request whenever this trigger is used.
+  # Since we only label pull requests, do not have a checkout step in this
+  # workflow, and restrict permissions on the token, this is an acceptable
+  # use of this trigger.
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+      - converted_to_draft
+
+concurrency:
+  group: pr-ready-label-${{ github.workflow }}-${{ github.event.pull_request.number || github.event.workflow_run.head_sha }}
+  cancel-in-progress: true
+
+jobs:
+  pr_ready_label_evaluation:
+    name: Evaluate required checks and toggle label
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      checks: read
+      contents: read
+
+    steps:
+      - name: Resolve target PR number
+        id: prs
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
+            pr_number="${{ github.event.pull_request.number }}"
+          else
+            # workflow_run.pull_requests is empty for fork PRs; resolve via commit -> PR lookup.
+            pr_number="$(gh api "repos/${{ github.event.repository.full_name }}/commits/${{ github.event.workflow_run.head_sha }}/pulls" \
+              --jq '[.[] | select(.state == "open") | .number] | first // empty')"
+          fi
+          echo "pr_number=${pr_number}" >> "$GITHUB_OUTPUT"
+
+      - name: Evaluate required checks and toggle label
+        if: ${{ steps.prs.outputs.pr_number != '' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.prs.outputs.pr_number }}
+        run: |
+          set -euo pipefail
+
+          # Keep in sync with required status checks in branch protection on the default branch.
+          required_checks=(
+            "Build & Lint"
+            "Spell check"
+            "Spell check PR title"
+            "Verify PR contains one or more linked issues"
+            "Verify PR title follows conventional commit standards"
+            "playwright-tests (1)"
+            "playwright-tests (2)"
+            "playwright-tests (3)"
+            "playwright-tests (4)"
+          )
+
+          repo="${{ github.event.repository.full_name }}"
+          label="R-ready-for-review"
+
+          pr_json="$(gh api "repos/${repo}/pulls/${PR_NUMBER}")"
+          pr_state="$(jq -r '.state' <<<"$pr_json")"
+          is_draft="$(jq -r '.draft' <<<"$pr_json")"
+          pr_head_sha="$(jq -r '.head.sha' <<<"$pr_json")"
+
+          if [[ "$pr_state" != "open" ]]; then
+            echo "PR #${PR_NUMBER} is not open (state=$pr_state); skipping."
+            exit 0
+          fi
+
+          if [[ "$is_draft" == "true" ]]; then
+            echo "PR #${PR_NUMBER} is a draft; ensuring label is absent."
+            gh --repo "$repo" pr edit "$PR_NUMBER" --remove-label "$label"
+            exit 0
+          fi
+
+          # A workflow_run completion for an outdated SHA must not overwrite the latest state.
+          if [[ "${{ github.event_name }}" == "workflow_run" && "${{ github.event.workflow_run.head_sha }}" != "$pr_head_sha" ]]; then
+            echo "workflow_run head_sha does not match PR head; skipping stale evaluation."
+            exit 0
+          fi
+
+          checks_json="$(gh api "repos/${repo}/commits/${pr_head_sha}/check-runs?per_page=100" \
+            --jq '[.check_runs[] | {name, status, conclusion, started_at}]')"
+
+          all_green=true
+          reason=""
+          for ctx in "${required_checks[@]}"; do
+            # max_by picks the unambiguous latest started_at; sort_by|last is
+            # ordering-ambiguous when rapid re-runs land with near-identical
+            # timestamps.
+            match="$(jq --arg n "$ctx" '[.[] | select(.name == $n)] | max_by(.started_at) // empty' <<<"$checks_json")"
+            if [[ -z "$match" || "$match" == "null" ]]; then
+              all_green=false; reason="missing: $ctx"; break
+            fi
+            status="$(jq -r '.status' <<<"$match")"
+            conclusion="$(jq -r '.conclusion' <<<"$match")"
+            if [[ "$status" != "completed" ]]; then
+              all_green=false; reason="pending: $ctx (status=$status)"; break
+            fi
+            case "$conclusion" in
+              success|skipped|neutral) ;;
+              *) all_green=false; reason="failed: $ctx (conclusion=$conclusion)"; break ;;
+            esac
+          done
+
+          # GitHub CLI returns a successful exit code whether or not the label is already attached/absent.
+          if $all_green; then
+            echo "PR #${PR_NUMBER}: all required checks green; adding '$label'."
+            gh --repo "$repo" pr edit "$PR_NUMBER" --add-label "$label"
+          else
+            echo "PR #${PR_NUMBER}: not ready ($reason); removing '$label' if present."
+            gh --repo "$repo" pr edit "$PR_NUMBER" --remove-label "$label"
+          fi

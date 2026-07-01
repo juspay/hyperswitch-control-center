@@ -6,7 +6,6 @@ let make = () => {
   open RefundUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (refundData, setRefundsData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
@@ -43,6 +42,7 @@ let make = () => {
       handleClick=handleExtendDateButtonClick
     />
   }
+  let hasSearchText = searchText->isNonEmptyString
   let fetchRefunds = () => {
     switch filters {
     | Some(dict) =>
@@ -66,7 +66,7 @@ let make = () => {
       filters->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
       filters
       ->getRefundsList(
-        ~updateDetails,
+        ~updateDetails=(url, body, method) => updateDetails(url, body, method),
         ~setRefundsData,
         ~setScreenState,
         ~offset,
@@ -86,7 +86,8 @@ let make = () => {
     None
   }, (offset, filters, searchText))
 
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport, transactionView} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">
@@ -106,9 +107,11 @@ let make = () => {
           </RenderIf>
         </div>
       </div>
-      <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8">
-        <TransactionView entity=TransactionViewTypes.Refunds />
-      </div>
+      <RenderIf condition={transactionView}>
+        <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8">
+          <TransactionView entity=TransactionViewTypes.Refunds />
+        </div>
+      </RenderIf>
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
@@ -116,13 +119,15 @@ let make = () => {
             endTimeFilterKey
             startTimeFilterKey
             initialFilters
-            initialFixedFilter
+            initialFixedFilter={version => initialFixedFilter(version, ~disable=hasSearchText)}
             setOffset
-            customLeftView={<SearchBarFilter
-              placeholder="Search for payment ID or refund ID"
-              setSearchVal=setSearchText
-              searchVal=searchText
-            />}
+            customLeftView={<div className="flex flex-col gap-1">
+              <SearchBarFilter
+                placeholder="Search for payment ID or refund ID"
+                setSearchVal=setSearchText
+                searchVal=searchText
+              />
+            </div>}
             entityName=V1(REFUND_FILTERS)
             title="Refunds"
           />

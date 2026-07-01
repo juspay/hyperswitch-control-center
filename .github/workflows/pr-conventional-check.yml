@@ -20,12 +20,9 @@ on:
     types:
       - checks_requested
 
-env:
-  # Allow more retries for network requests in cargo (downloading crates) and
-  # rustup (installing toolchains). This should help to reduce flaky CI failures
-  # from transient network timeouts or other issues.
-  CARGO_NET_RETRY: 10
-  RUSTUP_MAX_RETRIES: 10
+concurrency:
+  group: pr-conventional-check-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request_target' }}
 
 jobs:
   pr_linked_issues_check:
@@ -107,31 +104,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: stable 2 weeks ago
-
-      - uses: baptiste0928/cargo-install@v2.2.0
-        with:
-          crate: cocogitto
-
       - name: Verify PR title follows conventional commit standards
         id: pr_title_check
         if: ${{ github.event_name == 'pull_request_target' }}
-        shell: bash
+        uses: amannn/action-semantic-pull-request@v5
         env:
-          TITLE: ${{ github.event.pull_request.title }}
+          GITHUB_TOKEN: ${{ github.token }}
         continue-on-error: true
-        run: cog verify "$TITLE"
+        with:
+          types: |
+            feat
+            fix
+            perf
+            refactor
+            test
+            docs
+            chore
+            build
+            ci
 
       - name: Verify commit message follows conventional commit standards
         id: commit_message_check
         if: ${{ github.event_name == 'merge_group' }}
         shell: bash
-        # Fail on error, we don't have context about PR information to update labels
-        continue-on-error: false
-        run: cog verify '${{ github.event.merge_group.head_commit.message }}'
+        env:
+          MSG: ${{ github.event.merge_group.head_commit.message }}
+        run: |
+          pattern='^(feat|fix|perf|refactor|test|docs|chore|build|ci)(\([^)]+\))?!?: .+'
+          first_line="$(printf '%s\n' "$MSG" | head -n1)"
+          if [[ "$first_line" =~ $pattern ]]; then
+            echo "Commit message follows conventional commits: $first_line"
+          else
+            echo "::error::Commit message does not follow conventional commits"
+            echo "Got: $first_line"
+            exit 1
+          fi
 
         # GitHub CLI returns a successful error code even if the PR has the label already attached
       - name: Attach 'S-conventions-not-followed' label if PR title check failed

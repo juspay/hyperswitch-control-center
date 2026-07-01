@@ -15,9 +15,9 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {updateExistingKeys, filterValueJson, reset} = FilterContext.filterContext->React.useContext
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   let (searchText, setSearchText) = React.useState(_ => "")
-  let (lastFilterState, setLastFilterState) = React.useState(_ => "")
+  let lastFiltersSignature = React.useRef("")
 
   let webhookURL = businessProfileRecoilVal.webhook_details.webhook_url->Option.getOr("")
 
@@ -103,31 +103,24 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    let currentFilterState = {
-      let filterDict = Dict.make()
-      filterValueJson
-      ->Dict.toArray
-      ->Array.forEach(((key, value)) => {
-        if key !== "offset" && key !== "limit" {
-          filterDict->Dict.set(key, value)
-        }
-      })
-      filterDict->JSON.Encode.object->JSON.stringify
-    }
-
-    if currentFilterState !== lastFilterState && searchText->isEmptyString {
-      setLastFilterState(_ => currentFilterState)
-      if offset !== 0 {
-        setOffset(_ => 0)
-      } else {
-        fetchWebhooks()->ignore
-      }
-    } else {
-      fetchWebhooks()->ignore
-    }
-
     if filterValueJson->isEmptyDict {
       setInitialFilters()
+    } else {
+      let currentFilterState = {
+        let filterDict = Dict.make()
+        filterValueJson
+        ->Dict.toArray
+        ->Array.forEach(((key, value)) => filterDict->Dict.set(key, value))
+        filterDict->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
+        filterDict->JSON.Encode.object->JSON.stringify
+      }
+
+      if currentFilterState !== lastFiltersSignature.current && searchText->isEmptyString {
+        lastFiltersSignature.current = currentFilterState
+        fetchWebhooks()->ignore
+      } else if searchText->isNonEmptyString {
+        fetchWebhooks()->ignore
+      }
     }
     None
   }, (filterValueJson, offset))

@@ -42,7 +42,7 @@ let make = () => {
     }
   }, [value])
 
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let onCopyClick = ev => {
     ev->ReactEvent.Mouse.stopPropagation
     Clipboard.writeText(merchantId)
@@ -93,7 +93,7 @@ let make = () => {
               {"Merchant Id"->React.string}
               <span className="text-red-900 mb-0.5"> {"*"->React.string} </span>
             </div>
-            <TextInput input customWidth="w-full" placeholder="Merchant Id" />
+            <TextInputAdapter input customWidth="w-full" placeholder="Merchant Id" />
           </div>
           <div className="flex-col gap-2 items-center z-20">
             <div className="text-nd_gray-700 font-medium flex gap-1 w-fit align-center">

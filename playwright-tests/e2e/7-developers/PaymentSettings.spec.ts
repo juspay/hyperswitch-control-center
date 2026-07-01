@@ -13,7 +13,7 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 test.describe("Payment Settings", () => {
   test.beforeEach(async ({ page, context }) => {
     const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
@@ -146,7 +146,7 @@ test.describe("Payment Settings", () => {
 
       await paymentSettings.selectFirstMerchantCategoryCode();
       await expect(
-        page.getByRole("button", { name: expectedCategory }),
+        paymentSettings.buttonByName(expectedCategory),
       ).toBeVisible();
 
       await paymentSettings.clickUpdate();
@@ -165,7 +165,7 @@ test.describe("Payment Settings", () => {
       });
       await expect(paymentSettings.webhookUrlInput).toHaveValue(webhookUrl);
       await expect(
-        page.getByRole("button", { name: expectedCategory }),
+        paymentSettings.buttonByName(expectedCategory),
       ).toBeVisible();
 
       for (const label of toggleLabels) {
@@ -237,7 +237,7 @@ test.describe("Payment Settings", () => {
         await expect(shippingToggle).toHaveAttribute("data-bool-value", "on");
       }
       // The shipping section's "Always" is the second occurrence of that label
-      await page.getByText("Always", { exact: true }).last().click();
+      await paymentSettings.alwaysOption("last").click();
 
       await paymentSettings.clickUpdate();
       await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
@@ -346,23 +346,15 @@ test.describe("Payment Settings", () => {
         paymentSettings.toggleSwitchByLabel("Click to Pay");
       await expect(clickToPayToggle).toBeVisible();
 
-      const initial =
-        await clickToPayToggle.getAttribute("data-bool-value");
+      const initial = await clickToPayToggle.getAttribute("data-bool-value");
       if (initial !== "on") {
         await clickToPayToggle.click();
-        await expect(clickToPayToggle).toHaveAttribute(
-          "data-bool-value",
-          "on",
-        );
+        await expect(clickToPayToggle).toHaveAttribute("data-bool-value", "on");
       }
 
       await expect(paymentSettings.clickToPayConnectorDropdown).toBeVisible();
       await paymentSettings.clickToPayConnectorDropdown.click();
-      await page
-        .locator("[data-dropdown-value]")
-        .filter({ hasText: connectorLabel })
-        .first()
-        .click();
+      await paymentSettings.dropdownValueByText(connectorLabel).click();
 
       await paymentSettings.clickUpdate();
       await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
@@ -377,7 +369,7 @@ test.describe("Payment Settings", () => {
         paymentSettings.toggleSwitchByLabel("Click to Pay"),
       ).toHaveAttribute("data-bool-value", "on", { timeout: 10000 });
       await expect(
-        page.getByRole("button", { name: new RegExp(connectorLabel) }),
+        paymentSettings.buttonByName(new RegExp(connectorLabel)),
       ).toBeVisible();
     });
   });
@@ -393,8 +385,9 @@ test.describe("Payment Settings", () => {
       await homePage.paymentSettings.click();
       await paymentSettings.threeDSTab.click();
 
-      const forceChallenge =
-        paymentSettings.toggleSwitchByLabel("Force 3DS Challenge");
+      const forceChallenge = paymentSettings.toggleSwitchByLabel(
+        "Force 3DS Challenge",
+      );
       const initial = await forceChallenge.getAttribute("data-bool-value");
       if (initial !== "on") {
         await forceChallenge.click();
@@ -444,8 +437,9 @@ test.describe("Payment Settings", () => {
       await homePage.paymentSettings.click();
       await paymentSettings.threeDSTab.click();
 
-      const forceChallenge =
-        paymentSettings.toggleSwitchByLabel("Force 3DS Challenge");
+      const forceChallenge = paymentSettings.toggleSwitchByLabel(
+        "Force 3DS Challenge",
+      );
       await expect(forceChallenge).toBeVisible();
       const initial = await forceChallenge.getAttribute("data-bool-value");
       if (initial !== "on") {
@@ -456,11 +450,8 @@ test.describe("Payment Settings", () => {
       const requestorUrl = "https://example.com/3ds-requestor";
       const requestorAppUrl = "https://example.com/3ds-requestor-app";
 
-      await page.getByRole("button", { name: "Select Field" }).first().click();
-      await page
-        .locator(`[data-dropdown-value="${connectorName}"]`)
-        .first()
-        .click();
+      await paymentSettings.selectFieldDropdown().click();
+      await paymentSettings.dropdownValue(connectorName).click();
       await page.keyboard.press("Escape");
 
       await paymentSettings.threeDsRequestorUrlInput.fill(requestorUrl);
@@ -487,9 +478,9 @@ test.describe("Payment Settings", () => {
       );
 
       // Verify the connector is the selected option in the multi-select
-      await page.getByRole('button', { name: 'juspaythreedsserver' }).first().click();
+      await paymentSettings.buttonByName("juspaythreedsserver").first().click();
       await expect(
-        page.locator(`[data-dropdown-value="${connectorName}"]`).first(),
+        paymentSettings.dropdownValue(connectorName),
       ).toHaveAttribute("data-dropdown-value-selected", "True");
     });
   });
@@ -502,105 +493,254 @@ test.describe("Payment Settings", () => {
       await homePage.developer.click();
       await homePage.paymentSettings.click();
       await paymentSettings.threeDSTab.click();
-      await paymentSettings.acquirerConfigSettings.click();
     });
 
-    test("should fill all fields, save, and persist after reload", async ({
+    test("should show empty state with heading and Acquirer config group button", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await expect(paymentSettings.acquirerConfigSettingsHeading).toBeVisible();
+      await expect(paymentSettings.noAcquirerConfigsText).toBeVisible();
+      await expect(paymentSettings.acquirerConfigGroupButton).toBeVisible();
+    });
+
+    test("should open Add Acquirer Configuration modal with all fields and buttons", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await paymentSettings.acquirerConfigGroupButton.click();
+
+      const modal = paymentSettings.addAcquirerModal;
+      await expect(modal).toBeVisible();
+      await expect(
+        modal.getByText("Add Acquirer Configuration", { exact: true }),
+      ).toBeVisible();
+
+      // Field labels
+      await expect(
+        modal.getByText("Acquirer merchant name", { exact: false }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("Acquirer Merchant ID", { exact: false }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("Card Network", { exact: false }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("Acquirer BIN", { exact: false }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("Acquirer ICA (optional)", { exact: false }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("Fraud Rate (%) (optional)", { exact: false }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("Acquirer Country (optional)", { exact: false }),
+      ).toBeVisible();
+
+      // Inputs
+      await expect(
+        paymentSettings.acquirerMerchantNameInput(modal),
+      ).toBeVisible();
+      await expect(
+        paymentSettings.acquirerMerchantIdInput(modal),
+      ).toBeVisible();
+      await expect(paymentSettings.acquirerBinInput(modal)).toBeVisible();
+      await expect(paymentSettings.acquirerIcaInput(modal)).toBeVisible();
+      await expect(paymentSettings.acquirerFraudRateInput(modal)).toBeVisible();
+
+      // Dropdowns
+      await expect(
+        paymentSettings.acquirerNetworkDropdownInModal(modal),
+      ).toBeVisible();
+      await expect(
+        paymentSettings.acquirerCountryDropdownInModal(modal),
+      ).toBeVisible();
+
+      // Buttons
+      await expect(
+        paymentSettings.acquirerModalSaveButton(modal),
+      ).toBeVisible();
+      await expect(
+        paymentSettings.acquirerModalCancelButton(modal),
+      ).toBeVisible();
+    });
+
+    test("should close modal when Cancel is clicked without saving", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await paymentSettings.acquirerConfigGroupButton.click();
+      const modal = paymentSettings.addAcquirerModal;
+      await expect(modal).toBeVisible();
+
+      await paymentSettings.acquirerModalCancelButton(modal).click();
+      // Modal hides — empty state remains
+      await expect(paymentSettings.noAcquirerConfigsText).toBeVisible();
+    });
+
+    test("should show validation errors for BIN and fraud rate in the modal", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await paymentSettings.acquirerConfigGroupButton.click();
+      const modal = paymentSettings.addAcquirerModal;
+      await expect(modal).toBeVisible();
+
+      // BIN too short (< 4 digits)
+      await paymentSettings.acquirerBinInput(modal).fill("12");
+      await paymentSettings.acquirerBinInput(modal).blur();
+      await expect(paymentSettings.acquirerBinError).toBeVisible();
+
+      // BIN valid → error clears
+      await paymentSettings.acquirerBinInput(modal).fill("56688");
+      await paymentSettings.acquirerBinInput(modal).blur();
+      await expect(paymentSettings.acquirerBinError).toHaveCount(0);
+
+      // Fraud rate out of range (> 100)
+      await paymentSettings.acquirerFraudRateInput(modal).fill("150");
+      await paymentSettings.acquirerFraudRateInput(modal).blur();
+      await expect(paymentSettings.fraudRateError).toBeVisible();
+
+      // Fraud rate valid → error clears
+      await paymentSettings.acquirerFraudRateInput(modal).fill("25");
+      await paymentSettings.acquirerFraudRateInput(modal).blur();
+      await expect(paymentSettings.fraudRateError).toHaveCount(0);
+    });
+
+    test("should create an acquirer config group and display it as default", async ({
       page,
     }) => {
       const paymentSettings = new PaymentSettings(page);
 
       const merchantName = "Acme Test Merchant";
-      const acquirerBin = "123456";
-      const acquirerAssignedMerchantId = "acmeMerchant001";
-      const acquirerFraudRate = "5";
+      const merchantId = "acmeMerchant001";
       const network = "Visa";
+      const bin = "56688";
+      const ica = "12345";
+      const fraudRate = "5";
 
-      await expect(paymentSettings.acquirerMerchantNameInput).toBeVisible();
-      await expect(paymentSettings.acquirerBinInput).toBeVisible();
-      await expect(
-        paymentSettings.acquirerAssignedMerchantIdInput,
-      ).toBeVisible();
-      await expect(paymentSettings.acquirerFraudRateInput).toBeVisible();
-      await expect(paymentSettings.acquirerNetworkDropdown).toBeVisible();
-      await expect(paymentSettings.acquirerSaveButton).toBeVisible();
+      await paymentSettings.acquirerConfigGroupButton.click();
+      const modal = paymentSettings.addAcquirerModal;
+      await expect(modal).toBeVisible();
 
-      await paymentSettings.acquirerMerchantNameInput.fill(merchantName);
-      await paymentSettings.acquirerBinInput.fill(acquirerBin);
-      await paymentSettings.acquirerAssignedMerchantIdInput.fill(
-        acquirerAssignedMerchantId,
-      );
-      await paymentSettings.acquirerFraudRateInput.fill(acquirerFraudRate);
+      await paymentSettings.acquirerMerchantNameInput(modal).fill(merchantName);
+      await paymentSettings.acquirerMerchantIdInput(modal).fill(merchantId);
+      await paymentSettings.acquirerNetworkDropdownInModal(modal).click();
+      await paymentSettings.dropdownValue(network).click();
+      await paymentSettings.acquirerBinInput(modal).fill(bin);
+      await paymentSettings.acquirerIcaInput(modal).fill(ica);
+      await paymentSettings.acquirerFraudRateInput(modal).fill(fraudRate);
 
-      await paymentSettings.acquirerNetworkDropdown.click();
-      await page
-        .locator(`[data-dropdown-value="${network}"]`)
-        .first()
-        .click();
-
-      await paymentSettings.acquirerSaveButton.click();
-      await expect(paymentSettings.acquirerConfigCreatedToast).toBeVisible({
+      await paymentSettings.acquirerModalSaveButton(modal).click();
+      await expect(paymentSettings.acquirerCreatedToast).toBeVisible({
         timeout: 10000,
       });
 
-      await page.reload();
-      await paymentSettings.threeDSTab.click();
-      await paymentSettings.acquirerConfigSettings.click();
-
-      await expect(page.getByTestId('acmemerchant001')).toBeVisible();
-      await expect(page.getByTestId('acmetestmerchant')).toBeVisible();
-      await expect(page.getByTestId('visa')).toBeVisible();
-      await expect(page.getByTestId('123456')).toBeVisible();
-      await expect(page.getByText('5%')).toBeVisible();
+      // Bucket renders with merchant name and a Default tag (only bucket)
+      await expect(page.getByText(merchantName, { exact: true })).toBeVisible();
+      await expect(paymentSettings.defaultTag().first()).toBeVisible();
     });
 
-    test("should show validation errors for each field", async ({ page }) => {
+    test("should add a new network to an existing acquirer bucket", async ({
+      page,
+    }) => {
+      test.setTimeout(60000);
       const paymentSettings = new PaymentSettings(page);
 
-      // Acquirer BIN — too short (< 5 digits)
-      await paymentSettings.acquirerBinInput.fill("1234");
-      await paymentSettings.acquirerBinInput.blur();
+      // Seed: create initial bucket with Visa
+      await paymentSettings.acquirerConfigGroupButton.click();
+      const addModal = paymentSettings.addAcquirerModal;
+      await paymentSettings
+        .acquirerMerchantNameInput(addModal)
+        .fill("Seed Merchant");
+      await paymentSettings
+        .acquirerMerchantIdInput(addModal)
+        .fill("seedmerchant1");
+      await paymentSettings.acquirerNetworkDropdownInModal(addModal).click();
+      await paymentSettings.dropdownValue("Visa").click();
+      await paymentSettings.acquirerBinInput(addModal).fill("56688");
+      await paymentSettings.acquirerModalSaveButton(addModal).click();
+      await expect(paymentSettings.acquirerCreatedToast).toBeVisible({
+        timeout: 10000,
+      });
+
+      // Expand the accordion to reach the Add New Network button
+      await page.getByText("Seed Merchant", { exact: true }).click();
+      await expect(paymentSettings.addNewNetworkButton).toBeVisible();
+      await paymentSettings.addNewNetworkButton.click();
+
+      const netModal = paymentSettings.addNetworkModal;
+      await expect(netModal).toBeVisible();
       await expect(
-        page.getByText("Acquirer BIN must be between 5 and 20 digits"),
+        netModal.getByText("Add Network Configuration", { exact: true }),
       ).toBeVisible();
 
-      // Acquirer BIN — fix to a valid value, error clears
-      await paymentSettings.acquirerBinInput.fill("123456");
-      await paymentSettings.acquirerBinInput.blur();
-      await expect(
-        page.getByText("Acquirer BIN must be between 5 and 20 digits"),
-      ).toHaveCount(0);
+      await paymentSettings.acquirerNetworkDropdownInModal(netModal).click();
+      await paymentSettings.dropdownValue("Mastercard").click();
+      await paymentSettings.acquirerBinInput(netModal).fill("99887");
+      await paymentSettings.acquirerModalSaveButton(netModal).click();
 
-      // Acquirer Fraud Rate — out of range (> 100)
-      await paymentSettings.acquirerFraudRateInput.fill("150");
-      await paymentSettings.acquirerFraudRateInput.blur();
+      await expect(paymentSettings.networkAddedToast).toBeVisible({
+        timeout: 10000,
+      });
+      await expect(page.getByText("Mastercard", { exact: true })).toBeVisible();
+    });
+
+    test("should edit an existing network entry with the network field locked", async ({
+      page,
+    }) => {
+      test.setTimeout(60000);
+      const paymentSettings = new PaymentSettings(page);
+
+      // Seed: create initial bucket with Visa BIN 56688
+      await paymentSettings.acquirerConfigGroupButton.click();
+      const addModal = paymentSettings.addAcquirerModal;
+      await paymentSettings
+        .acquirerMerchantNameInput(addModal)
+        .fill("Edit Merchant");
+      await paymentSettings
+        .acquirerMerchantIdInput(addModal)
+        .fill("editmerchant1");
+      await paymentSettings.acquirerNetworkDropdownInModal(addModal).click();
+      await paymentSettings.dropdownValue("Visa").click();
+      await paymentSettings.acquirerBinInput(addModal).fill("56688");
+      await paymentSettings.acquirerModalSaveButton(addModal).click();
+      await expect(paymentSettings.acquirerCreatedToast).toBeVisible({
+        timeout: 10000,
+      });
+
+      await page.getByText("Edit Merchant", { exact: true }).click();
+      await paymentSettings.editIconForRow("Visa").click();
+
+      const editModal = paymentSettings.editNetworkModal;
+      await expect(editModal).toBeVisible();
       await expect(
-        page.getByText("Fraud rate should be between 0 and 100"),
+        editModal.getByText("Edit Network Configuration", { exact: true }),
       ).toBeVisible();
 
-      // Acquirer Fraud Rate — fix to a valid value, error clears
-      await paymentSettings.acquirerFraudRateInput.fill("5");
-      await paymentSettings.acquirerFraudRateInput.blur();
+      // The locked network field renders the current network as button text
+      // (buttonText=n.network) — its mere presence proves the field is
+      // pre-filled with the existing network. We don't open the dropdown
+      // because Escape (the only way to close it without selecting) also
+      // closes the surrounding modal in this codebase.
       await expect(
-        page.getByText("Fraud rate should be between 0 and 100"),
-      ).toHaveCount(0);
-
-      // Required: Merchant Name — focus then blur empty
-      await paymentSettings.acquirerMerchantNameInput.focus();
-      await paymentSettings.acquirerMerchantNameInput.blur();
-      await expect(
-        page.getByText("This field is required").first(),
+        editModal.getByRole("button", { name: "Visa" }),
       ).toBeVisible();
 
-      // Required: Acquirer Assigned Merchant Id — focus then blur empty
-      await paymentSettings.acquirerAssignedMerchantIdInput.focus();
-      await paymentSettings.acquirerAssignedMerchantIdInput.blur();
-      await expect(
-        page.getByText("This field is required").nth(1),
-      ).toBeVisible();
+      // Change BIN and save
+      await paymentSettings.acquirerBinInput(editModal).fill("77777");
+      await paymentSettings.acquirerModalUpdateButton(editModal).click();
 
-      // With required fields still empty, Save should remain disabled
-      await expect(paymentSettings.acquirerSaveButton).toBeDisabled();
+      await expect(paymentSettings.networkUpdatedToast).toBeVisible({
+        timeout: 10000,
+      });
+      await expect(page.getByText("77777", { exact: true })).toBeVisible();
     });
   });
 
@@ -652,12 +792,10 @@ test.describe("Payment Settings", () => {
       const updatedKey = "X-Updated-Header";
       const updatedValue = "UpdatedValue456";
 
-      const editButton = page.getByText('Edit', { exact: true });
-      await expect(editButton).toBeVisible();
-      await editButton.click();
-      const proceedButton = page.getByRole('button', { name: 'Proceed' });
-      await expect(proceedButton).toBeVisible();
-      await proceedButton.click();
+      await expect(paymentSettings.editButton).toBeVisible();
+      await paymentSettings.editButton.click();
+      await expect(paymentSettings.proceedButton).toBeVisible();
+      await paymentSettings.proceedButton.click();
       await paymentSettings.fillCustomHeader(updatedKey, updatedValue);
       await expect(paymentSettings.customHeadersKeyInput).toHaveValue(
         updatedKey,
@@ -735,12 +873,10 @@ test.describe("Payment Settings", () => {
       const updatedKey = "metadata-key-updated";
       const updatedValue = "metadata-value-updated";
 
-      const editButton = page.getByText('Edit', { exact: true });
-      await expect(editButton).toBeVisible();
-      await editButton.click();
-      const proceedButton = page.getByRole('button', { name: 'Proceed' });
-      await expect(proceedButton).toBeVisible();
-      await proceedButton.click();
+      await expect(paymentSettings.editButton).toBeVisible();
+      await paymentSettings.editButton.click();
+      await expect(paymentSettings.proceedButton).toBeVisible();
+      await paymentSettings.proceedButton.click();
       await paymentSettings.fillCustomHeader(updatedKey, updatedValue);
       await expect(paymentSettings.customHeadersKeyInput).toHaveValue(
         updatedKey,
@@ -824,26 +960,22 @@ test.describe("Payment Settings", () => {
       // Domain Name — invalid → error appears
       await paymentSettings.domainNameInput.fill("not a valid url");
       await paymentSettings.domainNameInput.blur();
-      await expect(page.getByText("Please enter valid URL")).toBeVisible();
+      await expect(paymentSettings.validUrlError).toBeVisible();
 
       // Domain Name — valid → error clears
       await paymentSettings.domainNameInput.fill("example.com");
       await paymentSettings.domainNameInput.blur();
-      await expect(page.getByText("Please enter valid URL")).toHaveCount(0);
+      await expect(paymentSettings.validUrlError).toHaveCount(0);
 
       // Allowed Domains — invalid → error appears
       await paymentSettings.allowedDomainInput.fill("not a valid url");
       await paymentSettings.allowedDomainInput.blur();
-      await expect(
-        page.getByText("Please enter allowed domains"),
-      ).toBeVisible();
+      await expect(paymentSettings.allowedDomainsError).toBeVisible();
 
       // Allowed Domains — valid → error clears
       await paymentSettings.allowedDomainInput.fill("https://example.com");
       await paymentSettings.allowedDomainInput.blur();
-      await expect(
-        page.getByText("Please enter allowed domains"),
-      ).toHaveCount(0);
+      await expect(paymentSettings.allowedDomainsError).toHaveCount(0);
 
       // With both fields valid, Update should be enabled
       await expect(paymentSettings.updateButton).toBeEnabled();

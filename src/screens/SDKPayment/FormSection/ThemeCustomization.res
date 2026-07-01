@@ -13,7 +13,7 @@ let make = (~getClientSecret) => {
     showBillingAddress,
     isGuestMode,
   } = React.useContext(SDKProvider.defaultContext)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
     ThemeProvider.themeContext,
   )

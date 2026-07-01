@@ -26,11 +26,11 @@ module OtherfieldRender = {
     }
 
     <div className="flex gap-2 items-center">
-      <CheckBoxIcon
+      <CheckBoxIconAdapter
         key={`${field_name}_otherstring`}
         isSelected={textField.value->getStringFromJson("")->isNonEmptyString}
       />
-      <TextInput placeholder={"Others"} input=textInput />
+      <TextInputAdapter placeholder={"Others"} input=textInput />
     </div>
   }
 }
@@ -43,7 +43,7 @@ let make = (~showModal, ~setShowModal) => {
   open CommonAuthHooks
   let getURL = useGetURL()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let {merchantId, email: userEmail} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let (merchantDetailsTypedValue, setMerchantDetailsValue) =

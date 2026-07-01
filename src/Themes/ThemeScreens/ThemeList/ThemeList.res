@@ -1,7 +1,6 @@
 @react.component
 let make = () => {
   open LogicUtils
-  open Typography
   open ThemeListHelper
 
   let getURL = APIUtils.useGetURL()
@@ -11,8 +10,8 @@ let make = () => {
   let themeList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.themeListAtom)
   let (currentTheme, setCurrentTheme) = React.useState(_ => None)
   let themeListArray = themeList->getArrayFromJson([])
-  let showToast = ToastState.useShowToast()
-  let (_, getNameForId) = OMPSwitchHooks.useOMPData()
+  let (getList, getNameForId) = OMPSwitchHooks.useOMPData()
+  let {orgList, merchantList, profileList} = getList()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {themeId: themeIdFromUserInfo, orgId} = React.useContext(
     UserInfoProvider.defaultContext,
@@ -33,7 +32,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => {
-        showToast(~toastType=ToastError, ~message="Failed to fetch current theme")
+        setCurrentTheme(_ => None)
         setScreenState(_ => PageLoaderWrapper.Success)
       }
     }
@@ -52,9 +51,7 @@ let make = () => {
         <div className="flex items-center justify-between w-full">
           <div className="flex-1">
             <PageUtils.PageHeading
-              title="Theme Configuration"
-              subTitle="Personalize your dashboard look with a live preview."
-              customSubTitleStyle={`${body.lg.medium} text-nd_gray-400`}
+              title="Theme Configuration" customTitleStyle="text-nd_gray-800"
             />
           </div>
           <RenderIf condition={themeListArray->Array.length > 0}>
@@ -62,20 +59,26 @@ let make = () => {
               text="Create Theme"
               buttonType=Primary
               buttonSize=Small
-              customButtonStyle={`${body.md.semibold} py-4`}
               authorization={userHasAccess(~groupAccess=ThemeManage)}
               onClick={_ => setShowModal(_ => true)}
             />
           </RenderIf>
         </div>
+        <div
+          className="flex gap-2 items-start border border-nd_yellow-500 bg-nd_yellow-50 p-3 rounded-lg mt-2">
+          <Icon name="nd-info-circle" size=16 className="text-nd_gray-500" />
+          <span className={`text-nd_gray-600 ${Typography.body.sm.regular}`}>
+            {"Theme changes take effect after the page is refreshed."->React.string}
+          </span>
+        </div>
         <NoThemesFound themeListArray setShowModal />
         <RenderIf condition={themeListArray->Array.length > 0}>
-          <CurrentThemeCard currentTheme getNameForId />
+          <CurrentThemeCard currentTheme getNameForId themeId={themeIdFromUserInfo} orgId />
           <LoadedTable
             title="List of created themes"
             hideTitle=false
             actualData={themeListArray->Array.map(Nullable.make)}
-            entity={ThemeListEntity.themeTableEntity(~orgId)}
+            entity={ThemeListEntity.themeTableEntity(~orgId, ~orgList, ~merchantList, ~profileList)}
             resultsPerPage=20
             showSerialNumber=true
             totalResults={themeListArray->Array.length}

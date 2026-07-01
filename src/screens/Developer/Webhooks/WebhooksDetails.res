@@ -119,7 +119,7 @@ let make = (~id) => {
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (data, setData) = React.useState(_ => JSON.Encode.null)
   let (offset, setOffset) = React.useState(_ => 0)

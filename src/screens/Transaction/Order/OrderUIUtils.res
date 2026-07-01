@@ -77,7 +77,7 @@ module GenerateSampleDataButton = {
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let showPopUp = PopUpState.useShowPopUp()
     let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -414,7 +414,7 @@ let initialFilters = (json, filterValues, removeKeys, filterKeys, setfilterKeys,
   })
 }
 
-let initialFixedFilter = (version: UserInfoTypes.version) => [
+let initialFixedFilter = (version: UserInfoTypes.version, ~disable=false) => [
   (
     {
       localFilter: None,
@@ -442,6 +442,7 @@ let initialFixedFilter = (version: UserInfoTypes.version) => [
           ~numMonths=2,
           ~disableApply=false,
           ~dateRangeLimit=180,
+          ~disable,
         ),
         ~inputFields=[],
         ~isRequired=false,

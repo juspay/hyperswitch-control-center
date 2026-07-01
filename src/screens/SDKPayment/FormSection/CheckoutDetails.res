@@ -28,7 +28,7 @@ let make = (
     ThemeProvider.themeContext,
   )
   let (showModal, setShowModal) = React.useState(() => false)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let paymentConnectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=PaymentProcessor,
   )
@@ -59,6 +59,11 @@ let make = (
       // To re-render the SDK back again after the payment is completed
       setPaymentStatus(_ => INCOMPLETE)
     } catch {
+    | Exn.Error(e) =>
+      showToast(
+        ~message=Exn.message(e)->Option.getOr("Something went wrong. Please try again"),
+        ~toastType=ToastError,
+      )
     | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
     }
     Nullable.null
@@ -100,6 +105,7 @@ let make = (
       disabledParameter={initialValuesForCheckoutForm.profile_id->LogicUtils.isEmptyString ||
       paymentConnectorList->Array.length == 0 ||
       isInternalUser}
+      loadingText="Generating preview"
       customSubmitButtonStyle="!mt-5 !w-full"
     />
   </Form>

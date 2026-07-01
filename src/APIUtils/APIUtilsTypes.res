@@ -91,7 +91,6 @@ type entityName =
   | CHAT_BOT
   | OIDC_AUTHORIZE
   | PAYMENTS_LIST
-  | ACCOUNT_PAYMENT_METHODS
 
 type v2entityNameType =
   | CUSTOMERS
@@ -141,6 +140,7 @@ type hyperswitchReconType = [
   | #VOID_PROCESSING_ENTRY
   | #TRANSACTION_BULK_OPERATIONS
   | #STAGING_ENTRY_BULK_OPERATIONS
+  | #OVERVIEW_RULES
   | #NONE
 ]
 

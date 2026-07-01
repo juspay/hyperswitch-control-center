@@ -1,6 +1,7 @@
 open Typography
 open LogicUtils
 open OMPSwitchUtils
+open BusinessProfileInterface
 
 module PlatformMerchantModalContent = {
   @react.component
@@ -265,9 +266,14 @@ module OMPViewsComp = {
     ~customLabel="View data for:",
   ) => {
     let (arrow, setArrow) = React.useState(_ => false)
+    let isInitialMount = React.useRef(true)
 
     let toggleChevronState = () => {
-      setArrow(prev => !prev)
+      if isInitialMount.current {
+        isInitialMount.current = false
+      } else {
+        setArrow(prev => !prev)
+      }
     }
 
     let customScrollStyle = "md:max-h-72 md:overflow-scroll md:px-1 md:pt-1"
@@ -351,7 +357,7 @@ module MerchantDropdownItem = {
     let getMerchantList = MerchantListHook.useFetchMerchantList()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {getCommonSessionDetails, checkUserEntity} = React.useContext(
       UserInfoProvider.defaultContext,
     )
@@ -486,7 +492,7 @@ module ProfileDropdownItem = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {profileId, version} = React.useContext(
       UserInfoProvider.defaultContext,
     ).getCommonSessionDetails()
@@ -496,7 +502,7 @@ module ProfileDropdownItem = {
     let isMobileView = MatchMedia.useMobileChecker()
     let isActive = currentId == profileId
     let setBusinessProfileRecoil =
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useSetRecoilState
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
 
     let getProfileListV1 = async () => {
@@ -528,17 +534,13 @@ module ProfileDropdownItem = {
     let updateProfileNameV1 = async (~body) => {
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
       let response = await updateDetails(url, body, Post)
-      setBusinessProfileRecoil(_ =>
-        response->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
-      )
+      setBusinessProfileRecoil(_ => mapJsonToCommonType(businessProfileInterfaceV1, response))
     }
 
     let updateProfileNameV2 = async (~body) => {
       let url = getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Put, ~id=Some(profileId))
       let response = await updateDetails(url, body, Put, ~version=V2)
-      setBusinessProfileRecoil(_ =>
-        response->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
-      )
+      setBusinessProfileRecoil(_ => mapJsonToCommonType(businessProfileInterfaceV2, response))
     }
 
     let getProfileList = async () => {

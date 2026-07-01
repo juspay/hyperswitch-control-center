@@ -1,15 +1,50 @@
 /* tslint:disable */
 /* eslint-disable */
-export function runProgram(program: any, input: any): any;
-export function getValidWebhookStatus(key: string): any;
 export function getDescriptionCategory(): any;
+/**
+ * This function allows the frontend to get all the merchant's configured
+ * connectors that are valid for a rule based on the conditions specified in
+ * the rule
+ */
+export function getValidConnectorsForRule(rule: any): any;
+export function getBillingConnectorConfig(key: string): any;
+export function getTaxProcessorConfig(key: string): any;
+export function getSurchargeProcessorConfig(key: string): any;
+export function getConnectorConfig(key: string): any;
+export function getCardSubtypeValues(): any;
+export function getThreeDsDecisionRuleKeys(): any;
+/**
+ * This function can be used by the frontend to educate wasm about the forex rates data.
+ * The input argument is a struct fields base_currency and conversion where later is all the conversions associated with the base_currency
+ * to all different currencies present.
+ */
+export function setForexData(forex: any): any;
+export function analyzeProgram(js_program: any): any;
+export function getSurchargeKeys(): any;
+export function getCardTypeValues(): any;
+export function getPMAuthenticationProcessorConfig(key: string): any;
+export function getPayoutConnectorConfig(key: string): any;
+export function getValidWebhookStatus(key: string): any;
+export function getAllConnectors(): any;
 /**
  * This function can be used to perform currency_conversion on the input amount, from_currency,
  * to_currency which are all expected to be one of currencies we already have in our Currency
  * enum.
  */
 export function convertCurrency(amount: bigint, from_currency: any, to_currency: any): any;
-export function getThreeDsKeys(): any;
+export function getRequestPayload(input: any, response: any): any;
+export function getAllPayoutKeys(): any;
+export function getPayoutDescriptionCategory(): any;
+export function getResponsePayload(input: any): any;
+export function getPayoutVariantValues(key: string): any;
+/**
+ * This function can be used by the frontend to provide the WASM with information about
+ * all the merchant's connector accounts. The input argument is a vector of all the merchant's
+ * connector accounts from the API.
+ */
+export function seedKnowledgeGraph(mcas: any): any;
+export function getAuthenticationConnectorConfig(key: string): any;
+export function addTwo(n1: bigint, n2: bigint): bigint;
 /**
  * This function can be used by the frontend to get all the two letter country codes
  * along with their country names.
@@ -20,46 +55,12 @@ export function getTwoLetterCountryCode(): any;
  * along with their names.
  */
 export function getMerchantCategoryCodeWithName(): any;
-export function getThreeDsDecisionRuleKeys(): any;
-export function getAllConnectors(): any;
-export function getAllKeys(): any;
-export function addTwo(n1: bigint, n2: bigint): bigint;
-export function getPayoutDescriptionCategory(): any;
-export function getResponsePayload(input: any): any;
+export function getThreeDsKeys(): any;
 export function getVariantValues(key: string): any;
-/**
- * This function can be used by the frontend to provide the WASM with information about
- * all the merchant's connector accounts. The input argument is a vector of all the merchant's
- * connector accounts from the API.
- */
-export function seedKnowledgeGraph(mcas: any): any;
-export function getPayoutVariantValues(key: string): any;
-export function getPayoutConnectorConfig(key: string): any;
-export function getAllPayoutKeys(): any;
 export function getKeyType(key: string): string;
 export function parseToString(val: string): string;
-export function getBillingConnectorConfig(key: string): any;
-export function analyzeProgram(js_program: any): any;
-export function getCardSubtypeValues(): any;
-export function getPMAuthenticationProcessorConfig(key: string): any;
-export function getCardTypeValues(): any;
-export function getSurchargeKeys(): any;
-export function getRequestPayload(input: any, response: any): any;
-/**
- * This function allows the frontend to get all the merchant's configured
- * connectors that are valid for a rule based on the conditions specified in
- * the rule
- */
-export function getValidConnectorsForRule(rule: any): any;
-export function getTaxProcessorConfig(key: string): any;
-export function getAuthenticationConnectorConfig(key: string): any;
-/**
- * This function can be used by the frontend to educate wasm about the forex rates data.
- * The input argument is a struct fields base_currency and conversion where later is all the conversions associated with the base_currency
- * to all different currencies present.
- */
-export function setForexData(forex: any): any;
-export function getConnectorConfig(key: string): any;
+export function runProgram(program: any, input: any): any;
+export function getAllKeys(): any;
 /**
  *
  * Function exposed as `wasm` function in js `parse`. Allowing use to extend the functionality and
@@ -92,6 +93,7 @@ export interface InitOutput {
   readonly getRequestPayload: (a: number, b: number, c: number) => void;
   readonly getResponsePayload: (a: number, b: number) => void;
   readonly getSurchargeKeys: (a: number) => void;
+  readonly getSurchargeProcessorConfig: (a: number, b: number, c: number) => void;
   readonly getTaxProcessorConfig: (a: number, b: number, c: number) => void;
   readonly getThreeDsDecisionRuleKeys: (a: number) => void;
   readonly getThreeDsKeys: (a: number) => void;
@@ -123,6 +125,7 @@ export interface InitOutput {
   readonly ffi_superposition_types_rustbuffer_reserve: (a: number, b: number, c: bigint, d: number) => void;
   readonly ffi_superposition_types_uniffi_contract_version: () => number;
   readonly parseToString: (a: number, b: number, c: number) => void;
+  readonly ffi_superposition_types_rust_future_cancel_void: (a: bigint) => void;
   readonly ffi_superposition_types_rust_future_cancel_u64: (a: bigint) => void;
   readonly ffi_superposition_types_rust_future_cancel_u16: (a: bigint) => void;
   readonly ffi_superposition_types_rust_future_cancel_pointer: (a: bigint) => void;
@@ -139,7 +142,6 @@ export interface InitOutput {
   readonly ffi_superposition_types_rust_future_cancel_i8: (a: bigint) => void;
   readonly ffi_superposition_types_rust_future_free_u64: (a: bigint) => void;
   readonly ffi_superposition_types_rust_future_poll_u64: (a: bigint, b: number, c: bigint) => void;
-  readonly ffi_superposition_types_rust_future_cancel_void: (a: bigint) => void;
   readonly ffi_superposition_types_rust_future_free_void: (a: bigint) => void;
   readonly ffi_superposition_types_rust_future_poll_void: (a: bigint, b: number, c: bigint) => void;
   readonly ffi_superposition_types_rust_future_free_u16: (a: bigint) => void;

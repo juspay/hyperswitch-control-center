@@ -27,20 +27,22 @@ module NoThemesFound = {
 module RenderEntityRow = {
   @react.component
   let make = (~label, ~value, ~entityType, ~getNameForId) => {
-    <React.Fragment key={label}>
-      <div className="text-nd_gray-500"> {label->React.string} </div>
-      <div>
+    <div key={label} className="flex gap-3">
+      <div className="w-36 shrink-0 whitespace-nowrap text-nd_gray-500">
+        {label->React.string}
+      </div>
+      <div className="min-w-0 break-all">
         {value->String.toLowerCase != "all"
           ? getNameForId(entityType)->React.string
           : `All ${label}s`->React.string}
       </div>
-    </React.Fragment>
+    </div>
   }
 }
 
 module CurrentThemeCard = {
   @react.component
-  let make = (~currentTheme, ~getNameForId) => {
+  let make = (~currentTheme, ~getNameForId, ~themeId, ~orgId) => {
     open Typography
 
     {
@@ -51,7 +53,7 @@ module CurrentThemeCard = {
             {"Current Theme"->React.string}
           </span>
           <div className={`text-nd_gray-500 ${body.lg.regular}`}>
-            {"No active theme exists for this lineage. Please create a new theme to proceed."->React.string}
+            {"No active theme exists for this hierarchy. Please create a new theme to proceed."->React.string}
           </div>
         </div>
       | Some(themeObj) =>
@@ -60,11 +62,22 @@ module CurrentThemeCard = {
         let entityLevelLabelEntity: UserInfoTypes.entity =
           themeData.entityType->UserInfoUtils.entityMapper
 
-        <div className="flex flex-col gap-4 mt-4 w-1/2">
+        let redirectToTheme = () => {
+          open LogicUtils
+          let profileId = themeData.profileId->isEmptyString ? "all_profiles" : themeData.profileId
+          let merchantId =
+            themeData.merchantId->isEmptyString ? "all_merchants" : themeData.merchantId
+          let url = `/theme/${themeId}/${profileId}/${merchantId}/${orgId}`
+          RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url))
+        }
+
+        <div className="flex flex-col gap-4 mt-4 w-fit max-w-lg">
           <span className={`${body.lg.semibold} text-nd_gray-800`}>
             {"Current Theme"->React.string}
           </span>
-          <div className="rounded-xl border border-nd_gray-200 p-4 mb-8 flex flex-col gap-6">
+          <div
+            className="rounded-xl border border-nd_gray-200 p-4 mb-8 flex flex-col gap-6 cursor-pointer hover:border-nd_gray-300 transition"
+            onClick={_ => redirectToTheme()}>
             <div className="flex items-center gap-4">
               <span className={`${body.md.semibold}`}> {themeData.themeName->React.string} </span>
               <span
@@ -72,7 +85,7 @@ module CurrentThemeCard = {
                 {`${(entityLevelLabelEntity :> string)} level`->React.string}
               </span>
             </div>
-            <div className={`grid grid-cols-2 text-nd_gray-600 ${body.md.medium}`}>
+            <div className={`flex flex-col gap-2 text-nd_gray-600 ${body.md.medium}`}>
               {ThemeListUtils.entityConfig(themeData)
               ->Array.map(((label, value, entityType)) => {
                 <RenderEntityRow label value entityType getNameForId />

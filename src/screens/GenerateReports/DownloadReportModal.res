@@ -14,7 +14,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   open APIUtilsTypes
 
   let getURL = useGetURL()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {getCommonSessionDetails, getResolvedUserInfo} = React.useContext(
@@ -115,7 +115,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
         field={FormRenderer.makeFieldInfo(~label="Report Type", ~name="view", ~customInput=(
           ~input as _,
           ~placeholder as _,
-        ) => <TextInput input={viewInput} placeholder="" isDisabled=true />)}
+        ) => <TextInputAdapter input={viewInput} placeholder="" isDisabled=true />)}
       />
       <FormRenderer.FieldRenderer
         field={FormRenderer.makeFieldInfo(

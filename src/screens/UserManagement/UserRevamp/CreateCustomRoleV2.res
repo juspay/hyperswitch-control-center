@@ -62,7 +62,7 @@ module RenderPermissionModule = {
       </div>
       <div className="flex gap-8">
         <div className="w-20 flex justify-center">
-          <CheckBoxIcon
+          <CheckBoxIconAdapter
             isSelected=isReadSelected
             setIsSelected={isSelected => {
               handleScopeChange(Read, isSelected)
@@ -72,7 +72,7 @@ module RenderPermissionModule = {
           />
         </div>
         <div className="w-24 flex justify-center">
-          <CheckBoxIcon
+          <CheckBoxIconAdapter
             isSelected=isWriteSelected
             setIsSelected={isSelected => {
               handleScopeChange(Write, isSelected)
@@ -155,7 +155,7 @@ let make = () => {
   let (permissionModules, setPermissionModules) = React.useState(() => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (currentEntityType, setCurrentEntityType) = React.useState(() => #Merchant)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let initialValues = React.useMemo(() => {
     let baseValues = getInitialValuesForForm(currentEntityType)
     let parentGroupsInitial = permissionModules->Array.map(module_ => {

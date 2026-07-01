@@ -632,7 +632,7 @@ let make = (
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (activeModal, setActiveModal) = React.useState(_ => None)
   let (availableResolutions, setAvailableResolutions) = React.useState(_ => [])
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let fetchDetails = useGetMethod()
@@ -742,7 +742,7 @@ let make = (
     } catch {
     | _ =>
       showToast(
-        ~message="Failed to ignore the transaction. Please try again.",
+        ~message="Failed to force reconcile the transaction. Please try again.",
         ~toastType=ToastError,
       )
     }
@@ -867,7 +867,7 @@ let make = (
           </div>
           <RenderIf condition={exceptionStage == ShowResolutionOptions(FixEntries)}>
             <div
-              className="flex flex-row gap-3 absolute right-1/2 bottom-10 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl px-3 py-4">
+              className="flex flex-row gap-3 fixed left-1/2 -translate-x-1/2 bottom-4 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl px-3 py-4">
               <Button
                 buttonState=Normal
                 buttonSize=Medium
@@ -916,7 +916,7 @@ let make = (
       {switch bottomBarConfig {
       | Some(config) =>
         <div
-          className="flex flex-row items-center gap-3 absolute right-1/2 bottom-10 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl p-3">
+          className="flex flex-row items-center gap-3 fixed left-1/2 -translate-x-1/2 bottom-4 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl p-3">
           <Button
             buttonType=Secondary
             buttonSize=Medium

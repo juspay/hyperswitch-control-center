@@ -1,11 +1,19 @@
 import { test, expect } from "../../support/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
-import { generateUniqueEmail } from "../../support/helper";
+import { ProductionAccessPage } from "../../support/pages/homepage/ProductionAccessPage";
+import { OrganizationChartPage } from "../../support/pages/settings/OrganizationChartPage";
+import {
+  generateUniqueEmail,
+  generateMerchantName,
+} from "../../support/helper";
 import {
   signupUser,
   loginUI,
   createDummyConnectorAPI,
+  createBusinessProfileAPI,
+  createMerchantAPI,
 } from "../../support/commands";
+import UsersPage from "../../support/pages/settings/UsersPage";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 let email = "";
@@ -13,7 +21,7 @@ let email = "";
 test.describe("Homepage", () => {
   test.beforeEach(async ({ page, context }) => {
     email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
 
     await page.route("**/dashboard/config/feature?domain=", async (route) => {
       const response = await route.fetch();
@@ -30,11 +38,7 @@ test.describe("Homepage", () => {
   test("should verify all components on homepage", async ({ page }) => {
     const homePage = new HomePage(page);
 
-    await expect(
-      page.getByText(
-        "Welcome to the home of your Payments Control Center. It aims to provide your team with a 360-degree view of payments.",
-      ),
-    ).toBeVisible();
+    await expect(homePage.welcomeText).toBeVisible();
 
     await expect(homePage.orgIcon).toBeVisible();
     await expect(homePage.merchantDropdown).toBeVisible();
@@ -71,71 +75,23 @@ test.describe("Homepage", () => {
   }) => {
     const homePage = new HomePage(page);
 
-    await page.locator('[data-button-for="connectProcessors"]').click();
+    await homePage.connectProcessorsButton.click();
     await expect(page).toHaveURL(/.*connectors/);
 
-    await page.locator('[data-testid="overview"]').click();
+    await homePage.overview.click();
 
-    await page.locator('[data-button-text="Go to API keys"]').click();
+    await homePage.goToApiKeysButton.click();
     await expect(page).toHaveURL(/.*developer-api-keys/);
   });
 
   test("should render a Visit button for developer resources that is enabled", async ({
     page,
   }) => {
-    const visit = page.getByRole("button", { name: "Visit" }).first();
-    await expect(visit).toBeVisible();
-    await expect(visit).toBeEnabled();
-  });
-
-  test.skip("should make a payment using SDK", async ({ page, context }) => {
-    // SDK iframe boots a separate JS bundle and a Stripe sandbox handshake.
-    // CI cold-start adds 10–20s of overhead on top of the dashboard flow.
-    test.setTimeout(90000);
     const homePage = new HomePage(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
-    if (merchantId) {
-      await createDummyConnectorAPI(
-        merchantId,
-        "stripe_test_1",
-        context.request,
-      );
-
-      await page.locator('[data-button-for="tryItOut"]').click();
-
-      await expect(
-        page.locator(
-          '[class="text-fs-24 leading-32 font-semibold font-inter-style "]',
-        ),
-      ).toContainText("Setup Checkout");
-
-      await page.locator('[data-button-for="showPreview"]').click();
-      // SDK preview triggers a remote bundle fetch + iframe handshake; CI cold
-      // start can push this past 30s. Wait for network to settle before
-      // probing for the iframe element.
-      await page.waitForLoadState("networkidle");
-      await expect(page.locator('iframe[name="orca-payment-element-iframeRef-orca-elements-payment-element-payment-element"]').contentFrame().getByRole('button', { name: 'Card' })).toBeVisible({ timeout: 10000 });
-      await page.locator("iframe").first().waitFor({
-        state: "attached",
-        timeout: 30000,
-      });
-
-      const iframe = page.frameLocator("iframe").first();
-      await iframe
-        .locator("[data-testid=cardNoInput]")
-        .waitFor({ state: "visible", timeout: 45000 });
-      await iframe
-        .locator("[data-testid=cardNoInput]")
-        .fill("4242424242424242");
-      await iframe.locator("[data-testid=expiryInput]").fill("0127");
-      await iframe.locator("[data-testid=cvvInput]").fill("492");
-
-      await page.locator('[data-button-for="payUSD100"]').click();
-      await expect(page.getByText("Payment Successful")).toBeAttached({
-        timeout: 30000,
-      });
-    }
+    const visit = homePage.visitButton.first();
+    await expect(visit).toBeVisible();
+    await expect(visit).toBeEnabled();
   });
 
   test("should verify sidebar menu navigation - overview and operations", async ({
@@ -151,9 +107,9 @@ test.describe("Homepage", () => {
     await homePage.users.click();
     await expect(page).toHaveURL(/.*dashboard\/users/);
 
-    await expect(page.getByText("MY MODULES")).toBeVisible();
+    await expect(homePage.myModulesHeader).toBeVisible();
 
-    await page.locator('[data-testid="overview"]').click();
+    await homePage.overview.click();
     await expect(page).toHaveURL(/.*dashboard\/home/);
 
     await expect(homePage.operations).toBeVisible();
@@ -340,22 +296,20 @@ test.describe("DefaultHome product cards", () => {
     await homePage.homeV2.click();
     await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
 
-    await expect(page.getByText("Explore composable services")).toBeVisible();
+    await expect(homePage.exploreComposableServicesText).toBeVisible();
 
-    await expect(page.locator('span').filter({ hasText: 'Orchestrator' })).toBeVisible();
-    await expect(page.getByText('Unifies diverse abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions, and reporting systems.')).toBeVisible();
-    await expect(page.locator('span').filter({ hasText: /^Vault$/ })).toBeVisible();
-    await expect(page.getByText('A standalone, PCI-compliant vault that securely tokenizes and stores your customers’ card data — without requiring the use of our payment solutions. Supports card tokenization at PSPs and networks as well.')).toBeVisible();
-    await expect(page.locator('span').filter({ hasText: /^Recon$/ })).toBeVisible();
-    await expect(page.getByText('A robust tool for efficient reconciliation, providing real-time matching and error detection across transactions, ensuring data consistency and accuracy in financial operations.')).toBeVisible();
-    await expect(page.locator('span').filter({ hasText: 'Revenue Recovery' })).toBeVisible();
-    await expect(page.getByText('A resilient recovery system that ensures seamless restoration of critical data and transactions, safeguarding against unexpected disruptions and minimizing downtime.')).toBeVisible();
-    await expect(page.locator('span').filter({ hasText: 'Cost Observability' })).toBeVisible();
-    await expect(page.getByText('Unified view of payment processing costs across acquirers, payment methods, and regions. Track every cent, detect anomalies, audit against contracted rates, and forecast the impact of card network changes.')).toBeVisible();
+    await expect(homePage.productCardName("Orchestrator")).toBeVisible();
+    await expect(homePage.orchestratorDescription).toBeVisible();
+    await expect(homePage.productCardName(/^Vault$/)).toBeVisible();
+    await expect(homePage.vaultDescription).toBeVisible();
+    await expect(homePage.productCardName(/^Recon$/)).toBeVisible();
+    await expect(homePage.reconDescription).toBeVisible();
+    await expect(homePage.productCardName("Revenue Recovery")).toBeVisible();
+    await expect(homePage.revenueRecoveryDescription).toBeVisible();
+    await expect(homePage.productCardName("Cost Observability")).toBeVisible();
+    await expect(homePage.costObservabilityDescription).toBeVisible();
 
-    await expect(
-      page.getByRole("button", { name: "Learn More" }),
-    ).toHaveCount(5);
+    await expect(homePage.learnMoreButtons).toHaveCount(5);
   });
 
   test("should hide gated product cards on default home when product flags are OFF", async ({
@@ -378,29 +332,21 @@ test.describe("DefaultHome product cards", () => {
     await homePage.homeV2.click();
     await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
 
-    await expect(page.getByText("Explore composable services")).toBeVisible();
+    await expect(homePage.exploreComposableServicesText).toBeVisible();
 
-    await expect(
-      page.locator('span').filter({ hasText: 'Orchestrator' }),
-    ).toBeVisible();
-    await expect(page.getByText('Unifies diverse abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions, and reporting systems.')).toBeVisible();
+    await expect(homePage.productCardName("Orchestrator")).toBeVisible();
+    await expect(homePage.orchestratorDescription).toBeVisible();
 
+    await expect(homePage.productCardName(/^Vault$/)).not.toBeAttached();
+    await expect(homePage.productCardName(/^Recon$/)).not.toBeAttached();
     await expect(
-      page.locator('span').filter({ hasText: /^Vault$/ }),
+      homePage.productCardName("Revenue Recovery"),
     ).not.toBeAttached();
     await expect(
-      page.locator('span').filter({ hasText: /^Recon$/ }),
-    ).not.toBeAttached();
-    await expect(
-      page.locator('span').filter({ hasText: 'Revenue Recovery' }),
-    ).not.toBeAttached();
-    await expect(
-      page.locator('span').filter({ hasText: 'Cost Observability' }),
+      homePage.productCardName("Cost Observability"),
     ).not.toBeAttached();
 
-    await expect(
-      page.getByRole("button", { name: "Learn More" }),
-    ).toHaveCount(1);
+    await expect(homePage.learnMoreButtons).toHaveCount(1);
   });
 
   test.skip("should handle Learn More click on every product card when all product flags are ON", async ({
@@ -433,31 +379,26 @@ test.describe("DefaultHome product cards", () => {
       await homePage.homeV2.click();
       await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
 
-      const card = page
-        .locator("div")
-        .filter({ has: page.getByText(productName, { exact: true }) })
-        .filter({ has: page.getByRole("button", { name: "Learn More" }) })
-        .last();
-      await card.getByRole("button", { name: "Learn More" }).click();
+      await homePage
+        .productCard(productName)
+        .getByRole("button", { name: "Learn More" })
+        .click();
 
-      await expect(page.getByText('Add a new merchant').nth(1)).toBeVisible();
-      const merchantNameInput = page.getByRole('textbox', { name: 'Eg: My New Merchant' });
-      await expect(merchantNameInput).toBeVisible();
-      await expect(merchantNameInput).toHaveValue(new RegExp(`^${prefix}`));
-      await expect(page.getByRole('button', { name: 'Add Merchant' })).toBeVisible();
-      await page.getByRole('button', { name: 'Add Merchant' }).click();
+      await expect(homePage.addNewMerchantHeader.nth(1)).toBeVisible();
+      await expect(homePage.merchantNameInput).toBeVisible();
+      await expect(homePage.merchantNameInput).toHaveValue(
+        new RegExp(`^${prefix}`),
+      );
+      await expect(homePage.addMerchantButton).toBeVisible();
+      await homePage.addMerchantButton.click();
     }
 
     // Active product (Orchestrator): Learn More navigates to /dashboard/home
     await homePage.homeV2.click();
     await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
 
-    const orchestratorCard = page
-      .locator("div")
-      .filter({ has: page.getByText("Orchestrator", { exact: true }) })
-      .filter({ has: page.getByRole("button", { name: "Learn More" }) })
-      .last();
-    await orchestratorCard
+    await homePage
+      .productCard("Orchestrator")
       .getByRole("button", { name: "Learn More" })
       .click();
 
@@ -484,17 +425,15 @@ test.describe("Live Mode and Test mode Behavior", () => {
 
     await loginUI(page, adminEmail, PLAYWRIGHT_PASSWORD);
 
-    await expect(page.locator('div').filter({ hasText: /^Live Mode$/ })).toBeVisible();
+    const homePage = new HomePage(page);
 
-    const testModeBanner = page.getByText("You're in Test Mode");
-    await expect(testModeBanner).not.toBeVisible();
-    await expect(testModeBanner).not.toBeAttached();
+    await expect(homePage.liveModeBadge).toBeVisible();
 
-    const getProductionAccess = page
-      .locator("#navbar")
-      .getByText("Get Production Access");
-    await expect(getProductionAccess).not.toBeVisible();
-    await expect(getProductionAccess).not.toBeAttached();
+    await expect(homePage.testModeBannerText).not.toBeVisible();
+    await expect(homePage.testModeBannerText).not.toBeAttached();
+
+    await expect(homePage.navbarGetProductionAccess).not.toBeVisible();
+    await expect(homePage.navbarGetProductionAccess).not.toBeAttached();
   });
 
   test("should display Test Mode banner and Get Production Access on /dashboard/home when is_live_mode flag is OFF", async ({
@@ -515,99 +454,624 @@ test.describe("Live Mode and Test mode Behavior", () => {
 
     await loginUI(page, adminEmail, PLAYWRIGHT_PASSWORD);
 
-    const testModeBanner = page.getByText("You're in Test Mode");
-    await expect(testModeBanner).toBeVisible();
+    const homePage = new HomePage(page);
+    const productionAccessPage = new ProductionAccessPage(page);
 
-    const getProductionAccess = page
-      .locator("#navbar")
-      .getByText("Get Production Access");
-    await expect(getProductionAccess).toBeVisible();
+    await expect(homePage.testModeBannerText).toBeVisible();
 
-    await getProductionAccess.click();
-    await expect(
-      page.getByRole("button", { name: "Get Production Access" }),
-    ).toBeVisible();
+    await expect(homePage.navbarGetProductionAccess).toBeVisible();
+
+    await homePage.navbarGetProductionAccess.click();
+    await expect(productionAccessPage.submitButton).toBeVisible();
   });
 });
 
 test.describe("Production access form", () => {
   test.beforeEach(async ({ page, context }) => {
     email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
   test("should fill and submit the production access form, then hide the Get Production Access link", async ({
     page,
   }) => {
+    const homePage = new HomePage(page);
+    const productionAccessPage = new ProductionAccessPage(page);
+
     await page.goto("/dashboard/home");
     await expect(page).toHaveURL(/.*dashboard\/home/);
 
-    const getProductionAccess = page.locator("#navbar").getByText("Get Production Access");
-    await expect(getProductionAccess).toBeVisible();
-    await getProductionAccess.click();
+    await expect(homePage.navbarGetProductionAccess).toBeVisible();
+    await homePage.navbarGetProductionAccess.click();
 
-    const submitButton = page.getByRole("button", { name: "Get Production Access" });
-    await expect(page.getByText("Get access to Live environment")).toBeVisible();
-    await expect(submitButton).toBeVisible();
+    await expect(productionAccessPage.header).toBeVisible();
+    await expect(productionAccessPage.submitButton).toBeVisible();
 
-    await page.getByRole("textbox", { name: "Eg: HyperSwitch Pvt Ltd" }).fill("Hyperswitch Pvt Ltd");
-    await page.getByRole("button", { name: "Select Country" }).click();
-    await page.locator('div').filter({ hasText: /^Aland Islands$/ }).nth(4).click();
-    await page.getByRole("textbox", { name: "Enter a website" }).fill("https://hyperswitch.io");
-    await page.getByRole("textbox", { name: "Eg: Jack Ryan" }).fill("Jack Ryan");
-    await page.getByRole("textbox", { name: "Eg: jackryan@hyperswitch.io" }).fill("jackryan@hyperswitch.io");
+    await productionAccessPage.legalBusinessNameInput.fill(
+      "Hyperswitch Pvt Ltd",
+    );
+    await productionAccessPage.selectCountryButton.click();
+    await productionAccessPage.countryOption(/^Aland Islands$/).click();
+    await productionAccessPage.websiteInput.fill("https://hyperswitch.io");
+    await productionAccessPage.contactNameInput.fill("Jack Ryan");
+    await productionAccessPage.contactEmailInput.fill(
+      "jackryan@hyperswitch.io",
+    );
 
-    await submitButton.click();
+    await productionAccessPage.submitButton.click();
 
-    await expect(
-      page.getByText("Successfully sent for verification!"),
-    ).toBeVisible();
+    await expect(productionAccessPage.successMessage).toBeVisible();
 
-    await expect(page.locator("#navbar").getByText("Get Production Access")).not.toBeVisible();
-    await expect(page.locator("#navbar").getByText("You're in Test Mode")).toBeVisible();
-    await expect(page.locator("#navbar").getByText("Production Access Requested")).toBeVisible();
+    await expect(homePage.navbarGetProductionAccess).not.toBeVisible();
+    await expect(homePage.navbarTestMode).toBeVisible();
+    await expect(homePage.navbarProductionAccessRequested).toBeVisible();
   });
 
   test("should display required-field and field-level validation errors on the production access form", async ({
     page,
   }) => {
+    const homePage = new HomePage(page);
+    const productionAccessPage = new ProductionAccessPage(page);
+
     await page.goto("/dashboard/home");
     await expect(page).toHaveURL(/.*dashboard\/home/);
 
-    const getProductionAccess = page.locator("#navbar").getByText("Get Production Access");
-    await expect(getProductionAccess).toBeVisible();
-    await getProductionAccess.click();
+    await expect(homePage.navbarGetProductionAccess).toBeVisible();
+    await homePage.navbarGetProductionAccess.click();
 
-    const submitButton = page.getByRole("button", { name: "Get Production Access" });
-    await expect(page.getByText("Get access to Live environment")).toBeVisible();
-    await expect(submitButton).toBeVisible();
+    await expect(productionAccessPage.header).toBeVisible();
+    await expect(productionAccessPage.submitButton).toBeVisible();
 
     // All required field labels are present with the `*` indicator
-    await expect(page.getByText('Legal Business Name *')).toBeVisible();
-    await expect(page.getByText('Business country *')).toBeVisible();
-    await expect(page.getByText('Business Website *')).toBeVisible();
-    await expect(page.getByText('Contact Name *')).toBeVisible();
-    await expect(page.getByText('Contact Email *')).toBeVisible();
+    await expect(productionAccessPage.legalBusinessNameLabel).toBeVisible();
+    await expect(productionAccessPage.businessCountryLabel).toBeVisible();
+    await expect(productionAccessPage.businessWebsiteLabel).toBeVisible();
+    await expect(productionAccessPage.contactNameLabel).toBeVisible();
+    await expect(productionAccessPage.contactEmailLabel).toBeVisible();
 
     // Empty form -> submit button is disabled
-    await expect(submitButton).toBeDisabled();
+    await expect(productionAccessPage.submitButton).toBeDisabled();
 
     // Field-level validation: malformed website + email
-    await page.getByRole("textbox", { name: "Eg: HyperSwitch Pvt Ltd" }).fill("Hyperswitch Pvt Ltd");
-    await page.getByRole("button", { name: "Select Country" }).click();
-    await page.locator('div').filter({ hasText: /^Aland Islands$/ }).nth(4).click();
-    await page.getByRole("textbox", { name: "Enter a website" }).fill("not a url");
-    await page.getByRole("textbox", { name: "Eg: jackryan@hyperswitch.io" }).fill("invalid-email");
-    await page.getByRole("textbox", { name: "Eg: Jack Ryan" }).fill("Jack Ryan");
+    await productionAccessPage.legalBusinessNameInput.fill(
+      "Hyperswitch Pvt Ltd",
+    );
+    await productionAccessPage.selectCountryButton.click();
+    await productionAccessPage.countryOption(/^Aland Islands$/).click();
+    await productionAccessPage.websiteInput.fill("not a url");
+    await productionAccessPage.contactEmailInput.fill("invalid-email");
+    await productionAccessPage.contactNameInput.fill("Jack Ryan");
 
-    await expect(page.getByText('Please enter a valid URL')).toBeVisible();
-    await expect(page.getByText("Please enter a valid email address")).toBeVisible();
+    await expect(productionAccessPage.invalidUrlError).toBeVisible();
+    await expect(productionAccessPage.invalidEmailError).toBeVisible();
 
     // Fix website + email -> field-level errors clear
-    await page.getByRole("textbox", { name: "Enter a website" }).fill("https://hyperswitch.io");
-    await page.getByRole("textbox", { name: "Eg: jackryan@hyperswitch.io" }).fill("jackryan@hyperswitch.io");
-    await expect(page.getByText("Please enter a valid URL")).not.toBeVisible();
-    await expect(page.getByText("Please enter a valid email address")).not.toBeVisible();
+    await productionAccessPage.websiteInput.fill("https://hyperswitch.io");
+    await productionAccessPage.contactEmailInput.fill(
+      "jackryan@hyperswitch.io",
+    );
+    await expect(productionAccessPage.invalidUrlError).not.toBeVisible();
+    await expect(productionAccessPage.invalidEmailError).not.toBeVisible();
+  });
+});
+
+test.describe("SDK Payment", () => {
+  test.beforeEach(async ({ page, context }) => {
+    email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+
+    const homePage = new HomePage(page);
+    const merchantId = await homePage.merchantID.nth(0).textContent();
+    if (merchantId) {
+      await createDummyConnectorAPI(
+        merchantId,
+        "stripe_test_sdk",
+        context.request,
+      );
+    }
+
+    await homePage.tryItOutButton.click();
+  });
+
+  test("should render the SDK hosted checkout preview section", async ({
+    page,
+  }) => {
+    const homePage = new HomePage(page);
+
+    await expect(homePage.setupCheckoutHeader).toContainText("Setup Checkout");
+    await expect(
+      page.getByRole("tab", { name: "Checkout Details" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("tab", { name: "Theme Customization" }),
+    ).toBeVisible();
+    await expect(page.getByText("Customer ID")).toBeVisible();
+    await expect(
+      page.locator("div").filter({ hasText: /^Guest Mode$/ }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("textbox", { name: "Enter Customer ID" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("textbox", { name: "Enter Customer ID" }),
+    ).toHaveValue("hyperswitch_sdk_demo_id");
+    await expect(page.getByText("Show Saved Card")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Yes" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Yes" })).toHaveAttribute(
+      "data-value",
+      "yes",
+    );
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Currency$/ })
+        .first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "🇺🇸 United States Of America" }),
+    ).toBeVisible();
+    await expect(page.getByText("Enter amount")).toBeVisible();
+    await expect(
+      page.getByRole("textbox", { name: "Enter amount" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("textbox", { name: "Enter amount" }),
+    ).toHaveValue("100");
+    await expect(page.getByText("Edit Checkout Details")).toBeVisible();
+    await expect(homePage.showPreviewButton).toBeVisible();
+    await expect(homePage.showPreviewButton).toBeEnabled();
+    await expect(page.getByText("For Testing Stripe & Dummy")).toBeVisible();
+    await expect(
+      page.getByText("Card Number :4242 4242 4242 4242"),
+    ).toBeVisible();
+    await expect(page.getByText("Expiry:Any future date")).toBeVisible();
+    await expect(page.getByText("CVC:Any 3 Digits")).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Test creds for other connectors here" }),
+    ).toBeVisible();
+    await expect(homePage.sdkPreviewHeading).toBeVisible();
+    await expect(page.getByRole("img", { name: "blurry-sdk" })).toBeVisible();
+  });
+
+  test("should render the SDK theme configuration form", async ({ page }) => {
+    const homePage = new HomePage(page);
+
+    await expect(homePage.sdkCheckoutDetailsTab).toBeVisible();
+    await homePage.sdkThemeCustomizationTab.click();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Theme$/ })
+        .first(),
+    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Default" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Default" })).toHaveAttribute(
+      "data-value",
+      "default",
+    );
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Locale$/ })
+        .first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "English (Global)" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "English (Global)" }),
+    ).toHaveAttribute("data-value", "english(Global)");
+    await expect(page.getByText("Layout")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Tabs" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Tabs" })).toHaveAttribute(
+      "data-value",
+      "tabs",
+    );
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Labels$/ })
+        .first(),
+    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Above" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Above" })).toHaveAttribute(
+      "data-value",
+      "above",
+    );
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Color Picker Input$/ })
+        .nth(1),
+    ).toBeVisible();
+    await expect(page.getByRole("textbox", { name: "#FFFFFF" })).toBeVisible();
+    await expect(page.getByRole("textbox", { name: "#FFFFFF" })).toHaveValue(
+      "#006DF9",
+    );
+    await expect(
+      page.getByRole("link", { name: "Learn More About Customization" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Show preview" }),
+    ).toBeVisible();
+  });
+
+  test("should bind SDK form inputs to user-typed values", async ({ page }) => {
+    const homePage = new HomePage(page);
+
+    await homePage.sdkCustomerIdInput.fill("cust_playwright_001");
+    await expect(homePage.sdkCustomerIdInput).toHaveValue(
+      "cust_playwright_001",
+    );
+
+    await page.getByRole("button", { name: "Yes" }).click();
+    await page.locator("div").filter({ hasText: /^No$/ }).nth(1).click();
+    await expect(page.getByRole("button", { name: "No" })).toHaveAttribute(
+      "data-value",
+      "no",
+    );
+
+    await page
+      .getByRole("button", { name: "🇺🇸 United States Of America" })
+      .click();
+    await page
+      .getByRole("textbox", { name: "Search name or ID..." })
+      .type("India");
+    await page.getByText("🇮🇳 India - (INR)").click();
+    await expect(
+      page.getByRole("button", { name: "🇮🇳 India - (INR)" }),
+    ).toBeVisible();
+
+    await homePage.sdkAmountInput.fill("250.50");
+    await expect(homePage.sdkAmountInput).toHaveValue("250.50");
+  });
+
+  test.fixme(
+    "should make a successful payment using SDK",
+    async ({ page, context }) => {
+      const homePage = new HomePage(page);
+
+      await page
+        .getByRole("button", { name: "🇺🇸 United States Of America" })
+        .click();
+      await page
+        .getByRole("textbox", { name: "Search name or ID..." })
+        .type("India");
+      await page.getByText("🇮🇳 India - (INR)").click();
+
+      await homePage.sdkAmountInput.fill("123.45");
+
+      await homePage.showPreviewButton.click();
+      await page.waitForLoadState("networkidle");
+      await homePage.waitForSdkCardForm();
+
+      await homePage.fillSdkTestCard();
+
+      await expect(homePage.payButtonByCurrency("INR")).toContainText(
+        "Pay INR 123.45",
+      );
+      await homePage.payButtonByCurrency("INR").click();
+      await expect(homePage.paymentSuccessfulText).toBeAttached({
+        timeout: 10000,
+      });
+
+      await homePage.goToPaymentOperationsButton.click();
+      expect(page.url()).toContain("/dashboard/payments/pay_");
+    },
+  );
+
+  test.fixme(
+    "should display failed payment status using SDK",
+    async ({ page }) => {
+      const homePage = new HomePage(page);
+
+      await page.route("**/payments/*/confirm", async (route) => {
+        if (route.request().method() === "POST") {
+          const response = await route.fetch();
+          const json = await response.json();
+          json.status = "failed";
+          json.error_code = "CE_01";
+          json.error_message = "Payment declined by processor";
+          await route.fulfill({ response, json });
+        } else {
+          await route.continue();
+        }
+      });
+
+      await homePage.showPreviewButton.click();
+      await page.waitForLoadState("networkidle");
+      await homePage.waitForSdkCardForm();
+
+      await homePage.fillSdkTestCard();
+
+      await expect(homePage.payButtonByCurrency("USD")).toContainText(
+        "Pay USD 100",
+      );
+      await homePage.payButtonByCurrency("USD").click();
+      await expect(homePage.paymentFailedText).toBeVisible({ timeout: 10000 });
+      await expect(homePage.goToPaymentOperationsButton).toBeVisible();
+    },
+  );
+
+  test.fixme(
+    "should display processing payment status using SDK",
+    async ({ page }) => {
+      const homePage = new HomePage(page);
+
+      await page.route("**/payments/*/confirm", async (route) => {
+        if (route.request().method() === "POST") {
+          const response = await route.fetch();
+          const json = await response.json();
+          json.status = "processing";
+          await route.fulfill({ response, json });
+        } else {
+          await route.continue();
+        }
+      });
+
+      await homePage.showPreviewButton.click();
+      await page.waitForLoadState("networkidle");
+      await homePage.waitForSdkCardForm();
+
+      await homePage.fillSdkTestCard();
+
+      await expect(homePage.payButtonByCurrency("USD")).toContainText(
+        "Pay USD 100",
+      );
+      await homePage.payButtonByCurrency("USD").click();
+      await expect(homePage.paymentPendingText).toBeVisible({ timeout: 10000 });
+      await expect(homePage.goToPaymentOperationsButton).toBeVisible();
+    },
+  );
+
+  test("should display error toast when SDK save (Show Preview) API fails", async ({
+    page,
+  }) => {
+    await page.route("**/payments", async (route) => {
+      if (route.request().method() === "POST") {
+        await route.fulfill({
+          status: 500,
+          contentType: "application/json",
+          body: JSON.stringify({ error: { message: "Internal Server Error" } }),
+        });
+      } else {
+        await route.continue();
+      }
+    });
+
+    const homePage = new HomePage(page);
+
+    // The beforeEach already lands on /dashboard/sdk via the in-app "Try It
+    // Out" navigation, leaving the app fully bootstrapped. Reuse that state
+    // instead of a cold page.goto reload, which re-bootstraps auth/merchant/
+    // connector data and can leave the button unmounted past the default
+    // timeout in CI. The route above still intercepts the click's POST.
+    await expect(homePage.showPreviewButton).toBeEnabled();
+    await homePage.showPreviewButton.click();
+
+    await expect(homePage.sdkErrorToast).toBeVisible();
+    await expect(homePage.sdkErrorToast).toContainText("Something went wrong");
+  });
+});
+
+test.describe("Organization Chart Tree", () => {
+  let companyName = "";
+
+  test.beforeEach(async ({ page }) => {
+    const email = generateUniqueEmail();
+    companyName = generateMerchantName();
+    await signupUser(email, PLAYWRIGHT_PASSWORD, undefined, companyName);
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+    await page.waitForURL(/dashboard\/home/, { timeout: 20000 });
+  });
+
+  test("should render organization chart tree with org, merchant and profile columns with correct colour", async ({
+    page,
+  }) => {
+    const orgChart = new OrganizationChartPage(page);
+    await orgChart.visit();
+
+    await expect(orgChart.pageHeading).toBeVisible();
+    await expect(orgChart.pageSubtitle).toBeVisible();
+
+    await expect(orgChart.orgColumn).toBeVisible();
+    await expect(orgChart.merchantColumn).toBeVisible();
+    await expect(orgChart.profileColumn).toBeVisible();
+
+    await expect(page.getByText("Organization" + companyName)).toBeVisible();
+    await expect(
+      page.getByText("Organization" + companyName).getByText(companyName),
+    ).toHaveClass(/border-blue-600/);
+    await expect(
+      page.getByText("Organization" + companyName).getByText(companyName),
+    ).toHaveClass(/text-blue-600/);
+
+    await expect(page.getByText("Merchant" + companyName)).toBeVisible();
+    await expect(
+      page
+        .getByText("Merchant" + companyName)
+        .getByText(companyName + "Orchestrator"),
+    ).toHaveClass(/border-blue-600/);
+    await expect(
+      page
+        .getByText("Merchant" + companyName)
+        .getByText(companyName + "Orchestrator"),
+    ).toHaveClass(/text-blue-600/);
+
+    await expect(page.getByRole("button", { name: "default" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "default" })).toHaveClass(
+      /border-blue-600/,
+    );
+    await expect(page.getByRole("button", { name: "default" })).toHaveClass(
+      /text-blue-600/,
+    );
+  });
+
+  test("should render chart with newly created merchant and profile highlighting selected options", async ({
+    page,
+    context,
+  }) => {
+    const orgChart = new OrganizationChartPage(page);
+
+    const rawUserInfo = await page.evaluate(() =>
+      window.localStorage.getItem("USER_INFO"),
+    );
+    const userInfo = JSON.parse(rawUserInfo || "{}");
+    const token: string = userInfo.token || "";
+
+    const newMerchantName = generateMerchantName();
+    const newMerchant = await createMerchantAPI(
+      token,
+      newMerchantName,
+      context.request,
+    );
+    const newMerchantId = newMerchant.merchant_id;
+
+    await createBusinessProfileAPI(
+      newMerchantId,
+      "new-test-profile",
+      context.request,
+    );
+
+    await orgChart.visit();
+
+    const orgName = page.getByRole("button", {
+      name: companyName,
+      exact: true,
+    });
+    const merchantOneName = page.getByText(companyName + "Orchestrator");
+    const merchantTwoName = page.getByText(newMerchantName + "Orchestrator");
+    const merchantOneProfileName = page.getByRole("button", {
+      name: "default",
+    });
+    const merchantTwoProfileTwoName = page.getByRole("button", {
+      name: "new-test-profile",
+    });
+
+    await expect(orgChart.pageHeading).toBeVisible();
+
+    //Organization button
+    await expect(orgName).toBeVisible();
+    await expect(orgName).toHaveClass(/border-blue-600/);
+    await expect(orgName).toHaveClass(/text-blue-600/);
+
+    //1st Merchant button - selected
+    await expect(merchantOneName).toBeVisible();
+    await expect(merchantOneName).toHaveClass(/border-blue-600/);
+    await expect(merchantOneName).toHaveClass(/text-blue-600/);
+
+    //2nd Merchant button - unselected
+    await expect(merchantTwoName).toBeVisible();
+    await expect(merchantTwoName).toHaveClass(/border-gray-200/);
+    await expect(merchantTwoName).toHaveClass(/text-gray-600/);
+
+    // 1st Merchant - Profile
+    await expect(merchantOneProfileName).toBeVisible();
+    await expect(merchantOneProfileName).toHaveClass(/border-blue-600/);
+    await expect(merchantOneProfileName).toHaveClass(/text-blue-600/);
+
+    //Switch merchant
+    await merchantTwoName.click();
+
+    //Organization button
+    await expect(orgName).toBeVisible();
+    await expect(orgName).toHaveClass(/border-blue-600/);
+    await expect(orgName).toHaveClass(/text-blue-600/);
+
+    //1st Merchant button - unselected
+    await expect(merchantOneName).toBeVisible();
+    await expect(merchantOneName).toHaveClass(/border-gray-200/);
+    await expect(merchantOneName).toHaveClass(/text-gray-600/);
+
+    //2nd Merchant button - selected
+    await expect(merchantTwoName).toBeVisible();
+    await expect(merchantTwoName).toHaveClass(/border-blue-600/);
+    await expect(merchantTwoName).toHaveClass(/text-blue-600/);
+
+    //1st Profile button
+    await expect(merchantOneProfileName).toBeVisible();
+    await expect(merchantOneProfileName).toHaveClass(/border-gray-200/);
+    await expect(merchantOneProfileName).toHaveClass(/text-gray-600/);
+
+    //2nd Profile button
+    await expect(merchantTwoProfileTwoName).toBeVisible();
+    await expect(merchantTwoProfileTwoName).toHaveClass(/border-blue-600/);
+    await expect(merchantTwoProfileTwoName).toHaveClass(/text-blue-600/);
+
+    //Switch profile
+    await merchantOneProfileName.click();
+
+    //Organization button
+    await expect(orgName).toBeVisible();
+    await expect(orgName).toHaveClass(/border-blue-600/);
+    await expect(orgName).toHaveClass(/text-blue-600/);
+
+    //1st Merchant button - unselected
+    await expect(merchantOneName).toBeVisible();
+    await expect(merchantOneName).toHaveClass(/border-gray-200/);
+    await expect(merchantOneName).toHaveClass(/text-gray-600/);
+
+    //2nd Merchant button - selected
+    await expect(merchantTwoName).toBeVisible();
+    await expect(merchantTwoName).toHaveClass(/border-blue-600/);
+    await expect(merchantTwoName).toHaveClass(/text-blue-600/);
+
+    //1st Profile button
+    await expect(merchantOneProfileName).toBeVisible();
+    await expect(merchantOneProfileName).toHaveClass(/border-blue-600/);
+    await expect(merchantOneProfileName).toHaveClass(/text-blue-600/);
+
+    //2nd Profile button
+    await expect(merchantTwoProfileTwoName).toBeVisible();
+    await expect(merchantTwoProfileTwoName).toHaveClass(/border-gray-200/);
+    await expect(merchantTwoProfileTwoName).toHaveClass(/text-gray-600/);
+  });
+
+  test("should display loading state while switching entities", async ({
+    page,
+    context,
+  }) => {
+    const orgChart = new OrganizationChartPage(page);
+    const usersPage = new UsersPage(page);
+
+    const rawUserInfo = await page.evaluate(() =>
+      window.localStorage.getItem("USER_INFO"),
+    );
+    const userInfo = JSON.parse(rawUserInfo || "{}");
+    const token: string = userInfo.token || "";
+
+    const newMerchantName = generateMerchantName();
+    const newMerchant = await createMerchantAPI(
+      token,
+      newMerchantName,
+      context.request,
+    );
+    const newMerchantId = newMerchant.merchant_id;
+
+    await createBusinessProfileAPI(
+      newMerchantId,
+      "new-test-profile",
+      context.request,
+    );
+
+    await orgChart.visit();
+
+    const merchantTwoName = page.getByText(newMerchantName + "Orchestrator");
+    const merchantOneProfileName = page.getByRole("button", {
+      name: "default",
+    });
+    const merchantTwoProfileTwoName = page.getByRole("button", {
+      name: "new-test-profile",
+    });
+
+    await merchantTwoName.click();
+    await expect(usersPage.merchantSwitchedSuccessText).toBeVisible();
+
+    await merchantTwoProfileTwoName.click();
+
+    await merchantOneProfileName.click();
+    await expect(usersPage.profileSwitchedSuccessText).toBeVisible();
   });
 });

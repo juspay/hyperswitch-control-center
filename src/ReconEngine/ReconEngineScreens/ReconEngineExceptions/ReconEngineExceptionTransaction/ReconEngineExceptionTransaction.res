@@ -10,6 +10,8 @@ let make = (~ruleId: string) => {
 
   let (exceptionData, setExceptionData) = React.useState(_ => [])
   let (filteredExceptionData, setFilteredExceptionData) = React.useState(_ => [])
+  let (accountData, setAccountData) = React.useState(_ => [])
+  let (reconRulesList, setReconRulesList) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -17,6 +19,8 @@ let make = (~ruleId: string) => {
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let getTransactions = ReconEngineHooks.useGetTransactions()
+  let getAccounts = ReconEngineHooks.useGetAccounts()
+  let getReconRuleList = ReconEngineHooks.useGetReconRuleList()
   let {
     updateExistingKeys,
     filterValueJson,
@@ -73,6 +77,8 @@ let make = (~ruleId: string) => {
         UnderAmount(Expected),
         DataMismatch,
         PartiallyReconciled,
+        CurrencyMismatch,
+        SplitMismatch,
       ])
       if statusFilter->Array.length === 0 {
         enhancedFilterValueJson->Dict.set("status", statusList->getJsonFromArrayOfString)
@@ -80,7 +86,11 @@ let make = (~ruleId: string) => {
       enhancedFilterValueJson->Dict.set("rule_id", ruleId->JSON.Encode.string)
       let queryString = buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson)
       let exceptionList = await getTransactions(~queryParameters=Some(queryString))
+      let accountData = await getAccounts()
+      let reconRulesList = await getReconRuleList()
       let exceptionDataList = exceptionList->Array.map(Nullable.make)
+      setAccountData(_ => accountData)
+      setReconRulesList(_ => reconRulesList)
       setExceptionData(_ => exceptionList)
       setFilteredExceptionData(_ => exceptionDataList)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -201,6 +211,8 @@ let make = (~ruleId: string) => {
           entity={hierarchicalTransactionsLoadedTableEntity(
             "v1/recon-engine/exceptions/recon",
             ~authorization=Access,
+            ~reconRulesList,
+            ~accountData,
           )}
           resultsPerPage=3
           filters={<TableSearchFilter
@@ -225,7 +237,7 @@ let make = (~ruleId: string) => {
           customizeColumnButtonIcon="nd-filter-horizontal"
           hideRightTitleElement=true
           showAutoScroll=true
-          customSeparation=[(2, 3)]
+          customSeparation=[(3, 4)]
           checkBoxProps={{
             showCheckBox: true,
             selectedData: selectedRows,

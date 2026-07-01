@@ -14,6 +14,36 @@ module OverlappingCircles = {
   }
 }
 
+module DashboardConfigScrollbarStyle = {
+  @react.component
+  let make = () => {
+    let scrollbarCss = `
+  @supports (-webkit-appearance: none) {
+    .theme-config-scrollbar {
+      scrollbar-width: thin;
+      scrollbar-color: #CACFD8 transparent;
+    }
+
+    .theme-config-scrollbar::-webkit-scrollbar {
+      display: block;
+      width: 5px;
+      height: 6px;
+    }
+
+    .theme-config-scrollbar::-webkit-scrollbar-thumb {
+      background-color: #CACFD8;
+      border-radius: 3px;
+    }
+
+    .theme-config-scrollbar::-webkit-scrollbar-track {
+      display: none;
+    }
+  }
+    `
+    <style> {scrollbarCss->React.string} </style>
+  }
+}
+
 open ThemeTypes
 open Typography
 open ThemeFeatureUtils
@@ -23,6 +53,8 @@ module RadioButtons = {
   let make = (~input: ReactFinalForm.fieldRenderPropsInput) => {
     open HeadlessUI
     let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+    let (_, getNameForId) = OMPSwitchHooks.useOMPData()
+    let orgName = getNameForId(#Organization)
     let value = input.value->LogicUtils.getStringFromJson("")
 
     <RadioGroup
@@ -35,7 +67,7 @@ module RadioButtons = {
           className="flex gap-2 items-start flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-4 rounded-lg">
           <Icon name="nd-info-circle" size=20 />
           <span className={`text-nd_gray-600 ${body.md.regular}`}>
-            {`You can only create theme for ${orgId} here. To create theme to another organisation, please switch the organisation.`->React.string}
+            {`You can only create a theme for ${orgName} (${orgId}) here. To create a theme for another organization, please switch organizations.`->React.string}
           </span>
         </div>
         {entities
@@ -80,7 +112,7 @@ let entityTypeField = FormRenderer.makeFieldInfo(
 
 let orgDisplayField = (~getNameForId) =>
   FormRenderer.makeFieldInfo(
-    ~label="Current Organisation",
+    ~label="Current Organization",
     ~name="display.organization_name",
     ~customInput=(~input as _, ~placeholder as _) =>
       <div
@@ -156,7 +188,7 @@ module LineageFormContent = {
     ).getResolvedUserInfo()
 
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
     let (_, getNameForId) = OMPSwitchHooks.useOMPData()
@@ -292,16 +324,16 @@ module LineageFormContent = {
 
     <>
       <div className="flex flex-col h-full w-full p-4 gap-2">
-        {renderStep()}
         <RenderIf condition={themeExists}>
           <div
             className="flex gap-2 items-center flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-2 rounded-lg">
-            <Icon name="nd-info-circle" size=14 className="text-nd_gray-500" />
-            <span className={`text-nd_gray-600 ${body.sm.regular}`}>
-              {"A theme already exists for this lineage entity level. Continue to override."->React.string}
+            <Icon name="nd-info-circle" size=14 className="text-nd_yellow-700" />
+            <span className={`text-nd_yellow-700 ${body.sm.regular}`}>
+              {"A theme already exists for this hierarchy. Continue to edit it."->React.string}
             </span>
           </div>
         </RenderIf>
+        {renderStep()}
         <div className="flex justify-end gap-4 mt-4">
           <Button
             text="Cancel"
@@ -334,7 +366,7 @@ module ThemeLineageModal = {
       ->Option.getOr("entityselection")
     let (step, setStep) = React.useState(() => sessionStepValue->getStepVariantfromString)
     let {themeId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {orgId, merchantId, profileId} = React.useContext(
       UserInfoProvider.defaultContext,
     ).getCommonSessionDetails()
@@ -484,7 +516,7 @@ module ThemeLineageModal = {
         childClass="p-0"
         onCloseClickCustomFun=handleModalClose
         modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
-          {"Select the level you want to create theme."->React.string}
+          {"Select the entity-level at which you want to create a theme."->React.string}
         </div>}>
         <LineageFormContent showModal setShowModal step setStep themeExists setThemeExists />
       </Modal>
@@ -498,7 +530,7 @@ module ThemeUploadAssetsModal = {
     open APIUtils
     open ThemeSettingsHelper
 
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod(~showErrorToast=false)
     let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Success)
@@ -539,7 +571,10 @@ module ThemeUploadAssetsModal = {
           let _ = await updateDetails(updateUrl, requestBody, Put)
         }
 
-        showToast(~message="Theme has been created with assets", ~toastType=ToastState.ToastSuccess)
+        showToast(
+          ~message="Theme has been created with assets. Refresh the page to apply any changes.",
+          ~toastType=ToastState.ToastSuccess,
+        )
         setScreenState(_ => Success)
         setShowModal(_ => false)
         redirectToList()
@@ -553,7 +588,7 @@ module ThemeUploadAssetsModal = {
     let handleCancel = () => {
       setShowModal(_ => false)
       showToast(
-        ~message="Theme has been created. You can upload assets later",
+        ~message="Theme has been created, you can upload assets later. Refresh the page to apply any changes.",
         ~toastType=ToastState.ToastInfo,
       )
       redirectToList()
@@ -571,7 +606,7 @@ module ThemeUploadAssetsModal = {
         {"Upload icon, favicon and email logo files for your theme."->React.string}
       </div>}>
       <PageLoaderWrapper screenState={screenState} sectionHeight="h-20-vh">
-        <div className="flex flex-col gap-2 p-3">
+        <div className="flex flex-col gap-2 p-4 md:pl-6">
           <IconSettings
             mode=#Dashboard
             assets

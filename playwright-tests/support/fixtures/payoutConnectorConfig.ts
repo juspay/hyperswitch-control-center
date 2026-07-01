@@ -32,9 +32,7 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
     paymentSections: {
       BankTransfer: {
         label: "Bank Transfer",
-        methods: [
-          "sepa_bank_transfer",
-        ],
+        methods: ["sepa_bank_transfer"],
       },
       Credit: {
         label: "Credit",
@@ -66,9 +64,7 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
       },
       Wallet: {
         label: "Wallet",
-        methods: [
-          "paypal",
-        ],
+        methods: ["paypal"],
       },
     },
   },
@@ -80,31 +76,20 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
       overrides: {
         "Enter Connector label": "adyenplatform_default",
       },
-      fieldLabels: [
-        "Adyen platform's API Key *",
-        "Source verification key",
-      ],
+      fieldLabels: ["Adyen platform's API Key *", "Source verification key"],
     },
     paymentSections: {
       BankTransfer: {
         label: "Bank Transfer",
-        methods: [
-          "sepa_bank_transfer",
-        ],
+        methods: ["sepa_bank_transfer"],
       },
       Credit: {
         label: "Credit",
-        methods: [
-          "Mastercard",
-          "Visa",
-        ],
+        methods: ["Mastercard", "Visa"],
       },
       Debit: {
         label: "Debit",
-        methods: [
-          "Mastercard",
-          "Visa",
-        ],
+        methods: ["Mastercard", "Visa"],
       },
     },
   },
@@ -116,11 +101,7 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
       overrides: {
         "Enter Connector label": "cybersource_default",
       },
-      fieldLabels: [
-        "Key *",
-        "Merchant ID *",
-        "Shared Secret *",
-      ],
+      fieldLabels: ["Key *", "Merchant ID *", "Shared Secret *"],
     },
     paymentSections: {
       Credit: {
@@ -161,16 +142,12 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
       overrides: {
         "Enter Connector label": "ebanx_default",
       },
-      fieldLabels: [
-        "Integration Key *",
-      ],
+      fieldLabels: ["Integration Key *"],
     },
     paymentSections: {
       BankTransfer: {
         label: "Bank Transfer",
-        methods: [
-          "pix",
-        ],
+        methods: ["pix"],
       },
     },
   },
@@ -182,17 +159,12 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
       overrides: {
         "Enter Connector label": "envoy_default",
       },
-      fieldLabels: [
-        "Password *",
-        "Username *",
-      ],
+      fieldLabels: ["Password *", "Username *"],
     },
     paymentSections: {
       BankTransfer: {
         label: "Bank Transfer",
-        methods: [
-          "sepa_bank_transfer",
-        ],
+        methods: ["sepa_bank_transfer"],
       },
     },
   },
@@ -204,18 +176,12 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
       overrides: {
         "Enter Connector label": "gigadat_default",
       },
-      fieldLabels: [
-        "Access Token *",
-        "Campaign ID *",
-        "Security Token *",
-      ],
+      fieldLabels: ["Access Token *", "Campaign ID *", "Security Token *"],
     },
     paymentSections: {
       BankRedirect: {
         label: "Bank Redirect",
-        methods: [
-          "interac",
-        ],
+        methods: ["interac"],
       },
     },
   },
@@ -227,17 +193,12 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
       overrides: {
         "Enter Connector label": "loonio_default",
       },
-      fieldLabels: [
-        "Merchant ID *",
-        "Merchant Token *",
-      ],
+      fieldLabels: ["Merchant ID *", "Merchant Token *"],
     },
     paymentSections: {
       BankRedirect: {
         label: "Bank Redirect",
-        methods: [
-          "interac",
-        ],
+        methods: ["interac"],
       },
     },
   },
@@ -249,17 +210,12 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
       overrides: {
         "Enter Connector label": "nomupay_default",
       },
-      fieldLabels: [
-        "Nomupay kid *",
-        "Nomupay eid *",
-      ],
+      fieldLabels: ["Nomupay kid *", "Nomupay eid *"],
     },
     paymentSections: {
       BankTransfer: {
         label: "Bank Transfer",
-        methods: [
-          "sepa_bank_transfer",
-        ],
+        methods: ["sepa_bank_transfer"],
       },
     },
   },
@@ -326,10 +282,7 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
     paymentSections: {
       Wallet: {
         label: "Wallet",
-        methods: [
-          "paypal",
-          "venmo",
-        ],
+        methods: ["paypal", "venmo"],
       },
     },
   },
@@ -341,16 +294,12 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
       overrides: {
         "Enter Connector label": "stripe_default",
       },
-      fieldLabels: [
-        "Stripe API Key *",
-      ],
+      fieldLabels: ["Stripe API Key *"],
     },
     paymentSections: {
       BankTransfer: {
         label: "Bank Transfer",
-        methods: [
-          "ach",
-        ],
+        methods: ["ach"],
       },
     },
   },
@@ -362,17 +311,12 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
       overrides: {
         "Enter Connector label": "truelayer_default",
       },
-      fieldLabels: [
-        "Client ID *",
-        "Client Secret *",
-      ],
+      fieldLabels: ["Client ID *", "Client Secret *"],
     },
     paymentSections: {
       BankRedirect: {
-        label: "Bank Redirect",
-        methods: [
-          "open_banking_uk",
-        ],
+        label: "Bank Transfer",
+        methods: ["open_banking"],
       },
     },
   },
@@ -388,15 +332,13 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
         "Username *",
         "Password *",
         "Private Key(Base64 encoded) *",
-        "Trustly's public key",
+        "Trustly's public key(Base64 encoded)",
       ],
     },
     paymentSections: {
       BankTransfer: {
         label: "Bank Transfer",
-        methods: [
-          "trustly",
-        ],
+        methods: ["trustly"],
       },
     },
   },
@@ -417,11 +359,7 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
     paymentSections: {
       BankTransfer: {
         label: "Bank Transfer",
-        methods: [
-          "ach",
-          "bacs",
-          "sepa_bank_transfer",
-        ],
+        methods: ["ach", "bacs", "sepa_bank_transfer"],
       },
     },
   },
@@ -443,9 +381,7 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
     paymentSections: {
       Wallet: {
         label: "Wallet",
-        methods: [
-          "apple_pay",
-        ],
+        methods: ["apple_pay"],
       },
     },
   },
@@ -457,30 +393,20 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
       overrides: {
         "Enter Connector label": "worldpayxml_default",
       },
-      fieldLabels: [
-        "API Username *",
-        "API Password *",
-        "Merchant Code *",
-      ],
+      fieldLabels: ["API Username *", "API Password *", "Merchant Code *"],
     },
     paymentSections: {
       Credit: {
         label: "Credit",
-        methods: [
-          "Visa",
-        ],
+        methods: ["Visa"],
       },
       Debit: {
         label: "Debit",
-        methods: [
-          "Visa",
-        ],
+        methods: ["Visa"],
       },
       Wallet: {
         label: "Wallet",
-        methods: [
-          "apple_pay",
-        ],
+        methods: ["apple_pay"],
       },
     },
   },

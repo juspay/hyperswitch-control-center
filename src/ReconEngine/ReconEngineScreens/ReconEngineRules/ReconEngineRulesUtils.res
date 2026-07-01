@@ -9,6 +9,15 @@ let getFieldDisplayName = (field: string): string => {
   }
 }
 
+let compositeDelimiterToString = (delimiter: compositeDelimiterType): string =>
+  switch delimiter {
+  | Pipe => "|"
+  | UnknownCompositeDelimiter => ""
+  }
+
+let getCompositeDelimiterDisplayName = (delimiter: compositeDelimiterType): string =>
+  `${(delimiter :> string)->getTitle} ("${delimiter->compositeDelimiterToString}")`
+
 let getAccountName = (
   accountId: string,
   accountData: array<ReconEngineTypes.accountType>,
@@ -79,6 +88,21 @@ let getSearchIdentifiersWithAccounts = (
   | UnknownReconStrategy => []
   }
 }
+
+let getSearchKeys = (searchIdentifier: searchIdentifierType): array<searchKeyType> =>
+  switch searchIdentifier {
+  | V1(key) => [key]
+  | V2(Single({key})) => [key]
+  | V2(Composite({keys})) => keys
+  | V2(UnknownSearchIdentifierV2) | UnknownSearchIdentifier => []
+  }
+
+let getSearchDelimiter = (searchIdentifier: searchIdentifierType): compositeDelimiterType =>
+  switch searchIdentifier {
+  | V2(Composite({delimiter})) => delimiter
+  | V1(_) | V2(Single(_)) | V2(UnknownSearchIdentifierV2) | UnknownSearchIdentifier =>
+    UnknownCompositeDelimiter
+  }
 
 let getMappingRulesWithAccounts = (
   strategy: reconStrategyType,
@@ -160,7 +184,21 @@ let getTriggerData = (strategy: reconStrategyType): option<triggerType> => {
   }
 }
 
-let getGroupingField = (strategy: reconStrategyType): option<string> => {
+let getTriggerConditions = (trigger: triggerType): array<triggerConditionType> =>
+  switch trigger {
+  | V1(condition) => [condition]
+  | V2({conditions}) => conditions
+  | UnknownTrigger => []
+  }
+
+let getTriggerLogic = (trigger: triggerType): triggerLogicType =>
+  switch trigger {
+  | V1(_) => All
+  | V2({logic}) => logic
+  | UnknownTrigger => UnknownTriggerLogic
+  }
+
+let getGroupingField = (strategy: reconStrategyType): option<groupingFieldType> => {
   switch strategy {
   | OneToOne(oneToOne) =>
     switch oneToOne {
@@ -177,6 +215,19 @@ let getGroupingField = (strategy: reconStrategyType): option<string> => {
   | UnknownReconStrategy => None
   }
 }
+
+let getGroupingFields = (groupingField: groupingFieldType): array<string> =>
+  switch groupingField {
+  | V1(Single({field})) => [field]
+  | V1(Composite({fields})) => fields
+  | V1(UnknownGroupingFieldV1) | UnknownGroupingField => []
+  }
+
+let getGroupingDelimiter = (groupingField: groupingFieldType): compositeDelimiterType =>
+  switch groupingField {
+  | V1(Composite({delimiter})) => delimiter
+  | V1(Single(_)) | V1(UnknownGroupingFieldV1) | UnknownGroupingField => UnknownCompositeDelimiter
+  }
 
 let getSourceAndTargetAccountDetails = (strategy: reconStrategyType): (
   string,
@@ -250,12 +301,71 @@ let operatorMapper: Dict.t<JSON.t> => operatorType = dict => {
   }
 }
 
-let triggerMapper: Dict.t<JSON.t> => triggerType = dict => {
+let triggerConditionMapper: Dict.t<JSON.t> => triggerConditionType = dict => {
   {
-    trigger_version: dict->getString("trigger_version", ""),
     field: dict->getString("field", ""),
     operator: dict->getDictfromDict("operator")->operatorMapper,
     value: dict->getString("value", ""),
+  }
+}
+
+let getTriggerLogicVariantFromString = (value: string): triggerLogicType => {
+  switch value->String.toLowerCase {
+  | "all" => All
+  | "any" => Any
+  | _ => UnknownTriggerLogic
+  }
+}
+
+let triggerV2Mapper: Dict.t<JSON.t> => triggerV2Type = dict => {
+  {
+    logic: dict->getString("logic", "")->getTriggerLogicVariantFromString,
+    conditions: dict
+    ->getArrayFromDict("conditions", [])
+    ->Array.map(item => item->getDictFromJsonObject->triggerConditionMapper),
+  }
+}
+
+let triggerMapper: Dict.t<JSON.t> => triggerType = dict => {
+  switch dict->getString("trigger_version", "") {
+  | "v1" => V1(dict->triggerConditionMapper)
+  | "v2" => V2(dict->triggerV2Mapper)
+  | _ => UnknownTrigger
+  }
+}
+
+let getCompositeDelimiterVariantFromString = (value: string): compositeDelimiterType => {
+  switch value->String.toLowerCase {
+  | "pipe" => Pipe
+  | _ => UnknownCompositeDelimiter
+  }
+}
+
+let singleGroupingFieldMapper: Dict.t<JSON.t> => singleGroupingFieldType = dict => {
+  {
+    field: dict->getString("field", ""),
+  }
+}
+
+let compositeGroupingFieldMapper: Dict.t<JSON.t> => compositeGroupingFieldType = dict => {
+  {
+    fields: dict->getStrArrayFromDict("fields", []),
+    delimiter: dict->getString("delimiter", "")->getCompositeDelimiterVariantFromString,
+  }
+}
+
+let groupingFieldV1Mapper: Dict.t<JSON.t> => groupingFieldV1Type = dict => {
+  switch dict->getString("grouping_field_v1_type", "") {
+  | "single" => Single(dict->singleGroupingFieldMapper)
+  | "composite" => Composite(dict->compositeGroupingFieldMapper)
+  | _ => UnknownGroupingFieldV1
+  }
+}
+
+let groupingFieldMapper: Dict.t<JSON.t> => groupingFieldType = dict => {
+  switch dict->getString("grouping_field_version", "") {
+  | "v1" => V1(dict->groupingFieldV1Mapper)
+  | _ => UnknownGroupingField
   }
 }
 
@@ -283,11 +393,41 @@ let matchRulesMapper = dict => {
   }
 }
 
-let searchIdentifierMapper: Dict.t<JSON.t> => searchIdentifierType = dict => {
+let searchKeyMapper: Dict.t<JSON.t> => searchKeyType = dict => {
   {
-    search_version: dict->getString("search_version", ""),
     source_field: dict->getString("source_field", ""),
     target_field: dict->getString("target_field", ""),
+  }
+}
+
+let singleSearchIdentifierMapper: Dict.t<JSON.t> => singleSearchIdentifierType = dict => {
+  {
+    key: dict->getDictfromDict("key")->searchKeyMapper,
+  }
+}
+
+let compositeSearchIdentifierMapper: Dict.t<JSON.t> => compositeSearchIdentifierType = dict => {
+  {
+    keys: dict
+    ->getArrayFromDict("keys", [])
+    ->Array.map(item => item->getDictFromJsonObject->searchKeyMapper),
+    delimiter: dict->getString("delimiter", "")->getCompositeDelimiterVariantFromString,
+  }
+}
+
+let searchIdentifierV2Mapper: Dict.t<JSON.t> => searchIdentifierV2Type = dict => {
+  switch dict->getString("search_v2_type", "") {
+  | "single" => Single(dict->singleSearchIdentifierMapper)
+  | "composite" => Composite(dict->compositeSearchIdentifierMapper)
+  | _ => UnknownSearchIdentifierV2
+  }
+}
+
+let searchIdentifierMapper: Dict.t<JSON.t> => searchIdentifierType = dict => {
+  switch dict->getString("search_version", "") {
+  | "v1" => V1(dict->searchKeyMapper)
+  | "v2" => V2(dict->searchIdentifierV2Mapper)
+  | _ => UnknownSearchIdentifier
   }
 }
 
@@ -361,7 +501,7 @@ let oneToOneManySingleSourceMapper: Dict.t<JSON.t> => oneToOneManySingleSourceTy
   {
     account_id: dict->getString("account_id", ""),
     trigger: dict->getDictfromDict("trigger")->triggerMapper,
-    grouping_field: dict->getString("grouping_field", ""),
+    grouping_field: dict->getDictfromDict("grouping_field")->groupingFieldMapper,
   }
 }
 
@@ -392,7 +532,7 @@ let oneToOneManyManySourceMapper: Dict.t<JSON.t> => oneToOneManyManySourceType =
   {
     account_id: dict->getString("account_id", ""),
     trigger: dict->getDictfromDict("trigger")->triggerMapper,
-    grouping_field: dict->getString("grouping_field", ""),
+    grouping_field: dict->getDictfromDict("grouping_field")->groupingFieldMapper,
   }
 }
 

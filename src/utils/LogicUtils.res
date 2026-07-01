@@ -216,7 +216,7 @@ let getJsonObjectFromDict = (dict, key) => {
   dict->Dict.get(key)->Option.getOr(JSON.Encode.object(Dict.make()))
 }
 
-let getvalFromDict = (dict, key) => {
+let getOptionValFromDict = (dict, key) => {
   dict->Dict.get(key)
 }
 
@@ -366,6 +366,9 @@ let setDictNull = (dict, key, optionStr) => {
 }
 let setOptionString = (dict, key, optionStr) =>
   optionStr->Option.mapOr((), str => dict->Dict.set(key, str->JSON.Encode.string))
+
+let setOptionFloat = (dict, key, optionFloat) =>
+  optionFloat->Option.mapOr((), float => dict->Dict.set(key, float->JSON.Encode.float))
 
 let setOptionJson = (dict, key, optionJson) =>
   optionJson->Option.mapOr((), json => dict->Dict.set(key, json))

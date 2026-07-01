@@ -114,16 +114,55 @@ let getAccounts = (entries: array<transactionEntryType>, entryType: entryDirecti
   uniqueAccounts->Array.joinWith(", ")
 }
 
+let getTransactionFlowType = (
+  ~transaction: transactionType,
+  ~reconRulesList: array<ReconEngineRulesTypes.rulePayload>,
+  ~accountData: array<accountType>,
+): transactionFlowType => {
+  switch reconRulesList->Array.find(rule => rule.rule_id === transaction.rule.rule_id) {
+  | None => UnknownTransactionFlowType
+  | Some(rule) =>
+    let (_, targetAccounts) = ReconEngineRulesUtils.getSourceAndTargetAccountDetails(rule.strategy)
+
+    let resolvedTargetAccounts =
+      targetAccounts->Array.filterMap(targetAccount =>
+        accountData->Array.find(account => account.account_id === targetAccount.account_id)
+      )
+
+    let netInflowAmount = resolvedTargetAccounts->Array.reduce(0.0, (netAcc, account) => {
+      let (creditSum, debitSum) =
+        transaction.entries
+        ->Array.filter(entry => entry.account.account_id === account.account_id)
+        ->Array.reduce((0.0, 0.0), ((creditSum, debitSum), entry) => {
+          switch entry.entry_type {
+          | Credit => (creditSum +. entry.amount.value, debitSum)
+          | Debit => (creditSum, debitSum +. entry.amount.value)
+          | UnknownEntryDirectionType => (creditSum, debitSum)
+          }
+        })
+      switch account.account_type {
+      | Debit => netAcc +. (debitSum -. creditSum)
+      | Credit => netAcc +. (creditSum -. debitSum)
+      | UnknownAccountTypeVariant => netAcc
+      }
+    })
+    netInflowAmount > 0.0 ? InFlow : OutFlow
+  }
+}
+
 let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
   let statusOptions = getGroupedTransactionStatusOptions([
     Posted(Manual),
     Matched(Auto),
     Matched(Manual),
+    Matched(WithTolerance),
     OverAmount(Mismatch),
     OverAmount(Expected),
     UnderAmount(Mismatch),
     UnderAmount(Expected),
     DataMismatch,
+    CurrencyMismatch,
+    SplitMismatch,
     PartiallyReconciled,
     Expected,
     Missing,
@@ -196,11 +235,14 @@ let getTransactionStatusLabelColor = (status: domainTransactionStatus): TableUti
   | Posted(Manual)
   | Matched(Force)
   | Matched(Manual)
-  | Matched(Auto) =>
+  | Matched(Auto)
+  | Matched(WithTolerance) =>
     LabelGreen
   | OverAmount(Mismatch)
   | UnderAmount(Mismatch)
-  | DataMismatch =>
+  | DataMismatch
+  | CurrencyMismatch
+  | SplitMismatch =>
     LabelRed
   | Expected | UnderAmount(Expected) | OverAmount(Expected) => LabelBlue
   | Archived => LabelGray

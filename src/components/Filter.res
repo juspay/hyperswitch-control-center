@@ -197,7 +197,7 @@ let make = (
     setCount(_prev => clearFilterJson + initialCount)
     setAllFilters(_prev => filtersUnselected)
     None
-  }, (filterKeys, remoteFilters->Array.length))
+  }, (filterKeys, remoteFilters->Array.length, searchParams))
 
   let onSubmit = (values, _) => {
     let obj = values->JSON.Decode.object->Option.getOr(Dict.make())->Dict.toArray->Dict.fromArray
@@ -277,6 +277,7 @@ let make = (
 
   let addFilterTrigger =
     <button
+      type_="button"
       className={`flex items-center gap-2 ${body.md.medium} text-nd_gray-700 border border-nd_gray-200 rounded-10-px px-3.5 h-9 bg-white`}>
       <Icon name="plus" size=15 />
       {"Add Filters"->React.string}

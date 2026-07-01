@@ -9,34 +9,6 @@ let roundCurrency = (value: float, currency: string): float => {
   Math.round(value *. factor) /. factor
 }
 
-let getSummaryStackedBarGraphData = (
-  ~matchedCount: int,
-  ~mismatchedCount: int,
-  ~expectedCount: int,
-) => {
-  {
-    StackedBarGraphTypes.categories: ["Transactions"],
-    data: [
-      {
-        name: "Mismatched",
-        data: [mismatchedCount->Int.toFloat],
-        color: mismatchedColor,
-      },
-      {
-        name: "Expected",
-        data: [expectedCount->Int.toFloat],
-        color: expectedColor,
-      },
-      {
-        name: "Matched",
-        data: [matchedCount->Int.toFloat],
-        color: matchedColor,
-      },
-    ],
-    labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(~statType=Default),
-  }
-}
-
 let calculateTotals = (data: array<accountType>) => {
   data->Array.reduce(Dict.make()->getOverviewAccountPayloadFromDict, (acc, item) => {
     {
@@ -232,10 +204,11 @@ let getAllAccountIds = (reconRulesList: array<ReconEngineRulesTypes.rulePayload>
 let summarizeTransactions = (ruleTransactions: array<transactionType>): (int, int) => {
   ruleTransactions->Array.reduce((0, 0), ((matchedCount, totalCount), t: transactionType) => {
     switch t.transaction_status {
-    | Matched(Force) | Matched(Manual) | Matched(Auto) | Posted(Manual) => (
-        matchedCount + 1,
-        totalCount + 1,
-      )
+    | Matched(Force)
+    | Matched(Manual)
+    | Matched(Auto)
+    | Posted(Manual)
+    | Matched(WithTolerance) => (matchedCount + 1, totalCount + 1)
     | PartiallyReconciled
     | Missing
     | DataMismatch
@@ -243,7 +216,9 @@ let summarizeTransactions = (ruleTransactions: array<transactionType>): (int, in
     | OverAmount(Expected)
     | UnderAmount(Expected)
     | OverAmount(Mismatch)
-    | UnderAmount(Mismatch) => (matchedCount, totalCount + 1)
+    | UnderAmount(Mismatch)
+    | SplitMismatch
+    | CurrencyMismatch => (matchedCount, totalCount + 1)
     | Archived
     | Void
     | UnknownDomainTransactionStatus
@@ -262,14 +237,30 @@ let getPercentageLabel = (~matchedCount, ~totalCount) =>
   } else {
     "0% Matched"
   }
+
+let getCompactRuleType = (strategy: ReconEngineRulesTypes.reconStrategyType) => {
+  open ReconEngineRulesTypes
+  switch strategy {
+  | OneToOne(SingleSingle(_)) => "Direct Match"
+  | OneToOne(SingleMany(_)) => "Split Match"
+  | OneToOne(ManySingle(_)) => "Lumpsum Match"
+  | OneToOne(ManyMany(_)) => "Batch Match"
+  | OneToMany(SingleSingle(_)) => "Consolidated Match"
+  | UnknownReconStrategy
+  | OneToOne(UnknownOneToOneStrategy)
+  | OneToMany(UnknownOneToManyStrategy) => "Unknown"
+  }
+}
+
 let makeEdge = (
+  ~rule: ReconEngineRulesTypes.rulePayload,
   ~sourceAccountId: string,
   ~targetAccountId: string,
   ~ruleTransactions,
   ~selectedNodeId,
 ) => {
   let (matchedCount, totalCount) = summarizeTransactions(ruleTransactions)
-  let label = getPercentageLabel(~matchedCount, ~totalCount)
+  let percentageLabel = getPercentageLabel(~matchedCount, ~totalCount)
   let sourceNodeId = `${sourceAccountId}-node`
   let targetNodeId = `${targetAccountId}-node`
   let isHighlighted = Some(sourceNodeId) == selectedNodeId || Some(targetNodeId) == selectedNodeId
@@ -277,13 +268,16 @@ let makeEdge = (
     id: `${sourceAccountId}-to-${targetAccountId}`,
     ReconEngineOverviewSummaryTypes.source: sourceNodeId,
     target: targetNodeId,
-    edgeType: "smoothstep",
+    edgeType: "reconEdge",
     animated: isHighlighted,
     markerEnd: {edgeMarkerType: ReactFlow.markerTypeArrowClosed},
-    label,
+    data: {
+      ruleType: getCompactRuleType(rule.strategy),
+      percentageLabel,
+    },
     style: isHighlighted
-      ? {stroke: highlightStrokeColor, strokeWidth: 1.5}
-      : {stroke: normalStrokeColor, strokeWidth: 1.5},
+      ? {stroke: highlightStrokeColor, strokeWidth: 2.0}
+      : {stroke: normalStrokeColor, strokeWidth: 2.0},
   }
 }
 let getEdges = (
@@ -298,6 +292,7 @@ let getEdges = (
       switch oneToOne {
       | SingleSingle(data) => [
           makeEdge(
+            ~rule,
             ~sourceAccountId=data.source_account.account_id,
             ~targetAccountId=data.target_account.account_id,
             ~ruleTransactions,
@@ -306,6 +301,7 @@ let getEdges = (
         ]
       | SingleMany(data) => [
           makeEdge(
+            ~rule,
             ~sourceAccountId=data.source_account.account_id,
             ~targetAccountId=data.target_account.account_id,
             ~ruleTransactions,
@@ -314,6 +310,7 @@ let getEdges = (
         ]
       | ManySingle(data) => [
           makeEdge(
+            ~rule,
             ~sourceAccountId=data.source_account.account_id,
             ~targetAccountId=data.target_account.account_id,
             ~ruleTransactions,
@@ -322,6 +319,7 @@ let getEdges = (
         ]
       | ManyMany(data) => [
           makeEdge(
+            ~rule,
             ~sourceAccountId=data.source_account.account_id,
             ~targetAccountId=data.target_account.account_id,
             ~ruleTransactions,
@@ -340,6 +338,7 @@ let getEdges = (
           }
           targetAccounts->Array.map(((target, _)) =>
             makeEdge(
+              ~rule,
               ~sourceAccountId=data.source_account.account_id,
               ~targetAccountId=target.account_id,
               ~ruleTransactions,
@@ -357,9 +356,10 @@ let getTransactionsData = (
   accountTransactionData: Dict.t<accountTransactionData>,
   accountId: string,
 ): accountTransactionData => {
-  accountTransactionData
-  ->getvalFromDict(accountId)
-  ->Option.getOr(Dict.make()->accountTransactionDataToObjMapper)
+  accountTransactionData->getValueFromDict(
+    accountId,
+    Dict.make()->accountTransactionDataToObjMapper,
+  )
 }
 
 let generateNodesAndEdgesWithTransactionAmounts = (
@@ -459,7 +459,11 @@ let processAllTransactionsWithAmounts = (
 
     let matchedTransactions = accountTransactions->Array.filter(t =>
       switch t.transaction_status {
-      | Matched(Force) | Matched(Manual) | Matched(Auto) | Posted(Manual) => true
+      | Matched(Force)
+      | Matched(Manual)
+      | Matched(Auto)
+      | Posted(Manual)
+      | Matched(WithTolerance) => true
       | OverAmount(Expected)
       | UnderAmount(Expected)
       | Expected
@@ -470,6 +474,8 @@ let processAllTransactionsWithAmounts = (
       | DataMismatch
       | Archived
       | Void
+      | SplitMismatch
+      | CurrencyMismatch
       | Matched(UnknownDomainTransactionMatchedStatus)
       | Posted(UnknownDomainTransactionPostedStatus)
       | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
@@ -488,9 +494,12 @@ let processAllTransactionsWithAmounts = (
       | DataMismatch
       | OverAmount(Mismatch)
       | UnderAmount(Mismatch)
+      | SplitMismatch
+      | CurrencyMismatch
       | Matched(Force)
       | Matched(Manual)
       | Matched(Auto)
+      | Matched(WithTolerance)
       | Posted(Manual)
       | Archived
       | Void
@@ -505,7 +514,9 @@ let processAllTransactionsWithAmounts = (
       switch t.transaction_status {
       | OverAmount(Mismatch)
       | UnderAmount(Mismatch)
-      | DataMismatch => true
+      | DataMismatch
+      | CurrencyMismatch
+      | SplitMismatch => true
       | OverAmount(Expected)
       | UnderAmount(Expected)
       | Expected
@@ -514,6 +525,7 @@ let processAllTransactionsWithAmounts = (
       | Matched(Force)
       | Matched(Manual)
       | Matched(Auto)
+      | Matched(WithTolerance)
       | Posted(Manual)
       | Archived
       | Void
@@ -690,4 +702,208 @@ let getSourceAndAllTargetAccountIds = (ruleDetails: ReconEngineRulesTypes.rulePa
     }
   | UnknownReconStrategy => ("", [])
   }
+}
+
+let getTotalCount = (~overviewRules: array<overviewRulesResponse>) =>
+  overviewRules->Array.reduce(0, (acc, rule) => {
+    let totalCount = rule.status_breakdown->Array.reduce(0, (statusAcc, status) => {
+      switch status.status {
+      | Archived | Void => statusAcc
+      | _ => statusAcc + status.count
+      }
+    })
+
+    acc + totalCount
+  })
+
+let getMatchedCount = (~overviewRules: array<overviewRulesResponse>) => {
+  overviewRules->Array.reduce(0, (acc, rule) => {
+    let matchedCount = rule.status_breakdown->Array.reduce(0, (statusAcc, status) => {
+      switch status.status {
+      | Matched(Auto)
+      | Matched(Force)
+      | Matched(WithTolerance)
+      | Matched(Manual)
+      | Posted(Manual) =>
+        statusAcc + status.count
+      | CurrencyMismatch
+      | SplitMismatch
+      | OverAmount(Expected)
+      | Expected
+      | Missing
+      | OverAmount(Mismatch)
+      | UnderAmount(Expected)
+      | UnderAmount(Mismatch)
+      | DataMismatch
+      | PartiallyReconciled
+      | Void
+      | Archived
+      | UnknownDomainTransactionStatus
+      | Matched(UnknownDomainTransactionMatchedStatus)
+      | Posted(UnknownDomainTransactionPostedStatus)
+      | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
+      | UnderAmount(UnknownDomainTransactionAmountMismatchStatus) => statusAcc
+      }
+    })
+
+    acc + matchedCount
+  })
+}
+
+let getOpenExceptions = (
+  ~overviewRules: array<overviewRulesResponse>,
+  ~processingEntries: array<processingEntryType>,
+) => {
+  let txnExceptions = overviewRules->Array.reduce(0, (acc, rule) => {
+    let exceptionCount = rule.status_breakdown->Array.reduce(0, (statusAcc, status) => {
+      switch status.status {
+      | OverAmount(Expected)
+      | UnderAmount(Expected)
+      | OverAmount(Mismatch)
+      | UnderAmount(Mismatch)
+      | DataMismatch
+      | CurrencyMismatch
+      | SplitMismatch
+      | PartiallyReconciled
+      | Expected
+      | Missing =>
+        statusAcc + status.count
+      | Posted(Manual)
+      | Matched(Auto)
+      | Matched(Manual)
+      | Matched(Force)
+      | Matched(WithTolerance)
+      | Void
+      | Archived
+      | UnknownDomainTransactionStatus
+      | Matched(UnknownDomainTransactionMatchedStatus)
+      | Posted(UnknownDomainTransactionPostedStatus)
+      | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
+      | UnderAmount(UnknownDomainTransactionAmountMismatchStatus) => statusAcc
+      }
+    })
+
+    acc + exceptionCount
+  })
+
+  txnExceptions + processingEntries->Array.length
+}
+
+let getValueAtRisk = (~overviewRules: array<overviewRulesResponse>) =>
+  overviewRules->Array.reduce(0.0, (acc, rule) => {
+    let valueAtRisk = rule.status_breakdown->Array.reduce(0.0, (statusAcc, status) => {
+      switch status.status {
+      | UnderAmount(Mismatch)
+      | OverAmount(Mismatch)
+      | OverAmount(Expected)
+      | UnderAmount(Expected)
+      | SplitMismatch =>
+        statusAcc +. Math.abs(status.credit_amount.value -. status.debit_amount.value)
+      | _ => statusAcc
+      }
+    })
+
+    acc +. valueAtRisk
+  })
+
+let getExpectedValue = (~overviewRules: array<overviewRulesResponse>) =>
+  overviewRules->Array.reduce(0.0, (acc, rule) => {
+    let expectedValue = rule.status_breakdown->Array.reduce(0.0, (statusAcc, status) => {
+      switch status.status {
+      | Expected | Missing => statusAcc +. Math.abs(status.credit_amount.value)
+      | _ => statusAcc
+      }
+    })
+
+    acc +. expectedValue
+  })
+
+let getCurrency = (~overviewRules: array<overviewRulesResponse>) =>
+  overviewRules
+  ->Array.flatMap(rule => rule.status_breakdown)
+  ->Array.map(status => status.credit_amount.currency)
+  ->getValueFromArray(0, "")
+
+let getStatCards = (
+  ~overviewRules: array<overviewRulesResponse>,
+  ~processingEntries: array<processingEntryType>=[],
+) => {
+  let totalCount = getTotalCount(~overviewRules)
+  let matchedCount = getMatchedCount(~overviewRules)
+  let openExceptions = getOpenExceptions(~overviewRules, ~processingEntries)
+  let valueAtRisk = getValueAtRisk(~overviewRules)
+  let expectedValue = getExpectedValue(~overviewRules)
+  let currency = getCurrency(~overviewRules)
+
+  let matchRate =
+    totalCount === 0 ? 0.0 : matchedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
+
+  let pathToNavigate = GlobalVars.appendDashboardPath(~url="v1/recon-engine/exceptions/recon")
+
+  [
+    {
+      statCardTitle: MatchRate,
+      statCardValue: Percentage(matchRate),
+      statCardIcon: FontAwesome("percent"),
+      statCardDescription: `${matchedCount->Int.toString} of ${totalCount->Int.toString} matched`,
+      statCardType: Info,
+      onStatCardClick: () => (),
+    },
+    {
+      statCardTitle: OpenExceptions,
+      statCardValue: Number(openExceptions),
+      statCardIcon: CustomIcon(
+        <Icon name="nd-information-triangle" size=14 className="text-nd_gray-500" />,
+      ),
+      statCardDescription: "staging + txn exceptions",
+      statCardType: Attention,
+      onStatCardClick: () => {
+        RescriptReactRouter.push(pathToNavigate)
+      },
+    },
+    {
+      statCardTitle: ValueAtRisk,
+      statCardValue: Amount(valueAtRisk, currency),
+      statCardIcon: CustomIcon(<Icon name="lock-icon" size=14 className="text-nd_gray-500" />),
+      statCardDescription: "mismatch variance exposure",
+      statCardType: Attention,
+      onStatCardClick: () => {
+        RescriptReactRouter.push(pathToNavigate)
+      },
+    },
+    {
+      statCardTitle: ExpectedValue,
+      statCardValue: Amount(expectedValue, currency),
+      statCardIcon: CustomIcon(<Icon name="history" size=14 className="text-nd_gray-500" />),
+      statCardDescription: "amount expected",
+      statCardType: Info,
+      onStatCardClick: () => {
+        RescriptReactRouter.push(pathToNavigate)
+      },
+    },
+  ]
+}
+
+let rec addCommas = str => {
+  let len = String.length(str)
+  if len <= 3 {
+    str
+  } else {
+    let prefix = String.slice(~start=0, ~end=len - 3, str)
+    let suffix = String.slice(~start=len - 3, ~end=len, str)
+    addCommas(prefix) ++ "," ++ suffix
+  }
+}
+
+let formatFloatNumber = (amount: float) => {
+  let amountParts = amount->Float.toFixedWithPrecision(~digits=2)->String.split(".")
+  let integerPart = amountParts->getValueFromArray(0, "0")
+
+  amountParts
+  ->Array.get(1)
+  ->mapOptionOrDefault(addCommas(integerPart), decimal => `${addCommas(integerPart)}.${decimal}`)
+}
+
+let formatNumber = (amount: int) => {
+  `${addCommas(amount->Int.toString)}`
 }

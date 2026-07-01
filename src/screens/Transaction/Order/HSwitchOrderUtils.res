@@ -267,7 +267,7 @@ module CopyLinkTableCell = {
     ~leftIcon: Button.iconType=NoIcon,
   ) => {
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let handleClick = ev => {
       ev->ReactEvent.Mouse.stopPropagation
       setIsTextVisible(_ => true)

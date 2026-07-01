@@ -53,7 +53,7 @@ let getProcessedCount = (~transformationHistoryList: array<transformationHistory
 let getTransformationIdFromUrl = urlSearch => {
   urlSearch
   ->getDictFromUrlSearchParams
-  ->getvalFromDict("transformationId")
+  ->getOptionValFromDict("transformationId")
 }
 
 let createFormInput = (~name, ~value): ReactFinalForm.fieldRenderPropsInput => {

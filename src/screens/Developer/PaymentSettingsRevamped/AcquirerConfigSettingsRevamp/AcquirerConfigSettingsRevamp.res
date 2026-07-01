@@ -27,7 +27,7 @@ module SettingsForm = {
   @react.component
   let make = (~isAcquirerConfigArrEmpty, ~handleCloseForm, ~editingConfig=None) => {
     open Fetch
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let getURL = APIUtils.useGetURL()
     let updateDetails = APIUtils.useUpdateMethod()
@@ -58,8 +58,7 @@ module SettingsForm = {
       let defaultErrorMessage = "Failed to process acquirer config"
       let errorMessage = switch Exn.message(e) {
       | Some(err) => {
-          let errorCode =
-            err->JSON.parseExn->getDictFromJsonObject->LogicUtils.getString("code", "")
+          let errorCode = err->safeParse->getDictFromJsonObject->LogicUtils.getString("code", "")
           switch errorCode {
           | "IR_38" => "Duplicate entry found"
           | _ => defaultErrorMessage
@@ -212,7 +211,7 @@ module AcquirerConfigContentRevamp = {
     let (isShowAcquirerConfigSettings, setIsShowAcquirerConfigSettings) = React.useState(_ => false)
     let (editingConfig, setEditingConfig) = React.useState(_ => None)
     let {acquirer_configs: acquirerConfig} =
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
 
     let acquirerConfigArr = React.useMemo(
       () => acquirerConfig->Option.mapOr([], data => data->Array.map(acquirerConfigTypeMapper)),
