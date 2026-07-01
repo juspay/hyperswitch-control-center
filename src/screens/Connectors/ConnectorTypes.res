@@ -141,6 +141,7 @@ type processorTypes =
   | FISERVCOMMERCEHUB
   | TRUSTLY
   | IMERCHANTSOLUTIONS
+  | PAYCONEX
 
 type payoutProcessorTypes =
   | ADYEN
@@ -236,6 +237,7 @@ type paymentMethodTypes =
   | AmazonPay
   | Pix
   | PixEmv
+  | PixQr
   | PixAutomaticoQr
   | PixAutomaticoPush
   | Boleto
@@ -475,6 +477,13 @@ type connector =
   | BillingProcessor
   | VaultProcessor
   | SurchargeProcessor
+
+type cloneConnectorRequest = {
+  source_mca_id: string,
+  source_profile_id: string,
+  destination_profile_id: string,
+  connector_label: string,
+}
 
 type connectorFieldTypes = {
   bodyType: string,

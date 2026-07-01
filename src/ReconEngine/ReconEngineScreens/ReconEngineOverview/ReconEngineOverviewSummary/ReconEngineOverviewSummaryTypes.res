@@ -98,3 +98,31 @@ type viewType =
 
 type seriesType =
   ReconciledSeriesType | MismatchedSeriesType | ExpectedSeriesType | UnknownSeriesType
+
+type valueType =
+  | Percentage(float)
+  | Float(float)
+  | Number(int)
+  | Amount(float, string)
+  | OutOf(int, int)
+  | SlashOutOf(int, int)
+
+type statCardType =
+  | Info
+  | Attention
+
+@unboxed
+type statCardsTitle =
+  | @as("Match Rate") MatchRate
+  | @as("Open Exceptions") OpenExceptions
+  | @as("Value at Risk") ValueAtRisk
+  | @as("Expected Value") ExpectedValue
+
+type statCardData = {
+  statCardTitle: statCardsTitle,
+  statCardValue: valueType,
+  statCardIcon: Button.iconType,
+  statCardDescription: string,
+  statCardType: statCardType,
+  onStatCardClick: unit => unit,
+}

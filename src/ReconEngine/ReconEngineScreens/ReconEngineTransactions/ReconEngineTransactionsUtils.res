@@ -155,11 +155,14 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
     Posted(Manual),
     Matched(Auto),
     Matched(Manual),
+    Matched(WithTolerance),
     OverAmount(Mismatch),
     OverAmount(Expected),
     UnderAmount(Mismatch),
     UnderAmount(Expected),
     DataMismatch,
+    CurrencyMismatch,
+    SplitMismatch,
     PartiallyReconciled,
     Expected,
     Missing,
@@ -232,11 +235,14 @@ let getTransactionStatusLabelColor = (status: domainTransactionStatus): TableUti
   | Posted(Manual)
   | Matched(Force)
   | Matched(Manual)
-  | Matched(Auto) =>
+  | Matched(Auto)
+  | Matched(WithTolerance) =>
     LabelGreen
   | OverAmount(Mismatch)
   | UnderAmount(Mismatch)
-  | DataMismatch =>
+  | DataMismatch
+  | CurrencyMismatch
+  | SplitMismatch =>
     LabelRed
   | Expected | UnderAmount(Expected) | OverAmount(Expected) => LabelBlue
   | Archived => LabelGray

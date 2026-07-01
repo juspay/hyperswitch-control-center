@@ -1,42 +1,17 @@
 /* tslint:disable */
 /* eslint-disable */
-export function getAllPayoutKeys(): any;
-/**
- * This function can be used by the frontend to get all the two letter country codes
- * along with their country names.
- */
-export function getTwoLetterCountryCode(): any;
-export function getCardTypeValues(): any;
+export function getDescriptionCategory(): any;
 /**
  * This function allows the frontend to get all the merchant's configured
  * connectors that are valid for a rule based on the conditions specified in
  * the rule
  */
 export function getValidConnectorsForRule(rule: any): any;
-export function getDescriptionCategory(): any;
-export function getVariantValues(key: string): any;
-export function getRequestPayload(input: any, response: any): any;
-export function analyzeProgram(js_program: any): any;
-export function getAllConnectors(): any;
-export function addTwo(n1: bigint, n2: bigint): bigint;
-export function getSurchargeKeys(): any;
+export function getBillingConnectorConfig(key: string): any;
+export function getTaxProcessorConfig(key: string): any;
 export function getSurchargeProcessorConfig(key: string): any;
-export function getCardSubtypeValues(): any;
-export function parseToString(val: string): string;
-export function getAllKeys(): any;
 export function getConnectorConfig(key: string): any;
-/**
- * This function can be used by the frontend to get all the merchant category codes
- * along with their names.
- */
-export function getMerchantCategoryCodeWithName(): any;
-/**
- * This function can be used to perform currency_conversion on the input amount, from_currency,
- * to_currency which are all expected to be one of currencies we already have in our Currency
- * enum.
- */
-export function convertCurrency(amount: bigint, from_currency: any, to_currency: any): any;
-export function getPayoutDescriptionCategory(): any;
+export function getCardSubtypeValues(): any;
 export function getThreeDsDecisionRuleKeys(): any;
 /**
  * This function can be used by the frontend to educate wasm about the forex rates data.
@@ -44,7 +19,24 @@ export function getThreeDsDecisionRuleKeys(): any;
  * to all different currencies present.
  */
 export function setForexData(forex: any): any;
+export function analyzeProgram(js_program: any): any;
+export function getSurchargeKeys(): any;
+export function getCardTypeValues(): any;
+export function getPMAuthenticationProcessorConfig(key: string): any;
 export function getPayoutConnectorConfig(key: string): any;
+export function getValidWebhookStatus(key: string): any;
+export function getAllConnectors(): any;
+/**
+ * This function can be used to perform currency_conversion on the input amount, from_currency,
+ * to_currency which are all expected to be one of currencies we already have in our Currency
+ * enum.
+ */
+export function convertCurrency(amount: bigint, from_currency: any, to_currency: any): any;
+export function getRequestPayload(input: any, response: any): any;
+export function getAllPayoutKeys(): any;
+export function getPayoutDescriptionCategory(): any;
+export function getResponsePayload(input: any): any;
+export function getPayoutVariantValues(key: string): any;
 /**
  * This function can be used by the frontend to provide the WASM with information about
  * all the merchant's connector accounts. The input argument is a vector of all the merchant's
@@ -52,15 +44,23 @@ export function getPayoutConnectorConfig(key: string): any;
  */
 export function seedKnowledgeGraph(mcas: any): any;
 export function getAuthenticationConnectorConfig(key: string): any;
-export function getResponsePayload(input: any): any;
-export function getKeyType(key: string): string;
-export function getPayoutVariantValues(key: string): any;
-export function getTaxProcessorConfig(key: string): any;
+export function addTwo(n1: bigint, n2: bigint): bigint;
+/**
+ * This function can be used by the frontend to get all the two letter country codes
+ * along with their country names.
+ */
+export function getTwoLetterCountryCode(): any;
+/**
+ * This function can be used by the frontend to get all the merchant category codes
+ * along with their names.
+ */
+export function getMerchantCategoryCodeWithName(): any;
 export function getThreeDsKeys(): any;
+export function getVariantValues(key: string): any;
+export function getKeyType(key: string): string;
+export function parseToString(val: string): string;
 export function runProgram(program: any, input: any): any;
-export function getPMAuthenticationProcessorConfig(key: string): any;
-export function getBillingConnectorConfig(key: string): any;
-export function getValidWebhookStatus(key: string): any;
+export function getAllKeys(): any;
 /**
  *
  * Function exposed as `wasm` function in js `parse`. Allowing use to extend the functionality and
@@ -101,7 +101,6 @@ export interface InitOutput {
   readonly getValidConnectorsForRule: (a: number, b: number) => void;
   readonly getValidWebhookStatus: (a: number, b: number, c: number) => void;
   readonly getVariantValues: (a: number, b: number, c: number) => void;
-  readonly parseToString: (a: number, b: number, c: number) => void;
   readonly runProgram: (a: number, b: number, c: number) => void;
   readonly seedKnowledgeGraph: (a: number, b: number) => void;
   readonly setForexData: (a: number, b: number) => void;
@@ -125,45 +124,46 @@ export interface InitOutput {
   readonly ffi_superposition_types_rustbuffer_from_bytes: (a: number, b: number, c: number) => void;
   readonly ffi_superposition_types_rustbuffer_reserve: (a: number, b: number, c: bigint, d: number) => void;
   readonly ffi_superposition_types_uniffi_contract_version: () => number;
-  readonly ffi_superposition_types_rust_future_cancel_u8: (a: bigint) => void;
-  readonly ffi_superposition_types_rust_future_cancel_i64: (a: bigint) => void;
-  readonly ffi_superposition_types_rust_future_cancel_rust_buffer: (a: bigint) => void;
-  readonly ffi_superposition_types_rust_future_cancel_pointer: (a: bigint) => void;
+  readonly parseToString: (a: number, b: number, c: number) => void;
   readonly ffi_superposition_types_rust_future_cancel_void: (a: bigint) => void;
+  readonly ffi_superposition_types_rust_future_cancel_u64: (a: bigint) => void;
+  readonly ffi_superposition_types_rust_future_cancel_u16: (a: bigint) => void;
+  readonly ffi_superposition_types_rust_future_cancel_pointer: (a: bigint) => void;
   readonly ffi_superposition_types_rust_future_cancel_i16: (a: bigint) => void;
   readonly ffi_superposition_types_rust_future_cancel_i32: (a: bigint) => void;
   readonly ffi_superposition_types_rust_future_complete_pointer: (a: bigint, b: number) => number;
-  readonly ffi_superposition_types_rust_future_cancel_i8: (a: bigint) => void;
-  readonly ffi_superposition_types_rust_future_cancel_u64: (a: bigint) => void;
-  readonly ffi_superposition_types_rust_future_complete_u64: (a: bigint, b: number) => bigint;
-  readonly ffi_superposition_types_rust_future_cancel_u16: (a: bigint) => void;
   readonly ffi_superposition_types_rust_future_cancel_f64: (a: bigint) => void;
-  readonly ffi_superposition_types_rust_future_free_rust_buffer: (a: bigint) => void;
-  readonly ffi_superposition_types_rust_future_poll_rust_buffer: (a: bigint, b: number, c: bigint) => void;
-  readonly ffi_superposition_types_rust_future_free_pointer: (a: bigint) => void;
-  readonly ffi_superposition_types_rust_future_poll_pointer: (a: bigint, b: number, c: bigint) => void;
-  readonly ffi_superposition_types_rust_future_free_void: (a: bigint) => void;
-  readonly ffi_superposition_types_rust_future_poll_void: (a: bigint, b: number, c: bigint) => void;
-  readonly ffi_superposition_types_rust_future_free_i32: (a: bigint) => void;
-  readonly ffi_superposition_types_rust_future_poll_i32: (a: bigint, b: number, c: bigint) => void;
-  readonly ffi_superposition_types_rust_future_free_u64: (a: bigint) => void;
-  readonly ffi_superposition_types_rust_future_poll_u64: (a: bigint, b: number, c: bigint) => void;
-  readonly ffi_superposition_types_rust_future_free_u16: (a: bigint) => void;
-  readonly ffi_superposition_types_rust_future_poll_u16: (a: bigint, b: number, c: bigint) => void;
-  readonly ffi_superposition_types_rust_future_free_i16: (a: bigint) => void;
-  readonly ffi_superposition_types_rust_future_poll_i16: (a: bigint, b: number, c: bigint) => void;
-  readonly ffi_superposition_types_rust_future_free_i8: (a: bigint) => void;
-  readonly ffi_superposition_types_rust_future_poll_i8: (a: bigint, b: number, c: bigint) => void;
-  readonly ffi_superposition_types_rust_future_free_i64: (a: bigint) => void;
-  readonly ffi_superposition_types_rust_future_poll_i64: (a: bigint, b: number, c: bigint) => void;
+  readonly ffi_superposition_types_rust_future_cancel_rust_buffer: (a: bigint) => void;
   readonly ffi_superposition_types_rust_future_cancel_u32: (a: bigint) => void;
   readonly ffi_superposition_types_rust_future_complete_u32: (a: bigint, b: number) => number;
-  readonly ffi_superposition_types_rust_future_free_u32: (a: bigint) => void;
-  readonly ffi_superposition_types_rust_future_poll_u32: (a: bigint, b: number, c: bigint) => void;
+  readonly ffi_superposition_types_rust_future_cancel_u8: (a: bigint) => void;
+  readonly ffi_superposition_types_rust_future_cancel_i64: (a: bigint) => void;
+  readonly ffi_superposition_types_rust_future_complete_u64: (a: bigint, b: number) => bigint;
+  readonly ffi_superposition_types_rust_future_cancel_i8: (a: bigint) => void;
+  readonly ffi_superposition_types_rust_future_free_u64: (a: bigint) => void;
+  readonly ffi_superposition_types_rust_future_poll_u64: (a: bigint, b: number, c: bigint) => void;
+  readonly ffi_superposition_types_rust_future_free_void: (a: bigint) => void;
+  readonly ffi_superposition_types_rust_future_poll_void: (a: bigint, b: number, c: bigint) => void;
+  readonly ffi_superposition_types_rust_future_free_u16: (a: bigint) => void;
+  readonly ffi_superposition_types_rust_future_poll_u16: (a: bigint, b: number, c: bigint) => void;
+  readonly ffi_superposition_types_rust_future_free_i8: (a: bigint) => void;
+  readonly ffi_superposition_types_rust_future_poll_i8: (a: bigint, b: number, c: bigint) => void;
+  readonly ffi_superposition_types_rust_future_free_pointer: (a: bigint) => void;
+  readonly ffi_superposition_types_rust_future_poll_pointer: (a: bigint, b: number, c: bigint) => void;
+  readonly ffi_superposition_types_rust_future_free_i16: (a: bigint) => void;
+  readonly ffi_superposition_types_rust_future_poll_i16: (a: bigint, b: number, c: bigint) => void;
+  readonly ffi_superposition_types_rust_future_free_i32: (a: bigint) => void;
+  readonly ffi_superposition_types_rust_future_poll_i32: (a: bigint, b: number, c: bigint) => void;
   readonly ffi_superposition_types_rust_future_free_f64: (a: bigint) => void;
   readonly ffi_superposition_types_rust_future_poll_f64: (a: bigint, b: number, c: bigint) => void;
+  readonly ffi_superposition_types_rust_future_free_rust_buffer: (a: bigint) => void;
+  readonly ffi_superposition_types_rust_future_poll_rust_buffer: (a: bigint, b: number, c: bigint) => void;
+  readonly ffi_superposition_types_rust_future_free_u32: (a: bigint) => void;
+  readonly ffi_superposition_types_rust_future_poll_u32: (a: bigint, b: number, c: bigint) => void;
   readonly ffi_superposition_types_rust_future_free_u8: (a: bigint) => void;
   readonly ffi_superposition_types_rust_future_poll_u8: (a: bigint, b: number, c: bigint) => void;
+  readonly ffi_superposition_types_rust_future_free_i64: (a: bigint) => void;
+  readonly ffi_superposition_types_rust_future_poll_i64: (a: bigint, b: number, c: bigint) => void;
   readonly __wbindgen_export_0: (a: number, b: number) => number;
   readonly __wbindgen_export_1: (a: number, b: number, c: number, d: number) => number;
   readonly __wbindgen_export_2: (a: number) => void;

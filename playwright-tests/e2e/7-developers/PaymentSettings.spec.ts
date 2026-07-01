@@ -352,14 +352,10 @@ test.describe("Payment Settings", () => {
         paymentSettings.toggleSwitchByLabel("Click to Pay");
       await expect(clickToPayToggle).toBeVisible();
 
-      const initial =
-        await clickToPayToggle.getAttribute("data-bool-value");
+      const initial = await clickToPayToggle.getAttribute("data-bool-value");
       if (initial !== "on") {
         await clickToPayToggle.click();
-        await expect(clickToPayToggle).toHaveAttribute(
-          "data-bool-value",
-          "on",
-        );
+        await expect(clickToPayToggle).toHaveAttribute("data-bool-value", "on");
       }
 
       await expect(paymentSettings.clickToPayConnectorDropdown).toBeVisible();
@@ -414,8 +410,9 @@ test.describe("Payment Settings", () => {
       await homePage.paymentSettings.click();
       await paymentSettings.threeDSTab.click();
 
-      const forceChallenge =
-        paymentSettings.toggleSwitchByLabel("Force 3DS Challenge");
+      const forceChallenge = paymentSettings.toggleSwitchByLabel(
+        "Force 3DS Challenge",
+      );
       const initial = await forceChallenge.getAttribute("data-bool-value");
       if (initial !== "on") {
         await forceChallenge.click();
@@ -465,8 +462,9 @@ test.describe("Payment Settings", () => {
       await homePage.paymentSettings.click();
       await paymentSettings.threeDSTab.click();
 
-      const forceChallenge =
-        paymentSettings.toggleSwitchByLabel("Force 3DS Challenge");
+      const forceChallenge = paymentSettings.toggleSwitchByLabel(
+        "Force 3DS Challenge",
+      );
       await expect(forceChallenge).toBeVisible();
       const initial = await forceChallenge.getAttribute("data-bool-value");
       if (initial !== "on") {
@@ -506,10 +504,9 @@ test.describe("Payment Settings", () => {
 
       // Verify the connector is the selected option in the multi-select
       await paymentSettings.buttonByName("juspaythreedsserver").first().click();
-      await expect(paymentSettings.dropdownValue(connectorName)).toHaveAttribute(
-        "data-dropdown-value-selected",
-        "True",
-      );
+      await expect(
+        paymentSettings.dropdownValue(connectorName),
+      ).toHaveAttribute("data-dropdown-value-selected", "True");
     });
   });
 
@@ -556,7 +553,9 @@ test.describe("Payment Settings", () => {
       await expect(
         modal.getByText("Card Network", { exact: false }),
       ).toBeVisible();
-      await expect(modal.getByText("Acquirer BIN", { exact: false })).toBeVisible();
+      await expect(
+        modal.getByText("Acquirer BIN", { exact: false }),
+      ).toBeVisible();
       await expect(
         modal.getByText("Acquirer ICA (optional)", { exact: false }),
       ).toBeVisible();
@@ -568,8 +567,12 @@ test.describe("Payment Settings", () => {
       ).toBeVisible();
 
       // Inputs
-      await expect(paymentSettings.acquirerMerchantNameInput(modal)).toBeVisible();
-      await expect(paymentSettings.acquirerMerchantIdInput(modal)).toBeVisible();
+      await expect(
+        paymentSettings.acquirerMerchantNameInput(modal),
+      ).toBeVisible();
+      await expect(
+        paymentSettings.acquirerMerchantIdInput(modal),
+      ).toBeVisible();
       await expect(paymentSettings.acquirerBinInput(modal)).toBeVisible();
       await expect(paymentSettings.acquirerIcaInput(modal)).toBeVisible();
       await expect(paymentSettings.acquirerFraudRateInput(modal)).toBeVisible();
@@ -583,7 +586,9 @@ test.describe("Payment Settings", () => {
       ).toBeVisible();
 
       // Buttons
-      await expect(paymentSettings.acquirerModalSaveButton(modal)).toBeVisible();
+      await expect(
+        paymentSettings.acquirerModalSaveButton(modal),
+      ).toBeVisible();
       await expect(
         paymentSettings.acquirerModalCancelButton(modal),
       ).toBeVisible();
@@ -663,9 +668,7 @@ test.describe("Payment Settings", () => {
       });
 
       // Bucket renders with merchant name and a Default tag (only bucket)
-      await expect(
-        page.getByText(merchantName, { exact: true }),
-      ).toBeVisible();
+      await expect(page.getByText(merchantName, { exact: true })).toBeVisible();
       await expect(paymentSettings.defaultTag().first()).toBeVisible();
     });
 

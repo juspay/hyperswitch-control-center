@@ -80,7 +80,7 @@ let make = (
   open Promise
 
   let getURL = useGetURL()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()

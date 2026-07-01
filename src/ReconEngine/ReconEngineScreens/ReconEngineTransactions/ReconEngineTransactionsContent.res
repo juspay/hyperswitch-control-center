@@ -109,10 +109,13 @@ let make = (
         Posted(Manual),
         Matched(Auto),
         Matched(Manual),
+        Matched(WithTolerance),
         Matched(Force),
         Void,
         PartiallyReconciled,
         DataMismatch,
+        SplitMismatch,
+        CurrencyMismatch,
       ])
 
       if finalStatusFilter->Array.length === 0 {

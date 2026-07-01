@@ -140,7 +140,10 @@ export class PaymentSettings {
   }
 
   dropdownValueByText(text: string): Locator {
-    return this.page.locator("[data-dropdown-value]").filter({ hasText: text }).first();
+    return this.page
+      .locator("[data-dropdown-value]")
+      .filter({ hasText: text })
+      .first();
   }
 
   selectFieldDropdown(): Locator {
@@ -300,10 +303,7 @@ export class PaymentSettings {
 
   editIconForRow(rowText: string): Locator {
     // Edit pencil icon lives in the trailing Update column of the row
-    return this.page
-      .locator("tr", { hasText: rowText })
-      .locator("svg")
-      .last();
+    return this.page.locator("tr", { hasText: rowText }).locator("svg").last();
   }
 
   // Custom Headers Tab Elements
@@ -423,7 +423,10 @@ export class PaymentSettings {
 
   async selectFirstMerchantCategoryCode(): Promise<string> {
     await this.merchantCategoryCodeDropdown.click();
-    const firstOption = this.page.locator('div').filter({ hasText: /^Wine producers$/ }).nth(4);
+    const firstOption = this.page
+      .locator("div")
+      .filter({ hasText: /^Wine producers$/ })
+      .nth(4);
     const optionText = (await firstOption.getAttribute("data-value")) ?? "";
     await firstOption.click();
     return optionText;

@@ -27,9 +27,7 @@ export class TwoFAProfile {
 
   get totpInput(): Locator {
     return this.page
-      .locator(
-        'input[name*="totp"], input[name*="code"], input[maxlength="6"]',
-      )
+      .locator('input[name*="totp"], input[name*="code"], input[maxlength="6"]')
       .first();
   }
 
@@ -40,7 +38,9 @@ export class TwoFAProfile {
   }
 
   get invalidCodeError(): Locator {
-    return this.page.locator('[data-toast*="invalid"], [data-field-error*="code"]');
+    return this.page.locator(
+      '[data-toast*="invalid"], [data-field-error*="code"]',
+    );
   }
 
   get badge2FA(): Locator {
