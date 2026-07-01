@@ -140,3 +140,20 @@ type connectedStatCardData = {
   connectedStatCardValue: valueType,
   connectedStatCardPath: option<string>,
 }
+
+type overviewChartGranularity =
+  | @as("hour") Hour
+  | @as("day") Day
+  | @as("week") Week
+  | @as("month") Month
+
+type overviewChartPoint = {
+  label: string,
+  tooltipLabel: string,
+  totalCount: float,
+  matchedCount: float,
+  exceptionCount: float,
+  expectedCount: float,
+  missingCount: float,
+  matchRate: float,
+}

@@ -3,6 +3,12 @@ open LogicUtils
 open CurrencyFormatUtils
 open ReconEngineTypes
 
+let matchedColor = "#52A87A"
+let exceptionColor = "#D95F5F"
+let expectedColor = "#4A90E2"
+let missingColor = "#D4A032"
+let matchRateColor = "#8B72CC"
+
 let roundCurrency = (value: float, currency: string): float => {
   let precision = CurrencyUtils.getAmountPrecisionDigits(currency)
   let factor = Math.pow(10.0, ~exp=precision->Int.toFloat)
@@ -986,4 +992,218 @@ let formatFloatNumber = (amount: float) => {
 
 let formatNumber = (amount: int) => {
   `${addCommas(amount->Int.toString)}`
+}
+
+let getOverviewChartGranularity = (~startTime, ~endTime): overviewChartGranularity => {
+  let rangeDays =
+    DateRangeUtils.getStartEndDiff(startTime, endTime) /. (1000.0 *. 60.0 *. 60.0 *. 24.0)
+
+  if rangeDays <= 2.0 {
+    Hour
+  } else if rangeDays <= 90.0 {
+    Day
+  } else if rangeDays <= 365.0 {
+    Week
+  } else {
+    Month
+  }
+}
+
+let getOverviewChartBucketLabels = (~startTime, ~granularity) =>
+  switch granularity {
+  | Hour => (dateFormat(startTime, "DD MMM, h A"), dateFormat(startTime, "MMM DD, YYYY, h:mm A"))
+  | Day | Week => (dateFormat(startTime, "DD MMM"), dateFormat(startTime, "MMM DD, YYYY"))
+  | Month => (dateFormat(startTime, "MMM YYYY"), dateFormat(startTime, "MMM DD, YYYY"))
+  }
+
+let getBreakdownCategoryCounts = (
+  statusBreakdown: array<ReconEngineTypes.overviewRuleStatusBreakdown>,
+) =>
+  statusBreakdown->Array.reduce((0, 0, 0, 0), ((matched, exceptions, expected, missing), status) =>
+    switch status.status {
+    | Matched(Auto)
+    | Matched(Force)
+    | Matched(WithTolerance)
+    | Matched(Manual)
+    | Posted(Manual) => (matched + status.count, exceptions, expected, missing)
+    | OverAmount(Mismatch)
+    | UnderAmount(Mismatch)
+    | OverAmount(Expected)
+    | UnderAmount(Expected)
+    | DataMismatch
+    | CurrencyMismatch
+    | SplitMismatch
+    | PartiallyReconciled => (matched, exceptions + status.count, expected, missing)
+    | Expected => (matched, exceptions, expected + status.count, missing)
+    | Missing => (matched, exceptions, expected, missing + status.count)
+    | Archived
+    | Void
+    | UnknownDomainTransactionStatus
+    | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
+    | UnderAmount(UnknownDomainTransactionAmountMismatchStatus)
+    | Matched(UnknownDomainTransactionMatchedStatus)
+    | Posted(UnknownDomainTransactionPostedStatus) => (matched, exceptions, expected, missing)
+    }
+  )
+
+let getOverviewChartPoints = (
+  ~overviewRules: array<overviewRulesTimeSeriesResponse>,
+  ~granularity: overviewChartGranularity,
+): array<overviewChartPoint> => {
+  let timeSeriesBuckets = overviewRules->Array.get(0)->Option.mapOr([], rule => rule.time_series)
+
+  timeSeriesBuckets->Array.mapWithIndex((bucket, index) => {
+    let statusBreakdown = overviewRules->Array.flatMap(rule => {
+      let ruleBucket =
+        rule.time_series->getValueFromArray(
+          index,
+          Dict.make()->ReconEngineUtils.overviewRulesTimeSeriesMapper,
+        )
+      ruleBucket.status_breakdown
+    })
+    let (matchedCount, exceptionCount, expectedCount, missingCount) = getBreakdownCategoryCounts(
+      statusBreakdown,
+    )
+    let totalCount = matchedCount + exceptionCount + expectedCount + missingCount
+    let (label, tooltipLabel) = getOverviewChartBucketLabels(
+      ~startTime=bucket.time_range.start_time,
+      ~granularity,
+    )
+
+    {
+      label,
+      tooltipLabel,
+      totalCount: totalCount->Int.toFloat,
+      matchedCount: matchedCount->Int.toFloat,
+      exceptionCount: exceptionCount->Int.toFloat,
+      expectedCount: expectedCount->Int.toFloat,
+      missingCount: missingCount->Int.toFloat,
+      matchRate: totalCount == 0
+        ? 0.0
+        : matchedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0,
+    }
+  })
+}
+
+let overviewChartStatusConfig = [
+  ("Matched", matchedColor, point => point.matchedCount),
+  ("Exception", exceptionColor, point => point.exceptionCount),
+  ("Expected", expectedColor, point => point.expectedCount),
+  ("Missing", missingColor, point => point.missingCount),
+]
+
+let overviewChartTooltipFormatter = (~points: array<overviewChartPoint>) =>
+  (
+    @this
+    (this: LineAndColumnGraphTypes.pointFormatter) => {
+      let defaultPoint: LineAndColumnGraphTypes.point = {
+        color: "",
+        x: "",
+        y: 0.0,
+        point: {index: 0},
+        key: "",
+        series: {name: ""},
+      }
+      let defaultChartPoint: overviewChartPoint = {
+        label: "",
+        tooltipLabel: "",
+        totalCount: 0.0,
+        matchedCount: 0.0,
+        exceptionCount: 0.0,
+        expectedCount: 0.0,
+        missingCount: 0.0,
+        matchRate: 0.0,
+      }
+      let hoveredIndex = (this.points->getValueFromArray(0, defaultPoint)).point.index
+      let point = points->getValueFromArray(hoveredIndex, defaultChartPoint)
+      let percentage = point.matchRate->Float.toFixedWithPrecision(~digits=2)->removeTrailingZero
+
+      let statusRows =
+        overviewChartStatusConfig
+        ->Array.map(((label, color, getValue)) => {
+          let value = getValue(point)->Float.toInt
+          `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <div style="display:flex;align-items:center;gap:7px;">
+              <span style="width:8px;height:8px;border-radius:2px;background:${color};flex-shrink:0;"></span>
+              <span style="font-size:12px;color:rgba(255,255,255,.55);">${label}</span>
+            </div>
+            <span style="font-size:12px;font-weight:600;color:${color};">${formatNumber(
+              value,
+            )}</span>
+          </div>`
+        })
+        ->Array.joinWith("")
+
+      `<div style="min-width:240px;border-radius:12px;background:#1A1F2E;box-shadow:0 8px 24px rgba(0,0,0,.25);overflow:hidden;">
+        <div style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.08);">
+          <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.9);letter-spacing:0.2px;">${point.tooltipLabel}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;">${formatNumber(
+          point.totalCount->Float.toInt,
+        )} transactions total</div>
+        </div>
+        <div style="padding:10px 14px;">
+          ${statusRows}
+          <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:8px;margin-top:4px;display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:0.4px;">Match rate</span>
+            <span style="font-size:13px;font-weight:700;color:${matchRateColor};">${percentage}%</span>
+          </div>
+        </div>
+      </div>`
+    }
+  )->LineAndColumnGraphTypes.asTooltipPointFormatter
+
+let getOverviewChartOptions = (
+  points: array<overviewChartPoint>,
+): LineAndColumnGraphTypes.lineColumnGraphPayload => {
+  let style: LineAndColumnGraphTypes.style = {
+    fontFamily: LineAndColumnGraphUtils.fontFamily,
+    color: LineAndColumnGraphUtils.darkGray,
+    fontSize: "14px",
+  }
+
+  let columnSeries = overviewChartStatusConfig->Array.map(((name, color, getValue)) => {
+    LineAndColumnGraphTypes.showInLegend: true,
+    name,
+    \"type": "column",
+    data: points->Array.map(getValue),
+    color,
+    yAxis: 1,
+    stacking: "normal",
+  })
+
+  let matchRateSeries: LineAndColumnGraphTypes.dataObj = {
+    showInLegend: true,
+    name: "Match Rate",
+    \"type": "line",
+    data: points->Array.map(point => point.matchRate),
+    color: matchRateColor,
+    yAxis: 0,
+  }
+
+  {
+    titleObj: {
+      chartTitle: {text: "", align: "left", style},
+      xAxisTitle: {text: "", style},
+      yAxisTitle: {text: "", style},
+      oppositeYAxisTitle: {text: "", style},
+    },
+    categories: points->Array.map(point => point.label),
+    data: columnSeries->Array.concat([matchRateSeries]),
+    tooltipFormatter: overviewChartTooltipFormatter(~points),
+    yAxisFormatter: LineAndColumnGraphUtils.lineColumnGraphYAxisFormatter(
+      ~statType=AmountWithSuffix,
+      ~suffix="%",
+    ),
+    minValY2: 0,
+    maxValY2: 100,
+    legend: {
+      useHTML: true,
+      labelFormatter: LineAndColumnGraphUtils.labelFormatter,
+      align: "left",
+      verticalAlign: "top",
+      floating: false,
+      itemDistance: 24,
+      margin: 24,
+    },
+  }
 }
