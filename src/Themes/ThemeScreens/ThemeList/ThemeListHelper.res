@@ -9,7 +9,7 @@ module NoThemesFound = {
         <div className="flex flex-col items-center gap-2">
           <p className={`${heading.sm.semibold}`}> {"No Themes Available"->React.string} </p>
           <p className={`${body.md.regular} text-nd_gray-500 mb-6`}>
-            {"Create your first theme, Make your dashboard for your personalized look."->React.string}
+            {"Create your first theme to give your dashboard a personalized look."->React.string}
           </p>
         </div>
         <ACLButton
