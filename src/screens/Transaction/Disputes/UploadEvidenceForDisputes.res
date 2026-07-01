@@ -50,7 +50,7 @@ module EvidenceUploadForm = {
           fileUploadedDict->getDictfromDict(uploadEvidenceType)->getString("fileName", "")
         let truncatedFileName = truncateFileNameWithEllipses(~fileName, ~maxTextLength=10)
 
-        <div className="flex gap-4 items-center ">
+        <div className="flex gap-4 items-center">
           <p className={`${p1RegularText} text-grey-700`}> {truncatedFileName->React.string} </p>
           <Icon
             name="cross-skeleton"

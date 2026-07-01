@@ -375,7 +375,7 @@ let initialFilters = (json, filterValues, removeKeys, filterKeys, setfilterKeys,
       (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) =>
         InputFields.textInput(
           ~rightIcon=<div
-            className="p-1 rounded-lg hover:bg-gray-200 cursor-pointer mr-6 "
+            className="p-1 rounded-lg hover:bg-gray-200 cursor-pointer mr-6"
             onClick={_ => input.name->onDeleteClick}>
             <Icon name="cross-outline" size=13 />
           </div>,
