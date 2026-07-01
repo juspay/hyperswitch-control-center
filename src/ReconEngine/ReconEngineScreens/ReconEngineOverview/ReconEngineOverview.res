@@ -53,7 +53,7 @@ let make = () => {
     None
   }, [])
 
-  <div className="flex flex-col gap-4 w-full">
+  <div className="flex flex-col w-full">
     <PageUtils.PageHeading
       title="Recon Overview" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
     />
@@ -67,7 +67,7 @@ let make = () => {
           />
         </div>
       </RenderIf>
-      <RenderIf condition={reconRulesList->Array.length > 0}>
+      <RenderIf condition={reconRulesList->isNonEmptyArray}>
         <Tabs tabs />
       </RenderIf>
     </PageLoaderWrapper>
