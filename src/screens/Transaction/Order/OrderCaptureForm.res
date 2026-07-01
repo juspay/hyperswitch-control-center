@@ -26,8 +26,7 @@ let make = (~order: PaymentInterfaceTypes.order, ~setShowModal, ~refetch) => {
     ~placeholder="Enter Amount to Capture",
   )
 
-  let initiateValueJson =
-    [("amount", amountCapturableInMajorUnits->JSON.Encode.float)]->getJsonFromArrayOfJson
+  let initiateValueJson = getCaptureInitialValues(~amountCapturableInMajorUnits)
 
   let capturePayment = async values => {
     try {
@@ -52,6 +51,7 @@ let make = (~order: PaymentInterfaceTypes.order, ~setShowModal, ~refetch) => {
     } catch {
     | _ => {
         showToast(~message="Failed to capture payment", ~toastType=ToastError)
+        setIsLoading(_ => false)
         setShowModal(_ => false)
       }
     }
@@ -63,40 +63,14 @@ let make = (~order: PaymentInterfaceTypes.order, ~setShowModal, ~refetch) => {
     Nullable.null->resolve
   }
 
-  let validate = values => {
-    let errors = Dict.make()
-    let valuesDict = values->getDictFromJsonObject
-    switch valuesDict->getOptionFloat("amount") {
-    | Some(floatVal) =>
-      let enteredAmountInMinorUnits = Math.round(floatVal *. conversionFactor)
-      let capturableInMinorUnits = Math.round(amountCapturableInMajorUnits *. conversionFactor)
-      if enteredAmountInMinorUnits > capturableInMinorUnits {
-        let formattedAmount = Float.toFixedWithPrecision(
-          amountCapturableInMajorUnits,
-          ~digits=precisionDigits,
-        )
-        Dict.set(
-          errors,
-          "amount",
-          `Capture amount should not exceed ${formattedAmount}`->JSON.Encode.string,
-        )
-      } else if floatVal <= 0.0 {
-        Dict.set(
-          errors,
-          "amount",
-          "Please enter capture amount greater than zero"->JSON.Encode.string,
-        )
-      }
-    | None => Dict.set(errors, "amount", "Required"->JSON.Encode.string)
-    }
-    errors->JSON.Encode.object
-  }
+  let validate = values =>
+    validateCaptureAmount(~conversionFactor, ~amountCapturableInMajorUnits, ~precisionDigits, values)
 
   <div>
     <Form onSubmit validate initialValues=initiateValueJson>
       <div className="flex flex-col w-full max-w-4xl mx-auto p-6">
         <div
-          className="border-b border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 dark:border-opacity-75 pb-4 mb-6">
+          className="border-b border-nd_gray-200 pb-4 mb-6">
           <div className="flex flex-row justify-between items-center ">
             <CardUtils.CardHeader
               heading="Confirm Capture Payment" subHeading="" customSubHeadingStyle=""
