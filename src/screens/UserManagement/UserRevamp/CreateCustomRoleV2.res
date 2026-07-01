@@ -89,7 +89,7 @@ module RenderPermissionModule = {
 module NewCustomRoleInputFields = {
   open CommonAuthHooks
   @react.component
-  let make = (~onEntityTypeChange) => {
+  let make = (~onEntityTypeChange, ~currentEntityType: UserInfoTypes.entity) => {
     let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     <div className="flex flex-col gap-4">
@@ -99,7 +99,7 @@ module NewCustomRoleInputFields = {
           field=createCustomRole fieldWrapperClass="w-3/5" labelClass="!text-black !-ml-[0.5px]"
         />
         <FormRenderer.FieldRenderer
-          field={userRole->roleScope}
+          field={roleScope(userRole, currentEntityType)}
           fieldWrapperClass="w-fit"
           labelClass="!text-black !-ml-[0.5px]"
         />
@@ -266,7 +266,7 @@ let make = () => {
           validate={values => validateCustomRoleForm(values, ~permissionModules, ~isV2=true)}
           onSubmit
           formClass="flex flex-col gap-8">
-          <NewCustomRoleInputFields onEntityTypeChange=handleEntityTypeChange />
+          <NewCustomRoleInputFields onEntityTypeChange=handleEntityTypeChange currentEntityType />
           <div className="flex flex-col gap-6">
             <div className={`${body.md.semibold} text-nd_gray-700`}>
               {"Select Permission Level"->React.string}
