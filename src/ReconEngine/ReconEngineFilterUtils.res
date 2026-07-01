@@ -130,6 +130,12 @@ let getProcessingEntryStatusValueFromStatusList = (statusList: array<processingE
   })
 }
 
+let getIngestionTransformationHistoryStatusValueFromStatusList = (
+  statusList: array<ingestionTransformationStatusType>,
+): array<string> => {
+  statusList->Array.map(status => (status :> string)->camelToSnake)
+}
+
 let getTransactionStatusValueFromStatusList = (statusList: array<domainTransactionStatus>): array<
   string,
 > => {
