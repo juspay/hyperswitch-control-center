@@ -33,6 +33,7 @@ module SettingsForm = {
     let updateDetails = APIUtils.useUpdateMethod()
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
     let validateForm = values => validateAcquirerConfigForm(values, formKeys)
+    let mixpanelEvent = MixpanelHook.useSendEvent()
 
     let isUpdateMode = editingConfig->Option.isSome
     let initialValues =
@@ -57,8 +58,7 @@ module SettingsForm = {
       let defaultErrorMessage = "Failed to process acquirer config"
       let errorMessage = switch Exn.message(e) {
       | Some(err) => {
-          let errorCode =
-            err->JSON.parseExn->getDictFromJsonObject->LogicUtils.getString("code", "")
+          let errorCode = err->safeParse->getDictFromJsonObject->LogicUtils.getString("code", "")
           switch errorCode {
           | "IR_38" => "Duplicate entry found"
           | _ => defaultErrorMessage
@@ -113,6 +113,7 @@ module SettingsForm = {
       | Some({id}) => await updateAcquirerConfig(values, id)
       | _ => await createAcquirerConfig(values)
       }
+      mixpanelEvent(~eventName="payment_settings_acquirer_config_settings")
       Nullable.null
     }
 
@@ -210,7 +211,7 @@ module AcquirerConfigContent = {
     let (isShowAcquirerConfigSettings, setIsShowAcquirerConfigSettings) = React.useState(_ => false)
     let (editingConfig, setEditingConfig) = React.useState(_ => None)
     let {acquirer_configs: acquirerConfig} =
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
 
     let acquirerConfigArr = React.useMemo(
       () => acquirerConfig->Option.mapOr([], data => data->Array.map(acquirerConfigTypeMapper)),
@@ -251,7 +252,7 @@ module AcquirerConfigContent = {
           tableLocalFilter=false
           showSerialNumber=false
           customBorderClass="rounded-none"
-          tableheadingClass="bg-transparent"
+          tableheadingClass="bg-transparent text-nd_gray-600"
           nonFrozenTableParentClass="rounded-none"
         />
       </RenderIf>
@@ -278,11 +279,12 @@ let make = () => {
   <div className="py-4 md:py-10 gap-10 h-full flex flex-col">
     <AccordionAdapter
       accordion=accordionData
-      accordionTopContainerCss="border overflow-visible border-jp-gray-500 rounded-md dark:border-jp-gray-960"
-      accordionBottomContainerCss="px-4 py-3 md:bg-jp-gray-100 dark:bg-jp-gray-lightgray_background"
-      contentExpandCss="!bg-jp-gray-100 dark:!bg-jp-gray-lightgray_background p-0 rounded-md"
+      accordionTopContainerCss="border overflow-visible rounded-xl"
+      accordionBottomContainerCss="px-4 py-3"
+      contentExpandCss="p-0 rounded-xl"
       arrowFillColor="#6B7280"
-      titleStyle="md:font-bold font-semibold md:text-fs-16 text-fs-13 text-jp-gray-900 text-opacity-75 dark:text-white dark:text-opacity-75 rounded-md"
+      titleStyle="md:font-bold font-semibold md:text-fs-16 text-fs-13 text-jp-gray-900 text-opacity-75 dark:text-white dark:text-opacity-75 rounded-xl"
+      expandedTitleStyle="!rounded-none !rounded-tr-xl !rounded-tl-xl"
     />
   </div>
 }

@@ -1,4 +1,4 @@
-open PaymentSettingsRevampedUtils
+open PaymentSettingsUtils
 module ThreeDsRequestorUrl = {
   @react.component
   let make = () => {
@@ -57,7 +57,7 @@ module ThreeDsAppUrl = {
 }
 @react.component
 let make = () => {
-  open PaymentSettingsRevampedHelper
+  open PaymentSettingsHelper
   open HSwitchUtils
   open FormRenderer
   open Typography
