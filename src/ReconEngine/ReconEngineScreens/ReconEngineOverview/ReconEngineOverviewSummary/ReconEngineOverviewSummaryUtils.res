@@ -1188,6 +1188,19 @@ let getBreakdownCategoryCounts = (
     }
   )
 
+let getRuleActivityItems = (~overviewRules: array<overviewRulesResponse>): array<
+  ruleActivityItem,
+> => {
+  overviewRules
+  ->Array.map(rule => {
+    let volume = rule.status_breakdown->Array.reduce(0, (acc, status) => acc + status.count)
+    let (matchedCount, exceptionCount, _, _) = getBreakdownCategoryCounts(rule.status_breakdown)
+    let matchRate = volume > 0 ? matchedCount->Int.toFloat /. volume->Int.toFloat *. 100.0 : 0.0
+    {overview_rule: rule, volume, exceptions: exceptionCount, matchRate}
+  })
+  ->Array.toSorted((a, b) => Int.compare(b.exceptions, a.exceptions))
+}
+
 let getOverviewChartPoints = (
   ~overviewRules: array<overviewRulesTimeSeriesResponse>,
   ~granularity: overviewChartGranularity,
