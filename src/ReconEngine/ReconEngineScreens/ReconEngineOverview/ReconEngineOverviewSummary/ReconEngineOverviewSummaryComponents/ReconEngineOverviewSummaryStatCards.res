@@ -72,7 +72,7 @@ let make = () => {
     <div
       className="grid xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-x-4 gap-y-6 mt-4">
       {statCards
-      ->Array.mapWithIndex((card, index) =>
+      ->Array.mapWithIndex((card, index) => {
         <PageLoaderWrapper
           screenState
           customUI={<NewAnalyticsHelper.NoData height="h-40" message="No data available." />}
@@ -84,10 +84,13 @@ let make = () => {
             icon=card.statCardIcon
             description=card.statCardDescription
             cardType=card.statCardType
-            onStatCardClick=card.onStatCardClick
+            onStatCardClick={() =>
+              card.statCardUrl->Option.mapOr((), url =>
+                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url))
+              )}
           />
         </PageLoaderWrapper>
-      )
+      })
       ->React.array}
     </div>
     <div
@@ -102,7 +105,11 @@ let make = () => {
             key={index->Int.toString}
             title=card.connectedStatCardTitle
             value=card.connectedStatCardValue
-            onConnectedStatCardClick=card.onConnectedStatCardClick
+            onConnectedStatCardClick={() => {
+              card.connectedStatCardUrl->Option.mapOr((), url =>
+                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url))
+              )
+            }}
           />
         </PageLoaderWrapper>
       })

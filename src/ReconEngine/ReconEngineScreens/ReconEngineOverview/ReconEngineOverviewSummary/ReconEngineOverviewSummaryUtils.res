@@ -844,7 +844,7 @@ let getStatCards = (
   let matchRate =
     totalCount === 0 ? 0.0 : matchedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
 
-  let pathToNavigate = GlobalVars.appendDashboardPath(~url="v1/recon-engine/exceptions/recon")
+  let path = "v1/recon-engine/exceptions/recon"
 
   [
     {
@@ -853,7 +853,7 @@ let getStatCards = (
       statCardIcon: FontAwesome("percent"),
       statCardDescription: `${matchedCount->Int.toString} of ${totalCount->Int.toString} matched`,
       statCardType: Info,
-      onStatCardClick: () => (),
+      statCardUrl: None,
     },
     {
       statCardTitle: OpenExceptions,
@@ -863,9 +863,7 @@ let getStatCards = (
       ),
       statCardDescription: "staging + txn exceptions",
       statCardType: Attention,
-      onStatCardClick: () => {
-        RescriptReactRouter.push(pathToNavigate)
-      },
+      statCardUrl: Some(path),
     },
     {
       statCardTitle: ValueAtRisk,
@@ -873,9 +871,7 @@ let getStatCards = (
       statCardIcon: CustomIcon(<Icon name="lock-icon" size=14 className="text-nd_gray-500" />),
       statCardDescription: "mismatch variance exposure",
       statCardType: Attention,
-      onStatCardClick: () => {
-        RescriptReactRouter.push(pathToNavigate)
-      },
+      statCardUrl: Some(path),
     },
     {
       statCardTitle: ExpectedValue,
@@ -883,9 +879,7 @@ let getStatCards = (
       statCardIcon: CustomIcon(<Icon name="history" size=14 className="text-nd_gray-500" />),
       statCardDescription: "amount expected",
       statCardType: Info,
-      onStatCardClick: () => {
-        RescriptReactRouter.push(pathToNavigate)
-      },
+      statCardUrl: Some(path),
     },
   ]
 }
@@ -947,37 +941,27 @@ let getConnectedStatCards = (
     {
       connectedStatCardTitle: AutoMatchRate,
       connectedStatCardValue: Percentage(autoMatchRate),
-      onConnectedStatCardClick: () => (),
+      connectedStatCardUrl: None,
     },
     {
       connectedStatCardTitle: FailedIngestions,
       connectedStatCardValue: Number(failedIngestionHistory->Array.length),
-      onConnectedStatCardClick: () => {
-        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v1/recon-engine/sources"))
-      },
+      connectedStatCardUrl: Some("v1/recon-engine/sources"),
     },
     {
       connectedStatCardTitle: MissingTransactions,
       connectedStatCardValue: OutOf(agedCount, totalCount),
-      onConnectedStatCardClick: () => {
-        RescriptReactRouter.push(
-          GlobalVars.appendDashboardPath(~url="v1/recon-engine/exceptions/recon"),
-        )
-      },
+      connectedStatCardUrl: Some("v1/recon-engine/exceptions/recon"),
     },
     {
       connectedStatCardTitle: FailedTransformations,
       connectedStatCardValue: Number(failedTransformationHistory->Array.length),
-      onConnectedStatCardClick: () => {
-        RescriptReactRouter.push(
-          GlobalVars.appendDashboardPath(~url="v1/recon-engine/transformation"),
-        )
-      },
+      connectedStatCardUrl: Some("v1/recon-engine/transformation"),
     },
     {
       connectedStatCardTitle: ManualCorrections,
       connectedStatCardValue: Number(manualCorrectionsCount),
-      onConnectedStatCardClick: () => (),
+      connectedStatCardUrl: None,
     },
   ]
 }
