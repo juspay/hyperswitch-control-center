@@ -5,6 +5,12 @@ type data = {code?: string, message?: string, type_?: string}
 @scope("JSON") @val
 external parseIntoMyData: string => data = "parse"
 
+let mapConnectorErrorCode = errorCode =>
+  switch errorCode {
+  | "HE_01" => ConnectorLabelAlreadyExists
+  | _ => UnknownConnectorError
+  }
+
 let payoutStepsArr = [IntegFields, PaymentMethods, SummaryAndTest]
 
 let getStepName = step => {
