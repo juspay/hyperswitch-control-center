@@ -104,6 +104,7 @@ let useGetHsSidebarValues = () => {
       ~devModularityV2Enabled=devModularityV2,
       ~devThemeEnabled=devTheme,
       ~devUsers,
+      ~isCurrentMerchantPlatform,
     ),
   ]
 }
