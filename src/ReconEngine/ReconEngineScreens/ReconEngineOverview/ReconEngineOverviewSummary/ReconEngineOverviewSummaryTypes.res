@@ -124,7 +124,7 @@ type statCardData = {
   statCardIcon: Button.iconType,
   statCardDescription: string,
   statCardType: statCardType,
-  onStatCardClick: unit => unit,
+  statCardUrl: option<string>,
 }
 
 @unboxed
@@ -138,5 +138,5 @@ type connectedStatCardsTitle =
 type connectedStatCardData = {
   connectedStatCardTitle: connectedStatCardsTitle,
   connectedStatCardValue: valueType,
-  onConnectedStatCardClick: unit => unit,
+  connectedStatCardUrl: option<string>,
 }
