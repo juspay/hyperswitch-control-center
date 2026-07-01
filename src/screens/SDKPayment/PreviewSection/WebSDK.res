@@ -8,7 +8,24 @@ let make = () => {
   let (isScriptLoaded, setIsScriptLoaded) = React.useState(() => false)
   let (isHyperReady, setIsHyperReady) = React.useState(() => false)
 
-  let publishableKey = MerchantDetailsHook.useMerchantDetails().publishable_key
+  let fetchMerchantDetails = MerchantDetailsHook.useFetchMerchantDetails(~showErrorToast=false)
+  let merchantDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantDetailsValueAtom)
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let publishableKey = merchantDetails.publishable_key
+
+  React.useEffect(() => {
+    if merchantDetails.publishable_key->isEmptyString {
+      let loadDetails = async () => {
+        try {
+          let _ = await fetchMerchantDetails(~version)
+        } catch {
+        | _ => ()
+        }
+      }
+      loadDetails()->ignore
+    }
+    None
+  }, [])
 
   let clientSecret = paymentResult->getDictFromJsonObject->getString("client_secret", "")
   let themeConfig = sdkThemeInitialValues->getDictFromJsonObject

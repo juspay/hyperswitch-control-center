@@ -61,26 +61,4 @@ let useFetchMerchantDetails = (~showErrorToast=true) => {
   }
 }
 
-let useMerchantDetails = (~showErrorToast=false, ~shouldFetch=true) => {
-  let merchantDetails = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
-  let fetchMerchantDetails = useFetchMerchantDetails(~showErrorToast)
-  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-
-  React.useEffect(() => {
-    if shouldFetch && merchantDetails.publishable_key->LogicUtils.isEmptyString {
-      let loadDetails = async () => {
-        try {
-          let _ = await fetchMerchantDetails(~version)
-        } catch {
-        | _ => ()
-        }
-      }
-      loadDetails()->ignore
-    }
-    None
-  }, [])
-
-  merchantDetails
-}
-
 let useMerchantDetailsValue = () => Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
