@@ -99,6 +99,9 @@ let make = () => {
   let hashKeyVal = businessProfileRecoilVal.payment_response_hash_key->Option.getOr("NA")
   let truncatedHashKey = `${hashKeyVal->String.slice(~start=0, ~end=20)}....`
 
+  let webhookUrl = businessProfileRecoilVal.webhook_details.webhook_url->Option.getOr("Not configured")
+  let hasWebhookUrl = businessProfileRecoilVal.webhook_details.webhook_url->Option.isSome
+
   <div className="flex flex-col gap-4">
     <div className="flex flex-col gap-2">
       <PageUtils.PageHeading title="Payment settings" />
@@ -118,6 +121,13 @@ let make = () => {
           isCopy=true
           isTruncated=true
           copyValue=hashKeyVal
+        />
+      </div>
+      <div className="flex ">
+        <InfoViewForWebhooks
+          heading="Webhook URL"
+          subHeading={webhookUrl}
+          isCopy={hasWebhookUrl}
         />
       </div>
       <Tabs tabs initialIndex={tabIndex} onTitleClick={index => setTabIndex(_ => index)} />
