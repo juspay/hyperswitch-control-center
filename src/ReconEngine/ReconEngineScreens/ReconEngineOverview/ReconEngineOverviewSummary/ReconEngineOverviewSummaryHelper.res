@@ -44,6 +44,15 @@ module TabSwitch = {
   }
 }
 
+module HeaderCell = {
+  @react.component
+  let make = (~label: string, ~className: string="") => {
+    <div className={`${body.xs.medium} text-nd_gray-400 uppercase tracking-wide ${className}`}>
+      {label->React.string}
+    </div>
+  }
+}
+
 module FloatCell = {
   @react.component
   let make = (~value: float) => {

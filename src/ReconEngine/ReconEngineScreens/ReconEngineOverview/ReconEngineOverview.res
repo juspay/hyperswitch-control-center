@@ -14,15 +14,12 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
-  let navigateToRule = (ruleId: string) => {
-    RescriptReactRouter.push(`${basePath}?rule_id=${ruleId}`)
-  }
-
   let onTitleClick = idx => {
-    switch reconRulesList->Array.get(idx - 1) {
-    | Some(ruleDetails) => navigateToRule(ruleDetails.rule_id)
-    | None => RescriptReactRouter.push(basePath)
+    let url = switch reconRulesList->Array.get(idx - 1) {
+    | Some(ruleDetails) => `${basePath}?rule_id=${ruleDetails.rule_id}`
+    | None => basePath
     }
+    RescriptReactRouter.push(url)
   }
 
   let initialTabIndex = React.useMemo(() => {
@@ -64,7 +61,10 @@ let make = () => {
         title: "Overview",
         renderContent: () =>
           <FilterContext key="recon-engine-overview-summary" index="recon-engine-overview-summary">
-            <ReconEngineOverviewSummary reconRulesList onRuleClick=navigateToRule />
+            <ReconEngineOverviewSummary
+              reconRulesList
+              onRuleClick={ruleId => RescriptReactRouter.push(`${basePath}?rule_id=${ruleId}`)}
+            />
           </FilterContext>,
       },
       ...reconRulesList->Array.map(ruleDetails => {

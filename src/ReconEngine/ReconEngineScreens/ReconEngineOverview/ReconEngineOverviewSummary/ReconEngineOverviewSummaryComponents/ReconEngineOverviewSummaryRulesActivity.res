@@ -55,20 +55,10 @@ let make = (~onRuleClick: string => unit) => {
         <div
           className="grid grid-cols-[48px_1fr_140px_140px_220px] pt-3.5 pb-2.5 border-b border-nd_gray-200">
           <div className="pl-6" />
-          <div className={`${body.xs.medium} text-nd_gray-400 uppercase tracking-wide`}>
-            {"Rule"->React.string}
-          </div>
-          <div
-            className={`${body.xs.medium} text-nd_gray-400 uppercase tracking-wide text-right pr-6`}>
-            {"Volume"->React.string}
-          </div>
-          <div
-            className={`${body.xs.medium} text-nd_gray-400 uppercase tracking-wide text-right pr-6`}>
-            {"Exceptions"->React.string}
-          </div>
-          <div className={`${body.xs.medium} text-nd_gray-400 uppercase tracking-wide pl-4 pr-6`}>
-            {"Match Rate"->React.string}
-          </div>
+          <HeaderCell label="Rule" />
+          <HeaderCell label="Volume" className="text-right pr-6" />
+          <HeaderCell label="Exceptions" className="text-right pr-6" />
+          <HeaderCell label="Match Rate" className="pl-4 pr-6" />
         </div>
         <div className="max-h-80 overflow-y-auto pb-4">
           <RenderIf condition={computedRules->isNonEmptyArray}>
