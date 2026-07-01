@@ -838,7 +838,7 @@ let getStatCards = (
   let matchRate =
     totalCount === 0 ? 0.0 : matchedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
 
-  let pathToNavigate = GlobalVars.appendDashboardPath(~url="v1/recon-engine/exceptions/recon")
+  let reconExceptionsPath = GlobalVars.appendDashboardPath(~url="v1/recon-engine/exceptions/recon")
 
   [
     {
@@ -847,7 +847,7 @@ let getStatCards = (
       statCardIcon: FontAwesome("percent"),
       statCardDescription: `${matchedCount->Int.toString} of ${totalCount->Int.toString} matched`,
       statCardType: Info,
-      onStatCardClick: () => (),
+      statCardPath: None,
     },
     {
       statCardTitle: OpenExceptions,
@@ -857,9 +857,7 @@ let getStatCards = (
       ),
       statCardDescription: "staging + txn exceptions",
       statCardType: Attention,
-      onStatCardClick: () => {
-        RescriptReactRouter.push(pathToNavigate)
-      },
+      statCardPath: Some(reconExceptionsPath),
     },
     {
       statCardTitle: ValueAtRisk,
@@ -867,9 +865,7 @@ let getStatCards = (
       statCardIcon: CustomIcon(<Icon name="lock-icon" size=14 className="text-nd_gray-500" />),
       statCardDescription: "mismatch variance exposure",
       statCardType: Attention,
-      onStatCardClick: () => {
-        RescriptReactRouter.push(pathToNavigate)
-      },
+      statCardPath: Some(reconExceptionsPath),
     },
     {
       statCardTitle: ExpectedValue,
@@ -877,9 +873,93 @@ let getStatCards = (
       statCardIcon: CustomIcon(<Icon name="history" size=14 className="text-nd_gray-500" />),
       statCardDescription: "amount expected",
       statCardType: Info,
-      onStatCardClick: () => {
-        RescriptReactRouter.push(pathToNavigate)
-      },
+      statCardPath: Some(reconExceptionsPath),
+    },
+  ]
+}
+
+let getAutoMatchCount = (~overviewRules: array<overviewRulesResponse>) => {
+  overviewRules->Array.reduce(0, (acc, rule) => {
+    let autoMatchedCount = rule.status_breakdown->Array.reduce(0, (statusAcc, status) => {
+      switch status.status {
+      | Matched(Auto) | Matched(WithTolerance) => statusAcc + status.count
+      | _ => statusAcc
+      }
+    })
+
+    acc + autoMatchedCount
+  })
+}
+
+let getManualCorrectionsCount = (~overviewRules: array<overviewRulesResponse>) => {
+  overviewRules->Array.reduce(0, (acc, rule) => {
+    let manualCorrectionsCount = rule.status_breakdown->Array.reduce(0, (statusAcc, status) => {
+      switch status.status {
+      | Matched(Manual) | Posted(Manual) | Matched(Force) | PartiallyReconciled =>
+        statusAcc + status.count
+      | _ => statusAcc
+      }
+    })
+
+    acc + manualCorrectionsCount
+  })
+}
+
+let getMissingCount = (~overviewRules: array<overviewRulesResponse>) => {
+  overviewRules->Array.reduce(0, (acc, rule) => {
+    let missingCount = rule.status_breakdown->Array.reduce(0, (statusAcc, status) => {
+      switch status.status {
+      | Missing => statusAcc + status.count
+      | _ => statusAcc
+      }
+    })
+
+    acc + missingCount
+  })
+}
+
+let getConnectedStatCards = (
+  ~overviewRules: array<overviewRulesResponse>,
+  ~failedTransformationHistory: array<transformationHistoryType>,
+  ~failedIngestionHistory: array<ingestionHistoryType>,
+) => {
+  let totalCount = getTotalCount(~overviewRules)
+  let autoMatchedCount = getAutoMatchCount(~overviewRules)
+  let manualCorrectionsCount = getManualCorrectionsCount(~overviewRules)
+  let missingCount = getMissingCount(~overviewRules)
+
+  let autoMatchRate =
+    totalCount === 0 ? 0.0 : autoMatchedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
+
+  [
+    {
+      connectedStatCardTitle: AutoMatchRate,
+      connectedStatCardValue: Percentage(autoMatchRate),
+      connectedStatCardPath: None,
+    },
+    {
+      connectedStatCardTitle: FailedIngestions,
+      connectedStatCardValue: Number(failedIngestionHistory->Array.length),
+      connectedStatCardPath: Some(GlobalVars.appendDashboardPath(~url="v1/recon-engine/sources")),
+    },
+    {
+      connectedStatCardTitle: MissingTransactions,
+      connectedStatCardValue: OutOf(missingCount, totalCount),
+      connectedStatCardPath: Some(
+        GlobalVars.appendDashboardPath(~url="v1/recon-engine/exceptions/recon"),
+      ),
+    },
+    {
+      connectedStatCardTitle: FailedTransformations,
+      connectedStatCardValue: Number(failedTransformationHistory->Array.length),
+      connectedStatCardPath: Some(
+        GlobalVars.appendDashboardPath(~url="v1/recon-engine/transformation"),
+      ),
+    },
+    {
+      connectedStatCardTitle: ManualCorrections,
+      connectedStatCardValue: Number(manualCorrectionsCount),
+      connectedStatCardPath: None,
     },
   ]
 }
