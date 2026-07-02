@@ -1025,6 +1025,11 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #TRANSACTIONS_LIST_V2 =>
+          switch methodType {
+          | Post => `${reconBaseURL}/transactions/v2/list`
+          | _ => ""
+          }
         | #PROCESSED_ENTRIES_LIST_WITH_ACCOUNT =>
           switch methodType {
           | Get =>

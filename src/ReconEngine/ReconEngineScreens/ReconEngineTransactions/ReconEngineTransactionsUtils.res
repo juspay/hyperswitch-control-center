@@ -4,6 +4,106 @@ open ReconEngineTypes
 open ReconEngineUtils
 open ReconEngineTransactionsTypes
 
+let searchTypeFromString = str =>
+  switch str {
+  | "order_id" => OrderId
+  | "transaction_id" => TransactionId
+  | _ => UnknownTransactionSearchType
+  }
+
+let searchTypeOptions: array<SearchInput.searchTypeOption> = [TransactionId, OrderId]->Array.map((
+  txnType
+): SearchInput.searchTypeOption => {
+  {
+    label: (txnType :> string)->snakeToTitle,
+    value: (txnType :> string),
+  }
+})
+
+let defaultSortByJson = (sortField: transactionSortField) => {
+  let cursorKey = switch sortField {
+  | EffectiveAt => "cursor_value"
+  | Id => "id"
+  }
+  [
+    ("sort_field", (sortField :> string)->JSON.Encode.string),
+    (cursorKey, JSON.Encode.null),
+  ]->getJsonFromArrayOfJson
+}
+
+let buildTransactionsV2Body = (
+  ~filterValueJson: Dict.t<JSON.t>,
+  ~searchType: transactionSearchType,
+  ~searchText: string,
+  ~ruleId: string,
+  ~sortBy: option<JSON.t>,
+  ~direction: cursorDirection,
+  ~sortField: transactionSortField=EffectiveAt,
+  ~order: transactionSortOrder=Desc,
+  ~limit=4,
+  (),
+) => {
+  let statusFilter = filterValueJson->getArrayFromDict("status", [])
+  let finalStatusFilter = getMergedMatchedTransactionStatusFilter(statusFilter)
+  let statusValues =
+    finalStatusFilter->Array.length === 0
+      ? getTransactionStatusValueFromStatusList([
+          Expected,
+          Missing,
+          OverAmount(Mismatch),
+          UnderAmount(Mismatch),
+          OverAmount(Expected),
+          UnderAmount(Expected),
+          Posted(Manual),
+          Matched(Auto),
+          Matched(Manual),
+          Matched(WithTolerance),
+          Matched(Force),
+          Void,
+          PartiallyReconciled,
+          DataMismatch,
+          SplitMismatch,
+          CurrencyMismatch,
+        ])
+      : finalStatusFilter->Array.map(v => v->getStringFromJson(""))
+
+  let startTime = filterValueJson->getString("startTime", "")
+  let endTime = filterValueJson->getString("endTime", "")
+  let hasTimeRange = startTime->isNonEmptyString && endTime->isNonEmptyString
+
+  let filters =
+    [
+      ruleId->isNonEmptyString ? Some(("rule_id", ruleId->JSON.Encode.string)) : None,
+      Some(("status", statusValues->getJsonFromArrayOfString)),
+      hasTimeRange
+        ? Some((
+            "time_range",
+            [
+              ("start_time", startTime->JSON.Encode.string),
+              ("end_time", endTime->JSON.Encode.string),
+            ]->getJsonFromArrayOfJson,
+          ))
+        : None,
+      searchText->isNonEmptyString
+        ? Some((searchType :> string), searchText->String.trim->JSON.Encode.string)
+        : None,
+    ]
+    ->Belt.Array.keepMap(entry => entry)
+    ->getJsonFromArrayOfJson
+
+  let sortByJson = sortBy->Option.getOr(defaultSortByJson(sortField))
+
+  let cursorPayload =
+    [
+      ("limit", limit->Int.toFloat->JSON.Encode.float),
+      ("direction", (direction :> string)->JSON.Encode.string),
+      ("order", (order :> string)->JSON.Encode.string),
+      ("sort_by", sortByJson),
+    ]->getJsonFromArrayOfJson
+
+  [("filters", filters), ("cursor_payload", cursorPayload)]->getJsonFromArrayOfJson
+}
+
 let constructTransactionBulkRequestBody = (
   ~bulkActionType: actionType,
   ~valuesDict,
@@ -150,7 +250,7 @@ let getTransactionFlowType = (
   }
 }
 
-let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
+let statusDisplayFilters = (): array<EntityType.initialFilters<'t>> => {
   let statusOptions = getGroupedTransactionStatusOptions([
     Posted(Manual),
     Matched(Auto),
@@ -170,63 +270,23 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
   ])
 
   [
-    (
-      {
-        field: FormRenderer.makeFieldInfo(
-          ~label="transaction_status",
-          ~name="status",
-          ~customInput=InputFields.filterMultiSelectInput(
-            ~options=statusOptions,
-            ~buttonText="Select Transaction Status",
-            ~showSelectionAsChips=false,
-            ~searchable=true,
-            ~showToolTip=true,
-            ~showNameAsToolTip=true,
-            ~customButtonStyle="bg-none",
-            (),
-          ),
+    {
+      field: FormRenderer.makeFieldInfo(
+        ~label="transaction_status",
+        ~name="status",
+        ~customInput=InputFields.filterMultiSelectInput(
+          ~options=statusOptions,
+          ~buttonText="Select Transaction Status",
+          ~showSelectionAsChips=false,
+          ~searchable=true,
+          ~showToolTip=true,
+          ~showNameAsToolTip=true,
+          ~customButtonStyle="bg-none",
+          (),
         ),
-        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
-      }: EntityType.initialFilters<'t>
-    ),
-    (
-      {
-        field: FormRenderer.makeFieldInfo(
-          ~label="source_account",
-          ~name="source_account",
-          ~customInput=InputFields.filterMultiSelectInput(
-            ~options=creditAccountOptions,
-            ~buttonText="Select Source Account",
-            ~showSelectionAsChips=false,
-            ~searchable=true,
-            ~showToolTip=true,
-            ~showNameAsToolTip=true,
-            ~customButtonStyle="bg-none",
-            (),
-          ),
-        ),
-        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
-      }: EntityType.initialFilters<'t>
-    ),
-    (
-      {
-        field: FormRenderer.makeFieldInfo(
-          ~label="target_account",
-          ~name="target_account",
-          ~customInput=InputFields.filterMultiSelectInput(
-            ~options=debitAccountOptions,
-            ~buttonText="Select Target Account",
-            ~showSelectionAsChips=false,
-            ~searchable=true,
-            ~showToolTip=true,
-            ~showNameAsToolTip=true,
-            ~customButtonStyle="bg-none",
-            (),
-          ),
-        ),
-        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
-      }: EntityType.initialFilters<'t>
-    ),
+      ),
+      localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+    },
   ]
 }
 
