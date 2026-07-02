@@ -47,18 +47,6 @@ let useGetHsSidebarValues = () => {
 
   let standardModules = !isCurrentMerchantPlatform
     ? [
-        default->connectors(
-          ~isLiveMode,
-          ~isFrmEnabled=frm,
-          ~isPayoutsEnabled=payOut,
-          ~isThreedsConnectorEnabled=threedsAuthenticator,
-          ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
-          ~isTaxProcessor=taxProcessor,
-          ~userHasResourceAccess,
-          ~isBillingProcessor=billingProcessor,
-          ~isVaultProcessor=vaultProcessor,
-          ~isSurchargeProcessor=surchargeProcessor,
-        ),
         default->analytics(
           disputeAnalytics,
           performanceMonitorFlag,
@@ -85,6 +73,19 @@ let useGetHsSidebarValues = () => {
       ~userHasResourceAccess,
       ~isPayoutsEnabled=payOut,
       ~userEntity,
+      ~isCurrentMerchantPlatform,
+    ),
+    default->connectors(
+      ~isLiveMode,
+      ~isFrmEnabled=frm,
+      ~isPayoutsEnabled=payOut,
+      ~isThreedsConnectorEnabled=threedsAuthenticator,
+      ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
+      ~isTaxProcessor=taxProcessor,
+      ~userHasResourceAccess,
+      ~isBillingProcessor=billingProcessor,
+      ~isVaultProcessor=vaultProcessor,
+      ~isSurchargeProcessor=surchargeProcessor,
       ~isCurrentMerchantPlatform,
     ),
     ...standardModules,

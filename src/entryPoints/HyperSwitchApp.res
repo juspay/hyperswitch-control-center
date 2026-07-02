@@ -194,9 +194,7 @@ let make = () => {
                         }
                         <div className="flex md:gap-4 gap-2 items-center">
                           {logoElement}
-                          <RenderIf condition={!isCurrentMerchantPlatform}>
-                            <ProfileSwitch />
-                          </RenderIf>
+                          <ProfileSwitch />
                           <LiveMode />
                         </div>
                       }
