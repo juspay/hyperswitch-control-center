@@ -20,7 +20,7 @@ let make = () => {
   let {analyticsEntity} = getResolvedUserInfo()
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
-  let getPaymetsDetails = async () => {
+  let getPaymentsDetails = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let infoUrl = getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Get, ~id=Some(domain))
@@ -63,7 +63,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    getPaymetsDetails()->ignore
+    getPaymentsDetails()->ignore
     None
   }, [])
 
