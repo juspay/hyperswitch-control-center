@@ -91,6 +91,28 @@ let getBrowserDetails = () => {
   }
 }
 
+// navigator.appName/appVersion are legacy and return constants (e.g. "Netscape") across modern browsers, so parse the userAgent for real name/version
+let getBrowserNameAndVersion = () => {
+  let userAgent = Window.Navigator.userAgent
+
+  let getVersion = regex =>
+    userAgent->String.match(regex)->Option.mapOr("", matches => matches->getValueFromArray(1, ""))
+
+  if userAgent->String.includes("Edg/") {
+    ("Edge", getVersion(%re("/Edg\/([\d.]+)/")))
+  } else if userAgent->String.includes("OPR/") || userAgent->String.includes("Opera") {
+    ("Opera", getVersion(%re("/(?:OPR|Opera)\/([\d.]+)/")))
+  } else if userAgent->String.includes("Chrome") {
+    ("Chrome", getVersion(%re("/Chrome\/([\d.]+)/")))
+  } else if userAgent->String.includes("Firefox") {
+    ("Firefox", getVersion(%re("/Firefox\/([\d.]+)/")))
+  } else if userAgent->String.includes("Safari") {
+    ("Safari", getVersion(%re("/Version\/([\d.]+)/")))
+  } else {
+    ("Unknown", "")
+  }
+}
+
 let getBodyForFeedBack = (~email, ~values, ~modalType=HSwitchFeedBackModalUtils.FeedBackModal) => {
   open HSwitchFeedBackModalUtils
   let valueDict = values->getDictFromJsonObject
