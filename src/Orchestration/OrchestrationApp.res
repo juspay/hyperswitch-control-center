@@ -48,6 +48,19 @@ let make = (~setScreenState) => {
           />
         </FilterContext>
       </AccessControl>
+    | list{"payment-settings", ..._} => <ConnectorContainer />
+    | list{"webhooks", ...remainingPath} =>
+      <AccessControl isEnabled={featureFlagDetails.devWebhooks} authorization=Access>
+        <FilterContext key="webhooks" index="webhooks">
+          <EntityScaffold
+            entityName="Webhooks"
+            remainingPath
+            access=Access
+            renderList={() => <Webhooks />}
+            renderShow={(id, _) => <WebhooksDetails id />}
+          />
+        </FilterContext>
+      </AccessControl>
     | list{"apm"} => <APMContainer />
     | list{"payments", ..._}
     | list{"refunds", ..._}
