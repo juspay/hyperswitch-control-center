@@ -21,7 +21,6 @@ let make = (~order: PaymentInterfaceTypes.order, ~setShowModal, ~refetch) => {
   // Full amount available to capture, in major units, used as the pre-filled value
   let amountCapturableInMajorUnits = order.amount_capturable /. conversionFactor
   let amountToCaptureField = amountFieldWithPrecision(
-    ~name="amount",
     ~precisionDigits,
     ~label="Amount to Capture",
     ~placeholder="Enter Amount to Capture",
@@ -50,8 +49,7 @@ let make = (~order: PaymentInterfaceTypes.order, ~setShowModal, ~refetch) => {
       showToast(~message="Payment captured successfully", ~toastType=ToastSuccess)
       setShowModal(_ => false)
     } catch {
-    | exn => {
-        Console.error2("Payment capture failed:", exn)
+    | _ => {
         showToast(~message="Failed to capture payment", ~toastType=ToastError)
         setIsLoading(_ => false)
         setShowModal(_ => false)
