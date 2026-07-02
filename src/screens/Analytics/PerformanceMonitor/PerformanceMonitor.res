@@ -24,6 +24,7 @@ let make = (~domain="payments") => {
   let {analyticsEntity} = getResolvedUserInfo()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
+  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
   let filterBody = (~groupBy) => {
     let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
       startTime: startTimeVal,
@@ -103,7 +104,7 @@ let make = (~domain="payments") => {
         <PageUtils.PageHeading title="Performance Monitor" subTitle="" />
         <div className="mr-5">
           <OMPSwitchHelper.OMPViews
-            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity, ~isCurrentMerchantPlatform)}
             selectedEntity={analyticsEntity}
             onChange={updateAnalytcisEntity}
             entityMapper=UserInfoUtils.analyticsEntityMapper

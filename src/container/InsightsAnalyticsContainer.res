@@ -15,6 +15,7 @@ let make = () => {
   let endTimeVal = filterValueJson->getString("endTime", "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
+  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {analyticsEntity} = getResolvedUserInfo()
   let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -162,7 +163,7 @@ let make = () => {
       </div>
       <Portal to="NewAnalyticsOMPView">
         <OMPSwitchHelper.OMPViews
-          views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+          views={OMPSwitchUtils.analyticsViewList(~checkUserEntity, ~isCurrentMerchantPlatform)}
           selectedEntity={analyticsEntity}
           onChange={updateAnalytcisEntity}
           entityMapper=UserInfoUtils.analyticsEntityMapper

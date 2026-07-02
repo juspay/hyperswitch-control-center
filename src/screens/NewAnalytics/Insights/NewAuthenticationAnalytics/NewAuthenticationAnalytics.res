@@ -37,6 +37,7 @@ let make = () => {
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {analyticsEntity} = getResolvedUserInfo()
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
+  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
 
   let loadInfo = async () => {
     try {
@@ -313,7 +314,7 @@ let make = () => {
       <div className="mt-15-px">
         <Portal to="NewAnalyticsOMPView">
           <OMPSwitchHelper.OMPViews
-            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity, ~isCurrentMerchantPlatform)}
             selectedEntity={analyticsEntity}
             onChange={updateAnalytcisEntity}
             entityMapper=UserInfoUtils.analyticsEntityMapper

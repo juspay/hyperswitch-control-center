@@ -16,6 +16,7 @@ let make = () => {
   let (dimensions, setDimensions) = React.useState(_ => [])
   let fetchDetails = useGetMethod()
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
+  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {analyticsEntity} = getResolvedUserInfo()
   let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -252,7 +253,7 @@ let make = () => {
         <PageUtils.PageHeading title />
         <Portal to="PaymentAnalyticsOMPView">
           <OMPSwitchHelper.OMPViews
-            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity, ~isCurrentMerchantPlatform)}
             selectedEntity={analyticsEntity}
             onChange={updateAnalytcisEntity}
             entityMapper=UserInfoUtils.analyticsEntityMapper

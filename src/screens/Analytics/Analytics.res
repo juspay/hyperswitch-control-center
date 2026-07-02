@@ -491,6 +491,7 @@ let make = (
     FilterContext.filterContext,
   )
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
 
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
   let (filteredTabKeys, filteredTabVales) = (tabKeys, tabValues)
@@ -707,7 +708,10 @@ let make = (
           <div className="mr-4">
             <RenderIf condition={moduleName == "Refunds" || moduleName == "Disputes"}>
               <OMPSwitchHelper.OMPViews
-                views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+                views={OMPSwitchUtils.analyticsViewList(
+                  ~checkUserEntity,
+                  ~isCurrentMerchantPlatform,
+                )}
                 selectedEntity={analyticsEntity}
                 onChange={updateAnalytcisEntity}
                 entityMapper=UserInfoUtils.analyticsEntityMapper

@@ -6,6 +6,7 @@ let make = () => {
 
   let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
+  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {analyticsEntity} = getResolvedUserInfo()
   let url = RescriptReactRouter.useUrl()
@@ -83,7 +84,7 @@ let make = () => {
       </div>
       <div className="mt-2">
         <OMPSwitchHelper.OMPViews
-          views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+          views={OMPSwitchUtils.analyticsViewList(~checkUserEntity, ~isCurrentMerchantPlatform)}
           selectedEntity={analyticsEntity}
           onChange={updateAnalytcisEntity}
           entityMapper=UserInfoUtils.analyticsEntityMapper
