@@ -9,6 +9,13 @@ let expectedColor = "#4A90E2"
 let missingColor = "#D4A032"
 let matchRateColor = "#8B72CC"
 
+let lessThan24HrsColor = "#CBD5E1"
+let oneToThreeDaysColor = "#FCA5A5"
+let threeToSevenDaysColor = "#F87171"
+let greaterThanSevenDaysColor = "#DC2626"
+
+let triageColors = ["#8B97A8", "#E8956A", "#5BAD91", "#4A90E2", "#C87880", "#7BABC8", "#D4AA55"]
+
 let roundCurrency = (value: float, currency: string): float => {
   let precision = CurrencyUtils.getAmountPrecisionDigits(currency)
   let factor = Math.pow(10.0, ~exp=precision->Int.toFloat)
@@ -795,6 +802,141 @@ let getOpenExceptions = (
   txnExceptions + processingEntries->Array.length
 }
 
+let getExceptionCountFromBreakdown = (
+  statusBreakdown: array<ReconEngineTypes.overviewRuleStatusBreakdown>,
+) =>
+  statusBreakdown->Array.reduce(0, (statusAcc, status) =>
+    switch status.status {
+    | OverAmount(Expected)
+    | UnderAmount(Expected)
+    | OverAmount(Mismatch)
+    | UnderAmount(Mismatch)
+    | DataMismatch
+    | CurrencyMismatch
+    | SplitMismatch
+    | PartiallyReconciled
+    | Missing =>
+      statusAcc + status.count
+    | _ => statusAcc
+    }
+  )
+
+let getExceptionCount = (~overviewRules: array<overviewRulesResponse>) =>
+  overviewRules->Array.reduce(0, (acc, rule) =>
+    acc + getExceptionCountFromBreakdown(rule.status_breakdown)
+  )
+
+let exceptionAgingBucketConfig = [
+  ("< 24h", lessThan24HrsColor),
+  ("1–3 days", oneToThreeDaysColor),
+  ("3–7 days", threeToSevenDaysColor),
+  ("> 7 days", greaterThanSevenDaysColor),
+]
+
+let getAgingBucketIndex = (~bucketStartTime: string) => {
+  let now = DayJs.getDayJs()
+  let hoursAgo = now.diff(bucketStartTime, "hour")
+  if hoursAgo < 24 {
+    0
+  } else if hoursAgo < 24 * 3 {
+    1
+  } else if hoursAgo < 24 * 7 {
+    2
+  } else {
+    3
+  }
+}
+
+let getExceptionAgingDataFromTimeSeries = (
+  ~overviewRules: array<overviewRulesTimeSeriesResponse>,
+): array<exceptionAgingData> => {
+  let contributions =
+    overviewRules->Array.flatMap(rule =>
+      rule.time_series->Array.map(bucket => (
+        getAgingBucketIndex(~bucketStartTime=bucket.time_range.start_time),
+        getExceptionCountFromBreakdown(bucket.status_breakdown),
+      ))
+    )
+
+  exceptionAgingBucketConfig->Array.mapWithIndex(((label, color), index): exceptionAgingData => {
+    label,
+    color,
+    total: contributions->Array.reduce(0, (acc, (i, count)) => i == index ? acc + count : acc),
+  })
+}
+
+let getExceptionTriageItems = (~overviewRules: array<overviewRulesResponse>): array<
+  exceptionTriageItem,
+> => {
+  let counts = Dict.make()
+  let add = (label, count) => counts->Dict.set(label, counts->getValueFromDict(label, 0) + count)
+
+  overviewRules->Array.forEach(rule =>
+    rule.status_breakdown->Array.forEach(status =>
+      switch status.status {
+      | DataMismatch => add("Data mismatch", status.count)
+      | UnderAmount(_) => add("Under amount", status.count)
+      | OverAmount(_) => add("Over amount", status.count)
+      | Missing => add("Missing", status.count)
+      | SplitMismatch => add("Split mismatch", status.count)
+      | CurrencyMismatch => add("Currency mismatch", status.count)
+      | PartiallyReconciled => add("Partially reconciled", status.count)
+      | _ => ()
+      }
+    )
+  )
+
+  counts
+  ->Dict.toArray
+  ->Array.map(((label, total)): exceptionTriageItem => {label, total})
+  ->Array.filter(item => item.total > 0)
+  ->Array.toSorted((a, b) => Int.compare(b.total, a.total))
+}
+
+let getStagingTriageItems = (~processingEntries: array<processingEntryType>): array<
+  exceptionTriageItem,
+> => {
+  let counts = Dict.make()
+  processingEntries->Array.forEach(entry => {
+    let label = (entry.data.needs_manual_review_type :> string)->snakeToTitle
+    counts->Dict.set(label, counts->getValueFromDict(label, 0) + 1)
+  })
+
+  counts
+  ->Dict.toArray
+  ->Array.map(((label, total)): exceptionTriageItem => {label, total})
+  ->Array.toSorted((a, b) => Int.compare(b.total, a.total))
+}
+
+let getTriageColor = index =>
+  triageColors->getValueFromArray(mod(index, triageColors->Array.length), exceptionColor)
+
+let exceptionTriageTooltipFormatter = (~totalCount) =>
+  (
+    @this
+    (this: PieGraphTypes.pointFormatter) => {
+      let pct =
+        (totalCount > 0 ? this.y /. totalCount->Int.toFloat *. 100.0 : 0.0)->valueFormatter(Rate)
+      `<div style="min-width:190px;max-width:260px;border-radius:12px;background:#1A1F2E;box-shadow:0 8px 24px rgba(0,0,0,.25);overflow:hidden;">
+        <div style="padding:10px 14px;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+            <div style="display:flex;align-items:flex-start;gap:7px;min-width:0;flex:1;">
+              <span style="width:8px;height:8px;border-radius:2px;background:${this.color};flex-shrink:0;margin-top:4px;"></span>
+              <span style="font-size:12px;color:rgba(255,255,255,.7);word-break:break-word;">${this.point.name}</span>
+            </div>
+            <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,.9);flex-shrink:0;">${this.y
+        ->Float.toInt
+        ->Int.toString}</span>
+          </div>
+          <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:0.4px;">exceptions</span>
+            <span style="font-size:11px;font-weight:600;color:${this.color};">${pct}</span>
+          </div>
+        </div>
+      </div>`
+    }
+  )->PieGraphTypes.asTooltipPointFormatter
+
 let getValueAtRisk = (~overviewRules: array<overviewRulesResponse>) =>
   overviewRules->Array.reduce(0.0, (acc, rule) => {
     let valueAtRisk = rule.status_breakdown->Array.reduce(0.0, (statusAcc, status) => {
@@ -1116,7 +1258,7 @@ let overviewChartTooltipFormatter = (~points: array<overviewChartPoint>) =>
       }
       let hoveredIndex = (this.points->getValueFromArray(0, defaultPoint)).point.index
       let point = points->getValueFromArray(hoveredIndex, defaultChartPoint)
-      let percentage = point.matchRate->Float.toFixedWithPrecision(~digits=2)->removeTrailingZero
+      let percentage = point.matchRate->valueFormatter(Rate)
 
       let statusRows =
         overviewChartStatusConfig
@@ -1145,7 +1287,7 @@ let overviewChartTooltipFormatter = (~points: array<overviewChartPoint>) =>
           ${statusRows}
           <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:8px;margin-top:4px;display:flex;align-items:center;justify-content:space-between;">
             <span style="font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:0.4px;">Match rate</span>
-            <span style="font-size:13px;font-weight:700;color:${matchRateColor};">${percentage}%</span>
+            <span style="font-size:13px;font-weight:700;color:${matchRateColor};">${percentage}</span>
           </div>
         </div>
       </div>`
@@ -1204,6 +1346,57 @@ let getOverviewChartOptions = (
       floating: false,
       itemDistance: 24,
       margin: 24,
+    },
+  }
+}
+
+let getExceptionTriagePieOptions = (
+  ~items: array<exceptionTriageItem>,
+  ~totalCount: int,
+): PieGraphTypes.pieGraphOptions<int> => {
+  let data = items->Array.mapWithIndex((item, index) => {
+    let point: PieGraphTypes.pieGraphDataType = {
+      name: item.label,
+      y: item.total->Int.toFloat,
+      color: getTriageColor(index),
+    }
+    point
+  })
+
+  let payload: PieGraphTypes.pieGraphPayload<int> = {
+    data: [
+      {
+        \"type": "pie",
+        innerSize: "72%",
+        showInLegend: false,
+        name: "Exception triage",
+        data,
+      },
+    ],
+    title: {text: ""},
+    tooltipFormatter: exceptionTriageTooltipFormatter(~totalCount),
+    legendFormatter: PieGraphUtils.pieGraphLegendFormatter(),
+    chartSize: "88%",
+    startAngle: 0,
+    endAngle: 360,
+    legend: {enabled: false},
+  }
+
+  let options = payload->PieGraphUtils.getPieChartOptions
+  {
+    ...options,
+    chart: {...options.chart, width: 220, height: 220},
+    tooltip: ?options.tooltip->Option.map(t => {...t, outside: true}),
+    title: {
+      text: `<div style="display:flex;flex-direction:column;align-items:center;">
+        <span style="font-size:22px;font-weight:600;color:#1F2937;line-height:26px;">${totalCount->formatNumber}</span>
+        <span style="font-size:11px;font-weight:400;color:#667085;line-height:16px;">exceptions</span>
+      </div>`,
+      align: "center",
+      verticalAlign: "middle",
+      y: 8,
+      x: 0,
+      useHTML: true,
     },
   }
 }
