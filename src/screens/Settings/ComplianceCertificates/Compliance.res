@@ -22,17 +22,17 @@ module DownloadCertificateTile = {
 let make = () => {
   let showToast = ToastAdapter.useShowToast()
   let fetchApi = AuthHooks.useApiFetcher()
-  let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
+  let (usButtonState, setUsButtonState) = React.useState(_ => Button.Normal)
+  let (euButtonState, setEuButtonState) = React.useState(_ => Button.Normal)
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let downloadPDF = _ => {
+
+  let downloadPDF = (~downloadURL, ~region, ~setButtonState) => _ => {
     setButtonState(_ => Button.Loading)
     let currentDate =
       Date.now()
       ->Js.Date.fromFloat
       ->Date.toISOString
       ->TimeZoneHook.formattedISOString("YYYY-MM-DD HH:mm:ss")
-
-    let downloadURL = Window.env.dssCertificateUrl->Option.getOr("")
 
     // For local testing this condition is added
     if downloadURL->LogicUtils.isNonEmptyString {
@@ -43,13 +43,13 @@ let make = () => {
       })
       ->then(content => {
         DownloadUtils.download(
-          ~fileName=`HyperswitchPCICertificate-${currentDate}.pdf`,
+          ~fileName=`Hyperswitch-PCICertificate-${region}-${currentDate}.pdf`,
           ~content,
           ~fileType="application/pdf",
         )
         showToast(
           ~toastType=ToastSuccess,
-          ~message="PCI Attestation of Compliance certificate download complete",
+          ~message=`${region} PCI Attestation of Compliance certificate download complete`,
         )
 
         resolve()
@@ -69,14 +69,36 @@ let make = () => {
     }
   }
 
+  let usCertificateUrl = Window.env.dssCertificateUsUrl->Option.getOr("")
+  let euCertificateUrl = Window.env.dssCertificateEuUrl->Option.getOr("")
+
   <div className="flex flex-col gap-12">
     <PageUtils.PageHeading
       title="Compliance" subTitle="Achieve and Maintain Industry Compliance Standards"
     />
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
-      <DownloadCertificateTile
-        header="Hyperswitch's PCI Attestation of Compliance" onClick=downloadPDF buttonState
-      />
+      <RenderIf condition={usCertificateUrl->LogicUtils.isNonEmptyString}>
+        <DownloadCertificateTile
+          header="Hyperswitch's PCI Attestation of Compliance (US)"
+          onClick={downloadPDF(
+            ~downloadURL=usCertificateUrl,
+            ~region="US",
+            ~setButtonState=setUsButtonState,
+          )}
+          buttonState=usButtonState
+        />
+      </RenderIf>
+      <RenderIf condition={euCertificateUrl->LogicUtils.isNonEmptyString}>
+        <DownloadCertificateTile
+          header="Hyperswitch's PCI Attestation of Compliance (EU)"
+          onClick={downloadPDF(
+            ~downloadURL=euCertificateUrl,
+            ~region="EU",
+            ~setButtonState=setEuButtonState,
+          )}
+          buttonState=euButtonState
+        />
+      </RenderIf>
     </div>
   </div>
 }
