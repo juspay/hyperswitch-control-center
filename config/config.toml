@@ -13,6 +13,7 @@ agreement_version=""
 dynamo_simulation_template_url=""
 [default.features]
 branding=false
+connector_clone=false
 mixpanel=false
 test_live_toggle=false
 is_live_mode=false
@@ -97,6 +98,9 @@ paymentProcessors = ["adyen","authorizedotnet","archipel","airwallex","bankofame
 threedsAuthProcessors = ["netcetera","juspaythreedsserver","ctp_visa"]
 payoutProcessors = ["adyen","adyenplatform","cybersource","ebanx","paypal","stripe","wise","nomupay","nuvei","gigadat","loonio","worldpay","worldpayxml"]
 vaultProcessors = ["vgs"]
+
+[default.connector_clone]
+paymentProcessors = ["peachpayments"]
 
 [default.merchant_config]
 [default.merchant_config.allowlist]

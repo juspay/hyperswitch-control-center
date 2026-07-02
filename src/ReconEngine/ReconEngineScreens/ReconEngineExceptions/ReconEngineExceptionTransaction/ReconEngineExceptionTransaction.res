@@ -77,6 +77,8 @@ let make = (~ruleId: string) => {
         UnderAmount(Expected),
         DataMismatch,
         PartiallyReconciled,
+        CurrencyMismatch,
+        SplitMismatch,
       ])
       if statusFilter->Array.length === 0 {
         enhancedFilterValueJson->Dict.set("status", statusList->getJsonFromArrayOfString)
