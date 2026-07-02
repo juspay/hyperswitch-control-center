@@ -15,7 +15,7 @@ let make = () => {
         let res = await updateDetails(url, JSON.Encode.object(Dict.make()), Post)
         let handoffUrl = res->getDictFromJsonObject->getString("handoff_url", "")
         if handoffUrl->String.length > 0 {
-          Window.Location.assign(handoffUrl)
+          handoffUrl->Window._open
         }
       } catch {
       | Exn.Error(_) =>
