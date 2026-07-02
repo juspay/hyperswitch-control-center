@@ -1238,13 +1238,13 @@ test.describe("All Payin Connectors", () => {
       await expect(
         page.getByTestId(
           connector.fields.overrides["Enter Connector label"] ||
-            connector.label,
+          connector.label,
         ),
       ).toBeVisible();
       await page
         .getByTestId(
           connector.fields.overrides["Enter Connector label"] ||
-            connector.label,
+          connector.label,
         )
         .click();
     });
@@ -1611,7 +1611,7 @@ test.describe("All Payin Connectors", () => {
 
     await expect(
       page.getByText(
-        "Bank TransferThe following payment method types require additional detailsPix EmvPix Automatico PushPix Automatico Qr",
+        "Bank TransferThe following payment method types require additional detailsPix QrPix Automatico PushPix Automatico Qr",
       ),
     ).toBeVisible();
     await expect(
@@ -1622,7 +1622,7 @@ test.describe("All Payin Connectors", () => {
 
     await page
       .locator("div")
-      .filter({ hasText: /^Pix Emv$/ })
+      .filter({ hasText: /^Pix Qr$/ })
       .nth(1)
       .click();
     await expect(page.getByText("Client ID *").first()).toBeVisible();
