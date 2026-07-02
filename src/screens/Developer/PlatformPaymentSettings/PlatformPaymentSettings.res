@@ -48,7 +48,7 @@ module PaymentBehaviour = {
         <div className="ml-1 mt-4">
           <FieldRenderer
             field={webhookUrl}
-            labelClass={body.lg.semibold ++ "!text-nd-gray-700"}
+            labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
             fieldWrapperClass="max-w-xl"
           />
         </div>
