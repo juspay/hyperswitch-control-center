@@ -206,7 +206,7 @@ module SmartRetryToggle = {
 
     <div
       className="w-fit px-3 py-2 border rounded-lg bg-white gap-2 items-center h-fit inline-flex whitespace-pre leading-5 justify-center">
-      <BoolInput.BaseComponent
+      <SwitchAdapter
         isSelected={isEnabled}
         setIsSelected={onClick}
         isDisabled=isSampleDataEnabled
@@ -265,7 +265,7 @@ module SampleDataBanner = {
         </div>
         <div className="flex flex-row gap-4 items-center">
           <p className={`${body.md.semibold}`}> {toggleText->React.string} </p>
-          <BoolInput.BaseComponent
+          <SwitchAdapter
             isSelected={isSampleModeEnabled}
             setIsSelected=handleToggleChange
             isDisabled=false

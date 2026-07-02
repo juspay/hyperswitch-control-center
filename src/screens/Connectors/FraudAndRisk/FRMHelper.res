@@ -51,7 +51,7 @@ let customAuthTypeInput = (
     setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
   }
 
-  <BoolInput.BaseComponent
+  <SwitchAdapter
     isSelected={isEnabled}
     setIsSelected={handleToggle}
     isDisabled=false

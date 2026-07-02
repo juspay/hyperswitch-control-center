@@ -162,7 +162,7 @@ let customExternalVaultEnabled = (
     }
   }
 
-  <BoolInput.BaseComponent
+  <SwitchAdapter
     isSelected={currentValue}
     setIsSelected={handleChange}
     isDisabled=false
