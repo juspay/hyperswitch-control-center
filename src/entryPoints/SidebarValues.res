@@ -18,13 +18,6 @@ let emptyComponent = CustomComponent({
   component: React.null,
 })
 
-let launchSage = isEnabled =>
-  isEnabled
-    ? CustomComponent({
-        component: <LaunchSageButton />,
-      })
-    : emptyComponent
-
 // * Main Features
 
 let home = isHomeEnabled =>
