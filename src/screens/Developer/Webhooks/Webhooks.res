@@ -16,6 +16,8 @@ let make = () => {
   let {updateExistingKeys, filterValueJson, reset} = FilterContext.filterContext->React.useContext
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
   let (searchText, setSearchText) = React.useState(_ => "")
   let lastFiltersSignature = React.useRef("")
 
@@ -102,6 +104,11 @@ let make = () => {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
   }
+
+  React.useEffect(() => {
+    fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
+    None
+  }, [])
 
   React.useEffect(() => {
     if filterValueJson->isEmptyDict {
