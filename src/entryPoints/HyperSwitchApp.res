@@ -150,6 +150,9 @@ let make = () => {
                           <RenderIf condition={isInternalUser}>
                             <SwitchMerchantForInternal />
                           </RenderIf>
+                          <RenderIf condition={featureFlagDetails.devLaunchSage}>
+                            <LaunchSageButton />
+                          </RenderIf>
                           <RenderIf
                             condition={featureFlagDetails.devAiChatBot &&
                             // TODO: Remove `MerchantDetailsView` permission in future
