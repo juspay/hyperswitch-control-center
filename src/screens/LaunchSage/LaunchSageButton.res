@@ -1,5 +1,7 @@
 open Typography
 
+let emptyBody = JSON.Encode.object(Dict.make())
+
 @react.component
 let make = () => {
   open APIUtils
@@ -14,9 +16,9 @@ let make = () => {
       setLoading(_ => true)
       try {
         let url = getURL(~entityName=V1(USERS), ~userType=#LAUNCH_SAGE, ~methodType=Post)
-        let res = await updateDetails(url, JSON.Encode.object(Dict.make()), Post)
+        let res = await updateDetails(url, emptyBody, Post)
         let handoffUrl = res->getDictFromJsonObject->getString("handoff_url", "")
-        if handoffUrl->String.length > 0 {
+        if handoffUrl->isNonEmptyString {
           handoffUrl->Window._open
         }
       } catch {
@@ -38,12 +40,9 @@ let make = () => {
       ~padding="1px",
       (),
     )}>
-    <div
-      className="flex items-center gap-2 px-3 py-2 bg-nd_gray-100 dark:bg-gray-900 rounded-xl">
+    <div className="flex items-center gap-2 px-3 py-2 bg-nd_gray-100 dark:bg-gray-900 rounded-xl">
       <Icon name="stars" size=20 customIconColor="text-blue-500" />
-      <span className={`${body.md.semibold} text-blue-500`}>
-        {"Ask Sage"->React.string}
-      </span>
+      <span className={`${body.md.semibold} text-blue-500`}> {"Ask Sage"->React.string} </span>
     </div>
     <style>
       {React.string(
