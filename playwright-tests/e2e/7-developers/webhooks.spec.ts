@@ -42,67 +42,72 @@ test.describe("Webhooks page", () => {
     });
   });
 
-  test.fixme("should create a webhook endpoint via Add Endpoint modal", async ({
-    page,
-  }) => {
-    const webhooks = new Webhooks(page);
-    const addWebhookButton = webhooks.addEndpointButton;
+  test.fixme(
+    "should create a webhook endpoint via Add Endpoint modal",
+    async ({ page }) => {
+      const webhooks = new Webhooks(page);
+      const addWebhookButton = webhooks.addEndpointButton;
 
-    await addWebhookButton.click();
+      await addWebhookButton.click();
 
-    await webhooks.urlInput.fill("https://example.com/webhooks/hyperswitch");
-    await webhooks.descriptionInput.fill("Production webhook endpoint");
+      await webhooks.urlInput.fill("https://example.com/webhooks/hyperswitch");
+      await webhooks.descriptionInput.fill("Production webhook endpoint");
 
-    await webhooks.saveWebhookButton.click();
-    await expect(webhooks.successOrCreatedToast).toBeVisible({
-      timeout: 10000,
-    });
-  });
+      await webhooks.saveWebhookButton.click();
+      await expect(webhooks.successOrCreatedToast).toBeVisible({
+        timeout: 10000,
+      });
+    },
+  );
 
-  test.fixme("should subscribe to event types via checkbox list", async ({
-    page,
-  }) => {
-    const webhooks = new Webhooks(page);
-    const eventCheckbox = webhooks.firstEventCheckbox;
+  test.fixme(
+    "should subscribe to event types via checkbox list",
+    async ({ page }) => {
+      const webhooks = new Webhooks(page);
+      const eventCheckbox = webhooks.firstEventCheckbox;
 
-    await eventCheckbox.check();
+      await eventCheckbox.check();
 
-    const saveButton = webhooks.saveEventsButton;
-    await saveButton.click();
-  });
+      const saveButton = webhooks.saveEventsButton;
+      await saveButton.click();
+    },
+  );
 
-  test.fixme("should accept retry attempts and interval values", async ({
-    page,
-  }) => {
-    const webhooks = new Webhooks(page);
-    const retryAttempts = webhooks.retryAttemptsInput;
+  test.fixme(
+    "should accept retry attempts and interval values",
+    async ({ page }) => {
+      const webhooks = new Webhooks(page);
+      const retryAttempts = webhooks.retryAttemptsInput;
 
-    await retryAttempts.fill("3");
+      await retryAttempts.fill("3");
 
-    const retryInterval = webhooks.retryIntervalInput;
+      const retryInterval = webhooks.retryIntervalInput;
 
-    await webhooks.saveRetryPolicyButton.click();
-  });
+      await webhooks.saveRetryPolicyButton.click();
+    },
+  );
 
-  test.fixme("should switch to Logs tab and render log rows or empty state", async ({
-    page,
-  }) => {
-    const webhooks = new Webhooks(page);
-    const logsTab = webhooks.logsTab;
+  test.fixme(
+    "should switch to Logs tab and render log rows or empty state",
+    async ({ page }) => {
+      const webhooks = new Webhooks(page);
+      const logsTab = webhooks.logsTab;
 
-    await logsTab.click();
-    await page.waitForTimeout(500);
-    expect(page.url()).toContain("/dashboard");
-  });
+      await logsTab.click();
+      await page.waitForTimeout(500);
+      expect(page.url()).toContain("/dashboard");
+    },
+  );
 
-  test.fixme("should toggle a webhook endpoint off and emit a disabled/updated toast", async ({
-    page,
-  }) => {
-    const webhooks = new Webhooks(page);
-    const toggle = webhooks.endpointToggle;
-    await toggle.uncheck();
-    await expect(webhooks.disabledOrUpdatedToast).toBeVisible({
-      timeout: 10000,
-    });
-  });
+  test.fixme(
+    "should toggle a webhook endpoint off and emit a disabled/updated toast",
+    async ({ page }) => {
+      const webhooks = new Webhooks(page);
+      const toggle = webhooks.endpointToggle;
+      await toggle.uncheck();
+      await expect(webhooks.disabledOrUpdatedToast).toBeVisible({
+        timeout: 10000,
+      });
+    },
+  );
 });
