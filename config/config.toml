@@ -99,6 +99,16 @@ threedsAuthProcessors = ["netcetera","juspaythreedsserver","ctp_visa"]
 payoutProcessors = ["adyen","adyenplatform","cybersource","ebanx","paypal","stripe","wise","nomupay","nuvei","gigadat","loonio","worldpay","worldpayxml"]
 vaultProcessors = ["vgs"]
 
+[default.connector_list_for_sandbox]
+paymentProcessors = ["stripe","paypal","aci","adyen","affirm","airwallex","authorizedotnet","bankofamerica","bambora","billwerk","bitpay","blackhawknetwork","bluesnap","braintree","cashtocode","checkbook","checkout","coinbase","coingate","cryptopay","cybersource","datatrans","dlocal","dwolla","elavon","fiserv","fiservemea","forte","globalpay","globepay","gocardless","helcim","iatapay","klarna","mifinity","mollie","multisafepay","nexinets","nmi","noon","nuvei","opennode","payjustnow","payme","payu","peachpayments","powertranz","prophetpay","rapyd","shift4","stax","trustpay","tsys","volt","worldline","worldpay","worldpayxml","zen","zsl","placetopay","razorpay","bamboraapac","itaubank","plaid","square","paybox","fiuu","wellsfargo","novalnet","deutschebank","nexixpay","nordea","jpmorgan","xendit","inespay","moneris","redsys","hipay","paystack","facilitapay","archipel","authipay","worldpayvantiv","barclaycard","silverflow","tokenio","payload","paytm","phonepe","flexiti","breadpay","calida","paysafe","gigadat","loonio","tesouro","finix","zift","payjustnowinstore","fiservcommercehub","amazonpay","worldpaymodular","santander","revolv3","truelayer","trustly","imerchantsolutions","payconex"]
+threedsAuthProcessors = ["threedsecureio","netcetera","ctp_mastercard","juspaythreedsserver","ctp_visa","cardinal"]
+payoutProcessors = ["adyen","adyenplatform","cybersource","ebanx","itaubank","paypal","stripe","wise","nomupay","nuvei","gigadat","loonio","worldpay","worldpayxml","truelayer","envoy","trustly"]
+vaultProcessors = ["vgs"]
+pmAuthProcessors = ["plaid"]
+billingProcessors = ["chargebee"]
+surchargeProcessors = ["interpayments"]
+taxProcessors = ["taxjar"]
+
 [default.connector_clone]
 paymentProcessors = ["peachpayments"]
 
