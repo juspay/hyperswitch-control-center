@@ -1,6 +1,8 @@
 @react.component
 let make = () => {
   let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=TaxProcessor)
+  let {taxProcessorsSandboxList} =
+    HyperswitchAtom.connectorListForSandboxAtom->Recoil.useRecoilValueFromAtom
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -85,7 +87,7 @@ let make = () => {
             ConnectorTypes.TaxProcessor,
             configuredConnectors,
           )}
-          connectorsAvailableForIntegration=ConnectorUtils.taxProcessorList
+          connectorsAvailableForIntegration={taxProcessorsSandboxList}
           urlPrefix="tax-processor/new"
           connectorType=ConnectorTypes.TaxProcessor
         />

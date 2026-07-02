@@ -163,6 +163,13 @@ const configHandler = async (
         "connector_list_for_live",
       );
     }
+    if (merchantConfig && merchantConfig["connector_list_for_sandbox"]) {
+      merchantConfig["connector_list_for_sandbox"] = updateConnectorListWithEnv(
+        merchantConfig["connector_list_for_sandbox"],
+        domain,
+        "connector_list_for_sandbox",
+      );
+    }
     if (merchantConfig && merchantConfig["connector_clone"]) {
       merchantConfig["connector_clone"] = updateConnectorListWithEnv(
         merchantConfig["connector_clone"],

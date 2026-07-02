@@ -38,10 +38,16 @@ let featureFlagAtom: Recoil.recoilAtom<FeatureFlagUtils.featureFlag> = Recoil.at
   JSON.Encode.null->FeatureFlagUtils.featureFlagType,
 )
 let connectorListForLiveAtom: Recoil.recoilAtom<
-  ConnectorListForLiveFromConfigTypes.connectorListForLive,
+  ConnectorListFromConfigTypes.connectorListForLive,
 > = Recoil.atom(
   "connectorListForLive",
-  JSON.Encode.null->ConnectorListForLiveFromConfigUtils.getConnectorListForLive,
+  JSON.Encode.null->ConnectorListFromConfigUtils.getConnectorListForLive,
+)
+let connectorListForSandboxAtom: Recoil.recoilAtom<
+  ConnectorListFromConfigTypes.connectorListForSandbox,
+> = Recoil.atom(
+  "connectorListForSandbox",
+  JSON.Encode.null->ConnectorListFromConfigUtils.getConnectorListForSandbox,
 )
 let connectorCloneAllowListAtom: Recoil.recoilAtom<array<string>> = Recoil.atom(
   "connectorCloneAllowList",
