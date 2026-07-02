@@ -625,13 +625,13 @@ let developers = (
   ~isCurrentMerchantPlatform,
 ) => {
   let apiKeys = apiKeys(userHasResourceAccess)
+  let webhooks = webhooks(userHasResourceAccess)
+  let paymentSettings = paymentSettings(userHasResourceAccess)
 
   let links = if isCurrentMerchantPlatform {
-    [apiKeys]
+    [paymentSettings, apiKeys, webhooks]
   } else {
     let isProfileUser = checkUserEntity([#Profile])
-    let paymentSettings = paymentSettings(userHasResourceAccess)
-    let webhooks = webhooks(userHasResourceAccess)
 
     let defaultDevelopersOptions = [paymentSettings]
 
