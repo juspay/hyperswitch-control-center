@@ -59,14 +59,6 @@ let useGetHsSidebarValues = () => {
           ~isVaultProcessor=vaultProcessor,
           ~isSurchargeProcessor=surchargeProcessor,
         ),
-        default->analytics(
-          disputeAnalytics,
-          performanceMonitorFlag,
-          isNewAnalyticsEnable,
-          routingAnalytics,
-          ~authenticationAnalyticsFlag=authenticationAnalytics,
-          ~userHasResourceAccess,
-        ),
         default->workflow(
           isSurchargeEnabled,
           threedsExemptionRules,
@@ -88,6 +80,14 @@ let useGetHsSidebarValues = () => {
       ~isCurrentMerchantPlatform,
     ),
     ...standardModules,
+    default->analytics(
+      disputeAnalytics,
+      performanceMonitorFlag,
+      isNewAnalyticsEnable,
+      routingAnalytics,
+      ~authenticationAnalyticsFlag=authenticationAnalytics,
+      ~userHasResourceAccess,
+    ),
     default->developers(
       ~isWebhooksEnabled=devWebhooks,
       ~userHasResourceAccess,

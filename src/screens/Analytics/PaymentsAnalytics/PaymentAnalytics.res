@@ -16,12 +16,14 @@ let make = () => {
   let (dimensions, setDimensions) = React.useState(_ => [])
   let fetchDetails = useGetMethod()
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
+  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {analyticsEntity} = getResolvedUserInfo()
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
-  let loadInfo = async () => {
+  let getPaymentsDetails = async () => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let infoUrl = getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Get, ~id=Some(domain))
       let infoDetails = await fetchDetails(infoUrl)
       // Need to be removed
@@ -33,23 +35,6 @@ let make = () => {
       setMetrics(_ => ignoreSessionizedPayment)
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
       setScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    | Exn.Error(e) =>
-      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      setScreenState(_ => PageLoaderWrapper.Error(err))
-    }
-  }
-  let getPaymetsDetails = async () => {
-    try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let paymentUrl = getURL(~entityName=V1(ORDERS), ~methodType=Get)
-      let paymentDetails = await fetchDetails(paymentUrl)
-      let data = paymentDetails->getDictFromJsonObject->getArrayFromDict("data", [])
-      if data->Array.length < 0 {
-        setScreenState(_ => PageLoaderWrapper.Custom)
-      } else {
-        await loadInfo()
-      }
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
@@ -79,7 +64,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    getPaymetsDetails()->ignore
+    getPaymentsDetails()->ignore
     None
   }, [])
 
@@ -268,13 +253,14 @@ let make = () => {
         <PageUtils.PageHeading title />
         <Portal to="PaymentAnalyticsOMPView">
           <OMPSwitchHelper.OMPViews
-            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity, ~isCurrentMerchantPlatform)}
             selectedEntity={analyticsEntity}
             onChange={updateAnalytcisEntity}
             entityMapper=UserInfoUtils.analyticsEntityMapper
           />
         </Portal>
       </div>
+      <HSAnalyticsUtils.PlatformAggregatedDataBanner />
       <div
         className="-ml-1 sticky top-0 z-30 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
         topFilterUi
