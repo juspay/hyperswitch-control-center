@@ -44,7 +44,7 @@ pm_authentication_processor=true
 tax_processor=true
 billing_processor=true
 vault_processor=true
-surcharge_processor=false
+surcharge_processor=true
 dispute_analytics=false
 authentication_analytics=false
 performance_monitor=false
@@ -90,7 +90,7 @@ dev_opensearch=false
 dev_vault=true
 dev_users=true
 dev_blend_enabled=false
-dev_sort_enabled=false
+dev_sort_enabled=true
 dev_saved_views=false
 dev_clickhouse_aggregate=false
 [default.connector_list_for_live]
