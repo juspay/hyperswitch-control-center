@@ -37,7 +37,6 @@ let make = () => {
 
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let {logoURL} = React.useContext(ThemeProvider.themeContext)
-  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
   let hyperSwitchAppSidebars = SidebarHooks.useGetSidebarValuesForCurrentActive()
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
