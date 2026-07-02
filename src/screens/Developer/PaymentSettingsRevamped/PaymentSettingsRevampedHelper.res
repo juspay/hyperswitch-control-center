@@ -186,12 +186,9 @@ let refundStatusOptions = ["failure", "success"]
 
 let payoutStatusOptions = ["success", "failed", "cancelled", "initiated", "expired", "reversed"]
 
-let makeDropdownOptions = options =>
-  options->Array.map((item): SelectBox.dropdownOption => {
-    {
-      label: item->LogicUtils.snakeToTitle,
-      value: item,
-    }
+let makeDropdownOptions = (options: array<string>) =>
+  options->Array.map(item => {
+    ({label: item->LogicUtils.snakeToTitle, value: item}: SelectBox.dropdownOption)
   })
 
 let paymentStatusesEnabled = FormRenderer.makeFieldInfo(
