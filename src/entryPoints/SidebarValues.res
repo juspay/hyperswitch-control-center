@@ -18,6 +18,17 @@ let emptyComponent = CustomComponent({
   component: React.null,
 })
 
+// Federated Trace launcher — mints a Hyperswitch BE session via
+// `POST /user/launch_sage` and full-page-navigates the browser to the
+// returned handoff URL. Gated by `dev_launch_sage` feature flag; the
+// button hides itself when HS BE returns 404 (flag off server-side).
+let launchSage = isEnabled =>
+  isEnabled
+    ? CustomComponent({
+        component: <LaunchSageButton />,
+      })
+    : emptyComponent
+
 // * Main Features
 
 let home = isHomeEnabled =>

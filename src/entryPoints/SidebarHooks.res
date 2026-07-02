@@ -36,6 +36,7 @@ let useGetHsSidebarValues = () => {
     devTheme,
     devVault,
     devUsers,
+    devLaunchSage,
   } = featureFlagDetails
   let {
     isFeatureEnabledForDenyListMerchant,
@@ -105,6 +106,7 @@ let useGetHsSidebarValues = () => {
       ~devThemeEnabled=devTheme,
       ~devUsers,
     ),
+    launchSage(devLaunchSage),
   ]
 }
 
