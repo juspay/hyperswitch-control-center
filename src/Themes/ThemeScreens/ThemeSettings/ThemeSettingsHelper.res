@@ -240,23 +240,21 @@ module IconSettings = {
     ~onEmailLogoRemove: unit => unit=() => (),
     ~themeConfigVersion,
   ) => {
-    let getDisplayUrl = (asset: option<ThemeTypes.assetValue>) =>
-      asset->Option.map(value =>
-        switch value {
-        | Url(url) => url
-        | File(file) =>
-          DownloadUtils.createObjectURL(
-            (file->Identity.jsonToAnyType: DownloadUtils.blobInstanceType),
-          )
-        }
-      )
-
     let showToast = ToastState.useShowToast()
 
-    let handleFileChange = (onSelect, ev) => {
+    let logoAccept = ".png,.jpg,.jpeg"
+    let faviconAccept = ".png,.ico,.jpg,.jpeg"
+    let emailLogoAccept = ".png,.jpg,.jpeg"
+
+    let handleFileChange = (~onSelect, ~accept, ev) => {
       switch ThemeFeatureUtils.getFileFromEvent(ev) {
       | Some(file) =>
-        if file["size"] > ThemeFeatureUtils.maxAssetFileSizeBytes {
+        if !ThemeFeatureUtils.isSupportedAssetType(~fileName=file["name"], ~accept) {
+          showToast(
+            ~message=`Unsupported file type. Allowed: ${accept}`,
+            ~toastType=ToastState.ToastError,
+          )
+        } else if file["size"] > ThemeFeatureUtils.maxAssetFileSizeBytes {
           showToast(
             ~message="Image must be under 2MB. Please choose a smaller file.",
             ~toastType=ToastState.ToastError,
@@ -275,20 +273,21 @@ module IconSettings = {
         <div className="space-y-4">
           <AssetField
             label="Logo"
-            displayUrl={getDisplayUrl(assets.logo)}
-            onFileChange={ev => handleFileChange(onLogoSelect, ev)}
+            displayUrl={getAssetDisplayUrl(assets.logo)}
+            onFileChange={ev => handleFileChange(~onSelect=onLogoSelect, ~accept=logoAccept, ev)}
             onRemove=onLogoRemove
-            accept=".png,.jpg,.jpeg"
+            accept=logoAccept
             inputId="logoFileInput"
             themeConfigVersion
             hint="PNG or JPG · Recommended: 200 × 50 px · Up to 2MB"
           />
           <AssetField
             label="Favicon"
-            displayUrl={getDisplayUrl(assets.favicon)}
-            onFileChange={ev => handleFileChange(onFaviconSelect, ev)}
+            displayUrl={getAssetDisplayUrl(assets.favicon)}
+            onFileChange={ev =>
+              handleFileChange(~onSelect=onFaviconSelect, ~accept=faviconAccept, ev)}
             onRemove=onFaviconRemove
-            accept=".png,.ico,.jpg,.jpeg"
+            accept=faviconAccept
             inputId="faviconFileInput"
             themeConfigVersion
             hint="PNG, ICO or JPG · Recommended 32×32px · Up to 2MB"
@@ -301,10 +300,11 @@ module IconSettings = {
         <div className="space-y-4">
           <AssetField
             label="Email Logo"
-            displayUrl={getDisplayUrl(assets.emailLogo)}
-            onFileChange={ev => handleFileChange(onEmailLogoSelect, ev)}
+            displayUrl={getAssetDisplayUrl(assets.emailLogo)}
+            onFileChange={ev =>
+              handleFileChange(~onSelect=onEmailLogoSelect, ~accept=emailLogoAccept, ev)}
             onRemove=onEmailLogoRemove
-            accept=".png,.jpg,.jpeg"
+            accept=emailLogoAccept
             inputId="emailLogoFileInput"
             themeConfigVersion
             hint="PNG or JPG · Recommended: 200 × 50 px · Up to 2MB"

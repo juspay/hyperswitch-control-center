@@ -182,6 +182,7 @@ type domainTransactionMatchedStatus =
   | Auto
   | Manual
   | Force
+  | WithTolerance
   | UnknownDomainTransactionMatchedStatus
 
 @unboxed
@@ -203,6 +204,8 @@ type domainTransactionStatus =
   | UnderAmount(domainTransactionAmountMismatchStatus)
   | Missing
   | DataMismatch
+  | CurrencyMismatch
+  | SplitMismatch
   | Archived
   | Void
   | PartiallyReconciled
@@ -390,3 +393,32 @@ type metadataSchemaType = {
 }
 
 type columnMappingTabs = [#default | #advanced]
+
+type overviewRuleStatusBreakdown = {
+  status: domainTransactionStatus,
+  count: int,
+  credit_amount: balanceType,
+  debit_amount: balanceType,
+}
+
+type overviewRulesResponse = {
+  rule_id: string,
+  rule_name: string,
+  status_breakdown: array<overviewRuleStatusBreakdown>,
+}
+
+type overviewRulesTimeRange = {
+  start_time: string,
+  end_time: string,
+}
+
+type overviewRulesTimeSeries = {
+  time_range: overviewRulesTimeRange,
+  status_breakdown: array<overviewRuleStatusBreakdown>,
+}
+
+type overviewRulesTimeSeriesResponse = {
+  rule_id: string,
+  rule_name: string,
+  time_series: array<overviewRulesTimeSeries>,
+}
