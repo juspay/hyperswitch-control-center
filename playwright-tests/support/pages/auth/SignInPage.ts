@@ -16,7 +16,7 @@ export class SignInPage {
   }
 
   get passwordField(): Locator {
-    return this.page.locator('[data-testid="password"]');
+    return this.page.getByPlaceholder("Enter your Password");;
   }
 
   get signinButton(): Locator {
@@ -48,23 +48,23 @@ export class SignInPage {
   }
 
   get invalidCredsToast(): Locator {
-    return this.page.locator('[data-toast="Incorrect email or password"]');
+    return this.page.locator('[data-id="Incorrect email or password"]');
   }
 
   get forgotPasswordFailedToast(): Locator {
     return this.page.locator(
-      '[data-toast="Forgot Password Failed, Try again"]',
+      '[data-id="Forgot Password Failed, Try again"]',
     );
   }
 
   get forgotPasswordSentToast(): Locator {
     return this.page.locator(
-      '[data-toast="Please check your registered e-mail"]',
+      '[data-id="Please check your registered e-mail"]',
     );
   }
 
   get passwordChangedToast(): Locator {
-    return this.page.locator('[data-toast="Password Changed Successfully"]');
+    return this.page.locator('[data-id="Password Changed Successfully"]');
   }
 
   get resetLinkSentContainer(): Locator {
@@ -94,7 +94,7 @@ export class SignInPage {
   }
 
   get otpBox2FA(): Locator {
-    return this.page.locator('[class="flex justify-center relative "]');
+    return this.page.locator('[data-element="otp-input-container"]');
   }
 
   get qrCode2FA(): Locator {

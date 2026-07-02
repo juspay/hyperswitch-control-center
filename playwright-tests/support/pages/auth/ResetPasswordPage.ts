@@ -16,7 +16,7 @@ export class ResetPasswordPage {
   }
 
   get eyeIcon(): Locator {
-    return this.page.locator('[data-icon="eye"]');
+    return this.page.locator('[data-element="right-slot"]');
   }
 
   get confirmButton(): Locator {
@@ -24,11 +24,11 @@ export class ResetPasswordPage {
   }
 
   get newPasswordField(): Locator {
-    return this.page.locator('[data-testid="create_password"] input');
+    return this.page.getByRole('textbox', { name: 'Enter your Password', exact: true });
   }
 
   get confirmPasswordField(): Locator {
-    return this.page.locator('[data-testid="confirm_password"] input');
+    return this.page.getByRole('textbox', { name: 'Re-enter your Password' });
   }
 
   get weakPasswordError(): Locator {
