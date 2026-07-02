@@ -61,7 +61,7 @@ let make = (~order: PaymentInterfaceTypes.order, ~setShowModal, ~refetch) => {
         </div>
         <div className="mt-3">
           <AlertV2Binding
-            alertType=AlertV2Binding.Warning
+            alertType=Warning
             description="This action is irreversible and cannot be undone."
           />
         </div>

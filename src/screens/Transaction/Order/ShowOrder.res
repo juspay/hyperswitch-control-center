@@ -27,6 +27,7 @@ module ShowOrderDetails = {
     ~sectionTitle=?,
   ) => {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let typedPaymentStatus = paymentStatus->statusVariantMapper
     let statusUI = useGetStatus(data)
 
@@ -69,7 +70,10 @@ module ShowOrderDetails = {
               ? Normal
               : Disabled}
           />
-          <RenderIf condition={typedPaymentStatus === RequiresCapture && !(paymentId->isTestData)}>
+          <RenderIf
+            condition={version === V1 &&
+            typedPaymentStatus === RequiresCapture &&
+            !(paymentId->isTestData)}>
             <ACLButton
               authorization={userHasAccess(~groupAccess=OperationsManage)}
               text="+ Void"
@@ -481,7 +485,7 @@ module OrderActions = {
         setShowModal
         borderBottom=true
         childClass=""
-        modalClass="w-fit absolute top-0 lg:top-0 md:top-1/3 left-0 lg:left-1/3 md:left-1/3 md:w-4/12 mt-20"
+        modalClass="w-full md:w-4/12 mx-auto mt-20"
         bgClass="bg-white dark:bg-jp-gray-darkgray_background">
         <OrderRefundForm
           order={orderData}
@@ -498,7 +502,7 @@ module OrderActions = {
         borderBottom=true
         childClass=""
         modalClass="w-full md:w-4/12 mx-auto mt-20"
-        bgClass="bg-white dark:bg-jp-gray-darkgray_background">
+        bgClass="bg-nd_gray-0">
         <OrderVoidForm order={orderData} setShowModal=setShowVoidModal refetch />
       </Modal>
     </div>
