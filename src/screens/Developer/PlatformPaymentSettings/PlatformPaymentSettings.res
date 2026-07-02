@@ -64,20 +64,38 @@ module PaymentBehaviour = {
 
 @react.component
 let make = () => {
+  let {profileId, merchantId, version} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
-  let {profileId, merchantId} = React.useContext(
-    UserInfoProvider.defaultContext,
-  ).getCommonSessionDetails()
-
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
+
+  let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
+    ~retainInList=VaultProcessor,
+  )
+  let isBusinessProfileHasVault =
+    vaultConnectorsList->Array.some(item => item.profile_id == profileId)
+
   let paymentBehaviourTab: Tabs.tab = {
     title: "Payment Behaviour",
     renderContent: () => <PaymentBehaviour />,
   }
 
-  let tabs = [paymentBehaviourTab]
+  let vaultTab: Tabs.tab = {
+    title: "Vault",
+    renderContent: () => <PaymentSettingsVault />,
+  }
+
+  let tabs = {
+    let baseTabs = [paymentBehaviourTab]
+    if version == V1 && featureFlagDetails.vaultProcessor && isBusinessProfileHasVault {
+      baseTabs->Array.push(vaultTab)
+    }
+    baseTabs
+  }
 
   <div className="flex flex-col gap-4">
     <div className="flex flex-col gap-2">
