@@ -60,6 +60,7 @@ let make = () => {
     <PageUtils.PageHeading
       title="Routing Analytics" customHeadingStyle={`${body.lg.semibold} !text-nd_gray-800`}
     />
+    <HSAnalyticsUtils.PlatformAggregatedDataBanner />
     <div className="flex flex-row justify-end items-center 2xl:ml-4">
       <div className="2xl:-mr-2 -ml-6">
         <DynamicFilter

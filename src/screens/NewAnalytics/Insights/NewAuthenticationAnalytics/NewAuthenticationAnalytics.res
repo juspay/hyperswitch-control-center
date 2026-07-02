@@ -366,6 +366,7 @@ let make = () => {
   <PageLoaderWrapper screenState customUI={<HSAnalyticsUtils.NoData title />}>
     <InsightsHelper.SampleDataBanner applySampleDateFilters />
     <PageUtils.PageHeading title />
+    <HSAnalyticsUtils.PlatformAggregatedDataBanner />
     <div className="flex justify-end mr-4">
       <GenerateReport entityName={V1(AUTHENTICATION_REPORT)} disableReport={isSampleDataEnabled} />
     </div>

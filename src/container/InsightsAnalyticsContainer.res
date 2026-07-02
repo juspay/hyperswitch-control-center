@@ -132,6 +132,7 @@ let make = () => {
     <div>
       <InsightsHelper.SampleDataBanner applySampleDateFilters />
       <PageUtils.PageHeading customHeadingStyle="mt-4" title="Insights" />
+      <HSAnalyticsUtils.PlatformAggregatedDataBanner />
       <div className="-ml-1 top-0 z-20 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
         <DynamicFilter
           title="NewAnalytics"

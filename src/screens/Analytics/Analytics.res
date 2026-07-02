@@ -715,6 +715,7 @@ let make = (
             </RenderIf>
           </div>
         </div>
+        <HSAnalyticsUtils.PlatformAggregatedDataBanner />
         <div className="mt-2 -ml-1"> topFilterUi </div>
         <div>
           <div className="mt-5">

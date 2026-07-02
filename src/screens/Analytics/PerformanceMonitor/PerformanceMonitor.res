@@ -110,6 +110,7 @@ let make = (~domain="payments") => {
           />
         </div>
       </div>
+      <HSAnalyticsUtils.PlatformAggregatedDataBanner />
       <div
         className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
         topFilterUi
