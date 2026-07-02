@@ -10,8 +10,7 @@ module InfoView = {
         <p className={`text-nd_gray-600 ${body.lg.medium}`}> {subHeading->React.string} </p>
         <RenderIf condition={isCopy}>
           <HelperComponents.CopyTextCustomComp
-            displayValue=Some("")
-            copyValue={isTruncated ? Some(copyValue) : Some(subHeading)}
+            displayValue=Some("") copyValue={isTruncated ? Some(copyValue) : Some(subHeading)}
           />
         </RenderIf>
       </div>
