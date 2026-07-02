@@ -88,6 +88,7 @@ let make = () => {
         payload->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
         payload->Dict.set("created_after", start_time->JSON.Encode.string)
         payload->Dict.set("created_before", end_time->JSON.Encode.string)
+        payload->Dict.set("recipient", "merchant"->JSON.Encode.string)
       }
 
       let url = getURL(~entityName=V1(WEBHOOK_EVENTS), ~methodType=Post)
