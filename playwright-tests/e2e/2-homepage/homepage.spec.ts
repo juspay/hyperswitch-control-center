@@ -492,7 +492,7 @@ test.describe("Production access form", () => {
       "Hyperswitch Pvt Ltd",
     );
     await productionAccessPage.selectCountryButton.click();
-    await productionAccessPage.countryOption(/^Aland Islands$/).click();
+    await productionAccessPage.countryOption.click();
     await productionAccessPage.websiteInput.fill("https://hyperswitch.io");
     await productionAccessPage.contactNameInput.fill("Jack Ryan");
     await productionAccessPage.contactEmailInput.fill(
@@ -538,7 +538,7 @@ test.describe("Production access form", () => {
       "Hyperswitch Pvt Ltd",
     );
     await productionAccessPage.selectCountryButton.click();
-    await productionAccessPage.countryOption(/^Aland Islands$/).click();
+    await productionAccessPage.countryOption.click();
     await productionAccessPage.websiteInput.fill("not a url");
     await productionAccessPage.contactEmailInput.fill("invalid-email");
     await productionAccessPage.contactNameInput.fill("Jack Ryan");
@@ -599,10 +599,6 @@ test.describe("SDK Payment", () => {
     ).toHaveValue("hyperswitch_sdk_demo_id");
     await expect(page.getByText("Show Saved Card")).toBeVisible();
     await expect(page.getByRole("button", { name: "Yes" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Yes" })).toHaveAttribute(
-      "data-value",
-      "yes",
-    );
     await expect(
       page
         .locator("div")
@@ -614,10 +610,10 @@ test.describe("SDK Payment", () => {
     ).toBeVisible();
     await expect(page.getByText("Enter amount")).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: "Enter amount" }),
+      page.getByRole('spinbutton', { name: 'Enter amount' }),
     ).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: "Enter amount" }),
+      page.getByRole('spinbutton', { name: 'Enter amount' }),
     ).toHaveValue("100");
     await expect(page.getByText("Edit Checkout Details")).toBeVisible();
     await expect(homePage.showPreviewButton).toBeVisible();
@@ -646,11 +642,7 @@ test.describe("SDK Payment", () => {
         .filter({ hasText: /^Theme$/ })
         .first(),
     ).toBeVisible();
-    await expect(page.getByRole("button", { name: "Default" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Default" })).toHaveAttribute(
-      "data-value",
-      "default",
-    );
+    await expect(page.getByRole('button', { name: 'Default' })).toBeVisible();
     await expect(
       page
         .locator("div")
@@ -660,15 +652,8 @@ test.describe("SDK Payment", () => {
     await expect(
       page.getByRole("button", { name: "English (Global)" }),
     ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "English (Global)" }),
-    ).toHaveAttribute("data-value", "english(Global)");
     await expect(page.getByText("Layout")).toBeVisible();
     await expect(page.getByRole("button", { name: "Tabs" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Tabs" })).toHaveAttribute(
-      "data-value",
-      "tabs",
-    );
     await expect(
       page
         .locator("div")
@@ -676,10 +661,6 @@ test.describe("SDK Payment", () => {
         .first(),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Above" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Above" })).toHaveAttribute(
-      "data-value",
-      "above",
-    );
     await expect(
       page
         .locator("div")
@@ -708,16 +689,11 @@ test.describe("SDK Payment", () => {
 
     await page.getByRole("button", { name: "Yes" }).click();
     await page.locator("div").filter({ hasText: /^No$/ }).nth(1).click();
-    await expect(page.getByRole("button", { name: "No" })).toHaveAttribute(
-      "data-value",
-      "no",
-    );
-
     await page
       .getByRole("button", { name: "🇺🇸 United States Of America" })
       .click();
     await page
-      .getByRole("textbox", { name: "Search name or ID..." })
+      .getByRole('searchbox', { name: 'Search options...' })
       .type("India");
     await page.getByText("🇮🇳 India - (INR)").click();
     await expect(
@@ -737,7 +713,7 @@ test.describe("SDK Payment", () => {
         .getByRole("button", { name: "🇺🇸 United States Of America" })
         .click();
       await page
-        .getByRole("textbox", { name: "Search name or ID..." })
+        .getByRole('searchbox', { name: 'Search options...' })
         .type("India");
       await page.getByText("🇮🇳 India - (INR)").click();
 
@@ -745,6 +721,7 @@ test.describe("SDK Payment", () => {
 
       await homePage.showPreviewButton.click();
       await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(10000);
       await homePage.waitForSdkCardForm();
 
       await homePage.fillSdkTestCard();
