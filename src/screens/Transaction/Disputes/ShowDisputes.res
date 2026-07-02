@@ -142,6 +142,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (disputeData, setDisputeData) = React.useState(_ => JSON.Encode.null)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+  let showToast = ToastAdapter.useShowToast()
 
   let fetchDisputesData = async () => {
     try {
@@ -170,17 +171,66 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let data = disputeData->LogicUtils.getDictFromJsonObject
   let paymentId = data->LogicUtils.getString("payment_id", "")
 
+  let showSyncButton = React.useCallback(_ => {
+    let status =
+      data->LogicUtils.getString("dispute_status", "")->DisputesUtils.disputeStatusVariantMapper
+
+    !(id->HSwitchOrderUtils.isTestData) &&
+    status !== DisputeWon &&
+    status !== DisputeLost &&
+    status !== DisputeExpired &&
+    status !== DisputeCancelled &&
+    status !== DisputeAccepted &&
+    data->Dict.keysToArray->Array.length > 0
+  }, [disputeData])
+
+  let syncData = async () => {
+    try {
+      let disputesUrl = getURL(
+        ~entityName=V1(DISPUTES),
+        ~methodType=Get,
+        ~id=Some(id),
+        ~queryParameters=Some("force_sync=true"),
+      )
+      let _ = await internalSwitch(
+        ~expectedOrgId=orgId,
+        ~expectedMerchantId=merchantId,
+        ~expectedProfileId=profileId,
+      )
+      let response = await fetchDetails(disputesUrl)
+      setDisputeData(_ => response)
+      showToast(~message="Details Updated", ~toastType=ToastSuccess)
+    } catch {
+    // A failed sync (e.g. 501 unsupported) is already toasted by the API handler — leave the
+    // loaded page in place and skip the success toast.
+    | _ => ()
+    }
+  }
+
   <PageLoaderWrapper screenState>
     <div className="flex flex-col overflow-scroll">
       <div className="mb-4 flex justify-between">
-        <div className="flex items-center">
+        <div className="flex items-center justify-between w-full">
           <div>
             <PageUtils.PageHeading title="Disputes" />
             <BreadCrumbNavigation
               path=[{title: "Disputes", link: "/disputes"}] currentPageTitle=id
             />
           </div>
-          <div />
+          <RenderIf condition={showSyncButton()}>
+            <ACLButton
+              authorization={userHasAccess(~groupAccess=OperationsView)}
+              text="Sync"
+              leftIcon={Button.CustomIcon(
+                <Icon
+                  name="sync" className="jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
+                />,
+              )}
+              buttonType={Primary}
+              customButtonStyle="mr-1"
+              onClick={_ => syncData()->ignore}
+            />
+          </RenderIf>
         </div>
       </div>
       <DisputesInfo orderDict={data} setDisputeData merchantId orgId />

@@ -99,14 +99,9 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   ).getCommonSessionDetails()
 
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-  let fetchRefundData = async (~forceSync=false) => {
+  let fetchRefundData = async () => {
     try {
-      let refundUrl = getURL(
-        ~entityName=V1(REFUNDS),
-        ~methodType=Get,
-        ~id=Some(id),
-        ~queryParameters=forceSync ? Some("force_sync=true") : None,
-      )
+      let refundUrl = getURL(~entityName=V1(REFUNDS), ~methodType=Get, ~id=Some(id))
       let _ = await internalSwitch(
         ~expectedOrgId=orgId,
         ~expectedMerchantId=merchantId,
@@ -158,9 +153,25 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     refundDict->Dict.keysToArray->Array.length > 0
   }, [refundData])
 
-  let syncData = () => {
-    fetchRefundData(~forceSync=true)->ignore
-    showToast(~message="Details Updated", ~toastType=ToastSuccess)
+  let syncData = async () => {
+    try {
+      let refundUrl = getURL(
+        ~entityName=V1(REFUNDS),
+        ~methodType=Get,
+        ~id=Some(id),
+        ~queryParameters=Some("force_sync=true"),
+      )
+      let _ = await internalSwitch(
+        ~expectedOrgId=orgId,
+        ~expectedMerchantId=merchantId,
+        ~expectedProfileId=profileId,
+      )
+      let refundData = await fetchDetails(refundUrl)
+      setRefundData(_ => refundData)
+      showToast(~message="Details Updated", ~toastType=ToastSuccess)
+    } catch {
+    | _ => ()
+    }
   }
 
   <div className="flex flex-col overflow-scroll">
@@ -181,7 +192,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             )}
             buttonType={Primary}
             customButtonStyle="mr-1"
-            onClick={_ => syncData()}
+            onClick={_ => syncData()->ignore}
           />
         </RenderIf>
       </div>
