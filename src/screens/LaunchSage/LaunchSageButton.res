@@ -28,10 +28,7 @@ let make = () => {
         if handoffUrl->String.length > 0 {
           Window.Location.assign(handoffUrl)
         } else {
-          showToast(
-            ~toastType=ToastError,
-            ~message="Launch failed; try again in a minute.",
-          )
+          showToast(~toastType=ToastError, ~message="Launch failed; try again in a minute.")
         }
       } catch {
       | Exn.Error(e) =>
@@ -48,15 +45,8 @@ let make = () => {
         | 404 => setHidden(_ => true)
         | 401 => () // AuthHooks global 401 handler owns the redirect
         | 500 | 502 | 503 | 504 =>
-          showToast(
-            ~toastType=ToastError,
-            ~message="Launch failed; try again in a minute.",
-          )
-        | _ =>
-          showToast(
-            ~toastType=ToastError,
-            ~message="Something went wrong. Please try again.",
-          )
+          showToast(~toastType=ToastError, ~message="Launch failed; try again in a minute.")
+        | _ => showToast(~toastType=ToastError, ~message="Something went wrong. Please try again.")
         }
       }
       setLoading(_ => false)
