@@ -1,6 +1,6 @@
 type connectorSummarySection = AuthenticationKeys | Metadata | PMTs | PaymentConnectors
 open Typography
-open PaymentSettingsRevampedUtils
+open PaymentSettingsUtils
 
 module WebhooksConfiguration = {
   @react.component

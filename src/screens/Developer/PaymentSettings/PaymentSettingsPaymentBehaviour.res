@@ -1,5 +1,5 @@
-open PaymentSettingsRevampedTypes
-open PaymentSettingsRevampedHelper
+open PaymentSettingsTypes
+open PaymentSettingsHelper
 open Typography
 module CollectDetails = {
   @react.component
@@ -387,7 +387,7 @@ let make = () => {
       initialValues={businessProfileRecoilVal->Identity.genericTypeToJson}
       onSubmit
       validate={values => {
-        PaymentSettingsRevampedUtils.validateMerchantAccountFormV2(
+        PaymentSettingsUtils.validateMerchantAccountFormV2(
           ~values,
           ~isLiveMode=featureFlagDetails.isLiveMode,
           ~businessProfileRecoilVal,

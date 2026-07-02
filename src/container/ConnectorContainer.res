@@ -152,10 +152,7 @@ let make = () => {
         isEnabled={featureFlagDetails.configurePmts}>
         <FilterContext key="ConfigurePmts" index="ConfigurePmts">
           <EntityScaffold
-            entityName="ConfigurePMTs"
-            remainingPath
-            renderList={() => <PaymentMethodList />}
-            renderShow={(_, _) => <PaymentSettings webhookOnly=false showFormOnly=false />}
+            entityName="ConfigurePMTs" remainingPath renderList={() => <PaymentMethodList />}
           />
         </FilterContext>
       </AccessControl>
@@ -189,24 +186,11 @@ let make = () => {
         />
       </AccessControl>
     | list{"payment-settings", ...remainingPath} =>
-      <>
-        <RenderIf condition={featureFlagDetails.paymentSettingsRevamped}>
-          <AccessControl authorization=Access>
-            <EntityScaffold
-              entityName="PaymentSettingsRevamped"
-              remainingPath
-              renderList={() => <PaymentSettingsRevamped />}
-            />
-          </AccessControl>
-        </RenderIf>
-        <RenderIf condition={!featureFlagDetails.paymentSettingsRevamped}>
-          <AccessControl authorization=Access>
-            <EntityScaffold
-              entityName="PaymentSettings" remainingPath renderList={() => <PaymentSettings />}
-            />
-          </AccessControl>
-        </RenderIf>
-      </>
+      <AccessControl authorization=Access>
+        <EntityScaffold
+          entityName="PaymentSettings" remainingPath renderList={() => <PaymentSettings />}
+        />
+      </AccessControl>
     | list{"webhooks", ...remainingPath} =>
       <AccessControl isEnabled={featureFlagDetails.devWebhooks} authorization=Access>
         <FilterContext key="webhooks" index="webhooks">
