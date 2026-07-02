@@ -43,6 +43,10 @@ let connectorListForLiveAtom: Recoil.recoilAtom<
   "connectorListForLive",
   JSON.Encode.null->ConnectorListForLiveFromConfigUtils.getConnectorListForLive,
 )
+let connectorCloneAllowListAtom: Recoil.recoilAtom<array<string>> = Recoil.atom(
+  "connectorCloneAllowList",
+  JSON.Encode.null->ConnectorCloneConfigUtils.getConnectorCloneAllowList,
+)
 let merchantSpecificConfigAtom: Recoil.recoilAtom<
   FeatureFlagUtils.merchantSpecificConfig,
 > = Recoil.atom("merchantSpecificConfig", JSON.Encode.null->FeatureFlagUtils.merchantSpecificConfig)
