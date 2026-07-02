@@ -27,6 +27,7 @@ module ShowOrderDetails = {
     ~sectionTitle=?,
   ) => {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let typedPaymentStatus = paymentStatus->statusVariantMapper
     let statusUI = useGetStatus(data)
 
@@ -69,7 +70,10 @@ module ShowOrderDetails = {
               ? Normal
               : Disabled}
           />
-          <RenderIf condition={typedPaymentStatus === RequiresCapture && !(paymentId->isTestData)}>
+          <RenderIf
+            condition={version === V1 &&
+            typedPaymentStatus === RequiresCapture &&
+            !(paymentId->isTestData)}>
             <ACLButton
               authorization={userHasAccess(~groupAccess=OperationsManage)}
               text="+ Capture"
