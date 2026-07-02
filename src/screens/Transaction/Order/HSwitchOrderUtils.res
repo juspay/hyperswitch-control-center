@@ -11,6 +11,7 @@ type status =
   | RequiresCustomerAction
   | RequiresPaymentMethod
   | RequiresConfirmation
+  | RequiresCapture
   | PartiallyCaptured
   | CancelledPostCapture
   | Review
@@ -71,6 +72,7 @@ let statusVariantMapper: string => status = statusLabel =>
   | "REQUIRES_CUSTOMER_ACTION" => RequiresCustomerAction
   | "REQUIRES_PAYMENT_METHOD" => RequiresPaymentMethod
   | "REQUIRES_CONFIRMATION" => RequiresConfirmation
+  | "REQUIRES_CAPTURE" => RequiresCapture
   | "PARTIALLY_CAPTURED" => PartiallyCaptured
   | "CANCELLED_POST_CAPTURE" => CancelledPostCapture
   | "EXPIRED" => Expired
@@ -137,14 +139,56 @@ let amountField = FormRenderer.makeFieldInfo(
 )
 
 // Amount field with precision based on currency
-let amountFieldWithPrecision = (~precisionDigits) => {
+let amountFieldWithPrecision = (
+  ~precisionDigits,
+  ~name="amount",
+  ~label="Refund Amount",
+  ~placeholder="Enter Refund Amount",
+) => {
   FormRenderer.makeFieldInfo(
-    ~name="amount",
-    ~label="Refund Amount",
+    ~name,
+    ~label,
     ~customInput=InputFields.numericTextInput(~precision=precisionDigits),
-    ~placeholder="Enter Refund Amount",
+    ~placeholder,
     ~isRequired=true,
   )
+}
+
+let getCaptureInitialValues = (~amountCapturableInMajorUnits) =>
+  [("amount", amountCapturableInMajorUnits->JSON.Encode.float)]->getJsonFromArrayOfJson
+
+let validateCaptureAmount = (
+  ~conversionFactor,
+  ~amountCapturableInMajorUnits,
+  ~precisionDigits,
+  values,
+) => {
+  let errors = Dict.make()
+  let valuesDict = values->getDictFromJsonObject
+  switch valuesDict->getOptionFloat("amount") {
+  | Some(floatVal) =>
+    let enteredAmountInMinorUnits = Math.round(floatVal *. conversionFactor)
+    let capturableInMinorUnits = Math.round(amountCapturableInMajorUnits *. conversionFactor)
+    if enteredAmountInMinorUnits > capturableInMinorUnits {
+      let formattedAmount = Float.toFixedWithPrecision(
+        amountCapturableInMajorUnits,
+        ~digits=precisionDigits,
+      )
+      Dict.set(
+        errors,
+        "amount",
+        `Capture amount should not exceed ${formattedAmount}`->JSON.Encode.string,
+      )
+    } else if floatVal <= 0.0 {
+      Dict.set(
+        errors,
+        "amount",
+        "Please enter capture amount greater than zero"->JSON.Encode.string,
+      )
+    }
+  | None => Dict.set(errors, "amount", "Required"->JSON.Encode.string)
+  }
+  errors->JSON.Encode.object
 }
 
 let reasonField = FormRenderer.makeFieldInfo(
