@@ -20,8 +20,9 @@ let make = () => {
   let {analyticsEntity} = getResolvedUserInfo()
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
-  let loadInfo = async () => {
+  let getPaymetsDetails = async () => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let infoUrl = getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Get, ~id=Some(domain))
       let infoDetails = await fetchDetails(infoUrl)
       // Need to be removed
@@ -33,23 +34,6 @@ let make = () => {
       setMetrics(_ => ignoreSessionizedPayment)
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
       setScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    | Exn.Error(e) =>
-      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      setScreenState(_ => PageLoaderWrapper.Error(err))
-    }
-  }
-  let getPaymetsDetails = async () => {
-    try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let paymentUrl = getURL(~entityName=V1(ORDERS), ~methodType=Get)
-      let paymentDetails = await fetchDetails(paymentUrl)
-      let data = paymentDetails->getDictFromJsonObject->getArrayFromDict("data", [])
-      if data->Array.length < 0 {
-        setScreenState(_ => PageLoaderWrapper.Custom)
-      } else {
-        await loadInfo()
-      }
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
