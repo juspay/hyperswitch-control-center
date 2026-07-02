@@ -34,6 +34,10 @@ export class PaymentSettings {
     return this.page.locator("text=Payment Behaviour");
   }
 
+  get webhookConfigurationTab(): Locator {
+    return this.page.getByText('Webhook Configuration');
+  }
+
   get threeDSTab(): Locator {
     return this.page.locator("text=3DS");
   }
@@ -93,6 +97,11 @@ export class PaymentSettings {
 
   get merchantCategoryCodeDropdown(): Locator {
     return this.page.getByRole("button", { name: "Select Option" });
+  }
+
+  // Webhook Configuration Elements
+  get webhookConfigurationHeader(): Locator {
+    return this.page.getByText("Webhook Endpoint Configuration");
   }
 
   get paymentMethodBlocking(): Locator {

@@ -6,6 +6,9 @@ type webhookDetails_v1 = {
   payment_created_enabled: option<bool>,
   payment_succeeded_enabled: option<bool>,
   payment_failed_enabled: option<bool>,
+  payment_statuses_enabled: option<array<JSON.t>>,
+  refund_statuses_enabled: option<array<JSON.t>>,
+  payout_statuses_enabled: option<array<JSON.t>>,
 }
 type authConnectorDetailsType_v1 = {
   authentication_connectors: option<array<JSON.t>>,
@@ -47,7 +50,18 @@ type profileEntityRequestType_v1 = {
   external_vault_connector_details: option<externalVaultConnectorDetailsType_v1>,
   payment_method_blocking: option<JSON.t>,
 }
-type webhookDetailsRequest_v1 = {webhook_url: option<JSON.t>}
+type webhookDetailsRequest_v1 = {
+  webhook_url: option<JSON.t>,
+  webhook_version: option<JSON.t>,
+  webhook_username: option<JSON.t>,
+  webhook_password: option<JSON.t>,
+  payment_created_enabled: option<JSON.t>,
+  payment_succeeded_enabled: option<JSON.t>,
+  payment_failed_enabled: option<JSON.t>,
+  payment_statuses_enabled: option<JSON.t>,
+  refund_statuses_enabled: option<JSON.t>,
+  payout_statuses_enabled: option<JSON.t>,
+}
 
 type backgroundImage_v1 = {
   url: string,

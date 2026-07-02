@@ -18,3 +18,31 @@ type validationFieldsV2 =
   | AutoRetry
   | VaultProcessorDetails
   | UnknownValidateFields(string)
+
+type webhookPaymentStatus =
+  | Succeeded
+  | Failed
+  | Cancelled
+  | CancelledPostCapture
+  | Processing
+  | PartiallyCapturedAndProcessing
+  | RequiresCustomerAction
+  | RequiresMerchantAction
+  | RequiresCapture
+  | PartiallyCaptured
+  | PartiallyCapturedAndCapturable
+  | PartiallyAuthorizedAndRequiresCapture
+  | Conflicted
+  | Expired
+
+type webhookRefundStatus =
+  | Failure
+  | Success
+
+type webhookPayoutStatus =
+  | PayoutSuccess
+  | PayoutFailed
+  | PayoutCancelled
+  | Initiated
+  | PayoutExpired
+  | Reversed
