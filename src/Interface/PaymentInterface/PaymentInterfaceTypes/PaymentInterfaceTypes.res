@@ -134,6 +134,7 @@ type order = {
   extended_auth_applied?: bool,
   request_extended_auth?: bool,
   hyperswitch_error_description?: string,
+  // These optional fields intentionally mirror the analytics/OpenSearch response contract.
   active_attempt_id?: string,
   card_last_4?: string,
   card_issuer?: string,

@@ -180,15 +180,12 @@ type optionObj = {
   label: string,
 }
 
+@unboxed
 type paymentListSource =
-  | Postgres
-  | OpenSearch
+  | @as("Postgres") Postgres
+  | @as("OpenSearch") OpenSearch
 
-let getPaymentListSourceLabel = source =>
-  switch source {
-  | Postgres => "Postgres"
-  | OpenSearch => "OpenSearch"
-  }
+let getPaymentListSourceLabel = (source: paymentListSource) => (source :> string)
 
 let getPaymentListTableTitle = source =>
   switch source {
@@ -208,18 +205,36 @@ let getPaymentListSourceDescription = source =>
   | OpenSearch => "Advanced payment list with expanded search, filters, columns, and CSV export."
   }
 
-let openSearchRefundStatusValues = ["partial_refunded", "full_refunded"]
+type openSearchRefundStatus = [#partial_refunded | #full_refunded]
 
-let openSearchDisputeStatusValues = [
-  "dispute_present",
-  "dispute_opened",
-  "dispute_challenged",
-  "dispute_lost",
-  "dispute_won",
-  "dispute_accepted",
-  "dispute_cancelled",
-  "dispute_expired",
+let openSearchRefundStatuses: array<openSearchRefundStatus> = [#partial_refunded, #full_refunded]
+
+let openSearchRefundStatusValues = openSearchRefundStatuses->Array.map(status => (status :> string))
+
+type openSearchDisputeStatus = [
+  | #dispute_present
+  | #dispute_opened
+  | #dispute_challenged
+  | #dispute_lost
+  | #dispute_won
+  | #dispute_accepted
+  | #dispute_cancelled
+  | #dispute_expired
 ]
+
+let openSearchDisputeStatuses: array<openSearchDisputeStatus> = [
+  #dispute_present,
+  #dispute_opened,
+  #dispute_challenged,
+  #dispute_lost,
+  #dispute_won,
+  #dispute_accepted,
+  #dispute_cancelled,
+  #dispute_expired,
+]
+
+let openSearchDisputeStatusValues =
+  openSearchDisputeStatuses->Array.map(status => (status :> string))
 
 type frmStatus = [#APPROVE | #REJECT]
 

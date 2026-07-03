@@ -55,6 +55,7 @@ type analytics_row = {
   merchant_order_reference_id: string,
   attempt_count: int,
   connector_label: string,
+  // These names intentionally mirror the analytics/OpenSearch response contract.
   active_attempt_id: string,
   card_last_4: string,
   card_network: string,
