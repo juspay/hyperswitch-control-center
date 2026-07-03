@@ -348,7 +348,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let advancedPaymentFilterTypes = [
+let advancedPaymentFilterTypes: array<filter> = [
   #customer_email,
   #card_last_4,
   #active_attempt_id,
@@ -364,9 +364,16 @@ let advancedPaymentOnlyFilterKeys =
 
 let isAdvancedPaymentOnlyFilter = key => advancedPaymentOnlyFilterKeys->Array.includes(key)
 
-let unsupportedAdvancedPaymentFilterKeys = ["unified_code", "unified_message"]
+type unsupportedAdvancedPaymentFilter = [#unified_code | #unified_message]
 
-let hiddenAdvancedPaymentFilterKeys = ["first_attempt"]
+let unsupportedAdvancedPaymentFilterKeys = [
+  (#unified_code: unsupportedAdvancedPaymentFilter :> string),
+  (#unified_message: unsupportedAdvancedPaymentFilter :> string),
+]
+
+type hiddenAdvancedPaymentFilter = [#first_attempt]
+
+let hiddenAdvancedPaymentFilterKeys = [(#first_attempt: hiddenAdvancedPaymentFilter :> string)]
 
 let advancedPaymentFilterCleanupKeys =
   advancedPaymentOnlyFilterKeys
@@ -376,59 +383,96 @@ let advancedPaymentFilterCleanupKeys =
 let advancedPaymentSearchDescription = "Advanced search checks OpenSearch payment fields such as payment ID, card last 4, amount, attempt ID, connector account, error details, and full customer email."
 
 let getAdvancedPaymentFilterDescription = key =>
-  switch key {
-  | "customer_email" => "Filter payments by customer email."
-  | "card_last_4" => "Find payments by the last 4 digits of the card."
-  | "active_attempt_id" => "Filter payments by the active payment attempt ID."
-  | "merchant_connector_id" => "Filter payments by the connector account used for processing."
-  | "refunds_status" => "Filter payments by refund state, such as partial or full refund."
-  | "dispute_status" => "Filter payments by dispute state."
-  | "routing_approach" => "Filter payments by the routing strategy used for connector selection."
-  | "card_issuer" => "Filter payments by the issuing bank or card institution."
+  switch key->getFilterTypeFromString {
+  | #customer_email => "Filter payments by customer email."
+  | #card_last_4 => "Find payments by the last 4 digits of the card."
+  | #active_attempt_id => "Filter payments by the active payment attempt ID."
+  | #merchant_connector_id => "Filter payments by the connector account used for processing."
+  | #refunds_status => "Filter payments by refund state, such as partial or full refund."
+  | #dispute_status => "Filter payments by dispute state."
+  | #routing_approach => "Filter payments by the routing strategy used for connector selection."
+  | #card_issuer => "Filter payments by the issuing bank or card institution."
   | _ => "Advanced OpenSearch-only payment filter."
   }
 
-let advancedPaymentTextListFilterKeys = [
-  "card_last_4",
-  "active_attempt_id",
-  "merchant_connector_id",
-  "card_issuer",
+type advancedPaymentTextListFilter = [
+  | #card_last_4
+  | #active_attempt_id
+  | #merchant_connector_id
+  | #card_issuer
 ]
 
-let advancedRoutingApproachValues = [
-  "default_fallback",
-  "straight_through_routing",
-  "rule_based_routing",
-  "volume_based_routing",
+let advancedPaymentTextListFilterTypes: array<advancedPaymentTextListFilter> = [
+  #card_last_4,
+  #active_attempt_id,
+  #merchant_connector_id,
+  #card_issuer,
 ]
+
+let advancedPaymentTextListFilterKeys =
+  advancedPaymentTextListFilterTypes->Array.map(filter => (filter :> string))
+
+type advancedRoutingApproach = [
+  | #default_fallback
+  | #straight_through_routing
+  | #rule_based_routing
+  | #volume_based_routing
+]
+
+let advancedRoutingApproaches: array<advancedRoutingApproach> = [
+  #default_fallback,
+  #straight_through_routing,
+  #rule_based_routing,
+  #volume_based_routing,
+]
+
+let advancedRoutingApproachValues =
+  advancedRoutingApproaches->Array.map(routingApproach => (routingApproach :> string))
 
 let getAdvancedPaymentStaticFilterValues = key =>
-  switch key {
-  | "refunds_status" => OrderTypes.openSearchRefundStatusValues
-  | "dispute_status" => OrderTypes.openSearchDisputeStatusValues
-  | "routing_approach" => advancedRoutingApproachValues
+  switch key->getFilterTypeFromString {
+  | #refunds_status => OrderTypes.openSearchRefundStatusValues
+  | #dispute_status => OrderTypes.openSearchDisputeStatusValues
+  | #routing_approach => advancedRoutingApproachValues
   | _ => []
   }
 
-let basePaymentListFilterKeys = [
-  "payment_id",
-  "payment_method",
-  "currency",
-  "status",
-  "connector",
-  "connector_label",
-  "payment_method_type",
-  "card_network",
-  "customer_id",
-  "authentication_type",
-  "card_discovery",
-  "merchant_order_reference_id",
+type basePaymentListFilter = [
+  | #payment_id
+  | #payment_method
+  | #currency
+  | #status
+  | #connector
+  | #connector_label
+  | #payment_method_type
+  | #card_network
+  | #customer_id
+  | #authentication_type
+  | #card_discovery
+  | #merchant_order_reference_id
 ]
+
+let basePaymentListFilters: array<basePaymentListFilter> = [
+  #payment_id,
+  #payment_method,
+  #currency,
+  #status,
+  #connector,
+  #connector_label,
+  #payment_method_type,
+  #card_network,
+  #customer_id,
+  #authentication_type,
+  #card_discovery,
+  #merchant_order_reference_id,
+]
+
+let basePaymentListFilterKeys = basePaymentListFilters->Array.map(filter => (filter :> string))
 
 let advancedPaymentListFilterKeys =
   basePaymentListFilterKeys
   ->Array.concat(advancedPaymentOnlyFilterKeys)
-  ->Array.concat(["first_attempt"])
+  ->Array.concat(hiddenAdvancedPaymentFilterKeys)
 
 let mergeUniqueFilterValues = (values, staticValues) =>
   Array.concat(values, staticValues)->Array.filter(isNonEmptyString)->getUniqueArray
@@ -460,7 +504,7 @@ let normalizeStringListFilterValue = value => {
       ->getStrArrayFromJsonArray
       ->Array.map(value => value->String.trim)
       ->Array.filter(isNonEmptyString)
-    normalizedValues->Array.length > 0
+    normalizedValues->isNonEmptyArray
       ? Some(normalizedValues->Array.map(JSON.Encode.string)->JSON.Encode.array)
       : None
   | None =>
@@ -498,9 +542,11 @@ let getBoolFromJsonFilterValue = value =>
   | None =>
     switch value->JSON.Decode.string {
     | Some(value) =>
-      switch value->String.toLowerCase {
-      | "true" => Some(true)
-      | "false" => Some(false)
+      let normalizedValue = value->String.trim->String.toLowerCase
+      switch normalizedValue {
+      | "true"
+      | "false" =>
+        Some(normalizedValue->getBoolFromString(false))
       | _ => None
       }
     | None => None
@@ -511,7 +557,7 @@ let normalizeBoolListFilterValue = value =>
   switch value->JSON.Decode.array {
   | Some(values) =>
     let normalizedValues = values->Belt.Array.keepMap(getBoolFromJsonFilterValue)
-    normalizedValues->Array.length > 0
+    normalizedValues->isNonEmptyArray
       ? Some(normalizedValues->Array.map(JSON.Encode.bool)->JSON.Encode.array)
       : None
   | None =>
@@ -609,7 +655,7 @@ let initialFiltersWithSource = (
   }
 
   let connectorFilter = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-  if connectorFilter->Array.length !== 0 {
+  if connectorFilter->isNonEmptyArray {
     filtersArray->Array.push(#connector_label->getLabelFromFilterType)
   }
 
@@ -629,9 +675,8 @@ let initialFiltersWithSource = (
     | #authentication_type => filterData.authentication_type
     | #status => filterData.status
     | #payment_method_type =>
-      getConditionalFilter(key, filterDict, filterValues)->Array.length > 0
-        ? getConditionalFilter(key, filterDict, filterValues)
-        : filterData.payment_method_type
+      let conditionalFilter = getConditionalFilter(key, filterDict, filterValues)
+      conditionalFilter->isNonEmptyArray ? conditionalFilter : filterData.payment_method_type
     | #connector_label => getConditionalFilter(key, filterDict, filterValues)
     | #card_network => filterData.card_network
     | #card_discovery => filterData.card_discovery
