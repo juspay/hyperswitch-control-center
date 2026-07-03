@@ -79,7 +79,6 @@ module DetailsFields = {
 module FieldInput = {
   @react.component
   let make = (~prefix) => {
-
     let fieldOptions = React.useMemo(() => {
       let keys = try Window.getAllKeys() catch {
       | _ => []
@@ -114,7 +113,6 @@ module FieldInput = {
         acc
       })
     }, [])
-
 
     let comparisonInput = ReactFinalForm.useField(`${prefix}.comparison`).input
     let valueInput = ReactFinalForm.useField(`${prefix}.value`).input
@@ -188,9 +186,6 @@ module ValueInput = {
       ->Identity.genericTypeToJson
       ->getDictFromJsonObject
       ->getString("type", "")
-    let boxBtnStyle = "!bg-transparent !border-0 !shadow-none !rounded-lg !px-3 !py-2.5 !w-full"
-    let boxTextStyle = `${body.md.medium} text-nd_gray-600`
-    let boxInputStyle = `!border-0 !bg-transparent !shadow-none !px-3 !py-2.5 ${boxTextStyle}`
     let valueType =
       ReactFinalForm.useField(`${prefix}.value.type`).input.value->getStringFromJson("")
     let variantType = variantTypeOfLhs(lhs)
@@ -231,6 +226,7 @@ module ValueInput = {
         : InputFields.textInput(~customStyle=boxInputStyle)
     | MetadataValue(_) => InputFields.textInput(~customStyle=boxInputStyle)
     }
+
     <div className="flex items-center bg-white rounded-lg shadow-sm">
       <FormRenderer.FieldRenderer
         field={FormRenderer.makeFieldInfo(
@@ -379,12 +375,10 @@ module OutcomeWrapper = {
     }
     let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=connectorType)
 
-
     let gatewayOptions = connectorList->Array.map((c): SelectBox.dropdownOption => {
       label: c.disabled ? `${c.connector_label} (disabled)` : c.connector_label,
       value: c.id,
     })
-
 
     let selectionInput = ReactFinalForm.useField(`${prefix}.connectorSelection`).input
     let selection: connectorSelection = switch selectionInput.value
@@ -448,6 +442,11 @@ module OutcomeWrapper = {
     <div className="bg-nd_gray-25 border border-nd_gray-150 rounded-lg p-4 flex flex-col gap-4">
       <div className="flex items-center gap-3">
         <Icon name="nd-corner-down-right" size=16 className="text-nd_gray-400 shrink-0" />
+        <span className={`${body.sm.medium} text-nd_gray-600 shrink-0`}>
+          {(connectorType == ConnectorTypes.PayoutProcessor
+            ? "Route payout to"
+            : "Route payment to")->React.string}
+        </span>
         <div className="flex-1 min-w-0">
           <SelectBoxAdapter.BaseDropdown
             allowMultiSelect=true
@@ -538,6 +537,7 @@ module RuleWrapper = {
     let removeGroup = index =>
       setStatements(statements->Array.filterWithIndex((_, i) => i !== index))
     let lastIndex = statements->Array.length - 1
+
     <div className="border border-nd_gray-200 rounded-xl my-4 overflow-hidden bg-white">
       <div className="flex items-center gap-2 bg-nd_gray-50 px-4 py-4 border-b border-nd_gray-200">
         <Icon name="grip-vertical" size={16} className="text-nd_gray-400 cursor-grab" />
@@ -627,6 +627,42 @@ module OutcomePreview = {
   }
 }
 
+module ConditionSummaryView = {
+  @react.component
+  let make = (~cond: JSON.t, ~condIndex) => {
+    let condDict = cond->getDictFromJsonObject
+    let lhs = condDict->getString("lhs", "")
+    let cmpStr = condDict->getString("comparison", "")
+    let valueDict = condDict->getDictfromDict("value")
+    let vType = valueDict->getString("type", "")
+    let valueJson = valueDict->Dict.get("value")->Option.getOr(JSON.Encode.null)
+    let opLabel = operatorLabelForStoredValue(~lhs, ~comparison=cmpStr, ~valueType=vType)
+    let metaKey =
+      vType === "metadata_variant" ? valueJson->getDictFromJsonObject->getString("key", "") : ""
+    let valueText = switch valueJson->JSON.Classify.classify {
+    | Array(arr) => arr->Array.joinWithUnsafe(", ")
+    | String(s) => s
+    | Number(n) => n->Float.toString
+    | Object(o) => o->getString("value", "")
+    | _ => ""
+    }
+
+    <div key={condIndex->Int.toString} className="flex flex-wrap items-center gap-1.5">
+      <RenderIf condition={condIndex > 0}>
+        <span className={`${body.sm.semibold} text-nd_gray-500`}> {"AND"->React.string} </span>
+      </RenderIf>
+      <span className={`${body.sm.medium} text-nd_gray-700`}> {lhs->React.string} </span>
+      <RenderIf condition={metaKey->isNonEmptyString}>
+        <span className={`${body.sm.medium} text-nd_gray-700`}> {metaKey->React.string} </span>
+      </RenderIf>
+      <span className={`${body.sm.semibold} text-nd_primary_blue-500`}>
+        {opLabel->React.string}
+      </span>
+      <span className={`${body.sm.medium} text-nd_gray-700`}> {valueText->React.string} </span>
+    </div>
+  }
+}
+
 module RuleSummary = {
   @react.component
   let make = (~rule: JSON.t, ~index, ~connectorList) => {
@@ -637,38 +673,6 @@ module RuleSummary = {
     let statements = ruleDict->getArrayFromDict("statements", [])
     let connectorSelection =
       ruleDict->Dict.get("connectorSelection")->Option.getOr(Dict.make()->JSON.Encode.object)
-
-    let conditionView = (cond: JSON.t, condIndex) => {
-      let condDict = cond->getDictFromJsonObject
-      let lhs = condDict->getString("lhs", "")
-      let cmpStr = condDict->getString("comparison", "")
-      let valueDict = condDict->getDictfromDict("value")
-      let vType = valueDict->getString("type", "")
-      let valueJson = valueDict->Dict.get("value")->Option.getOr(JSON.Encode.null)
-      let opLabel = operatorLabelForStoredValue(~lhs, ~comparison=cmpStr, ~valueType=vType)
-      let metaKey =
-        vType === "metadata_variant" ? valueJson->getDictFromJsonObject->getString("key", "") : ""
-      let valueText = switch valueJson->JSON.Classify.classify {
-      | Array(arr) => arr->Array.joinWithUnsafe(", ")
-      | String(s) => s
-      | Number(n) => n->Float.toString
-      | Object(o) => o->getString("value", "")
-      | _ => ""
-      }
-      <div key={condIndex->Int.toString} className="flex flex-wrap items-center gap-1.5">
-        <RenderIf condition={condIndex > 0}>
-          <span className={`${body.sm.semibold} text-nd_gray-500`}> {"AND"->React.string} </span>
-        </RenderIf>
-        <span className={`${body.sm.medium} text-nd_gray-700`}> {lhs->React.string} </span>
-        <RenderIf condition={metaKey->isNonEmptyString}>
-          <span className={`${body.sm.medium} text-nd_gray-700`}> {metaKey->React.string} </span>
-        </RenderIf>
-        <span className={`${body.sm.semibold} text-nd_primary_blue-500`}>
-          {opLabel->React.string}
-        </span>
-        <span className={`${body.sm.medium} text-nd_gray-700`}> {valueText->React.string} </span>
-      </div>
-    }
 
     <div className="border border-nd_gray-200 rounded-xl bg-white p-4 flex flex-col gap-3">
       <span className={`${body.md.semibold} text-nd_gray-800`}> {headingText->React.string} </span>
@@ -683,7 +687,9 @@ module RuleSummary = {
               </RenderIf>
               <div
                 className="flex flex-wrap items-center gap-2 rounded-lg bg-nd_gray-25 border border-nd_gray-50 px-3 py-2">
-                {conditions->Array.mapWithIndex((cond, ci) => conditionView(cond, ci))->React.array}
+                {conditions
+                ->Array.mapWithIndex((cond, ci) => <ConditionSummaryView cond condIndex=ci />)
+                ->React.array}
               </div>
             </div>
           })
@@ -695,7 +701,6 @@ module RuleSummary = {
     </div>
   }
 }
-
 
 module PreviewView = {
   @react.component
