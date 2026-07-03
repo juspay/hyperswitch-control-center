@@ -201,8 +201,6 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       setDisputeData(_ => response)
       showToast(~message="Details Updated", ~toastType=ToastSuccess)
     } catch {
-    // A failed sync (e.g. 501 unsupported) is already toasted by the API handler — leave the
-    // loaded page in place and skip the success toast.
     | _ => ()
     }
   }
