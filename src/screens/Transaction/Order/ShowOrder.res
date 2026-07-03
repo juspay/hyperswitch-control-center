@@ -402,15 +402,18 @@ module Disputes = {
       }
     }
 
-    <CustomExpandableTable
-      title="Disputes"
-      heading
-      rows
-      onExpandIconClick
-      expandedRowIndexArray
-      getRowDetails
-      showSerial=true
-    />
+    <div className="flex flex-col gap-4">
+      <p className={`${body.lg.bold} text-nd_gray-900`}> {"Disputes"->React.string} </p>
+      <CustomExpandableTable
+        title="Disputes"
+        heading
+        rows
+        onExpandIconClick
+        expandedRowIndexArray
+        getRowDetails
+        showSerial=true
+      />
+    </div>
   }
 }
 
@@ -480,7 +483,7 @@ module FraudRiskBannerDetails = {
   let make = (~order: order, ~refetch) => {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let showPopUp = PopUpState.useShowPopUp()
 
     let updateMerchantDecision = async (~decision) => {
@@ -624,7 +627,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (orderData, setOrderData) = React.useState(_ =>
@@ -766,6 +769,9 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     <RenderIf condition={orderData.frm_message.frm_status === "fraud"}>
       <FraudRiskBanner frmMessage={orderData.frm_message} refElement=frmDetailsRef />
     </RenderIf>
+    <RenderIf condition={orderData.status->statusVariantMapper === Review}>
+      <ReviewStatusBanner order={orderData} refetch={refreshStatus} />
+    </RenderIf>
     <PageLoaderWrapper
       screenState
       customUI={<NoDataFound
@@ -808,18 +814,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         </RenderIf>
         <RenderIf condition={isDisputeDataVisible}>
           <div className="overflow-scroll">
-            <RenderAccordion
-              initialExpandedArray={isDisputeDataVisible ? [0] : []}
-              accordion={[
-                {
-                  title: "Disputes",
-                  renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
-                    <Disputes disputesData={orderData.disputes} />
-                  },
-                  renderContentOnTop: None,
-                },
-              ]}
-            />
+            <Disputes disputesData={orderData.disputes} />
           </div>
         </RenderIf>
         <RenderAccordion
