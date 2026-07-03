@@ -271,6 +271,27 @@ export class PaymentOperations {
     return this.page.locator('[name="reason"]');
   }
 
+  // Capture modal (opened from payment details for requires_capture payments)
+  get addCaptureButton(): Locator {
+    return this.page.locator('[data-button-text="+ Capture"]');
+  }
+
+  get captureAmountInput(): Locator {
+    return this.page.locator('[name="amount"]:visible');
+  }
+
+  get confirmCaptureButton(): Locator {
+    return this.page.getByRole("button", { name: "Capture", exact: true });
+  }
+
+  get captureSuccessToast(): Locator {
+    return this.page.locator('[data-toast="Payment captured successfully"]');
+  }
+
+  get captureErrorToast(): Locator {
+    return this.page.locator('[data-toast="Failed to capture payment"]');
+  }
+
   // Generate Payment Reports modal
   get generatePaymentReportsModal(): Locator {
     return this.page.locator(

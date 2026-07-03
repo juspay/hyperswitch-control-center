@@ -8,6 +8,7 @@ import {
   loginUI,
   createDummyConnectorAPI,
   createPaymentAPI,
+  createRequiresCapturePaymentAPI,
   ompLineage,
 } from "../../support/commands";
 
@@ -1942,6 +1943,265 @@ test.describe("Payment Operations", () => {
       await expect(
         page.getByRole("button", { name: "+ Refund" }),
       ).toBeDisabled();
+    });
+  });
+
+  // Capture cases
+  test.describe("Capture cases", () => {
+    const openCaptureModal = async (
+      page: Page,
+      homePage: HomePage,
+      paymentOperations: PaymentOperations,
+    ) => {
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+      await paymentOperations.addCaptureButton.click();
+      await expect(page.getByText("Confirm Capture Payment").first()).toBeVisible();
+    };
+
+    test("should display Capture button for a requires_capture payment", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await createDummyConnectorAPI(
+          merchantId,
+          "stripe_test_1",
+          context.request,
+        );
+        await createRequiresCapturePaymentAPI(merchantId, context.request);
+      }
+
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+
+      await expect(paymentOperations.addCaptureButton).toBeVisible();
+    });
+
+    test("should not display Capture button for a succeeded payment", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await createDummyConnectorAPI(
+          merchantId,
+          "stripe_test_1",
+          context.request,
+        );
+        await createPaymentAPI(merchantId, context.request);
+      }
+
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+
+      await expect(paymentOperations.addCaptureButton).not.toBeVisible();
+    });
+
+    test("should display all fields in the capture popup", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await createDummyConnectorAPI(
+          merchantId,
+          "stripe_test_1",
+          context.request,
+        );
+        await createRequiresCapturePaymentAPI(merchantId, context.request);
+      }
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await expect(paymentOperations.dataLabel("Amount").first()).toContainText(
+        "123.45 USD",
+      );
+      await expect(page.getByText("Payment ID").first()).toBeVisible();
+      await expect(
+        paymentOperations.dataLabel("Customer ID").first(),
+      ).toContainText("test_customer");
+
+      await expect(paymentOperations.captureAmountInput).toHaveAttribute(
+        "placeholder",
+        "Enter Amount to Capture",
+      );
+      await expect(paymentOperations.captureAmountInput).toHaveValue("123.45");
+
+      await expect(
+        page.getByRole("button", { name: "Cancel" }),
+      ).toBeVisible();
+      await expect(paymentOperations.confirmCaptureButton).toBeVisible();
+    });
+
+    test("should show validation error when capture amount is zero", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await createDummyConnectorAPI(
+          merchantId,
+          "stripe_test_1",
+          context.request,
+        );
+        await createRequiresCapturePaymentAPI(merchantId, context.request);
+      }
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await paymentOperations.captureAmountInput.fill("0");
+      await paymentOperations.captureAmountInput.blur();
+      await expect(
+        page.getByText("Please enter capture amount greater than zero"),
+      ).toBeVisible();
+    });
+
+    test("should show validation error when capture amount exceeds capturable amount", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await createDummyConnectorAPI(
+          merchantId,
+          "stripe_test_1",
+          context.request,
+        );
+        await createRequiresCapturePaymentAPI(merchantId, context.request);
+      }
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await paymentOperations.captureAmountInput.fill("999.99");
+      await paymentOperations.captureAmountInput.blur();
+      await expect(
+        page.getByText("Capture amount should not exceed 123.45"),
+      ).toBeVisible();
+    });
+
+    test("should successfully capture the full payment amount", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await createDummyConnectorAPI(
+          merchantId,
+          "stripe_test_1",
+          context.request,
+        );
+        await createRequiresCapturePaymentAPI(merchantId, context.request);
+      }
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await paymentOperations.confirmCaptureButton.click();
+
+      await expect(paymentOperations.captureSuccessToast).toBeVisible();
+    });
+
+    test("should successfully capture a partial amount", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await createDummyConnectorAPI(
+          merchantId,
+          "stripe_test_1",
+          context.request,
+        );
+        await createRequiresCapturePaymentAPI(merchantId, context.request);
+      }
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await paymentOperations.captureAmountInput.fill("50.00");
+      await paymentOperations.confirmCaptureButton.click();
+
+      await expect(paymentOperations.captureSuccessToast).toBeVisible();
+    });
+
+    test("should show error toast when capture API fails", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await createDummyConnectorAPI(
+          merchantId,
+          "stripe_test_1",
+          context.request,
+        );
+        await createRequiresCapturePaymentAPI(merchantId, context.request);
+      }
+
+      await page.route(/\/payments\/[^/]+\/capture/, async (route) => {
+        await route.fulfill({
+          status: 500,
+          contentType: "application/json",
+          body: JSON.stringify({ error: { message: "Internal server error" } }),
+        });
+      });
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await paymentOperations.confirmCaptureButton.click();
+
+      await expect(paymentOperations.captureErrorToast).toBeVisible();
+    });
+
+    test("should close capture popup on Cancel click", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await createDummyConnectorAPI(
+          merchantId,
+          "stripe_test_1",
+          context.request,
+        );
+        await createRequiresCapturePaymentAPI(merchantId, context.request);
+      }
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await page.getByRole("button", { name: "Cancel" }).click();
+
+      await expect(page.getByText("Confirm Capture Payment")).not.toBeVisible();
     });
   });
 });
