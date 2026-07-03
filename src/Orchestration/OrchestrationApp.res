@@ -21,7 +21,6 @@ let make = (~setScreenState) => {
     | list{"pm-authentication-processor", ..._}
     | list{"tax-processor", ..._}
     | list{"billing-processor", ..._}
-    | list{"vault-processor", ..._}
     | list{"surcharge-processor", ..._}
     | list{"fraud-risk-management", ..._}
     | list{"configure-pmts", ..._}
@@ -34,7 +33,9 @@ let make = (~setScreenState) => {
       <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
         <ConnectorContainer />
       </AccessControl>
-    | list{"payment-settings", ..._} => <ConnectorContainer />
+    | list{"vault-processor", ..._}
+    | list{"payment-settings", ..._} =>
+      <ConnectorContainer />
     | list{"webhooks", ...remainingPath} =>
       <AccessControl isEnabled={featureFlagDetails.devWebhooks} authorization=Access>
         <FilterContext key="webhooks" index="webhooks">
