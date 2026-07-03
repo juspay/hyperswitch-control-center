@@ -264,7 +264,7 @@ export class PaymentOperations {
   }
 
   get refundAmountInput(): Locator {
-    return this.page.locator('[name="amount"]');
+    return this.page.locator('[name="amount"]:visible');
   }
 
   get refundReasonInput(): Locator {
