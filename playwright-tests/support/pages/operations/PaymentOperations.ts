@@ -18,7 +18,7 @@ export class PaymentOperations {
   }
 
   get dateSelector(): Locator {
-    return this.page.locator('[data-testid="date-range-selector"]');
+    return this.page.getByRole('button', { name: 'Custom' });
   }
 
   get viewDropdown(): Locator {
@@ -84,7 +84,7 @@ export class PaymentOperations {
   }
 
   get applyButton(): Locator {
-    return this.page.locator('[data-button-text="Apply"]');
+    return this.page.getByRole('button', { name: 'Apply' });
   }
 
   get modalCloseIcon(): Locator {
@@ -94,7 +94,7 @@ export class PaymentOperations {
   }
 
   get crossOutlineIcon(): Locator {
-    return this.page.locator('[data-icon="cross-outline"]');
+    return this.page.getByRole('button', { name: 'Clear selection' });
   }
 
   get searchExitIcon(): Locator {
@@ -141,7 +141,7 @@ export class PaymentOperations {
   }
 
   visibleDropdownValue(value: string): Locator {
-    return this.page.locator(`[data-dropdown-value="${value}"]:visible`);
+    return this.page.getByText('ConnectorCurrencyStatusPayout');
   }
 
   tableHeading(column: string): Locator {
@@ -186,7 +186,7 @@ export class PaymentOperations {
 
   // Filters
   get filterChipArea(): Locator {
-    return this.page.locator('[class="flex relative  flex-row  flex-wrap"]');
+    return this.page.getByRole('button', { name: 'Select connector' });
   }
 
   get filterChipContainer(): Locator {
