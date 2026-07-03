@@ -247,7 +247,7 @@ module ConnectedStatCard = {
 module ExceptionAgingRow = {
   @react.component
   let make = (~item: exceptionAgingData, ~total: int) => {
-    let pct = total > 0 ? item.total->Int.toFloat /. total->Int.toFloat *. 100.0 : 0.0
+    let pct = ReconEngineOverviewUtils.getPercentage(~count=item.total, ~total)
 
     <div className="flex items-center justify-between py-1.5">
       <div className="flex items-center gap-2">
@@ -276,7 +276,7 @@ module ExceptionAgingBar = {
       {agingData
       ->Array.filter(item => item.total > 0)
       ->Array.mapWithIndex((item, index) => {
-        let pct = item.total->Int.toFloat /. total->Int.toFloat *. 100.0
+        let pct = ReconEngineOverviewUtils.getPercentage(~count=item.total, ~total)
         <ToolTip
           key={index->Int.toString}
           descriptionComponent={<div className="flex flex-col gap-0.5 px-1">
@@ -306,7 +306,7 @@ module ExceptionTriageRow = {
   @react.component
   let make = (~item: exceptionTriageItem, ~total: int, ~index: int) => {
     let color = getTriageColor(index)
-    let pct = total > 0 ? item.total->Int.toFloat /. total->Int.toFloat *. 100.0 : 0.0
+    let pct = ReconEngineOverviewUtils.getPercentage(~count=item.total, ~total)
 
     <div className="flex items-center justify-between gap-3">
       <div className="flex items-center gap-2 min-w-0">
@@ -334,8 +334,10 @@ module RuleActivityRow = {
   @react.component
   let make = (~item: ruleActivityItem, ~index: int, ~onClick) => {
     let matchRateStr = item.matchRate->Float.toFixedWithPrecision(~digits=1)
-    let rateTextColor = item.matchRate == 100.0 ? "text-nd_green-400" : "text-nd_red-500"
-    let rateBarColor = item.matchRate == 100.0 ? "bg-nd_green-400" : "bg-nd_red-500"
+    let (rateTextColor, rateBarColor) =
+      item.matchRate == 100.0
+        ? ("text-nd_green-400", "bg-nd_green-400")
+        : ("text-nd_red-500", "bg-nd_red-500")
     let excColor = item.exceptions == 0 ? "text-nd_green-400" : "text-nd_red-500"
 
     <div
