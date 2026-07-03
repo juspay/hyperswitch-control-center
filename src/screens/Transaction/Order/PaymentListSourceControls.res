@@ -1,35 +1,21 @@
+open OrderTypes
+open OrderUIUtils
 module SourceTabs = {
-  let getPaymentListSourceLabel = (source: OrderTypes.paymentListSource) => (source :> string)
-
-  let paymentListSources: array<OrderTypes.paymentListSource> = [
-    OrderTypes.Normal,
-    OrderTypes.Advanced,
-  ]
-
-  let getPaymentListSourceFromLabel = value =>
-    paymentListSources->Array.find(source => source->getPaymentListSourceLabel == value)
-
-  let getPaymentListSourceDescription = source =>
-    switch source {
-    | OrderTypes.Normal => "Standard payments list."
-    | OrderTypes.Advanced => "Advanced payment list with expanded search, filters, columns, and CSV export."
-    }
-
   @react.component
   let make = (
-    ~source: OrderTypes.paymentListSource,
-    ~setSource: (OrderTypes.paymentListSource => OrderTypes.paymentListSource) => unit,
+    ~source: paymentListSource,
+    ~setSource: (paymentListSource => paymentListSource) => unit,
     ~advancedEnabled,
   ) => {
     <TabsBinding
       value={source->getPaymentListSourceLabel}
       onValueChange={value => {
         switch value->getPaymentListSourceFromLabel {
-        | Some(OrderTypes.Advanced) =>
+        | Some(Advanced) =>
           if advancedEnabled {
-            setSource(_ => OrderTypes.Advanced)
+            setSource(_ => Advanced)
           }
-        | Some(OrderTypes.Normal) => setSource(_ => OrderTypes.Normal)
+        | Some(Normal) => setSource(_ => Normal)
         | None => ()
         }
       }}
@@ -39,7 +25,7 @@ module SourceTabs = {
         {paymentListSources
         ->Array.map(item => {
           let value = item->getPaymentListSourceLabel
-          let isDisabled = item === OrderTypes.Advanced && !advancedEnabled
+          let isDisabled = item === Advanced && !advancedEnabled
           <TabsBinding.Trigger
             key=value
             value

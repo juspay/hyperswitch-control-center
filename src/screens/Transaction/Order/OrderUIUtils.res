@@ -331,6 +331,19 @@ let advancedPaymentFilterCleanupKeys =
 
 let advancedPaymentSearchDescription = "Advanced search checks OpenSearch payment fields such as payment ID, card last 4, amount, attempt ID, connector account, error details, and full customer email."
 
+let paymentListSources: array<paymentListSource> = [Normal, Advanced]
+
+let getPaymentListSourceLabel = (source: paymentListSource) => (source :> string)
+
+let getPaymentListSourceFromLabel = value =>
+  paymentListSources->Array.find(source => source->getPaymentListSourceLabel == value)
+
+let getPaymentListSourceDescription = source =>
+  switch source {
+  | Normal => "Standard payments list."
+  | Advanced => "Advanced payment list with expanded search, filters, columns, and CSV export."
+  }
+
 let getAdvancedPaymentFilterDescription = key =>
   switch key->getFilterTypeFromString {
   | #customer_email => "Filter payments by customer email."

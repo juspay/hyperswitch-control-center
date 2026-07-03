@@ -40,11 +40,6 @@ let disputeViewsArray: array<viewTypes> = [All, Succeeded, Failed, Pending]
 
 let payoutViewsArray: array<viewTypes> = [All, Succeeded, Failed, Cancelled, Expired, Reversed]
 
-let getTransactionViewGridClass = viewsCount =>
-  viewsCount >= 6
-    ? "grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4"
-    : "grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4"
-
 let getCustomFilterKey = entity =>
   switch entity {
   | Orders => "status"
