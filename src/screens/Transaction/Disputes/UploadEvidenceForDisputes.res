@@ -12,19 +12,29 @@ module EvidenceUploadForm = {
   let make = (~uploadEvidenceType, ~index, ~fileUploadedDict, ~setFileUploadedDict) => {
     open LogicUtils
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
+    let showToast = ToastState.useShowToast()
     let handleBrowseChange = (event, uploadEvidenceType) => {
       let target = ReactEvent.Form.target(event)
-      let fileDict =
-        [
-          ("uploadedFile", target["files"]["0"]->Identity.genericTypeToJson),
-          ("fileName", target["files"]["0"]["name"]->JSON.Encode.string),
-        ]->getJsonFromArrayOfJson
+      let fileName = target["files"]["0"]["name"]
+      let fileType = fileName->DisputesUtils.getFileTypeFromFileName->String.toLowerCase
+      if DisputesUtils.supportedEvidenceFileTypes->Array.includes(fileType) {
+        let fileDict =
+          [
+            ("uploadedFile", target["files"]["0"]->Identity.genericTypeToJson),
+            ("fileName", fileName->JSON.Encode.string),
+          ]->getJsonFromArrayOfJson
 
-      setFileUploadedDict(prev => {
-        let arr = prev->Dict.toArray
-        let newDict = [(uploadEvidenceType, fileDict)]->Array.concat(arr)->Dict.fromArray
-        newDict
-      })
+        setFileUploadedDict(prev => {
+          let arr = prev->Dict.toArray
+          let newDict = [(uploadEvidenceType, fileDict)]->Array.concat(arr)->Dict.fromArray
+          newDict
+        })
+      } else {
+        showToast(
+          ~message="Unsupported file format. Please upload a PDF, PNG, JPG or JPEG file",
+          ~toastType=ToastError,
+        )
+      }
     }
 
     <div className="flex justify-between items-center" key={index->Int.toString}>
@@ -39,7 +49,7 @@ module EvidenceUploadForm = {
             <input
               key={Int.toString(index)}
               type_="file"
-              accept=".pdf,.csv,.jpeg,.jpg,.png"
+              accept=".pdf,.jpeg,.jpg,.png"
               onChange={ev => ev->handleBrowseChange(uploadEvidenceType)}
               hidden=true
             />

@@ -66,10 +66,11 @@ let getFileTypeFromFileName = fileName => {
   afterDotFileType
 }
 
+let supportedEvidenceFileTypes = ["pdf", "jpeg", "jpg", "png"]
+
 let getMimeTypeFromFileName = fileName => {
   switch fileName->getFileTypeFromFileName->String.toLowerCase {
   | "pdf" => "application/pdf"
-  | "csv" => "text/csv"
   | "jpeg" | "jpg" => "image/jpeg"
   | "png" => "image/png"
   | _ => "application/octet-stream"
