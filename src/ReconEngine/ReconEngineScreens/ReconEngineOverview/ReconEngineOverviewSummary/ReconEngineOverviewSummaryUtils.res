@@ -821,11 +821,6 @@ let getExceptionCountFromBreakdown = (
     }
   )
 
-let getExceptionCount = (~overviewRules: array<overviewRulesResponse>) =>
-  overviewRules->Array.reduce(0, (acc, rule) =>
-    acc + getExceptionCountFromBreakdown(rule.status_breakdown)
-  )
-
 let exceptionAgingBucketConfig = [
   ("< 24h", lessThan24HrsColor),
   ("1–3 days", oneToThreeDaysColor),

@@ -39,7 +39,7 @@ let make = (~onRuleClick: string => unit) => {
   <div className="border border-nd_gray-200 rounded-xl bg-white h-full">
     <div className="flex flex-col gap-1 px-5 py-3.5 border-b border-nd_gray-200 shadow-sm">
       <p className={`${body.md.semibold} text-nd_gray-800`}>
-        {"Top rules by activity"->React.string}
+        {"Rules by activity"->React.string}
       </p>
       <p className={`${body.sm.regular} text-nd_gray-600`}>
         {"Sorted by exception count"->React.string}
