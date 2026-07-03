@@ -541,12 +541,9 @@ let getBoolFromJsonFilterValue = value =>
     switch value->JSON.Decode.string {
     | Some(value) =>
       let normalizedValue = value->String.trim->String.toLowerCase
-      switch normalizedValue {
-      | "true"
-      | "false" =>
-        Some(normalizedValue->getBoolFromString(false))
-      | _ => None
-      }
+      normalizedValue === "true" || normalizedValue === "false"
+        ? Some(normalizedValue->getBoolFromString(false))
+        : None
     | None => None
     }
   }
