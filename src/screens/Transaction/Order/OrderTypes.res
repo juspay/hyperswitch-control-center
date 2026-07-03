@@ -180,35 +180,57 @@ type optionObj = {
   label: string,
 }
 
+type filterTypes = {
+  connector: array<string>,
+  currency: array<string>,
+  authentication_type: array<string>,
+  payment_method: array<string>,
+  payment_method_type: array<string>,
+  status: array<string>,
+  connector_label: array<string>,
+  card_network: array<string>,
+  card_discovery: array<string>,
+  customer_id: array<string>,
+  amount: array<string>,
+  merchant_order_reference_id: array<string>,
+  customer_email: array<string>,
+  card_last_4: array<string>,
+  active_attempt_id: array<string>,
+  merchant_connector_id: array<string>,
+  refunds_status: array<string>,
+  dispute_status: array<string>,
+  routing_approach: array<string>,
+  card_issuer: array<string>,
+}
+
+type filter = [
+  | #connector
+  | #payment_method
+  | #currency
+  | #authentication_type
+  | #status
+  | #payment_method_type
+  | #connector_label
+  | #card_network
+  | #card_discovery
+  | #customer_id
+  | #amount
+  | #merchant_order_reference_id
+  | #customer_email
+  | #card_last_4
+  | #active_attempt_id
+  | #merchant_connector_id
+  | #refunds_status
+  | #dispute_status
+  | #routing_approach
+  | #card_issuer
+  | #unknown
+]
+
 @unboxed
 type paymentListSource =
   | @as("Normal") Normal
   | @as("Advanced") Advanced
-
-let getPaymentListSourceLabel = (source: paymentListSource) => (source :> string)
-
-let paymentListSources = [Normal, Advanced]
-
-let getPaymentListSourceFromLabel = value =>
-  paymentListSources->Array.find(source => source->getPaymentListSourceLabel == value)
-
-let getPaymentListTableTitle = source =>
-  switch source {
-  | Normal => "Orders"
-  | Advanced => "OrdersAdvanced"
-  }
-
-let getPaymentListSourceDisplayName = source =>
-  switch source {
-  | Normal => "Normal"
-  | Advanced => "Advanced"
-  }
-
-let getPaymentListSourceDescription = source =>
-  switch source {
-  | Normal => "Standard payments list."
-  | Advanced => "Advanced payment list with expanded search, filters, columns, and CSV export."
-  }
 
 type openSearchCsvColumn =
   | CsvPaymentId
@@ -238,10 +260,6 @@ type openSearchCsvColumn =
 
 type openSearchRefundStatus = [#partial_refunded | #full_refunded]
 
-let openSearchRefundStatuses: array<openSearchRefundStatus> = [#partial_refunded, #full_refunded]
-
-let openSearchRefundStatusValues = openSearchRefundStatuses->Array.map(status => (status :> string))
-
 type openSearchDisputeStatus = [
   | #dispute_present
   | #dispute_opened
@@ -253,19 +271,38 @@ type openSearchDisputeStatus = [
   | #dispute_expired
 ]
 
-let openSearchDisputeStatuses: array<openSearchDisputeStatus> = [
-  #dispute_present,
-  #dispute_opened,
-  #dispute_challenged,
-  #dispute_lost,
-  #dispute_won,
-  #dispute_accepted,
-  #dispute_cancelled,
-  #dispute_expired,
+type unsupportedAdvancedPaymentFilter = [#unified_code | #unified_message]
+
+type hiddenAdvancedPaymentFilter = [#first_attempt]
+
+type advancedPaymentTextListFilter = [
+  | #card_last_4
+  | #active_attempt_id
+  | #merchant_connector_id
+  | #card_issuer
 ]
 
-let openSearchDisputeStatusValues =
-  openSearchDisputeStatuses->Array.map(status => (status :> string))
+type advancedRoutingApproach = [
+  | #default_fallback
+  | #straight_through_routing
+  | #rule_based_routing
+  | #volume_based_routing
+]
+
+type basePaymentListFilter = [
+  | #payment_id
+  | #payment_method
+  | #currency
+  | #status
+  | #connector
+  | #connector_label
+  | #payment_method_type
+  | #card_network
+  | #customer_id
+  | #authentication_type
+  | #card_discovery
+  | #merchant_order_reference_id
+]
 
 type frmStatus = [#APPROVE | #REJECT]
 

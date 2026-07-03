@@ -1,53 +1,6 @@
 open LogicUtils
-
-type filterTypes = {
-  connector: array<string>,
-  currency: array<string>,
-  authentication_type: array<string>,
-  payment_method: array<string>,
-  payment_method_type: array<string>,
-  status: array<string>,
-  connector_label: array<string>,
-  card_network: array<string>,
-  card_discovery: array<string>,
-  customer_id: array<string>,
-  amount: array<string>,
-  merchant_order_reference_id: array<string>,
-  customer_email: array<string>,
-  card_last_4: array<string>,
-  active_attempt_id: array<string>,
-  merchant_connector_id: array<string>,
-  refunds_status: array<string>,
-  dispute_status: array<string>,
-  routing_approach: array<string>,
-  card_issuer: array<string>,
-}
-
-type filter = [
-  | #connector
-  | #payment_method
-  | #currency
-  | #authentication_type
-  | #status
-  | #payment_method_type
-  | #connector_label
-  | #card_network
-  | #card_discovery
-  | #customer_id
-  | #amount
-  | #merchant_order_reference_id
-  | #customer_email
-  | #card_last_4
-  | #active_attempt_id
-  | #merchant_connector_id
-  | #refunds_status
-  | #dispute_status
-  | #routing_approach
-  | #card_issuer
-  | #unknown
-]
-
-let getFilterTypeFromString = filterType => {
+open OrderTypes
+let getFilterTypeFromString = (filterType): filter => {
   switch filterType {
   | "connector" => #connector
   | "payment_method" => #payment_method
@@ -321,7 +274,7 @@ let getAllPaymentMethodType = dict => {
   })
 }
 
-let itemToObjMapper = dict => {
+let itemToObjMapper = (dict): filterTypes => {
   {
     connector: dict->getDictfromDict("connector")->Dict.keysToArray,
     currency: dict->getArrayFromDict("currency", [])->getStrArrayFromJsonArray,
@@ -362,16 +315,10 @@ let advancedPaymentFilterTypes: array<filter> = [
 let advancedPaymentOnlyFilterKeys =
   advancedPaymentFilterTypes->Array.map(filterType => filterType->getValueFromFilterType)
 
-let isAdvancedPaymentOnlyFilter = key => advancedPaymentOnlyFilterKeys->Array.includes(key)
-
-type unsupportedAdvancedPaymentFilter = [#unified_code | #unified_message]
-
 let unsupportedAdvancedPaymentFilterKeys = [
   (#unified_code: unsupportedAdvancedPaymentFilter :> string),
   (#unified_message: unsupportedAdvancedPaymentFilter :> string),
 ]
-
-type hiddenAdvancedPaymentFilter = [#first_attempt]
 
 let firstAttemptFilterKey = (#first_attempt: hiddenAdvancedPaymentFilter :> string)
 
@@ -397,14 +344,7 @@ let getAdvancedPaymentFilterDescription = key =>
   | _ => "Advanced OpenSearch-only payment filter."
   }
 
-type advancedPaymentTextListFilter = [
-  | #card_last_4
-  | #active_attempt_id
-  | #merchant_connector_id
-  | #card_issuer
-]
-
-let advancedPaymentTextListFilterTypes: array<advancedPaymentTextListFilter> = [
+let advancedPaymentTextListFilterTypes: array<filter> = [
   #card_last_4,
   #active_attempt_id,
   #merchant_connector_id,
@@ -413,13 +353,6 @@ let advancedPaymentTextListFilterTypes: array<advancedPaymentTextListFilter> = [
 
 let advancedPaymentTextListFilterKeys =
   advancedPaymentTextListFilterTypes->Array.map(filter => (filter :> string))
-
-type advancedRoutingApproach = [
-  | #default_fallback
-  | #straight_through_routing
-  | #rule_based_routing
-  | #volume_based_routing
-]
 
 let advancedRoutingApproaches: array<advancedRoutingApproach> = [
   #default_fallback,
@@ -431,28 +364,23 @@ let advancedRoutingApproaches: array<advancedRoutingApproach> = [
 let advancedRoutingApproachValues =
   advancedRoutingApproaches->Array.map(routingApproach => (routingApproach :> string))
 
-let getAdvancedPaymentStaticFilterValues = key =>
-  switch key->getFilterTypeFromString {
-  | #refunds_status => OrderTypes.openSearchRefundStatusValues
-  | #dispute_status => OrderTypes.openSearchDisputeStatusValues
-  | #routing_approach => advancedRoutingApproachValues
-  | _ => []
-  }
+let openSearchRefundStatuses: array<openSearchRefundStatus> = [#partial_refunded, #full_refunded]
 
-type basePaymentListFilter = [
-  | #payment_id
-  | #payment_method
-  | #currency
-  | #status
-  | #connector
-  | #connector_label
-  | #payment_method_type
-  | #card_network
-  | #customer_id
-  | #authentication_type
-  | #card_discovery
-  | #merchant_order_reference_id
+let openSearchRefundStatusValues = openSearchRefundStatuses->Array.map(status => (status :> string))
+
+let openSearchDisputeStatuses: array<openSearchDisputeStatus> = [
+  #dispute_present,
+  #dispute_opened,
+  #dispute_challenged,
+  #dispute_lost,
+  #dispute_won,
+  #dispute_accepted,
+  #dispute_cancelled,
+  #dispute_expired,
 ]
+
+let openSearchDisputeStatusValues =
+  openSearchDisputeStatuses->Array.map(status => (status :> string))
 
 let basePaymentListFilters: array<basePaymentListFilter> = [
   #payment_id,
@@ -476,87 +404,56 @@ let advancedPaymentListFilterKeys =
   ->Array.concat(advancedPaymentOnlyFilterKeys)
   ->Array.concat(hiddenAdvancedPaymentFilterKeys)
 
-let mergeUniqueFilterValues = (values, staticValues) =>
-  Array.concat(values, staticValues)->Array.filter(isNonEmptyString)->getUniqueArray
-
-let isTextFilter = filter =>
-  switch filter {
-  | #customer_id
-  | #merchant_order_reference_id
-  | #customer_email
-  | #card_last_4
-  | #active_attempt_id
-  | #merchant_connector_id
-  | #card_issuer => true
-  | _ => false
-  }
-
-let copyFilterIfPresent = (~fromDict, ~toDict, key) =>
-  fromDict->Dict.get(key)->Option.mapOr((), value => toDict->Dict.set(key, value))
-
-let getTrimmedStringFilterValues = value => {
-  switch value->JSON.Classify.classify {
-  | Array(values) =>
-    values
-    ->getStrArrayFromJsonArray
-    ->Array.map(value => value->String.trim)
-    ->Array.filter(isNonEmptyString)
-  | String(value) =>
-    let trimmedValue = value->String.trim
-    trimmedValue->isNonEmptyString ? [trimmedValue] : []
-  | _ => []
-  }
-}
-
-let normalizeStringListFilterValue = value => {
-  let normalizedValues = value->getTrimmedStringFilterValues
-  normalizedValues->isNonEmptyArray ? Some(normalizedValues->getJsonFromArrayOfString) : None
-}
-
-let getBoolFromJsonFilterValue = value =>
-  switch value->JSON.Classify.classify {
-  | Bool(value) => Some(value)
-  | String(value) =>
-    let normalizedValue = value->String.trim->String.toLowerCase
-    normalizedValue === "true" || normalizedValue === "false"
-      ? Some(normalizedValue->getBoolFromString(false))
-      : None
-  | _ => None
-  }
-
-let normalizeBoolListFilterValue = value => {
-  let normalizedValues = switch value->JSON.Classify.classify {
-  | Array(values) => values->Belt.Array.keepMap(getBoolFromJsonFilterValue)
-  | _ => value->getBoolFromJsonFilterValue->Option.mapOr([], value => [value])
-  }
-  normalizedValues->isNonEmptyArray
-    ? Some(normalizedValues->Array.map(JSON.Encode.bool)->JSON.Encode.array)
-    : None
-}
-
-let advancedPaymentSearchEmailRegex = %re(`/^(([^<>()[\]\.,;:\s@"{}\/\\]+(\.[^<>()[\]\.,;:\s@"{}\/\\]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/`)
-
-let isAdvancedPaymentSearchTextEmail = value => RegExp.test(advancedPaymentSearchEmailRegex, value)
-
 let copyAdvancedPaymentFilterIfPresent = (~fromDict, ~toDict, key) =>
   fromDict
   ->Dict.get(key)
   ->Option.mapOr((), value => {
+    let stringValues = switch value->JSON.Classify.classify {
+    | Array(values) =>
+      values
+      ->getStrArrayFromJsonArray
+      ->Array.map(value => value->String.trim)
+      ->Array.filter(isNonEmptyString)
+    | String(value) =>
+      let trimmedValue = value->String.trim
+      trimmedValue->isNonEmptyString ? [trimmedValue] : []
+    | _ => []
+    }
+
     if key === "customer_email" {
-      switch value->getTrimmedStringFilterValues->Array.get(0) {
-      | Some(email) if email->isAdvancedPaymentSearchTextEmail =>
+      switch stringValues->Array.get(0) {
+      | Some(email) if !(email->CommonAuthUtils.isValidEmail) =>
         toDict->Dict.set(key, email->JSON.Encode.string)
       | _ => ()
       }
     } else if advancedPaymentTextListFilterKeys->Array.includes(key) {
-      switch value->normalizeStringListFilterValue {
-      | Some(normalizedValue) => toDict->Dict.set(key, normalizedValue)
-      | None => ()
+      if stringValues->isNonEmptyArray {
+        toDict->Dict.set(key, stringValues->getJsonFromArrayOfString)
       }
     } else if key === firstAttemptFilterKey {
-      switch value->normalizeBoolListFilterValue {
-      | Some(normalizedValue) => toDict->Dict.set(key, normalizedValue)
-      | None => ()
+      let boolValues = switch value->JSON.Classify.classify {
+      | Array(values) =>
+        values->Belt.Array.keepMap(value => {
+          switch value->JSON.Classify.classify {
+          | Bool(value) => Some(value)
+          | String(value) =>
+            let normalizedValue = value->String.trim->String.toLowerCase
+            normalizedValue === "true" || normalizedValue === "false"
+              ? Some(normalizedValue->getBoolFromString(false))
+              : None
+          | _ => None
+          }
+        })
+      | Bool(value) => [value]
+      | String(value) =>
+        let normalizedValue = value->String.trim->String.toLowerCase
+        normalizedValue === "true" || normalizedValue === "false"
+          ? [normalizedValue->getBoolFromString(false)]
+          : []
+      | _ => []
+      }
+      if boolValues->isNonEmptyArray {
+        toDict->Dict.set(key, boolValues->Array.map(JSON.Encode.bool)->JSON.Encode.array)
       }
     } else {
       toDict->Dict.set(key, value)
@@ -572,14 +469,14 @@ let buildAdvancedPaymentListPayload = (
   let body = Dict.make()
   let trimmedSearchText = searchText->String.trim
 
-  copyFilterIfPresent(~fromDict=filterParams, ~toDict=body, "offset")
-  copyFilterIfPresent(~fromDict=filterParams, ~toDict=body, "limit")
-  copyFilterIfPresent(~fromDict=filterParams, ~toDict=body, "order")
-  copyFilterIfPresent(~fromDict=filterParams, ~toDict=body, "amount_filter")
+  body->setOptionJson("offset", filterParams->Dict.get("offset"))
+  body->setOptionJson("limit", filterParams->Dict.get("limit"))
+  body->setOptionJson("order", filterParams->Dict.get("order"))
+  body->setOptionJson("amount_filter", filterParams->Dict.get("amount_filter"))
 
   if trimmedSearchText->isEmptyString {
-    copyFilterIfPresent(~fromDict=filterParams, ~toDict=body, startTimeKey)
-    copyFilterIfPresent(~fromDict=filterParams, ~toDict=body, endTimeKey)
+    body->setOptionJson(startTimeKey, filterParams->Dict.get(startTimeKey))
+    body->setOptionJson(endTimeKey, filterParams->Dict.get(endTimeKey))
   }
 
   advancedPaymentListFilterKeys->Array.forEach(key => {
@@ -587,7 +484,7 @@ let buildAdvancedPaymentListPayload = (
   })
 
   if trimmedSearchText->isNonEmptyString {
-    trimmedSearchText->isAdvancedPaymentSearchTextEmail
+    !(trimmedSearchText->CommonAuthUtils.isValidEmail)
       ? {
           body->Dict.set("customer_email", trimmedSearchText->JSON.Encode.string)
           body->Dict.delete("query")
@@ -599,8 +496,6 @@ let buildAdvancedPaymentListPayload = (
 
   body
 }
-
-let filterNewTag = description => <NewFeatureTag className="ml-2" description />
 
 let initialFiltersWithSource = (
   ~isOpenSearchSource=false,
@@ -652,10 +547,14 @@ let initialFiltersWithSource = (
     | #card_issuer => filterData.card_issuer
     | _ => []
     }
+    let staticValues = switch filterType {
+    | #refunds_status => openSearchRefundStatusValues
+    | #dispute_status => openSearchDisputeStatusValues
+    | #routing_approach => advancedRoutingApproachValues
+    | _ => []
+    }
     let values = isOpenSearchSource
-      ? values->mergeUniqueFilterValues(
-          getAdvancedPaymentStaticFilterValues(getValueFromFilterType(filterType)),
-        )
+      ? Array.concat(values, staticValues)->Array.filter(isNonEmptyString)->getUniqueArray
       : values
 
     let title = `Select ${key->snakeToTitle}`
@@ -667,7 +566,13 @@ let initialFiltersWithSource = (
     }
 
     let customInput = switch filterType {
-    | filterType if filterType->isTextFilter =>
+    | #customer_id
+    | #merchant_order_reference_id
+    | #customer_email
+    | #card_last_4
+    | #active_attempt_id
+    | #merchant_connector_id
+    | #card_issuer =>
       (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) =>
         InputFields.textInput(
           ~rightIcon=<div
@@ -696,8 +601,12 @@ let initialFiltersWithSource = (
     }
     let filterKey = getValueFromFilterType(key->getFilterTypeFromString)
     let labelRightComponent =
-      isOpenSearchSource && filterKey->isAdvancedPaymentOnlyFilter
-        ? Some(filterNewTag(filterKey->getAdvancedPaymentFilterDescription))
+      isOpenSearchSource && advancedPaymentOnlyFilterKeys->Array.includes(filterKey)
+        ? Some(
+            <NewFeatureTag
+              className="ml-2" description={filterKey->getAdvancedPaymentFilterDescription}
+            />,
+          )
         : None
 
     {

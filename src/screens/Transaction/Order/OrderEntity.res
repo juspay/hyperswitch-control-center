@@ -620,7 +620,7 @@ let getHeading = (~devSortEnabled, colType: colType) => {
   }
 }
 
-let useGetStatus = order => {
+let useGetStatus = (order: order) => {
   let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
   let orderStatusLabel = order.status->String.toUpperCase
   let fixedStatusCss = "text-sm text-white font-bold px-3 py-2 rounded-md"
@@ -660,7 +660,7 @@ let formatActivityCount = (count, label) => {
 
 type activityTag = {label: string}
 
-let getActivityTags = order => {
+let getActivityTags = (order: order) => {
   let refundsCount = order.refunds_count->Option.mapOr(order.refunds->Array.length, count => count)
   let disputeStatus = order.dispute_status->Option.getOr("")
   let disputesCount =
@@ -680,7 +680,7 @@ let getActivityTags = order => {
   refundTags->Array.concat(disputeTags)
 }
 
-let getActivitiesCell = (order): Table.cell => {
+let getActivitiesCell = (order: order): Table.cell => {
   let activityTags = order->getActivityTags
   let activityText = activityTags->Array.map(tag => tag.label)->Array.joinWith(", ")
 
@@ -818,7 +818,7 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   }
 }
 
-let getCellForSummary = (order, summaryColType): Table.cell => {
+let getCellForSummary = (order: order, summaryColType): Table.cell => {
   let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(order.currency)
   switch summaryColType {
   | Created => Date(order.created_at)
@@ -867,7 +867,10 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
   }
 }
 
-let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): Table.cell => {
+let getCellForAboutPayment = (
+  order: order,
+  aboutPaymentColType: aboutPaymentColType,
+): Table.cell => {
   open HelperComponents
   switch aboutPaymentColType {
   | Connector =>
@@ -901,7 +904,10 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
   }
 }
 
-let getCellForOtherDetails = (order, aboutPaymentColType: otherDetailsColType): Table.cell => {
+let getCellForOtherDetails = (
+  order: order,
+  aboutPaymentColType: otherDetailsColType,
+): Table.cell => {
   let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(order.currency)
   let splitName = order.name->Option.getOr("")->String.split(" ")
   switch aboutPaymentColType {
@@ -969,7 +975,7 @@ let getAllColumns = (version: UserInfoTypes.version) =>
   | V2 => allColumnsV2
   }
 
-let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
+let getCell = (order: order, colType: colType, merchantId, orgId): Table.cell => {
   open HelperComponents
   let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(order.currency)
   let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
