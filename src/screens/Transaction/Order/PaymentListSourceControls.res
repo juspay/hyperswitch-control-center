@@ -3,26 +3,26 @@ module SourceTabs = {
   let make = (
     ~source: OrderTypes.paymentListSource,
     ~setSource: (OrderTypes.paymentListSource => OrderTypes.paymentListSource) => unit,
-    ~openSearchEnabled,
+    ~advancedEnabled,
   ) => {
     <TabsBinding
       value={source->OrderTypes.getPaymentListSourceLabel}
       onValueChange={value => {
         switch value {
-        | "OpenSearch" =>
-          if openSearchEnabled {
-            setSource(_ => OrderTypes.OpenSearch)
+        | "Advanced" =>
+          if advancedEnabled {
+            setSource(_ => OrderTypes.Advanced)
           }
-        | _ => setSource(_ => OrderTypes.Postgres)
+        | _ => setSource(_ => OrderTypes.Normal)
         }
       }}
       variant=Boxed
       size=Md>
       <TabsBinding.List variant=Boxed size=Md fitContent=true>
-        {[OrderTypes.Postgres, OrderTypes.OpenSearch]
+        {[OrderTypes.Normal, OrderTypes.Advanced]
         ->Array.map(item => {
           let value = item->OrderTypes.getPaymentListSourceLabel
-          let isDisabled = item === OrderTypes.OpenSearch && !openSearchEnabled
+          let isDisabled = item === OrderTypes.Advanced && !advancedEnabled
           <TabsBinding.Trigger
             key=value
             value

@@ -441,33 +441,7 @@ let openSearchBaseColumns: array<colType> = [
 
 let openSearchAllColumns = openSearchBaseColumns->Array.concat(openSearchNewColumns)
 
-type openSearchCsvColumn =
-  | CsvPaymentId
-  | CsvStatus
-  | CsvAmount
-  | CsvCurrency
-  | CsvConnector
-  | CsvPaymentMethod
-  | CsvPaymentMethodType
-  | CsvProfileId
-  | CsvMerchantId
-  | CsvCustomerId
-  | CsvActiveAttemptId
-  | CsvMerchantConnectorId
-  | CsvCardLast4
-  | CsvCardNetwork
-  | CsvCardIssuer
-  | CsvRefundsStatus
-  | CsvRefundsCount
-  | CsvDisputeStatus
-  | CsvDisputeCount
-  | CsvRoutingApproach
-  | CsvUnifiedCode
-  | CsvUnifiedMessage
-  | CsvCreated
-  | CsvModified
-
-let openSearchCsvColumns = [
+let openSearchCsvColumns: array<openSearchCsvColumn> = [
   CsvPaymentId,
   CsvStatus,
   CsvAmount,
