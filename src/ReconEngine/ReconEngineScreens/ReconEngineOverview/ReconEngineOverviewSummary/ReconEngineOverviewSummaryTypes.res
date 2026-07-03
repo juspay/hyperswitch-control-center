@@ -98,3 +98,62 @@ type viewType =
 
 type seriesType =
   ReconciledSeriesType | MismatchedSeriesType | ExpectedSeriesType | UnknownSeriesType
+
+type valueType =
+  | Percentage(float)
+  | Float(float)
+  | Number(int)
+  | Amount(float, string)
+  | OutOf(int, int)
+  | SlashOutOf(int, int)
+
+type statCardType =
+  | Info
+  | Attention
+
+@unboxed
+type statCardsTitle =
+  | @as("Match Rate") MatchRate
+  | @as("Open Exceptions") OpenExceptions
+  | @as("Value at Risk") ValueAtRisk
+  | @as("Expected Value") ExpectedValue
+
+type statCardData = {
+  statCardTitle: statCardsTitle,
+  statCardValue: valueType,
+  statCardIcon: Button.iconType,
+  statCardDescription: string,
+  statCardType: statCardType,
+  statCardPath: option<string>,
+}
+
+@unboxed
+type connectedStatCardsTitle =
+  | @as("Auto Match Rate") AutoMatchRate
+  | @as("Missing") MissingTransactions
+  | @as("Failed Transformations") FailedTransformations
+  | @as("Failed Ingestions") FailedIngestions
+  | @as("Manual Corrections") ManualCorrections
+
+type connectedStatCardData = {
+  connectedStatCardTitle: connectedStatCardsTitle,
+  connectedStatCardValue: valueType,
+  connectedStatCardPath: option<string>,
+}
+
+type overviewChartGranularity =
+  | @as("hour") Hour
+  | @as("day") Day
+  | @as("week") Week
+  | @as("month") Month
+
+type overviewChartPoint = {
+  label: string,
+  tooltipLabel: string,
+  totalCount: float,
+  matchedCount: float,
+  exceptionCount: float,
+  expectedCount: float,
+  missingCount: float,
+  matchRate: float,
+}

@@ -14,6 +14,7 @@ type supportedFileExtensions =
   | Csv
   | Ext
   | Xlsx
+  | Txt
 
 @unboxed
 type buttonActionType =

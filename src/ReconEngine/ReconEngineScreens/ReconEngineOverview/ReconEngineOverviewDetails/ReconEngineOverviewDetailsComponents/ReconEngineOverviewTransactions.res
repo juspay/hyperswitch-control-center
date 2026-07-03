@@ -39,11 +39,14 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
         OverAmount(Expected),
         UnderAmount(Expected),
         DataMismatch,
+        CurrencyMismatch,
+        SplitMismatch,
         PartiallyReconciled,
         Posted(Manual),
         Matched(Auto),
         Matched(Manual),
         Matched(Force),
+        Matched(WithTolerance),
         Void,
       ])
 
