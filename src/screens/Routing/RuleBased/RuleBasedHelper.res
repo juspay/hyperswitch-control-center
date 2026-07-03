@@ -442,10 +442,12 @@ module OutcomeWrapper = {
     <div className="bg-nd_gray-25 border border-nd_gray-150 rounded-lg p-4 flex flex-col gap-4">
       <div className="flex items-center gap-3">
         <Icon name="nd-corner-down-right" size=16 className="text-nd_gray-400 shrink-0" />
-        <span className={`${body.sm.medium} text-nd_gray-600 shrink-0`}>
-          {(connectorType == ConnectorTypes.PayoutProcessor
-            ? "Route payout to"
-            : "Route payment to")->React.string}
+        <span className={`${body.md.medium} text-nd_gray-500 shrink-0`}>
+          {(
+            connectorType == ConnectorTypes.PayoutProcessor
+              ? "Route payouts to"
+              : "Route payments to"
+          )->React.string}
         </span>
         <div className="flex-1 min-w-0">
           <SelectBoxAdapter.BaseDropdown
