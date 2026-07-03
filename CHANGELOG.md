@@ -3,6 +3,41 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.07.03.0
+
+### Features
+
+- Recon engine enable `.txt` file input in sources ([#5057](https://github.com/juspay/hyperswitch-control-center/pull/5057)) ([`001a8e6`](https://github.com/juspay/hyperswitch-control-center/commit/001a8e6f72cb060f6e043d1dff8c88a23c2ca1af))
+
+### Testing
+
+- Add playwright tests ([#5041](https://github.com/juspay/hyperswitch-control-center/pull/5041)) ([`10ca4f3`](https://github.com/juspay/hyperswitch-control-center/commit/10ca4f3c28815a895e2e3da4bb8eb8a54dc2a514))
+
+### Miscellaneous Tasks
+
+- Added webhook support for platform merchant account ([#5045](https://github.com/juspay/hyperswitch-control-center/pull/5045)) ([`b6332ae`](https://github.com/juspay/hyperswitch-control-center/commit/b6332ae1e9ca6a51c43dcfed72c3bf5695a4b105))
+
+**Full Changelog:** [`2026.07.02.0...2026.07.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.02.0...2026.07.03.0)
+
+- - -
+
+## 2026.07.02.0
+
+### Features
+
+- Clone a connector across profiles within a merchant ([#4952](https://github.com/juspay/hyperswitch-control-center/pull/4952)) ([`ab4d17e`](https://github.com/juspay/hyperswitch-control-center/commit/ab4d17eb3ed8dbd274953ae2763721fcf658308a))
+- Add recon engine overview connected stat cards ([#5015](https://github.com/juspay/hyperswitch-control-center/pull/5015)) ([`f05cd87`](https://github.com/juspay/hyperswitch-control-center/commit/f05cd8765e3c11cdb8fc5d9fa1c770a580be2b1f))
+- Add manual status update flow for payments in Review state ([#4815](https://github.com/juspay/hyperswitch-control-center/pull/4815)) ([`51a1f50`](https://github.com/juspay/hyperswitch-control-center/commit/51a1f50681faa1758b5c87be7b7ba7f7ab730091))
+- Add recon engine overview reconciliation volume graph ([#5016](https://github.com/juspay/hyperswitch-control-center/pull/5016)) ([`a86d4ee`](https://github.com/juspay/hyperswitch-control-center/commit/a86d4ee5dc2b49af5e09527ecea7b90f672f52b0))
+
+### Miscellaneous Tasks
+
+- Themes ui logo and favicon related enhancements ([#5019](https://github.com/juspay/hyperswitch-control-center/pull/5019)) ([`2697038`](https://github.com/juspay/hyperswitch-control-center/commit/2697038782e1be3333bd772422407d9dfbef6541))
+
+**Full Changelog:** [`2026.07.01.0...2026.07.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.01.0...2026.07.02.0)
+
+- - -
+
 ## 2026.07.01.0
 
 ### Features
