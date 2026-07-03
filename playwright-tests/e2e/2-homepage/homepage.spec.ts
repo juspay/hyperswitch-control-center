@@ -990,18 +990,18 @@ test.describe("Organization Chart Tree", () => {
     await expect(merchantTwoName).toHaveClass(/border-blue-600/);
     await expect(merchantTwoName).toHaveClass(/text-blue-600/);
 
-    //1st Profile button
+    // merchantTwo's "default" profile is auto-selected when switching to that merchant
     await expect(merchantOneProfileName).toBeVisible();
-    await expect(merchantOneProfileName).toHaveClass(/border-gray-200/);
-    await expect(merchantOneProfileName).toHaveClass(/text-gray-600/);
+    await expect(merchantOneProfileName).toHaveClass(/border-blue-600/);
+    await expect(merchantOneProfileName).toHaveClass(/text-blue-600/);
 
-    //2nd Profile button
+    // "new-test-profile" is unselected
     await expect(merchantTwoProfileTwoName).toBeVisible();
-    await expect(merchantTwoProfileTwoName).toHaveClass(/border-blue-600/);
-    await expect(merchantTwoProfileTwoName).toHaveClass(/text-blue-600/);
+    await expect(merchantTwoProfileTwoName).toHaveClass(/border-gray-200/);
+    await expect(merchantTwoProfileTwoName).toHaveClass(/text-gray-600/);
 
-    //Switch profile
-    await merchantOneProfileName.click();
+    //Switch profile to "new-test-profile"
+    await merchantTwoProfileTwoName.click();
 
     //Organization button
     await expect(orgName).toBeVisible();
@@ -1018,15 +1018,15 @@ test.describe("Organization Chart Tree", () => {
     await expect(merchantTwoName).toHaveClass(/border-blue-600/);
     await expect(merchantTwoName).toHaveClass(/text-blue-600/);
 
-    //1st Profile button
+    // "default" profile is now unselected
     await expect(merchantOneProfileName).toBeVisible();
-    await expect(merchantOneProfileName).toHaveClass(/border-blue-600/);
-    await expect(merchantOneProfileName).toHaveClass(/text-blue-600/);
+    await expect(merchantOneProfileName).toHaveClass(/border-gray-200/);
+    await expect(merchantOneProfileName).toHaveClass(/text-gray-600/);
 
-    //2nd Profile button
+    // "new-test-profile" is now selected
     await expect(merchantTwoProfileTwoName).toBeVisible();
-    await expect(merchantTwoProfileTwoName).toHaveClass(/border-gray-200/);
-    await expect(merchantTwoProfileTwoName).toHaveClass(/text-gray-600/);
+    await expect(merchantTwoProfileTwoName).toHaveClass(/border-blue-600/);
+    await expect(merchantTwoProfileTwoName).toHaveClass(/text-blue-600/);
   });
 
   test("should display loading state while switching entities", async ({
