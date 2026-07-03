@@ -406,57 +406,46 @@ let advancedPaymentListFilterKeys =
 
 let copyAdvancedPaymentFilterIfPresent = (~fromDict, ~toDict, key) =>
   fromDict
-  ->Dict.get(key)
+  ->getOptionValFromDict(key)
   ->Option.mapOr((), value => {
-    let stringValues = switch value->JSON.Classify.classify {
-    | Array(values) =>
+    let stringValues = switch value->JSON.Decode.array {
+    | Some(values) =>
       values
       ->getStrArrayFromJsonArray
       ->Array.map(value => value->String.trim)
-      ->Array.filter(isNonEmptyString)
-    | String(value) =>
-      let trimmedValue = value->String.trim
-      trimmedValue->isNonEmptyString ? [trimmedValue] : []
-    | _ => []
+      ->Belt.Array.keepMap(getNonEmptyString)
+    | None =>
+      let value = value->getStringFromJson("")->String.trim
+      value->isNonEmptyString ? [value] : []
     }
 
     if key === "customer_email" {
       switch stringValues->Array.get(0) {
       | Some(email) if !(email->CommonAuthUtils.isValidEmail) =>
-        toDict->Dict.set(key, email->JSON.Encode.string)
+        toDict->setOptionString(key, Some(email))
       | _ => ()
       }
     } else if advancedPaymentTextListFilterKeys->Array.includes(key) {
       if stringValues->isNonEmptyArray {
-        toDict->Dict.set(key, stringValues->getJsonFromArrayOfString)
+        toDict->setOptionJson(key, Some(stringValues->getJsonFromArrayOfString))
       }
     } else if key === firstAttemptFilterKey {
-      let boolValues = switch value->JSON.Classify.classify {
-      | Array(values) =>
-        values->Belt.Array.keepMap(value => {
-          switch value->JSON.Classify.classify {
-          | Bool(value) => Some(value)
-          | String(value) =>
-            let normalizedValue = value->String.trim->String.toLowerCase
-            normalizedValue === "true" || normalizedValue === "false"
-              ? Some(normalizedValue->getBoolFromString(false))
-              : None
-          | _ => None
-          }
-        })
-      | Bool(value) => [value]
-      | String(value) =>
-        let normalizedValue = value->String.trim->String.toLowerCase
-        normalizedValue === "true" || normalizedValue === "false"
-          ? [normalizedValue->getBoolFromString(false)]
-          : []
-      | _ => []
+      let getBoolFilterValue = value =>
+        switch value->JSON.Decode.bool {
+        | Some(value) => Some(value)
+        | None =>
+          let value = value->getStringFromJson("")->String.trim->String.toLowerCase
+          value === "true" || value === "false" ? Some(value->getBoolFromString(false)) : None
+        }
+      let boolValues = switch value->JSON.Decode.array {
+      | Some(values) => values->Belt.Array.keepMap(getBoolFilterValue)
+      | None => value->getBoolFilterValue->Option.mapOr([], value => [value])
       }
       if boolValues->isNonEmptyArray {
-        toDict->Dict.set(key, boolValues->Array.map(JSON.Encode.bool)->JSON.Encode.array)
+        toDict->setOptionArray(key, Some(boolValues->Array.map(JSON.Encode.bool)))
       }
     } else {
-      toDict->Dict.set(key, value)
+      toDict->setOptionJson(key, Some(value))
     }
   })
 

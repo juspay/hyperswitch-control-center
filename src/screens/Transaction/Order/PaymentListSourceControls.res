@@ -9,12 +9,6 @@ module SourceTabs = {
   let getPaymentListSourceFromLabel = value =>
     paymentListSources->Array.find(source => source->getPaymentListSourceLabel == value)
 
-  let getPaymentListSourceDisplayName = source =>
-    switch source {
-    | OrderTypes.Normal => "Normal"
-    | OrderTypes.Advanced => "Advanced"
-    }
-
   let getPaymentListSourceDescription = source =>
     switch source {
     | OrderTypes.Normal => "Standard payments list."
@@ -55,7 +49,7 @@ module SourceTabs = {
             className="min-w-20 justify-center">
             <ToolTip
               description={item->getPaymentListSourceDescription}
-              toolTipFor={<span> {item->getPaymentListSourceDisplayName->React.string} </span>}
+              toolTipFor={<span> {(item :> string)->React.string} </span>}
               toolTipPosition=ToolTip.Top
             />
           </TabsBinding.Trigger>
