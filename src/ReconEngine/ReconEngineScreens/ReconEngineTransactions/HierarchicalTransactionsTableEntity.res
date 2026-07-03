@@ -64,10 +64,13 @@ let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
   Table.Label({
     title: status->TransactionsTableEntity.getDomainTransactionStatusString->String.toUpperCase,
     color: switch status {
-    | Posted(Manual) | Matched(Force) | Matched(Manual) | Matched(Auto) => LabelGreen
+    | Posted(Manual) | Matched(Force) | Matched(Manual) | Matched(Auto) | Matched(WithTolerance) =>
+      LabelGreen
     | OverAmount(Mismatch)
     | UnderAmount(Mismatch)
-    | DataMismatch =>
+    | DataMismatch
+    | CurrencyMismatch
+    | SplitMismatch =>
       LabelRed
     | Expected | UnderAmount(Expected) | OverAmount(Expected) => LabelBlue
     | Archived => LabelGray

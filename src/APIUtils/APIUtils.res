@@ -1227,6 +1227,15 @@ let useGetURL = () => {
           | Post => `${reconBaseURL}/staging_entries/bulk_operations`
           | _ => ""
           }
+        | #OVERVIEW_RULES =>
+          switch methodType {
+          | Get =>
+            switch queryParameters {
+            | Some(queryParams) => `${reconBaseURL}/overview/transactions?${queryParams}`
+            | None => `${reconBaseURL}/overview/transactions`
+            }
+          | _ => ""
+          }
         | #NONE => ""
         }
 
@@ -1351,6 +1360,9 @@ let useGetURL = () => {
         | #LIST_ORG => `${userUrl}/list/org`
         | #LIST_MERCHANT => `${userUrl}/list/merchant`
         | #LIST_PROFILE => `${userUrl}/list/profile`
+
+        // Clone connector across profiles of the same merchant
+        | #CLONE_CONNECTOR => `${userUrl}/clone_connector`
 
         // CREATE ROLES
         | #CREATE_CUSTOM_ROLE => `${userUrl}/role`

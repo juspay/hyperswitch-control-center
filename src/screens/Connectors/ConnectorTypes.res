@@ -478,6 +478,13 @@ type connector =
   | VaultProcessor
   | SurchargeProcessor
 
+type cloneConnectorRequest = {
+  source_mca_id: string,
+  source_profile_id: string,
+  destination_profile_id: string,
+  connector_label: string,
+}
+
 type connectorFieldTypes = {
   bodyType: string,
   connectorAccountFields: Dict.t<JSON.t>,
