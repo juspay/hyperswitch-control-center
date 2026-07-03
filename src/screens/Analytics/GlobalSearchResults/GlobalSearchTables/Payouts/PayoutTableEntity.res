@@ -227,6 +227,7 @@ let getCell = (payoutObj: payoutsObject, colType): Table.cell => {
         url={`/payouts/${payoutObj.payout_id}/${payoutObj.profile_id}/${payoutObj.merchant_id}/${payoutObj.organization_id}`}
         displayValue={payoutObj.payout_id}
         copyValue={Some(payoutObj.payout_id)}
+        endValue={HSwitchOrderUtils.idCellEndValue}
       />,
       payoutObj.payout_id,
     )
