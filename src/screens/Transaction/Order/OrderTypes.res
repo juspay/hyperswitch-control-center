@@ -96,6 +96,16 @@ type colType =
   | MerchantOrderReferenceId
   | AttemptCount
   | PaymentType
+  | MerchantConnectorId
+  | ActiveAttemptId
+  | CardLast4
+  | CardIssuer
+  | RefundsStatus
+  | RefundsCount
+  | Activities
+  | RoutingApproach
+  | UnifiedCode
+  | UnifiedMessage
 
 type summaryColType =
   | Created
@@ -169,6 +179,47 @@ type optionObj = {
   urlKey: string,
   label: string,
 }
+
+type paymentListSource =
+  | Postgres
+  | OpenSearch
+
+let getPaymentListSourceLabel = source =>
+  switch source {
+  | Postgres => "Postgres"
+  | OpenSearch => "OpenSearch"
+  }
+
+let getPaymentListTableTitle = source =>
+  switch source {
+  | Postgres => "Orders"
+  | OpenSearch => "OrdersOpenSearch"
+  }
+
+let getPaymentListSourceDisplayName = source =>
+  switch source {
+  | Postgres => "Normal"
+  | OpenSearch => "Advanced"
+  }
+
+let getPaymentListSourceDescription = source =>
+  switch source {
+  | Postgres => "Standard payments list."
+  | OpenSearch => "Advanced payment list with expanded search, filters, columns, and CSV export."
+  }
+
+let openSearchRefundStatusValues = ["partial_refunded", "full_refunded"]
+
+let openSearchDisputeStatusValues = [
+  "dispute_present",
+  "dispute_opened",
+  "dispute_challenged",
+  "dispute_lost",
+  "dispute_won",
+  "dispute_accepted",
+  "dispute_cancelled",
+  "dispute_expired",
+]
 
 type frmStatus = [#APPROVE | #REJECT]
 
