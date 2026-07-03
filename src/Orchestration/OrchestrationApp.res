@@ -28,13 +28,24 @@ let make = (~setScreenState) => {
     | list{"payment-link-theme", ..._}
     | list{"routing", ..._}
     | list{"payoutrouting", ..._}
-    | list{"payment-settings", ..._}
-    | list{"webhooks", ..._}
     | list{"sdk"}
     | list{"vault-onboarding", ..._}
     | list{"vault-customers-tokens", ..._} =>
       <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
         <ConnectorContainer />
+      </AccessControl>
+    | list{"payment-settings", ..._} => <ConnectorContainer />
+    | list{"webhooks", ...remainingPath} =>
+      <AccessControl isEnabled={featureFlagDetails.devWebhooks} authorization=Access>
+        <FilterContext key="webhooks" index="webhooks">
+          <EntityScaffold
+            entityName="Webhooks"
+            remainingPath
+            access=Access
+            renderList={() => <Webhooks />}
+            renderShow={(id, _) => <WebhooksDetails id />}
+          />
+        </FilterContext>
       </AccessControl>
     | list{"apm"} => <APMContainer />
     | list{"payments", ..._}

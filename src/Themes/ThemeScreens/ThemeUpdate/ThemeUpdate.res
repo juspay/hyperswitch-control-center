@@ -40,7 +40,16 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
         urlsDict->Dict.set("emailLogoUrl", emailLogoUrl->JSON.Encode.string)
       }
       setAssets(_ => urlsDict->assetsMapper)
-      setInitialValues(_ => mappedTheme->Identity.genericTypeToJson)
+      let initialValuesDict = mappedTheme->Identity.genericTypeToJson->getDictFromJsonObject
+      initialValuesDict->Dict.set(
+        "theme_name",
+        resDict->getString("theme_name", "")->JSON.Encode.string,
+      )
+      initialValuesDict->Dict.set(
+        "entity_type",
+        resDict->getString("entity_type", "")->JSON.Encode.string,
+      )
+      setInitialValues(_ => initialValuesDict->JSON.Encode.object)
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
@@ -168,12 +177,21 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
     Nullable.null
   }
 
+  let logoUrl =
+    getAssetDisplayUrl(assets.logo)->Option.map(url => getImgSrc(url, ~themeConfigVersion))
+  let faviconUrl =
+    getAssetDisplayUrl(assets.favicon)->Option.map(url => getImgSrc(url, ~themeConfigVersion))
+  let emailLogoUrl =
+    getAssetDisplayUrl(assets.emailLogo)->Option.map(url => getImgSrc(url, ~themeConfigVersion))
+
   let tabs: array<Tabs.tab> = [
     {
       title: "Dashboard Config",
       renderContent: () =>
         <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
-          <div className="flex flex-col gap-2 max-h-750-px overflow-y-scroll show-scrollbar pr-2 ">
+          <div
+            className="self-start flex flex-col gap-2 h-62-vh lg:h-75-vh overflow-y-scroll theme-config-scrollbar p-4">
+            <ThemeHelper.DashboardConfigScrollbarStyle />
             <ThemeSettingsHelper.IconSettings
               mode={#Dashboard}
               assets
@@ -187,8 +205,9 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
           </div>
           <div className="flex flex-col gap-8 w-full lg:col-span-2">
             <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
-            <div className="border h-3/4 rounded-xl px-10 flex items-center relative ">
-              <ThemeMockDashboard />
+            <div
+              className="border h-48-vh md:h-55-vh lg:h-55-vh rounded-xl py-2 px-10 flex items-center relative ">
+              <ThemeMockDashboard ?logoUrl ?faviconUrl />
             </div>
             <ThemeUpdateHelper.ActionButtons handleDelete />
           </div>
@@ -198,7 +217,9 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
       title: "Email Config",
       renderContent: () =>
         <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
-          <div className="flex flex-col gap-4 overflow-y-auto pr-2">
+          <div
+            className="self-start flex flex-col gap-4 h-75-vh lg:h-80-vh overflow-y-scroll theme-config-scrollbar p-4">
+            <ThemeHelper.DashboardConfigScrollbarStyle />
             <ThemeSettingsHelper.IconSettings
               mode=#Email
               assets
@@ -210,8 +231,9 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
           </div>
           <div className="flex flex-col gap-8 w-full lg:col-span-2">
             <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
-            <div className="border h-3/4 rounded-xl py-2 px-10 flex items-center relative">
-              <ThemeMockEmail />
+            <div
+              className="border h-48-vh md:h-55-vh rounded-xl py-2 px-10 flex items-center relative">
+              <ThemeMockEmail ?emailLogoUrl />
             </div>
             <ThemeUpdateHelper.ActionButtons handleDelete />
           </div>
@@ -219,16 +241,29 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
     },
   ]
 
+  let initialValuesDict = initialValues->getDictFromJsonObject
+  let themeName = initialValuesDict->getString("theme_name", "")
+  let entityLevelLabel: UserInfoTypes.entity =
+    initialValuesDict->getString("entity_type", "")->UserInfoUtils.entityMapper
+
   <PageLoaderWrapper screenState={screenState}>
     <Form key={themeId} onSubmit initialValues>
-      <div className="flex flex-col h-screen gap-8">
-        <div className="flex flex-col flex-1 h-full">
-          <PageUtils.PageHeading
-            title="Theme Configuration"
-            customTitleStyle="text-nd_gray-800"
-            subTitle="Update your configuration."
-            customSubTitleStyle={`${body.lg.medium} text-nd_gray-400 !opacity-100`}
-          />
+      <div className="flex flex-col gap-8">
+        <div className="flex flex-col flex-1">
+          <div className="flex flex-col mb-6">
+            <PageUtils.PageHeading
+              title="Theme Configuration" customTitleStyle="text-nd_gray-800"
+            />
+            <div className="flex items-center gap-3">
+              <BreadCrumbNavigation
+                path=[{title: "Themes", link: "/theme"}] currentPageTitle={themeName}
+              />
+              <span
+                className={`px-3 py-1 rounded-full bg-nd_purple-100 text-nd_purple-700 ${body.xs.semibold}`}>
+                {`${(entityLevelLabel :> string)} level`->React.string}
+              </span>
+            </div>
+          </div>
           <Tabs tabs />
         </div>
       </div>

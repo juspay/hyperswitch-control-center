@@ -77,11 +77,13 @@ type featureFlag = {
   devOpensearch: bool,
   devVault: bool,
   networkTokenization: bool,
+  vaultPspTokenization: bool,
   devBlendEnabled: bool,
   devSortEnabled: bool,
   reconEnginePermissions: bool,
   devSavedViews: bool,
   devClickhouseAggregate: bool,
+  connectorClone: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -161,11 +163,13 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devVault: dict->getBool("dev_vault", false),
     paymentSettingsRevamped: dict->getBool("payment_settings_revamped", false),
     networkTokenization: dict->getBool("network_tokenization", false),
+    vaultPspTokenization: dict->getBool("vault_psp_tokenization", false),
     devBlendEnabled: dict->getBool("dev_blend_enabled", false),
     devSortEnabled: dict->getBool("dev_sort_enabled", false),
     reconEnginePermissions: dict->getBool("recon_engine_permissions", false),
     devSavedViews: dict->getBool("dev_saved_views", false),
     devClickhouseAggregate: dict->getBool("dev_clickhouse_aggregate", false),
+    connectorClone: dict->getBool("connector_clone", false),
   }
 }
 

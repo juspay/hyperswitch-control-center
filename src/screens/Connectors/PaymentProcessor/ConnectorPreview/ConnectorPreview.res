@@ -145,7 +145,7 @@ module ConnectorSummaryGrid = {
 
     let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let copyValueOfWebhookEndpoint = getWebhooksUrl(
-      ~connectorName={connectorInfo.merchant_connector_id},
+      ~connectorName={connectorInfo.connector_name},
       ~merchantId,
     )
     let (processorType, _) =
@@ -435,6 +435,7 @@ let make = (
             <Button text="Sync" buttonType={Primary} onClick={_ => getPayPalStatus()->ignore} />
           | (Preview, _, _, _) =>
             <div className="flex gap-6 items-center">
+              <CloneConnectorModal connectorInfo />
               <RenderIf condition={showMenuOption}>
                 {switch (connector->getConnectorNameTypeFromString, paypalAutomaticFlow) {
                 | (Processors(PAYPAL), true) =>

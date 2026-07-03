@@ -34,11 +34,14 @@ module CustomToastElement = {
     | UnderAmount(Mismatch)
     | OverAmount(Mismatch)
     | DataMismatch
+    | CurrencyMismatch
+    | SplitMismatch
     | Archived
     | UnknownDomainTransactionStatus
     | UnderAmount(UnknownDomainTransactionAmountMismatchStatus)
     | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
     | Matched(UnknownDomainTransactionMatchedStatus)
+    | Matched(WithTolerance)
     | Posted(UnknownDomainTransactionPostedStatus) => (
         "Transaction processed successfully",
         "Please review the transactions page for details",
@@ -171,6 +174,8 @@ module ExceptionDataDisplay = {
     let mismatchData = React.useMemo(() => {
       switch currentExceptionDetails.transaction_status {
       | DataMismatch
+      | CurrencyMismatch
+      | SplitMismatch
       | OverAmount(Mismatch)
       | UnderAmount(Mismatch) =>
         entryDetails
@@ -181,6 +186,7 @@ module ExceptionDataDisplay = {
       | Matched(Force)
       | Matched(Manual)
       | Matched(Auto)
+      | Matched(WithTolerance)
       | OverAmount(Expected)
       | UnderAmount(Expected)
       | Archived
@@ -198,6 +204,8 @@ module ExceptionDataDisplay = {
 
     let (heading, subHeading) = switch currentExceptionDetails.transaction_status {
     | DataMismatch
+    | CurrencyMismatch
+    | SplitMismatch
     | OverAmount(Mismatch)
     | UnderAmount(Mismatch) =>
       getHeadingAndSubHeadingForMismatch(mismatchData, ~accountInfoMap)
@@ -221,6 +229,7 @@ module ExceptionDataDisplay = {
     | Matched(Force)
     | Matched(Manual)
     | Matched(Auto)
+    | Matched(WithTolerance)
     | Archived
     | Void
     | Posted(UnknownDomainTransactionPostedStatus)
