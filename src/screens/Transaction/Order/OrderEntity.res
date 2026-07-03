@@ -314,6 +314,51 @@ let defaultColumns: array<colType> = [
   Created,
   Modified,
 ]
+
+let openSearchDefaultColumns: array<colType> = [
+  PaymentId,
+  Connector,
+  ProfileId,
+  Amount,
+  Status,
+  Activities,
+  PaymentMethod,
+  PaymentMethodType,
+  CardNetwork,
+  Created,
+  Modified,
+]
+
+let openSearchNewColumns = [
+  MerchantConnectorId,
+  ActiveAttemptId,
+  CardLast4,
+  CardIssuer,
+  RefundsStatus,
+  RefundsCount,
+  Activities,
+  RoutingApproach,
+  UnifiedCode,
+  UnifiedMessage,
+]
+
+let isOpenSearchNewColumn = colType => openSearchNewColumns->Array.includes(colType)
+
+let getOpenSearchNewColumnDescription = colType =>
+  switch colType {
+  | MerchantConnectorId => "Connector account used for this payment attempt."
+  | ActiveAttemptId => "Current active payment attempt linked to the payment."
+  | CardLast4 => "Last 4 digits of the card used for the payment."
+  | CardIssuer => "Bank or institution that issued the card."
+  | RefundsStatus => "Refund state derived from the payment refund lifecycle."
+  | RefundsCount => "Number of refunds linked to this payment."
+  | Activities => "Related refund and dispute activity for this payment."
+  | RoutingApproach => "Routing strategy used to select the connector."
+  | UnifiedCode => "Normalized error or status code from Hyperswitch."
+  | UnifiedMessage => "Normalized message explaining the payment outcome."
+  | _ => ""
+  }
+
 //Columns array for V1 Orders page
 let allColumnsV1 = [
   Amount,
@@ -369,6 +414,94 @@ let allColumnsV2 = [
   PaymentType,
   ErrorMessage,
 ]
+
+let openSearchBaseColumns: array<colType> = [
+  Amount,
+  AmountCapturable,
+  AmountReceived,
+  AuthenticationType,
+  ProfileId,
+  CaptureMethod,
+  Connector,
+  ConnectorTransactionID,
+  Created,
+  Modified,
+  Currency,
+  CustomerId,
+  MerchantOrderReferenceId,
+  PaymentId,
+  PaymentMethod,
+  PaymentMethodType,
+  SetupFutureUsage,
+  Status,
+  AttemptCount,
+  CardNetwork,
+  ErrorMessage,
+]
+
+let openSearchAllColumns = openSearchBaseColumns->Array.concat(openSearchNewColumns)
+
+let csvHeaders = [
+  ("payment_id", "Payment ID"),
+  ("status", "Payment Status"),
+  ("amount", "Amount"),
+  ("currency", "Currency"),
+  ("connector", "Connector"),
+  ("payment_method", "Payment Method"),
+  ("payment_method_type", "Payment Method Type"),
+  ("profile_id", "Profile ID"),
+  ("merchant_id", "Merchant ID"),
+  ("customer_id", "Customer ID"),
+  ("active_attempt_id", "Active Attempt ID"),
+  ("merchant_connector_id", "Merchant Connector ID"),
+  ("card_last_4", "Card Last 4"),
+  ("card_network", "Card Network"),
+  ("card_issuer", "Card Issuer"),
+  ("refunds_status", "Refund Status"),
+  ("refunds_count", "Refund Count"),
+  ("dispute_status", "Dispute Status"),
+  ("dispute_count", "Dispute Count"),
+  ("routing_approach", "Routing Approach"),
+  ("unified_code", "Unified Code"),
+  ("unified_message", "Unified Message"),
+  ("created", "Created"),
+  ("modified", "Modified"),
+]
+
+let mapOrderDictToCsvRow = (dict: Dict.t<JSON.t>) =>
+  [
+    ("payment_id", dict->getString("payment_id", "")->JSON.Encode.string),
+    ("status", dict->getString("status", "")->JSON.Encode.string),
+    ("amount", dict->getFloat("amount", 0.0)->Float.toString->JSON.Encode.string),
+    ("currency", dict->getString("currency", "")->JSON.Encode.string),
+    ("connector", dict->getString("connector", "")->JSON.Encode.string),
+    ("payment_method", dict->getString("payment_method", "")->JSON.Encode.string),
+    ("payment_method_type", dict->getString("payment_method_type", "")->JSON.Encode.string),
+    ("profile_id", dict->getString("profile_id", "")->JSON.Encode.string),
+    ("merchant_id", dict->getString("merchant_id", "")->JSON.Encode.string),
+    ("customer_id", dict->getString("customer_id", "")->JSON.Encode.string),
+    ("active_attempt_id", dict->getString("active_attempt_id", "")->JSON.Encode.string),
+    (
+      "merchant_connector_id",
+      dict
+      ->getString("merchant_connector_id", dict->getString("connector_id", ""))
+      ->JSON.Encode.string,
+    ),
+    ("card_last_4", dict->getString("card_last_4", "")->JSON.Encode.string),
+    ("card_network", dict->getString("card_network", "")->JSON.Encode.string),
+    ("card_issuer", dict->getString("card_issuer", "")->JSON.Encode.string),
+    ("refunds_status", dict->getString("refunds_status", "")->JSON.Encode.string),
+    ("refunds_count", dict->getInt("refunds_count", 0)->Int.toString->JSON.Encode.string),
+    ("dispute_status", dict->getString("dispute_status", "")->JSON.Encode.string),
+    ("dispute_count", dict->getInt("dispute_count", 0)->Int.toString->JSON.Encode.string),
+    ("routing_approach", dict->getString("routing_approach", "")->JSON.Encode.string),
+    ("unified_code", dict->getString("unified_code", "")->JSON.Encode.string),
+    ("unified_message", dict->getString("unified_message", "")->JSON.Encode.string),
+    ("created", dict->getString("created_at", "")->JSON.Encode.string),
+    ("modified", dict->getString("modified_at", "")->JSON.Encode.string),
+  ]
+  ->Dict.fromArray
+  ->JSON.Encode.object
 
 let getHeading = (~devSortEnabled, colType: colType) => {
   switch colType {
@@ -426,6 +559,17 @@ let getHeading = (~devSortEnabled, colType: colType) => {
   | AttemptCount =>
     Table.makeHeaderInfo(~key="attempt_count", ~title="Attempt Count", ~showSort=true)
   | PaymentType => Table.makeHeaderInfo(~key="payment_type", ~title="Payment Type")
+  | MerchantConnectorId =>
+    Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector ID")
+  | ActiveAttemptId => Table.makeHeaderInfo(~key="active_attempt_id", ~title="Active Attempt ID")
+  | CardLast4 => Table.makeHeaderInfo(~key="card_last_4", ~title="Card Last 4")
+  | CardIssuer => Table.makeHeaderInfo(~key="card_issuer", ~title="Card Issuer")
+  | RefundsStatus => Table.makeHeaderInfo(~key="refunds_status", ~title="Refund Status")
+  | RefundsCount => Table.makeHeaderInfo(~key="refunds_count", ~title="Refund Count")
+  | Activities => Table.makeHeaderInfo(~key="activities", ~title="Related Activity")
+  | RoutingApproach => Table.makeHeaderInfo(~key="routing_approach", ~title="Routing Approach")
+  | UnifiedCode => Table.makeHeaderInfo(~key="unified_code", ~title="Unified Code")
+  | UnifiedMessage => Table.makeHeaderInfo(~key="unified_message", ~title="Unified Message")
   }
 }
 
@@ -461,6 +605,66 @@ let useGetStatus = order => {
     </div>
   }
 }
+
+let formatActivityCount = (count, label) => {
+  let suffix = count == 1 ? "" : "S"
+  `${count->Int.toString} ${label}${suffix}`
+}
+
+type activityTag = {label: string}
+
+let getActivityTags = order => {
+  let refundsCount = switch order.refunds_count {
+  | Some(count) => count
+  | None => order.refunds->Array.length
+  }
+  let disputeStatus = order.dispute_status->Option.getOr("")
+  let disputesCount = switch order.dispute_count {
+  | Some(count) => count
+  | None =>
+    order.disputes->Array.length > 0
+      ? order.disputes->Array.length
+      : disputeStatus->isNonEmptyString
+      ? 1
+      : 0
+  }
+
+  let refundTags = refundsCount > 0 ? [{label: formatActivityCount(refundsCount, "REFUND")}] : []
+  let disputeTags =
+    disputesCount > 0 ? [{label: formatActivityCount(disputesCount, "DISPUTE")}] : []
+
+  refundTags->Array.concat(disputeTags)
+}
+
+let getActivitiesCell = (order): Table.cell => {
+  let activityTags = order->getActivityTags
+  if activityTags->Array.length == 0 {
+    CustomCell(
+      <div className="w-32 whitespace-nowrap text-nd_gray-400"> {"-"->React.string} </div>,
+      "-",
+    )
+  } else {
+    let activityText = activityTags->Array.map(tag => tag.label)->Array.joinWith(", ")
+    CustomCell(
+      <ToolTip
+        description=activityText
+        toolTipFor={<div className="w-40 overflow-hidden">
+          <div className="flex items-center gap-1 whitespace-nowrap">
+            {activityTags
+            ->Array.map(tag =>
+              <TagBinding text=tag.label color=Primary variant=Subtle shape=Squarical size=Xs />
+            )
+            ->React.array}
+          </div>
+        </div>}
+        toolTipPosition=ToolTip.Top
+      />,
+      activityText,
+    )
+  }
+}
+
+let formatAdvancedDisplayValue = value => value->isNonEmptyString ? value->snakeToTitle : ""
 
 let getHeadingForSummary = summaryColType => {
   switch summaryColType {
@@ -833,20 +1037,24 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
       },
     )
   | CardNetwork => {
-      let cardNetwork = switch order.payment_method_data {
-      | Some(val) =>
-        switch val->JSON.Classify.classify {
-        | Object(value) => Some(value->getString("card_network", ""))
-        | String(value) =>
-          Some(
-            value
-            ->safeParse
-            ->getDictFromJsonObject
-            ->getStringFromNestedDict("card", "card_network", ""),
-          )
+      let cardNetwork = switch order.card_network {
+      | Some(value) if value->LogicUtils.isNonEmptyString => Some(value)
+      | _ =>
+        switch order.payment_method_data {
+        | Some(val) =>
+          switch val->JSON.Classify.classify {
+          | Object(value) => Some(value->getString("card_network", ""))
+          | String(value) =>
+            Some(
+              value
+              ->safeParse
+              ->getDictFromJsonObject
+              ->getStringFromNestedDict("card", "card_network", ""),
+            )
+          | _ => None
+          }
         | _ => None
         }
-      | _ => None
       }->Option.mapOr("", val => val)
 
       Text(cardNetwork)
@@ -859,6 +1067,43 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
     | Some(false) => Text("Standard")
     | None => Text("N/A")
     }
+  | MerchantConnectorId =>
+    CustomCell(
+      <CopyTextCustomComp
+        customTextCss="w-44 truncate whitespace-nowrap"
+        displayValue=Some(order.connector_id)
+        showTooltip=true
+      />,
+      "",
+    )
+  | ActiveAttemptId =>
+    CustomCell(
+      <CopyTextCustomComp
+        customTextCss="w-40 truncate whitespace-nowrap"
+        displayValue=Some(order.active_attempt_id->Option.getOr(""))
+        showTooltip=true
+      />,
+      order.active_attempt_id->Option.getOr(""),
+    )
+  | CardLast4 => EllipsisText(order.card_last_4->Option.getOr(""), "w-20")
+  | CardIssuer =>
+    CustomCell(
+      <CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap"
+        displayValue=Some(order.card_issuer->Option.getOr(""))
+        showTooltip=true
+      />,
+      "",
+    )
+  | RefundsStatus =>
+    EllipsisText(order.refunds_status->Option.getOr("")->formatAdvancedDisplayValue, "w-28")
+  | RefundsCount => EllipsisText(order.refunds_count->Option.getOr(0)->Int.toString, "w-20")
+  | Activities => order->getActivitiesCell
+  | RoutingApproach =>
+    EllipsisText(order.routing_approach->Option.getOr("")->formatAdvancedDisplayValue, "w-36")
+  | UnifiedCode =>
+    EllipsisText(order.unified_code->Option.getOr("")->formatAdvancedDisplayValue, "w-32")
+  | UnifiedMessage => EllipsisText(order.unified_message->Option.getOr(""), "w-40")
   }
 }
 
@@ -888,5 +1133,22 @@ let orderEntity = (merchantId, orgId, ~version: UserInfoTypes.version=V1, ~devSo
           )
         }
       }
+    },
+  )
+
+let openSearchOrderEntity = (merchantId, orgId, ~devSortEnabled) =>
+  EntityType.makeEntity(
+    ~uri=``,
+    ~getObjects=getOrders,
+    ~defaultColumns=openSearchDefaultColumns,
+    ~allColumns=openSearchAllColumns,
+    ~getHeading=colType => getHeading(~devSortEnabled, colType),
+    ~getCell=(order, colType) => getCell(order, colType, merchantId, orgId),
+    ~dataKey="",
+    ~getShowLink={
+      order =>
+        GlobalVars.appendDashboardPath(
+          ~url=`/payments/${order.payment_id}/${order.profile_id}/${merchantId}/${orgId}`,
+        )
     },
   )
