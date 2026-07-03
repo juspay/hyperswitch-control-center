@@ -16,7 +16,30 @@ let make = () => {
   let (stagingItems, setStagingItems) = React.useState(_ => [])
   let (selectedTab, setSelectedTab) = React.useState(_ => Transactions)
 
-  let fetchTriageData = async (~tab) => {
+  let fetchTriageData = async () => {
+    open ReconEngineFilterUtils
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let queryParams = buildQueryStringFromFilters(~filterValueJson)
+      let stagingQuery = `${queryParams}&status=needs_manual_review`
+
+      let overviewRulesFetch = getOverviewRules(~queryParameters=Some(queryParams))
+      let processingEntriesFetch = getProcessingEntries(~queryParameters=Some(stagingQuery))
+
+      let (overviewRules, processingEntries) = await Promise.all2((
+        overviewRulesFetch,
+        processingEntriesFetch,
+      ))
+
+      setTxnItems(_ => getExceptionTriageItems(~overviewRules))
+      setStagingItems(_ => getStagingTriageItems(~processingEntries))
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
+    }
+  }
+
+  let fetchTabData = async tab => {
     open ReconEngineFilterUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -39,16 +62,12 @@ let make = () => {
 
   let onTabSelect = tab => {
     setSelectedTab(_ => tab)
-    fetchTriageData(~tab)->ignore
+    fetchTabData(tab)->ignore
   }
 
   React.useEffect(() => {
     if !(filterValue->isEmptyDict) {
-      switch selectedTab {
-      | Transactions => setStagingItems(_ => [])
-      | Staging => setTxnItems(_ => [])
-      }
-      fetchTriageData(~tab=selectedTab)->ignore
+      fetchTriageData()->ignore
     }
     None
   }, [filterValue])
