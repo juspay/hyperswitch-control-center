@@ -278,7 +278,7 @@ module ExceptionAgingBar = {
             </p>
           </div>}
           toolTipFor={<div
-            className="h-full cursor-default"
+            className="h-full cursor-pointer"
             style={ReactDOM.Style.make(
               ~width=`${pct->Float.toFixedWithPrecision(~digits=1)}%`,
               ~backgroundColor=item.color,
