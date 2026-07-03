@@ -21,9 +21,8 @@ let useSendEvent = () => {
   }
 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {clientCountry} = HSwitchUtils.getBrowserDetails()
+  let {clientCountry, browserName, browserVersion} = HSwitchUtils.getBrowserDetails()
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVariant
-  let (browserName, browserVersion) = HSwitchUtils.getBrowserNameAndVersion()
   let dashboardVersion = switch version {
   | UserInfoTypes.V1 => "v1"
   | V2 => "v2"
@@ -123,9 +122,8 @@ let usePageView = () => {
   ).getResolvedUserInfo()
 
   let environment = GlobalVars.hostType->getEnvironment
-  let {clientCountry} = HSwitchUtils.getBrowserDetails()
+  let {clientCountry, browserName, browserVersion} = HSwitchUtils.getBrowserDetails()
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVariant
-  let (browserName, browserVersion) = HSwitchUtils.getBrowserNameAndVersion()
   let dashboardVersion = switch version {
   | UserInfoTypes.V1 => "v1"
   | V2 => "v2"

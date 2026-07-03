@@ -78,27 +78,11 @@ let getBrowserDetails = () => {
   open HSwitchUtilsTypes
   let clientTimeZone = dateTimeFormat().resolvedOptions().timeZone
   let clientCountry = clientTimeZone->getClientCountry
-  {
-    userAgent,
-    browserVersion,
-    platform,
-    browserName,
-    browserLanguage,
-    screenHeight,
-    screenWidth,
-    timeZoneOffset,
-    clientCountry,
-  }
-}
-
-// navigator.appName/appVersion are legacy and return constants (e.g. "Netscape") across modern browsers, so parse the userAgent for real name/version
-let getBrowserNameAndVersion = () => {
-  let userAgent = Window.Navigator.userAgent
 
   let getVersion = regex =>
     userAgent->String.match(regex)->Option.mapOr("", matches => matches->getValueFromArray(1, ""))
 
-  if userAgent->String.includes("Edg/") {
+  let (browserName, browserVersion) = if userAgent->String.includes("Edg/") {
     ("Edge", getVersion(%re("/Edg\/([\d.]+)/")))
   } else if userAgent->String.includes("OPR/") || userAgent->String.includes("Opera") {
     ("Opera", getVersion(%re("/(?:OPR|Opera)\/([\d.]+)/")))
@@ -110,6 +94,18 @@ let getBrowserNameAndVersion = () => {
     ("Safari", getVersion(%re("/Version\/([\d.]+)/")))
   } else {
     ("Unknown", "")
+  }
+
+  {
+    userAgent,
+    browserVersion,
+    platform,
+    browserName,
+    browserLanguage,
+    screenHeight,
+    screenWidth,
+    timeZoneOffset,
+    clientCountry,
   }
 }
 
