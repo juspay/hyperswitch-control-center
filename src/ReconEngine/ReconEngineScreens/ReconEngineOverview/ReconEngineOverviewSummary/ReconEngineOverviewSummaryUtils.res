@@ -244,12 +244,9 @@ let summarizeTransactions = (ruleTransactions: array<transactionType>): (int, in
 }
 
 let getPercentageLabel = (~matchedCount, ~totalCount) =>
-  if totalCount > 0 {
-    let percentageValue = matchedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
-    `${percentageValue->valueFormatter(Rate)} Matched`
-  } else {
-    "0% Matched"
-  }
+  `${ReconEngineOverviewUtils.getPercentage(~count=matchedCount, ~total=totalCount)->valueFormatter(
+      Rate,
+    )} Matched`
 
 let getCompactRuleType = (strategy: ReconEngineRulesTypes.reconStrategyType) => {
   open ReconEngineRulesTypes
@@ -911,7 +908,10 @@ let exceptionTriageTooltipFormatter = (~totalCount) =>
     @this
     (this: PieGraphTypes.pointFormatter) => {
       let pct =
-        (totalCount > 0 ? this.y /. totalCount->Int.toFloat *. 100.0 : 0.0)->valueFormatter(Rate)
+        ReconEngineOverviewUtils.getPercentage(
+          ~count=this.y->Float.toInt,
+          ~total=totalCount,
+        )->valueFormatter(Rate)
       `<div style="min-width:190px;max-width:260px;border-radius:12px;background:#1A1F2E;box-shadow:0 8px 24px rgba(0,0,0,.25);overflow:hidden;">
         <div style="padding:10px 14px;">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
@@ -978,8 +978,7 @@ let getStatCards = (
   let expectedValue = getExpectedValue(~overviewRules)
   let currency = getCurrency(~overviewRules)
 
-  let matchRate =
-    totalCount === 0 ? 0.0 : matchedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
+  let matchRate = ReconEngineOverviewUtils.getPercentage(~count=matchedCount, ~total=totalCount)
 
   let reconExceptionsPath = GlobalVars.appendDashboardPath(~url="v1/recon-engine/exceptions/recon")
 
@@ -1071,8 +1070,10 @@ let getConnectedStatCards = (
   let manualCorrectionsCount = getManualCorrectionsCount(~overviewRules)
   let missingCount = getMissingCount(~overviewRules)
 
-  let autoMatchRate =
-    totalCount === 0 ? 0.0 : autoMatchedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
+  let autoMatchRate = ReconEngineOverviewUtils.getPercentage(
+    ~count=autoMatchedCount,
+    ~total=totalCount,
+  )
 
   [
     {
@@ -1183,6 +1184,19 @@ let getBreakdownCategoryCounts = (
     }
   )
 
+let getRuleActivityItems = (~overviewRules: array<overviewRulesResponse>): array<
+  ruleActivityItem,
+> => {
+  overviewRules
+  ->Array.map(rule => {
+    let volume = rule.status_breakdown->Array.reduce(0, (acc, status) => acc + status.count)
+    let (matchedCount, exceptionCount, _, _) = getBreakdownCategoryCounts(rule.status_breakdown)
+    let matchRate = ReconEngineOverviewUtils.getPercentage(~count=matchedCount, ~total=volume)
+    {overview_rule: rule, volume, exceptions: exceptionCount, matchRate}
+  })
+  ->Array.toSorted((a, b) => Int.compare(b.exceptions, a.exceptions))
+}
+
 let getOverviewChartPoints = (
   ~overviewRules: array<overviewRulesTimeSeriesResponse>,
   ~granularity: overviewChartGranularity,
@@ -1215,9 +1229,7 @@ let getOverviewChartPoints = (
       exceptionCount: exceptionCount->Int.toFloat,
       expectedCount: expectedCount->Int.toFloat,
       missingCount: missingCount->Int.toFloat,
-      matchRate: totalCount == 0
-        ? 0.0
-        : matchedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0,
+      matchRate: ReconEngineOverviewUtils.getPercentage(~count=matchedCount, ~total=totalCount),
     }
   })
 }

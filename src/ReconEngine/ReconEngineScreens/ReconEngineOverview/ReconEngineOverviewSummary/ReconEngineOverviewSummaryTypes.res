@@ -170,3 +170,10 @@ type exceptionTriageItem = {
 }
 
 type triageTab = Transactions | Staging
+
+type ruleActivityItem = {
+  overview_rule: ReconEngineTypes.overviewRulesResponse,
+  volume: int,
+  exceptions: int,
+  matchRate: float,
+}
