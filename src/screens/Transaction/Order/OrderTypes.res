@@ -182,28 +182,54 @@ type optionObj = {
 
 @unboxed
 type paymentListSource =
-  | @as("Postgres") Postgres
-  | @as("OpenSearch") OpenSearch
+  | @as("Normal") Normal
+  | @as("Advanced") Advanced
 
 let getPaymentListSourceLabel = (source: paymentListSource) => (source :> string)
 
 let getPaymentListTableTitle = source =>
   switch source {
-  | Postgres => "Orders"
-  | OpenSearch => "OrdersOpenSearch"
+  | Normal => "Orders"
+  | Advanced => "OrdersAdvanced"
   }
 
 let getPaymentListSourceDisplayName = source =>
   switch source {
-  | Postgres => "Normal"
-  | OpenSearch => "Advanced"
+  | Normal => "Normal"
+  | Advanced => "Advanced"
   }
 
 let getPaymentListSourceDescription = source =>
   switch source {
-  | Postgres => "Standard payments list."
-  | OpenSearch => "Advanced payment list with expanded search, filters, columns, and CSV export."
+  | Normal => "Standard payments list."
+  | Advanced => "Advanced payment list with expanded search, filters, columns, and CSV export."
   }
+
+type openSearchCsvColumn =
+  | CsvPaymentId
+  | CsvStatus
+  | CsvAmount
+  | CsvCurrency
+  | CsvConnector
+  | CsvPaymentMethod
+  | CsvPaymentMethodType
+  | CsvProfileId
+  | CsvMerchantId
+  | CsvCustomerId
+  | CsvActiveAttemptId
+  | CsvMerchantConnectorId
+  | CsvCardLast4
+  | CsvCardNetwork
+  | CsvCardIssuer
+  | CsvRefundsStatus
+  | CsvRefundsCount
+  | CsvDisputeStatus
+  | CsvDisputeCount
+  | CsvRoutingApproach
+  | CsvUnifiedCode
+  | CsvUnifiedMessage
+  | CsvCreated
+  | CsvModified
 
 type openSearchRefundStatus = [#partial_refunded | #full_refunded]
 
