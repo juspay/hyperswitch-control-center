@@ -373,7 +373,9 @@ let unsupportedAdvancedPaymentFilterKeys = [
 
 type hiddenAdvancedPaymentFilter = [#first_attempt]
 
-let hiddenAdvancedPaymentFilterKeys = [(#first_attempt: hiddenAdvancedPaymentFilter :> string)]
+let firstAttemptFilterKey = (#first_attempt: hiddenAdvancedPaymentFilter :> string)
+
+let hiddenAdvancedPaymentFilterKeys = [firstAttemptFilterKey]
 
 let advancedPaymentFilterCleanupKeys =
   advancedPaymentOnlyFilterKeys
@@ -489,12 +491,8 @@ let isTextFilter = filter =>
   | _ => false
   }
 
-let copyFilterIfPresent = (~fromDict, ~toDict, key) => {
-  switch fromDict->Dict.get(key) {
-  | Some(value) => toDict->Dict.set(key, value)
-  | None => ()
-  }
-}
+let copyFilterIfPresent = (~fromDict, ~toDict, key) =>
+  fromDict->Dict.get(key)->Option.mapOr((), value => toDict->Dict.set(key, value))
 
 let normalizeStringListFilterValue = value => {
   switch value->JSON.Decode.array {
@@ -571,9 +569,10 @@ let advancedPaymentSearchEmailRegex = %re(`/^(([^<>()[\]\.,;:\s@"{}\/\\]+(\.[^<>
 
 let isAdvancedPaymentSearchTextEmail = value => RegExp.test(advancedPaymentSearchEmailRegex, value)
 
-let copyAdvancedPaymentFilterIfPresent = (~fromDict, ~toDict, key) => {
-  switch fromDict->Dict.get(key) {
-  | Some(value) =>
+let copyAdvancedPaymentFilterIfPresent = (~fromDict, ~toDict, key) =>
+  fromDict
+  ->Dict.get(key)
+  ->Option.mapOr((), value => {
     if key === "customer_email" {
       switch value->normalizeSingleStringFilterValue {
       | Some(email) if email->isAdvancedPaymentSearchTextEmail =>
@@ -585,7 +584,7 @@ let copyAdvancedPaymentFilterIfPresent = (~fromDict, ~toDict, key) => {
       | Some(normalizedValue) => toDict->Dict.set(key, normalizedValue)
       | None => ()
       }
-    } else if key === "first_attempt" {
+    } else if key === firstAttemptFilterKey {
       switch value->normalizeBoolListFilterValue {
       | Some(normalizedValue) => toDict->Dict.set(key, normalizedValue)
       | None => ()
@@ -593,9 +592,7 @@ let copyAdvancedPaymentFilterIfPresent = (~fromDict, ~toDict, key) => {
     } else {
       toDict->Dict.set(key, value)
     }
-  | None => ()
-  }
-}
+  })
 
 let buildAdvancedPaymentListPayload = (
   ~filterParams: Dict.t<JSON.t>,
