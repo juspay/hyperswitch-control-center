@@ -494,73 +494,45 @@ let isTextFilter = filter =>
 let copyFilterIfPresent = (~fromDict, ~toDict, key) =>
   fromDict->Dict.get(key)->Option.mapOr((), value => toDict->Dict.set(key, value))
 
-let normalizeStringListFilterValue = value => {
-  switch value->JSON.Decode.array {
-  | Some(values) =>
-    let normalizedValues =
-      values
-      ->getStrArrayFromJsonArray
-      ->Array.map(value => value->String.trim)
-      ->Array.filter(isNonEmptyString)
-    normalizedValues->isNonEmptyArray
-      ? Some(normalizedValues->Array.map(JSON.Encode.string)->JSON.Encode.array)
-      : None
-  | None =>
-    switch value->JSON.Decode.string {
-    | Some(value) =>
-      let trimmedValue = value->String.trim
-      trimmedValue->isNonEmptyString
-        ? Some([trimmedValue->JSON.Encode.string]->JSON.Encode.array)
-        : None
-    | None => None
-    }
-  }
-}
-
-let normalizeSingleStringFilterValue = value => {
-  switch value->JSON.Decode.array {
-  | Some(values) =>
+let getTrimmedStringFilterValues = value => {
+  switch value->JSON.Classify.classify {
+  | Array(values) =>
     values
     ->getStrArrayFromJsonArray
     ->Array.map(value => value->String.trim)
-    ->Array.find(isNonEmptyString)
-  | None =>
-    switch value->JSON.Decode.string {
-    | Some(value) =>
-      let trimmedValue = value->String.trim
-      trimmedValue->isNonEmptyString ? Some(trimmedValue) : None
-    | None => None
-    }
+    ->Array.filter(isNonEmptyString)
+  | String(value) =>
+    let trimmedValue = value->String.trim
+    trimmedValue->isNonEmptyString ? [trimmedValue] : []
+  | _ => []
   }
 }
 
+let normalizeStringListFilterValue = value => {
+  let normalizedValues = value->getTrimmedStringFilterValues
+  normalizedValues->isNonEmptyArray ? Some(normalizedValues->getJsonFromArrayOfString) : None
+}
+
 let getBoolFromJsonFilterValue = value =>
-  switch value->JSON.Decode.bool {
-  | Some(value) => Some(value)
-  | None =>
-    switch value->JSON.Decode.string {
-    | Some(value) =>
-      let normalizedValue = value->String.trim->String.toLowerCase
-      normalizedValue === "true" || normalizedValue === "false"
-        ? Some(normalizedValue->getBoolFromString(false))
-        : None
-    | None => None
-    }
+  switch value->JSON.Classify.classify {
+  | Bool(value) => Some(value)
+  | String(value) =>
+    let normalizedValue = value->String.trim->String.toLowerCase
+    normalizedValue === "true" || normalizedValue === "false"
+      ? Some(normalizedValue->getBoolFromString(false))
+      : None
+  | _ => None
   }
 
-let normalizeBoolListFilterValue = value =>
-  switch value->JSON.Decode.array {
-  | Some(values) =>
-    let normalizedValues = values->Belt.Array.keepMap(getBoolFromJsonFilterValue)
-    normalizedValues->isNonEmptyArray
-      ? Some(normalizedValues->Array.map(JSON.Encode.bool)->JSON.Encode.array)
-      : None
-  | None =>
-    switch value->getBoolFromJsonFilterValue {
-    | Some(value) => Some([value->JSON.Encode.bool]->JSON.Encode.array)
-    | None => None
-    }
+let normalizeBoolListFilterValue = value => {
+  let normalizedValues = switch value->JSON.Classify.classify {
+  | Array(values) => values->Belt.Array.keepMap(getBoolFromJsonFilterValue)
+  | _ => value->getBoolFromJsonFilterValue->Option.mapOr([], value => [value])
   }
+  normalizedValues->isNonEmptyArray
+    ? Some(normalizedValues->Array.map(JSON.Encode.bool)->JSON.Encode.array)
+    : None
+}
 
 let advancedPaymentSearchEmailRegex = %re(`/^(([^<>()[\]\.,;:\s@"{}\/\\]+(\.[^<>()[\]\.,;:\s@"{}\/\\]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/`)
 
@@ -571,7 +543,7 @@ let copyAdvancedPaymentFilterIfPresent = (~fromDict, ~toDict, key) =>
   ->Dict.get(key)
   ->Option.mapOr((), value => {
     if key === "customer_email" {
-      switch value->normalizeSingleStringFilterValue {
+      switch value->getTrimmedStringFilterValues->Array.get(0) {
       | Some(email) if email->isAdvancedPaymentSearchTextEmail =>
         toDict->Dict.set(key, email->JSON.Encode.string)
       | _ => ()
