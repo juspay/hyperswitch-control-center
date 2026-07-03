@@ -187,6 +187,11 @@ type paymentListSource =
 
 let getPaymentListSourceLabel = (source: paymentListSource) => (source :> string)
 
+let paymentListSources = [Normal, Advanced]
+
+let getPaymentListSourceFromLabel = value =>
+  paymentListSources->Array.find(source => source->getPaymentListSourceLabel == value)
+
 let getPaymentListTableTitle = source =>
   switch source {
   | Normal => "Orders"

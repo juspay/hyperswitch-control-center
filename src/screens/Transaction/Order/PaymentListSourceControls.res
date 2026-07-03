@@ -8,18 +8,19 @@ module SourceTabs = {
     <TabsBinding
       value={source->OrderTypes.getPaymentListSourceLabel}
       onValueChange={value => {
-        switch value {
-        | "Advanced" =>
+        switch value->OrderTypes.getPaymentListSourceFromLabel {
+        | Some(OrderTypes.Advanced) =>
           if advancedEnabled {
             setSource(_ => OrderTypes.Advanced)
           }
-        | _ => setSource(_ => OrderTypes.Normal)
+        | Some(OrderTypes.Normal) => setSource(_ => OrderTypes.Normal)
+        | None => ()
         }
       }}
       variant=Boxed
       size=Md>
       <TabsBinding.List variant=Boxed size=Md fitContent=true>
-        {[OrderTypes.Normal, OrderTypes.Advanced]
+        {OrderTypes.paymentListSources
         ->Array.map(item => {
           let value = item->OrderTypes.getPaymentListSourceLabel
           let isDisabled = item === OrderTypes.Advanced && !advancedEnabled
@@ -29,7 +30,7 @@ module SourceTabs = {
             variant=Boxed
             size=Md
             disabled=isDisabled
-            className="min-w-[75px] justify-center">
+            className="min-w-20 justify-center">
             <ToolTip
               description={item->OrderTypes.getPaymentListSourceDescription}
               toolTipFor={<span>
@@ -51,29 +52,27 @@ module ExportButton = {
     ~selectedRowsCount,
     ~canExportSelectedRows,
     ~buttonState: Button.buttonState,
-    ~disabledCountClass,
     ~onExport,
   ) => {
-    let countClass = canExportSelectedRows
-      ? "border-white bg-white text-primary"
-      : `border-transparent bg-transparent ${disabledCountClass}`
+    let selectedRowsCountClass = canExportSelectedRows ? "text-white" : "text-nd_gray-500"
 
-    <div className="relative shrink-0">
+    <div className="shrink-0">
       <Button
         text="Export"
         buttonType=Primary
         buttonState
         buttonSize=Small
-        customButtonStyle="!w-[128px] justify-start"
+        customButtonStyle="justify-start"
         customIconMargin="ml-2"
-        customTextPaddingClass="!pl-2 !pr-8"
+        customTextPaddingClass="!pl-2 !pr-1"
         leftIcon={Button.CustomIcon(<Icon name="nd-download-bar-down" size=16 />)}
+        rightIcon={Button.CustomIcon(
+          <span className={`${Typography.body.sm.semibold} ${selectedRowsCountClass}`}>
+            {selectedRowsCount->Int.toString->React.string}
+          </span>,
+        )}
         onClick={_ => canExportSelectedRows ? onExport() : ()}
       />
-      <span
-        className={`pointer-events-none absolute right-2 top-1/2 flex h-5 min-w-5 -translate-y-1/2 items-center justify-center rounded-full border px-1 text-xs font-semibold leading-none ${countClass}`}>
-        {selectedRowsCount->Int.toString->React.string}
-      </span>
     </div>
   }
 }
