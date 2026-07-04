@@ -54,16 +54,29 @@ test.describe("Billing Processor", () => {
     const chargebeeOption = page.locator('[data-testid*="chargebee"]').first();
     await chargebeeOption.click();
 
-    await page.getByRole('textbox', { name: 'Enter Chargebee API Key' }).fill("test_key");
-    await page.getByRole('textbox', { name: 'Enter chargebee site' }).fill("test_key");
-    await page.getByRole('textbox', { name: 'Enter Webhook URL Username' }).fill("test_key");
-    await page.getByRole('textbox', { name: 'Enter Webhook URL Password' }).fill("test_key");
+    await page
+      .getByRole("textbox", { name: "Enter Chargebee API Key" })
+      .fill("test_key");
+    await page
+      .getByRole("textbox", { name: "Enter chargebee site" })
+      .fill("test_key");
+    await page
+      .getByRole("textbox", { name: "Enter Webhook URL Username" })
+      .fill("test_key");
+    await page
+      .getByRole("textbox", { name: "Enter Webhook URL Password" })
+      .fill("test_key");
 
     await billingProcessor.connectAndProceedButton.click();
-    await page.getByRole('button', { name: 'Done' }).click();
+    await page.getByRole("button", { name: "Done" }).click();
 
     //await expect(billingProcessor.successToast).toBeVisible({ timeout: 10000 });
 
-    await expect(page.locator('div').filter({ hasText: /^chargebee_default$/ }).first()).toBeVisible();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^chargebee_default$/ })
+        .first(),
+    ).toBeVisible();
   });
 });

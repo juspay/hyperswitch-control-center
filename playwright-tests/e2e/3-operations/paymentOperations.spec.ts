@@ -668,7 +668,7 @@ test.describe("Payment Operations", () => {
           context.request,
         );
         for (let i = 0; i < 21; i++) {
-          await createPaymentAPI(merchantId, context.request).catch(() => { });
+          await createPaymentAPI(merchantId, context.request).catch(() => {});
         }
       }
 
@@ -742,7 +742,7 @@ test.describe("Payment Operations", () => {
       }
     });
 
-    test.skip("should display a valid message and expand search timerange when searched with invalid payment ID", async ({
+    test("should display a valid message and expand search timerange when searched with invalid payment ID", async ({
       page,
       context,
     }) => {
@@ -844,10 +844,21 @@ test.describe("Payment Operations", () => {
 
       for (const filter of filterKeys) {
         await paymentOperations.addFilters.click();
-        await expect(page.getByLabel('Add Filters').getByText(`${filter}`, { exact: true })).toBeVisible();
-        await page.getByLabel('Add Filters').getByText(`${filter}`, { exact: true }).click({ force: true });
-        await expect(paymentOperations.filterChipArea(filter).first()).toContainText(`Select ${filter}`);
-        await expect(page.getByLabel('Add Filters').getByText("Amount")).not.toBeVisible();
+        await expect(
+          page
+            .getByLabel("Add Filters")
+            .getByText(`${filter}`, { exact: true }),
+        ).toBeVisible();
+        await page
+          .getByLabel("Add Filters")
+          .getByText(`${filter}`, { exact: true })
+          .click({ force: true });
+        await expect(
+          paymentOperations.filterChipArea(filter).first(),
+        ).toContainText(`Select ${filter}`);
+        await expect(
+          page.getByLabel("Add Filters").getByText("Amount"),
+        ).not.toBeVisible();
       }
     });
 
@@ -871,17 +882,39 @@ test.describe("Payment Operations", () => {
       await homePage.paymentOperations.click();
 
       await paymentOperations.addFilters.click();
-      await expect(page.getByLabel('Add Filters').getByRole('menuitem', { name: 'Customer Id' })).toBeVisible();
-      await page.getByRole('menuitem', { name: 'Customer Id' }).click({ force: true });
+      await expect(
+        page
+          .getByLabel("Add Filters")
+          .getByRole("menuitem", { name: "Customer Id" }),
+      ).toBeVisible();
+      await page
+        .getByRole("menuitem", { name: "Customer Id" })
+        .click({ force: true });
       await expect(paymentOperations.customerIdInput).toBeVisible();
-      await expect(paymentOperations.customerIdInput).toHaveAttribute("placeholder", "Enter Customer Id...");
-      await expect(page.getByLabel('Add Filters').getByRole('menuitem', { name: 'Merchant Order Reference Id' })).not.toBeVisible();
+      await expect(paymentOperations.customerIdInput).toHaveAttribute(
+        "placeholder",
+        "Enter Customer Id...",
+      );
+      await expect(
+        page
+          .getByLabel("Add Filters")
+          .getByRole("menuitem", { name: "Merchant Order Reference Id" }),
+      ).not.toBeVisible();
 
       await paymentOperations.addFilters.click();
-      await expect(page.getByLabel('Add Filters').getByRole('menuitem', { name: 'Merchant Order Reference Id' })).toBeVisible();
-      await page.getByRole('menuitem', { name: 'Merchant Order Reference Id' }).click({ force: true });
+      await expect(
+        page
+          .getByLabel("Add Filters")
+          .getByRole("menuitem", { name: "Merchant Order Reference Id" }),
+      ).toBeVisible();
+      await page
+        .getByRole("menuitem", { name: "Merchant Order Reference Id" })
+        .click({ force: true });
       await expect(paymentOperations.merchantOrderRefIdInput).toBeVisible();
-      await expect(paymentOperations.merchantOrderRefIdInput).toHaveAttribute("placeholder", "Enter Merchant Order Reference Id...");
+      await expect(paymentOperations.merchantOrderRefIdInput).toHaveAttribute(
+        "placeholder",
+        "Enter Merchant Order Reference Id...",
+      );
     });
 
     test("should verify applying 'Connector', 'Currency' and 'Status' filters", async ({
@@ -905,25 +938,38 @@ test.describe("Payment Operations", () => {
       await homePage.paymentOperations.click();
 
       await paymentOperations.addFilters.click();
-      await page.getByLabel('Add Filters').getByText("Connector", { exact: true }).click();
+      await page
+        .getByLabel("Add Filters")
+        .getByText("Connector", { exact: true })
+        .click();
       await page.getByText("Select Connector").click();
-      await page.getByRole('option').getByText('Stripe Dummy').click();
+      await page.getByRole("option").getByText("Stripe Dummy").click();
       await paymentOperations.applyButton.click();
       await expect(page.getByText("Stripe Dummy").first()).toBeVisible();
 
       await paymentOperations.addFilters.click();
-      await page.getByLabel('Add Filters').getByText("Status", { exact: true }).click();
+      await page
+        .getByLabel("Add Filters")
+        .getByText("Status", { exact: true })
+        .click();
       await paymentOperations.statusFieldWrapper.click();
-      await page.getByRole('option', { name: 'Succeeded' }).click();
+      await page.getByRole("option", { name: "Succeeded" }).click();
       await paymentOperations.applyButton.click();
       await expect(page.getByText("Succeeded").first()).toBeVisible();
 
       await paymentOperations.addFilters.click();
-      await page.getByLabel('Add Filters').getByText("Currency", { exact: true }).click();
+      await page
+        .getByLabel("Add Filters")
+        .getByText("Currency", { exact: true })
+        .click();
       await page.getByText("Select Currency").click();
-      await expect(page.getByLabel('Add Filters').getByText("Amount", { exact: true })).not.toBeVisible();
-      await page.getByRole('searchbox', { name: 'Search options...' }).fill("USD");
-      await page.getByRole('option', { name: 'USD' }).click();
+      await expect(
+        page.getByLabel("Add Filters").getByText("Amount", { exact: true }),
+      ).not.toBeVisible();
+      await page
+        .getByRole("searchbox", { name: "Search options..." })
+        .fill("USD");
+      await page.getByRole("option", { name: "USD" }).click();
       await paymentOperations.applyButton.click();
       await expect(page.getByText("USD").first()).toBeVisible();
 
@@ -1039,7 +1085,9 @@ test.describe("Payment Operations", () => {
         await paymentOperations.customDateRangeButton.click();
         await predefinedOptions.getByText(timeRange, { exact: true }).click();
         await expect(predefinedOptions).toBeHidden();
-        await expect(page.getByRole('button', { name: timeRange })).toContainText(timeRange);
+        await expect(
+          page.getByRole("button", { name: timeRange }),
+        ).toContainText(timeRange);
       }
     });
 
@@ -1079,16 +1127,16 @@ test.describe("Payment Operations", () => {
 
       await paymentOperations.dateSelector.click();
 
-      await page.getByRole('button', { name: 'Friday, May 2,' }).scrollIntoViewIfNeeded();
+      await page
+        .getByRole("button", { name: "Friday, May 2," })
+        .scrollIntoViewIfNeeded();
 
-      await page.getByRole('button', { name: 'Friday, May 2,' }).click();
-      await page.getByRole('button', { name: 'Wednesday, May 28,' }).click();
+      await page.getByRole("button", { name: "Friday, May 2," }).click();
+      await page.getByRole("button", { name: "Wednesday, May 28," }).click();
 
       await paymentOperations.applyButton.click();
 
-      await expect(
-        paymentOperations.dateSelector,
-      ).toContainText(expectedRange);
+      await expect(paymentOperations.dateSelector).toContainText(expectedRange);
     });
   });
 
@@ -1151,8 +1199,11 @@ test.describe("Payment Operations", () => {
           .getByText(view)
           .click({ force: true });
         await paymentOperations.statusFieldWrapper.click();
-        await expect(page.getByRole('option', { name: filter, exact: true }).getByRole('checkbox')).toBeChecked();
-
+        await expect(
+          page
+            .getByRole("option", { name: filter, exact: true })
+            .getByRole("checkbox"),
+        ).toBeChecked();
       }
     });
   });
@@ -1708,18 +1759,20 @@ test.describe("Payment Operations", () => {
       await paymentMethodDetails.waitFor({ state: "attached", timeout: 10000 });
       await paymentMethodDetails.scrollIntoViewIfNeeded();
       await paymentMethodDetails.click();
-      await expect(page.getByText('Payment Method Details1{ 2 "')).toContainText(
-        "card",
-      );
+      await expect(
+        page.getByText('Payment Method Details1{ 2 "'),
+      ).toContainText("card");
 
       const paymentMetadata = page.getByText(/^Payment Metadata$/);
       await paymentMetadata.waitFor({ state: "attached", timeout: 10000 });
       await paymentMetadata.scrollIntoViewIfNeeded();
       await paymentMetadata.click();
-      await expect(page.getByText('Payment Metadata1{ 2 "key": "')).toContainText("key");
-      await expect(page.getByText('Payment Metadata1{ 2 "key": "')).toContainText(
-        "value",
-      );
+      await expect(
+        page.getByText('Payment Metadata1{ 2 "key": "'),
+      ).toContainText("key");
+      await expect(
+        page.getByText('Payment Metadata1{ 2 "key": "'),
+      ).toContainText("value");
 
       await expandAccordionAndAssertFields("FRM Details", {
         "Payment ID": "",
@@ -1911,7 +1964,7 @@ test.describe("Payment Operations", () => {
       await openRefundModal(page, homePage, paymentOperations);
 
       await paymentOperations.refundAmountInput.fill("0");
-      await paymentOperations.refundAmountInput.press('Enter');;
+      await paymentOperations.refundAmountInput.press("Enter");
       await expect(
         page.getByText("Please enter refund amount greater than zero"),
       ).toBeVisible();
@@ -1939,7 +1992,7 @@ test.describe("Payment Operations", () => {
       await openRefundModal(page, homePage, paymentOperations);
 
       await paymentOperations.refundAmountInput.fill("999.99");
-      await paymentOperations.refundAmountInput.press('Enter');;
+      await paymentOperations.refundAmountInput.press("Enter");
       await expect(
         page.getByText("Refund amount should not exceed 123.45"),
       ).toBeVisible();

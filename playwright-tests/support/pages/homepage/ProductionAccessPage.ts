@@ -70,7 +70,7 @@ export class ProductionAccessPage {
   }
 
   get countryOption(): Locator {
-    return this.page.getByRole('menuitem', { name: 'Aland Islands' });
+    return this.page.getByRole("menuitem", { name: "Aland Islands" });
   }
 }
 

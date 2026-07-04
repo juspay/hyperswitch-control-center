@@ -8,7 +8,7 @@ import {
   loginUI,
   assertConnectorFieldLabels,
   fillConnectorFields,
-  createDummyConnectorAPI
+  createDummyConnectorAPI,
 } from "../../support/commands";
 import { frmConnectorConfig } from "../../support/fixtures/frmConnectorConfig";
 
@@ -73,19 +73,33 @@ test.describe("Live FRM Connectors", () => {
 
       await expect(page).toHaveURL(/.*dashboard\/fraud-risk-management/);
 
-      await page.getByText(connector.card_locator).getByRole('button', { name: 'Connect' }).click();
-      await expect(page.locator('div').filter({ hasText: /^ProceedStripe TestCardEnabled with Pre-Authorization$/ }).first()).toBeVisible();
+      await page
+        .getByText(connector.card_locator)
+        .getByRole("button", { name: "Connect" })
+        .click();
+      await expect(
+        page
+          .locator("div")
+          .filter({
+            hasText: /^ProceedStripe TestCardEnabled with Pre-Authorization$/,
+          })
+          .first(),
+      ).toBeVisible();
       await frmConnector.saveOrConnectOrProceedButton.click();
 
       await assertConnectorFieldLabels(page, connector.fields.fieldLabels);
       await fillConnectorFields(page, connector.fields);
 
-      await expect(page.getByText('BackConnect and Finish')).toBeVisible();
-      await page.getByText('Connect and Finish').click();
+      await expect(page.getByText("BackConnect and Finish")).toBeVisible();
+      await page.getByText("Connect and Finish").click();
 
-      await expect(page.getByRole('status', { name: 'FRM Player Created' })).toBeVisible();
-      await expect(page.getByText('Stripe TestCardFlow :Pre Auth')).toBeVisible();
-      await page.getByRole('button', { name: 'Done' }).click();
+      await expect(
+        page.getByRole("status", { name: "FRM Player Created" }),
+      ).toBeVisible();
+      await expect(
+        page.getByText("Stripe TestCardFlow :Pre Auth"),
+      ).toBeVisible();
+      await page.getByRole("button", { name: "Done" }).click();
       await expect(page.getByText(connector.label));
     });
   }

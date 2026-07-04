@@ -16,7 +16,7 @@ export class SignInPage {
   }
 
   get passwordField(): Locator {
-    return this.page.getByPlaceholder("Enter your Password");;
+    return this.page.getByPlaceholder("Enter your Password");
   }
 
   get signinButton(): Locator {
@@ -52,15 +52,11 @@ export class SignInPage {
   }
 
   get forgotPasswordFailedToast(): Locator {
-    return this.page.locator(
-      '[data-id="Forgot Password Failed, Try again"]',
-    );
+    return this.page.locator('[data-id="Forgot Password Failed, Try again"]');
   }
 
   get forgotPasswordSentToast(): Locator {
-    return this.page.locator(
-      '[data-id="Please check your registered e-mail"]',
-    );
+    return this.page.locator('[data-id="Please check your registered e-mail"]');
   }
 
   get passwordChangedToast(): Locator {

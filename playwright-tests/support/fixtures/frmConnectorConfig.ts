@@ -25,7 +25,8 @@ export const frmConnectorConfig: Record<string, ConnectorConfig> = {
       fieldLabels: [],
     },
     metadata: {},
-    card_locator: "Cybersource Decision ManagerComprehensive fraud management solution for"
+    card_locator:
+      "Cybersource Decision ManagerComprehensive fraud management solution for",
   },
 
   signifyd: {
@@ -36,7 +37,7 @@ export const frmConnectorConfig: Record<string, ConnectorConfig> = {
       fieldLabels: [],
     },
     metadata: {},
-    card_locator: "SignifydOne platform to"
+    card_locator: "SignifydOne platform to",
   },
 
   riskified: {
@@ -47,6 +48,6 @@ export const frmConnectorConfig: Record<string, ConnectorConfig> = {
       fieldLabels: [],
     },
     metadata: {},
-    card_locator: "RiskifiedFrictionless fraud"
+    card_locator: "RiskifiedFrictionless fraud",
   },
 };

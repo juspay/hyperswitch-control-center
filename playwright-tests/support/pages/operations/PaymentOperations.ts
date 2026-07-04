@@ -18,7 +18,7 @@ export class PaymentOperations {
   }
 
   get dateSelector(): Locator {
-    return this.page.getByRole('button', { name: 'Date range picker' });
+    return this.page.getByRole("button", { name: "Date range picker" });
   }
 
   get viewDropdown(): Locator {
@@ -47,7 +47,7 @@ export class PaymentOperations {
 
   // Page header / empty state
   get pageHeader(): Locator {
-    return this.page.getByText('Payment Operations');
+    return this.page.getByText("Payment Operations");
   }
 
   get pageTitle(): Locator {
@@ -84,7 +84,7 @@ export class PaymentOperations {
   }
 
   get applyButton(): Locator {
-    return this.page.getByRole('button', { name: 'Apply' });
+    return this.page.getByRole("button", { name: "Apply" });
   }
 
   get modalCloseIcon(): Locator {
@@ -94,7 +94,7 @@ export class PaymentOperations {
   }
 
   get crossOutlineIcon(): Locator {
-    return this.page.getByRole('button', { name: 'Clear selection' });
+    return this.page.getByRole("button", { name: "Clear selection" });
   }
 
   get searchExitIcon(): Locator {
@@ -150,9 +150,7 @@ export class PaymentOperations {
 
   // Date picker
   get predefinedDateOptions(): Locator {
-    return this.page.locator(
-      '[data-element="menu-content"]',
-    );
+    return this.page.locator('[data-element="menu-content"]');
   }
 
   /**
@@ -190,7 +188,7 @@ export class PaymentOperations {
 
   // Filters
   filterChipArea(key: string): Locator {
-    return this.page.getByRole('button', { name: `Select ${key}` });
+    return this.page.getByRole("button", { name: `Select ${key}` });
   }
 
   get statusFieldWrapper(): Locator {
@@ -264,7 +262,7 @@ export class PaymentOperations {
   }
 
   get refundAmountInput(): Locator {
-    return this.page.getByRole('spinbutton', { name: 'Enter Refund Amount' });
+    return this.page.getByRole("spinbutton", { name: "Enter Refund Amount" });
   }
 
   get refundReasonInput(): Locator {

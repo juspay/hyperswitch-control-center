@@ -24,11 +24,14 @@ export class ResetPasswordPage {
   }
 
   get newPasswordField(): Locator {
-    return this.page.getByRole('textbox', { name: 'Enter your Password', exact: true });
+    return this.page.getByRole("textbox", {
+      name: "Enter your Password",
+      exact: true,
+    });
   }
 
   get confirmPasswordField(): Locator {
-    return this.page.getByRole('textbox', { name: 'Re-enter your Password' });
+    return this.page.getByRole("textbox", { name: "Re-enter your Password" });
   }
 
   get weakPasswordError(): Locator {

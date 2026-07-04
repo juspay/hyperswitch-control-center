@@ -542,7 +542,9 @@ test.describe("Forgot password", () => {
       );
 
       await signinPage.skip2FAButton.click();
-      await expect(page.getByRole('heading', { name: 'Reset password' })).toBeVisible();
+      await expect(
+        page.getByRole("heading", { name: "Reset password" }),
+      ).toBeVisible();
       await resetPasswordPage.newPasswordField.fill(newPassword);
       await resetPasswordPage.confirmPasswordField.fill(newPassword);
       await resetPasswordPage.confirmButton.click();

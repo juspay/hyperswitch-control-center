@@ -54,9 +54,7 @@ export class BillingProcessor {
   }
 
   get successToast(): Locator {
-    return this.page.locator(
-      '[data-id="Successfully"]',
-    );
+    return this.page.locator('[data-id="Successfully"]');
   }
 }
 

@@ -247,12 +247,10 @@ test.describe("Disputes List page", () => {
       await goToDisputes(page, homePage);
 
       await paymentOperations.customDateRangeButton.click();
-      await page
-        .getByRole('menuitem', { name: 'Last 30 minutes' })
-        .click();
-      await expect(page.getByRole('button', { name: 'Last 30 minutes' })).toContainText(
-        "Last 30 minutes",
-      );
+      await page.getByRole("menuitem", { name: "Last 30 minutes" }).click();
+      await expect(
+        page.getByRole("button", { name: "Last 30 minutes" }),
+      ).toContainText("Last 30 minutes");
     });
   });
 
@@ -301,13 +299,9 @@ test.describe("Disputes List page", () => {
       );
 
       await paymentOperations.addFilters.click();
-      await page
-        .getByLabel('Add Filters').getByText('Dispute Status')
-        .click();
-      await page
-        .locator('[data-id="Select Dispute Status"]')
-        .click();
-      await page.getByRole('option', { name: 'dispute_won' }).click();
+      await page.getByLabel("Add Filters").getByText("Dispute Status").click();
+      await page.locator('[data-id="Select Dispute Status"]').click();
+      await page.getByRole("option", { name: "dispute_won" }).click();
       await paymentOperations.applyButton.click();
       await page.waitForLoadState("networkidle");
 

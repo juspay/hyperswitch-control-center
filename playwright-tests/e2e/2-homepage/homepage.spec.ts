@@ -349,7 +349,7 @@ test.describe("DefaultHome product cards", () => {
     await expect(homePage.learnMoreButtons).toHaveCount(1);
   });
 
-  test.skip("should handle Learn More click on every product card when all product flags are ON", async ({
+  test("should handle Learn More click on every product card when all product flags are ON", async ({
     page,
     context,
   }) => {
@@ -402,7 +402,7 @@ test.describe("DefaultHome product cards", () => {
       .getByRole("button", { name: "Learn More" })
       .click();
 
-    await expect(page).toHaveURL(/.*dashboard\/home/);
+    await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
   });
 });
 
@@ -610,10 +610,10 @@ test.describe("SDK Payment", () => {
     ).toBeVisible();
     await expect(page.getByText("Enter amount")).toBeVisible();
     await expect(
-      page.getByRole('spinbutton', { name: 'Enter amount' }),
+      page.getByRole("spinbutton", { name: "Enter amount" }),
     ).toBeVisible();
     await expect(
-      page.getByRole('spinbutton', { name: 'Enter amount' }),
+      page.getByRole("spinbutton", { name: "Enter amount" }),
     ).toHaveValue("100");
     await expect(page.getByText("Edit Checkout Details")).toBeVisible();
     await expect(homePage.showPreviewButton).toBeVisible();
@@ -642,7 +642,7 @@ test.describe("SDK Payment", () => {
         .filter({ hasText: /^Theme$/ })
         .first(),
     ).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Default' })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Default" })).toBeVisible();
     await expect(
       page
         .locator("div")
@@ -693,7 +693,7 @@ test.describe("SDK Payment", () => {
       .getByRole("button", { name: "🇺🇸 United States Of America" })
       .click();
     await page
-      .getByRole('searchbox', { name: 'Search options...' })
+      .getByRole("searchbox", { name: "Search options..." })
       .type("India");
     await page.getByText("🇮🇳 India - (INR)").click();
     await expect(
@@ -704,104 +704,102 @@ test.describe("SDK Payment", () => {
     await expect(homePage.sdkAmountInput).toHaveValue("250.50");
   });
 
-  test.fixme(
-    "should make a successful payment using SDK",
-    async ({ page, context }) => {
-      const homePage = new HomePage(page);
+  test.fixme("should make a successful payment using SDK", async ({
+    page,
+    context,
+  }) => {
+    const homePage = new HomePage(page);
 
-      await page
-        .getByRole("button", { name: "🇺🇸 United States Of America" })
-        .click();
-      await page
-        .getByRole('searchbox', { name: 'Search options...' })
-        .type("India");
-      await page.getByText("🇮🇳 India - (INR)").click();
+    await page
+      .getByRole("button", { name: "🇺🇸 United States Of America" })
+      .click();
+    await page
+      .getByRole("searchbox", { name: "Search options..." })
+      .type("India");
+    await page.getByText("🇮🇳 India - (INR)").click();
 
-      await homePage.sdkAmountInput.fill("123.45");
+    await homePage.sdkAmountInput.fill("123.45");
 
-      await homePage.showPreviewButton.click();
-      await page.waitForLoadState("networkidle");
-      await page.waitForTimeout(10000);
-      await homePage.waitForSdkCardForm();
+    await homePage.showPreviewButton.click();
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(10000);
+    await homePage.waitForSdkCardForm();
 
-      await homePage.fillSdkTestCard();
+    await homePage.fillSdkTestCard();
 
-      await expect(homePage.payButtonByCurrency("INR")).toContainText(
-        "Pay INR 123.45",
-      );
-      await homePage.payButtonByCurrency("INR").click();
-      await expect(homePage.paymentSuccessfulText).toBeAttached({
-        timeout: 10000,
-      });
+    await expect(homePage.payButtonByCurrency("INR")).toContainText(
+      "Pay INR 123.45",
+    );
+    await homePage.payButtonByCurrency("INR").click();
+    await expect(homePage.paymentSuccessfulText).toBeAttached({
+      timeout: 10000,
+    });
 
-      await homePage.goToPaymentOperationsButton.click();
-      expect(page.url()).toContain("/dashboard/payments/pay_");
-    },
-  );
+    await homePage.goToPaymentOperationsButton.click();
+    expect(page.url()).toContain("/dashboard/payments/pay_");
+  });
 
-  test.fixme(
-    "should display failed payment status using SDK",
-    async ({ page }) => {
-      const homePage = new HomePage(page);
+  test.fixme("should display failed payment status using SDK", async ({
+    page,
+  }) => {
+    const homePage = new HomePage(page);
 
-      await page.route("**/payments/*/confirm", async (route) => {
-        if (route.request().method() === "POST") {
-          const response = await route.fetch();
-          const json = await response.json();
-          json.status = "failed";
-          json.error_code = "CE_01";
-          json.error_message = "Payment declined by processor";
-          await route.fulfill({ response, json });
-        } else {
-          await route.continue();
-        }
-      });
+    await page.route("**/payments/*/confirm", async (route) => {
+      if (route.request().method() === "POST") {
+        const response = await route.fetch();
+        const json = await response.json();
+        json.status = "failed";
+        json.error_code = "CE_01";
+        json.error_message = "Payment declined by processor";
+        await route.fulfill({ response, json });
+      } else {
+        await route.continue();
+      }
+    });
 
-      await homePage.showPreviewButton.click();
-      await page.waitForLoadState("networkidle");
-      await homePage.waitForSdkCardForm();
+    await homePage.showPreviewButton.click();
+    await page.waitForLoadState("networkidle");
+    await homePage.waitForSdkCardForm();
 
-      await homePage.fillSdkTestCard();
+    await homePage.fillSdkTestCard();
 
-      await expect(homePage.payButtonByCurrency("USD")).toContainText(
-        "Pay USD 100",
-      );
-      await homePage.payButtonByCurrency("USD").click();
-      await expect(homePage.paymentFailedText).toBeVisible({ timeout: 10000 });
-      await expect(homePage.goToPaymentOperationsButton).toBeVisible();
-    },
-  );
+    await expect(homePage.payButtonByCurrency("USD")).toContainText(
+      "Pay USD 100",
+    );
+    await homePage.payButtonByCurrency("USD").click();
+    await expect(homePage.paymentFailedText).toBeVisible({ timeout: 10000 });
+    await expect(homePage.goToPaymentOperationsButton).toBeVisible();
+  });
 
-  test.fixme(
-    "should display processing payment status using SDK",
-    async ({ page }) => {
-      const homePage = new HomePage(page);
+  test.fixme("should display processing payment status using SDK", async ({
+    page,
+  }) => {
+    const homePage = new HomePage(page);
 
-      await page.route("**/payments/*/confirm", async (route) => {
-        if (route.request().method() === "POST") {
-          const response = await route.fetch();
-          const json = await response.json();
-          json.status = "processing";
-          await route.fulfill({ response, json });
-        } else {
-          await route.continue();
-        }
-      });
+    await page.route("**/payments/*/confirm", async (route) => {
+      if (route.request().method() === "POST") {
+        const response = await route.fetch();
+        const json = await response.json();
+        json.status = "processing";
+        await route.fulfill({ response, json });
+      } else {
+        await route.continue();
+      }
+    });
 
-      await homePage.showPreviewButton.click();
-      await page.waitForLoadState("networkidle");
-      await homePage.waitForSdkCardForm();
+    await homePage.showPreviewButton.click();
+    await page.waitForLoadState("networkidle");
+    await homePage.waitForSdkCardForm();
 
-      await homePage.fillSdkTestCard();
+    await homePage.fillSdkTestCard();
 
-      await expect(homePage.payButtonByCurrency("USD")).toContainText(
-        "Pay USD 100",
-      );
-      await homePage.payButtonByCurrency("USD").click();
-      await expect(homePage.paymentPendingText).toBeVisible({ timeout: 10000 });
-      await expect(homePage.goToPaymentOperationsButton).toBeVisible();
-    },
-  );
+    await expect(homePage.payButtonByCurrency("USD")).toContainText(
+      "Pay USD 100",
+    );
+    await homePage.payButtonByCurrency("USD").click();
+    await expect(homePage.paymentPendingText).toBeVisible({ timeout: 10000 });
+    await expect(homePage.goToPaymentOperationsButton).toBeVisible();
+  });
 
   test("should display error toast when SDK save (Show Preview) API fails", async ({
     page,
