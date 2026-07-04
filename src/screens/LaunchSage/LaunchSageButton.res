@@ -1,7 +1,5 @@
 open Typography
 
-let emptyBody = JSON.Encode.object(Dict.make())
-
 @react.component
 let make = () => {
   open APIUtils
@@ -16,7 +14,12 @@ let make = () => {
       setLoading(_ => true)
       try {
         let url = getURL(~entityName=V1(USERS), ~userType=#LAUNCH_SAGE, ~methodType=Post)
-        let res = await updateDetails(url, emptyBody, Post)
+        // BE reads identity from the verified AuthToken and ignores the
+        // request body — see hyperswitch::routes::user::launch_sage doc:
+        // "Body is empty by design; identity is read from the verified
+        // AuthToken. Sage performs the authoritative merchant-access
+        // gate." JSON.Encode.null communicates that intent inline.
+        let res = await updateDetails(url, JSON.Encode.null, Post)
         let handoffUrl = res->getDictFromJsonObject->getString("handoff_url", "")
         if handoffUrl->isNonEmptyString {
           handoffUrl->Window._open
