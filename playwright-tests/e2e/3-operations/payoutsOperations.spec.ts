@@ -366,8 +366,7 @@ test.describe("Payouts Operations", () => {
 
         await goToPayouts(page, homePage);
 
-        const dateSelector = payoutOperations.dateSelector;
-        await dateSelector.click();
+        await payoutOperations.customDateRangeButton.click();
         await page
           .getByRole('menuitem', { name: 'Last 30 minutes' })
           .click();
@@ -379,8 +378,8 @@ test.describe("Payouts Operations", () => {
     test.describe("Filters", () => {
       // PayoutsUtils.res:127-134 — supported filter keys for payouts.
       // Filter.res:251-256 snakeToTitle's the keys into Add-Filters labels.
-      const filterKeys = ["currency", "payout_method", "status"];
-      const filterLabels = ["Currency", "Payout Method", "Status"];
+      const filterKeys = ["connector", "currency", "status", "payout_method",];
+      const filterLabels = ["Connector", "Currency", "Status", "Payout Method"];
 
       test("should apply a Status filter", async ({ page, context }) => {
         const homePage = new HomePage(page);
@@ -434,14 +433,18 @@ test.describe("Payouts Operations", () => {
           const key = filterKeys[i];
 
           await payoutOperations.addFilters.click();
+          await expect(page
+            .getByLabel('Add Filters').getByText(`${label}`)).toBeVisible();
           await page
-            .getByRole('menuitem', { name: `${label}` })
-            //.locator(`[data-id="${label}"]`).nth(0)
-            .click();
+            .getByLabel('Add Filters').getByText(`${label}`)
+            .click({ force: true });
 
-          await expect(payoutOperations.filterChipArea.first()).toContainText(
-            `Select ${key}`,
-          );
+          await expect(
+            payoutOperations.filterChipArea(key).first(),
+          ).toContainText(`Select ${key}`);
+
+          await expect(page
+            .getByLabel('Add Filters').getByText("Payout Method")).not.toBeVisible();
         }
       });
 

@@ -10,6 +10,7 @@ import {
   createPaymentAPI,
   createRefundAPI,
 } from "../../support/commands";
+import PaymentOperations from "../../support/pages/operations/PaymentOperations";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 const refundColumnSize = 12;
@@ -242,13 +243,12 @@ test.describe("Refunds Operations", () => {
       }) => {
         const homePage = new HomePage(page);
 
-        const refundOperations = new RefundOperations(page);
+        const paymentOperations = new PaymentOperations(page);
         await setupRefund(homePage, context.request);
 
         await goToRefunds(page, homePage);
 
-        const dateSelector = refundOperations.dateSelector;
-        await dateSelector.click();
+        await paymentOperations.customDateRangeButton.click();
         await page
           .getByRole('menuitem', { name: 'Last 30 minutes' })
           .click();

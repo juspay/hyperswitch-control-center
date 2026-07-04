@@ -246,7 +246,7 @@ test.describe("Disputes List page", () => {
       await mockDisputesList(page, [sampleDispute()]);
       await goToDisputes(page, homePage);
 
-      await paymentOperations.dateSelector.click();
+      await paymentOperations.customDateRangeButton.click();
       await page
         .getByRole('menuitem', { name: 'Last 30 minutes' })
         .click();
