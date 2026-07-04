@@ -128,8 +128,7 @@ test.describe("3DS Authenticators Setup", () => {
         .getByText("Base64 encoded PEM formatted"),
     ).toBeVisible();
     await page
-      .getByTestId("connector_account_details.certificate")
-      .getByRole("textbox", { name: "Enter Base64 encoded PEM" })
+      .getByTestId('base64_encoded_pem_formatted_certificate_chain').getByRole('textbox', { name: 'Enter Base64 encoded PEM' })
       .fill(certBase64);
 
     await expect(
@@ -138,8 +137,7 @@ test.describe("3DS Authenticators Setup", () => {
         .getByText("Base64 encoded PEM formatted"),
     ).toBeVisible();
     await page
-      .getByTestId("connector_account_details.private_key")
-      .getByRole("textbox", { name: "Enter Base64 encoded PEM" })
+      .getByTestId('base64_encoded_pem_formatted_private_key').getByRole('textbox', { name: 'Enter Base64 encoded PEM' })
       .fill(keyBase64);
 
     await expect(

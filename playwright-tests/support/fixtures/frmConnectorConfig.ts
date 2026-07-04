@@ -13,9 +13,21 @@ export interface ConnectorConfig {
   label: string;
   fields: ConnectorFieldConfig;
   metadata: Record<string, MetadataField>;
+  card_locator: string;
 }
 
 export const frmConnectorConfig: Record<string, ConnectorConfig> = {
+  cybersource_decision_manager: {
+    label: "cybersource_decision_manager",
+    fields: {
+      default: "test_value",
+      overrides: {},
+      fieldLabels: [],
+    },
+    metadata: {},
+    card_locator: "Cybersource Decision ManagerComprehensive fraud management solution for"
+  },
+
   signifyd: {
     label: "signifyd",
     fields: {
@@ -24,6 +36,7 @@ export const frmConnectorConfig: Record<string, ConnectorConfig> = {
       fieldLabels: [],
     },
     metadata: {},
+    card_locator: "SignifydOne platform to"
   },
 
   riskified: {
@@ -34,15 +47,6 @@ export const frmConnectorConfig: Record<string, ConnectorConfig> = {
       fieldLabels: [],
     },
     metadata: {},
-  },
-
-  cybersource_decision_manager: {
-    label: "cybersource_decision_manager",
-    fields: {
-      default: "test_value",
-      overrides: {},
-      fieldLabels: [],
-    },
-    metadata: {},
+    card_locator: "RiskifiedFrictionless fraud"
   },
 };
