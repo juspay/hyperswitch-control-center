@@ -12,6 +12,7 @@ import {
   createDummyConnectorAPI,
   createBusinessProfileAPI,
   createMerchantAPI,
+  createStripeGooglePayConnectorAPI,
 } from "../../support/commands";
 import UsersPage from "../../support/pages/settings/UsersPage";
 
@@ -569,6 +570,7 @@ test.describe("SDK Payment", () => {
         merchantId,
         "stripe_test_sdk",
         context.request,
+        page,
       );
     }
 
@@ -704,7 +706,7 @@ test.describe("SDK Payment", () => {
     await expect(homePage.sdkAmountInput).toHaveValue("250.50");
   });
 
-  test.fixme("should make a successful payment using SDK", async ({
+  test("should make a successful payment using SDK", async ({
     page,
     context,
   }) => {
@@ -1048,5 +1050,111 @@ test.describe("Organization Chart Tree", () => {
 
     await merchantOneProfileName.click();
     await expect(usersPage.profileSwitchedSuccessText).toBeVisible();
+  });
+});
+
+test.describe("Google pay", () => {
+  test.beforeEach(async ({ page, context }) => {
+    email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+
+    const homePage = new HomePage(page);
+    const merchantId = await homePage.merchantID.nth(0).textContent();
+    if (merchantId) {
+      await createStripeGooglePayConnectorAPI(
+        merchantId,
+        "stripe_test_sdk",
+        context.request,
+        page,
+      );
+    }
+
+    await homePage.tryItOutButton.click();
+  });
+
+  test("should make a successful payment using SDK", async ({
+    page,
+    context,
+  }) => {
+    test.setTimeout(60000);
+    const homePage = new HomePage(page);
+
+    await homePage.showPreviewButton.click();
+    await page.waitForLoadState("networkidle");
+
+    const sdkFrame = page
+      .locator(
+        'iframe[name="orca-payment-element-iframeRef-orca-elements-payment-element-payment-element"]',
+      )
+      .contentFrame();
+    const googlePayButton = sdkFrame.getByRole("button", {
+      name: "Google Pay",
+    });
+    await expect(googlePayButton).toBeVisible({ timeout: 10000 });
+
+    const popupPromise = page.waitForEvent("popup", { timeout: 15000 });
+    await googlePayButton.click();
+    const googleSignInPopup = await popupPromise;
+
+    await googleSignInPopup.waitForLoadState("domcontentloaded", {
+      timeout: 15000,
+    });
+
+    await expect(
+      googleSignInPopup.getByText("Sign in", { exact: true }),
+    ).toBeVisible({ timeout: 10000 });
+    await expect(
+      googleSignInPopup.getByText("GPay", { exact: true }),
+    ).toBeVisible({ timeout: 10000 });
+    await expect(
+      googleSignInPopup.getByText("US Credit: Visa", { exact: true }),
+    ).toBeVisible();
+    await expect(googleSignInPopup.getByText("••4242")).toBeVisible();
+    await expect(
+      googleSignInPopup.getByText("us_visa", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      googleSignInPopup.getByText("Show list of payment methods.", {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      googleSignInPopup.getByText(
+        "By continuing, you create a Google Payments account and agree to the Google Payments Terms of Service. The Privacy Notice describes how your data is handled.",
+        { exact: true },
+      ),
+    ).toBeVisible();
+    await expect(
+      googleSignInPopup.getByText(
+        "Get Google Pay emails with helpful product tips and current promotions. Unsubscribe anytime at wallet.google.com.",
+        { exact: true },
+      ),
+    ).toBeVisible();
+    await expect(
+      googleSignInPopup.getByText(
+        "Your payment method won't be charged because you're in a test environment",
+        { exact: true },
+      ),
+    ).toBeVisible();
+    await expect(
+      googleSignInPopup.getByText("$100.00", { exact: true }),
+    ).toBeVisible();
+
+    // Click the Pay button to complete the test-mode payment.
+    const payButton = googleSignInPopup.getByRole("button", {
+      name: "Pay JuspayDEECOM",
+    });
+    await expect(payButton).toBeVisible({ timeout: 10000 });
+    await payButton.click();
+
+    await expect(homePage.paymentSuccessfulText).toBeAttached({
+      timeout: 30000,
+    });
+    await expect(homePage.goToPaymentOperationsButton).toBeVisible({
+      timeout: 10000,
+    });
+    await homePage.goToPaymentOperationsButton.click();
+    expect(page.url()).toContain("/dashboard/payments/pay_");
   });
 });

@@ -18,6 +18,19 @@ const API_URL = process.env.HYPERSWITCH_API_URL || "http://localhost:8080";
 const MAIL_URL = process.env.PLAYWRIGHT_MAIL_URL || "http://localhost:8025";
 const ADMIN_API_KEY = process.env.HYPERSWITCH_ADMIN_API_KEY || "test_admin";
 
+// Extracts the JWT from dashboard localStorage after a successful UI login.
+export async function getJwtFromLocalStorage(page: Page): Promise<string> {
+  return page.evaluate(() => {
+    const raw = window.localStorage.getItem("USER_INFO");
+    if (!raw) return "";
+    try {
+      return (JSON.parse(raw) as { token?: string }).token ?? "";
+    } catch {
+      return "";
+    }
+  });
+}
+
 export async function signupUser(
   email: string,
   password: string,
@@ -91,8 +104,11 @@ export async function createAPIKey(
   merchantId: string,
   token: string,
   context?: APIRequestContext,
+  page?: Page,
 ): Promise<string> {
   const ctx = context ?? (await request.newContext());
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  console.log(jwt);
   // CI backends occasionally take >30s on the first request when the worker
   // pool is cold. One retry with a fresh context recovers from transient
   // socket hangs without masking persistent failures.
@@ -102,6 +118,7 @@ export async function createAPIKey(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": ADMIN_API_KEY,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
       },
       data: {
         name: "API Key 1",
@@ -131,9 +148,11 @@ export async function createDummyConnectorAPI(
   merchantId: string,
   connectorLabel: string,
   context?: APIRequestContext,
+  page?: Page,
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(
     `${API_URL}/account/${merchantId}/connectors`,
@@ -142,6 +161,7 @@ export async function createDummyConnectorAPI(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
       },
       data: {
         connector_type: "payment_processor",
@@ -245,9 +265,11 @@ export async function createBusinessProfileAPI(
 export async function getDefaultProfileId(
   merchantId: string,
   context?: APIRequestContext,
+  page?: Page,
 ): Promise<string> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.get(
     `${API_URL}/account/${merchantId}/business_profile`,
@@ -256,6 +278,7 @@ export async function getDefaultProfileId(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
       },
     },
   );
@@ -432,6 +455,132 @@ export async function createStripeConnectorAPIwithAPIKey(
     const body = await response.text();
     throw new Error(
       `createStripeConnectorAPI failed (${response.status()}): ${body}`,
+    );
+  }
+}
+
+export async function createStripeGooglePayConnectorAPI(
+  merchantId: string,
+  connectorLabel: string,
+  context?: APIRequestContext,
+  page?: Page,
+  profileId?: string,
+): Promise<void> {
+  const ctx = context ?? (await request.newContext());
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
+  const resolvedProfileId =
+    profileId ?? (await getDefaultProfileId(merchantId, ctx, page));
+
+  const data: Record<string, unknown> = {
+    connector_type: "payment_processor",
+    profile_id: resolvedProfileId,
+    connector_name: "stripe",
+    connector_label: connectorLabel,
+    disabled: false,
+    test_mode: true,
+    payment_methods_enabled: [
+      {
+        payment_method: "wallet",
+        payment_method_types: [
+          {
+            payment_method_type: "google_pay",
+            payment_experience: "invoke_sdk_client",
+            minimum_amount: 0,
+            maximum_amount: 68607706,
+            recurring_enabled: true,
+            installment_payment_enabled: false,
+          },
+        ],
+      },
+    ],
+    metadata: {
+      google_pay: {
+        merchant_info: {
+          merchant_id: "merchant_id",
+          merchant_name: "merchant_name",
+        },
+        allowed_payment_methods: [
+          {
+            type: "CARD",
+            parameters: {
+              allowed_auth_methods: ["PAN_ONLY", "CRYPTOGRAM_3DS"],
+              allowed_card_networks: [
+                "AMEX",
+                "DISCOVER",
+                "INTERAC",
+                "JCB",
+                "MASTERCARD",
+                "VISA",
+              ],
+            },
+            tokenization_specification: {
+              type: "PAYMENT_GATEWAY",
+              parameters: {
+                gateway: "stripe",
+                "stripe:version": "2018-10-31",
+                "stripe:publishableKey": "test_publishableKey",
+              },
+            },
+          },
+        ],
+      },
+    },
+    connector_account_details: {
+      api_key: "api_key",
+      auth_type: "HeaderKey",
+    },
+    additional_merchant_data: null,
+    status: "active",
+    pm_auth_config: null,
+    connector_wallets_details: {
+      google_pay: {
+        provider_details: {
+          merchant_info: {
+            merchant_id: "merchant_id",
+            merchant_name: "merchant_name",
+            tokenization_specification: {
+              type: "PAYMENT_GATEWAY",
+              parameters: {
+                gateway: "stripe",
+                "stripe:version": "2018-10-31",
+                "stripe:publishableKey": "test_publishableKey",
+              },
+            },
+          },
+        },
+        cards: {
+          allowed_auth_methods: ["PAN_ONLY", "CRYPTOGRAM_3DS"],
+          allowed_card_networks: [
+            "AMEX",
+            "DISCOVER",
+            "INTERAC",
+            "JCB",
+            "MASTERCARD",
+            "VISA",
+          ],
+        },
+      },
+    },
+  };
+
+  const response = await ctx.post(
+    `${API_URL}/account/${merchantId}/connectors`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": apiKey,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
+      },
+      data,
+    },
+  );
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `createStripeGooglePayConnectorAPI failed (${response.status()}): ${body}`,
     );
   }
 }
