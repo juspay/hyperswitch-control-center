@@ -13,6 +13,7 @@ type status =
   | RequiresConfirmation
   | PartiallyCaptured
   | CancelledPostCapture
+  | Review
   | None
 
 type paymentAttemptStatus = [
@@ -73,6 +74,7 @@ let statusVariantMapper: string => status = statusLabel =>
   | "PARTIALLY_CAPTURED" => PartiallyCaptured
   | "CANCELLED_POST_CAPTURE" => CancelledPostCapture
   | "EXPIRED" => Expired
+  | "REVIEW" => Review
   | _ => None
   }
 

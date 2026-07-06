@@ -246,37 +246,47 @@ let connectors = (
   ~isVaultProcessor,
   ~isSurchargeProcessor,
   ~userHasResourceAccess,
+  ~isCurrentMerchantPlatform,
 ) => {
-  let connectorLinkArray = [paymentProcessor(isLiveMode, userHasResourceAccess)]
+  let connectorLinkArray = if isCurrentMerchantPlatform {
+    let links = []
+    if isVaultProcessor {
+      links->Array.push(vaultProcessor(~userHasResourceAccess))->ignore
+    }
+    links
+  } else {
+    let links = [paymentProcessor(isLiveMode, userHasResourceAccess)]
 
-  if isPayoutsEnabled {
-    connectorLinkArray->Array.push(payoutConnectors(~userHasResourceAccess))->ignore
-  }
-  if isThreedsConnectorEnabled {
-    connectorLinkArray->Array.push(threeDsConnector(~userHasResourceAccess))->ignore
-  }
+    if isPayoutsEnabled {
+      links->Array.push(payoutConnectors(~userHasResourceAccess))->ignore
+    }
+    if isThreedsConnectorEnabled {
+      links->Array.push(threeDsConnector(~userHasResourceAccess))->ignore
+    }
 
-  if isFrmEnabled {
-    connectorLinkArray->Array.push(fraudAndRisk(~userHasResourceAccess))->ignore
-  }
+    if isFrmEnabled {
+      links->Array.push(fraudAndRisk(~userHasResourceAccess))->ignore
+    }
 
-  if isPMAuthenticationProcessor {
-    connectorLinkArray->Array.push(pmAuthenticationProcessor(~userHasResourceAccess))->ignore
-  }
+    if isPMAuthenticationProcessor {
+      links->Array.push(pmAuthenticationProcessor(~userHasResourceAccess))->ignore
+    }
 
-  if isTaxProcessor {
-    connectorLinkArray->Array.push(taxProcessor(~userHasResourceAccess))->ignore
-  }
-  if isBillingProcessor {
-    connectorLinkArray->Array.push(billingProcessor(~userHasResourceAccess))->ignore
-  }
+    if isTaxProcessor {
+      links->Array.push(taxProcessor(~userHasResourceAccess))->ignore
+    }
+    if isBillingProcessor {
+      links->Array.push(billingProcessor(~userHasResourceAccess))->ignore
+    }
 
-  if isVaultProcessor {
-    connectorLinkArray->Array.push(vaultProcessor(~userHasResourceAccess))->ignore
-  }
+    if isSurchargeProcessor {
+      links->Array.push(surchargeProcessor(~userHasResourceAccess))->ignore
+    }
 
-  if isSurchargeProcessor {
-    connectorLinkArray->Array.push(surchargeProcessor(~userHasResourceAccess))->ignore
+    if isVaultProcessor {
+      links->Array.push(vaultProcessor(~userHasResourceAccess))->ignore
+    }
+    links
   }
 
   isConnectorsEnabled
@@ -625,13 +635,13 @@ let developers = (
   ~isCurrentMerchantPlatform,
 ) => {
   let apiKeys = apiKeys(userHasResourceAccess)
+  let webhooks = webhooks(userHasResourceAccess)
+  let paymentSettings = paymentSettings(userHasResourceAccess)
 
   let links = if isCurrentMerchantPlatform {
-    [apiKeys]
+    [paymentSettings, apiKeys, webhooks]
   } else {
     let isProfileUser = checkUserEntity([#Profile])
-    let paymentSettings = paymentSettings(userHasResourceAccess)
-    let webhooks = webhooks(userHasResourceAccess)
 
     let defaultDevelopersOptions = [paymentSettings]
 
