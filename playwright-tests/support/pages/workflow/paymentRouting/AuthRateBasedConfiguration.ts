@@ -40,7 +40,9 @@ export class AuthRateBasedConfiguration {
   }
 
   get duplicateAndEditButton(): Locator {
-    return this.page.getByRole("button", { name: "Duplicate and Edit Configuration" });
+    return this.page.getByRole("button", {
+      name: "Duplicate and Edit Configuration",
+    });
   }
 }
 

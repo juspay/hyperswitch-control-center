@@ -23,6 +23,8 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
     UnderAmount(Mismatch),
     UnderAmount(Expected),
     DataMismatch,
+    CurrencyMismatch,
+    SplitMismatch,
     PartiallyReconciled,
     Expected,
     Missing,
@@ -176,7 +178,11 @@ let getHeadingAndSubHeadingForMismatch = (
 
   let mismatchSubHeading = switch mismatchType {
   | AmountMismatch =>
-    `There is a ${mismatchHeading} of ${currency} ${mismatchAmount->Float.toString} found between the transaction entries`
+    `There is a ${mismatchHeading} of ${CurrencyFormatUtils.valueFormatter(
+        mismatchAmount,
+        AmountWithSuffix,
+        ~currency,
+      )} found between the transaction entries`
   | MetadataMismatch =>
     `There is a ${mismatchHeading} found between ${accountNames->Array.joinWith(", ")}`
   | BalanceDirectionMismatch =>

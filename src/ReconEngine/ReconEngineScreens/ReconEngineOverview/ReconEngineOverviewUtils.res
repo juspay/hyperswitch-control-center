@@ -16,6 +16,9 @@ let matchedVolumeColor = "#8BC2F3"
 let highlightStrokeColor = "#3b82f6"
 let normalStrokeColor = "#6b7280"
 
+let getPercentage = (~count: int, ~total: int) =>
+  total > 0 ? count->Int.toFloat /. total->Int.toFloat *. 100.0 : 0.0
+
 let getOverviewAccountPayloadFromDict: Dict.t<JSON.t> => accountType = dict => {
   dict->accountItemToObjMapper
 }
@@ -34,16 +37,16 @@ let getAccountNameAndCurrency = (accountData: array<accountType>, accountId: str
 let calculateTransactionCounts = (transactionsData: array<ReconEngineTypes.transactionType>) => {
   transactionsData->Array.reduce((0, 0, 0), ((matched, mismatched, expected), transaction) => {
     switch transaction.transaction_status {
-    | Matched(Force) | Matched(Manual) | Matched(Auto) | Posted(Manual) => (
-        matched + 1,
-        mismatched,
-        expected,
-      )
-    | UnderAmount(Mismatch) | OverAmount(Mismatch) | DataMismatch => (
-        matched,
-        mismatched + 1,
-        expected,
-      )
+    | Matched(Force)
+    | Matched(Manual)
+    | Matched(Auto)
+    | Posted(Manual)
+    | Matched(WithTolerance) => (matched + 1, mismatched, expected)
+    | UnderAmount(Mismatch)
+    | OverAmount(Mismatch)
+    | DataMismatch
+    | CurrencyMismatch
+    | SplitMismatch => (matched, mismatched + 1, expected)
     | Expected | UnderAmount(Expected) | OverAmount(Expected) | PartiallyReconciled | Missing => (
         matched,
         mismatched,
@@ -219,11 +222,14 @@ let initialDisplayFilters = () => {
     Posted(Manual),
     Matched(Auto),
     Matched(Manual),
+    Matched(WithTolerance),
     OverAmount(Mismatch),
     OverAmount(Expected),
     UnderAmount(Mismatch),
     UnderAmount(Expected),
     DataMismatch,
+    CurrencyMismatch,
+    SplitMismatch,
     PartiallyReconciled,
     Expected,
     Missing,
@@ -264,7 +270,7 @@ let seriesTypeFromString = (str: string): ReconEngineOverviewSummaryTypes.series
 let getStatusFilter = (seriesType: ReconEngineOverviewSummaryTypes.seriesType): string => {
   switch seriesType {
   | ReconciledSeriesType => "matched_auto,matched_manual,matched_force,posted_manual"
-  | MismatchedSeriesType => "over_amount_mismatch,under_amount_mismatch"
+  | MismatchedSeriesType => "over_amount_mismatch,under_amount_mismatch,data_mismatch"
   | ExpectedSeriesType => "expected,over_amount_expected,under_amount_expected,partially_reconciled"
   | UnknownSeriesType => ""
   }

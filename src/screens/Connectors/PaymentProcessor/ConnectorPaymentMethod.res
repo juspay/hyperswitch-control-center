@@ -13,7 +13,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
     Dict.make()->JSON.Encode.object->getPaymentMethodEnabled
   )
   let (_metaData, setMetaData) = React.useState(_ => Dict.make()->JSON.Encode.object)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   // id required in case of update flow
   let connectorID = switch HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "") {
   | "new" => None

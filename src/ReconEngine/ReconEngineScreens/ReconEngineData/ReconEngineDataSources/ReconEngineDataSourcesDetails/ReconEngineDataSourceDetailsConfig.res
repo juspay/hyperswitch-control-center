@@ -1,6 +1,7 @@
 open LogicUtils
 open FormDataUtils
 open Typography
+open ReconEngineDataSourcesUtils
 
 @react.component
 let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsUploading) => {
@@ -11,8 +12,10 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
   let keyValuePairs = allKeyValuePairs->Array.filter(((key, _)) => {
     !(key->titleToSnake == "ingestion_type")
   })
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (selectedFile, setSelectedFile) = React.useState(_ => None)
+  let (isDraggingFile, setIsDraggingFile) = React.useState(_ => false)
+  let dragDepthRef = React.useRef(0)
   let fileInputRef = React.useRef(Js.Nullable.null)
   let getURL = APIUtils.useGetURL()
   let updateDetails = APIUtils.useUpdateMethod()
@@ -23,18 +26,28 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
     ->Option.forEach(elem => elem->DOMUtils.toInputElement->DOMUtils.setInputValue(""))
   }
 
-  let handleFileUpload = async ev => {
+  let selectFile = file => {
+    let fileName = file["name"]->String.toLowerCase
+    let fileSize = file["size"]
+    let hasSupportedExtension = isSupportedFileType(fileName)
+    if !hasSupportedExtension {
+      showToast(~message="Please select a .csv, .ext, .xlsx, or .txt file.", ~toastType=ToastError)
+      setSelectedFile(_ => None)
+      clearFileInput()
+    } else if fileSize > maxFileSizeBytes {
+      showToast(~message="File size should not exceed 8 MB", ~toastType=ToastError)
+      setSelectedFile(_ => None)
+      clearFileInput()
+    } else {
+      setSelectedFile(_ => Some(file))
+    }
+  }
+
+  let handleFileUpload = ev => {
     try {
       let files = ReactEvent.Form.target(ev)["files"]
       switch files[0] {
-      | Some(value) =>
-        let fileSize = value["size"]
-        if fileSize > 10 * 1024 * 1024 {
-          showToast(~message="File size should be less than 10MB", ~toastType=ToastError)
-          setSelectedFile(_ => None)
-        } else {
-          setSelectedFile(_ => Some(value))
-        }
+      | Some(value) => selectFile(value)
       | None =>
         showToast(~message="No file selected. Please choose a file.", ~toastType=ToastError)
         setSelectedFile(_ => None)
@@ -43,6 +56,21 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
     | _ =>
       showToast(~message="An unexpected error occurred. Please try again.", ~toastType=ToastError)
       setSelectedFile(_ => None)
+    }
+  }
+
+  let handleFileDrop = (ev, hasManageAccess) => {
+    open MultipleFileUpload
+
+    ev->ReactEvent.Mouse.preventDefault
+    dragDepthRef.current = 0
+    setIsDraggingFile(_ => false)
+    if hasManageAccess {
+      let droppedFiles = ev->dataTransfer->files
+      switch droppedFiles[0] {
+      | Some(file) => selectFile(file)
+      | None => showToast(~message="No file selected. Please choose a file.", ~toastType=ToastError)
+      }
     }
   }
 
@@ -80,24 +108,68 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
     }
   }
 
+  let removeSelectedFile = () => {
+    if !isUploading {
+      setSelectedFile(_ => None)
+      clearFileInput()
+    }
+  }
+
+  let handleUploadKeyDown = ev => {
+    if ReactEvent.Keyboard.key(ev) == "Enter" && !isUploading {
+      ev->ReactEvent.Keyboard.preventDefault
+      uploadFile()->ignore
+    }
+  }
+
+  React.useEffect(() => {
+    switch selectedFile {
+    | Some(_) =>
+      Window.addEventListener("keydown", handleUploadKeyDown)
+      Some(() => Window.removeEventListener("keydown", handleUploadKeyDown))
+    | None => None
+    }
+  }, (selectedFile, isUploading))
+
   {
     if ingestionType == "manual" {
       let hasManageAccess =
         userHasAccess(~groupAccess=UserManagementTypes.ReconSourcesManage) === Access
       let cursorPointerClass = hasManageAccess ? "cursor-pointer" : "cursor-not-allowed"
+      let dropZoneBorderClass =
+        isDraggingFile && hasManageAccess
+          ? "border-nd_primary_blue-500 bg-blue-50 shadow-sm scale-[1.002]"
+          : "border-nd_gray-300 bg-white shadow-none scale-100"
       <div className="mt-10">
         <input
           ref={fileInputRef->ReactDOM.Ref.domRef}
           type_="file"
-          accept=".csv,.ext,.xlsx"
+          accept=".csv,.ext,.xlsx,.txt"
           disabled={!hasManageAccess}
-          onChange={ev => ev->handleFileUpload->ignore}
+          onChange=handleFileUpload
           hidden=true
           id="fileUploadInput"
         />
         <label
           htmlFor="fileUploadInput"
-          className={`flex flex-col items-center justify-center w-full border border-dashed border-nd_gray-300 rounded-xl ${cursorPointerClass} transition-colors hover:border-nd_gray-400`}>
+          onDragEnter={ev => {
+            ev->ReactEvent.Mouse.preventDefault
+            if hasManageAccess {
+              dragDepthRef.current = dragDepthRef.current + 1
+              setIsDraggingFile(_ => true)
+            }
+          }}
+          onDragOver={ev => ev->ReactEvent.Mouse.preventDefault}
+          onDragLeave={_ => {
+            if hasManageAccess {
+              dragDepthRef.current = dragDepthRef.current > 0 ? dragDepthRef.current - 1 : 0
+              if dragDepthRef.current == 0 {
+                setIsDraggingFile(_ => false)
+              }
+            }
+          }}
+          onDrop={ev => handleFileDrop(ev, hasManageAccess)}
+          className={`flex flex-col items-center justify-center w-full border border-dashed ${dropZoneBorderClass} rounded-xl ${cursorPointerClass} transform-gpu transition-all duration-200 ease-out hover:border-nd_gray-400`}>
           <div className="flex flex-col items-center justify-center py-8 gap-5">
             <Icon name="nd-upload" size=20 className="text-gray-400" />
             <div className="flex flex-col gap-1 items-center">
@@ -105,7 +177,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
                 {"Choose a file or drag & drop it here"->React.string}
               </div>
               <div className={`${body.md.medium} text-nd_gray-500`}>
-                {".csv,.ext,.xlsx only | Max size 8 MB"->React.string}
+                {".csv,.ext,.xlsx,.txt only | Max size 8 MB"->React.string}
               </div>
             </div>
             <div
@@ -119,23 +191,37 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
           <div className="mt-4 space-y-3">
             <div className="p-3 border rounded-lg bg-nd_gray-50">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+                <div className="flex min-w-0 items-center gap-2">
                   <Icon name="nd-file" size=16 />
-                  <span className={`${body.sm.medium} text-nd_gray-700`}>
+                  <span className={`${body.sm.medium} text-nd_gray-700 truncate`}>
                     {file["name"]->React.string}
                   </span>
-                  <span className={`${body.xs.light} text-nd_gray-500`}>
-                    {`${(file["size"] / 1024)->Int.toString} KB`->React.string}
+                  <span className={`${body.xs.light} text-nd_gray-500 shrink-0`}>
+                    {file["size"]->formatFileSize->React.string}
                   </span>
                 </div>
-                <ACLButton
-                  authorization={userHasAccess(~groupAccess=UserManagementTypes.ReconSourcesManage)}
-                  text={isUploading ? "Uploading..." : "Upload"}
-                  buttonType=Primary
-                  onClick={_ => uploadFile()->ignore}
-                  buttonState={isUploading ? Loading : Normal}
-                  buttonSize=Small
-                />
+                <div
+                  className="flex items-center gap-3 ml-3"
+                  onKeyDown={ev => ev->ReactEvent.Keyboard.stopPropagation}>
+                  <Icon
+                    onClick={_ => removeSelectedFile()}
+                    className={`text-nd_red-500 hover:text-nd_red-700 ${!isUploading
+                        ? "cursor-pointer"
+                        : "cursor-not-allowed"}`}
+                    name="nd-delete-dustbin-02"
+                    size=16
+                  />
+                  <ACLButton
+                    authorization={userHasAccess(
+                      ~groupAccess=UserManagementTypes.ReconSourcesManage,
+                    )}
+                    text={isUploading ? "Uploading..." : "Upload"}
+                    buttonType=Primary
+                    onClick={_ => uploadFile()->ignore}
+                    buttonState={isUploading ? Loading : Normal}
+                    buttonSize=Small
+                  />
+                </div>
               </div>
             </div>
           </div>

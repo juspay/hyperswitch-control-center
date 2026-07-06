@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 
 export class PaymentOperations {
   readonly page: Page;
@@ -9,7 +9,7 @@ export class PaymentOperations {
 
   get transactionView(): Locator {
     return this.page.locator(
-      '[class="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-6 mb-8"]',
+      '[class="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-3 grid-cols-2 gap-6 mb-8"]',
     );
   }
 
@@ -88,7 +88,9 @@ export class PaymentOperations {
   }
 
   get modalCloseIcon(): Locator {
-    return this.page.locator('.border.border-jp-gray-500.dark\\:border-jp-gray-900.bg-white.dark\\:bg-jp-gray-lightgray_background.shadow.rounded-lg.dark\\:text-opacity-75.dark\\:bg-jp-gray-darkgray_background.animate-slideUp > .\\!p-4 > .flex.items-center > .flex.flex-col > .fill-current.cursor-pointer');
+    return this.page.locator(
+      ".border.border-jp-gray-500.dark\\:border-jp-gray-900.bg-white.dark\\:bg-jp-gray-lightgray_background.shadow.rounded-lg.dark\\:text-opacity-75.dark\\:bg-jp-gray-darkgray_background.animate-slideUp > .\\!p-4 > .flex.items-center > .flex.flex-col > .fill-current.cursor-pointer",
+    );
   }
 
   get crossOutlineIcon(): Locator {
@@ -153,6 +155,27 @@ export class PaymentOperations {
     );
   }
 
+  /**
+   * Opens the date-range picker and waits for the predefined options panel.
+   *
+   * The selector is a toggle button: the panel is only mounted while the picker
+   * is expanded. Because the surrounding filter bar re-renders as the table
+   * refetches after a range is applied, a single click can land before the
+   * control is interactive (or toggle the panel the wrong way), leaving the
+   * options unmounted and the next assertion failing with "element(s) not
+   * found". Retry the open until the panel is actually showing, clicking only
+   * when it is still closed so an already-open panel is never toggled shut.
+   */
+  async openPredefinedDateOptions(): Promise<void> {
+    await expect(this.dateSelector).toBeVisible();
+    await expect(async () => {
+      if (!(await this.predefinedDateOptions.isVisible())) {
+        await this.dateSelector.click({ force: true });
+      }
+      await expect(this.predefinedDateOptions).toBeVisible({ timeout: 2000 });
+    }).toPass({ timeout: 15000 });
+  }
+
   get predefinedOptions(): Locator {
     return this.predefinedDateOptions;
   }
@@ -163,9 +186,7 @@ export class PaymentOperations {
 
   // Filters
   get filterChipArea(): Locator {
-    return this.page.locator(
-      '[class="flex relative  flex-row  flex-wrap"]',
-    );
+    return this.page.locator('[class="flex relative  flex-row  flex-wrap"]');
   }
 
   get filterChipContainer(): Locator {
@@ -313,7 +334,7 @@ export class PaymentOperations {
   }
 
   get refundsSectionBlock(): Locator {
-    return this.page.locator('[class="flex flex-col gap-4"]').nth(1);
+    return this.page.getByRole("paragraph").filter({ hasText: "Refunds" });
   }
 
   customerEmailTestId(email: string): Locator {

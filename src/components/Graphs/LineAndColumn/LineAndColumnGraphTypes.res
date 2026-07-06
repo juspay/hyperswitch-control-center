@@ -75,6 +75,7 @@ type dataObj = {
   data: array<float>,
   color: color,
   yAxis: int,
+  stacking?: string,
 }
 
 type data = array<dataObj>

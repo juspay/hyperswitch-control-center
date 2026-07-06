@@ -163,6 +163,9 @@ let keyExpiryCustomDate = FormRenderer.makeFieldInfo(
   ~customInput=InputFields.singleDatePickerInput(
     ~disablePastDates=true,
     ~format="YYYY-MM-DDTHH:mm:ss.SSS[Z]",
+    ~currentDateHourFormat="23",
+    ~currentDateMinuteFormat="59",
+    ~currentDateSecondsFormat="59",
   ),
 )
 

@@ -17,7 +17,7 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
   let (ingestionConfigData, setIngestionConfigData) = React.useState(_ =>
     Dict.make()->getIngestionConfigPayloadFromDict
   )
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (showModal, setShowModal) = React.useState(_ => false)
 
   let fetchIngestionConfigDetails = async () => {
@@ -52,11 +52,11 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
         ~id=Some(ingestionHistoryData.id),
       )
       let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute, ~forceCookies)
-      let csvContent = await res->Fetch.Response.text
+      let csvContent = await res->Fetch.Response.blob
       DownloadUtils.download(
         ~fileName=ingestionHistoryData.file_name,
         ~content=csvContent,
-        ~fileType="text/csv",
+        ~fileType="application/octet-stream",
       )
       showToast(~message="File downloaded successfully", ~toastType=ToastSuccess)
     } catch {

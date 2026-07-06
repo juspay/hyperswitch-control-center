@@ -1,4 +1,3 @@
-open VerticalStepIndicatorTypes
 open IntelligentRoutingTypes
 
 let dataSource = [Historical, Realtime]
@@ -12,7 +11,7 @@ let dataTypeVariantToString = dataType =>
   | Realtime => "Realtime Data"
   }
 
-let sections = [
+let sections: array<VerticalStepIndicatorTypes.section> = [
   {
     id: (#analyze: sections :> string),
     name: "Choose Your Data Source",
@@ -195,3 +194,34 @@ let getFileSize = file =>
   | Some(file) => file["size"]
   | None => 0
   }
+
+let features: array<feature> = [
+  {
+    icon: "arrow-increasing",
+    bgColor: "bg-nd_orange-150",
+    iconColor: "text-nd_orange-300",
+    title: "Dynamic Authorization Optimization",
+    description: "Maximizes approval rates by routing to best-performing processors.",
+  },
+  {
+    icon: "nd-swap-arrow-horizontal",
+    bgColor: "bg-nd_purple-200",
+    iconColor: "text-nd_purple-300",
+    title: "Adaptive Fallback & Rerouting",
+    description: "Automatically reroutes payments during outages or declines, ensuring uninterrupted payment flows.",
+  },
+  {
+    icon: "routing",
+    bgColor: "bg-pink-100",
+    iconColor: "text-pink-500",
+    title: "Cost-Efficient Routing",
+    description: "Optimizes paths to minimize processing and network scheme fees, enhancing your bottom line.",
+  },
+  {
+    icon: "filter",
+    bgColor: "bg-teal-100",
+    iconColor: "text-teal-500",
+    title: "Customizable Routing Rules",
+    description: "Define preferences based on payment method, currency, region, and more.",
+  },
+]
