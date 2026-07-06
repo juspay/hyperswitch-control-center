@@ -7,7 +7,7 @@ let make = (~className="", ~description="") => {
     </span>
   <>
     <RenderIf condition=hasDescription>
-      <ToolTip description toolTipFor=tag toolTipPosition=ToolTip.Top />
+      <ToolTip description toolTipFor=tag toolTipPosition=Top />
     </RenderIf>
     <RenderIf condition={!hasDescription}> tag </RenderIf>
   </>
