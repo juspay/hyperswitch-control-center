@@ -4,19 +4,36 @@ open ReconEnginePipelinesUtils
 let make = () => {
   open LogicUtils
   open ReconEngineHooks
+  open HSAnalyticsUtils
 
   let getIngestionHistory = useGetIngestionHistory()
   let getProcessingEntries = useGetProcessingEntries()
-  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
+  let {
+    filterValueJson,
+    filterValue,
+    updateExistingKeys,
+    removeKeys,
+    filterKeys,
+    setfilterKeys,
+  } = React.useContext(FilterContext.filterContext)
+  let customFilterKey = "status"
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (ingestionHistory, setIngestionHistory) = React.useState(_ => [])
   let (stagingEntries, setStagingEntries) = React.useState(_ => [])
+  let (activeStatusFilter, setActiveStatusFilter) = React.useState(_ => "")
 
   let fetchPipelinesStatsData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+      let dateRangeFilterValueJson =
+        filterValueJson
+        ->Dict.toArray
+        ->Array.filter(((key, _)) => [startTimeFilterKey, endTimeFilterKey]->Array.includes(key))
+        ->Dict.fromArray
+      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
+        ~filterValueJson=dateRangeFilterValueJson,
+      )
       let ingestionHistoryFetch = getIngestionHistory(~queryParameters=Some(queryString))
       let processingEntriesFetch = getProcessingEntries(~queryParameters=Some(queryString))
       let (ingestionHistory, stagingEntries) = await Promise.all2((
@@ -42,6 +59,40 @@ let make = () => {
     getPipelineStatCards(~ingestionHistory, ~stagingEntries)
   }, (ingestionHistory, stagingEntries))
 
+  let onStatCardClick = (card: ReconEnginePipelinesTypes.pipelineStatCardData) => () => {
+    switch card.pipelineStatCardClickAction {
+    | ClearStatusFilter => removeKeys([customFilterKey])
+    | SetStatusFilter(status) => {
+        updateExistingKeys(Dict.fromArray([(customFilterKey, `[${status}]`)]))
+        if !(filterKeys->Array.includes(customFilterKey)) {
+          filterKeys->Array.push(customFilterKey)->ignore
+          setfilterKeys(_ => filterKeys)
+        }
+      }
+    | NoAction => ()
+    }
+  }
+
+  let settingActiveStatusFilter = () => {
+    let appliedStatusFilter =
+      filterValueJson->getArrayFromDict(customFilterKey, [])->getStrArrayFromJsonArray
+    setActiveStatusFilter(_ =>
+      appliedStatusFilter->Array.length == 1 ? appliedStatusFilter->getValueFromArray(0, "") : ""
+    )
+  }
+
+  React.useEffect(() => {
+    settingActiveStatusFilter()
+    None
+  }, [filterValue])
+
+  let isCardActive = (card: ReconEnginePipelinesTypes.pipelineStatCardData) =>
+    switch card.pipelineStatCardClickAction {
+    | ClearStatusFilter => activeStatusFilter->isEmptyString
+    | SetStatusFilter(status) => activeStatusFilter == status
+    | NoAction => false
+    }
+
   <div
     className="grid xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-x-4 gap-y-6 mt-6">
     {statCards
@@ -57,6 +108,8 @@ let make = () => {
           icon=card.pipelineStatCardIcon
           description=card.pipelineStatCardDescription
           cardType=card.pipelineStatCardType
+          onStatCardClick={onStatCardClick(card)}
+          isActive={isCardActive(card)}
         />
       </PageLoaderWrapper>
     })

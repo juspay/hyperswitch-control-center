@@ -6,10 +6,16 @@ type pipelineStatCardTitle =
   | @as("Failed") FailedRuns
   | @as("Needs Manual Review") NeedsManualReviewEntries
 
+type pipelineStatCardClickAction =
+  | ClearStatusFilter
+  | SetStatusFilter(string)
+  | NoAction
+
 type pipelineStatCardData = {
   pipelineStatCardTitle: pipelineStatCardTitle,
   pipelineStatCardValue: valueType,
   pipelineStatCardIcon: Button.iconType,
   pipelineStatCardDescription: string,
   pipelineStatCardType: statCardType,
+  pipelineStatCardClickAction: pipelineStatCardClickAction,
 }

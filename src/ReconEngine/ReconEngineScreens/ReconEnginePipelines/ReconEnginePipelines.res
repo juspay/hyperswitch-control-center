@@ -4,6 +4,7 @@ open Typography
 let make = () => {
   open PageUtils
 
+  let getAccounts = ReconEngineHooks.useGetAccounts()
   let {updateExistingKeys, filterKeys} = React.useContext(FilterContext.filterContext)
   let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
   let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
@@ -11,6 +12,25 @@ let make = () => {
   let dateDropDownTriggerMixpanelCallback = () => {
     mixpanelEvent(~eventName="recon_engine_pipelines_date_filter_opened")
   }
+
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (accountData, setAccountData) = React.useState(_ => [])
+
+  let fetchAccounts = async () => {
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let accounts = await getAccounts()
+      setAccountData(_ => accounts)
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch accounts"))
+    }
+  }
+
+  React.useEffect(() => {
+    fetchAccounts()->ignore
+    None
+  }, [])
 
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
     ~updateExistingKeys,
@@ -50,5 +70,8 @@ let make = () => {
       />
     </div>
     <ReconEnginePipelinesStatCards />
+    <PageLoaderWrapper screenState>
+      <ReconEnginePipelinesTable accountData />
+    </PageLoaderWrapper>
   </div>
 }
