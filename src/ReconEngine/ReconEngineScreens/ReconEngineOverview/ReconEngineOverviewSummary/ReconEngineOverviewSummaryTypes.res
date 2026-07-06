@@ -157,3 +157,23 @@ type overviewChartPoint = {
   missingCount: float,
   matchRate: float,
 }
+
+type exceptionAgingData = {
+  label: string,
+  color: string,
+  total: int,
+}
+
+type exceptionTriageItem = {
+  label: string,
+  total: int,
+}
+
+type triageTab = Transactions | Staging
+
+type ruleActivityItem = {
+  overview_rule: ReconEngineTypes.overviewRulesResponse,
+  volume: int,
+  exceptions: int,
+  matchRate: float,
+}

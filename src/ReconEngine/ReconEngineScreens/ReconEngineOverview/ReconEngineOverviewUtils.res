@@ -16,6 +16,9 @@ let matchedVolumeColor = "#8BC2F3"
 let highlightStrokeColor = "#3b82f6"
 let normalStrokeColor = "#6b7280"
 
+let getPercentage = (~count: int, ~total: int) =>
+  total > 0 ? count->Int.toFloat /. total->Int.toFloat *. 100.0 : 0.0
+
 let getOverviewAccountPayloadFromDict: Dict.t<JSON.t> => accountType = dict => {
   dict->accountItemToObjMapper
 }
