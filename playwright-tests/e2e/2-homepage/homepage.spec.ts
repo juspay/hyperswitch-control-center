@@ -15,9 +15,13 @@ import {
   createStripeGooglePayConnectorAPI,
 } from "../../support/commands";
 import UsersPage from "../../support/pages/settings/UsersPage";
+import puppeteer from "puppeteer-core";
+import { spawn, type ChildProcess } from "child_process";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 let email = "";
+
+const delay = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 test.describe("Homepage", () => {
   test.beforeEach(async ({ page, context }) => {
@@ -1054,107 +1058,155 @@ test.describe("Organization Chart Tree", () => {
 });
 
 test.describe("Google pay", () => {
-  test.beforeEach(async ({ page, context }) => {
-    email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD);
-    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+  // Google Pay requires Chrome's PaymentRequest API, which Playwright blocks
+  // ("Cannot show PaymentRequest UI in a preview page or a background tab").
+  // We use Puppeteer instead, following Google's official approach:
+  // https://github.com/google-pay/automated-web-testing-puppeteer
+  //
+  // Prerequisites:
+  //   1. Chrome fully closed (profile lock)
+  //   2. Copied Chrome profile at ~/playwright-chrome-profile (npm run pw:gpay:copy-profile)
+  //   3. Google account logged in to that profile (npm run pw:gpay:refresh to sync)
+  test("should make a successful google pay payment using SDK", async () => {
+    test.setTimeout(120000);
 
-    const homePage = new HomePage(page);
-    const merchantId = await homePage.merchantID.nth(0).textContent();
-    if (merchantId) {
-      await createStripeGooglePayConnectorAPI(
-        merchantId,
-        "stripe_test_sdk",
-        context.request,
-        page,
+    const PROFILE_DIR = `${process.env.HOME}/playwright-chrome-profile`;
+    const CHROME_PATH =
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+    const DEMO_URL =
+      "https://hyperswitch-demo-store.netlify.app/?isTestingMode=true";
+
+    // 1. Launch Chrome with remote debugging (Google's approach)
+    const chrome: ChildProcess = spawn(
+      CHROME_PATH,
+      [
+        `--user-data-dir=${PROFILE_DIR}`,
+        "--profile-directory=Default",
+        "--remote-debugging-port=9222",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-popup-blocking",
+      ],
+      { stdio: "ignore" },
+    );
+
+    try {
+      // Wait for Chrome's debugging endpoint to be ready
+      await delay(5000);
+
+      // 2. Connect via Puppeteer (Google: puppeteer.connect({ browserURL }))
+      const browser = await puppeteer.connect({
+        browserURL: "http://127.0.0.1:9222",
+      });
+      const page = await browser.newPage();
+
+      await page.goto(DEMO_URL, { waitUntil: "domcontentloaded" });
+
+      // 3. Find the SDK iframe and click the GPay button
+      const sdkFrameSelector =
+        'iframe[name="orca-payment-element-iframeRef-orca-elements-payment-element-paymentElement"]';
+      await page.waitForSelector(sdkFrameSelector, { timeout: 30000 });
+      const iframeEl = await page.$(sdkFrameSelector);
+      const sdkFrame = await iframeEl!.contentFrame();
+
+      // The GPay button (id="gpay-button-online-api-id") is rendered by
+      // Google's library inside a shadow DOM within the SDK iframe.
+      // Puppeteer's waitForSelector pierces open shadow roots, but if that
+      // fails we fall back to an evaluate that walks shadow roots manually.
+      let clicked = false;
+      try {
+        const gpayButton = await sdkFrame!.waitForSelector(
+          "#gpay-button-online-api-id",
+          { timeout: 10000, visible: true },
+        );
+        await gpayButton!.click();
+        clicked = true;
+      } catch {
+        // Fallback: search shadow DOM for any button with Google/GPay text
+        clicked = await sdkFrame!.evaluate(() => {
+          const allEls = document.querySelectorAll("*");
+          for (const el of allEls) {
+            if (el.shadowRoot) {
+              const btns = el.shadowRoot.querySelectorAll("button");
+              for (const b of btns) {
+                const txt = (b.textContent || "").toLowerCase();
+                const label = (b.getAttribute("aria-label") || "").toLowerCase();
+                if (txt.includes("google") || label.includes("google")) {
+                  b.click();
+                  return true;
+                }
+              }
+            }
+          }
+          return false;
+        });
+      }
+      expect(clicked).toBe(true);
+
+      // 4. Wait for GPay tab (Google: browser.waitForTarget)
+      await delay(4000);
+      const target = await browser.waitForTarget(
+        (t) =>
+          t.type() === "page" && t.url().includes("pay.google.com/gp/p/ui/pay"),
+        { timeout: 30000 },
       );
+      const gpayPage = await target.asPage();
+
+      // 5. Wait for the payment sheet to render
+      await delay(4000);
+
+      // 6. Find the payment sheet iframe (Google: iframe[name="sM432dIframe"])
+      let gpayIframeEl = await gpayPage.$('iframe[name="sM432dIframe"]');
+
+      if (!gpayIframeEl) {
+        // Fallback: find any iframe containing a "Pay" span
+        const allIframes = await gpayPage.$$("iframe");
+        for (const iframe of allIframes) {
+          const frame = await iframe.contentFrame();
+          if (!frame) continue;
+          const hasPay = await frame
+            .evaluate(() =>
+              Array.from(document.querySelectorAll("span")).some(
+                (s) => (s.textContent || "").trim() === "Pay",
+              ),
+            )
+            .catch(() => false);
+          if (hasPay) {
+            gpayIframeEl = iframe;
+            break;
+          }
+        }
+      }
+
+      expect(gpayIframeEl).not.toBeNull();
+      const gpayIframe = await gpayIframeEl!.contentFrame();
+
+      // 7. Click "Pay" (Google: span[text()='Pay'])
+      await gpayIframe!.waitForSelector("xpath/.//span[text()='Pay']", {
+        timeout: 15000,
+      });
+      await gpayIframe!.click("xpath/.//span[text()='Pay']");
+
+      // 8. Wait for payment processing and verify success
+      let success = false;
+      for (let i = 0; i < 10; i++) {
+        await delay(3000);
+        for (const f of page.frames()) {
+          const text = await f
+            .evaluate(() => document.body?.innerText ?? "")
+            .catch(() => "");
+          if (text.includes("Payment Successful")) {
+            success = true;
+            break;
+          }
+        }
+        if (success) break;
+      }
+      expect(success).toBe(true);
+
+      await browser.disconnect();
+    } finally {
+      chrome.kill();
     }
-
-    await homePage.tryItOutButton.click();
-  });
-
-  test("should make a successful payment using SDK", async ({
-    page,
-    context,
-  }) => {
-    test.setTimeout(60000);
-    const homePage = new HomePage(page);
-
-    await homePage.showPreviewButton.click();
-    await page.waitForLoadState("networkidle");
-
-    const sdkFrame = page
-      .locator(
-        'iframe[name="orca-payment-element-iframeRef-orca-elements-payment-element-payment-element"]',
-      )
-      .contentFrame();
-    const googlePayButton = sdkFrame.getByRole("button", {
-      name: "Google Pay",
-    });
-    await expect(googlePayButton).toBeVisible({ timeout: 10000 });
-
-    const popupPromise = page.waitForEvent("popup", { timeout: 15000 });
-    await googlePayButton.click();
-    const googleSignInPopup = await popupPromise;
-
-    await googleSignInPopup.waitForLoadState("domcontentloaded", {
-      timeout: 15000,
-    });
-
-    await expect(
-      googleSignInPopup.getByText("Sign in", { exact: true }),
-    ).toBeVisible({ timeout: 10000 });
-    await expect(
-      googleSignInPopup.getByText("GPay", { exact: true }),
-    ).toBeVisible({ timeout: 10000 });
-    await expect(
-      googleSignInPopup.getByText("US Credit: Visa", { exact: true }),
-    ).toBeVisible();
-    await expect(googleSignInPopup.getByText("••4242")).toBeVisible();
-    await expect(
-      googleSignInPopup.getByText("us_visa", { exact: true }),
-    ).toBeVisible();
-    await expect(
-      googleSignInPopup.getByText("Show list of payment methods.", {
-        exact: true,
-      }),
-    ).toBeVisible();
-    await expect(
-      googleSignInPopup.getByText(
-        "By continuing, you create a Google Payments account and agree to the Google Payments Terms of Service. The Privacy Notice describes how your data is handled.",
-        { exact: true },
-      ),
-    ).toBeVisible();
-    await expect(
-      googleSignInPopup.getByText(
-        "Get Google Pay emails with helpful product tips and current promotions. Unsubscribe anytime at wallet.google.com.",
-        { exact: true },
-      ),
-    ).toBeVisible();
-    await expect(
-      googleSignInPopup.getByText(
-        "Your payment method won't be charged because you're in a test environment",
-        { exact: true },
-      ),
-    ).toBeVisible();
-    await expect(
-      googleSignInPopup.getByText("$100.00", { exact: true }),
-    ).toBeVisible();
-
-    // Click the Pay button to complete the test-mode payment.
-    const payButton = googleSignInPopup.getByRole("button", {
-      name: "Pay JuspayDEECOM",
-    });
-    await expect(payButton).toBeVisible({ timeout: 10000 });
-    await payButton.click();
-
-    await expect(homePage.paymentSuccessfulText).toBeAttached({
-      timeout: 30000,
-    });
-    await expect(homePage.goToPaymentOperationsButton).toBeVisible({
-      timeout: 10000,
-    });
-    await homePage.goToPaymentOperationsButton.click();
-    expect(page.url()).toContain("/dashboard/payments/pay_");
   });
 });

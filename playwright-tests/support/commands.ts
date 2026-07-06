@@ -519,7 +519,7 @@ export async function createStripeGooglePayConnectorAPI(
               parameters: {
                 gateway: "stripe",
                 "stripe:version": "2018-10-31",
-                "stripe:publishableKey": "test_publishableKey",
+                "stripe:publishableKey": "publishableKey",
               },
             },
           },
@@ -544,7 +544,7 @@ export async function createStripeGooglePayConnectorAPI(
               parameters: {
                 gateway: "stripe",
                 "stripe:version": "2018-10-31",
-                "stripe:publishableKey": "test_publishableKey",
+                "stripe:publishableKey": "publishableKey",
               },
             },
           },
@@ -1057,12 +1057,12 @@ export async function createThreeDsExemptionAPI(
     name: string;
     description: string;
     authType:
-      | "no_three_ds"
-      | "challenge_requested"
-      | "challenge_preferred"
-      | "three_ds_exemption_requested_tra"
-      | "three_ds_exemption_requested_low_value"
-      | "issuer_three_ds_exemption_requested";
+    | "no_three_ds"
+    | "challenge_requested"
+    | "challenge_preferred"
+    | "three_ds_exemption_requested_tra"
+    | "three_ds_exemption_requested_low_value"
+    | "issuer_three_ds_exemption_requested";
   }> = {},
 ): Promise<{
   name: string;
