@@ -45,10 +45,10 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   let stackedBarGraphData = React.useMemo(() => {
     ReconEngineOverviewUtils.getStackedBarGraphData(~matchedCount, ~mismatchedCount, ~expectedCount)
   }, [matchedCount, mismatchedCount, expectedCount])
-  let reconciliationPercentage =
-    totalTransactions > 0
-      ? matchedCount->Int.toFloat /. totalTransactions->Int.toFloat *. 100.0
-      : 0.0
+  let reconciliationPercentage = ReconEngineOverviewUtils.getPercentage(
+    ~count=matchedCount,
+    ~total=totalTransactions,
+  )
 
   React.useEffect(() => {
     getAllTransactionsData()->ignore
