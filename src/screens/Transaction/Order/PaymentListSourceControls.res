@@ -48,7 +48,7 @@ module SourceTabs = {
             className="min-w-20 justify-center">
             <ToolTip
               description={item->getPaymentListSourceDescription}
-              toolTipFor={<span> {(item :> string)->React.string} </span>}
+              toolTipFor={<span> {value->React.string} </span>}
               toolTipPosition=Top
             />
           </TabsBinding.Trigger>

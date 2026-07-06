@@ -4,10 +4,15 @@ let make = (~previewOnly=false) => {
   open OrderUIUtils
   open LogicUtils
 
-  let fetchOrdersHook = OrdersHook.useFetchOrdersHook()
+  let ordersTableTitle = "Orders"
+  let advancedOrdersTableTitle = "OrdersAdvanced"
+  let statusFilterKey = (#status: OrderTypes.filter)->getValueFromFilterType
+
+  let fetchNormalOrdersHook = OrdersHook.useFetchOrdersHook()
   let fetchAnalyticsOrdersHook = AnalyticsOrdersHook.useFetchAnalyticsOrdersHook()
   let getSignal = AbortControllerHook.useAbortController()
-  let {devOpensearch, devSavedViews, transactionView} =
+  let showToast = ToastAdapter.useShowToast()
+  let {devOpensearch, devSavedViews, transactionView, generateReport, email, devSortEnabled} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
@@ -17,14 +22,26 @@ let make = (~previewOnly=false) => {
   let {merchantId, orgId, version} = getCommonSessionDetails()
 
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
-  let fetchOrdersWithStrategy = (~payload, ~version, ~signal) => {
-    devOpensearch && userHasResourceAccess(~resourceAccess=Analytics) === Access
+  let userGroupACL = HyperswitchAtom.userGroupACLAtom->Recoil.useRecoilValueFromAtom
+  let advancedPaymentListEnabled =
+    devOpensearch && version == V1 && userHasResourceAccess(~resourceAccess=Analytics) === Access
+  let paymentListSourceResolved =
+    !(devOpensearch && version == V1) || userGroupACL->Option.isSome || advancedPaymentListEnabled
+  let (source, setSource) = React.useState(_ =>
+    advancedPaymentListEnabled ? OrderTypes.Advanced : OrderTypes.Normal
+  )
+  let isAdvancedSource = source === OrderTypes.Advanced && advancedPaymentListEnabled
+  let tableTitle = isAdvancedSource ? advancedOrdersTableTitle : ordersTableTitle
+
+  let fetchOrdersWithSource = (~payload, ~version, ~signal) => {
+    isAdvancedSource
       ? fetchAnalyticsOrdersHook(~payload, ~version, ~signal)
-      : fetchOrdersHook(~payload, ~version, ~signal)
+      : fetchNormalOrdersHook(~payload, ~version, ~signal)
   }
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (orderData, setOrdersData) = React.useState(_ => [])
+  let (selectedRows, setSelectedRows) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filters, setFilters) = React.useState(_ => None)
@@ -38,11 +55,11 @@ let make = (~previewOnly=false) => {
     sortType: ASC,
   }
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
-  let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
+  let pageDetail = pageDetailDict->Dict.get(tableTitle)->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let {generateReport, email, devSortEnabled} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
+  let {filterValueJson, updateExistingKeys, removeKeys, setfilterKeys} = React.useContext(
+    FilterContext.filterContext,
+  )
   let startTime = filterValueJson->getString(startTimeFilterKey(version), "")
 
   let handleExtendDateButtonClick = _ => {
@@ -58,7 +75,7 @@ let make = (~previewOnly=false) => {
     let signal = getSignal()
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let res = await fetchOrdersWithStrategy(
+      let res = await fetchOrdersWithSource(
         ~payload=filterValueJson->JSON.Encode.object,
         ~version,
         ~signal,
@@ -78,7 +95,7 @@ let make = (~previewOnly=false) => {
           let newPaymentId = paymentId->String.replaceRegExp(%re("/_[0-9]$/g"), "")
           filterValueJson->Dict.set("payment_id", newPaymentId->JSON.Encode.string)
 
-          let res = await fetchOrdersWithStrategy(
+          let res = await fetchOrdersWithSource(
             ~payload=filterValueJson->JSON.Encode.object,
             ~version,
             ~signal,
@@ -124,12 +141,13 @@ let make = (~previewOnly=false) => {
         let filterParams = Dict.make()
 
         filterParams->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
-        filterParams->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
-        if !(searchText->isEmptyString) {
-          filterParams->Dict.set("payment_id", searchText->String.trim->JSON.Encode.string)
+        filterParams->Dict.set("limit", pageDetail.resultsPerPage->Int.toFloat->JSON.Encode.float)
+        let trimmedSearchText = searchText->String.trim
+        if trimmedSearchText->isNonEmptyString && !isAdvancedSource {
+          filterParams->Dict.set("payment_id", trimmedSearchText->JSON.Encode.string)
         }
 
-        let sortObj = sortAtomValue->Dict.get("Orders")->Option.getOr(defaultSort)
+        let sortObj = sortAtomValue->Dict.get(tableTitle)->Option.getOr(defaultSort)
         if sortObj.sortKey->isNonEmptyString {
           filterParams->Dict.set(
             "order",
@@ -149,7 +167,26 @@ let make = (~previewOnly=false) => {
         })
         //to delete unused keys
         filterParams->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
-        filterParams
+        isAdvancedSource
+          ? {
+              unsupportedAdvancedPaymentFilterKeys->Array.forEach(key =>
+                filterParams->Dict.delete(key)
+              )
+            }
+          : {
+              advancedPaymentFilterCleanupKeys->Array.forEach(key => filterParams->Dict.delete(key))
+            }
+
+        let requestPayload = isAdvancedSource
+          ? buildAdvancedPaymentListPayload(
+              ~filterParams,
+              ~searchText,
+              ~startTimeKey=startTimeFilterKey(version),
+              ~endTimeKey=endTimeFilterKey(version),
+            )
+          : filterParams
+
+        requestPayload
         ->getOrdersList
         ->ignore
 
@@ -165,15 +202,53 @@ let make = (~previewOnly=false) => {
   }
 
   React.useEffect(() => {
-    if filters->isNonEmptyValue {
-      fetchOrders()
-    }
-
-    None
-  }, (offset, filters, searchText))
+    paymentListSourceResolved && filters->isNonEmptyValue
+      ? {
+          let timeoutId = setTimeout(() => fetchOrders(), 120)
+          Some(() => clearTimeout(timeoutId))
+        }
+      : None
+  }, (offset, filters, searchText, source, pageDetail.resultsPerPage, paymentListSourceResolved))
 
   React.useEffect(() => {
-    Some(() => setSortAtom(_ => [("Orders", defaultSort)]->Dict.fromArray))
+    if advancedPaymentListEnabled {
+      setSource(prev => prev === OrderTypes.Normal ? OrderTypes.Advanced : prev)
+    } else if source === OrderTypes.Advanced {
+      setSource(_ => OrderTypes.Normal)
+    }
+    None
+  }, [advancedPaymentListEnabled])
+
+  let isInitialSourceRender = React.useRef(true)
+  React.useEffect(() => {
+    setOffset(_ => 0)
+    setSelectedRows(_ => [])
+    let filterKeysToRemove = isInitialSourceRender.current
+      ? {
+          isInitialSourceRender.current = false
+          isAdvancedSource ? [] : advancedPaymentFilterCleanupKeys
+        }
+      : [statusFilterKey]->Array.concat(advancedPaymentFilterCleanupKeys)
+
+    if filterKeysToRemove->isNonEmptyArray {
+      removeKeys(filterKeysToRemove)
+      setfilterKeys(prev => prev->Array.filter(key => !(filterKeysToRemove->Array.includes(key))))
+    }
+    None
+  }, [source])
+
+  React.useEffect(() => {
+    setSelectedRows(_ => [])
+    None
+  }, (offset, pageDetail.resultsPerPage, filters, searchText))
+
+  React.useEffect(() => {
+    Some(
+      () =>
+        setSortAtom(_ =>
+          [(ordersTableTitle, defaultSort), (advancedOrdersTableTitle, defaultSort)]->Dict.fromArray
+        ),
+    )
   }, [])
 
   let customTitleStyle = previewOnly ? "py-0 !pt-0" : ""
@@ -187,20 +262,38 @@ let make = (~previewOnly=false) => {
     />
   let hasSearchText = searchText->isNonEmptyString
   let filtersUI = React.useMemo(() => {
+    let searchPlaceholder = isAdvancedSource
+      ? "Search ID, email, card last 4..."
+      : "Search by payment ID"
+    let searchBar =
+      <SearchBarFilter
+        placeholder=searchPlaceholder setSearchVal=setSearchText searchVal=searchText
+      />
+    let searchBarWithInfo = isAdvancedSource
+      ? <ToolTip
+          description=advancedPaymentSearchDescription toolTipFor=searchBar toolTipPosition=Top
+        />
+      : searchBar
+
     <RemoteTableFilters
-      title="Orders"
+      title=tableTitle
       setFilters
       endTimeFilterKey={endTimeFilterKey(version)}
       startTimeFilterKey={startTimeFilterKey(version)}
-      initialFilters
+      initialFilters={(json, filterValues, removeKeys, filterKeys, setfilterKeys, version) =>
+        initialFiltersWithSource(
+          ~isAdvancedSource,
+          json,
+          filterValues,
+          removeKeys,
+          filterKeys,
+          setfilterKeys,
+          version,
+        )}
       initialFixedFilter={version => initialFixedFilter(version, ~disable=hasSearchText)}
       setOffset
       submitInputOnEnter=true
-      customLeftView={<div className="flex flex-col gap-1">
-        <SearchBarFilter
-          placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
-        />
-      </div>}
+      customLeftView={<div className="flex flex-col gap-1"> {searchBarWithInfo} </div>}
       customFilterActions={devSavedViews
         ? <SavedViewsComponent version entity=SavedViewTypes.Payment />
         : React.null}
@@ -210,14 +303,82 @@ let make = (~previewOnly=false) => {
       }}
       version
     />
-  }, (searchText, version))
+  }, (searchText, version, tableTitle, isAdvancedSource, devSavedViews))
+
+  let downloadData = () => {
+    DownloadUtils.downloadTableAsCsv(
+      ~csvHeaders=OrderEntity.csvHeaders,
+      ~rawData=selectedRows,
+      ~tableItemToObjMapper=dict => dict,
+      ~itemToCSVMapping=OrderEntity.mapOrderDictToCsvRow,
+      ~fileName="payments.csv",
+      ~toast=(~message, ~toastType) => showToast(~message, ~toastType),
+    )
+  }
+
+  let selectedRowsCount = selectedRows->Array.length
+  let hasSelectedRows = selectedRows->isNonEmptyArray
+  let canExportSelectedRows = isAdvancedSource && hasSelectedRows
+  let exportButtonState: Button.buttonState = canExportSelectedRows
+    ? Button.Normal
+    : Button.Disabled
+  let exportTooltipText = !isAdvancedSource
+    ? "CSV export is available in Advanced after selecting payments."
+    : hasSelectedRows
+    ? "Export selected payments as CSV."
+    : "Select one or more payments to export CSV."
+  let selectedRowsCountClass = Button.useGetTextColor(
+    ~buttonType=Primary,
+    ~buttonState=exportButtonState,
+    ~showBorder=false,
+  )
+  let exportButton =
+    <Button
+      text="Export"
+      buttonType=Primary
+      buttonState=exportButtonState
+      buttonSize=Small
+      showBorder=false
+      customButtonStyle="justify-start !w-28"
+      customIconMargin="ml-2"
+      customTextPaddingClass="!pl-2 !pr-0"
+      leftIcon={Button.CustomIcon(<Icon name="nd-download-bar-down" size=16 />)}
+      rightIcon={Button.CustomIcon(
+        <span
+          className={`inline-flex h-5 w-5 items-center justify-center rounded-full bg-white bg-opacity-20 text-fs-14 font-medium leading-5 ${selectedRowsCountClass}`}>
+          {selectedRowsCount->Int.toString->React.string}
+        </span>,
+      )}
+      onClick={_ => canExportSelectedRows ? downloadData() : ()}
+    />
+
+  let tableEntity = isAdvancedSource
+    ? OrderEntity.openSearchOrderEntity(merchantId, orgId, ~devSortEnabled)
+    : OrderEntity.orderEntity(merchantId, orgId, ~version, ~devSortEnabled)
+  let customColumnMapper = isAdvancedSource
+    ? TableAtoms.ordersAdvancedMapDefaultCols
+    : TableAtoms.ordersMapDefaultCols
+  let defaultColumns = isAdvancedSource
+    ? OrderEntity.openSearchDefaultColumns
+    : OrderEntity.defaultColumns
+  let checkBoxProps = isAdvancedSource
+    ? Some({
+        LoadedTable.showCheckBox: true,
+        selectedData: selectedRows,
+        setSelectedData: setSelectedRows,
+      })
+    : None
+  let showGenerateReportAction = generateReport && email && version == V1
+  let disableGenerateReport = orderData->isEmptyArray
 
   <ErrorBoundary>
-    <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
-      <div className="flex justify-between items-center">
+    <div
+      className={`flex flex-col gap-4 md:gap-6 mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
+      <div className="flex flex-wrap justify-between gap-3 items-start">
         <PageUtils.PageHeading title="Payment Operations" subTitle="" customTitleStyle />
-        <div className="flex gap-4">
-          <Portal to="OrdersOMPView">
+        <div
+          className="flex flex-nowrap justify-end gap-2 items-center whitespace-nowrap overflow-x-auto no-scrollbar">
+          <Portal to={`${tableTitle}OMPView`}>
             <OMPSwitchHelper.OMPViews
               views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
               selectedEntity={transactionEntity}
@@ -225,16 +386,26 @@ let make = (~previewOnly=false) => {
               entityMapper=UserInfoUtils.transactionEntityMapper
             />
           </Portal>
-          <RenderIf
-            condition={generateReport && email && orderData->Array.length > 0 && version == V1}>
-            <GenerateReport entityName={V1(PAYMENT_REPORT)} />
+          <div className="shrink-0">
+            <PaymentListSourceControls.SourceTabs
+              source setSource advancedEnabled=advancedPaymentListEnabled
+            />
+          </div>
+          <ToolTip description=exportTooltipText toolTipFor=exportButton toolTipPosition=Top />
+          <RenderIf condition=showGenerateReportAction>
+            <div className="shrink-0">
+              <GenerateReport entityName={V1(PAYMENT_REPORT)} disableReport=disableGenerateReport />
+            </div>
           </RenderIf>
         </div>
       </div>
-      <RenderIf condition={transactionView}>
-        <div className="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-3 grid-cols-2 gap-6 mb-8">
-          <TransactionView entity=TransactionViewTypes.Orders version />
-        </div>
+      <RenderIf condition={transactionView && paymentListSourceResolved}>
+        <TransactionView
+          entity=TransactionViewTypes.Orders
+          version
+          isAdvancedView=isAdvancedSource
+          containerClassName=""
+        />
       </RenderIf>
       <div className="flex">
         <RenderIf condition={!previewOnly}>
@@ -243,17 +414,17 @@ let make = (~previewOnly=false) => {
       </div>
       <PageLoaderWrapper screenState customUI>
         <LoadedTableWithCustomColumns
-          title="Orders"
+          title=tableTitle
           actualData=orderData
-          entity={OrderEntity.orderEntity(merchantId, orgId, ~version, ~devSortEnabled)}
+          entity=tableEntity
           resultsPerPage=20
           showSerialNumber=true
           totalResults={previewOnly ? orderData->Array.length : totalCount}
           offset
           setOffset
           currentFetchCount={orderData->Array.length}
-          customColumnMapper=TableAtoms.ordersMapDefaultCols
-          defaultColumns={OrderEntity.defaultColumns}
+          customColumnMapper
+          defaultColumns
           showSerialNumberInCustomizeColumns=false
           sortingBasedOnDisabled=false
           hideTitle=true
@@ -261,6 +432,9 @@ let make = (~previewOnly=false) => {
           remoteSortEnabled=true
           showAutoScroll=true
           isDraggable=true
+          isNewColumn=OrderEntity.isOpenSearchNewColumn
+          getNewColumnDescription=OrderEntity.getOpenSearchNewColumnDescription
+          ?checkBoxProps
         />
       </PageLoaderWrapper>
     </div>

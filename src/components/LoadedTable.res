@@ -620,9 +620,14 @@ let make = (
         actualRows
         ->Array.unshift(
           CustomCell(
-            <div onClick={ev => ev->ReactEvent.Mouse.stopPropagation}>
+            <div
+              className="-mx-8 -my-3 flex cursor-pointer items-center px-8 py-3"
+              onClick={ev => {
+                ev->ReactEvent.Mouse.stopPropagation
+                setIsSelected(selectedRowIndex === -1)
+              }}>
               <CheckBoxIconAdapter
-                isSelected={selectedRowIndex !== -1} setIsSelected checkboxDimension="h-4 w-4"
+                isSelected={selectedRowIndex !== -1} checkboxDimension="h-4 w-4"
               />
             </div>,
             (selectedRowIndex !== -1)->getStringFromBool,

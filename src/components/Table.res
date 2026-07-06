@@ -382,7 +382,9 @@ module TableHeadingCell = {
       switch setSelectAllCheckBox {
       | Some(fn) =>
         fn(_ => {
-          if isAllSelected {
+          if selectAllCheckBox === Some(PARTIAL) {
+            None
+          } else if isAllSelected {
             Some(ALL)
           } else {
             None
