@@ -181,7 +181,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     status !== DisputeExpired &&
     status !== DisputeCancelled &&
     status !== DisputeAccepted &&
-    data->Dict.keysToArray->Array.length > 0
+    data->Dict.keysToArray->isNonEmptyArray
   }, [disputeData])
 
   let syncData = async () => {
@@ -219,11 +219,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             <ACLButton
               authorization={userHasAccess(~groupAccess=OperationsView)}
               text="Sync"
-              leftIcon={Button.CustomIcon(
-                <Icon
-                  name="sync" className="jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
-                />,
-              )}
+              leftIcon={Button.CustomIcon(<Icon name="sync" className="text-nd_gray-600" />)}
               buttonType={Primary}
               customButtonStyle="mr-1"
               onClick={_ => syncData()->ignore}
