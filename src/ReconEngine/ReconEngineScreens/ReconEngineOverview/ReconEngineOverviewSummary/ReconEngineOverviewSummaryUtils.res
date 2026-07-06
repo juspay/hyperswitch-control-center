@@ -70,6 +70,9 @@ let calculateTotals = (data: array<accountType>) => {
   })
 }
 
+let nodeCardWidth = 440.0
+let nodeCardHeight = 300.0
+
 let getLayoutedElements = (
   nodes: array<ReconEngineOverviewSummaryTypes.nodeType>,
   edges: array<ReconEngineOverviewSummaryTypes.edgeType>,
@@ -89,8 +92,8 @@ let getLayoutedElements = (
       graph,
       node.id,
       {
-        width: 420.0,
-        height: 200.0,
+        width: nodeCardWidth,
+        height: nodeCardHeight,
       },
     )
   })
@@ -99,8 +102,8 @@ let getLayoutedElements = (
 
   let layoutedNodes = nodes->Array.map(node => {
     let position = getGraphNode(graph, node.id)
-    let x = position.x -. 360.0 /. 2.0
-    let y = position.y -. 200.0 /. 2.0
+    let x = position.x -. nodeCardWidth /. 2.0
+    let y = position.y -. nodeCardHeight /. 2.0
 
     {
       ...node,
@@ -142,36 +145,32 @@ let accountTransactionDataToObjMapper = dict => {
 }
 
 let generateStatusDataWithTransactionAmounts = (transactionData: accountTransactionData) => {
-  let formatAmountWithCurrency = (balance: balanceType): string => {
-    `${Math.abs(balance.value)->valueFormatter(Amount)} ${balance.currency}`
-  }
-
   [
     {
       statusType: MatchedAmount,
       reconStatusData: {
-        inAmount: formatAmountWithCurrency(transactionData.matched_confirmation_amount),
-        outAmount: formatAmountWithCurrency(transactionData.matched_transaction_amount),
-        inTxns: `${transactionData.matched_confirmation_count->Int.toString} txns`,
-        outTxns: `${transactionData.matched_transaction_count->Int.toString} txns`,
+        inAmount: transactionData.matched_confirmation_amount,
+        outAmount: transactionData.matched_transaction_amount,
+        inTxns: transactionData.matched_confirmation_count,
+        outTxns: transactionData.matched_transaction_count,
       },
     },
     {
       statusType: PendingAmount,
       reconStatusData: {
-        inAmount: formatAmountWithCurrency(transactionData.pending_confirmation_amount),
-        outAmount: formatAmountWithCurrency(transactionData.pending_transaction_amount),
-        inTxns: `${transactionData.pending_confirmation_count->Int.toString} txns`,
-        outTxns: `${transactionData.pending_transaction_count->Int.toString} txns`,
+        inAmount: transactionData.pending_confirmation_amount,
+        outAmount: transactionData.pending_transaction_amount,
+        inTxns: transactionData.pending_confirmation_count,
+        outTxns: transactionData.pending_transaction_count,
       },
     },
     {
       statusType: MismatchedAmount,
       reconStatusData: {
-        inAmount: formatAmountWithCurrency(transactionData.mismatched_confirmation_amount),
-        outAmount: formatAmountWithCurrency(transactionData.mismatched_transaction_amount),
-        inTxns: `${transactionData.mismatched_confirmation_count->Int.toString} txns`,
-        outTxns: `${transactionData.mismatched_transaction_count->Int.toString} txns`,
+        inAmount: transactionData.mismatched_confirmation_amount,
+        outAmount: transactionData.mismatched_transaction_amount,
+        inTxns: transactionData.mismatched_confirmation_count,
+        outTxns: transactionData.mismatched_transaction_count,
       },
     },
   ]
@@ -244,9 +243,7 @@ let summarizeTransactions = (ruleTransactions: array<transactionType>): (int, in
 }
 
 let getPercentageLabel = (~matchedCount, ~totalCount) =>
-  `${ReconEngineOverviewUtils.getPercentage(~count=matchedCount, ~total=totalCount)->valueFormatter(
-      Rate,
-    )} Matched`
+  `${getPercentage(~count=matchedCount, ~total=totalCount)->valueFormatter(Rate)} Matched`
 
 let getCompactRuleType = (strategy: ReconEngineRulesTypes.reconStrategyType) => {
   open ReconEngineRulesTypes
@@ -907,11 +904,7 @@ let exceptionTriageTooltipFormatter = (~totalCount) =>
   (
     @this
     (this: PieGraphTypes.pointFormatter) => {
-      let pct =
-        ReconEngineOverviewUtils.getPercentage(
-          ~count=this.y->Float.toInt,
-          ~total=totalCount,
-        )->valueFormatter(Rate)
+      let pct = getPercentage(~count=this.y->Float.toInt, ~total=totalCount)->valueFormatter(Rate)
       `<div style="min-width:190px;max-width:260px;border-radius:12px;background:#1A1F2E;box-shadow:0 8px 24px rgba(0,0,0,.25);overflow:hidden;">
         <div style="padding:10px 14px;">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
@@ -961,6 +954,23 @@ let getExpectedValue = (~overviewRules: array<overviewRulesResponse>) =>
     acc +. expectedValue
   })
 
+let getMatchedAmount = (~overviewRules: array<overviewRulesResponse>) =>
+  overviewRules->Array.reduce(0.0, (acc, rule) => {
+    let matchedAmount = rule.status_breakdown->Array.reduce(0.0, (statusAcc, status) => {
+      switch status.status {
+      | Matched(Auto)
+      | Matched(Force)
+      | Matched(Manual)
+      | Matched(WithTolerance)
+      | Posted(Manual) =>
+        statusAcc +. status.credit_amount.value
+      | _ => statusAcc
+      }
+    })
+
+    acc +. matchedAmount
+  })
+
 let getCurrency = (~overviewRules: array<overviewRulesResponse>) =>
   overviewRules
   ->Array.flatMap(rule => rule.status_breakdown)
@@ -978,7 +988,7 @@ let getStatCards = (
   let expectedValue = getExpectedValue(~overviewRules)
   let currency = getCurrency(~overviewRules)
 
-  let matchRate = ReconEngineOverviewUtils.getPercentage(~count=matchedCount, ~total=totalCount)
+  let matchRate = getPercentage(~count=matchedCount, ~total=totalCount)
 
   let reconExceptionsPath = GlobalVars.appendDashboardPath(~url="v1/recon-engine/exceptions/recon")
 
@@ -1070,25 +1080,25 @@ let getConnectedStatCards = (
   let manualCorrectionsCount = getManualCorrectionsCount(~overviewRules)
   let missingCount = getMissingCount(~overviewRules)
 
-  let autoMatchRate = ReconEngineOverviewUtils.getPercentage(
-    ~count=autoMatchedCount,
-    ~total=totalCount,
-  )
+  let autoMatchRate = getPercentage(~count=autoMatchedCount, ~total=totalCount)
 
   [
     {
       connectedStatCardTitle: AutoMatchRate,
       connectedStatCardValue: Percentage(autoMatchRate),
+      connectedStatCardType: Info,
       connectedStatCardPath: None,
     },
     {
       connectedStatCardTitle: FailedIngestions,
       connectedStatCardValue: Number(failedIngestionHistory->Array.length),
+      connectedStatCardType: Info,
       connectedStatCardPath: Some(GlobalVars.appendDashboardPath(~url="v1/recon-engine/sources")),
     },
     {
       connectedStatCardTitle: MissingTransactions,
       connectedStatCardValue: OutOf(missingCount, totalCount),
+      connectedStatCardType: Info,
       connectedStatCardPath: Some(
         GlobalVars.appendDashboardPath(~url="v1/recon-engine/exceptions/recon"),
       ),
@@ -1096,6 +1106,7 @@ let getConnectedStatCards = (
     {
       connectedStatCardTitle: FailedTransformations,
       connectedStatCardValue: Number(failedTransformationHistory->Array.length),
+      connectedStatCardType: Info,
       connectedStatCardPath: Some(
         GlobalVars.appendDashboardPath(~url="v1/recon-engine/transformation"),
       ),
@@ -1103,6 +1114,57 @@ let getConnectedStatCards = (
     {
       connectedStatCardTitle: ManualCorrections,
       connectedStatCardValue: Number(manualCorrectionsCount),
+      connectedStatCardType: Info,
+      connectedStatCardPath: None,
+    },
+  ]
+}
+
+let getDetailsConnectedStatCards = (~overviewRule: overviewRulesResponse): array<
+  connectedStatCardData,
+> => {
+  let totalCount = getTotalCount(~overviewRules=[overviewRule])
+  let matchedCount = getMatchedCount(~overviewRules=[overviewRule])
+  let openExceptions = getOpenExceptions(~overviewRules=[overviewRule], ~processingEntries=[])
+  let valueAtRisk = getValueAtRisk(~overviewRules=[overviewRule])
+  let expectedValue = getExpectedValue(~overviewRules=[overviewRule])
+  let matchedAmount = getMatchedAmount(~overviewRules=[overviewRule])
+  let currency = getCurrency(~overviewRules=[overviewRule])
+  let matchRate = getPercentage(~count=matchedCount, ~total=totalCount)
+
+  let urlPath = `v1/recon-engine/exceptions/recon?rule_id=${overviewRule.rule_id}`
+
+  [
+    {
+      connectedStatCardTitle: MatchRate,
+      connectedStatCardValue: Percentage(matchRate),
+      connectedStatCardType: Info,
+      connectedStatCardPath: None,
+    },
+    {
+      connectedStatCardTitle: OpenExceptions,
+      connectedStatCardValue: Number(openExceptions),
+      connectedStatCardType: Attention,
+      connectedStatCardPath: Some(GlobalVars.appendDashboardPath(~url=urlPath)),
+    },
+    {
+      connectedStatCardTitle: ValueAtRisk,
+      connectedStatCardValue: Amount(valueAtRisk, currency),
+      connectedStatCardType: Attention,
+      connectedStatCardPath: Some(GlobalVars.appendDashboardPath(~url=urlPath)),
+    },
+    {
+      connectedStatCardTitle: ExpectedValue,
+      connectedStatCardValue: Amount(expectedValue, currency),
+      connectedStatCardType: Info,
+      connectedStatCardPath: Some(
+        GlobalVars.appendDashboardPath(~url=`${urlPath}&status=expected,missing`),
+      ),
+    },
+    {
+      connectedStatCardTitle: MatchedAmountValue,
+      connectedStatCardValue: Amount(matchedAmount, currency),
+      connectedStatCardType: Info,
       connectedStatCardPath: None,
     },
   ]
@@ -1191,7 +1253,7 @@ let getRuleActivityItems = (~overviewRules: array<overviewRulesResponse>): array
   ->Array.map(rule => {
     let volume = rule.status_breakdown->Array.reduce(0, (acc, status) => acc + status.count)
     let (matchedCount, exceptionCount, _, _) = getBreakdownCategoryCounts(rule.status_breakdown)
-    let matchRate = ReconEngineOverviewUtils.getPercentage(~count=matchedCount, ~total=volume)
+    let matchRate = getPercentage(~count=matchedCount, ~total=volume)
     {overview_rule: rule, volume, exceptions: exceptionCount, matchRate}
   })
   ->Array.toSorted((a, b) => Int.compare(b.exceptions, a.exceptions))
@@ -1229,7 +1291,7 @@ let getOverviewChartPoints = (
       exceptionCount: exceptionCount->Int.toFloat,
       expectedCount: expectedCount->Int.toFloat,
       missingCount: missingCount->Int.toFloat,
-      matchRate: ReconEngineOverviewUtils.getPercentage(~count=matchedCount, ~total=totalCount),
+      matchRate: getPercentage(~count=matchedCount, ~total=totalCount),
     }
   })
 }
@@ -1240,6 +1302,38 @@ let overviewChartStatusConfig = [
   ("Expected", expectedColor, point => point.expectedCount),
   ("Missing", missingColor, point => point.missingCount),
 ]
+
+let reconciliationSeriesTypeFromString = (seriesName: string): reconciliationSeriesType => {
+  switch seriesName {
+  | "Matched" => MatchedSeries
+  | "Exception" => ExceptionSeries
+  | "Expected" => ExpectedSeries
+  | "Missing" => MissingSeries
+  | _ => UnknownReconciliationSeriesType
+  }
+}
+
+let getOverviewChartSeriesStatusFilter = (seriesName: string): string => {
+  switch seriesName->reconciliationSeriesTypeFromString {
+  | ExceptionSeries =>
+    ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
+      OverAmount(Mismatch),
+      UnderAmount(Mismatch),
+      OverAmount(Expected),
+      UnderAmount(Expected),
+      DataMismatch,
+      CurrencyMismatch,
+      SplitMismatch,
+      PartiallyReconciled,
+    ])->Array.joinWith(",")
+  | ExpectedSeries =>
+    ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([Expected])->Array.joinWith(",")
+  | MissingSeries =>
+    ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([Missing])->Array.joinWith(",")
+  | MatchedSeries
+  | UnknownReconciliationSeriesType => ""
+  }
+}
 
 let overviewChartTooltipFormatter = (~points: array<overviewChartPoint>) =>
   (

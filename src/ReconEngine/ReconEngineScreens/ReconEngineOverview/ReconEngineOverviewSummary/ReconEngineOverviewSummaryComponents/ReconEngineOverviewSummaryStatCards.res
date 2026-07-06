@@ -113,6 +113,7 @@ let make = () => {
             key={index->Int.toString}
             title=card.connectedStatCardTitle
             value=card.connectedStatCardValue
+            cardType=card.connectedStatCardType
             onConnectedStatCardClick={() => {
               card.connectedStatCardPath->Option.mapOr((), path => RescriptReactRouter.push(path))
             }}

@@ -6,6 +6,7 @@ module InOutComponent = {
   @react.component
   let make = (~statusItem) => {
     open ReconEngineOverviewSummaryUtils
+    open ReconEngineOverviewSummaryHelper
 
     let (iconName, iconColor) = getStatusIcon(statusItem.statusType)
 
@@ -22,18 +23,24 @@ module InOutComponent = {
         <div className="flex flex-row flex-[1] justify-between items-center">
           <div className="flex flex-1 flex-col items-center justify-center">
             <p className={`${body.md.semibold} text-nd_gray-600`}>
-              {statusItem.reconStatusData.inAmount->React.string}
+              <AmountCell
+                value={Math.abs(statusItem.reconStatusData.inAmount.value)}
+                currency={statusItem.reconStatusData.inAmount.currency}
+              />
             </p>
             <p className={`${body.sm.medium} text-nd_gray-400`}>
-              {statusItem.reconStatusData.inTxns->React.string}
+              <NumberCell value={statusItem.reconStatusData.inTxns} />
             </p>
           </div>
           <div className="flex flex-1 flex-col items-center justify-center">
             <p className={`${body.md.semibold} text-nd_gray-600`}>
-              {statusItem.reconStatusData.outAmount->React.string}
+              <AmountCell
+                value={Math.abs(statusItem.reconStatusData.outAmount.value)}
+                currency={statusItem.reconStatusData.outAmount.currency}
+              />
             </p>
             <p className={`${body.sm.medium} text-nd_gray-400`}>
-              {statusItem.reconStatusData.outTxns->React.string}
+              <NumberCell value={statusItem.reconStatusData.outTxns} />
             </p>
           </div>
         </div>
@@ -57,7 +64,7 @@ module ReconNodeComponent = {
     }
 
     <div
-      className={`flex flex-col rounded-xl border ${borderColor} p-4 relative bg-white w-[400px] cursor-pointer`}
+      className={`flex flex-col rounded-xl border ${borderColor} p-4 relative bg-white w-[440px] cursor-pointer`}
       onClick={_ => onClick()}>
       <HandleComponent \"type"="target" position={positionLeft} />
       <HandleComponent \"type"="source" position={positionRight} />
