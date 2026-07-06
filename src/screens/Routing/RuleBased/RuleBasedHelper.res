@@ -92,26 +92,28 @@ module FieldInput = {
 
       convertedValue
       ->Dict.keysToArray
-      ->Array.reduce([], (acc, category) => {
+      ->Array.flatMap(category =>
         convertedValue
         ->getArrayFromDict(category, [])
-        ->Array.forEach(
+        ->Array.filterMap(
           value => {
             let dictValue = value->getDictFromJsonObject
             let kindValue = dictValue->getString("kind", "")
-            if keys->Array.includes(kindValue) {
-              let option: SelectBox.dropdownOption = {
-                label: kindValue,
-                value: kindValue,
-                description: dictValue->getString("description", ""),
-                optGroup: category,
-              }
-              acc->Array.push(option)->ignore
-            }
+            keys->Array.includes(kindValue)
+              ? Some(
+                  (
+                    {
+                      label: kindValue,
+                      value: kindValue,
+                      description: dictValue->getString("description", ""),
+                      optGroup: category,
+                    }: SelectBox.dropdownOption
+                  ),
+                )
+              : None
           },
         )
-        acc
-      })
+      )
     }, [])
 
     let comparisonInput = ReactFinalForm.useField(`${prefix}.comparison`).input
@@ -189,10 +191,7 @@ module ValueInput = {
     let valueType =
       ReactFinalForm.useField(`${prefix}.value.type`).input.value->getStringFromJson("")
     let variantType = variantTypeOfLhs(lhs)
-    let isMetadata = switch variantTypeOfLhs(lhs) {
-    | MetadataValue(_) => true
-    | _ => false
-    }
+    let isMetadata = variantType->isMetadataValue
 
     let variantOptions = try {
       Window.getVariantValues(lhs)
@@ -245,10 +244,7 @@ module MetadataKeyInput = {
   @react.component
   let make = (~prefix) => {
     let lhs = ReactFinalForm.useField(`${prefix}.lhs`).input.value->getStringFromJson("")
-    let isMetadata = switch variantTypeOfLhs(lhs) {
-    | MetadataValue(_) => true
-    | _ => false
-    }
+    let isMetadata = lhs->variantTypeOfLhs->isMetadataValue
 
     <RenderIf condition={isMetadata}>
       <div className="flex items-center bg-white rounded-lg shadow-sm">
@@ -299,7 +295,7 @@ module ConditionWrapper = {
     </div>
   }
 }
-module ConditonGroupWrapper = {
+module ConditionGroupWrapper = {
   @react.component
   let make = (~prefix, ~groupIndex, ~isLast, ~onAddGroup, ~onRemoveGroup) => {
     let conditionsInput = ReactFinalForm.useField(`${prefix}.condition`).input
@@ -381,12 +377,7 @@ module OutcomeWrapper = {
     })
 
     let selectionInput = ReactFinalForm.useField(`${prefix}.connectorSelection`).input
-    let selection: connectorSelection = switch selectionInput.value
-    ->getDictFromJsonObject
-    ->getString("type", "") {
-    | "priority" | "volume_split" | "volume" => selectionInput.value->Identity.jsonToAnyType
-    | _ => defaultConnectorSelection
-    }
+    let selection: connectorSelection = selectionInput.value->connectorSelectionFromJson
     let ids = selection->idsFromConnectorSelection
     let isDistribute = switch selection {
     | VolumeSplit(_) => true
@@ -574,7 +565,7 @@ module RuleWrapper = {
             <div className="border border-nd_gray-150 rounded-lg bg-white p-4 flex flex-col gap-4">
               {statements
               ->Array.mapWithIndex((_, index) => {
-                <ConditonGroupWrapper
+                <ConditionGroupWrapper
                   key={index->Int.toString}
                   prefix={`${prefix}.statements[${index->Int.toString}]`}
                   onAddGroup=addGroup

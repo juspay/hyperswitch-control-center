@@ -64,6 +64,12 @@ let variantTypeOfLhs = (lhs): value => {
   }
 }
 
+let isMetadataValue = (v: value): bool =>
+  switch v {
+  | MetadataValue(_) => true
+  | _ => false
+  }
+
 let operatorToBEKey = (operator: operator): string =>
   operator->Identity.genericTypeToJson->getStringFromJson("")
 
@@ -192,6 +198,30 @@ let idsFromConnectorSelection = (selection: connectorSelection): array<string> =
   | Priority({data}) => data->Array.map(c => c.merchant_connector_id)
   | VolumeSplit({data}) => data->Array.map(wc => wc.connector.merchant_connector_id)
   }
+
+let connectorRefFromJson = (dict: Dict.t<JSON.t>): connectorRef => {
+  connector: dict->getString("connector", ""),
+  merchant_connector_id: dict->getString("merchant_connector_id", ""),
+}
+
+let weightedConnectorFromJson = (dict: Dict.t<JSON.t>): weightedConnector => {
+  split: dict->getInt("split", 0),
+  connector: dict->getDictfromDict("connector")->connectorRefFromJson,
+}
+
+let connectorSelectionFromJson = (json: JSON.t): connectorSelection => {
+  let dict = json->getDictFromJsonObject
+  let data = dict->getArrayFromDict("data", [])
+  switch dict->getString("type", "") {
+  | "priority" =>
+    Priority({data: data->Array.map(item => item->getDictFromJsonObject->connectorRefFromJson)})
+  | "volume_split" | "volume" =>
+    VolumeSplit({
+      data: data->Array.map(item => item->getDictFromJsonObject->weightedConnectorFromJson),
+    })
+  | _ => defaultConnectorSelection
+  }
+}
 
 let ensureMetadataObject = (dict: Dict.t<JSON.t>) => {
   let metadata = dict->getJsonObjectFromDict("metadata")
