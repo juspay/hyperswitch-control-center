@@ -36,8 +36,8 @@ type subHeaderType =
   | CreditAmount
 
 type reconData = {
-  inAmount: ReconEngineTypes.balanceType,
-  outAmount: ReconEngineTypes.balanceType,
+  inAmount: balanceType,
+  outAmount: balanceType,
   inTxns: int,
   outTxns: int,
 }

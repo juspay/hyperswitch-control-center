@@ -64,7 +64,7 @@ module ReconNodeComponent = {
     }
 
     <div
-      className={`flex flex-col rounded-xl border ${borderColor} p-4 relative bg-white w-[440px] cursor-pointer`}
+      className={`flex flex-col rounded-xl border ${borderColor} p-4 relative bg-white w-440-px cursor-pointer`}
       onClick={_ => onClick()}>
       <HandleComponent \"type"="target" position={positionLeft} />
       <HandleComponent \"type"="source" position={positionRight} />
