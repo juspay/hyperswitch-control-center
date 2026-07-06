@@ -89,7 +89,7 @@ let make = () => {
           customLoader={<Shimmer styleClass="h-40 w-full rounded-xl" />}>
           <StatCard
             key={index->Int.toString}
-            title=card.statCardTitle
+            title={(card.statCardTitle :> string)}
             value=card.statCardValue
             icon=card.statCardIcon
             description=card.statCardDescription
@@ -111,7 +111,7 @@ let make = () => {
           customLoader={<Shimmer styleClass="h-24 w-full" />}>
           <ConnectedStatCard
             key={index->Int.toString}
-            title=card.connectedStatCardTitle
+            title={(card.connectedStatCardTitle :> string)}
             value=card.connectedStatCardValue
             cardType=card.connectedStatCardType
             onConnectedStatCardClick={() => {
