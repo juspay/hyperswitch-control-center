@@ -1307,8 +1307,12 @@ test.describe("Payment Operations", () => {
       await paymentOperations.initiateRefundButton.click();
 
       await expect(page.getByText("Summary")).toBeVisible();
-      await expect(page.getByText("123.45 USD").nth(1)).toBeVisible();
-      await expect(page.getByText("SUCCEEDED").nth(1)).toBeVisible();
+      await expect(
+        page.getByText("123.45 USD").filter({ visible: true }).nth(1),
+      ).toBeVisible();
+      await expect(
+        page.getByText("SUCCEEDED").filter({ visible: true }).nth(1),
+      ).toBeVisible();
 
       await expect(paymentOperations.dataLabel("Created")).toContainText(
         "Created",
