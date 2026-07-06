@@ -1,6 +1,35 @@
-open LogicUtils
-open OrderTypes
-let getFilterTypeFromString = (filterType): filter => {
+type filterTypes = {
+  connector: array<string>,
+  currency: array<string>,
+  authentication_type: array<string>,
+  payment_method: array<string>,
+  payment_method_type: array<string>,
+  status: array<string>,
+  connector_label: array<string>,
+  card_network: array<string>,
+  card_discovery: array<string>,
+  customer_id: array<string>,
+  amount: array<string>,
+  merchant_order_reference_id: array<string>,
+}
+
+type filter = [
+  | #connector
+  | #payment_method
+  | #currency
+  | #authentication_type
+  | #status
+  | #payment_method_type
+  | #connector_label
+  | #card_network
+  | #card_discovery
+  | #customer_id
+  | #amount
+  | #merchant_order_reference_id
+  | #unknown
+]
+
+let getFilterTypeFromString = filterType => {
   switch filterType {
   | "connector" => #connector
   | "payment_method" => #payment_method
@@ -14,14 +43,6 @@ let getFilterTypeFromString = (filterType): filter => {
   | "customer_id" => #customer_id
   | "amount" => #amount
   | "merchant_order_reference_id" => #merchant_order_reference_id
-  | "customer_email" => #customer_email
-  | "card_last_4" => #card_last_4
-  | "active_attempt_id" => #active_attempt_id
-  | "merchant_connector_id" => #merchant_connector_id
-  | "refunds_status" => #refunds_status
-  | "dispute_status" => #dispute_status
-  | "routing_approach" => #routing_approach
-  | "card_issuer" => #card_issuer
   | _ => #unknown
   }
 }
@@ -173,6 +194,7 @@ let endTimeFilterKey = (version: UserInfoTypes.version) =>
   }
 
 let filterByData = (txnArr, value) => {
+  open LogicUtils
   let searchText = value->getStringFromJson("")
 
   txnArr
@@ -211,6 +233,8 @@ let getValueFromFilterTypeV2 = (filter: filter) => {
 }
 
 let getConditionalFilter = (key, dict, filterValues) => {
+  open LogicUtils
+
   let filtersArr = switch key->getFilterTypeFromString {
   | #connector_label =>
     filterValues
@@ -242,6 +266,7 @@ let getConditionalFilter = (key, dict, filterValues) => {
 }
 
 let getOptionsForOrderFilters = (dict, filterValues) => {
+  open LogicUtils
   filterValues
   ->getArrayFromDict("connector", [])
   ->getStrArrayFromJsonArray
@@ -251,7 +276,7 @@ let getOptionsForOrderFilters = (dict, filterValues) => {
       let label = item->getDictFromJsonObject->getString("connector_label", "")
       let value = item->getDictFromJsonObject->getString("merchant_connector_id", "")
       let option: FilterSelectBox.dropdownOption = {
-        label: label->snakeToTitle,
+        label: label->LogicUtils.snakeToTitle,
         value,
       }
       option
@@ -260,6 +285,7 @@ let getOptionsForOrderFilters = (dict, filterValues) => {
 }
 
 let getAllPaymentMethodType = dict => {
+  open LogicUtils
   let paymentMethods = dict->getDictfromDict("payment_method")->Dict.keysToArray
   paymentMethods->Array.reduce([], (acc, item) => {
     Array.concat(
@@ -274,7 +300,8 @@ let getAllPaymentMethodType = dict => {
   })
 }
 
-let itemToObjMapper = (dict): filterTypes => {
+let itemToObjMapper = dict => {
+  open LogicUtils
   {
     connector: dict->getDictfromDict("connector")->Dict.keysToArray,
     currency: dict->getArrayFromDict("currency", [])->getStrArrayFromJsonArray,
@@ -290,224 +317,12 @@ let itemToObjMapper = (dict): filterTypes => {
     customer_id: [],
     amount: [],
     merchant_order_reference_id: [],
-    customer_email: [],
-    card_last_4: [],
-    active_attempt_id: [],
-    merchant_connector_id: [],
-    refunds_status: dict->getArrayFromDict("refunds_status", [])->getStrArrayFromJsonArray,
-    dispute_status: dict->getArrayFromDict("dispute_status", [])->getStrArrayFromJsonArray,
-    routing_approach: dict->getArrayFromDict("routing_approach", [])->getStrArrayFromJsonArray,
-    card_issuer: dict->getArrayFromDict("card_issuer", [])->getStrArrayFromJsonArray,
   }
 }
 
-let advancedPaymentFilterTypes: array<filter> = [
-  #customer_email,
-  #card_last_4,
-  #active_attempt_id,
-  #merchant_connector_id,
-  #refunds_status,
-  #dispute_status,
-  #routing_approach,
-  #card_issuer,
-]
+let initialFilters = (json, filterValues, removeKeys, filterKeys, setfilterKeys, version) => {
+  open LogicUtils
 
-let advancedPaymentOnlyFilterKeys =
-  advancedPaymentFilterTypes->Array.map(filterType => filterType->getValueFromFilterType)
-
-let unsupportedAdvancedPaymentFilterKeys = [
-  (#unified_code: unsupportedAdvancedPaymentFilter :> string),
-  (#unified_message: unsupportedAdvancedPaymentFilter :> string),
-]
-
-let firstAttemptFilterKey = (#first_attempt: hiddenAdvancedPaymentFilter :> string)
-
-let hiddenAdvancedPaymentFilterKeys = [firstAttemptFilterKey]
-
-let advancedPaymentFilterCleanupKeys =
-  advancedPaymentOnlyFilterKeys
-  ->Array.concat(unsupportedAdvancedPaymentFilterKeys)
-  ->Array.concat(hiddenAdvancedPaymentFilterKeys)
-
-let advancedPaymentSearchDescription = "Advanced search checks OpenSearch payment fields such as payment ID, card last 4, amount, attempt ID, connector account, error details, and full customer email."
-
-let paymentListSources: array<paymentListSource> = [Normal, Advanced]
-
-let getPaymentListSourceLabel = (source: paymentListSource) => (source :> string)
-
-let getPaymentListSourceFromLabel = value =>
-  paymentListSources->Array.find(source => source->getPaymentListSourceLabel == value)
-
-let getPaymentListSourceDescription = source =>
-  switch source {
-  | Normal => "Standard payments list."
-  | Advanced => "Advanced payment list with expanded search, filters, columns, and CSV export."
-  }
-
-let getAdvancedPaymentFilterDescription = key =>
-  switch key->getFilterTypeFromString {
-  | #customer_email => "Filter payments by customer email."
-  | #card_last_4 => "Find payments by the last 4 digits of the card."
-  | #active_attempt_id => "Filter payments by the active payment attempt ID."
-  | #merchant_connector_id => "Filter payments by the connector account used for processing."
-  | #refunds_status => "Filter payments by refund state, such as partial or full refund."
-  | #dispute_status => "Filter payments by dispute state."
-  | #routing_approach => "Filter payments by the routing strategy used for connector selection."
-  | #card_issuer => "Filter payments by the issuing bank or card institution."
-  | _ => "Advanced OpenSearch-only payment filter."
-  }
-
-let advancedPaymentTextListFilterTypes: array<filter> = [
-  #card_last_4,
-  #active_attempt_id,
-  #merchant_connector_id,
-  #card_issuer,
-]
-
-let advancedPaymentTextListFilterKeys =
-  advancedPaymentTextListFilterTypes->Array.map(filter => (filter :> string))
-
-let advancedRoutingApproaches: array<advancedRoutingApproach> = [
-  #default_fallback,
-  #straight_through_routing,
-  #rule_based_routing,
-  #volume_based_routing,
-]
-
-let advancedRoutingApproachValues =
-  advancedRoutingApproaches->Array.map(routingApproach => (routingApproach :> string))
-
-let openSearchRefundStatuses: array<openSearchRefundStatus> = [#partial_refunded, #full_refunded]
-
-let openSearchRefundStatusValues = openSearchRefundStatuses->Array.map(status => (status :> string))
-
-let openSearchDisputeStatuses: array<openSearchDisputeStatus> = [
-  #dispute_present,
-  #dispute_opened,
-  #dispute_challenged,
-  #dispute_lost,
-  #dispute_won,
-  #dispute_accepted,
-  #dispute_cancelled,
-  #dispute_expired,
-]
-
-let openSearchDisputeStatusValues =
-  openSearchDisputeStatuses->Array.map(status => (status :> string))
-
-let basePaymentListFilters: array<basePaymentListFilter> = [
-  #payment_id,
-  #payment_method,
-  #currency,
-  #status,
-  #connector,
-  #connector_label,
-  #payment_method_type,
-  #card_network,
-  #customer_id,
-  #authentication_type,
-  #card_discovery,
-  #merchant_order_reference_id,
-]
-
-let basePaymentListFilterKeys = basePaymentListFilters->Array.map(filter => (filter :> string))
-
-let advancedPaymentListFilterKeys =
-  basePaymentListFilterKeys
-  ->Array.concat(advancedPaymentOnlyFilterKeys)
-  ->Array.concat(hiddenAdvancedPaymentFilterKeys)
-
-let copyAdvancedPaymentFilterIfPresent = (~fromDict, ~toDict, key) =>
-  fromDict
-  ->getOptionValFromDict(key)
-  ->Option.mapOr((), value => {
-    let stringValues = switch value->JSON.Decode.array {
-    | Some(values) =>
-      values
-      ->getStrArrayFromJsonArray
-      ->Array.map(value => value->String.trim)
-      ->Belt.Array.keepMap(getNonEmptyString)
-    | None =>
-      let value = value->getStringFromJson("")->String.trim
-      value->isNonEmptyString ? [value] : []
-    }
-
-    if key === "customer_email" {
-      switch stringValues->Array.get(0) {
-      | Some(email) if !(email->CommonAuthUtils.isValidEmail) =>
-        toDict->setOptionString(key, Some(email))
-      | _ => ()
-      }
-    } else if advancedPaymentTextListFilterKeys->Array.includes(key) {
-      if stringValues->isNonEmptyArray {
-        toDict->setOptionJson(key, Some(stringValues->getJsonFromArrayOfString))
-      }
-    } else if key === firstAttemptFilterKey {
-      let getBoolFilterValue = value =>
-        switch value->JSON.Decode.bool {
-        | Some(value) => Some(value)
-        | None =>
-          let value = value->getStringFromJson("")->String.trim->String.toLowerCase
-          value === "true" || value === "false" ? Some(value->getBoolFromString(false)) : None
-        }
-      let boolValues = switch value->JSON.Decode.array {
-      | Some(values) => values->Belt.Array.keepMap(getBoolFilterValue)
-      | None => value->getBoolFilterValue->Option.mapOr([], value => [value])
-      }
-      if boolValues->isNonEmptyArray {
-        toDict->setOptionArray(key, Some(boolValues->Array.map(JSON.Encode.bool)))
-      }
-    } else {
-      toDict->setOptionJson(key, Some(value))
-    }
-  })
-
-let buildAdvancedPaymentListPayload = (
-  ~filterParams: Dict.t<JSON.t>,
-  ~searchText,
-  ~startTimeKey,
-  ~endTimeKey,
-) => {
-  let body = Dict.make()
-  let trimmedSearchText = searchText->String.trim
-
-  body->setOptionJson("offset", filterParams->Dict.get("offset"))
-  body->setOptionJson("limit", filterParams->Dict.get("limit"))
-  body->setOptionJson("order", filterParams->Dict.get("order"))
-  body->setOptionJson("amount_filter", filterParams->Dict.get("amount_filter"))
-
-  if trimmedSearchText->isEmptyString {
-    body->setOptionJson(startTimeKey, filterParams->Dict.get(startTimeKey))
-    body->setOptionJson(endTimeKey, filterParams->Dict.get(endTimeKey))
-  }
-
-  advancedPaymentListFilterKeys->Array.forEach(key => {
-    copyAdvancedPaymentFilterIfPresent(~fromDict=filterParams, ~toDict=body, key)
-  })
-
-  if trimmedSearchText->isNonEmptyString {
-    !(trimmedSearchText->CommonAuthUtils.isValidEmail)
-      ? {
-          body->Dict.set("customer_email", trimmedSearchText->JSON.Encode.string)
-          body->Dict.delete("query")
-        }
-      : {
-          body->Dict.set("query", trimmedSearchText->JSON.Encode.string)
-        }
-  }
-
-  body
-}
-
-let initialFiltersWithSource = (
-  ~isOpenSearchSource=false,
-  json,
-  filterValues,
-  removeKeys,
-  filterKeys,
-  setfilterKeys,
-  version,
-) => {
   let filterDict = json->getDictFromJsonObject
 
   let filterData = filterDict->itemToObjMapper
@@ -518,63 +333,45 @@ let initialFiltersWithSource = (
   }
 
   let connectorFilter = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-  if connectorFilter->isNonEmptyArray {
+  if connectorFilter->Array.length !== 0 {
     filtersArray->Array.push(#connector_label->getLabelFromFilterType)
   }
 
   let additionalFilters =
-    [#payment_method_type, #customer_id, #amount, #merchant_order_reference_id]
-    ->Array.concat(isOpenSearchSource ? advancedPaymentFilterTypes : [])
-    ->Array.map(getLabelFromFilterType)
+    [#payment_method_type, #customer_id, #amount, #merchant_order_reference_id]->Array.map(
+      getLabelFromFilterType,
+    )
 
   let allFiltersArray = filtersArray->Array.concat(additionalFilters)
 
   allFiltersArray->Array.map((key): EntityType.initialFilters<'t> => {
-    let filterType = key->getFilterTypeFromString
-    let values = switch filterType {
+    let values = switch key->getFilterTypeFromString {
     | #connector => filterData.connector
     | #payment_method => filterData.payment_method
     | #currency => filterData.currency
     | #authentication_type => filterData.authentication_type
     | #status => filterData.status
     | #payment_method_type =>
-      let conditionalFilter = getConditionalFilter(key, filterDict, filterValues)
-      conditionalFilter->isNonEmptyArray ? conditionalFilter : filterData.payment_method_type
+      getConditionalFilter(key, filterDict, filterValues)->Array.length > 0
+        ? getConditionalFilter(key, filterDict, filterValues)
+        : filterData.payment_method_type
     | #connector_label => getConditionalFilter(key, filterDict, filterValues)
     | #card_network => filterData.card_network
     | #card_discovery => filterData.card_discovery
-    | #refunds_status => filterData.refunds_status
-    | #dispute_status => filterData.dispute_status
-    | #routing_approach => filterData.routing_approach
-    | #card_issuer => filterData.card_issuer
     | _ => []
     }
-    let staticValues = switch filterType {
-    | #refunds_status => openSearchRefundStatusValues
-    | #dispute_status => openSearchDisputeStatusValues
-    | #routing_approach => advancedRoutingApproachValues
-    | _ => []
-    }
-    let values = isOpenSearchSource
-      ? Array.concat(values, staticValues)->Array.filter(isNonEmptyString)->getUniqueArray
-      : values
 
     let title = `Select ${key->snakeToTitle}`
 
-    let options = switch filterType {
+    let options = switch key->getFilterTypeFromString {
     | #connector_label => getOptionsForOrderFilters(filterDict, filterValues)
     | #connector => values->ConnectorUtils.getConnectorFilterOptions
     | _ => values->FilterSelectBox.makeOptions(~isTitle=true)
     }
 
-    let customInput = switch filterType {
+    let customInput = switch key->getFilterTypeFromString {
     | #customer_id
-    | #merchant_order_reference_id
-    | #customer_email
-    | #card_last_4
-    | #active_attempt_id
-    | #merchant_connector_id
-    | #card_issuer =>
+    | #merchant_order_reference_id =>
       (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) =>
         InputFields.textInput(
           ~rightIcon=<div
@@ -601,16 +398,6 @@ let initialFiltersWithSource = (
         (),
       )
     }
-    let filterKey = getValueFromFilterType(key->getFilterTypeFromString)
-    let labelRightComponent =
-      isOpenSearchSource && advancedPaymentOnlyFilterKeys->Array.includes(filterKey)
-        ? Some(
-            <NewFeatureTag
-              className="ml-2" description={filterKey->getAdvancedPaymentFilterDescription}
-            />,
-          )
-        : None
-
     {
       field: FormRenderer.makeFieldInfo(
         ~label=key,
@@ -621,23 +408,11 @@ let initialFiltersWithSource = (
           }
         },
         ~customInput,
-        ~labelRightComponent?,
       ),
       localFilter: Some(filterByData),
     }
   })
 }
-
-let initialFilters = (json, filterValues, removeKeys, filterKeys, setfilterKeys, version) =>
-  initialFiltersWithSource(
-    ~isOpenSearchSource=false,
-    json,
-    filterValues,
-    removeKeys,
-    filterKeys,
-    setfilterKeys,
-    version,
-  )
 
 let initialFixedFilter = (version: UserInfoTypes.version, ~disable=false) => [
   (

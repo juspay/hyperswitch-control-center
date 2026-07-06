@@ -1,5 +1,18 @@
 open OrderTypes
-open OrderUIUtils
+
+let paymentListSources: array<paymentListSource> = [Normal, Advanced]
+
+let getPaymentListSourceLabel = (source: paymentListSource) => (source :> string)
+
+let getPaymentListSourceFromLabel = value =>
+  paymentListSources->Array.find(source => source->getPaymentListSourceLabel == value)
+
+let getPaymentListSourceDescription = source =>
+  switch source {
+  | Normal => "Standard payments list."
+  | Advanced => "Advanced payment list with expanded search, filters, columns, and CSV export."
+  }
+
 module SourceTabs = {
   @react.component
   let make = (
