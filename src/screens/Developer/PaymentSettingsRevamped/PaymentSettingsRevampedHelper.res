@@ -1,4 +1,5 @@
 open PaymentSettingsRevampedUtils
+open PaymentSettingsRevampedTypes
 
 let maxAutoRetries = FormRenderer.makeFieldInfo(
   ~label="Max Auto Retries",
@@ -165,30 +166,15 @@ let webhookPassword = FormRenderer.makeFieldInfo(
   ~isRequired=false,
 )
 
-let paymentStatusOptions = [
-  "succeeded",
-  "failed",
-  "cancelled",
-  "cancelled_post_capture",
-  "processing",
-  "partially_captured_and_processing",
-  "requires_customer_action",
-  "requires_merchant_action",
-  "requires_capture",
-  "partially_captured",
-  "partially_captured_and_capturable",
-  "partially_authorized_and_requires_capture",
-  "conflicted",
-  "expired",
-]
+let paymentStatusOptions = webhookPaymentStatusValues->Array.map(status => (status :> string))
 
-let refundStatusOptions = ["failure", "success"]
+let refundStatusOptions = webhookRefundStatusValues->Array.map(status => (status :> string))
 
-let payoutStatusOptions = ["success", "failed", "cancelled", "initiated", "expired", "reversed"]
+let payoutStatusOptions = webhookPayoutStatusValues->Array.map(status => (status :> string))
 
 let makeDropdownOptions = (options: array<string>) =>
-  options->Array.map(item => {
-    ({label: item->LogicUtils.snakeToTitle, value: item}: SelectBox.dropdownOption)
+  options->Array.map((item): SelectBox.dropdownOption => {
+    {label: item->LogicUtils.snakeToTitle, value: item}
   })
 
 let paymentStatusesEnabled = FormRenderer.makeFieldInfo(
