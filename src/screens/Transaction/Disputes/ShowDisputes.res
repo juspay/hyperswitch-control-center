@@ -134,6 +134,7 @@ module DisputesInfo = {
 @react.component
 let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open APIUtils
+  open LogicUtils
   let url = RescriptReactRouter.useUrl()
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -168,12 +169,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     None
   }, [url])
 
-  let data = disputeData->LogicUtils.getDictFromJsonObject
-  let paymentId = data->LogicUtils.getString("payment_id", "")
+  let data = disputeData->getDictFromJsonObject
+  let paymentId = data->getString("payment_id", "")
 
   let showSyncButton = React.useCallback(_ => {
-    let status =
-      data->LogicUtils.getString("dispute_status", "")->DisputesUtils.disputeStatusVariantMapper
+    let status = data->getString("dispute_status", "")->DisputesUtils.disputeStatusVariantMapper
 
     !(id->HSwitchOrderUtils.isTestData) &&
     status !== DisputeWon &&
