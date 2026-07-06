@@ -1,4 +1,5 @@
 open Typography
+open PaymentSettingsRevampedUtils
 
 module SurchargeFields = {
   @react.component
@@ -30,8 +31,8 @@ module SurchargeFields = {
 @react.component
 let make = () => {
   open FormRenderer
-  open LogicUtils
 
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastAdapter.useShowToast()
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
@@ -44,24 +45,7 @@ let make = () => {
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let surchargeConnectorId =
-        values
-        ->getDictFromJsonObject
-        ->getDictfromDict("surcharge_connector_details")
-        ->getString("surcharge_connector_id", "")
-
-      let body =
-        [
-          (
-            "surcharge_connector_details",
-            [("surcharge_connector_id", surchargeConnectorId->JSON.Encode.string)]
-            ->Dict.fromArray
-            ->JSON.Encode.object,
-          ),
-        ]
-        ->Dict.fromArray
-        ->JSON.Encode.object
-      let _ = await updateBusinessProfile(~body)
+      let _ = await updateBusinessProfile(~body=values, ~shouldTransform=true)
       mixpanelEvent(~eventName="payment_settings_surcharge")
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -74,26 +58,17 @@ let make = () => {
     Nullable.null
   }
 
-  let validate = values => {
-    let errors = Dict.make()
-    let surchargeConnectorId =
-      values
-      ->getDictFromJsonObject
-      ->getDictfromDict("surcharge_connector_details")
-      ->getString("surcharge_connector_id", "")
-      ->getNonEmptyString
-    if surchargeConnectorId == None {
-      Dict.set(
-        errors,
-        "surcharge_connector_id",
-        "Please select a surcharge connector"->JSON.Encode.string,
-      )
-    }
-    errors->JSON.Encode.object
-  }
-
   <PageLoaderWrapper screenState>
-    <Form onSubmit initialValues={businessProfileRecoilVal->Identity.genericTypeToJson} validate>
+    <Form
+      onSubmit
+      initialValues={businessProfileRecoilVal->Identity.genericTypeToJson}
+      validate={values => {
+        validateMerchantAccountFormV2(
+          ~values,
+          ~isLiveMode=featureFlagDetails.isLiveMode,
+          ~businessProfileRecoilVal,
+        )
+      }}>
       <SurchargeFields />
       <DesktopRow wrapperClass="mt-8" itemWrapperClass="mx-1">
         <div className="flex justify-end w-full gap-2">
