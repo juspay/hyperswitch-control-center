@@ -2,6 +2,8 @@ open PaymentInterfaceTypes
 open LogicUtils
 open OrderTypes
 
+type activityTag = {label: string}
+
 module CurrencyCell = {
   @react.component
   let make = (~amount, ~currency) => {
@@ -336,7 +338,6 @@ let openSearchNewColumns = [
   CardIssuer,
   RefundsStatus,
   RefundsCount,
-  Activities,
   RoutingApproach,
   UnifiedCode,
   UnifiedMessage,
@@ -436,6 +437,7 @@ let openSearchBaseColumns: array<colType> = [
   Status,
   AttemptCount,
   CardNetwork,
+  Activities,
   ErrorMessage,
 ]
 
@@ -547,8 +549,7 @@ let csvHeaders =
 let mapOrderDictToCsvRow = (dict: Dict.t<JSON.t>) =>
   openSearchCsvColumns
   ->Array.map(column => (column->getOpenSearchCsvKey, getOpenSearchCsvValue(dict, column)))
-  ->Dict.fromArray
-  ->JSON.Encode.object
+  ->getJsonFromArrayOfJson
 
 let getHeading = (~devSortEnabled, colType: colType) => {
   switch colType {
@@ -654,24 +655,20 @@ let useGetStatus = (order: order) => {
 }
 
 let formatActivityCount = (count, label) => {
-  let suffix = count == 1 ? "" : "S"
-  `${count->Int.toString} ${label}${suffix}`
+  `${count->Int.toString} ${pluralize(~count, ~singular=label, ~plural=`${label}S`)}`
 }
-
-type activityTag = {label: string}
 
 let getActivityTags = (order: order) => {
   let refundsCount = order.refunds_count->Option.mapOr(order.refunds->Array.length, count => count)
   let disputeStatus = order.dispute_status->Option.getOr("")
-  let disputesCount =
-    order.dispute_count->Option.mapOr(
-      order.disputes->isNonEmptyArray
-        ? order.disputes->Array.length
-        : disputeStatus->isNonEmptyString
-        ? 1
-        : 0,
-      count => count,
-    )
+  let fallbackDisputesCount = if order.disputes->isNonEmptyArray {
+    order.disputes->Array.length
+  } else if disputeStatus->isNonEmptyString {
+    1
+  } else {
+    0
+  }
+  let disputesCount = order.dispute_count->Option.mapOr(fallbackDisputesCount, count => count)
 
   let refundTags = refundsCount > 0 ? [{label: formatActivityCount(refundsCount, "REFUND")}] : []
   let disputeTags =
@@ -701,7 +698,7 @@ let getActivitiesCell = (order: order): Table.cell => {
               ->React.array}
             </div>
           </div>}
-          toolTipPosition=ToolTip.Top
+          toolTipPosition=Top
         />
       </RenderIf>
     </>,
