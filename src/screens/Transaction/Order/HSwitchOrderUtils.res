@@ -14,6 +14,7 @@ type status =
   | RequiresCapture
   | PartiallyCaptured
   | CancelledPostCapture
+  | Review
   | None
 
 type paymentAttemptStatus = [
@@ -75,6 +76,7 @@ let statusVariantMapper: string => status = statusLabel =>
   | "PARTIALLY_CAPTURED" => PartiallyCaptured
   | "CANCELLED_POST_CAPTURE" => CancelledPostCapture
   | "EXPIRED" => Expired
+  | "REVIEW" => Review
   | _ => None
   }
 
@@ -309,7 +311,7 @@ module CopyLinkTableCell = {
     ~leftIcon: Button.iconType=NoIcon,
   ) => {
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let handleClick = ev => {
       ev->ReactEvent.Mouse.stopPropagation
       setIsTextVisible(_ => true)

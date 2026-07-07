@@ -612,6 +612,7 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
       <HelperComponents.CopyTextCustomComp
         customTextCss="w-36 truncate whitespace-nowrap"
         displayValue=Some(order.connector_payment_id)
+        showTooltip=true
       />,
       "",
     )
@@ -633,7 +634,10 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
   | PaymentMethodType => Text(order.payment_method_type)
   | Refunds => Text(order.refunds->Array.length > 0 ? "Yes" : "No")
   | AuthenticationType => Text(order.authentication_type)
-  | ConnectorLabel => Text(order.connector_label->Option.getOr(""))
+  | ConnectorLabel => {
+      let connectorLabel = order.connector_label->Option.getOr("")
+      Text(connectorLabel->isNonEmptyString ? connectorLabel : "Not Available")
+    }
   | CardBrand => Text(order.card_brand->Option.getOr(""))
   | ProfileId => Text(order.profile_id)
   | ProfileName =>
@@ -763,6 +767,7 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
       | RequiresCapture
       | RequiresPaymentMethod =>
         LabelBlue
+      | Review => LabelOrange
       | _ => LabelLightGray
       },
     })
@@ -780,7 +785,15 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   | Modified => Date(order.modified_at)
   | Currency => Text(order.currency)
   | CustomerId => Text(order.customer_id)
-  | Description => CustomCell(<EllipsisText displayValue={order.description} endValue={5} />, "")
+  | Description =>
+    CustomCell(
+      <CopyTextCustomComp
+        customTextCss="w-28 truncate whitespace-nowrap"
+        displayValue=Some(order.description)
+        showTooltip=true
+      />,
+      "",
+    )
   | MandateId => Text(order.mandate_id->Option.getOr(""))
   | MandateData => Text(order.mandate_data->Option.getOr(""))
   | SetupFutureUsage => Text(order.setup_future_usage)
@@ -809,6 +822,7 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
       <CopyTextCustomComp
         customTextCss="w-36 truncate whitespace-nowrap"
         displayValue=Some(order.connector_payment_id)
+        showTooltip=true
       />,
       "",
     )

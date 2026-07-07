@@ -12,7 +12,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
     Dict.make()->JSON.Encode.object->getPaymentMethodEnabled
   )
   let (_metaData, setMetaData) = React.useState(_ => Dict.make()->JSON.Encode.object)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let connectorID = initialValues->getDictFromJsonObject->getOptionString("merchant_connector_id")
   let (screenState, setScreenState) = React.useState(_ => Loading)
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
