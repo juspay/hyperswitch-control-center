@@ -145,7 +145,7 @@ module ConnectorSummaryGrid = {
 
     let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let copyValueOfWebhookEndpoint = getWebhooksUrl(
-      ~connectorName={connectorInfo.merchant_connector_id},
+      ~connectorName={connectorInfo.connector_name},
       ~merchantId,
     )
     let (processorType, _) =
