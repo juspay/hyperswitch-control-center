@@ -654,11 +654,11 @@ let useGetStatus = (order: order) => {
 }
 
 let formatActivityCount = (count, label) => {
-  `${count->Int.toString} ${pluralize(~count, ~singular=label, ~plural=`${label}S`)}`
+  `${count->Int.toString} ${pluralize(~count, ~singular=label)}`
 }
 
 let getActivityTags = (order: order) => {
-  let refundsCount = order.refunds_count->Option.mapOr(order.refunds->Array.length, count => count)
+  let refundsCount = order.refunds_count->Option.getOr(order.refunds->Array.length)
   let disputeStatus = order.dispute_status->Option.getOr("")
   let fallbackDisputesCount = if order.disputes->isNonEmptyArray {
     order.disputes->Array.length
@@ -667,7 +667,7 @@ let getActivityTags = (order: order) => {
   } else {
     0
   }
-  let disputesCount = order.dispute_count->Option.mapOr(fallbackDisputesCount, count => count)
+  let disputesCount = order.dispute_count->Option.getOr(fallbackDisputesCount)
 
   let refundTags = refundsCount > 0 ? [{label: formatActivityCount(refundsCount, "REFUND")}] : []
   let disputeTags =

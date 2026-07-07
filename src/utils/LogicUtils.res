@@ -587,14 +587,8 @@ let getTitle = name => {
   ->Array.joinWith(" ")
 }
 
-let pluralize = (~count, ~singular, ~plural=?) => {
-  let pluralValue = plural->Option.getOr(`${singular}s`)
-  if count == 1 {
-    singular
-  } else {
-    pluralValue
-  }
-}
+let pluralize = (~count, ~singular, ~plural=?) =>
+  count == 1 ? singular : plural->Option.getOr(`${singular}s`)
 
 // Regex to check if a string contains a substring
 let regex = (positionToCheckFrom, searchString) => {
