@@ -9,7 +9,7 @@ module VerticalStep = {
     let circleClass = isComplete
       ? "bg-nd_primary_blue-500 text-white"
       : "bg-nd_gray-100 text-nd_gray-500"
-      
+
     <div className="flex gap-3">
       <div className="flex flex-col items-center">
         <span
