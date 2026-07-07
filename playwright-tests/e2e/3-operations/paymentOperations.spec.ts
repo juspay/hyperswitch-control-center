@@ -9,6 +9,7 @@ import {
   createDummyConnectorAPI,
   createPaymentAPI,
   createRequiresCapturePaymentAPI,
+  mockPaymentRequiresCapture,
   ompLineage,
 } from "../../support/commands";
 
@@ -1952,6 +1953,34 @@ test.describe("Payment Operations", () => {
 
   // Capture cases
   test.describe("Capture cases", () => {
+    // The sandbox dummy connector always auto-charges, so it can never produce
+    // a real `requires_capture` payment. Create a real payment (for a
+    // realistic payment_id/amount/customer) and mock the dashboard's GET
+    // request for it so the page renders as if it were awaiting capture.
+    const setupRequiresCapturePayment = async (
+      page: Page,
+      merchantId: string,
+      request: Parameters<typeof createDummyConnectorAPI>[2],
+    ) => {
+      await createDummyConnectorAPI(merchantId, "stripe_test_1", request);
+      const payment = await createRequiresCapturePaymentAPI(
+        merchantId,
+        request,
+      );
+      await mockPaymentRequiresCapture(page, payment.payment_id);
+      return payment;
+    };
+
+    const mockCaptureSuccess = async (page: Page) => {
+      await page.route(/\/payments\/[^/]+\/capture/, async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ status: "succeeded" }),
+        });
+      });
+    };
+
     const openCaptureModal = async (
       page: Page,
       homePage: HomePage,
@@ -1973,12 +2002,7 @@ test.describe("Payment Operations", () => {
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
-        await createDummyConnectorAPI(
-          merchantId,
-          "stripe_test_1",
-          context.request,
-        );
-        await createRequiresCapturePaymentAPI(merchantId, context.request);
+        await setupRequiresCapturePayment(page, merchantId, context.request);
       }
 
       await homePage.operations.click();
@@ -2021,12 +2045,7 @@ test.describe("Payment Operations", () => {
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
-        await createDummyConnectorAPI(
-          merchantId,
-          "stripe_test_1",
-          context.request,
-        );
-        await createRequiresCapturePaymentAPI(merchantId, context.request);
+        await setupRequiresCapturePayment(page, merchantId, context.request);
       }
 
       await openCaptureModal(page, homePage, paymentOperations);
@@ -2060,12 +2079,7 @@ test.describe("Payment Operations", () => {
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
-        await createDummyConnectorAPI(
-          merchantId,
-          "stripe_test_1",
-          context.request,
-        );
-        await createRequiresCapturePaymentAPI(merchantId, context.request);
+        await setupRequiresCapturePayment(page, merchantId, context.request);
       }
 
       await openCaptureModal(page, homePage, paymentOperations);
@@ -2086,12 +2100,7 @@ test.describe("Payment Operations", () => {
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
-        await createDummyConnectorAPI(
-          merchantId,
-          "stripe_test_1",
-          context.request,
-        );
-        await createRequiresCapturePaymentAPI(merchantId, context.request);
+        await setupRequiresCapturePayment(page, merchantId, context.request);
       }
 
       await openCaptureModal(page, homePage, paymentOperations);
@@ -2112,13 +2121,9 @@ test.describe("Payment Operations", () => {
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
-        await createDummyConnectorAPI(
-          merchantId,
-          "stripe_test_1",
-          context.request,
-        );
-        await createRequiresCapturePaymentAPI(merchantId, context.request);
+        await setupRequiresCapturePayment(page, merchantId, context.request);
       }
+      await mockCaptureSuccess(page);
 
       await openCaptureModal(page, homePage, paymentOperations);
 
@@ -2136,13 +2141,9 @@ test.describe("Payment Operations", () => {
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
-        await createDummyConnectorAPI(
-          merchantId,
-          "stripe_test_1",
-          context.request,
-        );
-        await createRequiresCapturePaymentAPI(merchantId, context.request);
+        await setupRequiresCapturePayment(page, merchantId, context.request);
       }
+      await mockCaptureSuccess(page);
 
       await openCaptureModal(page, homePage, paymentOperations);
 
@@ -2161,12 +2162,7 @@ test.describe("Payment Operations", () => {
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
-        await createDummyConnectorAPI(
-          merchantId,
-          "stripe_test_1",
-          context.request,
-        );
-        await createRequiresCapturePaymentAPI(merchantId, context.request);
+        await setupRequiresCapturePayment(page, merchantId, context.request);
       }
 
       await page.route(/\/payments\/[^/]+\/capture/, async (route) => {
@@ -2193,12 +2189,7 @@ test.describe("Payment Operations", () => {
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
-        await createDummyConnectorAPI(
-          merchantId,
-          "stripe_test_1",
-          context.request,
-        );
-        await createRequiresCapturePaymentAPI(merchantId, context.request);
+        await setupRequiresCapturePayment(page, merchantId, context.request);
       }
 
       await openCaptureModal(page, homePage, paymentOperations);

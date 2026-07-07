@@ -685,6 +685,41 @@ export async function createRequiresCapturePaymentAPI(
   return await response.json();
 }
 
+// The sandbox "stripe_test" dummy connector always auto-charges a payment
+// (it has no auth-only/two-phase-capture simulation), so a real payment
+// created with capture_method: "manual" still comes back as `succeeded`
+// instead of `requires_capture`. To exercise the capture UI in CI we create
+// a real payment (for a realistic payment_id / amount / customer) and then
+// intercept the dashboard's GET request for that payment, overriding just
+// the `status` and `amount_capturable` fields so the page renders as if the
+// payment were awaiting capture.
+export async function mockPaymentRequiresCapture(
+  page: Page,
+  paymentId: string,
+): Promise<void> {
+  await page.route(
+    new RegExp(`/payments/${paymentId}(\\?|$)`),
+    async (route) => {
+      if (route.request().method() !== "GET") {
+        await route.continue();
+        return;
+      }
+
+      const response = await route.fetch();
+      const json = await response.json();
+
+      await route.fulfill({
+        response,
+        json: {
+          ...json,
+          status: "requires_capture",
+          amount_capturable: json.amount,
+        },
+      });
+    },
+  );
+}
+
 export async function createRefundAPI(
   merchantId: string,
   paymentId: string,
