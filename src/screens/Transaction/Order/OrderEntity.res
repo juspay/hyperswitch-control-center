@@ -323,7 +323,6 @@ let openSearchDefaultColumns: array<colType> = [
   ProfileId,
   Amount,
   Status,
-  Activities,
   PaymentMethod,
   PaymentMethodType,
   CardNetwork,
@@ -338,6 +337,7 @@ let openSearchNewColumns = [
   CardIssuer,
   RefundsStatus,
   RefundsCount,
+  Activities,
   RoutingApproach,
   UnifiedCode,
   UnifiedMessage,
@@ -437,7 +437,6 @@ let openSearchBaseColumns: array<colType> = [
   Status,
   AttemptCount,
   CardNetwork,
-  Activities,
   ErrorMessage,
 ]
 
