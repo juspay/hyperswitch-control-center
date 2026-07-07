@@ -157,6 +157,10 @@ export class HomePage {
     return this.page.locator('[data-testid="vaultprocessor"]');
   }
 
+  get surchargeConnectors(): Locator {
+    return this.page.locator('[data-testid="surchargeprocessor"]');
+  }
+
   get analytics(): Locator {
     return this.page.locator('[data-testid="analytics"]');
   }
@@ -326,7 +330,7 @@ export class HomePage {
   }
 
   get sdkErrorToast(): Locator {
-    return this.page.getByText("Something went wrong. Please try again");
+    return this.page.getByTestId("paymentStatus");
   }
 
   get sdkIframe(): Locator {

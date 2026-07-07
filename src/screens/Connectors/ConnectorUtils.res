@@ -264,6 +264,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "paypal" => PayPal
   | "pix" => Pix
   | "pix_emv" => PixEmv
+  | "pix_qr" => PixQr
   | "pix_automatico_qr" => PixAutomaticoQr
   | "pix_automatico_push" => PixAutomaticoPush
   | "boleto" => Boleto
@@ -1535,6 +1536,10 @@ let getPaymentMethodMapper: JSON.t => array<paymentMethodConfigType> = json => {
 let getPaymentMethodDisplayName = (paymentMethodType: string) => {
   switch paymentMethodType->getPaymentMethodTypeFromString {
   | Ideal => "iDEAL | Wero"
+  | PixQr => "PIX QR Code"
+  | PixEmv => "PIX EMV"
+  | PixAutomaticoQr => "PIX Automático QR"
+  | PixAutomaticoPush => "PIX Automático Push"
   | _ => paymentMethodType->snakeToTitle
   }
 }
@@ -2626,7 +2631,8 @@ let checkIfPredecryptFlowEnabledForApplePay = connector => {
   | Processors(WORLDPAYVANTIV)
   | Processors(NMI)
   | Processors(STRIPE)
-  | Processors(WORLDPAYXML) => true
+  | Processors(WORLDPAYXML)
+  | Processors(IMERCHANTSOLUTIONS) => true
   | _ => false
   }
 }
@@ -2639,7 +2645,8 @@ let checkIfPredecryptFlowEnabledForGooglePay = connector => {
   | Processors(WORLDPAYVANTIV)
   | Processors(NMI)
   | Processors(STRIPE)
-  | Processors(WORLDPAYXML) => true
+  | Processors(WORLDPAYXML)
+  | Processors(IMERCHANTSOLUTIONS) => true
   | _ => false
   }
 }

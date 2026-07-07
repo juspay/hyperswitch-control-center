@@ -12,7 +12,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
   let keyValuePairs = allKeyValuePairs->Array.filter(((key, _)) => {
     !(key->titleToSnake == "ingestion_type")
   })
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (selectedFile, setSelectedFile) = React.useState(_ => None)
   let (isDraggingFile, setIsDraggingFile) = React.useState(_ => false)
   let dragDepthRef = React.useRef(0)
@@ -31,7 +31,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
     let fileSize = file["size"]
     let hasSupportedExtension = isSupportedFileType(fileName)
     if !hasSupportedExtension {
-      showToast(~message="Please select a .csv, .ext, or .xlsx file.", ~toastType=ToastError)
+      showToast(~message="Please select a .csv, .ext, .xlsx, or .txt file.", ~toastType=ToastError)
       setSelectedFile(_ => None)
       clearFileInput()
     } else if fileSize > maxFileSizeBytes {
@@ -144,7 +144,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
         <input
           ref={fileInputRef->ReactDOM.Ref.domRef}
           type_="file"
-          accept=".csv,.ext,.xlsx"
+          accept=".csv,.ext,.xlsx,.txt"
           disabled={!hasManageAccess}
           onChange=handleFileUpload
           hidden=true
@@ -177,7 +177,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
                 {"Choose a file or drag & drop it here"->React.string}
               </div>
               <div className={`${body.md.medium} text-nd_gray-500`}>
-                {".csv,.ext,.xlsx only | Max size 8 MB"->React.string}
+                {".csv,.ext,.xlsx,.txt only | Max size 8 MB"->React.string}
               </div>
             </div>
             <div

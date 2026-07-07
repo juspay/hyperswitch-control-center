@@ -412,6 +412,15 @@ let useGetURL = () => {
           }
         | _ => `payments/aggregate`
         }
+      | MANUAL_STATUS_UPDATE =>
+        switch methodType {
+        | Post =>
+          switch id {
+          | Some(payment_id) => `payments/${payment_id}/manual-status-update`
+          | None => ""
+          }
+        | _ => ""
+        }
       | REFUNDS =>
         switch methodType {
         | Get =>
@@ -1232,6 +1241,25 @@ let useGetURL = () => {
           | Post => `${reconBaseURL}/staging_entries/bulk_operations`
           | _ => ""
           }
+        | #OVERVIEW_RULES =>
+          switch methodType {
+          | Get =>
+            switch queryParameters {
+            | Some(queryParams) => `${reconBaseURL}/overview/transactions?${queryParams}`
+            | None => `${reconBaseURL}/overview/transactions`
+            }
+          | _ => ""
+          }
+        | #OVERVIEW_RULES_TIME_SERIES =>
+          switch methodType {
+          | Get =>
+            switch queryParameters {
+            | Some(queryParams) =>
+              `${reconBaseURL}/overview/transactions/time_series?${queryParams}`
+            | None => `${reconBaseURL}/overview/transactions/time_series`
+            }
+          | _ => ""
+          }
         | #NONE => ""
         }
 
@@ -1275,6 +1303,7 @@ let useGetURL = () => {
           | None => `${userUrl}/connect_account`
           }
         | #SIGNINV2 => `${userUrl}/v2/signin`
+        | #LAUNCH_SAGE => `${userUrl}/launch_sage`
         | #CHANGE_PASSWORD => `${userUrl}/change_password`
         | #SIGNUP
         | #SIGNOUT
@@ -1356,6 +1385,9 @@ let useGetURL = () => {
         | #LIST_ORG => `${userUrl}/list/org`
         | #LIST_MERCHANT => `${userUrl}/list/merchant`
         | #LIST_PROFILE => `${userUrl}/list/profile`
+
+        // Clone connector across profiles of the same merchant
+        | #CLONE_CONNECTOR => `${userUrl}/clone_connector`
 
         // CREATE ROLES
         | #CREATE_CUSTOM_ROLE => `${userUrl}/role`
@@ -1464,11 +1496,6 @@ let useGetURL = () => {
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
       | SDK_PAYMENT => "payments"
-      | ACCOUNT_PAYMENT_METHODS =>
-        switch methodType {
-        | Get => "account/payment_methods"
-        | _ => ""
-        }
       | CHAT_BOT => `chat/ai/data`
       }
 
@@ -1496,7 +1523,7 @@ let useHandleLogout = (~eventName="user_sign_out") => {
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   async () => {
     try {
@@ -1654,7 +1681,7 @@ let useGetMethod = (~showErrorToast=true) => {
   ).getCommonSessionDetails()
   let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
   let fetchApi = AuthHooks.useApiFetcher()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let handleLogout = useHandleLogout()
   let sendEvent = MixpanelHook.useSendEvent()
@@ -1675,7 +1702,7 @@ let useGetMethod = (~showErrorToast=true) => {
     })
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  async (url, ~version=UserInfoTypes.V1) => {
+  async (url, ~version=UserInfoTypes.V1, ~signal=?) => {
     try {
       let res = await fetchApi(
         url,
@@ -1686,6 +1713,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~profileId,
         ~version,
         ~isEmbeddableSession=isEmbeddableSession(),
+        ~signal?,
       )
       await responseHandler(
         ~url,
@@ -1700,6 +1728,8 @@ let useGetMethod = (~showErrorToast=true) => {
         ~isEmbeddableSession=isEmbeddableSession(),
       )
     } catch {
+    | _ if signal->Option.mapOr(false, AbortControllerHook.isAborted) =>
+      raise(AbortControllerHook.AbortError)
     | Exn.Error(e) =>
       catchHandler(~err={e}, ~showErrorToast, ~showToast, ~isPlayground, ~popUpCallBack)
     | _ => Exn.raiseError("Something went wrong")
@@ -1713,7 +1743,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
   ).getCommonSessionDetails()
   let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
   let fetchApi = AuthHooks.useApiFetcher()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let handleLogout = useHandleLogout()
   let sendEvent = MixpanelHook.useSendEvent()
@@ -1743,6 +1773,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
     ~headers=Dict.make(),
     ~contentType=AuthHooks.Headers("application/json"),
     ~version=UserInfoTypes.V1,
+    ~signal=?,
   ) => {
     try {
       let res = await fetchApi(
@@ -1758,6 +1789,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~profileId,
         ~version,
         ~isEmbeddableSession=isEmbeddableSession(),
+        ~signal?,
       )
       await responseHandler(
         ~url,
@@ -1772,9 +1804,67 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~isEmbeddableSession=isEmbeddableSession(),
       )
     } catch {
+    | _ if signal->Option.mapOr(false, AbortControllerHook.isAborted) =>
+      raise(AbortControllerHook.AbortError)
     | Exn.Error(e) =>
       catchHandler(~err={e}, ~showErrorToast, ~showToast, ~isPlayground, ~popUpCallBack)
     | _ => Exn.raiseError("Something went wrong")
     }
+  }
+}
+
+let useCancellableGetMethod = (~showErrorToast=true) => {
+  let fetchDetails = useGetMethod(~showErrorToast)
+  let getSignal = AbortControllerHook.useAbortController()
+
+  async (url, ~version=UserInfoTypes.V1, ~signal=?) => {
+    let requestSignal = switch signal {
+    | Some(signal) => signal
+    | None => getSignal()
+    }
+    let res = await fetchDetails(url, ~version, ~signal=requestSignal)
+
+    if requestSignal->AbortControllerHook.isAborted {
+      raise(AbortControllerHook.AbortError)
+    }
+
+    res
+  }
+}
+
+let useCancellableUpdateMethod = (~showErrorToast=true) => {
+  let updateDetails = useUpdateMethod(~showErrorToast)
+  let getSignal = AbortControllerHook.useAbortController()
+
+  async (
+    url,
+    body,
+    method,
+    ~bodyFormData=?,
+    ~headers=Dict.make(),
+    ~contentType=AuthHooks.Headers("application/json"),
+    ~version=UserInfoTypes.V1,
+    ~signal=?,
+  ) => {
+    let requestSignal = switch signal {
+    | Some(signal) => signal
+    | None => getSignal()
+    }
+    let res = await updateDetails(
+      url,
+      body,
+      method,
+      ~bodyFormData?,
+      ~headers,
+      ~contentType,
+      ~version,
+      ~signal=requestSignal,
+    )
+
+    if requestSignal->AbortControllerHook.isAborted {
+      raise(AbortControllerHook.AbortError)
+    }
+
+    res
   }
 }
