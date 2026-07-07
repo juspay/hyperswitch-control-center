@@ -56,7 +56,9 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
           value=card.connectedStatCardValue
           cardType=card.connectedStatCardType
           onConnectedStatCardClick={() => {
-            card.connectedStatCardPath->Option.mapOr((), path => RescriptReactRouter.push(path))
+            card.connectedStatCardPath->mapOptionOrDefault((), path =>
+              RescriptReactRouter.push(path)
+            )
           }}
         />
       </PageLoaderWrapper>
