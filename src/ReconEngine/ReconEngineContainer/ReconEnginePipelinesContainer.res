@@ -18,7 +18,7 @@ let make = () => {
           <FilterContext key="recon-engine-pipelines" index="recon-engine-pipelines">
             <ReconEnginePipelines />
           </FilterContext>}
-        renderShow={(_, _) => <ReconEnginePipelineDetails />}
+        renderShow={(id, _) => <ReconEnginePipelineDetails ingestionHistoryId=id />}
       />
     </AccessControl>
   | _ => React.null

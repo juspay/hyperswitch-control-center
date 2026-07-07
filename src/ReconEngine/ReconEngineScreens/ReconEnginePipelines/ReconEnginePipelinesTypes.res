@@ -24,3 +24,11 @@ type fileState<'file> =
   | NoFile
   | FileSelected('file)
   | Uploading('file)
+
+type pipelineDetailStatCardData = {
+  pipelineDetailStatCardLabel: string,
+  pipelineDetailStatCardValue: int,
+  pipelineDetailStatCardDesc: string,
+  pipelineDetailStatCardDescColor: string,
+  pipelineDetailStatCardOnClick: option<unit => unit>,
+}
