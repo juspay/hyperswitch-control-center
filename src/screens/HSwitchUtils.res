@@ -80,7 +80,9 @@ let getBrowserDetails = () => {
   let clientCountry = clientTimeZone->getClientCountry
 
   let getVersion = regex =>
-    userAgent->String.match(regex)->Option.mapOr("", matches => matches->getValueFromArray(1, ""))
+    userAgent
+    ->String.match(regex)
+    ->mapOptionOrDefault("", matches => matches->getValueFromArray(1, ""))
 
   let (browserName, browserVersion) = if userAgent->String.includes("Edg/") {
     ("Edge", getVersion(%re("/Edg\/([\d.]+)/")))
