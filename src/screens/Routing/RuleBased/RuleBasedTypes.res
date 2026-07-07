@@ -8,12 +8,12 @@ type operator =
 
 @unboxed
 type displayOperator =
-  | @as("is") Is
-  | @as("is_not") IsNot
-  | @as("contains") Contains
-  | @as("not_contains") NotContains
-  | @as("equal") EqualTo
-  | @as("not_equal") NotEqualTo
+  | @as("is") IsOp
+  | @as("is_not") IsNotOp
+  | @as("contains") ContainsOp
+  | @as("not_contains") NotContainsOp
+  | @as("equal") EqualOp
+  | @as("not_equal") NotEqualOp
   | @as("greater_than") GreaterThanOp
   | @as("less_than") LessThanOp
   | UnknownDisplayOperator(string)

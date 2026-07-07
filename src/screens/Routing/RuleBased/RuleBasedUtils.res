@@ -21,8 +21,8 @@ let defaultRule: rule = {
   statements: [defaultGroup],
 }
 let defaultOperatorChoice: operatorChoice = {
-  label: (Is :> string)->snakeToTitle,
-  selectValue: Is,
+  label: (IsOp :> string)->snakeToTitle,
+  selectValue: IsOp,
   comparison: Equal,
   valueVariant: EnumOne({value: ""}),
 }
@@ -74,34 +74,34 @@ let operatorChoicesForVariant = (variantType: value): array<operatorChoice> =>
   switch variantType {
   | EnumOne(_) | EnumMany(_) => [
       {
-        label: (Is :> string)->snakeToTitle,
-        selectValue: Is,
+        label: (IsOp :> string)->snakeToTitle,
+        selectValue: IsOp,
         comparison: Equal,
         valueVariant: EnumOne({value: ""}),
       },
       {
-        label: (IsNot :> string)->snakeToTitle,
-        selectValue: IsNot,
+        label: (IsNotOp :> string)->snakeToTitle,
+        selectValue: IsNotOp,
         comparison: NotEqual,
         valueVariant: EnumOne({value: ""}),
       },
       {
-        label: (Contains :> string)->snakeToTitle,
-        selectValue: Contains,
+        label: (ContainsOp :> string)->snakeToTitle,
+        selectValue: ContainsOp,
         comparison: Equal,
         valueVariant: EnumMany({value: []}),
       },
       {
-        label: (NotContains :> string)->snakeToTitle,
-        selectValue: NotContains,
+        label: (NotContainsOp :> string)->snakeToTitle,
+        selectValue: NotContainsOp,
         comparison: NotEqual,
         valueVariant: EnumMany({value: []}),
       },
     ]
   | Number(_) => [
       {
-        label: (EqualTo :> string)->snakeToTitle,
-        selectValue: EqualTo,
+        label: (EqualOp :> string)->snakeToTitle,
+        selectValue: EqualOp,
         comparison: Equal,
         valueVariant: variantType,
       },
@@ -120,22 +120,22 @@ let operatorChoicesForVariant = (variantType: value): array<operatorChoice> =>
     ]
   | StrValue(_) => [
       {
-        label: (EqualTo :> string)->snakeToTitle,
-        selectValue: EqualTo,
+        label: (EqualOp :> string)->snakeToTitle,
+        selectValue: EqualOp,
         comparison: Equal,
         valueVariant: variantType,
       },
       {
-        label: (NotEqualTo :> string)->snakeToTitle,
-        selectValue: NotEqualTo,
+        label: (NotEqualOp :> string)->snakeToTitle,
+        selectValue: NotEqualOp,
         comparison: NotEqual,
         valueVariant: variantType,
       },
     ]
   | MetadataValue(_) => [
       {
-        label: (EqualTo :> string)->snakeToTitle,
-        selectValue: EqualTo,
+        label: (EqualOp :> string)->snakeToTitle,
+        selectValue: EqualOp,
         comparison: Equal,
         valueVariant: variantType,
       },
@@ -146,8 +146,8 @@ let operatorChoicesForLhs = (lhs: string): array<operatorChoice> =>
   lhs->isCardBinField
     ? [
         {
-          label: (EqualTo :> string)->snakeToTitle,
-          selectValue: EqualTo,
+          label: (EqualOp :> string)->snakeToTitle,
+          selectValue: EqualOp,
           comparison: Equal,
           valueVariant: StrValue({value: ""}),
         },
@@ -174,7 +174,7 @@ let operatorLabelForStoredValue = (~lhs: string, ~comparison: string, ~valueType
   ->Array.find(c =>
     c.comparison->operatorToBEKey === comparison && c.valueVariant->valueTypeKey === valueType
   )
-  ->mapOptionOrDefault((EqualTo :> string)->snakeToTitle, c => c.label)
+  ->mapOptionOrDefault((EqualOp :> string)->snakeToTitle, c => c.label)
 
 let connectorRefFromId = (connectorList, mcaId): connectorRef => {
   let connectorObj = connectorList->getConnectorObjectFromListViaId(mcaId, ~version=V1)
