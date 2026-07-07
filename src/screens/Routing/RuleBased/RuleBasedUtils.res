@@ -106,14 +106,14 @@ let operatorChoicesForVariant = (variantType: value): array<operatorChoice> =>
         valueVariant: variantType,
       },
       {
-        label: (GreaterThan :> string)->snakeToTitle,
-        selectValue: GreaterThan,
+        label: (GreaterThanOp :> string)->snakeToTitle,
+        selectValue: GreaterThanOp,
         comparison: GreaterThan,
         valueVariant: variantType,
       },
       {
-        label: (LessThan :> string)->snakeToTitle,
-        selectValue: LessThan,
+        label: (LessThanOp :> string)->snakeToTitle,
+        selectValue: LessThanOp,
         comparison: LessThan,
         valueVariant: variantType,
       },
@@ -161,12 +161,12 @@ let selectedOperatorValue = (
   ~choices: array<operatorChoice>,
   ~comparison: string,
   ~valueType: string,
-): operatorType =>
+): displayOperator =>
   choices
   ->Array.find(c =>
     c.comparison->operatorToBEKey === comparison && c.valueVariant->valueTypeKey === valueType
   )
-  ->mapOptionOrDefault(UnknownOperatorType(""), c => c.selectValue)
+  ->mapOptionOrDefault(UnknownDisplayOperator(""), c => c.selectValue)
 
 let operatorLabelForStoredValue = (~lhs: string, ~comparison: string, ~valueType: string): string =>
   lhs

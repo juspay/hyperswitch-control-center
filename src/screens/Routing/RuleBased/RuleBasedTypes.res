@@ -7,16 +7,16 @@ type operator =
   | UnknownOperator(string)
 
 @unboxed
-type operatorType =
+type displayOperator =
   | @as("is") Is
   | @as("is_not") IsNot
   | @as("contains") Contains
   | @as("not_contains") NotContains
   | @as("equal") EqualTo
   | @as("not_equal") NotEqualTo
-  | @as("greater_than") GreaterThan
-  | @as("less_than") LessThan
-  | UnknownOperatorType(string)
+  | @as("greater_than") GreaterThanOp
+  | @as("less_than") LessThanOp
+  | UnknownDisplayOperator(string)
 
 type metadataKV = {key: string, value: string}
 
@@ -37,7 +37,7 @@ type comparison = {
 
 type operatorChoice = {
   label: string,
-  selectValue: operatorType,
+  selectValue: displayOperator,
   comparison: operator,
   valueVariant: value,
 }
