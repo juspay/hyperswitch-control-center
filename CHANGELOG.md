@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.07.07.0
+
+### Features
+
+- Add Launch Trace launcher behind dev_launch_sage flag ([#5054](https://github.com/juspay/hyperswitch-control-center/pull/5054)) ([`74d5949`](https://github.com/juspay/hyperswitch-control-center/commit/74d5949a1221df8bce45c19ddc4fdf6a465db42c))
+
+### Refactors
+
+- Connector filter logic for payments, refunds and dispute filters ([#5066](https://github.com/juspay/hyperswitch-control-center/pull/5066)) ([`95036d1`](https://github.com/juspay/hyperswitch-control-center/commit/95036d10e89acdaecf0dfa4901a6f645381a4fa5))
+
+**Full Changelog:** [`2026.07.03.1...2026.07.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.03.1...2026.07.07.0)
+
+- - -
+
 ## 2026.07.03.1
 
 ### Features
