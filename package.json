@@ -29,10 +29,9 @@
     "pw:debug": "playwright test --debug",
     "pw:report": "playwright show-report",
     "pw:coverage": "cross-env CI=1 PW_COVERAGE=1 playwright test",
-    "pw:gpay:copy-profile": "rm -rf ~/playwright-chrome-profile && mkdir -p ~/playwright-chrome-profile/Default && rsync -a --exclude='Cache/' --exclude='Code Cache/' --exclude='GPUCache/' --exclude='Service Worker/' --exclude='ShaderCache/' --exclude='GrShaderCache/' --exclude='GraphiteDawnCache/' \"$HOME/Library/Application Support/Google/Chrome/Default/\" ~/playwright-chrome-profile/Default/ && cp \"$HOME/Library/Application Support/Google/Chrome/Local State\" ~/playwright-chrome-profile/ && echo 'Profile copied to ~/playwright-chrome-profile'",
-    "pw:gpay:refresh": "rsync -a --delete --exclude='Cache/' --exclude='Code Cache/' --exclude='GPUCache/' --exclude='Service Worker/' --exclude='ShaderCache/' --exclude='GrShaderCache/' --exclude='GraphiteDawnCache/' \"$HOME/Library/Application Support/Google/Chrome/Default/\" ~/playwright-chrome-profile/Default/ && cp \"$HOME/Library/Application Support/Google/Chrome/Local State\" ~/playwright-chrome-profile/ && echo 'Profile refreshed'",
-    "pw:gpay:ui": "npm run pw:gpay:refresh && playwright test --ui --workers=1",
-    "pw:gpay:test": "npm run pw:gpay:refresh && playwright test e2e/2-homepage/homepage.spec.ts -g \"should make a successful google pay payment using SDK\" --project=chromium --workers=1",
+    "gpay:copy-profile": "rm -rf ~/puppeteer-chrome-profile && mkdir -p ~/puppeteer-chrome-profile/Default && rsync -a --exclude='Cache/' --exclude='Code Cache/' --exclude='GPUCache/' --exclude='Service Worker/' --exclude='ShaderCache/' --exclude='GrShaderCache/' --exclude='GraphiteDawnCache/' \"$HOME/Library/Application Support/Google/Chrome/Default/\" ~/puppeteer-chrome-profile/Default/ && cp \"$HOME/Library/Application Support/Google/Chrome/Local State\" ~/puppeteer-chrome-profile/ && echo 'Profile copied to ~/puppeteer-chrome-profile'",
+    "gpay:refresh": "rsync -a --delete --exclude='Cache/' --exclude='Code Cache/' --exclude='GPUCache/' --exclude='Service Worker/' --exclude='ShaderCache/' --exclude='GrShaderCache/' --exclude='GraphiteDawnCache/' \"$HOME/Library/Application Support/Google/Chrome/Default/\" ~/puppeteer-chrome-profile/Default/ && cp \"$HOME/Library/Application Support/Google/Chrome/Local State\" ~/puppeteer-chrome-profile/ && echo 'Profile refreshed'",
+    "gpay:test": "npm run gpay:refresh && node playwright-tests/e2e/gpay-test.js",
     "lint:hooks": "eslint src/ --max-warnings 0",
     "lint:fix": "eslint src/ --fix && prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
