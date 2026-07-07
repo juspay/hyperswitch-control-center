@@ -9,6 +9,7 @@ module OrgChartTree = {
     ~onProfileSelect: OMPSwitchTypes.ompListTypes => promise<unit>,
   ) => {
     open Typography
+
     let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
@@ -80,8 +81,8 @@ module OrgChartTree = {
 
 module BranchConnector = {
   @react.component
-  let make = (~threeWay=false) => {
-    let barWidth = threeWay ? "w-2/3" : "w-1/2"
+  let make = (~extraBranch=false) => {
+    let barWidth = extraBranch ? "w-2/3" : "w-1/2"
     <div className="flex flex-col items-center w-full">
       <div className="w-px h-4 bg-nd_gray-200" />
       <div className={`${barWidth} h-px bg-nd_gray-200`} />
@@ -92,7 +93,7 @@ module BranchConnector = {
         <div className="flex-1 flex justify-center">
           <div className="w-px h-4 bg-nd_gray-200" />
         </div>
-        <RenderIf condition=threeWay>
+        <RenderIf condition=extraBranch>
           <div className="flex-1 flex justify-center">
             <div className="w-px h-4 bg-nd_gray-200" />
           </div>
@@ -104,19 +105,17 @@ module BranchConnector = {
 
 module HierarchyCard = {
   @react.component
-  let make = (~iconName, ~title, ~items=[], ~highlight=false, ~compact=false) => {
+  let make = (~iconName, ~title, ~items=[], ~highlight=false) => {
     open Typography
+
     let accentColor = highlight ? "text-nd_primary_blue-500" : "text-nd_gray-700"
     let iconColor = highlight ? "text-nd_primary_blue-500" : "text-nd_gray-500"
-    let cardStyle = compact ? "gap-2 rounded-xl px-3 py-2" : "gap-2.5 rounded-2xl px-4 py-3"
-    let titleStyle = compact ? body.sm.semibold : body.md.semibold
-    let iconSize = compact ? 14 : 16
 
     <div
-      className={`bg-white border border-nd_gray-150 shadow-sm flex w-max items-start ${cardStyle}`}>
-      <Icon name=iconName size=iconSize className=iconColor />
+      className="bg-white border border-nd_gray-150 shadow-sm flex w-max items-start gap-2.5 rounded-2xl px-4 py-3">
+      <Icon name=iconName className=iconColor />
       <div className="flex flex-col gap-1">
-        <span className={`${titleStyle} ${accentColor} whitespace-nowrap`}>
+        <span className={`${body.md.semibold} ${accentColor} whitespace-nowrap`}>
           {title->React.string}
         </span>
         <RenderIf condition={items->LogicUtils.isNonEmptyArray}>
@@ -138,11 +137,13 @@ module HierarchyCard = {
 module PlatformOrgDiagram = {
   @react.component
   let make = () => {
+    open Typography
+
     let profileItems = ["Connector configuration", "Routing", "Transactions", "Users"]
 
     <div className={`bg-nd_gray-25 rounded-2xl w-full overflow-x-auto p-6`}>
       <div className="flex flex-col items-center min-w-max mx-auto">
-        <div className={`${Typography.body.md.semibold} text-nd_gray-700`}>
+        <div className={`${body.md.semibold} text-nd_gray-700`}>
           {"Organization"->React.string}
         </div>
         <div className="h-3" />
@@ -151,13 +152,10 @@ module PlatformOrgDiagram = {
           title="Platform Organization"
           highlight=true
           items=["Users"]
-          compact=true
         />
         <div className="w-px h-4 bg-nd_gray-200" />
-        <div className={`${Typography.body.md.semibold} text-nd_gray-700`}>
-          {"Merchants"->React.string}
-        </div>
-        <BranchConnector threeWay=true />
+        <div className={`${body.md.semibold} text-nd_gray-700`}> {"Merchants"->React.string} </div>
+        <BranchConnector extraBranch=true />
         <div className="flex w-full items-start">
           <div className="flex-1 flex flex-col items-center">
             <HierarchyCard
@@ -165,7 +163,6 @@ module PlatformOrgDiagram = {
               title="Platform Merchant Account"
               highlight=true
               items=["API keys & integrations", "Can act on behalf of connected merchants", "Users"]
-              compact=true
             />
           </div>
           <div className="flex-1 flex flex-col items-center">
@@ -177,11 +174,10 @@ module PlatformOrgDiagram = {
                 "Shared customers & payment methods",
                 "Users",
               ]
-              compact=true
             />
             <div className="w-px h-4 bg-nd_gray-200" />
             <HierarchyCard
-              iconName="profile-entity" title="Connected Profiles" items=profileItems compact=true
+              iconName="profile-entity" title="Connected Profiles" items=profileItems
             />
           </div>
           <div className="flex-1 flex flex-col items-center">
@@ -193,12 +189,9 @@ module PlatformOrgDiagram = {
                 "Platform can generate its API keys",
                 "Users",
               ]
-              compact=true
             />
             <div className="w-px h-4 bg-nd_gray-200" />
-            <HierarchyCard
-              iconName="profile-entity" title="Profiles" items=profileItems compact=true
-            />
+            <HierarchyCard iconName="profile-entity" title="Profiles" items=profileItems />
           </div>
         </div>
       </div>
@@ -209,12 +202,14 @@ module PlatformOrgDiagram = {
 module StandardOrgDiagram = {
   @react.component
   let make = () => {
+    open Typography
+
     let apiKeyItems = ["API keys", "Publishable key", "Users"]
     let profileItems = ["Connector configuration", "Routing", "Transactions", "Users"]
 
     <div className={`bg-nd_gray-25 rounded-2xl w-full overflow-x-auto p-8`}>
       <div className="flex flex-col items-center min-w-max mx-auto">
-        <div className={`${Typography.body.md.semibold} text-nd_gray-700`}>
+        <div className={`${body.md.semibold} text-nd_gray-700`}>
           {"Organization"->React.string}
         </div>
         <div className="h-3" />
@@ -225,9 +220,7 @@ module StandardOrgDiagram = {
           items=["Users"]
         />
         <div className="w-px h-4 bg-nd_gray-200" />
-        <div className={`${Typography.body.md.semibold} text-nd_gray-700`}>
-          {"Merchants"->React.string}
-        </div>
+        <div className={`${body.md.semibold} text-nd_gray-700`}> {"Merchants"->React.string} </div>
         <BranchConnector />
         <div className="flex w-full items-start">
           <div className="flex-1 flex flex-col items-center">
