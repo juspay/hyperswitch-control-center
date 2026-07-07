@@ -78,41 +78,29 @@ module OrgChartTree = {
   }
 }
 
-// Thin connector primitives shared by both hierarchy diagrams.
-let vStem = <div className="w-px h-4 bg-nd_gray-200" />
-
-// Parent stem → centered horizontal bar → two drops feeding the child columns.
-let branchConnector =
-  <div className="flex flex-col items-center w-full">
-    <div className="w-px h-4 bg-nd_gray-200" />
-    <div className="w-1/2 h-px bg-nd_gray-200" />
-    <div className="flex w-full">
-      <div className="flex-1 flex justify-center">
-        <div className="w-px h-4 bg-nd_gray-200" />
-      </div>
-      <div className="flex-1 flex justify-center">
-        <div className="w-px h-4 bg-nd_gray-200" />
-      </div>
-    </div>
-  </div>
-
-// Three-way variant: horizontal bar spans the outer column centers (1/6 → 5/6).
-let branchConnector3 =
-  <div className="flex flex-col items-center w-full">
-    <div className="w-px h-4 bg-nd_gray-200" />
-    <div className="w-2/3 h-px bg-nd_gray-200" />
-    <div className="flex w-full">
-      <div className="flex-1 flex justify-center">
-        <div className="w-px h-4 bg-nd_gray-200" />
-      </div>
-      <div className="flex-1 flex justify-center">
-        <div className="w-px h-4 bg-nd_gray-200" />
-      </div>
-      <div className="flex-1 flex justify-center">
-        <div className="w-px h-4 bg-nd_gray-200" />
+module BranchConnector = {
+  @react.component
+  let make = (~threeWay=false) => {
+    let barWidth = threeWay ? "w-2/3" : "w-1/2"
+    <div className="flex flex-col items-center w-full">
+      <div className="w-px h-4 bg-nd_gray-200" />
+      <div className={`${barWidth} h-px bg-nd_gray-200`} />
+      <div className="flex w-full">
+        <div className="flex-1 flex justify-center">
+          <div className="w-px h-4 bg-nd_gray-200" />
+        </div>
+        <div className="flex-1 flex justify-center">
+          <div className="w-px h-4 bg-nd_gray-200" />
+        </div>
+        <RenderIf condition=threeWay>
+          <div className="flex-1 flex justify-center">
+            <div className="w-px h-4 bg-nd_gray-200" />
+          </div>
+        </RenderIf>
       </div>
     </div>
-  </div>
+  }
+}
 
 module HierarchyCard = {
   @react.component
@@ -123,6 +111,7 @@ module HierarchyCard = {
     let cardStyle = compact ? "gap-2 rounded-xl px-3 py-2" : "gap-2.5 rounded-2xl px-4 py-3"
     let titleStyle = compact ? body.sm.semibold : body.md.semibold
     let iconSize = compact ? 14 : 16
+
     <div
       className={`bg-white border border-nd_gray-150 shadow-sm flex w-max items-start ${cardStyle}`}>
       <Icon name=iconName size=iconSize className=iconColor />
@@ -146,22 +135,16 @@ module HierarchyCard = {
   }
 }
 
-let sectionLabel = text =>
-  <div className={`${Typography.body.md.semibold} text-nd_gray-700`}> {text->React.string} </div>
-
-let diagramShell = (~compact=false, children) =>
-  <div className={`bg-nd_gray-25 rounded-2xl w-full overflow-x-auto ${compact ? "p-6" : "p-8"}`}>
-    <div className="flex flex-col items-center min-w-max mx-auto"> {children} </div>
-  </div>
-
 module PlatformOrgDiagram = {
   @react.component
   let make = () => {
     let profileItems = ["Connector configuration", "Routing", "Transactions", "Users"]
-    diagramShell(
-      ~compact=true,
-      <>
-        {sectionLabel("Organization")}
+
+    <div className={`bg-nd_gray-25 rounded-2xl w-full overflow-x-auto p-6`}>
+      <div className="flex flex-col items-center min-w-max mx-auto">
+        <div className={`${Typography.body.md.semibold} text-nd_gray-700`}>
+          {"Organization"->React.string}
+        </div>
         <div className="h-3" />
         <HierarchyCard
           iconName="organization-entity"
@@ -170,9 +153,11 @@ module PlatformOrgDiagram = {
           items=["Users"]
           compact=true
         />
-        {vStem}
-        {sectionLabel("Merchants")}
-        {branchConnector3}
+        <div className="w-px h-4 bg-nd_gray-200" />
+        <div className={`${Typography.body.md.semibold} text-nd_gray-700`}>
+          {"Merchants"->React.string}
+        </div>
+        <BranchConnector threeWay=true />
         <div className="flex w-full items-start">
           <div className="flex-1 flex flex-col items-center">
             <HierarchyCard
@@ -194,7 +179,7 @@ module PlatformOrgDiagram = {
               ]
               compact=true
             />
-            {vStem}
+            <div className="w-px h-4 bg-nd_gray-200" />
             <HierarchyCard
               iconName="profile-entity" title="Connected Profiles" items=profileItems compact=true
             />
@@ -210,14 +195,14 @@ module PlatformOrgDiagram = {
               ]
               compact=true
             />
-            {vStem}
+            <div className="w-px h-4 bg-nd_gray-200" />
             <HierarchyCard
               iconName="profile-entity" title="Profiles" items=profileItems compact=true
             />
           </div>
         </div>
-      </>,
-    )
+      </div>
+    </div>
   }
 }
 
@@ -226,32 +211,42 @@ module StandardOrgDiagram = {
   let make = () => {
     let apiKeyItems = ["API keys", "Publishable key", "Users"]
     let profileItems = ["Connector configuration", "Routing", "Transactions", "Users"]
-    diagramShell(<>
-      {sectionLabel("Organization")}
-      <div className="h-3" />
-      <HierarchyCard
-        iconName="organization-entity" title="Standard Organization" highlight=true items=["Users"]
-      />
-      {vStem}
-      {sectionLabel("Merchants")}
-      {branchConnector}
-      <div className="flex w-full items-start">
-        <div className="flex-1 flex flex-col items-center">
-          <HierarchyCard
-            iconName="key" title="Merchant Account 1" highlight=true items=apiKeyItems
-          />
-          {vStem}
-          <HierarchyCard
-            iconName="profile-entity" title="Profiles" highlight=true items=profileItems
-          />
+
+    <div className={`bg-nd_gray-25 rounded-2xl w-full overflow-x-auto p-8`}>
+      <div className="flex flex-col items-center min-w-max mx-auto">
+        <div className={`${Typography.body.md.semibold} text-nd_gray-700`}>
+          {"Organization"->React.string}
         </div>
-        <div className="flex-1 flex flex-col items-center">
-          <HierarchyCard iconName="key" title="Merchant Account 2" items=apiKeyItems />
-          {vStem}
-          <HierarchyCard iconName="profile-entity" title="Profiles" items=profileItems />
+        <div className="h-3" />
+        <HierarchyCard
+          iconName="organization-entity"
+          title="Standard Organization"
+          highlight=true
+          items=["Users"]
+        />
+        <div className="w-px h-4 bg-nd_gray-200" />
+        <div className={`${Typography.body.md.semibold} text-nd_gray-700`}>
+          {"Merchants"->React.string}
+        </div>
+        <BranchConnector />
+        <div className="flex w-full items-start">
+          <div className="flex-1 flex flex-col items-center">
+            <HierarchyCard
+              iconName="key" title="Merchant Account 1" highlight=true items=apiKeyItems
+            />
+            <div className="w-px h-4 bg-nd_gray-200" />
+            <HierarchyCard
+              iconName="profile-entity" title="Profiles" highlight=true items=profileItems
+            />
+          </div>
+          <div className="flex-1 flex flex-col items-center">
+            <HierarchyCard iconName="key" title="Merchant Account 2" items=apiKeyItems />
+            <div className="w-px h-4 bg-nd_gray-200" />
+            <HierarchyCard iconName="profile-entity" title="Profiles" items=profileItems />
+          </div>
         </div>
       </div>
-    </>)
+    </div>
   }
 }
 
