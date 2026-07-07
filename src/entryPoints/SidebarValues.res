@@ -559,10 +559,11 @@ let settings = (
   ~devModularityV2Enabled,
   ~devThemeEnabled,
   ~devUsers,
+  ~isCurrentMerchantPlatform,
 ) => {
   let settingsLinkArray = []
 
-  if isConfigurePmtsEnabled {
+  if isConfigurePmtsEnabled && !isCurrentMerchantPlatform {
     settingsLinkArray->Array.push(configurePMTs(userHasResourceAccess))->ignore
   }
 

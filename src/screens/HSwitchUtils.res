@@ -78,6 +78,26 @@ let getBrowserDetails = () => {
   open HSwitchUtilsTypes
   let clientTimeZone = dateTimeFormat().resolvedOptions().timeZone
   let clientCountry = clientTimeZone->getClientCountry
+
+  let getVersion = regex =>
+    userAgent
+    ->String.match(regex)
+    ->mapOptionOrDefault("", matches => matches->getValueFromArray(1, ""))
+
+  let (browserName, browserVersion) = if userAgent->String.includes("Edg/") {
+    ("Edge", getVersion(%re("/Edg\/([\d.]+)/")))
+  } else if userAgent->String.includes("OPR/") || userAgent->String.includes("Opera") {
+    ("Opera", getVersion(%re("/(?:OPR|Opera)\/([\d.]+)/")))
+  } else if userAgent->String.includes("Chrome") {
+    ("Chrome", getVersion(%re("/Chrome\/([\d.]+)/")))
+  } else if userAgent->String.includes("Firefox") {
+    ("Firefox", getVersion(%re("/Firefox\/([\d.]+)/")))
+  } else if userAgent->String.includes("Safari") {
+    ("Safari", getVersion(%re("/Version\/([\d.]+)/")))
+  } else {
+    ("Unknown", "")
+  }
+
   {
     userAgent,
     browserVersion,

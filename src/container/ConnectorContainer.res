@@ -153,10 +153,7 @@ let make = () => {
         isEnabled={featureFlagDetails.configurePmts}>
         <FilterContext key="ConfigurePmts" index="ConfigurePmts">
           <EntityScaffold
-            entityName="ConfigurePMTs"
-            remainingPath
-            renderList={() => <PaymentMethodList />}
-            renderShow={(_, _) => <PaymentSettings webhookOnly=false showFormOnly=false />}
+            entityName="ConfigurePMTs" remainingPath renderList={() => <PaymentMethodList />}
           />
         </FilterContext>
       </AccessControl>
