@@ -1,7 +1,7 @@
 open ReconEnginePipelinesUtils
 
 @react.component
-let make = () => {
+let make = (~refreshTrigger=false) => {
   open LogicUtils
   open ReconEngineHooks
   open HSAnalyticsUtils
@@ -53,7 +53,7 @@ let make = () => {
       fetchPipelinesStatsData()->ignore
     }
     None
-  }, [filterValue])
+  }, (filterValue, refreshTrigger))
 
   let statCards = React.useMemo(() => {
     getPipelineStatCards(~ingestionHistory, ~stagingEntries)

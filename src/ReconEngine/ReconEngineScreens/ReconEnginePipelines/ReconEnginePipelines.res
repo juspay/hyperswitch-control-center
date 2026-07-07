@@ -15,6 +15,7 @@ let make = () => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (accountData, setAccountData) = React.useState(_ => [])
+  let (refreshTrigger, setRefreshTrigger) = React.useState(_ => false)
 
   let fetchAccounts = async () => {
     try {
@@ -50,7 +51,7 @@ let make = () => {
     <PageHeading
       title="Pipelines" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
     />
-    <div className="flex flex-row justify-end">
+    <div className="flex flex-row items-center justify-end gap-3">
       <DynamicFilter
         title="ReconEnginePipelinesFilters"
         initialFilters=[]
@@ -68,10 +69,13 @@ let make = () => {
         showCustomFilter=false
         refreshFilters=false
       />
+      <ReconEnginePipelinesUploadModal
+        accountData onClose={() => setRefreshTrigger(prev => !prev)}
+      />
     </div>
-    <ReconEnginePipelinesStatCards />
+    <ReconEnginePipelinesStatCards refreshTrigger />
     <PageLoaderWrapper screenState>
-      <ReconEnginePipelinesTable accountData />
+      <ReconEnginePipelinesTable accountData refreshTrigger />
     </PageLoaderWrapper>
   </div>
 }

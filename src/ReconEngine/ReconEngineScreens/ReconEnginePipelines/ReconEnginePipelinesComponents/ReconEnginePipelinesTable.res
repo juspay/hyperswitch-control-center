@@ -2,7 +2,7 @@ open ReconEngineTypes
 open ReconEnginePipelinesUtils
 
 @react.component
-let make = (~accountData: array<ReconEngineTypes.accountType>) => {
+let make = (~accountData: array<ReconEngineTypes.accountType>, ~refreshTrigger=false) => {
   open LogicUtils
 
   let getIngestionHistory = ReconEngineHooks.useGetIngestionHistory()
@@ -65,7 +65,7 @@ let make = (~accountData: array<ReconEngineTypes.accountType>) => {
       fetchIngestionHistoryData()->ignore
     }
     None
-  }, [filterValue])
+  }, (filterValue, refreshTrigger))
 
   let (accountOptions, connectorOptions) = React.useMemo(() => {
     let unwrappedHistory = ingestionHistoryData->Belt.Array.keepMap(Nullable.toOption)

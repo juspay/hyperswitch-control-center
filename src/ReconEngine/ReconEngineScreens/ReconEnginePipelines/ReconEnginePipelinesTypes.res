@@ -19,3 +19,8 @@ type pipelineStatCardData = {
   pipelineStatCardType: statCardType,
   pipelineStatCardClickAction: pipelineStatCardClickAction,
 }
+
+type fileState<'file> =
+  | NoFile
+  | FileSelected('file)
+  | Uploading('file)
