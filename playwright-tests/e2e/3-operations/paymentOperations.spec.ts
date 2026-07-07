@@ -1857,7 +1857,9 @@ test.describe("Payment Operations", () => {
       await expect(paymentOperations.dataLabel("Amount").first()).toContainText(
         "123.45 USD",
       );
-      await expect(page.getByText("Payment ID").first()).toBeVisible();
+      await expect(
+        page.locator('[data-label="Payment ID"]:visible').first(),
+      ).toBeVisible();
       await expect(
         paymentOperations.dataLabel("Customer ID").first(),
       ).toContainText("test_customer");
@@ -2167,7 +2169,9 @@ test.describe("Payment Operations", () => {
       await expect(paymentOperations.dataLabel("Amount").first()).toContainText(
         "123.45 USD",
       );
-      await expect(page.getByText("Payment ID").first()).toBeVisible();
+      await expect(
+        page.locator('[data-label="Payment ID"]:visible').first(),
+      ).toBeVisible();
       await expect(
         paymentOperations.dataLabel("Customer ID").first(),
       ).toContainText("test_customer");
