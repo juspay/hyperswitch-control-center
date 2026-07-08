@@ -70,7 +70,6 @@ let make = () => {
         <PageUtils.PageHeading
           title="Organization Chart"
           subTitle="An entity-level overview enabling navigation and transitions across your organization based on access permissions."
-          customHeadingStyle="mb-0"
           customSubTitleStyle={`${body.lg.medium} text-gray-500`}
         />
         <Button
