@@ -153,7 +153,7 @@ let make = () => {
   let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
     ThemeProvider.themeContext,
   )
-  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
+  let {isCurrentMerchantPlatform} = OMPSwitchHooks.useOMPType()
 
   let widthClass = isMobileView ? "w-full" : "md:w-[14rem] md:max-w-[20rem]"
   let roundedClass = isMobileView ? "rounded-none" : "rounded-md"
