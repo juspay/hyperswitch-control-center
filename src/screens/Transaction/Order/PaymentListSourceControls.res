@@ -2,10 +2,8 @@ open OrderTypes
 
 let paymentListSources: array<paymentListSource> = [Normal, Advanced]
 
-let getPaymentListSourceLabel = (source: paymentListSource) => (source :> string)
-
 let getPaymentListSourceFromLabel = value =>
-  paymentListSources->Array.find(source => source->getPaymentListSourceLabel == value)
+  paymentListSources->Array.find(source => (source :> string) == value)
 
 let getPaymentListSourceDescription = source =>
   switch source {
@@ -21,7 +19,7 @@ module SourceTabs = {
     ~advancedEnabled,
   ) => {
     <TabsBinding
-      value={source->getPaymentListSourceLabel}
+      value={(source :> string)}
       onValueChange={value => {
         switch value->getPaymentListSourceFromLabel {
         | Some(Advanced) =>
@@ -37,7 +35,7 @@ module SourceTabs = {
       <TabsBinding.List variant=Boxed size=Md fitContent=true>
         {paymentListSources
         ->Array.map(item => {
-          let value = item->getPaymentListSourceLabel
+          let value = (item :> string)
           let isDisabled = item === Advanced && !advancedEnabled
           <TabsBinding.Trigger
             key=value

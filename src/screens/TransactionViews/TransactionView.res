@@ -199,7 +199,7 @@ let make = (
     let appliedRefundsFilter = filterValueJson->getArrayFromDict(refundsStatusFilterKey, [])
     let appliedDisputeFilter = filterValueJson->getArrayFromDict(disputeStatusFilterKey, [])
     let appliedFirstAttemptFilter =
-      filterValueJson->getArrayFromDict(firstAttemptStatusFilterKey, [])
+      filterValueJson->getArrayFromDict(OrderUIUtils.firstAttemptFilterKey, [])
     let appliedStatusFilter = filterValueJson->getArrayFromDict(customFilterKey, [])
 
     let isAllViewSelected =

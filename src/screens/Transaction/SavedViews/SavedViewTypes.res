@@ -61,6 +61,7 @@ type savedView = {
   view_id: string,
   view_name: string,
   entity: string,
+  version: UserInfoTypes.version,
   filters: JSON.t,
   created_at: string,
   updated_at: string,

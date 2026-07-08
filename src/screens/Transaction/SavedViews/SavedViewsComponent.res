@@ -5,7 +5,11 @@ open SavedViewTypes
 let defaultViewName = "Default View"
 
 @react.component
-let make = (~version: UserInfoTypes.version=V1, ~entity: SavedViewTypes.entity=Payment) => {
+let make = (
+  ~version: UserInfoTypes.version=V1,
+  ~savedViewDataVersion: UserInfoTypes.version=version,
+  ~entity: SavedViewTypes.entity=Payment,
+) => {
   let showToast = ToastAdapter.useShowToast()
   let {updateExistingKeys, filterValue, reset, setfilterKeys} = React.useContext(
     FilterContext.filterContext,
@@ -16,15 +20,22 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: SavedViewTypes.entity=P
   let (currentlyEditingIndex, setCurrentlyEditingIndex) = React.useState(_ => None)
   let (isInternalUpdate, setIsInternalUpdate) = React.useState(_ => false)
 
-  let fetchSavedViewsHook = SavedViewsHooks.useFetchSavedViews(~entity, ~version)
+  let fetchSavedViewsHook = SavedViewsHooks.useFetchSavedViews(
+    ~entity,
+    ~version,
+    ~savedViewDataVersion,
+  )
   let fetchSavedViews = async () => {
     await fetchSavedViewsHook(~setSavedViews)
   }
 
   React.useEffect(() => {
+    setActiveViewName(_ => "")
+    setCurrentlyEditingIndex(_ => None)
+    setSavedViews(_ => [])
     fetchSavedViews()->ignore
     None
-  }, [])
+  }, (version, savedViewDataVersion))
 
   React.useEffect(() => {
     if !isInternalUpdate && savedViews->Array.length > 0 {
@@ -44,9 +55,11 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: SavedViewTypes.entity=P
           setActiveViewName(_ => "")
         }
       }
+    } else if !isInternalUpdate && activeViewName->isNonEmptyString {
+      setActiveViewName(_ => "")
     }
     None
-  }, (filterValue, savedViews, version, isInternalUpdate))
+  }, (filterValue, savedViews, version, savedViewDataVersion, isInternalUpdate))
 
   let showPopUp = PopUpState.useShowPopUp()
 
@@ -57,7 +70,11 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: SavedViewTypes.entity=P
     })
   }
 
-  let performRenameHook = SavedViewsHooks.useRenameSavedView(~entity, ~version, ~fetchSavedViews)
+  let performRenameHook = SavedViewsHooks.useRenameSavedView(
+    ~entity,
+    ~savedViewDataVersion,
+    ~fetchSavedViews,
+  )
   let performRename = async (view: SavedViewTypes.savedView, newName) => {
     await performRenameHook(view, newName, ~onSuccess=() => {
       activeViewName === view.view_name ? setActiveViewName(_ => newName) : ()
@@ -150,6 +167,7 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: SavedViewTypes.entity=P
       showModal=showSaveModal
       setShowModal=setShowSaveModal
       version
+      savedViewDataVersion
       entity
       onViewsUpdated={(_res, name) => {
         fetchSavedViews()->ignore

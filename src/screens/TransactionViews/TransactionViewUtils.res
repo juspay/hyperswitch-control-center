@@ -40,8 +40,6 @@ let refundsStatusFilterKey = (#refunds_status: OrderTypes.filter)->getValueFromF
 
 let disputeStatusFilterKey = (#dispute_status: OrderTypes.filter)->getValueFromFilterType
 
-let firstAttemptStatusFilterKey = firstAttemptFilterKey
-
 let getAdvancedPaymentFilterKeyForView = (view, ~defaultFilterKey) =>
   switch view {
   | Refunded => refundsStatusFilterKey
@@ -216,7 +214,7 @@ let getSankeyCountMetric = (dict, key) => dict->getFloat(key, 0.0)->Float.toInt
 let getSankeyRowCount = dict => dict->getFloat("count", dict->getFloat("payment_intent_count", 0.0))
 
 let getSankeyFirstAttempt = dict =>
-  switch dict->Dict.get("first_attempt") {
+  switch dict->Dict.get(firstAttemptFilterKey) {
   | Some(value) =>
     switch value->JSON.Decode.bool {
     | Some(isFirstAttempt) => isFirstAttempt
@@ -246,7 +244,7 @@ let getViewFilterValue = (view, obj, entity) => {
         obj,
         "dispute_status_with_count",
         disputedStatusValues,
-        "dispute_present,dispute_opened,dispute_challenged,dispute_lost,dispute_won,dispute_accepted,dispute_cancelled,dispute_expired",
+        disputedStatusValues->Array.joinWith(","),
       )
     | _ => ""
     }

@@ -2,18 +2,22 @@ open LogicUtils
 
 let maxViews = 5
 
+let primitiveJsonValueToString = jsonValue =>
+  switch jsonValue->JSON.Classify.classify {
+  | String(s) => Some(s)
+  | Number(n) => Some(n->Float.toString)
+  | Bool(b) => Some(b ? "true" : "false")
+  | _ => None
+  }
+
 let jsonValueToString = jsonValue => {
   switch jsonValue->JSON.Classify.classify {
-  | String(s) => s
-  | Number(n) => n->Float.toString
-  | Bool(b) => b ? "true" : "false"
   | Array(arr) => {
-      let strArr = arr->getStrArrayFromJsonArray
+      let strArr = arr->Belt.Array.keepMap(primitiveJsonValueToString)
       let sortedStrArr = strArr->Array.toSorted((a, b) => String.compare(a, b))
       "[" ++ sortedStrArr->Array.joinWith(",") ++ "]"
     }
-  | Null => ""
-  | _ => ""
+  | _ => jsonValue->primitiveJsonValueToString->Option.getOr("")
   }
 }
 
@@ -22,16 +26,10 @@ let stringFromFilterValue = (dict, key) => {
   ->Dict.get(key)
   ->Option.mapOr("", json =>
     switch json->JSON.Classify.classify {
-    | String(s) => s
-    | Number(n) => n->Float.toString
     | Array(arr) =>
       let ele = arr->getValueFromArray(0, JSON.Encode.null)
-      switch ele->JSON.Classify.classify {
-      | String(s) => s
-      | Number(n) => n->Float.toString
-      | _ => ""
-      }
-    | _ => ""
+      ele->primitiveJsonValueToString->Option.getOr("")
+    | _ => json->primitiveJsonValueToString->Option.getOr("")
     }
   )
 }
@@ -294,6 +292,12 @@ let buildViewOptions = (
 let savedViewsQueryParam = (entity: SavedViewTypes.entity) =>
   `keys=${entity->SavedViewTypes.entityToKey}`
 
+let savedViewDataVersionToString = (version: UserInfoTypes.version) =>
+  switch version {
+  | UserInfoTypes.V1 => "v1"
+  | UserInfoTypes.V2 => "v2"
+  }
+
 let buildActionPayload = (
   entity: SavedViewTypes.entity,
   action: SavedViewTypes.action,
@@ -319,39 +323,14 @@ let buildDeletePayload = (entity: SavedViewTypes.entity, viewId) => {
   buildActionPayload(entity, Delete, dataDict)
 }
 
-let buildRenamePayload = (
+let buildSavedViewDataDict = (
   entity: SavedViewTypes.entity,
-  view: SavedViewTypes.savedView,
-  newName,
-  ~version,
-) => {
-  let versionStr = switch version {
-  | UserInfoTypes.V1 => "v1"
-  | UserInfoTypes.V2 => "v2"
-  }
-  let dataDict =
-    [
-      ("view_id", view.view_id->JSON.Encode.string),
-      ("view_name", newName->JSON.Encode.string),
-      ("filters", view.filters),
-      ("entity", entity->SavedViewTypes.entityToString->JSON.Encode.string),
-      ("version", versionStr->JSON.Encode.string),
-    ]->Dict.fromArray
-  buildActionPayload(entity, Update, dataDict)
-}
-
-let buildSavePayload = (
-  entity: SavedViewTypes.entity,
-  action: SavedViewTypes.action,
   name,
   filters: JSON.t,
   viewId: option<string>,
-  ~version,
+  ~savedViewDataVersion,
 ) => {
-  let versionStr = switch version {
-  | UserInfoTypes.V1 => "v1"
-  | UserInfoTypes.V2 => "v2"
-  }
+  let versionStr = savedViewDataVersion->savedViewDataVersionToString
   let dataDict =
     [
       ("view_name", name->JSON.Encode.string),
@@ -363,6 +342,34 @@ let buildSavePayload = (
   | Some(id) => dataDict->Dict.set("view_id", id->JSON.Encode.string)
   | None => ()
   }
+  dataDict
+}
+
+let buildRenamePayload = (
+  entity: SavedViewTypes.entity,
+  view: SavedViewTypes.savedView,
+  newName,
+  ~savedViewDataVersion,
+) => {
+  let dataDict = buildSavedViewDataDict(
+    entity,
+    newName,
+    view.filters,
+    Some(view.view_id),
+    ~savedViewDataVersion,
+  )
+  buildActionPayload(entity, Update, dataDict)
+}
+
+let buildSavePayload = (
+  entity: SavedViewTypes.entity,
+  action: SavedViewTypes.action,
+  name,
+  filters: JSON.t,
+  viewId: option<string>,
+  ~savedViewDataVersion,
+) => {
+  let dataDict = buildSavedViewDataDict(entity, name, filters, viewId, ~savedViewDataVersion)
   buildActionPayload(entity, action, dataDict)
 }
 
@@ -400,6 +407,7 @@ let itemToSavedView = json => {
     view_id: dict->getString("view_id", ""),
     view_name: dict->getString("view_name", ""),
     entity: dataDict->getString("entity", ""),
+    version: dataDict->getString("version", "v1")->UserInfoUtils.versionMapper,
     filters: dataDict->getJsonObjectFromDict("filters")->filterNullValues,
     created_at: dict->getString("created_at", ""),
     updated_at: dict->getString("updated_at", ""),

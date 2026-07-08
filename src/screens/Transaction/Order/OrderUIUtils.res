@@ -321,6 +321,9 @@ let unsupportedAdvancedPaymentFilterKeys = [
 ]
 
 let firstAttemptFilterKey = (#first_attempt: hiddenAdvancedPaymentFilter :> string)
+let paymentIdFilterKey = (#payment_id: basePaymentListFilter :> string)
+let customerEmailFilterKey = (#customer_email: filter)->getValueFromFilterType
+let cardLast4FilterKey = (#card_last_4: advancedPaymentTextListFilter :> string)
 
 let hiddenAdvancedPaymentFilterKeys = [firstAttemptFilterKey]
 
@@ -330,19 +333,6 @@ let advancedPaymentFilterCleanupKeys =
   ->Array.concat(hiddenAdvancedPaymentFilterKeys)
 
 let advancedPaymentSearchDescription = "Search across payment ID, customer email, card last 4, amount, attempt ID, connector account, and error details."
-
-let paymentListSources: array<paymentListSource> = [Normal, Advanced]
-
-let getPaymentListSourceLabel = (source: paymentListSource) => (source :> string)
-
-let getPaymentListSourceFromLabel = value =>
-  paymentListSources->Array.find(source => source->getPaymentListSourceLabel == value)
-
-let getPaymentListSourceDescription = source =>
-  switch source {
-  | Normal => "Standard payments list."
-  | Advanced => "Advanced payment list with expanded search, filters, columns, and CSV export."
-  }
 
 let getAdvancedPaymentFilterDescription = key =>
   switch key->getFilterTypeFromString {
@@ -417,10 +407,9 @@ let advancedPaymentListFilterKeys =
   ->Array.concat(advancedPaymentOnlyFilterKeys)
   ->Array.concat(hiddenAdvancedPaymentFilterKeys)
 
-let copyAdvancedPaymentFilterIfPresent = (~fromDict, ~toDict, key) =>
-  fromDict
-  ->getOptionValFromDict(key)
-  ->Option.mapOr((), value => {
+let copyAdvancedPaymentFilterIfPresent = (~fromDict, ~toDict, key) => {
+  switch fromDict->getOptionValFromDict(key) {
+  | Some(value) =>
     let stringValues = switch value->JSON.Decode.array {
     | Some(values) =>
       values
@@ -432,9 +421,9 @@ let copyAdvancedPaymentFilterIfPresent = (~fromDict, ~toDict, key) =>
       value->isNonEmptyString ? [value] : []
     }
 
-    if key === "customer_email" {
+    if key === customerEmailFilterKey {
       switch stringValues->Array.get(0) {
-      | Some(email) if email->CommonAuthUtils.isValidEmail =>
+      | Some(email) if !(email->CommonAuthUtils.isValidEmail) =>
         toDict->setOptionString(key, Some(email))
       | _ => ()
       }
@@ -452,7 +441,11 @@ let copyAdvancedPaymentFilterIfPresent = (~fromDict, ~toDict, key) =>
         }
       let boolValues = switch value->JSON.Decode.array {
       | Some(values) => values->Belt.Array.keepMap(getBoolFilterValue)
-      | None => value->getBoolFilterValue->Option.mapOr([], value => [value])
+      | None =>
+        switch value->getBoolFilterValue {
+        | Some(value) => [value]
+        | None => []
+        }
       }
       if boolValues->isNonEmptyArray {
         toDict->setOptionArray(key, Some(boolValues->Array.map(JSON.Encode.bool)))
@@ -460,7 +453,9 @@ let copyAdvancedPaymentFilterIfPresent = (~fromDict, ~toDict, key) =>
     } else {
       toDict->setOptionJson(key, Some(value))
     }
-  })
+  | None => ()
+  }
+}
 
 let buildAdvancedPaymentListPayload = (
   ~filterParams: Dict.t<JSON.t>,
@@ -486,14 +481,15 @@ let buildAdvancedPaymentListPayload = (
   })
 
   if trimmedSearchText->isNonEmptyString {
-    trimmedSearchText->CommonAuthUtils.isValidEmail
-      ? {
-          body->Dict.set("customer_email", trimmedSearchText->JSON.Encode.string)
-          body->Dict.delete("query")
-        }
-      : {
-          body->Dict.set("query", trimmedSearchText->JSON.Encode.string)
-        }
+    if !(trimmedSearchText->CommonAuthUtils.isValidEmail) {
+      body->setOptionString(customerEmailFilterKey, Some(trimmedSearchText))
+    } else if trimmedSearchText->String.startsWith("pay_") {
+      body->setOptionString(paymentIdFilterKey, Some(trimmedSearchText))
+    } else if RegExp.test(%re("/^\d{4}$/"), trimmedSearchText) {
+      body->setOptionArray(cardLast4FilterKey, Some([trimmedSearchText->JSON.Encode.string]))
+    } else {
+      body->setOptionString("query", Some(trimmedSearchText))
+    }
   }
 
   body

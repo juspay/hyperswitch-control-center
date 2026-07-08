@@ -32,6 +32,10 @@ let make = (~previewOnly=false) => {
   )
   let isAdvancedSource = source === OrderTypes.Advanced && advancedPaymentListEnabled
   let tableTitle = isAdvancedSource ? advancedOrdersTableTitle : ordersTableTitle
+  let savedViewDataVersion = isAdvancedSource ? UserInfoTypes.V2 : UserInfoTypes.V1
+  let ompViewPortalName = `${tableTitle}OMPView`
+  let portalNodes = PortalState.portalNodes->Recoil.useRecoilValueFromAtom
+  let hasOmpViewPortal = portalNodes->Dict.get(ompViewPortalName)->Option.isSome
 
   let fetchOrdersWithSource = (~payload, ~version, ~signal) => {
     isAdvancedSource
@@ -270,10 +274,21 @@ let make = (~previewOnly=false) => {
         placeholder=searchPlaceholder setSearchVal=setSearchText searchVal=searchText
       />
     let searchBarWithInfo = isAdvancedSource
-      ? <ToolTip
-          description=advancedPaymentSearchDescription toolTipFor=searchBar toolTipPosition=Top
-        />
+      ? <div className="flex items-center gap-2">
+          {searchBar}
+          <ToolTip
+            description=advancedPaymentSearchDescription
+            toolTipFor={<span className="inline-flex h-10 items-center text-nd_gray-500">
+              <Icon name="nd-info-circle" size=16 />
+            </span>}
+            toolTipPosition=Top
+          />
+        </div>
       : searchBar
+
+    let savedViewsAction = devSavedViews
+      ? <SavedViewsComponent version savedViewDataVersion entity=SavedViewTypes.Payment />
+      : React.null
 
     <RemoteTableFilters
       title=tableTitle
@@ -294,16 +309,14 @@ let make = (~previewOnly=false) => {
       setOffset
       submitInputOnEnter=true
       customLeftView={<div className="flex flex-col gap-1"> {searchBarWithInfo} </div>}
-      customFilterActions={devSavedViews
-        ? <SavedViewsComponent version entity=SavedViewTypes.Payment />
-        : React.null}
+      customFilterActions=savedViewsAction
       entityName={switch version {
       | V1 => V1(ORDER_FILTERS)
       | V2 => V2(V2_ORDER_FILTERS)
       }}
       version
     />
-  }, (searchText, version, tableTitle, isAdvancedSource, devSavedViews))
+  }, (searchText, version, tableTitle, isAdvancedSource, savedViewDataVersion, devSavedViews))
 
   let downloadData = () => {
     DownloadUtils.downloadTableAsCsv(
@@ -378,14 +391,6 @@ let make = (~previewOnly=false) => {
         <PageUtils.PageHeading title="Payment Operations" subTitle="" customTitleStyle />
         <div
           className="flex flex-nowrap justify-end gap-2 items-center whitespace-nowrap overflow-x-auto no-scrollbar">
-          <Portal to={`${tableTitle}OMPView`}>
-            <OMPSwitchHelper.OMPViews
-              views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
-              selectedEntity={transactionEntity}
-              onChange={updateTransactionEntity}
-              entityMapper=UserInfoUtils.transactionEntityMapper
-            />
-          </Portal>
           <div className="shrink-0">
             <PaymentListSourceControls.SourceTabs
               source setSource advancedEnabled=advancedPaymentListEnabled
@@ -412,6 +417,16 @@ let make = (~previewOnly=false) => {
           <div className="flex-1"> {filtersUI} </div>
         </RenderIf>
       </div>
+      <RenderIf condition={hasOmpViewPortal}>
+        <Portal to=ompViewPortalName>
+          <OMPSwitchHelper.OMPViews
+            views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+            selectedEntity={transactionEntity}
+            onChange={updateTransactionEntity}
+            entityMapper=UserInfoUtils.transactionEntityMapper
+          />
+        </Portal>
+      </RenderIf>
       <PageLoaderWrapper screenState customUI>
         <LoadedTableWithCustomColumns
           title=tableTitle

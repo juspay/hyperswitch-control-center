@@ -164,13 +164,13 @@ let make = (
   ~setShowModal,
   ~onViewsUpdated: (JSON.t, option<string>) => unit,
   ~version: UserInfoTypes.version=V1,
+  ~savedViewDataVersion: UserInfoTypes.version=version,
   ~entity: SavedViewTypes.entity,
 ) => {
   let (viewName, setViewName) = React.useState(_ => "")
   let (selectedViewToOverwrite, setSelectedViewToOverwrite) = React.useState(_ => "")
   let (includeDate, setIncludeDate) = React.useState(_ => false)
   let (savedViews: array<SavedViewTypes.savedView>, setSavedViews) = React.useState(_ => [])
-  let (viewCount, setViewCount) = React.useState(_ => 0)
 
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let {values: formValues} = ReactFinalForm.useFormState(
@@ -211,19 +211,24 @@ let make = (
     }
   }, (mergedFilters, version))
 
-  let fetchSavedViewsHook = SavedViewsHooks.useFetchSavedViews(~entity, ~version)
+  let fetchSavedViewsHook = SavedViewsHooks.useFetchSavedViews(
+    ~entity,
+    ~version,
+    ~savedViewDataVersion,
+  )
   let fetchSavedViews = async () => {
-    await fetchSavedViewsHook(~setSavedViews, ~setViewCount)
+    await fetchSavedViewsHook(~setSavedViews)
   }
 
   React.useEffect(() => {
     if showModal {
       setViewName(_ => "")
       setSelectedViewToOverwrite(_ => "")
+      setSavedViews(_ => [])
       fetchSavedViews()->ignore
     }
     None
-  }, [showModal])
+  }, (showModal, version, savedViewDataVersion))
 
   let buildFilters = () => {
     let filtersDict = mergedFilters->Dict.copy
@@ -236,12 +241,17 @@ let make = (
     }
     filtersDict->Dict.delete("amount_filter")
     SavedViewsUtils.foldAmountOption(filtersDict)
+    OrderUIUtils.copyAdvancedPaymentFilterIfPresent(
+      ~fromDict=filtersDict,
+      ~toDict=filtersDict,
+      OrderUIUtils.firstAttemptFilterKey,
+    )
     filtersDict->JSON.Encode.object
   }
 
   let handleCreateHook = SavedViewsHooks.useCreateSavedView(
     ~entity,
-    ~version,
+    ~savedViewDataVersion,
     ~onViewsUpdated,
     ~setShowModal,
   )
@@ -253,7 +263,7 @@ let make = (
 
   let handleOverwriteHook = SavedViewsHooks.useOverwriteSavedView(
     ~entity,
-    ~version,
+    ~savedViewDataVersion,
     ~onViewsUpdated,
     ~setShowModal,
     ~savedViews,
@@ -268,7 +278,7 @@ let make = (
   let viewNameExists =
     trimmedViewName->isNonEmptyString &&
       savedViews->Array.some(view => view.view_name === trimmedViewName)
-  let viewLimitReached = viewCount >= SavedViewsUtils.maxViews
+  let viewLimitReached = savedViews->Array.length >= SavedViewsUtils.maxViews
 
   let tabs = [
     {
@@ -335,7 +345,7 @@ let make = (
       </div>
       <div
         key={selectedTabIndex->Int.toString}
-        className="p-6 pt-2 pb-8 min-h-[160px] animate-fadeIn animate-slideUp">
+        className="p-6 pt-2 pb-8 min-h-40 animate-fadeIn animate-slideUp">
         {switch tabs->Array.get(selectedTabIndex) {
         | Some(tabItem) => tabItem.render()
         | None => React.null
