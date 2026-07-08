@@ -247,6 +247,7 @@ let connectors = (
   ~isSurchargeProcessor,
   ~userHasResourceAccess,
   ~isCurrentMerchantPlatform,
+  ~isCurrentMerchantConnected,
 ) => {
   let connectorLinkArray = if isCurrentMerchantPlatform {
     let links = []
@@ -283,7 +284,7 @@ let connectors = (
       links->Array.push(surchargeProcessor(~userHasResourceAccess))->ignore
     }
 
-    if isVaultProcessor {
+    if isVaultProcessor && !isCurrentMerchantConnected {
       links->Array.push(vaultProcessor(~userHasResourceAccess))->ignore
     }
     links
