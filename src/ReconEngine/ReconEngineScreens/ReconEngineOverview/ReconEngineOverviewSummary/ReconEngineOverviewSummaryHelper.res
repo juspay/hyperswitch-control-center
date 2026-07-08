@@ -217,8 +217,14 @@ module ConnectedStatCard = {
   let make = (
     ~title: connectedStatCardsTitle,
     ~value: valueType,
+    ~cardType: statCardType=Info,
     ~onConnectedStatCardClick=() => (),
   ) => {
+    let textColorClass = switch cardType {
+    | Info => "text-nd_gray-700"
+    | Attention => "text-nd_red-500"
+    }
+
     <div
       onClick={_ => onConnectedStatCardClick()}
       className="group px-4 py-3.5 transition-colors duration-200 cursor-pointer bg-white hover:bg-nd_gray-50 border-r border-b border-nd_gray-200 last:border-r-0">
@@ -229,7 +235,7 @@ module ConnectedStatCard = {
         </p>
       </div>
       <div className="flex flex-col gap-y-2.5 items-start mt-1.5">
-        <p className={`${heading.sm.semibold} min-w-0 max-w-full text-nd_gray-700`}>
+        <p className={`${heading.sm.semibold} min-w-0 max-w-full ${textColorClass}`}>
           {switch value {
           | Percentage(v) => <PercentageCell value=v />
           | Float(v) => <FloatCell value=v />
