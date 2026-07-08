@@ -407,6 +407,15 @@ let useGetURL = () => {
           }
         | _ => `payments/aggregate`
         }
+      | MANUAL_STATUS_UPDATE =>
+        switch methodType {
+        | Post =>
+          switch id {
+          | Some(payment_id) => `payments/${payment_id}/manual-status-update`
+          | None => ""
+          }
+        | _ => ""
+        }
       | REFUNDS =>
         switch methodType {
         | Get =>
@@ -1236,6 +1245,16 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #OVERVIEW_RULES_TIME_SERIES =>
+          switch methodType {
+          | Get =>
+            switch queryParameters {
+            | Some(queryParams) =>
+              `${reconBaseURL}/overview/transactions/time_series?${queryParams}`
+            | None => `${reconBaseURL}/overview/transactions/time_series`
+            }
+          | _ => ""
+          }
         | #NONE => ""
         }
 
@@ -1279,6 +1298,7 @@ let useGetURL = () => {
           | None => `${userUrl}/connect_account`
           }
         | #SIGNINV2 => `${userUrl}/v2/signin`
+        | #LAUNCH_SAGE => `${userUrl}/launch_sage`
         | #CHANGE_PASSWORD => `${userUrl}/change_password`
         | #SIGNUP
         | #SIGNOUT

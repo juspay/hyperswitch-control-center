@@ -124,5 +124,56 @@ type statCardData = {
   statCardIcon: Button.iconType,
   statCardDescription: string,
   statCardType: statCardType,
-  onStatCardClick: unit => unit,
+  statCardPath: option<string>,
+}
+
+@unboxed
+type connectedStatCardsTitle =
+  | @as("Auto Match Rate") AutoMatchRate
+  | @as("Missing") MissingTransactions
+  | @as("Failed Transformations") FailedTransformations
+  | @as("Failed Ingestions") FailedIngestions
+  | @as("Manual Corrections") ManualCorrections
+
+type connectedStatCardData = {
+  connectedStatCardTitle: connectedStatCardsTitle,
+  connectedStatCardValue: valueType,
+  connectedStatCardPath: option<string>,
+}
+
+type overviewChartGranularity =
+  | @as("hour") Hour
+  | @as("day") Day
+  | @as("week") Week
+  | @as("month") Month
+
+type overviewChartPoint = {
+  label: string,
+  tooltipLabel: string,
+  totalCount: float,
+  matchedCount: float,
+  exceptionCount: float,
+  expectedCount: float,
+  missingCount: float,
+  matchRate: float,
+}
+
+type exceptionAgingData = {
+  label: string,
+  color: string,
+  total: int,
+}
+
+type exceptionTriageItem = {
+  label: string,
+  total: int,
+}
+
+type triageTab = Transactions | Staging
+
+type ruleActivityItem = {
+  overview_rule: ReconEngineTypes.overviewRulesResponse,
+  volume: int,
+  exceptions: int,
+  matchRate: float,
 }

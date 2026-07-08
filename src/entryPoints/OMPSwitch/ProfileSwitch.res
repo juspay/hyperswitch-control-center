@@ -153,6 +153,7 @@ let make = () => {
   let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
     ThemeProvider.themeContext,
   )
+  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
 
   let widthClass = isMobileView ? "w-full" : "md:w-[14rem] md:max-w-[20rem]"
   let roundedClass = isMobileView ? "rounded-none" : "rounded-md"
@@ -227,7 +228,9 @@ let make = () => {
       baseComponent={<ListBaseComp
         user={#Profile} heading="Profile" subHeading={currentOMPName(profileList, profileId)} arrow
       />}
-      bottomComponent={<AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />}
+      bottomComponent={!isCurrentMerchantPlatform
+        ? <AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />
+        : React.null}
       customDropdownOuterClass="!border-none "
       fullLength=true
       toggleChevronState

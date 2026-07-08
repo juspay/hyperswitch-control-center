@@ -4,6 +4,7 @@ let make = () => {
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let vaultPspTokenizationTabElement = {
     <div className="flex gap-2 items-center">
@@ -26,25 +27,29 @@ let make = () => {
     None
   }, [])
 
-  let getTabName = index => index == 0 ? "PSP Tokenisation" : "Network Tokenisation"
-
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
-    [
-      {
-        title: "",
-        tabElement: vaultPspTokenizationTabElement,
-        renderContent: () => {
-          <VaultProcessorList />
-        },
+    let pspTokenizationTab = {
+      title: "",
+      tabElement: vaultPspTokenizationTabElement,
+      renderContent: () => {
+        <VaultProcessorList />
       },
-      {
-        title: "",
-        tabElement: vaultNetworkTokenizationTabElement,
-        renderContent: () => <VaultNetworkTokenisation />,
-      },
-    ]
-  }, [])
+    }
+    let networkTokenizationTab = {
+      title: "",
+      tabElement: vaultNetworkTokenizationTabElement,
+      renderContent: () => <VaultNetworkTokenisation />,
+    }
+    featureFlagDetails.vaultPspTokenization
+      ? [pspTokenizationTab, networkTokenizationTab]
+      : [networkTokenizationTab]
+  }, [featureFlagDetails.vaultPspTokenization])
+
+  let getTabName = index =>
+    featureFlagDetails.vaultPspTokenization && index == 0
+      ? "PSP Tokenisation"
+      : "Network Tokenisation"
 
   <div className="flex flex-col gap-12">
     <PageUtils.PageHeading
