@@ -4,6 +4,8 @@ type checkBoxProps = {
   showCheckBox: bool,
   selectedData: array<JSON.t>,
   setSelectedData: (array<JSON.t> => array<JSON.t>) => unit,
+  clearSelectionOnPartialSelectAll?: bool,
+  expandCheckboxClickArea?: bool,
 }
 let checkBoxPropDefaultVal: checkBoxProps
 let sortAtom: Recoil.recoilAtom<Dict.t<sortOb>>

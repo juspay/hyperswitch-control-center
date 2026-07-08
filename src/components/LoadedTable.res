@@ -10,6 +10,8 @@ type checkBoxProps = {
   showCheckBox: bool,
   selectedData: array<JSON.t>,
   setSelectedData: (array<JSON.t> => array<JSON.t>) => unit,
+  clearSelectionOnPartialSelectAll?: bool,
+  expandCheckboxClickArea?: bool,
 }
 
 let checkBoxPropDefaultVal: checkBoxProps = {
@@ -564,6 +566,7 @@ let make = (
   }, [selectAllCheckBox])
 
   let sNoArr = Dict.get(columnFilter, "s_no")->Option.getOr([])
+  let expandCheckboxClickArea = checkBoxProps.expandCheckboxClickArea->Option.getOr(false)
   // filtering for SNO
   let nullableRows = filteredData->Array.mapWithIndex((nullableItem, index) => {
     let actualRows = switch nullableItem->Nullable.toOption {
@@ -617,17 +620,24 @@ let make = (
           checkBoxProps.selectedData->Array.findIndex(item =>
             item === nullableItem->Identity.nullableOfAnyTypeToJsonType
           )
+        let checkboxCell = if expandCheckboxClickArea {
+          <div
+            className="-mx-8 -my-3 flex cursor-pointer items-center px-8 py-3"
+            onClick={ev => {
+              ev->ReactEvent.Mouse.stopPropagation
+              setIsSelected(selectedRowIndex === -1)
+            }}>
+            <CheckBoxIconAdapter isSelected={selectedRowIndex !== -1} checkboxDimension="h-4 w-4" />
+          </div>
+        } else {
+          <div onClick={ev => ev->ReactEvent.Mouse.stopPropagation}>
+            <CheckBoxIconAdapter
+              isSelected={selectedRowIndex !== -1} setIsSelected checkboxDimension="h-4 w-4"
+            />
+          </div>
+        }
         actualRows
-        ->Array.unshift(
-          CustomCell(
-            <div onClick={ev => ev->ReactEvent.Mouse.stopPropagation}>
-              <CheckBoxIconAdapter
-                isSelected={selectedRowIndex !== -1} setIsSelected checkboxDimension="h-4 w-4"
-              />
-            </div>,
-            (selectedRowIndex !== -1)->getStringFromBool,
-          ),
-        )
+        ->Array.unshift(CustomCell(checkboxCell, (selectedRowIndex !== -1)->getStringFromBool))
         ->ignore
       }
     }
@@ -646,6 +656,8 @@ let make = (
   let paginatedData =
     filteredData->Array.slice(~start=offsetVal, ~end={offsetVal + localResultsPerPage})
   let rows = rows->Array.slice(~start=offsetVal, ~end={offsetVal + localResultsPerPage})
+  let clearSelectionOnPartialSelectAll =
+    checkBoxProps.clearSelectionOnPartialSelectAll->Option.getOr(false)
 
   let handleRowClick = React.useCallback(index => {
     let actualVal = switch filteredData[index] {
@@ -814,6 +826,7 @@ let make = (
                 customFilterRowStyle
                 ?selectAllCheckBox
                 setSelectAllCheckBox
+                clearSelectionOnPartialSelectAll
                 isEllipsisTextRelative
                 customMoneyStyle
                 ellipseClass

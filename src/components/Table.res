@@ -348,6 +348,7 @@ module TableHeadingCell = {
     ~filterDropdownMaxHeight=?,
     ~selectAllCheckBox: option<multipleSelectRows>,
     ~setSelectAllCheckBox,
+    ~clearSelectionOnPartialSelectAll=false,
     ~isFrozen=false,
     ~lastHeadingClass="",
     ~fixLastCol=false,
@@ -382,7 +383,9 @@ module TableHeadingCell = {
       switch setSelectAllCheckBox {
       | Some(fn) =>
         fn(_ => {
-          if isAllSelected {
+          if clearSelectionOnPartialSelectAll && selectAllCheckBox === Some(PARTIAL) {
+            None
+          } else if isAllSelected {
             Some(ALL)
           } else {
             None
@@ -571,6 +574,7 @@ module TableHeadingRow = {
     ~filterDropdownClass=?,
     ~selectAllCheckBox,
     ~setSelectAllCheckBox,
+    ~clearSelectionOnPartialSelectAll=false,
     ~isFrozen=false,
     ~lastHeadingClass="",
     ~fixLastCol=false,
@@ -606,6 +610,7 @@ module TableHeadingRow = {
               ?filterDropdownClass
               selectAllCheckBox
               setSelectAllCheckBox
+              clearSelectionOnPartialSelectAll
               isFrozen
               lastHeadingClass
               fixLastCol
@@ -671,6 +676,7 @@ let make = (
   ~customFilterRowStyle="",
   ~selectAllCheckBox=?,
   ~setSelectAllCheckBox=?,
+  ~clearSelectionOnPartialSelectAll=false,
   ~isEllipsisTextRelative=true,
   ~customMoneyStyle="",
   ~ellipseClass="",
@@ -829,6 +835,7 @@ let make = (
       ?filterDropdownClass
       selectAllCheckBox
       setSelectAllCheckBox
+      clearSelectionOnPartialSelectAll
       isFrozen
       lastHeadingClass
       fixLastCol

@@ -9,6 +9,15 @@ let paymentViewsArray: array<viewTypes> = [
   RequiresCapture,
 ]
 
+let advancedPaymentNewViewsArray: array<viewTypes> = [
+  Refunded,
+  FirstAttemptSuccess,
+  RetrySuccess,
+  Disputed,
+]
+
+let advancedPaymentViewsArray = paymentViewsArray->Array.concat(advancedPaymentNewViewsArray)
+
 let refundViewsArray: array<viewTypes> = [All, Succeeded, Failed, Pending]
 
 let disputeViewsArray: array<viewTypes> = [All, Succeeded, Failed, Pending]
@@ -67,9 +76,24 @@ let getViewsDisplayName = (view: viewTypes) => {
   | Expired => "Expired"
   | Reversed => "Reversed"
   | RequiresCapture => "Requires Capture"
+  | FirstAttemptSuccess => "First Attempt Success"
+  | RetrySuccess => "Retry Success"
+  | Refunded => "Refunded"
+  | Disputed => "Disputed"
   | _ => ""
   }
 }
+
+let isAdvancedPaymentOnlyView = view => advancedPaymentNewViewsArray->Array.includes(view)
+
+let getAdvancedPaymentNewCardDescription = view =>
+  switch view {
+  | Refunded => "Payments that have partial or full refunds."
+  | Disputed => "Payments that have a dispute state present."
+  | FirstAttemptSuccess => "Succeeded payments completed on the first attempt."
+  | RetrySuccess => "Succeeded payments completed after more than one attempt."
+  | _ => ""
+  }
 
 let getViewTypeFromString = (view, entity) => {
   switch entity {
