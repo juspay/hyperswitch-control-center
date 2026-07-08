@@ -225,6 +225,7 @@ let supportedFileTypes: array<ReconEngineDataSourcesTypes.supportedFileExtension
   Csv,
   Ext,
   Xlsx,
+  Txt,
 ]
 
 let isSupportedFileType = (fileName: string): bool => {

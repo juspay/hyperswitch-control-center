@@ -55,7 +55,7 @@ let make = () => {
       let enhancedFilterValueJson = Dict.copy(filterValueJson)
       let statusFilter = filterValueJson->getArrayFromDict("status", [])
       let statusList = getProcessingEntryStatusValueFromStatusList([NeedsManualReview])
-      if statusFilter->Array.length == 0 {
+      if statusFilter->isEmptyArray {
         enhancedFilterValueJson->Dict.set("status", statusList->getJsonFromArrayOfString)
       }
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
@@ -127,7 +127,7 @@ let make = () => {
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-4">
         <div className="flex-shrink-0"> {topFilterUi} </div>
-        <RenderIf condition={stagingData->Array.length == 0}>
+        <RenderIf condition={stagingData->isEmptyArray}>
           <div className="h-40-vh flex flex-col justify-center items-center gap-2">
             <p className={`${heading.sm.semibold} text-gray-800`}>
               {"No exceptions to show."->React.string}
@@ -137,7 +137,7 @@ let make = () => {
             </p>
           </div>
         </RenderIf>
-        <RenderIf condition={stagingData->Array.length > 0}>
+        <RenderIf condition={stagingData->isNonEmptyArray}>
           <LoadedTable
             title="Transformed Entries"
             hideTitle=true

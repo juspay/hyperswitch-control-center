@@ -36,10 +36,10 @@ type subHeaderType =
   | CreditAmount
 
 type reconData = {
-  inAmount: string,
-  outAmount: string,
-  inTxns: string,
-  outTxns: string,
+  inAmount: balanceType,
+  outAmount: balanceType,
+  inTxns: int,
+  outTxns: int,
 }
 
 type reconStatusData = {
@@ -96,8 +96,12 @@ type viewType =
   | Graph
   | Table
 
-type seriesType =
-  ReconciledSeriesType | MismatchedSeriesType | ExpectedSeriesType | UnknownSeriesType
+type reconciliationSeriesType =
+  | MatchedSeries
+  | ExceptionSeries
+  | ExpectedSeries
+  | MissingSeries
+  | UnknownReconciliationSeriesType
 
 type valueType =
   | Percentage(float)
@@ -117,6 +121,7 @@ type statCardsTitle =
   | @as("Open Exceptions") OpenExceptions
   | @as("Value at Risk") ValueAtRisk
   | @as("Expected Value") ExpectedValue
+  | @as("Matched Amount") MatchedAmountValue
 
 type statCardData = {
   statCardTitle: statCardsTitle,
@@ -134,10 +139,16 @@ type connectedStatCardsTitle =
   | @as("Failed Transformations") FailedTransformations
   | @as("Failed Ingestions") FailedIngestions
   | @as("Manual Corrections") ManualCorrections
+  | @as("Match Rate") MatchRate
+  | @as("Open Exceptions") OpenExceptions
+  | @as("Value at Risk") ValueAtRisk
+  | @as("Expected Value") ExpectedValue
+  | @as("Matched Amount") MatchedAmountValue
 
 type connectedStatCardData = {
   connectedStatCardTitle: connectedStatCardsTitle,
   connectedStatCardValue: valueType,
+  connectedStatCardType: statCardType,
   connectedStatCardPath: option<string>,
 }
 
@@ -155,5 +166,25 @@ type overviewChartPoint = {
   exceptionCount: float,
   expectedCount: float,
   missingCount: float,
+  matchRate: float,
+}
+
+type exceptionAgingData = {
+  label: string,
+  color: string,
+  total: int,
+}
+
+type exceptionTriageItem = {
+  label: string,
+  total: int,
+}
+
+type triageTab = Transactions | Staging
+
+type ruleActivityItem = {
+  overview_rule: ReconEngineTypes.overviewRulesResponse,
+  volume: int,
+  exceptions: int,
   matchRate: float,
 }
