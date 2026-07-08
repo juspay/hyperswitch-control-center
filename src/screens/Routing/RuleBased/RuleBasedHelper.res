@@ -156,16 +156,20 @@ module OperatorInput = {
     let valueType =
       ReactFinalForm.useField(`${prefix}.value.type`).input.value->getStringFromJson("")
     let choices = operatorChoicesForLhs(lhs)
-    let options =
-      choices->Array.map((c): SelectBox.dropdownOption => {label: c.label, value: c.selectValue})
+    let options = choices->Array.map((c): SelectBox.dropdownOption => {
+      label: c.label,
+      value: (c.selectValue :> string),
+    })
     let comparison = comparisonInput.value->getStringFromJson("")
     let selectValue = selectedOperatorValue(~choices, ~comparison, ~valueType)
 
     let dropdownInput = {
       ...comparisonInput,
-      value: selectValue->JSON.Encode.string,
+      value: (selectValue :> string)->JSON.Encode.string,
       onChange: ev =>
-        switch choices->Array.find(c => c.selectValue === ev->Identity.formReactEventToString) {
+        switch choices->Array.find(c =>
+          (c.selectValue :> string) === ev->Identity.formReactEventToString
+        ) {
         | Some(c) =>
           comparisonInput.onChange(c.comparison->operatorToBEKey->Identity.stringToFormReactEvent)
           valueInput.onChange(c.valueVariant->Identity.anyTypeToReactEvent)
