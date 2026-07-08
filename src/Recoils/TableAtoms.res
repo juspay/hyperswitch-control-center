@@ -6,6 +6,11 @@ let payoutsMapDefaultCols = Recoil.atom("payoutsMapDefaultCols", PayoutsEntity.d
 
 let ordersMapDefaultCols = Recoil.atom("ordersMapDefaultCols", OrderEntity.defaultColumns)
 
+let ordersAdvancedMapDefaultCols = Recoil.atom(
+  "ordersAdvancedMapDefaultCols",
+  OrderEntity.openSearchDefaultColumns,
+)
+
 let disputesMapDefaultCols = Recoil.atom("disputesMapDefaultCols", DisputesEntity.defaultColumns)
 
 let apiDefaultCols = Recoil.atom("hyperSwitchApiDefaultCols", DeveloperUtils.defaultColumns)

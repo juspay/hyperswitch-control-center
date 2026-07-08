@@ -70,7 +70,9 @@ let make = () => {
       ...reconRulesList->Array.map(ruleDetails => {
         title: ruleDetails.rule_name,
         renderContent: () =>
-          <FilterContext key="recon-engine-overview-details" index="recon-engine-overview-details">
+          <FilterContext
+            key={`recon-engine-overview-details-${ruleDetails.rule_id}`}
+            index={`recon-engine-overview-details-${ruleDetails.rule_id}`}>
             <ReconEngineOverviewDetails ruleDetails />
           </FilterContext>,
       }),
