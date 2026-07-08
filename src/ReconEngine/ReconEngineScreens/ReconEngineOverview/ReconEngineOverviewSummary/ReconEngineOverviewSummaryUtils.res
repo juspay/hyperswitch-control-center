@@ -1075,6 +1075,8 @@ let getConnectedStatCards = (
   ~failedTransformationHistory: array<transformationHistoryType>,
   ~failedIngestionHistory: array<ingestionHistoryType>,
 ) => {
+  open GlobalVars
+
   let totalCount = getTotalCount(~overviewRules)
   let autoMatchedCount = getAutoMatchCount(~overviewRules)
   let manualCorrectionsCount = getManualCorrectionsCount(~overviewRules)
@@ -1093,23 +1095,19 @@ let getConnectedStatCards = (
       connectedStatCardTitle: FailedIngestions,
       connectedStatCardValue: Number(failedIngestionHistory->Array.length),
       connectedStatCardType: Info,
-      connectedStatCardPath: Some(GlobalVars.appendDashboardPath(~url="v1/recon-engine/sources")),
+      connectedStatCardPath: Some(appendDashboardPath(~url="v1/recon-engine/sources")),
     },
     {
       connectedStatCardTitle: MissingTransactions,
       connectedStatCardValue: OutOf(missingCount, totalCount),
       connectedStatCardType: Info,
-      connectedStatCardPath: Some(
-        GlobalVars.appendDashboardPath(~url="v1/recon-engine/exceptions/recon"),
-      ),
+      connectedStatCardPath: Some(appendDashboardPath(~url="v1/recon-engine/exceptions/recon")),
     },
     {
       connectedStatCardTitle: FailedTransformations,
       connectedStatCardValue: Number(failedTransformationHistory->Array.length),
       connectedStatCardType: Info,
-      connectedStatCardPath: Some(
-        GlobalVars.appendDashboardPath(~url="v1/recon-engine/transformation"),
-      ),
+      connectedStatCardPath: Some(appendDashboardPath(~url="v1/recon-engine/transformation")),
     },
     {
       connectedStatCardTitle: ManualCorrections,
@@ -1123,6 +1121,8 @@ let getConnectedStatCards = (
 let getDetailsConnectedStatCards = (~overviewRule: overviewRulesResponse): array<
   connectedStatCardData,
 > => {
+  open GlobalVars
+
   let totalCount = getTotalCount(~overviewRules=[overviewRule])
   let matchedCount = getMatchedCount(~overviewRules=[overviewRule])
   let openExceptions = getOpenExceptions(~overviewRules=[overviewRule], ~processingEntries=[])
@@ -1145,21 +1145,19 @@ let getDetailsConnectedStatCards = (~overviewRule: overviewRulesResponse): array
       connectedStatCardTitle: OpenExceptions,
       connectedStatCardValue: Number(openExceptions),
       connectedStatCardType: Attention,
-      connectedStatCardPath: Some(GlobalVars.appendDashboardPath(~url=urlPath)),
+      connectedStatCardPath: Some(appendDashboardPath(~url=urlPath)),
     },
     {
       connectedStatCardTitle: ValueAtRisk,
       connectedStatCardValue: Amount(valueAtRisk, currency),
       connectedStatCardType: Attention,
-      connectedStatCardPath: Some(GlobalVars.appendDashboardPath(~url=urlPath)),
+      connectedStatCardPath: Some(appendDashboardPath(~url=urlPath)),
     },
     {
       connectedStatCardTitle: ExpectedValue,
       connectedStatCardValue: Amount(expectedValue, currency),
       connectedStatCardType: Info,
-      connectedStatCardPath: Some(
-        GlobalVars.appendDashboardPath(~url=`${urlPath}&status=expected,missing`),
-      ),
+      connectedStatCardPath: Some(appendDashboardPath(~url=`${urlPath}&status=expected,missing`)),
     },
     {
       connectedStatCardTitle: MatchedAmountValue,
@@ -1314,9 +1312,11 @@ let reconciliationSeriesTypeFromString = (seriesName: string): reconciliationSer
 }
 
 let getOverviewChartSeriesStatusFilter = (seriesName: string): string => {
+  open ReconEngineFilterUtils
+
   switch seriesName->reconciliationSeriesTypeFromString {
   | ExceptionSeries =>
-    ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
+    getTransactionStatusValueFromStatusList([
       OverAmount(Mismatch),
       UnderAmount(Mismatch),
       OverAmount(Expected),
@@ -1326,10 +1326,8 @@ let getOverviewChartSeriesStatusFilter = (seriesName: string): string => {
       SplitMismatch,
       PartiallyReconciled,
     ])->Array.joinWith(",")
-  | ExpectedSeries =>
-    ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([Expected])->Array.joinWith(",")
-  | MissingSeries =>
-    ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([Missing])->Array.joinWith(",")
+  | ExpectedSeries => getTransactionStatusValueFromStatusList([Expected])->Array.joinWith(",")
+  | MissingSeries => getTransactionStatusValueFromStatusList([Missing])->Array.joinWith(",")
   | MatchedSeries
   | UnknownReconciliationSeriesType => ""
   }

@@ -95,7 +95,7 @@ let make = () => {
             description=card.statCardDescription
             cardType=card.statCardType
             onStatCardClick={() =>
-              card.statCardPath->Option.mapOr((), path => RescriptReactRouter.push(path))}
+              card.statCardPath->mapOptionOrDefault((), path => RescriptReactRouter.push(path))}
           />
         </PageLoaderWrapper>
       })
@@ -115,7 +115,9 @@ let make = () => {
             value=card.connectedStatCardValue
             cardType=card.connectedStatCardType
             onConnectedStatCardClick={() => {
-              card.connectedStatCardPath->Option.mapOr((), path => RescriptReactRouter.push(path))
+              card.connectedStatCardPath->mapOptionOrDefault((), path =>
+                RescriptReactRouter.push(path)
+              )
             }}
           />
         </PageLoaderWrapper>
