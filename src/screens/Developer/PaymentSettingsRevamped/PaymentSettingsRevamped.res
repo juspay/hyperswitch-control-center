@@ -19,6 +19,7 @@ let make = () => {
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
   let isBusinessProfileHasThreeds =
     threedsConnectorList->Array.some(item => item.profile_id == profileId)
   let isBusinessProfileHasVault =
@@ -70,7 +71,12 @@ let make = () => {
       baseTabs->Array.push(threeDsTab)
     }
 
-    if version == V1 && featureFlagDetails.vaultProcessor && isBusinessProfileHasVault {
+    if (
+      version == V1 &&
+      featureFlagDetails.vaultProcessor &&
+      isBusinessProfileHasVault &&
+      !isCurrentMerchantConnected
+    ) {
       baseTabs->Array.push(vaultTab)
     }
 
