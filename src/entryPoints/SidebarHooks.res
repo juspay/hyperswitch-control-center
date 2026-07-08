@@ -80,7 +80,6 @@ let useGetHsSidebarValues = () => {
       ~isSurchargeProcessor=surchargeProcessor,
       ~isCurrentMerchantPlatform,
     ),
-    ...standardModules,
     default->analytics(
       disputeAnalytics,
       performanceMonitorFlag,
@@ -89,6 +88,7 @@ let useGetHsSidebarValues = () => {
       ~authenticationAnalyticsFlag=authenticationAnalytics,
       ~userHasResourceAccess,
     ),
+    ...standardModules,
     default->developers(
       ~isWebhooksEnabled=devWebhooks,
       ~userHasResourceAccess,
