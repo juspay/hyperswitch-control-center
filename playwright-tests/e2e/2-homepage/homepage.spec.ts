@@ -728,101 +728,103 @@ test.describe("SDK Payment", () => {
     await expect(homePage.sdkAmountInput).toHaveValue("250.50");
   });
 
-  test.fixme("should make a successful payment using SDK", async ({
-    page,
-    context,
-  }) => {
-    const homePage = new HomePage(page);
+  test.fixme(
+    "should make a successful payment using SDK",
+    async ({ page, context }) => {
+      const homePage = new HomePage(page);
 
-    await page
-      .getByRole("button", { name: "🇺🇸 United States Of America" })
-      .click();
-    await page
-      .getByRole("textbox", { name: "Search name or ID..." })
-      .type("India");
-    await page.getByText("🇮🇳 India - (INR)").click();
+      await page
+        .getByRole("button", { name: "🇺🇸 United States Of America" })
+        .click();
+      await page
+        .getByRole("textbox", { name: "Search name or ID..." })
+        .type("India");
+      await page.getByText("🇮🇳 India - (INR)").click();
 
-    await homePage.sdkAmountInput.fill("123.45");
+      await homePage.sdkAmountInput.fill("123.45");
 
-    await homePage.showPreviewButton.click();
-    await page.waitForLoadState("networkidle");
-    await homePage.waitForSdkCardForm();
+      await homePage.showPreviewButton.click();
+      await page.waitForLoadState("networkidle");
+      await homePage.waitForSdkCardForm();
 
-    await homePage.fillSdkTestCard();
+      await homePage.fillSdkTestCard();
 
-    await expect(homePage.payButtonByCurrency("INR")).toContainText(
-      "Pay INR 123.45",
-    );
-    await homePage.payButtonByCurrency("INR").click();
-    await expect(homePage.paymentSuccessfulText).toBeAttached({
-      timeout: 10000,
-    });
+      await expect(homePage.payButtonByCurrency("INR")).toContainText(
+        "Pay INR 123.45",
+      );
+      await homePage.payButtonByCurrency("INR").click();
+      await expect(homePage.paymentSuccessfulText).toBeAttached({
+        timeout: 10000,
+      });
 
-    await homePage.goToPaymentOperationsButton.click();
-    expect(page.url()).toContain("/dashboard/payments/pay_");
-  });
+      await homePage.goToPaymentOperationsButton.click();
+      expect(page.url()).toContain("/dashboard/payments/pay_");
+    },
+  );
 
-  test.fixme("should display failed payment status using SDK", async ({
-    page,
-  }) => {
-    const homePage = new HomePage(page);
+  test.fixme(
+    "should display failed payment status using SDK",
+    async ({ page }) => {
+      const homePage = new HomePage(page);
 
-    await page.route("**/payments/*/confirm", async (route) => {
-      if (route.request().method() === "POST") {
-        const response = await route.fetch();
-        const json = await response.json();
-        json.status = "failed";
-        json.error_code = "CE_01";
-        json.error_message = "Payment declined by processor";
-        await route.fulfill({ response, json });
-      } else {
-        await route.continue();
-      }
-    });
+      await page.route("**/payments/*/confirm", async (route) => {
+        if (route.request().method() === "POST") {
+          const response = await route.fetch();
+          const json = await response.json();
+          json.status = "failed";
+          json.error_code = "CE_01";
+          json.error_message = "Payment declined by processor";
+          await route.fulfill({ response, json });
+        } else {
+          await route.continue();
+        }
+      });
 
-    await homePage.showPreviewButton.click();
-    await page.waitForLoadState("networkidle");
-    await homePage.waitForSdkCardForm();
+      await homePage.showPreviewButton.click();
+      await page.waitForLoadState("networkidle");
+      await homePage.waitForSdkCardForm();
 
-    await homePage.fillSdkTestCard();
+      await homePage.fillSdkTestCard();
 
-    await expect(homePage.payButtonByCurrency("USD")).toContainText(
-      "Pay USD 100",
-    );
-    await homePage.payButtonByCurrency("USD").click();
-    await expect(homePage.paymentFailedText).toBeVisible({ timeout: 10000 });
-    await expect(homePage.goToPaymentOperationsButton).toBeVisible();
-  });
+      await expect(homePage.payButtonByCurrency("USD")).toContainText(
+        "Pay USD 100",
+      );
+      await homePage.payButtonByCurrency("USD").click();
+      await expect(homePage.paymentFailedText).toBeVisible({ timeout: 10000 });
+      await expect(homePage.goToPaymentOperationsButton).toBeVisible();
+    },
+  );
 
-  test.fixme("should display processing payment status using SDK", async ({
-    page,
-  }) => {
-    const homePage = new HomePage(page);
+  test.fixme(
+    "should display processing payment status using SDK",
+    async ({ page }) => {
+      const homePage = new HomePage(page);
 
-    await page.route("**/payments/*/confirm", async (route) => {
-      if (route.request().method() === "POST") {
-        const response = await route.fetch();
-        const json = await response.json();
-        json.status = "processing";
-        await route.fulfill({ response, json });
-      } else {
-        await route.continue();
-      }
-    });
+      await page.route("**/payments/*/confirm", async (route) => {
+        if (route.request().method() === "POST") {
+          const response = await route.fetch();
+          const json = await response.json();
+          json.status = "processing";
+          await route.fulfill({ response, json });
+        } else {
+          await route.continue();
+        }
+      });
 
-    await homePage.showPreviewButton.click();
-    await page.waitForLoadState("networkidle");
-    await homePage.waitForSdkCardForm();
+      await homePage.showPreviewButton.click();
+      await page.waitForLoadState("networkidle");
+      await homePage.waitForSdkCardForm();
 
-    await homePage.fillSdkTestCard();
+      await homePage.fillSdkTestCard();
 
-    await expect(homePage.payButtonByCurrency("USD")).toContainText(
-      "Pay USD 100",
-    );
-    await homePage.payButtonByCurrency("USD").click();
-    await expect(homePage.paymentPendingText).toBeVisible({ timeout: 10000 });
-    await expect(homePage.goToPaymentOperationsButton).toBeVisible();
-  });
+      await expect(homePage.payButtonByCurrency("USD")).toContainText(
+        "Pay USD 100",
+      );
+      await homePage.payButtonByCurrency("USD").click();
+      await expect(homePage.paymentPendingText).toBeVisible({ timeout: 10000 });
+      await expect(homePage.goToPaymentOperationsButton).toBeVisible();
+    },
+  );
 
   test("should display error toast when SDK save (Show Preview) API fails", async ({
     page,
@@ -988,17 +990,17 @@ test.describe("Organization Chart Tree", () => {
     await expect(merchantTwoName).toHaveClass(/border-blue-600/);
     await expect(merchantTwoName).toHaveClass(/text-blue-600/);
 
-    //1st Profile button
+    // merchantTwo's most-recently-created profile ("new-test-profile") is
+    // auto-selected when switching to that merchant, not its "default" one.
     await expect(merchantOneProfileName).toBeVisible();
     await expect(merchantOneProfileName).toHaveClass(/border-gray-200/);
     await expect(merchantOneProfileName).toHaveClass(/text-gray-600/);
 
-    //2nd Profile button
     await expect(merchantTwoProfileTwoName).toBeVisible();
     await expect(merchantTwoProfileTwoName).toHaveClass(/border-blue-600/);
     await expect(merchantTwoProfileTwoName).toHaveClass(/text-blue-600/);
 
-    //Switch profile
+    //Switch profile to "default"
     await merchantOneProfileName.click();
 
     //Organization button
@@ -1016,12 +1018,12 @@ test.describe("Organization Chart Tree", () => {
     await expect(merchantTwoName).toHaveClass(/border-blue-600/);
     await expect(merchantTwoName).toHaveClass(/text-blue-600/);
 
-    //1st Profile button
+    // "default" is now selected
     await expect(merchantOneProfileName).toBeVisible();
     await expect(merchantOneProfileName).toHaveClass(/border-blue-600/);
     await expect(merchantOneProfileName).toHaveClass(/text-blue-600/);
 
-    //2nd Profile button
+    // "new-test-profile" is now unselected
     await expect(merchantTwoProfileTwoName).toBeVisible();
     await expect(merchantTwoProfileTwoName).toHaveClass(/border-gray-200/);
     await expect(merchantTwoProfileTwoName).toHaveClass(/text-gray-600/);

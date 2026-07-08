@@ -11,6 +11,7 @@ let make = (~ruleDetails: rulePayload) => {
   let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
   let getTransactions = ReconEngineHooks.useGetTransactions()
   let getAccounts = ReconEngineHooks.useGetAccounts()
+  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
 
   let getAccountAndTransactionData = async () => {
     try {
@@ -35,9 +36,11 @@ let make = (~ruleDetails: rulePayload) => {
           DataMismatch,
         ])->Array.joinWith(",")
 
-      let transactionsData = await getTransactions(
-        ~queryParameters=Some(`rule_id=${ruleDetails.rule_id}&status=${statusList}`),
-      )
+      let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+      let suffix = `rule_id=${ruleDetails.rule_id}&status=${statusList}`
+      let queryString = baseQueryString->isNonEmptyString ? `${baseQueryString}&${suffix}` : suffix
+
+      let transactionsData = await getTransactions(~queryParameters=Some(queryString))
       setAllTransactionsData(_ => transactionsData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -46,9 +49,11 @@ let make = (~ruleDetails: rulePayload) => {
   }
 
   React.useEffect(() => {
-    getAccountAndTransactionData()->ignore
+    if !(filterValue->isEmptyDict) {
+      getAccountAndTransactionData()->ignore
+    }
     None
-  }, [])
+  }, [filterValue])
 
   let (sourceAccountId, targetAccountIds) = getSourceAndAllTargetAccountIds(ruleDetails)
 

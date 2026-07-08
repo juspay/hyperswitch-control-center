@@ -594,3 +594,78 @@ let metadataSchemaItemToObjMapper = (dict): metadataSchemaType => {
     last_modified_at: dict->getString("last_modified_at", ""),
   }
 }
+
+let overviewTransactionStatusTypeFromString = (status: string): domainTransactionStatus => {
+  switch status->String.toLowerCase {
+  | "expected" => Expected
+  | "posted_manual" => Posted(Manual)
+  | "under_amount_mismatch" => UnderAmount(Mismatch)
+  | "under_amount_expected" => UnderAmount(Expected)
+  | "over_amount_mismatch" => OverAmount(Mismatch)
+  | "over_amount_expected" => OverAmount(Expected)
+  | "data_mismatch" => DataMismatch
+  | "currency_mismatch" => CurrencyMismatch
+  | "split_mismatch" => SplitMismatch
+  | "archived" => Archived
+  | "void" => Void
+  | "partially_reconciled" => PartiallyReconciled
+  | "missing" => Missing
+  | "matched_auto" => Matched(Auto)
+  | "matched_manual" => Matched(Manual)
+  | "matched_force" => Matched(Force)
+  | "matched_with_tolerance" => Matched(WithTolerance)
+  | _ => UnknownDomainTransactionStatus
+  }
+}
+
+let overviewRuleStatusBreakdownMapper: Dict.t<JSON.t> => overviewRuleStatusBreakdown = dict => {
+  {
+    status: dict->getString("status", "")->overviewTransactionStatusTypeFromString,
+    count: dict->getInt("count", 0),
+    credit_amount: dict->getDictfromDict("credit_amount")->getAmountPayload,
+    debit_amount: dict->getDictfromDict("debit_amount")->getAmountPayload,
+  }
+}
+
+let overviewRulesStatusBreakdownArrayMapper = statusBreakdownArr =>
+  statusBreakdownArr->Array.map(status =>
+    status->getDictFromJsonObject->overviewRuleStatusBreakdownMapper
+  )
+
+let overviewRulesResponseMapper: Dict.t<JSON.t> => overviewRulesResponse = dict => {
+  {
+    rule_id: dict->getString("rule_id", ""),
+    rule_name: dict->getString("rule_name", ""),
+    status_breakdown: dict
+    ->getArrayFromDict("status_breakdown", [])
+    ->overviewRulesStatusBreakdownArrayMapper,
+  }
+}
+
+let overviewRulesTimeRangeMapper: Dict.t<JSON.t> => overviewRulesTimeRange = dict => {
+  {
+    start_time: dict->getString("start_time", ""),
+    end_time: dict->getString("end_time", ""),
+  }
+}
+
+let overviewRulesTimeSeriesMapper: Dict.t<JSON.t> => overviewRulesTimeSeries = dict => {
+  {
+    time_range: dict->getDictfromDict("time_range")->overviewRulesTimeRangeMapper,
+    status_breakdown: dict
+    ->getArrayFromDict("status_breakdown", [])
+    ->overviewRulesStatusBreakdownArrayMapper,
+  }
+}
+
+let overviewRulesTimeSeriesResponseMapper: Dict.t<
+  JSON.t,
+> => overviewRulesTimeSeriesResponse = dict => {
+  {
+    rule_id: dict->getString("rule_id", ""),
+    rule_name: dict->getString("rule_name", ""),
+    time_series: dict
+    ->getArrayFromDict("time_series", [])
+    ->Array.map(timeSeries => timeSeries->getDictFromJsonObject->overviewRulesTimeSeriesMapper),
+  }
+}
