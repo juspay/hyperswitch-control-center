@@ -1,5 +1,6 @@
 module HyperSwitchEntryComponent = {
   open HyperswitchAtom
+  open ConnectorListFromConfigUtils
   @react.component
   let make = () => {
     open HyperSwitchEntryUtils
@@ -82,8 +83,8 @@ module HyperSwitchEntryComponent = {
           )}` // todo: domain shall be removed from query params later
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
-        let connectorListForLive = res->ConnectorListFromConfigUtils.getConnectorListForLive
-        let connectorListForSandbox = res->ConnectorListFromConfigUtils.getConnectorListForSandbox
+        let connectorListForLive = res->getConnectorListForLive
+        let connectorListForSandbox = res->getConnectorListForSandbox
         let connectorCloneAllowList = res->ConnectorCloneConfigUtils.getConnectorCloneAllowList
         setFeatureFlag(_ => featureFlags)
         setConnectorListForLive(_ => connectorListForLive)

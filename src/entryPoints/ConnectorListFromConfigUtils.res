@@ -23,7 +23,7 @@ let extractTypedConnectorValueFromConfig = (
 // provided default list when the config has no (valid) entries for it.
 let resolveConnectorListFromConfig = (~connectorDict, ~key, ~connectorType, ~fallback) => {
   let fromConfig = extractTypedConnectorValueFromConfig(~connectorDict, ~key, ~connectorType)
-  fromConfig->Array.length > 0 ? fromConfig : fallback
+  fromConfig->LogicUtils.isNonEmptyArray ? fromConfig : fallback
 }
 
 let getConnectorListForLive = (list: JSON.t): ConnectorListFromConfigTypes.connectorListForLive => {
