@@ -20,6 +20,8 @@ module DownloadCertificateTile = {
 
 @react.component
 let make = () => {
+  open LogicUtils
+
   let showToast = ToastAdapter.useShowToast()
   let fetchApi = AuthHooks.useApiFetcher()
   let (usButtonState, setUsButtonState) = React.useState(_ => Button.Normal)
@@ -77,7 +79,7 @@ let make = () => {
       title="Compliance" subTitle="Achieve and Maintain Industry Compliance Standards"
     />
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
-      <RenderIf condition={usCertificateUrl->LogicUtils.isNonEmptyString}>
+      <RenderIf condition={usCertificateUrl->isNonEmptyString}>
         <DownloadCertificateTile
           header="Hyperswitch's PCI Attestation of Compliance (US)"
           onClick={downloadPDF(
@@ -88,7 +90,7 @@ let make = () => {
           buttonState=usButtonState
         />
       </RenderIf>
-      <RenderIf condition={euCertificateUrl->LogicUtils.isNonEmptyString}>
+      <RenderIf condition={euCertificateUrl->isNonEmptyString}>
         <DownloadCertificateTile
           header="Hyperswitch's PCI Attestation of Compliance (EU)"
           onClick={downloadPDF(
