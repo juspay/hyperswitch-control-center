@@ -14,7 +14,7 @@ let defaultCondition: comparison = {
 let defaultGroup: statement = {condition: [defaultCondition]}
 let defaultConnectorSelection: connectorSelection = Priority({data: []})
 
-let defaultRule: rule = {
+let newDefaultRule = (): rule => {
   id: `rule_${LogicUtils.randomString(~length=6)}`,
   name: "",
   connectorSelection: defaultConnectorSelection,
@@ -27,7 +27,7 @@ let defaultOperatorChoice: operatorChoice = {
   valueVariant: EnumOne({value: ""}),
 }
 
-let defaultConfig: config = {
+let defaultConfig = (): config => {
   name: "",
   description: "",
   algorithm: {
@@ -35,12 +35,12 @@ let defaultConfig: config = {
     data: {
       defaultSelection: defaultConnectorSelection,
       metadata: emptyMetadata(),
-      rules: [defaultRule],
+      rules: [newDefaultRule()],
     },
   },
 }
 
-let defaultInitialValues = (): JSON.t => defaultConfig->Identity.genericTypeToJson
+let defaultInitialValues = (): JSON.t => defaultConfig()->Identity.genericTypeToJson
 
 let isCardBinField = (lhs: string): bool => lhs === "card_bin" || lhs === "extended_card_bin"
 

@@ -13,7 +13,7 @@ let make = () => {
   let setRules = arr => rulesInput.onChange(arr->Identity.arrayOfGenericTypeToFormReactEvent)
 
   let addRule = () =>
-    setRules(rules->Array.concat([RuleBasedUtils.defaultRule->Identity.genericTypeToJson]))
+    setRules(rules->Array.concat([RuleBasedUtils.newDefaultRule()->Identity.genericTypeToJson]))
   let copyRule = id =>
     rules
     ->Array.find(rule => rule->idOfRule === id)
