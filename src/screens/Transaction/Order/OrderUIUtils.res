@@ -1,35 +1,7 @@
-type filterTypes = {
-  connector: array<string>,
-  currency: array<string>,
-  authentication_type: array<string>,
-  payment_method: array<string>,
-  payment_method_type: array<string>,
-  status: array<string>,
-  connector_label: array<string>,
-  card_network: array<string>,
-  card_discovery: array<string>,
-  customer_id: array<string>,
-  amount: array<string>,
-  merchant_order_reference_id: array<string>,
-}
+open LogicUtils
+open OrderTypes
 
-type filter = [
-  | #connector
-  | #payment_method
-  | #currency
-  | #authentication_type
-  | #status
-  | #payment_method_type
-  | #connector_label
-  | #card_network
-  | #card_discovery
-  | #customer_id
-  | #amount
-  | #merchant_order_reference_id
-  | #unknown
-]
-
-let getFilterTypeFromString = filterType => {
+let getFilterTypeFromString = (filterType): filter => {
   switch filterType {
   | "connector" => #connector
   | "payment_method" => #payment_method
@@ -194,7 +166,6 @@ let endTimeFilterKey = (version: UserInfoTypes.version) =>
   }
 
 let filterByData = (txnArr, value) => {
-  open LogicUtils
   let searchText = value->getStringFromJson("")
 
   txnArr
@@ -233,8 +204,6 @@ let getValueFromFilterTypeV2 = (filter: filter) => {
 }
 
 let getConditionalFilter = (key, dict, filterValues) => {
-  open LogicUtils
-
   let filtersArr = switch key->getFilterTypeFromString {
   | #connector_label =>
     filterValues
@@ -266,7 +235,6 @@ let getConditionalFilter = (key, dict, filterValues) => {
 }
 
 let getOptionsForOrderFilters = (dict, filterValues) => {
-  open LogicUtils
   filterValues
   ->getArrayFromDict("connector", [])
   ->getStrArrayFromJsonArray
@@ -285,7 +253,6 @@ let getOptionsForOrderFilters = (dict, filterValues) => {
 }
 
 let getAllPaymentMethodType = dict => {
-  open LogicUtils
   let paymentMethods = dict->getDictfromDict("payment_method")->Dict.keysToArray
   paymentMethods->Array.reduce([], (acc, item) => {
     Array.concat(
@@ -300,8 +267,7 @@ let getAllPaymentMethodType = dict => {
   })
 }
 
-let itemToObjMapper = dict => {
-  open LogicUtils
+let itemToObjMapper = (dict): filterTypes => {
   {
     connector: dict->getDictfromDict("connector")->Dict.keysToArray,
     currency: dict->getArrayFromDict("currency", [])->getStrArrayFromJsonArray,
@@ -317,12 +283,18 @@ let itemToObjMapper = dict => {
     customer_id: [],
     amount: [],
     merchant_order_reference_id: [],
+    customer_email: [],
+    card_last_4: [],
+    active_attempt_id: [],
+    merchant_connector_id: [],
+    refunds_status: dict->getArrayFromDict("refunds_status", [])->getStrArrayFromJsonArray,
+    dispute_status: dict->getArrayFromDict("dispute_status", [])->getStrArrayFromJsonArray,
+    routing_approach: dict->getArrayFromDict("routing_approach", [])->getStrArrayFromJsonArray,
+    card_issuer: dict->getArrayFromDict("card_issuer", [])->getStrArrayFromJsonArray,
   }
 }
 
 let initialFilters = (json, filterValues, removeKeys, filterKeys, setfilterKeys, version) => {
-  open LogicUtils
-
   let filterDict = json->getDictFromJsonObject
 
   let filterData = filterDict->itemToObjMapper

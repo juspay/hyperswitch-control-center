@@ -27,7 +27,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
       setOverviewRule(_ => currentOverviewRule)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
 
@@ -56,7 +56,9 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
           value=card.connectedStatCardValue
           cardType=card.connectedStatCardType
           onConnectedStatCardClick={() => {
-            card.connectedStatCardPath->Option.mapOr((), path => RescriptReactRouter.push(path))
+            card.connectedStatCardPath->mapOptionOrDefault((), path =>
+              RescriptReactRouter.push(path)
+            )
           }}
         />
       </PageLoaderWrapper>
