@@ -45,7 +45,7 @@ let extractModulePath = (~path: list<string>, ~query="", ~end) => {
   }
 }
 
-type hostType = Live | Sandbox | Local | Integ | Eu_Live
+type hostType = Live | Sandbox | Local | Integ | EU_Live
 
 let hostName = Window.Location.hostname
 
@@ -53,7 +53,7 @@ let hostType = switch hostName {
 | "live.hyperswitch.io" => Live
 | "app.hyperswitch.io" => Sandbox
 | "integ.hyperswitch.io" => Integ
-| "eu.hyperswitch.io" => Eu_Live
+| "eu.hyperswitch.io" => EU_Live
 
 | _ => Local
 }
@@ -63,7 +63,7 @@ let getEnvironment = hostType =>
   | Live => "production"
   | Sandbox => "sandbox"
   | Integ => "integ"
-  | Eu_Live => "production_eu"
+  | EU_Live => "production_eu"
   | Local => "localhost"
   }
 let getHostUrlWithBasePath = `${Window.Location.origin}${appendDashboardPath(~url="")}`
