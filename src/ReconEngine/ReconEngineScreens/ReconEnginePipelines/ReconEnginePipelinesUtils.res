@@ -113,6 +113,66 @@ let getPipelineStatCards = (
   ]
 }
 
+let getTransformationErrors = (transformationHistory: array<transformationHistoryType>): array<(
+  string,
+  string,
+)> => {
+  transformationHistory
+  ->Array.map(t => t.data.errors->Array.map(error => (t.transformation_name, error)))
+  ->Array.flat
+}
+
+let getPipelineDetailStatCards = (
+  ~transformationHistory: array<transformationHistoryType>,
+  ~totalErrors: int,
+  ~onErrorsClick: unit => unit,
+): array<ReconEnginePipelinesTypes.pipelineDetailStatCardData> => {
+  open ReconEnginePipelinesTypes
+
+  let totalTransformed =
+    transformationHistory->Array.reduce(0, (acc, t) => acc + t.data.transformed_count)
+  let totalIgnored = transformationHistory->Array.reduce(0, (acc, t) => acc + t.data.ignored_count)
+  let transformationRuns = transformationHistory->Array.length
+  let allTxProcessed =
+    transformationRuns > 0 && transformationHistory->Array.every(t => t.status == Processed)
+  let txFailedCount = transformationHistory->Array.filter(t => t.status == Failed)->Array.length
+
+  [
+    {
+      pipelineDetailStatCardLabel: "ROWS TRANSFORMED",
+      pipelineDetailStatCardValue: totalTransformed,
+      pipelineDetailStatCardDesc: "",
+      pipelineDetailStatCardDescColor: "text-nd_gray-400",
+      pipelineDetailStatCardOnClick: None,
+    },
+    {
+      pipelineDetailStatCardLabel: "TRANSFORMATION RUNS",
+      pipelineDetailStatCardValue: transformationRuns,
+      pipelineDetailStatCardDesc: allTxProcessed
+        ? "all processed"
+        : txFailedCount > 0
+        ? `${txFailedCount->Int.toString} failed`
+        : "",
+      pipelineDetailStatCardDescColor: txFailedCount > 0 ? "text-nd_red-500" : "text-nd_gray-400",
+      pipelineDetailStatCardOnClick: None,
+    },
+    {
+      pipelineDetailStatCardLabel: "ROWS IGNORED",
+      pipelineDetailStatCardValue: totalIgnored,
+      pipelineDetailStatCardDesc: totalIgnored > 0 ? "dropped on parse" : "",
+      pipelineDetailStatCardDescColor: "text-nd_red-500",
+      pipelineDetailStatCardOnClick: None,
+    },
+    {
+      pipelineDetailStatCardLabel: "ERRORS",
+      pipelineDetailStatCardValue: totalErrors,
+      pipelineDetailStatCardDesc: totalErrors > 0 ? "view details" : "no errors",
+      pipelineDetailStatCardDescColor: totalErrors > 0 ? "text-nd_red-500" : "text-nd_gray-400",
+      pipelineDetailStatCardOnClick: totalErrors > 0 ? Some(onErrorsClick) : None,
+    },
+  ]
+}
+
 let getAccountOptions = (accounts: array<accountType>): array<FilterSelectBox.dropdownOption> => {
   accounts->Array.map(account => {
     FilterSelectBox.label: account.account_name,
