@@ -10,7 +10,7 @@ let make = (~setScreenState) => {
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
+  let {isCurrentMerchantPlatform, isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
 
   {
     switch url.path->HSwitchUtils.urlPath {
@@ -33,9 +33,11 @@ let make = (~setScreenState) => {
       <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
         <ConnectorContainer />
       </AccessControl>
-    | list{"vault-processor", ..._}
-    | list{"payment-settings", ..._} =>
-      <ConnectorContainer />
+    | list{"vault-processor", ..._} =>
+      <AccessControl authorization={isCurrentMerchantConnected ? NoAccess : Access}>
+        <ConnectorContainer />
+      </AccessControl>
+    | list{"payment-settings", ..._} => <ConnectorContainer />
     | list{"webhooks", ...remainingPath} =>
       <AccessControl isEnabled={featureFlagDetails.devWebhooks} authorization=Access>
         <FilterContext key="webhooks" index="webhooks">
