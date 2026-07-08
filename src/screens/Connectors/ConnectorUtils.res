@@ -738,7 +738,7 @@ let payconexInfo = {
 }
 
 let tsystransitInfo = {
-  description: "TSYS XML (TransIT) is a TSYS gateway integration using the TransIT XML API for card processing.",
+  description: "TransIT is a RESTful payment gateway for processing transactions and value-added services with real-time reporting.",
 }
 
 let signifydInfo = {
