@@ -29,7 +29,7 @@ module OrgChartTree = {
                 selectedOrg == org.id,
               )}`}
             onClick={_ => onOrgSelect(org)->ignore}
-            id={`${org.id}`}>
+            id={org.id}>
             {org.name->React.string}
           </button>
         })
@@ -45,7 +45,7 @@ module OrgChartTree = {
                 selectedMerchant == merchant.id,
               )}`}
             onClick={_ => onMerchantSelect(merchant)->ignore}
-            id={`${merchant.id}`}>
+            id={merchant.id}>
             <span className="truncate whitespace-wrap "> {merchant.name->React.string} </span>
             {switch merchant.productType {
             | Some(product) =>
@@ -69,7 +69,7 @@ module OrgChartTree = {
                 selectedProfile == profile.id,
               )}`}
             onClick={_ => onProfileSelect(profile)->ignore}
-            id={`${profile.id}`}>
+            id={profile.id}>
             {profile.name->React.string}
           </button>
         )
