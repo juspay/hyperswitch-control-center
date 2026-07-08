@@ -15,8 +15,8 @@ module OrgChartTree = {
     let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
     let getButtonStyles = isSelected => {
       isSelected
-        ? "border-blue-600 bg-blue-50 text-blue-600"
-        : "border-gray-200 hover:bg-gray-50 text-gray-600"
+        ? "border-nd_primary_blue-600 bg-nd_primary_blue-50 text-nd_primary_blue-600"
+        : "border-nd_gray-200 hover:bg-nd_gray-50 text-nd_gray-600"
     }
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-16 w-full py-8">
       <div className="flex flex-col gap-4">
@@ -50,7 +50,7 @@ module OrgChartTree = {
             {switch merchant.productType {
             | Some(product) =>
               <span
-                className={`${body.sm.medium} ml-4 rounded-full bg-gray-100 px-3 py-1 text-gray-500 whitespace-nowrap`}>
+                className={`${body.sm.medium} ml-4 rounded-full bg-nd_gray-100 px-3 py-1 text-nd_gray-500 whitespace-nowrap`}>
                 {product->ProductUtils.getProductDisplayName->React.string}
               </span>
             | None => React.null
@@ -141,7 +141,7 @@ module PlatformOrgDiagram = {
 
     let profileItems = ["Connector configuration", "Routing", "Transactions", "Users"]
 
-    <div className={`bg-nd_gray-25 rounded-2xl w-full overflow-x-auto p-6`}>
+    <div className="bg-nd_gray-25 rounded-2xl w-full overflow-x-auto p-6">
       <div className="flex flex-col items-center min-w-max mx-auto">
         <div className={`${body.md.semibold} text-nd_gray-700`}>
           {"Organization"->React.string}
@@ -207,7 +207,7 @@ module StandardOrgDiagram = {
     let apiKeyItems = ["API keys", "Publishable key", "Users"]
     let profileItems = ["Connector configuration", "Routing", "Transactions", "Users"]
 
-    <div className={`bg-nd_gray-25 rounded-2xl w-full overflow-x-auto p-8`}>
+    <div className="bg-nd_gray-25 rounded-2xl w-full overflow-x-auto p-8">
       <div className="flex flex-col items-center min-w-max mx-auto">
         <div className={`${body.md.semibold} text-nd_gray-700`}>
           {"Organization"->React.string}
@@ -257,7 +257,7 @@ module OrgChartInfoModal = {
       closeOnOutsideClick=true
       modalHeading="How the hierarchy works"
       modalHeadingDescription="How Organization, Merchant, and Profile levels nest across platform and standard setups."
-      modalClass="w-full max-w-5xl max-h-85-vh overflow-auto m-auto dark:!bg-jp-gray-lightgray_background"
+      modalClass="w-full max-w-5xl max-h-85-vh overflow-auto m-auto"
       childClass="p-6"
       alignModal="items-center justify-center">
       <div className="flex flex-col gap-4">
