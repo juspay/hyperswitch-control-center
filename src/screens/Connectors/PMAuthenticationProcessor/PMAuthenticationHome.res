@@ -206,6 +206,10 @@ let make = () => {
       let _ = await fetchConnectorListResponse()
       setInitialValues(_ => response)
       setCurrentStep(_ => Summary)
+      showToast(
+        ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
+        ~toastType=ToastSuccess,
+      )
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
