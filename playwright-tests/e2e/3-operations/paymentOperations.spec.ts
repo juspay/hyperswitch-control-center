@@ -1418,10 +1418,15 @@ test.describe("Payment Operations", () => {
         (resp) => resp.url().includes("force_sync=true") && resp.ok(),
       );
       await paymentOperations.initiateRefundButton.click();
+      await refreshResponse;
 
       await expect(page.getByText("Summary")).toBeVisible();
-      await expect(page.getByText("123.45 USD").nth(1)).toBeVisible();
-      await expect(page.getByText("SUCCEEDED").nth(1)).toBeVisible();
+      await expect(
+        page.getByText("123.45 USD").filter({ visible: true }).nth(1),
+      ).toBeVisible();
+      await expect(
+        page.getByText("SUCCEEDED").filter({ visible: true }).nth(1),
+      ).toBeVisible();
 
       await expect(paymentOperations.dataLabel("Created")).toContainText(
         "Created",
