@@ -205,9 +205,7 @@ module ListItem = {
           {if !isDropDown {
             if showToggle {
               <div className={toggleClass ++ toggleProps} onClick>
-                <SwitchAdapter
-                  isSelected=toggleSelect setIsSelected=onToggleSelect isDisabled
-                />
+                <SwitchAdapter isSelected=toggleSelect setIsSelected=onToggleSelect isDisabled />
               </div>
             } else if multiSelect {
               <span className=toggleClass>

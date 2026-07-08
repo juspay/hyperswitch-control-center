@@ -625,7 +625,9 @@ let multiLineTextInput = (
   ~leftIcon=?,
   ~maxLength=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
-  <MultiLineTextInputAdapter ?maxLength input placeholder isDisabled ?rows ?cols customClass ?leftIcon />
+  <MultiLineTextInputAdapter
+    ?maxLength input placeholder isDisabled ?rows ?cols customClass ?leftIcon
+  />
 }
 
 let iconFieldWithMessageDes = (mainInputField, ~description="") => (

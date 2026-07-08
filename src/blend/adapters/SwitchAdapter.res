@@ -14,8 +14,7 @@ let make = (
   let isBlendEnabled = BlendContext.useBlendEnabled()
 
   let blendNode =
-    <AddDataAttributes
-      attributes=[("data-bool-value", isSelected ? "on" : "off")]>
+    <AddDataAttributes attributes=[("data-bool-value", isSelected ? "on" : "off")]>
       <div className="inline-flex items-center">
         <SwitchBinding checked=isSelected onChange=setIsSelected disabled=isDisabled />
       </div>
