@@ -66,7 +66,7 @@ module DetailsFields = {
         ~isDisabled=false,
         ~rows=Some(3),
         ~cols=None,
-        ~customClass="text-sm",
+        ~customClass=body.md.regular,
       ),
     )
     <div className="flex flex-col gap-2">
@@ -268,7 +268,7 @@ module MetadataKeyInput = {
 
 module ConditionWrapper = {
   @react.component
-  let make = (~prefix, ~index, ~onRemove) => {
+  let make = (~prefix, ~index, ~onRemove, ~canRemove) => {
     let isFirst = index == 0
     let pillLabelText = isFirst ? "IF" : "AND"
     let pillClass = isFirst
@@ -289,19 +289,21 @@ module ConditionWrapper = {
             <ValueInput prefix />
           </div>
         </LabelVisibilityContext.Provider>
-        <Icon
-          name="close"
-          size={16}
-          className="text-nd_gray-400 cursor-pointer shrink-0 ml-3"
-          onClick={_ => onRemove()}
-        />
+        <RenderIf condition={canRemove}>
+          <Icon
+            name="close"
+            size={16}
+            className="text-nd_gray-400 cursor-pointer shrink-0 ml-3"
+            onClick={_ => onRemove()}
+          />
+        </RenderIf>
       </div>
     </div>
   }
 }
 module ConditionGroupWrapper = {
   @react.component
-  let make = (~prefix, ~groupIndex, ~isLast, ~onAddGroup, ~onRemoveGroup) => {
+  let make = (~prefix, ~groupIndex, ~isLast, ~isOnlyGroup, ~onAddGroup, ~onRemoveGroup) => {
     let conditionsInput = ReactFinalForm.useField(`${prefix}.condition`).input
     let conditions = conditionsInput.value->getArrayFromJson([])
     let setConditions = arr =>
@@ -324,6 +326,7 @@ module ConditionGroupWrapper = {
           prefix={`${prefix}.condition[${index->Int.toString}]`}
           index
           onRemove={() => removeCondition(index)}
+          canRemove={conditions->Array.length > 1}
         />
       )
       ->React.array}
@@ -350,16 +353,18 @@ module ConditionGroupWrapper = {
             onClick={_ => onAddGroup()}
           />
         </RenderIf>
-        <div className="ml-auto">
-          <Button
-            text="Delete"
-            buttonType=Button.FilterAdd
-            buttonSize=Small
-            textStyle="text-nd_gray-500"
-            leftIcon={CustomIcon(<Icon name="trash" size=14 className="text-nd_gray-500" />)}
-            onClick={_ => onRemoveGroup()}
-          />
-        </div>
+        <RenderIf condition={!isOnlyGroup}>
+          <div className="ml-auto">
+            <Button
+              text="Delete"
+              buttonType=Button.FilterAdd
+              buttonSize=Small
+              textStyle="text-nd_gray-500"
+              leftIcon={CustomIcon(<Icon name="trash" size=14 className="text-nd_gray-500" />)}
+              onClick={_ => onRemoveGroup()}
+            />
+          </div>
+        </RenderIf>
       </div>
     </>
   }
@@ -389,27 +394,6 @@ module OutcomeWrapper = {
     }
     let setSelection = (sel: connectorSelection) =>
       selectionInput.onChange(sel->Identity.anyTypeToReactEvent)
-
-    let splitOf = mcaId =>
-      switch selection {
-      | VolumeSplit({data}) =>
-        switch data->Array.find(wc => wc.connector.merchant_connector_id === mcaId) {
-        | Some(wc) => wc.split
-        | None => 0
-        }
-      | Priority(_) => 0
-      }
-
-    let updateSplit = (mcaId, newSplit) =>
-      switch selection {
-      | VolumeSplit({data}) =>
-        let updated =
-          data->Array.map(wc =>
-            wc.connector.merchant_connector_id === mcaId ? {...wc, split: newSplit} : wc
-          )
-        setSelection(VolumeSplit({data: updated}))
-      | Priority(_) => ()
-      }
 
     let removeId = i =>
       setSelection(
@@ -473,15 +457,17 @@ module OutcomeWrapper = {
               </span>
               <RenderIf condition={isDistribute}>
                 <div className="flex items-center gap-1">
-                  <input
-                    className={`w-10 text-right outline-none bg-white border border-nd_gray-200 rounded-md px-1 ${body.sm.regular} text-nd_gray-700`}
-                    value={splitOf(mcaId)->Int.toString}
-                    onChange={ev => {
-                      let v = ReactEvent.Form.target(ev)["value"]
-                      updateSplit(mcaId, v->Int.fromString->Option.getOr(0))
-                    }}
-                    type_="text"
-                    inputMode="numeric"
+                  <FormRenderer.FieldRenderer
+                    field={FormRenderer.makeFieldInfo(
+                      ~name=`${prefix}.connectorSelection.data[${i->Int.toString}].split`,
+                      ~label="",
+                      ~placeholder="0",
+                      ~customInput=InputFields.numericTextInput(
+                        ~customStyle=`!w-12 !px-1.5 !py-1 text-right ${body.sm.regular} text-nd_gray-700`,
+                        ~maxLength=3,
+                      ),
+                    )}
+                    fieldWrapperClass="!p-0"
                   />
                   <span className={`${body.sm.regular} text-nd_gray-500`}>
                     {"%"->React.string}
@@ -576,6 +562,7 @@ module RuleWrapper = {
                   onRemoveGroup={_ => removeGroup(index)}
                   groupIndex=index
                   isLast={lastIndex == index}
+                  isOnlyGroup={statements->Array.length == 1}
                 />
               })
               ->React.array}
