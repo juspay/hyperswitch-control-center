@@ -10,6 +10,7 @@ let make = (~previewOnly=false) => {
   let {devOpensearch, devSavedViews, transactionView} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
+  let {isCurrentMerchantPlatform} = OMPSwitchHooks.useOMPType()
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
@@ -18,9 +19,17 @@ let make = (~previewOnly=false) => {
 
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchOrdersWithStrategy = (~payload, ~version, ~signal) => {
-    devOpensearch && userHasResourceAccess(~resourceAccess=Analytics) === Access
-      ? fetchAnalyticsOrdersHook(~payload, ~version, ~signal)
-      : fetchOrdersHook(~payload, ~version, ~signal)
+    let isPlatformV1 = switch version {
+    | UserInfoTypes.V1 => isCurrentMerchantPlatform
+    | UserInfoTypes.V2 => false
+    }
+    if isPlatformV1 {
+      fetchOrdersHook(~payload, ~version, ~isPlatformMerchant=true, ~signal)
+    } else if devOpensearch && userHasResourceAccess(~resourceAccess=Analytics) === Access {
+      fetchAnalyticsOrdersHook(~payload, ~version, ~isPlatformMerchant=false, ~signal)
+    } else {
+      fetchOrdersHook(~payload, ~version, ~isPlatformMerchant=false, ~signal)
+    }
   }
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -205,7 +214,8 @@ let make = (~previewOnly=false) => {
         ? <SavedViewsComponent version entity=SavedViewTypes.Payment />
         : React.null}
       entityName={switch version {
-      | V1 => V1(ORDER_FILTERS)
+      | V1 =>
+        isCurrentMerchantPlatform ? V1(PLATFORM_ORDER_FILTERS) : V1(ORDER_FILTERS)
       | V2 => V2(V2_ORDER_FILTERS)
       }}
       version
