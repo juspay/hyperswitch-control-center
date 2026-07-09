@@ -11,8 +11,10 @@ type status =
   | RequiresCustomerAction
   | RequiresPaymentMethod
   | RequiresConfirmation
+  | RequiresCapture
   | PartiallyCaptured
   | CancelledPostCapture
+  | Review
   | None
 
 type paymentAttemptStatus = [
@@ -70,9 +72,11 @@ let statusVariantMapper: string => status = statusLabel =>
   | "REQUIRES_CUSTOMER_ACTION" => RequiresCustomerAction
   | "REQUIRES_PAYMENT_METHOD" => RequiresPaymentMethod
   | "REQUIRES_CONFIRMATION" => RequiresConfirmation
+  | "REQUIRES_CAPTURE" => RequiresCapture
   | "PARTIALLY_CAPTURED" => PartiallyCaptured
   | "CANCELLED_POST_CAPTURE" => CancelledPostCapture
   | "EXPIRED" => Expired
+  | "REVIEW" => Review
   | _ => None
   }
 
@@ -150,6 +154,14 @@ let reasonField = FormRenderer.makeFieldInfo(
   ~label="Reason",
   ~customInput=InputFields.textInput(),
   ~placeholder="Enter Refund Reason",
+  ~isRequired=false,
+)
+
+let cancellationReasonField = FormRenderer.makeFieldInfo(
+  ~name="cancellation_reason",
+  ~label="Cancellation Reason",
+  ~customInput=InputFields.textInput(~maxLength=255),
+  ~placeholder="Enter Cancellation Reason (optional)",
   ~isRequired=false,
 )
 
@@ -265,7 +277,7 @@ module CopyLinkTableCell = {
     ~leftIcon: Button.iconType=NoIcon,
   ) => {
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let handleClick = ev => {
       ev->ReactEvent.Mouse.stopPropagation
       setIsTextVisible(_ => true)

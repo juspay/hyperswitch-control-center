@@ -52,7 +52,7 @@ let getAnalyticsRow = (json: JSON.t): analytics_row => {
     next_action: dict->getString("next_action", ""),
     cancellation_reason: dict->getString("cancellation_reason", ""),
     error_code: dict->getString("error_code", ""),
-    error_message: dict->getString("error_message", ""),
+    error_message: dict->getString("error_message", dict->getString("error_reason", "")),
     unified_code: dict->getString("unified_code", ""),
     unified_message: dict->getString("unified_message", ""),
     connector: dict->getString("connector", ""),
@@ -65,6 +65,14 @@ let getAnalyticsRow = (json: JSON.t): analytics_row => {
     attempt_count: dict->getInt("attempt_count", 0),
     connector_label: dict->getString("connector_label", ""),
     active_attempt_id: dict->getString("active_attempt_id", ""),
+    card_last_4: dict->getString("card_last_4", ""),
+    card_network: dict->getString("card_network", ""),
+    card_issuer: dict->getString("card_issuer", ""),
+    refunds_status: dict->getString("refunds_status", ""),
+    refunds_count: dict->getInt("refunds_count", 0),
+    dispute_status: dict->getString("dispute_status", ""),
+    dispute_count: dict->getInt("dispute_count", 0),
+    routing_approach: dict->getString("routing_approach", ""),
     attempts_list: dict
     ->getArrayFromDict("attempts_list", [])
     ->JSON.Encode.array
@@ -131,6 +139,7 @@ let mapAnalyticsRowToCommonType = (row: analytics_row): PaymentInterfaceTypes.or
     payment_id: row.payment_id,
     merchant_id: row.merchant_id,
     net_amount: row.net_amount,
+    surcharge_amount: None,
     status: row.status,
     amount: row.amount,
     amount_capturable,
@@ -190,6 +199,7 @@ let mapAnalyticsRowToCommonType = (row: analytics_row): PaymentInterfaceTypes.or
     order_quantity: "",
     product_name: "",
     card_brand: "",
+    card_network: row.card_network,
     payment_experience: row.payment_experience,
     frm_message: {
       frm_name: row.frm_message,
@@ -214,6 +224,16 @@ let mapAnalyticsRowToCommonType = (row: analytics_row): PaymentInterfaceTypes.or
     extended_auth_applied: false,
     request_extended_auth: false,
     hyperswitch_error_description: "",
+    active_attempt_id: row.active_attempt_id,
+    card_last_4: row.card_last_4,
+    card_issuer: row.card_issuer,
+    refunds_status: row.refunds_status,
+    refunds_count: row.refunds_count,
+    dispute_status: row.dispute_status,
+    dispute_count: row.dispute_count,
+    routing_approach: row.routing_approach,
+    unified_code: row.unified_code,
+    unified_message: row.unified_message,
   }
 }
 

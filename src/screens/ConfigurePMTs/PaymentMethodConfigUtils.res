@@ -218,20 +218,20 @@ let filterItemObjMapper = (
 
 let initialFilters = (
   configuredConnectors: array<PaymentMethodConfigTypes.paymentMethodConfiguration>,
-  businessProfiles,
-  ~profileId,
+  businessProfiles: BusinessProfileInterfaceTypes.commonProfileEntity,
 ): array<EntityType.initialFilters<'t>> => {
   open FormRenderer
 
-  open BusinessProfileInterfaceTypesV1
-  let businessProfileNameDropDownOption = arrBusinessProfile =>
-    arrBusinessProfile->Array.map(ele => {
-      let obj: FilterSelectBox.dropdownOption = {
-        label: {`${ele.profile_name} (${profileId})`},
-        value: profileId,
-      }
-      obj
-    })
+  open BusinessProfileInterfaceTypes
+  let businessProfileNameDropDownOption = (
+    b: BusinessProfileInterfaceTypes.commonProfileEntity,
+  ) => {
+    let obj: FilterSelectBox.dropdownOption = {
+      label: {`${b.profile_name} (${b.profile_id})`},
+      value: b.profile_id,
+    }
+    [obj]
+  }
 
   [
     {

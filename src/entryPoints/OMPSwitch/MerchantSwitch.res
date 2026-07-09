@@ -10,12 +10,12 @@ module NewMerchantCreationModal = {
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let getMerchantList = MerchantListHook.useFetchMerchantList()
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-    let (_, isCurrentOrganizationPlatform) = OMPSwitchHooks.useOMPType()
+    let {isCurrentOrganizationPlatform} = OMPSwitchHooks.useOMPType()
     let {allowConnectedMerchants} = Recoil.useRecoilValueFromAtom(HyperswitchAtom.featureFlagAtom)
 
     let enableMerchantType =
@@ -155,7 +155,7 @@ module NewMerchantCreationModal = {
 let make = () => {
   open OMPSwitchUtils
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
   let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (showModal, setShowModal) = React.useState(_ => false)
@@ -163,7 +163,7 @@ let make = () => {
   let isMobileView = MatchMedia.useMobileChecker()
   let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
-  let (isCurrentMerchantPlatform, isCurrentOrganizationPlatform) = OMPSwitchHooks.useOMPType()
+  let {isCurrentMerchantPlatform, isCurrentOrganizationPlatform} = OMPSwitchHooks.useOMPType()
   let {
     globalUIConfig: {
       sidebarColor: {backgroundColor, borderColor, primaryTextColor, secondaryTextColor},

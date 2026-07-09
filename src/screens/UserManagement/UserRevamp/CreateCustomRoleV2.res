@@ -155,7 +155,7 @@ let make = () => {
   let (permissionModules, setPermissionModules) = React.useState(() => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (currentEntityType, setCurrentEntityType) = React.useState(() => #Merchant)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let initialValues = React.useMemo(() => {
     let baseValues = getInitialValuesForForm(currentEntityType)
     let parentGroupsInitial = permissionModules->Array.map(module_ => {

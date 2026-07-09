@@ -53,7 +53,14 @@ type column = {
   pointWidth: pointWidth,
   borderRadius: borderRadius,
 }
-type plotOptions = {line: line, column: column}
+
+type pointClickEventPoint = {series: series, index: int, category: string}
+type pointClickEvent = {point: pointClickEventPoint}
+type clickEvents = {click: option<pointClickEvent => unit>}
+type pointEvents = {events: option<clickEvents>}
+type seriesOptions = {point: option<pointEvents>}
+
+type plotOptions = {line: line, column: column, series: option<seriesOptions>}
 type labels = {
   align: align,
   style: style,
@@ -75,6 +82,7 @@ type dataObj = {
   data: array<float>,
   color: color,
   yAxis: int,
+  stacking?: string,
 }
 
 type data = array<dataObj>

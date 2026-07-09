@@ -8,7 +8,7 @@ export class VolumeBasedConfiguration {
   }
 
   get connectorDropdown(): Locator {
-    return this.page.locator('[data-value="addProcessors"]');
+    return this.page.getByRole("button", { name: "Select Processors" });
   }
 
   get configurationNameInput(): Locator {
@@ -24,7 +24,9 @@ export class VolumeBasedConfiguration {
   }
 
   get descriptionTextbox(): Locator {
-    return this.page.getByRole("textbox", { name: "Add a description for your" });
+    return this.page.getByRole("textbox", {
+      name: "Add a description for your",
+    });
   }
 
   get configureRuleButton(): Locator {
@@ -44,7 +46,9 @@ export class VolumeBasedConfiguration {
   }
 
   get duplicateAndEditConfigurationButton(): Locator {
-    return this.page.getByRole("button", { name: "Duplicate & Edit Configuration" });
+    return this.page.getByRole("button", {
+      name: "Duplicate & Edit Configuration",
+    });
   }
 
   get activeIndicator(): Locator {

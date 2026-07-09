@@ -15,7 +15,7 @@ let make = (~connectorInfo) => {
     ->ConnectorUtils.connectorTypeTuple
   let {connector_name: connectorName} = connectorInfodict
   let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   let connectorAccountFields = React.useMemo(() => {
     try {
@@ -69,7 +69,7 @@ let make = (~connectorInfo) => {
         <div className="flex flex-col ">
           <ConnectorHelperV2.PreviewCreds connectorInfo=connectorInfodict connectorAccountFields />
         </div>
-        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
+        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.connector_name />
       </div>
     </div>
     <ACLButton

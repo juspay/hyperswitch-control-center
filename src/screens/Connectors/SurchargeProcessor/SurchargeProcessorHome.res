@@ -9,36 +9,55 @@ let make = () => {
 
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchDetails = useGetMethod()
+  let updateDetails = useUpdateMethod()
   let connectorName = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
-  let (showConfirmModal, setShowConfirmModal) = React.useState(_ => false)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
-  let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"surcharge-processor", "new"} => false
   | _ => true
   }
 
-  let isSurchargeProcessorConnected =
-    ConnectorListInterface.useFilteredConnectorList(
-      ~retainInList=SurchargeProcessor,
-    )->Array.length > 0
-
   let connectorInfo = ConnectorInterface.mapDictToTypedConnectorPayload(
     ConnectorInterface.connectorInterfaceV1,
     initialValues->getDictFromJsonObject,
   )
+
+  let isConnectorDisabled = connectorInfo.disabled
+
+  let disableConnector = async currentIsDisabled => {
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let mcaId = connectorInfo.merchant_connector_id
+      let disableConnectorPayload = ConnectorUtils.getDisableConnectorPayload(
+        connectorInfo.connector_type->ConnectorUtils.connectorTypeTypedValueToStringMapper,
+        currentIsDisabled,
+      )
+      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(mcaId))
+      let res = await updateDetails(url, disableConnectorPayload, Post)
+      setInitialValues(_ => res)
+      let _ = await fetchConnectorListResponse()
+      setScreenState(_ => PageLoaderWrapper.Success)
+      showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
+    } catch {
+    | Exn.Error(_) => {
+        let action = currentIsDisabled ? "enable" : "disable"
+
+        showToast(~message=`Failed to ${action} connector!`, ~toastType=ToastError)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
+    }
+  }
 
   let getConnectorDetails = async () => {
     try {
@@ -122,31 +141,6 @@ let make = () => {
     None
   }, [connectorName])
 
-  let updateBusinessProfileDetails = async mcaId => {
-    try {
-      let body =
-        [
-          (
-            "surcharge_connector_details",
-            [("surcharge_connector_id", mcaId->JSON.Encode.string)]
-            ->Dict.fromArray
-            ->JSON.Encode.object,
-          ),
-        ]
-        ->Dict.fromArray
-        ->JSON.Encode.object
-      let _ = await updateBusinessProfile(~body)
-    } catch {
-    | _ => showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
-    }
-  }
-  let handleMenuOptionSubmit = async mcaId => {
-    setScreenState(_ => Loading)
-    let _ = await updateBusinessProfileDetails(mcaId)
-    setScreenState(_ => Success)
-    showToast(~message="Successfully Saved the Changes", ~toastType=ToastState.ToastSuccess)
-  }
-
   let surchargeProcessorId =
     businessProfileRecoilVal.surcharge_connector_details->Option.mapOr("", details =>
       details.surcharge_connector_id
@@ -166,18 +160,15 @@ let make = () => {
         ~methodType=Post,
         ~id=isUpdateFlow ? Some(connectorID) : None,
       )
-      let response = await updateAPIHook(connectorUrl, body, Post)
+      let response = await updateDetails(connectorUrl, body, Post)
 
-      if !isUpdateFlow {
-        let mcaId =
-          response
-          ->getDictFromJsonObject
-          ->getString("merchant_connector_id", "")
-        let _ = await updateBusinessProfileDetails(mcaId)
-      }
       let _ = await fetchConnectorListResponse()
       setInitialValues(_ => response)
       setCurrentStep(_ => Summary)
+      showToast(
+        ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
+        ~toastType=ToastSuccess,
+      )
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -188,7 +179,6 @@ let make = () => {
         if errorCode === "HE_01" {
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
           setCurrentStep(_ => ConfigurationFields)
-          setShowConfirmModal(_ => false)
         } else {
           showToast(~message=errorMessage, ~toastType=ToastError)
           setScreenState(_ => PageLoaderWrapper.Error(err))
@@ -215,17 +205,15 @@ let make = () => {
 
   let summaryPageButton = switch currentStep {
   | Preview =>
-    <>
+    <div className="flex gap-6 items-center">
       <RenderIf condition={connectorInfo.merchant_connector_id == surchargeProcessorId}>
         <div
           className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.md.medium}`}>
           {"Default"->React.string}
         </div>
       </RenderIf>
-      <RenderIf condition={connectorInfo.merchant_connector_id != surchargeProcessorId}>
-        <MenuOption handleMenuOptionSubmit connectorInfo />
-      </RenderIf>
-    </>
+      <ConnectorPreviewHelper.EnableDisableConnectorToggle disableConnector isConnectorDisabled />
+    </div>
   | _ =>
     <Button
       text="Done"
@@ -262,9 +250,7 @@ let make = () => {
             <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
               connector=connectorName
               connectorType={SurchargeProcessor}
-              headerButton={<ConnectButton
-                setShowModal={setShowConfirmModal} isSurchargeProcessorConnected
-              />}>
+              headerButton={<ConnectButton />}>
               <div className="flex flex-col gap-2 p-2 md:px-10">
                 <ConnectorAccountDetailsHelper.BusinessProfileRender
                   isUpdateFlow selectedConnector={connectorName}
@@ -288,37 +274,6 @@ let make = () => {
                 </div>
               </div>
             </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
-            <Modal
-              showModal={showConfirmModal}
-              setShowModal={setShowConfirmModal}
-              modalClass="w-full md:w-4/12 mx-auto my-40 rounded-xl"
-              childClass="">
-              <div className="relative flex items-start px-4 pb-10 pt-6 gap-4">
-                <div className="flex flex-col gap-5">
-                  <div className="flex justify-between">
-                    <p className={`${heading.sm.semibold}`}>
-                      {"Connect Surcharge Processor ?"->React.string}
-                    </p>
-                    <Icon
-                      name="hswitch-close" size=22 onClick={_ => setShowConfirmModal(_ => false)}
-                    />
-                  </div>
-                  <p className={`text-hyperswitch_black opacity-50 ${body.md.medium}`}>
-                    {"Are you sure you want to connect this surcharge processor ? This will set this as the default processor."->React.string}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-end justify-end gap-4 px-4 pb-4">
-                <Button
-                  buttonType=Button.Secondary
-                  onClick={_ => setShowConfirmModal(_ => false)}
-                  text="Cancel"
-                />
-                <FormRenderer.SubmitButton
-                  text="Proceed" buttonType=Button.Primary loadingText="Processing..."
-                />
-              </div>
-            </Modal>
           </Form>
 
         | Summary | Preview =>

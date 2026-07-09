@@ -5,11 +5,26 @@ open MerchantAcquirerDetailsUtils
 open Typography
 open APIUtils
 
+let acquirerIdHeading = (~bucket: acquirerBucket) =>
+  <div className="flex items-center gap-2 mt-2">
+    <div className="flex items-center h-6 px-2.5 rounded-md border border-nd_br_gray-150 gap-1">
+      <span className={`${body.md.medium} text-nd_gray-500`}> {"Acquirer: "->React.string} </span>
+      <span className={`${body.md.medium} text-nd_gray-950`}>
+        {bucket.merchant_name->React.string}
+      </span>
+    </div>
+    <div className="w-px h-4 bg-nd_gray-200" />
+    <div className="flex items-center text-nd_gray-500 gap-1">
+      <span className={`${body.md.medium}`}> {"ID: "->React.string} </span>
+      <span className={`${body.md.medium}`}> {bucket.id->React.string} </span>
+    </div>
+  </div>
+
 module AddAcquirerModal = {
   @react.component
   let make = (~showModal, ~setShowModal) => {
     open FormRenderer
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
@@ -71,7 +86,7 @@ module AddNetworkModal = {
   @react.component
   let make = (~showModal, ~setShowModal, ~bucket: acquirerBucket) => {
     open FormRenderer
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
@@ -108,7 +123,7 @@ module AddNetworkModal = {
       setShowModal
       closeOnOutsideClick=true
       modalHeading="Add Network Configuration"
-      modalHeadingDescription={`Acquirer: ${bucket.merchant_name} - ID: ${bucket.id}`}
+      modalHeadingDescriptionElement={acquirerIdHeading(~bucket)}
       modalClass="flex flex-col justify-start h-screen w-420-px float-right overflow-hidden !bg-white"
       childClass="">
       <RenderIf condition={allNetworksUsed}>
@@ -154,7 +169,7 @@ module EditNetworkModal = {
     ~setEntry,
   ) => {
     open FormRenderer
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
@@ -213,6 +228,7 @@ module EditNetworkModal = {
         ~options=lockedNetworkOptions,
         ~buttonText=networkEntry.network,
         ~deselectDisable=true,
+        ~disableSelect=true,
       ),
       ~disabled=true,
     )
@@ -221,7 +237,7 @@ module EditNetworkModal = {
       setShowModal
       closeOnOutsideClick=true
       modalHeading="Edit Network Configuration"
-      modalHeadingDescription={`Editing ${networkEntry.network} entry`}
+      modalHeadingDescriptionElement={acquirerIdHeading(~bucket)}
       modalClass="flex flex-col justify-start h-screen w-420-px float-right overflow-hidden !bg-white"
       childClass="">
       <Form
