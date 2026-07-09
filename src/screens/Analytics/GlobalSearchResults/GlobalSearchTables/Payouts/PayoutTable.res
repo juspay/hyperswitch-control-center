@@ -41,6 +41,8 @@ module PreviewTable = {
       showResultsPerPageSelector=false
       paginationClass="hidden"
       showAutoScroll=true
+      headingCenter=searchResultsHeadingCenter
+      alignCellContent=searchResultsCellAlignmentClass
     />
   }
 }

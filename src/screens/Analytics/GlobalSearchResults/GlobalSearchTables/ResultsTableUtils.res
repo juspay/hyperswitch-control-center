@@ -1,5 +1,9 @@
 let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
 
+// Search-result previews should present every column consistently, regardless of the cell type.
+let searchResultsCellAlignmentClass = "flex flex-col items-center text-center"
+let searchResultsHeadingCenter = true
+
 let useGetData = () => {
   open LogicUtils
   let getURL = APIUtils.useGetURL()
