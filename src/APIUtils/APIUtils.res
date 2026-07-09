@@ -345,6 +345,11 @@ let useGetURL = () => {
 
         | _ => ""
         }
+      | PLATFORM_ORDER_FILTERS =>
+        switch methodType {
+        | Get => `payments/platform/filter`
+        | _ => ""
+        }
       | DISPUTE_FILTERS =>
         switch methodType {
         | Get =>
@@ -391,6 +396,15 @@ let useGetURL = () => {
           | _ => `payments/list`
           }
 
+        | _ => ""
+        }
+      | PLATFORM_ORDERS =>
+        switch methodType {
+        | Get =>
+          switch queryParameters {
+          | Some(queryParams) => `payments/platform/list?${queryParams}`
+          | None => `payments/platform/list?limit=100`
+          }
         | _ => ""
         }
       | PAYMENT_CANCEL =>
