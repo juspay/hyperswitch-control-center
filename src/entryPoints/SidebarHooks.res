@@ -43,7 +43,7 @@ let useGetHsSidebarValues = () => {
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let isNewAnalyticsEnable =
     newAnalytics && isFeatureEnabledForDenyListMerchant(merchantSpecificConfig.newAnalytics)
-  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
+  let {isCurrentMerchantPlatform, isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
 
   let standardModules = !isCurrentMerchantPlatform
     ? [
@@ -79,6 +79,7 @@ let useGetHsSidebarValues = () => {
       ~isVaultProcessor=vaultProcessor,
       ~isSurchargeProcessor=surchargeProcessor,
       ~isCurrentMerchantPlatform,
+      ~isCurrentMerchantConnected,
     ),
     default->analytics(
       disputeAnalytics,
