@@ -7,7 +7,7 @@ let make = (~setAppScreenState) => {
   let {recoveryCodesLeft} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let recoveryCode = recoveryCodesLeft->Option.getOr(0)
-  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
+  let {isCurrentMerchantPlatform} = OMPSwitchHooks.useOMPType()
 
   <>
     <div className="flex flex-col gap-4">
