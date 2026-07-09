@@ -175,27 +175,31 @@ let getConnectorResponse = dict => {
   maskedResponse->isNonEmptyString ? maskedResponse : dict->getString("response", "")
 }
 
-let isUcsConnectorDestination = dict => {
-  switch dict->getString("destination", "") {
-  | "unified_connector_service" | "ucs" => true
-  | _ => false
-  }
+let isConnectorDestinationUcs = dict => {
+  let destination = dict->getString("destination", "")
+  destination === (#unified_connector_service: connectorDestination :> string) ||
+    destination === (#ucs: connectorDestination :> string)
 }
 
-let isAuthenticationConnectorFlow = flow => {
-  switch flow {
-  | "Authorize" | "Authorization" | "ExternalVaultProxy" | "Authenticate" | "Authentication" => true
-  | _ => false
-  }
-}
+let authenticationConnectorFlows = [
+  (#Authorize: connectorFlow :> string),
+  (#Authorization: connectorFlow :> string),
+  (#ExternalVaultProxy: connectorFlow :> string),
+  (#Authenticate: connectorFlow :> string),
+  (#Authentication: connectorFlow :> string),
+]
+
+let isAuthenticationConnectorFlow = flow => authenticationConnectorFlows->Array.includes(flow)
 
 let getConnectorDisplayName = dict => {
   let flow = dict->getString("flow", "")
-  if flow->isAuthenticationConnectorFlow {
-    dict->isUcsConnectorDestination ? "Internal Authentication" : "Authentication"
-  } else {
-    flow->apiNameMapper->camelCaseToTitle
-  }
+  flow->isAuthenticationConnectorFlow
+    ? {
+        dict->isConnectorDestinationUcs ? "Internal Authentication" : "Authentication"
+      }
+    : {
+        flow->apiNameMapper->camelCaseToTitle
+      }
 }
 
 let tabkeys: array<eventLogs> = [Logdetails, Request, Response]
