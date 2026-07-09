@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.07.09.0
+
+### Features
+
+- Add advanced payment list foundation ([#5081](https://github.com/juspay/hyperswitch-control-center/pull/5081)) ([`aa22bde`](https://github.com/juspay/hyperswitch-control-center/commit/aa22bdea5c7ebb5b9d1a9cdcd295196a74764d20))
+- Add surcharge processor profile update in payment settings ([#5056](https://github.com/juspay/hyperswitch-control-center/pull/5056)) ([`b63c987`](https://github.com/juspay/hyperswitch-control-center/commit/b63c987ddfcce2474eb33e5171dfd8a59e65da39))
+
+### Bug Fixes
+
+- Hide vault processor for connected merchants ([#5110](https://github.com/juspay/hyperswitch-control-center/pull/5110)) ([`7a5a6eb`](https://github.com/juspay/hyperswitch-control-center/commit/7a5a6eb2298bec85a131b1268b73c6286ae014f2))
+
+**Full Changelog:** [`2026.07.08.0...2026.07.09.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.08.0...2026.07.09.0)
+
+- - -
+
 ## 2026.07.08.0
 
 ### Features
