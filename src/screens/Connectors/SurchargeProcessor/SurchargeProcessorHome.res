@@ -48,7 +48,10 @@ let make = () => {
       setInitialValues(_ => res)
       let _ = await fetchConnectorListResponse()
       setScreenState(_ => PageLoaderWrapper.Success)
-      showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
+      showToast(
+        ~message=`Connector has been successfully ${currentIsDisabled ? "enabled" : "disabled"}`,
+        ~toastType=ToastSuccess,
+      )
     } catch {
     | Exn.Error(_) => {
         let action = currentIsDisabled ? "enable" : "disable"
@@ -180,7 +183,14 @@ let make = () => {
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
           setCurrentStep(_ => ConfigurationFields)
         } else {
-          showToast(~message=errorMessage, ~toastType=ToastError)
+          showToast(
+            ~message=errorMessage->isNonEmptyString
+              ? errorMessage
+              : err->isNonEmptyString
+              ? err
+              : "Something went wrong",
+            ~toastType=ToastError,
+          )
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }

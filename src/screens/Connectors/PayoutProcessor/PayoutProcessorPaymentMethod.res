@@ -85,7 +85,14 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
           setCurrentStep(_ => ConnectorTypes.IntegFields)
         } else {
-          showToast(~message=errorMessage, ~toastType=ToastError)
+          showToast(
+            ~message=errorMessage->isNonEmptyString
+              ? errorMessage
+              : err->isNonEmptyString
+              ? err
+              : "Something went wrong",
+            ~toastType=ToastError,
+          )
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }

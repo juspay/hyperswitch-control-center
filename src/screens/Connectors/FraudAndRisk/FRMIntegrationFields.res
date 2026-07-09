@@ -125,7 +125,7 @@ let make = (
     ->LogicUtils.getString("merchant_connector_id", "")
 
   let submitText = if !isUpdateFlow {
-    "FRM Player Created Successfully!"
+    "Connector Created Successfully!"
   } else {
     "Details Updated!"
   }
@@ -142,7 +142,7 @@ let make = (
     open LogicUtils
     try {
       let response = await updateDetails(frmUrl, body, Post)
-      let _ = updateMerchantDetails()
+      let _ = await updateMerchantDetails()
       let _ = await fetchConnectorListResponse()
       setInitialValues(_ => response)
       setCurrentStep(prev => prev->getNextStep)
@@ -158,7 +158,14 @@ let make = (
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
           setPageState(_ => Error(""))
         } else {
-          showToast(~message=errorMessage, ~toastType=ToastError)
+          showToast(
+            ~message=errorMessage->LogicUtils.isNonEmptyString
+              ? errorMessage
+              : err->LogicUtils.isNonEmptyString
+              ? err
+              : "Something went wrong",
+            ~toastType=ToastError,
+          )
           setPageState(_ => Error(""))
         }
       }

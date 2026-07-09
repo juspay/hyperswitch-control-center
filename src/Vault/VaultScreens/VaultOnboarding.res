@@ -132,7 +132,14 @@ let make = () => {
           })
           setScreenState(_ => Success)
         } else {
-          showToast(~message=errorMessage, ~toastType=ToastError)
+          showToast(
+            ~message=errorMessage->isNonEmptyString
+              ? errorMessage
+              : err->isNonEmptyString
+              ? err
+              : "Something went wrong",
+            ~toastType=ToastError,
+          )
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }
