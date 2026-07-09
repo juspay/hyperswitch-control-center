@@ -18,12 +18,14 @@ import { PmAuthProcessor } from "../support/pages/connector/PmAuthProcessor";
 import { TaxProcessor } from "../support/pages/connector/TaxProcessor";
 import { BillingProcessor } from "../support/pages/connector/BillingProcessor";
 import { VaultProcessor } from "../support/pages/connector/VaultProcessor";
+import { SurchargeProcessor } from "../support/pages/connector/SurchargeProcessor";
 import { payoutConnectorConfig } from "../support/fixtures/payoutConnectorConfig";
 import { frmConnectorConfig } from "../support/fixtures/frmConnectorConfig";
 import { pmAuthProcessorConfig } from "../support/fixtures/pmAuthProcessorConfig";
 import { taxProcessorConfig } from "../support/fixtures/taxProcessorConfig";
 import { billingProcessorConfig } from "../support/fixtures/billingProcessorConfig";
 import { vaultProcessorConfig } from "../support/fixtures/vaultProcessorConfig";
+import { surchargeProcessorConfig } from "../support/fixtures/surchargeProcessorConfig";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
@@ -872,6 +874,104 @@ test.describe("Visual Testing - Connectors", () => {
 
       await expect(page).toHaveScreenshot(
         "connectors-vault-processor-created.png",
+        {
+          fullPage: true,
+          animations: "disabled",
+          maxDiffPixelRatio: 0.01,
+        },
+      );
+    });
+  });
+
+  test.describe("Surcharge Processor", () => {
+    test("surcharge processor landing should match visual snapshot", async ({
+      page,
+    }) => {
+      await mockV2MerchantList(page);
+      await enableFeatureFlags(page, ["surcharge_processor"]);
+
+      const homePage = new HomePage(page);
+      const surchargeProcessor = new SurchargeProcessor(page);
+
+      const email = generateUniqueEmail();
+      await signupUser(email, PLAYWRIGHT_PASSWORD);
+      await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+
+      await homePage.connectors.click();
+      await homePage.surchargeConnectors.click();
+      await page.waitForLoadState("networkidle");
+
+      await expect(surchargeProcessor.connectButton.first()).toBeVisible({
+        timeout: 10000,
+      });
+
+      await expect(page).toHaveScreenshot(
+        "connectors-surcharge-processor-empty.png",
+        {
+          fullPage: true,
+          animations: "disabled",
+          maxDiffPixelRatio: 0.01,
+        },
+      );
+    });
+
+    test("surcharge processor setup flow should match visual snapshot at each section", async ({
+      page,
+    }) => {
+      await mockV2MerchantList(page);
+      await enableFeatureFlags(page, ["surcharge_processor"]);
+
+      const homePage = new HomePage(page);
+      const surchargeProcessor = new SurchargeProcessor(page);
+      const processor = surchargeProcessorConfig.interpayments;
+
+      const email = generateUniqueEmail();
+      await signupUser(email, PLAYWRIGHT_PASSWORD);
+      await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+
+      await homePage.connectors.click();
+      await homePage.surchargeConnectors.click();
+      await page.waitForLoadState("networkidle");
+
+      await expect(page).toHaveURL(/.*dashboard\/surcharge-processor/);
+
+      // Section 1 — credentials form for the selected processor.
+      await surchargeProcessor.connectButton.first().click();
+      await fillConnectorFields(page, processor.fields);
+      await page.waitForLoadState("networkidle");
+
+      await expect(page).toHaveScreenshot(
+        "connectors-surcharge-processor-credentials.png",
+        {
+          fullPage: true,
+          animations: "disabled",
+          maxDiffPixelRatio: 0.01,
+        },
+      );
+
+      // Section 2 — connector created and listed.
+      await surchargeProcessor.connectAndProceedButton.click();
+      await page.waitForLoadState("networkidle");
+      await expect(page).toHaveScreenshot(
+        "connectors-surcharge-processor-created-details.png",
+        {
+          fullPage: true,
+          animations: "disabled",
+          maxDiffPixelRatio: 0.01,
+        },
+      );
+
+      await surchargeProcessor.doneButton.click();
+
+      await expect(
+        page.getByText(processor.fields.overrides["Enter Connector label"], {
+          exact: true,
+        }),
+      ).toBeVisible({ timeout: 10000 });
+      await page.waitForLoadState("networkidle");
+
+      await expect(page).toHaveScreenshot(
+        "connectors-surcharge-processor-created.png",
         {
           fullPage: true,
           animations: "disabled",

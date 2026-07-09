@@ -21,11 +21,13 @@ module ShowOrderDetails = {
     ~isNonRefundConnector,
     ~paymentStatus,
     ~openRefundModal,
+    ~openVoidModal=() => (),
     ~paymentId,
     ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
     ~sectionTitle=?,
   ) => {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let typedPaymentStatus = paymentStatus->statusVariantMapper
     let statusUI = useGetStatus(data)
 
@@ -68,6 +70,19 @@ module ShowOrderDetails = {
               ? Normal
               : Disabled}
           />
+          <RenderIf
+            condition={version === V1 &&
+            typedPaymentStatus === RequiresCapture &&
+            !(paymentId->isTestData)}>
+            <ACLButton
+              authorization={userHasAccess(~groupAccess=OperationsManage)}
+              text="+ Void"
+              onClick={_ => {
+                openVoidModal()
+              }}
+              buttonType={Secondary}
+            />
+          </RenderIf>
         </div>
       </RenderIf>
       <FormRenderer.DesktopRow>
@@ -96,7 +111,7 @@ module ShowOrderDetails = {
 module OrderInfo = {
   open OrderEntity
   @react.component
-  let make = (~order, ~openRefundModal, ~isNonRefundConnector, ~paymentId) => {
+  let make = (~order, ~openRefundModal, ~openVoidModal, ~isNonRefundConnector, ~paymentId) => {
     let paymentStatus = order.status
     let headingStyles = "font-bold text-lg mb-5"
     <div className="md:flex md:flex-col md:gap-5">
@@ -121,6 +136,7 @@ module OrderInfo = {
             isNonRefundConnector
             paymentStatus
             openRefundModal
+            openVoidModal
             paymentId
           />
         </div>
@@ -143,6 +159,7 @@ module OrderInfo = {
             isNonRefundConnector
             paymentStatus
             openRefundModal
+            openVoidModal
             paymentId
           />
         </div>
@@ -402,21 +419,31 @@ module Disputes = {
       }
     }
 
-    <CustomExpandableTable
-      title="Disputes"
-      heading
-      rows
-      onExpandIconClick
-      expandedRowIndexArray
-      getRowDetails
-      showSerial=true
-    />
+    <div className="flex flex-col gap-4">
+      <p className={`${body.lg.bold} text-nd_gray-900`}> {"Disputes"->React.string} </p>
+      <CustomExpandableTable
+        title="Disputes"
+        heading
+        rows
+        onExpandIconClick
+        expandedRowIndexArray
+        getRowDetails
+        showSerial=true
+      />
+    </div>
   }
 }
 
 module OrderActions = {
   @react.component
-  let make = (~orderData, ~refetch, ~showModal, ~setShowModal) => {
+  let make = (
+    ~orderData,
+    ~refetch,
+    ~showModal,
+    ~setShowModal,
+    ~showVoidModal,
+    ~setShowVoidModal,
+  ) => {
     let (amountAvailableToRefund, setAmountAvailableToRefund) = React.useState(_ => 0.0)
     let refundData = orderData.refunds
     let disputeData = orderData.disputes
@@ -458,7 +485,7 @@ module OrderActions = {
         setShowModal
         borderBottom=true
         childClass=""
-        modalClass="w-fit absolute top-0 lg:top-0 md:top-1/3 left-0 lg:left-1/3 md:left-1/3 md:w-4/12 mt-20"
+        modalClass="w-full md:w-4/12 mx-auto mt-20"
         bgClass="bg-white dark:bg-jp-gray-darkgray_background">
         <OrderRefundForm
           order={orderData}
@@ -468,6 +495,15 @@ module OrderActions = {
           amountAvailableToRefund
           refetch
         />
+      </Modal>
+      <Modal
+        showModal=showVoidModal
+        setShowModal=setShowVoidModal
+        borderBottom=true
+        childClass=""
+        modalClass="w-full md:w-4/12 mx-auto mt-20"
+        bgClass="bg-nd_gray-0">
+        <OrderVoidForm order={orderData} setShowModal=setShowVoidModal refetch />
       </Modal>
     </div>
   }
@@ -627,6 +663,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let showToast = ToastAdapter.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (showModal, setShowModal) = React.useState(_ => false)
+  let (showVoidModal, setShowVoidModal) = React.useState(_ => false)
   let (orderData, setOrderData) = React.useState(_ =>
     Dict.make()->PaymentInterfaceUtils.mapDictToPaymentPayload
   )
@@ -697,6 +734,10 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     setShowModal(_ => true)
   }
 
+  let openVoidModal = _ => {
+    setShowVoidModal(_ => true)
+  }
+
   let showSyncButton = React.useCallback(_ => {
     let status = orderData.status->statusVariantMapper
 
@@ -761,10 +802,20 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         </RenderIf>
         <div />
       </div>
-      <OrderActions orderData={orderData} refetch={refreshStatus} showModal setShowModal />
+      <OrderActions
+        orderData={orderData}
+        refetch={refreshStatus}
+        showModal
+        setShowModal
+        showVoidModal
+        setShowVoidModal
+      />
     </div>
     <RenderIf condition={orderData.frm_message.frm_status === "fraud"}>
       <FraudRiskBanner frmMessage={orderData.frm_message} refElement=frmDetailsRef />
+    </RenderIf>
+    <RenderIf condition={orderData.status->statusVariantMapper === Review}>
+      <ReviewStatusBanner order={orderData} refetch={refreshStatus} />
     </RenderIf>
     <PageLoaderWrapper
       screenState
@@ -776,6 +827,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           paymentId=id
           order={orderData}
           openRefundModal
+          openVoidModal
           isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />
         // hide the logs section for V2 since the apis are failing
@@ -808,18 +860,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         </RenderIf>
         <RenderIf condition={isDisputeDataVisible}>
           <div className="overflow-scroll">
-            <RenderAccordion
-              initialExpandedArray={isDisputeDataVisible ? [0] : []}
-              accordion={[
-                {
-                  title: "Disputes",
-                  renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
-                    <Disputes disputesData={orderData.disputes} />
-                  },
-                  renderContentOnTop: None,
-                },
-              ]}
-            />
+            <Disputes disputesData={orderData.disputes} />
           </div>
         </RenderIf>
         <RenderAccordion

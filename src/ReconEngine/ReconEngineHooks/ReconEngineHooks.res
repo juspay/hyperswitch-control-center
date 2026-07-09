@@ -1,9 +1,8 @@
 open ReconEngineUtils
+open APIUtils
+open LogicUtils
 
 let useGetIngestionHistory = () => {
-  open APIUtils
-  open LogicUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -26,9 +25,6 @@ let useGetIngestionHistory = () => {
 }
 
 let useGetTransactions = () => {
-  open APIUtils
-  open LogicUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -51,9 +47,6 @@ let useGetTransactions = () => {
 }
 
 let useGetAccounts = () => {
-  open APIUtils
-  open LogicUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -76,9 +69,6 @@ let useGetAccounts = () => {
 }
 
 let useGetReconRuleList = () => {
-  open APIUtils
-  open LogicUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -98,10 +88,47 @@ let useGetReconRuleList = () => {
   }
 }
 
-let useGetProcessingEntries = () => {
-  open APIUtils
-  open LogicUtils
+let useGetOverviewRules = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
 
+  async (~queryParameters=None) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#OVERVIEW_RULES,
+        ~queryParameters,
+      )
+      let res = await fetchDetails(url)
+      res->getArrayDataFromJson(overviewRulesResponseMapper)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetOverviewRulesTimeSeries = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~queryParameters=None) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#OVERVIEW_RULES_TIME_SERIES,
+        ~queryParameters,
+      )
+      let res = await fetchDetails(url)
+      res->getArrayDataFromJson(overviewRulesTimeSeriesResponseMapper)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetProcessingEntries = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -124,9 +151,6 @@ let useGetProcessingEntries = () => {
 }
 
 let useGetTransformationHistory = () => {
-  open APIUtils
-  open LogicUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -149,8 +173,6 @@ let useGetTransformationHistory = () => {
 }
 
 let useFetchMetadataSchema = () => {
-  open APIUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
