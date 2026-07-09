@@ -170,6 +170,34 @@ let apiNameMapper = apiName => {
   }
 }
 
+let getConnectorResponse = dict => {
+  let maskedResponse = dict->getString("masked_response", "")
+  maskedResponse->isNonEmptyString ? maskedResponse : dict->getString("response", "")
+}
+
+let isUcsConnectorDestination = dict => {
+  switch dict->getString("destination", "") {
+  | "unified_connector_service" | "ucs" => true
+  | _ => false
+  }
+}
+
+let isAuthenticationConnectorFlow = flow => {
+  switch flow {
+  | "Authorize" | "Authorization" | "ExternalVaultProxy" | "Authenticate" | "Authentication" => true
+  | _ => false
+  }
+}
+
+let getConnectorDisplayName = dict => {
+  let flow = dict->getString("flow", "")
+  if flow->isAuthenticationConnectorFlow {
+    dict->isUcsConnectorDestination ? "Internal Authentication" : "Authentication"
+  } else {
+    flow->apiNameMapper->camelCaseToTitle
+  }
+}
+
 let tabkeys: array<eventLogs> = [Logdetails, Request, Response]
 
 let getLogType = dict => {
@@ -215,7 +243,7 @@ let getApiName = (dict, ~nameToURLMapper) => {
   switch dict->getLogType {
   | API_EVENTS => dict->getString("api_flow", "default value")->camelCaseToTitle
   | SDK => dict->getString("event_name", "default value")
-  | CONNECTOR => dict->getString("flow", "default value")->apiNameMapper->camelCaseToTitle
+  | CONNECTOR => dict->getConnectorDisplayName
   | WEBHOOKS => dict->getString("event_type", "default value")->snakeToTitle
   | ROUTING =>
     dict
@@ -418,7 +446,7 @@ let getEventCode = (requestObject, ~logType) =>
 let getResponseObject = (dict, ~logType) =>
   switch logType {
   | API_EVENTS | ROUTING => dict->getString("response", "")
-  | CONNECTOR => dict->getString("masked_response", "")
+  | CONNECTOR => dict->getConnectorResponse
   | SDK => {
       let isErrorLog = dict->getString("log_type", "") === "ERROR"
       isErrorLog ? dict->getString("value", "") : ""
@@ -638,7 +666,7 @@ let setDefaultValue = (initialData, setLogDetails, setSelectedOption) => {
     }
   | CONNECTOR => {
       let request = initialData->getString("request", "")
-      let response = initialData->getString("masked_response", "")
+      let response = initialData->getConnectorResponse
       setLogDetails(_ => {
         response,
         request,
