@@ -2,12 +2,10 @@ open LogicUtils
 open RuleBasedHelper
 open Typography
 
-let rulesPath = "algorithm.data.rules"
-
-let idOfRule = json => json->getDictFromJsonObject->getString("id", "")
-
 @react.component
 let make = () => {
+  let rulesPath = "algorithm.data.rules"
+  let idOfRule = json => json->getDictFromJsonObject->getString("id", "")
   let rulesInput = ReactFinalForm.useField(rulesPath).input
   let rules = rulesInput.value->getArrayFromJson([])
   let setRules = arr => rulesInput.onChange(arr->Identity.arrayOfGenericTypeToFormReactEvent)
