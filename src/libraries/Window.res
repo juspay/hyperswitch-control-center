@@ -188,12 +188,6 @@ module Navigator = {
   external userAgent: string = "userAgent"
 
   @val @scope(("window", "navigator"))
-  external browserName: string = "appName"
-
-  @val @scope(("window", "navigator"))
-  external browserVersion: string = "appVersion"
-
-  @val @scope(("window", "navigator"))
   external platform: string = "platform"
 
   @val @scope(("window", "navigator"))

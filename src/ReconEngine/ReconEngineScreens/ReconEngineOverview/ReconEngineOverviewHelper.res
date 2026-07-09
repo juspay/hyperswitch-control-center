@@ -1,16 +1,40 @@
 open Typography
-open ReconEngineTypes
 
-module AmountRow = {
+module CreditDebitAmountRow = {
   @react.component
-  let make = (~label: string, ~amount: string, ~count: string) => {
-    <div className="flex flex-row justify-between items-center">
-      <div>
-        <p className={`${body.md.medium} text-nd_gray-400 mb-1`}> {label->React.string} </p>
+  let make = (
+    ~statusType: ReconEngineOverviewSummaryTypes.amountType,
+    ~label: string,
+    ~creditAmount: ReconEngineTypes.balanceType,
+    ~creditCount: int,
+    ~debitAmount: ReconEngineTypes.balanceType,
+    ~debitCount: int,
+  ) => {
+    open ReconEngineOverviewSummaryHelper
+    let (iconName, iconColor) = ReconEngineOverviewSummaryUtils.getStatusIcon(statusType)
+
+    <div className="flex flex-row items-center">
+      <div className="flex flex-row items-center gap-1.5 flex-[1]">
+        <Icon name={iconName} className={iconColor} size=12 />
+        <p className={`${body.md.medium} text-nd_gray-500`}> {label->React.string} </p>
       </div>
-      <div className="flex flex-col items-end">
-        <p className={`${body.lg.semibold} text-nd_gray-600`}> {amount->React.string} </p>
-        <p className={`${body.sm.medium} text-nd_gray-400`}> {count->React.string} </p>
+      <div className="flex flex-row flex-[1] justify-between items-center">
+        <div className="flex flex-1 flex-col items-center justify-center">
+          <p className={`${body.md.semibold} text-nd_gray-600`}>
+            <AmountCell value={Math.abs(debitAmount.value)} currency={debitAmount.currency} />
+          </p>
+          <p className={`${body.sm.medium} text-nd_gray-400`}>
+            <NumberCell value=debitCount />
+          </p>
+        </div>
+        <div className="flex flex-1 flex-col items-center justify-center">
+          <p className={`${body.md.semibold} text-nd_gray-600`}>
+            <AmountCell value={Math.abs(creditAmount.value)} currency={creditAmount.currency} />
+          </p>
+          <p className={`${body.sm.medium} text-nd_gray-400`}>
+            <NumberCell value=creditCount />
+          </p>
+        </div>
       </div>
     </div>
   }
@@ -24,63 +48,50 @@ module AccountDetailCard = {
     ~isSource: bool,
     ~transactionData: ReconEngineOverviewSummaryTypes.accountTransactionData,
   ) => {
-    let formatAmount = (balance: balanceType): string => {
-      `${Math.abs(balance.value)->CurrencyFormatUtils.valueFormatter(Amount)} ${balance.currency}`
-    }
+    open ReconEngineOverviewSummaryTypes
 
-    let formatCount = (count: int): string => {
-      `${count->Int.toString} Txns`
-    }
-
-    let (reconciledAmount, mismatchAmount, pendingAmount, pendingLabel) = if isSource {
-      (
-        formatAmount(transactionData.matched_transaction_amount),
-        formatAmount(transactionData.mismatched_transaction_amount),
-        formatAmount(transactionData.pending_transaction_amount),
-        "Pending",
-      )
-    } else {
-      (
-        formatAmount(transactionData.matched_confirmation_amount),
-        formatAmount(transactionData.mismatched_confirmation_amount),
-        formatAmount(transactionData.pending_confirmation_amount),
-        "Expected",
-      )
-    }
-
-    let (reconciledCount, mismatchCount, pendingCount) = if isSource {
-      (
-        formatCount(transactionData.matched_transaction_count),
-        formatCount(transactionData.mismatched_transaction_count),
-        formatCount(transactionData.pending_transaction_count),
-      )
-    } else {
-      (
-        formatCount(transactionData.matched_confirmation_count),
-        formatCount(transactionData.mismatched_confirmation_count),
-        formatCount(transactionData.pending_confirmation_count),
-      )
-    }
+    let pendingLabel = isSource ? "Pending" : "Expected"
 
     <div className="border rounded-xl border-nd_gray-200 ">
       <div className="border-b p-4 bg-nd_gray-25 rounded-t-xl   ">
         <p className={`${body.md.semibold} text-nd_gray-800`}> {accountName->React.string} </p>
       </div>
-      <div className="p-4 flex flex-col gap-4">
-        <AmountRow
-          label={`Matched with ${otherAccountName}`}
-          amount={reconciledAmount}
-          count={reconciledCount}
-        />
-        <AmountRow
-          label={`Mismatch with ${otherAccountName}`} amount={mismatchAmount} count={mismatchCount}
-        />
-        <div className="border-t pt-4">
-          <p className={`${body.sm.semibold} text-nd_gray-600 mb-3`}>
-            {"FUNDS IN FLIGHT"->React.string}
-          </p>
-          <AmountRow label={pendingLabel} amount={pendingAmount} count={pendingCount} />
+      <div className="p-4 flex flex-col gap-3">
+        <div className="flex flex-row items-center">
+          <div className="flex-[1]" />
+          <div className="flex flex-row flex-[1] justify-between items-center">
+            <p className={`${body.sm.semibold} text-nd_gray-400 uppercase flex-1 text-center`}>
+              {"Debit"->React.string}
+            </p>
+            <p className={`${body.sm.semibold} text-nd_gray-400 uppercase flex-1 text-center`}>
+              {"Credit"->React.string}
+            </p>
+          </div>
         </div>
+        <CreditDebitAmountRow
+          statusType=MatchedAmount
+          label={`Matched with ${otherAccountName}`}
+          creditAmount={transactionData.matched_transaction_amount}
+          creditCount={transactionData.matched_transaction_count}
+          debitAmount={transactionData.matched_confirmation_amount}
+          debitCount={transactionData.matched_confirmation_count}
+        />
+        <CreditDebitAmountRow
+          statusType=MismatchedAmount
+          label={`Mismatch with ${otherAccountName}`}
+          creditAmount={transactionData.mismatched_transaction_amount}
+          creditCount={transactionData.mismatched_transaction_count}
+          debitAmount={transactionData.mismatched_confirmation_amount}
+          debitCount={transactionData.mismatched_confirmation_count}
+        />
+        <CreditDebitAmountRow
+          statusType=PendingAmount
+          label={pendingLabel}
+          creditAmount={transactionData.pending_transaction_amount}
+          creditCount={transactionData.pending_transaction_count}
+          debitAmount={transactionData.pending_confirmation_amount}
+          debitCount={transactionData.pending_confirmation_count}
+        />
       </div>
     </div>
   }
