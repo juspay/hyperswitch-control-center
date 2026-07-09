@@ -17,4 +17,5 @@ type validationFieldsV2 =
   | MaxAutoRetries
   | AutoRetry
   | VaultProcessorDetails
+  | SurchargeConnectorDetails
   | UnknownValidateFields(string)
