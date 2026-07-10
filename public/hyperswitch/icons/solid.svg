@@ -5,6 +5,10 @@ License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL
 License)
 -->
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
+  <symbol id="nd-corner-down-left" viewBox="0 0 24 24" fill="none">
+    <path d="M9 10L4 15L9 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M20 4V11C20 13.2091 18.2091 15 16 15H4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  </symbol>
   <symbol id="close" viewBox="0 0 12 12">
     <path d="M11.8339 1.34102L10.6589 0.166016L6.00057 4.82435L1.34224 0.166016L0.167236 1.34102L4.82557 5.99935L0.167236 10.6577L1.34224 11.8327L6.00057 7.17435L10.6589 11.8327L11.8339 10.6577L7.17557 5.99935L11.8339 1.34102Z" />
   </symbol>
@@ -1585,6 +1589,11 @@ License)
   <symbol id="nd-toast-error" viewBox="0 0 14 14" fill="none">
     <path
       d="M4.5 4.5L9.5 9.5M9.5 4.5L4.5 9.5M13 7C13 10.3137 10.3137 13 7 13C3.68629 13 1 10.3137 1 7C1 3.68629 3.68629 1 7 1C10.3137 1 13 3.68629 13 7Z"
+      stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" />
+  </symbol>
+  <symbol id="nd-corner-down-left" width="12" height="12" viewBox="0 0 12 12" fill="none">
+    <path
+      d="M3.90586 11.3334C2.7373 10.4692 1.68777 9.45965 0.783149 8.33026C0.705548 8.23338 0.666748 8.11673 0.666748 8.00008M3.90586 4.66675C2.7373 5.53095 1.68777 6.54052 0.783149 7.6699C0.705548 7.76679 0.666748 7.88343 0.666748 8.00008M0.666748 8.00008H6.00008C7.86692 8.00008 8.80034 8.00008 9.51338 7.63677C10.1406 7.31719 10.6505 6.80726 10.9701 6.18005C11.3334 5.46701 11.3334 4.53359 11.3334 2.66675L11.3334 0.666748"
       stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" />
   </symbol>
 </svg>

@@ -40,6 +40,8 @@ let defaultConfig = (): config => {
   },
 }
 
+let defaultInitialValues = (): JSON.t => defaultConfig()->Identity.genericTypeToJson
+
 let isCardBinField = (lhs: string): bool => lhs === "card_bin" || lhs === "extended_card_bin"
 
 let variantTypeOfLhs = (lhs): value => {

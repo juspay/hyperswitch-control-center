@@ -44,13 +44,8 @@ let make = (~routingType) => {
         routingRuleId=id isActive connectorList urlEntityName=V1(ROUTING) baseUrlForRedirection
       />
     | ADVANCED =>
-      <AdvancedRouting
-        routingRuleId=id
-        isActive
-        setCurrentRouting
-        connectorList
-        urlEntityName=V1(ROUTING)
-        baseUrlForRedirection
+      <AdvancedRoutingRevamp
+        routingRuleId=id isActive urlEntityName=V1(ROUTING) baseUrlForRedirection
       />
     | AUTH_RATE_ROUTING =>
       <AuthRateRouting
