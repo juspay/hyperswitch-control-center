@@ -10,7 +10,6 @@ type transactionSearchType =
   | @as("order_id") OrderId
   | @as("unknown") UnknownTransactionSearchType
 
-@unboxed
 type transactionSortOrder =
   | @as("asc") Asc
   | @as("desc") Desc
