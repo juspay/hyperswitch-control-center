@@ -56,7 +56,6 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
         ~direction,
         ~order=sortOrder,
         ~limit=5,
-        (),
       )
       let page = await getTransactionsV2(~body)
       setTransactions(_ => page.transactions)
@@ -67,27 +66,35 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
     }
   }
 
-  let goToFirstPage = () =>
-    fetchPage(~sortBy=None, ~direction=#next, ~searchType, ~searchText)->ignore
+  let goToFirstPage = () => {
+    fetchPage(~sortBy=defaultSortBy, ~direction=#next, ~searchType, ~searchText)->ignore
+  }
 
-  let goToNextPage = () =>
-    switch cursors.next {
-    | Some(_) => fetchPage(~sortBy=cursors.next, ~direction=#next, ~searchType, ~searchText)->ignore
-    | None => ()
-    }
+  let goToNextPage = () => {
+    cursors.next->mapOptionOrDefault((), nextCursor => {
+      fetchPage(~sortBy=nextCursor, ~direction=#next, ~searchType, ~searchText)->ignore
+    })
+  }
 
-  let goToPrevPage = () =>
-    switch cursors.prev {
-    | Some(_) =>
-      fetchPage(~sortBy=cursors.prev, ~direction=#previous, ~searchType, ~searchText)->ignore
-    | None => ()
-    }
+  let goToPrevPage = () => {
+    cursors.prev->mapOptionOrDefault((), prevCursor => {
+      fetchPage(~sortBy=prevCursor, ~direction=#previous, ~searchType, ~searchText)->ignore
+    })
+  }
 
   let handleSearchSubmit = (selectedType: option<string>) => {
     let newSearchType =
-      selectedType->Option.mapOr(ReconEngineTransactionsTypes.TransactionId, searchTypeFromString)
+      selectedType->mapOptionOrDefault(
+        ReconEngineTransactionsTypes.TransactionId,
+        searchTypeFromString,
+      )
     setSearchType(_ => newSearchType)
-    fetchPage(~sortBy=None, ~direction=#next, ~searchType=newSearchType, ~searchText)->ignore
+    fetchPage(
+      ~sortBy=defaultSortBy,
+      ~direction=#next,
+      ~searchType=newSearchType,
+      ~searchText,
+    )->ignore
   }
 
   React.useEffect(() => {
