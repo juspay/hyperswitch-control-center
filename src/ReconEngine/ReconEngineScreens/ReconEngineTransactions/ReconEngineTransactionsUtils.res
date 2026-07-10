@@ -6,15 +6,16 @@ open ReconEngineTransactionsTypes
 
 let searchTypeFromString = str => {
   switch str {
-  | "order_id" => OrderId
-  | "transaction_id" => TransactionId
+  | "order_id" => SearchOrderId
+  | "transaction_id" => SearchTransactionId
   | _ => UnknownTransactionSearchType
   }
 }
 
-let searchTypeOptions: array<SearchInput.searchTypeOption> = [TransactionId, OrderId]->Array.map((
-  txnType
-): SearchInput.searchTypeOption => {
+let searchTypeOptions: array<SearchInput.searchTypeOption> = [
+  SearchTransactionId,
+  SearchOrderId,
+]->Array.map((txnType): SearchInput.searchTypeOption => {
   {
     label: (txnType :> string)->snakeToTitle,
     value: (txnType :> string),

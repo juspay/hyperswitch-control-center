@@ -11,16 +11,14 @@ let make = (
   open ReconEngineTransactionsUtils
   open ReconEngineHooks
   open HSAnalyticsUtils
+  open ReconEngineTransactionsTypes
 
   let getTransactionsV2 = useGetTransactionsV2()
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
   let (transactions, setTransactions) = React.useState(_ => [])
-  let (
-    cursors,
-    setCursors,
-  ) = React.useState((_): ReconEngineTransactionsTypes.transactionCursors => {
+  let (cursors, setCursors) = React.useState((_): transactionCursors => {
     next: None,
     prev: None,
   })
@@ -29,15 +27,10 @@ let make = (
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
 
   let (searchText, setSearchText) = React.useState(_ => "")
-  let (searchType, setSearchType) = React.useState(_ => ReconEngineTransactionsTypes.TransactionId)
+  let (searchType, setSearchType) = React.useState(_ => SearchTransactionId)
 
   let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
-  let sortOrder =
-    sortDict->getMappedValueFromDict(
-      "Transactions",
-      ReconEngineTransactionsTypes.Desc,
-      getSortOrder,
-    )
+  let sortOrder = sortDict->getMappedValueFromDict("Transactions", Desc, getSortOrder)
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let dateDropDownTriggerMixpanelCallback = () => {
@@ -51,7 +44,7 @@ let make = (
         initialFilters={statusDisplayFilters()}
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
+        initialFixedFilters={initialFixedFilterFields(
           null,
           ~events=dateDropDownTriggerMixpanelCallback,
         )}
@@ -59,7 +52,7 @@ let make = (
         tabNames=filterKeys
         key="ReconEngineTransactionsFilters"
         updateUrlWith=updateExistingKeys
-        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+        filterFieldsPortalName={filterFieldsPortalName}
         showCustomFilter=false
         refreshFilters=false
       />
@@ -106,11 +99,7 @@ let make = (
   }
 
   let handleSearchSubmit = (selectedType: option<string>) => {
-    let newSearchType =
-      selectedType->mapOptionOrDefault(
-        ReconEngineTransactionsTypes.TransactionId,
-        searchTypeFromString,
-      )
+    let newSearchType = selectedType->mapOptionOrDefault(SearchTransactionId, searchTypeFromString)
     setSearchType(_ => newSearchType)
     fetchPage(
       ~sortBy=defaultSortBy,
