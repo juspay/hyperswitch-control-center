@@ -92,11 +92,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
           setCurrentStep(_ => ConnectorTypes.IntegFields)
         } else {
           showToast(
-            ~message=errorMessage->isNonEmptyString
-              ? errorMessage
-              : err->isNonEmptyString
-              ? err
-              : "Something went wrong",
+            ~message=LogicUtils.getErrorMessage(~message=errorMessage, ~error=err),
             ~toastType=ToastError,
           )
           setScreenState(_ => PageLoaderWrapper.Error(err))
