@@ -62,8 +62,7 @@ let useGetTransactionsV2 = () => {
       let transactions =
         dict
         ->getArrayFromDict("items", [])
-        ->Belt.Array.keepMap(JSON.Decode.object)
-        ->Array.map(transactionItemToObjMapper)
+        ->getMappedValueFromArrayOfJson(transactionItemToObjMapper)
       let getCursor = key =>
         dict
         ->getOptionValFromDict(key)

@@ -4,12 +4,13 @@ open ReconEngineTypes
 open ReconEngineUtils
 open ReconEngineTransactionsTypes
 
-let searchTypeFromString = str =>
+let searchTypeFromString = str => {
   switch str {
   | "order_id" => OrderId
   | "transaction_id" => TransactionId
   | _ => UnknownTransactionSearchType
   }
+}
 
 let searchTypeOptions: array<SearchInput.searchTypeOption> = [TransactionId, OrderId]->Array.map((
   txnType
@@ -20,8 +21,9 @@ let searchTypeOptions: array<SearchInput.searchTypeOption> = [TransactionId, Ord
   }
 })
 
-let getSortOrder = (sortOb: LoadedTable.sortOb): transactionSortOrder =>
+let getSortOrder = (sortOb: LoadedTable.sortOb): transactionSortOrder => {
   sortOb.sortKey === "date" && sortOb.sortType === LoadedTable.ASC ? Asc : Desc
+}
 
 let transactionCursorFromDict = dict => {
   let cursorValueDict = dict->getDictfromDict("cursor_value")
@@ -42,11 +44,10 @@ let buildTransactionsV2Body = (
   ~searchType: transactionSearchType,
   ~searchText: string,
   ~ruleId: string,
-  ~sortBy: option<transactionCursor>,
+  ~sortBy: transactionCursor,
   ~direction: cursorDirection,
   ~order: transactionSortOrder=Desc,
   ~limit=4,
-  (),
 ) => {
   let statusFilter = filterValueJson->getArrayFromDict("status", [])
   let finalStatusFilter = getMergedMatchedTransactionStatusFilter(statusFilter)
@@ -100,7 +101,7 @@ let buildTransactionsV2Body = (
     limit,
     direction,
     order,
-    sortBy: sortBy->Option.getOr(defaultSortBy),
+    sortBy,
   }
 
   [
