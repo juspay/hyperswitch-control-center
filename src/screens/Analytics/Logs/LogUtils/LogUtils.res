@@ -181,25 +181,10 @@ let isConnectorDestinationUcs = dict => {
     destination === (#ucs: connectorDestination :> string)
 }
 
-let authenticationConnectorFlows = [
-  (#Authorize: connectorFlow :> string),
-  (#Authorization: connectorFlow :> string),
-  (#ExternalVaultProxy: connectorFlow :> string),
-  (#Authenticate: connectorFlow :> string),
-  (#Authentication: connectorFlow :> string),
-]
-
-let isAuthenticationConnectorFlow = flow => authenticationConnectorFlows->Array.includes(flow)
-
 let getConnectorDisplayName = dict => {
   let flow = dict->getString("flow", "")
-  flow->isAuthenticationConnectorFlow
-    ? {
-        dict->isConnectorDestinationUcs ? "Internal Authentication" : "Authentication"
-      }
-    : {
-        flow->apiNameMapper->camelCaseToTitle
-      }
+  let displayName = flow->apiNameMapper->camelCaseToTitle
+  dict->isConnectorDestinationUcs ? `Internal ${displayName}` : displayName
 }
 
 let tabkeys: array<eventLogs> = [Logdetails, Request, Response]
