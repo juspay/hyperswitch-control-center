@@ -48,7 +48,6 @@ let buildTransactionsV2Body = (
   ~direction: cursorDirection,
   ~order: transactionSortOrder=Desc,
   ~limit=4,
-  (),
 ) => {
   let statusFilter = filterValueJson->getArrayFromDict("status", [])
   let finalStatusFilter = getMergedMatchedTransactionStatusFilter(statusFilter)

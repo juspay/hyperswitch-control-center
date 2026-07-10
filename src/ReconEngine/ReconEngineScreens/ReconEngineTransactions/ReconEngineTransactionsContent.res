@@ -78,7 +78,6 @@ let make = (
         ~sortBy,
         ~direction,
         ~order=sortOrder,
-        (),
       )
       let page = await getTransactionsV2(~body)
       setTransactions(_ => page.transactions)
@@ -90,8 +89,9 @@ let make = (
     }
   }
 
-  let goToFirstPage = () =>
+  let goToFirstPage = () => {
     fetchPage(~sortBy=defaultSortBy, ~direction=#next, ~searchType, ~searchText)->ignore
+  }
 
   let goToNextPage = () => {
     cursors.next->mapOptionOrDefault((), cursor => {
