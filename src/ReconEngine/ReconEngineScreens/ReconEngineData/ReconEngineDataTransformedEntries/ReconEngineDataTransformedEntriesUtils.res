@@ -1,8 +1,120 @@
+open LogicUtils
 open ReconEngineFilterUtils
 open ReconEngineDataTransformedEntriesTypes
 open ReconEngineUtils
 open ReconEngineTypes
 open CurrencyFormatUtils
+
+let searchTypeFromString = str => {
+  switch str {
+  | "order_id" => SearchOrderId
+  | "staging_entry_id" => SearchStagingEntryId
+  | _ => UnknownProcessingEntrySearchType
+  }
+}
+
+let searchTypeOptions: array<SearchInput.searchTypeOption> = [
+  SearchStagingEntryId,
+  SearchOrderId,
+]->Array.map((entrySearchType): SearchInput.searchTypeOption => {
+  {
+    label: (entrySearchType :> string)->snakeToTitle,
+    value: (entrySearchType :> string),
+  }
+})
+
+let getSortOrder = (sortOb: LoadedTable.sortOb): processingEntrySortOrder => {
+  sortOb.sortKey === "date" && sortOb.sortType === LoadedTable.ASC ? Asc : Desc
+}
+
+let processingEntryCursorFromDict = dict => {
+  let cursorValueDict = dict->getDictfromDict("cursor_value")
+
+  (
+    {
+      sortField: dict->getString("sort_field", "effective_at"),
+      cursorValue: Some(
+        (
+          {
+            effectiveAt: cursorValueDict->getString("effective_at", ""),
+            cursorId: cursorValueDict->getString("id", ""),
+          }: processingEntryCursorValue
+        ),
+      ),
+    }: processingEntryCursor
+  )
+}
+
+let defaultProcessingEntrySortBy: processingEntryCursor = {
+  sortField: "effective_at",
+  cursorValue: None,
+}
+
+let buildProcessingEntriesV2Body = (
+  ~filterValueJson: Dict.t<JSON.t>,
+  ~searchType: processingEntrySearchType,
+  ~searchText: string,
+  ~sortBy: processingEntryCursor,
+  ~direction: processingEntryCursorDirection,
+  ~order: processingEntrySortOrder=Desc,
+  ~limit=10,
+) => {
+  let statusFilter = filterValueJson->getArrayFromDict("status", [])
+  let statusValues =
+    statusFilter->isEmptyArray
+      ? getProcessingEntryStatusValueFromStatusList([Pending, Processed, NeedsManualReview, Void])
+      : statusFilter->Array.map(v => v->getStringFromJson(""))
+
+  let entryTypeFilter =
+    filterValueJson->getArrayFromDict("entry_type", [])->Array.map(v => v->getStringFromJson(""))
+  let accountIdFilter =
+    filterValueJson
+    ->getArrayFromDict("account_id", [])
+    ->Array.map(v => v->getStringFromJson(""))
+    ->Array.joinWith(",")
+
+  let startTime = filterValueJson->getString("startTime", "")
+  let endTime = filterValueJson->getString("endTime", "")
+  let hasTimeRange = startTime->isNonEmptyString && endTime->isNonEmptyString
+
+  let filters =
+    [
+      Some(("status", statusValues->getJsonFromArrayOfString)),
+      entryTypeFilter->isNonEmptyArray
+        ? Some(("entry_type", entryTypeFilter->getJsonFromArrayOfString))
+        : None,
+      accountIdFilter->isNonEmptyString
+        ? Some(("account_id", accountIdFilter->JSON.Encode.string))
+        : None,
+      hasTimeRange
+        ? Some((
+            "time_range",
+            [
+              ("start_time", startTime->JSON.Encode.string),
+              ("end_time", endTime->JSON.Encode.string),
+            ]->getJsonFromArrayOfJson,
+          ))
+        : None,
+      searchText->isNonEmptyString
+        ? Some(((searchType :> string), searchText->String.trim->JSON.Encode.string))
+        : None,
+    ]
+    ->Array.filterMap(entry => entry)
+    ->getJsonFromArrayOfJson
+
+  [
+    ("filters", filters),
+    (
+      "cursor_payload",
+      {
+        limit,
+        direction,
+        order,
+        sortBy,
+      }->Identity.genericTypeToJson,
+    ),
+  ]->getJsonFromArrayOfJson
+}
 
 let getTransformedEntriesTransformationHistoryPayloadFromDict = dict => {
   dict->transformationHistoryItemToObjMapper
