@@ -1,89 +1,112 @@
+open HierarchicalTransactionsTableEntity
+
 @react.component
 let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   open LogicUtils
-  open ReconEngineFilterUtils
-  open ReconEngineTypes
-  open HierarchicalTransactionsTableEntity
+  open ReconEngineTransactionsUtils
 
-  let (configuredTransactions, setConfiguredReports) = React.useState(_ => [])
-  let (filteredTransactionsData, setFilteredReports) = React.useState(_ => [])
-  let (accountData, setAccountData) = React.useState(_ => [])
-  let (offset, setOffset) = React.useState(_ => 0)
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let getTransactionsV2 = ReconEngineHooks.useGetTransactionsV2()
+  let getAccounts = ReconEngineHooks.useGetAccounts()
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
-  let getTransactions = ReconEngineHooks.useGetTransactions()
-  let getAccounts = ReconEngineHooks.useGetAccounts()
 
-  let fetchTransactionsData = async () => {
-    setScreenState(_ => PageLoaderWrapper.Loading)
+  let (transactions, setTransactions) = React.useState(_ => [])
+  let (
+    cursors,
+    setCursors,
+  ) = React.useState((_): ReconEngineTransactionsTypes.transactionCursors => {
+    next: None,
+    prev: None,
+  })
+  let (accountData, setAccountData) = React.useState(_ => [])
+  let (offset, setOffset) = React.useState(_ => 0)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (searchText, setSearchText) = React.useState(_ => "")
+  let (searchType, setSearchType) = React.useState(_ => ReconEngineTransactionsTypes.TransactionId)
+
+  let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
+  let sortOrder =
+    sortDict->getMappedValueFromDict(
+      "Overview Transactions",
+      ReconEngineTransactionsTypes.Desc,
+      getSortOrder,
+    )
+
+  let fetchAccounts = async () => {
     try {
-      let enhancedFilterValueJson = Dict.copy(filterValueJson)
-      let statusFilter = filterValueJson->getArrayFromDict("status", [])
-
-      // If matched_manual is selected, automatically add matched_force
-      let finalStatusFilter = getMergedMatchedTransactionStatusFilter(statusFilter)
-      let statusList = getTransactionStatusValueFromStatusList([
-        Expected,
-        Missing,
-        OverAmount(Mismatch),
-        UnderAmount(Mismatch),
-        OverAmount(Expected),
-        UnderAmount(Expected),
-        DataMismatch,
-        CurrencyMismatch,
-        SplitMismatch,
-        PartiallyReconciled,
-        Posted(Manual),
-        Matched(Auto),
-        Matched(Manual),
-        Matched(Force),
-        Matched(WithTolerance),
-        Void,
-      ])
-
-      if finalStatusFilter->Array.length === 0 {
-        enhancedFilterValueJson->Dict.set("status", statusList->getJsonFromArrayOfString)
-      } else {
-        enhancedFilterValueJson->Dict.set(
-          "status",
-          finalStatusFilter->Array.map(v => v->getStringFromJson(""))->getJsonFromArrayOfString,
-        )
-      }
-      let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
-        ~filterValueJson=enhancedFilterValueJson,
-      )
-      let queryString = if baseQueryString->isNonEmptyString {
-        `${baseQueryString}&rule_id=${ruleDetails.rule_id}`
-      } else {
-        `rule_id=${ruleDetails.rule_id}`
-      }
-      let transactionsList = await getTransactions(~queryParameters=Some(queryString))
-      let accountData = await getAccounts()
-      let transactionsListData = transactionsList->Array.map(Nullable.make)
-      setAccountData(_ => accountData)
-      setConfiguredReports(_ => transactionsListData)
-      setFilteredReports(_ => transactionsListData)
-      setScreenState(_ => PageLoaderWrapper.Success)
+      let accounts = await getAccounts()
+      setAccountData(_ => accounts)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
+    | _ => ()
     }
   }
 
+  let fetchPage = async (~sortBy, ~direction, ~searchType, ~searchText) => {
+    if screenState !== PageLoaderWrapper.Success {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+    }
+    try {
+      let body = buildTransactionsV2Body(
+        ~filterValueJson,
+        ~searchType,
+        ~searchText,
+        ~ruleId=ruleDetails.rule_id,
+        ~sortBy,
+        ~direction,
+        ~order=sortOrder,
+        ~limit=5,
+        (),
+      )
+      let page = await getTransactionsV2(~body)
+      setTransactions(_ => page.transactions)
+      setCursors(_ => page.cursors)
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    }
+  }
+
+  let goToFirstPage = () =>
+    fetchPage(~sortBy=None, ~direction=#next, ~searchType, ~searchText)->ignore
+
+  let goToNextPage = () =>
+    switch cursors.next {
+    | Some(_) => fetchPage(~sortBy=cursors.next, ~direction=#next, ~searchType, ~searchText)->ignore
+    | None => ()
+    }
+
+  let goToPrevPage = () =>
+    switch cursors.prev {
+    | Some(_) =>
+      fetchPage(~sortBy=cursors.prev, ~direction=#previous, ~searchType, ~searchText)->ignore
+    | None => ()
+    }
+
+  let handleSearchSubmit = (selectedType: option<string>) => {
+    let newSearchType =
+      selectedType->Option.mapOr(ReconEngineTransactionsTypes.TransactionId, searchTypeFromString)
+    setSearchType(_ => newSearchType)
+    fetchPage(~sortBy=None, ~direction=#next, ~searchType=newSearchType, ~searchText)->ignore
+  }
+
+  React.useEffect(() => {
+    fetchAccounts()->ignore
+    None
+  }, [])
+
   React.useEffect(() => {
     if !(filterValue->isEmptyDict) {
-      setOffset(_ => 0)
-      fetchTransactionsData()->ignore
+      goToFirstPage()
     }
     None
-  }, [filterValue])
+  }, (filterValue, sortOrder))
 
-  let statusFilterUi = {
+  let statusFilterUi =
     <div className="flex flex-row">
       <DynamicFilter
         title="ReconEngineOverviewTransactionsFilters"
-        initialFilters={ReconEngineOverviewUtils.initialDisplayFilters()}
+        initialFilters={statusDisplayFilters()}
         options=[]
         popupFilterFields=[]
         initialFixedFilters=[]
@@ -93,20 +116,17 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
         updateUrlWith=updateExistingKeys
         showCustomFilter=false
         refreshFilters=false
-        setOffset
       />
     </div>
-  }
 
   <div className="flex flex-col gap-4">
     <div className="flex-shrink-0"> {statusFilterUi} </div>
-    <PageLoaderWrapper
-      screenState
-      customUI={<NewAnalyticsHelper.NoData height="h-96" message="No data available" />}
-      customLoader={<Shimmer styleClass="w-full h-96 rounded-xl" />}>
+    <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="w-full h-96 rounded-xl" />}>
       <LoadedTableWithCustomColumns
-        title="All Transactions"
-        actualData={filteredTransactionsData}
+        title="Overview Transactions"
+        hideTitle=true
+        actualData={transactions->Array.map(Nullable.make)}
+        totalResults={transactions->Array.length}
         entity={hierarchicalTransactionsLoadedTableEntity(
           `v1/recon-engine/transactions`,
           ~authorization=Access,
@@ -114,21 +134,55 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
           ~accountData,
         )}
         resultsPerPage=5
-        totalResults={filteredTransactionsData->Array.length}
         offset
         setOffset
-        currentFetchCount={configuredTransactions->Array.length}
+        currentFetchCount={transactions->Array.length}
         customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
         defaultColumns
         showSerialNumberInCustomizeColumns=false
         sortingBasedOnDisabled=false
-        hideTitle=true
         remoteSortEnabled=true
+        showPagination=false
+        showResultsPerPageSelector=false
+        tableDataLoading={screenState === PageLoaderWrapper.Loading}
+        dataLoading={screenState === PageLoaderWrapper.Loading}
         customizeColumnButtonIcon="nd-filter-horizontal"
         hideRightTitleElement=true
         showAutoScroll=true
         customSeparation=[(3, 4)]
+        filters={<SearchInput
+          inputText=searchText
+          onChange={value => setSearchText(_ => value)}
+          placeholder="Search by ID"
+          showTypeSelector=true
+          typeSelectorOptions=searchTypeOptions
+          onSubmitSearchDropdown=handleSearchSubmit
+          showSearchIcon=true
+          widthClass="w-max"
+        />}
       />
+      <RenderIf condition={transactions->isNonEmptyArray}>
+        <div className="flex flex-row justify-end items-center gap-3">
+          <Button
+            text="Prev"
+            buttonType=Secondary
+            buttonSize=Small
+            buttonState={cursors.prev->Option.isNone || screenState === PageLoaderWrapper.Loading
+              ? Button.Disabled
+              : Button.Normal}
+            onClick={_ => goToPrevPage()}
+          />
+          <Button
+            text="Next"
+            buttonType=Primary
+            buttonSize=Small
+            buttonState={cursors.next->Option.isNone || screenState === PageLoaderWrapper.Loading
+              ? Button.Disabled
+              : Button.Normal}
+            onClick={_ => goToNextPage()}
+          />
+        </div>
+      </RenderIf>
     </PageLoaderWrapper>
   </div>
 }
