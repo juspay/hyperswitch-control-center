@@ -31,17 +31,13 @@ let make = (
   let (searchText, setSearchText) = React.useState(_ => "")
   let (searchType, setSearchType) = React.useState(_ => ReconEngineTransactionsTypes.TransactionId)
 
-  // Server-side sort on the Effective At (Date) column, driven by the table's shared sort atom.
   let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
-  let sortOrder: ReconEngineTransactionsTypes.transactionSortOrder = switch sortDict->Dict.get(
-    "Transactions",
-  ) {
-  | Some(sortOb) if sortOb.sortKey === "date" =>
-    sortOb.sortType === LoadedTable.ASC
-      ? ReconEngineTransactionsTypes.Asc
-      : ReconEngineTransactionsTypes.Desc
-  | _ => ReconEngineTransactionsTypes.Desc
-  }
+  let sortOrder =
+    sortDict->getMappedValueFromDict(
+      "Transactions",
+      ReconEngineTransactionsTypes.Desc,
+      getSortOrder,
+    )
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let dateDropDownTriggerMixpanelCallback = () => {
@@ -131,7 +127,6 @@ let make = (
     None
   }, [])
 
-  // Refetch page 1 on filter/date changes and whenever the sort order flips.
   React.useEffect(() => {
     if !(filterValue->isEmptyDict) {
       goToFirstPage()
@@ -184,7 +179,7 @@ let make = (
           setSelectedData: setSelectedRows,
         }}
       />
-      <RenderIf condition={transactions->Array.length > 0}>
+      <RenderIf condition={transactions->isNonEmptyArray}>
         <div className="flex flex-row justify-end items-center gap-3">
           <Button
             text="Prev"

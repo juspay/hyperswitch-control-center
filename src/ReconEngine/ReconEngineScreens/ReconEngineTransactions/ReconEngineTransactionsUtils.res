@@ -20,39 +20,22 @@ let searchTypeOptions: array<SearchInput.searchTypeOption> = [TransactionId, Ord
   }
 })
 
+let getSortOrder = (sortOb: LoadedTable.sortOb): transactionSortOrder =>
+  sortOb.sortKey === "date" && sortOb.sortType === LoadedTable.ASC ? Asc : Desc
+
 let transactionCursorFromDict = dict => {
   let cursorValueDict = dict->getDictfromDict("cursor_value")
 
-  (
-    {
-      sortField: dict->getString("sort_field", "effective_at"),
-      cursorValue: (
-        {
-          effectiveAt: cursorValueDict->getString("effective_at", ""),
-          cursorId: cursorValueDict->getString("id", ""),
-        }: transactionCursorValue
-      ),
-    }: transactionCursor
-  )
+  {
+    sortField: dict->getString("sort_field", "effective_at"),
+    cursorValue: Some({
+      effectiveAt: cursorValueDict->getString("effective_at", ""),
+      cursorId: cursorValueDict->getString("id", ""),
+    }),
+  }
 }
 
-let transactionCursorToJson = (cursor: transactionCursor) =>
-  [
-    ("sort_field", cursor.sortField->JSON.Encode.string),
-    (
-      "cursor_value",
-      [
-        ("effective_at", cursor.cursorValue.effectiveAt->JSON.Encode.string),
-        ("id", cursor.cursorValue.cursorId->JSON.Encode.string),
-      ]->getJsonFromArrayOfJson,
-    ),
-  ]->getJsonFromArrayOfJson
-
-let defaultSortByJson =
-  [
-    ("sort_field", "effective_at"->JSON.Encode.string),
-    ("cursor_value", JSON.Encode.null),
-  ]->getJsonFromArrayOfJson
+let defaultSortBy: transactionCursor = {sortField: "effective_at", cursorValue: None}
 
 let buildTransactionsV2Body = (
   ~filterValueJson: Dict.t<JSON.t>,
@@ -68,7 +51,7 @@ let buildTransactionsV2Body = (
   let statusFilter = filterValueJson->getArrayFromDict("status", [])
   let finalStatusFilter = getMergedMatchedTransactionStatusFilter(statusFilter)
   let statusValues =
-    finalStatusFilter->Array.length === 0
+    finalStatusFilter->isEmptyArray
       ? getTransactionStatusValueFromStatusList([
           Expected,
           Missing,
@@ -107,23 +90,23 @@ let buildTransactionsV2Body = (
           ))
         : None,
       searchText->isNonEmptyString
-        ? Some((searchType :> string), searchText->String.trim->JSON.Encode.string)
+        ? Some(((searchType :> string), searchText->String.trim->JSON.Encode.string))
         : None,
     ]
-    ->Belt.Array.keepMap(entry => entry)
+    ->Array.filterMap(entry => entry)
     ->getJsonFromArrayOfJson
 
-  let sortByJson = sortBy->Option.mapOr(defaultSortByJson, transactionCursorToJson)
+  let cursorPayload: transactionsV2CursorPayload = {
+    limit,
+    direction,
+    order,
+    sortBy: sortBy->Option.getOr(defaultSortBy),
+  }
 
-  let cursorPayload =
-    [
-      ("limit", limit->Int.toFloat->JSON.Encode.float),
-      ("direction", (direction :> string)->JSON.Encode.string),
-      ("order", (order :> string)->JSON.Encode.string),
-      ("sort_by", sortByJson),
-    ]->getJsonFromArrayOfJson
-
-  [("filters", filters), ("cursor_payload", cursorPayload)]->getJsonFromArrayOfJson
+  [
+    ("filters", filters),
+    ("cursor_payload", cursorPayload->Identity.genericTypeToJson),
+  ]->getJsonFromArrayOfJson
 }
 
 let constructTransactionBulkRequestBody = (

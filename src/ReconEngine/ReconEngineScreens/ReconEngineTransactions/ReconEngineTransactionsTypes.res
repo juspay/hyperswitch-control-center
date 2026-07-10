@@ -10,20 +10,19 @@ type transactionSearchType =
   | @as("order_id") OrderId
   | @as("unknown") UnknownTransactionSearchType
 
-// Sort order for the cursor query.
 @unboxed
 type transactionSortOrder =
   | @as("asc") Asc
   | @as("desc") Desc
 
 type transactionCursorValue = {
-  effectiveAt: string,
-  cursorId: string,
+  @as("effective_at") effectiveAt: string,
+  @as("id") cursorId: string,
 }
 
 type transactionCursor = {
-  sortField: string,
-  cursorValue: transactionCursorValue,
+  @as("sort_field") sortField: string,
+  @as("cursor_value") cursorValue: option<transactionCursorValue>,
 }
 
 type transactionCursors = {
@@ -34,6 +33,13 @@ type transactionCursors = {
 type transactionsV2Page = {
   transactions: array<ReconEngineTypes.transactionType>,
   cursors: transactionCursors,
+}
+
+type transactionsV2CursorPayload = {
+  limit: int,
+  direction: cursorDirection,
+  order: transactionSortOrder,
+  @as("sort_by") sortBy: transactionCursor,
 }
 
 type entriesMetadataKeysToExclude = Amount | Currency
