@@ -247,6 +247,7 @@ let connectors = (
   ~isSurchargeProcessor,
   ~userHasResourceAccess,
   ~isCurrentMerchantPlatform,
+  ~isCurrentMerchantConnected,
 ) => {
   let connectorLinkArray = if isCurrentMerchantPlatform {
     let links = []
@@ -283,7 +284,7 @@ let connectors = (
       links->Array.push(surchargeProcessor(~userHasResourceAccess))->ignore
     }
 
-    if isVaultProcessor {
+    if isVaultProcessor && !isCurrentMerchantConnected {
       links->Array.push(vaultProcessor(~userHasResourceAccess))->ignore
     }
     links
@@ -559,10 +560,11 @@ let settings = (
   ~devModularityV2Enabled,
   ~devThemeEnabled,
   ~devUsers,
+  ~isCurrentMerchantPlatform,
 ) => {
   let settingsLinkArray = []
 
-  if isConfigurePmtsEnabled {
+  if isConfigurePmtsEnabled && !isCurrentMerchantPlatform {
     settingsLinkArray->Array.push(configurePMTs(userHasResourceAccess))->ignore
   }
 

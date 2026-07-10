@@ -13,7 +13,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
-  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
+  let {isCurrentMerchantPlatform} = OMPSwitchHooks.useOMPType()
 
   let setUpConnectoreContainer = async () => {
     try {
@@ -153,10 +153,7 @@ let make = () => {
         isEnabled={featureFlagDetails.configurePmts}>
         <FilterContext key="ConfigurePmts" index="ConfigurePmts">
           <EntityScaffold
-            entityName="ConfigurePMTs"
-            remainingPath
-            renderList={() => <PaymentMethodList />}
-            renderShow={(_, _) => <PaymentSettings webhookOnly=false showFormOnly=false />}
+            entityName="ConfigurePMTs" remainingPath renderList={() => <PaymentMethodList />}
           />
         </FilterContext>
       </AccessControl>

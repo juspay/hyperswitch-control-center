@@ -113,6 +113,7 @@ type order = {
   order_quantity?: string,
   product_name?: string,
   card_brand?: string,
+  card_network?: string,
   payment_experience: string,
   frm_message: frmMessage,
   connector_payment_id: string,
@@ -133,6 +134,16 @@ type order = {
   extended_auth_applied?: bool,
   request_extended_auth?: bool,
   hyperswitch_error_description?: string,
+  active_attempt_id?: string,
+  card_last_4?: string,
+  card_issuer?: string,
+  refunds_status?: string,
+  refunds_count?: int,
+  dispute_status?: string,
+  dispute_count?: int,
+  routing_approach?: string,
+  unified_code?: string,
+  unified_message?: string,
 }
 
 type ordersObject = {

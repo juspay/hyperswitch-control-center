@@ -10,6 +10,10 @@ type viewTypes =
   | Expired
   | Reversed
   | RequiresCapture
+  | FirstAttemptSuccess
+  | RetrySuccess
+  | Refunded
+  | Disputed
   | None
 
 type clickhouseAggregateMetric = {
