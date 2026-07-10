@@ -448,19 +448,6 @@ module BusinessProfileRender = {
             ),
         )}
       />
-      <RenderIf condition={!isUpdateFlow}>
-        <div className="text-gray-400 text-sm mt-3">
-          <span> {"Manage your list of profiles."->React.string} </span>
-          <span
-            className={`ml-1 ${hereTextStyle}`}
-            onClick={_ => {
-              setDashboardPageState(_ => #HOME)
-              RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/business-profiles"))
-            }}>
-            {React.string("here.")}
-          </span>
-        </div>
-      </RenderIf>
     </>
   }
 }
