@@ -20,25 +20,47 @@ let searchTypeOptions: array<SearchInput.searchTypeOption> = [TransactionId, Ord
   }
 })
 
-let defaultSortByJson = (sortField: transactionSortField) => {
-  let cursorKey = switch sortField {
-  | EffectiveAt => "cursor_value"
-  | Id => "id"
-  }
-  [
-    ("sort_field", (sortField :> string)->JSON.Encode.string),
-    (cursorKey, JSON.Encode.null),
-  ]->getJsonFromArrayOfJson
+let transactionCursorFromDict = dict => {
+  let cursorValueDict = dict->getDictfromDict("cursor_value")
+
+  (
+    {
+      sortField: dict->getString("sort_field", "effective_at"),
+      cursorValue: (
+        {
+          effectiveAt: cursorValueDict->getString("effective_at", ""),
+          cursorId: cursorValueDict->getString("id", ""),
+        }: transactionCursorValue
+      ),
+    }: transactionCursor
+  )
 }
+
+let transactionCursorToJson = (cursor: transactionCursor) =>
+  [
+    ("sort_field", cursor.sortField->JSON.Encode.string),
+    (
+      "cursor_value",
+      [
+        ("effective_at", cursor.cursorValue.effectiveAt->JSON.Encode.string),
+        ("id", cursor.cursorValue.cursorId->JSON.Encode.string),
+      ]->getJsonFromArrayOfJson,
+    ),
+  ]->getJsonFromArrayOfJson
+
+let defaultSortByJson =
+  [
+    ("sort_field", "effective_at"->JSON.Encode.string),
+    ("cursor_value", JSON.Encode.null),
+  ]->getJsonFromArrayOfJson
 
 let buildTransactionsV2Body = (
   ~filterValueJson: Dict.t<JSON.t>,
   ~searchType: transactionSearchType,
   ~searchText: string,
   ~ruleId: string,
-  ~sortBy: option<JSON.t>,
+  ~sortBy: option<transactionCursor>,
   ~direction: cursorDirection,
-  ~sortField: transactionSortField=EffectiveAt,
   ~order: transactionSortOrder=Desc,
   ~limit=4,
   (),
@@ -91,7 +113,7 @@ let buildTransactionsV2Body = (
     ->Belt.Array.keepMap(entry => entry)
     ->getJsonFromArrayOfJson
 
-  let sortByJson = sortBy->Option.getOr(defaultSortByJson(sortField))
+  let sortByJson = sortBy->Option.mapOr(defaultSortByJson, transactionCursorToJson)
 
   let cursorPayload =
     [

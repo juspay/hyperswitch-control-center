@@ -70,7 +70,9 @@ let make = (
     </div>
 
   let fetchPage = async (~sortBy, ~direction, ~searchType, ~searchText) => {
-    setScreenState(_ => PageLoaderWrapper.Loading)
+    if screenState !== PageLoaderWrapper.Success {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+    }
     try {
       let body = buildTransactionsV2Body(
         ~filterValueJson,
@@ -84,7 +86,7 @@ let make = (
       )
       let page = await getTransactionsV2(~body)
       setTransactions(_ => page.transactions)
-      setCursors(_ => {next: page.nextCursor, prev: page.prevCursor})
+      setCursors(_ => page.cursors)
       setSelectedRows(_ => [])
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

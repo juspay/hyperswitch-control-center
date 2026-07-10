@@ -65,18 +65,15 @@ let useGetTransactionsV2 = () => {
         ->Belt.Array.keepMap(JSON.Decode.object)
         ->Array.map(transactionItemToObjMapper)
       let getCursor = key =>
-        switch dict->Dict.get(key) {
-        | Some(json) =>
-          switch json->JSON.Classify.classify {
-          | Null => None
-          | _ => Some(json)
-          }
-        | None => None
-        }
+        dict
+        ->getOptionValFromDict(key)
+        ->Option.filter(json => json->JSON.Classify.classify != Null)
+        ->Option.map(json =>
+          json->getDictFromJsonObject->ReconEngineTransactionsUtils.transactionCursorFromDict
+        )
       let page: ReconEngineTransactionsTypes.transactionsV2Page = {
         transactions,
-        nextCursor: getCursor("next_cursor"),
-        prevCursor: getCursor("prev_cursor"),
+        cursors: {next: getCursor("next_cursor"), prev: getCursor("prev_cursor")},
       }
       page
     } catch {
