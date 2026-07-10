@@ -294,6 +294,12 @@ let buildViewOptions = (
 let savedViewsQueryParam = (entity: SavedViewTypes.entity) =>
   `keys=${entity->SavedViewTypes.entityToKey}`
 
+let versionToString = (version: UserInfoTypes.version) =>
+  switch version {
+  | V1 => "v1"
+  | V2 => "v2"
+  }
+
 let buildActionPayload = (
   entity: SavedViewTypes.entity,
   action: SavedViewTypes.action,
@@ -325,17 +331,13 @@ let buildRenamePayload = (
   newName,
   ~version,
 ) => {
-  let versionStr = switch version {
-  | UserInfoTypes.V1 => "v1"
-  | UserInfoTypes.V2 => "v2"
-  }
   let dataDict =
     [
       ("view_id", view.view_id->JSON.Encode.string),
       ("view_name", newName->JSON.Encode.string),
       ("filters", view.filters),
       ("entity", entity->SavedViewTypes.entityToString->JSON.Encode.string),
-      ("version", versionStr->JSON.Encode.string),
+      ("version", version->versionToString->JSON.Encode.string),
     ]->Dict.fromArray
   buildActionPayload(entity, Update, dataDict)
 }
@@ -348,16 +350,12 @@ let buildSavePayload = (
   viewId: option<string>,
   ~version,
 ) => {
-  let versionStr = switch version {
-  | UserInfoTypes.V1 => "v1"
-  | UserInfoTypes.V2 => "v2"
-  }
   let dataDict =
     [
       ("view_name", name->JSON.Encode.string),
       ("filters", filters),
       ("entity", entity->SavedViewTypes.entityToString->JSON.Encode.string),
-      ("version", versionStr->JSON.Encode.string),
+      ("version", version->versionToString->JSON.Encode.string),
     ]->Dict.fromArray
   switch viewId {
   | Some(id) => dataDict->Dict.set("view_id", id->JSON.Encode.string)
@@ -407,13 +405,21 @@ let itemToSavedView = json => {
   savedView
 }
 
-let savedViewsResponseMapper = (json, entity: SavedViewTypes.entity) => {
+let savedViewsResponseMapper = (json, entity: SavedViewTypes.entity, ~version) => {
+  let versionStr = version->versionToString
   let viewsArray =
     json
     ->getArrayFromJson([])
     ->getValueFromArray(0, Dict.make()->JSON.Encode.object)
     ->getDictFromJsonObject
     ->getArrayFromDict(entity->SavedViewTypes.entityToKey, [])
+    ->Array.filter(item => {
+      item
+      ->getDictFromJsonObject
+      ->getJsonObjectFromDict("data")
+      ->getDictFromJsonObject
+      ->getString("version", "") === versionStr
+    })
 
   let response: SavedViewTypes.savedViewsResponse = {
     count: viewsArray->Array.length,

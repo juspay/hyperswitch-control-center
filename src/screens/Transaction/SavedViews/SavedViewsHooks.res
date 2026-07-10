@@ -16,7 +16,7 @@ let useFetchSavedViews = (~entity, ~version) => {
         ~queryParameters=Some(SavedViewsUtils.savedViewsQueryParam(entity)),
       )
       let response = await fetchDetails(url, ~version)
-      let parsedResponse = response->SavedViewsUtils.savedViewsResponseMapper(entity)
+      let parsedResponse = response->SavedViewsUtils.savedViewsResponseMapper(entity, ~version)
       setSavedViews(_ => parsedResponse.views)
       switch setViewCount {
       | Some(setCount) => setCount(_ => parsedResponse.count)

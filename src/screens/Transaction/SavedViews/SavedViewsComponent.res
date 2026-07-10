@@ -22,9 +22,11 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: SavedViewTypes.entity=P
   }
 
   React.useEffect(() => {
+    setActiveViewName(_ => "")
+    setCurrentlyEditingIndex(_ => None)
     fetchSavedViews()->ignore
     None
-  }, [])
+  }, [version])
 
   React.useEffect(() => {
     if !isInternalUpdate && savedViews->Array.length > 0 {
