@@ -9,11 +9,11 @@ let make = () => {
   let (metrics, setMetrics) = React.useState(_ => [])
   let (dimensions, setDimensions) = React.useState(_ => [])
   let fetchDetails = useGetMethod()
-  let updateDetails = useUpdateMethod()
 
-  let loadInfo = async () => {
+  let getRefundDetails = async () => {
     open LogicUtils
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let infoUrl = getURL(~entityName=V1(ANALYTICS_REFUNDS), ~methodType=Get, ~id=Some(domain))
       let infoDetails = await fetchDetails(infoUrl)
       let metrics =
@@ -24,29 +24,6 @@ let make = () => {
       setMetrics(_ => metrics)
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
       setScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        setScreenState(_ => PageLoaderWrapper.Error(err))
-      }
-    }
-  }
-
-  let getRefundDetails = async () => {
-    open LogicUtils
-    try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let refundUrl = getURL(~entityName=V1(REFUNDS), ~methodType=Post, ~id=Some("refund-post"))
-      let body = Dict.make()
-      body->Dict.set("limit", 100->Int.toFloat->JSON.Encode.float)
-      let refundDetails = await updateDetails(refundUrl, body->JSON.Encode.object, Post)
-      let data = refundDetails->getDictFromJsonObject->getArrayFromDict("data", [])
-
-      if data->Array.length < 1 {
-        setScreenState(_ => PageLoaderWrapper.Custom)
-      } else {
-        await loadInfo()
-      }
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
