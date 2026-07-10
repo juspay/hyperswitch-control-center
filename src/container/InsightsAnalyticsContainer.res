@@ -15,7 +15,7 @@ let make = () => {
   let endTimeVal = filterValueJson->getString("endTime", "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
-  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
+  let {isCurrentMerchantPlatform} = OMPSwitchHooks.useOMPType()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {analyticsEntity} = getResolvedUserInfo()
   let mixpanelEvent = MixpanelHook.useSendEvent()

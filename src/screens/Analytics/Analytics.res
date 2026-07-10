@@ -491,7 +491,7 @@ let make = (
     FilterContext.filterContext,
   )
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
+  let {isCurrentMerchantPlatform} = OMPSwitchHooks.useOMPType()
 
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
   let (filteredTabKeys, filteredTabVales) = (tabKeys, tabValues)

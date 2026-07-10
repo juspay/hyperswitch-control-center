@@ -37,7 +37,7 @@ let make = () => {
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {analyticsEntity} = getResolvedUserInfo()
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
-  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
+  let {isCurrentMerchantPlatform} = OMPSwitchHooks.useOMPType()
 
   let loadInfo = async () => {
     try {

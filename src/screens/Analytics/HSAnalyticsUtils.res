@@ -188,7 +188,7 @@ let getStringListFromArrayDict = metrics => {
 module PlatformAggregatedDataBanner = {
   @react.component
   let make = () => {
-    let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
+    let {isCurrentMerchantPlatform} = OMPSwitchHooks.useOMPType()
     <RenderIf condition={isCurrentMerchantPlatform}>
       <div className="my-3 w-full">
         <AlertV2Binding

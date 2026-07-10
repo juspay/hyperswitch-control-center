@@ -24,7 +24,7 @@ let make = (~domain="payments") => {
   let {analyticsEntity} = getResolvedUserInfo()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
-  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
+  let {isCurrentMerchantPlatform} = OMPSwitchHooks.useOMPType()
   let filterBody = (~groupBy) => {
     let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
       startTime: startTimeVal,

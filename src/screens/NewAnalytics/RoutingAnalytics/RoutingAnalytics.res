@@ -6,7 +6,7 @@ let make = () => {
 
   let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
-  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
+  let {isCurrentMerchantPlatform} = OMPSwitchHooks.useOMPType()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {analyticsEntity} = getResolvedUserInfo()
   let url = RescriptReactRouter.useUrl()
