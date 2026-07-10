@@ -64,9 +64,7 @@ let make = (~setScreenState) => {
     | list{"analytics-disputes"}
     | list{"analytics-authentication"}
     | list{"analytics-routing", ..._} =>
-      <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
-        <AnalyticsContainer />
-      </AccessControl>
+      <AnalyticsContainer />
 
     | list{"new-analytics"}
     | list{"new-analytics", "payment"}

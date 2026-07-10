@@ -1,5 +1,7 @@
 type tabs = Request | Response
 
+type eventRecipient = Merchant | Connector
+
 type webhookObject = {
   eventId: string,
   merchantId: string,
