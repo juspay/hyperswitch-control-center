@@ -126,14 +126,6 @@ let make = (~routingRuleId, ~isActive, ~baseUrlForRedirection, ~urlEntityName) =
   }
 
   <PageLoaderWrapper screenState>
-    <div className="flex flex-col gap-1 mb-6">
-      <h1 className={`${Typography.heading.md.semibold} text-nd_gray-800`}>
-        {"Rule Based Configuration"->React.string}
-      </h1>
-      <p className={`${Typography.body.sm.regular} text-nd_gray-600`}>
-        {"Create smart rules to control how payments are routed, based on things like payment amount, method, or location."->React.string}
-      </p>
-    </div>
     {switch pageState {
     | Preview =>
       <div className="flex flex-col gap-6">
