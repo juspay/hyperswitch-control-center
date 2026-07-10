@@ -113,6 +113,9 @@ external getTaxProcessorConfig: string => JSON.t = "getTaxProcessorConfig"
 external getBillingConnectorConfig: string => JSON.t = "getBillingConnectorConfig"
 
 @val @scope("window")
+external getSurchargeProcessorConfig: string => JSON.t = "getSurchargeProcessorConfig"
+
+@val @scope("window")
 external getAllPayoutKeys: unit => array<string> = "getAllPayoutKeys"
 
 @val @scope("window")
@@ -183,12 +186,6 @@ module Location = {
 module Navigator = {
   @val @scope(("window", "navigator"))
   external userAgent: string = "userAgent"
-
-  @val @scope(("window", "navigator"))
-  external browserName: string = "appName"
-
-  @val @scope(("window", "navigator"))
-  external browserVersion: string = "appVersion"
 
   @val @scope(("window", "navigator"))
   external platform: string = "platform"

@@ -3,9 +3,14 @@ import type { Page, BrowserContext } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { PmAuthProcessor } from "../../support/pages/connector/PmAuthProcessor";
 import { generateUniqueEmail } from "../../support/helper";
-import { signupUser, loginUI, fillConnectorFields, createDummyConnectorAPI, createPaymentAPI } from "../../support/commands";
+import {
+  signupUser,
+  loginUI,
+  fillConnectorFields,
+  createDummyConnectorAPI,
+  createPaymentAPI,
+} from "../../support/commands";
 import { pmAuthProcessorConfig } from "../../support/fixtures/pmAuthProcessorConfig";
-
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
@@ -16,11 +21,7 @@ async function signupAndLogin(page: Page, context: BrowserContext) {
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   const merchantId = await homePage.merchantID.nth(0).textContent();
   if (merchantId) {
-    await createDummyConnectorAPI(
-      merchantId,
-      "stripe_test_1",
-      context.request,
-    );
+    await createDummyConnectorAPI(merchantId, "stripe_test_1", context.request);
   }
 }
 
@@ -80,7 +81,9 @@ test.describe("PM Auth Processor", () => {
     if (await fallback.isVisible().catch(() => false)) {
       test.skip(true, "Page gated by feature flag fallback");
     }
-    await expect(pmAuthProcessor.requestProcessorButton).toBeVisible({ timeout: 10000 });
+    await expect(pmAuthProcessor.requestProcessorButton).toBeVisible({
+      timeout: 10000,
+    });
     const search = pmAuthProcessor.searchProcessorPlaceholder;
     await expect(search).toBeVisible({ timeout: 10000 });
     await search.fill("stripe");
@@ -115,7 +118,9 @@ test.describe("PM Auth Processor", () => {
     const proceed = pmAuthProcessor.connectAndProceedOrConnectButton;
     if (await proceed.isEnabled().catch(() => false)) {
       await proceed.click();
-      await expect(pmAuthProcessor.successToast).toBeVisible({ timeout: 10000 });
+      await expect(pmAuthProcessor.successToast).toBeVisible({
+        timeout: 10000,
+      });
     }
   });
 
@@ -245,8 +250,12 @@ test.describe("All PM Auth Processors", () => {
 
           await pmAuthProcessor.doneButton.click();
 
-          const connectorLabel = processor.fields.overrides["Enter Connector label"] || processor.label;
-          await expect(page.getByText(connectorLabel, { exact: true })).toBeVisible({ timeout: 10000 });
+          const connectorLabel =
+            processor.fields.overrides["Enter Connector label"] ||
+            processor.label;
+          await expect(
+            page.getByText(connectorLabel, { exact: true }),
+          ).toBeVisible({ timeout: 10000 });
         }
       }
     });

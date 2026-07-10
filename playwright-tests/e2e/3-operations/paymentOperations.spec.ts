@@ -33,9 +33,9 @@ test.describe("Payment Operations", () => {
       await homePage.operations.click();
       await homePage.paymentOperations.click();
 
-      await expect(
-        paymentOperations.pageHeader,
-      ).toContainText("Payment Operations");
+      await expect(paymentOperations.pageHeader).toContainText(
+        "Payment Operations",
+      );
 
       await expect(
         paymentOperations.transactionView.locator("> div").nth(0),
@@ -62,12 +62,12 @@ test.describe("Payment Operations", () => {
       await expect(paymentOperations.viewDropdown).toBeVisible();
       await expect(paymentOperations.addFilters).toBeVisible();
 
-      await expect(
-        paymentOperations.noResultsHeader,
-      ).toHaveText("No results found");
-      await expect(
-        paymentOperations.expandSearch90Days,
-      ).toHaveText("Expand the search to the previous 90 days");
+      await expect(paymentOperations.noResultsHeader).toHaveText(
+        "No results found",
+      );
+      await expect(paymentOperations.expandSearch90Days).toHaveText(
+        "Expand the search to the previous 90 days",
+      );
       await expect(paymentOperations.searchHelpText).toContainText(
         "Or try the following:Try a different search parameterAdjust or remove filters and search once more",
       );
@@ -93,9 +93,9 @@ test.describe("Payment Operations", () => {
         await homePage.operations.click();
         await homePage.paymentOperations.click();
 
-        await expect(
-          paymentOperations.pageHeader,
-        ).toContainText("Payment Operations");
+        await expect(paymentOperations.pageHeader).toContainText(
+          "Payment Operations",
+        );
 
         await expect(
           paymentOperations.transactionView.locator("> div").nth(0),
@@ -138,39 +138,35 @@ test.describe("Payment Operations", () => {
           );
         }
 
-        await expect(
-          paymentOperations.orderCell(1, 1),
-        ).toContainText("1");
-        await expect(
-          paymentOperations.orderCell(1, 2),
-        ).toContainText(paymentData.payment_id);
-        await expect(
-          paymentOperations.orderCell(1, 3),
-        ).toContainText("Stripe Dummy");
-        await expect(
-          paymentOperations.orderCell(1, 4),
-        ).toContainText(paymentData.profile_id);
-        await expect(
-          paymentOperations.orderCell(1, 5),
-        ).toContainText(`${paymentData.amount / 100} ${paymentData.currency}`);
-        await expect(
-          paymentOperations.orderCell(1, 6),
-        ).toContainText(paymentData.status.toUpperCase());
-        await expect(
-          paymentOperations.orderCell(1, 7),
-        ).toContainText(paymentData.payment_method);
-        await expect(
-          paymentOperations.orderCell(1, 8),
-        ).toContainText(paymentData.payment_method_type);
-        await expect(
-          paymentOperations.orderCell(1, 9),
-        ).toContainText("N/A");
-        await expect(
-          paymentOperations.orderCell(1, 10),
-        ).toContainText(paymentData.connector_transaction_id);
-        await expect(
-          paymentOperations.orderCell(1, 11),
-        ).toContainText(paymentData.merchant_order_reference_id);
+        await expect(paymentOperations.orderCell(1, 1)).toContainText("1");
+        await expect(paymentOperations.orderCell(1, 2)).toContainText(
+          paymentData.payment_id,
+        );
+        await expect(paymentOperations.orderCell(1, 3)).toContainText(
+          "Stripe Dummy",
+        );
+        await expect(paymentOperations.orderCell(1, 4)).toContainText(
+          paymentData.profile_id,
+        );
+        await expect(paymentOperations.orderCell(1, 5)).toContainText(
+          `${paymentData.amount / 100} ${paymentData.currency}`,
+        );
+        await expect(paymentOperations.orderCell(1, 6)).toContainText(
+          paymentData.status.toUpperCase(),
+        );
+        await expect(paymentOperations.orderCell(1, 7)).toContainText(
+          paymentData.payment_method,
+        );
+        await expect(paymentOperations.orderCell(1, 8)).toContainText(
+          paymentData.payment_method_type,
+        );
+        await expect(paymentOperations.orderCell(1, 9)).toContainText("N/A");
+        await expect(paymentOperations.orderCell(1, 10)).toContainText(
+          paymentData.connector_transaction_id,
+        );
+        await expect(paymentOperations.orderCell(1, 11)).toContainText(
+          paymentData.merchant_order_reference_id,
+        );
       }
     });
   });
@@ -267,30 +263,22 @@ test.describe("Payment Operations", () => {
         await dropdownItems.nth(i).click();
       }
 
-      await expect(paymentOperations.saveButton).toContainText(
-        "Save",
-      );
+      await expect(paymentOperations.saveButton).toContainText("Save");
 
       for (const column of columns.optional) {
         await paymentOperations.dropdownValue(column).click();
       }
 
-      await expect(paymentOperations.saveButton).toContainText(
-        "Save",
-      );
+      await expect(paymentOperations.saveButton).toContainText("Save");
 
       await paymentOperations.tableColumnsModalCloseIcon.click();
 
       for (const column of columns.mandatory) {
-        await expect(
-          paymentOperations.tableHeading(column),
-        ).toBeAttached();
+        await expect(paymentOperations.tableHeading(column)).toBeAttached();
       }
 
       for (const column of columns.optional) {
-        await expect(
-          paymentOperations.tableHeading(column),
-        ).not.toBeAttached();
+        await expect(paymentOperations.tableHeading(column)).not.toBeAttached();
       }
     });
 
@@ -451,9 +439,7 @@ test.describe("Payment Operations", () => {
         await dropdownItems.nth(i).click();
       }
 
-      await expect(paymentOperations.saveButton).toContainText(
-        "Save",
-      );
+      await expect(paymentOperations.saveButton).toContainText("Save");
 
       await paymentOperations.saveButton.click();
 
@@ -467,17 +453,15 @@ test.describe("Payment Operations", () => {
 
   // Sort
   test.describe("Sort", () => {
-    test("should sort column ascending then descending on header click", async ({
-      page,
-      context,
-    }) => {
-      // 3 sequential payment creates + 6 sort + assert cycles per column.
+    let payments: { payment_id: string; amount: number }[] = [];
+
+    test.beforeEach(async ({ page, context }) => {
+      // 3 sequential payment creates + setup per test.
       test.setTimeout(120000);
+      payments = [];
       const homePage = new HomePage(page);
-      const paymentOperations = new PaymentOperations(page);
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
-      const payments: { payment_id: string; amount: number }[] = [];
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -508,36 +492,164 @@ test.describe("Payment Operations", () => {
       await homePage.operations.click();
       await homePage.paymentOperations.click();
       await page.waitForLoadState("networkidle");
+    });
 
-      const sortableColumns = ["Amount", "Created", "Modified"];
+    async function assertSortCycle(
+      page: Page,
+      paymentOperations: PaymentOperations,
+      column: string,
+    ) {
+      const heading = paymentOperations.tableHeading(column);
+      const sortUp = heading.locator('[data-icon="caret-up"]');
+      const sortDown = heading.locator('[data-icon="caret-down"]');
 
-      for (const column of sortableColumns) {
-        const heading = paymentOperations.tableHeading(column);
-        const sortUp = heading.locator('[data-icon="caret-up"]');
-        const sortDown = heading.locator('[data-icon="caret-down"]');
+      // First click toggles NONE -> DEC (descending)
+      await expect(sortUp).toBeVisible();
+      await sortUp.click();
+      await page.waitForLoadState("networkidle");
+      await expect(paymentOperations.orderCell(1, 2)).toContainText(
+        payments[2].payment_id,
+      );
+      await expect(paymentOperations.orderCell(3, 2)).toContainText(
+        payments[0].payment_id,
+      );
 
-        // First click toggles NONE -> DEC (descending)
-        await expect(sortUp).toBeVisible();
-        await sortUp.click();
-        await page.waitForLoadState("networkidle");
-        await expect(paymentOperations.orderCell(1, 2)).toContainText(payments[2].payment_id);
-        await expect(paymentOperations.orderCell(3, 2)).toContainText(payments[0].payment_id);
+      // Second click toggles DEC -> INC (ascending)
+      await expect(sortDown).toBeVisible();
+      await sortDown.click();
+      await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(3000);
+      await expect(paymentOperations.orderCell(1, 2)).toContainText(
+        payments[0].payment_id,
+      );
+      await expect(paymentOperations.orderCell(3, 2)).toContainText(
+        payments[2].payment_id,
+      );
 
-        // Second click toggles DEC -> INC (ascending)
-        await expect(sortDown).toBeVisible();
-        await sortDown.click();
-        await page.waitForLoadState("networkidle");
-        await page.waitForTimeout(3000);
-        await expect(paymentOperations.orderCell(1, 2)).toContainText(payments[0].payment_id);
-        await expect(paymentOperations.orderCell(3, 2)).toContainText(payments[2].payment_id);
+      // Third click toggles INC -> DEC (descending)
+      await expect(sortUp).toBeVisible();
+      await sortUp.click();
+      await page.waitForLoadState("networkidle");
+      await expect(paymentOperations.orderCell(1, 2)).toContainText(
+        payments[2].payment_id,
+      );
+      await expect(paymentOperations.orderCell(3, 2)).toContainText(
+        payments[0].payment_id,
+      );
+    }
 
-        // Third click toggles INC -> DEC (descending)
-        await expect(sortUp).toBeVisible();
-        await sortUp.click();
-        await page.waitForLoadState("networkidle");
-        await expect(paymentOperations.orderCell(1, 2)).toContainText(payments[2].payment_id);
-        await expect(paymentOperations.orderCell(3, 2)).toContainText(payments[0].payment_id);
-      }
+    test("should sort Amount column ascending then descending on header click", async ({
+      page,
+    }) => {
+      const paymentOperations = new PaymentOperations(page);
+      await assertSortCycle(page, paymentOperations, "Amount");
+    });
+
+    test("should sort Created column ascending then descending on header click", async ({
+      page,
+    }) => {
+      const paymentOperations = new PaymentOperations(page);
+      await assertSortCycle(page, paymentOperations, "Created");
+    });
+
+    async function getColumnIndex(
+      paymentOperations: PaymentOperations,
+      column: string,
+    ): Promise<number> {
+      return await paymentOperations
+        .tableHeading(column)
+        .evaluate((el) => (el as HTMLTableCellElement).cellIndex + 1);
+    }
+
+    test("should sort Attempt Count column ascending then descending on header click", async ({
+      page,
+    }) => {
+      const paymentOperations = new PaymentOperations(page);
+
+      // Mock the payments/list response so each payment has a distinct attempt_count
+      // (1, 2, 3) and returns data sorted by the requested attempt_count order.
+      await page.route(/\/payments\/list/, async (route) => {
+        const request = route.request();
+        const postData = request.postDataJSON() as Record<string, any>;
+        const response = await route.fetch();
+        const json = (await response.json()) as Record<string, any>;
+
+        const attemptCounts: Record<string, number> = {};
+        payments.forEach((payment, index) => {
+          attemptCounts[payment.payment_id] = index + 1;
+        });
+
+        const data = (json.data ?? []) as Record<string, any>[];
+        const patched = data.map((item) => ({
+          ...item,
+          attempt_count: attemptCounts[item.payment_id] ?? item.attempt_count,
+        }));
+
+        const order = postData?.order as { on: string; by: string } | undefined;
+        if (order?.on === "attempt_count") {
+          patched.sort((a, b) => {
+            const diff =
+              (a.attempt_count as number) - (b.attempt_count as number);
+            return order.by === "desc" ? -diff : diff;
+          });
+        }
+
+        json.data = patched;
+        await route.fulfill({ response, json });
+      });
+
+      // Add the hidden Attempt Count column via the column selector.
+      await paymentOperations.columnButton.click();
+      await paymentOperations.columnDropdownValue("Attempt Count").click();
+      await expect(paymentOperations.saveButton).toContainText("Save");
+      await paymentOperations.saveButton.click();
+
+      await expect(
+        paymentOperations.tableHeading("Attempt Count"),
+      ).toBeVisible();
+
+      const attemptCountCol = await getColumnIndex(
+        paymentOperations,
+        "Attempt Count",
+      );
+
+      const heading = paymentOperations.tableHeading("Attempt Count");
+      const sortUp = heading.locator('[data-icon="caret-up"]');
+      const sortDown = heading.locator('[data-icon="caret-down"]');
+
+      // First click: NONE -> DEC (descending). 3 attempts first.
+      await expect(sortUp).toBeVisible();
+      await sortUp.click();
+      await page.waitForLoadState("networkidle");
+      await expect(
+        paymentOperations.orderCell(1, attemptCountCol),
+      ).toContainText("3");
+      await expect(
+        paymentOperations.orderCell(3, attemptCountCol),
+      ).toContainText("1");
+
+      // Second click: DEC -> INC (ascending). 1 attempt first.
+      await expect(sortDown).toBeVisible();
+      await sortDown.click();
+      await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(3000);
+      await expect(
+        paymentOperations.orderCell(1, attemptCountCol),
+      ).toContainText("1");
+      await expect(
+        paymentOperations.orderCell(3, attemptCountCol),
+      ).toContainText("3");
+
+      // Third click: INC -> DEC (descending).
+      await expect(sortUp).toBeVisible();
+      await sortUp.click();
+      await page.waitForLoadState("networkidle");
+      await expect(
+        paymentOperations.orderCell(1, attemptCountCol),
+      ).toContainText("3");
+      await expect(
+        paymentOperations.orderCell(3, attemptCountCol),
+      ).toContainText("1");
     });
   });
 
@@ -556,7 +668,7 @@ test.describe("Payment Operations", () => {
           context.request,
         );
         for (let i = 0; i < 21; i++) {
-          await createPaymentAPI(merchantId, context.request).catch(() => { });
+          await createPaymentAPI(merchantId, context.request).catch(() => {});
         }
       }
 
@@ -610,9 +722,9 @@ test.describe("Payment Operations", () => {
         await paymentOperations.searchBox.fill(firstPaymentId);
         await paymentOperations.searchBox.press("Enter");
 
-        await expect(
-          paymentOperations.orderCell(1, 2),
-        ).toContainText(firstPaymentId);
+        await expect(paymentOperations.orderCell(1, 2)).toContainText(
+          firstPaymentId,
+        );
       }
 
       await paymentOperations.searchBox.clear();
@@ -624,9 +736,9 @@ test.describe("Payment Operations", () => {
         await paymentOperations.searchBox.fill(secondPaymentId);
         await paymentOperations.searchBox.press("Enter");
 
-        await expect(
-          paymentOperations.orderCell(1, 2),
-        ).toContainText(secondPaymentId);
+        await expect(paymentOperations.orderCell(1, 2)).toContainText(
+          secondPaymentId,
+        );
       }
     });
 
@@ -654,12 +766,12 @@ test.describe("Payment Operations", () => {
       await paymentOperations.searchBox.fill("invalidID");
       await paymentOperations.searchBox.press("Enter");
 
-      await expect(
-        paymentOperations.noResultsHeader,
-      ).toHaveText("No results found");
-      await expect(
-        paymentOperations.expandSearch90Days,
-      ).toHaveText("Expand the search to the previous 90 days");
+      await expect(paymentOperations.noResultsHeader).toHaveText(
+        "No results found",
+      );
+      await expect(paymentOperations.expandSearch90Days).toHaveText(
+        "Expand the search to the previous 90 days",
+      );
       await expect(paymentOperations.searchHelpText).toContainText(
         "Or try the following:Try a different search parameterAdjust or remove filters and search once more",
       );
@@ -732,23 +844,15 @@ test.describe("Payment Operations", () => {
 
       for (const filter of filterKeys) {
         await paymentOperations.addFilters.click();
-        await page
-          .locator(
-            `[data-dropdown-value="${filter}"]:visible`,
-          )
-          .click();
-        await expect(
-          paymentOperations.filterChipArea.first(),
-        ).toContainText(`Select ${filter}`);
+        await page.locator(`[data-dropdown-value="${filter}"]:visible`).click();
+        await expect(paymentOperations.filterChipArea.first()).toContainText(
+          `Select ${filter}`,
+        );
         await paymentOperations.crossOutlineIcon.click();
       }
 
       await paymentOperations.addFilters.click();
-      await page
-        .locator(
-          '[data-dropdown-value="Customer Id"]:visible',
-        )
-        .click();
+      await page.locator('[data-dropdown-value="Customer Id"]:visible').click();
       await expect(paymentOperations.customerIdInput).toHaveAttribute(
         "placeholder",
         "Enter Customer Id...",
@@ -757,13 +861,12 @@ test.describe("Payment Operations", () => {
 
       await paymentOperations.addFilters.click();
       await page
-        .locator(
-          '[data-dropdown-value="Merchant Order Reference Id"]:visible',
-        )
+        .locator('[data-dropdown-value="Merchant Order Reference Id"]:visible')
         .click();
-      await expect(
-        paymentOperations.merchantOrderRefIdInput,
-      ).toHaveAttribute("placeholder", "Enter Merchant Order Reference Id...");
+      await expect(paymentOperations.merchantOrderRefIdInput).toHaveAttribute(
+        "placeholder",
+        "Enter Merchant Order Reference Id...",
+      );
     });
 
     test("should verify applying 'Connector', 'Currency' and 'Status' filters", async ({
@@ -787,36 +890,21 @@ test.describe("Payment Operations", () => {
       await homePage.paymentOperations.click();
 
       await paymentOperations.addFilters.click();
-      await page
-        .locator(
-          '[data-dropdown-value="Connector"]:visible',
-        )
-        .click();
-      await page
-        .locator('[class="flex relative  flex-row  flex-wrap"]')
-        .first()
-        .click();
+      await page.locator('[data-dropdown-value="Connector"]:visible').click();
+      await page.getByText("Select Connector").click();
       await page.locator('[value="Stripe Dummy"]').click();
       await paymentOperations.applyButton.click();
       await expect(page.getByText("Stripe Dummy").first()).toBeVisible();
 
       await paymentOperations.addFilters.click();
-      await page
-        .locator(
-          '[data-dropdown-value="Status"]:visible',
-        )
-        .click();
+      await page.locator('[data-dropdown-value="Status"]:visible').click();
       await paymentOperations.statusFieldWrapper.click();
       await page.locator('[value="Succeeded"]').click();
       await paymentOperations.applyButton.click();
       await expect(page.getByText("Succeeded").first()).toBeVisible();
 
       await paymentOperations.addFilters.click();
-      await page
-        .locator(
-          '[data-dropdown-value="Currency"]:visible',
-        )
-        .click();
+      await page.locator('[data-dropdown-value="Currency"]:visible').click();
       await page.getByText("Select Currency").click();
       await page.locator('[placeholder="Search..."]').fill("USD");
       await page.locator('[data-searched-text="USD"]').click();
@@ -824,7 +912,9 @@ test.describe("Payment Operations", () => {
       await expect(page.getByText("USD").first()).toBeVisible();
 
       await expect(paymentOperations.orderCell(1, 3)).toContainText("Stripe");
-      await expect(paymentOperations.orderCell(1, 6)).toContainText("SUCCEEDED");
+      await expect(paymentOperations.orderCell(1, 6)).toContainText(
+        "SUCCEEDED",
+      );
       await expect(paymentOperations.orderCell(1, 5)).toContainText("USD");
     });
   });
@@ -892,17 +982,12 @@ test.describe("Payment Operations", () => {
       await homePage.operations.click();
       await homePage.paymentOperations.click();
 
-      await expect(paymentOperations.dateSelector).toBeVisible();
-      await paymentOperations.dateSelector.click();
-
-      await expect(
-        paymentOperations.predefinedDateOptions,
-      ).toBeVisible();
+      await paymentOperations.openPredefinedDateOptions();
 
       for (const filter of timeRangeFilters) {
-        await expect(
-          paymentOperations.predefinedDateOptions,
-        ).toContainText(filter);
+        await expect(paymentOperations.predefinedDateOptions).toContainText(
+          filter,
+        );
       }
     });
 
@@ -925,19 +1010,23 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
+      // Freeze the clock to a safe mid-month date so the "This Month" range
+      // (month-to-date) never coincides with a preset duration like "Last 7
+      // Days" or "Last 30 Days", which the selector would otherwise display in
+      // place of "This Month" (e.g. on the 7th or the 30th of the month).
+      await page.clock.setFixedTime(new Date("2025-06-15T10:00:00"));
+
       await homePage.operations.click();
       await homePage.paymentOperations.click();
-
-      const currentDay = new Date().getDate();
 
       const predefinedOptions = paymentOperations.predefinedDateOptions;
 
       for (const timeRange of predefinedTimeRange) {
-        await paymentOperations.dateSelector.click({ force: true });
-        await expect(predefinedOptions).toBeVisible();
+        await paymentOperations.openPredefinedDateOptions();
         await predefinedOptions.getByText(timeRange, { exact: true }).click();
-        const expectedText = currentDay === 7 && timeRange === "This Month" ? "Last 7 Days" : timeRange;
-        await expect(page.getByTestId('date-range-selector')).toContainText(expectedText);
+        await expect(page.getByTestId("date-range-selector")).toContainText(
+          timeRange,
+        );
         await expect(predefinedOptions).toBeHidden();
         await page.waitForLoadState("networkidle");
       }
@@ -946,7 +1035,16 @@ test.describe("Payment Operations", () => {
     test("should verify applied custom timerange is displayed correctly", async ({
       page,
     }) => {
-      const now = new Date();
+      // Freeze the clock to a safe mid-month date so the calendar renders
+      // deterministically. The expected range below must be derived from the
+      // SAME fixed date (page.clock only affects the browser, not this Node
+      // process). Mid-month also avoids the `setMonth(getMonth() - 1)` overflow
+      // on month-end dates like the 31st (e.g. April has no 31st), which would
+      // otherwise land the "previous month" back in the current month.
+      const fixedNow = new Date("2025-06-15T10:00:00");
+      await page.clock.setFixedTime(fixedNow);
+
+      const now = new Date(fixedNow);
       const today = now.getDate();
       const previousMonth = new Date(
         now.setMonth(now.getMonth() - 1),
@@ -969,16 +1067,9 @@ test.describe("Payment Operations", () => {
       await homePage.operations.click();
       await homePage.paymentOperations.click();
 
-      await expect(paymentOperations.dateSelector).toBeVisible();
-      await paymentOperations.dateSelector.click();
+      await paymentOperations.openPredefinedDateOptions();
 
-      await expect(
-        paymentOperations.predefinedDateOptions,
-      ).toBeVisible();
-
-      await page
-      paymentOperations.customRangeOption
-        .click();
+      await paymentOperations.customRangeOption.click();
 
       await page.locator(`[data-testid*=" ${startDate},"]`).first().click();
       await page.locator(`[data-testid*=" ${endDate},"]`).first().click();
@@ -1040,12 +1131,18 @@ test.describe("Payment Operations", () => {
 
       await homePage.operations.click();
       await homePage.paymentOperations.click();
-      await page.waitForResponse((r) => r.url().includes("/payments/list") && r.ok());
+      await page.waitForResponse(
+        (r) => r.url().includes("/payments/list") && r.ok(),
+      );
 
       for (const [view, filter] of Object.entries(viewFilters)) {
         await page.waitForTimeout(500);
-        await paymentOperations.transactionView.getByText(view).click({ force: true });
-        await expect(paymentOperations.statusFieldWrapper).toContainText(filter);
+        await paymentOperations.transactionView
+          .getByText(view)
+          .click({ force: true });
+        await expect(paymentOperations.statusFieldWrapper).toContainText(
+          filter,
+        );
       }
     });
   });
@@ -1246,9 +1343,7 @@ test.describe("Payment Operations", () => {
 
       await page.getByRole("button", { name: "Generate", exact: true }).click();
 
-      await expect(
-        paymentOperations.genericErrorToast,
-      ).toBeVisible();
+      await expect(paymentOperations.genericErrorToast).toBeVisible();
       await expect(modal).toBeVisible();
     });
   });
@@ -1273,9 +1368,7 @@ test.describe("Payment Operations", () => {
         await homePage.operations.click();
         await homePage.paymentOperations.click();
 
-        await expect(
-          paymentOperations.externalLinkIcon,
-        ).toBeVisible();
+        await expect(paymentOperations.externalLinkIcon).toBeVisible();
 
         const href = await page
           .locator('[target="_blank"]')
@@ -1325,18 +1418,15 @@ test.describe("Payment Operations", () => {
         (resp) => resp.url().includes("force_sync=true") && resp.ok(),
       );
       await paymentOperations.initiateRefundButton.click();
+      await refreshResponse;
 
+      await expect(page.getByText("Summary")).toBeVisible();
       await expect(
-        page.locator('[class="font-bold text-lg mb-5"]').nth(0),
-      ).toContainText("Summary");
+        page.getByText("123.45 USD").filter({ visible: true }).nth(1),
+      ).toBeVisible();
       await expect(
-        page.locator('[class="md:text-5xl font-bold"]'),
-      ).toContainText("123.45 USD");
-      await expect(
-        page.locator(
-          '[class="text-sm text-white font-bold px-3 py-2 rounded-md bg-hyperswitch_green dark:bg-opacity-50"]',
-        ),
-      ).toContainText("SUCCEEDED");
+        page.getByText("SUCCEEDED").filter({ visible: true }).nth(1),
+      ).toBeVisible();
 
       await expect(paymentOperations.dataLabel("Created")).toContainText(
         "Created",
@@ -1357,9 +1447,7 @@ test.describe("Payment Operations", () => {
         "Error Message",
       );
 
-      await expect(
-        page.locator('[class="font-bold text-lg mb-5"]').nth(1),
-      ).toContainText("About Payment");
+      await expect(page.getByText("About Payment")).toBeVisible();
       await expect(paymentOperations.dataLabel("Profile ID")).toContainText(
         "Profile ID",
       );
@@ -1369,9 +1457,9 @@ test.describe("Payment Operations", () => {
       await expect(
         paymentOperations.dataLabel("Payment connector"),
       ).toContainText("Payment connector");
-      await expect(paymentOperations.dataLabel("Connector Label")).toContainText(
-        "Connector Label",
-      );
+      await expect(
+        paymentOperations.dataLabel("Connector Label"),
+      ).toContainText("Connector Label");
       await expect(paymentOperations.dataLabel("Payment Method")).toContainText(
         "Payment Method",
       );
@@ -1387,9 +1475,7 @@ test.describe("Payment Operations", () => {
 
       await expect(page.getByText("Events and logs")).toBeVisible();
 
-      await expect(
-        page.locator('[class="flex flex-col gap-4"]').nth(0),
-      ).toContainText("Payment Attempts");
+      await expect(page.getByText("Payment Attempts")).toBeVisible();
 
       const expectedAttemptColumns = [
         "S.No",
@@ -1451,9 +1537,9 @@ test.describe("Payment Operations", () => {
       };
 
       for (const [label, value] of Object.entries(requiredValues)) {
-        await expect(
-          paymentOperations.dataLabel(label).first(),
-        ).toContainText(value);
+        await expect(paymentOperations.dataLabel(label).first()).toContainText(
+          value,
+        );
       }
 
       for (const [label, value] of Object.entries(optionalValues)) {
@@ -1464,8 +1550,8 @@ test.describe("Payment Operations", () => {
       }
 
       await expect(
-        page.locator('[class="flex flex-col gap-4"]').nth(1),
-      ).toContainText("Refunds");
+        page.getByRole("paragraph").filter({ hasText: "Refunds" }),
+      ).toBeVisible();
 
       const expectedRefundAttemptColumns = [
         "S.No",
@@ -1494,9 +1580,9 @@ test.describe("Payment Operations", () => {
       };
 
       for (const [label, value] of Object.entries(expectedRefundValues)) {
-        await expect(
-          paymentOperations.dataLabel(label).first(),
-        ).toContainText(value);
+        await expect(paymentOperations.dataLabel(label).first()).toContainText(
+          value,
+        );
       }
     });
 
@@ -1883,12 +1969,10 @@ test.describe("Payment Operations", () => {
         page.getByRole("button", { name: "Initiate Refund" }),
       ).not.toBeVisible();
 
-      await expect(
-        paymentOperations.refundCell(1, 4),
-      ).toContainText("50");
-      await expect(
-        paymentOperations.refundCell(1, 5),
-      ).toContainText("SUCCEEDED");
+      await expect(paymentOperations.refundCell(1, 4)).toContainText("50");
+      await expect(paymentOperations.refundCell(1, 5)).toContainText(
+        "SUCCEEDED",
+      );
     });
 
     test("should successfully initiate a full refund (amount equal to payment)", async ({
@@ -1919,12 +2003,10 @@ test.describe("Payment Operations", () => {
         page.getByRole("button", { name: "Initiate Refund" }),
       ).not.toBeVisible();
 
-      await expect(
-        paymentOperations.refundCell(1, 4),
-      ).toContainText("123.45");
-      await expect(
-        paymentOperations.refundCell(1, 5),
-      ).toContainText("SUCCEEDED");
+      await expect(paymentOperations.refundCell(1, 4)).toContainText("123.45");
+      await expect(paymentOperations.refundCell(1, 5)).toContainText(
+        "SUCCEEDED",
+      );
     });
 
     test("should close refund popup on Cancel click", async ({

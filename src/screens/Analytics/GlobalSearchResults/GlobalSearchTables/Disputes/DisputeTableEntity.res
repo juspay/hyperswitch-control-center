@@ -182,6 +182,7 @@ let getCell = (disputeObj: disputesObject, colType): Table.cell => {
         url={`/disputes/${disputeObj.dispute_id}/${disputeObj.profile_id}/${disputeObj.merchant_id}/${disputeObj.organization_id}`}
         displayValue={disputeObj.dispute_id}
         copyValue={Some(disputeObj.dispute_id)}
+        endValue={HSwitchOrderUtils.idCellEndValue}
       />,
       disputeObj.dispute_id,
     )

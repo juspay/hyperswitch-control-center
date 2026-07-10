@@ -8,6 +8,7 @@ module HyperSwitchEntryComponent = {
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = featureFlagAtom->Recoil.useSetRecoilState
     let setConnectorListForLive = connectorListForLiveAtom->Recoil.useSetRecoilState
+    let setConnectorCloneAllowList = connectorCloneAllowListAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
     let configureFavIcon = (faviconUrl: option<string>) => {
@@ -47,7 +48,6 @@ module HyperSwitchEntryComponent = {
             logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
           },
           hypersenseUrl: dict->getString("hypersense_url", ""),
-          clarityBaseUrl: dict->getString("clarity_base_url", "")->getNonEmptyString,
         }
         DOMUtils.window._env_ = value
         configureFavIcon(value.urlThemeConfig.faviconUrl)->ignore
@@ -73,25 +73,6 @@ module HyperSwitchEntryComponent = {
       (themeId, domainUrl)
     }
 
-    let appendScript = clarityBaseUrl => {
-      try {
-        open DOMUtils
-        let script = createElement(DOMUtils.document, "script")
-        let _ = setAttribute(script, "type", "text/javascript")
-        let clarityScript = `
-        (function(c,l,a,r,t,y){
-            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-            t=l.createElement(r);t.async=1;t.src="${clarityBaseUrl}";
-            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-        })(window, document, "clarity", "script");`
-        let textNode = DOMUtils.document->DOMUtils.createTextNode(clarityScript)
-        script->Webapi.Dom.Element.appendChild(~child=textNode)
-        appendHead(script)->ignore
-      } catch {
-      | _ => Js.log("Error on appending clarity script")
-      }
-    }
-
     let fetchConfig = async () => {
       try {
         let (themeId, domain) = fetchThemeAndDomainFromUrl()
@@ -101,16 +82,14 @@ module HyperSwitchEntryComponent = {
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
         let connectorListForLive = res->ConnectorListForLiveFromConfigUtils.getConnectorListForLive
+        let connectorCloneAllowList = res->ConnectorCloneConfigUtils.getConnectorCloneAllowList
         setFeatureFlag(_ => featureFlags)
         setConnectorListForLive(_ => connectorListForLive)
-        let configValues = configEnv(res) // to set initial env
+        setConnectorCloneAllowList(_ => connectorCloneAllowList)
+        let _ = configEnv(res) // to set initial env
         let _ = await getThemesJson(~themesID=themeId, ~domain)
         // Delay added on Expecting feature flag recoil gets updated
         await HyperSwitchUtils.delay(1000)
-
-        if configValues.clarityBaseUrl->Option.isSome {
-          appendScript(configValues.clarityBaseUrl->Option.getOr(""))->ignore
-        }
 
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {

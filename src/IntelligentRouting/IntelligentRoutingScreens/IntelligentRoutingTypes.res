@@ -78,3 +78,11 @@ type fileData = {
   data: Js.TypedArray2.Uint8Array.t,
   stats: reviewFields,
 }
+
+type feature = {
+  icon: string,
+  bgColor: string,
+  iconColor: string,
+  title: string,
+  description: string,
+}

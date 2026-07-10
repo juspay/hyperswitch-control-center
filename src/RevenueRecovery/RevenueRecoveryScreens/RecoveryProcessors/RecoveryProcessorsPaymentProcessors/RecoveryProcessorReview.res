@@ -27,6 +27,7 @@ let make = (~connectorInfo) => {
         | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
         | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
         | VaultProcessor => Window.getConnectorConfig(connectorName)
+        | SurchargeProcessor => Window.getSurchargeProcessorConfig(connectorName)
         | PaymentVas => JSON.Encode.null
         }
         let connectorAccountDict = dict->getDictFromJsonObject->getDictfromDict("connector_auth")
@@ -60,7 +61,7 @@ let make = (~connectorInfo) => {
         <div className="flex flex-col ">
           <ConnectorHelperV2.PreviewCreds connectorInfo=connectorInfodict connectorAccountFields />
         </div>
-        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
+        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.connector_name />
       </div>
     </div>
     <ACLButton

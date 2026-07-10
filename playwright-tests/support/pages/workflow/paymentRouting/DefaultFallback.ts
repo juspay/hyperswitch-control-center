@@ -8,7 +8,7 @@ export class DefaultFallback {
   }
 
   get defaultFallbackList(): Locator {
-    return this.page.locator('[class="flex flex-col  w-full"]');
+    return this.page.locator('[class="flex flex-col gap-4 w-full"]');
   }
 
   get saveChangesButton(): Locator {
@@ -20,7 +20,9 @@ export class DefaultFallback {
   }
 
   get configurationSavedToast(): Locator {
-    return this.page.locator('[data-toast="Configuration saved successfully!"]');
+    return this.page.locator(
+      '[data-toast="Configuration saved successfully!"]',
+    );
   }
 
   connectorAt(index: number): Locator {

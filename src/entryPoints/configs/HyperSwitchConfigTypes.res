@@ -21,7 +21,6 @@ type urlConfig = {
   dynamoSimulationTemplateUrl: option<string>,
   urlThemeConfig: urlThemeConfig,
   hypersenseUrl: string,
-  clarityBaseUrl: option<string>,
 }
 
 // Type definition for themes

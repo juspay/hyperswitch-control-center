@@ -1,4 +1,5 @@
 type gateway = RoutingTypes.volumeSplitConnectorSelectionData
+open Typography
 
 module GatewayView = {
   @react.component
@@ -152,78 +153,81 @@ let make = (
   }
 
   if isExpanded {
-    <div className="flex flex-row ml-2">
-      <RenderIf condition={!isFirst}>
-        <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
-      </RenderIf>
-      <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
-        <div className="flex flex-wrap gap-4">
-          <div className="flex">
-            <SelectBoxAdapter.BaseDropdown
-              allowMultiSelect=true
-              buttonText=dropDownButtonText
-              buttonType=Button.SecondaryFilled
-              hideMultiSelectButtons=true
-              customButtonStyle="bg-white dark:bg-jp-gray-darkgray_background !w-full"
-              input
-              options={gatewayOptions}
-              fixedDropDownDirection=SelectBox.TopRight
-              searchable=true
-              defaultLeftIcon={FontAwesome("plus")}
-              maxHeight="max-h-full sm:max-h-64"
-            />
-            <span className="text-lg text-red-500 ml-1"> {React.string("*")} </span>
-          </div>
+    <div className="flex flex-col gap-6 w-full">
+      <SelectBoxAdapter.BaseDropdown
+        allowMultiSelect=true
+        buttonText=dropDownButtonText
+        buttonType=Button.SecondaryFilled
+        hideMultiSelectButtons=true
+        showSelectionAsChips=true
+        showAllSelectedOptions=false
+        customButtonStyle="bg-nd_gray-0 !w-full"
+        input
+        options={gatewayOptions}
+        fixedDropDownDirection=TopRight
+        searchable=true
+        maxHeight="max-h-full sm:max-h-64"
+      />
+      <RenderIf condition={selectedOptions->LogicUtils.isNonEmptyArray}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
           {selectedOptions
           ->Array.mapWithIndex((item, i) => {
             let key = Int.toString(i + 1)
+            let connectorLabel = gateWayName(item.connector.merchant_connector_id).connector_label
 
-            {
-              <div className="flex flex-row" key>
-                <div
-                  className="w-min flex flex-row items-center justify-around gap-2 h-10 rounded-md  border border-jp-gray-500 dark:border-jp-gray-960
-               text-jp-gray-900  hover:text-opacity-100 dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme
-               dark:hover:text-opacity-75  text-opacity-50 hover:text-jp-gray-900 bg-gradient-to-b
-               from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 
-               dark:text-opacity-50 focus:outline-none px-1 ">
-                  <NewThemeUtils.Badge number={i + 1} />
-                  <div>
-                    {gateWayName(
-                      item.connector.merchant_connector_id,
-                    ).connector_label->React.string}
-                  </div>
-                  <Icon
-                    name="close"
-                    size=10
-                    className="mr-2 cursor-pointer "
-                    onClick={ev => {
-                      ev->ReactEvent.Mouse.stopPropagation
-                      removeItem(i)
-                    }}
+            <div
+              key
+              className="flex items-center h-10 bg-nd_gray-0 border border-nd_gray-300 rounded-10-px overflow-hidden">
+              <div className="flex items-center gap-2 pl-3.5 pr-2 flex-1 min-w-0">
+                <GatewayIcon
+                  gateway={item.connector.connector->String.toUpperCase}
+                  className="w-6 h-6 shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <ToolTip
+                    description=connectorLabel
+                    toolTipPosition=Top
+                    toolTipFor={<p className={`${body.md.medium} text-nd_gray-600 truncate w-full`}>
+                      {connectorLabel->React.string}
+                    </p>}
                   />
-                  <RenderIf condition={isDistribute && selectedOptions->Array.length > 0}>
-                    {<>
-                      <input
-                        className="w-10 text-right outline-none bg-white dark:bg-jp-gray-970 px-1 border border-jp-gray-300 dark:border-jp-gray-850 rounded-md"
-                        name=key
-                        onChange={ev => {
-                          let val = ReactEvent.Form.target(ev)["value"]
-                          updatePercentage(item, val->Int.fromString->Option.getOr(0))
-                        }}
-                        value={item.split->Int.toString}
-                        type_="text"
-                        inputMode="text"
-                      />
-                      <div> {React.string("%")} </div>
-                    </>}
-                  </RenderIf>
                 </div>
               </div>
-            }
+              <div className="flex items-center gap-3 pr-3 shrink-0">
+                <RenderIf condition={isDistribute}>
+                  <div
+                    className="flex items-center gap-2.5 bg-nd_gray-0 border border-nd_gray-200 rounded px-2 py-0.5">
+                    <input
+                      className={`w-6 text-center outline-none bg-transparent ${body.md.medium} text-nd_gray-700`}
+                      name=key
+                      onChange={ev => {
+                        let val = ReactEvent.Form.target(ev)["value"]
+                        updatePercentage(item, val->Int.fromString->Option.getOr(0))
+                      }}
+                      value={item.split->Int.toString}
+                      type_="text"
+                      inputMode="text"
+                    />
+                    <span className={`${body.md.medium} text-nd_gray-600`}>
+                      {React.string("%")}
+                    </span>
+                  </div>
+                </RenderIf>
+                <Icon
+                  name="nd-cross"
+                  size=16
+                  className="cursor-pointer text-nd_gray-400"
+                  onClick={ev => {
+                    ev->ReactEvent.Mouse.stopPropagation
+                    removeItem(i)
+                  }}
+                />
+              </div>
+            </div>
           })
           ->React.array}
         </div>
-      </div>
+      </RenderIf>
     </div>
   } else {
     <GatewayView gateways=selectedOptions />

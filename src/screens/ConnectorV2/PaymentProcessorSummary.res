@@ -20,7 +20,7 @@ let make = (
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
     ~entityName=V2(V2_CONNECTOR),
     ~version=V2,
@@ -100,6 +100,7 @@ let make = (
         | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
         | PaymentVas => JSON.Encode.null
         | VaultProcessor => Window.getConnectorConfig(connectorName)
+        | SurchargeProcessor => Window.getSurchargeProcessorConfig(connectorName)
         }
         dict
       } else {
@@ -235,7 +236,7 @@ let make = (
         <div className="flex flex-col gap-12">
           <div className="flex gap-10 max-w-3xl flex-wrap px-2">
             <ConnectorWebhookPreview
-              merchantId connectorName=connectorInfodict.id truncateDisplayValue=true
+              merchantId connectorName=connectorInfodict.connector_name truncateDisplayValue=true
             />
             <div className="flex flex-col gap-2 ">
               <h4 className="text-nd_gray-400 "> {"Profile"->React.string} </h4>

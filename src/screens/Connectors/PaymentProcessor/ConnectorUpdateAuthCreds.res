@@ -12,7 +12,7 @@ let make = (
 
   let getURL = useGetURL()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   // Need to remove connector and merge connector and connectorTypeVariants
   let (processorType, connectorType) =
@@ -33,6 +33,7 @@ let make = (
         | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
         | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
         | VaultProcessor => Window.getConnectorConfig(connectorName)
+        | SurchargeProcessor => Window.getSurchargeProcessorConfig(connectorName)
         | PaymentVas => JSON.Encode.null
         }
         dict

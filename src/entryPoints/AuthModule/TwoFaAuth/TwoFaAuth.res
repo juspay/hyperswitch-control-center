@@ -15,7 +15,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let initialValues = Dict.make()->JSON.Encode.object
   let clientCountry = HSwitchUtils.getBrowserDetails().clientCountry
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVariant
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (email, setEmail) = React.useState(_ => "")
   let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom

@@ -367,6 +367,9 @@ let setDictNull = (dict, key, optionStr) => {
 let setOptionString = (dict, key, optionStr) =>
   optionStr->Option.mapOr((), str => dict->Dict.set(key, str->JSON.Encode.string))
 
+let setOptionFloat = (dict, key, optionFloat) =>
+  optionFloat->Option.mapOr((), float => dict->Dict.set(key, float->JSON.Encode.float))
+
 let setOptionJson = (dict, key, optionJson) =>
   optionJson->Option.mapOr((), json => dict->Dict.set(key, json))
 
@@ -583,6 +586,9 @@ let getTitle = name => {
   ->Array.map(capitalizeString)
   ->Array.joinWith(" ")
 }
+
+let pluralize = (~count, ~singular, ~plural=?) =>
+  count == 1 ? singular : plural->Option.getOr(`${singular}s`)
 
 // Regex to check if a string contains a substring
 let regex = (positionToCheckFrom, searchString) => {

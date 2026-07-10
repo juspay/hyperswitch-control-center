@@ -5,8 +5,10 @@ let make = (
   ~headerText=None,
   ~maxHeightClass="max-h-25-rem",
   ~overrideBackgroundColor="bg-hyperswitch_background",
+  ~wrapLines=false,
+  ~wrapLongLines=false,
 ) => {
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (parsedJson, setParsedJson) = React.useState(_ => "")
   let parseJsonValue = () => {
     try {
@@ -47,6 +49,8 @@ let make = (
             style={ReactSyntaxHighlighter.lightfair}
             language="json"
             showLineNumbers={true}
+            wrapLines
+            wrapLongLines
             lineNumberContainerStyle={{
               paddingLeft: "0px",
               backgroundColor: "red",

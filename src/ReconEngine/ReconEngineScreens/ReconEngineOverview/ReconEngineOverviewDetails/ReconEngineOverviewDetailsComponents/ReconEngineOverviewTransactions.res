@@ -7,19 +7,14 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
 
   let (configuredTransactions, setConfiguredReports) = React.useState(_ => [])
   let (filteredTransactionsData, setFilteredReports) = React.useState(_ => [])
+  let (accountData, setAccountData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
   let getTransactions = ReconEngineHooks.useGetTransactions()
-  let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
-  let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
-  let mixpanelEvent = MixpanelHook.useSendEvent()
-
-  let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="recon_engine_overview_transactions_date_filter_opened")
-  }
+  let getAccounts = ReconEngineHooks.useGetAccounts()
 
   let fetchTransactionsData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -37,11 +32,14 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
         OverAmount(Expected),
         UnderAmount(Expected),
         DataMismatch,
+        CurrencyMismatch,
+        SplitMismatch,
         PartiallyReconciled,
         Posted(Manual),
         Matched(Auto),
         Matched(Manual),
         Matched(Force),
+        Matched(WithTolerance),
         Void,
       ])
 
@@ -62,7 +60,9 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
         `rule_id=${ruleDetails.rule_id}`
       }
       let transactionsList = await getTransactions(~queryParameters=Some(queryString))
+      let accountData = await getAccounts()
       let transactionsListData = transactionsList->Array.map(Nullable.make)
+      setAccountData(_ => accountData)
       setConfiguredReports(_ => transactionsListData)
       setFilteredReports(_ => transactionsListData)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -71,43 +71,26 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
     }
   }
 
-  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~updateExistingKeys,
-    ~startTimeFilterKey,
-    ~endTimeFilterKey,
-    ~range=180,
-    ~origin="recon_engine_overview_transactions",
-    (),
-  )
-
-  React.useEffect(() => {
-    setInitialFilters()
-    None
-  }, [])
-
   React.useEffect(() => {
     if !(filterValue->isEmptyDict) {
+      setOffset(_ => 0)
       fetchTransactionsData()->ignore
     }
     None
   }, [filterValue])
 
-  let topFilterUi = {
+  let statusFilterUi = {
     <div className="flex flex-row">
       <DynamicFilter
         title="ReconEngineOverviewTransactionsFilters"
         initialFilters={ReconEngineOverviewUtils.initialDisplayFilters()}
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
-          null,
-          ~events=dateDropDownTriggerMixpanelCallback,
-        )}
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+        initialFixedFilters=[]
+        defaultFilterKeys=[]
         tabNames=filterKeys
         key="ReconEngineOverviewTransactionsFilters"
         updateUrlWith=updateExistingKeys
-        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false
         refreshFilters=false
         setOffset
@@ -116,7 +99,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   }
 
   <div className="flex flex-col gap-4">
-    <div className="flex-shrink-0"> {topFilterUi} </div>
+    <div className="flex-shrink-0"> {statusFilterUi} </div>
     <PageLoaderWrapper
       screenState
       customUI={<NewAnalyticsHelper.NoData height="h-96" message="No data available" />}
@@ -127,6 +110,8 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
         entity={hierarchicalTransactionsLoadedTableEntity(
           `v1/recon-engine/transactions`,
           ~authorization=Access,
+          ~reconRulesList=[ruleDetails],
+          ~accountData,
         )}
         resultsPerPage=5
         totalResults={filteredTransactionsData->Array.length}
@@ -142,7 +127,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
         customizeColumnButtonIcon="nd-filter-horizontal"
         hideRightTitleElement=true
         showAutoScroll=true
-        customSeparation=[(2, 3)]
+        customSeparation=[(3, 4)]
       />
     </PageLoaderWrapper>
   </div>
