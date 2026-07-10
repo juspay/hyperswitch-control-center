@@ -4,6 +4,7 @@ open HierarchicalTransactionsTableEntity
 let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   open LogicUtils
   open ReconEngineTransactionsUtils
+  open ReconEngineTransactionsTypes
 
   let getTransactionsV2 = ReconEngineHooks.useGetTransactionsV2()
   let getAccounts = ReconEngineHooks.useGetAccounts()
@@ -12,10 +13,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   )
 
   let (transactions, setTransactions) = React.useState(_ => [])
-  let (
-    cursors,
-    setCursors,
-  ) = React.useState((_): ReconEngineTransactionsTypes.transactionCursors => {
+  let (cursors, setCursors) = React.useState((_): transactionCursors => {
     next: None,
     prev: None,
   })
@@ -23,15 +21,10 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (searchText, setSearchText) = React.useState(_ => "")
-  let (searchType, setSearchType) = React.useState(_ => ReconEngineTransactionsTypes.TransactionId)
+  let (searchType, setSearchType) = React.useState(_ => SearchTransactionId)
 
   let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
-  let sortOrder =
-    sortDict->getMappedValueFromDict(
-      "Overview Transactions",
-      ReconEngineTransactionsTypes.Desc,
-      getSortOrder,
-    )
+  let sortOrder = sortDict->getMappedValueFromDict("Overview Transactions", Desc, getSortOrder)
 
   let fetchAccounts = async () => {
     try {
@@ -83,11 +76,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   }
 
   let handleSearchSubmit = (selectedType: option<string>) => {
-    let newSearchType =
-      selectedType->mapOptionOrDefault(
-        ReconEngineTransactionsTypes.TransactionId,
-        searchTypeFromString,
-      )
+    let newSearchType = selectedType->mapOptionOrDefault(SearchTransactionId, searchTypeFromString)
     setSearchType(_ => newSearchType)
     fetchPage(
       ~sortBy=defaultSortBy,
