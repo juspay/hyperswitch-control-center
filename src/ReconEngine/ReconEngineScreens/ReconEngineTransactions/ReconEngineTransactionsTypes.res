@@ -6,8 +6,8 @@ type transactionFlowType =
 type cursorDirection = [#next | #previous]
 
 type transactionSearchType =
-  | @as("transaction_id") TransactionId
-  | @as("order_id") OrderId
+  | @as("transaction_id") SearchTransactionId
+  | @as("order_id") SearchOrderId
   | @as("unknown") UnknownTransactionSearchType
 
 type transactionSortOrder =
