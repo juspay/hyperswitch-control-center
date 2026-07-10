@@ -742,6 +742,13 @@ let make = (
     acc
   })
 
+  // Keep row content aligned with centered headings, including custom and date cells.
+  let alignCellContent = if headingCenter {
+    Some(`flex flex-col items-center text-center ${alignCellContent->Option.getOr("")}`)
+  } else {
+    alignCellContent
+  }
+
   let getRowDetails = (rowIndex: int) => {
     switch actualData {
     | Some(actualData) =>
