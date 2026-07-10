@@ -403,15 +403,9 @@ module ConnectorConfigurationFields = {
 module BusinessProfileRender = {
   @react.component
   let make = (~isUpdateFlow: bool, ~selectedConnector) => {
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfileRecoilVal =
       HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
     let connectorLabelOnChange = ReactFinalForm.useField(`connector_label`).input.onChange
-
-    let hereTextStyle = isUpdateFlow
-      ? "text-grey-700 opacity-50 cursor-not-allowed"
-      : `${textColor.primaryNormal}  cursor-pointer`
 
     <>
       <FormRenderer.FieldRenderer
