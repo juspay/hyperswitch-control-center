@@ -69,9 +69,8 @@ let buildProcessingEntriesV2Body = (
     filterValueJson->getArrayFromDict("entry_type", [])->Array.map(v => v->getStringFromJson(""))
   let accountIdFilter =
     filterValueJson
-    ->getArrayFromDict("account_id", [])
+    ->getArrayFromDict("account_ids", [])
     ->Array.map(v => v->getStringFromJson(""))
-    ->Array.joinWith(",")
 
   let startTime = filterValueJson->getString("startTime", "")
   let endTime = filterValueJson->getString("endTime", "")
@@ -83,8 +82,8 @@ let buildProcessingEntriesV2Body = (
       entryTypeFilter->isNonEmptyArray
         ? Some(("entry_type", entryTypeFilter->getJsonFromArrayOfString))
         : None,
-      accountIdFilter->isNonEmptyString
-        ? Some(("account_id", accountIdFilter->JSON.Encode.string))
+      accountIdFilter->isNonEmptyArray
+        ? Some(("account_ids", accountIdFilter->getJsonFromArrayOfString))
         : None,
       hasTimeRange
         ? Some((
@@ -291,7 +290,7 @@ let initialDisplayFilters = (~accountOptions) => {
       {
         field: FormRenderer.makeFieldInfo(
           ~label="Account",
-          ~name="account_id",
+          ~name="account_ids",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=accountOptions,
             ~buttonText="Select Account",
