@@ -12,6 +12,7 @@ let make = (~previewOnly=false) => {
   let fetchAnalyticsOrdersHook = AnalyticsOrdersHook.useFetchAnalyticsOrdersHook()
   let getSignal = AbortControllerHook.useAbortController()
   let showToast = ToastAdapter.useShowToast()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {devOpensearch, devSavedViews, transactionView, generateReport, email, devSortEnabled} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
@@ -61,7 +62,7 @@ let make = (~previewOnly=false) => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get(tableTitle)->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let {filterValueJson, updateExistingKeys, removeKeys, setfilterKeys} = React.useContext(
+  let {filterValueJson, updateExistingKeys, removeKeys, reset, setfilterKeys} = React.useContext(
     FilterContext.filterContext,
   )
   let startTime = filterValueJson->getString(startTimeFilterKey(version), "")
@@ -227,16 +228,23 @@ let make = (~previewOnly=false) => {
   React.useEffect(() => {
     setOffset(_ => 0)
     setSelectedRows(_ => [])
-    let filterKeysToRemove = isInitialSourceRender.current
+    isInitialSourceRender.current
       ? {
           isInitialSourceRender.current = false
-          isAdvancedSource ? [] : advancedPaymentFilterCleanupKeys
+          if !isAdvancedSource {
+            removeKeys(advancedPaymentFilterCleanupKeys)
+            setfilterKeys(prev =>
+              prev->Array.filter(key => !(advancedPaymentFilterCleanupKeys->Array.includes(key)))
+            )
+          }
         }
-      : [statusFilterKey]->Array.concat(advancedPaymentFilterCleanupKeys)
+      : {
+          reset()
+          setfilterKeys(_ => [])
+        }
 
-    if filterKeysToRemove->isNonEmptyArray {
-      removeKeys(filterKeysToRemove)
-      setfilterKeys(prev => prev->Array.filter(key => !(filterKeysToRemove->Array.includes(key))))
+    if isAdvancedSource {
+      mixpanelEvent(~eventName="advanced_payment_list_viewed")
     }
     None
   }, [source])
