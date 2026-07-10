@@ -147,6 +147,26 @@ let useGetOverviewRules = () => {
   }
 }
 
+let useGetOverviewRulesTimeSeries = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~queryParameters=None) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#OVERVIEW_RULES_TIME_SERIES,
+        ~queryParameters,
+      )
+      let res = await fetchDetails(url)
+      res->getArrayDataFromJson(overviewRulesTimeSeriesResponseMapper)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
 let useGetProcessingEntries = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()

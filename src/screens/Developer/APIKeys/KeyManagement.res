@@ -3,7 +3,7 @@ let make = () => {
   open KeyManagementHelper
 
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-  let (isCurrentMerchantPlatform, isCurrentOrganizationPlatform) = OMPSwitchHooks.useOMPType()
+  let {isCurrentMerchantPlatform, isCurrentOrganizationPlatform} = OMPSwitchHooks.useOMPType()
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let redirectToDocs = _ => {

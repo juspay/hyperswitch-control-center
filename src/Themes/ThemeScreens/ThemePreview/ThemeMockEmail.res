@@ -3,7 +3,7 @@ open ThemePreviewTypes
 open Typography
 
 @react.component
-let make = () => {
+let make = (~emailLogoUrl: option<string>=?) => {
   let formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
@@ -15,15 +15,24 @@ let make = () => {
       className="flex flex-col items-center justify-center text-center h-full py-6"
       style={ReactDOM.Style.make(~backgroundColor=emailConfig.background_color, ())}>
       <div className="flex justify-center h-10 mt-4">
-        <div
-          className="flex border-2 border-dashed rounded-lg py-1.5 px-4 items-center opacity-30"
-          style={ReactDOM.Style.make(~borderColor=emailConfig.foreground_color, ())}>
-          <span
-            className={`${body.xs.medium} opacity-60`}
-            style={ReactDOM.Style.make(~color=emailConfig.foreground_color, ())}>
-            {React.string(mockValues.emailLogoPlaceholder)}
-          </span>
-        </div>
+        <RenderIf condition={emailLogoUrl->Option.isSome}>
+          <img
+            src={emailLogoUrl->Option.getOr("")}
+            alt="email-logo"
+            className="h-10 w-auto object-contain"
+          />
+        </RenderIf>
+        <RenderIf condition={emailLogoUrl->Option.isNone}>
+          <div
+            className="flex border-2 border-dashed rounded-lg py-1.5 px-4 items-center opacity-30"
+            style={ReactDOM.Style.make(~borderColor=emailConfig.foreground_color, ())}>
+            <span
+              className={`${body.xs.medium} opacity-60`}
+              style={ReactDOM.Style.make(~color=emailConfig.foreground_color, ())}>
+              {React.string(mockValues.emailLogoPlaceholder)}
+            </span>
+          </div>
+        </RenderIf>
       </div>
       <div
         className={`${heading.md.semibold} mt-4`}

@@ -142,6 +142,7 @@ type processorTypes =
   | TRUSTLY
   | IMERCHANTSOLUTIONS
   | PAYCONEX
+  | TSYSTRANSIT
 
 type payoutProcessorTypes =
   | ADYEN
@@ -477,6 +478,13 @@ type connector =
   | BillingProcessor
   | VaultProcessor
   | SurchargeProcessor
+
+type cloneConnectorRequest = {
+  source_mca_id: string,
+  source_profile_id: string,
+  destination_profile_id: string,
+  connector_label: string,
+}
 
 type connectorFieldTypes = {
   bodyType: string,
