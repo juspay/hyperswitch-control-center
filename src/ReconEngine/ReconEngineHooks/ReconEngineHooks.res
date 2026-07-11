@@ -185,6 +185,43 @@ let useGetProcessingEntries = () => {
   }
 }
 
+let useGetProcessingEntriesV2 = () => {
+  let getURL = useGetURL()
+  let updateDetails = useUpdateMethod()
+
+  async (~body: JSON.t) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Post,
+        ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST_V2,
+      )
+      let res = await updateDetails(url, body, Post)
+      let dict = res->getDictFromJsonObject
+      let processingEntries =
+        dict
+        ->getArrayFromDict("items", [])
+        ->getMappedValueFromArrayOfJson(processingItemToObjMapper)
+      let getCursor = key =>
+        dict
+        ->getOptionValFromDict(key)
+        ->Option.filter(json => json->JSON.Classify.classify != Null)
+        ->Option.map(json =>
+          json
+          ->getDictFromJsonObject
+          ->ReconEngineDataTransformedEntriesUtils.processingEntryCursorFromDict
+        )
+      let page: ReconEngineDataTransformedEntriesTypes.processingEntriesV2Page = {
+        processingEntries,
+        cursors: {next: getCursor("next_cursor"), prev: getCursor("prev_cursor")},
+      }
+      page
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
 let useGetTransformationHistory = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()

@@ -1066,6 +1066,11 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #PROCESSING_ENTRIES_LIST_V2 =>
+          switch methodType {
+          | Post => `${reconBaseURL}/staging_entries/v2/list`
+          | _ => ""
+          }
         | #PROCESSING_ENTRIES_LIST =>
           switch methodType {
           | Get =>
