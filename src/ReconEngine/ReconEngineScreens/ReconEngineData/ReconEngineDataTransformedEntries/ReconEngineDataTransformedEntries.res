@@ -177,6 +177,9 @@ let make = () => {
     }
   }
 
+  let getButtonState = (cursor): Button.buttonState =>
+    cursor->Option.isNone || screenState === PageLoaderWrapper.Loading ? Disabled : Normal
+
   <div className="flex flex-col gap-5 w-full">
     <div className="flex flex-row justify-between items-center">
       <PageUtils.PageHeading
@@ -230,18 +233,14 @@ let make = () => {
               text="Prev"
               buttonType=Secondary
               buttonSize=Small
-              buttonState={cursors.prev->Option.isNone || screenState === PageLoaderWrapper.Loading
-                ? Disabled
-                : Normal}
+              buttonState={getButtonState(cursors.prev)}
               onClick={_ => goToPrevPage()}
             />
             <Button
               text="Next"
               buttonType=Primary
               buttonSize=Small
-              buttonState={cursors.next->Option.isNone || screenState === PageLoaderWrapper.Loading
-                ? Disabled
-                : Normal}
+              buttonState={getButtonState(cursors.next)}
               onClick={_ => goToNextPage()}
             />
           </div>

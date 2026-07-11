@@ -24,7 +24,7 @@ let searchTypeOptions: array<SearchInput.searchTypeOption> = [
 })
 
 let getSortOrder = (sortOb: LoadedTable.sortOb): processingEntrySortOrder => {
-  sortOb.sortKey === "date" && sortOb.sortType === LoadedTable.ASC ? Asc : Desc
+  sortOb.sortKey === "effective_at" && sortOb.sortType === LoadedTable.ASC ? Asc : Desc
 }
 
 let processingEntryCursorFromDict = dict => {
@@ -59,50 +59,46 @@ let buildProcessingEntriesV2Body = (
   ~order: processingEntrySortOrder=Desc,
   ~limit=10,
 ) => {
-  let statusFilter = filterValueJson->getArrayFromDict("status", [])
+  let statusFilter = filterValueJson->getStrArrayFromDict("status", [])
   let statusValues =
     statusFilter->isEmptyArray
       ? getProcessingEntryStatusValueFromStatusList([Pending, Processed, NeedsManualReview, Void])
-      : statusFilter->Array.map(v => v->getStringFromJson(""))
+      : statusFilter
 
-  let entryTypeFilter =
-    filterValueJson->getArrayFromDict("entry_type", [])->Array.map(v => v->getStringFromJson(""))
-  let accountIdFilter =
-    filterValueJson
-    ->getArrayFromDict("account_ids", [])
-    ->Array.map(v => v->getStringFromJson(""))
+  let entryTypeFilter = filterValueJson->getStrArrayFromDict("entry_type", [])
+  let accountIdFilter = filterValueJson->getStrArrayFromDict("account_ids", [])
 
   let startTime = filterValueJson->getString("startTime", "")
   let endTime = filterValueJson->getString("endTime", "")
   let hasTimeRange = startTime->isNonEmptyString && endTime->isNonEmptyString
 
-  let filters =
-    [
-      Some(("status", statusValues->getJsonFromArrayOfString)),
-      entryTypeFilter->isNonEmptyArray
-        ? Some(("entry_type", entryTypeFilter->getJsonFromArrayOfString))
-        : None,
-      accountIdFilter->isNonEmptyArray
-        ? Some(("account_ids", accountIdFilter->getJsonFromArrayOfString))
-        : None,
-      hasTimeRange
-        ? Some((
-            "time_range",
-            [
-              ("start_time", startTime->JSON.Encode.string),
-              ("end_time", endTime->JSON.Encode.string),
-            ]->getJsonFromArrayOfJson,
-          ))
-        : None,
-      searchText->isNonEmptyString
-        ? Some(((searchType :> string), searchText->String.trim->JSON.Encode.string))
-        : None,
-    ]
-    ->Array.filterMap(entry => entry)
-    ->getJsonFromArrayOfJson
+  let filtersDict = Dict.make()
+  filtersDict->Dict.set("status", statusValues->getJsonFromArrayOfString)
+
+  if entryTypeFilter->isNonEmptyArray {
+    filtersDict->Dict.set("entry_type", entryTypeFilter->getJsonFromArrayOfString)
+  }
+
+  if accountIdFilter->isNonEmptyArray {
+    filtersDict->Dict.set("account_ids", accountIdFilter->getJsonFromArrayOfString)
+  }
+
+  if searchText->isNonEmptyString {
+    filtersDict->Dict.set((searchType :> string), searchText->String.trim->JSON.Encode.string)
+  }
+
+  if hasTimeRange {
+    filtersDict->Dict.set(
+      "time_range",
+      [
+        ("start_time", startTime->JSON.Encode.string),
+        ("end_time", endTime->JSON.Encode.string),
+      ]->getJsonFromArrayOfJson,
+    )
+  }
 
   [
-    ("filters", filters),
+    ("filters", filtersDict->JSON.Encode.object),
     (
       "cursor_payload",
       {
