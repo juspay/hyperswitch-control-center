@@ -530,7 +530,7 @@ module ModalSearchBox = {
     ~setShowModal,
     ~setFilterText,
     ~localSearchText,
-    ~setLocalSearchText,
+    ~onLocalSearchTextChange,
     ~allOptions,
     ~selectedOption,
     ~setSelectedOption,
@@ -538,6 +538,10 @@ module ModalSearchBox = {
     ~allFilters,
     ~selectedFilter,
     ~setSelectedFilter,
+    ~clipboardSearchText,
+    ~clipboardSuggestionSelected,
+    ~setClipboardSuggestionSelected,
+    ~onClipboardSuggestionClicked,
     ~viewType,
     ~activeFilter,
     ~onFilterClicked,
@@ -559,7 +563,7 @@ module ModalSearchBox = {
         onBlur: _ => (),
         onChange: ev => {
           let value = {ev->ReactEvent.Form.target}["value"]
-          setLocalSearchText(_ => value)
+          onLocalSearchTextChange(value)
         },
         onFocus: _ => (),
         value: localSearchText->JSON.Encode.string,
@@ -647,6 +651,14 @@ module ModalSearchBox = {
         }
 
       | FiltersSugsestions => {
+          let hasClipboardSuggestion = switch clipboardSearchText {
+          | Some(text) => text->isNonEmptyString
+          | None => false
+          }
+          let clipboardText = switch clipboardSearchText {
+          | Some(text) => text
+          | None => ""
+          }
           let index = allFilters->Array.findIndex(item => {
             switch selectedFilter {
             | Some(val) => item == val
@@ -655,29 +667,57 @@ module ModalSearchBox = {
           })
 
           if keyPressed == arrowDown {
-            let newIndex = getNextIndex(index, allFilters)
-            switch allFilters->Array.get(newIndex) {
-            | Some(val) => setSelectedFilter(_ => val->Some)
-            | _ => ()
+            if clipboardSuggestionSelected {
+              switch allFilters->Array.get(0) {
+              | Some(val) =>
+                setClipboardSuggestionSelected(_ => false)
+                setSelectedFilter(_ => val->Some)
+              | _ => ()
+              }
+            } else if hasClipboardSuggestion && index < 0 {
+              setClipboardSuggestionSelected(_ => true)
+              setSelectedFilter(_ => None)
+            } else {
+              let newIndex = getNextIndex(index, allFilters)
+              switch allFilters->Array.get(newIndex) {
+              | Some(val) => setSelectedFilter(_ => val->Some)
+              | _ => ()
+              }
             }
           } else if keyPressed == arrowUp {
-            let newIndex = getPrevIndex(index, allFilters)
-            switch allFilters->Array.get(newIndex) {
-            | Some(val) => setSelectedFilter(_ => val->Some)
-            | _ => ()
+            if clipboardSuggestionSelected {
+              switch allFilters->Array.get(allFilters->Array.length - 1) {
+              | Some(val) =>
+                setClipboardSuggestionSelected(_ => false)
+                setSelectedFilter(_ => val->Some)
+              | _ => ()
+              }
+            } else if hasClipboardSuggestion && index <= 0 {
+              setClipboardSuggestionSelected(_ => true)
+              setSelectedFilter(_ => None)
+            } else {
+              let newIndex = getPrevIndex(index, allFilters)
+              switch allFilters->Array.get(newIndex) {
+              | Some(val) => setSelectedFilter(_ => val->Some)
+              | _ => ()
+              }
             }
           } else if keyPressed == enterKey {
-            switch selectedFilter {
-            | Some(filter) =>
-              if activeFilter->String.includes(filterSeparator) {
-                switch filter.options->Array.get(0) {
-                | Some(val) => val->onSuggestionClicked
-                | _ => ()
+            if clipboardSuggestionSelected {
+              onClipboardSuggestionClicked(clipboardText)
+            } else {
+              switch selectedFilter {
+              | Some(filter) =>
+                if activeFilter->String.includes(filterSeparator) {
+                  switch filter.options->Array.get(0) {
+                  | Some(val) => val->onSuggestionClicked
+                  | _ => ()
+                  }
+                } else {
+                  filter->onFilterClicked
                 }
-              } else {
-                filter->onFilterClicked
+              | _ => ()
               }
-            | _ => ()
             }
           }
         }

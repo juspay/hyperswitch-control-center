@@ -5,6 +5,19 @@ let defaultRoute = "/search"
 let global_search_activate_key = "k"
 let filterSeparator = ":"
 let sectionsViewResultsCount = 4
+let paymentIdFilterKey = "payment_id"
+let refundIdFilterKey = "refund_id"
+
+let getClipboardSearchText = text => {
+  let trimmedText = text->String.trim
+  if RegExp.test(%re("/^pay_[A-Za-z0-9_]+$/"), trimmedText) {
+    Some(`${paymentIdFilterKey}${filterSeparator}${trimmedText}`)
+  } else if RegExp.test(%re("/^ref_[A-Za-z0-9_]+$/"), trimmedText) {
+    Some(`${refundIdFilterKey}${filterSeparator}${trimmedText}`)
+  } else {
+    None
+  }
+}
 
 let getEndChar = string => {
   string->String.charAt(string->String.length - 1)
