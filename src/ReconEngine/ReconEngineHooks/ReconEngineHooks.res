@@ -46,6 +46,41 @@ let useGetTransactions = () => {
   }
 }
 
+let useGetTransactionsV2 = () => {
+  let getURL = useGetURL()
+  let updateDetails = useUpdateMethod()
+
+  async (~body: JSON.t) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Post,
+        ~hyperswitchReconType=#TRANSACTIONS_LIST_V2,
+      )
+      let res = await updateDetails(url, body, Post)
+      let dict = res->getDictFromJsonObject
+      let transactions =
+        dict
+        ->getArrayFromDict("items", [])
+        ->getMappedValueFromArrayOfJson(transactionItemToObjMapper)
+      let getCursor = key =>
+        dict
+        ->getOptionValFromDict(key)
+        ->Option.filter(json => json->JSON.Classify.classify != Null)
+        ->Option.map(json =>
+          json->getDictFromJsonObject->ReconEngineTransactionsUtils.transactionCursorFromDict
+        )
+      let page: ReconEngineTransactionsTypes.transactionsV2Page = {
+        transactions,
+        cursors: {next: getCursor("next_cursor"), prev: getCursor("prev_cursor")},
+      }
+      page
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
 let useGetAccounts = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()

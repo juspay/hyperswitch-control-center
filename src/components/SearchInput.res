@@ -201,7 +201,7 @@ let make = (
                   onMouseDown={event => handleOptionClick(event, option.value)}
                   className=optionClassName>
                   <div className="flex items-center justify-between gap-2">
-                    <span> {option.label->React.string} </span>
+                    <span className="whitespace-nowrap"> {option.label->React.string} </span>
                     <Tick isSelected />
                   </div>
                 </button>
