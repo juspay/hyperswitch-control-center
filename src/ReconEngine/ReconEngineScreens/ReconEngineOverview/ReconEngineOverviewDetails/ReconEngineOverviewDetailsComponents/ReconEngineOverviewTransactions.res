@@ -115,6 +115,9 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
       />
     </div>
 
+  let getButtonState = (cursor): Button.buttonState =>
+    cursor->Option.isNone || screenState === PageLoaderWrapper.Loading ? Disabled : Normal
+
   <div className="flex flex-col gap-4">
     <div className="flex-shrink-0"> {statusFilterUi} </div>
     <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="w-full h-96 rounded-xl" />}>
@@ -163,18 +166,14 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
             text="Prev"
             buttonType=Secondary
             buttonSize=Small
-            buttonState={cursors.prev->Option.isNone || screenState === PageLoaderWrapper.Loading
-              ? Button.Disabled
-              : Button.Normal}
+            buttonState={getButtonState(cursors.prev)}
             onClick={_ => goToPrevPage()}
           />
           <Button
             text="Next"
             buttonType=Primary
             buttonSize=Small
-            buttonState={cursors.next->Option.isNone || screenState === PageLoaderWrapper.Loading
-              ? Button.Disabled
-              : Button.Normal}
+            buttonState={getButtonState(cursors.next)}
             onClick={_ => goToNextPage()}
           />
         </div>

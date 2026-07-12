@@ -130,6 +130,9 @@ let make = (
     None
   }, (filterValue, sortOrder))
 
+  let getButtonState = (cursor): Button.buttonState =>
+    cursor->Option.isNone || screenState === PageLoaderWrapper.Loading ? Disabled : Normal
+
   <div className="flex flex-col gap-4 mt-3">
     <PageLoaderWrapper screenState>
       <div className="flex-shrink-0"> {topFilterUi} </div>
@@ -181,18 +184,14 @@ let make = (
             text="Prev"
             buttonType=Secondary
             buttonSize=Small
-            buttonState={cursors.prev->Option.isNone || screenState === PageLoaderWrapper.Loading
-              ? Button.Disabled
-              : Button.Normal}
+            buttonState={getButtonState(cursors.prev)}
             onClick={_ => goToPrevPage()}
           />
           <Button
             text="Next"
             buttonType=Primary
             buttonSize=Small
-            buttonState={cursors.next->Option.isNone || screenState === PageLoaderWrapper.Loading
-              ? Button.Disabled
-              : Button.Normal}
+            buttonState={getButtonState(cursors.next)}
             onClick={_ => goToNextPage()}
           />
         </div>
