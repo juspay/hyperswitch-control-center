@@ -70,6 +70,8 @@ let make = (
   ~isDraggable=false,
   ~customSeparation=?,
   ~checkBoxProps: option<LoadedTable.checkBoxProps>=?,
+  ~isNewColumn=_ => false,
+  ~getNewColumnDescription=_ => "",
 ) => {
   let (showColumnSelector, setShowColumnSelector) = React.useState(() => false)
   let activeColumnsAtom = customColumnMapper->Some
@@ -87,6 +89,8 @@ let make = (
       sortingBasedOnDisabled
       showSerialNumber={showSerialNumberInCustomizeColumns}
       isDraggable
+      isNewColumn
+      getNewColumnDescription
     />
 
   let filt =
@@ -154,6 +158,7 @@ let make = (
     ?filterIcon
     tableheadingClass
     tableDataBackgroundClass
+    showPagination
     showResultsPerPageSelector
     ?setExtFilteredDataLength
     noScrollbar
