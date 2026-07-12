@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.07.10.0
+
+### Features
+
+- Info modal for org chart page ([#5102](https://github.com/juspay/hyperswitch-control-center/pull/5102)) ([`8f542f7`](https://github.com/juspay/hyperswitch-control-center/commit/8f542f71c41eb15af943a073c889c96ab29bab33))
+- Add TSYS Transit Connector in Dashboard ([#5113](https://github.com/juspay/hyperswitch-control-center/pull/5113)) ([`4fb9e3e`](https://github.com/juspay/hyperswitch-control-center/commit/4fb9e3eb36e1f61aea586eaf0eaa740dd6a3e2e4))
+- Add WASM for TSYS Transit Connector ([#5114](https://github.com/juspay/hyperswitch-control-center/pull/5114)) ([`470f63c`](https://github.com/juspay/hyperswitch-control-center/commit/470f63c22efee3424afe470f1fa1a51546efca42))
+
+**Full Changelog:** [`2026.07.09.0...2026.07.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.09.0...2026.07.10.0)
+
+- - -
+
 ## 2026.07.09.0
 
 ### Features

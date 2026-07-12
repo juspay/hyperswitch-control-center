@@ -32,6 +32,11 @@ let make = (~paymentId, ~createdAt) => {
     ~methodType=Get,
     ~queryParameters=Some(`type=Payment&payment_id=${paymentId}`),
   )
+  let prismConnectorLogsUrl = getURL(
+    ~entityName=V1(PRISM_CONNECTOR_EVENT_LOGS),
+    ~methodType=Get,
+    ~queryParameters=Some(`type=Payment&payment_id=${paymentId}`),
+  )
   let routingLogsUrl = getURL(
     ~entityName=V1(ROUTING_EVENT_LOGS),
     ~methodType=Get,
@@ -54,6 +59,10 @@ let make = (~paymentId, ~createdAt) => {
     },
     {
       url: connectorLogsUrl,
+      apiMethod: Get,
+    },
+    {
+      url: prismConnectorLogsUrl,
       apiMethod: Get,
     },
     {
