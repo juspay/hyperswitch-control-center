@@ -886,6 +886,15 @@ let useGetURL = () => {
           }
         | _ => ""
         }
+      | PRISM_CONNECTOR_EVENT_LOGS =>
+        switch methodType {
+        | Get =>
+          switch queryParameters {
+          | Some(params) => `analytics/v1/profile/prism_connector_event_logs?${params}`
+          | None => `analytics/v1/prism_connector_event_logs`
+          }
+        | _ => ""
+        }
       | ROUTING_EVENT_LOGS =>
         switch methodType {
         | Get =>
@@ -1055,6 +1064,11 @@ let useGetURL = () => {
             | Some(transactionId) => `${reconBaseURL}/transactions/${transactionId}/entries`
             | None => `${reconBaseURL}/entries`
             }
+          | _ => ""
+          }
+        | #PROCESSING_ENTRIES_LIST_V2 =>
+          switch methodType {
+          | Post => `${reconBaseURL}/staging_entries/v2/list`
           | _ => ""
           }
         | #PROCESSING_ENTRIES_LIST =>
