@@ -1237,13 +1237,13 @@ test.describe("All Payin Connectors", () => {
       await expect(
         page.getByTestId(
           connector.fields.overrides["Enter Connector label"] ||
-          connector.label,
+            connector.label,
         ),
       ).toBeVisible();
       await page
         .getByTestId(
           connector.fields.overrides["Enter Connector label"] ||
-          connector.label,
+            connector.label,
         )
         .click();
     });
@@ -1530,9 +1530,7 @@ test.describe("All Payin Connectors", () => {
     await paymentConnector.pmtProceedButton.click();
 
     await expect(page.getByText("APPLE PAYUSDEncryptDecrypt")).toBeVisible();
-    await expect(
-      page.getByText("USDThree DsNo Three Ds"),
-    ).toBeVisible();
+    await expect(page.getByText("USDThree DsNo Three Ds")).toBeVisible();
 
     await page
       .locator("div")

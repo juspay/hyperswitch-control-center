@@ -302,11 +302,11 @@ test.describe("Disputes List page", () => {
 
       await paymentOperations.addFilters.click();
       await page
-         .locator('[data-dropdown-value="Dispute Status"]:visible')
-         .click();
+        .locator('[data-dropdown-value="Dispute Status"]:visible')
+        .click();
       await page
-         .locator('[data-component-field-wrapper="field-dispute_status"]')
-         .click();
+        .locator('[data-component-field-wrapper="field-dispute_status"]')
+        .click();
       await page.locator('[value="dispute_won"]').click();
       await paymentOperations.applyButton.click();
       await page.waitForLoadState("networkidle");
