@@ -190,7 +190,17 @@ module KeyValueFilter = {
 
 module FilterOption = {
   @react.component
-  let make = (~onClick, ~value, ~placeholder=None, ~filter, ~selectedFilter=None, ~viewType) => {
+  let make = (
+    ~onClick,
+    ~value,
+    ~placeholder=None,
+    ~filter,
+    ~selectedFilter=None,
+    ~viewType,
+    ~tabIndex=?,
+    ~role=?,
+    ~onKeyDown=?,
+  ) => {
     let activeBg = "bg-gray-200"
     let wrapperBg = "bg-gray-400/40"
     let rounded = "rounded-lg"
@@ -206,6 +216,9 @@ module FilterOption = {
     switch viewType {
     | FiltersSugsestions =>
       <div
+        ?tabIndex
+        ?role
+        ?onKeyDown
         className={`flex justify-between p-2 group items-center cursor-pointer ${activeWrapperClass}`}
         onClick>
         <div className={`${activeClass} py-1 px-2 rounded-md flex gap-1 items-center w-fit`}>
@@ -232,9 +245,30 @@ module NoResults = {
   }
 }
 
+module FilterSuggestionsSection = {
+  open FramerMotion.Motion
+  @react.component
+  let make = (
+    ~title,
+    ~children,
+    ~sectionLayoutId="categories-section",
+    ~titleLayoutId="categories-title",
+  ) => {
+    <Div
+      initial={{opacity: 0.5}}
+      animate={{opacity: 0.5}}
+      layoutId=sectionLayoutId
+      className="px-2 pt-2 border-t dark:border-jp-gray-960">
+      <Div layoutId=titleLayoutId className="font-bold px-2">
+        {title->String.toUpperCase->React.string}
+      </Div>
+      <div> children </div>
+    </Div>
+  }
+}
+
 module FilterResultsComponent = {
   open GlobalSearchBarUtils
-  open FramerMotion.Motion
   @react.component
   let make = (
     ~categorySuggestions: array<categoryOption>,
@@ -335,15 +369,7 @@ module FilterResultsComponent = {
     let sectionHeader = isFreeTextKey ? "" : "Suggested Filters"
 
     <RenderIf condition={filters->Array.length > 0}>
-      <Div
-        initial={{opacity: 0.5}}
-        animate={{opacity: 0.5}}
-        layoutId="categories-section"
-        className="px-2 pt-2 border-t dark:border-jp-gray-960">
-        <Div layoutId="categories-title" className="font-bold px-2">
-          {sectionHeader->String.toUpperCase->React.string}
-        </Div>
-        <div>
+      <FilterSuggestionsSection title=sectionHeader>
           <RenderIf condition={filters->Array.length === 1 && filters->checkFilterKey}>
             <div className="h-full max-h-[450px] overflow-scroll sidebar-scrollbar">
               <style> {React.string(sidebarScrollbarCss)} </style>
@@ -419,8 +445,7 @@ module FilterResultsComponent = {
               }}
             </div>
           </RenderIf>
-        </div>
-      </Div>
+      </FilterSuggestionsSection>
     </RenderIf>
   }
 }
@@ -611,7 +636,9 @@ module ModalSearchBox = {
           if keyPressed == tabKey {
             let newIndex = getNextIndex(index, allFilters)
             switch allFilters->Array.get(newIndex) {
-            | Some(val) => setSelectedFilter(_ => val->Some)
+            | Some(val) =>
+              setClipboardSuggestionSelected(_ => false)
+              setSelectedFilter(_ => val->Some)
             | _ => ()
             }
           }

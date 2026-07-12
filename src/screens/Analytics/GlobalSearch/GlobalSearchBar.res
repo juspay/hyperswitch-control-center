@@ -211,6 +211,7 @@ let make = () => {
   }
 
   let onLocalSearchTextChange = value => {
+    clipboardReadVersion.current = clipboardReadVersion.current + 1
     setClipboardSearchText(_ => None)
     setClipboardSuggestionSelected(_ => false)
     setLocalSearchText(_ => value)
@@ -334,36 +335,35 @@ let make = () => {
             <RenderIf condition={filtersEnabled}>
               {switch clipboardSearchText {
               | Some(searchText) =>
-                <div className="px-2 pt-2 border-t dark:border-jp-gray-960">
-                  <div className="font-bold px-2">
-                    {"FROM CLIPBOARD"->React.string}
-                  </div>
-                  <div>
-                    <div
-                      tabIndex=0
-                      role="button"
-                      className={`flex justify-between p-2 group items-center cursor-pointer ${
-                        clipboardSuggestionSelected
-                          ? "bg-gray-200 rounded-lg"
-                          : "hover:bg-gray-200 hover:rounded-lg"
-                      }`}
-                      onClick={_ => onClipboardSuggestionClicked(searchText)}
-                      onKeyDown={event => {
-                        open ReactEvent.Keyboard
-                        if event->keyCode == 13 {
-                          event->preventDefault
-                          onClipboardSuggestionClicked(searchText)
-                        }
-                      }}>
-                      <div className="py-1 px-2 rounded-md flex gap-1 items-center w-fit">
-                        <span className="font-medium text-sm">
-                          {searchText->String.replace(filterSeparator, ` ${filterSeparator} `)->React.string}
-                        </span>
-                      </div>
-                      <div className="text-sm opacity-70"> {"Click to search"->React.string} </div>
-                    </div>
-                  </div>
-                </div>
+                let clipboardFilter = {
+                  categoryType: Payment_id,
+                  options: [],
+                  placeholder: "",
+                }
+                let selectedClipboardFilter = clipboardSuggestionSelected ? Some(clipboardFilter) : None
+
+                <FilterSuggestionsSection
+                  title="FROM CLIPBOARD"
+                  sectionLayoutId="clipboard-section"
+                  titleLayoutId="clipboard-title">
+                  <FilterOption
+                    tabIndex=0
+                    role="button"
+                    onClick={_ => onClipboardSuggestionClicked(searchText)}
+                    onKeyDown={event => {
+                      open ReactEvent.Keyboard
+                      if event->keyCode == 13 {
+                        event->preventDefault
+                        onClipboardSuggestionClicked(searchText)
+                      }
+                    }}
+                    value={searchText->String.replace(filterSeparator, ` ${filterSeparator} `)}
+                    placeholder={Some("Click to search")}
+                    filter=clipboardFilter
+                    selectedFilter=selectedClipboardFilter
+                    viewType=FiltersSugsestions
+                  />
+                </FilterSuggestionsSection>
               | None => React.null
               }}
               <FilterResultsComponent
