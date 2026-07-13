@@ -8,6 +8,29 @@ let sectionsViewResultsCount = 4
 let paymentIdFilterKey = "payment_id"
 let refundIdFilterKey = "refund_id"
 
+type clipboardSuggestion = {
+  text: string,
+  selected: bool,
+}
+
+type clipboardSuggestionState =
+  | Hidden
+  | Visible(clipboardSuggestion)
+
+let getClipboardSuggestion = state => {
+  switch state {
+  | Hidden => None
+  | Visible(suggestion) => Some(suggestion)
+  }
+}
+
+let makeClipboardSuggestion = text => Visible({text, selected: false})
+
+let updateClipboardSuggestionSelected = (state, selected) =>
+  state
+  ->getClipboardSuggestion
+  ->mapOptionOrDefault(Hidden, suggestion => Visible({...suggestion, selected}))
+
 let getClipboardSearchText = text => {
   let trimmedText = text->String.trim
   if RegExp.test(%re("/^pay_[A-Za-z0-9_]+$/"), trimmedText) {

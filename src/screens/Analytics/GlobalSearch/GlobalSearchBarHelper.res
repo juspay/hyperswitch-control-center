@@ -247,6 +247,7 @@ module NoResults = {
 
 module FilterSuggestionsSection = {
   open FramerMotion.Motion
+  open Typography
   @react.component
   let make = (
     ~title,
@@ -259,7 +260,7 @@ module FilterSuggestionsSection = {
       animate={{opacity: 0.5}}
       layoutId=sectionLayoutId
       className="px-2 pt-2 border-t dark:border-jp-gray-960">
-      <Div layoutId=titleLayoutId className="font-bold px-2">
+      <Div layoutId=titleLayoutId className={`${body.md.bold} text-nd_gray-700 px-2`}>
         {title->String.toUpperCase->React.string}
       </Div>
       <div> children </div>
@@ -563,9 +564,8 @@ module ModalSearchBox = {
     ~allFilters,
     ~selectedFilter,
     ~setSelectedFilter,
-    ~clipboardSearchText,
-    ~clipboardSuggestionSelected,
-    ~setClipboardSuggestionSelected,
+    ~clipboardSuggestionState,
+    ~setClipboardSuggestionState,
     ~onClipboardSuggestionClicked,
     ~viewType,
     ~activeFilter,
@@ -635,11 +635,16 @@ module ModalSearchBox = {
 
           if keyPressed == tabKey {
             let newIndex = getNextIndex(index, allFilters)
-            switch allFilters->Array.get(newIndex) {
-            | Some(val) =>
-              setClipboardSuggestionSelected(_ => false)
+            if allFilters->Array.length > 0 {
+              let val = allFilters->getValueFromArray(newIndex, {
+                categoryType: Date,
+                options: [],
+                placeholder: "",
+              })
+              setClipboardSuggestionState(state =>
+                state->updateClipboardSuggestionSelected(false)
+              )
               setSelectedFilter(_ => val->Some)
-            | _ => ()
             }
           }
         }
@@ -678,14 +683,17 @@ module ModalSearchBox = {
         }
 
       | FiltersSugsestions => {
-          let hasClipboardSuggestion = switch clipboardSearchText {
-          | Some(text) => text->isNonEmptyString
-          | None => false
-          }
-          let clipboardText = switch clipboardSearchText {
-          | Some(text) => text
-          | None => ""
-          }
+          let clipboardSuggestion = clipboardSuggestionState->getClipboardSuggestion
+          let hasClipboardSuggestion = clipboardSuggestion->mapOptionOrDefault(false, suggestion =>
+            suggestion.text->isNonEmptyString
+          )
+          let clipboardText = clipboardSuggestion->mapOptionOrDefault("", suggestion =>
+            suggestion.text
+          )
+          let clipboardSuggestionSelected = clipboardSuggestion->mapOptionOrDefault(
+            false,
+            suggestion => suggestion.selected,
+          )
           let index = allFilters->Array.findIndex(item => {
             switch selectedFilter {
             | Some(val) => item == val
@@ -695,14 +703,21 @@ module ModalSearchBox = {
 
           if keyPressed == arrowDown {
             if clipboardSuggestionSelected {
-              switch allFilters->Array.get(0) {
-              | Some(val) =>
-                setClipboardSuggestionSelected(_ => false)
+              if allFilters->Array.length > 0 {
+                let val = allFilters->getValueFromArray(0, {
+                  categoryType: Date,
+                  options: [],
+                  placeholder: "",
+                })
+                setClipboardSuggestionState(state =>
+                  state->updateClipboardSuggestionSelected(false)
+                )
                 setSelectedFilter(_ => val->Some)
-              | _ => ()
               }
             } else if hasClipboardSuggestion && index < 0 {
-              setClipboardSuggestionSelected(_ => true)
+              setClipboardSuggestionState(state =>
+                state->updateClipboardSuggestionSelected(true)
+              )
               setSelectedFilter(_ => None)
             } else {
               let newIndex = getNextIndex(index, allFilters)
@@ -713,14 +728,21 @@ module ModalSearchBox = {
             }
           } else if keyPressed == arrowUp {
             if clipboardSuggestionSelected {
-              switch allFilters->Array.get(allFilters->Array.length - 1) {
-              | Some(val) =>
-                setClipboardSuggestionSelected(_ => false)
+              if allFilters->Array.length > 0 {
+                let val = allFilters->getValueFromArray(allFilters->Array.length - 1, {
+                  categoryType: Date,
+                  options: [],
+                  placeholder: "",
+                })
+                setClipboardSuggestionState(state =>
+                  state->updateClipboardSuggestionSelected(false)
+                )
                 setSelectedFilter(_ => val->Some)
-              | _ => ()
               }
             } else if hasClipboardSuggestion && index <= 0 {
-              setClipboardSuggestionSelected(_ => true)
+              setClipboardSuggestionState(state =>
+                state->updateClipboardSuggestionSelected(true)
+              )
               setSelectedFilter(_ => None)
             } else {
               let newIndex = getPrevIndex(index, allFilters)

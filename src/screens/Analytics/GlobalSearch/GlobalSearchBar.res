@@ -32,8 +32,7 @@ let make = () => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let inputRef = React.useRef(Nullable.null)
   let clipboardReadVersion = React.useRef(0)
-  let (clipboardSearchText, setClipboardSearchText) = React.useState(_ => None)
-  let (clipboardSuggestionSelected, setClipboardSuggestionSelected) = React.useState(_ => false)
+  let (clipboardSuggestionState, setClipboardSuggestionState) = React.useState(_ => Hidden)
   let filtersEnabled = globalSearchFilters
 
   let redirectOnSelect = element => {
@@ -152,8 +151,7 @@ let make = () => {
   React.useEffect(_ => {
     let nextVersion = clipboardReadVersion.current + 1
     clipboardReadVersion.current = nextVersion
-    setClipboardSearchText(_ => None)
-    setClipboardSuggestionSelected(_ => false)
+    setClipboardSuggestionState(_ => Hidden)
     setSearchText(_ => "")
     setLocalSearchText(_ => "")
     setFilterText("")
@@ -169,7 +167,9 @@ let make = () => {
           | Some(text) => text->getClipboardSearchText
           | None => None
           }
-          setClipboardSearchText(_ => searchText)
+          setClipboardSuggestionState(_ =>
+            searchText->mapOptionOrDefault(Hidden, makeClipboardSuggestion)
+          )
         }
       }
 
@@ -212,8 +212,7 @@ let make = () => {
 
   let onLocalSearchTextChange = value => {
     clipboardReadVersion.current = clipboardReadVersion.current + 1
-    setClipboardSearchText(_ => None)
-    setClipboardSuggestionSelected(_ => false)
+    setClipboardSuggestionState(_ => Hidden)
     setLocalSearchText(_ => value)
   }
 
@@ -255,8 +254,7 @@ let make = () => {
   let onClipboardSuggestionClicked = searchText => {
     setLocalSearchText(_ => searchText)
     setFilterText("")
-    setClipboardSearchText(_ => None)
-    setClipboardSuggestionSelected(_ => false)
+    setClipboardSuggestionState(_ => Hidden)
 
     revertFocus(~inputRef)
   }
@@ -300,9 +298,8 @@ let make = () => {
             allFilters
             selectedFilter
             setSelectedFilter
-            clipboardSearchText
-            clipboardSuggestionSelected
-            setClipboardSuggestionSelected
+            clipboardSuggestionState
+            setClipboardSuggestionState
             onClipboardSuggestionClicked
             viewType
             redirectOnSelect
@@ -333,8 +330,15 @@ let make = () => {
             />
           | FiltersSugsestions =>
             <RenderIf condition={filtersEnabled}>
-              {switch clipboardSearchText {
-              | Some(searchText) =>
+              {let clipboardSuggestion = clipboardSuggestionState->getClipboardSuggestion
+              <RenderIf condition={clipboardSuggestion->Option.isSome}>
+                {let clipboardSearchText = clipboardSuggestion->mapOptionOrDefault("", suggestion =>
+                  suggestion.text
+                )
+                let clipboardSuggestionSelected = clipboardSuggestion->mapOptionOrDefault(
+                  false,
+                  suggestion => suggestion.selected,
+                )
                 let clipboardFilter = {
                   categoryType: Payment_id,
                   options: [],
@@ -349,23 +353,22 @@ let make = () => {
                   <FilterOption
                     tabIndex=0
                     role="button"
-                    onClick={_ => onClipboardSuggestionClicked(searchText)}
+                    onClick={_ => onClipboardSuggestionClicked(clipboardSearchText)}
                     onKeyDown={event => {
                       open ReactEvent.Keyboard
                       if event->keyCode == 13 {
                         event->preventDefault
-                        onClipboardSuggestionClicked(searchText)
+                        onClipboardSuggestionClicked(clipboardSearchText)
                       }
                     }}
-                    value={searchText->String.replace(filterSeparator, ` ${filterSeparator} `)}
+                    value={clipboardSearchText->String.replace(filterSeparator, ` ${filterSeparator} `)}
                     placeholder={Some("Click to search")}
                     filter=clipboardFilter
                     selectedFilter=selectedClipboardFilter
                     viewType=FiltersSugsestions
                   />
-                </FilterSuggestionsSection>
-              | None => React.null
-              }}
+                </FilterSuggestionsSection>}
+              </RenderIf>}
               <FilterResultsComponent
                 categorySuggestions
                 activeFilter
