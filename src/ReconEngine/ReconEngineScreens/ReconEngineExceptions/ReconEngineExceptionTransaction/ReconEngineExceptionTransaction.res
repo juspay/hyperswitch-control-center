@@ -16,6 +16,7 @@ let make = (~ruleId: string) => {
   )
   let getAccounts = ReconEngineHooks.useGetAccounts()
   let getReconRuleList = ReconEngineHooks.useGetReconRuleList()
+  let showToast = ToastAdapter.useShowToast()
 
   let (accountData, setAccountData) = React.useState(_ => [])
   let (reconRulesList, setReconRulesList) = React.useState(_ => [])
@@ -39,6 +40,9 @@ let make = (~ruleId: string) => {
     mixpanelEvent(~eventName="recon_engine_exception_transaction_date_filter_opened")
   }
 
+  let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
+  let sortOrder = sortDict->getMappedValueFromDict("Exception Transactions", Desc, getSortOrder)
+
   let exceptionStatusList = getTransactionStatusValueFromStatusList([
     Expected,
     Missing,
@@ -59,14 +63,14 @@ let make = (~ruleId: string) => {
       setAccountData(_ => accounts)
       setReconRulesList(_ => rules)
     } catch {
-    | _ => ()
+    | _ => showToast(~message="Failed to fetch accounts", ~toastType=ToastError)
     }
   }
 
   let fetchPage = (~sortBy, ~direction) => {
     let enhancedFilterValueJson = Dict.copy(filterValueJson)
     let statusFilter = filterValueJson->getArrayFromDict("status", [])
-    if statusFilter->Array.length === 0 {
+    if statusFilter->isEmptyArray {
       enhancedFilterValueJson->Dict.set("status", exceptionStatusList->getJsonFromArrayOfString)
     }
     getTransactionsV2(
@@ -77,7 +81,8 @@ let make = (~ruleId: string) => {
         ~ruleId,
         ~sortBy,
         ~direction,
-        ~limit=3,
+        ~order=sortOrder,
+        ~limit=4,
       ),
     )
   }
@@ -93,13 +98,6 @@ let make = (~ruleId: string) => {
     ~fetchPage,
     ~persistKey=`recon-engine-exception-transactions-${ruleId}`,
   )
-
-  let (creditAccountOptions, debitAccountOptions) = React.useMemo(() => {
-    (
-      getEntryTypeAccountOptions(transactions, ~entryType=Credit),
-      getEntryTypeAccountOptions(transactions, ~entryType=Debit),
-    )
-  }, [transactions])
 
   let handleSearchSubmit = (selectedType: option<string>) => {
     let newSearchType = selectedType->mapOptionOrDefault(SearchTransactionId, searchTypeFromString)
@@ -144,7 +142,7 @@ let make = (~ruleId: string) => {
       goToFirstPage()
     }
     None
-  }, [filterValue])
+  }, (filterValue, sortOrder))
 
   let urlPathString = url.path->List.toArray->Array.joinWith("/")
 
@@ -181,7 +179,7 @@ let make = (~ruleId: string) => {
     <div className="flex flex-row -ml-1.5">
       <DynamicFilter
         title="ReconEngineExceptionTransactionFilters"
-        initialFilters={initialDisplayFilters(~creditAccountOptions, ~debitAccountOptions, ())}
+        initialFilters={initialDisplayFilters()}
         options=[]
         popupFilterFields=[]
         initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
@@ -199,12 +197,12 @@ let make = (~ruleId: string) => {
     </div>
   }
 
-  <div className="flex flex-col gap-4">
+  <div className="flex flex-col gap-4 mt-3">
     <PageLoaderWrapper screenState>
       <div className="flex-shrink-0"> {topFilterUi} </div>
       <RenderIf condition={transactions->isEmptyArray}>
         <div className="h-40-vh flex flex-col justify-center items-center gap-2">
-          <p className={`${heading.sm.semibold} text-gray-800`}>
+          <p className={`${heading.sm.semibold} text-nd_gray-800`}>
             {"No exceptions to show."->React.string}
           </p>
           <p className={`${body.md.medium} text-nd_gray-500`}>
@@ -214,7 +212,7 @@ let make = (~ruleId: string) => {
       </RenderIf>
       <RenderIf condition={transactions->isNonEmptyArray}>
         <LoadedTableWithCustomColumns
-          title="Exception Entries - Expected & Mismatched"
+          title="Exception Transactions"
           hideTitle=true
           actualData={transactions->Array.map(Nullable.make)}
           totalResults={transactions->Array.length}
@@ -224,7 +222,7 @@ let make = (~ruleId: string) => {
             ~reconRulesList,
             ~accountData,
           )}
-          resultsPerPage=3
+          resultsPerPage=4
           offset
           setOffset
           currentFetchCount={transactions->Array.length}
@@ -232,6 +230,7 @@ let make = (~ruleId: string) => {
           defaultColumns
           showSerialNumberInCustomizeColumns=false
           sortingBasedOnDisabled=false
+          remoteSortEnabled=true
           showPagination=false
           showResultsPerPageSelector=false
           tableDataLoading={screenState === PageLoaderWrapper.Loading}
