@@ -8,6 +8,7 @@ import {
   mockPaymentAnalyticsError,
   FROZEN_NOW,
 } from "../../support/paymentAnalyticsMocks";
+import { PaymentOperations } from "../../support/pages/operations/PaymentOperations";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
@@ -211,22 +212,13 @@ test.describe("Analytics - Payments - Dimension Filters", () => {
   });
 
   test("should add and clear each dimension filter chip", async ({ page }) => {
+    const paymentOperations = new PaymentOperations(page);
     for (const { label, key } of DIMENSION_FILTERS) {
-      // Open the dropdown and select the dimension.
-      await analytics.openAddFilters();
-      await analytics.dimensionOption(label).click();
-
-      // A "Select <label>" chip appears for the selected dimension.
-      await expect(analytics.selectedFilterChip(key)).toBeVisible({
-        timeout: 10000,
-      });
-      await expect(analytics.selectedFilterChip(key)).toContainText(
-        `Select ${label}`,
-      );
-
-      // Clear the chip before moving on to the next dimension.
-      //await analytics.clearFilterChip(key);
-      await expect(analytics.selectedFilterChip(key)).toHaveCount(1);
+      await page.getByRole("button", { name: "Add Filters" }).click();
+      await expect(page.getByLabel("Add Filters").getByText(`${label}`, { exact: true })).toBeVisible();
+      await page.getByLabel("Add Filters").getByText(`${label}`, { exact: true }).click({ force: true });
+      await expect(paymentOperations.filterChipArea(label).first()).toContainText(`Select ${label}`);
+      await expect(page.getByLabel("Add Filters").getByText("Routing Approach")).not.toBeVisible();
     }
   });
 });
