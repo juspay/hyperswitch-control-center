@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.07.12.0
+
+### Features
+
+- Enable analytics for platform merchants ([#5068](https://github.com/juspay/hyperswitch-control-center/pull/5068)) ([`522c414`](https://github.com/juspay/hyperswitch-control-center/commit/522c4141efc1e8ee527b9825c1e72685296d0620))
+- Add prism connector audit logs ([#5131](https://github.com/juspay/hyperswitch-control-center/pull/5131)) ([`88c57b6`](https://github.com/juspay/hyperswitch-control-center/commit/88c57b6b9c5607ba2401fb698ea506c141a432fb))
+- Add cursor pagination in recon engine transactions ([#5049](https://github.com/juspay/hyperswitch-control-center/pull/5049)) ([`76d0670`](https://github.com/juspay/hyperswitch-control-center/commit/76d067023daef5f1fb8f90dc9bbd41d1a72daf71))
+- Add cursor pagination in recon engine transformed entries ([#5155](https://github.com/juspay/hyperswitch-control-center/pull/5155)) ([`0bcc486`](https://github.com/juspay/hyperswitch-control-center/commit/0bcc4860f2a68ab10720bfb24484fb84e574e883))
+
+### Bug Fixes
+
+- Include recipient in webhook event list ([#5109](https://github.com/juspay/hyperswitch-control-center/pull/5109)) ([`afbf96d`](https://github.com/juspay/hyperswitch-control-center/commit/afbf96db2a481a0e32fc378ddb4e01d5db84b032))
+- Update broken platform docs URL in API keys screen ([#5148](https://github.com/juspay/hyperswitch-control-center/pull/5148)) ([`6807711`](https://github.com/juspay/hyperswitch-control-center/commit/68077117163355c8bd381bb69e307b5c3fe291a3))
+- Redirect payout volume routing after save ([#5134](https://github.com/juspay/hyperswitch-control-center/pull/5134)) ([`5d2adf6`](https://github.com/juspay/hyperswitch-control-center/commit/5d2adf61f0c5128192269a6a4a8c8bda23c451bd))
+
+**Full Changelog:** [`2026.07.10.0...2026.07.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.10.0...2026.07.12.0)
+
+- - -
+
 ## 2026.07.10.0
 
 ### Features
