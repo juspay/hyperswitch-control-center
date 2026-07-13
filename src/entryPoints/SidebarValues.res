@@ -127,27 +127,25 @@ let operations = (
     : emptyComponent
 }
 
-let paymentProcessor = (isLiveMode, userHasResourceAccess) => {
+let paymentProcessor = (isLiveMode, userHasResourceAccess, ~paymentProcessorsLiveList) => {
   SubLevelLink({
     name: "Payment Processors",
     link: `/connectors`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=isLiveMode
-        ? ConnectorUtils.connectorListForLive
-        : ConnectorUtils.connectorList,
+      ~processorList=isLiveMode ? paymentProcessorsLiveList : ConnectorUtils.connectorList,
       ~getNameFromString=ConnectorUtils.getConnectorNameString,
     ),
   })
 }
 
-let payoutConnectors = (~userHasResourceAccess) => {
+let payoutConnectors = (~isLiveMode, ~userHasResourceAccess, ~payoutProcessorsLiveList) => {
   SubLevelLink({
     name: "Payout Processors",
     link: `/payoutconnectors`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=ConnectorUtils.payoutConnectorList,
+      ~processorList=isLiveMode ? payoutProcessorsLiveList : ConnectorUtils.payoutConnectorList,
       ~getNameFromString=ConnectorUtils.getConnectorNameString,
     ),
   })
@@ -162,15 +160,21 @@ let fraudAndRisk = (~userHasResourceAccess) => {
   })
 }
 
-let threeDsConnector = (~userHasResourceAccess) => {
+let threeDsConnector = (
+  ~isLiveMode,
+  ~userHasResourceAccess,
+  ~threeDsAuthenticatorProcessorsLiveList,
+) => {
   SubLevelLink({
     name: "3DS Authenticators",
     link: "/3ds-authenticators",
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: [
-      ("Connect 3dsecure.io", "/new?name=threedsecureio"),
-      ("Connect threedsecureio", "/new?name=threedsecureio"),
-    ],
+    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
+      ~processorList=isLiveMode
+        ? threeDsAuthenticatorProcessorsLiveList
+        : ConnectorUtils.threedsAuthenticatorList,
+      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    ),
   })
 }
 
@@ -210,13 +214,13 @@ let billingProcessor = (~userHasResourceAccess) => {
   })
 }
 
-let vaultProcessor = (~userHasResourceAccess) => {
+let vaultProcessor = (~isLiveMode, ~userHasResourceAccess, ~vaultProcessorsLiveList) => {
   SubLevelLink({
     name: "Vault Processor",
     link: `/vault-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=ConnectorUtils.vaultProcessorList,
+      ~processorList=isLiveMode ? vaultProcessorsLiveList : ConnectorUtils.vaultProcessorList,
       ~getNameFromString=ConnectorUtils.getConnectorNameString,
     ),
   })
@@ -248,21 +252,40 @@ let connectors = (
   ~userHasResourceAccess,
   ~isCurrentMerchantPlatform,
   ~isCurrentMerchantConnected,
+  ~connectorListForLive: ConnectorListForLiveFromConfigTypes.connectorListForLive,
 ) => {
+  let {
+    paymentProcessorsLiveList,
+    payoutProcessorsLiveList,
+    threeDsAuthenticatorProcessorsLiveList,
+    vaultProcessorsLiveList,
+  } = connectorListForLive
   let connectorLinkArray = if isCurrentMerchantPlatform {
     let links = []
     if isVaultProcessor {
-      links->Array.push(vaultProcessor(~userHasResourceAccess))->ignore
+      links
+      ->Array.push(vaultProcessor(~isLiveMode, ~userHasResourceAccess, ~vaultProcessorsLiveList))
+      ->ignore
     }
     links
   } else {
-    let links = [paymentProcessor(isLiveMode, userHasResourceAccess)]
+    let links = [paymentProcessor(isLiveMode, userHasResourceAccess, ~paymentProcessorsLiveList)]
 
     if isPayoutsEnabled {
-      links->Array.push(payoutConnectors(~userHasResourceAccess))->ignore
+      links
+      ->Array.push(payoutConnectors(~isLiveMode, ~userHasResourceAccess, ~payoutProcessorsLiveList))
+      ->ignore
     }
     if isThreedsConnectorEnabled {
-      links->Array.push(threeDsConnector(~userHasResourceAccess))->ignore
+      links
+      ->Array.push(
+        threeDsConnector(
+          ~isLiveMode,
+          ~userHasResourceAccess,
+          ~threeDsAuthenticatorProcessorsLiveList,
+        ),
+      )
+      ->ignore
     }
 
     if isFrmEnabled {
@@ -285,7 +308,9 @@ let connectors = (
     }
 
     if isVaultProcessor && !isCurrentMerchantConnected {
-      links->Array.push(vaultProcessor(~userHasResourceAccess))->ignore
+      links
+      ->Array.push(vaultProcessor(~isLiveMode, ~userHasResourceAccess, ~vaultProcessorsLiveList))
+      ->ignore
     }
     links
   }
