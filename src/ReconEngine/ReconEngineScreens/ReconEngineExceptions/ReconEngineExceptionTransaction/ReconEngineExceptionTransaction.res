@@ -6,21 +6,25 @@ let make = (~ruleId: string) => {
   open ReconEngineFilterUtils
   open ReconEngineExceptionTransactionUtils
   open ReconEngineTypes
+  open ReconEngineTransactionsUtils
+  open ReconEngineTransactionsTypes
   open HierarchicalTransactionsTableEntity
 
-  let (exceptionData, setExceptionData) = React.useState(_ => [])
-  let (filteredExceptionData, setFilteredExceptionData) = React.useState(_ => [])
+  let getTransactionsV2 = ReconEngineHooks.useGetCursorPage(
+    ~hyperswitchReconType=#TRANSACTIONS_LIST_V2,
+    ~itemMapper=ReconEngineUtils.transactionItemToObjMapper,
+  )
+  let getAccounts = ReconEngineHooks.useGetAccounts()
+  let getReconRuleList = ReconEngineHooks.useGetReconRuleList()
+
   let (accountData, setAccountData) = React.useState(_ => [])
   let (reconRulesList, setReconRulesList) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let url = RescriptReactRouter.useUrl()
+  let searchTypeRef = React.useRef(SearchTransactionId)
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
+  let url = RescriptReactRouter.useUrl()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let getTransactions = ReconEngineHooks.useGetTransactions()
-  let getAccounts = ReconEngineHooks.useGetAccounts()
-  let getReconRuleList = ReconEngineHooks.useGetReconRuleList()
   let {
     updateExistingKeys,
     filterValueJson,
@@ -35,68 +39,66 @@ let make = (~ruleId: string) => {
     mixpanelEvent(~eventName="recon_engine_exception_transaction_date_filter_opened")
   }
 
+  let exceptionStatusList = getTransactionStatusValueFromStatusList([
+    Expected,
+    Missing,
+    OverAmount(Mismatch),
+    UnderAmount(Mismatch),
+    OverAmount(Expected),
+    UnderAmount(Expected),
+    DataMismatch,
+    PartiallyReconciled,
+    CurrencyMismatch,
+    SplitMismatch,
+  ])
+
+  let fetchAccountsAndRules = async () => {
+    try {
+      let accounts = await getAccounts()
+      let rules = await getReconRuleList()
+      setAccountData(_ => accounts)
+      setReconRulesList(_ => rules)
+    } catch {
+    | _ => ()
+    }
+  }
+
+  let fetchPage = (~sortBy, ~direction) => {
+    let enhancedFilterValueJson = Dict.copy(filterValueJson)
+    let statusFilter = filterValueJson->getArrayFromDict("status", [])
+    if statusFilter->Array.length === 0 {
+      enhancedFilterValueJson->Dict.set("status", exceptionStatusList->getJsonFromArrayOfString)
+    }
+    getTransactionsV2(
+      ~body=buildTransactionsV2Body(
+        ~filterValueJson=enhancedFilterValueJson,
+        ~searchType=searchTypeRef.current,
+        ~searchText,
+        ~ruleId,
+        ~sortBy,
+        ~direction,
+        ~limit=3,
+      ),
+    )
+  }
+
+  let (transactions, cursors, screenState, goToFirstPage, goToNextPage, goToPrevPage) =
+    ReconEngineCursorPaginationHook.useCursorPagination(
+      ~fetchPage,
+      ~persistKey=`recon-engine-exception-transactions-${ruleId}`,
+    )
+
   let (creditAccountOptions, debitAccountOptions) = React.useMemo(() => {
     (
-      getEntryTypeAccountOptions(exceptionData, ~entryType=Credit),
-      getEntryTypeAccountOptions(exceptionData, ~entryType=Debit),
+      getEntryTypeAccountOptions(transactions, ~entryType=Credit),
+      getEntryTypeAccountOptions(transactions, ~entryType=Debit),
     )
-  }, [exceptionData])
+  }, [transactions])
 
-  let filterLogic = ReactDebounce.useDebounced(ob => {
-    let (searchText, arr) = ob
-    let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<transactionType>) => {
-        switch Nullable.toOption(obj) {
-        | Some(obj) =>
-          isContainingStringLowercase(obj.transaction_id, searchText) ||
-          isContainingStringLowercase(
-            obj.transaction_status->TransactionsTableEntity.getDomainTransactionStatusString,
-            searchText,
-          ) ||
-          obj.entries->Array.some(entry => isContainingStringLowercase(entry.order_id, searchText))
-        | None => false
-        }
-      })
-    } else {
-      arr
-    }
-    setFilteredExceptionData(_ => filteredList)
-  }, ~wait=200)
-
-  let fetchExceptionsData = async () => {
-    setScreenState(_ => PageLoaderWrapper.Loading)
-    try {
-      let enhancedFilterValueJson = Dict.copy(filterValueJson)
-      let statusFilter = filterValueJson->getArrayFromDict("status", [])
-      let statusList = ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
-        Expected,
-        Missing,
-        OverAmount(Mismatch),
-        UnderAmount(Mismatch),
-        OverAmount(Expected),
-        UnderAmount(Expected),
-        DataMismatch,
-        PartiallyReconciled,
-        CurrencyMismatch,
-        SplitMismatch,
-      ])
-      if statusFilter->Array.length === 0 {
-        enhancedFilterValueJson->Dict.set("status", statusList->getJsonFromArrayOfString)
-      }
-      enhancedFilterValueJson->Dict.set("rule_id", ruleId->JSON.Encode.string)
-      let queryString = buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson)
-      let exceptionList = await getTransactions(~queryParameters=Some(queryString))
-      let accountData = await getAccounts()
-      let reconRulesList = await getReconRuleList()
-      let exceptionDataList = exceptionList->Array.map(Nullable.make)
-      setAccountData(_ => accountData)
-      setReconRulesList(_ => reconRulesList)
-      setExceptionData(_ => exceptionList)
-      setFilteredExceptionData(_ => exceptionDataList)
-      setScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
-    }
+  let handleSearchSubmit = (selectedType: option<string>) => {
+    let newSearchType = selectedType->mapOptionOrDefault(SearchTransactionId, searchTypeFromString)
+    searchTypeRef.current = newSearchType
+    goToFirstPage()
   }
 
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
@@ -109,6 +111,7 @@ let make = (~ruleId: string) => {
   )
 
   React.useEffect(() => {
+    fetchAccountsAndRules()->ignore
     let urlSearch = url.search
     if urlSearch->isNonEmptyString {
       let urlParams = urlSearch->getDictFromUrlSearchParams
@@ -132,7 +135,7 @@ let make = (~ruleId: string) => {
 
   React.useEffect(() => {
     if !(filterValue->isEmptyDict) {
-      fetchExceptionsData()->ignore
+      goToFirstPage()
     }
     None
   }, [filterValue])
@@ -186,7 +189,6 @@ let make = (~ruleId: string) => {
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false
         refreshFilters=false
-        setOffset
       />
     </div>
   }
@@ -194,7 +196,7 @@ let make = (~ruleId: string) => {
   <div className="flex flex-col gap-4">
     <PageLoaderWrapper screenState>
       <div className="flex-shrink-0"> {topFilterUi} </div>
-      <RenderIf condition={exceptionData->isEmptyArray}>
+      <RenderIf condition={transactions->isEmptyArray}>
         <div className="h-40-vh flex flex-col justify-center items-center gap-2">
           <p className={`${heading.sm.semibold} text-gray-800`}>
             {"No exceptions to show."->React.string}
@@ -204,10 +206,12 @@ let make = (~ruleId: string) => {
           </p>
         </div>
       </RenderIf>
-      <RenderIf condition={exceptionData->isNonEmptyArray}>
+      <RenderIf condition={transactions->isNonEmptyArray}>
         <LoadedTableWithCustomColumns
           title="Exception Entries - Expected & Mismatched"
-          actualData={filteredExceptionData}
+          hideTitle=true
+          actualData={transactions->Array.map(Nullable.make)}
+          totalResults={transactions->Array.length}
           entity={hierarchicalTransactionsLoadedTableEntity(
             "v1/recon-engine/exceptions/recon",
             ~authorization=Access,
@@ -215,34 +219,43 @@ let make = (~ruleId: string) => {
             ~accountData,
           )}
           resultsPerPage=3
-          filters={<TableSearchFilter
-            data={exceptionData->Array.map(Nullable.make)}
-            filterLogic
-            placeholder="Search Transaction ID or Order ID or Status"
-            customSearchBarWrapperWidth="w-full lg:w-1/3"
-            customInputBoxWidth="w-full rounded-xl"
-            searchVal=searchText
-            setSearchVal=setSearchText
-          />}
-          totalResults={filteredExceptionData->Array.length}
           offset
           setOffset
-          currentFetchCount={exceptionData->Array.length}
+          currentFetchCount={transactions->Array.length}
           customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
-          defaultColumns={defaultColumns}
+          defaultColumns
           showSerialNumberInCustomizeColumns=false
           sortingBasedOnDisabled=false
-          hideTitle=true
-          remoteSortEnabled=true
+          showPagination=false
+          showResultsPerPageSelector=false
+          tableDataLoading={screenState === PageLoaderWrapper.Loading}
+          dataLoading={screenState === PageLoaderWrapper.Loading}
           customizeColumnButtonIcon="nd-filter-horizontal"
           hideRightTitleElement=true
           showAutoScroll=true
           customSeparation=[(3, 4)]
+          filters={<SearchInput
+            inputText=searchText
+            onChange={value => setSearchText(_ => value)}
+            placeholder="Search by ID"
+            showTypeSelector=true
+            typeSelectorOptions=searchTypeOptions
+            onSubmitSearchDropdown=handleSearchSubmit
+            showSearchIcon=true
+            widthClass="w-max"
+          />}
           checkBoxProps={{
             showCheckBox: true,
             selectedData: selectedRows,
             setSelectedData: setSelectedRows,
           }}
+          bottomActions={<ReconEngineCursorPaginationButtons
+            cursors
+            isLoading={screenState === PageLoaderWrapper.Loading}
+            show={transactions->isNonEmptyArray}
+            onPrev=goToPrevPage
+            onNext=goToNextPage
+          />}
         />
       </RenderIf>
     </PageLoaderWrapper>
@@ -251,7 +264,7 @@ let make = (~ruleId: string) => {
         selectedRows={selectedRows->Array.map(json => json->Identity.jsonToAnyType)}
         setSelectedRows
         showVoidButton=true
-        refreshList={() => fetchExceptionsData()->ignore}
+        refreshList={() => goToFirstPage()}
       />
     </RenderIf>
   </div>
