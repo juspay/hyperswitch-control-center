@@ -2,13 +2,13 @@ open LogicUtils
 open RuleBasedTypes
 open ConnectorInterfaceTableEntity
 
-let emptyMetadata = (): JSON.t => Dict.make()->JSON.Encode.object
+let emptyMetadata: JSON.t = Dict.make()->JSON.Encode.object
 
 let defaultCondition: comparison = {
   lhs: "",
   comparison: Equal,
   value: EnumOne({value: ""}),
-  metadata: emptyMetadata(),
+  metadata: emptyMetadata,
 }
 
 let defaultGroup: statement = {condition: [defaultCondition]}
@@ -34,13 +34,26 @@ let defaultConfig = (): config => {
     \"type": "advanced",
     data: {
       defaultSelection: defaultConnectorSelection,
-      metadata: emptyMetadata(),
+      metadata: emptyMetadata,
       rules: [newDefaultRule()],
     },
   },
 }
 
-let isCardBinField = (lhs: string): bool => lhs === "card_bin" || lhs === "extended_card_bin"
+let cardBinFieldFromLhs = (lhs: string): option<cardBinField> =>
+  switch lhs {
+  | "card_bin" => Some(CardBin)
+  | "extended_card_bin" => Some(ExtendedCardBin)
+  | _ => None
+  }
+
+let isCardBinField = (lhs: string): bool => lhs->cardBinFieldFromLhs->Option.isSome
+
+let cardBinMaxLength = (field: cardBinField): int =>
+  switch field {
+  | CardBin => 6
+  | ExtendedCardBin => 8
+  }
 
 let variantTypeOfLhs = (lhs): value => {
   if lhs->isCardBinField {
@@ -240,7 +253,7 @@ let ensureMetadataObject = (dict: Dict.t<JSON.t>) => {
   let metadata = dict->getJsonObjectFromDict("metadata")
   switch metadata->JSON.Classify.classify {
   | Object(_) => ()
-  | _ => dict->Dict.set("metadata", emptyMetadata())
+  | _ => dict->Dict.set("metadata", emptyMetadata)
   }
 }
 
@@ -284,7 +297,27 @@ let forDuplicate = (values: JSON.t): JSON.t => {
   dict->JSON.Encode.object
 }
 
-let isConditionComplete = (conditionJson: JSON.t) => {
+let idOfRule = (ruleJson: JSON.t): string => {ruleJson->getDictFromJsonObject->getString("id", "")}
+
+let addRule = (~rules: array<JSON.t>, ~setRules) => {
+  setRules(rules->Array.concat([newDefaultRule()->Identity.genericTypeToJson]))
+}
+
+let copyRule = (~rules: array<JSON.t>, ~setRules, ~id) => {
+  rules
+  ->Array.find(ruleJson => ruleJson->idOfRule === id)
+  ->mapOptionOrDefault((), ruleJson => {
+    let dict = ruleJson->getDictFromJsonObject->Dict.copy
+    dict->Dict.set("id", `rule_${randomString(~length=6)}`->JSON.Encode.string)
+    setRules(rules->Array.concat([dict->JSON.Encode.object]))
+  })
+}
+
+let removeRule = (~rules: array<JSON.t>, ~setRules, ~id) => {
+  setRules(rules->Array.filter(ruleJson => ruleJson->idOfRule !== id))
+}
+
+let isConditionValid = (conditionJson: JSON.t) => {
   let dict = conditionJson->getDictFromJsonObject
   let lhs = dict->getString("lhs", "")
   let valueJson = dict->getDictfromDict("value")->getJsonObjectFromDict("value")
@@ -299,38 +332,50 @@ let isConditionComplete = (conditionJson: JSON.t) => {
   lhs->isNonEmptyString && valueOk
 }
 
-let connectorSelectionError = (selectionJson: JSON.t) => {
-  let dict = selectionJson->getDictFromJsonObject
-  let data = dict->getArrayFromDict("data", [])
-  let splitOf = item => item->getDictFromJsonObject->getInt("split", 0)
-  if data->isEmptyArray {
-    Some("Need at least 1 processor")
-  } else if dict->getString("type", "") === "volume_split" {
-    let sum = data->Array.reduce(0, (acc, item) => acc + item->splitOf)
-    let hasZero = data->Array.some(item => item->splitOf === 0)
-    sum !== 100 || hasZero ? Some("Distribution percent not correct") : None
+let connectorSelectionError = (selectionJson: JSON.t) =>
+  switch selectionJson->connectorSelectionFromJson {
+  | Priority({data}) => data->isEmptyArray ? Some("Need at least 1 processor") : None
+  | VolumeSplit({data}) =>
+    if data->isEmptyArray {
+      Some("Need at least 1 processor")
+    } else if data->Array.some(wc => wc.split === 0) {
+      Some("All processors must have at least 1% allocation")
+    } else if data->Array.reduce(0, (acc, wc) => acc + wc.split) !== 100 {
+      Some("Total distribution must equal 100%")
+    } else {
+      None
+    }
+  }
+
+let requiredTextError = (value: string, ~label: string, ~maxLength: int): option<string> => {
+  let trimmed = value->String.trim
+  if trimmed->isEmptyString {
+    Some(`Please provide ${label}`)
+  } else if trimmed->String.length > maxLength {
+    Some(`${label} cannot exceed ${maxLength->Int.toString} characters`)
   } else {
     None
   }
 }
 
+let setErrorIfPresent = (errors, key, errorOpt) =>
+  switch errorOpt {
+  | Some(err) => errors->Dict.set(key, err->JSON.Encode.string)
+  | None => ()
+  }
+
 let validate = (values: JSON.t): JSON.t => {
   let errors = Dict.make()
   let dict = values->getDictFromJsonObject
 
-  let name = dict->getString("name", "")->String.trim
-  if name->isEmptyString {
-    errors->Dict.set("name", "Please provide Configuration Name"->JSON.Encode.string)
-  } else if name->String.length > 64 {
-    errors->Dict.set("name", "Configuration Name cannot exceed 64 characters"->JSON.Encode.string)
-  }
-
-  let description = dict->getString("description", "")->String.trim
-  if description->isEmptyString {
-    errors->Dict.set("description", "Please provide Description"->JSON.Encode.string)
-  } else if description->String.length > 256 {
-    errors->Dict.set("description", "Description cannot exceed 256 characters"->JSON.Encode.string)
-  }
+  errors->setErrorIfPresent(
+    "name",
+    dict->getString("name", "")->requiredTextError(~label="Configuration Name", ~maxLength=64),
+  )
+  errors->setErrorIfPresent(
+    "description",
+    dict->getString("description", "")->requiredTextError(~label="Description", ~maxLength=256),
+  )
 
   let rules = dict->getDictFromNestedDict("algorithm", "data")->getArrayFromDict("rules", [])
   if rules->isEmptyArray {
@@ -339,10 +384,10 @@ let validate = (values: JSON.t): JSON.t => {
     rules->Array.forEachWithIndex((ruleJson, i) => {
       let n = (i + 1)->Int.toString
       let ruleDict = ruleJson->getDictFromJsonObject
-      switch ruleDict->getJsonObjectFromDict("connectorSelection")->connectorSelectionError {
-      | Some(err) => errors->Dict.set(`rule_${n}_processors`, err->JSON.Encode.string)
-      | None => ()
-      }
+      errors->setErrorIfPresent(
+        `rule_${n}_processors`,
+        ruleDict->getJsonObjectFromDict("connectorSelection")->connectorSelectionError,
+      )
       let allComplete =
         ruleDict
         ->getArrayFromDict("statements", [])
@@ -350,7 +395,7 @@ let validate = (values: JSON.t): JSON.t => {
           statementJson
           ->getDictFromJsonObject
           ->getArrayFromDict("condition", [])
-          ->Array.every(isConditionComplete)
+          ->Array.every(isConditionValid)
         )
       if !allComplete {
         errors->Dict.set(`rule_${n}_conditions`, "Invalid condition"->JSON.Encode.string)

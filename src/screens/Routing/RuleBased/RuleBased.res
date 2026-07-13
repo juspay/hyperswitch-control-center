@@ -1,26 +1,14 @@
 open LogicUtils
 open RuleBasedHelper
+open RuleBasedUtils
 open Typography
 
 @react.component
 let make = () => {
   let rulesPath = "algorithm.data.rules"
-  let idOfRule = json => json->getDictFromJsonObject->getString("id", "")
   let rulesInput = ReactFinalForm.useField(rulesPath).input
   let rules = rulesInput.value->getArrayFromJson([])
   let setRules = arr => rulesInput.onChange(arr->Identity.arrayOfGenericTypeToFormReactEvent)
-
-  let addRule = () =>
-    setRules(rules->Array.concat([RuleBasedUtils.newDefaultRule()->Identity.genericTypeToJson]))
-  let copyRule = id =>
-    rules
-    ->Array.find(rule => rule->idOfRule === id)
-    ->mapOptionOrDefault((), rule => {
-      let dict = rule->getDictFromJsonObject->Dict.copy
-      dict->Dict.set("id", `rule_${randomString(~length=6)}`->JSON.Encode.string)
-      setRules(rules->Array.concat([dict->JSON.Encode.object]))
-    })
-  let removeRule = id => setRules(rules->Array.filter(rule => rule->idOfRule !== id))
 
   <div className="flex flex-col gap-8">
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
@@ -39,8 +27,8 @@ let make = () => {
           key=id
           prefix={`${rulesPath}[${index->Int.toString}]`}
           heading={`Rule ${(index + 1)->Int.toString}`}
-          onCopy={() => copyRule(id)}
-          onRemove={() => removeRule(id)}
+          onCopy={() => copyRule(~rules, ~setRules, ~id)}
+          onRemove={() => removeRule(~rules, ~setRules, ~id)}
         />
       })
       ->React.array}
@@ -48,7 +36,7 @@ let make = () => {
         text="Add new rule"
         buttonType=Secondary
         leftIcon={CustomIcon(<Icon name="nd-plus" size=14 />)}
-        onClick={_ => addRule()}
+        onClick={_ => addRule(~rules, ~setRules)}
       />
     </div>
     <p className={`${body.md.regular} text-nd_gray-600`}>

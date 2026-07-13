@@ -20,6 +20,8 @@ type displayOperator =
 
 type metadataKV = {key: string, value: string}
 
+type cardBinField = CardBin | ExtendedCardBin
+
 @tag("type")
 type value =
   | @as("number") Number({value: float})

@@ -13,7 +13,7 @@ let boxMultiSelect = (~options, ~buttonText) =>
     ~options,
     ~buttonText,
     ~showBorder=false,
-    ~buttonType=Button.Transparent,
+    ~buttonType=Transparent,
     ~fullLength=true,
     ~showSelectionAsChips=false,
     ~hideMultiSelectButtons=true,
@@ -38,11 +38,11 @@ module GuideCard = {
         {"Guide to creating rules"->React.string}
       </span>
       {row(
-        "info-circle",
+        "nd-info-circle",
         "Rules are processed in order from top to bottom. If Rule 1 doesn't match, it moves to Rule 2, and so on.",
       )}
-      {row("check", "Inside each condition group: ALL conditions must be true (AND).")}
-      {row("check-circle", "Between condition groups: ANY group can be true (OR).")}
+      {row("nd-check", "Inside each condition group: ALL conditions must be true (AND).")}
+      {row("nd-check-circle", "Between condition groups: ANY group can be true (OR).")}
     </div>
   }
 }
@@ -50,17 +50,18 @@ module GuideCard = {
 module DetailsFields = {
   @react.component
   let make = () => {
+    let today = Date.make()->Date.toISOString->dateFormat("DD MMM YYYY")
     let nameField = FormRenderer.makeFieldInfo(
       ~label="Configuration Name",
       ~name="name",
-      ~placeholder="e.g. US-card-routing",
+      ~placeholder=`Rule-based configuration - ${today}`,
       ~isRequired=true,
       ~customInput=InputFields.textInput(~autoFocus=true),
     )
     let descriptionField = FormRenderer.makeFieldInfo(
       ~label="Description",
       ~name="description",
-      ~placeholder="Describe what this configuration does",
+      ~placeholder=`This is a rule based routing configuration created on ${today}`,
       ~isRequired=true,
       ~customInput=InputFields.multiLineTextInput(
         ~isDisabled=false,
@@ -78,7 +79,7 @@ module DetailsFields = {
 
 module FieldInput = {
   @react.component
-  let make = (~prefix) => {
+  let make = (~prefix, ~onFieldChange) => {
     let fieldOptions = React.useMemo(() => {
       let keys = try Window.getAllKeys() catch {
       | _ => []
@@ -116,9 +117,6 @@ module FieldInput = {
       )
     }, [])
 
-    let comparisonInput = ReactFinalForm.useField(`${prefix}.comparison`).input
-    let valueInput = ReactFinalForm.useField(`${prefix}.value`).input
-
     <div className="flex items-center bg-white rounded-lg shadow-sm">
       <FormRenderer.FieldRenderer
         field={FormRenderer.makeFieldInfo(~name=`${prefix}.lhs`, ~label="field", ~customInput=(
@@ -129,11 +127,7 @@ module FieldInput = {
             ...input,
             onChange: ev => {
               input.onChange(ev)
-              let choice = ev->Identity.formReactEventToString->defaultOperatorChoiceForLhs
-              comparisonInput.onChange(
-                choice.comparison->operatorToBEKey->Identity.stringToFormReactEvent,
-              )
-              valueInput.onChange(choice.valueVariant->Identity.anyTypeToReactEvent)
+              onFieldChange(ev->Identity.formReactEventToString)
             },
           }
           boxSelect(~options=fieldOptions, ~buttonText="Select Field")(
@@ -149,10 +143,9 @@ module FieldInput = {
 
 module OperatorInput = {
   @react.component
-  let make = (~prefix) => {
+  let make = (~prefix, ~onOperatorChange) => {
     let lhs = ReactFinalForm.useField(`${prefix}.lhs`).input.value->getStringFromJson("")
     let comparisonInput = ReactFinalForm.useField(`${prefix}.comparison`).input
-    let valueInput = ReactFinalForm.useField(`${prefix}.value`).input
     let valueType =
       ReactFinalForm.useField(`${prefix}.value.type`).input.value->getStringFromJson("")
     let choices = operatorChoicesForLhs(lhs)
@@ -172,7 +165,7 @@ module OperatorInput = {
         ) {
         | Some(c) =>
           comparisonInput.onChange(c.comparison->operatorToBEKey->Identity.stringToFormReactEvent)
-          valueInput.onChange(c.valueVariant->Identity.anyTypeToReactEvent)
+          onOperatorChange(c)
         | None => ()
         },
     }
@@ -214,19 +207,18 @@ module ValueInput = {
             ~options=variantOptions->SelectBox.makeOptions,
             ~buttonText="Select Value",
             ~showBorder=false,
-            ~buttonType=Button.Transparent,
+            ~buttonType=Transparent,
             ~fullLength=true,
             ~customButtonStyle=boxBtnStyle,
             ~textStyle=boxTextStyle,
           )
     | Number(_) => InputFields.numericTextInput(~customStyle=boxInputStyle)
     | StrValue(_) =>
-      lhs->isCardBinField
-        ? InputFields.numericTextInput(
-            ~customStyle=boxInputStyle,
-            ~maxLength={lhs === "extended_card_bin" ? 8 : 6},
-          )
-        : InputFields.textInput(~customStyle=boxInputStyle)
+      lhs
+      ->cardBinFieldFromLhs
+      ->mapOptionOrDefault(InputFields.textInput(~customStyle=boxInputStyle), field =>
+        InputFields.numericTextInput(~customStyle=boxInputStyle, ~maxLength=field->cardBinMaxLength)
+      )
     | MetadataValue(_) => InputFields.textInput(~customStyle=boxInputStyle)
     }
 
@@ -274,6 +266,15 @@ module ConditionWrapper = {
     let pillClass = isFirst
       ? "bg-nd_green-150 text-nd_green-400"
       : "bg-nd_primary_blue-50 text-nd_primary_blue-500"
+    let comparisonInput = ReactFinalForm.useField(`${prefix}.comparison`).input
+    let valueInput = ReactFinalForm.useField(`${prefix}.value`).input
+    let onFieldChange = lhs => {
+      let choice = lhs->defaultOperatorChoiceForLhs
+      comparisonInput.onChange(choice.comparison->operatorToBEKey->Identity.stringToFormReactEvent)
+      valueInput.onChange(choice.valueVariant->Identity.anyTypeToReactEvent)
+    }
+    let onOperatorChange = (choice: operatorChoice) =>
+      valueInput.onChange(choice.valueVariant->Identity.anyTypeToReactEvent)
     <div className="flex items-center gap-4">
       <span
         className={`${body.sm.semibold} ${pillClass} w-12 text-center px-2 py-1 rounded-md shrink-0`}>
@@ -283,9 +284,9 @@ module ConditionWrapper = {
         className="flex-1 flex items-center justify-between bg-nd_gray-25 border border-nd_gray-50 rounded-lg px-4 py-3 min-w-0">
         <LabelVisibilityContext.Provider value={false}>
           <div className="flex items-center gap-4 min-w-0">
-            <FieldInput prefix />
+            <FieldInput prefix onFieldChange />
             <MetadataKeyInput prefix />
-            <OperatorInput prefix />
+            <OperatorInput prefix onOperatorChange />
             <ValueInput prefix />
           </div>
         </LabelVisibilityContext.Provider>
@@ -337,7 +338,7 @@ module ConditionGroupWrapper = {
           buttonSize=Small
           textStyle="text-nd_primary_blue-500"
           leftIcon={CustomIcon(
-            <Icon name="nd-corner-down-left" size=16 className="text-nd_primary_blue-500" />,
+            <Icon name="nd-arrow-down-left" size=14 className="text-nd_primary_blue-500" />,
           )}
           onClick={_ => addCondition()}
         />
@@ -420,7 +421,7 @@ module OutcomeWrapper = {
 
     <div className="bg-nd_gray-25 border border-nd_gray-150 rounded-lg p-4 flex flex-col gap-4">
       <div className="flex items-center gap-3">
-        <Icon name="nd-corner-down-right" size=16 className="text-nd_gray-400 shrink-0" />
+        <Icon name="nd-arrow-right" size=16 className="text-nd_gray-400 shrink-0" />
         <span className={`${body.md.medium} text-nd_gray-500 shrink-0`}>
           {(
             connectorType == ConnectorTypes.PayoutProcessor
