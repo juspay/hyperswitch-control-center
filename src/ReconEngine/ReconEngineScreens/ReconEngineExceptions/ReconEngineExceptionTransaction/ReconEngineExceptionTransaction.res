@@ -82,11 +82,17 @@ let make = (~ruleId: string) => {
     )
   }
 
-  let (transactions, cursors, screenState, goToFirstPage, goToNextPage, goToPrevPage) =
-    ReconEngineCursorPaginationHook.useCursorPagination(
-      ~fetchPage,
-      ~persistKey=`recon-engine-exception-transactions-${ruleId}`,
-    )
+  let (
+    transactions,
+    cursors,
+    screenState,
+    goToFirstPage,
+    goToNextPage,
+    goToPrevPage,
+  ) = ReconEngineCursorPaginationHook.useCursorPagination(
+    ~fetchPage,
+    ~persistKey=`recon-engine-exception-transactions-${ruleId}`,
+  )
 
   let (creditAccountOptions, debitAccountOptions) = React.useMemo(() => {
     (
