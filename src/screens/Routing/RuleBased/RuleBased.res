@@ -16,7 +16,7 @@ let make = () => {
       <GuideCard />
     </div>
     <div className="bg-white rounded-xl border border-nd_gray-200 px-4 py-6">
-      <h2 className={`${body.lg.semibold} text-nd_gray-800`}> {"Rule Builder"->React.string} </h2>
+      <p className={`${body.lg.semibold} text-nd_gray-800`}> {"Rule Builder"->React.string} </p>
       <p className={`${body.md.regular} text-nd_gray-600 mt-1`}>
         {"Define conditions and the processors traffic should be routed to when they match."->React.string}
       </p>
