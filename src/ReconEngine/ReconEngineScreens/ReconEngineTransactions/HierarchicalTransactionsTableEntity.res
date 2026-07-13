@@ -47,7 +47,7 @@ let allColumns: array<hierarchicalColType> = [
 let getHeading = (colType: hierarchicalColType) => {
   switch colType {
   | Flow => makeHeaderInfo(~key="flow", ~title="", ~customWidth="!w-28")
-  | Date => makeHeaderInfo(~key="date", ~title="Date", ~customWidth="!w-24")
+  | Date => makeHeaderInfo(~key="date", ~title="Date", ~customWidth="!w-24", ~showSort=true)
   | TransactionId => makeHeaderInfo(~key="transaction_id", ~title="Transaction ID")
   | Status => makeHeaderInfo(~key="status", ~title="Status")
   | EntryId => makeHeaderInfo(~key="entry_id", ~title="Entry ID")

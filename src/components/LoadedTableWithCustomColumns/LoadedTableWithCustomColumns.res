@@ -159,6 +159,7 @@ let make = (
     ?filterIcon
     tableheadingClass
     tableDataBackgroundClass
+    showPagination
     showResultsPerPageSelector
     ?setExtFilteredDataLength
     noScrollbar
