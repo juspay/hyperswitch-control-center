@@ -6,22 +6,19 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   open ReconEngineTransactionsUtils
   open ReconEngineTransactionsTypes
 
-  let getTransactionsV2 = ReconEngineHooks.useGetTransactionsV2()
+  let getTransactionsV2 = ReconEngineHooks.useGetCursorPage(
+    ~hyperswitchReconType=#TRANSACTIONS_LIST_V2,
+    ~itemMapper=ReconEngineUtils.transactionItemToObjMapper,
+  )
   let getAccounts = ReconEngineHooks.useGetAccounts()
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
 
-  let (transactions, setTransactions) = React.useState(_ => [])
-  let (cursors, setCursors) = React.useState((_): transactionCursors => {
-    next: None,
-    prev: None,
-  })
   let (accountData, setAccountData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (searchText, setSearchText) = React.useState(_ => "")
-  let (searchType, setSearchType) = React.useState(_ => SearchTransactionId)
+  let searchTypeRef = React.useRef(SearchTransactionId)
 
   let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
   let sortOrder = sortDict->getMappedValueFromDict("Overview Transactions", Desc, getSortOrder)
@@ -35,55 +32,30 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
     }
   }
 
-  let fetchPage = async (~sortBy, ~direction, ~searchType, ~searchText) => {
-    if screenState !== PageLoaderWrapper.Success {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-    }
-    try {
-      let body = buildTransactionsV2Body(
+  let fetchPage = (~sortBy, ~direction) =>
+    getTransactionsV2(
+      ~body=buildTransactionsV2Body(
         ~filterValueJson,
-        ~searchType,
+        ~searchType=searchTypeRef.current,
         ~searchText,
         ~ruleId=ruleDetails.rule_id,
         ~sortBy,
         ~direction,
         ~order=sortOrder,
         ~limit=5,
-      )
-      let page = await getTransactionsV2(~body)
-      setTransactions(_ => page.transactions)
-      setCursors(_ => page.cursors)
-      setScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
-    }
-  }
+      ),
+    )
 
-  let goToFirstPage = () => {
-    fetchPage(~sortBy=defaultSortBy, ~direction=#next, ~searchType, ~searchText)->ignore
-  }
-
-  let goToNextPage = () => {
-    cursors.next->mapOptionOrDefault((), nextCursor => {
-      fetchPage(~sortBy=nextCursor, ~direction=#next, ~searchType, ~searchText)->ignore
-    })
-  }
-
-  let goToPrevPage = () => {
-    cursors.prev->mapOptionOrDefault((), prevCursor => {
-      fetchPage(~sortBy=prevCursor, ~direction=#previous, ~searchType, ~searchText)->ignore
-    })
-  }
+  let (transactions, cursors, screenState, goToFirstPage, goToNextPage, goToPrevPage) =
+    ReconEngineCursorPaginationHook.useCursorPagination(
+      ~fetchPage,
+      ~persistKey=`recon-engine-overview-transactions-${ruleDetails.rule_id}`,
+    )
 
   let handleSearchSubmit = (selectedType: option<string>) => {
     let newSearchType = selectedType->mapOptionOrDefault(SearchTransactionId, searchTypeFromString)
-    setSearchType(_ => newSearchType)
-    fetchPage(
-      ~sortBy=defaultSortBy,
-      ~direction=#next,
-      ~searchType=newSearchType,
-      ~searchText,
-    )->ignore
+    searchTypeRef.current = newSearchType
+    goToFirstPage()
   }
 
   React.useEffect(() => {
@@ -114,9 +86,6 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
         refreshFilters=false
       />
     </div>
-
-  let getButtonState = (cursor): Button.buttonState =>
-    cursor->Option.isNone || screenState === PageLoaderWrapper.Loading ? Disabled : Normal
 
   <div className="flex flex-col gap-4">
     <div className="flex-shrink-0"> {statusFilterUi} </div>
@@ -159,25 +128,14 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
           showSearchIcon=true
           widthClass="w-max"
         />}
+        bottomActions={<ReconEngineCursorPaginationButtons
+          cursors
+          isLoading={screenState === PageLoaderWrapper.Loading}
+          show={transactions->isNonEmptyArray}
+          onPrev=goToPrevPage
+          onNext=goToNextPage
+        />}
       />
-      <RenderIf condition={transactions->isNonEmptyArray}>
-        <div className="flex flex-row justify-end items-center gap-3">
-          <Button
-            text="Prev"
-            buttonType=Secondary
-            buttonSize=Small
-            buttonState={getButtonState(cursors.prev)}
-            onClick={_ => goToPrevPage()}
-          />
-          <Button
-            text="Next"
-            buttonType=Primary
-            buttonSize=Small
-            buttonState={getButtonState(cursors.next)}
-            onClick={_ => goToNextPage()}
-          />
-        </div>
-      </RenderIf>
     </PageLoaderWrapper>
   </div>
 }
