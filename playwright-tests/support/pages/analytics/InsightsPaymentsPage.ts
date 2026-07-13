@@ -404,7 +404,7 @@ export class InsightsPaymentsPage {
   // carries data-testid="date-range-selector" and its label shows the active
   // preset ("Last 7 Days" by default) or the resolved custom range.
   get dateRangeSelector(): Locator {
-    return this.page.locator('[data-element="preset-selector"]'); //getByTestId("date-range-selector");
+    return this.page.locator('[data-element="preset-selector"]');
   }
 
   // The predefined-options column inside the open date picker dropdown.
