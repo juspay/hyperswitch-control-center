@@ -10,7 +10,7 @@ let make = (~setScreenState) => {
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
+  let {isCurrentMerchantPlatform, isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
 
   {
     switch url.path->HSwitchUtils.urlPath {
@@ -21,20 +21,34 @@ let make = (~setScreenState) => {
     | list{"pm-authentication-processor", ..._}
     | list{"tax-processor", ..._}
     | list{"billing-processor", ..._}
-    | list{"vault-processor", ..._}
     | list{"surcharge-processor", ..._}
     | list{"fraud-risk-management", ..._}
     | list{"configure-pmts", ..._}
     | list{"payment-link-theme", ..._}
     | list{"routing", ..._}
     | list{"payoutrouting", ..._}
-    | list{"payment-settings", ..._}
-    | list{"webhooks", ..._}
     | list{"sdk"}
     | list{"vault-onboarding", ..._}
     | list{"vault-customers-tokens", ..._} =>
       <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
         <ConnectorContainer />
+      </AccessControl>
+    | list{"vault-processor", ..._} =>
+      <AccessControl authorization={isCurrentMerchantConnected ? NoAccess : Access}>
+        <ConnectorContainer />
+      </AccessControl>
+    | list{"payment-settings", ..._} => <ConnectorContainer />
+    | list{"webhooks", ...remainingPath} =>
+      <AccessControl isEnabled={featureFlagDetails.devWebhooks} authorization=Access>
+        <FilterContext key="webhooks" index="webhooks">
+          <EntityScaffold
+            entityName="Webhooks"
+            remainingPath
+            access=Access
+            renderList={() => <Webhooks />}
+            renderShow={(id, _) => <WebhooksDetails id />}
+          />
+        </FilterContext>
       </AccessControl>
     | list{"apm"} => <APMContainer />
     | list{"payments", ..._}
@@ -50,9 +64,7 @@ let make = (~setScreenState) => {
     | list{"analytics-disputes"}
     | list{"analytics-authentication"}
     | list{"analytics-routing", ..._} =>
-      <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
-        <AnalyticsContainer />
-      </AccessControl>
+      <AnalyticsContainer />
 
     | list{"new-analytics"}
     | list{"new-analytics", "payment"}

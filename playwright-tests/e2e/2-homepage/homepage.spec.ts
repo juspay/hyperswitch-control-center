@@ -860,29 +860,29 @@ test.describe("Organization Chart Tree", () => {
     await expect(page.getByText("Organization" + companyName)).toBeVisible();
     await expect(
       page.getByText("Organization" + companyName).getByText(companyName),
-    ).toHaveClass(/border-blue-600/);
+    ).toHaveClass(/border-nd_primary_blue-600/);
     await expect(
       page.getByText("Organization" + companyName).getByText(companyName),
-    ).toHaveClass(/text-blue-600/);
+    ).toHaveClass(/text-nd_primary_blue-600/);
 
     await expect(page.getByText("Merchant" + companyName)).toBeVisible();
     await expect(
       page
         .getByText("Merchant" + companyName)
         .getByText(companyName + "Orchestrator"),
-    ).toHaveClass(/border-blue-600/);
+    ).toHaveClass(/border-nd_primary_blue-600/);
     await expect(
       page
         .getByText("Merchant" + companyName)
         .getByText(companyName + "Orchestrator"),
-    ).toHaveClass(/text-blue-600/);
+    ).toHaveClass(/text-nd_primary_blue-600/);
 
     await expect(page.getByRole("button", { name: "default" })).toBeVisible();
     await expect(page.getByRole("button", { name: "default" })).toHaveClass(
-      /border-blue-600/,
+      /border-nd_primary_blue-600/,
     );
     await expect(page.getByRole("button", { name: "default" })).toHaveClass(
-      /text-blue-600/,
+      /text-nd_primary_blue-600/,
     );
   });
 
@@ -931,79 +931,79 @@ test.describe("Organization Chart Tree", () => {
 
     //Organization button
     await expect(orgName).toBeVisible();
-    await expect(orgName).toHaveClass(/border-blue-600/);
-    await expect(orgName).toHaveClass(/text-blue-600/);
+    await expect(orgName).toHaveClass(/border-nd_primary_blue-600/);
+    await expect(orgName).toHaveClass(/text-nd_primary_blue-600/);
 
     //1st Merchant button - selected
     await expect(merchantOneName).toBeVisible();
-    await expect(merchantOneName).toHaveClass(/border-blue-600/);
-    await expect(merchantOneName).toHaveClass(/text-blue-600/);
+    await expect(merchantOneName).toHaveClass(/border-nd_primary_blue-600/);
+    await expect(merchantOneName).toHaveClass(/text-nd_primary_blue-600/);
 
     //2nd Merchant button - unselected
     await expect(merchantTwoName).toBeVisible();
-    await expect(merchantTwoName).toHaveClass(/border-gray-200/);
-    await expect(merchantTwoName).toHaveClass(/text-gray-600/);
+    await expect(merchantTwoName).toHaveClass(/border-nd_gray-200/);
+    await expect(merchantTwoName).toHaveClass(/text-nd_gray-600/);
 
     // 1st Merchant - Profile
     await expect(merchantOneProfileName).toBeVisible();
-    await expect(merchantOneProfileName).toHaveClass(/border-blue-600/);
-    await expect(merchantOneProfileName).toHaveClass(/text-blue-600/);
+    await expect(merchantOneProfileName).toHaveClass(/border-nd_primary_blue-600/);
+    await expect(merchantOneProfileName).toHaveClass(/text-nd_primary_blue-600/);
 
     //Switch merchant
     await merchantTwoName.click();
 
     //Organization button
     await expect(orgName).toBeVisible();
-    await expect(orgName).toHaveClass(/border-blue-600/);
-    await expect(orgName).toHaveClass(/text-blue-600/);
+    await expect(orgName).toHaveClass(/border-nd_primary_blue-600/);
+    await expect(orgName).toHaveClass(/text-nd_primary_blue-600/);
 
     //1st Merchant button - unselected
     await expect(merchantOneName).toBeVisible();
-    await expect(merchantOneName).toHaveClass(/border-gray-200/);
-    await expect(merchantOneName).toHaveClass(/text-gray-600/);
+    await expect(merchantOneName).toHaveClass(/border-nd_gray-200/);
+    await expect(merchantOneName).toHaveClass(/text-nd_gray-600/);
 
     //2nd Merchant button - selected
     await expect(merchantTwoName).toBeVisible();
-    await expect(merchantTwoName).toHaveClass(/border-blue-600/);
-    await expect(merchantTwoName).toHaveClass(/text-blue-600/);
+    await expect(merchantTwoName).toHaveClass(/border-nd_primary_blue-600/);
+    await expect(merchantTwoName).toHaveClass(/text-nd_primary_blue-600/);
 
-    //1st Profile button
+    // merchantTwo's most-recently-created profile ("new-test-profile") is
+    // auto-selected when switching to that merchant, not its "default" one.
     await expect(merchantOneProfileName).toBeVisible();
-    await expect(merchantOneProfileName).toHaveClass(/border-gray-200/);
-    await expect(merchantOneProfileName).toHaveClass(/text-gray-600/);
+    await expect(merchantOneProfileName).toHaveClass(/border-nd_gray-200/);
+    await expect(merchantOneProfileName).toHaveClass(/text-nd_gray-600/);
 
-    //2nd Profile button
     await expect(merchantTwoProfileTwoName).toBeVisible();
-    await expect(merchantTwoProfileTwoName).toHaveClass(/border-blue-600/);
-    await expect(merchantTwoProfileTwoName).toHaveClass(/text-blue-600/);
+    await expect(merchantTwoProfileTwoName).toHaveClass(/border-nd_primary_blue-600/);
+    await expect(merchantTwoProfileTwoName).toHaveClass(/text-nd_primary_blue-600/);
 
-    //Switch profile
+    //Switch profile to "default"
     await merchantOneProfileName.click();
 
     //Organization button
     await expect(orgName).toBeVisible();
-    await expect(orgName).toHaveClass(/border-blue-600/);
-    await expect(orgName).toHaveClass(/text-blue-600/);
+    await expect(orgName).toHaveClass(/border-nd_primary_blue-600/);
+    await expect(orgName).toHaveClass(/text-nd_primary_blue-600/);
 
     //1st Merchant button - unselected
     await expect(merchantOneName).toBeVisible();
-    await expect(merchantOneName).toHaveClass(/border-gray-200/);
-    await expect(merchantOneName).toHaveClass(/text-gray-600/);
+    await expect(merchantOneName).toHaveClass(/border-nd_gray-200/);
+    await expect(merchantOneName).toHaveClass(/text-nd_gray-600/);
 
     //2nd Merchant button - selected
     await expect(merchantTwoName).toBeVisible();
-    await expect(merchantTwoName).toHaveClass(/border-blue-600/);
-    await expect(merchantTwoName).toHaveClass(/text-blue-600/);
+    await expect(merchantTwoName).toHaveClass(/border-nd_primary_blue-600/);
+    await expect(merchantTwoName).toHaveClass(/text-nd_primary_blue-600/);
 
-    //1st Profile button
+    // "default" is now selected
     await expect(merchantOneProfileName).toBeVisible();
-    await expect(merchantOneProfileName).toHaveClass(/border-blue-600/);
-    await expect(merchantOneProfileName).toHaveClass(/text-blue-600/);
+    await expect(merchantOneProfileName).toHaveClass(/border-nd_primary_blue-600/);
+    await expect(merchantOneProfileName).toHaveClass(/text-nd_primary_blue-600/);
 
-    //2nd Profile button
+    // "new-test-profile" is now unselected
     await expect(merchantTwoProfileTwoName).toBeVisible();
-    await expect(merchantTwoProfileTwoName).toHaveClass(/border-gray-200/);
-    await expect(merchantTwoProfileTwoName).toHaveClass(/text-gray-600/);
+    await expect(merchantTwoProfileTwoName).toHaveClass(/border-nd_gray-200/);
+    await expect(merchantTwoProfileTwoName).toHaveClass(/text-nd_gray-600/);
   });
 
   test("should display loading state while switching entities", async ({

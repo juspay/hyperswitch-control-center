@@ -2,12 +2,16 @@ open Typography
 
 @react.component
 let make = () => {
+  open LogicUtils
+  open ReconEngineRulesTypes
+  open ReconEngineHooks
+
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let (accountData, setAccountData) = React.useState(_ => [])
   let (reconRulesList, setReconRulesList) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let getAccounts = ReconEngineHooks.useGetAccounts()
-  let getReconRuleList = ReconEngineHooks.useGetReconRuleList()
+  let getAccounts = useGetAccounts()
+  let getReconRuleList = useGetReconRuleList()
 
   let getAccountsData = async _ => {
     try {
@@ -29,23 +33,25 @@ let make = () => {
 
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
-    accountData->Array.map(account => {
+    reconRulesList->Array.map((rule: rulePayload) => {
       {
-        title: account.account_name,
+        title: rule.rule_name,
         renderContent: () =>
           <FilterContext
-            key={`recon-engine-transaction-${account.account_id}`}
-            index={`recon-engine-transaction-${account.account_id}`}>
-            <ReconEngineTransactionsContent account accountData reconRulesList />
+            key={`recon-engine-transaction-${rule.rule_id}`}
+            index={`recon-engine-transaction-${rule.rule_id}`}>
+            <ReconEngineTransactionsContent rule accountData reconRulesList />
           </FilterContext>,
       }
     })
   }, (accountData, reconRulesList))
 
-  <div className="flex flex-col gap-4 w-full">
+  <div className="flex flex-col w-full">
     <div className="flex flex-row justify-between items-center">
       <PageUtils.PageHeading
-        title="Transactions" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
+        title="Transactions"
+        customTitleStyle={`${heading.lg.semibold}`}
+        customHeadingStyle="py-0 !mb-2"
       />
       <div className="flex-shrink-0">
         <Button
@@ -60,7 +66,7 @@ let make = () => {
       </div>
     </div>
     <PageLoaderWrapper screenState>
-      <RenderIf condition={accountData->Array.length == 0}>
+      <RenderIf condition={reconRulesList->isEmptyArray}>
         <div className="my-4">
           <NoDataFound
             message="No recon rules found. Please create a recon rule to view the transactions."
@@ -69,7 +75,7 @@ let make = () => {
           />
         </div>
       </RenderIf>
-      <RenderIf condition={accountData->Array.length > 0}>
+      <RenderIf condition={reconRulesList->isNonEmptyArray}>
         <Tabs tabs />
       </RenderIf>
     </PageLoaderWrapper>

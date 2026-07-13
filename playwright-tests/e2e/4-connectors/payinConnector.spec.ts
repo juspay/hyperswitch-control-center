@@ -1536,7 +1536,7 @@ test.describe("All Payin Connectors", () => {
 
     await expect(page.getByText("APPLE PAYUSDEncryptDecrypt")).toBeVisible();
     await expect(
-      page.getByText("CARDEURThree DsNo Three DsUSDThree DsNo Three Ds"),
+      page.getByText("USDThree DsNo Three Ds"),
     ).toBeVisible();
 
     await page

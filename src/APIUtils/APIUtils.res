@@ -393,6 +393,11 @@ let useGetURL = () => {
 
         | _ => ""
         }
+      | PAYMENT_CANCEL =>
+        switch (methodType, id) {
+        | (Post, Some(payment_id)) => `payments/${payment_id}/cancel`
+        | _ => ""
+        }
       | ORDERS_AGGREGATE =>
         switch methodType {
         | Get =>
@@ -881,6 +886,15 @@ let useGetURL = () => {
           }
         | _ => ""
         }
+      | PRISM_CONNECTOR_EVENT_LOGS =>
+        switch methodType {
+        | Get =>
+          switch queryParameters {
+          | Some(params) => `analytics/v1/profile/prism_connector_event_logs?${params}`
+          | None => `analytics/v1/prism_connector_event_logs`
+          }
+        | _ => ""
+        }
       | ROUTING_EVENT_LOGS =>
         switch methodType {
         | Get =>
@@ -1025,6 +1039,11 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #TRANSACTIONS_LIST_V2 =>
+          switch methodType {
+          | Post => `${reconBaseURL}/transactions/v2/list`
+          | _ => ""
+          }
         | #PROCESSED_ENTRIES_LIST_WITH_ACCOUNT =>
           switch methodType {
           | Get =>
@@ -1045,6 +1064,11 @@ let useGetURL = () => {
             | Some(transactionId) => `${reconBaseURL}/transactions/${transactionId}/entries`
             | None => `${reconBaseURL}/entries`
             }
+          | _ => ""
+          }
+        | #PROCESSING_ENTRIES_LIST_V2 =>
+          switch methodType {
+          | Post => `${reconBaseURL}/staging_entries/v2/list`
           | _ => ""
           }
         | #PROCESSING_ENTRIES_LIST =>
@@ -1298,6 +1322,7 @@ let useGetURL = () => {
           | None => `${userUrl}/connect_account`
           }
         | #SIGNINV2 => `${userUrl}/v2/signin`
+        | #LAUNCH_SAGE => `${userUrl}/launch_sage`
         | #CHANGE_PASSWORD => `${userUrl}/change_password`
         | #SIGNUP
         | #SIGNOUT

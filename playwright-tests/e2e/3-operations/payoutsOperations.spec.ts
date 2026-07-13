@@ -82,10 +82,10 @@ test.describe("Payouts Operations", () => {
         await searchBox.fill(payout.payout_id);
         await searchBox.press("Enter");
 
-        // CopyLinkTableCell truncates display to first 20 chars unless toggled,
+        // CopyLinkTableCell truncates display to first 24 chars unless toggled,
         // so assert on the leading prefix rather than the full id.
         await expect(payoutOperations.payoutCell(1, 2)).toContainText(
-          payout.payout_id.slice(0, 20),
+          payout.payout_id.slice(0, 24),
         );
       });
 
@@ -101,7 +101,7 @@ test.describe("Payouts Operations", () => {
 
         // Sanity check: the created payout shows up in row 1 before searching.
         await expect(payoutOperations.payoutCell(1, 2)).toContainText(
-          payout.payout_id.slice(0, 20),
+          payout.payout_id.slice(0, 24),
         );
 
         await payoutOperations.searchBox.fill("invalid_payout_id_xyz");
@@ -584,20 +584,20 @@ test.describe("Payouts Operations", () => {
 
         // Baseline: both mocked payouts present.
         await expect(payoutOperations.payoutCell(1, 2)).toContainText(
-          succeededId.slice(0, 20),
+          succeededId.slice(0, 24),
         );
         await expect(payoutOperations.payoutCell(2, 2)).toContainText(
-          failedId.slice(0, 20),
+          failedId.slice(0, 24),
         );
 
         // Apply status=success: only the succeeded row remains.
         await applyStatusFilter(page, payoutOperations, "success");
 
         await expect(payoutOperations.payoutCell(1, 2)).toContainText(
-          succeededId.slice(0, 20),
+          succeededId.slice(0, 24),
         );
         await expect(payoutOperations.payoutCell(2, 2)).not.toBeVisible();
-        await expect(page.getByText(failedId.slice(0, 20))).not.toBeVisible();
+        await expect(page.getByText(failedId.slice(0, 24))).not.toBeVisible();
 
         // Dismiss the existing status chip so the next selection starts clean.
         await payoutOperations.crossOutlineIcon.first().click();
@@ -607,11 +607,11 @@ test.describe("Payouts Operations", () => {
         await applyStatusFilter(page, payoutOperations, "failed");
 
         await expect(payoutOperations.payoutCell(1, 2)).toContainText(
-          failedId.slice(0, 20),
+          failedId.slice(0, 24),
         );
         await expect(payoutOperations.payoutCell(2, 2)).not.toBeVisible();
         await expect(
-          page.getByText(succeededId.slice(0, 20)),
+          page.getByText(succeededId.slice(0, 24)),
         ).not.toBeVisible();
       });
     });

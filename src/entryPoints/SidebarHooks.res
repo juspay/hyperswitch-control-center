@@ -43,30 +43,10 @@ let useGetHsSidebarValues = () => {
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let isNewAnalyticsEnable =
     newAnalytics && isFeatureEnabledForDenyListMerchant(merchantSpecificConfig.newAnalytics)
-  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
+  let {isCurrentMerchantPlatform, isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
 
   let standardModules = !isCurrentMerchantPlatform
     ? [
-        default->connectors(
-          ~isLiveMode,
-          ~isFrmEnabled=frm,
-          ~isPayoutsEnabled=payOut,
-          ~isThreedsConnectorEnabled=threedsAuthenticator,
-          ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
-          ~isTaxProcessor=taxProcessor,
-          ~userHasResourceAccess,
-          ~isBillingProcessor=billingProcessor,
-          ~isVaultProcessor=vaultProcessor,
-          ~isSurchargeProcessor=surchargeProcessor,
-        ),
-        default->analytics(
-          disputeAnalytics,
-          performanceMonitorFlag,
-          isNewAnalyticsEnable,
-          routingAnalytics,
-          ~authenticationAnalyticsFlag=authenticationAnalytics,
-          ~userHasResourceAccess,
-        ),
         default->workflow(
           isSurchargeEnabled,
           threedsExemptionRules,
@@ -87,6 +67,28 @@ let useGetHsSidebarValues = () => {
       ~userEntity,
       ~isCurrentMerchantPlatform,
     ),
+    default->connectors(
+      ~isLiveMode,
+      ~isFrmEnabled=frm,
+      ~isPayoutsEnabled=payOut,
+      ~isThreedsConnectorEnabled=threedsAuthenticator,
+      ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
+      ~isTaxProcessor=taxProcessor,
+      ~userHasResourceAccess,
+      ~isBillingProcessor=billingProcessor,
+      ~isVaultProcessor=vaultProcessor,
+      ~isSurchargeProcessor=surchargeProcessor,
+      ~isCurrentMerchantPlatform,
+      ~isCurrentMerchantConnected,
+    ),
+    default->analytics(
+      disputeAnalytics,
+      performanceMonitorFlag,
+      isNewAnalyticsEnable,
+      routingAnalytics,
+      ~authenticationAnalyticsFlag=authenticationAnalytics,
+      ~userHasResourceAccess,
+    ),
     ...standardModules,
     default->developers(
       ~isWebhooksEnabled=devWebhooks,
@@ -104,6 +106,7 @@ let useGetHsSidebarValues = () => {
       ~devModularityV2Enabled=devModularityV2,
       ~devThemeEnabled=devTheme,
       ~devUsers,
+      ~isCurrentMerchantPlatform,
     ),
   ]
 }
