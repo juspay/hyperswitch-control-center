@@ -98,7 +98,7 @@ let useApiFetcher = () => {
       ~contentType=Headers("application/json"),
       ~xFeatureRoute,
       ~forceCookies,
-      ~sendV1DummyApiKeyHeader=FeatureFlagUtils.getSendV1DummyApiKeyHeader(),
+      ~sendV1DummyApiKeyHeader,
       ~merchantId="",
       ~profileId="",
       ~version=UserInfoTypes.V1,

@@ -229,7 +229,13 @@ let make = (~children) => {
   let getThemeConfigVersion = async (~themeId) => {
     try {
       let url = `${GlobalVars.getHostUrl}/api/user/theme/${themeId}/version`
-      let response = await fetchApi(url, ~method_=Get, ~xFeatureRoute=false, ~forceCookies=false)
+      let response = await fetchApi(
+        url,
+        ~method_=Get,
+        ~xFeatureRoute=false,
+        ~forceCookies=false,
+        ~sendV1DummyApiKeyHeader=false,
+      )
       await response->(res => res->Fetch.Response.json)
     } catch {
     | _ => JSON.Encode.null
@@ -257,6 +263,7 @@ let make = (~children) => {
             ~method_=Get,
             ~xFeatureRoute=true,
             ~forceCookies=false,
+            ~sendV1DummyApiKeyHeader=false,
           )
           await themeResponse->(res => res->Fetch.Response.json)
         } // this need to be removed once all the existing user started consuming theme from the cdn
@@ -269,6 +276,7 @@ let make = (~children) => {
             ~method_=Get,
             ~xFeatureRoute=true,
             ~forceCookies=false,
+            ~sendV1DummyApiKeyHeader=false,
           )
           await themeResponse->(res => res->Fetch.Response.json)
         } else {
@@ -278,6 +286,7 @@ let make = (~children) => {
             ~method_=Get,
             ~xFeatureRoute=false,
             ~forceCookies=false,
+            ~sendV1DummyApiKeyHeader=false,
           )
           await themeResponse->(res => res->Fetch.Response.json)
         }

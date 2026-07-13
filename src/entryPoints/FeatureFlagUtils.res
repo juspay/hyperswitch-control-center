@@ -5,9 +5,6 @@ type config = {
 }
 type merchantSpecificConfig = {newAnalytics: config, devReconEngineV1: config}
 
-let sendV1DummyApiKeyHeaderRuntime = ref(false)
-let getSendV1DummyApiKeyHeader = () => sendV1DummyApiKeyHeaderRuntime.contents
-
 type featureFlag = {
   default: bool,
   testLiveToggle: bool,
@@ -96,7 +93,6 @@ let featureFlagType = (featureFlags: JSON.t) => {
   open LogicUtils
   let dict = featureFlags->getDictFromJsonObject->getDictfromDict("features")
   let sendV1DummyApiKeyHeader = dict->getBool("send_v1_dummy_api_key_header", false)
-  sendV1DummyApiKeyHeaderRuntime := sendV1DummyApiKeyHeader
 
   {
     default: dict->getBool("default", true),

@@ -22,6 +22,7 @@ let make = () => {
         ~method_=Get,
         ~xFeatureRoute=false,
         ~forceCookies=false,
+        ~sendV1DummyApiKeyHeader=false,
       )
       let response = await allReportsResponse->(res => res->Fetch.Response.json)
       let data = response->getDictFromJsonObject->getArrayFromDict("data", [])

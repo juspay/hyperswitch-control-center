@@ -30,6 +30,7 @@ let useLottieJson = lottieFileName => {
             ~method_=Get,
             ~xFeatureRoute=false,
             ~forceCookies=false,
+            ~sendV1DummyApiKeyHeader=false,
           )
           ->then(res => res->Fetch.Response.json)
           ->then(json => {
