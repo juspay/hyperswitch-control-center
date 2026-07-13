@@ -773,19 +773,8 @@ let make = (
         visitedRows->Option.mapOr(false, config => TableUtils.isRowVisited(config, rowDataItem))
 
       let handleRowClick = index => {
-        let currentRowData =
-          actualData->Option.flatMap(data =>
-            data->Array.get(index)->Option.flatMap(LogicUtils.getOptionalFromNullable)
-          )
-
-        switch visitedRows {
-        | Some(config) => TableUtils.markRowAsVisited(config, currentRowData)
-        | None => ()
-        }
-        switch onRowClick {
-        | Some(fn) => fn(index)
-        | None => ()
-        }
+        visitedRows->Option.forEach(config => TableUtils.markRowAsVisited(config, rowDataItem))
+        onRowClick->Option.forEach(fn => fn(index))
       }
 
       <TableRow

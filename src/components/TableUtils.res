@@ -891,13 +891,9 @@ let constructVisitedRowKey = (prefix_key: string, id: string) => `visited:${pref
 let isRowVisited = (config: visitedRowsConfig<'t>, data: option<'t>) => {
   switch data {
   | Some(d) =>
-    try {
-      let id = config.getId(d)
-      let storageKey = constructVisitedRowKey(config.prefix_key, id)
-      SessionStorage.sessionStorage.getItem(storageKey)->Nullable.toOption->Option.isSome
-    } catch {
-    | _ => false
-    }
+    let id = config.getId(d)
+    let storageKey = constructVisitedRowKey(config.prefix_key, id)
+    SessionStorage.sessionStorage.getItem(storageKey)->Nullable.toOption->Option.isSome
   | None => false
   }
 }
@@ -907,11 +903,7 @@ let markRowAsVisited = (config: visitedRowsConfig<'t>, data: option<'t>) => {
   | Some(d) => {
       let id = config.getId(d)
       let storageKey = constructVisitedRowKey(config.prefix_key, id)
-      try {
-        SessionStorage.sessionStorage.setItem(storageKey, "true")
-      } catch {
-      | _ => ()
-      }
+      SessionStorage.sessionStorage.setItem(storageKey, "true")
     }
   | None => ()
   }
