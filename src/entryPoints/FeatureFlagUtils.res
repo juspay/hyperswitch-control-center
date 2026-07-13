@@ -4,6 +4,10 @@ type config = {
   profileId: option<string>,
 }
 type merchantSpecificConfig = {newAnalytics: config, devReconEngineV1: config}
+
+let sendV1DummyApiKeyHeaderRuntime = ref(false)
+let getSendV1DummyApiKeyHeader = () => sendV1DummyApiKeyHeaderRuntime.contents
+
 type featureFlag = {
   default: bool,
   testLiveToggle: bool,
@@ -85,11 +89,14 @@ type featureFlag = {
   devSavedViews: bool,
   devClickhouseAggregate: bool,
   connectorClone: bool,
+  sendV1DummyApiKeyHeader: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
   open LogicUtils
   let dict = featureFlags->getDictFromJsonObject->getDictfromDict("features")
+  let sendV1DummyApiKeyHeader = dict->getBool("send_v1_dummy_api_key_header", false)
+  sendV1DummyApiKeyHeaderRuntime := sendV1DummyApiKeyHeader
 
   {
     default: dict->getBool("default", true),
@@ -172,6 +179,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devSavedViews: dict->getBool("dev_saved_views", false),
     devClickhouseAggregate: dict->getBool("dev_clickhouse_aggregate", false),
     connectorClone: dict->getBool("connector_clone", false),
+    sendV1DummyApiKeyHeader,
   }
 }
 
