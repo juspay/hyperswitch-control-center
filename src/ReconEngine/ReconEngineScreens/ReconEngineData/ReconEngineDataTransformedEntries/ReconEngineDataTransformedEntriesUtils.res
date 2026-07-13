@@ -27,35 +27,12 @@ let getSortOrder = (sortOb: LoadedTable.sortOb): processingEntrySortOrder => {
   sortOb.sortKey === "effective_at" && sortOb.sortType === LoadedTable.ASC ? Asc : Desc
 }
 
-let processingEntryCursorFromDict = dict => {
-  let cursorValueDict = dict->getDictfromDict("cursor_value")
-
-  (
-    {
-      sortField: dict->getString("sort_field", "effective_at"),
-      cursorValue: Some(
-        (
-          {
-            effectiveAt: cursorValueDict->getString("effective_at", ""),
-            cursorId: cursorValueDict->getString("id", ""),
-          }: processingEntryCursorValue
-        ),
-      ),
-    }: processingEntryCursor
-  )
-}
-
-let defaultProcessingEntrySortBy: processingEntryCursor = {
-  sortField: "effective_at",
-  cursorValue: None,
-}
-
 let buildProcessingEntriesV2Body = (
   ~filterValueJson: Dict.t<JSON.t>,
   ~searchType: processingEntrySearchType,
   ~searchText: string,
-  ~sortBy: processingEntryCursor,
-  ~direction: processingEntryCursorDirection,
+  ~sortBy: cursor,
+  ~direction: cursorDirection,
   ~order: processingEntrySortOrder=Desc,
   ~limit=10,
 ) => {
