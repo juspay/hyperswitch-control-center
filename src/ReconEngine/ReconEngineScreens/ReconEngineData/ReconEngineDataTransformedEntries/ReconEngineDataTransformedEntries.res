@@ -9,25 +9,44 @@ let make = () => {
   open ReconEngineHooks
   open HSAnalyticsUtils
 
-  let getProcessingEntriesV2 = useGetProcessingEntriesV2()
+  let getProcessingEntriesV2 = useGetCursorPage(
+    ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST_V2,
+    ~itemMapper=ReconEngineUtils.processingItemToObjMapper,
+  )
   let getAccounts = useGetAccounts()
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
+  let searchTypeRef = React.useRef(SearchStagingEntryId)
+  let (searchText, setSearchText) = React.useState(_ => "")
+  let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
+  let sortOrder = sortDict->getMappedValueFromDict("All Transformed Entries", Desc, getSortOrder)
+  let showToast = ToastAdapter.useShowToast()
 
-  let (processingEntries, setProcessingEntries) = React.useState(_ => [])
-  let (cursors, setCursors) = React.useState((_): processingEntryCursors => {
-    next: None,
-    prev: None,
-  })
+  let (
+    processingEntries,
+    cursors,
+    screenState,
+    goToFirstPage,
+    goToNextPage,
+    goToPrevPage,
+  ) = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=(~sortBy, ~direction) => {
+    getProcessingEntriesV2(
+      ~body=buildProcessingEntriesV2Body(
+        ~filterValueJson,
+        ~searchType=searchTypeRef.current,
+        ~searchText,
+        ~sortBy,
+        ~direction,
+        ~order=sortOrder,
+      ),
+    )
+  }, ~persistKey="recon-engine-transformed-entries")
+
   let (accountData, setAccountData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (searchText, setSearchText) = React.useState(_ => "")
-  let (searchType, setSearchType) = React.useState(_ => SearchStagingEntryId)
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
@@ -43,70 +62,19 @@ let make = () => {
       value: account.account_id,
     })
 
-  let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
-  let sortOrder = sortDict->getMappedValueFromDict("All Transformed Entries", Desc, getSortOrder)
-
   let fetchAccounts = async () => {
     try {
       let accounts = await getAccounts()
       setAccountData(_ => accounts)
     } catch {
-    | _ => ()
+    | _ => showToast(~message="Failed to fetch accounts", ~toastType=ToastError)
     }
-  }
-
-  let fetchPage = async (~sortBy, ~direction, ~searchType, ~searchText) => {
-    if screenState !== PageLoaderWrapper.Success {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-    }
-    try {
-      let body = buildProcessingEntriesV2Body(
-        ~filterValueJson,
-        ~searchType,
-        ~searchText,
-        ~sortBy,
-        ~direction,
-        ~order=sortOrder,
-      )
-      let page = await getProcessingEntriesV2(~body)
-      setProcessingEntries(_ => page.processingEntries)
-      setCursors(_ => page.cursors)
-      setScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
-    }
-  }
-
-  let goToFirstPage = () => {
-    fetchPage(
-      ~sortBy=defaultProcessingEntrySortBy,
-      ~direction=#next,
-      ~searchType,
-      ~searchText,
-    )->ignore
-  }
-
-  let goToNextPage = () => {
-    cursors.next->mapOptionOrDefault((), nextCursor => {
-      fetchPage(~sortBy=nextCursor, ~direction=#next, ~searchType, ~searchText)->ignore
-    })
-  }
-
-  let goToPrevPage = () => {
-    cursors.prev->mapOptionOrDefault((), prevCursor => {
-      fetchPage(~sortBy=prevCursor, ~direction=#previous, ~searchType, ~searchText)->ignore
-    })
   }
 
   let handleSearchSubmit = (selectedType: option<string>) => {
     let newSearchType = selectedType->mapOptionOrDefault(SearchStagingEntryId, searchTypeFromString)
-    setSearchType(_ => newSearchType)
-    fetchPage(
-      ~sortBy=defaultProcessingEntrySortBy,
-      ~direction=#next,
-      ~searchType=newSearchType,
-      ~searchText,
-    )->ignore
+    searchTypeRef.current = newSearchType
+    goToFirstPage()
   }
 
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
@@ -173,12 +141,9 @@ let make = () => {
         )
       }
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    | _ => showToast(~message="Failed to fetch transformation history", ~toastType=ToastError)
     }
   }
-
-  let getButtonState = (cursor): Button.buttonState =>
-    cursor->Option.isNone || screenState === PageLoaderWrapper.Loading ? Disabled : Normal
 
   <div className="flex flex-col gap-5 w-full">
     <div className="flex flex-row justify-between items-center">
@@ -226,25 +191,14 @@ let make = () => {
             showSearchIcon=true
             widthClass="w-max"
           />}
+          bottomActions={<ReconEngineCursorPaginationButtons
+            cursors
+            isLoading={screenState === PageLoaderWrapper.Loading}
+            show={processingEntries->isNonEmptyArray}
+            onPrev=goToPrevPage
+            onNext=goToNextPage
+          />}
         />
-        <RenderIf condition={processingEntries->isNonEmptyArray}>
-          <div className="flex flex-row justify-end items-center gap-3">
-            <Button
-              text="Prev"
-              buttonType=Secondary
-              buttonSize=Small
-              buttonState={getButtonState(cursors.prev)}
-              onClick={_ => goToPrevPage()}
-            />
-            <Button
-              text="Next"
-              buttonType=Primary
-              buttonSize=Small
-              buttonState={getButtonState(cursors.next)}
-              onClick={_ => goToNextPage()}
-            />
-          </div>
-        </RenderIf>
       </div>
     </PageLoaderWrapper>
   </div>
