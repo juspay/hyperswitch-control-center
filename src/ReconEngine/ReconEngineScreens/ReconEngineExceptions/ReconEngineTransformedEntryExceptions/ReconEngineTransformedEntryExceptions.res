@@ -174,6 +174,7 @@ let make = () => {
             loadedTableParentClass="flex flex-col"
             enableEqualWidthCol=false
             showAutoScroll=true
+            remoteSortEnabled=true
             showPagination=false
             showResultsPerPageSelector=false
             tableDataLoading={screenState === PageLoaderWrapper.Loading}
