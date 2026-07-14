@@ -199,7 +199,7 @@ let make = (
   let connectorListFiltered = {
     if searchedConnector->LogicUtils.isNonEmptyString {
       connectorsAvailableForIntegration->Array.filter(item =>
-        item->getConnectorNameString->String.includes(searchedConnector->String.toLowerCase)
+        ConnectorUtils.matchesConnectorTypeSearch(item, searchedConnector)
       )
     } else {
       connectorsAvailableForIntegration
