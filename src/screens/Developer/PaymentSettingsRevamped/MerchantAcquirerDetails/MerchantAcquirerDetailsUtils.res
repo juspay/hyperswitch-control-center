@@ -33,7 +33,13 @@ let binField = makeFieldInfo(
   ~label="Acquirer BIN",
   ~name="acquirer_bin",
   ~placeholder="e.g. 56688",
-  ~customInput=InputFields.numericTextInput(~removeLeadingZeroes=true, ~maxLength=20, ~precision=0),
+  ~customInput=InputFields.textInput(~inputMode="numeric", ~maxLength=20, ~autoComplete="off"),
+  ~parse=(~value, ~name as _) =>
+    value
+    ->JSON.Decode.string
+    ->Option.getOr("")
+    ->String.replaceRegExp(%re("/[^0-9]/g"), "")
+    ->JSON.Encode.string,
   ~isRequired=true,
 )
 
@@ -120,7 +126,7 @@ let stampProfileId = (body: Dict.t<JSON.t>, ~profileId: string) => {
 }
 
 let normalizeNumericStringFields = (body: Dict.t<JSON.t>) => {
-  [AcquirerBin, AcquirerIca]->Array.forEach(field => {
+  [AcquirerIca]->Array.forEach(field => {
     let key = (field :> string)
     let value = body->getFloat(key, 0.0)
     if value > 0.0 {
@@ -137,23 +143,18 @@ let validateForm = (~requiredKeys: array<acquirerField>, values: JSON.t): JSON.t
 
   requiredKeys->Array.forEach(field => {
     let key = (field :> string)
-    let present = switch field {
-    | AcquirerBin => valuesDict->getOptionFloat(key)->Option.isSome
-    | _ => valuesDict->getString(key, "")->isNonEmptyString
-    }
+    let present = valuesDict->getString(key, "")->isNonEmptyString
     if !present {
       setErr(key, "This field is required")
     }
   })
 
-  valuesDict
-  ->getOptionFloat((AcquirerBin :> string))
-  ->mapOptionOrDefault((), binFloat => {
-    let binStr = binFloat->Float.toString
+  let binStr = valuesDict->getString((AcquirerBin :> string), "")
+  if binStr->isNonEmptyString {
     if binStr->String.length < 4 || binStr->String.length > 20 {
       setErr((AcquirerBin :> string), "Acquirer BIN must be between 4 and 20 digits")
     }
-  })
+  }
 
   valuesDict
   ->getOptionFloat((AcquirerFraudRate :> string))

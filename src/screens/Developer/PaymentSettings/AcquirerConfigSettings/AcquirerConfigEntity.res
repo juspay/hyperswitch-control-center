@@ -47,11 +47,18 @@ let merchantName = makeAlphanumericInputField(
   ~placeholder="Enter Merchant Name",
 )
 
-let acquirerBin = makeNumericInputField(
+let acquirerBin = makeFieldInfo(
   ~label="Acquirer Bin",
   ~name="acquirer_bin",
   ~placeholder="Enter Acquirer Bin",
-  ~maxLength=20,
+  ~customInput=InputFields.textInput(~inputMode="numeric", ~maxLength=20, ~autoComplete="off"),
+  ~parse=(~value, ~name as _) =>
+    value
+    ->JSON.Decode.string
+    ->Option.getOr("")
+    ->String.replaceRegExp(%re("/[^0-9]/g"), "")
+    ->JSON.Encode.string,
+  ~isRequired=true,
 )
 
 let acquirerFraudRate = makeNumericInputField(

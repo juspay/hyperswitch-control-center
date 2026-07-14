@@ -45,12 +45,7 @@ module SettingsForm = {
       : ("Save", "Close")
 
     let prepareFormData = values => {
-      let valuesDict = values->getDictFromJsonObject
-      let acquirerBinValue = valuesDict->getFloat("acquirer_bin", 0.0)
-      if acquirerBinValue > 0.0 {
-        valuesDict->Dict.set("acquirer_bin", acquirerBinValue->Float.toString->JSON.Encode.string)
-      }
-      valuesDict
+      values->getDictFromJsonObject
     }
 
     let handleApiError = e => {
