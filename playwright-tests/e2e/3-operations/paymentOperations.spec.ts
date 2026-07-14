@@ -670,7 +670,7 @@ test.describe("Payment Operations", () => {
           context.request,
         );
         for (let i = 0; i < 21; i++) {
-          await createPaymentAPI(merchantId, context.request).catch(() => {});
+          await createPaymentAPI(merchantId, context.request).catch(() => { });
         }
       }
 
@@ -2240,10 +2240,6 @@ test.describe("Payment Operations", () => {
         paymentOperations.dataLabel("Customer ID").first(),
       ).toContainText("test_customer");
 
-      await expect(paymentOperations.captureAmountInput).toHaveAttribute(
-        "placeholder",
-        "Enter Amount to Capture",
-      );
       await expect(paymentOperations.captureAmountInput).toHaveValue("123.45");
 
       await expect(
@@ -2267,9 +2263,9 @@ test.describe("Payment Operations", () => {
       await openCaptureModal(page, homePage, paymentOperations);
 
       await paymentOperations.captureAmountInput.fill("0");
-      await paymentOperations.captureAmountInput.blur();
+      await paymentOperations.captureAmountInput.press("Enter");
       await expect(
-        page.getByText("Please enter capture amount greater than zero"),
+        page.locator('[data-form-error="Please enter capture amount greater than zero"]'),
       ).toBeVisible();
     });
 
@@ -2288,9 +2284,9 @@ test.describe("Payment Operations", () => {
       await openCaptureModal(page, homePage, paymentOperations);
 
       await paymentOperations.captureAmountInput.fill("999.99");
-      await paymentOperations.captureAmountInput.blur();
+      await paymentOperations.captureAmountInput.press("Enter");
       await expect(
-        page.getByText("Capture amount should not exceed 123.45"),
+        page.locator('[data-form-error="Capture amount should not exceed 123.45"]'),
       ).toBeVisible();
     });
 

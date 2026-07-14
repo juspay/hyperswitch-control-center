@@ -275,7 +275,7 @@ export class PaymentOperations {
   }
 
   get captureAmountInput(): Locator {
-    return this.page.locator('[name="amount"]:visible');
+    return this.page.getByRole('spinbutton', { name: 'Enter Amount to Capture' });
   }
 
   get confirmCaptureButton(): Locator {
