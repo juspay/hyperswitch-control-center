@@ -87,7 +87,6 @@ let make = (~showOnBoarding, ~id) => {
           ~method_=Get,
           ~xFeatureRoute=false,
           ~forceCookies=false,
-          ~sendV1DummyApiKeyHeader=false,
         )
         let res = await exceptionsResponse->(res => res->Fetch.Response.json)
         let data =

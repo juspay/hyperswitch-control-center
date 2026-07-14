@@ -130,7 +130,6 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
         ~method_=Get,
         ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
         ~forceCookies=false,
-        ~sendV1DummyApiKeyHeader=false,
         ~contentType=AuthHooks.Headers("text/csv"),
       )
       let content = await Fetch.Response.blob(blob)

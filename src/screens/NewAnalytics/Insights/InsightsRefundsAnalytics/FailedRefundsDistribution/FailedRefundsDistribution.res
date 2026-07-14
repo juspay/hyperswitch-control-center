@@ -92,7 +92,6 @@ let make = (
           ~method_=Get,
           ~xFeatureRoute=false,
           ~forceCookies=false,
-          ~sendV1DummyApiKeyHeader=false,
         )
         let refundsResponse = await res->(res => res->Fetch.Response.json)
         refundsResponse
@@ -120,7 +119,6 @@ let make = (
             ~method_=Get,
             ~xFeatureRoute=false,
             ~forceCookies=false,
-            ~sendV1DummyApiKeyHeader=false,
           )
           let refundsResponse = await res->(res => res->Fetch.Response.json)
           refundsResponse

@@ -92,7 +92,6 @@ let make = () => {
           ~method_=Get,
           ~xFeatureRoute=false,
           ~forceCookies=false,
-          ~sendV1DummyApiKeyHeader=false,
         )
         let paymentsResponse = await res->Fetch.Response.json
         let paymentData =

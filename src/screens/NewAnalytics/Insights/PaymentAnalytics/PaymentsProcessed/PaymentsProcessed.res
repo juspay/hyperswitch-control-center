@@ -219,7 +219,6 @@ let make = (
           ~method_=Get,
           ~xFeatureRoute=false,
           ~forceCookies=false,
-          ~sendV1DummyApiKeyHeader=false,
         )
         let paymentsResponse = await res->(res => res->Fetch.Response.json)
         paymentsResponse->getDictFromJsonObject->getJsonObjectFromDict("paymentSampleData")
@@ -253,7 +252,6 @@ let make = (
               ~method_=Get,
               ~xFeatureRoute=false,
               ~forceCookies=false,
-              ~sendV1DummyApiKeyHeader=false,
             )
             let paymentsResponse = await res->(res => res->Fetch.Response.json)
             paymentsResponse
