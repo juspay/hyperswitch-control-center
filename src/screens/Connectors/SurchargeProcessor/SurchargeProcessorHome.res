@@ -48,12 +48,16 @@ let make = () => {
       setInitialValues(_ => res)
       let _ = await fetchConnectorListResponse()
       setScreenState(_ => PageLoaderWrapper.Success)
-      showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
+      showToast(
+        ~message=ConnectorUtils.getConnectorToggleSuccessMessage(currentIsDisabled),
+        ~toastType=ToastSuccess,
+      )
     } catch {
     | Exn.Error(_) => {
-        let action = currentIsDisabled ? "enable" : "disable"
-
-        showToast(~message=`Failed to ${action} connector!`, ~toastType=ToastError)
+        showToast(
+          ~message=ConnectorUtils.getConnectorToggleFailureMessage(currentIsDisabled),
+          ~toastType=ToastError,
+        )
         setScreenState(_ => PageLoaderWrapper.Success)
       }
     }

@@ -1799,6 +1799,12 @@ let getDisableConnectorPayloadV2 = (connectorType, previousConnectorState, merch
   ]->getJsonFromArrayOfJson
 }
 
+let getConnectorToggleSuccessMessage = wasConnectorDisabled =>
+  `Connector has been successfully ${wasConnectorDisabled ? "Enabled" : "Disabled"}`
+
+let getConnectorToggleFailureMessage = wasConnectorDisabled =>
+  `Failed to ${wasConnectorDisabled ? "enable" : "disable"} connector!`
+
 let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) => {
   switch (connector, fieldName) {
   | (Processors(ADYEN), "merchant_secret") => true

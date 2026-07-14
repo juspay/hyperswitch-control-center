@@ -202,9 +202,15 @@ let make = (
       let _ = await fetchConnectorListResponse()
       setInitialValues(_ => res)
       setScreenState(_ => PageLoaderWrapper.Success)
-      showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
+      showToast(
+        ~message=ConnectorUtils.getConnectorToggleSuccessMessage(isConnectorDisabled),
+        ~toastType=ToastSuccess,
+      )
     } catch {
-    | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Error("Failed to Disable connector!"))
+    | Exn.Error(_) =>
+      setScreenState(_ => PageLoaderWrapper.Error(
+        ConnectorUtils.getConnectorToggleFailureMessage(isConnectorDisabled),
+      ))
     }
   }
 

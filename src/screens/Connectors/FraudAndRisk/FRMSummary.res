@@ -121,9 +121,16 @@ let make = (
       setInitialValues(_ => res)
       let _ = await fetchConnectorListResponse()
       setScreenState(_ => PageLoaderWrapper.Success)
-      showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
+      showToast(
+        ~message=ConnectorUtils.getConnectorToggleSuccessMessage(isFRMDisabled),
+        ~toastType=ToastSuccess,
+      )
     } catch {
-    | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
+    | Exn.Error(_) =>
+      showToast(
+        ~message=ConnectorUtils.getConnectorToggleFailureMessage(isFRMDisabled),
+        ~toastType=ToastError,
+      )
     }
   }
 
