@@ -493,7 +493,7 @@ test.describe("Payment Settings", () => {
       const requestorAppUrl = "https://example.com/3ds-requestor-app";
 
       await paymentSettings.selectFieldDropdown().click();
-      await paymentSettings.dropdownValue(connectorName).click();
+      await page.getByRole('option', { name: 'juspaythreedsserver' }).click();
       await page.keyboard.press("Escape");
 
       await paymentSettings.threeDsRequestorUrlInput.fill(requestorUrl);
@@ -522,8 +522,8 @@ test.describe("Payment Settings", () => {
       // Verify the connector is the selected option in the multi-select
       await page.getByRole('button', { name: 'Select Field1' }).click();
       await expect(
-        paymentSettings.dropdownValue(connectorName),
-      ).toHaveAttribute("data-state", "selected");
+        page.getByRole('option', { name: 'juspaythreedsserver' }).getByRole('checkbox')
+      ).toHaveAttribute("data-state", "checked");
     });
   });
 
