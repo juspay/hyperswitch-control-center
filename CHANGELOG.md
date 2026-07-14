@@ -3,6 +3,83 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.07.14.0
+
+### Miscellaneous Tasks
+
+- Add EU support for mixpanel events ([#5111](https://github.com/juspay/hyperswitch-control-center/pull/5111)) ([`c1522da`](https://github.com/juspay/hyperswitch-control-center/commit/c1522daff6d87b98b9381630a30d50eff320c2d4))
+
+**Full Changelog:** [`2026.07.12.0...2026.07.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.12.0...2026.07.14.0)
+
+- - -
+
+## 2026.07.12.0
+
+### Features
+
+- Enable analytics for platform merchants ([#5068](https://github.com/juspay/hyperswitch-control-center/pull/5068)) ([`522c414`](https://github.com/juspay/hyperswitch-control-center/commit/522c4141efc1e8ee527b9825c1e72685296d0620))
+- Add prism connector audit logs ([#5131](https://github.com/juspay/hyperswitch-control-center/pull/5131)) ([`88c57b6`](https://github.com/juspay/hyperswitch-control-center/commit/88c57b6b9c5607ba2401fb698ea506c141a432fb))
+- Add cursor pagination in recon engine transactions ([#5049](https://github.com/juspay/hyperswitch-control-center/pull/5049)) ([`76d0670`](https://github.com/juspay/hyperswitch-control-center/commit/76d067023daef5f1fb8f90dc9bbd41d1a72daf71))
+- Add cursor pagination in recon engine transformed entries ([#5155](https://github.com/juspay/hyperswitch-control-center/pull/5155)) ([`0bcc486`](https://github.com/juspay/hyperswitch-control-center/commit/0bcc4860f2a68ab10720bfb24484fb84e574e883))
+
+### Bug Fixes
+
+- Include recipient in webhook event list ([#5109](https://github.com/juspay/hyperswitch-control-center/pull/5109)) ([`afbf96d`](https://github.com/juspay/hyperswitch-control-center/commit/afbf96db2a481a0e32fc378ddb4e01d5db84b032))
+- Update broken platform docs URL in API keys screen ([#5148](https://github.com/juspay/hyperswitch-control-center/pull/5148)) ([`6807711`](https://github.com/juspay/hyperswitch-control-center/commit/68077117163355c8bd381bb69e307b5c3fe291a3))
+- Redirect payout volume routing after save ([#5134](https://github.com/juspay/hyperswitch-control-center/pull/5134)) ([`5d2adf6`](https://github.com/juspay/hyperswitch-control-center/commit/5d2adf61f0c5128192269a6a4a8c8bda23c451bd))
+
+**Full Changelog:** [`2026.07.10.0...2026.07.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.10.0...2026.07.12.0)
+
+- - -
+
+## 2026.07.10.0
+
+### Features
+
+- Info modal for org chart page ([#5102](https://github.com/juspay/hyperswitch-control-center/pull/5102)) ([`8f542f7`](https://github.com/juspay/hyperswitch-control-center/commit/8f542f71c41eb15af943a073c889c96ab29bab33))
+- Add TSYS Transit Connector in Dashboard ([#5113](https://github.com/juspay/hyperswitch-control-center/pull/5113)) ([`4fb9e3e`](https://github.com/juspay/hyperswitch-control-center/commit/4fb9e3eb36e1f61aea586eaf0eaa740dd6a3e2e4))
+- Add WASM for TSYS Transit Connector ([#5114](https://github.com/juspay/hyperswitch-control-center/pull/5114)) ([`470f63c`](https://github.com/juspay/hyperswitch-control-center/commit/470f63c22efee3424afe470f1fa1a51546efca42))
+
+**Full Changelog:** [`2026.07.09.0...2026.07.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.09.0...2026.07.10.0)
+
+- - -
+
+## 2026.07.09.0
+
+### Features
+
+- Add advanced payment list foundation ([#5081](https://github.com/juspay/hyperswitch-control-center/pull/5081)) ([`aa22bde`](https://github.com/juspay/hyperswitch-control-center/commit/aa22bdea5c7ebb5b9d1a9cdcd295196a74764d20))
+- Add surcharge processor profile update in payment settings ([#5056](https://github.com/juspay/hyperswitch-control-center/pull/5056)) ([`b63c987`](https://github.com/juspay/hyperswitch-control-center/commit/b63c987ddfcce2474eb33e5171dfd8a59e65da39))
+
+### Bug Fixes
+
+- Hide vault processor for connected merchants ([#5110](https://github.com/juspay/hyperswitch-control-center/pull/5110)) ([`7a5a6eb`](https://github.com/juspay/hyperswitch-control-center/commit/7a5a6eb2298bec85a131b1268b73c6286ae014f2))
+
+**Full Changelog:** [`2026.07.08.0...2026.07.09.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.08.0...2026.07.09.0)
+
+- - -
+
+## 2026.07.08.0
+
+### Features
+
+- Add void payment action on payment details page ([#4780](https://github.com/juspay/hyperswitch-control-center/pull/4780)) ([`b5cfb99`](https://github.com/juspay/hyperswitch-control-center/commit/b5cfb9941a5037f6bcf65cb00f7784853ea3607b))
+- Add stat cards and reconciliation volume in rule overview page ([#5090](https://github.com/juspay/hyperswitch-control-center/pull/5090)) ([`4d344da`](https://github.com/juspay/hyperswitch-control-center/commit/4d344da3a3e33d3bbaa36cb9abba503f7b22eff4))
+
+### Bug Fixes
+
+- Show toast for surcharge processor submit ([#5096](https://github.com/juspay/hyperswitch-control-center/pull/5096)) ([`875e4cd`](https://github.com/juspay/hyperswitch-control-center/commit/875e4cdaa8720589945e00a544c6df4bb58958a3))
+- Remove payment settings from configure pmts show route ([#5095](https://github.com/juspay/hyperswitch-control-center/pull/5095)) ([`9fd1a36`](https://github.com/juspay/hyperswitch-control-center/commit/9fd1a365197f6887bb4301733033ca15aa91d670))
+- Hide Configure PMTs for platform merchants ([#5088](https://github.com/juspay/hyperswitch-control-center/pull/5088)) ([`f0ca340`](https://github.com/juspay/hyperswitch-control-center/commit/f0ca340f3760c92c1d33c49672144f61e88d8b87))
+
+### Miscellaneous Tasks
+
+- Enrich mixpanel payload with browser and session context ([#5065](https://github.com/juspay/hyperswitch-control-center/pull/5065)) ([`407a25f`](https://github.com/juspay/hyperswitch-control-center/commit/407a25f66c5203b6fb20d15a6fbafb9f991456a5))
+
+**Full Changelog:** [`2026.07.07.0...2026.07.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.07.0...2026.07.08.0)
+
+- - -
+
 ## 2026.07.07.0
 
 ### Features

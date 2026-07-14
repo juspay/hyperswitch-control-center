@@ -1420,6 +1420,7 @@ test.describe("Payment Operations", () => {
         (resp) => resp.url().includes("force_sync=true") && resp.ok(),
       );
       await paymentOperations.initiateRefundButton.click();
+      await refreshResponse;
 
       await expect(page.getByText("Summary")).toBeVisible();
       await expect(

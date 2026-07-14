@@ -286,6 +286,8 @@ module ChooseColumns = {
     ~mandatoryOptions=[],
     ~isDraggable=false,
     ~title="",
+    ~isNewColumn=_ => false,
+    ~getNewColumnDescription=_ => "",
   ) => {
     open LoadedTableWithCustomColumnsUtils
     let (visibleColumns, setVisibleColumns) = Recoil.useRecoilState(activeColumnsAtom)
@@ -350,6 +352,8 @@ module ChooseColumns = {
         showSerialNumber
         isDraggable
         title
+        isNewColumn
+        getNewColumnDescription
       />
     } else {
       React.null
@@ -372,6 +376,8 @@ module ChooseColumnsWrapper = {
     ~setShowDropDown=_ => (),
     ~isDraggable=false,
     ~title="",
+    ~isNewColumn=_ => false,
+    ~getNewColumnDescription=_ => "",
   ) => {
     switch optionalActiveColumnsAtom {
     | Some(activeColumnsAtom) =>
@@ -388,6 +394,8 @@ module ChooseColumnsWrapper = {
           showSerialNumber
           isDraggable
           title
+          isNewColumn
+          getNewColumnDescription
         />
       </AddDataAttributes>
     | None => React.null

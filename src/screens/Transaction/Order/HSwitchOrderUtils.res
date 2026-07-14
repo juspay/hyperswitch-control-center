@@ -199,6 +199,14 @@ let reasonField = FormRenderer.makeFieldInfo(
   ~isRequired=false,
 )
 
+let cancellationReasonField = FormRenderer.makeFieldInfo(
+  ~name="cancellation_reason",
+  ~label="Cancellation Reason",
+  ~customInput=InputFields.textInput(~maxLength=255),
+  ~placeholder="Enter Cancellation Reason (optional)",
+  ~isRequired=false,
+)
+
 let adyenReasonDropdownField = FormRenderer.makeFieldInfo(
   ~name="reason",
   ~label="Reason",

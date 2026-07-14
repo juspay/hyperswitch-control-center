@@ -43,18 +43,10 @@ let useGetHsSidebarValues = () => {
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let isNewAnalyticsEnable =
     newAnalytics && isFeatureEnabledForDenyListMerchant(merchantSpecificConfig.newAnalytics)
-  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
+  let {isCurrentMerchantPlatform, isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
 
   let standardModules = !isCurrentMerchantPlatform
     ? [
-        default->analytics(
-          disputeAnalytics,
-          performanceMonitorFlag,
-          isNewAnalyticsEnable,
-          routingAnalytics,
-          ~authenticationAnalyticsFlag=authenticationAnalytics,
-          ~userHasResourceAccess,
-        ),
         default->workflow(
           isSurchargeEnabled,
           threedsExemptionRules,
@@ -87,6 +79,15 @@ let useGetHsSidebarValues = () => {
       ~isVaultProcessor=vaultProcessor,
       ~isSurchargeProcessor=surchargeProcessor,
       ~isCurrentMerchantPlatform,
+      ~isCurrentMerchantConnected,
+    ),
+    default->analytics(
+      disputeAnalytics,
+      performanceMonitorFlag,
+      isNewAnalyticsEnable,
+      routingAnalytics,
+      ~authenticationAnalyticsFlag=authenticationAnalytics,
+      ~userHasResourceAccess,
     ),
     ...standardModules,
     default->developers(
@@ -105,6 +106,7 @@ let useGetHsSidebarValues = () => {
       ~devModularityV2Enabled=devModularityV2,
       ~devThemeEnabled=devTheme,
       ~devUsers,
+      ~isCurrentMerchantPlatform,
     ),
   ]
 }

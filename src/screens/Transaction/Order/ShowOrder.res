@@ -21,6 +21,7 @@ module ShowOrderDetails = {
     ~isNonRefundConnector,
     ~paymentStatus,
     ~openRefundModal,
+    ~openVoidModal=() => (),
     ~openCaptureModal=() => (),
     ~paymentId,
     ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
@@ -76,6 +77,19 @@ module ShowOrderDetails = {
             !(paymentId->isTestData)}>
             <ACLButton
               authorization={userHasAccess(~groupAccess=OperationsManage)}
+              text="+ Void"
+              onClick={_ => {
+                openVoidModal()
+              }}
+              buttonType={Secondary}
+            />
+          </RenderIf>
+          <RenderIf
+            condition={version === V1 &&
+            typedPaymentStatus === RequiresCapture &&
+            !(paymentId->isTestData)}>
+            <ACLButton
+              authorization={userHasAccess(~groupAccess=OperationsManage)}
               text="+ Capture"
               onClick={_ => openCaptureModal()}
               buttonType={Secondary}
@@ -109,7 +123,14 @@ module ShowOrderDetails = {
 module OrderInfo = {
   open OrderEntity
   @react.component
-  let make = (~order, ~openRefundModal, ~openCaptureModal, ~isNonRefundConnector, ~paymentId) => {
+  let make = (
+    ~order,
+    ~openRefundModal,
+    ~openVoidModal,
+    ~openCaptureModal,
+    ~isNonRefundConnector,
+    ~paymentId,
+  ) => {
     let paymentStatus = order.status
     let headingStyles = "font-bold text-lg mb-5"
     <div className="md:flex md:flex-col md:gap-5">
@@ -134,6 +155,7 @@ module OrderInfo = {
             isNonRefundConnector
             paymentStatus
             openRefundModal
+            openVoidModal
             openCaptureModal
             paymentId
           />
@@ -157,6 +179,7 @@ module OrderInfo = {
             isNonRefundConnector
             paymentStatus
             openRefundModal
+            openVoidModal
             openCaptureModal
             paymentId
           />
@@ -435,10 +458,16 @@ module Disputes = {
 module OrderActions = {
   @react.component
   let make = (
+    
     ~orderData,
+   
     ~refetch,
+   
     ~showModal,
+   
     ~setShowModal,
+    ~showVoidModal,
+    ~setShowVoidModal,
     ~showCaptureModal,
     ~setShowCaptureModal,
   ) => {
@@ -483,7 +512,7 @@ module OrderActions = {
         setShowModal
         borderBottom=true
         childClass=""
-        modalClass="w-fit absolute top-0 lg:top-0 md:top-1/3 left-0 lg:left-1/3 md:left-1/3 md:w-4/12 mt-20"
+        modalClass="w-full md:w-4/12 mx-auto mt-20"
         bgClass="bg-white dark:bg-jp-gray-darkgray_background">
         <OrderRefundForm
           order={orderData}
@@ -493,6 +522,15 @@ module OrderActions = {
           amountAvailableToRefund
           refetch
         />
+      </Modal>
+      <Modal
+        showModal=showVoidModal
+        setShowModal=setShowVoidModal
+        borderBottom=true
+        childClass=""
+        modalClass="w-full md:w-4/12 mx-auto mt-20"
+        bgClass="bg-nd_gray-0">
+        <OrderVoidForm order={orderData} setShowModal=setShowVoidModal refetch />
       </Modal>
       <Modal
         showModal=showCaptureModal
@@ -661,6 +699,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let showToast = ToastAdapter.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (showModal, setShowModal) = React.useState(_ => false)
+  let (showVoidModal, setShowVoidModal) = React.useState(_ => false)
   let (showCaptureModal, setShowCaptureModal) = React.useState(_ => false)
   let (orderData, setOrderData) = React.useState(_ =>
     Dict.make()->PaymentInterfaceUtils.mapDictToPaymentPayload
@@ -732,6 +771,10 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     setShowModal(_ => true)
   }
 
+  let openVoidModal = _ => {
+    setShowVoidModal(_ => true)
+  }
+
   let openCaptureModal = _ => {
     setShowCaptureModal(_ => true)
   }
@@ -801,10 +844,17 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         <div />
       </div>
       <OrderActions
+       
         orderData={orderData}
+       
         refetch={refreshStatus}
+       
         showModal
+       
         setShowModal
+        showVoidModal
+        setShowVoidModal
+     
         showCaptureModal
         setShowCaptureModal
       />
@@ -825,6 +875,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           paymentId=id
           order={orderData}
           openRefundModal
+          openVoidModal
           openCaptureModal
           isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />

@@ -1473,7 +1473,7 @@ export async function mockDisputesList(
   // 401 for each, and the global 401 handler kicks the user to /sign-in.
   // Stub them to empty arrays so the detail page can render.
   await page.route(
-    /\/analytics\/v1\/(profile\/)?(api_event_logs|connector_event_logs|outgoing_webhook_event_logs|webhook_event_logs)(\?|$)/,
+    /\/analytics\/v1\/(profile\/)?(api_event_logs|connector_event_logs|outgoing_webhook_event_logs|webhook_event_logs|prism_connector_event_logs)(\?|$)/,
     async (route) => {
       await route.fulfill({
         status: 200,
