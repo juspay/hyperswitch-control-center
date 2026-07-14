@@ -127,7 +127,10 @@ let make = () => {
         <DesktopRow wrapperClass="pt-4 flex !flex-col gap-4" itemWrapperClass="mx-1">
           <FieldRenderer
             field={threedsConnectorList
-            ->Array.map(item => item.connector_name)
+            ->Array.map((item): SelectBox.dropdownOption => {
+              label: `${item.connector_name} - ${item.connector_label}`,
+              value: item.connector_name,
+            })
             ->authenticationConnectors}
             errorClass
             labelClass={`!${body.lg.semibold} !text-nd_gray-700`}

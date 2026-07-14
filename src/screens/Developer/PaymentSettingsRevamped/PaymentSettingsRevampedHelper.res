@@ -54,12 +54,12 @@ let threeDsRequestoApprUrl = FormRenderer.makeFieldInfo(
   ~customInput=InputFields.textInput(~autoComplete="off", ~customStyle="rounded-xl"),
   ~isRequired=false,
 )
-let authenticationConnectors = connectorList =>
+let authenticationConnectors = connectorOptions =>
   FormRenderer.makeFieldInfo(
     ~label="Authentication Connectors",
     ~name="authentication_connector_details.authentication_connectors",
     ~customInput=InputFields.multiSelectInput(
-      ~options=connectorList->SelectBox.makeOptions,
+      ~options=connectorOptions,
       ~buttonText="Select Field",
       ~showSelectionAsChips=false,
       ~customButtonStyle="!rounded-lg",

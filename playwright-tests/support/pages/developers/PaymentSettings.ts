@@ -91,6 +91,14 @@ export class PaymentSettings {
     return this.page.getByPlaceholder("Enter Webhook URL");
   }
 
+  get returnUrlError(): Locator {
+    return this.page.getByText("Please Enter Valid Return URL");
+  }
+
+  get webhookUrlError(): Locator {
+    return this.page.getByText("Please Enter Valid Webhook URL");
+  }
+
   get merchantCategoryCodeDropdown(): Locator {
     return this.page.getByRole("button", { name: "Select Option" });
   }
@@ -156,6 +164,14 @@ export class PaymentSettings {
 
   get threeDsRequestorAppUrlInput(): Locator {
     return this.page.getByPlaceholder("Enter 3DS Requestor App URL");
+  }
+
+  get threeDsRequestorUrlError(): Locator {
+    return this.page.getByText("Please Enter Valid Threeds URL");
+  }
+
+  get threeDsRequestorAppUrlError(): Locator {
+    return this.page.getByText("Please enter a valid URL or Mobile Deeplink");
   }
 
   // Acquirer Config Settings (MerchantAcquirerDetails — new flow)

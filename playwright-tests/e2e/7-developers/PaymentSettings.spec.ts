@@ -114,6 +114,25 @@ test.describe("Payment Settings", () => {
       );
     });
 
+    test("should reject malformed return and webhook URLs", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await paymentSettings.fillReturnUrl("https://");
+      await paymentSettings.fillWebhookUrl("https://%%%");
+
+      await expect(paymentSettings.returnUrlError).toBeVisible();
+      await expect(paymentSettings.webhookUrlError).toBeVisible();
+      await expect(paymentSettings.updateButton).toBeDisabled();
+
+      await paymentSettings.fillReturnUrl("https://example.com/return");
+      await paymentSettings.fillWebhookUrl("https://example.com/webhook");
+
+      await expect(paymentSettings.returnUrlError).toHaveCount(0);
+      await expect(paymentSettings.webhookUrlError).toHaveCount(0);
+    });
+
     test("should save toggle, form, and dropdown values when Update is clicked", async ({
       page,
     }) => {
@@ -451,11 +470,22 @@ test.describe("Payment Settings", () => {
       const requestorAppUrl = "https://example.com/3ds-requestor-app";
 
       await paymentSettings.selectFieldDropdown().click();
+      await expect(paymentSettings.dropdownValue(connectorName)).toContainText(
+        `${connectorName} - threeds_tab_connector`,
+      );
       await paymentSettings.dropdownValue(connectorName).click();
       await page.keyboard.press("Escape");
 
+      await paymentSettings.threeDsRequestorUrlInput.fill("https://");
+      await paymentSettings.threeDsRequestorAppUrlInput.fill("https://%%%");
+      await expect(paymentSettings.threeDsRequestorUrlError).toBeVisible();
+      await expect(paymentSettings.threeDsRequestorAppUrlError).toBeVisible();
+      await expect(paymentSettings.updateButton).toBeDisabled();
+
       await paymentSettings.threeDsRequestorUrlInput.fill(requestorUrl);
       await paymentSettings.threeDsRequestorAppUrlInput.fill(requestorAppUrl);
+      await expect(paymentSettings.threeDsRequestorUrlError).toHaveCount(0);
+      await expect(paymentSettings.threeDsRequestorAppUrlError).toHaveCount(0);
 
       await paymentSettings.clickUpdate();
       await expect(paymentSettings.detailsUpdatedToast).toBeVisible({

@@ -103,15 +103,43 @@ let validateEmptyArray = (key, errors, arrayValue) => {
   | _ => ()
   }
 }
+
+type parsedUrl
+
+@new external parseUrl: string => parsedUrl = "URL"
+@get external getProtocol: parsedUrl => string = "protocol"
+@get external getHostname: parsedUrl => string = "hostname"
+@get external getPathname: parsedUrl => string = "pathname"
+
+let isValidHttpUrl = (value, isLiveMode) => {
+  try {
+    let parsedUrl = parseUrl(value)
+    let protocol = parsedUrl->getProtocol
+    let isLocalhost = parsedUrl->getHostname === "localhost"
+
+    protocol === "https:" || (protocol === "http:" && (!isLiveMode || isLocalhost))
+  } catch {
+  | _ => false
+  }
+}
+
+let isValidDeepLink = value => {
+  try {
+    let parsedUrl = parseUrl(value)
+    let pathname = parsedUrl->getPathname
+    let hasDestination = parsedUrl->getHostname !== "" || (pathname !== "" && pathname !== "/")
+
+    hasDestination && RegExp.test(%re("/^[a-zA-Z][a-zA-Z0-9]*:\/\//i"), value)
+  } catch {
+  | _ => false
+  }
+}
+
 let validateCustom = (key, errors, value, isLiveMode) => {
   switch key {
   | WebhookDetails =>
-    let regexUrl = isLiveMode
-      ? RegExp.test(%re("/^https:\/\//i"), value) || value->String.includes("localhost")
-      : RegExp.test(%re("/^(http|https):\/\//i"), value)
-
     let webhookErrorDict = errors->getDictfromDict("webhook_details")
-    if !regexUrl {
+    if !isValidHttpUrl(value, isLiveMode) {
       errors->Dict.set("webhook_details", JSON.Encode.null)
       Dict.set(
         webhookErrorDict,
@@ -121,22 +149,15 @@ let validateCustom = (key, errors, value, isLiveMode) => {
       Dict.set(errors, "webhook_details", webhookErrorDict->JSON.Encode.object)
     }
 
-  | ReturnUrl => {
-      let regexUrl = isLiveMode
-        ? RegExp.test(%re("/^https:\/\//i"), value) || value->String.includes("localhost")
-        : RegExp.test(%re("/^(http|https):\/\//i"), value)
-      if !regexUrl {
-        Dict.set(errors, "return_url", "Please Enter Valid Return URL"->JSON.Encode.string)
-      }
+  | ReturnUrl =>
+    if !isValidHttpUrl(value, isLiveMode) {
+      Dict.set(errors, "return_url", "Please Enter Valid Return URL"->JSON.Encode.string)
     }
 
   | ThreeDsRequestorUrl => {
-      let regexUrl = isLiveMode
-        ? RegExp.test(%re("/^https:\/\//i"), value) || value->String.includes("localhost")
-        : RegExp.test(%re("/^(http|https):\/\//i"), value)
       let authConnectorDetailsErrorDict =
         errors->getDictfromDict("authentication_connector_details")
-      if !regexUrl {
+      if !isValidHttpUrl(value, isLiveMode) {
         errors->Dict.set("authentication_connector_details", JSON.Encode.null)
         Dict.set(
           authConnectorDetailsErrorDict,
@@ -151,11 +172,8 @@ let validateCustom = (key, errors, value, isLiveMode) => {
       }
     }
   | ThreeDsRequestorAppUrl =>
-    let httpUrlValid = isLiveMode
-      ? RegExp.test(%re("/^https:\/\//i"), value) || value->String.includes("localhost")
-      : RegExp.test(%re("/^(http|https):\/\//i"), value)
-
-    let deepLinkValid = RegExp.test(%re("/^[a-zA-Z][a-zA-Z0-9]*:\/\//i"), value)
+    let httpUrlValid = isValidHttpUrl(value, isLiveMode)
+    let deepLinkValid = isValidDeepLink(value)
     if !(httpUrlValid || deepLinkValid) {
       let authConnectorDetailsErrorDict =
         errors->getDictfromDict("authentication_connector_details")
