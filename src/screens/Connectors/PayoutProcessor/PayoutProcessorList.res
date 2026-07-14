@@ -49,11 +49,7 @@ let make = () => {
       list->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
-          ConnectorUtils.matchesConnectorSearch(
-            ~connectorType=ConnectorTypes.PayoutProcessor,
-            obj,
-            searchText,
-          )
+          matchesConnectorSearch(~connectorType=ConnectorTypes.PayoutProcessor, obj, searchText)
         | None => false
         }
       })

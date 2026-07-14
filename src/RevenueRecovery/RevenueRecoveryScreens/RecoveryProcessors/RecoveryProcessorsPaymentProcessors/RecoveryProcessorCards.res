@@ -174,7 +174,7 @@ let make = (
   let connectorListFiltered = {
     if searchedConnector->LogicUtils.isNonEmptyString {
       connectorsAvailableForIntegration->Array.filter(item =>
-        ConnectorUtils.matchesConnectorTypeSearch(item, searchedConnector)
+        matchesConnectorTypeSearch(item, searchedConnector)
       )
     } else {
       connectorsAvailableForIntegration

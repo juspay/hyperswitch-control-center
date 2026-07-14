@@ -108,7 +108,7 @@ let make = (
     let filteredList = if searchText->isNonEmptyString {
       list->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(obj) {
-        | Some(obj) => ConnectorUtils.matchesConnectorSearch(obj, searchText)
+        | Some(obj) => matchesConnectorSearch(obj, searchText)
         | None => false
         }
       })
