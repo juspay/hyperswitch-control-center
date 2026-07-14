@@ -2,15 +2,6 @@ open OrderTypes
 
 let paymentListSources: array<paymentListSource> = [Normal, Advanced]
 
-let getPaymentListSourceFromLabel = value =>
-  paymentListSources->Array.find(source => (source :> string) == value)
-
-let getPaymentListSourceDescription = source =>
-  switch source {
-  | Normal => "Standard payments list."
-  | Advanced => "Advanced payment list with expanded search, filters, columns, and CSV export."
-  }
-
 module SourceTabs = {
   @react.component
   let make = (
@@ -18,41 +9,30 @@ module SourceTabs = {
     ~setSource: (paymentListSource => paymentListSource) => unit,
     ~advancedEnabled,
   ) => {
-    <TabsBinding
-      value={(source :> string)}
-      onValueChange={value => {
-        switch value->getPaymentListSourceFromLabel {
+    let tabs = paymentListSources->Array.map((item): Tabs.tab => {
+      title: (item :> string),
+      renderContent: () => React.null,
+    })
+    let initialIndex =
+      paymentListSources->Array.indexOf(source)->(idx => idx < 0 ? 0 : idx)
+    let disabledTab = advancedEnabled ? [] : [(Advanced :> string)]
+
+    <Tabs
+      tabs
+      initialIndex
+      disabledTab
+      variant=TabsBinding.Boxed
+      size=TabsBinding.Md
+      fitContent=true
+      onTitleClick={idx =>
+        switch paymentListSources->Array.get(idx) {
         | Some(Advanced) =>
           if advancedEnabled {
             setSource(_ => Advanced)
           }
         | Some(Normal) => setSource(_ => Normal)
-        | None => ()
-        }
-      }}
-      variant=Boxed
-      size=Md>
-      <TabsBinding.List variant=Boxed size=Md fitContent=true>
-        {paymentListSources
-        ->Array.map(item => {
-          let value = (item :> string)
-          let isDisabled = item === Advanced && !advancedEnabled
-          <TabsBinding.Trigger
-            key=value
-            value
-            variant=Boxed
-            size=Md
-            disabled=isDisabled
-            className="min-w-20 justify-center">
-            <ToolTip
-              description={item->getPaymentListSourceDescription}
-              toolTipFor={<span> {value->React.string} </span>}
-              toolTipPosition=Top
-            />
-          </TabsBinding.Trigger>
-        })
-        ->React.array}
-      </TabsBinding.List>
-    </TabsBinding>
+        | _ => ()
+        }}
+    />
   }
 }

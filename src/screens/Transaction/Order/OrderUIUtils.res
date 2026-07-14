@@ -328,9 +328,11 @@ let cardLast4FilterKey = (#card_last_4: advancedPaymentTextListFilter :> string)
 let hiddenAdvancedPaymentFilterKeys = [firstAttemptFilterKey]
 
 let advancedPaymentFilterCleanupKeys =
-  advancedPaymentOnlyFilterKeys
-  ->Array.concat(unsupportedAdvancedPaymentFilterKeys)
-  ->Array.concat(hiddenAdvancedPaymentFilterKeys)
+  []->Array.concatMany([
+    advancedPaymentOnlyFilterKeys,
+    unsupportedAdvancedPaymentFilterKeys,
+    hiddenAdvancedPaymentFilterKeys,
+  ])
 
 let advancedPaymentSearchDescription = "Search across payment ID, customer email, card last 4, amount, attempt ID, connector account, and error details."
 
@@ -403,50 +405,43 @@ let basePaymentListFilters: array<basePaymentListFilter> = [
 let basePaymentListFilterKeys = basePaymentListFilters->Array.map(filter => (filter :> string))
 
 let advancedPaymentListFilterKeys =
-  basePaymentListFilterKeys
-  ->Array.concat(advancedPaymentOnlyFilterKeys)
-  ->Array.concat(hiddenAdvancedPaymentFilterKeys)
+  []->Array.concatMany([
+    basePaymentListFilterKeys,
+    advancedPaymentOnlyFilterKeys,
+    hiddenAdvancedPaymentFilterKeys,
+  ])
 
 let copyAdvancedPaymentFilterIfPresent = (~fromDict, ~toDict, key) => {
   switch fromDict->getOptionValFromDict(key) {
   | Some(value) =>
-    let stringValues = switch value->JSON.Decode.array {
+    let stringValues = switch value->getOptionStrArrayFromJson {
     | Some(values) =>
       values
-      ->getStrArrayFromJsonArray
       ->Array.map(value => value->String.trim)
-      ->Belt.Array.keepMap(getNonEmptyString)
+      ->Array.filterMap(getNonEmptyString)
     | None =>
-      let value = value->getStringFromJson("")->String.trim
-      value->isNonEmptyString ? [value] : []
+      switch value->getStringFromJson("")->getNonEmptyString {
+      | Some(v) => [v]
+      | None => []
+      }
     }
 
     if key === customerEmailFilterKey {
-      switch stringValues->Array.get(0) {
-      | Some(email) if !(email->CommonAuthUtils.isValidEmail) =>
+      let email = stringValues->getValueFromArray(0, "")
+      if email->isNonEmptyString && !(email->CommonAuthUtils.isValidEmail) {
         toDict->setOptionString(key, Some(email))
-      | _ => ()
       }
     } else if advancedPaymentTextListFilterKeys->Array.includes(key) {
       if stringValues->isNonEmptyArray {
         toDict->setOptionJson(key, Some(stringValues->getJsonFromArrayOfString))
       }
     } else if key === firstAttemptFilterKey {
-      let getBoolFilterValue = value =>
-        switch value->JSON.Decode.bool {
-        | Some(value) => Some(value)
-        | None =>
-          let value = value->getStringFromJson("")->String.trim->String.toLowerCase
-          value === "true" || value === "false" ? Some(value->getBoolFromString(false)) : None
+      let jsonToBool = json =>
+        switch json->getStringFromJson("")->getNonEmptyString {
+        | Some(str) => str->getBoolFromString(false)
+        | None => json->getBoolFromJson(false)
         }
-      let boolValues = switch value->JSON.Decode.array {
-      | Some(values) => values->Belt.Array.keepMap(getBoolFilterValue)
-      | None =>
-        switch value->getBoolFilterValue {
-        | Some(value) => [value]
-        | None => []
-        }
-      }
+      let boolValues = value->getArrayFromJson([value])->Array.map(jsonToBool)
       if boolValues->isNonEmptyArray {
         toDict->setOptionArray(key, Some(boolValues->Array.map(JSON.Encode.bool)))
       }
@@ -463,17 +458,18 @@ let buildAdvancedPaymentListPayload = (
   ~startTimeKey,
   ~endTimeKey,
 ) => {
-  let body = Dict.make()
   let trimmedSearchText = searchText->String.trim
 
-  body->setOptionJson("offset", filterParams->Dict.get("offset"))
-  body->setOptionJson("limit", filterParams->Dict.get("limit"))
-  body->setOptionJson("order", filterParams->Dict.get("order"))
-  body->setOptionJson("amount_filter", filterParams->Dict.get("amount_filter"))
+  let body =
+    ["offset", "limit", "order", "amount_filter"]
+    ->Array.filterMap(key =>
+      filterParams->getOptionValFromDict(key)->Option.map(value => (key, value))
+    )
+    ->Dict.fromArray
 
   if trimmedSearchText->isEmptyString {
-    body->setOptionJson(startTimeKey, filterParams->Dict.get(startTimeKey))
-    body->setOptionJson(endTimeKey, filterParams->Dict.get(endTimeKey))
+    body->setOptionJson(startTimeKey, filterParams->getOptionValFromDict(startTimeKey))
+    body->setOptionJson(endTimeKey, filterParams->getOptionValFromDict(endTimeKey))
   }
 
   advancedPaymentListFilterKeys->Array.forEach(key => {
@@ -486,7 +482,10 @@ let buildAdvancedPaymentListPayload = (
     } else if trimmedSearchText->String.startsWith("pay_") {
       body->setOptionString(paymentIdFilterKey, Some(trimmedSearchText))
     } else if RegExp.test(%re("/^\d{4}$/"), trimmedSearchText) {
-      body->setOptionArray(cardLast4FilterKey, Some([trimmedSearchText->JSON.Encode.string]))
+      body->setOptionJson(
+        (#card_last_4: advancedPaymentTextListFilter :> string),
+        Some([trimmedSearchText]->getJsonFromArrayOfString),
+      )
     } else {
       body->setOptionString("query", Some(trimmedSearchText))
     }

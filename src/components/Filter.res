@@ -255,14 +255,11 @@ let make = (
       option.inputNames->getValueFromArray(0, "")->snakeToTitle
     }
     let value = option.inputNames->getValueFromArray(0, "")
-    switch option.labelRightComponent {
-    | Some(labelRightComponent) => {
-        SelectBox.label,
-        value,
-        icon: Button.CustomRightIcon(<div className="ml-2"> {labelRightComponent} </div>),
-      }
-    | None => {SelectBox.label, value}
-    }
+    option.labelRightComponent->mapOptionOrDefault({SelectBox.label, value}, labelRightComponent => {
+      SelectBox.label,
+      value,
+      icon: Button.CustomRightIcon(<div className="ml-2"> {labelRightComponent} </div>),
+    })
   })
 
   let filterPickerInput: ReactFinalForm.fieldRenderPropsInput = {

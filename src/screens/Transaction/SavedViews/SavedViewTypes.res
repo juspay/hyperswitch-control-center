@@ -19,6 +19,7 @@ type entity =
   | Merchant
   | Organization
   | Payment
+  | PaymentAdvanced
   | Payout
   | Refund
   | Dispute
@@ -26,6 +27,7 @@ type entity =
 let entityToKey = (entity: entity) =>
   switch entity {
   | Payment => "PaymentViews"
+  | PaymentAdvanced => "PaymentAdvancedViews"
   | Refund => "RefundViews"
   | Dispute => "DisputeViews"
   | Payout => "PayoutViews"
@@ -36,7 +38,8 @@ let entityToKey = (entity: entity) =>
 
 let entityToString = (entity: entity) =>
   switch entity {
-  | Payment => "payment_views"
+  | Payment
+  | PaymentAdvanced => "payment_views"
   | Refund => "refund_views"
   | Dispute => "dispute_views"
   | Payout => "payout_views"

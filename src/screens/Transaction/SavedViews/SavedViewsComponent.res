@@ -20,11 +20,7 @@ let make = (
   let (currentlyEditingIndex, setCurrentlyEditingIndex) = React.useState(_ => None)
   let (isInternalUpdate, setIsInternalUpdate) = React.useState(_ => false)
 
-  let fetchSavedViewsHook = SavedViewsHooks.useFetchSavedViews(
-    ~entity,
-    ~version,
-    ~savedViewDataVersion,
-  )
+  let fetchSavedViewsHook = SavedViewsHooks.useFetchSavedViews(~entity, ~version)
   let fetchSavedViews = async () => {
     await fetchSavedViewsHook(~setSavedViews)
   }
@@ -35,7 +31,7 @@ let make = (
     setSavedViews(_ => [])
     fetchSavedViews()->ignore
     None
-  }, (version, savedViewDataVersion))
+  }, (version, entity))
 
   React.useEffect(() => {
     if !isInternalUpdate && savedViews->Array.length > 0 {
@@ -59,7 +55,7 @@ let make = (
       setActiveViewName(_ => "")
     }
     None
-  }, (filterValue, savedViews, version, savedViewDataVersion, isInternalUpdate))
+  }, (filterValue, savedViews, version, entity, isInternalUpdate))
 
   let showPopUp = PopUpState.useShowPopUp()
 

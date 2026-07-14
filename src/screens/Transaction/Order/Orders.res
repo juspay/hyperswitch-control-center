@@ -6,7 +6,6 @@ let make = (~previewOnly=false) => {
 
   let ordersTableTitle = "Orders"
   let advancedOrdersTableTitle = "OrdersAdvanced"
-  let statusFilterKey = (#status: OrderTypes.filter)->getValueFromFilterType
 
   let fetchNormalOrdersHook = OrdersHook.useFetchOrdersHook()
   let fetchAnalyticsOrdersHook = AnalyticsOrdersHook.useFetchAnalyticsOrdersHook()
@@ -33,10 +32,10 @@ let make = (~previewOnly=false) => {
   )
   let isAdvancedSource = source === OrderTypes.Advanced && advancedPaymentListEnabled
   let tableTitle = isAdvancedSource ? advancedOrdersTableTitle : ordersTableTitle
-  let savedViewDataVersion = isAdvancedSource ? UserInfoTypes.V2 : UserInfoTypes.V1
+  let savedViewsEntity = isAdvancedSource ? SavedViewTypes.PaymentAdvanced : SavedViewTypes.Payment
   let ompViewPortalName = `${tableTitle}OMPView`
   let portalNodes = PortalState.portalNodes->Recoil.useRecoilValueFromAtom
-  let hasOmpViewPortal = portalNodes->Dict.get(ompViewPortalName)->Option.isSome
+  let hasOmpViewPortal = portalNodes->getOptionValFromDict(ompViewPortalName)->Option.isSome
 
   let fetchOrdersWithSource = (~payload, ~version, ~signal) => {
     isAdvancedSource
@@ -89,12 +88,7 @@ let make = (~previewOnly=false) => {
       let total = res.total_count
 
       if data->Array.length === 0 && filterValueJson->Dict.get("payment_id")->Option.isSome {
-        let paymentId =
-          filterValueJson
-          ->Dict.get("payment_id")
-          ->Option.getOr(""->JSON.Encode.string)
-          ->JSON.Decode.string
-          ->Option.getOr("")
+        let paymentId = filterValueJson->getString("payment_id", "")
 
         if RegExp.test(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), paymentId) {
           let newPaymentId = paymentId->String.replaceRegExp(%re("/_[0-9]$/g"), "")
@@ -295,7 +289,7 @@ let make = (~previewOnly=false) => {
       : searchBar
 
     let savedViewsAction = devSavedViews
-      ? <SavedViewsComponent version savedViewDataVersion entity=SavedViewTypes.Payment />
+      ? <SavedViewsComponent version entity=savedViewsEntity />
       : React.null
 
     <RemoteTableFilters
@@ -324,7 +318,7 @@ let make = (~previewOnly=false) => {
       }}
       version
     />
-  }, (searchText, version, tableTitle, isAdvancedSource, savedViewDataVersion, devSavedViews))
+  }, (searchText, version, tableTitle, isAdvancedSource, savedViewsEntity, devSavedViews))
 
   let downloadData = () => {
     DownloadUtils.downloadTableAsCsv(

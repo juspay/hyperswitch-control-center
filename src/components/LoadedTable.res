@@ -621,7 +621,7 @@ let make = (
         ->Array.unshift(
           CustomCell(
             <div
-              className="-mx-8 -my-3 flex cursor-pointer items-center px-8 py-3"
+              className="flex cursor-pointer items-center"
               onClick={ev => {
                 ev->ReactEvent.Mouse.stopPropagation
                 setIsSelected(selectedRowIndex === -1)

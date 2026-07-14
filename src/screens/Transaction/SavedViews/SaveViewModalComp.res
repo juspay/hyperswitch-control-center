@@ -211,11 +211,7 @@ let make = (
     }
   }, (mergedFilters, version))
 
-  let fetchSavedViewsHook = SavedViewsHooks.useFetchSavedViews(
-    ~entity,
-    ~version,
-    ~savedViewDataVersion,
-  )
+  let fetchSavedViewsHook = SavedViewsHooks.useFetchSavedViews(~entity, ~version)
   let fetchSavedViews = async () => {
     await fetchSavedViewsHook(~setSavedViews)
   }
@@ -228,7 +224,7 @@ let make = (
       fetchSavedViews()->ignore
     }
     None
-  }, (showModal, version, savedViewDataVersion))
+  }, (showModal, version, entity))
 
   let buildFilters = () => {
     let filtersDict = mergedFilters->Dict.copy

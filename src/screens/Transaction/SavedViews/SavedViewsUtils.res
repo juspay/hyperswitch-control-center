@@ -2,43 +2,30 @@ open LogicUtils
 
 let maxViews = 5
 
-let primitiveJsonValueToString = jsonValue =>
-  switch jsonValue->JSON.Classify.classify {
-  | String(s) => Some(s)
-  | Number(n) => Some(n->Float.toString)
-  | Bool(b) => Some(b ? "true" : "false")
-  | _ => None
+let primitiveJsonToString = jsonValue =>
+  switch jsonValue->getStringFromJson("")->getNonEmptyString {
+  | Some(str) => str
+  | None =>
+    switch jsonValue->getOptionFloatFromJson {
+    | Some(num) => num->Float.toString
+    | None => jsonValue->getBoolFromJson(false)->getStringFromBool
+    }
   }
 
-let jsonValueToString = jsonValue => {
-  switch jsonValue->JSON.Classify.classify {
-  | Array(arr) => {
-      let strArr = arr->Belt.Array.keepMap(primitiveJsonValueToString)
-      let sortedStrArr = strArr->Array.toSorted((a, b) => String.compare(a, b))
-      "[" ++ sortedStrArr->Array.joinWith(",") ++ "]"
-    }
-  | _ => jsonValue->primitiveJsonValueToString->Option.getOr("")
+let jsonValueToString = jsonValue =>
+  switch jsonValue->getOptionStrArrayFromJson {
+  | Some(_) =>
+    let sortedStrArr =
+      jsonValue->getArrayFromJson([])->Array.map(primitiveJsonToString)->Array.toSorted(String.compare)
+    "[" ++ sortedStrArr->Array.joinWith(",") ++ "]"
+  | None => jsonValue->primitiveJsonToString
   }
-}
-
-let stringFromFilterValue = (dict, key) => {
-  dict
-  ->Dict.get(key)
-  ->Option.mapOr("", json =>
-    switch json->JSON.Classify.classify {
-    | Array(arr) =>
-      let ele = arr->getValueFromArray(0, JSON.Encode.null)
-      ele->primitiveJsonValueToString->Option.getOr("")
-    | _ => json->primitiveJsonValueToString->Option.getOr("")
-    }
-  )
-}
 
 let foldAmountOption = filtersDict => {
-  let amountOption = filtersDict->stringFromFilterValue(SavedViewTypes.FilterKeys.amountOption)
+  let amountOption = filtersDict->getString(SavedViewTypes.FilterKeys.amountOption, "")
   if amountOption->isNonEmptyString {
-    let startAmountStr = filtersDict->stringFromFilterValue(SavedViewTypes.FilterKeys.startAmount)
-    let endAmountStr = filtersDict->stringFromFilterValue(SavedViewTypes.FilterKeys.endAmount)
+    let startAmountStr = filtersDict->getString(SavedViewTypes.FilterKeys.startAmount, "")
+    let endAmountStr = filtersDict->getString(SavedViewTypes.FilterKeys.endAmount, "")
     filtersDict->Dict.delete(SavedViewTypes.FilterKeys.startAmount)
     filtersDict->Dict.delete(SavedViewTypes.FilterKeys.endAmount)
 
@@ -331,18 +318,17 @@ let buildSavedViewDataDict = (
   ~savedViewDataVersion,
 ) => {
   let versionStr = savedViewDataVersion->savedViewDataVersionToString
-  let dataDict =
-    [
-      ("view_name", name->JSON.Encode.string),
-      ("filters", filters),
-      ("entity", entity->SavedViewTypes.entityToString->JSON.Encode.string),
-      ("version", versionStr->JSON.Encode.string),
-    ]->Dict.fromArray
-  switch viewId {
-  | Some(id) => dataDict->Dict.set("view_id", id->JSON.Encode.string)
-  | None => ()
-  }
-  dataDict
+  let baseEntries = [
+    ("view_name", name->JSON.Encode.string),
+    ("filters", filters),
+    ("entity", entity->SavedViewTypes.entityToString->JSON.Encode.string),
+    ("version", versionStr->JSON.Encode.string),
+  ]
+  viewId
+  ->mapOptionOrDefault(baseEntries, id =>
+    baseEntries->Array.concat([("view_id", id->JSON.Encode.string)])
+  )
+  ->Dict.fromArray
 }
 
 let buildRenamePayload = (
@@ -402,7 +388,10 @@ let filterNullValues = json => {
 
 let itemToSavedView = json => {
   let dict = json->getDictFromJsonObject
-  let dataDict = dict->getJsonObjectFromDict("data")->getDictFromJsonObject
+  let dataDict = switch dict->getOptionValFromDict("data") {
+  | Some(data) => data->getDictFromJsonObject
+  | None => dict
+  }
   let savedView: SavedViewTypes.savedView = {
     view_id: dict->getString("view_id", ""),
     view_name: dict->getString("view_name", ""),

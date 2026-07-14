@@ -2,7 +2,7 @@ open APIUtils
 open LogicUtils
 open SavedViewTypes
 
-let useFetchSavedViews = (~entity, ~version, ~savedViewDataVersion=version) => {
+let useFetchSavedViews = (~entity, ~version) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastAdapter.useShowToast()
@@ -17,9 +17,7 @@ let useFetchSavedViews = (~entity, ~version, ~savedViewDataVersion=version) => {
       )
       let response = await fetchDetails(url, ~version)
       let parsedResponse = response->SavedViewsUtils.savedViewsResponseMapper(entity)
-      let savedViews =
-        parsedResponse.views->Array.filter(view => view.version === savedViewDataVersion)
-      setSavedViews(_ => savedViews)
+      setSavedViews(_ => parsedResponse.views)
     } catch {
     | err =>
       Js.log2("FAILED TO LOAD SAVED VIEWS", err)

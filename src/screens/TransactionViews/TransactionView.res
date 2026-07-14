@@ -32,11 +32,6 @@ module TransactionViewCard = {
   }
 }
 
-let getTransactionViewGridClass = viewsCount =>
-  viewsCount >= 6
-    ? "grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6"
-    : "grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6"
-
 @react.component
 let make = (
   ~entity=TransactionViewTypes.Orders,
@@ -70,16 +65,16 @@ let make = (
 
   let updateViewsFilterValue = (view: TransactionViewTypes.viewTypes) => {
     let customFilter = `[${view->getViewFilterValue(aggregateResponse, entity)}]`
-    let filterKey = isAdvancedOrdersView
-      ? view->getAdvancedPaymentFilterKeyForView(~defaultFilterKey=customFilterKey)
-      : customFilterKey
-    let hiddenFilterEntry = isAdvancedOrdersView
-      ? view->getAdvancedPaymentHiddenFilterEntryForView
-      : None
-    let filterEntries = switch hiddenFilterEntry {
-    | Some(entry) => [(filterKey, customFilter), entry]
-    | None => [(filterKey, customFilter)]
-    }
+    let (filterKey, hiddenFilterEntry) = isAdvancedOrdersView
+      ? (
+        view->getAdvancedPaymentFilterKeyForView(~defaultFilterKey=customFilterKey),
+        view->getAdvancedPaymentHiddenFilterEntryForView,
+      )
+      : (customFilterKey, None)
+    let filterEntries = hiddenFilterEntry->mapOptionOrDefault(
+      [(filterKey, customFilter)],
+      entry => [(filterKey, customFilter), entry],
+    )
     let filterEntryKeys = filterEntries->Array.map(((key, _)) => key)
     let removedFilterKeys = isAdvancedOrdersView ? view->getAdvancedPaymentFilterKeysToRemove : []
 
@@ -155,37 +150,7 @@ let make = (
             )
           )
         | _ =>
-          let url = switch entity {
-          | Orders =>
-            getURL(
-              ~entityName={
-                switch version {
-                | V1 => V1(ORDERS_AGGREGATE)
-                | V2 => V2(V2_ORDERS_AGGREGATE)
-                }
-              },
-              ~methodType=Get,
-              ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
-            )
-          | Refunds =>
-            getURL(
-              ~entityName=V1(REFUNDS_AGGREGATE),
-              ~methodType=Get,
-              ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
-            )
-          | Disputes =>
-            getURL(
-              ~entityName=V1(DISPUTES_AGGREGATE),
-              ~methodType=Get,
-              ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
-            )
-          | Payouts =>
-            getURL(
-              ~entityName=V1(PAYOUTS_AGGREGATE),
-              ~methodType=Get,
-              ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
-            )
-          }
+          let url = getAggregateUrl(~getURL, ~entity, ~version, ~startTime, ~endTime)
           let response = await fetchDetails(url)
           setAggregateResponse(_ => response)
         }
@@ -215,21 +180,14 @@ let make = (
     } else if isAdvancedOrdersView && appliedDisputeFilter->isNonEmptyArray {
       setActiveView(_ => Disputed)
     } else if isAdvancedOrdersView && appliedFirstAttemptFilter->isNonEmptyArray {
-      let firstAttemptValue =
-        appliedFirstAttemptFilter->getStrArrayFromJsonArray->Array.get(0)->Option.getOr("")
-      if firstAttemptValue === "true" {
-        setActiveView(_ => FirstAttemptSuccess)
-      } else if firstAttemptValue === "false" {
-        setActiveView(_ => RetrySuccess)
-      } else {
-        setActiveView(_ => None)
-      }
+      let isFirstAttempt =
+        appliedFirstAttemptFilter
+        ->getStrArrayFromJsonArray
+        ->getValueFromArray(0, "")
+        ->getBoolFromString(false)
+      setActiveView(_ => isFirstAttempt ? FirstAttemptSuccess : RetrySuccess)
     } else if appliedStatusFilter->Array.length == 1 {
-      let status =
-        appliedStatusFilter
-        ->getValueFromArray(0, ""->JSON.Encode.string)
-        ->JSON.Decode.string
-        ->Option.getOr("")
+      let status = appliedStatusFilter->getStrArrayFromJsonArray->getValueFromArray(0, "")
 
       let viewType = status->getViewTypeFromString(entity)
       switch viewType {
@@ -273,7 +231,10 @@ let make = (
   | Payouts => payoutViewsArray
   }
 
-  <div className={`${viewsArray->Array.length->getTransactionViewGridClass} ${containerClassName}`}>
+  <div
+    className={`${viewsArray->Array.length >= 6
+        ? "grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6"
+        : "grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6"} ${containerClassName}`}>
     {viewsArray
     ->Array.mapWithIndex((item, i) =>
       <TransactionViewCard

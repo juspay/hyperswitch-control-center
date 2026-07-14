@@ -63,19 +63,9 @@ let getAdvancedPaymentFilterKeysToRemove = view =>
   | _ => [refundsStatusFilterKey, disputeStatusFilterKey, firstAttemptFilterKey]
   }
 
-let getTransactionViewEntityKey = (entity: operationsTypes) =>
-  switch entity {
-  | Orders => "Orders"
-  | Refunds => "Refunds"
-  | Disputes => "Disputes"
-  | Payouts => "Payouts"
-  }
+let getTransactionViewEntityKey = (entity: operationsTypes) => (entity :> string)
 
-let getTransactionViewVersionKey = (version: UserInfoTypes.version) =>
-  switch version {
-  | V1 => "V1"
-  | V2 => "V2"
-  }
+let getTransactionViewVersionKey = (version: UserInfoTypes.version) => (version :> string)
 
 let refundViewsArray: array<viewTypes> = [All, Succeeded, Failed, Pending]
 
@@ -124,6 +114,28 @@ let buildAggregateMetricsUrl = (~metricConfig, ~transactionEntity) => {
   `${Window.env.apiBaseUrl}/${metricConfig.urlPrefix}/${scope}/metrics/${metricConfig.domain}`
 }
 
+let getAggregateUrl = (
+  ~getURL: APIUtilsTypes.getUrlTypes,
+  ~entity: operationsTypes,
+  ~version: UserInfoTypes.version,
+  ~startTime,
+  ~endTime,
+) => {
+  open APIUtilsTypes
+  let queryParameters = Some(`start_time=${startTime}&end_time=${endTime}`)
+  let entityName = switch entity {
+  | Orders =>
+    switch version {
+    | V1 => V1(ORDERS_AGGREGATE)
+    | V2 => V2(V2_ORDERS_AGGREGATE)
+    }
+  | Refunds => V1(REFUNDS_AGGREGATE)
+  | Disputes => V1(DISPUTES_AGGREGATE)
+  | Payouts => V1(PAYOUTS_AGGREGATE)
+  }
+  getURL(~entityName, ~methodType=Fetch.Get, ~queryParameters)
+}
+
 let getViewsDisplayName = (view: viewTypes) => {
   switch view {
   | All => "All"
@@ -146,37 +158,39 @@ let getViewsDisplayName = (view: viewTypes) => {
 let getViewTypeFromString = (view, entity) => {
   switch entity {
   | Orders =>
-    switch view {
-    | "succeeded" => Succeeded
-    | "cancelled" => Cancelled
-    | "failed" => Failed
-    | "requires_payment_method" => Dropoffs
-    | "pending" => Pending
-    | "requires_capture" => RequiresCapture
-    | _ => All
+    switch view->HSwitchOrderUtils.statusVariantMapper {
+    | Succeeded => Succeeded
+    | Cancelled => Cancelled
+    | Failed => Failed
+    | RequiresPaymentMethod => Dropoffs
+    | RequiresCapture => RequiresCapture
+    | _ => view === "pending" ? Pending : All
     }
   | Refunds =>
-    switch view {
-    | "success" => Succeeded
-    | "failure" => Failed
-    | "pending" => Pending
+    switch view->HSwitchOrderUtils.refundStatusVariantMapper {
+    | Success => Succeeded
+    | Failure => Failed
+    | Pending => Pending
     | _ => All
     }
   | Disputes =>
-    switch view {
-    | "dispute_won" => Succeeded
-    | "dispute_lost" => Failed
-    | "dispute_opened" => Pending
+    switch view->DisputesUtils.disputeStatusVariantMapper {
+    | DisputeWon => Succeeded
+    | DisputeLost => Failed
+    | DisputeOpened => Pending
     | _ => All
     }
   | Payouts =>
-    switch view {
-    | "success" => Succeeded
-    | "failed" => Failed
-    | "cancelled" => Cancelled
-    | "expired" => Expired
-    | "reversed" => Reversed
-    | _ => All
+    switch view->PayoutsEntity.statusVariantMapper {
+    | Succeeded => Succeeded
+    | Failed => Failed
+    | _ =>
+      switch view {
+      | "cancelled" => Cancelled
+      | "expired" => Expired
+      | "reversed" => Reversed
+      | _ => All
+      }
     }
   }
 }
@@ -197,7 +211,7 @@ let buildAllowedStatusFilterStringWithFallback = (obj, key, allowedStatuses, fal
   let statusDict = obj->getDictFromJsonObject->getDictfromDict(key)
   let filterValue =
     allowedStatuses
-    ->Array.filter(status => statusDict->Dict.get(status)->Option.isSome)
+    ->Array.filter(status => statusDict->getOptionValFromDict(status)->Option.isSome)
     ->Array.joinWith(",")
   filterValue->isNonEmptyString ? filterValue : fallbackValue
 }
@@ -214,12 +228,8 @@ let getSankeyCountMetric = (dict, key) => dict->getFloat(key, 0.0)->Float.toInt
 let getSankeyRowCount = dict => dict->getFloat("count", dict->getFloat("payment_intent_count", 0.0))
 
 let getSankeyFirstAttempt = dict =>
-  switch dict->Dict.get(firstAttemptFilterKey) {
-  | Some(value) =>
-    switch value->JSON.Decode.bool {
-    | Some(isFirstAttempt) => isFirstAttempt
-    | None => value->getIntFromJson(0) == 1
-    }
+  switch dict->getOptionValFromDict(firstAttemptFilterKey) {
+  | Some(value) => value->getBoolFromJson(value->getIntFromJson(0) == 1)
   | None => false
   }
 
@@ -340,49 +350,68 @@ let metricsResponseToStatusWithCount = (~statusField, ~countField, response) => 
   [("status_with_count", statusWithCount->JSON.Encode.object)]->getJsonFromArrayOfJson
 }
 
+type sankeyAggregateData = {
+  statusWithCount: Dict.t<JSON.t>,
+  refundsStatusWithCount: Dict.t<JSON.t>,
+  disputeStatusWithCount: Dict.t<JSON.t>,
+  mutable firstAttemptSuccessCount: float,
+  mutable retrySuccessCount: float,
+}
+
 let sankeyResponseToStatusWithCount = response => {
-  let statusWithCount = Dict.make()
-  let refundsStatusWithCount = Dict.make()
-  let disputeStatusWithCount = Dict.make()
-  let firstAttemptSuccessCount = ref(0.0)
-  let retrySuccessCount = ref(0.0)
+  let result =
+    response
+    ->getArrayFromJson([])
+    ->Array.reduce(
+      {
+        statusWithCount: Dict.make(),
+        refundsStatusWithCount: Dict.make(),
+        disputeStatusWithCount: Dict.make(),
+        firstAttemptSuccessCount: 0.0,
+        retrySuccessCount: 0.0,
+      }: sankeyAggregateData,
+      (acc, row) => {
+        let dict = row->getDictFromJsonObject
+        let count = dict->getSankeyRowCount
+        let status = dict->getString("status", "")->String.toLowerCase
+        let refundsStatus = dict->getString("refunds_status", "")
+        let disputeStatus = dict->getString("dispute_status", "")
+        let isFirstAttempt = dict->getSankeyFirstAttempt
 
-  response
-  ->getArrayFromJson([])
-  ->Array.forEach(row => {
-    let dict = row->getDictFromJsonObject
-    let count = dict->getSankeyRowCount
-    let status = dict->getString("status", "")->String.toLowerCase
-    let refundsStatus = dict->getString("refunds_status", "")
-    let disputeStatus = dict->getString("dispute_status", "")
-    let isFirstAttempt = dict->getSankeyFirstAttempt
-
-    if status->isNonEmptyString {
-      let previous = statusWithCount->getFloat(status, 0.0)
-      statusWithCount->Dict.set(status, (previous +. count)->JSON.Encode.float)
-    }
-    if status === "succeeded" && isFirstAttempt {
-      firstAttemptSuccessCount := firstAttemptSuccessCount.contents +. count
-    }
-    if status === "succeeded" && !isFirstAttempt {
-      retrySuccessCount := retrySuccessCount.contents +. count
-    }
-    if refundsStatus->isNonEmptyString {
-      let previous = refundsStatusWithCount->getFloat(refundsStatus, 0.0)
-      refundsStatusWithCount->Dict.set(refundsStatus, (previous +. count)->JSON.Encode.float)
-    }
-    if disputeStatus->isNonEmptyString {
-      let previous = disputeStatusWithCount->getFloat(disputeStatus, 0.0)
-      disputeStatusWithCount->Dict.set(disputeStatus, (previous +. count)->JSON.Encode.float)
-    }
-  })
+        if status->isNonEmptyString {
+          let previous = acc.statusWithCount->getFloat(status, 0.0)
+          acc.statusWithCount->Dict.set(status, (previous +. count)->JSON.Encode.float)
+        }
+        if status === "succeeded" && isFirstAttempt {
+          acc.firstAttemptSuccessCount = acc.firstAttemptSuccessCount +. count
+        }
+        if status === "succeeded" && !isFirstAttempt {
+          acc.retrySuccessCount = acc.retrySuccessCount +. count
+        }
+        if refundsStatus->isNonEmptyString {
+          let previous = acc.refundsStatusWithCount->getFloat(refundsStatus, 0.0)
+          acc.refundsStatusWithCount->Dict.set(
+            refundsStatus,
+            (previous +. count)->JSON.Encode.float,
+          )
+        }
+        if disputeStatus->isNonEmptyString {
+          let previous = acc.disputeStatusWithCount->getFloat(disputeStatus, 0.0)
+          acc.disputeStatusWithCount->Dict.set(
+            disputeStatus,
+            (previous +. count)->JSON.Encode.float,
+          )
+        }
+        acc
+      },
+    )
 
   [
-    ("status_with_count", statusWithCount->JSON.Encode.object),
-    ("refunds_status_with_count", refundsStatusWithCount->JSON.Encode.object),
-    ("dispute_status_with_count", disputeStatusWithCount->JSON.Encode.object),
-    ("first_attempt_success_count", firstAttemptSuccessCount.contents->JSON.Encode.float),
-    ("retry_success_count", retrySuccessCount.contents->JSON.Encode.float),
+    ("status_with_count", result.statusWithCount->JSON.Encode.object),
+    ("refunds_status_with_count", result.refundsStatusWithCount->JSON.Encode.object),
+    ("dispute_status_with_count", result.disputeStatusWithCount->JSON.Encode.object),
+    ("first_attempt_success_count", result.firstAttemptSuccessCount->JSON.Encode.float),
+    ("retry_success_count", result.retrySuccessCount->JSON.Encode.float),
   ]->getJsonFromArrayOfJson
 }
 
@@ -397,3 +426,22 @@ let getStartAndEndTime = (filterValueJson, version) => {
         )
       }
 }
+
+let buildAggregateRequestKey = (
+  ~entity: operationsTypes,
+  ~version: UserInfoTypes.version,
+  ~transactionEntity: UserInfoTypes.entity,
+  ~isAdvancedView: bool,
+  ~devClickhouseAggregate: bool,
+  ~startTime: string,
+  ~endTime: string,
+) =>
+  [
+    entity->getTransactionViewEntityKey,
+    version->getTransactionViewVersionKey,
+    (transactionEntity :> string),
+    isAdvancedView->getStringFromBool,
+    devClickhouseAggregate->getStringFromBool,
+    startTime,
+    endTime,
+  ]->Array.joinWith(":")
