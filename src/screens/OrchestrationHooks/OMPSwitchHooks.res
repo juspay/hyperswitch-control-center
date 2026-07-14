@@ -15,7 +15,8 @@ let useUserInfo = () => {
   let {profileId, merchantId} = getCommonSessionDetails()
 
   let url = `${Window.env.apiBaseUrl}/user`
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let getUserInfo = async () => {
     try {
@@ -24,6 +25,7 @@ let useUserInfo = () => {
         ~method_=Get,
         ~xFeatureRoute,
         ~forceCookies,
+        ~sendV1DummyApiKeyHeader,
         ~merchantId={merchantId},
         ~profileId={profileId},
       )
