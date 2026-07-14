@@ -4,6 +4,113 @@ open ReconEngineTypes
 open ReconEngineUtils
 open ReconEngineTransactionsTypes
 
+let searchTypeFromString = str => {
+  switch str {
+  | "order_id" => SearchOrderId
+  | "transaction_id" => SearchTransactionId
+  | _ => UnknownTransactionSearchType
+  }
+}
+
+let searchTypeOptions: array<SearchInput.searchTypeOption> = [
+  SearchTransactionId,
+  SearchOrderId,
+]->Array.map((txnType): SearchInput.searchTypeOption => {
+  {
+    label: (txnType :> string)->snakeToTitle,
+    value: (txnType :> string),
+  }
+})
+
+let getSortOrder = (sortOb: LoadedTable.sortOb): transactionSortOrder => {
+  sortOb.sortKey === "date" && sortOb.sortType === LoadedTable.ASC ? Asc : Desc
+}
+
+let transactionCursorFromDict = dict => {
+  let cursorValueDict = dict->getDictfromDict("cursor_value")
+
+  {
+    sortField: dict->getString("sort_field", "effective_at"),
+    cursorValue: Some({
+      effectiveAt: cursorValueDict->getString("effective_at", ""),
+      cursorId: cursorValueDict->getString("id", ""),
+    }),
+  }
+}
+
+let defaultSortBy: transactionCursor = {sortField: "effective_at", cursorValue: None}
+
+let buildTransactionsV2Body = (
+  ~filterValueJson: Dict.t<JSON.t>,
+  ~searchType: transactionSearchType,
+  ~searchText: string,
+  ~ruleId: string,
+  ~sortBy: transactionCursor,
+  ~direction: cursorDirection,
+  ~order: transactionSortOrder=Desc,
+  ~limit=4,
+) => {
+  let statusFilter = filterValueJson->getArrayFromDict("status", [])
+  let finalStatusFilter = getMergedMatchedTransactionStatusFilter(statusFilter)
+  let statusValues =
+    finalStatusFilter->isEmptyArray
+      ? getTransactionStatusValueFromStatusList([
+          Expected,
+          Missing,
+          OverAmount(Mismatch),
+          UnderAmount(Mismatch),
+          OverAmount(Expected),
+          UnderAmount(Expected),
+          Posted(Manual),
+          Matched(Auto),
+          Matched(Manual),
+          Matched(WithTolerance),
+          Matched(Force),
+          Void,
+          PartiallyReconciled,
+          DataMismatch,
+          SplitMismatch,
+          CurrencyMismatch,
+        ])
+      : finalStatusFilter->Array.map(v => v->getStringFromJson(""))
+
+  let startTime = filterValueJson->getString("startTime", "")
+  let endTime = filterValueJson->getString("endTime", "")
+  let hasTimeRange = startTime->isNonEmptyString && endTime->isNonEmptyString
+
+  let filters =
+    [
+      ruleId->isNonEmptyString ? Some(("rule_id", ruleId->JSON.Encode.string)) : None,
+      Some(("status", statusValues->getJsonFromArrayOfString)),
+      hasTimeRange
+        ? Some((
+            "time_range",
+            [
+              ("start_time", startTime->JSON.Encode.string),
+              ("end_time", endTime->JSON.Encode.string),
+            ]->getJsonFromArrayOfJson,
+          ))
+        : None,
+      searchText->isNonEmptyString
+        ? Some(((searchType :> string), searchText->String.trim->JSON.Encode.string))
+        : None,
+    ]
+    ->Array.filterMap(entry => entry)
+    ->getJsonFromArrayOfJson
+
+  let cursorPayload: transactionsV2CursorPayload = {
+    limit,
+    direction,
+    order,
+    sortBy,
+  }
+
+  [
+    ("filters", filters),
+    ("cursor_payload", cursorPayload->Identity.genericTypeToJson),
+  ]->getJsonFromArrayOfJson
+}
+
 let constructTransactionBulkRequestBody = (
   ~bulkActionType: actionType,
   ~valuesDict,
@@ -114,16 +221,55 @@ let getAccounts = (entries: array<transactionEntryType>, entryType: entryDirecti
   uniqueAccounts->Array.joinWith(", ")
 }
 
-let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
+let getTransactionFlowType = (
+  ~transaction: transactionType,
+  ~reconRulesList: array<ReconEngineRulesTypes.rulePayload>,
+  ~accountData: array<accountType>,
+): transactionFlowType => {
+  switch reconRulesList->Array.find(rule => rule.rule_id === transaction.rule.rule_id) {
+  | None => UnknownTransactionFlowType
+  | Some(rule) =>
+    let (_, targetAccounts) = ReconEngineRulesUtils.getSourceAndTargetAccountDetails(rule.strategy)
+
+    let resolvedTargetAccounts =
+      targetAccounts->Array.filterMap(targetAccount =>
+        accountData->Array.find(account => account.account_id === targetAccount.account_id)
+      )
+
+    let netInflowAmount = resolvedTargetAccounts->Array.reduce(0.0, (netAcc, account) => {
+      let (creditSum, debitSum) =
+        transaction.entries
+        ->Array.filter(entry => entry.account.account_id === account.account_id)
+        ->Array.reduce((0.0, 0.0), ((creditSum, debitSum), entry) => {
+          switch entry.entry_type {
+          | Credit => (creditSum +. entry.amount.value, debitSum)
+          | Debit => (creditSum, debitSum +. entry.amount.value)
+          | UnknownEntryDirectionType => (creditSum, debitSum)
+          }
+        })
+      switch account.account_type {
+      | Debit => netAcc +. (debitSum -. creditSum)
+      | Credit => netAcc +. (creditSum -. debitSum)
+      | UnknownAccountTypeVariant => netAcc
+      }
+    })
+    netInflowAmount > 0.0 ? InFlow : OutFlow
+  }
+}
+
+let statusDisplayFilters = (): array<EntityType.initialFilters<'t>> => {
   let statusOptions = getGroupedTransactionStatusOptions([
     Posted(Manual),
     Matched(Auto),
     Matched(Manual),
+    Matched(WithTolerance),
     OverAmount(Mismatch),
     OverAmount(Expected),
     UnderAmount(Mismatch),
     UnderAmount(Expected),
     DataMismatch,
+    CurrencyMismatch,
+    SplitMismatch,
     PartiallyReconciled,
     Expected,
     Missing,
@@ -131,63 +277,23 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
   ])
 
   [
-    (
-      {
-        field: FormRenderer.makeFieldInfo(
-          ~label="transaction_status",
-          ~name="status",
-          ~customInput=InputFields.filterMultiSelectInput(
-            ~options=statusOptions,
-            ~buttonText="Select Transaction Status",
-            ~showSelectionAsChips=false,
-            ~searchable=true,
-            ~showToolTip=true,
-            ~showNameAsToolTip=true,
-            ~customButtonStyle="bg-none",
-            (),
-          ),
+    {
+      field: FormRenderer.makeFieldInfo(
+        ~label="transaction_status",
+        ~name="status",
+        ~customInput=InputFields.filterMultiSelectInput(
+          ~options=statusOptions,
+          ~buttonText="Select Transaction Status",
+          ~showSelectionAsChips=false,
+          ~searchable=true,
+          ~showToolTip=true,
+          ~showNameAsToolTip=true,
+          ~customButtonStyle="bg-none",
+          (),
         ),
-        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
-      }: EntityType.initialFilters<'t>
-    ),
-    (
-      {
-        field: FormRenderer.makeFieldInfo(
-          ~label="source_account",
-          ~name="source_account",
-          ~customInput=InputFields.filterMultiSelectInput(
-            ~options=creditAccountOptions,
-            ~buttonText="Select Source Account",
-            ~showSelectionAsChips=false,
-            ~searchable=true,
-            ~showToolTip=true,
-            ~showNameAsToolTip=true,
-            ~customButtonStyle="bg-none",
-            (),
-          ),
-        ),
-        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
-      }: EntityType.initialFilters<'t>
-    ),
-    (
-      {
-        field: FormRenderer.makeFieldInfo(
-          ~label="target_account",
-          ~name="target_account",
-          ~customInput=InputFields.filterMultiSelectInput(
-            ~options=debitAccountOptions,
-            ~buttonText="Select Target Account",
-            ~showSelectionAsChips=false,
-            ~searchable=true,
-            ~showToolTip=true,
-            ~showNameAsToolTip=true,
-            ~customButtonStyle="bg-none",
-            (),
-          ),
-        ),
-        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
-      }: EntityType.initialFilters<'t>
-    ),
+      ),
+      localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+    },
   ]
 }
 
@@ -196,11 +302,14 @@ let getTransactionStatusLabelColor = (status: domainTransactionStatus): TableUti
   | Posted(Manual)
   | Matched(Force)
   | Matched(Manual)
-  | Matched(Auto) =>
+  | Matched(Auto)
+  | Matched(WithTolerance) =>
     LabelGreen
   | OverAmount(Mismatch)
   | UnderAmount(Mismatch)
-  | DataMismatch =>
+  | DataMismatch
+  | CurrencyMismatch
+  | SplitMismatch =>
     LabelRed
   | Expected | UnderAmount(Expected) | OverAmount(Expected) => LabelBlue
   | Archived => LabelGray

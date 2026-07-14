@@ -3,8 +3,7 @@ open LogicUtils
 
 let useFetchMerchantListV2 = () => {
   let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
-  let showToast = ToastState.useShowToast()
+  let fetchDetails = useGetMethod(~showErrorToast=false)
 
   async () => {
     try {
@@ -16,8 +15,8 @@ let useFetchMerchantListV2 = () => {
       let v2MerchantListResponse = await fetchDetails(v2MerchantListUrl, ~version=V2)
       v2MerchantListResponse->getArrayFromJson([])
     } catch {
-    | _ =>
-      showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
+    | err =>
+      Js.log2("FAILED TO FETCH V2 MERCHANT LIST", err)
       []
     }
   }
@@ -28,7 +27,7 @@ let useFetchMerchantList = () => {
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let setMerchantList = Recoil.useSetRecoilState(HyperswitchAtom.merchantListAtom)
   let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()

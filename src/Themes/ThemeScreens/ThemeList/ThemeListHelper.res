@@ -9,7 +9,7 @@ module NoThemesFound = {
         <div className="flex flex-col items-center gap-2">
           <p className={`${heading.sm.semibold}`}> {"No Themes Available"->React.string} </p>
           <p className={`${body.md.regular} text-nd_gray-500 mb-6`}>
-            {"Create your first theme, Make your dashboard for your personalized look."->React.string}
+            {"Create your first theme to give your dashboard a personalized look."->React.string}
           </p>
         </div>
         <ACLButton
@@ -42,7 +42,7 @@ module RenderEntityRow = {
 
 module CurrentThemeCard = {
   @react.component
-  let make = (~currentTheme, ~getNameForId) => {
+  let make = (~currentTheme, ~getNameForId, ~themeId, ~orgId) => {
     open Typography
 
     {
@@ -53,7 +53,7 @@ module CurrentThemeCard = {
             {"Current Theme"->React.string}
           </span>
           <div className={`text-nd_gray-500 ${body.lg.regular}`}>
-            {"No active theme exists for this lineage. Please create a new theme to proceed."->React.string}
+            {"No active theme exists for this hierarchy. Please create a new theme to proceed."->React.string}
           </div>
         </div>
       | Some(themeObj) =>
@@ -62,11 +62,22 @@ module CurrentThemeCard = {
         let entityLevelLabelEntity: UserInfoTypes.entity =
           themeData.entityType->UserInfoUtils.entityMapper
 
+        let redirectToTheme = () => {
+          open LogicUtils
+          let profileId = themeData.profileId->isEmptyString ? "all_profiles" : themeData.profileId
+          let merchantId =
+            themeData.merchantId->isEmptyString ? "all_merchants" : themeData.merchantId
+          let url = `/theme/${themeId}/${profileId}/${merchantId}/${orgId}`
+          RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url))
+        }
+
         <div className="flex flex-col gap-4 mt-4 w-fit max-w-lg">
           <span className={`${body.lg.semibold} text-nd_gray-800`}>
             {"Current Theme"->React.string}
           </span>
-          <div className="rounded-xl border border-nd_gray-200 p-4 mb-8 flex flex-col gap-6">
+          <div
+            className="rounded-xl border border-nd_gray-200 p-4 mb-8 flex flex-col gap-6 cursor-pointer hover:border-nd_gray-300 transition"
+            onClick={_ => redirectToTheme()}>
             <div className="flex items-center gap-4">
               <span className={`${body.md.semibold}`}> {themeData.themeName->React.string} </span>
               <span

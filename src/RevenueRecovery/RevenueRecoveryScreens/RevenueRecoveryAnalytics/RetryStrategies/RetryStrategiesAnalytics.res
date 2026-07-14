@@ -29,7 +29,7 @@ module RetryUpliftCard = {
       }
 
       <div className={`flex gap-2 ${bgColor} rounded-lg py-1 px-2`}>
-        <Icon name={icon} size=12 />
+        <Icon name={icon} size=12 className={textColor} />
         <p className={`${textColor} font-medium`}>
           {changeValue->valueFormatter(Rate)->React.string}
         </p>

@@ -1,3 +1,46 @@
+type transactionFlowType =
+  | InFlow
+  | OutFlow
+  | UnknownTransactionFlowType
+
+type cursorDirection = [#next | #previous]
+
+type transactionSearchType =
+  | @as("transaction_id") SearchTransactionId
+  | @as("order_id") SearchOrderId
+  | @as("unknown") UnknownTransactionSearchType
+
+type transactionSortOrder =
+  | @as("asc") Asc
+  | @as("desc") Desc
+
+type transactionCursorValue = {
+  @as("effective_at") effectiveAt: string,
+  @as("id") cursorId: string,
+}
+
+type transactionCursor = {
+  @as("sort_field") sortField: string,
+  @as("cursor_value") cursorValue: option<transactionCursorValue>,
+}
+
+type transactionCursors = {
+  next: option<transactionCursor>,
+  prev: option<transactionCursor>,
+}
+
+type transactionsV2Page = {
+  transactions: array<ReconEngineTypes.transactionType>,
+  cursors: transactionCursors,
+}
+
+type transactionsV2CursorPayload = {
+  limit: int,
+  direction: cursorDirection,
+  order: transactionSortOrder,
+  @as("sort_by") sortBy: transactionCursor,
+}
+
 type entriesMetadataKeysToExclude = Amount | Currency
 
 type accountGroup = {

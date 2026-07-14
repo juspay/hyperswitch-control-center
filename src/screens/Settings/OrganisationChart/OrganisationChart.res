@@ -2,85 +2,7 @@ type switchingEntity =
   | Switching(string)
   | None
 
-module OrgChartTree = {
-  @react.component
-  let make = (
-    ~selectedOrg,
-    ~selectedMerchant,
-    ~selectedProfile,
-    ~onOrgSelect,
-    ~onMerchantSelect,
-    ~onProfileSelect,
-  ) => {
-    open Typography
-    let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
-    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
-    let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
-    let getButtonStyles = isSelected => {
-      isSelected
-        ? "border-blue-600 bg-blue-50 text-blue-600"
-        : "border-gray-200 hover:bg-gray-50 text-gray-600"
-    }
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-16 w-full py-8">
-      <div className="flex flex-col gap-4">
-        <div className={`${body.lg.semibold} mb-2`}> {React.string("Organization")} </div>
-        {orgList
-        ->Array.map(org => {
-          <button
-            key=org.id
-            className={`rounded-lg border cursor-pointer h-10 px-4 py-2 bg-white text-left transition-colors duration-200 ${body.md.medium} ${getButtonStyles(
-                selectedOrg == org.id,
-              )}`}
-            onClick={_ => onOrgSelect(org)->ignore}
-            id={`${org.id}`}>
-            {org.name->React.string}
-          </button>
-        })
-        ->React.array}
-      </div>
-      <div className="flex flex-col gap-4">
-        <div className={`${body.lg.semibold} mb-2`}> {React.string("Merchant")} </div>
-        {merchantList
-        ->Array.map(merchant =>
-          <button
-            key={merchant.id}
-            className={`flex justify-between cursor-pointer  h-10 items-center bg-white rounded-lg border px-4 py-2 text-left transition-colors duration-200 ${body.md.medium} ${getButtonStyles(
-                selectedMerchant == merchant.id,
-              )}`}
-            onClick={_ => onMerchantSelect(merchant)->ignore}
-            id={`${merchant.id}`}>
-            <span className="truncate whitespace-wrap "> {merchant.name->React.string} </span>
-            {switch merchant.productType {
-            | Some(product) =>
-              <span
-                className={`${body.sm.medium} ml-4 rounded-full bg-gray-100 px-3 py-1 text-gray-500 whitespace-nowrap`}>
-                {product->ProductUtils.getProductDisplayName->React.string}
-              </span>
-            | None => React.null
-            }}
-          </button>
-        )
-        ->React.array}
-      </div>
-      <div className="flex flex-col gap-4">
-        <div className={`${body.lg.semibold} mb-2`}> {React.string("Profile")} </div>
-        {profileList
-        ->Array.map(profile =>
-          <button
-            key={profile.id}
-            className={`rounded-lg h-10 cursor-pointer truncate whitespace-wrap border px-4 py-2 bg-white text-left transition-colors duration-200 ${body.md.medium} ${getButtonStyles(
-                selectedProfile == profile.id,
-              )}`}
-            onClick={_ => onProfileSelect(profile)->ignore}
-            id={`${profile.id}`}>
-            {profile.name->React.string}
-          </button>
-        )
-        ->React.array}
-      </div>
-    </div>
-  }
-}
+open OrganisationChartHelper
 
 @react.component
 let make = () => {
@@ -94,7 +16,8 @@ let make = () => {
   let (selectedMerchant, setSelectedMerchant) = React.useState(() => merchantId)
   let (selectedProfile, setSelectedProfile) = React.useState(() => profileId)
   let (switching, setSwitching) = React.useState(() => None)
-  let showToast = ToastState.useShowToast()
+  let (showInfoModal, setShowInfoModal) = React.useState(() => false)
+  let showToast = ToastAdapter.useShowToast()
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let onOrgSelect = async (org: OMPSwitchTypes.ompListTypes) => {
     try {
@@ -143,11 +66,21 @@ let make = () => {
     }
   <div className="flex flex-col px-4 lg:px-10 gap-8">
     <div className="flex flex-col">
-      <PageUtils.PageHeading
-        title="Organization Chart"
-        subTitle="An entity-level overview enabling navigation and transitions across your organization based on access permissions."
-        customSubTitleStyle={`${body.lg.medium} text-gray-500`}
-      />
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <PageUtils.PageHeading
+          title="Organization Chart"
+          subTitle="An entity-level overview enabling navigation and transitions across your organization based on access permissions."
+          customSubTitleStyle={`${body.lg.medium} text-nd_gray-500`}
+        />
+        <Button
+          text="Learn More"
+          buttonType=Secondary
+          buttonSize=Small
+          leftIcon={CustomIcon(<Icon name="nd-info-circle" size=16 className="text-nd_gray-600" />)}
+          customButtonStyle="shrink-0"
+          onClick={_ => setShowInfoModal(_ => true)}
+        />
+      </div>
       <div className="relative w-full">
         <OrgChartTree
           selectedOrg selectedMerchant selectedProfile onOrgSelect onMerchantSelect onProfileSelect
@@ -167,5 +100,6 @@ let make = () => {
       | None => ""
       }}
     />
+    <OrgChartInfoModal showModal=showInfoModal setShowModal=setShowInfoModal />
   </div>
 }

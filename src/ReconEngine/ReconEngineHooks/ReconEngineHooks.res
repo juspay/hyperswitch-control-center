@@ -1,9 +1,8 @@
 open ReconEngineUtils
+open APIUtils
+open LogicUtils
 
 let useGetIngestionHistory = () => {
-  open APIUtils
-  open LogicUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -26,9 +25,6 @@ let useGetIngestionHistory = () => {
 }
 
 let useGetTransactions = () => {
-  open APIUtils
-  open LogicUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -50,10 +46,42 @@ let useGetTransactions = () => {
   }
 }
 
-let useGetAccounts = () => {
-  open APIUtils
-  open LogicUtils
+let useGetTransactionsV2 = () => {
+  let getURL = useGetURL()
+  let updateDetails = useUpdateMethod()
 
+  async (~body: JSON.t) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Post,
+        ~hyperswitchReconType=#TRANSACTIONS_LIST_V2,
+      )
+      let res = await updateDetails(url, body, Post)
+      let dict = res->getDictFromJsonObject
+      let transactions =
+        dict
+        ->getArrayFromDict("items", [])
+        ->getMappedValueFromArrayOfJson(transactionItemToObjMapper)
+      let getCursor = key =>
+        dict
+        ->getOptionValFromDict(key)
+        ->Option.filter(json => json->JSON.Classify.classify != Null)
+        ->Option.map(json =>
+          json->getDictFromJsonObject->ReconEngineTransactionsUtils.transactionCursorFromDict
+        )
+      let page: ReconEngineTransactionsTypes.transactionsV2Page = {
+        transactions,
+        cursors: {next: getCursor("next_cursor"), prev: getCursor("prev_cursor")},
+      }
+      page
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetAccounts = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -75,10 +103,67 @@ let useGetAccounts = () => {
   }
 }
 
-let useGetProcessingEntries = () => {
-  open APIUtils
-  open LogicUtils
+let useGetReconRuleList = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
 
+  async (~queryParameters=None) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#RECON_RULES,
+        ~queryParameters,
+      )
+      let res = await fetchDetails(url)
+      res->getArrayDataFromJson(ReconEngineRulesUtils.ruleItemToObjMapper)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetOverviewRules = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~queryParameters=None) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#OVERVIEW_RULES,
+        ~queryParameters,
+      )
+      let res = await fetchDetails(url)
+      res->getArrayDataFromJson(overviewRulesResponseMapper)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetOverviewRulesTimeSeries = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~queryParameters=None) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#OVERVIEW_RULES_TIME_SERIES,
+        ~queryParameters,
+      )
+      let res = await fetchDetails(url)
+      res->getArrayDataFromJson(overviewRulesTimeSeriesResponseMapper)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetProcessingEntries = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -100,10 +185,44 @@ let useGetProcessingEntries = () => {
   }
 }
 
-let useGetTransformationHistory = () => {
-  open APIUtils
-  open LogicUtils
+let useGetProcessingEntriesV2 = () => {
+  let getURL = useGetURL()
+  let updateDetails = useUpdateMethod()
 
+  async (~body: JSON.t) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Post,
+        ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST_V2,
+      )
+      let res = await updateDetails(url, body, Post)
+      let dict = res->getDictFromJsonObject
+      let processingEntries =
+        dict
+        ->getArrayFromDict("items", [])
+        ->getMappedValueFromArrayOfJson(processingItemToObjMapper)
+      let getCursor = key =>
+        dict
+        ->getOptionValFromDict(key)
+        ->Option.filter(json => json->JSON.Classify.classify != Null)
+        ->Option.map(json =>
+          json
+          ->getDictFromJsonObject
+          ->ReconEngineDataTransformedEntriesUtils.processingEntryCursorFromDict
+        )
+      let page: ReconEngineDataTransformedEntriesTypes.processingEntriesV2Page = {
+        processingEntries,
+        cursors: {next: getCursor("next_cursor"), prev: getCursor("prev_cursor")},
+      }
+      page
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetTransformationHistory = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -126,8 +245,6 @@ let useGetTransformationHistory = () => {
 }
 
 let useFetchMetadataSchema = () => {
-  open APIUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 

@@ -77,7 +77,8 @@ test.describe.serial("Sign up", () => {
     await signupPage.signUpButton.click();
 
     await expect(signupPage.headerText).toContainText(
-      "Please check your inbox", { timeout: 10000 }
+      "Please check your inbox",
+      { timeout: 10000 },
     );
     await expect(signupPage.headerText.locator("+ div")).toContainText(
       "A magic link has been sent to",
@@ -87,61 +88,63 @@ test.describe.serial("Sign up", () => {
     await expect(signupPage.footerText).toContainText("Cancel");
   });
 
-  test("should be able to sign up using magic link and verify password masking while signup", async ({
-    page,
-  }) => {
-    const email = generateUniqueEmail();
-    const password = PLAYWRIGHT_PASSWORD;
+  test(
+    "should be able to sign up using magic link and verify password masking while signup",
+    { tag: "@mail" },
+    async ({ page }) => {
+      const email = generateUniqueEmail();
+      const password = PLAYWRIGHT_PASSWORD;
 
-    const signinPage = new SignInPage(page);
-    const signupPage = new SignUpPage(page);
-    const resetPasswordPage = new ResetPasswordPage(page);
+      const signinPage = new SignInPage(page);
+      const signupPage = new SignUpPage(page);
+      const resetPasswordPage = new ResetPasswordPage(page);
 
-    await visitSignupPage(page);
-    await signupPage.emailInput.fill(email);
-    await signupPage.signUpButton.click();
-    await page.waitForLoadState("networkidle");
+      await visitSignupPage(page);
+      await signupPage.emailInput.fill(email);
+      await signupPage.signUpButton.click();
+      await page.waitForLoadState("networkidle");
 
-    await redirectFromMailInbox(page, email);
-    await signinPage.skip2FAButton.click();
+      await redirectFromMailInbox(page, email);
+      await signinPage.skip2FAButton.click();
 
-    await expect(resetPasswordPage.createPassword).toHaveAttribute(
-      "type",
-      "password",
-    );
-    await resetPasswordPage.createPassword.fill(password);
-    await expect(resetPasswordPage.confirmPassword).toHaveAttribute(
-      "type",
-      "password",
-    );
-    await resetPasswordPage.confirmPassword.fill(password);
+      await expect(resetPasswordPage.createPassword).toHaveAttribute(
+        "type",
+        "password",
+      );
+      await resetPasswordPage.createPassword.fill(password);
+      await expect(resetPasswordPage.confirmPassword).toHaveAttribute(
+        "type",
+        "password",
+      );
+      await resetPasswordPage.confirmPassword.fill(password);
 
-    await resetPasswordPage.eyeIcon.nth(0).click();
-    await expect(resetPasswordPage.createPassword).toHaveAttribute(
-      "type",
-      "text",
-    );
-    await expect(resetPasswordPage.createPassword).toHaveValue(password);
+      await resetPasswordPage.eyeIcon.nth(0).click();
+      await expect(resetPasswordPage.createPassword).toHaveAttribute(
+        "type",
+        "text",
+      );
+      await expect(resetPasswordPage.createPassword).toHaveValue(password);
 
-    await resetPasswordPage.eyeIcon.click();
-    await expect(resetPasswordPage.confirmPassword).toHaveAttribute(
-      "type",
-      "text",
-    );
-    await expect(resetPasswordPage.confirmPassword).toHaveValue(password);
+      await resetPasswordPage.eyeIcon.click();
+      await expect(resetPasswordPage.confirmPassword).toHaveAttribute(
+        "type",
+        "text",
+      );
+      await expect(resetPasswordPage.confirmPassword).toHaveValue(password);
 
-    await resetPasswordPage.confirmButton.click();
+      await resetPasswordPage.confirmButton.click();
 
-    await signinPage.emailInput.fill(email);
-    await signinPage.passwordInput.fill(password);
-    await signinPage.signinButton.click();
-    await expect(signinPage.headerText2FA).toContainText(
-      "Enable Two Factor Authentication",
-    );
-    await signinPage.skip2FAButton.click();
+      await signinPage.emailInput.fill(email);
+      await signinPage.passwordInput.fill(password);
+      await signinPage.signinButton.click();
+      await expect(signinPage.headerText2FA).toContainText(
+        "Enable Two Factor Authentication",
+      );
+      await signinPage.skip2FAButton.click();
 
-    await expect(page).toHaveURL(/.*dashboard\/home/);
-  });
+      await expect(page).toHaveURL(/.*dashboard\/home/);
+    },
+  );
 
   test("should navigate back to the login page when the `cancel` button in signup page is clicked", async ({
     page,
@@ -236,7 +239,7 @@ test.describe.serial("Sign in", () => {
 
     await page.reload();
     await expect(page).toHaveURL(/.*dashboard\/home/);
-    await expect(page.getByRole('button', { name: email })).toBeVisible();
+    await expect(page.getByRole("button", { name: email })).toBeVisible();
   });
 
   test("should redirect to login when session is expired or cleared", async ({
@@ -271,43 +274,44 @@ test.describe.serial("Sign in", () => {
     await expect(signinPage.invalidCredsToast).toBeVisible();
   });
 
-  test("should successfully login using magic link for registered user", async ({
-    page,
-    context,
-  }) => {
-    // Magic-link flow chains signup, mail inbox redirect, password reset, then
-    // a second mail inbox round-trip. Each hop is independently slow on CI.
-    test.setTimeout(90000);
-    const email = generateUniqueEmail();
-    const password = PLAYWRIGHT_PASSWORD;
+  test(
+    "should successfully login using magic link for registered user",
+    { tag: "@mail" },
+    async ({ page, context }) => {
+      // Magic-link flow chains signup, mail inbox redirect, password reset, then
+      // a second mail inbox round-trip. Each hop is independently slow on CI.
+      test.setTimeout(90000);
+      const email = generateUniqueEmail();
+      const password = PLAYWRIGHT_PASSWORD;
 
-    const signinPage = new SignInPage(page);
-    const signupPage = new SignUpPage(page);
-    const resetPasswordPage = new ResetPasswordPage(page);
+      const signinPage = new SignInPage(page);
+      const signupPage = new SignUpPage(page);
+      const resetPasswordPage = new ResetPasswordPage(page);
 
-    await visitSignupPage(page);
-    await signupPage.emailInput.fill(email);
-    await signupPage.signUpButton.click();
-    await expect(signupPage.headerText).toContainText(
-      "Please check your inbox",
-    );
+      await visitSignupPage(page);
+      await signupPage.emailInput.fill(email);
+      await signupPage.signUpButton.click();
+      await expect(signupPage.headerText).toContainText(
+        "Please check your inbox",
+      );
 
-    await redirectFromMailInbox(page, email);
-    await signinPage.skip2FAButton.click();
+      await redirectFromMailInbox(page, email);
+      await signinPage.skip2FAButton.click();
 
-    await resetPasswordPage.createPassword.fill(password);
-    await resetPasswordPage.confirmPassword.fill(password);
-    await resetPasswordPage.confirmButton.click();
+      await resetPasswordPage.createPassword.fill(password);
+      await resetPasswordPage.confirmPassword.fill(password);
+      await resetPasswordPage.confirmButton.click();
 
-    await signinPage.emailSigninLink.click();
-    await signinPage.emailInput.fill(email);
-    await signinPage.signinButton.click();
+      await signinPage.emailSigninLink.click();
+      await signinPage.emailInput.fill(email);
+      await signinPage.signinButton.click();
 
-    await signinFromMailInbox(page);
-    await signinPage.skip2FAButton.click();
+      await signinFromMailInbox(page);
+      await signinPage.skip2FAButton.click();
 
-    await expect(page).toHaveURL(/.*dashboard\/home/, { timeout: 30000 });
-  });
+      await expect(page).toHaveURL(/.*dashboard\/home/, { timeout: 30000 });
+    },
+  );
 
   test("should display only email field when 'sign in with an email' is clicked", async ({
     page,
@@ -515,82 +519,89 @@ test.describe("Forgot password", () => {
     );
   });
 
-  test("should reset password through mail and login successfully", async ({
-    page,
-    context,
-  }) => {
-    const email = generateUniqueEmail();
-    const newPassword = "Test@123";
+  test(
+    "should reset password through mail and login successfully",
+    { tag: "@mail" },
+    async ({ page, context }) => {
+      const email = generateUniqueEmail();
+      const newPassword = "Test@123";
 
-    const signinPage = new SignInPage(page);
-    const resetPasswordPage = new ResetPasswordPage(page);
+      const signinPage = new SignInPage(page);
+      const resetPasswordPage = new ResetPasswordPage(page);
 
-    await signupUser(email, PLAYWRIGHT_PASSWORD);
+      await signupUser(email, PLAYWRIGHT_PASSWORD);
 
-    await page.goto("/");
-    await signinPage.forgetPasswordLink.click();
-    await signinPage.emailInput.fill(email);
-    await signinPage.resetPasswordButton.click();
-    await redirectFromMailInbox(
-      page,
-      email,
-      "Get back to Hyperswitch - Reset Your Password Now!",
-    );
+      await page.goto("/");
+      await signinPage.forgetPasswordLink.click();
+      await signinPage.emailInput.fill(email);
+      await signinPage.resetPasswordButton.click();
+      await redirectFromMailInbox(
+        page,
+        email,
+        "Get back to Hyperswitch - Reset Your Password Now!",
+      );
 
-    await signinPage.skip2FAButton.click();
-    await resetPasswordPage.newPasswordField.fill(newPassword);
-    await resetPasswordPage.confirmPasswordField.fill(newPassword);
-    await resetPasswordPage.confirmButton.click();
-    await expect(page).toHaveURL(/.*login/);
-    await expect(signinPage.passwordChangedToast).toContainText(
-      "Password Changed Successfully",
-    );
+      await signinPage.skip2FAButton.click();
+      await resetPasswordPage.newPasswordField.fill(newPassword);
+      await resetPasswordPage.confirmPasswordField.fill(newPassword);
+      await resetPasswordPage.confirmButton.click();
+      await expect(page).toHaveURL(/.*login/);
+      await expect(signinPage.passwordChangedToast).toContainText(
+        "Password Changed Successfully",
+      );
 
-    await signinPage.emailInput.fill(email);
-    await signinPage.passwordInput.fill(newPassword);
-    await signinPage.signinButton.click();
-    await signinPage.skip2FAButton.click();
-    await expect(page).toHaveURL(/.*dashboard\/home/);
-  });
+      await signinPage.emailInput.fill(email);
+      await signinPage.passwordInput.fill(newPassword);
+      await signinPage.signinButton.click();
+      await signinPage.skip2FAButton.click();
+      await expect(page).toHaveURL(/.*dashboard\/home/);
+    },
+  );
 
-  test("should display validation error for weak password or mismatched confirmation on reset", async ({
-    page,
-    context,
-  }) => {
-    const email = generateUniqueEmail();
-    const signinPage = new SignInPage(page);
-    const resetPasswordPage = new ResetPasswordPage(page);
+  test(
+    "should display validation error for weak password or mismatched confirmation on reset",
+    { tag: "@mail" },
+    async ({ page, context }) => {
+      const email = generateUniqueEmail();
+      const signinPage = new SignInPage(page);
+      const resetPasswordPage = new ResetPasswordPage(page);
 
-    const weakPasswords = [
-      { password: "Weak1!", expectedError: "Password must be at least 8 characters long." },
-      { password: "password123!", expectedError: /uppercase/ },
-      { password: "PASSWORD123!", expectedError: /lowercase/ },
-      { password: "Password!@#", expectedError: /numeric/ },
-      { password: "Password123", expectedError: /special/ },
-    ];
+      const weakPasswords = [
+        {
+          password: "Weak1!",
+          expectedError: "Password must be at least 8 characters long.",
+        },
+        { password: "password123!", expectedError: /uppercase/ },
+        { password: "PASSWORD123!", expectedError: /lowercase/ },
+        { password: "Password!@#", expectedError: /numeric/ },
+        { password: "Password123", expectedError: /special/ },
+      ];
 
-    await signupUser(email, PLAYWRIGHT_PASSWORD);
+      await signupUser(email, PLAYWRIGHT_PASSWORD);
 
-    await page.goto("/");
-    await signinPage.forgetPasswordLink.click();
-    await signinPage.emailInput.fill(email);
-    await signinPage.resetPasswordButton.click();
-    await redirectFromMailInbox(
-      page,
-      email,
-      "Get back to Hyperswitch - Reset Your Password Now!",
-    );
+      await page.goto("/");
+      await signinPage.forgetPasswordLink.click();
+      await signinPage.emailInput.fill(email);
+      await signinPage.resetPasswordButton.click();
+      await redirectFromMailInbox(
+        page,
+        email,
+        "Get back to Hyperswitch - Reset Your Password Now!",
+      );
 
-    await signinPage.skip2FAButton.click();
+      await signinPage.skip2FAButton.click();
 
-    for (const { password, expectedError } of weakPasswords) {
-      await resetPasswordPage.newPasswordField.fill(password);
-      await resetPasswordPage.newPasswordField.blur();
-      await resetPasswordPage.confirmPasswordField.fill(password);
-      await resetPasswordPage.confirmPasswordField.blur();
-      await expect(resetPasswordPage.weakPasswordError).toContainText(expectedError);
-    }
-  });
+      for (const { password, expectedError } of weakPasswords) {
+        await resetPasswordPage.newPasswordField.fill(password);
+        await resetPasswordPage.newPasswordField.blur();
+        await resetPasswordPage.confirmPasswordField.fill(password);
+        await resetPasswordPage.confirmPasswordField.blur();
+        await expect(resetPasswordPage.weakPasswordError).toContainText(
+          expectedError,
+        );
+      }
+    },
+  );
 });
 
 const ssoBaseUrl = process.env.PLAYWRIGHT_SSO_BASE_URL;
@@ -985,15 +996,25 @@ test.describe("Maintenance mode and Down time", () => {
 
     await page.goto("/");
 
-    await expect(page.getByText('Hyperswitch Control Center is under maintenance', { exact: true })).toBeVisible();
-    await expect(page.getByText('Hyperswitch Control Center is under maintenance will be back in an hour')).toBeVisible();
+    await expect(
+      page.getByText("Hyperswitch Control Center is under maintenance", {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByText(
+        "Hyperswitch Control Center is under maintenance will be back in an hour",
+      ),
+    ).toBeVisible();
     await expect(page.getByText("Hey there, Welcome back!")).not.toBeVisible();
   });
 
   test("should display maintenance alert banner in homepage when maintenance_alert is set", async ({
-    page, context
+    page,
+    context,
   }) => {
-    const maintenanceAlert = "Scheduled maintenance window time from 01:30 AM to 06:00 AM IST on 21st Jun";
+    const maintenanceAlert =
+      "Scheduled maintenance window time from 01:30 AM to 06:00 AM IST on 21st Jun";
 
     await page.route("**/dashboard/config/feature*", async (route) => {
       const response = await route.fetch();
@@ -1008,6 +1029,6 @@ test.describe("Maintenance mode and Down time", () => {
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
-    await expect(page.getByRole('alert')).toContainText(maintenanceAlert);
+    await expect(page.getByRole("alert")).toContainText(maintenanceAlert);
   });
 });

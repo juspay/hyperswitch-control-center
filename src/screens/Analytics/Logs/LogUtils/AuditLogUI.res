@@ -525,12 +525,14 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     />}>
     {<>
       <RenderIf condition={id->HSwitchOrderUtils.isTestData || data->Array.length === 0}>
-        <div
-          className="flex items-center gap-2 bg-white w-full border-2 p-3 !opacity-100 rounded-lg">
-          <Icon name="info-circle-unfilled" size=16 />
-          <div className={`${heading.sm.medium} opacity-50`}>
-            {`No logs available for this ${(logType :> string)->String.toLowerCase}`->React.string}
-          </div>
+        <div className="p-4">
+          <AlertV2Binding
+            alertType=Primary
+            slot={{
+              slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
+            }}
+            description={`No logs available for this ${(logType :> string)->String.toLowerCase}`}
+          />
         </div>
       </RenderIf>
       <RenderIf condition={!(id->HSwitchOrderUtils.isTestData || data->Array.length === 0)}>

@@ -1,8 +1,115 @@
+open LogicUtils
 open ReconEngineFilterUtils
 open ReconEngineDataTransformedEntriesTypes
 open ReconEngineUtils
 open ReconEngineTypes
 open CurrencyFormatUtils
+
+let searchTypeFromString = str => {
+  switch str {
+  | "order_id" => SearchOrderId
+  | "staging_entry_id" => SearchStagingEntryId
+  | _ => UnknownProcessingEntrySearchType
+  }
+}
+
+let searchTypeOptions: array<SearchInput.searchTypeOption> = [
+  SearchStagingEntryId,
+  SearchOrderId,
+]->Array.map((entrySearchType): SearchInput.searchTypeOption => {
+  {
+    label: (entrySearchType :> string)->snakeToTitle,
+    value: (entrySearchType :> string),
+  }
+})
+
+let getSortOrder = (sortOb: LoadedTable.sortOb): processingEntrySortOrder => {
+  sortOb.sortKey === "effective_at" && sortOb.sortType === LoadedTable.ASC ? Asc : Desc
+}
+
+let processingEntryCursorFromDict = dict => {
+  let cursorValueDict = dict->getDictfromDict("cursor_value")
+
+  (
+    {
+      sortField: dict->getString("sort_field", "effective_at"),
+      cursorValue: Some(
+        (
+          {
+            effectiveAt: cursorValueDict->getString("effective_at", ""),
+            cursorId: cursorValueDict->getString("id", ""),
+          }: processingEntryCursorValue
+        ),
+      ),
+    }: processingEntryCursor
+  )
+}
+
+let defaultProcessingEntrySortBy: processingEntryCursor = {
+  sortField: "effective_at",
+  cursorValue: None,
+}
+
+let buildProcessingEntriesV2Body = (
+  ~filterValueJson: Dict.t<JSON.t>,
+  ~searchType: processingEntrySearchType,
+  ~searchText: string,
+  ~sortBy: processingEntryCursor,
+  ~direction: processingEntryCursorDirection,
+  ~order: processingEntrySortOrder=Desc,
+  ~limit=10,
+) => {
+  let statusFilter = filterValueJson->getStrArrayFromDict("status", [])
+  let statusValues =
+    statusFilter->isEmptyArray
+      ? getProcessingEntryStatusValueFromStatusList([Pending, Processed, NeedsManualReview, Void])
+      : statusFilter
+
+  let entryTypeFilter = filterValueJson->getStrArrayFromDict("entry_type", [])
+  let accountIdFilter = filterValueJson->getStrArrayFromDict("account_ids", [])
+
+  let startTime = filterValueJson->getString("startTime", "")
+  let endTime = filterValueJson->getString("endTime", "")
+  let hasTimeRange = startTime->isNonEmptyString && endTime->isNonEmptyString
+
+  let filtersDict = Dict.make()
+  filtersDict->Dict.set("status", statusValues->getJsonFromArrayOfString)
+
+  if entryTypeFilter->isNonEmptyArray {
+    filtersDict->Dict.set("entry_type", entryTypeFilter->getJsonFromArrayOfString)
+  }
+
+  if accountIdFilter->isNonEmptyArray {
+    filtersDict->Dict.set("account_ids", accountIdFilter->getJsonFromArrayOfString)
+  }
+
+  if searchText->isNonEmptyString {
+    filtersDict->Dict.set((searchType :> string), searchText->String.trim->JSON.Encode.string)
+  }
+
+  if hasTimeRange {
+    filtersDict->Dict.set(
+      "time_range",
+      [
+        ("start_time", startTime->JSON.Encode.string),
+        ("end_time", endTime->JSON.Encode.string),
+      ]->getJsonFromArrayOfJson,
+    )
+  }
+
+  [
+    ("filters", filtersDict->JSON.Encode.object),
+    (
+      "cursor_payload",
+      {
+        limit,
+        direction,
+        order,
+        sortBy,
+      }->Identity.genericTypeToJson,
+    ),
+  ]->getJsonFromArrayOfJson
+}
 
 let getTransformedEntriesTransformationHistoryPayloadFromDict = dict => {
   dict->transformationHistoryItemToObjMapper
@@ -179,7 +286,7 @@ let initialDisplayFilters = (~accountOptions) => {
       {
         field: FormRenderer.makeFieldInfo(
           ~label="Account",
-          ~name="account_id",
+          ~name="account_ids",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=accountOptions,
             ~buttonText="Select Account",

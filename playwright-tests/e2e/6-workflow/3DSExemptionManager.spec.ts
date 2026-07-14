@@ -49,14 +49,18 @@ test.describe("3DS Exemption Manager", () => {
   });
 
   test.describe("Sidebar / Feature flag", () => {
-    test("should expose the 3DS Exemption menu under Workflows when threeds_exemption flag is ON", async ({ page }) => {
+    test("should expose the 3DS Exemption menu under Workflows when threeds_exemption flag is ON", async ({
+      page,
+    }) => {
       const homePage = new HomePage(page);
 
       await homePage.workflow.click();
       await expect(homePage.threeDSExemptionManager).toBeVisible();
     });
 
-    test("should hide the 3DS Exemption menu when threeds_exemption flag is OFF", async ({ page }) => {
+    test("should hide the 3DS Exemption menu when threeds_exemption flag is OFF", async ({
+      page,
+    }) => {
       const homePage = new HomePage(page);
       await setFeatureFlag(page, false);
       await page.reload();
@@ -67,7 +71,9 @@ test.describe("3DS Exemption Manager", () => {
   });
 
   test.describe("List view (LANDING)", () => {
-    test("should show the empty state and Create New button when no rule exists", async ({ page }) => {
+    test("should show the empty state and Create New button when no rule exists", async ({
+      page,
+    }) => {
       const homePage = new HomePage(page);
       const exemption = new ThreeDSExemptionManager(page);
 
@@ -80,7 +86,10 @@ test.describe("3DS Exemption Manager", () => {
       await expect(exemption.createNewButton).toBeVisible();
     });
 
-    test("should display the active rule card with name and ACTIVE badge", async ({ page, context }) => {
+    test("should display the active rule card with name and ACTIVE badge", async ({
+      page,
+      context,
+    }) => {
       const homePage = new HomePage(page);
       const exemption = new ThreeDSExemptionManager(page);
 
@@ -92,11 +101,16 @@ test.describe("3DS Exemption Manager", () => {
 
       await expect(exemption.activeBadge).toBeVisible();
       // ActiveRulePreview runs name through capitalizeString.
-      await expect(page.getByText(name.charAt(0).toUpperCase() + name.slice(1))).toBeVisible();
+      await expect(
+        page.getByText(name.charAt(0).toUpperCase() + name.slice(1)),
+      ).toBeVisible();
       await expect(exemption.deleteIcon).toBeVisible();
     });
 
-    test("Delete icon opens the confirmation popup and removes the rule on Confirm", async ({ page, context }) => {
+    test("Delete icon opens the confirmation popup and removes the rule on Confirm", async ({
+      page,
+      context,
+    }) => {
       const homePage = new HomePage(page);
       const exemption = new ThreeDSExemptionManager(page);
 
@@ -111,18 +125,25 @@ test.describe("3DS Exemption Manager", () => {
       await expect(exemption.confirmButton).toBeVisible();
 
       const deleteRequest = page.waitForRequest(
-        (req) => /routing\/deactivate(\?|$)/.test(req.url()) && req.method() === "POST",
+        (req) =>
+          /routing\/deactivate(\?|$)/.test(req.url()) &&
+          req.method() === "POST",
       );
       await exemption.confirmButton.click();
       await deleteRequest;
 
-      await expect(page.getByText(/Successfully deleted active 3ds exemption rule/)).toBeVisible();
+      await expect(
+        page.getByText(/Successfully deleted active 3ds exemption rule/),
+      ).toBeVisible();
       // After delete the page swaps back to the empty-state branch.
       await expect(exemption.configureSectionHeading).toBeVisible();
       await expect(exemption.createNewButton).toBeVisible();
     });
 
-    test("Create New on top of an existing rule opens the override-warning modal", async ({ page, context }) => {
+    test("Create New on top of an existing rule opens the override-warning modal", async ({
+      page,
+      context,
+    }) => {
       const homePage = new HomePage(page);
       const exemption = new ThreeDSExemptionManager(page);
 
@@ -148,7 +169,9 @@ test.describe("3DS Exemption Manager", () => {
       await page.waitForLoadState("networkidle");
     });
 
-    test("should render all elements in 3DS exemption create page", async ({ page }) => {
+    test("should render all elements in 3DS exemption create page", async ({
+      page,
+    }) => {
       const exemption = new ThreeDSExemptionManager(page);
 
       // Page header
@@ -158,7 +181,9 @@ test.describe("3DS Exemption Manager", () => {
       // Configuration Name section — the default value is `3DS Rule-<YYYY-MM-DD>`
       // built from the browser's `Date`. Match today/yesterday so the midnight
       // boundary doesn't flake (same guard as the surcharge test).
-      await expect(page.getByText("Configuration Name", { exact: false }).first()).toBeVisible();
+      await expect(
+        page.getByText("Configuration Name", { exact: false }).first(),
+      ).toBeVisible();
       const [today, yesterday] = await page.evaluate(() => {
         const fmt = (d: Date) => d.toLocaleDateString("en-CA");
         const t = new Date();
@@ -166,31 +191,53 @@ test.describe("3DS Exemption Manager", () => {
         y.setDate(y.getDate() - 1);
         return [fmt(t), fmt(y)];
       });
-      await expect(exemption.ruleNameInput).toHaveValue(new RegExp(`^3DS Rule-(${today}|${yesterday})$`));
+      await expect(exemption.ruleNameInput).toHaveValue(
+        new RegExp(`^3DS Rule-(${today}|${yesterday})$`),
+      );
 
       // Rule based configuration helper block (HSwitchThreeDsExemption.res:370-393)
-      await expect(page.getByText("Rule Based Configuration", { exact: true })).toBeVisible();
+      await expect(
+        page.getByText("Rule Based Configuration", { exact: true }),
+      ).toBeVisible();
       await expect(page.getByText(/For example:/).first()).toBeVisible();
-      await expect(page.getByText(/If amount is > 100 and currency is USD, enforce 3DS authentication/)).toBeVisible();
-      await expect(page.getByText(/Ensure to enter the payment amount in the smallest currency unit/)).toBeVisible();
+      await expect(
+        page.getByText(
+          /If amount is > 100 and currency is USD, enforce 3DS authentication/,
+        ),
+      ).toBeVisible();
+      await expect(
+        page.getByText(
+          /Ensure to enter the payment amount in the smallest currency unit/,
+        ),
+      ).toBeVisible();
 
       // Rule 1 conditions — defaultStatements seeds `amount EQUAL TO <empty>`
       // and `currency IS <empty>`, so the value cells render as the numeric
       // placeholder ("Enter value") and the enum picker ("Select Value").
       await expect(exemption.ruleHeading).toBeVisible();
       await expect(page.getByRole("button", { name: "amount" })).toBeVisible();
-      await expect(page.getByRole("button", { name: "EQUAL TO" })).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: "EQUAL TO" }),
+      ).toBeVisible();
       await expect(page.getByPlaceholder("Enter value").first()).toBeVisible();
-      await expect(page.getByRole("button", { name: "currency" })).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: "currency" }),
+      ).toBeVisible();
       await expect(page.getByRole("button", { name: "IS" })).toBeVisible();
       await expect(exemption.selectValueButton.first()).toBeVisible();
       // LogicalOps renders both AND/OR toggles for non-first conditions.
-      await expect(page.getByText("AND", { exact: true }).first()).toBeVisible();
+      await expect(
+        page.getByText("AND", { exact: true }).first(),
+      ).toBeVisible();
       await expect(page.getByText("OR", { exact: true }).first()).toBeVisible();
 
       // Auth type block (Add3DSConditionForThreeDsExemption — AdvancedRouting.res:48-93)
-      await expect(page.getByText("Auth type", { exact: true }).first()).toBeVisible();
-      await expect(page.getByText("= (is equal to)", { exact: true }).first()).toBeVisible();
+      await expect(
+        page.getByText("Auth type", { exact: true }).first(),
+      ).toBeVisible();
+      await expect(
+        page.getByText("= (is equal to)", { exact: true }).first(),
+      ).toBeVisible();
       await expect(exemption.authTypeDropdown).toBeVisible();
 
       // Form actions
@@ -205,7 +252,9 @@ test.describe("3DS Exemption Manager", () => {
       await expect(exemption.deleteRuleButton).toHaveCount(0);
     });
 
-    test("should expose drag handle and delete once a second rule exists", async ({ page }) => {
+    test("should expose drag handle and delete once a second rule exists", async ({
+      page,
+    }) => {
       const exemption = new ThreeDSExemptionManager(page);
 
       await exemption.addRuleButton.click();
@@ -243,13 +292,17 @@ test.describe("3DS Exemption Manager", () => {
 
       await expect(exemption.ruleHeadingByIndex(2)).toHaveCount(0);
 
-      await page.getByRole('textbox', { name: 'Enter value' }).fill("100");
+      await page.getByRole("textbox", { name: "Enter value" }).fill("100");
       await exemption.copyRuleButton.click();
       await expect(exemption.ruleHeadingByIndex(2)).toBeVisible();
-      await expect(page.getByPlaceholder('Enter value').nth(1)).toHaveValue("100");
+      await expect(page.getByPlaceholder("Enter value").nth(1)).toHaveValue(
+        "100",
+      );
     });
 
-    test("Add Condition renders a row with Select Field, Operator and Value", async ({ page }) => {
+    test("Add Condition renders a row with Select Field, Operator and Value", async ({
+      page,
+    }) => {
       const exemption = new ThreeDSExemptionManager(page);
 
       // Default form seeds two conditions (amount, currency) with lhs/operator
@@ -279,7 +332,10 @@ test.describe("3DS Exemption Manager", () => {
         label: "Request 3DS Exemption, Type: Low Value Transaction",
         value: "three_ds_exemption_requested_low_value",
       },
-      { label: "No challenge requested", value: "issuer_three_ds_exemption_requested" },
+      {
+        label: "No challenge requested",
+        value: "issuer_three_ds_exemption_requested",
+      },
     ];
 
     test.beforeEach(async ({ page }) => {
@@ -301,13 +357,17 @@ test.describe("3DS Exemption Manager", () => {
         // After selection the dropdown's button text swaps from
         // "Select Field" to the chosen option's label (selectInput renders
         // the matched option label when a value is set).
-        await expect(page.getByRole("button", { name: label }).first()).toBeVisible();
+        await expect(
+          page.getByRole("button", { name: label }).first(),
+        ).toBeVisible();
       });
     }
   });
 
   test.describe("Save flow", () => {
-    test("should fill the form, save the rule, and preview it on /3ds-exemption", async ({ page }) => {
+    test("should fill the form, save the rule, and preview it on /3ds-exemption", async ({
+      page,
+    }) => {
       const homePage = new HomePage(page);
       const exemption = new ThreeDSExemptionManager(page);
       const ruleName = "Playwright 3ds exemption config";
@@ -330,19 +390,26 @@ test.describe("3DS Exemption Manager", () => {
       // 4. Select the auth type so override_3ds is non-empty (the rule
       // wrapper's expand check requires it before save).
       await exemption.authTypeDropdown.click();
-      await page.getByText("Request 3DS Exemption, Type: TRA", { exact: true }).first().click();
+      await page
+        .getByText("Request 3DS Exemption, Type: TRA", { exact: true })
+        .first()
+        .click();
 
       // 5. Save and wait for the activate POST to land before assertions.
       // onSubmit fires POST /routing then POST /routing/{id}/activate — the
       // activate call is the success signal.
       const activateRequest = page.waitForRequest(
-        (req) => /routing\/[^/]+\/activate(\?|$)/.test(req.url()) && req.method() === "POST",
+        (req) =>
+          /routing\/[^/]+\/activate(\?|$)/.test(req.url()) &&
+          req.method() === "POST",
       );
       await exemption.saveButton.click();
       await activateRequest;
 
       // 6. Page redirects back to /3ds-exemption with the ActiveRulePreview card.
-      await expect(page.getByText("Configuration saved successfully!")).toBeVisible();
+      await expect(
+        page.getByText("Configuration saved successfully!"),
+      ).toBeVisible();
       await expect(page).toHaveURL(/dashboard\/3ds-exemption$/);
 
       // ActiveRulePreview card metadata.
@@ -356,20 +423,32 @@ test.describe("3DS Exemption Manager", () => {
       // <field> <operator> <value> tokens, separated by the AND/OR logical.
       const previewer = page.locator('[data-component="rulePreviewer"]');
       await expect(previewer).toBeVisible();
-      await expect(previewer.getByText("Rule 1", { exact: true })).toBeVisible();
-      await expect(previewer.getByText("amount", { exact: true })).toBeVisible();
+      await expect(
+        previewer.getByText("Rule 1", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        previewer.getByText("amount", { exact: true }),
+      ).toBeVisible();
       // getOperatorFromComparisonType maps `equal` + number -> "EQUAL TO",
       // and `equal` + enum_variant -> "IS" (AdvancedRoutingUtils.res:340).
-      await expect(previewer.getByText("EQUAL TO", { exact: true })).toBeVisible();
+      await expect(
+        previewer.getByText("EQUAL TO", { exact: true }),
+      ).toBeVisible();
       await expect(previewer.getByText("100", { exact: true })).toBeVisible();
       await expect(previewer.getByText("AND", { exact: true })).toBeVisible();
-      await expect(previewer.getByText("currency", { exact: true })).toBeVisible();
+      await expect(
+        previewer.getByText("currency", { exact: true }),
+      ).toBeVisible();
       await expect(previewer.getByText("IS", { exact: true })).toBeVisible();
       await expect(previewer.getByText("USD", { exact: true })).toBeVisible();
 
       // ThreedsTypeView renders the override_3ds value through capitalizeString
       // (RulePreviewer.res:51-60).
-      await expect(previewer.getByText("Three_ds_exemption_requested_tra", { exact: true })).toBeVisible();
+      await expect(
+        previewer.getByText("Three_ds_exemption_requested_tra", {
+          exact: true,
+        }),
+      ).toBeVisible();
     });
   });
 });
