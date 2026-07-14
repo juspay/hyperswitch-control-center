@@ -86,7 +86,12 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
   | PaymentMethodType => Text(attempt.payment_method_type)
   | AttemptId => DisplayCopyCell(attempt.attempt_id)
   | ErrorMessage => Text(attempt.error_message)
-  | ConnectorTransactionID => DisplayCopyCell(attempt.connector_transaction_id)
+  | ConnectorTransactionID =>
+    if attempt.connector_transaction_id->isNonEmptyString {
+      DisplayCopyCell(attempt.connector_transaction_id)
+    } else {
+      Text("NA")
+    }
   | CaptureMethod => Text(attempt.capture_method)
   | AuthenticationType => Text(attempt.authentication_type)
   | CancellationReason => Text(attempt.cancellation_reason)
@@ -853,14 +858,18 @@ let getCellForSummary = (order: order, summaryColType): Table.cell => {
   | ProductName => Text(order.product_name->Option.getOr(""))
   | ErrorMessage => Text(order.error.error_message)
   | ConnectorTransactionID =>
-    CustomCell(
-      <HelperComponents.CopyTextCustomComp
-        customTextCss="w-36 truncate whitespace-nowrap"
-        displayValue=Some(order.connector_payment_id)
-        showTooltip=true
-      />,
-      "",
-    )
+    if order.connector_payment_id->isNonEmptyString {
+      CustomCell(
+        <HelperComponents.CopyTextCustomComp
+          customTextCss="w-36 truncate whitespace-nowrap"
+          displayValue=Some(order.connector_payment_id)
+          showTooltip=true
+        />,
+        order.connector_payment_id,
+      )
+    } else {
+      Text("NA")
+    }
   }
 }
 
@@ -1069,14 +1078,18 @@ let getCell = (order: order, colType: colType, merchantId, orgId): Table.cell =>
   | ErrorCode => Text(order.error.error_code)
   | ErrorMessage => EllipsisText(order.error.error_message, "w-40")
   | ConnectorTransactionID =>
-    CustomCell(
-      <CopyTextCustomComp
-        customTextCss="w-36 truncate whitespace-nowrap"
-        displayValue=Some(order.connector_payment_id)
-        showTooltip=true
-      />,
-      "",
-    )
+    if order.connector_payment_id->isNonEmptyString {
+      CustomCell(
+        <CopyTextCustomComp
+          customTextCss="w-36 truncate whitespace-nowrap"
+          displayValue=Some(order.connector_payment_id)
+          showTooltip=true
+        />,
+        order.connector_payment_id,
+      )
+    } else {
+      Text("NA")
+    }
   | ProfileId => Text(order.profile_id)
   | Refunds =>
     Text(
