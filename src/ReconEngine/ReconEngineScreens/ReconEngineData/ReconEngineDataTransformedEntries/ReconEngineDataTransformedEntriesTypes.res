@@ -1,3 +1,5 @@
+open ReconEngineTypes
+
 @unboxed
 type iconActionType =
   | @as("nd-eye-on") ViewIcon
@@ -6,7 +8,7 @@ type iconActionType =
 
 type modalContentType =
   | MetadataContent(Js.Json.t)
-  | LineageContent(ReconEngineTypes.processingEntryType)
+  | LineageContent(processingEntryType)
   | UnknownModalContent
 
 type modalState = {
@@ -54,7 +56,7 @@ type processingEntrySortOrder =
 
 type processingEntriesV2CursorPayload = {
   limit: int,
-  direction: ReconEngineTypes.cursorDirection,
+  direction: cursorDirection,
   order: processingEntrySortOrder,
-  @as("sort_by") sortBy: ReconEngineTypes.cursor,
+  @as("sort_by") sortBy: cursor,
 }

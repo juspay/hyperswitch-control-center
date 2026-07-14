@@ -1,5 +1,6 @@
 open ReconEngineTypes
 open LogicUtils
+open ReconEngineUtils
 
 type persistedCursorState = {
   sortBy: cursor,
@@ -29,19 +30,20 @@ let cursorFromPersistedDict = (dict): cursor => {
 
 let restorePersistedCursor = (persistKey): option<(cursor, cursorDirection)> => {
   open SessionStorage
-  switch sessionStorage.getItem(persistKey)->Nullable.toOption {
-  | None => None
-  | Some(value) =>
-    switch value->safeParseOpt {
-    | None => None
-    | Some(json) =>
+
+  sessionStorage.getItem(persistKey)
+  ->Nullable.toOption
+  ->mapOptionOrDefault(None, value => {
+    value
+    ->safeParseOpt
+    ->mapOptionOrDefault(None, json => {
       let dict = json->getDictFromJsonObject
       let sortBy = dict->getDictfromDict("sortBy")->cursorFromPersistedDict
       let direction: cursorDirection =
         dict->getString("direction", "next") === "previous" ? #previous : #next
       Some((sortBy, direction))
-    }
-  }
+    })
+  })
 }
 
 let useCursorPagination = (
@@ -50,7 +52,7 @@ let useCursorPagination = (
 ) => {
   open SessionStorage
 
-  let (items, setItems) = React.useState((_): array<'item> => [])
+  let (items, setItems) = React.useState(_ => [])
   let (cursors, setCursors) = React.useState((_): cursors => {next: None, prev: None})
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let hasRestoredRef = React.useRef(false)
@@ -76,10 +78,10 @@ let useCursorPagination = (
   let goToFirstPage = () => {
     let restored = hasRestoredRef.current ? None : restorePersistedCursor(persistKey)
     hasRestoredRef.current = true
-    switch restored {
-    | Some((sortBy, direction)) => goTo(~sortBy, ~direction)->ignore
-    | None => goTo(~sortBy=ReconEngineUtils.defaultCursorSortBy, ~direction=#next)->ignore
-    }
+    restored->mapOptionOrDefault(goTo(~sortBy=defaultCursorSortBy, ~direction=#next)->ignore, ((
+      sortBy,
+      direction,
+    )) => goTo(~sortBy, ~direction)->ignore)
   }
 
   let goToNextPage = () =>

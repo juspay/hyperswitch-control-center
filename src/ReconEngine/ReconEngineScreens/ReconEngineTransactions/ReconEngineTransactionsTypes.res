@@ -1,3 +1,5 @@
+open ReconEngineTypes
+
 type transactionFlowType =
   | InFlow
   | OutFlow
@@ -14,9 +16,9 @@ type transactionSortOrder =
 
 type transactionsV2CursorPayload = {
   limit: int,
-  direction: ReconEngineTypes.cursorDirection,
+  direction: cursorDirection,
   order: transactionSortOrder,
-  @as("sort_by") sortBy: ReconEngineTypes.cursor,
+  @as("sort_by") sortBy: cursor,
 }
 
 type entriesMetadataKeysToExclude = Amount | Currency
@@ -24,7 +26,7 @@ type entriesMetadataKeysToExclude = Amount | Currency
 type accountGroup = {
   accountId: string,
   accountName: string,
-  entries: array<ReconEngineTypes.entryType>,
+  entries: array<entryType>,
 }
 
 type lineageFieldType = {

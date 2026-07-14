@@ -613,6 +613,114 @@ export async function createPaymentAPI(
   return await response.json();
 }
 
+export async function createRequiresCapturePaymentAPI(
+  merchantId: string,
+  context?: APIRequestContext,
+  amount: number = 12345,
+): Promise<{
+  payment_id: string;
+  profile_id: string;
+  amount: number;
+  amount_capturable: number;
+  currency: string;
+  status: string;
+  payment_method: string;
+  payment_method_type: string;
+}> {
+  const ctx = context ?? (await request.newContext());
+  const apiKey = await createAPIKey(merchantId, "", ctx);
+
+  const response = await ctx.post(`${API_URL}/payments`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "api-key": apiKey,
+    },
+    data: {
+      amount,
+      currency: "USD",
+      confirm: true,
+      capture_method: "manual",
+      customer_id: "test_customer",
+      authentication_type: "no_three_ds",
+      return_url: "https://google.com",
+      email: "abc@test.com",
+      name: "Joseph Doe",
+      phone: "999999999",
+      phone_country_code: "+65",
+      description: "Its my first payment",
+      payment_method: "card",
+      payment_method_type: "credit",
+      payment_method_data: {
+        card: {
+          card_number: "4242424242424242",
+          card_exp_month: "01",
+          card_exp_year: "2027",
+          card_holder_name: "joseph Doe",
+          card_cvc: "100",
+        },
+      },
+      billing: {
+        address: {
+          city: "Toronto",
+          country: "CA",
+          line1: "1562",
+          line2: "HarrisonStreet",
+          zip: "M3C 0C1",
+          state: "ON",
+          first_name: "Joseph",
+          last_name: "Doe",
+        },
+        email: "abc@test.com",
+      },
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `createRequiresCapturePaymentAPI failed (${response.status()}): ${body}`,
+    );
+  }
+
+  return await response.json();
+}
+
+// The sandbox "stripe_test" dummy connector always auto-charges a payment
+// (it has no auth-only/two-phase-capture simulation), so a real payment
+// created with capture_method: "manual" still comes back as `succeeded`
+// instead of `requires_capture`. To exercise the capture UI in CI we create
+// a real payment (for a realistic payment_id / amount / customer) and then
+// intercept the dashboard's GET request for that payment, overriding just
+// the `status` and `amount_capturable` fields so the page renders as if the
+// payment were awaiting capture.
+export async function mockPaymentRequiresCapture(
+  page: Page,
+  paymentId: string,
+): Promise<void> {
+  await page.route(
+    new RegExp(`/payments/${paymentId}(\\?|$)`),
+    async (route) => {
+      if (route.request().method() !== "GET") {
+        await route.continue();
+        return;
+      }
+
+      const response = await route.fetch();
+      const json = await response.json();
+
+      await route.fulfill({
+        response,
+        json: {
+          ...json,
+          status: "requires_capture",
+          amount_capturable: json.amount,
+        },
+      });
+    },
+  );
+}
+
 export async function createRefundAPI(
   merchantId: string,
   paymentId: string,
