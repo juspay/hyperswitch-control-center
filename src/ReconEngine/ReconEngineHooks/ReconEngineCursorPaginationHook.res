@@ -78,10 +78,10 @@ let useCursorPagination = (
   let goToFirstPage = () => {
     let restored = hasRestoredRef.current ? None : restorePersistedCursor(persistKey)
     hasRestoredRef.current = true
-    restored->mapOptionOrDefault(goTo(~sortBy=defaultCursorSortBy, ~direction=#next)->ignore, ((
-      sortBy,
-      direction,
-    )) => goTo(~sortBy, ~direction)->ignore)
+    switch restored {
+    | Some(sortBy, direction) => goTo(~sortBy, ~direction)->ignore
+    | None => goTo(~sortBy=defaultCursorSortBy, ~direction=#next)->ignore
+    }
   }
 
   let goToNextPage = () =>
