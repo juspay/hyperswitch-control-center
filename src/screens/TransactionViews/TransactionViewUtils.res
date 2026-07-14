@@ -223,7 +223,7 @@ let sumAllowedStatusCount = (dict, key, allowedStatuses) => {
   )
 }
 
-let getSankeyCountMetric = (dict, key) => dict->getFloat(key, 0.0)->Float.toInt
+let getSankeyCountMetric = (dict, key) => dict->getInt(key, 0)
 
 let getSankeyRowCount = dict => dict->getFloat("count", dict->getFloat("payment_intent_count", 0.0))
 
@@ -363,13 +363,15 @@ let sankeyResponseToStatusWithCount = response => {
     response
     ->getArrayFromJson([])
     ->Array.reduce(
-      {
-        statusWithCount: Dict.make(),
-        refundsStatusWithCount: Dict.make(),
-        disputeStatusWithCount: Dict.make(),
-        firstAttemptSuccessCount: 0.0,
-        retrySuccessCount: 0.0,
-      }: sankeyAggregateData,
+      (
+        {
+          statusWithCount: Dict.make(),
+          refundsStatusWithCount: Dict.make(),
+          disputeStatusWithCount: Dict.make(),
+          firstAttemptSuccessCount: 0.0,
+          retrySuccessCount: 0.0,
+        }: sankeyAggregateData
+      ),
       (acc, row) => {
         let dict = row->getDictFromJsonObject
         let count = dict->getSankeyRowCount

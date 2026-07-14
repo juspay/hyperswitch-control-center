@@ -67,14 +67,15 @@ let make = (
     let customFilter = `[${view->getViewFilterValue(aggregateResponse, entity)}]`
     let (filterKey, hiddenFilterEntry) = isAdvancedOrdersView
       ? (
-        view->getAdvancedPaymentFilterKeyForView(~defaultFilterKey=customFilterKey),
-        view->getAdvancedPaymentHiddenFilterEntryForView,
-      )
+          view->getAdvancedPaymentFilterKeyForView(~defaultFilterKey=customFilterKey),
+          view->getAdvancedPaymentHiddenFilterEntryForView,
+        )
       : (customFilterKey, None)
-    let filterEntries = hiddenFilterEntry->mapOptionOrDefault(
-      [(filterKey, customFilter)],
-      entry => [(filterKey, customFilter), entry],
-    )
+    let filterEntries =
+      hiddenFilterEntry->mapOptionOrDefault([(filterKey, customFilter)], entry => [
+        (filterKey, customFilter),
+        entry,
+      ])
     let filterEntryKeys = filterEntries->Array.map(((key, _)) => key)
     let removedFilterKeys = isAdvancedOrdersView ? view->getAdvancedPaymentFilterKeysToRemove : []
 

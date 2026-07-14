@@ -13,8 +13,7 @@ module SourceTabs = {
       title: (item :> string),
       renderContent: () => React.null,
     })
-    let initialIndex =
-      paymentListSources->Array.indexOf(source)->(idx => idx < 0 ? 0 : idx)
+    let initialIndex = paymentListSources->Array.indexOf(source)->(idx => idx < 0 ? 0 : idx)
     let disabledTab = advancedEnabled ? [] : [(Advanced :> string)]
 
     <Tabs

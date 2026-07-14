@@ -16,7 +16,10 @@ let jsonValueToString = jsonValue =>
   switch jsonValue->getOptionStrArrayFromJson {
   | Some(_) =>
     let sortedStrArr =
-      jsonValue->getArrayFromJson([])->Array.map(primitiveJsonToString)->Array.toSorted(String.compare)
+      jsonValue
+      ->getArrayFromJson([])
+      ->Array.map(primitiveJsonToString)
+      ->Array.toSorted(String.compare)
     "[" ++ sortedStrArr->Array.joinWith(",") ++ "]"
   | None => jsonValue->primitiveJsonToString
   }
@@ -279,12 +282,6 @@ let buildViewOptions = (
 let savedViewsQueryParam = (entity: SavedViewTypes.entity) =>
   `keys=${entity->SavedViewTypes.entityToKey}`
 
-let savedViewDataVersionToString = (version: UserInfoTypes.version) =>
-  switch version {
-  | UserInfoTypes.V1 => "v1"
-  | UserInfoTypes.V2 => "v2"
-  }
-
 let buildActionPayload = (
   entity: SavedViewTypes.entity,
   action: SavedViewTypes.action,
@@ -317,7 +314,7 @@ let buildSavedViewDataDict = (
   viewId: option<string>,
   ~savedViewDataVersion,
 ) => {
-  let versionStr = savedViewDataVersion->savedViewDataVersionToString
+  let versionStr = (savedViewDataVersion->SavedViewTypes.versionToSavedViewVersion :> string)
   let baseEntries = [
     ("view_name", name->JSON.Encode.string),
     ("filters", filters),

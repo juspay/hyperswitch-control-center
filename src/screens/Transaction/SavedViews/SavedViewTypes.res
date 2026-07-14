@@ -60,6 +60,14 @@ let actionToString = action =>
   | Delete => "Delete"
   }
 
+type savedViewVersion = [#v1 | #v2]
+
+let versionToSavedViewVersion = (version: UserInfoTypes.version): savedViewVersion =>
+  switch version {
+  | V1 => #v1
+  | V2 => #v2
+  }
+
 type savedView = {
   view_id: string,
   view_name: string,
