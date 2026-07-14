@@ -9,13 +9,14 @@ module TransactionViewCard = {
     ~newCardDescription="",
   ) => {
     open TransactionViewUtils
+    open Typography
 
-    let textClass = isActiveView ? "text-primary" : "font-semibold text-jp-gray-700"
-    let countTextClass = isActiveView ? "text-primary" : "font-semibold text-jp-gray-900"
+    let textClass = isActiveView ? "text-primary" : `${body.md.semibold} text-nd_gray-700`
+    let countTextClass = isActiveView ? "text-primary" : `${body.md.semibold} text-nd_gray-900`
     let borderClass = isActiveView ? "border-primary" : ""
 
     <div
-      className={`relative flex min-w-0 flex-col justify-center flex-auto gap-1 bg-white text-semibold border rounded-md px-4 py-2.5 cursor-pointer hover:bg-gray-50 ${borderClass}`}
+      className={`relative flex min-w-0 flex-col justify-center flex-auto gap-1 bg-white border rounded-md px-4 py-2.5 cursor-pointer hover:bg-nd_gray-50 ${borderClass}`}
       onClick={_ => onViewClick(view)}>
       <RenderIf condition=isNewCard>
         <div className="absolute right-2 top-2">

@@ -223,8 +223,6 @@ let sumAllowedStatusCount = (dict, key, allowedStatuses) => {
   )
 }
 
-let getSankeyCountMetric = (dict, key) => dict->getInt(key, 0)
-
 let getSankeyRowCount = dict => dict->getFloat("count", dict->getFloat("payment_intent_count", 0.0))
 
 let getSankeyFirstAttempt = dict =>
@@ -306,8 +304,8 @@ let getViewCount = (view, obj, entity) => {
     sumAllowedStatusCount(dict, "refunds_status_with_count", refundedStatusValues)
   | (Disputed, Orders) =>
     sumAllowedStatusCount(dict, "dispute_status_with_count", disputedStatusValues)
-  | (FirstAttemptSuccess, Orders) => getSankeyCountMetric(dict, "first_attempt_success_count")
-  | (RetrySuccess, Orders) => getSankeyCountMetric(dict, "retry_success_count")
+  | (FirstAttemptSuccess, Orders) => dict->getInt("first_attempt_success_count", 0)
+  | (RetrySuccess, Orders) => dict->getInt("retry_success_count", 0)
   | _ =>
     dict
     ->getDictfromDict("status_with_count")
@@ -350,14 +348,6 @@ let metricsResponseToStatusWithCount = (~statusField, ~countField, response) => 
   [("status_with_count", statusWithCount->JSON.Encode.object)]->getJsonFromArrayOfJson
 }
 
-type sankeyAggregateData = {
-  statusWithCount: Dict.t<JSON.t>,
-  refundsStatusWithCount: Dict.t<JSON.t>,
-  disputeStatusWithCount: Dict.t<JSON.t>,
-  mutable firstAttemptSuccessCount: float,
-  mutable retrySuccessCount: float,
-}
-
 let sankeyResponseToStatusWithCount = response => {
   let result =
     response
@@ -384,10 +374,11 @@ let sankeyResponseToStatusWithCount = response => {
           let previous = acc.statusWithCount->getFloat(status, 0.0)
           acc.statusWithCount->Dict.set(status, (previous +. count)->JSON.Encode.float)
         }
-        if status === "succeeded" && isFirstAttempt {
+        let isSucceeded = status->HSwitchOrderUtils.statusVariantMapper === Succeeded
+        if isSucceeded && isFirstAttempt {
           acc.firstAttemptSuccessCount = acc.firstAttemptSuccessCount +. count
         }
-        if status === "succeeded" && !isFirstAttempt {
+        if isSucceeded && !isFirstAttempt {
           acc.retrySuccessCount = acc.retrySuccessCount +. count
         }
         if refundsStatus->isNonEmptyString {

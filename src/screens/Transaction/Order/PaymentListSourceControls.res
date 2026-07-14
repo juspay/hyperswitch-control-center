@@ -6,7 +6,7 @@ module SourceTabs = {
   @react.component
   let make = (
     ~source: paymentListSource,
-    ~setSource: (paymentListSource => paymentListSource) => unit,
+    ~setSource: paymentListSource => unit,
     ~advancedEnabled,
   ) => {
     let tabs = paymentListSources->Array.map((item): Tabs.tab => {
@@ -25,12 +25,9 @@ module SourceTabs = {
       fitContent=true
       onTitleClick={idx =>
         switch paymentListSources->Array.get(idx) {
-        | Some(Advanced) =>
-          if advancedEnabled {
-            setSource(_ => Advanced)
-          }
-        | Some(Normal) => setSource(_ => Normal)
-        | _ => ()
+        | Some(Advanced) => advancedEnabled ? setSource(Advanced) : ()
+        | Some(Normal) => setSource(Normal)
+        | None => ()
         }}
     />
   }

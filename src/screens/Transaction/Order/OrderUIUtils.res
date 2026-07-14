@@ -323,16 +323,15 @@ let unsupportedAdvancedPaymentFilterKeys = [
 let firstAttemptFilterKey = (#first_attempt: hiddenAdvancedPaymentFilter :> string)
 let paymentIdFilterKey = (#payment_id: basePaymentListFilter :> string)
 let customerEmailFilterKey = (#customer_email: filter)->getValueFromFilterType
-let cardLast4FilterKey = (#card_last_4: advancedPaymentTextListFilter :> string)
 
 let hiddenAdvancedPaymentFilterKeys = [firstAttemptFilterKey]
 
 let advancedPaymentFilterCleanupKeys =
-  []->Array.concatMany([
+  [
     advancedPaymentOnlyFilterKeys,
     unsupportedAdvancedPaymentFilterKeys,
     hiddenAdvancedPaymentFilterKeys,
-  ])
+  ]->Array.flat
 
 let advancedPaymentSearchDescription = "Search across payment ID, customer email, card last 4, amount, attempt ID, connector account, and error details."
 
@@ -405,11 +404,11 @@ let basePaymentListFilters: array<basePaymentListFilter> = [
 let basePaymentListFilterKeys = basePaymentListFilters->Array.map(filter => (filter :> string))
 
 let advancedPaymentListFilterKeys =
-  []->Array.concatMany([
+  [
     basePaymentListFilterKeys,
     advancedPaymentOnlyFilterKeys,
     hiddenAdvancedPaymentFilterKeys,
-  ])
+  ]->Array.flat
 
 let copyAdvancedPaymentFilterIfPresent = (~fromDict, ~toDict, key) => {
   switch fromDict->getOptionValFromDict(key) {
@@ -459,6 +458,8 @@ let buildAdvancedPaymentListPayload = (
   ~endTimeKey,
 ) => {
   let trimmedSearchText = searchText->String.trim
+
+  unsupportedAdvancedPaymentFilterKeys->Array.forEach(key => filterParams->Dict.delete(key))
 
   let body =
     ["offset", "limit", "order", "amount_filter"]

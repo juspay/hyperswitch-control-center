@@ -53,6 +53,13 @@ type action =
   | Update
   | Delete
 
+// The save-view modal and inline view-rename are mutually exclusive interactions,
+// so the saved-view panel is in exactly one of these states at a time.
+type savedViewsPanelState =
+  | NoActiveInteraction
+  | RenamingViewAtIndex(int)
+  | SaveViewModalOpen
+
 let actionToString = action =>
   switch action {
   | Create => "Create"

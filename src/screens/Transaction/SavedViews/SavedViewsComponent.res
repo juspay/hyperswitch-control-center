@@ -14,11 +14,32 @@ let make = (
   let {updateExistingKeys, filterValue, reset, setfilterKeys} = React.useContext(
     FilterContext.filterContext,
   )
-  let (showSaveModal, setShowSaveModal) = React.useState(_ => false)
+  let (panelState, setPanelState) = React.useState(_ => NoActiveInteraction)
   let (savedViews: array<SavedViewTypes.savedView>, setSavedViews) = React.useState(_ => [])
   let (activeViewName, setActiveViewName) = React.useState(_ => "")
-  let (currentlyEditingIndex, setCurrentlyEditingIndex) = React.useState(_ => None)
   let (isInternalUpdate, setIsInternalUpdate) = React.useState(_ => false)
+
+  let showSaveModal = panelState === SaveViewModalOpen
+  let setShowSaveModal = updater =>
+    setPanelState(prev =>
+      updater(prev === SaveViewModalOpen) ? SaveViewModalOpen : NoActiveInteraction
+    )
+
+  let currentlyEditingIndex = switch panelState {
+  | RenamingViewAtIndex(index) => Some(index)
+  | NoActiveInteraction | SaveViewModalOpen => None
+  }
+  let setCurrentlyEditingIndex = updater =>
+    setPanelState(prev => {
+      let prevIndex = switch prev {
+      | RenamingViewAtIndex(index) => Some(index)
+      | NoActiveInteraction | SaveViewModalOpen => None
+      }
+      switch updater(prevIndex) {
+      | Some(index) => RenamingViewAtIndex(index)
+      | None => NoActiveInteraction
+      }
+    })
 
   let fetchSavedViewsHook = SavedViewsHooks.useFetchSavedViews(~entity, ~version)
   let fetchSavedViews = async () => {

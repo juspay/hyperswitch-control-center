@@ -27,12 +27,15 @@ let make = (~previewOnly=false) => {
     devOpensearch && version == V1 && userHasResourceAccess(~resourceAccess=Analytics) === Access
   let paymentListSourceResolved =
     !(devOpensearch && version == V1) || userGroupACL->Option.isSome || advancedPaymentListEnabled
-  let (source, setSource) = React.useState(_ =>
-    advancedPaymentListEnabled ? OrderTypes.Advanced : OrderTypes.Normal
-  )
+  let (selectedSource, setSelectedSource) = React.useState(_ => None)
+  let source =
+    selectedSource->Option.getOr(
+      advancedPaymentListEnabled ? OrderTypes.Advanced : OrderTypes.Normal,
+    )
   let isAdvancedSource = source === OrderTypes.Advanced && advancedPaymentListEnabled
-  let tableTitle = isAdvancedSource ? advancedOrdersTableTitle : ordersTableTitle
-  let savedViewsEntity = isAdvancedSource ? SavedViewTypes.PaymentAdvanced : SavedViewTypes.Payment
+  let (tableTitle, savedViewsEntity) = isAdvancedSource
+    ? (advancedOrdersTableTitle, SavedViewTypes.PaymentAdvanced)
+    : (ordersTableTitle, SavedViewTypes.Payment)
   let ompViewPortalName = `${tableTitle}OMPView`
   let portalNodes = PortalState.portalNodes->Recoil.useRecoilValueFromAtom
   let hasOmpViewPortal = portalNodes->getOptionValFromDict(ompViewPortalName)->Option.isSome
@@ -166,15 +169,9 @@ let make = (~previewOnly=false) => {
         })
         //to delete unused keys
         filterParams->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
-        isAdvancedSource
-          ? {
-              unsupportedAdvancedPaymentFilterKeys->Array.forEach(key =>
-                filterParams->Dict.delete(key)
-              )
-            }
-          : {
-              advancedPaymentFilterCleanupKeys->Array.forEach(key => filterParams->Dict.delete(key))
-            }
+        if !isAdvancedSource {
+          advancedPaymentFilterCleanupKeys->Array.forEach(key => filterParams->Dict.delete(key))
+        }
 
         let requestPayload = isAdvancedSource
           ? buildAdvancedPaymentListPayload(
@@ -201,47 +198,47 @@ let make = (~previewOnly=false) => {
   }
 
   React.useEffect(() => {
-    paymentListSourceResolved && filters->isNonEmptyValue
-      ? {
-          let timeoutId = setTimeout(() => fetchOrders(), 120)
-          Some(() => clearTimeout(timeoutId))
-        }
-      : None
-  }, (offset, filters, searchText, source, pageDetail.resultsPerPage, paymentListSourceResolved))
-
-  React.useEffect(() => {
-    if advancedPaymentListEnabled {
-      setSource(prev => prev === OrderTypes.Normal ? OrderTypes.Advanced : prev)
-    } else if source === OrderTypes.Advanced {
-      setSource(_ => OrderTypes.Normal)
+    if paymentListSourceResolved && filters->isNonEmptyValue {
+      fetchOrders()
     }
     None
-  }, [advancedPaymentListEnabled])
+  }, (
+    offset,
+    filters,
+    searchText,
+    isAdvancedSource,
+    pageDetail.resultsPerPage,
+    paymentListSourceResolved,
+  ))
 
-  let isInitialSourceRender = React.useRef(true)
+  React.useEffect0(() => {
+    if !isAdvancedSource {
+      removeKeys(advancedPaymentFilterCleanupKeys)
+      setfilterKeys(prev =>
+        prev->Array.filter(key => !(advancedPaymentFilterCleanupKeys->Array.includes(key)))
+      )
+    }
+    None
+  })
+
   React.useEffect(() => {
-    setOffset(_ => 0)
-    setSelectedRows(_ => [])
-    isInitialSourceRender.current
-      ? {
-          isInitialSourceRender.current = false
-          if !isAdvancedSource {
-            removeKeys(advancedPaymentFilterCleanupKeys)
-            setfilterKeys(prev =>
-              prev->Array.filter(key => !(advancedPaymentFilterCleanupKeys->Array.includes(key)))
-            )
-          }
-        }
-      : {
-          reset()
-          setfilterKeys(_ => [])
-        }
+    switch selectedSource {
+    | Some(_) =>
+      setOffset(_ => 0)
+      setSelectedRows(_ => [])
+      reset()
+      setfilterKeys(_ => [])
+    | None => ()
+    }
+    None
+  }, [selectedSource])
 
+  React.useEffect(() => {
     if isAdvancedSource {
       mixpanelEvent(~eventName="advanced_payment_list_viewed")
     }
     None
-  }, [source])
+  }, [isAdvancedSource])
 
   React.useEffect(() => {
     setSelectedRows(_ => [])
@@ -288,9 +285,10 @@ let make = (~previewOnly=false) => {
         </div>
       : searchBar
 
-    let savedViewsAction = devSavedViews
-      ? <SavedViewsComponent version entity=savedViewsEntity />
-      : React.null
+    let savedViewsAction =
+      <RenderIf condition={devSavedViews}>
+        <SavedViewsComponent version entity=savedViewsEntity />
+      </RenderIf>
 
     <RemoteTableFilters
       title=tableTitle
@@ -321,17 +319,17 @@ let make = (~previewOnly=false) => {
   }, (searchText, version, tableTitle, isAdvancedSource, savedViewsEntity, devSavedViews))
 
   let downloadData = () => {
+    let currentDate = Date.now()->Js.Date.fromFloat->Date.toISOString->dateFormat("YYYY-MM-DD")
     DownloadUtils.downloadTableAsCsv(
       ~csvHeaders=OrderEntity.csvHeaders,
       ~rawData=selectedRows,
       ~tableItemToObjMapper=dict => dict,
       ~itemToCSVMapping=OrderEntity.mapOrderDictToCsvRow,
-      ~fileName="payments.csv",
+      ~fileName=`payments_${currentDate}.csv`,
       ~toast=(~message, ~toastType) => showToast(~message, ~toastType),
     )
   }
 
-  let selectedRowsCount = selectedRows->Array.length
   let hasSelectedRows = selectedRows->isNonEmptyArray
   let canExportSelectedRows = isAdvancedSource && hasSelectedRows
   let exportButtonState: Button.buttonState = canExportSelectedRows
@@ -361,7 +359,7 @@ let make = (~previewOnly=false) => {
       rightIcon={Button.CustomIcon(
         <span
           className={`inline-flex h-5 w-5 items-center justify-center rounded-full bg-white bg-opacity-20 text-fs-14 font-medium leading-5 ${selectedRowsCountClass}`}>
-          {selectedRowsCount->Int.toString->React.string}
+          {selectedRows->Array.length->Int.toString->React.string}
         </span>,
       )}
       onClick={_ => canExportSelectedRows ? downloadData() : ()}
@@ -388,14 +386,16 @@ let make = (~previewOnly=false) => {
 
   <ErrorBoundary>
     <div
-      className={`flex flex-col gap-4 md:gap-6 mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
+      className={`flex flex-col gap-4 md:gap-6 mx-auto h-full ${widthClass} ${heightClass} min-h-50-vh`}>
       <div className="flex flex-wrap justify-between gap-3 items-start">
         <PageUtils.PageHeading title="Payment Operations" subTitle="" customTitleStyle />
         <div
           className="flex flex-nowrap justify-end gap-2 items-center whitespace-nowrap overflow-x-auto no-scrollbar">
           <div className="shrink-0">
             <PaymentListSourceControls.SourceTabs
-              source setSource advancedEnabled=advancedPaymentListEnabled
+              source
+              setSource={newSource => setSelectedSource(_ => Some(newSource))}
+              advancedEnabled=advancedPaymentListEnabled
             />
           </div>
           <ToolTip description=exportTooltipText toolTipFor=exportButton toolTipPosition=Top />

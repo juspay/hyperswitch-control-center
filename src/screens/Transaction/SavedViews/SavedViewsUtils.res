@@ -385,10 +385,7 @@ let filterNullValues = json => {
 
 let itemToSavedView = json => {
   let dict = json->getDictFromJsonObject
-  let dataDict = switch dict->getOptionValFromDict("data") {
-  | Some(data) => data->getDictFromJsonObject
-  | None => dict
-  }
+  let dataDict = dict->getOptionValFromDict("data")->mapOptionOrDefault(dict, getDictFromJsonObject)
   let savedView: SavedViewTypes.savedView = {
     view_id: dict->getString("view_id", ""),
     view_name: dict->getString("view_name", ""),
