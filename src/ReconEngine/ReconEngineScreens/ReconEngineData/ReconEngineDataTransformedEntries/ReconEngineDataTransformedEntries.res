@@ -21,8 +21,10 @@ let make = () => {
   )
   let searchTypeRef = React.useRef(SearchStagingEntryId)
   let (searchText, setSearchText) = React.useState(_ => "")
+
   let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
-  let sortOrder = sortDict->getMappedValueFromDict("All Transformed Entries", Desc, getSortOrder)
+  let title = "All Transformed Entries"
+  let sortOrder = sortDict->getMappedValueFromDict(title, Desc, getSortOrder)
   let showToast = ToastAdapter.useShowToast()
 
   let (
@@ -158,7 +160,7 @@ let make = () => {
       <div className="flex flex-col gap-4">
         <div className="flex-shrink-0"> {topFilterUi} </div>
         <LoadedTable
-          title="All Transformed Entries"
+          title
           hideTitle=true
           actualData={processingEntries->Array.map(Nullable.make)}
           entity={ReconEngineExceptionEntity.processingTableEntity}
@@ -186,7 +188,7 @@ let make = () => {
             onChange={value => setSearchText(_ => value)}
             placeholder="Search by ID"
             showTypeSelector=true
-            typeSelectorOptions=searchTypeOptions
+            typeSelectorOptions=searchTypeOptionsWithTransformationHistory
             onSubmitSearchDropdown=handleSearchSubmit
             showSearchIcon=true
             widthClass="w-max"

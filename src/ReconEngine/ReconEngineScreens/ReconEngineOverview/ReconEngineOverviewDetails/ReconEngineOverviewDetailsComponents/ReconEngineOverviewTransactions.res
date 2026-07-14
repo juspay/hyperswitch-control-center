@@ -21,7 +21,8 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   let searchTypeRef = React.useRef(SearchTransactionId)
 
   let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
-  let sortOrder = sortDict->getMappedValueFromDict("Overview Transactions", Desc, getSortOrder)
+  let title = "Overview Transactions"
+  let sortOrder = sortDict->getMappedValueFromDict(title, Desc, getSortOrder)
 
   let fetchAccounts = async () => {
     try {
@@ -97,7 +98,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
     <div className="flex-shrink-0"> {statusFilterUi} </div>
     <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="w-full h-96 rounded-xl" />}>
       <LoadedTableWithCustomColumns
-        title="Overview Transactions"
+        title
         hideTitle=true
         actualData={transactions->Array.map(Nullable.make)}
         totalResults={transactions->Array.length}

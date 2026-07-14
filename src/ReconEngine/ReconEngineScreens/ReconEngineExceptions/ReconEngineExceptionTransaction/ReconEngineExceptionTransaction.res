@@ -41,7 +41,8 @@ let make = (~ruleId: string) => {
   }
 
   let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
-  let sortOrder = sortDict->getMappedValueFromDict("Exception Transactions", Desc, getSortOrder)
+  let title = "Exception Transactions"
+  let sortOrder = sortDict->getMappedValueFromDict(title, Desc, getSortOrder)
 
   let exceptionStatusList = getTransactionStatusValueFromStatusList([
     Expected,
@@ -212,7 +213,7 @@ let make = (~ruleId: string) => {
       </RenderIf>
       <RenderIf condition={transactions->isNonEmptyArray}>
         <LoadedTableWithCustomColumns
-          title="Exception Transactions"
+          title
           hideTitle=true
           actualData={transactions->Array.map(Nullable.make)}
           totalResults={transactions->Array.length}

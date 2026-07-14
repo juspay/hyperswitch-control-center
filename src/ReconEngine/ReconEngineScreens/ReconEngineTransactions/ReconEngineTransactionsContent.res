@@ -20,8 +20,10 @@ let make = (
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
+
   let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
-  let sortOrder = sortDict->getMappedValueFromDict("Transactions", Desc, getSortOrder)
+  let title = "Transactions"
+  let sortOrder = sortDict->getMappedValueFromDict(title, Desc, getSortOrder)
   let (searchText, setSearchText) = React.useState(_ => "")
   let searchTypeRef = React.useRef(SearchTransactionId)
 
@@ -110,7 +112,7 @@ let make = (
     <PageLoaderWrapper screenState>
       <div className="flex-shrink-0"> {topFilterUi} </div>
       <LoadedTableWithCustomColumns
-        title="Transactions"
+        title
         hideTitle=true
         actualData={transactions->Array.map(Nullable.make)}
         totalResults={transactions->Array.length}
