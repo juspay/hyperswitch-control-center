@@ -12,14 +12,20 @@ let make = () => {
   let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=VaultProcessor,
   )
+  let surchargeConnectorsList = ConnectorListInterface.useFilteredConnectorList(
+    ~retainInList=SurchargeProcessor,
+  )
   let {profileId, merchantId, version} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
   let isBusinessProfileHasThreeds =
     threedsConnectorList->Array.some(item => item.profile_id == profileId)
   let isBusinessProfileHasVault =
     vaultConnectorsList->Array.some(item => item.profile_id == profileId)
+  let isBusinessProfileHasSurcharge =
+    surchargeConnectorsList->Array.some(item => item.profile_id == profileId)
 
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let paymentBehaviourTab: Tabs.tab = {
@@ -36,6 +42,12 @@ let make = () => {
     title: "Vault",
     renderContent: () => <PaymentSettingsVault />,
   }
+
+  let surchargeTab: Tabs.tab = {
+    title: "Surcharge",
+    renderContent: () => <PaymentSettingsSurcharge />,
+  }
+
   let paymentLinkTab: Tabs.tab = {
     title: "Payment Link",
     renderContent: () => <PaymentSettingsDomainName />,
@@ -59,8 +71,17 @@ let make = () => {
       baseTabs->Array.push(threeDsTab)
     }
 
-    if version == V1 && featureFlagDetails.vaultProcessor && isBusinessProfileHasVault {
+    if (
+      version == V1 &&
+      featureFlagDetails.vaultProcessor &&
+      isBusinessProfileHasVault &&
+      !isCurrentMerchantConnected
+    ) {
       baseTabs->Array.push(vaultTab)
+    }
+
+    if version == V1 && featureFlagDetails.surchargeProcessor && isBusinessProfileHasSurcharge {
+      baseTabs->Array.push(surchargeTab)
     }
 
     baseTabs->Array.pushMany(additionalTabs)
