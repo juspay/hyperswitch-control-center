@@ -91,9 +91,7 @@ test.describe("Configure PMTs - Page & Layout", () => {
     await configurePMT.openFilters();
     await page.getByText("ProfileId").click();
     await page
-      .locator("div")
-      .filter({ hasText: /^Select Profile$/ })
-      .nth(3)
+      .getByRole('button', { name: 'Select Profile' })
       .click();
     await expect(page.getByRole("button", { name: "Apply" })).toBeDisabled();
     await page
