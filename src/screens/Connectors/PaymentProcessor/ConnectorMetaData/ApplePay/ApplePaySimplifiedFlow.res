@@ -72,6 +72,7 @@ let make = (
       ~method_=Get,
       ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
       ~forceCookies=featureFlagDetails.forceCookies,
+      ~sendV1DummyApiKeyHeader=featureFlagDetails.sendV1DummyApiKeyHeader,
     )
     ->then(Fetch.Response.blob)
     ->then(content => {

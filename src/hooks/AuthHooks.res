@@ -21,6 +21,7 @@ let getHeaders = (
   ~token,
   ~merchantId,
   ~profileId,
+  ~sendV1DummyApiKeyHeader,
   ~version: UserInfoTypes.version,
 ) => {
   let isMixpanel = uri->String.includes("mixpanel")
@@ -34,7 +35,9 @@ let getHeaders = (
     switch (token, version) {
     | (Some(str), V1) => {
         headers->Dict.set("authorization", `Bearer ${str}`)
-        headers->Dict.set("api-key", `hyperswitch`)
+        if sendV1DummyApiKeyHeader {
+          headers->Dict.set("api-key", `hyperswitch`)
+        }
       }
     | (Some(str), V2) => headers->Dict.set("authorization", `Bearer ${str}`)
     | _ => ()
@@ -95,6 +98,7 @@ let useApiFetcher = () => {
       ~contentType=Headers("application/json"),
       ~xFeatureRoute,
       ~forceCookies,
+      ~sendV1DummyApiKeyHeader=false,
       ~merchantId="",
       ~profileId="",
       ~version=UserInfoTypes.V1,
@@ -146,6 +150,7 @@ let useApiFetcher = () => {
               ~xFeatureRoute,
               ~merchantId,
               ~profileId,
+              ~sendV1DummyApiKeyHeader,
               ~version,
             ),
             ~signal?, // to be used in case of aborting requests
