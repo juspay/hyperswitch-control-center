@@ -793,9 +793,10 @@ let getOpenExceptions = (
     acc + exceptionCount
   })
 
-  let stagingExceptions = ReconEngineDataTransformedEntriesUtils.getTotalNeedsManualReviewEntries(
-    stagingOverviewData,
-  )->Float.toInt
+  let stagingExceptions =
+    ReconEngineDataTransformedEntriesUtils.getTotalNeedsManualReviewEntries(
+      stagingOverviewData,
+    )->Float.toInt
 
   txnExceptions + stagingExceptions
 }
