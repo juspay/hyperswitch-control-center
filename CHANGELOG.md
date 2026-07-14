@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.07.14.0
+
+### Miscellaneous Tasks
+
+- Add EU support for mixpanel events ([#5111](https://github.com/juspay/hyperswitch-control-center/pull/5111)) ([`c1522da`](https://github.com/juspay/hyperswitch-control-center/commit/c1522daff6d87b98b9381630a30d50eff320c2d4))
+
+**Full Changelog:** [`2026.07.12.0...2026.07.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.12.0...2026.07.14.0)
+
+- - -
+
 ## 2026.07.12.0
 
 ### Features
