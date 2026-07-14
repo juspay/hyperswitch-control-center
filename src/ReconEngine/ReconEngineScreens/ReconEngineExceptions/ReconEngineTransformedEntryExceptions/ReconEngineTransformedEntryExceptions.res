@@ -6,20 +6,29 @@ let make = () => {
   open ReconEngineFilterUtils
   open LogicUtils
   open ReconEngineTypes
-  open ReconEngineTransformedEntryExceptionsUtils
+  open ReconEngineDataTransformedEntriesUtils
+  open ReconEngineDataTransformedEntriesTypes
   open HSAnalyticsUtils
 
-  let getGetProcessingEntries = useGetProcessingEntries()
+  let getProcessingEntriesV2 = useGetCursorPage(
+    ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST_V2,
+    ~itemMapper=ReconEngineUtils.processingItemToObjMapper,
+  )
+  let getAccounts = useGetAccounts()
+  let showToast = ToastAdapter.useShowToast()
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
 
-  let (stagingData, setStagingData) = React.useState(_ => [])
-  let (filteredStagingData, setFilteredStagingData) = React.useState(_ => [])
+  let (accountData, setAccountData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
+  let searchTypeRef = React.useRef(SearchStagingEntryId)
   let (searchText, setSearchText) = React.useState(_ => "")
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
+
+  let title = "Transformed Entry Exceptions"
+  let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
+  let sortOrder = sortDict->getMappedValueFromDict(title, Desc, getSortOrder)
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
@@ -27,49 +36,54 @@ let make = () => {
     mixpanelEvent(~eventName="recon_engine_transformed_entries_exceptions_date_filter_opened")
   }
 
-  let accountOptions = React.useMemo(() => {
-    getAccountOptionsFromStagingEntries(stagingData)
-  }, [stagingData])
-
-  let filterLogic = ReactDebounce.useDebounced(ob => {
-    let (searchText, arr) = ob
-    let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<processingEntryType>) => {
-        switch Nullable.toOption(obj) {
-        | Some(obj) =>
-          isContainingStringLowercase(obj.staging_entry_id, searchText) ||
-          isContainingStringLowercase((obj.status :> string), searchText) ||
-          isContainingStringLowercase(obj.order_id, searchText)
-        | None => false
-        }
-      })
-    } else {
-      arr
-    }
-    setFilteredStagingData(_ => filteredList)
-  }, ~wait=200)
-
-  let fetchStagingData = async () => {
-    try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let enhancedFilterValueJson = Dict.copy(filterValueJson)
-      let statusFilter = filterValueJson->getArrayFromDict("status", [])
-      let statusList = getProcessingEntryStatusValueFromStatusList([NeedsManualReview])
-      if statusFilter->isEmptyArray {
-        enhancedFilterValueJson->Dict.set("status", statusList->getJsonFromArrayOfString)
-      }
-      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
-        ~filterValueJson=enhancedFilterValueJson,
+  let (
+    processingEntries,
+    cursors,
+    screenState,
+    goToFirstPage,
+    goToNextPage,
+    goToPrevPage,
+  ) = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=(~sortBy, ~direction) => {
+    let enhancedFilterValueJson = Dict.copy(filterValueJson)
+    let statusFilter = filterValueJson->getArrayFromDict("status", [])
+    if statusFilter->isEmptyArray {
+      enhancedFilterValueJson->Dict.set(
+        "status",
+        getProcessingEntryStatusValueFromStatusList([NeedsManualReview])->getJsonFromArrayOfString,
       )
-
-      let stagingList = await getGetProcessingEntries(~queryParameters=Some(queryString))
-      setStagingData(_ => stagingList)
-      setFilteredStagingData(_ => stagingList->Array.map(Nullable.make))
-
-      setScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
+    getProcessingEntriesV2(
+      ~body=buildProcessingEntriesV2Body(
+        ~filterValueJson=enhancedFilterValueJson,
+        ~searchType=searchTypeRef.current,
+        ~searchText,
+        ~sortBy,
+        ~direction,
+        ~order=sortOrder,
+      ),
+    )
+  }, ~persistKey="recon-engine-transformed-entry-exceptions")
+
+  let fetchAccounts = async () => {
+    try {
+      let accounts = await getAccounts()
+      setAccountData(_ => accounts)
+    } catch {
+    | _ => showToast(~message="Failed to fetch accounts", ~toastType=ToastError)
+    }
+  }
+
+  let accountOptions =
+    accountData->Array.map((account: accountType): FilterSelectBox.dropdownOption => {
+      label: account.account_name,
+      value: account.account_id,
+    })
+
+  let handleSearchSubmit = (selectedType: option<string>) => {
+    let newSearchType = selectedType->mapOptionOrDefault(SearchStagingEntryId, searchTypeFromString)
+    searchTypeRef.current = newSearchType
+    setSelectedRows(_ => [])
+    goToFirstPage()
   }
 
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
@@ -83,21 +97,25 @@ let make = () => {
 
   React.useEffect(() => {
     setInitialFilters()
+    fetchAccounts()->ignore
     None
   }, [])
 
   React.useEffect(() => {
     if !(filterValue->isEmptyDict) {
-      fetchStagingData()->ignore
+      setSelectedRows(_ => [])
+      goToFirstPage()
     }
     None
-  }, [filterValue])
+  }, (filterValue, sortOrder))
 
   let topFilterUi = {
     <div className="flex flex-row -ml-1.5">
       <DynamicFilter
         title="ReconEngineTransformedEntriesExceptionsFilters"
-        initialFilters={initialDisplayFilters(~accountOptions)}
+        initialFilters={ReconEngineTransformedEntryExceptionsUtils.initialDisplayFilters(
+          ~accountOptions,
+        )}
         options=[]
         popupFilterFields=[]
         initialFixedFilters={initialFixedFilterFields(
@@ -111,7 +129,6 @@ let make = () => {
         filterFieldsPortalName={filterFieldsPortalName}
         showCustomFilter=false
         refreshFilters=false
-        setOffset
       />
     </div>
   }
@@ -127,7 +144,7 @@ let make = () => {
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-4">
         <div className="flex-shrink-0"> {topFilterUi} </div>
-        <RenderIf condition={stagingData->isEmptyArray}>
+        <RenderIf condition={processingEntries->isEmptyArray}>
           <div className="h-40-vh flex flex-col justify-center items-center gap-2">
             <p className={`${heading.sm.semibold} text-gray-800`}>
               {"No exceptions to show."->React.string}
@@ -137,34 +154,52 @@ let make = () => {
             </p>
           </div>
         </RenderIf>
-        <RenderIf condition={stagingData->isNonEmptyArray}>
+        <RenderIf condition={processingEntries->isNonEmptyArray}>
           <LoadedTable
-            title="Transformed Entries"
+            title
             hideTitle=true
-            actualData={filteredStagingData}
+            actualData={processingEntries->Array.map(Nullable.make)}
             entity={ReconEngineExceptionEntity.transformedEntryExceptionTableEntity(
               `v1/recon-engine/exceptions/transformed-entries`,
               ~authorization=Access,
             )}
             resultsPerPage=10
-            totalResults={filteredStagingData->Array.length}
+            totalResults={processingEntries->Array.length}
             offset
             setOffset
-            currentFetchCount={filteredStagingData->Array.length}
+            currentFetchCount={processingEntries->Array.length}
             tableheadingClass="h-12"
             tableHeadingTextClass="!font-normal"
             nonFrozenTableParentClass="!rounded-lg"
             loadedTableParentClass="flex flex-col"
             enableEqualWidthCol=false
             showAutoScroll=true
-            filters={<TableSearchFilter
-              data={stagingData->Array.map(Nullable.make)}
-              filterLogic
-              placeholder="Search Transformed Entry ID or Order ID or Status"
-              customSearchBarWrapperWidth="w-full lg:w-1/3"
-              customInputBoxWidth="w-full rounded-xl"
-              searchVal=searchText
-              setSearchVal=setSearchText
+            showPagination=false
+            showResultsPerPageSelector=false
+            tableDataLoading={screenState === PageLoaderWrapper.Loading}
+            dataLoading={screenState === PageLoaderWrapper.Loading}
+            filters={<SearchInput
+              inputText=searchText
+              onChange={value => setSearchText(_ => value)}
+              placeholder="Search by ID"
+              showTypeSelector=true
+              typeSelectorOptions=searchTypeOptionsWithTransformationHistory
+              onSubmitSearchDropdown=handleSearchSubmit
+              showSearchIcon=true
+              widthClass="w-max"
+            />}
+            bottomActions={<ReconEngineCursorPaginationButtons
+              cursors
+              isLoading={screenState === PageLoaderWrapper.Loading}
+              show={processingEntries->isNonEmptyArray}
+              onPrev={() => {
+                setSelectedRows(_ => [])
+                goToPrevPage()
+              }}
+              onNext={() => {
+                setSelectedRows(_ => [])
+                goToNextPage()
+              }}
             />}
             checkBoxProps={{
               showCheckBox: true,
@@ -179,7 +214,7 @@ let make = () => {
       <ReconEngineTransformedEntryBulkActions
         selectedRows={selectedRows->Array.map(json => json->Identity.jsonToAnyType)}
         setSelectedRows
-        refreshList={() => fetchStagingData()->ignore}
+        refreshList={() => goToFirstPage()}
       />
     </RenderIf>
   </div>
