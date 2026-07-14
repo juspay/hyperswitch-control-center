@@ -86,12 +86,13 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
   | PaymentMethodType => Text(attempt.payment_method_type)
   | AttemptId => DisplayCopyCell(attempt.attempt_id)
   | ErrorMessage => Text(attempt.error_message)
-  | ConnectorTransactionID =>
-    if attempt.connector_transaction_id->isNonEmptyString {
-      DisplayCopyCell(attempt.connector_transaction_id)
-    } else {
-      Text("NA")
-    }
+  | ConnectorTransactionID => {
+  let connectorTransactionId = attempt.connector_transaction_id
+
+  connectorTransactionId->isNonEmptyString
+    ? DisplayCopyCell(connectorTransactionId)
+    : Text("NA")
+}
   | CaptureMethod => Text(attempt.capture_method)
   | AuthenticationType => Text(attempt.authentication_type)
   | CancellationReason => Text(attempt.cancellation_reason)
