@@ -458,13 +458,9 @@ module Disputes = {
 module OrderActions = {
   @react.component
   let make = (
-    
     ~orderData,
-   
     ~refetch,
-   
     ~showModal,
-   
     ~setShowModal,
     ~showVoidModal,
     ~setShowVoidModal,
@@ -844,17 +840,12 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         <div />
       </div>
       <OrderActions
-       
         orderData={orderData}
-       
         refetch={refreshStatus}
-       
         showModal
-       
         setShowModal
         showVoidModal
         setShowVoidModal
-     
         showCaptureModal
         setShowCaptureModal
       />
