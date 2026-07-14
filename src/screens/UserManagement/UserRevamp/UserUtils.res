@@ -91,6 +91,49 @@ let itemToObjMapperForDetailedRoleInfo: Dict.t<
   }
 }
 
+// Mirrors the dashboard sidebar: core orchestration, recon, developers, then settings.
+// Keep legacy recon groups in the same position as the current recon permission groups.
+let permissionGroupsInSidebarOrder = [
+  "Operations",
+  "Connectors",
+  "Analytics",
+  "Workflows",
+  "ReconOps",
+  "ReconReports",
+  "ReconTransactions",
+  "ReconExceptions",
+  "ReconRules",
+  "ReconSources",
+  "Account",
+  "MerchantDetails",
+  "Theme",
+  "Users",
+]
+
+let sortPermissionModulesBySidebarOrder = (
+  modules: array<UserManagementTypes.detailedUserModuleType>,
+) =>
+  modules->Array.toSorted((firstModule, secondModule) => {
+    let getSidebarIndex = moduleName =>
+      permissionGroupsInSidebarOrder->Array.findIndex(groupName =>
+        groupName->String.toLowerCase === moduleName->String.toLowerCase
+      )
+
+    let firstIndex = firstModule.parentGroup->getSidebarIndex
+    let secondIndex = secondModule.parentGroup->getSidebarIndex
+
+    switch (firstIndex, secondIndex) {
+    | (-1, -1) =>
+      String.compare(
+        firstModule.parentGroup->String.toLowerCase,
+        secondModule.parentGroup->String.toLowerCase,
+      )
+    | (-1, _) => 1.
+    | (_, -1) => -1.
+    | (_, _) => Float.fromInt(firstIndex - secondIndex)
+    }
+  })
+
 let modulesWithUserAccess = (
   roleInfo: array<UserManagementTypes.userModuleType>,
   userAccessGroup: array<UserManagementTypes.detailedUserModuleType>,

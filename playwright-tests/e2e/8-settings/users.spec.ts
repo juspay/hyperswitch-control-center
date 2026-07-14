@@ -19,6 +19,42 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 const MAIL_URL = process.env.PLAYWRIGHT_MAIL_URL || "http://localhost:8025";
 const email = "playwright@test.com";
 
+const permissionGroupsInSidebarOrder = [
+  "Operations",
+  "Connectors",
+  "Analytics",
+  "Workflows",
+  "ReconOps",
+  "ReconReports",
+  "ReconTransactions",
+  "ReconExceptions",
+  "ReconRules",
+  "ReconSources",
+  "Account",
+  "MerchantDetails",
+  "Theme",
+  "Users",
+];
+
+const sortPermissionGroupsBySidebarOrder = (groups: string[]) =>
+  [...groups].sort((firstGroup, secondGroup) => {
+    const firstIndex = permissionGroupsInSidebarOrder.findIndex(
+      (group) => group.toLowerCase() === firstGroup.toLowerCase(),
+    );
+    const secondIndex = permissionGroupsInSidebarOrder.findIndex(
+      (group) => group.toLowerCase() === secondGroup.toLowerCase(),
+    );
+
+    if (firstIndex === -1 && secondIndex === -1) {
+      return firstGroup.localeCompare(secondGroup, undefined, {
+        sensitivity: "base",
+      });
+    }
+    if (firstIndex === -1) return 1;
+    if (secondIndex === -1) return -1;
+    return firstIndex - secondIndex;
+  });
+
 async function setupAndNavigate(
   page: Page,
   context: BrowserContext,
@@ -387,6 +423,11 @@ test.describe("Users - Invite Users", () => {
         )?.trim();
         if (text) renderedGroups.push(text);
       }
+
+      expect(
+        renderedGroups,
+        `${role}: permission groups should follow the dashboard sidebar order`,
+      ).toEqual(sortPermissionGroupsBySidebarOrder(renderedGroups));
 
       // Every accessible group from the API must be rendered and NOT greyed.
       for (const groupName of expectedAccessible) {

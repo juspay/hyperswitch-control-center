@@ -48,15 +48,21 @@ module RoleAccessOverview = {
       roleInfo,
       detailedUserAccess,
     )
+    let modulesInSidebarOrder =
+      Array.concat(
+        modulesWithAccess,
+        moduleWithoutAccess,
+      )->UserUtils.sortPermissionModulesBySidebarOrder
+    let accessibleModuleNames = modulesWithAccess->Array.map(module_ => module_.parentGroup)
+
     <div className="flex flex-col gap-8">
-      {modulesWithAccess
+      {modulesInSidebarOrder
       ->Array.mapWithIndex((elem, index) => {
-        <ModuleAccessRenderer elem index />
-      })
-      ->React.array}
-      {moduleWithoutAccess
-      ->Array.mapWithIndex((elem, index) => {
-        <ModuleAccessRenderer elem index customCss="text-grey-200" />
+        <ModuleAccessRenderer
+          elem
+          index
+          customCss={accessibleModuleNames->Array.includes(elem.parentGroup) ? "" : "text-grey-200"}
+        />
       })
       ->React.array}
     </div>
