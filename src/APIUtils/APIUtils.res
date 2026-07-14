@@ -398,6 +398,11 @@ let useGetURL = () => {
         | (Post, Some(payment_id)) => `payments/${payment_id}/cancel`
         | _ => ""
         }
+      | PAYMENT_CAPTURE =>
+        switch (methodType, id) {
+        | (Post, Some(payment_id)) => `payments/${payment_id}/capture`
+        | _ => ""
+        }
       | ORDERS_AGGREGATE =>
         switch methodType {
         | Get =>
