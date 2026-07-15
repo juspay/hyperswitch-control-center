@@ -78,13 +78,19 @@ let validateAmount = dict => {
 
 let createAmountQuery = (~dict) => {
   let hasAmountError = validateAmount(dict)
-  if !hasAmountError {
-    let encodeAmount = value => value->mapOptionOrDefault(JSON.Encode.null, encodeFloatOrDefault)
+  let startAmount = dict->getOptionFloat("start_amount")
+  let endAmount = dict->getOptionFloat("end_amount")
+  let hasAmountFilter = startAmount->Option.isSome || endAmount->Option.isSome
+  if !hasAmountError && hasAmountFilter {
+    let encodeAmount = value =>
+      value->Option.mapOr(JSON.Encode.null, amount =>
+        amount->JSON.Encode.float->encodeFloatOrDefault
+      )
     dict->Dict.set(
       "amount_filter",
       [
-        ("start_amount", dict->getOptionValFromDict("start_amount")->encodeAmount),
-        ("end_amount", dict->getOptionValFromDict("end_amount")->encodeAmount),
+        ("start_amount", startAmount->encodeAmount),
+        ("end_amount", endAmount->encodeAmount),
       ]->getJsonFromArrayOfJson,
     )
   }
