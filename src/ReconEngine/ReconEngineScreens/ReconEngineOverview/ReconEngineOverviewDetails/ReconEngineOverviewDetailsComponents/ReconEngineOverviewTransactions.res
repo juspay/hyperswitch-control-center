@@ -48,14 +48,14 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
       ),
     )
 
-  let (
-    transactions,
+  let {
+    items: transactions,
     cursors,
     screenState,
     goToFirstPage,
     goToNextPage,
     goToPrevPage,
-  ) = ReconEngineCursorPaginationHook.useCursorPagination(
+  } = ReconEngineCursorPaginationHook.useCursorPagination(
     ~fetchPage,
     ~persistKey=`recon-engine-overview-transactions-${ruleDetails.rule_id}`,
   )
@@ -139,7 +139,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
         bottomActions={<ReconEngineCursorPaginationButtons
           cursors
           isLoading={screenState === PageLoaderWrapper.Loading}
-          show={transactions->isNonEmptyArray}
+          hasData={transactions->isNonEmptyArray}
           onPrev=goToPrevPage
           onNext=goToNextPage
         />}

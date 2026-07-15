@@ -38,14 +38,14 @@ let make = (
     mixpanelEvent(~eventName="recon_engine_exception_staging_date_filter_opened")
   }
 
-  let (
-    processingEntries,
+  let {
+    items: processingEntries,
     cursors,
     screenState,
     goToFirstPage,
     goToNextPage,
     goToPrevPage,
-  ) = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=(~sortBy, ~direction) => {
+  } = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=(~sortBy, ~direction) => {
     getProcessingEntriesV2(
       ~body=buildProcessingEntriesV2Body(
         ~filterValueJson,
@@ -195,7 +195,7 @@ let make = (
         bottomActions={<ReconEngineCursorPaginationButtons
           cursors
           isLoading={screenState === PageLoaderWrapper.Loading}
-          show={processingEntries->isNonEmptyArray}
+          hasData={processingEntries->isNonEmptyArray}
           onPrev=goToPrevPage
           onNext=goToNextPage
         />}

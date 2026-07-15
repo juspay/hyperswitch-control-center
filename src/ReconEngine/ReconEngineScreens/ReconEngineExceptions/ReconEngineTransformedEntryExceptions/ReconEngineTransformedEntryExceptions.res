@@ -36,14 +36,14 @@ let make = () => {
     mixpanelEvent(~eventName="recon_engine_transformed_entries_exceptions_date_filter_opened")
   }
 
-  let (
-    processingEntries,
+  let {
+    items: processingEntries,
     cursors,
     screenState,
     goToFirstPage,
     goToNextPage,
     goToPrevPage,
-  ) = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=(~sortBy, ~direction) => {
+  } = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=(~sortBy, ~direction) => {
     let enhancedFilterValueJson = Dict.copy(filterValueJson)
     let statusFilter = filterValueJson->getArrayFromDict("status", [])
     if statusFilter->isEmptyArray {
@@ -192,7 +192,7 @@ let make = () => {
             bottomActions={<ReconEngineCursorPaginationButtons
               cursors
               isLoading={screenState === PageLoaderWrapper.Loading}
-              show={processingEntries->isNonEmptyArray}
+              hasData={processingEntries->isNonEmptyArray}
               onPrev={() => {
                 setSelectedRows(_ => [])
                 goToPrevPage()
