@@ -14,14 +14,21 @@ let make = (~children, ~isEmbeddableApp=false) => {
   ))
 
   let fetchApi = AuthHooks.useApiFetcher()
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let getUserInfo = async () => {
     open LogicUtils
 
     let url = `${Window.env.apiBaseUrl}/user`
     try {
-      let res = await fetchApi(`${url}`, ~method_=Get, ~xFeatureRoute, ~forceCookies)
+      let res = await fetchApi(
+        `${url}`,
+        ~method_=Get,
+        ~xFeatureRoute,
+        ~forceCookies,
+        ~sendV1DummyApiKeyHeader,
+      )
       let response = await res->(res => res->Fetch.Response.json)
       let userInfo = response->getDictFromJsonObject->itemMapperToDashboardUserType
       HyperSwitchEntryUtils.setThemeIdtoStore(userInfo.themeId)
@@ -123,6 +130,7 @@ let make = (~children, ~isEmbeddableApp=false) => {
         ~method_=Get,
         ~xFeatureRoute,
         ~forceCookies,
+        ~sendV1DummyApiKeyHeader,
         ~isEmbeddableSession=true,
       )
       let response = await res->(res => res->Fetch.Response.json)

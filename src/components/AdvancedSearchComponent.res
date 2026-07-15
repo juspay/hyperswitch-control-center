@@ -17,7 +17,8 @@ let make = (~children, ~setData=?, ~entity: EntityType.entityType<'colType, 't>,
   let initialValueJson = JSON.Encode.object(Dict.make())
   let showToast = ToastAdapter.useShowToast()
   let (showModal, setShowModal) = React.useState(_ => false)
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
@@ -31,6 +32,7 @@ let make = (~children, ~setData=?, ~entity: EntityType.entityType<'colType, 't>,
       ~method_=Post,
       ~xFeatureRoute,
       ~forceCookies,
+      ~sendV1DummyApiKeyHeader,
       ~merchantId,
       ~profileId,
     )
