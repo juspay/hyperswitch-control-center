@@ -46,35 +46,22 @@ let useGetTransactions = () => {
   }
 }
 
-let useGetTransactionsV2 = () => {
+let useGetCursorPage = (
+  ~hyperswitchReconType: APIUtilsTypes.hyperswitchReconType,
+  ~itemMapper: Dict.t<JSON.t> => 'item,
+) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
 
-  async (~body: JSON.t) => {
+  async (~body: JSON.t): ReconEngineTypes.cursorPage<'item> => {
     try {
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Post,
-        ~hyperswitchReconType=#TRANSACTIONS_LIST_V2,
-      )
+      let url = getURL(~entityName=V1(HYPERSWITCH_RECON), ~methodType=Post, ~hyperswitchReconType)
       let res = await updateDetails(url, body, Post)
       let dict = res->getDictFromJsonObject
-      let transactions =
-        dict
-        ->getArrayFromDict("items", [])
-        ->getMappedValueFromArrayOfJson(transactionItemToObjMapper)
-      let getCursor = key =>
-        dict
-        ->getOptionValFromDict(key)
-        ->Option.filter(json => json->JSON.Classify.classify != Null)
-        ->Option.map(json =>
-          json->getDictFromJsonObject->ReconEngineTransactionsUtils.transactionCursorFromDict
-        )
-      let page: ReconEngineTransactionsTypes.transactionsV2Page = {
-        transactions,
-        cursors: {next: getCursor("next_cursor"), prev: getCursor("prev_cursor")},
+      {
+        items: dict->getArrayFromDict("items", [])->getMappedValueFromArrayOfJson(itemMapper),
+        cursors: dict->cursorsFromDict,
       }
-      page
     } catch {
     | _ => Exn.raiseError("Something went wrong")
     }
@@ -179,43 +166,6 @@ let useGetProcessingEntries = () => {
       let processedEntries = res->getArrayDataFromJson(processingItemToObjMapper)
       processedEntries->Array.sort((a, b) => compareLogic(b.effective_at, a.effective_at))
       processedEntries
-    } catch {
-    | _ => Exn.raiseError("Something went wrong")
-    }
-  }
-}
-
-let useGetProcessingEntriesV2 = () => {
-  let getURL = useGetURL()
-  let updateDetails = useUpdateMethod()
-
-  async (~body: JSON.t) => {
-    try {
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Post,
-        ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST_V2,
-      )
-      let res = await updateDetails(url, body, Post)
-      let dict = res->getDictFromJsonObject
-      let processingEntries =
-        dict
-        ->getArrayFromDict("items", [])
-        ->getMappedValueFromArrayOfJson(processingItemToObjMapper)
-      let getCursor = key =>
-        dict
-        ->getOptionValFromDict(key)
-        ->Option.filter(json => json->JSON.Classify.classify != Null)
-        ->Option.map(json =>
-          json
-          ->getDictFromJsonObject
-          ->ReconEngineDataTransformedEntriesUtils.processingEntryCursorFromDict
-        )
-      let page: ReconEngineDataTransformedEntriesTypes.processingEntriesV2Page = {
-        processingEntries,
-        cursors: {next: getCursor("next_cursor"), prev: getCursor("prev_cursor")},
-      }
-      page
     } catch {
     | _ => Exn.raiseError("Something went wrong")
     }

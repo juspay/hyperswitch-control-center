@@ -26,26 +26,12 @@ let getSortOrder = (sortOb: LoadedTable.sortOb): transactionSortOrder => {
   sortOb.sortKey === "date" && sortOb.sortType === LoadedTable.ASC ? Asc : Desc
 }
 
-let transactionCursorFromDict = dict => {
-  let cursorValueDict = dict->getDictfromDict("cursor_value")
-
-  {
-    sortField: dict->getString("sort_field", "effective_at"),
-    cursorValue: Some({
-      effectiveAt: cursorValueDict->getString("effective_at", ""),
-      cursorId: cursorValueDict->getString("id", ""),
-    }),
-  }
-}
-
-let defaultSortBy: transactionCursor = {sortField: "effective_at", cursorValue: None}
-
 let buildTransactionsV2Body = (
   ~filterValueJson: Dict.t<JSON.t>,
   ~searchType: transactionSearchType,
   ~searchText: string,
   ~ruleId: string,
-  ~sortBy: transactionCursor,
+  ~sortBy: cursor,
   ~direction: cursorDirection,
   ~order: transactionSortOrder=Desc,
   ~limit=4,
