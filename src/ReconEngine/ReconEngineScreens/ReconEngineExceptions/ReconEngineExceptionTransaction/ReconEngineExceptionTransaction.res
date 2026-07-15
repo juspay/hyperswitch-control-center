@@ -88,14 +88,14 @@ let make = (~ruleId: string) => {
     )
   }
 
-  let (
-    transactions,
+  let {
+    items: transactions,
     cursors,
     screenState,
     goToFirstPage,
     goToNextPage,
     goToPrevPage,
-  ) = ReconEngineCursorPaginationHook.useCursorPagination(
+  } = ReconEngineCursorPaginationHook.useCursorPagination(
     ~fetchPage,
     ~persistKey=`recon-engine-exception-transactions-${ruleId}`,
   )

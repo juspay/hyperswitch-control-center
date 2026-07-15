@@ -27,14 +27,14 @@ let make = (
   let (searchText, setSearchText) = React.useState(_ => "")
   let searchTypeRef = React.useRef(SearchTransactionId)
 
-  let (
-    transactions,
+  let {
+    items: transactions,
     cursors,
     screenState,
     goToFirstPage,
     goToNextPage,
     goToPrevPage,
-  ) = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=(~sortBy, ~direction) => {
+  } = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=(~sortBy, ~direction) => {
     getTransactionsV2(
       ~body=buildTransactionsV2Body(
         ~filterValueJson,

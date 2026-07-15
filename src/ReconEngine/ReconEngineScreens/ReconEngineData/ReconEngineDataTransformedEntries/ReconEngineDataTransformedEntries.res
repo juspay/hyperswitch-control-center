@@ -27,14 +27,14 @@ let make = () => {
   let sortOrder = sortDict->getMappedValueFromDict(title, Desc, getSortOrder)
   let showToast = ToastAdapter.useShowToast()
 
-  let (
-    processingEntries,
+  let {
+    items: processingEntries,
     cursors,
     screenState,
     goToFirstPage,
     goToNextPage,
     goToPrevPage,
-  ) = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=(~sortBy, ~direction) => {
+  } = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=(~sortBy, ~direction) => {
     getProcessingEntriesV2(
       ~body=buildProcessingEntriesV2Body(
         ~filterValueJson,
