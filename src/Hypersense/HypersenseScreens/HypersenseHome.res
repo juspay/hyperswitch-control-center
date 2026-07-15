@@ -5,6 +5,7 @@ open HypersenseTypes
 let make = () => {
   open APIUtils
   open LogicUtils
+  open PageUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -31,14 +32,14 @@ let make = () => {
       ariaLabel="Cost Observability Dashboard Preview"
     />
     <div className="flex flex-col gap-4 items-center">
-      <div className="flex flex-col gap-2 items-center">
-        <p className={`${heading.md.bold} text-center text-nd_gray-700`}>
-          {"Gain Control & Optimize Payment Costs"->React.string}
-        </p>
-        <p className={`${body.md.regular} text-center text-nd_gray-500 max-w-lg`}>
-          {"Reduce your payment processing costs by up to 10%"->React.string}
-        </p>
-      </div>
+      <PageHeading
+        title="Gain Control & Optimize Payment Costs"
+        subTitle="Reduce your payment processing costs by up to 10%"
+        customHeadingStyle="gap-2 flex flex-col items-center !mb-0"
+        customTitleStyle={`${heading.md.bold} text-center text-nd_gray-700`}
+        customSubTitleStyle={`${body.md.regular} text-center text-nd_gray-500 max-w-lg !opacity-100 !mt-0`}
+        showPermLink=false
+      />
       <Button
         text="Explore Cost Observability"
         onClick={_ => {
