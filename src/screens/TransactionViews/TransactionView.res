@@ -11,8 +11,8 @@ module TransactionViewCard = {
     open TransactionViewUtils
     open Typography
 
-    let textClass = isActiveView ? "text-primary" : `${body.md.semibold} text-nd_gray-700`
-    let countTextClass = isActiveView ? "text-primary" : `${body.md.semibold} text-nd_gray-900`
+    let textClass = `${body.md.semibold} ${isActiveView ? "text-primary" : "text-nd_gray-700"}`
+    let countTextClass = `${body.md.semibold} ${isActiveView ? "text-primary" : "text-nd_gray-900"}`
     let borderClass = isActiveView ? "border-primary" : ""
 
     <div
@@ -59,7 +59,6 @@ let make = (
   let (activeView: TransactionViewTypes.viewTypes, setActiveView) = React.useState(_ =>
     TransactionViewTypes.All
   )
-  let lastAggregateRequestKey = React.useRef("")
 
   let customFilterKey = getCustomFilterKey(entity)
   let isAdvancedOrdersView = isAdvancedView && entity == Orders
@@ -209,21 +208,10 @@ let make = (
   }, (filterValueJson, aggregateResponse))
 
   React.useEffect(() => {
-    if (
-      startTime->isNonEmptyString &&
-      endTime->isNonEmptyString &&
-      lastAggregateRequestKey.current !== aggregateRequestKey
-    ) {
-      let timeoutId = setTimeout(() => {
-        if lastAggregateRequestKey.current !== aggregateRequestKey {
-          lastAggregateRequestKey.current = aggregateRequestKey
-          loadAggregateCounts()->ignore
-        }
-      }, 120)
-      Some(() => clearTimeout(timeoutId))
-    } else {
-      None
+    if startTime->isNonEmptyString && endTime->isNonEmptyString {
+      loadAggregateCounts()->ignore
     }
+    None
   }, [aggregateRequestKey])
 
   let viewsArray = switch entity {

@@ -62,7 +62,7 @@ let make = (~previewOnly=false) => {
     sortType: ASC,
   }
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
-  let pageDetail = pageDetailDict->Dict.get(tableTitle)->Option.getOr(defaultValue)
+  let pageDetail = pageDetailDict->getValueFromDict(tableTitle, defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let {filterValueJson, updateExistingKeys, removeKeys, reset, setfilterKeys} = React.useContext(
     FilterContext.filterContext,
@@ -90,7 +90,10 @@ let make = (~previewOnly=false) => {
       let data = res.data
       let total = res.total_count
 
-      if data->Array.length === 0 && filterValueJson->Dict.get("payment_id")->Option.isSome {
+      if (
+        data->Array.length === 0 &&
+          filterValueJson->getOptionValFromDict("payment_id")->Option.isSome
+      ) {
         let paymentId = filterValueJson->getString("payment_id", "")
 
         if RegExp.test(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), paymentId) {
@@ -149,7 +152,7 @@ let make = (~previewOnly=false) => {
           filterParams->Dict.set("payment_id", trimmedSearchText->JSON.Encode.string)
         }
 
-        let sortObj = sortAtomValue->Dict.get(tableTitle)->Option.getOr(defaultSort)
+        let sortObj = sortAtomValue->getValueFromDict(tableTitle, defaultSort)
         if sortObj.sortKey->isNonEmptyString {
           filterParams->Dict.set(
             "order",
@@ -198,6 +201,7 @@ let make = (~previewOnly=false) => {
   }
 
   React.useEffect(() => {
+    setSelectedRows(_ => [])
     if paymentListSourceResolved && filters->isNonEmptyValue {
       fetchOrders()
     }
@@ -211,6 +215,14 @@ let make = (~previewOnly=false) => {
     paymentListSourceResolved,
   ))
 
+  let handleSourceChange = newSource => {
+    setSelectedSource(_ => Some(newSource))
+    setOffset(_ => 0)
+    setFilters(_ => None)
+    reset()
+    setfilterKeys(_ => [])
+  }
+
   React.useEffect0(() => {
     if !isAdvancedSource {
       removeKeys(advancedPaymentFilterCleanupKeys)
@@ -222,28 +234,11 @@ let make = (~previewOnly=false) => {
   })
 
   React.useEffect(() => {
-    switch selectedSource {
-    | Some(_) =>
-      setOffset(_ => 0)
-      setSelectedRows(_ => [])
-      reset()
-      setfilterKeys(_ => [])
-    | None => ()
-    }
-    None
-  }, [selectedSource])
-
-  React.useEffect(() => {
     if isAdvancedSource {
       mixpanelEvent(~eventName="advanced_payment_list_viewed")
     }
     None
   }, [isAdvancedSource])
-
-  React.useEffect(() => {
-    setSelectedRows(_ => [])
-    None
-  }, (offset, pageDetail.resultsPerPage, filters, searchText))
 
   React.useEffect(() => {
     Some(
@@ -393,9 +388,7 @@ let make = (~previewOnly=false) => {
           className="flex flex-nowrap justify-end gap-2 items-center whitespace-nowrap overflow-x-auto no-scrollbar">
           <div className="shrink-0">
             <PaymentListSourceControls.SourceTabs
-              source
-              setSource={newSource => setSelectedSource(_ => Some(newSource))}
-              advancedEnabled=advancedPaymentListEnabled
+              source setSource=handleSourceChange advancedEnabled=advancedPaymentListEnabled
             />
           </div>
           <ToolTip description=exportTooltipText toolTipFor=exportButton toolTipPosition=Top />

@@ -203,24 +203,20 @@ let buildAllStatusFilterStringForKey = (obj, key) => {
   ->Array.joinWith(",")
 }
 
-let refundedStatusValues = openSearchRefundStatusValues
-
-let disputedStatusValues = openSearchDisputeStatusValues
-
-let buildAllowedStatusFilterStringWithFallback = (obj, key, allowedStatuses, fallbackValue) => {
+let buildPresentAllowedStatusFilterString = (obj, key, allowedStatuses) => {
   let statusDict = obj->getDictFromJsonObject->getDictfromDict(key)
   let filterValue =
     allowedStatuses
     ->Array.filter(status => statusDict->getOptionValFromDict(status)->Option.isSome)
     ->Array.joinWith(",")
-  filterValue->isNonEmptyString ? filterValue : fallbackValue
+  filterValue->isNonEmptyString ? filterValue : allowedStatuses->Array.joinWith(",")
 }
 
 let sumAllowedStatusCount = (dict, key, allowedStatuses) => {
   let statusDict = dict->getDictfromDict(key)
-  allowedStatuses->Array.reduce(0, (acc, status) =>
-    (acc->Int.toFloat +. statusDict->getFloat(status, 0.0))->Float.toInt
-  )
+  allowedStatuses
+  ->Array.reduce(0.0, (acc, status) => acc +. statusDict->getFloat(status, 0.0))
+  ->Float.toInt
 }
 
 let getSankeyRowCount = dict => dict->getFloat("count", dict->getFloat("payment_intent_count", 0.0))
@@ -246,13 +242,12 @@ let getViewFilterValue = (view, obj, entity) => {
     | RequiresCapture => "requires_capture"
     | FirstAttemptSuccess
     | RetrySuccess => "succeeded"
-    | Refunded => refundedStatusValues->Array.joinWith(",")
+    | Refunded => openSearchRefundStatusValues->Array.joinWith(",")
     | Disputed =>
-      buildAllowedStatusFilterStringWithFallback(
+      buildPresentAllowedStatusFilterString(
         obj,
         "dispute_status_with_count",
-        disputedStatusValues,
-        disputedStatusValues->Array.joinWith(","),
+        openSearchDisputeStatusValues,
       )
     | _ => ""
     }
@@ -301,9 +296,9 @@ let getViewCount = (view, obj, entity) => {
   switch (view, entity) {
   | (All, _) => calculateTotalViewCount(obj)
   | (Refunded, Orders) =>
-    sumAllowedStatusCount(dict, "refunds_status_with_count", refundedStatusValues)
+    sumAllowedStatusCount(dict, "refunds_status_with_count", openSearchRefundStatusValues)
   | (Disputed, Orders) =>
-    sumAllowedStatusCount(dict, "dispute_status_with_count", disputedStatusValues)
+    sumAllowedStatusCount(dict, "dispute_status_with_count", openSearchDisputeStatusValues)
   | (FirstAttemptSuccess, Orders) => dict->getInt("first_attempt_success_count", 0)
   | (RetrySuccess, Orders) => dict->getInt("retry_success_count", 0)
   | _ =>

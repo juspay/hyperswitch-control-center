@@ -312,8 +312,7 @@ let advancedPaymentFilterTypes: array<filter> = [
   #card_issuer,
 ]
 
-let advancedPaymentOnlyFilterKeys =
-  advancedPaymentFilterTypes->Array.map(filterType => filterType->getValueFromFilterType)
+let advancedPaymentOnlyFilterKeys = advancedPaymentFilterTypes->Array.map(getValueFromFilterType)
 
 let unsupportedAdvancedPaymentFilterKeys = [
   (#unified_code: unsupportedAdvancedPaymentFilter :> string),
@@ -356,7 +355,7 @@ let advancedPaymentTextListFilterTypes: array<filter> = [
 ]
 
 let advancedPaymentTextListFilterKeys =
-  advancedPaymentTextListFilterTypes->Array.map(filter => (filter :> string))
+  advancedPaymentTextListFilterTypes->Array.map(getValueFromFilterType)
 
 let advancedRoutingApproaches: array<advancedRoutingApproach> = [
   #default_fallback,

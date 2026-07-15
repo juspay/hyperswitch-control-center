@@ -110,7 +110,7 @@ let getApplyFilters = (~filterDict, ~filterValue, ~version) => {
 
   let startTimeKey = OrderUIUtils.startTimeFilterKey(version)
   let endTimeKey = OrderUIUtils.endTimeFilterKey(version)
-  let savedHasDates = newFiltersDict->Dict.get(startTimeKey)->Option.isSome
+  let savedHasDates = newFiltersDict->getOptionValFromDict(startTimeKey)->Option.isSome
 
   filterValue
   ->Dict.keysToArray
@@ -146,12 +146,12 @@ let getApplyFilters = (~filterDict, ~filterValue, ~version) => {
 
   let uniqueDisplayKeys = displayKeys->getUniqueArray
 
-  let startAmountStr = stringDict->Dict.get(SavedViewTypes.FilterKeys.startAmount)->Option.getOr("")
-  let endAmountStr = stringDict->Dict.get(SavedViewTypes.FilterKeys.endAmount)->Option.getOr("")
+  let startAmountStr = stringDict->getValueFromDict(SavedViewTypes.FilterKeys.startAmount, "")
+  let endAmountStr = stringDict->getValueFromDict(SavedViewTypes.FilterKeys.endAmount, "")
   let hasStart = startAmountStr->isNonEmptyString
   let hasEnd = endAmountStr->isNonEmptyString
   let hasAmountOption =
-    stringDict->Dict.get(SavedViewTypes.FilterKeys.amountOption)->Option.getOr("")->isNonEmptyString
+    stringDict->getValueFromDict(SavedViewTypes.FilterKeys.amountOption, "")->isNonEmptyString
 
   if hasStart || hasEnd {
     if !hasAmountOption {
@@ -200,10 +200,10 @@ let findMatchingView = (
     ->Array.forEach(((key, value)) => flattenToDict(savedFiltersStringDict, key, value))
     let startTimeKey = OrderUIUtils.startTimeFilterKey(version)
     let endTimeKey = OrderUIUtils.endTimeFilterKey(version)
-    if savedFiltersStringDict->Dict.get(startTimeKey)->Option.isNone {
+    if savedFiltersStringDict->getOptionValFromDict(startTimeKey)->Option.isNone {
       tempCurrentFiltersDict->Dict.delete(startTimeKey)
     }
-    if savedFiltersStringDict->Dict.get(endTimeKey)->Option.isNone {
+    if savedFiltersStringDict->getOptionValFromDict(endTimeKey)->Option.isNone {
       tempCurrentFiltersDict->Dict.delete(endTimeKey)
     }
     DictionaryUtils.equalDicts(
