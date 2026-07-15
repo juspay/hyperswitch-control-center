@@ -63,6 +63,12 @@ let getAdvancedPaymentFilterKeysToRemove = view =>
   | _ => [refundsStatusFilterKey, disputeStatusFilterKey, firstAttemptFilterKey]
   }
 
+let mergeFilterKeysForView = (~existingKeys, ~removedFilterKeys, ~filterEntryKeys) =>
+  existingKeys
+  ->Array.filter(key => !(removedFilterKeys->Array.includes(key)))
+  ->Array.concat(filterEntryKeys)
+  ->getUniqueArray
+
 let getTransactionViewEntityKey = (entity: operationsTypes) => (entity :> string)
 
 let getTransactionViewVersionKey = (version: UserInfoTypes.version) => (version :> string)

@@ -19,28 +19,6 @@ let make = (
   let (activeViewName, setActiveViewName) = React.useState(_ => "")
   let (isInternalUpdate, setIsInternalUpdate) = React.useState(_ => false)
 
-  let showSaveModal = panelState === SaveViewModalOpen
-  let setShowSaveModal = updater =>
-    setPanelState(prev =>
-      updater(prev === SaveViewModalOpen) ? SaveViewModalOpen : NoActiveInteraction
-    )
-
-  let currentlyEditingIndex = switch panelState {
-  | RenamingViewAtIndex(index) => Some(index)
-  | NoActiveInteraction | SaveViewModalOpen => None
-  }
-  let setCurrentlyEditingIndex = updater =>
-    setPanelState(prev => {
-      let prevIndex = switch prev {
-      | RenamingViewAtIndex(index) => Some(index)
-      | NoActiveInteraction | SaveViewModalOpen => None
-      }
-      switch updater(prevIndex) {
-      | Some(index) => RenamingViewAtIndex(index)
-      | None => NoActiveInteraction
-      }
-    })
-
   let fetchSavedViewsHook = SavedViewsHooks.useFetchSavedViews(~entity, ~version)
   let fetchSavedViews = async () => {
     await fetchSavedViewsHook(~setSavedViews)
@@ -48,7 +26,7 @@ let make = (
 
   React.useEffect(() => {
     setActiveViewName(_ => "")
-    setCurrentlyEditingIndex(_ => None)
+    setPanelState(_ => NoActiveInteraction)
     setSavedViews(_ => [])
     fetchSavedViews()->ignore
     None
@@ -151,7 +129,7 @@ let make = (
       buttonSize=Large
       buttonType=Secondary
       leftIcon={CustomIcon(<Icon name="bookmark-outline" size=16 />)}
-      onClick={_ => setShowSaveModal(_ => true)}
+      onClick={_ => setPanelState(_ => SaveViewModalOpen)}
       customBackColor="bg-white"
       customRoundedClass="rounded-lg"
       customButtonStyle="text-nd_gray-700 hover:bg-nd_gray-50 border"
@@ -161,8 +139,8 @@ let make = (
         ~savedViews,
         ~activeViewName,
         ~defaultViewName,
-        ~currentlyEditingIndex,
-        ~setCurrentlyEditingIndex,
+        ~panelState,
+        ~setPanelState,
         ~performRename,
         ~handleDelete,
       )}
@@ -181,8 +159,11 @@ let make = (
       </div>
     </HeadlessUISelectBox>
     <SaveViewModalComp
-      showModal=showSaveModal
-      setShowModal=setShowSaveModal
+      showModal={panelState === SaveViewModalOpen}
+      setShowModal={updater =>
+        setPanelState(prev =>
+          updater(prev === SaveViewModalOpen) ? SaveViewModalOpen : NoActiveInteraction
+        )}
       version
       savedViewDataVersion
       entity

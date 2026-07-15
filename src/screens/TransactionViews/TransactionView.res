@@ -84,13 +84,9 @@ let make = (
     }
 
     updateExistingKeys(Dict.fromArray(filterEntries))
-    setfilterKeys(prev => {
-      let cleanedKeys =
-        removedFilterKeys->isNonEmptyArray
-          ? prev->Array.filter(key => !(removedFilterKeys->Array.includes(key)))
-          : prev
-      cleanedKeys->Array.concat(filterEntryKeys)->getUniqueArray
-    })
+    setfilterKeys(prev =>
+      mergeFilterKeysForView(~existingKeys=prev, ~removedFilterKeys, ~filterEntryKeys)
+    )
   }
 
   let onViewClick = (view: TransactionViewTypes.viewTypes) => {

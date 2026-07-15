@@ -217,8 +217,10 @@ let buildViewOptions = (
   ~savedViews: array<SavedViewTypes.savedView>,
   ~activeViewName: string,
   ~defaultViewName: string,
-  ~currentlyEditingIndex: option<int>,
-  ~setCurrentlyEditingIndex: (option<int> => option<int>) => unit,
+  ~panelState: SavedViewTypes.savedViewsPanelState,
+  ~setPanelState: (
+    SavedViewTypes.savedViewsPanelState => SavedViewTypes.savedViewsPanelState
+  ) => unit,
   ~performRename: (SavedViewTypes.savedView, string) => promise<unit>,
   ~handleDelete: (SavedViewTypes.savedView, ReactEvent.Mouse.t) => unit,
 ): array<HeadlessUISelectBox.updatedOptionWithIcons> => {
@@ -248,8 +250,14 @@ let buildViewOptions = (
         <InlineEditInput
           index=i
           labelText=name
-          isUnderEdit={currentlyEditingIndex->Option.mapOr(false, index => index == i)}
-          handleEdit={index => setCurrentlyEditingIndex(_ => index)}
+          isUnderEdit={panelState === RenamingViewAtIndex(i)}
+          handleEdit={index =>
+            setPanelState(_ =>
+              switch index {
+              | Some(index) => RenamingViewAtIndex(index)
+              | None => NoActiveInteraction
+              }
+            )}
           onSubmit={newName => performRename(view, newName)->ignore}
           showEditIcon={true}
           showEditIconOnHover={false}

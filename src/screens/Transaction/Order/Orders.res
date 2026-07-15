@@ -29,8 +29,9 @@ let make = (~previewOnly=false) => {
     !(devOpensearch && version == V1) || userGroupACL->Option.isSome || advancedPaymentListEnabled
   let (selectedSource, setSelectedSource) = React.useState(_ => None)
   let source =
-    selectedSource->Option.getOr(
+    selectedSource->mapOptionOrDefault(
       advancedPaymentListEnabled ? OrderTypes.Advanced : OrderTypes.Normal,
+      userSource => userSource,
     )
   let isAdvancedSource = source === OrderTypes.Advanced && advancedPaymentListEnabled
   let (tableTitle, savedViewsEntity) = isAdvancedSource
@@ -206,14 +207,7 @@ let make = (~previewOnly=false) => {
       fetchOrders()
     }
     None
-  }, (
-    offset,
-    filters,
-    searchText,
-    isAdvancedSource,
-    pageDetail.resultsPerPage,
-    paymentListSourceResolved,
-  ))
+  }, (offset, filters, searchText, isAdvancedSource, paymentListSourceResolved))
 
   let handleSourceChange = newSource => {
     setSelectedSource(_ => Some(newSource))
@@ -340,25 +334,6 @@ let make = (~previewOnly=false) => {
     ~buttonState=exportButtonState,
     ~showBorder=false,
   )
-  let exportButton =
-    <Button
-      text="Export"
-      buttonType=Primary
-      buttonState=exportButtonState
-      buttonSize=Small
-      showBorder=false
-      customButtonStyle="justify-start !w-28"
-      customIconMargin="ml-2"
-      customTextPaddingClass="!pl-2 !pr-0"
-      leftIcon={Button.CustomIcon(<Icon name="nd-download-bar-down" size=16 />)}
-      rightIcon={Button.CustomIcon(
-        <span
-          className={`inline-flex h-5 w-5 items-center justify-center rounded-full bg-white bg-opacity-20 text-fs-14 font-medium leading-5 ${selectedRowsCountClass}`}>
-          {selectedRows->Array.length->Int.toString->React.string}
-        </span>,
-      )}
-      onClick={_ => canExportSelectedRows ? downloadData() : ()}
-    />
 
   let tableEntity = isAdvancedSource
     ? OrderEntity.openSearchOrderEntity(merchantId, orgId, ~devSortEnabled)
@@ -391,7 +366,28 @@ let make = (~previewOnly=false) => {
               source setSource=handleSourceChange advancedEnabled=advancedPaymentListEnabled
             />
           </div>
-          <ToolTip description=exportTooltipText toolTipFor=exportButton toolTipPosition=Top />
+          <ToolTip
+            description=exportTooltipText
+            toolTipFor={<Button
+              text="Export"
+              buttonType=Primary
+              buttonState=exportButtonState
+              buttonSize=Small
+              showBorder=false
+              customButtonStyle="justify-start !w-28"
+              customIconMargin="ml-2"
+              customTextPaddingClass="!pl-2 !pr-0"
+              leftIcon={Button.CustomIcon(<Icon name="nd-download-bar-down" size=16 />)}
+              rightIcon={Button.CustomIcon(
+                <span
+                  className={`inline-flex h-5 w-5 items-center justify-center rounded-full bg-white bg-opacity-20 text-fs-14 font-medium leading-5 ${selectedRowsCountClass}`}>
+                  {selectedRows->Array.length->Int.toString->React.string}
+                </span>,
+              )}
+              onClick={_ => canExportSelectedRows ? downloadData() : ()}
+            />}
+            toolTipPosition=Top
+          />
           <RenderIf condition=showGenerateReportAction>
             <div className="shrink-0">
               <GenerateReport entityName={V1(PAYMENT_REPORT)} disableReport=disableGenerateReport />
