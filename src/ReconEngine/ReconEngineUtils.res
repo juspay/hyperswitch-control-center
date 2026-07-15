@@ -52,11 +52,7 @@ let cursorFromDict = (dict): cursor => {
 let defaultCursorSortBy: cursor = {sortField: "effective_at", cursorValue: None}
 
 let cursorsFromDict = (dict): cursors => {
-  let getCursor = key =>
-    dict
-    ->getOptionValFromDict(key)
-    ->Option.filter(json => json->JSON.Classify.classify != Null)
-    ->Option.map(json => json->getDictFromJsonObject->cursorFromDict)
+  let getCursor = key => dict->getOptionObj(key)->Option.map(cursorFromDict)
   {next: getCursor("next_cursor"), prev: getCursor("prev_cursor")}
 }
 
