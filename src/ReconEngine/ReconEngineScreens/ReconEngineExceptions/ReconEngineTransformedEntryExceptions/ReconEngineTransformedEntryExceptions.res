@@ -146,10 +146,10 @@ let make = () => {
         <div className="flex-shrink-0"> {topFilterUi} </div>
         <RenderIf condition={processingEntries->isEmptyArray}>
           <div className="h-40-vh flex flex-col justify-center items-center gap-2">
-            <p className={`${heading.sm.semibold} text-gray-800`}>
+            <p className={`${heading.sm.semibold} text-nd_gray-800`}>
               {"No exceptions to show."->React.string}
             </p>
-            <p className={`${body.md.medium} text-gray-500`}>
+            <p className={`${body.md.medium} text-nd_gray-500`}>
               {"All transformed entries have been processed successfully and entered into the reconciliation engine."->React.string}
             </p>
           </div>

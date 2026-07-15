@@ -10,17 +10,10 @@ type persistedCursorState = {
 let cursorFromPersistedDict = (dict): cursor => {
   let cursorValue =
     dict
-    ->getOptionValFromDict("cursor_value")
-    ->Option.filter(json => json->JSON.Classify.classify != Null)
-    ->Option.map(json => {
-      let cursorValueDict = json->getDictFromJsonObject
-
-      (
-        {
-          effectiveAt: cursorValueDict->getString("effective_at", ""),
-          cursorId: cursorValueDict->getString("id", ""),
-        }: cursorValue
-      )
+    ->getOptionObj("cursor_value")
+    ->Option.map((cursorValueDict): cursorValue => {
+      effectiveAt: cursorValueDict->getString("effective_at", ""),
+      cursorId: cursorValueDict->getString("id", ""),
     })
   {
     sortField: dict->getString("sort_field", "effective_at"),
@@ -58,9 +51,7 @@ let useCursorPagination = (
   let hasRestoredRef = React.useRef(false)
 
   let goTo = async (~sortBy, ~direction) => {
-    if screenState !== PageLoaderWrapper.Success {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-    }
+    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let page = await fetchPage(~sortBy, ~direction)
       setItems(_ => page.items)
