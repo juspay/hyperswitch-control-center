@@ -2,14 +2,14 @@
 let make = (
   ~cursors: ReconEngineTypes.cursors,
   ~isLoading: bool,
-  ~show: bool,
+  ~hasData: bool,
   ~onPrev: unit => unit,
   ~onNext: unit => unit,
 ) => {
   let getButtonState = (cursor): Button.buttonState =>
     cursor->Option.isNone || isLoading ? Button.Disabled : Button.Normal
 
-  <RenderIf condition=show>
+  <RenderIf condition=hasData>
     <div className="flex flex-row justify-end items-center gap-3 py-4">
       <Button
         text="Prev"

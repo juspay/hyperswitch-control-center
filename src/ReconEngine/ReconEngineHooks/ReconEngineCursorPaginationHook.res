@@ -7,6 +7,15 @@ type persistedCursorState = {
   direction: cursorDirection,
 }
 
+type cursorPaginationResult<'item> = {
+  items: array<'item>,
+  cursors: cursors,
+  screenState: PageLoaderWrapper.viewType,
+  goToFirstPage: unit => unit,
+  goToNextPage: unit => unit,
+  goToPrevPage: unit => unit,
+}
+
 let cursorFromPersistedDict = (dict): cursor => {
   let cursorValue =
     dict
@@ -76,12 +85,16 @@ let useCursorPagination = (
   }
 
   let goToNextPage = () =>
-    cursors.next->mapOptionOrDefault((), cursor => goTo(~sortBy=cursor, ~direction=#next)->ignore)
+    switch cursors.next {
+    | Some(cursor) => goTo(~sortBy=cursor, ~direction=#next)->ignore
+    | None => ()
+    }
 
   let goToPrevPage = () =>
-    cursors.prev->mapOptionOrDefault((), cursor =>
-      goTo(~sortBy=cursor, ~direction=#previous)->ignore
-    )
+    switch cursors.prev {
+    | Some(cursor) => goTo(~sortBy=cursor, ~direction=#previous)->ignore
+    | None => ()
+    }
 
-  (items, cursors, screenState, goToFirstPage, goToNextPage, goToPrevPage)
+  {items, cursors, screenState, goToFirstPage, goToNextPage, goToPrevPage}
 }
