@@ -14,6 +14,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
+  let showToast = ToastAdapter.useShowToast()
 
   let (accountData, setAccountData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -29,7 +30,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
       let accounts = await getAccounts()
       setAccountData(_ => accounts)
     } catch {
-    | _ => ()
+    | _ => showToast(~message="Failed to fetch accounts", ~toastType=ToastError)
     }
   }
 
