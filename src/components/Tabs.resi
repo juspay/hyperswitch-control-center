@@ -10,4 +10,7 @@ let make: (
   ~initialIndex: int=?,
   ~onTitleClick: int => unit=?,
   ~disabledTab: array<string>=?,
+  ~variant: TabsBinding.tabsVariant=?,
+  ~size: TabsBinding.tabsSize=?,
+  ~fitContent: bool=?,
 ) => React.element
