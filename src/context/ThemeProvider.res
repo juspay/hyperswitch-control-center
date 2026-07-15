@@ -229,7 +229,12 @@ let make = (~children) => {
   let getThemeConfigVersion = async (~themeId) => {
     try {
       let url = `${GlobalVars.getHostUrl}/api/user/theme/${themeId}/version`
-      let response = await fetchApi(url, ~method_=Get, ~xFeatureRoute=false, ~forceCookies=false)
+      let response = await fetchApi(
+        url,
+        ~method_=Get,
+        ~xFeatureRoute=false,
+        ~forceCookies=false,
+      )
       await response->(res => res->Fetch.Response.json)
     } catch {
     | _ => JSON.Encode.null

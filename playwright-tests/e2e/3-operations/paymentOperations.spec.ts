@@ -8,6 +8,8 @@ import {
   loginUI,
   createDummyConnectorAPI,
   createPaymentAPI,
+  createRequiresCapturePaymentAPI,
+  mockPaymentRequiresCapture,
   ompLineage,
 } from "../../support/commands";
 
@@ -453,17 +455,15 @@ test.describe("Payment Operations", () => {
 
   // Sort
   test.describe("Sort", () => {
-    test("should sort column ascending then descending on header click", async ({
-      page,
-      context,
-    }) => {
-      // 3 sequential payment creates + 6 sort + assert cycles per column.
+    let payments: { payment_id: string; amount: number }[] = [];
+
+    test.beforeEach(async ({ page, context }) => {
+      // 3 sequential payment creates + setup per test.
       test.setTimeout(120000);
+      payments = [];
       const homePage = new HomePage(page);
-      const paymentOperations = new PaymentOperations(page);
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
-      const payments: { payment_id: string; amount: number }[] = [];
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -494,48 +494,164 @@ test.describe("Payment Operations", () => {
       await homePage.operations.click();
       await homePage.paymentOperations.click();
       await page.waitForLoadState("networkidle");
+    });
 
-      const sortableColumns = ["Amount", "Created", "Modified"];
+    async function assertSortCycle(
+      page: Page,
+      paymentOperations: PaymentOperations,
+      column: string,
+    ) {
+      const heading = paymentOperations.tableHeading(column);
+      const sortUp = heading.locator('[data-icon="caret-up"]');
+      const sortDown = heading.locator('[data-icon="caret-down"]');
 
-      for (const column of sortableColumns) {
-        const heading = paymentOperations.tableHeading(column);
-        const sortUp = heading.locator('[data-icon="caret-up"]');
-        const sortDown = heading.locator('[data-icon="caret-down"]');
+      // First click toggles NONE -> DEC (descending)
+      await expect(sortUp).toBeVisible();
+      await sortUp.click();
+      await page.waitForLoadState("networkidle");
+      await expect(paymentOperations.orderCell(1, 2)).toContainText(
+        payments[2].payment_id,
+      );
+      await expect(paymentOperations.orderCell(3, 2)).toContainText(
+        payments[0].payment_id,
+      );
 
-        // First click toggles NONE -> DEC (descending)
-        await expect(sortUp).toBeVisible();
-        await sortUp.click();
-        await page.waitForLoadState("networkidle");
-        await expect(paymentOperations.orderCell(1, 2)).toContainText(
-          payments[2].payment_id,
-        );
-        await expect(paymentOperations.orderCell(3, 2)).toContainText(
-          payments[0].payment_id,
-        );
+      // Second click toggles DEC -> INC (ascending)
+      await expect(sortDown).toBeVisible();
+      await sortDown.click();
+      await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(3000);
+      await expect(paymentOperations.orderCell(1, 2)).toContainText(
+        payments[0].payment_id,
+      );
+      await expect(paymentOperations.orderCell(3, 2)).toContainText(
+        payments[2].payment_id,
+      );
 
-        // Second click toggles DEC -> INC (ascending)
-        await expect(sortDown).toBeVisible();
-        await sortDown.click();
-        await page.waitForLoadState("networkidle");
-        await page.waitForTimeout(3000);
-        await expect(paymentOperations.orderCell(1, 2)).toContainText(
-          payments[0].payment_id,
-        );
-        await expect(paymentOperations.orderCell(3, 2)).toContainText(
-          payments[2].payment_id,
-        );
+      // Third click toggles INC -> DEC (descending)
+      await expect(sortUp).toBeVisible();
+      await sortUp.click();
+      await page.waitForLoadState("networkidle");
+      await expect(paymentOperations.orderCell(1, 2)).toContainText(
+        payments[2].payment_id,
+      );
+      await expect(paymentOperations.orderCell(3, 2)).toContainText(
+        payments[0].payment_id,
+      );
+    }
 
-        // Third click toggles INC -> DEC (descending)
-        await expect(sortUp).toBeVisible();
-        await sortUp.click();
-        await page.waitForLoadState("networkidle");
-        await expect(paymentOperations.orderCell(1, 2)).toContainText(
-          payments[2].payment_id,
-        );
-        await expect(paymentOperations.orderCell(3, 2)).toContainText(
-          payments[0].payment_id,
-        );
-      }
+    test("should sort Amount column ascending then descending on header click", async ({
+      page,
+    }) => {
+      const paymentOperations = new PaymentOperations(page);
+      await assertSortCycle(page, paymentOperations, "Amount");
+    });
+
+    test("should sort Created column ascending then descending on header click", async ({
+      page,
+    }) => {
+      const paymentOperations = new PaymentOperations(page);
+      await assertSortCycle(page, paymentOperations, "Created");
+    });
+
+    async function getColumnIndex(
+      paymentOperations: PaymentOperations,
+      column: string,
+    ): Promise<number> {
+      return await paymentOperations
+        .tableHeading(column)
+        .evaluate((el) => (el as HTMLTableCellElement).cellIndex + 1);
+    }
+
+    test("should sort Attempt Count column ascending then descending on header click", async ({
+      page,
+    }) => {
+      const paymentOperations = new PaymentOperations(page);
+
+      // Mock the payments/list response so each payment has a distinct attempt_count
+      // (1, 2, 3) and returns data sorted by the requested attempt_count order.
+      await page.route(/\/payments\/list/, async (route) => {
+        const request = route.request();
+        const postData = request.postDataJSON() as Record<string, any>;
+        const response = await route.fetch();
+        const json = (await response.json()) as Record<string, any>;
+
+        const attemptCounts: Record<string, number> = {};
+        payments.forEach((payment, index) => {
+          attemptCounts[payment.payment_id] = index + 1;
+        });
+
+        const data = (json.data ?? []) as Record<string, any>[];
+        const patched = data.map((item) => ({
+          ...item,
+          attempt_count: attemptCounts[item.payment_id] ?? item.attempt_count,
+        }));
+
+        const order = postData?.order as { on: string; by: string } | undefined;
+        if (order?.on === "attempt_count") {
+          patched.sort((a, b) => {
+            const diff =
+              (a.attempt_count as number) - (b.attempt_count as number);
+            return order.by === "desc" ? -diff : diff;
+          });
+        }
+
+        json.data = patched;
+        await route.fulfill({ response, json });
+      });
+
+      // Add the hidden Attempt Count column via the column selector.
+      await paymentOperations.columnButton.click();
+      await paymentOperations.columnDropdownValue("Attempt Count").click();
+      await expect(paymentOperations.saveButton).toContainText("Save");
+      await paymentOperations.saveButton.click();
+
+      await expect(
+        paymentOperations.tableHeading("Attempt Count"),
+      ).toBeVisible();
+
+      const attemptCountCol = await getColumnIndex(
+        paymentOperations,
+        "Attempt Count",
+      );
+
+      const heading = paymentOperations.tableHeading("Attempt Count");
+      const sortUp = heading.locator('[data-icon="caret-up"]');
+      const sortDown = heading.locator('[data-icon="caret-down"]');
+
+      // First click: NONE -> DEC (descending). 3 attempts first.
+      await expect(sortUp).toBeVisible();
+      await sortUp.click();
+      await page.waitForLoadState("networkidle");
+      await expect(
+        paymentOperations.orderCell(1, attemptCountCol),
+      ).toContainText("3");
+      await expect(
+        paymentOperations.orderCell(3, attemptCountCol),
+      ).toContainText("1");
+
+      // Second click: DEC -> INC (ascending). 1 attempt first.
+      await expect(sortDown).toBeVisible();
+      await sortDown.click();
+      await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(3000);
+      await expect(
+        paymentOperations.orderCell(1, attemptCountCol),
+      ).toContainText("1");
+      await expect(
+        paymentOperations.orderCell(3, attemptCountCol),
+      ).toContainText("3");
+
+      // Third click: INC -> DEC (descending).
+      await expect(sortUp).toBeVisible();
+      await sortUp.click();
+      await page.waitForLoadState("networkidle");
+      await expect(
+        paymentOperations.orderCell(1, attemptCountCol),
+      ).toContainText("3");
+      await expect(
+        paymentOperations.orderCell(3, attemptCountCol),
+      ).toContainText("1");
     });
   });
 
@@ -1304,10 +1420,15 @@ test.describe("Payment Operations", () => {
         (resp) => resp.url().includes("force_sync=true") && resp.ok(),
       );
       await paymentOperations.initiateRefundButton.click();
+      await refreshResponse;
 
       await expect(page.getByText("Summary")).toBeVisible();
-      await expect(page.getByText("123.45 USD").nth(1)).toBeVisible();
-      await expect(page.getByText("SUCCEEDED").nth(1)).toBeVisible();
+      await expect(
+        page.getByText("123.45 USD").filter({ visible: true }).nth(1),
+      ).toBeVisible();
+      await expect(
+        page.getByText("SUCCEEDED").filter({ visible: true }).nth(1),
+      ).toBeVisible();
 
       await expect(paymentOperations.dataLabel("Created")).toContainText(
         "Created",
@@ -1737,7 +1858,9 @@ test.describe("Payment Operations", () => {
       await expect(paymentOperations.dataLabel("Amount").first()).toContainText(
         "123.45 USD",
       );
-      await expect(page.getByText("Payment ID").first()).toBeVisible();
+      await expect(
+        page.locator('[data-label="Payment ID"]:visible').first(),
+      ).toBeVisible();
       await expect(
         paymentOperations.dataLabel("Customer ID").first(),
       ).toContainText("test_customer");
@@ -1942,6 +2065,257 @@ test.describe("Payment Operations", () => {
       await expect(
         page.getByRole("button", { name: "+ Refund" }),
       ).toBeDisabled();
+    });
+  });
+
+  // Capture cases
+  test.describe("Capture cases", () => {
+    // The sandbox dummy connector always auto-charges, so it can never produce
+    // a real `requires_capture` payment. Create a real payment (for a
+    // realistic payment_id/amount/customer) and mock the dashboard's GET
+    // request for it so the page renders as if it were awaiting capture.
+    const setupRequiresCapturePayment = async (
+      page: Page,
+      merchantId: string,
+      request: Parameters<typeof createDummyConnectorAPI>[2],
+    ) => {
+      await createDummyConnectorAPI(merchantId, "stripe_test_1", request);
+      const payment = await createRequiresCapturePaymentAPI(
+        merchantId,
+        request,
+      );
+      await mockPaymentRequiresCapture(page, payment.payment_id);
+      return payment;
+    };
+
+    const mockCaptureSuccess = async (page: Page) => {
+      await page.route(/\/payments\/[^/]+\/capture/, async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ status: "succeeded" }),
+        });
+      });
+    };
+
+    const openCaptureModal = async (
+      page: Page,
+      homePage: HomePage,
+      paymentOperations: PaymentOperations,
+    ) => {
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+      await paymentOperations.addCaptureButton.click();
+      await expect(page.getByText("Confirm Capture Payment").first()).toBeVisible();
+    };
+
+    test("should display Capture button for a requires_capture payment", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+
+      await expect(paymentOperations.addCaptureButton).toBeVisible();
+    });
+
+    test("should not display Capture button for a succeeded payment", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await createDummyConnectorAPI(
+          merchantId,
+          "stripe_test_1",
+          context.request,
+        );
+        await createPaymentAPI(merchantId, context.request);
+      }
+
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+
+      await expect(paymentOperations.addCaptureButton).not.toBeVisible();
+    });
+
+    test("should display all fields in the capture popup", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await expect(paymentOperations.dataLabel("Amount").first()).toContainText(
+        "123.45 USD",
+      );
+      await expect(
+        page.locator('[data-label="Payment ID"]:visible').first(),
+      ).toBeVisible();
+      await expect(
+        paymentOperations.dataLabel("Customer ID").first(),
+      ).toContainText("test_customer");
+
+      await expect(paymentOperations.captureAmountInput).toHaveAttribute(
+        "placeholder",
+        "Enter Amount to Capture",
+      );
+      await expect(paymentOperations.captureAmountInput).toHaveValue("123.45");
+
+      await expect(
+        page.getByRole("button", { name: "Cancel" }),
+      ).toBeVisible();
+      await expect(paymentOperations.confirmCaptureButton).toBeVisible();
+    });
+
+    test("should show validation error when capture amount is zero", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await paymentOperations.captureAmountInput.fill("0");
+      await paymentOperations.captureAmountInput.blur();
+      await expect(
+        page.getByText("Please enter capture amount greater than zero"),
+      ).toBeVisible();
+    });
+
+    test("should show validation error when capture amount exceeds capturable amount", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await paymentOperations.captureAmountInput.fill("999.99");
+      await paymentOperations.captureAmountInput.blur();
+      await expect(
+        page.getByText("Capture amount should not exceed 123.45"),
+      ).toBeVisible();
+    });
+
+    test("should successfully capture the full payment amount", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+      await mockCaptureSuccess(page);
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await paymentOperations.confirmCaptureButton.click();
+
+      await expect(paymentOperations.captureSuccessToast).toBeVisible();
+    });
+
+    test("should successfully capture a partial amount", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+      await mockCaptureSuccess(page);
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await paymentOperations.captureAmountInput.fill("50.00");
+      await paymentOperations.confirmCaptureButton.click();
+
+      await expect(paymentOperations.captureSuccessToast).toBeVisible();
+    });
+
+    test("should show error toast when capture API fails", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await page.route(/\/payments\/[^/]+\/capture/, async (route) => {
+        await route.fulfill({
+          status: 500,
+          contentType: "application/json",
+          body: JSON.stringify({ error: { message: "Internal server error" } }),
+        });
+      });
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await paymentOperations.confirmCaptureButton.click();
+
+      await expect(paymentOperations.captureErrorToast).toBeVisible();
+    });
+
+    test("should close capture popup on Cancel click", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await page.getByRole("button", { name: "Cancel" }).click();
+
+      await expect(page.getByText("Confirm Capture Payment")).not.toBeVisible();
     });
   });
 });

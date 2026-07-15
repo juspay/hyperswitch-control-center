@@ -17,7 +17,7 @@ module InfoField = {
 module KeyAndCopyArea = {
   @react.component
   let make = (~copyValue) => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     <div className="flex flex-col md:flex-row items-center">
       <p
         className="text-base text-grey-700 opacity-70 break-all overflow-scroll font-semibold w-89.5-per">
@@ -145,7 +145,7 @@ module ConnectorSummaryGrid = {
 
     let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let copyValueOfWebhookEndpoint = getWebhooksUrl(
-      ~connectorName={connectorInfo.merchant_connector_id},
+      ~connectorName={connectorInfo.connector_name},
       ~merchantId,
     )
     let (processorType, _) =
@@ -367,7 +367,7 @@ let make = (
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
@@ -435,6 +435,7 @@ let make = (
             <Button text="Sync" buttonType={Primary} onClick={_ => getPayPalStatus()->ignore} />
           | (Preview, _, _, _) =>
             <div className="flex gap-6 items-center">
+              <CloneConnectorModal connectorInfo />
               <RenderIf condition={showMenuOption}>
                 {switch (connector->getConnectorNameTypeFromString, paypalAutomaticFlow) {
                 | (Processors(PAYPAL), true) =>

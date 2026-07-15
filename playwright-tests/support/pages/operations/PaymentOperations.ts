@@ -9,7 +9,7 @@ export class PaymentOperations {
 
   get transactionView(): Locator {
     return this.page.locator(
-      '[class="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-6 mb-8"]',
+      '[class="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-3 grid-cols-2 gap-6 mb-8"]',
     );
   }
 
@@ -264,11 +264,32 @@ export class PaymentOperations {
   }
 
   get refundAmountInput(): Locator {
-    return this.page.locator('[name="amount"]');
+    return this.page.locator('[name="amount"]:visible');
   }
 
   get refundReasonInput(): Locator {
     return this.page.locator('[name="reason"]');
+  }
+
+  // Capture modal (opened from payment details for requires_capture payments)
+  get addCaptureButton(): Locator {
+    return this.page.locator('[data-button-text="+ Capture"]');
+  }
+
+  get captureAmountInput(): Locator {
+    return this.page.locator('[name="amount"]:visible');
+  }
+
+  get confirmCaptureButton(): Locator {
+    return this.page.getByRole("button", { name: "Capture", exact: true });
+  }
+
+  get captureSuccessToast(): Locator {
+    return this.page.locator('[data-toast="Payment captured successfully"]');
+  }
+
+  get captureErrorToast(): Locator {
+    return this.page.locator('[data-toast="Failed to capture payment"]');
   }
 
   // Generate Payment Reports modal

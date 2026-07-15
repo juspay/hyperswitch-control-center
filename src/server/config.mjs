@@ -44,11 +44,11 @@ function checkEnvValues(env, tomlConfig) {
 }
 
 // Update connector list config using environment variables
-function updateConnectorListWithEnv(connectorListConfig, domain) {
+function updateConnectorListWithEnv(connectorListConfig, domain, tableName) {
   domain = domain || "default";
   const result = {};
   for (const key in connectorListConfig) {
-    const envVar = process.env[`${domain}__connector_list_for_live__${key}`];
+    const envVar = process.env[`${domain}__${tableName}__${key}`];
     result[key] = checkEnvValues(envVar, connectorListConfig[key]);
   }
   return result;
@@ -160,6 +160,14 @@ const configHandler = async (
       merchantConfig["connector_list_for_live"] = updateConnectorListWithEnv(
         merchantConfig["connector_list_for_live"],
         domain,
+        "connector_list_for_live",
+      );
+    }
+    if (merchantConfig && merchantConfig["connector_clone"]) {
+      merchantConfig["connector_clone"] = updateConnectorListWithEnv(
+        merchantConfig["connector_clone"],
+        domain,
+        "connector_clone",
       );
     }
     if (merchantConfig && merchantConfig["merchant_config"]) {

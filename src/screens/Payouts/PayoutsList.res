@@ -62,7 +62,7 @@ let make = () => {
 
       filters
       ->getPayoutsList(
-        ~updateDetails,
+        ~updateDetails=(url, body, method) => updateDetails(url, body, method),
         ~setPayoutsData,
         ~setScreenState,
         ~offset,
@@ -141,6 +141,10 @@ let make = () => {
           sortingBasedOnDisabled=false
           showAutoScroll=true
           isDraggable=true
+          visitedRows={{
+            getId: payout => payout.payout_id,
+            prefix_key: "payout",
+          }}
         />
       </PageLoaderWrapper>
     </div>

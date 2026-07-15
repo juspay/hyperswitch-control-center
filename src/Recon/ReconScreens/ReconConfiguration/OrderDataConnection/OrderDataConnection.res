@@ -10,7 +10,7 @@ let make = (~currentStep: step, ~setCurrentStep, ~selectedOrderSource, ~setSelec
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let updateDetails = useUpdateMethod()
   let getURL = useGetURL()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   let getNextStep = (currentStep: step): option<step> => {
     findNextStep(sections, currentStep)
