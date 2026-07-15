@@ -452,6 +452,10 @@ let make = (~previewOnly=false) => {
           isNewColumn=OrderEntity.isOpenSearchNewColumn
           getNewColumnDescription=OrderEntity.getOpenSearchNewColumnDescription
           ?checkBoxProps
+          visitedRows={{
+            getId: (order: PaymentInterfaceTypes.order) => order.payment_id,
+            prefix_key: "orders",
+          }}
         />
       </PageLoaderWrapper>
     </div>

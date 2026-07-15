@@ -149,6 +149,10 @@ let make = () => {
           sortingBasedOnDisabled=false
           showAutoScroll=true
           isDraggable=true
+          visitedRows={{
+            getId: refund => refund.refund_id,
+            prefix_key: "refund",
+          }}
         />
       </PageLoaderWrapper>
     </div>
