@@ -6,14 +6,14 @@ let make = () => {
   open ReconEngineOverviewSummaryUtils
 
   let getOverviewRules = ReconEngineHooks.useGetOverviewRules()
-  let getProcessingEntries = ReconEngineHooks.useGetProcessingEntries()
+  let getStagingEntriesOverview = ReconEngineHooks.useGetStagingEntriesOverview()
   let getTransformationHistory = ReconEngineHooks.useGetTransformationHistory()
   let getIngestionHistory = ReconEngineHooks.useGetIngestionHistory()
 
   let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (overviewRules, setOverviewRules) = React.useState(_ => [])
-  let (processingEntries, setProcessingEntries) = React.useState(_ => [])
+  let (stagingOverviewData, setStagingOverviewData) = React.useState(_ => [])
   let (failedTransformationHistory, setFailedTransformationHistory) = React.useState(_ => [])
   let (failedIngestionHistory, setFailedIngestionHistory) = React.useState(_ => [])
 
@@ -23,14 +23,11 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let queryParams = buildQueryStringFromFilters(~filterValueJson)
 
-      let statusList = getProcessingEntryStatusValueFromStatusList([NeedsManualReview])
       let ingestionTransformationStatusList = getIngestionTransformationHistoryStatusValueFromStatusList([
         Failed,
       ])
       let overviewRulesFetch = getOverviewRules(~queryParameters=Some(queryParams))
-      let processingEntriesFetch = getProcessingEntries(
-        ~queryParameters=Some(`${queryParams}&status=${statusList->Array.joinWith(",")}`),
-      )
+      let stagingOverviewFetch = getStagingEntriesOverview(~queryParameters=Some(queryParams))
       let failedTransformationHistoryFetch = getTransformationHistory(
         ~queryParameters=Some(
           `${queryParams}&status=${ingestionTransformationStatusList->Array.joinWith(",")}`,
@@ -44,18 +41,18 @@ let make = () => {
 
       let (
         overviewRules,
-        processingEntries,
+        stagingOverviewData,
         failedTransformationHistory,
         failedIngestionHistory,
       ) = await Promise.all4((
         overviewRulesFetch,
-        processingEntriesFetch,
+        stagingOverviewFetch,
         failedTransformationHistoryFetch,
         failedIngestionHistoryFetch,
       ))
 
       setOverviewRules(_ => overviewRules)
-      setProcessingEntries(_ => processingEntries)
+      setStagingOverviewData(_ => stagingOverviewData)
       setFailedTransformationHistory(_ => failedTransformationHistory)
       setFailedIngestionHistory(_ => failedIngestionHistory)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -73,10 +70,10 @@ let make = () => {
 
   let (statCards, connectedStatCards) = React.useMemo(() => {
     (
-      getStatCards(~overviewRules, ~processingEntries),
+      getStatCards(~overviewRules, ~stagingOverviewData),
       getConnectedStatCards(~overviewRules, ~failedTransformationHistory, ~failedIngestionHistory),
     )
-  }, (overviewRules, processingEntries, failedTransformationHistory, failedIngestionHistory))
+  }, (overviewRules, stagingOverviewData, failedTransformationHistory, failedIngestionHistory))
 
   <div className="flex flex-col gap-6">
     <div

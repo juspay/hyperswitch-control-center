@@ -687,3 +687,20 @@ let overviewRulesTimeSeriesResponseMapper: Dict.t<
     ->Array.map(timeSeries => timeSeries->getDictFromJsonObject->overviewRulesTimeSeriesMapper),
   }
 }
+
+let stagingEntryOverviewStatusAmountMapper: Dict.t<
+  JSON.t,
+> => stagingEntryOverviewStatusAmount = dict => {
+  {
+    status: dict->getString("status", "")->getProcessingEntryStatusVariantFromString,
+    count: dict->getInt("count", 0),
+  }
+}
+
+let accountStagingEntriesOverviewMapper: Dict.t<JSON.t> => accountStagingEntriesOverview = dict => {
+  {
+    status_breakdown: dict
+    ->getArrayFromDict("status_breakdown", [])
+    ->Array.map(status => status->getDictFromJsonObject->stagingEntryOverviewStatusAmountMapper),
+  }
+}

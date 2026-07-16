@@ -759,7 +759,7 @@ let getMatchedCount = (~overviewRules: array<overviewRulesResponse>) => {
 
 let getOpenExceptions = (
   ~overviewRules: array<overviewRulesResponse>,
-  ~processingEntries: array<processingEntryType>,
+  ~stagingOverviewData: array<accountStagingEntriesOverview>,
 ) => {
   let txnExceptions = overviewRules->Array.reduce(0, (acc, rule) => {
     let exceptionCount = rule.status_breakdown->Array.reduce(0, (statusAcc, status) => {
@@ -793,7 +793,12 @@ let getOpenExceptions = (
     acc + exceptionCount
   })
 
-  txnExceptions + processingEntries->Array.length
+  let stagingExceptions =
+    ReconEngineDataTransformedEntriesUtils.getTotalNeedsManualReviewEntries(
+      stagingOverviewData,
+    )->Float.toInt
+
+  txnExceptions + stagingExceptions
 }
 
 let getExceptionCountFromBreakdown = (
@@ -979,11 +984,11 @@ let getCurrency = (~overviewRules: array<overviewRulesResponse>) =>
 
 let getStatCards = (
   ~overviewRules: array<overviewRulesResponse>,
-  ~processingEntries: array<processingEntryType>=[],
+  ~stagingOverviewData: array<accountStagingEntriesOverview>=[],
 ) => {
   let totalCount = getTotalCount(~overviewRules)
   let matchedCount = getMatchedCount(~overviewRules)
-  let openExceptions = getOpenExceptions(~overviewRules, ~processingEntries)
+  let openExceptions = getOpenExceptions(~overviewRules, ~stagingOverviewData)
   let valueAtRisk = getValueAtRisk(~overviewRules)
   let expectedValue = getExpectedValue(~overviewRules)
   let currency = getCurrency(~overviewRules)
@@ -1125,7 +1130,7 @@ let getDetailsConnectedStatCards = (~overviewRule: overviewRulesResponse): array
 
   let totalCount = getTotalCount(~overviewRules=[overviewRule])
   let matchedCount = getMatchedCount(~overviewRules=[overviewRule])
-  let openExceptions = getOpenExceptions(~overviewRules=[overviewRule], ~processingEntries=[])
+  let openExceptions = getOpenExceptions(~overviewRules=[overviewRule], ~stagingOverviewData=[])
   let valueAtRisk = getValueAtRisk(~overviewRules=[overviewRule])
   let expectedValue = getExpectedValue(~overviewRules=[overviewRule])
   let matchedAmount = getMatchedAmount(~overviewRules=[overviewRule])
