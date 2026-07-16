@@ -398,6 +398,11 @@ let useGetURL = () => {
         | (Post, Some(payment_id)) => `payments/${payment_id}/cancel`
         | _ => ""
         }
+      | PAYMENT_CAPTURE =>
+        switch (methodType, id) {
+        | (Post, Some(payment_id)) => `payments/${payment_id}/capture`
+        | _ => ""
+        }
       | ORDERS_AGGREGATE =>
         switch methodType {
         | Get =>
@@ -1279,6 +1284,15 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #STAGING_ENTRIES_OVERVIEW =>
+          switch methodType {
+          | Get =>
+            switch queryParameters {
+            | Some(queryParams) => `${reconBaseURL}/overview/staging_entries?${queryParams}`
+            | None => `${reconBaseURL}/overview/staging_entries`
+            }
+          | _ => ""
+          }
         | #NONE => ""
         }
 
@@ -1543,11 +1557,18 @@ let useHandleLogout = (~eventName="user_sign_out") => {
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastAdapter.useShowToast()
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   async () => {
     try {
       let logoutUrl = getURL(~entityName=V1(USERS), ~methodType=Post, ~userType=#SIGNOUT)
-      let _ = await fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute, ~forceCookies)
+      let _ = await fetchApi(
+        logoutUrl,
+        ~method_=Post,
+        ~xFeatureRoute,
+        ~forceCookies,
+        ~sendV1DummyApiKeyHeader,
+      )
       mixpanelEvent(~eventName)
       setAuthStateToLogout()
       clearRecoilValue()
@@ -1719,7 +1740,8 @@ let useGetMethod = (~showErrorToast=true) => {
         },
       },
     })
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async (url, ~version=UserInfoTypes.V1, ~signal=?) => {
     try {
@@ -1728,6 +1750,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~method_=Get,
         ~xFeatureRoute,
         ~forceCookies,
+        ~sendV1DummyApiKeyHeader,
         ~merchantId,
         ~profileId,
         ~version,
@@ -1782,7 +1805,8 @@ let useUpdateMethod = (~showErrorToast=true) => {
         },
       },
     })
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async (
     url,
@@ -1804,6 +1828,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~contentType,
         ~xFeatureRoute,
         ~forceCookies,
+        ~sendV1DummyApiKeyHeader,
         ~merchantId,
         ~profileId,
         ~version,

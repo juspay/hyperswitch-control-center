@@ -344,6 +344,10 @@ let getObj = (dict, key, default) => {
   dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.object)->Option.getOr(default)
 }
 
+let getOptionObj = (dict, key) => {
+  dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.object)
+}
+
 let getMappedValueFromDict = (dict, key, default, mapper) =>
   dict->Dict.get(key)->Option.mapOr(default, mapper)
 
