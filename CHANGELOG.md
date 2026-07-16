@@ -3,6 +3,37 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.07.16.0
+
+### Refactors
+
+- Add optional variant, size and fitContent props to Tabs wrapper ([#5175](https://github.com/juspay/hyperswitch-control-center/pull/5175)) ([`4c3b106`](https://github.com/juspay/hyperswitch-control-center/commit/4c3b106b3e44b5c1c6bc92ecc188b52f143366e5))
+- Standardize cursor pagination in recon engine staging entries and transactions ([#5158](https://github.com/juspay/hyperswitch-control-center/pull/5158)) ([`23ba079`](https://github.com/juspay/hyperswitch-control-center/commit/23ba079308c30c7ba0a735c64c6d1b96b67da641))
+
+**Full Changelog:** [`2026.07.15.0...2026.07.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.15.0...2026.07.16.0)
+
+- - -
+
+## 2026.07.15.0
+
+### Features
+
+- Add payment capture form for orders ([#5001](https://github.com/juspay/hyperswitch-control-center/pull/5001)) ([`499a992`](https://github.com/juspay/hyperswitch-control-center/commit/499a99253734830e8d41f38fec7ab580f560a354))
+- Visited row - highlight visited columns feature ([#4785](https://github.com/juspay/hyperswitch-control-center/pull/4785)) ([`53910b7`](https://github.com/juspay/hyperswitch-control-center/commit/53910b7bdfdab4334055fbaa7e0542256a965435))
+
+### Bug Fixes
+
+- Use Blend Toast and error code mapping for clone connector ([#5161](https://github.com/juspay/hyperswitch-control-center/pull/5161)) ([`3cbf5d0`](https://github.com/juspay/hyperswitch-control-center/commit/3cbf5d0bdb6ec3800306fd82f27a4eaa01f7748e))
+- Gate V1 Hyperswitch API key header behind feature flag ([#5163](https://github.com/juspay/hyperswitch-control-center/pull/5163)) ([`ee8f0fc`](https://github.com/juspay/hyperswitch-control-center/commit/ee8f0fc7b70f7be787021848f29a1336688040fd))
+
+### Refactors
+
+- Remove stale profile management hint ([#5151](https://github.com/juspay/hyperswitch-control-center/pull/5151)) ([`6df19e2`](https://github.com/juspay/hyperswitch-control-center/commit/6df19e275891b0675464dc2e5ff479d8fe638a4d))
+
+**Full Changelog:** [`2026.07.14.0...2026.07.15.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.14.0...2026.07.15.0)
+
+- - -
+
 ## 2026.07.14.0
 
 ### Miscellaneous Tasks

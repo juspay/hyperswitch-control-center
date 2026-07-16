@@ -38,6 +38,24 @@ let getEntryStatusVariantFromString = (entryType: string): entryStatus => {
   }
 }
 
+let cursorFromDict = (dict): cursor => {
+  let cursorValueDict = dict->getDictfromDict("cursor_value")
+  {
+    sortField: dict->getString("sort_field", "effective_at"),
+    cursorValue: Some({
+      effectiveAt: cursorValueDict->getString("effective_at", ""),
+      cursorId: cursorValueDict->getString("id", ""),
+    }),
+  }
+}
+
+let defaultCursorSortBy: cursor = {sortField: "effective_at", cursorValue: None}
+
+let cursorsFromDict = (dict): cursors => {
+  let getCursor = key => dict->getOptionObj(key)->Option.map(cursorFromDict)
+  {next: getCursor("next_cursor"), prev: getCursor("prev_cursor")}
+}
+
 let getProcessingEntryStatusVariantFromString = (status: string): processingEntryStatus => {
   switch status->String.toLowerCase {
   | "pending" => Pending
@@ -667,5 +685,22 @@ let overviewRulesTimeSeriesResponseMapper: Dict.t<
     time_series: dict
     ->getArrayFromDict("time_series", [])
     ->Array.map(timeSeries => timeSeries->getDictFromJsonObject->overviewRulesTimeSeriesMapper),
+  }
+}
+
+let stagingEntryOverviewStatusAmountMapper: Dict.t<
+  JSON.t,
+> => stagingEntryOverviewStatusAmount = dict => {
+  {
+    status: dict->getString("status", "")->getProcessingEntryStatusVariantFromString,
+    count: dict->getInt("count", 0),
+  }
+}
+
+let accountStagingEntriesOverviewMapper: Dict.t<JSON.t> => accountStagingEntriesOverview = dict => {
+  {
+    status_breakdown: dict
+    ->getArrayFromDict("status_breakdown", [])
+    ->Array.map(status => status->getDictFromJsonObject->stagingEntryOverviewStatusAmountMapper),
   }
 }
