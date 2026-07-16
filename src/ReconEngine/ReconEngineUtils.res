@@ -713,6 +713,16 @@ let accountStagingEntriesOverviewMapper: Dict.t<JSON.t> => accountStagingEntries
   }
 }
 
+let accountStatusBreakdownMapper: Dict.t<JSON.t> => accountStatusBreakdown = dict => {
+  {
+    status: dict->getString("status", "")->overviewTransactionStatusTypeFromString,
+    credit_txn_count: dict->getInt("credit_count", 0),
+    debit_txn_count: dict->getInt("debit_count", 0),
+    credit_amount: dict->getDictfromDict("credit_amount")->getAmountPayload,
+    debit_amount: dict->getDictfromDict("debit_amount")->getAmountPayload,
+  }
+}
+
 let accountStatusOverviewMapper: Dict.t<JSON.t> => accountStatusOverview = dict => {
   {
     account_id: dict->getString("account_id", ""),
@@ -723,7 +733,7 @@ let accountStatusOverviewMapper: Dict.t<JSON.t> => accountStatusOverview = dict 
     ->getRuleAccountTypeVariantFromString,
     status_breakdown: dict
     ->getArrayFromDict("status_breakdown", [])
-    ->overviewRulesStatusBreakdownArrayMapper,
+    ->Array.map(status => status->getDictFromJsonObject->accountStatusBreakdownMapper),
   }
 }
 

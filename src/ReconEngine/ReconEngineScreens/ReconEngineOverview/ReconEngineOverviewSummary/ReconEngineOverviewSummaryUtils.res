@@ -183,14 +183,15 @@ let getAccountOverview = (
   )
 }
 
-let getMatchedAndTotalCount = (statusBreakdown: array<overviewRuleStatusBreakdown>): (int, int) => {
+let getMatchedAndTotalCount = (statusBreakdown: array<accountStatusBreakdown>): (int, int) => {
   statusBreakdown->Array.reduce((0, 0), ((matchedCount, totalCount), status) => {
+    let recordCount = status.credit_txn_count + status.debit_txn_count
     switch status.status {
     | Matched(Force)
     | Matched(Manual)
     | Matched(Auto)
     | Posted(Manual)
-    | Matched(WithTolerance) => (matchedCount + status.count, totalCount + status.count)
+    | Matched(WithTolerance) => (matchedCount + recordCount, totalCount + recordCount)
     | PartiallyReconciled
     | Missing
     | DataMismatch
@@ -200,7 +201,7 @@ let getMatchedAndTotalCount = (statusBreakdown: array<overviewRuleStatusBreakdow
     | OverAmount(Mismatch)
     | UnderAmount(Mismatch)
     | SplitMismatch
-    | CurrencyMismatch => (matchedCount, totalCount + status.count)
+    | CurrencyMismatch => (matchedCount, totalCount + recordCount)
     | Archived
     | Void
     | UnknownDomainTransactionStatus
@@ -233,7 +234,7 @@ let makeEdge = (
   ~ruleType: string,
   ~sourceAccountId: string,
   ~targetAccountId: string,
-  ~sourceStatusBreakdown: array<overviewRuleStatusBreakdown>,
+  ~sourceStatusBreakdown: array<accountStatusBreakdown>,
   ~selectedNodeId,
 ) => {
   let (matchedCount, totalCount) = getMatchedAndTotalCount(sourceStatusBreakdown)
@@ -293,16 +294,16 @@ let addBalance = (existing: balanceType, incoming: balanceType): balanceType => 
 
 let addStatusToBalanceCountPair = (
   pair: balanceCountPair,
-  status: overviewRuleStatusBreakdown,
+  status: accountStatusBreakdown,
 ): balanceCountPair => {
-  debit_count: pair.debit_count + status.count,
+  debit_count: pair.debit_count + status.debit_txn_count,
   debit: addBalance(pair.debit, status.debit_amount),
-  credit_count: pair.credit_count + status.count,
+  credit_count: pair.credit_count + status.credit_txn_count,
   credit: addBalance(pair.credit, status.credit_amount),
 }
 
 let accountTransactionDataFromStatusBreakdown = (
-  statusBreakdown: array<overviewRuleStatusBreakdown>,
+  statusBreakdown: array<accountStatusBreakdown>,
 ): accountTransactionData => {
   statusBreakdown->Array.reduce(Dict.make()->accountTransactionDataToObjMapper, (acc, status) => {
     switch status.status {
