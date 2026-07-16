@@ -423,6 +423,13 @@ type overviewRulesTimeSeriesResponse = {
   time_series: array<overviewRulesTimeSeries>,
 }
 
+type stagingEntryOverviewStatusAmount = {
+  status: processingEntryStatus,
+  count: int,
+}
+
+type accountStagingEntriesOverview = {status_breakdown: array<stagingEntryOverviewStatusAmount>}
+
 type cursorDirection = [#next | #previous]
 
 type cursorValue = {
