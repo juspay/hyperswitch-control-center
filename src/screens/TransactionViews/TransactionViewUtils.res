@@ -69,6 +69,27 @@ let mergeFilterKeysForView = (~existingKeys, ~removedFilterKeys, ~filterEntryKey
   ->Array.concat(filterEntryKeys)
   ->getUniqueArray
 
+let getFilterUpdateForView = (
+  ~view: viewTypes,
+  ~isAdvancedOrdersView,
+  ~customFilterKey,
+  ~customFilter,
+) => {
+  let (filterKey, hiddenFilterEntry) = isAdvancedOrdersView
+    ? (
+        view->getAdvancedPaymentFilterKeyForView(~defaultFilterKey=customFilterKey),
+        view->getAdvancedPaymentHiddenFilterEntryForView,
+      )
+    : (customFilterKey, None)
+  let filterEntries =
+    hiddenFilterEntry->mapOptionOrDefault([(filterKey, customFilter)], entry => [
+      (filterKey, customFilter),
+      entry,
+    ])
+  let removedFilterKeys = isAdvancedOrdersView ? view->getAdvancedPaymentFilterKeysToRemove : []
+  (filterEntries, removedFilterKeys)
+}
+
 let getTransactionViewEntityKey = (entity: operationsTypes) => (entity :> string)
 
 let getTransactionViewVersionKey = (version: UserInfoTypes.version) => (version :> string)
