@@ -4,7 +4,7 @@ open ReconEngineUtils
 
 let bytesPerKilobyte = 1000
 let bytesPerMegabyte = bytesPerKilobyte * 1000
-let maxFileSizeBytes = 8 * bytesPerMegabyte
+let maxFileSizeBytes = 25 * bytesPerMegabyte
 
 let formatFileSize = (sizeInBytes: int) => {
   let size = sizeInBytes->Int.toFloat
