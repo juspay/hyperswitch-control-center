@@ -51,7 +51,7 @@ let foldAmountOption = filtersDict => {
     | UnknownRange(_) => filtersDict->Dict.delete(SavedViewTypes.FilterKeys.amountOption)
     }
 
-    if amountFilterDict->Dict.keysToArray->Array.length > 0 {
+    if amountFilterDict->Dict.keysToArray->isNonEmptyArray {
       filtersDict->Dict.set("amount_filter", amountFilterDict->JSON.Encode.object)
     }
   }

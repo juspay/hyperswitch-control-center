@@ -33,7 +33,7 @@ let make = (
   }, (version, entity))
 
   React.useEffect(() => {
-    if !isInternalUpdate && savedViews->Array.length > 0 {
+    if !isInternalUpdate && savedViews->isNonEmptyArray {
       let currentFiltersDict = SavedViewsUtils.buildCurrentFiltersDict(filterValue)
       let matchingView = SavedViewsUtils.findMatchingView(
         ~savedViews,

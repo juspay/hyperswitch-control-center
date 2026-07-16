@@ -65,7 +65,7 @@ let make = (~previewOnly=false) => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->getValueFromDict(tableTitle, defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let {filterValueJson, updateExistingKeys, removeKeys, reset, setfilterKeys} = React.useContext(
+  let {filterValueJson, updateExistingKeys, reset, setfilterKeys} = React.useContext(
     FilterContext.filterContext,
   )
   let startTime = filterValueJson->getString(startTimeFilterKey(version), "")
@@ -91,10 +91,7 @@ let make = (~previewOnly=false) => {
       let data = res.data
       let total = res.total_count
 
-      if (
-        data->Array.length === 0 &&
-          filterValueJson->getOptionValFromDict("payment_id")->Option.isSome
-      ) {
+      if data->isEmptyArray && filterValueJson->getOptionValFromDict("payment_id")->Option.isSome {
         let paymentId = filterValueJson->getString("payment_id", "")
 
         if RegExp.test(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), paymentId) {
@@ -216,16 +213,6 @@ let make = (~previewOnly=false) => {
     reset()
     setfilterKeys(_ => [])
   }
-
-  React.useEffect0(() => {
-    if !isAdvancedSource {
-      removeKeys(advancedPaymentFilterCleanupKeys)
-      setfilterKeys(prev =>
-        prev->Array.filter(key => !(advancedPaymentFilterCleanupKeys->Array.includes(key)))
-      )
-    }
-    None
-  })
 
   React.useEffect(() => {
     if isAdvancedSource {
