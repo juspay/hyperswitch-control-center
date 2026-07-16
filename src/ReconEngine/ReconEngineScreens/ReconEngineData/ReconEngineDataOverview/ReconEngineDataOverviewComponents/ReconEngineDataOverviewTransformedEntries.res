@@ -195,7 +195,7 @@ let make = (
         bottomActions={<ReconEngineCursorPaginationButtons
           cursors
           isLoading={screenState === PageLoaderWrapper.Loading}
-          show={processingEntries->isNonEmptyArray}
+          hasData={processingEntries->isNonEmptyArray}
           onPrev=goToPrevPage
           onNext=goToNextPage
         />}
