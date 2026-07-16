@@ -1478,6 +1478,7 @@ test.describe("Payment Operations", () => {
       await expect(page.getByText("Events and logs")).toBeVisible();
 
       await expect(page.getByText("Payment Attempts")).toBeVisible();
+      await page.getByText(/^Payment Attempts$/).click();
 
       const expectedAttemptColumns = [
         "S.No",
@@ -1551,9 +1552,9 @@ test.describe("Payment Operations", () => {
         }
       }
 
-      await expect(
-        page.getByRole("paragraph").filter({ hasText: "Refunds" }),
-      ).toBeVisible();
+      const refundsTab = page.getByText(/^Refunds$/);
+      await expect(refundsTab).toBeVisible();
+      await refundsTab.click();
 
       const expectedRefundAttemptColumns = [
         "S.No",
@@ -1653,6 +1654,8 @@ test.describe("Payment Operations", () => {
           "1562, HarrisonStreet, HarrisonStreet, Toronto, ON, CA, M3C 0C1.",
       });
 
+      await page.getByText(/^Fraud & Risk Management$/).click();
+
       await expect(paymentOperations.dataLabel("Tag").first()).toContainText(
         "N/A",
       );
@@ -1663,24 +1666,12 @@ test.describe("Payment Operations", () => {
         paymentOperations.dataLabel("Message").first(),
       ).toContainText("N/A");
 
-      const expandAccordionAndAssertFields = async (
-        accordionTitle: string,
-        fields: Record<string, string>,
-      ) => {
-        const accordionHeader = page.getByText(
-          new RegExp(`^${accordionTitle}$`),
-        );
-        await accordionHeader.waitFor({ state: "attached", timeout: 10000 });
-        await accordionHeader.scrollIntoViewIfNeeded();
-        await accordionHeader.click();
-        for (const [label, value] of Object.entries(fields)) {
-          await expect(
-            paymentOperations.dataLabel(label).first(),
-          ).toContainText(value);
-        }
-      };
+      await page
+        .getByText(/^Payment Method Details$/)
+        .first()
+        .click();
 
-      await expandAccordionAndAssertFields("More Payment Details", {
+      for (const [label, value] of Object.entries({
         "Amount Capturable": "",
         "Error Code": "N/A",
         "Mandate Data": "N/A",
@@ -1699,9 +1690,15 @@ test.describe("Payment Operations", () => {
         "Extended Auth Last Applied At": "-",
         "Request Extended Auth": "false",
         "Hyperswitch Error Description": "N/A",
-      });
+      })) {
+        await expect(paymentOperations.dataLabel(label).first()).toContainText(
+          value,
+        );
+      }
 
-      const paymentMethodDetails = page.getByText(/^Payment Method Details$/);
+      const paymentMethodDetails = page
+        .getByText(/^Payment Method Details$/)
+        .last();
       await paymentMethodDetails.waitFor({ state: "attached", timeout: 10000 });
       await paymentMethodDetails.scrollIntoViewIfNeeded();
       await paymentMethodDetails.click();
@@ -1718,7 +1715,9 @@ test.describe("Payment Operations", () => {
         "value",
       );
 
-      await expandAccordionAndAssertFields("FRM Details", {
+      await page.getByText(/^FRM Details$/).click();
+
+      for (const [label, value] of Object.entries({
         "Payment ID": "",
         "Payment Method Type": "",
         Amount: "",
@@ -1727,7 +1726,11 @@ test.describe("Payment Operations", () => {
         "FRM Connector": "",
         "FRM Message": "",
         "Merchant Decision": "",
-      });
+      })) {
+        await expect(paymentOperations.dataLabel(label).first()).toContainText(
+          value,
+        );
+      }
     });
   });
 
@@ -1967,11 +1970,17 @@ test.describe("Payment Operations", () => {
 
       await paymentOperations.refundAmountInput.fill("50.00");
       await paymentOperations.refundReasonInput.fill("Partial refund test");
+      const refreshResponse = page.waitForResponse(
+        (resp) => resp.url().includes("force_sync=true") && resp.ok(),
+      );
       await page.getByRole("button", { name: "Initiate Refund" }).click();
+      await refreshResponse;
 
       await expect(
         page.getByRole("button", { name: "Initiate Refund" }),
       ).not.toBeVisible();
+
+      await page.getByText(/^Refunds$/).click();
 
       await expect(paymentOperations.refundCell(1, 4)).toContainText("50");
       await expect(paymentOperations.refundCell(1, 5)).toContainText(
@@ -2001,11 +2010,17 @@ test.describe("Payment Operations", () => {
 
       await paymentOperations.refundAmountInput.fill("123.45");
       await paymentOperations.refundReasonInput.fill("Full refund test");
+      const refreshResponse = page.waitForResponse(
+        (resp) => resp.url().includes("force_sync=true") && resp.ok(),
+      );
       await page.getByRole("button", { name: "Initiate Refund" }).click();
+      await refreshResponse;
 
       await expect(
         page.getByRole("button", { name: "Initiate Refund" }),
       ).not.toBeVisible();
+
+      await page.getByText(/^Refunds$/).click();
 
       await expect(paymentOperations.refundCell(1, 4)).toContainText("123.45");
       await expect(paymentOperations.refundCell(1, 5)).toContainText(
@@ -2107,7 +2122,9 @@ test.describe("Payment Operations", () => {
       await homePage.paymentOperations.click();
       await paymentOperations.orderCell(1, 1).click();
       await paymentOperations.addCaptureButton.click();
-      await expect(page.getByText("Confirm Capture Payment").first()).toBeVisible();
+      await expect(
+        page.getByText("Confirm Capture Payment").first(),
+      ).toBeVisible();
     };
 
     test("should display Capture button for a requires_capture payment", async ({
@@ -2183,9 +2200,7 @@ test.describe("Payment Operations", () => {
       );
       await expect(paymentOperations.captureAmountInput).toHaveValue("123.45");
 
-      await expect(
-        page.getByRole("button", { name: "Cancel" }),
-      ).toBeVisible();
+      await expect(page.getByRole("button", { name: "Cancel" })).toBeVisible();
       await expect(paymentOperations.confirmCaptureButton).toBeVisible();
     });
 
