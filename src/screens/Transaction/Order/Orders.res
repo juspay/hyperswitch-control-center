@@ -292,7 +292,7 @@ let make = (~previewOnly=false) => {
       }}
       version
     />
-  }, (searchText, version, tableTitle, isAdvancedSource, savedViewsEntity, devSavedViews))
+  }, (searchText, version, isAdvancedSource, devSavedViews))
 
   let downloadData = () => {
     let currentDate = Date.now()->Js.Date.fromFloat->Date.toISOString->dateFormat("YYYY-MM-DD")

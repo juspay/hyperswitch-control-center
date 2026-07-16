@@ -215,7 +215,7 @@ let findMatchingView = (
 
 let buildViewOptions = (
   ~savedViews: array<SavedViewTypes.savedView>,
-  ~activeViewName: string,
+  ~activeView: option<SavedViewTypes.savedView>,
   ~defaultViewName: string,
   ~panelState: SavedViewTypes.savedViewsPanelState,
   ~setPanelState: (
@@ -228,7 +228,7 @@ let buildViewOptions = (
     label: defaultViewName,
     value: "",
     isDisabled: false,
-    leftIcon: activeViewName->isEmptyString ? CustomIcon(<Tick isSelected=true />) : NoIcon,
+    leftIcon: activeView->Option.isNone ? CustomIcon(<Tick isSelected=true />) : NoIcon,
     customTextStyle: None,
     customIconStyle: None,
     rightIcon: NoIcon,
@@ -241,7 +241,11 @@ let buildViewOptions = (
       label: name,
       value: name,
       isDisabled: false,
-      leftIcon: name === activeViewName ? CustomIcon(<Tick isSelected=true />) : NoIcon,
+      leftIcon: activeView->mapOptionOrDefault(false, activeView =>
+        activeView.view_id === view.view_id
+      )
+        ? CustomIcon(<Tick isSelected=true />)
+        : NoIcon,
       customTextStyle: None,
       customIconStyle: None,
       rightIcon: NoIcon,
@@ -250,7 +254,10 @@ let buildViewOptions = (
         <InlineEditInput
           index=i
           labelText=name
-          isUnderEdit={panelState === RenamingViewAtIndex(i)}
+          isUnderEdit={switch panelState {
+          | RenamingViewAtIndex(idx) => idx === i
+          | _ => false
+          }}
           handleEdit={index =>
             setPanelState(_ =>
               switch index {

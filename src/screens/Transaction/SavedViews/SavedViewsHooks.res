@@ -18,6 +18,7 @@ let useFetchSavedViews = (~entity, ~version) => {
       let response = await fetchDetails(url, ~version)
       let parsedResponse = response->SavedViewsUtils.savedViewsResponseMapper(entity)
       setSavedViews(_ => parsedResponse.views)
+      parsedResponse.views
     } catch {
     | err =>
       Js.log2("FAILED TO LOAD SAVED VIEWS", err)
@@ -25,6 +26,7 @@ let useFetchSavedViews = (~entity, ~version) => {
         ~message="Failed to load saved views. Please try again.",
         ~toastType=ToastState.ToastError,
       )
+      []
     }
   }
 }
