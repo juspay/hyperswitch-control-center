@@ -69,6 +69,7 @@ let make = (
   ~customizeColumnButtonIcon="customise-columns",
   ~isDraggable=false,
   ~customSeparation=?,
+  ~visitedRows=?,
   ~checkBoxProps: option<LoadedTable.checkBoxProps>=?,
   ~isNewColumn=_ => false,
   ~getNewColumnDescription=_ => "",
@@ -158,6 +159,7 @@ let make = (
     ?filterIcon
     tableheadingClass
     tableDataBackgroundClass
+    showPagination
     showResultsPerPageSelector
     ?setExtFilteredDataLength
     noScrollbar
@@ -165,6 +167,7 @@ let make = (
     showAutoScroll
     hideCustomisableColumnButton
     ?customSeparation
+    ?visitedRows
     ?checkBoxProps
   />
 }

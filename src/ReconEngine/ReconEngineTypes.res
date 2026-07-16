@@ -422,3 +422,32 @@ type overviewRulesTimeSeriesResponse = {
   rule_name: string,
   time_series: array<overviewRulesTimeSeries>,
 }
+
+type stagingEntryOverviewStatusAmount = {
+  status: processingEntryStatus,
+  count: int,
+}
+
+type accountStagingEntriesOverview = {status_breakdown: array<stagingEntryOverviewStatusAmount>}
+
+type cursorDirection = [#next | #previous]
+
+type cursorValue = {
+  @as("effective_at") effectiveAt: string,
+  @as("id") cursorId: string,
+}
+
+type cursor = {
+  @as("sort_field") sortField: string,
+  @as("cursor_value") cursorValue: option<cursorValue>,
+}
+
+type cursors = {
+  next: option<cursor>,
+  prev: option<cursor>,
+}
+
+type cursorPage<'item> = {
+  items: array<'item>,
+  cursors: cursors,
+}

@@ -398,6 +398,11 @@ let useGetURL = () => {
         | (Post, Some(payment_id)) => `payments/${payment_id}/cancel`
         | _ => ""
         }
+      | PAYMENT_CAPTURE =>
+        switch (methodType, id) {
+        | (Post, Some(payment_id)) => `payments/${payment_id}/capture`
+        | _ => ""
+        }
       | ORDERS_AGGREGATE =>
         switch methodType {
         | Get =>
@@ -886,6 +891,15 @@ let useGetURL = () => {
           }
         | _ => ""
         }
+      | PRISM_CONNECTOR_EVENT_LOGS =>
+        switch methodType {
+        | Get =>
+          switch queryParameters {
+          | Some(params) => `analytics/v1/profile/prism_connector_event_logs?${params}`
+          | None => `analytics/v1/prism_connector_event_logs`
+          }
+        | _ => ""
+        }
       | ROUTING_EVENT_LOGS =>
         switch methodType {
         | Get =>
@@ -1030,6 +1044,11 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #TRANSACTIONS_LIST_V2 =>
+          switch methodType {
+          | Post => `${reconBaseURL}/transactions/v2/list`
+          | _ => ""
+          }
         | #PROCESSED_ENTRIES_LIST_WITH_ACCOUNT =>
           switch methodType {
           | Get =>
@@ -1050,6 +1069,11 @@ let useGetURL = () => {
             | Some(transactionId) => `${reconBaseURL}/transactions/${transactionId}/entries`
             | None => `${reconBaseURL}/entries`
             }
+          | _ => ""
+          }
+        | #PROCESSING_ENTRIES_LIST_V2 =>
+          switch methodType {
+          | Post => `${reconBaseURL}/staging_entries/v2/list`
           | _ => ""
           }
         | #PROCESSING_ENTRIES_LIST =>
@@ -1257,6 +1281,15 @@ let useGetURL = () => {
             | Some(queryParams) =>
               `${reconBaseURL}/overview/transactions/time_series?${queryParams}`
             | None => `${reconBaseURL}/overview/transactions/time_series`
+            }
+          | _ => ""
+          }
+        | #STAGING_ENTRIES_OVERVIEW =>
+          switch methodType {
+          | Get =>
+            switch queryParameters {
+            | Some(queryParams) => `${reconBaseURL}/overview/staging_entries?${queryParams}`
+            | None => `${reconBaseURL}/overview/staging_entries`
             }
           | _ => ""
           }
@@ -1524,11 +1557,18 @@ let useHandleLogout = (~eventName="user_sign_out") => {
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastAdapter.useShowToast()
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   async () => {
     try {
       let logoutUrl = getURL(~entityName=V1(USERS), ~methodType=Post, ~userType=#SIGNOUT)
-      let _ = await fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute, ~forceCookies)
+      let _ = await fetchApi(
+        logoutUrl,
+        ~method_=Post,
+        ~xFeatureRoute,
+        ~forceCookies,
+        ~sendV1DummyApiKeyHeader,
+      )
       mixpanelEvent(~eventName)
       setAuthStateToLogout()
       clearRecoilValue()
@@ -1700,7 +1740,8 @@ let useGetMethod = (~showErrorToast=true) => {
         },
       },
     })
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async (url, ~version=UserInfoTypes.V1, ~signal=?) => {
     try {
@@ -1709,6 +1750,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~method_=Get,
         ~xFeatureRoute,
         ~forceCookies,
+        ~sendV1DummyApiKeyHeader,
         ~merchantId,
         ~profileId,
         ~version,
@@ -1763,7 +1805,8 @@ let useUpdateMethod = (~showErrorToast=true) => {
         },
       },
     })
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async (
     url,
@@ -1785,6 +1828,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~contentType,
         ~xFeatureRoute,
         ~forceCookies,
+        ~sendV1DummyApiKeyHeader,
         ~merchantId,
         ~profileId,
         ~version,
