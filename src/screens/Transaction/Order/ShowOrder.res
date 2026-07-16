@@ -316,7 +316,7 @@ module Refunds = {
 module Attempts = {
   open OrderEntity
   @react.component
-  let make = (~order) => {
+  let make = (~order, ~showHeading=true) => {
     let noExpandIndex = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
 
@@ -372,7 +372,9 @@ module Attempts = {
     }
 
     <div className="flex flex-col gap-4">
-      <p className={`${body.lg.bold} text-nd_gray-900`}> {"Payment Attempts"->React.string} </p>
+      <RenderIf condition=showHeading>
+        <p className={`${body.lg.bold} text-nd_gray-900`}> {"Payment Attempts"->React.string} </p>
+      </RenderIf>
       <CustomExpandableTable
         title="Attempts"
         heading
@@ -817,12 +819,16 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       <div className="px-5 py-4"> {children} </div>
     </div>
 
+  let renderTabContent = children => <div className="mt-5"> {children} </div>
+
   let renderEventsAndLogs = () =>
-    renderDetailsPanel(
-      ~title="Events and logs",
-      ~children=<LogsWrapper wrapperFor={#PAYMENT}>
-        <PaymentLogs paymentId={id} createdAt={orderData.created_at} />
-      </LogsWrapper>,
+    renderTabContent(
+      renderDetailsPanel(
+        ~title="Events and logs",
+        ~children=<LogsWrapper wrapperFor={#PAYMENT}>
+          <PaymentLogs paymentId={id} createdAt={orderData.created_at} />
+        </LogsWrapper>,
+      ),
     )
 
   let detailAccordionItem = (title, renderContent): AccordionAdapter.accordion => {
@@ -915,119 +921,125 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       ),
     ]
 
-    <AccordionAdapter
-      accordion=accordionItems
-      accordionTopContainerCss="rounded-lg"
-      accordionBottomContainerCss="p-4"
-      contentExpandCss="px-4 py-3"
-      titleStyle={`${body.md.semibold} text-nd_gray-700`}
-      accordionHeaderTextClass="flex-1"
-      gapClass="space-y-5"
-      arrowPosition=Left
-      initialExpandedArray=[0, 1, 2]
-    />
+    renderTabContent(
+      <AccordionAdapter
+        accordion=accordionItems
+        accordionTopContainerCss="rounded-lg"
+        accordionBottomContainerCss="p-4"
+        contentExpandCss="px-4 py-3"
+        titleStyle={`${body.md.semibold} text-nd_gray-700`}
+        accordionHeaderTextClass="flex-1"
+        gapClass="space-y-5"
+        arrowPosition=Left
+        initialExpandedArray=[0, 1, 2]
+      />,
+    )
   }
 
   let renderPaymentMethodDetails = () =>
-    <div className="flex flex-col gap-5">
-      {renderDetailsPanel(
-        ~title="Payment Details",
-        ~children=<ShowOrderDetails
-          data=orderData
-          getHeading=OrderEntity.getHeadingForOtherDetails
-          getCell=OrderEntity.getCellForOtherDetails
-          detailsFields=[
-            AmountCapturable,
-            ErrorCode,
-            MandateData,
-            MerchantId,
-            ReturnUrl,
-            OffSession,
-            CaptureOn,
-            NextAction,
-            SetupFutureUsage,
-            CancellationReason,
-            StatementDescriptorName,
-            StatementDescriptorSuffix,
-            PaymentExperience,
-            MerchantOrderReferenceId,
-            ExtendedAuthApplied,
-            ExtendedAuthLastAppliedAt,
-            RequestExtendedAuth,
-            HyperswitchErrorDescription,
-          ]
-          isNonRefundConnector={isNonRefundConnector(orderData.connector)}
-          paymentStatus={orderData.status}
-          openRefundModal={() => ()}
-          widthClass="md:w-1/3 w-full"
-          paymentId={orderData.payment_id}
-          border=""
-        />,
-      )}
-      <RenderIf
-        condition={orderData.payment_method === "card" &&
-          orderData.payment_method_data->Option.isSome}>
-        <RenderAccordion
-          accordion={[
-            {
-              title: "Payment Method Details",
-              renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
-                <div className="bg-white p-2">
-                  <PrettyPrintJson
-                    jsonToDisplay={orderData.payment_method_data
-                    ->JSON.stringifyAny
-                    ->Option.getOr("")}
-                    overrideBackgroundColor="bg-white"
-                  />
-                </div>
+    renderTabContent(
+      <div className="flex flex-col gap-5">
+        {renderDetailsPanel(
+          ~title="Payment Details",
+          ~children=<ShowOrderDetails
+            data=orderData
+            getHeading=OrderEntity.getHeadingForOtherDetails
+            getCell=OrderEntity.getCellForOtherDetails
+            detailsFields=[
+              AmountCapturable,
+              ErrorCode,
+              MandateData,
+              MerchantId,
+              ReturnUrl,
+              OffSession,
+              CaptureOn,
+              NextAction,
+              SetupFutureUsage,
+              CancellationReason,
+              StatementDescriptorName,
+              StatementDescriptorSuffix,
+              PaymentExperience,
+              MerchantOrderReferenceId,
+              ExtendedAuthApplied,
+              ExtendedAuthLastAppliedAt,
+              RequestExtendedAuth,
+              HyperswitchErrorDescription,
+            ]
+            isNonRefundConnector={isNonRefundConnector(orderData.connector)}
+            paymentStatus={orderData.status}
+            openRefundModal={() => ()}
+            widthClass="md:w-1/3 w-full"
+            paymentId={orderData.payment_id}
+            border=""
+          />,
+        )}
+        <RenderIf
+          condition={orderData.payment_method === "card" &&
+            orderData.payment_method_data->Option.isSome}>
+          <RenderAccordion
+            accordion={[
+              {
+                title: "Payment Method Details",
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
+                  <div className="bg-white p-2">
+                    <PrettyPrintJson
+                      jsonToDisplay={orderData.payment_method_data
+                      ->JSON.stringifyAny
+                      ->Option.getOr("")}
+                      overrideBackgroundColor="bg-white"
+                    />
+                  </div>
+                },
+                renderContentOnTop: None,
               },
-              renderContentOnTop: None,
-            },
-          ]}
-        />
-      </RenderIf>
-      <RenderIf condition={orderData.external_authentication_details->Option.isSome}>
-        <RenderAccordion
-          accordion={[
-            {
-              title: "External Authentication Details",
-              renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
-                <div className="bg-white p-2">
-                  <AuthenticationDetails order={orderData} />
-                </div>
+            ]}
+          />
+        </RenderIf>
+        <RenderIf condition={orderData.external_authentication_details->Option.isSome}>
+          <RenderAccordion
+            accordion={[
+              {
+                title: "External Authentication Details",
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
+                  <div className="bg-white p-2">
+                    <AuthenticationDetails order={orderData} />
+                  </div>
+                },
+                renderContentOnTop: None,
               },
-              renderContentOnTop: None,
-            },
-          ]}
-        />
-      </RenderIf>
-      <RenderIf condition={!(orderData.metadata->LogicUtils.isEmptyDict)}>
-        <RenderAccordion
-          accordion={[
-            {
-              title: "Payment Metadata",
-              renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
-                <div className="bg-white p-2">
-                  <PrettyPrintJson
-                    jsonToDisplay={orderData.metadata->JSON.stringifyAny->Option.getOr("")}
-                    overrideBackgroundColor="bg-white"
-                  />
-                </div>
+            ]}
+          />
+        </RenderIf>
+        <RenderIf condition={!(orderData.metadata->LogicUtils.isEmptyDict)}>
+          <RenderAccordion
+            accordion={[
+              {
+                title: "Payment Metadata",
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
+                  <div className="bg-white p-2">
+                    <PrettyPrintJson
+                      jsonToDisplay={orderData.metadata->JSON.stringifyAny->Option.getOr("")}
+                      overrideBackgroundColor="bg-white"
+                    />
+                  </div>
+                },
+                renderContentOnTop: None,
               },
-              renderContentOnTop: None,
-            },
-          ]}
-        />
-      </RenderIf>
-    </div>
+            ]}
+          />
+        </RenderIf>
+      </div>,
+    )
 
   let renderFrmDetails = () =>
-    <div className="overflow-scroll" ref={frmDetailsRef->ReactDOM.Ref.domRef}>
-      {renderDetailsPanel(
-        ~title="FRM Details",
-        ~children=<FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />,
-      )}
-    </div>
+    renderTabContent(
+      <div className="overflow-scroll" ref={frmDetailsRef->ReactDOM.Ref.domRef}>
+        {renderDetailsPanel(
+          ~title="FRM Details",
+          ~children=<FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />,
+        )}
+      </div>,
+    )
 
   let paymentDetailsTabs: array<Tabs.tab> = []
 
@@ -1045,8 +1057,8 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   paymentDetailsTabs->Array.push({
     title: "Payment Attempts",
     renderContent: () =>
-      <div className="overflow-scroll">
-        <Attempts order={orderData} />
+      <div className="mt-5 overflow-scroll">
+        <Attempts order={orderData} showHeading=false />
       </div>,
   })
 
@@ -1054,7 +1066,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     paymentDetailsTabs->Array.push({
       title: "Refunds",
       renderContent: () =>
-        <div className="overflow-scroll">
+        <div className="mt-5 overflow-scroll">
           <Refunds refundData={orderData.refunds} />
         </div>,
     })
@@ -1064,7 +1076,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     paymentDetailsTabs->Array.push({
       title: "Disputes",
       renderContent: () =>
-        <div className="overflow-scroll">
+        <div className="mt-5 overflow-scroll">
           <Disputes disputesData={orderData.disputes} />
         </div>,
     })
