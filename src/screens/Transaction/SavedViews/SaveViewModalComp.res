@@ -1,6 +1,7 @@
 open LogicUtils
 open Typography
 open SavedViewTypes
+open OrderUIUtils
 
 module IncludeDateCheckbox = {
   @react.component
@@ -180,8 +181,8 @@ let make = (
   let mergedFilters = React.useMemo(() => {
     let merged = DictionaryUtils.mergeDicts([filterValueJson, formValues->getDictFromJsonObject])
 
-    let startTimeKey = OrderUIUtils.startTimeFilterKey(version)
-    let endTimeKey = OrderUIUtils.endTimeFilterKey(version)
+    let startTimeKey = startTimeFilterKey(version)
+    let endTimeKey = endTimeFilterKey(version)
     let defaultDates = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
 
     let start = merged->getString(startTimeKey, "")
@@ -196,8 +197,8 @@ let make = (
   }, (filterValueJson, formValues, version))
 
   let dateRangeText = React.useMemo(() => {
-    let start = mergedFilters->getString(OrderUIUtils.startTimeFilterKey(version), "")
-    let end = mergedFilters->getString(OrderUIUtils.endTimeFilterKey(version), "")
+    let start = mergedFilters->getString(startTimeFilterKey(version), "")
+    let end = mergedFilters->getString(endTimeFilterKey(version), "")
     let format = isoStr =>
       if isoStr->isNonEmptyString {
         (isoStr->DayJs.getDayJsForString).format("MMM D, YYYY HH:mm")
@@ -232,16 +233,12 @@ let make = (
     filtersDict->Dict.delete("limit")
     filtersDict->Dict.delete("offset")
     if !includeDate {
-      filtersDict->Dict.delete(OrderUIUtils.startTimeFilterKey(version))
-      filtersDict->Dict.delete(OrderUIUtils.endTimeFilterKey(version))
+      filtersDict->Dict.delete(startTimeFilterKey(version))
+      filtersDict->Dict.delete(endTimeFilterKey(version))
     }
     filtersDict->Dict.delete("amount_filter")
     SavedViewsUtils.foldAmountOption(filtersDict)
-    OrderUIUtils.copyAdvancedPaymentFilterIfPresent(
-      ~fromDict=filtersDict,
-      ~toDict=filtersDict,
-      OrderUIUtils.firstAttemptFilterKey,
-    )
+    copyAdvancedPaymentFilterIfPresent(~dict=filtersDict, firstAttemptFilterKey)
     filtersDict->JSON.Encode.object
   }
 

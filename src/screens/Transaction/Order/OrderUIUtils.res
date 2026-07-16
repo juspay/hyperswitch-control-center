@@ -409,14 +409,11 @@ let advancedPaymentListFilterKeys =
     hiddenAdvancedPaymentFilterKeys,
   ]->Array.flat
 
-let copyAdvancedPaymentFilterIfPresent = (~fromDict, ~toDict, key) => {
-  switch fromDict->getOptionValFromDict(key) {
+let copyAdvancedPaymentFilterIfPresent = (~dict, key) => {
+  switch dict->getOptionValFromDict(key) {
   | Some(value) =>
     let stringValues = switch value->getOptionStrArrayFromJson {
-    | Some(values) =>
-      values
-      ->Array.map(value => value->String.trim)
-      ->Array.filterMap(getNonEmptyString)
+    | Some(values) => values->Array.filterMap(value => value->String.trim->getNonEmptyString)
     | None =>
       switch value->getStringFromJson("")->getNonEmptyString {
       | Some(v) => [v]
@@ -426,13 +423,13 @@ let copyAdvancedPaymentFilterIfPresent = (~fromDict, ~toDict, key) => {
 
     if key === customerEmailFilterKey {
       let email = stringValues->getValueFromArray(0, "")
-      if email->isNonEmptyString && !(email->CommonAuthUtils.isValidEmail) {
-        toDict->setOptionString(key, Some(email))
-      }
+      email->isNonEmptyString && !(email->CommonAuthUtils.isValidEmail)
+        ? dict->setOptionString(key, Some(email))
+        : ()
     } else if advancedPaymentTextListFilterKeys->Array.includes(key) {
-      if stringValues->isNonEmptyArray {
-        toDict->setOptionJson(key, Some(stringValues->getJsonFromArrayOfString))
-      }
+      stringValues->isNonEmptyArray
+        ? dict->setOptionJson(key, Some(stringValues->getJsonFromArrayOfString))
+        : ()
     } else if key === firstAttemptFilterKey {
       let jsonToBool = json =>
         switch json->getStringFromJson("")->getNonEmptyString {
@@ -440,11 +437,11 @@ let copyAdvancedPaymentFilterIfPresent = (~fromDict, ~toDict, key) => {
         | None => json->getBoolFromJson(false)
         }
       let boolValues = value->getArrayFromJson([value])->Array.map(jsonToBool)
-      if boolValues->isNonEmptyArray {
-        toDict->setOptionArray(key, Some(boolValues->Array.map(JSON.Encode.bool)))
-      }
+      boolValues->isNonEmptyArray
+        ? dict->setOptionArray(key, Some(boolValues->Array.map(JSON.Encode.bool)))
+        : ()
     } else {
-      toDict->setOptionJson(key, Some(value))
+      dict->setOptionJson(key, Some(value))
     }
   | None => ()
   }
@@ -473,7 +470,7 @@ let buildAdvancedPaymentListPayload = (
   }
 
   advancedPaymentListFilterKeys->Array.forEach(key => {
-    copyAdvancedPaymentFilterIfPresent(~fromDict=filterParams, ~toDict=body, key)
+    copyAdvancedPaymentFilterIfPresent(~dict=body, key)
   })
 
   if trimmedSearchText->isNonEmptyString {
@@ -556,15 +553,12 @@ let initialFiltersWithSource = (
 
     let title = `Select ${key->snakeToTitle}`
     let filterKey = filterType->getValueFromFilterType
-    let labelRightComponent = if (
+    let labelRightComponent =
       isAdvancedSource &&
       advancedPaymentOnlyFilterKeys->Array.includes(filterKey) &&
       !(filterKeys->Array.includes(filterKey))
-    ) {
-      Some(<NewFeatureTag description={filterKey->getAdvancedPaymentFilterDescription} />)
-    } else {
-      None
-    }
+        ? Some(<NewFeatureTag description={filterKey->getAdvancedPaymentFilterDescription} />)
+        : None
 
     let options = switch filterType {
     | #connector_label => getOptionsForOrderFilters(filterDict, filterValues)

@@ -330,17 +330,15 @@ let buildSavedViewDataDict = (
   ~savedViewDataVersion,
 ) => {
   let versionStr = (savedViewDataVersion->SavedViewTypes.versionToSavedViewVersion :> string)
-  let baseEntries = [
-    ("view_name", name->JSON.Encode.string),
-    ("filters", filters),
-    ("entity", entity->SavedViewTypes.entityToString->JSON.Encode.string),
-    ("version", versionStr->JSON.Encode.string),
-  ]
-  viewId
-  ->mapOptionOrDefault(baseEntries, id =>
-    baseEntries->Array.concat([("view_id", id->JSON.Encode.string)])
-  )
-  ->Dict.fromArray
+  let dataDict =
+    [
+      ("view_name", name->JSON.Encode.string),
+      ("filters", filters),
+      ("entity", entity->SavedViewTypes.entityToString->JSON.Encode.string),
+      ("version", versionStr->JSON.Encode.string),
+    ]->Dict.fromArray
+  dataDict->setOptionString("view_id", viewId)
+  dataDict
 }
 
 let buildRenamePayload = (

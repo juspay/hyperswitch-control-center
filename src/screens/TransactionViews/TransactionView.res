@@ -71,9 +71,7 @@ let make = (
       ~customFilter=`[${view->getViewFilterValue(aggregateResponse, entity)}]`,
     )
 
-    if removedFilterKeys->isNonEmptyArray {
-      removeKeys(removedFilterKeys)
-    }
+    removedFilterKeys->isNonEmptyArray ? removeKeys(removedFilterKeys) : ()
 
     updateExistingKeys(Dict.fromArray(filterEntries))
     setfilterKeys(prev =>
@@ -212,11 +210,9 @@ let make = (
   | Disputes => disputeViewsArray
   | Payouts => payoutViewsArray
   }
-
+  let largeScreenGridClass = viewsArray->Array.length >= 6 ? "lg:grid-cols-6" : "lg:grid-cols-4"
   <div
-    className={`${viewsArray->Array.length >= 6
-        ? "grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6"
-        : "grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6"} ${containerClassName}`}>
+    className={`grid ${largeScreenGridClass} md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 ${containerClassName}`}>
     {viewsArray
     ->Array.mapWithIndex((item, i) =>
       <TransactionViewCard
