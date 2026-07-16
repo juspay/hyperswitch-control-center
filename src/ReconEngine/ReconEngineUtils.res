@@ -167,6 +167,14 @@ let getAccountTypeVariantFromString = (accountType: string): accountTypeVariant 
   }
 }
 
+let getRuleAccountTypeVariantFromString = (ruleAccountType: string): ruleAccountTypeVariant => {
+  switch ruleAccountType->String.toLowerCase {
+  | "source" => Source
+  | "target" => Target
+  | _ => UnknownRuleAccountType
+  }
+}
+
 let accountItemToObjMapper = dict => {
   {
     account_name: dict->getString("account_name", ""),
@@ -702,5 +710,29 @@ let accountStagingEntriesOverviewMapper: Dict.t<JSON.t> => accountStagingEntries
     status_breakdown: dict
     ->getArrayFromDict("status_breakdown", [])
     ->Array.map(status => status->getDictFromJsonObject->stagingEntryOverviewStatusAmountMapper),
+  }
+}
+
+let accountStatusOverviewMapper: Dict.t<JSON.t> => accountStatusOverview = dict => {
+  {
+    account_id: dict->getString("account_id", ""),
+    account_name: dict->getString("account_name", ""),
+    account_type: dict->getString("account_type", "")->getAccountTypeVariantFromString,
+    rule_account_type: dict
+    ->getString("rule_account_type", "")
+    ->getRuleAccountTypeVariantFromString,
+    status_breakdown: dict
+    ->getArrayFromDict("status_breakdown", [])
+    ->overviewRulesStatusBreakdownArrayMapper,
+  }
+}
+
+let ruleAccountsOverviewMapper: Dict.t<JSON.t> => ruleAccountsOverview = dict => {
+  {
+    rule_id: dict->getString("rule_id", ""),
+    rule_name: dict->getString("rule_name", ""),
+    accounts: dict
+    ->getArrayFromDict("accounts", [])
+    ->Array.map(account => account->getDictFromJsonObject->accountStatusOverviewMapper),
   }
 }
