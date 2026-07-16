@@ -87,12 +87,12 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
   | AttemptId => DisplayCopyCell(attempt.attempt_id)
   | ErrorMessage => Text(attempt.error_message)
   | ConnectorTransactionID => {
-  let connectorTransactionId = attempt.connector_transaction_id
+      let connectorTransactionId = attempt.connector_transaction_id
 
-  connectorTransactionId->isNonEmptyString
-    ? DisplayCopyCell(connectorTransactionId)
-    : Text("NA")
-}
+      connectorTransactionId->isNonEmptyString
+        ? DisplayCopyCell(connectorTransactionId)
+        : Text("NA")
+    }
   | CaptureMethod => Text(attempt.capture_method)
   | AuthenticationType => Text(attempt.authentication_type)
   | CancellationReason => Text(attempt.cancellation_reason)
