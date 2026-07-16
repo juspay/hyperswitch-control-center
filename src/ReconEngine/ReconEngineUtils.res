@@ -38,6 +38,24 @@ let getEntryStatusVariantFromString = (entryType: string): entryStatus => {
   }
 }
 
+let cursorFromDict = (dict): cursor => {
+  let cursorValueDict = dict->getDictfromDict("cursor_value")
+  {
+    sortField: dict->getString("sort_field", "effective_at"),
+    cursorValue: Some({
+      effectiveAt: cursorValueDict->getString("effective_at", ""),
+      cursorId: cursorValueDict->getString("id", ""),
+    }),
+  }
+}
+
+let defaultCursorSortBy: cursor = {sortField: "effective_at", cursorValue: None}
+
+let cursorsFromDict = (dict): cursors => {
+  let getCursor = key => dict->getOptionObj(key)->Option.map(cursorFromDict)
+  {next: getCursor("next_cursor"), prev: getCursor("prev_cursor")}
+}
+
 let getProcessingEntryStatusVariantFromString = (status: string): processingEntryStatus => {
   switch status->String.toLowerCase {
   | "pending" => Pending
