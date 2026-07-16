@@ -13,13 +13,11 @@ let make = (~selectedTransformationHistoryId: option<string>) => {
     setfilterKeys,
   } = React.useContext(FilterContext.filterContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (stagingData, setStagingData) = React.useState(_ => [
-    Dict.make()->getProcessingEntryPayloadFromDict,
-  ])
+  let (stagingOverviewData, setStagingOverviewData) = React.useState(_ => [])
   let (activeView: transformedEntriesViewType, setActiveView) = React.useState(_ =>
     UnknownTransformedEntriesViewType
   )
-  let getProcessingEntries = useGetProcessingEntries()
+  let getStagingEntriesOverview = useGetStagingEntriesOverview()
 
   let customFilterKey = "status"
   let startTime = filterValueJson->getString("startTime", "")
@@ -56,16 +54,16 @@ let make = (~selectedTransformationHistoryId: option<string>) => {
       selectedTransformationHistoryId
       ->Option.filter(isNonEmptyString)
       ->Option.forEach(id =>
-        queryFiltersDict->Dict.set("transformation_history_id", id->JSON.Encode.string)
+        queryFiltersDict->Dict.set("transformation_history_ids", id->JSON.Encode.string)
       )
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
         ~filterValueJson=queryFiltersDict,
       )
-      let stagingList = await getProcessingEntries(
+      let stagingOverview = await getStagingEntriesOverview(
         ~queryParameters=queryString->isNonEmptyString ? Some(queryString) : None,
       )
 
-      setStagingData(_ => stagingList)
+      setStagingOverviewData(_ => stagingOverview)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
@@ -109,7 +107,7 @@ let make = (~selectedTransformationHistoryId: option<string>) => {
   }, [filterValue])
 
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-2">
-    {cardDetails(~stagingData)
+    {cardDetails(~stagingOverviewData)
     ->Array.map(card => {
       let isClickable = card.viewType !== UnknownTransformedEntriesViewType
       let isActive = isClickable && card.viewType === activeView
