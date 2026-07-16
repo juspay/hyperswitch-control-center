@@ -9,6 +9,7 @@ let searchTypeFromString = str => {
   switch str {
   | "order_id" => SearchOrderId
   | "staging_entry_id" => SearchStagingEntryId
+  | "transformation_history_id" => SearchTransformationHistoryId
   | _ => UnknownProcessingEntrySearchType
   }
 }
@@ -16,6 +17,17 @@ let searchTypeFromString = str => {
 let searchTypeOptions: array<SearchInput.searchTypeOption> = [
   SearchStagingEntryId,
   SearchOrderId,
+]->Array.map((entrySearchType): SearchInput.searchTypeOption => {
+  {
+    label: (entrySearchType :> string)->snakeToTitle,
+    value: (entrySearchType :> string),
+  }
+})
+
+let searchTypeOptionsWithTransformationHistory: array<SearchInput.searchTypeOption> = [
+  SearchStagingEntryId,
+  SearchOrderId,
+  SearchTransformationHistoryId,
 ]->Array.map((entrySearchType): SearchInput.searchTypeOption => {
   {
     label: (entrySearchType :> string)->snakeToTitle,
@@ -35,6 +47,7 @@ let buildProcessingEntriesV2Body = (
   ~direction: cursorDirection,
   ~order: processingEntrySortOrder=Desc,
   ~limit=10,
+  ~transformationHistoryId="",
 ) => {
   let statusFilter = filterValueJson->getStrArrayFromDict("status", [])
   let statusValues =
@@ -62,6 +75,10 @@ let buildProcessingEntriesV2Body = (
 
   if searchText->isNonEmptyString {
     filtersDict->Dict.set((searchType :> string), searchText->String.trim->JSON.Encode.string)
+  }
+
+  if transformationHistoryId->isNonEmptyString {
+    filtersDict->Dict.set("transformation_history_id", transformationHistoryId->JSON.Encode.string)
   }
 
   if hasTimeRange {

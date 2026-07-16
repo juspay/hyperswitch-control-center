@@ -22,6 +22,8 @@ let make = (~selectedTransformationHistoryId: option<string>) => {
   let getProcessingEntries = useGetProcessingEntries()
 
   let customFilterKey = "status"
+  let startTime = filterValueJson->getString("startTime", "")
+  let endTime = filterValueJson->getString("endTime", "")
 
   let updateViewsFilterValue = (view: transformedEntriesViewType) => {
     let statusFilter = view->getViewStatusFilter
@@ -44,11 +46,24 @@ let make = (~selectedTransformationHistoryId: option<string>) => {
   let fetchStagingData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let queryParams = switch selectedTransformationHistoryId {
-      | Some(id) => Some(`transformation_history_id=${id}`)
-      | None => None
+      let queryFiltersDict = Dict.make()
+      if startTime->isNonEmptyString {
+        queryFiltersDict->Dict.set("startTime", startTime->JSON.Encode.string)
       }
-      let stagingList = await getProcessingEntries(~queryParameters=queryParams)
+      if endTime->isNonEmptyString {
+        queryFiltersDict->Dict.set("endTime", endTime->JSON.Encode.string)
+      }
+      selectedTransformationHistoryId
+      ->Option.filter(isNonEmptyString)
+      ->Option.forEach(id =>
+        queryFiltersDict->Dict.set("transformation_history_id", id->JSON.Encode.string)
+      )
+      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
+        ~filterValueJson=queryFiltersDict,
+      )
+      let stagingList = await getProcessingEntries(
+        ~queryParameters=queryString->isNonEmptyString ? Some(queryString) : None,
+      )
 
       setStagingData(_ => stagingList)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -82,9 +97,11 @@ let make = (~selectedTransformationHistoryId: option<string>) => {
   }
 
   React.useEffect(() => {
-    fetchStagingData()->ignore
+    if startTime->isNonEmptyString {
+      fetchStagingData()->ignore
+    }
     None
-  }, [])
+  }, (startTime, endTime, selectedTransformationHistoryId))
 
   React.useEffect(() => {
     settingActiveView()
