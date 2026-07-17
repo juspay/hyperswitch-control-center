@@ -7,7 +7,6 @@ let make = (
   open LogicUtils
   open ReconEngineDataTransformedEntriesUtils
   open ReconEngineDataTransformedEntriesTypes
-  open ReconEngineFilterUtils
   open ReconEngineTypes
   open ReconEngineHooks
 
@@ -15,7 +14,7 @@ let make = (
     ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST_V2,
     ~itemMapper=ReconEngineUtils.processingItemToObjMapper,
   )
-  let getGetProcessingEntries = useGetProcessingEntries()
+  let getStagingEntriesOverview = useGetStagingEntriesOverview()
   let getAccounts = useGetAccounts()
   let showToast = ToastAdapter.useShowToast()
   let (accountData, setAccountData) = React.useState(_ => [])
@@ -63,24 +62,15 @@ let make = (
     await onNeedsManualReviewPresent->mapOptionOrDefault(Promise.resolve(), async callback => {
       try {
         let enhancedFilterValueJson = Dict.copy(filterValueJson)
-        let statusFilter = filterValueJson->getArrayFromDict("status", [])
-        if statusFilter->isEmptyArray {
-          enhancedFilterValueJson->Dict.set(
-            "status",
-            getProcessingEntryStatusValueFromStatusList([
-              Pending,
-              Processed,
-              NeedsManualReview,
-              Void,
-            ])->getJsonFromArrayOfString,
-          )
-        }
-        let queryString =
-          ReconEngineFilterUtils.buildQueryStringFromFilters(
-            ~filterValueJson=enhancedFilterValueJson,
-          )->String.concat(`&transformation_history_id=${selectedTransformationHistoryId}`)
-        let stagingList = await getGetProcessingEntries(~queryParameters=Some(queryString))
-        callback(stagingList->Array.some(entry => entry.status === NeedsManualReview))
+        enhancedFilterValueJson->Dict.set(
+          "transformation_history_ids",
+          selectedTransformationHistoryId->JSON.Encode.string,
+        )
+        let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
+          ~filterValueJson=enhancedFilterValueJson,
+        )
+        let stagingOverview = await getStagingEntriesOverview(~queryParameters=Some(queryString))
+        callback(stagingOverview->getTotalNeedsManualReviewEntries > 0.0)
       } catch {
       | _ => showToast(~message="Failed to fetch manual review status", ~toastType=ToastError)
       }
