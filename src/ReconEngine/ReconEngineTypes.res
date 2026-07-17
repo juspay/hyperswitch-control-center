@@ -430,6 +430,34 @@ type stagingEntryOverviewStatusAmount = {
 
 type accountStagingEntriesOverview = {status_breakdown: array<stagingEntryOverviewStatusAmount>}
 
+@unboxed
+type ruleAccountTypeVariant =
+  | @as("source") Source
+  | @as("target") Target
+  | UnknownRuleAccountType
+
+type accountStatusBreakdown = {
+  status: domainTransactionStatus,
+  credit_txn_count: int,
+  debit_txn_count: int,
+  credit_amount: balanceType,
+  debit_amount: balanceType,
+}
+
+type accountStatusOverview = {
+  account_id: string,
+  account_name: string,
+  account_type: accountTypeVariant,
+  rule_account_type: ruleAccountTypeVariant,
+  status_breakdown: array<accountStatusBreakdown>,
+}
+
+type ruleAccountsOverview = {
+  rule_id: string,
+  rule_name: string,
+  accounts: array<accountStatusOverview>,
+}
+
 type cursorDirection = [#next | #previous]
 
 type cursorValue = {
