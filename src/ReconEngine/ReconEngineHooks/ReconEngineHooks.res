@@ -130,6 +130,46 @@ let useGetOverviewRules = () => {
   }
 }
 
+let useGetRuleAccountBreakdown = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~queryParameters=None) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#RULE_ACCOUNT_BREAKDOWN,
+        ~queryParameters,
+      )
+      let res = await fetchDetails(url)
+      res->getArrayDataFromJson(ruleAccountsOverviewMapper)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetStagingEntriesOverview = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~queryParameters=None) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#STAGING_ENTRIES_OVERVIEW,
+        ~queryParameters,
+      )
+      let res = await fetchDetails(url)
+      res->getArrayDataFromJson(accountStagingEntriesOverviewMapper)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
 let useGetOverviewRulesTimeSeries = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
