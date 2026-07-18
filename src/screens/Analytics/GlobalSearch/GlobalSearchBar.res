@@ -339,20 +339,19 @@ let make = () => {
                   false,
                   suggestion => suggestion.selected,
                 )
-                let clipboardFilter = {
-                  categoryType: Payment_id,
-                  options: [],
-                  placeholder: "",
-                }
-                let selectedClipboardFilter = clipboardSuggestionSelected ? Some(clipboardFilter) : None
 
                 <FilterSuggestionsSection
                   title="FROM CLIPBOARD"
                   sectionLayoutId="clipboard-section"
                   titleLayoutId="clipboard-title">
-                  <FilterOption
+                  <div
                     tabIndex=0
                     role="button"
+                    className={`flex justify-between p-2 group items-center cursor-pointer ${
+                      clipboardSuggestionSelected
+                        ? "bg-gray-200 rounded-lg"
+                        : "hover:bg-gray-200 hover:rounded-lg"
+                    }`}
                     onClick={_ => onClipboardSuggestionClicked(clipboardSearchText)}
                     onKeyDown={event => {
                       open ReactEvent.Keyboard
@@ -360,13 +359,16 @@ let make = () => {
                         event->preventDefault
                         onClipboardSuggestionClicked(clipboardSearchText)
                       }
-                    }}
-                    value={clipboardSearchText->String.replace(filterSeparator, ` ${filterSeparator} `)}
-                    placeholder={Some("Click to search")}
-                    filter=clipboardFilter
-                    selectedFilter=selectedClipboardFilter
-                    viewType=FiltersSugsestions
-                  />
+                    }}>
+                    <div className="py-1 px-2 flex gap-1 items-center w-fit">
+                      <span className={`${Typography.body.md.medium} text-nd_gray-700`}>
+                        {clipboardSearchText->React.string}
+                      </span>
+                    </div>
+                    <div className={`${Typography.body.md.medium} text-nd_gray-500`}>
+                      {"Click to search"->React.string}
+                    </div>
+                  </div>
                 </FilterSuggestionsSection>}
               </RenderIf>}
               <FilterResultsComponent
