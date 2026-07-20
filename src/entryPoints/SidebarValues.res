@@ -1,6 +1,8 @@
 open SidebarTypes
 open UserManagementTypes
 open CommonAuthTypes
+open HSwitchUtils
+open ConnectorUtils
 
 // * Custom Component
 module ProductHeaderComponent = {
@@ -132,9 +134,9 @@ let paymentProcessor = (isLiveMode, userHasResourceAccess, ~paymentProcessorsLiv
     name: "Payment Processors",
     link: `/connectors`,
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=isLiveMode ? paymentProcessorsLiveList : ConnectorUtils.connectorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=isLiveMode ? paymentProcessorsLiveList : connectorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
@@ -144,9 +146,9 @@ let payoutConnectors = (~isLiveMode, ~userHasResourceAccess, ~payoutProcessorsLi
     name: "Payout Processors",
     link: `/payoutconnectors`,
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=isLiveMode ? payoutProcessorsLiveList : ConnectorUtils.payoutConnectorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=isLiveMode ? payoutProcessorsLiveList : payoutConnectorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
@@ -169,11 +171,9 @@ let threeDsConnector = (
     name: "3DS Authenticators",
     link: "/3ds-authenticators",
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=isLiveMode
-        ? threeDsAuthenticatorProcessorsLiveList
-        : ConnectorUtils.threedsAuthenticatorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=isLiveMode ? threeDsAuthenticatorProcessorsLiveList : threedsAuthenticatorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
@@ -183,9 +183,9 @@ let pmAuthenticationProcessor = (~userHasResourceAccess) => {
     name: "PM Auth Processor",
     link: `/pm-authentication-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=ConnectorUtils.pmAuthenticationConnectorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=pmAuthenticationConnectorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
@@ -195,9 +195,9 @@ let taxProcessor = (~userHasResourceAccess) => {
     name: "Tax Processor",
     link: `/tax-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=ConnectorUtils.taxProcessorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=taxProcessorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
@@ -207,9 +207,9 @@ let billingProcessor = (~userHasResourceAccess) => {
     name: "Billing Processor",
     link: `/billing-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=ConnectorUtils.billingProcessorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=billingProcessorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
@@ -219,9 +219,9 @@ let vaultProcessor = (~isLiveMode, ~userHasResourceAccess, ~vaultProcessorsLiveL
     name: "Vault Processor",
     link: `/vault-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=isLiveMode ? vaultProcessorsLiveList : ConnectorUtils.vaultProcessorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=isLiveMode ? vaultProcessorsLiveList : vaultProcessorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
@@ -231,9 +231,9 @@ let surchargeProcessor = (~userHasResourceAccess) => {
     name: "Surcharge Processor",
     link: `/surcharge-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=ConnectorUtils.surchargeProcessorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=surchargeProcessorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
