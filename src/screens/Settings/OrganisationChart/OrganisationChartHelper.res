@@ -109,37 +109,27 @@ module OrgChartTree = {
       <div className="flex flex-col gap-4">
         <div className={`${body.lg.semibold} mb-2`}> {React.string("Merchant")} </div>
         {if isPlatformOrg {
-          let platformMerchants = {
+           let filterMerchantList = merchantType =>
             merchantList->Array.filter(merchant =>
-              merchant.type_->Option.getOr(#standard) === #platform
+              merchant.type_->Option.getOr(#standard) === merchantType
             )
-          }
-          let connectedMerchants = {
-            merchantList->Array.filter(merchant =>
-              merchant.type_->Option.getOr(#standard) === #connected
-            )
-          }
-          let standardMerchants = {
-            merchantList->Array.filter(merchant =>
-              merchant.type_->Option.getOr(#standard) === #standard
-            )
-          }
+
           <div className="flex flex-col gap-4">
             <MerchantGroup
               title={#platform->OMPSwitchUtils.ompTypeHeading}
-              merchants=platformMerchants
+              merchants={filterMerchantList(#platform)}
               selectedMerchant
               onMerchantSelect
             />
             <MerchantGroup
               title={#connected->OMPSwitchUtils.ompTypeHeading}
-              merchants=connectedMerchants
+              merchants={filterMerchantList(#connected)}
               selectedMerchant
               onMerchantSelect
             />
             <MerchantGroup
               title={#standard->OMPSwitchUtils.ompTypeHeading}
-              merchants=standardMerchants
+              merchants={filterMerchantList(#standard)}
               selectedMerchant
               onMerchantSelect
             />
