@@ -14,13 +14,12 @@ module MerchantButton = {
     open Typography
 
     <button
-      key={merchant.id}
       className={`flex justify-between cursor-pointer h-10 items-center bg-white rounded-lg border px-4 py-2 text-left transition-colors duration-200 ${body.md.medium} ${getEntityButtonStyles(
           isSelected,
         )}`}
       onClick={_ => onSelect(merchant)->ignore}
       id={merchant.id}>
-      <span className="truncate whitespace-wrap "> {merchant.name->React.string} </span>
+      <span className="truncate"> {merchant.name->React.string} </span>
       {switch merchant.productType {
       | Some(product) =>
         <span
@@ -36,27 +35,34 @@ module MerchantButton = {
 module MerchantGroup = {
   @react.component
   let make = (
-    ~title: string,
+    ~title=?,
     ~merchants: array<OMPSwitchTypes.ompListTypes>,
     ~selectedMerchant: string,
     ~onMerchantSelect: OMPSwitchTypes.ompListTypes => promise<unit>,
   ) => {
     open Typography
 
+    let merchantButtons =
+      merchants
+      ->Array.map(merchant =>
+        <MerchantButton
+          key={merchant.id}
+          merchant
+          isSelected={selectedMerchant == merchant.id}
+          onSelect=onMerchantSelect
+        />
+      )
+      ->React.array
+
     <RenderIf condition={merchants->LogicUtils.isNonEmptyArray}>
-      <div className="flex flex-col gap-3 rounded-xl border border-nd_gray-200 bg-nd_gray-25 p-3">
-        <div className={`${body.sm.semibold} text-nd_gray-500`}> {title->React.string} </div>
-        {merchants
-        ->Array.map(merchant =>
-          <MerchantButton
-            key={merchant.id}
-            merchant
-            isSelected={selectedMerchant == merchant.id}
-            onSelect=onMerchantSelect
-          />
-        )
-        ->React.array}
-      </div>
+      {switch title {
+      | Some(title) =>
+        <div className="flex flex-col gap-3 rounded-xl border border-nd_gray-200 bg-nd_gray-25 p-3">
+          <div className={`${body.sm.semibold} text-nd_gray-500`}> {title->React.string} </div>
+          {merchantButtons}
+        </div>
+      | None => merchantButtons
+      }}
     </RenderIf>
   }
 }
@@ -81,12 +87,7 @@ module OrgChartTree = {
       ->Array.find(org => org.id == selectedOrg)
       ->Option.map(org => org.type_->Option.getOr(#standard) === #platform)
       ->Option.getOr(false)
-    let platformMerchants =
-      merchantList->Array.filter(merchant => merchant.type_->Option.getOr(#standard) === #platform)
-    let connectedMerchants =
-      merchantList->Array.filter(merchant => merchant.type_->Option.getOr(#standard) === #connected)
-    let standardMerchants =
-      merchantList->Array.filter(merchant => merchant.type_->Option.getOr(#standard) === #standard)
+
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-16 w-full py-8">
       <div className="flex flex-col gap-4">
         <div className={`${body.lg.semibold} mb-2`}> {React.string("Organization")} </div>
@@ -107,6 +108,21 @@ module OrgChartTree = {
       <div className="flex flex-col gap-4">
         <div className={`${body.lg.semibold} mb-2`}> {React.string("Merchant")} </div>
         {if isPlatformOrg {
+          let platformMerchants = {
+            merchantList->Array.filter(merchant =>
+              merchant.type_->Option.getOr(#standard) === #platform
+            )
+          }
+          let connectedMerchants = {
+            merchantList->Array.filter(merchant =>
+              merchant.type_->Option.getOr(#standard) === #connected
+            )
+          }
+          let standardMerchants = {
+            merchantList->Array.filter(merchant =>
+              merchant.type_->Option.getOr(#standard) === #standard
+            )
+          }
           <div className="flex flex-col gap-4">
             <MerchantGroup
               title={#platform->OMPSwitchUtils.ompTypeHeading}
@@ -128,16 +144,7 @@ module OrgChartTree = {
             />
           </div>
         } else {
-          merchantList
-          ->Array.map(merchant =>
-            <MerchantButton
-              key={merchant.id}
-              merchant
-              isSelected={selectedMerchant == merchant.id}
-              onSelect=onMerchantSelect
-            />
-          )
-          ->React.array
+          <MerchantGroup merchants=merchantList selectedMerchant onMerchantSelect />
         }}
       </div>
       <div className="flex flex-col gap-4">
@@ -146,7 +153,7 @@ module OrgChartTree = {
         ->Array.map(profile =>
           <button
             key={profile.id}
-            className={`rounded-lg h-10 cursor-pointer truncate whitespace-wrap border px-4 py-2 bg-white text-left transition-colors duration-200 ${body.md.medium} ${getEntityButtonStyles(
+            className={`rounded-lg h-10 cursor-pointer truncate border px-4 py-2 bg-white text-left transition-colors duration-200 ${body.md.medium} ${getEntityButtonStyles(
                 selectedProfile == profile.id,
               )}`}
             onClick={_ => onProfileSelect(profile)->ignore}
