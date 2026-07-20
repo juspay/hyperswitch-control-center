@@ -385,67 +385,38 @@ let openSearchDisputeStatuses: array<openSearchDisputeStatus> = [
 let openSearchDisputeStatusValues =
   openSearchDisputeStatuses->Array.map(status => (status :> string))
 
-let basePaymentListFilters: array<basePaymentListFilter> = [
-  #payment_id,
-  #payment_method,
-  #currency,
-  #status,
-  #connector,
-  #connector_label,
-  #payment_method_type,
-  #card_network,
-  #customer_id,
-  #authentication_type,
-  #card_discovery,
-  #merchant_order_reference_id,
-]
+let setStringListFilter = (dict, key) =>
+  dict->setOptionJson(
+    key,
+    dict
+    ->getOptionValFromDict(key)
+    ->Option.map(value =>
+      value
+      ->getArrayFromJson([value])
+      ->getStrArrayFromJsonArray
+      ->Array.filterMap(item => item->String.trim->getNonEmptyString)
+    )
+    ->Option.flatMap(getNonEmptyArray)
+    ->Option.map(getJsonFromArrayOfString),
+  )
 
-let basePaymentListFilterKeys = basePaymentListFilters->Array.map(filter => (filter :> string))
-
-let advancedPaymentListFilterKeys =
-  [
-    basePaymentListFilterKeys,
-    advancedPaymentOnlyFilterKeys,
-    hiddenAdvancedPaymentFilterKeys,
-  ]->Array.flat
-
-let copyAdvancedPaymentFilterIfPresent = (~dict, key) => {
-  switch dict->getOptionValFromDict(key) {
-  | Some(value) =>
-    let stringValues = switch value->getOptionStrArrayFromJson {
-    | Some(values) => values->Array.filterMap(value => value->String.trim->getNonEmptyString)
-    | None =>
-      switch value->getStringFromJson("")->getNonEmptyString {
-      | Some(v) => [v]
-      | None => []
-      }
-    }
-
-    if key === customerEmailFilterKey {
-      let email = stringValues->getValueFromArray(0, "")
-      email->isNonEmptyString && !(email->CommonAuthUtils.isValidEmail)
-        ? dict->setOptionString(key, Some(email))
-        : ()
-    } else if advancedPaymentTextListFilterKeys->Array.includes(key) {
-      stringValues->isNonEmptyArray
-        ? dict->setOptionJson(key, Some(stringValues->getJsonFromArrayOfString))
-        : ()
-    } else if key === firstAttemptFilterKey {
-      let jsonToBool = json =>
-        switch json->getStringFromJson("")->getNonEmptyString {
-        | Some(str) => str->getBoolFromString(false)
-        | None => json->getBoolFromJson(false)
-        }
-      let boolValues = value->getArrayFromJson([value])->Array.map(jsonToBool)
-      boolValues->isNonEmptyArray
-        ? dict->setOptionArray(key, Some(boolValues->Array.map(JSON.Encode.bool)))
-        : ()
-    } else {
-      dict->setOptionJson(key, Some(value))
-    }
-  | None => ()
-  }
-}
+let setBoolListFilter = (dict, key) =>
+  dict->setOptionArray(
+    key,
+    dict
+    ->getOptionValFromDict(key)
+    ->Option.map(value =>
+      value
+      ->getArrayFromJson([value])
+      ->Array.map(item =>
+        item
+        ->getStringFromJson("")
+        ->getNonEmptyString
+        ->Option.mapOr(item->getBoolFromJson(false), getBoolFromString(_, false))
+        ->JSON.Encode.bool
+      )
+    ),
+  )
 
 let buildAdvancedPaymentListPayload = (
   ~filterParams: Dict.t<JSON.t>,
@@ -454,26 +425,15 @@ let buildAdvancedPaymentListPayload = (
   ~endTimeKey,
 ) => {
   let trimmedSearchText = searchText->String.trim
+  let body = filterParams->Dict.copy
 
-  unsupportedAdvancedPaymentFilterKeys->Array.forEach(key => filterParams->Dict.delete(key))
-
-  let body =
-    ["offset", "limit", "order", "amount_filter"]
-    ->Array.filterMap(key =>
-      filterParams->getOptionValFromDict(key)->Option.map(value => (key, value))
-    )
-    ->Dict.fromArray
-
-  if trimmedSearchText->isEmptyString {
-    body->setOptionJson(startTimeKey, filterParams->getOptionValFromDict(startTimeKey))
-    body->setOptionJson(endTimeKey, filterParams->getOptionValFromDict(endTimeKey))
-  }
-
-  advancedPaymentListFilterKeys->Array.forEach(key => {
-    copyAdvancedPaymentFilterIfPresent(~dict=body, key)
-  })
+  unsupportedAdvancedPaymentFilterKeys->Array.forEach(key => body->Dict.delete(key))
+  advancedPaymentTextListFilterKeys->Array.forEach(key => body->setStringListFilter(key))
+  body->setBoolListFilter(firstAttemptFilterKey)
 
   if trimmedSearchText->isNonEmptyString {
+    body->Dict.delete(startTimeKey)
+    body->Dict.delete(endTimeKey)
     if !(trimmedSearchText->CommonAuthUtils.isValidEmail) {
       body->setOptionString(customerEmailFilterKey, Some(trimmedSearchText))
     } else if trimmedSearchText->String.startsWith("pay_") {

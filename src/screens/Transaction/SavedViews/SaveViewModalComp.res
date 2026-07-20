@@ -238,7 +238,7 @@ let make = (
     }
     filtersDict->Dict.delete("amount_filter")
     SavedViewsUtils.foldAmountOption(filtersDict)
-    copyAdvancedPaymentFilterIfPresent(~dict=filtersDict, firstAttemptFilterKey)
+    filtersDict->setBoolListFilter(firstAttemptFilterKey)
     filtersDict->JSON.Encode.object
   }
 
