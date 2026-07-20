@@ -333,13 +333,6 @@ let paymentAnalytcis = (~userHasResourceAccess) => SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
-let performanceMonitor = (~userHasResourceAccess) => SubLevelLink({
-  name: "Performance",
-  link: `/performance-monitor`,
-  access: userHasResourceAccess(~resourceAccess=Analytics),
-  searchOptions: [("View Performance", "")],
-})
-
 let newAnalytics = (~userHasResourceAccess) => SubLevelLink({
   name: "Insights",
   link: `/new-analytics`,
@@ -377,7 +370,6 @@ let authenticationAnalytics = (~userHasResourceAccess) => SubLevelLink({
 let analytics = (
   isAnalyticsEnabled,
   disputeAnalyticsFlag,
-  performanceMonitorFlag,
   newAnalyticsflag,
   routingAnalyticsFlag,
   ~authenticationAnalyticsFlag,
@@ -395,9 +387,6 @@ let analytics = (
     links->Array.unshift(newAnalytics(~userHasResourceAccess))
   }
 
-  if performanceMonitorFlag {
-    links->Array.push(performanceMonitor(~userHasResourceAccess))
-  }
   if routingAnalyticsFlag {
     links->Array.push(routingAnalytics(~userHasResourceAccess))
   }
