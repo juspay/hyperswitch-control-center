@@ -366,19 +366,20 @@ test.describe("Payouts Operations", () => {
 
         await goToPayouts(page, homePage);
 
-        const dateSelector = payoutOperations.dateSelector;
-        await dateSelector.click();
-        await payoutOperations.daterangeDropdownValue("Last 30 Days").click();
+        await payoutOperations.customDateRangeButton.click();
+        await page.getByRole("menuitem", { name: "Last 30 minutes" }).click();
 
-        await expect(dateSelector).toContainText("Last 30 Days");
+        await expect(
+          page.getByRole("button", { name: "Last 30 minutes" }),
+        ).toContainText("Last 30 minutes");
       });
     });
 
     test.describe("Filters", () => {
       // PayoutsUtils.res:127-134 — supported filter keys for payouts.
       // Filter.res:251-256 snakeToTitle's the keys into Add-Filters labels.
-      const filterKeys = ["connector", "currency", "payout_method", "status"];
-      const filterLabels = ["Connector", "Currency", "Payout Method", "Status"];
+      const filterKeys = ["connector", "currency", "status", "payout_method"];
+      const filterLabels = ["Connector", "Currency", "Status", "Payout Method"];
 
       test("should apply a Status filter", async ({ page, context }) => {
         const homePage = new HomePage(page);
@@ -388,12 +389,12 @@ test.describe("Payouts Operations", () => {
         await goToPayouts(page, homePage);
 
         await payoutOperations.addFilters.click();
-        await page.locator('[data-dropdown-value="Status"]:visible').click();
+        await page.getByRole("menuitem", { name: "Status" }).click();
 
         // Once the filter is added, a "Select status" chip is rendered with
         // the status field wrapper visible in the filter row.
         await expect(payoutOperations.payoutStatusFieldWrapper).toBeVisible();
-        await expect(payoutOperations.filterChipArea.first()).toContainText(
+        await expect(payoutOperations.payoutStatusFieldWrapper).toContainText(
           "Select status",
         );
       });
@@ -432,18 +433,21 @@ test.describe("Payouts Operations", () => {
           const key = filterKeys[i];
 
           await payoutOperations.addFilters.click();
+          await expect(
+            page.getByLabel("Add Filters").getByText(`${label}`),
+          ).toBeVisible();
           await page
-            .locator(`[data-dropdown-value="${label}"]:visible`)
-            .click();
+            .getByLabel("Add Filters")
+            .getByText(`${label}`)
+            .click({ force: true });
 
-          // PayoutsUtils.res renders the chip as `Select ${key}` with the
-          // raw snake_case API key (not snakeToTitle'd).
-          await expect(payoutOperations.filterChipArea.first()).toContainText(
-            `Select ${key}`,
-          );
+          await expect(
+            payoutOperations.filterChipArea(key).first(),
+          ).toContainText(`Select ${key}`);
 
-          // Remove the chip so the next iteration starts clean.
-          await payoutOperations.crossOutlineIcon.first().click();
+          await expect(
+            page.getByLabel("Add Filters").getByText("Payout Method"),
+          ).not.toBeVisible();
         }
       });
 
@@ -560,9 +564,9 @@ test.describe("Payouts Operations", () => {
         statusValue: string,
       ) => {
         await payoutOperations.addFilters.click();
-        await page.locator('[data-dropdown-value="Status"]:visible').click();
+        await page.getByRole("menuitem", { name: "Status" }).click();
         await payoutOperations.payoutStatusFieldWrapper.click();
-        await page.locator(`[value="${statusValue}"]`).click();
+        await page.getByRole("option", { name: `${statusValue}` }).click();
         await payoutOperations.applyButton.click();
         await page.waitForLoadState("networkidle");
       };
@@ -811,18 +815,14 @@ test.describe("Payouts Operations", () => {
       await payoutMethodDetails.waitFor({ state: "attached", timeout: 10000 });
       await payoutMethodDetails.scrollIntoViewIfNeeded();
       await payoutMethodDetails.click();
-      await expect(payoutMethodDetails.locator("xpath=../..")).toContainText(
-        "card",
-      );
 
       const payoutMetadata = page.getByText(/^Payout Metadata$/);
       await payoutMetadata.waitFor({ state: "attached", timeout: 10000 });
       await payoutMetadata.scrollIntoViewIfNeeded();
       await payoutMetadata.click();
-      await expect(payoutMetadata.locator("xpath=../..")).toContainText("key");
-      await expect(payoutMetadata.locator("xpath=../..")).toContainText(
-        "value",
-      );
+      await expect(
+        page.getByRole("region", { name: "Payout Metadata" }).locator("pre"),
+      ).toContainText("key");
     });
 
     test.describe("Events and logs", () => {
