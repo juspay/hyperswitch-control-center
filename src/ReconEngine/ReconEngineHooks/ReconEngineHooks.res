@@ -46,6 +46,28 @@ let useGetTransactions = () => {
   }
 }
 
+let useGetCursorPage = (
+  ~hyperswitchReconType: APIUtilsTypes.hyperswitchReconType,
+  ~itemMapper: Dict.t<JSON.t> => 'item,
+) => {
+  let getURL = useGetURL()
+  let updateDetails = useUpdateMethod()
+
+  async (~body: JSON.t): ReconEngineTypes.cursorPage<'item> => {
+    try {
+      let url = getURL(~entityName=V1(HYPERSWITCH_RECON), ~methodType=Post, ~hyperswitchReconType)
+      let res = await updateDetails(url, body, Post)
+      let dict = res->getDictFromJsonObject
+      {
+        items: dict->getArrayFromDict("items", [])->getMappedValueFromArrayOfJson(itemMapper),
+        cursors: dict->cursorsFromDict,
+      }
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
 let useGetAccounts = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -102,6 +124,46 @@ let useGetOverviewRules = () => {
       )
       let res = await fetchDetails(url)
       res->getArrayDataFromJson(overviewRulesResponseMapper)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetRuleAccountBreakdown = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~queryParameters=None) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#RULE_ACCOUNT_BREAKDOWN,
+        ~queryParameters,
+      )
+      let res = await fetchDetails(url)
+      res->getArrayDataFromJson(ruleAccountsOverviewMapper)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetStagingEntriesOverview = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~queryParameters=None) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#STAGING_ENTRIES_OVERVIEW,
+        ~queryParameters,
+      )
+      let res = await fetchDetails(url)
+      res->getArrayDataFromJson(accountStagingEntriesOverviewMapper)
     } catch {
     | _ => Exn.raiseError("Something went wrong")
     }

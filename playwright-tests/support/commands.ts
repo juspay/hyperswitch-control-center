@@ -18,6 +18,19 @@ const API_URL = process.env.HYPERSWITCH_API_URL || "http://localhost:8080";
 const MAIL_URL = process.env.PLAYWRIGHT_MAIL_URL || "http://localhost:8025";
 const ADMIN_API_KEY = process.env.HYPERSWITCH_ADMIN_API_KEY || "test_admin";
 
+// Extracts the JWT from dashboard localStorage after a successful UI login.
+export async function getJwtFromLocalStorage(page: Page): Promise<string> {
+  return page.evaluate(() => {
+    const raw = window.localStorage.getItem("USER_INFO");
+    if (!raw) return "";
+    try {
+      return (JSON.parse(raw) as { token?: string }).token ?? "";
+    } catch {
+      return "";
+    }
+  });
+}
+
 export async function signupUser(
   email: string,
   password: string,
@@ -91,8 +104,11 @@ export async function createAPIKey(
   merchantId: string,
   token: string,
   context?: APIRequestContext,
+  page?: Page,
 ): Promise<string> {
   const ctx = context ?? (await request.newContext());
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  console.log(jwt);
   // CI backends occasionally take >30s on the first request when the worker
   // pool is cold. One retry with a fresh context recovers from transient
   // socket hangs without masking persistent failures.
@@ -102,6 +118,7 @@ export async function createAPIKey(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": ADMIN_API_KEY,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
       },
       data: {
         name: "API Key 1",
@@ -131,9 +148,11 @@ export async function createDummyConnectorAPI(
   merchantId: string,
   connectorLabel: string,
   context?: APIRequestContext,
+  page?: Page,
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(
     `${API_URL}/account/${merchantId}/connectors`,
@@ -142,6 +161,7 @@ export async function createDummyConnectorAPI(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
       },
       data: {
         connector_type: "payment_processor",
@@ -245,9 +265,11 @@ export async function createBusinessProfileAPI(
 export async function getDefaultProfileId(
   merchantId: string,
   context?: APIRequestContext,
+  page?: Page,
 ): Promise<string> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.get(
     `${API_URL}/account/${merchantId}/business_profile`,
@@ -256,6 +278,7 @@ export async function getDefaultProfileId(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
       },
     },
   );
@@ -436,6 +459,132 @@ export async function createStripeConnectorAPIwithAPIKey(
   }
 }
 
+export async function createStripeGooglePayConnectorAPI(
+  merchantId: string,
+  connectorLabel: string,
+  context?: APIRequestContext,
+  page?: Page,
+  profileId?: string,
+): Promise<void> {
+  const ctx = context ?? (await request.newContext());
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
+  const resolvedProfileId =
+    profileId ?? (await getDefaultProfileId(merchantId, ctx, page));
+
+  const data: Record<string, unknown> = {
+    connector_type: "payment_processor",
+    profile_id: resolvedProfileId,
+    connector_name: "stripe",
+    connector_label: connectorLabel,
+    disabled: false,
+    test_mode: true,
+    payment_methods_enabled: [
+      {
+        payment_method: "wallet",
+        payment_method_types: [
+          {
+            payment_method_type: "google_pay",
+            payment_experience: "invoke_sdk_client",
+            minimum_amount: 0,
+            maximum_amount: 68607706,
+            recurring_enabled: true,
+            installment_payment_enabled: false,
+          },
+        ],
+      },
+    ],
+    metadata: {
+      google_pay: {
+        merchant_info: {
+          merchant_id: "merchant_id",
+          merchant_name: "merchant_name",
+        },
+        allowed_payment_methods: [
+          {
+            type: "CARD",
+            parameters: {
+              allowed_auth_methods: ["PAN_ONLY", "CRYPTOGRAM_3DS"],
+              allowed_card_networks: [
+                "AMEX",
+                "DISCOVER",
+                "INTERAC",
+                "JCB",
+                "MASTERCARD",
+                "VISA",
+              ],
+            },
+            tokenization_specification: {
+              type: "PAYMENT_GATEWAY",
+              parameters: {
+                gateway: "stripe",
+                "stripe:version": "2018-10-31",
+                "stripe:publishableKey": "publishableKey",
+              },
+            },
+          },
+        ],
+      },
+    },
+    connector_account_details: {
+      api_key: "api_key",
+      auth_type: "HeaderKey",
+    },
+    additional_merchant_data: null,
+    status: "active",
+    pm_auth_config: null,
+    connector_wallets_details: {
+      google_pay: {
+        provider_details: {
+          merchant_info: {
+            merchant_id: "merchant_id",
+            merchant_name: "merchant_name",
+            tokenization_specification: {
+              type: "PAYMENT_GATEWAY",
+              parameters: {
+                gateway: "stripe",
+                "stripe:version": "2018-10-31",
+                "stripe:publishableKey": "publishableKey",
+              },
+            },
+          },
+        },
+        cards: {
+          allowed_auth_methods: ["PAN_ONLY", "CRYPTOGRAM_3DS"],
+          allowed_card_networks: [
+            "AMEX",
+            "DISCOVER",
+            "INTERAC",
+            "JCB",
+            "MASTERCARD",
+            "VISA",
+          ],
+        },
+      },
+    },
+  };
+
+  const response = await ctx.post(
+    `${API_URL}/account/${merchantId}/connectors`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": apiKey,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
+      },
+      data,
+    },
+  );
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `createStripeGooglePayConnectorAPI failed (${response.status()}): ${body}`,
+    );
+  }
+}
+
 export async function createAuthenticationConnectorAPI(
   merchantId: string,
   connectorLabel: string,
@@ -611,6 +760,114 @@ export async function createPaymentAPI(
   }
 
   return await response.json();
+}
+
+export async function createRequiresCapturePaymentAPI(
+  merchantId: string,
+  context?: APIRequestContext,
+  amount: number = 12345,
+): Promise<{
+  payment_id: string;
+  profile_id: string;
+  amount: number;
+  amount_capturable: number;
+  currency: string;
+  status: string;
+  payment_method: string;
+  payment_method_type: string;
+}> {
+  const ctx = context ?? (await request.newContext());
+  const apiKey = await createAPIKey(merchantId, "", ctx);
+
+  const response = await ctx.post(`${API_URL}/payments`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "api-key": apiKey,
+    },
+    data: {
+      amount,
+      currency: "USD",
+      confirm: true,
+      capture_method: "manual",
+      customer_id: "test_customer",
+      authentication_type: "no_three_ds",
+      return_url: "https://google.com",
+      email: "abc@test.com",
+      name: "Joseph Doe",
+      phone: "999999999",
+      phone_country_code: "+65",
+      description: "Its my first payment",
+      payment_method: "card",
+      payment_method_type: "credit",
+      payment_method_data: {
+        card: {
+          card_number: "4242424242424242",
+          card_exp_month: "01",
+          card_exp_year: "2027",
+          card_holder_name: "joseph Doe",
+          card_cvc: "100",
+        },
+      },
+      billing: {
+        address: {
+          city: "Toronto",
+          country: "CA",
+          line1: "1562",
+          line2: "HarrisonStreet",
+          zip: "M3C 0C1",
+          state: "ON",
+          first_name: "Joseph",
+          last_name: "Doe",
+        },
+        email: "abc@test.com",
+      },
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `createRequiresCapturePaymentAPI failed (${response.status()}): ${body}`,
+    );
+  }
+
+  return await response.json();
+}
+
+// The sandbox "stripe_test" dummy connector always auto-charges a payment
+// (it has no auth-only/two-phase-capture simulation), so a real payment
+// created with capture_method: "manual" still comes back as `succeeded`
+// instead of `requires_capture`. To exercise the capture UI in CI we create
+// a real payment (for a realistic payment_id / amount / customer) and then
+// intercept the dashboard's GET request for that payment, overriding just
+// the `status` and `amount_capturable` fields so the page renders as if the
+// payment were awaiting capture.
+export async function mockPaymentRequiresCapture(
+  page: Page,
+  paymentId: string,
+): Promise<void> {
+  await page.route(
+    new RegExp(`/payments/${paymentId}(\\?|$)`),
+    async (route) => {
+      if (route.request().method() !== "GET") {
+        await route.continue();
+        return;
+      }
+
+      const response = await route.fetch();
+      const json = await response.json();
+
+      await route.fulfill({
+        response,
+        json: {
+          ...json,
+          status: "requires_capture",
+          amount_capturable: json.amount,
+        },
+      });
+    },
+  );
 }
 
 export async function createRefundAPI(
@@ -908,12 +1165,12 @@ export async function createThreeDsExemptionAPI(
     name: string;
     description: string;
     authType:
-      | "no_three_ds"
-      | "challenge_requested"
-      | "challenge_preferred"
-      | "three_ds_exemption_requested_tra"
-      | "three_ds_exemption_requested_low_value"
-      | "issuer_three_ds_exemption_requested";
+    | "no_three_ds"
+    | "challenge_requested"
+    | "challenge_preferred"
+    | "three_ds_exemption_requested_tra"
+    | "three_ds_exemption_requested_low_value"
+    | "issuer_three_ds_exemption_requested";
   }> = {},
 ): Promise<{
   name: string;
@@ -1365,7 +1622,7 @@ export async function mockDisputesList(
   // 401 for each, and the global 401 handler kicks the user to /sign-in.
   // Stub them to empty arrays so the detail page can render.
   await page.route(
-    /\/analytics\/v1\/(profile\/)?(api_event_logs|connector_event_logs|outgoing_webhook_event_logs|webhook_event_logs)(\?|$)/,
+    /\/analytics\/v1\/(profile\/)?(api_event_logs|connector_event_logs|outgoing_webhook_event_logs|webhook_event_logs|prism_connector_event_logs)(\?|$)/,
     async (route) => {
       await route.fulfill({
         status: 200,

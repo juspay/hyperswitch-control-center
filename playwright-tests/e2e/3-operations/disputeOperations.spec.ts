@@ -246,13 +246,11 @@ test.describe("Disputes List page", () => {
       await mockDisputesList(page, [sampleDispute()]);
       await goToDisputes(page, homePage);
 
-      await paymentOperations.dateSelector.click();
-      await page
-        .locator('[data-daterange-dropdown-value="Last 30 Days"]')
-        .click();
-      await expect(paymentOperations.dateSelector).toContainText(
-        "Last 30 Days",
-      );
+      await paymentOperations.customDateRangeButton.click();
+      await page.getByRole("menuitem", { name: "Last 30 minutes" }).click();
+      await expect(
+        page.getByRole("button", { name: "Last 30 minutes" }),
+      ).toContainText("Last 30 minutes");
     });
   });
 
@@ -301,13 +299,9 @@ test.describe("Disputes List page", () => {
       );
 
       await paymentOperations.addFilters.click();
-      await page
-         .locator('[data-dropdown-value="Dispute Status"]:visible')
-         .click();
-      await page
-         .locator('[data-component-field-wrapper="field-dispute_status"]')
-         .click();
-      await page.locator('[value="dispute_won"]').click();
+      await page.getByLabel("Add Filters").getByText("Dispute Status").click();
+      await page.locator('[data-id="Select Dispute Status"]').click();
+      await page.getByRole("option", { name: "dispute_won" }).click();
       await paymentOperations.applyButton.click();
       await page.waitForLoadState("networkidle");
 
