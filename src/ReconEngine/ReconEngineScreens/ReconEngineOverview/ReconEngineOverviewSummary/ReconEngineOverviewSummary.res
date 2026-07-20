@@ -70,7 +70,7 @@ let make = (~reconRulesList, ~onRuleClick) => {
       </div>
     </div>
     {switch viewType {
-    | Table => <ReconEngineOverviewSummaryAccountsView reconRulesList />
+    | Table => <ReconEngineOverviewSummaryAccountsView />
     | Graph => <ReconEngineOverviewSummaryFlowDiagram reconRulesList />
     }}
   </div>

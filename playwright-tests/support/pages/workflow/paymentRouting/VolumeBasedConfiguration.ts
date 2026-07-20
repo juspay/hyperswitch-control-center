@@ -60,7 +60,7 @@ export class VolumeBasedConfiguration {
   }
 
   connectorOption(value: string): Locator {
-    return this.page.locator(`[value="${value}"]`);
+    return this.page.getByRole('option', { name: `${value}` });
   }
 
   percentageInput(name: string | number): Locator {

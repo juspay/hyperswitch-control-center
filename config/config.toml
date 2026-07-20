@@ -14,6 +14,7 @@ dynamo_simulation_template_url=""
 [default.features]
 branding=false
 connector_clone=false
+send_v1_dummy_api_key_header=false
 mixpanel=false
 test_live_toggle=false
 is_live_mode=false
@@ -91,7 +92,7 @@ dev_theme=false
 dev_opensearch=false
 dev_vault=true
 dev_users=true
-dev_blend_enabled=false
+dev_blend_enabled=true
 dev_sort_enabled=true
 dev_saved_views=false
 dev_clickhouse_aggregate=false
