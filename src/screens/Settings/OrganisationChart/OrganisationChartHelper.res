@@ -1,3 +1,5 @@
+open LogicUtils
+
 let getEntityButtonStyles = isSelected => {
   isSelected
     ? "border-nd_primary_blue-600 bg-nd_primary_blue-50 text-nd_primary_blue-600"
@@ -54,7 +56,7 @@ module MerchantGroup = {
       )
       ->React.array
 
-    <RenderIf condition={merchants->LogicUtils.isNonEmptyArray}>
+    <RenderIf condition={merchants->isNonEmptyArray}>
       {switch title {
       | Some(title) =>
         <div className="flex flex-col gap-3 rounded-xl border border-nd_gray-200 bg-nd_gray-25 p-3">
@@ -85,8 +87,7 @@ module OrgChartTree = {
     let isPlatformOrg =
       orgList
       ->Array.find(org => org.id == selectedOrg)
-      ->Option.map(org => org.type_->Option.getOr(#standard) === #platform)
-      ->Option.getOr(false)
+      ->mapOptionOrDefault(false, org => org.type_->Option.getOr(#standard) === #platform)
 
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-16 w-full py-8">
       <div className="flex flex-col gap-4">
@@ -206,7 +207,7 @@ module HierarchyCard = {
         <span className={`${body.md.semibold} ${accentColor} whitespace-nowrap`}>
           {title->React.string}
         </span>
-        <RenderIf condition={items->LogicUtils.isNonEmptyArray}>
+        <RenderIf condition={items->isNonEmptyArray}>
           <ul className="list-disc list-inside flex flex-col gap-0.5">
             {items
             ->Array.map(item =>
