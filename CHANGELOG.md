@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.07.20.0
+
+### Testing
+
+- Playwright test changes for blend design ([#5075](https://github.com/juspay/hyperswitch-control-center/pull/5075)) ([`a698fcd`](https://github.com/juspay/hyperswitch-control-center/commit/a698fcdf3400ae0af17d21b86330fab04de49650))
+
+**Full Changelog:** [`2026.07.16.1...2026.07.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.16.1...2026.07.20.0)
+
+- - -
+
 ## 2026.07.16.1
 
 ### Features
