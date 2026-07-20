@@ -48,7 +48,6 @@ vault_processor=true
 surcharge_processor=true
 dispute_analytics=false
 authentication_analytics=false
-performance_monitor=false
 new_analytics=false
 new_analytics_smart_retries=false
 new_analytics_refunds=false
