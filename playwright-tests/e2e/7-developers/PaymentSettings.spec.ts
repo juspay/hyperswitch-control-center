@@ -1,12 +1,16 @@
 import { test, expect } from "../../support/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { PaymentSettings } from "../../support/pages/developers/PaymentSettings";
+import { SurchargeProcessor } from "../../support/pages/connector/SurchargeProcessor";
+import { VaultProcessor } from "../../support/pages/connector/VaultProcessor";
 import { generateUniqueEmail } from "../../support/helper";
 import {
   signupUser,
   loginUI,
   createAuthenticationConnectorAPI,
+  fillConnectorFields,
 } from "../../support/commands";
+import { vaultProcessorConfig } from "../../support/fixtures/vaultProcessorConfig";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
@@ -50,6 +54,46 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.paymentLinkTab).toBeVisible();
     });
 
+    test("should display Vault and Surcharge tabs when both connectors are configured", async ({
+      page,
+    }) => {
+      test.slow();
+
+      const homePage = new HomePage(page);
+      const paymentSettings = new PaymentSettings(page);
+      const vaultProcessor = new VaultProcessor(page);
+      const surchargeProcessor = new SurchargeProcessor(page);
+
+      await homePage.connectors.click();
+      await homePage.vaultConnectors.click();
+      await expect(page).toHaveURL(/.*dashboard\/vault-processor/);
+
+      await expect(vaultProcessor.connectButton.first()).toBeVisible();
+      await vaultProcessor.connectButton.first().click();
+      await fillConnectorFields(page, vaultProcessorConfig.vgs.fields);
+      await vaultProcessor.saveOrConnectOrProceedButton.click();
+      await page.waitForLoadState("networkidle");
+      await vaultProcessor.doneButton.click();
+
+      await homePage.connectors.click();
+      await homePage.surchargeConnectors.click();
+      await expect(page).toHaveURL(/.*dashboard\/surcharge-processor/);
+
+      await expect(
+        surchargeProcessor.connectNowOrConnectButton,
+      ).toBeVisible();
+      await surchargeProcessor.connectNowOrConnectButton.click();
+      await page.locator('[name*="api_key"]').first().fill("interpayments_test_api_key");
+      await surchargeProcessor.connectAndProceedButton.click();
+      await surchargeProcessor.doneButton.click();
+
+      await homePage.developer.click();
+      await homePage.paymentSettings.click();
+
+      await expect(paymentSettings.vaultTab).toBeVisible();
+      await expect(paymentSettings.surchargeTab).toBeVisible();
+    });
+
     test("should switch between tabs correctly", async ({ page }) => {
       const homePage = new HomePage(page);
       const paymentSettings = new PaymentSettings(page);
@@ -71,8 +115,6 @@ test.describe("Payment Settings", () => {
       await paymentSettings.paymentLinkTab.click();
       await expect(paymentSettings.paymentLinkDomainHeading).toBeVisible();
     });
-
-    // TODO: Assert clicked tab is highlighted and content of previously active tab is hidden when switching tabs.
   });
 
   test.describe("Payment Behaviour Tab", () => {
@@ -451,7 +493,7 @@ test.describe("Payment Settings", () => {
       const requestorAppUrl = "https://example.com/3ds-requestor-app";
 
       await paymentSettings.selectFieldDropdown().click();
-      await paymentSettings.dropdownValue(connectorName).click();
+      await page.getByRole('option', { name: 'juspaythreedsserver' }).click();
       await page.keyboard.press("Escape");
 
       await paymentSettings.threeDsRequestorUrlInput.fill(requestorUrl);
@@ -478,10 +520,10 @@ test.describe("Payment Settings", () => {
       );
 
       // Verify the connector is the selected option in the multi-select
-      await paymentSettings.buttonByName("juspaythreedsserver").first().click();
+      await page.getByRole('button', { name: 'Select Field1' }).click();
       await expect(
-        paymentSettings.dropdownValue(connectorName),
-      ).toHaveAttribute("data-dropdown-value-selected", "True");
+        page.getByRole('option', { name: 'juspaythreedsserver' }).getByRole('checkbox')
+      ).toHaveAttribute("data-state", "checked");
     });
   });
 
@@ -622,7 +664,7 @@ test.describe("Payment Settings", () => {
 
       // BIN too short (< 4 digits)
       await paymentSettings.acquirerBinInput(modal).fill("12");
-      await paymentSettings.acquirerBinInput(modal).blur();
+      await paymentSettings.acquirerBinInput(modal).press("Enter");
       await expect(paymentSettings.acquirerBinError).toBeVisible();
 
       // BIN valid → error clears

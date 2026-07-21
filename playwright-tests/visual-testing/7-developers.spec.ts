@@ -194,18 +194,14 @@ test.describe("Visual Testing - Developers", () => {
         .getByRole("textbox", { name: "e.g. Demo Merchant" })
         .fill("Hyperswitch");
       await page
-        .getByTestId("acquirer_assigned_merchant_id")
-        .getByRole("textbox", { name: "e.g." })
+        .getByRole('textbox', { name: 'e.g. 00004500000' })
         .fill("12345678");
       await page.getByRole("button", { name: "Select Network" }).click();
       await page
-        .locator("div")
-        .filter({ hasText: /^Visa$/ })
-        .nth(4)
+        .getByRole('menuitem', { name: 'Visa' })
         .click();
       await page
-        .getByTestId("acquirer_bin")
-        .getByRole("textbox", { name: "e.g." })
+        .getByRole('spinbutton', { name: 'e.g.' }).first()
         .fill("12345678");
       await page.getByRole("button", { name: "Save" }).click();
 

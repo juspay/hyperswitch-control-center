@@ -314,7 +314,7 @@ export class HomePage {
   }
 
   get sdkAmountInput(): Locator {
-    return this.page.locator('[name="amount"]');
+    return this.page.getByRole("spinbutton", { name: "Enter amount" });
   }
 
   get sdkCurrencySelectButton(): Locator {
