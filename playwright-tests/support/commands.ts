@@ -108,7 +108,9 @@ export async function createAPIKey(
 ): Promise<string> {
   const ctx = context ?? (await request.newContext());
   const jwt = page ? await getJwtFromLocalStorage(page) : "";
-  console.log(jwt);
+  // Prefer an explicitly supplied token because callers may have obtained a
+  // JWT scoped to a merchant other than the one currently active in the UI.
+  const authorizationToken = token || jwt;
   // CI backends occasionally take >30s on the first request when the worker
   // pool is cold. One retry with a fresh context recovers from transient
   // socket hangs without masking persistent failures.
@@ -118,7 +120,9 @@ export async function createAPIKey(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": ADMIN_API_KEY,
-        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
+        ...(authorizationToken
+          ? { Authorization: `Bearer ${authorizationToken}` }
+          : {}),
       },
       data: {
         name: "API Key 1",
@@ -233,9 +237,13 @@ export async function createBusinessProfileAPI(
   merchantId: string,
   profileName: string,
   context?: APIRequestContext,
+  page?: Page,
+  token = "",
 ): Promise<string> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const authorizationToken = token || jwt;
+  const apiKey = await createAPIKey(merchantId, token, ctx, page);
 
   const response = await ctx.post(
     `${API_URL}/account/${merchantId}/business_profile`,
@@ -244,6 +252,9 @@ export async function createBusinessProfileAPI(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(authorizationToken
+          ? { Authorization: `Bearer ${authorizationToken}` }
+          : {}),
       },
       data: {
         profile_name: profileName,
@@ -338,6 +349,38 @@ export async function createMerchantAPI(
   }
 
   throw new Error("createMerchantAPI: exhausted retries");
+}
+
+export async function switchMerchantAPI(
+  token: string,
+  merchantId: string,
+  context?: APIRequestContext,
+): Promise<string> {
+  const ctx = context ?? (await request.newContext());
+  const response = await ctx.post(`${API_URL}/user/switch/merchant`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    data: {
+      merchant_id: merchantId,
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(`switchMerchantAPI failed (${response.status()}): ${body}`);
+  }
+
+  const body = await response.json();
+  const switchedToken = body.token as string | undefined;
+  if (!switchedToken) {
+    throw new Error(
+      "switchMerchantAPI failed: response did not include a token",
+    );
+  }
+
+  return switchedToken;
 }
 
 export async function createStripeConnectorAPI(

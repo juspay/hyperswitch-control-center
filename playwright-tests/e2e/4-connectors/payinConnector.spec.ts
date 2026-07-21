@@ -295,6 +295,7 @@ test.describe("Payin Connector tests", () => {
       merchantId,
       "secondary_profile",
       context.request,
+      page,
     );
 
     // Pin the default connector to the active profile explicitly. Relying on
