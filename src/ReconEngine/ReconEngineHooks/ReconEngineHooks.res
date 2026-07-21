@@ -16,7 +16,7 @@ let useGetIngestionHistory = () => {
       )
       let res = await fetchDetails(url)
       let ingestionHistory = res->getArrayDataFromJson(ingestionHistoryItemToObjMapper)
-      ingestionHistory->Array.sort((a, b) => compareLogic(b.created_at, a.created_at))
+      ingestionHistory->Array.sort((a, b) => compareLogic(a.created_at, b.created_at))
       ingestionHistory
     } catch {
     | _ => Exn.raiseError("Something went wrong")
@@ -124,6 +124,26 @@ let useGetOverviewRules = () => {
       )
       let res = await fetchDetails(url)
       res->getArrayDataFromJson(overviewRulesResponseMapper)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetRuleAccountBreakdown = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~queryParameters=None) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#RULE_ACCOUNT_BREAKDOWN,
+        ~queryParameters,
+      )
+      let res = await fetchDetails(url)
+      res->getArrayDataFromJson(ruleAccountsOverviewMapper)
     } catch {
     | _ => Exn.raiseError("Something went wrong")
     }

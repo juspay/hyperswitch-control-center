@@ -19,7 +19,6 @@ let useGetHsSidebarValues = () => {
     disputeAnalytics,
     configurePmts,
     complianceCertificate,
-    performanceMonitor: performanceMonitorFlag,
     pmAuthenticationProcessor,
     taxProcessor,
     newAnalytics,
@@ -83,7 +82,6 @@ let useGetHsSidebarValues = () => {
     ),
     default->analytics(
       disputeAnalytics,
-      performanceMonitorFlag,
       isNewAnalyticsEnable,
       routingAnalytics,
       ~authenticationAnalyticsFlag=authenticationAnalytics,
