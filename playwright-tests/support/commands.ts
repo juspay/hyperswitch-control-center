@@ -672,15 +672,18 @@ export async function createCustomerAPI(
   merchantId: string,
   customerId: string,
   context?: APIRequestContext,
+  page?: Page,
 ): Promise<{ customer_id: string }> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(`${API_URL}/customers`, {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
       "api-key": apiKey,
+      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
     },
     data: {
       customer_id: customerId,
@@ -705,6 +708,7 @@ export async function createPaymentAPI(
   context?: APIRequestContext,
   amount: number = 12345,
   confirm: boolean = true,
+  page?: Page,
 ): Promise<{
   payment_id: string;
   profile_id: string;
@@ -719,13 +723,15 @@ export async function createPaymentAPI(
   metadata: Record<string, string>;
 }> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(`${API_URL}/payments`, {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
       "api-key": apiKey,
+      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
     },
     data: {
       amount,
