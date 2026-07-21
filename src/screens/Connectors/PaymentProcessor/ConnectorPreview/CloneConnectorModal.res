@@ -70,7 +70,12 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload) => {
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to clone connector")
-      let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")->CommonAuthUtils.errorSubCodeMapper
+      let errorCode =
+        err
+        ->safeParse
+        ->getDictFromJsonObject
+        ->getString("code", "")
+        ->CommonAuthUtils.errorSubCodeMapper
       let message = errorCode->getCloneErrorMessage
       showToast(~message, ~toastType=ToastError)
       switch errorCode {

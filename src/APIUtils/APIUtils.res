@@ -1284,6 +1284,25 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #RULE_ACCOUNT_BREAKDOWN =>
+          switch methodType {
+          | Get =>
+            switch queryParameters {
+            | Some(queryParams) =>
+              `${reconBaseURL}/overview/transactions/rule_account_breakdown?${queryParams}`
+            | None => `${reconBaseURL}/overview/transactions/rule_account_breakdown`
+            }
+          | _ => ""
+          }
+        | #STAGING_ENTRIES_OVERVIEW =>
+          switch methodType {
+          | Get =>
+            switch queryParameters {
+            | Some(queryParams) => `${reconBaseURL}/overview/staging_entries?${queryParams}`
+            | None => `${reconBaseURL}/overview/staging_entries`
+            }
+          | _ => ""
+          }
         | #NONE => ""
         }
 

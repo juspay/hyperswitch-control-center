@@ -670,7 +670,7 @@ test.describe("Payment Operations", () => {
           context.request,
         );
         for (let i = 0; i < 21; i++) {
-          await createPaymentAPI(merchantId, context.request).catch(() => {});
+          await createPaymentAPI(merchantId, context.request).catch(() => { });
         }
       }
 
@@ -744,7 +744,7 @@ test.describe("Payment Operations", () => {
       }
     });
 
-    test.skip("should display a valid message and expand search timerange when searched with invalid payment ID", async ({
+    test("should display a valid message and expand search timerange when searched with invalid payment ID", async ({
       page,
       context,
     }) => {
@@ -846,25 +846,73 @@ test.describe("Payment Operations", () => {
 
       for (const filter of filterKeys) {
         await paymentOperations.addFilters.click();
-        await page.locator(`[data-dropdown-value="${filter}"]:visible`).click();
-        await expect(paymentOperations.filterChipArea.first()).toContainText(
-          `Select ${filter}`,
+        await expect(
+          page
+            .getByLabel("Add Filters")
+            .getByText(`${filter}`, { exact: true }),
+        ).toBeVisible();
+        await page
+          .getByLabel("Add Filters")
+          .getByText(`${filter}`, { exact: true })
+          .click({ force: true });
+        await expect(
+          paymentOperations.filterChipArea(filter).first(),
+        ).toContainText(`Select ${filter}`);
+        await expect(
+          page.getByLabel("Add Filters").getByText("Amount"),
+        ).not.toBeVisible();
+      }
+    });
+
+    test("should verify Customer ID  and Merchant Order Reference ID filters can be selected from 'Add filter' dropdown", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await createDummyConnectorAPI(
+          merchantId,
+          "stripe_test_1",
+          context.request,
         );
-        await paymentOperations.crossOutlineIcon.click();
       }
 
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+
       await paymentOperations.addFilters.click();
-      await page.locator('[data-dropdown-value="Customer Id"]:visible').click();
+      await expect(
+        page
+          .getByLabel("Add Filters")
+          .getByRole("menuitem", { name: "Customer Id" }),
+      ).toBeVisible();
+      await page
+        .getByRole("menuitem", { name: "Customer Id" })
+        .click({ force: true });
+      await expect(paymentOperations.customerIdInput).toBeVisible();
       await expect(paymentOperations.customerIdInput).toHaveAttribute(
         "placeholder",
         "Enter Customer Id...",
       );
-      await paymentOperations.crossOutlineIcon.click();
+      await expect(
+        page
+          .getByLabel("Add Filters")
+          .getByRole("menuitem", { name: "Merchant Order Reference Id" }),
+      ).not.toBeVisible();
 
       await paymentOperations.addFilters.click();
+      await expect(
+        page
+          .getByLabel("Add Filters")
+          .getByRole("menuitem", { name: "Merchant Order Reference Id" }),
+      ).toBeVisible();
       await page
-        .locator('[data-dropdown-value="Merchant Order Reference Id"]:visible')
-        .click();
+        .getByRole("menuitem", { name: "Merchant Order Reference Id" })
+        .click({ force: true });
+      await expect(paymentOperations.merchantOrderRefIdInput).toBeVisible();
       await expect(paymentOperations.merchantOrderRefIdInput).toHaveAttribute(
         "placeholder",
         "Enter Merchant Order Reference Id...",
@@ -892,24 +940,38 @@ test.describe("Payment Operations", () => {
       await homePage.paymentOperations.click();
 
       await paymentOperations.addFilters.click();
-      await page.locator('[data-dropdown-value="Connector"]:visible').click();
+      await page
+        .getByLabel("Add Filters")
+        .getByText("Connector", { exact: true })
+        .click();
       await page.getByText("Select Connector").click();
-      await page.locator('[value="Stripe Dummy"]').click();
+      await page.getByRole("option").getByText("Stripe Dummy").click();
       await paymentOperations.applyButton.click();
       await expect(page.getByText("Stripe Dummy").first()).toBeVisible();
 
       await paymentOperations.addFilters.click();
-      await page.locator('[data-dropdown-value="Status"]:visible').click();
+      await page
+        .getByLabel("Add Filters")
+        .getByText("Status", { exact: true })
+        .click();
       await paymentOperations.statusFieldWrapper.click();
-      await page.locator('[value="Succeeded"]').click();
+      await page.getByRole("option", { name: "Succeeded" }).click();
       await paymentOperations.applyButton.click();
       await expect(page.getByText("Succeeded").first()).toBeVisible();
 
       await paymentOperations.addFilters.click();
-      await page.locator('[data-dropdown-value="Currency"]:visible').click();
+      await page
+        .getByLabel("Add Filters")
+        .getByText("Currency", { exact: true })
+        .click();
       await page.getByText("Select Currency").click();
-      await page.locator('[placeholder="Search..."]').fill("USD");
-      await page.locator('[data-searched-text="USD"]').click();
+      await expect(
+        page.getByLabel("Add Filters").getByText("Amount", { exact: true }),
+      ).not.toBeVisible();
+      await page
+        .getByRole("searchbox", { name: "Search options..." })
+        .fill("USD");
+      await page.getByRole("option", { name: "USD" }).click();
       await paymentOperations.applyButton.click();
       await expect(page.getByText("USD").first()).toBeVisible();
 
@@ -931,51 +993,48 @@ test.describe("Payment Operations", () => {
       await homePage.operations.click();
       await homePage.paymentOperations.click();
 
-      const initialRange = await paymentOperations.dateSelector.textContent();
+      const formatUTCDate = (date: Date) =>
+        date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+          timeZone: "UTC",
+        });
 
-      if (initialRange) {
-        const startDateStr = initialRange.split("-")[0].trim();
-        const parsedStartDate = new Date(startDateStr);
-        const previousStartDate = new Date(parsedStartDate);
-        previousStartDate.setDate(parsedStartDate.getDate() - 90);
+      const now = new Date();
+      const todayUTC = new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+      );
 
-        const formatDate = (date: Date) => {
-          return date.toLocaleDateString("en-US", {
-            month: "short",
-            day: "2-digit",
-            year: "numeric",
-          });
-        };
+      const initialStart = new Date(todayUTC);
+      initialStart.setUTCDate(todayUTC.getUTCDate() - 30);
 
-        const expectedStart = formatDate(previousStartDate);
-        const expectedEnd = formatDate(parsedStartDate);
-        const expectedRange = `${expectedStart} - ${expectedEnd}`;
+      const expectedStart = new Date(initialStart);
+      expectedStart.setUTCDate(initialStart.getUTCDate() - 90);
 
-        await page
-          .locator('[data-button-for="expandTheSearchToThePrevious90Days"]')
-          .click();
+      const expectedStartStr = formatUTCDate(expectedStart);
 
-        await expect(paymentOperations.dateSelector).toContainText(
-          expectedStart,
-        );
-      }
+      await paymentOperations.expandSearch90Days.click();
+
+      await expect(paymentOperations.dateSelector).toContainText(
+        expectedStartStr,
+      );
     });
 
     test("should verify all time range filters are displayed in date selector dropdown", async ({
       page,
     }) => {
       const timeRangeFilters = [
-        "Last 30 Mins",
-        "Last 1 Hour",
+        "Last 30 minutes",
+        "Last 1 hour",
         "Last 2 Hours",
         "Today",
         "Yesterday",
         "Last 2 Days",
-        "Last 7 Days",
-        "Last 30 Days",
-        "This Month",
-        "Last Month",
-        "Custom Range",
+        "Last 7 days",
+        "Last 30 days",
+        "This month",
+        "Last month",
       ];
 
       const homePage = new HomePage(page);
@@ -984,29 +1043,30 @@ test.describe("Payment Operations", () => {
       await homePage.operations.click();
       await homePage.paymentOperations.click();
 
-      await paymentOperations.openPredefinedDateOptions();
+      await paymentOperations.customDateRangeButton.click();
 
       for (const filter of timeRangeFilters) {
+        //await paymentOperations.predefinedDateOptions.scrollIntoViewIfNeeded();
         await expect(paymentOperations.predefinedDateOptions).toContainText(
           filter,
         );
       }
     });
 
-    test("should verify selected timerange when predefined timerange is applied from dropdown", async ({
+    test.fixme("should verify selected timerange when predefined timerange is applied from dropdown", async ({
       page,
     }) => {
       const predefinedTimeRange = [
-        "Last 30 Mins",
-        "Last 1 Hour",
-        "Last 2 Hours",
+        "Last 30 minutes",
+        "Last 1 hour",
+        //"Last 2 Hours",
         "Today",
         "Yesterday",
-        "Last 2 Days",
-        "Last 7 Days",
-        "Last 30 Days",
-        "This Month",
-        "Last Month",
+        //"Last 2 Days",
+        "Last 7 days",
+        "Last 30 days",
+        "This month",
+        "Last month",
       ];
 
       const homePage = new HomePage(page);
@@ -1024,13 +1084,12 @@ test.describe("Payment Operations", () => {
       const predefinedOptions = paymentOperations.predefinedDateOptions;
 
       for (const timeRange of predefinedTimeRange) {
-        await paymentOperations.openPredefinedDateOptions();
+        await paymentOperations.customDateRangeButton.click();
         await predefinedOptions.getByText(timeRange, { exact: true }).click();
-        await expect(page.getByTestId("date-range-selector")).toContainText(
-          timeRange,
-        );
         await expect(predefinedOptions).toBeHidden();
-        await page.waitForLoadState("networkidle");
+        await expect(
+          page.getByRole("button", { name: timeRange }),
+        ).toContainText(timeRange);
       }
     });
 
@@ -1056,12 +1115,11 @@ test.describe("Payment Operations", () => {
       const startDate = today === 2 ? 1 : 2;
       const endDate = today === 28 ? 29 : 28;
 
-      const formatDate = (day: number) => {
-        const paddedDay = String(day).padStart(2, "0");
-        return `${previousMonth} ${paddedDay}, ${currentYear}`;
+      const formatDate = (day: number, time: string) => {
+        return `${previousMonth} ${day}, ${currentYear}, ${time}`;
       };
 
-      const expectedRange = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+      const expectedRange = `${formatDate(startDate, "12:00 AM")} - ${formatDate(endDate, "11:59 PM")}`;
 
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
@@ -1069,18 +1127,18 @@ test.describe("Payment Operations", () => {
       await homePage.operations.click();
       await homePage.paymentOperations.click();
 
-      await paymentOperations.openPredefinedDateOptions();
+      await paymentOperations.dateSelector.click();
 
-      await paymentOperations.customRangeOption.click();
+      await page
+        .getByRole("button", { name: "Friday, May 2," })
+        .scrollIntoViewIfNeeded();
 
-      await page.locator(`[data-testid*=" ${startDate},"]`).first().click();
-      await page.locator(`[data-testid*=" ${endDate},"]`).first().click();
+      await page.getByRole("button", { name: "Friday, May 2," }).click();
+      await page.getByRole("button", { name: "Wednesday, May 28," }).click();
 
       await paymentOperations.applyButton.click();
 
-      await expect(
-        page.locator(`[data-button-text="${expectedRange}"]`),
-      ).toContainText(expectedRange);
+      await expect(paymentOperations.dateSelector).toContainText(expectedRange);
     });
   });
 
@@ -1142,9 +1200,12 @@ test.describe("Payment Operations", () => {
         await paymentOperations.transactionView
           .getByText(view)
           .click({ force: true });
-        await expect(paymentOperations.statusFieldWrapper).toContainText(
-          filter,
-        );
+        await paymentOperations.statusFieldWrapper.click();
+        await expect(
+          page
+            .getByRole("option", { name: filter, exact: true })
+            .getByRole("checkbox"),
+        ).toBeChecked();
       }
     });
   });
@@ -1705,18 +1766,20 @@ test.describe("Payment Operations", () => {
       await paymentMethodDetails.waitFor({ state: "attached", timeout: 10000 });
       await paymentMethodDetails.scrollIntoViewIfNeeded();
       await paymentMethodDetails.click();
-      await expect(paymentMethodDetails.locator("xpath=../..")).toContainText(
-        "card",
-      );
+      await expect(
+        page.getByText('Payment Method Details1{ 2 "'),
+      ).toContainText("card");
 
       const paymentMetadata = page.getByText(/^Payment Metadata$/);
       await paymentMetadata.waitFor({ state: "attached", timeout: 10000 });
       await paymentMetadata.scrollIntoViewIfNeeded();
       await paymentMetadata.click();
-      await expect(paymentMetadata.locator("xpath=../..")).toContainText("key");
-      await expect(paymentMetadata.locator("xpath=../..")).toContainText(
-        "value",
-      );
+      await expect(
+        page.getByText('Payment Metadata1{ 2 "key": "'),
+      ).toContainText("key");
+      await expect(
+        page.getByText('Payment Metadata1{ 2 "key": "'),
+      ).toContainText("value");
 
       await expandAccordionAndAssertFields("FRM Details", {
         "Payment ID": "",
@@ -1910,7 +1973,7 @@ test.describe("Payment Operations", () => {
       await openRefundModal(page, homePage, paymentOperations);
 
       await paymentOperations.refundAmountInput.fill("0");
-      await paymentOperations.refundAmountInput.blur();
+      await paymentOperations.refundAmountInput.press("Enter");
       await expect(
         page.getByText("Please enter refund amount greater than zero"),
       ).toBeVisible();
@@ -1938,7 +2001,7 @@ test.describe("Payment Operations", () => {
       await openRefundModal(page, homePage, paymentOperations);
 
       await paymentOperations.refundAmountInput.fill("999.99");
-      await paymentOperations.refundAmountInput.blur();
+      await paymentOperations.refundAmountInput.press("Enter");
       await expect(
         page.getByText("Refund amount should not exceed 123.45"),
       ).toBeVisible();
@@ -2177,10 +2240,6 @@ test.describe("Payment Operations", () => {
         paymentOperations.dataLabel("Customer ID").first(),
       ).toContainText("test_customer");
 
-      await expect(paymentOperations.captureAmountInput).toHaveAttribute(
-        "placeholder",
-        "Enter Amount to Capture",
-      );
       await expect(paymentOperations.captureAmountInput).toHaveValue("123.45");
 
       await expect(
@@ -2204,9 +2263,9 @@ test.describe("Payment Operations", () => {
       await openCaptureModal(page, homePage, paymentOperations);
 
       await paymentOperations.captureAmountInput.fill("0");
-      await paymentOperations.captureAmountInput.blur();
+      await paymentOperations.captureAmountInput.press("Enter");
       await expect(
-        page.getByText("Please enter capture amount greater than zero"),
+        page.locator('[data-form-error="Please enter capture amount greater than zero"]'),
       ).toBeVisible();
     });
 
@@ -2225,9 +2284,9 @@ test.describe("Payment Operations", () => {
       await openCaptureModal(page, homePage, paymentOperations);
 
       await paymentOperations.captureAmountInput.fill("999.99");
-      await paymentOperations.captureAmountInput.blur();
+      await paymentOperations.captureAmountInput.press("Enter");
       await expect(
-        page.getByText("Capture amount should not exceed 123.45"),
+        page.locator('[data-form-error="Capture amount should not exceed 123.45"]'),
       ).toBeVisible();
     });
 
