@@ -223,7 +223,7 @@ let make = () => {
           setCurrentStep(_ => ConfigurationFields)
         } else {
           showToast(
-            ~message=LogicUtils.getErrorMessage(~message=errorMessage, ~error=err),
+            ~message=getErrorMessage(~message=errorMessage, ~error=err),
             ~toastType=ToastError,
           )
           setScreenState(_ => PageLoaderWrapper.Error(err))

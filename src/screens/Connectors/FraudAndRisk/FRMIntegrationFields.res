@@ -1,3 +1,5 @@
+open LogicUtils
+
 module IntegrationFieldsForm = {
   @react.component
   let make = (
@@ -16,7 +18,7 @@ module IntegrationFieldsForm = {
     }
 
     let validateCountryCurrency = (valuesFlattenJson, ~errors) => {
-      let profileId = valuesFlattenJson->LogicUtils.getString("profile_id", "")
+      let profileId = valuesFlattenJson->getString("profile_id", "")
       if profileId->String.length <= 0 {
         Dict.set(errors, "Profile Id", `Please select your business profile`->JSON.Encode.string)
       }
@@ -89,7 +91,6 @@ let make = (
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let initialValues = React.useMemo(() => {
-    open LogicUtils
     switch retrievedValues {
     | Some(json) => {
         let initialValuesObj = json->getDictFromJsonObject
@@ -121,8 +122,8 @@ let make = (
   let frmID =
     retrievedValues
     ->Option.getOr(Dict.make()->JSON.Encode.object)
-    ->LogicUtils.getDictFromJsonObject
-    ->LogicUtils.getString("merchant_connector_id", "")
+    ->getDictFromJsonObject
+    ->getString("merchant_connector_id", "")
 
   let submitText = if !isUpdateFlow {
     "Connector Created Successfully!"
@@ -139,7 +140,6 @@ let make = (
   }
 
   let setFRMValues = async body => {
-    open LogicUtils
     try {
       let response = await updateDetails(frmUrl, body, Post)
       let _ = await updateMerchantDetails()
@@ -159,7 +159,7 @@ let make = (
           setPageState(_ => Error(""))
         } else {
           showToast(
-            ~message=LogicUtils.getErrorMessage(~message=errorMessage, ~error=err),
+            ~message=getErrorMessage(~message=errorMessage, ~error=err),
             ~toastType=ToastError,
           )
           setPageState(_ => Error(""))
