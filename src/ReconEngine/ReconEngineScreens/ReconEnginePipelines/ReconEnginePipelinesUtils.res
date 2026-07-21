@@ -113,6 +113,45 @@ let getPipelineStatCards = (
   ]
 }
 
+let ingestionHistorySortOptions: array<ReconEnginePipelinesTypes.ingestionHistorySortOption> = [
+  #MostRecent,
+  #NeedsAttention,
+  #FileName,
+]
+
+let ingestionStatusAttentionRank = status =>
+  switch status {
+  | Failed => 0
+  | Processing => 1
+  | Pending => 2
+  | Processed => 3
+  | Discarded | UnknownIngestionTransformationStatus => 4
+  }
+
+let sortIngestionHistory = (
+  data: array<Nullable.t<ingestionHistoryType>>,
+  sortOption: ReconEnginePipelinesTypes.ingestionHistorySortOption,
+) => {
+  data->Array.toSorted((a, b) => {
+    switch (a->Nullable.toOption, b->Nullable.toOption) {
+    | (Some(a), Some(b)) =>
+      switch sortOption {
+      | #MostRecent => compareLogic(a.created_at, b.created_at)
+      | #NeedsAttention =>
+        numericArraySortComparator(
+          ingestionStatusAttentionRank(a.status),
+          ingestionStatusAttentionRank(b.status),
+        )
+      | #FileName =>
+        numericArraySortComparator(a.file_name->String.toLowerCase, b.file_name->String.toLowerCase)
+      }
+    | (Some(_), None) => -1.
+    | (None, Some(_)) => 1.
+    | (None, None) => 0.
+    }
+  })
+}
+
 let getAccountOptions = (accounts: array<accountType>): array<FilterSelectBox.dropdownOption> => {
   accounts->Array.map(account => {
     FilterSelectBox.label: account.account_name,
