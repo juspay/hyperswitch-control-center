@@ -383,17 +383,53 @@ export async function switchMerchantAPI(
   return switchedToken;
 }
 
+export async function switchProfileAPI(
+  token: string,
+  profileId: string,
+  context?: APIRequestContext,
+): Promise<string> {
+  const ctx = context ?? (await request.newContext());
+  const response = await ctx.post(`${API_URL}/user/switch/profile`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    data: {
+      profile_id: profileId,
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(`switchProfileAPI failed (${response.status()}): ${body}`);
+  }
+
+  const body = await response.json();
+  const switchedToken = body.token as string | undefined;
+  if (!switchedToken) {
+    throw new Error(
+      "switchProfileAPI failed: response did not include a token",
+    );
+  }
+
+  return switchedToken;
+}
+
 export async function createStripeConnectorAPI(
   merchantId: string,
   connectorLabel: string,
   context?: APIRequestContext,
   profileId?: string,
+  page?: Page,
+  token = "",
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const authorizationToken = token || jwt;
+  const apiKey = await createAPIKey(merchantId, token, ctx, page);
 
   const resolvedProfileId =
-    profileId ?? (await getDefaultProfileId(merchantId, ctx));
+    profileId ?? (await getDefaultProfileId(merchantId, ctx, page));
 
   const data: Record<string, unknown> = {
     connector_type: "payment_processor",
@@ -430,6 +466,9 @@ export async function createStripeConnectorAPI(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(authorizationToken
+          ? { Authorization: `Bearer ${authorizationToken}` }
+          : {}),
       },
       data,
     },
@@ -449,10 +488,12 @@ export async function createStripeConnectorAPIwithAPIKey(
   apiKey: string,
   context?: APIRequestContext,
   profileId?: string,
+  page?: Page,
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
   const resolvedProfileId =
-    profileId ?? (await getDefaultProfileId(merchantId, ctx));
+    profileId ?? (await getDefaultProfileId(merchantId, ctx, page));
 
   const data: Record<string, unknown> = {
     connector_type: "payment_processor",
@@ -489,6 +530,7 @@ export async function createStripeConnectorAPIwithAPIKey(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
       },
       data,
     },
