@@ -3,31 +3,26 @@ open LogicUtils
 open FormDataUtils
 open ReconEnginePipelinesUploadUtils
 
-module VerticalStep = {
+module StepField = {
   @react.component
-  let make = (~step: int, ~label: string, ~isComplete: bool, ~isLast=false, ~children) => {
+  let make = (~step: int, ~label: string, ~isComplete: bool, ~children) => {
     let circleClass = isComplete
       ? "bg-nd_primary_blue-500 text-white"
       : "bg-nd_gray-100 text-nd_gray-500"
 
-    <div className="flex gap-3">
-      <div className="flex flex-col items-center">
+    <div className="flex-1 min-w-0">
+      <div className="flex items-center gap-2 mb-2">
         <span
           className={`flex items-center justify-center w-6 h-6 shrink-0 rounded-full ${body.xs.semibold} ${circleClass}`}>
           {isComplete
             ? <Icon name="nd-check" size=12 className="text-white" />
             : step->Int.toString->React.string}
         </span>
-        <RenderIf condition={!isLast}>
-          <div className="w-px flex-1 bg-nd_gray-150 my-1" />
-        </RenderIf>
-      </div>
-      <div className={`flex-1 min-w-0 ${isLast ? "" : "pb-6"}`}>
-        <label className={`block ${body.md.medium} text-nd_gray-700 mb-2`}>
+        <label className={`block ${body.md.medium} text-nd_gray-700`}>
           {label->React.string}
         </label>
-        {children}
       </div>
+      {children}
     </div>
   }
 }
@@ -38,12 +33,14 @@ module UploadDropzone = {
     open ReconEnginePipelinesTypes
 
     let showToast = ToastAdapter.useShowToast()
-    let (fileState, setFileState) = React.useState(_ => NoFile)
+    let (selectedFiles, setSelectedFiles) = React.useState(_ => [])
+    let (isUploading, setIsUploading) = React.useState(_ => false)
     let (isDraggingFile, setIsDraggingFile) = React.useState(_ => false)
     let dragDepthRef = React.useRef(0)
     let fileInputRef = React.useRef(Js.Nullable.null)
     let getURL = APIUtils.useGetURL()
     let updateDetails = APIUtils.useUpdateMethod()
+    let canSelectFiles = !disabled && !isUploading
 
     let clearFileInput = () => {
       fileInputRef.current
@@ -51,38 +48,43 @@ module UploadDropzone = {
       ->Option.forEach(elem => elem->DOMUtils.toInputElement->DOMUtils.setInputValue(""))
     }
 
-    let selectFile = file => {
-      let fileName = file["name"]->String.toLowerCase
-      let fileSize = file["size"]
-      if !isSupportedFileType(fileName) {
-        showToast(
-          ~message="Please select a .csv, .ext, .xlsx, or .txt file.",
-          ~toastType=ToastError,
-        )
-        setFileState(_ => NoFile)
-        clearFileInput()
-      } else if fileSize > maxFileSizeBytes {
-        showToast(~message="File size should not exceed 8 MB", ~toastType=ToastError)
-        setFileState(_ => NoFile)
-        clearFileInput()
-      } else {
-        setFileState(_ => FileSelected(file))
+    let validateAndAddFiles = files => {
+      let existingKeys = selectedFiles->Array.map(item => item.fileId)
+      let (accepted, rejected, _) = files->Array.reduce(([], [], existingKeys), (
+        (accAccepted, accRejected, seenKeys),
+        file,
+      ) => {
+        let existingCount = selectedFiles->Array.length + accAccepted->Array.length
+        switch file->classifyFile(~existingCount, ~seenKeys) {
+        | Ok(fileName) => (
+            accAccepted->Array.concat([{fileId: fileName, file, status: Idle}]),
+            accRejected,
+            seenKeys->Array.concat([fileName]),
+          )
+        | Error(reason) => (accAccepted, accRejected->Array.concat([reason]), seenKeys)
+        }
+      })
+
+      if accepted->isNonEmptyArray {
+        setSelectedFiles(prev => prev->Array.concat(accepted))
+      }
+      if rejected->isNonEmptyArray {
+        showToast(~message=rejected->Array.joinWith("; "), ~toastType=ToastError)
       }
     }
 
     let handleFileUpload = ev => {
       try {
-        let files = ReactEvent.Form.target(ev)["files"]
-        switch files[0] {
-        | Some(value) => selectFile(value)
-        | None =>
+        let files = ReactEvent.Form.target(ev)["files"]->fileListToArray
+        if files->isEmptyArray {
           showToast(~message="No file selected. Please choose a file.", ~toastType=ToastError)
-          setFileState(_ => NoFile)
+        } else {
+          validateAndAddFiles(files)
         }
+        clearFileInput()
       } catch {
       | _ =>
         showToast(~message="An unexpected error occurred. Please try again.", ~toastType=ToastError)
-        setFileState(_ => NoFile)
       }
     }
 
@@ -91,73 +93,96 @@ module UploadDropzone = {
       ev->ReactEvent.Mouse.preventDefault
       dragDepthRef.current = 0
       setIsDraggingFile(_ => false)
-      if !disabled {
-        let droppedFiles = ev->dataTransfer->files
-        switch droppedFiles[0] {
-        | Some(file) => selectFile(file)
-        | None =>
+      if canSelectFiles {
+        let droppedFiles = ev->dataTransfer->files->fileListToArray
+        if droppedFiles->isEmptyArray {
           showToast(~message="No file selected. Please choose a file.", ~toastType=ToastError)
+        } else {
+          validateAndAddFiles(droppedFiles)
         }
       }
     }
 
-    let uploadFile = async () => {
-      switch fileState {
-      | NoFile => showToast(~message="Please select a file to upload.", ~toastType=ToastError)
-      | Uploading(_) => ()
-      | FileSelected(file) =>
-        try {
-          setFileState(_ => Uploading(file))
-          let url = getURL(
-            ~entityName=V1(HYPERSWITCH_RECON),
-            ~methodType=Post,
-            ~hyperswitchReconType=#FILE_UPLOAD,
-            ~id=Some(ingestionId),
-          )
-          let formData = formData()
-          append(formData, "file", file)
-          let _ = await updateDetails(
-            ~bodyFormData=formData,
-            url,
-            Dict.make()->JSON.Encode.object,
-            Post,
-            ~contentType=AuthHooks.Unknown,
-          )
-          showToast(~message="File uploaded successfully.", ~toastType=ToastSuccess)
-          onUploadSuccess()
-        } catch {
-        | Exn.Error(_) =>
-          showToast(~message="An error occurred while uploading the file.", ~toastType=ToastError)
-          clearFileInput()
-          setFileState(_ => FileSelected(file))
-        }
-      }
+    let uploadOneFile = item => {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Post,
+        ~hyperswitchReconType=#FILE_UPLOAD,
+        ~id=Some(ingestionId),
+      )
+      let formData = formData()
+      append(formData, "file", item.file)
+      updateDetails(
+        ~bodyFormData=formData,
+        url,
+        Dict.make()->JSON.Encode.object,
+        Post,
+        ~contentType=AuthHooks.Unknown,
+      )
     }
 
-    let removeSelectedFile = () => {
-      switch fileState {
-      | FileSelected(_) =>
-        setFileState(_ => NoFile)
+    let uploadFiles = async () => {
+      if selectedFiles->isEmptyArray {
+        showToast(~message="Please select a file to upload.", ~toastType=ToastError)
+      } else {
+        setIsUploading(_ => true)
+        let results = await PromiseUtils.allSettledResultPolyfill(
+          selectedFiles->Array.map(item => uploadOneFile(item)),
+        )
+        let failedItems =
+          selectedFiles
+          ->Array.mapWithIndex((item, index) =>
+            switch results[index] {
+            | Some(Error(msg)) => Some({...item, status: Failed(msg)})
+            | _ => None
+            }
+          )
+          ->Array.filterMap(x => x)
+        let failCount = failedItems->Array.length
+        let successCount = selectedFiles->Array.length - failCount
+
+        setSelectedFiles(_ => failedItems)
         clearFileInput()
-      | NoFile | Uploading(_) => ()
+        setIsUploading(_ => false)
+
+        let message = if failCount == 0 {
+          `${successCount->Int.toString} file${successCount > 1 ? "s" : ""} uploaded successfully.`
+        } else if successCount == 0 {
+          `${failCount->Int.toString} file${failCount > 1 ? "s" : ""} failed to upload.`
+        } else {
+          `${successCount->Int.toString} uploaded, ${failCount->Int.toString} failed.`
+        }
+        showToast(~message, ~toastType={failCount == 0 ? ToastSuccess : ToastError})
+
+        if failCount == 0 {
+          onUploadSuccess()
+        }
       }
     }
 
-    let dropZoneBorderClass = if disabled {
+    let removeSelectedFile = fileId => {
+      if !isUploading {
+        setSelectedFiles(prev => prev->Array.filter(item => item.fileId !== fileId))
+        clearFileInput()
+      }
+    }
+
+    let dropZoneBorderClass = if disabled || isUploading {
       "border-nd_gray-200 bg-nd_gray-50 shadow-none scale-100"
     } else if isDraggingFile {
       "border-nd_primary_blue-500 bg-blue-50 shadow-sm scale-[1.002]"
     } else {
       "border-nd_gray-300 bg-white shadow-none scale-100"
     }
-    let cursorClass = disabled ? "cursor-not-allowed" : "cursor-pointer"
+    let cursorClass = canSelectFiles ? "cursor-pointer" : "cursor-not-allowed"
 
     <div>
       <input
         ref={fileInputRef->ReactDOM.Ref.domRef}
         type_="file"
         accept=".csv,.ext,.xlsx,.txt"
-        disabled
+        multiple=true
+        disabled={!canSelectFiles}
         onChange=handleFileUpload
         hidden=true
         id="pipelinesFileUploadInput"
@@ -166,7 +191,7 @@ module UploadDropzone = {
         htmlFor="pipelinesFileUploadInput"
         onDragEnter={ev => {
           ev->ReactEvent.Mouse.preventDefault
-          if !disabled {
+          if canSelectFiles {
             dragDepthRef.current = dragDepthRef.current + 1
             setIsDraggingFile(_ => true)
           }
@@ -196,10 +221,10 @@ module UploadDropzone = {
               className={`${body.lg.semibold} ${disabled
                   ? "text-nd_gray-400"
                   : "text-nd_gray-700"}`}>
-              {"Choose a file or drag & drop it here"->React.string}
+              {"Choose files or drag & drop them here"->React.string}
             </div>
             <div className={`${body.md.medium} text-nd_gray-500`}>
-              {".csv,.ext,.xlsx,.txt only | Max size 8 MB"->React.string}
+              {`.csv,.ext,.xlsx,.txt only | Max size 8 MB | Up to ${maxFilesCount->Int.toString} files`->React.string}
             </div>
           </div>
           <div
@@ -210,46 +235,53 @@ module UploadDropzone = {
           </div>
         </div>
       </label>
-      {switch fileState {
-      | NoFile => React.null
-      | FileSelected(file) | Uploading(file) =>
-        let isUploading = switch fileState {
-        | Uploading(_) => true
-        | NoFile | FileSelected(_) => false
-        }
+      <RenderIf condition={selectedFiles->isNonEmptyArray}>
         <div className="mt-4 space-y-3">
-          <div className="p-3 border rounded-lg bg-nd_gray-50">
-            <div className="flex items-center justify-between">
-              <div className="flex min-w-0 items-center gap-2">
-                <Icon name="nd-file" size=16 />
-                <span className={`${body.sm.medium} text-nd_gray-700 truncate`}>
-                  {file["name"]->React.string}
-                </span>
-                <span className={`${body.xs.light} text-nd_gray-500 shrink-0`}>
-                  {file["size"]->formatFileSize->React.string}
-                </span>
-              </div>
-              <div className="flex items-center gap-3 ml-3">
+          {selectedFiles
+          ->Array.map(item => {
+            <div key={item.fileId} className="p-3 border rounded-lg bg-nd_gray-50">
+              <div className="flex items-center justify-between">
+                <div className="flex min-w-0 items-center gap-2">
+                  <Icon name="nd-file" size=16 />
+                  <span className={`${body.sm.medium} text-nd_gray-700 truncate`}>
+                    {item.file["name"]->React.string}
+                  </span>
+                  <span className={`${body.xs.light} text-nd_gray-500 shrink-0`}>
+                    {item.file["size"]->formatFileSize->React.string}
+                  </span>
+                  {switch item.status {
+                  | Failed(msg) =>
+                    <span className={`${body.xs.light} text-nd_red-500 shrink-0`}>
+                      {`Failed: ${msg}`->React.string}
+                    </span>
+                  | Idle => React.null
+                  }}
+                </div>
                 <Icon
-                  onClick={_ => removeSelectedFile()}
-                  className={`text-nd_red-500 hover:text-nd_red-700 ${!isUploading
+                  onClick={_ => removeSelectedFile(item.fileId)}
+                  className={`text-nd_red-500 hover:text-nd_red-700 ml-3 ${!isUploading
                       ? "cursor-pointer"
                       : "cursor-not-allowed"}`}
                   name="nd-delete-dustbin-02"
                   size=16
                 />
-                <ACLButton
-                  text={isUploading ? "Uploading..." : "Upload"}
-                  buttonType=Primary
-                  onClick={_ => uploadFile()->ignore}
-                  buttonState={isUploading ? Loading : Normal}
-                  buttonSize=Small
-                />
               </div>
             </div>
+          })
+          ->React.array}
+          <div className="flex justify-end">
+            <ACLButton
+              text={isUploading
+                ? "Uploading..."
+                : `Upload (${selectedFiles->Array.length->Int.toString})`}
+              buttonType=Primary
+              onClick={_ => uploadFiles()->ignore}
+              buttonState={isUploading ? Loading : Normal}
+              buttonSize=Small
+            />
           </div>
         </div>
-      }}
+      </RenderIf>
     </div>
   }
 }
@@ -322,9 +354,9 @@ module UploadModalBody = {
 
     let canUpload = selectedAccountId->isNonEmptyString && selectedIngestionId->isNonEmptyString
 
-    <div className="flex gap-8">
-      <div className="w-56 shrink-0 flex flex-col">
-        <VerticalStep step=1 label="Account" isComplete={selectedAccountId->isNonEmptyString}>
+    <div className="flex flex-col gap-6">
+      <div className="flex gap-6">
+        <StepField step=1 label="Account" isComplete={selectedAccountId->isNonEmptyString}>
           <SelectBoxAdapter.BaseDropdown
             allowMultiSelect=false
             buttonText={getAccountName(selectedAccountId)}
@@ -335,12 +367,9 @@ module UploadModalBody = {
             searchable=true
             fullLength=true
           />
-        </VerticalStep>
-        <VerticalStep
-          step=2
-          label="Ingestion Config"
-          isComplete={selectedIngestionId->isNonEmptyString}
-          isLast=true>
+        </StepField>
+        <StepField
+          step=2 label="Ingestion Config" isComplete={selectedIngestionId->isNonEmptyString}>
           {if configsLoading {
             <div className="flex items-center gap-2 h-10 px-3 border border-nd_gray-150 rounded-lg">
               <Icon name="nd-loading" size=14 className="text-nd_gray-400 animate-spin" />
@@ -371,15 +400,13 @@ module UploadModalBody = {
               {"No manual ingestion configs found for this account."->React.string}
             </p>
           </RenderIf>
-        </VerticalStep>
+        </StepField>
       </div>
-      <div className="flex-1 min-w-0 flex flex-col border-l border-nd_gray-150 pl-8">
+      <div className="flex flex-col border-t border-nd_gray-150 pt-6">
         <label className={`block ${body.md.medium} text-nd_gray-700 mb-2`}>
           {"File"->React.string}
         </label>
-        <div className="flex-1">
-          <UploadDropzone ingestionId=selectedIngestionId disabled={!canUpload} onUploadSuccess />
-        </div>
+        <UploadDropzone ingestionId=selectedIngestionId disabled={!canUpload} onUploadSuccess />
       </div>
     </div>
   }

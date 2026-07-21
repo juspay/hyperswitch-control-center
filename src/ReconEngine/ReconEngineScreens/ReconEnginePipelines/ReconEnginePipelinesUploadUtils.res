@@ -11,12 +11,32 @@ let supportedFileTypes: array<supportedFileExtensions> = [Csv, Ext, Xlsx, Txt]
 let bytesPerKilobyte = 1000
 let bytesPerMegabyte = bytesPerKilobyte * 1000
 let maxFileSizeBytes = 8 * bytesPerMegabyte
+let maxFilesCount = 3
 
 let isSupportedFileType = (fileName: string): bool => {
   let lowerFileName = fileName->String.toLowerCase
   supportedFileTypes
   ->Array.map(ft => `.${(ft :> string)->String.toLowerCase}`)
   ->Array.find(ext => lowerFileName->String.endsWith(ext)) != None
+}
+
+let fileListToArray = fileList => {
+  Array.fromInitializer(~length=fileList->Array.length, i => fileList[i])->Array.filterMap(x => x)
+}
+
+let classifyFile = (file, ~existingCount, ~seenKeys) => {
+  let fileName = file["name"]
+  if !isSupportedFileType(fileName->String.toLowerCase) {
+    Error(`${fileName}: unsupported file type`)
+  } else if file["size"] > maxFileSizeBytes {
+    Error(`${fileName}: exceeds 8 MB`)
+  } else if seenKeys->Array.includes(fileName) {
+    Error(`${fileName}: already selected`)
+  } else if existingCount >= maxFilesCount {
+    Error(`${fileName}: only ${maxFilesCount->Int.toString} files allowed`)
+  } else {
+    Ok(fileName)
+  }
 }
 
 let formatFileSize = (sizeInBytes: int) => {

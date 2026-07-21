@@ -20,7 +20,10 @@ type pipelineStatCardData = {
   pipelineStatCardClickAction: pipelineStatCardClickAction,
 }
 
-type fileState<'file> =
-  | NoFile
-  | FileSelected('file)
-  | Uploading('file)
+type fileUploadStatus = Idle | Failed(string)
+
+type selectedFileItem<'file> = {
+  fileId: string,
+  file: 'file,
+  status: fileUploadStatus,
+}
