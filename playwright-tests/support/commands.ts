@@ -815,6 +815,7 @@ export async function createRequiresCapturePaymentAPI(
   merchantId: string,
   context?: APIRequestContext,
   amount: number = 12345,
+  page?: Page,
 ): Promise<{
   payment_id: string;
   profile_id: string;
@@ -826,13 +827,15 @@ export async function createRequiresCapturePaymentAPI(
   payment_method_type: string;
 }> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(`${API_URL}/payments`, {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
       "api-key": apiKey,
+      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
     },
     data: {
       amount,
@@ -925,6 +928,7 @@ export async function createRefundAPI(
   context?: APIRequestContext,
   amount: number = 5000,
   reason: string = "Test refund",
+  page?: Page,
 ): Promise<{
   refund_id: string;
   payment_id: string;
@@ -938,13 +942,15 @@ export async function createRefundAPI(
   profile_id: string;
 }> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(`${API_URL}/refunds`, {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
       "api-key": apiKey,
+      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
     },
     data: {
       payment_id: paymentId,
@@ -965,9 +971,11 @@ export async function createPayoutConnectorAPI(
   merchantId: string,
   connectorLabel: string,
   context?: APIRequestContext,
+  page?: Page,
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(
     `${API_URL}/account/${merchantId}/connectors`,
@@ -976,6 +984,7 @@ export async function createPayoutConnectorAPI(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
       },
       data: {
         connector_type: "payout_processor",
@@ -1026,6 +1035,7 @@ export async function createPayoutConnectorAPI(
 export async function createPayoutAPI(
   merchantId: string,
   context?: APIRequestContext,
+  page?: Page,
 ): Promise<{
   payment_id: string;
   profile_id: string;
@@ -1040,13 +1050,15 @@ export async function createPayoutAPI(
   metadata: Record<string, string>;
 }> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(`${API_URL}/payouts/create`, {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
       "api-key": apiKey,
+      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
     },
     data: {
       amount: 12345,
