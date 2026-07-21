@@ -71,26 +71,26 @@ module AccountDetailCard = {
         <CreditDebitAmountRow
           statusType=MatchedAmount
           label={`Matched with ${otherAccountName}`}
-          creditAmount={transactionData.matched_transaction_amount}
-          creditCount={transactionData.matched_transaction_count}
-          debitAmount={transactionData.matched_confirmation_amount}
-          debitCount={transactionData.matched_confirmation_count}
+          creditAmount={transactionData.matched.credit}
+          creditCount={transactionData.matched.credit_count}
+          debitAmount={transactionData.matched.debit}
+          debitCount={transactionData.matched.debit_count}
         />
         <CreditDebitAmountRow
           statusType=MismatchedAmount
           label={`Mismatch with ${otherAccountName}`}
-          creditAmount={transactionData.mismatched_transaction_amount}
-          creditCount={transactionData.mismatched_transaction_count}
-          debitAmount={transactionData.mismatched_confirmation_amount}
-          debitCount={transactionData.mismatched_confirmation_count}
+          creditAmount={transactionData.mismatched.credit}
+          creditCount={transactionData.mismatched.credit_count}
+          debitAmount={transactionData.mismatched.debit}
+          debitCount={transactionData.mismatched.debit_count}
         />
         <CreditDebitAmountRow
           statusType=PendingAmount
           label={pendingLabel}
-          creditAmount={transactionData.pending_transaction_amount}
-          creditCount={transactionData.pending_transaction_count}
-          debitAmount={transactionData.pending_confirmation_amount}
-          debitCount={transactionData.pending_confirmation_count}
+          creditAmount={transactionData.pending.credit}
+          creditCount={transactionData.pending.credit_count}
+          debitAmount={transactionData.pending.debit}
+          debitCount={transactionData.pending.debit_count}
         />
       </div>
     </div>
