@@ -28,7 +28,7 @@ let make = () => {
   let {fetchUserGroupACL, hasAnyGroupAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchMerchantList = MerchantListHook.useFetchMerchantList()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-  let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
+  let fetchUserMerchantDetails = MerchantDetailsHook.useFetchUserMerchantDetails()
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
@@ -59,7 +59,7 @@ let make = () => {
       setActiveProductValue(UnknownProduct)
       Window.connectorWasmInit()->ignore
       // Initiate all independent api requests concurrently for performance improvement
-      let merchantDetailsFetch = fetchMerchantAccountDetails(~version)
+      let merchantDetailsFetch = fetchUserMerchantDetails(~version)
       let merchantConfigFetch = fetchMerchantSpecificConfig()
       let merchantListFetch = if !isInternalUser {
         fetchMerchantList()
@@ -67,13 +67,13 @@ let make = () => {
         Promise.resolve()
       }
       let userGroupACLFetch = fetchUserGroupACL()
-      let (merchantResponse, _, _, _) = await Promise.all4((
+      let (productType, _, _, _) = await Promise.all4((
         merchantDetailsFetch,
         merchantConfigFetch,
         merchantListFetch,
         userGroupACLFetch,
       ))
-      setActiveProductValue(merchantResponse.product_type)
+      setActiveProductValue(productType)
       setShowSideBar(_ => true)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
