@@ -9,6 +9,7 @@ let searchTypeFromString = str => {
   switch str {
   | "order_id" => SearchOrderId
   | "staging_entry_id" => SearchStagingEntryId
+  | "transformation_history_id" => SearchTransformationHistoryId
   | _ => UnknownProcessingEntrySearchType
   }
 }
@@ -16,6 +17,17 @@ let searchTypeFromString = str => {
 let searchTypeOptions: array<SearchInput.searchTypeOption> = [
   SearchStagingEntryId,
   SearchOrderId,
+]->Array.map((entrySearchType): SearchInput.searchTypeOption => {
+  {
+    label: (entrySearchType :> string)->snakeToTitle,
+    value: (entrySearchType :> string),
+  }
+})
+
+let searchTypeOptionsWithTransformationHistory: array<SearchInput.searchTypeOption> = [
+  SearchStagingEntryId,
+  SearchOrderId,
+  SearchTransformationHistoryId,
 ]->Array.map((entrySearchType): SearchInput.searchTypeOption => {
   {
     label: (entrySearchType :> string)->snakeToTitle,
@@ -35,6 +47,7 @@ let buildProcessingEntriesV2Body = (
   ~direction: cursorDirection,
   ~order: processingEntrySortOrder=Desc,
   ~limit=10,
+  ~transformationHistoryId="",
 ) => {
   let statusFilter = filterValueJson->getStrArrayFromDict("status", [])
   let statusValues =
@@ -62,6 +75,10 @@ let buildProcessingEntriesV2Body = (
 
   if searchText->isNonEmptyString {
     filtersDict->Dict.set((searchType :> string), searchText->String.trim->JSON.Encode.string)
+  }
+
+  if transformationHistoryId->isNonEmptyString {
+    filtersDict->Dict.set("transformation_history_id", transformationHistoryId->JSON.Encode.string)
   }
 
   if hasTimeRange {
@@ -100,25 +117,35 @@ let getProcessingEntryPayloadFromDict = dict => {
   dict->processingItemToObjMapper
 }
 
-let getTotalNeedsManualReviewEntries = (stagingEntries: array<processingEntryType>): float => {
-  stagingEntries
-  ->Array.filter(entry => entry.status == NeedsManualReview)
-  ->Array.length
+let sumStagingOverviewStatusCount = (
+  accountsOverview: array<accountStagingEntriesOverview>,
+  ~matchesStatus: processingEntryStatus => bool,
+): float => {
+  accountsOverview
+  ->Array.reduce(0, (acc, account) => {
+    account.status_breakdown->Array.reduce(acc, (innerAcc, statusAmount) =>
+      matchesStatus(statusAmount.status) ? innerAcc + statusAmount.count : innerAcc
+    )
+  })
   ->Int.toFloat
 }
 
-let getTotalProcessedEntries = (stagingEntries: array<processingEntryType>): float => {
-  stagingEntries
-  ->Array.filter(entry => entry.status == Processed)
-  ->Array.length
-  ->Int.toFloat
+let getTotalNeedsManualReviewEntries = (
+  accountsOverview: array<accountStagingEntriesOverview>,
+): float => {
+  accountsOverview->sumStagingOverviewStatusCount(~matchesStatus=status =>
+    status == NeedsManualReview
+  )
 }
 
-let getTotalEntries = (stagingEntries: array<processingEntryType>): float => {
-  stagingEntries
-  ->Array.filter(entry => entry.status != Archived && entry.status != Void)
-  ->Array.length
-  ->Int.toFloat
+let getTotalProcessedEntries = (accountsOverview: array<accountStagingEntriesOverview>): float => {
+  accountsOverview->sumStagingOverviewStatusCount(~matchesStatus=status => status == Processed)
+}
+
+let getTotalEntries = (accountsOverview: array<accountStagingEntriesOverview>): float => {
+  accountsOverview->sumStagingOverviewStatusCount(~matchesStatus=status =>
+    status != Archived && status != Void
+  )
 }
 
 let getViewStatusFilter = (view: transformedEntriesViewType): string => {
@@ -139,27 +166,28 @@ let getViewTypeFromStatus = (status: string): transformedEntriesViewType => {
   }
 }
 
-let cardDetails = (~stagingData: array<processingEntryType>) => {
+let cardDetails = (~stagingOverviewData: array<accountStagingEntriesOverview>) => {
   [
     {
       title: "Total Records",
-      value: valueFormatter(getTotalEntries(stagingData), Volume),
+      value: valueFormatter(getTotalEntries(stagingOverviewData), Volume),
       viewType: AllViewType,
     },
     {
       title: "Processed",
-      value: valueFormatter(getTotalProcessedEntries(stagingData), Volume),
+      value: valueFormatter(getTotalProcessedEntries(stagingOverviewData), Volume),
       viewType: ProcessedViewType,
     },
     {
       title: "Needs Manual Review",
-      value: valueFormatter(getTotalNeedsManualReviewEntries(stagingData), Volume),
+      value: valueFormatter(getTotalNeedsManualReviewEntries(stagingOverviewData), Volume),
       viewType: NeedsManualReviewViewType,
     },
     {
       title: "% Valid",
       value: valueFormatter(
-        getTotalProcessedEntries(stagingData) /. getTotalEntries(stagingData) *. 100.0,
+        getTotalProcessedEntries(stagingOverviewData) /.
+        getTotalEntries(stagingOverviewData) *. 100.0,
         Rate,
       ),
       viewType: UnknownTransformedEntriesViewType,

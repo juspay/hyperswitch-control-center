@@ -95,51 +95,49 @@ test.describe("Volume based payout routing", () => {
     ).toContainText(connectorLabel);
   });
 
-  test.fixme(
-    "should save new Volume based payout configuration",
-    async ({ page, context }) => {
-      const homePage = new HomePage(page);
-      const payoutRouting = new PayoutRouting(page);
-      const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
+  test("should save new Volume based payout configuration", async ({
+    page,
+    context,
+  }) => {
+    const homePage = new HomePage(page);
+    const payoutRouting = new PayoutRouting(page);
+    const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
-      if (merchantId) {
-        await createPayoutConnectorAPI(
-          merchantId,
-          "adyen_payout_1",
-          context.request,
-        );
-      }
-
-      await homePage.workflow.click();
-      await homePage.payoutRouting.click();
-      await payoutRouting.volumeBasedRoutingSetupButton.click();
-
-      await expect(page).toHaveURL(/.*payoutrouting\/volume/);
-
-      await volumeBasedConfiguration.configurationNameInput.clear();
-      await volumeBasedConfiguration.configurationNameInput.fill(
-        "Test volume based payout config",
+    const merchantId = await homePage.merchantID.nth(0).textContent();
+    if (merchantId) {
+      await createPayoutConnectorAPI(
+        merchantId,
+        "adyen_payout_1",
+        context.request,
       );
+    }
 
-      await volumeBasedConfiguration.connectorDropdown.click();
-      await volumeBasedConfiguration.connectorOption("adyen_payout_1").click();
-      await volumeBasedConfiguration.configureRuleButton.click();
-      await volumeBasedConfiguration.saveRuleButton.click();
+    await homePage.workflow.click();
+    await homePage.payoutRouting.click();
+    await payoutRouting.volumeBasedRoutingSetupButton.click();
 
-      await expect(
-        payoutRouting.dataToast("Successfully created a new configuration!"),
-      ).toContainText("Successfully created a new configuration!");
+    await expect(page).toHaveURL(/.*payoutrouting\/volume/);
 
-      await payoutRouting.configurationHistoryTab.click();
-      await expect(payoutRouting.historyCell(1, 2)).toContainText(
-        "Test volume based payout config",
-      );
-      await expect(payoutRouting.dataLabel("INACTIVE")).toContainText(
-        "INACTIVE",
-      );
-    },
-  );
+    await volumeBasedConfiguration.configurationNameInput.clear();
+    await volumeBasedConfiguration.configurationNameInput.fill(
+      "Test volume based payout config",
+    );
+
+    await volumeBasedConfiguration.connectorDropdown.click();
+    await volumeBasedConfiguration.connectorOption("adyen_payout_1").click();
+    await volumeBasedConfiguration.configureRuleButton.click();
+    await volumeBasedConfiguration.saveRuleButton.click();
+
+    await expect(
+      payoutRouting.dataToast("Successfully created a new configuration!"),
+    ).toContainText("Successfully created a new configuration!");
+
+    await payoutRouting.configurationHistoryTab.click();
+    await expect(payoutRouting.historyCell(1, 2)).toContainText(
+      "Test volume based payout config",
+    );
+    await expect(payoutRouting.dataLabel("INACTIVE")).toContainText("INACTIVE");
+  });
 
   test("should save and activate Volume based payout configuration", async ({
     page,
@@ -304,18 +302,17 @@ test.describe("Rule based payout routing", () => {
     );
 
     await ruleBasedConfiguration.selectFieldButton.click();
-    await ruleBasedConfiguration.dropdownOption("currency").click();
+    await page.getByRole('searchbox', { name: 'Search options...' }).fill("currency");
+    await page.getByText('currency', { exact: true }).click();
 
     await ruleBasedConfiguration.selectOperatorButton.click();
-    await ruleBasedConfiguration.dropdownOption("IS").click();
+    await page.getByText('IS', { exact: true }).click();
 
     await ruleBasedConfiguration.selectValueButton.click();
-    await ruleBasedConfiguration.dropdownOption("USD", 4).click();
+    await page.getByText('USD', { exact: true }).click();
 
     await ruleBasedConfiguration.addProcessorsButton.click();
-    await ruleBasedConfiguration
-      .dropdownOption("adyen_payout_operator_test")
-      .click();
+    await page.getByText('adyen_payout_operator_test', { exact: true }).click();
 
     await expect(
       ruleBasedConfiguration.firstAddConditionRowButton,
@@ -337,34 +334,22 @@ test.describe("Rule based payout routing", () => {
     );
 
     await ruleBasedConfiguration.selectFieldButton.click();
-    await ruleBasedConfiguration.dropdownOption("currency").click();
+    await page.getByText('currency', { exact: true }).click();
+    await expect(page.getByText('payment_method', { exact: true })).not.toBeVisible();
     await ruleBasedConfiguration.selectOperatorButton.click();
-    await expect(
-      page
-        .locator("div")
-        .filter({ hasText: /^ISCONTAINSIS_NOTNOT_CONTAINS$/ })
-        .nth(1),
-    ).toBeVisible();
+    await expect(page.locator("div").filter({ hasText: /^ISCONTAINSIS_NOTNOT_CONTAINS$/ }).nth(1)).toBeVisible();
 
     await page.getByRole("button", { name: "currency" }).click();
-    await ruleBasedConfiguration.dropdownOption("amount").click();
+    await page.locator('[data-id="amount"]').first().click({ force: true });
+    await expect(page.getByText('payment_method', { exact: true })).not.toBeVisible();
     await ruleBasedConfiguration.selectOperatorButton.click();
-    await expect(
-      page
-        .locator("div")
-        .filter({ hasText: /^EQUAL TOGREATER THANLESS THAN$/ })
-        .nth(1),
-    ).toBeVisible();
+    await expect(page.locator("div").filter({ hasText: /^EQUAL TOGREATER THANLESS THAN$/ }).nth(1)).toBeVisible();
 
     await page.getByRole("button", { name: "amount" }).click();
-    await ruleBasedConfiguration.dropdownOption("business_label").click();
+    await page.locator('[data-id="business_label"]').first().click({ force: true });
+    await expect(page.getByText('payment_method', { exact: true })).not.toBeVisible();
     await ruleBasedConfiguration.selectOperatorButton.click();
-    await expect(
-      page
-        .locator("div")
-        .filter({ hasText: /^EQUAL TONOT EQUAL_TO$/ })
-        .first(),
-    ).toBeVisible();
+    await expect(page.locator("div").filter({ hasText: /^EQUAL TONOT EQUAL_TO$/ }).first()).toBeVisible();
   });
 
   test("Rule editor logical operator AND OR toggle - changes logical operator value", async ({
@@ -855,18 +840,16 @@ test.describe("Payout Routing list - Configuration History", () => {
     );
 
     await ruleBasedConfiguration.selectFieldButton.click();
-    await ruleBasedConfiguration.dropdownOption("currency").click();
+    await page.getByText('currency', { exact: true }).click();
 
     await ruleBasedConfiguration.selectOperatorButton.click();
-    await ruleBasedConfiguration.dropdownOption("IS").click();
+    await page.getByText('IS', { exact: true }).click();
 
     await ruleBasedConfiguration.selectValueButton.click();
-    await ruleBasedConfiguration.dropdownOption("USD", 4).click();
+    await page.getByText('USD', { exact: true }).click();
 
     await ruleBasedConfiguration.addProcessorsButton.click();
-    await ruleBasedConfiguration
-      .dropdownOption("adyen_payout_routing_edit")
-      .click();
+    await page.getByText('adyen_payout_routing_edit', { exact: true }).click();
 
     await ruleBasedConfiguration.configureRuleButton.click();
 
@@ -886,7 +869,7 @@ test.describe("Payout Routing list - Configuration History", () => {
     await nameInput.fill("Rule payout edit updated");
 
     await page.getByRole("button", { name: "USD" }).click();
-    await ruleBasedConfiguration.dropdownOption("EUR", 4).click();
+    await page.getByText('EUR', { exact: true }).click();
     await ruleBasedConfiguration.configureRuleButton.click();
 
     await ruleBasedConfiguration.saveAndActivateRuleButton.click();
@@ -948,8 +931,8 @@ test.describe("Advanced payout rule connector selection modes", () => {
     await expect(ruleBasedConfiguration.distributeText).not.toBeVisible();
 
     await ruleBasedConfiguration.addProcessorsButton.click();
-    await ruleBasedConfiguration.dropdownOption("adyen_payout_rule_a").click();
-    await ruleBasedConfiguration.dropdownOption("adyen_payout_rule_b").click();
+    await page.getByRole('option', { name: 'adyen_payout_rule_a' }).click();
+    await page.getByRole('option', { name: 'adyen_payout_rule_b' }).click();
 
     await expect(ruleBasedConfiguration.distributeText).toBeVisible();
 
@@ -975,8 +958,8 @@ test.describe("Advanced payout rule connector selection modes", () => {
     const ruleBasedConfiguration = new RuleBasedConfiguration(page);
 
     await ruleBasedConfiguration.addProcessorsButton.click();
-    await ruleBasedConfiguration.dropdownOption("adyen_payout_rule_a").click();
-    await ruleBasedConfiguration.dropdownOption("adyen_payout_rule_b").click();
+    await page.getByRole('option', { name: 'adyen_payout_rule_a' }).click();
+    await page.getByRole('option', { name: 'adyen_payout_rule_b' }).click();
 
     let percentageInputs = page.locator('input[name="1"], input[name="2"]');
     await expect(percentageInputs).toHaveCount(0);
@@ -998,9 +981,9 @@ test.describe("Advanced payout rule connector selection modes", () => {
     const ruleBasedConfiguration = new RuleBasedConfiguration(page);
 
     await ruleBasedConfiguration.addProcessorsButton.click();
-    await ruleBasedConfiguration.dropdownOption("adyen_payout_rule_a").click();
-    await ruleBasedConfiguration.dropdownOption("adyen_payout_rule_b").click();
-    await ruleBasedConfiguration.dropdownOption("adyen_payout_rule_c").click();
+    await page.getByRole('option', { name: 'adyen_payout_rule_a' }).click();
+    await page.getByRole('option', { name: 'adyen_payout_rule_b' }).click();
+    await page.getByRole('option', { name: 'adyen_payout_rule_c' }).click();
 
     await ruleBasedConfiguration.distributeCheckboxNotSelected.nth(0).click();
     await page.waitForTimeout(300);
@@ -1023,10 +1006,11 @@ test.describe("Advanced payout rule connector selection modes", () => {
     const ruleBasedConfiguration = new RuleBasedConfiguration(page);
 
     await ruleBasedConfiguration.addProcessorsButton.click();
-    await ruleBasedConfiguration.dropdownOption("adyen_payout_rule_a").click();
-    await ruleBasedConfiguration.dropdownOption("adyen_payout_rule_b").click();
+    await page.getByRole('option', { name: 'adyen_payout_rule_a' }).click();
+    await page.getByRole('option', { name: 'adyen_payout_rule_b' }).click();
 
     await ruleBasedConfiguration.distributeCheckboxNotSelected.click();
+    await expect(page.getByRole('option', { name: 'adyen_payout_rule_a' })).not.toBeVisible();
 
     let percentageInputs = page.locator('input[name="1"], input[name="2"]');
     await expect(percentageInputs).toHaveCount(2);
@@ -1048,8 +1032,8 @@ test.describe("Advanced payout rule connector selection modes", () => {
     const ruleBasedConfiguration = new RuleBasedConfiguration(page);
 
     await ruleBasedConfiguration.addProcessorsButton.click();
-    await ruleBasedConfiguration.dropdownOption("adyen_payout_rule_a").click();
-    await ruleBasedConfiguration.dropdownOption("adyen_payout_rule_b").click();
+    await page.getByRole('option', { name: 'adyen_payout_rule_a' }).click();
+    await page.getByRole('option', { name: 'adyen_payout_rule_b' }).click();
 
     await ruleBasedConfiguration.distributeCheckboxNotSelected.click();
     await page.waitForTimeout(300);
@@ -1078,9 +1062,10 @@ test.describe("Advanced payout rule connector selection modes", () => {
     const ruleBasedConfiguration = new RuleBasedConfiguration(page);
 
     await ruleBasedConfiguration.addProcessorsButton.click();
-    await ruleBasedConfiguration.dropdownOption("adyen_payout_rule_a").click();
-    await ruleBasedConfiguration.dropdownOption("adyen_payout_rule_b").click();
-    await ruleBasedConfiguration.dropdownOption("adyen_payout_rule_c").click();
+    await page.getByRole('option', { name: 'adyen_payout_rule_a' }).click();
+    await page.getByRole('option', { name: 'adyen_payout_rule_b' }).click();
+    await page.getByRole('option', { name: 'adyen_payout_rule_c' }).click();
+
 
     await ruleBasedConfiguration.distributeCheckboxNotSelected.click();
 
@@ -1107,7 +1092,7 @@ test.describe("Advanced payout rule connector selection modes", () => {
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
 
     await ruleBasedConfiguration.addProcessorsButton.click();
-    await ruleBasedConfiguration.dropdownOption("adyen_payout_rule_a").click();
+    await page.getByRole('option', { name: 'adyen_payout_rule_a' }).click();
 
     const nameInput = ruleBasedConfiguration.configurationNameInput;
     await nameInput.click();
