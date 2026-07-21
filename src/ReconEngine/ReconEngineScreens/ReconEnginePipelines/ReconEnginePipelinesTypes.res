@@ -11,6 +11,8 @@ type pipelineStatCardClickAction =
   | SetStatusFilter(string)
   | NoAction
 
+type ingestionHistorySortOption = [#MostRecent | #NeedsAttention | #FileName]
+
 type pipelineStatCardData = {
   pipelineStatCardTitle: pipelineStatCardTitle,
   pipelineStatCardValue: valueType,

@@ -1,5 +1,6 @@
 open ReconEngineTypes
 open ReconEnginePipelinesUtils
+open Typography
 
 @react.component
 let make = (~accountData: array<ReconEngineTypes.accountType>) => {
@@ -15,6 +16,7 @@ let make = (~accountData: array<ReconEngineTypes.accountType>) => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (ingestionHistoryData, setIngestionHistoryData) = React.useState(_ => [])
   let (filteredHistoryData, setFilteredHistoryData) = React.useState(_ => [])
+  let (sortOption, setSortOption) = React.useState(_ => #MostRecent)
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
@@ -67,6 +69,36 @@ let make = (~accountData: array<ReconEngineTypes.accountType>) => {
     None
   }, [filterValue])
 
+  let sortedHistoryData = React.useMemo(() => {
+    filteredHistoryData->sortIngestionHistory(sortOption)
+  }, (filteredHistoryData, sortOption))
+
+  let sortOptionLabel = (sortOption :> string)->camelCaseToTitle
+
+  let sortDropdownOptions = ingestionHistorySortOptions->Array.map(opt => {
+    let label = (opt :> string)->camelCaseToTitle
+    {
+      HeadlessUISelectBox.label,
+      value: label,
+      isDisabled: false,
+      leftIcon: Button.NoIcon,
+      customTextStyle: None,
+      customIconStyle: None,
+      rightIcon: Button.NoIcon,
+      description: None,
+      customComponent: None,
+    }
+  })
+
+  let setSortOptionFromLabel = label => {
+    ingestionHistorySortOptions
+    ->Array.find(opt => (opt :> string)->camelCaseToTitle === label)
+    ->Option.forEach(opt => {
+      let nextOption = opt === sortOption ? #MostRecent : opt
+      setSortOption(_ => nextOption)
+    })
+  }
+
   let (accountOptions, connectorOptions) = React.useMemo(() => {
     let unwrappedHistory = ingestionHistoryData->Belt.Array.keepMap(Nullable.toOption)
     (getAccountOptions(accountData), getConnectorOptions(unwrappedHistory))
@@ -98,32 +130,47 @@ let make = (~accountData: array<ReconEngineTypes.accountType>) => {
       <LoadedTable
         title="Ingestion Runs"
         hideTitle=true
-        actualData={filteredHistoryData}
+        actualData={sortedHistoryData}
         entity={ReconEnginePipelinesTableEntity.pipelineIngestionHistoryTableEntity(
           "v1/recon-engine/pipelines",
           ~authorization=Access,
           ~accountData,
         )}
         resultsPerPage=10
-        totalResults={filteredHistoryData->Array.length}
+        totalResults={sortedHistoryData->Array.length}
         offset
         setOffset
-        currentFetchCount={filteredHistoryData->Array.length}
+        currentFetchCount={sortedHistoryData->Array.length}
         tableheadingClass="h-12"
         tableHeadingTextClass="!font-normal"
         nonFrozenTableParentClass="!rounded-lg"
         loadedTableParentClass="flex flex-col"
         enableEqualWidthCol=false
         showAutoScroll=true
-        filters={<TableSearchFilter
-          data={ingestionHistoryData}
-          filterLogic
-          placeholder="Search by File Name or Ingestion Name"
-          customSearchBarWrapperWidth="w-full lg:w-1/3"
-          customInputBoxWidth="w-full rounded-xl"
-          searchVal=searchText
-          setSearchVal=setSearchText
-        />}
+        filters={<div className="flex flex-row items-center gap-3 w-full">
+          <TableSearchFilter
+            data={ingestionHistoryData}
+            filterLogic
+            placeholder="Search by File Name or Ingestion Name"
+            customSearchBarWrapperWidth="w-full lg:w-1/3"
+            customInputBoxWidth="w-full rounded-xl"
+            searchVal=searchText
+            setSearchVal=setSearchText
+          />
+          <HeadlessUISelectBox
+            options=sortDropdownOptions
+            setValue=setSortOptionFromLabel
+            value={HeadlessUI.String(sortOptionLabel)}
+            dropdownPosition=Right
+            showTick=false
+            dropDownClass="w-52">
+            <div
+              className={`flex items-center gap-2 px-3 py-2 border rounded-lg bg-white h-10 hover:bg-nd_gray-50 cursor-pointer text-nd_gray-700 whitespace-nowrap ${body.md.medium}`}>
+              <div> {`Sort: ${sortOptionLabel}`->React.string} </div>
+              <Icon name="chevron-down" size=12 className="opacity-50" />
+            </div>
+          </HeadlessUISelectBox>
+        </div>}
       />
     </PageLoaderWrapper>
   </div>
