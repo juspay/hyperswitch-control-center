@@ -674,9 +674,11 @@ export async function createAuthenticationConnectorAPI(
   merchantId: string,
   connectorLabel: string,
   context?: APIRequestContext,
+  page?: Page,
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(
     `${API_URL}/account/${merchantId}/connectors`,
@@ -685,6 +687,7 @@ export async function createAuthenticationConnectorAPI(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
       },
       data: {
         connector_type: "authentication_processor",
