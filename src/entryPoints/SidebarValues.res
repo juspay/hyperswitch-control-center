@@ -247,6 +247,7 @@ let connectors = (
   ~isSurchargeProcessor,
   ~userHasResourceAccess,
   ~isCurrentMerchantPlatform,
+  ~isCurrentMerchantConnected,
 ) => {
   let connectorLinkArray = if isCurrentMerchantPlatform {
     let links = []
@@ -283,7 +284,7 @@ let connectors = (
       links->Array.push(surchargeProcessor(~userHasResourceAccess))->ignore
     }
 
-    if isVaultProcessor {
+    if isVaultProcessor && !isCurrentMerchantConnected {
       links->Array.push(vaultProcessor(~userHasResourceAccess))->ignore
     }
     links
@@ -305,13 +306,6 @@ let paymentAnalytcis = (~userHasResourceAccess) => SubLevelLink({
   link: `/analytics-payments`,
   access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("View analytics", "")],
-})
-
-let performanceMonitor = (~userHasResourceAccess) => SubLevelLink({
-  name: "Performance",
-  link: `/performance-monitor`,
-  access: userHasResourceAccess(~resourceAccess=Analytics),
-  searchOptions: [("View Performance", "")],
 })
 
 let newAnalytics = (~userHasResourceAccess) => SubLevelLink({
@@ -351,7 +345,6 @@ let authenticationAnalytics = (~userHasResourceAccess) => SubLevelLink({
 let analytics = (
   isAnalyticsEnabled,
   disputeAnalyticsFlag,
-  performanceMonitorFlag,
   newAnalyticsflag,
   routingAnalyticsFlag,
   ~authenticationAnalyticsFlag,
@@ -369,9 +362,6 @@ let analytics = (
     links->Array.unshift(newAnalytics(~userHasResourceAccess))
   }
 
-  if performanceMonitorFlag {
-    links->Array.push(performanceMonitor(~userHasResourceAccess))
-  }
   if routingAnalyticsFlag {
     links->Array.push(routingAnalytics(~userHasResourceAccess))
   }

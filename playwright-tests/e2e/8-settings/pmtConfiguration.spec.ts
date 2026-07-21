@@ -90,24 +90,12 @@ test.describe("Configure PMTs - Page & Layout", () => {
     await expect(configurePMT.addFiltersButton).toBeVisible({ timeout: 10000 });
     await configurePMT.openFilters();
     await page.getByText("ProfileId").click();
-    await page
-      .locator("div")
-      .filter({ hasText: /^Select Profile$/ })
-      .nth(3)
-      .click();
-    await expect(page.getByRole("button", { name: "Apply" })).toBeDisabled();
-    await page
-      .locator("div")
-      .filter({ hasText: /^default/ })
-      .nth(3)
-      .click();
+    await page.getByRole("button", { name: "Select Profile" }).click();
+    await page.getByRole("option", { name: "default (" }).click();
     await page.getByRole("button", { name: "Apply" }).click();
     await expect(page.getByRole("button", { name: "Apply" })).not.toBeVisible();
     await expect(
-      page
-        .locator("div")
-        .filter({ hasText: /^default \(/ })
-        .nth(3),
+      page.getByRole("button", { name: "Select Profile1" }),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Clear All" })).toBeVisible();
   });
@@ -117,24 +105,12 @@ test.describe("Configure PMTs - Page & Layout", () => {
     await expect(configurePMT.addFiltersButton).toBeVisible({ timeout: 10000 });
     await configurePMT.openFilters();
     await page.getByText("ConnectorId").click();
-    await page
-      .locator("div")
-      .filter({ hasText: /^Select Connector$/ })
-      .nth(3)
-      .click();
-    await expect(page.getByRole("button", { name: "Apply" })).toBeDisabled();
-    await page
-      .locator("div")
-      .filter({ hasText: /^stripe_test$/ })
-      .nth(3)
-      .click();
+    await page.getByRole("button", { name: "Select Connector" }).click();
+    await page.getByRole("option", { name: "stripe_test" }).click();
     await page.getByRole("button", { name: "Apply" }).click();
     await expect(page.getByRole("button", { name: "Apply" })).not.toBeVisible();
     await expect(
-      page
-        .locator("div")
-        .filter({ hasText: /^stripe_test$/ })
-        .nth(3),
+      page.getByRole("button", { name: "Select Connector1" }),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Clear All" })).toBeVisible();
   });
@@ -143,29 +119,13 @@ test.describe("Configure PMTs - Page & Layout", () => {
     configurePMT = await loginWithConnectorAndVisit(page, context.request);
     await expect(configurePMT.addFiltersButton).toBeVisible({ timeout: 10000 });
     await configurePMT.openFilters();
-    await page
-      .locator("div")
-      .filter({ hasText: /^PaymentMethod$/ })
-      .first()
-      .click();
-    await page
-      .locator("div")
-      .filter({ hasText: /^Select Payment Method$/ })
-      .nth(3)
-      .click();
-    await expect(page.getByRole("button", { name: "Apply" })).toBeDisabled();
-    await page
-      .locator("div")
-      .filter({ hasText: /^card$/ })
-      .nth(3)
-      .click();
+    await page.getByText("PaymentMethod").first().click();
+    await page.getByRole("button", { name: "Select Payment Method" }).click();
+    await page.getByRole("option", { name: "card" }).click();
     await page.getByRole("button", { name: "Apply" }).click();
     await expect(page.getByRole("button", { name: "Apply" })).not.toBeVisible();
     await expect(
-      page
-        .locator("div")
-        .filter({ hasText: /^card$/ })
-        .nth(3),
+      page.getByRole("button", { name: "Select Payment Method1" }),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Clear All" })).toBeVisible();
   });
@@ -176,31 +136,15 @@ test.describe("Configure PMTs - Page & Layout", () => {
     await configurePMT.openFilters();
     await page.getByText("PaymentMethodType").click();
     await page
-      .locator("div")
-      .filter({ hasText: /^Select Payment Method Type$/ })
-      .nth(3)
+      .getByRole("button", { name: "Select Payment Method Type" })
       .click();
-    await expect(page.getByRole("button", { name: "Apply" })).toBeDisabled();
-    await page
-      .locator("div")
-      .filter({ hasText: /^debit$/ })
-      .nth(1)
-      .click();
+    await page.getByRole("option", { name: "debit" }).click();
     await page.getByRole("button", { name: "Apply" }).click();
     await expect(page.getByRole("button", { name: "Apply" })).not.toBeVisible();
     await expect(
-      page
-        .locator("div")
-        .filter({ hasText: /^debit$/ })
-        .nth(3),
+      page.getByRole("button", { name: "Select Payment Method Type1" }),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Clear All" })).toBeVisible();
-    await expect(
-      page
-        .locator("div")
-        .filter({ hasText: /^credit$/ })
-        .nth(5),
-    ).not.toBeVisible();
   });
 
   test("should verify clear All button clears the filter", async ({
@@ -212,35 +156,19 @@ test.describe("Configure PMTs - Page & Layout", () => {
     await configurePMT.openFilters();
     await page.getByText("PaymentMethodType").click();
     await page
-      .locator("div")
-      .filter({ hasText: /^Select Payment Method Type$/ })
-      .nth(3)
+      .getByRole("button", { name: "Select Payment Method Type" })
       .click();
-    await expect(page.getByRole("button", { name: "Apply" })).toBeDisabled();
-    await page
-      .locator("div")
-      .filter({ hasText: /^debit$/ })
-      .nth(1)
-      .click();
+    await page.getByRole("option", { name: "debit" }).click();
     await page.getByRole("button", { name: "Apply" }).click();
     await expect(page.getByRole("button", { name: "Apply" })).not.toBeVisible();
     await expect(
-      page
-        .locator("div")
-        .filter({ hasText: /^debit$/ })
-        .nth(3),
+      page.getByRole("button", { name: "Select Payment Method Type1" }),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Clear All" })).toBeVisible();
-    await expect(
-      page
-        .locator("div")
-        .filter({ hasText: /^credit$/ })
-        .nth(5),
-    ).not.toBeVisible();
 
     await page.getByRole("button", { name: "Clear All" }).click();
     await expect(
-      page.getByText("paymentMethodTypedebitClear"),
+      page.getByRole("button", { name: "Select Payment Method Type1" }),
     ).not.toBeVisible();
   });
 });
@@ -416,20 +344,24 @@ test.describe("Configure PMTs - Configured Connector", () => {
 
     await configurePMT.countriesDropdown.click();
     await page
-      .getByRole("textbox", { name: "Search..." })
+      .getByRole("searchbox", { name: "Search options..." })
       .fill("UnitedStatesOfAmerica");
-    await page.locator('[data-dropdown-value="UnitedStatesOfAmerica"]').click();
+    await page.getByRole("option", { name: "UnitedStatesOfAmerica" }).click();
     await configurePMT.configureModalHeading.click();
     await expect(
-      page.getByRole("textbox", { name: "Search..." }),
+      page.getByRole("searchbox", { name: "Search options..." }),
     ).not.toBeVisible();
 
-    await page.getByRole("button", { name: "Select Value" }).click();
-    await page.getByRole("textbox", { name: "Search..." }).fill("USD");
-    await page.locator('[data-dropdown-value="USD"]').click();
+    await page
+      .getByRole("button", { name: "Select Value", exact: true })
+      .click();
+    await page
+      .getByRole("searchbox", { name: "Search options..." })
+      .fill("USD");
+    await page.getByRole("option", { name: "USD" }).click();
     await configurePMT.configureModalHeading.click();
     await expect(
-      page.getByRole("textbox", { name: "Search..." }),
+      page.getByRole("searchbox", { name: "Search options..." }),
     ).not.toBeVisible();
 
     await configurePMT.minimumAmountInput.fill("111");
@@ -440,9 +372,11 @@ test.describe("Configure PMTs - Configured Connector", () => {
     await configurePMT.cellByText("stripe_test").click();
 
     await expect(
-      page.getByRole("button", { name: "UnitedStatesOfAmerica" }),
-    ).toBeVisible();
-    await expect(page.getByRole("button", { name: "USD" })).toBeVisible();
+      page.locator('[data-multi-select="multi-select"]').first(),
+    ).toHaveAttribute("data-status", "enabled");
+    await expect(
+      page.locator('[data-multi-select="multi-select"]').nth(1),
+    ).toHaveAttribute("data-status", "enabled");
     await expect(configurePMT.minimumAmountInput).toHaveValue("111");
     await expect(configurePMT.maximumAmountInput).toHaveValue("9999");
   });

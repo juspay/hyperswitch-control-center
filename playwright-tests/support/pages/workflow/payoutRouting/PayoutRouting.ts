@@ -68,7 +68,7 @@ export class PayoutRouting {
   }
 
   dataToast(text: string): Locator {
-    return this.page.locator(`[data-toast="${text}"]`);
+    return this.page.locator(`[data-id="${text}"]`);
   }
 
   dataLabel(label: string): Locator {

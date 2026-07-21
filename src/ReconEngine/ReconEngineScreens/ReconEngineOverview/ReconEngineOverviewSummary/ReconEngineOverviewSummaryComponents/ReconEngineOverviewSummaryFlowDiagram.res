@@ -198,8 +198,7 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (selectedNodeId, setSelectedNodeId) = React.useState(_ => None)
   let (allData, setAllData) = React.useState(_ => None)
-  let getTransactions = ReconEngineHooks.useGetTransactions()
-  let getAccounts = ReconEngineHooks.useGetAccounts()
+  let getRuleAccountBreakdown = ReconEngineHooks.useGetRuleAccountBreakdown()
   let (reactFlowNodes, setNodes, onNodesChange) = useNodesState([])
   let (reactFlowEdges, setEdges, onEdgesChange) = useEdgesState([])
   let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
@@ -255,41 +254,15 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   let getAccountsData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let accountData = await getAccounts()
 
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
-      let statusList =
-        ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
-          Posted(Manual),
-          Matched(Auto),
-          Matched(Manual),
-          Matched(Force),
-          Expected,
-          Missing,
-          PartiallyReconciled,
-          OverAmount(Mismatch),
-          OverAmount(Expected),
-          UnderAmount(Mismatch),
-          UnderAmount(Expected),
-          DataMismatch,
-        ])->Array.joinWith(",")
+      let ruleAccountsOverview = await getRuleAccountBreakdown(~queryParameters=Some(queryString))
 
-      let allTransactions = await getTransactions(
-        ~queryParameters=Some(`${queryString}&status=${statusList}`),
-      )
-      let accountTransactionData = processAllTransactionsWithAmounts(
-        reconRulesList,
-        allTransactions,
-        accountData,
-      )
-
-      setAllData(_ => Some((reconRulesList, accountData, accountTransactionData, allTransactions)))
+      setAllData(_ => Some(ruleAccountsOverview))
 
       let (nodes, edges) = generateNodesAndEdgesWithTransactionAmounts(
         reconRulesList,
-        accountData,
-        accountTransactionData,
-        allTransactions,
+        ruleAccountsOverview,
         ~selectedNodeId,
         ~onNodeClick=handleNodeClick,
       )
@@ -315,12 +288,10 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
 
   React.useEffect(() => {
     switch allData {
-    | Some((reconRulesList, accountData, accountTransactionData, allTransactions)) => {
+    | Some(ruleAccountsOverview) => {
         let (nodes, edges) = generateNodesAndEdgesWithTransactionAmounts(
           reconRulesList,
-          accountData,
-          accountTransactionData,
-          allTransactions,
+          ruleAccountsOverview,
           ~selectedNodeId,
           ~onNodeClick=handleNodeClick,
         )

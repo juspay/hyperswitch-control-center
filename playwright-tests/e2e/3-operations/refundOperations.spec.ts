@@ -10,6 +10,7 @@ import {
   createPaymentAPI,
   createRefundAPI,
 } from "../../support/commands";
+import PaymentOperations from "../../support/pages/operations/PaymentOperations";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 const refundColumnSize = 12;
@@ -242,18 +243,17 @@ test.describe("Refunds Operations", () => {
       }) => {
         const homePage = new HomePage(page);
 
-        const refundOperations = new RefundOperations(page);
+        const paymentOperations = new PaymentOperations(page);
         await setupRefund(homePage, context.request);
 
         await goToRefunds(page, homePage);
 
-        const dateSelector = refundOperations.dateSelector;
-        await dateSelector.click();
-        await page
-          .locator('[data-daterange-dropdown-value="Last 30 Days"]')
-          .click();
+        await paymentOperations.customDateRangeButton.click();
+        await page.getByRole("menuitem", { name: "Last 30 minutes" }).click();
 
-        await expect(dateSelector).toContainText("Last 30 Days");
+        await expect(
+          page.getByRole("button", { name: "Last 30 minutes" }),
+        ).toContainText("Last 30 minutes");
       });
     });
 
@@ -295,13 +295,9 @@ test.describe("Refunds Operations", () => {
 
         // Connector — open dropdown and select first option (Stripe Dummy)
         await refundOperations.addFilters.click();
-        await page
-          .locator("div")
-          .filter({ hasText: /^Connector$/ })
-          .first()
-          .click();
+        await page.getByLabel("Add Filters").getByText("Connector").click();
         await page.getByText("Select Connector").click();
-        await page.locator('[value="Stripe Dummy"]').click();
+        await page.getByRole("option", { name: "Stripe Dummy" }).click();
         await refundOperations.applyButton.click();
         await expect(page.getByText("Stripe Dummy").first()).toBeVisible();
         await expect(
@@ -310,28 +306,22 @@ test.describe("Refunds Operations", () => {
 
         // Currency — select USD (first matching value)
         await refundOperations.addFilters.click();
-        await page
-          .locator("div")
-          .filter({ hasText: /^Currency$/ })
-          .first()
-          .click();
+        await page.getByLabel("Add Filters").getByText("Currency").click();
         await page.getByText("Select Currency").click();
-        await page.locator('[placeholder="Search..."]').fill("USD");
-        await page.locator('[data-searched-text="USD"]').click();
+        await page
+          .getByRole("searchbox", { name: "Search options..." })
+          .fill("USD");
+        await page.getByRole("option", { name: "USD" }).click();
         await refundOperations.applyButton.click();
         await expect(page.getByText("USD").first()).toBeVisible();
 
         // Refund Status — select Succeeded (first option)
         await refundOperations.addFilters.click();
-        await page
-          .locator("div")
-          .filter({ hasText: /^Refund Status$/ })
-          .first()
-          .click();
+        await page.getByLabel("Add Filters").getByText("Refund Status").click();
         await page
           .locator('[data-component-field-wrapper="field-refund_status"]')
           .click();
-        await page.locator('[value="success"]').click();
+        await page.getByRole("option", { name: "success" }).click();
         await refundOperations.applyButton.click();
         await expect(page.getByText("Succeeded").first()).toBeVisible();
 

@@ -44,7 +44,7 @@ export class Webhooks {
   }
 
   get dateRangeFilter(): Locator {
-    return this.page.getByRole("button", { name: /Now/ }).first();
+    return this.page.locator('div').filter({ hasText: /^CustomSelect date range$/ }).first();
   }
 
   get notConfiguredMessage(): Locator {

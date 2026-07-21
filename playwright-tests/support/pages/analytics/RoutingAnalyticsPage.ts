@@ -200,7 +200,7 @@ export class RoutingAnalyticsPage {
   }
 
   get filterSearchInput(): Locator {
-    return this.page.getByPlaceholder("Search name or ID...");
+    return this.page.getByRole('searchbox', { name: 'Search options...' });
   }
 
   // A dimension row inside the open Add Filters popup. Each row carries
@@ -208,7 +208,7 @@ export class RoutingAnalyticsPage {
   // "Status"). The DynamicFilter renders the dimension in two panels, so scope
   // to the first match.
   dimensionOption(label: string): Locator {
-    return this.page.locator(`[data-dropdown-value="${label}"]`).first();
+    return this.page.locator(`[data-id="${label}"]`).first();
   }
 
   // The button is wrapped by an overlay span that swallows the actionability
@@ -265,19 +265,17 @@ export class RoutingAnalyticsPage {
   // Rendered by the page's DynamicFilter initialFixedFilters. The trigger button
   // carries data-testid="date-range-selector" and its label shows the active range.
   get dateRangeSelector(): Locator {
-    return this.page.getByTestId("date-range-selector");
+    return this.page.locator('[data-element="preset-selector"]');
   }
 
   // The predefined-options column inside the open date picker dropdown.
   get predefinedDateOptions(): Locator {
-    return this.page.locator(
-      '[data-date-picker-predefined="predefined-options"]',
-    );
+    return this.page.getByText('Last 30 minutesLast 1');
   }
 
   // A single preset row (e.g. "Last 7 Days", "Last 30 Days", "This Month").
   predefinedDateOption(label: string): Locator {
-    return this.page.locator(`[data-daterange-dropdown-value="${label}"]`);
+    return this.page.getByRole('menuitem', { name: `${label}` });
   }
 
   get customRangeOption(): Locator {
