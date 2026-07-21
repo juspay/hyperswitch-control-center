@@ -35,7 +35,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
       setSelectedFile(_ => None)
       clearFileInput()
     } else if fileSize > maxFileSizeBytes {
-      showToast(~message="File size should not exceed 8 MB", ~toastType=ToastError)
+      showToast(~message="File size should not exceed 25 MB", ~toastType=ToastError)
       setSelectedFile(_ => None)
       clearFileInput()
     } else {
@@ -177,7 +177,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
                 {"Choose a file or drag & drop it here"->React.string}
               </div>
               <div className={`${body.md.medium} text-nd_gray-500`}>
-                {".csv,.ext,.xlsx,.txt only | Max size 8 MB"->React.string}
+                {".csv,.ext,.xlsx,.txt only | Max size 25 MB"->React.string}
               </div>
             </div>
             <div

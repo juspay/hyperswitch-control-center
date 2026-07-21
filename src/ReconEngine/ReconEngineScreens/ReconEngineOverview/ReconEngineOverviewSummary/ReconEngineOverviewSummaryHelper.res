@@ -2,19 +2,6 @@ open ReconEngineOverviewSummaryTypes
 open ReconEngineOverviewSummaryUtils
 open Typography
 
-module TabButton = {
-  @react.component
-  let make = (~label, ~count, ~isActive, ~onClick) => {
-    <div
-      className={`px-3 py-1 rounded-md cursor-pointer ${body.sm.medium} ${isActive
-          ? "bg-white text-nd_gray-800 shadow-sm"
-          : "text-nd_gray-500"} transition-colors`}
-      onClick>
-      {`${label} (${count->Int.toString})`->React.string}
-    </div>
-  }
-}
-
 module TabSwitch = {
   @react.component
   let make = (~viewType: viewType, ~setViewType) => {
