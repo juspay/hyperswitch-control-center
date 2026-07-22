@@ -62,21 +62,29 @@ let buildTransactionsV2Body = (
 
   let startTime = filterValueJson->getString("startTime", "")
   let endTime = filterValueJson->getString("endTime", "")
-  let hasTimeRange = startTime->isNonEmptyString && endTime->isNonEmptyString
-
+  let hasStartTime = startTime->isNonEmptyString
+  let hasEndTime = endTime->isNonEmptyString
+  let hasBothTimeRanges = hasStartTime && hasEndTime
   let filters =
     [
       ruleId->isNonEmptyString ? Some(("rule_id", ruleId->JSON.Encode.string)) : None,
       Some(("status", statusValues->getJsonFromArrayOfString)),
-      hasTimeRange
-        ? Some((
-            "time_range",
-            [
-              ("start_time", startTime->JSON.Encode.string),
-              ("end_time", endTime->JSON.Encode.string),
-            ]->getJsonFromArrayOfJson,
-          ))
-        : None,
+      if hasBothTimeRanges {
+        Some((
+          "time_range",
+          [
+            ("start_time", startTime->JSON.Encode.string),
+            ("end_time", endTime->JSON.Encode.string),
+          ]->getJsonFromArrayOfJson,
+        ))
+      } else if hasStartTime {
+        Some((
+          "time_range",
+          [("start_time", startTime->JSON.Encode.string)]->getJsonFromArrayOfJson,
+        ))
+      } else {
+        None
+      },
       searchText->isNonEmptyString
         ? Some(((searchType :> string), searchText->String.trim->JSON.Encode.string))
         : None,
