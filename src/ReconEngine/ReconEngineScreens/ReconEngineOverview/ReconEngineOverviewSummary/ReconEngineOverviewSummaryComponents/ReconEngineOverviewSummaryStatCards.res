@@ -75,6 +75,28 @@ let make = () => {
     )
   }, (overviewRules, stagingOverviewData, failedTransformationHistory, failedIngestionHistory))
 
+  let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
+  let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
+
+  let appendDateFilters = path => {
+    let startTime = filterValueJson->getString(startTimeFilterKey, "")
+    let endTime = filterValueJson->getString(endTimeFilterKey, "")
+    if (
+      path->String.includes("exceptions") &&
+      startTime->isNonEmptyString &&
+      endTime->isNonEmptyString
+    ) {
+      let dateQuery =
+        [(startTimeFilterKey, startTime), (endTimeFilterKey, endTime)]
+        ->Dict.fromArray
+        ->FilterUtils.parseFilterDictV2
+      let separator = path->String.includes("?") ? "&" : "?"
+      `${path}${separator}${dateQuery}`
+    } else {
+      path
+    }
+  }
+
   <div className="flex flex-col gap-6">
     <div
       className="grid xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-x-4 gap-y-6 mt-4">
@@ -92,7 +114,9 @@ let make = () => {
             description=card.statCardDescription
             cardType=card.statCardType
             onStatCardClick={() =>
-              card.statCardPath->mapOptionOrDefault((), path => RescriptReactRouter.push(path))}
+              card.statCardPath->mapOptionOrDefault((), path =>
+                RescriptReactRouter.push(path->appendDateFilters)
+              )}
           />
         </PageLoaderWrapper>
       })
@@ -113,7 +137,7 @@ let make = () => {
             cardType=card.connectedStatCardType
             onConnectedStatCardClick={() => {
               card.connectedStatCardPath->mapOptionOrDefault((), path =>
-                RescriptReactRouter.push(path)
+                RescriptReactRouter.push(path->appendDateFilters)
               )
             }}
           />

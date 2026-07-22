@@ -25,7 +25,6 @@ let make = (~ruleId: string) => {
   let searchTypeRef = React.useRef(SearchTransactionId)
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
   let url = RescriptReactRouter.useUrl()
-  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {
     updateExistingKeys,
     filterValueJson,
@@ -35,10 +34,6 @@ let make = (~ruleId: string) => {
   } = React.useContext(FilterContext.filterContext)
   let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
   let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
-
-  let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="recon_engine_exception_transaction_date_filter_opened")
-  }
 
   let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
   let title = "Exception Transactions"
@@ -106,15 +101,6 @@ let make = (~ruleId: string) => {
     goToFirstPage()
   }
 
-  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~updateExistingKeys,
-    ~startTimeFilterKey,
-    ~endTimeFilterKey,
-    ~range=180,
-    ~origin="recon_engine_exception_transaction",
-    (),
-  )
-
   React.useEffect(() => {
     fetchAccountsAndRules()->ignore
     let urlSearch = url.search
@@ -134,7 +120,6 @@ let make = (~ruleId: string) => {
         }
       }
     }
-    setInitialFilters()
     None
   }, [])
 
@@ -183,10 +168,7 @@ let make = (~ruleId: string) => {
         initialFilters={initialDisplayFilters()}
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
-          null,
-          ~events=dateDropDownTriggerMixpanelCallback,
-        )}
+        initialFixedFilters={[]}
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames=filterKeys
         key="ReconEngineExceptionTransactionFilters"
