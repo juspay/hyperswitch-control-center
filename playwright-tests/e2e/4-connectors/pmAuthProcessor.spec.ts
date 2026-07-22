@@ -21,7 +21,7 @@ async function signupAndLogin(page: Page, context: BrowserContext) {
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   const merchantId = await homePage.merchantID.nth(0).textContent();
   if (merchantId) {
-    await createDummyConnectorAPI(merchantId, "stripe_test_1", context.request);
+    await createDummyConnectorAPI(merchantId, "stripe_test_1", context.request, page);
   }
 }
 
@@ -71,6 +71,7 @@ test.describe("Live PM Auth Processors", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page
       );
     }
   });
