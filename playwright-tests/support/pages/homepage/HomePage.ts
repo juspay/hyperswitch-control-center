@@ -229,6 +229,10 @@ export class HomePage {
     return this.page.locator('[data-testid="webhooks"]');
   }
 
+  get blocklist(): Locator {
+    return this.page.locator('[data-testid="blocklist"]');
+  }
+
   get settings(): Locator {
     return this.page.locator('[data-testid="settings"]');
   }
