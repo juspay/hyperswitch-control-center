@@ -132,51 +132,33 @@ test.describe("Users - UI", () => {
     const rows = usersPage.usersTableRows;
     await expect(rows).toHaveCount(3);
     await expect(rows.filter({ hasText: "Organization Admin" })).toHaveCount(1);
-    await expect(
-      rows
-        .filter({ hasText: merchantInvitee })
-        .filter({ hasText: "Merchant Developer" }),
-    ).toHaveCount(1);
-    await expect(
-      rows
-        .filter({ hasText: profileInvitee })
-        .filter({ hasText: "Profile Developer" }),
-    ).toHaveCount(1);
+    await expect(rows.filter({ hasText: merchantInvitee }).filter({ hasText: "Merchant Developer" })).toHaveCount(1);
+    await expect(rows.filter({ hasText: profileInvitee }).filter({ hasText: "Profile Developer" })).toHaveCount(1);
 
     const applyFilter = async (filterLabel: string) => {
       await usersPage.settingsNewIcon.click({ force: true });
-      const valueSelector =
-        filterLabel === "(Default)"
-          ? '[data-dropdown-value="All"]'
-          : filterLabel === "(Profile)"
-            ? '[data-dropdown-value="default"]'
-            : '[data-dropdown-value^="playwright"]';
       await page
-        .locator(valueSelector)
-        .filter({ hasText: filterLabel })
-        .first()
+        .getByRole('menuitem', { name: filterLabel })
         .click();
     };
 
     // Filter by Organization → Org Admin shows
     await applyFilter("(Organization)");
     await expect(rows.filter({ hasText: "Organization Admin" })).toHaveCount(1);
+    await expect(rows.filter({ hasText: merchantInvitee }).filter({ hasText: "Merchant Developer" })).not.toBeVisible();
+    await expect(rows.filter({ hasText: profileInvitee }).filter({ hasText: "Profile Developer" })).not.toBeVisible();
 
     // Filter by Merchant → Merchant Developer shows with the right role
     await applyFilter("(Merchant)");
-    await expect(
-      rows
-        .filter({ hasText: merchantInvitee })
-        .filter({ hasText: "Merchant Developer" }),
-    ).toHaveCount(1);
+    await expect(rows.filter({ hasText: merchantInvitee }).filter({ hasText: "Merchant Developer" })).toHaveCount(1);
+    await expect(rows.filter({ hasText: "Organization Admin" })).not.toBeVisible();
+    await expect(rows.filter({ hasText: profileInvitee }).filter({ hasText: "Profile Developer" })).not.toBeVisible();
 
     // Filter by Profile → Profile Developer shows with the right role
     await applyFilter("(Profile)");
-    await expect(
-      rows
-        .filter({ hasText: profileInvitee })
-        .filter({ hasText: "Profile Developer" }),
-    ).toHaveCount(1);
+    await expect(rows.filter({ hasText: profileInvitee }).filter({ hasText: "Profile Developer" })).toHaveCount(1);
+    await expect(rows.filter({ hasText: "Organization Admin" })).not.toBeVisible();
+    await expect(rows.filter({ hasText: merchantInvitee }).filter({ hasText: "Merchant Developer" })).not.toBeVisible();
 
     // Reset to default view → all 3 rows visible again
     await applyFilter("(Default)");
@@ -1033,14 +1015,8 @@ test.describe("Users - Roles Tab", () => {
     ): Promise<ApiRole[]> => {
       const responsePromise = waitForRolesResponse(entityKey);
       await usersPage.settingsNewIcon.click({ force: true });
-      const valueSelector =
-        entityLabel === "Profile"
-          ? '[data-dropdown-value="default"]'
-          : '[data-dropdown-value^="playwright"]';
       await page
-        .locator(valueSelector)
-        .filter({ hasText: `(${entityLabel})` })
-        .first()
+        .getByRole('menuitem', { name: entityLabel })
         .click();
       return (await (await responsePromise).json()) as ApiRole[];
     };
@@ -1194,7 +1170,8 @@ test.describe("Users - Create Custom Role", () => {
       // and would wipe any role_name we'd already filled. Selecting the same
       // value as current is a no-op (handleEntityTypeChange:230 short-circuits).
       await usersPage.entityTypeButton.click();
-      await page.locator(`[data-dropdown-value="${r.entity}"]`).first().click();
+      await page.getByRole('menuitem', { name: r.entity }).click();
+      await expect(page.getByRole('menuitem', { name: r.entity })).not.toBeVisible();
 
       // Wait for the permission table to be (re)rendered for the new entity
       // before touching downstream fields.
@@ -1212,7 +1189,7 @@ test.describe("Users - Create Custom Role", () => {
       // UserManagementUtils.res:30. SelectBox options carry
       // data-dropdown-value=<labelText>.
       await usersPage.roleScopeButton.click();
-      await page.locator(`[data-dropdown-value="${r.scope}"]`).first().click();
+      await page.getByRole('menuitem', { name: r.scope }).click();
 
       // Form validation requires at least one parent_group with a non-empty
       // scope. AddDataAttributes spreads `data-selected-checkbox` onto the
@@ -1220,11 +1197,11 @@ test.describe("Users - Create Custom Role", () => {
       // the element also has `cursor-pointer`. Modules whose API scopes lack
       // "read"/"write" render with `cursor-not-allowed` and ignore clicks —
       // pick the first ENABLED checkbox anywhere in the table.
-      const firstEnabledCheckbox = page
-        .locator(
-          "div.border.border-nd_gray-150.rounded-lg [data-selected-checkbox][class*='cursor-pointer']",
-        )
-        .first();
+      const firstEnabledCheckbox = page.getByRole('checkbox').nth(1);
+      // .locator(
+      //   "div.border.border-nd_gray-150.rounded-lg [data-selected-checkbox][class*='cursor-pointer']",
+      // )
+      // .first();
       await expect(firstEnabledCheckbox).toBeVisible();
       await firstEnabledCheckbox.click();
 

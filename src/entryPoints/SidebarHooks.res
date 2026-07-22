@@ -6,6 +6,7 @@ open HyperswitchAtom
 
 let useGetHsSidebarValues = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let connectorListForLive = connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
   let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {userEntity} = getResolvedUserInfo()
@@ -19,7 +20,6 @@ let useGetHsSidebarValues = () => {
     disputeAnalytics,
     configurePmts,
     complianceCertificate,
-    performanceMonitor: performanceMonitorFlag,
     pmAuthenticationProcessor,
     taxProcessor,
     newAnalytics,
@@ -80,10 +80,10 @@ let useGetHsSidebarValues = () => {
       ~isSurchargeProcessor=surchargeProcessor,
       ~isCurrentMerchantPlatform,
       ~isCurrentMerchantConnected,
+      ~connectorListForLive,
     ),
     default->analytics(
       disputeAnalytics,
-      performanceMonitorFlag,
       isNewAnalyticsEnable,
       routingAnalytics,
       ~authenticationAnalyticsFlag=authenticationAnalytics,

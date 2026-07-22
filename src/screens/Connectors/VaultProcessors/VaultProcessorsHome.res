@@ -223,7 +223,7 @@ let make = () => {
                   isUpdateFlow selectedConnector={connectorName}
                 />
               </div>
-              <div className="flex flex-col gap-2 p-2 md:p-10">
+              <div className="flex flex-col gap-2 p-2 md:px-10">
                 <div className="grid grid-cols-2 flex-1">
                   <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
                     connector={connectorName->getConnectorNameTypeFromString(

@@ -26,7 +26,8 @@ let make = () => {
   let fetchApi = AuthHooks.useApiFetcher()
   let (usButtonState, setUsButtonState) = React.useState(_ => Button.Normal)
   let (euButtonState, setEuButtonState) = React.useState(_ => Button.Normal)
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let downloadPDF = (~downloadURL, ~region, ~setButtonState) => _ => {
     setButtonState(_ => Button.Loading)
@@ -39,7 +40,7 @@ let make = () => {
     // For local testing this condition is added
     if downloadURL->LogicUtils.isNonEmptyString {
       open Promise
-      fetchApi(downloadURL, ~method_=Get, ~xFeatureRoute, ~forceCookies)
+      fetchApi(downloadURL, ~method_=Get, ~xFeatureRoute, ~forceCookies, ~sendV1DummyApiKeyHeader)
       ->then(resp => {
         Fetch.Response.blob(resp)
       })

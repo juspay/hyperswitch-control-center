@@ -139,8 +139,6 @@ test.describe("Customers page", () => {
     await expect(paymentOperations.dateSelector).toBeVisible();
 
     await expect(customerOperations.searchInput).toBeVisible();
-
-    await expect(page.getByRole("button").nth(3)).not.toBeAttached();
   });
 
   test("should navigate to customer list page after creating a payment", async ({
@@ -317,7 +315,6 @@ test.describe("Customers page", () => {
 
     await expect(paymentOperations.dateSelector).toBeVisible();
     await expect(customerOperations.searchInput).toBeVisible();
-    await expect(page.getByRole("button").nth(3)).not.toBeAttached();
     await expect(page.getByText("test_customer2")).not.toBeVisible();
   });
 

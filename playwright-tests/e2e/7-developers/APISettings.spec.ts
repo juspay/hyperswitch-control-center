@@ -337,10 +337,8 @@ test.describe("API Key Management", () => {
     const timestamp = Date.now();
     const keyName = `ExpiryTestKey ${timestamp}`;
 
-    const today = new Date();
-    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 10);
-    const monthShort = nextMonth.toLocaleString("en-US", { month: "short" });
-    const expectedDateLabel = `${monthShort} 10, ${nextMonth.getFullYear()}`;
+    await page.clock.setFixedTime(new Date("2026-07-01T14:00:00"));
+    const expectedDateLabel = "Jul 20, 2026";
 
     await homePage.developer.click();
     await homePage.apiKeys.click();
@@ -358,8 +356,8 @@ test.describe("API Key Management", () => {
 
     await apiSettings.selectDateButton.click();
 
-    await apiSettings.chevronRight.click();
-    await apiSettings.dayOfMonth("10").click();
+    await page.getByRole('button', { name: 'Monday, July 20,' }).click();
+    await apiSettings.applyButton.click();
     await apiSettings.createButton.click();
 
     await apiSettings.downloadKeyButton.click();
