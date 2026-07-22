@@ -92,8 +92,7 @@ let make = () => {
         setSelectedFile(_ => None)
         showToast(~message="Please upload a valid CSV file.", ~toastType=ToastError)
       }
-    | None =>
-      setSelectedFile(_ => None)
+    | None => setSelectedFile(_ => None)
     }
   }
 

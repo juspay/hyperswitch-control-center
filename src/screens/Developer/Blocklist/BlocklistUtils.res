@@ -25,7 +25,10 @@ let itemToObjMapper = dict => {
 
 let getJobsFromResponse = json => {
   let dict = json->getDictFromJsonObject
-  dict->getArrayFromDict("data", [])->Array.filterMap(JSON.Decode.object)->Array.map(itemToObjMapper)
+  dict
+  ->getArrayFromDict("data", [])
+  ->Array.filterMap(JSON.Decode.object)
+  ->Array.map(itemToObjMapper)
 }
 
 let getTotalCountFromResponse = (json, fallback) => {
