@@ -3,6 +3,29 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.07.22.1
+
+### Features
+
+- Support uploading multiple recon files ([#5214](https://github.com/juspay/hyperswitch-control-center/pull/5214)) ([`a441acb`](https://github.com/juspay/hyperswitch-control-center/commit/a441acba9d8d672d4a8df78e422057790f288caf))
+
+### Bug Fixes
+
+- Global search search options not reading the connector list in c… ([#5160](https://github.com/juspay/hyperswitch-control-center/pull/5160)) ([`0efee95`](https://github.com/juspay/hyperswitch-control-center/commit/0efee9583a69611b073c4925280125a6621cd8ee))
+
+### Testing
+
+- Support Playwright E2E and visual tests on remote environments ([#5215](https://github.com/juspay/hyperswitch-control-center/pull/5215)) ([`adfd216`](https://github.com/juspay/hyperswitch-control-center/commit/adfd2166f3abbe8e229d9077d3d487494e27a715))
+
+### Miscellaneous Tasks
+
+- Handle requires_capture status in dashboard SDK preview ([#5195](https://github.com/juspay/hyperswitch-control-center/pull/5195)) ([`278f16e`](https://github.com/juspay/hyperswitch-control-center/commit/278f16e8bd27bc0648a00cd17574748e361e2ad3))
+- Recon engine persist overview and exception filters ([#5219](https://github.com/juspay/hyperswitch-control-center/pull/5219)) ([`a308aa2`](https://github.com/juspay/hyperswitch-control-center/commit/a308aa2c5a9f896e5cf2cfc355b48fa5fe58ea27))
+
+**Full Changelog:** [`2026.07.22.0...2026.07.22.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.22.0...2026.07.22.1)
+
+- - -
+
 ## 2026.07.22.0
 
 ### Features
