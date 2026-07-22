@@ -6,15 +6,6 @@ let global_search_activate_key = "k"
 let filterSeparator = ":"
 let sectionsViewResultsCount = 4
 
-type clipboardSuggestion = {
-  text: string,
-  selected: bool,
-}
-
-type clipboardSuggestionState =
-  | Hidden
-  | Visible(clipboardSuggestion)
-
 let getClipboardSuggestion = state => {
   switch state {
   | Hidden => None

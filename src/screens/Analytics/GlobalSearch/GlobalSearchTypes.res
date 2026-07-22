@@ -108,6 +108,15 @@ type categoryOption = {
   placeholder: string,
 }
 
+type clipboardSuggestion = {
+  text: string,
+  selected: bool,
+}
+
+type clipboardSuggestionState =
+  | Hidden
+  | Visible(clipboardSuggestion)
+
 type viewType =
   | Load
   | Results

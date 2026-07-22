@@ -259,7 +259,7 @@ module FilterSuggestionsSection = {
       initial={{opacity: 0.5}}
       animate={{opacity: 0.5}}
       layoutId=sectionLayoutId
-      className="px-2 pt-2 border-t dark:border-jp-gray-960">
+      className="px-2 pt-2 border-t dark:border-nd_gray-700">
       <Div layoutId=titleLayoutId className={`${body.md.bold} text-nd_gray-700 px-2`}>
         {title->String.toUpperCase->React.string}
       </Div>
@@ -297,41 +297,41 @@ module FilterResultsComponent = {
       }
     })
 
+    let defaultFilter = {
+      categoryType: Date,
+      options: [],
+      placeholder: "",
+    }
+
     let checkFilterKey = list => {
-      switch list->Array.get(0) {
-      | Some(value) =>
-        value.categoryType->getcategoryFromVariant === filterKey && value.options->Array.length > 0
-      | _ => false
-      }
+      let value = list->getValueFromArray(0, defaultFilter)
+      value.categoryType->getcategoryFromVariant === filterKey && value.options->Array.length > 0
     }
 
     let updateAllFilters = () => {
       if filters->Array.length == 1 {
-        switch filters->Array.get(0) {
-        | Some(filter) =>
-          if filter.options->Array.length > 0 && filters->checkFilterKey {
-            let filterValue = activeFilter->String.split(filterSeparator)->getValueFromArray(1, "")
+        let filter = filters->getValueFromArray(0, defaultFilter)
+        if filter.options->Array.length > 0 && filters->checkFilterKey {
+          let filterValue = activeFilter->String.split(filterSeparator)->getValueFromArray(1, "")
 
-            let options = if filterValue->isNonEmptyString {
-              filter.options->Array.filter(option => option->String.includes(filterValue))
-            } else {
-              filter.options
+          let options = if filterValue->isNonEmptyString {
+            filter.options->Array.filter(option => option->String.includes(filterValue))
+          } else {
+            filter.options
+          }
+
+          let newFilters = options->Array.map(option => {
+            let value = {
+              categoryType: filter.categoryType,
+              options: [option],
+              placeholder: filter.placeholder,
             }
 
-            let newFilters = options->Array.map(option => {
-              let value = {
-                categoryType: filter.categoryType,
-                options: [option],
-                placeholder: filter.placeholder,
-              }
-
-              value
-            })
-            setAllFilters(_ => newFilters)
-          } else {
-            setAllFilters(_ => filters)
-          }
-        | _ => ()
+            value
+          })
+          setAllFilters(_ => newFilters)
+        } else {
+          setAllFilters(_ => filters)
         }
       } else {
         setAllFilters(_ => filters)
@@ -359,10 +359,7 @@ module FilterResultsComponent = {
     }
 
     let isFreeTextKey = if filters->Array.length == 1 {
-      switch filters->Array.get(0) {
-      | Some(val) => val.options->Array.length == 0
-      | None => false
-      }
+      (filters->getValueFromArray(0, defaultFilter)).options->Array.length == 0
     } else {
       false
     }
@@ -374,8 +371,7 @@ module FilterResultsComponent = {
           <RenderIf condition={filters->Array.length === 1 && filters->checkFilterKey}>
             <div className="h-full max-h-[450px] overflow-scroll sidebar-scrollbar">
               <style> {React.string(sidebarScrollbarCss)} </style>
-              {switch filters->Array.get(0) {
-              | Some(value) =>
+              {let value = filters->getValueFromArray(0, defaultFilter)
                 let filterValue =
                   activeFilter->String.split(filterSeparator)->getValueFromArray(1, "")
 
@@ -414,9 +410,7 @@ module FilterResultsComponent = {
                   </div>
                 } else {
                   <NoResults />
-                }
-              | _ => <NoResults />
-              }}
+                }}
             </div>
           </RenderIf>
           <RenderIf condition={!(filters->Array.length === 1 && filters->checkFilterKey)}>
@@ -635,7 +629,7 @@ module ModalSearchBox = {
 
           if keyPressed == tabKey {
             let newIndex = getNextIndex(index, allFilters)
-            if allFilters->Array.length > 0 {
+            if allFilters->isNonEmptyArray {
               let val = allFilters->getValueFromArray(newIndex, {
                 categoryType: Date,
                 options: [],
@@ -703,7 +697,7 @@ module ModalSearchBox = {
 
           if keyPressed == arrowDown {
             if clipboardSuggestionSelected {
-              if allFilters->Array.length > 0 {
+              if allFilters->isNonEmptyArray {
                 let val = allFilters->getValueFromArray(0, {
                   categoryType: Date,
                   options: [],
@@ -721,14 +715,18 @@ module ModalSearchBox = {
               setSelectedFilter(_ => None)
             } else {
               let newIndex = getNextIndex(index, allFilters)
-              switch allFilters->Array.get(newIndex) {
-              | Some(val) => setSelectedFilter(_ => val->Some)
-              | _ => ()
+              if allFilters->isNonEmptyArray {
+                let val = allFilters->getValueFromArray(newIndex, {
+                  categoryType: Date,
+                  options: [],
+                  placeholder: "",
+                })
+                setSelectedFilter(_ => val->Some)
               }
             }
           } else if keyPressed == arrowUp {
             if clipboardSuggestionSelected {
-              if allFilters->Array.length > 0 {
+              if allFilters->isNonEmptyArray {
                 let val = allFilters->getValueFromArray(allFilters->Array.length - 1, {
                   categoryType: Date,
                   options: [],
@@ -746,9 +744,13 @@ module ModalSearchBox = {
               setSelectedFilter(_ => None)
             } else {
               let newIndex = getPrevIndex(index, allFilters)
-              switch allFilters->Array.get(newIndex) {
-              | Some(val) => setSelectedFilter(_ => val->Some)
-              | _ => ()
+              if allFilters->isNonEmptyArray {
+                let val = allFilters->getValueFromArray(newIndex, {
+                  categoryType: Date,
+                  options: [],
+                  placeholder: "",
+                })
+                setSelectedFilter(_ => val->Some)
               }
             }
           } else if keyPressed == enterKey {
