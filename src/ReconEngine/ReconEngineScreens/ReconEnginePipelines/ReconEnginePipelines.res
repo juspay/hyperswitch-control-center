@@ -52,26 +52,30 @@ let make = () => {
       <PageHeading
         title="Pipelines" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
       />
-      <DynamicFilter
-        title="ReconEnginePipelinesFilters"
-        initialFilters=[]
-        options=[]
-        popupFilterFields=[]
-        initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
-          null,
-          ~events=dateDropDownTriggerMixpanelCallback,
-        )}
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        tabNames=filterKeys
-        key="ReconEnginePipelinesFilters"
-        updateUrlWith=updateExistingKeys
-        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
-        showCustomFilter=false
-        refreshFilters=false
-      />
-      <ReconEnginePipelinesUploadModal
-        accountData onClose={() => setRefreshTrigger(prev => !prev)}
-      />
+      <div className="flex flex-row items-start gap-3">
+        <DynamicFilter
+          title="ReconEnginePipelinesFilters"
+          initialFilters=[]
+          options=[]
+          popupFilterFields=[]
+          initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
+            null,
+            ~events=dateDropDownTriggerMixpanelCallback,
+          )}
+          defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+          tabNames=filterKeys
+          key="ReconEnginePipelinesFilters"
+          updateUrlWith=updateExistingKeys
+          filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+          showCustomFilter=false
+          refreshFilters=false
+        />
+        <div className="mt-5">
+          <ReconEnginePipelinesUploadModal
+            accountData onClose={() => setRefreshTrigger(prev => !prev)}
+          />
+        </div>
+      </div>
     </div>
     <ReconEnginePipelinesStatCards refreshTrigger />
     <PageLoaderWrapper screenState>
