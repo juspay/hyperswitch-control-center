@@ -215,6 +215,42 @@ test.describe("Blocklist", () => {
     await expect(page.getByText("Please upload a valid CSV file.")).toBeVisible();
   });
 
+  test("should accept CSV files with common browser MIME variants", async ({ page }) => {
+    await page.route("**/blocklist/batch?**", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ data: [], total_count: 0 }),
+      });
+    });
+
+    const homePage = new HomePage(page);
+    const blocklist = new Blocklist(page);
+
+    await homePage.developer.click();
+    await homePage.blocklist.click();
+
+    await blocklist.fileInput.setInputFiles({
+      name: "blocklist.csv",
+      mimeType: "application/vnd.ms-excel",
+      buffer: Buffer.from("type,data,metadata\ncard_bin,411111,"),
+    });
+
+    await expect(blocklist.uploadButton).toBeVisible();
+    await expect(page.getByText("Please upload a valid CSV file.")).toBeHidden();
+
+    await blocklist.removeSelectedFileButton.click();
+
+    await blocklist.fileInput.setInputFiles({
+      name: "blocklist.csv",
+      mimeType: "",
+      buffer: Buffer.from("type,data,metadata\nfingerprint,fp_abc123,"),
+    });
+
+    await expect(blocklist.uploadButton).toBeVisible();
+    await expect(page.getByText("Please upload a valid CSV file.")).toBeHidden();
+  });
+
   test("should reject CSV files larger than 5 MB", async ({ page }) => {
     await page.route("**/blocklist/batch?**", async (route) => {
       await route.fulfill({

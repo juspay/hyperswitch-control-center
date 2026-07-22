@@ -7,7 +7,8 @@ extended_card_bin,41111100,
 fingerprint,fp_abc123,`
 
 let maxBlocklistCsvFileSize = 5 * 1024 * 1024
-let supportedBlocklistCsvMimeType = "text/csv"
+let bytesPerKilobyte = 1024
+let bytesPerMegabyte = bytesPerKilobyte * 1024
 
 let itemToObjMapper = dict => {
   {
@@ -24,17 +25,7 @@ let itemToObjMapper = dict => {
 
 let getJobsFromResponse = json => {
   let dict = json->getDictFromJsonObject
-  let jobs =
-    dict->getArrayFromDict(
-      "data",
-      dict->getArrayFromDict("items", dict->getArrayFromDict("jobs", [])),
-    )
-
-  if jobs->Array.length > 0 {
-    jobs->Array.filterMap(JSON.Decode.object)->Array.map(itemToObjMapper)
-  } else {
-    json->getArrayDataFromJson(itemToObjMapper)
-  }
+  dict->getArrayFromDict("data", [])->Array.filterMap(JSON.Decode.object)->Array.map(itemToObjMapper)
 }
 
 let getTotalCountFromResponse = (json, fallback) => {
@@ -72,7 +63,12 @@ let normalizeStatus = status => status->isNonEmptyString ? status->snakeToTitle 
 
 let isCsvFileName = fileName => fileName->String.toLowerCase->String.endsWith(".csv")
 
-let isValidBlocklistCsvMimeType = fileType => fileType === supportedBlocklistCsvMimeType
+let isValidBlocklistCsvMimeType = fileType => {
+  switch fileType {
+  | "text/csv" | "application/vnd.ms-excel" | "" => true
+  | _ => false
+  }
+}
 
 let isValidBlocklistCsvFile = file =>
   file["name"]->isCsvFileName && file["type"]->isValidBlocklistCsvMimeType
@@ -92,10 +88,12 @@ let getFileSize = file =>
   }
 
 let formatFileSize = fileSize => {
-  if fileSize / 1024 / 1024 > 1 {
-    `${(fileSize / 1024 / 1024)->Int.toString} MB`
-  } else if fileSize / 1024 > 1 {
-    `${(fileSize / 1024)->Int.toString} KB`
+  if fileSize >= bytesPerMegabyte {
+    let size = fileSize->Int.toFloat /. bytesPerMegabyte->Int.toFloat
+    `${size->Float.toFixedWithPrecision(~digits=1)->removeTrailingZero} MB`
+  } else if fileSize >= bytesPerKilobyte {
+    let size = fileSize->Int.toFloat /. bytesPerKilobyte->Int.toFloat
+    `${size->Float.toFixedWithPrecision(~digits=1)->removeTrailingZero} KB`
   } else {
     `${fileSize->Int.toString} B`
   }

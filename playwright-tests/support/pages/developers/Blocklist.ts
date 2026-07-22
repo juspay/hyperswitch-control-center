@@ -37,6 +37,10 @@ export class Blocklist {
     );
   }
 
+  get removeSelectedFileButton(): Locator {
+    return this.page.locator('[data-icon="trash-alt"]');
+  }
+
   get downloadSampleFileButton(): Locator {
     return this.page.getByRole("button", { name: "Download Sample File" });
   }

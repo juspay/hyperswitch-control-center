@@ -49,7 +49,6 @@ let make = () => {
       setJobs(_ => [])
       setTotalCount(_ => 0)
       setScreenState(_ => PageLoaderWrapper.Error(errorMessage))
-      showToast(~message=errorMessage, ~toastType=ToastError)
     }
   }
 
@@ -95,7 +94,6 @@ let make = () => {
       }
     | None =>
       setSelectedFile(_ => None)
-      showToast(~message="No file selected. Please choose a CSV file.", ~toastType=ToastError)
     }
   }
 
@@ -141,7 +139,11 @@ let make = () => {
         showToast(~message, ~toastType=ToastSuccess)
         setSelectedFile(_ => None)
         clearFileInput()
-        await fetchJobs()
+        if offset === 0 {
+          await fetchJobs()
+        } else {
+          setOffset(_ => 0)
+        }
       } catch {
       | Exn.Error(e) =>
         let errorMessage = Exn.message(e)->Option.getOr("Failed to upload blocklist CSV")
