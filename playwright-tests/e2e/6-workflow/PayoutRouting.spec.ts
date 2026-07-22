@@ -59,6 +59,7 @@ test.describe("Volume based payout routing", () => {
         merchantId,
         connectorLabel,
         context.request,
+        page,
       );
     }
 
@@ -109,6 +110,7 @@ test.describe("Volume based payout routing", () => {
         merchantId,
         "adyen_payout_1",
         context.request,
+        page,
       );
     }
 
@@ -153,6 +155,7 @@ test.describe("Volume based payout routing", () => {
         merchantId,
         "adyen_payout_1",
         context.request,
+        page,
       );
     }
 
@@ -198,6 +201,7 @@ test.describe("Volume based payout routing", () => {
         merchantId,
         "adyen_payout_1",
         context.request,
+        page,
       );
     }
 
@@ -228,6 +232,7 @@ test.describe("Volume based payout routing", () => {
         merchantId,
         "adyen_payout_1",
         context.request,
+        page,
       );
     }
 
@@ -266,6 +271,7 @@ test.describe("Rule based payout routing", () => {
         merchantId,
         "adyen_payout_operator_test",
         context.request,
+        page,
       );
     }
     await homePage.workflow.click();
@@ -406,6 +412,7 @@ test.describe("Payout default fallback", () => {
         merchantId,
         "adyen_payout_1",
         context.request,
+        page,
       );
     }
 
@@ -435,16 +442,19 @@ test.describe("Payout default fallback", () => {
         merchantId,
         "adyen_payout_1",
         context.request,
+        page,
       );
       await createPayoutConnectorAPI(
         merchantId,
         "adyen_payout_2",
         context.request,
+        page,
       );
       await createPayoutConnectorAPI(
         merchantId,
         "adyen_payout_3",
         context.request,
+        page,
       );
     }
 
@@ -519,6 +529,7 @@ test.describe("Payout Routing list - Configuration History", () => {
         merchantId,
         connectorLabel,
         context.request,
+        page,
       );
     }
 
@@ -556,6 +567,7 @@ test.describe("Payout Routing list - Configuration History", () => {
         merchantId,
         connectorLabel,
         context.request,
+        page,
       );
     }
 
@@ -630,6 +642,7 @@ test.describe("Payout Routing list - Configuration History", () => {
         merchantId,
         "adyen_payout_1",
         context.request,
+        page,
       );
     }
 
@@ -771,6 +784,7 @@ test.describe("Payout Routing list - Configuration History", () => {
         merchantId,
         "adyen_payout_volume_b",
         context.request,
+        page,
       );
     }
 
@@ -826,6 +840,7 @@ test.describe("Payout Routing list - Configuration History", () => {
         merchantId,
         "adyen_payout_routing_edit",
         context.request,
+        page,
       );
     }
 
@@ -902,16 +917,19 @@ test.describe("Advanced payout rule connector selection modes", () => {
         merchantId,
         "adyen_payout_rule_a",
         context.request,
+        page,
       );
       await createPayoutConnectorAPI(
         merchantId,
         "adyen_payout_rule_b",
         context.request,
+        page,
       );
       await createPayoutConnectorAPI(
         merchantId,
         "adyen_payout_rule_c",
         context.request,
+        page,
       );
     }
 

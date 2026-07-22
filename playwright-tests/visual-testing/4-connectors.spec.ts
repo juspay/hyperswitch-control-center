@@ -442,6 +442,7 @@ test.describe("Visual Testing - Connectors", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
       }
 

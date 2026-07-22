@@ -80,13 +80,13 @@ let make = () => {
       | Succeeded => setPaymentStatus(_ => SUCCESS)
       | Failed => setPaymentStatus(_ => FAILED)
       | Processing => setPaymentStatus(_ => PROCESSING)
+      | RequiresCapture => setPaymentStatus(_ => REQUIRESCAPTURE)
       | RequiresCustomerAction
       | RequiresMerchantAction
       | RequiresPaymentMethod
       | RequiresConfirmation =>
         setPaymentStatus(_ => CHECKCONFIGURATION)
       | Cancelled
-      | RequiresCapture
       | PartiallyCaptured
       | PartiallyCapturedAndCapturable
       | Full_Refunded

@@ -15,6 +15,8 @@ import {
   createAPIKey,
   createStripeConnectorAPIwithAPIKey,
   getDefaultProfileId,
+  getJwtFromLocalStorage,
+  switchProfileAPI,
   generateCerts,
 } from "../../support/commands";
 import { connectorConfig } from "../../support/fixtures/payinConnectorConfig";
@@ -78,7 +80,13 @@ async function setupConfiguredStripeConnector(
   label: string = "stripe_configured",
 ): Promise<string> {
   const { merchantId } = await ompLineage(page);
-  await createStripeConnectorAPI(merchantId, label, context.request);
+  await createStripeConnectorAPI(
+    merchantId,
+    label,
+    context.request,
+    undefined,
+    page,
+  );
   await page.reload();
   await page.waitForLoadState("networkidle");
   return label;
@@ -199,7 +207,13 @@ test.describe("Payin Connector tests", () => {
   }) => {
     const stripeLabel = "stripe_default";
     const { merchantId } = await ompLineage(page);
-    await createStripeConnectorAPI(merchantId, stripeLabel, context.request);
+    await createStripeConnectorAPI(
+      merchantId,
+      stripeLabel,
+      context.request,
+      undefined,
+      page,
+    );
     await gotoConnectorList(page);
 
     const connectorRow = page.locator("tr", { hasText: stripeLabel }).first();
@@ -229,7 +243,13 @@ test.describe("Payin Connector tests", () => {
   }) => {
     const stripeLabel = "stripe_default";
     const { merchantId } = await ompLineage(page);
-    await createStripeConnectorAPI(merchantId, stripeLabel, context.request);
+    await createStripeConnectorAPI(
+      merchantId,
+      stripeLabel,
+      context.request,
+      undefined,
+      page,
+    );
     await gotoConnectorList(page);
 
     const connectorRow = page.locator("tr", { hasText: stripeLabel }).first();
@@ -295,6 +315,13 @@ test.describe("Payin Connector tests", () => {
       merchantId,
       "secondary_profile",
       context.request,
+      page,
+    );
+    const defaultProfileToken = await getJwtFromLocalStorage(page);
+    const secondaryProfileToken = await switchProfileAPI(
+      defaultProfileToken,
+      secondaryProfileId,
+      context.request,
     );
 
     // Pin the default connector to the active profile explicitly. Relying on
@@ -306,12 +333,15 @@ test.describe("Payin Connector tests", () => {
       defaultLabel,
       context.request,
       defaultProfileId,
+      page,
     );
     await createStripeConnectorAPI(
       merchantId,
       secondaryLabel,
       context.request,
       secondaryProfileId,
+      page,
+      secondaryProfileToken,
     );
 
     await gotoConnectorList(page);
@@ -818,8 +848,12 @@ test.describe("Payin Connector tests", () => {
   }) => {
     test.setTimeout(CONNECTOR_SETUP_TIMEOUT);
     const { merchantId } = await ompLineage(page);
-    const apiKey = await createAPIKey(merchantId, "", context.request);
-    const profileId = await getDefaultProfileId(merchantId, context.request);
+    const apiKey = await createAPIKey(merchantId, "", context.request, page);
+    const profileId = await getDefaultProfileId(
+      merchantId,
+      context.request,
+      page,
+    );
 
     const labels = Array.from(
       { length: 21 },
@@ -832,6 +866,7 @@ test.describe("Payin Connector tests", () => {
         apiKey,
         context.request,
         profileId,
+        page,
       );
       await page.waitForTimeout(200);
     }
@@ -855,7 +890,7 @@ test.describe("Payin Connector tests", () => {
     await page.getByText(createdLabel).first().click();
 
     await expect(page.getByText("Integration statusACTIVE")).toBeVisible();
-    await expect(page.getByText("Webhook Endpointhttp://")).toBeVisible();
+    await expect(page.getByText("Webhook Endpointhttp")).toBeVisible();
     await expect(page.getByText("Profiledefault -")).toBeVisible();
     await expect(
       page.getByRole("heading", { name: "Secret Key" }),

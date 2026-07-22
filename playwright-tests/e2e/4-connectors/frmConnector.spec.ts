@@ -59,6 +59,7 @@ test.describe("Live FRM Connectors", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
     }
   });
