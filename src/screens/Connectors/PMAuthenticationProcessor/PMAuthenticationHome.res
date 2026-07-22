@@ -224,14 +224,16 @@ let make = () => {
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
           setCurrentStep(_ => ConfigurationFields)
         } else {
-          showToast(
-            ~message=errorMessage->LogicUtils.isNonEmptyString
-              ? errorMessage
-              : err->LogicUtils.isNonEmptyString
-              ? err
-              : "Something went wrong",
-            ~toastType=ToastError,
-          )
+          let message =
+            if errorMessage->isNonEmptyString {
+              errorMessage
+            } else if err->isNonEmptyString {
+              err
+            } else {
+              "Something went wrong"
+            }
+
+showToast(~message, ~toastType=ToastError)
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }
