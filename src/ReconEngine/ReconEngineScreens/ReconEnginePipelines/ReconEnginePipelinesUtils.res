@@ -12,29 +12,23 @@ let getIngestionCounts = (ingestionHistory: array<ingestionHistoryType>) =>
     }
   )
 
-let getStagingCounts = (stagingEntries: array<processingEntryType>) =>
-  stagingEntries->Array.reduce((0, 0, 0, 0, 0), (
-    (total, needsManualReview, processed, void, pending),
-    entry,
-  ) =>
-    switch entry.status {
-    | Archived | UnknownProcessingEntryStatus => (
-        total,
-        needsManualReview,
-        processed,
-        void,
-        pending,
-      )
-    | NeedsManualReview => (total + 1, needsManualReview + 1, processed, void, pending)
-    | Pending => (total + 1, needsManualReview, processed, void, pending + 1)
-    | Processed => (total + 1, needsManualReview, processed + 1, void, pending)
-    | Void => (total, needsManualReview, processed, void + 1, pending)
-    }
+let getStagingOverviewCounts = (stagingOverviewData: array<accountStagingEntriesOverview>) =>
+  stagingOverviewData->Array.reduce((0, 0), ((total, needsManualReview), account) =>
+    account.status_breakdown->Array.reduce((total, needsManualReview), (
+      (total, needsManualReview),
+      statusAmount,
+    ) =>
+      switch statusAmount.status {
+      | Archived | Void | UnknownProcessingEntryStatus => (total, needsManualReview)
+      | NeedsManualReview => (total + statusAmount.count, needsManualReview + statusAmount.count)
+      | Pending | Processed => (total + statusAmount.count, needsManualReview)
+      }
+    )
   )
 
 let getPipelineStatCards = (
   ~ingestionHistory: array<ingestionHistoryType>,
-  ~stagingEntries: array<processingEntryType>,
+  ~stagingOverviewData: array<accountStagingEntriesOverview>,
 ): array<ReconEnginePipelinesTypes.pipelineStatCardData> => {
   open ReconEnginePipelinesTypes
   open ReconEngineOverviewSummaryTypes
@@ -42,13 +36,8 @@ let getPipelineStatCards = (
   let (totalCount, ingestionProcessedCount, failedCount, processingCount) = getIngestionCounts(
     ingestionHistory,
   )
-  let (
-    stagingTotalCount,
-    needsManualReviewCount,
-    _stagingProcessedCount,
-    _voidCount,
-    _pendingCount,
-  ) = getStagingCounts(stagingEntries)
+  let (stagingTotalCount, needsManualReviewCount) = getStagingOverviewCounts(stagingOverviewData)
+
   let processedRate =
     ReconEngineOverviewUtils.getPercentage(
       ~count=ingestionProcessedCount,

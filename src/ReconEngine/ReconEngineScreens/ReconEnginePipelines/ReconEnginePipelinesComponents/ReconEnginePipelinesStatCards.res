@@ -7,7 +7,7 @@ let make = (~refreshTrigger=false) => {
   open HSAnalyticsUtils
 
   let getIngestionHistory = useGetIngestionHistory()
-  let getProcessingEntries = useGetProcessingEntries()
+  let getStagingEntriesOverview = useGetStagingEntriesOverview()
   let {
     filterValueJson,
     filterValue,
@@ -20,7 +20,7 @@ let make = (~refreshTrigger=false) => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (ingestionHistory, setIngestionHistory) = React.useState(_ => [])
-  let (stagingEntries, setStagingEntries) = React.useState(_ => [])
+  let (stagingOverviewData, setStagingOverviewData) = React.useState(_ => [])
   let (activeStatusFilter, setActiveStatusFilter) = React.useState(_ => "")
 
   let fetchPipelinesStatsData = async () => {
@@ -35,13 +35,15 @@ let make = (~refreshTrigger=false) => {
         ~filterValueJson=dateRangeFilterValueJson,
       )
       let ingestionHistoryFetch = getIngestionHistory(~queryParameters=Some(queryString))
-      let processingEntriesFetch = getProcessingEntries(~queryParameters=Some(queryString))
-      let (ingestionHistory, stagingEntries) = await Promise.all2((
+      let stagingEntriesOverviewFetch = getStagingEntriesOverview(
+        ~queryParameters=Some(queryString),
+      )
+      let (ingestionHistory, stagingOverviewData) = await Promise.all2((
         ingestionHistoryFetch,
-        processingEntriesFetch,
+        stagingEntriesOverviewFetch,
       ))
       setIngestionHistory(_ => ingestionHistory)
-      setStagingEntries(_ => stagingEntries)
+      setStagingOverviewData(_ => stagingOverviewData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -56,8 +58,8 @@ let make = (~refreshTrigger=false) => {
   }, (filterValue, refreshTrigger))
 
   let statCards = React.useMemo(() => {
-    getPipelineStatCards(~ingestionHistory, ~stagingEntries)
-  }, (ingestionHistory, stagingEntries))
+    getPipelineStatCards(~ingestionHistory, ~stagingOverviewData)
+  }, (ingestionHistory, stagingOverviewData))
 
   let onStatCardClick = (card: ReconEnginePipelinesTypes.pipelineStatCardData) => () => {
     switch card.pipelineStatCardClickAction {
