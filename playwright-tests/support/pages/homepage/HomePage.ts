@@ -182,7 +182,7 @@ export class HomePage {
   }
 
   get routing(): Locator {
-    return this.page.locator('[data-testid="routing"]');
+    return this.page.getByTestId('workflow').getByRole('link', { name: 'Routing', exact: true });
   }
 
   get surchargeRouting(): Locator {
@@ -314,7 +314,7 @@ export class HomePage {
   }
 
   get sdkAmountInput(): Locator {
-    return this.page.locator('[name="amount"]');
+    return this.page.getByRole("spinbutton", { name: "Enter amount" });
   }
 
   get sdkCurrencySelectButton(): Locator {
