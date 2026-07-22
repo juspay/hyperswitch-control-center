@@ -47,10 +47,10 @@ let make = () => {
   }, [])
 
   <div className="flex flex-col">
-    <PageHeading
-      title="Pipelines" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
-    />
-    <div className="flex flex-row justify-end">
+    <div className="flex flex-row justify-between items-center">
+      <PageHeading
+        title="Pipelines" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
+      />
       <DynamicFilter
         title="ReconEnginePipelinesFilters"
         initialFilters=[]
