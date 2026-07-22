@@ -168,7 +168,7 @@ let make = (~ruleId: string) => {
         initialFilters={initialDisplayFilters()}
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={[]}
+        initialFixedFilters=[]
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames=filterKeys
         key="ReconEngineExceptionTransactionFilters"

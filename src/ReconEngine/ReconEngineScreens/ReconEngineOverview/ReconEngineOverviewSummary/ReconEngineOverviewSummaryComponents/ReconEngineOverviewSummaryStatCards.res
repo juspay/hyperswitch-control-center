@@ -81,11 +81,7 @@ let make = () => {
   let appendDateFilters = path => {
     let startTime = filterValueJson->getString(startTimeFilterKey, "")
     let endTime = filterValueJson->getString(endTimeFilterKey, "")
-    if (
-      path->String.includes("exceptions") &&
-      startTime->isNonEmptyString &&
-      endTime->isNonEmptyString
-    ) {
+    if startTime->isNonEmptyString && endTime->isNonEmptyString {
       let dateQuery =
         [(startTimeFilterKey, startTime), (endTimeFilterKey, endTime)]
         ->Dict.fromArray

@@ -95,7 +95,7 @@ let make = () => {
         <div className="flex flex-row -ml-1.5">
           <DynamicFilter
             title="ReconEngineExceptionTransactionFilters"
-            initialFilters={[]}
+            initialFilters=[]
             options=[]
             popupFilterFields=[]
             initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
