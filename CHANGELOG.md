@@ -3,6 +3,36 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.07.22.0
+
+### Features
+
+- Group merchants in organization chart ([#5198](https://github.com/juspay/hyperswitch-control-center/pull/5198)) ([`0bb9cac`](https://github.com/juspay/hyperswitch-control-center/commit/0bb9cac4c895d4e6a9862881dade98302329e3d8))
+- Add report row limit notice ([#5179](https://github.com/juspay/hyperswitch-control-center/pull/5179)) ([`50ed25c`](https://github.com/juspay/hyperswitch-control-center/commit/50ed25c5a8db14ec9cf29f9dbe62dd8ffea16f68))
+
+### Bug Fixes
+
+- Keep acquirer modal actions visible ([#5167](https://github.com/juspay/hyperswitch-control-center/pull/5167)) ([`ba65bdf`](https://github.com/juspay/hyperswitch-control-center/commit/ba65bdfa97e697f3234edd95c93118ef28f62e03))
+
+**Full Changelog:** [`2026.07.21.0...2026.07.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.21.0...2026.07.22.0)
+
+- - -
+
+## 2026.07.21.0
+
+### Bug Fixes
+
+- Standardize connector setup field spacing ([#5191](https://github.com/juspay/hyperswitch-control-center/pull/5191)) ([`b90100c`](https://github.com/juspay/hyperswitch-control-center/commit/b90100ce6753ee8b201358b4e98fa19c77497193))
+- Recon engine ingestion and analytics tab bugs ([#5211](https://github.com/juspay/hyperswitch-control-center/pull/5211)) ([`f0d4fa5`](https://github.com/juspay/hyperswitch-control-center/commit/f0d4fa53d31a86f3afe2ad5b8a3efb7cf323b837))
+
+### Miscellaneous Tasks
+
+- Remove Performance Monitor module and related configuration ([#5189](https://github.com/juspay/hyperswitch-control-center/pull/5189)) ([`50c07c0`](https://github.com/juspay/hyperswitch-control-center/commit/50c07c0b1e05231336b94c1c68e351fb6ec9bcb4))
+
+**Full Changelog:** [`2026.07.20.0...2026.07.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.20.0...2026.07.21.0)
+
+- - -
+
 ## 2026.07.20.0
 
 ### Testing

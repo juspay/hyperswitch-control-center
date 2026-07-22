@@ -208,6 +208,10 @@ export class PaymentSettings {
     return this.acquirerModal("Edit Network Configuration");
   }
 
+  acquirerModalScrollRegion(modal: Locator): Locator {
+    return modal.locator('[data-component="acquirerFormScrollRegion"]');
+  }
+
   // Modal field locators (scoped to the currently-open modal)
   acquirerModalSaveButton(modal: Locator): Locator {
     return modal.getByRole("button", { name: "Save", exact: true });

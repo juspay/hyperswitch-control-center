@@ -549,9 +549,10 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.acquirerConfigGroupButton).toBeVisible();
     });
 
-    test("should open Add Acquirer Configuration modal with all fields and buttons", async ({
+    test("should keep Add Acquirer modal actions visible and fields scrollable on a short viewport", async ({
       page,
     }) => {
+      await page.setViewportSize({ width: 1280, height: 750 });
       const paymentSettings = new PaymentSettings(page);
 
       await paymentSettings.acquirerConfigGroupButton.click();
@@ -611,6 +612,33 @@ test.describe("Payment Settings", () => {
       await expect(
         paymentSettings.acquirerModalCancelButton(modal),
       ).toBeVisible();
+
+      const scrollRegion = paymentSettings.acquirerModalScrollRegion(modal);
+      const saveButton = paymentSettings.acquirerModalSaveButton(modal);
+      const cancelButton = paymentSettings.acquirerModalCancelButton(modal);
+      const countryDropdown =
+        paymentSettings.acquirerCountryDropdownInModal(modal);
+
+      await expect(saveButton).toBeInViewport({ ratio: 1 });
+      await expect(cancelButton).toBeInViewport({ ratio: 1 });
+
+      const scrollMetrics = await scrollRegion.evaluate((element) => ({
+        clientHeight: element.clientHeight,
+        scrollHeight: element.scrollHeight,
+      }));
+      expect(scrollMetrics.scrollHeight).toBeGreaterThan(
+        scrollMetrics.clientHeight,
+      );
+
+      await scrollRegion.evaluate((element) => {
+        element.scrollTop = element.scrollHeight;
+      });
+      await expect
+        .poll(() => scrollRegion.evaluate((element) => element.scrollTop))
+        .toBeGreaterThan(0);
+      await expect(countryDropdown).toBeInViewport();
+      await expect(saveButton).toBeInViewport({ ratio: 1 });
+      await expect(cancelButton).toBeInViewport({ ratio: 1 });
     });
 
     test("should close modal when Cancel is clicked without saving", async ({
