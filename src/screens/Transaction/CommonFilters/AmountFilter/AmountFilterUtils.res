@@ -83,7 +83,7 @@ let createAmountQuery = (~dict) => {
   let hasAmountFilter = startAmount->Option.isSome || endAmount->Option.isSome
   if !hasAmountError && hasAmountFilter {
     let encodeAmount = value =>
-      value->Option.mapOr(JSON.Encode.null, amount =>
+      value->mapOptionOrDefault(JSON.Encode.null, amount =>
         amount->JSON.Encode.float->encodeFloatOrDefault
       )
     dict->Dict.set(
