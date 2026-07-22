@@ -39,7 +39,10 @@ test.describe("Payout Connector", () => {
       await expect(payoutConnector.pageHeading).toBeVisible();
 
       await payoutConnector.connectorSearchInput.fill(connector.label);
-      await payoutConnector.addConnectButton.nth(0).click();
+      await page
+        .getByTestId(key)
+        .getByRole("button", { name: "Connect" })
+        .click();
 
       await assertConnectorFieldLabels(page, connector.fields.fieldLabels);
       await fillConnectorFields(page, connector.fields);
