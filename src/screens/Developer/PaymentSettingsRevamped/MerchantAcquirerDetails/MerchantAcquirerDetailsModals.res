@@ -57,21 +57,29 @@ module AddAcquirerModal = {
       closeOnOutsideClick=true
       modalHeading="Add Acquirer Configuration"
       modalClass="flex flex-col justify-start h-screen w-420-px float-right overflow-hidden !bg-white"
-      childClass="">
+      headingClass="shrink-0"
+      childClass="flex-1 min-h-0">
       <Form
         onSubmit
         initialValues={JSON.Encode.null}
         validate={values => validateForm(~requiredKeys, values)}
-        formClass="flex flex-col gap-4 p-6">
-        <FieldRenderer field=merchantNameField />
-        <FieldRenderer field=merchantIdField />
-        <hr className="my-2 border-nd_gray-200" />
-        <FieldRenderer field={networkField(~options=AcquirerConfigUtils.networkDropDownOptions)} />
-        <FieldRenderer field=binField />
-        <FieldRenderer field=icaField />
-        <FieldRenderer field=fraudRateField />
-        <FieldRenderer field=countryField />
-        <div className="flex justify-end gap-2 pt-4 border-t border-nd_gray-200 mt-4">
+        formClass="flex h-full min-h-0 flex-col">
+        <AddDataAttributes attributes=[("data-component", "acquirerFormScrollRegion")]>
+          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-6">
+            <FieldRenderer field=merchantNameField />
+            <FieldRenderer field=merchantIdField />
+            <hr className="my-2 border-nd_gray-200" />
+            <FieldRenderer
+              field={networkField(~options=AcquirerConfigUtils.networkDropDownOptions)}
+            />
+            <FieldRenderer field=binField />
+            <FieldRenderer field=icaField />
+            <FieldRenderer field=fraudRateField />
+            <FieldRenderer field=countryField />
+          </div>
+        </AddDataAttributes>
+        <div
+          className="flex shrink-0 justify-end gap-2 border-t border-nd_gray-200 bg-white px-6 py-4">
           <Button
             buttonType=Button.Secondary text="Cancel" onClick={_ => setShowModal(_ => false)}
           />
