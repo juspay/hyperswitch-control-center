@@ -13,7 +13,6 @@ let make = (~refreshTrigger=false) => {
     filterValue,
     updateExistingKeys,
     removeKeys,
-    filterKeys,
     setfilterKeys,
   } = React.useContext(FilterContext.filterContext)
   let customFilterKey = "status"
@@ -66,10 +65,9 @@ let make = (~refreshTrigger=false) => {
     | ClearStatusFilter => removeKeys([customFilterKey])
     | SetStatusFilter(status) => {
         updateExistingKeys(Dict.fromArray([(customFilterKey, `[${status}]`)]))
-        if !(filterKeys->Array.includes(customFilterKey)) {
-          filterKeys->Array.push(customFilterKey)->ignore
-          setfilterKeys(_ => filterKeys)
-        }
+        setfilterKeys(prev =>
+          prev->Array.includes(customFilterKey) ? prev : prev->Array.concat([customFilterKey])
+        )
       }
     | NoAction => ()
     }

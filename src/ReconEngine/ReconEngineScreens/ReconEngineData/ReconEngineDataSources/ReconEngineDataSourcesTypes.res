@@ -62,3 +62,11 @@ type fileTimelineState =
   | FileReceived
   | FileRejected
   | UnknownFileTimelineState
+
+type fileUploadStatus = Idle | Failed(string)
+
+type selectedFileItem<'file> = {
+  fileId: string,
+  file: 'file,
+  status: fileUploadStatus,
+}

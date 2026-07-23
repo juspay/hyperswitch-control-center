@@ -3,11 +3,10 @@ open Typography
 @react.component
 let make = () => {
   open PageUtils
+  open HSAnalyticsUtils
 
   let getAccounts = ReconEngineHooks.useGetAccounts()
   let {updateExistingKeys, filterKeys} = React.useContext(FilterContext.filterContext)
-  let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
-  let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let dateDropDownTriggerMixpanelCallback = () => {
     mixpanelEvent(~eventName="recon_engine_pipelines_date_filter_opened")

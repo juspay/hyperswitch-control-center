@@ -122,7 +122,7 @@ let sortIngestionHistory = (
   sortOption: ReconEnginePipelinesTypes.ingestionHistorySortOption,
 ) => {
   data->Array.toSorted((a, b) => {
-    switch (a->Nullable.toOption, b->Nullable.toOption) {
+    switch (a->getOptionalFromNullable, b->getOptionalFromNullable) {
     | (Some(a), Some(b)) =>
       switch sortOption {
       | #MostRecent => compareLogic(a.created_at, b.created_at)

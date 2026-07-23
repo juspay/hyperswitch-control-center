@@ -57,7 +57,7 @@ test.describe("Visual Testing - Developers", () => {
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
       if (merchantId) {
-        await createAPIKey(merchantId, "", context.request);
+        await createAPIKey(merchantId, "", context.request, page);
       }
 
       await homePage.developer.click();

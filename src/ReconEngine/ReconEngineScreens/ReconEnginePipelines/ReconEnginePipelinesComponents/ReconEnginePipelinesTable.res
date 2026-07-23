@@ -22,12 +22,14 @@ let make = (~accountData: array<ReconEngineTypes.accountType>, ~refreshTrigger=f
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
       arr->Array.filter((obj: Nullable.t<ingestionHistoryType>) => {
-        switch Nullable.toOption(obj) {
-        | Some(obj) =>
-          isContainingStringLowercase(obj.file_name, searchText) ||
-          isContainingStringLowercase(obj.ingestion_name, searchText)
-        | None => false
-        }
+        obj
+        ->getOptionalFromNullable
+        ->mapOptionOrDefault(
+          false,
+          obj =>
+            isContainingStringLowercase(obj.file_name, searchText) ||
+            isContainingStringLowercase(obj.ingestion_name, searchText),
+        )
       })
     } else {
       arr
@@ -100,7 +102,7 @@ let make = (~accountData: array<ReconEngineTypes.accountType>, ~refreshTrigger=f
   }
 
   let (accountOptions, connectorOptions) = React.useMemo(() => {
-    let unwrappedHistory = ingestionHistoryData->Belt.Array.keepMap(Nullable.toOption)
+    let unwrappedHistory = ingestionHistoryData->Array.filterMap(getOptionalFromNullable)
     (getAccountOptions(accountData), getConnectorOptions(unwrappedHistory))
   }, (accountData, ingestionHistoryData))
 

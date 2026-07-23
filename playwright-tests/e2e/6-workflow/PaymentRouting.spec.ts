@@ -51,6 +51,7 @@ test.describe("Volume based routing", () => {
         merchantId,
         connectorLabel,
         context.request,
+        page,
       );
     }
 
@@ -109,6 +110,7 @@ test.describe("Volume based routing", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
     }
 
@@ -156,6 +158,7 @@ test.describe("Volume based routing", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
     }
 
@@ -201,6 +204,7 @@ test.describe("Volume based routing", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
     }
 
@@ -231,6 +235,7 @@ test.describe("Volume based routing", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
     }
 
@@ -269,6 +274,7 @@ test.describe("Rule based routing", () => {
         merchantId,
         "stripe_operator_test",
         context.request,
+        page,
       );
     }
     await homePage.workflow.click();
@@ -412,6 +418,7 @@ test.describe("Payment default fallback", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
     }
 
@@ -439,16 +446,19 @@ test.describe("Payment default fallback", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
       await createDummyConnectorAPI(
         merchantId,
         "stripe_test_2",
         context.request,
+        page,
       );
       await createDummyConnectorAPI(
         merchantId,
         "stripe_test_3",
         context.request,
+        page,
       );
     }
 
@@ -524,6 +534,7 @@ test.describe("Routing list - Configuration History", () => {
         merchantId,
         connectorLabel,
         context.request,
+        page,
       );
     }
 
@@ -561,6 +572,7 @@ test.describe("Routing list - Configuration History", () => {
         merchantId,
         connectorLabel,
         context.request,
+        page,
       );
     }
 
@@ -670,6 +682,7 @@ test.describe("Routing list - Configuration History", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
     }
 
@@ -798,6 +811,7 @@ test.describe("Routing list - Configuration History", () => {
         merchantId,
         "stripe_test_volume_b",
         context.request,
+        page,
       );
     }
 
@@ -853,6 +867,7 @@ test.describe("Routing list - Configuration History", () => {
         merchantId,
         "stripe_routing_edit",
         context.request,
+        page,
       );
     }
 
@@ -929,16 +944,19 @@ test.describe("Advanced rule connector selection modes", () => {
         merchantId,
         "stripe_rule_test_a",
         context.request,
+        page,
       );
       await createDummyConnectorAPI(
         merchantId,
         "stripe_rule_test_b",
         context.request,
+        page,
       );
       await createDummyConnectorAPI(
         merchantId,
         "stripe_rule_test_c",
         context.request,
+        page,
       );
     }
 
@@ -1270,6 +1288,7 @@ test.describe("Auth rate based routing", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
     }
 
@@ -1303,6 +1322,7 @@ test.describe("Auth rate based routing", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
     }
 
@@ -1343,6 +1363,7 @@ test.describe("Auth rate based routing", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
     }
 
