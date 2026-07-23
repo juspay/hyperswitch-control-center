@@ -490,7 +490,7 @@ test.describe("Visual Testing - Connectors", () => {
         .getByRole("textbox", { name: "Enter API Key" })
         .fill("test_key");
       await page.getByRole("button", { name: "Connect and Finish" }).click();
-      await expect(page.getByText("FRM Player Created")).toBeVisible({
+      await expect(page.getByText("Connector Created Successfully")).toBeVisible({
         timeout: 10000,
       });
 
