@@ -50,7 +50,12 @@ async function loginWithConnectorAndVisit(
   if (!merchantId) {
     throw new Error("Could not read merchant ID after login");
   }
-  await createDummyConnectorAPI(merchantId, "stripe_test_pmt", apiContext);
+  await createDummyConnectorAPI(
+    merchantId,
+    "stripe_test_pmt",
+    apiContext,
+    page,
+  );
 
   const configurePMTPage = new ConfigurePMTPage(page);
   await configurePMTPage.visit();
