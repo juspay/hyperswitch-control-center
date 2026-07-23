@@ -47,7 +47,7 @@ let buildProcessingEntriesV2Body = (
   ~direction: cursorDirection,
   ~order: processingEntrySortOrder=Desc,
   ~limit=10,
-  ~transformationHistoryId="",
+  ~transformationHistoryIds: array<string>=[],
 ) => {
   let statusFilter = filterValueJson->getStrArrayFromDict("status", [])
   let statusValues =
@@ -77,8 +77,11 @@ let buildProcessingEntriesV2Body = (
     filtersDict->Dict.set((searchType :> string), searchText->String.trim->JSON.Encode.string)
   }
 
-  if transformationHistoryId->isNonEmptyString {
-    filtersDict->Dict.set("transformation_history_id", transformationHistoryId->JSON.Encode.string)
+  if transformationHistoryIds->isNonEmptyArray {
+    filtersDict->Dict.set(
+      "transformation_history_ids",
+      transformationHistoryIds->getJsonFromArrayOfString,
+    )
   }
 
   if hasTimeRange {
