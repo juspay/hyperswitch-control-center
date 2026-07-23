@@ -32,6 +32,9 @@ let scaExemptionResponseMapper = (sankeyDataArray: array<JSON.t>) => {
       "challenge_auth_success",
       "challenge_auth_failure",
       "challenge_incomplete_auth_failure",
+      "frictionless_auth_success",
+      "frictionless_auth_failure",
+      "frictionless_incomplete_auth_failure",
     ]
     ->Array.map(key => (key, 0))
     ->Dict.fromArray
@@ -40,6 +43,7 @@ let scaExemptionResponseMapper = (sankeyDataArray: array<JSON.t>) => {
     let itemDict = item->getDictFromJsonObject
     let count = itemDict->getInt("count", 0)
     let authStatus = itemDict->getString("authentication_status", "")
+    let authenticationType = itemDict->getString("authentication_type", "")
     let exemptionRequestedValue = itemDict->getOptionBool("exemption_requested")
     let exemptionAcceptedValue = itemDict->getOptionBool("exemption_accepted")
 
@@ -70,6 +74,14 @@ let scaExemptionResponseMapper = (sankeyDataArray: array<JSON.t>) => {
       "exemptionNotRequestedPath"
     }
 
+    let incrementAuthenticationCounter = outcome => {
+      let authenticationFlow = switch authenticationType {
+      | "frictionless" => "frictionless"
+      | _ => "challenge"
+      }
+      incrementCounter(countersDict, `${authenticationFlow}_${outcome}`, count)
+    }
+
     // route counts
     switch authStatus {
     | "success" =>
@@ -77,10 +89,10 @@ let scaExemptionResponseMapper = (sankeyDataArray: array<JSON.t>) => {
       | "exemptionAcceptedPath" => incrementCounter(countersDict, "accepted_auth_success", count)
       | "exemptionRejectedPath" =>
         incrementCounter(countersDict, "rejected_3ds_completed", count)
-        incrementCounter(countersDict, "challenge_auth_success", count)
+        incrementAuthenticationCounter("auth_success")
       | "exemptionNotRequestedPath" =>
         incrementCounter(countersDict, "not_requested_3ds_completed", count)
-        incrementCounter(countersDict, "challenge_auth_success", count)
+        incrementAuthenticationCounter("auth_success")
       | _ => ()
       }
 
@@ -89,10 +101,10 @@ let scaExemptionResponseMapper = (sankeyDataArray: array<JSON.t>) => {
       | "exemptionAcceptedPath" => incrementCounter(countersDict, "accepted_auth_failure", count)
       | "exemptionRejectedPath" =>
         incrementCounter(countersDict, "rejected_3ds_completed", count)
-        incrementCounter(countersDict, "challenge_auth_failure", count)
+        incrementAuthenticationCounter("auth_failure")
       | "exemptionNotRequestedPath" =>
         incrementCounter(countersDict, "not_requested_3ds_completed", count)
-        incrementCounter(countersDict, "challenge_auth_failure", count)
+        incrementAuthenticationCounter("auth_failure")
       | _ => ()
       }
 
@@ -105,7 +117,7 @@ let scaExemptionResponseMapper = (sankeyDataArray: array<JSON.t>) => {
         | _ => ()
         }
 
-        incrementCounter(countersDict, "challenge_incomplete_auth_failure", count)
+        incrementAuthenticationCounter("incomplete_auth_failure")
       }
     | _ =>
       switch exemptionPath {
@@ -133,12 +145,21 @@ let scaExemptionResponseMapper = (sankeyDataArray: array<JSON.t>) => {
   let challengeAuthSuccess = countersDict->getInt("challenge_auth_success", 0)
   let challengeAuthFailure = countersDict->getInt("challenge_auth_failure", 0)
   let challengeIncompleteAuthFailure = countersDict->getInt("challenge_incomplete_auth_failure", 0)
+  let frictionlessAuthSuccess = countersDict->getInt("frictionless_auth_success", 0)
+  let frictionlessAuthFailure = countersDict->getInt("frictionless_auth_failure", 0)
+  let frictionlessIncompleteAuthFailure =
+    countersDict->getInt("frictionless_incomplete_auth_failure", 0)
 
   let threeDSCompleted = notRequested3dsCompleted + rejected3dsCompleted
   let threeDSIncomplete = notRequested3dsIncomplete + rejected3dsIncomplete
 
-  let authSuccess = acceptedAuthSuccess + challengeAuthSuccess
-  let authFailure = acceptedAuthFailure + challengeAuthFailure + challengeIncompleteAuthFailure
+  let authSuccess = acceptedAuthSuccess + challengeAuthSuccess + frictionlessAuthSuccess
+  let authFailure =
+    acceptedAuthFailure +
+    challengeAuthFailure +
+    challengeIncompleteAuthFailure +
+    frictionlessAuthFailure +
+    frictionlessIncompleteAuthFailure
 
   {
     totalThreeDSPayments,
@@ -159,6 +180,9 @@ let scaExemptionResponseMapper = (sankeyDataArray: array<JSON.t>) => {
     challengeAuthSuccess,
     challengeAuthFailure,
     challengeIncompleteAuthFailure,
+    frictionlessAuthSuccess,
+    frictionlessAuthFailure,
+    frictionlessIncompleteAuthFailure,
   }
 }
 
@@ -188,6 +212,9 @@ let scaExemptionMapper = (
   let challengeAuthSuccess = data.challengeAuthSuccess
   let challengeAuthFailure = data.challengeAuthFailure
   let challengeIncompleteAuthFailure = data.challengeIncompleteAuthFailure
+  let frictionlessAuthSuccess = data.frictionlessAuthSuccess
+  let frictionlessAuthFailure = data.frictionlessAuthFailure
+  let frictionlessIncompleteAuthFailure = data.frictionlessIncompleteAuthFailure
 
   let valueDict =
     [
@@ -205,6 +232,9 @@ let scaExemptionMapper = (
       ("Challenge Success", challengeAuthSuccess),
       ("Challenge Failure", challengeAuthFailure),
       ("Challenge Pending", challengeIncompleteAuthFailure),
+      ("Frictionless Success", frictionlessAuthSuccess),
+      ("Frictionless Failure", frictionlessAuthFailure),
+      ("Frictionless Pending", frictionlessIncompleteAuthFailure),
       ("3DS Done", threeDSCompleted),
       ("3DS Pending", threeDSIncomplete),
       ("Authentication Success", authSuccess),
@@ -295,6 +325,21 @@ let scaExemptionMapper = (
       column: 5,
     },
     {
+      id: "Frictionless Success",
+      dataLabels: {align: "left", x: 20, name: frictionlessAuthSuccess},
+      column: 5,
+    },
+    {
+      id: "Frictionless Failure",
+      dataLabels: {align: "left", x: 20, name: frictionlessAuthFailure},
+      column: 5,
+    },
+    {
+      id: "Frictionless Pending",
+      dataLabels: {align: "left", x: 20, name: frictionlessIncompleteAuthFailure},
+      column: 5,
+    },
+    {
       id: "Authentication Success",
       dataLabels: {align: "right", x: 155, name: authSuccess},
       column: 6,
@@ -323,6 +368,9 @@ let scaExemptionMapper = (
   let challengeAuthSuccessVal = valueDict->getInt("Challenge Success", 0)
   let challengeAuthFailureVal = valueDict->getInt("Challenge Failure", 0)
   let challengeIncompleteAuthFailureVal = valueDict->getInt("Challenge Pending", 0)
+  let frictionlessAuthSuccessVal = valueDict->getInt("Frictionless Success", 0)
+  let frictionlessAuthFailureVal = valueDict->getInt("Frictionless Failure", 0)
+  let frictionlessIncompleteAuthFailureVal = valueDict->getInt("Frictionless Pending", 0)
 
   let processedData = [
     ("Total 3DS Payment Request", "Exempt Req", exemptionRequestedVal, sankeyBlueFlow),
@@ -342,14 +390,25 @@ let scaExemptionMapper = (
     ("3DS Done", "Challenge Success", challengeAuthSuccessVal, sankeyGreenFlow),
     ("3DS Done", "Challenge Failure", challengeAuthFailureVal, sankeyRedFlow),
     ("3DS Pending", "Challenge Pending", challengeIncompleteAuthFailureVal, sankeyRedFlow),
+    ("3DS Done", "Frictionless Success", frictionlessAuthSuccessVal, sankeyGreenFlow),
+    ("3DS Done", "Frictionless Failure", frictionlessAuthFailureVal, sankeyRedFlow),
+    ("3DS Pending", "Frictionless Pending", frictionlessIncompleteAuthFailureVal, sankeyRedFlow),
     ("Exempted Success", "Authentication Success", acceptedAuthSuccessVal, sankeyGreenFlow),
     ("Challenge Success", "Authentication Success", challengeAuthSuccessVal, sankeyGreenFlow),
+    ("Frictionless Success", "Authentication Success", frictionlessAuthSuccessVal, sankeyGreenFlow),
     ("Exempted Failure", "Authentication Failure", acceptedAuthFailureVal, sankeyRedFlow),
     ("Challenge Failure", "Authentication Failure", challengeAuthFailureVal, sankeyRedFlow),
+    ("Frictionless Failure", "Authentication Failure", frictionlessAuthFailureVal, sankeyRedFlow),
     (
       "Challenge Pending",
       "Authentication Failure",
       challengeIncompleteAuthFailureVal,
+      sankeyRedFlow,
+    ),
+    (
+      "Frictionless Pending",
+      "Authentication Failure",
+      frictionlessIncompleteAuthFailureVal,
       sankeyRedFlow,
     ),
   ]
@@ -373,6 +432,9 @@ let scaExemptionMapper = (
     sankeyGreenNode, // Challenge Success
     sankeyRedNode, // Challenge Failure
     sankeyRedNode, // Challenge Pending
+    sankeyGreenNode, // Frictionless Success
+    sankeyRedNode, // Frictionless Failure
+    sankeyRedNode, // Frictionless Pending
     sankeyGreenNode, // Authentication Success
     sankeyRedNode, // Authentication Failure
   ]

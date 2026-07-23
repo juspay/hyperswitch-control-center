@@ -17,4 +17,7 @@ type scaExemption = {
   challengeAuthSuccess: int,
   challengeAuthFailure: int,
   challengeIncompleteAuthFailure: int,
+  frictionlessAuthSuccess: int,
+  frictionlessAuthFailure: int,
+  frictionlessIncompleteAuthFailure: int,
 }
