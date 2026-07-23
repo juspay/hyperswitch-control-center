@@ -760,10 +760,7 @@ module ModalSearchBox = {
               switch selectedFilter {
               | Some(filter) =>
                 if activeFilter->String.includes(filterSeparator) {
-                  switch filter.options->Array.get(0) {
-                  | Some(val) => val->onSuggestionClicked
-                  | _ => ()
-                  }
+                  filter.options->getValueFromArray(0, "")->onSuggestionClicked
                 } else {
                   filter->onFilterClicked
                 }
