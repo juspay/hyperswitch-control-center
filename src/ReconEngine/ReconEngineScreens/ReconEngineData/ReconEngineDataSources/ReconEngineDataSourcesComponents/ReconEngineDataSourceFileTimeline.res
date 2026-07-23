@@ -2,6 +2,29 @@ open ReconEngineTypes
 open Typography
 open ReconEngineDataSourcesUtils
 
+module TimelineSummary = {
+  @react.component
+  let make = (~latestItem: ingestionHistoryType) => {
+    open LogicUtils
+
+    <div className="flex flex-col gap-1.5 pb-4 mb-8 border-b border-nd_gray-150">
+      <div className="flex items-center justify-between gap-3">
+        <p className={`${heading.xs.semibold} text-nd_gray-800 truncate`}>
+          {latestItem.file_name->React.string}
+        </p>
+        <Table.TableCell
+          cell={ReconEngineDataUtils.getStatusLabel(latestItem.status)}
+          textAlign=Table.Left
+          labelMargin="!py-0"
+        />
+      </div>
+      <p className={`${body.sm.medium} text-nd_gray-400`}>
+        {`v${latestItem.version->Int.toString} · ${latestItem.upload_type->snakeToTitle} upload`->React.string}
+      </p>
+    </div>
+  }
+}
+
 module TimelineItem = {
   @react.component
   let make = (~item: ingestionHistoryType, ~isLast: bool) => {
@@ -91,6 +114,12 @@ let make = (~showModal, ~setShowModal, ~ingestionHistoryId: string) => {
         <div className="absolute inset-0 overflow-y-auto p-4">
           <div className="p-4">
             <RenderIf condition={ingestionHistoryData->Array.length > 0}>
+              <TimelineSummary
+                latestItem={ingestionHistoryData->LogicUtils.getValueFromArray(
+                  ingestionHistoryData->Array.length - 1,
+                  Dict.make()->getIngestionHistoryPayloadFromDict,
+                )}
+              />
               {ingestionHistoryData
               ->Array.mapWithIndex((item, index) => {
                 let isLast = index === ingestionHistoryData->Array.length - 1
