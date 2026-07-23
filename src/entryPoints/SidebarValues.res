@@ -556,7 +556,7 @@ let organizationSettings = (userHasAccess, checkUserEntity) => {
     name: "Organization Settings",
     link: `/organization-settings`,
     access: {
-      userHasAccess(~groupAccess=AccountManage) == CommonAuthTypes.Access &&
+      userHasAccess(~groupAccess=AccountManage) == Access &&
         checkUserEntity([#Organization])
         ? Access
         : NoAccess
@@ -590,7 +590,7 @@ let settings = (
     ->Array.push(ThemeSidebarValues.themeSublevelLinks(~userHasResourceAccess))
     ->ignore
   }
-  if userHasAccess(~groupAccess=AccountManage) == CommonAuthTypes.Access {
+  if userHasAccess(~groupAccess=AccountManage) == Access {
     settingsLinkArray->Array.push(organizationSettings(userHasAccess, checkUserEntity))->ignore
   }
   if !(devUsers && devModularityV2Enabled) {
@@ -656,6 +656,7 @@ let developers = (
   ~isWebhooksEnabled,
   ~isBlocklistEnabled,
   ~userHasResourceAccess,
+  ~userHasAccess,
   ~checkUserEntity,
   ~paymentLinkThemeConfigurator,
   ~isCurrentMerchantPlatform,
@@ -678,7 +679,7 @@ let developers = (
     if isWebhooksEnabled {
       defaultDevelopersOptions->Array.push(webhooks)
     }
-    if isBlocklistEnabled {
+    if isBlocklistEnabled && userHasAccess(~groupAccess=AccountManage) == Access {
       defaultDevelopersOptions->Array.push(blocklist)
     }
     if paymentLinkThemeConfigurator {

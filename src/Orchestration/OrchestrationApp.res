@@ -108,7 +108,7 @@ let make = (~setScreenState) => {
     | list{"blocklist"} =>
       <AccessControl
         isEnabled={featureFlagDetails.devBlocklist}
-        authorization={userHasAccess(~groupAccess=AccountView)}>
+        authorization={userHasAccess(~groupAccess=AccountManage)}>
         <Blocklist />
       </AccessControl>
     | list{"compliance"} =>

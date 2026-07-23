@@ -11,6 +11,8 @@ let make = () => {
   let fetchDetails = useGetMethod(~showErrorToast=false)
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let showToast = ToastAdapter.useShowToast()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let resultsPerPage = 20
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
@@ -155,6 +157,11 @@ let make = () => {
   let selectedFileName = selectedFile->getFileName
   let selectedFileSize = selectedFile->getFileSize->formatFileSize
 
+  let onUploadClick = _ => {
+    mixpanelEvent(~eventName="blocklist_upload_csv")
+    uploadFile()->ignore
+  }
+
   let emptyState = <NoDataFound message="No blocklist batch uploads found" renderType=Painting />
 
   <>
@@ -230,11 +237,12 @@ let make = () => {
           </RenderIf>
           <RenderIf condition={selectedFile->Option.isSome}>
             <div className="flex justify-end">
-              <Button
+              <ACLButton
                 text="Upload"
                 buttonType=Primary
-                onClick={_ => uploadFile()->ignore}
+                onClick=onUploadClick
                 buttonState=uploadButtonState
+                authorization={userHasAccess(~groupAccess=AccountManage)}
                 leftIcon={CustomIcon(<Icon name="nd-upload" size=15 className="text-white" />)}
               />
             </div>

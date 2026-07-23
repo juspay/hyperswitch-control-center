@@ -95,6 +95,7 @@ let useGetHsSidebarValues = () => {
       ~isWebhooksEnabled=devWebhooks,
       ~isBlocklistEnabled=devBlocklist,
       ~userHasResourceAccess,
+      ~userHasAccess,
       ~checkUserEntity,
       ~paymentLinkThemeConfigurator,
       ~isCurrentMerchantPlatform,
