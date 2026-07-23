@@ -1,5 +1,6 @@
 open ReconEngineTypes
 open ReconEngineDataUtils
+open LogicUtils
 
 type pipelineIngestionColType =
   | Account
@@ -35,7 +36,7 @@ let getPipelineIngestionHeading = colType => {
 let getAccountName = (~accountData: array<accountType>, accountId: string) => {
   accountData
   ->Array.find(account => account.account_id === accountId)
-  ->Option.mapOr(accountId, account => account.account_name)
+  ->mapOptionOrDefault(accountId, account => account.account_name)
 }
 
 let getPipelineIngestionCell = (
