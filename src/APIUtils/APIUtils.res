@@ -478,7 +478,11 @@ let useGetURL = () => {
         switch methodType {
         | Get =>
           switch id {
-          | Some(dispute_id) => `disputes/${dispute_id}`
+          | Some(dispute_id) =>
+            switch queryParameters {
+            | Some(queryParams) => `disputes/${dispute_id}?${queryParams}`
+            | None => `disputes/${dispute_id}`
+            }
           | None =>
             switch queryParameters {
             | Some(queryParams) =>
@@ -1625,7 +1629,7 @@ let responseHandler = async (
   let responseStatus = res->Fetch.Response.status
   let responseHeaders = res->Fetch.Response.headers
 
-  if responseStatus >= 500 && responseStatus < 600 {
+  if responseStatus >= 500 && responseStatus < 600 && responseStatus != 501 {
     let xRequestId = responseHeaders->Fetch.Headers.get("x-request-id")->Option.getOr("")
     let metaData =
       [
@@ -1691,6 +1695,12 @@ let responseHandler = async (
             | _ => ()
             }
           }
+        | 501 =>
+          showToast(
+            ~toastType=ToastInfo,
+            ~message="This feature is not implemented yet.",
+            ~autoClose=true,
+          )
         | _ =>
           showToast(
             ~toastType=ToastError,
