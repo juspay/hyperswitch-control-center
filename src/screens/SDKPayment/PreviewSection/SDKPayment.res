@@ -109,6 +109,12 @@ let make = () => {
         bgColor: "bg-yellow-pending_page_bg",
         showErrorMessage: false,
       }
+    | REQUIRESCAPTURE => {
+        iconName: "processing",
+        statusText: "Payment Requires Capture",
+        bgColor: "bg-yellow-pending_page_bg",
+        showErrorMessage: false,
+      }
     | _ => {
         iconName: "account-setup-failed",
         statusText: "Something went wrong",
@@ -147,6 +153,8 @@ let make = () => {
       setPaymentStatus(_ => FAILED)
     } else if status === "processing" {
       setPaymentStatus(_ => PROCESSING)
+    } else if status === "requires_capture" {
+      setPaymentStatus(_ => REQUIRESCAPTURE)
     } else {
       setPaymentStatus(_ => INCOMPLETE)
     }

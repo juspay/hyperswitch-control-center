@@ -1,14 +1,32 @@
+open ReconEngineTypes
+
 type transactionFlowType =
   | InFlow
   | OutFlow
   | UnknownTransactionFlowType
+
+type transactionSearchType =
+  | @as("transaction_id") SearchTransactionId
+  | @as("order_id") SearchOrderId
+  | @as("unknown") UnknownTransactionSearchType
+
+type transactionSortOrder =
+  | @as("asc") Asc
+  | @as("desc") Desc
+
+type transactionsV2CursorPayload = {
+  limit: int,
+  direction: cursorDirection,
+  order: transactionSortOrder,
+  @as("sort_by") sortBy: cursor,
+}
 
 type entriesMetadataKeysToExclude = Amount | Currency
 
 type accountGroup = {
   accountId: string,
   accountName: string,
-  entries: array<ReconEngineTypes.entryType>,
+  entries: array<entryType>,
 }
 
 type lineageFieldType = {

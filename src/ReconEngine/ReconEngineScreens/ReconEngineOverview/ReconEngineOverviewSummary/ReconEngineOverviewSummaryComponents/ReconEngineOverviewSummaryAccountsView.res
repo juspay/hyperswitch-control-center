@@ -82,9 +82,13 @@ module AccountRow = {
   open ReconEngineOverviewSummaryUtils
 
   @react.component
-  let make = (~data: accountType, ~isLastRow: bool, ~isTotalRow: bool) => {
+  let make = (
+    ~data: ReconEngineOverviewSummaryTypes.accountBalanceRow,
+    ~isLastRow: bool,
+    ~isTotalRow: bool,
+  ) => {
     let rowBgClass = isTotalRow ? "bg-nd_gray-25" : "bg-white hover:bg-nd_gray-50"
-    let nameText = isTotalRow ? "Total" : data.account_name
+    let nameText = isTotalRow ? "Total" : data.accountName
     let textStyle = isTotalRow
       ? `${body.md.semibold} text-nd_gray-600`
       : `${body.md.medium} text-nd_gray-500`
@@ -118,8 +122,10 @@ module AccountRow = {
 }
 
 module AccountsList = {
+  open ReconEngineOverviewSummaryTypes
+
   @react.component
-  let make = (~allRowsData: array<accountType>, ~accountsData: array<accountType>) => {
+  let make = (~allRowsData: array<accountBalanceRow>, ~accountsData: array<accountBalanceRow>) => {
     <div className="bg-white border-t border-nd_br_gray-150">
       {allRowsData
       ->Array.mapWithIndex((data, index) => {
@@ -135,51 +141,25 @@ module AccountsList = {
 }
 
 @react.component
-let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
+let make = () => {
   open ReconEngineOverviewSummaryUtils
-  open ReconEngineDataUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (accountsData, setAccountsData) = React.useState(_ => [])
-  let getTransactions = ReconEngineHooks.useGetTransactions()
-  let getAccounts = ReconEngineHooks.useGetAccounts()
+  let getRuleAccountBreakdown = ReconEngineHooks.useGetRuleAccountBreakdown()
   let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
 
   let getAccountsData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let accountData = await getAccounts()
 
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
-      let statusList =
-        ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
-          Posted(Manual),
-          Matched(Auto),
-          Matched(Manual),
-          Matched(Force),
-          Expected,
-          Missing,
-          PartiallyReconciled,
-          OverAmount(Mismatch),
-          OverAmount(Expected),
-          UnderAmount(Mismatch),
-          UnderAmount(Expected),
-          DataMismatch,
-        ])->Array.joinWith(",")
+      let ruleAccountsOverview = await getRuleAccountBreakdown(~queryParameters=Some(queryString))
 
-      let allTransactions = await getTransactions(
-        ~queryParameters=Some(`${queryString}&status=${statusList}`),
-      )
-
-      let accountTransactionData = processAllTransactionsWithAmounts(
-        reconRulesList,
-        allTransactions,
-        accountData,
-      )
-      let accountsWithTransactionAmounts = convertTransactionDataToAccountData(
-        accountData,
-        accountTransactionData,
-      )
+      let accountsWithTransactionAmounts =
+        getAccountOverviewMap(ruleAccountsOverview)
+        ->Dict.valuesToArray
+        ->Array.map(accountOverviewToBalanceRow)
 
       if accountsWithTransactionAmounts->Array.length > 0 {
         setAccountsData(_ => accountsWithTransactionAmounts)
@@ -201,9 +181,9 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
 
   let (allRowsData, currency) = React.useMemo(() => {
     let totals = calculateTotals(accountsData)
-    let account = accountsData->getValueFromArray(0, Dict.make()->getAccountPayloadFromDict)
+    let account = accountsData->getValueFromArray(0, Dict.make()->accountBalanceRowMapper)
     let allRows = [...accountsData, totals]
-    (allRows, account.currency)
+    (allRows, account.matched.debit.currency)
   }, [accountsData])
 
   <div className="space-y-4">
