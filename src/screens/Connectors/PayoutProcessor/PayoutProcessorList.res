@@ -1,6 +1,5 @@
 @react.component
 let make = () => {
-  open ConnectorUtils
   let {showFeedbackModal, setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
@@ -14,6 +13,8 @@ let make = () => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {payoutProcessorsLiveList} =
     HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
+  let {payoutProcessorsSandboxList} =
+    HyperswitchAtom.connectorListForSandboxAtom->Recoil.useRecoilValueFromAtom
 
   let getConnectorListAndUpdateState = async () => {
     try {
@@ -63,7 +64,7 @@ let make = () => {
 
   let payoutConnectorList = featureFlagDetails.isLiveMode
     ? payoutProcessorsLiveList
-    : payoutConnectorList
+    : payoutProcessorsSandboxList
 
   <div>
     <PageLoaderWrapper screenState>

@@ -7,6 +7,8 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
   let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=PMAuthProcessor)
+  let {pmAuthProcessorsSandboxList} =
+    HyperswitchAtom.connectorListForSandboxAtom->Recoil.useRecoilValueFromAtom
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
@@ -86,7 +88,7 @@ let make = () => {
             ConnectorTypes.PMAuthenticationProcessor,
             configuredConnectors,
           )}
-          connectorsAvailableForIntegration=ConnectorUtils.pmAuthenticationConnectorList
+          connectorsAvailableForIntegration={pmAuthProcessorsSandboxList}
           urlPrefix="pm-authentication-processor/new"
           connectorType=ConnectorTypes.PMAuthenticationProcessor
         />

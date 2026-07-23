@@ -8,6 +8,8 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let {threeDsAuthenticatorProcessorsLiveList} =
     HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
+  let {threeDsAuthenticatorProcessorsSandboxList} =
+    HyperswitchAtom.connectorListForSandboxAtom->Recoil.useRecoilValueFromAtom
   let (
     filteredConnectorData: array<
       RescriptCore.Nullable.t<ConnectorTypes.connectorPayloadCommonType>,
@@ -101,7 +103,7 @@ let make = () => {
           )}
           connectorsAvailableForIntegration={featureFlagDetails.isLiveMode
             ? threeDsAuthenticatorProcessorsLiveList
-            : ConnectorUtils.threedsAuthenticatorList}
+            : threeDsAuthenticatorProcessorsSandboxList}
           urlPrefix="3ds-authenticators/new"
           connectorType=ConnectorTypes.ThreeDsAuthenticator
         />

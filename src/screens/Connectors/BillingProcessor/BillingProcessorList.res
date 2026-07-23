@@ -3,6 +3,8 @@ let make = () => {
   let connectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=BillingProcessor,
   )
+  let {billingProcessorsSandboxList} =
+    HyperswitchAtom.connectorListForSandboxAtom->Recoil.useRecoilValueFromAtom
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -88,7 +90,7 @@ let make = () => {
             ConnectorTypes.BillingProcessor,
             configuredConnectors,
           )}
-          connectorsAvailableForIntegration=ConnectorUtils.billingProcessorList
+          connectorsAvailableForIntegration={billingProcessorsSandboxList}
           urlPrefix="billing-processor/new"
           connectorType=ConnectorTypes.BillingProcessor
         />
