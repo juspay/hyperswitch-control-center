@@ -3,6 +3,7 @@ open APIUtils
 let make = (~remainingPath, ~previewOnly=false) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let url = RescriptReactRouter.useUrl()
   let pathVar = url.path->List.toArray->Array.joinWith("/")
 
@@ -11,6 +12,9 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let (routingType, setRoutingType) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
+  // Decision Engine routing-source gate: #Checking until we know the profile's routing source,
+  // then #Redirected (opened DE in a new tab) or #Local (render Hyperswitch's own routing UI).
+  let (deEntryState, setDeEntryState) = React.useState(_ => previewOnly ? #Local : #Checking)
   let debitRoutingValue =
     (
       HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
@@ -122,9 +126,46 @@ let make = (~remainingPath, ~previewOnly=false) => {
     None
   }, (pathVar, url.search, debitRoutingValue))
 
+  // Ask Hyperswitch whether this profile's routing source is the Decision Engine. If so the
+  // backend returns a redirect URL (carrying a one-time SSO code) and we open the DE dashboard in
+  // a new tab; otherwise we render Hyperswitch's own routing UI. Failures fall back to local.
+  let checkRoutingEntry = async () => {
+    open LogicUtils
+    try {
+      let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
+      let res = await updateDetails(entryUrl, JSON.Encode.null, Post)
+      let redirectUrl = res->getDictFromJsonObject->getString("redirect_url", "")
+      if redirectUrl->isNonEmptyString {
+        redirectUrl->Window._open
+        setDeEntryState(_ => #Redirected)
+      } else {
+        setDeEntryState(_ => #Local)
+      }
+    } catch {
+    | Exn.Error(_) => setDeEntryState(_ => #Local)
+    }
+  }
+
+  React.useEffect0(() => {
+    if !previewOnly {
+      checkRoutingEntry()->ignore
+    }
+    None
+  })
+
   let getTabName = index => index == 0 ? "active" : "history"
 
-  <PageLoaderWrapper screenState>
+  switch deEntryState {
+  | #Checking => <PageLoaderWrapper screenState=PageLoaderWrapper.Loading> {React.null} </PageLoaderWrapper>
+  | #Redirected =>
+    <DefaultLandingPage
+      height="90%"
+      title="Routing is managed in the Decision Engine — opened in a new tab."
+      customStyle="py-16"
+      overridingStylesTitle="text-3xl font-semibold"
+    />
+  | #Local =>
+    <PageLoaderWrapper screenState>
     <div className={`${widthClass} ${marginClass} gap-2.5`}>
       <div className="flex flex-col">
         <PageUtils.PageHeading title="Smart Routing Configurations" />
@@ -152,4 +193,5 @@ let make = (~remainingPath, ~previewOnly=false) => {
       </RenderIf>
     </div>
   </PageLoaderWrapper>
+  }
 }
