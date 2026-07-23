@@ -31,6 +31,8 @@ let make = () => {
   let isShowRemoteResults = globalSearch && userHasAccess(~groupAccess=OperationsView) === Access
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let inputRef = React.useRef(Nullable.null)
+  let clipboardReadVersion = React.useRef(0)
+  let (clipboardSuggestionState, setClipboardSuggestionState) = React.useState(_ => Hidden)
   let filtersEnabled = globalSearchFilters
 
   let redirectOnSelect = element => {
@@ -147,11 +149,36 @@ let make = () => {
   }
 
   React.useEffect(_ => {
+    let nextVersion = clipboardReadVersion.current + 1
+    clipboardReadVersion.current = nextVersion
+    setClipboardSuggestionState(_ => Hidden)
     setSearchText(_ => "")
     setLocalSearchText(_ => "")
     setFilterText("")
     setSelectedFilter(_ => None)
-    None
+
+    let isActive = ref(true)
+
+    if showModal {
+      let readClipboard = async () => {
+        let clipboardText = await Clipboard.readText()
+        if isActive.contents && clipboardReadVersion.current == nextVersion {
+          let searchText = switch clipboardText {
+          | Some(text) => text->getClipboardSearchText
+          | None => None
+          }
+          setClipboardSuggestionState(_ =>
+            searchText->mapOptionOrDefault(Hidden, makeClipboardSuggestion)
+          )
+        }
+      }
+
+      readClipboard()->ignore
+    }
+
+    Some(() => {
+      isActive := false
+    })
   }, [showModal])
 
   let onKeyPress = event => {
@@ -181,6 +208,12 @@ let make = () => {
 
   let openModalOnClickHandler = _ => {
     setShowModal(_ => true)
+  }
+
+  let onLocalSearchTextChange = value => {
+    clipboardReadVersion.current = clipboardReadVersion.current + 1
+    setClipboardSuggestionState(_ => Hidden)
+    setLocalSearchText(_ => value)
   }
 
   let setGlobalSearchText = ReactDebounce.useDebounced(value => {
@@ -218,6 +251,14 @@ let make = () => {
     revertFocus(~inputRef)
   }
 
+  let onClipboardSuggestionClicked = searchText => {
+    setLocalSearchText(_ => searchText)
+    setFilterText("")
+    setClipboardSuggestionState(_ => Hidden)
+
+    revertFocus(~inputRef)
+  }
+
   React.useEffect(() => {
     setGlobalSearchText(localSearchText)
     None
@@ -250,13 +291,16 @@ let make = () => {
             setShowModal
             setFilterText
             localSearchText
-            setLocalSearchText
+            onLocalSearchTextChange
             allOptions
             selectedOption
             setSelectedOption
             allFilters
             selectedFilter
             setSelectedFilter
+            clipboardSuggestionState
+            setClipboardSuggestionState
+            onClipboardSuggestionClicked
             viewType
             redirectOnSelect
             activeFilter
@@ -286,6 +330,47 @@ let make = () => {
             />
           | FiltersSugsestions =>
             <RenderIf condition={filtersEnabled}>
+              {let clipboardSuggestion = clipboardSuggestionState->getClipboardSuggestion
+              <RenderIf condition={clipboardSuggestion->Option.isSome}>
+                {let clipboardSearchText = clipboardSuggestion->mapOptionOrDefault("", suggestion =>
+                  suggestion.text
+                )
+                let clipboardSuggestionSelected = clipboardSuggestion->mapOptionOrDefault(
+                  false,
+                  suggestion => suggestion.selected,
+                )
+
+                <FilterSuggestionsSection
+                  title="FROM CLIPBOARD"
+                  sectionLayoutId="clipboard-section"
+                  titleLayoutId="clipboard-title">
+                  <div
+                    tabIndex=0
+                    role="button"
+                    className={`flex justify-between p-2 group items-center cursor-pointer ${
+                      clipboardSuggestionSelected
+                        ? "bg-gray-200 rounded-lg"
+                        : "hover:bg-gray-200 hover:rounded-lg"
+                    }`}
+                    onClick={_ => onClipboardSuggestionClicked(clipboardSearchText)}
+                    onKeyDown={event => {
+                      open ReactEvent.Keyboard
+                      if event->keyCode == 13 {
+                        event->preventDefault
+                        onClipboardSuggestionClicked(clipboardSearchText)
+                      }
+                    }}>
+                    <div className="py-1 px-2 flex gap-1 items-center w-fit">
+                      <span className={`${Typography.body.md.medium} text-nd_gray-700`}>
+                        {clipboardSearchText->React.string}
+                      </span>
+                    </div>
+                    <div className={`${Typography.body.md.medium} text-nd_gray-500`}>
+                      {"Click to search"->React.string}
+                    </div>
+                  </div>
+                </FilterSuggestionsSection>}
+              </RenderIf>}
               <FilterResultsComponent
                 categorySuggestions
                 activeFilter

@@ -190,7 +190,17 @@ module KeyValueFilter = {
 
 module FilterOption = {
   @react.component
-  let make = (~onClick, ~value, ~placeholder=None, ~filter, ~selectedFilter=None, ~viewType) => {
+  let make = (
+    ~onClick,
+    ~value,
+    ~placeholder=None,
+    ~filter,
+    ~selectedFilter=None,
+    ~viewType,
+    ~tabIndex=?,
+    ~role=?,
+    ~onKeyDown=?,
+  ) => {
     let activeBg = "bg-gray-200"
     let wrapperBg = "bg-gray-400/40"
     let rounded = "rounded-lg"
@@ -206,6 +216,9 @@ module FilterOption = {
     switch viewType {
     | FiltersSugsestions =>
       <div
+        ?tabIndex
+        ?role
+        ?onKeyDown
         className={`flex justify-between p-2 group items-center cursor-pointer ${activeWrapperClass}`}
         onClick>
         <div className={`${activeClass} py-1 px-2 rounded-md flex gap-1 items-center w-fit`}>
@@ -232,9 +245,31 @@ module NoResults = {
   }
 }
 
+module FilterSuggestionsSection = {
+  open FramerMotion.Motion
+  open Typography
+  @react.component
+  let make = (
+    ~title,
+    ~children,
+    ~sectionLayoutId="categories-section",
+    ~titleLayoutId="categories-title",
+  ) => {
+    <Div
+      initial={{opacity: 0.5}}
+      animate={{opacity: 0.5}}
+      layoutId=sectionLayoutId
+      className="px-2 pt-2 border-t dark:border-nd_gray-700">
+      <Div layoutId=titleLayoutId className={`${body.md.bold} text-nd_gray-700 px-2`}>
+        {title->String.toUpperCase->React.string}
+      </Div>
+      <div> children </div>
+    </Div>
+  }
+}
+
 module FilterResultsComponent = {
   open GlobalSearchBarUtils
-  open FramerMotion.Motion
   @react.component
   let make = (
     ~categorySuggestions: array<categoryOption>,
@@ -262,41 +297,41 @@ module FilterResultsComponent = {
       }
     })
 
+    let defaultFilter = {
+      categoryType: Date,
+      options: [],
+      placeholder: "",
+    }
+
     let checkFilterKey = list => {
-      switch list->Array.get(0) {
-      | Some(value) =>
-        value.categoryType->getcategoryFromVariant === filterKey && value.options->Array.length > 0
-      | _ => false
-      }
+      let value = list->getValueFromArray(0, defaultFilter)
+      value.categoryType->getcategoryFromVariant === filterKey && value.options->Array.length > 0
     }
 
     let updateAllFilters = () => {
       if filters->Array.length == 1 {
-        switch filters->Array.get(0) {
-        | Some(filter) =>
-          if filter.options->Array.length > 0 && filters->checkFilterKey {
-            let filterValue = activeFilter->String.split(filterSeparator)->getValueFromArray(1, "")
+        let filter = filters->getValueFromArray(0, defaultFilter)
+        if filter.options->Array.length > 0 && filters->checkFilterKey {
+          let filterValue = activeFilter->String.split(filterSeparator)->getValueFromArray(1, "")
 
-            let options = if filterValue->isNonEmptyString {
-              filter.options->Array.filter(option => option->String.includes(filterValue))
-            } else {
-              filter.options
+          let options = if filterValue->isNonEmptyString {
+            filter.options->Array.filter(option => option->String.includes(filterValue))
+          } else {
+            filter.options
+          }
+
+          let newFilters = options->Array.map(option => {
+            let value = {
+              categoryType: filter.categoryType,
+              options: [option],
+              placeholder: filter.placeholder,
             }
 
-            let newFilters = options->Array.map(option => {
-              let value = {
-                categoryType: filter.categoryType,
-                options: [option],
-                placeholder: filter.placeholder,
-              }
-
-              value
-            })
-            setAllFilters(_ => newFilters)
-          } else {
-            setAllFilters(_ => filters)
-          }
-        | _ => ()
+            value
+          })
+          setAllFilters(_ => newFilters)
+        } else {
+          setAllFilters(_ => filters)
         }
       } else {
         setAllFilters(_ => filters)
@@ -324,10 +359,7 @@ module FilterResultsComponent = {
     }
 
     let isFreeTextKey = if filters->Array.length == 1 {
-      switch filters->Array.get(0) {
-      | Some(val) => val.options->Array.length == 0
-      | None => false
-      }
+      (filters->getValueFromArray(0, defaultFilter)).options->Array.length == 0
     } else {
       false
     }
@@ -335,20 +367,11 @@ module FilterResultsComponent = {
     let sectionHeader = isFreeTextKey ? "" : "Suggested Filters"
 
     <RenderIf condition={filters->Array.length > 0}>
-      <Div
-        initial={{opacity: 0.5}}
-        animate={{opacity: 0.5}}
-        layoutId="categories-section"
-        className="px-2 pt-2 border-t dark:border-jp-gray-960">
-        <Div layoutId="categories-title" className="font-bold px-2">
-          {sectionHeader->String.toUpperCase->React.string}
-        </Div>
-        <div>
+      <FilterSuggestionsSection title=sectionHeader>
           <RenderIf condition={filters->Array.length === 1 && filters->checkFilterKey}>
             <div className="h-full max-h-[450px] overflow-scroll sidebar-scrollbar">
               <style> {React.string(sidebarScrollbarCss)} </style>
-              {switch filters->Array.get(0) {
-              | Some(value) =>
+              {let value = filters->getValueFromArray(0, defaultFilter)
                 let filterValue =
                   activeFilter->String.split(filterSeparator)->getValueFromArray(1, "")
 
@@ -387,9 +410,7 @@ module FilterResultsComponent = {
                   </div>
                 } else {
                   <NoResults />
-                }
-              | _ => <NoResults />
-              }}
+                }}
             </div>
           </RenderIf>
           <RenderIf condition={!(filters->Array.length === 1 && filters->checkFilterKey)}>
@@ -419,8 +440,7 @@ module FilterResultsComponent = {
               }}
             </div>
           </RenderIf>
-        </div>
-      </Div>
+      </FilterSuggestionsSection>
     </RenderIf>
   }
 }
@@ -530,7 +550,7 @@ module ModalSearchBox = {
     ~setShowModal,
     ~setFilterText,
     ~localSearchText,
-    ~setLocalSearchText,
+    ~onLocalSearchTextChange,
     ~allOptions,
     ~selectedOption,
     ~setSelectedOption,
@@ -538,6 +558,9 @@ module ModalSearchBox = {
     ~allFilters,
     ~selectedFilter,
     ~setSelectedFilter,
+    ~clipboardSuggestionState,
+    ~setClipboardSuggestionState,
+    ~onClipboardSuggestionClicked,
     ~viewType,
     ~activeFilter,
     ~onFilterClicked,
@@ -559,7 +582,7 @@ module ModalSearchBox = {
         onBlur: _ => (),
         onChange: ev => {
           let value = {ev->ReactEvent.Form.target}["value"]
-          setLocalSearchText(_ => value)
+          onLocalSearchTextChange(value)
         },
         onFocus: _ => (),
         value: localSearchText->JSON.Encode.string,
@@ -606,9 +629,16 @@ module ModalSearchBox = {
 
           if keyPressed == tabKey {
             let newIndex = getNextIndex(index, allFilters)
-            switch allFilters->Array.get(newIndex) {
-            | Some(val) => setSelectedFilter(_ => val->Some)
-            | _ => ()
+            if allFilters->isNonEmptyArray {
+              let val = allFilters->getValueFromArray(newIndex, {
+                categoryType: Date,
+                options: [],
+                placeholder: "",
+              })
+              setClipboardSuggestionState(state =>
+                state->updateClipboardSuggestionSelected(false)
+              )
+              setSelectedFilter(_ => val->Some)
             }
           }
         }
@@ -647,6 +677,17 @@ module ModalSearchBox = {
         }
 
       | FiltersSugsestions => {
+          let clipboardSuggestion = clipboardSuggestionState->getClipboardSuggestion
+          let hasClipboardSuggestion = clipboardSuggestion->mapOptionOrDefault(false, suggestion =>
+            suggestion.text->isNonEmptyString
+          )
+          let clipboardText = clipboardSuggestion->mapOptionOrDefault("", suggestion =>
+            suggestion.text
+          )
+          let clipboardSuggestionSelected = clipboardSuggestion->mapOptionOrDefault(
+            false,
+            suggestion => suggestion.selected,
+          )
           let index = allFilters->Array.findIndex(item => {
             switch selectedFilter {
             | Some(val) => item == val
@@ -655,29 +696,76 @@ module ModalSearchBox = {
           })
 
           if keyPressed == arrowDown {
-            let newIndex = getNextIndex(index, allFilters)
-            switch allFilters->Array.get(newIndex) {
-            | Some(val) => setSelectedFilter(_ => val->Some)
-            | _ => ()
+            if clipboardSuggestionSelected {
+              if allFilters->isNonEmptyArray {
+                let val = allFilters->getValueFromArray(0, {
+                  categoryType: Date,
+                  options: [],
+                  placeholder: "",
+                })
+                setClipboardSuggestionState(state =>
+                  state->updateClipboardSuggestionSelected(false)
+                )
+                setSelectedFilter(_ => val->Some)
+              }
+            } else if hasClipboardSuggestion && index < 0 {
+              setClipboardSuggestionState(state =>
+                state->updateClipboardSuggestionSelected(true)
+              )
+              setSelectedFilter(_ => None)
+            } else {
+              let newIndex = getNextIndex(index, allFilters)
+              if allFilters->isNonEmptyArray {
+                let val = allFilters->getValueFromArray(newIndex, {
+                  categoryType: Date,
+                  options: [],
+                  placeholder: "",
+                })
+                setSelectedFilter(_ => val->Some)
+              }
             }
           } else if keyPressed == arrowUp {
-            let newIndex = getPrevIndex(index, allFilters)
-            switch allFilters->Array.get(newIndex) {
-            | Some(val) => setSelectedFilter(_ => val->Some)
-            | _ => ()
+            if clipboardSuggestionSelected {
+              if allFilters->isNonEmptyArray {
+                let val = allFilters->getValueFromArray(allFilters->Array.length - 1, {
+                  categoryType: Date,
+                  options: [],
+                  placeholder: "",
+                })
+                setClipboardSuggestionState(state =>
+                  state->updateClipboardSuggestionSelected(false)
+                )
+                setSelectedFilter(_ => val->Some)
+              }
+            } else if hasClipboardSuggestion && index <= 0 {
+              setClipboardSuggestionState(state =>
+                state->updateClipboardSuggestionSelected(true)
+              )
+              setSelectedFilter(_ => None)
+            } else {
+              let newIndex = getPrevIndex(index, allFilters)
+              if allFilters->isNonEmptyArray {
+                let val = allFilters->getValueFromArray(newIndex, {
+                  categoryType: Date,
+                  options: [],
+                  placeholder: "",
+                })
+                setSelectedFilter(_ => val->Some)
+              }
             }
           } else if keyPressed == enterKey {
-            switch selectedFilter {
-            | Some(filter) =>
-              if activeFilter->String.includes(filterSeparator) {
-                switch filter.options->Array.get(0) {
-                | Some(val) => val->onSuggestionClicked
-                | _ => ()
+            if clipboardSuggestionSelected {
+              onClipboardSuggestionClicked(clipboardText)
+            } else {
+              switch selectedFilter {
+              | Some(filter) =>
+                if activeFilter->String.includes(filterSeparator) {
+                  filter.options->getValueFromArray(0, "")->onSuggestionClicked
+                } else {
+                  filter->onFilterClicked
                 }
-              } else {
-                filter->onFilterClicked
+              | _ => ()
               }
-            | _ => ()
             }
           }
         }

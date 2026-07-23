@@ -6,6 +6,29 @@ let global_search_activate_key = "k"
 let filterSeparator = ":"
 let sectionsViewResultsCount = 4
 
+let getClipboardSuggestion = state => {
+  switch state {
+  | Hidden => None
+  | Visible(suggestion) => Some(suggestion)
+  }
+}
+
+let makeClipboardSuggestion = text => Visible({text, selected: false})
+
+let updateClipboardSuggestionSelected = (state, selected) =>
+  state
+  ->getClipboardSuggestion
+  ->mapOptionOrDefault(Hidden, suggestion => Visible({...suggestion, selected}))
+
+let getClipboardSearchText = text => {
+  let trimmedText = text->String.trim
+  if RegExp.test(%re("/^(pay|ref)_[A-Za-z0-9_]+$/"), trimmedText) {
+    Some(trimmedText)
+  } else {
+    None
+  }
+}
+
 let getEndChar = string => {
   string->String.charAt(string->String.length - 1)
 }

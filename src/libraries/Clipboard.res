@@ -4,6 +4,25 @@ type styleObj
 @val @scope(("navigator", "clipboard"))
 external writeTextDoc: string => unit = "writeText"
 
+type clipboard = {readText: unit => Promise.t<string>}
+
+@val @scope("navigator")
+external clipboard: Js.Null_undefined.t<clipboard> = "clipboard"
+
+let readText = async () => {
+  try {
+    switch (Window.isSecureContext, clipboard->Js.Null_undefined.toOption) {
+    | (true, Some(clipboard)) => {
+        let text = await clipboard.readText()
+        Some(text)
+      }
+    | _ => None
+    }
+  } catch {
+  | _ => None
+  }
+}
+
 @val external document: 'a = "document"
 @set external setPosition: (styleObj, string) => unit = "position"
 @set external setLeft: (styleObj, string) => unit = "left"
