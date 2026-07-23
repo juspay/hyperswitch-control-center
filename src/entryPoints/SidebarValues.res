@@ -556,8 +556,7 @@ let organizationSettings = (userHasAccess, checkUserEntity) => {
     name: "Organization Settings",
     link: `/organization-settings`,
     access: {
-      userHasAccess(~groupAccess=AccountManage) == Access &&
-        checkUserEntity([#Organization])
+      userHasAccess(~groupAccess=AccountManage) == Access && checkUserEntity([#Organization])
         ? Access
         : NoAccess
     },
