@@ -556,8 +556,7 @@ let organizationSettings = (userHasAccess, checkUserEntity) => {
     name: "Organization Settings",
     link: `/organization-settings`,
     access: {
-      userHasAccess(~groupAccess=AccountManage) == CommonAuthTypes.Access &&
-        checkUserEntity([#Organization])
+      userHasAccess(~groupAccess=AccountManage) == Access && checkUserEntity([#Organization])
         ? Access
         : NoAccess
     },
@@ -590,7 +589,7 @@ let settings = (
     ->Array.push(ThemeSidebarValues.themeSublevelLinks(~userHasResourceAccess))
     ->ignore
   }
-  if userHasAccess(~groupAccess=AccountManage) == CommonAuthTypes.Access {
+  if userHasAccess(~groupAccess=AccountManage) == Access {
     settingsLinkArray->Array.push(organizationSettings(userHasAccess, checkUserEntity))->ignore
   }
   if !(devUsers && devModularityV2Enabled) {
@@ -633,6 +632,15 @@ let webhooks = userHasResourceAccess => {
   })
 }
 
+let blocklist = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Blocklist",
+    link: `/blocklist`,
+    access: userHasResourceAccess(~resourceAccess=Account),
+    searchOptions: [("View blocklist", ""), ("Upload blocklist CSV", "")],
+  })
+}
+
 let paymentLinkTheme = {
   SubLevelLink({
     name: "Payment Link Theme",
@@ -645,7 +653,9 @@ let paymentLinkTheme = {
 let developers = (
   isDevelopersEnabled,
   ~isWebhooksEnabled,
+  ~isBlocklistEnabled,
   ~userHasResourceAccess,
+  ~userHasAccess,
   ~checkUserEntity,
   ~paymentLinkThemeConfigurator,
   ~isCurrentMerchantPlatform,
@@ -653,6 +663,7 @@ let developers = (
   let apiKeys = apiKeys(userHasResourceAccess)
   let webhooks = webhooks(userHasResourceAccess)
   let paymentSettings = paymentSettings(userHasResourceAccess)
+  let blocklist = blocklist(userHasResourceAccess)
 
   let links = if isCurrentMerchantPlatform {
     [paymentSettings, apiKeys, webhooks]
@@ -666,6 +677,9 @@ let developers = (
     }
     if isWebhooksEnabled {
       defaultDevelopersOptions->Array.push(webhooks)
+    }
+    if isBlocklistEnabled && userHasAccess(~groupAccess=AccountManage) == Access {
+      defaultDevelopersOptions->Array.push(blocklist)
     }
     if paymentLinkThemeConfigurator {
       defaultDevelopersOptions->Array.push(paymentLinkTheme)
