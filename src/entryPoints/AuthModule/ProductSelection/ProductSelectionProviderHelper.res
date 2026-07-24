@@ -9,11 +9,15 @@ module SwitchMerchantBody = {
     open Typography
     let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
     let showToast = ToastAdapter.useShowToast()
+    let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
 
     let switchMerch = async () => {
       try {
         let version = UserUtils.getVersion(selectedProduct)
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantDetails.id), ~version)
+        setActiveProductValue(selectedProduct)
+        let productUrl = ProductUtils.getProductUrl(~productType=selectedProduct, ~isLiveMode)
+        RescriptReactRouter.replace(productUrl)
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
@@ -45,6 +49,7 @@ module SelectMerchantBody = {
     let showToast = ToastAdapter.useShowToast()
     let merchantDetailsTypedValue =
       HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom
+    let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
 
     let dropDownOptions =
       merchantList
@@ -96,6 +101,9 @@ module SelectMerchantBody = {
         let version = UserUtils.getVersion(selectedProduct)
 
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid), ~version)
+        setActiveProductValue(selectedProduct)
+        let productUrl = ProductUtils.getProductUrl(~productType=selectedProduct, ~isLiveMode)
+        RescriptReactRouter.replace(productUrl)
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
@@ -174,6 +182,7 @@ module CreateNewMerchantBody = {
     let merchantDetailsTypedValue =
       HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+    let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
 
     let initialValues = React.useMemo(() => {
       let dict = Dict.make()
@@ -189,6 +198,9 @@ module CreateNewMerchantBody = {
       try {
         let version = UserUtils.getVersion(selectedProduct)
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid), ~version)
+        setActiveProductValue(selectedProduct)
+        let productUrl = ProductUtils.getProductUrl(~productType=selectedProduct, ~isLiveMode)
+        RescriptReactRouter.replace(productUrl)
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
