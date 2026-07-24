@@ -148,10 +148,14 @@ let make = () => {
       setInitialValues(_ => res)
       let _ = await fetchConnectorListResponse()
       setScreenState(_ => PageLoaderWrapper.Success)
-      showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
+      showToast(
+        ~message=`Connector has been successfully ${currentIsDisabled ? "enabled" : "disabled"}`,
+        ~toastType=ToastSuccess,
+      )
     } catch {
     | Exn.Error(_) => {
-        showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
+        let action = currentIsDisabled ? "enable" : "disable"
+        showToast(~message=`Failed to ${action} connector!`, ~toastType=ToastError)
         setScreenState(_ => PageLoaderWrapper.Success)
       }
     }
@@ -218,7 +222,10 @@ let make = () => {
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
           setCurrentStep(_ => ConfigurationFields)
         } else {
-          showToast(~message=errorMessage, ~toastType=ToastError)
+          showToast(
+            ~message=getErrorMessage(~message=errorMessage, ~error=err),
+            ~toastType=ToastError,
+          )
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }
@@ -290,7 +297,7 @@ let make = () => {
                   isUpdateFlow selectedConnector={connectorName}
                 />
               </div>
-              <div className={`flex flex-col gap-2 p-2 md:p-10`}>
+              <div className={`flex flex-col gap-2 p-2 md:px-10`}>
                 <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
                   connector={connectorName->getConnectorNameTypeFromString(
                     ~connectorType=ThreeDsAuthenticator,

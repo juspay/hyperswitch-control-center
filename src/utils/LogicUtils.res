@@ -5,6 +5,10 @@ let isEmptyString = str => str->String.length === 0
 
 let isNonEmptyString = str => str->String.length > 0
 
+let getErrorMessage = (~message, ~error, ~fallback="Something went wrong") => {
+  message->isNonEmptyString ? message : error->isNonEmptyString ? error : fallback
+}
+
 let methodStr = (method: Fetch.requestMethod) => {
   switch method {
   | Get => "GET"
@@ -340,6 +344,10 @@ let getObj = (dict, key, default) => {
   dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.object)->Option.getOr(default)
 }
 
+let getOptionObj = (dict, key) => {
+  dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.object)
+}
+
 let getMappedValueFromDict = (dict, key, default, mapper) =>
   dict->Dict.get(key)->Option.mapOr(default, mapper)
 
@@ -586,6 +594,9 @@ let getTitle = name => {
   ->Array.map(capitalizeString)
   ->Array.joinWith(" ")
 }
+
+let pluralize = (~count, ~singular, ~plural=?) =>
+  count == 1 ? singular : plural->Option.getOr(`${singular}s`)
 
 // Regex to check if a string contains a substring
 let regex = (positionToCheckFrom, searchString) => {
