@@ -2512,6 +2512,43 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
   }
 }
 
+let getConnectorCategory = (connector: ConnectorTypes.connectorTypes): ConnectorTypes.connector =>
+  switch connector {
+  | Processors(_) => Processor
+  | PayoutProcessor(_) => PayoutProcessor
+  | ThreeDsAuthenticator(_) => ThreeDsAuthenticator
+  | FRM(_) => FRMPlayer
+  | PMAuthenticationProcessor(_) => PMAuthenticationProcessor
+  | TaxProcessor(_) => TaxProcessor
+  | BillingProcessor(_) => BillingProcessor
+  | VaultProcessor(_) => VaultProcessor
+  | SurchargeProcessor(_) => SurchargeProcessor
+  | UnknownConnector(_) => Processor
+  }
+
+let matchesConnectorTypeSearch = (connector: ConnectorTypes.connectorTypes, searchText) => {
+  let connectorName = connector->getConnectorNameString
+  let connectorType = connector->getConnectorCategory
+  let displayName = connectorName->getDisplayNameForConnector(~connectorType)
+
+  [connectorName, displayName]->Array.some(value => isContainingStringLowercase(value, searchText))
+}
+
+let matchesConnectorSearch = (
+  ~connectorType=ConnectorTypes.Processor,
+  connector: ConnectorTypes.connectorPayloadCommonType,
+  searchText,
+) => {
+  let displayName = connector.connector_name->getDisplayNameForConnector(~connectorType)
+
+  [
+    connector.connector_name,
+    displayName,
+    connector.id,
+    connector.connector_label,
+  ]->Array.some(value => isContainingStringLowercase(value, searchText))
+}
+
 let getConnectorFilterOptions = (
   ~connectorType=ConnectorTypes.Processor,
   values: array<string>,
