@@ -26,6 +26,17 @@ let routingTypeName = routingType => {
   }
 }
 
+// `target` value sent to POST /routing/entry?target=... for a cut-over profile, so the backend can
+// deep-link the card to its Decision Engine page. Empty string for cards that stay Hyperswitch-local.
+let deRoutingTarget = routingType => {
+  switch routingType {
+  | VOLUME_SPLIT => "volume"
+  | ADVANCED => "rule"
+  | AUTH_RATE_ROUTING => "multi_objective"
+  | _ => ""
+  }
+}
+
 let getRoutingPayload = (data, routingType, name, description, profileId) => {
   let connectorsOrder =
     [("data", data->JSON.Encode.array), ("type", routingType->JSON.Encode.string)]->Dict.fromArray
@@ -69,7 +80,7 @@ let getModalObj = (routingType, text) => {
   }
 }
 
-let getContent = routetype =>
+let getContent = (~isCutover=false, routetype) =>
   switch routetype {
   | DEFAULTFALLBACK => {
       heading: "Default Fallback ",
@@ -83,10 +94,17 @@ let getContent = routetype =>
       heading: "Rule Based Configuration",
       subHeading: "Route traffic across processors with advanced logic rules on the basis of various payment parameters",
     }
-  | AUTH_RATE_ROUTING => {
-      heading: "Auth Rate Based Routing",
-      subHeading: "Dynamically route payments to maximise payment authorization rates",
-    }
+  | AUTH_RATE_ROUTING =>
+    // For cut-over (Decision Engine) profiles this card is the DE "Multi-objective" strategy.
+    isCutover
+      ? {
+          heading: "Multi Objective",
+          subHeading: "Route payments across multiple objectives — authorization rate, cost, and reliability — optimized by the Decision Engine",
+        }
+      : {
+          heading: "Auth Rate Based Routing",
+          subHeading: "Dynamically route payments to maximise payment authorization rates",
+        }
   | _ => {
       heading: "",
       subHeading: "",
