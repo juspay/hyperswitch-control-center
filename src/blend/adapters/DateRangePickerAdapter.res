@@ -149,10 +149,7 @@ module BlendDateRangePicker = {
         formatIsoToFormat(range.startDate, format)->Identity.stringToFormReactEvent,
       )
       endInput.onChange(formatIsoToFormat(endDate, format)->Identity.stringToFormReactEvent)
-      switch limitMessage {
-      | Some(message) => showToast(~message, ~toastType=ToastState.ToastError)
-      | None => ()
-      }
+      limitMessage->Option.forEach(message => showToast(~message, ~toastType=ToastState.ToastError))
     }, (startInput.onChange, endInput.onChange, format, dateRangeLimit, showToast))
 
     let customPresets = predefinedDays->Array.map(day => toBlendPreset(day, ~disableFutureDates))
