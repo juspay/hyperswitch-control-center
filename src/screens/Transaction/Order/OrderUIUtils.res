@@ -1,5 +1,6 @@
 open LogicUtils
 open OrderTypes
+open CommonAuthUtils
 let getFilterTypeFromString = (filterType): filter => {
   switch filterType {
   | "connector" => #connector
@@ -322,6 +323,7 @@ let unsupportedAdvancedPaymentFilterKeys = [
 let firstAttemptFilterKey = (#first_attempt: hiddenAdvancedPaymentFilter :> string)
 let paymentIdFilterKey = (#payment_id: basePaymentListFilter :> string)
 let customerEmailFilterKey = (#customer_email: filter)->getValueFromFilterType
+let advancedSearchQueryKey = (#query: advancedPaymentSearchParam :> string)
 
 let hiddenAdvancedPaymentFilterKeys = [firstAttemptFilterKey]
 
@@ -434,7 +436,9 @@ let buildAdvancedPaymentListPayload = (
   if trimmedSearchText->isNonEmptyString {
     body->Dict.delete(startTimeKey)
     body->Dict.delete(endTimeKey)
-    if !(trimmedSearchText->CommonAuthUtils.isValidEmail) {
+    // isValidEmail is a form-error predicate: true means the value is NOT an email
+    let isEmail = !(trimmedSearchText->isValidEmail)
+    if isEmail {
       body->setOptionString(customerEmailFilterKey, Some(trimmedSearchText))
     } else if trimmedSearchText->String.startsWith("pay_") {
       body->setOptionString(paymentIdFilterKey, Some(trimmedSearchText))
@@ -444,7 +448,7 @@ let buildAdvancedPaymentListPayload = (
         Some([trimmedSearchText]->getJsonFromArrayOfString),
       )
     } else {
-      body->setOptionString("query", Some(trimmedSearchText))
+      body->setOptionString(advancedSearchQueryKey, Some(trimmedSearchText))
     }
   }
 
@@ -577,17 +581,6 @@ let initialFiltersWithSource = (
     }
   })
 }
-
-let initialFilters = (json, filterValues, removeKeys, filterKeys, setfilterKeys, version) =>
-  initialFiltersWithSource(
-    ~isAdvancedSource=false,
-    json,
-    filterValues,
-    removeKeys,
-    filterKeys,
-    setfilterKeys,
-    version,
-  )
 
 let initialFixedFilter = (version: UserInfoTypes.version, ~disable=false) => [
   (

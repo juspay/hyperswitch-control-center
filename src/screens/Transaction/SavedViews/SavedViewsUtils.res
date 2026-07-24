@@ -1,4 +1,5 @@
 open LogicUtils
+open OrderUIUtils
 
 let maxViews = 5
 
@@ -108,8 +109,8 @@ let getApplyFilters = (~filterDict, ~filterValue, ~version) => {
   ->Dict.toArray
   ->Array.forEach(((key, value)) => flattenToDict(newFiltersDict, key, value))
 
-  let startTimeKey = OrderUIUtils.startTimeFilterKey(version)
-  let endTimeKey = OrderUIUtils.endTimeFilterKey(version)
+  let startTimeKey = startTimeFilterKey(version)
+  let endTimeKey = endTimeFilterKey(version)
   let savedHasDates = newFiltersDict->getOptionValFromDict(startTimeKey)->Option.isSome
 
   filterValue
@@ -198,8 +199,8 @@ let findMatchingView = (
     savedFilters
     ->Dict.toArray
     ->Array.forEach(((key, value)) => flattenToDict(savedFiltersStringDict, key, value))
-    let startTimeKey = OrderUIUtils.startTimeFilterKey(version)
-    let endTimeKey = OrderUIUtils.endTimeFilterKey(version)
+    let startTimeKey = startTimeFilterKey(version)
+    let endTimeKey = endTimeFilterKey(version)
     if savedFiltersStringDict->getOptionValFromDict(startTimeKey)->Option.isNone {
       tempCurrentFiltersDict->Dict.delete(startTimeKey)
     }

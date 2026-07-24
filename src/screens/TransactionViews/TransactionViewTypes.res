@@ -29,6 +29,6 @@ type sankeyAggregateData = {
   statusWithCount: Dict.t<JSON.t>,
   refundsStatusWithCount: Dict.t<JSON.t>,
   disputeStatusWithCount: Dict.t<JSON.t>,
-  mutable firstAttemptSuccessCount: float,
-  mutable retrySuccessCount: float,
+  firstAttemptSuccessCount: float,
+  retrySuccessCount: float,
 }

@@ -90,10 +90,6 @@ let getFilterUpdateForView = (
   (filterEntries, removedFilterKeys)
 }
 
-let getTransactionViewEntityKey = (entity: operationsTypes) => (entity :> string)
-
-let getTransactionViewVersionKey = (version: UserInfoTypes.version) => (version :> string)
-
 let refundViewsArray: array<viewTypes> = [All, Succeeded, Failed, Pending]
 
 let disputeViewsArray: array<viewTypes> = [All, Succeeded, Failed, Pending]
@@ -222,10 +218,10 @@ let getViewTypeFromString = (view, entity) => {
   }
 }
 
-let buildAllStatusFilterStringForKey = (obj, key) => {
+let buildAllStatusFilterString = obj => {
   obj
   ->getDictFromJsonObject
-  ->getDictfromDict(key)
+  ->getDictfromDict("status_with_count")
   ->Dict.keysToArray
   ->Array.joinWith(",")
 }
@@ -253,8 +249,6 @@ let getSankeyFirstAttempt = dict =>
   | Some(value) => value->getBoolFromJson(value->getIntFromJson(0) == 1)
   | None => false
   }
-
-let buildAllStatusFilterString = obj => buildAllStatusFilterStringForKey(obj, "status_with_count")
 
 let getViewFilterValue = (view, obj, entity) => {
   switch entity {
@@ -396,13 +390,6 @@ let sankeyResponseToStatusWithCount = response => {
           let previous = acc.statusWithCount->getFloat(status, 0.0)
           acc.statusWithCount->Dict.set(status, (previous +. count)->JSON.Encode.float)
         }
-        let isSucceeded = status->HSwitchOrderUtils.statusVariantMapper === Succeeded
-        if isSucceeded && isFirstAttempt {
-          acc.firstAttemptSuccessCount = acc.firstAttemptSuccessCount +. count
-        }
-        if isSucceeded && !isFirstAttempt {
-          acc.retrySuccessCount = acc.retrySuccessCount +. count
-        }
         if refundsStatus->isNonEmptyString {
           let previous = acc.refundsStatusWithCount->getFloat(refundsStatus, 0.0)
           acc.refundsStatusWithCount->Dict.set(
@@ -417,7 +404,16 @@ let sankeyResponseToStatusWithCount = response => {
             (previous +. count)->JSON.Encode.float,
           )
         }
-        acc
+        let isSucceeded = status->HSwitchOrderUtils.statusVariantMapper === Succeeded
+        {
+          ...acc,
+          firstAttemptSuccessCount: acc.firstAttemptSuccessCount +. (
+            isSucceeded && isFirstAttempt ? count : 0.0
+          ),
+          retrySuccessCount: acc.retrySuccessCount +. (
+            isSucceeded && !isFirstAttempt ? count : 0.0
+          ),
+        }
       },
     )
 
@@ -452,8 +448,8 @@ let buildAggregateRequestKey = (
   ~endTime: string,
 ) =>
   [
-    entity->getTransactionViewEntityKey,
-    version->getTransactionViewVersionKey,
+    (entity :> string),
+    (version :> string),
     (transactionEntity :> string),
     isAdvancedView->getStringFromBool,
     devClickhouseAggregate->getStringFromBool,

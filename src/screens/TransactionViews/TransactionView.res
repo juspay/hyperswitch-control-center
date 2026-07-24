@@ -92,15 +92,15 @@ let make = (
     getStartAndEndTime(filterValueJson, version)
   }, (filterValueJson, version))
   let aggregateRequestKey = React.useMemo(() => {
-    [
-      entity->getTransactionViewEntityKey,
-      version->getTransactionViewVersionKey,
-      (transactionEntity :> string),
-      isAdvancedView->getStringFromBool,
-      devClickhouseAggregate->getStringFromBool,
-      startTime,
-      endTime,
-    ]->Array.joinWith(":")
+    buildAggregateRequestKey(
+      ~entity,
+      ~version,
+      ~transactionEntity,
+      ~isAdvancedView,
+      ~devClickhouseAggregate,
+      ~startTime,
+      ~endTime,
+    )
   }, (
     entity,
     version,

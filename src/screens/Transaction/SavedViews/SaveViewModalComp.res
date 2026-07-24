@@ -238,7 +238,13 @@ let make = (
     }
     filtersDict->Dict.delete("amount_filter")
     SavedViewsUtils.foldAmountOption(filtersDict)
-    filtersDict->setBoolListFilter(firstAttemptFilterKey)
+    // first_attempt is a payments-only filter; skip the normalization for other entities
+    switch entity {
+    | Payment
+    | PaymentAdvanced =>
+      filtersDict->setBoolListFilter(firstAttemptFilterKey)
+    | _ => ()
+    }
     filtersDict->JSON.Encode.object
   }
 

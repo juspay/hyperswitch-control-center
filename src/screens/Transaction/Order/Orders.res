@@ -295,7 +295,7 @@ let make = (~previewOnly=false) => {
   }, (searchText, version, isAdvancedSource, devSavedViews))
 
   let downloadData = () => {
-    let currentDate = Date.now()->Js.Date.fromFloat->Date.toISOString->dateFormat("YYYY-MM-DD")
+    let currentDate = Date.make()->Date.toISOString->dateFormat("YYYY-MM-DD")
     DownloadUtils.downloadTableAsCsv(
       ~csvHeaders=OrderEntity.csvHeaders,
       ~rawData=selectedRows,
