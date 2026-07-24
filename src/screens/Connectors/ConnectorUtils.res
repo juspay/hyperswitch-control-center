@@ -189,6 +189,7 @@ let connectorList: array<connectorTypes> = [
   Processors(IMERCHANTSOLUTIONS),
   Processors(PAYCONEX),
   Processors(TSYSTRANSIT),
+  Processors(GIVEPAYMENTS),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -741,6 +742,10 @@ let tsystransitInfo = {
   description: "TransIT is a RESTful payment gateway for processing transactions and value-added services with real-time reporting.",
 }
 
+let givepaymentsInfo = {
+  description: "GivePayments connects providers, merchants, and customers through a fully integrated ecosystem of payment tools and services with built-in chargeback prevention, automated underwriting, and PCI DSS 4.0-level security.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -1026,6 +1031,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | IMERCHANTSOLUTIONS => "imerchantsolutions"
   | PAYCONEX => "payconex"
   | TSYSTRANSIT => "tsys_transit"
+  | GIVEPAYMENTS => "givepayments"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1237,6 +1243,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "imerchantsolutions" => Processors(IMERCHANTSOLUTIONS)
     | "payconex" => Processors(PAYCONEX)
     | "tsys_transit" => Processors(TSYSTRANSIT)
+    | "givepayments" => Processors(GIVEPAYMENTS)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1424,6 +1431,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | IMERCHANTSOLUTIONS => imerchantsolutionsInfo
   | PAYCONEX => payconexInfo
   | TSYSTRANSIT => tsystransitInfo
+  | GIVEPAYMENTS => givepaymentsInfo
   }
 }
 
@@ -2421,6 +2429,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | IMERCHANTSOLUTIONS => "iMerchant Solutions"
   | PAYCONEX => "PayConex"
   | TSYSTRANSIT => "TSYS Transit"
+  | GIVEPAYMENTS => "GivePayments"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>

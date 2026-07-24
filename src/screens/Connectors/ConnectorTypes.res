@@ -143,6 +143,7 @@ type processorTypes =
   | IMERCHANTSOLUTIONS
   | PAYCONEX
   | TSYSTRANSIT
+  | GIVEPAYMENTS
 
 type payoutProcessorTypes =
   | ADYEN
