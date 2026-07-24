@@ -810,10 +810,8 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let (selectedTabIndex, setSelectedTabIndex) = React.useState(_ => 0)
 
   let renderDetailsPanel = (~title, ~children) =>
-    <div
-      className="border border-jp-gray-940 border-opacity-75 rounded-lg overflow-hidden bg-white dark:bg-jp-gray-lightgray_background dark:border-jp-gray-960">
-      <div
-        className="px-5 py-4 border-b border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960">
+    <div className="border border-nd_gray-200 rounded-lg overflow-hidden bg-nd_gray-0">
+      <div className="px-5 py-4 border-b border-nd_gray-200">
         <p className={`${body.md.semibold} text-nd_gray-700`}> {title->React.string} </p>
       </div>
       <div className="px-5 py-4"> {children} </div>
@@ -1099,7 +1097,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
 
   let selectTabByTitle = title => {
     let tabIndex = paymentDetailsTabs->Array.findIndex(tab => tab.title === title)
-   tabIndex >= 0 ? setSelectedTabIndex(_ => tabIndex) : ()
+    tabIndex >= 0 ? setSelectedTabIndex(_ => tabIndex) : ()
   }
 
   <div className="flex flex-col overflow-scroll gap-8">
@@ -1115,11 +1113,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           <ACLButton
             authorization={userHasAccess(~groupAccess=OperationsView)}
             text="Sync"
-            leftIcon={Button.CustomIcon(
-              <Icon
-                name="sync" className="jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
-              />,
-            )}
+            leftIcon={Button.CustomIcon(<Icon name="sync" className="text-nd_gray-0" />)}
             customButtonStyle="mr-1"
             buttonType={Primary}
             onClick={_ => refreshStatus()->ignore}
