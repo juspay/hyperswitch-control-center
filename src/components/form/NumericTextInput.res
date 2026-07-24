@@ -55,10 +55,21 @@ let make = (
 
         let strValue = value->JSON.Decode.string->Option.getOr("")
 
-        let cleanedValue = switch strValue->Js.String2.match_(%re("/[\d\.]/g")) {
+        let isIntegerPrecision = precision == Some(0)
+        let cleanableStrValue = isIntegerPrecision
+          ? strValue->String.split(".")->Array.get(0)->Option.getOr("")
+          : strValue
+
+        let cleanedValue = switch cleanableStrValue->Js.String2.match_(
+          isIntegerPrecision ? %re("/[\d]/g") : %re("/[\d\.]/g"),
+        ) {
         | Some(strArr) =>
           let str =
-            strArr->Array.joinWithUnsafe("")->String.split(".")->Array.slice(~start=0, ~end=2)
+            strArr
+            ->Array.filterMap(x => x)
+            ->Array.joinWith("")
+            ->String.split(".")
+            ->Array.slice(~start=0, ~end=2)
           let result = if removeLeadingZeroes {
             str[0] = str[0]->Option.getOr("")->String.replaceRegExp(%re("/\b0+/g"), "")
             str[0] =

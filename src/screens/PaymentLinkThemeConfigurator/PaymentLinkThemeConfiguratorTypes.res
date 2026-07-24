@@ -12,6 +12,16 @@ type previewState =
   | PreviewError(string)
   | PreviewSuccess(string)
 
+type previewMode =
+  | Mobile
+  | Web
+
+type previewContentConfig = {
+  iframeScale: string,
+  iframeWidth: string,
+  iframeHeight: string,
+}
+
 @unboxed
 type setupFutureUsage =
   | @as("off_session") OffSession
@@ -23,7 +33,30 @@ type showCardTerms =
   | @as("auto") Auto
   | @as("never") Never
 
-type background_image = {url: string}
+@unboxed
+type sdkLayout =
+  | @as("accordion") Accordion
+  | @as("tabs") Tabs
+  | @as("spaced_accordion") SpacedAccordion
+
+@unboxed
+type detailsLayout =
+  | @as("layout1") Layout1
+  | @as("layout2") Layout2
+
+@unboxed
+type cssFontWeight =
+  | @as("100") FontWeight100
+  | @as("200") FontWeight200
+  | @as("300") FontWeight300
+  | @as("400") FontWeight400
+  | @as("500") FontWeight500
+  | @as("600") FontWeight600
+  | @as("700") FontWeight700
+  | @as("800") FontWeight800
+  | @as("900") FontWeight900
+
+type backgroundImage = {url: string}
 
 type paymentLinkWasmPayload = {
   client_secret: string,
@@ -44,7 +77,7 @@ type paymentLinkWasmPayload = {
   hide_card_nickname_field: bool,
   show_card_form_by_default: bool,
   locale: option<string>,
-  background_image: option<background_image>,
+  background_image: option<backgroundImage>,
   details_layout: option<string>,
   branding_visibility: option<bool>,
   payment_button_text: option<string>,
@@ -54,6 +87,7 @@ type paymentLinkWasmPayload = {
   payment_button_text_colour: option<string>,
   background_colour: option<string>,
   sdk_ui_rules: option<JSON.t>,
+  payment_link_ui_rules: option<JSON.t>,
   enable_button_only_on_form_ready: bool,
   payment_form_header_text: option<string>,
   payment_form_label_type: option<string>,

@@ -14,15 +14,19 @@ let make = (
     Re.test(Js.Re.fromString("^#([0-9A-Fa-f]{6})$"), value)
   }
 
-  let getHexColor = value =>
+  let getValidHexColor = value =>
     switch JSON.Decode.string(value) {
-    | Some(str) if str->isNonEmptyString && isValidHexCode(str) => str
-    | _ => "#006DF9"
+    | Some(str) if str->isNonEmptyString && isValidHexCode(str) => Some(str)
+    | _ => None
     }
 
-  let initialColor = switch defaultValue {
+  let initialColor = switch input.value->getValidHexColor {
   | Some(val) => val
-  | None => getHexColor(input.value)
+  | None =>
+    switch defaultValue {
+    | Some(val) if val->isNonEmptyString && isValidHexCode(val) => val
+    | _ => ""
+    }
   }
 
   let (color, setColor) = React.useState(() => initialColor->String.toUpperCase)
@@ -60,6 +64,7 @@ let make = (
   | (true, false) => false
   | (false, _) => !isValid
   }
+  let pickerColor = isValid ? color : initialColor->isNonEmptyString ? initialColor : "#006DF9"
 
   <div
     className={`relative flex flex-col ${fullWidth ? "w-full" : ""} ${customWrapperClassName}`}
@@ -105,7 +110,7 @@ let make = (
     <RenderIf condition={toggle}>
       <div
         className="mt-10 shadow-md border border-jp-gray-300 rounded-md z-50 absolute bg-white right-0">
-        <SketchPicker color={isValid ? color : initialColor} onChangeComplete />
+        <SketchPicker color=pickerColor onChangeComplete />
       </div>
     </RenderIf>
   </div>
