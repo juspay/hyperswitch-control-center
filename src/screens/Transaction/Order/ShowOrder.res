@@ -1099,9 +1099,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
 
   let selectTabByTitle = title => {
     let tabIndex = paymentDetailsTabs->Array.findIndex(tab => tab.title === title)
-    if tabIndex >= 0 {
-      setSelectedTabIndex(_ => tabIndex)
-    }
+   tabIndex >= 0 ? setSelectedTabIndex(_ => tabIndex) : ()
   }
 
   <div className="flex flex-col overflow-scroll gap-8">
