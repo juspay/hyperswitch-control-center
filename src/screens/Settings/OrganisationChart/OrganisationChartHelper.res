@@ -109,7 +109,7 @@ module OrgChartTree = {
       <div className="flex flex-col gap-4">
         <div className={`${body.lg.semibold} mb-2`}> {React.string("Merchant")} </div>
         {if isPlatformOrg {
-           let filterMerchantList = merchantType =>
+          let filterMerchantList = merchantType =>
             merchantList->Array.filter(merchant =>
               merchant.type_->Option.getOr(#standard) === merchantType
             )
