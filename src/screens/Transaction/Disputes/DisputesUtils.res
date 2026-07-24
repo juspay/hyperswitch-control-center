@@ -66,6 +66,17 @@ let getFileTypeFromFileName = fileName => {
   afterDotFileType
 }
 
+let supportedEvidenceFileTypes = ["pdf", "jpeg", "jpg", "png"]
+
+let getMimeTypeFromFileName = fileName => {
+  switch fileName->getFileTypeFromFileName->String.toLowerCase {
+  | "pdf" => "application/pdf"
+  | "jpeg" | "jpg" => "image/jpeg"
+  | "png" => "image/png"
+  | _ => "application/octet-stream"
+  }
+}
+
 let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
 
 let getFilterTypeFromString = filterType => {

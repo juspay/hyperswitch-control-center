@@ -12,19 +12,29 @@ module EvidenceUploadForm = {
   let make = (~uploadEvidenceType, ~index, ~fileUploadedDict, ~setFileUploadedDict) => {
     open LogicUtils
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
+    let showToast = ToastState.useShowToast()
     let handleBrowseChange = (event, uploadEvidenceType) => {
       let target = ReactEvent.Form.target(event)
-      let fileDict =
-        [
-          ("uploadedFile", target["files"]["0"]->Identity.genericTypeToJson),
-          ("fileName", target["files"]["0"]["name"]->JSON.Encode.string),
-        ]->getJsonFromArrayOfJson
+      let fileName = target["files"]["0"]["name"]
+      let fileType = fileName->DisputesUtils.getFileTypeFromFileName->String.toLowerCase
+      if DisputesUtils.supportedEvidenceFileTypes->Array.includes(fileType) {
+        let fileDict =
+          [
+            ("uploadedFile", target["files"]["0"]->Identity.genericTypeToJson),
+            ("fileName", fileName->JSON.Encode.string),
+          ]->getJsonFromArrayOfJson
 
-      setFileUploadedDict(prev => {
-        let arr = prev->Dict.toArray
-        let newDict = [(uploadEvidenceType, fileDict)]->Array.concat(arr)->Dict.fromArray
-        newDict
-      })
+        setFileUploadedDict(prev => {
+          let arr = prev->Dict.toArray
+          let newDict = [(uploadEvidenceType, fileDict)]->Array.concat(arr)->Dict.fromArray
+          newDict
+        })
+      } else {
+        showToast(
+          ~message="Unsupported file format. Please upload a PDF, PNG, JPG or JPEG file",
+          ~toastType=ToastError,
+        )
+      }
     }
 
     <div className="flex justify-between items-center" key={index->Int.toString}>
@@ -39,7 +49,7 @@ module EvidenceUploadForm = {
             <input
               key={Int.toString(index)}
               type_="file"
-              accept=".pdf,.csv,.img,.jpeg"
+              accept=".pdf,.jpeg,.jpg,.png"
               onChange={ev => ev->handleBrowseChange(uploadEvidenceType)}
               hidden=true
             />
@@ -83,12 +93,14 @@ module UploadDisputeEvidenceModal = {
     open LogicUtils
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let acceptFile = (keyValue, fileValue) => {
+    let acceptFile = (keyValue, fileValue, fileName) => {
       let url = getURL(~entityName=V1(DISPUTES_ATTACH_EVIDENCE), ~methodType=Put)
       let formData = formData()
       append(formData, "dispute_id", disputeId)
       append(formData, "evidence_type", keyValue)
-      append(formData, "file", fileValue)
+      let contentType = DisputesUtils.getMimeTypeFromFileName(fileName)
+      let fileBlob = blob([fileValue], {"type": contentType})
+      appendBlob(formData, "file", fileBlob, fileName)
 
       updateDetails(
         ~bodyFormData=formData,
@@ -111,7 +123,8 @@ module UploadDisputeEvidenceModal = {
       let promisesOfAttachEvidence = dictToIterate->Array.map(ele => {
         let jsonObject = fileUploadedDict->Dict.get(ele)->Option.getOr(JSON.Encode.null)
         let fileValue = jsonObject->getDictFromJsonObject->getJsonObjectFromDict("uploadedFile")
-        let res = acceptFile(ele, fileValue)
+        let fileName = jsonObject->getDictFromJsonObject->getString("fileName", "")
+        let res = acceptFile(ele, fileValue, fileName)
         res
       })
 
@@ -301,9 +314,10 @@ module DisputesInfoBarComponent = {
                     ->Array.map(value => {
                       let fileName =
                         fileUploadedDict->getDictfromDict(value)->getString("fileName", "")
-                      let iconName = switch fileName->getFileTypeFromFileName {
+                      let fileType = fileName->getFileTypeFromFileName
+                      let iconName = switch fileType {
                       | "jpeg" | "jpg" | "png" => "image-icon"
-                      | _ => `${fileName->getFileTypeFromFileName}-icon`
+                      | _ => `${fileType}-icon`
                       }
                       <div
                         className={`p-2 border rounded-md bg-white w-fit flex gap-2 items-center border-grey-200`}>
