@@ -53,7 +53,7 @@ let make = (
         ~sortBy,
         ~direction,
         ~order=sortOrder,
-        ~transformationHistoryId=selectedTransformationHistoryId,
+        ~transformationHistoryIds=[selectedTransformationHistoryId],
       ),
     )
   }, ~persistKey=`recon-engine-data-overview-transformed-entries-${selectedTransformationHistoryId}`)

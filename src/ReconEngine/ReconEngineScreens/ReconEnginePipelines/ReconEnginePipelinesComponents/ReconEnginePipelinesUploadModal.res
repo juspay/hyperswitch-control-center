@@ -44,7 +44,7 @@ module UploadDropzone = {
 
     let clearFileInput = () => {
       fileInputRef.current
-      ->getOptionalFromNullable
+      ->Nullable.toOption
       ->Option.forEach(elem => elem->DOMUtils.toInputElement->DOMUtils.setInputValue(""))
     }
 
@@ -133,7 +133,7 @@ module UploadDropzone = {
           selectedFiles
           ->Array.mapWithIndex((item, index) =>
             switch results[index] {
-            | Some(Error(msg)) => Some({...item, status: Failed(msg)})
+            | Some(Error(msg)) => Some({...item, status: UploadFailed(msg)})
             | _ => None
             }
           )
@@ -250,7 +250,7 @@ module UploadDropzone = {
                     {item.file["size"]->formatFileSize->React.string}
                   </span>
                   {switch item.status {
-                  | Failed(msg) =>
+                  | UploadFailed(msg) =>
                     <span className={`${body.xs.light} text-nd_red-500 shrink-0`}>
                       {`Failed: ${msg}`->React.string}
                     </span>
