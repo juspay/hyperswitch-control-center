@@ -515,6 +515,14 @@ module.exports = {
           300: "#AD46FF",
           700: "#8200DB",
         },
+        nd_pink: {
+          100: "#FCE7F3",
+          500: "#EC4899",
+        },
+        nd_teal: {
+          100: "#CCFBF1",
+          500: "#14B8A6",
+        },
       },
       borderRadius: {
         DEFAULT: "var(--borders-default-radius)",
