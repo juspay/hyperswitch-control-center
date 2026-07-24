@@ -210,9 +210,11 @@ let make = (
   | Disputes => disputeViewsArray
   | Payouts => payoutViewsArray
   }
-  let largeScreenGridClass = viewsArray->Array.length >= 6 ? "lg:grid-cols-6" : "lg:grid-cols-4"
-  <div
-    className={`grid ${largeScreenGridClass} md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 ${containerClassName}`}>
+  let gridColsClass =
+    viewsArray->Array.length >= 6
+      ? "lg:grid-cols-6 sm:grid-cols-3"
+      : "lg:grid-cols-4 sm:grid-cols-2"
+  <div className={`grid ${gridColsClass} md:grid-cols-3 grid-cols-2 gap-6 ${containerClassName}`}>
     {viewsArray
     ->Array.mapWithIndex((item, i) =>
       <TransactionViewCard

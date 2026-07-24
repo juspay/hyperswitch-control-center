@@ -47,6 +47,7 @@ type cardDetail = {
 type processingEntrySearchType =
   | @as("staging_entry_id") SearchStagingEntryId
   | @as("order_id") SearchOrderId
+  | @as("transformation_history_id") SearchTransformationHistoryId
   | @as("unknown") UnknownProcessingEntrySearchType
 
 @unboxed

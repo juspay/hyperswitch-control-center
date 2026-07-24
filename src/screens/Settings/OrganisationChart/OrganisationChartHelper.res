@@ -1,3 +1,74 @@
+open LogicUtils
+
+let getEntityButtonStyles = isSelected => {
+  isSelected
+    ? "border-nd_primary_blue-600 bg-nd_primary_blue-50 text-nd_primary_blue-600"
+    : "border-nd_gray-200 hover:bg-nd_gray-50 text-nd_gray-600"
+}
+
+module MerchantButton = {
+  @react.component
+  let make = (
+    ~merchant: OMPSwitchTypes.ompListTypes,
+    ~isSelected: bool,
+    ~onSelect: OMPSwitchTypes.ompListTypes => promise<unit>,
+  ) => {
+    open Typography
+
+    <button
+      className={`flex justify-between cursor-pointer h-10 items-center bg-white rounded-lg border px-4 py-2 text-left transition-colors duration-200 ${body.md.medium} ${getEntityButtonStyles(
+          isSelected,
+        )}`}
+      onClick={_ => onSelect(merchant)->ignore}
+      id={merchant.id}>
+      <span className="truncate"> {merchant.name->React.string} </span>
+      {switch merchant.productType {
+      | Some(product) =>
+        <span
+          className={`${body.sm.medium} ml-4 rounded-full bg-nd_gray-100 px-3 py-1 text-nd_gray-500 whitespace-nowrap`}>
+          {product->ProductUtils.getProductDisplayName->React.string}
+        </span>
+      | None => React.null
+      }}
+    </button>
+  }
+}
+
+module MerchantGroup = {
+  @react.component
+  let make = (
+    ~title=?,
+    ~merchants: array<OMPSwitchTypes.ompListTypes>,
+    ~selectedMerchant: string,
+    ~onMerchantSelect: OMPSwitchTypes.ompListTypes => promise<unit>,
+  ) => {
+    open Typography
+
+    let merchantButtons =
+      merchants
+      ->Array.map(merchant =>
+        <MerchantButton
+          key={merchant.id}
+          merchant
+          isSelected={selectedMerchant == merchant.id}
+          onSelect=onMerchantSelect
+        />
+      )
+      ->React.array
+
+    <RenderIf condition={merchants->isNonEmptyArray}>
+      {switch title {
+      | Some(title) =>
+        <div className="flex flex-col gap-3 rounded-xl border border-nd_gray-200 bg-nd_gray-25 p-3">
+          <div className={`${body.sm.semibold} text-nd_gray-500`}> {title->React.string} </div>
+          {merchantButtons}
+        </div>
+      | None => merchantButtons
+      }}
+    </RenderIf>
+  }
+}
+
 module OrgChartTree = {
   @react.component
   let make = (
@@ -13,11 +84,11 @@ module OrgChartTree = {
     let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
-    let getButtonStyles = isSelected => {
-      isSelected
-        ? "border-nd_primary_blue-600 bg-nd_primary_blue-50 text-nd_primary_blue-600"
-        : "border-nd_gray-200 hover:bg-nd_gray-50 text-nd_gray-600"
-    }
+    let isPlatformOrg =
+      orgList
+      ->Array.find(org => org.id == selectedOrg)
+      ->mapOptionOrDefault(false, org => org.type_->Option.getOr(#standard) === #platform)
+
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-16 w-full py-8">
       <div className="flex flex-col gap-4">
         <div className={`${body.lg.semibold} mb-2`}> {React.string("Organization")} </div>
@@ -25,7 +96,7 @@ module OrgChartTree = {
         ->Array.map(org => {
           <button
             key=org.id
-            className={`rounded-lg border cursor-pointer h-10 px-4 py-2 bg-white text-left transition-colors duration-200 ${body.md.medium} ${getButtonStyles(
+            className={`rounded-lg border cursor-pointer h-10 px-4 py-2 bg-white text-left transition-colors duration-200 ${body.md.medium} ${getEntityButtonStyles(
                 selectedOrg == org.id,
               )}`}
             onClick={_ => onOrgSelect(org)->ignore}
@@ -37,27 +108,35 @@ module OrgChartTree = {
       </div>
       <div className="flex flex-col gap-4">
         <div className={`${body.lg.semibold} mb-2`}> {React.string("Merchant")} </div>
-        {merchantList
-        ->Array.map(merchant =>
-          <button
-            key={merchant.id}
-            className={`flex justify-between cursor-pointer  h-10 items-center bg-white rounded-lg border px-4 py-2 text-left transition-colors duration-200 ${body.md.medium} ${getButtonStyles(
-                selectedMerchant == merchant.id,
-              )}`}
-            onClick={_ => onMerchantSelect(merchant)->ignore}
-            id={merchant.id}>
-            <span className="truncate whitespace-wrap "> {merchant.name->React.string} </span>
-            {switch merchant.productType {
-            | Some(product) =>
-              <span
-                className={`${body.sm.medium} ml-4 rounded-full bg-nd_gray-100 px-3 py-1 text-nd_gray-500 whitespace-nowrap`}>
-                {product->ProductUtils.getProductDisplayName->React.string}
-              </span>
-            | None => React.null
-            }}
-          </button>
-        )
-        ->React.array}
+        {if isPlatformOrg {
+          let filterMerchantList = merchantType =>
+            merchantList->Array.filter(merchant =>
+              merchant.type_->Option.getOr(#standard) === merchantType
+            )
+
+          <div className="flex flex-col gap-4">
+            <MerchantGroup
+              title={#platform->OMPSwitchUtils.ompTypeHeading}
+              merchants={filterMerchantList(#platform)}
+              selectedMerchant
+              onMerchantSelect
+            />
+            <MerchantGroup
+              title={#connected->OMPSwitchUtils.ompTypeHeading}
+              merchants={filterMerchantList(#connected)}
+              selectedMerchant
+              onMerchantSelect
+            />
+            <MerchantGroup
+              title={#standard->OMPSwitchUtils.ompTypeHeading}
+              merchants={filterMerchantList(#standard)}
+              selectedMerchant
+              onMerchantSelect
+            />
+          </div>
+        } else {
+          <MerchantGroup merchants=merchantList selectedMerchant onMerchantSelect />
+        }}
       </div>
       <div className="flex flex-col gap-4">
         <div className={`${body.lg.semibold} mb-2`}> {React.string("Profile")} </div>
@@ -65,7 +144,7 @@ module OrgChartTree = {
         ->Array.map(profile =>
           <button
             key={profile.id}
-            className={`rounded-lg h-10 cursor-pointer truncate whitespace-wrap border px-4 py-2 bg-white text-left transition-colors duration-200 ${body.md.medium} ${getButtonStyles(
+            className={`rounded-lg h-10 cursor-pointer truncate border px-4 py-2 bg-white text-left transition-colors duration-200 ${body.md.medium} ${getEntityButtonStyles(
                 selectedProfile == profile.id,
               )}`}
             onClick={_ => onProfileSelect(profile)->ignore}
@@ -118,7 +197,7 @@ module HierarchyCard = {
         <span className={`${body.md.semibold} ${accentColor} whitespace-nowrap`}>
           {title->React.string}
         </span>
-        <RenderIf condition={items->LogicUtils.isNonEmptyArray}>
+        <RenderIf condition={items->isNonEmptyArray}>
           <ul className="list-disc list-inside flex flex-col gap-0.5">
             {items
             ->Array.map(item =>

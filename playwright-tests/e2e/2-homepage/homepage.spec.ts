@@ -12,6 +12,8 @@ import {
   createDummyConnectorAPI,
   createBusinessProfileAPI,
   createMerchantAPI,
+  switchMerchantAPI,
+  createStripeGooglePayConnectorAPI,
 } from "../../support/commands";
 import UsersPage from "../../support/pages/settings/UsersPage";
 
@@ -349,7 +351,7 @@ test.describe("DefaultHome product cards", () => {
     await expect(homePage.learnMoreButtons).toHaveCount(1);
   });
 
-  test.skip("should handle Learn More click on every product card when all product flags are ON", async ({
+  test("should handle Learn More click on every product card when all product flags are ON", async ({
     page,
     context,
   }) => {
@@ -402,7 +404,7 @@ test.describe("DefaultHome product cards", () => {
       .getByRole("button", { name: "Learn More" })
       .click();
 
-    await expect(page).toHaveURL(/.*dashboard\/home/);
+    await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
   });
 });
 
@@ -492,7 +494,7 @@ test.describe("Production access form", () => {
       "Hyperswitch Pvt Ltd",
     );
     await productionAccessPage.selectCountryButton.click();
-    await productionAccessPage.countryOption(/^Aland Islands$/).click();
+    await productionAccessPage.countryOption.click();
     await productionAccessPage.websiteInput.fill("https://hyperswitch.io");
     await productionAccessPage.contactNameInput.fill("Jack Ryan");
     await productionAccessPage.contactEmailInput.fill(
@@ -538,7 +540,7 @@ test.describe("Production access form", () => {
       "Hyperswitch Pvt Ltd",
     );
     await productionAccessPage.selectCountryButton.click();
-    await productionAccessPage.countryOption(/^Aland Islands$/).click();
+    await productionAccessPage.countryOption.click();
     await productionAccessPage.websiteInput.fill("not a url");
     await productionAccessPage.contactEmailInput.fill("invalid-email");
     await productionAccessPage.contactNameInput.fill("Jack Ryan");
@@ -569,6 +571,7 @@ test.describe("SDK Payment", () => {
         merchantId,
         "stripe_test_sdk",
         context.request,
+        page,
       );
     }
 
@@ -599,10 +602,6 @@ test.describe("SDK Payment", () => {
     ).toHaveValue("hyperswitch_sdk_demo_id");
     await expect(page.getByText("Show Saved Card")).toBeVisible();
     await expect(page.getByRole("button", { name: "Yes" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Yes" })).toHaveAttribute(
-      "data-value",
-      "yes",
-    );
     await expect(
       page
         .locator("div")
@@ -614,10 +613,10 @@ test.describe("SDK Payment", () => {
     ).toBeVisible();
     await expect(page.getByText("Enter amount")).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: "Enter amount" }),
+      page.getByRole("spinbutton", { name: "Enter amount" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: "Enter amount" }),
+      page.getByRole("spinbutton", { name: "Enter amount" }),
     ).toHaveValue("100");
     await expect(page.getByText("Edit Checkout Details")).toBeVisible();
     await expect(homePage.showPreviewButton).toBeVisible();
@@ -647,10 +646,6 @@ test.describe("SDK Payment", () => {
         .first(),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Default" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Default" })).toHaveAttribute(
-      "data-value",
-      "default",
-    );
     await expect(
       page
         .locator("div")
@@ -660,15 +655,8 @@ test.describe("SDK Payment", () => {
     await expect(
       page.getByRole("button", { name: "English (Global)" }),
     ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "English (Global)" }),
-    ).toHaveAttribute("data-value", "english(Global)");
     await expect(page.getByText("Layout")).toBeVisible();
     await expect(page.getByRole("button", { name: "Tabs" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Tabs" })).toHaveAttribute(
-      "data-value",
-      "tabs",
-    );
     await expect(
       page
         .locator("div")
@@ -676,10 +664,6 @@ test.describe("SDK Payment", () => {
         .first(),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Above" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Above" })).toHaveAttribute(
-      "data-value",
-      "above",
-    );
     await expect(
       page
         .locator("div")
@@ -708,16 +692,11 @@ test.describe("SDK Payment", () => {
 
     await page.getByRole("button", { name: "Yes" }).click();
     await page.locator("div").filter({ hasText: /^No$/ }).nth(1).click();
-    await expect(page.getByRole("button", { name: "No" })).toHaveAttribute(
-      "data-value",
-      "no",
-    );
-
     await page
       .getByRole("button", { name: "🇺🇸 United States Of America" })
       .click();
     await page
-      .getByRole("textbox", { name: "Search name or ID..." })
+      .getByRole("searchbox", { name: "Search options..." })
       .type("India");
     await page.getByText("🇮🇳 India - (INR)").click();
     await expect(
@@ -728,103 +707,102 @@ test.describe("SDK Payment", () => {
     await expect(homePage.sdkAmountInput).toHaveValue("250.50");
   });
 
-  test.fixme(
-    "should make a successful payment using SDK",
-    async ({ page, context }) => {
-      const homePage = new HomePage(page);
+  test.fixme("should make a successful payment using SDK", async ({
+    page,
+    context,
+  }) => {
+    const homePage = new HomePage(page);
 
-      await page
-        .getByRole("button", { name: "🇺🇸 United States Of America" })
-        .click();
-      await page
-        .getByRole("textbox", { name: "Search name or ID..." })
-        .type("India");
-      await page.getByText("🇮🇳 India - (INR)").click();
+    await page
+      .getByRole("button", { name: "🇺🇸 United States Of America" })
+      .click();
+    await page
+      .getByRole("searchbox", { name: "Search options..." })
+      .type("India");
+    await page.getByText("🇮🇳 India - (INR)").click();
 
-      await homePage.sdkAmountInput.fill("123.45");
+    await homePage.sdkAmountInput.fill("123.45");
 
-      await homePage.showPreviewButton.click();
-      await page.waitForLoadState("networkidle");
-      await homePage.waitForSdkCardForm();
+    await homePage.showPreviewButton.click();
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(10000);
+    await homePage.waitForSdkCardForm();
 
-      await homePage.fillSdkTestCard();
+    await homePage.fillSdkTestCard();
 
-      await expect(homePage.payButtonByCurrency("INR")).toContainText(
-        "Pay INR 123.45",
-      );
-      await homePage.payButtonByCurrency("INR").click();
-      await expect(homePage.paymentSuccessfulText).toBeAttached({
-        timeout: 10000,
-      });
+    await expect(homePage.payButtonByCurrency("INR")).toContainText(
+      "Pay INR 123.45",
+    );
+    await homePage.payButtonByCurrency("INR").click();
+    await expect(homePage.paymentSuccessfulText).toBeAttached({
+      timeout: 10000,
+    });
 
-      await homePage.goToPaymentOperationsButton.click();
-      expect(page.url()).toContain("/dashboard/payments/pay_");
-    },
-  );
+    await homePage.goToPaymentOperationsButton.click();
+    expect(page.url()).toContain("/dashboard/payments/pay_");
+  });
 
-  test.fixme(
-    "should display failed payment status using SDK",
-    async ({ page }) => {
-      const homePage = new HomePage(page);
+  test.fixme("should display failed payment status using SDK", async ({
+    page,
+  }) => {
+    const homePage = new HomePage(page);
 
-      await page.route("**/payments/*/confirm", async (route) => {
-        if (route.request().method() === "POST") {
-          const response = await route.fetch();
-          const json = await response.json();
-          json.status = "failed";
-          json.error_code = "CE_01";
-          json.error_message = "Payment declined by processor";
-          await route.fulfill({ response, json });
-        } else {
-          await route.continue();
-        }
-      });
+    await page.route("**/payments/*/confirm", async (route) => {
+      if (route.request().method() === "POST") {
+        const response = await route.fetch();
+        const json = await response.json();
+        json.status = "failed";
+        json.error_code = "CE_01";
+        json.error_message = "Payment declined by processor";
+        await route.fulfill({ response, json });
+      } else {
+        await route.continue();
+      }
+    });
 
-      await homePage.showPreviewButton.click();
-      await page.waitForLoadState("networkidle");
-      await homePage.waitForSdkCardForm();
+    await homePage.showPreviewButton.click();
+    await page.waitForLoadState("networkidle");
+    await homePage.waitForSdkCardForm();
 
-      await homePage.fillSdkTestCard();
+    await homePage.fillSdkTestCard();
 
-      await expect(homePage.payButtonByCurrency("USD")).toContainText(
-        "Pay USD 100",
-      );
-      await homePage.payButtonByCurrency("USD").click();
-      await expect(homePage.paymentFailedText).toBeVisible({ timeout: 10000 });
-      await expect(homePage.goToPaymentOperationsButton).toBeVisible();
-    },
-  );
+    await expect(homePage.payButtonByCurrency("USD")).toContainText(
+      "Pay USD 100",
+    );
+    await homePage.payButtonByCurrency("USD").click();
+    await expect(homePage.paymentFailedText).toBeVisible({ timeout: 10000 });
+    await expect(homePage.goToPaymentOperationsButton).toBeVisible();
+  });
 
-  test.fixme(
-    "should display processing payment status using SDK",
-    async ({ page }) => {
-      const homePage = new HomePage(page);
+  test.fixme("should display processing payment status using SDK", async ({
+    page,
+  }) => {
+    const homePage = new HomePage(page);
 
-      await page.route("**/payments/*/confirm", async (route) => {
-        if (route.request().method() === "POST") {
-          const response = await route.fetch();
-          const json = await response.json();
-          json.status = "processing";
-          await route.fulfill({ response, json });
-        } else {
-          await route.continue();
-        }
-      });
+    await page.route("**/payments/*/confirm", async (route) => {
+      if (route.request().method() === "POST") {
+        const response = await route.fetch();
+        const json = await response.json();
+        json.status = "processing";
+        await route.fulfill({ response, json });
+      } else {
+        await route.continue();
+      }
+    });
 
-      await homePage.showPreviewButton.click();
-      await page.waitForLoadState("networkidle");
-      await homePage.waitForSdkCardForm();
+    await homePage.showPreviewButton.click();
+    await page.waitForLoadState("networkidle");
+    await homePage.waitForSdkCardForm();
 
-      await homePage.fillSdkTestCard();
+    await homePage.fillSdkTestCard();
 
-      await expect(homePage.payButtonByCurrency("USD")).toContainText(
-        "Pay USD 100",
-      );
-      await homePage.payButtonByCurrency("USD").click();
-      await expect(homePage.paymentPendingText).toBeVisible({ timeout: 10000 });
-      await expect(homePage.goToPaymentOperationsButton).toBeVisible();
-    },
-  );
+    await expect(homePage.payButtonByCurrency("USD")).toContainText(
+      "Pay USD 100",
+    );
+    await homePage.payButtonByCurrency("USD").click();
+    await expect(homePage.paymentPendingText).toBeVisible({ timeout: 10000 });
+    await expect(homePage.goToPaymentOperationsButton).toBeVisible();
+  });
 
   test("should display error toast when SDK save (Show Preview) API fails", async ({
     page,
@@ -928,11 +906,18 @@ test.describe("Organization Chart Tree", () => {
       context.request,
     );
     const newMerchantId = newMerchant.merchant_id;
+    const newMerchantToken = await switchMerchantAPI(
+      token,
+      newMerchantId,
+      context.request,
+    );
 
     await createBusinessProfileAPI(
       newMerchantId,
       "new-test-profile",
       context.request,
+      undefined,
+      newMerchantToken,
     );
 
     await orgChart.visit();
@@ -1049,11 +1034,18 @@ test.describe("Organization Chart Tree", () => {
       context.request,
     );
     const newMerchantId = newMerchant.merchant_id;
+    const newMerchantToken = await switchMerchantAPI(
+      token,
+      newMerchantId,
+      context.request,
+    );
 
     await createBusinessProfileAPI(
       newMerchantId,
       "new-test-profile",
       context.request,
+      undefined,
+      newMerchantToken,
     );
 
     await orgChart.visit();

@@ -364,6 +364,9 @@ module.exports = {
           light: "#F8B3AA",
         },
         "yellow-bg": "#F7D59B4D",
+        yellow: {
+          pending_page_bg: "#FDF4DD",
+        },
         "profile-sidebar-blue": "#16488F",
         "status-green": "#36AF47",
         "popover-background": "#334264",
