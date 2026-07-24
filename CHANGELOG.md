@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.07.24.0
+
+### Features
+
+- Add recon pipelines overview stat cards and history ([#5092](https://github.com/juspay/hyperswitch-control-center/pull/5092)) ([`de817f5`](https://github.com/juspay/hyperswitch-control-center/commit/de817f5ed2ecf73ee6b27fd9fd8e3cf367571862))
+
+### Bug Fixes
+
+- Clarify included/excluded fields in clone connector modal ([#5220](https://github.com/juspay/hyperswitch-control-center/pull/5220)) ([`4dc6be3`](https://github.com/juspay/hyperswitch-control-center/commit/4dc6be333e14125f93af8c663619a540b46c5b46))
+- Hide authentication attempted from funnel ([#5218](https://github.com/juspay/hyperswitch-control-center/pull/5218)) ([`e37e4b2`](https://github.com/juspay/hyperswitch-control-center/commit/e37e4b25ce51203594f7c46df4031aa3752a45e4))
+- Fix toast not appearing and unify toast messages ([#5128](https://github.com/juspay/hyperswitch-control-center/pull/5128)) ([`29e96aa`](https://github.com/juspay/hyperswitch-control-center/commit/29e96aae80b7f311581d8823d571bcc887663bd4))
+
+### Miscellaneous Tasks
+
+- Update payment link wasm bundle ([#5223](https://github.com/juspay/hyperswitch-control-center/pull/5223)) ([`e7e2fb0`](https://github.com/juspay/hyperswitch-control-center/commit/e7e2fb044036a8030d6889977caa74479b945a55))
+
+**Full Changelog:** [`2026.07.22.1...2026.07.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.22.1...2026.07.24.0)
+
+- - -
+
 ## 2026.07.22.1
 
 ### Features
