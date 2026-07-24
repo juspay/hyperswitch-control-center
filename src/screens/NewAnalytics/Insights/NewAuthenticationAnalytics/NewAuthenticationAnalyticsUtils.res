@@ -343,8 +343,6 @@ let getUpdatedFilterValueJson = (
     "device_type",
     "device_os",
     "device_display",
-    "browser_name",
-    "browser_version",
     "scheme_name",
     "exemption_requested",
     "exemption_accepted",
