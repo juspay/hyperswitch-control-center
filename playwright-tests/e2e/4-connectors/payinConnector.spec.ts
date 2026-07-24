@@ -1254,7 +1254,7 @@ test.describe("All Payin Connectors", () => {
 
       await paymentConnector.connectorSearchInput.fill(connector.label);
       await page
-        .getByTestId(key)
+        .getByTestId(connector.label)
         .getByRole("button", { name: "Connect" })
         .click();
 
