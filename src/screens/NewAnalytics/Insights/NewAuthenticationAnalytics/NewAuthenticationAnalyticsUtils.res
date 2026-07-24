@@ -325,21 +325,50 @@ let getUpdatedFilterValueJson = (
   ~currentTab: tabType=ThreeDSExemptionAnalyticsTab,
 ) => {
   let updatedFilterValueJson = Js.Dict.map(t => t, filterValueJson)
-  let booleanFilterFields = ["exemption_accepted", "exemption_requested", "whitelist_decision"]
+  let booleanFilterFields = ["exemption_accepted", "exemption_requested"]
+  let authenticationFilterFields = [
+    "authentication_connector",
+    "message_version",
+    "acs_reference_number",
+    "platform",
+    "mcc",
+    "currency",
+    "merchant_country",
+    "billing_country",
+    "shipping_country",
+    "issuer_country",
+    "issuer_id",
+    "earliest_supported_version",
+    "latest_supported_version",
+    "device_type",
+    "device_os",
+    "device_display",
+    "scheme_name",
+    "exemption_requested",
+    "exemption_accepted",
+  ]
 
   switch currentTab {
   | AuthenticationAnalyticsTab => {
-      let authConnectors =
-        filterValueJson->getArrayFromDict("authentication_connector", [])->getNonEmptyArray
-      let messageVersions =
-        filterValueJson->getArrayFromDict("message_version", [])->getNonEmptyArray
-
-      updatedFilterValueJson->LogicUtils.setOptionArray("authentication_connector", authConnectors)
-      updatedFilterValueJson->LogicUtils.setOptionArray("message_version", messageVersions)
+      authenticationFilterFields->Array.forEach(key => {
+        if booleanFilterFields->Array.includes(key) {
+          let booleanArray =
+            filterValueJson
+            ->getArrayFromDict(key, [])
+            ->Array.map(item =>
+              item->getStringFromJson("")->getBoolFromString(false)->JSON.Encode.bool
+            )
+            ->getNonEmptyArray
+          updatedFilterValueJson->LogicUtils.setOptionArray(key, booleanArray)
+        } else {
+          let arrayValue = filterValueJson->getArrayFromDict(key, [])->getNonEmptyArray
+          updatedFilterValueJson->LogicUtils.setOptionArray(key, arrayValue)
+        }
+      })
 
       let filterKeys = updatedFilterValueJson->Dict.keysToArray
       filterKeys->Array.forEach(key => {
-        if key !== "authentication_connector" && key !== "message_version" {
+        if !(authenticationFilterFields->Array.includes(key)) {
           updatedFilterValueJson->Dict.delete(key)
         }
       })

@@ -2,6 +2,15 @@ open AdvancedRoutingUtils
 open LogicUtils
 open FormRenderer
 
+let extraThreeDsExemptionKeys = ["metadata", "business_country"]
+
+let getFallbackOptionDescription = key =>
+  switch key {
+  | "metadata" => "Match against a metadata key/value pair."
+  | "business_country" => "Match against the business country associated with the payment."
+  | _ => ""
+  }
+
 module LogicalOps = {
   @react.component
   let make = (~id) => {
@@ -311,30 +320,48 @@ module FieldInp = {
       keyDescriptionMapper->convertMapObjectToDict
     }, [])
 
-    let options = React.useMemo(() =>
-      convertedValue
-      ->Dict.keysToArray
-      ->Array.reduce([], (acc, ele) => {
+    let options = React.useMemo(() => {
+      let optionsFromDescriptionCategory =
         convertedValue
-        ->getArrayFromDict(ele, [])
-        ->Array.forEach(
-          value => {
-            let dictValue = value->getDictFromJsonObject
-            let kindValue = dictValue->getString("kind", "")
-            if methodKeys->Array.includes(kindValue) {
-              let generatedSelectBoxOptionType: SelectBox.dropdownOption = {
-                label: kindValue,
-                value: kindValue,
-                description: dictValue->getString("description", ""),
-                optGroup: ele,
+        ->Dict.keysToArray
+        ->Array.reduce([], (acc, ele) => {
+          convertedValue
+          ->getArrayFromDict(ele, [])
+          ->Array.forEach(
+            value => {
+              let dictValue = value->getDictFromJsonObject
+              let kindValue = dictValue->getString("kind", "")
+              if methodKeys->Array.includes(kindValue) {
+                let generatedSelectBoxOptionType: SelectBox.dropdownOption = {
+                  label: kindValue,
+                  value: kindValue,
+                  description: dictValue->getString("description", ""),
+                  optGroup: ele,
+                }
+                acc->Array.push(generatedSelectBoxOptionType)->ignore
               }
-              acc->Array.push(generatedSelectBoxOptionType)->ignore
-            }
-          },
-        )
-        acc
-      })
-    , [])
+            },
+          )
+          acc
+        })
+
+      let existingOptionValues =
+        optionsFromDescriptionCategory->Array.map(option => option.value)->Set.fromArray
+
+      let fallbackOptions =
+        methodKeys
+        ->Array.filter(key => !(existingOptionValues->Set.has(key)))
+        ->Array.map((key): SelectBox.dropdownOption => {
+          {
+            label: key,
+            value: key,
+            description: getFallbackOptionDescription(key),
+            optGroup: "Additional Fields",
+          }
+        })
+
+      optionsFromDescriptionCategory->Array.concat(fallbackOptions)
+    }, [])
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
@@ -413,6 +440,8 @@ module RuleFieldBase = {
         Window.getThreeDsKeys()
       } else if isFrom3DsExemptions {
         Window.getThreeDsDecisionRuleKeys()
+        ->Array.concat(extraThreeDsExemptionKeys)
+        ->uniqueObjectFromArrayOfObjects(item => item)
       } else if isFromSurcharge {
         Window.getSurchargeKeys()
       } else {

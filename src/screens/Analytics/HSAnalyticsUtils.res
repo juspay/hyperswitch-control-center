@@ -94,19 +94,14 @@ let initialFilterFields = (json, ~isTitle=false) => {
         let dimensionObject = item->getDictFromJsonObject
 
         let dimensionValue = getString(dimensionObject, "dimension", "")
-        // TODO: Add support for custom labels. This can be achieved either through backend support (by making dimension an array of objects) or frontend support (via a custom label field).
-        let dimensionLabel = switch dimensionValue {
-        | "acs_reference_number" => "issuer"
-        | _ => dimensionValue
-        }
-        let dimensionTitleCase = `Select ${snakeToTitle(dimensionLabel)}`
+        let dimensionTitleCase = `Select ${snakeToTitle(dimensionValue)}`
         let value = getArrayFromDict(dimensionObject, "values", [])->getStrArrayFromJsonArray
 
         Some(
           (
             {
               field: FormRenderer.makeFieldInfo(
-                ~label=dimensionLabel,
+                ~label=dimensionValue,
                 ~name=dimensionValue,
                 ~customInput=InputFields.filterMultiSelectInput(
                   ~options=value->FilterSelectBox.makeOptions(~isTitle),
