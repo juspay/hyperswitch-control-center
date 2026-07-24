@@ -3,7 +3,7 @@ open ReconEnginePipelinesUtils
 open Typography
 
 @react.component
-let make = (~accountData: array<ReconEngineTypes.accountType>) => {
+let make = (~accountData: array<ReconEngineTypes.accountType>, ~refreshTrigger=false) => {
   open LogicUtils
 
   let getIngestionHistory = ReconEngineHooks.useGetIngestionHistory()
@@ -69,7 +69,7 @@ let make = (~accountData: array<ReconEngineTypes.accountType>) => {
       fetchIngestionHistoryData()->ignore
     }
     None
-  }, [filterValue])
+  }, (filterValue, refreshTrigger))
 
   let sortedHistoryData = React.useMemo(() => {
     filteredHistoryData->sortIngestionHistory(sortOption)
