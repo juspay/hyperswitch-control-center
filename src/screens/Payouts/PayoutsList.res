@@ -99,9 +99,7 @@ let make = () => {
         </RenderIf>
       </div>
       <RenderIf condition={transactionView}>
-        <div className="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-3 grid-cols-2 gap-6 mb-8">
-          <TransactionView entity=TransactionViewTypes.Payouts />
-        </div>
+        <TransactionView entity=TransactionViewTypes.Payouts />
       </RenderIf>
       <div className="flex justify-between gap-3">
         <div className="flex-1">

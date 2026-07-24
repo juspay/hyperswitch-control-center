@@ -19,6 +19,7 @@ type entity =
   | Merchant
   | Organization
   | Payment
+  | PaymentAdvanced
   | Payout
   | Refund
   | Dispute
@@ -26,6 +27,7 @@ type entity =
 let entityToKey = (entity: entity) =>
   switch entity {
   | Payment => "PaymentViews"
+  | PaymentAdvanced => "PaymentAdvancedViews"
   | Refund => "RefundViews"
   | Dispute => "DisputeViews"
   | Payout => "PayoutViews"
@@ -36,7 +38,8 @@ let entityToKey = (entity: entity) =>
 
 let entityToString = (entity: entity) =>
   switch entity {
-  | Payment => "payment_views"
+  | Payment
+  | PaymentAdvanced => "payment_views"
   | Refund => "refund_views"
   | Dispute => "dispute_views"
   | Payout => "payout_views"
@@ -50,6 +53,13 @@ type action =
   | Update
   | Delete
 
+// The save-view modal and inline view-rename are mutually exclusive interactions,
+// so the saved-view panel is in exactly one of these states at a time.
+type savedViewsPanelState =
+  | NoActiveInteraction
+  | RenamingViewAtIndex(int)
+  | SaveViewModalOpen
+
 let actionToString = action =>
   switch action {
   | Create => "Create"
@@ -57,10 +67,19 @@ let actionToString = action =>
   | Delete => "Delete"
   }
 
+type savedViewVersion = [#v1 | #v2]
+
+let versionToSavedViewVersion = (version: UserInfoTypes.version): savedViewVersion =>
+  switch version {
+  | V1 => #v1
+  | V2 => #v2
+  }
+
 type savedView = {
   view_id: string,
   view_name: string,
   entity: string,
+  version: UserInfoTypes.version,
   filters: JSON.t,
   created_at: string,
   updated_at: string,

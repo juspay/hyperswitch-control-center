@@ -1,6 +1,7 @@
 open LogicUtils
 open Typography
 open SavedViewTypes
+open OrderUIUtils
 
 module IncludeDateCheckbox = {
   @react.component
@@ -164,13 +165,13 @@ let make = (
   ~setShowModal,
   ~onViewsUpdated: (JSON.t, option<string>) => unit,
   ~version: UserInfoTypes.version=V1,
+  ~savedViewDataVersion: UserInfoTypes.version=version,
   ~entity: SavedViewTypes.entity,
 ) => {
   let (viewName, setViewName) = React.useState(_ => "")
   let (selectedViewToOverwrite, setSelectedViewToOverwrite) = React.useState(_ => "")
   let (includeDate, setIncludeDate) = React.useState(_ => false)
   let (savedViews: array<SavedViewTypes.savedView>, setSavedViews) = React.useState(_ => [])
-  let (viewCount, setViewCount) = React.useState(_ => 0)
 
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let {values: formValues} = ReactFinalForm.useFormState(
@@ -180,8 +181,8 @@ let make = (
   let mergedFilters = React.useMemo(() => {
     let merged = DictionaryUtils.mergeDicts([filterValueJson, formValues->getDictFromJsonObject])
 
-    let startTimeKey = OrderUIUtils.startTimeFilterKey(version)
-    let endTimeKey = OrderUIUtils.endTimeFilterKey(version)
+    let startTimeKey = startTimeFilterKey(version)
+    let endTimeKey = endTimeFilterKey(version)
     let defaultDates = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
 
     let start = merged->getString(startTimeKey, "")
@@ -196,8 +197,8 @@ let make = (
   }, (filterValueJson, formValues, version))
 
   let dateRangeText = React.useMemo(() => {
-    let start = mergedFilters->getString(OrderUIUtils.startTimeFilterKey(version), "")
-    let end = mergedFilters->getString(OrderUIUtils.endTimeFilterKey(version), "")
+    let start = mergedFilters->getString(startTimeFilterKey(version), "")
+    let end = mergedFilters->getString(endTimeFilterKey(version), "")
     let format = isoStr =>
       if isoStr->isNonEmptyString {
         (isoStr->DayJs.getDayJsForString).format("MMM D, YYYY HH:mm")
@@ -213,17 +214,18 @@ let make = (
 
   let fetchSavedViewsHook = SavedViewsHooks.useFetchSavedViews(~entity, ~version)
   let fetchSavedViews = async () => {
-    await fetchSavedViewsHook(~setSavedViews, ~setViewCount)
+    await fetchSavedViewsHook(~setSavedViews)
   }
 
   React.useEffect(() => {
     if showModal {
       setViewName(_ => "")
       setSelectedViewToOverwrite(_ => "")
+      setSavedViews(_ => [])
       fetchSavedViews()->ignore
     }
     None
-  }, [showModal])
+  }, (showModal, version, entity))
 
   let buildFilters = () => {
     let filtersDict = mergedFilters->Dict.copy
@@ -231,17 +233,24 @@ let make = (
     filtersDict->Dict.delete("limit")
     filtersDict->Dict.delete("offset")
     if !includeDate {
-      filtersDict->Dict.delete(OrderUIUtils.startTimeFilterKey(version))
-      filtersDict->Dict.delete(OrderUIUtils.endTimeFilterKey(version))
+      filtersDict->Dict.delete(startTimeFilterKey(version))
+      filtersDict->Dict.delete(endTimeFilterKey(version))
     }
     filtersDict->Dict.delete("amount_filter")
     SavedViewsUtils.foldAmountOption(filtersDict)
+    // first_attempt is a payments-only filter; skip the normalization for other entities
+    switch entity {
+    | Payment
+    | PaymentAdvanced =>
+      filtersDict->setBoolListFilter(firstAttemptFilterKey)
+    | _ => ()
+    }
     filtersDict->JSON.Encode.object
   }
 
   let handleCreateHook = SavedViewsHooks.useCreateSavedView(
     ~entity,
-    ~version,
+    ~savedViewDataVersion,
     ~onViewsUpdated,
     ~setShowModal,
   )
@@ -253,7 +262,7 @@ let make = (
 
   let handleOverwriteHook = SavedViewsHooks.useOverwriteSavedView(
     ~entity,
-    ~version,
+    ~savedViewDataVersion,
     ~onViewsUpdated,
     ~setShowModal,
     ~savedViews,
@@ -268,7 +277,7 @@ let make = (
   let viewNameExists =
     trimmedViewName->isNonEmptyString &&
       savedViews->Array.some(view => view.view_name === trimmedViewName)
-  let viewLimitReached = viewCount >= SavedViewsUtils.maxViews
+  let viewLimitReached = savedViews->Array.length >= SavedViewsUtils.maxViews
 
   let tabs = [
     {
@@ -335,7 +344,7 @@ let make = (
       </div>
       <div
         key={selectedTabIndex->Int.toString}
-        className="p-6 pt-2 pb-8 min-h-[160px] animate-fadeIn animate-slideUp">
+        className="p-6 pt-2 pb-8 min-h-40 animate-fadeIn animate-slideUp">
         {switch tabs->Array.get(selectedTabIndex) {
         | Some(tabItem) => tabItem.render()
         | None => React.null

@@ -1,5 +1,6 @@
 open TransactionViewTypes
 open LogicUtils
+open OrderUIUtils
 let paymentViewsArray: array<viewTypes> = [
   All,
   Succeeded,
@@ -8,6 +9,86 @@ let paymentViewsArray: array<viewTypes> = [
   Cancelled,
   RequiresCapture,
 ]
+
+let advancedPaymentViewsArray: array<viewTypes> = [
+  All,
+  Succeeded,
+  Failed,
+  Dropoffs,
+  Cancelled,
+  RequiresCapture,
+  Refunded,
+  FirstAttemptSuccess,
+  RetrySuccess,
+  Disputed,
+]
+
+let isAdvancedPaymentOnlyView = view => !(paymentViewsArray->Array.includes(view))
+
+let getAdvancedPaymentViewDescription = view =>
+  switch view {
+  | Refunded => "Payments that have partial or full refunds."
+  | Disputed => "Payments that have a dispute state present."
+  | FirstAttemptSuccess => "Succeeded payments completed on the first attempt."
+  | RetrySuccess => "Succeeded payments completed after more than one attempt."
+  | _ => ""
+  }
+
+let paymentStatusFilterKey = (#status: OrderTypes.filter)->getValueFromFilterType
+
+let refundsStatusFilterKey = (#refunds_status: OrderTypes.filter)->getValueFromFilterType
+
+let disputeStatusFilterKey = (#dispute_status: OrderTypes.filter)->getValueFromFilterType
+
+let getAdvancedPaymentFilterKeyForView = (view, ~defaultFilterKey) =>
+  switch view {
+  | Refunded => refundsStatusFilterKey
+  | Disputed => disputeStatusFilterKey
+  | _ => defaultFilterKey
+  }
+
+let getAdvancedPaymentHiddenFilterEntryForView = view =>
+  switch view {
+  | FirstAttemptSuccess => Some((firstAttemptFilterKey, "[true]"))
+  | RetrySuccess => Some((firstAttemptFilterKey, "[false]"))
+  | _ => None
+  }
+
+let getAdvancedPaymentFilterKeysToRemove = view =>
+  switch view {
+  | Refunded => [paymentStatusFilterKey, disputeStatusFilterKey, firstAttemptFilterKey]
+  | Disputed => [paymentStatusFilterKey, refundsStatusFilterKey, firstAttemptFilterKey]
+  | FirstAttemptSuccess
+  | RetrySuccess => [refundsStatusFilterKey, disputeStatusFilterKey]
+  | _ => [refundsStatusFilterKey, disputeStatusFilterKey, firstAttemptFilterKey]
+  }
+
+let mergeFilterKeysForView = (~existingKeys, ~removedFilterKeys, ~filterEntryKeys) =>
+  existingKeys
+  ->Array.filter(key => !(removedFilterKeys->Array.includes(key)))
+  ->Array.concat(filterEntryKeys)
+  ->getUniqueArray
+
+let getFilterUpdateForView = (
+  ~view: viewTypes,
+  ~isAdvancedOrdersView,
+  ~customFilterKey,
+  ~customFilter,
+) => {
+  let (filterKey, hiddenFilterEntry) = isAdvancedOrdersView
+    ? (
+        view->getAdvancedPaymentFilterKeyForView(~defaultFilterKey=customFilterKey),
+        view->getAdvancedPaymentHiddenFilterEntryForView,
+      )
+    : (customFilterKey, None)
+  let filterEntries =
+    hiddenFilterEntry->mapOptionOrDefault([(filterKey, customFilter)], entry => [
+      (filterKey, customFilter),
+      entry,
+    ])
+  let removedFilterKeys = isAdvancedOrdersView ? view->getAdvancedPaymentFilterKeysToRemove : []
+  (filterEntries, removedFilterKeys)
+}
 
 let refundViewsArray: array<viewTypes> = [All, Succeeded, Failed, Pending]
 
@@ -56,6 +137,28 @@ let buildAggregateMetricsUrl = (~metricConfig, ~transactionEntity) => {
   `${Window.env.apiBaseUrl}/${metricConfig.urlPrefix}/${scope}/metrics/${metricConfig.domain}`
 }
 
+let getAggregateUrl = (
+  ~getURL: APIUtilsTypes.getUrlTypes,
+  ~entity: operationsTypes,
+  ~version: UserInfoTypes.version,
+  ~startTime,
+  ~endTime,
+) => {
+  open APIUtilsTypes
+  let queryParameters = Some(`start_time=${startTime}&end_time=${endTime}`)
+  let entityName = switch entity {
+  | Orders =>
+    switch version {
+    | V1 => V1(ORDERS_AGGREGATE)
+    | V2 => V2(V2_ORDERS_AGGREGATE)
+    }
+  | Refunds => V1(REFUNDS_AGGREGATE)
+  | Disputes => V1(DISPUTES_AGGREGATE)
+  | Payouts => V1(PAYOUTS_AGGREGATE)
+  }
+  getURL(~entityName, ~methodType=Fetch.Get, ~queryParameters)
+}
+
 let getViewsDisplayName = (view: viewTypes) => {
   switch view {
   | All => "All"
@@ -67,6 +170,10 @@ let getViewsDisplayName = (view: viewTypes) => {
   | Expired => "Expired"
   | Reversed => "Reversed"
   | RequiresCapture => "Requires Capture"
+  | FirstAttemptSuccess => "First Attempt Success"
+  | RetrySuccess => "Retry Success"
+  | Refunded => "Refunded"
+  | Disputed => "Disputed"
   | _ => ""
   }
 }
@@ -74,37 +181,39 @@ let getViewsDisplayName = (view: viewTypes) => {
 let getViewTypeFromString = (view, entity) => {
   switch entity {
   | Orders =>
-    switch view {
-    | "succeeded" => Succeeded
-    | "cancelled" => Cancelled
-    | "failed" => Failed
-    | "requires_payment_method" => Dropoffs
-    | "pending" => Pending
-    | "requires_capture" => RequiresCapture
-    | _ => All
+    switch view->HSwitchOrderUtils.statusVariantMapper {
+    | Succeeded => Succeeded
+    | Cancelled => Cancelled
+    | Failed => Failed
+    | RequiresPaymentMethod => Dropoffs
+    | RequiresCapture => RequiresCapture
+    | _ => view === "pending" ? Pending : All
     }
   | Refunds =>
-    switch view {
-    | "success" => Succeeded
-    | "failure" => Failed
-    | "pending" => Pending
+    switch view->HSwitchOrderUtils.refundStatusVariantMapper {
+    | Success => Succeeded
+    | Failure => Failed
+    | Pending => Pending
     | _ => All
     }
   | Disputes =>
-    switch view {
-    | "dispute_won" => Succeeded
-    | "dispute_lost" => Failed
-    | "dispute_opened" => Pending
+    switch view->DisputesUtils.disputeStatusVariantMapper {
+    | DisputeWon => Succeeded
+    | DisputeLost => Failed
+    | DisputeOpened => Pending
     | _ => All
     }
   | Payouts =>
-    switch view {
-    | "success" => Succeeded
-    | "failed" => Failed
-    | "cancelled" => Cancelled
-    | "expired" => Expired
-    | "reversed" => Reversed
-    | _ => All
+    switch view->PayoutsEntity.statusVariantMapper {
+    | Succeeded => Succeeded
+    | Failed => Failed
+    | _ =>
+      switch view {
+      | "cancelled" => Cancelled
+      | "expired" => Expired
+      | "reversed" => Reversed
+      | _ => All
+      }
     }
   }
 }
@@ -117,6 +226,30 @@ let buildAllStatusFilterString = obj => {
   ->Array.joinWith(",")
 }
 
+let buildPresentAllowedStatusFilterString = (obj, key, allowedStatuses) => {
+  let statusDict = obj->getDictFromJsonObject->getDictfromDict(key)
+  let filterValue =
+    allowedStatuses
+    ->Array.filter(status => statusDict->getOptionValFromDict(status)->Option.isSome)
+    ->Array.joinWith(",")
+  filterValue->isNonEmptyString ? filterValue : allowedStatuses->Array.joinWith(",")
+}
+
+let sumAllowedStatusCount = (dict, key, allowedStatuses) => {
+  let statusDict = dict->getDictfromDict(key)
+  allowedStatuses
+  ->Array.reduce(0.0, (acc, status) => acc +. statusDict->getFloat(status, 0.0))
+  ->Float.toInt
+}
+
+let getSankeyRowCount = dict => dict->getFloat("count", dict->getFloat("payment_intent_count", 0.0))
+
+let getSankeyFirstAttempt = dict =>
+  switch dict->getOptionValFromDict(firstAttemptFilterKey) {
+  | Some(value) => value->getBoolFromJson(value->getIntFromJson(0) == 1)
+  | None => false
+  }
+
 let getViewFilterValue = (view, obj, entity) => {
   switch entity {
   | Orders =>
@@ -128,6 +261,15 @@ let getViewFilterValue = (view, obj, entity) => {
     | Cancelled => "cancelled"
     | Pending => "pending"
     | RequiresCapture => "requires_capture"
+    | FirstAttemptSuccess
+    | RetrySuccess => "succeeded"
+    | Refunded => openSearchRefundStatusValues->Array.joinWith(",")
+    | Disputed =>
+      buildPresentAllowedStatusFilterString(
+        obj,
+        "dispute_status_with_count",
+        openSearchDisputeStatusValues,
+      )
     | _ => ""
     }
   | Refunds =>
@@ -171,11 +313,17 @@ let calculateTotalViewCount = obj => {
 }
 
 let getViewCount = (view, obj, entity) => {
-  switch view {
-  | All => calculateTotalViewCount(obj)
+  let dict = obj->getDictFromJsonObject
+  switch (view, entity) {
+  | (All, _) => calculateTotalViewCount(obj)
+  | (Refunded, Orders) =>
+    sumAllowedStatusCount(dict, "refunds_status_with_count", openSearchRefundStatusValues)
+  | (Disputed, Orders) =>
+    sumAllowedStatusCount(dict, "dispute_status_with_count", openSearchDisputeStatusValues)
+  | (FirstAttemptSuccess, Orders) => dict->getInt("first_attempt_success_count", 0)
+  | (RetrySuccess, Orders) => dict->getInt("retry_success_count", 0)
   | _ =>
-    obj
-    ->getDictFromJsonObject
+    dict
     ->getDictfromDict("status_with_count")
     ->getInt(view->getViewFilterValue(obj, entity), 0)
   }
@@ -216,17 +364,95 @@ let metricsResponseToStatusWithCount = (~statusField, ~countField, response) => 
   [("status_with_count", statusWithCount->JSON.Encode.object)]->getJsonFromArrayOfJson
 }
 
+let sankeyResponseToStatusWithCount = response => {
+  let result =
+    response
+    ->getArrayFromJson([])
+    ->Array.reduce(
+      (
+        {
+          statusWithCount: Dict.make(),
+          refundsStatusWithCount: Dict.make(),
+          disputeStatusWithCount: Dict.make(),
+          firstAttemptSuccessCount: 0.0,
+          retrySuccessCount: 0.0,
+        }: sankeyAggregateData
+      ),
+      (acc, row) => {
+        let dict = row->getDictFromJsonObject
+        let count = dict->getSankeyRowCount
+        let status = dict->getString("status", "")->String.toLowerCase
+        let refundsStatus = dict->getString("refunds_status", "")
+        let disputeStatus = dict->getString("dispute_status", "")
+        let isFirstAttempt = dict->getSankeyFirstAttempt
+
+        if status->isNonEmptyString {
+          let previous = acc.statusWithCount->getFloat(status, 0.0)
+          acc.statusWithCount->Dict.set(status, (previous +. count)->JSON.Encode.float)
+        }
+        if refundsStatus->isNonEmptyString {
+          let previous = acc.refundsStatusWithCount->getFloat(refundsStatus, 0.0)
+          acc.refundsStatusWithCount->Dict.set(
+            refundsStatus,
+            (previous +. count)->JSON.Encode.float,
+          )
+        }
+        if disputeStatus->isNonEmptyString {
+          let previous = acc.disputeStatusWithCount->getFloat(disputeStatus, 0.0)
+          acc.disputeStatusWithCount->Dict.set(
+            disputeStatus,
+            (previous +. count)->JSON.Encode.float,
+          )
+        }
+        let isSucceeded = status->HSwitchOrderUtils.statusVariantMapper === Succeeded
+        {
+          ...acc,
+          firstAttemptSuccessCount: acc.firstAttemptSuccessCount +. (
+            isSucceeded && isFirstAttempt ? count : 0.0
+          ),
+          retrySuccessCount: acc.retrySuccessCount +. (
+            isSucceeded && !isFirstAttempt ? count : 0.0
+          ),
+        }
+      },
+    )
+
+  [
+    ("status_with_count", result.statusWithCount->JSON.Encode.object),
+    ("refunds_status_with_count", result.refundsStatusWithCount->JSON.Encode.object),
+    ("dispute_status_with_count", result.disputeStatusWithCount->JSON.Encode.object),
+    ("first_attempt_success_count", result.firstAttemptSuccessCount->JSON.Encode.float),
+    ("retry_success_count", result.retrySuccessCount->JSON.Encode.float),
+  ]->getJsonFromArrayOfJson
+}
+
 let getStartAndEndTime = (filterValueJson, version) => {
   filterValueJson->isEmptyDict
     ? ("", "")
     : {
         let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
         (
-          filterValueJson->getString(
-            OrderUIUtils.startTimeFilterKey(version),
-            defaultDate.start_time,
-          ),
-          filterValueJson->getString(OrderUIUtils.endTimeFilterKey(version), defaultDate.end_time),
+          filterValueJson->getString(startTimeFilterKey(version), defaultDate.start_time),
+          filterValueJson->getString(endTimeFilterKey(version), defaultDate.end_time),
         )
       }
 }
+
+let buildAggregateRequestKey = (
+  ~entity: operationsTypes,
+  ~version: UserInfoTypes.version,
+  ~transactionEntity: UserInfoTypes.entity,
+  ~isAdvancedView: bool,
+  ~devClickhouseAggregate: bool,
+  ~startTime: string,
+  ~endTime: string,
+) =>
+  [
+    (entity :> string),
+    (version :> string),
+    (transactionEntity :> string),
+    isAdvancedView->getStringFromBool,
+    devClickhouseAggregate->getStringFromBool,
+    startTime,
+    endTime,
+  ]->Array.joinWith(":")

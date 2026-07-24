@@ -24,3 +24,11 @@ type clickhouseAggregateMetric = {
   statusField: string,
   countField: string,
 }
+
+type sankeyAggregateData = {
+  statusWithCount: Dict.t<JSON.t>,
+  refundsStatusWithCount: Dict.t<JSON.t>,
+  disputeStatusWithCount: Dict.t<JSON.t>,
+  firstAttemptSuccessCount: float,
+  retrySuccessCount: float,
+}
