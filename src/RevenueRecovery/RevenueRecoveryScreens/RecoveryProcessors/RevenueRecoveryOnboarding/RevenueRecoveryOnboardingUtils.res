@@ -223,3 +223,34 @@ let getMixpanelEventName = currentStep => {
   | _ => ""
   }
 }
+
+let features: array<feature> = [
+  {
+    icon: "nd-workflow",
+    bgColor: "bg-nd_orange-150",
+    iconColor: "text-nd_orange-300",
+    title: "ML-Powered Retry Engine",
+    description: "Minimizes recurring payment failures using data and machine learning for optimized retries.",
+  },
+  {
+    icon: "nd-settings",
+    bgColor: "bg-nd_purple-200",
+    iconColor: "text-nd_purple-300",
+    title: "Configurable Retry Strategies",
+    description: "Customize recovery plans via dashboard with 20+ parameters.",
+  },
+  {
+    icon: "recovery-home",
+    bgColor: "bg-nd_pink-100",
+    iconColor: "text-nd_pink-500",
+    title: "Reduce Involuntary Churn",
+    description: "Improves retention by recovering failed payments that would otherwise lead to churn.",
+  },
+  {
+    icon: "nd-swap-arrow-horizontal",
+    bgColor: "bg-nd_teal-100",
+    iconColor: "text-nd_teal-500",
+    title: "Smart Retry Optimization",
+    description: "Targets specific errors and subscription types for maximum success.",
+  },
+]
