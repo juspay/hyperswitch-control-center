@@ -6,7 +6,7 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {analyticsEntity} = getResolvedUserInfo()
-  let {performanceMonitor, disputeAnalytics, authenticationAnalytics, routingAnalytics} =
+  let {disputeAnalytics, authenticationAnalytics, routingAnalytics} =
     featureFlagAtom->Recoil.useRecoilValueFromAtom
   <div key={(analyticsEntity :> string)}>
     {switch url.path->urlPath {
@@ -35,13 +35,6 @@ let make = () => {
         authorization={userHasAccess(~groupAccess=AnalyticsView)}>
         <FilterContext key="AuthenticationAnalytics" index="AuthenticationAnalytics">
           <NewAuthenticationAnalytics />
-        </FilterContext>
-      </AccessControl>
-    | list{"performance-monitor"} =>
-      <AccessControl
-        authorization={userHasAccess(~groupAccess=AnalyticsView)} isEnabled={performanceMonitor}>
-        <FilterContext key="PerformanceMonitor" index="PerformanceMonitor">
-          <PerformanceMonitor domain="payments" />
         </FilterContext>
       </AccessControl>
     | list{"analytics-routing"}

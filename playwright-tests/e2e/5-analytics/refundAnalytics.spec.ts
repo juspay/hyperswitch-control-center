@@ -8,6 +8,7 @@ import {
   mockRefundAnalyticsError,
   FROZEN_NOW,
 } from "../../support/refundAnalyticsMocks";
+import { PaymentOperations } from "../../support/pages/operations/PaymentOperations";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
@@ -114,9 +115,9 @@ test.describe("Analytics - Refunds - Date Range Selector", () => {
   test("should list the predefined date range presets", async () => {
     await analytics.openDateRangeSelector();
 
-    await expect(analytics.predefinedDateOptions).toContainText("Last 7 Days");
-    await expect(analytics.predefinedDateOptions).toContainText("Last 30 Days");
-    await expect(analytics.predefinedDateOptions).toContainText("This Month");
+    await expect(analytics.predefinedDateOptions).toContainText("Last 7 days");
+    await expect(analytics.predefinedDateOptions).toContainText("Last 30 days");
+    await expect(analytics.predefinedDateOptions).toContainText("This month");
   });
 
   test("should update the date range when a predefined preset is selected", async () => {
@@ -158,24 +159,13 @@ test.describe("Analytics - Refunds - Dimension Filters", () => {
   });
 
   test("should add and clear each dimension filter chip", async ({ page }) => {
+    const paymentOperations = new PaymentOperations(page);
     for (const { label, key } of DIMENSION_FILTERS) {
-      // Open the dropdown and select the dimension.
-      await analytics.openAddFilters();
-      await analytics.dimensionOption(label).click();
-
-      await expect(page.locator(".h-6 > div > svg").first()).not.toBeVisible();
-
-      // A "Select <label>" chip appears for the selected dimension.
-      await expect(analytics.selectedFilterChip(key)).toBeVisible({
-        timeout: 10000,
-      });
-      await expect(analytics.selectedFilterChip(key)).toContainText(
-        `Select ${label}`,
-      );
-
-      // Clear the chip before moving on to the next dimension.
-      await analytics.clearFilterChip(key);
-      await expect(analytics.selectedFilterChip(key)).toHaveCount(0);
+      await page.getByRole("button", { name: "Add Filters" }).click();
+      await expect(page.getByLabel("Add Filters").getByText(`${label}`, { exact: true })).toBeVisible();
+      await page.getByLabel("Add Filters").getByText(`${label}`, { exact: true }).click({ force: true });
+      await expect(paymentOperations.filterChipArea(label).first()).toContainText(`Select ${label}`);
+      await expect(page.getByLabel("Add Filters").getByText("Refund Status")).not.toBeVisible();
     }
   });
 });

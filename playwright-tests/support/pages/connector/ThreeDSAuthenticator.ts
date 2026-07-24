@@ -16,7 +16,7 @@ export class ThreeDSAuthenticator {
   }
 
   get authenticatorSearchInput(): Locator {
-    return this.page.locator('[data-testid="search-processor"]');
+    return this.page.getByTestId("search-processor");
   }
 
   get requestProcessorButton(): Locator {

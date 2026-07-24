@@ -16,7 +16,7 @@ let useGetIngestionHistory = () => {
       )
       let res = await fetchDetails(url)
       let ingestionHistory = res->getArrayDataFromJson(ingestionHistoryItemToObjMapper)
-      ingestionHistory->Array.sort((a, b) => compareLogic(b.created_at, a.created_at))
+      ingestionHistory->Array.sort((a, b) => compareLogic(a.created_at, b.created_at))
       ingestionHistory
     } catch {
     | _ => Exn.raiseError("Something went wrong")
