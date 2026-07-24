@@ -462,6 +462,10 @@ test.describe("Payout default fallback", () => {
     await homePage.payoutRouting.click();
     await payoutRouting.defaultFallbackManageButton.click();
 
+    await expect(page.getByRole('button', { name: '1 ADYEN Adyen (adyen_payout_1)' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '2 ADYEN Adyen (adyen_payout_2)' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '3 ADYEN Adyen (adyen_payout_3)' })).toBeVisible();
+
     const firstConnector = defaultFallback.connectorAt(0);
     const secondConnector = defaultFallback.connectorAt(1);
 
@@ -484,6 +488,10 @@ test.describe("Payout default fallback", () => {
     await page.mouse.move(endX, endY + 2, { steps: 3 });
     await page.mouse.up();
 
+    await expect(page.getByRole('button', { name: '1 ADYEN Adyen (adyen_payout_2)' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '2 ADYEN Adyen (adyen_payout_1)' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '3 ADYEN Adyen (adyen_payout_3)' })).toBeVisible();
+
     await defaultFallback.saveChangesButton.click();
 
     await defaultFallback.yesSaveItButton.waitFor({
@@ -493,6 +501,10 @@ test.describe("Payout default fallback", () => {
     await defaultFallback.yesSaveItButton.click();
 
     await expect(defaultFallback.configurationSavedToast).toBeVisible();
+
+    await expect(page.getByRole('button', { name: '1 ADYEN Adyen (adyen_payout_2)' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '2 ADYEN Adyen (adyen_payout_1)' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '3 ADYEN Adyen (adyen_payout_3)' })).toBeVisible();
   });
 });
 
