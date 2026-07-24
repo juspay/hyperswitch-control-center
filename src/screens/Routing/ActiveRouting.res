@@ -45,8 +45,6 @@ module ActionButtons = {
         buttonType={Secondary}
         buttonSize=Small
         onClick={_ => {
-          // Cut-over profiles deep-link this card to its Decision Engine page (new tab); others use
-          // the local Hyperswitch setup flow.
           if isCutover {
             onDeRedirect(routeType->deRoutingTarget)
           } else {
@@ -183,8 +181,6 @@ module LevelWiseRoutingSection = {
         </div>
         <ActionButtons routeType=value onRedirectBaseUrl isCutover onDeRedirect />
       </div>
-    // Least Cost (DebitRouting) sits just before Default Fallback, so render the non-fallback cards
-    // first, then Least Cost, then the fallback card(s) — Default Fallback stays last regardless.
     let nonFallbackTypes = types->Array.filter(value => value != DEFAULTFALLBACK)
     let fallbackTypes = types->Array.filter(value => value == DEFAULTFALLBACK)
     <div className="flex flex-col flex-wrap rounded w-full py-6 gap-5">

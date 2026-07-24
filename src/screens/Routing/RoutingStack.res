@@ -12,9 +12,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let (routingType, setRoutingType) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
-  // Decision Engine routing-source gate: #Checking until we know the profile's routing source,
-  // then #Local — we always render Hyperswitch's own routing cards. For cut-over profiles
-  // (isCutover) each card deep-links to its specific DE page instead of the local setup flow.
   let (deEntryState, setDeEntryState) = React.useState(_ => previewOnly ? #Local : #Checking)
   let (isCutover, setIsCutover) = React.useState(_ => false)
   let debitRoutingValue =
@@ -128,8 +125,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
     None
   }, (pathVar, url.search, debitRoutingValue))
 
-  // Ask Hyperswitch whether this profile's routing source is the Decision Engine. We always render
-  // Hyperswitch's own routing cards; `is_cutover` only decides whether each card deep-links to DE.
   let checkRoutingEntry = async () => {
     open LogicUtils
     try {
@@ -143,8 +138,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
     }
   }
 
-  // For a cut-over profile, a card click asks the backend for a fresh one-time DE deep-link for that
-  // `target` page and opens it in a new tab. Failures are swallowed (card simply doesn't navigate).
   let openDeRoutingPage = async target => {
     open LogicUtils
     try {

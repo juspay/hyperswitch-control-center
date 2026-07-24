@@ -10,8 +10,6 @@ let make = (~isCutover=false, ~onDeRedirect=_ => ()) => {
       HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
     ).is_debit_routing_enabled->Option.getOr(false)
   let handleButtonClick = _ => {
-    // Cut-over profiles deep-link Least Cost to the Decision Engine debit-routing page (new tab);
-    // others open the local configure/manage modal.
     if isCutover {
       onDeRedirect("debit")
     } else if debitRoutingValue {

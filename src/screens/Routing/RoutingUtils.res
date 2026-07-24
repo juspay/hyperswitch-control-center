@@ -26,8 +26,6 @@ let routingTypeName = routingType => {
   }
 }
 
-// `target` value sent to POST /routing/entry?target=... for a cut-over profile, so the backend can
-// deep-link the card to its Decision Engine page. Empty string for cards that stay Hyperswitch-local.
 let deRoutingTarget = routingType => {
   switch routingType {
   | VOLUME_SPLIT => "volume"
@@ -95,7 +93,6 @@ let getContent = (~isCutover=false, routetype) =>
       subHeading: "Route traffic across processors with advanced logic rules on the basis of various payment parameters",
     }
   | AUTH_RATE_ROUTING =>
-    // For cut-over (Decision Engine) profiles this card is the DE "Multi-objective" strategy.
     isCutover
       ? {
           heading: "Multi Objective",
