@@ -16,13 +16,15 @@ let getDetailFieldsForTableSections = [
   CreatedAt,
 ]
 
-let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
+let initialDisplayFilters = () => {
   let statusOptions = getGroupedTransactionStatusOptions([
     OverAmount(Mismatch),
     OverAmount(Expected),
     UnderAmount(Mismatch),
     UnderAmount(Expected),
     DataMismatch,
+    CurrencyMismatch,
+    SplitMismatch,
     PartiallyReconciled,
     Expected,
     Missing,
@@ -36,44 +38,6 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=statusOptions,
             ~buttonText="Select Transaction Status",
-            ~showSelectionAsChips=false,
-            ~searchable=true,
-            ~showToolTip=true,
-            ~showNameAsToolTip=true,
-            ~customButtonStyle="bg-none",
-            (),
-          ),
-        ),
-        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
-      }: EntityType.initialFilters<'t>
-    ),
-    (
-      {
-        field: FormRenderer.makeFieldInfo(
-          ~label="source_account",
-          ~name="source_account",
-          ~customInput=InputFields.filterMultiSelectInput(
-            ~options=creditAccountOptions,
-            ~buttonText="Select Source Account",
-            ~showSelectionAsChips=false,
-            ~searchable=true,
-            ~showToolTip=true,
-            ~showNameAsToolTip=true,
-            ~customButtonStyle="bg-none",
-            (),
-          ),
-        ),
-        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
-      }: EntityType.initialFilters<'t>
-    ),
-    (
-      {
-        field: FormRenderer.makeFieldInfo(
-          ~label="target_account",
-          ~name="target_account",
-          ~customInput=InputFields.filterMultiSelectInput(
-            ~options=debitAccountOptions,
-            ~buttonText="Select Target Account",
             ~showSelectionAsChips=false,
             ~searchable=true,
             ~showToolTip=true,

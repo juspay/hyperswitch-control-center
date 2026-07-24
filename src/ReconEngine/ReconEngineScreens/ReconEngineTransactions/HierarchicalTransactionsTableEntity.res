@@ -47,7 +47,7 @@ let allColumns: array<hierarchicalColType> = [
 let getHeading = (colType: hierarchicalColType) => {
   switch colType {
   | Flow => makeHeaderInfo(~key="flow", ~title="", ~customWidth="!w-28")
-  | Date => makeHeaderInfo(~key="date", ~title="Date", ~customWidth="!w-24")
+  | Date => makeHeaderInfo(~key="date", ~title="Date", ~customWidth="!w-24", ~showSort=true)
   | TransactionId => makeHeaderInfo(~key="transaction_id", ~title="Transaction ID")
   | Status => makeHeaderInfo(~key="status", ~title="Status")
   | EntryId => makeHeaderInfo(~key="entry_id", ~title="Entry ID")
@@ -64,10 +64,13 @@ let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
   Table.Label({
     title: status->TransactionsTableEntity.getDomainTransactionStatusString->String.toUpperCase,
     color: switch status {
-    | Posted(Manual) | Matched(Force) | Matched(Manual) | Matched(Auto) => LabelGreen
+    | Posted(Manual) | Matched(Force) | Matched(Manual) | Matched(Auto) | Matched(WithTolerance) =>
+      LabelGreen
     | OverAmount(Mismatch)
     | UnderAmount(Mismatch)
-    | DataMismatch =>
+    | DataMismatch
+    | CurrencyMismatch
+    | SplitMismatch =>
       LabelRed
     | Expected | UnderAmount(Expected) | OverAmount(Expected) => LabelBlue
     | Archived => LabelGray

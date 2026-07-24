@@ -393,6 +393,16 @@ let useGetURL = () => {
 
         | _ => ""
         }
+      | PAYMENT_CANCEL =>
+        switch (methodType, id) {
+        | (Post, Some(payment_id)) => `payments/${payment_id}/cancel`
+        | _ => ""
+        }
+      | PAYMENT_CAPTURE =>
+        switch (methodType, id) {
+        | (Post, Some(payment_id)) => `payments/${payment_id}/capture`
+        | _ => ""
+        }
       | ORDERS_AGGREGATE =>
         switch methodType {
         | Get =>
@@ -406,6 +416,15 @@ let useGetURL = () => {
           | None => `payments/aggregate`
           }
         | _ => `payments/aggregate`
+        }
+      | MANUAL_STATUS_UPDATE =>
+        switch methodType {
+        | Post =>
+          switch id {
+          | Some(payment_id) => `payments/${payment_id}/manual-status-update`
+          | None => ""
+          }
+        | _ => ""
         }
       | REFUNDS =>
         switch methodType {
@@ -872,6 +891,15 @@ let useGetURL = () => {
           }
         | _ => ""
         }
+      | PRISM_CONNECTOR_EVENT_LOGS =>
+        switch methodType {
+        | Get =>
+          switch queryParameters {
+          | Some(params) => `analytics/v1/profile/prism_connector_event_logs?${params}`
+          | None => `analytics/v1/prism_connector_event_logs`
+          }
+        | _ => ""
+        }
       | ROUTING_EVENT_LOGS =>
         switch methodType {
         | Get =>
@@ -1016,6 +1044,11 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #TRANSACTIONS_LIST_V2 =>
+          switch methodType {
+          | Post => `${reconBaseURL}/transactions/v2/list`
+          | _ => ""
+          }
         | #PROCESSED_ENTRIES_LIST_WITH_ACCOUNT =>
           switch methodType {
           | Get =>
@@ -1036,6 +1069,11 @@ let useGetURL = () => {
             | Some(transactionId) => `${reconBaseURL}/transactions/${transactionId}/entries`
             | None => `${reconBaseURL}/entries`
             }
+          | _ => ""
+          }
+        | #PROCESSING_ENTRIES_LIST_V2 =>
+          switch methodType {
+          | Post => `${reconBaseURL}/staging_entries/v2/list`
           | _ => ""
           }
         | #PROCESSING_ENTRIES_LIST =>
@@ -1227,6 +1265,44 @@ let useGetURL = () => {
           | Post => `${reconBaseURL}/staging_entries/bulk_operations`
           | _ => ""
           }
+        | #OVERVIEW_RULES =>
+          switch methodType {
+          | Get =>
+            switch queryParameters {
+            | Some(queryParams) => `${reconBaseURL}/overview/transactions?${queryParams}`
+            | None => `${reconBaseURL}/overview/transactions`
+            }
+          | _ => ""
+          }
+        | #OVERVIEW_RULES_TIME_SERIES =>
+          switch methodType {
+          | Get =>
+            switch queryParameters {
+            | Some(queryParams) =>
+              `${reconBaseURL}/overview/transactions/time_series?${queryParams}`
+            | None => `${reconBaseURL}/overview/transactions/time_series`
+            }
+          | _ => ""
+          }
+        | #RULE_ACCOUNT_BREAKDOWN =>
+          switch methodType {
+          | Get =>
+            switch queryParameters {
+            | Some(queryParams) =>
+              `${reconBaseURL}/overview/transactions/rule_account_breakdown?${queryParams}`
+            | None => `${reconBaseURL}/overview/transactions/rule_account_breakdown`
+            }
+          | _ => ""
+          }
+        | #STAGING_ENTRIES_OVERVIEW =>
+          switch methodType {
+          | Get =>
+            switch queryParameters {
+            | Some(queryParams) => `${reconBaseURL}/overview/staging_entries?${queryParams}`
+            | None => `${reconBaseURL}/overview/staging_entries`
+            }
+          | _ => ""
+          }
         | #NONE => ""
         }
 
@@ -1270,6 +1346,7 @@ let useGetURL = () => {
           | None => `${userUrl}/connect_account`
           }
         | #SIGNINV2 => `${userUrl}/v2/signin`
+        | #LAUNCH_SAGE => `${userUrl}/launch_sage`
         | #CHANGE_PASSWORD => `${userUrl}/change_password`
         | #SIGNUP
         | #SIGNOUT
@@ -1351,6 +1428,9 @@ let useGetURL = () => {
         | #LIST_ORG => `${userUrl}/list/org`
         | #LIST_MERCHANT => `${userUrl}/list/merchant`
         | #LIST_PROFILE => `${userUrl}/list/profile`
+
+        // Clone connector across profiles of the same merchant
+        | #CLONE_CONNECTOR => `${userUrl}/clone_connector`
 
         // CREATE ROLES
         | #CREATE_CUSTOM_ROLE => `${userUrl}/role`
@@ -1459,11 +1539,6 @@ let useGetURL = () => {
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
       | SDK_PAYMENT => "payments"
-      | ACCOUNT_PAYMENT_METHODS =>
-        switch methodType {
-        | Get => "account/payment_methods"
-        | _ => ""
-        }
       | CHAT_BOT => `chat/ai/data`
       }
 
@@ -1492,11 +1567,18 @@ let useHandleLogout = (~eventName="user_sign_out") => {
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastAdapter.useShowToast()
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   async () => {
     try {
       let logoutUrl = getURL(~entityName=V1(USERS), ~methodType=Post, ~userType=#SIGNOUT)
-      let _ = await fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute, ~forceCookies)
+      let _ = await fetchApi(
+        logoutUrl,
+        ~method_=Post,
+        ~xFeatureRoute,
+        ~forceCookies,
+        ~sendV1DummyApiKeyHeader,
+      )
       mixpanelEvent(~eventName)
       setAuthStateToLogout()
       clearRecoilValue()
@@ -1668,7 +1750,8 @@ let useGetMethod = (~showErrorToast=true) => {
         },
       },
     })
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async (url, ~version=UserInfoTypes.V1, ~signal=?) => {
     try {
@@ -1677,6 +1760,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~method_=Get,
         ~xFeatureRoute,
         ~forceCookies,
+        ~sendV1DummyApiKeyHeader,
         ~merchantId,
         ~profileId,
         ~version,
@@ -1731,7 +1815,8 @@ let useUpdateMethod = (~showErrorToast=true) => {
         },
       },
     })
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async (
     url,
@@ -1753,6 +1838,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~contentType,
         ~xFeatureRoute,
         ~forceCookies,
+        ~sendV1DummyApiKeyHeader,
         ~merchantId,
         ~profileId,
         ~version,

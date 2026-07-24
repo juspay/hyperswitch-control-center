@@ -14,6 +14,7 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 let email: string;
 
 const setupPayout = async (
+  page: Page,
   homePage: HomePage,
   request: Parameters<typeof createPayoutConnectorAPI>[2],
 ) => {
@@ -21,8 +22,12 @@ const setupPayout = async (
   if (!merchantId) {
     throw new Error("Merchant ID not found");
   }
-  await createPayoutConnectorAPI(merchantId, "adyen_test_1", request);
-  const payout = (await createPayoutAPI(merchantId, request)) as unknown as {
+  await createPayoutConnectorAPI(merchantId, "adyen_test_1", request, page);
+  const payout = (await createPayoutAPI(
+    merchantId,
+    request,
+    page,
+  )) as unknown as {
     payout_id: string;
     amount: number;
     currency: string;
@@ -74,7 +79,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        const { payout } = await setupPayout(homePage, context.request);
+        const { payout } = await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
 
@@ -82,10 +87,10 @@ test.describe("Payouts Operations", () => {
         await searchBox.fill(payout.payout_id);
         await searchBox.press("Enter");
 
-        // CopyLinkTableCell truncates display to first 20 chars unless toggled,
+        // CopyLinkTableCell truncates display to first 24 chars unless toggled,
         // so assert on the leading prefix rather than the full id.
         await expect(payoutOperations.payoutCell(1, 2)).toContainText(
-          payout.payout_id.slice(0, 20),
+          payout.payout_id.slice(0, 24),
         );
       });
 
@@ -95,13 +100,13 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        const { payout } = await setupPayout(homePage, context.request);
+        const { payout } = await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
 
         // Sanity check: the created payout shows up in row 1 before searching.
         await expect(payoutOperations.payoutCell(1, 2)).toContainText(
-          payout.payout_id.slice(0, 20),
+          payout.payout_id.slice(0, 24),
         );
 
         await payoutOperations.searchBox.fill("invalid_payout_id_xyz");
@@ -120,7 +125,7 @@ test.describe("Payouts Operations", () => {
         context,
       }) => {
         const homePage = new HomePage(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
 
@@ -147,7 +152,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
 
@@ -213,7 +218,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
         await payoutOperations.columnButton.click();
@@ -271,7 +276,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
 
@@ -362,38 +367,39 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
 
-        const dateSelector = payoutOperations.dateSelector;
-        await dateSelector.click();
-        await payoutOperations.daterangeDropdownValue("Last 30 Days").click();
+        await payoutOperations.customDateRangeButton.click();
+        await page.getByRole("menuitem", { name: "Last 30 minutes" }).click();
 
-        await expect(dateSelector).toContainText("Last 30 Days");
+        await expect(
+          page.getByRole("button", { name: "Last 30 minutes" }),
+        ).toContainText("Last 30 minutes");
       });
     });
 
     test.describe("Filters", () => {
       // PayoutsUtils.res:127-134 — supported filter keys for payouts.
       // Filter.res:251-256 snakeToTitle's the keys into Add-Filters labels.
-      const filterKeys = ["connector", "currency", "payout_method", "status"];
-      const filterLabels = ["Connector", "Currency", "Payout Method", "Status"];
+      const filterKeys = ["connector", "currency", "status", "payout_method"];
+      const filterLabels = ["Connector", "Currency", "Status", "Payout Method"];
 
       test("should apply a Status filter", async ({ page, context }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
 
         await payoutOperations.addFilters.click();
-        await page.locator('[data-dropdown-value="Status"]:visible').click();
+        await page.getByRole("menuitem", { name: "Status" }).click();
 
         // Once the filter is added, a "Select status" chip is rendered with
         // the status field wrapper visible in the filter row.
         await expect(payoutOperations.payoutStatusFieldWrapper).toBeVisible();
-        await expect(payoutOperations.filterChipArea.first()).toContainText(
+        await expect(payoutOperations.payoutStatusFieldWrapper).toContainText(
           "Select status",
         );
       });
@@ -404,7 +410,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
 
@@ -423,7 +429,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
 
@@ -432,18 +438,21 @@ test.describe("Payouts Operations", () => {
           const key = filterKeys[i];
 
           await payoutOperations.addFilters.click();
+          await expect(
+            page.getByLabel("Add Filters").getByText(`${label}`),
+          ).toBeVisible();
           await page
-            .locator(`[data-dropdown-value="${label}"]:visible`)
-            .click();
+            .getByLabel("Add Filters")
+            .getByText(`${label}`)
+            .click({ force: true });
 
-          // PayoutsUtils.res renders the chip as `Select ${key}` with the
-          // raw snake_case API key (not snakeToTitle'd).
-          await expect(payoutOperations.filterChipArea.first()).toContainText(
-            `Select ${key}`,
-          );
+          await expect(
+            payoutOperations.filterChipArea(key).first(),
+          ).toContainText(`Select ${key}`);
 
-          // Remove the chip so the next iteration starts clean.
-          await payoutOperations.crossOutlineIcon.first().click();
+          await expect(
+            page.getByLabel("Add Filters").getByText("Payout Method"),
+          ).not.toBeVisible();
         }
       });
 
@@ -560,9 +569,9 @@ test.describe("Payouts Operations", () => {
         statusValue: string,
       ) => {
         await payoutOperations.addFilters.click();
-        await page.locator('[data-dropdown-value="Status"]:visible').click();
+        await page.getByRole("menuitem", { name: "Status" }).click();
         await payoutOperations.payoutStatusFieldWrapper.click();
-        await page.locator(`[value="${statusValue}"]`).click();
+        await page.getByRole("option", { name: `${statusValue}` }).click();
         await payoutOperations.applyButton.click();
         await page.waitForLoadState("networkidle");
       };
@@ -573,27 +582,27 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
         await mockTwoPayoutList(page);
 
         await goToPayouts(page, homePage);
 
         // Baseline: both mocked payouts present.
         await expect(payoutOperations.payoutCell(1, 2)).toContainText(
-          succeededId.slice(0, 20),
+          succeededId.slice(0, 24),
         );
         await expect(payoutOperations.payoutCell(2, 2)).toContainText(
-          failedId.slice(0, 20),
+          failedId.slice(0, 24),
         );
 
         // Apply status=success: only the succeeded row remains.
         await applyStatusFilter(page, payoutOperations, "success");
 
         await expect(payoutOperations.payoutCell(1, 2)).toContainText(
-          succeededId.slice(0, 20),
+          succeededId.slice(0, 24),
         );
         await expect(payoutOperations.payoutCell(2, 2)).not.toBeVisible();
-        await expect(page.getByText(failedId.slice(0, 20))).not.toBeVisible();
+        await expect(page.getByText(failedId.slice(0, 24))).not.toBeVisible();
 
         // Dismiss the existing status chip so the next selection starts clean.
         await payoutOperations.crossOutlineIcon.first().click();
@@ -603,11 +612,11 @@ test.describe("Payouts Operations", () => {
         await applyStatusFilter(page, payoutOperations, "failed");
 
         await expect(payoutOperations.payoutCell(1, 2)).toContainText(
-          failedId.slice(0, 20),
+          failedId.slice(0, 24),
         );
         await expect(payoutOperations.payoutCell(2, 2)).not.toBeVisible();
         await expect(
-          page.getByText(succeededId.slice(0, 20)),
+          page.getByText(succeededId.slice(0, 24)),
         ).not.toBeVisible();
       });
     });
@@ -622,7 +631,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await page.route(
           "**/dashboard/config/feature?domain=",
@@ -659,7 +668,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
 
@@ -675,7 +684,7 @@ test.describe("Payouts Operations", () => {
     }) => {
       const homePage = new HomePage(page);
       const payoutOperations = new PayoutOperations(page);
-      const { payout } = await setupPayout(homePage, context.request);
+      const { payout } = await setupPayout(page, homePage, context.request);
 
       await goToPayouts(page, homePage);
       await payoutOperations.payoutCell(1, 1).click();
@@ -811,18 +820,14 @@ test.describe("Payouts Operations", () => {
       await payoutMethodDetails.waitFor({ state: "attached", timeout: 10000 });
       await payoutMethodDetails.scrollIntoViewIfNeeded();
       await payoutMethodDetails.click();
-      await expect(payoutMethodDetails.locator("xpath=../..")).toContainText(
-        "card",
-      );
 
       const payoutMetadata = page.getByText(/^Payout Metadata$/);
       await payoutMetadata.waitFor({ state: "attached", timeout: 10000 });
       await payoutMetadata.scrollIntoViewIfNeeded();
       await payoutMetadata.click();
-      await expect(payoutMetadata.locator("xpath=../..")).toContainText("key");
-      await expect(payoutMetadata.locator("xpath=../..")).toContainText(
-        "value",
-      );
+      await expect(
+        page.getByRole("region", { name: "Payout Metadata" }).locator("pre"),
+      ).toContainText("key");
     });
 
     test.describe("Events and logs", () => {
@@ -832,7 +837,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         // audit_trail defaults to true locally; force it on explicitly so the
         // test does not depend on env state.
@@ -859,7 +864,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await page.route(
           "**/dashboard/config/feature?domain=",

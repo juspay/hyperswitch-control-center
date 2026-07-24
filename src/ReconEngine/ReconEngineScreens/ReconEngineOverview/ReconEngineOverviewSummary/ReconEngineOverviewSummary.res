@@ -1,54 +1,24 @@
 open Typography
 
 @react.component
-let make = (~reconRulesList) => {
+let make = (~reconRulesList, ~onRuleClick) => {
   open ReconEngineOverviewSummaryHelper
   open ReconEngineOverviewSummaryTypes
 
   let (viewType, setViewType) = React.useState(_ => Graph)
-  let {updateExistingKeys, filterKeys} = React.useContext(FilterContext.filterContext)
-  let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
-  let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
-  let mixpanelEvent = MixpanelHook.useSendEvent()
-  let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="recon_engine_overview_summary_date_filter_opened")
-  }
 
-  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~updateExistingKeys,
-    ~startTimeFilterKey,
-    ~endTimeFilterKey,
-    ~range=180,
-    ~origin="recon_engine_overview_summary",
-    (),
-  )
-
-  React.useEffect(() => {
-    setInitialFilters()
-    None
-  }, [])
-
-  <div className="flex flex-col gap-8 mt-8 pb-40">
-    <div className="flex flex-row justify-end">
-      <DynamicFilter
-        title="ReconEngineOverviewSummaryFilters"
-        initialFilters=[]
-        options=[]
-        popupFilterFields=[]
-        initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
-          null,
-          ~events=dateDropDownTriggerMixpanelCallback,
-        )}
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        tabNames=filterKeys
-        key="ReconEngineOverviewSummaryFilters"
-        updateUrlWith=updateExistingKeys
-        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
-        showCustomFilter=false
-        refreshFilters=false
-      />
+  <div className="flex flex-col gap-4 mt-8 pb-40">
+    <ReconEngineOverviewSummaryStatCards />
+    <ReconEngineOverviewSummaryReconciliationVolume />
+    <div className="flex flex-col lg:flex-row gap-4">
+      <div className="w-full lg:w-2/5">
+        <ReconEngineOverviewSummaryExceptionAging />
+      </div>
+      <div className="w-full lg:w-3/5">
+        <ReconEngineOverviewSummaryExceptionTriage />
+      </div>
     </div>
-    <ReconEngineOverviewSummaryStackedBarGraphs reconRulesList />
+    <ReconEngineOverviewSummaryRulesActivity onRuleClick />
     <div className="flex flex-row justify-between items-center">
       <div className="flex flex-col gap-2">
         <p className={`text-nd_gray-800 ${heading.sm.semibold}`}>
@@ -60,7 +30,7 @@ let make = (~reconRulesList) => {
       </div>
     </div>
     {switch viewType {
-    | Table => <ReconEngineOverviewSummaryAccountsView reconRulesList />
+    | Table => <ReconEngineOverviewSummaryAccountsView />
     | Graph => <ReconEngineOverviewSummaryFlowDiagram reconRulesList />
     }}
   </div>

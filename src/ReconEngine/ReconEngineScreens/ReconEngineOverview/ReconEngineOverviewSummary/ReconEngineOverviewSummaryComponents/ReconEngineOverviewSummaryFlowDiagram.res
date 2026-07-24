@@ -6,6 +6,7 @@ module InOutComponent = {
   @react.component
   let make = (~statusItem) => {
     open ReconEngineOverviewSummaryUtils
+    open ReconEngineOverviewSummaryHelper
 
     let (iconName, iconColor) = getStatusIcon(statusItem.statusType)
 
@@ -22,18 +23,24 @@ module InOutComponent = {
         <div className="flex flex-row flex-[1] justify-between items-center">
           <div className="flex flex-1 flex-col items-center justify-center">
             <p className={`${body.md.semibold} text-nd_gray-600`}>
-              {statusItem.reconStatusData.inAmount->React.string}
+              <AmountCell
+                value={Math.abs(statusItem.reconStatusData.inAmount.value)}
+                currency={statusItem.reconStatusData.inAmount.currency}
+              />
             </p>
             <p className={`${body.sm.medium} text-nd_gray-400`}>
-              {statusItem.reconStatusData.inTxns->React.string}
+              <NumberCell value={statusItem.reconStatusData.inTxns} />
             </p>
           </div>
           <div className="flex flex-1 flex-col items-center justify-center">
             <p className={`${body.md.semibold} text-nd_gray-600`}>
-              {statusItem.reconStatusData.outAmount->React.string}
+              <AmountCell
+                value={Math.abs(statusItem.reconStatusData.outAmount.value)}
+                currency={statusItem.reconStatusData.outAmount.currency}
+              />
             </p>
             <p className={`${body.sm.medium} text-nd_gray-400`}>
-              {statusItem.reconStatusData.outTxns->React.string}
+              <NumberCell value={statusItem.reconStatusData.outTxns} />
             </p>
           </div>
         </div>
@@ -57,7 +64,7 @@ module ReconNodeComponent = {
     }
 
     <div
-      className={`flex flex-col rounded-xl border ${borderColor} p-4 relative bg-white w-[400px] cursor-pointer`}
+      className={`flex flex-col rounded-xl border ${borderColor} p-4 relative bg-white w-440-px cursor-pointer`}
       onClick={_ => onClick()}>
       <HandleComponent \"type"="target" position={positionLeft} />
       <HandleComponent \"type"="source" position={positionRight} />
@@ -191,8 +198,7 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (selectedNodeId, setSelectedNodeId) = React.useState(_ => None)
   let (allData, setAllData) = React.useState(_ => None)
-  let getTransactions = ReconEngineHooks.useGetTransactions()
-  let getAccounts = ReconEngineHooks.useGetAccounts()
+  let getRuleAccountBreakdown = ReconEngineHooks.useGetRuleAccountBreakdown()
   let (reactFlowNodes, setNodes, onNodesChange) = useNodesState([])
   let (reactFlowEdges, setEdges, onEdgesChange) = useEdgesState([])
   let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
@@ -248,41 +254,15 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   let getAccountsData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let accountData = await getAccounts()
 
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
-      let statusList =
-        ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
-          Posted(Manual),
-          Matched(Auto),
-          Matched(Manual),
-          Matched(Force),
-          Expected,
-          Missing,
-          PartiallyReconciled,
-          OverAmount(Mismatch),
-          OverAmount(Expected),
-          UnderAmount(Mismatch),
-          UnderAmount(Expected),
-          DataMismatch,
-        ])->Array.joinWith(",")
+      let ruleAccountsOverview = await getRuleAccountBreakdown(~queryParameters=Some(queryString))
 
-      let allTransactions = await getTransactions(
-        ~queryParameters=Some(`${queryString}&status=${statusList}`),
-      )
-      let accountTransactionData = processAllTransactionsWithAmounts(
-        reconRulesList,
-        allTransactions,
-        accountData,
-      )
-
-      setAllData(_ => Some((reconRulesList, accountData, accountTransactionData, allTransactions)))
+      setAllData(_ => Some(ruleAccountsOverview))
 
       let (nodes, edges) = generateNodesAndEdgesWithTransactionAmounts(
         reconRulesList,
-        accountData,
-        accountTransactionData,
-        allTransactions,
+        ruleAccountsOverview,
         ~selectedNodeId,
         ~onNodeClick=handleNodeClick,
       )
@@ -308,12 +288,10 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
 
   React.useEffect(() => {
     switch allData {
-    | Some((reconRulesList, accountData, accountTransactionData, allTransactions)) => {
+    | Some(ruleAccountsOverview) => {
         let (nodes, edges) = generateNodesAndEdgesWithTransactionAmounts(
           reconRulesList,
-          accountData,
-          accountTransactionData,
-          allTransactions,
+          ruleAccountsOverview,
           ~selectedNodeId,
           ~onNodeClick=handleNodeClick,
         )

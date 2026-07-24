@@ -9,7 +9,7 @@ export class PaymentOperations {
 
   get transactionView(): Locator {
     return this.page.locator(
-      '[class="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-6 mb-8"]',
+      '[class="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-3 grid-cols-2 gap-6 mb-8"]',
     );
   }
 
@@ -18,7 +18,7 @@ export class PaymentOperations {
   }
 
   get dateSelector(): Locator {
-    return this.page.locator('[data-testid="date-range-selector"]');
+    return this.page.getByRole("button", { name: "Date range picker" });
   }
 
   get viewDropdown(): Locator {
@@ -47,7 +47,7 @@ export class PaymentOperations {
 
   // Page header / empty state
   get pageHeader(): Locator {
-    return this.page.locator('[class="flex justify-between items-center"]');
+    return this.page.getByText("Payment Operations");
   }
 
   get pageTitle(): Locator {
@@ -84,7 +84,7 @@ export class PaymentOperations {
   }
 
   get applyButton(): Locator {
-    return this.page.locator('[data-button-text="Apply"]');
+    return this.page.getByRole("button", { name: "Apply" });
   }
 
   get modalCloseIcon(): Locator {
@@ -94,7 +94,7 @@ export class PaymentOperations {
   }
 
   get crossOutlineIcon(): Locator {
-    return this.page.locator('[data-icon="cross-outline"]');
+    return this.page.getByRole("button", { name: "Clear selection" });
   }
 
   get searchExitIcon(): Locator {
@@ -141,7 +141,7 @@ export class PaymentOperations {
   }
 
   visibleDropdownValue(value: string): Locator {
-    return this.page.locator(`[data-dropdown-value="${value}"]:visible`);
+    return this.page.locator('[data-element="menu-content"]');
   }
 
   tableHeading(column: string): Locator {
@@ -150,9 +150,7 @@ export class PaymentOperations {
 
   // Date picker
   get predefinedDateOptions(): Locator {
-    return this.page.locator(
-      '[data-date-picker-predefined="predefined-options"]',
-    );
+    return this.page.locator('[data-element="menu-content"]');
   }
 
   /**
@@ -170,7 +168,7 @@ export class PaymentOperations {
     await expect(this.dateSelector).toBeVisible();
     await expect(async () => {
       if (!(await this.predefinedDateOptions.isVisible())) {
-        await this.dateSelector.click({ force: true });
+        await this.customRangeOption.click({ force: true });
       }
       await expect(this.predefinedDateOptions).toBeVisible({ timeout: 2000 });
     }).toPass({ timeout: 15000 });
@@ -184,13 +182,13 @@ export class PaymentOperations {
     return this.page.locator('[data-daterange-dropdown-value="Custom Range"]');
   }
 
-  // Filters
-  get filterChipArea(): Locator {
-    return this.page.locator('[class="flex relative  flex-row  flex-wrap"]');
+  get customDateRangeButton(): Locator {
+    return this.page.locator('[data-element="preset-selector"]');
   }
 
-  get filterChipContainer(): Locator {
-    return this.filterChipArea;
+  // Filters
+  filterChipArea(key: string): Locator {
+    return this.page.getByRole("button", { name: `Select ${key}` });
   }
 
   get statusFieldWrapper(): Locator {
@@ -207,12 +205,12 @@ export class PaymentOperations {
 
   // Toasts
   get emailSentToast(): Locator {
-    return this.page.locator('[data-toast="Email Sent"]');
+    return this.page.locator('[data-id="Email Sent"]');
   }
 
   get genericErrorToast(): Locator {
     return this.page.locator(
-      '[data-toast="Something went wrong. Please try again."]',
+      '[data-id="Something went wrong. Please try again."]',
     );
   }
 
@@ -264,11 +262,32 @@ export class PaymentOperations {
   }
 
   get refundAmountInput(): Locator {
-    return this.page.locator('[name="amount"]');
+    return this.page.getByRole("spinbutton", { name: "Enter Refund Amount" });
   }
 
   get refundReasonInput(): Locator {
     return this.page.locator('[name="reason"]');
+  }
+
+  // Capture modal (opened from payment details for requires_capture payments)
+  get addCaptureButton(): Locator {
+    return this.page.locator('[data-button-text="+ Capture"]');
+  }
+
+  get captureAmountInput(): Locator {
+    return this.page.getByRole('spinbutton', { name: 'Enter Amount to Capture' });
+  }
+
+  get confirmCaptureButton(): Locator {
+    return this.page.getByRole("button", { name: "Capture", exact: true });
+  }
+
+  get captureSuccessToast(): Locator {
+    return this.page.locator('[data-toast="Payment captured successfully"]');
+  }
+
+  get captureErrorToast(): Locator {
+    return this.page.locator('[data-toast="Failed to capture payment"]');
   }
 
   // Generate Payment Reports modal

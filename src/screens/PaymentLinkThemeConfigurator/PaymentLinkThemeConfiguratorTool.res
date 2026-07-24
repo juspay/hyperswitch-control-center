@@ -8,8 +8,6 @@ module ConfiguratorForm = {
     open Typography
     open FormRenderer
     open PaymentLinkThemeConfiguratorHelper
-    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-
     let configuratorScrollbarCss = `
       .configurator-scrollbar {
         scrollbar-width: thin;
@@ -30,16 +28,21 @@ module ConfiguratorForm = {
     `
 
     let showToast = ToastAdapter.useShowToast()
-    let getURL = APIUtils.useGetURL()
-    let fetchDetails = APIUtils.useGetMethod()
-    let (initialValues, setInitialValues) = React.useState(_ => JSON.Encode.null)
-    let (previewState, setPreviewState) = React.useState(_ => PreviewLoading)
-    let (paymentMethodsResponse, setPaymentMethodsResponse) = React.useState(_ => None)
+    let (initialValues, setInitialValues) = React.useState(_ => initialFormValues)
 
     React.useEffect(() => {
       setInitialValues(_ => initialFormValues)
       None
     }, [initialFormValues])
+
+    let (previewState, setPreviewState) = React.useState(_ => PreviewLoading)
+    let {paymentResult, initialValuesForCheckoutForm} = React.useContext(SDKProvider.defaultContext)
+
+    let isOffSession = Option.equal(
+      initialValuesForCheckoutForm.setup_future_usage,
+      Some((OffSession :> string)),
+      (a, b) => a == b,
+    )
 
     let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(
       HyperswitchAtom.merchantDetailsValueAtom,
@@ -49,93 +52,58 @@ module ConfiguratorForm = {
     )
     let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
 
-    let fetchAccountPaymentMethods = async () => {
+    let generatePreview = (~values) => {
+      let publishableKey = merchantDetailsTypedValue.publishable_key
+
       try {
-        setScreenState(_ => PageLoaderWrapper.Loading)
-        let url = getURL(~entityName=V1(ACCOUNT_PAYMENT_METHODS), ~methodType=Get)
-        let response = await fetchDetails(url)
-        // raw response from API is stored in state as it needs to be passed to WASM as part of payload for generating preview
-        setPaymentMethodsResponse(_ => Some(response))
-        setScreenState(_ => PageLoaderWrapper.Success)
-      } catch {
-      | _ =>
-        setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch payment methods"))
-        showToast(
-          ~toastType=ToastError,
-          ~message="Failed to fetch payment methods",
-          ~autoClose=true,
+        setPreviewState(_ => PreviewLoading)
+
+        let configs = generateWasmPayload(
+          ~paymentDetails=paymentResult,
+          ~publishableKey,
+          ~formValues=values,
         )
+
+        let validationResult = Window.validatePaymentLinkConfig(
+          JSON.stringify(configs->Identity.genericTypeToJson),
+        )
+        switch validationResult->safeParseOpt {
+        | Some(validationJson) =>
+          let validationDict = validationJson->getDictFromJsonObject
+          let isValid = validationDict->getBool("valid", false)
+          let errors = validationDict->getArrayFromDict("errors", [])
+
+          if !isValid {
+            let errorMessages =
+              errors->Array.map(error => error->getStringFromJson("Unknown validation error"))
+
+            let combinedErrors = errorMessages->Array.joinWith(", ")
+            setPreviewState(_ => PreviewError(`Validation failed: ${combinedErrors}`))
+          } else {
+            let response = Window.generatePaymentLinkPreview(
+              JSON.stringify(configs->Identity.genericTypeToJson),
+            )
+            setPreviewState(_ => PreviewSuccess(response))
+          }
+        | None => setPreviewState(_ => PreviewError("Invalid preview validation response"))
+        }
+      } catch {
+      | Exn.Error(e) => {
+          let errorMessage = Exn.message(e)->Option.getOr("WASM function failed")
+          setPreviewState(_ => PreviewError(errorMessage))
+        }
       }
     }
 
-    React.useEffect(() => {
-      fetchAccountPaymentMethods()->ignore
-      None
-    }, [])
-
-    let generatePreview = React.useCallback((~values) => {
-      switch paymentMethodsResponse {
-      | Some(_) =>
-        let publishableKey = merchantDetailsTypedValue.publishable_key
-
-        try {
-          setPreviewState(_ => PreviewLoading)
-
-          let configs = generateWasmPayload(
-            ~paymentMethodsResponse,
-            ~publishableKey,
-            ~formValues=values,
-          )
-
-          let validationResult = Window.validatePaymentLinkConfig(
-            JSON.stringify(configs->Identity.genericTypeToJson),
-          )
-          switch validationResult->safeParseOpt {
-          | Some(validationJson) =>
-            let validationDict = validationJson->getDictFromJsonObject
-            let isValid = validationDict->getBool("valid", false)
-            let errors = validationDict->getArrayFromDict("errors", [])
-
-            if !isValid {
-              let errorMessages =
-                errors->Array.map(error => error->getStringFromJson("Unknown validation error"))
-
-              let combinedErrors = errorMessages->Array.joinWith(", ")
-              setPreviewState(_ => PreviewError(`Validation failed: ${combinedErrors}`))
-            } else {
-              let response = Window.generatePaymentLinkPreview(
-                JSON.stringify(configs->Identity.genericTypeToJson),
-              )
-              setPreviewState(_ => PreviewSuccess(response))
-            }
-          | None => setPreviewState(_ => PreviewError("Invalid preview validation response"))
-          }
-        } catch {
-        | Exn.Error(e) => {
-            let errorMessage = Exn.message(e)->Option.getOr("WASM function failed")
-            setPreviewState(_ => PreviewError(errorMessage))
-          }
-        }
-      | _ => setPreviewState(_ => PreviewLoading)
-      }
-    }, paymentMethodsResponse)
-
-    let generatePreviewRef = React.useRef(generatePreview)
-
-    React.useEffect(() => {
-      generatePreviewRef.current = generatePreview
-      None
-    }, [generatePreview])
-
     let debouncedGeneratePreview = ReactDebounce.useDebounced(
-      values => generatePreviewRef.current(~values),
+      values => generatePreview(~values),
       ~wait=400,
     )
 
     React.useEffect(() => {
       debouncedGeneratePreview(initialValues)
       None
-    }, (initialValues, paymentMethodsResponse))
+    }, [initialValues])
 
     let onSubmit = async (values, isAutoSubmit) => {
       setInitialValues(_ => values)
@@ -165,168 +133,156 @@ module ConfiguratorForm = {
       Nullable.null
     }
 
-    <PageLoaderWrapper screenState>
-      <RenderIf condition={selectedStyleId->isNonEmptyString}>
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8 w-full bg-white rounded-lg">
-          <div className="space-y-4">
-            <h4 className={`text-nd_gray-700 mb-3 ${body.xl.semibold}`}>
-              {"Payment Link Settings"->React.string}
-            </h4>
-            <Form
-              formClass="space-y-4" initialValues onSubmit={(values, _) => onSubmit(values, false)}>
-              <HelperComponents.AutoSubmitter
-                autoApply=true
-                submit={(values, _) => onSubmit(values, true)}
-                submitInputOnEnter=true
-              />
-              <style> {React.string(configuratorScrollbarCss)} </style>
-              <div
-                className="flex flex-col gap-3 rounded-lg border border-nd_gray-150 p-4 h-650-px overflow-scroll configurator-scrollbar !m-0">
-                <FieldRenderer field={makeLogoField()} fieldWrapperClass="!w-full" />
-                <FieldRenderer field={makeAmountField()} fieldWrapperClass="!w-full" />
-                <FieldRenderer field={makeCurrencyField()} fieldWrapperClass="!w-full" />
-                <FieldRenderer field={makeCaptureMethodField()} fieldWrapperClass="!w-full" />
-                <FieldRenderer field={makeAuthenticationTypeField()} fieldWrapperClass="!w-full" />
-                <FieldRenderer field={makeSetupFutureUsageField()} fieldWrapperClass="!w-full" />
-                <FieldRenderer
-                  field={makeRequestExternal3dsField()}
-                  fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
-                  labelPadding="py-0"
-                />
-                <FieldRenderer field={makeSellerNameField()} fieldWrapperClass="!w-full" />
-                <FieldRenderer field={makeMerchantDescriptionField()} fieldWrapperClass="!w-full" />
-                <FieldRenderer field={makePaymentButtonTextField()} fieldWrapperClass="!w-full" />
+    <RenderIf condition={selectedStyleId->isNonEmptyString}>
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8 w-full bg-white rounded-lg">
+        <div className="space-y-4">
+          <h4 className={`text-nd_gray-700 mb-3 ${body.xl.semibold}`}>
+            {"Payment Link Settings"->React.string}
+          </h4>
+          <Form
+            formClass="space-y-4" initialValues onSubmit={(values, _) => onSubmit(values, false)}>
+            <HelperComponents.AutoSubmitter
+              autoApply=true submit={(values, _) => onSubmit(values, true)} submitInputOnEnter=true
+            />
+            <style> {React.string(configuratorScrollbarCss)} </style>
+            <div
+              className="flex flex-col gap-3 rounded-lg border border-nd_gray-150 p-4 h-650-px overflow-scroll configurator-scrollbar !m-0">
+              <FieldRenderer field={makeLogoField()} fieldWrapperClass="!w-full" />
+              <FieldRenderer field={makeSellerNameField()} fieldWrapperClass="!w-full" />
+              <FieldRenderer field={makeMerchantDescriptionField()} fieldWrapperClass="!w-full" />
+              <FieldRenderer field={makePaymentButtonTextField()} fieldWrapperClass="!w-full" />
+              <RenderIf condition={isOffSession}>
                 <FieldRenderer
                   field={makeCustomMessageForCardTermsField()} fieldWrapperClass="!w-full"
                 />
                 <FieldRenderer field={makeShowCardTermsField()} fieldWrapperClass="!w-full" />
-                <FieldRenderer
-                  field={makeHideCardNicknameField()}
-                  fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
-                  labelPadding="py-0"
-                />
-                <FieldRenderer
-                  field={makeDisplaySdkOnlyField()}
-                  fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
-                  labelPadding="py-0"
-                />
-                <FieldRenderer
-                  field={makeBrandingVisibilityField()}
-                  fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
-                  labelPadding="py-0"
-                />
-                <FieldRenderer
-                  field={makeThemeField(
-                    ~defaultValue=initialValues
-                    ->getDictFromJsonObject
-                    ->getString("theme", ""),
-                  )}
-                  fieldWrapperClass="!w-full"
-                />
-                <FieldRenderer
-                  field={makeBackgroundColorField(
-                    ~defaultValue=initialValues
-                    ->getDictFromJsonObject
-                    ->getString("background_color", ""),
-                  )}
-                  fieldWrapperClass="!w-full"
-                />
-                <FieldRenderer
-                  field={makePaymentButtonColorField(
-                    ~defaultValue=initialValues
-                    ->getDictFromJsonObject
-                    ->getString("payment_button_colour", ""),
-                  )}
-                  fieldWrapperClass="!w-full"
-                />
-                <FieldRenderer
-                  field={makePaymentButtonTextColorField(
-                    ~defaultValue=initialValues
-                    ->getDictFromJsonObject
-                    ->getString("payment_button_text_colour", ""),
-                  )}
-                  fieldWrapperClass="!w-full"
-                />
-                <FieldRenderer
-                  field={makeColorIconCardCvcErrorField(
-                    ~defaultValue=initialValues
-                    ->getDictFromJsonObject
-                    ->getString("color_icon_card_cvc_error", ""),
-                  )}
-                  fieldWrapperClass="!w-full"
-                />
-                <FieldRenderer field={makeDetailsLayoutField()} fieldWrapperClass="!w-full" />
-                <FieldRenderer field={makeSdkLayoutField()} fieldWrapperClass="!w-full" />
-              </div>
-              <div className="flex justify-between pt-4">
-                <SubmitButton
-                  text="Save Payment Link Theme" buttonType={Primary} buttonSize={Medium}
-                />
-              </div>
-            </Form>
+              </RenderIf>
+              <FieldRenderer
+                field={makeHideCardNicknameField()}
+                fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
+                labelPadding="py-0"
+              />
+              <FieldRenderer
+                field={makeDisplaySdkOnlyField()}
+                fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
+                labelPadding="py-0"
+              />
+              <FieldRenderer
+                field={makeBrandingVisibilityField()}
+                fieldWrapperClass="!w-full flex flex-row items-center justify-between py-2"
+                labelPadding="py-0"
+              />
+              <FieldRenderer
+                field={makeThemeField(
+                  ~defaultValue=initialValues
+                  ->getDictFromJsonObject
+                  ->getString("theme", ""),
+                )}
+                fieldWrapperClass="!w-full"
+              />
+              <FieldRenderer
+                field={makeBackgroundColorField(
+                  ~defaultValue=initialValues
+                  ->getDictFromJsonObject
+                  ->getString("background_colour", ""),
+                )}
+                fieldWrapperClass="!w-full"
+              />
+              <FieldRenderer
+                field={makePaymentButtonColorField(
+                  ~defaultValue=initialValues
+                  ->getDictFromJsonObject
+                  ->getString("payment_button_colour", ""),
+                )}
+                fieldWrapperClass="!w-full"
+              />
+              <FieldRenderer
+                field={makePaymentButtonTextColorField(
+                  ~defaultValue=initialValues
+                  ->getDictFromJsonObject
+                  ->getString("payment_button_text_colour", ""),
+                )}
+                fieldWrapperClass="!w-full"
+              />
+              <FieldRenderer
+                field={makeColorIconCardCvcErrorField(
+                  ~defaultValue=initialValues
+                  ->getDictFromJsonObject
+                  ->getString("color_icon_card_cvc_error", ""),
+                )}
+                fieldWrapperClass="!w-full"
+              />
+              <FieldRenderer field={makeDetailsLayoutField()} fieldWrapperClass="!w-full" />
+              <FieldRenderer field={makeSdkLayoutField()} fieldWrapperClass="!w-full" />
+            </div>
+            <div className="flex justify-between pt-4">
+              <SubmitButton
+                text="Save Payment Link Theme" buttonType={Primary} buttonSize={Medium}
+              />
+            </div>
+          </Form>
+        </div>
+        <div className="sticky top-4">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className={`text-nd_gray-700 ${body.xl.semibold}`}>
+              {"Theme Preview"->React.string}
+            </h4>
           </div>
-          <div className="sticky top-4">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className={`text-nd_gray-700 ${body.xl.semibold}`}>
-                {"Theme Preview"->React.string}
-              </h4>
-            </div>
-            <div className="bg-nd_gray-25 rounded-lg border border-nd_gray-150 h-650-px">
-              <MobilePreviewFrame>
-                <div className="rounded-lg w-full h-590-px flex flex-col bg-white">
-                  {switch previewState {
-                  | PreviewLoading =>
-                    <div className="flex items-center justify-center h-full w-full">
-                      <div className="text-center">
-                        <div className="animate-pulse space-y-4 w-full">
-                          <div className="h-32 bg-nd_gray-200 rounded w-full" />
-                          <div className="h-4 bg-nd_gray-200 rounded w-1/2 mx-auto" />
-                          <div className="h-4 bg-nd_gray-200 rounded w-2/3 mx-auto" />
-                          <div className="h-4 bg-nd_gray-200 rounded w-3/4 mx-auto" />
-                        </div>
-                        <p className={`text-nd_gray-500 mt-4 ${body.md.medium}`}>
-                          {"Generating preview..."->React.string}
-                        </p>
+          <div className="bg-nd_gray-25 rounded-lg border border-nd_gray-150 h-650-px">
+            <MobilePreviewFrame>
+              <div className="rounded-lg w-full h-590-px flex flex-col bg-white">
+                {switch previewState {
+                | PreviewLoading =>
+                  <div className="flex items-center justify-center h-full w-full">
+                    <div className="text-center">
+                      <div className="animate-pulse space-y-4 w-full">
+                        <div className="h-32 bg-nd_gray-200 rounded w-full" />
+                        <div className="h-4 bg-nd_gray-200 rounded w-1/2 mx-auto" />
+                        <div className="h-4 bg-nd_gray-200 rounded w-2/3 mx-auto" />
+                        <div className="h-4 bg-nd_gray-200 rounded w-3/4 mx-auto" />
                       </div>
+                      <p className={`text-nd_gray-500 mt-4 ${body.md.medium}`}>
+                        {"Generating preview..."->React.string}
+                      </p>
                     </div>
-                  | PreviewError(error) =>
-                    <div className="flex items-center justify-center h-full w-full">
-                      <div className="text-center">
-                        <div className="text-nd_red-500 mb-4">
-                          <Icon name="cross-icon" size=24 />
-                        </div>
-                        <p className={`text-nd_red-600 mb-2 ${body.md.medium}`}>
-                          {"Preview Generation Failed"->React.string}
-                        </p>
-                        <p className={`text-nd_gray-500 max-w-md ${body.md.medium}`}>
-                          {error->React.string}
-                        </p>
+                  </div>
+                | PreviewError(error) =>
+                  <div className="flex items-center justify-center h-full w-full">
+                    <div className="text-center">
+                      <div className="text-nd_red-500 mb-4">
+                        <Icon name="cross-icon" size=24 />
                       </div>
+                      <p className={`text-nd_red-600 mb-2 ${body.md.medium}`}>
+                        {"Preview Generation Failed"->React.string}
+                      </p>
+                      <p className={`text-nd_gray-500 max-w-md ${body.md.medium}`}>
+                        {error->React.string}
+                      </p>
                     </div>
-                  | PreviewSuccess(html) =>
-                    <div className="h-full flex-1 overflow-hidden rounded-lg bg-white relative">
-                      <iframe
-                        className="w-full h-full border-0"
-                        style={ReactDOM.Style.make(
-                          ~transform="scale(0.75)",
-                          ~transformOrigin="top left",
-                          ~width="133%",
-                          ~height="133%",
-                          (),
-                        )}
-                        srcDoc=html
-                        sandbox="allow-scripts allow-same-origin"
-                        title="Payment Link Preview"
-                      />
-                    </div>
-                  }}
-                </div>
-              </MobilePreviewFrame>
-            </div>
+                  </div>
+                | PreviewSuccess(html) =>
+                  <div className="h-full flex-1 overflow-hidden rounded-lg bg-white relative">
+                    <iframe
+                      className="w-full h-full border-0"
+                      style={ReactDOM.Style.make(
+                        ~transform="scale(0.75)",
+                        ~transformOrigin="top left",
+                        ~width="133%",
+                        ~height="133%",
+                        (),
+                      )}
+                      srcDoc=html
+                      sandbox="allow-scripts allow-same-origin"
+                      title="Payment Link Preview"
+                    />
+                  </div>
+                }}
+              </div>
+            </MobilePreviewFrame>
           </div>
         </div>
-      </RenderIf>
-    </PageLoaderWrapper>
+      </div>
+    </RenderIf>
   }
 }
 
@@ -525,7 +481,7 @@ module StyleIdSelection = {
       <div className={`text-nd_gray-700 py-2 ${body.md.medium}`}>
         {"Select Payment Link Config ID"->React.string}
       </div>
-      <SelectBoxAdapter.BaseDropdown
+      <SelectBox.BaseDropdown
         allowMultiSelect=false
         buttonText="Select Payment Link Config ID"
         input
@@ -578,6 +534,7 @@ let make = () => {
       businessProfileRecoilVal.payment_link_config->Option.getOr(
         paymentLinkConfigMapper(Dict.make()),
       )
+
     let businessSpecificConfigsDict =
       paymentLinkConfig.business_specific_configs->Option.mapOr(Dict.make(), json =>
         json->getDictFromJsonObject

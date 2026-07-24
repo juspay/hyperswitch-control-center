@@ -1,9 +1,8 @@
 open ReconEngineUtils
+open APIUtils
+open LogicUtils
 
 let useGetIngestionHistory = () => {
-  open APIUtils
-  open LogicUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -17,7 +16,7 @@ let useGetIngestionHistory = () => {
       )
       let res = await fetchDetails(url)
       let ingestionHistory = res->getArrayDataFromJson(ingestionHistoryItemToObjMapper)
-      ingestionHistory->Array.sort((a, b) => compareLogic(b.created_at, a.created_at))
+      ingestionHistory->Array.sort((a, b) => compareLogic(a.created_at, b.created_at))
       ingestionHistory
     } catch {
     | _ => Exn.raiseError("Something went wrong")
@@ -26,9 +25,6 @@ let useGetIngestionHistory = () => {
 }
 
 let useGetTransactions = () => {
-  open APIUtils
-  open LogicUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -50,10 +46,29 @@ let useGetTransactions = () => {
   }
 }
 
-let useGetAccounts = () => {
-  open APIUtils
-  open LogicUtils
+let useGetCursorPage = (
+  ~hyperswitchReconType: APIUtilsTypes.hyperswitchReconType,
+  ~itemMapper: Dict.t<JSON.t> => 'item,
+) => {
+  let getURL = useGetURL()
+  let updateDetails = useUpdateMethod()
 
+  async (~body: JSON.t): ReconEngineTypes.cursorPage<'item> => {
+    try {
+      let url = getURL(~entityName=V1(HYPERSWITCH_RECON), ~methodType=Post, ~hyperswitchReconType)
+      let res = await updateDetails(url, body, Post)
+      let dict = res->getDictFromJsonObject
+      {
+        items: dict->getArrayFromDict("items", [])->getMappedValueFromArrayOfJson(itemMapper),
+        cursors: dict->cursorsFromDict,
+      }
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetAccounts = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -76,9 +91,6 @@ let useGetAccounts = () => {
 }
 
 let useGetReconRuleList = () => {
-  open APIUtils
-  open LogicUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -98,10 +110,87 @@ let useGetReconRuleList = () => {
   }
 }
 
-let useGetProcessingEntries = () => {
-  open APIUtils
-  open LogicUtils
+let useGetOverviewRules = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
 
+  async (~queryParameters=None) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#OVERVIEW_RULES,
+        ~queryParameters,
+      )
+      let res = await fetchDetails(url)
+      res->getArrayDataFromJson(overviewRulesResponseMapper)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetRuleAccountBreakdown = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~queryParameters=None) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#RULE_ACCOUNT_BREAKDOWN,
+        ~queryParameters,
+      )
+      let res = await fetchDetails(url)
+      res->getArrayDataFromJson(ruleAccountsOverviewMapper)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetStagingEntriesOverview = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~queryParameters=None) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#STAGING_ENTRIES_OVERVIEW,
+        ~queryParameters,
+      )
+      let res = await fetchDetails(url)
+      res->getArrayDataFromJson(accountStagingEntriesOverviewMapper)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetOverviewRulesTimeSeries = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~queryParameters=None) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#OVERVIEW_RULES_TIME_SERIES,
+        ~queryParameters,
+      )
+      let res = await fetchDetails(url)
+      res->getArrayDataFromJson(overviewRulesTimeSeriesResponseMapper)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetProcessingEntries = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -124,9 +213,6 @@ let useGetProcessingEntries = () => {
 }
 
 let useGetTransformationHistory = () => {
-  open APIUtils
-  open LogicUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -149,8 +235,6 @@ let useGetTransformationHistory = () => {
 }
 
 let useFetchMetadataSchema = () => {
-  open APIUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 

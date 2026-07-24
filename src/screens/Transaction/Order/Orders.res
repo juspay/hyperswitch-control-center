@@ -232,7 +232,7 @@ let make = (~previewOnly=false) => {
         </div>
       </div>
       <RenderIf condition={transactionView}>
-        <div className="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-6 mb-8">
+        <div className="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-3 grid-cols-2 gap-6 mb-8">
           <TransactionView entity=TransactionViewTypes.Orders version />
         </div>
       </RenderIf>
@@ -261,6 +261,10 @@ let make = (~previewOnly=false) => {
           remoteSortEnabled=true
           showAutoScroll=true
           isDraggable=true
+          visitedRows={{
+            getId: (order: PaymentInterfaceTypes.order) => order.payment_id,
+            prefix_key: "orders",
+          }}
         />
       </PageLoaderWrapper>
     </div>

@@ -115,7 +115,8 @@ let make = (
     filterCheck,
     filterForRow,
   } = entity
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let tableName =
     prefixAddition->Option.getOr(false)
       ? title->(String.replaceRegExp(_, %re("/ /g"), "-"))->String.toLowerCase->Some
@@ -247,6 +248,7 @@ let make = (
       ~method_=method,
       ~xFeatureRoute,
       ~forceCookies,
+      ~sendV1DummyApiKeyHeader,
       ~merchantId,
       ~profileId,
     )

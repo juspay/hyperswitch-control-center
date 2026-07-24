@@ -1,6 +1,8 @@
 open SidebarTypes
 open UserManagementTypes
 open CommonAuthTypes
+open HSwitchUtils
+open ConnectorUtils
 
 // * Custom Component
 module ProductHeaderComponent = {
@@ -127,28 +129,26 @@ let operations = (
     : emptyComponent
 }
 
-let paymentProcessor = (isLiveMode, userHasResourceAccess) => {
+let paymentProcessor = (isLiveMode, userHasResourceAccess, ~paymentProcessorsLiveList) => {
   SubLevelLink({
     name: "Payment Processors",
     link: `/connectors`,
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=isLiveMode
-        ? ConnectorUtils.connectorListForLive
-        : ConnectorUtils.connectorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=isLiveMode ? paymentProcessorsLiveList : connectorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
 
-let payoutConnectors = (~userHasResourceAccess) => {
+let payoutConnectors = (~isLiveMode, ~userHasResourceAccess, ~payoutProcessorsLiveList) => {
   SubLevelLink({
     name: "Payout Processors",
     link: `/payoutconnectors`,
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=ConnectorUtils.payoutConnectorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=isLiveMode ? payoutProcessorsLiveList : payoutConnectorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
@@ -162,15 +162,19 @@ let fraudAndRisk = (~userHasResourceAccess) => {
   })
 }
 
-let threeDsConnector = (~userHasResourceAccess) => {
+let threeDsConnector = (
+  ~isLiveMode,
+  ~userHasResourceAccess,
+  ~threeDsAuthenticatorProcessorsLiveList,
+) => {
   SubLevelLink({
     name: "3DS Authenticators",
     link: "/3ds-authenticators",
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: [
-      ("Connect 3dsecure.io", "/new?name=threedsecureio"),
-      ("Connect threedsecureio", "/new?name=threedsecureio"),
-    ],
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=isLiveMode ? threeDsAuthenticatorProcessorsLiveList : threedsAuthenticatorList,
+      ~getNameFromString=getConnectorNameString,
+    ),
   })
 }
 
@@ -179,9 +183,9 @@ let pmAuthenticationProcessor = (~userHasResourceAccess) => {
     name: "PM Auth Processor",
     link: `/pm-authentication-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=ConnectorUtils.pmAuthenticationConnectorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=pmAuthenticationConnectorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
@@ -191,9 +195,9 @@ let taxProcessor = (~userHasResourceAccess) => {
     name: "Tax Processor",
     link: `/tax-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=ConnectorUtils.taxProcessorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=taxProcessorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
@@ -203,21 +207,21 @@ let billingProcessor = (~userHasResourceAccess) => {
     name: "Billing Processor",
     link: `/billing-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=ConnectorUtils.billingProcessorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=billingProcessorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
 
-let vaultProcessor = (~userHasResourceAccess) => {
+let vaultProcessor = (~isLiveMode, ~userHasResourceAccess, ~vaultProcessorsLiveList) => {
   SubLevelLink({
     name: "Vault Processor",
     link: `/vault-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=ConnectorUtils.vaultProcessorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=isLiveMode ? vaultProcessorsLiveList : vaultProcessorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
@@ -227,9 +231,9 @@ let surchargeProcessor = (~userHasResourceAccess) => {
     name: "Surcharge Processor",
     link: `/surcharge-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=ConnectorUtils.surchargeProcessorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=surchargeProcessorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
@@ -246,37 +250,69 @@ let connectors = (
   ~isVaultProcessor,
   ~isSurchargeProcessor,
   ~userHasResourceAccess,
+  ~isCurrentMerchantPlatform,
+  ~isCurrentMerchantConnected,
+  ~connectorListForLive: ConnectorListForLiveFromConfigTypes.connectorListForLive,
 ) => {
-  let connectorLinkArray = [paymentProcessor(isLiveMode, userHasResourceAccess)]
+  let {
+    paymentProcessorsLiveList,
+    payoutProcessorsLiveList,
+    threeDsAuthenticatorProcessorsLiveList,
+    vaultProcessorsLiveList,
+  } = connectorListForLive
+  let connectorLinkArray = if isCurrentMerchantPlatform {
+    let links = []
+    if isVaultProcessor {
+      links
+      ->Array.push(vaultProcessor(~isLiveMode, ~userHasResourceAccess, ~vaultProcessorsLiveList))
+      ->ignore
+    }
+    links
+  } else {
+    let links = [paymentProcessor(isLiveMode, userHasResourceAccess, ~paymentProcessorsLiveList)]
 
-  if isPayoutsEnabled {
-    connectorLinkArray->Array.push(payoutConnectors(~userHasResourceAccess))->ignore
-  }
-  if isThreedsConnectorEnabled {
-    connectorLinkArray->Array.push(threeDsConnector(~userHasResourceAccess))->ignore
-  }
+    if isPayoutsEnabled {
+      links
+      ->Array.push(payoutConnectors(~isLiveMode, ~userHasResourceAccess, ~payoutProcessorsLiveList))
+      ->ignore
+    }
+    if isThreedsConnectorEnabled {
+      links
+      ->Array.push(
+        threeDsConnector(
+          ~isLiveMode,
+          ~userHasResourceAccess,
+          ~threeDsAuthenticatorProcessorsLiveList,
+        ),
+      )
+      ->ignore
+    }
 
-  if isFrmEnabled {
-    connectorLinkArray->Array.push(fraudAndRisk(~userHasResourceAccess))->ignore
-  }
+    if isFrmEnabled {
+      links->Array.push(fraudAndRisk(~userHasResourceAccess))->ignore
+    }
 
-  if isPMAuthenticationProcessor {
-    connectorLinkArray->Array.push(pmAuthenticationProcessor(~userHasResourceAccess))->ignore
-  }
+    if isPMAuthenticationProcessor {
+      links->Array.push(pmAuthenticationProcessor(~userHasResourceAccess))->ignore
+    }
 
-  if isTaxProcessor {
-    connectorLinkArray->Array.push(taxProcessor(~userHasResourceAccess))->ignore
-  }
-  if isBillingProcessor {
-    connectorLinkArray->Array.push(billingProcessor(~userHasResourceAccess))->ignore
-  }
+    if isTaxProcessor {
+      links->Array.push(taxProcessor(~userHasResourceAccess))->ignore
+    }
+    if isBillingProcessor {
+      links->Array.push(billingProcessor(~userHasResourceAccess))->ignore
+    }
 
-  if isVaultProcessor {
-    connectorLinkArray->Array.push(vaultProcessor(~userHasResourceAccess))->ignore
-  }
+    if isSurchargeProcessor {
+      links->Array.push(surchargeProcessor(~userHasResourceAccess))->ignore
+    }
 
-  if isSurchargeProcessor {
-    connectorLinkArray->Array.push(surchargeProcessor(~userHasResourceAccess))->ignore
+    if isVaultProcessor && !isCurrentMerchantConnected {
+      links
+      ->Array.push(vaultProcessor(~isLiveMode, ~userHasResourceAccess, ~vaultProcessorsLiveList))
+      ->ignore
+    }
+    links
   }
 
   isConnectorsEnabled
@@ -295,13 +331,6 @@ let paymentAnalytcis = (~userHasResourceAccess) => SubLevelLink({
   link: `/analytics-payments`,
   access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("View analytics", "")],
-})
-
-let performanceMonitor = (~userHasResourceAccess) => SubLevelLink({
-  name: "Performance",
-  link: `/performance-monitor`,
-  access: userHasResourceAccess(~resourceAccess=Analytics),
-  searchOptions: [("View Performance", "")],
 })
 
 let newAnalytics = (~userHasResourceAccess) => SubLevelLink({
@@ -341,7 +370,6 @@ let authenticationAnalytics = (~userHasResourceAccess) => SubLevelLink({
 let analytics = (
   isAnalyticsEnabled,
   disputeAnalyticsFlag,
-  performanceMonitorFlag,
   newAnalyticsflag,
   routingAnalyticsFlag,
   ~authenticationAnalyticsFlag,
@@ -359,9 +387,6 @@ let analytics = (
     links->Array.unshift(newAnalytics(~userHasResourceAccess))
   }
 
-  if performanceMonitorFlag {
-    links->Array.push(performanceMonitor(~userHasResourceAccess))
-  }
   if routingAnalyticsFlag {
     links->Array.push(routingAnalytics(~userHasResourceAccess))
   }
@@ -549,10 +574,11 @@ let settings = (
   ~devModularityV2Enabled,
   ~devThemeEnabled,
   ~devUsers,
+  ~isCurrentMerchantPlatform,
 ) => {
   let settingsLinkArray = []
 
-  if isConfigurePmtsEnabled {
+  if isConfigurePmtsEnabled && !isCurrentMerchantPlatform {
     settingsLinkArray->Array.push(configurePMTs(userHasResourceAccess))->ignore
   }
 
@@ -625,13 +651,13 @@ let developers = (
   ~isCurrentMerchantPlatform,
 ) => {
   let apiKeys = apiKeys(userHasResourceAccess)
+  let webhooks = webhooks(userHasResourceAccess)
+  let paymentSettings = paymentSettings(userHasResourceAccess)
 
   let links = if isCurrentMerchantPlatform {
-    [apiKeys]
+    [paymentSettings, apiKeys, webhooks]
   } else {
     let isProfileUser = checkUserEntity([#Profile])
-    let paymentSettings = paymentSettings(userHasResourceAccess)
-    let webhooks = webhooks(userHasResourceAccess)
 
     let defaultDevelopersOptions = [paymentSettings]
 

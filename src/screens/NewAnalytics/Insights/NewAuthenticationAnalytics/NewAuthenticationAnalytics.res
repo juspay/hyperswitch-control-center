@@ -37,6 +37,7 @@ let make = () => {
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {analyticsEntity} = getResolvedUserInfo()
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
+  let {isCurrentMerchantPlatform} = OMPSwitchHooks.useOMPType()
 
   let loadInfo = async () => {
     try {
@@ -313,7 +314,7 @@ let make = () => {
       <div className="mt-15-px">
         <Portal to="NewAnalyticsOMPView">
           <OMPSwitchHelper.OMPViews
-            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity, ~isCurrentMerchantPlatform)}
             selectedEntity={analyticsEntity}
             onChange={updateAnalytcisEntity}
             entityMapper=UserInfoUtils.analyticsEntityMapper
@@ -365,7 +366,8 @@ let make = () => {
   ]
   <PageLoaderWrapper screenState customUI={<HSAnalyticsUtils.NoData title />}>
     <InsightsHelper.SampleDataBanner applySampleDateFilters />
-    <PageUtils.PageHeading title />
+    <PageUtils.PageHeading customHeadingStyle="mt-4" title />
+    <HSAnalyticsUtils.PlatformAggregatedDataBanner />
     <div className="flex justify-end mr-4">
       <GenerateReport entityName={V1(AUTHENTICATION_REPORT)} disableReport={isSampleDataEnabled} />
     </div>

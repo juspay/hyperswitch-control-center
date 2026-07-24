@@ -182,6 +182,7 @@ type domainTransactionMatchedStatus =
   | Auto
   | Manual
   | Force
+  | WithTolerance
   | UnknownDomainTransactionMatchedStatus
 
 @unboxed
@@ -203,6 +204,8 @@ type domainTransactionStatus =
   | UnderAmount(domainTransactionAmountMismatchStatus)
   | Missing
   | DataMismatch
+  | CurrencyMismatch
+  | SplitMismatch
   | Archived
   | Void
   | PartiallyReconciled
@@ -390,3 +393,89 @@ type metadataSchemaType = {
 }
 
 type columnMappingTabs = [#default | #advanced]
+
+type overviewRuleStatusBreakdown = {
+  status: domainTransactionStatus,
+  count: int,
+  credit_amount: balanceType,
+  debit_amount: balanceType,
+}
+
+type overviewRulesResponse = {
+  rule_id: string,
+  rule_name: string,
+  status_breakdown: array<overviewRuleStatusBreakdown>,
+}
+
+type overviewRulesTimeRange = {
+  start_time: string,
+  end_time: string,
+}
+
+type overviewRulesTimeSeries = {
+  time_range: overviewRulesTimeRange,
+  status_breakdown: array<overviewRuleStatusBreakdown>,
+}
+
+type overviewRulesTimeSeriesResponse = {
+  rule_id: string,
+  rule_name: string,
+  time_series: array<overviewRulesTimeSeries>,
+}
+
+type stagingEntryOverviewStatusAmount = {
+  status: processingEntryStatus,
+  count: int,
+}
+
+type accountStagingEntriesOverview = {status_breakdown: array<stagingEntryOverviewStatusAmount>}
+
+@unboxed
+type ruleAccountTypeVariant =
+  | @as("source") Source
+  | @as("target") Target
+  | UnknownRuleAccountType
+
+type accountStatusBreakdown = {
+  status: domainTransactionStatus,
+  credit_txn_count: int,
+  debit_txn_count: int,
+  credit_amount: balanceType,
+  debit_amount: balanceType,
+}
+
+type accountStatusOverview = {
+  account_id: string,
+  account_name: string,
+  account_type: accountTypeVariant,
+  rule_account_type: ruleAccountTypeVariant,
+  status_breakdown: array<accountStatusBreakdown>,
+}
+
+type ruleAccountsOverview = {
+  rule_id: string,
+  rule_name: string,
+  accounts: array<accountStatusOverview>,
+}
+
+type cursorDirection = [#next | #previous]
+
+type cursorValue = {
+  @as("effective_at") effectiveAt: string,
+  @as("id") cursorId: string,
+}
+
+type cursor = {
+  @as("sort_field") sortField: string,
+  @as("cursor_value") cursorValue: option<cursorValue>,
+}
+
+type cursors = {
+  next: option<cursor>,
+  prev: option<cursor>,
+}
+
+type cursorPage<'item> = {
+  items: array<'item>,
+  cursors: cursors,
+}

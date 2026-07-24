@@ -90,6 +90,7 @@ module CardRenderer = {
       switch (methodVariant, connector->getConnectorNameTypeFromString(~connectorType)) {
       | (Pix, Processors(SANTANDER))
       | (PixEmv, Processors(SANTANDER))
+      | (PixQr, Processors(SANTANDER))
       | (PixAutomaticoQr, Processors(SANTANDER))
       | (PixAutomaticoPush, Processors(SANTANDER))
       | (Boleto, Processors(SANTANDER))
