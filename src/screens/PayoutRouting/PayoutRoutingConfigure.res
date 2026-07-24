@@ -31,7 +31,7 @@ let make = (~routingType) => {
     None
   }, [url.search])
 
-  <div className="flex flex-col overflow-auto gap-2">
+  <div className="flex flex-col gap-2">
     <PageUtils.PageHeading title="Payout Routing Configurations" customHeadingStyle="!mb-0" />
     <BreadCrumbNavigation
       path=[{title: "Payout Routing Configurations", link: "/payoutrouting"}]
