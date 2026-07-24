@@ -535,7 +535,7 @@ test.describe("Payin Connector tests", () => {
     await openStripeConnectorForm(page);
     await paymentConnector.connectAndProceedButton.click();
 
-    await page.getByText("Apple Pay").click();
+    await page.getByText("Apple Pay").first().click();
 
     await expect(
       page.getByText("Web Domain").locator("visible=true").first(),
@@ -590,7 +590,7 @@ test.describe("Payin Connector tests", () => {
     await openStripeConnectorForm(page);
     await paymentConnector.connectAndProceedButton.click();
 
-    await page.getByText("Apple Pay").click();
+    await page.getByText("Apple Pay").first().click();
 
     await expect(
       page.getByText("Web Domain").locator("visible=true").first(),
@@ -689,10 +689,8 @@ test.describe("Payin Connector tests", () => {
     await openStripeConnectorForm(page);
     await paymentConnector.connectAndProceedButton.click();
 
-    await page.getByText("Google Pay").click();
-    await expect(
-      page.getByText("Payment Gateway").locator("visible=true").first(),
-    ).toBeVisible();
+    await page.getByText("Google Pay").locator("visible=true").first().click();
+    await expect(page.getByText('Payment Gateway').locator("visible=true").first()).toBeVisible();
     await page.getByRole("button", { name: "Continue" }).click();
 
     await expect(
