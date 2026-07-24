@@ -68,7 +68,7 @@ let useSetInitialFilters = (
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
       let timeRange =
         origin !== "analytics"
-          ? [(startTimeFilterKey, defaultDate.start_time)]
+          ? [(startTimeFilterKey, defaultDate.start_time), (endTimeFilterKey, defaultDate.end_time)]
           : switch enableCompareTo {
             | Some(_) => {
                 let (compareToStartTime, compareToEndTime) = DateRangeUtils.getComparisonTimePeriod(

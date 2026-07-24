@@ -29,7 +29,7 @@ module AuthorizationAndCaptureSettings = {
         <FieldRenderer field=selectCaptureMethodField />
         <div className="flex justify-between mr-2">
           <FieldRenderer field={selectSetupFutureUsageField(showSetupFutureUsage)} />
-          <BoolInput.BaseComponent
+          <SwitchAdapter
             isSelected=showSetupFutureUsage
             setIsSelected={val => handleIsSelectedForFuture(val, setShowSetupFutureUsage)}
             boolCustomClass="rounded-xl mt-5"
@@ -42,7 +42,7 @@ module AuthorizationAndCaptureSettings = {
         <FieldRenderer field=external3DSAuthToggle />
         <div className="flex justify-between mr-2">
           <FieldRenderer field={selectAuthenticationField(sendAuthType)} labelClass="mr-4" />
-          <BoolInput.BaseComponent
+          <SwitchAdapter
             boolCustomClass="rounded-xl mt-5"
             toggleEnableColor="bg-primary"
             isSelected=sendAuthType
