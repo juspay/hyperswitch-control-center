@@ -61,31 +61,49 @@ module CloneScopeSummary = {
   @react.component
   let make = () => {
     <div className="flex flex-col gap-3">
-      <p className={`${body.sm.semibold} text-nd_gray-400 tracking-wide`}>
-        {"INCLUDED IN THE CLONE"->React.string}
-      </p>
-      <div className="flex flex-wrap gap-2">
-        {["Credentials", "Webhook", "Payment methods", "Label"]
-        ->Array.map(item =>
-          <TagBinding
-            key=item
-            text=item
-            variant=Subtle
-            color=Success
-            shape=Squarical
-            size=Xs
-            leftSlot={<Icon name="nd-check" size=12 className="text-nd_green-600" />}
-          />
-        )
-        ->React.array}
+      <div className="flex flex-col gap-2">
+        <p className={`${body.sm.semibold} text-nd_gray-400 tracking-wide`}>
+          {"INCLUDED IN THE CLONE"->React.string}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {["Credentials", "Webhook", "Payment methods"]
+          ->Array.map(item =>
+            <TagBinding
+              key=item
+              text=item
+              variant=Subtle
+              color=Success
+              shape=Squarical
+              size=Xs
+              leftSlot={<Icon name="nd-check" size=12 className="text-nd_green-600" />}
+            />
+          )
+          ->React.array}
+        </div>
       </div>
-      <p className={`${body.sm.regular} text-nd_gray-500`}>
-        {"Not copied: "->React.string}
-        <span className={`${body.sm.semibold} text-nd_gray-600`}>
-          {"wallet, FRM & external auth"->React.string}
-        </span>
-        {". Review after cloning"->React.string}
-      </p>
+      <div className="flex flex-col gap-2">
+        <p className={`${body.sm.semibold} text-nd_gray-400 tracking-wide`}>
+          {"NOT INCLUDED"->React.string}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {["Wallets", "Bank debits"]
+          ->Array.map(item =>
+            <TagBinding
+              key=item
+              text=item
+              variant=Subtle
+              color=Neutral
+              shape=Squarical
+              size=Xs
+              leftSlot={<Icon name="nd-cross" size=12 className="text-nd_gray-500" />}
+            />
+          )
+          ->React.array}
+        </div>
+        <p className={`${body.sm.regular} text-nd_gray-500`}>
+          {"These payment methods aren't copied. Enable them manually if needed."->React.string}
+        </p>
+      </div>
     </div>
   }
 }
