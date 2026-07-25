@@ -12,8 +12,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let (routingType, setRoutingType) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
-  let (deEntryState, setDeEntryState) = React.useState(_ => previewOnly ? #Local : #Checking)
-  let (isCutover, setIsCutover) = React.useState(_ => false)
+  let (isCutover, setIsCutover) = React.useState(_ => previewOnly ? Some(false) : None)
   let debitRoutingValue =
     (
       HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
@@ -22,6 +21,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let showToast = ToastState.useShowToast()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let isCutoverEnabled = isCutover->Option.getOr(false)
 
   let (widthClass, marginClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "mx-auto") : ("w-full", "mx-auto ")
@@ -33,7 +33,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
     let baseTabs = [
       {
         title: "Active configuration",
-        renderContent: () => <ActiveRouting routingType isCutover />,
+        renderContent: () => <ActiveRouting routingType isCutover=isCutoverEnabled />,
       },
     ]
     hasWorkflowsManageAccess
@@ -53,7 +53,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
           },
         ])
       : baseTabs
-  }, (routingType, debitRoutingValue, isCutover))
+  }, (routingType, debitRoutingValue, isCutoverEnabled))
 
   let fetchRoutingRecords = async activeIds => {
     try {
@@ -133,10 +133,9 @@ let make = (~remainingPath, ~previewOnly=false) => {
       let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
       let res = await updateDetails(entryUrl, JSON.Encode.null, Post)
       let cutover = res->getDictFromJsonObject->getBool("is_cutover", false)
-      setIsCutover(_ => cutover)
-      setDeEntryState(_ => #Local)
+      setIsCutover(_ => Some(cutover))
     } catch {
-    | Exn.Error(_) => setDeEntryState(_ => #Local)
+    | Exn.Error(_) => setIsCutover(_ => Some(false))
     }
   }
 
@@ -167,39 +166,39 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
   let getTabName = index => index == 0 ? "active" : "history"
 
-  switch deEntryState {
-  | #Checking =>
-    <PageLoaderWrapper screenState=PageLoaderWrapper.Loading> {React.null} </PageLoaderWrapper>
-  | #Local =>
-    <PageLoaderWrapper screenState>
-      <div className={`${widthClass} ${marginClass} gap-2.5`}>
-        <div className="flex flex-col">
-          <PageUtils.PageHeading title="Smart Routing Configurations" />
-          <ActiveRouting.LevelWiseRoutingSection
-            types=[AUTH_RATE_ROUTING, ADVANCED, VOLUME_SPLIT, DEFAULTFALLBACK]
-            onRedirectBaseUrl="routing"
-            isCutover
-            onDeRedirect={target => openDeRoutingPage(target)->ignore}
+  let screenState = switch isCutover {
+  | None => PageLoaderWrapper.Loading
+  | Some(_) => screenState
+  }
+
+  <PageLoaderWrapper screenState>
+    <div className={`${widthClass} ${marginClass} gap-2.5`}>
+      <div className="flex flex-col">
+        <PageUtils.PageHeading title="Smart Routing Configurations" />
+        <ActiveRouting.LevelWiseRoutingSection
+          types=[AUTH_RATE_ROUTING, ADVANCED, VOLUME_SPLIT, DEFAULTFALLBACK]
+          onRedirectBaseUrl="routing"
+          isCutover=isCutoverEnabled
+          onDeRedirect={target => openDeRoutingPage(target)->ignore}
+        />
+      </div>
+      <RenderIf condition={!previewOnly}>
+        <div className="flex flex-col gap-12">
+          <EntityScaffold
+            entityName="HyperSwitch Priority Logic"
+            remainingPath
+            renderList={() =>
+              <Tabs
+                initialIndex={tabIndex >= 0 ? tabIndex : 0}
+                tabs
+                onTitleClick={index => {
+                  setTabIndex(_ => index)
+                  setCurrentTabName(_ => getTabName(index))
+                }}
+              />}
           />
         </div>
-        <RenderIf condition={!previewOnly}>
-          <div className="flex flex-col gap-12">
-            <EntityScaffold
-              entityName="HyperSwitch Priority Logic"
-              remainingPath
-              renderList={() =>
-                <Tabs
-                  initialIndex={tabIndex >= 0 ? tabIndex : 0}
-                  tabs
-                  onTitleClick={index => {
-                    setTabIndex(_ => index)
-                    setCurrentTabName(_ => getTabName(index))
-                  }}
-                />}
-            />
-          </div>
-        </RenderIf>
-      </div>
-    </PageLoaderWrapper>
-  }
+      </RenderIf>
+    </div>
+  </PageLoaderWrapper>
 }
