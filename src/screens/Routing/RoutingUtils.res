@@ -26,7 +26,7 @@ let routingTypeName = routingType => {
   }
 }
 
-let deRoutingTarget = routingType => {
+let decisionEngineRoutingTarget = routingType => {
   switch routingType {
   | VOLUME_SPLIT => "volume"
   | ADVANCED => "rule"

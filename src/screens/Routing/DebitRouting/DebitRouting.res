@@ -1,5 +1,5 @@
 @react.component
-let make = (~isCutover=false, ~onDeRedirect=_ => ()) => {
+let make = (~isCutover=false, ~onDecisionEngineRedirect=_ => ()) => {
   open Typography
   let (showLeastCostModal, setShowLeastCostModal) = React.useState(_ => false)
   let (showManageModal, setShowManageModal) = React.useState(_ => false)
@@ -11,7 +11,7 @@ let make = (~isCutover=false, ~onDeRedirect=_ => ()) => {
     ).is_debit_routing_enabled->Option.getOr(false)
   let handleButtonClick = _ => {
     if isCutover {
-      onDeRedirect("debit")
+      onDecisionEngineRedirect("debit")
     } else if debitRoutingValue {
       setShowManageModal(_ => true)
     } else {

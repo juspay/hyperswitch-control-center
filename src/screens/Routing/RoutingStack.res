@@ -139,7 +139,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
     }
   }
 
-  let openDeRoutingPage = async target => {
+  let openDecisionEngineRoutingPage = async target => {
     open LogicUtils
     try {
       let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
@@ -179,7 +179,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
           types=[AUTH_RATE_ROUTING, ADVANCED, VOLUME_SPLIT, DEFAULTFALLBACK]
           onRedirectBaseUrl="routing"
           isCutover=isCutoverEnabled
-          onDeRedirect={target => openDeRoutingPage(target)->ignore}
+          onDecisionEngineRedirect={target => openDecisionEngineRoutingPage(target)->ignore}
         />
       </div>
       <RenderIf condition={!previewOnly}>

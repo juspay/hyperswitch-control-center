@@ -29,7 +29,7 @@ module ActionButtons = {
     ~routeType: routingType,
     ~onRedirectBaseUrl,
     ~isCutover=false,
-    ~onDeRedirect=_ => (),
+    ~onDecisionEngineRedirect=_ => (),
   ) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -46,7 +46,7 @@ module ActionButtons = {
         buttonSize=Small
         onClick={_ => {
           if isCutover {
-            onDeRedirect(routeType->deRoutingTarget)
+            onDecisionEngineRedirect(routeType->decisionEngineRoutingTarget)
           } else {
             RescriptReactRouter.push(
               GlobalVars.appendDashboardPath(
@@ -160,7 +160,7 @@ module LevelWiseRoutingSection = {
     ~types: array<routingType>,
     ~onRedirectBaseUrl,
     ~isCutover=false,
-    ~onDeRedirect=_ => (),
+    ~onDecisionEngineRedirect=_ => (),
   ) => {
     let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let renderCard = (value, key) =>
@@ -179,7 +179,7 @@ module LevelWiseRoutingSection = {
             </p>
           </div>
         </div>
-        <ActionButtons routeType=value onRedirectBaseUrl isCutover onDeRedirect />
+        <ActionButtons routeType=value onRedirectBaseUrl isCutover onDecisionEngineRedirect />
       </div>
     let nonFallbackTypes = types->Array.filter(value => value != DEFAULTFALLBACK)
     let fallbackTypes = types->Array.filter(value => value == DEFAULTFALLBACK)
@@ -190,7 +190,7 @@ module LevelWiseRoutingSection = {
         ->React.array}
         <RenderIf
           condition={debitRouting && onRedirectBaseUrl->getRoutingTypefromString == Routing}>
-          <DebitRouting isCutover onDeRedirect />
+          <DebitRouting isCutover onDecisionEngineRedirect />
         </RenderIf>
         {fallbackTypes
         ->Array.mapWithIndex((value, index) => renderCard(value, `fallback-${index->Int.toString}`))
