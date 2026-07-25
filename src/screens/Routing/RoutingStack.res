@@ -12,7 +12,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let (routingType, setRoutingType) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
-  let (isCutover, setIsCutover) = React.useState(_ => previewOnly ? Some(false) : None)
+  let (cutoverStatus, setCutoverStatus) = React.useState(_ => previewOnly ? Some(false) : None)
   let debitRoutingValue =
     (
       HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
@@ -21,7 +21,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let showToast = ToastState.useShowToast()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-  let isCutoverEnabled = isCutover->Option.getOr(false)
+  let isCutover = cutoverStatus->Option.getOr(false)
 
   let (widthClass, marginClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "mx-auto") : ("w-full", "mx-auto ")
@@ -33,7 +33,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
     let baseTabs = [
       {
         title: "Active configuration",
-        renderContent: () => <ActiveRouting routingType isCutover=isCutoverEnabled />,
+        renderContent: () => <ActiveRouting routingType isCutover />,
       },
     ]
     hasWorkflowsManageAccess
@@ -53,7 +53,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
           },
         ])
       : baseTabs
-  }, (routingType, debitRoutingValue, isCutoverEnabled))
+  }, (routingType, debitRoutingValue, isCutover))
 
   let fetchRoutingRecords = async activeIds => {
     try {
@@ -133,9 +133,9 @@ let make = (~remainingPath, ~previewOnly=false) => {
       let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
       let res = await updateDetails(entryUrl, JSON.Encode.null, Post)
       let cutover = res->getDictFromJsonObject->getBool("is_cutover", false)
-      setIsCutover(_ => Some(cutover))
+      setCutoverStatus(_ => Some(cutover))
     } catch {
-    | Exn.Error(_) => setIsCutover(_ => Some(false))
+    | Exn.Error(_) => setCutoverStatus(_ => Some(false))
     }
   }
 
@@ -159,6 +159,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
   React.useEffect(() => {
     if !previewOnly {
+      setCutoverStatus(_ => None)
       checkRoutingEntry()->ignore
     }
     None
@@ -166,7 +167,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
   let getTabName = index => index == 0 ? "active" : "history"
 
-  let screenState = switch isCutover {
+  let screenState = switch cutoverStatus {
   | None => PageLoaderWrapper.Loading
   | Some(_) => screenState
   }
@@ -178,7 +179,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
         <ActiveRouting.LevelWiseRoutingSection
           types=[AUTH_RATE_ROUTING, ADVANCED, VOLUME_SPLIT, DEFAULTFALLBACK]
           onRedirectBaseUrl="routing"
-          isCutover=isCutoverEnabled
+          isCutover
           onDecisionEngineRedirect={target => openDecisionEngineRoutingPage(target)->ignore}
         />
       </div>
