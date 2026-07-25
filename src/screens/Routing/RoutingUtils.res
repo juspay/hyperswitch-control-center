@@ -95,7 +95,7 @@ let getContent = (~isCutover=false, routetype) =>
   | AUTH_RATE_ROUTING =>
     isCutover
       ? {
-          heading: "Multi Objective",
+          heading: "Multi Objective Routing",
           subHeading: "Route payments across multiple objectives — authorization rate, cost, and reliability — optimized by the Decision Engine",
         }
       : {

@@ -20,6 +20,8 @@ let make = (~remainingPath, ~previewOnly=false) => {
     ).is_debit_routing_enabled->Option.getOr(false)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let showToast = ToastState.useShowToast()
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let (widthClass, marginClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "mx-auto") : ("w-full", "mx-auto ")
@@ -148,16 +150,20 @@ let make = (~remainingPath, ~previewOnly=false) => {
         redirectUrl->Window._open
       }
     } catch {
-    | Exn.Error(_) => ()
+    | Exn.Error(_) =>
+      showToast(
+        ~message="Failed to open Decision Engine routing. Please try again.",
+        ~toastType=ToastState.ToastError,
+      )
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     if !previewOnly {
       checkRoutingEntry()->ignore
     }
     None
-  })
+  }, [profileId])
 
   let getTabName = index => index == 0 ? "active" : "history"
 
