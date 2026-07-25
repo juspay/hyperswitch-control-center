@@ -125,7 +125,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
   React.useEffect(() => {
     fetchActiveRouting()->ignore
     None
-  }, (pathVar, url.search, debitRoutingValue))
+  }, (pathVar, url.search, debitRoutingValue, profileId))
 
   let checkRoutingEntry = async () => {
     open LogicUtils
