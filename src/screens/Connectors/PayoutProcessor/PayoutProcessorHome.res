@@ -258,6 +258,8 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           <PayoutProcessorPaymentMethod
             setCurrentStep connector setInitialValues initialValues isUpdateFlow
           />
+
+        | WebhookRegistration
         | CustomMetadata
         | SummaryAndTest
         | Preview =>

@@ -76,7 +76,11 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
         let _ = await fetchConnectorList()
         setInitialValues(_ => response)
         setScreenState(_ => Success)
-        setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
+        let nextStep =
+          connector->connectorHasWebhookRegister && !isUpdateFlow
+            ? ConnectorTypes.WebhookRegistration
+            : ConnectorTypes.SummaryAndTest
+        setCurrentStep(_ => nextStep)
         showToast(
           ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
           ~toastType=ToastSuccess,
@@ -132,6 +136,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
           </div>
         </div>
       </div>
+      <FormValuesSpy />
     </Form>
   </PageLoaderWrapper>
 }

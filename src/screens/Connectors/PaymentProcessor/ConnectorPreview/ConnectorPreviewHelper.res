@@ -162,3 +162,87 @@ module EnableDisableConnectorToggle = {
     </div>
   }
 }
+
+module RegisteredWebhooks = {
+  @react.component
+  let make = (
+    ~connectorInfo: ConnectorTypes.connectorPayload,
+    ~connector,
+    ~setCurrentStep,
+    ~webhookStepValue,
+  ) => {
+    open APIUtils
+    open LogicUtils
+    let getURL = useGetURL()
+    let fetchDetails = useGetMethod()
+    let url = RescriptReactRouter.useUrl()
+
+    let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
+    | list{_, "new"} => false
+    | _ => true
+    }
+
+    let (registeredWebhooks, setRegisteredWebhooks) = React.useState((_): array<string> => [])
+
+    let getRegisteredWebhooks = async () => {
+      try {
+        let url = getURL(
+          ~entityName=V1(CONNECTOR_WEBHOOK),
+          ~methodType=Get,
+          ~id=Some(connectorInfo.merchant_connector_id),
+        )
+        let res = await fetchDetails(url)
+        let registered =
+          res
+          ->getDictFromJsonObject
+          ->getArrayFromDict("webhooks", [])
+          ->Array.filterMap(webhook => {
+            let value =
+              webhook->getDictFromJsonObject->getDictfromDict("scope")->getString("value", "")
+            value->isNonEmptyString ? Some(value) : None
+          })
+        setRegisteredWebhooks(_ => registered)
+      } catch {
+      | _ => ()
+      }
+    }
+
+    React.useEffect(() => {
+      getRegisteredWebhooks()->ignore
+      None
+    }, [connectorInfo.merchant_connector_id])
+
+    <div className="grid grid-cols-4 border-b md:px-10 py-8">
+      <div className="flex items-start">
+        <h4 className="text-lg font-semibold"> {"Registered Webhooks"->React.string} </h4>
+      </div>
+      <div className="flex gap-12 col-span-3">
+        <div className="flex flex-col gap-3 w-5/6">
+          {registeredWebhooks
+          ->Array.mapWithIndex((item, index) =>
+            <div key={index->Int.toString} className="flex items-center gap-2">
+              <p className={Typography.body.md.medium}>
+                {item->ConnectorUtils.getPaymentMethodDisplayName->React.string}
+              </p>
+              <TagBinding text="Registered" color=Success variant=Subtle shape=Squarical size=Xs />
+            </div>
+          )
+          ->React.array}
+        </div>
+        <RenderIf condition={isUpdateFlow}>
+          {switch webhookStepValue {
+          | Some(step) =>
+            <div className="cursor-pointer" onClick={_ => setCurrentStep(_ => step)}>
+              <ToolTip
+                description={`Update the ${connector} webhook registrations`}
+                toolTipFor={<Icon size=18 name="edit" className={` ml-2`} />}
+                toolTipPosition=Top
+              />
+            </div>
+          | None => React.null
+          }}
+        </RenderIf>
+      </div>
+    </div>
+  }
+}

@@ -72,59 +72,6 @@ module DeleteConnectorMenu = {
   }
 }
 
-// TODO: Remove this module - replaced by ConnectorPreviewHelper.EnableDisableConnectorToggle
-module MenuOption = {
-  open HeadlessUI
-  @react.component
-  let make = (
-    ~updateStepValue=ConnectorTypes.IntegFields,
-    ~disableConnector,
-    ~isConnectorDisabled,
-    ~pageName="connector",
-  ) => {
-    let showPopUp = PopUpState.useShowPopUp()
-    let openConfirmationPopUp = _ => {
-      showPopUp({
-        popUpType: (Warning, WithIcon),
-        heading: "Confirm Action ? ",
-        description: `You are about to ${isConnectorDisabled
-            ? "Enable"
-            : "Disable"->String.toLowerCase} this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
-        handleConfirm: {
-          text: "Confirm",
-          onClick: _ => disableConnector(isConnectorDisabled)->ignore,
-        },
-        handleCancel: {text: "Cancel"},
-      })
-    }
-
-    let connectorStatusAvailableToSwitch = isConnectorDisabled ? "Enable" : "Disable"
-
-    <Popover \"as"="div" className="relative inline-block text-left">
-      {_popoverProps => <>
-        <Popover.Button> {_ => <Icon name="menu-option" size=28 />} </Popover.Button>
-        <Popover.Panel className="absolute z-20 right-5 top-4">
-          {panelProps => {
-            <div
-              id="neglectTopbarTheme"
-              className="relative flex flex-col bg-white py-1 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
-              {<>
-                <Navbar.MenuOption
-                  text={connectorStatusAvailableToSwitch}
-                  onClick={_ => {
-                    panelProps["close"]()
-                    openConfirmationPopUp()
-                  }}
-                />
-              </>}
-            </div>
-          }}
-        </Popover.Panel>
-      </>}
-    </Popover>
-  }
-}
-
 module ConnectorSummaryGrid = {
   open CommonAuthHooks
   @react.component
@@ -133,6 +80,7 @@ module ConnectorSummaryGrid = {
     ~connector,
     ~setCurrentStep,
     ~updateStepValue=None,
+    ~webhookStepValue=None,
     ~getConnectorDetails=None,
   ) => {
     open ConnectorUtils
@@ -193,6 +141,13 @@ module ConnectorSummaryGrid = {
     let handleConnectorDetailsUpdate = () => {
       setCurrentActiveSection(_ => None)
     }
+
+    let hasWebhookRegister =
+      connectorDetails
+      ->LogicUtils.getDictFromJsonObject
+      ->LogicUtils.getDictfromDict("connector_webhook_register_details")
+      ->LogicUtils.isEmptyDict
+      ->not
 
     <>
       <div className="grid grid-cols-4 border-b md:px-10 py-8">
@@ -346,6 +301,11 @@ module ConnectorSummaryGrid = {
 
       | None => React.null
       }}
+      <RenderIf condition={hasWebhookRegister}>
+        <ConnectorPreviewHelper.RegisteredWebhooks
+          connectorInfo connector setCurrentStep webhookStepValue
+        />
+      </RenderIf>
     </>
   }
 }
@@ -477,6 +437,7 @@ let make = (
         connector
         setCurrentStep
         updateStepValue={Some(ConnectorTypes.PaymentMethods)}
+        webhookStepValue={Some(ConnectorTypes.WebhookRegistration)}
         getConnectorDetails
       />
     </div>

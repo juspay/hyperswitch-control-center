@@ -15,6 +15,7 @@ let getStepName = step => {
   | Preview => "Preview"
   | CustomMetadata => "Metadata"
   | AutomaticFlow => "AutomaticFlow"
+  | WebhookRegistration => "Register Webhook"
   }
 }
 
@@ -2625,10 +2626,25 @@ let connectorTypeFromConnectorName: string => connector = connectorName =>
   | _ => Processor
   }
 
+// connector needs API webhook registration (wasm config carries the register block) — e.g. Santander, Payload
+let connectorHasWebhookRegister = connector =>
+  try {
+    Window.getConnectorConfig(connector)
+    ->LogicUtils.getDictFromJsonObject
+    ->LogicUtils.getDictfromDict("connector_webhook_register_details")
+    ->LogicUtils.isEmptyDict
+    ->not
+  } catch {
+  | _ => false
+  }
+
 let stepsArr = (~connector) => {
   switch connector->getConnectorNameTypeFromString {
   | Processors(PAYSAFE) => [IntegFields, PaymentMethods, CustomMetadata, SummaryAndTest]
-  | _ => [IntegFields, PaymentMethods, SummaryAndTest]
+  | _ =>
+    connector->connectorHasWebhookRegister
+      ? [IntegFields, PaymentMethods, WebhookRegistration, SummaryAndTest]
+      : [IntegFields, PaymentMethods, SummaryAndTest]
   }
 }
 
