@@ -31,7 +31,7 @@ let getHeading: historyColType => Table.header = colType => {
 let getTableCell = activeRoutingIds => {
   let getCell = (historyData: historyData, colType: historyColType): Table.cell => {
     switch colType {
-    | Name => Text(historyData.name)
+    | Name => EllipsisText(historyData.name, "max-w-xs")
     | Type =>
       Text(`${historyData.kind->routingTypeMapper->routingTypeName->capitalizeString} Based`)
     | Description => Text(historyData.description)
