@@ -55,9 +55,6 @@ test.describe("3DS Authenticators Module", () => {
     await gotoThreeDS(page);
     const threeDSAuthenticator = new ThreeDSAuthenticator(page);
     const cta = threeDSAuthenticator.requestProcessorButton;
-    if (!(await cta.isVisible().catch(() => false))) {
-      test.skip(true, "Request a Processor CTA not exposed");
-    }
     await expect(cta).toBeVisible({ timeout: 10000 });
   });
 
@@ -67,9 +64,6 @@ test.describe("3DS Authenticators Module", () => {
     await gotoThreeDS(page);
     const threeDSAuthenticator = new ThreeDSAuthenticator(page);
     const searchInput = threeDSAuthenticator.authenticatorSearchInput;
-    if (!(await searchInput.isVisible().catch(() => false))) {
-      test.skip(true, "Search input not exposed on 3DS list");
-    }
     await searchInput.fill("threedsecureio");
     await page.waitForTimeout(500);
     await expect(searchInput).toHaveValue("threedsecureio");
@@ -81,9 +75,6 @@ test.describe("3DS Authenticators Module", () => {
     await gotoThreeDS(page);
     const threeDSAuthenticator = new ThreeDSAuthenticator(page);
     const searchInput = threeDSAuthenticator.authenticatorSearchInput;
-    if (!(await searchInput.isVisible().catch(() => false))) {
-      test.skip(true, "Search input not exposed on 3DS list");
-    }
     await searchInput.fill("notarealauthenticator_zzz");
     await page.waitForTimeout(1000);
     await expect(searchInput).toHaveValue("notarealauthenticator_zzz");
@@ -95,9 +86,6 @@ test.describe("3DS Authenticators Module", () => {
     await gotoThreeDS(page);
     const threeDSAuthenticator = new ThreeDSAuthenticator(page);
     const connectButtons = threeDSAuthenticator.connectButton;
-    if ((await connectButtons.count().catch(() => 0)) === 0) {
-      test.skip(true, "No 3DS authenticators exposed");
-    }
     await connectButtons.nth(0).click();
     await expect(page.getByText("API Key *")).toBeVisible();
     await expect(page.getByText("Organization Unit ID *")).toBeVisible();
@@ -128,7 +116,7 @@ test.describe("3DS Authenticators Setup", () => {
         .getByText("Base64 encoded PEM formatted"),
     ).toBeVisible();
     await page
-      .getByTestId("connector_account_details.certificate")
+      .getByTestId("base64_encoded_pem_formatted_certificate_chain")
       .getByRole("textbox", { name: "Enter Base64 encoded PEM" })
       .fill(certBase64);
 
@@ -138,7 +126,7 @@ test.describe("3DS Authenticators Setup", () => {
         .getByText("Base64 encoded PEM formatted"),
     ).toBeVisible();
     await page
-      .getByTestId("connector_account_details.private_key")
+      .getByTestId("base64_encoded_pem_formatted_private_key")
       .getByRole("textbox", { name: "Enter Base64 encoded PEM" })
       .fill(keyBase64);
 

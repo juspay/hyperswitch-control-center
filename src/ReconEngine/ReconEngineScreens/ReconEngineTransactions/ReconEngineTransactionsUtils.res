@@ -26,26 +26,12 @@ let getSortOrder = (sortOb: LoadedTable.sortOb): transactionSortOrder => {
   sortOb.sortKey === "date" && sortOb.sortType === LoadedTable.ASC ? Asc : Desc
 }
 
-let transactionCursorFromDict = dict => {
-  let cursorValueDict = dict->getDictfromDict("cursor_value")
-
-  {
-    sortField: dict->getString("sort_field", "effective_at"),
-    cursorValue: Some({
-      effectiveAt: cursorValueDict->getString("effective_at", ""),
-      cursorId: cursorValueDict->getString("id", ""),
-    }),
-  }
-}
-
-let defaultSortBy: transactionCursor = {sortField: "effective_at", cursorValue: None}
-
 let buildTransactionsV2Body = (
   ~filterValueJson: Dict.t<JSON.t>,
   ~searchType: transactionSearchType,
   ~searchText: string,
   ~ruleId: string,
-  ~sortBy: transactionCursor,
+  ~sortBy: cursor,
   ~direction: cursorDirection,
   ~order: transactionSortOrder=Desc,
   ~limit=4,
@@ -76,21 +62,29 @@ let buildTransactionsV2Body = (
 
   let startTime = filterValueJson->getString("startTime", "")
   let endTime = filterValueJson->getString("endTime", "")
-  let hasTimeRange = startTime->isNonEmptyString && endTime->isNonEmptyString
-
+  let hasStartTime = startTime->isNonEmptyString
+  let hasEndTime = endTime->isNonEmptyString
+  let hasBothTimeRanges = hasStartTime && hasEndTime
   let filters =
     [
       ruleId->isNonEmptyString ? Some(("rule_id", ruleId->JSON.Encode.string)) : None,
       Some(("status", statusValues->getJsonFromArrayOfString)),
-      hasTimeRange
-        ? Some((
-            "time_range",
-            [
-              ("start_time", startTime->JSON.Encode.string),
-              ("end_time", endTime->JSON.Encode.string),
-            ]->getJsonFromArrayOfJson,
-          ))
-        : None,
+      if hasBothTimeRanges {
+        Some((
+          "time_range",
+          [
+            ("start_time", startTime->JSON.Encode.string),
+            ("end_time", endTime->JSON.Encode.string),
+          ]->getJsonFromArrayOfJson,
+        ))
+      } else if hasStartTime {
+        Some((
+          "time_range",
+          [("start_time", startTime->JSON.Encode.string)]->getJsonFromArrayOfJson,
+        ))
+      } else {
+        None
+      },
       searchText->isNonEmptyString
         ? Some(((searchType :> string), searchText->String.trim->JSON.Encode.string))
         : None,

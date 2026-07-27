@@ -13,24 +13,42 @@ let make = (
   open HSAnalyticsUtils
   open ReconEngineTransactionsTypes
 
-  let getTransactionsV2 = useGetTransactionsV2()
+  let getTransactionsV2 = useGetCursorPage(
+    ~hyperswitchReconType=#TRANSACTIONS_LIST_V2,
+    ~itemMapper=ReconEngineUtils.transactionItemToObjMapper,
+  )
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
-  let (transactions, setTransactions) = React.useState(_ => [])
-  let (cursors, setCursors) = React.useState((_): transactionCursors => {
-    next: None,
-    prev: None,
-  })
-  let (offset, setOffset) = React.useState(_ => 0)
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (selectedRows, setSelectedRows) = React.useState(_ => [])
-
-  let (searchText, setSearchText) = React.useState(_ => "")
-  let (searchType, setSearchType) = React.useState(_ => SearchTransactionId)
 
   let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
-  let sortOrder = sortDict->getMappedValueFromDict("Transactions", Desc, getSortOrder)
+  let title = "Transactions"
+  let sortOrder = sortDict->getMappedValueFromDict(title, Desc, getSortOrder)
+  let (searchText, setSearchText) = React.useState(_ => "")
+  let searchTypeRef = React.useRef(SearchTransactionId)
+
+  let {
+    items: transactions,
+    cursors,
+    screenState,
+    goToFirstPage,
+    goToNextPage,
+    goToPrevPage,
+  } = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=(~sortBy, ~direction) => {
+    getTransactionsV2(
+      ~body=buildTransactionsV2Body(
+        ~filterValueJson,
+        ~searchType=searchTypeRef.current,
+        ~searchText,
+        ~ruleId=rule.rule_id,
+        ~sortBy,
+        ~direction,
+        ~order=sortOrder,
+      ),
+    )
+  }, ~persistKey=`recon-engine-transactions-${rule.rule_id}`)
+  let (offset, setOffset) = React.useState(_ => 0)
+  let (selectedRows, setSelectedRows) = React.useState(_ => [])
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let dateDropDownTriggerMixpanelCallback = () => {
@@ -58,55 +76,15 @@ let make = (
       />
     </div>
 
-  let fetchPage = async (~sortBy, ~direction, ~searchType, ~searchText) => {
-    if screenState !== PageLoaderWrapper.Success {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-    }
-    try {
-      let body = buildTransactionsV2Body(
-        ~filterValueJson,
-        ~searchType,
-        ~searchText,
-        ~ruleId=rule.rule_id,
-        ~sortBy,
-        ~direction,
-        ~order=sortOrder,
-      )
-      let page = await getTransactionsV2(~body)
-      setTransactions(_ => page.transactions)
-      setCursors(_ => page.cursors)
-      setSelectedRows(_ => [])
-      setScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
-    }
-  }
-
-  let goToFirstPage = () => {
-    fetchPage(~sortBy=defaultSortBy, ~direction=#next, ~searchType, ~searchText)->ignore
-  }
-
-  let goToNextPage = () => {
-    cursors.next->mapOptionOrDefault((), cursor => {
-      fetchPage(~sortBy=cursor, ~direction=#next, ~searchType, ~searchText)->ignore
-    })
-  }
-
-  let goToPrevPage = () => {
-    cursors.prev->mapOptionOrDefault((), cursor => {
-      fetchPage(~sortBy=cursor, ~direction=#previous, ~searchType, ~searchText)->ignore
-    })
-  }
+  React.useEffect(() => {
+    setSelectedRows(_ => [])
+    None
+  }, [transactions])
 
   let handleSearchSubmit = (selectedType: option<string>) => {
     let newSearchType = selectedType->mapOptionOrDefault(SearchTransactionId, searchTypeFromString)
-    setSearchType(_ => newSearchType)
-    fetchPage(
-      ~sortBy=defaultSortBy,
-      ~direction=#next,
-      ~searchType=newSearchType,
-      ~searchText,
-    )->ignore
+    searchTypeRef.current = newSearchType
+    goToFirstPage()
   }
 
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
@@ -134,7 +112,7 @@ let make = (
     <PageLoaderWrapper screenState>
       <div className="flex-shrink-0"> {topFilterUi} </div>
       <LoadedTableWithCustomColumns
-        title="Transactions"
+        title
         hideTitle=true
         actualData={transactions->Array.map(Nullable.make)}
         totalResults={transactions->Array.length}
@@ -174,29 +152,14 @@ let make = (
           selectedData: selectedRows,
           setSelectedData: setSelectedRows,
         }}
+        bottomActions={<ReconEngineCursorPaginationButtons
+          cursors
+          isLoading={screenState === PageLoaderWrapper.Loading}
+          hasData={transactions->isNonEmptyArray}
+          onPrev=goToPrevPage
+          onNext=goToNextPage
+        />}
       />
-      <RenderIf condition={transactions->isNonEmptyArray}>
-        <div className="flex flex-row justify-end items-center gap-3">
-          <Button
-            text="Prev"
-            buttonType=Secondary
-            buttonSize=Small
-            buttonState={cursors.prev->Option.isNone || screenState === PageLoaderWrapper.Loading
-              ? Button.Disabled
-              : Button.Normal}
-            onClick={_ => goToPrevPage()}
-          />
-          <Button
-            text="Next"
-            buttonType=Primary
-            buttonSize=Small
-            buttonState={cursors.next->Option.isNone || screenState === PageLoaderWrapper.Loading
-              ? Button.Disabled
-              : Button.Normal}
-            onClick={_ => goToNextPage()}
-          />
-        </div>
-      </RenderIf>
       <RenderIf condition={selectedRows->isNonEmptyArray}>
         <ReconEngineTransactionsBulkActions
           selectedRows={selectedRows->Array.map(json => json->Identity.jsonToAnyType)}

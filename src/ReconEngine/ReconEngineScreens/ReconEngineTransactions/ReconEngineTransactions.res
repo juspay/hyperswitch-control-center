@@ -7,11 +7,34 @@ let make = () => {
   open ReconEngineHooks
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let url = RescriptReactRouter.useUrl()
+  let basePath = GlobalVars.appendDashboardPath(~url="v1/recon-engine/transactions")
   let (accountData, setAccountData) = React.useState(_ => [])
   let (reconRulesList, setReconRulesList) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let getAccounts = useGetAccounts()
   let getReconRuleList = useGetReconRuleList()
+
+  let onTitleClick = idx => {
+    let url =
+      reconRulesList
+      ->Array.get(idx)
+      ->mapOptionOrDefault(basePath, rule => `${basePath}?rule_id=${rule.rule_id}`)
+    RescriptReactRouter.push(url)
+  }
+
+  let initialTabIndex = React.useMemo(() => {
+    let urlSearch = url.search
+    if urlSearch->isNonEmptyString {
+      urlSearch
+      ->getDictFromUrlSearchParams
+      ->getMappedValueFromDict("rule_id", 0, ruleId =>
+        reconRulesList->Array.findIndexOpt(rule => rule.rule_id === ruleId)->Option.getOr(0)
+      )
+    } else {
+      0
+    }
+  }, (url.search, reconRulesList))
 
   let getAccountsData = async _ => {
     try {
@@ -76,7 +99,7 @@ let make = () => {
         </div>
       </RenderIf>
       <RenderIf condition={reconRulesList->isNonEmptyArray}>
-        <Tabs tabs />
+        <Tabs tabs initialIndex=initialTabIndex onTitleClick />
       </RenderIf>
     </PageLoaderWrapper>
   </div>
