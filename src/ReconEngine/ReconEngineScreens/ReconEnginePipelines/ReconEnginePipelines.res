@@ -14,6 +14,7 @@ let make = () => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (accountData, setAccountData) = React.useState(_ => [])
+  let (refreshTrigger, setRefreshTrigger) = React.useState(_ => false)
 
   let fetchAccounts = async () => {
     try {
@@ -50,27 +51,34 @@ let make = () => {
       <PageHeading
         title="Pipelines" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
       />
-      <DynamicFilter
-        title="ReconEnginePipelinesFilters"
-        initialFilters=[]
-        options=[]
-        popupFilterFields=[]
-        initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
-          null,
-          ~events=dateDropDownTriggerMixpanelCallback,
-        )}
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        tabNames=filterKeys
-        key="ReconEnginePipelinesFilters"
-        updateUrlWith=updateExistingKeys
-        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
-        showCustomFilter=false
-        refreshFilters=false
-      />
+      <div className="flex flex-row items-start gap-3">
+        <DynamicFilter
+          title="ReconEnginePipelinesFilters"
+          initialFilters=[]
+          options=[]
+          popupFilterFields=[]
+          initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
+            null,
+            ~events=dateDropDownTriggerMixpanelCallback,
+          )}
+          defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+          tabNames=filterKeys
+          key="ReconEnginePipelinesFilters"
+          updateUrlWith=updateExistingKeys
+          filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+          showCustomFilter=false
+          refreshFilters=false
+        />
+        <div className="mt-5">
+          <ReconEnginePipelinesUploadModal
+            accountData onClose={() => setRefreshTrigger(prev => !prev)}
+          />
+        </div>
+      </div>
     </div>
-    <ReconEnginePipelinesStatCards />
+    <ReconEnginePipelinesStatCards refreshTrigger />
     <PageLoaderWrapper screenState>
-      <ReconEnginePipelinesTable accountData />
+      <ReconEnginePipelinesTable accountData refreshTrigger />
     </PageLoaderWrapper>
   </div>
 }
