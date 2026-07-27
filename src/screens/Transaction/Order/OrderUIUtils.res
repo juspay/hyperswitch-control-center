@@ -581,17 +581,6 @@ let initialFiltersWithSource = (
   })
 }
 
-let initialFilters = (json, filterValues, removeKeys, filterKeys, setfilterKeys, version) =>
-  initialFiltersWithSource(
-    ~isAdvancedSource=false,
-    json,
-    filterValues,
-    removeKeys,
-    filterKeys,
-    setfilterKeys,
-    version,
-  )
-
 let initialFixedFilter = (version: UserInfoTypes.version, ~disable=false) => [
   (
     {

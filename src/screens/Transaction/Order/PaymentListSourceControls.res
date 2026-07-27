@@ -2,59 +2,42 @@ open OrderTypes
 
 let paymentListSources: array<paymentListSource> = [Normal, Advanced]
 
-let getPaymentListSourceLabel = (source: paymentListSource) => (source :> string)
-
-let getPaymentListSourceFromLabel = value =>
-  paymentListSources->Array.find(source => source->getPaymentListSourceLabel == value)
-
-let getPaymentListSourceDescription = source =>
-  switch source {
-  | Normal => "Standard payments list."
-  | Advanced => "Advanced payment list with expanded search, filters, columns, and CSV export."
-  }
-
 module SourceTabs = {
   @react.component
   let make = (
     ~source: paymentListSource,
-    ~setSource: (paymentListSource => paymentListSource) => unit,
+    ~setSource: paymentListSource => unit,
     ~advancedEnabled,
   ) => {
-    <TabsBinding
-      value={source->getPaymentListSourceLabel}
-      onValueChange={value => {
-        switch value->getPaymentListSourceFromLabel {
-        | Some(Advanced) =>
-          if advancedEnabled {
-            setSource(_ => Advanced)
-          }
-        | Some(Normal) => setSource(_ => Normal)
-        | None => ()
-        }
-      }}
-      variant=Boxed
-      size=Md>
-      <TabsBinding.List variant=Boxed size=Md fitContent=true>
-        {paymentListSources
-        ->Array.map(item => {
-          let value = item->getPaymentListSourceLabel
-          let isDisabled = item === Advanced && !advancedEnabled
-          <TabsBinding.Trigger
-            key=value
-            value
-            variant=Boxed
-            size=Md
-            disabled=isDisabled
-            className="min-w-20 justify-center">
-            <ToolTip
-              description={item->getPaymentListSourceDescription}
-              toolTipFor={<span> {(item :> string)->React.string} </span>}
-              toolTipPosition=Top
-            />
-          </TabsBinding.Trigger>
-        })
-        ->React.array}
-      </TabsBinding.List>
-    </TabsBinding>
+    let tabs = paymentListSources->Array.map((item): Tabs.tab => {
+      title: (item :> string),
+      renderContent: () => React.null,
+    })
+    let initialIndex = paymentListSources->Array.indexOf(source)->(idx => idx < 0 ? 0 : idx)
+    let disabledTab = advancedEnabled ? [] : [(Advanced :> string)]
+
+    let sourceTabs =
+      <Tabs
+        tabs
+        initialIndex
+        disabledTab
+        variant=TabsBinding.Boxed
+        size=TabsBinding.Md
+        fitContent=true
+        onTitleClick={idx =>
+          switch paymentListSources->Array.get(idx) {
+          | Some(Advanced) => advancedEnabled ? setSource(Advanced) : ()
+          | Some(Normal) => setSource(Normal)
+          | None => ()
+          }}
+      />
+
+    advancedEnabled
+      ? sourceTabs
+      : <ToolTip
+          description="Advanced payments list is not available for this account."
+          toolTipFor=sourceTabs
+          toolTipPosition=Top
+        />
   }
 }
