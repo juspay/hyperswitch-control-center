@@ -2,7 +2,9 @@
 let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
   open APIUtils
   open LogicUtils
-  open ConnectorWebhookRegisterTypes
+  open ConnectorWebhookRegisterationTypes
+  open ConnectorWebhookRegistrationUtils
+
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
@@ -108,8 +110,8 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
       let failed = Dict.make()
       response.results->Array.forEach(result => {
         switch result.status {
-        | Success => succeeded->Array.push(result.identifier)
-        | Failure =>
+        | Succeeded => succeeded->Array.push(result.identifier)
+        | Failed =>
           let message =
             result.error->mapOptionOrDefault("Registration failed", error => error.message)
           failed->Dict.set(result.identifier, message)

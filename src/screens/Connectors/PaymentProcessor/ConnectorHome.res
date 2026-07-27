@@ -260,7 +260,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true, ~showBreadCrumbWarnin
           />
 
         | WebhookRegistration =>
-          <ConnectorRegisterWebhook connector initialValues setCurrentStep isUpdateFlow />
+          <ConnectorWebhookRegistration connector initialValues setCurrentStep isUpdateFlow />
         | SummaryAndTest
         | Preview =>
           <ConnectorPreview
