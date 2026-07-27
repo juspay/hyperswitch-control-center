@@ -5,15 +5,18 @@ open SavedViewTypes
 let defaultViewName = "Default View"
 
 @react.component
-let make = (~version: UserInfoTypes.version=V1, ~entity: SavedViewTypes.entity=Payment) => {
+let make = (
+  ~version: UserInfoTypes.version=V1,
+  ~savedViewDataVersion: UserInfoTypes.version=version,
+  ~entity: SavedViewTypes.entity=Payment,
+) => {
   let showToast = ToastAdapter.useShowToast()
   let {updateExistingKeys, filterValue, reset, setfilterKeys} = React.useContext(
     FilterContext.filterContext,
   )
-  let (showSaveModal, setShowSaveModal) = React.useState(_ => false)
+  let (panelState, setPanelState) = React.useState(_ => NoActiveInteraction)
   let (savedViews: array<SavedViewTypes.savedView>, setSavedViews) = React.useState(_ => [])
-  let (activeViewName, setActiveViewName) = React.useState(_ => "")
-  let (currentlyEditingIndex, setCurrentlyEditingIndex) = React.useState(_ => None)
+  let (activeView: option<SavedViewTypes.savedView>, setActiveView) = React.useState(_ => None)
   let (isInternalUpdate, setIsInternalUpdate) = React.useState(_ => false)
 
   let fetchSavedViewsHook = SavedViewsHooks.useFetchSavedViews(~entity, ~version)
@@ -22,45 +25,45 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: SavedViewTypes.entity=P
   }
 
   React.useEffect(() => {
+    setActiveView(_ => None)
+    setPanelState(_ => NoActiveInteraction)
+    setSavedViews(_ => [])
     fetchSavedViews()->ignore
     None
-  }, [])
+  }, (version, entity))
 
   React.useEffect(() => {
-    if !isInternalUpdate && savedViews->Array.length > 0 {
+    if !isInternalUpdate {
       let currentFiltersDict = SavedViewsUtils.buildCurrentFiltersDict(filterValue)
-      let matchingView = SavedViewsUtils.findMatchingView(
-        ~savedViews,
-        ~currentFiltersDict,
-        ~version,
+      setActiveView(_ =>
+        savedViews->isNonEmptyArray
+          ? SavedViewsUtils.findMatchingView(~savedViews, ~currentFiltersDict, ~version)
+          : None
       )
-      switch matchingView {
-      | Some(view) =>
-        if activeViewName !== view.view_name {
-          setActiveViewName(_ => view.view_name)
-        }
-      | None =>
-        if activeViewName->isNonEmptyString {
-          setActiveViewName(_ => "")
-        }
-      }
     }
     None
-  }, (filterValue, savedViews, version, isInternalUpdate))
+  }, (filterValue, savedViews, version, entity, isInternalUpdate))
 
   let showPopUp = PopUpState.useShowPopUp()
 
   let performDeleteHook = SavedViewsHooks.useDeleteSavedView(~entity, ~fetchSavedViews)
-  let performDelete = async (view_id, viewName) => {
-    await performDeleteHook(view_id, viewName, ~onSuccess=() => {
-      activeViewName === viewName ? setActiveViewName(_ => "") : ()
+  let isActiveView = (view: SavedViewTypes.savedView) =>
+    activeView->mapOptionOrDefault(false, active => active.view_id === view.view_id)
+
+  let performDelete = async (view: SavedViewTypes.savedView) => {
+    await performDeleteHook(view.view_id, view.view_name, ~onSuccess=() => {
+      view->isActiveView ? setActiveView(_ => None) : ()
     })
   }
 
-  let performRenameHook = SavedViewsHooks.useRenameSavedView(~entity, ~version, ~fetchSavedViews)
+  let performRenameHook = SavedViewsHooks.useRenameSavedView(
+    ~entity,
+    ~savedViewDataVersion,
+    ~fetchSavedViews,
+  )
   let performRename = async (view: SavedViewTypes.savedView, newName) => {
     await performRenameHook(view, newName, ~onSuccess=() => {
-      activeViewName === view.view_name ? setActiveViewName(_ => newName) : ()
+      view->isActiveView ? setActiveView(_ => Some({...view, view_name: newName})) : ()
     })
   }
 
@@ -74,7 +77,7 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: SavedViewTypes.entity=P
       handleConfirm: {
         text: "Delete Saved View",
         onClick: _ => {
-          performDelete(view.view_id, view.view_name)->ignore
+          performDelete(view)->ignore
         },
       },
     })
@@ -88,7 +91,7 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: SavedViewTypes.entity=P
         showToast(~message=`Saved view '${viewName}' not found.`, ~toastType=ToastError)
         setIsInternalUpdate(_ => false)
       | Some(selectedView) =>
-        setActiveViewName(_ => viewName)
+        setActiveView(_ => Some(selectedView))
         let filterDict = selectedView.filters->getDictFromJsonObject
         let (stringDict, uniqueDisplayKeys) = SavedViewsUtils.getApplyFilters(
           ~filterDict,
@@ -117,7 +120,7 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: SavedViewTypes.entity=P
       buttonSize=Large
       buttonType=Secondary
       leftIcon={CustomIcon(<Icon name="bookmark-outline" size=16 />)}
-      onClick={_ => setShowSaveModal(_ => true)}
+      onClick={_ => setPanelState(_ => SaveViewModalOpen)}
       customBackColor="bg-white"
       customRoundedClass="rounded-lg"
       customButtonStyle="text-nd_gray-700 hover:bg-nd_gray-50 border"
@@ -125,15 +128,15 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: SavedViewTypes.entity=P
     <HeadlessUISelectBox
       options={SavedViewsUtils.buildViewOptions(
         ~savedViews,
-        ~activeViewName,
+        ~activeView,
         ~defaultViewName,
-        ~currentlyEditingIndex,
-        ~setCurrentlyEditingIndex,
+        ~panelState,
+        ~setPanelState,
         ~performRename,
         ~handleDelete,
       )}
       setValue={handleSelect}
-      value={HeadlessUI.String(activeViewName)}
+      value={HeadlessUI.String(activeView->mapOptionOrDefault("", view => view.view_name))}
       dropdownPosition=Right
       showTick=false
       dropDownClass="w-64">
@@ -141,22 +144,29 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: SavedViewTypes.entity=P
         className={`flex items-center gap-3 px-4 py-2 border rounded-lg bg-white h-10 hover:bg-nd_gray-50 cursor-pointer text-nd_gray-700 ${body.md.medium}`}>
         <Icon name="eye-outline" size=16 className="opacity-70" />
         <div className="truncate max-w-24">
-          {(activeViewName->isEmptyString ? "Saved Views" : activeViewName)->React.string}
+          {activeView->mapOptionOrDefault("Saved Views", view => view.view_name)->React.string}
         </div>
         <Icon name="chevron-down" size=14 className="opacity-50 ml-auto" />
       </div>
     </HeadlessUISelectBox>
     <SaveViewModalComp
-      showModal=showSaveModal
-      setShowModal=setShowSaveModal
+      showModal={panelState === SaveViewModalOpen}
+      setShowModal={updater =>
+        setPanelState(prev =>
+          updater(prev === SaveViewModalOpen) ? SaveViewModalOpen : NoActiveInteraction
+        )}
       version
+      savedViewDataVersion
       entity
       onViewsUpdated={(_res, name) => {
-        fetchSavedViews()->ignore
-        switch name {
-        | Some(n) => setActiveViewName(_ => n)
-        | None => ()
+        let refreshViews = async () => {
+          let views = await fetchSavedViewsHook(~setSavedViews)
+          switch name {
+          | Some(name) => setActiveView(_ => views->Array.find(view => view.view_name === name))
+          | None => ()
+          }
         }
+        refreshViews()->ignore
       }}
     />
   </div>

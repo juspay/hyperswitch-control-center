@@ -275,6 +275,8 @@ type unsupportedAdvancedPaymentFilter = [#unified_code | #unified_message]
 
 type hiddenAdvancedPaymentFilter = [#first_attempt]
 
+type advancedPaymentSearchParam = [#query]
+
 type advancedPaymentTextListFilter = [
   | #card_last_4
   | #active_attempt_id

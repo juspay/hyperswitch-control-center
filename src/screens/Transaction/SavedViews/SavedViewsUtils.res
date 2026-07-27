@@ -1,46 +1,35 @@
 open LogicUtils
+open OrderUIUtils
 
 let maxViews = 5
 
-let jsonValueToString = jsonValue => {
-  switch jsonValue->JSON.Classify.classify {
-  | String(s) => s
-  | Number(n) => n->Float.toString
-  | Bool(b) => b ? "true" : "false"
-  | Array(arr) => {
-      let strArr = arr->getStrArrayFromJsonArray
-      let sortedStrArr = strArr->Array.toSorted((a, b) => String.compare(a, b))
-      "[" ++ sortedStrArr->Array.joinWith(",") ++ "]"
+let primitiveJsonToString = jsonValue =>
+  switch jsonValue->getStringFromJson("")->getNonEmptyString {
+  | Some(str) => str
+  | None =>
+    switch jsonValue->getOptionFloatFromJson {
+    | Some(num) => num->Float.toString
+    | None => jsonValue->getBoolFromJson(false)->getStringFromBool
     }
-  | Null => ""
-  | _ => ""
   }
-}
 
-let stringFromFilterValue = (dict, key) => {
-  dict
-  ->Dict.get(key)
-  ->Option.mapOr("", json =>
-    switch json->JSON.Classify.classify {
-    | String(s) => s
-    | Number(n) => n->Float.toString
-    | Array(arr) =>
-      let ele = arr->getValueFromArray(0, JSON.Encode.null)
-      switch ele->JSON.Classify.classify {
-      | String(s) => s
-      | Number(n) => n->Float.toString
-      | _ => ""
-      }
-    | _ => ""
-    }
-  )
-}
+let jsonValueToString = jsonValue =>
+  switch jsonValue->getOptionStrArrayFromJson {
+  | Some(_) =>
+    let sortedStrArr =
+      jsonValue
+      ->getArrayFromJson([])
+      ->Array.map(primitiveJsonToString)
+      ->Array.toSorted(String.compare)
+    "[" ++ sortedStrArr->Array.joinWith(",") ++ "]"
+  | None => jsonValue->primitiveJsonToString
+  }
 
 let foldAmountOption = filtersDict => {
-  let amountOption = filtersDict->stringFromFilterValue(SavedViewTypes.FilterKeys.amountOption)
+  let amountOption = filtersDict->getString(SavedViewTypes.FilterKeys.amountOption, "")
   if amountOption->isNonEmptyString {
-    let startAmountStr = filtersDict->stringFromFilterValue(SavedViewTypes.FilterKeys.startAmount)
-    let endAmountStr = filtersDict->stringFromFilterValue(SavedViewTypes.FilterKeys.endAmount)
+    let startAmountStr = filtersDict->getString(SavedViewTypes.FilterKeys.startAmount, "")
+    let endAmountStr = filtersDict->getString(SavedViewTypes.FilterKeys.endAmount, "")
     filtersDict->Dict.delete(SavedViewTypes.FilterKeys.startAmount)
     filtersDict->Dict.delete(SavedViewTypes.FilterKeys.endAmount)
 
@@ -63,7 +52,7 @@ let foldAmountOption = filtersDict => {
     | UnknownRange(_) => filtersDict->Dict.delete(SavedViewTypes.FilterKeys.amountOption)
     }
 
-    if amountFilterDict->Dict.keysToArray->Array.length > 0 {
+    if amountFilterDict->Dict.keysToArray->isNonEmptyArray {
       filtersDict->Dict.set("amount_filter", amountFilterDict->JSON.Encode.object)
     }
   }
@@ -120,9 +109,9 @@ let getApplyFilters = (~filterDict, ~filterValue, ~version) => {
   ->Dict.toArray
   ->Array.forEach(((key, value)) => flattenToDict(newFiltersDict, key, value))
 
-  let startTimeKey = OrderUIUtils.startTimeFilterKey(version)
-  let endTimeKey = OrderUIUtils.endTimeFilterKey(version)
-  let savedHasDates = newFiltersDict->Dict.get(startTimeKey)->Option.isSome
+  let startTimeKey = startTimeFilterKey(version)
+  let endTimeKey = endTimeFilterKey(version)
+  let savedHasDates = newFiltersDict->getOptionValFromDict(startTimeKey)->Option.isSome
 
   filterValue
   ->Dict.keysToArray
@@ -158,12 +147,12 @@ let getApplyFilters = (~filterDict, ~filterValue, ~version) => {
 
   let uniqueDisplayKeys = displayKeys->getUniqueArray
 
-  let startAmountStr = stringDict->Dict.get(SavedViewTypes.FilterKeys.startAmount)->Option.getOr("")
-  let endAmountStr = stringDict->Dict.get(SavedViewTypes.FilterKeys.endAmount)->Option.getOr("")
+  let startAmountStr = stringDict->getValueFromDict(SavedViewTypes.FilterKeys.startAmount, "")
+  let endAmountStr = stringDict->getValueFromDict(SavedViewTypes.FilterKeys.endAmount, "")
   let hasStart = startAmountStr->isNonEmptyString
   let hasEnd = endAmountStr->isNonEmptyString
   let hasAmountOption =
-    stringDict->Dict.get(SavedViewTypes.FilterKeys.amountOption)->Option.getOr("")->isNonEmptyString
+    stringDict->getValueFromDict(SavedViewTypes.FilterKeys.amountOption, "")->isNonEmptyString
 
   if hasStart || hasEnd {
     if !hasAmountOption {
@@ -210,12 +199,12 @@ let findMatchingView = (
     savedFilters
     ->Dict.toArray
     ->Array.forEach(((key, value)) => flattenToDict(savedFiltersStringDict, key, value))
-    let startTimeKey = OrderUIUtils.startTimeFilterKey(version)
-    let endTimeKey = OrderUIUtils.endTimeFilterKey(version)
-    if savedFiltersStringDict->Dict.get(startTimeKey)->Option.isNone {
+    let startTimeKey = startTimeFilterKey(version)
+    let endTimeKey = endTimeFilterKey(version)
+    if savedFiltersStringDict->getOptionValFromDict(startTimeKey)->Option.isNone {
       tempCurrentFiltersDict->Dict.delete(startTimeKey)
     }
-    if savedFiltersStringDict->Dict.get(endTimeKey)->Option.isNone {
+    if savedFiltersStringDict->getOptionValFromDict(endTimeKey)->Option.isNone {
       tempCurrentFiltersDict->Dict.delete(endTimeKey)
     }
     DictionaryUtils.equalDicts(
@@ -227,10 +216,12 @@ let findMatchingView = (
 
 let buildViewOptions = (
   ~savedViews: array<SavedViewTypes.savedView>,
-  ~activeViewName: string,
+  ~activeView: option<SavedViewTypes.savedView>,
   ~defaultViewName: string,
-  ~currentlyEditingIndex: option<int>,
-  ~setCurrentlyEditingIndex: (option<int> => option<int>) => unit,
+  ~panelState: SavedViewTypes.savedViewsPanelState,
+  ~setPanelState: (
+    SavedViewTypes.savedViewsPanelState => SavedViewTypes.savedViewsPanelState
+  ) => unit,
   ~performRename: (SavedViewTypes.savedView, string) => promise<unit>,
   ~handleDelete: (SavedViewTypes.savedView, ReactEvent.Mouse.t) => unit,
 ): array<HeadlessUISelectBox.updatedOptionWithIcons> => {
@@ -238,7 +229,7 @@ let buildViewOptions = (
     label: defaultViewName,
     value: "",
     isDisabled: false,
-    leftIcon: activeViewName->isEmptyString ? CustomIcon(<Tick isSelected=true />) : NoIcon,
+    leftIcon: activeView->Option.isNone ? CustomIcon(<Tick isSelected=true />) : NoIcon,
     customTextStyle: None,
     customIconStyle: None,
     rightIcon: NoIcon,
@@ -251,7 +242,11 @@ let buildViewOptions = (
       label: name,
       value: name,
       isDisabled: false,
-      leftIcon: name === activeViewName ? CustomIcon(<Tick isSelected=true />) : NoIcon,
+      leftIcon: activeView->mapOptionOrDefault(false, activeView =>
+        activeView.view_id === view.view_id
+      )
+        ? CustomIcon(<Tick isSelected=true />)
+        : NoIcon,
       customTextStyle: None,
       customIconStyle: None,
       rightIcon: NoIcon,
@@ -260,8 +255,17 @@ let buildViewOptions = (
         <InlineEditInput
           index=i
           labelText=name
-          isUnderEdit={currentlyEditingIndex->Option.mapOr(false, index => index == i)}
-          handleEdit={index => setCurrentlyEditingIndex(_ => index)}
+          isUnderEdit={switch panelState {
+          | RenamingViewAtIndex(idx) => idx === i
+          | _ => false
+          }}
+          handleEdit={index =>
+            setPanelState(_ =>
+              switch index {
+              | Some(index) => RenamingViewAtIndex(index)
+              | None => NoActiveInteraction
+              }
+            )}
           onSubmit={newName => performRename(view, newName)->ignore}
           showEditIcon={true}
           showEditIconOnHover={false}
@@ -319,24 +323,38 @@ let buildDeletePayload = (entity: SavedViewTypes.entity, viewId) => {
   buildActionPayload(entity, Delete, dataDict)
 }
 
+let buildSavedViewDataDict = (
+  entity: SavedViewTypes.entity,
+  name,
+  filters: JSON.t,
+  viewId: option<string>,
+  ~savedViewDataVersion,
+) => {
+  let versionStr = (savedViewDataVersion->SavedViewTypes.versionToSavedViewVersion :> string)
+  let dataDict =
+    [
+      ("view_name", name->JSON.Encode.string),
+      ("filters", filters),
+      ("entity", entity->SavedViewTypes.entityToString->JSON.Encode.string),
+      ("version", versionStr->JSON.Encode.string),
+    ]->Dict.fromArray
+  dataDict->setOptionString("view_id", viewId)
+  dataDict
+}
+
 let buildRenamePayload = (
   entity: SavedViewTypes.entity,
   view: SavedViewTypes.savedView,
   newName,
-  ~version,
+  ~savedViewDataVersion,
 ) => {
-  let versionStr = switch version {
-  | UserInfoTypes.V1 => "v1"
-  | UserInfoTypes.V2 => "v2"
-  }
-  let dataDict =
-    [
-      ("view_id", view.view_id->JSON.Encode.string),
-      ("view_name", newName->JSON.Encode.string),
-      ("filters", view.filters),
-      ("entity", entity->SavedViewTypes.entityToString->JSON.Encode.string),
-      ("version", versionStr->JSON.Encode.string),
-    ]->Dict.fromArray
+  let dataDict = buildSavedViewDataDict(
+    entity,
+    newName,
+    view.filters,
+    Some(view.view_id),
+    ~savedViewDataVersion,
+  )
   buildActionPayload(entity, Update, dataDict)
 }
 
@@ -346,23 +364,9 @@ let buildSavePayload = (
   name,
   filters: JSON.t,
   viewId: option<string>,
-  ~version,
+  ~savedViewDataVersion,
 ) => {
-  let versionStr = switch version {
-  | UserInfoTypes.V1 => "v1"
-  | UserInfoTypes.V2 => "v2"
-  }
-  let dataDict =
-    [
-      ("view_name", name->JSON.Encode.string),
-      ("filters", filters),
-      ("entity", entity->SavedViewTypes.entityToString->JSON.Encode.string),
-      ("version", versionStr->JSON.Encode.string),
-    ]->Dict.fromArray
-  switch viewId {
-  | Some(id) => dataDict->Dict.set("view_id", id->JSON.Encode.string)
-  | None => ()
-  }
+  let dataDict = buildSavedViewDataDict(entity, name, filters, viewId, ~savedViewDataVersion)
   buildActionPayload(entity, action, dataDict)
 }
 
@@ -395,11 +399,12 @@ let filterNullValues = json => {
 
 let itemToSavedView = json => {
   let dict = json->getDictFromJsonObject
-  let dataDict = dict->getJsonObjectFromDict("data")->getDictFromJsonObject
+  let dataDict = dict->getOptionValFromDict("data")->mapOptionOrDefault(dict, getDictFromJsonObject)
   let savedView: SavedViewTypes.savedView = {
     view_id: dict->getString("view_id", ""),
     view_name: dict->getString("view_name", ""),
     entity: dataDict->getString("entity", ""),
+    version: dataDict->getString("version", "v1")->UserInfoUtils.versionMapper,
     filters: dataDict->getJsonObjectFromDict("filters")->filterNullValues,
     created_at: dict->getString("created_at", ""),
     updated_at: dict->getString("updated_at", ""),

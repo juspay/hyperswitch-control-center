@@ -1,16 +1,31 @@
 module TransactionViewCard = {
   @react.component
-  let make = (~view, ~count="", ~onViewClick, ~isActiveView) => {
+  let make = (
+    ~view,
+    ~count="",
+    ~onViewClick,
+    ~isActiveView,
+    ~isNewCard=false,
+    ~newCardDescription="",
+  ) => {
     open TransactionViewUtils
+    open Typography
 
-    let textClass = isActiveView ? "text-primary" : "font-semibold text-jp-gray-700"
-    let countTextClass = isActiveView ? "text-primary" : "font-semibold text-jp-gray-900"
+    let textClass = `${body.md.semibold} ${isActiveView ? "text-primary" : "text-nd_gray-700"}`
+    let countTextClass = `${body.md.semibold} ${isActiveView ? "text-primary" : "text-nd_gray-900"}`
     let borderClass = isActiveView ? "border-primary" : ""
 
     <div
-      className={`flex flex-col justify-center flex-auto gap-1 bg-white text-semibold border rounded-md px-4 py-2.5 cursor-pointer hover:bg-gray-50 ${borderClass}`}
+      className={`relative flex min-w-0 flex-col justify-center flex-auto gap-1 bg-white border rounded-md px-4 py-2.5 cursor-pointer hover:bg-nd_gray-50 ${borderClass}`}
       onClick={_ => onViewClick(view)}>
-      <p className={textClass}> {view->getViewsDisplayName->React.string} </p>
+      <RenderIf condition=isNewCard>
+        <div className="absolute right-2 top-2">
+          <NewFeatureTag description=newCardDescription />
+        </div>
+      </RenderIf>
+      <p className={`${textClass} truncate ${isNewCard ? "pr-9" : ""}`}>
+        {view->getViewsDisplayName->React.string}
+      </p>
       <RenderIf condition={!(count->LogicUtils.isEmptyString)}>
         <p className={countTextClass}> {count->React.string} </p>
       </RenderIf>
@@ -19,7 +34,12 @@ module TransactionViewCard = {
 }
 
 @react.component
-let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version=V1) => {
+let make = (
+  ~entity=TransactionViewTypes.Orders,
+  ~version: UserInfoTypes.version=V1,
+  ~isAdvancedView=false,
+  ~containerClassName="mb-8",
+) => {
   open APIUtils
   open APIUtilsTypes
   open LogicUtils
@@ -30,7 +50,7 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   let showToast = ToastAdapter.useShowToast()
   let {getResolvedUserInfo} = React.useContext(UserInfoProvider.defaultContext)
   let {transactionEntity} = getResolvedUserInfo()
-  let {updateExistingKeys, filterValueJson, filterKeys, setfilterKeys} =
+  let {updateExistingKeys, removeKeys, filterValueJson, setfilterKeys} =
     FilterContext.filterContext->React.useContext
   let {devClickhouseAggregate} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (aggregateResponse, setAggregateResponse) = React.useState(_ =>
@@ -41,14 +61,26 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   )
 
   let customFilterKey = getCustomFilterKey(entity)
+  let isAdvancedOrdersView = isAdvancedView && entity == Orders
 
   let updateViewsFilterValue = (view: TransactionViewTypes.viewTypes) => {
-    let customFilter = `[${view->getViewFilterValue(aggregateResponse, entity)}]`
-    updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
+    let (filterEntries, removedFilterKeys) = getFilterUpdateForView(
+      ~view,
+      ~isAdvancedOrdersView,
+      ~customFilterKey,
+      ~customFilter=`[${view->getViewFilterValue(aggregateResponse, entity)}]`,
+    )
 
-    if !(filterKeys->Array.includes(customFilterKey)) {
-      setfilterKeys(prev => prev->Array.concat([customFilterKey]))
-    }
+    removedFilterKeys->isNonEmptyArray ? removeKeys(removedFilterKeys) : ()
+
+    updateExistingKeys(Dict.fromArray(filterEntries))
+    setfilterKeys(prev =>
+      mergeFilterKeysForView(
+        ~existingKeys=prev,
+        ~removedFilterKeys,
+        ~filterEntryKeys=filterEntries->Array.map(((key, _)) => key),
+      )
+    )
   }
 
   let onViewClick = (view: TransactionViewTypes.viewTypes) => {
@@ -59,59 +91,60 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   let (startTime, endTime) = React.useMemo(() => {
     getStartAndEndTime(filterValueJson, version)
   }, (filterValueJson, version))
+  let aggregateRequestKey = React.useMemo(() => {
+    buildAggregateRequestKey(
+      ~entity,
+      ~version,
+      ~transactionEntity,
+      ~isAdvancedView,
+      ~devClickhouseAggregate,
+      ~startTime,
+      ~endTime,
+    )
+  }, (
+    entity,
+    version,
+    transactionEntity,
+    isAdvancedView,
+    devClickhouseAggregate,
+    startTime,
+    endTime,
+  ))
 
   let loadAggregateCounts = async () => {
     try {
-      switch (devClickhouseAggregate, getClickhouseAggregateMetric(entity)) {
-      | (true, Some(metricConfig)) =>
-        let url = buildAggregateMetricsUrl(~metricConfig, ~transactionEntity)
-        let body = buildAggregateMetricsBody(
-          ~startTime,
-          ~endTime,
-          ~metric=metricConfig.metric,
-          ~groupByField=metricConfig.groupByField,
-        )
+      if isAdvancedOrdersView {
+        let url = getURL(~entityName=V1(ANALYTICS_SANKEY), ~methodType=Post)
+        let body =
+          [
+            ("startTime", startTime->JSON.Encode.string),
+            ("endTime", endTime->JSON.Encode.string),
+          ]->getJsonFromArrayOfJson
+
         let response = await updateDetails(url, body, Post)
-        setAggregateResponse(_ =>
-          response->metricsResponseToStatusWithCount(
-            ~statusField=metricConfig.statusField,
-            ~countField=metricConfig.countField,
+        setAggregateResponse(_ => response->sankeyResponseToStatusWithCount)
+      } else {
+        switch (devClickhouseAggregate, getClickhouseAggregateMetric(entity)) {
+        | (true, Some(metricConfig)) =>
+          let url = buildAggregateMetricsUrl(~metricConfig, ~transactionEntity)
+          let body = buildAggregateMetricsBody(
+            ~startTime,
+            ~endTime,
+            ~metric=metricConfig.metric,
+            ~groupByField=metricConfig.groupByField,
           )
-        )
-      | _ =>
-        let url = switch entity {
-        | Orders =>
-          getURL(
-            ~entityName={
-              switch version {
-              | V1 => V1(ORDERS_AGGREGATE)
-              | V2 => V2(V2_ORDERS_AGGREGATE)
-              }
-            },
-            ~methodType=Get,
-            ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
+          let response = await updateDetails(url, body, Post)
+          setAggregateResponse(_ =>
+            response->metricsResponseToStatusWithCount(
+              ~statusField=metricConfig.statusField,
+              ~countField=metricConfig.countField,
+            )
           )
-        | Refunds =>
-          getURL(
-            ~entityName=V1(REFUNDS_AGGREGATE),
-            ~methodType=Get,
-            ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
-          )
-        | Disputes =>
-          getURL(
-            ~entityName=V1(DISPUTES_AGGREGATE),
-            ~methodType=Get,
-            ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
-          )
-        | Payouts =>
-          getURL(
-            ~entityName=V1(PAYOUTS_AGGREGATE),
-            ~methodType=Get,
-            ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
-          )
+        | _ =>
+          let url = getAggregateUrl(~getURL, ~entity, ~version, ~startTime, ~endTime)
+          let response = await fetchDetails(url)
+          setAggregateResponse(_ => response)
         }
-        let response = await fetchDetails(url)
-        setAggregateResponse(_ => response)
       }
     } catch {
     | _ => showToast(~toastType=ToastError, ~message="Failed to fetch views count", ~autoClose=true)
@@ -119,6 +152,10 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   }
 
   let syncActiveViewFromFilter = () => {
+    let appliedRefundsFilter = filterValueJson->getArrayFromDict(refundsStatusFilterKey, [])
+    let appliedDisputeFilter = filterValueJson->getArrayFromDict(disputeStatusFilterKey, [])
+    let appliedFirstAttemptFilter =
+      filterValueJson->getArrayFromDict(OrderUIUtils.firstAttemptFilterKey, [])
     let appliedStatusFilter = filterValueJson->getArrayFromDict(customFilterKey, [])
 
     let isAllViewSelected =
@@ -129,12 +166,19 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
         ->Dict.keysToArray
         ->Array.toSorted(compareLogic)
 
-    if appliedStatusFilter->Array.length == 1 {
-      let status =
-        appliedStatusFilter
-        ->getValueFromArray(0, ""->JSON.Encode.string)
-        ->JSON.Decode.string
-        ->Option.getOr("")
+    if isAdvancedOrdersView && appliedRefundsFilter->isNonEmptyArray {
+      setActiveView(_ => Refunded)
+    } else if isAdvancedOrdersView && appliedDisputeFilter->isNonEmptyArray {
+      setActiveView(_ => Disputed)
+    } else if isAdvancedOrdersView && appliedFirstAttemptFilter->isNonEmptyArray {
+      let isFirstAttempt =
+        appliedFirstAttemptFilter
+        ->getStrArrayFromJsonArray
+        ->getValueFromArray(0, "")
+        ->getBoolFromString(false)
+      setActiveView(_ => isFirstAttempt ? FirstAttemptSuccess : RetrySuccess)
+    } else if appliedStatusFilter->Array.length == 1 {
+      let status = appliedStatusFilter->getStrArrayFromJsonArray->getValueFromArray(0, "")
 
       let viewType = status->getViewTypeFromString(entity)
       switch viewType {
@@ -158,24 +202,31 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
       loadAggregateCounts()->ignore
     }
     None
-  }, (startTime, endTime))
+  }, [aggregateRequestKey])
 
   let viewsArray = switch entity {
-  | Orders => paymentViewsArray
+  | Orders => isAdvancedView ? advancedPaymentViewsArray : paymentViewsArray
   | Refunds => refundViewsArray
   | Disputes => disputeViewsArray
   | Payouts => payoutViewsArray
   }
-
-  viewsArray
-  ->Array.mapWithIndex((item, i) =>
-    <TransactionViewCard
-      key={i->Int.toString}
-      view={item}
-      count={getViewCount(item, aggregateResponse, entity)->Int.toString}
-      onViewClick
-      isActiveView={item == activeView}
-    />
-  )
-  ->React.array
+  let gridColsClass =
+    viewsArray->Array.length >= 6
+      ? "lg:grid-cols-6 sm:grid-cols-3"
+      : "lg:grid-cols-4 sm:grid-cols-2"
+  <div className={`grid ${gridColsClass} md:grid-cols-3 grid-cols-2 gap-6 ${containerClassName}`}>
+    {viewsArray
+    ->Array.mapWithIndex((item, i) =>
+      <TransactionViewCard
+        key={i->Int.toString}
+        view={item}
+        count={getViewCount(item, aggregateResponse, entity)->Int.toString}
+        onViewClick
+        isActiveView={item == activeView}
+        isNewCard={isAdvancedView && item->isAdvancedPaymentOnlyView}
+        newCardDescription={item->getAdvancedPaymentViewDescription}
+      />
+    )
+    ->React.array}
+  </div>
 }
