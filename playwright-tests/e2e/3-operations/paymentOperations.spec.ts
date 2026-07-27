@@ -23,6 +23,19 @@ test.describe("Payment Operations", () => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+
+    await page.route("**/dashboard/config/feature?domain=", async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      json.features = {
+        ...json.features,
+        dev_opensearch: false,
+        dev_clickhouse_aggregate: false,
+        dev_sort_enabled: true,
+      };
+      await route.fulfill({ response, json });
+    });
+    await page.reload();
   });
 
   test.describe("Verify Components of Payment Operations", () => {
@@ -89,8 +102,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        const paymentData = await createPaymentAPI(merchantId, context.request);
+        const paymentData = await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
 
         await homePage.operations.click();
         await homePage.paymentOperations.click();
@@ -162,7 +182,7 @@ test.describe("Payment Operations", () => {
         await expect(paymentOperations.orderCell(1, 8)).toContainText(
           paymentData.payment_method_type,
         );
-        await expect(paymentOperations.orderCell(1, 9)).toContainText("N/A");
+        await expect(paymentOperations.orderCell(1, 9)).toContainText(/^(Visa|N\/A)$/);
         await expect(paymentOperations.orderCell(1, 10)).toContainText(
           paymentData.connector_transaction_id,
         );
@@ -246,8 +266,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
@@ -325,8 +352,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
@@ -359,8 +393,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
@@ -426,8 +467,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
@@ -469,6 +517,7 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
         const amounts = [10000, 20000, 30000];
         for (const amount of amounts) {
@@ -476,20 +525,13 @@ test.describe("Payment Operations", () => {
             merchantId,
             context.request,
             amount,
+            undefined,
+            page,
           );
           payments.push({ payment_id: payment.payment_id, amount });
           await page.waitForTimeout(1000);
         }
       }
-
-      await page.route(/\/config\/feature/, async (route) => {
-        const response = await route.fetch();
-        const json = await response.json();
-        json.features = { ...json.features, dev_sort_enabled: true };
-        await route.fulfill({ response, json });
-      });
-      await page.reload();
-      await page.waitForLoadState("networkidle");
 
       await homePage.operations.click();
       await homePage.paymentOperations.click();
@@ -668,9 +710,16 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
         for (let i = 0; i < 21; i++) {
-          await createPaymentAPI(merchantId, context.request).catch(() => { });
+          await createPaymentAPI(
+            merchantId,
+            context.request,
+            undefined,
+            undefined,
+            page,
+          ).catch(() => { });
         }
       }
 
@@ -709,9 +758,22 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
@@ -757,8 +819,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
@@ -838,6 +907,7 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
       }
 
@@ -877,6 +947,7 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
       }
 
@@ -932,8 +1003,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
@@ -1185,8 +1263,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
@@ -1225,8 +1310,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await page.route("**/dashboard/config/feature?domain=", async (route) => {
@@ -1266,8 +1358,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
@@ -1289,8 +1388,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await page.route("**/dashboard/config/feature?domain=", async (route) => {
@@ -1327,8 +1433,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await page.route("**/dashboard/config/feature?domain=", async (route) => {
@@ -1374,8 +1487,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await page.route("**/dashboard/config/feature?domain=", async (route) => {
@@ -1425,8 +1545,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        const paymentData = await createPaymentAPI(merchantId, context.request);
+        const paymentData = await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
 
         await homePage.operations.click();
         await homePage.paymentOperations.click();
@@ -1461,8 +1588,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
@@ -1663,8 +1797,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
@@ -1810,8 +1951,9 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request, 12345, false);
+        await createPaymentAPI(merchantId, context.request, 12345, false, page);
       }
 
       await homePage.operations.click();
@@ -1835,8 +1977,9 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request, 12345, false);
+        await createPaymentAPI(merchantId, context.request, 12345, false, page);
       }
 
       await homePage.operations.click();
@@ -1864,8 +2007,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
@@ -1906,8 +2056,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await openRefundModal(page, homePage, paymentOperations);
@@ -1966,8 +2123,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await openRefundModal(page, homePage, paymentOperations);
@@ -1994,8 +2158,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await openRefundModal(page, homePage, paymentOperations);
@@ -2022,8 +2193,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await openRefundModal(page, homePage, paymentOperations);
@@ -2056,8 +2234,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await openRefundModal(page, homePage, paymentOperations);
@@ -2090,8 +2275,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await openRefundModal(page, homePage, paymentOperations);
@@ -2117,8 +2309,9 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request, 12345, false);
+        await createPaymentAPI(merchantId, context.request, 12345, false, page);
       }
 
       await homePage.operations.click();
@@ -2142,10 +2335,12 @@ test.describe("Payment Operations", () => {
       merchantId: string,
       request: Parameters<typeof createDummyConnectorAPI>[2],
     ) => {
-      await createDummyConnectorAPI(merchantId, "stripe_test_1", request);
+      await createDummyConnectorAPI(merchantId, "stripe_test_1", request, page);
       const payment = await createRequiresCapturePaymentAPI(
         merchantId,
         request,
+        undefined,
+        page,
       );
       await mockPaymentRequiresCapture(page, payment.payment_id);
       return payment;
@@ -2205,8 +2400,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();

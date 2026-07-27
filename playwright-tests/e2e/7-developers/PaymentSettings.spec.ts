@@ -371,6 +371,7 @@ test.describe("Payment Settings", () => {
           merchantId,
           connectorLabel,
           context.request,
+          page,
         );
       }
 
@@ -470,6 +471,7 @@ test.describe("Payment Settings", () => {
           merchantId,
           "threeds_tab_connector",
           context.request,
+          page,
         );
       }
       await page.reload();
@@ -982,6 +984,7 @@ test.describe("Payment Settings", () => {
 
       await homePage.developer.click();
       await homePage.paymentSettings.click();
+      await expect(paymentSettings.pageHeader).toBeVisible();
       await paymentSettings.paymentLinkTab.click();
     });
 

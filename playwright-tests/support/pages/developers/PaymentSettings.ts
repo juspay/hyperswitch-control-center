@@ -47,7 +47,7 @@ export class PaymentSettings {
   }
 
   get paymentLinkTab(): Locator {
-    return this.page.locator("text=Payment Link");
+    return this.page.getByText("Payment Link", { exact: true });
   }
 
   get vaultTab(): Locator {

@@ -51,6 +51,7 @@ test.describe("Volume based routing", () => {
         merchantId,
         connectorLabel,
         context.request,
+        page,
       );
     }
 
@@ -109,6 +110,7 @@ test.describe("Volume based routing", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
     }
 
@@ -156,6 +158,7 @@ test.describe("Volume based routing", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
     }
 
@@ -201,6 +204,7 @@ test.describe("Volume based routing", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
     }
 
@@ -231,6 +235,7 @@ test.describe("Volume based routing", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
     }
 
@@ -269,6 +274,7 @@ test.describe("Rule based routing", () => {
         merchantId,
         "stripe_operator_test",
         context.request,
+        page,
       );
     }
     await homePage.workflow.click();
@@ -412,6 +418,7 @@ test.describe("Payment default fallback", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
     }
 
@@ -439,22 +446,29 @@ test.describe("Payment default fallback", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
       await createDummyConnectorAPI(
         merchantId,
         "stripe_test_2",
         context.request,
+        page,
       );
       await createDummyConnectorAPI(
         merchantId,
         "stripe_test_3",
         context.request,
+        page,
       );
     }
 
     await homePage.workflow.click();
     await homePage.routing.click();
     await paymentRouting.defaultFallbackManageButton.click();
+
+    await expect(page.getByRole('button', { name: '1 STRIPE_TEST Stripe_test (stripe_test_1)' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '2 STRIPE_TEST Stripe_test (stripe_test_2)' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '3 STRIPE_TEST Stripe_test (stripe_test_3)' })).toBeVisible();
 
     const firstConnector = defaultFallback.connectorAt(0);
     const secondConnector = defaultFallback.connectorAt(1);
@@ -479,6 +493,10 @@ test.describe("Payment default fallback", () => {
     await page.mouse.up();
     await page.waitForTimeout(300);
 
+    await expect(page.getByRole('button', { name: '1 STRIPE_TEST Stripe_test (stripe_test_2)' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '2 STRIPE_TEST Stripe_test (stripe_test_1)' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '3 STRIPE_TEST Stripe_test (stripe_test_3)' })).toBeVisible();
+
     await defaultFallback.saveChangesButton.click();
 
     await defaultFallback.yesSaveItButton.waitFor({
@@ -488,6 +506,10 @@ test.describe("Payment default fallback", () => {
     await defaultFallback.yesSaveItButton.click();
 
     await expect(defaultFallback.configurationSavedToast).toBeVisible();
+    await expect(page.getByRole('button', { name: '1 STRIPE_TEST Stripe_test (stripe_test_2)' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '2 STRIPE_TEST Stripe_test (stripe_test_1)' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '3 STRIPE_TEST Stripe_test (stripe_test_3)' })).toBeVisible();
+
   });
 });
 
@@ -524,6 +546,7 @@ test.describe("Routing list - Configuration History", () => {
         merchantId,
         connectorLabel,
         context.request,
+        page,
       );
     }
 
@@ -561,6 +584,7 @@ test.describe("Routing list - Configuration History", () => {
         merchantId,
         connectorLabel,
         context.request,
+        page,
       );
     }
 
@@ -670,6 +694,7 @@ test.describe("Routing list - Configuration History", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
     }
 
@@ -798,6 +823,7 @@ test.describe("Routing list - Configuration History", () => {
         merchantId,
         "stripe_test_volume_b",
         context.request,
+        page,
       );
     }
 
@@ -853,6 +879,7 @@ test.describe("Routing list - Configuration History", () => {
         merchantId,
         "stripe_routing_edit",
         context.request,
+        page,
       );
     }
 
@@ -929,16 +956,19 @@ test.describe("Advanced rule connector selection modes", () => {
         merchantId,
         "stripe_rule_test_a",
         context.request,
+        page,
       );
       await createDummyConnectorAPI(
         merchantId,
         "stripe_rule_test_b",
         context.request,
+        page,
       );
       await createDummyConnectorAPI(
         merchantId,
         "stripe_rule_test_c",
         context.request,
+        page,
       );
     }
 
@@ -1270,6 +1300,7 @@ test.describe("Auth rate based routing", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
     }
 
@@ -1303,6 +1334,7 @@ test.describe("Auth rate based routing", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
     }
 
@@ -1343,6 +1375,7 @@ test.describe("Auth rate based routing", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
     }
 

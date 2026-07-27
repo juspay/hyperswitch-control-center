@@ -17,6 +17,7 @@ const refundColumnSize = 12;
 let email: string;
 
 const setupRefund = async (
+  page: Page,
   homePage: HomePage,
   request: Parameters<typeof createDummyConnectorAPI>[2],
 ) => {
@@ -24,9 +25,22 @@ const setupRefund = async (
   if (!merchantId) {
     throw new Error("Merchant ID not found");
   }
-  await createDummyConnectorAPI(merchantId, "stripe_test_1", request);
-  const payment = await createPaymentAPI(merchantId, request);
-  const refund = await createRefundAPI(merchantId, payment.payment_id, request);
+  await createDummyConnectorAPI(merchantId, "stripe_test_1", request, page);
+  const payment = await createPaymentAPI(
+    merchantId,
+    request,
+    undefined,
+    undefined,
+    page,
+  );
+  const refund = await createRefundAPI(
+    merchantId,
+    payment.payment_id,
+    request,
+    undefined,
+    undefined,
+    page,
+  );
   return { merchantId, payment, refund };
 };
 
@@ -55,7 +69,7 @@ test.describe("Refunds Operations", () => {
       const homePage = new HomePage(page);
 
       const refundOperations = new RefundOperations(page);
-      await setupRefund(homePage, context.request);
+      await setupRefund(page, homePage, context.request);
 
       await goToRefunds(page, homePage);
 
@@ -115,6 +129,7 @@ test.describe("Refunds Operations", () => {
 
         const refundOperations = new RefundOperations(page);
         const { payment, refund } = await setupRefund(
+          page,
           homePage,
           context.request,
         );
@@ -145,7 +160,7 @@ test.describe("Refunds Operations", () => {
         const homePage = new HomePage(page);
 
         const refundOperations = new RefundOperations(page);
-        await setupRefund(homePage, context.request);
+        await setupRefund(page, homePage, context.request);
 
         await goToRefunds(page, homePage);
 
@@ -164,7 +179,7 @@ test.describe("Refunds Operations", () => {
         context,
       }) => {
         const homePage = new HomePage(page);
-        await setupRefund(homePage, context.request);
+        await setupRefund(page, homePage, context.request);
 
         await goToRefunds(page, homePage);
 
@@ -192,7 +207,7 @@ test.describe("Refunds Operations", () => {
         const homePage = new HomePage(page);
 
         const refundOperations = new RefundOperations(page);
-        await setupRefund(homePage, context.request);
+        await setupRefund(page, homePage, context.request);
 
         await goToRefunds(page, homePage);
 
@@ -244,7 +259,7 @@ test.describe("Refunds Operations", () => {
         const homePage = new HomePage(page);
 
         const paymentOperations = new PaymentOperations(page);
-        await setupRefund(homePage, context.request);
+        await setupRefund(page, homePage, context.request);
 
         await goToRefunds(page, homePage);
 
@@ -267,7 +282,7 @@ test.describe("Refunds Operations", () => {
         const homePage = new HomePage(page);
 
         const refundOperations = new RefundOperations(page);
-        await setupRefund(homePage, context.request);
+        await setupRefund(page, homePage, context.request);
 
         await goToRefunds(page, homePage);
 
@@ -289,7 +304,7 @@ test.describe("Refunds Operations", () => {
         const homePage = new HomePage(page);
 
         const refundOperations = new RefundOperations(page);
-        await setupRefund(homePage, context.request);
+        await setupRefund(page, homePage, context.request);
 
         await goToRefunds(page, homePage);
 
@@ -335,7 +350,7 @@ test.describe("Refunds Operations", () => {
         const homePage = new HomePage(page);
 
         const refundOperations = new RefundOperations(page);
-        const { refund } = await setupRefund(homePage, context.request);
+        const { refund } = await setupRefund(page, homePage, context.request);
 
         await goToRefunds(page, homePage);
 
@@ -358,7 +373,7 @@ test.describe("Refunds Operations", () => {
         const homePage = new HomePage(page);
 
         const refundOperations = new RefundOperations(page);
-        await setupRefund(homePage, context.request);
+        await setupRefund(page, homePage, context.request);
 
         await page.route(/\/config\/feature/, async (route) => {
           const response = await route.fetch();
@@ -389,7 +404,7 @@ test.describe("Refunds Operations", () => {
         const homePage = new HomePage(page);
 
         const refundOperations = new RefundOperations(page);
-        await setupRefund(homePage, context.request);
+        await setupRefund(page, homePage, context.request);
 
         await goToRefunds(page, homePage);
 
@@ -406,7 +421,11 @@ test.describe("Refunds Operations", () => {
       const homePage = new HomePage(page);
 
       const refundOperations = new RefundOperations(page);
-      const { payment, refund } = await setupRefund(homePage, context.request);
+      const { payment, refund } = await setupRefund(
+        page,
+        homePage,
+        context.request,
+      );
 
       await goToRefunds(page, homePage);
       await refundOperations.refundCell(1, 1).click();
@@ -465,7 +484,7 @@ test.describe("Refunds Operations", () => {
         const homePage = new HomePage(page);
 
         const refundOperations = new RefundOperations(page);
-        const { refund } = await setupRefund(homePage, context.request);
+        const { refund } = await setupRefund(page, homePage, context.request);
 
         await page.route(`**/refunds/${refund.refund_id}`, async (route) => {
           const response = await route.fetch();
@@ -487,7 +506,7 @@ test.describe("Refunds Operations", () => {
         const homePage = new HomePage(page);
 
         const refundOperations = new RefundOperations(page);
-        await setupRefund(homePage, context.request);
+        await setupRefund(page, homePage, context.request);
 
         await goToRefunds(page, homePage);
         await refundOperations.refundCell(1, 1).click();
@@ -506,7 +525,7 @@ test.describe("Refunds Operations", () => {
       const homePage = new HomePage(page);
 
       const refundOperations = new RefundOperations(page);
-      const { refund } = await setupRefund(homePage, context.request);
+      const { refund } = await setupRefund(page, homePage, context.request);
 
       await page.route(`**/refunds/${refund.refund_id}`, async (route) => {
         const response = await route.fetch();

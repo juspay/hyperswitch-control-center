@@ -230,42 +230,44 @@ test.describe("Users - Invite Users", () => {
     },
   );
 
-  test("should redirect to login when accepting invite with an invalid or expired token", async ({
-    page,
-  }) => {
-    const homePage = new HomePage(page);
-    const usersPage = new UsersPage(page);
-    const invitedEmail = generateUniqueEmail();
+  test("should redirect to login when accepting invite with an invalid or expired token",
+    { tag: "@mail" },
+    async ({
+      page,
+    }) => {
+      const homePage = new HomePage(page);
+      const usersPage = new UsersPage(page);
+      const invitedEmail = generateUniqueEmail();
 
-    await homePage.users.click();
-    await usersPage.inviteUser(invitedEmail);
+      await homePage.users.click();
+      await usersPage.inviteUser(invitedEmail);
 
-    await homePage.userAccount.click();
-    await homePage.signOut.click();
+      await homePage.userAccount.click();
+      await homePage.signOut.click();
 
-    await page.goto(MAIL_URL);
-    await page.locator('[id="search"]').fill(invitedEmail);
-    await page.locator('[id="search"]').press("Enter");
-    await page
-      .locator("div.msglist-message")
-      .filter({
-        hasText: "You have been invited to join Hyperswitch Community",
-      })
-      .filter({ hasText: invitedEmail })
-      .first()
-      .click();
-    await page.waitForTimeout(1000);
+      await page.goto(MAIL_URL);
+      await page.locator('[id="search"]').fill(invitedEmail);
+      await page.locator('[id="search"]').press("Enter");
+      await page
+        .locator("div.msglist-message")
+        .filter({
+          hasText: "You have been invited to join Hyperswitch Community",
+        })
+        .filter({ hasText: invitedEmail })
+        .first()
+        .click();
+      await page.waitForTimeout(1000);
 
-    const iframe = page.locator("iframe").first().contentFrame();
-    const verifyLink = await iframe.locator("a").first().getAttribute("href");
-    const tamperedLink = verifyLink!.replace(/token=[^&]+/, "token=abcd");
-    await page.goto(tamperedLink);
+      const iframe = page.locator("iframe").first().contentFrame();
+      const verifyLink = await iframe.locator("a").first().getAttribute("href");
+      const tamperedLink = verifyLink!.replace(/token=[^&]+/, "token=abcd");
+      await page.goto(tamperedLink);
 
-    await expect(page).toHaveURL(/.*login/);
-    await expect(page.getByTestId("card-header")).toHaveText(
-      "Hey there, Welcome back!",
-    );
-  });
+      await expect(page).toHaveURL(/.*login/);
+      await expect(page.getByTestId("card-header")).toHaveText(
+        "Hey there, Welcome back!",
+      );
+    });
 
   test("should accept multiple emails as pills in invite list", async ({
     page,

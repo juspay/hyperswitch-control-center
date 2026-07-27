@@ -14,6 +14,7 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 let email: string;
 
 const setupPayout = async (
+  page: Page,
   homePage: HomePage,
   request: Parameters<typeof createPayoutConnectorAPI>[2],
 ) => {
@@ -21,8 +22,12 @@ const setupPayout = async (
   if (!merchantId) {
     throw new Error("Merchant ID not found");
   }
-  await createPayoutConnectorAPI(merchantId, "adyen_test_1", request);
-  const payout = (await createPayoutAPI(merchantId, request)) as unknown as {
+  await createPayoutConnectorAPI(merchantId, "adyen_test_1", request, page);
+  const payout = (await createPayoutAPI(
+    merchantId,
+    request,
+    page,
+  )) as unknown as {
     payout_id: string;
     amount: number;
     currency: string;
@@ -74,7 +79,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        const { payout } = await setupPayout(homePage, context.request);
+        const { payout } = await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
 
@@ -95,7 +100,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        const { payout } = await setupPayout(homePage, context.request);
+        const { payout } = await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
 
@@ -120,7 +125,7 @@ test.describe("Payouts Operations", () => {
         context,
       }) => {
         const homePage = new HomePage(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
 
@@ -147,7 +152,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
 
@@ -213,7 +218,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
         await payoutOperations.columnButton.click();
@@ -271,7 +276,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
 
@@ -362,7 +367,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
 
@@ -384,7 +389,7 @@ test.describe("Payouts Operations", () => {
       test("should apply a Status filter", async ({ page, context }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
 
@@ -405,7 +410,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
 
@@ -424,7 +429,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
 
@@ -577,7 +582,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
         await mockTwoPayoutList(page);
 
         await goToPayouts(page, homePage);
@@ -626,7 +631,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await page.route(
           "**/dashboard/config/feature?domain=",
@@ -663,7 +668,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await goToPayouts(page, homePage);
 
@@ -679,7 +684,7 @@ test.describe("Payouts Operations", () => {
     }) => {
       const homePage = new HomePage(page);
       const payoutOperations = new PayoutOperations(page);
-      const { payout } = await setupPayout(homePage, context.request);
+      const { payout } = await setupPayout(page, homePage, context.request);
 
       await goToPayouts(page, homePage);
       await payoutOperations.payoutCell(1, 1).click();
@@ -832,7 +837,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         // audit_trail defaults to true locally; force it on explicitly so the
         // test does not depend on env state.
@@ -859,7 +864,7 @@ test.describe("Payouts Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const payoutOperations = new PayoutOperations(page);
-        await setupPayout(homePage, context.request);
+        await setupPayout(page, homePage, context.request);
 
         await page.route(
           "**/dashboard/config/feature?domain=",
