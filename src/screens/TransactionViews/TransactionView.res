@@ -50,7 +50,7 @@ let make = (
   let showToast = ToastAdapter.useShowToast()
   let {getResolvedUserInfo} = React.useContext(UserInfoProvider.defaultContext)
   let {transactionEntity} = getResolvedUserInfo()
-  let {updateExistingKeys, removeKeys, filterValueJson, setfilterKeys} =
+  let {updateExistingKeys, removeKeys, filterValueJson, filterValue, setfilterKeys} =
     FilterContext.filterContext->React.useContext
   let {devClickhouseAggregate} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (aggregateResponse, setAggregateResponse) = React.useState(_ =>
@@ -90,26 +90,16 @@ let make = (
 
   let (startTime, endTime) = React.useMemo(() => {
     getStartAndEndTime(filterValueJson, version)
-  }, (filterValueJson, version))
+  }, (filterValue, version))
+
   let aggregateRequestKey = React.useMemo(() => {
-    buildAggregateRequestKey(
-      ~entity,
-      ~version,
-      ~transactionEntity,
-      ~isAdvancedView,
-      ~devClickhouseAggregate,
-      ~startTime,
-      ~endTime,
-    )
-  }, (
-    entity,
-    version,
-    transactionEntity,
-    isAdvancedView,
-    devClickhouseAggregate,
-    startTime,
-    endTime,
-  ))
+    [
+      (transactionEntity :> string),
+      devClickhouseAggregate->getStringFromBool,
+      startTime,
+      endTime,
+    ]->Array.joinWith(":")
+  }, (transactionEntity, devClickhouseAggregate, startTime, endTime))
 
   let loadAggregateCounts = async () => {
     try {
@@ -141,7 +131,12 @@ let make = (
             )
           )
         | _ =>
-          let url = getAggregateUrl(~getURL, ~entity, ~version, ~startTime, ~endTime)
+          let entityName = getEntityName(~entity, ~version)
+          let url = getURL(
+            ~entityName,
+            ~methodType=Get,
+            ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
+          )
           let response = await fetchDetails(url)
           setAggregateResponse(_ => response)
         }
@@ -195,7 +190,7 @@ let make = (
   React.useEffect(() => {
     syncActiveViewFromFilter()
     None
-  }, (filterValueJson, aggregateResponse))
+  }, (filterValue, aggregateResponse))
 
   React.useEffect(() => {
     if startTime->isNonEmptyString && endTime->isNonEmptyString {
@@ -223,7 +218,7 @@ let make = (
         count={getViewCount(item, aggregateResponse, entity)->Int.toString}
         onViewClick
         isActiveView={item == activeView}
-        isNewCard={isAdvancedView && item->isAdvancedPaymentOnlyView}
+        isNewCard={isAdvancedView && !(paymentViewsArray->Array.includes(item))}
         newCardDescription={item->getAdvancedPaymentViewDescription}
       />
     )

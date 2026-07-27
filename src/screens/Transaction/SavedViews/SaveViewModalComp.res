@@ -225,7 +225,7 @@ let make = (
       fetchSavedViews()->ignore
     }
     None
-  }, (showModal, version, entity))
+  }, showModal)
 
   let buildFilters = () => {
     let filtersDict = mergedFilters->Dict.copy
