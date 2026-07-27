@@ -3,6 +3,66 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.07.27.0
+
+### Features
+
+- Add file upload to recon engine pipelines ([#5097](https://github.com/juspay/hyperswitch-control-center/pull/5097)) ([`64b8902`](https://github.com/juspay/hyperswitch-control-center/commit/64b8902101800cf1b36edf27f32d79c901da40d8))
+- Redirect routing to Decision Engine when a profile is cut over ([#5243](https://github.com/juspay/hyperswitch-control-center/pull/5243)) ([`e716f61`](https://github.com/juspay/hyperswitch-control-center/commit/e716f615c7ba3e8e008fa1c247ef017fc881316e))
+
+### Bug Fixes
+
+- Improve payout cards and default fallback routing ([#5241](https://github.com/juspay/hyperswitch-control-center/pull/5241)) ([`4217a5a`](https://github.com/juspay/hyperswitch-control-center/commit/4217a5a1ffe77f8ddcf9f32a4ad6d65d390f45ad))
+- Account filter in transformed entry exceptions ([#5246](https://github.com/juspay/hyperswitch-control-center/pull/5246)) ([`3bae00b`](https://github.com/juspay/hyperswitch-control-center/commit/3bae00b737652045261d14810e924b5b960458df))
+- Webhook registration field visible during connector creation ([#5247](https://github.com/juspay/hyperswitch-control-center/pull/5247)) ([`77938c3`](https://github.com/juspay/hyperswitch-control-center/commit/77938c3f1598549fcb421ba7d6184585c7ddfd4f))
+
+**Full Changelog:** [`2026.07.24.0...2026.07.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.24.0...2026.07.27.0)
+
+- - -
+
+## 2026.07.24.0
+
+### Features
+
+- Add recon pipelines overview stat cards and history ([#5092](https://github.com/juspay/hyperswitch-control-center/pull/5092)) ([`de817f5`](https://github.com/juspay/hyperswitch-control-center/commit/de817f5ed2ecf73ee6b27fd9fd8e3cf367571862))
+
+### Bug Fixes
+
+- Clarify included/excluded fields in clone connector modal ([#5220](https://github.com/juspay/hyperswitch-control-center/pull/5220)) ([`4dc6be3`](https://github.com/juspay/hyperswitch-control-center/commit/4dc6be333e14125f93af8c663619a540b46c5b46))
+- Hide authentication attempted from funnel ([#5218](https://github.com/juspay/hyperswitch-control-center/pull/5218)) ([`e37e4b2`](https://github.com/juspay/hyperswitch-control-center/commit/e37e4b25ce51203594f7c46df4031aa3752a45e4))
+- Fix toast not appearing and unify toast messages ([#5128](https://github.com/juspay/hyperswitch-control-center/pull/5128)) ([`29e96aa`](https://github.com/juspay/hyperswitch-control-center/commit/29e96aae80b7f311581d8823d571bcc887663bd4))
+
+### Miscellaneous Tasks
+
+- Update payment link wasm bundle ([#5223](https://github.com/juspay/hyperswitch-control-center/pull/5223)) ([`e7e2fb0`](https://github.com/juspay/hyperswitch-control-center/commit/e7e2fb044036a8030d6889977caa74479b945a55))
+
+**Full Changelog:** [`2026.07.22.1...2026.07.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.22.1...2026.07.24.0)
+
+- - -
+
+## 2026.07.22.1
+
+### Features
+
+- Support uploading multiple recon files ([#5214](https://github.com/juspay/hyperswitch-control-center/pull/5214)) ([`a441acb`](https://github.com/juspay/hyperswitch-control-center/commit/a441acba9d8d672d4a8df78e422057790f288caf))
+
+### Bug Fixes
+
+- Global search search options not reading the connector list in c… ([#5160](https://github.com/juspay/hyperswitch-control-center/pull/5160)) ([`0efee95`](https://github.com/juspay/hyperswitch-control-center/commit/0efee9583a69611b073c4925280125a6621cd8ee))
+
+### Testing
+
+- Support Playwright E2E and visual tests on remote environments ([#5215](https://github.com/juspay/hyperswitch-control-center/pull/5215)) ([`adfd216`](https://github.com/juspay/hyperswitch-control-center/commit/adfd2166f3abbe8e229d9077d3d487494e27a715))
+
+### Miscellaneous Tasks
+
+- Handle requires_capture status in dashboard SDK preview ([#5195](https://github.com/juspay/hyperswitch-control-center/pull/5195)) ([`278f16e`](https://github.com/juspay/hyperswitch-control-center/commit/278f16e8bd27bc0648a00cd17574748e361e2ad3))
+- Recon engine persist overview and exception filters ([#5219](https://github.com/juspay/hyperswitch-control-center/pull/5219)) ([`a308aa2`](https://github.com/juspay/hyperswitch-control-center/commit/a308aa2c5a9f896e5cf2cfc355b48fa5fe58ea27))
+
+**Full Changelog:** [`2026.07.22.0...2026.07.22.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.22.0...2026.07.22.1)
+
+- - -
+
 ## 2026.07.22.0
 
 ### Features
