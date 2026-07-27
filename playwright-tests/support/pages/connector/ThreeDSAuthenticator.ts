@@ -16,11 +16,13 @@ export class ThreeDSAuthenticator {
   }
 
   get authenticatorSearchInput(): Locator {
-    return this.page.locator('[data-testid="search-processor"]');
+    return this.page.getByTestId("search-processor");
   }
 
   get requestProcessorButton(): Locator {
-    return this.page.getByRole("button", { name: "Request a Processor" }).first();
+    return this.page
+      .getByRole("button", { name: "Request a Processor" })
+      .first();
   }
 
   get connectButton(): Locator {
@@ -40,7 +42,7 @@ export class ThreeDSAuthenticator {
   }
 
   get connectorLabelTextbox(): Locator {
-    return this.page.getByRole('textbox', { name: 'Enter Connector label' });
+    return this.page.getByRole("textbox", { name: "Enter Connector label" });
   }
 }
 

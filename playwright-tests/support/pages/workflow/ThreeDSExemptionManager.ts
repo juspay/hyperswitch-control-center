@@ -20,7 +20,9 @@ export class ThreeDSExemptionManager {
 
   // LANDING view — Configure section
   get configureSectionHeading(): Locator {
-    return this.page.getByText("Configure 3DS Exemption Rules", { exact: true });
+    return this.page.getByText("Configure 3DS Exemption Rules", {
+      exact: true,
+    });
   }
 
   get createNewButton(): Locator {
@@ -42,7 +44,9 @@ export class ThreeDSExemptionManager {
   }
 
   get overrideWarningDescription(): Locator {
-    return this.page.getByText(/This will override the existing 3DS configuration/);
+    return this.page.getByText(
+      /This will override the existing 3DS configuration/,
+    );
   }
 
   get deleteConfirmHeading(): Locator {

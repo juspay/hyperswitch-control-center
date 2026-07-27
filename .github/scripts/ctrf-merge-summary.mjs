@@ -8,7 +8,13 @@
 // <shards-dir> is searched recursively for files named ctrf-shard-<N>.json
 // (N is the shard number, parsed from the filename). Markdown is printed to
 // stdout; the workflow appends it to $GITHUB_STEP_SUMMARY.
-import { readdirSync, readFileSync, statSync, mkdirSync, writeFileSync } from "node:fs";
+import {
+  readdirSync,
+  readFileSync,
+  statSync,
+  mkdirSync,
+  writeFileSync,
+} from "node:fs";
 import { join, dirname, basename } from "node:path";
 
 const dir = process.argv[2] || "ctrf-shards";
@@ -28,7 +34,7 @@ function walk(d) {
   for (const e of entries) {
     const p = join(d, e);
     if (statSync(p).isDirectory()) files = files.concat(walk(p));
-    else if (/^ctrf-shard-\d+\.json$/.test(e)) files.push(p);
+    else if (/^ctrf-shard-(\d+|visual)\.json$/.test(e)) files.push(p);
   }
   return files;
 }
@@ -42,14 +48,22 @@ if (files.length === 0) {
 }
 
 // --- aggregate -------------------------------------------------------------
-const totals = { tests: 0, passed: 0, failed: 0, skipped: 0, pending: 0, other: 0 };
+const totals = {
+  tests: 0,
+  passed: 0,
+  failed: 0,
+  skipped: 0,
+  pending: 0,
+  other: 0,
+};
 const failedByShard = new Map(); // shard -> [label]
 const flakyByShard = new Map(); // shard -> [label]
 const mergedTests = [];
 let flakyCount = 0;
 
 const label = (t) => {
-  const title = [t.suite, t.name].filter(Boolean).join(" › ") || t.name || "(unnamed)";
+  const title =
+    [t.suite, t.name].filter(Boolean).join(" › ") || t.name || "(unnamed)";
   return title;
 };
 const push = (map, shard, value) => {
@@ -58,7 +72,8 @@ const push = (map, shard, value) => {
 };
 
 for (const file of files) {
-  const shard = Number(basename(file).match(/ctrf-shard-(\d+)\.json/)[1]);
+  const shardRaw = basename(file).match(/ctrf-shard-(\d+|visual)\.json/)[1];
+  const shard = shardRaw === "visual" ? "visual" : Number(shardRaw);
   let report;
   try {
     report = JSON.parse(readFileSync(file, "utf8"));
@@ -75,7 +90,11 @@ for (const file of files) {
     if (t.flaky) {
       flakyCount++;
       const retries = Number(t.retries) || 0;
-      push(flakyByShard, shard, `${label(t)}${retries ? ` — passed after ${retries} ${retries === 1 ? "retry" : "retries"}` : ""}`);
+      push(
+        flakyByShard,
+        shard,
+        `${label(t)}${retries ? ` — passed after ${retries} ${retries === 1 ? "retry" : "retries"}` : ""}`,
+      );
     }
   }
 }
@@ -100,15 +119,25 @@ const out = [];
 out.push(HEADING, "");
 out.push("| Total | ✅ Passed | ❌ Failed | ⚠️ Flaky | ⏭️ Skipped |");
 out.push("| :--: | :--: | :--: | :--: | :--: |");
-out.push(`| ${totals.tests} | ${totals.passed} | ${totals.failed} | ${flakyCount} | ${totals.skipped} |`);
+out.push(
+  `| ${totals.tests} | ${totals.passed} | ${totals.failed} | ${flakyCount} | ${totals.skipped} |`,
+);
 out.push("");
 
 const section = (map, title, count, open) => {
   if (count === 0) return;
-  out.push(`<details${open ? " open" : ""}><summary><b>${title} (${count})</b></summary>`, "");
-  for (const shard of [...map.keys()].sort((a, b) => a - b)) {
+  out.push(
+    `<details${open ? " open" : ""}><summary><b>${title} (${count})</b></summary>`,
+    "",
+  );
+  for (const shard of [...map.keys()].sort((a, b) => {
+    if (typeof a === "number" && typeof b === "number") return a - b;
+    if (typeof a === "number") return -1;
+    if (typeof b === "number") return 1;
+    return String(a).localeCompare(String(b));
+  })) {
     const items = map.get(shard);
-    out.push(`**Shard ${shard}/4** (${items.length})`, "");
+    out.push(`**${typeof shard === "number" ? `Shard ${shard}/4` : "Visual Tests"}** (${items.length})`, "");
     for (const item of items) out.push(`- \`${item}\``);
     out.push("");
   }

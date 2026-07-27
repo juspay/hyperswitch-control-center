@@ -72,7 +72,7 @@ let make = () => {
     try {
       let _ = await updateDetails(url, body, Post)
     } catch {
-    | _ => setScreenState(_ => Error("Failed to update merchant details"))
+    | _ => Exn.raiseError("Failed to update merchant details")
     }
     Nullable.null
   }

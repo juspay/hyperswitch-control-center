@@ -65,7 +65,7 @@ let make = (~showOnBoarding, ~id) => {
   open ReconExceptionsUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (offset, setOffset) = React.useState(_ => 0)
   let (reconExceptionReport, setReconExceptionReport) = React.useState(_ =>
     Dict.make()->ReconExceptionsUtils.getExceptionReportPayloadType

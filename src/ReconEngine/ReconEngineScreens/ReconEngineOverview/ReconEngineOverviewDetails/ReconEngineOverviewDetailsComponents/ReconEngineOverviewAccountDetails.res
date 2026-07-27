@@ -7,38 +7,20 @@ let make = (~ruleDetails: rulePayload) => {
   open LogicUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (accountData, setAccountData) = React.useState(_ => [])
-  let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
-  let getTransactions = ReconEngineHooks.useGetTransactions()
-  let getAccounts = ReconEngineHooks.useGetAccounts()
+  let (ruleAccountsOverview, setRuleAccountsOverview) = React.useState(_ => [])
+  let getRuleAccountBreakdown = ReconEngineHooks.useGetRuleAccountBreakdown()
+  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
 
   let getAccountAndTransactionData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let accounts = await getAccounts()
-      setAccountData(_ => accounts)
 
-      let statusList =
-        ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
-          Expected,
-          Missing,
-          OverAmount(Mismatch),
-          UnderAmount(Mismatch),
-          OverAmount(Expected),
-          UnderAmount(Expected),
-          Posted(Manual),
-          Matched(Auto),
-          Matched(Manual),
-          Matched(Force),
-          Void,
-          PartiallyReconciled,
-          DataMismatch,
-        ])->Array.joinWith(",")
+      let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+      let suffix = `rule_ids=${ruleDetails.rule_id}`
+      let queryString = baseQueryString->isNonEmptyString ? `${baseQueryString}&${suffix}` : suffix
 
-      let transactionsData = await getTransactions(
-        ~queryParameters=Some(`rule_id=${ruleDetails.rule_id}&status=${statusList}`),
-      )
-      setAllTransactionsData(_ => transactionsData)
+      let breakdown = await getRuleAccountBreakdown(~queryParameters=Some(queryString))
+      setRuleAccountsOverview(_ => breakdown)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
@@ -46,34 +28,24 @@ let make = (~ruleDetails: rulePayload) => {
   }
 
   React.useEffect(() => {
-    getAccountAndTransactionData()->ignore
+    if !(filterValue->isEmptyDict) {
+      getAccountAndTransactionData()->ignore
+    }
     None
-  }, [])
-
-  let (sourceAccountId, targetAccountIds) = getSourceAndAllTargetAccountIds(ruleDetails)
+  }, [filterValue])
 
   let (sourceAccountData, targetAccountsData) = React.useMemo(() => {
-    let sourceAccount = getAccountData(accountData, sourceAccountId)
-    let targetAccounts =
-      targetAccountIds->Array.map(targetId => getAccountData(accountData, targetId))
-
-    (sourceAccount, targetAccounts)
-  }, (ruleDetails, accountData))
+    getSourceAndTargetAccounts(ruleAccountsOverview, ~ruleId=ruleDetails.rule_id)
+  }, (ruleAccountsOverview, ruleDetails.rule_id))
 
   let (sourceTransactionData, targetAccountsTransactionData) = React.useMemo(() => {
-    let accountTransactionData = processAllTransactionsWithAmounts(
-      [ruleDetails],
-      allTransactionsData,
-      accountData,
-    )
-
-    let sourceData = getTransactionsData(accountTransactionData, sourceAccountData.account_id)
+    let sourceData = accountTransactionDataFromStatusBreakdown(sourceAccountData.status_breakdown)
     let targetData =
       targetAccountsData->Array.map(targetAccount =>
-        getTransactionsData(accountTransactionData, targetAccount.account_id)
+        accountTransactionDataFromStatusBreakdown(targetAccount.status_breakdown)
       )
     (sourceData, targetData)
-  }, (allTransactionsData, sourceAccountData.account_id, targetAccountsData))
+  }, (sourceAccountData, targetAccountsData))
 
   <PageLoaderWrapper
     screenState

@@ -4,6 +4,7 @@ type config = {
   profileId: option<string>,
 }
 type merchantSpecificConfig = {newAnalytics: config, devReconEngineV1: config}
+
 type featureFlag = {
   default: bool,
   testLiveToggle: bool,
@@ -31,7 +32,6 @@ type featureFlag = {
   granularity: bool,
   complianceCertificate: bool,
   pmAuthenticationProcessor: bool,
-  performanceMonitor: bool,
   newAnalytics: bool,
   newAnalyticsSmartRetries: bool,
   newAnalyticsRefunds: bool,
@@ -61,7 +61,9 @@ type featureFlag = {
   exploreRecipes: bool,
   devOrchestrationV2Product: bool,
   devReconEngineV1: bool,
+  devReconEnginePipelines: bool,
   devAiChatBot: bool,
+  devLaunchSage: bool,
   routingAnalytics: bool,
   devRolesV2: bool,
   devCustomer: bool,
@@ -77,16 +79,20 @@ type featureFlag = {
   devOpensearch: bool,
   devVault: bool,
   networkTokenization: bool,
+  vaultPspTokenization: bool,
   devBlendEnabled: bool,
   devSortEnabled: bool,
   reconEnginePermissions: bool,
   devSavedViews: bool,
   devClickhouseAggregate: bool,
+  connectorClone: bool,
+  sendV1DummyApiKeyHeader: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
   open LogicUtils
   let dict = featureFlags->getDictFromJsonObject->getDictfromDict("features")
+  let sendV1DummyApiKeyHeader = dict->getBool("send_v1_dummy_api_key_header", false)
 
   {
     default: dict->getBool("default", true),
@@ -117,7 +123,6 @@ let featureFlagType = (featureFlags: JSON.t) => {
     granularity: dict->getBool("granularity", false),
     complianceCertificate: dict->getBool("compliance_certificate", false),
     pmAuthenticationProcessor: dict->getBool("pm_authentication_processor", false),
-    performanceMonitor: dict->getBool("performance_monitor", false),
     newAnalytics: dict->getBool("new_analytics", false),
     newAnalyticsSmartRetries: dict->getBool("new_analytics_smart_retries", false),
     newAnalyticsRefunds: dict->getBool("new_analytics_refunds", false),
@@ -144,7 +149,9 @@ let featureFlagType = (featureFlags: JSON.t) => {
     threedsExemptionRules: dict->getBool("threeds_exemption", false),
     devOrchestrationV2Product: dict->getBool("dev_orchestration_v2_product", false),
     devReconEngineV1: dict->getBool("dev_recon_engine_v1", false),
+    devReconEnginePipelines: dict->getBool("dev_recon_engine_pipelines", false),
     devAiChatBot: dict->getBool("dev_ai_chat_bot", false),
+    devLaunchSage: dict->getBool("dev_launch_sage", false),
     routingAnalytics: dict->getBool("routing_analytics", false),
     devRolesV2: dict->getBool("dev_roles_v2", false),
     devCustomer: dict->getBool("dev_customer", false),
@@ -161,11 +168,14 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devVault: dict->getBool("dev_vault", false),
     paymentSettingsRevamped: dict->getBool("payment_settings_revamped", false),
     networkTokenization: dict->getBool("network_tokenization", false),
+    vaultPspTokenization: dict->getBool("vault_psp_tokenization", false),
     devBlendEnabled: dict->getBool("dev_blend_enabled", false),
     devSortEnabled: dict->getBool("dev_sort_enabled", false),
     reconEnginePermissions: dict->getBool("recon_engine_permissions", false),
     devSavedViews: dict->getBool("dev_saved_views", false),
     devClickhouseAggregate: dict->getBool("dev_clickhouse_aggregate", false),
+    connectorClone: dict->getBool("connector_clone", false),
+    sendV1DummyApiKeyHeader,
   }
 }
 

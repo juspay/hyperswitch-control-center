@@ -1,12 +1,16 @@
 import { test, expect } from "../../support/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { PaymentSettings } from "../../support/pages/developers/PaymentSettings";
+import { SurchargeProcessor } from "../../support/pages/connector/SurchargeProcessor";
+import { VaultProcessor } from "../../support/pages/connector/VaultProcessor";
 import { generateUniqueEmail } from "../../support/helper";
 import {
   signupUser,
   loginUI,
   createAuthenticationConnectorAPI,
+  fillConnectorFields,
 } from "../../support/commands";
+import { vaultProcessorConfig } from "../../support/fixtures/vaultProcessorConfig";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
@@ -50,6 +54,46 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.paymentLinkTab).toBeVisible();
     });
 
+    test("should display Vault and Surcharge tabs when both connectors are configured", async ({
+      page,
+    }) => {
+      test.slow();
+
+      const homePage = new HomePage(page);
+      const paymentSettings = new PaymentSettings(page);
+      const vaultProcessor = new VaultProcessor(page);
+      const surchargeProcessor = new SurchargeProcessor(page);
+
+      await homePage.connectors.click();
+      await homePage.vaultConnectors.click();
+      await expect(page).toHaveURL(/.*dashboard\/vault-processor/);
+
+      await expect(vaultProcessor.connectButton.first()).toBeVisible();
+      await vaultProcessor.connectButton.first().click();
+      await fillConnectorFields(page, vaultProcessorConfig.vgs.fields);
+      await vaultProcessor.saveOrConnectOrProceedButton.click();
+      await page.waitForLoadState("networkidle");
+      await vaultProcessor.doneButton.click();
+
+      await homePage.connectors.click();
+      await homePage.surchargeConnectors.click();
+      await expect(page).toHaveURL(/.*dashboard\/surcharge-processor/);
+
+      await expect(
+        surchargeProcessor.connectNowOrConnectButton,
+      ).toBeVisible();
+      await surchargeProcessor.connectNowOrConnectButton.click();
+      await page.locator('[name*="api_key"]').first().fill("interpayments_test_api_key");
+      await surchargeProcessor.connectAndProceedButton.click();
+      await surchargeProcessor.doneButton.click();
+
+      await homePage.developer.click();
+      await homePage.paymentSettings.click();
+
+      await expect(paymentSettings.vaultTab).toBeVisible();
+      await expect(paymentSettings.surchargeTab).toBeVisible();
+    });
+
     test("should switch between tabs correctly", async ({ page }) => {
       const homePage = new HomePage(page);
       const paymentSettings = new PaymentSettings(page);
@@ -71,8 +115,6 @@ test.describe("Payment Settings", () => {
       await paymentSettings.paymentLinkTab.click();
       await expect(paymentSettings.paymentLinkDomainHeading).toBeVisible();
     });
-
-    // TODO: Assert clicked tab is highlighted and content of previously active tab is hidden when switching tabs.
   });
 
   test.describe("Payment Behaviour Tab", () => {
@@ -329,6 +371,7 @@ test.describe("Payment Settings", () => {
           merchantId,
           connectorLabel,
           context.request,
+          page,
         );
       }
 
@@ -346,14 +389,10 @@ test.describe("Payment Settings", () => {
         paymentSettings.toggleSwitchByLabel("Click to Pay");
       await expect(clickToPayToggle).toBeVisible();
 
-      const initial =
-        await clickToPayToggle.getAttribute("data-bool-value");
+      const initial = await clickToPayToggle.getAttribute("data-bool-value");
       if (initial !== "on") {
         await clickToPayToggle.click();
-        await expect(clickToPayToggle).toHaveAttribute(
-          "data-bool-value",
-          "on",
-        );
+        await expect(clickToPayToggle).toHaveAttribute("data-bool-value", "on");
       }
 
       await expect(paymentSettings.clickToPayConnectorDropdown).toBeVisible();
@@ -389,8 +428,9 @@ test.describe("Payment Settings", () => {
       await homePage.paymentSettings.click();
       await paymentSettings.threeDSTab.click();
 
-      const forceChallenge =
-        paymentSettings.toggleSwitchByLabel("Force 3DS Challenge");
+      const forceChallenge = paymentSettings.toggleSwitchByLabel(
+        "Force 3DS Challenge",
+      );
       const initial = await forceChallenge.getAttribute("data-bool-value");
       if (initial !== "on") {
         await forceChallenge.click();
@@ -431,6 +471,7 @@ test.describe("Payment Settings", () => {
           merchantId,
           "threeds_tab_connector",
           context.request,
+          page,
         );
       }
       await page.reload();
@@ -440,8 +481,9 @@ test.describe("Payment Settings", () => {
       await homePage.paymentSettings.click();
       await paymentSettings.threeDSTab.click();
 
-      const forceChallenge =
-        paymentSettings.toggleSwitchByLabel("Force 3DS Challenge");
+      const forceChallenge = paymentSettings.toggleSwitchByLabel(
+        "Force 3DS Challenge",
+      );
       await expect(forceChallenge).toBeVisible();
       const initial = await forceChallenge.getAttribute("data-bool-value");
       if (initial !== "on") {
@@ -453,7 +495,7 @@ test.describe("Payment Settings", () => {
       const requestorAppUrl = "https://example.com/3ds-requestor-app";
 
       await paymentSettings.selectFieldDropdown().click();
-      await paymentSettings.dropdownValue(connectorName).click();
+      await page.getByRole('option', { name: 'juspaythreedsserver' }).click();
       await page.keyboard.press("Escape");
 
       await paymentSettings.threeDsRequestorUrlInput.fill(requestorUrl);
@@ -480,11 +522,10 @@ test.describe("Payment Settings", () => {
       );
 
       // Verify the connector is the selected option in the multi-select
-      await paymentSettings.buttonByName("juspaythreedsserver").first().click();
-      await expect(paymentSettings.dropdownValue(connectorName)).toHaveAttribute(
-        "data-dropdown-value-selected",
-        "True",
-      );
+      await page.getByRole('button', { name: 'Select Field1' }).click();
+      await expect(
+        page.getByRole('option', { name: 'juspaythreedsserver' }).getByRole('checkbox')
+      ).toHaveAttribute("data-state", "checked");
     });
   });
 
@@ -508,9 +549,10 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.acquirerConfigGroupButton).toBeVisible();
     });
 
-    test("should open Add Acquirer Configuration modal with all fields and buttons", async ({
+    test("should keep Add Acquirer modal actions visible and fields scrollable on a short viewport", async ({
       page,
     }) => {
+      await page.setViewportSize({ width: 1280, height: 750 });
       const paymentSettings = new PaymentSettings(page);
 
       await paymentSettings.acquirerConfigGroupButton.click();
@@ -531,7 +573,9 @@ test.describe("Payment Settings", () => {
       await expect(
         modal.getByText("Card Network", { exact: false }),
       ).toBeVisible();
-      await expect(modal.getByText("Acquirer BIN", { exact: false })).toBeVisible();
+      await expect(
+        modal.getByText("Acquirer BIN", { exact: false }),
+      ).toBeVisible();
       await expect(
         modal.getByText("Acquirer ICA (optional)", { exact: false }),
       ).toBeVisible();
@@ -543,8 +587,12 @@ test.describe("Payment Settings", () => {
       ).toBeVisible();
 
       // Inputs
-      await expect(paymentSettings.acquirerMerchantNameInput(modal)).toBeVisible();
-      await expect(paymentSettings.acquirerMerchantIdInput(modal)).toBeVisible();
+      await expect(
+        paymentSettings.acquirerMerchantNameInput(modal),
+      ).toBeVisible();
+      await expect(
+        paymentSettings.acquirerMerchantIdInput(modal),
+      ).toBeVisible();
       await expect(paymentSettings.acquirerBinInput(modal)).toBeVisible();
       await expect(paymentSettings.acquirerIcaInput(modal)).toBeVisible();
       await expect(paymentSettings.acquirerFraudRateInput(modal)).toBeVisible();
@@ -558,10 +606,39 @@ test.describe("Payment Settings", () => {
       ).toBeVisible();
 
       // Buttons
-      await expect(paymentSettings.acquirerModalSaveButton(modal)).toBeVisible();
+      await expect(
+        paymentSettings.acquirerModalSaveButton(modal),
+      ).toBeVisible();
       await expect(
         paymentSettings.acquirerModalCancelButton(modal),
       ).toBeVisible();
+
+      const scrollRegion = paymentSettings.acquirerModalScrollRegion(modal);
+      const saveButton = paymentSettings.acquirerModalSaveButton(modal);
+      const cancelButton = paymentSettings.acquirerModalCancelButton(modal);
+      const countryDropdown =
+        paymentSettings.acquirerCountryDropdownInModal(modal);
+
+      await expect(saveButton).toBeInViewport({ ratio: 1 });
+      await expect(cancelButton).toBeInViewport({ ratio: 1 });
+
+      const scrollMetrics = await scrollRegion.evaluate((element) => ({
+        clientHeight: element.clientHeight,
+        scrollHeight: element.scrollHeight,
+      }));
+      expect(scrollMetrics.scrollHeight).toBeGreaterThan(
+        scrollMetrics.clientHeight,
+      );
+
+      await scrollRegion.evaluate((element) => {
+        element.scrollTop = element.scrollHeight;
+      });
+      await expect
+        .poll(() => scrollRegion.evaluate((element) => element.scrollTop))
+        .toBeGreaterThan(0);
+      await expect(countryDropdown).toBeInViewport();
+      await expect(saveButton).toBeInViewport({ ratio: 1 });
+      await expect(cancelButton).toBeInViewport({ ratio: 1 });
     });
 
     test("should close modal when Cancel is clicked without saving", async ({
@@ -589,7 +666,7 @@ test.describe("Payment Settings", () => {
 
       // BIN too short (< 4 digits)
       await paymentSettings.acquirerBinInput(modal).fill("12");
-      await paymentSettings.acquirerBinInput(modal).blur();
+      await paymentSettings.acquirerBinInput(modal).press("Enter");
       await expect(paymentSettings.acquirerBinError).toBeVisible();
 
       // BIN valid → error clears
@@ -638,9 +715,7 @@ test.describe("Payment Settings", () => {
       });
 
       // Bucket renders with merchant name and a Default tag (only bucket)
-      await expect(
-        page.getByText(merchantName, { exact: true }),
-      ).toBeVisible();
+      await expect(page.getByText(merchantName, { exact: true })).toBeVisible();
       await expect(paymentSettings.defaultTag().first()).toBeVisible();
     });
 
@@ -909,6 +984,7 @@ test.describe("Payment Settings", () => {
 
       await homePage.developer.click();
       await homePage.paymentSettings.click();
+      await expect(paymentSettings.pageHeader).toBeVisible();
       await paymentSettings.paymentLinkTab.click();
     });
 

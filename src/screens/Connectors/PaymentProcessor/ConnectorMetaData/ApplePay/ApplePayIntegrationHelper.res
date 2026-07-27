@@ -52,7 +52,7 @@ module HostURL = {
 module SampleEmail = {
   @react.component
   let make = () => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
 
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
 

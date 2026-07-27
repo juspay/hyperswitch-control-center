@@ -213,7 +213,7 @@ module DisputesInfoBarComponent = {
     )
     let fetchDetails = useGetMethod()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let (screenState, setScreenState) = React.useState(_ => Loading)
 
     let onEvidenceSubmit = async () => {
@@ -382,7 +382,7 @@ let make = (~disputeID, ~setUploadEvidenceModal, ~setDisputeData, ~connector) =>
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let showPopUp = PopUpState.useShowPopUp()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   let handleAcceptDispute = async () => {
     try {

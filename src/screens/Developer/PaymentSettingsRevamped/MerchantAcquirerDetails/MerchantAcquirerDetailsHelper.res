@@ -11,7 +11,7 @@ module AccordionTitle = {
     ~isSelected=false,
     ~onSelect=() => (),
   ) => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let onCopyClick = ev => {
       ev->ReactEvent.Mouse.stopPropagation
       Clipboard.writeText(bucket.id)

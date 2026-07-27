@@ -12,7 +12,7 @@ let make = (
 
   let getURL = useGetURL()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   // Need to remove connector and merge connector and connectorTypeVariants
   let (processorType, connectorType) =
@@ -104,7 +104,17 @@ let make = (
       handleConnectorDetailsUpdate()
       showToast(~message="Details Updated!", ~toastType=ToastSuccess)
     } catch {
-    | _ => showToast(~message="Connector Failed to update", ~toastType=ToastError)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
+        let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
+        showToast(
+          ~message=errorMessage->isNonEmptyString
+            ? errorMessage
+            : "Failed to update connector details",
+          ~toastType=ToastError,
+        )
+      }
+    | _ => showToast(~message="Failed to update connector details", ~toastType=ToastError)
     }
 
     Nullable.null

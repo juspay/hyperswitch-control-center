@@ -2,13 +2,18 @@ import { test, expect } from "../../support/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { ProductionAccessPage } from "../../support/pages/homepage/ProductionAccessPage";
 import { OrganizationChartPage } from "../../support/pages/settings/OrganizationChartPage";
-import { generateUniqueEmail, generateDateTimeString } from "../../support/helper";
+import {
+  generateUniqueEmail,
+  generateMerchantName,
+} from "../../support/helper";
 import {
   signupUser,
   loginUI,
   createDummyConnectorAPI,
   createBusinessProfileAPI,
   createMerchantAPI,
+  switchMerchantAPI,
+  createStripeGooglePayConnectorAPI,
 } from "../../support/commands";
 import UsersPage from "../../support/pages/settings/UsersPage";
 
@@ -346,7 +351,7 @@ test.describe("DefaultHome product cards", () => {
     await expect(homePage.learnMoreButtons).toHaveCount(1);
   });
 
-  test.skip("should handle Learn More click on every product card when all product flags are ON", async ({
+  test("should handle Learn More click on every product card when all product flags are ON", async ({
     page,
     context,
   }) => {
@@ -399,7 +404,7 @@ test.describe("DefaultHome product cards", () => {
       .getByRole("button", { name: "Learn More" })
       .click();
 
-    await expect(page).toHaveURL(/.*dashboard\/home/);
+    await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
   });
 });
 
@@ -489,7 +494,7 @@ test.describe("Production access form", () => {
       "Hyperswitch Pvt Ltd",
     );
     await productionAccessPage.selectCountryButton.click();
-    await productionAccessPage.countryOption(/^Aland Islands$/).click();
+    await productionAccessPage.countryOption.click();
     await productionAccessPage.websiteInput.fill("https://hyperswitch.io");
     await productionAccessPage.contactNameInput.fill("Jack Ryan");
     await productionAccessPage.contactEmailInput.fill(
@@ -535,7 +540,7 @@ test.describe("Production access form", () => {
       "Hyperswitch Pvt Ltd",
     );
     await productionAccessPage.selectCountryButton.click();
-    await productionAccessPage.countryOption(/^Aland Islands$/).click();
+    await productionAccessPage.countryOption.click();
     await productionAccessPage.websiteInput.fill("not a url");
     await productionAccessPage.contactEmailInput.fill("invalid-email");
     await productionAccessPage.contactNameInput.fill("Jack Ryan");
@@ -562,40 +567,71 @@ test.describe("SDK Payment", () => {
     const homePage = new HomePage(page);
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (merchantId) {
-      await createDummyConnectorAPI(merchantId, "stripe_test_sdk", context.request);
+      await createDummyConnectorAPI(
+        merchantId,
+        "stripe_test_sdk",
+        context.request,
+        page,
+      );
     }
 
     await homePage.tryItOutButton.click();
   });
 
-  test("should render the SDK hosted checkout preview section", async ({ page }) => {
+  test("should render the SDK hosted checkout preview section", async ({
+    page,
+  }) => {
     const homePage = new HomePage(page);
 
     await expect(homePage.setupCheckoutHeader).toContainText("Setup Checkout");
-    await expect(page.getByRole('tab', { name: 'Checkout Details' })).toBeVisible();
-    await expect(page.getByRole('tab', { name: 'Theme Customization' })).toBeVisible();
-    await expect(page.getByText('Customer ID')).toBeVisible();
-    await expect(page.locator('div').filter({ hasText: /^Guest Mode$/ })).toBeVisible();
-    await expect(page.getByRole('textbox', { name: 'Enter Customer ID' })).toBeVisible();
-    await expect(page.getByRole('textbox', { name: 'Enter Customer ID' })).toHaveValue("hyperswitch_sdk_demo_id");
-    await expect(page.getByText('Show Saved Card')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Yes' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Yes' })).toHaveAttribute("data-value", "yes");
-    await expect(page.locator('div').filter({ hasText: /^Currency$/ }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: '🇺🇸 United States Of America' })).toBeVisible();
-    await expect(page.getByText('Enter amount')).toBeVisible();
-    await expect(page.getByRole('textbox', { name: 'Enter amount' })).toBeVisible();
-    await expect(page.getByRole('textbox', { name: 'Enter amount' })).toHaveValue("100");
-    await expect(page.getByText('Edit Checkout Details')).toBeVisible();
+    await expect(
+      page.getByRole("tab", { name: "Checkout Details" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("tab", { name: "Theme Customization" }),
+    ).toBeVisible();
+    await expect(page.getByText("Customer ID")).toBeVisible();
+    await expect(
+      page.locator("div").filter({ hasText: /^Guest Mode$/ }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("textbox", { name: "Enter Customer ID" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("textbox", { name: "Enter Customer ID" }),
+    ).toHaveValue("hyperswitch_sdk_demo_id");
+    await expect(page.getByText("Show Saved Card")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Yes" })).toBeVisible();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Currency$/ })
+        .first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "🇺🇸 United States Of America" }),
+    ).toBeVisible();
+    await expect(page.getByText("Enter amount")).toBeVisible();
+    await expect(
+      page.getByRole("spinbutton", { name: "Enter amount" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("spinbutton", { name: "Enter amount" }),
+    ).toHaveValue("100");
+    await expect(page.getByText("Edit Checkout Details")).toBeVisible();
     await expect(homePage.showPreviewButton).toBeVisible();
     await expect(homePage.showPreviewButton).toBeEnabled();
-    await expect(page.getByText('For Testing Stripe & Dummy')).toBeVisible();
-    await expect(page.getByText('Card Number :4242 4242 4242 4242')).toBeVisible();
-    await expect(page.getByText('Expiry:Any future date')).toBeVisible();
-    await expect(page.getByText('CVC:Any 3 Digits')).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Test creds for other connectors here' })).toBeVisible();
+    await expect(page.getByText("For Testing Stripe & Dummy")).toBeVisible();
+    await expect(
+      page.getByText("Card Number :4242 4242 4242 4242"),
+    ).toBeVisible();
+    await expect(page.getByText("Expiry:Any future date")).toBeVisible();
+    await expect(page.getByText("CVC:Any 3 Digits")).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Test creds for other connectors here" }),
+    ).toBeVisible();
     await expect(homePage.sdkPreviewHeading).toBeVisible();
-    await expect(page.getByRole('img', { name: 'blurry-sdk' })).toBeVisible();
+    await expect(page.getByRole("img", { name: "blurry-sdk" })).toBeVisible();
   });
 
   test("should render the SDK theme configuration form", async ({ page }) => {
@@ -603,69 +639,112 @@ test.describe("SDK Payment", () => {
 
     await expect(homePage.sdkCheckoutDetailsTab).toBeVisible();
     await homePage.sdkThemeCustomizationTab.click();
-    await expect(page.locator('div').filter({ hasText: /^Theme$/ }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Default' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Default' })).toHaveAttribute("data-value", "default");
-    await expect(page.locator('div').filter({ hasText: /^Locale$/ }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'English (Global)' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'English (Global)' })).toHaveAttribute("data-value", "english(Global)");
-    await expect(page.getByText('Layout')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Tabs' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Tabs' })).toHaveAttribute("data-value", "tabs");
-    await expect(page.locator('div').filter({ hasText: /^Labels$/ }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Above' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Above' })).toHaveAttribute("data-value", "above");
-    await expect(page.locator('div').filter({ hasText: /^Color Picker Input$/ }).nth(1)).toBeVisible();
-    await expect(page.getByRole('textbox', { name: '#FFFFFF' })).toBeVisible();
-    await expect(page.getByRole('textbox', { name: '#FFFFFF' })).toHaveValue("#006DF9");
-    await expect(page.getByRole('link', { name: 'Learn More About Customization' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Show preview' })).toBeVisible();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Theme$/ })
+        .first(),
+    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Default" })).toBeVisible();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Locale$/ })
+        .first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "English (Global)" }),
+    ).toBeVisible();
+    await expect(page.getByText("Layout")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Tabs" })).toBeVisible();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Labels$/ })
+        .first(),
+    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Above" })).toBeVisible();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Color Picker Input$/ })
+        .nth(1),
+    ).toBeVisible();
+    await expect(page.getByRole("textbox", { name: "#FFFFFF" })).toBeVisible();
+    await expect(page.getByRole("textbox", { name: "#FFFFFF" })).toHaveValue(
+      "#006DF9",
+    );
+    await expect(
+      page.getByRole("link", { name: "Learn More About Customization" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Show preview" }),
+    ).toBeVisible();
   });
 
   test("should bind SDK form inputs to user-typed values", async ({ page }) => {
     const homePage = new HomePage(page);
 
     await homePage.sdkCustomerIdInput.fill("cust_playwright_001");
-    await expect(homePage.sdkCustomerIdInput).toHaveValue("cust_playwright_001");
+    await expect(homePage.sdkCustomerIdInput).toHaveValue(
+      "cust_playwright_001",
+    );
 
-    await page.getByRole('button', { name: 'Yes' }).click();
-    await page.locator('div').filter({ hasText: /^No$/ }).nth(1).click();
-    await expect(page.getByRole('button', { name: 'No' })).toHaveAttribute("data-value", "no");
-
-    await page.getByRole('button', { name: '🇺🇸 United States Of America' }).click();
-    await page.getByRole('textbox', { name: 'Search name or ID...' }).type("India");
-    await page.getByText('🇮🇳 India - (INR)').click();
-    await expect(page.getByRole('button', { name: '🇮🇳 India - (INR)' })).toBeVisible();
+    await page.getByRole("button", { name: "Yes" }).click();
+    await page.locator("div").filter({ hasText: /^No$/ }).nth(1).click();
+    await page
+      .getByRole("button", { name: "🇺🇸 United States Of America" })
+      .click();
+    await page
+      .getByRole("searchbox", { name: "Search options..." })
+      .type("India");
+    await page.getByText("🇮🇳 India - (INR)").click();
+    await expect(
+      page.getByRole("button", { name: "🇮🇳 India - (INR)" }),
+    ).toBeVisible();
 
     await homePage.sdkAmountInput.fill("250.50");
     await expect(homePage.sdkAmountInput).toHaveValue("250.50");
   });
 
-  test.fixme("should make a successful payment using SDK", async ({ page, context }) => {
+  test.fixme("should make a successful payment using SDK", async ({
+    page,
+    context,
+  }) => {
     const homePage = new HomePage(page);
 
-    await page.getByRole('button', { name: '🇺🇸 United States Of America' }).click();
-    await page.getByRole('textbox', { name: 'Search name or ID...' }).type("India");
-    await page.getByText('🇮🇳 India - (INR)').click();
+    await page
+      .getByRole("button", { name: "🇺🇸 United States Of America" })
+      .click();
+    await page
+      .getByRole("searchbox", { name: "Search options..." })
+      .type("India");
+    await page.getByText("🇮🇳 India - (INR)").click();
 
     await homePage.sdkAmountInput.fill("123.45");
 
     await homePage.showPreviewButton.click();
     await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(10000);
     await homePage.waitForSdkCardForm();
 
     await homePage.fillSdkTestCard();
 
-    await expect(homePage.payButtonByCurrency("INR")).toContainText("Pay INR 123.45");
+    await expect(homePage.payButtonByCurrency("INR")).toContainText(
+      "Pay INR 123.45",
+    );
     await homePage.payButtonByCurrency("INR").click();
-    await expect(homePage.paymentSuccessfulText).toBeAttached({ timeout: 10000 });
+    await expect(homePage.paymentSuccessfulText).toBeAttached({
+      timeout: 10000,
+    });
 
     await homePage.goToPaymentOperationsButton.click();
     expect(page.url()).toContain("/dashboard/payments/pay_");
-
   });
 
-  test.fixme("should display failed payment status using SDK", async ({ page }) => {
+  test.fixme("should display failed payment status using SDK", async ({
+    page,
+  }) => {
     const homePage = new HomePage(page);
 
     await page.route("**/payments/*/confirm", async (route) => {
@@ -687,13 +766,17 @@ test.describe("SDK Payment", () => {
 
     await homePage.fillSdkTestCard();
 
-    await expect(homePage.payButtonByCurrency("USD")).toContainText("Pay USD 100");
+    await expect(homePage.payButtonByCurrency("USD")).toContainText(
+      "Pay USD 100",
+    );
     await homePage.payButtonByCurrency("USD").click();
     await expect(homePage.paymentFailedText).toBeVisible({ timeout: 10000 });
     await expect(homePage.goToPaymentOperationsButton).toBeVisible();
   });
 
-  test.fixme("should display processing payment status using SDK", async ({ page }) => {
+  test.fixme("should display processing payment status using SDK", async ({
+    page,
+  }) => {
     const homePage = new HomePage(page);
 
     await page.route("**/payments/*/confirm", async (route) => {
@@ -713,13 +796,17 @@ test.describe("SDK Payment", () => {
 
     await homePage.fillSdkTestCard();
 
-    await expect(homePage.payButtonByCurrency("USD")).toContainText("Pay USD 100");
+    await expect(homePage.payButtonByCurrency("USD")).toContainText(
+      "Pay USD 100",
+    );
     await homePage.payButtonByCurrency("USD").click();
     await expect(homePage.paymentPendingText).toBeVisible({ timeout: 10000 });
     await expect(homePage.goToPaymentOperationsButton).toBeVisible();
   });
 
-  test("should display error toast when SDK save (Show Preview) API fails", async ({ page }) => {
+  test("should display error toast when SDK save (Show Preview) API fails", async ({
+    page,
+  }) => {
     await page.route("**/payments", async (route) => {
       if (route.request().method() === "POST") {
         await route.fulfill({
@@ -743,6 +830,7 @@ test.describe("SDK Payment", () => {
     await homePage.showPreviewButton.click();
 
     await expect(homePage.sdkErrorToast).toBeVisible();
+    await expect(homePage.sdkErrorToast).toContainText("Something went wrong");
   });
 });
 
@@ -751,7 +839,7 @@ test.describe("Organization Chart Tree", () => {
 
   test.beforeEach(async ({ page }) => {
     const email = generateUniqueEmail();
-    companyName = generateDateTimeString();
+    companyName = generateMerchantName();
     await signupUser(email, PLAYWRIGHT_PASSWORD, undefined, companyName);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
     await page.waitForURL(/dashboard\/home/, { timeout: 20000 });
@@ -771,16 +859,32 @@ test.describe("Organization Chart Tree", () => {
     await expect(orgChart.profileColumn).toBeVisible();
 
     await expect(page.getByText("Organization" + companyName)).toBeVisible();
-    await expect(page.getByText("Organization" + companyName).getByText(companyName)).toHaveClass(/border-blue-600/);
-    await expect(page.getByText("Organization" + companyName).getByText(companyName)).toHaveClass(/text-blue-600/);
+    await expect(
+      page.getByText("Organization" + companyName).getByText(companyName),
+    ).toHaveClass(/border-nd_primary_blue-600/);
+    await expect(
+      page.getByText("Organization" + companyName).getByText(companyName),
+    ).toHaveClass(/text-nd_primary_blue-600/);
 
     await expect(page.getByText("Merchant" + companyName)).toBeVisible();
-    await expect(page.getByText("Merchant" + companyName).getByText(companyName + "Orchestrator")).toHaveClass(/border-blue-600/);
-    await expect(page.getByText("Merchant" + companyName).getByText(companyName + "Orchestrator")).toHaveClass(/text-blue-600/);
+    await expect(
+      page
+        .getByText("Merchant" + companyName)
+        .getByText(companyName + "Orchestrator"),
+    ).toHaveClass(/border-nd_primary_blue-600/);
+    await expect(
+      page
+        .getByText("Merchant" + companyName)
+        .getByText(companyName + "Orchestrator"),
+    ).toHaveClass(/text-nd_primary_blue-600/);
 
-    await expect(page.getByRole('button', { name: 'default' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'default' })).toHaveClass(/border-blue-600/);
-    await expect(page.getByRole('button', { name: 'default' })).toHaveClass(/text-blue-600/);
+    await expect(page.getByRole("button", { name: "default" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "default" })).toHaveClass(
+      /border-nd_primary_blue-600/,
+    );
+    await expect(page.getByRole("button", { name: "default" })).toHaveClass(
+      /text-nd_primary_blue-600/,
+    );
   });
 
   test("should render chart with newly created merchant and profile highlighting selected options", async ({
@@ -795,105 +899,119 @@ test.describe("Organization Chart Tree", () => {
     const userInfo = JSON.parse(rawUserInfo || "{}");
     const token: string = userInfo.token || "";
 
-    const newMerchantName = generateDateTimeString();
+    const newMerchantName = generateMerchantName();
     const newMerchant = await createMerchantAPI(
       token,
       newMerchantName,
       context.request,
     );
     const newMerchantId = newMerchant.merchant_id;
+    const newMerchantToken = await switchMerchantAPI(
+      token,
+      newMerchantId,
+      context.request,
+    );
 
     await createBusinessProfileAPI(
       newMerchantId,
       "new-test-profile",
       context.request,
+      undefined,
+      newMerchantToken,
     );
 
     await orgChart.visit();
 
-    const orgName = page.getByRole('button', { name: companyName, exact: true });
+    const orgName = page.getByRole("button", {
+      name: companyName,
+      exact: true,
+    });
     const merchantOneName = page.getByText(companyName + "Orchestrator");
     const merchantTwoName = page.getByText(newMerchantName + "Orchestrator");
-    const merchantOneProfileName = page.getByRole('button', { name: 'default' });
-    const merchantTwoProfileTwoName = page.getByRole('button', { name: 'new-test-profile' });
+    const merchantOneProfileName = page.getByRole("button", {
+      name: "default",
+    });
+    const merchantTwoProfileTwoName = page.getByRole("button", {
+      name: "new-test-profile",
+    });
 
     await expect(orgChart.pageHeading).toBeVisible();
 
     //Organization button
     await expect(orgName).toBeVisible();
-    await expect(orgName).toHaveClass(/border-blue-600/);
-    await expect(orgName).toHaveClass(/text-blue-600/);
+    await expect(orgName).toHaveClass(/border-nd_primary_blue-600/);
+    await expect(orgName).toHaveClass(/text-nd_primary_blue-600/);
 
     //1st Merchant button - selected
     await expect(merchantOneName).toBeVisible();
-    await expect(merchantOneName).toHaveClass(/border-blue-600/);
-    await expect(merchantOneName).toHaveClass(/text-blue-600/);
+    await expect(merchantOneName).toHaveClass(/border-nd_primary_blue-600/);
+    await expect(merchantOneName).toHaveClass(/text-nd_primary_blue-600/);
 
     //2nd Merchant button - unselected
     await expect(merchantTwoName).toBeVisible();
-    await expect(merchantTwoName).toHaveClass(/border-gray-200/);
-    await expect(merchantTwoName).toHaveClass(/text-gray-600/);
+    await expect(merchantTwoName).toHaveClass(/border-nd_gray-200/);
+    await expect(merchantTwoName).toHaveClass(/text-nd_gray-600/);
 
     // 1st Merchant - Profile
     await expect(merchantOneProfileName).toBeVisible();
-    await expect(merchantOneProfileName).toHaveClass(/border-blue-600/);
-    await expect(merchantOneProfileName).toHaveClass(/text-blue-600/);
+    await expect(merchantOneProfileName).toHaveClass(/border-nd_primary_blue-600/);
+    await expect(merchantOneProfileName).toHaveClass(/text-nd_primary_blue-600/);
 
     //Switch merchant
     await merchantTwoName.click();
 
     //Organization button
     await expect(orgName).toBeVisible();
-    await expect(orgName).toHaveClass(/border-blue-600/);
-    await expect(orgName).toHaveClass(/text-blue-600/);
+    await expect(orgName).toHaveClass(/border-nd_primary_blue-600/);
+    await expect(orgName).toHaveClass(/text-nd_primary_blue-600/);
 
     //1st Merchant button - unselected
     await expect(merchantOneName).toBeVisible();
-    await expect(merchantOneName).toHaveClass(/border-gray-200/);
-    await expect(merchantOneName).toHaveClass(/text-gray-600/);
+    await expect(merchantOneName).toHaveClass(/border-nd_gray-200/);
+    await expect(merchantOneName).toHaveClass(/text-nd_gray-600/);
 
     //2nd Merchant button - selected
     await expect(merchantTwoName).toBeVisible();
-    await expect(merchantTwoName).toHaveClass(/border-blue-600/);
-    await expect(merchantTwoName).toHaveClass(/text-blue-600/);
+    await expect(merchantTwoName).toHaveClass(/border-nd_primary_blue-600/);
+    await expect(merchantTwoName).toHaveClass(/text-nd_primary_blue-600/);
 
-    //1st Profile button
+    // merchantTwo's most-recently-created profile ("new-test-profile") is
+    // auto-selected when switching to that merchant, not its "default" one.
     await expect(merchantOneProfileName).toBeVisible();
-    await expect(merchantOneProfileName).toHaveClass(/border-gray-200/);
-    await expect(merchantOneProfileName).toHaveClass(/text-gray-600/);
+    await expect(merchantOneProfileName).toHaveClass(/border-nd_gray-200/);
+    await expect(merchantOneProfileName).toHaveClass(/text-nd_gray-600/);
 
-    //2nd Profile button
     await expect(merchantTwoProfileTwoName).toBeVisible();
-    await expect(merchantTwoProfileTwoName).toHaveClass(/border-blue-600/);
-    await expect(merchantTwoProfileTwoName).toHaveClass(/text-blue-600/);
+    await expect(merchantTwoProfileTwoName).toHaveClass(/border-nd_primary_blue-600/);
+    await expect(merchantTwoProfileTwoName).toHaveClass(/text-nd_primary_blue-600/);
 
-    //Switch profile
+    //Switch profile to "default"
     await merchantOneProfileName.click();
 
     //Organization button
     await expect(orgName).toBeVisible();
-    await expect(orgName).toHaveClass(/border-blue-600/);
-    await expect(orgName).toHaveClass(/text-blue-600/);
+    await expect(orgName).toHaveClass(/border-nd_primary_blue-600/);
+    await expect(orgName).toHaveClass(/text-nd_primary_blue-600/);
 
     //1st Merchant button - unselected
     await expect(merchantOneName).toBeVisible();
-    await expect(merchantOneName).toHaveClass(/border-gray-200/);
-    await expect(merchantOneName).toHaveClass(/text-gray-600/);
+    await expect(merchantOneName).toHaveClass(/border-nd_gray-200/);
+    await expect(merchantOneName).toHaveClass(/text-nd_gray-600/);
 
     //2nd Merchant button - selected
     await expect(merchantTwoName).toBeVisible();
-    await expect(merchantTwoName).toHaveClass(/border-blue-600/);
-    await expect(merchantTwoName).toHaveClass(/text-blue-600/);
+    await expect(merchantTwoName).toHaveClass(/border-nd_primary_blue-600/);
+    await expect(merchantTwoName).toHaveClass(/text-nd_primary_blue-600/);
 
-    //1st Profile button
+    // "default" is now selected
     await expect(merchantOneProfileName).toBeVisible();
-    await expect(merchantOneProfileName).toHaveClass(/border-blue-600/);
-    await expect(merchantOneProfileName).toHaveClass(/text-blue-600/);
+    await expect(merchantOneProfileName).toHaveClass(/border-nd_primary_blue-600/);
+    await expect(merchantOneProfileName).toHaveClass(/text-nd_primary_blue-600/);
 
-    //2nd Profile button
+    // "new-test-profile" is now unselected
     await expect(merchantTwoProfileTwoName).toBeVisible();
-    await expect(merchantTwoProfileTwoName).toHaveClass(/border-gray-200/);
-    await expect(merchantTwoProfileTwoName).toHaveClass(/text-gray-600/);
+    await expect(merchantTwoProfileTwoName).toHaveClass(/border-nd_gray-200/);
+    await expect(merchantTwoProfileTwoName).toHaveClass(/text-nd_gray-600/);
   });
 
   test("should display loading state while switching entities", async ({
@@ -909,25 +1027,36 @@ test.describe("Organization Chart Tree", () => {
     const userInfo = JSON.parse(rawUserInfo || "{}");
     const token: string = userInfo.token || "";
 
-    const newMerchantName = generateDateTimeString();
+    const newMerchantName = generateMerchantName();
     const newMerchant = await createMerchantAPI(
       token,
       newMerchantName,
       context.request,
     );
     const newMerchantId = newMerchant.merchant_id;
+    const newMerchantToken = await switchMerchantAPI(
+      token,
+      newMerchantId,
+      context.request,
+    );
 
     await createBusinessProfileAPI(
       newMerchantId,
       "new-test-profile",
       context.request,
+      undefined,
+      newMerchantToken,
     );
 
     await orgChart.visit();
 
     const merchantTwoName = page.getByText(newMerchantName + "Orchestrator");
-    const merchantOneProfileName = page.getByRole('button', { name: 'default' });
-    const merchantTwoProfileTwoName = page.getByRole('button', { name: 'new-test-profile' });
+    const merchantOneProfileName = page.getByRole("button", {
+      name: "default",
+    });
+    const merchantTwoProfileTwoName = page.getByRole("button", {
+      name: "new-test-profile",
+    });
 
     await merchantTwoName.click();
     await expect(usersPage.merchantSwitchedSuccessText).toBeVisible();

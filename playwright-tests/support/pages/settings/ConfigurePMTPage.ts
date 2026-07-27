@@ -86,11 +86,11 @@ export class ConfigurePMTPage {
 
   // ---- Configure PMT modal (per-row "Configure PMTs" dialog) ----
   get configureModalHeading(): Locator {
-    return this.page.getByText('DEBIT', { exact: true });
+    return this.page.getByText("DEBIT", { exact: true });
   }
 
   get configureModalSubHeading(): Locator {
-    return this.page.locator('#table').getByText('Configure PMTs');
+    return this.page.locator("#table").getByText("Configure PMTs");
   }
 
   get countriesLabel(): Locator {
@@ -98,7 +98,7 @@ export class ConfigurePMTPage {
   }
 
   get countriesDropdown(): Locator {
-    return this.page.getByRole('button', { name: 'Select Value' }).first();
+    return this.page.getByRole("button", { name: "Select Value" }).first();
   }
 
   get currenciesLabel(): Locator {
@@ -106,11 +106,11 @@ export class ConfigurePMTPage {
   }
 
   get currenciesDropdown(): Locator {
-    return this.page.getByRole('button', { name: 'Select Value' }).nth(1);
+    return this.page.getByRole("button", { name: "Select Value" }).nth(1);
   }
 
   get minimumAmountInputHeading(): Locator {
-    return this.page.getByText('Minimum Amount *');
+    return this.page.getByText("Minimum Amount *");
   }
 
   get minimumAmountInput(): Locator {
@@ -118,7 +118,7 @@ export class ConfigurePMTPage {
   }
 
   get maximumAmountInputHeading(): Locator {
-    return this.page.getByText('Maximum Amount *');
+    return this.page.getByText("Maximum Amount *");
   }
 
   get maximumAmountInput(): Locator {
@@ -131,7 +131,9 @@ export class ConfigurePMTPage {
 
   // The Modal renders its dismiss control as a cross icon in the header.
   get modalCloseButton(): Locator {
-    return this.page.getByText('DEBITConfigure PMTs').locator('[data-icon="modal-close-icon"]');
+    return this.page
+      .getByText("DEBITConfigure PMTs")
+      .locator('[data-icon="modal-close-icon"]');
   }
 
   // ---- Feature-flag fallback (rendered when configure_pmts is disabled) ----

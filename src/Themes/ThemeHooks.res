@@ -3,7 +3,7 @@ let useProcessAssets = () => {
   open ThemeTypes
   open LogicUtils
 
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
   let getURL = APIUtils.useGetURL()
   let uploadAsset = async (asset, fileName, themeId, assetUploadUrl) =>

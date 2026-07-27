@@ -57,6 +57,7 @@ module BusinessProfileInp = {
           ~placeholder="",
         )
       )}
+      fieldWrapperClass="p-0"
     />
   }
 }
@@ -87,8 +88,7 @@ let make = (
     None
   }, [])
 
-  <div
-    className={` mb-6 p-4 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850`}>
+  <div className="w-full">
     {if formState === ViewConfig {
       <div>
         <div className="flex flex-row justify-between gap-4">
@@ -153,9 +153,9 @@ let make = (
                 routingType
               />
             </RenderIf>
-            <FieldRenderer field=configurationNameInput />
+            <FieldRenderer field=configurationNameInput fieldWrapperClass="p-0" />
             <RenderIf condition=showDescription>
-              <FieldRenderer field=descriptionInput />
+              <FieldRenderer field=descriptionInput fieldWrapperClass="p-0 flex flex-col" />
             </RenderIf>
           </div>
         </div>

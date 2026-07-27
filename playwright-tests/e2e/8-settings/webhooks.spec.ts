@@ -88,7 +88,10 @@ async function mockWebhookAttempts(page: Page, attempts = WEBHOOK_ATTEMPTS) {
 // key when searching, so only the matching events are returned.
 async function mockWebhookSearch(page: Page, events = WEBHOOK_EVENTS) {
   await page.route("**/events/profile/list", async (route) => {
-    const body = (route.request().postDataJSON() ?? {}) as Record<string, unknown>;
+    const body = (route.request().postDataJSON() ?? {}) as Record<
+      string,
+      unknown
+    >;
     let filtered = events.events;
     if (typeof body.object_id === "string") {
       filtered = filtered.filter((e) => e.object_id === body.object_id);
@@ -143,9 +146,12 @@ test.describe("Webhooks events listing and detail", () => {
     await openWebhooks(page);
     const webhooks = new Webhooks(page);
 
-    await expect(webhooks.cellByText("pay_success_1")).toBeVisible({ timeout: 10000 });
-    await expect(webhooks.cellByText("ref_failed_1")).toBeVisible({ timeout: 10000 });
-
+    await expect(webhooks.cellByText("pay_success_1")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(webhooks.cellByText("ref_failed_1")).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test("should render the Event ID, Object ID, Delivery Status and Created columns", async ({
@@ -155,13 +161,27 @@ test.describe("Webhooks events listing and detail", () => {
     await openWebhooks(page);
     const webhooks = new Webhooks(page);
 
-    await expect(webhooks.columnHeader("Event ID")).toBeVisible({ timeout: 10000 });
-    await expect(webhooks.columnHeader("Object ID")).toBeVisible({ timeout: 10000 });
-    await expect(webhooks.columnHeader("Profile ID")).toBeVisible({ timeout: 10000 });
-    await expect(webhooks.columnHeader("Event Class")).toBeVisible({ timeout: 10000 });
-    await expect(webhooks.columnHeader("Event Type")).toBeVisible({ timeout: 10000 });
-    await expect(webhooks.columnHeader("Delivery Status")).toBeVisible({ timeout: 10000 });
-    await expect(webhooks.columnHeader("Created")).toBeVisible({ timeout: 10000 });
+    await expect(webhooks.columnHeader("Event ID")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(webhooks.columnHeader("Object ID")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(webhooks.columnHeader("Profile ID")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(webhooks.columnHeader("Event Class")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(webhooks.columnHeader("Event Type")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(webhooks.columnHeader("Delivery Status")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(webhooks.columnHeader("Created")).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test("should surface successful and failed delivery-status indicators", async ({
@@ -184,11 +204,12 @@ test.describe("Webhooks events listing and detail", () => {
     const webhooks = new Webhooks(page);
 
     await webhooks.cellByText("payment_succeeded").click();
-    await expect(page).toHaveURL(/dashboard\/webhooks\/evt_success_1/, { timeout: 10000 });
+    await expect(page).toHaveURL(/dashboard\/webhooks\/evt_success_1/, {
+      timeout: 10000,
+    });
     await expect(webhooks.breadcrumb).toBeVisible({ timeout: 10000 });
     await expect(webhooks.requestTab).toBeVisible({ timeout: 10000 });
     await expect(webhooks.responseTab).toBeVisible({ timeout: 10000 });
-
   });
 
   test("should display the request and  response status code and body in the detail view", async ({
@@ -200,17 +221,26 @@ test.describe("Webhooks events listing and detail", () => {
     const webhooks = new Webhooks(page);
 
     await webhooks.cellByText("payment_succeeded").click();
-    await expect(page).toHaveURL(/dashboard\/webhooks\/evt_success_1/, { timeout: 10000 });
+    await expect(page).toHaveURL(/dashboard\/webhooks\/evt_success_1/, {
+      timeout: 10000,
+    });
 
     await expect(webhooks.webhookDeliveryLabel).toBeVisible({ timeout: 10000 });
     await expect(webhooks.retryWebhookButton).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText('Headerscontent-type: application/jsonBody1{ 2 "event_type": "payment_succeeded", 3 "object_id": "pay_success_1" 4}')).toBeVisible();
+    await expect(
+      page.getByText(
+        'Headerscontent-type: application/jsonBody1{ 2 "event_type": "payment_succeeded", 3 "object_id": "pay_success_1" 4}',
+      ),
+    ).toBeVisible();
 
     await webhooks.responseTab.click();
     await expect(webhooks.statusCodeLabel).toBeVisible({ timeout: 10000 });
     await expect(webhooks.cellByText("200")).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText('Status Code: 200Headerscontent-type: application/jsonBody1{ 2 "status": "received" 3}')).toBeVisible();
-
+    await expect(
+      page.getByText(
+        'Status Code: 200Headerscontent-type: application/jsonBody1{ 2 "status": "received" 3}',
+      ),
+    ).toBeVisible();
   });
 
   test("should render the attempts table columns and row cells in the detail view", async ({
@@ -222,7 +252,9 @@ test.describe("Webhooks events listing and detail", () => {
     const webhooks = new Webhooks(page);
 
     await webhooks.cellByText("payment_succeeded").click();
-    await expect(page).toHaveURL(/dashboard\/webhooks\/evt_success_1/, { timeout: 10000 });
+    await expect(page).toHaveURL(/dashboard\/webhooks\/evt_success_1/, {
+      timeout: 10000,
+    });
 
     // Breadcrumb: Webhooks / Webhooks home
     await expect(webhooks.breadcrumbRoot).toBeVisible({ timeout: 10000 });
@@ -230,14 +262,22 @@ test.describe("Webhooks events listing and detail", () => {
 
     // Attempts table columns: S.No, Delivery Status, Delivery Attempt, Created
     await expect(webhooks.columnHeader("S.No")).toBeVisible({ timeout: 10000 });
-    await expect(webhooks.columnHeader("Delivery Status")).toBeVisible({ timeout: 10000 });
-    await expect(webhooks.columnHeader("Delivery Attempt")).toBeVisible({ timeout: 10000 });
-    await expect(webhooks.columnHeader("Created")).toBeVisible({ timeout: 10000 });
+    await expect(webhooks.columnHeader("Delivery Status")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(webhooks.columnHeader("Delivery Attempt")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(webhooks.columnHeader("Created")).toBeVisible({
+      timeout: 10000,
+    });
 
     // Row cells: 1, True, initial_attempt, May 29, 2026 03:30:00 PM IST
     await expect(webhooks.detailTableCell(1, 1)).toContainText("1");
     await expect(webhooks.detailTableCell(1, 2)).toContainText("True");
-    await expect(webhooks.detailTableCell(1, 3)).toContainText("initial_attempt");
+    await expect(webhooks.detailTableCell(1, 3)).toContainText(
+      "initial_attempt",
+    );
   });
 
   test("should filter the events list when searching by Object ID and Event ID", async ({
@@ -248,13 +288,19 @@ test.describe("Webhooks events listing and detail", () => {
     const webhooks = new Webhooks(page);
 
     // Both events are listed before any search is applied
-    await expect(webhooks.cellByText("pay_success_1")).toBeVisible({ timeout: 10000 });
-    await expect(webhooks.cellByText("ref_failed_1")).toBeVisible({ timeout: 10000 });
+    await expect(webhooks.cellByText("pay_success_1")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(webhooks.cellByText("ref_failed_1")).toBeVisible({
+      timeout: 10000,
+    });
 
     // Search by Object ID (the default search type) narrows the list to the match
     await webhooks.searchByIdInput.fill("pay_success_1");
     await webhooks.searchByIdInput.press("Enter");
-    await expect(webhooks.cellByText("pay_success_1")).toBeVisible({ timeout: 10000 });
+    await expect(webhooks.cellByText("pay_success_1")).toBeVisible({
+      timeout: 10000,
+    });
     await expect(webhooks.cellByText("ref_failed_1")).toBeHidden();
 
     // Switch the search type to Event ID and search the other event
@@ -262,7 +308,9 @@ test.describe("Webhooks events listing and detail", () => {
     await webhooks.eventIdOption.click();
     await webhooks.searchByIdInput.fill("evt_failed_1");
     await webhooks.searchByIdInput.press("Enter");
-    await expect(webhooks.cellByText("ref_failed_1")).toBeVisible({ timeout: 10000 });
+    await expect(webhooks.cellByText("ref_failed_1")).toBeVisible({
+      timeout: 10000,
+    });
     await expect(webhooks.cellByText("pay_success_1")).toBeHidden();
   });
 
@@ -309,25 +357,39 @@ test.describe("Webhooks events listing and detail", () => {
     const webhooks = new Webhooks(page);
 
     await webhooks.cellByText("payment_succeeded").click();
-    await expect(page).toHaveURL(/dashboard\/webhooks\/evt_success_1/, { timeout: 10000 });
+    await expect(page).toHaveURL(/dashboard\/webhooks\/evt_success_1/, {
+      timeout: 10000,
+    });
 
     // Only the Initial attempt is present before retrying
-    await expect(webhooks.detailTableCell(1, 3)).toContainText("initial_attempt");
-    await expect(webhooks.deliveryAttemptLabel("Initial Attempt")).toBeVisible({ timeout: 10000 });
+    await expect(webhooks.detailTableCell(1, 3)).toContainText(
+      "initial_attempt",
+    );
+    await expect(webhooks.deliveryAttemptLabel("Initial Attempt")).toBeVisible({
+      timeout: 10000,
+    });
     await expect(webhooks.cellByText("manual_retry")).toBeHidden();
 
     // Trigger a manual retry
     await webhooks.retryWebhookButton.click();
 
     // A new Manual Retry attempt is added while the first row stays the Initial attempt
-    await expect(webhooks.detailTableCell(2, 3)).toContainText("manual_retry", { timeout: 10000 });
-    await expect(webhooks.detailTableCell(1, 3)).toContainText("initial_attempt");
+    await expect(webhooks.detailTableCell(2, 3)).toContainText("manual_retry", {
+      timeout: 10000,
+    });
+    await expect(webhooks.detailTableCell(1, 3)).toContainText(
+      "initial_attempt",
+    );
 
     // The new row surfaces the "Manual Retry" delivery label, the first the "Initial Attempt"
     await webhooks.cellByText("manual_retry").click();
-    await expect(webhooks.deliveryAttemptLabel("Manual Retry")).toBeVisible({ timeout: 10000 });
+    await expect(webhooks.deliveryAttemptLabel("Manual Retry")).toBeVisible({
+      timeout: 10000,
+    });
     await webhooks.cellByText("initial_attempt").click();
-    await expect(webhooks.deliveryAttemptLabel("Initial Attempt")).toBeVisible({ timeout: 10000 });
+    await expect(webhooks.deliveryAttemptLabel("Initial Attempt")).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test("should paginate the events list across pages", async ({ page }) => {
@@ -341,7 +403,10 @@ test.describe("Webhooks events listing and detail", () => {
     }));
 
     await page.route("**/events/profile/list", async (route) => {
-      const body = (route.request().postDataJSON() ?? {}) as Record<string, unknown>;
+      const body = (route.request().postDataJSON() ?? {}) as Record<
+        string,
+        unknown
+      >;
       const offset = typeof body.offset === "number" ? body.offset : 0;
       const limit = typeof body.limit === "number" ? body.limit : 50;
       const slice = allEvents.slice(offset, offset + limit);
@@ -356,14 +421,20 @@ test.describe("Webhooks events listing and detail", () => {
     const webhooks = new Webhooks(page);
 
     // Page 1 shows the first 20 events and the paginator with a page-2 control
-    await expect(webhooks.cellByText("pay_event_0")).toBeVisible({ timeout: 10000 });
+    await expect(webhooks.cellByText("pay_event_0")).toBeVisible({
+      timeout: 10000,
+    });
     await expect(webhooks.cellByText("pay_event_20")).toBeHidden();
     await expect(webhooks.paginationInfo).toBeVisible({ timeout: 10000 });
-    await expect(webhooks.paginationPageButton(2)).toBeVisible({ timeout: 10000 });
+    await expect(webhooks.paginationPageButton(2)).toBeVisible({
+      timeout: 10000,
+    });
 
     // Moving to page 2 loads the remaining events
     await webhooks.paginationPageButton(2).click();
-    await expect(webhooks.cellByText("pay_event_20")).toBeVisible({ timeout: 10000 });
+    await expect(webhooks.cellByText("pay_event_20")).toBeVisible({
+      timeout: 10000,
+    });
     await expect(webhooks.cellByText("pay_event_0")).toBeHidden();
   });
 });

@@ -12,7 +12,7 @@ let make = () => {
 
   let getURL = useGetURL()
   let lineage = ThemeCreateUtils.createLineage(~orgId, ~merchantId, ~profileId)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (showUploadModal, setShowUploadModal) = React.useState(_ => false)
@@ -53,36 +53,53 @@ let make = () => {
       />
     </div>
 
+  let infoBanner =
+    <AlertV2Binding
+      alertType=Warning
+      slot={{slot: <Icon name="nd-info-circle" size=16 className="text-nd_gray-500" />}}
+      description="Add your logo, favicon and email logo after clicking apply theme or update them later from theme settings."
+    />
+
   let tabs: array<Tabs.tab> = [
     {
       title: "Dashboard Config",
       renderContent: () =>
-        <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
-          <div className="max-h-750-px overflow-y-auto pr-2">
-            <ThemeSettings />
-          </div>
-          <div className="flex flex-col gap-8 w-full lg:col-span-2">
-            <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
-            <div className="border h-3/4 rounded-xl px-10 flex items-center relative">
-              <ThemeMockDashboard />
+        <div className="flex flex-col gap-4 mt-4">
+          {infoBanner}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div
+              className="self-start flex flex-col gap-4 h-62-vh lg:h-75-vh overflow-y-scroll theme-config-scrollbar p-4">
+              <ThemeHelper.DashboardConfigScrollbarStyle />
+              <ThemeSettings />
             </div>
-            {submitButton}
+            <div className="flex flex-col gap-8 w-full lg:col-span-2">
+              <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
+              <div className="border h-48-vh md:h-55-vh rounded-xl p-8 flex items-center relative">
+                <ThemeMockDashboard />
+              </div>
+              {submitButton}
+            </div>
           </div>
         </div>,
     },
     {
       title: "Email Config",
       renderContent: () =>
-        <div className="grid grid-cols-1 mt-4 lg:grid-cols-3 gap-8">
-          <div className="flex flex-col gap-8 p-2 ">
-            <ThemeSettingsHelper.EmailSettings />
-          </div>
-          <div className="flex flex-col gap-8 w-full lg:col-span-2">
-            <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
-            <div className="border h-2/3 rounded-xl p-8 flex items-center relative">
-              <ThemeMockEmail />
+        <div className="flex flex-col gap-4 mt-4">
+          {infoBanner}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div
+              className="self-start flex flex-col gap-4 h-75-vh lg:h-80-vh overflow-y-scroll theme-config-scrollbar p-4">
+              <ThemeHelper.DashboardConfigScrollbarStyle />
+              <ThemeSettingsHelper.EmailSettings />
             </div>
-            {submitButton}
+            <div className="flex flex-col gap-8 w-full lg:col-span-2">
+              <div className={`${body.lg.semibold} mt-2`}> {React.string("Preview")} </div>
+              <div className="border h-48-vh md:h-55-vh rounded-xl p-8 flex items-center relative">
+                <ThemeMockEmail />
+              </div>
+              {submitButton}
+            </div>
           </div>
         </div>,
     },
@@ -90,14 +107,9 @@ let make = () => {
 
   <PageLoaderWrapper screenState>
     <Form onSubmit initialValues>
-      <div className="flex flex-col h-screen gap-8">
-        <div className="flex flex-col flex-1 h-full">
-          <PageUtils.PageHeading
-            title="Theme Configuration"
-            customTitleStyle="text-nd_gray-800"
-            subTitle="Personalize your dashboard look with a live preview."
-            customSubTitleStyle={`${body.lg.medium} text-nd_gray-400 !opacity-100`}
-          />
+      <div className="flex flex-col gap-8">
+        <div className="flex flex-col flex-1">
+          <PageUtils.PageHeading title="Theme Configuration" customTitleStyle="text-nd_gray-800" />
           <Tabs tabs />
         </div>
       </div>

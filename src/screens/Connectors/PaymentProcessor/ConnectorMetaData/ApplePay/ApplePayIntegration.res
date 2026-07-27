@@ -193,6 +193,12 @@ module Landing = {
           <ApplePayPreDecryptLandingCard setApplePayIntegrationType appleIntegrationType />
         </>
 
+      | Processors(IMERCHANTSOLUTIONS) =>
+        <>
+          <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
+          <ApplePayPreDecryptLandingCard setApplePayIntegrationType appleIntegrationType />
+        </>
+
       | _ => <ApplePayManualLandingCard setApplePayIntegrationType appleIntegrationType />
       }}
       <div className={`flex gap-2 justify-end`}>

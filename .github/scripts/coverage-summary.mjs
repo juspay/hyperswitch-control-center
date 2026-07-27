@@ -18,7 +18,9 @@ try {
 } catch {
   console.log(HEADING);
   console.log("");
-  console.log("⚠️ Merged coverage summary not generated (no coverage data from shards).");
+  console.log(
+    "⚠️ Merged coverage summary not generated (no coverage data from shards).",
+  );
   process.exit(0);
 }
 
@@ -48,7 +50,11 @@ for (const [name, m] of rows) {
 }
 
 const linesPct = typeof total.lines.pct === "number" ? total.lines.pct : 0;
-out.push("", `> ${status(linesPct)} Overall line coverage: **${linesPct.toFixed(2)}%**`, "");
+out.push(
+  "",
+  `> ${status(linesPct)} Overall line coverage: **${linesPct.toFixed(2)}%**`,
+  "",
+);
 out.push(FOOTER);
 
 console.log(out.join("\n"));

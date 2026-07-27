@@ -4,7 +4,7 @@ let make = (~connectorInfo) => {
   open LogicUtils
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let connectorInfodict = ConnectorInterface.mapDictToTypedConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
@@ -69,7 +69,7 @@ let make = (~connectorInfo) => {
         <div className="flex flex-col">
           <ConnectorHelperV2.PreviewCreds connectorInfo=connectorInfodict connectorAccountFields />
         </div>
-        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
+        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.connector_name />
       </div>
     </div>
     <ACLButton

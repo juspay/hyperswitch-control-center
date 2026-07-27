@@ -23,7 +23,7 @@ let getHeading = colType => {
   switch colType {
   | Name => Table.makeHeaderInfo(~key="connector_name", ~title="Processor")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status")
-  | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled")
+  | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Status")
   | Actions => Table.makeHeaderInfo(~key="actions", ~title="")
   | MerchantConnectorId =>
     Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector ID")

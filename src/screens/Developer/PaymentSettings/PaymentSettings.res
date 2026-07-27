@@ -1,7 +1,7 @@
 module InfoViewForWebhooks = {
   @react.component
   let make = (~heading, ~subHeading, ~isCopy=false) => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let onCopyClick = ev => {
       ev->ReactEvent.Mouse.stopPropagation
       Clipboard.writeText(subHeading)
@@ -241,7 +241,7 @@ module WebHookSection = {
     open MerchantAccountUtils
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let (allowEdit, setAllowEdit) = React.useState(_ => false)
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
     let profileId = businessProfileDetails.profile_id
@@ -402,7 +402,7 @@ module PaymentLinkDomain = {
 
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let (allowEdit, setAllowEdit) = React.useState(_ => false)
     let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
@@ -839,7 +839,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false) => {
   open Typography
   let getURL = useGetURL()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let updateDetails = useUpdateMethod()
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom

@@ -1,6 +1,3 @@
-open ReactFinalForm
-open LogicUtils
-
 module BlendDatePicker = {
   @react.component
   let make = (
@@ -9,24 +6,49 @@ module BlendDatePicker = {
     ~disablePastDates: bool,
     ~disableFutureDates: bool,
     ~format: string,
+    ~showTime: bool,
+    ~currentDateHourFormat: string,
+    ~currentDateMinuteFormat: string,
+    ~currentDateSecondsFormat: string,
   ) => {
+    open ReactFinalForm
+    open LogicUtils
+    open Date
+    open TimeZoneHook
+    let customTimezoneToISOString = useCustomTimeZoneToIsoString()
+
     let blendValue =
       input.value
       ->getStringFromJson("")
       ->getNonEmptyString
       ->Option.map(str => {
-        let date = str->Date.fromString
+        let date = str->fromString
         ({startDate: date, endDate: None}: DateRangePickerBinding.dateRange)
       })
 
     let handleChange = React.useCallback((range: DateRangePickerBinding.dateRange) => {
-      input.onChange(
-        DateRangePickerAdapter.formatIsoToFormat(
-          range.startDate,
-          format,
-        )->Identity.stringToFormReactEvent,
-      )
-    }, (input.onChange, format))
+      let date = range.startDate
+      let year = date->getFullYear->Int.toString
+      let month = (date->getMonth + 1)->Int.toString
+      let day = date->getDate->Int.toString
+      let (hours, minutes, seconds) = showTime
+        ? (
+            date->getHours->Int.toString,
+            date->getMinutes->Int.toString,
+            date->getSeconds->Int.toString,
+          )
+        : (currentDateHourFormat, currentDateMinuteFormat, currentDateSecondsFormat)
+      let isoString = customTimezoneToISOString(year, month, day, hours, minutes, seconds)
+      input.onChange(isoString->formattedISOString(format)->Identity.stringToFormReactEvent)
+    }, (
+      input.onChange,
+      format,
+      showTime,
+      customTimezoneToISOString,
+      currentDateHourFormat,
+      currentDateMinuteFormat,
+      currentDateSecondsFormat,
+    ))
 
     <DateRangePickerBinding
       value=?blendValue
@@ -37,6 +59,7 @@ module BlendDatePicker = {
       isSingleDatePicker=true
       allowSingleDateSelection=true
       showPresets=false
+      showDateTimePicker=showTime
     />
   }
 }
@@ -67,7 +90,17 @@ let make = (
 
   <>
     <RenderIf condition={isBlendEnabled}>
-      <BlendDatePicker input isDisabled disablePastDates disableFutureDates format />
+      <BlendDatePicker
+        input
+        isDisabled
+        disablePastDates
+        disableFutureDates
+        format
+        showTime
+        currentDateHourFormat
+        currentDateMinuteFormat
+        currentDateSecondsFormat
+      />
     </RenderIf>
     <RenderIf condition={!isBlendEnabled}>
       <DatePicker

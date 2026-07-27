@@ -31,7 +31,7 @@ module CustomAmountBetweenField = {
   open AmountFilterUtils
   @react.component
   let make = () => {
-    <div className="flex gap-1 items-center justify-center mx-1 w-10.25-rem">
+    <div className="flex gap-1 items-center justify-center mx-1 w-13.5-rem">
       <FormRenderer.FieldRenderer
         labelClass="font-semibold !text-black"
         field={FormRenderer.makeFieldInfo(~label="", ~name="start_amount", ~customInput=(

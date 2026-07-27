@@ -12,7 +12,7 @@ module ActiveRulePreview = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showPopUp = PopUpState.useShowPopUp()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
@@ -156,7 +156,7 @@ let make = () => {
   let (pageView, setPageView) = React.useState(_ => LANDING)
   let showPopUp = PopUpState.useShowPopUp()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let getTimeInCustomTimeZone = TimeZoneHook.useGetTimeInCustomTimeZone()
 

@@ -4,7 +4,7 @@ let make = (~showOnBoarding) => {
   open OMPSwitchTypes
   open ReconOnboardingUtils
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let url = RescriptReactRouter.useUrl()
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)

@@ -10,6 +10,11 @@ REGISTRY="docker.juspay.io"
 IMAGE="${REGISTRY}/${IMAGE_REPO}"
 MAX_TRIES=5
 
+# Optional override: pin a known-good tag and skip auto-discovery.
+# Useful when all of the most-recent tags fail to boot but an older tag is known to work.
+#   HYPERSWITCH_TAG=2026.06.16.0 ./start_hyperswitch.sh
+OVERRIDE_TAG="${HYPERSWITCH_TAG:-}"
+
 # ---------------------------------------------------------------------------
 # Preflight: docker engine + compose
 # ---------------------------------------------------------------------------
@@ -58,21 +63,17 @@ fi
 git fetch --tags --quiet
 
 # ---------------------------------------------------------------------------
-# Try the most recent tags until one boots successfully.
+# Boot a single tag. Returns 0 on success, non-zero otherwise.
 # ---------------------------------------------------------------------------
 
-attempt=0
-
-for tag in $(git tag --sort=-creatordate); do
-  [ "$attempt" -ge "$MAX_TRIES" ] && break
-
+try_tag() {
+  tag="$1"
   echo "==== Trying tag: $tag ===="
 
   # Skip tags that have no published router image.
   if ! docker manifest inspect "$IMAGE:$tag" >/dev/null 2>&1; then
     echo "Docker image not available for $tag"
-    attempt=$((attempt+1))
-    continue
+    return 1
   fi
 
   echo "Checking out tag $tag..."
@@ -93,6 +94,14 @@ for tag in $(git tag --sort=-creatordate); do
   sed 's|apk add --no-cache curl jq yq && sh /seed_superposition.sh|apk add --no-cache curl jq yq bash \&\& bash /seed_superposition.sh|g' \
     docker-compose.yml > docker-compose.tmp && mv docker-compose.tmp docker-compose.yml
 
+  # The upstream migration runner installs `just` by resolving its latest release
+  # through the unauthenticated GitHub API. That request can be rate-limited (403),
+  # especially from local Docker networks. `just migrate` only delegates to the
+  # Diesel CLI here, so run the equivalent command directly.
+  sed -e '/      if ! command -v just >\/dev\/null 2>\&1; then/,/      fi \&\&/d' \
+      -e 's|      just migrate"|      diesel migration run --migration-dir /app/migrations --config-file /app/diesel.toml"|' \
+    docker-compose.yml > docker-compose.tmp && mv docker-compose.tmp docker-compose.yml
+
   echo "Starting docker compose..."
 
   # Start the required services in detached mode.
@@ -108,17 +117,44 @@ for tag in $(git tag --sort=-creatordate); do
     docker rm -f hyperswitch-superposition-1 || true
     docker rm -f hyperswitch-init-1 || true
     docker network rm -f hyperswitch_router_net || true
-    attempt=$((attempt+1))
-    continue
+    return 1
   }
 
   if docker ps --format '{{.Names}}' | grep -q hyperswitch-server; then
       echo "SUCCESS: Working version -> $tag"
-      exit 0
-  else
-      echo "FAILED: $tag"
-      docker compose logs
-      docker compose down
+      return 0
+  fi
+
+  echo "FAILED: $tag"
+  docker compose logs
+  docker compose down
+  return 1
+}
+
+# ---------------------------------------------------------------------------
+# If HYPERSWITCH_TAG is set, boot exactly that tag and skip auto-discovery.
+# ---------------------------------------------------------------------------
+
+if [ -n "$OVERRIDE_TAG" ]; then
+  echo "HYPERSWITCH_TAG override set -> using tag $OVERRIDE_TAG (skipping auto-discovery)"
+  if try_tag "$OVERRIDE_TAG"; then
+    exit 0
+  fi
+  echo "Override tag $OVERRIDE_TAG failed to boot"
+  exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# Try the most recent tags until one boots successfully.
+# ---------------------------------------------------------------------------
+
+attempt=0
+
+for tag in $(git tag --sort=-creatordate); do
+  [ "$attempt" -ge "$MAX_TRIES" ] && break
+
+  if try_tag "$tag"; then
+    exit 0
   fi
 
   attempt=$((attempt+1))

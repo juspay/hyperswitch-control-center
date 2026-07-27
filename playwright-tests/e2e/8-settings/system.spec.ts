@@ -26,7 +26,9 @@ test.describe("System", () => {
     await expect(systemPage.goToHomeButton).toBeVisible();
   });
 
-  test("should navigate to home from the unauthorized page", async ({ page }) => {
+  test("should navigate to home from the unauthorized page", async ({
+    page,
+  }) => {
     await systemPage.navigateToUnauthorized();
     await expect(systemPage.goToHomeButton).toBeVisible();
     await systemPage.clickGoToHome();

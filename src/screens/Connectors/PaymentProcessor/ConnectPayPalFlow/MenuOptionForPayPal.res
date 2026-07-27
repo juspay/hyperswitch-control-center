@@ -13,7 +13,7 @@ let make = (
   open HeadlessUI
 
   let showPopUp = PopUpState.useShowPopUp()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let deleteTrackingDetails = PayPalFlowUtils.useDeleteTrackingDetails()
   let updateConnectorAccountDetails = PayPalFlowUtils.useDeleteConnectorAccountDetails()
   let setSetupAccountStatus = Recoil.useSetRecoilState(HyperswitchAtom.paypalAccountStatusAtom)

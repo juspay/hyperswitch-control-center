@@ -9,7 +9,7 @@ let make = (~currentStep: VerticalStepIndicatorTypes.step, ~setCurrentStep) => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let updateDetails = useUpdateMethod()
   let getURL = useGetURL()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   let getNextStep = (currentStep: VerticalStepIndicatorTypes.step): option<
     VerticalStepIndicatorTypes.step,

@@ -37,7 +37,6 @@ let make = () => {
 
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let {logoURL} = React.useContext(ThemeProvider.themeContext)
-  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
   let hyperSwitchAppSidebars = SidebarHooks.useGetSidebarValuesForCurrentActive()
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
@@ -59,9 +58,6 @@ let make = () => {
       setuserGroupACL(_ => None)
       setActiveProductValue(UnknownProduct)
       Window.connectorWasmInit()->ignore
-      if featureFlagDetails.paymentLinkThemeConfigurator {
-        Window.paymentLinkWasmInit()->ignore
-      }
       // Initiate all independent api requests concurrently for performance improvement
       let merchantDetailsFetch = fetchMerchantAccountDetails(~version)
       let merchantConfigFetch = fetchMerchantSpecificConfig()
@@ -153,6 +149,9 @@ let make = () => {
                           <RenderIf condition={isInternalUser}>
                             <SwitchMerchantForInternal />
                           </RenderIf>
+                          <RenderIf condition={featureFlagDetails.devLaunchSage}>
+                            <LaunchSageButton />
+                          </RenderIf>
                           <RenderIf
                             condition={featureFlagDetails.devAiChatBot &&
                             // TODO: Remove `MerchantDetailsView` permission in future
@@ -197,9 +196,7 @@ let make = () => {
                         }
                         <div className="flex md:gap-4 gap-2 items-center">
                           {logoElement}
-                          <RenderIf condition={!isCurrentMerchantPlatform}>
-                            <ProfileSwitch />
-                          </RenderIf>
+                          <ProfileSwitch />
                           <LiveMode />
                         </div>
                       }

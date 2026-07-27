@@ -25,9 +25,12 @@ export class OrganizationSettingsPage {
   // appears as the sidebar link, so the unique subtitle is the reliable
   // page-load marker.
   get pageHeading(): Locator {
-    return this.page.getByText("Manage organization configuration and settings", {
-      exact: true,
-    });
+    return this.page.getByText(
+      "Manage organization configuration and settings",
+      {
+        exact: true,
+      },
+    );
   }
 
   get organizationDetailsHeading(): Locator {
@@ -85,7 +88,10 @@ export class OrganizationSettingsPage {
   // "Create Platform" is a substring of the "Create Platform Organization" CTA,
   // so the modal's submit button needs an exact match.
   get createPlatformSubmitButton(): Locator {
-    return this.page.getByRole("button", { name: "Create Platform", exact: true });
+    return this.page.getByRole("button", {
+      name: "Create Platform",
+      exact: true,
+    });
   }
 
   get aboutPlatformHeading(): Locator {
@@ -103,11 +109,13 @@ export class OrganizationSettingsPage {
   }
 
   get convertToPlatformDescription(): Locator {
-    return this.page.getByText("To convert your existing organization to a platform organization, please contact your administrator. This action requires elevated permissions and cannot be performed directly.");
+    return this.page.getByText(
+      "To convert your existing organization to a platform organization, please contact your administrator. This action requires elevated permissions and cannot be performed directly.",
+    );
   }
 
   get contactUsText(): Locator {
-    return this.page.getByText('Contact us for further assistance on Slack');
+    return this.page.getByText("Contact us for further assistance on Slack");
   }
 
   // The platform-creation modal (unlike the inline edit) does render the
@@ -117,7 +125,7 @@ export class OrganizationSettingsPage {
   }
 
   toast(message: string): Locator {
-    return this.page.locator(`[data-toast="${message}"]`);
+    return this.page.locator(`[data-id="${message}"]`);
   }
 
   async visit(): Promise<void> {

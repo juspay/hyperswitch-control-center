@@ -8,6 +8,7 @@ import {
   mockRefundAnalyticsError,
   FROZEN_NOW,
 } from "../../support/refundAnalyticsMocks";
+import { PaymentOperations } from "../../support/pages/operations/PaymentOperations";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
@@ -60,7 +61,9 @@ test.describe("Analytics - Refunds", () => {
     await expect(analytics.processedAmountCard).toBeVisible({ timeout: 15000 });
 
     // KPI card values (mock-driven).
-    await expect(analytics.kpiCardValue("Refunds Success Rate")).toHaveText("92.50%");
+    await expect(analytics.kpiCardValue("Refunds Success Rate")).toHaveText(
+      "92.50%",
+    );
     await expect(analytics.kpiCardValue("Overall Refunds")).toHaveText("1.28k");
     await expect(analytics.kpiCardValue("Success Refunds")).toHaveText("1.18k");
 
@@ -69,10 +72,18 @@ test.describe("Analytics - Refunds", () => {
     await expect(analytics.summaryTable).toBeVisible({ timeout: 15000 });
 
     // Summary table — column headings (default Connector grouping).
-    await expect(analytics.summaryTableHeading("Connector")).toBeVisible({ timeout: 15000 });
-    await expect(analytics.summaryTableHeading("Success Rate")).toBeVisible({ timeout: 15000 });
-    await expect(analytics.summaryTableHeading("Refund Count")).toBeVisible({ timeout: 15000 });
-    await expect(analytics.summaryTableHeading("Refund Success Count")).toBeVisible({ timeout: 15000 });
+    await expect(analytics.summaryTableHeading("Connector")).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(analytics.summaryTableHeading("Success Rate")).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(analytics.summaryTableHeading("Refund Count")).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(
+      analytics.summaryTableHeading("Refund Success Count"),
+    ).toBeVisible({ timeout: 15000 });
 
     // Summary table — row 1 (Stripe).
     await expect(analytics.summaryTableCell(1, 1)).toHaveText("Stripe");
@@ -104,9 +115,9 @@ test.describe("Analytics - Refunds - Date Range Selector", () => {
   test("should list the predefined date range presets", async () => {
     await analytics.openDateRangeSelector();
 
-    await expect(analytics.predefinedDateOptions).toContainText("Last 7 Days");
-    await expect(analytics.predefinedDateOptions).toContainText("Last 30 Days");
-    await expect(analytics.predefinedDateOptions).toContainText("This Month");
+    await expect(analytics.predefinedDateOptions).toContainText("Last 7 days");
+    await expect(analytics.predefinedDateOptions).toContainText("Last 30 days");
+    await expect(analytics.predefinedDateOptions).toContainText("This month");
   });
 
   test("should update the date range when a predefined preset is selected", async () => {
@@ -141,25 +152,20 @@ test.describe("Analytics - Refunds - Dimension Filters", () => {
     await analytics.openAddFilters();
 
     for (const { label } of DIMENSION_FILTERS) {
-      await expect(analytics.dimensionOption(label)).toBeVisible({ timeout: 10000 });
+      await expect(analytics.dimensionOption(label)).toBeVisible({
+        timeout: 10000,
+      });
     }
   });
 
   test("should add and clear each dimension filter chip", async ({ page }) => {
+    const paymentOperations = new PaymentOperations(page);
     for (const { label, key } of DIMENSION_FILTERS) {
-      // Open the dropdown and select the dimension.
-      await analytics.openAddFilters();
-      await analytics.dimensionOption(label).click();
-
-      await expect(page.locator(".h-6 > div > svg").first()).not.toBeVisible();
-
-      // A "Select <label>" chip appears for the selected dimension.
-      await expect(analytics.selectedFilterChip(key)).toBeVisible({ timeout: 10000 });
-      await expect(analytics.selectedFilterChip(key)).toContainText(`Select ${label}`);
-
-      // Clear the chip before moving on to the next dimension.
-      await analytics.clearFilterChip(key);
-      await expect(analytics.selectedFilterChip(key)).toHaveCount(0);
+      await page.getByRole("button", { name: "Add Filters" }).click();
+      await expect(page.getByLabel("Add Filters").getByText(`${label}`, { exact: true })).toBeVisible();
+      await page.getByLabel("Add Filters").getByText(`${label}`, { exact: true }).click({ force: true });
+      await expect(paymentOperations.filterChipArea(label).first()).toContainText(`Select ${label}`);
+      await expect(page.getByLabel("Add Filters").getByText("Refund Status")).not.toBeVisible();
     }
   });
 });
@@ -176,14 +182,24 @@ test.describe("Analytics - Refunds - OMP Switch", () => {
 
     await analytics.openOmpViewSwitcher();
 
-    await expect(analytics.ompViewOption("Organization")).toBeVisible({ timeout: 10000 });
-    await expect(analytics.ompViewOption("Merchant")).toBeVisible({ timeout: 10000 });
-    await expect(analytics.ompViewOption("Profile")).toBeVisible({ timeout: 10000 });
+    await expect(analytics.ompViewOption("Organization")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(analytics.ompViewOption("Merchant")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(analytics.ompViewOption("Profile")).toBeVisible({
+      timeout: 10000,
+    });
   });
 
-  test("should switch the analytics entity when a view is selected", async ({ page }) => {
+  test("should switch the analytics entity when a view is selected", async ({
+    page,
+  }) => {
     await analytics.openOmpViewSwitcher();
-    await expect(analytics.ompViewOption("Profile")).toBeVisible({ timeout: 10000 });
+    await expect(analytics.ompViewOption("Profile")).toBeVisible({
+      timeout: 10000,
+    });
 
     await analytics.ompViewOption("Profile").click();
     await analytics.page.waitForLoadState("networkidle");
@@ -202,30 +218,44 @@ test.describe("Analytics - Refunds - Multi-Tab Navigation", () => {
   // The DynamicTabs render the first three dimensions (the non-removable
   // defaults) plus a "+" control to add custom dimensions.
   test("should render the default dimension tabs and the add-dimension control", async () => {
-    await expect(analytics.trendsTab("Connector")).toBeVisible({ timeout: 15000 });
-    await expect(analytics.trendsTab("Refund Method")).toBeVisible({ timeout: 15000 });
-    await expect(analytics.trendsTab("Currency")).toBeVisible({ timeout: 15000 });
-    await expect(analytics.addDimensionTabButton).toBeVisible({ timeout: 15000 });
+    await expect(analytics.trendsTab("Connector")).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(analytics.trendsTab("Refund Method")).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(analytics.trendsTab("Currency")).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(analytics.addDimensionTabButton).toBeVisible({
+      timeout: 15000,
+    });
   });
 
   // Switching the active tab re-groups the summary table — its first column
   // header reflects the selected dimension.
   test("should update the summary table grouping when a different tab is selected", async () => {
     // Default grouping is Connector.
-    await expect(analytics.summaryTableHeading("Connector")).toBeVisible({ timeout: 15000 });
+    await expect(analytics.summaryTableHeading("Connector")).toBeVisible({
+      timeout: 15000,
+    });
     await expect(analytics.summaryTableCell(1, 1)).toHaveText("Stripe");
 
     // Switch to the Refund Method tab.
     await analytics.trendsTab("Refund Method").click();
     await analytics.page.waitForLoadState("networkidle");
 
-    await expect(analytics.summaryTableHeading("Refund Method")).toBeVisible({ timeout: 15000 });
+    await expect(analytics.summaryTableHeading("Refund Method")).toBeVisible({
+      timeout: 15000,
+    });
 
     // Switch back to Connector and the connector grouping returns.
     await analytics.trendsTab("Connector").click();
     await analytics.page.waitForLoadState("networkidle");
 
-    await expect(analytics.summaryTableHeading("Connector")).toBeVisible({ timeout: 15000 });
+    await expect(analytics.summaryTableHeading("Connector")).toBeVisible({
+      timeout: 15000,
+    });
     await expect(analytics.summaryTableCell(1, 1)).toHaveText("Stripe");
   });
 });

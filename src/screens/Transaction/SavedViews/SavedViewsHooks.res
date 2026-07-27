@@ -5,7 +5,7 @@ open SavedViewTypes
 let useFetchSavedViews = (~entity, ~version) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   async (~setSavedViews, ~setViewCount=?) => {
     try {
@@ -36,7 +36,7 @@ let useFetchSavedViews = (~entity, ~version) => {
 let useDeleteSavedView = (~entity, ~fetchSavedViews) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   async (view_id, viewName, ~onSuccess=?) => {
     try {
@@ -64,7 +64,7 @@ let useDeleteSavedView = (~entity, ~fetchSavedViews) => {
 let useRenameSavedView = (~entity, ~version, ~fetchSavedViews) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   async (view: SavedViewTypes.savedView, newName, ~onSuccess=?) => {
     try {
@@ -96,7 +96,7 @@ let useRenameSavedView = (~entity, ~version, ~fetchSavedViews) => {
 let useCreateSavedView = (~entity, ~version, ~onViewsUpdated, ~setShowModal) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   async (trimmedName, filters) => {
     try {
@@ -127,7 +127,7 @@ let useCreateSavedView = (~entity, ~version, ~onViewsUpdated, ~setShowModal) => 
 let useOverwriteSavedView = (~entity, ~version, ~onViewsUpdated, ~setShowModal, ~savedViews) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   async (viewToOverwrite, filters) => {
     try {

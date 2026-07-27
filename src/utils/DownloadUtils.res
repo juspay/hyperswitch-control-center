@@ -44,7 +44,7 @@ let downloadTableAsCsv = (
   ~tableItemToObjMapper: Dict.t<JSON.t> => 'entity,
   ~itemToCSVMapping: 'entity => JSON.t,
   ~fileName: string,
-  ~toast: (~message: string, ~toastType: ToastState.toastType) => unit,
+  ~toast: (~message: string, ~toastType: ToastAdapter.toastType) => unit,
 ) => {
   open LogicUtils
   try {

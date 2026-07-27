@@ -91,7 +91,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (orderData, setOrdersData) = React.useState(_ => [])
   let fetchDetails = APIUtils.useGetMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let paymentId = refundData->getDictFromJsonObject->getString("payment_id", "")
 
   let {merchantId: merchantIdFromUserInfo, orgId: orgIdFromUserInfo} = React.useContext(

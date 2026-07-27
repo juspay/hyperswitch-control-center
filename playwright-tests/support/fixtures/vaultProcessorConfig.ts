@@ -17,11 +17,7 @@ export const vaultProcessorConfig: Record<string, ConnectorConfig> = {
       overrides: {
         "Enter Connector label": "vgs_default",
       },
-      fieldLabels: [
-        "Client Id *",
-        "Client Secret *",
-        "Vault Id *",
-      ],
+      fieldLabels: ["Client Id *", "Client Secret *", "Vault Id *"],
     },
   },
 };

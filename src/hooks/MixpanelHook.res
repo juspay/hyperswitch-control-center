@@ -4,8 +4,10 @@ let useSendEvent = () => {
   open GlobalVars
   open Window
   let fetchApi = AuthHooks.useApiFetcher()
-  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-  let {name, email: authInfoEmail} = React.useContext(
+  let {orgId, profileId, merchantId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
+  let {name, email: authInfoEmail, roleId, version} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getResolvedUserInfo()
 
@@ -19,8 +21,12 @@ let useSendEvent = () => {
   }
 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {clientCountry} = HSwitchUtils.getBrowserDetails()
+  let {clientCountry, browserName, browserVersion} = HSwitchUtils.getBrowserDetails()
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVariant
+  let dashboardVersion = switch version {
+  | UserInfoTypes.V1 => "v1"
+  | V2 => "v2"
+  }
 
   let environment = GlobalVars.hostType->getEnvironment
 
@@ -58,11 +64,18 @@ let useSendEvent = () => {
         "email": email,
         "mp_lib": "restapi",
         "merchantId": merchantId,
+        "orgId": orgId,
+        "profileId": profileId,
+        "roleId": roleId,
+        "dashboardVersion": dashboardVersion,
+        "appVersion": GlobalVars.appVersion,
         "environment": environment,
         "description": description,
         "lang": Navigator.browserLanguage,
         "$os": Navigator.platform,
-        "$browser": Navigator.browserName,
+        "$browser": browserName,
+        "$browser_version": browserVersion,
+        "$current_url": Window.Location.href,
         "mp_country_code": country,
       },
     }
@@ -74,6 +87,7 @@ let useSendEvent = () => {
         ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
         ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
         ~forceCookies=featureFlagDetails.forceCookies,
+        ~sendV1DummyApiKeyHeader=featureFlagDetails.sendV1DummyApiKeyHeader,
       )
     } catch {
     | _ => ()
@@ -101,12 +115,20 @@ let usePageView = () => {
   open GlobalVars
   open Window
   let fetchApi = AuthHooks.useApiFetcher()
-  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-  let {name, email} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
+  let {orgId, profileId, merchantId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
+  let {name, email, roleId, version} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getResolvedUserInfo()
 
   let environment = GlobalVars.hostType->getEnvironment
-  let {clientCountry} = HSwitchUtils.getBrowserDetails()
+  let {clientCountry, browserName, browserVersion} = HSwitchUtils.getBrowserDetails()
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVariant
+  let dashboardVersion = switch version {
+  | UserInfoTypes.V1 => "v1"
+  | V2 => "v2"
+  }
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   async (~path) => {
     let mixpanel_token = Window.env.mixpanelToken
@@ -123,10 +145,17 @@ let usePageView = () => {
         "email": email,
         "mp_lib": "restapi",
         "merchantId": merchantId,
+        "orgId": orgId,
+        "profileId": profileId,
+        "roleId": roleId,
+        "dashboardVersion": dashboardVersion,
+        "appVersion": GlobalVars.appVersion,
         "environment": environment,
         "lang": Navigator.browserLanguage,
         "$os": Navigator.platform,
-        "$browser": Navigator.browserName,
+        "$browser": browserName,
+        "$browser_version": browserVersion,
+        "$current_url": Window.Location.href,
         "mp_country_code": country,
         "page": path,
       },
@@ -140,6 +169,7 @@ let usePageView = () => {
           ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
           ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
           ~forceCookies=featureFlagDetails.forceCookies,
+          ~sendV1DummyApiKeyHeader=featureFlagDetails.sendV1DummyApiKeyHeader,
         )
       }
     } catch {
@@ -180,6 +210,7 @@ let useSetIdentity = () => {
           ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
           ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
           ~forceCookies=featureFlagDetails.forceCookies,
+          ~sendV1DummyApiKeyHeader=featureFlagDetails.sendV1DummyApiKeyHeader,
         )
         let _ = await fetchApi(
           `${getHostUrl}/mixpanel/engage`,
@@ -187,6 +218,7 @@ let useSetIdentity = () => {
           ~bodyStr=`data=${peopleProperties->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
           ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
           ~forceCookies=featureFlagDetails.forceCookies,
+          ~sendV1DummyApiKeyHeader=featureFlagDetails.sendV1DummyApiKeyHeader,
         )
       }
     } catch {

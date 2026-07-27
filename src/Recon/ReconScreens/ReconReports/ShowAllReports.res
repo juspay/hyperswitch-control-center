@@ -62,7 +62,7 @@ module OrderInfo = {
 let make = (~isModal, ~setShowModal, ~selectedId) => {
   open ReconReportUtils
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (reconReport, setReconReport) = React.useState(_ =>
     Dict.make()->ReconReportUtils.getAllReportPayloadType
   )

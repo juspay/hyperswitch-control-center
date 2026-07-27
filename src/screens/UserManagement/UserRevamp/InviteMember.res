@@ -5,7 +5,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
 
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (isInvitingUsers, setIsInvitingUsers) = React.useState(_ => false)

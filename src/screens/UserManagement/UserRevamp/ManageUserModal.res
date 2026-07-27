@@ -11,7 +11,7 @@ module ChangeRoleSection = {
     open LogicUtils
     let getURL = useGetURL()
     let url = RescriptReactRouter.useUrl()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let updateDetails = useUpdateMethod()
     let (userRole, setUserRole) = React.useState(_ => defaultRole)
     let userEmail =
@@ -93,7 +93,7 @@ module ResendInviteSection = {
     open APIUtils
     open LogicUtils
     let getURL = useGetURL()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let url = RescriptReactRouter.useUrl()
     let updateDetails = useUpdateMethod()
     let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
@@ -150,7 +150,7 @@ module DeleteUserRole = {
     open APIUtils
     open LogicUtils
     let getURL = useGetURL()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let url = RescriptReactRouter.useUrl()
     let updateDetails = useUpdateMethod()
     let showPopUp = PopUpState.useShowPopUp()

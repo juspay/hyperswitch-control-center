@@ -13,6 +13,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
+  let {isCurrentMerchantPlatform} = OMPSwitchHooks.useOMPType()
 
   let setUpConnectoreContainer = async () => {
     try {
@@ -152,10 +153,7 @@ let make = () => {
         isEnabled={featureFlagDetails.configurePmts}>
         <FilterContext key="ConfigurePmts" index="ConfigurePmts">
           <EntityScaffold
-            entityName="ConfigurePMTs"
-            remainingPath
-            renderList={() => <PaymentMethodList />}
-            renderShow={(_, _) => <PaymentSettings webhookOnly=false showFormOnly=false />}
+            entityName="ConfigurePMTs" remainingPath renderList={() => <PaymentMethodList />}
           />
         </FilterContext>
       </AccessControl>
@@ -163,7 +161,9 @@ let make = () => {
       <AccessControl
         isEnabled={featureFlagDetails.paymentLinkThemeConfigurator}
         authorization={userHasAccess(~groupAccess=ConnectorsView)}>
-        <PaymentLinkThemeConfigurator />
+        <SDKProvider>
+          <PaymentLinkThemeConfigurator />
+        </SDKProvider>
       </AccessControl>
     // Routing
     | list{"routing", ...remainingPath} =>
@@ -193,7 +193,10 @@ let make = () => {
             <EntityScaffold
               entityName="PaymentSettingsRevamped"
               remainingPath
-              renderList={() => <PaymentSettingsRevamped />}
+              renderList={() =>
+                isCurrentMerchantPlatform
+                  ? <PlatformPaymentSettings />
+                  : <PaymentSettingsRevamped />}
             />
           </AccessControl>
         </RenderIf>
@@ -205,18 +208,6 @@ let make = () => {
           </AccessControl>
         </RenderIf>
       </>
-    | list{"webhooks", ...remainingPath} =>
-      <AccessControl isEnabled={featureFlagDetails.devWebhooks} authorization=Access>
-        <FilterContext key="webhooks" index="webhooks">
-          <EntityScaffold
-            entityName="Webhooks"
-            remainingPath
-            access=Access
-            renderList={() => <Webhooks />}
-            renderShow={(id, _) => <WebhooksDetails id />}
-          />
-        </FilterContext>
-      </AccessControl>
     | list{"sdk"} =>
       <AccessControl
         isEnabled={!featureFlagDetails.isLiveMode}

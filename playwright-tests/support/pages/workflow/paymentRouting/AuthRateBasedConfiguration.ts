@@ -8,19 +8,19 @@ export class AuthRateBasedConfiguration {
   }
 
   get bucketSizeInput(): Locator {
-    return this.page.getByRole("textbox", { name: "Bucket size" });
+    return this.page.getByRole('spinbutton', { name: 'Bucket size' });
   }
 
   get explorationPercentInput(): Locator {
-    return this.page.getByRole("textbox", { name: "Exploration percentage" });
+    return this.page.getByRole('spinbutton', { name: 'Exploration percentage' });
   }
 
   get rolloutPercentInput(): Locator {
-    return this.page.getByRole("textbox", { name: "Rollout percentage" });
+    return this.page.getByRole('spinbutton', { name: 'Rollout percentage' });
   }
 
   get configureRuleButton(): Locator {
-    return this.page.locator('[data-button-for="configureRule"]');
+    return this.page.getByRole('button', { name: 'Configure Rule' });
   }
 
   get saveRuleButton(): Locator {
@@ -40,7 +40,9 @@ export class AuthRateBasedConfiguration {
   }
 
   get duplicateAndEditButton(): Locator {
-    return this.page.getByRole("button", { name: "Duplicate and Edit Configuration" });
+    return this.page.getByRole("button", {
+      name: "Duplicate and Edit Configuration",
+    });
   }
 }
 

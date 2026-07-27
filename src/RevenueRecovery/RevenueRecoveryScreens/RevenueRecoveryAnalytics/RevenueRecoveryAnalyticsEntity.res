@@ -43,7 +43,7 @@ let overallRetryStrategyChartEntity: chartEntity<
   JSON.t,
 > = {
   getObjects: OverallRetryStrategyAnalyticsUtils.retryStrategiesMapper,
-  getChatOptions: LineAndColumnGraphUtils.getLineColumnGraphOptions,
+  getChatOptions: payload => LineAndColumnGraphUtils.getLineColumnGraphOptions(payload),
 }
 
 // Retries Comparison

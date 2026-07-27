@@ -197,7 +197,7 @@ let make = () => {
   open FormRenderer
   let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(

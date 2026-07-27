@@ -187,6 +187,8 @@ let connectorList: array<connectorTypes> = [
   Processors(TRUELAYER),
   Processors(TRUSTLY),
   Processors(IMERCHANTSOLUTIONS),
+  Processors(PAYCONEX),
+  Processors(TSYSTRANSIT),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -263,6 +265,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "paypal" => PayPal
   | "pix" => Pix
   | "pix_emv" => PixEmv
+  | "pix_qr" => PixQr
   | "pix_automatico_qr" => PixAutomaticoQr
   | "pix_automatico_push" => PixAutomaticoPush
   | "boleto" => Boleto
@@ -730,6 +733,14 @@ let imerchantsolutionsInfo = {
   description: "iMerchant Solutions is a modern payment processing platform that empowers businesses to accept payments globally with fast and low-friction onboarding.",
 }
 
+let payconexInfo = {
+  description: "PayConex is Bluefin's payment gateway platform, offering secure card payment processing with PCI-validated point-to-point encryption and tokenization.",
+}
+
+let tsystransitInfo = {
+  description: "TransIT is a RESTful payment gateway for processing transactions and value-added services with real-time reporting.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -1013,6 +1024,8 @@ let getConnectorNameString = (connector: processorTypes) =>
   | FISERVCOMMERCEHUB => "fiservcommercehub"
   | TRUSTLY => "trustly"
   | IMERCHANTSOLUTIONS => "imerchantsolutions"
+  | PAYCONEX => "payconex"
+  | TSYSTRANSIT => "tsys_transit"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1222,6 +1235,8 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "fiservcommercehub" => Processors(FISERVCOMMERCEHUB)
     | "trustly" => Processors(TRUSTLY)
     | "imerchantsolutions" => Processors(IMERCHANTSOLUTIONS)
+    | "payconex" => Processors(PAYCONEX)
+    | "tsys_transit" => Processors(TSYSTRANSIT)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1407,6 +1422,8 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | FISERVCOMMERCEHUB => fiservcommercehubInfo
   | TRUSTLY => trustlyInfo
   | IMERCHANTSOLUTIONS => imerchantsolutionsInfo
+  | PAYCONEX => payconexInfo
+  | TSYSTRANSIT => tsystransitInfo
   }
 }
 
@@ -1527,6 +1544,10 @@ let getPaymentMethodMapper: JSON.t => array<paymentMethodConfigType> = json => {
 let getPaymentMethodDisplayName = (paymentMethodType: string) => {
   switch paymentMethodType->getPaymentMethodTypeFromString {
   | Ideal => "iDEAL | Wero"
+  | PixQr => "PIX QR Code"
+  | PixEmv => "PIX EMV"
+  | PixAutomaticoQr => "PIX Automático QR"
+  | PixAutomaticoPush => "PIX Automático Push"
   | _ => paymentMethodType->snakeToTitle
   }
 }
@@ -1565,6 +1586,7 @@ let configKeysToIgnore = [
   "connector_webhook_details",
   "additional_merchant_data",
   "connector_wallets_details",
+  "connector_webhook_register_details",
 ]
 
 let verifyConnectorIgnoreField = [
@@ -2410,6 +2432,8 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | FISERVCOMMERCEHUB => "Fiserv Commerce Hub"
   | TRUSTLY => "Trustly"
   | IMERCHANTSOLUTIONS => "iMerchant Solutions"
+  | PAYCONEX => "PayConex"
+  | TSYSTRANSIT => "TSYS Transit"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2629,7 +2653,8 @@ let checkIfPredecryptFlowEnabledForApplePay = connector => {
   | Processors(WORLDPAYVANTIV)
   | Processors(NMI)
   | Processors(STRIPE)
-  | Processors(WORLDPAYXML) => true
+  | Processors(WORLDPAYXML)
+  | Processors(IMERCHANTSOLUTIONS) => true
   | _ => false
   }
 }
@@ -2641,7 +2666,9 @@ let checkIfPredecryptFlowEnabledForGooglePay = connector => {
   | Processors(CHECKOUT)
   | Processors(WORLDPAYVANTIV)
   | Processors(NMI)
-  | Processors(STRIPE) => true
+  | Processors(STRIPE)
+  | Processors(WORLDPAYXML)
+  | Processors(IMERCHANTSOLUTIONS) => true
   | _ => false
   }
 }

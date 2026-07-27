@@ -47,7 +47,15 @@ export class PaymentSettings {
   }
 
   get paymentLinkTab(): Locator {
-    return this.page.locator("text=Payment Link");
+    return this.page.getByText("Payment Link", { exact: true });
+  }
+
+  get vaultTab(): Locator {
+    return this.page.getByText("Vault", { exact: true });
+  }
+
+  get surchargeTab(): Locator {
+    return this.page.getByText("Surcharge", { exact: true });
   }
 
   // Payment Behaviour Tab Elements
@@ -127,11 +135,12 @@ export class PaymentSettings {
   }
 
   dropdownValue(value: string): Locator {
-    return this.page.locator(`[data-dropdown-value="${value}"]`).first();
+    return this.page.getByRole('menuitem', { name: value });
   }
 
   dropdownValueByText(text: string): Locator {
-    return this.page.locator("[data-dropdown-value]").filter({ hasText: text }).first();
+    return this.page
+      .getByRole('menuitem', { name: text });
   }
 
   selectFieldDropdown(): Locator {
@@ -199,6 +208,10 @@ export class PaymentSettings {
     return this.acquirerModal("Edit Network Configuration");
   }
 
+  acquirerModalScrollRegion(modal: Locator): Locator {
+    return modal.locator('[data-component="acquirerFormScrollRegion"]');
+  }
+
   // Modal field locators (scoped to the currently-open modal)
   acquirerModalSaveButton(modal: Locator): Locator {
     return modal.getByRole("button", { name: "Save", exact: true });
@@ -222,23 +235,23 @@ export class PaymentSettings {
   }
 
   acquirerMerchantNameInput(modal: Locator): Locator {
-    return this.inputByName(modal, "merchant_name");
+    return this.page.getByRole('textbox', { name: 'e.g. Demo Merchant' });
   }
 
   acquirerMerchantIdInput(modal: Locator): Locator {
-    return this.inputByName(modal, "acquirer_assigned_merchant_id");
+    return this.page.getByRole('textbox', { name: 'e.g. 00004500000' });
   }
 
   acquirerBinInput(modal: Locator): Locator {
-    return this.inputByName(modal, "acquirer_bin");
+    return this.page.getByRole('spinbutton', { name: 'e.g.' }).first();
   }
 
   acquirerIcaInput(modal: Locator): Locator {
-    return this.inputByName(modal, "acquirer_ica");
+    return this.page.getByRole('spinbutton', { name: 'e.g.' }).nth(1);
   }
 
   acquirerFraudRateInput(modal: Locator): Locator {
-    return this.inputByName(modal, "acquirer_fraud_rate");
+    return this.page.getByRole('spinbutton', { name: 'e.g. 25' });
   }
 
   acquirerNetworkDropdownInModal(modal: Locator): Locator {
@@ -251,15 +264,15 @@ export class PaymentSettings {
 
   // Toasts
   get acquirerCreatedToast(): Locator {
-    return this.page.locator('[data-toast="Acquirer created"]');
+    return this.page.locator('[data-id="Acquirer created"]');
   }
 
   get networkAddedToast(): Locator {
-    return this.page.locator('[data-toast="Network added"]');
+    return this.page.locator('[data-id="Network added"]');
   }
 
   get networkUpdatedToast(): Locator {
-    return this.page.locator('[data-toast="Network updated"]');
+    return this.page.locator('[data-id="Network updated"]');
   }
 
   get defaultAcquirerUpdatedToast(): Locator {
@@ -268,7 +281,7 @@ export class PaymentSettings {
 
   // Validation errors
   get acquirerBinError(): Locator {
-    return this.page.getByText("Acquirer BIN must be between 4 and 20 digits");
+    return this.page.locator('[data-form-error="Acquirer BIN must be between 4 and 20 digits"]');
   }
 
   get fraudRateError(): Locator {
@@ -291,10 +304,7 @@ export class PaymentSettings {
 
   editIconForRow(rowText: string): Locator {
     // Edit pencil icon lives in the trailing Update column of the row
-    return this.page
-      .locator("tr", { hasText: rowText })
-      .locator("svg")
-      .last();
+    return this.page.locator("tr", { hasText: rowText }).locator("svg").last();
   }
 
   // Custom Headers Tab Elements
@@ -350,7 +360,7 @@ export class PaymentSettings {
   }
 
   get detailsUpdatedToast(): Locator {
-    return this.page.locator('[data-toast="Details updated"]');
+    return this.page.locator('[data-id="Details updated"]');
   }
 
   toggleSwitchByLabel(label: string): Locator {
@@ -414,7 +424,8 @@ export class PaymentSettings {
 
   async selectFirstMerchantCategoryCode(): Promise<string> {
     await this.merchantCategoryCodeDropdown.click();
-    const firstOption = this.page.locator('div').filter({ hasText: /^Wine producers$/ }).nth(4);
+    const firstOption = this.page
+      .getByRole('menuitem', { name: 'Wine producers' })
     const optionText = (await firstOption.getAttribute("data-value")) ?? "";
     await firstOption.click();
     return optionText;

@@ -9,7 +9,7 @@ let make = (
   open HSwitchFeedBackModalUtils
   open APIUtils
   let {email} = CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let updateDetails = useUpdateMethod()
   let getURL = useGetURL()
   let onSubmit = async (values, _) => {

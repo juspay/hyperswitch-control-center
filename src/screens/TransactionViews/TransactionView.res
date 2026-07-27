@@ -27,7 +27,7 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let {getResolvedUserInfo} = React.useContext(UserInfoProvider.defaultContext)
   let {transactionEntity} = getResolvedUserInfo()
   let {updateExistingKeys, filterValueJson, filterKeys, setfilterKeys} =

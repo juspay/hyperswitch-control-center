@@ -1,4 +1,3 @@
-open VerticalStepIndicatorTypes
 open IntelligentRoutingTypes
 
 let dataSource = [Historical, Realtime]
@@ -12,7 +11,7 @@ let dataTypeVariantToString = dataType =>
   | Realtime => "Realtime Data"
   }
 
-let sections = [
+let sections: array<VerticalStepIndicatorTypes.section> = [
   {
     id: (#analyze: sections :> string),
     name: "Choose Your Data Source",
