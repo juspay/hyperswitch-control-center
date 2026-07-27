@@ -385,19 +385,17 @@ module TableHeadingCell = {
     }
 
     let setIsSelected = isAllSelected => {
-      switch setSelectAllCheckBox {
-      | Some(fn) =>
-        fn(_ => {
-          if selectAllCheckBox === Some(PARTIAL) {
-            None
-          } else if isAllSelected {
-            Some(ALL)
-          } else {
-            None
+      Js.log2("selectAllCheckBox", selectAllCheckBox)
+      Js.log2("isAllSelected", isAllSelected)
+      setSelectAllCheckBox->Option.forEach(fn =>
+        fn(_ =>
+          switch (selectAllCheckBox, isAllSelected) {
+          | (Some(PARTIAL), _) => None
+          | (_, true) => Some(ALL)
+          | _ => None
           }
-        })
-      | None => ()
-      }
+        )
+      )
     }
 
     let headerBgColor =
