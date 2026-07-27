@@ -25,7 +25,8 @@ let formatDateString = date => {
 let getDateFilteredObject = (~range=7) => {
   let currentDate = Date.make()
 
-  let end_time = currentDate->formatDateString
+  let end_time =
+    Date.fromTime(Math.ceil(currentDate->Date.getTime /. 1000.0) *. 1000.0)->formatDateString
 
   let start_time =
     Js.Date.makeWithYMD(
