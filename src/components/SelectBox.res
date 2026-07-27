@@ -826,9 +826,9 @@ module BaseSelect = {
           </div>
         } else if !isMobileView {
           let clearAllCondition = noOfSelected > 0
-          <RenderIf
+            <RenderIf
             condition={filteredOptions->Array.length > 1 &&
-              filteredOptions->Array.find(item => item.value === "Loading...")->Option.isNone}>
+              filteredOptions->Array.find(item => item.value === Loading.loading)->Option.isNone}>
             <div
               onClick={selectAll(noOfSelected === 0)}
               className={`flex px-3 pt-2 pb-1 mx-1 rounded-lg gap-3 text-jp-2-gray-300 items-center text-fs-14 font-medium cursor-pointer`}>
@@ -918,7 +918,7 @@ module BaseSelect = {
           <div className={`flex justify-center items-center m-4 ${customSearchStyle}`}>
             {React.string("No matching records found")}
           </div>
-        } else if filteredOptions->Array.find(item => item.value === "Loading...")->Option.isSome {
+        } else if filteredOptions->Array.find(item => item.value === Loading.loading)->Option.isSome {
           <Loader />
         } else {
           switch customComponent {

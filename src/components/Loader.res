@@ -1,6 +1,6 @@
 @react.component
 let make = (
-  ~loadingText="Loading...",
+  ~loadingText=Loading.loading,
   ~children=React.null,
   ~slow=false,
   ~customSpinnerIconColor: string="",

@@ -305,12 +305,12 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
               | ForgetPassword
               | ResendVerifyEmail
               | SignUP =>
-                <FormRenderer.SubmitButton
+                  <FormRenderer.SubmitButton
                   customSubmitButtonStyle="!w-full"
                   text=submitBtnText
                   userInteractionRequired=true
                   showToolTip=false
-                  loadingText="Loading..."
+                  loadingText=Loading.loading
                 />
               | _ => React.null
               }}

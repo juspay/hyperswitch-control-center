@@ -148,7 +148,7 @@ let make = (~flowType) => {
                       text="Confirm"
                       userInteractionRequired=true
                       showToolTip=false
-                      loadingText="Loading..."
+                      loadingText=Loading.loading
                     />
                   </div>
                 </div>

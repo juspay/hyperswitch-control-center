@@ -702,7 +702,7 @@ module BaseSelect = {
             let clearAllCondition = noOfSelected > 0
             <RenderIf
               condition={filteredOptions->Array.length > 1 &&
-                filteredOptions->Array.find(item => item.value === "Loading...")->Option.isNone}>
+                filteredOptions->Array.find(item => item.value === Loading.loading)->Option.isNone}>
               <div
                 onClick={ev => {
                   ev->ReactEvent.Mouse.stopPropagation
@@ -799,7 +799,7 @@ module BaseSelect = {
               {React.string("No matching records found")}
             </div>
           } else if (
-            filteredOptions->Array.find(item => item.value === "Loading...")->Option.isSome
+            filteredOptions->Array.find(item => item.value === Loading.loading)->Option.isSome
           ) {
             <Loader />
           } else {

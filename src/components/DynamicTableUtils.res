@@ -239,7 +239,7 @@ module TableLoadingErrorIndicator = {
               <div className="animate-spin mb-10">
                 <Icon name="spinner" />
               </div>
-              {React.string("Loading...")}
+              {React.string(Loading.loading)}
             </>
           : <>
               <div className="mb-4 text-xl">
@@ -265,7 +265,7 @@ module TableDataLoadingIndicator = {
       <div className="animate-spin mb-4">
         <Icon name="spinner" />
       </div>
-      <div className="text-gray-500"> {React.string("Loading...")} </div>
+      <div className="text-gray-500"> {React.string(Loading.loading)} </div>
     </div>
   }
 }
