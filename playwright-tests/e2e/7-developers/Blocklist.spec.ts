@@ -167,11 +167,29 @@ test.describe("Blocklist", () => {
         "type,data,metadata\ncard_bin,411111,source=fraud_team\nfingerprint,fp_abc123,",
       ),
     });
-    await blocklist.uploadButton.click();
 
-    await expect(
-      page.getByText("Blocklist CSV uploaded. Job ID: blkbatch_test"),
-    ).toBeVisible();
+    const uploadResponsePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes("/blocklist/batch") &&
+        response.request().method() === "POST" &&
+        response.status() === 202,
+    );
+    const refreshedListPromise = page.waitForResponse((response) => {
+      const requestUrl = new URL(response.url());
+      return (
+        requestUrl.pathname.endsWith("/blocklist/batch") &&
+        response.request().method() === "GET" &&
+        requestUrl.searchParams.get("offset") === "0" &&
+        response.status() === 200
+      );
+    });
+
+    await Promise.all([
+      uploadResponsePromise,
+      refreshedListPromise,
+      blocklist.uploadButton.click(),
+    ]);
+
     await expect(page.getByText("blkbatch_test")).toBeVisible();
   });
 
