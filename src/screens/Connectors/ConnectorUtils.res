@@ -2513,24 +2513,28 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
   }
 }
 
-let getConnectorCategory = (connector: ConnectorTypes.connectorTypes): ConnectorTypes.connector =>
+let getConnectorCategory = (connector: ConnectorTypes.connectorTypes): option<
+  ConnectorTypes.connector,
+> =>
   switch connector {
-  | Processors(_) => Processor
-  | PayoutProcessor(_) => PayoutProcessor
-  | ThreeDsAuthenticator(_) => ThreeDsAuthenticator
-  | FRM(_) => FRMPlayer
-  | PMAuthenticationProcessor(_) => PMAuthenticationProcessor
-  | TaxProcessor(_) => TaxProcessor
-  | BillingProcessor(_) => BillingProcessor
-  | VaultProcessor(_) => VaultProcessor
-  | SurchargeProcessor(_) => SurchargeProcessor
-  | UnknownConnector(_) => Processor
+  | Processors(_) => Some(Processor)
+  | PayoutProcessor(_) => Some(PayoutProcessor)
+  | ThreeDsAuthenticator(_) => Some(ThreeDsAuthenticator)
+  | FRM(_) => Some(FRMPlayer)
+  | PMAuthenticationProcessor(_) => Some(PMAuthenticationProcessor)
+  | TaxProcessor(_) => Some(TaxProcessor)
+  | BillingProcessor(_) => Some(BillingProcessor)
+  | VaultProcessor(_) => Some(VaultProcessor)
+  | SurchargeProcessor(_) => Some(SurchargeProcessor)
+  | UnknownConnector(_) => None
   }
 
 let matchesConnectorTypeSearch = (connector: ConnectorTypes.connectorTypes, searchText) => {
   let connectorName = connector->getConnectorNameString
-  let connectorType = connector->getConnectorCategory
-  let displayName = connectorName->getDisplayNameForConnector(~connectorType)
+  let displayName = switch connector->getConnectorCategory {
+  | Some(connectorType) => connectorName->getDisplayNameForConnector(~connectorType)
+  | None => connectorName
+  }
 
   [connectorName, displayName]->Array.some(value => isContainingStringLowercase(value, searchText))
 }
