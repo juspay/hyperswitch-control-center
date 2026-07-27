@@ -52,7 +52,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
         customUI={<NewAnalyticsHelper.NoData height="h-24" message="No data available." />}
         customLoader={<Shimmer styleClass="h-24 w-full" />}>
         <ConnectedStatCard
-          title={card.connectedStatCardTitle}
+          title={(card.connectedStatCardTitle :> string)}
           value=card.connectedStatCardValue
           cardType=card.connectedStatCardType
           onConnectedStatCardClick={() => {

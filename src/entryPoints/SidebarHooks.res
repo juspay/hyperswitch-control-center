@@ -160,7 +160,8 @@ let getAllProductsBasedOnFeatureFlags = (
 let useGetAllProductSections = (~products: array<productTypes>) => {
   open ProductUtils
 
-  let isLiveMode = (featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let isLiveMode = featureFlagDetails.isLiveMode
 
   let orchestratorSidebars = useGetOrchestratorSidebars()
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
@@ -169,7 +170,11 @@ let useGetAllProductSections = (~products: array<productTypes>) => {
   products->Array.map(productType => {
     let links = switch productType {
     | Recon(V1) =>
-      ReconEngineSidebarValues.reconEngineSidebars(~userHasResourceAccess, ~userHasAccess)
+      ReconEngineSidebarValues.reconEngineSidebars(
+        ~userHasResourceAccess,
+        ~userHasAccess,
+        ~isReconEnginePipelinesEnabled=featureFlagDetails.devReconEnginePipelines,
+      )
     | Recon(V2) => ReconSidebarValues.reconSidebars
     | Recovery => RevenueRecoverySidebarValues.recoverySidebars(isLiveMode)
     | Vault => VaultSidebarValues.vaultSidebars
@@ -279,7 +284,11 @@ let useGetSidebarValuesForCurrentActive = () => {
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
   | Orchestration(V2) => orchestratorV2Sidebars
   | Recon(V1) =>
-    ReconEngineSidebarValues.reconEngineSidebars(~userHasResourceAccess, ~userHasAccess)
+    ReconEngineSidebarValues.reconEngineSidebars(
+      ~userHasResourceAccess,
+      ~userHasAccess,
+      ~isReconEnginePipelinesEnabled=featureFlagDetails.devReconEnginePipelines,
+    )
   | OnBoarding(_)
   | UnknownProduct => []
   }

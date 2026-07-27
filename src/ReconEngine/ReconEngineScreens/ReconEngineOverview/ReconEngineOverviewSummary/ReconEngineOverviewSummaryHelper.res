@@ -143,12 +143,13 @@ module SlashOutOfCell = {
 module StatCard = {
   @react.component
   let make = (
-    ~title: statCardsTitle,
+    ~title: string,
     ~value: valueType,
     ~icon: Button.iconType,
     ~description,
     ~cardType: statCardType,
     ~onStatCardClick=() => (),
+    ~isActive=false,
   ) => {
     let textColorClass = switch cardType {
     | Info => "text-nd_gray-700"
@@ -160,12 +161,16 @@ module StatCard = {
     | Attention => "hover:border-nd_red-500/60"
     }
 
+    let (activeBorderClass, activeBgClass) = isActive
+      ? ("border-nd_primary_blue-400", "bg-nd_primary_blue-25")
+      : ("border-nd_gray-200", "bg-white")
+
     <div
       onClick={_ => onStatCardClick()}
-      className={`px-4 py-3.5 transition-all cursor-pointer ${hoverBorderClass} hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 bg-white rounded-xl border border-nd_gray-200 shadow-sm`}>
+      className={`px-4 py-3.5 transition-all cursor-pointer ${hoverBorderClass} hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 ${activeBgClass} rounded-xl border ${activeBorderClass} shadow-sm`}>
       <div className="flex items-center justify-between">
         <p className={`${body.sm.medium} text-nd_gray-600`}>
-          {(title :> string)->String.toUpperCase->React.string}
+          {title->String.toUpperCase->React.string}
         </p>
         <div className="bg-nd_gray-150/60 rounded-md w-8 h-8 flex items-center justify-center">
           {switch icon {
@@ -202,7 +207,7 @@ module StatCard = {
 module ConnectedStatCard = {
   @react.component
   let make = (
-    ~title: connectedStatCardsTitle,
+    ~title: string,
     ~value: valueType,
     ~cardType: statCardType=Info,
     ~onConnectedStatCardClick=() => (),
@@ -218,7 +223,7 @@ module ConnectedStatCard = {
       <div className="flex items-center justify-between">
         <p
           className={`${body.sm.medium} text-nd_gray-600 transition-colors duration-200 group-hover:text-nd_gray-700`}>
-          {(title :> string)->String.toUpperCase->React.string}
+          {title->String.toUpperCase->React.string}
         </p>
       </div>
       <div className="flex flex-col gap-y-2.5 items-start mt-1.5">
