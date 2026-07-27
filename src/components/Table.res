@@ -385,8 +385,6 @@ module TableHeadingCell = {
     }
 
     let setIsSelected = isAllSelected => {
-      Js.log2("selectAllCheckBox", selectAllCheckBox)
-      Js.log2("isAllSelected", isAllSelected)
       setSelectAllCheckBox->Option.forEach(fn =>
         fn(_ =>
           switch (selectAllCheckBox, isAllSelected) {
