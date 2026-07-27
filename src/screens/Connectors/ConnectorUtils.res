@@ -2626,13 +2626,12 @@ let connectorTypeFromConnectorName: string => connector = connectorName =>
   | _ => Processor
   }
 
-// connector needs API webhook registration (wasm config carries the register block) — e.g. Santander, Payload
 let connectorHasWebhookRegister = connector =>
   try {
     Window.getConnectorConfig(connector)
-    ->LogicUtils.getDictFromJsonObject
-    ->LogicUtils.getDictfromDict("connector_webhook_register_details")
-    ->LogicUtils.isEmptyDict
+    ->getDictFromJsonObject
+    ->getDictfromDict("connector_webhook_register_details")
+    ->isEmptyDict
     ->not
   } catch {
   | _ => false
