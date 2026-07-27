@@ -43,6 +43,11 @@ let getPipelineStatCards = (
       ~count=ingestionProcessedCount,
       ~total=totalCount,
     )->CurrencyFormatUtils.valueFormatter(Rate)
+  let needsManualReviewRate =
+    ReconEngineOverviewUtils.getPercentage(
+      ~count=needsManualReviewCount,
+      ~total=stagingTotalCount,
+    )->CurrencyFormatUtils.valueFormatter(Rate)
 
   let processedStatusValue =
     ReconEngineFilterUtils.getIngestionTransformationHistoryStatusValueFromStatusList([
@@ -90,7 +95,7 @@ let getPipelineStatCards = (
       pipelineStatCardIcon: CustomIcon(
         <Icon name="nd-information-triangle" size=14 className="text-nd_gray-500" />,
       ),
-      pipelineStatCardDescription: `${needsManualReviewCount->Int.toString} out of ${stagingTotalCount->Int.toString}`,
+      pipelineStatCardDescription: `${needsManualReviewRate} of staging entries`,
       pipelineStatCardType: needsManualReviewCount > 0 ? Attention : Info,
       pipelineStatCardClickAction: NoAction,
     },

@@ -3,6 +3,23 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.07.27.0
+
+### Features
+
+- Add file upload to recon engine pipelines ([#5097](https://github.com/juspay/hyperswitch-control-center/pull/5097)) ([`64b8902`](https://github.com/juspay/hyperswitch-control-center/commit/64b8902101800cf1b36edf27f32d79c901da40d8))
+- Redirect routing to Decision Engine when a profile is cut over ([#5243](https://github.com/juspay/hyperswitch-control-center/pull/5243)) ([`e716f61`](https://github.com/juspay/hyperswitch-control-center/commit/e716f615c7ba3e8e008fa1c247ef017fc881316e))
+
+### Bug Fixes
+
+- Improve payout cards and default fallback routing ([#5241](https://github.com/juspay/hyperswitch-control-center/pull/5241)) ([`4217a5a`](https://github.com/juspay/hyperswitch-control-center/commit/4217a5a1ffe77f8ddcf9f32a4ad6d65d390f45ad))
+- Account filter in transformed entry exceptions ([#5246](https://github.com/juspay/hyperswitch-control-center/pull/5246)) ([`3bae00b`](https://github.com/juspay/hyperswitch-control-center/commit/3bae00b737652045261d14810e924b5b960458df))
+- Webhook registration field visible during connector creation ([#5247](https://github.com/juspay/hyperswitch-control-center/pull/5247)) ([`77938c3`](https://github.com/juspay/hyperswitch-control-center/commit/77938c3f1598549fcb421ba7d6184585c7ddfd4f))
+
+**Full Changelog:** [`2026.07.24.0...2026.07.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.24.0...2026.07.27.0)
+
+- - -
+
 ## 2026.07.24.0
 
 ### Features

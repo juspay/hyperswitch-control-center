@@ -466,6 +466,10 @@ test.describe("Payment default fallback", () => {
     await homePage.routing.click();
     await paymentRouting.defaultFallbackManageButton.click();
 
+    await expect(page.getByRole('button', { name: '1 STRIPE_TEST Stripe_test (stripe_test_1)' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '2 STRIPE_TEST Stripe_test (stripe_test_2)' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '3 STRIPE_TEST Stripe_test (stripe_test_3)' })).toBeVisible();
+
     const firstConnector = defaultFallback.connectorAt(0);
     const secondConnector = defaultFallback.connectorAt(1);
 
@@ -489,6 +493,10 @@ test.describe("Payment default fallback", () => {
     await page.mouse.up();
     await page.waitForTimeout(300);
 
+    await expect(page.getByRole('button', { name: '1 STRIPE_TEST Stripe_test (stripe_test_2)' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '2 STRIPE_TEST Stripe_test (stripe_test_1)' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '3 STRIPE_TEST Stripe_test (stripe_test_3)' })).toBeVisible();
+
     await defaultFallback.saveChangesButton.click();
 
     await defaultFallback.yesSaveItButton.waitFor({
@@ -498,6 +506,10 @@ test.describe("Payment default fallback", () => {
     await defaultFallback.yesSaveItButton.click();
 
     await expect(defaultFallback.configurationSavedToast).toBeVisible();
+    await expect(page.getByRole('button', { name: '1 STRIPE_TEST Stripe_test (stripe_test_2)' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '2 STRIPE_TEST Stripe_test (stripe_test_1)' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '3 STRIPE_TEST Stripe_test (stripe_test_3)' })).toBeVisible();
+
   });
 });
 
