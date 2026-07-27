@@ -104,6 +104,7 @@ module.exports = {
         "62-vh": "62vh",
         "68-vh": "68vh",
         "74-vh": "74vh",
+        "85-vh": "85vh",
       },
       minHeight: {
         "500-px": "500px",
@@ -362,6 +363,9 @@ module.exports = {
           light: "#F8B3AA",
         },
         "yellow-bg": "#F7D59B4D",
+        yellow: {
+          pending_page_bg: "#FDF4DD",
+        },
         "profile-sidebar-blue": "#16488F",
         "status-green": "#36AF47",
         "popover-background": "#334264",

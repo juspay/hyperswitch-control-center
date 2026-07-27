@@ -15,7 +15,8 @@ let useUserInfo = () => {
   let {profileId, merchantId} = getCommonSessionDetails()
 
   let url = `${Window.env.apiBaseUrl}/user`
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let getUserInfo = async () => {
     try {
@@ -24,6 +25,7 @@ let useUserInfo = () => {
         ~method_=Get,
         ~xFeatureRoute,
         ~forceCookies,
+        ~sendV1DummyApiKeyHeader,
         ~merchantId={merchantId},
         ~profileId={profileId},
       )
@@ -281,18 +283,29 @@ let useOMPData = () => {
   (getList, getNameForId)
 }
 
-let useOMPType = () => {
+type ompTypeState = {
+  isCurrentMerchantPlatform: bool,
+  isCurrentOrganizationPlatform: bool,
+  isCurrentMerchantConnected: bool,
+}
+
+let useOMPType = (): ompTypeState => {
   let {merchant_account_type} = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.merchantDetailsValueAtom,
   )
   let orgDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.organizationDetailsValueAtom)
 
-  let isCurrentMerchantPlatform = merchant_account_type == #platform ? true : false
+  let isCurrentMerchantPlatform = merchant_account_type == #platform
+  let isCurrentMerchantConnected = merchant_account_type == #connected
 
   let isCurrentOrganizationPlatform = switch orgDetails.type_ {
   | Some(#platform) => true
   | _ => false
   }
 
-  (isCurrentMerchantPlatform, isCurrentOrganizationPlatform)
+  {
+    isCurrentMerchantPlatform,
+    isCurrentOrganizationPlatform,
+    isCurrentMerchantConnected,
+  }
 }

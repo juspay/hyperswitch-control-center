@@ -91,6 +91,7 @@ let make = () => {
         payload->Dict.set("created_after", start_time->JSON.Encode.string)
         payload->Dict.set("created_before", end_time->JSON.Encode.string)
       }
+      payload->Dict.set("recipient", Merchant->eventRecipientToString->JSON.Encode.string)
 
       let url = getURL(~entityName=V1(WEBHOOK_EVENTS), ~methodType=Post)
       let response = await updateDetails(url, payload->JSON.Encode.object, Post)

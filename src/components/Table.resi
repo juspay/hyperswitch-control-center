@@ -1,4 +1,4 @@
-let regex: string => RescriptCore.RegExp.t
+let regex: string => RegExp.t
 let highlightedText: (Js.String.t, string) => React.element
 type labelColor = TableUtils.labelColor =
   | LabelGreen
@@ -17,11 +17,11 @@ type customiseColumnConfig = TableUtils.customiseColumnConfig = {
 type selectAllSubmitActions = TableUtils.selectAllSubmitActions = {
   btnText: string,
   showMultiSelectCheckBox: bool,
-  onClick: array<RescriptCore.JSON.t> => unit,
+  onClick: array<JSON.t> => unit,
   disableParam: disableField,
 }
 type hideItem = TableUtils.hideItem = {key: string, value: string}
-external jsonToStr: RescriptCore.JSON.t => string = "%identity"
+external jsonToStr: JSON.t => string = "%identity"
 type textAlign = TableUtils.textAlign = Left | Right
 type fontBold = bool
 type labelMargin = string
@@ -37,7 +37,7 @@ let getSortOrderString: sortOrder => string
 type label = TableUtils.label = {title: string, color: labelColor, showIcon?: bool}
 type currency = string
 type filterRow = TableUtils.filterRow =
-  | DropDownFilter(string, array<RescriptCore.JSON.t>)
+  | DropDownFilter(string, array<JSON.t>)
   | TextFilter(string)
   | Range(string, float, float)
 type cell = TableUtils.cell =
@@ -118,6 +118,7 @@ type rowType = TableUtils.rowType = Filter | Row
 let getTableCellValue: cell => string
 module SortIcons = TableUtils.SortIcons
 module HeaderActions = TableUtils.HeaderActions
+type visitedRowsConfig<'t> = {getId: 't => string, prefix_key: string}
 module TableFilterRow: {
   @react.component
   let make: (
@@ -170,6 +171,7 @@ module TableRow: {
     ~setSelectedIndex: ('a => int) => unit,
     ~areLastCellsRounded: bool=?,
     ~customSeparationArray: array<(int, int)>=?,
+    ~isVisited: bool=?,
   ) => React.element
 }
 module SortAction: {
@@ -264,8 +266,8 @@ let make: (
   ~tableBorderClass: string=?,
   ~tableDataBorderClass: string=?,
   ~collapseTableRow: bool=?,
-  ~getRowDetails: RescriptCore.Nullable.t<'b> => React.element=?,
-  ~actualData: array<RescriptCore.Nullable.t<'b>>=?,
+  ~getRowDetails: Nullable.t<'b> => React.element=?,
+  ~actualData: array<Nullable.t<'b>>=?,
   ~onExpandClickData: 'c=?,
   ~onMouseEnter: int => unit=?,
   ~onMouseLeave: int => unit=?,
@@ -311,4 +313,5 @@ let make: (
   ~highlightSelectedRow: bool=?,
   ~freezeFirstColumn: bool=?,
   ~customSeparation: array<(int, int)>=?,
+  ~visitedRows: visitedRowsConfig<'b>=?,
 ) => React.element

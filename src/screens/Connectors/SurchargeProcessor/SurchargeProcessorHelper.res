@@ -1,47 +1,6 @@
 open ConnectorTypes
 open LogicUtils
 
-module MenuOption = {
-  open HeadlessUI
-  @react.component
-  let make = (~handleMenuOptionSubmit, ~connectorInfo: ConnectorTypes.connectorPayload) => {
-    let showPopUp = PopUpState.useShowPopUp()
-
-    let openConfirmationPopUp = _ => {
-      showPopUp({
-        popUpType: (Warning, WithIcon),
-        heading: "Confirm Action?",
-        description: `You are about to set this connector as the default connector. This will override the previous default connector.`->React.string,
-        handleConfirm: {
-          text: "Confirm",
-          onClick: _ => handleMenuOptionSubmit(connectorInfo.merchant_connector_id)->ignore,
-        },
-        handleCancel: {text: "Cancel"},
-      })
-    }
-
-    <Popover \"as"="div" className="relative inline-block text-left">
-      {_ => <>
-        <Popover.Button> {_ => <Icon name="menu-option" size=28 />} </Popover.Button>
-        <Popover.Panel className="absolute z-20 right-5 top-4">
-          {panelProps => {
-            <div
-              id="neglectTopbarTheme"
-              className="relative flex flex-col bg-white py-1 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
-              {<Navbar.MenuOption
-                text="Set as default"
-                onClick={_ => {
-                  panelProps["close"]()
-                  openConfirmationPopUp()
-                }}
-              />}
-            </div>
-          }}
-        </Popover.Panel>
-      </>}
-    </Popover>
-  }
-}
 module CustomConnectorCellWithDefaultIcon = {
   @react.component
   let make = (
@@ -89,7 +48,7 @@ module CustomConnectorCellWithDefaultIcon = {
 
 module ConnectButton = {
   @react.component
-  let make = (~setShowModal, ~isSurchargeProcessorConnected) => {
+  let make = () => {
     let dict = Dict.make()
     ["hasValidationErrors", "errors"]->Array.forEach(item => {
       Dict.set(dict, item, JSON.Encode.bool(true))
@@ -98,22 +57,14 @@ module ConnectButton = {
       dict->JSON.Encode.object->Nullable.make,
     )
 
-    let {hasValidationErrors, errors} = formState
+    let {errors} = formState
 
     let errorsList = JsonFlattenUtils.flattenObject(errors, false)->Dict.toArray
 
-    let button = isSurchargeProcessorConnected
-      ? <AddDataAttributes attributes=[("data-testid", "connector-submit-button")]>
-          <Button
-            text="Connect and Proceed"
-            buttonType=Button.Primary
-            buttonState={hasValidationErrors ? Button.Disabled : Button.Normal}
-            onClick={_ => setShowModal(_ => true)}
-          />
-        </AddDataAttributes>
-      : <FormRenderer.SubmitButton
-          text="Connect and Proceed" buttonType=Button.Primary loadingText="Processing..."
-        />
+    let button =
+      <FormRenderer.SubmitButton
+        text="Connect and Proceed" buttonType=Button.Primary loadingText="Processing..."
+      />
 
     let description =
       errorsList

@@ -400,12 +400,13 @@ let make = (
       setInitialValues(_ => res)
       setScreenState(_ => PageLoaderWrapper.Success)
       showToast(
-        ~message=`Connector has been successfully ${currentIsDisabled ? "Enabled" : "Disabled"}`,
+        ~message=`Connector has been successfully ${currentIsDisabled ? "enabled" : "disabled"}`,
         ~toastType=ToastSuccess,
       )
     } catch {
     | Exn.Error(_) => {
-        showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
+        let action = currentIsDisabled ? "enable" : "disable"
+        showToast(~message=`Failed to ${action} connector!`, ~toastType=ToastError)
         setScreenState(_ => PageLoaderWrapper.Success)
       }
     }

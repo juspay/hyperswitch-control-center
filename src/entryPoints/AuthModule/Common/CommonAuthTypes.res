@@ -45,5 +45,6 @@ type subCode =
   | UR_35
   | UR_37
   | UR_39
+  | UR_59
 
 type modeType = TestButtonMode | LiveButtonMode

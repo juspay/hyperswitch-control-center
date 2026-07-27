@@ -11,11 +11,11 @@ export class PayoutOperations extends PaymentOperations {
   }
 
   get payoutStatusFieldWrapper(): Locator {
-    return this.page.locator('[data-component-field-wrapper="field-status"]');
+    return this.page.getByRole("button", { name: "Select status" });
   }
 
-  daterangeDropdownValue(value: string): Locator {
-    return this.page.locator(`[data-daterange-dropdown-value="${value}"]`);
+  get daterangeDropdownValue(): Locator {
+    return this.page.getByRole("menuitem", { name: "Last 30 minutes" });
   }
 
   get clearAllButton(): Locator {

@@ -18,6 +18,11 @@ let make = (~paymentId, ~disputeId) => {
     ~methodType=Get,
     ~queryParameters=Some(`payment_id=${paymentId}&dispute_id=${disputeId}`),
   )
+  let prismConnectorLogsUrl = getURL(
+    ~entityName=V1(PRISM_CONNECTOR_EVENT_LOGS),
+    ~methodType=Get,
+    ~queryParameters=Some(`payment_id=${paymentId}&dispute_id=${disputeId}`),
+  )
   let urls = [
     {
       url: disputesLogsUrl,
@@ -29,6 +34,10 @@ let make = (~paymentId, ~disputeId) => {
     },
     {
       url: connectorLogsUrl,
+      apiMethod: Get,
+    },
+    {
+      url: prismConnectorLogsUrl,
       apiMethod: Get,
     },
   ]

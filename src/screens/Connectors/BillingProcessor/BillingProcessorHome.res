@@ -128,14 +128,32 @@ let make = () => {
       body->Dict.set("billing_processor_id", mcaId->JSON.Encode.string)
       let _ = await updateBusinessProfile(~body=body->Identity.genericTypeToJson)
     } catch {
-    | _ => showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
+    | _ => Exn.raiseError("Failed to set billing processor as default")
     }
   }
   let handleMenuOptionSubmit = async mcaId => {
-    setScreenState(_ => Loading)
-    let _ = await updateBusinessProfileDetails(mcaId)
-    setScreenState(_ => Success)
-    showToast(~message="Successfully Saved the Changes", ~toastType=ToastState.ToastSuccess)
+    try {
+      setScreenState(_ => Loading)
+      let _ = await updateBusinessProfileDetails(mcaId)
+      setScreenState(_ => Success)
+      showToast(
+        ~message="Billing processor set as default successfully",
+        ~toastType=ToastState.ToastSuccess,
+      )
+    } catch {
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to set billing processor as default")
+        showToast(~message=err, ~toastType=ToastState.ToastError)
+        setScreenState(_ => Success)
+      }
+    | _ => {
+        showToast(
+          ~message="Failed to set billing processor as default",
+          ~toastType=ToastState.ToastError,
+        )
+        setScreenState(_ => Success)
+      }
+    }
   }
 
   let billingProcessorId = businessProfileRecoilVal.billing_processor_id->Option.getOr("")
@@ -166,6 +184,10 @@ let make = () => {
       let _ = await fetchConnectorListResponse()
       setInitialValues(_ => response)
       setCurrentStep(_ => Summary)
+      showToast(
+        ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
+        ~toastType=ToastSuccess,
+      )
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -177,7 +199,10 @@ let make = () => {
           setCurrentStep(_ => ConfigurationFields)
           setShowConfirmModal(_ => false)
         } else {
-          showToast(~message=errorMessage, ~toastType=ToastError)
+          showToast(
+            ~message=getErrorMessage(~message=errorMessage, ~error=err),
+            ~toastType=ToastError,
+          )
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }
@@ -257,7 +282,7 @@ let make = () => {
                   isUpdateFlow selectedConnector={connectorName}
                 />
               </div>
-              <div className="flex flex-col gap-2 p-2 md:p-10">
+              <div className="flex flex-col gap-2 p-2 md:px-10">
                 <div className="grid grid-cols-2 flex-1">
                   <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
                     connector={connectorName->getConnectorNameTypeFromString(
