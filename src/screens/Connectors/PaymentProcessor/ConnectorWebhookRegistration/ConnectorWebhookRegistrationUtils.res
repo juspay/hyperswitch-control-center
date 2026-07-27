@@ -54,3 +54,94 @@ let makeRegisterResponse = (dict): registerResponse => {
   ->getArrayFromDict("results", [])
   ->Array.map(result => result->getDictFromJsonObject->makeRegisterResult),
 }
+
+let notSpecificId = "not_specific"
+
+let getConnectedPmts = initialValues =>
+  initialValues
+  ->getDictFromJsonObject
+  ->getArrayFromDict("payment_methods_enabled", [])
+  ->Array.flatMap(pmEnabled =>
+    pmEnabled
+    ->getDictFromJsonObject
+    ->getArrayFromDict("payment_method_types", [])
+    ->Array.map(pmt => pmt->getDictFromJsonObject->getString("payment_method_type", ""))
+  )
+
+let getDisplayItems = (~registerConfig: registerConfig, ~connectedPmts) =>
+  switch registerConfig.scope_type {
+  | PaymentMethodType =>
+    registerConfig.payment_method_types->Array.filter(pmt => connectedPmts->Array.includes(pmt))
+  | EventType => registerConfig.event_types
+  | NotSpecific => []
+  }
+
+let getItemLabel = (~scopeType, item) =>
+  switch scopeType {
+  | EventType => item->snakeToTitle
+  | PaymentMethodType | NotSpecific => item->ConnectorUtils.getPaymentMethodDisplayName
+  }
+
+let isItemRegistered = status =>
+  switch status {
+  | Registered => true
+  | _ => false
+  }
+
+let isItemSelected = status =>
+  switch status {
+  | Registered | Selected => true
+  | _ => false
+  }
+
+let getSelectedItems = items =>
+  items->Array.filter(item =>
+    switch item.status {
+    | Selected => true
+    | _ => false
+    }
+  )
+
+let getRegisteredValues = webhooks =>
+  webhooks->Array.filterMap(webhook => {
+    let value = webhook->getDictFromJsonObject->getDictfromDict("scope")->getString("value", "")
+    value->isNonEmptyString ? Some(value) : None
+  })
+
+let makeRegisterBody = (~scopeType, ~selectedIdentifiers) => {
+  let scope = switch scopeType {
+  | NotSpecific => [("type", NotSpecific->scopeTypeToRequestType->JSON.Encode.string)]
+  | PaymentMethodType | EventType => [
+      ("type", scopeType->scopeTypeToRequestType->JSON.Encode.string),
+      ("values", selectedIdentifiers->Array.map(JSON.Encode.string)->JSON.Encode.array),
+    ]
+  }
+  [("scope", scope->getJsonFromArrayOfJson)]->getJsonFromArrayOfJson
+}
+
+let makeStatusByIdentifier = (~results: array<registerResult>, ~scopeType) => {
+  let statusById = Dict.make()
+  results->Array.forEach(result => {
+    let status = switch result.status {
+    | Succeeded => Registered
+    | Failed =>
+      RegisterFailed(
+        result.error->mapOptionOrDefault("Registration failed", error => error.message),
+      )
+    }
+    let identifier = switch scopeType {
+    | NotSpecific => notSpecificId
+    | PaymentMethodType | EventType => result.identifier
+    }
+    statusById->Dict.set(identifier, status)
+  })
+  statusById
+}
+
+let getFailedIdentifiers = (results: array<registerResult>) =>
+  results->Array.filterMap(result =>
+    switch result.status {
+    | Failed => Some(result.identifier)
+    | Succeeded => None
+    }
+  )

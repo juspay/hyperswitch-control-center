@@ -32,3 +32,14 @@ type registerResponse = {
   requested: array<string>,
   results: array<registerResult>,
 }
+
+type webhookItemStatus =
+  | Unselected
+  | Selected
+  | Registered
+  | RegisterFailed(string)
+
+type webhookItem = {
+  identifier: string,
+  status: webhookItemStatus,
+}

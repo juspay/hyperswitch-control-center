@@ -171,10 +171,8 @@ module RegisteredWebhooks = {
     ~setCurrentStep,
     ~webhookStepValue,
   ) => {
-    open APIUtils
     open LogicUtils
-    let getURL = useGetURL()
-    let fetchDetails = useGetMethod()
+    let getConnectorWebhooks = ConnectorWebhookRegistrationHooks.useGetConnectorWebhooks()
     let url = RescriptReactRouter.useUrl()
 
     let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
@@ -186,22 +184,8 @@ module RegisteredWebhooks = {
 
     let getRegisteredWebhooks = async () => {
       try {
-        let url = getURL(
-          ~entityName=V1(CONNECTOR_WEBHOOK),
-          ~methodType=Get,
-          ~id=Some(connectorInfo.merchant_connector_id),
-        )
-        let res = await fetchDetails(url)
-        let registered =
-          res
-          ->getDictFromJsonObject
-          ->getArrayFromDict("webhooks", [])
-          ->Array.filterMap(webhook => {
-            let value =
-              webhook->getDictFromJsonObject->getDictfromDict("scope")->getString("value", "")
-            value->isNonEmptyString ? Some(value) : None
-          })
-        setRegisteredWebhooks(_ => registered)
+        let webhooks = await getConnectorWebhooks(connectorInfo.merchant_connector_id)
+        setRegisteredWebhooks(_ => webhooks->ConnectorWebhookRegistrationUtils.getRegisteredValues)
       } catch {
       | _ => ()
       }
@@ -218,6 +202,11 @@ module RegisteredWebhooks = {
       </div>
       <div className="flex gap-12 col-span-3">
         <div className="flex flex-col gap-3 w-5/6">
+          <RenderIf condition={registeredWebhooks->isEmptyArray}>
+            <p className={`${Typography.body.md.regular} text-nd_gray-400 flex items-center h-7`}>
+              {"No webhooks registered for this connector"->React.string}
+            </p>
+          </RenderIf>
           {registeredWebhooks
           ->Array.mapWithIndex((item, index) =>
             <div key={index->Int.toString} className="flex items-center gap-2">

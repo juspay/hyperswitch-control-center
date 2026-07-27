@@ -39,6 +39,7 @@ module DeleteConnectorMenu = {
   @react.component
   let make = (~pageName="connector", ~connectorInfo: ConnectorTypes.connectorPayload) => {
     open APIUtils
+
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let deleteConnector = async () => {
@@ -85,6 +86,7 @@ module ConnectorSummaryGrid = {
   ) => {
     open ConnectorUtils
     open ConnectorPreviewTypes
+    open LogicUtils
 
     let url = RescriptReactRouter.useUrl()
     let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -105,7 +107,7 @@ module ConnectorSummaryGrid = {
 
     let connectorDetails = React.useMemo(() => {
       try {
-        if connectorName->LogicUtils.isNonEmptyString {
+        if connectorName->isNonEmptyString {
           let dict = switch processorType {
           | PaymentProcessor => Window.getConnectorConfig(connectorName)
           | PayoutProcessor => Window.getPayoutConnectorConfig(connectorName)
@@ -144,9 +146,9 @@ module ConnectorSummaryGrid = {
 
     let hasWebhookRegister =
       connectorDetails
-      ->LogicUtils.getDictFromJsonObject
-      ->LogicUtils.getDictfromDict("connector_webhook_register_details")
-      ->LogicUtils.isEmptyDict
+      ->getDictFromJsonObject
+      ->getDictfromDict("connector_webhook_register_details")
+      ->isEmptyDict
       ->not
 
     <>
@@ -247,7 +249,7 @@ module ConnectorSummaryGrid = {
                 ->Array.mapWithIndex((field, index) => {
                   <InfoField
                     key={index->Int.toString}
-                    label={field.payment_method->LogicUtils.snakeToTitle}
+                    label={field.payment_method->snakeToTitle}
                     render={Some(
                       field.payment_method_types
                       ->Array.map(item => item.payment_method_type->getPaymentMethodDisplayName)
