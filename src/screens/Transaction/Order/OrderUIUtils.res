@@ -356,9 +356,6 @@ let advancedPaymentTextListFilterTypes: array<filter> = [
   #card_issuer,
 ]
 
-let advancedPaymentTextListFilterKeys =
-  advancedPaymentTextListFilterTypes->Array.map(getValueFromFilterType)
-
 let advancedRoutingApproaches: array<advancedRoutingApproach> = [
   #default_fallback,
   #straight_through_routing,
@@ -366,12 +363,7 @@ let advancedRoutingApproaches: array<advancedRoutingApproach> = [
   #volume_based_routing,
 ]
 
-let advancedRoutingApproachValues =
-  advancedRoutingApproaches->Array.map(routingApproach => (routingApproach :> string))
-
 let openSearchRefundStatuses: array<openSearchRefundStatus> = [#partial_refunded, #full_refunded]
-
-let openSearchRefundStatusValues = openSearchRefundStatuses->Array.map(status => (status :> string))
 
 let openSearchDisputeStatuses: array<openSearchDisputeStatus> = [
   #dispute_present,
@@ -383,9 +375,6 @@ let openSearchDisputeStatuses: array<openSearchDisputeStatus> = [
   #dispute_cancelled,
   #dispute_expired,
 ]
-
-let openSearchDisputeStatusValues =
-  openSearchDisputeStatuses->Array.map(status => (status :> string))
 
 // The advanced list API expects these filters as arrays, while values restored
 // from the URL or a saved view may arrive as single scalars.
@@ -429,7 +418,9 @@ let buildAdvancedPaymentListPayload = (
   let body = filterParams->Dict.copy
 
   unsupportedAdvancedPaymentFilterKeys->Array.forEach(key => body->Dict.delete(key))
-  advancedPaymentTextListFilterKeys->Array.forEach(key => body->setStringListFilter(key))
+  advancedPaymentTextListFilterTypes
+  ->Array.map(getValueFromFilterType)
+  ->Array.forEach(key => body->setStringListFilter(key))
   body->setBoolListFilter(firstAttemptFilterKey)
 
   if trimmedSearchText->isNonEmptyString {
@@ -505,9 +496,10 @@ let initialFiltersWithSource = (
     | _ => []
     }
     let staticValues = switch filterType {
-    | #refunds_status => openSearchRefundStatusValues
-    | #dispute_status => openSearchDisputeStatusValues
-    | #routing_approach => advancedRoutingApproachValues
+    | #refunds_status => openSearchRefundStatuses->Array.map(status => (status :> string))
+    | #dispute_status => openSearchDisputeStatuses->Array.map(status => (status :> string))
+    | #routing_approach =>
+      advancedRoutingApproaches->Array.map(routingApproach => (routingApproach :> string))
     | _ => []
     }
     let values = isAdvancedSource

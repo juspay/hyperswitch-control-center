@@ -23,8 +23,6 @@ let advancedPaymentViewsArray: array<viewTypes> = [
   Disputed,
 ]
 
-let isAdvancedPaymentOnlyView = view => !(paymentViewsArray->Array.includes(view))
-
 let getAdvancedPaymentViewDescription = view =>
   switch view {
   | Refunded => "Payments that have partial or full refunds."
@@ -137,16 +135,9 @@ let buildAggregateMetricsUrl = (~metricConfig, ~transactionEntity) => {
   `${Window.env.apiBaseUrl}/${metricConfig.urlPrefix}/${scope}/metrics/${metricConfig.domain}`
 }
 
-let getAggregateUrl = (
-  ~getURL: APIUtilsTypes.getUrlTypes,
-  ~entity: operationsTypes,
-  ~version: UserInfoTypes.version,
-  ~startTime,
-  ~endTime,
-) => {
+let getEntityName = (~entity: operationsTypes, ~version: UserInfoTypes.version) => {
   open APIUtilsTypes
-  let queryParameters = Some(`start_time=${startTime}&end_time=${endTime}`)
-  let entityName = switch entity {
+  switch entity {
   | Orders =>
     switch version {
     | V1 => V1(ORDERS_AGGREGATE)
@@ -156,7 +147,6 @@ let getAggregateUrl = (
   | Disputes => V1(DISPUTES_AGGREGATE)
   | Payouts => V1(PAYOUTS_AGGREGATE)
   }
-  getURL(~entityName, ~methodType=Fetch.Get, ~queryParameters)
 }
 
 let getViewsDisplayName = (view: viewTypes) => {
@@ -242,8 +232,6 @@ let sumAllowedStatusCount = (dict, key, allowedStatuses) => {
   ->Float.toInt
 }
 
-let getSankeyRowCount = dict => dict->getFloat("count", dict->getFloat("payment_intent_count", 0.0))
-
 let getSankeyFirstAttempt = dict =>
   switch dict->getOptionValFromDict(firstAttemptFilterKey) {
   | Some(value) => value->getBoolFromJson(value->getIntFromJson(0) == 1)
@@ -263,12 +251,13 @@ let getViewFilterValue = (view, obj, entity) => {
     | RequiresCapture => "requires_capture"
     | FirstAttemptSuccess
     | RetrySuccess => "succeeded"
-    | Refunded => openSearchRefundStatusValues->Array.joinWith(",")
+    | Refunded =>
+      openSearchRefundStatuses->Array.map(status => (status :> string))->Array.joinWith(",")
     | Disputed =>
       buildPresentAllowedStatusFilterString(
         obj,
         "dispute_status_with_count",
-        openSearchDisputeStatusValues,
+        openSearchDisputeStatuses->Array.map(status => (status :> string)),
       )
     | _ => ""
     }
@@ -317,9 +306,17 @@ let getViewCount = (view, obj, entity) => {
   switch (view, entity) {
   | (All, _) => calculateTotalViewCount(obj)
   | (Refunded, Orders) =>
-    sumAllowedStatusCount(dict, "refunds_status_with_count", openSearchRefundStatusValues)
+    sumAllowedStatusCount(
+      dict,
+      "refunds_status_with_count",
+      openSearchRefundStatuses->Array.map(status => (status :> string)),
+    )
   | (Disputed, Orders) =>
-    sumAllowedStatusCount(dict, "dispute_status_with_count", openSearchDisputeStatusValues)
+    sumAllowedStatusCount(
+      dict,
+      "dispute_status_with_count",
+      openSearchDisputeStatuses->Array.map(status => (status :> string)),
+    )
   | (FirstAttemptSuccess, Orders) => dict->getInt("first_attempt_success_count", 0)
   | (RetrySuccess, Orders) => dict->getInt("retry_success_count", 0)
   | _ =>
@@ -380,7 +377,8 @@ let sankeyResponseToStatusWithCount = response => {
       ),
       (acc, row) => {
         let dict = row->getDictFromJsonObject
-        let count = dict->getSankeyRowCount
+        let count = dict->getFloat("count", dict->getFloat("payment_intent_count", 0.0))
+
         let status = dict->getString("status", "")->String.toLowerCase
         let refundsStatus = dict->getString("refunds_status", "")
         let disputeStatus = dict->getString("dispute_status", "")
@@ -437,22 +435,3 @@ let getStartAndEndTime = (filterValueJson, version) => {
         )
       }
 }
-
-let buildAggregateRequestKey = (
-  ~entity: operationsTypes,
-  ~version: UserInfoTypes.version,
-  ~transactionEntity: UserInfoTypes.entity,
-  ~isAdvancedView: bool,
-  ~devClickhouseAggregate: bool,
-  ~startTime: string,
-  ~endTime: string,
-) =>
-  [
-    (entity :> string),
-    (version :> string),
-    (transactionEntity :> string),
-    isAdvancedView->getStringFromBool,
-    devClickhouseAggregate->getStringFromBool,
-    startTime,
-    endTime,
-  ]->Array.joinWith(":")

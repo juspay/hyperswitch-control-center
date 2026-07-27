@@ -30,7 +30,7 @@ let make = (
     setSavedViews(_ => [])
     fetchSavedViews()->ignore
     None
-  }, (version, entity))
+  }, [])
 
   React.useEffect(() => {
     if !isInternalUpdate {
@@ -42,7 +42,7 @@ let make = (
       )
     }
     None
-  }, (filterValue, savedViews, version, entity, isInternalUpdate))
+  }, (filterValue, savedViews, version, isInternalUpdate))
 
   let showPopUp = PopUpState.useShowPopUp()
 
