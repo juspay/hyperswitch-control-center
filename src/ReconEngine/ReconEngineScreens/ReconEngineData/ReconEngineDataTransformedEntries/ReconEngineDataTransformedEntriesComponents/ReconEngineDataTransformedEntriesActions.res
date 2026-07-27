@@ -21,7 +21,7 @@ module MetadataView = {
 module LineageCard = {
   @react.component
   let make = (~title: string, ~children: React.element) => {
-    <div className="flex flex-col gap-4 justify-center p-3 border rounded-lg bg-nd_gray-25">
+    <div className="flex flex-col gap-4 p-3 border rounded-lg bg-nd_gray-25">
       <p className={`${body.lg.semibold} text-nd_gray-800`}> {title->React.string} </p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> {children} </div>
     </div>
@@ -226,7 +226,7 @@ let make = (~processingEntry: processingEntryType) => {
       closeOnOutsideClick=true
       modalHeading={getModalHeading(modalState.content)}
       modalHeadingClass={`text-nd_gray-800 ${heading.sm.semibold}`}
-      modalClass="flex flex-col justify-start h-screen w-1/3 float-right overflow-hidden !bg-white"
+      modalClass="flex flex-col justify-start h-screen w-full md:w-1/3 float-right overflow-hidden !bg-white"
       childClass="relative h-full">
       <ModalContentRenderer content={modalState.content} onClose={closeModal} />
     </Modal>

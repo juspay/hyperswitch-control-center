@@ -1,5 +1,3 @@
-open Typography
-
 @react.component
 let make = (
   ~ingestionHistoryId: string,
@@ -71,7 +69,7 @@ let make = (
     let urlTransformationHistoryId =
       url.search
       ->getDictFromUrlSearchParams
-      ->getvalFromDict("transformationHistoryId")
+      ->getOptionValFromDict("transformationHistoryId")
 
     switch urlTransformationHistoryId {
     | Some(historyId) => {
@@ -127,14 +125,7 @@ let make = (
     customUI={<NewAnalyticsHelper.NoData height="h-80" message="No data available." />}
     customLoader={<Shimmer styleClass="h-80 w-full rounded-b-xl" />}>
     <div className="flex flex-col px-6 py-3">
-      <Tabs
-        initialIndex={getActiveTabIndex}
-        tabs
-        showBorder=true
-        includeMargin=false
-        defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center ${body.sm.semibold}`}
-        selectTabBottomBorderColor="bg-primary"
-      />
+      <Tabs initialIndex={getActiveTabIndex} tabs />
     </div>
     <ReconEngineDataTransformationDetailsMappers showModal setShowModal selectedTransformationId />
   </PageLoaderWrapper>

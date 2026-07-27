@@ -7,7 +7,7 @@ let make = (~reviewFields, ~isUpload=false, ~fileUInt8Array) => {
 
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let (buttonState, setButtonState) = React.useState(() => Button.Normal)
   let (showLoading, setShowLoading) = React.useState(() => false)

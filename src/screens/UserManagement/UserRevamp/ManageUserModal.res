@@ -11,7 +11,7 @@ module ChangeRoleSection = {
     open LogicUtils
     let getURL = useGetURL()
     let url = RescriptReactRouter.useUrl()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let updateDetails = useUpdateMethod()
     let (userRole, setUserRole) = React.useState(_ => defaultRole)
     let userEmail =
@@ -62,7 +62,7 @@ module ChangeRoleSection = {
         </p>
       </div>
       <div className="flex gap-4 items-center">
-        <SelectBox.BaseDropdown
+        <SelectBoxAdapter.BaseDropdown
           options
           searchable=false
           input
@@ -93,7 +93,7 @@ module ResendInviteSection = {
     open APIUtils
     open LogicUtils
     let getURL = useGetURL()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let url = RescriptReactRouter.useUrl()
     let updateDetails = useUpdateMethod()
     let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
@@ -117,7 +117,7 @@ module ResendInviteSection = {
         let body = [("email", userEmail->JSON.Encode.string)]->getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Post)
         setScreenState(_ => PageLoaderWrapper.Success)
-        showToast(~message="Invite resend. Please check your email.", ~toastType=ToastSuccess)
+        showToast(~message="Invite resent. Please check your email.", ~toastType=ToastSuccess)
       } catch {
       | _ => {
           setScreenState(_ => PageLoaderWrapper.Success)
@@ -150,7 +150,7 @@ module DeleteUserRole = {
     open APIUtils
     open LogicUtils
     let getURL = useGetURL()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let url = RescriptReactRouter.useUrl()
     let updateDetails = useUpdateMethod()
     let showPopUp = PopUpState.useShowPopUp()

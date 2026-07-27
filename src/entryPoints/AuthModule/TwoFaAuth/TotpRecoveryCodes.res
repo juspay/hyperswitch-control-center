@@ -2,7 +2,7 @@ let h2TextStyle = HSwitchUtils.getTextClass((H2, Optional))
 
 @react.component
 let make = (~setTwoFaPageState, ~onClickDownload, ~setShowNewQR) => {
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let getURL = APIUtils.useGetURL()
   let fetchDetails = APIUtils.useGetMethod()
   let (recoveryCodes, setRecoveryCodes) = React.useState(_ => [])
@@ -57,11 +57,10 @@ let make = (~setTwoFaPageState, ~onClickDownload, ~setShowNewQR) => {
           <p className="text-jp-gray-700">
             {"Recovery codes provide a way to access your account if you lose your device and can't receive two-factor authentication codes."->React.string}
           </p>
-          <HSwitchUtils.AlertBanner
-            bannerContent={<p>
-              {"These codes are the last resort for accessing your account in case you lose your password and second factors. If you cannot find these codes, you will lose access to your account."->React.string}
-            </p>}
-            bannerType=Warning
+          <AlertV2Binding
+            alertType=Warning
+            slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
+            description="These codes are the last resort for accessing your account in case you lose your password and second factors. If you cannot find these codes, you will lose access to your account."
           />
           <TwoFaElements.ShowRecoveryCodes recoveryCodes />
         </div>

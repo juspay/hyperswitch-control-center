@@ -8,11 +8,13 @@ let make = (
   ~showModal,
   ~setShowModal,
   ~isModalView=true,
-  ~orderdColumnBasedOnDefaultCol: bool=false,
+  ~orderedColumnBasedOnDefaultCol: bool=false,
   ~sortingBasedOnDisabled=true,
   ~showSerialNumber=true,
   ~isDraggable=false,
   ~title,
+  ~isNewColumn=_ => false,
+  ~getNewColumnDescription=_ => "",
 ) => {
   open LoadedTableWithCustomColumnsUtils
   let headingWhenDraggable = {
@@ -32,7 +34,7 @@ let make = (
     ))
     ->Dict.fromArray
 
-  let sortByOrderOderedArr = (a, b) => {
+  let sortByOrderOrderedArr = (a, b) => {
     let positionInHeader = headingDict->LogicUtils.getInt(getHeading(a).title, 0)
     let positionInHeading = headingDict->LogicUtils.getInt(getHeading(b).title, 0)
     if positionInHeader < positionInHeading {
@@ -48,11 +50,20 @@ let make = (
   let initialHeadingData = heading->Array.map(head => {
     let columnName = getHeading(head).title
     let isDisabled = defaultColumnsString->Array.includes(columnName)
-    let options: SelectBox.dropdownOption = {
-      label: columnName,
-      value: columnName,
-      isDisabled,
-    }
+    let options: SelectBox.dropdownOption = isNewColumn(head)
+      ? {
+          label: columnName,
+          value: columnName,
+          isDisabled,
+          icon: Button.CustomRightIcon(
+            <NewFeatureTag description={getNewColumnDescription(head)} />,
+          ),
+        }
+      : {
+          label: columnName,
+          value: columnName,
+          isDisabled,
+        }
     options
   })
   let initialValues = visibleColumns->Array.map(head => getHeading(head).title)
@@ -63,8 +74,8 @@ let make = (
       heading[index]
     }
     let headers = values->Belt.Array.keepMap(getHeadingCol)
-    let headers = orderdColumnBasedOnDefaultCol
-      ? headers->Array.copy->Array.toSorted(sortByOrderOderedArr)
+    let headers = orderedColumnBasedOnDefaultCol
+      ? headers->Array.copy->Array.toSorted(sortByOrderOrderedArr)
       : headers
 
     setColumnValueInLocalStorage(values, title)

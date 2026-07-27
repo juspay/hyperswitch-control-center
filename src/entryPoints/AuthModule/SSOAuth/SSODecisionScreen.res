@@ -30,7 +30,7 @@ module SSOFromRedirect = {
 
     <HSwitchUtils.BackgroundImageWrapper customPageCss="font-semibold md:text-3xl p-16">
       <div className="h-full w-full flex justify-center items-center text-white opacity-90">
-        {"You will be redirecting to the dashboard..."->React.string}
+        {"You will be redirected to the dashboard..."->React.string}
       </div>
     </HSwitchUtils.BackgroundImageWrapper>
   }

@@ -6,7 +6,7 @@ let allColumns = [CustomerId, Name, Email, Phone, PhoneCountryCode, Address, Cre
 
 let getHeading = colType => {
   switch colType {
-  | CustomerId => Table.makeHeaderInfo(~key="id", ~title="Customer Id")
+  | CustomerId => Table.makeHeaderInfo(~key="id", ~title="Customer ID")
   | Name => Table.makeHeaderInfo(~key="name", ~title="Customer Name")
   | Email => Table.makeHeaderInfo(~key="email", ~title="Email")
   | PhoneCountryCode => Table.makeHeaderInfo(~key="phone_country_code", ~title="Phone Country Code")

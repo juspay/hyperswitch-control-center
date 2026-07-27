@@ -113,13 +113,17 @@ module Landing = {
           <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
           <DirectFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
         </>
-      | Processors(NUVEI) | Processors(NMI) =>
+      | Processors(NUVEI) | Processors(NMI) | Processors(STRIPE) =>
         <>
           <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
           <PaymentGatewayFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
           <PaymentGatewayPreDecryptFlow setGooglePayIntegrationType googlePayIntegrationType />
         </>
-
+      | Processors(IMERCHANTSOLUTIONS) =>
+        <>
+          <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
+          <PaymentGatewayPreDecryptFlow setGooglePayIntegrationType googlePayIntegrationType />
+        </>
       | _ =>
         <>
           <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>

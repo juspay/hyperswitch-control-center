@@ -612,7 +612,6 @@ let make = (
   ~path,
   ~linkSelectionCheck=defaultLinkSelectionCheck,
   ~verticalOffset="120px",
-  ~isReconEnabled,
   ~sidebars,
   ~productSiebars: array<topLevelItem>,
 ) => {
@@ -646,12 +645,8 @@ let make = (
       merchantList->Array.some(merchant => merchant.id->isNonEmptyString)
   }, [merchantList])
 
-  let exploredSidebars = useGetAllProductSections(
-    ~isReconEnabled,
-    ~products=hasMerchantData ? exploredModules : [],
-  )
+  let exploredSidebars = useGetAllProductSections(~products=hasMerchantData ? exploredModules : [])
   let unexploredSidebars = useGetAllProductSections(
-    ~isReconEnabled,
     ~products=hasMerchantData ? unexploredModules : [],
   )
 
@@ -863,7 +858,8 @@ let make = (
                         />
                       </div>
                     </Link>
-                    <RenderIf condition={devTheme}>
+                    <RenderIf
+                      condition={devTheme && userHasAccess(~groupAccess=ThemeView) == Access}>
                       <Link to_={GlobalVars.appendDashboardPath(~url="/theme")}>
                         <div
                           className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 ${isThemeSelected

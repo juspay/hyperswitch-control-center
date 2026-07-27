@@ -3,6 +3,7 @@ open APIUtils
 let make = (~remainingPath, ~previewOnly=false) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let url = RescriptReactRouter.useUrl()
   let pathVar = url.path->List.toArray->Array.joinWith("/")
 
@@ -11,12 +12,16 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let (routingType, setRoutingType) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
+  let (cutoverStatus, setCutoverStatus) = React.useState(_ => previewOnly ? Some(false) : None)
   let debitRoutingValue =
     (
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
     ).is_debit_routing_enabled->Option.getOr(false)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let showToast = ToastState.useShowToast()
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let isCutover = cutoverStatus->Option.getOr(false)
 
   let (widthClass, marginClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "mx-auto") : ("w-full", "mx-auto ")
@@ -28,13 +33,13 @@ let make = (~remainingPath, ~previewOnly=false) => {
     let baseTabs = [
       {
         title: "Active configuration",
-        renderContent: () => <ActiveRouting routingType />,
+        renderContent: () => <ActiveRouting routingType isCutover />,
       },
     ]
     hasWorkflowsManageAccess
       ? baseTabs->Array.concat([
           {
-            title: "Manage rules",
+            title: "Configuration History",
             renderContent: () => {
               records->Array.length > 0
                 ? <History records activeRoutingIds />
@@ -42,13 +47,13 @@ let make = (~remainingPath, ~previewOnly=false) => {
                     height="90%"
                     title="No Routing Rule Configured!"
                     customStyle="py-16"
-                    overriddingStylesTitle="text-3xl font-semibold"
+                    overridingStylesTitle="text-3xl font-semibold"
                   />
             },
           },
         ])
       : baseTabs
-  }, (routingType, debitRoutingValue))
+  }, (routingType, debitRoutingValue, isCutover))
 
   let fetchRoutingRecords = async activeIds => {
     try {
@@ -122,18 +127,60 @@ let make = (~remainingPath, ~previewOnly=false) => {
     None
   }, (pathVar, url.search, debitRoutingValue))
 
+  let checkRoutingEntry = async () => {
+    open LogicUtils
+    try {
+      let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
+      let res = await updateDetails(entryUrl, JSON.Encode.null, Post)
+      let cutover = res->getDictFromJsonObject->getBool("is_cutover", false)
+      setCutoverStatus(_ => Some(cutover))
+    } catch {
+    | Exn.Error(_) => setCutoverStatus(_ => Some(false))
+    }
+  }
+
+  let openDecisionEngineRoutingPage = async target => {
+    open LogicUtils
+    try {
+      let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
+      let res = await updateDetails(`${entryUrl}?target=${target}`, JSON.Encode.null, Post)
+      let redirectUrl = res->getDictFromJsonObject->getString("redirect_url", "")
+      if redirectUrl->isNonEmptyString {
+        redirectUrl->Window._open
+      }
+    } catch {
+    | Exn.Error(_) =>
+      showToast(
+        ~message="Failed to open Decision Engine routing. Please try again.",
+        ~toastType=ToastState.ToastError,
+      )
+    }
+  }
+
+  React.useEffect(() => {
+    if !previewOnly {
+      setCutoverStatus(_ => None)
+      checkRoutingEntry()->ignore
+    }
+    None
+  }, [profileId])
+
   let getTabName = index => index == 0 ? "active" : "history"
+
+  let screenState = switch cutoverStatus {
+  | None => PageLoaderWrapper.Loading
+  | Some(_) => screenState
+  }
 
   <PageLoaderWrapper screenState>
     <div className={`${widthClass} ${marginClass} gap-2.5`}>
-      <div className="flex flex-col gap-6">
-        <PageUtils.PageHeading
-          title="Smart routing configuration"
-          subTitle="Smart routing stack helps you to increase success rates and reduce costs by optimising your payment traffic across the various processors in the most customised yet reliable way. Set it up based on the preferred level of control"
-        />
+      <div className="flex flex-col">
+        <PageUtils.PageHeading title="Smart Routing Configurations" />
         <ActiveRouting.LevelWiseRoutingSection
-          types=[VOLUME_SPLIT, ADVANCED, AUTH_RATE_ROUTING, DEFAULTFALLBACK]
+          types=[AUTH_RATE_ROUTING, ADVANCED, VOLUME_SPLIT, DEFAULTFALLBACK]
           onRedirectBaseUrl="routing"
+          isCutover
+          onDecisionEngineRedirect={target => openDecisionEngineRoutingPage(target)->ignore}
         />
       </div>
       <RenderIf condition={!previewOnly}>
@@ -145,11 +192,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
               <Tabs
                 initialIndex={tabIndex >= 0 ? tabIndex : 0}
                 tabs
-                showBorder=false
-                includeMargin=false
-                lightThemeColor="primary"
-                defaultClasses="!w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
-                selectTabBottomBorderColor="bg-primary"
                 onTitleClick={index => {
                   setTabIndex(_ => index)
                   setCurrentTabName(_ => getTabName(index))

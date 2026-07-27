@@ -57,3 +57,9 @@ UE4wO="UE4wO" # Base64 encoded string
 istTime="istTime" # function to get time in indian standard time
 idx = "idx" # common abbreviation for index
 indx = "indx" # common abbreviation for index
+
+[default.extend-words]
+automatico = "automatico" # Spanish translation of automatic
+Guarenteed = "Guarenteed" # intentional spelling in connector content
+ue = "ue" # substring flagged in connector identifiers
+aci = "aci" # Connector name

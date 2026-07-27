@@ -17,7 +17,7 @@ module NewProcessorCards = {
     let descriptedFRMs = (frmList: array<ConnectorTypes.connectorTypes>, heading) => {
       <>
         <h2
-          className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
+          className={`${Typography.heading.sm.semibold} text-black text-opacity-75 dark:text-white dark:text-opacity-75`}>
           {heading->React.string}
         </h2>
         <div className="grid gap-4 lg:grid-cols-3 grid-cols-1 mb-5">
@@ -89,7 +89,7 @@ let make = () => {
   let frmConnectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=PaymentVas)
 
   let customUI =
-    <BluredTableComponent
+    <BlurredTableComponent
       infoText="No connectors configured yet. Try connecting a connector with card enabled as a payment method."
       buttonText="Take me to connectors"
       onClickElement={React.null}

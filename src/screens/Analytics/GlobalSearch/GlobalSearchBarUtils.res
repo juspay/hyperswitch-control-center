@@ -623,10 +623,10 @@ let getViewType = (~state, ~searchResults) => {
 }
 
 let getSearchValidation = query => {
-  let paylod = query->generateQuery
-  let query = paylod->getString("query", "")->String.trim
+  let payload = query->generateQuery
+  let query = payload->getString("query", "")->String.trim
 
-  !(paylod->getObj("filters", Dict.make())->isEmptyDict && query->isEmptyString)
+  !(payload->getObj("filters", Dict.make())->isEmptyDict && query->isEmptyString)
 }
 
 let sidebarScrollbarCss = `

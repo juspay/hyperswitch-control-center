@@ -6,8 +6,8 @@ module BuildPermaLinkUrl = {
       `${Window.Location.origin}`,
     )
     let queryParams = Window.Location.search
-    let path = `${Window.Location.pathName->Js.String2.replaceByRe(
-        Js.Re.fromString(GlobalVars.dashboardPrefix),
+    let path = `${Window.Location.pathName->String.replace(
+        GlobalVars.dashboardBasePath->Option.getOr(""),
         "",
       )}${queryParams}`
     url->Window.URL.searchParams->Window.URL.append("path", path)

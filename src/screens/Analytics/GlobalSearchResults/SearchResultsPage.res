@@ -58,7 +58,7 @@ module RenderSearchResultBody = {
 module DownloadButton = {
   @react.component
   let make = (~section: resultType, ~searchText) => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
 
     let downloadData = () => {
       let toast = (~message, ~toastType) => showToast(~message, ~toastType)
@@ -132,10 +132,8 @@ let make = () => {
   let (state, setState) = React.useState(_ => Idle)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (searchResults, setSearchResults) = React.useState(_ => [])
-  let globalSearchResult = HyperswitchAtom.globalSeacrchAtom->Recoil.useRecoilValueFromAtom
-  let merchentDetails = MerchantDetailsHook.useMerchantDetailsValue()
-  let isReconEnabled = merchentDetails.recon_status === Active
-  let hswitchTabs = SidebarHooks.useGetHsSidebarValues(~isReconEnabled)
+  let globalSearchResult = HyperswitchAtom.globalSearchAtom->Recoil.useRecoilValueFromAtom
+  let hswitchTabs = SidebarHooks.useGetHsSidebarValues()
   let query = UrlUtils.useGetFilterDictFromUrl("")->getString("query", "")
   let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()

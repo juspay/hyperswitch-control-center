@@ -29,6 +29,7 @@ gh repo view --json nameWithOwner -q '.nameWithOwner'
 ```
 
 Save these for later — you need them to post comments:
+
 - `PR_NUMBER` = the PR number
 - `COMMIT_SHA` = `headRefOid` from the metadata
 - `OWNER_REPO` = `nameWithOwner` (e.g. `juspay/hyperswitch-control-center`)
@@ -151,6 +152,7 @@ gh api repos/<OWNER_REPO>/pulls/<PR_NUMBER>/comments \
 ```
 
 **Building the body string**: Construct `<COMMENT_BODY>` as a properly JSON-escaped string. Remember to escape:
+
 - `"` → `\"`
 - newlines → `\n`
 - backslashes → `\\`
@@ -158,9 +160,9 @@ gh api repos/<OWNER_REPO>/pulls/<PR_NUMBER>/comments \
 
 For a comment WITH `suggested_code`, the body should be:
 
-```
+````
 **[<SEVERITY>]** <COMMENT>\n\n```suggestion\n<SUGGESTED_CODE>\n```
-```
+````
 
 For a comment WITHOUT `suggested_code`, the body is simply:
 
@@ -240,4 +242,3 @@ If a comment fails to post, log the error and continue with the rest.
 - `commit_id` MUST be `headRefOid` — not any other commit
 - Preserve exact file paths from the diff — no normalizing
 - Fetch the FULL diff, not just filenames — momus needs actual code to review
-      

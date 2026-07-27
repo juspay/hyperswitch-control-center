@@ -1,7 +1,6 @@
 @react.component
 let make = () => {
   open LogicUtils
-  open Typography
   open ThemeListHelper
 
   let getURL = APIUtils.useGetURL()
@@ -9,66 +8,80 @@ let make = () => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let themeList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.themeListAtom)
-  let {themeId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
   let (currentTheme, setCurrentTheme) = React.useState(_ => None)
   let themeListArray = themeList->getArrayFromJson([])
-  let (_, getNameForId) = OMPSwitchHooks.useOMPData()
+  let (getList, getNameForId) = OMPSwitchHooks.useOMPData()
+  let {orgList, merchantList, profileList} = getList()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-
+  let {themeId: themeIdFromUserInfo, orgId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getResolvedUserInfo()
   let (showModal, setShowModal) = React.useState(_ => false)
 
   let fetchCurrentTheme = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=V1(USERS), ~methodType=Get, ~id=Some(themeId), ~userType=#THEME)
+      let url = getURL(
+        ~entityName=V1(USERS),
+        ~methodType=Get,
+        ~id=Some(themeIdFromUserInfo),
+        ~userType=#THEME,
+      )
       let res = await getMethod(url)
       setCurrentTheme(_ => Some(res))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Theme doesn't exist for this Lineage"))
+    | _ => {
+        setCurrentTheme(_ => None)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     }
   }
 
   React.useEffect(() => {
-    if themeId->isNonEmptyString {
+    let storeThemeId = HyperSwitchEntryUtils.getThemeIdfromStore()->Option.getOr("")
+    if themeIdFromUserInfo->isNonEmptyString && themeIdFromUserInfo == storeThemeId {
       fetchCurrentTheme()->ignore
     }
     None
-  }, [themeId])
+  }, [themeIdFromUserInfo])
 
   <PageLoaderWrapper screenState>
     <div className="flex flex-col h-screen gap-8">
       <div className="flex flex-col flex-1 h-full w-full">
-        <div className="flex flex-row items-center justify-between w-full">
+        <div className="flex items-center justify-between w-full">
           <div className="flex-1">
             <PageUtils.PageHeading
-              title="Theme Configuration"
-              subTitle="Personalize your dashboard look with a live preview."
-              customSubTitleStyle={`${body.lg.medium} text-nd_gray-400`}
+              title="Theme Configuration" customTitleStyle="text-nd_gray-800"
             />
           </div>
           <RenderIf condition={themeListArray->Array.length > 0}>
-            <div>
-              <ACLButton
-                text="Create Theme"
-                buttonType=Primary
-                buttonSize=Small
-                customButtonStyle={`${body.md.semibold} py-4`}
-                authorization={userHasAccess(~groupAccess=ThemeManage)}
-                onClick={_ => setShowModal(_ => true)}
-              />
-              <ThemeHelper.ThemeLineageModal showModal setShowModal />
-            </div>
+            <ACLButton
+              text="Create Theme"
+              buttonType=Primary
+              buttonSize=Small
+              authorization={userHasAccess(~groupAccess=ThemeManage)}
+              onClick={_ => setShowModal(_ => true)}
+            />
           </RenderIf>
         </div>
-        <NoThemesFound themeListArray />
+        <RenderIf condition={themeListArray->isNonEmptyArray}>
+          <div className="mt-2">
+            <AlertV2Binding
+              alertType=Warning
+              slot={{slot: <Icon name="nd-info-circle" size=16 className="text-nd_gray-500" />}}
+              description="Theme changes take effect after the page is refreshed."
+            />
+          </div>
+        </RenderIf>
+        <NoThemesFound themeListArray setShowModal />
         <RenderIf condition={themeListArray->Array.length > 0}>
-          <CurrentThemeCard currentTheme getNameForId />
+          <CurrentThemeCard currentTheme getNameForId themeId={themeIdFromUserInfo} orgId />
           <LoadedTable
             title="List of created themes"
             hideTitle=false
             actualData={themeListArray->Array.map(Nullable.make)}
-            entity=ThemeListEntity.themeTableEntity
+            entity={ThemeListEntity.themeTableEntity(~orgId, ~orgList, ~merchantList, ~profileList)}
             resultsPerPage=20
             showSerialNumber=true
             totalResults={themeListArray->Array.length}
@@ -78,6 +91,7 @@ let make = () => {
           />
         </RenderIf>
       </div>
+      <ThemeHelper.ThemeLineageModal showModal setShowModal />
     </div>
   </PageLoaderWrapper>
 }

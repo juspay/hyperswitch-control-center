@@ -13,7 +13,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
     Dict.make()->JSON.Encode.object->getPaymentMethodEnabled
   )
   let (_metaData, setMetaData) = React.useState(_ => Dict.make()->JSON.Encode.object)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   // id required in case of update flow
   let connectorID = switch HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "") {
   | "new" => None
@@ -91,7 +91,10 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
           setCurrentStep(_ => ConnectorTypes.IntegFields)
         } else {
-          showToast(~message=errorMessage, ~toastType=ToastError)
+          showToast(
+            ~message=getErrorMessage(~message=errorMessage, ~error=err),
+            ~toastType=ToastError,
+          )
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }
@@ -114,11 +117,10 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
         </div>
         <div className="grid grid-cols-4 flex-1 p-2 md:p-10">
           <div className="flex flex-col gap-6 col-span-3">
-            <HSwitchUtils.AlertBanner
-              bannerContent={<p>
-                {"Please verify if the payment methods are turned on at the processor end as well."->React.string}
-              </p>}
-              bannerType=Warning
+            <AlertV2Binding
+              alertType=Warning
+              slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
+              description="Please verify if the payment methods are turned on at the processor end as well."
             />
             <PaymentMethod.PaymentMethodsRender
               _showAdvancedConfiguration

@@ -19,3 +19,19 @@ let allSettledPolyfill = (arr: array<promise<JSON.t>>) => {
   )
   ->Promise.all
 }
+
+let allSettledResultPolyfill = (arr: array<promise<'a>>) => {
+  arr
+  ->Array.map(promise =>
+    promise
+    ->Promise.then(val => Promise.resolve(Ok(val)))
+    ->Promise.catch(err => {
+      let msg = switch err {
+      | Exn.Error(e) => Exn.message(e)->Option.getOr("Failed to Fetch!")
+      | _ => "Unknown error"
+      }
+      Promise.resolve(Error(msg))
+    })
+  )
+  ->Promise.all
+}

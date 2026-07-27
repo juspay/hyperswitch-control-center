@@ -234,6 +234,7 @@ let make = (
   ~showAutoScroll=false,
   ~highlightSelectedRow=false,
   ~customSeparation=?,
+  ~visitedRows=?,
 ) => {
   open LogicUtils
   let showPopUp = PopUpState.useShowPopUp()
@@ -621,7 +622,7 @@ let make = (
         ->Array.unshift(
           CustomCell(
             <div onClick={ev => ev->ReactEvent.Mouse.stopPropagation}>
-              <CheckBoxIcon
+              <CheckBoxIconAdapter
                 isSelected={selectedRowIndex !== -1} setIsSelected checkboxDimension="h-4 w-4"
               />
             </div>,
@@ -837,6 +838,7 @@ let make = (
                 showPagination
                 highlightSelectedRow
                 ?customSeparation
+                ?visitedRows
               />
             switch tableLocalFilter {
             | true =>

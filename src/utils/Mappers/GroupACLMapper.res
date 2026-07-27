@@ -7,6 +7,7 @@ let mapGroupAccessTypeToString = groupAccessType =>
   | OperationsManage => "operations_manage"
   | ConnectorsView => "connectors_view"
   | ConnectorsManage => "connectors_manage"
+  | CloneConnectorManage => "clone_connector_manage"
   | WorkflowsView => "workflows_view"
   | WorkflowsManage => "workflows_manage"
   | AnalyticsView => "analytics_view"
@@ -19,6 +20,14 @@ let mapGroupAccessTypeToString = groupAccessType =>
   | AccountManage => "account_manage"
   | ThemeView => "theme_view"
   | ThemeManage => "theme_manage"
+  | ReconSourcesView => "recon_sources_view"
+  | ReconSourcesManage => "recon_sources_manage"
+  | ReconTransactionsView => "recon_transactions_view"
+  | ReconTransactionsManage => "recon_transactions_manage"
+  | ReconRulesView => "recon_rules_view"
+  | ReconRulesManage => "recon_rules_manage"
+  | ReconExceptionsView => "recon_exceptions_view"
+  | ReconExceptionsManage => "recon_exceptions_manage"
   | UnknownGroupAccess(val) => val
   }
 
@@ -28,6 +37,7 @@ let mapStringToGroupAccessType = val =>
   | "operations_manage" => OperationsManage
   | "connectors_view" => ConnectorsView
   | "connectors_manage" => ConnectorsManage
+  | "clone_connector_manage" => CloneConnectorManage
   | "workflows_view" => WorkflowsView
   | "workflows_manage" => WorkflowsManage
   | "analytics_view" => AnalyticsView
@@ -40,6 +50,14 @@ let mapStringToGroupAccessType = val =>
   | "account_manage" => AccountManage
   | "theme_view" => ThemeView
   | "theme_manage" => ThemeManage
+  | "recon_sources_view" => ReconSourcesView
+  | "recon_sources_manage" => ReconSourcesManage
+  | "recon_transactions_view" => ReconTransactionsView
+  | "recon_transactions_manage" => ReconTransactionsManage
+  | "recon_rules_view" => ReconRulesView
+  | "recon_rules_manage" => ReconRulesManage
+  | "recon_exceptions_view" => ReconExceptionsView
+  | "recon_exceptions_manage" => ReconExceptionsManage
   | val => UnknownGroupAccess(val)
   }
 
@@ -50,6 +68,7 @@ let mapStringToResourceAccessType = val =>
   | "api_key" => ApiKey
   | "account" => Account
   | "connector" => Connector
+  | "clone_connector" => CloneConnector
   | "routing" => Routing
   | "dispute" => Dispute
   | "mandate" => Mandate
@@ -61,14 +80,13 @@ let mapStringToResourceAccessType = val =>
   | "webhook_event" => WebhookEvent
   | "payout" => Payout
   | "report" => Report
-  | "recon_token" => ReconToken
-  | "recon_files" => ReconFiles
-  | "recon_and_settlement_analytics" => ReconAndSettlementAnalytics
-  | "recon_upload" => ReconUpload
-  | "recon_reports" => ReconReports
-  | "run_recon" => RunRecon
-  | "recon_config" => ReconConfig
   | "theme" => Theme
+  | "recon_ingestion" => ReconIngestion
+  | "recon_transformation" => ReconTransformation
+  | "recon_exception" => ReconException
+  | "recon_staging_entry" => ReconStagingEntry
+  | "recon_transaction" => ReconTransaction
+  | "recon_rule" => ReconRule
   | _ => UnknownResourceAccess(val)
   }
 
@@ -77,6 +95,7 @@ let defaultValueForGroupAccessJson = {
   operationsManage: NoAccess,
   connectorsView: NoAccess,
   connectorsManage: NoAccess,
+  cloneConnectorManage: NoAccess,
   workflowsView: NoAccess,
   workflowsManage: NoAccess,
   analyticsView: NoAccess,
@@ -89,6 +108,14 @@ let defaultValueForGroupAccessJson = {
   accountManage: NoAccess,
   themeView: NoAccess,
   themeManage: NoAccess,
+  reconSourcesView: NoAccess,
+  reconSourcesManage: NoAccess,
+  reconTransactionsView: NoAccess,
+  reconTransactionsManage: NoAccess,
+  reconRulesView: NoAccess,
+  reconRulesManage: NoAccess,
+  reconExceptionsView: NoAccess,
+  reconExceptionsManage: NoAccess,
 }
 
 let convertValueToMapGroup = arrayValue => {
@@ -111,6 +138,7 @@ let getGroupAccessJson = groupACL => {
     operationsManage: getAccess(OperationsManage),
     connectorsView: getAccess(ConnectorsView),
     connectorsManage: getAccess(ConnectorsManage),
+    cloneConnectorManage: getAccess(CloneConnectorManage),
     workflowsView: getAccess(WorkflowsView),
     workflowsManage: getAccess(WorkflowsManage),
     analyticsView: getAccess(AnalyticsView),
@@ -123,5 +151,13 @@ let getGroupAccessJson = groupACL => {
     accountManage: getAccess(AccountManage),
     themeView: getAccess(ThemeView),
     themeManage: getAccess(ThemeManage),
+    reconSourcesView: getAccess(ReconSourcesView),
+    reconSourcesManage: getAccess(ReconSourcesManage),
+    reconTransactionsView: getAccess(ReconTransactionsView),
+    reconTransactionsManage: getAccess(ReconTransactionsManage),
+    reconRulesView: getAccess(ReconRulesView),
+    reconRulesManage: getAccess(ReconRulesManage),
+    reconExceptionsView: getAccess(ReconExceptionsView),
+    reconExceptionsManage: getAccess(ReconExceptionsManage),
   }
 }

@@ -78,16 +78,16 @@ let make = (
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
   let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
-  let defaulGranularity = getDefaultGranularity(
+  let defaultGranularity = getDefaultGranularity(
     ~startTime=startTimeVal,
     ~endTime=endTimeVal,
     ~granularity=featureFlag.granularity,
   )
-  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
+  let (granularity, setGranularity) = React.useState(_ => defaultGranularity)
 
   React.useEffect(() => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
-      setGranularity(_ => defaulGranularity)
+      setGranularity(_ => defaultGranularity)
     }
     None
   }, (startTimeVal, endTimeVal))

@@ -89,7 +89,7 @@ module NetworkTokens = {
 }
 
 @react.component
-let make = (~paymentId, ~setShowModal, ~sampleReport) => {
+let make = (~paymentId, ~setShowModal, ~sampleReport, ~showModal) => {
   open APIUtils
   open VaultPaymentMethodDetailsTypes
   open LogicUtils
@@ -131,13 +131,15 @@ let make = (~paymentId, ~setShowModal, ~sampleReport) => {
     setPaymentsDetailsData(_ => selectedDataObject)
   }
   React.useEffect(() => {
-    if !sampleReport {
-      fetchPaymentMethodDetails()->ignore
-    } else {
-      fetchDummyData()->ignore
+    if showModal {
+      if !sampleReport {
+        fetchPaymentMethodDetails()->ignore
+      } else {
+        fetchDummyData()->ignore
+      }
     }
     None
-  }, [])
+  }, [showModal])
 
   <PageLoaderWrapper screenState>
     <div className="bg-white height-screen">
@@ -152,7 +154,7 @@ let make = (~paymentId, ~setShowModal, ~sampleReport) => {
       </div>
       <hr />
       <div className="px-8 py-6 flex flex-col gap-8 h-full">
-        <NetworkTokens data={paymentsDetailsData.network_tokens} />
+        <NetworkTokens data={paymentsDetailsData.network_token} />
         <PaymentMethodDetails data={paymentsDetailsData.payment_method_data.card} />
         <PSPTokens data={paymentsDetailsData.connector_tokens} />
       </div>

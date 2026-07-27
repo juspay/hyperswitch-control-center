@@ -20,7 +20,7 @@ let make = (
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
     ~entityName=V2(V2_CONNECTOR),
     ~version=V2,
@@ -29,7 +29,7 @@ let make = (
   let url = RescriptReactRouter.useUrl()
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
 
-  let removeFieldsFromRespose = json => {
+  let removeFieldsFromResponse = json => {
     let dict = json->getDictFromJsonObject
     dict->Dict.delete("applepay_verified_domains")
     dict->Dict.delete("business_country")
@@ -47,7 +47,7 @@ let make = (
         ~id=Some(connectorID),
       )
       let json = await fetchDetails(connectorUrl, ~version=V2)
-      setInitialValues(_ => json->removeFieldsFromRespose)
+      setInitialValues(_ => json->removeFieldsFromResponse)
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch details"))
@@ -100,6 +100,7 @@ let make = (
         | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
         | PaymentVas => JSON.Encode.null
         | VaultProcessor => Window.getConnectorConfig(connectorName)
+        | SurchargeProcessor => Window.getSurchargeProcessorConfig(connectorName)
         }
         dict
       } else {
@@ -148,7 +149,7 @@ let make = (
       let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
       let _ = await fetchConnectorListResponse()
       setCurrentActiveSection(_ => None)
-      setInitialValues(_ => response->removeFieldsFromRespose)
+      setInitialValues(_ => response->removeFieldsFromResponse)
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to update"))
@@ -216,10 +217,6 @@ let make = (
         },
       ]
       currentPageTitle={`${connectorName->getDisplayNameForConnector}`}
-      dividerVal=Slash
-      customTextClass="text-nd_gray-400 font-medium "
-      childGapClass="gap-2"
-      titleTextClass="text-ng_gray-600 font-medium"
     />
     <Form onSubmit initialValues validate=validateMandatoryField>
       <div className={`flex flex-col gap-10 ${topPadding} `}>
@@ -239,14 +236,14 @@ let make = (
         <div className="flex flex-col gap-12">
           <div className="flex gap-10 max-w-3xl flex-wrap px-2">
             <ConnectorWebhookPreview
-              merchantId connectorName=connectorInfodict.id truncateDisplayValue=true
+              merchantId connectorName=connectorInfodict.connector_name truncateDisplayValue=true
             />
-            <div className="flex flex-col gap-0.5-rem ">
+            <div className="flex flex-col gap-2 ">
               <h4 className="text-nd_gray-400 "> {"Profile"->React.string} </h4>
               {connectorInfodict.profile_id->React.string}
             </div>
             <RenderIf condition=showProcessorStatus>
-              <div className="flex flex-col gap-0.5-rem ">
+              <div className="flex flex-col gap-2 ">
                 <h4 className="text-nd_gray-400 "> {"Processor status"->React.string} </h4>
                 <div className="flex flex-row gap-2 items-center ">
                   <ConnectorHelperV2.ProcessorStatus connectorInfo=connectorInfodict />
@@ -270,7 +267,7 @@ let make = (
                       customButtonStyle="w-fit"
                     />
                     <FormRenderer.SubmitButton
-                      text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+                      text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
                     />
                   </>
                 } else {
@@ -308,7 +305,7 @@ let make = (
                       customButtonStyle="w-fit"
                     />
                     <FormRenderer.SubmitButton
-                      text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+                      text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
                     />
                   </>
                 } else {
@@ -355,7 +352,7 @@ let make = (
                     customButtonStyle="w-fit"
                   />
                   <FormRenderer.SubmitButton
-                    text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+                    text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
                   />
                 </>
               } else {

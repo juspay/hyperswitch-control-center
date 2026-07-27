@@ -14,7 +14,7 @@ let getHeading = colType => {
   switch colType {
   | TokenId => Table.makeHeaderInfo(~key="token", ~title="Token")
   | Connector => Table.makeHeaderInfo(~key="connector", ~title="Connector")
-  | MCAId => Table.makeHeaderInfo(~key="mca_id", ~title="MCA Id")
+  | MCAId => Table.makeHeaderInfo(~key="mca_id", ~title="MCA ID")
   | TokenType => Table.makeHeaderInfo(~key="tokentype", ~title="Token Type")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
   }

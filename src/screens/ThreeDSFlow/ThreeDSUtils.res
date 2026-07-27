@@ -1,6 +1,6 @@
 type pageState = NEW | LANDING
 
-let statementObject: array<RoutingTypes.statement> = [
+let defaultStatements: array<RoutingTypes.statement> = [
   {
     lhs: "amount",
     value: {
@@ -26,19 +26,19 @@ type threeDsRoutingType = {
   algorithm: RoutingTypes.algorithmData,
 }
 
-let rules: RoutingTypes.rule = {
+let defaultThreeDsRule: RoutingTypes.rule = {
   name: "rule_1",
   connectorSelection: {
     override_3ds: "three_ds",
   },
-  statements: statementObject,
+  statements: defaultStatements,
 }
 
 let getInitial3DSValue = (~currentDate, ~currentTime): threeDsRoutingType => {
   name: `3DS Rule-${currentDate}`,
   description: `This is a Three-Ds Rule created at ${currentTime}`,
   algorithm: {
-    rules: [rules],
+    rules: [defaultThreeDsRule],
     defaultSelection: {
       override_3ds: "",
     },

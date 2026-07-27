@@ -4,12 +4,12 @@ let make = () => {
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let vaultPspTokenizationTabElement = {
     <div className="flex gap-2 items-center">
       <ToolTip
         description="Hyperswitch securely converts card details into tokens from your existing PSP accounts (Stripe, Adyen, Worldpay, etc.), allowing you to process payments through these providers using these tokens rather than raw card data."
-        iconOpacityVal="100"
       />
       {"PSP Tokenisation"->React.string}
     </div>
@@ -18,7 +18,6 @@ let make = () => {
     <div className="flex gap-2 items-center">
       <ToolTip
         description="Hyperswitch securely replaces card details with network tokens from card networks (Visa, Mastercard, Amex, etc.), allowing you to process payments with enhanced security and authorization rates while reducing processing costs, fraud risk and compliance requirements."
-        iconOpacityVal="100"
       />
       {"Network Tokenisation"->React.string}
     </div>
@@ -28,25 +27,29 @@ let make = () => {
     None
   }, [])
 
-  let getTabName = index => index == 0 ? "PSP Tokenisation" : "Network Tokenisation"
-
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
-    [
-      {
-        title: "",
-        tabElement: vaultPspTokenizationTabElement,
-        renderContent: () => {
-          <VaultProcessorList />
-        },
+    let pspTokenizationTab = {
+      title: "",
+      tabElement: vaultPspTokenizationTabElement,
+      renderContent: () => {
+        <VaultProcessorList />
       },
-      {
-        title: "",
-        tabElement: vaultNetworkTokenizationTabElement,
-        renderContent: () => <VaultNetworkTokenisation />,
-      },
-    ]
-  }, [])
+    }
+    let networkTokenizationTab = {
+      title: "",
+      tabElement: vaultNetworkTokenizationTabElement,
+      renderContent: () => <VaultNetworkTokenisation />,
+    }
+    featureFlagDetails.vaultPspTokenization
+      ? [pspTokenizationTab, networkTokenizationTab]
+      : [networkTokenizationTab]
+  }, [featureFlagDetails.vaultPspTokenization])
+
+  let getTabName = index =>
+    featureFlagDetails.vaultPspTokenization && index == 0
+      ? "PSP Tokenisation"
+      : "Network Tokenisation"
 
   <div className="flex flex-col gap-12">
     <PageUtils.PageHeading
@@ -79,14 +82,10 @@ let make = () => {
       <Tabs
         initialIndex={tabIndex >= 0 ? tabIndex : 0}
         tabs
-        showBorder=true
-        includeMargin=false
-        defaultClasses="!w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body border "
         onTitleClick={index => {
           setTabIndex(_ => index)
           setCurrentTabName(_ => getTabName(index))
         }}
-        selectTabBottomBorderColor="bg-primary"
       />
     </div>
   </div>

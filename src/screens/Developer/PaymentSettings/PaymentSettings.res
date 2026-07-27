@@ -1,14 +1,14 @@
 module InfoViewForWebhooks = {
   @react.component
   let make = (~heading, ~subHeading, ~isCopy=false) => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let onCopyClick = ev => {
       ev->ReactEvent.Mouse.stopPropagation
       Clipboard.writeText(subHeading)
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
     }
 
-    <div className={`flex flex-col gap-2 m-2 md:m-4 w-1/2`}>
+    <div className={`flex flex-col gap-2 mx-1 my-4 w-1/2`}>
       <p className="font-semibold text-fs-15"> {heading->React.string} </p>
       <div className="flex gap-2 break-all w-full items-start">
         <p className="font-medium text-fs-14 text-black opacity-50"> {subHeading->React.string} </p>
@@ -132,12 +132,12 @@ module AuthenticationInput = {
 
     <DesktopRow wrapperClass="flex-1">
       <div className="mt-5">
-        <TextInput
+        <TextInputAdapter
           input={keyInput} placeholder={"Enter key"} isDisabled={isDisabled && !allowEdit}
         />
       </div>
       <div className="mt-5">
-        <TextInput
+        <TextInputAdapter
           input={valueInput} placeholder={"Enter value"} isDisabled={isDisabled && !allowEdit}
         />
       </div>
@@ -241,7 +241,7 @@ module WebHookSection = {
     open MerchantAccountUtils
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let (allowEdit, setAllowEdit) = React.useState(_ => false)
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
     let profileId = businessProfileDetails.profile_id
@@ -260,7 +260,7 @@ module WebHookSection = {
       } catch {
       | _ => {
           setScreenState(_ => PageLoaderWrapper.Success)
-          showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+          showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
         }
       }
       Nullable.null
@@ -268,7 +268,7 @@ module WebHookSection = {
 
     <ReactFinalForm.Form
       key="auth"
-      initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+      initialValues={businessProfileDetails->parseBusinessProfileJson->JSON.Encode.object}
       subscription=ReactFinalForm.subscribeToValues
       onSubmit
       render={({handleSubmit}) => {
@@ -402,7 +402,7 @@ module PaymentLinkDomain = {
 
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let (allowEdit, setAllowEdit) = React.useState(_ => false)
     let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
@@ -425,7 +425,7 @@ module PaymentLinkDomain = {
       } catch {
       | _ => {
           setScreenState(_ => PageLoaderWrapper.Success)
-          showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+          showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
         }
       }
       Nullable.null
@@ -433,7 +433,7 @@ module PaymentLinkDomain = {
 
     <ReactFinalForm.Form
       key="payment_link_domain"
-      initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+      initialValues={businessProfileDetails->parseBusinessProfileJson->JSON.Encode.object}
       subscription=ReactFinalForm.subscribeToValues
       onSubmit
       validate={values =>
@@ -563,7 +563,7 @@ module CollectDetails = {
                 key={index->Int.toString}
                 className="flex gap-2 mb-3 items-center cursor-pointer"
                 onClick={_ => onClick(option.key)}>
-                <RadioIcon
+                <RadioIconAdapter
                   isSelected={valuesDict->getBool(option.key, false)} fill="text-green-700"
                 />
                 <div className=p2RegularTextStyle> {option.name->snakeToTitle->React.string} </div>
@@ -839,7 +839,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false) => {
   open Typography
   let getURL = useGetURL()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let updateDetails = useUpdateMethod()
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
@@ -876,7 +876,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false) => {
     } catch {
     | _ => {
         setScreenState(_ => PageLoaderWrapper.Success)
-        showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+        showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
       }
     }
     Nullable.null
@@ -904,7 +904,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false) => {
               : "border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass} `}>
           <ReactFinalForm.Form
             key="merchantAccount"
-            initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+            initialValues={businessProfileDetails->parseBusinessProfileJson->JSON.Encode.object}
             subscription=ReactFinalForm.subscribeToValues
             validate={values => {
               validateMerchantAccountForm(

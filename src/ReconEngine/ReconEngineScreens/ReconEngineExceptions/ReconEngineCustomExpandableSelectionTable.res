@@ -67,7 +67,7 @@ module TableHeader = {
                                 checked: true,
                               }
 
-                              <SelectBox.BaseDropdown
+                              <SelectBoxAdapter.BaseDropdown
                                 allowMultiSelect=false
                                 hideMultiSelectButtons=true
                                 buttonText=""
@@ -124,7 +124,7 @@ module TableBody = {
     <tbody>
       {rowInfo
       ->Array.mapWithIndex((item: array<cell>, rowIndex) => {
-        <CollapsableTableRow
+        <CollapsibleTableRow
           key={Int.toString(rowIndex)}
           item
           rowIndex

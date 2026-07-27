@@ -72,7 +72,7 @@ module AccountCheckBox = {
       <div
         className={"flex gap-1.5 items-center cursor-pointer"}
         onClick={_ => handleShowConfigModal(~showModal=true)}>
-        <CheckBoxIcon isSelected={checkIsSelected()} />
+        <CheckBoxIconAdapter isSelected={checkIsSelected()} />
         <p className={`${body.md.medium} text-nd_gray-700 opacity-50`}>
           {config->snakeToTitle->React.string}
         </p>

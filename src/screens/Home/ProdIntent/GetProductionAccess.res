@@ -16,11 +16,7 @@ let make = () => {
   let productionAccessString = isProdIntent
     ? "Production Access Requested"
     : "Get Production Access"
-  let eventName = switch activeProduct {
-  | DynamicRouting => "intelligent_routing_get_production_access"
-  | Orchestration(V1) => "get_production_access"
-  | _ => `${activeProduct->ProductUtils.getProductStringName}_get_production_access`
-  }
+  let eventName = "get_production_access"
 
   let prodAccess = switch isProdIntentCompleted {
   | Some(_) =>
@@ -40,9 +36,7 @@ let make = () => {
   }
 
   let isProdAccessAvailableForProduct = switch activeProduct {
-  | Orchestration(V1)
-  | DynamicRouting
-  | Recon(V2) => true
+  | Orchestration(V1) => true
   | _ => false
   }
 

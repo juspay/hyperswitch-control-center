@@ -54,7 +54,7 @@ let itemToObjMapper: JSON.t => paymentMethodDetails = json => {
     connector_tokens: dict
     ->getJsonObjectFromDict("connector_tokens")
     ->getArrayDataFromJson(connectorTokensMapper),
-    network_tokens: dict->getJsonObjectFromDict("network_tokens"),
+    network_token: dict->getJsonObjectFromDict("network_token"),
   }
 }
 

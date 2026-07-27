@@ -120,7 +120,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     ->React.array
   <PageLoaderWrapper
     screenState={screenState}
-    customLoader={<div className="mt-60 w-scrren flex flex-col justify-center items-center">
+    customLoader={<div className="mt-60 flex flex-col justify-center items-center">
       <div className={`animate-spin mb-1`}>
         <Icon name="spinner" size=20 />
       </div>

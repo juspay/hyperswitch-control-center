@@ -1,0 +1,22 @@
+diff --git a/node_modules/@juspay/blend-design-system/dist/main.js b/node_modules/@juspay/blend-design-system/dist/main.js
+index 85cb20e..46fbe41 100644
+--- a/node_modules/@juspay/blend-design-system/dist/main.js
++++ b/node_modules/@juspay/blend-design-system/dist/main.js
+@@ -26427,7 +26427,7 @@ function Nae() {
+       implementation: h
+     };
+   }
+-  var s = e.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
++  var s = e.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE || e.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+   function o(l, c) {
+     if (l === "font") return "";
+     if (typeof c == "string")
+@@ -26594,7 +26594,7 @@ See https://react.dev/link/invalid-hook-call for tips about how to debug and fix
+       },
+       p: 0,
+       findDOMNode: null
+-    }, c = Symbol.for("react.portal"), h = o.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
++    }, c = Symbol.for("react.portal"), h = o.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE || o.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+     typeof Map == "function" && Map.prototype != null && typeof Map.prototype.forEach == "function" && typeof Set == "function" && Set.prototype != null && typeof Set.prototype.clear == "function" && typeof Set.prototype.forEach == "function" || console.error(
+       "React depends on Map and Set built-in types. Make sure that you load a polyfill in older browsers. https://reactjs.org/link/react-polyfills"
+     ), Oa.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE = l, Oa.createPortal = function(u, g) {

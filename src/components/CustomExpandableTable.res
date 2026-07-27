@@ -143,7 +143,7 @@ let make = (
                                 checked: true,
                               }
 
-                              <SelectBox.BaseDropdown
+                              <SelectBoxAdapter.BaseDropdown
                                 allowMultiSelect=true
                                 hideMultiSelectButtons=true
                                 buttonText=""
@@ -174,7 +174,7 @@ let make = (
         <tbody>
           {rowInfo
           ->Array.mapWithIndex((item: array<cell>, rowIndex) => {
-            <CollapsableTableRow
+            <CollapsibleTableRow
               key={Int.toString(rowIndex)}
               item
               rowIndex

@@ -65,13 +65,13 @@ let getRulesValue = rulesArray => {
       eachRuleDict->getArrayFromDict("statements", [])->getStatementsArray,
     )
 
-    let isDistibuted =
+    let isDistributed =
       rulesDict
       ->getObj("connectorSelection", Dict.make())
       ->getString("type", "priority")
       ->getIsDistributed
 
-    rulesDict->Dict.set("isDistribute", isDistibuted->JSON.Encode.bool)
+    rulesDict->Dict.set("isDistribute", isDistributed->JSON.Encode.bool)
 
     rulesDict->JSON.Encode.object
   })
@@ -81,10 +81,10 @@ let getRulesValue = rulesArray => {
 
 let dataMapper = dataDict => {
   open LogicUtils
-  let manipuledDataDict = dataDict->Dict.copy
-  manipuledDataDict->Dict.set("rules", dataDict->getArrayFromDict("rules", [])->getRulesValue)
+  let manipulatedDataDict = dataDict->Dict.copy
+  manipulatedDataDict->Dict.set("rules", dataDict->getArrayFromDict("rules", [])->getRulesValue)
 
-  manipuledDataDict->JSON.Encode.object
+  manipulatedDataDict->JSON.Encode.object
 }
 
 let getAlgo = algoDict => {

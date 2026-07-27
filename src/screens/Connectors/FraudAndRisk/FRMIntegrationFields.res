@@ -1,3 +1,5 @@
+open LogicUtils
+
 module IntegrationFieldsForm = {
   @react.component
   let make = (
@@ -16,7 +18,7 @@ module IntegrationFieldsForm = {
     }
 
     let validateCountryCurrency = (valuesFlattenJson, ~errors) => {
-      let profileId = valuesFlattenJson->LogicUtils.getString("profile_id", "")
+      let profileId = valuesFlattenJson->getString("profile_id", "")
       if profileId->String.length <= 0 {
         Dict.set(errors, "Profile Id", `Please select your business profile`->JSON.Encode.string)
       }
@@ -69,7 +71,7 @@ module IntegrationFieldsForm = {
 let make = (
   ~setCurrentStep,
   ~selectedFRMName,
-  ~retrivedValues=None,
+  ~retrievedValues=None,
   ~setInitialValues,
   ~isUpdateFlow,
   ~updateMerchantDetails,
@@ -80,7 +82,7 @@ let make = (
   open Promise
 
   let getURL = useGetURL()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
@@ -89,8 +91,7 @@ let make = (
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let initialValues = React.useMemo(() => {
-    open LogicUtils
-    switch retrivedValues {
+    switch retrievedValues {
     | Some(json) => {
         let initialValuesObj = json->getDictFromJsonObject
         let frmAccountDetailsObj =
@@ -116,16 +117,16 @@ let make = (
         ~profileId,
       )
     }
-  }, [retrivedValues])
+  }, [retrievedValues])
 
   let frmID =
-    retrivedValues
+    retrievedValues
     ->Option.getOr(Dict.make()->JSON.Encode.object)
-    ->LogicUtils.getDictFromJsonObject
-    ->LogicUtils.getString("merchant_connector_id", "")
+    ->getDictFromJsonObject
+    ->getString("merchant_connector_id", "")
 
   let submitText = if !isUpdateFlow {
-    "FRM Player Created Successfully!"
+    "Connector Created Successfully!"
   } else {
     "Details Updated!"
   }
@@ -139,10 +140,9 @@ let make = (
   }
 
   let setFRMValues = async body => {
-    open LogicUtils
     try {
       let response = await updateDetails(frmUrl, body, Post)
-      let _ = updateMerchantDetails()
+      let _ = await updateMerchantDetails()
       let _ = await fetchConnectorListResponse()
       setInitialValues(_ => response)
       setCurrentStep(prev => prev->getNextStep)
@@ -158,7 +158,10 @@ let make = (
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
           setPageState(_ => Error(""))
         } else {
-          showToast(~message=errorMessage, ~toastType=ToastError)
+          showToast(
+            ~message=getErrorMessage(~message=errorMessage, ~error=err),
+            ~toastType=ToastError,
+          )
           setPageState(_ => Error(""))
         }
       }

@@ -3,15 +3,23 @@ type balanceType = {
   currency: string,
 }
 
+@unboxed
+type accountTypeVariant =
+  | @as("credit") Credit
+  | @as("debit") Debit
+  | UnknownAccountTypeVariant
+
 type accountType = {
   account_name: string,
   account_id: string,
-  account_type: string,
+  account_type: accountTypeVariant,
   profile_id: string,
   currency: string,
   initial_balance: balanceType,
-  posted_debits: balanceType,
+  matched_debits: balanceType,
+  matched_credits: balanceType,
   posted_credits: balanceType,
+  posted_debits: balanceType,
   pending_debits: balanceType,
   pending_credits: balanceType,
   expected_debits: balanceType,
@@ -123,11 +131,13 @@ type ruleType = {
 @unboxed
 type transactionStatus =
   | @as("posted") Posted
+  | @as("matched") Matched
   | @as("mismatched") Mismatched
   | @as("expected") Expected
   | @as("archived") Archived
   | @as("void") Void
   | @as("partially_reconciled") PartiallyReconciled
+  | @as("unknown") UnknownTransactionStatus
 
 @unboxed
 type entryDirectionType =
@@ -138,6 +148,7 @@ type entryDirectionType =
 @unboxed
 type entryStatus =
   | @as("posted") Posted
+  | @as("matched") Matched
   | @as("mismatched") Mismatched
   | @as("expected") Expected
   | @as("archived") Archived
@@ -154,37 +165,47 @@ type transactionEntryType = {
   order_id: string,
 }
 
-type transactionPostedType =
-  | @as("auto") Reconciled
-  | @as("force_reconciled") ForceReconciled
-  | @as("manually_reconciled") ManuallyReconciled
-  | @as("N/A") UnknownTransactionPostedType
+type matchedDataType =
+  | @as("auto") Auto
+  | @as("force") Force
+  | @as("manual") Manual
+  | @as("unknown") UnknownMatchedDataType
 
 type transactionDataType = {
   status: transactionStatus,
-  posted_type: option<transactionPostedType>,
+  matched_data_type: option<matchedDataType>,
   reason: option<string>,
 }
 
 @unboxed
-type domainTransactionPostedStatus =
+type domainTransactionMatchedStatus =
   | Auto
   | Manual
   | Force
+  | WithTolerance
+  | UnknownDomainTransactionMatchedStatus
+
+@unboxed
+type domainTransactionPostedStatus =
+  | Manual
   | UnknownDomainTransactionPostedStatus
 
 @unboxed
 type domainTransactionAmountMismatchStatus =
   | Expected
   | Mismatch
+  | UnknownDomainTransactionAmountMismatchStatus
 
 type domainTransactionStatus =
   | Expected
   | Posted(domainTransactionPostedStatus)
+  | Matched(domainTransactionMatchedStatus)
   | OverAmount(domainTransactionAmountMismatchStatus)
   | UnderAmount(domainTransactionAmountMismatchStatus)
   | Missing
   | DataMismatch
+  | CurrencyMismatch
+  | SplitMismatch
   | Archived
   | Void
   | PartiallyReconciled
@@ -298,15 +319,18 @@ type processedEntryType = {
 type stringValidationRule =
   | MaxLength(int)
   | MinLength(int)
+  | UnknownStringValidationRule
 
 type numberValidationRule =
   | MinValue(float)
   | MaxValue(float)
+  | UnknownNumberValidationRule
 
 type minorUnitValidationRule =
   | PositiveOnly
   | MinValueMinorUnit(int)
   | MaxValueMinorUnit(int)
+  | UnknownMinorUnitValidationRule
 
 type fieldTypeVariant =
   | StringField(array<stringValidationRule>)
@@ -315,6 +339,7 @@ type fieldTypeVariant =
   | MinorUnitField(array<minorUnitValidationRule>)
   | DateTimeField
   | BalanceDirectionField({credit_values: array<string>, debit_values: array<string>})
+  | UnknownFieldType
 
 type entryField =
   | String
@@ -368,3 +393,89 @@ type metadataSchemaType = {
 }
 
 type columnMappingTabs = [#default | #advanced]
+
+type overviewRuleStatusBreakdown = {
+  status: domainTransactionStatus,
+  count: int,
+  credit_amount: balanceType,
+  debit_amount: balanceType,
+}
+
+type overviewRulesResponse = {
+  rule_id: string,
+  rule_name: string,
+  status_breakdown: array<overviewRuleStatusBreakdown>,
+}
+
+type overviewRulesTimeRange = {
+  start_time: string,
+  end_time: string,
+}
+
+type overviewRulesTimeSeries = {
+  time_range: overviewRulesTimeRange,
+  status_breakdown: array<overviewRuleStatusBreakdown>,
+}
+
+type overviewRulesTimeSeriesResponse = {
+  rule_id: string,
+  rule_name: string,
+  time_series: array<overviewRulesTimeSeries>,
+}
+
+type stagingEntryOverviewStatusAmount = {
+  status: processingEntryStatus,
+  count: int,
+}
+
+type accountStagingEntriesOverview = {status_breakdown: array<stagingEntryOverviewStatusAmount>}
+
+@unboxed
+type ruleAccountTypeVariant =
+  | @as("source") Source
+  | @as("target") Target
+  | UnknownRuleAccountType
+
+type accountStatusBreakdown = {
+  status: domainTransactionStatus,
+  credit_txn_count: int,
+  debit_txn_count: int,
+  credit_amount: balanceType,
+  debit_amount: balanceType,
+}
+
+type accountStatusOverview = {
+  account_id: string,
+  account_name: string,
+  account_type: accountTypeVariant,
+  rule_account_type: ruleAccountTypeVariant,
+  status_breakdown: array<accountStatusBreakdown>,
+}
+
+type ruleAccountsOverview = {
+  rule_id: string,
+  rule_name: string,
+  accounts: array<accountStatusOverview>,
+}
+
+type cursorDirection = [#next | #previous]
+
+type cursorValue = {
+  @as("effective_at") effectiveAt: string,
+  @as("id") cursorId: string,
+}
+
+type cursor = {
+  @as("sort_field") sortField: string,
+  @as("cursor_value") cursorValue: option<cursorValue>,
+}
+
+type cursors = {
+  next: option<cursor>,
+  prev: option<cursor>,
+}
+
+type cursorPage<'item> = {
+  items: array<'item>,
+  cursors: cursors,
+}

@@ -50,17 +50,7 @@ let make = () => {
     <PageUtils.PageHeading title="Setup Checkout" showPermLink=false customHeadingStyle="my-5" />
     <div className="flex">
       <div className="w-1/2 flex flex-col gap-6">
-        <Tabs
-          initialIndex={tabIndex}
-          tabs
-          onTitleClick={tabId => setTabIndex(_ => tabId)}
-          disableIndicationArrow=true
-          showBorder=true
-          includeMargin=false
-          lightThemeColor="black"
-          textStyle="text-blue-600"
-          selectTabBottomBorderColor="bg-blue-600"
-        />
+        <Tabs initialIndex={tabIndex} tabs onTitleClick={tabId => setTabIndex(_ => tabId)} />
         <TestCredentials />
       </div>
       <div className="w-full mt-5 ml-10 max-h-[80vh] overflow-auto">

@@ -1,3 +1,5 @@
+open LogicUtils
+
 // TODO: Remove this module - replaced by ConnectorPreviewHelper.EnableDisableConnectorToggle
 module MenuOption = {
   open HeadlessUI
@@ -51,22 +53,23 @@ let make = () => {
   open ThreeDsProcessorTypes
   open ConnectorUtils
   open APIUtils
-  open LogicUtils
   let getURL = useGetURL()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let url = RescriptReactRouter.useUrl()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchDetails = useGetMethod()
-  let connectorName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
+  let connectorName = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
+  let (initialValues, setInitialValues) = React.useState(_ =>
+    Dict.make()->getStaticDefaultValuesForThreeDs
+  )
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let updateDetails = useUpdateMethod()
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
@@ -110,7 +113,7 @@ let make = () => {
 
   let connectorDetails = React.useMemo(() => {
     try {
-      if connectorName->LogicUtils.isNonEmptyString {
+      if connectorName->isNonEmptyString {
         let dict = Window.getAuthenticationConnectorConfig(connectorName)
         dict
       } else {
@@ -127,28 +130,32 @@ let make = () => {
   }, [connectorName])
   let connectorInfo = ConnectorInterface.mapDictToTypedConnectorPayload(
     ConnectorInterface.connectorInterfaceV1,
-    initialValues->LogicUtils.getDictFromJsonObject,
+    initialValues->getDictFromJsonObject,
   )
 
   let isConnectorDisabled = connectorInfo.disabled
-  let disableConnector = async isConnectorDisabled => {
+  let disableConnector = async currentIsDisabled => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let connectorID = connectorInfo.merchant_connector_id
+      let mcaId = connectorInfo.merchant_connector_id
       let disableConnectorPayload = ConnectorUtils.getDisableConnectorPayload(
         connectorInfo.connector_type->ConnectorUtils.connectorTypeTypedValueToStringMapper,
-        isConnectorDisabled,
+        currentIsDisabled,
       )
 
-      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
+      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(mcaId))
       let res = await updateDetails(url, disableConnectorPayload, Post)
       setInitialValues(_ => res)
       let _ = await fetchConnectorListResponse()
       setScreenState(_ => PageLoaderWrapper.Success)
-      showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
+      showToast(
+        ~message=`Connector has been successfully ${currentIsDisabled ? "enabled" : "disabled"}`,
+        ~toastType=ToastSuccess,
+      )
     } catch {
     | Exn.Error(_) => {
-        showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
+        let action = currentIsDisabled ? "enable" : "disable"
+        showToast(~message=`Failed to ${action} connector!`, ~toastType=ToastError)
         setScreenState(_ => PageLoaderWrapper.Success)
       }
     }
@@ -163,7 +170,7 @@ let make = () => {
   } = getConnectorFields(connectorDetails)
 
   React.useEffect(() => {
-    let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
+    let initialValuesToDict = initialValues->getDictFromJsonObject
 
     if !isUpdateFlow {
       initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
@@ -176,7 +183,7 @@ let make = () => {
   }, [connectorName, profileId])
 
   React.useEffect(() => {
-    if connectorName->LogicUtils.isNonEmptyString {
+    if connectorName->isNonEmptyString {
       getDetails()->ignore
     }
     None
@@ -201,6 +208,10 @@ let make = () => {
       let _ = await fetchConnectorListResponse()
       setInitialValues(_ => response)
       setCurrentStep(_ => Summary)
+      showToast(
+        ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
+        ~toastType=ToastSuccess,
+      )
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -211,7 +222,10 @@ let make = () => {
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
           setCurrentStep(_ => ConfigurationFields)
         } else {
-          showToast(~message=errorMessage, ~toastType=ToastError)
+          showToast(
+            ~message=getErrorMessage(~message=errorMessage, ~error=err),
+            ~toastType=ToastError,
+          )
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }
@@ -255,7 +269,7 @@ let make = () => {
             ? {
                 title: "3DS Authenticator",
                 link: "/3ds-authenticators",
-                warning: `You have not yet completed configuring your ${connectorName->LogicUtils.snakeToTitle} connector. Are you sure you want to go back?`,
+                warning: `You have not yet completed configuring your ${connectorName->snakeToTitle} connector. Are you sure you want to go back?`,
               }
             : {
                 title: "3DS Authenticator",
@@ -265,7 +279,6 @@ let make = () => {
         currentPageTitle={connectorName->getDisplayNameForConnector(
           ~connectorType=ThreeDsAuthenticator,
         )}
-        cursorStyle="cursor-pointer"
       />
       <div
         className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">
@@ -284,7 +297,7 @@ let make = () => {
                   isUpdateFlow selectedConnector={connectorName}
                 />
               </div>
-              <div className={`flex flex-col gap-2 p-2 md:p-10`}>
+              <div className={`flex flex-col gap-2 p-2 md:px-10`}>
                 <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
                   connector={connectorName->getConnectorNameTypeFromString(
                     ~connectorType=ThreeDsAuthenticator,
@@ -310,7 +323,7 @@ let make = () => {
             <ConnectorPreview.ConnectorSummaryGrid
               connectorInfo={ConnectorInterface.mapDictToTypedConnectorPayload(
                 ConnectorInterface.connectorInterfaceV1,
-                initialValues->LogicUtils.getDictFromJsonObject,
+                initialValues->getDictFromJsonObject,
               )}
               connector=connectorName
               setCurrentStep={_ => ()}

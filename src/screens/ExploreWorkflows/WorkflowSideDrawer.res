@@ -61,7 +61,7 @@ let make = () => {
   let (drawerHeading, subHeading, steps) = getCurrentWorkflowDetails(workflowTitle)
 
   let accordionItems = steps->Array.map(step => {
-    let accItem: Accordion.accordion = {
+    let accItem: AccordionAdapter.accordion = {
       title: step.title,
       renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) =>
         <AccordionItemComponent step />,
@@ -145,7 +145,7 @@ let make = () => {
           </div>
           <hr />
           <div className="p-6 pt-3 overflow-y-scroll">
-            <Accordion
+            <AccordionAdapter
               accordion=accordionItems
               initialExpandedArray=[0]
               arrowPosition=Right

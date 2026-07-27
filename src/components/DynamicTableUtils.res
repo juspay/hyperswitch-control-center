@@ -1,4 +1,4 @@
-let tableHeadingClass = "font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75"
+let tableHeadingClass = `${Typography.heading.sm.semibold} text-black text-opacity-75 dark:text-white dark:text-opacity-75`
 type view = Table | Card
 
 let visibilityColFunc = (
@@ -7,7 +7,7 @@ let visibilityColFunc = (
   ~tableCell: Table.cell,
 ) => {
   switch tableCell {
-  | Label(x) | ColoredText(x) => (x.title->JSON.Encode.string->Some, jsonVal) // wherever we are doing transformation only that transformed value for serch
+  | Label(x) | ColoredText(x) => (x.title->JSON.Encode.string->Some, jsonVal) // wherever we are doing transformation only that transformed value for search
   | Text(x) | EllipsisText(x, _) | CustomCell(_, x) => (x->JSON.Encode.string->Some, jsonVal)
   | Date(x) => (dateFormatConvertor(x), dateFormatConvertor(x))
   | StartEndDate(start, end) => (
@@ -281,11 +281,13 @@ module ChooseColumns = {
     ~showColumnSelector,
     ~isModalView=true,
     ~sortingBasedOnDisabled=true,
-    ~orderdColumnBasedOnDefaultCol: bool=false,
+    ~orderedColumnBasedOnDefaultCol: bool=false,
     ~showSerialNumber=true,
     ~mandatoryOptions=[],
     ~isDraggable=false,
     ~title="",
+    ~isNewColumn=_ => false,
+    ~getNewColumnDescription=_ => "",
   ) => {
     open LoadedTableWithCustomColumnsUtils
     let (visibleColumns, setVisibleColumns) = Recoil.useRecoilState(activeColumnsAtom)
@@ -346,10 +348,12 @@ module ChooseColumns = {
         defaultColumns
         isModalView
         sortingBasedOnDisabled
-        orderdColumnBasedOnDefaultCol
+        orderedColumnBasedOnDefaultCol
         showSerialNumber
         isDraggable
         title
+        isNewColumn
+        getNewColumnDescription
       />
     } else {
       React.null
@@ -372,6 +376,8 @@ module ChooseColumnsWrapper = {
     ~setShowDropDown=_ => (),
     ~isDraggable=false,
     ~title="",
+    ~isNewColumn=_ => false,
+    ~getNewColumnDescription=_ => "",
   ) => {
     switch optionalActiveColumnsAtom {
     | Some(activeColumnsAtom) =>
@@ -388,6 +394,8 @@ module ChooseColumnsWrapper = {
           showSerialNumber
           isDraggable
           title
+          isNewColumn
+          getNewColumnDescription
         />
       </AddDataAttributes>
     | None => React.null

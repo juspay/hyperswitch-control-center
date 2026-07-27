@@ -70,7 +70,7 @@ module PMT = {
       }
     }
 
-    <CheckBoxIcon
+    <CheckBoxIconAdapter
       isSelected={pmtValue->Option.isSome} setIsSelected={isSelected => update(isSelected)}
     />
   }

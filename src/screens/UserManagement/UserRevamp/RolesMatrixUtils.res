@@ -6,7 +6,7 @@ let itemToObjMapperForRoles = dict => {
     roleId: getString(dict, "role_id", ""),
     roleName: getString(dict, "role_name", "")->snakeToTitle,
     entityType: getString(dict, "entity_type", "")->capitalizeString,
-    parent_groups: getArrayFromDict(dict, "parent_groups", [])->Array.map(groupDict => {
+    parentGroups: getArrayFromDict(dict, "parent_groups", [])->Array.map(groupDict => {
       let group = getDictFromJsonObject(groupDict)
       {
         name: getString(group, "name", ""),
@@ -32,11 +32,11 @@ let getPermissionLevel = (scopes: array<string>): permissionLevel => {
 let processRolesData = (rolesData: array<roleData>): matrixData => {
   let allModules =
     rolesData
-    ->Array.flatMap(r => r.parent_groups->Array.map(g => g.name))
+    ->Array.flatMap(role => role.parentGroups->Array.map(group => group.name))
     ->removeDuplicate
   let buildModulePermissions = (moduleName: string) =>
     rolesData->Array.reduce(Dict.make(), (moduleAcc, role) => {
-      let permission = switch role.parent_groups->Array.find(g => g.name === moduleName) {
+      let permission = switch role.parentGroups->Array.find(group => group.name === moduleName) {
       | Some(group) => getPermissionLevel(group.scopes)
       | None => NoAccess
       }
@@ -56,7 +56,7 @@ let processRolesData = (rolesData: array<roleData>): matrixData => {
 
 let getModuleDescription = (moduleName: string, rolesData: array<roleData>): string =>
   switch rolesData->Array.findMap(role =>
-    role.parent_groups->Array.find(g => g.name === moduleName)
+    role.parentGroups->Array.find(group => group.name === moduleName)
   ) {
   | Some(group) => group.description
   | None => ""

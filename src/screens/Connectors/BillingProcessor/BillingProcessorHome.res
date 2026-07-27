@@ -12,7 +12,7 @@ let make = () => {
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchDetails = useGetMethod()
   let connectorName = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -128,17 +128,35 @@ let make = () => {
       body->Dict.set("billing_processor_id", mcaId->JSON.Encode.string)
       let _ = await updateBusinessProfile(~body=body->Identity.genericTypeToJson)
     } catch {
-    | _ => showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
+    | _ => Exn.raiseError("Failed to set billing processor as default")
     }
   }
   let handleMenuOptionSubmit = async mcaId => {
-    setScreenState(_ => Loading)
-    let _ = await updateBusinessProfileDetails(mcaId)
-    setScreenState(_ => Success)
-    showToast(~message="Successfully Saved the Changes", ~toastType=ToastState.ToastSuccess)
+    try {
+      setScreenState(_ => Loading)
+      let _ = await updateBusinessProfileDetails(mcaId)
+      setScreenState(_ => Success)
+      showToast(
+        ~message="Billing processor set as default successfully",
+        ~toastType=ToastState.ToastSuccess,
+      )
+    } catch {
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to set billing processor as default")
+        showToast(~message=err, ~toastType=ToastState.ToastError)
+        setScreenState(_ => Success)
+      }
+    | _ => {
+        showToast(
+          ~message="Failed to set billing processor as default",
+          ~toastType=ToastState.ToastError,
+        )
+        setScreenState(_ => Success)
+      }
+    }
   }
 
-  let billing_processor_id = businessProfileRecoilVal.billing_processor_id->Option.getOr("")
+  let billingProcessorId = businessProfileRecoilVal.billing_processor_id->Option.getOr("")
   let onSubmit = async (values, _) => {
     try {
       let body =
@@ -166,6 +184,10 @@ let make = () => {
       let _ = await fetchConnectorListResponse()
       setInitialValues(_ => response)
       setCurrentStep(_ => Summary)
+      showToast(
+        ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
+        ~toastType=ToastSuccess,
+      )
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -177,7 +199,10 @@ let make = () => {
           setCurrentStep(_ => ConfigurationFields)
           setShowConfirmModal(_ => false)
         } else {
-          showToast(~message=errorMessage, ~toastType=ToastError)
+          showToast(
+            ~message=getErrorMessage(~message=errorMessage, ~error=err),
+            ~toastType=ToastError,
+          )
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }
@@ -203,13 +228,13 @@ let make = () => {
   let summaryPageButton = switch currentStep {
   | Preview =>
     <>
-      <RenderIf condition={connectorInfo.merchant_connector_id == billing_processor_id}>
+      <RenderIf condition={connectorInfo.merchant_connector_id == billingProcessorId}>
         <div
           className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.md.medium}`}>
           {"Default"->React.string}
         </div>
       </RenderIf>
-      <RenderIf condition={connectorInfo.merchant_connector_id != billing_processor_id}>
+      <RenderIf condition={connectorInfo.merchant_connector_id != billingProcessorId}>
         <MenuOption handleMenuOptionSubmit connectorInfo />
       </RenderIf>
     </>
@@ -240,7 +265,6 @@ let make = () => {
         currentPageTitle={connectorName->getDisplayNameForConnector(
           ~connectorType=BillingProcessor,
         )}
-        cursorStyle="cursor-pointer"
       />
       <div
         className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">
@@ -258,7 +282,7 @@ let make = () => {
                   isUpdateFlow selectedConnector={connectorName}
                 />
               </div>
-              <div className="flex flex-col gap-2 p-2 md:p-10">
+              <div className="flex flex-col gap-2 p-2 md:px-10">
                 <div className="grid grid-cols-2 flex-1">
                   <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
                     connector={connectorName->getConnectorNameTypeFromString(

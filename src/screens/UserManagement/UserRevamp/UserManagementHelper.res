@@ -3,7 +3,7 @@ open UserUtils
 module OrganisationSelection = {
   @react.component
   let make = () => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
     let {userEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
@@ -55,7 +55,7 @@ module OrganisationSelection = {
 module MerchantSelection = {
   @react.component
   let make = () => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let merchList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let {devUsers} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -133,7 +133,7 @@ module MerchantSelection = {
 module ProfileSelection = {
   @react.component
   let make = () => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
     let {userEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
@@ -163,11 +163,11 @@ module ProfileSelection = {
     | #Profile => true
     | #Tenant
     | #Organization => {
-        let selected_merchant =
+        let selectedMerchant =
           formState.values
           ->LogicUtils.getDictFromJsonObject
           ->LogicUtils.getString("merchant_value", "")
-        switch selected_merchant->stringToVariantForAllSelection {
+        switch selectedMerchant->stringToVariantForAllSelection {
         | Some(#All_Merchants) => {
             form.change(
               "profile_value",
@@ -224,7 +224,7 @@ module ProfileSelection = {
             ...input,
             onChange: event => handleOnChange(event, input)->ignore,
           },
-          ~placeholder="Select a merchant",
+          ~placeholder="Select a profile",
         ),
     )
 
@@ -240,7 +240,7 @@ module ProfileSelection = {
 }
 
 let inviteEmail = FormRenderer.makeFieldInfo(
-  ~label="Enter email(s) ",
+  ~label="Enter email(s)",
   ~name="email_list",
   ~customInput=(~input, ~placeholder as _) => {
     let showPlaceHolder = input.value->LogicUtils.getArrayFromJson([])->Array.length === 0
@@ -251,7 +251,7 @@ let inviteEmail = FormRenderer.makeFieldInfo(
 module SwitchMerchantForUserAction = {
   @react.component
   let make = (~userInfoValue: UserManagementTypes.userDetailstype) => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
     let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
 
@@ -276,7 +276,7 @@ module SwitchMerchantForUserAction = {
   }
 }
 
-let generateDropdownOptionsUserOMPViews = (
+let buildOmpViewDropdownOptions = (
   dropdownList: array<UserManagementTypes.usersOmpViewType>,
   getNameForId,
 ) => {
@@ -328,7 +328,7 @@ module UserOmpView = {
       checked: true,
     }
 
-    let options = views->generateDropdownOptionsUserOMPViews(getNameForId)
+    let options = views->buildOmpViewDropdownOptions(getNameForId)
 
     let displayName = switch selectedEntity {
     | #Default => "All"

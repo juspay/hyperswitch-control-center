@@ -19,7 +19,7 @@ let make = (~onClick) => {
             </p>
           </div>
           <p className="text-fs-14 text-white opacity-60 font-semibold ">
-            {"It appears that the link you were trying to access has expired or is no longer valid. Please try again ."->React.string}
+            {"It appears that the link you were trying to access has expired or is no longer valid. Please try again."->React.string}
           </p>
         </div>
         <Button

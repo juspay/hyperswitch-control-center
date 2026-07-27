@@ -1,5 +1,5 @@
 open TransactionViewTypes
-
+open LogicUtils
 let paymentViewsArray: array<viewTypes> = [
   All,
   Succeeded,
@@ -22,6 +22,39 @@ let getCustomFilterKey = entity =>
   | Disputes => "dispute_status"
   | Payouts => "status"
   }
+
+let getClickhouseAggregateMetric = entity =>
+  switch entity {
+  | Orders =>
+    Some({
+      urlPrefix: "analytics/v2",
+      domain: "payments",
+      metric: "payment_intent_count",
+      groupByField: "status",
+      statusField: "status",
+      countField: "payment_intent_count",
+    })
+  | Refunds =>
+    Some({
+      urlPrefix: "analytics/v1",
+      domain: "refunds",
+      metric: "refund_count",
+      groupByField: "refund_status",
+      statusField: "refund_status",
+      countField: "refund_count",
+    })
+  | Disputes
+  | Payouts =>
+    None
+  }
+
+let buildAggregateMetricsUrl = (~metricConfig, ~transactionEntity) => {
+  let scope = switch transactionEntity {
+  | #Profile => "profile"
+  | _ => "merchant"
+  }
+  `${Window.env.apiBaseUrl}/${metricConfig.urlPrefix}/${scope}/metrics/${metricConfig.domain}`
+}
 
 let getViewsDisplayName = (view: viewTypes) => {
   switch view {
@@ -76,8 +109,7 @@ let getViewTypeFromString = (view, entity) => {
   }
 }
 
-let getAllViewsString = obj => {
-  open LogicUtils
+let buildAllStatusFilterString = obj => {
   obj
   ->getDictFromJsonObject
   ->getDictfromDict("status_with_count")
@@ -85,11 +117,11 @@ let getAllViewsString = obj => {
   ->Array.joinWith(",")
 }
 
-let getViewsString = (view, obj, entity) => {
+let getViewFilterValue = (view, obj, entity) => {
   switch entity {
   | Orders =>
     switch view {
-    | All => getAllViewsString(obj)
+    | All => buildAllStatusFilterString(obj)
     | Succeeded => "succeeded"
     | Failed => "failed"
     | Dropoffs => "requires_payment_method"
@@ -100,7 +132,7 @@ let getViewsString = (view, obj, entity) => {
     }
   | Refunds =>
     switch view {
-    | All => getAllViewsString(obj)
+    | All => buildAllStatusFilterString(obj)
     | Succeeded => "success"
     | Failed => "failure"
     | Pending => "pending"
@@ -108,7 +140,7 @@ let getViewsString = (view, obj, entity) => {
     }
   | Disputes =>
     switch view {
-    | All => getAllViewsString(obj)
+    | All => buildAllStatusFilterString(obj)
     | Succeeded => "dispute_won"
     | Failed => "dispute_lost"
     | Pending => "dispute_opened"
@@ -116,7 +148,7 @@ let getViewsString = (view, obj, entity) => {
     }
   | Payouts =>
     switch view {
-    | All => getAllViewsString(obj)
+    | All => buildAllStatusFilterString(obj)
     | Succeeded => "success"
     | Failed => "failed"
     | Cancelled => "cancelled"
@@ -127,8 +159,7 @@ let getViewsString = (view, obj, entity) => {
   }
 }
 
-let getAllViewCount = obj => {
-  open LogicUtils
+let calculateTotalViewCount = obj => {
   let countArray =
     obj
     ->getDictFromJsonObject
@@ -140,13 +171,62 @@ let getAllViewCount = obj => {
 }
 
 let getViewCount = (view, obj, entity) => {
-  open LogicUtils
   switch view {
-  | All => getAllViewCount(obj)
+  | All => calculateTotalViewCount(obj)
   | _ =>
     obj
     ->getDictFromJsonObject
     ->getDictfromDict("status_with_count")
-    ->getInt(view->getViewsString(obj, entity), 0)
+    ->getInt(view->getViewFilterValue(obj, entity), 0)
   }
+}
+
+let buildAggregateMetricsBody = (~startTime, ~endTime, ~metric, ~groupByField) => {
+  let timeRange =
+    [
+      ("startTime", startTime->JSON.Encode.string),
+      ("endTime", endTime->JSON.Encode.string),
+    ]->getJsonFromArrayOfJson
+
+  let body =
+    [
+      ("timeRange", timeRange),
+      ("groupByNames", [groupByField->JSON.Encode.string]->JSON.Encode.array),
+      ("metrics", [metric->JSON.Encode.string]->JSON.Encode.array),
+      ("source", "BATCH"->JSON.Encode.string),
+    ]->getJsonFromArrayOfJson
+
+  [body]->JSON.Encode.array
+}
+
+let metricsResponseToStatusWithCount = (~statusField, ~countField, response) => {
+  let statusWithCount = Dict.make()
+
+  response
+  ->getDictFromJsonObject
+  ->getArrayFromDict("queryData", [])
+  ->Array.forEach(row => {
+    let dict = row->getDictFromJsonObject
+    let status = dict->getString(statusField, "")
+    if status->isNonEmptyString {
+      statusWithCount->Dict.set(status, dict->getFloat(countField, 0.0)->JSON.Encode.float)
+    }
+  })
+
+  [("status_with_count", statusWithCount->JSON.Encode.object)]->getJsonFromArrayOfJson
+}
+
+let getStartAndEndTime = (filterValueJson, version) => {
+  filterValueJson->isEmptyDict
+    ? ("", "")
+    : {
+        let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
+        (
+          filterValueJson->getString(
+            OrderUIUtils.startTimeFilterKey(version),
+            defaultDate.start_time,
+          ),
+          filterValueJson->getString(OrderUIUtils.endTimeFilterKey(version), defaultDate.end_time),
+        )
+      }
 }

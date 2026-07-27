@@ -76,14 +76,14 @@ let make = () => {
     <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6">
       <div className="bg-white h-35-rem w-200 rounded-2xl">
         <div className="p-6 border-b-2">
-          <HyperSwitchLogo logoHeight="h-8" theme={Dark} logoVariant iconUrl />
+          <HyperSwitchLogo logoHeight="h-6" logoVariant iconUrl />
         </div>
         <div className="p-6 flex flex-col gap-2">
           <p className={`${textHeadingClass} text-grey-900`}>
             {"Hey there, welcome to Hyperswitch!"->React.string}
           </p>
           <p className=textSubHeadingClass>
-            {"Please accept the your pending invitations"->React.string}
+            {"Please accept your pending invitations"->React.string}
           </p>
         </div>
         <div className="h-[50%] overflow-auto show-scrollbar flex flex-col gap-10 p-8">

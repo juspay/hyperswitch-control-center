@@ -73,15 +73,15 @@ let profileItemToObjMapper = dict => {
 }
 
 let org = {
-  lable: "Organization",
+  label: "Organization",
   entity: #Organization,
 }
 let merchant = {
-  lable: "Merchant",
+  label: "Merchant",
   entity: #Merchant,
 }
 let profile = {
-  lable: "Profile",
+  label: "Profile",
   entity: #Profile,
 }
 
@@ -95,8 +95,8 @@ let transactionViewList = (~checkUserEntity): ompViews => {
   }
 }
 
-let analyticsViewList = (~checkUserEntity): ompViews => {
-  if checkUserEntity([#Tenant, #Organization]) {
+let analyticsViewList = (~checkUserEntity, ~isCurrentMerchantPlatform=false): ompViews => {
+  let views = if checkUserEntity([#Tenant, #Organization]) {
     [org, merchant, profile]
   } else if checkUserEntity([#Merchant]) {
     [merchant, profile]
@@ -105,6 +105,7 @@ let analyticsViewList = (~checkUserEntity): ompViews => {
   } else {
     []
   }
+  isCurrentMerchantPlatform ? views->Array.filter(view => view.entity != #Profile) : views
 }
 
 let keyExtractorForMerchantid = item => {

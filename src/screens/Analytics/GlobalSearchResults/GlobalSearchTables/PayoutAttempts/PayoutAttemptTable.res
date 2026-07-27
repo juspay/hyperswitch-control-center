@@ -38,6 +38,7 @@ module PreviewTable = {
       isAnalyticsModule=false
       showResultsPerPageSelector=false
       paginationClass="hidden"
+      showAutoScroll=true
     />
   }
 }
@@ -71,7 +72,12 @@ let make = () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
 
     try {
-      let (data, total) = await fetchTableData(~updateDetails, ~offset, ~query={searchText}, ~path)
+      let (data, total) = await fetchTableData(
+        ~updateDetails=(url, body, method) => updateDetails(url, body, method),
+        ~offset,
+        ~query={searchText},
+        ~path,
+      )
 
       let arr = Array.make(~length=offset, Dict.make())
       if total <= offset {
@@ -131,6 +137,7 @@ let make = () => {
         tableDataBorderClass=tableBorderClass
         isAnalyticsModule=false
         showResultsPerPageSelector=false
+        showAutoScroll=true
       />
     </PageLoaderWrapper>
   </div>

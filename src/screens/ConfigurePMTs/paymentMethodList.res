@@ -4,7 +4,7 @@ let make = (~isPayoutFlow=false) => {
   open PaymentMethodEntity
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
-    HyperswitchAtom.businessProfileFromIdAtom,
+    HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (connectorResponse, setConnectorResponse) = React.useState(_ => [])
@@ -13,7 +13,6 @@ let make = (~isPayoutFlow=false) => {
   let {updateExistingKeys, reset, filterValueJson, filterValue} =
     FilterContext.filterContext->React.useContext
   let (offset, setOffset) = React.useState(_ => 0)
-  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let allFilters: PaymentMethodConfigTypes.paymentMethodConfigFilters = React.useMemo(() => {
     filterValueJson->pmtConfigFilter
   }, [filterValueJson])
@@ -22,8 +21,8 @@ let make = (~isPayoutFlow=false) => {
       setScreenState(_ => Loading)
       let response = await fetchConnectorListResponse()
       let configuredConnectors = response->getConnectedList
-      let filterdValue = response->getFilterdConnectorList(allFilters)
-      setFiltersConnectors(_ => filterdValue)
+      let filteredValue = response->getFilteredConnectorList(allFilters)
+      setFiltersConnectors(_ => filteredValue)
       setConnectorResponse(_ => response)
       setConfiguredConnectors(_ => configuredConnectors)
       setScreenState(_ => Success)
@@ -38,7 +37,7 @@ let make = (~isPayoutFlow=false) => {
   }, (isPayoutFlow, filterValue))
 
   let applyFilter = async () => {
-    let res = connectorResponse->getFilterdConnectorList(allFilters)
+    let res = connectorResponse->getFilteredConnectorList(allFilters)
     setFiltersConnectors(_ => res)
   }
 
@@ -58,7 +57,7 @@ let make = (~isPayoutFlow=false) => {
   let handleClearFilter = async () => {
     await HyperSwitchUtils.delay(500)
     let dict = Dict.make()->pmtConfigFilter
-    let res = connectorResponse->getFilterdConnectorList(dict)
+    let res = connectorResponse->getFilteredConnectorList(dict)
     setFiltersConnectors(_ => res)
     reset()
   }
@@ -74,10 +73,10 @@ let make = (~isPayoutFlow=false) => {
         defaultFilters={Dict.make()->JSON.Encode.object}
         fixedFilters=[]
         requiredSearchFieldsList=[]
-        localFilters={configuredConnectors->initialFilters([businessProfileRecoilVal], ~profileId)}
+        localFilters={configuredConnectors->initialFilters(businessProfileRecoilVal)}
         localOptions=[]
         remoteOptions=[]
-        remoteFilters={configuredConnectors->initialFilters([businessProfileRecoilVal], ~profileId)}
+        remoteFilters={configuredConnectors->initialFilters(businessProfileRecoilVal)}
         defaultFilterKeys=[]
         updateUrlWith={updateExistingKeys}
         clearFilters={() => handleClearFilter()->ignore}
@@ -94,7 +93,7 @@ let make = (~isPayoutFlow=false) => {
           offset
           setOffset
           entity={PaymentMethodEntity.paymentMethodEntity(
-            ~setReferesh=getConnectorListAndUpdateState,
+            ~setRefresh=getConnectorListAndUpdateState,
           )}
           currentFetchCount={filteredConnectors->Array.length}
           collapseTableRow=false

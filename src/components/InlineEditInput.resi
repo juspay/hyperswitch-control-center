@@ -11,6 +11,8 @@ module HoverInline: {
     ~customWidth: string,
     ~showTooltipOnHover: bool=?,
     ~toolTipPosition: ToolTip.toolTipPosition=?,
+    ~paddingClass: string=?,
+    ~bgClass: string=?,
   ) => React.element
 }
 @react.component
@@ -35,4 +37,8 @@ let make: (
   ~handleClick: unit => unit=?,
   ~showTooltipOnHover: bool=?,
   ~toolTipPosition: ToolTip.toolTipPosition=?,
+  ~iconSize: int=?,
+  ~paddingClass: string=?,
+  ~bgClass: string=?,
+  ~inputPaddingClass: string=?,
 ) => React.element

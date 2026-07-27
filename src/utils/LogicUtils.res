@@ -5,6 +5,10 @@ let isEmptyString = str => str->String.length === 0
 
 let isNonEmptyString = str => str->String.length > 0
 
+let getErrorMessage = (~message, ~error, ~fallback="Something went wrong") => {
+  message->isNonEmptyString ? message : error->isNonEmptyString ? error : fallback
+}
+
 let methodStr = (method: Fetch.requestMethod) => {
   switch method {
   | Get => "GET"
@@ -185,6 +189,9 @@ let getOptionStrArrayFromDict = (dict, key) => {
   dict->Dict.get(key)->Option.flatMap(val => val->getOptionStrArrayFromJson)
 }
 
+let convertToNoneIfEqual = (val, sentinel) =>
+  val->Option.flatMap(v => v == sentinel ? None : Some(v))
+
 let getNonEmptyString = str => {
   if str->isEmptyString {
     None
@@ -213,8 +220,12 @@ let getJsonObjectFromDict = (dict, key) => {
   dict->Dict.get(key)->Option.getOr(JSON.Encode.object(Dict.make()))
 }
 
-let getvalFromDict = (dict, key) => {
+let getOptionValFromDict = (dict, key) => {
   dict->Dict.get(key)
+}
+
+let getValueFromDict = (dict, key, default) => {
+  dict->Dict.get(key)->Option.getOr(default)
 }
 
 let getBoolFromString = (boolString, default: bool) => {
@@ -333,6 +344,13 @@ let getObj = (dict, key, default) => {
   dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.object)->Option.getOr(default)
 }
 
+let getOptionObj = (dict, key) => {
+  dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.object)
+}
+
+let getMappedValueFromDict = (dict, key, default, mapper) =>
+  dict->Dict.get(key)->Option.mapOr(default, mapper)
+
 let getDictFromUrlSearchParams = searchParams => {
   searchParams
   ->String.split("&")
@@ -356,6 +374,9 @@ let setDictNull = (dict, key, optionStr) => {
 }
 let setOptionString = (dict, key, optionStr) =>
   optionStr->Option.mapOr((), str => dict->Dict.set(key, str->JSON.Encode.string))
+
+let setOptionFloat = (dict, key, optionFloat) =>
+  optionFloat->Option.mapOr((), float => dict->Dict.set(key, float->JSON.Encode.float))
 
 let setOptionJson = (dict, key, optionJson) =>
   optionJson->Option.mapOr((), json => dict->Dict.set(key, json))
@@ -426,7 +447,7 @@ let checkEmptyJson = json => {
   json == JSON.Encode.object(Dict.make())
 }
 
-let numericArraySortComperator = (a, b) => {
+let numericArraySortComparator = (a, b) => {
   if a < b {
     -1.
   } else if a > b {
@@ -574,6 +595,9 @@ let getTitle = name => {
   ->Array.joinWith(" ")
 }
 
+let pluralize = (~count, ~singular, ~plural=?) =>
+  count == 1 ? singular : plural->Option.getOr(`${singular}s`)
+
 // Regex to check if a string contains a substring
 let regex = (positionToCheckFrom, searchString) => {
   let searchStringNew =
@@ -648,6 +672,8 @@ let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) =>
   keys->Array.forEach(key => dict->Dict.delete(key))
 
 let isEmptyArray = arr => arr->Array.length === 0
+
+let isNonEmptyArray = arr => arr->Array.length > 0
 
 let removeTrailingSlash = str => {
   if str->String.endsWith("/") {

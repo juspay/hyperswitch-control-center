@@ -3,14 +3,28 @@ open ReconEngineTypes
 open LogicUtils
 open ReconEngineUtils
 open ReconEngineTransactionsUtils
+open EntriesTableEntity
 
-let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
+let getDetailFieldsForTableSections = [
+  EntryType,
+  Amount,
+  Currency,
+  Status,
+  EntryId,
+  OrderID,
+  EffectiveAt,
+  CreatedAt,
+]
+
+let initialDisplayFilters = () => {
   let statusOptions = getGroupedTransactionStatusOptions([
     OverAmount(Mismatch),
     OverAmount(Expected),
     UnderAmount(Mismatch),
     UnderAmount(Expected),
     DataMismatch,
+    CurrencyMismatch,
+    SplitMismatch,
     PartiallyReconciled,
     Expected,
     Missing,
@@ -24,44 +38,6 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=statusOptions,
             ~buttonText="Select Transaction Status",
-            ~showSelectionAsChips=false,
-            ~searchable=true,
-            ~showToolTip=true,
-            ~showNameAsToolTip=true,
-            ~customButtonStyle="bg-none",
-            (),
-          ),
-        ),
-        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
-      }: EntityType.initialFilters<'t>
-    ),
-    (
-      {
-        field: FormRenderer.makeFieldInfo(
-          ~label="source_account",
-          ~name="source_account",
-          ~customInput=InputFields.filterMultiSelectInput(
-            ~options=creditAccountOptions,
-            ~buttonText="Select Source Account",
-            ~showSelectionAsChips=false,
-            ~searchable=true,
-            ~showToolTip=true,
-            ~showNameAsToolTip=true,
-            ~customButtonStyle="bg-none",
-            (),
-          ),
-        ),
-        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
-      }: EntityType.initialFilters<'t>
-    ),
-    (
-      {
-        field: FormRenderer.makeFieldInfo(
-          ~label="target_account",
-          ~name="target_account",
-          ~customInput=InputFields.filterMultiSelectInput(
-            ~options=debitAccountOptions,
-            ~buttonText="Select Target Account",
             ~showSelectionAsChips=false,
             ~searchable=true,
             ~showToolTip=true,
@@ -103,7 +79,7 @@ let exceptionTransactionEntryItemToItemMapper = (
 
 let getBalanceByAccountType = (
   entries: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
-  accountType: string,
+  accountType: accountTypeVariant,
 ): (float, string) => {
   let (totalCredits, totalDebits) = entries->Array.reduce((0.0, 0.0), (
     (credits, debits),
@@ -116,10 +92,10 @@ let getBalanceByAccountType = (
     }
   })
 
-  let balance = switch accountType->String.toLowerCase {
-  | "credit" => totalCredits -. totalDebits
-  | "debit" => totalDebits -. totalCredits
-  | _ => totalCredits +. totalDebits
+  let balance = switch accountType {
+  | Credit => totalCredits -. totalDebits
+  | Debit => totalDebits -. totalCredits
+  | UnknownAccountTypeVariant => 0.0
   }
 
   let firstEntry =
@@ -164,7 +140,11 @@ let getHeadingAndSubHeadingForMismatch = (
 
   let mismatchSubHeading = switch mismatchType {
   | AmountMismatch =>
-    `There is a ${mismatchHeading} of ${currency} ${mismatchAmount->Float.toString} found between the transaction entries`
+    `There is a ${mismatchHeading} of ${CurrencyFormatUtils.valueFormatter(
+        mismatchAmount,
+        AmountWithSuffix,
+        ~currency,
+      )} found between the transaction entries`
   | MetadataMismatch =>
     `There is a ${mismatchHeading} found between ${accountNames->Array.joinWith(", ")}`
   | BalanceDirectionMismatch =>
@@ -610,8 +590,8 @@ let getResolutionModalConfig = (
       closeOnOutsideClick: true,
     }
   | ResolvingException(ForceReconcile) => {
-      heading: "Force Reconcile",
-      description: "This action will mark the transaction as reconciled.",
+      heading: "Force Match",
+      description: "This action will mark the transaction as matched.",
       layout: CenterModal,
       closeOnOutsideClick: true,
     }
@@ -771,12 +751,13 @@ let calculateSectionData = (
   ->Dict.keysToArray
   ->Array.map(accountId => {
     let accountInfo =
-      accountInfoMap
-      ->getvalFromDict(accountId)
-      ->Option.getOr({account_info_name: "", account_info_type: ""})
-    let accountEntries = groupedEntries->getvalFromDict(accountId)->Option.getOr([])
+      accountInfoMap->getValueFromDict(
+        accountId,
+        {account_info_name: "", account_info_type: UnknownAccountTypeVariant},
+      )
+    let accountEntries = groupedEntries->getValueFromDict(accountId, [])
 
-    let (totalAmount, currency) = if accountInfo.account_info_type->isNonEmptyString {
+    let (totalAmount, currency) = if accountInfo.account_info_type != UnknownAccountTypeVariant {
       getBalanceByAccountType(accountEntries, accountInfo.account_info_type)
     } else {
       getSumOfAmountWithCurrency(accountEntries)
@@ -793,9 +774,9 @@ let calculateOverallBalance = sectionData => {
     (creditSum, debitSum),
     (_, accountInfo, _, amount, _),
   ) => {
-    if accountInfo.account_info_type->String.toLowerCase == "credit" {
+    if accountInfo.account_info_type == Credit {
       (creditSum +. amount, debitSum)
-    } else if accountInfo.account_info_type->String.toLowerCase == "debit" {
+    } else if accountInfo.account_info_type == Debit {
       (creditSum, debitSum +. amount)
     } else {
       (creditSum, debitSum)
@@ -857,7 +838,7 @@ let getMainResolutionButtons = (~isResolutionAvailable, ~setExceptionStage, ~set
   open ReconEngineExceptionTransactionTypes
   [
     {
-      text: "Force Reconcile",
+      text: "Force Match",
       icon: "nd-check-circle-outline",
       iconClass: "text-nd_gray-600",
       condition: isResolutionAvailable(ForceReconcile),

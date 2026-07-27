@@ -65,11 +65,11 @@ let makeFilters = (~filters: JSON.t, ~cardinalityArr) => {
       ("and", Dict.fromArray([("left", leftInitial), ("right", rightInitial)])->JSON.Encode.object),
     ])
     expressionArr->Array.forEach(item => {
-      let complextFilterDictCopy = complexFilterDict->Dict.toArray->Array.copy->Dict.fromArray
+      let complexFilterDictCopy = complexFilterDict->Dict.toArray->Array.copy->Dict.fromArray
       complexFilterDict->Dict.set(
         "and",
         Dict.fromArray([
-          ("left", complextFilterDictCopy->JSON.Encode.object),
+          ("left", complexFilterDictCopy->JSON.Encode.object),
           ("right", item->JSON.Encode.object),
         ])->JSON.Encode.object,
       )
@@ -176,7 +176,7 @@ let getFilterBody = (
               Some(
                 Dict.fromArray([
                   ("field", value[0]->Option.getOr("")->JSON.Encode.string),
-                  ("condition", "GreaterThanEquall"->JSON.Encode.string),
+                  ("condition", "GreaterThanEqual"->JSON.Encode.string),
                   (
                     "val",
                     value[1]
@@ -318,10 +318,10 @@ let getFilterBody = (
       } else if filterValueArr->Array.length >= 2 {
         let leftInitial = filterValueArr[0]->Option.getOr(Dict.make())
         let rightInitial = filterValueArr[1]->Option.getOr(Dict.make())
-        let conditionInitital = andAndOr->Array.get(0)->Option.getOr("and")
+        let conditionInitial = andAndOr->Array.get(0)->Option.getOr("and")
         let complexFilterDict = Dict.fromArray([
           (
-            conditionInitital,
+            conditionInitial,
             Dict.fromArray([
               ("left", leftInitial->JSON.Encode.object),
               ("right", rightInitial->JSON.Encode.object),
@@ -332,11 +332,11 @@ let getFilterBody = (
         let andAndOr = andAndOr->Array.copy->Array.sliceToEnd(~start=1)
 
         filterValueArr->Array.forEachWithIndex((item, index) => {
-          let complextFilterDictCopy = complexFilterDict->Dict.toArray->Array.copy->Dict.fromArray
+          let complexFilterDictCopy = complexFilterDict->Dict.toArray->Array.copy->Dict.fromArray
           complexFilterDict->Dict.set(
             andAndOr->Array.get(index)->Option.getOr("and"),
             Dict.fromArray([
-              ("left", complextFilterDictCopy->JSON.Encode.object),
+              ("left", complexFilterDictCopy->JSON.Encode.object),
               ("right", item->JSON.Encode.object),
             ])->JSON.Encode.object,
           )

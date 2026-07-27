@@ -27,6 +27,7 @@ let make = (
         | TaxProcessor => Window.getTaxProcessorConfig(connector)
         | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connector)
         | VaultProcessor => Window.getConnectorConfig(connector)
+        | SurchargeProcessor => Window.getSurchargeProcessorConfig(connector)
         | FRMPlayer => JSON.Encode.null
         }
         let connectorAccountDict = dict->getDictFromJsonObject->getDictfromDict("connector_auth")

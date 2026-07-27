@@ -8,7 +8,7 @@ module NewThemeHeading: {
     ~descriptionColor: string=?,
     ~headingSize: headingSize=?,
     ~rightActions: React.element=?,
-    ~headingRightElemnt: React.element=?,
+    ~headingRightElement: React.element=?,
     ~alignItems: string=?,
     ~outerMargin: string=?,
   ) => React.element

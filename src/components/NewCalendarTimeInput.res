@@ -51,6 +51,7 @@ module CustomInputBox = {
           customIconStyle: None,
           customTextStyle: None,
           description: None,
+          customComponent: None,
         }
         item
       })}

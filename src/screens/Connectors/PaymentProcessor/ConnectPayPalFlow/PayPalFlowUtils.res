@@ -79,10 +79,10 @@ let handleObjectResponse = (
   handleStateToNextPage()
 }
 
-let getBodyType = (isUpdateFlow, configuartionType) => {
+let getBodyType = (isUpdateFlow, configurationType) => {
   open PayPalFlowTypes
   isUpdateFlow
-    ? switch configuartionType {
+    ? switch configurationType {
       | Manual => "BodyKey"
       | Automatic | NotSelected => "SignatureKey"
       }

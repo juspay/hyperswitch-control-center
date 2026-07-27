@@ -1,4 +1,3 @@
-open ThemeHelper
 open LogicUtils
 
 type themeObj = {
@@ -67,8 +66,9 @@ let getHeading = colType => {
   }
 }
 let fallbackThemeConfigSettings = ThemeProvider.fallbackThemeConfig.settings
-let getCell = (themeObj, colType): Table.cell => {
+let getCell = (themeObj, colType, ~orgList, ~merchantList, ~profileList): Table.cell => {
   open Table
+  open OMPSwitchUtils
   switch colType {
   | ThemeName => Text(themeObj.theme_name)
   | ThemeEntity =>
@@ -76,9 +76,18 @@ let getCell = (themeObj, colType): Table.cell => {
     Text(`${(entityLabel :> string)} level `)
   | Tenant => themeObj.tenant_id->Option.mapOr(Text("All Tenant"), id => Text(id))
 
-  | Organization => themeObj.org_id->Option.mapOr(Text("All Organizations"), id => Text(id))
-  | Merchant => themeObj.merchant_id->Option.mapOr(Text("All Merchants"), id => Text(id))
-  | Profile => themeObj.profile_id->Option.mapOr(Text("All Profiles"), id => Text(id))
+  | Organization =>
+    themeObj.org_id->Option.mapOr(Text("All Organizations"), id => Text(
+      currentOMPName(orgList, id),
+    ))
+  | Merchant =>
+    themeObj.merchant_id->Option.mapOr(Text("All Merchants"), id => Text(
+      currentOMPName(merchantList, id),
+    ))
+  | Profile =>
+    themeObj.profile_id->Option.mapOr(Text("All Profiles"), id => Text(
+      currentOMPName(profileList, id),
+    ))
   | ThemeColours =>
     let themeDataDict = themeObj.theme_data->getDictFromJsonObject
     let settings = themeDataDict->getObj("settings", Dict.make())
@@ -86,15 +95,33 @@ let getCell = (themeObj, colType): Table.cell => {
     let sidebarObj = settings->getObj("sidebar", Dict.make())
     let primary = colors->getString("primary", fallbackThemeConfigSettings.colors.primary)
     let sidebar = sidebarObj->getString("primary", fallbackThemeConfigSettings.sidebar.primary)
-    Table.CustomCell(<OverlappingCircles colorA=primary colorB=sidebar />, "")
+    Table.CustomCell(<ThemeHelper.OverlappingCircles colorA=primary colorB=sidebar />, "")
   }
 }
 
-let themeTableEntity: EntityType.entityType<cols, Js.Json.t> = EntityType.makeEntity(
-  ~uri=``,
-  ~getObjects=json => json->getArrayFromJson([]),
-  ~defaultColumns=visibleColumns,
-  ~allColumns=visibleColumns,
-  ~getHeading,
-  ~getCell=(json, colType) => getCell(tableItemToObjMapper(json->getDictFromJsonObject), colType),
-)
+let themeTableEntity = (~orgId, ~orgList, ~merchantList, ~profileList) =>
+  EntityType.makeEntity(
+    ~uri=``,
+    ~getObjects=json => json->getArrayFromJson([]),
+    ~defaultColumns=visibleColumns,
+    ~allColumns=visibleColumns,
+    ~getHeading,
+    ~getCell=(json, colType) =>
+      getCell(
+        tableItemToObjMapper(json->getDictFromJsonObject),
+        colType,
+        ~orgList,
+        ~merchantList,
+        ~profileList,
+      ),
+    ~getShowLink={
+      theme => {
+        let themeDict = theme->getDictFromJsonObject
+        let merchantId = themeDict->getString("merchant_id", "all_merchants")
+        let profileId = themeDict->getString("profile_id", "all_profiles")
+        let themeId = themeDict->getString("theme_id", "")
+        let url = `/theme/${themeId}/${profileId}/${merchantId}/${orgId}`
+        GlobalVars.appendDashboardPath(~url)
+      }
+    },
+  )

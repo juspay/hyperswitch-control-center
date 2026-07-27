@@ -4,6 +4,7 @@ type entityName =
   | MERCHANT_ACCOUNT
   | ORGANIZATION_RETRIEVE
   | REFUNDS
+  | PAYMENT_CAPTURE
   | REFUND_FILTERS
   | DISPUTES
   | DISPUTE_FILTERS
@@ -20,7 +21,9 @@ type entityName =
   | API_KEYS
   | ORDERS
   | ORDER_FILTERS
+  | PAYMENT_CANCEL
   | ORDERS_AGGREGATE
+  | MANUAL_STATUS_UPDATE
   | REFUNDS_AGGREGATE
   | DISPUTES_AGGREGATE
   | PAYOUTS_AGGREGATE
@@ -31,10 +34,10 @@ type entityName =
   | WEBHOOKS_EVENTS_RETRY
   | WEBHOOKS_EVENT_LOGS
   | CONNECTOR_EVENT_LOGS
+  | PRISM_CONNECTOR_EVENT_LOGS
   | ROUTING_EVENT_LOGS
   | GENERATE_SAMPLE_DATA
   | USERS
-  | RECON
   | INTEGRATION_DETAILS
   | FRAUD_RISK_MANAGEMENT
   | USER_MANAGEMENT
@@ -114,7 +117,6 @@ type v2entityNameType =
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 
-type reconType = [#TOKEN | #REQUEST | #NONE]
 type hypersenseType = [#TOKEN | #HOME | #NONE]
 
 type hyperswitchReconType = [
@@ -122,7 +124,9 @@ type hyperswitchReconType = [
   | #PROCESSED_ENTRIES_LIST_WITH_ACCOUNT
   | #PROCESSED_ENTRIES_LIST_WITH_TRANSACTION
   | #PROCESSING_ENTRIES_LIST
+  | #PROCESSING_ENTRIES_LIST_V2
   | #TRANSACTIONS_LIST
+  | #TRANSACTIONS_LIST_V2
   | #FILE_UPLOAD
   | #RECON_RULES
   | #INGESTION_HISTORY
@@ -139,6 +143,12 @@ type hyperswitchReconType = [
   | #AUDIT_TRAIL
   | #PROCESSING_ENTRY_RESOLUTIONS
   | #VOID_PROCESSING_ENTRY
+  | #TRANSACTION_BULK_OPERATIONS
+  | #STAGING_ENTRY_BULK_OPERATIONS
+  | #OVERVIEW_RULES
+  | #OVERVIEW_RULES_TIME_SERIES
+  | #RULE_ACCOUNT_BREAKDOWN
+  | #STAGING_ENTRIES_OVERVIEW
   | #NONE
 ]
 
@@ -183,12 +193,14 @@ type userType = [
   | #SIGN_IN_WITH_SSO
   | #CHANGE_PASSWORD
   | #SWITCH_ORG
+  | #LAUNCH_SAGE
   | #SWITCH_MERCHANT_NEW
   | #SWITCH_PROFILE
   | #SWITCH_PROFILE_NEW
   | #LIST_ORG
   | #LIST_MERCHANT
   | #LIST_PROFILE
+  | #CLONE_CONNECTOR
   | #LIST_ROLES_FOR_INVITE
   | #LIST_INVITATION
   | #ACCEPT_INVITATION_PRE_LOGIN
@@ -213,7 +225,6 @@ type getUrlTypes = (
   ~connector: option<string>=?,
   ~userType: userType=?,
   ~userRoleTypes: userRoleTypes=?,
-  ~reconType: reconType=?,
   ~hyperswitchReconType: hyperswitchReconType=?,
   ~hypersenseType: hypersenseType=?,
   ~queryParameters: option<string>=?,

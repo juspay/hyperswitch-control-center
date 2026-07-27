@@ -23,7 +23,7 @@ module MultiConfigInp = {
       value: enabledList.value,
       checked: true,
     }
-    <TextInput input placeholder={`Enter ${label->LogicUtils.snakeToTitle}`} />
+    <TextInputAdapter input placeholder={`Enter ${label->LogicUtils.snakeToTitle}`} />
   }
 }
 
@@ -202,12 +202,12 @@ module CashToCodeSelectBox = {
       let countryTitle = country->snakeToTitle
       let isCountrySelected = country->isSelected
 
-      let accordionItem: Accordion.accordion = {
+      let accordionItem: AccordionAdapter.accordion = {
         title: "",
         renderContentOnTop: Some(
           () =>
             <div className="flex items-center gap-3 w-full">
-              <CheckBoxIcon isSelected=isCountrySelected stopPropagationNeeded=true />
+              <CheckBoxIconAdapter isSelected=isCountrySelected stopPropagationNeeded=true />
               <span className={`${body.sm.semibold} text-nd-gray-600`}>
                 {countryTitle->React.string}
               </span>
@@ -230,8 +230,8 @@ module CashToCodeSelectBox = {
       accordionItem
     })
 
-    <div className="w-full">
-      <Accordion
+    <div className="w-full mt-4">
+      <AccordionAdapter
         accordion=accordionItems
         accordionTopContainerCss="mt-4 rounded-lg"
         accordionBottomContainerCss="p-4"
@@ -270,11 +270,6 @@ module CashToCodeMethods = {
     })
     <Tabs
       tabs=tabList
-      disableIndicationArrow=true
-      showBorder=false
-      includeMargin=false
-      lightThemeColor="black"
-      defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
       onTitleClick={tabIndex => {
         setCashToCodeMthd(_ => tabs->LogicUtils.getValueFromArray(tabIndex, #Classic))
       }}
@@ -316,12 +311,12 @@ module Payload = {
         let countryTitle = country->snakeToTitle
         let isCountrySelected = country->isSelected
 
-        let accordionItem: Accordion.accordion = {
+        let accordionItem: AccordionAdapter.accordion = {
           title: "",
           renderContentOnTop: Some(
             () =>
               <div className="flex items-center gap-3 w-full">
-                <CheckBoxIcon isSelected=isCountrySelected stopPropagationNeeded=true />
+                <CheckBoxIconAdapter isSelected=isCountrySelected stopPropagationNeeded=true />
                 <span className="font-medium text-jp-gray-700 dark:text-jp-gray-text_darktheme">
                   {React.string(countryTitle)}
                 </span>
@@ -342,7 +337,7 @@ module Payload = {
       })
 
     <div className="w-full space-y-4 ">
-      <Accordion
+      <AccordionAdapter
         accordion=accordionItems
         accordionTopContainerCss="mt-2 rounded-lg border border-gray-200"
         accordionBottomContainerCss="p-4"
@@ -408,16 +403,9 @@ module ConnectorConfigurationFields = {
 module BusinessProfileRender = {
   @react.component
   let make = (~isUpdateFlow: bool, ~selectedConnector) => {
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-    let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfileRecoilVal =
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
     let connectorLabelOnChange = ReactFinalForm.useField(`connector_label`).input.onChange
-
-    let hereTextStyle = isUpdateFlow
-      ? "text-grey-700 opacity-50 cursor-not-allowed"
-      : `${textColor.primaryNormal}  cursor-pointer`
 
     <>
       <FormRenderer.FieldRenderer
@@ -434,10 +422,7 @@ module BusinessProfileRender = {
               },
               ~customStyle="max-h-48",
               ~options={
-                MerchantAccountUtils.businessProfileNameDropDownOption(
-                  [businessProfileRecoilVal],
-                  ~profileId,
-                )
+                MerchantAccountUtils.businessProfileNameDropDownOption(businessProfileRecoilVal)
               },
               ~buttonText="Select Profile",
             )(
@@ -457,19 +442,6 @@ module BusinessProfileRender = {
             ),
         )}
       />
-      <RenderIf condition={!isUpdateFlow}>
-        <div className="text-gray-400 text-sm mt-3">
-          <span> {"Manage your list of profiles."->React.string} </span>
-          <span
-            className={`ml-1 ${hereTextStyle}`}
-            onClick={_ => {
-              setDashboardPageState(_ => #HOME)
-              RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/business-profiles"))
-            }}>
-            {React.string("here.")}
-          </span>
-        </div>
-      </RenderIf>
     </>
   }
 }
@@ -587,11 +559,10 @@ module ConnectorHeaderWrapper = {
         | Processors(BRAINTREE) => true
         | _ => false
         }}>
-        <HSwitchUtils.AlertBanner
-          bannerContent={<p>
-            {"Disclaimer: Please ensure the payment currency matches the Braintree-configured currency for the given Merchant Account ID."->React.string}
-          </p>}
-          bannerType=Warning
+        <AlertV2Binding
+          alertType=Warning
+          slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
+          description="Disclaimer: Please ensure the payment currency matches the Braintree-configured currency for the given Merchant Account ID."
         />
       </RenderIf>
       {children}

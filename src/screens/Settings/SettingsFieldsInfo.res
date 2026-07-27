@@ -70,7 +70,7 @@ let businessDetails: fieldsInfoType = {
       inputType: InputFields.textInput(),
     },
     {
-      placeholder: "Enter Address Line 2 ",
+      placeholder: "Enter Address Line 2",
       label: "Address Line 2",
       name: "line2",
       inputType: InputFields.textInput(),

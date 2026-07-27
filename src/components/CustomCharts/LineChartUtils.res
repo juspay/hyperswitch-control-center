@@ -157,7 +157,7 @@ type chartLegendStatsType =
 
 type legenedType = Heading | LegendData
 
-type secondryMetrics = {
+type secondaryMetrics = {
   metric_name_db: string,
   metric_label: string,
   metric_type: dropDownMetricType,
@@ -169,7 +169,7 @@ type metricsConfig = {
   thresholdVal: option<float>,
   step_up_threshold: option<float>,
   legendOption?: (chartLegendStatsType, chartLegendStatsType),
-  secondryMetrics?: secondryMetrics,
+  secondaryMetrics?: secondaryMetrics,
   disabled?: bool,
   description?: string,
   data_transformation_func?: Dict.t<JSON.t> => Dict.t<JSON.t>,
@@ -252,7 +252,7 @@ let legendIndexFunc = (name: string) => {
   index
 }
 
-type timeSeriesDictWithSecondryMetrics<'a> = {
+type timeSeriesDictWithsecondaryMetrics<'a> = {
   color: option<string>,
   name: string,
   data: array<('a, float, option<float>)>,
@@ -274,8 +274,8 @@ let timeSeriesDataMaker = (
   | None => []
   }
   let yAxis = metricsConfig.metric_name_db
-  let metrixType = metricsConfig.metric_type
-  let secondryMetrics = metricsConfig.secondryMetrics
+  let metricType = metricsConfig.metric_type
+  let secondaryMetrics = metricsConfig.secondaryMetrics
   let timeSeriesDict = Dict.make() // { name : groupByName, data: array<(value1, value2)>}
   let groupedByTime = Dict.make() // {time : [values at that time]}
   let _ = data->Array.map(item => {
@@ -302,14 +302,14 @@ let timeSeriesDataMaker = (
     let xAxisDataPoint = dict->getString(xAxis, "")->String.split(" ")->Array.joinWith("T") ++ "Z" // right now it is time string
     let yAxisDataPoint = dict->getFloat(yAxis, 0.)
 
-    let secondryAxisPoint = switch secondryMetrics {
-    | Some(secondryMetrics) => Some(dict->getFloat(secondryMetrics.metric_name_db, 0.))
+    let secondaryAxisPoint = switch secondaryMetrics {
+    | Some(secondaryMetrics) => Some(dict->getFloat(secondaryMetrics.metric_name_db, 0.))
     | None => None
     }
     if dict->getString(xAxis, "")->isNonEmptyString {
       timeSeriesDict->appendToDictValue(
         groupByName,
-        (xAxisDataPoint->DateTimeUtils.parseAsFloat, yAxisDataPoint, secondryAxisPoint),
+        (xAxisDataPoint->DateTimeUtils.parseAsFloat, yAxisDataPoint, secondaryAxisPoint),
       )
       groupedByTime->addToDictValueFloat(
         xAxisDataPoint->DateTimeUtils.parseAsFloat->Float.toString,
@@ -327,7 +327,7 @@ let timeSeriesDataMaker = (
 
   timeSeriesArr->Array.mapWithIndex((item, index) => {
     let (key, value) = item
-    let sortedValBasedOnTime = switch metrixType {
+    let sortedValBasedOnTime = switch metricType {
     | Traffic =>
       value
       ->Array.map(item => {
@@ -353,7 +353,7 @@ let timeSeriesDataMaker = (
         mod(index, legendColor->Array.length)
       ]->Option.getOr(defaultLegendColorGradients(topGradient, bottomGradient))
     }
-    let value: timeSeriesDictWithSecondryMetrics<float> = {
+    let value: timeSeriesDictWithsecondaryMetrics<float> = {
       color: Some(color),
       name: key,
       data: sortedValBasedOnTime,
@@ -370,7 +370,7 @@ let getLegendDataForCurrentMetric = (
   ~groupedData: array<JSON.t>,
   ~activeTab: string,
   ~xAxis: string,
-  ~metrixType: dropDownMetricType,
+  ~metricType: dropDownMetricType,
 ) => {
   let currentAvgDict = Dict.make()
   let orderedDims = groupedData->Array.map(item => {
@@ -456,7 +456,7 @@ let getLegendDataForCurrentMetric = (
       let arrLen = sortedValueBasedOnTime->Array.length
       let (_, currentVal) = sortedValueBasedOnTime[arrLen - 1]->Option.getOr(("", 0.))
       // the avg stat won't work correct for Sr case have to find another way or avoid using the avg for Sr
-      let overall = if metrixType === Traffic {
+      let overall = if metricType === Traffic {
         (currentOverall->Dict.get(metricsName)->Option.getOr(0.) *.
         100. /.
         Math.max(totalOverall, 1.))
@@ -467,7 +467,7 @@ let getLegendDataForCurrentMetric = (
       } else {
         currentOverall->Dict.get(metricsName)->Option.getOr(0.)
       }
-      let currentVal = if metrixType === Traffic {
+      let currentVal = if metricType === Traffic {
         currentVal *. 100. /. currentValueOverallSum
       } else {
         currentVal
@@ -593,10 +593,10 @@ let formatLabels = (metric: metricsConfig, value: float) => {
 
 let getTooltipHTML = (metrics, data, onCursorName, index, length) => {
   let metric_type = metrics.metric_type
-  let (name, color, y_axis, secondry_metrix) = data
-  let secondry_metrix_val = switch metrics.secondryMetrics {
-  | Some(secondryMetrics) =>
-    `${formatStatsAccToMetric(secondryMetrics.metric_type, secondry_metrix->Option.getOr(0.))}`
+  let (name, color, y_axis, secondary_metric) = data
+  let secondary_metric_val = switch metrics.secondaryMetrics {
+  | Some(secondaryMetrics) =>
+    `${formatStatsAccToMetric(secondaryMetrics.metric_type, secondary_metric->Option.getOr(0.))}`
   | None => ""
   }
 
@@ -608,7 +608,7 @@ let getTooltipHTML = (metrics, data, onCursorName, index, length) => {
       <td><span style='height:10px; width:10px;margin-top:5px;display:inline-block; background-color:${color};border-radius:3px;margin-right:3px;fontFamily:"Inter"'/></td>
       <td><span style='${highlight};padding-right: 10px;'>${name->snakeToTitle}</span></td>
       <td><span style=${highlight}>${formatStatsAccToMetric(metric_type, y_axis)}</span></td>
-      <td><span style=${highlight}>${secondry_metrix_val}</span></td>
+      <td><span style=${highlight}>${secondary_metric_val}</span></td>
   </tr>
   ${spacing}`
 }

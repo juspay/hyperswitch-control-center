@@ -78,7 +78,7 @@ let make = (
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let frmInfo = ConnectorInterface.mapDictToTypedConnectorPayload(
@@ -121,9 +121,16 @@ let make = (
       setInitialValues(_ => res)
       let _ = await fetchConnectorListResponse()
       setScreenState(_ => PageLoaderWrapper.Success)
-      showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
+      showToast(
+        ~message=`Connector has been successfully ${isFRMDisabled ? "enabled" : "disabled"}`,
+        ~toastType=ToastSuccess,
+      )
     } catch {
-    | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
+    | Exn.Error(_) => {
+        let action = isFRMDisabled ? "enable" : "disable"
+        showToast(~message=`Failed to ${action} connector!`, ~toastType=ToastError)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     }
   }
 
@@ -184,11 +191,9 @@ let make = (
                     setShowEditForm(_ => true)
                   }}>
                   <ToolTip
-                    height=""
                     description={`Update the ${connectorName} creds`}
                     toolTipFor={<Icon size=18 name="edit" className={`mt-1 ml-1`} />}
                     toolTipPosition=Top
-                    tooltipWidthClass="w-fit"
                   />
                 </div>
               </RenderIf>

@@ -2,6 +2,27 @@ open ReconEngineTypes
 open LogicUtils
 open ReconEngineUtils
 
+let bytesPerKilobyte = 1000
+let bytesPerMegabyte = bytesPerKilobyte * 1000
+let maxFileSizeBytes = 25 * bytesPerMegabyte
+let maxFilesCount = 3
+
+let formatFileSize = (sizeInBytes: int) => {
+  let size = sizeInBytes->Int.toFloat
+  let (displaySize, unit) = if sizeInBytes >= bytesPerMegabyte {
+    (size /. bytesPerMegabyte->Int.toFloat, "MB")
+  } else {
+    (size /. bytesPerKilobyte->Int.toFloat, "KB")
+  }
+  let formattedSize = displaySize->Float.toFixedWithPrecision(~digits=2)->removeTrailingZero
+
+  `${formattedSize} ${unit}`
+}
+
+let fileListToArray = fileList => {
+  Array.fromInitializer(~length=fileList->Array.length, i => fileList[i])->Array.filterMap(x => x)
+}
+
 let getIngestionConfigPayloadFromDict = dict => {
   dict->ingestionConfigItemToObjMapper
 }
@@ -138,7 +159,7 @@ let getFileTimelineState = (
   | (Processing, _) => FileProcessing
   | (Pending, _) => FileReceived
   | (Failed, _) => FileRejected
-  | _ => UnknownState
+  | _ => UnknownFileTimelineState
   }
 }
 
@@ -194,7 +215,7 @@ let getTimelineConfig = (
         backgroundColor: "bg-nd_red-50",
       },
     }
-  | UnknownState => {
+  | UnknownFileTimelineState => {
       statusText: "Unknown",
       icon: {name: "help", color: "text-nd_gray-400"},
       container: {
@@ -202,5 +223,34 @@ let getTimelineConfig = (
         backgroundColor: "bg-nd_gray-100",
       },
     }
+  }
+}
+
+let supportedFileTypes: array<ReconEngineDataSourcesTypes.supportedFileExtensions> = [
+  Csv,
+  Ext,
+  Xlsx,
+  Txt,
+]
+
+let isSupportedFileType = (fileName: string): bool => {
+  let lowerFileName = fileName->String.toLowerCase
+  supportedFileTypes
+  ->Array.map(ft => `.${(ft :> string)->String.toLowerCase}`)
+  ->Array.find(ext => lowerFileName->String.endsWith(ext)) != None
+}
+
+let classifyFile = (file, ~existingCount, ~seenKeys) => {
+  let fileName = file["name"]
+  if !isSupportedFileType(fileName->String.toLowerCase) {
+    Error(`${fileName}: unsupported file type`)
+  } else if file["size"] > maxFileSizeBytes {
+    Error(`${fileName}: exceeds 25 MB`)
+  } else if seenKeys->Array.includes(fileName) {
+    Error(`${fileName}: already selected`)
+  } else if existingCount >= maxFilesCount {
+    Error(`${fileName}: only ${maxFilesCount->Int.toString} files allowed`)
+  } else {
+    Ok(fileName)
   }
 }

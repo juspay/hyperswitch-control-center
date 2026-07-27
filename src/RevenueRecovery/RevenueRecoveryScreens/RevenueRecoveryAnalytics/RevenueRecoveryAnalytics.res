@@ -14,7 +14,7 @@ let make = () => {
       <OverallRetryStrategyAnalytics
         entity={overallRetryStrategysEntity} chartEntity={overallRetryStrategyChartEntity}
       />
-      <RetriesComparisionAnalytics
+      <RetriesComparisonAnalytics
         entity={retriesComparisonEntity} chartEntity={retriesComparisonChartEntity}
       />
       <SmartRetryStrategyAnalytics entity={smartRetryStrategyEntity} />

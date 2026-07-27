@@ -9,6 +9,7 @@ type updatedOptionWithIcons = {
   customIconStyle: option<string>,
   rightIcon: Button.iconType,
   description: option<string>,
+  customComponent: option<React.element>,
 }
 
 @react.component
@@ -24,6 +25,7 @@ let make = (
   ~showBottomUp=false,
   ~textClass="text-sm",
   ~closeListOnClick=false,
+  ~showTick=true,
 ) => {
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let dropdownPositionClass = switch dropdownPosition {
@@ -78,7 +80,7 @@ let make = (
                                   ? "bg-gray-100 dark:bg-gray-700"
                                   : ""} ${disabledClass}`}
                               disabled={option.isDisabled}>
-                              <div className="flex flex-row items-center gap-2">
+                              <div className="flex flex-row items-center gap-2 w-full">
                                 {switch option.leftIcon {
                                 | FontAwesome(iconName) =>
                                   <Icon
@@ -95,15 +97,23 @@ let make = (
                                 | _ => React.null
                                 }}
                                 <AddDataAttributes attributes=[("data-options", option.label)]>
-                                  <div className={option.customTextStyle->Option.getOr("")}>
-                                    <span
+                                  <div
+                                    className={`${option.customTextStyle->Option.getOr(
+                                        "",
+                                      )} w-full`}>
+                                    <div
                                       className={selected
-                                        ? `${textColor.primaryNormal} font-semibold`
-                                        : ""}>
-                                      {React.string(option.label)}
-                                    </span>
+                                        ? `${textColor.primaryNormal} font-semibold w-full`
+                                        : "w-full"}>
+                                      {switch option.customComponent {
+                                      | Some(comp) => comp
+                                      | None => React.string(option.label)
+                                      }}
+                                    </div>
                                   </div>
                                 </AddDataAttributes>
+                              </div>
+                              <div className="flex flex-row items-center gap-2">
                                 {switch option.rightIcon {
                                 | FontAwesome(iconName) =>
                                   <Icon
@@ -119,14 +129,12 @@ let make = (
                                   <Icon className="align-middle" size=12 name=iconName />
                                 | _ => React.null
                                 }}
+                                <RenderIf condition={selected && showTick}>
+                                  {isCloseIcon
+                                    ? <Icon name="close" size=10 className="text-nd_red-500 mr-1" />
+                                    : <Tick isSelected=selected />}
+                                </RenderIf>
                               </div>
-                              <RenderIf condition=selected>
-                                {if isCloseIcon {
-                                  <Icon name="close" size=10 className="text-red-500 mr-1" />
-                                } else {
-                                  <Tick isSelected=selected />
-                                }}
-                              </RenderIf>
                             </div>
                           }}
                         </Menu.Item>
@@ -161,7 +169,7 @@ let make = (
                                 ? "bg-gray-100 dark:bg-gray-700"
                                 : ""} ${disabledClass}`}
                             disabled={option.isDisabled}>
-                            <div className="flex flex-row items-center gap-2">
+                            <div className="flex flex-row items-center gap-2 w-full">
                               {switch option.leftIcon {
                               | FontAwesome(iconName) =>
                                 <Icon
@@ -178,15 +186,21 @@ let make = (
                               | _ => React.null
                               }}
                               <AddDataAttributes attributes=[("data-options", option.label)]>
-                                <div className={option.customTextStyle->Option.getOr("")}>
-                                  <span
+                                <div
+                                  className={`${option.customTextStyle->Option.getOr("")} w-full`}>
+                                  <div
                                     className={selected
-                                      ? `${textColor.primaryNormal} font-semibold`
-                                      : ""}>
-                                    {React.string(option.label)}
-                                  </span>
+                                      ? `${textColor.primaryNormal} font-semibold w-full`
+                                      : "w-full"}>
+                                    {switch option.customComponent {
+                                    | Some(comp) => comp
+                                    | None => React.string(option.label)
+                                    }}
+                                  </div>
                                 </div>
                               </AddDataAttributes>
+                            </div>
+                            <div className="flex flex-row items-center gap-2">
                               {switch option.rightIcon {
                               | FontAwesome(iconName) =>
                                 <Icon
@@ -202,12 +216,12 @@ let make = (
                                 <Icon className="align-middle" size=12 name=iconName />
                               | _ => React.null
                               }}
+                              {selected && showTick
+                                ? props["active"] && deSelectAllowed
+                                    ? <Icon name="close" size=10 className="text-nd_red-500 mr-1" />
+                                    : <Tick isSelected=selected />
+                                : React.null}
                             </div>
-                            {selected
-                              ? props["active"] && deSelectAllowed
-                                  ? <Icon name="close" size=10 className="text-red-500 mr-1" />
-                                  : <Tick isSelected=selected />
-                              : React.null}
                           </div>}
                       </Menu.Item>
                     })

@@ -4,7 +4,7 @@ let make = (~connectorInfo) => {
   open LogicUtils
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let connectorInfodict = ConnectorInterface.mapDictToTypedConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
@@ -28,6 +28,7 @@ let make = (~connectorInfo) => {
         | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
         | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
         | VaultProcessor => Window.getConnectorConfig(connectorName)
+        | SurchargeProcessor => Window.getSurchargeProcessorConfig(connectorName)
         | PaymentVas => JSON.Encode.null
         }
         let connectorAccountDict = dict->getDictFromJsonObject->getDictfromDict("connector_auth")
@@ -61,14 +62,14 @@ let make = (~connectorInfo) => {
         customSubTitleStyle="font-500 font-normal text-nd_gray-700"
       />
       <div className="flex flex-col py-4 gap-6">
-        <div className="flex flex-col gap-0.5-rem ">
+        <div className="flex flex-col gap-2 ">
           <h4 className="text-nd_gray-400 "> {"Profile"->React.string} </h4>
           {connectorInfodict.profile_id->React.string}
         </div>
         <div className="flex flex-col">
           <ConnectorHelperV2.PreviewCreds connectorInfo=connectorInfodict connectorAccountFields />
         </div>
-        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
+        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.connector_name />
       </div>
     </div>
     <ACLButton

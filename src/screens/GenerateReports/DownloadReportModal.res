@@ -14,7 +14,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   open APIUtilsTypes
 
   let getURL = useGetURL()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {getCommonSessionDetails, getResolvedUserInfo} = React.useContext(
@@ -90,6 +90,15 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
     setShowModal=setReportModal
     modalClass="m-auto">
     <Form onSubmit initialValues>
+      <div className="mb-4">
+        <AlertV2Binding
+          alertType=Primary
+          slot={{
+            slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
+          }}
+          description="Each generated report is limited to 50,000 rows. Narrow the date range if needed."
+        />
+      </div>
       <FormRenderer.FieldRenderer
         field={FormRenderer.makeMultiInputFieldInfo(
           ~label="Date Range",
@@ -115,7 +124,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
         field={FormRenderer.makeFieldInfo(~label="Report Type", ~name="view", ~customInput=(
           ~input as _,
           ~placeholder as _,
-        ) => <TextInput input={viewInput} placeholder="" isDisabled=true />)}
+        ) => <TextInputAdapter input={viewInput} placeholder="" isDisabled=true />)}
       />
       <FormRenderer.FieldRenderer
         field={FormRenderer.makeFieldInfo(
@@ -126,7 +135,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
           },
         )}
       />
-      <FormRenderer.SubmitButton text="Generate" customSumbitButtonStyle="mt-5 mb-3  " />
+      <FormRenderer.SubmitButton text="Generate" customSubmitButtonStyle="mt-5 mb-3  " />
     </Form>
   </Modal>
 }

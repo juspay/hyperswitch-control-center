@@ -10,19 +10,28 @@ module NewProfileCreationModal = {
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+
+    let createNewProfileV1 = async (~values) => {
+      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post)
+      let _ = await updateDetails(url, values, Post)
+      getProfileList()->ignore
+    }
+
+    let createNewProfileV2 = async (~values) => {
+      let url = getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Post)
+      let _ = await updateDetails(url, values, Post, ~version=V2)
+      getProfileList()->ignore
+    }
 
     let createNewProfile = async values => {
       try {
-        let url = switch version {
-        | V1 => getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post)
-        | V2 => getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Post)
-        }
-        let body = values
         mixpanelEvent(~eventName="create_new_profile", ~metadata=values)
-        let _ = await updateDetails(url, body, Post)
-        getProfileList()->ignore
+        switch version {
+        | V1 => await createNewProfileV1(~values)
+        | V2 => await createNewProfileV2(~values)
+        }
         showToast(
           ~toastType=ToastSuccess,
           ~message="Profile Created Successfully!",
@@ -126,52 +135,29 @@ module NewProfileCreationModal = {
 
 @react.component
 let make = () => {
-  open APIUtils
-  open LogicUtils
   open OMPSwitchUtils
   open OMPSwitchHelper
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+  let getProfileList = ProfileListHook.useFetchProfileList()
   let (showModal, setShowModal) = React.useState(_ => false)
   let {profileId, version} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
-  let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
+  let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
   let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   let isMobileView = MatchMedia.useMobileChecker()
   let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
     ThemeProvider.themeContext,
   )
+  let {isCurrentMerchantPlatform} = OMPSwitchHooks.useOMPType()
 
   let widthClass = isMobileView ? "w-full" : "md:w-[14rem] md:max-w-[20rem]"
   let roundedClass = isMobileView ? "rounded-none" : "rounded-md"
 
-  let getProfileList = async () => {
-    try {
-      let response = switch version {
-      | V1 => {
-          let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
-          await fetchDetails(url)
-        }
-      | V2 => {
-          let url = getURL(~entityName=V2(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
-          await fetchDetails(url, ~version=V2)
-        }
-      }
-
-      setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
-    } catch {
-    | _ => {
-        setProfileList(_ => [ompDefaultValue(profileId, "")])
-        showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
-      }
-    }
-  }
   let customStyle = `${primaryNormal} bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full`
   let addItemBtnStyle = "w-full"
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
@@ -201,7 +187,7 @@ let make = () => {
     checked: true,
   }
 
-  // TODO : remove businessProfiles as dependancy in remove-business-profile-add-as-a-section pr
+  // TODO : remove businessProfiles as dependency in remove-business-profile-add-as-a-section pr
   React.useEffect(() => {
     getProfileList()->ignore
     None
@@ -242,7 +228,9 @@ let make = () => {
       baseComponent={<ListBaseComp
         user={#Profile} heading="Profile" subHeading={currentOMPName(profileList, profileId)} arrow
       />}
-      bottomComponent={<AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />}
+      bottomComponent={!isCurrentMerchantPlatform
+        ? <AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />
+        : React.null}
       customDropdownOuterClass="!border-none "
       fullLength=true
       toggleChevronState

@@ -1,1 +1,1 @@
-type postion = Top | Right
+type position = Top | Right

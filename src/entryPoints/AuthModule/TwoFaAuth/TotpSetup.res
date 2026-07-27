@@ -14,7 +14,7 @@ module EnterAccessCode = {
     ~isSkippable,
     ~showOnlyRc=false,
   ) => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let verifyRecoveryCodeLogic = TotpHooks.useVerifyRecoveryCode()
     let (recoveryCode, setRecoveryCode) = React.useState(_ => "")
     let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
@@ -129,7 +129,7 @@ module ConfigureTotpScreen = {
 
     let verifyTotpLogic = TotpHooks.useVerifyTotp()
 
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let (otp, setOtp) = React.useState(_ => "")
     let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
     let (hasOtpError, setHasOtpError) = React.useState(_ => false)
@@ -232,7 +232,7 @@ module ConfigureTotpScreen = {
               <span
                 className="cursor-pointer underline underline-offset-2 text-blue-600"
                 onClick={_ => setTwoFaPageState(_ => TOTP_INPUT_RECOVERY_CODE)}>
-                {"Use recovery-code"->React.string}
+                {"Use recovery code"->React.string}
               </span>
             </p>
           </RenderIf>
@@ -269,13 +269,13 @@ let make = (
   ~twoFaPageState,
   ~errorHandling,
   ~isSkippable,
-  ~checkTwoFaResonse: TwoFaTypes.checkTwofaResponseType,
+  ~checkTwoFaResponse: TwoFaTypes.checkTwofaResponseType,
 ) => {
   open HSwitchUtils
   open TwoFaTypes
 
   let getURL = APIUtils.useGetURL()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let fetchDetails = APIUtils.useGetMethod()
   let handleLogout = APIUtils.useHandleLogout()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
@@ -322,7 +322,7 @@ let make = (
             errorCode->CommonAuthUtils.errorSubCodeMapper === UR_41
         ) {
           setTwoFaPageState(_ => TOTP_SHOW_QR)
-          showToast(~message="Failed to complete 2fa!", ~toastType=ToastError)
+          showToast(~message="Failed to complete 2FA.", ~toastType=ToastError)
           setShowNewQR(prev => !prev)
         } else {
           showToast(~message="Something went wrong", ~toastType=ToastError)
@@ -362,7 +362,7 @@ let make = (
   }, [showNewQR])
 
   let (showOnlyTotp, showOnlyRc) = React.useMemo1(() => {
-    switch checkTwoFaResonse.status {
+    switch checkTwoFaResponse.status {
     | Some(value) =>
       if value.totp.attemptsRemaining === 0 && value.recoveryCode.attemptsRemaining > 0 {
         (false, true)
@@ -373,7 +373,7 @@ let make = (
       }
     | None => (true, true)
     }
-  }, [checkTwoFaResonse.status])
+  }, [checkTwoFaResponse.status])
 
   <PageLoaderWrapper screenState sectionHeight="h-screen">
     <BackgroundImageWrapper>

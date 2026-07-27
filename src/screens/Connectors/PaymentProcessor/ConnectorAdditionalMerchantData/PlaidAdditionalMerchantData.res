@@ -31,7 +31,7 @@ module PlaidAdditionMerchantDataSelect = {
           <span className="text-red-950"> {"*"->React.string} </span>
         </h2>
       </div>
-      <SelectBox.BaseDropdown
+      <SelectBoxAdapter.BaseDropdown
         allowMultiSelect=false
         buttonText
         input

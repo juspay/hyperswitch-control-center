@@ -293,6 +293,21 @@ let validateMerchantAccountFormV2 = (
           )
         }
       }
+    | SurchargeConnectorDetails => {
+        let surchargeConnectorDetailsDict =
+          valuesDict->getDictfromDict("surcharge_connector_details")
+        let surchargeConnectorId =
+          surchargeConnectorDetailsDict
+          ->getString("surcharge_connector_id", "")
+          ->getNonEmptyString
+        if surchargeConnectorId == None {
+          Dict.set(
+            errors,
+            "surcharge_connector_id",
+            "Please select a surcharge connector"->JSON.Encode.string,
+          )
+        }
+      }
     | _ => {
         let value = getString(valuesDict, key, "")->getNonEmptyString
         switch value {
@@ -379,7 +394,7 @@ let removeEmptyValues = (~dict, ~key) => {
     })
   finalDict
 }
-let getMetdataKeyValuePayload = valuesDict => {
+let getMetadataKeyValuePayload = valuesDict => {
   let customHeaderDict = Dict.make()
   let customMetadataVal = Dict.make()
   let formValues = valuesDict->getDictfromDict("metadata")

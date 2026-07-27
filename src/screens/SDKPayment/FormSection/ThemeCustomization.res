@@ -13,7 +13,7 @@ let make = (~getClientSecret) => {
     showBillingAddress,
     isGuestMode,
   } = React.useContext(SDKProvider.defaultContext)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
     ThemeProvider.themeContext,
   )
@@ -57,7 +57,7 @@ let make = (~getClientSecret) => {
     <SubmitButton
       text="Show preview"
       disabledParameter={paymentConnectorList->Array.length === 0}
-      customSumbitButtonStyle="!mt-5 !w-full"
+      customSubmitButtonStyle="!mt-5 !w-full"
     />
   </Form>
 }

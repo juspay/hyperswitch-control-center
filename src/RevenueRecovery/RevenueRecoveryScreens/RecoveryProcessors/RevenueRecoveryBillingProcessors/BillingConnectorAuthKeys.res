@@ -64,7 +64,7 @@ let make = (
           <p className="text-sm text-gray-700 font-semibold mb-1">
             {"Select a Platform"->React.string}
           </p>
-          <SelectBox.BaseDropdown
+          <SelectBoxAdapter.BaseDropdown
             allowMultiSelect=false
             buttonText="Choose a platform"
             input
@@ -107,10 +107,7 @@ let make = (
                 processorType=ConnectorTypes.BillingProcessor
               />
               <FormRenderer.SubmitButton
-                text="Next"
-                buttonSize={Small}
-                customSumbitButtonStyle="!w-full mt-8"
-                tooltipForWidthClass="w-full"
+                text="Next" buttonSize={Small} customSubmitButtonStyle="!w-full mt-8"
               />
             </div>
           </RenderIf>

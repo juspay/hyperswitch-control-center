@@ -113,12 +113,12 @@ let make = (
     None
   }, [input.value])
 
-  <TextInput
+  <TextInputAdapter
     input=modifiedInput
     customStyle
     placeholder
     isDisabled
-    type_
+    inputType=type_
     inputMode
     ?maxLength
     ?pattern

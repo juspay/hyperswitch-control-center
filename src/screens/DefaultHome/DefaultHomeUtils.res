@@ -83,7 +83,7 @@ let defaultHomeActionArray = {
     },
     {
       heading: "Developer Docs",
-      description: "Dive into the dev docs and start building",
+      description: "Dive into the dev docs and start building.",
       imgSrc: "/assets/VaultSdkImage.svg",
       action: ExternalLink({
         url: "https://hyperswitch.io/docs",
@@ -97,14 +97,14 @@ let defaultHomeCardsArray = {
     {
       product: Orchestration(V1),
       heading: "Orchestrator",
-      description: "Unified the diverse abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions and reporting systems",
+      description: "Unifies diverse abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions, and reporting systems.",
       imgSrc: "/assets/DefaultHomeVaultCard.svg",
       action: InternalRoute,
     },
     {
       product: Vault,
       heading: "Vault",
-      description: "A standalone, PCI-compliant vault that securely tokenizes and stores your customers’ card data—without requiring the use of our payment solutions. Supports card tokenization at PSPs and networks as well.",
+      description: "A standalone, PCI-compliant vault that securely tokenizes and stores your customers’ card data — without requiring the use of our payment solutions. Supports card tokenization at PSPs and networks as well.",
       imgSrc: "/assets/DefaultHomeVaultCard.svg",
       action: InternalRoute,
     },
@@ -125,7 +125,7 @@ let defaultHomeCardsArray = {
     {
       product: CostObservability,
       heading: "Cost Observability",
-      description: "Unified view of payment processing costs across acquirers, payment methods, & regions. Track every cent, detect anomalies, audit against contracted rates, & forecast the impact of card network changes.",
+      description: "Unified view of payment processing costs across acquirers, payment methods, and regions. Track every cent, detect anomalies, audit against contracted rates, and forecast the impact of card network changes.",
       imgSrc: "/assets/DefaultHomeHypersenseCard.svg",
       action: InternalRoute,
     },

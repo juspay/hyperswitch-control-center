@@ -15,7 +15,10 @@ let labelFormatter = (
   }
 )->asLegendsFormatter
 
-let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload) => {
+let getLineColumnGraphOptions = (
+  lineColumnGraphOptions: lineColumnGraphPayload,
+  ~onPointClick: option<string => unit>=?,
+) => {
   let {
     categories,
     data,
@@ -144,6 +147,22 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
         pointWidth: 10, // Adjust width of bars
         borderRadius: 3, // Rounds the top corners
       },
+      series: switch onPointClick {
+      | Some(clickHandler) =>
+        Some({
+          point: Some({
+            events: Some({
+              click: Some(
+                event => {
+                  let seriesName = event.point.series.name
+                  clickHandler(seriesName)
+                },
+              ),
+            }),
+          }),
+        })
+      | None => None
+      },
     },
     series: data,
     credits: {
@@ -170,12 +189,12 @@ let lineColumnGraphTooltipFormatter = (
       let line1Point = this.points->getValueFromArray(1, defaultValue)
       let line2Point = this.points->getValueFromArray(2, defaultValue)
 
-      let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="", ~name="") => {
+      let getRowsHtml = (~iconColor, ~date, ~value, ~comparisonComponent="", ~name="") => {
         let formattedValue = CurrencyFormatUtils.valueFormatter(value, metricType, ~currency)
         let key = showNameInTooltip ? name : date
         `<div style="display: flex; align-items: center;">
             <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
-            <div style="margin-left: 8px;">${key}${comparisionComponent}</div>
+            <div style="margin-left: 8px;">${key}${comparisonComponent}</div>
             <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${formattedValue}</div>
         </div>`
       }

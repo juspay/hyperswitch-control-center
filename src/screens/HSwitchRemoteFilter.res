@@ -3,14 +3,29 @@ type filterBody = {
   end_time: string,
 }
 
-let formateDateString = date => {
+type connectorFilterData = {
+  connector_label: string,
+  merchant_connector_id: string,
+  connector_type: string,
+}
+
+let connectorFilterItemToObjMapper = (dict): connectorFilterData => {
+  open LogicUtils
+  {
+    connector_label: dict->getString("connector_label", ""),
+    merchant_connector_id: dict->getString("merchant_connector_id", ""),
+    connector_type: dict->getString("connector_type", ""),
+  }
+}
+
+let formatDateString = date => {
   date->Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:ss[Z]")
 }
 
 let getDateFilteredObject = (~range=7) => {
   let currentDate = Date.make()
 
-  let end_time = currentDate->formateDateString
+  let end_time = currentDate->formatDateString
 
   let start_time =
     Js.Date.makeWithYMD(
@@ -21,7 +36,7 @@ let getDateFilteredObject = (~range=7) => {
     )
     ->Js.Date.setDate((currentDate->Js.Date.getDate->Float.toInt - range)->Int.toFloat)
     ->Js.Date.fromFloat
-    ->formateDateString
+    ->formatDateString
 
   {
     start_time,
@@ -46,7 +61,7 @@ let useSetInitialFilters = (
   let {filterValueJson} = FilterContext.filterContext->React.useContext
 
   () => {
-    let inititalSearchParam = Dict.make()
+    let initialSearchParam = Dict.make()
 
     let defaultDate = getDateFilteredObject(~range)
 
@@ -83,12 +98,12 @@ let useSetInitialFilters = (
 
       timeRange->Array.forEach(item => {
         let (key, defaultValue) = item
-        switch inititalSearchParam->Dict.get(key) {
+        switch initialSearchParam->Dict.get(key) {
         | Some(_) => ()
-        | None => inititalSearchParam->Dict.set(key, defaultValue)
+        | None => initialSearchParam->Dict.set(key, defaultValue)
         }
       })
-      inititalSearchParam->updateExistingKeys
+      initialSearchParam->updateExistingKeys
     }
   }
 }
@@ -130,16 +145,18 @@ module SearchBarFilter = {
       checked: true,
     }
 
-    <div className="w-max">
-      {InputFields.textInput(
-        ~customStyle="rounded-lg placeholder:opacity-90",
-        ~customPaddingClass="px-0",
-        ~leftIcon=<Icon size=14 name="search" />,
-        ~iconOpacity="opacity-100",
-        ~leftIconCustomStyle="pl-4",
-        ~inputStyle="!placeholder:opacity-90",
-        ~customWidth="w-72",
-      )(~input=inputSearch, ~placeholder)}
+    <div className="w-72">
+      <TextInputAdapter
+        input=inputSearch
+        placeholder
+        customStyle="rounded-lg placeholder:opacity-90"
+        customPaddingClass="px-0"
+        leftIcon={<Icon size=14 name="search" />}
+        iconOpacity="opacity-100"
+        leftIconCustomStyle="pl-4"
+        inputStyle="!placeholder:opacity-90"
+        customWidth="w-full"
+      />
     </div>
   }
 }
@@ -163,6 +180,7 @@ module RemoteTableFilters = {
     ~entityName: APIUtilsTypes.entityTypeWithVersion,
     ~version=UserInfoTypes.V1,
     ~connectorTypes: array<ConnectorTypes.connector>=[Processor, ThreeDsAuthenticator],
+    ~customFilterActions=React.null,
     (),
   ) => {
     open LogicUtils
@@ -184,7 +202,7 @@ module RemoteTableFilters = {
     } =
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->JSON.Encode.string}
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
 
     React.useEffect(() => {
       if filterValueJson->Dict.keysToArray->Array.length === 0 {
@@ -253,19 +271,12 @@ module RemoteTableFilters = {
             let connectorArray =
               response->getDictFromJsonObject->getDictfromDict("connector")->Dict.toArray
 
-            let filteredConnectorKeys = connectorArray->Array.filter(key => {
-              let (name, _) = key
-
-              connectorTypes->Array.some(item => {
-                let list = item->connectorTypeToListMapper
-                let typedName =
-                  name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=item)
-                switch item {
-                | Processor =>
-                  list->Array.some(item => typedName == item) ||
-                    dummyConnectorList(true)->Array.some(item => typedName == item)
-                | _ => list->Array.some(item => typedName == item)
-                }
+            let filteredConnectorKeys = connectorArray->Array.filter(((_, body)) => {
+              body
+              ->getArrayDataFromJson(connectorFilterItemToObjMapper)
+              ->Array.some(item => {
+                let (_, typedConnector) = item.connector_type->connectorTypeTuple
+                connectorTypes->Array.includes(typedConnector)
               })
             })
             let newConnectorDict = filteredConnectorKeys->Dict.fromArray
@@ -311,23 +322,27 @@ module RemoteTableFilters = {
       None
     }, [filterValueJson])
 
-    React.useEffect(() => {
-      if filterValueJson->Dict.keysToArray->Array.length != 0 {
-        setFilters(_ => Some(filterValueJson))
-        setOffset(_ => 0)
-      } else {
-        setFilters(_ => Some(Dict.make()))
-        setOffset(_ => 0)
-      }
-      None
-    }, [filterValue])
-
     let dict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
     let defaultSort: LoadedTable.sortOb = {
       sortKey: "",
       sortType: DSC,
     }
-    let value = dict->Dict.get(title)->Option.getOr(defaultSort)
+    let value = dict->getValueFromDict(title, defaultSort)
+    let sortSignature = `${value.sortKey}|${value->OrderTypes.getSortString}`
+
+    let lastFiltersSignature = React.useRef("")
+
+    React.useEffect(() => {
+      let next =
+        filterValueJson->Dict.keysToArray->Array.length != 0 ? filterValueJson : Dict.make()
+      let signature = `${next->JSON.Encode.object->JSON.stringify}|${sortSignature}`
+      if lastFiltersSignature.current !== signature {
+        lastFiltersSignature.current = signature
+        setFilters(_ => Some(next))
+        setOffset(_ => 0)
+      }
+      None
+    }, (filterValue, sortSignature))
 
     React.useEffect(() => {
       if value.sortKey->isNonEmptyString {
@@ -356,43 +371,23 @@ module RemoteTableFilters = {
       )
     let remoteOptions = []
 
-    switch filterDataJson {
-    | Some(_) =>
-      <Filter
-        key="0"
-        customLeftView
-        defaultFilters
-        fixedFilters={initialFixedFilter(version)}
-        requiredSearchFieldsList=[]
-        localFilters={initialDisplayFilters}
-        localOptions=[]
-        remoteOptions
-        remoteFilters
-        autoApply=false
-        submitInputOnEnter
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        updateUrlWith={updateExistingKeys}
-        clearFilters={() => reset()}
-        title
-      />
-    | _ =>
-      <Filter
-        key="1"
-        customLeftView
-        defaultFilters
-        fixedFilters={initialFixedFilter(version)}
-        requiredSearchFieldsList=[]
-        localFilters=[]
-        localOptions=[]
-        remoteOptions=[]
-        remoteFilters=[]
-        autoApply=false
-        submitInputOnEnter
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        updateUrlWith={updateExistingKeys}
-        clearFilters={() => reset()}
-        title
-      />
-    }
+    <Filter
+      key="remoteFilters"
+      customLeftView
+      defaultFilters
+      fixedFilters={initialFixedFilter(version)}
+      requiredSearchFieldsList=[]
+      localFilters={initialDisplayFilters}
+      localOptions=[]
+      remoteOptions
+      remoteFilters
+      autoApply=false
+      submitInputOnEnter
+      defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+      updateUrlWith={updateExistingKeys}
+      clearFilters={() => reset()}
+      title
+      customFilterActions
+    />
   }
 }

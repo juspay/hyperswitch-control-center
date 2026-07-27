@@ -2,7 +2,14 @@ open LogicUtils
 open DisputeTypes
 
 let defaultColumns = [DisputeId, Amount, DisputeStatus, PaymentId, CreatedAt]
-let columnsInPaymentPage = [DisputeId, ConnectorReason, DisputeStatus, CreatedAt]
+let columnsInPaymentPage = [
+  DisputeId,
+  Amount,
+  DisputeStatus,
+  ConnectorReason,
+  CreatedAt,
+  ChallengeRequiredBy,
+]
 
 let allColumns = [
   Amount,
@@ -53,9 +60,9 @@ let useGetStatus = (dispute: disputes) => {
 
 let getHeading = colType => {
   switch colType {
-  | DisputeId => Table.makeHeaderInfo(~key="dispute_id", ~title="Dispute Id")
-  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment Id")
-  | AttemptId => Table.makeHeaderInfo(~key="attempt_id", ~title="Attempt Id")
+  | DisputeId => Table.makeHeaderInfo(~key="dispute_id", ~title="Dispute ID")
+  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID")
+  | AttemptId => Table.makeHeaderInfo(~key="attempt_id", ~title="Attempt ID")
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | DisputeStatus =>
@@ -63,16 +70,16 @@ let getHeading = colType => {
   | Connector => Table.makeHeaderInfo(~key="connector", ~title="Connector")
   | ConnectorStatus => Table.makeHeaderInfo(~key="connector_status", ~title="Connector Status")
   | ConnectorDisputeId =>
-    Table.makeHeaderInfo(~key="connector_dispute_id", ~title="Connector Dispute Id")
+    Table.makeHeaderInfo(~key="connector_dispute_id", ~title="Connector Dispute ID")
   | ConnectorReason => Table.makeHeaderInfo(~key="connector_reason", ~title="Connector Reason")
   | ConnectorReasonCode =>
     Table.makeHeaderInfo(~key="connector_reason_code", ~title="Connector Reason Code")
   | ChallengeRequiredBy =>
-    Table.makeHeaderInfo(~key="connector_required_by", ~title="Connector Required By")
+    Table.makeHeaderInfo(~key="challenge_required_by", ~title="Challenge Required By")
   | ConnectorCreatedAt =>
-    Table.makeHeaderInfo(~key="connector_created_at", ~title="Connector Created ")
+    Table.makeHeaderInfo(~key="connector_created_at", ~title="Connector Created At")
   | ConnectorUpdatedAt =>
-    Table.makeHeaderInfo(~key="connector_updated_at", ~title="Connector Updated ")
+    Table.makeHeaderInfo(~key="connector_updated_at", ~title="Connector Updated At")
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created")
   }
 }
@@ -100,6 +107,7 @@ let getCell = (disputesData, colType, merchantId, orgId, ~profileId=""): Table.c
               <Icon name="nd-alert-triangle-outline" size={16} className="text-nd_red-600" />,
             )
           : NoIcon}
+        endValue={HSwitchOrderUtils.idCellEndValue}
       />,
       "",
     )
@@ -111,12 +119,16 @@ let getCell = (disputesData, colType, merchantId, orgId, ~profileId=""): Table.c
       "",
     )
   | AttemptId =>
-    CustomCell(
-      <HelperComponents.CopyTextCustomComp
-        customTextCss="w-36 truncate whitespace-nowrap" displayValue=Some(disputesData.attempt_id)
-      />,
-      "",
-    )
+    if disputesData.attempt_id->isNonEmptyString {
+      CustomCell(
+        <HelperComponents.CopyTextCustomComp
+          customTextCss="w-36 truncate whitespace-nowrap" displayValue=Some(disputesData.attempt_id)
+        />,
+        disputesData.attempt_id,
+      )
+    } else {
+      Text("NA")
+    }
   | Amount => Text(amountValue(disputesData.amount, disputesData.currency))
   | Currency => Text(disputesData.currency)
   | DisputeStatus =>

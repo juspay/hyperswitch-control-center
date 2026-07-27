@@ -7,7 +7,7 @@ let make = (~onClick) => {
   let getURL = useGetURL()
 
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let (isProcessingToken, setIsProcessingToken) = React.useState(_ => false)
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)

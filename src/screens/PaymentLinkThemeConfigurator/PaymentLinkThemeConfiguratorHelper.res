@@ -1,4 +1,33 @@
 open FormRenderer
+
+let defaultForbiddenCharsRegex = %re("/[<>{}|\\`]/g")
+let nameForbiddenCharsRegex = %re("/[<>{}|\\`=;*@^~]/g")
+let urlForbiddenCharsRegex = %re("/[<>{}|\\`\"'\s]/g")
+
+let sanitizeTextInput = (~regex=defaultForbiddenCharsRegex, value) =>
+  value->String.replaceRegExp(regex, "")
+
+let makeSanitizedTextField = (
+  ~label,
+  ~name,
+  ~placeholder,
+  ~forbiddenCharsRegex=defaultForbiddenCharsRegex,
+) =>
+  makeFieldInfo(~label, ~name, ~customInput=(~input, ~placeholder as _) =>
+    InputFields.textInput()(
+      ~input={
+        ...input,
+        onChange: event =>
+          ReactEvent.Form.target(event)["value"]
+          ->String.trimStart
+          ->sanitizeTextInput(~regex=forbiddenCharsRegex)
+          ->Identity.stringToFormReactEvent
+          ->input.onChange,
+      },
+      ~placeholder,
+    )
+  )
+
 let makeThemeField = (~defaultValue) => {
   makeFieldInfo(
     ~label="Theme Color",
@@ -8,32 +37,21 @@ let makeThemeField = (~defaultValue) => {
   )
 }
 
-let makeLogoField = () => {
-  makeFieldInfo(
+let makeLogoField = () =>
+  makeSanitizedTextField(
     ~label="Logo URL",
     ~name="logo",
-    ~customInput=InputFields.textInput(),
     ~placeholder="Enter logo url",
+    ~forbiddenCharsRegex=urlForbiddenCharsRegex,
   )
-}
 
-let makeBackgroundImageField = () => {
-  makeFieldInfo(
-    ~label="Background Image URL",
-    ~name="background_image.url",
-    ~customInput=InputFields.textInput(),
-    ~placeholder="Enter background image url",
-  )
-}
-
-let makeSellerNameField = () => {
-  makeFieldInfo(
+let makeSellerNameField = () =>
+  makeSanitizedTextField(
     ~label="Seller Name",
     ~name="seller_name",
-    ~customInput=InputFields.textInput(),
     ~placeholder="Enter Seller Name",
+    ~forbiddenCharsRegex=nameForbiddenCharsRegex,
   )
-}
 
 let makeSdkLayoutField = () => {
   let layoutOptions = ["accordion", "tabs", "spaced_accordion"]->SelectBox.makeOptions
@@ -59,14 +77,6 @@ let makeDisplaySdkOnlyField = () => {
   )
 }
 
-let makeEnabledSavedPaymentMethodField = () => {
-  makeFieldInfo(
-    ~label="Enable Saved Payment Methods",
-    ~name="enabled_saved_payment_method",
-    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
-  )
-}
-
 let makeHideCardNicknameField = () => {
   makeFieldInfo(
     ~label="Hide Card Nickname Field",
@@ -75,62 +85,25 @@ let makeHideCardNicknameField = () => {
   )
 }
 
-let makeShowCardFormByDefaultField = () => {
-  makeFieldInfo(
-    ~label="Show Card Form by Default",
-    ~name="show_card_form_by_default",
-    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
-  )
-}
-
-let makePaymentButtonTextField = () => {
-  makeFieldInfo(
+let makePaymentButtonTextField = () =>
+  makeSanitizedTextField(
     ~label="Payment Button Text",
     ~name="payment_button_text",
-    ~customInput=InputFields.textInput(),
     ~placeholder="Enter Payment Button Text",
+    ~forbiddenCharsRegex=nameForbiddenCharsRegex,
   )
-}
 
-let makeMerchantDescriptionField = () => {
-  makeFieldInfo(
+let makeMerchantDescriptionField = () =>
+  makeSanitizedTextField(
     ~label="Merchant Description",
     ~name="merchant_description",
-    ~customInput=InputFields.textInput(),
     ~placeholder="Enter description of your business",
   )
-}
-
-let makeReturnUrlField = () => {
-  makeFieldInfo(
-    ~label="Return URL",
-    ~name="return_url",
-    ~customInput=InputFields.textInput(),
-    ~placeholder="Enter return URL",
-  )
-}
-
-let makeMaxItemsVisibleAfterCollapseField = () => {
-  makeFieldInfo(
-    ~label="Max Items Visible After Collapse",
-    ~name="max_items_visible_after_collapse",
-    ~customInput=InputFields.numericTextInput(),
-    ~placeholder="Enter a number",
-  )
-}
 
 let makeBrandingVisibilityField = () => {
   makeFieldInfo(
     ~label="Branding Visibility",
     ~name="branding_visibility",
-    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
-  )
-}
-
-let makeSkipStatusScreenField = () => {
-  makeFieldInfo(
-    ~label="Skip Status Screen",
-    ~name="skip_status_screen",
     ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
   )
 }
@@ -150,14 +123,6 @@ let makePaymentButtonTextColorField = (~defaultValue) => {
     ~name="payment_button_text_colour",
     ~placeholder="",
     ~customInput=InputFields.colorPickerInput(~defaultValue, ~showErrorWhenEmpty=false),
-  )
-}
-
-let makeIsSetupMandateFlowField = () => {
-  makeFieldInfo(
-    ~label="Is Setup Mandate Flow",
-    ~name="is_setup_mandate_flow",
-    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
   )
 }
 
@@ -186,22 +151,12 @@ let makeDetailsLayoutField = () => {
   )
 }
 
-let makeCustomMessageForCardTermsField = () => {
-  makeFieldInfo(
+let makeCustomMessageForCardTermsField = () =>
+  makeSanitizedTextField(
     ~label="Custom Message for Card Terms",
     ~name="custom_message_for_card_terms",
-    ~customInput=InputFields.textInput(),
     ~placeholder="Enter custom message for card terms",
   )
-}
-
-let makeShowCardTermsField = () => {
-  makeFieldInfo(
-    ~label="Show Card Terms",
-    ~name="show_card_terms",
-    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
-  )
-}
 
 let makeColorIconCardCvcErrorField = (~defaultValue) => {
   makeFieldInfo(
@@ -211,3 +166,24 @@ let makeColorIconCardCvcErrorField = (~defaultValue) => {
     ~customInput=InputFields.colorPickerInput(~defaultValue, ~showErrorWhenEmpty=false),
   )
 }
+
+let makeSelectField = (~label, ~name, ~options, ~buttonText) =>
+  makeFieldInfo(
+    ~label,
+    ~name,
+    ~customInput=InputFields.selectInput(
+      ~options,
+      ~buttonText,
+      ~deselectDisable=true,
+      ~customButtonStyle="!w-full pr-4 pl-2 !rounded-md",
+      ~fullLength=true,
+    ),
+  )
+
+let makeShowCardTermsField = () =>
+  makeSelectField(
+    ~label="Show Card Terms",
+    ~name="show_card_terms",
+    ~options=PaymentLinkThemeConfiguratorUtils.showCardTermsOptions,
+    ~buttonText="Select Show Card Terms",
+  )

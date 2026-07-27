@@ -309,7 +309,7 @@ let make = (
   }
 
   // Hyperswitch doesn't have use case of some btn type variant
-  // overridding the variant with a used type
+  // overriding the variant with a used type
   let buttonType = switch buttonType {
   | SecondaryFilled => Secondary
   | _ => buttonType
@@ -368,9 +368,9 @@ let make = (
   }
 
   let customHeightClass = switch buttonSize {
-  | Large => "h-40-px"
-  | Medium => "h-36-px"
-  | Small => "h-32-px"
+  | Large => "h-10"
+  | Medium => "h-9"
+  | Small => "h-8"
   | _ => ""
   }
 
@@ -676,11 +676,7 @@ let make = (
             if showBtnTextToolTip && !showTooltip {
               <div className=ellipsisParentClass>
                 <ToolTip
-                  description={tooltipText->Option.getOr("")}
-                  toolTipFor=btnContent
-                  contentAlign=Default
-                  justifyClass="justify-start"
-                  toolTipPosition
+                  description={tooltipText->Option.getOr("")} toolTipFor=btnContent toolTipPosition
                 />
               </div>
             } else {
@@ -728,12 +724,6 @@ let make = (
     </AddDataAttributes>
 
   showTooltip
-    ? <ToolTip
-        description={tooltipText->Option.getOr("")}
-        toolTipFor=buttonComp
-        contentAlign=Default
-        justifyClass="justify-start"
-        toolTipPosition
-      />
+    ? <ToolTip description={tooltipText->Option.getOr("")} toolTipFor=buttonComp toolTipPosition />
     : buttonComp
 }

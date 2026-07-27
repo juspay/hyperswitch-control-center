@@ -29,7 +29,7 @@ let getHeading = colType => {
   switch colType {
   | MerchantName => Table.makeHeaderInfo(~key="merchant_name", ~title="Merchant Name")
   | RoleName => Table.makeHeaderInfo(~key="role", ~title="Role")
-  | MerchantId => Table.makeHeaderInfo(~key="merchant id", ~title="Merchant Id")
+  | MerchantId => Table.makeHeaderInfo(~key="merchant id", ~title="Merchant ID")
   }
 }
 

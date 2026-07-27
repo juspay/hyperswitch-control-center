@@ -1,35 +1,7 @@
-type filterTypes = {
-  connector: array<string>,
-  currency: array<string>,
-  authentication_type: array<string>,
-  payment_method: array<string>,
-  payment_method_type: array<string>,
-  status: array<string>,
-  connector_label: array<string>,
-  card_network: array<string>,
-  card_discovery: array<string>,
-  customer_id: array<string>,
-  amount: array<string>,
-  merchant_order_reference_id: array<string>,
-}
+open LogicUtils
+open OrderTypes
 
-type filter = [
-  | #connector
-  | #payment_method
-  | #currency
-  | #authentication_type
-  | #status
-  | #payment_method_type
-  | #connector_label
-  | #card_network
-  | #card_discovery
-  | #customer_id
-  | #amount
-  | #merchant_order_reference_id
-  | #unknown
-]
-
-let getFilterTypeFromString = filterType => {
+let getFilterTypeFromString = (filterType): filter => {
   switch filterType {
   | "connector" => #connector
   | "payment_method" => #payment_method
@@ -48,7 +20,7 @@ let getFilterTypeFromString = filterType => {
 }
 let isParentChildFilterMatch = (name, key) => {
   let parentFilter = name->getFilterTypeFromString
-  let child = key->AmountFilterUtils.mapStringToamountFilterChild
+  let child = key->AmountFilterUtils.mapStringToAmountFilterChild
   switch (parentFilter, child) {
   | (#amount, #start_amount)
   | (#amount, #end_amount)
@@ -59,7 +31,7 @@ let isParentChildFilterMatch = (name, key) => {
 module RenderAccordion = {
   @react.component
   let make = (~initialExpandedArray=[], ~accordion) => {
-    <Accordion
+    <AccordionAdapter
       initialExpandedArray
       accordion
       accordionTopContainerCss="border"
@@ -77,7 +49,7 @@ module GenerateSampleDataButton = {
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let showPopUp = PopUpState.useShowPopUp()
     let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -148,7 +120,6 @@ module GenerateSampleDataButton = {
           leftIcon={CustomIcon(<Icon name="plus" size=13 />)}
         />
         <ACLDiv
-          height="h-fit"
           authorization={userHasAccess(~groupAccess=OperationsManage)}
           className="bg-jp-gray-button_gray text-opacity-75 hover:bg-jp-gray-secondary_hover hover:text-jp-gray-890  focus:outline-none border-border_gray cursor-pointer p-2.5 overflow-hidden text-jp-gray-950 hover:text-black
           border flex items-center justify-center rounded-r-md"
@@ -165,7 +136,7 @@ module NoData = {
   let make = (~isConfigureConnector, ~paymentModal, ~setPaymentModal) => {
     let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-    <BluredTableComponent
+    <BlurredTableComponent
       infoText={isConfigureConnector
         ? isLiveMode
             ? "There are no payments as of now."
@@ -195,7 +166,6 @@ let endTimeFilterKey = (version: UserInfoTypes.version) =>
   }
 
 let filterByData = (txnArr, value) => {
-  open LogicUtils
   let searchText = value->getStringFromJson("")
 
   txnArr
@@ -234,8 +204,6 @@ let getValueFromFilterTypeV2 = (filter: filter) => {
 }
 
 let getConditionalFilter = (key, dict, filterValues) => {
-  open LogicUtils
-
   let filtersArr = switch key->getFilterTypeFromString {
   | #connector_label =>
     filterValues
@@ -267,7 +235,6 @@ let getConditionalFilter = (key, dict, filterValues) => {
 }
 
 let getOptionsForOrderFilters = (dict, filterValues) => {
-  open LogicUtils
   filterValues
   ->getArrayFromDict("connector", [])
   ->getStrArrayFromJsonArray
@@ -286,7 +253,6 @@ let getOptionsForOrderFilters = (dict, filterValues) => {
 }
 
 let getAllPaymentMethodType = dict => {
-  open LogicUtils
   let paymentMethods = dict->getDictfromDict("payment_method")->Dict.keysToArray
   paymentMethods->Array.reduce([], (acc, item) => {
     Array.concat(
@@ -301,8 +267,7 @@ let getAllPaymentMethodType = dict => {
   })
 }
 
-let itemToObjMapper = dict => {
-  open LogicUtils
+let itemToObjMapper = (dict): filterTypes => {
   {
     connector: dict->getDictfromDict("connector")->Dict.keysToArray,
     currency: dict->getArrayFromDict("currency", [])->getStrArrayFromJsonArray,
@@ -318,12 +283,18 @@ let itemToObjMapper = dict => {
     customer_id: [],
     amount: [],
     merchant_order_reference_id: [],
+    customer_email: [],
+    card_last_4: [],
+    active_attempt_id: [],
+    merchant_connector_id: [],
+    refunds_status: dict->getArrayFromDict("refunds_status", [])->getStrArrayFromJsonArray,
+    dispute_status: dict->getArrayFromDict("dispute_status", [])->getStrArrayFromJsonArray,
+    routing_approach: dict->getArrayFromDict("routing_approach", [])->getStrArrayFromJsonArray,
+    card_issuer: dict->getArrayFromDict("card_issuer", [])->getStrArrayFromJsonArray,
   }
 }
 
-let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys, version) => {
-  open LogicUtils
-
+let initialFilters = (json, filterValues, removeKeys, filterKeys, setfilterKeys, version) => {
   let filterDict = json->getDictFromJsonObject
 
   let filterData = filterDict->itemToObjMapper
@@ -333,7 +304,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys,
     setfilterKeys(_ => filterKeys->Array.filter(item => item !== name))
   }
 
-  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
+  let connectorFilter = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
   if connectorFilter->Array.length !== 0 {
     filtersArray->Array.push(#connector_label->getLabelFromFilterType)
   }
@@ -353,10 +324,10 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys,
     | #authentication_type => filterData.authentication_type
     | #status => filterData.status
     | #payment_method_type =>
-      getConditionalFilter(key, filterDict, filtervalues)->Array.length > 0
-        ? getConditionalFilter(key, filterDict, filtervalues)
+      getConditionalFilter(key, filterDict, filterValues)->Array.length > 0
+        ? getConditionalFilter(key, filterDict, filterValues)
         : filterData.payment_method_type
-    | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
+    | #connector_label => getConditionalFilter(key, filterDict, filterValues)
     | #card_network => filterData.card_network
     | #card_discovery => filterData.card_discovery
     | _ => []
@@ -364,16 +335,10 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys,
 
     let title = `Select ${key->snakeToTitle}`
 
-    let makeOptions = (options: array<string>): array<FilterSelectBox.dropdownOption> => {
-      options->Array.map(str => {
-        let option: FilterSelectBox.dropdownOption = {label: str->snakeToTitle, value: str}
-        option
-      })
-    }
-
     let options = switch key->getFilterTypeFromString {
-    | #connector_label => getOptionsForOrderFilters(filterDict, filtervalues)
-    | _ => values->makeOptions
+    | #connector_label => getOptionsForOrderFilters(filterDict, filterValues)
+    | #connector => values->ConnectorUtils.getConnectorFilterOptions
+    | _ => values->FilterSelectBox.makeOptions(~isTitle=true)
     }
 
     let customInput = switch key->getFilterTypeFromString {
@@ -421,7 +386,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys,
   })
 }
 
-let initialFixedFilter = (version: UserInfoTypes.version) => [
+let initialFixedFilter = (version: UserInfoTypes.version, ~disable=false) => [
   (
     {
       localFilter: None,
@@ -449,6 +414,7 @@ let initialFixedFilter = (version: UserInfoTypes.version) => [
           ~numMonths=2,
           ~disableApply=false,
           ~dateRangeLimit=180,
+          ~disable,
         ),
         ~inputFields=[],
         ~isRequired=false,
@@ -495,11 +461,11 @@ let isNonEmptyValue = value => {
 
 let orderViewList: OMPSwitchTypes.ompViews = [
   {
-    lable: "All Profiles",
+    label: "All Profiles",
     entity: #Merchant,
   },
   {
-    lable: "Profile",
+    label: "Profile",
     entity: #Profile,
   },
 ]

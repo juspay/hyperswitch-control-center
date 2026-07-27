@@ -117,7 +117,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
         checked: true,
       }
 
-      <SelectBox.BaseDropdown
+      <SelectBoxAdapter.BaseDropdown
         options=dropDownOptions
         searchable=false
         input=selectInput

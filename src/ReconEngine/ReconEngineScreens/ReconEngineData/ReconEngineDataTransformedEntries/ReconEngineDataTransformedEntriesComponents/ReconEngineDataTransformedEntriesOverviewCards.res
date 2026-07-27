@@ -1,46 +1,127 @@
 @react.component
 let make = (~selectedTransformationHistoryId: option<string>) => {
   open LogicUtils
-  open ReconEngineDataTransformedEntriesHelper
   open ReconEngineDataTransformedEntriesUtils
   open ReconEngineHooks
+  open ReconEngineDataTransformedEntriesTypes
 
+  let {
+    updateExistingKeys,
+    filterValueJson,
+    filterValue,
+    filterKeys,
+    setfilterKeys,
+  } = React.useContext(FilterContext.filterContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (stagingData, setStagingData) = React.useState(_ => [
-    Dict.make()->getProcessingEntryPayloadFromDict,
-  ])
-  let getProcessingEntries = useGetProcessingEntries()
+  let (stagingOverviewData, setStagingOverviewData) = React.useState(_ => [])
+  let (activeView: transformedEntriesViewType, setActiveView) = React.useState(_ =>
+    UnknownTransformedEntriesViewType
+  )
+  let getStagingEntriesOverview = useGetStagingEntriesOverview()
+
+  let customFilterKey = "status"
+  let startTime = filterValueJson->getString("startTime", "")
+  let endTime = filterValueJson->getString("endTime", "")
+
+  let updateViewsFilterValue = (view: transformedEntriesViewType) => {
+    let statusFilter = view->getViewStatusFilter
+    if statusFilter->isNonEmptyString {
+      let customFilter = `[${statusFilter}]`
+      updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
+
+      if !(filterKeys->Array.includes(customFilterKey)) {
+        filterKeys->Array.push(customFilterKey)
+        setfilterKeys(_ => filterKeys)
+      }
+    }
+  }
+
+  let onViewClick = (view: transformedEntriesViewType) => {
+    setActiveView(_ => view)
+    updateViewsFilterValue(view)
+  }
 
   let fetchStagingData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let queryParams = switch selectedTransformationHistoryId {
-      | Some(id) => Some(`transformation_history_id=${id}`)
-      | None => None
+      let queryFiltersDict = Dict.make()
+      if startTime->isNonEmptyString {
+        queryFiltersDict->Dict.set("startTime", startTime->JSON.Encode.string)
       }
-      let stagingList = await getProcessingEntries(~queryParameters=queryParams)
+      if endTime->isNonEmptyString {
+        queryFiltersDict->Dict.set("endTime", endTime->JSON.Encode.string)
+      }
+      selectedTransformationHistoryId
+      ->Option.filter(isNonEmptyString)
+      ->Option.forEach(id =>
+        queryFiltersDict->Dict.set("transformation_history_ids", id->JSON.Encode.string)
+      )
+      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
+        ~filterValueJson=queryFiltersDict,
+      )
+      let stagingOverview = await getStagingEntriesOverview(
+        ~queryParameters=queryString->isNonEmptyString ? Some(queryString) : None,
+      )
 
-      setStagingData(_ => stagingList)
+      setStagingOverviewData(_ => stagingOverview)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
 
+  let settingActiveView = () => {
+    let appliedStatusFilter = filterValueJson->getArrayFromDict(customFilterKey, [])
+    let appliedStatusArray = appliedStatusFilter->getStrArrayFromJsonArray
+
+    let allViewStatuses = AllViewType->getViewStatusFilter->String.split(",")
+    let isAllView =
+      appliedStatusArray->Array.toSorted(compareLogic) ==
+        allViewStatuses->Array.toSorted(compareLogic)
+
+    if isAllView {
+      setActiveView(_ => AllViewType)
+    } else if appliedStatusFilter->Array.length == 1 {
+      let status =
+        appliedStatusFilter
+        ->getValueFromArray(0, ""->JSON.Encode.string)
+        ->getStringFromJson("")
+
+      let viewType = status->getViewTypeFromStatus
+      setActiveView(_ => viewType)
+    } else {
+      setActiveView(_ => UnknownTransformedEntriesViewType)
+    }
+  }
+
   React.useEffect(() => {
-    fetchStagingData()->ignore
+    if startTime->isNonEmptyString {
+      fetchStagingData()->ignore
+    }
     None
-  }, [])
+  }, (startTime, endTime, selectedTransformationHistoryId))
+
+  React.useEffect(() => {
+    settingActiveView()
+    None
+  }, [filterValue])
 
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-2">
-    {cardDetails(~stagingData)
+    {cardDetails(~stagingOverviewData)
     ->Array.map(card => {
+      let isClickable = card.viewType !== UnknownTransformedEntriesViewType
+      let isActive = isClickable && card.viewType === activeView
       <PageLoaderWrapper
         key={randomString(~length=10)}
         screenState
         customUI={<NewAnalyticsHelper.NoData height="h-28" message="No data available" />}
         customLoader={<Shimmer styleClass="w-full h-28 rounded-xl" />}>
-        <TransformedEntriesOverviewCard key=card.title title=card.title value=card.value />
+        <ReconEngineDataTransformedEntriesHelper.TransformedEntriesOverviewCard
+          title={card.title}
+          value={card.value}
+          onClick={isClickable ? Some(() => onViewClick(card.viewType)) : None}
+          isActive={isActive}
+        />
       </PageLoaderWrapper>
     })
     ->React.array}

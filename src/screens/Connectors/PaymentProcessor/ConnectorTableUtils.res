@@ -46,18 +46,18 @@ let getHeading = colType => {
   | Name => Table.makeHeaderInfo(~key="connector_name", ~title="Processor")
   | TestMode => Table.makeHeaderInfo(~key="test_mode", ~title="Test Mode")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status")
-  | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled")
+  | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Status")
   | Actions => Table.makeHeaderInfo(~key="actions", ~title="")
   | MerchantConnectorId =>
-    Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector Id")
+    Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector ID")
   | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
   | PaymentMethods => Table.makeHeaderInfo(~key="payment_methods", ~title="Payment Methods")
   }
 }
-let connectorStatusStyle = connectorStatus =>
+let connectorStatusColor = connectorStatus =>
   switch connectorStatus->String.toLowerCase {
-  | "active" => "text-green-700"
-  | _ => "text-grey-800 opacity-50"
+  | "active" => TagBinding.Success
+  | _ => TagBinding.Neutral
   }
 
 let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
@@ -80,9 +80,13 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
 
     | Status =>
       Table.CustomCell(
-        <div className={`font-semibold ${connector.status->connectorStatusStyle}`}>
-          {connector.status->String.toUpperCase->React.string}
-        </div>,
+        <TagBinding
+          text={connector.status->String.toUpperCase}
+          color={connector.status->connectorStatusColor}
+          variant=Subtle
+          shape=Squarical
+          size=Xs
+        />,
         "",
       )
     | ConnectorLabel => Text(connector.connector_label)
@@ -100,7 +104,9 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
     | MerchantConnectorId =>
       CustomCell(
         <HelperComponents.CopyTextCustomComp
-          customTextCss="w-36 truncate whitespace-nowrap" displayValue=Some(connector.id)
+          customTextCss="w-36 truncate whitespace-nowrap"
+          displayValue=Some(connector.id)
+          showTooltip=true
         />,
         "",
       )

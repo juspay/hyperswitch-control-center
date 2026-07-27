@@ -72,7 +72,7 @@ let make = () => {
     try {
       let _ = await updateDetails(url, body, Post)
     } catch {
-    | _ => setScreenState(_ => Error("Failed to update merchant details"))
+    | _ => Exn.raiseError("Failed to update merchant details")
     }
     Nullable.null
   }
@@ -110,9 +110,7 @@ let make = () => {
   }
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-8 h-full">
-      <BreadCrumbNavigation
-        path currentPageTitle={displayNameForConnector} cursorStyle="cursor-pointer"
-      />
+      <BreadCrumbNavigation path currentPageTitle={displayNameForConnector} />
       <RenderIf condition={currentStep !== Preview}>
         <ConnectorHome.ConnectorCurrentStepIndicator currentStep stepsArr=FRMInfo.stepsArr />
       </RenderIf>
@@ -123,13 +121,13 @@ let make = () => {
             setCurrentStep
             selectedFRMName
             setInitialValues
-            retrivedValues=Some(initialValues)
+            retrievedValues=Some(initialValues)
             isUpdateFlow
             updateMerchantDetails
           />
         | PaymentMethods =>
           <FRMPaymentMethods
-            setCurrentStep retrivedValues=Some(initialValues) setInitialValues isUpdateFlow
+            setCurrentStep retrievedValues=Some(initialValues) setInitialValues isUpdateFlow
           />
         | SummaryAndTest
         | Preview =>

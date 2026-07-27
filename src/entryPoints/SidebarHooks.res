@@ -4,15 +4,15 @@ open FeatureFlagUtils
 open ProductTypes
 open HyperswitchAtom
 
-let useGetHsSidebarValues = (~isReconEnabled: bool) => {
+let useGetHsSidebarValues = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let connectorListForLive = connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
   let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {userEntity} = getResolvedUserInfo()
   let {
     frm,
     payOut,
-    recon,
     default,
     surcharge: isSurchargeEnabled,
     isLiveMode,
@@ -20,7 +20,6 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     disputeAnalytics,
     configurePmts,
     complianceCertificate,
-    performanceMonitor: performanceMonitorFlag,
     pmAuthenticationProcessor,
     taxProcessor,
     newAnalytics,
@@ -32,6 +31,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     billingProcessor,
     paymentLinkThemeConfigurator,
     vaultProcessor,
+    surchargeProcessor,
     devModularityV2,
     devTheme,
     devVault,
@@ -43,29 +43,10 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let isNewAnalyticsEnable =
     newAnalytics && isFeatureEnabledForDenyListMerchant(merchantSpecificConfig.newAnalytics)
-  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
+  let {isCurrentMerchantPlatform, isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
 
   let standardModules = !isCurrentMerchantPlatform
     ? [
-        default->connectors(
-          ~isLiveMode,
-          ~isFrmEnabled=frm,
-          ~isPayoutsEnabled=payOut,
-          ~isThreedsConnectorEnabled=threedsAuthenticator,
-          ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
-          ~isTaxProcessor=taxProcessor,
-          ~userHasResourceAccess,
-          ~isBillingProcessor=billingProcessor,
-          ~isVaultProcessor=vaultProcessor,
-        ),
-        default->analytics(
-          disputeAnalytics,
-          performanceMonitorFlag,
-          isNewAnalyticsEnable,
-          routingAnalytics,
-          ~authenticationAnalyticsFlag=authenticationAnalytics,
-          ~userHasResourceAccess,
-        ),
         default->workflow(
           isSurchargeEnabled,
           threedsExemptionRules,
@@ -86,8 +67,29 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~userEntity,
       ~isCurrentMerchantPlatform,
     ),
+    default->connectors(
+      ~isLiveMode,
+      ~isFrmEnabled=frm,
+      ~isPayoutsEnabled=payOut,
+      ~isThreedsConnectorEnabled=threedsAuthenticator,
+      ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
+      ~isTaxProcessor=taxProcessor,
+      ~userHasResourceAccess,
+      ~isBillingProcessor=billingProcessor,
+      ~isVaultProcessor=vaultProcessor,
+      ~isSurchargeProcessor=surchargeProcessor,
+      ~isCurrentMerchantPlatform,
+      ~isCurrentMerchantConnected,
+      ~connectorListForLive,
+    ),
+    default->analytics(
+      disputeAnalytics,
+      isNewAnalyticsEnable,
+      routingAnalytics,
+      ~authenticationAnalyticsFlag=authenticationAnalytics,
+      ~userHasResourceAccess,
+    ),
     ...standardModules,
-    recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
     default->developers(
       ~isWebhooksEnabled=devWebhooks,
       ~userHasResourceAccess,
@@ -104,11 +106,12 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~devModularityV2Enabled=devModularityV2,
       ~devThemeEnabled=devTheme,
       ~devUsers,
+      ~isCurrentMerchantPlatform,
     ),
   ]
 }
 
-let useGetOrchestratorSidebars = (~isReconEnabled) => useGetHsSidebarValues(~isReconEnabled)
+let useGetOrchestratorSidebars = () => useGetHsSidebarValues()
 
 let getAllProductsBasedOnFeatureFlags = (
   ~featureFlagDetails,
@@ -151,17 +154,24 @@ let getAllProductsBasedOnFeatureFlags = (
   products
 }
 
-let useGetAllProductSections = (~isReconEnabled, ~products: array<productTypes>) => {
+let useGetAllProductSections = (~products: array<productTypes>) => {
   open ProductUtils
 
-  let isLiveMode = (featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let isLiveMode = featureFlagDetails.isLiveMode
 
-  let orchestratorSidebars = useGetOrchestratorSidebars(~isReconEnabled)
+  let orchestratorSidebars = useGetOrchestratorSidebars()
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
+  let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   products->Array.map(productType => {
     let links = switch productType {
-    | Recon(V1) => ReconEngineSidebarValues.reconEngineSidebars
+    | Recon(V1) =>
+      ReconEngineSidebarValues.reconEngineSidebars(
+        ~userHasResourceAccess,
+        ~userHasAccess,
+        ~isReconEnginePipelinesEnabled=featureFlagDetails.devReconEnginePipelines,
+      )
     | Recon(V2) => ReconSidebarValues.reconSidebars
     | Recovery => RevenueRecoverySidebarValues.recoverySidebars(isLiveMode)
     | Vault => VaultSidebarValues.vaultSidebars
@@ -216,13 +226,13 @@ let useGetSidebarProductModules = () => {
   })
 }
 
-let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
+let useGetSidebarValuesForCurrentActive = () => {
   let isLiveMode = (featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
+  let hsSidebars = useGetHsSidebarValues()
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
-  let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let defaultSidebar = []
   if featureFlagDetails.devModularityV2 {
     // show Home when modularity is enabled
@@ -270,7 +280,12 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   | CostObservability => HypersenseSidebarValues.hypersenseSidebars
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
   | Orchestration(V2) => orchestratorV2Sidebars
-  | Recon(V1) => ReconEngineSidebarValues.reconEngineSidebars
+  | Recon(V1) =>
+    ReconEngineSidebarValues.reconEngineSidebars(
+      ~userHasResourceAccess,
+      ~userHasAccess,
+      ~isReconEnginePipelinesEnabled=featureFlagDetails.devReconEnginePipelines,
+    )
   | OnBoarding(_)
   | UnknownProduct => []
   }

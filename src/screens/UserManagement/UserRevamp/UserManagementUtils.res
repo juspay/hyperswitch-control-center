@@ -104,7 +104,7 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
   errors->JSON.Encode.object
 }
 
-let tabIndeToVariantMapper = index => {
+let tabIndexToVariantMapper = index => {
   open UserManagementTypes
   switch index {
   | 0 => UsersTab

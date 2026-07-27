@@ -50,8 +50,6 @@ type businessEntity = {
   country: string,
 }
 
-type reconStatus = NotRequested | Requested | Active | Disabled
-
 type merchantPayload = {
   api_key: string,
   enable_payment_response_hash: bool,
@@ -66,7 +64,6 @@ type merchantPayload = {
   publishable_key: string,
   redirect_to_merchant_with_http_post: bool,
   sub_merchants_enabled: bool,
-  recon_status: reconStatus,
   product_type: ProductTypes.productTypes,
   merchant_account_type: OMPSwitchTypes.ompType,
 }

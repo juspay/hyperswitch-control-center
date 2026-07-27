@@ -40,6 +40,7 @@ module PreviewTable = {
       isAnalyticsModule=false
       showResultsPerPageSelector=false
       paginationClass="hidden"
+      showAutoScroll=true
     />
   }
 }
@@ -48,7 +49,7 @@ module PreviewTable = {
 let make = () => {
   open APIUtils
   open PayoutTableEntity
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let updateDetails = useUpdateMethod()
   let fetchTableData = ResultsTableUtils.useGetData()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -75,7 +76,12 @@ let make = () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
 
     try {
-      let (data, total) = await fetchTableData(~updateDetails, ~offset, ~query={searchText}, ~path)
+      let (data, total) = await fetchTableData(
+        ~updateDetails=(url, body, method) => updateDetails(url, body, method),
+        ~offset,
+        ~query={searchText},
+        ~path,
+      )
 
       let arr = Array.make(~length=offset, Dict.make())
       if data->isEmptyArray && total <= offset {
@@ -156,6 +162,7 @@ let make = () => {
         tableDataBorderClass=tableBorderClass
         isAnalyticsModule=false
         showResultsPerPageSelector=false
+        showAutoScroll=true
       />
     </PageLoaderWrapper>
   </div>

@@ -74,8 +74,8 @@ let make = (~entity: moduleEntity) => {
           ~id=Some((entity.domain: domain :> string)),
         )
         let groupByNames = switch entity.requestBodyConfig.groupBy {
-        | Some(dimentions) =>
-          dimentions
+        | Some(dimensions) =>
+          dimensions
           ->Array.map(item => (item: dimension :> string))
           ->Some
         | _ => None

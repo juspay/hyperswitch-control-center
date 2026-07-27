@@ -18,7 +18,7 @@ let make = () => {
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
   let (screenState, setScreenState) = React.useState(_ => Success)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   let connectorInfo = initialValues->LogicUtils.getDictFromJsonObject
   let connectorInfoDict = ConnectorInterface.mapDictToTypedConnectorPayload(
@@ -174,10 +174,7 @@ let make = () => {
               <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
               <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
               <FormRenderer.SubmitButton
-                text="Next"
-                buttonSize={Small}
-                customSumbitButtonStyle="!w-full mt-8"
-                tooltipForWidthClass="w-full"
+                text="Next" buttonSize={Small} customSubmitButtonStyle="!w-full mt-8"
               />
             </div>
           </Form>
@@ -195,10 +192,7 @@ let make = () => {
             <div className="flex flex-col mb-5 gap-3 ">
               <ConnectorPaymentMethodV2 initialValues isInEditState=true />
               <FormRenderer.SubmitButton
-                text="Next"
-                buttonSize={Small}
-                customSumbitButtonStyle="!w-full mt-8"
-                tooltipForWidthClass="w-full"
+                text="Next" buttonSize={Small} customSubmitButtonStyle="!w-full mt-8"
               />
             </div>
           </Form>
@@ -213,7 +207,7 @@ let make = () => {
         />
         <ConnectorWebhookPreview
           merchantId
-          connectorName=connectorInfoDict.id
+          connectorName=connectorInfoDict.connector_name
           textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400"
           containerClass="flex flex-row items-center justify-between"
           hideLabel=true
@@ -226,7 +220,7 @@ let make = () => {
           customButtonStyle="w-full mt-8"
         />
       </div>
-    | #ReviewAndConnect => <RecoveryProceesorReview connectorInfo=initialValues />
+    | #ReviewAndConnect => <RecoveryProcessorReview connectorInfo=initialValues />
     }}
   </div>
 }

@@ -5,7 +5,7 @@
 let defaultFallback = _ =>
   <div className="text-red-600 font-bold text-center flex flex-col items-center">
     {"An error occurred"->React.string}
-    <Button text="reset" buttonType=Primary onClick={_ => Window.Location.hardReload(true)} />
+    <Button text="Reset" buttonType=Primary onClick={_ => Window.Location.hardReload(true)} />
   </div>
 
 @react.component

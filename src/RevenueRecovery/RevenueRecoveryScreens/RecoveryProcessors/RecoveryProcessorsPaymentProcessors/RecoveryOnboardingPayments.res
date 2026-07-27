@@ -18,7 +18,7 @@ let make = (
   open Typography
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let getURL = useGetURL()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
     ~entityName=V2(V2_CONNECTOR),
     ~version=UserInfoTypes.V2,
@@ -238,7 +238,7 @@ let make = (
         <div className="px-3 pb-5">
           <ConnectorWebhookPreview
             merchantId
-            connectorName=connectorInfoDict.id
+            connectorName=connectorInfoDict.connector_name
             textCss={`border border-nd_gray-400 ${body.md.medium} rounded-xl px-4 py-2 text-nd_gray-400 w-full !font-jetbrains-mono`}
             containerClass="flex flex-row items-center justify-between"
             displayTextLength=38
@@ -336,7 +336,7 @@ let make = (
         <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
           <PageLoaderWrapper screenState>
             <Form onSubmit initialValues validate=validateMandatoryField>
-              <SelectBox.BaseDropdown
+              <SelectBoxAdapter.BaseDropdown
                 allowMultiSelect=false
                 buttonText="Choose a processor"
                 input
@@ -370,10 +370,7 @@ let make = (
                   <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
                   <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
                   <FormRenderer.SubmitButton
-                    text="Next"
-                    buttonSize={Small}
-                    customSumbitButtonStyle="!w-full mt-8"
-                    tooltipForWidthClass="w-full"
+                    text="Next" buttonSize={Small} customSubmitButtonStyle="!w-full mt-8"
                   />
                 </div>
               </RenderIf>
@@ -398,10 +395,7 @@ let make = (
               <div className="flex flex-col mb-5 gap-3 ">
                 <ConnectorPaymentMethodV2 initialValues isInEditState=true />
                 <FormRenderer.SubmitButton
-                  text="Next"
-                  buttonSize={Small}
-                  customSumbitButtonStyle="!w-full mt-8"
-                  tooltipForWidthClass="w-full"
+                  text="Next" buttonSize={Small} customSubmitButtonStyle="!w-full mt-8"
                 />
               </div>
             </Form>

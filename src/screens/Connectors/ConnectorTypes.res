@@ -28,6 +28,7 @@ type authType = [#HeaderKey | #BodyKey | #SignatureKey | #MultiAuthKey | #Curren
 type cashToCodeMthd = [#Classic | #Evoucher]
 
 type processorTypes =
+  | ABSA
   | ADYEN
   | CHECKOUT
   | BRAINTREE
@@ -138,12 +139,17 @@ type processorTypes =
   | REVOLV3
   | TRUELAYER
   | FISERVCOMMERCEHUB
+  | TRUSTLY
+  | IMERCHANTSOLUTIONS
+  | PAYCONEX
+  | TSYSTRANSIT
 
 type payoutProcessorTypes =
   | ADYEN
   | ADYENPLATFORM
   | CYBERSOURCE
   | EBANX
+  | ITAUBANK
   | PAYPAL
   | STRIPE
   | WISE
@@ -155,6 +161,7 @@ type payoutProcessorTypes =
   | WORLDPAYXML
   | TRUELAYER
   | ENVOY
+  | TRUSTLY
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO
@@ -177,6 +184,8 @@ type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING | CUSTOMBILLING
 
 type vaultProcessorTypes = VGS
 
+type surchargeProcessorTypes = INTERPAYMENTS
+
 type connectorTypeVariants =
   | PaymentProcessor
   | PaymentVas
@@ -186,6 +195,7 @@ type connectorTypeVariants =
   | TaxProcessor
   | BillingProcessor
   | VaultProcessor
+  | SurchargeProcessor
 
 type connectorTypes =
   | Processors(processorTypes)
@@ -196,6 +206,7 @@ type connectorTypes =
   | TaxProcessor(taxProcessorTypes)
   | BillingProcessor(billingProcessorTypes)
   | VaultProcessor(vaultProcessorTypes)
+  | SurchargeProcessor(surchargeProcessorTypes)
   | UnknownConnector(string)
 
 type paymentMethod =
@@ -226,8 +237,13 @@ type paymentMethodTypes =
   | DirectCarrierBilling
   | AmazonPay
   | Pix
+  | PixEmv
+  | PixQr
+  | PixAutomaticoQr
+  | PixAutomaticoPush
   | Boleto
   | NetworkToken
+  | Ideal
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {
@@ -285,7 +301,7 @@ type googlePay = {
 
 type metaData = {
   apple_pay?: applePay,
-  goole_pay?: googlePay,
+  google_pay?: googlePay,
 }
 type pmAuthPaymentMethods = {
   payment_method: string,
@@ -461,6 +477,14 @@ type connector =
   | TaxProcessor
   | BillingProcessor
   | VaultProcessor
+  | SurchargeProcessor
+
+type cloneConnectorRequest = {
+  source_mca_id: string,
+  source_profile_id: string,
+  destination_profile_id: string,
+  connector_label: string,
+}
 
 type connectorFieldTypes = {
   bodyType: string,

@@ -35,7 +35,7 @@ module FileAndSystemColumnMapping = {
         key={systemColumn}
         className="flex items-center gap-4 p-3 border rounded-lg border-nd_gray-150 overflow-scroll card-scrollbar">
         <div className="flex-1">
-          <SelectBox.BaseDropdown
+          <SelectBoxAdapter.BaseDropdown
             allowMultiSelect=false
             buttonText={fileColumn}
             input={createFormInput(~name=`mapping_file_${systemColumn}`, ~value=fileColumn)}
@@ -50,7 +50,7 @@ module FileAndSystemColumnMapping = {
           <Icon name="nd-arrow-right" size=14 className="text-nd_gray-500" />
         </div>
         <div className="flex-1">
-          <SelectBox.BaseDropdown
+          <SelectBoxAdapter.BaseDropdown
             allowMultiSelect=false
             buttonText={systemColumn}
             input={createFormInput(~name=`mapping_system_${systemColumn}`, ~value=systemColumn)}
@@ -137,14 +137,7 @@ module ColumnMappingDisplay = {
     ]
 
     <div className="px-6">
-      <Tabs
-        tabs=tabList
-        disableIndicationArrow=true
-        showBorder=false
-        includeMargin=false
-        lightThemeColor="black"
-        defaultClasses={`font-ibm-plex w-max flex flex-auto flex-row items-center justify-center text-body ${body.md.semibold}`}
-      />
+      <Tabs tabs=tabList />
     </div>
   }
 }

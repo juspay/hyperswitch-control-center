@@ -207,7 +207,7 @@ module VaultedPaymentMethodsTable = {
         closeOnOutsideClick=true
         modalClass="w-full md:w-1/2 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
         childClass="">
-        <VaultPaymentMethodDetailsSidebar paymentId setShowModal sampleReport />
+        <VaultPaymentMethodDetailsSidebar paymentId setShowModal sampleReport showModal />
       </Modal>
     </PageLoaderWrapper>
   }
@@ -291,7 +291,6 @@ let make = (~id, ~sampleReport) => {
                 },
               ]
               currentPageTitle=id
-              cursorStyle="cursor-pointer"
             />
           </div>
         </div>

@@ -1,5 +1,8 @@
 open SidebarTypes
 open UserManagementTypes
+open CommonAuthTypes
+open HSwitchUtils
+open ConnectorUtils
 
 // * Custom Component
 module ProductHeaderComponent = {
@@ -71,7 +74,7 @@ let payouts = userHasResourceAccess => {
     name: "Payouts",
     link: `/payouts`,
     access: userHasResourceAccess(~resourceAccess=Payout),
-    searchOptions: [("View payouts operations", "")],
+    searchOptions: [("View payout operations", "")],
   })
 }
 
@@ -126,28 +129,26 @@ let operations = (
     : emptyComponent
 }
 
-let paymentProcessor = (isLiveMode, userHasResourceAccess) => {
+let paymentProcessor = (isLiveMode, userHasResourceAccess, ~paymentProcessorsLiveList) => {
   SubLevelLink({
     name: "Payment Processors",
     link: `/connectors`,
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=isLiveMode
-        ? ConnectorUtils.connectorListForLive
-        : ConnectorUtils.connectorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=isLiveMode ? paymentProcessorsLiveList : connectorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
 
-let payoutConnectors = (~userHasResourceAccess) => {
+let payoutConnectors = (~isLiveMode, ~userHasResourceAccess, ~payoutProcessorsLiveList) => {
   SubLevelLink({
     name: "Payout Processors",
     link: `/payoutconnectors`,
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=ConnectorUtils.payoutConnectorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=isLiveMode ? payoutProcessorsLiveList : payoutConnectorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
@@ -161,15 +162,19 @@ let fraudAndRisk = (~userHasResourceAccess) => {
   })
 }
 
-let threeDsConnector = (~userHasResourceAccess) => {
+let threeDsConnector = (
+  ~isLiveMode,
+  ~userHasResourceAccess,
+  ~threeDsAuthenticatorProcessorsLiveList,
+) => {
   SubLevelLink({
     name: "3DS Authenticators",
     link: "/3ds-authenticators",
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: [
-      ("Connect 3dsecure.io", "/new?name=threedsecureio"),
-      ("Connect threedsecureio", "/new?name=threedsecureio"),
-    ],
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=isLiveMode ? threeDsAuthenticatorProcessorsLiveList : threedsAuthenticatorList,
+      ~getNameFromString=getConnectorNameString,
+    ),
   })
 }
 
@@ -178,9 +183,9 @@ let pmAuthenticationProcessor = (~userHasResourceAccess) => {
     name: "PM Auth Processor",
     link: `/pm-authentication-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=ConnectorUtils.pmAuthenticationConnectorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=pmAuthenticationConnectorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
@@ -190,9 +195,9 @@ let taxProcessor = (~userHasResourceAccess) => {
     name: "Tax Processor",
     link: `/tax-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=ConnectorUtils.taxProcessorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=taxProcessorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
@@ -202,21 +207,33 @@ let billingProcessor = (~userHasResourceAccess) => {
     name: "Billing Processor",
     link: `/billing-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=ConnectorUtils.billingProcessorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=billingProcessorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
 
-let vaultProcessor = (~userHasResourceAccess) => {
+let vaultProcessor = (~isLiveMode, ~userHasResourceAccess, ~vaultProcessorsLiveList) => {
   SubLevelLink({
     name: "Vault Processor",
     link: `/vault-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
-    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-      ~processorList=ConnectorUtils.vaultProcessorList,
-      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=isLiveMode ? vaultProcessorsLiveList : vaultProcessorList,
+      ~getNameFromString=getConnectorNameString,
+    ),
+  })
+}
+
+let surchargeProcessor = (~userHasResourceAccess) => {
+  SubLevelLink({
+    name: "Surcharge Processor",
+    link: `/surcharge-processor`,
+    access: userHasResourceAccess(~resourceAccess=Connector),
+    searchOptions: getSearchOptionsForProcessors(
+      ~processorList=surchargeProcessorList,
+      ~getNameFromString=getConnectorNameString,
     ),
   })
 }
@@ -231,34 +248,71 @@ let connectors = (
   ~isTaxProcessor,
   ~isBillingProcessor,
   ~isVaultProcessor,
+  ~isSurchargeProcessor,
   ~userHasResourceAccess,
+  ~isCurrentMerchantPlatform,
+  ~isCurrentMerchantConnected,
+  ~connectorListForLive: ConnectorListForLiveFromConfigTypes.connectorListForLive,
 ) => {
-  let connectorLinkArray = [paymentProcessor(isLiveMode, userHasResourceAccess)]
+  let {
+    paymentProcessorsLiveList,
+    payoutProcessorsLiveList,
+    threeDsAuthenticatorProcessorsLiveList,
+    vaultProcessorsLiveList,
+  } = connectorListForLive
+  let connectorLinkArray = if isCurrentMerchantPlatform {
+    let links = []
+    if isVaultProcessor {
+      links
+      ->Array.push(vaultProcessor(~isLiveMode, ~userHasResourceAccess, ~vaultProcessorsLiveList))
+      ->ignore
+    }
+    links
+  } else {
+    let links = [paymentProcessor(isLiveMode, userHasResourceAccess, ~paymentProcessorsLiveList)]
 
-  if isPayoutsEnabled {
-    connectorLinkArray->Array.push(payoutConnectors(~userHasResourceAccess))->ignore
-  }
-  if isThreedsConnectorEnabled {
-    connectorLinkArray->Array.push(threeDsConnector(~userHasResourceAccess))->ignore
-  }
+    if isPayoutsEnabled {
+      links
+      ->Array.push(payoutConnectors(~isLiveMode, ~userHasResourceAccess, ~payoutProcessorsLiveList))
+      ->ignore
+    }
+    if isThreedsConnectorEnabled {
+      links
+      ->Array.push(
+        threeDsConnector(
+          ~isLiveMode,
+          ~userHasResourceAccess,
+          ~threeDsAuthenticatorProcessorsLiveList,
+        ),
+      )
+      ->ignore
+    }
 
-  if isFrmEnabled {
-    connectorLinkArray->Array.push(fraudAndRisk(~userHasResourceAccess))->ignore
-  }
+    if isFrmEnabled {
+      links->Array.push(fraudAndRisk(~userHasResourceAccess))->ignore
+    }
 
-  if isPMAuthenticationProcessor {
-    connectorLinkArray->Array.push(pmAuthenticationProcessor(~userHasResourceAccess))->ignore
-  }
+    if isPMAuthenticationProcessor {
+      links->Array.push(pmAuthenticationProcessor(~userHasResourceAccess))->ignore
+    }
 
-  if isTaxProcessor {
-    connectorLinkArray->Array.push(taxProcessor(~userHasResourceAccess))->ignore
-  }
-  if isBillingProcessor {
-    connectorLinkArray->Array.push(billingProcessor(~userHasResourceAccess))->ignore
-  }
+    if isTaxProcessor {
+      links->Array.push(taxProcessor(~userHasResourceAccess))->ignore
+    }
+    if isBillingProcessor {
+      links->Array.push(billingProcessor(~userHasResourceAccess))->ignore
+    }
 
-  if isVaultProcessor {
-    connectorLinkArray->Array.push(vaultProcessor(~userHasResourceAccess))->ignore
+    if isSurchargeProcessor {
+      links->Array.push(surchargeProcessor(~userHasResourceAccess))->ignore
+    }
+
+    if isVaultProcessor && !isCurrentMerchantConnected {
+      links
+      ->Array.push(vaultProcessor(~isLiveMode, ~userHasResourceAccess, ~vaultProcessorsLiveList))
+      ->ignore
+    }
+    links
   }
 
   isConnectorsEnabled
@@ -272,50 +326,43 @@ let connectors = (
     : emptyComponent
 }
 
-let paymentAnalytcis = SubLevelLink({
+let paymentAnalytcis = (~userHasResourceAccess) => SubLevelLink({
   name: "Payments",
   link: `/analytics-payments`,
-  access: Access,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("View analytics", "")],
 })
 
-let performanceMonitor = SubLevelLink({
-  name: "Performance",
-  link: `/performance-monitor`,
-  access: Access,
-  searchOptions: [("View Performance", "")],
-})
-
-let newAnalytics = SubLevelLink({
+let newAnalytics = (~userHasResourceAccess) => SubLevelLink({
   name: "Insights",
   link: `/new-analytics`,
-  access: Access,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("Insights", "")],
 })
 
-let disputeAnalytics = SubLevelLink({
+let disputeAnalytics = (~userHasResourceAccess) => SubLevelLink({
   name: "Disputes",
   link: `/analytics-disputes`,
-  access: Access,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("View Dispute analytics", "")],
 })
-let routingAnalytics = SubLevelLink({
+let routingAnalytics = (~userHasResourceAccess) => SubLevelLink({
   name: "Routing",
   link: `/analytics-routing`,
-  access: Access,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("View routing analytics", "")],
 })
 
-let refundAnalytics = SubLevelLink({
+let refundAnalytics = (~userHasResourceAccess) => SubLevelLink({
   name: "Refunds",
   link: `/analytics-refunds`,
-  access: Access,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("View analytics", "")],
 })
-let authenticationAnalytics = SubLevelLink({
+let authenticationAnalytics = (~userHasResourceAccess) => SubLevelLink({
   name: "Authentication",
   link: `/analytics-authentication`,
-  access: Access,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
   iconTag: "betaTag",
   searchOptions: [("View analytics", "")],
 })
@@ -323,36 +370,32 @@ let authenticationAnalytics = SubLevelLink({
 let analytics = (
   isAnalyticsEnabled,
   disputeAnalyticsFlag,
-  performanceMonitorFlag,
   newAnalyticsflag,
   routingAnalyticsFlag,
   ~authenticationAnalyticsFlag,
   ~userHasResourceAccess,
 ) => {
-  let links = [paymentAnalytcis, refundAnalytics]
+  let links = [paymentAnalytcis(~userHasResourceAccess), refundAnalytics(~userHasResourceAccess)]
   if authenticationAnalyticsFlag {
-    links->Array.push(authenticationAnalytics)
+    links->Array.push(authenticationAnalytics(~userHasResourceAccess))
   }
   if disputeAnalyticsFlag {
-    links->Array.push(disputeAnalytics)
+    links->Array.push(disputeAnalytics(~userHasResourceAccess))
   }
 
   if newAnalyticsflag {
-    links->Array.unshift(newAnalytics)
+    links->Array.unshift(newAnalytics(~userHasResourceAccess))
   }
 
-  if performanceMonitorFlag {
-    links->Array.push(performanceMonitor)
-  }
   if routingAnalyticsFlag {
-    links->Array.push(routingAnalytics)
+    links->Array.push(routingAnalytics(~userHasResourceAccess))
   }
 
   isAnalyticsEnabled
     ? Section({
         name: "Analytics",
         icon: "nd-analytics",
-        showSection: userHasResourceAccess(~resourceAccess=Analytics) === CommonAuthTypes.Access,
+        showSection: userHasResourceAccess(~resourceAccess=Analytics) === Access,
         links,
       })
     : emptyComponent
@@ -501,7 +544,7 @@ let configurePMTs = userHasResourceAccess => {
 
 let complianceCertificateSection = {
   SubLevelLink({
-    name: "Compliance ",
+    name: "Compliance",
     link: `/compliance`,
     access: Access,
     searchOptions: [("PCI certificate", "")],
@@ -531,10 +574,11 @@ let settings = (
   ~devModularityV2Enabled,
   ~devThemeEnabled,
   ~devUsers,
+  ~isCurrentMerchantPlatform,
 ) => {
   let settingsLinkArray = []
 
-  if isConfigurePmtsEnabled {
+  if isConfigurePmtsEnabled && !isCurrentMerchantPlatform {
     settingsLinkArray->Array.push(configurePMTs(userHasResourceAccess))->ignore
   }
 
@@ -584,7 +628,7 @@ let webhooks = userHasResourceAccess => {
   SubLevelLink({
     name: "Webhooks",
     link: `/webhooks`,
-    access: userHasResourceAccess(~resourceAccess=Account),
+    access: userHasResourceAccess(~resourceAccess=WebhookEvent),
     searchOptions: [("Webhooks", ""), ("Retry webhooks", "")],
   })
 }
@@ -607,13 +651,13 @@ let developers = (
   ~isCurrentMerchantPlatform,
 ) => {
   let apiKeys = apiKeys(userHasResourceAccess)
+  let webhooks = webhooks(userHasResourceAccess)
+  let paymentSettings = paymentSettings(userHasResourceAccess)
 
   let links = if isCurrentMerchantPlatform {
-    [apiKeys]
+    [paymentSettings, apiKeys, webhooks]
   } else {
     let isProfileUser = checkUserEntity([#Profile])
-    let paymentSettings = paymentSettings(userHasResourceAccess)
-    let webhooks = webhooks(userHasResourceAccess)
 
     let defaultDevelopersOptions = [paymentSettings]
 
@@ -637,101 +681,4 @@ let developers = (
         links,
       })
     : emptyComponent
-}
-
-let uploadReconFiles = {
-  SubLevelLink({
-    name: "Upload Recon Files",
-    link: `/upload-files`,
-    access: Access,
-    searchOptions: [("Upload recon files", "")],
-  })
-}
-
-let runRecon = {
-  SubLevelLink({
-    name: "Run Recon",
-    link: `/run-recon`,
-    access: Access,
-    searchOptions: [("Run recon", "")],
-  })
-}
-
-let reconAnalytics = {
-  SubLevelLink({
-    name: "Analytics",
-    link: `/recon-analytics`,
-    access: Access,
-    searchOptions: [("Recon analytics", "")],
-  })
-}
-let reconReports = {
-  SubLevelLink({
-    name: "Reports",
-    link: `/reports`,
-    access: Access,
-    searchOptions: [("Recon reports", "")],
-  })
-}
-
-let reconConfigurator = {
-  SubLevelLink({
-    name: "Configurator",
-    link: `/config-settings`,
-    access: Access,
-    searchOptions: [("Recon configurator", "")],
-  })
-}
-// Commented as not needed now
-// let reconFileProcessor = {
-//   SubLevelLink({
-//     name: "File Processor",
-//     link: `/file-processor`,
-//     access: Access,
-//     searchOptions: [("Recon file processor", "")],
-//   })
-// }
-
-let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourceAccess) => {
-  switch (recon, isReconEnabled, checkUserEntity([#Merchant, #Organization, #Tenant])) {
-  | (true, true, true) => {
-      let links = []
-      if userHasResourceAccess(~resourceAccess=ReconFiles) == CommonAuthTypes.Access {
-        links->Array.push(uploadReconFiles)
-      }
-      if userHasResourceAccess(~resourceAccess=RunRecon) == CommonAuthTypes.Access {
-        links->Array.push(runRecon)
-      }
-      if (
-        userHasResourceAccess(~resourceAccess=ReconAndSettlementAnalytics) == CommonAuthTypes.Access
-      ) {
-        links->Array.push(reconAnalytics)
-      }
-      if userHasResourceAccess(~resourceAccess=ReconReports) == CommonAuthTypes.Access {
-        links->Array.push(reconReports)
-      }
-      if userHasResourceAccess(~resourceAccess=ReconConfig) == CommonAuthTypes.Access {
-        links->Array.push(reconConfigurator)
-      }
-      // Commented as not needed now
-      // if userHasResourceAccess(~resourceAccess=ReconFiles) == CommonAuthTypes.Access {
-      //   links->Array.push(reconFileProcessor)
-      // }
-      Section({
-        name: "Recon And Settlement",
-        icon: "recon",
-        showSection: true,
-        links,
-      })
-    }
-  | (true, false, true) =>
-    Link({
-      name: "Reconciliation",
-      icon: isReconEnabled ? "recon" : "recon-lock",
-      link: `/recon`,
-      access: userHasResourceAccess(~resourceAccess=ReconToken),
-    })
-
-  | _ => emptyComponent
-  }
 }

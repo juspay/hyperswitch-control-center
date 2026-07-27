@@ -9,7 +9,7 @@ let make = (
   open HSwitchFeedBackModalUtils
   open APIUtils
   let {email} = CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let updateDetails = useUpdateMethod()
   let getURL = useGetURL()
   let onSubmit = async (values, _) => {
@@ -24,7 +24,7 @@ let make = (
         ]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
       let successMessage = switch modalType {
-      | FeedBackModal => "Thanks for feedback"
+      | FeedBackModal => "Thanks for your feedback"
       | RequestConnectorModal => "Request submitted successfully"
       }
       showToast(~toastType=ToastSuccess, ~message=successMessage, ~autoClose=false)

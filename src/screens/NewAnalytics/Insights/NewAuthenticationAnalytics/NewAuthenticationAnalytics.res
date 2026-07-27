@@ -37,6 +37,7 @@ let make = () => {
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {analyticsEntity} = getResolvedUserInfo()
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
+  let {isCurrentMerchantPlatform} = OMPSwitchHooks.useOMPType()
 
   let loadInfo = async () => {
     try {
@@ -130,7 +131,7 @@ let make = () => {
         let queryDataMapped = paymentData
         let funnelDict = Dict.make()->itemToObjMapperForFunnelData
         funnelDict.authentication_initiated = authenticationInitiated
-        funnelDict.authentication_attemped = authenticationAttempted
+        funnelDict.authentication_attempted = authenticationAttempted
         funnelDict.payments_requiring_3ds_2_authentication = queryDataMapped.authentication_count
         funnelDict.authentication_successful = queryDataMapped.authentication_success_count
 
@@ -239,7 +240,7 @@ let make = () => {
 
         let funnelDict = Dict.make()->itemToObjMapperForFunnelData
         funnelDict.authentication_initiated = authenticationInitiated
-        funnelDict.authentication_attemped = authenticationAttempted
+        funnelDict.authentication_attempted = authenticationAttempted
         funnelDict.payments_requiring_3ds_2_authentication = valueOfQueryData.authentication_count
         funnelDict.authentication_successful = valueOfQueryData.authentication_success_count
 
@@ -313,7 +314,7 @@ let make = () => {
       <div className="mt-15-px">
         <Portal to="NewAnalyticsOMPView">
           <OMPSwitchHelper.OMPViews
-            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity, ~isCurrentMerchantPlatform)}
             selectedEntity={analyticsEntity}
             onChange={updateAnalytcisEntity}
             entityMapper=UserInfoUtils.analyticsEntityMapper
@@ -347,7 +348,7 @@ let make = () => {
     () =>
       funnelData.authentication_initiated > 0 &&
       funnelData.payments_requiring_3ds_2_authentication > 0 &&
-      funnelData.authentication_attemped > 0 &&
+      funnelData.authentication_attempted > 0 &&
       funnelData.authentication_successful > 0,
     [funnelData],
   )
@@ -365,23 +366,14 @@ let make = () => {
   ]
   <PageLoaderWrapper screenState customUI={<HSAnalyticsUtils.NoData title />}>
     <InsightsHelper.SampleDataBanner applySampleDateFilters />
-    <PageUtils.PageHeading title />
+    <PageUtils.PageHeading customHeadingStyle="mt-4" title />
+    <HSAnalyticsUtils.PlatformAggregatedDataBanner />
     <div className="flex justify-end mr-4">
       <GenerateReport entityName={V1(AUTHENTICATION_REPORT)} disableReport={isSampleDataEnabled} />
     </div>
     <div className="-ml-1 sticky top-0 z-10 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
       {topFilterUi}
     </div>
-    <Tabs
-      initialIndex={tabIndex}
-      tabs
-      onTitleClick={tabId => setTabIndex(_ => tabId)}
-      disableIndicationArrow=true
-      showBorder=true
-      includeMargin=false
-      lightThemeColor="black"
-      textStyle="text-blue-600"
-      selectTabBottomBorderColor="bg-blue-600 !z-0"
-    />
+    <Tabs initialIndex={tabIndex} tabs onTitleClick={tabId => setTabIndex(_ => tabId)} />
   </PageLoaderWrapper>
 }

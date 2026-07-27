@@ -1,7 +1,7 @@
 open ThemeSettingsHelper
 
 @react.component
-let make = () => {
+let make = (~isUpdatePage=false) => {
   let formValues =
     ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
@@ -11,8 +11,8 @@ let make = () => {
     ~formValues,
   )
 
-  <div className="flex flex-col gap-8 max-h-screen overflow-y-auto p-2">
-    <BrandSettings colorsFromForm={colorsFromForm} />
+  <div className="flex flex-col gap-8">
+    <BrandSettings colorsFromForm={colorsFromForm} isUpdatePage />
     <SidebarSettings sidebarFromForm={sidebarFromForm} />
     <ButtonSettings buttonsFromForm={buttonsFromForm} />
   </div>

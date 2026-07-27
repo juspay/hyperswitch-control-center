@@ -1,0 +1,63 @@
+open ThemePreviewUtils
+open ThemePreviewTypes
+open Typography
+
+@react.component
+let make = (~emailLogoUrl: option<string>=?) => {
+  let formState = ReactFinalForm.useFormState(
+    ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+  )
+  let formValues = formState.values->LogicUtils.getDictFromJsonObject
+  let emailConfig = getEmailFormValues(~formValues)
+
+  <div className="rounded-lg overflow-hidden w-full h-3/4 shadow-xl p-4 bg-nd_gray-50 ">
+    <div
+      className="flex flex-col items-center justify-center text-center h-full py-6"
+      style={ReactDOM.Style.make(~backgroundColor=emailConfig.background_color, ())}>
+      <div className="flex justify-center h-10 mt-4">
+        <RenderIf condition={emailLogoUrl->Option.isSome}>
+          <img
+            src={emailLogoUrl->Option.getOr("")}
+            alt="email-logo"
+            className="h-10 w-auto object-contain"
+          />
+        </RenderIf>
+        <RenderIf condition={emailLogoUrl->Option.isNone}>
+          <div
+            className="flex border-2 border-dashed rounded-lg py-1.5 px-4 items-center opacity-30"
+            style={ReactDOM.Style.make(~borderColor=emailConfig.foreground_color, ())}>
+            <span
+              className={`${body.xs.medium} opacity-60`}
+              style={ReactDOM.Style.make(~color=emailConfig.foreground_color, ())}>
+              {React.string(mockValues.emailLogoPlaceholder)}
+            </span>
+          </div>
+        </RenderIf>
+      </div>
+      <div
+        className={`${heading.md.semibold} mt-4`}
+        style={ReactDOM.Style.make(~color=emailConfig.foreground_color, ())}>
+        {React.string(`Welcome to ${emailConfig.entity_name}!`)}
+      </div>
+      <div className="mt-2">
+        <p
+          className={`${body.sm.medium} opacity-80`}
+          style={ReactDOM.Style.make(~color=emailConfig.foreground_color, ())}>
+          {React.string(mockValues.emailGreeting)}
+        </p>
+      </div>
+      <span
+        className={`${body.sm.semibold} mt-5 py-2 px-8 rounded-full cursor-pointer text-white`}
+        style={ReactDOM.Style.make(~backgroundColor=emailConfig.primary_color, ())}>
+        {React.string(`Unlock ${emailConfig.entity_name}`)}
+      </span>
+      <div className="max-w-50 mt-2">
+        <p
+          className={`${body.sm.medium} opacity-80`}
+          style={ReactDOM.Style.make(~color=emailConfig.foreground_color, ())}>
+          {React.string(mockValues.emailLinkExpireText(emailConfig.entity_name))}
+        </p>
+      </div>
+    </div>
+  </div>
+}

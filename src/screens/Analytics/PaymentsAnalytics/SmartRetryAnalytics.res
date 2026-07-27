@@ -193,7 +193,7 @@ let getSmartRetriesAmountSingleStatEntity = (metrics, defaultColumns, ~uri) => {
   matrixUriMapper: _ => uri,
 }
 
-let smartRetrivesColumns: array<DynamicSingleStat.columns<colT>> = [
+let smartRetrievesColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
     columns: [
@@ -207,7 +207,7 @@ let smartRetrivesColumns: array<DynamicSingleStat.columns<colT>> = [
   },
 ]
 
-let smartRetrivesAmountColumns: array<DynamicSingleStat.columns<colT>> = [
+let smartRetrievesAmountColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
     columns: [
@@ -245,13 +245,13 @@ let make = (~moduleName) => {
 
   let singleStatEntity = getSmartRetriesSingleStatEntity(
     smartRetrieMetrics->formatMetrics,
-    smartRetrivesColumns,
+    smartRetrievesColumns,
     ~uri=smartRetryAnalyticsUrl,
   )
 
   let singleStatAMountEntity = getSmartRetriesSingleStatEntity(
     smartRetrieMetrics->formatMetrics,
-    smartRetrivesAmountColumns,
+    smartRetrievesAmountColumns,
     ~uri=smartRetryAnalyticsUrl,
   )
 

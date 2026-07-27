@@ -15,7 +15,7 @@ let make = (
   ~currentDateHourFormat="00",
   ~currentDateMinuteFormat="00",
   ~currentDateSecondsFormat="00",
-  ~calendarContaierStyle=?,
+  ~calendarContainerStyle=?,
   ~showTime=false,
   ~showSeconds=true,
   ~fullLength=?,
@@ -216,7 +216,7 @@ let make = (
         disablePastDates
         disableFutureDates
         customDisabledFutureDays
-        ?calendarContaierStyle
+        ?calendarContainerStyle
       />
       {if showTime {
         <div className={`w-fit dark:text-gray-400 text-gray-700 `}>

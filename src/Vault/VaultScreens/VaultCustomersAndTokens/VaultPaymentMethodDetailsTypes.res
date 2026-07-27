@@ -43,7 +43,7 @@ type paymentMethodDetails = {
   last_used_at: string,
   payment_method_data: paymentMethodDataType,
   connector_tokens: array<connectorTokenType>,
-  network_tokens: JSON.t,
+  network_token: JSON.t,
 }
 
 type paymentMethodDetailsColsType =

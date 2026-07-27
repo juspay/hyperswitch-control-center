@@ -31,5 +31,3 @@ type textVariantType =
   | P3
 
 type subVariantType = Regular | Medium | Leading_1 | Leading_2 | Optional
-
-type bannerType = Success | Warning | Error | Info

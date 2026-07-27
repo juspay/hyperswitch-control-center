@@ -5,7 +5,7 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenStateRoles, setScreenStateRoles) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (rolesAvailableData, setRolesAvailableData) = React.useState(_ => [])
+  let (availableRoles, setAvailableRoles) = React.useState(_ => [])
   let (rolesOffset, setRolesOffset) = React.useState(_ => 0)
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -28,7 +28,7 @@ let make = () => {
       )
       let res = await fetchDetails(userDataURL)
       let rolesData = res->LogicUtils.getArrayDataFromJson(itemToObjMapperForRoles)
-      setRolesAvailableData(_ => rolesData->Array.map(Nullable.make))
+      setAvailableRoles(_ => rolesData->Array.map(Nullable.make))
       setUserModuleEntity(_ => selectedEntity)
       setScreenStateRoles(_ => PageLoaderWrapper.Success)
     } catch {
@@ -66,13 +66,13 @@ let make = () => {
       <LoadedTable
         title="Roles"
         hideTitle=true
-        actualData=rolesAvailableData
-        totalResults={rolesAvailableData->Array.length}
+        actualData=availableRoles
+        totalResults={availableRoles->Array.length}
         resultsPerPage=10
         offset=rolesOffset
         setOffset=setRolesOffset
         entity={rolesEntity}
-        currentFetchCount={rolesAvailableData->Array.length}
+        currentFetchCount={availableRoles->Array.length}
         collapseTableRow=false
         tableheadingClass="h-12"
         customBorderClass="border !rounded-xl"

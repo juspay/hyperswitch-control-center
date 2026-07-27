@@ -12,9 +12,10 @@ module ContextWrapper = {
         <Recoil.RecoilRoot>
           <ErrorBoundary>
             <ThemeProvider>
-              <BlendContext>
+              <BlendProvider>
                 <BlendThemeProvider foundationTokens={FoundationTokens.defaultFoundationTokens}>
                   <PopUpContainer>
+                    <SnackbarBinding position="top-center" />
                     <SnackBarContainer>
                       <ToastContainer>
                         <TokenContextProvider>
@@ -28,7 +29,7 @@ module ContextWrapper = {
                     </SnackBarContainer>
                   </PopUpContainer>
                 </BlendThemeProvider>
-              </BlendContext>
+              </BlendProvider>
             </ThemeProvider>
           </ErrorBoundary>
         </Recoil.RecoilRoot>

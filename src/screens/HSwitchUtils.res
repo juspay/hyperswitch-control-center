@@ -78,6 +78,26 @@ let getBrowserDetails = () => {
   open HSwitchUtilsTypes
   let clientTimeZone = dateTimeFormat().resolvedOptions().timeZone
   let clientCountry = clientTimeZone->getClientCountry
+
+  let getVersion = regex =>
+    userAgent
+    ->String.match(regex)
+    ->mapOptionOrDefault("", matches => matches->getValueFromArray(1, ""))
+
+  let (browserName, browserVersion) = if userAgent->String.includes("Edg/") {
+    ("Edge", getVersion(%re("/Edg\/([\d.]+)/")))
+  } else if userAgent->String.includes("OPR/") || userAgent->String.includes("Opera") {
+    ("Opera", getVersion(%re("/(?:OPR|Opera)\/([\d.]+)/")))
+  } else if userAgent->String.includes("Chrome") {
+    ("Chrome", getVersion(%re("/Chrome\/([\d.]+)/")))
+  } else if userAgent->String.includes("Firefox") {
+    ("Firefox", getVersion(%re("/Firefox\/([\d.]+)/")))
+  } else if userAgent->String.includes("Safari") {
+    ("Safari", getVersion(%re("/Version\/([\d.]+)/")))
+  } else {
+    ("Unknown", "")
+  }
+
   {
     userAgent,
     browserVersion,
@@ -238,45 +258,5 @@ let getConnectorIDFromUrl = (urlList, defaultValue) => {
       urlList->Array.get(2)->Option.getOr(defaultValue)
     }
   | _ => urlList->Array.get(1)->Option.getOr(defaultValue)
-  }
-}
-
-module AlertBanner = {
-  @react.component
-  let make = (~bannerContent, ~bannerType: HSwitchUtilsTypes.bannerType, ~customRightAction=?) => {
-    let bgClass = switch bannerType {
-    | Success => " bg-green-100"
-    | Warning => "bg-orange-100"
-    | Error => "bg-red-100"
-    | Info => "bg-blue-150"
-    }
-
-    let iconName = switch bannerType {
-    | Success => "green-tick-banner"
-    | Warning => "warning-banner"
-    | Error => "cross-banner"
-    | Info => "info-banner"
-    }
-
-    let borderColor = switch bannerType {
-    | Success => "border-nd_green-200"
-    | Warning => "border-nd_yellow-300"
-    | Error => "border-nd_red-200"
-    | Info => "border-nd_primary_blue-200"
-    }
-
-    <div
-      className={`${bgClass} flex justify-between border ${borderColor} text-nd_gray-700 w-full py-4 px-4 rounded-md`}>
-      <div className="flex items-center gap-4">
-        <Icon name=iconName size=20 />
-        {bannerContent}
-      </div>
-      <div>
-        {switch customRightAction {
-        | Some(action) => action
-        | None => React.null
-        }}
-      </div>
-    </div>
   }
 }

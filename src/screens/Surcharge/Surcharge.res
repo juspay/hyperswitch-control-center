@@ -6,7 +6,7 @@ module ActiveRulePreview = {
     let rule = initialRule->Option.getOr(Dict.make())
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let showPopUp = PopUpState.useShowPopUp()
     let name = rule->getString("name", "")
     let description = rule->getString("description", "")
@@ -151,7 +151,7 @@ let make = () => {
   open ThreeDSUtils
   open SurchargeUtils
   let getURL = useGetURL()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let fetchDetails = useGetMethod(~showErrorToast=false)
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (wasm, setWasm) = React.useState(_ => None)
@@ -188,7 +188,7 @@ let make = () => {
       let responseDict = surchargeRuleDetail->getDictFromJsonObject
       let programValue = responseDict->getObj("algorithm", Dict.make())
 
-      let intitialValue =
+      let initialValue =
         [
           ("name", responseDict->LogicUtils.getString("name", "")->JSON.Encode.string),
           (
@@ -198,7 +198,7 @@ let make = () => {
           ("algorithm", programValue->JSON.Encode.object),
         ]->Dict.fromArray
 
-      setInitialRule(_ => Some(intitialValue))
+      setInitialRule(_ => Some(initialValue))
       setInitialValues(_ => responseDict->mapResponseToFormValues->Identity.genericTypeToJson)
     } catch {
     | Exn.Error(e) =>

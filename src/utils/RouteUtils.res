@@ -8,7 +8,6 @@ open UserInfoTypes
  *   RouteUtils.getPath(~path="/payments", version)
  *   RouteUtils.getPath(~path=`/payments/${paymentId}`, version)
  */
-
 let v2Prefix = "/v2/orchestration"
 
 let getPath = (~path: string, version: version) =>

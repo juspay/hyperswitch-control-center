@@ -13,7 +13,7 @@ let defaultColumns = [
 
 let getHeading = colType => {
   switch colType {
-  | PaymentMethodId => Table.makeHeaderInfo(~key="id", ~title="Payment Method Id")
+  | PaymentMethodId => Table.makeHeaderInfo(~key="id", ~title="Payment Method ID")
   | PaymentMethodType =>
     Table.makeHeaderInfo(~key="payment_method_type", ~title="Payment Method Type")
   | PaymentMethodData => Table.makeHeaderInfo(~key="payment_method", ~title="Payment Method Data")

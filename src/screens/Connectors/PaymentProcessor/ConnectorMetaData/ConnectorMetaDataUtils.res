@@ -6,6 +6,10 @@ let metaDataInputKeysToIgnore = [
   "account_id",
   "boleto",
   "pix",
+  "pix_emv",
+  "pix_qr",
+  "pix_automatico_qr",
+  "pix_automatico_push",
 ]
 let connectorMetaDataNameMapper = name => {
   switch name {

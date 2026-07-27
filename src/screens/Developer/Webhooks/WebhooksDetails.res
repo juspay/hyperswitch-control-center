@@ -119,7 +119,7 @@ let make = (~id) => {
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (data, setData) = React.useState(_ => JSON.Encode.null)
   let (offset, setOffset) = React.useState(_ => 0)
@@ -228,23 +228,12 @@ let make = (~id) => {
     },
   ]
 
-  let details =
-    <Tabs
-      tabs=tabList
-      showBorder=false
-      includeMargin=false
-      lightThemeColor="black"
-      defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
-      textStyle="text-blue-600"
-      selectTabBottomBorderColor="bg-blue-600"
-    />
+  let details = <Tabs tabs=tabList />
 
   <div className="flex flex-col gap-4">
     <PageUtils.PageHeading title="Webhooks" subTitle="" />
     <BreadCrumbNavigation
-      path=[{title: "Webhooks", link: "/webhooks"}]
-      currentPageTitle="Webhooks home"
-      cursorStyle="cursor-pointer"
+      path=[{title: "Webhooks", link: "/webhooks"}] currentPageTitle="Webhooks home"
     />
     <PageLoaderWrapper screenState>
       <div className="flex gap-6 max-h-screen">

@@ -21,11 +21,14 @@ module ShowOrderDetails = {
     ~isNonRefundConnector,
     ~paymentStatus,
     ~openRefundModal,
+    ~openVoidModal=() => (),
+    ~openCaptureModal=() => (),
     ~paymentId,
     ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
     ~sectionTitle=?,
   ) => {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let typedPaymentStatus = paymentStatus->statusVariantMapper
     let statusUI = useGetStatus(data)
 
@@ -52,7 +55,6 @@ module ShowOrderDetails = {
               description="Original amount that was authorized for the payment"
               toolTipFor={<Icon name="tooltip_info" className={`mt-1 ml-1`} />}
               toolTipPosition=Top
-              tooltipWidthClass="w-fit"
             />
           </div>
           {statusUI}
@@ -69,6 +71,30 @@ module ShowOrderDetails = {
               ? Normal
               : Disabled}
           />
+          <RenderIf
+            condition={version === V1 &&
+            typedPaymentStatus === RequiresCapture &&
+            !(paymentId->isTestData)}>
+            <ACLButton
+              authorization={userHasAccess(~groupAccess=OperationsManage)}
+              text="+ Void"
+              onClick={_ => {
+                openVoidModal()
+              }}
+              buttonType={Secondary}
+            />
+          </RenderIf>
+          <RenderIf
+            condition={version === V1 &&
+            typedPaymentStatus === RequiresCapture &&
+            !(paymentId->isTestData)}>
+            <ACLButton
+              authorization={userHasAccess(~groupAccess=OperationsManage)}
+              text="+ Capture"
+              onClick={_ => openCaptureModal()}
+              buttonType={Secondary}
+            />
+          </RenderIf>
         </div>
       </RenderIf>
       <FormRenderer.DesktopRow>
@@ -97,7 +123,14 @@ module ShowOrderDetails = {
 module OrderInfo = {
   open OrderEntity
   @react.component
-  let make = (~order, ~openRefundModal, ~isNonRefundConnector, ~paymentId) => {
+  let make = (
+    ~order,
+    ~openRefundModal,
+    ~openVoidModal,
+    ~openCaptureModal,
+    ~isNonRefundConnector,
+    ~paymentId,
+  ) => {
     let paymentStatus = order.status
     let headingStyles = "font-bold text-lg mb-5"
     <div className="md:flex md:flex-col md:gap-5">
@@ -113,6 +146,8 @@ module OrderInfo = {
               LastUpdated,
               AmountReceived,
               PaymentId,
+              NetAmount,
+              SurchargeAmount,
               ConnectorTransactionID,
               ErrorMessage,
             ]
@@ -120,6 +155,8 @@ module OrderInfo = {
             isNonRefundConnector
             paymentStatus
             openRefundModal
+            openVoidModal
+            openCaptureModal
             paymentId
           />
         </div>
@@ -142,6 +179,8 @@ module OrderInfo = {
             isNonRefundConnector
             paymentStatus
             openRefundModal
+            openVoidModal
+            openCaptureModal
             paymentId
           />
         </div>
@@ -217,15 +256,15 @@ module Refunds = {
   open OrderEntity
   @react.component
   let make = (~refundData) => {
-    let expand = -1
+    let noExpandIndex = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
     let heading = refundColumns->Array.map(getRefundHeading)
     React.useEffect(() => {
-      if expand != -1 {
-        setExpandedRowIndexArray(_ => [expand])
+      if noExpandIndex != -1 {
+        setExpandedRowIndexArray(_ => [noExpandIndex])
       }
       None
-    }, [expand])
+    }, [noExpandIndex])
     let onExpandClick = idx => {
       setExpandedRowIndexArray(_ => {
         [idx]
@@ -280,15 +319,15 @@ module Attempts = {
   open OrderEntity
   @react.component
   let make = (~order) => {
-    let expand = -1
+    let noExpandIndex = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
 
     React.useEffect(() => {
-      if expand != -1 {
-        setExpandedRowIndexArray(_ => [expand])
+      if noExpandIndex != -1 {
+        setExpandedRowIndexArray(_ => [noExpandIndex])
       }
       None
-    }, [expand])
+    }, [noExpandIndex])
 
     let onExpandClick = idx => {
       setExpandedRowIndexArray(_ => {
@@ -315,10 +354,10 @@ module Attempts = {
     }
 
     let attemptsData = order.attempts->Array.toSorted((a, b) => {
-      let rowValue_a = a.attempt_id
-      let rowValue_b = b.attempt_id
+      let rowValueA = a.attempt_id
+      let rowValueB = b.attempt_id
 
-      rowValue_a <= rowValue_b ? 1. : -1.
+      rowValueA <= rowValueB ? 1. : -1.
     })
 
     let heading = attemptsColumns->Array.map(getAttemptHeading)
@@ -355,15 +394,15 @@ module Disputes = {
     let {orgId, merchantId, profileId} = React.useContext(
       UserInfoProvider.defaultContext,
     ).getCommonSessionDetails()
-    let expand = -1
+    let noExpandIndex = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
     let heading = columnsInPaymentPage->Array.map(getHeading)
     React.useEffect(() => {
-      if expand != -1 {
-        setExpandedRowIndexArray(_ => [expand])
+      if noExpandIndex != -1 {
+        setExpandedRowIndexArray(_ => [noExpandIndex])
       }
       None
-    }, [expand])
+    }, [noExpandIndex])
     let onExpandClick = idx => {
       setExpandedRowIndexArray(_ => {
         [idx]
@@ -401,21 +440,33 @@ module Disputes = {
       }
     }
 
-    <CustomExpandableTable
-      title="Disputes"
-      heading
-      rows
-      onExpandIconClick
-      expandedRowIndexArray
-      getRowDetails
-      showSerial=true
-    />
+    <div className="flex flex-col gap-4">
+      <p className={`${body.lg.bold} text-nd_gray-900`}> {"Disputes"->React.string} </p>
+      <CustomExpandableTable
+        title="Disputes"
+        heading
+        rows
+        onExpandIconClick
+        expandedRowIndexArray
+        getRowDetails
+        showSerial=true
+      />
+    </div>
   }
 }
 
 module OrderActions = {
   @react.component
-  let make = (~orderData, ~refetch, ~showModal, ~setShowModal) => {
+  let make = (
+    ~orderData,
+    ~refetch,
+    ~showModal,
+    ~setShowModal,
+    ~showVoidModal,
+    ~setShowVoidModal,
+    ~showCaptureModal,
+    ~setShowCaptureModal,
+  ) => {
     let (amountAvailableToRefund, setAmountAvailableToRefund) = React.useState(_ => 0.0)
     let refundData = orderData.refunds
     let disputeData = orderData.disputes
@@ -457,7 +508,7 @@ module OrderActions = {
         setShowModal
         borderBottom=true
         childClass=""
-        modalClass="w-fit absolute top-0 lg:top-0 md:top-1/3 left-0 lg:left-1/3 md:left-1/3 md:w-4/12 mt-20"
+        modalClass="w-full md:w-4/12 mx-auto mt-20"
         bgClass="bg-white dark:bg-jp-gray-darkgray_background">
         <OrderRefundForm
           order={orderData}
@@ -467,6 +518,24 @@ module OrderActions = {
           amountAvailableToRefund
           refetch
         />
+      </Modal>
+      <Modal
+        showModal=showVoidModal
+        setShowModal=setShowVoidModal
+        borderBottom=true
+        childClass=""
+        modalClass="w-full md:w-4/12 mx-auto mt-20"
+        bgClass="bg-nd_gray-0">
+        <OrderVoidForm order={orderData} setShowModal=setShowVoidModal refetch />
+      </Modal>
+      <Modal
+        showModal=showCaptureModal
+        setShowModal=setShowCaptureModal
+        borderBottom=true
+        childClass=""
+        modalClass="w-full md:w-4/12 mx-auto mt-20"
+        bgClass="bg-nd_gray-0">
+        <OrderCaptureForm order={orderData} setShowModal=setShowCaptureModal refetch />
       </Modal>
     </div>
   }
@@ -479,7 +548,7 @@ module FraudRiskBannerDetails = {
   let make = (~order: order, ~refetch) => {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let showPopUp = PopUpState.useShowPopUp()
 
     let updateMerchantDecision = async (~decision) => {
@@ -623,9 +692,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (showModal, setShowModal) = React.useState(_ => false)
+  let (showVoidModal, setShowVoidModal) = React.useState(_ => false)
+  let (showCaptureModal, setShowCaptureModal) = React.useState(_ => false)
   let (orderData, setOrderData) = React.useState(_ =>
     Dict.make()->PaymentInterfaceUtils.mapDictToPaymentPayload
   )
@@ -696,6 +767,14 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     setShowModal(_ => true)
   }
 
+  let openVoidModal = _ => {
+    setShowVoidModal(_ => true)
+  }
+
+  let openCaptureModal = _ => {
+    setShowCaptureModal(_ => true)
+  }
+
   let showSyncButton = React.useCallback(_ => {
     let status = orderData.status->statusVariantMapper
 
@@ -741,9 +820,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         <div className="w-full">
           <PageUtils.PageHeading title="Payments" />
           <BreadCrumbNavigation
-            path=[{title: "Payments", link: breadCrumbLink}]
-            currentPageTitle=id
-            cursorStyle="cursor-pointer"
+            path=[{title: "Payments", link: breadCrumbLink}] currentPageTitle=id
           />
         </div>
         <RenderIf condition={showSyncButton()}>
@@ -762,21 +839,35 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         </RenderIf>
         <div />
       </div>
-      <OrderActions orderData={orderData} refetch={refreshStatus} showModal setShowModal />
+      <OrderActions
+        orderData={orderData}
+        refetch={refreshStatus}
+        showModal
+        setShowModal
+        showVoidModal
+        setShowVoidModal
+        showCaptureModal
+        setShowCaptureModal
+      />
     </div>
     <RenderIf condition={orderData.frm_message.frm_status === "fraud"}>
       <FraudRiskBanner frmMessage={orderData.frm_message} refElement=frmDetailsRef />
     </RenderIf>
+    <RenderIf condition={orderData.status->statusVariantMapper === Review}>
+      <ReviewStatusBanner order={orderData} refetch={refreshStatus} />
+    </RenderIf>
     <PageLoaderWrapper
       screenState
       customUI={<NoDataFound
-        message="Payment does not exists in out record" renderType=NotFound
+        message="Payment does not exist in our records" renderType=NotFound
       />}>
       <div className="flex flex-col gap-8">
         <OrderInfo
           paymentId=id
           order={orderData}
           openRefundModal
+          openVoidModal
+          openCaptureModal
           isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />
         // hide the logs section for V2 since the apis are failing
@@ -809,18 +900,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         </RenderIf>
         <RenderIf condition={isDisputeDataVisible}>
           <div className="overflow-scroll">
-            <RenderAccordion
-              initialExpandedArray={isDisputeDataVisible ? [0] : []}
-              accordion={[
-                {
-                  title: "Disputes",
-                  renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
-                    <Disputes disputesData={orderData.disputes} />
-                  },
-                  renderContentOnTop: None,
-                },
-              ]}
-            />
+            <Disputes disputesData={orderData.disputes} />
           </div>
         </RenderIf>
         <RenderAccordion
