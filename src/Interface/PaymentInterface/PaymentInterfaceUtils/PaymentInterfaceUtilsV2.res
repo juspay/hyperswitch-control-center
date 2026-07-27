@@ -274,6 +274,7 @@ let mapPaymentV2ToCommonType: order_v2 => PaymentInterfaceTypes.order = order =>
     client_secret: order.client_secret,
     created_at: order.created_at,
     modified_at: order.modified_at,
+    last_updated: order.modified_at,
     currency: order.currency,
     customer_id: order.customer_id,
     description: order.description,
