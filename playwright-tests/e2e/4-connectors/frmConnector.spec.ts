@@ -59,6 +59,7 @@ test.describe("Live FRM Connectors", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
     }
   });
@@ -94,7 +95,7 @@ test.describe("Live FRM Connectors", () => {
       await page.getByText("Connect and Finish").click();
 
       await expect(
-        page.getByRole("status", { name: "FRM Player Created" }),
+        page.getByRole("status", { name: "Connector Created Successfully!" }),
       ).toBeVisible();
       await expect(
         page.getByText("Stripe TestCardFlow :Pre Auth"),

@@ -108,7 +108,9 @@ export async function createAPIKey(
 ): Promise<string> {
   const ctx = context ?? (await request.newContext());
   const jwt = page ? await getJwtFromLocalStorage(page) : "";
-  console.log(jwt);
+  // Prefer an explicitly supplied token because callers may have obtained a
+  // JWT scoped to a merchant other than the one currently active in the UI.
+  const authorizationToken = token || jwt;
   // CI backends occasionally take >30s on the first request when the worker
   // pool is cold. One retry with a fresh context recovers from transient
   // socket hangs without masking persistent failures.
@@ -118,7 +120,9 @@ export async function createAPIKey(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": ADMIN_API_KEY,
-        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
+        ...(authorizationToken
+          ? { Authorization: `Bearer ${authorizationToken}` }
+          : {}),
       },
       data: {
         name: "API Key 1",
@@ -233,9 +237,13 @@ export async function createBusinessProfileAPI(
   merchantId: string,
   profileName: string,
   context?: APIRequestContext,
+  page?: Page,
+  token = "",
 ): Promise<string> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const authorizationToken = token || jwt;
+  const apiKey = await createAPIKey(merchantId, token, ctx, page);
 
   const response = await ctx.post(
     `${API_URL}/account/${merchantId}/business_profile`,
@@ -244,6 +252,9 @@ export async function createBusinessProfileAPI(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(authorizationToken
+          ? { Authorization: `Bearer ${authorizationToken}` }
+          : {}),
       },
       data: {
         profile_name: profileName,
@@ -340,17 +351,85 @@ export async function createMerchantAPI(
   throw new Error("createMerchantAPI: exhausted retries");
 }
 
+export async function switchMerchantAPI(
+  token: string,
+  merchantId: string,
+  context?: APIRequestContext,
+): Promise<string> {
+  const ctx = context ?? (await request.newContext());
+  const response = await ctx.post(`${API_URL}/user/switch/merchant`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    data: {
+      merchant_id: merchantId,
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(`switchMerchantAPI failed (${response.status()}): ${body}`);
+  }
+
+  const body = await response.json();
+  const switchedToken = body.token as string | undefined;
+  if (!switchedToken) {
+    throw new Error(
+      "switchMerchantAPI failed: response did not include a token",
+    );
+  }
+
+  return switchedToken;
+}
+
+export async function switchProfileAPI(
+  token: string,
+  profileId: string,
+  context?: APIRequestContext,
+): Promise<string> {
+  const ctx = context ?? (await request.newContext());
+  const response = await ctx.post(`${API_URL}/user/switch/profile`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    data: {
+      profile_id: profileId,
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(`switchProfileAPI failed (${response.status()}): ${body}`);
+  }
+
+  const body = await response.json();
+  const switchedToken = body.token as string | undefined;
+  if (!switchedToken) {
+    throw new Error(
+      "switchProfileAPI failed: response did not include a token",
+    );
+  }
+
+  return switchedToken;
+}
+
 export async function createStripeConnectorAPI(
   merchantId: string,
   connectorLabel: string,
   context?: APIRequestContext,
   profileId?: string,
+  page?: Page,
+  token = "",
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const authorizationToken = token || jwt;
+  const apiKey = await createAPIKey(merchantId, token, ctx, page);
 
   const resolvedProfileId =
-    profileId ?? (await getDefaultProfileId(merchantId, ctx));
+    profileId ?? (await getDefaultProfileId(merchantId, ctx, page));
 
   const data: Record<string, unknown> = {
     connector_type: "payment_processor",
@@ -387,6 +466,9 @@ export async function createStripeConnectorAPI(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(authorizationToken
+          ? { Authorization: `Bearer ${authorizationToken}` }
+          : {}),
       },
       data,
     },
@@ -406,10 +488,12 @@ export async function createStripeConnectorAPIwithAPIKey(
   apiKey: string,
   context?: APIRequestContext,
   profileId?: string,
+  page?: Page,
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
   const resolvedProfileId =
-    profileId ?? (await getDefaultProfileId(merchantId, ctx));
+    profileId ?? (await getDefaultProfileId(merchantId, ctx, page));
 
   const data: Record<string, unknown> = {
     connector_type: "payment_processor",
@@ -446,6 +530,7 @@ export async function createStripeConnectorAPIwithAPIKey(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
       },
       data,
     },
@@ -589,9 +674,11 @@ export async function createAuthenticationConnectorAPI(
   merchantId: string,
   connectorLabel: string,
   context?: APIRequestContext,
+  page?: Page,
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(
     `${API_URL}/account/${merchantId}/connectors`,
@@ -600,6 +687,7 @@ export async function createAuthenticationConnectorAPI(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
       },
       data: {
         connector_type: "authentication_processor",
@@ -629,15 +717,18 @@ export async function createCustomerAPI(
   merchantId: string,
   customerId: string,
   context?: APIRequestContext,
+  page?: Page,
 ): Promise<{ customer_id: string }> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(`${API_URL}/customers`, {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
       "api-key": apiKey,
+      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
     },
     data: {
       customer_id: customerId,
@@ -662,6 +753,7 @@ export async function createPaymentAPI(
   context?: APIRequestContext,
   amount: number = 12345,
   confirm: boolean = true,
+  page?: Page,
 ): Promise<{
   payment_id: string;
   profile_id: string;
@@ -676,13 +768,15 @@ export async function createPaymentAPI(
   metadata: Record<string, string>;
 }> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(`${API_URL}/payments`, {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
       "api-key": apiKey,
+      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
     },
     data: {
       amount,
@@ -766,6 +860,7 @@ export async function createRequiresCapturePaymentAPI(
   merchantId: string,
   context?: APIRequestContext,
   amount: number = 12345,
+  page?: Page,
 ): Promise<{
   payment_id: string;
   profile_id: string;
@@ -777,13 +872,15 @@ export async function createRequiresCapturePaymentAPI(
   payment_method_type: string;
 }> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(`${API_URL}/payments`, {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
       "api-key": apiKey,
+      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
     },
     data: {
       amount,
@@ -876,6 +973,7 @@ export async function createRefundAPI(
   context?: APIRequestContext,
   amount: number = 5000,
   reason: string = "Test refund",
+  page?: Page,
 ): Promise<{
   refund_id: string;
   payment_id: string;
@@ -889,13 +987,15 @@ export async function createRefundAPI(
   profile_id: string;
 }> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(`${API_URL}/refunds`, {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
       "api-key": apiKey,
+      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
     },
     data: {
       payment_id: paymentId,
@@ -916,9 +1016,11 @@ export async function createPayoutConnectorAPI(
   merchantId: string,
   connectorLabel: string,
   context?: APIRequestContext,
+  page?: Page,
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(
     `${API_URL}/account/${merchantId}/connectors`,
@@ -927,6 +1029,7 @@ export async function createPayoutConnectorAPI(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
       },
       data: {
         connector_type: "payout_processor",
@@ -977,6 +1080,7 @@ export async function createPayoutConnectorAPI(
 export async function createPayoutAPI(
   merchantId: string,
   context?: APIRequestContext,
+  page?: Page,
 ): Promise<{
   payment_id: string;
   profile_id: string;
@@ -991,13 +1095,15 @@ export async function createPayoutAPI(
   metadata: Record<string, string>;
 }> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(`${API_URL}/payouts/create`, {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
       "api-key": apiKey,
+      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
     },
     data: {
       amount: 12345,

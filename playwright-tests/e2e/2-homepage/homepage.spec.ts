@@ -12,6 +12,7 @@ import {
   createDummyConnectorAPI,
   createBusinessProfileAPI,
   createMerchantAPI,
+  switchMerchantAPI,
   createStripeGooglePayConnectorAPI,
 } from "../../support/commands";
 import UsersPage from "../../support/pages/settings/UsersPage";
@@ -905,11 +906,18 @@ test.describe("Organization Chart Tree", () => {
       context.request,
     );
     const newMerchantId = newMerchant.merchant_id;
+    const newMerchantToken = await switchMerchantAPI(
+      token,
+      newMerchantId,
+      context.request,
+    );
 
     await createBusinessProfileAPI(
       newMerchantId,
       "new-test-profile",
       context.request,
+      undefined,
+      newMerchantToken,
     );
 
     await orgChart.visit();
@@ -1026,11 +1034,18 @@ test.describe("Organization Chart Tree", () => {
       context.request,
     );
     const newMerchantId = newMerchant.merchant_id;
+    const newMerchantToken = await switchMerchantAPI(
+      token,
+      newMerchantId,
+      context.request,
+    );
 
     await createBusinessProfileAPI(
       newMerchantId,
       "new-test-profile",
       context.request,
+      undefined,
+      newMerchantToken,
     );
 
     await orgChart.visit();

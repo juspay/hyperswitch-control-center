@@ -47,7 +47,7 @@ export class PaymentSettings {
   }
 
   get paymentLinkTab(): Locator {
-    return this.page.locator("text=Payment Link");
+    return this.page.getByText("Payment Link", { exact: true });
   }
 
   get vaultTab(): Locator {
@@ -206,6 +206,10 @@ export class PaymentSettings {
 
   get editNetworkModal(): Locator {
     return this.acquirerModal("Edit Network Configuration");
+  }
+
+  acquirerModalScrollRegion(modal: Locator): Locator {
+    return modal.locator('[data-component="acquirerFormScrollRegion"]');
   }
 
   // Modal field locators (scoped to the currently-open modal)

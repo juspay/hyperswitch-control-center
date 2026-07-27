@@ -78,6 +78,7 @@ test.describe("Visual Testing - Settings", () => {
         merchantId,
         "stripe_test_pmt",
         context.request,
+        page,
       );
 
       await homePage.settings.click();

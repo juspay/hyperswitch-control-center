@@ -356,6 +356,18 @@ test.describe("Disputes List page", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
+      await page.route("**/dashboard/config/feature?domain=", async (route) => {
+        const response = await route.fetch();
+        const json = await response.json();
+        json.features = {
+          ...json.features,
+          generate_report: false,
+          email: false,
+        };
+        await route.fulfill({ response, json });
+      });
+      await page.reload();
+
       await mockDisputesList(page, [sampleDispute()]);
       await goToDisputes(page, homePage);
 
@@ -591,6 +603,17 @@ test.describe("Dispute detail page", () => {
         connector: "checkout",
         dispute_status: "dispute_opened",
       });
+
+      await page.route("**/dashboard/config/feature?domain=", async (route) => {
+        const response = await route.fetch();
+        const json = await response.json();
+        json.features = {
+          ...json.features,
+          dispute_evidence_upload: false,
+        };
+        await route.fulfill({ response, json });
+      });
+      await page.reload();
 
       // Flag defaults to false in local config — no mock needed.
       await openDisputeDetail(page, homePage, disputesOperations, dispute);
