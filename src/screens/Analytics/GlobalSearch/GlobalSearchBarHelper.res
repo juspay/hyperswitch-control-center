@@ -1,5 +1,7 @@
 open LogicUtils
 open GlobalSearchTypes
+open Typography
+
 module RenderedComponent = {
   open String
   @react.component
@@ -239,7 +241,7 @@ module ClipboardSuggestion = {
   let make = (~clipboardSuggestion, ~onClipboardSuggestionClicked) => {
     switch clipboardSuggestion {
     | Some(suggestion: clipboardSuggestion) =>
-      let label = suggestion.idType->getLabel
+      let label = (suggestion.idType :> string)->camelToSnake
       let displayValue = `${label} ${filterSeparator} ${suggestion.id}`
       let filter: categoryOption = {
         categoryType: Payment_id,
@@ -251,8 +253,8 @@ module ClipboardSuggestion = {
         initial={{opacity: 0.5}}
         animate={{opacity: 0.5}}
         layoutId="clipboard-section"
-        className="px-2 pt-2 border-t dark:border-jp-gray-960">
-        <Div layoutId="clipboard-title" className="font-bold px-2">
+        className="px-2 pt-2 border-t dark:border-nd_gray-950">
+        <Div layoutId="clipboard-title" className={`${body.md.bold} px-2`}>
           {"FROM CLIPBOARD"->React.string}
         </Div>
         <div>

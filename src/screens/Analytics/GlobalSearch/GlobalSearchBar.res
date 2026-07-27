@@ -220,7 +220,7 @@ let make = () => {
   }
 
   let onClipboardSuggestionClicked = (suggestion: clipboardSuggestion) => {
-    let filterKey = suggestion.idType->getFilterKey
+    let filterKey = (suggestion.idType :> string)->camelToSnake
     setLocalSearchText(_ => `${filterKey}:${suggestion.id}`)
     setFilterText("")
     setClipboardSuggestion(_ => None)
@@ -310,10 +310,7 @@ let make = () => {
             />
           | FiltersSugsestions =>
             <RenderIf condition={filtersEnabled}>
-              <ClipboardSuggestion
-                clipboardSuggestion
-                onClipboardSuggestionClicked
-              />
+              <ClipboardSuggestion clipboardSuggestion onClipboardSuggestionClicked />
               <FilterResultsComponent
                 categorySuggestions
                 activeFilter
