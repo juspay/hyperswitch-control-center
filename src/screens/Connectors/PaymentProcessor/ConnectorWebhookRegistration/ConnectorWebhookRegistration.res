@@ -4,9 +4,10 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
   open LogicUtils
   open ConnectorWebhookRegisterationTypes
   open ConnectorWebhookRegistrationUtils
+  open Typography
 
   let getURL = useGetURL()
-  let updateDetails = useUpdateMethod(~showErrorToast=false)
+  let updateDetails = useUpdateMethod()
   let showToast = ToastAdapter.useShowToast()
   let getConnectorWebhooks = ConnectorWebhookRegistrationHooks.useGetConnectorWebhooks()
 
@@ -47,23 +48,15 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let webhooks = isUpdateFlow ? await getConnectorWebhooks(mcaId) : []
       let registeredValues = webhooks->getRegisteredValues
-      let seededItems = switch registerConfig.scope_type {
-      | NotSpecific => [
-          {
-            identifier: notSpecificId,
-            status: webhooks->isNonEmptyArray ? Registered : Unselected,
-          },
-        ]
-      | PaymentMethodType | EventType =>
-        displayItems->Array.map(identifier => {
-          identifier,
-          status: registeredValues->Array.includes(identifier) ? Registered : Unselected,
-        })
-      }
-      setItems(_ => seededItems)
+      setItems(_ => getSeededItems(~scopeType=registerConfig.scope_type, ~displayItems, ~registeredValues))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Success)
+    | _ => {
+        setItems(_ =>
+          getSeededItems(~scopeType=registerConfig.scope_type, ~displayItems, ~registeredValues=[])
+        )
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     }
   }
 
@@ -124,10 +117,7 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
         setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
       }
     } catch {
-    | _ => {
-        showToast(~message="Webhook registration was not successful", ~toastType=ToastError)
-        setScreenState(_ => PageLoaderWrapper.Success)
-      }
+    | _ => setScreenState(_ => PageLoaderWrapper.Success)
     }
   }
 
@@ -136,7 +126,7 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
       <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
         <div className="flex gap-2 items-center">
           <GatewayIcon gateway={connector->String.toUpperCase} />
-          <h2 className="text-xl font-semibold">
+          <h2 className={heading.md.semibold}>
             {connector->ConnectorUtils.getDisplayNameForConnector->React.string}
           </h2>
         </div>
@@ -162,12 +152,10 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
               className="flex items-center justify-between border border-nd_gray-150 rounded-xl px-4 py-3">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
-                  <p className={Typography.body.md.medium}>
-                    {registerConfig.label->React.string}
-                  </p>
+                  <p className={body.md.medium}> {registerConfig.label->React.string} </p>
                   {notSpecificItem.status->failureTooltip}
                 </div>
-                <p className={`${Typography.body.sm.regular} text-nd_gray-600`}>
+                <p className={`${body.sm.regular} text-nd_gray-600`}>
                   {"Automatically register webhooks with this connector to receive event notifications."->React.string}
                 </p>
               </div>

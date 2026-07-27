@@ -115,6 +115,21 @@ let getRegisteredValues = webhooks =>
     }
   })
 
+let getSeededItems = (~scopeType, ~displayItems, ~registeredValues) =>
+  switch scopeType {
+  | NotSpecific => [
+      {
+        identifier: notSpecificId,
+        status: registeredValues->Array.includes(notSpecificId) ? Registered : Unselected,
+      },
+    ]
+  | PaymentMethodType | EventType =>
+    displayItems->Array.map(identifier => {
+      identifier,
+      status: registeredValues->Array.includes(identifier) ? Registered : Unselected,
+    })
+  }
+
 let makeRegisterBody = (~scopeType, ~selectedIdentifiers) => {
   let scope = switch scopeType {
   | NotSpecific => [("type", NotSpecific->scopeTypeToRequestType->JSON.Encode.string)]
