@@ -149,7 +149,6 @@ module ConnectorSummaryGrid = {
       ->getDictFromJsonObject
       ->getDictfromDict("connector_webhook_register_details")
       ->isEmptyDict
-      ->not
 
     <>
       <div className="grid grid-cols-4 border-b md:px-10 py-8">

@@ -2,7 +2,7 @@
 let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
   open APIUtils
   open LogicUtils
-  open ConnectorWebhookRegisterationTypes
+  open ConnectorWebhookRegistrationTypes
   open ConnectorWebhookRegistrationUtils
   open Typography
 
@@ -14,11 +14,7 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
   let mcaId = initialValues->getDictFromJsonObject->getString("merchant_connector_id", "")
 
   let connectorConfig = React.useMemo(() => {
-    try {
-      Window.getConnectorConfig(connector)->getDictFromJsonObject
-    } catch {
-    | _ => Dict.make()
-    }
+    Window.getConnectorConfig(connector)->getDictFromJsonObject
   }, [connector])
 
   let (items, setItems) = React.useState((_): array<webhookItem> => [])

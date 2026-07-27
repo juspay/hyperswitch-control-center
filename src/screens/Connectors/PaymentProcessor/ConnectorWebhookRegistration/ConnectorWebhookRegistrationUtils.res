@@ -1,5 +1,5 @@
 open LogicUtils
-open ConnectorWebhookRegisterationTypes
+open ConnectorWebhookRegistrationTypes
 
 let scopeTypeFromString = str =>
   switch str {
