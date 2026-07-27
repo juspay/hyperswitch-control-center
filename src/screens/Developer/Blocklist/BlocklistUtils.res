@@ -27,8 +27,7 @@ let getJobsFromResponse = json => {
   let dict = json->getDictFromJsonObject
   dict
   ->getArrayFromDict("data", [])
-  ->Array.filterMap(JSON.Decode.object)
-  ->Array.map(itemToObjMapper)
+  ->getMappedValueFromArrayOfJson(itemToObjMapper)
 }
 
 let getTotalCountFromResponse = (json, fallback) => {
@@ -46,12 +45,12 @@ let getBlocklistBatchStatusFromString = status => {
   }
 }
 
-let statusLabelColor = status => {
+let statusLabelColor = (status): Table.labelColor => {
   switch status->getBlocklistBatchStatusFromString {
-  | Initiated | Processing => Table.LabelOrange
-  | Completed => Table.LabelGreen
-  | Failed => Table.LabelRed
-  | UnknownStatus => Table.LabelGray
+  | Initiated | Processing => LabelOrange
+  | Completed => LabelGreen
+  | Failed => LabelRed
+  | UnknownStatus => LabelGray
   }
 }
 

@@ -16,7 +16,7 @@ let make = () => {
   let resultsPerPage = 20
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
-  let pageDetail = pageDetailDict->Dict.get("Blocklist")->Option.getOr(defaultValue)
+  let pageDetail = pageDetailDict->getValueFromDict("Blocklist", defaultValue)
   let (jobs, setJobs) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
@@ -27,7 +27,7 @@ let make = () => {
 
   let clearFileInput = () => {
     inputRef.current
-    ->Nullable.toOption
+    ->getOptionalFromNullable
     ->Option.forEach(elem => elem->DOMUtils.toInputElement->DOMUtils.setInputValue(""))
   }
 
@@ -42,8 +42,14 @@ let make = () => {
       )
       let response = await fetchDetails(url)
       let mappedJobs = response->getJobsFromResponse
-      setJobs(_ => mappedJobs)
-      setTotalCount(_ => response->getTotalCountFromResponse(mappedJobs->Array.length))
+      let total = response->getTotalCountFromResponse(mappedJobs->Array.length)
+      let offsetRows = Array.make(~length=offset, Dict.make())->Array.map(itemToObjMapper)
+      let jobs = offsetRows->Array.concat(mappedJobs)
+      if total <= offset {
+        setOffset(_ => 0)
+      }
+      setJobs(_ => jobs)
+      setTotalCount(_ => total)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Exn.Error(e) =>
@@ -99,7 +105,7 @@ let make = () => {
   }
 
   let triggerFilePicker = _ => {
-    inputRef.current->Nullable.toOption->Option.forEach(elem => elem->DOMUtils.click())
+    inputRef.current->getOptionalFromNullable->Option.forEach(elem => elem->DOMUtils.click())
   }
 
   let resetSelectedFile = _ => {
@@ -140,11 +146,7 @@ let make = () => {
         showToast(~message, ~toastType=ToastSuccess)
         setSelectedFile(_ => None)
         clearFileInput()
-        if offset === 0 {
-          await fetchJobs()
-        } else {
-          setOffset(_ => 0)
-        }
+        offset === 0 ? await fetchJobs() : setOffset(_ => 0)
       } catch {
       | Exn.Error(e) =>
         let errorMessage = Exn.message(e)->Option.getOr("Failed to upload blocklist CSV")

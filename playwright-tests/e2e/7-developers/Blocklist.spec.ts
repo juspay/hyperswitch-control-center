@@ -18,6 +18,17 @@ const setBlocklistFeatureFlag = async (page: Page, enabled: boolean) => {
   });
 };
 
+const makeBlocklistJob = (jobId: string) => ({
+  job_id: jobId,
+  merchant_id: "merchant_test",
+  status: "completed",
+  total_rows: 3,
+  succeeded_rows: 3,
+  failed_rows: 0,
+  created_at: "2026-05-06T06:08:47.617Z",
+  updated_at: "2026-05-06T06:08:47.617Z",
+});
+
 test.describe("Blocklist", () => {
   test.beforeEach(async ({ page }) => {
     const email = generateUniqueEmail();
@@ -151,6 +162,47 @@ test.describe("Blocklist", () => {
 
     await expect(page.getByText("Blocklist CSV uploaded. Job ID: blkbatch_test")).toBeVisible();
     await expect(page.getByText("blkbatch_test")).toBeVisible();
+  });
+
+  test("should request and render the second page using item offset", async ({ page }) => {
+    let secondPageRequestUrl = "";
+
+    await page.route("**/blocklist/batch?**", async (route) => {
+      const requestUrl = new URL(route.request().url());
+      const offset = requestUrl.searchParams.get("offset");
+
+      if (offset === "3") {
+        secondPageRequestUrl = route.request().url();
+      }
+
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          data:
+            offset === "3"
+              ? [makeBlocklistJob("blkbatch_fourth")]
+              : [
+                  makeBlocklistJob("blkbatch_first"),
+                  makeBlocklistJob("blkbatch_second"),
+                  makeBlocklistJob("blkbatch_third"),
+                ],
+          total_count: 4,
+        }),
+      });
+    });
+
+    const homePage = new HomePage(page);
+
+    await homePage.developer.click();
+    await homePage.blocklist.click();
+    await expect(page.getByText("blkbatch_first")).toBeVisible();
+
+    await page.getByRole("button", { name: "2" }).click();
+
+    await expect(page.getByText("blkbatch_fourth")).toBeVisible();
+    expect(secondPageRequestUrl).toContain("limit=3");
+    expect(secondPageRequestUrl).toContain("offset=3");
   });
 
   test("should show upload error when CSV upload fails", async ({ page }) => {
