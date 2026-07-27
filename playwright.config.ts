@@ -102,10 +102,10 @@ export default defineConfig({
   // (PLAYWRIGHT_BASE_URL is non-localhost).
   webServer: IS_LOCAL_TARGET
     ? {
-        command: "npm run start:test",
-        url: "http://localhost:9000",
-        reuseExistingServer: !process.env.CI,
-        timeout: 60000,
-      }
+      command: "npm run start:test",
+      url: "http://localhost:9000",
+      reuseExistingServer: !process.env.CI,
+      timeout: 60000,
+    }
     : undefined,
 });

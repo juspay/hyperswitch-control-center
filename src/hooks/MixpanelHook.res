@@ -87,6 +87,7 @@ let useSendEvent = () => {
         ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
         ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
         ~forceCookies=featureFlagDetails.forceCookies,
+        ~sendV1DummyApiKeyHeader=featureFlagDetails.sendV1DummyApiKeyHeader,
       )
     } catch {
     | _ => ()
@@ -168,6 +169,7 @@ let usePageView = () => {
           ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
           ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
           ~forceCookies=featureFlagDetails.forceCookies,
+          ~sendV1DummyApiKeyHeader=featureFlagDetails.sendV1DummyApiKeyHeader,
         )
       }
     } catch {
@@ -208,6 +210,7 @@ let useSetIdentity = () => {
           ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
           ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
           ~forceCookies=featureFlagDetails.forceCookies,
+          ~sendV1DummyApiKeyHeader=featureFlagDetails.sendV1DummyApiKeyHeader,
         )
         let _ = await fetchApi(
           `${getHostUrl}/mixpanel/engage`,
@@ -215,6 +218,7 @@ let useSetIdentity = () => {
           ~bodyStr=`data=${peopleProperties->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
           ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
           ~forceCookies=featureFlagDetails.forceCookies,
+          ~sendV1DummyApiKeyHeader=featureFlagDetails.sendV1DummyApiKeyHeader,
         )
       }
     } catch {

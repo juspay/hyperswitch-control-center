@@ -188,6 +188,7 @@ let connectorList: array<connectorTypes> = [
   Processors(TRUSTLY),
   Processors(IMERCHANTSOLUTIONS),
   Processors(PAYCONEX),
+  Processors(TSYSTRANSIT),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -736,6 +737,10 @@ let payconexInfo = {
   description: "PayConex is Bluefin's payment gateway platform, offering secure card payment processing with PCI-validated point-to-point encryption and tokenization.",
 }
 
+let tsystransitInfo = {
+  description: "TransIT is a RESTful payment gateway for processing transactions and value-added services with real-time reporting.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -1020,6 +1025,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | TRUSTLY => "trustly"
   | IMERCHANTSOLUTIONS => "imerchantsolutions"
   | PAYCONEX => "payconex"
+  | TSYSTRANSIT => "tsys_transit"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1230,6 +1236,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "trustly" => Processors(TRUSTLY)
     | "imerchantsolutions" => Processors(IMERCHANTSOLUTIONS)
     | "payconex" => Processors(PAYCONEX)
+    | "tsys_transit" => Processors(TSYSTRANSIT)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1416,6 +1423,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | TRUSTLY => trustlyInfo
   | IMERCHANTSOLUTIONS => imerchantsolutionsInfo
   | PAYCONEX => payconexInfo
+  | TSYSTRANSIT => tsystransitInfo
   }
 }
 
@@ -1578,6 +1586,7 @@ let configKeysToIgnore = [
   "connector_webhook_details",
   "additional_merchant_data",
   "connector_wallets_details",
+  "connector_webhook_register_details",
 ]
 
 let verifyConnectorIgnoreField = [
@@ -2412,6 +2421,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | TRUSTLY => "Trustly"
   | IMERCHANTSOLUTIONS => "iMerchant Solutions"
   | PAYCONEX => "PayConex"
+  | TSYSTRANSIT => "TSYS Transit"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>

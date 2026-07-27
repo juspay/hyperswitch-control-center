@@ -12,7 +12,8 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let fetchApi = AuthHooks.useApiFetcher()
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (ingestionConfigData, setIngestionConfigData) = React.useState(_ =>
     Dict.make()->getIngestionConfigPayloadFromDict
@@ -51,7 +52,13 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
         ~methodType=Get,
         ~id=Some(ingestionHistoryData.id),
       )
-      let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute, ~forceCookies)
+      let res = await fetchApi(
+        url,
+        ~method_=Get,
+        ~xFeatureRoute,
+        ~forceCookies,
+        ~sendV1DummyApiKeyHeader,
+      )
       let csvContent = await res->Fetch.Response.blob
       DownloadUtils.download(
         ~fileName=ingestionHistoryData.file_name,

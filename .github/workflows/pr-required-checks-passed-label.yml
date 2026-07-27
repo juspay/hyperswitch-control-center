@@ -1,4 +1,4 @@
-name: PR Ready for Review Label
+name: PR Required CI Checks Passed Label
 
 on:
   workflow_run:
@@ -26,12 +26,12 @@ on:
       - converted_to_draft
 
 concurrency:
-  group: pr-ready-label-${{ github.workflow }}-${{ github.event.pull_request.number || github.event.workflow_run.head_sha }}
+  group: pr-required-ci-checks-label-${{ github.workflow }}-${{ github.event.pull_request.number || github.event.workflow_run.head_sha }}
   cancel-in-progress: true
 
 jobs:
-  pr_ready_label_evaluation:
-    name: Evaluate required checks and toggle label
+  pr_ci_checks_label_evaluation:
+    name: Evaluate required CI checks and toggle label
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -78,7 +78,7 @@ jobs:
           )
 
           repo="${{ github.event.repository.full_name }}"
-          label="R-ready-for-review"
+          label="CI-required-checks-passed"
 
           pr_json="$(gh api "repos/${repo}/pulls/${PR_NUMBER}")"
           pr_state="$(jq -r '.state' <<<"$pr_json")"

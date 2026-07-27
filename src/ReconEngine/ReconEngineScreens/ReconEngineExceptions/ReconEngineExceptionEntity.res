@@ -39,7 +39,7 @@ let getProcessingHeading = colType => {
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status", ~customWidth="min-w-48")
-  | EffectiveAt => Table.makeHeaderInfo(~key="effective_at", ~title="Date")
+  | EffectiveAt => Table.makeHeaderInfo(~key="effective_at", ~title="Date", ~showSort=true)
   | OrderId => Table.makeHeaderInfo(~key="order_id", ~title="Order ID")
   | Actions => Table.makeHeaderInfo(~key="actions", ~title="Actions")
   | ExceptionType => Table.makeHeaderInfo(~key="exception_type", ~title="Exception Type")

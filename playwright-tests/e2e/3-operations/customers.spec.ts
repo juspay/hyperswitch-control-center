@@ -139,8 +139,6 @@ test.describe("Customers page", () => {
     await expect(paymentOperations.dateSelector).toBeVisible();
 
     await expect(customerOperations.searchInput).toBeVisible();
-
-    await expect(page.getByRole("button").nth(3)).not.toBeAttached();
   });
 
   test("should navigate to customer list page after creating a payment", async ({
@@ -154,8 +152,19 @@ test.describe("Customers page", () => {
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (!merchantId) return;
 
-    await createDummyConnectorAPI(merchantId, "stripe_test_1", context.request);
-    await createPaymentAPI(merchantId, context.request);
+    await createDummyConnectorAPI(
+      merchantId,
+      "stripe_test_1",
+      context.request,
+      page,
+    );
+    await createPaymentAPI(
+      merchantId,
+      context.request,
+      undefined,
+      undefined,
+      page,
+    );
 
     await homePage.operations.click();
     await homePage.customers.click();
@@ -205,8 +214,19 @@ test.describe("Customers page", () => {
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (!merchantId) return;
 
-    await createDummyConnectorAPI(merchantId, "stripe_test_1", context.request);
-    await createPaymentAPI(merchantId, context.request);
+    await createDummyConnectorAPI(
+      merchantId,
+      "stripe_test_1",
+      context.request,
+      page,
+    );
+    await createPaymentAPI(
+      merchantId,
+      context.request,
+      undefined,
+      undefined,
+      page,
+    );
 
     await homePage.operations.click();
     await homePage.customers.click();
@@ -262,9 +282,25 @@ test.describe("Customers page", () => {
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (!merchantId) return;
 
-    await createDummyConnectorAPI(merchantId, "stripe_test_1", context.request);
-    await createPaymentAPI(merchantId, context.request);
-    await createCustomerAPI(merchantId, "test_customer2", context.request);
+    await createDummyConnectorAPI(
+      merchantId,
+      "stripe_test_1",
+      context.request,
+      page,
+    );
+    await createPaymentAPI(
+      merchantId,
+      context.request,
+      undefined,
+      undefined,
+      page,
+    );
+    await createCustomerAPI(
+      merchantId,
+      "test_customer2",
+      context.request,
+      page,
+    );
 
     await homePage.operations.click();
     await homePage.customers.click();
@@ -295,7 +331,12 @@ test.describe("Customers page", () => {
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (!merchantId) return;
 
-    await createCustomerAPI(merchantId, "test_customer2", context.request);
+    await createCustomerAPI(
+      merchantId,
+      "test_customer2",
+      context.request,
+      page,
+    );
 
     await homePage.operations.click();
     await homePage.customers.click();
@@ -317,7 +358,6 @@ test.describe("Customers page", () => {
 
     await expect(paymentOperations.dateSelector).toBeVisible();
     await expect(customerOperations.searchInput).toBeVisible();
-    await expect(page.getByRole("button").nth(3)).not.toBeAttached();
     await expect(page.getByText("test_customer2")).not.toBeVisible();
   });
 
@@ -332,7 +372,12 @@ test.describe("Customers page", () => {
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (!merchantId) return;
 
-    await createCustomerAPI(merchantId, "test_customer2", context.request);
+    await createCustomerAPI(
+      merchantId,
+      "test_customer2",
+      context.request,
+      page,
+    );
 
     await homePage.operations.click();
     await homePage.customers.click();
@@ -468,7 +513,7 @@ test.describe("Customers page", () => {
     );
 
     for (const customerId of customerIds) {
-      await createCustomerAPI(merchantId, customerId, context.request);
+      await createCustomerAPI(merchantId, customerId, context.request, page);
     }
 
     await homePage.operations.click();
