@@ -1,5 +1,6 @@
 open HSwitchUtils
 open FormDataUtils
+open DisputesUtils
 
 let h3Leading2Text = getTextClass((H3, Leading_2))
 let p1RegularText = getTextClass((P1, Regular))
@@ -16,8 +17,8 @@ module EvidenceUploadForm = {
     let handleBrowseChange = (event, uploadEvidenceType) => {
       let target = ReactEvent.Form.target(event)
       let fileName = target["files"]["0"]["name"]
-      let fileType = fileName->DisputesUtils.getFileTypeFromFileName->String.toLowerCase
-      if DisputesUtils.supportedEvidenceFileTypes->Array.includes(fileType) {
+      let fileType = fileName->getFileTypeFromFileName->String.toLowerCase
+      if supportedEvidenceFile->Array.includes(fileType) {
         let fileDict =
           [
             ("uploadedFile", target["files"]["0"]->Identity.genericTypeToJson),
@@ -25,9 +26,10 @@ module EvidenceUploadForm = {
           ]->getJsonFromArrayOfJson
 
         setFileUploadedDict(prev => {
-          let arr = prev->Dict.toArray
-          let newDict = [(uploadEvidenceType, fileDict)]->Array.concat(arr)->Dict.fromArray
-          newDict
+          let existingEvidenceEntries = prev->Dict.toArray
+          let updatedEvidenceFiles =
+            [(uploadEvidenceType, fileDict)]->Array.concat(existingEvidenceEntries)->Dict.fromArray
+          updatedEvidenceFiles
         })
       } else {
         showToast(
@@ -98,7 +100,7 @@ module UploadDisputeEvidenceModal = {
       let formData = formData()
       append(formData, "dispute_id", disputeId)
       append(formData, "evidence_type", keyValue)
-      let contentType = DisputesUtils.getMimeTypeFromFileName(fileName)
+      let contentType = getMimeTypeFromFileName(fileName)
       let fileBlob = blob([fileValue], {"type": contentType})
       appendBlob(formData, "file", fileBlob, fileName)
 
@@ -174,7 +176,7 @@ module UploadDisputeEvidenceModal = {
           </p>
         </div>
         <div className="flex flex-col gap-4">
-          {DisputesUtils.evidenceList
+          {evidenceList
           ->Array.mapWithIndex((value, index) => {
             let uploadEvidenceType = value->String.toLowerCase->titleToSnake
             <EvidenceUploadForm
@@ -218,7 +220,6 @@ module DisputesInfoBarComponent = {
     open DisputeTypes
     open APIUtils
     open LogicUtils
-    open DisputesUtils
     open PageLoaderWrapper
     let getURL = useGetURL()
     let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
@@ -390,7 +391,6 @@ module DisputesInfoBarComponent = {
 @react.component
 let make = (~disputeID, ~setUploadEvidenceModal, ~setDisputeData, ~connector) => {
   open APIUtils
-  open DisputesUtils
   open ConnectorUtils
 
   let getURL = useGetURL()
