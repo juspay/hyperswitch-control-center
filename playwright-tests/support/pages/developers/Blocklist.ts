@@ -8,7 +8,10 @@ export class Blocklist {
   }
 
   get pageHeading(): Locator {
-    return this.page.getByRole("heading", { name: "Blocklist" });
+    return this.page
+      .getByText("Upload blocklist CSV files and track batch processing status.")
+      .locator("..")
+      .getByText("Blocklist", { exact: true });
   }
 
   get uploadCsvHeading(): Locator {
@@ -50,6 +53,10 @@ export class Blocklist {
   }
 
   toast(message: string): Locator {
-    return this.page.locator(`[data-toast="${message}"]`);
+    return this.page
+      .locator(`[data-toast="${message}"], [role="alert"]`)
+      .filter({
+        hasText: message,
+      });
   }
 }

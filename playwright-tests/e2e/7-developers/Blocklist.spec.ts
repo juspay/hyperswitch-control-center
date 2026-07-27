@@ -29,6 +29,11 @@ const makeBlocklistJob = (jobId: string) => ({
   updated_at: "2026-05-06T06:08:47.617Z",
 });
 
+const makeBlocklistJobs = (count: number) =>
+  Array.from({ length: count }, (_, index) =>
+    makeBlocklistJob(`blkbatch_${String(index + 1).padStart(2, "0")}`),
+  );
+
 test.describe("Blocklist", () => {
   test.beforeEach(async ({ page }) => {
     const email = generateUniqueEmail();
@@ -37,7 +42,9 @@ test.describe("Blocklist", () => {
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
-  test("should navigate to Blocklist page via sidebar and show upload UI", async ({ page }) => {
+  test("should navigate to Blocklist page via sidebar and show upload UI", async ({
+    page,
+  }) => {
     await page.route("**/blocklist/batch?**", async (route) => {
       await route.fulfill({
         status: 200,
@@ -66,7 +73,9 @@ test.describe("Blocklist", () => {
     await expect(page.getByText("type,data,metadata")).toBeHidden();
   });
 
-  test("should download sample CSV file from frontend content", async ({ page }) => {
+  test("should download sample CSV file from frontend content", async ({
+    page,
+  }) => {
     await page.route("**/blocklist/batch?**", async (route) => {
       await route.fulfill({
         status: 200,
@@ -160,18 +169,22 @@ test.describe("Blocklist", () => {
     });
     await blocklist.uploadButton.click();
 
-    await expect(page.getByText("Blocklist CSV uploaded. Job ID: blkbatch_test")).toBeVisible();
+    await expect(
+      page.getByText("Blocklist CSV uploaded. Job ID: blkbatch_test"),
+    ).toBeVisible();
     await expect(page.getByText("blkbatch_test")).toBeVisible();
   });
 
-  test("should request and render the second page using item offset", async ({ page }) => {
+  test("should request and render the second page using item offset", async ({
+    page,
+  }) => {
     let secondPageRequestUrl = "";
 
     await page.route("**/blocklist/batch?**", async (route) => {
       const requestUrl = new URL(route.request().url());
       const offset = requestUrl.searchParams.get("offset");
 
-      if (offset === "3") {
+      if (offset === "20") {
         secondPageRequestUrl = route.request().url();
       }
 
@@ -180,14 +193,10 @@ test.describe("Blocklist", () => {
         contentType: "application/json",
         body: JSON.stringify({
           data:
-            offset === "3"
-              ? [makeBlocklistJob("blkbatch_fourth")]
-              : [
-                  makeBlocklistJob("blkbatch_first"),
-                  makeBlocklistJob("blkbatch_second"),
-                  makeBlocklistJob("blkbatch_third"),
-                ],
-          total_count: 4,
+            offset === "20"
+              ? [makeBlocklistJob("blkbatch_21")]
+              : makeBlocklistJobs(20),
+          total_count: 21,
         }),
       });
     });
@@ -196,13 +205,13 @@ test.describe("Blocklist", () => {
 
     await homePage.developer.click();
     await homePage.blocklist.click();
-    await expect(page.getByText("blkbatch_first")).toBeVisible();
+    await expect(page.getByText("blkbatch_01")).toBeVisible();
 
     await page.getByRole("button", { name: "2" }).click();
 
-    await expect(page.getByText("blkbatch_fourth")).toBeVisible();
-    expect(secondPageRequestUrl).toContain("limit=3");
-    expect(secondPageRequestUrl).toContain("offset=3");
+    await expect(page.getByText("blkbatch_21")).toBeVisible();
+    expect(secondPageRequestUrl).toContain("limit=20");
+    expect(secondPageRequestUrl).toContain("offset=20");
   });
 
   test("should show upload error when CSV upload fails", async ({ page }) => {
@@ -243,7 +252,9 @@ test.describe("Blocklist", () => {
     await expect(blocklist.toast("Upload failed")).toBeVisible();
   });
 
-  test("should reject CSV files with unsupported MIME type", async ({ page }) => {
+  test("should reject CSV files with unsupported MIME type", async ({
+    page,
+  }) => {
     await page.route("**/blocklist/batch?**", async (route) => {
       await route.fulfill({
         status: 200,
@@ -264,10 +275,14 @@ test.describe("Blocklist", () => {
       buffer: Buffer.from("type,data,metadata\ncard_bin,411111,"),
     });
 
-    await expect(page.getByText("Please upload a valid CSV file.")).toBeVisible();
+    await expect(
+      page.getByText("Please upload a valid CSV file."),
+    ).toBeVisible();
   });
 
-  test("should accept CSV files with common browser MIME variants", async ({ page }) => {
+  test("should accept CSV files with common browser MIME variants", async ({
+    page,
+  }) => {
     await page.route("**/blocklist/batch?**", async (route) => {
       await route.fulfill({
         status: 200,
@@ -289,7 +304,9 @@ test.describe("Blocklist", () => {
     });
 
     await expect(blocklist.uploadButton).toBeVisible();
-    await expect(page.getByText("Please upload a valid CSV file.")).toBeHidden();
+    await expect(
+      page.getByText("Please upload a valid CSV file."),
+    ).toBeHidden();
 
     await blocklist.removeSelectedFileButton.click();
 
@@ -300,7 +317,9 @@ test.describe("Blocklist", () => {
     });
 
     await expect(blocklist.uploadButton).toBeVisible();
-    await expect(page.getByText("Please upload a valid CSV file.")).toBeHidden();
+    await expect(
+      page.getByText("Please upload a valid CSV file."),
+    ).toBeHidden();
   });
 
   test("should reject CSV files larger than 5 MB", async ({ page }) => {
@@ -324,7 +343,9 @@ test.describe("Blocklist", () => {
       buffer: Buffer.alloc(5 * 1024 * 1024 + 1, "a"),
     });
 
-    await expect(page.getByText("CSV file size should be less than 5 MB.")).toBeVisible();
+    await expect(
+      page.getByText("CSV file size should be less than 5 MB."),
+    ).toBeVisible();
   });
 });
 
