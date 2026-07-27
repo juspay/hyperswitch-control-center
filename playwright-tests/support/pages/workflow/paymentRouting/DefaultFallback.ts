@@ -21,7 +21,7 @@ export class DefaultFallback {
 
   get configurationSavedToast(): Locator {
     return this.page.locator(
-      '[data-toast="Configuration saved successfully!"]',
+      '[data-snackbar="Configuration saved successfully!"]',
     );
   }
 
