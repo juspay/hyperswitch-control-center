@@ -1102,7 +1102,7 @@ test.describe("Payin Connector tests", () => {
       page.getByRole("button", { name: "Proceed" }).nth(1),
     ).toBeDisabled();
 
-    await page.locator('[id=":r2h:"]').click();
+    await page.getByRole('heading').nth(1).locator('[data-checkbox="checkbox"]').click();
     await expect(
       page.getByRole("button", { name: "Select PM Authentication" }),
     ).not.toBeDisabled();
@@ -1218,7 +1218,7 @@ test.describe("Payin Connector tests", () => {
       page.getByRole("button", { name: "Proceed" }).nth(1),
     ).toBeDisabled();
 
-    await page.locator('[id=":r2h:"]').click();
+    await page.getByRole('heading').nth(1).locator('[data-checkbox="checkbox"]').click();
     await page
       .getByRole("button", { name: "Proceed" })
       .nth(1)
