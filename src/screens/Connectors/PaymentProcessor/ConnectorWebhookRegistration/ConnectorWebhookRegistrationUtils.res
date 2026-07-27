@@ -104,8 +104,15 @@ let getSelectedItems = items =>
 
 let getRegisteredValues = webhooks =>
   webhooks->Array.filterMap(webhook => {
-    let value = webhook->getDictFromJsonObject->getDictfromDict("scope")->getString("value", "")
-    value->isNonEmptyString ? Some(value) : None
+    let scope = webhook->getDictFromJsonObject->getDictfromDict("scope")
+    let scopeType = scope->getString("type", "")
+    let value = scope->getString("value", "")
+
+    switch (scopeType, value->isNonEmptyString) {
+    | ("not_specific", _) => Some(notSpecificId)
+    | (_, true) => Some(value)
+    | (_, false) => None
+    }
   })
 
 let makeRegisterBody = (~scopeType, ~selectedIdentifiers) => {
