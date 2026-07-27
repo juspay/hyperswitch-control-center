@@ -47,7 +47,7 @@ let getSections = isLiveMode => {
     {
       id: (#connectProcessor: revenueRecoverySections :> string),
       name: #connectProcessor->getMainStepName,
-      icon: #connectProcessor->getIcon,
+      VerticalStepIndicatorTypes.icon: #connectProcessor->getIcon,
       subSections: Some([
         {
           id: (#selectProcessor: revenueRecoverySubsections :> string),
@@ -58,13 +58,13 @@ let getSections = isLiveMode => {
     {
       id: (#addAPlatform: revenueRecoverySections :> string),
       name: #addAPlatform->getMainStepName,
-      icon: #addAPlatform->getIcon,
+      VerticalStepIndicatorTypes.icon: #addAPlatform->getIcon,
       subSections: Some(platformSubsectionsDefaultSteps),
     },
     {
       id: (#reviewDetails: revenueRecoverySections :> string),
       name: #reviewDetails->getMainStepName,
-      icon: #reviewDetails->getIcon,
+      VerticalStepIndicatorTypes.icon: #reviewDetails->getIcon,
       subSections: None,
     },
   ]
@@ -73,7 +73,7 @@ let getSections = isLiveMode => {
     defaultSteps->Array.unshift({
       id: (#chooseDataSource: revenueRecoverySections :> string),
       name: #chooseDataSource->getMainStepName,
-      icon: #chooseDataSource->getIcon,
+      VerticalStepIndicatorTypes.icon: #chooseDataSource->getIcon,
       subSections: None,
     })
   }

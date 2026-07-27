@@ -1,7 +1,7 @@
 @react.component
 let make = (~createMerchant) => {
   open Typography
-  open PageUtils
+
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
   let userHasCreateMerchantAccess = OMPCreateAccessHook.useOMPCreateAccessHook([
