@@ -1,5 +1,11 @@
 open ReconEngineOverviewSummaryTypes
 
+type supportedFileExtensions =
+  | Csv
+  | Ext
+  | Xlsx
+  | Txt
+
 type pipelineStatCardTitle =
   | @as("Ingestion Runs") IngestionRuns
   | @as("Processed") ProcessedRuns
@@ -20,4 +26,12 @@ type pipelineStatCardData = {
   pipelineStatCardDescription: string,
   pipelineStatCardType: statCardType,
   pipelineStatCardClickAction: pipelineStatCardClickAction,
+}
+
+type fileUploadStatus = Idle | Failed(string)
+
+type selectedFileItem<'file> = {
+  fileId: string,
+  file: 'file,
+  status: fileUploadStatus,
 }
