@@ -48,7 +48,9 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let webhooks = isUpdateFlow ? await getConnectorWebhooks(mcaId) : []
       let registeredValues = webhooks->getRegisteredValues
-      setItems(_ => getSeededItems(~scopeType=registerConfig.scope_type, ~displayItems, ~registeredValues))
+      setItems(_ =>
+        getSeededItems(~scopeType=registerConfig.scope_type, ~displayItems, ~registeredValues)
+      )
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => {
