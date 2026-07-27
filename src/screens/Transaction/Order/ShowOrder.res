@@ -1159,8 +1159,8 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           tabs=paymentDetailsTabs
           initialIndex=selectedTabIndex
           onTitleClick={index => setSelectedTabIndex(_ => index)}
-          variant=TabsBinding.Underline
-          size=TabsBinding.Md
+          variant=Underline
+          size=Md
         />
       </div>
     </PageLoaderWrapper>
