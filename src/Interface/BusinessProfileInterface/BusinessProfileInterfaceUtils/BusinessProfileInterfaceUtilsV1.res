@@ -67,6 +67,18 @@ let mapV1ExternalVaultConnectorDetailsToCommonType: option<
   }
 }
 
+let mapV1SurchargeConnectorDetailsToCommonType: option<surchargeConnectorDetailsType_v1> => option<
+  BusinessProfileInterfaceTypes.surchargeConnectorDetails,
+> = surchargeConnectorDetailsOption => {
+  switch surchargeConnectorDetailsOption {
+  | Some(surchargeConnectorDetails) =>
+    Some({
+      surcharge_connector_id: surchargeConnectorDetails.surcharge_connector_id,
+    })
+  | None => None
+  }
+}
+
 let getBackgroundImage = backgroundImageDict => {
   {
     url: backgroundImageDict->getString("url", ""),
@@ -170,6 +182,12 @@ let externalVaultConnectorDetailsMapper = externalVaultConnectorDetailsDict => {
   ),
 }
 
+let surchargeConnectorDetailsMapperV1: Dict.t<
+  JSON.t,
+> => surchargeConnectorDetailsType_v1 = surchargeConnectorDetailsDict => {
+  surcharge_connector_id: surchargeConnectorDetailsDict->getString("surcharge_connector_id", ""),
+}
+
 let mapJsonToBusinessProfileV1 = (values): profileEntity_v1 => {
   let jsonDict = values->getDictFromJsonObject
   let webhookDetailsDict = jsonDict->getDictfromDict("webhook_details")
@@ -180,6 +198,7 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity_v1 => {
 
   let paymentLinkConfig = jsonDict->getDictfromDict("payment_link_config")
   let externalVaultConnectorDetails = jsonDict->getDictfromDict("external_vault_connector_details")
+  let surchargeConnectorDetails = jsonDict->getDictfromDict("surcharge_connector_details")
   let paymentMethodBlockingDict = jsonDict->getDictfromDict("payment_method_blocking")
   {
     profile_id: jsonDict->getString("profile_id", ""),
@@ -224,6 +243,9 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity_v1 => {
     is_manual_retry_enabled: jsonDict->getOptionBool("is_manual_retry_enabled"),
     always_enable_overcapture: jsonDict->getOptionBool("always_enable_overcapture"),
     billing_processor_id: jsonDict->getOptionString("billing_processor_id"),
+    surcharge_connector_details: surchargeConnectorDetails->isEmptyDict
+      ? None
+      : Some(surchargeConnectorDetails->surchargeConnectorDetailsMapperV1),
     payment_link_config: paymentLinkConfig->isEmptyDict
       ? None
       : Some(paymentLinkConfig->paymentLinkConfigMapper),
@@ -330,6 +352,7 @@ let mapV1toCommonType: profileEntity_v1 => BusinessProfileInterfaceTypes.commonP
     collect_shipping_details_from_wallet_connector_if_required: None,
     collect_billing_details_from_wallet_connector_if_required: None,
     billing_processor_id: profileRecord.billing_processor_id,
+    surcharge_connector_details: profileRecord.surcharge_connector_details->mapV1SurchargeConnectorDetailsToCommonType,
     payment_link_config: paymentLinkConfig,
     split_txns_enabled: None,
     is_external_vault_enabled: profileRecord.is_external_vault_enabled,
@@ -352,6 +375,7 @@ let commonTypeJsonToV1ForRequest: JSON.t => profileEntityRequestType_v1 = json =
   let webhookDetails = dict->getDictfromDict("webhook_details")
   let authProductIds = dict->getJsonObjectFromDict("authentication_product_ids")
   let externalVaultConnectorDetails = dict->getDictfromDict("external_vault_connector_details")
+  let surchargeConnectorDetails = dict->getDictfromDict("surcharge_connector_details")
 
   {
     profile_name: dict->getString("profile_name", ""),
@@ -425,5 +449,8 @@ let commonTypeJsonToV1ForRequest: JSON.t => profileEntityRequestType_v1 = json =
       ? None
       : Some(externalVaultConnectorDetails->externalVaultConnectorDetailsMapper),
     payment_method_blocking: dict->Dict.get("payment_method_blocking"),
+    surcharge_connector_details: surchargeConnectorDetails->isEmptyDict
+      ? None
+      : Some(surchargeConnectorDetails->surchargeConnectorDetailsMapperV1),
   }
 }

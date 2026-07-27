@@ -12,8 +12,9 @@ module CopyTextCustomComp = {
     ~customIcon="nd-copy",
     ~customIconSize=15,
     ~customComponent=None,
+    ~showTooltip=false,
   ) => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
 
     let copyVal = switch copyValue {
     | Some(val) => val
@@ -37,7 +38,13 @@ module CopyTextCustomComp = {
         onClick={ev => {
           onCopyClick(ev)
         }}>
-        <div className=customTextCss> {val->React.string} </div>
+        {showTooltip
+          ? <ToolTip
+              description=val
+              toolTipFor={<div className=customTextCss> {val->React.string} </div>}
+              toolTipPosition=ToolTip.Top
+            />
+          : <div className=customTextCss> {val->React.string} </div>}
         {switch customComponent {
         | Some(element) => element
         | None => <Icon size={customIconSize} name={customIcon} className={`${customIconCss} `} />
@@ -61,7 +68,7 @@ module EllipsisText = {
     ~customOnCopyClick=_ => (),
   ) => {
     open LogicUtils
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
 
     let handleClick = ev => {
@@ -83,21 +90,27 @@ module EllipsisText = {
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
     }
 
+    let isTruncated = displayValue->String.length > endValue
+
     <div className="flex text-nowrap gap-2">
       <RenderIf condition={isTextVisible}>
         <div className={customTextStyle}> {displayValue->React.string} </div>
       </RenderIf>
       <RenderIf condition={!isTextVisible && displayValue->isNonEmptyString}>
-        <div className="flex gap-1">
-          <p className={customTextStyle}>
-            {`${displayValue->String.slice(~start=0, ~end=endValue)}`->React.string}
-          </p>
-          <RenderIf condition={displayValue->String.length > endValue}>
-            <span className={customEllipsisStyle} onClick={ev => handleClick(ev)}>
-              {"..."->React.string}
-            </span>
-          </RenderIf>
-        </div>
+        <ToolTip
+          description={isTruncated ? displayValue : ""}
+          toolTipFor={<div className="flex gap-1">
+            <p className={customTextStyle}>
+              {`${displayValue->String.slice(~start=0, ~end=endValue)}`->React.string}
+            </p>
+            <RenderIf condition={isTruncated}>
+              <span className={customEllipsisStyle} onClick={ev => handleClick(ev)}>
+                {"..."->React.string}
+              </span>
+            </RenderIf>
+          </div>}
+          toolTipPosition=ToolTip.Top
+        />
       </RenderIf>
       <RenderIf condition={showCopy}>
         <Icon
@@ -111,7 +124,7 @@ module EllipsisText = {
 module KeyAndCopyArea = {
   @react.component
   let make = (~copyValue, ~shadowClass="") => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
 
     <div className={`flex gap-4 border rounded-md py-2 px-4 items-center bg-white ${shadowClass}`}>
       <p className="text-base text-grey-700 opacity-70 col-span-2 truncate">

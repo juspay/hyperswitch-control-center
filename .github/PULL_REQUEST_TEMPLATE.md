@@ -38,6 +38,29 @@ Or did you test this change manually (provide relevant screenshots)?
 - [ ] SANDBOX
 - [ ] PROD
 
+## Backend Dependency
+
+<!-- Does this PR depend on any backend changes? -->
+
+- [ ] Yes
+- [ ] No
+
+<!-- If Yes, please add the related backend PR URL(s) below -->
+
+Backend PR URL:
+
+## Feature Flag
+
+<!-- Does this PR add a new feature flag or update an existing one? -->
+
+- [ ] New feature flag added
+- [ ] Existing feature flag updated
+- [ ] No feature flag changes
+
+<!-- If applicable, mention the feature flag name(s) below -->
+
+Feature flag name(s):
+
 ## Checklist
 
 <!-- Put an `x` in the boxes that apply -->

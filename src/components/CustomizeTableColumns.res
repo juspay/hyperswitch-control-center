@@ -13,6 +13,8 @@ let make = (
   ~showSerialNumber=true,
   ~isDraggable=false,
   ~title,
+  ~isNewColumn=_ => false,
+  ~getNewColumnDescription=_ => "",
 ) => {
   open LoadedTableWithCustomColumnsUtils
   let headingWhenDraggable = {
@@ -48,11 +50,20 @@ let make = (
   let initialHeadingData = heading->Array.map(head => {
     let columnName = getHeading(head).title
     let isDisabled = defaultColumnsString->Array.includes(columnName)
-    let options: SelectBox.dropdownOption = {
-      label: columnName,
-      value: columnName,
-      isDisabled,
-    }
+    let options: SelectBox.dropdownOption = isNewColumn(head)
+      ? {
+          label: columnName,
+          value: columnName,
+          isDisabled,
+          icon: Button.CustomRightIcon(
+            <NewFeatureTag description={getNewColumnDescription(head)} />,
+          ),
+        }
+      : {
+          label: columnName,
+          value: columnName,
+          isDisabled,
+        }
     options
   })
   let initialValues = visibleColumns->Array.map(head => getHeading(head).title)

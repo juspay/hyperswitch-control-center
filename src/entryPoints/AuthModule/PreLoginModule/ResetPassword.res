@@ -10,7 +10,7 @@ let make = (~flowType) => {
   let getURL = useGetURL()
 
   let initialValues = Dict.make()->JSON.Encode.object
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
@@ -117,7 +117,7 @@ let make = (~flowType) => {
         <Div layoutId="form" className="bg-white w-full text-black mobile:border rounded-lg">
           <div className="px-7 py-6">
             <Div layoutId="logo">
-              <HyperSwitchLogo logoHeight="h-8" theme={Dark} logoVariant iconUrl />
+              <HyperSwitchLogo logoHeight="h-6" logoVariant iconUrl />
             </Div>
           </div>
           <Div layoutId="border" className="border-b w-full" />

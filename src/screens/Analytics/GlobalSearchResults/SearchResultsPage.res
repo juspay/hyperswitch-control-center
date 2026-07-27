@@ -58,7 +58,7 @@ module RenderSearchResultBody = {
 module DownloadButton = {
   @react.component
   let make = (~section: resultType, ~searchText) => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
 
     let downloadData = () => {
       let toast = (~message, ~toastType) => showToast(~message, ~toastType)

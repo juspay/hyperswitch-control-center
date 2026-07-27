@@ -417,30 +417,22 @@ let fileInput = () => (~input: ReactFinalForm.fieldRenderPropsInput) => {
 let numericTextInput = (
   ~isDisabled=false,
   ~customStyle="",
-  ~inputMode=?,
   ~precision=?,
   ~maxLength=?,
   ~removeLeadingZeroes=false,
-  ~leftIcon=?,
   ~rightIcon=?,
-  ~customPaddingClass=?,
   ~rightIconCustomStyle=?,
-  ~leftIconCustomStyle=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
-  <NumericTextInput
+  <NumericTextInputAdapter
     customStyle
     input
     placeholder
     isDisabled
-    ?inputMode
     ?precision
     ?maxLength
     removeLeadingZeroes
-    ?leftIcon
     ?rightIcon
-    ?customPaddingClass
     ?rightIconCustomStyle
-    ?leftIconCustomStyle
   />
 }
 
@@ -459,7 +451,7 @@ let singleDatePickerInput = (
   ~showTime=?,
   ~fullLength=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
-  <DatePicker
+  <DatePickerAdapter
     input
     disablePastDates
     disableFutureDates

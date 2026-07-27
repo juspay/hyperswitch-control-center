@@ -136,9 +136,9 @@ module BaseDropdown = {
     // Custom React components (e.g. OMPViewBaseComp) don't forward injected props,
     // causing the dropdown to never open.
     let wrapTrigger = el => <div> el </div>
-    let blendCustomTrigger = switch baseComponent {
-    | Some(el) => Some(wrapTrigger(el))
-    | None => customButton->Option.map(wrapTrigger)
+    let blendCustomTrigger = switch baseComponent->Option.orElse(customButton) {
+    | Some(el) if el !== React.null => Some(wrapTrigger(el))
+    | _ => None
     }
     let selectedValues = input.value->getStrArrayFromJson
     let selectedValue = input.value->getStringFromJson("")
@@ -405,9 +405,9 @@ let make = (
   // Wrap in a plain <div> so Radix asChild can inject onClick onto a DOM element.
   // Custom React components don't forward injected props, causing dropdown to never open.
   let wrapTrigger = el => <div> el </div>
-  let blendCustomTrigger = switch baseComponent {
-  | Some(el) => Some(wrapTrigger(el))
-  | None => customButton->Option.map(wrapTrigger)
+  let blendCustomTrigger = switch baseComponent->Option.orElse(customButton) {
+  | Some(el) if el !== React.null => Some(wrapTrigger(el))
+  | _ => None
   }
   let selectedValues = input.value->getStrArrayFromJson
   let selectedValue = input.value->getStringFromJson("")

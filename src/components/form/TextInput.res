@@ -229,9 +229,9 @@ let make = (
   }
 
   let eyeIcon = if showPassword {
-    "eye"
-  } else {
     "eye-slash"
+  } else {
+    "eye"
   }
   let eyeIconSize = 15
   let eyeClassName = "fill-jp-gray-700"

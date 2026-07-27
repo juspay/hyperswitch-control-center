@@ -153,7 +153,6 @@ module Details = {
                       value={getCell(data, colType)}
                       customMoneyStyle="!text-fs-13"
                       labelMargin="!py-0 mt-2"
-                      customDateStyle="!font-fira-code"
                       showTitle
                     />
                     <div />
@@ -176,7 +175,6 @@ module Details = {
                       cell=field
                       textAlign=Table.Left
                       fontBold=true
-                      customDateStyle="!font-fira-code"
                       customMoneyStyle="!text-fs-13"
                       labelMargin="!py-0 mt-2 h-6"
                     />

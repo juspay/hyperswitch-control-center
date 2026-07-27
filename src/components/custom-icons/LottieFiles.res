@@ -14,7 +14,7 @@ let useLottieJson = lottieFileName => {
   let (lottieJson, setlottieJson) = React.useState(_ => JSON.Encode.null)
   let fetchApi = AuthHooks.useApiFetcher()
   let uriPrefix = LogicUtils.useUrlPrefix()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let prefix = `${Window.Location.origin}${uriPrefix}`
   React.useEffect(() => {
     switch lottieDict->Dict.get(lottieFileName) {

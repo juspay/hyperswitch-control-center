@@ -75,6 +75,8 @@ type externalVaultConnectorDetails = {
   vault_token_selector: option<array<JSON.t>>,
 }
 
+type surchargeConnectorDetails = {surcharge_connector_id: string}
+
 type paymentMethodBlockingEntry = {card_types: option<array<string>>}
 
 type paymentMethodBlocking = {
@@ -113,6 +115,7 @@ type commonProfileEntity = {
   collect_billing_details_from_wallet_connector_if_required: option<bool>,
   collect_shipping_details_from_wallet_connector_if_required: option<bool>,
   billing_processor_id: option<string>,
+  surcharge_connector_details: option<surchargeConnectorDetails>,
   payment_link_config: option<paymentLinkConfig>,
   split_txns_enabled: option<string>,
   is_external_vault_enabled: option<string>,

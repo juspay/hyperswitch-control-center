@@ -1,12 +1,19 @@
+open ReactFinalForm
 open LogicUtils
-open DateRangePickerBinding
-open DateRangePreset
-open PresetsConfig
+open DateRangePickerBinding.DateRangePreset
+open DateRangePickerBinding.PresetsConfig
+
+let makeCustomPreset = (~id, ~label, ~startDate, ~endDate) =>
+  fromCustom({
+    id,
+    label,
+    getDateRange: () => {startDate, endDate: Some(endDate)},
+  })
 
 let toBlendPreset = (
   day: DateRangeUtils.customDateRange,
   ~disableFutureDates: bool,
-): PresetsConfig.t => {
+): DateRangePickerBinding.PresetsConfig.t => {
   switch day {
   | Today => fromPreset(today)
   | Yesterday => fromPreset(yesterday)
@@ -17,11 +24,12 @@ let toBlendPreset = (
       let now = Date.make()
       let sixMonthsAgo = Date.make()
       Date.setMonth(sixMonthsAgo, Date.getMonth(sixMonthsAgo) - 6)
-      fromCustom({
-        label: "Last 6 Months",
-        startDate: sixMonthsAgo,
-        endDate: now,
-      })
+      makeCustomPreset(
+        ~id="last6Months",
+        ~label="Last 6 Months",
+        ~startDate=sixMonthsAgo,
+        ~endDate=now,
+      )
     }
   | NextMonth => {
       let now = Date.make()
@@ -35,11 +43,12 @@ let toBlendPreset = (
         ~month=Date.getMonth(now) + 2,
         ~date=0,
       )
-      fromCustom({
-        label: "Next Month",
-        startDate: firstOfNextMonth,
-        endDate: lastOfNextMonth,
-      })
+      makeCustomPreset(
+        ~id="nextMonth",
+        ~label="Next Month",
+        ~startDate=firstOfNextMonth,
+        ~endDate=lastOfNextMonth,
+      )
     }
   | Hour(x) =>
     if disableFutureDates {
@@ -50,20 +59,24 @@ let toBlendPreset = (
       } else {
         let now = Date.make()
         let hoursAgo = Date.fromTime(Date.getTime(now) -. x *. 3600.0 *. 1000.0)
-        fromCustom({
-          label: `Last ${x->Float.toString->removeTrailingZero} Hours`,
-          startDate: hoursAgo,
-          endDate: now,
-        })
+        let label = `Last ${x->Float.toString->removeTrailingZero} Hours`
+        makeCustomPreset(
+          ~id=`last_${x->Float.toString}_hours`,
+          ~label,
+          ~startDate=hoursAgo,
+          ~endDate=now,
+        )
       }
     } else {
       let now = Date.make()
       let hoursFromNow = Date.fromTime(Date.getTime(now) +. x *. 3600.0 *. 1000.0)
-      fromCustom({
-        label: `Next ${x->Float.toString->removeTrailingZero} Hours`,
-        startDate: now,
-        endDate: hoursFromNow,
-      })
+      let label = `Next ${x->Float.toString->removeTrailingZero} Hours`
+      makeCustomPreset(
+        ~id=`next_${x->Float.toString}_hours`,
+        ~label,
+        ~startDate=now,
+        ~endDate=hoursFromNow,
+      )
     }
   | Day(x) =>
     if x === 7.0 {
@@ -72,60 +85,84 @@ let toBlendPreset = (
       fromPreset(last30Days)
     } else {
       let now = Date.make()
-      let daysAgo = Date.fromTime(Date.getTime(now) -. x *. 86400.0 *. 1000.0)
-      fromCustom({
-        label: `Last ${x->Float.toString->removeTrailingZero} Days`,
-        startDate: daysAgo,
-        endDate: now,
-      })
+      let daysAgo = (now->DayJs.getDayJsForJsDate).subtract(x->Float.toInt, "day").toDate()
+      let label = `Last ${x->Float.toString->removeTrailingZero} Days`
+      makeCustomPreset(
+        ~id=`last_${x->Float.toString}_days`,
+        ~label,
+        ~startDate=daysAgo,
+        ~endDate=now,
+      )
     }
   }
 }
+
+let formatIsoToFormat = (date: Date.t, format: string) =>
+  date->Date.toISOString->TimeZoneHook.formattedISOString(format)
+
+let getMinMaxDates = (~dateRangeLimit, ~disableFutureDates, ~disablePastDates) =>
+  dateRangeLimit->mapOptionOrDefault((None, None), days => {
+    let now = Date.make()->DayJs.getDayJsForJsDate
+
+    switch (disableFutureDates, disablePastDates) {
+    | (true, _) => (Some(now.subtract(days, "day").toDate()), None)
+    | (_, true) => (None, Some(now.add(days, "day").toDate()))
+    | _ => (None, None)
+    }
+  })
 
 module BlendDateRangePicker = {
   @react.component
   let make = (
     ~startKey: string,
     ~endKey: string,
-    ~showTime: bool,
     ~disable: bool,
     ~disablePastDates: bool,
     ~disableFutureDates: bool,
     ~predefinedDays: array<DateRangeUtils.customDateRange>,
+    ~format: string,
+    ~dateRangeLimit: option<int>,
   ) => {
-    let startInput = ReactFinalForm.useField(startKey).input
-    let endInput = ReactFinalForm.useField(endKey).input
+    let startInput = useField(startKey).input
+    let endInput = useField(endKey).input
     let blendValue = switch (
-      startInput.value->JSON.Decode.string->Option.flatMap(getNonEmptyString),
-      endInput.value->JSON.Decode.string->Option.flatMap(getNonEmptyString),
+      startInput.value->getStringFromJson("")->getNonEmptyString,
+      endInput.value->getStringFromJson("")->getNonEmptyString,
     ) {
     | (Some(start), Some(end)) =>
       Some(
         (
           {
             startDate: start->Date.fromString,
-            endDate: end->Date.fromString,
-          }: dateRange
+            endDate: Some(end->Date.fromString),
+          }: DateRangePickerBinding.dateRange
         ),
       )
     | _ => None
     }
 
-    let handleChange = React.useCallback((range: dateRange) => {
-      startInput.onChange(range.startDate->Date.toISOString->Identity.stringToFormReactEvent)
-      endInput.onChange(range.endDate->Date.toISOString->Identity.stringToFormReactEvent)
-    }, [startInput.onChange, endInput.onChange])
+    let handleChange = React.useCallback((range: DateRangePickerBinding.dateRange) => {
+      let endDate = range.endDate->Option.getOr(range.startDate)
+      startInput.onChange(
+        formatIsoToFormat(range.startDate, format)->Identity.stringToFormReactEvent,
+      )
+      endInput.onChange(formatIsoToFormat(endDate, format)->Identity.stringToFormReactEvent)
+    }, (startInput.onChange, endInput.onChange, format))
 
     let customPresets = predefinedDays->Array.map(day => toBlendPreset(day, ~disableFutureDates))
+
+    let (minDate, maxDate) = getMinMaxDates(~dateRangeLimit, ~disableFutureDates, ~disablePastDates)
 
     <DateRangePickerBinding
       value=?blendValue
       onChange=handleChange
-      showDateTimePicker=showTime
+      showDateTimePicker=true
       isDisabled=disable
       disableFutureDates
       disablePastDates
       customPresets
+      ?minDate
+      ?maxDate
     />
   }
 }
@@ -162,7 +199,14 @@ let make = (
   <>
     <RenderIf condition={isBlendEnabled}>
       <BlendDateRangePicker
-        startKey endKey showTime disable disablePastDates disableFutureDates predefinedDays
+        startKey
+        endKey
+        disable
+        disablePastDates
+        disableFutureDates
+        predefinedDays
+        format
+        dateRangeLimit
       />
     </RenderIf>
     <RenderIf condition={!isBlendEnabled}>

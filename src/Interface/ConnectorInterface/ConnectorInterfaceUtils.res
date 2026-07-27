@@ -335,7 +335,8 @@ let filter = (connectorType, ~retainInList) => {
   | (PMAuthProcessor, PMAuthProcessor)
   | (TaxProcessor, TaxProcessor)
   | (BillingProcessor, BillingProcessor)
-  | (VaultProcessor, VaultProcessor) => true
+  | (VaultProcessor, VaultProcessor)
+  | (SurchargeProcessor, SurchargeProcessor) => true
   | _ => false
   }
 }

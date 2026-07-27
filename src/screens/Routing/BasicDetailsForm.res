@@ -57,6 +57,7 @@ module BusinessProfileInp = {
           ~placeholder="",
         )
       )}
+      fieldWrapperClass="p-0"
     />
   }
 }
@@ -79,7 +80,7 @@ let make = (
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   //Need to check if necessary
   let form = ReactFinalForm.useForm()
   React.useEffect(() => {
@@ -87,8 +88,7 @@ let make = (
     None
   }, [])
 
-  <div
-    className={` mb-6 p-4 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850`}>
+  <div className="w-full">
     {if formState === ViewConfig {
       <div>
         <div className="flex flex-row justify-between gap-4">
@@ -148,14 +148,14 @@ let make = (
               <BusinessProfileInp
                 setProfile={setProfile->Option.getOr(_ => ())}
                 profile={profile->Option.getOr(profileId)}
-                options={businessProfileNameDropDownOption([businessProfileRecoilVal], ~profileId)}
+                options={businessProfileNameDropDownOption(businessProfileRecoilVal)}
                 label="Profile"
                 routingType
               />
             </RenderIf>
-            <FieldRenderer field=configurationNameInput />
+            <FieldRenderer field=configurationNameInput fieldWrapperClass="p-0" />
             <RenderIf condition=showDescription>
-              <FieldRenderer field=descriptionInput />
+              <FieldRenderer field=descriptionInput fieldWrapperClass="p-0 flex flex-col" />
             </RenderIf>
           </div>
         </div>

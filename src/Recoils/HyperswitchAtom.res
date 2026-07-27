@@ -23,7 +23,7 @@ let businessProfileFromIdAtom = Recoil.atom(
   "businessProfileFromIdAtom",
   JSON.Encode.null->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1,
 )
-//Todo:remove this after businessProfileInterface is stable
+
 let businessProfileFromIdAtomInterface = Recoil.atom(
   "businessProfileFromIdAtomInterface",
   JSON.Encode.null->BusinessProfileInterfaceUtils.mapJsontoCommonType,
@@ -42,6 +42,10 @@ let connectorListForLiveAtom: Recoil.recoilAtom<
 > = Recoil.atom(
   "connectorListForLive",
   JSON.Encode.null->ConnectorListForLiveFromConfigUtils.getConnectorListForLive,
+)
+let connectorCloneAllowListAtom: Recoil.recoilAtom<array<string>> = Recoil.atom(
+  "connectorCloneAllowList",
+  JSON.Encode.null->ConnectorCloneConfigUtils.getConnectorCloneAllowList,
 )
 let merchantSpecificConfigAtom: Recoil.recoilAtom<
   FeatureFlagUtils.merchantSpecificConfig,

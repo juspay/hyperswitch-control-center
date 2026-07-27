@@ -207,8 +207,8 @@ module IngestionHistoryActionsComponent = {
     let (showModal, setShowModal) = React.useState(_ => false)
     let getURL = useGetURL()
     let fetchApi = AuthHooks.useApiFetcher()
-    let showToast = ToastState.useShowToast()
-    let {xFeatureRoute, forceCookies} =
+    let showToast = ToastAdapter.useShowToast()
+    let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
       HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     let onDownloadClick = async ev => {
@@ -220,12 +220,18 @@ module IngestionHistoryActionsComponent = {
           ~methodType=Get,
           ~id=Some(ingestionHistory.id),
         )
-        let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute, ~forceCookies)
-        let csvContent = await res->Fetch.Response.text
+        let res = await fetchApi(
+          url,
+          ~method_=Get,
+          ~xFeatureRoute,
+          ~forceCookies,
+          ~sendV1DummyApiKeyHeader,
+        )
+        let csvContent = await res->Fetch.Response.blob
         DownloadUtils.download(
           ~fileName=ingestionHistory.file_name,
           ~content=csvContent,
-          ~fileType="text/csv",
+          ~fileType="application/octet-stream",
         )
         showToast(~message="File downloaded successfully", ~toastType=ToastSuccess)
       } catch {

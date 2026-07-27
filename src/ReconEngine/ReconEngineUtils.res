@@ -38,6 +38,24 @@ let getEntryStatusVariantFromString = (entryType: string): entryStatus => {
   }
 }
 
+let cursorFromDict = (dict): cursor => {
+  let cursorValueDict = dict->getDictfromDict("cursor_value")
+  {
+    sortField: dict->getString("sort_field", "effective_at"),
+    cursorValue: Some({
+      effectiveAt: cursorValueDict->getString("effective_at", ""),
+      cursorId: cursorValueDict->getString("id", ""),
+    }),
+  }
+}
+
+let defaultCursorSortBy: cursor = {sortField: "effective_at", cursorValue: None}
+
+let cursorsFromDict = (dict): cursors => {
+  let getCursor = key => dict->getOptionObj(key)->Option.map(cursorFromDict)
+  {next: getCursor("next_cursor"), prev: getCursor("prev_cursor")}
+}
+
 let getProcessingEntryStatusVariantFromString = (status: string): processingEntryStatus => {
   switch status->String.toLowerCase {
   | "pending" => Pending
@@ -146,6 +164,14 @@ let getAccountTypeVariantFromString = (accountType: string): accountTypeVariant 
   | "credit" => Credit
   | "debit" => Debit
   | _ => UnknownAccountTypeVariant
+  }
+}
+
+let getRuleAccountTypeVariantFromString = (ruleAccountType: string): ruleAccountTypeVariant => {
+  switch ruleAccountType->String.toLowerCase {
+  | "source" => Source
+  | "target" => Target
+  | _ => UnknownRuleAccountType
   }
 }
 
@@ -592,5 +618,131 @@ let metadataSchemaItemToObjMapper = (dict): metadataSchemaType => {
     version: dict->getInt("version", 0),
     created_at: dict->getString("created_at", ""),
     last_modified_at: dict->getString("last_modified_at", ""),
+  }
+}
+
+let overviewTransactionStatusTypeFromString = (status: string): domainTransactionStatus => {
+  switch status->String.toLowerCase {
+  | "expected" => Expected
+  | "posted_manual" => Posted(Manual)
+  | "under_amount_mismatch" => UnderAmount(Mismatch)
+  | "under_amount_expected" => UnderAmount(Expected)
+  | "over_amount_mismatch" => OverAmount(Mismatch)
+  | "over_amount_expected" => OverAmount(Expected)
+  | "data_mismatch" => DataMismatch
+  | "currency_mismatch" => CurrencyMismatch
+  | "split_mismatch" => SplitMismatch
+  | "archived" => Archived
+  | "void" => Void
+  | "partially_reconciled" => PartiallyReconciled
+  | "missing" => Missing
+  | "matched_auto" => Matched(Auto)
+  | "matched_manual" => Matched(Manual)
+  | "matched_force" => Matched(Force)
+  | "matched_with_tolerance" => Matched(WithTolerance)
+  | _ => UnknownDomainTransactionStatus
+  }
+}
+
+let overviewRuleStatusBreakdownMapper: Dict.t<JSON.t> => overviewRuleStatusBreakdown = dict => {
+  {
+    status: dict->getString("status", "")->overviewTransactionStatusTypeFromString,
+    count: dict->getInt("count", 0),
+    credit_amount: dict->getDictfromDict("credit_amount")->getAmountPayload,
+    debit_amount: dict->getDictfromDict("debit_amount")->getAmountPayload,
+  }
+}
+
+let overviewRulesStatusBreakdownArrayMapper = statusBreakdownArr =>
+  statusBreakdownArr->Array.map(status =>
+    status->getDictFromJsonObject->overviewRuleStatusBreakdownMapper
+  )
+
+let overviewRulesResponseMapper: Dict.t<JSON.t> => overviewRulesResponse = dict => {
+  {
+    rule_id: dict->getString("rule_id", ""),
+    rule_name: dict->getString("rule_name", ""),
+    status_breakdown: dict
+    ->getArrayFromDict("status_breakdown", [])
+    ->overviewRulesStatusBreakdownArrayMapper,
+  }
+}
+
+let overviewRulesTimeRangeMapper: Dict.t<JSON.t> => overviewRulesTimeRange = dict => {
+  {
+    start_time: dict->getString("start_time", ""),
+    end_time: dict->getString("end_time", ""),
+  }
+}
+
+let overviewRulesTimeSeriesMapper: Dict.t<JSON.t> => overviewRulesTimeSeries = dict => {
+  {
+    time_range: dict->getDictfromDict("time_range")->overviewRulesTimeRangeMapper,
+    status_breakdown: dict
+    ->getArrayFromDict("status_breakdown", [])
+    ->overviewRulesStatusBreakdownArrayMapper,
+  }
+}
+
+let overviewRulesTimeSeriesResponseMapper: Dict.t<
+  JSON.t,
+> => overviewRulesTimeSeriesResponse = dict => {
+  {
+    rule_id: dict->getString("rule_id", ""),
+    rule_name: dict->getString("rule_name", ""),
+    time_series: dict
+    ->getArrayFromDict("time_series", [])
+    ->Array.map(timeSeries => timeSeries->getDictFromJsonObject->overviewRulesTimeSeriesMapper),
+  }
+}
+
+let stagingEntryOverviewStatusAmountMapper: Dict.t<
+  JSON.t,
+> => stagingEntryOverviewStatusAmount = dict => {
+  {
+    status: dict->getString("status", "")->getProcessingEntryStatusVariantFromString,
+    count: dict->getInt("count", 0),
+  }
+}
+
+let accountStagingEntriesOverviewMapper: Dict.t<JSON.t> => accountStagingEntriesOverview = dict => {
+  {
+    status_breakdown: dict
+    ->getArrayFromDict("status_breakdown", [])
+    ->Array.map(status => status->getDictFromJsonObject->stagingEntryOverviewStatusAmountMapper),
+  }
+}
+
+let accountStatusBreakdownMapper: Dict.t<JSON.t> => accountStatusBreakdown = dict => {
+  {
+    status: dict->getString("status", "")->overviewTransactionStatusTypeFromString,
+    credit_txn_count: dict->getInt("credit_count", 0),
+    debit_txn_count: dict->getInt("debit_count", 0),
+    credit_amount: dict->getDictfromDict("credit_amount")->getAmountPayload,
+    debit_amount: dict->getDictfromDict("debit_amount")->getAmountPayload,
+  }
+}
+
+let accountStatusOverviewMapper: Dict.t<JSON.t> => accountStatusOverview = dict => {
+  {
+    account_id: dict->getString("account_id", ""),
+    account_name: dict->getString("account_name", ""),
+    account_type: dict->getString("account_type", "")->getAccountTypeVariantFromString,
+    rule_account_type: dict
+    ->getString("rule_account_type", "")
+    ->getRuleAccountTypeVariantFromString,
+    status_breakdown: dict
+    ->getArrayFromDict("status_breakdown", [])
+    ->Array.map(status => status->getDictFromJsonObject->accountStatusBreakdownMapper),
+  }
+}
+
+let ruleAccountsOverviewMapper: Dict.t<JSON.t> => ruleAccountsOverview = dict => {
+  {
+    rule_id: dict->getString("rule_id", ""),
+    rule_name: dict->getString("rule_name", ""),
+    accounts: dict
+    ->getArrayFromDict("accounts", [])
+    ->Array.map(account => account->getDictFromJsonObject->accountStatusOverviewMapper),
   }
 }

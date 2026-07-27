@@ -206,7 +206,7 @@ let make = (
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let profileId = businessProfileDetails.profile_id
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
 

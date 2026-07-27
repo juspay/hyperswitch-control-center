@@ -3,7 +3,7 @@ open UserUtils
 module OrganisationSelection = {
   @react.component
   let make = () => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
     let {userEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
@@ -55,7 +55,7 @@ module OrganisationSelection = {
 module MerchantSelection = {
   @react.component
   let make = () => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let merchList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let {devUsers} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -133,7 +133,7 @@ module MerchantSelection = {
 module ProfileSelection = {
   @react.component
   let make = () => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
     let {userEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
@@ -251,7 +251,7 @@ let inviteEmail = FormRenderer.makeFieldInfo(
 module SwitchMerchantForUserAction = {
   @react.component
   let make = (~userInfoValue: UserManagementTypes.userDetailstype) => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
     let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
 

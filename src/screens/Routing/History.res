@@ -22,29 +22,6 @@ module HistoryTable = {
     />
   }
 }
-module BreadCrumbWrapper = {
-  @react.component
-  let make = (
-    ~children,
-    ~pageTitle,
-    ~title="Smart Routing Configuration",
-    ~baseLink="/routing",
-  ) => {
-    <>
-      <BreadCrumbNavigation
-        path=[
-          {
-            title,
-            link: baseLink,
-          },
-        ]
-        currentPageTitle={pageTitle}
-      />
-      {children}
-    </>
-  }
-}
-
 @react.component
 let make = (~records, ~activeRoutingIds: array<string>) => {
   <div className="mt-8">

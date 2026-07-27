@@ -15,6 +15,7 @@ let make = () => {
   let endTimeVal = filterValueJson->getString("endTime", "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
+  let {isCurrentMerchantPlatform} = OMPSwitchHooks.useOMPType()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {analyticsEntity} = getResolvedUserInfo()
   let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -132,6 +133,7 @@ let make = () => {
     <div>
       <InsightsHelper.SampleDataBanner applySampleDateFilters />
       <PageUtils.PageHeading customHeadingStyle="mt-4" title="Insights" />
+      <HSAnalyticsUtils.PlatformAggregatedDataBanner />
       <div className="-ml-1 top-0 z-20 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
         <DynamicFilter
           title="NewAnalytics"
@@ -161,7 +163,7 @@ let make = () => {
       </div>
       <Portal to="NewAnalyticsOMPView">
         <OMPSwitchHelper.OMPViews
-          views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+          views={OMPSwitchUtils.analyticsViewList(~checkUserEntity, ~isCurrentMerchantPlatform)}
           selectedEntity={analyticsEntity}
           onChange={updateAnalytcisEntity}
           entityMapper=UserInfoUtils.analyticsEntityMapper

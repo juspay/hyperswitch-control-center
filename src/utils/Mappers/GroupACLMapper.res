@@ -7,6 +7,7 @@ let mapGroupAccessTypeToString = groupAccessType =>
   | OperationsManage => "operations_manage"
   | ConnectorsView => "connectors_view"
   | ConnectorsManage => "connectors_manage"
+  | CloneConnectorManage => "clone_connector_manage"
   | WorkflowsView => "workflows_view"
   | WorkflowsManage => "workflows_manage"
   | AnalyticsView => "analytics_view"
@@ -36,6 +37,7 @@ let mapStringToGroupAccessType = val =>
   | "operations_manage" => OperationsManage
   | "connectors_view" => ConnectorsView
   | "connectors_manage" => ConnectorsManage
+  | "clone_connector_manage" => CloneConnectorManage
   | "workflows_view" => WorkflowsView
   | "workflows_manage" => WorkflowsManage
   | "analytics_view" => AnalyticsView
@@ -66,6 +68,7 @@ let mapStringToResourceAccessType = val =>
   | "api_key" => ApiKey
   | "account" => Account
   | "connector" => Connector
+  | "clone_connector" => CloneConnector
   | "routing" => Routing
   | "dispute" => Dispute
   | "mandate" => Mandate
@@ -92,6 +95,7 @@ let defaultValueForGroupAccessJson = {
   operationsManage: NoAccess,
   connectorsView: NoAccess,
   connectorsManage: NoAccess,
+  cloneConnectorManage: NoAccess,
   workflowsView: NoAccess,
   workflowsManage: NoAccess,
   analyticsView: NoAccess,
@@ -134,6 +138,7 @@ let getGroupAccessJson = groupACL => {
     operationsManage: getAccess(OperationsManage),
     connectorsView: getAccess(ConnectorsView),
     connectorsManage: getAccess(ConnectorsManage),
+    cloneConnectorManage: getAccess(CloneConnectorManage),
     workflowsView: getAccess(WorkflowsView),
     workflowsManage: getAccess(WorkflowsManage),
     analyticsView: getAccess(AnalyticsView),

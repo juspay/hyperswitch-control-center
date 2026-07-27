@@ -1,5 +1,6 @@
 open LogicUtils
 open PaymentInterfaceTypesV1
+open PaymentInterfaceUtils
 
 let attemptsItemToObjMapper = dict => {
   attempt_id: dict->getString("attempt_id", ""),
@@ -89,6 +90,9 @@ let mapDictToPaymentPayload: dict<JSON.t> => order_v1 = dict => {
     payment_id: dict->getString("payment_id", ""),
     merchant_id: dict->getString("merchant_id", ""),
     net_amount: dict->getFloat("net_amount", 0.0),
+    surcharge_amount: dict
+    ->getDictfromDict("surcharge_details")
+    ->getOptionFloat("surcharge_amount"),
     connector: dict->getString("connector", ""),
     status: dict->getString("status", ""),
     amount: dict->getFloat("amount", 0.0),
@@ -111,9 +115,9 @@ let mapDictToPaymentPayload: dict<JSON.t> => order_v1 = dict => {
     payment_method_type: dict->getString("payment_method_type", ""),
     payment_method_data: {
       let paymentMethodData = dict->getJsonObjectFromDict("payment_method_data")
-      let paymentMethodString = dict->getString("payment_method", "")
+      let paymentMethod = dict->getString("payment_method", "")
       switch paymentMethodData->JSON.Classify.classify {
-      | Object(value) => Some(value->getJsonObjectFromDict(paymentMethodString))
+      | Object(_) => Some(extractPaymentMethodDetails(paymentMethodData, ~paymentMethod))
       | _ => None
       }
     },
@@ -126,22 +130,20 @@ let mapDictToPaymentPayload: dict<JSON.t> => order_v1 = dict => {
       }
     },
     payment_token: dict->getString("payment_token", ""),
-    shipping: getDictFromNestedDict(
-      dict,
-      "shipping",
-      "address",
-    )->PaymentInterfaceUtils.concatAddressFromDict(addressKeys),
+    shipping: getDictFromNestedDict(dict, "shipping", "address")->concatAddressFromDict(
+      addressKeys,
+    ),
     shippingEmail: dict->getStringFromNestedDict("shipping", "email", ""),
     shippingPhone: dict
     ->getDictFromNestedDict("shipping", "phone")
     ->getPhoneNumberString,
     billing: dict
     ->getDictFromNestedDict("billing", "address")
-    ->PaymentInterfaceUtils.concatAddressFromDict(addressKeys),
+    ->concatAddressFromDict(addressKeys),
     payment_method_billing_address: dict
     ->getDictfromDict("payment_method_data")
     ->getDictFromNestedDict("billing", "address")
-    ->PaymentInterfaceUtils.concatAddressFromDict(addressKeys),
+    ->concatAddressFromDict(addressKeys),
     payment_method_billing_first_name: dict
     ->getDictfromDict("payment_method_data")
     ->getDictFromNestedDict("billing", "address")
@@ -191,7 +193,7 @@ let mapDictToPaymentPayload: dict<JSON.t> => order_v1 = dict => {
     attempts: dict->getArrayFromDict("attempts", [])->JSON.Encode.array->getAttempts,
     merchant_order_reference_id: dict->getString("merchant_order_reference_id", ""),
     attempt_count: dict->getInt("attempt_count", 0),
-    connector_label: dict->getString("connector_label", "NA"),
+    connector_label: dict->getString("connector_label", ""),
     split_payments: dict->getDictfromDict("split_payments"),
     extended_auth_last_applied_at: dict->getString("extended_auth_last_applied_at", ""),
     extended_auth_applied: dict->getBool("extended_auth_applied", false),
@@ -278,6 +280,7 @@ let mapPaymentV1ToCommonType: order_v1 => PaymentInterfaceTypes.order = order =>
     payment_id: order.payment_id,
     merchant_id: order.merchant_id,
     net_amount: order.net_amount,
+    surcharge_amount: order.surcharge_amount,
     connector: order.connector,
     status: order.status,
     amount: order.amount,

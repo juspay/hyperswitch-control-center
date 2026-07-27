@@ -18,6 +18,8 @@ type externalVaultConnectorDetailsType_v1 = {
   vault_token_selector: option<array<JSON.t>>,
 }
 
+type surchargeConnectorDetailsType_v1 = {surcharge_connector_id: string}
+
 type profileEntityRequestType_v1 = {
   profile_name: string,
   return_url: option<JSON.t>,
@@ -44,6 +46,7 @@ type profileEntityRequestType_v1 = {
   is_external_vault_enabled: option<string>,
   external_vault_connector_details: option<externalVaultConnectorDetailsType_v1>,
   payment_method_blocking: option<JSON.t>,
+  surcharge_connector_details: option<surchargeConnectorDetailsType_v1>,
 }
 type webhookDetailsRequest_v1 = {webhook_url: option<JSON.t>}
 
@@ -118,6 +121,7 @@ type profileEntity_v1 = {
   is_manual_retry_enabled: option<bool>,
   always_enable_overcapture: option<bool>,
   billing_processor_id: option<string>,
+  surcharge_connector_details: option<surchargeConnectorDetailsType_v1>,
   payment_link_config: option<paymentLinkConfig_v1>,
   is_external_vault_enabled: option<string>,
   external_vault_connector_details: option<externalVaultConnectorDetailsType_v1>,

@@ -230,7 +230,7 @@ module CashToCodeSelectBox = {
       accordionItem
     })
 
-    <div className="w-full">
+    <div className="w-full mt-4">
       <AccordionAdapter
         accordion=accordionItems
         accordionTopContainerCss="mt-4 rounded-lg"
@@ -403,16 +403,9 @@ module ConnectorConfigurationFields = {
 module BusinessProfileRender = {
   @react.component
   let make = (~isUpdateFlow: bool, ~selectedConnector) => {
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-    let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfileRecoilVal =
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
     let connectorLabelOnChange = ReactFinalForm.useField(`connector_label`).input.onChange
-
-    let hereTextStyle = isUpdateFlow
-      ? "text-grey-700 opacity-50 cursor-not-allowed"
-      : `${textColor.primaryNormal}  cursor-pointer`
 
     <>
       <FormRenderer.FieldRenderer
@@ -429,10 +422,7 @@ module BusinessProfileRender = {
               },
               ~customStyle="max-h-48",
               ~options={
-                MerchantAccountUtils.businessProfileNameDropDownOption(
-                  [businessProfileRecoilVal],
-                  ~profileId,
-                )
+                MerchantAccountUtils.businessProfileNameDropDownOption(businessProfileRecoilVal)
               },
               ~buttonText="Select Profile",
             )(
@@ -452,19 +442,6 @@ module BusinessProfileRender = {
             ),
         )}
       />
-      <RenderIf condition={!isUpdateFlow}>
-        <div className="text-gray-400 text-sm mt-3">
-          <span> {"Manage your list of profiles."->React.string} </span>
-          <span
-            className={`ml-1 ${hereTextStyle}`}
-            onClick={_ => {
-              setDashboardPageState(_ => #HOME)
-              RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/business-profiles"))
-            }}>
-            {React.string("here.")}
-          </span>
-        </div>
-      </RenderIf>
     </>
   }
 }

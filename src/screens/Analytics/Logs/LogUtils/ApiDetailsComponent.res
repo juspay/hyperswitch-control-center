@@ -1,5 +1,7 @@
 open LogicUtils
 open LogTypes
+open LogUtils
+open Typography
 @react.component
 let make = (
   ~dataDict,
@@ -14,206 +16,69 @@ let make = (
   ~showLogType=true,
 ) => {
   let {globalUIConfig: {border: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
-  let headerStyle = "text-sm font-medium text-gray-700 break-all"
   let logType = dataDict->getLogType
-  let apiName = switch logType {
-  | API_EVENTS => dataDict->getString("api_flow", "default value")->camelCaseToTitle
-  | SDK => dataDict->getString("event_name", "default value")
-  | CONNECTOR =>
-    dataDict->getString("flow", "default value")->LogUtils.apiNameMapper->camelCaseToTitle
-  | WEBHOOKS => dataDict->getString("event_type", "default value")->snakeToTitle
-  | ROUTING =>
-    dataDict
-    ->getString("flow", "")
-    ->String.split(" ")
-    ->Array.get(1)
-    ->Option.getOr("default_value")
-    ->camelCaseToTitle
-  }->nameToURLMapper
-  let createdTime = dataDict->getString("created_at", "00000")
-  let requestObject = switch logType {
-  | API_EVENTS | CONNECTOR | ROUTING => dataDict->getString("request", "")
-  | SDK =>
-    dataDict
-    ->Dict.toArray
-    ->Array.filter(entry => {
-      let (key, _) = entry
-      filteredKeys->Array.includes(key)->not
-    })
-    ->getJsonFromArrayOfJson
-    ->JSON.stringify
-  | WEBHOOKS => dataDict->getString("content", "")
+  let startTime = {
+    let endMs = dataDict->getString("created_at", "")->Date.fromString->Date.getTime
+    let latencyMs = dataDict->getFloat("latency", 0.0)
+    (endMs -. latencyMs)->Date.fromTime->Date.toISOString
   }
-
-  let responseObject = switch logType {
-  | API_EVENTS | ROUTING => dataDict->getString("response", "")
-  | CONNECTOR => dataDict->getString("masked_response", "")
-  | SDK => {
-      let isErrorLog = dataDict->getString("log_type", "") === "ERROR"
-      isErrorLog ? dataDict->getString("value", "") : ""
-    }
-  | WEBHOOKS => dataDict->getString("outgoing_webhook_event_type", "")
-  }
-
-  let statusCode = switch logType {
-  | API_EVENTS | CONNECTOR | ROUTING => dataDict->getInt("status_code", 200)->Int.toString
-  | SDK => dataDict->getString("log_type", "INFO")
-  | WEBHOOKS => dataDict->getBool("is_error", false) ? "500" : "200"
-  }
-
-  let method = switch logType {
-  | API_EVENTS => dataDict->getString("http_method", "")
-  | CONNECTOR | ROUTING => dataDict->getString("method", "")
-  | SDK => ""
-  | WEBHOOKS => "POST"
-  }
-
-  let statusCodeTextColor = switch logType {
-  | SDK =>
-    switch statusCode {
-    | "INFO" => "blue-500"
-    | "ERROR" => "red-400"
-    | "WARNING" => "yellow-800"
-    | _ => "gray-700 opacity-50"
-    }
-  | WEBHOOKS =>
-    switch statusCode {
-    | "200" => "green-700"
-    | "500" | _ => "gray-700 opacity-50"
-    }
-  | API_EVENTS | CONNECTOR | ROUTING =>
-    switch statusCode {
-    | "200" => "green-700"
-    | "500" => "gray-700 opacity-50"
-    | "400" | "422" => "orange-950"
-    | _ => "gray-700 opacity-50"
-    }
-  }
-
-  let statusCodeBg = switch logType {
-  | SDK =>
-    switch statusCode {
-    | "INFO" => "blue-100"
-    | "ERROR" => "red-100"
-    | "WARNING" => "yellow-100"
-    | _ => "gray-100"
-    }
-  | WEBHOOKS =>
-    switch statusCode {
-    | "200" => "green-50"
-    | "500" | _ => "gray-100"
-    }
-  | API_EVENTS | CONNECTOR | ROUTING =>
-    switch statusCode {
-    | "200" => "green-50"
-    | "500" => "gray-100"
-    | "400" | "422" => "orange-100"
-    | _ => "gray-100"
-    }
-  }
-
+  let requestObject = dataDict->getRequestObject(~logType, ~filteredKeys)
+  let eventCode = requestObject->getEventCode(~logType)
+  let responseObject = dataDict->getResponseObject(~logType)
+  let statusCode = dataDict->getStatusCodeString
+  let method = dataDict->getMethod
+  let statusCodeTextColor = getStatusCodeTextColor(logType, statusCode)
+  let statusCodeBg = getStatusCodeBg(logType, statusCode)
   let isSelected = selectedOption.value === index
-
-  let stepperColor = isSelected
-    ? switch logType {
-      | SDK =>
-        switch statusCode {
-        | "INFO" => "blue-500"
-        | "ERROR" => "red-400"
-        | "WARNING" => "yellow-300"
-        | _ => "gray-700 opacity-50"
-        }
-      | WEBHOOKS =>
-        switch statusCode {
-        | "200" => "green-700"
-        | "500" | _ => "gray-700 opacity-50"
-        }
-      | API_EVENTS | CONNECTOR | ROUTING =>
-        switch statusCode {
-        | "200" => "green-700"
-        | "500" => "gray-700 opacity-50"
-        | "400" | "422" => "orange-950"
-        | _ => "gray-700 opacity-50"
-        }
-      }
-    : "gray-200"
+  let stepperColor = isSelected ? getStepperColor(logType, statusCode) : "bg-nd_gray-200"
   let stepperBorderColor = isSelected
-    ? switch logType {
-      | SDK =>
-        switch statusCode {
-        | "INFO" => "blue-500"
-        | "ERROR" => "red-400"
-        | "WARNING" => "orange-500"
-        | _ => "gray-600"
-        }
-      | WEBHOOKS =>
-        switch statusCode {
-        | "200" => "green-700"
-        | "500" | _ => "gray-700 opacity-50"
-        }
-      | API_EVENTS | CONNECTOR | ROUTING =>
-        switch statusCode {
-        | "200" => "green-700"
-        | "500" => "gray-600"
-        | "400" | "422" => "orange-950"
-        | _ => "gray-600"
-        }
-      }
-    : "gray-200"
-
-  let statusCodeBorderColor = switch logType {
-  | SDK =>
-    switch statusCode {
-    | "INFO" => `${borderColor.primaryNormal}`
-    | "ERROR" => "border border-red-400"
-    | "WARNING" => "border border-yellow-800"
-    | _ => "border border-gray-700 opacity-50"
-    }
-  | WEBHOOKS =>
-    switch statusCode {
-    | "200" => "border border-green-700"
-    | "500" | _ => "border border-gray-700 opacity-80"
-    }
-  | API_EVENTS | CONNECTOR | ROUTING =>
-    switch statusCode {
-    | "200" => "border border-green-700"
-    | "500" => "border border-gray-700 opacity-50"
-    | "400" | "422" => "border border-orange-950"
-    | _ => "border border-gray-700 opacity-50"
-    }
-  }
-
+    ? getStepperBorderColor(logType, statusCode)
+    : "border-nd_gray-200"
+  let statusCodeBorderColor = getStatusCodeBorderColor(
+    logType,
+    statusCode,
+    ~primaryBorder=borderColor.primaryNormal,
+  )
   let borderClass = isSelected ? `${statusCodeBorderColor} rounded-md` : "border border-transparent"
+  let rowOrigin = dataDict->getRowOrigin
+  let originLabel = rowOrigin->getOriginLabel
+  let originIcon = rowOrigin->getOriginIcon
+  let webhookDirection = dataDict->getWebhookDirection(~logType)
+  let urlPath = dataDict->getUrlPath
+  let sdkCategoryLabel = dataDict->getSdkCategoryLabel(~logType)
+  let latencyText = dataDict->getLatencyText(~logType)
+  let isFailed = dataDict->getIsFailed(~logType)
+  let title = dataDict->getRowTitle(~nameToURLMapper)
 
-  let iconName = switch logType {
-  | SDK => "desktop"
-  | WEBHOOKS => "anchor"
-  | API_EVENTS => "api-icon"
-  | CONNECTOR => "connector-icon"
-  | ROUTING => "routing"
+  let (qualifierLabel, qualifierIcon) = switch webhookDirection {
+  | Incoming => ("Incoming", "arrow-down")
+  | Outgoing => ("Outgoing", "arrow-up")
+  | NoDirection =>
+    sdkCategoryLabel->isNonEmptyString
+      ? (sdkCategoryLabel, sdkCategoryLabel === "API Call" ? "api-icon" : "user")
+      : ("", "")
   }
 
   <div className="flex items-start gap-4">
     <div className="flex flex-col items-center h-full my-4 relative">
       <RenderIf condition={showLogType}>
-        <Icon name=iconName size=12 className="text-jp-gray-900" />
+        <Icon name={dataDict->getHeadingIcon} size=12 className="text-nd_gray-800" />
         <div
-          className={`h-full border-${stepperBorderColor} border-dashed rounded  divide-x-2 border-2 my-1`}
+          className={`h-full ${stepperBorderColor} border-dashed rounded  divide-x-2 border-2 my-1`}
         />
       </RenderIf>
-      <div className={`w-fit h-fit p-1  border rounded-md bg-${stepperColor} border-gray-300`} />
+      <div className={`w-fit h-fit p-1  border rounded-md ${stepperColor} border-nd_gray-300`} />
       <div
-        className={`h-full border-${stepperBorderColor} border-dashed rounded  divide-x-2 border-2 my-1`}
+        className={`h-full ${stepperBorderColor} border-dashed rounded  divide-x-2 border-2 my-1`}
       />
       <RenderIf condition={index === logsDataLength}>
-        <div className={`w-fit h-fit p-1  border rounded-md bg-${stepperColor} border-gray-300`} />
+        <div className={`w-fit h-fit p-1  border rounded-md ${stepperColor} border-nd_gray-300`} />
       </RenderIf>
     </div>
-    <div className="flex flex-col gap-3 w-full">
+    <div className="flex flex-col gap-3 w-full min-w-0">
       <RenderIf condition={showLogType}>
-        <span
-          className={`text-base font-bold break-all flex gap-1 leading-none my-4 text-jp-gray-900`}>
-          {`${logType->getTagName}`->React.string}
+        <span className={`${body.lg.bold} break-all flex gap-1 leading-none my-4 text-nd_gray-800`}>
+          {dataDict->getHeadingLabel->React.string}
         </span>
       </RenderIf>
       <div
@@ -231,29 +96,78 @@ let make = (
             optionType: logType,
           })
         }}>
-        <div className="flex flex-col gap-1">
-          <div className="flex gap-3">
-            <div className={`bg-${statusCodeBg} h-fit w-fit px-2 py-1 rounded-md`}>
-              <p className={`text-${statusCodeTextColor} text-sm font-bold `}>
-                {statusCode->React.string}
+        <div className="flex flex-col gap-1.5 w-full min-w-0">
+          <div className="flex items-start justify-between gap-3 w-full">
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className={`${statusCodeBg} h-fit w-fit px-2 py-0.5 rounded-md`}>
+                <p className={`${statusCodeTextColor} ${body.md.bold}`}>
+                  {statusCode->React.string}
+                </p>
+              </div>
+              <p
+                className={`${body.md.semibold} text-nd_gray-800 break-all ${isSelected
+                    ? ""
+                    : "opacity-90"}`}>
+                {title->React.string}
               </p>
             </div>
-            {switch logType {
-            | SDK | ROUTING =>
-              <p className={`${headerStyle} mt-1 ${isSelected ? "" : "opacity-80"}`}>
-                {apiName->String.toLowerCase->snakeToTitle->React.string}
+            <RenderIf condition={latencyText->isNonEmptyString}>
+              <p
+                className={`${code.md.regular} whitespace-nowrap pt-1 ${isFailed
+                    ? statusCodeTextColor
+                    : "text-nd_gray-400"}`}>
+                {latencyText->React.string}
               </p>
-            | API_EVENTS | WEBHOOKS | CONNECTOR =>
-              <p className={`${headerStyle} ${isSelected ? "" : "opacity-80"}`}>
-                <span className="mr-3 border-2 px-1 py-0.5 rounded text-sm">
+            </RenderIf>
+          </div>
+          <RenderIf condition={method->isNonEmptyString || urlPath->isNonEmptyString}>
+            <div className="flex items-center gap-2 w-full min-w-0">
+              <RenderIf condition={method->isNonEmptyString}>
+                <span
+                  className={`flex-none border border-nd_gray-300 text-nd_gray-500 px-1 py-0.5 rounded ${code.md.regular}`}>
                   {method->String.toUpperCase->React.string}
                 </span>
-                <span className="leading-7"> {apiName->React.string} </span>
-              </p>
-            }}
-          </div>
-          <div className={`${headerStyle} opacity-40 flex gap-1`}>
-            <TableUtils.DateCell timestamp={createdTime} />
+              </RenderIf>
+              <RenderIf condition={urlPath->isNonEmptyString}>
+                <div className="min-w-0 overflow-hidden">
+                  <ToolTipBinding
+                    side=ToolTipBinding.Top
+                    content={<span className={`${code.md.regular} break-all`}>
+                      {urlPath->React.string}
+                    </span>}>
+                    <span
+                      className={`inline-block max-w-full align-middle truncate ${code.md.regular} text-nd_gray-600 bg-nd_gray-50 border border-nd_gray-200 px-1.5 py-0.5 rounded cursor-default`}>
+                      {urlPath->React.string}
+                    </span>
+                  </ToolTipBinding>
+                </div>
+              </RenderIf>
+            </div>
+          </RenderIf>
+          <div
+            className={`flex items-center flex-wrap gap-y-1 gap-x-1.5 ${body.sm.medium} text-nd_gray-500`}>
+            <RenderIf condition={eventCode->isNonEmptyString}>
+              <span
+                className={`inline-flex items-center border border-nd_gray-300 text-nd_gray-600 px-1.5 py-0.5 rounded ${code.md.regular}`}>
+                {eventCode->React.string}
+              </span>
+              <span className="text-nd_gray-300"> {"·"->React.string} </span>
+            </RenderIf>
+            <RenderIf condition={originLabel->isNonEmptyString}>
+              <span className="inline-flex items-center gap-1">
+                <Icon name=originIcon size=14 className="text-nd_gray-400" />
+                {originLabel->React.string}
+              </span>
+            </RenderIf>
+            <RenderIf condition={qualifierLabel->isNonEmptyString}>
+              <span className="text-nd_gray-300"> {"·"->React.string} </span>
+              <span className="inline-flex items-center gap-1">
+                <Icon name=qualifierIcon size=12 className="text-nd_gray-400" />
+                {qualifierLabel->React.string}
+              </span>
+            </RenderIf>
+            <span className="text-nd_gray-300"> {"·"->React.string} </span>
+            <TableUtils.DateCell timestamp=startTime />
           </div>
         </div>
       </div>

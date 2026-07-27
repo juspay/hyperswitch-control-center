@@ -17,7 +17,9 @@ export class FrmConnector {
 
   get saveOrConnectOrProceedButton(): Locator {
     return this.page
-      .locator('button:has-text("Save"), button:has-text("Connect"), button:has-text("Proceed")')
+      .locator(
+        'button:has-text("Save"), button:has-text("Connect"), button:has-text("Proceed")',
+      )
       .first();
   }
 }

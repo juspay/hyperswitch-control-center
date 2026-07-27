@@ -10,4 +10,17 @@ type viewTypes =
   | Expired
   | Reversed
   | RequiresCapture
+  | FirstAttemptSuccess
+  | RetrySuccess
+  | Refunded
+  | Disputed
   | None
+
+type clickhouseAggregateMetric = {
+  urlPrefix: string,
+  domain: string,
+  metric: string,
+  groupByField: string,
+  statusField: string,
+  countField: string,
+}

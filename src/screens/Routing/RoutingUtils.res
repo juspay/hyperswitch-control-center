@@ -26,6 +26,15 @@ let routingTypeName = routingType => {
   }
 }
 
+let decisionEngineRoutingTarget = routingType => {
+  switch routingType {
+  | VOLUME_SPLIT => "volume"
+  | ADVANCED => "rule"
+  | AUTH_RATE_ROUTING => "multi_objective"
+  | _ => ""
+  }
+}
+
 let getRoutingPayload = (data, routingType, name, description, profileId) => {
   let connectorsOrder =
     [("data", data->JSON.Encode.array), ("type", routingType->JSON.Encode.string)]->Dict.fromArray
@@ -69,10 +78,10 @@ let getModalObj = (routingType, text) => {
   }
 }
 
-let getContent = routetype =>
+let getContent = (~isCutover=false, routetype) =>
   switch routetype {
   | DEFAULTFALLBACK => {
-      heading: "Default fallback ",
+      heading: "Default Fallback ",
       subHeading: "Fallback is the priority list of configured processors used for routing traffic alone or when other rules don’t apply. You can reorder it via drag and drop",
     }
   | VOLUME_SPLIT => {
@@ -83,10 +92,16 @@ let getContent = routetype =>
       heading: "Rule Based Configuration",
       subHeading: "Route traffic across processors with advanced logic rules on the basis of various payment parameters",
     }
-  | AUTH_RATE_ROUTING => {
-      heading: "Auth Rate Based Routing",
-      subHeading: "Dynamically route payments to maximise payment authorization rates",
-    }
+  | AUTH_RATE_ROUTING =>
+    isCutover
+      ? {
+          heading: "Multi Objective Routing",
+          subHeading: "Route payments across multiple objectives — authorization rate, cost, and reliability — optimized by the Decision Engine",
+        }
+      : {
+          heading: "Auth Rate Based Routing",
+          subHeading: "Dynamically route payments to maximise payment authorization rates",
+        }
   | _ => {
       heading: "",
       subHeading: "",
@@ -175,7 +190,7 @@ module SaveAndActivateButton = {
 }
 module ConfigureRuleButton = {
   @react.component
-  let make = (~setShowModal) => {
+  let make = (~setShowModal, ~customButtonStyle="w-1/5") => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
@@ -189,7 +204,7 @@ module ConfigureRuleButton = {
       onClick={_ => {
         setShowModal(_ => true)
       }}
-      customButtonStyle="w-1/5"
+      customButtonStyle
     />
   }
 }

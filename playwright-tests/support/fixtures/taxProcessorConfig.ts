@@ -17,9 +17,7 @@ export const taxProcessorConfig: Record<string, ConnectorConfig> = {
       overrides: {
         "Enter Connector label": "taxjar_default",
       },
-      fieldLabels: [
-        "Sandbox Token *",
-      ],
+      fieldLabels: ["Sandbox Token *"],
     },
   },
 };

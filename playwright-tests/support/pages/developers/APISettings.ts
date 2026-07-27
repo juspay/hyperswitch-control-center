@@ -28,8 +28,12 @@ export class APISettings {
     return this.page.getByRole("button", { name: "Create New API Key" });
   }
 
+  get applyButton(): Locator {
+    return this.page.getByRole('button', { name: 'Apply' });
+  }
+
   get createButton(): Locator {
-    return this.page.getByRole("button", { name: "Create", exact: true });
+    return this.page.getByRole('button', { name: 'Create', exact: true });
   }
 
   get updateButton(): Locator {
@@ -52,12 +56,11 @@ export class APISettings {
     return this.page.getByRole("button", { name: "Select Date" });
   }
 
-  get chevronRight(): Locator {
-    return this.page.locator('[data-icon="chevron-right"]').first();
-  }
-
   get yesDeleteItButton(): Locator {
-    return this.page.getByRole("button", { name: "Yes, delete it", exact: true });
+    return this.page.getByRole("button", {
+      name: "Yes, delete it",
+      exact: true,
+    });
   }
 
   // Modal Headings
@@ -115,9 +118,12 @@ export class APISettings {
   }
 
   get descriptionTooLongError(): Locator {
-    return this.page.getByText("Description can't be more than 256 characters", {
-      exact: true,
-    });
+    return this.page.getByText(
+      "Description can't be more than 256 characters",
+      {
+        exact: true,
+      },
+    );
   }
 
   get descriptionRequiredErrorExact(): Locator {
@@ -161,7 +167,10 @@ export class APISettings {
     await this.createNewApiKeyButton.click();
   }
 
-  async fillNameAndDescription(name: string, description: string): Promise<void> {
+  async fillNameAndDescription(
+    name: string,
+    description: string,
+  ): Promise<void> {
     await this.nameInput.fill(name);
     await this.descriptionInput.fill(description);
   }
