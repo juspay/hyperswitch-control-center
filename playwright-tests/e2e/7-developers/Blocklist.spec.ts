@@ -121,17 +121,17 @@ test.describe("Blocklist", () => {
           data:
             listRequestCount > 1
               ? [
-                  {
-                    job_id: "blkbatch_test",
-                    merchant_id: "merchant_test",
-                    status: "initiated",
-                    total_rows: 3,
-                    succeeded_rows: 0,
-                    failed_rows: 0,
-                    created_at: "2026-05-06T06:08:47.617Z",
-                    updated_at: "2026-05-06T06:08:47.617Z",
-                  },
-                ]
+                {
+                  job_id: "blockbatch_test",
+                  merchant_id: "merchant_test",
+                  status: "initiated",
+                  total_rows: 3,
+                  succeeded_rows: 0,
+                  failed_rows: 0,
+                  created_at: "2026-05-06T06:08:47.617Z",
+                  updated_at: "2026-05-06T06:08:47.617Z",
+                },
+              ]
               : [],
           total_count: listRequestCount > 1 ? 1 : 0,
         }),
@@ -141,10 +141,10 @@ test.describe("Blocklist", () => {
     await page.route("**/blocklist/batch", async (route) => {
       if (route.request().method() === "POST") {
         await route.fulfill({
-          status: 202,
+          status: 200,
           contentType: "application/json",
           body: JSON.stringify({
-            job_id: "blkbatch_test",
+            job_id: "blockbatch_test",
             total_rows: 3,
             status: "initiated",
           }),
@@ -172,7 +172,7 @@ test.describe("Blocklist", () => {
       (response) =>
         response.url().includes("/blocklist/batch") &&
         response.request().method() === "POST" &&
-        response.status() === 202,
+        response.status() === 200,
     );
     const refreshedListPromise = page.waitForResponse((response) => {
       const requestUrl = new URL(response.url());
@@ -190,7 +190,7 @@ test.describe("Blocklist", () => {
       blocklist.uploadButton.click(),
     ]);
 
-    await expect(page.getByText("blkbatch_test")).toBeVisible();
+    await expect(page.getByText('blockbatch_test', { exact: true })).toBeVisible();
   });
 
   test("should request and render the second page using item offset", async ({
@@ -225,7 +225,7 @@ test.describe("Blocklist", () => {
     await homePage.blocklist.click();
     await expect(page.getByText("blkbatch_01")).toBeVisible();
 
-    await page.getByRole("button", { name: "2" }).click();
+    await page.getByRole('button', { name: '2', exact: true }).click();
 
     await expect(page.getByText("blkbatch_21")).toBeVisible();
     expect(secondPageRequestUrl).toContain("limit=20");
