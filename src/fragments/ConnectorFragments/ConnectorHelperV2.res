@@ -262,7 +262,7 @@ module ProcessorStatus = {
       form.change("disabled", !isSelected->Identity.genericTypeToJson)
       form.submit()->ignore
     }
-    <BoolInput.BaseComponent
+    <SwitchAdapter
       isSelected={!connectorInfo.disabled}
       setIsSelected={isSelected => updateConnectorStatus(isSelected)}
       isDisabled=false
