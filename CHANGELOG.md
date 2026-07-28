@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.07.28.0
+
+### Features
+
+- Revamp revenue recovery home page ([#5188](https://github.com/juspay/hyperswitch-control-center/pull/5188)) ([`b8226e7`](https://github.com/juspay/hyperswitch-control-center/commit/b8226e7ff5d95b3ddae817b4266662b322767bbb))
+- Recon engine add `transformation_id` in manual reconciliation request ([#4221](https://github.com/juspay/hyperswitch-control-center/pull/4221)) ([`02d4d83`](https://github.com/juspay/hyperswitch-control-center/commit/02d4d83b749dd5a220c5cb5c08d0709646cbec51))
+- Clipboard-based payment/refund ID suggestion in global search ([#4622](https://github.com/juspay/hyperswitch-control-center/pull/4622)) ([`7f502e2`](https://github.com/juspay/hyperswitch-control-center/commit/7f502e2a02a0c8a52e2542ce3ba5b457f1234105))
+- Revamp cost observability landing page UI ([#5000](https://github.com/juspay/hyperswitch-control-center/pull/5000)) ([`7a43b46`](https://github.com/juspay/hyperswitch-control-center/commit/7a43b46003bda33e50d29a5b3d9b7f59b57f9050))
+- Add GivePayments Connector in Dashboard ([#5212](https://github.com/juspay/hyperswitch-control-center/pull/5212)) ([`d0432e3`](https://github.com/juspay/hyperswitch-control-center/commit/d0432e3f729f3a203ea17ddca1641f5c1b19134e))
+
+### Bug Fixes
+
+- Table selection behaviour and filter dropdown right-icon support ([#5253](https://github.com/juspay/hyperswitch-control-center/pull/5253)) ([`5499e1a`](https://github.com/juspay/hyperswitch-control-center/commit/5499e1a14bbcbf04e4e53d4c7ff947edb4eb1fc3))
+- Dispute evidence upload failing with IR_36 (File content type not found) ([#5076](https://github.com/juspay/hyperswitch-control-center/pull/5076)) ([`8ae3b33`](https://github.com/juspay/hyperswitch-control-center/commit/8ae3b336b588a7d84b79d8ce30195d3e9d35a1f1))
+- Omit unused amount filter from requests ([#5184](https://github.com/juspay/hyperswitch-control-center/pull/5184)) ([`42f1de0`](https://github.com/juspay/hyperswitch-control-center/commit/42f1de069315ede45201f8fd118a6078843d6ff1))
+
+**Full Changelog:** [`2026.07.27.0...2026.07.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.27.0...2026.07.28.0)
+
+- - -
+
 ## 2026.07.27.0
 
 ### Features
