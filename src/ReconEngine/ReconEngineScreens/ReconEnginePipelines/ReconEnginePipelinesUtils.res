@@ -355,6 +355,22 @@ let initialStagingEntriesFilters = (
   ]
 }
 
+let getParsingConfigLabels = (parsingConfig: parsingConfig): (string, string, string) =>
+  switch parsingConfig {
+  | CsvParsingConfig => ("CSV", "—", "")
+  | XlsxParsingConfig({headerRowIndex, sheetSelection}) => (
+      "XLSX",
+      headerRowIndex->Int.toString,
+      switch sheetSelection {
+      | ByName(name) => name
+      | ByIndex(index) => `Sheet ${index->Int.toString}`
+      | UnknownSheetSelection => ""
+      },
+    )
+  | FixedWidthParsingConfig => ("FIXED WIDTH", "—", "")
+  | UnknownParsingConfig => ("—", "—", "")
+  }
+
 let describeReplaceMode = (mode: replaceMode): string =>
   switch mode {
   | ReplaceAll => "all occurrences"
@@ -467,29 +483,12 @@ let describeMajorUnitValidationRule = (rule: majorUnitValidationRule): string =>
   | UnknownMajorUnitValidationRule => "Unknown rule"
   }
 
-let describeTruncationPrecision = (precision: truncationPrecision): string =>
-  switch precision {
-  | StartOfHour => "start of hour"
-  | StartOfDay => "start of day"
-  | StartOfMonth => "start of month"
-  | StartOfYear => "start of year"
-  | UnknownTruncationPrecision => "unknown precision"
-  }
-
-let describeDurationUnit = (unit: durationUnit): string =>
-  switch unit {
-  | Minutes => "minutes"
-  | Hours => "hours"
-  | Days => "days"
-  | UnknownDurationUnit => "unknown unit"
-  }
-
 let describeDateTimeDuration = (duration: dateTimeDuration): string =>
-  `${duration.value->Int.toString} ${duration.unit->describeDurationUnit}`
+  `${duration.value->Int.toString} ${(duration.unit :> string)}`
 
 let describeDateTimePostParseRule = (rule: dateTimePostParseRule): string =>
   switch rule {
-  | PostParseTruncate(precision) => `Truncate (${precision->describeTruncationPrecision})`
+  | PostParseTruncate(precision) => `Truncate (${(precision :> string)->snakeToTitle})`
   | PostParseAddDuration(duration) => `Add ${duration->describeDateTimeDuration}`
   | PostParseSubtractDuration(duration) => `Subtract ${duration->describeDateTimeDuration}`
   | UnknownDateTimePostParseRule => "Unknown rule"
@@ -625,16 +624,6 @@ let formatDuration = (startIso: string, endIso: string): string => {
   }
 }
 
-let mainFieldLabel = (fieldName: string): string =>
-  switch fieldName {
-  | "currency" => "Currency"
-  | "amount" => "Amount"
-  | "effective_at" => "Effective at"
-  | "balance_direction" => "Balance direction"
-  | "order_id" => "Order ID"
-  | other => snakeToTitle(other)
-  }
-
 let entryFieldTarget = (field: entryField): string =>
   switch field {
   | Metadata(key) => `metadata.${key}`
@@ -651,7 +640,7 @@ let metadataFieldLabel = (field: metadataFieldType): string =>
 
 let getDisplayFields = (fields: schemaFieldsType): array<displayField> => {
   let mainFields = fields.main_fields->Array.map((field): displayField => {
-    label: field.field_name->mainFieldLabel,
+    label: field.field_name->snakeToTitle,
     target: field.field_name,
     fieldIdentifier: field.identifier,
     isRequired: true,

@@ -68,34 +68,16 @@ let make = (
     selectedTransformation.account_id,
   )
 
-  let skipConfigs = React.useMemo(() => {
-    transformationConfig.config
-    ->getDictFromJsonObject
-    ->getArrayFromDict("skip_configs", [])
-    ->getMappedValueFromArrayOfJson(skipConfigMapper)
+  let (skipConfigs, parsingConfig) = React.useMemo(() => {
+    let config = transformationConfig.config->getDictFromJsonObject
+    let skipConfigs =
+      config->getArrayFromDict("skip_configs", [])->getMappedValueFromArrayOfJson(skipConfigMapper)
+    let parsingConfig = config->getDictfromDict("parsing_config")->parsingConfigMapper
+
+    (skipConfigs, parsingConfig)
   }, [transformationConfig])
 
-  let parsingConfig = React.useMemo(() => {
-    transformationConfig.config
-    ->getDictFromJsonObject
-    ->getDictfromDict("parsing_config")
-    ->parsingConfigMapper
-  }, [transformationConfig])
-
-  let (fileFormatLabel, headerRowLabel, sheetLabel) = switch parsingConfig {
-  | CsvParsingConfig => ("CSV", "—", "")
-  | XlsxParsingConfig({headerRowIndex, sheetSelection}) => (
-      "XLSX",
-      headerRowIndex->Int.toString,
-      switch sheetSelection {
-      | ByName(name) => name
-      | ByIndex(index) => `Sheet ${index->Int.toString}`
-      | UnknownSheetSelection => ""
-      },
-    )
-  | FixedWidthParsingConfig => ("FIXED WIDTH", "—", "")
-  | UnknownParsingConfig => ("—", "—", "")
-  }
+  let (fileFormatLabel, headerRowLabel, sheetLabel) = parsingConfig->getParsingConfigLabels
 
   <Modal
     setShowModal

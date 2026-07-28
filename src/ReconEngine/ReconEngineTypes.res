@@ -424,16 +424,20 @@ type enumTransformationRule =
   | EnumJsonExtract(string)
   | UnknownEnumTransformationRule
 
-type durationUnit = Minutes | Hours | Days | UnknownDurationUnit
+type durationUnit =
+  | @as("minutes") Minutes
+  | @as("hours") Hours
+  | @as("days") Days
+  | @as("unknown") UnknownDurationUnit
 
 type dateTimeDuration = {value: int, unit: durationUnit}
 
 type truncationPrecision =
-  | StartOfHour
-  | StartOfDay
-  | StartOfMonth
-  | StartOfYear
-  | UnknownTruncationPrecision
+  | @as("start_of_hour") StartOfHour
+  | @as("start_of_day") StartOfDay
+  | @as("start_of_month") StartOfMonth
+  | @as("start_of_year") StartOfYear
+  | @as("unknown") UnknownTruncationPrecision
 
 type dateTimePostParseRule =
   | PostParseTruncate(truncationPrecision)

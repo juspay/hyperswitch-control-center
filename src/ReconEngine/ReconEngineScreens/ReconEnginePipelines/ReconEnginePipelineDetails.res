@@ -144,20 +144,16 @@ let make = (~ingestionHistoryId: string) => {
     historyItem.account_id,
   )
 
-  let statCards = React.useMemo(() => {
-    getPipelineDetailStatCards(~transformationHistory=transformations)
-  }, [transformations])
-
-  let transformationOptions = React.useMemo(() => {
-    transformations->Array.map(t => {
+  let (statCards, stagingEntriesFilters) = React.useMemo(() => {
+    let statCards = getPipelineDetailStatCards(~transformationHistory=transformations)
+    let transformationOptions = transformations->Array.map(t => {
       FilterSelectBox.label: t.transformation_name,
       value: t.transformation_history_id,
     })
-  }, [transformations])
+    let stagingEntriesFilters = initialStagingEntriesFilters(~transformationOptions)
 
-  let stagingEntriesFilters = React.useMemo(() => {
-    initialStagingEntriesFilters(~transformationOptions)
-  }, [transformationOptions])
+    (statCards, stagingEntriesFilters)
+  }, [transformations])
 
   <PageLoaderWrapper screenState>
     <div className="w-full flex flex-col gap-6">
