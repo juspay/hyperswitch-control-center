@@ -87,6 +87,7 @@ module ConnectorSummaryGrid = {
     open ConnectorUtils
     open ConnectorPreviewTypes
     open LogicUtils
+    open Typography
 
     let url = RescriptReactRouter.useUrl()
     let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -148,11 +149,11 @@ module ConnectorSummaryGrid = {
       connectorDetails
       ->getDictFromJsonObject
       ->getDictfromDict("connector_webhook_register_details")
-      ->isEmptyDict
+      ->isNonEmptyDict
 
     <>
       <div className="grid grid-cols-4 border-b md:px-10 py-8">
-        <h4 className="text-lg font-semibold"> {"Integration status"->React.string} </h4>
+        <h4 className={heading.sm.semibold}> {"Integration status"->React.string} </h4>
         <AddDataAttributes attributes=[("data-testid", "connector_status"->String.toLowerCase)]>
           <TagBinding
             text={connectorInfo.status->String.toUpperCase}
@@ -165,7 +166,7 @@ module ConnectorSummaryGrid = {
       </div>
       <div className="grid grid-cols-4 border-b md:px-10 py-8">
         <div className="flex items-start">
-          <h4 className="text-lg font-semibold"> {"Webhook Endpoint"->React.string} </h4>
+          <h4 className={heading.sm.semibold}> {"Webhook Endpoint"->React.string} </h4>
           <ToolTip
             description="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor"
             toolTipFor={<Icon name="tooltip_info" className={`mt-1 ml-1`} />}
@@ -177,14 +178,14 @@ module ConnectorSummaryGrid = {
         </div>
       </div>
       <div className="grid grid-cols-4 border-b  md:px-10 py-8">
-        <h4 className="text-lg font-semibold"> {"Profile"->React.string} </h4>
+        <h4 className={heading.sm.semibold}> {"Profile"->React.string} </h4>
         <div className="col-span-3 font-semibold text-base text-grey-700 opacity-70">
           {`${businessProfileRecoilVal.profile_name} - ${connectorInfo.profile_id}`->React.string}
         </div>
       </div>
       <div className="grid grid-cols-4 border-b  md:px-10">
         <div className="flex items-start">
-          <h4 className="text-lg font-semibold py-8"> {"Credentials"->React.string} </h4>
+          <h4 className={`${heading.sm.semibold} py-8`}> {"Credentials"->React.string} </h4>
         </div>
         <div className="flex flex-col gap-6  col-span-3">
           <div className="flex gap-12">
@@ -239,7 +240,7 @@ module ConnectorSummaryGrid = {
       | Some(state) =>
         <div className="grid grid-cols-4 border-b md:px-10 py-8">
           <div className="flex items-start">
-            <h4 className="text-lg font-semibold"> {"PMTs"->React.string} </h4>
+            <h4 className={heading.sm.semibold}> {"PMTs"->React.string} </h4>
           </div>
           <div className="flex flex-col gap-6 col-span-3">
             <div className="flex gap-12">
@@ -302,7 +303,7 @@ module ConnectorSummaryGrid = {
 
       | None => React.null
       }}
-      <RenderIf condition={!hasWebhookRegister}>
+      <RenderIf condition={hasWebhookRegister}>
         <ConnectorPreviewHelper.RegisteredWebhooks
           connectorInfo connector setCurrentStep webhookStepValue
         />

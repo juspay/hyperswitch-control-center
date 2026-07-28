@@ -2641,7 +2641,7 @@ let connectorHasWebhookRegister = connector =>
     Window.getConnectorConfig(connector)
     ->getDictFromJsonObject
     ->getDictfromDict("connector_webhook_register_details")
-    ->isEmptyDict
+    ->isNonEmptyDict
   } catch {
   | _ => false
   }
@@ -2651,8 +2651,8 @@ let stepsArr = (~connector) => {
   | Processors(PAYSAFE) => [IntegFields, PaymentMethods, CustomMetadata, SummaryAndTest]
   | _ =>
     connector->connectorHasWebhookRegister
-      ? [IntegFields, PaymentMethods, SummaryAndTest]
-      : [IntegFields, PaymentMethods, WebhookRegistration, SummaryAndTest]
+      ? [IntegFields, PaymentMethods, WebhookRegistration, SummaryAndTest]
+      : [IntegFields, PaymentMethods, SummaryAndTest]
   }
 }
 
