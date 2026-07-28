@@ -302,7 +302,7 @@ module ConnectorSummaryGrid = {
 
       | None => React.null
       }}
-      <RenderIf condition={hasWebhookRegister}>
+      <RenderIf condition={!hasWebhookRegister}>
         <ConnectorPreviewHelper.RegisteredWebhooks
           connectorInfo connector setCurrentStep webhookStepValue
         />

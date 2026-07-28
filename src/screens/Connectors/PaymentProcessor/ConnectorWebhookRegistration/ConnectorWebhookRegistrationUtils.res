@@ -14,13 +14,6 @@ let registerStatusFromString = str =>
   | _ => Failed
   }
 
-let scopeTypeToRequestType = scopeType =>
-  switch scopeType {
-  | PaymentMethodType => "payment_method_types"
-  | EventType => "event_types"
-  | NotSpecific => "not_specific"
-  }
-
 let makeRegisterConfig = (dict): registerConfig => {
   label: dict->getString("label", ""),
   webhook_auto_configuration_supported: dict->getBool(
@@ -103,17 +96,19 @@ let getSelectedItems = items =>
   )
 
 let getRegisteredValues = webhooks =>
-  webhooks->Array.filterMap(webhook => {
+  webhooks
+  ->Array.filterMap(webhook => {
     let scope = webhook->getDictFromJsonObject->getDictfromDict("scope")
-    let scopeType = scope->getString("type", "")
+    let scopeType = scope->getString("type", "")->scopeTypeFromString
     let value = scope->getString("value", "")
 
     switch (scopeType, value->isNonEmptyString) {
-    | ("not_specific", _) => Some(notSpecificId)
+    | (NotSpecific, _) => Some(notSpecificId)
     | (_, true) => Some(value)
     | (_, false) => None
     }
   })
+  ->removeDuplicate
 
 let getSeededItems = (~scopeType, ~displayItems, ~registeredValues) =>
   switch scopeType {
@@ -132,9 +127,9 @@ let getSeededItems = (~scopeType, ~displayItems, ~registeredValues) =>
 
 let makeRegisterBody = (~scopeType, ~selectedIdentifiers) => {
   let scope = switch scopeType {
-  | NotSpecific => [("type", NotSpecific->scopeTypeToRequestType->JSON.Encode.string)]
+  | NotSpecific => [("type", (NotSpecific :> string)->JSON.Encode.string)]
   | PaymentMethodType | EventType => [
-      ("type", scopeType->scopeTypeToRequestType->JSON.Encode.string),
+      ("type", (scopeType :> string)->JSON.Encode.string),
       ("values", selectedIdentifiers->Array.map(JSON.Encode.string)->JSON.Encode.array),
     ]
   }
@@ -167,3 +162,11 @@ let getFailedIdentifiers = (results: array<registerResult>) =>
     | Succeeded => None
     }
   )
+
+let getFailedRegistrationMessage = (~scopeType, ~failedIdentifiers) =>
+  switch scopeType {
+  | NotSpecific => "Webhook registration was not successful"
+  | PaymentMethodType | EventType =>
+    let labels = failedIdentifiers->Array.map(getItemLabel(~scopeType, _))->Array.joinWith(", ")
+    `Webhook registration for ${labels} was not successful`
+  }

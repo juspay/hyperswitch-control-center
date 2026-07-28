@@ -49,7 +49,10 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
       )
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => {
+    | _ =>
+      if isUpdateFlow {
+        setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch registered webhooks"))
+      } else {
         setItems(_ =>
           getSeededItems(~scopeType=registerConfig.scope_type, ~displayItems, ~registeredValues=[])
         )
@@ -104,12 +107,10 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
       setScreenState(_ => PageLoaderWrapper.Success)
       let failedIdentifiers = response.results->getFailedIdentifiers
       if failedIdentifiers->isNonEmptyArray {
-        let message = switch registerConfig.scope_type {
-        | NotSpecific => "Webhook registration was not successful"
-        | PaymentMethodType | EventType =>
-          let labels = failedIdentifiers->Array.map(getItemLabel)->Array.joinWith(", ")
-          `Webhook registration for ${labels} was not successful`
-        }
+        let message = getFailedRegistrationMessage(
+          ~scopeType=registerConfig.scope_type,
+          ~failedIdentifiers,
+        )
         showToast(~message, ~toastType=ToastError)
       } else {
         setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
