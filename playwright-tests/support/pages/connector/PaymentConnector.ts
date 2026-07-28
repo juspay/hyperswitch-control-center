@@ -84,13 +84,15 @@ export class PaymentConnector {
   }
 
   get paymentMethodToggle(): Locator {
-    return this.page
-      .locator(".flex.items-center.transition.rounded-2\\.5")
-      .first();
+    return this.page.locator("[data-bool-value]").first();
   }
 
   get connectorEnableToggle(): Locator {
-    return this.page.locator(".transition.rounded-full");
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^(Enabled|Disabled)$/ })
+      .locator("[data-bool-value]")
+      .first();
   }
 
   get submitButton(): Locator {
