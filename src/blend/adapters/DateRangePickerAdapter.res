@@ -26,7 +26,7 @@ let toBlendPreset = (
       Date.setMonth(sixMonthsAgo, Date.getMonth(sixMonthsAgo) - 6)
       makeCustomPreset(
         ~id="last6Months",
-        ~label="Last 6 Months",
+        ~label="Last 6 months",
         ~startDate=sixMonthsAgo,
         ~endDate=now,
       )
@@ -45,7 +45,7 @@ let toBlendPreset = (
       )
       makeCustomPreset(
         ~id="nextMonth",
-        ~label="Next Month",
+        ~label="Next month",
         ~startDate=firstOfNextMonth,
         ~endDate=lastOfNextMonth,
       )
@@ -59,7 +59,7 @@ let toBlendPreset = (
       } else {
         let now = Date.make()
         let hoursAgo = Date.fromTime(Date.getTime(now) -. x *. 3600.0 *. 1000.0)
-        let label = `Last ${x->Float.toString->removeTrailingZero} Hours`
+        let label = `Last ${x->Float.toString->removeTrailingZero} hours`
         makeCustomPreset(
           ~id=`last_${x->Float.toString}_hours`,
           ~label,
@@ -70,7 +70,7 @@ let toBlendPreset = (
     } else {
       let now = Date.make()
       let hoursFromNow = Date.fromTime(Date.getTime(now) +. x *. 3600.0 *. 1000.0)
-      let label = `Next ${x->Float.toString->removeTrailingZero} Hours`
+      let label = `Next ${x->Float.toString->removeTrailingZero} hours`
       makeCustomPreset(
         ~id=`next_${x->Float.toString}_hours`,
         ~label,
@@ -86,7 +86,7 @@ let toBlendPreset = (
     } else {
       let now = Date.make()
       let daysAgo = (now->DayJs.getDayJsForJsDate).subtract(x->Float.toInt, "day").toDate()
-      let label = `Last ${x->Float.toString->removeTrailingZero} Days`
+      let label = `Last ${x->Float.toString->removeTrailingZero} days`
       makeCustomPreset(
         ~id=`last_${x->Float.toString}_days`,
         ~label,
@@ -100,15 +100,12 @@ let toBlendPreset = (
 let formatIsoToFormat = (date: Date.t, format: string) =>
   date->Date.toISOString->TimeZoneHook.formattedISOString(format)
 
-let getMinMaxDates = (~dateRangeLimit, ~disableFutureDates, ~disablePastDates) =>
-  dateRangeLimit->mapOptionOrDefault((None, None), days => {
-    let now = Date.make()->DayJs.getDayJsForJsDate
-
-    switch (disableFutureDates, disablePastDates) {
-    | (true, _) => (Some(now.subtract(days, "day").toDate()), None)
-    | (_, true) => (None, Some(now.add(days, "day").toDate()))
-    | _ => (None, None)
-    }
+let clampEndDate = (~dateRangeLimit, ~startDate, ~endDate) =>
+  dateRangeLimit->mapOptionOrDefault((endDate, None), days => {
+    let maxEndDate = (startDate->DayJs.getDayJsForJsDate).add(days, "day").toDate()
+    endDate->Date.getTime > maxEndDate->Date.getTime
+      ? (maxEndDate, Some(`Date range should not exceed ${days->Int.toString} days`))
+      : (endDate, None)
   })
 
 module BlendDateRangePicker = {
@@ -125,6 +122,7 @@ module BlendDateRangePicker = {
   ) => {
     let startInput = useField(startKey).input
     let endInput = useField(endKey).input
+    let showToast = ToastAdapter.useShowToast()
     let blendValue = switch (
       startInput.value->getStringFromJson("")->getNonEmptyString,
       endInput.value->getStringFromJson("")->getNonEmptyString,
@@ -142,16 +140,19 @@ module BlendDateRangePicker = {
     }
 
     let handleChange = React.useCallback((range: DateRangePickerBinding.dateRange) => {
-      let endDate = range.endDate->Option.getOr(range.startDate)
+      let (endDate, limitMessage) = clampEndDate(
+        ~dateRangeLimit,
+        ~startDate=range.startDate,
+        ~endDate=range.endDate->Option.getOr(range.startDate),
+      )
       startInput.onChange(
         formatIsoToFormat(range.startDate, format)->Identity.stringToFormReactEvent,
       )
       endInput.onChange(formatIsoToFormat(endDate, format)->Identity.stringToFormReactEvent)
-    }, (startInput.onChange, endInput.onChange, format))
+      limitMessage->Option.forEach(message => showToast(~message, ~toastType=ToastState.ToastError))
+    }, (startInput.onChange, endInput.onChange, format, dateRangeLimit, showToast))
 
     let customPresets = predefinedDays->Array.map(day => toBlendPreset(day, ~disableFutureDates))
-
-    let (minDate, maxDate) = getMinMaxDates(~dateRangeLimit, ~disableFutureDates, ~disablePastDates)
 
     <DateRangePickerBinding
       value=?blendValue
@@ -161,8 +162,6 @@ module BlendDateRangePicker = {
       disableFutureDates
       disablePastDates
       customPresets
-      ?minDate
-      ?maxDate
     />
   }
 }
