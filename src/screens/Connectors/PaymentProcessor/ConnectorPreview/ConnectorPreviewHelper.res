@@ -172,6 +172,7 @@ module RegisteredWebhooks = {
     ~webhookStepValue,
   ) => {
     open LogicUtils
+    open Typography
     let getConnectorWebhooks = ConnectorWebhookRegistrationHooks.useGetConnectorWebhooks()
     let url = RescriptReactRouter.useUrl()
 
@@ -198,19 +199,19 @@ module RegisteredWebhooks = {
 
     <div className="grid grid-cols-4 border-b md:px-10 py-8">
       <div className="flex items-start">
-        <h4 className="text-lg font-semibold"> {"Registered Webhooks"->React.string} </h4>
+        <h4 className={heading.sm.semibold}> {"Registered Webhooks"->React.string} </h4>
       </div>
       <div className="flex gap-12 col-span-3">
         <div className="flex flex-col gap-3 w-5/6">
           <RenderIf condition={registeredWebhooks->isEmptyArray}>
-            <p className={`${Typography.body.md.regular} text-nd_gray-400 flex items-center h-7`}>
+            <p className={`${body.md.regular} text-nd_gray-400 flex items-center h-7`}>
               {"No webhooks registered for this connector"->React.string}
             </p>
           </RenderIf>
           {registeredWebhooks
           ->Array.mapWithIndex((item, index) =>
             <div key={index->Int.toString} className="flex items-center gap-2">
-              <p className={Typography.body.md.medium}>
+              <p className={body.md.medium}>
                 {item->ConnectorUtils.getPaymentMethodDisplayName->React.string}
               </p>
               <TagBinding text="Registered" color=Success variant=Subtle shape=Squarical size=Xs />
