@@ -43,7 +43,7 @@ module CollectDetails = {
             <p className={`${body.lg.semibold} text-nd_gray-700`}> {title->React.string} </p>
             <p className={`${body.md.medium} text-nd_gray-400 pt-2`}> {subTitle->React.string} </p>
           </div>
-          <BoolInput.BaseComponent
+          <SwitchAdapter
             isSelected={initValue}
             setIsSelected={handleToggle}
             isDisabled=false
@@ -328,7 +328,7 @@ module SplitTransactions = {
         input.onChange(valueToSet->Identity.anyTypeToReactEvent)
       }
 
-      <BoolInput.BaseComponent
+      <SwitchAdapter
         isSelected={currentValue}
         setIsSelected={handleChange}
         isDisabled=false
