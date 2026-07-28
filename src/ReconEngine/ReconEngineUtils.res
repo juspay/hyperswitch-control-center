@@ -332,6 +332,37 @@ let parsingConfigMapper = (dict): parsingConfig => {
   }
 }
 
+let skipConditionOperatorMapper = (str): skipConditionOperator => {
+  switch str {
+  | "equals" => Equals
+  | "not_equals" => NotEquals
+  | "contains" => Contains
+  | "not_contains" => NotContains
+  | _ => UnknownSkipConditionOperator
+  }
+}
+
+let skipConditionMapper = (dict): skipCondition => {
+  {
+    identifier: dict->getString("identifier", ""),
+    operator: dict->getString("operator", "")->skipConditionOperatorMapper,
+    value: dict->getString("value", ""),
+  }
+}
+
+let skipConfigMapper = (dict): skipConfig => {
+  if dict->getString("skip_type", "") === "row_skip" {
+    RowSkipConfig({lineNumber: dict->getInt("line_number", 0)})
+  } else {
+    ConditionalSkipConfig({
+      conditions: dict
+      ->getArrayFromDict("conditions", [])
+      ->Array.map(getDictFromJsonObject)
+      ->Array.map(skipConditionMapper),
+    })
+  }
+}
+
 let transformationConfigItemToObjMapper = (dict): transformationConfigType => {
   {
     transformation_id: dict->getString("transformation_id", ""),

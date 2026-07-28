@@ -41,7 +41,6 @@ type pipelineDetailStatCardData = {
   pipelineDetailStatCardValue: int,
   pipelineDetailStatCardDesc: string,
   pipelineDetailStatCardType: statCardType,
-  pipelineDetailStatCardOnClick: option<unit => unit>,
 }
 
 type stagingEntrySearchType =
@@ -49,7 +48,6 @@ type stagingEntrySearchType =
   | @as("order_id") SearchOrderId
   | @as("unknown") UnknownStagingEntrySearchType
 
-@unboxed
 type stagingEntrySortOrder =
   | @as("asc") Asc
   | @as("desc") Desc

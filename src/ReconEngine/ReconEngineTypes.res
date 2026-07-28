@@ -108,6 +108,23 @@ type parsingConfig =
   | FixedWidthParsingConfig
   | UnknownParsingConfig
 
+type skipConditionOperator =
+  | Equals
+  | NotEquals
+  | Contains
+  | NotContains
+  | UnknownSkipConditionOperator
+
+type skipCondition = {
+  identifier: string,
+  operator: skipConditionOperator,
+  value: string,
+}
+
+type skipConfig =
+  | RowSkipConfig({lineNumber: int})
+  | ConditionalSkipConfig({conditions: array<skipCondition>})
+
 type transformationConfigType = {
   transformation_id: string,
   profile_id: string,

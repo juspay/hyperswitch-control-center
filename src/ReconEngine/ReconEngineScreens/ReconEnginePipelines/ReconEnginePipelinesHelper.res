@@ -22,14 +22,14 @@ module MetaRow = {
   let make = (~label: string, ~value: React.element) => {
     <div className={`flex items-baseline justify-between gap-3 ${body.sm.regular}`}>
       <span className="text-nd_gray-500"> {label->React.string} </span>
-      <ToolTipBinding
-        side=ToolTipBinding.Top
-        content={<span className={`${body.xs.regular} break-words`}> value </span>}>
-        <span
+      <ToolTip
+        toolTipPosition=Top
+        descriptionComponent={<span className={`${body.xs.regular} break-words`}> value </span>}
+        toolTipFor={<span
           className={`min-w-0 truncate text-right ${body.sm.medium} text-nd_gray-700 cursor-default`}>
           value
-        </span>
-      </ToolTipBinding>
+        </span>}
+      />
     </div>
   }
 }
@@ -54,7 +54,7 @@ module RuleChips = {
     <RenderIf condition={rules->isNonEmptyArray}>
       <div className="flex flex-wrap items-start gap-1.5">
         <span
-          className={`shrink-0 whitespace-nowrap min-w-[76px] pt-0.5 ${body.xs.semibold} uppercase tracking-wide text-nd_gray-600`}>
+          className={`shrink-0 whitespace-nowrap min-w-76-px pt-0.5 ${body.xs.semibold} uppercase tracking-wide text-nd_gray-600`}>
           {label->React.string}
         </span>
         <div className="flex flex-wrap gap-1.5 flex-1 min-w-0">
@@ -85,12 +85,12 @@ module FieldRow = {
 
     <div className="px-3 py-2.5 border-b border-nd_gray-150 last:border-0">
       <div className={`flex items-center gap-2 ${body.sm.regular}`}>
-        <ToolTipBinding
-          side=ToolTipBinding.Top
-          content={<span className={`${body.xs.regular} break-words`}>
+        <ToolTip
+          toolTipPosition=Top
+          descriptionComponent={<span className={`${body.xs.regular} break-words`}>
             {`${field.label} (${field.target})`->React.string}
-          </span>}>
-          <span className="min-w-0 flex-1 truncate cursor-default">
+          </span>}
+          toolTipFor={<span className="min-w-0 flex-1 truncate cursor-default">
             <span className={`${body.sm.medium} text-nd_gray-800`}>
               {field.label->React.string}
             </span>
@@ -102,28 +102,29 @@ module FieldRow = {
                 {"required"->React.string}
               </span>
             </RenderIf>
-          </span>
-        </ToolTipBinding>
+          </span>}
+        />
         <span
           className={`shrink-0 ${body.xs.medium} lowercase text-nd_gray-700 bg-nd_gray-100 border border-nd_gray-200 rounded px-1.5 py-0.5`}>
           {field.typeLabel->React.string}
         </span>
-        <ToolTipBinding
-          side=ToolTipBinding.Top
-          content={<span className={`${body.xs.regular} break-words`}>
+        <ToolTip
+          toolTipPosition=Top
+          descriptionComponent={<span className={`${body.xs.regular} break-words`}>
             {(
               field.fieldIdentifier->isNonEmptyString ? field.fieldIdentifier : "—"
             )->React.string}
-          </span>}>
-          <span className="min-w-0 max-w-[40%] inline-flex items-center gap-1 cursor-default">
+          </span>}
+          toolTipFor={<span
+            className="min-w-0 max-w-40-per inline-flex items-center gap-1 cursor-default">
             <Icon name="nd-arrow-right" size=10 className="text-nd_gray-300 shrink-0" />
             <span className={`min-w-0 truncate font-mono ${body.xs.regular} text-nd_gray-500`}>
               {(
                 field.fieldIdentifier->isNonEmptyString ? field.fieldIdentifier : "—"
               )->React.string}
             </span>
-          </span>
-        </ToolTipBinding>
+          </span>}
+        />
       </div>
       <RenderIf condition=hasRules>
         <div className="mt-2 flex flex-col gap-1.5">
@@ -138,25 +139,13 @@ module FieldRow = {
 
 module StatCard = {
   @react.component
-  let make = (
-    ~label: string,
-    ~value: int,
-    ~desc: string,
-    ~cardType: statCardType=Info,
-    ~onClick=?,
-  ) => {
-    let isClickable = onClick->Option.isSome
-
+  let make = (~label: string, ~value: int, ~desc: string, ~cardType: statCardType=Info) => {
     let valueColor = switch cardType {
     | Info => "text-nd_gray-800"
     | Attention => "text-nd_red-500"
     }
 
-    <div
-      className={`flex flex-col p-4 flex-1 min-w-0 ${isClickable
-          ? "cursor-pointer hover:bg-nd_gray-50 transition-colors"
-          : ""}`}
-      onClick={_ => onClick->Option.mapOr((), fn => fn())}>
+    <div className="flex flex-col p-4 flex-1 min-w-0">
       <p className={`${body.xs.semibold} uppercase tracking-wide text-nd_gray-400 mb-1`}>
         {label->React.string}
       </p>
@@ -207,7 +196,7 @@ module TransformationCard = {
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
           <TableUtils.DateCell
-            timestamp=tx.created_at isCard=true textStyle={`${body.xs.regular} text-nd_gray-400`}
+            timestamp=tx.created_at isCard=true textStyle={`${body.sm.medium} text-nd_gray-600`}
           />
           <Icon
             name="nd-arrow-right"
@@ -216,9 +205,9 @@ module TransformationCard = {
           />
         </div>
       </div>
-      <div className={`flex items-center flex-wrap gap-1.5 ${body.xs.regular} text-nd_gray-500`}>
+      <div className={`flex items-center flex-wrap gap-1.5 ${body.sm.medium} text-nd_gray-600`}>
         <span>
-          <span className={`${body.xs.semibold} text-nd_gray-700`}>
+          <span className={`${body.sm.semibold} text-nd_gray-800`}>
             {tx.data.transformed_count->Int.toString->React.string}
           </span>
           {` / ${tx.data.total_count->Int.toString} transformed`->React.string}
@@ -226,7 +215,7 @@ module TransformationCard = {
         <StatDot> {`${duration} run`->React.string} </StatDot>
         <RenderIf condition={tx.data.ignored_count > 0}>
           <StatDot>
-            <span className={`${body.xs.medium} text-nd_orange-600`}>
+            <span className={`${body.sm.medium} text-nd_orange-600`}>
               {`${tx.data.ignored_count->Int.toString} ignored`->React.string}
             </span>
           </StatDot>

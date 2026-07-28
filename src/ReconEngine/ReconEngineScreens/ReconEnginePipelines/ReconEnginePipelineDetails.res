@@ -73,7 +73,7 @@ let make = (~ingestionHistoryId: string) => {
         ~order=sortOrder,
       ),
     )
-  }, ~persistKey="recon-engine-pipeline-details-staging-entries")
+  }, ~persistKey=`recon-engine-pipeline-details-staging-entries-${ingestionHistoryId}`)
 
   let handleSearchSubmit = (selectedType: option<string>) => {
     searchTypeRef.current =
@@ -112,7 +112,10 @@ let make = (~ingestionHistoryId: string) => {
       let queryString = `ingestion_history_id=${ingestionHistoryId}`
       let ingestionHistoryList = await getIngestionHistory(~queryParameters=Some(queryString))
       let latest =
-        ingestionHistoryList->getValueFromArray(0, Dict.make()->ingestionHistoryItemToObjMapper)
+        ingestionHistoryList->getValueFromArray(
+          ingestionHistoryList->Array.length - 1,
+          Dict.make()->ingestionHistoryItemToObjMapper,
+        )
       setHistoryItem(_ => latest)
       let transformationHistoryList = await getTransformationHistory(
         ~queryParameters=Some(queryString),
@@ -152,6 +155,10 @@ let make = (~ingestionHistoryId: string) => {
     })
   }, [transformations])
 
+  let stagingEntriesFilters = React.useMemo(() => {
+    initialStagingEntriesFilters(~transformationOptions)
+  }, [transformationOptions])
+
   <PageLoaderWrapper screenState>
     <div className="w-full flex flex-col gap-6">
       <div className="flex items-center justify-between gap-4 mr-4">
@@ -165,7 +172,7 @@ let make = (~ingestionHistoryId: string) => {
           <Button
             text="Download file"
             leftIcon={CustomIcon(<Icon name="nd-download-down" size=12 />)}
-            buttonType=Secondary
+            buttonType=Button.Secondary
             buttonSize=Small
             onClick={_ => onDownloadFile(~fileName=historyItem.file_name)->ignore}
             maxButtonWidth="!w-fit"
@@ -218,7 +225,7 @@ let make = (~ingestionHistoryId: string) => {
                   <TableUtils.DateCell
                     timestamp=historyItem.created_at
                     isCard=true
-                    textStyle={`${body.sm.regular} text-nd_gray-400`}
+                    textStyle={`${body.sm.medium} text-nd_gray-600`}
                   />
                 </div>
               </div>
@@ -232,7 +239,6 @@ let make = (~ingestionHistoryId: string) => {
                   value=card.pipelineDetailStatCardValue
                   desc=card.pipelineDetailStatCardDesc
                   cardType=card.pipelineDetailStatCardType
-                  onClick=?card.pipelineDetailStatCardOnClick
                 />
               )
               ->React.array}
@@ -267,7 +273,7 @@ let make = (~ingestionHistoryId: string) => {
               <div className="flex flex-row -ml-1.5">
                 <DynamicFilter
                   title="ReconEnginePipelineDetailsStagingFilters"
-                  initialFilters={initialStagingEntriesFilters(~transformationOptions)}
+                  initialFilters=stagingEntriesFilters
                   options=[]
                   popupFilterFields=[]
                   initialFixedFilters=[]

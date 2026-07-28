@@ -13,11 +13,9 @@ let make = (
   open ReconEngineUtils
   open ReconEnginePipelinesUtils
   open ReconEnginePipelinesHelper
-  open APIUtils
 
   let fetchMetadataSchema = useFetchMetadataSchema()
-  let getURL = useGetURL()
-  let fetchTransformationConfigDetails = useGetMethod()
+  let fetchTransformationConfig = useGetTransformationConfig()
 
   let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Custom)
   let (metadataSchema, setMetadataSchema) = React.useState(_ =>
@@ -26,21 +24,18 @@ let make = (
   let (transformationConfig, setTransformationConfig) = React.useState(_ =>
     Dict.make()->transformationConfigItemToObjMapper
   )
+  let (showErrors, setShowErrors) = React.useState(_ => false)
 
   let fetchDetails = async () => {
+    let requestedId = selectedTransformation.transformation_id
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let jsonMetadataSchema = await fetchMetadataSchema(
-        ~transformationId=selectedTransformation.transformation_id,
-      )
-      let jsonTransformationConfig = await fetchTransformationConfigDetails(
-        getURL(
-          ~entityName=V1(HYPERSWITCH_RECON),
-          ~methodType=Get,
-          ~hyperswitchReconType=#TRANSFORMATION_CONFIG,
-          ~id=Some(selectedTransformation.transformation_id),
-        ),
-      )
+      let metadataSchemaPromise = fetchMetadataSchema(~transformationId=requestedId)
+      let transformationConfigPromise = fetchTransformationConfig(~transformationId=requestedId)
+      let (jsonMetadataSchema, jsonTransformationConfig) = await Promise.all2((
+        metadataSchemaPromise,
+        transformationConfigPromise,
+      ))
 
       let parsedMetadataSchema =
         jsonMetadataSchema->getDictFromJsonObject->metadataSchemaItemToObjMapper
@@ -57,7 +52,7 @@ let make = (
         setScreenState(_ => PageLoaderWrapper.Custom)
       }
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to load transformation run details"))
     }
   }
 
@@ -66,27 +61,26 @@ let make = (
       fetchDetails()->ignore
     }
     None
-  }, [selectedTransformation.transformation_id])
+  }, (showModal, selectedTransformation.transformation_id))
 
   let accountName = ReconEnginePipelinesTableEntity.getAccountName(
     ~accountData,
     selectedTransformation.account_id,
   )
 
-  let skipConditions =
+  let skipConfigs = React.useMemo(() => {
     transformationConfig.config
     ->getDictFromJsonObject
     ->getArrayFromDict("skip_configs", [])
-    ->Array.map(getDictFromJsonObject)
-    ->Array.flatMap(skipConfig =>
-      skipConfig->getArrayFromDict("conditions", [])->Array.map(getDictFromJsonObject)
-    )
+    ->getMappedValueFromArrayOfJson(skipConfigMapper)
+  }, [transformationConfig])
 
-  let parsingConfig =
+  let parsingConfig = React.useMemo(() => {
     transformationConfig.config
     ->getDictFromJsonObject
     ->getDictfromDict("parsing_config")
     ->parsingConfigMapper
+  }, [transformationConfig])
 
   let (fileFormatLabel, headerRowLabel, sheetLabel) = switch parsingConfig {
   | CsvParsingConfig => ("CSV", "—", "")
@@ -207,7 +201,7 @@ let make = (
               />
               <MetaRow
                 label="Run ID"
-                value={<span className="font-mono text-xs">
+                value={<span className={`${body.sm.medium}`}>
                   {selectedTransformation.transformation_history_id->React.string}
                 </span>}
               />
@@ -215,16 +209,35 @@ let make = (
             <div className="h-px bg-nd_gray-150" />
             <RenderIf condition={selectedTransformation.data.errors->isNonEmptyArray}>
               <div className="flex flex-col gap-2">
-                <SectionTitle count={selectedTransformation.data.errors->Array.length}>
-                  {"Errors"->React.string}
-                </SectionTitle>
-                <div className="flex flex-col gap-1.5">
+                <div
+                  className="flex items-center gap-1.5 w-fit cursor-pointer"
+                  onClick={_ => setShowErrors(prev => !prev)}>
+                  <SectionTitle count={selectedTransformation.data.errors->Array.length}>
+                    {"Errors"->React.string}
+                  </SectionTitle>
+                  <Icon
+                    name="nd-chevron-down"
+                    size=16
+                    className={`shrink-0 text-nd_gray-500 transition-transform duration-200 ease-in-out ${showErrors
+                        ? "rotate-180"
+                        : ""}`}
+                  />
+                </div>
+                <div
+                  className={`flex flex-col gap-1.5 overflow-y-auto pr-1 transition-[max-height] duration-300 ease-in-out ${showErrors
+                      ? "max-h-48"
+                      : "max-h-0"}`}>
                   {selectedTransformation.data.errors
                   ->Array.mapWithIndex((error, index) =>
                     <div
                       key={index->Int.toString}
-                      className={`${body.xs.regular} bg-nd_red-50 border border-nd_red-100 rounded-lg px-2.5 py-1.5 text-nd_red-600 break-words`}>
-                      {error->React.string}
+                      className={`flex items-start gap-1.5 ${body.xs.regular} bg-nd_red-50 border border-nd_red-100 rounded-lg px-2.5 py-1.5 text-nd_red-600 break-words`}>
+                      <Icon
+                        name="nd-alert-triangle-outline"
+                        size=12
+                        className="text-nd_red-400 shrink-0 mt-0.5"
+                      />
+                      <span> {error->React.string} </span>
                     </div>
                   )
                   ->React.array}
@@ -250,20 +263,20 @@ let make = (
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              <SectionTitle count={skipConditions->Array.length}>
+              <SectionTitle count={skipConfigs->Array.length}>
                 {"Skip rules"->React.string}
               </SectionTitle>
-              {skipConditions->isEmptyArray
+              {skipConfigs->isEmptyArray
                 ? <p className={`${body.xs.regular} text-nd_gray-500`}>
                     {"No rows skipped — every parsed row is mapped."->React.string}
                   </p>
                 : <div className="flex flex-col gap-1.5">
-                    {skipConditions
-                    ->Array.mapWithIndex((condition, index) =>
+                    {skipConfigs
+                    ->Array.mapWithIndex((skipConfig, index) =>
                       <div
                         key={index->Int.toString}
                         className={`${body.xs.regular} bg-nd_gray-50 border border-nd_gray-150 rounded-lg px-2.5 py-1.5 text-nd_gray-700 break-words`}>
-                        {describeSkipCondition(condition)->React.string}
+                        {describeSkipConfig(skipConfig)->React.string}
                       </div>
                     )
                     ->React.array}
@@ -277,7 +290,9 @@ let make = (
               <div className="border border-nd_gray-150 rounded-lg overflow-hidden">
                 {metadataSchema.schema_data.fields
                 ->getDisplayFields
-                ->Array.map(field => <FieldRow key={field.target} field />)
+                ->Array.mapWithIndex((field, index) =>
+                  <FieldRow key={`${field.target}-${index->Int.toString}`} field />
+                )
                 ->React.array}
               </div>
             </div>

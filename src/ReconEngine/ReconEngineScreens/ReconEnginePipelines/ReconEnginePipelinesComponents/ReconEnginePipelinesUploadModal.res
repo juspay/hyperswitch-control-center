@@ -44,7 +44,7 @@ module UploadDropzone = {
 
     let clearFileInput = () => {
       fileInputRef.current
-      ->Nullable.toOption
+      ->getOptionalFromNullable
       ->Option.forEach(elem => elem->DOMUtils.toInputElement->DOMUtils.setInputValue(""))
     }
 

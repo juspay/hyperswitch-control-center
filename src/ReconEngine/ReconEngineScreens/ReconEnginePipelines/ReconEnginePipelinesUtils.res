@@ -255,28 +255,24 @@ let getPipelineDetailStatCards = (~transformationHistory: array<transformationHi
         ? `${txFailedCount->Int.toString} failed`
         : "",
       pipelineDetailStatCardType: txFailedCount > 0 ? Attention : Info,
-      pipelineDetailStatCardOnClick: None,
     },
     {
       pipelineDetailStatCardLabel: DetailRowsTransformed,
       pipelineDetailStatCardValue: totalTransformed,
       pipelineDetailStatCardDesc: "",
       pipelineDetailStatCardType: Info,
-      pipelineDetailStatCardOnClick: None,
     },
     {
       pipelineDetailStatCardLabel: DetailRowsIgnored,
       pipelineDetailStatCardValue: totalIgnored,
       pipelineDetailStatCardDesc: totalIgnored > 0 ? "dropped on parse" : "",
       pipelineDetailStatCardType: totalIgnored > 0 ? Attention : Info,
-      pipelineDetailStatCardOnClick: None,
     },
     {
       pipelineDetailStatCardLabel: DetailErrors,
       pipelineDetailStatCardValue: totalErrors,
       pipelineDetailStatCardDesc: totalErrors > 0 ? "" : "no errors",
       pipelineDetailStatCardType: totalErrors > 0 ? Attention : Info,
-      pipelineDetailStatCardOnClick: None,
     },
   ]
 }
@@ -309,6 +305,7 @@ let initialStagingEntriesFilters = (
             ~showToolTip=true,
             ~showNameAsToolTip=true,
             ~customButtonStyle="bg-none",
+            ~fixedDropDownDirection=BottomRight,
             (),
           ),
         ),
@@ -328,6 +325,7 @@ let initialStagingEntriesFilters = (
             ~showToolTip=true,
             ~showNameAsToolTip=true,
             ~customButtonStyle="bg-none",
+            ~fixedDropDownDirection=BottomRight,
             (),
           ),
         ),
@@ -347,6 +345,7 @@ let initialStagingEntriesFilters = (
             ~showToolTip=true,
             ~showNameAsToolTip=true,
             ~customButtonStyle="bg-none",
+            ~fixedDropDownDirection=BottomRight,
             (),
           ),
         ),
@@ -355,9 +354,6 @@ let initialStagingEntriesFilters = (
     ),
   ]
 }
-
-let humanize = (str: string): string =>
-  str->String.split("_")->Array.joinWith(" ")->capitalizeString
 
 let describeReplaceMode = (mode: replaceMode): string =>
   switch mode {
@@ -377,7 +373,7 @@ let describeStringTransformationRule = (rule: stringTransformationRule): string 
   | StrTrim => "Trim"
   | StrJsonExtract(pointer) => `JSON extract (${pointer})`
   | StrRegex({pattern, group}) =>
-    `Regex (${pattern}${group->Option.mapOr("", g => `, group ${g->Int.toString}`)})`
+    `Regex (${pattern}${group->mapOptionOrDefault("", g => `, group ${g->Int.toString}`)})`
   | UnknownStringTransformationRule => "Unknown rule"
   }
 
@@ -499,6 +495,27 @@ let describeDateTimePostParseRule = (rule: dateTimePostParseRule): string =>
   | UnknownDateTimePostParseRule => "Unknown rule"
   }
 
+let describeAmountDelimiter = (delimiter: amountDelimiter): string =>
+  switch delimiter {
+  | DelimiterDot => `Decimal delimiter "."`
+  | DelimiterComma => `Decimal delimiter ","`
+  | UnknownAmountDelimiter => "Unknown delimiter"
+  }
+
+let describeBalanceDirectionValues = (
+  ~creditValues: array<string>,
+  ~debitValues: array<string>,
+): array<string> => {
+  let creditDesc =
+    creditValues->isNonEmptyArray ? [`Credit values: ${creditValues->Array.joinWith(", ")}`] : []
+  let debitDesc =
+    debitValues->isNonEmptyArray ? [`Debit values: ${debitValues->Array.joinWith(", ")}`] : []
+  creditDesc->Array.concat(debitDesc)
+}
+
+let describeEnumMappings = (mappings: Dict.t<string>): array<string> =>
+  mappings->Dict.toArray->Array.map(((key, value)) => `${key} → ${value}`)
+
 let fieldRulesTypeLabel = (rules: fieldRules): string =>
   switch rules {
   | StringRules(_) => "string"
@@ -534,8 +551,10 @@ let describeFieldRules = (rules: fieldRules): (array<string>, array<string>, arr
       validation->Array.map(describeMinorUnitValidationRule),
       [],
     )
-  | MajorUnitRules({validation, transformation}) => (
-      transformation->Array.map(describeMajorUnitTransformationRule),
+  | MajorUnitRules({delimiter, validation, transformation}) => (
+      [delimiter->describeAmountDelimiter]->Array.concat(
+        transformation->Array.map(describeMajorUnitTransformationRule),
+      ),
       validation->Array.map(describeMajorUnitValidationRule),
       [],
     )
@@ -544,39 +563,49 @@ let describeFieldRules = (rules: fieldRules): (array<string>, array<string>, arr
       [],
       postParse->Array.map(describeDateTimePostParseRule),
     )
-  | BalanceDirectionRules({transformation}) => (
-      transformation->Array.map(describeBalanceDirectionTransformationRule),
+  | BalanceDirectionRules({creditValues, debitValues, transformation}) => (
+      describeBalanceDirectionValues(~creditValues, ~debitValues)->Array.concat(
+        transformation->Array.map(describeBalanceDirectionTransformationRule),
+      ),
       [],
       [],
     )
-  | EnumRules({transformation}) => (
-      transformation->Array.map(describeEnumTransformationRule),
+  | EnumRules({mappings, transformation}) => (
+      mappings
+      ->describeEnumMappings
+      ->Array.concat(transformation->Array.map(describeEnumTransformationRule)),
       [],
       [],
     )
   | UnknownFieldRules => ([], [], [])
   }
 
-let describeSkipCondition = (condition: Dict.t<JSON.t>): string => {
-  if condition->getString("skip_type", "") === "row_skip" {
-    `Skip line ${condition->getInt("line_number", 0)->Int.toString}`
-  } else {
-    let identifier = condition->getString("identifier", "")
-    let operator = switch condition->getString("operator", "") {
-    | "equals" => "="
-    | "not_equals" => "≠"
-    | "contains" => "contains"
-    | "not_contains" => "does not contain"
-    | other => other
-    }
-    let value = condition->getString("value", "")
-    `Skip rows where ${identifier} ${operator} "${value}"`
+let describeSkipConditionOperator = (operator: skipConditionOperator): string =>
+  switch operator {
+  | Equals => "="
+  | NotEquals => "≠"
+  | Contains => "contains"
+  | NotContains => "does not contain"
+  | UnknownSkipConditionOperator => "unknown"
+  }
+
+let describeSkipConditionEntry = (condition: skipCondition): string =>
+  `${condition.identifier} ${condition.operator->describeSkipConditionOperator} "${condition.value}"`
+
+let describeSkipConfig = (skipConfig: skipConfig): string => {
+  switch skipConfig {
+  | RowSkipConfig({lineNumber}) => `Skip line ${lineNumber->Int.toString}`
+  | ConditionalSkipConfig({conditions}) =>
+    `Skip rows where ${conditions
+      ->Array.map(describeSkipConditionEntry)
+      ->Array.joinWith(" AND ")}`
   }
 }
 
 let formatDuration = (startIso: string, endIso: string): string => {
   if startIso->isNonEmptyString && endIso->isNonEmptyString {
-    let totalMs = (endIso->DayJs.getDayJsForString).diff(startIso, "millisecond")
+    let rawMs = (endIso->DayJs.getDayJsForString).diff(startIso, "millisecond")
+    let totalMs = rawMs < 0 ? 0 : rawMs
     let totalSeconds = totalMs / 1000
     if totalMs < 1000 {
       `${totalMs->Int.toString}ms`
@@ -603,7 +632,7 @@ let mainFieldLabel = (fieldName: string): string =>
   | "effective_at" => "Effective at"
   | "balance_direction" => "Balance direction"
   | "order_id" => "Order ID"
-  | other => other->humanize
+  | other => snakeToTitle(other)
   }
 
 let entryFieldTarget = (field: entryField): string =>
@@ -616,7 +645,7 @@ let metadataFieldLabel = (field: metadataFieldType): string =>
   field.description->isNonEmptyString
     ? field.description
     : switch field.field_name {
-      | Metadata(key) => key->humanize
+      | Metadata(key) => key->snakeToTitle
       | String => "Field"
       }
 
@@ -665,6 +694,7 @@ let initialPipelinesTableFilters = (
             ~showToolTip=true,
             ~showNameAsToolTip=true,
             ~customButtonStyle="bg-none",
+            ~fixedDropDownDirection=BottomRight,
             (),
           ),
         ),
@@ -684,6 +714,7 @@ let initialPipelinesTableFilters = (
             ~showToolTip=true,
             ~showNameAsToolTip=true,
             ~customButtonStyle="bg-none",
+            ~fixedDropDownDirection=BottomRight,
             (),
           ),
         ),
@@ -703,6 +734,7 @@ let initialPipelinesTableFilters = (
             ~showToolTip=true,
             ~showNameAsToolTip=true,
             ~customButtonStyle="bg-none",
+            ~fixedDropDownDirection=BottomRight,
             (),
           ),
         ),
