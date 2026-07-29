@@ -9,7 +9,7 @@ module SectionTitle = {
     <h4 className={`flex items-center gap-1.5 ${body.md.semibold} text-nd_gray-800`}>
       {children}
       {switch count {
-      | Some(c) => <span> {c->Int.toString->React.string} </span>
+      | Some(c) => <span> {`(${c->Int.toString})`->React.string} </span>
       | None => React.null
       }}
     </h4>
