@@ -1,19 +1,17 @@
 open LogicUtils
 open OrderUIUtils
+open SavedViewTypes
 
 let maxViews = 5
 
-let versionToSavedViewVersion = (version: UserInfoTypes.version): SavedViewTypes.savedViewVersion =>
+let versionToSavedViewVersion = (version: UserInfoTypes.version): savedViewVersion =>
   switch version {
   | V1 => #v1
   | V2 => #v2
   }
 
 let isReservedKey = (key: string): bool =>
-  [
-    (#amount_option: SavedViewTypes.filterKey :> string),
-    (#amount: SavedViewTypes.filterKey :> string),
-  ]->Array.includes(key)
+  [(#amount_option: filterKey :> string), (#amount: filterKey :> string)]->Array.includes(key)
 
 let primitiveJsonToString = jsonValue =>
   switch jsonValue->getStringFromJson("")->getNonEmptyString {
@@ -38,14 +36,12 @@ let jsonValueToString = jsonValue =>
   }
 
 let foldAmountOption = filtersDict => {
-  let amountOption =
-    filtersDict->getString((#amount_option: SavedViewTypes.filterKey :> string), "")
+  let amountOption = filtersDict->getString((#amount_option: filterKey :> string), "")
   if amountOption->isNonEmptyString {
-    let startAmountStr =
-      filtersDict->getString((#start_amount: SavedViewTypes.filterKey :> string), "")
-    let endAmountStr = filtersDict->getString((#end_amount: SavedViewTypes.filterKey :> string), "")
-    filtersDict->Dict.delete((#start_amount: SavedViewTypes.filterKey :> string))
-    filtersDict->Dict.delete((#end_amount: SavedViewTypes.filterKey :> string))
+    let startAmountStr = filtersDict->getString((#start_amount: filterKey :> string), "")
+    let endAmountStr = filtersDict->getString((#end_amount: filterKey :> string), "")
+    filtersDict->Dict.delete((#start_amount: filterKey :> string))
+    filtersDict->Dict.delete((#end_amount: filterKey :> string))
 
     let amountFilterDict = Dict.make()
     let setIfSome = (key, str) =>
@@ -55,18 +51,15 @@ let foldAmountOption = filtersDict => {
       }
 
     switch amountOption->AmountFilterUtils.mapStringToAmountRangeType {
-    | GreaterThanOrEqualTo =>
-      setIfSome((#start_amount: SavedViewTypes.filterKey :> string), startAmountStr)
-    | LessThanOrEqualTo =>
-      setIfSome((#end_amount: SavedViewTypes.filterKey :> string), endAmountStr)
+    | GreaterThanOrEqualTo => setIfSome((#start_amount: filterKey :> string), startAmountStr)
+    | LessThanOrEqualTo => setIfSome((#end_amount: filterKey :> string), endAmountStr)
     | EqualTo =>
-      setIfSome((#start_amount: SavedViewTypes.filterKey :> string), startAmountStr)
-      setIfSome((#end_amount: SavedViewTypes.filterKey :> string), startAmountStr)
+      setIfSome((#start_amount: filterKey :> string), startAmountStr)
+      setIfSome((#end_amount: filterKey :> string), startAmountStr)
     | InBetween =>
-      setIfSome((#start_amount: SavedViewTypes.filterKey :> string), startAmountStr)
-      setIfSome((#end_amount: SavedViewTypes.filterKey :> string), endAmountStr)
-    | UnknownRange(_) =>
-      filtersDict->Dict.delete((#amount_option: SavedViewTypes.filterKey :> string))
+      setIfSome((#start_amount: filterKey :> string), startAmountStr)
+      setIfSome((#end_amount: filterKey :> string), endAmountStr)
+    | UnknownRange(_) => filtersDict->Dict.delete((#amount_option: filterKey :> string))
     }
 
     if amountFilterDict->Dict.keysToArray->isNonEmptyArray {
@@ -89,7 +82,7 @@ let flattenToDict = (dictToSet, key, value) => {
         dict
         ->Dict.toArray
         ->Array.forEach(((nestedKey, nestedValue)) => {
-          let flattenedKey = switch SavedViewTypes.classifyFilterKey(k) {
+          let flattenedKey = switch classifyFilterKey(k) {
           | FlattenRoot => nestedKey
           | Prefixed(prefix) => `${prefix}.${nestedKey}`
           }
@@ -148,12 +141,12 @@ let getApplyFilters = (~filterDict, ~filterValue, ~version) => {
     ->Array.map(key => {
       if (
         [
-          (#amount_option: SavedViewTypes.filterKey :> string),
-          (#start_amount: SavedViewTypes.filterKey :> string),
-          (#end_amount: SavedViewTypes.filterKey :> string),
+          (#amount_option: filterKey :> string),
+          (#start_amount: filterKey :> string),
+          (#end_amount: filterKey :> string),
         ]->Array.includes(key)
       ) {
-        (#amount: SavedViewTypes.filterKey :> string)
+        (#amount: filterKey :> string)
       } else {
         key
       }
@@ -164,15 +157,13 @@ let getApplyFilters = (~filterDict, ~filterValue, ~version) => {
 
   let uniqueDisplayKeys = displayKeys->getUniqueArray
 
-  let startAmountStr =
-    stringDict->getValueFromDict((#start_amount: SavedViewTypes.filterKey :> string), "")
-  let endAmountStr =
-    stringDict->getValueFromDict((#end_amount: SavedViewTypes.filterKey :> string), "")
+  let startAmountStr = stringDict->getValueFromDict((#start_amount: filterKey :> string), "")
+  let endAmountStr = stringDict->getValueFromDict((#end_amount: filterKey :> string), "")
   let hasStart = startAmountStr->isNonEmptyString
   let hasEnd = endAmountStr->isNonEmptyString
   let hasAmountOption =
     stringDict
-    ->getValueFromDict((#amount_option: SavedViewTypes.filterKey :> string), "")
+    ->getValueFromDict((#amount_option: filterKey :> string), "")
     ->isNonEmptyString
 
   if hasStart || hasEnd {
@@ -184,12 +175,12 @@ let getApplyFilters = (~filterDict, ~filterValue, ~version) => {
       | (false, false) => ""
       }
       if constructorName->isNonEmptyString {
-        stringDict->Dict.set((#amount_option: SavedViewTypes.filterKey :> string), constructorName)
+        stringDict->Dict.set((#amount_option: filterKey :> string), constructorName)
       }
     }
 
-    if !(uniqueDisplayKeys->Array.includes((#amount: SavedViewTypes.filterKey :> string))) {
-      uniqueDisplayKeys->Array.push((#amount: SavedViewTypes.filterKey :> string))->ignore
+    if !(uniqueDisplayKeys->Array.includes((#amount: filterKey :> string))) {
+      uniqueDisplayKeys->Array.push((#amount: filterKey :> string))->ignore
     }
   }
 
@@ -208,11 +199,7 @@ let buildCurrentFiltersDict = filterValue => {
   currentFiltersDict
 }
 
-let findMatchingView = (
-  ~savedViews: array<SavedViewTypes.savedView>,
-  ~currentFiltersDict,
-  ~version,
-) => {
+let findMatchingView = (~savedViews: array<savedView>, ~currentFiltersDict, ~version) => {
   savedViews->Array.find(view => {
     let savedFilters = view.filters->getDictFromJsonObject
     let savedFiltersStringDict = Dict.make()
@@ -236,15 +223,13 @@ let findMatchingView = (
 }
 
 let buildViewOptions = (
-  ~savedViews: array<SavedViewTypes.savedView>,
-  ~activeView: option<SavedViewTypes.savedView>,
+  ~savedViews: array<savedView>,
+  ~activeView: option<savedView>,
   ~defaultViewName: string,
-  ~panelState: SavedViewTypes.savedViewsPanelState,
-  ~setPanelState: (
-    SavedViewTypes.savedViewsPanelState => SavedViewTypes.savedViewsPanelState
-  ) => unit,
-  ~performRename: (SavedViewTypes.savedView, string) => promise<unit>,
-  ~handleDelete: (SavedViewTypes.savedView, ReactEvent.Mouse.t) => unit,
+  ~panelState: savedViewsPanelState,
+  ~setPanelState: (savedViewsPanelState => savedViewsPanelState) => unit,
+  ~performRename: (savedView, string) => promise<unit>,
+  ~handleDelete: (savedView, ReactEvent.Mouse.t) => unit,
 ): array<HeadlessUISelectBox.updatedOptionWithIcons> => {
   let defaultOpt: HeadlessUISelectBox.updatedOptionWithIcons = {
     label: defaultViewName,
@@ -278,14 +263,11 @@ let buildViewOptions = (
           labelText=name
           isUnderEdit={switch panelState {
           | RenamingViewAtIndex(idx) => idx === i
-          | _ => false
+          | NoActiveInteraction | SaveViewModalOpen => false
           }}
           handleEdit={index =>
             setPanelState(_ =>
-              switch index {
-              | Some(index) => RenamingViewAtIndex(index)
-              | None => NoActiveInteraction
-              }
+              index->mapOptionOrDefault(NoActiveInteraction, idx => RenamingViewAtIndex(idx))
             )}
           onSubmit={newName => performRename(view, newName)->ignore}
           showEditIcon={true}
@@ -316,36 +298,28 @@ let buildViewOptions = (
   })
   [defaultOpt]->Array.concat(savedOptions)
 }
-let savedViewsQueryParam = (entity: SavedViewTypes.entity) =>
-  `keys=${entity->SavedViewTypes.entityToKey}`
+let savedViewsQueryParam = (entity: entity) => `keys=${entity->entityToKey}`
 
-let buildActionPayload = (
-  entity: SavedViewTypes.entity,
-  action: SavedViewTypes.action,
-  dataDict,
-) => {
-  let keys = entity->SavedViewTypes.entityToKey
+let buildActionPayload = (entity: entity, action: action, dataDict) => {
+  let keys = entity->entityToKey
   let actionDict =
-    [
-      ("type", action->SavedViewTypes.actionToString->JSON.Encode.string),
-      ("data", dataDict->JSON.Encode.object),
-    ]
+    [("type", action->actionToString->JSON.Encode.string), ("data", dataDict->JSON.Encode.object)]
     ->Dict.fromArray
     ->JSON.Encode.object
   [(keys, actionDict)]->Dict.fromArray->JSON.Encode.object
 }
 
-let buildDeletePayload = (entity: SavedViewTypes.entity, viewId) => {
+let buildDeletePayload = (entity: entity, viewId) => {
   let dataDict =
     [
-      ("entity", entity->SavedViewTypes.entityToString->JSON.Encode.string),
+      ("entity", entity->entityToString->JSON.Encode.string),
       ("view_id", viewId->JSON.Encode.string),
     ]->Dict.fromArray
   buildActionPayload(entity, Delete, dataDict)
 }
 
 let buildSavedViewDataDict = (
-  entity: SavedViewTypes.entity,
+  entity: entity,
   name,
   filters: JSON.t,
   viewId: option<string>,
@@ -356,19 +330,14 @@ let buildSavedViewDataDict = (
     [
       ("view_name", name->JSON.Encode.string),
       ("filters", filters),
-      ("entity", entity->SavedViewTypes.entityToString->JSON.Encode.string),
+      ("entity", entity->entityToString->JSON.Encode.string),
       ("version", versionStr->JSON.Encode.string),
     ]->Dict.fromArray
   dataDict->setOptionString("view_id", viewId)
   dataDict
 }
 
-let buildRenamePayload = (
-  entity: SavedViewTypes.entity,
-  view: SavedViewTypes.savedView,
-  newName,
-  ~savedViewDataVersion,
-) => {
+let buildRenamePayload = (entity: entity, view: savedView, newName, ~savedViewDataVersion) => {
   let dataDict = buildSavedViewDataDict(
     entity,
     newName,
@@ -380,8 +349,8 @@ let buildRenamePayload = (
 }
 
 let buildSavePayload = (
-  entity: SavedViewTypes.entity,
-  action: SavedViewTypes.action,
+  entity: entity,
+  action: action,
   name,
   filters: JSON.t,
   viewId: option<string>,
@@ -421,7 +390,7 @@ let filterNullValues = json => {
 let itemToSavedView = json => {
   let dict = json->getDictFromJsonObject
   let dataDict = dict->getOptionValFromDict("data")->mapOptionOrDefault(dict, getDictFromJsonObject)
-  let savedView: SavedViewTypes.savedView = {
+  let savedView: savedView = {
     view_id: dict->getString("view_id", ""),
     view_name: dict->getString("view_name", ""),
     entity: dataDict->getString("entity", ""),
@@ -433,15 +402,15 @@ let itemToSavedView = json => {
   savedView
 }
 
-let savedViewsResponseMapper = (json, entity: SavedViewTypes.entity) => {
+let savedViewsResponseMapper = (json, entity: entity) => {
   let viewsArray =
     json
     ->getArrayFromJson([])
     ->getValueFromArray(0, Dict.make()->JSON.Encode.object)
     ->getDictFromJsonObject
-    ->getArrayFromDict(entity->SavedViewTypes.entityToKey, [])
+    ->getArrayFromDict(entity->entityToKey, [])
 
-  let response: SavedViewTypes.savedViewsResponse = {
+  let response: savedViewsResponse = {
     count: viewsArray->Array.length,
     views: viewsArray->Array.map(itemToSavedView),
   }
