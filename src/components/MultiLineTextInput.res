@@ -1,3 +1,5 @@
+open Typography
+
 @react.component
 let make = (
   ~input: ReactFinalForm.fieldRenderPropsInput,
@@ -37,7 +39,7 @@ let make = (
     None
   }, [input.value])
 
-  let className = `rounded-md border border-jp-gray-lightmode_steelgray border-opacity-75 font-normal pl-4 pt-3 pb-3 text-sm text-jp-gray-900  text-opacity-75 placeholder-jp-gray-900 placeholder-opacity-25 hover:bg-jp-gray-lightmode_steelgray hover:bg-opacity-20 hover:border-jp-gray-900 hover:border-opacity-20 focus:text-opacity-100 focus:outline-none focus:border-primary focus:border-opacity-100 dark:text-jp-gray-text_darktheme dark:text-opacity-75 dark:border-jp-gray-960 dark:hover:border-jp-gray-960 dark:hover:bg-jp-gray-970 dark:bg-jp-gray-darkgray_background dark:placeholder-jp-gray-text_darktheme dark:placeholder-opacity-25 dark:focus:text-opacity-100 dark:focus:border-primary ${cursorClass} ${customClass}`
+  let className = `rounded-md border border-nd_br_gray-200 pl-4 pt-3 pb-3 ${body.md.regular} text-nd_gray-700 placeholder-nd_gray-400 hover:border-nd_gray-300 focus:outline-none focus:border-nd_primary_blue-500 dark:text-jp-gray-text_darktheme dark:text-opacity-75 dark:border-jp-gray-960 dark:hover:border-jp-gray-960 dark:bg-jp-gray-darkgray_background dark:placeholder-jp-gray-text_darktheme dark:placeholder-opacity-25 dark:focus:text-opacity-100 dark:focus:border-nd_primary_blue-500 ${cursorClass} ${customClass}`
   let value = switch input.value->JSON.Classify.classify {
   | String(str) => str
   | Number(num) => num->Float.toString

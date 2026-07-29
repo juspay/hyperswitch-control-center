@@ -1105,10 +1105,9 @@ test.describe("Payment Operations", () => {
       const timeRangeFilters = [
         "Last 30 minutes",
         "Last 1 hour",
-        "Last 2 Hours",
+        "Last 6 hours",
         "Today",
         "Yesterday",
-        "Last 2 Days",
         "Last 7 days",
         "Last 30 days",
         "This month",
@@ -1137,10 +1136,9 @@ test.describe("Payment Operations", () => {
       const predefinedTimeRange = [
         "Last 30 minutes",
         "Last 1 hour",
-        //"Last 2 Hours",
+        //"Last 6 hours",
         "Today",
         "Yesterday",
-        //"Last 2 Days",
         "Last 7 days",
         "Last 30 days",
         "This month",
