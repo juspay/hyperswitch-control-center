@@ -69,6 +69,7 @@ let make = (~refreshTrigger=false) => {
           prev->Array.includes(customFilterKey) ? prev : prev->Array.concat([customFilterKey])
         )
       }
+    | NavigateToPath(path) => RescriptReactRouter.push(path)
     | NoAction => ()
     }
   }
@@ -90,7 +91,7 @@ let make = (~refreshTrigger=false) => {
     switch card.pipelineStatCardClickAction {
     | ClearStatusFilter => activeStatusFilter->isEmptyString
     | SetStatusFilter(status) => activeStatusFilter == status
-    | NoAction => false
+    | NavigateToPath(_) | NoAction => false
     }
 
   <div
