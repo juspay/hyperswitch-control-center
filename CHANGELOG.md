@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.07.29.0
+
+### Features
+
+- Add GivePayments Connector WASM ([#5225](https://github.com/juspay/hyperswitch-control-center/pull/5225)) ([`cef7fe3`](https://github.com/juspay/hyperswitch-control-center/commit/cef7fe317ab98c48acca0efd0d9dbacc457ac3eb))
+
+### Miscellaneous Tasks
+
+- Add Blend multi-line input & toggle adapters, fix priority bugs ([#5033](https://github.com/juspay/hyperswitch-control-center/pull/5033)) ([`ac720af`](https://github.com/juspay/hyperswitch-control-center/commit/ac720aff486e057b70779a27edc6dcf407079edf))
+
+**Full Changelog:** [`2026.07.28.0...2026.07.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.28.0...2026.07.29.0)
+
+- - -
+
 ## 2026.07.28.0
 
 ### Features
