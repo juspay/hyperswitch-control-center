@@ -149,7 +149,7 @@ module EnableDisableConnectorToggle = {
     let connectorStatusAvailableToSwitch = isConnectorDisabled ? "Disabled" : "Enabled"
 
     <div className="flex gap-2 items-center">
-      <BoolInput.BaseComponent
+      <SwitchAdapter
         isSelected={!isConnectorDisabled}
         setIsSelected={_ => disableConnector(isConnectorDisabled)->ignore}
         boolCustomClass="rounded-xl"
