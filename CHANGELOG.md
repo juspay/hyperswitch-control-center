@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.07.29.1
+
+### Features
+
+- Add blocklist dashboard page ([#5222](https://github.com/juspay/hyperswitch-control-center/pull/5222)) ([`4c2c4cf`](https://github.com/juspay/hyperswitch-control-center/commit/4c2c4cf1877d8f19e391d2a111d95cc3b797635a))
+- Add transformation run details modal and polish pipeline details page ([#5238](https://github.com/juspay/hyperswitch-control-center/pull/5238)) ([`8dca44e`](https://github.com/juspay/hyperswitch-control-center/commit/8dca44e8d2b0d795d1225e76884a338128e8b83a))
+
+### Bug Fixes
+
+- **authentication:** Fix authentication analytics ([#5239](https://github.com/juspay/hyperswitch-control-center/pull/5239)) ([`938840f`](https://github.com/juspay/hyperswitch-control-center/commit/938840f443afead5fdc8461ba42fff38d9232133))
+- Remove dashboard preview artifacts and improve zoom scaling ([#5263](https://github.com/juspay/hyperswitch-control-center/pull/5263)) ([`29be8d2`](https://github.com/juspay/hyperswitch-control-center/commit/29be8d2e711a16f977d0e3e50d5284a6135af2ff))
+- Resolve last updated field showing dash in payment summary ([#5260](https://github.com/juspay/hyperswitch-control-center/pull/5260)) ([`32c4403`](https://github.com/juspay/hyperswitch-control-center/commit/32c440381d6492cdb1603b5f3c9daf4860bf013e))
+- Update clone connector modal for wallets support ([#5271](https://github.com/juspay/hyperswitch-control-center/pull/5271)) ([`b93cb6f`](https://github.com/juspay/hyperswitch-control-center/commit/b93cb6f65825006f702096397c6fc75cb18746f5))
+
+**Full Changelog:** [`2026.07.29.0...2026.07.29.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.29.0...2026.07.29.1)
+
+- - -
+
 ## 2026.07.29.0
 
 ### Features
