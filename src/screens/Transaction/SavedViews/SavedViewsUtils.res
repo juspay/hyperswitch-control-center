@@ -3,6 +3,18 @@ open OrderUIUtils
 
 let maxViews = 5
 
+let versionToSavedViewVersion = (version: UserInfoTypes.version): SavedViewTypes.savedViewVersion =>
+  switch version {
+  | V1 => #v1
+  | V2 => #v2
+  }
+
+let isReservedKey = (key: string): bool =>
+  [
+    (#amount_option: SavedViewTypes.filterKey :> string),
+    (#amount: SavedViewTypes.filterKey :> string),
+  ]->Array.includes(key)
+
 let primitiveJsonToString = jsonValue =>
   switch jsonValue->getStringFromJson("")->getNonEmptyString {
   | Some(str) => str
@@ -26,12 +38,14 @@ let jsonValueToString = jsonValue =>
   }
 
 let foldAmountOption = filtersDict => {
-  let amountOption = filtersDict->getString(SavedViewTypes.FilterKeys.amountOption, "")
+  let amountOption =
+    filtersDict->getString((#amount_option: SavedViewTypes.filterKey :> string), "")
   if amountOption->isNonEmptyString {
-    let startAmountStr = filtersDict->getString(SavedViewTypes.FilterKeys.startAmount, "")
-    let endAmountStr = filtersDict->getString(SavedViewTypes.FilterKeys.endAmount, "")
-    filtersDict->Dict.delete(SavedViewTypes.FilterKeys.startAmount)
-    filtersDict->Dict.delete(SavedViewTypes.FilterKeys.endAmount)
+    let startAmountStr =
+      filtersDict->getString((#start_amount: SavedViewTypes.filterKey :> string), "")
+    let endAmountStr = filtersDict->getString((#end_amount: SavedViewTypes.filterKey :> string), "")
+    filtersDict->Dict.delete((#start_amount: SavedViewTypes.filterKey :> string))
+    filtersDict->Dict.delete((#end_amount: SavedViewTypes.filterKey :> string))
 
     let amountFilterDict = Dict.make()
     let setIfSome = (key, str) =>
@@ -41,15 +55,18 @@ let foldAmountOption = filtersDict => {
       }
 
     switch amountOption->AmountFilterUtils.mapStringToAmountRangeType {
-    | GreaterThanOrEqualTo => setIfSome(SavedViewTypes.FilterKeys.startAmount, startAmountStr)
-    | LessThanOrEqualTo => setIfSome(SavedViewTypes.FilterKeys.endAmount, endAmountStr)
+    | GreaterThanOrEqualTo =>
+      setIfSome((#start_amount: SavedViewTypes.filterKey :> string), startAmountStr)
+    | LessThanOrEqualTo =>
+      setIfSome((#end_amount: SavedViewTypes.filterKey :> string), endAmountStr)
     | EqualTo =>
-      setIfSome(SavedViewTypes.FilterKeys.startAmount, startAmountStr)
-      setIfSome(SavedViewTypes.FilterKeys.endAmount, startAmountStr)
+      setIfSome((#start_amount: SavedViewTypes.filterKey :> string), startAmountStr)
+      setIfSome((#end_amount: SavedViewTypes.filterKey :> string), startAmountStr)
     | InBetween =>
-      setIfSome(SavedViewTypes.FilterKeys.startAmount, startAmountStr)
-      setIfSome(SavedViewTypes.FilterKeys.endAmount, endAmountStr)
-    | UnknownRange(_) => filtersDict->Dict.delete(SavedViewTypes.FilterKeys.amountOption)
+      setIfSome((#start_amount: SavedViewTypes.filterKey :> string), startAmountStr)
+      setIfSome((#end_amount: SavedViewTypes.filterKey :> string), endAmountStr)
+    | UnknownRange(_) =>
+      filtersDict->Dict.delete((#amount_option: SavedViewTypes.filterKey :> string))
     }
 
     if amountFilterDict->Dict.keysToArray->isNonEmptyArray {
@@ -94,7 +111,7 @@ let normalizeFilters = dict => {
   dict
   ->Dict.toArray
   ->Array.forEach(((key, value)) => {
-    if key->isNonEmptyString && value->isNonEmptyString && !SavedViewTypes.isReservedKey(key) {
+    if key->isNonEmptyString && value->isNonEmptyString && !isReservedKey(key) {
       normalized->Dict.set(key, value)
     }
   })
@@ -131,12 +148,12 @@ let getApplyFilters = (~filterDict, ~filterValue, ~version) => {
     ->Array.map(key => {
       if (
         [
-          SavedViewTypes.FilterKeys.amountOption,
-          SavedViewTypes.FilterKeys.startAmount,
-          SavedViewTypes.FilterKeys.endAmount,
+          (#amount_option: SavedViewTypes.filterKey :> string),
+          (#start_amount: SavedViewTypes.filterKey :> string),
+          (#end_amount: SavedViewTypes.filterKey :> string),
         ]->Array.includes(key)
       ) {
-        SavedViewTypes.FilterKeys.amount
+        (#amount: SavedViewTypes.filterKey :> string)
       } else {
         key
       }
@@ -147,12 +164,16 @@ let getApplyFilters = (~filterDict, ~filterValue, ~version) => {
 
   let uniqueDisplayKeys = displayKeys->getUniqueArray
 
-  let startAmountStr = stringDict->getValueFromDict(SavedViewTypes.FilterKeys.startAmount, "")
-  let endAmountStr = stringDict->getValueFromDict(SavedViewTypes.FilterKeys.endAmount, "")
+  let startAmountStr =
+    stringDict->getValueFromDict((#start_amount: SavedViewTypes.filterKey :> string), "")
+  let endAmountStr =
+    stringDict->getValueFromDict((#end_amount: SavedViewTypes.filterKey :> string), "")
   let hasStart = startAmountStr->isNonEmptyString
   let hasEnd = endAmountStr->isNonEmptyString
   let hasAmountOption =
-    stringDict->getValueFromDict(SavedViewTypes.FilterKeys.amountOption, "")->isNonEmptyString
+    stringDict
+    ->getValueFromDict((#amount_option: SavedViewTypes.filterKey :> string), "")
+    ->isNonEmptyString
 
   if hasStart || hasEnd {
     if !hasAmountOption {
@@ -163,12 +184,12 @@ let getApplyFilters = (~filterDict, ~filterValue, ~version) => {
       | (false, false) => ""
       }
       if constructorName->isNonEmptyString {
-        stringDict->Dict.set(SavedViewTypes.FilterKeys.amountOption, constructorName)
+        stringDict->Dict.set((#amount_option: SavedViewTypes.filterKey :> string), constructorName)
       }
     }
 
-    if !(uniqueDisplayKeys->Array.includes(SavedViewTypes.FilterKeys.amount)) {
-      uniqueDisplayKeys->Array.push(SavedViewTypes.FilterKeys.amount)->ignore
+    if !(uniqueDisplayKeys->Array.includes((#amount: SavedViewTypes.filterKey :> string))) {
+      uniqueDisplayKeys->Array.push((#amount: SavedViewTypes.filterKey :> string))->ignore
     }
   }
 
@@ -330,7 +351,7 @@ let buildSavedViewDataDict = (
   viewId: option<string>,
   ~savedViewDataVersion,
 ) => {
-  let versionStr = (savedViewDataVersion->SavedViewTypes.versionToSavedViewVersion :> string)
+  let versionStr = (savedViewDataVersion->versionToSavedViewVersion :> string)
   let dataDict =
     [
       ("view_name", name->JSON.Encode.string),
