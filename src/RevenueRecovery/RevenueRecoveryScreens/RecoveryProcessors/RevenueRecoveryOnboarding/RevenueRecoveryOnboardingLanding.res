@@ -13,7 +13,7 @@ let make = (~createMerchant) => {
     <object
       type_="image/svg+xml"
       data="/assets/RevenueRecoveryHomePreview.svg"
-      className="w-4/5 rounded-2xl"
+      className="w-full max-w-4xl h-auto flex-shrink-0 rounded-2xl"
       ariaLabel="Revenue Recovery Dashboard Preview"
     />
     <div className="flex flex-col gap-4 items-center">
