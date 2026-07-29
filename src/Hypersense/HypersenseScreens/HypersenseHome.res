@@ -28,7 +28,7 @@ let make = () => {
     <object
       type_="image/svg+xml"
       data="/assets/CostObservabilityHomePreview.svg"
-      className="w-full sm:w-4/5 rounded-2xl"
+      className="w-full max-w-4xl h-auto flex-shrink-0 rounded-2xl"
       ariaLabel="Cost Observability Dashboard Preview"
     />
     <div className="flex flex-col gap-4 items-center">

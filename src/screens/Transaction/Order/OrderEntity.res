@@ -137,11 +137,13 @@ let getAuthenticationCell = (orderDetails: order, colType: authenticationColType
   switch colType {
   | AuthenticationFlow => Text(authenticationDetails->getString("authentication_flow", ""))
   | DsTransactionId => Text(authenticationDetails->getString("ds_transaction_id", ""))
+  | ChallengeCancelCode => Text(authenticationDetails->getString("challenge_cancel_code", ""))
   | ElectronicCommerceIndicator =>
     Text(authenticationDetails->getString("electronic_commerce_indicator", ""))
   | ErrorCode => Text(authenticationDetails->getString("error_code", ""))
   | ErrorMessage => Text(authenticationDetails->getString("error_message", ""))
   | Status => Text(authenticationDetails->getString("status", ""))
+  | TransStatusReason => Text(authenticationDetails->getString("trans_status_reason", ""))
   | Version => Text(authenticationDetails->getString("version", ""))
   }
 }
@@ -178,10 +180,12 @@ let frmColumns: array<frmColType> = [
 let authenticationColumns: array<authenticationColType> = [
   AuthenticationFlow,
   DsTransactionId,
+  ChallengeCancelCode,
   ElectronicCommerceIndicator,
   ErrorCode,
   ErrorMessage,
   Status,
+  TransStatusReason,
   Version,
 ]
 
@@ -294,6 +298,8 @@ let getAuthenticationHeading = (authenticationDetailsColType: authenticationColT
   | AuthenticationFlow =>
     Table.makeHeaderInfo(~key="authentication_flow", ~title="Authentication Flow")
   | DsTransactionId => Table.makeHeaderInfo(~key="ds_transaction_id", ~title="DS Transaction ID")
+  | ChallengeCancelCode =>
+    Table.makeHeaderInfo(~key="challenge_cancel_code", ~title="Challenge Cancel Code")
   | ElectronicCommerceIndicator =>
     Table.makeHeaderInfo(
       ~key="electronic_commerce_indicator",
@@ -302,6 +308,8 @@ let getAuthenticationHeading = (authenticationDetailsColType: authenticationColT
   | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code")
   | ErrorMessage => Table.makeHeaderInfo(~key="error_message", ~title="Error Message")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
+  | TransStatusReason =>
+    Table.makeHeaderInfo(~key="trans_status_reason", ~title="Trans Status Reason")
   | Version => Table.makeHeaderInfo(~key="version", ~title="Version")
   }
 }

@@ -44,7 +44,11 @@ export class Webhooks {
   }
 
   get dateRangeFilter(): Locator {
-    return this.page.locator('div').filter({ hasText: /^CustomSelect date range$/ }).first();
+    return this.page.locator('[data-element="datepicker-selector"]').first();
+  }
+
+  get dateRangePresetSelector(): Locator {
+    return this.page.locator('[data-element="preset-selector"]').first();
   }
 
   get notConfiguredMessage(): Locator {

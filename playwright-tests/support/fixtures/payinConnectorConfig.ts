@@ -3554,4 +3554,41 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
       },
     },
   },
+
+  givepayments: {
+    label: "givepayments",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "givepayments_default",
+      },
+      fieldLabels: ["API Key *", "Source verification key"],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "DinersClub",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "DinersClub",
+          "UnionPay",
+        ],
+      },
+    },
+  },
 };

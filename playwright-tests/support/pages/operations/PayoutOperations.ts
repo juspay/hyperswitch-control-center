@@ -2,11 +2,9 @@ import { Locator } from "@playwright/test";
 import { PaymentOperations } from "./PaymentOperations";
 
 export class PayoutOperations extends PaymentOperations {
-  // Payouts uses a 4-column TransactionView grid (matching refunds), not the
-  // 5-column payments grid.
   get payoutsTransactionView(): Locator {
     return this.page.locator(
-      '[class="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8"]',
+      '[class="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-3 grid-cols-2 gap-6 mb-8"]',
     );
   }
 
