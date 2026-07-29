@@ -9,7 +9,7 @@ module SectionTitle = {
     <h4 className={`flex items-center gap-1.5 ${body.md.semibold} text-nd_gray-800`}>
       {children}
       {switch count {
-      | Some(c) => <span> {`(${c->Int.toString})`->React.string} </span>
+      | Some(count) => <span> {`(${count->Int.toString})`->React.string} </span>
       | None => React.null
       }}
     </h4>
@@ -171,9 +171,12 @@ module StatDot = {
 
 module TransformationCard = {
   @react.component
-  let make = (~tx: ReconEngineTypes.transformationHistoryType, ~onOpen: unit => unit) => {
-    let errorCount = tx.data.errors->Array.length
-    let duration = ReconEnginePipelinesUtils.formatDuration(tx.created_at, tx.processed_at)
+  let make = (~transformation: ReconEngineTypes.transformationHistoryType, ~onOpen: unit => unit) => {
+    let errorCount = transformation.data.errors->Array.length
+    let duration = ReconEnginePipelinesUtils.formatDuration(
+      transformation.created_at,
+      transformation.processed_at,
+    )
 
     <div
       className="group border border-nd_gray-150 rounded-xl flex flex-col gap-2.5 px-5 py-4 bg-white cursor-pointer hover:bg-nd_gray-50 transition-colors"
@@ -181,22 +184,22 @@ module TransformationCard = {
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2 flex-wrap min-w-0">
           <TableUtils.LabelCell
-            labelColor={switch tx.status {
+            labelColor={switch transformation.status {
             | Processed => LabelGreen
             | Failed => LabelRed
             | Processing => LabelOrange
             | Pending => LabelYellow
             | Discarded | UnknownIngestionTransformationStatus => LabelGray
             }}
-            text={(tx.status :> string)->capitalizeString}
+            text={(transformation.status :> string)->capitalizeString}
           />
           <p className={`${body.sm.semibold} text-nd_gray-800 truncate`}>
-            {tx.transformation_name->React.string}
+            {transformation.transformation_name->React.string}
           </p>
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
           <TableUtils.DateCell
-            timestamp=tx.created_at
+            timestamp=transformation.created_at
             isCard=true
             hideTime=true
             textStyle={`${body.sm.medium} text-nd_gray-600`}
@@ -211,15 +214,15 @@ module TransformationCard = {
       <div className={`flex items-center flex-wrap gap-1.5 ${body.sm.medium} text-nd_gray-600`}>
         <span>
           <span className={`${body.sm.semibold} text-nd_gray-800`}>
-            {tx.data.transformed_count->Int.toString->React.string}
+            {transformation.data.transformed_count->Int.toString->React.string}
           </span>
-          {` / ${tx.data.total_count->Int.toString} transformed`->React.string}
+          {` / ${transformation.data.total_count->Int.toString} transformed`->React.string}
         </span>
         <StatDot> {`${duration} run`->React.string} </StatDot>
-        <RenderIf condition={tx.data.ignored_count > 0}>
+        <RenderIf condition={transformation.data.ignored_count > 0}>
           <StatDot>
             <span className={`${body.sm.medium} text-nd_orange-600`}>
-              {`${tx.data.ignored_count->Int.toString} ignored`->React.string}
+              {`${transformation.data.ignored_count->Int.toString} ignored`->React.string}
             </span>
           </StatDot>
         </RenderIf>

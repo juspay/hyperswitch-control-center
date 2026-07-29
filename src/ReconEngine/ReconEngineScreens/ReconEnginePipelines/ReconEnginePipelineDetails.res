@@ -25,7 +25,7 @@ let make = (~ingestionHistoryId: string) => {
   let {filterValueJson, filterValue, updateExistingKeys, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
-  let txFilterKey = "transformation_history_ids"
+  let transformationFilterKey = "transformation_history_ids"
   let stagingTableTitle = "Transformed Entries"
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -55,9 +55,9 @@ let make = (~ingestionHistoryId: string) => {
     goToPrevPage: goToPrevStagingPage,
   } = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=(~sortBy, ~direction) => {
     let effectiveFilterValueJson = Dict.copy(filterValueJson)
-    if filterValueJson->getStrArrayFromDict(txFilterKey, [])->isEmptyArray {
+    if filterValueJson->getStrArrayFromDict(transformationFilterKey, [])->isEmptyArray {
       effectiveFilterValueJson->Dict.set(
-        txFilterKey,
+        transformationFilterKey,
         transformations
         ->Array.map((t: transformationHistoryType) => t.transformation_history_id)
         ->getJsonFromArrayOfString,
@@ -248,12 +248,12 @@ let make = (~ingestionHistoryId: string) => {
               </ReconEnginePipelinesHelper.SectionTitle>
               <div className="flex flex-col gap-3">
                 {transformations
-                ->Array.map(tx =>
+                ->Array.map(transformation =>
                   <ReconEnginePipelinesHelper.TransformationCard
-                    key={tx.transformation_history_id}
-                    tx
+                    key={transformation.transformation_history_id}
+                    transformation
                     onOpen={() => {
-                      setSelectedTransformation(_ => tx)
+                      setSelectedTransformation(_ => transformation)
                       setShowTransformationRunDetails(_ => true)
                     }}
                   />

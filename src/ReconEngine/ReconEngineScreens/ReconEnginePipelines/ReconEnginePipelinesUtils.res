@@ -161,9 +161,9 @@ let stagingEntrySearchTypeFromString = (str): stagingEntrySearchType => {
 }
 
 let stagingEntrySearchTypeOptions: array<SearchInput.searchTypeOption> = {
-  [SearchStagingEntryId, SearchOrderId]->Array.map((t): SearchInput.searchTypeOption => {
-    label: (t :> string)->snakeToTitle,
-    value: (t :> string),
+  [SearchStagingEntryId, SearchOrderId]->Array.map((searchType): SearchInput.searchTypeOption => {
+    label: (searchType :> string)->snakeToTitle,
+    value: (searchType :> string),
   })
 }
 
