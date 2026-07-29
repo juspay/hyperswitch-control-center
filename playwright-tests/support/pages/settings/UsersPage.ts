@@ -26,7 +26,8 @@ export class UsersPage {
   }
 
   get merchantDropdown(): Locator {
-    return this.page.locator('[data-dropdown-for="Select a Merchant"] button');
+    return this.page.locator('[data-component-field-wrapper="field-merchant_value"]')
+      .locator('[data-element="single-select-button"]');
   }
 
   get roleOption(): Locator {
@@ -147,26 +148,22 @@ export class UsersPage {
 
   get defaultFilterOption(): Locator {
     return this.page
-      .locator('[data-dropdown-value="All"]')
-      .filter({ hasText: "(Default)" });
+      .getByRole('menuitem', { name: 'All (Default)' });
   }
 
   get organizationFilterOption(): Locator {
     return this.page
-      .locator('[data-dropdown-value^="playwright_"]')
-      .filter({ hasText: "(Organization)" });
+      .locator('[data-element="select-item-sublabel"]').filter({ hasText: '(Organization)' });
   }
 
   get merchantFilterOption(): Locator {
     return this.page
-      .locator('[data-dropdown-value^="playwright_"]')
-      .filter({ hasText: "(Merchant)" });
+      .locator('[data-element="select-item-sublabel"]').filter({ hasText: '(Merchant)' });
   }
 
   get profileFilterOption(): Locator {
     return this.page
-      .locator('[data-dropdown-value="default"]')
-      .filter({ hasText: "(Profile)" });
+      .locator('[data-element="select-item-sublabel"]').filter({ hasText: '(Profile)' });
   }
 
   get inviteUsersRoleButton(): Locator {
@@ -200,15 +197,15 @@ export class UsersPage {
   }
 
   get allMerchantsDropdownValue(): Locator {
-    return this.page.locator('[data-dropdown-value="All merchants"]');
+    return this.page.getByRole('menuitem', { name: 'All merchants' });
   }
 
   get allProfilesValue(): Locator {
-    return this.page.locator('[data-value="allProfiles"]');
+    return this.page.getByRole('button', { name: 'All profiles' });
   }
 
   get defaultDropdownValue(): Locator {
-    return this.page.locator('[data-dropdown-value="default"]');
+    return this.page.getByRole('menuitem', { name: 'default' });
   }
 
   get navigateToTeamManagementLink(): Locator {

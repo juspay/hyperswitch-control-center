@@ -4,7 +4,8 @@ open ReconEngineUtils
 
 let bytesPerKilobyte = 1000
 let bytesPerMegabyte = bytesPerKilobyte * 1000
-let maxFileSizeBytes = 8 * bytesPerMegabyte
+let maxFileSizeBytes = 25 * bytesPerMegabyte
+let maxFilesCount = 3
 
 let formatFileSize = (sizeInBytes: int) => {
   let size = sizeInBytes->Int.toFloat
@@ -16,6 +17,10 @@ let formatFileSize = (sizeInBytes: int) => {
   let formattedSize = displaySize->Float.toFixedWithPrecision(~digits=2)->removeTrailingZero
 
   `${formattedSize} ${unit}`
+}
+
+let fileListToArray = fileList => {
+  Array.fromInitializer(~length=fileList->Array.length, i => fileList[i])->Array.filterMap(x => x)
 }
 
 let getIngestionConfigPayloadFromDict = dict => {
@@ -233,4 +238,19 @@ let isSupportedFileType = (fileName: string): bool => {
   supportedFileTypes
   ->Array.map(ft => `.${(ft :> string)->String.toLowerCase}`)
   ->Array.find(ext => lowerFileName->String.endsWith(ext)) != None
+}
+
+let classifyFile = (file, ~existingCount, ~seenKeys) => {
+  let fileName = file["name"]
+  if !isSupportedFileType(fileName->String.toLowerCase) {
+    Error(`${fileName}: unsupported file type`)
+  } else if file["size"] > maxFileSizeBytes {
+    Error(`${fileName}: exceeds 25 MB`)
+  } else if seenKeys->Array.includes(fileName) {
+    Error(`${fileName}: already selected`)
+  } else if existingCount >= maxFilesCount {
+    Error(`${fileName}: only ${maxFilesCount->Int.toString} files allowed`)
+  } else {
+    Ok(fileName)
+  }
 }

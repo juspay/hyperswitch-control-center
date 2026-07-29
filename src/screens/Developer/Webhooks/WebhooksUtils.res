@@ -3,6 +3,12 @@ open LogicUtils
 
 let tabkeys: array<tabs> = [Request, Response]
 
+let eventRecipientToString = recipient =>
+  switch recipient {
+  | Merchant => "merchant"
+  | Connector => "connector"
+  }
+
 let labelColor = (statusCode): TableUtils.labelColor => {
   switch statusCode {
   | 200 => LabelGreen

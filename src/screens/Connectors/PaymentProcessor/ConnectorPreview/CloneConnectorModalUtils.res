@@ -1,5 +1,6 @@
 open LogicUtils
 open ConnectorTypes
+open CommonAuthTypes
 
 let getCloneConnectorPayload = (values, connectorInfo) => {
   let valuesDict = values->getDictFromJsonObject
@@ -13,9 +14,10 @@ let getCloneConnectorPayload = (values, connectorInfo) => {
 }
 
 let getCloneErrorMessage = errorCode =>
-  errorCode === "HE_01"
-    ? "Connector label already exists. Try a different one."
-    : "Failed to clone connector."
+  switch errorCode {
+  | UR_59 => "Connector label already exists."
+  | _ => "Failed to clone connector."
+  }
 
 let getDestinationOptions = (profileList: array<OMPSwitchTypes.ompListTypes>, ~sourceProfileId) =>
   profileList->Array.filterMap(profile =>

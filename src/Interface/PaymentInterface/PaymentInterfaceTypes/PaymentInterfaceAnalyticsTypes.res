@@ -56,5 +56,13 @@ type analytics_row = {
   attempt_count: int,
   connector_label: string,
   active_attempt_id: string,
+  card_last_4: string,
+  card_network: string,
+  card_issuer: string,
+  refunds_status: string,
+  refunds_count: int,
+  dispute_status: string,
+  dispute_count: int,
+  routing_approach: string,
   attempts_list: array<analytics_attempt>,
 }

@@ -138,6 +138,10 @@ let make = () => {
       let _ = await fetchConnectorListResponse()
       setInitialValues(_ => response)
       setCurrentStep(_ => Summary)
+      showToast(
+        ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
+        ~toastType=ToastSuccess,
+      )
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -148,7 +152,10 @@ let make = () => {
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
           setCurrentStep(_ => ConfigurationFields)
         } else {
-          showToast(~message=errorMessage, ~toastType=ToastError)
+          showToast(
+            ~message=getErrorMessage(~message=errorMessage, ~error=err),
+            ~toastType=ToastError,
+          )
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }
@@ -223,7 +230,7 @@ let make = () => {
                   isUpdateFlow selectedConnector={connectorName}
                 />
               </div>
-              <div className="flex flex-col gap-2 p-2 md:p-10">
+              <div className="flex flex-col gap-2 p-2 md:px-10">
                 <div className="grid grid-cols-2 flex-1">
                   <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
                     connector={connectorName->getConnectorNameTypeFromString(

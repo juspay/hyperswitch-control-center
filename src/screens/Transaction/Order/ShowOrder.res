@@ -22,6 +22,7 @@ module ShowOrderDetails = {
     ~paymentStatus,
     ~openRefundModal,
     ~openVoidModal=() => (),
+    ~openCaptureModal=() => (),
     ~paymentId,
     ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
     ~sectionTitle=?,
@@ -83,6 +84,17 @@ module ShowOrderDetails = {
               buttonType={Secondary}
             />
           </RenderIf>
+          <RenderIf
+            condition={version === V1 &&
+            typedPaymentStatus === RequiresCapture &&
+            !(paymentId->isTestData)}>
+            <ACLButton
+              authorization={userHasAccess(~groupAccess=OperationsManage)}
+              text="+ Capture"
+              onClick={_ => openCaptureModal()}
+              buttonType={Secondary}
+            />
+          </RenderIf>
         </div>
       </RenderIf>
       <FormRenderer.DesktopRow>
@@ -111,7 +123,14 @@ module ShowOrderDetails = {
 module OrderInfo = {
   open OrderEntity
   @react.component
-  let make = (~order, ~openRefundModal, ~openVoidModal, ~isNonRefundConnector, ~paymentId) => {
+  let make = (
+    ~order,
+    ~openRefundModal,
+    ~openVoidModal,
+    ~openCaptureModal,
+    ~isNonRefundConnector,
+    ~paymentId,
+  ) => {
     let paymentStatus = order.status
     let headingStyles = "font-bold text-lg mb-5"
     <div className="md:flex md:flex-col md:gap-5">
@@ -137,6 +156,7 @@ module OrderInfo = {
             paymentStatus
             openRefundModal
             openVoidModal
+            openCaptureModal
             paymentId
           />
         </div>
@@ -160,6 +180,7 @@ module OrderInfo = {
             paymentStatus
             openRefundModal
             openVoidModal
+            openCaptureModal
             paymentId
           />
         </div>
@@ -443,6 +464,8 @@ module OrderActions = {
     ~setShowModal,
     ~showVoidModal,
     ~setShowVoidModal,
+    ~showCaptureModal,
+    ~setShowCaptureModal,
   ) => {
     let (amountAvailableToRefund, setAmountAvailableToRefund) = React.useState(_ => 0.0)
     let refundData = orderData.refunds
@@ -504,6 +527,15 @@ module OrderActions = {
         modalClass="w-full md:w-4/12 mx-auto mt-20"
         bgClass="bg-nd_gray-0">
         <OrderVoidForm order={orderData} setShowModal=setShowVoidModal refetch />
+      </Modal>
+      <Modal
+        showModal=showCaptureModal
+        setShowModal=setShowCaptureModal
+        borderBottom=true
+        childClass=""
+        modalClass="w-full md:w-4/12 mx-auto mt-20"
+        bgClass="bg-nd_gray-0">
+        <OrderCaptureForm order={orderData} setShowModal=setShowCaptureModal refetch />
       </Modal>
     </div>
   }
@@ -664,6 +696,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (showVoidModal, setShowVoidModal) = React.useState(_ => false)
+  let (showCaptureModal, setShowCaptureModal) = React.useState(_ => false)
   let (orderData, setOrderData) = React.useState(_ =>
     Dict.make()->PaymentInterfaceUtils.mapDictToPaymentPayload
   )
@@ -738,6 +771,10 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     setShowVoidModal(_ => true)
   }
 
+  let openCaptureModal = _ => {
+    setShowCaptureModal(_ => true)
+  }
+
   let showSyncButton = React.useCallback(_ => {
     let status = orderData.status->statusVariantMapper
 
@@ -809,6 +846,8 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         setShowModal
         showVoidModal
         setShowVoidModal
+        showCaptureModal
+        setShowCaptureModal
       />
     </div>
     <RenderIf condition={orderData.frm_message.frm_status === "fraud"}>
@@ -828,6 +867,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           order={orderData}
           openRefundModal
           openVoidModal
+          openCaptureModal
           isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />
         // hide the logs section for V2 since the apis are failing

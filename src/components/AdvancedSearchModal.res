@@ -20,7 +20,7 @@ module AdvanceSearch = {
     let fetchApi = AuthHooks.useApiFetcher()
     let initialValueJson = JSON.Encode.object(Dict.make())
     let showToast = ToastAdapter.useShowToast()
-    let {xFeatureRoute, forceCookies} =
+    let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
       HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {merchantId, profileId} = React.useContext(
       UserInfoProvider.defaultContext,
@@ -52,6 +52,7 @@ module AdvanceSearch = {
         ~method_=Get,
         ~xFeatureRoute,
         ~forceCookies,
+        ~sendV1DummyApiKeyHeader,
         ~merchantId,
         ~profileId,
       )

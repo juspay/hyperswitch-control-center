@@ -1,3 +1,5 @@
+open ReconEngineTypes
+
 @unboxed
 type iconActionType =
   | @as("nd-eye-on") ViewIcon
@@ -6,7 +8,7 @@ type iconActionType =
 
 type modalContentType =
   | MetadataContent(Js.Json.t)
-  | LineageContent(ReconEngineTypes.processingEntryType)
+  | LineageContent(processingEntryType)
   | UnknownModalContent
 
 type modalState = {
@@ -40,4 +42,22 @@ type cardDetail = {
   title: string,
   value: string,
   viewType: transformedEntriesViewType,
+}
+
+type processingEntrySearchType =
+  | @as("staging_entry_id") SearchStagingEntryId
+  | @as("order_id") SearchOrderId
+  | @as("transformation_history_id") SearchTransformationHistoryId
+  | @as("unknown") UnknownProcessingEntrySearchType
+
+@unboxed
+type processingEntrySortOrder =
+  | @as("asc") Asc
+  | @as("desc") Desc
+
+type processingEntriesV2CursorPayload = {
+  limit: int,
+  direction: cursorDirection,
+  order: processingEntrySortOrder,
+  @as("sort_by") sortBy: cursor,
 }

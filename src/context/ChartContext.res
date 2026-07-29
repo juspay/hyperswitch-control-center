@@ -93,7 +93,8 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
 
   let {allFilterDimension} = chartEntity
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let sortingParams = React.useMemo((): option<AnalyticsNewUtils.sortedBasedOn> => {
     switch chartEntity {
@@ -347,6 +348,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               ~betaEndpointConfig=?betaEndPointConfig,
               ~xFeatureRoute,
               ~forceCookies,
+              ~sendV1DummyApiKeyHeader,
               ~merchantId,
               ~profileId,
             )
@@ -409,6 +411,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
             ~betaEndpointConfig=?betaEndPointConfig,
             ~xFeatureRoute,
             ~forceCookies,
+            ~sendV1DummyApiKeyHeader,
             ~merchantId,
             ~profileId,
           )
@@ -480,6 +483,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               ~betaEndpointConfig=?betaEndPointConfig,
               ~xFeatureRoute,
               ~forceCookies,
+              ~sendV1DummyApiKeyHeader,
               ~merchantId,
               ~profileId,
             )
@@ -539,6 +543,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
             ~betaEndpointConfig=?betaEndPointConfig,
             ~xFeatureRoute,
             ~forceCookies,
+            ~sendV1DummyApiKeyHeader,
             ~merchantId,
             ~profileId,
           )
@@ -598,7 +603,7 @@ module SDKAnalyticsChartContext = {
     ~segmentValue: option<array<string>>=?,
     ~differentTimeValues: option<array<AnalyticsUtils.timeRanges>>=?,
   ) => {
-    let {xFeatureRoute, forceCookies} =
+    let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
       HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let parentToken = AuthWrapperUtils.useTokenParent(Original)
     let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetchNew()
@@ -835,6 +840,7 @@ module SDKAnalyticsChartContext = {
                   ~betaEndpointConfig=?betaEndPointConfig,
                   ~xFeatureRoute,
                   ~forceCookies,
+                  ~sendV1DummyApiKeyHeader,
                   ~merchantId,
                   ~profileId,
                 )
@@ -878,6 +884,7 @@ module SDKAnalyticsChartContext = {
                         ~betaEndpointConfig=?betaEndPointConfig,
                         ~xFeatureRoute,
                         ~forceCookies,
+                        ~sendV1DummyApiKeyHeader,
                         ~merchantId,
                         ~profileId,
                       )

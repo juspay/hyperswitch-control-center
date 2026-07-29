@@ -143,7 +143,8 @@ let make = (
   ~formaPayload: option<singleStatBodyEntity => string>=?,
 ) => {
   open LogicUtils
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
@@ -313,6 +314,7 @@ let make = (
           ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
           ~xFeatureRoute,
           ~forceCookies,
+          ~sendV1DummyApiKeyHeader,
           ~merchantId,
           ~profileId,
         )
@@ -391,6 +393,7 @@ let make = (
           ~headers=[("QueryType", "SingleStatTimeseries")]->Dict.fromArray,
           ~xFeatureRoute,
           ~forceCookies,
+          ~sendV1DummyApiKeyHeader,
           ~merchantId,
           ~profileId,
         )

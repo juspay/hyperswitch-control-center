@@ -125,7 +125,7 @@ export class OrganizationSettingsPage {
   }
 
   toast(message: string): Locator {
-    return this.page.locator(`[data-toast="${message}"]`);
+    return this.page.locator(`[data-id="${message}"]`);
   }
 
   async visit(): Promise<void> {

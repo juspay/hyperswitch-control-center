@@ -2,19 +2,6 @@ open ReconEngineOverviewSummaryTypes
 open ReconEngineOverviewSummaryUtils
 open Typography
 
-module TabButton = {
-  @react.component
-  let make = (~label, ~count, ~isActive, ~onClick) => {
-    <div
-      className={`px-3 py-1 rounded-md cursor-pointer ${body.sm.medium} ${isActive
-          ? "bg-white text-nd_gray-800 shadow-sm"
-          : "text-nd_gray-500"} transition-colors`}
-      onClick>
-      {`${label} (${count->Int.toString})`->React.string}
-    </div>
-  }
-}
-
 module TabSwitch = {
   @react.component
   let make = (~viewType: viewType, ~setViewType) => {
@@ -156,12 +143,13 @@ module SlashOutOfCell = {
 module StatCard = {
   @react.component
   let make = (
-    ~title: statCardsTitle,
+    ~title: string,
     ~value: valueType,
     ~icon: Button.iconType,
     ~description,
     ~cardType: statCardType,
     ~onStatCardClick=() => (),
+    ~isActive=false,
   ) => {
     let textColorClass = switch cardType {
     | Info => "text-nd_gray-700"
@@ -173,12 +161,16 @@ module StatCard = {
     | Attention => "hover:border-nd_red-500/60"
     }
 
+    let (activeBorderClass, activeBgClass) = isActive
+      ? ("border-nd_primary_blue-400", "bg-nd_primary_blue-25")
+      : ("border-nd_gray-200", "bg-white")
+
     <div
       onClick={_ => onStatCardClick()}
-      className={`px-4 py-3.5 transition-all cursor-pointer ${hoverBorderClass} hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 bg-white rounded-xl border border-nd_gray-200 shadow-sm`}>
+      className={`px-4 py-3.5 transition-all cursor-pointer ${hoverBorderClass} hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 ${activeBgClass} rounded-xl border ${activeBorderClass} shadow-sm`}>
       <div className="flex items-center justify-between">
         <p className={`${body.sm.medium} text-nd_gray-600`}>
-          {(title :> string)->String.toUpperCase->React.string}
+          {title->String.toUpperCase->React.string}
         </p>
         <div className="bg-nd_gray-150/60 rounded-md w-8 h-8 flex items-center justify-center">
           {switch icon {
@@ -215,21 +207,27 @@ module StatCard = {
 module ConnectedStatCard = {
   @react.component
   let make = (
-    ~title: connectedStatCardsTitle,
+    ~title: string,
     ~value: valueType,
+    ~cardType: statCardType=Info,
     ~onConnectedStatCardClick=() => (),
   ) => {
+    let textColorClass = switch cardType {
+    | Info => "text-nd_gray-700"
+    | Attention => "text-nd_red-500"
+    }
+
     <div
       onClick={_ => onConnectedStatCardClick()}
       className="group px-4 py-3.5 transition-colors duration-200 cursor-pointer bg-white hover:bg-nd_gray-50 border-r border-b border-nd_gray-200 last:border-r-0">
       <div className="flex items-center justify-between">
         <p
           className={`${body.sm.medium} text-nd_gray-600 transition-colors duration-200 group-hover:text-nd_gray-700`}>
-          {(title :> string)->String.toUpperCase->React.string}
+          {title->String.toUpperCase->React.string}
         </p>
       </div>
       <div className="flex flex-col gap-y-2.5 items-start mt-1.5">
-        <p className={`${heading.sm.semibold} min-w-0 max-w-full text-nd_gray-700`}>
+        <p className={`${heading.sm.semibold} min-w-0 max-w-full ${textColorClass}`}>
           {switch value {
           | Percentage(v) => <PercentageCell value=v />
           | Float(v) => <FloatCell value=v />
