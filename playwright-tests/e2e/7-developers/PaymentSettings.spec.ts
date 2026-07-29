@@ -313,7 +313,7 @@ test.describe("Payment Settings", () => {
         }
         await route.fulfill({ response, json });
       });
-      await page.reload();
+      await page.reload({ waitUntil: "domcontentloaded" });
 
       const homePage = new HomePage(page);
       await homePage.developer.click();
