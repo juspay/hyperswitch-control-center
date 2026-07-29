@@ -94,6 +94,7 @@ type entityName =
   | CHAT_BOT
   | OIDC_AUTHORIZE
   | PAYMENTS_LIST
+  | BLOCKLIST_BATCH
 
 type v2entityNameType =
   | CUSTOMERS
