@@ -255,7 +255,7 @@ module MorePayoutDetails = {
 let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open APIUtils
   let getURL = useGetURL()
-  let fetchDetails = useUpdateMethod()
+  let fetchDetails = useGetMethod()
   let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -265,24 +265,20 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let fetchPayoutsData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      //TODO: Needs to be replaced with get API
-      let payoutsUrl = getURL(~entityName=V1(PAYOUTS), ~methodType=Post)
-      let filterData =
-        [
-          ("payout_id", id->JSON.Encode.string),
-          ("limit", 1->JSON.Encode.int),
-        ]->LogicUtils.getJsonFromArrayOfJson
+      let payoutsUrl = getURL(
+        ~entityName=V1(PAYOUTS),
+        ~methodType=Get,
+        ~id=Some(id),
+        ~queryParameters=Some("expand_attempts=true"),
+      )
       let _ = await internalSwitch(
         ~expectedOrgId=orgId,
         ~expectedMerchantId=merchantId,
         ~expectedProfileId=profileId,
       )
-      let response = await fetchDetails(payoutsUrl, filterData, Post)
+      let response = await fetchDetails(payoutsUrl)
       let payoutData =
         response
-        ->getDictFromJsonObject
-        ->getArrayFromDict("data", [])
-        ->getValueFromArray(0, JSON.Encode.null)
         ->getDictFromJsonObject
         ->PayoutsEntity.itemToObjMapper
       setPayoutsData(_ => payoutData)
