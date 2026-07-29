@@ -77,7 +77,7 @@ let getPipelineStatCards = (
         <Icon name="nd-alert-triangle-outline" size=14 className="text-nd_gray-500" />,
       ),
       pipelineStatCardDescription: failedCount > 0 ? "needs attention" : "all runs clean",
-      pipelineStatCardType: failedCount > 0 ? Attention : Info,
+      pipelineStatCardType: Attention,
       pipelineStatCardClickAction: SetStatusFilter(failedStatusValue),
     },
     {
@@ -97,8 +97,10 @@ let getPipelineStatCards = (
         <Icon name="nd-information-triangle" size=14 className="text-nd_gray-500" />,
       ),
       pipelineStatCardDescription: `${needsManualReviewRate} of transformed entries`,
-      pipelineStatCardType: needsManualReviewCount > 0 ? Attention : Info,
-      pipelineStatCardClickAction: NoAction,
+      pipelineStatCardType: Attention,
+      pipelineStatCardClickAction: NavigateToPath(
+        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions/transformed-entries"),
+      ),
     },
   ]
 }
@@ -128,10 +130,11 @@ let sortIngestionHistory = (
       switch sortOption {
       | #MostRecent => compareLogic(a.created_at, b.created_at)
       | #NeedsAttention =>
-        numericArraySortComparator(
+        let rankComparison = numericArraySortComparator(
           ingestionStatusAttentionRank(a.status),
           ingestionStatusAttentionRank(b.status),
         )
+        rankComparison == 0. ? compareLogic(a.created_at, b.created_at) : rankComparison
       | #FileName =>
         numericArraySortComparator(a.file_name->String.toLowerCase, b.file_name->String.toLowerCase)
       }

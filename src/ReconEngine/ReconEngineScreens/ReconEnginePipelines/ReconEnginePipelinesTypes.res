@@ -9,6 +9,7 @@ type pipelineStatCardTitle =
 type pipelineStatCardClickAction =
   | ClearStatusFilter
   | SetStatusFilter(string)
+  | NavigateToPath(string)
   | NoAction
 
 type ingestionHistorySortOption = [#MostRecent | #NeedsAttention | #FileName]

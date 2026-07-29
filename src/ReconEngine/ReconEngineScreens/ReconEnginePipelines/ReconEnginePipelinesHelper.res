@@ -196,7 +196,10 @@ module TransformationCard = {
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
           <TableUtils.DateCell
-            timestamp=tx.created_at isCard=true textStyle={`${body.sm.medium} text-nd_gray-600`}
+            timestamp=tx.created_at
+            isCard=true
+            hideTime=true
+            textStyle={`${body.sm.medium} text-nd_gray-600`}
           />
           <Icon
             name="nd-arrow-right"

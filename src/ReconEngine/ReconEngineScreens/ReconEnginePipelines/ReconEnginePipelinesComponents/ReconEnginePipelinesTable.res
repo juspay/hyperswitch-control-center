@@ -77,20 +77,37 @@ let make = (~accountData: array<ReconEngineTypes.accountType>, ~refreshTrigger=f
 
   let sortOptionLabel = (sortOption :> string)->camelCaseToTitle
 
-  let sortDropdownOptions = ingestionHistorySortOptions->Array.map(opt => {
-    let label = (opt :> string)->camelCaseToTitle
-    {
-      HeadlessUISelectBox.label,
-      value: label,
-      isDisabled: false,
-      leftIcon: Button.NoIcon,
-      customTextStyle: None,
-      customIconStyle: None,
-      rightIcon: Button.NoIcon,
-      description: None,
-      customComponent: None,
+  let hasAttentionNeeded = ingestionHistoryData->Array.some(item =>
+    item
+    ->getOptionalFromNullable
+    ->mapOptionOrDefault(false, obj => obj.status->ingestionStatusAttentionRank < 3)
+  )
+
+  React.useEffect(() => {
+    if sortOption === #NeedsAttention && !hasAttentionNeeded {
+      setSortOption(_ => #MostRecent)
     }
-  })
+    None
+  }, (ingestionHistoryData, sortOption))
+
+  let sortDropdownOptions = ingestionHistorySortOptions->Array.filterMap(opt =>
+    opt === #NeedsAttention && !hasAttentionNeeded
+      ? None
+      : {
+          let label = (opt :> string)->camelCaseToTitle
+          Some({
+            HeadlessUISelectBox.label,
+            value: label,
+            isDisabled: false,
+            leftIcon: Button.NoIcon,
+            customTextStyle: None,
+            customIconStyle: None,
+            rightIcon: Button.NoIcon,
+            description: None,
+            customComponent: None,
+          })
+        }
+  )
 
   let setSortOptionFromLabel = label => {
     ingestionHistorySortOptions

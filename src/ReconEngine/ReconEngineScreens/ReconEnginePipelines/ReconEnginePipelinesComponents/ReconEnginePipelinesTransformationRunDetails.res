@@ -158,7 +158,7 @@ let make = (
                   timestamp=selectedTransformation.created_at
                   isCard=true
                   hideTimeZone=true
-                  textStyle={`${body.sm.medium} text-nd_gray-700`}
+                  textStyle={body.sm.medium}
                 />}
               />
               <MetaRow
@@ -168,11 +168,9 @@ let make = (
                       timestamp=selectedTransformation.processed_at
                       isCard=true
                       hideTimeZone=true
-                      textStyle={`${body.sm.medium} text-nd_gray-700`}
+                      textStyle={body.sm.medium}
                     />
-                  : <span className={`${body.sm.medium} text-nd_gray-700`}>
-                      {"—"->React.string}
-                    </span>}
+                  : <span className={body.sm.medium}> {"—"->React.string} </span>}
               />
               <MetaRow
                 label="Duration"
