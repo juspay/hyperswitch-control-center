@@ -9,8 +9,7 @@ module SectionTitle = {
     <h4 className={`flex items-center gap-1.5 ${body.md.semibold} text-nd_gray-800`}>
       {children}
       {switch count {
-      | Some(c) =>
-        <span className="normal-case font-normal"> {c->Int.toString->React.string} </span>
+      | Some(c) => <span> {c->Int.toString->React.string} </span>
       | None => React.null
       }}
     </h4>
@@ -85,32 +84,33 @@ module FieldRow = {
 
     <div className="px-3 py-2.5 border-b border-nd_gray-150 last:border-0">
       <div className={`flex items-center gap-2 ${body.sm.regular}`}>
-        <ToolTip
-          toolTipPosition=Top
-          descriptionComponent={<span className={`${body.xs.regular} break-words`}>
-            {`${field.label} (${field.target})`->React.string}
-          </span>}
-          toolTipFor={<span className="min-w-0 flex-1 truncate cursor-default">
-            <span className={`${body.sm.medium} text-nd_gray-800`}>
+        <div className="flex items-center min-w-0 flex-1">
+          <ToolTip
+            toolTipPosition=Top
+            descriptionComponent={<span className={`${body.xs.regular} break-words`}>
+              {`${field.label} (${field.target})`->React.string}
+            </span>}
+            toolTipFor={<span className={`min-w-0 truncate ${body.sm.medium} text-nd_gray-800`}>
               {field.label->React.string}
-            </span>
-            <span className={`ml-1.5 font-mono ${body.xs.regular} text-nd_gray-500`}>
-              {field.target->React.string}
-            </span>
-            <RenderIf condition=field.isRequired>
-              <span className={`ml-1 ${body.xs.medium} text-nd_red-500`}>
-                {"required"->React.string}
-              </span>
-            </RenderIf>
-          </span>}
-        />
+            </span>}
+          />
+          <RenderIf condition=field.isRequired>
+            <ToolTip
+              toolTipPosition=Top
+              description="Required"
+              toolTipFor={<span className={`ml-1 ${body.xs.medium} text-nd_red-500 cursor-default`}>
+                {"*"->React.string}
+              </span>}
+            />
+          </RenderIf>
+        </div>
         <span
-          className={`shrink-0 ${body.xs.medium} lowercase text-nd_gray-700 bg-nd_gray-100 border border-nd_gray-200 rounded px-1.5 py-0.5`}>
+          className={`shrink-0 ${body.sm.medium} lowercase text-nd_gray-700 bg-nd_gray-100 border border-nd_gray-200 rounded px-1.5 py-0.5`}>
           {field.typeLabel->React.string}
         </span>
         <ToolTip
           toolTipPosition=Top
-          descriptionComponent={<span className={`${body.xs.regular} break-words`}>
+          descriptionComponent={<span className={`${body.sm.regular} break-words`}>
             {(
               field.fieldIdentifier->isNonEmptyString ? field.fieldIdentifier : "—"
             )->React.string}
@@ -118,7 +118,7 @@ module FieldRow = {
           toolTipFor={<span
             className="min-w-0 max-w-40-per inline-flex items-center gap-1 cursor-default">
             <Icon name="nd-arrow-right" size=10 className="text-nd_gray-300 shrink-0" />
-            <span className={`min-w-0 truncate font-mono ${body.xs.regular} text-nd_gray-500`}>
+            <span className={`min-w-0 truncate ${body.sm.regular} text-nd_gray-500`}>
               {(
                 field.fieldIdentifier->isNonEmptyString ? field.fieldIdentifier : "—"
               )->React.string}

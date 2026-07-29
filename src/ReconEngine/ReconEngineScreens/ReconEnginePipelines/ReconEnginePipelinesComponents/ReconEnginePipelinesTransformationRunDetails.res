@@ -96,7 +96,7 @@ let make = (
         </div>
       </div>}>
       <div className="h-full relative">
-        <div className="absolute inset-0 overflow-y-auto px-6 py-5 pb-16">
+        <div className="absolute inset-0 overflow-y-auto px-6 py-5 pb-20">
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center gap-2 flex-wrap">
@@ -120,10 +120,10 @@ let make = (
                   </span>
                 </RenderIf>
               </div>
-              <div className={`flex items-center gap-1.5 ${body.xs.regular} text-nd_gray-500`}>
+              <div className={`flex items-center gap-1.5 ${body.sm.regular} text-nd_gray-500`}>
                 <span> {"writes into"->React.string} </span>
                 <Icon name="nd-arrow-right" size=10 className="text-nd_gray-300" />
-                <span className={`${body.xs.medium} text-nd_gray-700`}>
+                <span className={`${body.sm.medium} text-nd_gray-700`}>
                   {accountName->React.string}
                 </span>
               </div>
@@ -255,7 +255,7 @@ let make = (
                     ->Array.mapWithIndex((skipConfig, index) =>
                       <div
                         key={index->Int.toString}
-                        className={`${body.xs.regular} bg-nd_gray-50 border border-nd_gray-150 rounded-lg px-2.5 py-1.5 text-nd_gray-700 break-words`}>
+                        className={`${body.sm.regular} bg-nd_gray-50 border border-nd_gray-150 rounded-lg px-2.5 py-1.5 text-nd_gray-700 break-words`}>
                         {describeSkipConfig(skipConfig)->React.string}
                       </div>
                     )

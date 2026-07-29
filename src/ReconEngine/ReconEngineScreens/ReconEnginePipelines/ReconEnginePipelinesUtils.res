@@ -152,19 +152,6 @@ let getAccountOptions = (accounts: array<accountType>): array<FilterSelectBox.dr
   })
 }
 
-let getConnectorOptions = (ingestionHistory: array<ingestionHistoryType>): array<
-  FilterSelectBox.dropdownOption,
-> => {
-  ingestionHistory
-  ->Array.map(item => item.upload_type)
-  ->Array.filter(isNonEmptyString)
-  ->getUniqueArray
-  ->Array.map(uploadType => {
-    FilterSelectBox.label: uploadType->capitalizeString,
-    value: uploadType,
-  })
-}
-
 let stagingEntrySearchTypeFromString = (str): stagingEntrySearchType => {
   switch str {
   | "order_id" => SearchOrderId
@@ -661,10 +648,7 @@ let getDisplayFields = (fields: schemaFieldsType): array<displayField> => {
   mainFields->Array.concat(metadataFields)
 }
 
-let initialPipelinesTableFilters = (
-  ~accountOptions: array<FilterSelectBox.dropdownOption>,
-  ~connectorOptions: array<FilterSelectBox.dropdownOption>,
-) => {
+let initialPipelinesTableFilters = (~accountOptions: array<FilterSelectBox.dropdownOption>) => {
   let statusOptions = ReconEngineDataSourcesUtils.getStatusOptions([
     Pending,
     Processing,
@@ -701,26 +685,6 @@ let initialPipelinesTableFilters = (
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=statusOptions,
             ~buttonText="Select Status",
-            ~showSelectionAsChips=false,
-            ~searchable=true,
-            ~showToolTip=true,
-            ~showNameAsToolTip=true,
-            ~customButtonStyle="bg-none",
-            ~fixedDropDownDirection=BottomRight,
-            (),
-          ),
-        ),
-        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
-      }: EntityType.initialFilters<'t>
-    ),
-    (
-      {
-        field: FormRenderer.makeFieldInfo(
-          ~label="upload_type",
-          ~name="upload_type",
-          ~customInput=InputFields.filterMultiSelectInput(
-            ~options=connectorOptions,
-            ~buttonText="Select Connector",
             ~showSelectionAsChips=false,
             ~searchable=true,
             ~showToolTip=true,

@@ -28,7 +28,8 @@ let make = (~accountData: array<ReconEngineTypes.accountType>, ~refreshTrigger=f
           false,
           obj =>
             isContainingStringLowercase(obj.file_name, searchText) ||
-            isContainingStringLowercase(obj.ingestion_name, searchText),
+            isContainingStringLowercase(obj.ingestion_name, searchText) ||
+            isContainingStringLowercase(obj.upload_type, searchText),
         )
       })
     } else {
@@ -118,16 +119,15 @@ let make = (~accountData: array<ReconEngineTypes.accountType>, ~refreshTrigger=f
     })
   }
 
-  let (accountOptions, connectorOptions) = React.useMemo(() => {
-    let unwrappedHistory = ingestionHistoryData->Array.filterMap(getOptionalFromNullable)
-    (getAccountOptions(accountData), getConnectorOptions(unwrappedHistory))
-  }, (accountData, ingestionHistoryData))
+  let accountOptions = React.useMemo(() => {
+    getAccountOptions(accountData)
+  }, [accountData])
 
   let topFilterUi = {
     <div className="flex flex-row -ml-1.5 mt-4">
       <DynamicFilter
         title="ReconEnginePipelinesTableFilters"
-        initialFilters={initialPipelinesTableFilters(~accountOptions, ~connectorOptions)}
+        initialFilters={initialPipelinesTableFilters(~accountOptions)}
         options=[]
         popupFilterFields=[]
         initialFixedFilters=[]
@@ -170,7 +170,7 @@ let make = (~accountData: array<ReconEngineTypes.accountType>, ~refreshTrigger=f
           <TableSearchFilter
             data={ingestionHistoryData}
             filterLogic
-            placeholder="Search by File Name or Ingestion Name"
+            placeholder="Search by File Name or Connector"
             customSearchBarWrapperWidth="w-full lg:w-1/3"
             customInputBoxWidth="w-full rounded-xl"
             searchVal=searchText
