@@ -138,11 +138,6 @@ test.describe("3DS Authenticators Setup", () => {
     ).toBeVisible();
     await threeDSAuthenticator.connectorLabelTextbox.fill("netcetera_default");
 
-    await expect(page.getByText("Live endpoint prefix *")).toBeVisible();
-    await page
-      .getByRole("textbox", { name: "string that will replace '{" })
-      .fill("test_value");
-
     await expect(
       page.locator("div").filter({ hasText: /^MCC$/ }).nth(2),
     ).toBeVisible();

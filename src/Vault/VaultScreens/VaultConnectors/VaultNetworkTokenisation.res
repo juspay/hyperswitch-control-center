@@ -7,7 +7,7 @@ let make = () => {
       <p className="font-semibold text-lg text-nd_gray-600">
         {"Network Tokenization"->React.string}
       </p>
-      <BoolInput.BaseComponent
+      <SwitchAdapter
         isSelected=toggleState
         setIsSelected={_ => setToggleState(prev => !prev)}
         boolCustomClass="rounded-xl"

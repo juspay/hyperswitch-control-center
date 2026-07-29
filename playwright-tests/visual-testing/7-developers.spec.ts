@@ -305,7 +305,7 @@ test.describe("Visual Testing - Developers", () => {
         fullPage: true,
         animations: "disabled",
         maxDiffPixelRatio: 0.01,
-        mask: [webhooks.dateRangeFilter],
+        mask: [webhooks.dateRangePresetSelector, webhooks.dateRangeFilter],
       });
     });
 
@@ -389,7 +389,7 @@ test.describe("Visual Testing - Developers", () => {
           fullPage: true,
           animations: "disabled",
           maxDiffPixelRatio: 0.01,
-          mask: [webhooks.dateRangeFilter],
+          mask: [webhooks.dateRangePresetSelector, webhooks.dateRangeFilter],
         },
       );
 
