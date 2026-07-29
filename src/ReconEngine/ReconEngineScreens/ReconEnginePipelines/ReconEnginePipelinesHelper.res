@@ -171,7 +171,10 @@ module StatDot = {
 
 module TransformationCard = {
   @react.component
-  let make = (~transformation: ReconEngineTypes.transformationHistoryType, ~onOpen: unit => unit) => {
+  let make = (
+    ~transformation: ReconEngineTypes.transformationHistoryType,
+    ~onOpen: unit => unit,
+  ) => {
     let errorCount = transformation.data.errors->Array.length
     let duration = ReconEnginePipelinesUtils.formatDuration(
       transformation.created_at,
