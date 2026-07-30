@@ -36,6 +36,14 @@ let getEntryTypeAccountOptions = (
   getAccountOptionsFromTransactions(transactions, entryType)
 }
 
+let refreshEndTimeFilter = updateExistingKeys => {
+  updateExistingKeys(
+    Dict.fromArray([
+      (HSAnalyticsUtils.endTimeFilterKey, HSwitchRemoteFilter.getDateFilteredObject().end_time),
+    ]),
+  )
+}
+
 let buildQueryStringFromFilters = (~filterValueJson: Dict.t<JSON.t>) => {
   let queryParts = []
 
