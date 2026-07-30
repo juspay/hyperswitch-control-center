@@ -165,7 +165,7 @@ let getSumOfAmountWithCurrency = (
   (totalAmount, entry.currency)
 }
 
-let exceptionTransactionProcessingEntryItemToObjMapper = dict => {
+let exceptionTransactionProcessingEntryItemToObjMapper = (dict): processingEntryType => {
   let discardedDataDict =
     dict->getDictfromDict("discarded_data")->processingEntryDiscardedDataItemToObjMapper
   {
@@ -182,7 +182,9 @@ let exceptionTransactionProcessingEntryItemToObjMapper = dict => {
     ->getString("status", "")
     ->camelToSnake
     ->getProcessingEntryStatusVariantFromString,
-    transformation_id: dict->getString("transformation_id", ""),
+    transformation_config: dict
+    ->getDictfromDict("transformation_config")
+    ->transformationConfigRefTypeMapper,
     transformation_history_id: dict->getString("transformation_history_id", ""),
     order_id: dict->getString("order_id", ""),
     version: dict->getInt("version", 0),
