@@ -267,7 +267,7 @@ let make = (~ingestionHistoryId: string) => {
               <p className={`${body.md.semibold} text-nd_gray-800`}>
                 {"Transformed Entries"->React.string}
               </p>
-              <div className="flex flex-row -ml-1.5">
+              <div className="flex flex-row justify-between items-start gap-3 -ml-1.5">
                 <DynamicFilter
                   title="ReconEnginePipelineDetailsStagingFilters"
                   initialFilters=stagingEntriesFilters
@@ -283,8 +283,13 @@ let make = (~ingestionHistoryId: string) => {
                   refreshFilters=false
                   setOffset
                 />
+                <PortalCapture
+                  key={`${stagingTableTitle}CustomizeColumn`}
+                  name={`${stagingTableTitle}CustomizeColumn`}
+                  customStyle="mt-4"
+                />
               </div>
-              <LoadedTable
+              <LoadedTableWithCustomColumns
                 title=stagingTableTitle
                 hideTitle=true
                 actualData={stagingEntries->Array.map(Nullable.make)}
@@ -294,6 +299,10 @@ let make = (~ingestionHistoryId: string) => {
                 offset
                 setOffset
                 currentFetchCount={stagingEntries->Array.length}
+                customColumnMapper=TableAtoms.reconStagingEntriesDefaultCols
+                defaultColumns={ReconEngineExceptionEntity.processingMandatoryColumns}
+                showSerialNumberInCustomizeColumns=false
+                sortingBasedOnDisabled=false
                 tableheadingClass="h-11"
                 tableHeadingTextClass="!font-normal"
                 nonFrozenTableParentClass="!rounded-none !border-0 !shadow-none"

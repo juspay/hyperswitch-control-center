@@ -1,5 +1,4 @@
 open ReconEngineTypes
-open HierarchicalTransactionsTableEntity
 
 @react.component
 let make = (
@@ -110,7 +109,12 @@ let make = (
 
   <div className="flex flex-col gap-4 mt-3">
     <PageLoaderWrapper screenState>
-      <div className="flex-shrink-0"> {topFilterUi} </div>
+      <div className="flex flex-row justify-between items-start gap-3 flex-shrink-0">
+        <div className="flex-1"> {topFilterUi} </div>
+        <PortalCapture
+          key={`${title}CustomizeColumn`} name={`${title}CustomizeColumn`} customStyle="mt-4"
+        />
+      </div>
       <LoadedTableWithCustomColumns
         title
         hideTitle=true
@@ -127,7 +131,7 @@ let make = (
         setOffset
         currentFetchCount={transactions->Array.length}
         customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
-        defaultColumns
+        defaultColumns={HierarchicalTransactionsTableEntity.mandatoryColumns}
         showPagination=false
         showResultsPerPageSelector=false
         remoteSortEnabled=true
@@ -135,7 +139,6 @@ let make = (
         dataLoading={screenState === PageLoaderWrapper.Loading}
         tableheadingClass="bg-gray-50"
         showAutoScroll=true
-        hideCustomisableColumnButton=true
         customSeparation=[(3, 4)]
         filters={<SearchInput
           inputText=searchText

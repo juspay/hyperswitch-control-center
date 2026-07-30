@@ -15,6 +15,22 @@ type processingColType =
   | Actions
   | ExceptionType
 
+let processingAllColumns = [
+  StagingEntryId,
+  TransformationHistoryId,
+  EntryType,
+  AccountName,
+  Amount,
+  Currency,
+  Status,
+  EffectiveAt,
+  OrderId,
+  Actions,
+  ExceptionType,
+]
+
+let processingMandatoryColumns = [EffectiveAt, Amount, Status]
+
 let processingDefaultColumns = [
   EffectiveAt,
   OrderId,
@@ -127,6 +143,7 @@ let processingTableEntity = EntityType.makeEntity(
   ~uri="",
   ~getObjects=_ => [],
   ~defaultColumns=processingDefaultColumns,
+  ~allColumns=processingAllColumns,
   ~getHeading=getProcessingHeading,
   ~getCell=getProcessingCell,
   ~dataKey="",
@@ -140,6 +157,7 @@ let transformedEntryExceptionTableEntity = (
     ~uri="",
     ~getObjects=_ => [],
     ~defaultColumns=processingDefaultColumns,
+    ~allColumns=processingAllColumns,
     ~getHeading=getProcessingHeading,
     ~getCell=getProcessingCell,
     ~dataKey="",

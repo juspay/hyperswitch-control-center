@@ -96,7 +96,12 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
     </div>
 
   <div className="flex flex-col gap-4">
-    <div className="flex-shrink-0"> {statusFilterUi} </div>
+    <div className="flex flex-row justify-between items-start gap-3 flex-shrink-0">
+      <div className="flex-1"> {statusFilterUi} </div>
+      <PortalCapture
+        key={`${title}CustomizeColumn`} name={`${title}CustomizeColumn`} customStyle="mt-4"
+      />
+    </div>
     <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="w-full h-96 rounded-xl" />}>
       <LoadedTableWithCustomColumns
         title
@@ -114,7 +119,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
         setOffset
         currentFetchCount={transactions->Array.length}
         customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
-        defaultColumns
+        defaultColumns={HierarchicalTransactionsTableEntity.mandatoryColumns}
         showSerialNumberInCustomizeColumns=false
         sortingBasedOnDisabled=false
         remoteSortEnabled=true
@@ -122,8 +127,6 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
         showResultsPerPageSelector=false
         tableDataLoading={screenState === PageLoaderWrapper.Loading}
         dataLoading={screenState === PageLoaderWrapper.Loading}
-        customizeColumnButtonIcon="nd-filter-horizontal"
-        hideRightTitleElement=true
         showAutoScroll=true
         customSeparation=[(3, 4)]
         filters={<SearchInput

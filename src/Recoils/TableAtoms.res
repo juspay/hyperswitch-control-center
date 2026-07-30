@@ -44,3 +44,23 @@ let transactionsHierarchicalDefaultCols = Recoil.atom(
   "transactionsHierarchicalDefaultCols",
   HierarchicalTransactionsTableEntity.defaultColumns,
 )
+
+let reconTransformedEntriesDefaultCols = Recoil.atom(
+  "reconTransformedEntriesDefaultCols",
+  ReconEngineExceptionEntity.processingDefaultColumns,
+)
+
+let reconStagingEntriesDefaultCols = Recoil.atom(
+  "reconStagingEntriesDefaultCols",
+  ReconEngineExceptionEntity.processingDefaultColumns,
+)
+
+let reconOverviewTransformedEntriesDefaultCols = Recoil.atom(
+  "reconOverviewTransformedEntriesDefaultCols",
+  ReconEngineExceptionEntity.processingDefaultColumns,
+)
+
+let reconTransformedEntryExceptionsDefaultCols = Recoil.atom(
+  "reconTransformedEntryExceptionsDefaultCols",
+  ReconEngineExceptionEntity.processingDefaultColumns,
+)

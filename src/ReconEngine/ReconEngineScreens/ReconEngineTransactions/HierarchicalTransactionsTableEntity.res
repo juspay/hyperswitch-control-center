@@ -30,6 +30,8 @@ let defaultColumns: array<hierarchicalColType> = [
   CreditAmount,
 ]
 
+let mandatoryColumns: array<hierarchicalColType> = [Flow, Date, TransactionId, Status]
+
 let allColumns: array<hierarchicalColType> = [
   Flow,
   Date,

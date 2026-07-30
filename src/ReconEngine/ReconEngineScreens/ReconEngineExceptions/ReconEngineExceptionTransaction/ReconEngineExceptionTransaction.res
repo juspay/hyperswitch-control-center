@@ -182,7 +182,12 @@ let make = (~ruleId: string) => {
 
   <div className="flex flex-col gap-4 mt-3">
     <PageLoaderWrapper screenState>
-      <div className="flex-shrink-0"> {topFilterUi} </div>
+      <div className="flex flex-row justify-between items-start gap-3 flex-shrink-0">
+        <div className="flex-1"> {topFilterUi} </div>
+        <PortalCapture
+          key={`${title}CustomizeColumn`} name={`${title}CustomizeColumn`} customStyle="mt-4"
+        />
+      </div>
       <RenderIf condition={transactions->isEmptyArray}>
         <div className="h-40-vh flex flex-col justify-center items-center gap-2">
           <p className={`${heading.sm.semibold} text-nd_gray-800`}>
@@ -210,7 +215,7 @@ let make = (~ruleId: string) => {
           setOffset
           currentFetchCount={transactions->Array.length}
           customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
-          defaultColumns
+          defaultColumns={HierarchicalTransactionsTableEntity.mandatoryColumns}
           showSerialNumberInCustomizeColumns=false
           sortingBasedOnDisabled=false
           remoteSortEnabled=true
@@ -218,8 +223,6 @@ let make = (~ruleId: string) => {
           showResultsPerPageSelector=false
           tableDataLoading={screenState === PageLoaderWrapper.Loading}
           dataLoading={screenState === PageLoaderWrapper.Loading}
-          customizeColumnButtonIcon="nd-filter-horizontal"
-          hideRightTitleElement=true
           showAutoScroll=true
           customSeparation=[(3, 4)]
           filters={<SearchInput

@@ -143,7 +143,12 @@ let make = () => {
     </div>
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-4">
-        <div className="flex-shrink-0"> {topFilterUi} </div>
+        <div className="flex flex-row justify-between items-start gap-3 flex-shrink-0">
+          <div className="flex-1"> {topFilterUi} </div>
+          <PortalCapture
+            key={`${title}CustomizeColumn`} name={`${title}CustomizeColumn`} customStyle="mt-4"
+          />
+        </div>
         <RenderIf condition={processingEntries->isEmptyArray}>
           <div className="h-40-vh flex flex-col justify-center items-center gap-2">
             <p className={`${heading.sm.semibold} text-nd_gray-800`}>
@@ -155,7 +160,7 @@ let make = () => {
           </div>
         </RenderIf>
         <RenderIf condition={processingEntries->isNonEmptyArray}>
-          <LoadedTable
+          <LoadedTableWithCustomColumns
             title
             hideTitle=true
             actualData={processingEntries->Array.map(Nullable.make)}
@@ -168,6 +173,10 @@ let make = () => {
             offset
             setOffset
             currentFetchCount={processingEntries->Array.length}
+            customColumnMapper=TableAtoms.reconTransformedEntryExceptionsDefaultCols
+            defaultColumns={ReconEngineExceptionEntity.processingMandatoryColumns}
+            showSerialNumberInCustomizeColumns=false
+            sortingBasedOnDisabled=false
             tableheadingClass="h-12"
             tableHeadingTextClass="!font-normal"
             nonFrozenTableParentClass="!rounded-lg"
