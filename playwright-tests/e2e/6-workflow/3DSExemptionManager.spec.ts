@@ -292,7 +292,7 @@ test.describe("3DS Exemption Manager", () => {
 
       await expect(exemption.ruleHeadingByIndex(2)).toHaveCount(0);
 
-      await page.getByRole("textbox", { name: "Enter value" }).fill("100");
+      await page.getByRole('spinbutton', { name: 'Enter value' }).fill("100");
       await exemption.copyRuleButton.click();
       await expect(exemption.ruleHeadingByIndex(2)).toBeVisible();
       await expect(page.getByPlaceholder("Enter value").nth(1)).toHaveValue(
@@ -385,6 +385,7 @@ test.describe("3DS Exemption Manager", () => {
 
       // 3. Pick a currency for the second condition (currency IS USD).
       await exemption.selectValueButton.first().click();
+      await page.getByRole('searchbox', { name: 'Search options...' }).fill("USD");
       await exemption.dropdownOption("USD", 4).click();
 
       // 4. Select the auth type so override_3ds is non-empty (the rule

@@ -75,10 +75,13 @@ test.describe("New Analytics - Insights Payments", () => {
       ),
     ).toBeVisible();
     await expect(
-      page
-        .locator("div")
-        .filter({ hasText: /^Last 7 DaysNo ComparisonView data for:/ })
-        .nth(2),
+      page.getByRole('button', { name: 'Last 7 days' }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'No Comparison' }),
+    ).toBeVisible();
+    await expect(
+      page.getByText('View data for:playwright_20'),
     ).toBeVisible();
 
     await expect(insights.pageHeading).toBeVisible({ timeout: 10000 });
@@ -285,7 +288,7 @@ test.describe("New Analytics - Insights Payments - Date Range Selector", () => {
   // getDateFilteredObject(~range=7), so the selector shows "Last 7 Days".
   test("should default the date range to the last 7 days preset", async () => {
     await expect(insights.dateRangeSelector).toBeVisible({ timeout: 15000 });
-    await expect(insights.dateRangeSelector).toContainText("Last 7 Days");
+    await expect(insights.dateRangeSelector).toContainText("Last 7 days");
 
     // The default range still resolves canned data, so the overview renders.
     await expect(insights.authorizationRateCard).toBeVisible({
@@ -298,12 +301,13 @@ test.describe("New Analytics - Insights Payments - Date Range Selector", () => {
 
   // NA-025 — Selecting predefined presets updates the active range.
   test("should update the date range when a predefined preset is selected", async () => {
-    const presets = ["Last 2 Days", "Last 30 Days", "This Month"];
+    const presets = ["Last 30 days", "This month"];
 
     for (const preset of presets) {
       await insights.openDateRangeSelector();
       await expect(insights.predefinedDateOptions).toContainText(preset);
 
+      await insights.predefinedDateOption(preset).scrollIntoViewIfNeeded();
       await insights.predefinedDateOption(preset).click();
       await insights.page.waitForLoadState("networkidle");
 
@@ -322,22 +326,21 @@ test.describe("New Analytics - Insights Payments - Date Range Selector", () => {
 
   // NA-026 — Custom range. Pick two days in the calendar and apply; the
   // selector reflects the chosen dates and the charts refresh.
-  test("should apply a custom date range from the calendar", async () => {
-    await insights.openDateRangeSelector();
-
+  test("should apply a custom date range from the calendar", async ({ page }) => {
     await insights.customRangeOption.click();
 
     // Frozen clock pins "today" to 2026-05-15, so May 5 → May 12 are valid
     // past days within the 180-day limit.
-    await insights.calendarDate("May 5, 2026").first().click();
-    await insights.calendarDate("May 12, 2026").first().click();
+    await expect(page.getByRole('button', { name: 'Tuesday, May 5,' })).toBeVisible();
+    await page.getByRole('button', { name: 'Tuesday, May 5,' }).click();
+    await page.getByRole('button', { name: 'Tuesday, May 12,' }).click();
 
     await insights.applyDateRangeButton.click();
     await insights.page.waitForLoadState("networkidle");
 
     await expect(insights.dateRangeSelector).not.toContainText("Last 7 Days");
-    await expect(insights.dateRangeSelector).toContainText("May 05, 2026");
-    await expect(insights.dateRangeSelector).toContainText("May 12, 2026");
+    await expect(insights.customRangeOption).toContainText("May 5, 2026");
+    await expect(insights.customRangeOption).toContainText("May 12, 2026");
 
     await expect(insights.authorizationRateCard).toBeVisible({
       timeout: 15000,
@@ -420,7 +423,7 @@ test.describe("New Analytics - Insights Payments - Sample Data Toggle", () => {
   // the fixed sample window and disables the OMP switcher.
   test("should switch to sample data when the toggle is enabled", async () => {
     await expect(insights.sampleDataBannerOff).toBeVisible({ timeout: 15000 });
-    await expect(insights.dateRangeSelector).toContainText("Last 7 Days");
+    await expect(insights.dateRangeSelector).toContainText("Last 7 days");
 
     await insights.enableSampleData();
 
@@ -428,9 +431,9 @@ test.describe("New Analytics - Insights Payments - Sample Data Toggle", () => {
     await expect(insights.hideSampleDataText).toBeVisible({ timeout: 10000 });
 
     // Date range switches to the fixed sample window (2024-09-04 → 2024-10-03).
-    await expect(insights.dateRangeSelector).not.toContainText("Last 7 Days");
-    await expect(insights.dateRangeSelector).toContainText("Sep 04, 2024");
-    await expect(insights.dateRangeSelector).toContainText("Oct 03, 2024");
+    await expect(insights.dateRangeSelector).not.toContainText("Last 7 days");
+    await expect(insights.customRangeOption).toContainText("Sep 4, 2024");
+    await expect(insights.customRangeOption).toContainText("Oct 3, 2024");
 
     // OMP switcher is disabled and shows the fixed sample placeholder.
     await expect(insights.ompDisabledView).toBeVisible({ timeout: 10000 });
@@ -452,7 +455,7 @@ test.describe("New Analytics - Insights Payments - Sample Data Toggle", () => {
   test("should revert to real data when the toggle is disabled", async () => {
     await insights.enableSampleData();
     await expect(insights.sampleDataBannerOn).toBeVisible({ timeout: 15000 });
-    await expect(insights.dateRangeSelector).toContainText("Sep 04, 2024");
+    await expect(insights.customRangeOption).toContainText("Sep 4, 2024");
 
     await insights.disableSampleData();
 
@@ -461,8 +464,8 @@ test.describe("New Analytics - Insights Payments - Sample Data Toggle", () => {
 
     // Date range reverts off the sample window to the default 7-day range
     // resolved against the frozen clock (May 08 → May 15, 2026).
-    await expect(insights.dateRangeSelector).not.toContainText("Sep 04, 2024");
-    await expect(insights.dateRangeSelector).toContainText("May 15, 2026");
+    await expect(insights.customRangeOption).not.toContainText("Sep 4, 2024");
+    await expect(insights.customRangeOption).toContainText("May 15, 2026");
 
     // OMP switcher is re-enabled (sample placeholder no longer shown).
     await expect(insights.ompDisabledView).not.toBeVisible({ timeout: 10000 });

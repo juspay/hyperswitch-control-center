@@ -347,7 +347,7 @@ let initialFilters = (json, filterValues, removeKeys, filterKeys, setfilterKeys,
       (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) =>
         InputFields.textInput(
           ~rightIcon=<div
-            className="p-1 rounded-lg hover:bg-gray-200 cursor-pointer mr-6 "
+            className="p-1 rounded-lg hover:bg-gray-200 cursor-pointer"
             onClick={_ => input.name->onDeleteClick}>
             <Icon name="cross-outline" size=13 />
           </div>,
@@ -402,10 +402,9 @@ let initialFixedFilter = (version: UserInfoTypes.version, ~disable=false) => [
           ~predefinedDays=[
             Hour(0.5),
             Hour(1.0),
-            Hour(2.0),
+            Hour(6.0),
             Today,
             Yesterday,
-            Day(2.0),
             Day(7.0),
             Day(30.0),
             ThisMonth,

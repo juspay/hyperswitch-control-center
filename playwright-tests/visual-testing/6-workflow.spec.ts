@@ -50,7 +50,7 @@ const seedConnector = async (
   if (!merchantId) {
     throw new Error("Routing visual test: could not read merchant id");
   }
-  await createDummyConnectorAPI(merchantId, label, context.request);
+  await createDummyConnectorAPI(merchantId, label, context.request, page);
 };
 
 // Drives the volume-based UI flow to create and activate one routing
@@ -102,7 +102,7 @@ const seedPayoutConnector = async (
   if (!merchantId) {
     throw new Error("Payout routing visual test: could not read merchant id");
   }
-  await createPayoutConnectorAPI(merchantId, label, context.request);
+  await createPayoutConnectorAPI(merchantId, label, context.request, page);
 };
 
 const createActivePayoutVolumeConfig = async (

@@ -44,7 +44,11 @@ export class Webhooks {
   }
 
   get dateRangeFilter(): Locator {
-    return this.page.getByRole("button", { name: /Now/ }).first();
+    return this.page.locator('[data-element="datepicker-selector"]').first();
+  }
+
+  get dateRangePresetSelector(): Locator {
+    return this.page.locator('[data-element="preset-selector"]').first();
   }
 
   get notConfiguredMessage(): Locator {

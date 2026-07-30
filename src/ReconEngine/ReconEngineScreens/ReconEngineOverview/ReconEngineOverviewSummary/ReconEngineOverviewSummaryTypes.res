@@ -6,28 +6,29 @@ type amountType =
   | PendingAmount
   | MismatchedAmount
 
-type accountTransactionCounts = {
-  matched_confirmation_count: int,
-  pending_confirmation_count: int,
-  mismatched_confirmation_count: int,
-  matched_transaction_count: int,
-  pending_transaction_count: int,
-  mismatched_transaction_count: int,
+type balancePair = {
+  debit: balanceType,
+  credit: balanceType,
+}
+
+type accountBalanceRow = {
+  accountName: string,
+  matched: balancePair,
+  pending: balancePair,
+  mismatched: balancePair,
+}
+
+type balanceCountPair = {
+  debit_count: int,
+  debit: balanceType,
+  credit_count: int,
+  credit: balanceType,
 }
 
 type accountTransactionData = {
-  matched_confirmation_count: int,
-  pending_confirmation_count: int,
-  mismatched_confirmation_count: int,
-  matched_transaction_count: int,
-  pending_transaction_count: int,
-  mismatched_transaction_count: int,
-  matched_confirmation_amount: balanceType,
-  pending_confirmation_amount: balanceType,
-  mismatched_confirmation_amount: balanceType,
-  matched_transaction_amount: balanceType,
-  pending_transaction_amount: balanceType,
-  mismatched_transaction_amount: balanceType,
+  matched: balanceCountPair,
+  pending: balanceCountPair,
+  mismatched: balanceCountPair,
 }
 
 @unboxed
@@ -179,8 +180,6 @@ type exceptionTriageItem = {
   label: string,
   total: int,
 }
-
-type triageTab = Transactions | Staging
 
 type ruleActivityItem = {
   overview_rule: ReconEngineTypes.overviewRulesResponse,

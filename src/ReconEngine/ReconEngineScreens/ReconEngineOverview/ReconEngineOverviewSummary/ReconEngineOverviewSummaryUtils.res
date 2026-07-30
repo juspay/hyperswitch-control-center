@@ -16,60 +16,6 @@ let greaterThanSevenDaysColor = "#DC2626"
 
 let triageColors = ["#8B97A8", "#E8956A", "#5BAD91", "#4A90E2", "#C87880", "#7BABC8", "#D4AA55"]
 
-let roundCurrency = (value: float, currency: string): float => {
-  let precision = CurrencyUtils.getAmountPrecisionDigits(currency)
-  let factor = Math.pow(10.0, ~exp=precision->Int.toFloat)
-  Math.round(value *. factor) /. factor
-}
-
-let calculateTotals = (data: array<accountType>) => {
-  data->Array.reduce(Dict.make()->getOverviewAccountPayloadFromDict, (acc, item) => {
-    {
-      ...acc,
-      matched_credits: {
-        value: Math.abs(acc.matched_credits.value) +. Math.abs(item.matched_credits.value),
-        currency: item.matched_credits.currency,
-      },
-      matched_debits: {
-        value: Math.abs(acc.matched_debits.value) +. Math.abs(item.matched_debits.value),
-        currency: item.matched_debits.currency,
-      },
-      posted_credits: {
-        value: Math.abs(acc.posted_credits.value) +. Math.abs(item.posted_credits.value),
-        currency: item.posted_credits.currency,
-      },
-      posted_debits: {
-        value: Math.abs(acc.posted_debits.value) +. Math.abs(item.posted_debits.value),
-        currency: item.posted_debits.currency,
-      },
-      pending_credits: {
-        value: Math.abs(acc.pending_credits.value) +. Math.abs(item.pending_credits.value),
-        currency: item.pending_credits.currency,
-      },
-      pending_debits: {
-        value: Math.abs(acc.pending_debits.value) +. Math.abs(item.pending_debits.value),
-        currency: item.pending_debits.currency,
-      },
-      expected_credits: {
-        value: Math.abs(acc.expected_credits.value) +. Math.abs(item.expected_credits.value),
-        currency: item.expected_credits.currency,
-      },
-      expected_debits: {
-        value: Math.abs(acc.expected_debits.value) +. Math.abs(item.expected_debits.value),
-        currency: item.expected_debits.currency,
-      },
-      mismatched_credits: {
-        value: Math.abs(acc.mismatched_credits.value) +. Math.abs(item.mismatched_credits.value),
-        currency: item.mismatched_credits.currency,
-      },
-      mismatched_debits: {
-        value: Math.abs(acc.mismatched_debits.value) +. Math.abs(item.mismatched_debits.value),
-        currency: item.mismatched_debits.currency,
-      },
-    }
-  })
-}
-
 let nodeCardWidth = 440.0
 let nodeCardHeight = 300.0
 
@@ -116,31 +62,60 @@ let getLayoutedElements = (
 
 open ReconEngineOverviewSummaryTypes
 
-let accountTransactionCountsToObjMapper = dict => {
+let balancePairMapper: Dict.t<JSON.t> => balancePair = dict => {
+  open ReconEngineUtils
   {
-    matched_confirmation_count: dict->getInt("matched_confirmation_count", 0),
-    pending_confirmation_count: dict->getInt("pending_confirmation_count", 0),
-    mismatched_confirmation_count: dict->getInt("mismatched_confirmation_count", 0),
-    matched_transaction_count: dict->getInt("matched_transaction_count", 0),
-    pending_transaction_count: dict->getInt("pending_transaction_count", 0),
-    mismatched_transaction_count: dict->getInt("mismatched_transaction_count", 0),
+    debit: dict->getDictfromDict("debit")->getAmountPayload,
+    credit: dict->getDictfromDict("credit")->getAmountPayload,
   }
 }
 
-let accountTransactionDataToObjMapper = dict => {
+let accountBalanceRowMapper: Dict.t<JSON.t> => accountBalanceRow = dict => {
   {
-    matched_confirmation_count: dict->getInt("matched_confirmation_count", 0),
-    pending_confirmation_count: dict->getInt("pending_confirmation_count", 0),
-    mismatched_confirmation_count: dict->getInt("mismatched_confirmation_count", 0),
-    matched_transaction_count: dict->getInt("matched_transaction_count", 0),
-    pending_transaction_count: dict->getInt("pending_transaction_count", 0),
-    mismatched_transaction_count: dict->getInt("mismatched_transaction_count", 0),
-    matched_confirmation_amount: {value: 0.0, currency: "USD"},
-    pending_confirmation_amount: {value: 0.0, currency: "USD"},
-    mismatched_confirmation_amount: {value: 0.0, currency: "USD"},
-    matched_transaction_amount: {value: 0.0, currency: "USD"},
-    pending_transaction_amount: {value: 0.0, currency: "USD"},
-    mismatched_transaction_amount: {value: 0.0, currency: "USD"},
+    accountName: dict->getString("account_name", ""),
+    matched: dict->getDictfromDict("matched")->balancePairMapper,
+    pending: dict->getDictfromDict("pending")->balancePairMapper,
+    mismatched: dict->getDictfromDict("mismatched")->balancePairMapper,
+  }
+}
+
+let addBalancePair = (existing: balancePair, incoming: balancePair): balancePair => {
+  debit: {
+    value: Math.abs(existing.debit.value) +. Math.abs(incoming.debit.value),
+    currency: incoming.debit.currency,
+  },
+  credit: {
+    value: Math.abs(existing.credit.value) +. Math.abs(incoming.credit.value),
+    currency: incoming.credit.currency,
+  },
+}
+
+let calculateTotals = (data: array<accountBalanceRow>) => {
+  data->Array.reduce(Dict.make()->accountBalanceRowMapper, (acc, item) => {
+    {
+      ...acc,
+      matched: addBalancePair(acc.matched, item.matched),
+      pending: addBalancePair(acc.pending, item.pending),
+      mismatched: addBalancePair(acc.mismatched, item.mismatched),
+    }
+  })
+}
+
+let balanceCountPairMapper: Dict.t<JSON.t> => balanceCountPair = dict => {
+  open ReconEngineUtils
+  {
+    debit_count: dict->getInt("debit_count", 0),
+    debit: dict->getDictfromDict("debit")->getAmountPayload,
+    credit_count: dict->getInt("credit_count", 0),
+    credit: dict->getDictfromDict("credit")->getAmountPayload,
+  }
+}
+
+let accountTransactionDataToObjMapper: Dict.t<JSON.t> => accountTransactionData = dict => {
+  {
+    matched: dict->getDictfromDict("matched")->balanceCountPairMapper,
+    pending: dict->getDictfromDict("pending")->balanceCountPairMapper,
+    mismatched: dict->getDictfromDict("mismatched")->balanceCountPairMapper,
   }
 }
 
@@ -149,78 +124,74 @@ let generateStatusDataWithTransactionAmounts = (transactionData: accountTransact
     {
       statusType: MatchedAmount,
       reconStatusData: {
-        inAmount: transactionData.matched_confirmation_amount,
-        outAmount: transactionData.matched_transaction_amount,
-        inTxns: transactionData.matched_confirmation_count,
-        outTxns: transactionData.matched_transaction_count,
+        inAmount: transactionData.matched.debit,
+        outAmount: transactionData.matched.credit,
+        inTxns: transactionData.matched.debit_count,
+        outTxns: transactionData.matched.credit_count,
       },
     },
     {
       statusType: PendingAmount,
       reconStatusData: {
-        inAmount: transactionData.pending_confirmation_amount,
-        outAmount: transactionData.pending_transaction_amount,
-        inTxns: transactionData.pending_confirmation_count,
-        outTxns: transactionData.pending_transaction_count,
+        inAmount: transactionData.pending.debit,
+        outAmount: transactionData.pending.credit,
+        inTxns: transactionData.pending.debit_count,
+        outTxns: transactionData.pending.credit_count,
       },
     },
     {
       statusType: MismatchedAmount,
       reconStatusData: {
-        inAmount: transactionData.mismatched_confirmation_amount,
-        outAmount: transactionData.mismatched_transaction_amount,
-        inTxns: transactionData.mismatched_confirmation_count,
-        outTxns: transactionData.mismatched_transaction_count,
+        inAmount: transactionData.mismatched.debit,
+        outAmount: transactionData.mismatched.credit,
+        inTxns: transactionData.mismatched.debit_count,
+        outTxns: transactionData.mismatched.credit_count,
       },
     },
   ]
 }
 
-let getAccountData = (accountData: array<accountType>, accountId: string): accountType => {
-  accountData
-  ->Array.find(account => account.account_id === accountId)
-  ->Option.getOr(Dict.make()->getOverviewAccountPayloadFromDict)
+let getAccountOverviewMap = (ruleAccountsOverview: array<ruleAccountsOverview>): Dict.t<
+  accountStatusOverview,
+> => {
+  let dict = Dict.make()
+  ruleAccountsOverview->Array.forEach(rule => {
+    rule.accounts->Array.forEach(account => {
+      let merged =
+        dict
+        ->Dict.get(account.account_id)
+        ->mapOptionOrDefault(
+          account,
+          existing => {
+            ...existing,
+            status_breakdown: Array.concat(existing.status_breakdown, account.status_breakdown),
+          },
+        )
+      dict->Dict.set(account.account_id, merged)
+    })
+  })
+  dict
 }
 
-let getAllAccountIds = (reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
-  reconRulesList
-  ->Array.flatMap(rule =>
-    switch rule.strategy {
-    | OneToOne(oneToOne) =>
-      switch oneToOne {
-      | SingleSingle(data) => [data.source_account.account_id, data.target_account.account_id]
-      | SingleMany(data) => [data.source_account.account_id, data.target_account.account_id]
-      | ManySingle(data) => [data.source_account.account_id, data.target_account.account_id]
-      | ManyMany(data) => [data.source_account.account_id, data.target_account.account_id]
-      | UnknownOneToOneStrategy => []
-      }
-    | OneToMany(oneToMany) =>
-      switch oneToMany {
-      | SingleSingle(data) => {
-          let targetAccountIds = switch data.target_accounts {
-          | Percentage({targets})
-          | Fixed({targets}) =>
-            targets->Array.map(((target, _)) => target.account_id)
-          | UnknownTargetsType => []
-          }
-          [data.source_account.account_id, ...targetAccountIds]
-        }
-      | UnknownOneToManyStrategy => []
-      }
-    | UnknownReconStrategy => []
-    }
+let getAccountOverview = (
+  accountOverviewMap: Dict.t<accountStatusOverview>,
+  accountId: string,
+): accountStatusOverview => {
+  accountOverviewMap->getValueFromDict(
+    accountId,
+    Dict.make()->ReconEngineUtils.accountStatusOverviewMapper,
   )
-  ->getUniqueArray
 }
 
-let summarizeTransactions = (ruleTransactions: array<transactionType>): (int, int) => {
-  ruleTransactions->Array.reduce((0, 0), ((matchedCount, totalCount), t: transactionType) => {
-    switch t.transaction_status {
+let getMatchedAndTotalCount = (statusBreakdown: array<accountStatusBreakdown>): (int, int) => {
+  statusBreakdown->Array.reduce((0, 0), ((matchedCount, totalCount), status) => {
+    let recordCount = status.credit_txn_count + status.debit_txn_count
+    switch status.status {
     | Matched(Force)
     | Matched(Manual)
     | Matched(Auto)
     | Posted(Manual)
-    | Matched(WithTolerance) => (matchedCount + 1, totalCount + 1)
+    | Matched(WithTolerance) => (matchedCount + recordCount, totalCount + recordCount)
     | PartiallyReconciled
     | Missing
     | DataMismatch
@@ -230,7 +201,7 @@ let summarizeTransactions = (ruleTransactions: array<transactionType>): (int, in
     | OverAmount(Mismatch)
     | UnderAmount(Mismatch)
     | SplitMismatch
-    | CurrencyMismatch => (matchedCount, totalCount + 1)
+    | CurrencyMismatch => (matchedCount, totalCount + recordCount)
     | Archived
     | Void
     | UnknownDomainTransactionStatus
@@ -260,13 +231,13 @@ let getCompactRuleType = (strategy: ReconEngineRulesTypes.reconStrategyType) => 
 }
 
 let makeEdge = (
-  ~rule: ReconEngineRulesTypes.rulePayload,
+  ~ruleType: string,
   ~sourceAccountId: string,
   ~targetAccountId: string,
-  ~ruleTransactions,
+  ~sourceStatusBreakdown: array<accountStatusBreakdown>,
   ~selectedNodeId,
 ) => {
-  let (matchedCount, totalCount) = summarizeTransactions(ruleTransactions)
+  let (matchedCount, totalCount) = getMatchedAndTotalCount(sourceStatusBreakdown)
   let percentageLabel = getPercentageLabel(~matchedCount, ~totalCount)
   let sourceNodeId = `${sourceAccountId}-node`
   let targetNodeId = `${targetAccountId}-node`
@@ -279,7 +250,7 @@ let makeEdge = (
     animated: isHighlighted,
     markerEnd: {edgeMarkerType: ReactFlow.markerTypeArrowClosed},
     data: {
-      ruleType: getCompactRuleType(rule.strategy),
+      ruleType,
       percentageLabel,
     },
     style: isHighlighted
@@ -287,304 +258,116 @@ let makeEdge = (
       : {stroke: normalStrokeColor, strokeWidth: 2.0},
   }
 }
+
 let getEdges = (
   ~reconRulesList: array<ReconEngineRulesTypes.rulePayload>,
-  ~allTransactions: array<transactionType>,
+  ~ruleAccountsOverview: array<ruleAccountsOverview>,
   ~selectedNodeId,
 ) =>
-  reconRulesList->Array.flatMap(rule => {
-    let ruleTransactions = allTransactions->Array.filter(t => t.rule.rule_id === rule.rule_id)
-    switch rule.strategy {
-    | OneToOne(oneToOne) =>
-      switch oneToOne {
-      | SingleSingle(data) => [
+  ruleAccountsOverview->Array.flatMap(rule => {
+    let sourceAccount = rule.accounts->Array.find(account => account.rule_account_type === Source)
+    let targetAccounts =
+      rule.accounts->Array.filter(account => account.rule_account_type === Target)
+    let ruleType =
+      reconRulesList
+      ->Array.find(r => r.rule_id === rule.rule_id)
+      ->mapOptionOrDefault("Unknown", r => getCompactRuleType(r.strategy))
+
+    sourceAccount->mapOptionOrDefault([], source =>
+      targetAccounts->Array.map(
+        target =>
           makeEdge(
-            ~rule,
-            ~sourceAccountId=data.source_account.account_id,
-            ~targetAccountId=data.target_account.account_id,
-            ~ruleTransactions,
+            ~ruleType,
+            ~sourceAccountId=source.account_id,
+            ~targetAccountId=target.account_id,
+            ~sourceStatusBreakdown=source.status_breakdown,
             ~selectedNodeId,
           ),
-        ]
-      | SingleMany(data) => [
-          makeEdge(
-            ~rule,
-            ~sourceAccountId=data.source_account.account_id,
-            ~targetAccountId=data.target_account.account_id,
-            ~ruleTransactions,
-            ~selectedNodeId,
-          ),
-        ]
-      | ManySingle(data) => [
-          makeEdge(
-            ~rule,
-            ~sourceAccountId=data.source_account.account_id,
-            ~targetAccountId=data.target_account.account_id,
-            ~ruleTransactions,
-            ~selectedNodeId,
-          ),
-        ]
-      | ManyMany(data) => [
-          makeEdge(
-            ~rule,
-            ~sourceAccountId=data.source_account.account_id,
-            ~targetAccountId=data.target_account.account_id,
-            ~ruleTransactions,
-            ~selectedNodeId,
-          ),
-        ]
-      | UnknownOneToOneStrategy => []
-      }
-    | OneToMany(oneToMany) =>
-      switch oneToMany {
-      | SingleSingle(data) => {
-          let targetAccounts = switch data.target_accounts {
-          | Percentage({targets})
-          | Fixed({targets}) => targets
-          | UnknownTargetsType => []
-          }
-          targetAccounts->Array.map(((target, _)) =>
-            makeEdge(
-              ~rule,
-              ~sourceAccountId=data.source_account.account_id,
-              ~targetAccountId=target.account_id,
-              ~ruleTransactions,
-              ~selectedNodeId,
-            )
-          )
-        }
-      | UnknownOneToManyStrategy => []
-      }
-    | UnknownReconStrategy => []
-    }
+      )
+    )
   })
 
-let getTransactionsData = (
-  accountTransactionData: Dict.t<accountTransactionData>,
-  accountId: string,
+let addBalance = (existing: balanceType, incoming: balanceType): balanceType => {
+  value: existing.value +. incoming.value,
+  currency: incoming.currency,
+}
+
+let addStatusToBalanceCountPair = (
+  pair: balanceCountPair,
+  status: accountStatusBreakdown,
+): balanceCountPair => {
+  debit_count: pair.debit_count + status.debit_txn_count,
+  debit: addBalance(pair.debit, status.debit_amount),
+  credit_count: pair.credit_count + status.credit_txn_count,
+  credit: addBalance(pair.credit, status.credit_amount),
+}
+
+let accountTransactionDataFromStatusBreakdown = (
+  statusBreakdown: array<accountStatusBreakdown>,
 ): accountTransactionData => {
-  accountTransactionData->getValueFromDict(
-    accountId,
-    Dict.make()->accountTransactionDataToObjMapper,
-  )
+  statusBreakdown->Array.reduce(Dict.make()->accountTransactionDataToObjMapper, (acc, status) => {
+    switch status.status {
+    | Matched(Force)
+    | Matched(Manual)
+    | Matched(Auto)
+    | Posted(Manual)
+    | Matched(WithTolerance) => {...acc, matched: addStatusToBalanceCountPair(acc.matched, status)}
+    | Expected
+    | Missing
+    | PartiallyReconciled
+    | OverAmount(Expected)
+    | UnderAmount(Expected) => {...acc, pending: addStatusToBalanceCountPair(acc.pending, status)}
+    | OverAmount(Mismatch)
+    | UnderAmount(Mismatch)
+    | DataMismatch
+    | CurrencyMismatch
+    | SplitMismatch => {...acc, mismatched: addStatusToBalanceCountPair(acc.mismatched, status)}
+    | Archived
+    | Void
+    | UnknownDomainTransactionStatus
+    | Matched(UnknownDomainTransactionMatchedStatus)
+    | Posted(UnknownDomainTransactionPostedStatus)
+    | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
+    | UnderAmount(UnknownDomainTransactionAmountMismatchStatus) => acc
+    }
+  })
 }
 
 let generateNodesAndEdgesWithTransactionAmounts = (
   reconRulesList: array<ReconEngineRulesTypes.rulePayload>,
-  accountsData: array<accountType>,
-  accountTransactionData: Dict.t<accountTransactionData>,
-  allTransactions: array<transactionType>,
+  ruleAccountsOverview: array<ruleAccountsOverview>,
   ~selectedNodeId: option<string>,
   ~onNodeClick: option<string => unit>=?,
 ) => {
-  let allAccountIds = getAllAccountIds(reconRulesList)
+  let accountOverviewMap = getAccountOverviewMap(ruleAccountsOverview)
 
-  let nodes = allAccountIds->Array.mapWithIndex((accountId, index) => {
-    let accountData = getAccountData(accountsData, accountId)
-    let transactionData = getTransactionsData(accountTransactionData, accountId)
+  let nodes =
+    accountOverviewMap
+    ->Dict.valuesToArray
+    ->Array.mapWithIndex((account, index) => {
+      let transactionData = accountTransactionDataFromStatusBreakdown(account.status_breakdown)
 
-    let statusData = generateStatusDataWithTransactionAmounts(transactionData)
-    let accountType = accountData.account_type
-    let nodeId = `${accountId}-node`
-    let isSelected = switch selectedNodeId {
-    | Some(id) => id === nodeId
-    | None => false
-    }
+      let statusData = generateStatusDataWithTransactionAmounts(transactionData)
+      let nodeId = `${account.account_id}-node`
+      let isSelected = selectedNodeId->mapOptionOrDefault(false, id => id === nodeId)
 
-    {
-      id: nodeId,
-      ReconEngineOverviewSummaryTypes.nodeType: "reconNode",
-      position: {x: Int.toFloat(index * 100), y: 0.0},
-      data: {
-        label: accountData.account_name,
-        accountType,
-        statusData,
-        selected: isSelected,
-        onNodeClick: switch onNodeClick {
-        | Some(clickHandler) => Some(() => clickHandler(nodeId))
-        | None => None
+      {
+        id: nodeId,
+        ReconEngineOverviewSummaryTypes.nodeType: "reconNode",
+        position: {x: Int.toFloat(index * 100), y: 0.0},
+        data: {
+          label: account.account_name,
+          accountType: account.account_type,
+          statusData,
+          selected: isSelected,
+          onNodeClick: onNodeClick->Option.map(clickHandler => () => clickHandler(nodeId)),
         },
-      },
-    }
-  })
-
-  let edges = getEdges(~reconRulesList, ~allTransactions, ~selectedNodeId)
-
-  getLayoutedElements(nodes, edges, "LR")
-}
-
-let calculateMetrics = (
-  accountId: string,
-  transactions: array<transactionType>,
-  entryType: entryDirectionType,
-) => {
-  let matchingEntries =
-    transactions->Array.flatMap(transaction =>
-      transaction.entries->Array.filter(entry =>
-        entry.account.account_id === accountId && entry.entry_type === entryType
-      )
-    )
-  let amount = matchingEntries->Array.reduce(0.0, (sum, entry) => sum +. entry.amount.value)
-  let count =
-    transactions
-    ->Array.filter(t =>
-      t.entries->Array.some(e => e.account.account_id === accountId && e.entry_type === entryType)
-    )
-    ->Array.length
-  (count, amount)
-}
-
-let makeAmountData = (amount, currency): balanceType => {
-  {
-    value: roundCurrency(amount, currency),
-    currency,
-  }
-}
-
-let processAllTransactionsWithAmounts = (
-  reconRulesList: array<ReconEngineRulesTypes.rulePayload>,
-  allTransactions: array<transactionType>,
-  accountsData: array<accountType>,
-) => {
-  let accountTransactionData = Dict.make()
-  let allAccountIds = getAllAccountIds(reconRulesList)
-
-  allAccountIds->Array.forEach(accountId => {
-    accountTransactionData->Dict.set(accountId, Dict.make()->accountTransactionDataToObjMapper)
-  })
-
-  let processStatusMetrics = (accountId, transactions) => {
-    let (confirmationCount, debitAmount) = calculateMetrics(accountId, transactions, Debit)
-    let (transactionCount, creditAmount) = calculateMetrics(accountId, transactions, Credit)
-    (confirmationCount, debitAmount, transactionCount, creditAmount)
-  }
-
-  allAccountIds->Array.forEach(accountId => {
-    let accountTransactions = allTransactions->Array.filter(transaction => {
-      transaction.entries->Array.some(entry => entry.account.account_id === accountId)
+      }
     })
 
-    let matchedTransactions = accountTransactions->Array.filter(t =>
-      switch t.transaction_status {
-      | Matched(Force)
-      | Matched(Manual)
-      | Matched(Auto)
-      | Posted(Manual)
-      | Matched(WithTolerance) => true
-      | OverAmount(Expected)
-      | UnderAmount(Expected)
-      | Expected
-      | Missing
-      | PartiallyReconciled
-      | OverAmount(Mismatch)
-      | UnderAmount(Mismatch)
-      | DataMismatch
-      | Archived
-      | Void
-      | SplitMismatch
-      | CurrencyMismatch
-      | Matched(UnknownDomainTransactionMatchedStatus)
-      | Posted(UnknownDomainTransactionPostedStatus)
-      | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
-      | UnderAmount(UnknownDomainTransactionAmountMismatchStatus)
-      | UnknownDomainTransactionStatus => false
-      }
-    )
+  let edges = getEdges(~reconRulesList, ~ruleAccountsOverview, ~selectedNodeId)
 
-    let pendingTransactions = accountTransactions->Array.filter(t =>
-      switch t.transaction_status {
-      | Expected
-      | Missing
-      | PartiallyReconciled
-      | OverAmount(Expected)
-      | UnderAmount(Expected) => true
-      | DataMismatch
-      | OverAmount(Mismatch)
-      | UnderAmount(Mismatch)
-      | SplitMismatch
-      | CurrencyMismatch
-      | Matched(Force)
-      | Matched(Manual)
-      | Matched(Auto)
-      | Matched(WithTolerance)
-      | Posted(Manual)
-      | Archived
-      | Void
-      | Matched(UnknownDomainTransactionMatchedStatus)
-      | Posted(UnknownDomainTransactionPostedStatus)
-      | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
-      | UnderAmount(UnknownDomainTransactionAmountMismatchStatus)
-      | UnknownDomainTransactionStatus => false
-      }
-    )
-    let mismatchedTransactions = accountTransactions->Array.filter(t =>
-      switch t.transaction_status {
-      | OverAmount(Mismatch)
-      | UnderAmount(Mismatch)
-      | DataMismatch
-      | CurrencyMismatch
-      | SplitMismatch => true
-      | OverAmount(Expected)
-      | UnderAmount(Expected)
-      | Expected
-      | Missing
-      | PartiallyReconciled
-      | Matched(Force)
-      | Matched(Manual)
-      | Matched(Auto)
-      | Matched(WithTolerance)
-      | Posted(Manual)
-      | Archived
-      | Void
-      | Matched(UnknownDomainTransactionMatchedStatus)
-      | Posted(UnknownDomainTransactionPostedStatus)
-      | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
-      | UnderAmount(UnknownDomainTransactionAmountMismatchStatus)
-      | UnknownDomainTransactionStatus => false
-      }
-    )
-
-    let (
-      matchedConfirmationCount,
-      matchedDebitAmount,
-      matchedTransactionCount,
-      matchedCreditAmount,
-    ) = processStatusMetrics(accountId, matchedTransactions)
-
-    let (
-      pendingConfirmationCount,
-      pendingDebitAmount,
-      pendingTransactionCount,
-      pendingCreditAmount,
-    ) = processStatusMetrics(accountId, pendingTransactions)
-
-    let (
-      mismatchedConfirmationCount,
-      mismatchedDebitAmount,
-      mismatchedTransactionCount,
-      mismatchedCreditAmount,
-    ) = processStatusMetrics(accountId, mismatchedTransactions)
-
-    let currency = getAccountData(accountsData, accountId).currency
-
-    let updatedData = {
-      matched_confirmation_count: matchedConfirmationCount,
-      matched_confirmation_amount: makeAmountData(matchedDebitAmount, currency),
-      pending_confirmation_count: pendingConfirmationCount,
-      pending_confirmation_amount: makeAmountData(pendingDebitAmount, currency),
-      mismatched_confirmation_count: mismatchedConfirmationCount,
-      mismatched_confirmation_amount: makeAmountData(mismatchedDebitAmount, currency),
-      matched_transaction_count: matchedTransactionCount,
-      matched_transaction_amount: makeAmountData(matchedCreditAmount, currency),
-      pending_transaction_count: pendingTransactionCount,
-      pending_transaction_amount: makeAmountData(pendingCreditAmount, currency),
-      mismatched_transaction_count: mismatchedTransactionCount,
-      mismatched_transaction_amount: makeAmountData(mismatchedCreditAmount, currency),
-    }
-    accountTransactionData->Dict.set(accountId, updatedData)
-  })
-
-  accountTransactionData
+  getLayoutedElements(nodes, edges, "LR")
 }
 
 let getHeaderText = (amountType: amountType, currency: string) => {
@@ -595,82 +378,32 @@ let getHeaderText = (amountType: amountType, currency: string) => {
   }
 }
 
-let getAmountPair = (amountType: amountType, data: accountType) => {
+let getAmountPair = (amountType: amountType, data: accountBalanceRow) => {
   switch amountType {
-  | MatchedAmount => (data.matched_debits, data.matched_credits)
-  | PendingAmount => (data.pending_debits, data.pending_credits)
-  | MismatchedAmount => (data.mismatched_debits, data.mismatched_credits)
+  | MatchedAmount => (data.matched.debit, data.matched.credit)
+  | PendingAmount => (data.pending.debit, data.pending.credit)
+  | MismatchedAmount => (data.mismatched.debit, data.mismatched.credit)
   }
 }
 
-let convertTransactionDataToAccountData = (
-  accountsData: array<accountType>,
-  accountTransactionData: Dict.t<accountTransactionData>,
-) => {
-  accountsData->Array.map(account => {
-    let transactionData = getTransactionsData(accountTransactionData, account.account_id)
+let accountOverviewToBalanceRow = (account: accountStatusOverview): accountBalanceRow => {
+  let transactionData = accountTransactionDataFromStatusBreakdown(account.status_breakdown)
 
-    {
-      ...account,
-      matched_debits: transactionData.matched_confirmation_amount,
-      matched_credits: transactionData.matched_transaction_amount,
-      pending_debits: transactionData.pending_confirmation_amount,
-      pending_credits: transactionData.pending_transaction_amount,
-      mismatched_debits: transactionData.mismatched_confirmation_amount,
-      mismatched_credits: transactionData.mismatched_transaction_amount,
-      expected_debits: transactionData.pending_confirmation_amount,
-      expected_credits: transactionData.pending_transaction_amount,
-    }
-  })
-}
-
-let calculateTotalsFromTransactionAmounts = (
-  accountTransactionData: Dict.t<accountTransactionData>,
-) => {
-  let allTransactionData = accountTransactionData->Dict.valuesToArray
-
-  allTransactionData->Array.reduce(Dict.make()->accountTransactionDataToObjMapper, (acc, item) => {
-    {
-      matched_confirmation_amount: {
-        value: Math.abs(acc.matched_confirmation_amount.value) +.
-        Math.abs(item.matched_confirmation_amount.value),
-        currency: item.matched_confirmation_amount.currency,
-      },
-      matched_transaction_amount: {
-        value: Math.abs(acc.matched_transaction_amount.value) +.
-        Math.abs(item.matched_transaction_amount.value),
-        currency: item.matched_transaction_amount.currency,
-      },
-      pending_confirmation_amount: {
-        value: Math.abs(acc.pending_confirmation_amount.value) +.
-        Math.abs(item.pending_confirmation_amount.value),
-        currency: item.pending_confirmation_amount.currency,
-      },
-      pending_transaction_amount: {
-        value: Math.abs(acc.pending_transaction_amount.value) +.
-        Math.abs(item.pending_transaction_amount.value),
-        currency: item.pending_transaction_amount.currency,
-      },
-      mismatched_confirmation_amount: {
-        value: Math.abs(acc.mismatched_confirmation_amount.value) +.
-        Math.abs(item.mismatched_confirmation_amount.value),
-        currency: item.mismatched_confirmation_amount.currency,
-      },
-      mismatched_transaction_amount: {
-        value: Math.abs(acc.mismatched_transaction_amount.value) +.
-        Math.abs(item.mismatched_transaction_amount.value),
-        currency: item.mismatched_transaction_amount.currency,
-      },
-      matched_confirmation_count: acc.matched_confirmation_count + item.matched_confirmation_count,
-      pending_confirmation_count: acc.pending_confirmation_count + item.pending_confirmation_count,
-      mismatched_confirmation_count: acc.mismatched_confirmation_count +
-      item.mismatched_confirmation_count,
-      matched_transaction_count: acc.matched_transaction_count + item.matched_transaction_count,
-      pending_transaction_count: acc.pending_transaction_count + item.pending_transaction_count,
-      mismatched_transaction_count: acc.mismatched_transaction_count +
-      item.mismatched_transaction_count,
-    }
-  })
+  {
+    accountName: account.account_name,
+    matched: {
+      debit: transactionData.matched.debit,
+      credit: transactionData.matched.credit,
+    },
+    pending: {
+      debit: transactionData.pending.debit,
+      credit: transactionData.pending.credit,
+    },
+    mismatched: {
+      debit: transactionData.mismatched.debit,
+      credit: transactionData.mismatched.credit,
+    },
+  }
 }
 
 let getStatusIcon = (statusType: amountType) => {
@@ -684,31 +417,22 @@ let getStatusIcon = (statusType: amountType) => {
 let allAmountTypes = [MatchedAmount, PendingAmount, MismatchedAmount]
 let allSubHeaderTypes = [DebitAmount, CreditAmount]
 
-let getSourceAndAllTargetAccountIds = (ruleDetails: ReconEngineRulesTypes.rulePayload) => {
-  switch ruleDetails.strategy {
-  | OneToOne(oneToOne) =>
-    switch oneToOne {
-    | SingleSingle(data) => (data.source_account.account_id, [data.target_account.account_id])
-    | SingleMany(data) => (data.source_account.account_id, [data.target_account.account_id])
-    | ManySingle(data) => (data.source_account.account_id, [data.target_account.account_id])
-    | ManyMany(data) => (data.source_account.account_id, [data.target_account.account_id])
-    | UnknownOneToOneStrategy => ("", [])
-    }
-  | OneToMany(oneToMany) =>
-    switch oneToMany {
-    | SingleSingle(data) => {
-        let targetIds = switch data.target_accounts {
-        | Percentage({targets})
-        | Fixed({targets}) =>
-          targets->Array.map(((target, _)) => target.account_id)
-        | UnknownTargetsType => []
-        }
-        (data.source_account.account_id, targetIds)
-      }
-    | UnknownOneToManyStrategy => ("", [])
-    }
-  | UnknownReconStrategy => ("", [])
-  }
+let getSourceAndTargetAccounts = (
+  ruleAccountsOverview: array<ruleAccountsOverview>,
+  ~ruleId: string,
+): (accountStatusOverview, array<accountStatusOverview>) => {
+  let accounts =
+    ruleAccountsOverview
+    ->Array.find(rule => rule.rule_id === ruleId)
+    ->mapOptionOrDefault([], rule => rule.accounts)
+
+  let source =
+    accounts
+    ->Array.find(account => account.rule_account_type === Source)
+    ->Option.getOr(Dict.make()->ReconEngineUtils.accountStatusOverviewMapper)
+
+  let targets = accounts->Array.filter(account => account.rule_account_type === Target)
+  (source, targets)
 }
 
 let getTotalCount = (~overviewRules: array<overviewRulesResponse>) =>
@@ -801,9 +525,7 @@ let getOpenExceptions = (
   txnExceptions + stagingExceptions
 }
 
-let getExceptionCountFromBreakdown = (
-  statusBreakdown: array<ReconEngineTypes.overviewRuleStatusBreakdown>,
-) =>
+let getExceptionCountFromBreakdown = (statusBreakdown: array<overviewRuleStatusBreakdown>) =>
   statusBreakdown->Array.reduce(0, (statusAcc, status) =>
     switch status.status {
     | OverAmount(Expected)
@@ -884,21 +606,6 @@ let getExceptionTriageItems = (~overviewRules: array<overviewRulesResponse>): ar
   ->Dict.toArray
   ->Array.map(((label, total)): exceptionTriageItem => {label, total})
   ->Array.filter(item => item.total > 0)
-  ->Array.toSorted((a, b) => Int.compare(b.total, a.total))
-}
-
-let getStagingTriageItems = (~processingEntries: array<processingEntryType>): array<
-  exceptionTriageItem,
-> => {
-  let counts = Dict.make()
-  processingEntries->Array.forEach(entry => {
-    let label = (entry.data.needs_manual_review_type :> string)->snakeToTitle
-    counts->Dict.set(label, counts->getValueFromDict(label, 0) + 1)
-  })
-
-  counts
-  ->Dict.toArray
-  ->Array.map(((label, total)): exceptionTriageItem => {label, total})
   ->Array.toSorted((a, b) => Int.compare(b.total, a.total))
 }
 
@@ -1219,9 +926,7 @@ let getOverviewChartBucketLabels = (~startTime, ~granularity) =>
   | Month => (dateFormat(startTime, "MMM YYYY"), dateFormat(startTime, "MMM DD, YYYY"))
   }
 
-let getBreakdownCategoryCounts = (
-  statusBreakdown: array<ReconEngineTypes.overviewRuleStatusBreakdown>,
-) =>
+let getBreakdownCategoryCounts = (statusBreakdown: array<overviewRuleStatusBreakdown>) =>
   statusBreakdown->Array.reduce((0, 0, 0, 0), ((matched, exceptions, expected, missing), status) =>
     switch status.status {
     | Matched(Auto)

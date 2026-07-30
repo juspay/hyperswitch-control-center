@@ -90,6 +90,26 @@ let useGetAccounts = () => {
   }
 }
 
+let useGetIngestionConfigs = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~queryParameters=None) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#INGESTION_CONFIG,
+        ~queryParameters,
+      )
+      let res = await fetchDetails(url)
+      res->getArrayDataFromJson(ingestionConfigItemToObjMapper)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
 let useGetReconRuleList = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -124,6 +144,26 @@ let useGetOverviewRules = () => {
       )
       let res = await fetchDetails(url)
       res->getArrayDataFromJson(overviewRulesResponseMapper)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetRuleAccountBreakdown = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~queryParameters=None) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#RULE_ACCOUNT_BREAKDOWN,
+        ~queryParameters,
+      )
+      let res = await fetchDetails(url)
+      res->getArrayDataFromJson(ruleAccountsOverviewMapper)
     } catch {
     | _ => Exn.raiseError("Something went wrong")
     }
@@ -224,6 +264,25 @@ let useFetchMetadataSchema = () => {
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#TRANSFORMATION_CONFIG_WITH_METADATA,
+        ~id=Some(transformationId),
+      )
+      await fetchDetails(url)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetTransformationConfig = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~transformationId: string) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#TRANSFORMATION_CONFIG,
         ~id=Some(transformationId),
       )
       await fetchDetails(url)

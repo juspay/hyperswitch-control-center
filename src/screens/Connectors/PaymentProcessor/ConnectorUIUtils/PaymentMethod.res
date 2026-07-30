@@ -431,7 +431,7 @@ module CardRenderer = {
                       ->getDictfromDict("metadata")
                       ->getString("klarna_region", "") === "Europe"}>
                       <div className="flex gap-2 items-center">
-                        <BoolInput.BaseComponent
+                        <SwitchAdapter
                           isSelected={selectedAll}
                           setIsSelected={_ => updateSelectAll(paymentMethod, selectedAll)}
                           isDisabled={false}
@@ -442,7 +442,7 @@ module CardRenderer = {
                     </RenderIf>
                   | _ =>
                     <div className="flex gap-2 items-center">
-                      <BoolInput.BaseComponent
+                      <SwitchAdapter
                         isSelected={selectedAll}
                         setIsSelected={_ => updateSelectAll(paymentMethod, selectedAll)}
                         isDisabled={false}

@@ -18,7 +18,7 @@
  * a no-op so day-to-day `npx playwright test` runs stay fast.
  */
 
-import { test as base, expect } from "@playwright/test";
+import { test as base, expect, chromium } from "@playwright/test";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -30,6 +30,59 @@ type AutoFixtures = {
 };
 
 export const test = base.extend<AutoFixtures>({
+  // When CHROME_USER_DATA_DIR is set, launch OS Chrome with a persistent
+  // context against the given (copied) profile directory. OS Chrome can
+  // decrypt the profile's cookies via the macOS Keychain — Playwright's
+  // bundled Chromium cannot, which is why we need channel: "chrome" and
+  // must strip --password-store=basic / --use-mock-keychain from the
+  // default args.
+  //
+  // Use a COPIED profile (npm run pw:gpay:copy-profile) to avoid locking
+  // your daily Chrome. Requires --workers=1.
+  context: [
+    async ({ playwright, browserName }, use, testInfo) => {
+      if (process.env.CHROME_USER_DATA_DIR && browserName === "chromium") {
+        testInfo.setTimeout(120000);
+        const projectUse = testInfo.project.use;
+        const context = await chromium.launchPersistentContext(
+          process.env.CHROME_USER_DATA_DIR,
+          {
+            channel: "chrome",
+            headless: false,
+            timeout: 120000,
+            args: [
+              "--profile-directory=Default",
+              "--no-first-run",
+              "--no-default-browser-check",
+              "--disable-popup-blocking",
+              "--restore-last-session=false",
+              "--disable-blink-features=AutomationControlled",
+            ],
+            viewport: projectUse.viewport,
+            baseURL: projectUse.baseURL,
+            ignoreDefaultArgs: [
+              "--enable-automation",
+              "--password-store=basic",
+              "--use-mock-keychain",
+              "--disable-sync",
+            ],
+          },
+        );
+        await use(context);
+        await context.close();
+      } else {
+        const browser = await playwright[browserName].launch(
+          testInfo.project.use.launchOptions ?? {},
+        );
+        const context = await browser.newContext(testInfo.project.use);
+        await use(context);
+        await context.close();
+        await browser.close();
+      }
+    },
+    { scope: "test" },
+  ],
+
   autoCoverage: [
     async ({ page }, use, testInfo) => {
       if (!COVERAGE_ENABLED) {
