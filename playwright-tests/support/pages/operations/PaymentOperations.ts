@@ -283,11 +283,11 @@ export class PaymentOperations {
   }
 
   get captureSuccessToast(): Locator {
-    return this.page.locator('[data-toast="Payment captured successfully"]');
+    return this.page.locator('[data-id="Payment captured successfully"]');
   }
 
   get captureErrorToast(): Locator {
-    return this.page.locator('[data-toast="Failed to capture payment"]');
+    return this.page.locator('[data-id="Failed to capture payment"]');
   }
 
   // Generate Payment Reports modal
