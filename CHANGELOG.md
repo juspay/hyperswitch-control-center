@@ -3,6 +3,75 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.07.29.1
+
+### Features
+
+- Add blocklist dashboard page ([#5222](https://github.com/juspay/hyperswitch-control-center/pull/5222)) ([`4c2c4cf`](https://github.com/juspay/hyperswitch-control-center/commit/4c2c4cf1877d8f19e391d2a111d95cc3b797635a))
+- Add transformation run details modal and polish pipeline details page ([#5238](https://github.com/juspay/hyperswitch-control-center/pull/5238)) ([`8dca44e`](https://github.com/juspay/hyperswitch-control-center/commit/8dca44e8d2b0d795d1225e76884a338128e8b83a))
+
+### Bug Fixes
+
+- **authentication:** Fix authentication analytics ([#5239](https://github.com/juspay/hyperswitch-control-center/pull/5239)) ([`938840f`](https://github.com/juspay/hyperswitch-control-center/commit/938840f443afead5fdc8461ba42fff38d9232133))
+- Remove dashboard preview artifacts and improve zoom scaling ([#5263](https://github.com/juspay/hyperswitch-control-center/pull/5263)) ([`29be8d2`](https://github.com/juspay/hyperswitch-control-center/commit/29be8d2e711a16f977d0e3e50d5284a6135af2ff))
+- Resolve last updated field showing dash in payment summary ([#5260](https://github.com/juspay/hyperswitch-control-center/pull/5260)) ([`32c4403`](https://github.com/juspay/hyperswitch-control-center/commit/32c440381d6492cdb1603b5f3c9daf4860bf013e))
+- Update clone connector modal for wallets support ([#5271](https://github.com/juspay/hyperswitch-control-center/pull/5271)) ([`b93cb6f`](https://github.com/juspay/hyperswitch-control-center/commit/b93cb6f65825006f702096397c6fc75cb18746f5))
+
+**Full Changelog:** [`2026.07.29.0...2026.07.29.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.29.0...2026.07.29.1)
+
+- - -
+
+## 2026.07.29.0
+
+### Features
+
+- Add GivePayments Connector WASM ([#5225](https://github.com/juspay/hyperswitch-control-center/pull/5225)) ([`cef7fe3`](https://github.com/juspay/hyperswitch-control-center/commit/cef7fe317ab98c48acca0efd0d9dbacc457ac3eb))
+
+### Miscellaneous Tasks
+
+- Add Blend multi-line input & toggle adapters, fix priority bugs ([#5033](https://github.com/juspay/hyperswitch-control-center/pull/5033)) ([`ac720af`](https://github.com/juspay/hyperswitch-control-center/commit/ac720aff486e057b70779a27edc6dcf407079edf))
+
+**Full Changelog:** [`2026.07.28.0...2026.07.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.28.0...2026.07.29.0)
+
+- - -
+
+## 2026.07.28.0
+
+### Features
+
+- Revamp revenue recovery home page ([#5188](https://github.com/juspay/hyperswitch-control-center/pull/5188)) ([`b8226e7`](https://github.com/juspay/hyperswitch-control-center/commit/b8226e7ff5d95b3ddae817b4266662b322767bbb))
+- Recon engine add `transformation_id` in manual reconciliation request ([#4221](https://github.com/juspay/hyperswitch-control-center/pull/4221)) ([`02d4d83`](https://github.com/juspay/hyperswitch-control-center/commit/02d4d83b749dd5a220c5cb5c08d0709646cbec51))
+- Clipboard-based payment/refund ID suggestion in global search ([#4622](https://github.com/juspay/hyperswitch-control-center/pull/4622)) ([`7f502e2`](https://github.com/juspay/hyperswitch-control-center/commit/7f502e2a02a0c8a52e2542ce3ba5b457f1234105))
+- Revamp cost observability landing page UI ([#5000](https://github.com/juspay/hyperswitch-control-center/pull/5000)) ([`7a43b46`](https://github.com/juspay/hyperswitch-control-center/commit/7a43b46003bda33e50d29a5b3d9b7f59b57f9050))
+- Add GivePayments Connector in Dashboard ([#5212](https://github.com/juspay/hyperswitch-control-center/pull/5212)) ([`d0432e3`](https://github.com/juspay/hyperswitch-control-center/commit/d0432e3f729f3a203ea17ddca1641f5c1b19134e))
+
+### Bug Fixes
+
+- Table selection behaviour and filter dropdown right-icon support ([#5253](https://github.com/juspay/hyperswitch-control-center/pull/5253)) ([`5499e1a`](https://github.com/juspay/hyperswitch-control-center/commit/5499e1a14bbcbf04e4e53d4c7ff947edb4eb1fc3))
+- Dispute evidence upload failing with IR_36 (File content type not found) ([#5076](https://github.com/juspay/hyperswitch-control-center/pull/5076)) ([`8ae3b33`](https://github.com/juspay/hyperswitch-control-center/commit/8ae3b336b588a7d84b79d8ce30195d3e9d35a1f1))
+- Omit unused amount filter from requests ([#5184](https://github.com/juspay/hyperswitch-control-center/pull/5184)) ([`42f1de0`](https://github.com/juspay/hyperswitch-control-center/commit/42f1de069315ede45201f8fd118a6078843d6ff1))
+
+**Full Changelog:** [`2026.07.27.0...2026.07.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.27.0...2026.07.28.0)
+
+- - -
+
+## 2026.07.27.0
+
+### Features
+
+- Add file upload to recon engine pipelines ([#5097](https://github.com/juspay/hyperswitch-control-center/pull/5097)) ([`64b8902`](https://github.com/juspay/hyperswitch-control-center/commit/64b8902101800cf1b36edf27f32d79c901da40d8))
+- Redirect routing to Decision Engine when a profile is cut over ([#5243](https://github.com/juspay/hyperswitch-control-center/pull/5243)) ([`e716f61`](https://github.com/juspay/hyperswitch-control-center/commit/e716f615c7ba3e8e008fa1c247ef017fc881316e))
+
+### Bug Fixes
+
+- Improve payout cards and default fallback routing ([#5241](https://github.com/juspay/hyperswitch-control-center/pull/5241)) ([`4217a5a`](https://github.com/juspay/hyperswitch-control-center/commit/4217a5a1ffe77f8ddcf9f32a4ad6d65d390f45ad))
+- Account filter in transformed entry exceptions ([#5246](https://github.com/juspay/hyperswitch-control-center/pull/5246)) ([`3bae00b`](https://github.com/juspay/hyperswitch-control-center/commit/3bae00b737652045261d14810e924b5b960458df))
+- Webhook registration field visible during connector creation ([#5247](https://github.com/juspay/hyperswitch-control-center/pull/5247)) ([`77938c3`](https://github.com/juspay/hyperswitch-control-center/commit/77938c3f1598549fcb421ba7d6184585c7ddfd4f))
+
+**Full Changelog:** [`2026.07.24.0...2026.07.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.24.0...2026.07.27.0)
+
+- - -
+
 ## 2026.07.24.0
 
 ### Features

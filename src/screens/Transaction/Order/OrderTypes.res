@@ -22,10 +22,12 @@ type frmColType =
 type authenticationColType =
   | AuthenticationFlow
   | DsTransactionId
+  | ChallengeCancelCode
   | ElectronicCommerceIndicator
   | ErrorCode
   | ErrorMessage
   | Status
+  | TransStatusReason
   | Version
 
 type attemptColType =

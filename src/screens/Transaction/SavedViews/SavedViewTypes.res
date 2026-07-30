@@ -3,16 +3,7 @@ type tab = {
   render: unit => React.element,
 }
 
-module FilterKeys = {
-  let amountOption = "amount_option"
-  let amount = "amount"
-  let startAmount = "start_amount"
-  let endAmount = "end_amount"
-}
-
-let isReservedKey = key => {
-  [FilterKeys.amountOption, FilterKeys.amount]->Array.includes(key)
-}
+type amountFilter
 
 type entity =
   | Member
@@ -67,12 +58,6 @@ let actionToString = action =>
 
 type savedViewVersion = [#v1 | #v2]
 
-let versionToSavedViewVersion = (version: UserInfoTypes.version): savedViewVersion =>
-  switch version {
-  | V1 => #v1
-  | V2 => #v2
-  }
-
 type savedView = {
   view_id: string,
   view_name: string,
@@ -87,6 +72,13 @@ type savedViewsResponse = {
   count: int,
   views: array<savedView>,
 }
+
+type filterKey = [
+  | #amount_option
+  | #amount
+  | #start_amount
+  | #end_amount
+]
 
 type filterKeyKind =
   | FlattenRoot
