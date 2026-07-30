@@ -28,7 +28,8 @@ let make = (~accountData: array<ReconEngineTypes.accountType>, ~refreshTrigger=f
           false,
           obj =>
             isContainingStringLowercase(obj.file_name, searchText) ||
-            isContainingStringLowercase(obj.ingestion_name, searchText),
+            isContainingStringLowercase(obj.ingestion_name, searchText) ||
+            isContainingStringLowercase(obj.upload_type, searchText),
         )
       })
     } else {
@@ -77,20 +78,37 @@ let make = (~accountData: array<ReconEngineTypes.accountType>, ~refreshTrigger=f
 
   let sortOptionLabel = (sortOption :> string)->camelCaseToTitle
 
-  let sortDropdownOptions = ingestionHistorySortOptions->Array.map(opt => {
-    let label = (opt :> string)->camelCaseToTitle
-    {
-      HeadlessUISelectBox.label,
-      value: label,
-      isDisabled: false,
-      leftIcon: Button.NoIcon,
-      customTextStyle: None,
-      customIconStyle: None,
-      rightIcon: Button.NoIcon,
-      description: None,
-      customComponent: None,
+  let hasAttentionNeeded = ingestionHistoryData->Array.some(item =>
+    item
+    ->getOptionalFromNullable
+    ->mapOptionOrDefault(false, obj => obj.status->ingestionStatusAttentionRank < 3)
+  )
+
+  React.useEffect(() => {
+    if sortOption === #NeedsAttention && !hasAttentionNeeded {
+      setSortOption(_ => #MostRecent)
     }
-  })
+    None
+  }, (ingestionHistoryData, sortOption))
+
+  let sortDropdownOptions = ingestionHistorySortOptions->Array.filterMap(opt =>
+    opt === #NeedsAttention && !hasAttentionNeeded
+      ? None
+      : {
+          let label = (opt :> string)->camelCaseToTitle
+          Some({
+            HeadlessUISelectBox.label,
+            value: label,
+            isDisabled: false,
+            leftIcon: Button.NoIcon,
+            customTextStyle: None,
+            customIconStyle: None,
+            rightIcon: Button.NoIcon,
+            description: None,
+            customComponent: None,
+          })
+        }
+  )
 
   let setSortOptionFromLabel = label => {
     ingestionHistorySortOptions
@@ -101,16 +119,15 @@ let make = (~accountData: array<ReconEngineTypes.accountType>, ~refreshTrigger=f
     })
   }
 
-  let (accountOptions, connectorOptions) = React.useMemo(() => {
-    let unwrappedHistory = ingestionHistoryData->Array.filterMap(getOptionalFromNullable)
-    (getAccountOptions(accountData), getConnectorOptions(unwrappedHistory))
-  }, (accountData, ingestionHistoryData))
+  let accountOptions = React.useMemo(() => {
+    getAccountOptions(accountData)
+  }, [accountData])
 
   let topFilterUi = {
     <div className="flex flex-row -ml-1.5 mt-4">
       <DynamicFilter
         title="ReconEnginePipelinesTableFilters"
-        initialFilters={initialPipelinesTableFilters(~accountOptions, ~connectorOptions)}
+        initialFilters={initialPipelinesTableFilters(~accountOptions)}
         options=[]
         popupFilterFields=[]
         initialFixedFilters=[]
@@ -153,7 +170,7 @@ let make = (~accountData: array<ReconEngineTypes.accountType>, ~refreshTrigger=f
           <TableSearchFilter
             data={ingestionHistoryData}
             filterLogic
-            placeholder="Search by File Name or Ingestion Name"
+            placeholder="Search by File Name or Connector"
             customSearchBarWrapperWidth="w-full lg:w-1/3"
             customInputBoxWidth="w-full rounded-xl"
             searchVal=searchText
