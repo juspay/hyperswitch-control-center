@@ -14,7 +14,7 @@ type processingColType =
   | OrderId
   | Actions
   | ExceptionType
-  | TransformationName
+  | TransformationConfigName
 
 let processingDefaultColumns = [
   EffectiveAt,
@@ -27,7 +27,7 @@ let processingDefaultColumns = [
   Currency,
   AccountName,
   TransformationHistoryId,
-  TransformationName,
+  TransformationConfigName,
   Actions,
 ]
 
@@ -45,7 +45,7 @@ let getProcessingHeading = colType => {
   | OrderId => Table.makeHeaderInfo(~key="order_id", ~title="Order ID")
   | Actions => Table.makeHeaderInfo(~key="actions", ~title="Actions")
   | ExceptionType => Table.makeHeaderInfo(~key="exception_type", ~title="Exception Type")
-  | TransformationName =>
+  | TransformationConfigName =>
     Table.makeHeaderInfo(~key="transformation_config", ~title="Transformation Config Name")
   }
 }
@@ -124,7 +124,7 @@ let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
     )
   | Actions => CustomCell(<ReconEngineDataTransformedEntriesActions processingEntry=data />, "")
   | ExceptionType => EllipsisText((data.data.needs_manual_review_type :> string)->snakeToTitle, "")
-  | TransformationName =>
+  | TransformationConfigName =>
     CustomCell(
       <>
         <RenderIf
