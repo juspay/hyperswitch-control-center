@@ -191,10 +191,9 @@ let make = (
         field={FormRenderer.makeFieldInfo(
           ~name={"metadata.apple_pay_combined.support_predecrypted_token"},
           ~label="Enable pre decrypted token",
-          ~customInput=InputFields.boolInput(
+          ~customInput=InputFields.switchInput(
             ~isDisabled=false,
-            ~boolCustomClass="rounded-lg ",
-            ~isCheckBox=false,
+            ~boolCustomClass="rounded-lg",
           ),
         )}
       />

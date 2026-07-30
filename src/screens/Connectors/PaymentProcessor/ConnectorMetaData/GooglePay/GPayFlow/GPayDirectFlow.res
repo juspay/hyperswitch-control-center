@@ -70,10 +70,9 @@ let make = (
         field={FormRenderer.makeFieldInfo(
           ~name={"metadata.google_pay.support_predecrypted_token"},
           ~label="Enable pre decrypted token",
-          ~customInput=InputFields.boolInput(
+          ~customInput=InputFields.switchInput(
             ~isDisabled=false,
             ~boolCustomClass="rounded-lg",
-            ~isCheckBox=false,
           ),
         )}
       />

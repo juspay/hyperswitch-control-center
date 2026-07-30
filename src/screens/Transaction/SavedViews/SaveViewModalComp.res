@@ -9,7 +9,7 @@ module IncludeDateCheckbox = {
       <div
         className="flex items-center gap-3 cursor-pointer"
         onClick={_ => setIncludeDate(prev => !prev)}>
-        <CheckBoxIcon
+        <CheckBoxIconAdapter
           isSelected=includeDate
           setIsSelected={val => setIncludeDate(_ => val)}
           isCheckboxSelectedClass=true

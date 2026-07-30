@@ -707,6 +707,28 @@ let boolInput = (
   <BoolInput input isDisabled isCheckBox boolCustomClass toggleEnableColor />
 }
 
+let switchInput = (~isDisabled, ~boolCustomClass="") => (
+  ~input: ReactFinalForm.fieldRenderPropsInput,
+  ~placeholder as _,
+) => {
+  let boolInput = input->BoolInput.ffInputToBoolInput
+  let boolValue: JSON.t = boolInput.value
+  let isSelected = switch boolValue->JSON.Classify.classify {
+  | Bool(true) => true
+  | String(value) => value === "true"
+  | _ => false
+  }
+
+  <SwitchAdapter
+    isSelected
+    setIsSelected=boolInput.onChange
+    isDisabled
+    boolCustomClass
+    toggleBorder="border-green-950"
+    toggleEnableColor="bg-green-950"
+  />
+}
+
 let colorPickerInput = (~defaultValue="", ~showErrorWhenEmpty=true) => (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder as _,
