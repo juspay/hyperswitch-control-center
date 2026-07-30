@@ -232,9 +232,7 @@ let make = (~previewOnly=false) => {
         </div>
       </div>
       <RenderIf condition={transactionView}>
-        <div className="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-3 grid-cols-2 gap-6 mb-8">
-          <TransactionView entity=TransactionViewTypes.Orders version />
-        </div>
+        <TransactionView entity=TransactionViewTypes.Orders version />
       </RenderIf>
       <div className="flex">
         <RenderIf condition={!previewOnly}>
