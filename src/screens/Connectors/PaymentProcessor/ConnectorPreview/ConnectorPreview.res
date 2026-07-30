@@ -145,12 +145,6 @@ module ConnectorSummaryGrid = {
       setCurrentActiveSection(_ => None)
     }
 
-    let hasWebhookRegister =
-      connectorDetails
-      ->getDictFromJsonObject
-      ->getDictfromDict("connector_webhook_register_details")
-      ->isNonEmptyDict
-
     <>
       <div className="grid grid-cols-4 border-b md:px-10 py-8">
         <h4 className={heading.sm.semibold}> {"Integration status"->React.string} </h4>
@@ -303,9 +297,11 @@ module ConnectorSummaryGrid = {
 
       | None => React.null
       }}
-      <RenderIf condition={hasWebhookRegister}>
+      <RenderIf
+        condition={connectorInfo.connector_name->getConnectorNameTypeFromString ==
+          Processors(SANTANDER)}>
         <ConnectorPreviewHelper.RegisteredWebhooks
-          connectorInfo connector setCurrentStep webhookStepValue
+          connectorInfo connector setCurrentStep webhookStepValue isUpdateFlow
         />
       </RenderIf>
     </>

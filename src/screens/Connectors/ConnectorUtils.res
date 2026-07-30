@@ -2636,23 +2636,12 @@ let connectorTypeFromConnectorName: string => connector = connectorName =>
   | _ => Processor
   }
 
-let connectorHasWebhookRegister = connector =>
-  try {
-    Window.getConnectorConfig(connector)
-    ->getDictFromJsonObject
-    ->getDictfromDict("connector_webhook_register_details")
-    ->isNonEmptyDict
-  } catch {
-  | _ => false
-  }
-
 let stepsArr = (~connector) => {
   switch connector->getConnectorNameTypeFromString {
   | Processors(PAYSAFE) => [IntegFields, PaymentMethods, CustomMetadata, SummaryAndTest]
-  | _ =>
-    connector->connectorHasWebhookRegister
-      ? [IntegFields, PaymentMethods, WebhookRegistration, SummaryAndTest]
-      : [IntegFields, PaymentMethods, SummaryAndTest]
+  //todo: need to get webhookregistartion value from wasm
+  | Processors(SANTANDER) => [IntegFields, PaymentMethods, WebhookRegistration, SummaryAndTest]
+  | _ => [IntegFields, PaymentMethods, SummaryAndTest]
   }
 }
 

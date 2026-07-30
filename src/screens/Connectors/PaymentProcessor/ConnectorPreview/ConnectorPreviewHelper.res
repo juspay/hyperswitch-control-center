@@ -170,25 +170,27 @@ module RegisteredWebhooks = {
     ~connector,
     ~setCurrentStep,
     ~webhookStepValue,
+    ~isUpdateFlow,
   ) => {
     open LogicUtils
     open Typography
+    open PageLoaderWrapper
     let getConnectorWebhooks = ConnectorWebhookRegistrationHooks.useGetConnectorWebhooks()
-    let url = RescriptReactRouter.useUrl()
-
-    let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
-    | list{_, "new"} => false
-    | _ => true
-    }
 
     let (registeredWebhooks, setRegisteredWebhooks) = React.useState((_): array<string> => [])
+    let (screenState, setScreenState) = React.useState(_ => Success)
 
     let getRegisteredWebhooks = async () => {
       try {
+        setScreenState(_ => Loading)
         let webhooks = await getConnectorWebhooks(connectorInfo.merchant_connector_id)
-        setRegisteredWebhooks(_ => webhooks->ConnectorWebhookRegistrationUtils.getRegisteredValues)
+        let values = webhooks->ConnectorWebhookRegistrationUtils.getRegisteredValues
+        setRegisteredWebhooks(_ => values)
+        setScreenState(_ => Success)
       } catch {
-      | _ => ()
+      | _ =>
+        setRegisteredWebhooks(_ => [])
+        setScreenState(_ => Custom)
       }
     }
 
@@ -203,21 +205,32 @@ module RegisteredWebhooks = {
       </div>
       <div className="flex gap-12 col-span-3">
         <div className="flex flex-col gap-3 w-5/6">
-          <RenderIf condition={registeredWebhooks->isEmptyArray}>
-            <p className={`${body.md.regular} text-nd_gray-400 flex items-center h-7`}>
-              {"No webhooks registered for this connector"->React.string}
-            </p>
-          </RenderIf>
-          {registeredWebhooks
-          ->Array.mapWithIndex((item, index) =>
-            <div key={index->Int.toString} className="flex items-center gap-2">
-              <p className={body.md.medium}>
-                {item->ConnectorUtils.getPaymentMethodDisplayName->React.string}
+          <PageLoaderWrapper
+            screenState
+            customLoader={<Shimmer styleClass="h-7 w-40 rounded-md" />}
+            customUI={<AlertV2Binding
+              description="Failed to fetch registered webhooks" alertType=Error
+            />}>
+            <RenderIf condition={registeredWebhooks->isEmptyArray}>
+              <p className={`${body.md.regular} text-nd_gray-400 flex items-center h-7`}>
+                {"No webhooks registered for this connector"->React.string}
               </p>
-              <TagBinding text="Registered" color=Success variant=Subtle shape=Squarical size=Xs />
-            </div>
-          )
-          ->React.array}
+            </RenderIf>
+            <RenderIf condition={registeredWebhooks->isNonEmptyArray}>
+              {registeredWebhooks
+              ->Array.mapWithIndex((item, index) =>
+                <div key={index->Int.toString} className="flex items-center gap-2">
+                  <p className={body.md.medium}>
+                    {item->ConnectorUtils.getPaymentMethodDisplayName->React.string}
+                  </p>
+                  <TagBinding
+                    text="Registered" color=Success variant=Subtle shape=Squarical size=Xs
+                  />
+                </div>
+              )
+              ->React.array}
+            </RenderIf>
+          </PageLoaderWrapper>
         </div>
         <RenderIf condition={isUpdateFlow}>
           {switch webhookStepValue {

@@ -69,6 +69,18 @@ let getDisplayItems = (~registerConfig: registerConfig, ~connectedPmts) =>
   | NotSpecific => []
   }
 
+let getEmptyWebhookRegistrationCopy = (~scopeType, ~isConnectedPmtsEmpty) =>
+  switch (scopeType, isConnectedPmtsEmpty) {
+  | (PaymentMethodType, true) => (
+      "No payment methods configured",
+      "Webhook registration is available only after payment methods are configured for this connector.",
+    )
+  | _ => (
+      "No webhook registrations available",
+      "There are no webhook registrations available for this connector setup.",
+    )
+  }
+
 let getItemLabel = (~scopeType, item) =>
   switch scopeType {
   | EventType => item->snakeToTitle
@@ -124,6 +136,11 @@ let getSeededItems = (~scopeType, ~displayItems, ~registeredValues) =>
       status: registeredValues->Array.includes(identifier) ? Registered : Unselected,
     })
   }
+
+let getSeededItemsWithEmptyState = (~scopeType, ~displayItems, ~registeredValues) => {
+  let seededItems = getSeededItems(~scopeType, ~displayItems, ~registeredValues)
+  (seededItems, seededItems->isEmptyArray)
+}
 
 let makeRegisterBody = (~scopeType, ~selectedIdentifiers) => {
   let scope = switch scopeType {

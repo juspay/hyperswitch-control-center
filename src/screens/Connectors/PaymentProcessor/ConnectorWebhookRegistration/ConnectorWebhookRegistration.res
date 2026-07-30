@@ -39,24 +39,28 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
     | _ => React.null
     }
 
+  let setSeededWebhookItems = registeredValues => {
+    let (seededItems, isSeededItemsEmpty) = getSeededItemsWithEmptyState(
+      ~scopeType=registerConfig.scope_type,
+      ~displayItems,
+      ~registeredValues,
+    )
+    setItems(_ => seededItems)
+    setScreenState(_ => isSeededItemsEmpty ? PageLoaderWrapper.Custom : PageLoaderWrapper.Success)
+  }
+
   let fetchData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let webhooks = isUpdateFlow ? await getConnectorWebhooks(mcaId) : []
       let registeredValues = webhooks->getRegisteredValues
-      setItems(_ =>
-        getSeededItems(~scopeType=registerConfig.scope_type, ~displayItems, ~registeredValues)
-      )
-      setScreenState(_ => PageLoaderWrapper.Success)
+      setSeededWebhookItems(registeredValues)
     } catch {
     | _ =>
       if isUpdateFlow {
         setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch registered webhooks"))
       } else {
-        setItems(_ =>
-          getSeededItems(~scopeType=registerConfig.scope_type, ~displayItems, ~registeredValues=[])
-        )
-        setScreenState(_ => PageLoaderWrapper.Success)
+        setSeededWebhookItems([])
       }
     }
   }
@@ -64,6 +68,8 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
   React.useEffect(() => {
     if mcaId->isNonEmptyString {
       fetchData()->ignore
+    } else {
+      setScreenState(_ => PageLoaderWrapper.Error("Connector ID not found"))
     }
     None
   }, [mcaId])
@@ -116,11 +122,32 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
         setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
       }
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Success)
+    | _ => {
+        showToast(~message="Failed to register webhooks", ~toastType=ToastError)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     }
   }
 
-  <PageLoaderWrapper screenState>
+  let (emptyWebhookRegistrationTitle, emptyWebhookRegistrationSubtitle) =
+    getEmptyWebhookRegistrationCopy(
+      ~scopeType=registerConfig.scope_type,
+      ~isConnectedPmtsEmpty=connectedPmts->isEmptyArray,
+    )
+
+  let emptyWebhookRegistrationUI =
+    <DefaultLandingPage
+      title=emptyWebhookRegistrationTitle
+      subtitle=emptyWebhookRegistrationSubtitle
+      customStyle="py-16 !m-0 h-80-vh"
+      overridingStylesTitle="text-2xl font-semibold"
+      overridingStylesSubtitle="!text-sm text-nd_gray-600 !w-3/4"
+      buttonText="Continue to summary"
+      onClickHandler={_ => setCurrentStep(_ => ConnectorTypes.SummaryAndTest)}
+      isButton=true
+    />
+
+  <PageLoaderWrapper screenState customUI={emptyWebhookRegistrationUI}>
     <div className="flex flex-col">
       <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
         <div className="flex gap-2 items-center">
@@ -158,11 +185,13 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
                   {"Automatically register webhooks with this connector to receive event notifications."->React.string}
                 </p>
               </div>
-              <BoolInput.BaseComponent
+              <SwitchAdapter
                 isSelected={notSpecificItem.status->isItemSelected}
                 setIsSelected={sel => toggleSelection(notSpecificItem.identifier, sel)}
                 isDisabled={notSpecificItem.status->isItemRegistered}
                 boolCustomClass="rounded-xl"
+                toggleBorder="border-nd_primary_blue-450"
+                toggleEnableColor="bg-nd_primary_blue-450"
                 customToggleHeight="20px"
                 customToggleWidth="36px"
                 customInnerCircleHeight="10px"
@@ -181,9 +210,7 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
                 isDisabled={item.status->isItemRegistered}
                 setIsSelected={sel => toggleSelection(item.identifier, sel)}
               />
-              <p className={Typography.body.md.medium}>
-                {item.identifier->getItemLabel->React.string}
-              </p>
+              <p className={body.md.medium}> {item.identifier->getItemLabel->React.string} </p>
               {item.status->failureTooltip}
             </div>
           )

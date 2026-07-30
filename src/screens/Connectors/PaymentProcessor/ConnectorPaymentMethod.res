@@ -77,7 +77,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
         setInitialValues(_ => response)
         setScreenState(_ => Success)
         let nextStep =
-          connector->connectorHasWebhookRegister && !isUpdateFlow
+          connector->getConnectorNameTypeFromString == Processors(SANTANDER) && !isUpdateFlow
             ? ConnectorTypes.WebhookRegistration
             : ConnectorTypes.SummaryAndTest
         setCurrentStep(_ => nextStep)
