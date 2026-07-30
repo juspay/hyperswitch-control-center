@@ -11,19 +11,20 @@ module PreviewModeToggle = {
       className="flex items-center gap-1 rounded-xl border border-nd_gray-100 bg-nd_gray-50 p-1 shadow-sm">
       {previewModes
       ->Array.map(mode => {
+        let meta = mode->previewModeMeta
         let isActive = selectedPreviewMode == mode
         let buttonClass = isActive
           ? "bg-white text-nd_gray-800 border-nd_gray-100 shadow-sm"
           : "bg-transparent text-nd_gray-400 border-transparent hover:text-nd_gray-600"
 
         <button
-          key={mode->previewModeKey}
+          key={meta.key}
           type_="button"
-          title={mode->previewModeLabel}
-          ariaLabel={mode->previewModeLabel}
+          title={meta.label}
+          ariaLabel={meta.label}
           className={`h-8 w-8 rounded-md border flex items-center justify-center transition-colors ${buttonClass}`}
           onClick={_ => setSelectedPreviewMode(_ => mode)}>
-          <Icon name={mode->previewModeIcon} size=14 />
+          <Icon name={meta.icon} size=14 />
         </button>
       })
       ->React.array}

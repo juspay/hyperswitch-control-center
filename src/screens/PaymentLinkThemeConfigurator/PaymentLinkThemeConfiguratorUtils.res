@@ -40,22 +40,10 @@ let cssFontWeightOptions: array<SelectBox.dropdownOption> =
   ->Array.map(item => (item :> string))
   ->makeDropdownOptions
 
-let previewModeLabel = mode =>
+let previewModeMeta = mode =>
   switch mode {
-  | Mobile => "Mobile preview"
-  | Web => "Web preview"
-  }
-
-let previewModeIcon = mode =>
-  switch mode {
-  | Mobile => "mobile"
-  | Web => "desktop"
-  }
-
-let previewModeKey = mode =>
-  switch mode {
-  | Mobile => "mobile"
-  | Web => "web"
+  | Mobile => {key: "mobile", label: "Mobile preview", icon: "mobile"}
+  | Web => {key: "web", label: "Web preview", icon: "desktop"}
   }
 
 let previewContentConfig = mode =>
@@ -374,13 +362,9 @@ let cssAccordionDefinitions = [
 ]
 
 let cssFieldDefinitions =
-  inputCssFields
-  ->Array.concat(inputLogoCssFields)
-  ->Array.concat(labelCssFields)
-  ->Array.concat(submitCssFields)
-  ->Array.concat(disabledSubmitCssFields)
-  ->Array.concat(paymentFormWrapCssFields)
-  ->Array.concat(checkoutContainerCssFields)
+  cssAccordionDefinitions->Array.reduce([], (fields, definition) =>
+    fields->Array.concat(definition.fields)
+  )
 
 let stripCssImportant = value =>
   value->String.replaceRegExp(%re("/\s*!important\s*/gi"), "")->String.trim
@@ -661,38 +645,11 @@ let constructBusinessProfileBodyFromJson = (~json, ~paymentLinkConfig, ~styleID)
   let updatedBusinessSpecificDict = Dict.copy(businessSpecificConfigsDict)
   updatedBusinessSpecificDict->Dict.set(styleID, updatedJson)
 
-  let paymentLinkConfig: BusinessProfileInterfaceTypes.paymentLinkConfig = {
-    theme: paymentLinkConfig.theme,
-    logo: paymentLinkConfig.logo,
-    seller_name: paymentLinkConfig.seller_name,
-    sdk_layout: paymentLinkConfig.sdk_layout,
-    display_sdk_only: paymentLinkConfig.display_sdk_only,
-    enabled_saved_payment_method: paymentLinkConfig.enabled_saved_payment_method,
-    hide_card_nickname_field: paymentLinkConfig.hide_card_nickname_field,
-    show_card_form_by_default: paymentLinkConfig.show_card_form_by_default,
-    transaction_details: paymentLinkConfig.transaction_details,
-    background_image: paymentLinkConfig.background_image,
-    details_layout: paymentLinkConfig.details_layout,
-    payment_button_text: paymentLinkConfig.payment_button_text,
-    custom_message_for_card_terms: paymentLinkConfig.custom_message_for_card_terms,
-    payment_button_colour: paymentLinkConfig.payment_button_colour,
-    skip_status_screen: paymentLinkConfig.skip_status_screen,
-    payment_button_text_colour: paymentLinkConfig.payment_button_text_colour,
-    background_colour: paymentLinkConfig.background_colour,
-    sdk_ui_rules: paymentLinkConfig.sdk_ui_rules,
-    payment_link_ui_rules: paymentLinkConfig.payment_link_ui_rules,
-    enable_button_only_on_form_ready: paymentLinkConfig.enable_button_only_on_form_ready,
-    payment_form_header_text: paymentLinkConfig.payment_form_header_text,
-    payment_form_label_type: paymentLinkConfig.payment_form_label_type,
-    show_card_terms: paymentLinkConfig.show_card_terms,
-    is_setup_mandate_flow: paymentLinkConfig.is_setup_mandate_flow,
-    color_icon_card_cvc_error: paymentLinkConfig.color_icon_card_cvc_error,
-    domain_name: paymentLinkConfig.domain_name,
+  {
+    ...paymentLinkConfig,
     allowed_domains: paymentLinkConfig.allowed_domains->allowedDomainsToArray,
-    branding_visibility: paymentLinkConfig.branding_visibility,
     business_specific_configs: Some(updatedBusinessSpecificDict->JSON.Encode.object),
   }
-  paymentLinkConfig
 }
 
 let generateWasmPayload = (

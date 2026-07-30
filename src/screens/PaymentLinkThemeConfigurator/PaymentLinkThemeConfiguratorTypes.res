@@ -16,6 +16,12 @@ type previewMode =
   | Mobile
   | Web
 
+type previewModeMeta = {
+  key: string,
+  label: string,
+  icon: string,
+}
+
 type previewContentConfig = {
   iframeScale: string,
   iframeWidth: string,

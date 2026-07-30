@@ -208,7 +208,7 @@ module AutoSubmitter = {
       ReactFinalForm.useFormSubscription(["values", "dirtyFields"])->Nullable.make,
     )
     let form = ReactFinalForm.useForm()
-    let hasMountedRef = React.useRef(false)
+    let hasSkippedInitialSubmitRef = React.useRef(false)
 
     React.useEffect(() => {
       let onKeyDown = ev => {
@@ -222,8 +222,8 @@ module AutoSubmitter = {
     }, [])
 
     React.useEffect(() => {
-      if !hasMountedRef.current {
-        hasMountedRef.current = true
+      if !hasSkippedInitialSubmitRef.current {
+        hasSkippedInitialSubmitRef.current = true
       } else if formState.dirty || submitWhenPristine {
         let defaultFieldsHaveChanged = defaultFilterKeys->Array.some(key => {
           formState.dirtyFields->Dict.get(key)->Option.getOr(false)

@@ -14,7 +14,7 @@ let makeSanitizedTextField = (
   ~placeholder,
   ~forbiddenCharsRegex=defaultForbiddenCharsRegex,
 ) =>
-  makeFieldInfo(~label, ~name, ~customInput=(~input, ~placeholder as _) =>
+  makeFieldInfo(~label, ~name, ~placeholder, ~customInput=(~input, ~placeholder as _) =>
     InputFields.textInput()(
       ~input={
         ...input,
@@ -29,14 +29,22 @@ let makeSanitizedTextField = (
     )
   )
 
-let makeThemeField = (~defaultValue) => {
+let makeColorField = (~label, ~name, ~defaultValue=?, ~placeholder="") => {
   makeFieldInfo(
+    ~label,
+    ~name,
+    ~placeholder,
+    ~customInput=InputFields.colorPickerInput(~defaultValue?, ~showErrorWhenEmpty=false),
+  )
+}
+
+let makeThemeField = (~defaultValue) =>
+  makeColorField(
     ~label="Theme Color",
     ~name="theme",
     ~placeholder="Select Theme Color",
-    ~customInput=InputFields.colorPickerInput(~defaultValue, ~showErrorWhenEmpty=false),
+    ~defaultValue,
   )
-}
 
 let makeLogoField = () =>
   makeSanitizedTextField(
@@ -115,32 +123,18 @@ let makeBrandingVisibilityField = () => {
   )
 }
 
-let makePaymentButtonColorField = (~defaultValue) => {
-  makeFieldInfo(
-    ~label="Payment Button Color",
-    ~name="payment_button_colour",
-    ~placeholder="",
-    ~customInput=InputFields.colorPickerInput(~defaultValue, ~showErrorWhenEmpty=false),
-  )
-}
+let makePaymentButtonColorField = (~defaultValue) =>
+  makeColorField(~label="Payment Button Color", ~name="payment_button_colour", ~defaultValue)
 
-let makePaymentButtonTextColorField = (~defaultValue) => {
-  makeFieldInfo(
+let makePaymentButtonTextColorField = (~defaultValue) =>
+  makeColorField(
     ~label="Payment Button Text Color",
     ~name="payment_button_text_colour",
-    ~placeholder="",
-    ~customInput=InputFields.colorPickerInput(~defaultValue, ~showErrorWhenEmpty=false),
+    ~defaultValue,
   )
-}
 
-let makeBackgroundColorField = (~defaultValue) => {
-  makeFieldInfo(
-    ~label="Background Colour",
-    ~name="background_colour",
-    ~placeholder="",
-    ~customInput=InputFields.colorPickerInput(~defaultValue, ~showErrorWhenEmpty=false),
-  )
-}
+let makeBackgroundColorField = (~defaultValue) =>
+  makeColorField(~label="Background Colour", ~name="background_colour", ~defaultValue)
 
 let makeDetailsLayoutField = () =>
   makeSelectField(
@@ -157,14 +151,12 @@ let makeCustomMessageForCardTermsField = () =>
     ~placeholder="Enter custom message for card terms",
   )
 
-let makeColorIconCardCvcErrorField = (~defaultValue) => {
-  makeFieldInfo(
+let makeColorIconCardCvcErrorField = (~defaultValue) =>
+  makeColorField(
     ~label="Color Icon Card CVC Error",
     ~name="color_icon_card_cvc_error",
-    ~placeholder="",
-    ~customInput=InputFields.colorPickerInput(~defaultValue, ~showErrorWhenEmpty=false),
+    ~defaultValue,
   )
-}
 
 let makeShowCardTermsField = () =>
   makeSelectField(
@@ -174,14 +166,7 @@ let makeShowCardTermsField = () =>
     ~buttonText="Select Show Card Terms",
   )
 
-let makeCssColorField = (~label, ~name) => {
-  makeFieldInfo(
-    ~label,
-    ~name,
-    ~placeholder="",
-    ~customInput=InputFields.colorPickerInput(~showErrorWhenEmpty=false),
-  )
-}
+let makeCssColorField = (~label, ~name) => makeColorField(~label, ~name)
 
 let makeCssDimensionField = (~label, ~name, ~placeholder) =>
   makeSanitizedTextField(
