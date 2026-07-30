@@ -15,7 +15,8 @@ let make = () => {
         remainingPath
         access=Access
         renderList={() =>
-          <FilterContext key="recon-engine-pipelines" index="recon-engine-pipelines">
+          <FilterContext
+            key="recon-engine-pipelines" index="recon-engine-pipelines" persistFilters=true>
             <ReconEnginePipelines />
           </FilterContext>}
         renderShow={(id, _) =>

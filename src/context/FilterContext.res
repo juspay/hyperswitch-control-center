@@ -31,7 +31,7 @@ module Provider = {
 }
 
 @react.component
-let make = (~index: string, ~children) => {
+let make = (~index: string, ~persistFilters=false, ~children) => {
   open FilterUtils
   open LogicUtils
   open SessionStorage
@@ -188,7 +188,13 @@ let make = (~index: string, ~children) => {
     | None => ()
     }
 
-    Some(() => clearSessionStorage())
+    Some(
+      () => {
+        if !persistFilters {
+          clearSessionStorage()
+        }
+      },
+    )
   }, [])
 
   React.useEffect(() => {
