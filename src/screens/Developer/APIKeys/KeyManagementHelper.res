@@ -199,9 +199,7 @@ module ApiKeyAddBtn = {
       <ApiEditModal showModal setShowModal initialValues getAPIKeyDetails />
       <ACLButton
         text="Create New API Key"
-        leftIcon={CustomIcon(
-          <Icon name="nd-plus" size={isMobileView ? 12 : 16} />,
-        )}
+        leftIcon={CustomIcon(<Icon name="nd-plus" size={isMobileView ? 12 : 16} />)}
         customIconMargin={isMobileView ? "ml-1 -mr-1" : "ml-3 -mr-1"}
         // TODO: Remove `MerchantDetailsManage` permission in future
         authorization={hasAnyGroupAccess(

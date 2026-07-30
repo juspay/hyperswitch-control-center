@@ -51,10 +51,7 @@ let make = (~connector, ~googlePayFields, ~closeAccordionFn, ~update, ~closeModa
         field={FormRenderer.makeFieldInfo(
           ~name={"metadata.google_pay.support_predecrypted_token"},
           ~label="Enable pre decrypted token",
-          ~customInput=InputFields.switchInput(
-            ~isDisabled=false,
-            ~boolCustomClass="rounded-lg",
-          ),
+          ~customInput=InputFields.switchInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
         )}
       />
     </RenderIf>

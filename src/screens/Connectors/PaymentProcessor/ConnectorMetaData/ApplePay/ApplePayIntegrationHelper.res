@@ -2,9 +2,7 @@ open ApplePayIntegrationTypes
 module SimplifiedHelper = {
   @react.component
   let make = (~customElement=?, ~heading="", ~stepNumber="1", ~subText=None) => {
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(
-      ThemeProvider.themeContext,
-    )
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let bgColor = "bg-white"
     let stepColor = "bg-nd_gray-150 text-nd_gray-700 border border-nd_gray-200 rounded py-px px-2"
 
