@@ -383,7 +383,7 @@ let make = (~previewOnly=false) => {
         </div>
       </div>
       <RenderIf condition={transactionView}>
-        <TransactionView entity=TransactionViewTypes.Orders version />
+        <TransactionView entity=TransactionViewTypes.Orders version isAdvancedView=isAdvancedSource />
       </RenderIf>
       <div className="flex">
         <RenderIf condition={!previewOnly}>
