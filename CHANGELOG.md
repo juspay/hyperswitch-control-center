@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.07.31.0
+
+### Bug Fixes
+
+- Refetch newly uploaded files in recon ingestion history ([#5281](https://github.com/juspay/hyperswitch-control-center/pull/5281)) ([`2c1589d`](https://github.com/juspay/hyperswitch-control-center/commit/2c1589d55ba2b1171de9dfb9329e5a0d08fc1605))
+
+### Refactors
+
+- Saved views multi-entity support and advanced payments groundwork ([#5254](https://github.com/juspay/hyperswitch-control-center/pull/5254)) ([`253faef`](https://github.com/juspay/hyperswitch-control-center/commit/253faefcdd1347c5c55d3e0c7f9744f8b4e3464a))
+
+**Full Changelog:** [`2026.07.29.1...2026.07.31.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.29.1...2026.07.31.0)
+
+- - -
+
 ## 2026.07.29.1
 
 ### Features
