@@ -327,7 +327,14 @@ let getConvertedEntriesFromStagingEntry = (stagingEntry: processingEntryType) =>
     ("status", "pending"->JSON.Encode.string),
     ("data", [("status", "pending"->JSON.Encode.string)]->getJsonFromArrayOfJson),
     ("entry_key", uniqueId->JSON.Encode.string),
-    ("transformation_id", stagingEntry.transformation_id->JSON.Encode.string),
+    (
+      "transformation_id",
+      stagingEntry.transformation_config.transformation_config_id->JSON.Encode.string,
+    ),
+    (
+      "transformation_name",
+      stagingEntry.transformation_config.transformation_config_name->JSON.Encode.string,
+    ),
   ]
   ->Dict.fromArray
   ->JSON.Encode.object
