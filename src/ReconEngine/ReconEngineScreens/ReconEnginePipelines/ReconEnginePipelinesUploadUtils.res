@@ -1,5 +1,10 @@
 open LogicUtils
-open ReconEnginePipelinesTypes
+
+type supportedFileExtensions =
+  | Csv
+  | Ext
+  | Xlsx
+  | Txt
 
 let supportedFileTypes: array<supportedFileExtensions> = [Csv, Ext, Xlsx, Txt]
 
