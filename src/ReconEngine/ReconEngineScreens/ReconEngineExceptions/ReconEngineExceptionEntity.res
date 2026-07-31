@@ -18,12 +18,12 @@ type processingColType =
 
 let processingDefaultColumns = [
   EffectiveAt,
+  OrderId,
+  EntryType,
+  Amount,
   StagingEntryId,
   Status,
   ExceptionType,
-  EntryType,
-  OrderId,
-  Amount,
   Currency,
   AccountName,
   TransformationHistoryId,

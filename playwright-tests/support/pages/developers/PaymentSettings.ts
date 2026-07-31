@@ -51,11 +51,11 @@ export class PaymentSettings {
   }
 
   get vaultTab(): Locator {
-    return this.page.getByText("Vault", { exact: true });
+    return this.page.getByRole("tab", { name: "Vault", exact: true });
   }
 
   get surchargeTab(): Locator {
-    return this.page.getByText("Surcharge", { exact: true });
+    return this.page.getByRole("tab", { name: "Surcharge", exact: true });
   }
 
   // Payment Behaviour Tab Elements

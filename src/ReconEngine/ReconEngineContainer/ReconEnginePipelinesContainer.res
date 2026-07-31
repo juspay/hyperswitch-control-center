@@ -10,16 +10,19 @@ let make = () => {
     <AccessControl
       isEnabled={featureFlagDetails.devReconEngineV1 && featureFlagDetails.devReconEnginePipelines}
       authorization={userHasAccess(~groupAccess=ReconSourcesView)}>
-      <EntityScaffold
-        entityName="IngestionHistory"
-        remainingPath
-        access=Access
-        renderList={() =>
-          <FilterContext key="recon-engine-pipelines" index="recon-engine-pipelines">
-            <ReconEnginePipelines />
-          </FilterContext>}
-        renderShow={(_, _) => <ReconEnginePipelineDetails />}
-      />
+      <FilterContext key="recon-engine-pipelines" index="recon-engine-pipelines">
+        <EntityScaffold
+          entityName="IngestionHistory"
+          remainingPath
+          access=Access
+          renderList={() => <ReconEnginePipelines />}
+          renderShow={(id, _) =>
+            <FilterContext
+              key="recon-engine-pipeline-details" index="recon-engine-pipeline-details">
+              <ReconEnginePipelineDetails ingestionHistoryId=id />
+            </FilterContext>}
+        />
+      </FilterContext>
     </AccessControl>
   | _ => React.null
   }
