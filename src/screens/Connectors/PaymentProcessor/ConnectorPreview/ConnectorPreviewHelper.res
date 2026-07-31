@@ -184,13 +184,10 @@ module RegisteredWebhooks = {
       try {
         setScreenState(_ => Loading)
         let webhooks = await getConnectorWebhooks(connectorInfo.merchant_connector_id)
-        let values = webhooks->ConnectorWebhookRegistrationUtils.getRegisteredValues
-        setRegisteredWebhooks(_ => values)
+        setRegisteredWebhooks(_ => webhooks)
         setScreenState(_ => Success)
       } catch {
-      | _ =>
-        setRegisteredWebhooks(_ => [])
-        setScreenState(_ => Custom)
+      | _ => setScreenState(_ => Custom)
       }
     }
 
@@ -232,18 +229,16 @@ module RegisteredWebhooks = {
             </RenderIf>
           </PageLoaderWrapper>
         </div>
-        <RenderIf condition={isUpdateFlow}>
-          {switch webhookStepValue {
-          | Some(step) =>
-            <div className="cursor-pointer" onClick={_ => setCurrentStep(_ => step)}>
-              <ToolTip
-                description={`Update the ${connector} webhook registrations`}
-                toolTipFor={<Icon size=18 name="edit" className={` ml-2`} />}
-                toolTipPosition=Top
-              />
-            </div>
-          | None => React.null
-          }}
+        <RenderIf condition={isUpdateFlow && webhookStepValue->Option.isSome}>
+          <div
+            className="cursor-pointer"
+            onClick={_ => webhookStepValue->Option.forEach(step => setCurrentStep(_ => step))}>
+            <ToolTip
+              description={`Update the ${connector} webhook registrations`}
+              toolTipFor={<Icon size=18 name="edit" className={` ml-2`} />}
+              toolTipPosition=Top
+            />
+          </div>
         </RenderIf>
       </div>
     </div>

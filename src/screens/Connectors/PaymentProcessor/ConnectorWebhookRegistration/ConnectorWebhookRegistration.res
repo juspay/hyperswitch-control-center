@@ -9,67 +9,68 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let showToast = ToastAdapter.useShowToast()
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (items, setItems) = React.useState(_ => [])
   let getConnectorWebhooks = ConnectorWebhookRegistrationHooks.useGetConnectorWebhooks()
 
   let mcaId = initialValues->getDictFromJsonObject->getString("merchant_connector_id", "")
+  let connectedPmts = initialValues->getConnectedPmts
 
   let connectorConfig = React.useMemo(() => {
-    Window.getConnectorConfig(connector)->getDictFromJsonObject
+    Window.getConnectorConfig(connector)
+    ->getDictFromJsonObject
+    ->getDictfromDict("connector_webhook_register_details")
   }, [connector])
 
-  let (items, setItems) = React.useState((_): array<webhookItem> => [])
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let scopeType = connectorConfig->getString("scope_type", "")->scopeTypeFromString
+  let displayValues = switch scopeType {
+  | PaymentMethodType =>
+    connectorConfig
+    ->getStrArrayFromDict("payment_method_types", [])
+    ->Array.filter(pmt => connectedPmts->Array.includes(pmt))
+  | EventType => connectorConfig->getStrArrayFromDict("event_types", [])
+  | NotSpecific => []
+  }
+  let selectedItems = items->getSelectedItems
 
-  let connectedPmts = initialValues->getConnectedPmts
-  let registerConfig =
-    connectorConfig->getDictfromDict("connector_webhook_register_details")->makeRegisterConfig
-
-  let displayItems = getDisplayItems(~registerConfig, ~connectedPmts)
-
-  let getItemLabel = getItemLabel(~scopeType=registerConfig.scope_type, _)
-
-  let failureTooltip = status =>
+  let failureMessage = status =>
     switch status {
-    | RegisterFailed(message) =>
-      <ToolTip
-        description=message
-        toolTipFor={<Icon name="tooltip_info" className="text-nd_red-500" />}
-        toolTipPosition=Top
-      />
+    | Failed(messages) =>
+      messages
+      ->Array.mapWithIndex((message, index) =>
+        <div
+          key={index->Int.toString}
+          className={`flex items-center ${body.xs.medium} text-nd_red-500`}>
+          <FormErrorIcon />
+          {message->React.string}
+        </div>
+      )
+      ->React.array
     | _ => React.null
     }
-
-  let setSeededWebhookItems = registeredValues => {
-    let (seededItems, isSeededItemsEmpty) = getSeededItemsWithEmptyState(
-      ~scopeType=registerConfig.scope_type,
-      ~displayItems,
-      ~registeredValues,
-    )
-    setItems(_ => seededItems)
-    setScreenState(_ => isSeededItemsEmpty ? PageLoaderWrapper.Custom : PageLoaderWrapper.Success)
-  }
 
   let fetchData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let webhooks = isUpdateFlow ? await getConnectorWebhooks(mcaId) : []
-      let registeredValues = webhooks->getRegisteredValues
-      setSeededWebhookItems(registeredValues)
+      let alreadyRegistered = await getConnectorWebhooks(mcaId)
+      setItems(_ =>
+        displayValues->Array.map(identifier => {
+          identifier,
+          status: alreadyRegistered->Array.includes(identifier) ? Success : Unselected,
+        })
+      )
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ =>
-      if isUpdateFlow {
-        setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch registered webhooks"))
-      } else {
-        setSeededWebhookItems([])
-      }
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch registered webhooks"))
     }
   }
 
   React.useEffect(() => {
-    if mcaId->isNonEmptyString {
+    if isUpdateFlow {
       fetchData()->ignore
     } else {
-      setScreenState(_ => PageLoaderWrapper.Error("Connector ID not found"))
+      setItems(_ => displayValues->Array.map(identifier => {identifier, status: Unselected}))
+      setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
   }, [mcaId])
@@ -83,41 +84,58 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
       )
     )
 
-  let selectedItems = items->getSelectedItems
-
-  let notSpecificItem = items->getValueFromArray(0, {identifier: notSpecificId, status: Unselected})
-
   let registerWebhooks = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let selectedIdentifiers = selectedItems->Array.map(item => item.identifier)
-      let body = makeRegisterBody(~scopeType=registerConfig.scope_type, ~selectedIdentifiers)
+      let body = makeRequestBody(~scopeType, ~selectedIdentifiers)
 
       let url = getURL(~entityName=V1(CONNECTOR_WEBHOOK), ~methodType=Post, ~id=Some(mcaId))
       let res = await updateDetails(url, body, Post)
 
-      let response = res->getDictFromJsonObject->makeRegisterResponse
-      let statusById = makeStatusByIdentifier(
-        ~results=response.results,
-        ~scopeType=registerConfig.scope_type,
-      )
+      let results =
+        res
+        ->getDictFromJsonObject
+        ->getArrayFromDict("results", [])
+        ->Array.map(getDictFromJsonObject)
 
-      setItems(prev =>
-        prev->Array.map(item =>
-          statusById
-          ->getOptionValFromDict(item.identifier)
-          ->mapOptionOrDefault(item, status => {...item, status})
-        )
-      )
+      let updatedItems = items->Array.map(item => {
+        let matching =
+          results->Array.filter(result => result->getString("identifier", "") === item.identifier)
+
+        if matching->isEmptyArray {
+          item
+        } else {
+          let errors = matching->Array.filterMap(result =>
+            switch result->getString("status", "")->resultStatusFromString {
+            | Succeeded => None
+            | Failed =>
+              Some(result->getDictfromDict("error")->getString("message", "Registration failed"))
+            }
+          )
+          {
+            ...item,
+            status: errors->isEmptyArray ? Success : Failed(errors->removeDuplicate),
+          }
+        }
+      })
+
+      setItems(_ => updatedItems)
 
       setScreenState(_ => PageLoaderWrapper.Success)
-      let failedIdentifiers = response.results->getFailedIdentifiers
-      if failedIdentifiers->isNonEmptyArray {
-        let message = getFailedRegistrationMessage(
-          ~scopeType=registerConfig.scope_type,
-          ~failedIdentifiers,
+
+      let failedLabels = updatedItems->Array.filterMap(item =>
+        switch item.status {
+        | Failed(_) => Some(item.identifier->ConnectorUtils.getPaymentMethodDisplayName)
+        | _ => None
+        }
+      )
+
+      if failedLabels->isNonEmptyArray {
+        showToast(
+          ~message=`Webhook registration failed for ${failedLabels->Array.joinWith(", ")}`,
+          ~toastType=ToastError,
         )
-        showToast(~message, ~toastType=ToastError)
       } else {
         setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
       }
@@ -129,25 +147,7 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
     }
   }
 
-  let (emptyWebhookRegistrationTitle, emptyWebhookRegistrationSubtitle) =
-    getEmptyWebhookRegistrationCopy(
-      ~scopeType=registerConfig.scope_type,
-      ~isConnectedPmtsEmpty=connectedPmts->isEmptyArray,
-    )
-
-  let emptyWebhookRegistrationUI =
-    <DefaultLandingPage
-      title=emptyWebhookRegistrationTitle
-      subtitle=emptyWebhookRegistrationSubtitle
-      customStyle="py-16 !m-0 h-80-vh"
-      overridingStylesTitle="text-2xl font-semibold"
-      overridingStylesSubtitle="!text-sm text-nd_gray-600 !w-3/4"
-      buttonText="Continue to summary"
-      onClickHandler={_ => setCurrentStep(_ => ConnectorTypes.SummaryAndTest)}
-      isButton=true
-    />
-
-  <PageLoaderWrapper screenState customUI={emptyWebhookRegistrationUI}>
+  <PageLoaderWrapper screenState>
     <div className="flex flex-col">
       <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
         <div className="flex gap-2 items-center">
@@ -171,51 +171,30 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
         </div>
       </div>
       <div className="flex flex-col gap-3 p-6">
-        {switch registerConfig.scope_type {
-        | NotSpecific =>
-          <RenderIf condition={items->isNonEmptyArray}>
-            <div
-              className="flex items-center justify-between border border-nd_gray-150 rounded-xl px-4 py-3">
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <p className={body.md.medium}> {registerConfig.label->React.string} </p>
-                  {notSpecificItem.status->failureTooltip}
-                </div>
-                <p className={`${body.sm.regular} text-nd_gray-600`}>
-                  {"Automatically register webhooks with this connector to receive event notifications."->React.string}
-                </p>
-              </div>
-              <SwitchAdapter
-                isSelected={notSpecificItem.status->isItemSelected}
-                setIsSelected={sel => toggleSelection(notSpecificItem.identifier, sel)}
-                isDisabled={notSpecificItem.status->isItemRegistered}
-                boolCustomClass="rounded-xl"
-                toggleBorder="border-nd_primary_blue-450"
-                toggleEnableColor="bg-nd_primary_blue-450"
-                customToggleHeight="20px"
-                customToggleWidth="36px"
-                customInnerCircleHeight="10px"
-                transformValue="20px"
-              />
+        <RenderIf condition={items->isEmptyArray}>
+          <p className={`${body.md.regular} text-nd_gray-600`}>
+            {"No payment methods connected for this connector"->React.string}
+          </p>
+        </RenderIf>
+        {items
+        ->Array.map(item =>
+          <div
+            key={item.identifier}
+            className="flex items-center gap-3 border border-nd_gray-150 rounded-xl px-4 py-3">
+            <CheckBoxIconAdapter
+              isSelected={item.status == Selected || item.status == Success}
+              isDisabled={item.status == Success}
+              setIsSelected={sel => toggleSelection(item.identifier, sel)}
+            />
+            <div className="flex flex-col gap-1">
+              <p className={body.md.medium}>
+                {getItemLabel(~scopeType, item.identifier)->React.string}
+              </p>
+              {item.status->failureMessage}
             </div>
-          </RenderIf>
-        | PaymentMethodType | EventType =>
-          items
-          ->Array.map(item =>
-            <div
-              key={item.identifier}
-              className="flex items-center gap-3 border border-nd_gray-150 rounded-xl px-4 py-3">
-              <CheckBoxIconAdapter
-                isSelected={item.status->isItemSelected}
-                isDisabled={item.status->isItemRegistered}
-                setIsSelected={sel => toggleSelection(item.identifier, sel)}
-              />
-              <p className={body.md.medium}> {item.identifier->getItemLabel->React.string} </p>
-              {item.status->failureTooltip}
-            </div>
-          )
-          ->React.array
-        }}
+          </div>
+        )
+        ->React.array}
       </div>
     </div>
   </PageLoaderWrapper>

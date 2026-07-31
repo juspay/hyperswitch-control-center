@@ -8,47 +8,11 @@ let scopeTypeFromString = str =>
   | _ => NotSpecific
   }
 
-let registerStatusFromString = str =>
+let resultStatusFromString = str =>
   switch str->String.toLowerCase {
   | "success" => Succeeded
   | _ => Failed
   }
-
-let makeRegisterConfig = (dict): registerConfig => {
-  label: dict->getString("label", ""),
-  webhook_auto_configuration_supported: dict->getBool(
-    "webhook_auto_configuration_supported",
-    false,
-  ),
-  scope_type: dict->getString("scope_type", "")->scopeTypeFromString,
-  payment_method_types: dict->getStrArrayFromDict("payment_method_types", []),
-  event_types: dict->getStrArrayFromDict("event_types", []),
-}
-
-let makeRegisterError = (dict): registerError => {
-  code: dict->getString("code", ""),
-  message: dict->getString("message", ""),
-}
-
-let makeRegisterResult = (dict): registerResult => {
-  identifier: dict->getString("identifier", ""),
-  status: dict->getString("status", "")->registerStatusFromString,
-  connector_webhook_id: dict->getOptionString("connector_webhook_id"),
-  error: {
-    let errorDict = dict->getDictfromDict("error")
-    errorDict->isEmptyDict ? None : Some(errorDict->makeRegisterError)
-  },
-}
-
-let makeRegisterResponse = (dict): registerResponse => {
-  scope_type: dict->getString("scope_type", "")->scopeTypeFromString,
-  requested: dict->getStrArrayFromDict("requested", []),
-  results: dict
-  ->getArrayFromDict("results", [])
-  ->Array.map(result => result->getDictFromJsonObject->makeRegisterResult),
-}
-
-let notSpecificId = "not_specific"
 
 let getConnectedPmts = initialValues =>
   initialValues
@@ -61,42 +25,10 @@ let getConnectedPmts = initialValues =>
     ->Array.map(pmt => pmt->getDictFromJsonObject->getString("payment_method_type", ""))
   )
 
-let getDisplayItems = (~registerConfig: registerConfig, ~connectedPmts) =>
-  switch registerConfig.scope_type {
-  | PaymentMethodType =>
-    registerConfig.payment_method_types->Array.filter(pmt => connectedPmts->Array.includes(pmt))
-  | EventType => registerConfig.event_types
-  | NotSpecific => []
-  }
-
-let getEmptyWebhookRegistrationCopy = (~scopeType, ~isConnectedPmtsEmpty) =>
-  switch (scopeType, isConnectedPmtsEmpty) {
-  | (PaymentMethodType, true) => (
-      "No payment methods configured",
-      "Webhook registration is available only after payment methods are configured for this connector.",
-    )
-  | _ => (
-      "No webhook registrations available",
-      "There are no webhook registrations available for this connector setup.",
-    )
-  }
-
 let getItemLabel = (~scopeType, item) =>
   switch scopeType {
   | EventType => item->snakeToTitle
   | PaymentMethodType | NotSpecific => item->ConnectorUtils.getPaymentMethodDisplayName
-  }
-
-let isItemRegistered = status =>
-  switch status {
-  | Registered => true
-  | _ => false
-  }
-
-let isItemSelected = status =>
-  switch status {
-  | Registered | Selected => true
-  | _ => false
   }
 
 let getSelectedItems = items =>
@@ -107,42 +39,7 @@ let getSelectedItems = items =>
     }
   )
 
-let getRegisteredValues = webhooks =>
-  webhooks
-  ->Array.filterMap(webhook => {
-    let scope = webhook->getDictFromJsonObject->getDictfromDict("scope")
-    let scopeType = scope->getString("type", "")->scopeTypeFromString
-    let value = scope->getString("value", "")
-
-    switch (scopeType, value->isNonEmptyString) {
-    | (NotSpecific, _) => Some(notSpecificId)
-    | (_, true) => Some(value)
-    | (_, false) => None
-    }
-  })
-  ->removeDuplicate
-
-let getSeededItems = (~scopeType, ~displayItems, ~registeredValues) =>
-  switch scopeType {
-  | NotSpecific => [
-      {
-        identifier: notSpecificId,
-        status: registeredValues->Array.includes(notSpecificId) ? Registered : Unselected,
-      },
-    ]
-  | PaymentMethodType | EventType =>
-    displayItems->Array.map(identifier => {
-      identifier,
-      status: registeredValues->Array.includes(identifier) ? Registered : Unselected,
-    })
-  }
-
-let getSeededItemsWithEmptyState = (~scopeType, ~displayItems, ~registeredValues) => {
-  let seededItems = getSeededItems(~scopeType, ~displayItems, ~registeredValues)
-  (seededItems, seededItems->isEmptyArray)
-}
-
-let makeRegisterBody = (~scopeType, ~selectedIdentifiers) => {
+let makeRequestBody = (~scopeType, ~selectedIdentifiers) => {
   let scope = switch scopeType {
   | NotSpecific => [("type", (NotSpecific :> string)->JSON.Encode.string)]
   | PaymentMethodType | EventType => [
@@ -152,38 +49,3 @@ let makeRegisterBody = (~scopeType, ~selectedIdentifiers) => {
   }
   [("scope", scope->getJsonFromArrayOfJson)]->getJsonFromArrayOfJson
 }
-
-let makeStatusByIdentifier = (~results: array<registerResult>, ~scopeType) => {
-  let statusById = Dict.make()
-  results->Array.forEach(result => {
-    let status = switch result.status {
-    | Succeeded => Registered
-    | Failed =>
-      RegisterFailed(
-        result.error->mapOptionOrDefault("Registration failed", error => error.message),
-      )
-    }
-    let identifier = switch scopeType {
-    | NotSpecific => notSpecificId
-    | PaymentMethodType | EventType => result.identifier
-    }
-    statusById->Dict.set(identifier, status)
-  })
-  statusById
-}
-
-let getFailedIdentifiers = (results: array<registerResult>) =>
-  results->Array.filterMap(result =>
-    switch result.status {
-    | Failed => Some(result.identifier)
-    | Succeeded => None
-    }
-  )
-
-let getFailedRegistrationMessage = (~scopeType, ~failedIdentifiers) =>
-  switch scopeType {
-  | NotSpecific => "Webhook registration was not successful"
-  | PaymentMethodType | EventType =>
-    let labels = failedIdentifiers->Array.map(getItemLabel(~scopeType, _))->Array.joinWith(", ")
-    `Webhook registration for ${labels} was not successful`
-  }
