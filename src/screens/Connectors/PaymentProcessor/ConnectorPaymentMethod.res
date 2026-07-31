@@ -76,6 +76,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
         let _ = await fetchConnectorList()
         setInitialValues(_ => response)
         setScreenState(_ => Success)
+        //todo: need to fetch webhookregistration value from was
         let nextStep =
           connector->getConnectorNameTypeFromString == Processors(SANTANDER) && !isUpdateFlow
             ? ConnectorTypes.WebhookRegistration

@@ -2639,7 +2639,7 @@ let connectorTypeFromConnectorName: string => connector = connectorName =>
 let stepsArr = (~connector) => {
   switch connector->getConnectorNameTypeFromString {
   | Processors(PAYSAFE) => [IntegFields, PaymentMethods, CustomMetadata, SummaryAndTest]
-  //todo: need to get webhookregistartion value from wasm
+  //todo: need to fetch webhookregistration value from wasm
   | Processors(SANTANDER) => [IntegFields, PaymentMethods, WebhookRegistration, SummaryAndTest]
   | _ => [IntegFields, PaymentMethods, SummaryAndTest]
   }

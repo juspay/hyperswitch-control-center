@@ -297,6 +297,7 @@ module ConnectorSummaryGrid = {
 
       | None => React.null
       }}
+      //todo: need to fetch webhookregistration value from was
       <RenderIf
         condition={connectorInfo.connector_name->getConnectorNameTypeFromString ==
           Processors(SANTANDER)}>
