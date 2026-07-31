@@ -15,6 +15,7 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
 
   let mcaId = initialValues->getDictFromJsonObject->getString("merchant_connector_id", "")
   let connectedPmts = initialValues->getConnectedPmts
+  let selectedItems = items->getSelectedItems
 
   let connectorConfig = React.useMemo(() => {
     Window.getConnectorConfig(connector)
@@ -23,6 +24,7 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
   }, [connector])
 
   let scopeType = connectorConfig->getString("scope_type", "")->scopeTypeFromString
+
   let displayValues = switch scopeType {
   | PaymentMethodType =>
     connectorConfig
@@ -31,23 +33,6 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
   | EventType => connectorConfig->getStrArrayFromDict("event_types", [])
   | NotSpecific => []
   }
-  let selectedItems = items->getSelectedItems
-
-  let failureMessage = status =>
-    switch status {
-    | Failed(messages) =>
-      messages
-      ->Array.mapWithIndex((message, index) =>
-        <div
-          key={index->Int.toString}
-          className={`flex items-center ${body.xs.medium} text-nd_red-500`}>
-          <FormErrorIcon />
-          {message->React.string}
-        </div>
-      )
-      ->React.array
-    | _ => React.null
-    }
 
   let fetchData = async () => {
     try {
@@ -66,7 +51,7 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
   }
 
   React.useEffect(() => {
-    if isUpdateFlow {
+    if isUpdateFlow && mcaId->isNonEmptyString {
       fetchData()->ignore
     } else {
       setItems(_ => displayValues->Array.map(identifier => {identifier, status: Unselected}))
@@ -190,7 +175,20 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
               <p className={body.md.medium}>
                 {getItemLabel(~scopeType, item.identifier)->React.string}
               </p>
-              {item.status->failureMessage}
+              {switch item.status {
+              | Failed(messages) =>
+                messages
+                ->Array.mapWithIndex((message, index) =>
+                  <div
+                    key={index->Int.toString}
+                    className={`flex items-center ${body.xs.medium} text-nd_red-500`}>
+                    <FormErrorIcon />
+                    {message->React.string}
+                  </div>
+                )
+                ->React.array
+              | _ => React.null
+              }}
             </div>
           </div>
         )
