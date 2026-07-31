@@ -70,7 +70,7 @@ test.describe("Payment Operations", () => {
 
       await expect(paymentOperations.searchBox).toHaveAttribute(
         "placeholder",
-        "Search for payment ID",
+        "Search by payment ID",
       );
 
       await expect(paymentOperations.dateSelector).toBeVisible();
@@ -128,7 +128,7 @@ test.describe("Payment Operations", () => {
 
         await expect(paymentOperations.searchBox).toHaveAttribute(
           "placeholder",
-          "Search for payment ID",
+          "Search by payment ID",
         );
 
         await expect(paymentOperations.addFilters).toBeVisible();
