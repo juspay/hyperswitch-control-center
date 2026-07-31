@@ -32,7 +32,7 @@ module PaymentLinkDomainFields = {
 
     <>
       <div className="flex flex-row justify-between items-center gap-6">
-        <p className={`!text-nd_gray-700  !${heading.sm.semibold}`}>
+        <p className={`!text-nd_gray-700 !${heading.sm.semibold}`}>
           {"Payment Link Domain"->React.string}
         </p>
         <RenderIf condition={!(paymentLinkConfigDict->isEmptyDict) && isDisabled && !allowEdit}>
@@ -99,7 +99,7 @@ let make = () => {
 
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let mixpanelEvent = MixpanelHook.useSendEvent()

@@ -182,13 +182,13 @@ let make = (~children) => {
         ),
         logoUrl: getUrl(
           "logoUrl",
-          "/assets/Dark/hyperswitchLogoIconWithText.svg",
+          "/assets/Light/juspayHyperswitchLogoIconWithText.svg",
           existingEnv.urlThemeConfig.logoUrl,
         ),
       }
 
       let logoUrlWithVersion = switch val.logoUrl {
-      | Some(url) if url !== "/assets/Dark/hyperswitchLogoIconWithText.svg" =>
+      | Some(url) if url !== "/assets/Light/juspayHyperswitchLogoIconWithText.svg" =>
         Some(ThemeFeatureUtils.appendVersionParam(url, ~version=themeConfigVersion))
       | Some(url) => Some(url)
       | _ => val.logoUrl

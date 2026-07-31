@@ -66,7 +66,7 @@ let make = () => {
     ~retainInList=AuthenticationProcessor,
   )
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
@@ -114,9 +114,10 @@ let make = () => {
             field={makeFieldInfo(
               ~name="force_3ds_challenge",
               ~label="Force 3DS Challenge",
-              ~customInput=InputFields.boolInput(
+              ~customInput=InputFields.switchInput(
                 ~isDisabled=false,
-                ~boolCustomClass="rounded-lg ",
+                ~boolCustomClass="rounded-lg",
+                ~toggleBorder="border-nd_primary_blue-450",
                 ~toggleEnableColor="bg-nd_primary_blue-450",
               ),
             )}
@@ -131,7 +132,7 @@ let make = () => {
             ->authenticationConnectors}
             errorClass
             labelClass={`!${body.lg.semibold} !text-nd_gray-700`}
-            fieldWrapperClass="max-w-sm  "
+            fieldWrapperClass="max-w-sm"
           />
           <ThreeDsRequestorUrl />
           <ThreeDsAppUrl />
@@ -142,9 +143,10 @@ let make = () => {
           <SubmitButton text="Update" buttonType=Button.Primary buttonSize=Button.Medium />
         </div>
       </DesktopRow>
+      <hr className="mt-8" />
     </Form>
     <RenderIf condition={featureFlagDetails.acquirerConfigSettings && version == V1}>
-      <AcquirerConfigSettingsRevamp />
+      <MerchantAcquirerDetails />
     </RenderIf>
   </PageLoaderWrapper>
 }

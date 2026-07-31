@@ -53,7 +53,7 @@ let make = () => {
   open APIUtils
   open LogicUtils
   let getURL = useGetURL()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let url = RescriptReactRouter.useUrl()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchDetails = useGetMethod()
@@ -68,7 +68,7 @@ let make = () => {
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
 
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"pm-authentication-processor", "new"} => false
@@ -95,10 +95,14 @@ let make = () => {
       setInitialValues(_ => res)
       let _ = await fetchConnectorListResponse()
       setScreenState(_ => PageLoaderWrapper.Success)
-      showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
+      showToast(
+        ~message=`Connector has been successfully ${currentIsDisabled ? "enabled" : "disabled"}`,
+        ~toastType=ToastSuccess,
+      )
     } catch {
     | Exn.Error(_) => {
-        showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
+        let action = currentIsDisabled ? "enable" : "disable"
+        showToast(~message=`Failed to ${action} connector!`, ~toastType=ToastError)
         setScreenState(_ => PageLoaderWrapper.Success)
       }
     }
@@ -206,6 +210,10 @@ let make = () => {
       let _ = await fetchConnectorListResponse()
       setInitialValues(_ => response)
       setCurrentStep(_ => Summary)
+      showToast(
+        ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
+        ~toastType=ToastSuccess,
+      )
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -216,7 +224,15 @@ let make = () => {
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
           setCurrentStep(_ => ConfigurationFields)
         } else {
-          showToast(~message=errorMessage, ~toastType=ToastError)
+          let message = if errorMessage->isNonEmptyString {
+            errorMessage
+          } else if err->isNonEmptyString {
+            err
+          } else {
+            "Something went wrong"
+          }
+
+          showToast(~message, ~toastType=ToastError)
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }
@@ -291,7 +307,7 @@ let make = () => {
                   isUpdateFlow selectedConnector={connectorName}
                 />
               </div>
-              <div className={`flex flex-col gap-2 p-2 md:p-10`}>
+              <div className={`flex flex-col gap-2 p-2 md:px-10`}>
                 <div className="grid grid-cols-2 flex-1">
                   <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
                     connector={connectorName->getConnectorNameTypeFromString(

@@ -13,9 +13,9 @@ let make = () => {
     HyperswitchAtom.organizationDetailsValueAtom->Recoil.useRecoilValueFromAtom
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-  let (_, isCurrentOrganizationPlatform) = OMPSwitchHooks.useOMPType()
+  let {isCurrentOrganizationPlatform} = OMPSwitchHooks.useOMPType()
   let fetchOrganizationList = OrganizationHooks.useFetchOrganizationList()
   let (showModal, setShowModal) = React.useState(_ => false)
   let (showInfoModal, setShowInfoModal) = React.useState(_ => false)

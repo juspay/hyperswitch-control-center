@@ -62,7 +62,7 @@ let make = () => {
 
       filters
       ->getPayoutsList(
-        ~updateDetails,
+        ~updateDetails=(url, body, method) => updateDetails(url, body, method),
         ~setPayoutsData,
         ~setScreenState,
         ~offset,
@@ -99,9 +99,7 @@ let make = () => {
         </RenderIf>
       </div>
       <RenderIf condition={transactionView}>
-        <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8">
-          <TransactionView entity=TransactionViewTypes.Payouts />
-        </div>
+        <TransactionView entity=TransactionViewTypes.Payouts />
       </RenderIf>
       <div className="flex justify-between gap-3">
         <div className="flex-1">
@@ -141,6 +139,10 @@ let make = () => {
           sortingBasedOnDisabled=false
           showAutoScroll=true
           isDraggable=true
+          visitedRows={{
+            getId: payout => payout.payout_id,
+            prefix_key: "payout",
+          }}
         />
       </PageLoaderWrapper>
     </div>

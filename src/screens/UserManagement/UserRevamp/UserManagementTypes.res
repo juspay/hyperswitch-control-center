@@ -10,6 +10,7 @@ type groupAccessType =
   | OperationsManage
   | ConnectorsView
   | ConnectorsManage
+  | CloneConnectorManage
   | WorkflowsView
   | WorkflowsManage
   | AnalyticsView
@@ -41,6 +42,7 @@ type resourceAccessType =
   | Payout
   | Customer
   | Connector
+  | CloneConnector
   | Analytics
   | Routing
   | ThreeDsDecisionManager
@@ -67,6 +69,7 @@ type groupAccessJsonType = {
   operationsManage: authorization,
   connectorsView: authorization,
   connectorsManage: authorization,
+  cloneConnectorManage: authorization,
   workflowsView: authorization,
   workflowsManage: authorization,
   analyticsView: authorization,

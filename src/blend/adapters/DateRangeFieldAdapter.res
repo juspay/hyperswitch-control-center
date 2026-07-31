@@ -1,28 +1,31 @@
+open ReactFinalForm
 open LogicUtils
-
+open DateRangePickerAdapter
 module BlendDateRangeField = {
   @react.component
   let make = (
     ~startKey: string,
     ~endKey: string,
-    ~showTime: bool,
     ~disable: bool,
     ~disablePastDates: bool,
     ~disableFutureDates: bool,
     ~predefinedDays: array<DateRangeUtils.customDateRange>,
+    ~format: string,
+    ~dateRangeLimit: option<int>,
   ) => {
-    let startInput = ReactFinalForm.useField(startKey).input
-    let endInput = ReactFinalForm.useField(endKey).input
+    let startInput = useField(startKey).input
+    let endInput = useField(endKey).input
+    let showToast = ToastAdapter.useShowToast()
     let blendValue = switch (
-      startInput.value->JSON.Decode.string->Option.flatMap(getNonEmptyString),
-      endInput.value->JSON.Decode.string->Option.flatMap(getNonEmptyString),
+      startInput.value->getStringFromJson("")->getNonEmptyString,
+      endInput.value->getStringFromJson("")->getNonEmptyString,
     ) {
     | (Some(start), Some(end)) =>
       Some(
         (
           {
             startDate: start->Date.fromString,
-            endDate: end->Date.fromString,
+            endDate: Some(end->Date.fromString),
           }: DateRangePickerBinding.dateRange
         ),
       )
@@ -30,19 +33,24 @@ module BlendDateRangeField = {
     }
 
     let handleChange = React.useCallback((range: DateRangePickerBinding.dateRange) => {
-      startInput.onChange(range.startDate->Date.toISOString->Identity.stringToFormReactEvent)
-      endInput.onChange(range.endDate->Date.toISOString->Identity.stringToFormReactEvent)
-    }, [startInput.onChange, endInput.onChange])
-
-    let customPresets =
-      predefinedDays->Array.map(day =>
-        DateRangePickerAdapter.toBlendPreset(day, ~disableFutureDates)
+      let (endDate, limitMessage) = clampEndDate(
+        ~dateRangeLimit,
+        ~startDate=range.startDate,
+        ~endDate=range.endDate->Option.getOr(range.startDate),
       )
+      startInput.onChange(
+        formatIsoToFormat(range.startDate, format)->Identity.stringToFormReactEvent,
+      )
+      endInput.onChange(formatIsoToFormat(endDate, format)->Identity.stringToFormReactEvent)
+      limitMessage->Option.forEach(message => showToast(~message, ~toastType=ToastState.ToastError))
+    }, (startInput.onChange, endInput.onChange, format, dateRangeLimit, showToast))
+
+    let customPresets = predefinedDays->Array.map(day => toBlendPreset(day, ~disableFutureDates))
 
     <DateRangePickerBinding
       value=?blendValue
       onChange=handleChange
-      showDateTimePicker=showTime
+      showDateTimePicker=true
       isDisabled=disable
       disableFutureDates
       disablePastDates
@@ -84,7 +92,14 @@ let make = (
   <>
     <RenderIf condition={isBlendEnabled}>
       <BlendDateRangeField
-        startKey endKey showTime disable disablePastDates disableFutureDates predefinedDays
+        startKey
+        endKey
+        disable
+        disablePastDates
+        disableFutureDates
+        predefinedDays
+        format
+        dateRangeLimit
       />
     </RenderIf>
     <RenderIf condition={!isBlendEnabled}>

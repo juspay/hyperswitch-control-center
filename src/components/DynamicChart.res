@@ -234,7 +234,8 @@ let makeEntity = (
 let useChartFetch = (~setStatusDict) => {
   let fetchApi = AuthHooks.useApiFetcher()
   let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetch()
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
@@ -251,6 +252,7 @@ let useChartFetch = (~setStatusDict) => {
         ~headers=[("QueryType", "Chart")]->Dict.fromArray,
         ~xFeatureRoute,
         ~forceCookies,
+        ~sendV1DummyApiKeyHeader,
         ~merchantId,
         ~profileId,
       )
@@ -269,6 +271,7 @@ let useChartFetch = (~setStatusDict) => {
             ~headers=[("QueryType", "Chart")]->Dict.fromArray,
             ~xFeatureRoute,
             ~forceCookies,
+            ~sendV1DummyApiKeyHeader,
             ~merchantId,
             ~profileId,
           )

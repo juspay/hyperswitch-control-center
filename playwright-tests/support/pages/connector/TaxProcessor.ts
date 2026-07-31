@@ -16,7 +16,9 @@ export class TaxProcessor {
   }
 
   get requestProcessorButton(): Locator {
-    return this.page.getByRole("button", { name: "Request a Processor" }).first();
+    return this.page
+      .getByRole("button", { name: "Request a Processor" })
+      .first();
   }
 
   get goToHomeFallback(): Locator {
@@ -24,17 +26,21 @@ export class TaxProcessor {
   }
 
   get connectButton(): Locator {
-    return this.page.locator('[data-button-text="Connect"], button:has-text("Connect")');
+    return this.page.locator(
+      '[data-button-text="Connect"], button:has-text("Connect")',
+    );
   }
 
   get saveOrConnectOrProceedButton(): Locator {
     return this.page
-      .locator('button:has-text("Save"), button:has-text("Connect"), button:has-text("Proceed")')
+      .locator(
+        'button:has-text("Save"), button:has-text("Connect"), button:has-text("Proceed")',
+      )
       .first();
   }
 
   get doneButton(): Locator {
-    return this.page.getByRole('button', { name: 'Done' });
+    return this.page.getByRole("button", { name: "Done" });
   }
 
   get configureButton(): Locator {
@@ -44,7 +50,9 @@ export class TaxProcessor {
   }
 
   get saveButton(): Locator {
-    return this.page.locator('[data-button-for="save"], button:has-text("Save")');
+    return this.page.locator(
+      '[data-button-for="save"], button:has-text("Save")',
+    );
   }
 }
 

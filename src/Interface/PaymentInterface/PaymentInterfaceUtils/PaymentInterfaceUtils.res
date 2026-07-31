@@ -112,6 +112,9 @@ let mapDictToPaymentPayload: dict<JSON.t> => PaymentInterfaceTypes.order = dict 
     payment_id: dict->getString("payment_id", ""),
     merchant_id: dict->getString("merchant_id", ""),
     net_amount: dict->getFloat("net_amount", 0.0),
+    surcharge_amount: dict
+    ->getDictfromDict("surcharge_details")
+    ->getOptionFloat("surcharge_amount"),
     connector: dict->getString("connector", ""),
     status: dict->getString("status", ""),
     amount: dict->getFloat("amount", 0.0),

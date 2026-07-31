@@ -50,17 +50,19 @@ module BlendAccordion = {
         }
       })
 
-      // Fire onItemCollapseClick for newly closed items
-      openValues->Array.forEach(v => {
-        if !(newValues->Array.includes(v)) {
-          let idx = v->getIntFromString(-1)
-          accordion
-          ->Array.get(idx)
-          ->Option.forEach(item => {
-            item.onItemCollapseClick->Option.forEach(fn => fn())
-          })
-        }
-      })
+      let isSwitch = singleOpen && newValues->isNonEmptyArray
+      if !isSwitch {
+        openValues->Array.forEach(v => {
+          if !(newValues->Array.includes(v)) {
+            let idx = v->getIntFromString(-1)
+            accordion
+            ->Array.get(idx)
+            ->Option.forEach(item => {
+              item.onItemCollapseClick->Option.forEach(fn => fn())
+            })
+          }
+        })
+      }
 
       setOpenValues(_ => newValues)
     }

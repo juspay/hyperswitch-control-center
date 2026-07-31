@@ -36,6 +36,14 @@ let getEntryTypeAccountOptions = (
   getAccountOptionsFromTransactions(transactions, entryType)
 }
 
+let refreshEndTimeFilter = updateExistingKeys => {
+  updateExistingKeys(
+    Dict.fromArray([
+      (HSAnalyticsUtils.endTimeFilterKey, HSwitchRemoteFilter.getDateFilteredObject().end_time),
+    ]),
+  )
+}
+
 let buildQueryStringFromFilters = (~filterValueJson: Dict.t<JSON.t>) => {
   let queryParts = []
 
@@ -103,6 +111,9 @@ let getTransactionStatusGroupedValueAndLabel = (status: domainTransactionStatus)
   | Expected => ("expected", "Expected", "Others")
   | Void => ("void", "Void", "Others")
   | Matched(Force) => ("matched_force", "", "")
+  | Matched(WithTolerance) => ("matched_with_tolerance", "Matched (With Tolerance)", "Matched")
+  | CurrencyMismatch => ("currency_mismatch", "Currency Mismatch", "Others")
+  | SplitMismatch => ("split_mismatch", "Split Mismatch", "Others")
   | Archived
   | Matched(UnknownDomainTransactionMatchedStatus)
   | Posted(UnknownDomainTransactionPostedStatus)
@@ -125,6 +136,12 @@ let getProcessingEntryStatusValueFromStatusList = (statusList: array<processingE
     let (value, _) = getProcessingEntryStatusValueAndLabel(status)
     value
   })
+}
+
+let getIngestionTransformationHistoryStatusValueFromStatusList = (
+  statusList: array<ingestionTransformationStatusType>,
+): array<string> => {
+  statusList->Array.map(status => (status :> string)->camelToSnake)
 }
 
 let getTransactionStatusValueFromStatusList = (statusList: array<domainTransactionStatus>): array<

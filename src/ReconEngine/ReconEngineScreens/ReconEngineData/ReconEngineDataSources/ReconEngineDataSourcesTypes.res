@@ -10,6 +10,12 @@ type sourceConfigDataType = {
   valueType: [#text | #date | #status],
 }
 
+type supportedFileExtensions =
+  | Csv
+  | Ext
+  | Xlsx
+  | Txt
+
 @unboxed
 type buttonActionType =
   | Download
@@ -56,3 +62,11 @@ type fileTimelineState =
   | FileReceived
   | FileRejected
   | UnknownFileTimelineState
+
+type fileUploadStatus = Idle | Failed(string)
+
+type selectedFileItem<'file> = {
+  fileId: string,
+  file: 'file,
+  status: fileUploadStatus,
+}

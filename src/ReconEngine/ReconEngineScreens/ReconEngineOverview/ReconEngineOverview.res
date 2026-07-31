@@ -4,12 +4,54 @@ open Typography
 let make = () => {
   open APIUtils
   open LogicUtils
+  open ReconEngineRulesTypes
   open ReconEngineRulesUtils
 
+  let url = RescriptReactRouter.useUrl()
+  let basePath = GlobalVars.appendDashboardPath(~url="v1/recon-engine/overview")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (reconRulesList, setReconRulesList) = React.useState(_ => [])
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+  let {updateExistingKeys, filterKeys} = React.useContext(FilterContext.filterContext)
+  let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
+  let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
+  let mixpanelEvent = MixpanelHook.useSendEvent()
+  let dateDropDownTriggerMixpanelCallback = () => {
+    mixpanelEvent(~eventName="recon_engine_overview_date_filter_opened")
+  }
+
+  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
+    ~updateExistingKeys,
+    ~startTimeFilterKey,
+    ~endTimeFilterKey,
+    ~range=180,
+    ~origin="recon_engine_overview",
+    (),
+  )
+
+  let onTitleClick = idx => {
+    let url = switch reconRulesList->Array.get(idx - 1) {
+    | Some(ruleDetails) => `${basePath}?rule_id=${ruleDetails.rule_id}`
+    | None => basePath
+    }
+    RescriptReactRouter.push(url)
+  }
+
+  let initialTabIndex = React.useMemo(() => {
+    let urlSearch = url.search
+    if urlSearch->isNonEmptyString {
+      urlSearch
+      ->getDictFromUrlSearchParams
+      ->getMappedValueFromDict("rule_id", 0, ruleId =>
+        reconRulesList
+        ->Array.findIndexOpt(rule => rule.rule_id === ruleId)
+        ->mapOptionOrDefault(0, idx => idx + 1)
+      )
+    } else {
+      0
+    }
+  }, (url.search, reconRulesList))
 
   let getReconRulesData = async _ => {
     try {
@@ -34,29 +76,49 @@ let make = () => {
       {
         title: "Overview",
         renderContent: () =>
-          <FilterContext key="recon-engine-overview-summary" index="recon-engine-overview-summary">
-            <ReconEngineOverviewSummary reconRulesList />
-          </FilterContext>,
+          <ReconEngineOverviewSummary
+            reconRulesList
+            onRuleClick={ruleId => RescriptReactRouter.push(`${basePath}?rule_id=${ruleId}`)}
+          />,
       },
       ...reconRulesList->Array.map(ruleDetails => {
         title: ruleDetails.rule_name,
-        renderContent: () =>
-          <FilterContext key="recon-engine-overview-details" index="recon-engine-overview-details">
-            <ReconEngineOverviewDetails ruleDetails />
-          </FilterContext>,
+        renderContent: () => <ReconEngineOverviewDetails ruleDetails />,
       }),
     ]
   }, [reconRulesList])
 
   React.useEffect(() => {
     getReconRulesData()->ignore
+    setInitialFilters()
     None
   }, [])
 
-  <div className="flex flex-col gap-4 w-full">
-    <PageUtils.PageHeading
-      title="Recon Overview" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
-    />
+  <div className="flex flex-col w-full">
+    <div className="flex flex-row justify-between items-center">
+      <PageUtils.PageHeading
+        title="Recon Overview" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
+      />
+      <div className="flex flex-row -ml-1.5">
+        <DynamicFilter
+          title="ReconEngineOverviewFilters"
+          initialFilters=[]
+          options=[]
+          popupFilterFields=[]
+          initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
+            null,
+            ~events=dateDropDownTriggerMixpanelCallback,
+          )}
+          defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+          tabNames=filterKeys
+          key="ReconEngineOverviewFilters"
+          updateUrlWith=updateExistingKeys
+          filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+          showCustomFilter=false
+          refreshFilters=false
+        />
+      </div>
+    </div>
     <PageLoaderWrapper screenState>
       <RenderIf condition={reconRulesList->Array.length == 0}>
         <div className="my-4">
@@ -67,8 +129,8 @@ let make = () => {
           />
         </div>
       </RenderIf>
-      <RenderIf condition={reconRulesList->Array.length > 0}>
-        <Tabs tabs />
+      <RenderIf condition={reconRulesList->isNonEmptyArray}>
+        <Tabs tabs initialIndex=initialTabIndex onTitleClick />
       </RenderIf>
     </PageLoaderWrapper>
   </div>

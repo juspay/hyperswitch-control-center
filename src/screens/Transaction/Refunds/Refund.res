@@ -6,7 +6,6 @@ let make = () => {
   open RefundUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (refundData, setRefundsData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
@@ -67,7 +66,7 @@ let make = () => {
       filters->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
       filters
       ->getRefundsList(
-        ~updateDetails,
+        ~updateDetails=(url, body, method) => updateDetails(url, body, method),
         ~setRefundsData,
         ~setScreenState,
         ~offset,
@@ -109,9 +108,7 @@ let make = () => {
         </div>
       </div>
       <RenderIf condition={transactionView}>
-        <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8">
-          <TransactionView entity=TransactionViewTypes.Refunds />
-        </div>
+        <TransactionView entity=TransactionViewTypes.Refunds />
       </RenderIf>
       <div className="flex justify-between gap-3">
         <div className="flex-1">
@@ -152,6 +149,10 @@ let make = () => {
           sortingBasedOnDisabled=false
           showAutoScroll=true
           isDraggable=true
+          visitedRows={{
+            getId: refund => refund.refund_id,
+            prefix_key: "refund",
+          }}
         />
       </PageLoaderWrapper>
     </div>

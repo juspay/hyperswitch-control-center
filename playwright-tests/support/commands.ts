@@ -5,17 +5,31 @@ import {
   type Locator,
   expect,
 } from "@playwright/test";
-import { generateDateTimeString } from "./helper";
+import { generateMerchantName } from "./helper";
 import { SignInPage } from "./pages/auth/SignInPage";
 import { SignUpPage } from "./pages/auth/SignUpPage";
 import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
-import { execFileSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
+import { execFileSync } from "child_process";
+import fs from "fs";
+import path from "path";
 
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000";
 const API_URL = process.env.HYPERSWITCH_API_URL || "http://localhost:8080";
 const MAIL_URL = process.env.PLAYWRIGHT_MAIL_URL || "http://localhost:8025";
+const ADMIN_API_KEY = process.env.HYPERSWITCH_ADMIN_API_KEY || "test_admin";
+
+// Extracts the JWT from dashboard localStorage after a successful UI login.
+export async function getJwtFromLocalStorage(page: Page): Promise<string> {
+  return page.evaluate(() => {
+    const raw = window.localStorage.getItem("USER_INFO");
+    if (!raw) return "";
+    try {
+      return (JSON.parse(raw) as { token?: string }).token ?? "";
+    } catch {
+      return "";
+    }
+  });
+}
 
 export async function signupUser(
   email: string,
@@ -27,12 +41,12 @@ export async function signupUser(
   const response = await ctx.post(`${API_URL}/user/signup_with_merchant_id`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": "test_admin",
+      "api-key": ADMIN_API_KEY,
     },
     data: {
       email,
       password,
-      company_name: companyName ?? generateDateTimeString(),
+      company_name: companyName ?? generateMerchantName(),
       name: "Playwright_test_user",
     },
   });
@@ -52,7 +66,7 @@ export async function loginUser(
   const response = await ctx.post(`${API_URL}/user/v2/signin`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": "test_admin",
+      "api-key": ADMIN_API_KEY,
     },
     data: { email, password },
   });
@@ -71,7 +85,7 @@ export async function loginUser(
     const skipResponse = await ctx.post(`${API_URL}/user/v2/2fa/skip`, {
       headers: {
         "Content-Type": "application/json",
-        "api-key": "test_admin",
+        "api-key": ADMIN_API_KEY,
         Authorization: `Bearer ${body.interim_token ?? body.token}`,
       },
     });
@@ -90,8 +104,13 @@ export async function createAPIKey(
   merchantId: string,
   token: string,
   context?: APIRequestContext,
+  page?: Page,
 ): Promise<string> {
   const ctx = context ?? (await request.newContext());
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  // Prefer an explicitly supplied token because callers may have obtained a
+  // JWT scoped to a merchant other than the one currently active in the UI.
+  const authorizationToken = token || jwt;
   // CI backends occasionally take >30s on the first request when the worker
   // pool is cold. One retry with a fresh context recovers from transient
   // socket hangs without masking persistent failures.
@@ -100,7 +119,10 @@ export async function createAPIKey(
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        "api-key": "test_admin",
+        "api-key": ADMIN_API_KEY,
+        ...(authorizationToken
+          ? { Authorization: `Bearer ${authorizationToken}` }
+          : {}),
       },
       data: {
         name: "API Key 1",
@@ -130,9 +152,11 @@ export async function createDummyConnectorAPI(
   merchantId: string,
   connectorLabel: string,
   context?: APIRequestContext,
+  page?: Page,
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(
     `${API_URL}/account/${merchantId}/connectors`,
@@ -141,6 +165,7 @@ export async function createDummyConnectorAPI(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
       },
       data: {
         connector_type: "payment_processor",
@@ -212,9 +237,13 @@ export async function createBusinessProfileAPI(
   merchantId: string,
   profileName: string,
   context?: APIRequestContext,
+  page?: Page,
+  token = "",
 ): Promise<string> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const authorizationToken = token || jwt;
+  const apiKey = await createAPIKey(merchantId, token, ctx, page);
 
   const response = await ctx.post(
     `${API_URL}/account/${merchantId}/business_profile`,
@@ -223,6 +252,9 @@ export async function createBusinessProfileAPI(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(authorizationToken
+          ? { Authorization: `Bearer ${authorizationToken}` }
+          : {}),
       },
       data: {
         profile_name: profileName,
@@ -244,9 +276,11 @@ export async function createBusinessProfileAPI(
 export async function getDefaultProfileId(
   merchantId: string,
   context?: APIRequestContext,
+  page?: Page,
 ): Promise<string> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.get(
     `${API_URL}/account/${merchantId}/business_profile`,
@@ -255,6 +289,7 @@ export async function getDefaultProfileId(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
       },
     },
   );
@@ -276,17 +311,125 @@ export async function getDefaultProfileId(
   return profileId as string;
 }
 
+export async function createMerchantAPI(
+  token: string,
+  merchantName: string,
+  context?: APIRequestContext,
+  retries = 3,
+): Promise<{ merchant_id: string }> {
+  const ctx = context ?? (await request.newContext());
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const response = await ctx.post(`${API_URL}/user/create_merchant`, {
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": ADMIN_API_KEY,
+        Authorization: `Bearer ${token}`,
+      },
+      data: {
+        company_name: merchantName,
+      },
+    });
+
+    if (response.ok()) {
+      return await response.json();
+    }
+
+    const body = await response.text();
+    // The backend generates merchant IDs from the current timestamp (per-second
+    // resolution), so parallel workers can collide. Any 500 (including the
+    // generic HE_00 "Something went wrong") is treated as transient: retry
+    // after a delay so the next attempt lands in a different second.
+    if (response.status() === 500 && attempt < retries) {
+      await new Promise((r) => setTimeout(r, 1100));
+      continue;
+    }
+
+    throw new Error(`createMerchantAPI failed (${response.status()}): ${body}`);
+  }
+
+  throw new Error("createMerchantAPI: exhausted retries");
+}
+
+export async function switchMerchantAPI(
+  token: string,
+  merchantId: string,
+  context?: APIRequestContext,
+): Promise<string> {
+  const ctx = context ?? (await request.newContext());
+  const response = await ctx.post(`${API_URL}/user/switch/merchant`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    data: {
+      merchant_id: merchantId,
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(`switchMerchantAPI failed (${response.status()}): ${body}`);
+  }
+
+  const body = await response.json();
+  const switchedToken = body.token as string | undefined;
+  if (!switchedToken) {
+    throw new Error(
+      "switchMerchantAPI failed: response did not include a token",
+    );
+  }
+
+  return switchedToken;
+}
+
+export async function switchProfileAPI(
+  token: string,
+  profileId: string,
+  context?: APIRequestContext,
+): Promise<string> {
+  const ctx = context ?? (await request.newContext());
+  const response = await ctx.post(`${API_URL}/user/switch/profile`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    data: {
+      profile_id: profileId,
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(`switchProfileAPI failed (${response.status()}): ${body}`);
+  }
+
+  const body = await response.json();
+  const switchedToken = body.token as string | undefined;
+  if (!switchedToken) {
+    throw new Error(
+      "switchProfileAPI failed: response did not include a token",
+    );
+  }
+
+  return switchedToken;
+}
+
 export async function createStripeConnectorAPI(
   merchantId: string,
   connectorLabel: string,
   context?: APIRequestContext,
   profileId?: string,
+  page?: Page,
+  token = "",
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const authorizationToken = token || jwt;
+  const apiKey = await createAPIKey(merchantId, token, ctx, page);
 
   const resolvedProfileId =
-    profileId ?? (await getDefaultProfileId(merchantId, ctx));
+    profileId ?? (await getDefaultProfileId(merchantId, ctx, page));
 
   const data: Record<string, unknown> = {
     connector_type: "payment_processor",
@@ -323,6 +466,9 @@ export async function createStripeConnectorAPI(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(authorizationToken
+          ? { Authorization: `Bearer ${authorizationToken}` }
+          : {}),
       },
       data,
     },
@@ -342,10 +488,12 @@ export async function createStripeConnectorAPIwithAPIKey(
   apiKey: string,
   context?: APIRequestContext,
   profileId?: string,
+  page?: Page,
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
   const resolvedProfileId =
-    profileId ?? (await getDefaultProfileId(merchantId, ctx));
+    profileId ?? (await getDefaultProfileId(merchantId, ctx, page));
 
   const data: Record<string, unknown> = {
     connector_type: "payment_processor",
@@ -382,6 +530,7 @@ export async function createStripeConnectorAPIwithAPIKey(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
       },
       data,
     },
@@ -395,13 +544,110 @@ export async function createStripeConnectorAPIwithAPIKey(
   }
 }
 
-export async function createAuthenticationConnectorAPI(
+export async function createStripeGooglePayConnectorAPI(
   merchantId: string,
   connectorLabel: string,
   context?: APIRequestContext,
+  page?: Page,
+  profileId?: string,
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
+  const resolvedProfileId =
+    profileId ?? (await getDefaultProfileId(merchantId, ctx, page));
+
+  const data: Record<string, unknown> = {
+    connector_type: "payment_processor",
+    profile_id: resolvedProfileId,
+    connector_name: "stripe",
+    connector_label: connectorLabel,
+    disabled: false,
+    test_mode: true,
+    payment_methods_enabled: [
+      {
+        payment_method: "wallet",
+        payment_method_types: [
+          {
+            payment_method_type: "google_pay",
+            payment_experience: "invoke_sdk_client",
+            minimum_amount: 0,
+            maximum_amount: 68607706,
+            recurring_enabled: true,
+            installment_payment_enabled: false,
+          },
+        ],
+      },
+    ],
+    metadata: {
+      google_pay: {
+        merchant_info: {
+          merchant_id: "merchant_id",
+          merchant_name: "merchant_name",
+        },
+        allowed_payment_methods: [
+          {
+            type: "CARD",
+            parameters: {
+              allowed_auth_methods: ["PAN_ONLY", "CRYPTOGRAM_3DS"],
+              allowed_card_networks: [
+                "AMEX",
+                "DISCOVER",
+                "INTERAC",
+                "JCB",
+                "MASTERCARD",
+                "VISA",
+              ],
+            },
+            tokenization_specification: {
+              type: "PAYMENT_GATEWAY",
+              parameters: {
+                gateway: "stripe",
+                "stripe:version": "2018-10-31",
+                "stripe:publishableKey": "publishableKey",
+              },
+            },
+          },
+        ],
+      },
+    },
+    connector_account_details: {
+      api_key: "api_key",
+      auth_type: "HeaderKey",
+    },
+    additional_merchant_data: null,
+    status: "active",
+    pm_auth_config: null,
+    connector_wallets_details: {
+      google_pay: {
+        provider_details: {
+          merchant_info: {
+            merchant_id: "merchant_id",
+            merchant_name: "merchant_name",
+            tokenization_specification: {
+              type: "PAYMENT_GATEWAY",
+              parameters: {
+                gateway: "stripe",
+                "stripe:version": "2018-10-31",
+                "stripe:publishableKey": "publishableKey",
+              },
+            },
+          },
+        },
+        cards: {
+          allowed_auth_methods: ["PAN_ONLY", "CRYPTOGRAM_3DS"],
+          allowed_card_networks: [
+            "AMEX",
+            "DISCOVER",
+            "INTERAC",
+            "JCB",
+            "MASTERCARD",
+            "VISA",
+          ],
+        },
+      },
+    },
+  };
 
   const response = await ctx.post(
     `${API_URL}/account/${merchantId}/connectors`,
@@ -410,6 +656,38 @@ export async function createAuthenticationConnectorAPI(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
+      },
+      data,
+    },
+  );
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `createStripeGooglePayConnectorAPI failed (${response.status()}): ${body}`,
+    );
+  }
+}
+
+export async function createAuthenticationConnectorAPI(
+  merchantId: string,
+  connectorLabel: string,
+  context?: APIRequestContext,
+  page?: Page,
+): Promise<void> {
+  const ctx = context ?? (await request.newContext());
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
+
+  const response = await ctx.post(
+    `${API_URL}/account/${merchantId}/connectors`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": apiKey,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
       },
       data: {
         connector_type: "authentication_processor",
@@ -439,15 +717,18 @@ export async function createCustomerAPI(
   merchantId: string,
   customerId: string,
   context?: APIRequestContext,
+  page?: Page,
 ): Promise<{ customer_id: string }> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(`${API_URL}/customers`, {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
       "api-key": apiKey,
+      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
     },
     data: {
       customer_id: customerId,
@@ -472,6 +753,7 @@ export async function createPaymentAPI(
   context?: APIRequestContext,
   amount: number = 12345,
   confirm: boolean = true,
+  page?: Page,
 ): Promise<{
   payment_id: string;
   profile_id: string;
@@ -486,13 +768,15 @@ export async function createPaymentAPI(
   metadata: Record<string, string>;
 }> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(`${API_URL}/payments`, {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
       "api-key": apiKey,
+      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
     },
     data: {
       amount,
@@ -572,12 +856,124 @@ export async function createPaymentAPI(
   return await response.json();
 }
 
+export async function createRequiresCapturePaymentAPI(
+  merchantId: string,
+  context?: APIRequestContext,
+  amount: number = 12345,
+  page?: Page,
+): Promise<{
+  payment_id: string;
+  profile_id: string;
+  amount: number;
+  amount_capturable: number;
+  currency: string;
+  status: string;
+  payment_method: string;
+  payment_method_type: string;
+}> {
+  const ctx = context ?? (await request.newContext());
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
+
+  const response = await ctx.post(`${API_URL}/payments`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "api-key": apiKey,
+      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
+    },
+    data: {
+      amount,
+      currency: "USD",
+      confirm: true,
+      capture_method: "manual",
+      customer_id: "test_customer",
+      authentication_type: "no_three_ds",
+      return_url: "https://google.com",
+      email: "abc@test.com",
+      name: "Joseph Doe",
+      phone: "999999999",
+      phone_country_code: "+65",
+      description: "Its my first payment",
+      payment_method: "card",
+      payment_method_type: "credit",
+      payment_method_data: {
+        card: {
+          card_number: "4242424242424242",
+          card_exp_month: "01",
+          card_exp_year: "2027",
+          card_holder_name: "joseph Doe",
+          card_cvc: "100",
+        },
+      },
+      billing: {
+        address: {
+          city: "Toronto",
+          country: "CA",
+          line1: "1562",
+          line2: "HarrisonStreet",
+          zip: "M3C 0C1",
+          state: "ON",
+          first_name: "Joseph",
+          last_name: "Doe",
+        },
+        email: "abc@test.com",
+      },
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `createRequiresCapturePaymentAPI failed (${response.status()}): ${body}`,
+    );
+  }
+
+  return await response.json();
+}
+
+// The sandbox "stripe_test" dummy connector always auto-charges a payment
+// (it has no auth-only/two-phase-capture simulation), so a real payment
+// created with capture_method: "manual" still comes back as `succeeded`
+// instead of `requires_capture`. To exercise the capture UI in CI we create
+// a real payment (for a realistic payment_id / amount / customer) and then
+// intercept the dashboard's GET request for that payment, overriding just
+// the `status` and `amount_capturable` fields so the page renders as if the
+// payment were awaiting capture.
+export async function mockPaymentRequiresCapture(
+  page: Page,
+  paymentId: string,
+): Promise<void> {
+  await page.route(
+    new RegExp(`/payments/${paymentId}(\\?|$)`),
+    async (route) => {
+      if (route.request().method() !== "GET") {
+        await route.continue();
+        return;
+      }
+
+      const response = await route.fetch();
+      const json = await response.json();
+
+      await route.fulfill({
+        response,
+        json: {
+          ...json,
+          status: "requires_capture",
+          amount_capturable: json.amount,
+        },
+      });
+    },
+  );
+}
+
 export async function createRefundAPI(
   merchantId: string,
   paymentId: string,
   context?: APIRequestContext,
   amount: number = 5000,
   reason: string = "Test refund",
+  page?: Page,
 ): Promise<{
   refund_id: string;
   payment_id: string;
@@ -591,13 +987,15 @@ export async function createRefundAPI(
   profile_id: string;
 }> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(`${API_URL}/refunds`, {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
       "api-key": apiKey,
+      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
     },
     data: {
       payment_id: paymentId,
@@ -618,9 +1016,11 @@ export async function createPayoutConnectorAPI(
   merchantId: string,
   connectorLabel: string,
   context?: APIRequestContext,
+  page?: Page,
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(
     `${API_URL}/account/${merchantId}/connectors`,
@@ -629,6 +1029,7 @@ export async function createPayoutConnectorAPI(
         "Content-Type": "application/json",
         Accept: "application/json",
         "api-key": apiKey,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
       },
       data: {
         connector_type: "payout_processor",
@@ -679,6 +1080,7 @@ export async function createPayoutConnectorAPI(
 export async function createPayoutAPI(
   merchantId: string,
   context?: APIRequestContext,
+  page?: Page,
 ): Promise<{
   payment_id: string;
   profile_id: string;
@@ -693,13 +1095,15 @@ export async function createPayoutAPI(
   metadata: Record<string, string>;
 }> {
   const ctx = context ?? (await request.newContext());
-  const apiKey = await createAPIKey(merchantId, "", ctx);
+  const jwt = page ? await getJwtFromLocalStorage(page) : "";
+  const apiKey = await createAPIKey(merchantId, "", ctx, page);
 
   const response = await ctx.post(`${API_URL}/payouts/create`, {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
       "api-key": apiKey,
+      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
     },
     data: {
       amount: 12345,
@@ -755,6 +1159,245 @@ export async function createPayoutAPI(
   return await response.json();
 }
 
+// Create / replace the merchant's active surcharge rule via the same PUT the
+// dashboard fires (routing/decision/surcharge). Lets Surcharge UI tests run
+// against real backend data instead of mocking GET /surcharge.
+//
+// IMPORTANT: this endpoint is JWT-authenticated and the JWT must include the
+// org_id / merchant_id / profile_id claims the dashboard mints after UI
+// login. The cleanest way to get that JWT is to pull it out of the page's
+// USER_INFO localStorage entry rather than re-issuing one via /user/v2/signin
+// (which yields a shorter-lived token that the routing endpoints reject).
+export async function createSurchargeAPI(
+  page: Page,
+  context?: APIRequestContext,
+  overrides: Partial<{
+    name: string;
+    surchargeType: "rate" | "fixed";
+    percentage: number;
+    fixedAmount: number;
+  }> = {},
+): Promise<{
+  name: string;
+}> {
+  const ctx = context ?? (await request.newContext());
+  const token = await page.evaluate(() => {
+    const raw = window.localStorage.getItem("USER_INFO");
+    if (!raw) return "";
+    try {
+      return (JSON.parse(raw) as { token?: string }).token ?? "";
+    } catch {
+      return "";
+    }
+  });
+  if (!token) {
+    throw new Error(
+      "createSurchargeAPI: no JWT in localStorage — make sure loginUI ran first",
+    );
+  }
+
+  const name = overrides.name ?? "playwright_surcharge";
+  const surchargeType = overrides.surchargeType ?? "rate";
+  const surchargeValue =
+    surchargeType === "rate"
+      ? { percentage: overrides.percentage ?? 2.5 }
+      : { amount: overrides.fixedAmount ?? 100 };
+
+  // Backend schema for PUT /routing/decision/surcharge only accepts
+  // { name, merchant_surcharge_configs, algorithm } — description is a
+  // dashboard-side metadata field that never leaves the form.
+  const response = await ctx.put(`${API_URL}/routing/decision/surcharge`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    data: {
+      name,
+      algorithm: {
+        defaultSelection: { surcharge_details: null },
+        rules: [
+          {
+            name: "rule_1",
+            connectorSelection: {
+              surcharge_details: {
+                surcharge: { type: surchargeType, value: surchargeValue },
+                tax_on_surcharge: { percentage: 0.0 },
+              },
+            },
+            // Statements are wrapped in { condition: [...] } per
+            // generateStatements (AdvancedRoutingUtils.res:446-493).
+            statements: [
+              {
+                condition: [
+                  {
+                    lhs: "amount",
+                    comparison: "greater_than",
+                    value: { type: "number", value: 0 },
+                    metadata: {},
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        metadata: {},
+      },
+      merchant_surcharge_configs: { show_surcharge_breakup_screen: true },
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `createSurchargeAPI failed (${response.status()}): ${body}`,
+    );
+  }
+
+  return { name };
+}
+
+// Seeds an active 3DS exemption rule via the routing API so spec tests can
+// assert against real backend data without driving the form UI.
+//
+// Mirrors createSurchargeAPI (JWT pulled from USER_INFO localStorage), but
+// the 3DS exemption flow is a two-step write: POST /routing creates the
+// rule and returns its id; POST /routing/{id}/activate publishes it as the
+// active rule for transaction_type=three_ds_authentication.
+export async function createThreeDsExemptionAPI(
+  page: Page,
+  context?: APIRequestContext,
+  overrides: Partial<{
+    name: string;
+    description: string;
+    authType:
+    | "no_three_ds"
+    | "challenge_requested"
+    | "challenge_preferred"
+    | "three_ds_exemption_requested_tra"
+    | "three_ds_exemption_requested_low_value"
+    | "issuer_three_ds_exemption_requested";
+  }> = {},
+): Promise<{
+  name: string;
+}> {
+  const ctx = context ?? (await request.newContext());
+  const token = await page.evaluate(() => {
+    const raw = window.localStorage.getItem("USER_INFO");
+    if (!raw) return "";
+    try {
+      return (JSON.parse(raw) as { token?: string }).token ?? "";
+    } catch {
+      return "";
+    }
+  });
+  if (!token) {
+    throw new Error(
+      "createThreeDsExemptionAPI: no JWT in localStorage — make sure loginUI ran first",
+    );
+  }
+
+  // profile_id rides inside the JWT payload (the dashboard mints it after
+  // login). Decode the middle JWT segment so the request body can include
+  // it the same way buildThreeDsExemptionPayloadBody does on the UI side.
+  const segments = token.split(".");
+  if (segments.length !== 3) {
+    throw new Error(
+      "createThreeDsExemptionAPI: invalid JWT format (expected 3 segments)",
+    );
+  }
+  const jwtPayload = JSON.parse(
+    Buffer.from(segments[1], "base64").toString("utf-8"),
+  ) as { profile_id?: string };
+  const profileId = jwtPayload.profile_id ?? "";
+
+  const name = overrides.name ?? "playwright_3ds_exemption";
+  const description = overrides.description ?? "";
+  const authType = overrides.authType ?? "three_ds_exemption_requested_tra";
+
+  // Step 1: create the routing record. Payload shape mirrors
+  // buildThreeDsExemptionPayloadBody (ThreeDsExemptionUtils.res:26-51) —
+  // statements are wrapped in { condition: [...] } per generateStatements.
+  const createResponse = await ctx.post(`${API_URL}/routing`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    data: {
+      name,
+      profile_id: profileId,
+      description,
+      transaction_type: "three_ds_authentication",
+      algorithm: {
+        type: "three_ds_decision_rule",
+        data: {
+          defaultSelection: { decision: "no_three_ds" },
+          rules: [
+            {
+              name: "rule_1",
+              connectorSelection: { decision: authType },
+              statements: [
+                {
+                  condition: [
+                    {
+                      lhs: "amount",
+                      comparison: "greater_than",
+                      value: { type: "number", value: 0 },
+                      metadata: {},
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          metadata: {},
+        },
+      },
+    },
+  });
+
+  if (!createResponse.ok()) {
+    const body = await createResponse.text();
+    throw new Error(
+      `createThreeDsExemptionAPI create failed (${createResponse.status()}): ${body}`,
+    );
+  }
+
+  const createBody = (await createResponse.json()) as { id?: string };
+  const routingId = createBody.id ?? "";
+  if (!routingId) {
+    throw new Error(
+      `createThreeDsExemptionAPI create returned no id: ${JSON.stringify(createBody)}`,
+    );
+  }
+
+  // Step 2: activate the rule. The body matches the dashboard's onSubmit
+  // path (HSwitchThreeDsExemption.res:275-286).
+  const activateResponse = await ctx.post(
+    `${API_URL}/routing/${routingId}/activate`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      data: {
+        transaction_type: "three_ds_authentication",
+      },
+    },
+  );
+
+  if (!activateResponse.ok()) {
+    const body = await activateResponse.text();
+    throw new Error(
+      `createThreeDsExemptionAPI activate failed (${activateResponse.status()}): ${body}`,
+    );
+  }
+
+  return { name };
+}
+
 export async function visitSignupPage(page: Page): Promise<void> {
   const signinPage = new SignInPage(page);
   await page.goto("/");
@@ -774,12 +1417,12 @@ export async function signupAPI(
   const response = await ctx.post(`${API_URL}/user/signup_with_merchant_id`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": "test_admin",
+      "api-key": ADMIN_API_KEY,
     },
     data: {
       email: username,
       password: password,
-      company_name: generateDateTimeString(),
+      company_name: generateMerchantName(),
       name: "Playwright_test_user",
     },
   });
@@ -802,7 +1445,7 @@ export async function loginAPI(
   const response = await ctx.post(`${API_URL}/user/v2/signin`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": "test_admin",
+      "api-key": ADMIN_API_KEY,
     },
     data: { email: username, password },
   });
@@ -819,6 +1462,119 @@ export async function mockV2MerchantList(page: Page): Promise<void> {
       status: 200,
       contentType: "application/json",
       body: JSON.stringify([]),
+    });
+  });
+}
+
+export async function mockPaymentFilters(page: Page): Promise<void> {
+  await page.route("**/analytics/v1/org/filters/payments", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        queryData: [
+          {
+            dimension: "connector",
+            values: ["stripe", "paypal", "adyen"],
+          },
+          {
+            dimension: "payment_method",
+            values: [
+              "card",
+              "wallet",
+              "bank_redirect",
+              "voucher",
+              "bank_debit",
+              "bank_transfer",
+              "card_redirect",
+              "pay_later",
+              "gift_card",
+              "open_banking",
+              "real_time_payment",
+              "reward",
+              "upi",
+              "crypto",
+              "network_token",
+            ],
+          },
+          {
+            dimension: "payment_method_type",
+            values: [
+              "debit",
+              "paypal",
+              "bancontact_card",
+              "credit",
+              "klarna",
+              "benefit",
+              "open_banking_pis",
+              "duit_now",
+              "classic",
+              "blik",
+              "pay_safe_card",
+              "sepa",
+              "upi_collect",
+              "pix",
+              "boleto",
+              "crypto_currency",
+              "network_token",
+            ],
+          },
+          {
+            dimension: "currency",
+            values: ["USD", "INR", "EUR", "GBP", "CAD"],
+          },
+          {
+            dimension: "status",
+            values: [
+              "succeeded",
+              "failed",
+              "cancelled",
+              "cancelled_post_capture",
+              "processing",
+              "requires_customer_action",
+              "requires_merchant_action",
+              "requires_payment_method",
+              "requires_confirmation",
+              "requires_capture",
+              "partially_captured",
+              "partially_captured_and_capturable",
+              "partially_authorized_and_requires_capture",
+              "partially_captured_and_processing",
+              "conflicted",
+              "expired",
+              "review",
+            ],
+          },
+          {
+            dimension: "profile_id",
+            values: ["pro_cd68ISnwZqozMG7b2x7G"],
+          },
+          {
+            dimension: "card_network",
+            values: [
+              "Visa",
+              "Mastercard",
+              "AmericanExpress",
+              "JCB",
+              "DinersClub",
+              "Discover",
+              "CartesBancaires",
+              "UnionPay",
+              "Interac",
+              "RuPay",
+              "Maestro",
+              "Star",
+              "Pulse",
+              "Accel",
+              "Nyce",
+            ],
+          },
+          {
+            dimension: "merchant_id",
+            values: ["test_merchant"],
+          },
+        ],
+      }),
     });
   });
 }
@@ -917,9 +1673,7 @@ export async function mockDisputesList(
 
   await page.route(/\/disputes\/(profile\/)?filter(\?|$)/, async (route) => {
     const connectors = Array.from(new Set(disputes.map((d) => d.connector)));
-    const statuses = Array.from(
-      new Set(disputes.map((d) => d.dispute_status)),
-    );
+    const statuses = Array.from(new Set(disputes.map((d) => d.dispute_status)));
     const stages = Array.from(new Set(disputes.map((d) => d.dispute_stage)));
     await route.fulfill({
       status: 200,
@@ -946,14 +1700,19 @@ export async function mockDisputesList(
   });
 
   await page.route(/\/disputes\/(dp_[^/?]+)(\?|$)/, async (route) => {
-    const match = route.request().url().match(/\/disputes\/(dp_[^/?]+)/);
+    const match = route
+      .request()
+      .url()
+      .match(/\/disputes\/(dp_[^/?]+)/);
     const id = match ? match[1] : "";
     const found = disputes.find((d) => d.dispute_id === id);
     if (!found) {
       await route.fulfill({
         status: 404,
         contentType: "application/json",
-        body: JSON.stringify({ error: { code: "HE_02", message: "not found" } }),
+        body: JSON.stringify({
+          error: { code: "HE_02", message: "not found" },
+        }),
       });
       return;
     }
@@ -969,7 +1728,7 @@ export async function mockDisputesList(
   // 401 for each, and the global 401 handler kicks the user to /sign-in.
   // Stub them to empty arrays so the detail page can render.
   await page.route(
-    /\/analytics\/v1\/(profile\/)?(api_event_logs|connector_event_logs|outgoing_webhook_event_logs|webhook_event_logs)(\?|$)/,
+    /\/analytics\/v1\/(profile\/)?(api_event_logs|connector_event_logs|outgoing_webhook_event_logs|webhook_event_logs|prism_connector_event_logs)(\?|$)/,
     async (route) => {
       await route.fulfill({
         status: 200,
@@ -1039,7 +1798,7 @@ export async function loginUI(
   await signinPage.skip2FAButton.click();
   await expect(
     page.getByText(
-      "Welcome to the home of your Payments Control Center. It aims to provide your team with a 360-degree view of payments.",
+      "Welcome to your Payments Control Center — one place for your team to track and manage every payment",
     ),
   ).toBeVisible();
 }
@@ -1078,7 +1837,7 @@ export async function createAuth(
   const response = await ctx.post(`${API_URL}/user/auth`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": "test_admin",
+      "api-key": ADMIN_API_KEY,
     },
     data: {
       owner_id: ownerId,
@@ -1433,34 +2192,39 @@ export async function ompLineage(
 }
 
 export async function generateCerts() {
-  const tmpDir = path.join(process.cwd(), 'tmp-certs');
+  const tmpDir = path.join(process.cwd(), "tmp-certs");
   if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
 
-  const keyPath = path.join(tmpDir, 'key.pem');
-  const certPath = path.join(tmpDir, 'cert.pem');
+  const keyPath = path.join(tmpDir, "key.pem");
+  const certPath = path.join(tmpDir, "cert.pem");
 
   // Generate key + self-signed cert
   execFileSync(
-    'openssl',
+    "openssl",
     [
-      'req',
-      '-x509',
-      '-newkey', 'rsa:2048',
-      '-keyout', keyPath,
-      '-out', certPath,
-      '-days', '1',
-      '-nodes',
-      '-subj', '/CN=test.local',
+      "req",
+      "-x509",
+      "-newkey",
+      "rsa:2048",
+      "-keyout",
+      keyPath,
+      "-out",
+      certPath,
+      "-days",
+      "1",
+      "-nodes",
+      "-subj",
+      "/CN=test.local",
     ],
-    { stdio: 'ignore' }
+    { stdio: "ignore" },
   );
 
   const cert = fs.readFileSync(certPath);
   const key = fs.readFileSync(keyPath);
 
   return {
-    certBase64: cert.toString('base64'),
-    keyBase64: key.toString('base64'),
+    certBase64: cert.toString("base64"),
+    keyBase64: key.toString("base64"),
   };
 }
 

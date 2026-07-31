@@ -47,13 +47,13 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
   }
 }
 
-let confirmPasswordCheck = (value, key, confirmKey, passwordKey, valuesDict, errors) => {
+let confirmPasswordCheck = (value, key, passwordKey, confirmKey, valuesDict, errors) => {
   if (
     key === confirmKey &&
     value->LogicUtils.isNonEmptyString &&
     !Option.equal(Dict.get(valuesDict, passwordKey), Dict.get(valuesDict, key), (a, b) => a == b)
   ) {
-    Dict.set(errors, key, "The New password does not match!"->JSON.Encode.string)
+    Dict.set(errors, key, "Passwords do not match. Please try again."->JSON.Encode.string)
   }
 }
 
@@ -136,6 +136,7 @@ let errorSubCodeMapper = (subCode: string) => {
   | "UR_06" => UR_06
   | "UR_37" => UR_37
   | "UR_39" => UR_39
+  | "UR_59" => UR_59
 
   | _ => UR_00
   }

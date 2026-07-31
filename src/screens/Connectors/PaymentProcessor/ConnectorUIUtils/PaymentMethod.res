@@ -89,15 +89,17 @@ module CardRenderer = {
     let showAdditionalDetails = methodVariant => {
       switch (methodVariant, connector->getConnectorNameTypeFromString(~connectorType)) {
       | (Pix, Processors(SANTANDER))
+      | (PixEmv, Processors(SANTANDER))
+      | (PixQr, Processors(SANTANDER))
       | (PixAutomaticoQr, Processors(SANTANDER))
       | (PixAutomaticoPush, Processors(SANTANDER))
       | (Boleto, Processors(SANTANDER))
-      | (PayPal, Processors(BRAINTREE)) => true
+      | (PayPal, Processors(BRAINTREE))
+      | (AmazonPay, Processors(AMAZONPAY)) => true
       | _ =>
         ((methodVariant === GooglePay ||
         methodVariant === ApplePay ||
         methodVariant === SamsungPay ||
-        methodVariant === AmazonPay ||
         methodVariant === Paze) &&
           {
             switch connector->getConnectorNameTypeFromString(~connectorType) {
@@ -429,7 +431,7 @@ module CardRenderer = {
                       ->getDictfromDict("metadata")
                       ->getString("klarna_region", "") === "Europe"}>
                       <div className="flex gap-2 items-center">
-                        <BoolInput.BaseComponent
+                        <SwitchAdapter
                           isSelected={selectedAll}
                           setIsSelected={_ => updateSelectAll(paymentMethod, selectedAll)}
                           isDisabled={false}
@@ -440,7 +442,7 @@ module CardRenderer = {
                     </RenderIf>
                   | _ =>
                     <div className="flex gap-2 items-center">
-                      <BoolInput.BaseComponent
+                      <SwitchAdapter
                         isSelected={selectedAll}
                         setIsSelected={_ => updateSelectAll(paymentMethod, selectedAll)}
                         isDisabled={false}

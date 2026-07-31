@@ -1,12 +1,16 @@
+type stepType =
+  | Checkout
+  | Configurator
+
 @unboxed
 type styleType =
   | @as("default") Default
   | @as("") Custom
 
-@unboxed
-type captureMethod =
-  | @as("automatic") Automatic
-  | @as("manual") Manual
+type previewState =
+  | PreviewLoading
+  | PreviewError(string)
+  | PreviewSuccess(string)
 
 @unboxed
 type setupFutureUsage =
@@ -14,22 +18,14 @@ type setupFutureUsage =
   | @as("on_session") OnSession
 
 @unboxed
-type authenticationType =
-  | @as("three_ds") ThreeDS
-  | @as("no_three_ds") NoThreeDS
+type showCardTerms =
+  | @as("always") Always
+  | @as("auto") Auto
+  | @as("never") Never
 
 type background_image = {url: string}
 
-type preloadSdkWithParams = {
-  payment_methods_list: option<JSON.t>,
-  customer_methods_list: option<JSON.t>,
-  session_tokens: option<JSON.t>,
-  blocked_bins: option<JSON.t>,
-}
-
 type paymentLinkWasmPayload = {
-  test_mode: option<bool>,
-  preload_sdk_with_params: option<preloadSdkWithParams>,
   client_secret: string,
   payment_id: string,
   session_expiry: string,

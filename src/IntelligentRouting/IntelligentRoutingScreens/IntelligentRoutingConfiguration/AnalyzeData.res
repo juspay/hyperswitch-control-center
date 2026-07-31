@@ -8,7 +8,7 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchDetails = APIUtils.useGetMethod()
   let fetchApi = AuthHooks.useApiFetcher()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let (selectedField, setSelectedField) = React.useState(() => IntelligentRoutingTypes.Sample)
   let (file, setFile) = React.useState(() => None)

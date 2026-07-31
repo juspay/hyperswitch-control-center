@@ -42,7 +42,7 @@ let make = () => {
     }
   }, [value])
 
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let onCopyClick = ev => {
     ev->ReactEvent.Mouse.stopPropagation
     Clipboard.writeText(merchantId)

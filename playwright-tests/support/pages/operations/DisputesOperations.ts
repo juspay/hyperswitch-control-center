@@ -25,7 +25,10 @@ export class DisputesOperations {
   }
 
   get filterDropdownOptions(): Locator {
-    return this.page.locator('div').filter({ hasText: /^ConnectorDispute StatusDispute Stage$/ }).first();
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^ConnectorDispute StatusDispute Stage$/ })
+      .first();
   }
 
   get fourColumnGrid(): Locator {
@@ -53,9 +56,7 @@ export class DisputesOperations {
   }
 
   get uploadToast(): Locator {
-    return this.page.locator(
-      '[data-toast*="upload"], [data-toast*="success"]',
-    );
+    return this.page.locator('[data-toast*="upload"], [data-toast*="success"]');
   }
 
   get deadlineElement(): Locator {

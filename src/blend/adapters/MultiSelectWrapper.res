@@ -119,6 +119,14 @@ let make = (
       }, 10))
   }
 
+  let defaultClearAll = () => {
+    cancelPendingTimer()
+    batchedRef.current = []
+    input.onChange([]->getJsonFromArrayOfString->Identity.jsonToFormReactEvent)
+  }
+
+  let resolvedClearAllClick = onClearAllClick->Option.getOr(defaultClearAll)
+
   // Only sync when not batching — preserves accumulated state during rapid-fire events
   if timerRef.current->Option.isNone {
     batchedRef.current = selectedValues
@@ -148,7 +156,7 @@ let make = (
     ?onFocus
     ?onBlur
     ?showClearButton
-    ?onClearAllClick
+    onClearAllClick=resolvedClearAllClick
     ?height
     error
     ?errorMessage

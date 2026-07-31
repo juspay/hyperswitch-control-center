@@ -63,6 +63,17 @@ let make = (
       })
       ->React.array}
     </div>
+    <RenderIf condition={ConnectorUtils.checkIfPredecryptFlowEnabledForGooglePay(connector)}>
+      <FormRenderer.FieldRenderer
+        labelClass={`${Typography.body.md.semibold} !text-hyperswitch_black`}
+        fieldWrapperClass="w-full flex justify-between items-center pl-2 pr-4"
+        field={FormRenderer.makeFieldInfo(
+          ~name={"metadata.google_pay.support_predecrypted_token"},
+          ~label="Enable pre decrypted token",
+          ~customInput=InputFields.switchInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
+        )}
+      />
+    </RenderIf>
     <div className={`flex gap-2 justify-end mt-4`}>
       <Button
         text="Cancel"

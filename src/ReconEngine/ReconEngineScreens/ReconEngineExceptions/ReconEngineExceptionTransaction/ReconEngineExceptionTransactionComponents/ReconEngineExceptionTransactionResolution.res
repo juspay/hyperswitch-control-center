@@ -632,7 +632,7 @@ let make = (
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (activeModal, setActiveModal) = React.useState(_ => None)
   let (availableResolutions, setAvailableResolutions) = React.useState(_ => [])
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let fetchDetails = useGetMethod()
@@ -742,7 +742,7 @@ let make = (
     } catch {
     | _ =>
       showToast(
-        ~message="Failed to ignore the transaction. Please try again.",
+        ~message="Failed to force reconcile the transaction. Please try again.",
         ~toastType=ToastError,
       )
     }

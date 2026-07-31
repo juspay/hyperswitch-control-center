@@ -129,6 +129,7 @@ let mapV2toCommonType: profileEntity_v2 => BusinessProfileInterfaceTypes.commonP
     collect_billing_details_from_wallet_connector_if_required: profileRecord.collect_billing_details_from_wallet_connector_if_required,
     split_txns_enabled: profileRecord.split_txns_enabled,
     billing_processor_id: None,
+    surcharge_connector_details: None,
     payment_link_config: None,
     is_external_vault_enabled: None,
     external_vault_connector_details: None,

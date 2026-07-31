@@ -20,8 +20,7 @@ let make = (
   ~isCheckboxSelectedClass=false,
   ~stopPropagationNeeded=false,
 ) => {
-  let isBlendEnabled = BlendContext.useBlendEnabled()
-  let useBlend = isBlendEnabled && setIsSelected->Option.isSome
+  let useBlend = BlendContext.useBlendEnabled()
 
   let checkedValue = if isSelectedStateMinus && isSelected {
     fromIndeterminate("indeterminate")
@@ -40,9 +39,12 @@ let make = (
       checked={checkedValue} onCheckedChange disabled={isDisabled} size={mapSize(size)}
     />
 
-  let blendNode = stopPropagationNeeded
-    ? <div onClick={e => e->ReactEvent.Mouse.stopPropagation}> {blendCheckbox} </div>
-    : blendCheckbox
+  let blendNode =
+    <div
+      className="relative"
+      onClick=?{stopPropagationNeeded ? Some(e => e->ReactEvent.Mouse.stopPropagation) : None}>
+      {blendCheckbox}
+    </div>
 
   <>
     <RenderIf condition={useBlend}> {blendNode} </RenderIf>

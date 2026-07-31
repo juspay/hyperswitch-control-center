@@ -20,10 +20,11 @@ module DownloadCertificateTile = {
 
 @react.component
 let make = () => {
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let fetchApi = AuthHooks.useApiFetcher()
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let downloadPDF = _ => {
     setButtonState(_ => Button.Loading)
     let currentDate =
@@ -37,7 +38,7 @@ let make = () => {
     // For local testing this condition is added
     if downloadURL->LogicUtils.isNonEmptyString {
       open Promise
-      fetchApi(downloadURL, ~method_=Get, ~xFeatureRoute, ~forceCookies)
+      fetchApi(downloadURL, ~method_=Get, ~xFeatureRoute, ~forceCookies, ~sendV1DummyApiKeyHeader)
       ->then(resp => {
         Fetch.Response.blob(resp)
       })

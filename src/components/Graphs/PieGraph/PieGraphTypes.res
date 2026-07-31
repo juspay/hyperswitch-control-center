@@ -98,6 +98,7 @@ type tooltip = {
   style?: cssStyle,
   borderWidth?: float,
   shadow?: bool,
+  outside?: bool,
 }
 
 type plotOptions = {pie: pie}

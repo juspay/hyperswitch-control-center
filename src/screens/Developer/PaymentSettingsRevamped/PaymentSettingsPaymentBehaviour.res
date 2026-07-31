@@ -37,17 +37,17 @@ module CollectDetails = {
     }
 
     <DesktopRow itemWrapperClass="mx-1">
-      <div className="w-full py-8 ">
+      <div className="w-full py-8">
         <div className="flex justify-between items-center">
           <div className="flex-1 ">
             <p className={`${body.lg.semibold} text-nd_gray-700`}> {title->React.string} </p>
             <p className={`${body.md.medium} text-nd_gray-400 pt-2`}> {subTitle->React.string} </p>
           </div>
-          <BoolInput.BaseComponent
+          <SwitchAdapter
             isSelected={initValue}
             setIsSelected={handleToggle}
             isDisabled=false
-            boolCustomClass="rounded-lg  "
+            boolCustomClass="rounded-lg"
             toggleEnableColor="bg-nd_primary_blue-450"
           />
         </div>
@@ -57,13 +57,13 @@ module CollectDetails = {
             ->Array.mapWithIndex((option, index) =>
               <div
                 key={index->Int.toString}
-                className="flex gap-2  items-center cursor-pointer"
+                className="flex gap-2 items-center cursor-pointer"
                 onClick={_ => onClick(option.key)}>
                 <RadioIconAdapter
                   isSelected={valuesDict->getBool(option.key, false)}
                   fill="text-nd_primary_blue-450"
                 />
-                <div className={`${body.md.medium}text-nd_gray-700`}>
+                <div className={`${body.md.medium} text-nd_gray-700`}>
                   {option.name->LogicUtils.snakeToTitle->React.string}
                 </div>
               </div>
@@ -91,13 +91,14 @@ module AutoRetries = {
       <DesktopRow itemWrapperClass="mx-1">
         <FieldRenderer
           labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
-          fieldWrapperClass="w-full flex justify-between items-center py-8 "
+          fieldWrapperClass="w-full flex justify-between items-center py-8"
           field={makeFieldInfo(
             ~name="is_auto_retries_enabled",
             ~label="Auto Retries",
-            ~customInput=InputFields.boolInput(
+            ~customInput=InputFields.switchInput(
               ~isDisabled=false,
               ~boolCustomClass="rounded-lg",
+              ~toggleBorder="border-nd_primary_blue-450",
               ~toggleEnableColor="bg-nd_primary_blue-450",
             ),
             ~description="Automatically re-attempts a failed payment using the same payment method details. Our system will continue retrying the transaction on a defined routed list until it is successful or all attempts have been exhausted.",
@@ -145,13 +146,14 @@ module ClickToPaySection = {
           <div>
             <FieldRenderer
               labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
-              fieldWrapperClass="w-full flex justify-between items-center pt-8 pb-8  "
+              fieldWrapperClass="w-full flex justify-between items-center pt-8 pb-8"
               field={makeFieldInfo(
                 ~name="is_click_to_pay_enabled",
                 ~label="Click to Pay",
-                ~customInput=InputFields.boolInput(
+                ~customInput=InputFields.switchInput(
                   ~isDisabled=false,
                   ~boolCustomClass="rounded-lg",
+                  ~toggleBorder="border-nd_primary_blue-450",
                   ~toggleEnableColor="bg-nd_primary_blue-450",
                 ),
                 ~description="Click to Pay is a secure, seamless digital payment solution that lets customers checkout quickly using saved cards without entering details",
@@ -304,7 +306,7 @@ module MerchantCategoryCode = {
         field={merchantCodeWithNameArray->DeveloperUtils.merchantCategoryCode}
         errorClass
         labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
-        fieldWrapperClass="max-w-xl py-8 "
+        fieldWrapperClass="max-w-xl py-8"
       />
     </DesktopRow>
   }
@@ -328,7 +330,7 @@ module SplitTransactions = {
         input.onChange(valueToSet->Identity.anyTypeToReactEvent)
       }
 
-      <BoolInput.BaseComponent
+      <SwitchAdapter
         isSelected={currentValue}
         setIsSelected={handleChange}
         isDisabled=false
@@ -356,7 +358,7 @@ let make = () => {
   open FormRenderer
 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
@@ -429,13 +431,14 @@ let make = () => {
         <DesktopRow itemWrapperClass="mx-1">
           <FieldRenderer
             labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
-            fieldWrapperClass="w-full flex justify-between sitems-center border-nd_gray-200 py-8"
+            fieldWrapperClass="w-full flex justify-between items-center border-nd_gray-200 py-8"
             field={makeFieldInfo(
               ~name="is_manual_retry_enabled",
               ~label="Manual Retries",
-              ~customInput=InputFields.boolInput(
+              ~customInput=InputFields.switchInput(
                 ~isDisabled=false,
                 ~boolCustomClass="rounded-lg",
+                ~toggleBorder="border-nd_primary_blue-450",
                 ~toggleEnableColor="bg-nd_primary_blue-450",
               ),
               ~description="Allows you to manually re-attempt a failed payment using its original payment ID. You can retry with the same payment method details or provide a different payment method for the new attempt.",
@@ -450,9 +453,10 @@ let make = () => {
             field={makeFieldInfo(
               ~name="always_request_extended_authorization",
               ~label="Extended Authorization",
-              ~customInput=InputFields.boolInput(
+              ~customInput=InputFields.switchInput(
                 ~isDisabled=false,
                 ~boolCustomClass="rounded-lg",
+                ~toggleBorder="border-nd_primary_blue-450",
                 ~toggleEnableColor="bg-nd_primary_blue-450",
               ),
               ~description="This will enable extended authorization for all payments through connectors and payment methods that support it",
@@ -468,9 +472,10 @@ let make = () => {
             field={makeFieldInfo(
               ~name="always_enable_overcapture",
               ~label="Always Enable Overcapture",
-              ~customInput=InputFields.boolInput(
+              ~customInput=InputFields.switchInput(
                 ~isDisabled=false,
                 ~boolCustomClass="rounded-lg",
+                ~toggleBorder="border-nd_primary_blue-450",
                 ~toggleEnableColor="bg-nd_primary_blue-450",
               ),
               ~description="Allow capturing more than the originally authorized amount within connector limits",
@@ -521,9 +526,10 @@ let make = () => {
           field={makeFieldInfo(
             ~name="is_connector_agnostic_mit_enabled",
             ~label="Connector Agnostic",
-            ~customInput=InputFields.boolInput(
+            ~customInput=InputFields.switchInput(
               ~isDisabled=false,
-              ~boolCustomClass="rounded-lg ",
+              ~boolCustomClass="rounded-lg",
+              ~toggleBorder="border-nd_primary_blue-450",
               ~toggleEnableColor="bg-nd_primary_blue-450",
             ),
           )}
@@ -537,9 +543,10 @@ let make = () => {
           field={makeFieldInfo(
             ~name="is_network_tokenization_enabled",
             ~label="Network Tokenization",
-            ~customInput=InputFields.boolInput(
+            ~customInput=InputFields.switchInput(
               ~isDisabled=!featureFlagDetails.networkTokenization,
               ~boolCustomClass="rounded-lg",
+              ~toggleBorder="border-nd_primary_blue-450",
               ~toggleEnableColor="bg-nd_primary_blue-450",
             ),
           )}

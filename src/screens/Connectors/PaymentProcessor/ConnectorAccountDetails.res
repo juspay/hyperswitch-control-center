@@ -6,7 +6,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
   open ConnectorAccountDetailsHelper
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
@@ -26,7 +26,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
   }, [connector])
 
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
 
   let connectorDetails = React.useMemo(() => {
     try {

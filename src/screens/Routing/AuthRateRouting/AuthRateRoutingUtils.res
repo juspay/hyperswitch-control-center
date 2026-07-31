@@ -29,6 +29,14 @@ let getFormFieldLabel = (field: formFields) => {
   }
 }
 
+let getFormFieldDescription = (field: formFields) => {
+  switch field {
+  | BucketSize => "Number of recent transactions each processor's success rate is measured over."
+  | ExplorationPercent => "Share of traffic sent to other processors so their success rates stay current."
+  | RolloutPercent => "Share of total traffic handled by dynamic routing. Remaining traffic uses your existing rules."
+  }
+}
+
 let defaultConfigsValue = {
   decision_engine_configs: {
     defaultBucketSize: 200,

@@ -858,7 +858,8 @@ let make = (
                         />
                       </div>
                     </Link>
-                    <RenderIf condition={devTheme}>
+                    <RenderIf
+                      condition={devTheme && userHasAccess(~groupAccess=ThemeView) == Access}>
                       <Link to_={GlobalVars.appendDashboardPath(~url="/theme")}>
                         <div
                           className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 ${isThemeSelected

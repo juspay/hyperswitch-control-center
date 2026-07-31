@@ -26,7 +26,8 @@ export class UsersPage {
   }
 
   get merchantDropdown(): Locator {
-    return this.page.locator('[data-dropdown-for="Select a Merchant"] button');
+    return this.page.locator('[data-component-field-wrapper="field-merchant_value"]')
+      .locator('[data-element="single-select-button"]');
   }
 
   get roleOption(): Locator {
@@ -80,7 +81,7 @@ export class UsersPage {
   }
 
   get rolesTabInactive(): Locator {
-    return this.page.getByRole('tab', { name: 'Roles' });
+    return this.page.getByRole("tab", { name: "Roles" });
   }
 
   get usersTabInactive(): Locator {
@@ -147,26 +148,22 @@ export class UsersPage {
 
   get defaultFilterOption(): Locator {
     return this.page
-      .locator('[data-dropdown-value="All"]')
-      .filter({ hasText: "(Default)" });
+      .getByRole('menuitem', { name: 'All (Default)' });
   }
 
   get organizationFilterOption(): Locator {
     return this.page
-      .locator('[data-dropdown-value^="202"]')
-      .filter({ hasText: "(Organization)" });
+      .locator('[data-element="select-item-sublabel"]').filter({ hasText: '(Organization)' });
   }
 
   get merchantFilterOption(): Locator {
     return this.page
-      .locator('[data-dropdown-value^="202"]')
-      .filter({ hasText: "(Merchant)" });
+      .locator('[data-element="select-item-sublabel"]').filter({ hasText: '(Merchant)' });
   }
 
   get profileFilterOption(): Locator {
     return this.page
-      .locator('[data-dropdown-value="default"]')
-      .filter({ hasText: "(Profile)" });
+      .locator('[data-element="select-item-sublabel"]').filter({ hasText: '(Profile)' });
   }
 
   get inviteUsersRoleButton(): Locator {
@@ -174,7 +171,10 @@ export class UsersPage {
   }
 
   get emailColumnHeader(): Locator {
-    return this.page.locator("div").filter({ hasText: /^Email$/ }).first();
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^Email$/ })
+      .first();
   }
 
   get roleColumnHeader(): Locator {
@@ -197,15 +197,15 @@ export class UsersPage {
   }
 
   get allMerchantsDropdownValue(): Locator {
-    return this.page.locator('[data-dropdown-value="All merchants"]');
+    return this.page.getByRole('menuitem', { name: 'All merchants' });
   }
 
   get allProfilesValue(): Locator {
-    return this.page.locator('[data-value="allProfiles"]');
+    return this.page.getByRole('button', { name: 'All profiles' });
   }
 
   get defaultDropdownValue(): Locator {
-    return this.page.locator('[data-dropdown-value="default"]');
+    return this.page.getByRole('menuitem', { name: 'default' });
   }
 
   get navigateToTeamManagementLink(): Locator {
@@ -284,6 +284,18 @@ export class UsersPage {
     return this.page.getByText("Your merchant has been switched successfully.");
   }
 
+  get profileSwitchedSuccessText(): Locator {
+    return this.page.getByText("Your profile has been switched successfully.");
+  }
+
+  get merchantSwitchFailedText(): Locator {
+    return this.page.getByText("Failed to switch merchant");
+  }
+
+  get profileSwitchFailedText(): Locator {
+    return this.page.getByText("Failed to switch profile");
+  }
+
   get merchantCreatedSuccessText(): Locator {
     return this.page.getByText("Merchant Created Successfully!");
   }
@@ -337,7 +349,7 @@ export class UsersPage {
   }
 
   async navigate(): Promise<void> {
-    await this.page.getByRole('link', { name: 'Users' }).click();
+    await this.page.getByRole("link", { name: "Users" }).click();
   }
 
   async navigateInviteUsers(): Promise<void> {
@@ -436,9 +448,13 @@ export class UsersPage {
 
   async verifyManageUserButton(): Promise<void> {
     await this.manageUserButton.click();
-    await expect(this.page.locator('[data-button-for="update"]')).toBeAttached();
+    await expect(
+      this.page.locator('[data-button-for="update"]'),
+    ).toBeAttached();
     await this.page.locator('[data-button-for="resend"]').click();
-    await expect(this.page.locator('[data-button-for="delete"]')).toBeAttached();
+    await expect(
+      this.page.locator('[data-button-for="delete"]'),
+    ).toBeAttached();
   }
 
   async verifyUserDetails(

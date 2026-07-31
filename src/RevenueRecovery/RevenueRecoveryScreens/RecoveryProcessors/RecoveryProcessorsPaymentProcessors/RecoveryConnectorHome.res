@@ -18,7 +18,7 @@ let make = () => {
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
   let (screenState, setScreenState) = React.useState(_ => Success)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   let connectorInfo = initialValues->LogicUtils.getDictFromJsonObject
   let connectorInfoDict = ConnectorInterface.mapDictToTypedConnectorPayload(
@@ -207,7 +207,7 @@ let make = () => {
         />
         <ConnectorWebhookPreview
           merchantId
-          connectorName=connectorInfoDict.id
+          connectorName=connectorInfoDict.connector_name
           textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400"
           containerClass="flex flex-row items-center justify-between"
           hideLabel=true

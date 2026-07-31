@@ -27,7 +27,6 @@ type urlConfig = {
   dynamoSimulationTemplateUrl: option<string>,
   urlThemeConfig: urlThemeConfig,
   hypersenseUrl: string,
-  clarityBaseUrl: option<string>,
   superpositionConfigs: option<superpositionConfig>,
 }
 

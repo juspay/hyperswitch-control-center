@@ -172,7 +172,7 @@ let make = (~id) => {
     Dict.make()->RevenueRecoveryEntity.itemToObjMapper
   )
   let (processTrackerData, setProcessTrackerData) = React.useState(_ => Dict.make())
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (attemptsList, setAttemptsList) = React.useState(_ => [])
 
   let getPTDetails = async (~orderData: RevenueRecoveryOrderTypes.order) => {

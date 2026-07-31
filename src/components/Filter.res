@@ -197,7 +197,7 @@ let make = (
     setCount(_prev => clearFilterJson + initialCount)
     setAllFilters(_prev => filtersUnselected)
     None
-  }, (filterKeys, remoteFilters->Array.length))
+  }, (filterKeys, remoteFilters->Array.length, searchParams))
 
   let onSubmit = (values, _) => {
     let obj = values->JSON.Decode.object->Option.getOr(Dict.make())->Dict.toArray->Dict.fromArray
@@ -255,7 +255,14 @@ let make = (
       option.inputNames->getValueFromArray(0, "")->snakeToTitle
     }
     let value = option.inputNames->getValueFromArray(0, "")
-    {SelectBox.label, value}
+    switch option.labelRightComponent {
+    | Some(labelRightComponent) => {
+        SelectBox.label,
+        value,
+        icon: Button.CustomRightIcon(<div className="ml-2"> {labelRightComponent} </div>),
+      }
+    | None => {SelectBox.label, value}
+    }
   })
 
   let filterPickerInput: ReactFinalForm.fieldRenderPropsInput = {
@@ -301,15 +308,16 @@ let make = (
     {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
       {<>
         <div className="mb-4"> {customLeftView} </div>
-        <div className="flex lg:flex-row flex-col justify-between items-center gap-4 mb-2">
-          <div className="flex gap-2 flex-wrap items-center">
+        <div
+          className="flex lg:flex-row flex-col flex-wrap justify-between items-center gap-4 mb-2">
+          <div className="flex gap-2 flex-wrap items-center min-w-0">
             <RenderIf condition={allFilters->Array.length > 0}> {allFiltersUI} </RenderIf>
             {customFilterActions}
             <RenderIf condition={isSmallScreen}>
               <PortalCapture key={`${title}OMPView`} name={`${title}OMPView`} />
             </RenderIf>
           </div>
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center flex-wrap justify-end min-w-0">
             <RenderIf condition={fixedFilters->Array.length > 0}>
               <FormRenderer.FieldsRenderer
                 fields={fixedFilters->Array.map(item => item.field)}

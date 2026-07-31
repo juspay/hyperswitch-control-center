@@ -72,13 +72,13 @@ module TotpInput = {
         </p>
       </RenderIf>
       <OTPInputAdapter value={otp} setValue={setOtp} hasError={hasError} />
-      <div className={`flex items-center justify-center ${isLoginFlow ? "" : "h-10"}`}>
-        <RenderIf condition={hasError && !isLoginFlow}>
+      <RenderIf condition={hasError && !isLoginFlow}>
+        <div className="flex items-center justify-center h-10">
           <p className={`${body.sm.medium} text-nd_red-500`}>
             {"Invalid code. Please use the code from the latest QR. If you refreshed or reopened the page, scan the new QR and try again."->React.string}
           </p>
-        </RenderIf>
-      </div>
+        </div>
+      </RenderIf>
     </div>
   }
 }
@@ -122,7 +122,7 @@ module RecoveryCodesInput = {
       <TextInputAdapter
         input=recoveryCodeInput
         placeholder="XXXX-XXXX"
-        customWidth="w-96"
+        customWidth="w-28"
         customStyle="h-16 text-xl justify-center text-center"
         maxLength=9
       />

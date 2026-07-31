@@ -201,9 +201,7 @@ module ListItem = {
           {if !isDropDown {
             if showToggle {
               <div className={toggleClass ++ toggleProps} onClick>
-                <BoolInput.BaseComponent
-                  isSelected=toggleSelect size=optionSize setIsSelected=onToggleSelect isDisabled
-                />
+                <SwitchAdapter isSelected=toggleSelect setIsSelected=onToggleSelect isDisabled />
               </div>
             } else if multiSelect {
               <span className=toggleClass>
@@ -744,11 +742,10 @@ module BaseSelect = {
                 <div className="flex  mr-5 justify-end">
                   {switch allSelectType {
                   | Icon =>
-                    <BoolInput.BaseComponent
+                    <SwitchAdapter
                       isSelected=isChooseAllToggleSelected
                       setIsSelected=toggleSelectAll
                       isDisabled=disableSelect
-                      size=optionSize
                     />
                   | Text =>
                     <AddDataAttributes
@@ -1593,11 +1590,12 @@ module BaseDropdown = {
         ->Dict.keysToArray
         ->Array.filter(item => item != "start_time" && item != "end_time" && item != "status")
       if nonStatusFilters->Array.length == 0 {
-        setPreservedAppliedOptions(_ =>
+        let statusValues =
           filterValueJson
           ->getArrayFromDict("status", [])
           ->getStrArrayFromJsonArray
-        )
+        setPreservedAppliedOptions(_ => statusValues)
+        newInputSelect.onChange(statusValues)
       }
       None
     }, [filterValueJson])

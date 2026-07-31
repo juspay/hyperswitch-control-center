@@ -5,9 +5,9 @@ open SavedViewTypes
 let useFetchSavedViews = (~entity, ~version) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
-  async (~setSavedViews, ~setViewCount=?) => {
+  async (~setSavedViews) => {
     try {
       let url = getURL(
         ~entityName=V1(USERS),
@@ -18,10 +18,7 @@ let useFetchSavedViews = (~entity, ~version) => {
       let response = await fetchDetails(url, ~version)
       let parsedResponse = response->SavedViewsUtils.savedViewsResponseMapper(entity)
       setSavedViews(_ => parsedResponse.views)
-      switch setViewCount {
-      | Some(setCount) => setCount(_ => parsedResponse.count)
-      | None => ()
-      }
+      parsedResponse.views
     } catch {
     | err =>
       Js.log2("FAILED TO LOAD SAVED VIEWS", err)
@@ -29,6 +26,7 @@ let useFetchSavedViews = (~entity, ~version) => {
         ~message="Failed to load saved views. Please try again.",
         ~toastType=ToastState.ToastError,
       )
+      []
     }
   }
 }
@@ -36,7 +34,7 @@ let useFetchSavedViews = (~entity, ~version) => {
 let useDeleteSavedView = (~entity, ~fetchSavedViews) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   async (view_id, viewName, ~onSuccess=?) => {
     try {
@@ -61,17 +59,17 @@ let useDeleteSavedView = (~entity, ~fetchSavedViews) => {
   }
 }
 
-let useRenameSavedView = (~entity, ~version, ~fetchSavedViews) => {
+let useRenameSavedView = (~entity, ~savedViewDataVersion, ~fetchSavedViews) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   async (view: SavedViewTypes.savedView, newName, ~onSuccess=?) => {
     try {
       let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
       let _ = await updateDetails(
         url,
-        SavedViewsUtils.buildRenamePayload(entity, view, newName, ~version),
+        SavedViewsUtils.buildRenamePayload(entity, view, newName, ~savedViewDataVersion),
         Post,
       )
       showToast(~message=`View renamed to '${newName}' successfully!`, ~toastType=ToastSuccess)
@@ -93,10 +91,10 @@ let useRenameSavedView = (~entity, ~version, ~fetchSavedViews) => {
   }
 }
 
-let useCreateSavedView = (~entity, ~version, ~onViewsUpdated, ~setShowModal) => {
+let useCreateSavedView = (~entity, ~savedViewDataVersion, ~onViewsUpdated, ~setShowModal) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   async (trimmedName, filters) => {
     try {
@@ -106,7 +104,7 @@ let useCreateSavedView = (~entity, ~version, ~onViewsUpdated, ~setShowModal) => 
         trimmedName,
         filters,
         None,
-        ~version,
+        ~savedViewDataVersion,
       )
       let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
       let response = await updateDetails(url, payload, Post)
@@ -124,10 +122,16 @@ let useCreateSavedView = (~entity, ~version, ~onViewsUpdated, ~setShowModal) => 
   }
 }
 
-let useOverwriteSavedView = (~entity, ~version, ~onViewsUpdated, ~setShowModal, ~savedViews) => {
+let useOverwriteSavedView = (
+  ~entity,
+  ~savedViewDataVersion,
+  ~onViewsUpdated,
+  ~setShowModal,
+  ~savedViews,
+) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   async (viewToOverwrite, filters) => {
     try {
@@ -143,7 +147,7 @@ let useOverwriteSavedView = (~entity, ~version, ~onViewsUpdated, ~setShowModal, 
           viewToOverwrite,
           filters,
           viewId,
-          ~version,
+          ~savedViewDataVersion,
         )
         let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
         let response = await updateDetails(url, payload, Post)

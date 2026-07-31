@@ -16,7 +16,7 @@ let make = (~selectedRows, ~setSelectedRows, ~refreshList) => {
   let (isLoading, setIsLoading) = React.useState(_ => false)
   let (showSuccessModal, setShowSuccessModal) = React.useState(_ => false)
   let modalConfig = getBulkActionModalConfig(~action=actionType, ~count=selectedRows->Array.length)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (bulkActionResponses, setBulkActionResponses) = React.useState(_ => [])
 
   let openModal = (action: actionType) => {

@@ -230,6 +230,14 @@ function getTaxProcessorConfig(connectorName) {
   }
 }
 
+function getSurchargeProcessorConfig(connectorName) {
+  if (wasm) {
+    return wasm.getSurchargeProcessorConfig(connectorName);
+  } else {
+    return {};
+  }
+}
+
 function getPayoutDescriptionCategory() {
   if (wasm) {
     return wasm.getPayoutDescriptionCategory();
