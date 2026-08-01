@@ -2,6 +2,42 @@ type tabs = Request | Response
 
 type eventRecipient = Merchant | Connector
 
+// Mirrors backend `common_enums::EventClass` (crates/common_enums/src/enums.rs)
+type eventClass = Payments | Refunds | Disputes | Mandates | Payouts | Subscriptions
+
+// Mirrors backend `common_enums::EventType` (crates/common_enums/src/enums.rs)
+type webhookEventType =
+  | PaymentSucceeded
+  | PaymentFailed
+  | PaymentProcessing
+  | PaymentCancelled
+  | PaymentCancelledPostCapture
+  | PaymentAuthorized
+  | PaymentCaptured
+  | PaymentExpired
+  | ActionRequired
+  | SurchargePaymentSucceeded
+  | RefundSucceeded
+  | RefundFailed
+  | SurchargeRefundSucceeded
+  | DisputeOpened
+  | DisputeExpired
+  | DisputeAccepted
+  | DisputeCancelled
+  | DisputeChallenged
+  | DisputeWon
+  | DisputeLost
+  | MandateActive
+  | MandateRevoked
+  | PayoutSuccess
+  | PayoutFailed
+  | PayoutInitiated
+  | PayoutProcessing
+  | PayoutCancelled
+  | PayoutExpired
+  | PayoutReversed
+  | InvoicePaid
+
 type webhookObject = {
   eventId: string,
   merchantId: string,

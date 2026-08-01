@@ -9,6 +9,97 @@ let eventRecipientToString = recipient =>
   | Connector => "connector"
   }
 
+let eventClassToString = eventClass =>
+  switch eventClass {
+  | Payments => "payments"
+  | Refunds => "refunds"
+  | Disputes => "disputes"
+  | Mandates => "mandates"
+  | Payouts => "payouts"
+  | Subscriptions => "subscriptions"
+  }
+
+let allEventClasses = [Payments, Refunds, Disputes, Mandates, Payouts, Subscriptions]
+
+let webhookEventTypeToString = eventType =>
+  switch eventType {
+  | PaymentSucceeded => "payment_succeeded"
+  | PaymentFailed => "payment_failed"
+  | PaymentProcessing => "payment_processing"
+  | PaymentCancelled => "payment_cancelled"
+  | PaymentCancelledPostCapture => "payment_cancelled_post_capture"
+  | PaymentAuthorized => "payment_authorized"
+  | PaymentCaptured => "payment_captured"
+  | PaymentExpired => "payment_expired"
+  | ActionRequired => "action_required"
+  | SurchargePaymentSucceeded => "surcharge_payment_succeeded"
+  | RefundSucceeded => "refund_succeeded"
+  | RefundFailed => "refund_failed"
+  | SurchargeRefundSucceeded => "surcharge_refund_succeeded"
+  | DisputeOpened => "dispute_opened"
+  | DisputeExpired => "dispute_expired"
+  | DisputeAccepted => "dispute_accepted"
+  | DisputeCancelled => "dispute_cancelled"
+  | DisputeChallenged => "dispute_challenged"
+  | DisputeWon => "dispute_won"
+  | DisputeLost => "dispute_lost"
+  | MandateActive => "mandate_active"
+  | MandateRevoked => "mandate_revoked"
+  | PayoutSuccess => "payout_success"
+  | PayoutFailed => "payout_failed"
+  | PayoutInitiated => "payout_initiated"
+  | PayoutProcessing => "payout_processing"
+  | PayoutCancelled => "payout_cancelled"
+  | PayoutExpired => "payout_expired"
+  | PayoutReversed => "payout_reversed"
+  | InvoicePaid => "invoice_paid"
+  }
+
+// Mirrors backend `EventClass::event_types()` (crates/common_enums/src/enums.rs) — the
+// single source of truth for which event types belong to which event class. Keep in sync
+// with the backend if that mapping changes.
+let eventTypesForClass = eventClass =>
+  switch eventClass {
+  | Payments => [
+      PaymentSucceeded,
+      PaymentFailed,
+      PaymentProcessing,
+      PaymentCancelled,
+      PaymentCancelledPostCapture,
+      PaymentAuthorized,
+      PaymentCaptured,
+      PaymentExpired,
+      ActionRequired,
+      SurchargePaymentSucceeded,
+    ]
+  | Refunds => [RefundSucceeded, RefundFailed, SurchargeRefundSucceeded]
+  | Disputes => [
+      DisputeOpened,
+      DisputeExpired,
+      DisputeAccepted,
+      DisputeCancelled,
+      DisputeChallenged,
+      DisputeWon,
+      DisputeLost,
+    ]
+  | Mandates => [MandateActive, MandateRevoked]
+  | Payouts => [
+      PayoutSuccess,
+      PayoutFailed,
+      PayoutInitiated,
+      PayoutProcessing,
+      PayoutCancelled,
+      PayoutExpired,
+      PayoutReversed,
+    ]
+  | Subscriptions => [InvoicePaid]
+  }
+
+let allWebhookEventTypes = allEventClasses->Array.flatMap(eventTypesForClass)
+
+let eventClassFilterKey = "event_classes"
+let eventTypeFilterKey = "event_types"
+
 let labelColor = (statusCode): TableUtils.labelColor => {
   switch statusCode {
   | 200 => LabelGreen
@@ -119,3 +210,56 @@ let initialFixedFilter = () => [
     }: EntityType.initialFilters<'t>
   ),
 ]
+
+let webhookLocalFilters = (): array<EntityType.initialFilters<'t>> => [
+  {
+    field: FormRenderer.makeFieldInfo(
+      ~label="Event Class",
+      ~name=eventClassFilterKey,
+      ~customInput=InputFields.filterMultiSelectInput(
+        ~options=allEventClasses
+        ->Array.map(eventClassToString)
+        ->FilterSelectBox.makeOptions(~isTitle=true),
+        ~buttonText="Event Class",
+        ~showSelectionAsChips=false,
+        ~searchable=true,
+        (),
+      ),
+    ),
+    localFilter: None,
+  },
+  {
+    field: FormRenderer.makeFieldInfo(
+      ~label="Event Type",
+      ~name=eventTypeFilterKey,
+      ~customInput=InputFields.filterMultiSelectInput(
+        ~options=allWebhookEventTypes
+        ->Array.map(webhookEventTypeToString)
+        ->FilterSelectBox.makeOptions(~isTitle=true),
+        ~buttonText="Event Type",
+        ~showSelectionAsChips=false,
+        ~searchable=true,
+        (),
+      ),
+    ),
+    localFilter: None,
+  },
+]
+
+// Keeps `event_types` a subset of the selected `event_classes`, mirroring the backend
+// validation in `finalize_event_types` (crates/router/src/core/webhooks/webhook_events.rs),
+// which rejects the request otherwise.
+let restrictEventTypesToClasses = (~eventClasses: array<eventClass>, ~eventTypes: array<string>) => {
+  if eventClasses->Array.length === 0 {
+    eventTypes
+  } else {
+    let allowed =
+      eventClasses
+      ->Array.flatMap(eventTypesForClass)
+      ->Array.map(webhookEventTypeToString)
+    eventTypes->Array.filter(eventType => allowed->Array.includes(eventType))
+  }
+}
+
+let stringToEventClass = str =>
+  allEventClasses->Array.find(eventClass => eventClass->eventClassToString === str)

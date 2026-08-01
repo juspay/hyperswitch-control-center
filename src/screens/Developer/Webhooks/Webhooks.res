@@ -90,6 +90,34 @@ let make = () => {
         payload->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
         payload->Dict.set("created_after", start_time->JSON.Encode.string)
         payload->Dict.set("created_before", end_time->JSON.Encode.string)
+
+        let selectedEventClasses =
+          filterValueJson
+          ->getArrayFromDict(eventClassFilterKey, [])
+          ->getStrArrayFromJsonArray
+          ->Array.filterMap(stringToEventClass)
+        let selectedEventTypes =
+          filterValueJson->getArrayFromDict(eventTypeFilterKey, [])->getStrArrayFromJsonArray
+
+        if selectedEventClasses->Array.length > 0 {
+          payload->Dict.set(
+            "event_classes",
+            selectedEventClasses->Array.map(eventClass =>
+              eventClass->eventClassToString->JSON.Encode.string
+            )->JSON.Encode.array,
+          )
+        }
+
+        let eventTypesToSend = restrictEventTypesToClasses(
+          ~eventClasses=selectedEventClasses,
+          ~eventTypes=selectedEventTypes,
+        )
+        if eventTypesToSend->Array.length > 0 {
+          payload->Dict.set(
+            "event_types",
+            eventTypesToSend->Array.map(JSON.Encode.string)->JSON.Encode.array,
+          )
+        }
       }
       payload->Dict.set("recipient", Merchant->eventRecipientToString->JSON.Encode.string)
 
@@ -152,13 +180,13 @@ let make = () => {
       defaultFilters={""->JSON.Encode.string}
       fixedFilters={initialFixedFilter()}
       requiredSearchFieldsList=[]
-      localFilters=[]
+      localFilters={webhookLocalFilters()}
       localOptions=[]
       remoteOptions=[]
-      remoteFilters=[]
+      remoteFilters={webhookLocalFilters()}
       autoApply=false
       submitInputOnEnter=true
-      defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+      defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey, eventClassFilterKey, eventTypeFilterKey]
       updateUrlWith={updateExistingKeys}
       clearFilters={() => reset()}
       customLeftView={<SearchInput
