@@ -1,7 +1,5 @@
 open OrderTypes
 
-let paymentListSources: array<paymentListSource> = [Normal, Advanced]
-
 module SourceTabs = {
   @react.component
   let make = (
@@ -9,6 +7,7 @@ module SourceTabs = {
     ~setSource: paymentListSource => unit,
     ~advancedEnabled,
   ) => {
+    let paymentListSources: array<paymentListSource> = [Normal, Advanced]
     let tabs = paymentListSources->Array.map((item): Tabs.tab => {
       title: (item :> string),
       renderContent: () => React.null,

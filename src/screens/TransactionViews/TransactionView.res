@@ -50,7 +50,7 @@ let make = (
   let showToast = ToastAdapter.useShowToast()
   let {getResolvedUserInfo} = React.useContext(UserInfoProvider.defaultContext)
   let {transactionEntity} = getResolvedUserInfo()
-  let {updateExistingKeys, removeKeys, filterValueJson, filterValue, setfilterKeys} =
+  let {updateExistingKeys, removeKeys, filterValueJson, filterValue, filterKeys, setfilterKeys} =
     FilterContext.filterContext->React.useContext
   let {devClickhouseAggregate} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (aggregateResponse, setAggregateResponse) = React.useState(_ =>
@@ -74,9 +74,9 @@ let make = (
     removedFilterKeys->isNonEmptyArray ? removeKeys(removedFilterKeys) : ()
 
     updateExistingKeys(Dict.fromArray(filterEntries))
-    setfilterKeys(prev =>
+    setfilterKeys(_ =>
       mergeFilterKeysForView(
-        ~existingKeys=prev,
+        ~existingKeys=filterKeys,
         ~removedFilterKeys,
         ~filterEntryKeys=filterEntries->Array.map(((key, _)) => key),
       )

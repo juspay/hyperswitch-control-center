@@ -3,6 +3,10 @@ let make = (~previewOnly=false) => {
   open HSwitchRemoteFilter
   open OrderUIUtils
   open LogicUtils
+  open OrderTypes
+  open SavedViewTypes
+  open OrderEntity
+  open Typography
 
   let ordersTableTitle = "Orders"
   let advancedOrdersTableTitle = "OrdersAdvanced"
@@ -29,14 +33,13 @@ let make = (~previewOnly=false) => {
     !(devOpensearch && version == V1) || userGroupACL->Option.isSome || advancedPaymentListEnabled
   let (selectedSource, setSelectedSource) = React.useState(_ => None)
   let source =
-    selectedSource->mapOptionOrDefault(
-      advancedPaymentListEnabled ? OrderTypes.Advanced : OrderTypes.Normal,
-      userSource => userSource,
+    selectedSource->mapOptionOrDefault(advancedPaymentListEnabled ? Advanced : Normal, userSource =>
+      userSource
     )
-  let isAdvancedSource = source === OrderTypes.Advanced && advancedPaymentListEnabled
+  let isAdvancedSource = source === Advanced && advancedPaymentListEnabled
   let (tableTitle, savedViewsEntity) = isAdvancedSource
-    ? (advancedOrdersTableTitle, SavedViewTypes.PaymentAdvanced)
-    : (ordersTableTitle, SavedViewTypes.Payment)
+    ? (advancedOrdersTableTitle, PaymentAdvanced)
+    : (ordersTableTitle, Payment)
   let ompViewPortalName = `${tableTitle}OMPView`
   let portalNodes = PortalState.portalNodes->Recoil.useRecoilValueFromAtom
   let hasOmpViewPortal = portalNodes->getOptionValFromDict(ompViewPortalName)->Option.isSome
@@ -156,7 +159,7 @@ let make = (~previewOnly=false) => {
             "order",
             [
               ("on", sortObj.sortKey->JSON.Encode.string),
-              ("by", sortObj->OrderTypes.getSortString->JSON.Encode.string),
+              ("by", sortObj->getSortString->JSON.Encode.string),
             ]->getJsonFromArrayOfJson,
           )
         }
@@ -222,12 +225,10 @@ let make = (~previewOnly=false) => {
   }, [isAdvancedSource])
 
   React.useEffect(() => {
-    Some(
-      () =>
-        setSortAtom(_ =>
-          [(ordersTableTitle, defaultSort), (advancedOrdersTableTitle, defaultSort)]->Dict.fromArray
-        ),
+    setSortAtom(_ =>
+      [(ordersTableTitle, defaultSort), (advancedOrdersTableTitle, defaultSort)]->Dict.fromArray
     )
+    None
   }, [])
 
   let customTitleStyle = previewOnly ? "py-0 !pt-0" : ""
@@ -248,9 +249,10 @@ let make = (~previewOnly=false) => {
       <SearchBarFilter
         placeholder=searchPlaceholder setSearchVal=setSearchText searchVal=searchText
       />
-    let searchBarWithInfo = isAdvancedSource
-      ? <div className="flex items-center gap-2">
-          {searchBar}
+    let searchBarWithInfo =
+      <div className="flex items-center gap-2">
+        {searchBar}
+        <RenderIf condition={isAdvancedSource}>
           <ToolTip
             description=advancedPaymentSearchDescription
             toolTipFor={<span className="inline-flex h-10 items-center text-nd_gray-500">
@@ -258,8 +260,8 @@ let make = (~previewOnly=false) => {
             </span>}
             toolTipPosition=Top
           />
-        </div>
-      : searchBar
+        </RenderIf>
+      </div>
 
     let savedViewsAction =
       <RenderIf condition={devSavedViews}>
@@ -297,10 +299,10 @@ let make = (~previewOnly=false) => {
   let downloadData = () => {
     let currentDate = Date.make()->Date.toISOString->dateFormat("YYYY-MM-DD")
     DownloadUtils.downloadTableAsCsv(
-      ~csvHeaders=OrderEntity.csvHeaders,
+      ~csvHeaders,
       ~rawData=selectedRows,
       ~tableItemToObjMapper=dict => dict,
-      ~itemToCSVMapping=OrderEntity.mapOrderDictToCsvRow,
+      ~itemToCSVMapping=mapOrderDictToCsvRow,
       ~fileName=`payments_${currentDate}.csv`,
       ~toast=(~message, ~toastType) => showToast(~message, ~toastType),
     )
@@ -308,9 +310,7 @@ let make = (~previewOnly=false) => {
 
   let hasSelectedRows = selectedRows->isNonEmptyArray
   let canExportSelectedRows = isAdvancedSource && hasSelectedRows
-  let exportButtonState: Button.buttonState = canExportSelectedRows
-    ? Button.Normal
-    : Button.Disabled
+  let exportButtonState: Button.buttonState = canExportSelectedRows ? Normal : Disabled
   let exportTooltipText = !isAdvancedSource
     ? "CSV export is available in Advanced after selecting payments."
     : hasSelectedRows
@@ -323,14 +323,12 @@ let make = (~previewOnly=false) => {
   )
 
   let tableEntity = isAdvancedSource
-    ? OrderEntity.openSearchOrderEntity(merchantId, orgId, ~devSortEnabled)
-    : OrderEntity.orderEntity(merchantId, orgId, ~version, ~devSortEnabled)
+    ? openSearchOrderEntity(merchantId, orgId, ~devSortEnabled)
+    : orderEntity(merchantId, orgId, ~version, ~devSortEnabled)
   let customColumnMapper = isAdvancedSource
     ? TableAtoms.ordersAdvancedMapDefaultCols
     : TableAtoms.ordersMapDefaultCols
-  let defaultColumns = isAdvancedSource
-    ? OrderEntity.openSearchDefaultColumns
-    : OrderEntity.defaultColumns
+  let defaultColumns = isAdvancedSource ? openSearchDefaultColumns : defaultColumns
   let checkBoxProps = isAdvancedSource
     ? Some({
         LoadedTable.showCheckBox: true,
@@ -349,7 +347,7 @@ let make = (~previewOnly=false) => {
         <div
           className="flex flex-nowrap justify-end gap-2 items-center whitespace-nowrap overflow-x-auto no-scrollbar">
           <div className="shrink-0">
-            <PaymentListSourceControls.SourceTabs
+            <OrderListSourceControls.SourceTabs
               source setSource=handleSourceChange advancedEnabled=advancedPaymentListEnabled
             />
           </div>
@@ -364,10 +362,10 @@ let make = (~previewOnly=false) => {
               customButtonStyle="justify-start !w-28"
               customIconMargin="ml-2"
               customTextPaddingClass="!pl-2 !pr-0"
-              leftIcon={Button.CustomIcon(<Icon name="nd-download-bar-down" size=16 />)}
-              rightIcon={Button.CustomIcon(
+              leftIcon={CustomIcon(<Icon name="nd-download-bar-down" size=16 />)}
+              rightIcon={CustomIcon(
                 <span
-                  className={`inline-flex h-5 w-5 items-center justify-center rounded-full bg-white bg-opacity-20 text-fs-14 font-medium leading-5 ${selectedRowsCountClass}`}>
+                  className={`inline-flex h-5 w-5 items-center justify-center rounded-full bg-white bg-opacity-20 ${body.md.medium} ${selectedRowsCountClass}`}>
                   {selectedRows->Array.length->Int.toString->React.string}
                 </span>,
               )}
@@ -422,8 +420,8 @@ let make = (~previewOnly=false) => {
           remoteSortEnabled=true
           showAutoScroll=true
           isDraggable=true
-          isNewColumn=OrderEntity.isOpenSearchNewColumn
-          getNewColumnDescription=OrderEntity.getOpenSearchNewColumnDescription
+          isNewColumn=isOpenSearchNewColumn
+          getNewColumnDescription=getOpenSearchNewColumnDescription
           ?checkBoxProps
           visitedRows={{
             getId: (order: PaymentInterfaceTypes.order) => order.payment_id,
