@@ -13,6 +13,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
+  let {isCurrentMerchantPlatform} = OMPSwitchHooks.useOMPType()
 
   let setUpConnectoreContainer = async () => {
     try {
@@ -188,20 +189,11 @@ let make = () => {
     | list{"payment-settings", ...remainingPath} =>
       <AccessControl authorization=Access>
         <EntityScaffold
-          entityName="PaymentSettings" remainingPath renderList={() => <PaymentSettings />}
+          entityName="PaymentSettings"
+          remainingPath
+          renderList={() =>
+            isCurrentMerchantPlatform ? <PlatformPaymentSettings /> : <PaymentSettings />}
         />
-      </AccessControl>
-    | list{"webhooks", ...remainingPath} =>
-      <AccessControl isEnabled={featureFlagDetails.devWebhooks} authorization=Access>
-        <FilterContext key="webhooks" index="webhooks">
-          <EntityScaffold
-            entityName="Webhooks"
-            remainingPath
-            access=Access
-            renderList={() => <Webhooks />}
-            renderShow={(id, _) => <WebhooksDetails id />}
-          />
-        </FilterContext>
       </AccessControl>
     | list{"sdk"} =>
       <AccessControl

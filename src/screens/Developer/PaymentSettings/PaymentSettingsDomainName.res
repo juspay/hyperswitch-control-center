@@ -149,9 +149,7 @@ let make = () => {
             <Button
               buttonType=Button.Secondary
               onClick={_ =>
-                RescriptReactRouter.push(
-                  GlobalVars.appendDashboardPath(~url="/payment-settings-new"),
-                )}
+                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/payment-settings"))}
               text="Cancel"
             />
           </RenderIf>
