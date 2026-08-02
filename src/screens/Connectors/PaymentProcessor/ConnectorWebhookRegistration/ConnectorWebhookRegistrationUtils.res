@@ -14,15 +14,9 @@ let resultStatusFromString = str =>
   | _ => Failed
   }
 
-let getConnectedPmts = initialValues =>
-  initialValues
-  ->getDictFromJsonObject
-  ->getArrayFromDict("payment_methods_enabled", [])
-  ->Array.flatMap(pmEnabled =>
-    pmEnabled
-    ->getDictFromJsonObject
-    ->getArrayFromDict("payment_method_types", [])
-    ->Array.map(pmt => pmt->getDictFromJsonObject->getString("payment_method_type", ""))
+let getConnectedPmts = (paymentMethodsEnabled: ConnectorTypes.payment_methods_enabled) =>
+  paymentMethodsEnabled->Array.flatMap(pmEnabled =>
+    pmEnabled.payment_method_types->Array.map(pmt => pmt.payment_method_type)
   )
 
 let getItemLabel = (~scopeType, item) =>
@@ -32,12 +26,7 @@ let getItemLabel = (~scopeType, item) =>
   }
 
 let getSelectedItems = items =>
-  items->Array.filter(item =>
-    switch item.status {
-    | Selected => true
-    | _ => false
-    }
-  )
+  items->Array.filter(item => item.isSelected && item.status != Registered)
 
 let makeRequestBody = (~scopeType, ~selectedIdentifiers) => {
   let scope = switch scopeType {

@@ -297,7 +297,7 @@ module ConnectorSummaryGrid = {
 
       | None => React.null
       }}
-      //todo: need to fetch webhookregistration value from was
+      // TODO: Gate webhook details on the WASM value. Blocked: useGetFilterDictFromUrl is initially empty when the WASM value is called.
       <RenderIf
         condition={connectorInfo.connector_name->getConnectorNameTypeFromString ==
           Processors(SANTANDER)}>

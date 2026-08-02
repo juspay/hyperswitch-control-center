@@ -8,12 +8,12 @@ type resultStatus =
   | Failed
 
 type webhookItemStatus =
-  | Unselected
-  | Selected
-  | Success
+  | NotAttempted
+  | Registered
   | Failed(array<string>)
 
 type webhookItem = {
   identifier: string,
+  isSelected: bool,
   status: webhookItemStatus,
 }

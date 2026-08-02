@@ -13,8 +13,12 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
   let (items, setItems) = React.useState(_ => [])
   let getConnectorWebhooks = ConnectorWebhookRegistrationHooks.useGetConnectorWebhooks()
 
-  let mcaId = initialValues->getDictFromJsonObject->getString("merchant_connector_id", "")
-  let connectedPmts = initialValues->getConnectedPmts
+  let connectorInfo = ConnectorInterface.mapDictToTypedConnectorPayload(
+    ConnectorInterface.connectorInterfaceV1,
+    initialValues->getDictFromJsonObject,
+  )
+  let mcaId = connectorInfo.merchant_connector_id
+  let connectedPmts = connectorInfo.payment_methods_enabled->getConnectedPmts
   let selectedItems = items->getSelectedItems
 
   let connectorConfig = React.useMemo(() => {
@@ -39,9 +43,13 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let alreadyRegistered = await getConnectorWebhooks(mcaId)
       setItems(_ =>
-        displayValues->Array.map(identifier => {
+        displayValues
+        ->Array.concat(alreadyRegistered)
+        ->removeDuplicate
+        ->Array.map(identifier => {
           identifier,
-          status: alreadyRegistered->Array.includes(identifier) ? Success : Unselected,
+          isSelected: false,
+          status: alreadyRegistered->Array.includes(identifier) ? Registered : NotAttempted,
         })
       )
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -54,7 +62,15 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
     if isUpdateFlow && mcaId->isNonEmptyString {
       fetchData()->ignore
     } else {
-      setItems(_ => displayValues->Array.map(identifier => {identifier, status: Unselected}))
+      setItems(_ =>
+        displayValues->Array.map(
+          identifier => {
+            identifier,
+            isSelected: false,
+            status: NotAttempted,
+          },
+        )
+      )
       setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
@@ -62,11 +78,7 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
 
   let toggleSelection = (identifier, isSelected) =>
     setItems(prev =>
-      prev->Array.map(item =>
-        item.identifier === identifier
-          ? {...item, status: isSelected ? Selected : Unselected}
-          : item
-      )
+      prev->Array.map(item => item.identifier === identifier ? {...item, isSelected} : item)
     )
 
   let registerWebhooks = async () => {
@@ -100,7 +112,7 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
           )
           {
             ...item,
-            status: errors->isEmptyArray ? Success : Failed(errors->removeDuplicate),
+            status: errors->isEmptyArray ? Registered : Failed(errors->removeDuplicate),
           }
         }
       })
@@ -167,8 +179,8 @@ let make = (~connector, ~initialValues, ~setCurrentStep, ~isUpdateFlow) => {
             key={item.identifier}
             className="flex items-center gap-3 border border-nd_gray-150 rounded-xl px-4 py-3">
             <CheckBoxIconAdapter
-              isSelected={item.status == Selected || item.status == Success}
-              isDisabled={item.status == Success}
+              isSelected={item.isSelected || item.status == Registered}
+              isDisabled={item.status == Registered}
               setIsSelected={sel => toggleSelection(item.identifier, sel)}
             />
             <div className="flex flex-col gap-1">
