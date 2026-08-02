@@ -114,9 +114,10 @@ let make = () => {
             field={makeFieldInfo(
               ~name="force_3ds_challenge",
               ~label="Force 3DS Challenge",
-              ~customInput=InputFields.boolInput(
+              ~customInput=InputFields.switchInput(
                 ~isDisabled=false,
                 ~boolCustomClass="rounded-lg",
+                ~toggleBorder="border-nd_primary_blue-450",
                 ~toggleEnableColor="bg-nd_primary_blue-450",
               ),
             )}

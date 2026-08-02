@@ -6,6 +6,7 @@ let make = () => {
 
   let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
+  let {isCurrentMerchantPlatform} = OMPSwitchHooks.useOMPType()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {analyticsEntity} = getResolvedUserInfo()
   let url = RescriptReactRouter.useUrl()
@@ -60,6 +61,7 @@ let make = () => {
     <PageUtils.PageHeading
       title="Routing Analytics" customHeadingStyle={`${body.lg.semibold} !text-nd_gray-800`}
     />
+    <HSAnalyticsUtils.PlatformAggregatedDataBanner />
     <div className="flex flex-row justify-end items-center 2xl:ml-4">
       <div className="2xl:-mr-2 -ml-6">
         <DynamicFilter
@@ -82,7 +84,7 @@ let make = () => {
       </div>
       <div className="mt-2">
         <OMPSwitchHelper.OMPViews
-          views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+          views={OMPSwitchUtils.analyticsViewList(~checkUserEntity, ~isCurrentMerchantPlatform)}
           selectedEntity={analyticsEntity}
           onChange={updateAnalytcisEntity}
           entityMapper=UserInfoUtils.analyticsEntityMapper

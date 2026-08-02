@@ -1,4 +1,6 @@
 @react.component
 let make = () => {
-  <ReconEngineOverview />
+  <FilterContext key="recon-engine-overview" index="recon-engine-overview">
+    <ReconEngineOverview />
+  </FilterContext>
 }

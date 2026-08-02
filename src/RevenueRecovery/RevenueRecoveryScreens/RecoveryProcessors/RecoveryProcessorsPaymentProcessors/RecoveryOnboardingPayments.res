@@ -238,7 +238,7 @@ let make = (
         <div className="px-3 pb-5">
           <ConnectorWebhookPreview
             merchantId
-            connectorName=connectorInfoDict.id
+            connectorName=connectorInfoDict.connector_name
             textCss={`border border-nd_gray-400 ${body.md.medium} rounded-xl px-4 py-2 text-nd_gray-400 w-full !font-jetbrains-mono`}
             containerClass="flex flex-row items-center justify-between"
             displayTextLength=38

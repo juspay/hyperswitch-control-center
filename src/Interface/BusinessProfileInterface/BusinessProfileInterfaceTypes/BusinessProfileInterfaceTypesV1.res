@@ -46,6 +46,7 @@ type profileEntityRequestType_v1 = {
   is_external_vault_enabled: option<string>,
   external_vault_connector_details: option<externalVaultConnectorDetailsType_v1>,
   payment_method_blocking: option<JSON.t>,
+  surcharge_connector_details: option<surchargeConnectorDetailsType_v1>,
 }
 type webhookDetailsRequest_v1 = {webhook_url: option<JSON.t>}
 

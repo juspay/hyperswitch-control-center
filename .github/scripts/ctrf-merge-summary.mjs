@@ -34,7 +34,7 @@ function walk(d) {
   for (const e of entries) {
     const p = join(d, e);
     if (statSync(p).isDirectory()) files = files.concat(walk(p));
-    else if (/^ctrf-shard-\d+\.json$/.test(e)) files.push(p);
+    else if (/^ctrf-shard-(\d+|visual)\.json$/.test(e)) files.push(p);
   }
   return files;
 }
@@ -72,7 +72,8 @@ const push = (map, shard, value) => {
 };
 
 for (const file of files) {
-  const shard = Number(basename(file).match(/ctrf-shard-(\d+)\.json/)[1]);
+  const shardRaw = basename(file).match(/ctrf-shard-(\d+|visual)\.json/)[1];
+  const shard = shardRaw === "visual" ? "visual" : Number(shardRaw);
   let report;
   try {
     report = JSON.parse(readFileSync(file, "utf8"));
@@ -129,9 +130,14 @@ const section = (map, title, count, open) => {
     `<details${open ? " open" : ""}><summary><b>${title} (${count})</b></summary>`,
     "",
   );
-  for (const shard of [...map.keys()].sort((a, b) => a - b)) {
+  for (const shard of [...map.keys()].sort((a, b) => {
+    if (typeof a === "number" && typeof b === "number") return a - b;
+    if (typeof a === "number") return -1;
+    if (typeof b === "number") return 1;
+    return String(a).localeCompare(String(b));
+  })) {
     const items = map.get(shard);
-    out.push(`**Shard ${shard}/4** (${items.length})`, "");
+    out.push(`**${typeof shard === "number" ? `Shard ${shard}/4` : "Visual Tests"}** (${items.length})`, "");
     for (const item of items) out.push(`- \`${item}\``);
     out.push("");
   }

@@ -6,7 +6,15 @@ type tab = {
 }
 
 @react.component
-let make = (~tabs, ~initialIndex=?, ~onTitleClick=?, ~disabledTab=[]) => {
+let make = (
+  ~tabs,
+  ~initialIndex=?,
+  ~onTitleClick=?,
+  ~disabledTab=[],
+  ~variant=TabsBinding.Underline,
+  ~size=TabsBinding.Lg,
+  ~fitContent=?,
+) => {
   let initialIndex = initialIndex->Option.getOr(0)
   let (selectedValue, setSelectedValue) = React.useState(() => initialIndex->Int.toString)
 
@@ -41,11 +49,7 @@ let make = (~tabs, ~initialIndex=?, ~onTitleClick=?, ~disabledTab=[]) => {
 
   <ErrorBoundary>
     <TabsBinding
-      value={selectedValue}
-      onValueChange={handleValueChange}
-      variant=TabsBinding.Underline
-      size=TabsBinding.Lg
-      items
+      value={selectedValue} onValueChange={handleValueChange} variant size ?fitContent items
     />
   </ErrorBoundary>
 }
