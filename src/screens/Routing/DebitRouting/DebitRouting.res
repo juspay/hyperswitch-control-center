@@ -1,5 +1,5 @@
 @react.component
-let make = () => {
+let make = (~isCutover=false, ~onDecisionEngineRedirect=_ => ()) => {
   open Typography
   let (showLeastCostModal, setShowLeastCostModal) = React.useState(_ => false)
   let (showManageModal, setShowManageModal) = React.useState(_ => false)
@@ -10,7 +10,9 @@ let make = () => {
       HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
     ).is_debit_routing_enabled->Option.getOr(false)
   let handleButtonClick = _ => {
-    if debitRoutingValue {
+    if isCutover {
+      onDecisionEngineRedirect("debit")
+    } else if debitRoutingValue {
       setShowManageModal(_ => true)
     } else {
       setShowLeastCostModal(_ => true)

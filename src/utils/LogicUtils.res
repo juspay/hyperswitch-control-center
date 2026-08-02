@@ -5,6 +5,10 @@ let isEmptyString = str => str->String.length === 0
 
 let isNonEmptyString = str => str->String.length > 0
 
+let getErrorMessage = (~message, ~error, ~fallback="Something went wrong") => {
+  message->isNonEmptyString ? message : error->isNonEmptyString ? error : fallback
+}
+
 let methodStr = (method: Fetch.requestMethod) => {
   switch method {
   | Get => "GET"
@@ -680,7 +684,7 @@ let removeTrailingSlash = str => {
 }
 
 let getMappedValueFromArrayOfJson = (array, itemToObjMapper) =>
-  array->Belt.Array.keepMap(JSON.Decode.object)->Array.map(itemToObjMapper)
+  array->Array.filterMap(JSON.Decode.object)->Array.map(itemToObjMapper)
 
 let uniqueObjectFromArrayOfObjects = (arr, keyExtractor) => {
   let uniqueDict = Dict.make()

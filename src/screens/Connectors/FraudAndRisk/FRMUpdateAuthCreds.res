@@ -44,9 +44,17 @@ let make = (
       let _ = await updateAPIHook(url, values, Post)
       let _ = await updateMerchantDetails()
       setShowEditForm(_ => false)
-      showToast(~message="FRM Credentials Updated!", ~toastType=ToastSuccess)
+      showToast(~message="Details Updated!", ~toastType=ToastSuccess)
     } catch {
-    | _ => showToast(~message="Failed to update FRM credentials", ~toastType=ToastError)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to update connector details")
+        let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
+        showToast(
+          ~message=errorMessage->isNonEmptyString ? errorMessage : err,
+          ~toastType=ToastError,
+        )
+      }
+    | _ => showToast(~message="Failed to update connector details", ~toastType=ToastError)
     }
 
     Nullable.null

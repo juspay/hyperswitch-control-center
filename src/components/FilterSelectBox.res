@@ -201,9 +201,7 @@ module ListItem = {
           {if !isDropDown {
             if showToggle {
               <div className={toggleClass ++ toggleProps} onClick>
-                <BoolInput.BaseComponent
-                  isSelected=toggleSelect size=optionSize setIsSelected=onToggleSelect isDisabled
-                />
+                <SwitchAdapter isSelected=toggleSelect setIsSelected=onToggleSelect isDisabled />
               </div>
             } else if multiSelect {
               <span className=toggleClass>
@@ -744,11 +742,10 @@ module BaseSelect = {
                 <div className="flex  mr-5 justify-end">
                   {switch allSelectType {
                   | Icon =>
-                    <BoolInput.BaseComponent
+                    <SwitchAdapter
                       isSelected=isChooseAllToggleSelected
                       setIsSelected=toggleSelectAll
                       isDisabled=disableSelect
-                      size=optionSize
                     />
                   | Text =>
                     <AddDataAttributes

@@ -240,7 +240,7 @@ module IconSettings = {
     ~onEmailLogoRemove: unit => unit=() => (),
     ~themeConfigVersion,
   ) => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
 
     let logoAccept = ".png,.jpg,.jpeg"
     let faviconAccept = ".png,.ico,.jpg,.jpeg"
