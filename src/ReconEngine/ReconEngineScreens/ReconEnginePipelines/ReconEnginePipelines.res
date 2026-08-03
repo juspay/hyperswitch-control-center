@@ -47,33 +47,35 @@ let make = () => {
   }, [])
 
   <div className="flex flex-col">
-    <div className="flex flex-row justify-between items-center">
+    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
       <PageHeading
-        title="Pipelines" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
+        title="Pipelines"
+        customTitleStyle={`${heading.lg.semibold}`}
+        customHeadingStyle="py-0 !mb-0"
       />
-      <div className="flex flex-row items-start gap-3">
-        <DynamicFilter
-          title="ReconEnginePipelinesFilters"
-          initialFilters=[]
-          options=[]
-          popupFilterFields=[]
-          initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
-            null,
-            ~events=dateDropDownTriggerMixpanelCallback,
-          )}
-          defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-          tabNames=filterKeys
-          key="ReconEnginePipelinesFilters"
-          updateUrlWith=updateExistingKeys
-          filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
-          showCustomFilter=false
-          refreshFilters=false
-        />
-        <div className="mt-5">
-          <ReconEnginePipelinesUploadModal
-            accountData onClose={() => setRefreshTrigger(prev => !prev)}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="-mt-8 lg:-mt-4 -mb-2">
+          <DynamicFilter
+            title="ReconEnginePipelinesFilters"
+            initialFilters=[]
+            options=[]
+            popupFilterFields=[]
+            initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
+              null,
+              ~events=dateDropDownTriggerMixpanelCallback,
+            )}
+            defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+            tabNames=filterKeys
+            key="ReconEnginePipelinesFilters"
+            updateUrlWith=updateExistingKeys
+            filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+            showCustomFilter=false
+            refreshFilters=false
           />
         </div>
+        <ReconEnginePipelinesUploadModal
+          accountData onModalToggle={() => setRefreshTrigger(prev => !prev)}
+        />
       </div>
     </div>
     <ReconEnginePipelinesStatCards refreshTrigger />
