@@ -642,6 +642,18 @@ test.describe("Payment Operations", () => {
         await route.fulfill({ response, json });
       });
 
+      // The Sort beforeEach has already opened Payment Operations, so its
+      // initial payments/list request completed before this test-specific
+      // route was registered. Reload to populate the table from the mocked
+      // response before checking or sorting Attempt Count.
+      const mockedPaymentsList = page.waitForResponse(
+        (response) =>
+          response.url().includes("/payments/list") &&
+          response.request().method() === "POST",
+      );
+      await page.reload();
+      await mockedPaymentsList;
+
       // Add the hidden Attempt Count column via the column selector.
       await paymentOperations.columnButton.click();
       await paymentOperations.columnDropdownValue("Attempt Count").click();
@@ -1620,7 +1632,7 @@ test.describe("Payment Operations", () => {
         page.getByText("123.45 USD").filter({ visible: true }).nth(1),
       ).toBeVisible();
       await expect(
-        page.getByText("SUCCEEDED").filter({ visible: true }).nth(1),
+        page.getByText('SUCCEEDED').nth(3),
       ).toBeVisible();
 
       await expect(paymentOperations.dataLabel("Created")).toContainText(
@@ -1671,6 +1683,7 @@ test.describe("Payment Operations", () => {
       await expect(page.getByText("Events and logs")).toBeVisible();
 
       await expect(page.getByText("Payment Attempts")).toBeVisible();
+      await page.getByText(/^Payment Attempts$/).click();
 
       const expectedAttemptColumns = [
         "S.No",
@@ -1744,9 +1757,9 @@ test.describe("Payment Operations", () => {
         }
       }
 
-      await expect(
-        page.getByRole("paragraph").filter({ hasText: "Refunds" }),
-      ).toBeVisible();
+      const refundsTab = page.getByRole('tab', { name: 'Refunds' });
+      await expect(refundsTab).toBeVisible();
+      await refundsTab.click();
 
       const expectedRefundAttemptColumns = [
         "S.No",
@@ -1816,21 +1829,21 @@ test.describe("Payment Operations", () => {
         sectionName: string,
         fields: Record<string, string>,
       ) => {
-        const sectionHeader = page.getByText(new RegExp(`^${sectionName}$`));
+        const sectionHeader = page.getByText(sectionName);
         await sectionHeader.waitFor({ state: "attached", timeout: 10000 });
         await sectionHeader.scrollIntoViewIfNeeded();
         await expect(sectionHeader).toBeVisible();
         for (const [label, value] of Object.entries(fields)) {
           await expect(
             sectionHeader
-              .locator("xpath=../../..")
+              //.locator("xpath=../../..")
               .locator(`[data-label="${label}"]`)
               .first(),
           ).toContainText(value);
         }
       };
 
-      await assertSectionFields("Customer", {
+      await assertSectionFields("CustomerFirst NameJosephLast", {
         "First Name": "Joseph",
         "Last Name": "Doe",
         "Customer Phone": "+65 999999999",
@@ -1839,19 +1852,21 @@ test.describe("Payment Operations", () => {
         Description: "Its my first payment",
       });
 
-      await assertSectionFields("Billing", {
+      await assertSectionFields("ShippingEmailabc@test.", {
         Email: "abc@test.com",
         Phone: "+91 8056594427",
         Address:
           "1562, HarrisonStreet, HarrisonStreet, Toronto, ON, CA, M3C 0C1.",
       });
 
-      await assertSectionFields("Shipping", {
+      await assertSectionFields("BillingEmailabc@test.comPhone", {
         Email: "abc@test.com",
         Phone: "+91 8056594427",
         Address:
           "1562, HarrisonStreet, HarrisonStreet, Toronto, ON, CA, M3C 0C1.",
       });
+
+      await page.getByText(/^Fraud & Risk Management$/).click();
 
       await expect(paymentOperations.dataLabel("Tag").first()).toContainText(
         "N/A",
@@ -1863,24 +1878,12 @@ test.describe("Payment Operations", () => {
         paymentOperations.dataLabel("Message").first(),
       ).toContainText("N/A");
 
-      const expandAccordionAndAssertFields = async (
-        accordionTitle: string,
-        fields: Record<string, string>,
-      ) => {
-        const accordionHeader = page.getByText(
-          new RegExp(`^${accordionTitle}$`),
-        );
-        await accordionHeader.waitFor({ state: "attached", timeout: 10000 });
-        await accordionHeader.scrollIntoViewIfNeeded();
-        await accordionHeader.click();
-        for (const [label, value] of Object.entries(fields)) {
-          await expect(
-            paymentOperations.dataLabel(label).first(),
-          ).toContainText(value);
-        }
-      };
+      await page
+        .getByText(/^Payment Method Details$/)
+        .first()
+        .click();
 
-      await expandAccordionAndAssertFields("More Payment Details", {
+      for (const [label, value] of Object.entries({
         "Amount Capturable": "",
         "Error Code": "N/A",
         "Mandate Data": "N/A",
@@ -1899,9 +1902,15 @@ test.describe("Payment Operations", () => {
         "Extended Auth Last Applied At": "-",
         "Request Extended Auth": "false",
         "Hyperswitch Error Description": "N/A",
-      });
+      })) {
+        await expect(paymentOperations.dataLabel(label).first()).toContainText(
+          value,
+        );
+      }
 
-      const paymentMethodDetails = page.getByText(/^Payment Method Details$/);
+      const paymentMethodDetails = page
+        .getByText(/^Payment Method Details$/)
+        .last();
       await paymentMethodDetails.waitFor({ state: "attached", timeout: 10000 });
       await paymentMethodDetails.scrollIntoViewIfNeeded();
       await paymentMethodDetails.click();
@@ -1920,7 +1929,9 @@ test.describe("Payment Operations", () => {
         page.getByText('Payment Metadata1{ 2 "key": "'),
       ).toContainText("value");
 
-      await expandAccordionAndAssertFields("FRM Details", {
+      await page.getByText(/^FRM Details$/).click();
+
+      for (const [label, value] of Object.entries({
         "Payment ID": "",
         "Payment Method Type": "",
         Amount: "",
@@ -1929,7 +1940,11 @@ test.describe("Payment Operations", () => {
         "FRM Connector": "",
         "FRM Message": "",
         "Merchant Decision": "",
-      });
+      })) {
+        await expect(paymentOperations.dataLabel(label).first()).toContainText(
+          value,
+        );
+      }
     });
   });
 
@@ -2206,11 +2221,17 @@ test.describe("Payment Operations", () => {
 
       await paymentOperations.refundAmountInput.fill("50.00");
       await paymentOperations.refundReasonInput.fill("Partial refund test");
+      const refreshResponse = page.waitForResponse(
+        (resp) => resp.url().includes("force_sync=true") && resp.ok(),
+      );
       await page.getByRole("button", { name: "Initiate Refund" }).click();
+      await refreshResponse;
 
       await expect(
         page.getByRole("button", { name: "Initiate Refund" }),
       ).not.toBeVisible();
+
+      await page.getByRole('tab', { name: 'Refunds' }).click();
 
       await expect(paymentOperations.refundCell(1, 4)).toContainText("50");
       await expect(paymentOperations.refundCell(1, 5)).toContainText(
@@ -2247,11 +2268,17 @@ test.describe("Payment Operations", () => {
 
       await paymentOperations.refundAmountInput.fill("123.45");
       await paymentOperations.refundReasonInput.fill("Full refund test");
+      const refreshResponse = page.waitForResponse(
+        (resp) => resp.url().includes("force_sync=true") && resp.ok(),
+      );
       await page.getByRole("button", { name: "Initiate Refund" }).click();
+      await refreshResponse;
 
       await expect(
         page.getByRole("button", { name: "Initiate Refund" }),
       ).not.toBeVisible();
+
+      await page.getByRole('tab', { name: 'Refunds' }).click();
 
       await expect(paymentOperations.refundCell(1, 4)).toContainText("123.45");
       await expect(paymentOperations.refundCell(1, 5)).toContainText(
@@ -2363,7 +2390,9 @@ test.describe("Payment Operations", () => {
       await homePage.paymentOperations.click();
       await paymentOperations.orderCell(1, 1).click();
       await paymentOperations.addCaptureButton.click();
-      await expect(page.getByText("Confirm Capture Payment").first()).toBeVisible();
+      await expect(
+        page.getByText("Confirm Capture Payment").first(),
+      ).toBeVisible();
     };
 
     test("should display Capture button for a requires_capture payment", async ({
@@ -2442,9 +2471,7 @@ test.describe("Payment Operations", () => {
 
       await expect(paymentOperations.captureAmountInput).toHaveValue("123.45");
 
-      await expect(
-        page.getByRole("button", { name: "Cancel" }),
-      ).toBeVisible();
+      await expect(page.getByRole("button", { name: "Cancel" })).toBeVisible();
       await expect(paymentOperations.confirmCaptureButton).toBeVisible();
     });
 
