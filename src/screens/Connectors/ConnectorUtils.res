@@ -2522,9 +2522,7 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
   }
 }
 
-let getConnectorCategory = (connector: ConnectorTypes.connectorTypes): option<
-  ConnectorTypes.connector,
-> =>
+let getConnectorCategory = (connector: connectorTypes): option<connector> =>
   switch connector {
   | Processors(_) => Some(Processor)
   | PayoutProcessor(_) => Some(PayoutProcessor)
@@ -2538,7 +2536,7 @@ let getConnectorCategory = (connector: ConnectorTypes.connectorTypes): option<
   | UnknownConnector(_) => None
   }
 
-let matchesConnectorTypeSearch = (connector: ConnectorTypes.connectorTypes, searchText) => {
+let matchesConnectorTypeSearch = (connector: connectorTypes, searchText) => {
   let connectorName = connector->getConnectorNameString
   let displayName = switch connector->getConnectorCategory {
   | Some(connectorType) => connectorName->getDisplayNameForConnector(~connectorType)
@@ -2550,7 +2548,7 @@ let matchesConnectorTypeSearch = (connector: ConnectorTypes.connectorTypes, sear
 
 let matchesConnectorSearch = (
   ~connectorType=ConnectorTypes.Processor,
-  connector: ConnectorTypes.connectorPayloadCommonType,
+  connector: connectorPayloadCommonType,
   searchText,
 ) => {
   let displayName = connector.connector_name->getDisplayNameForConnector(~connectorType)
