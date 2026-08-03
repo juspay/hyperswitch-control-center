@@ -599,7 +599,7 @@ module AutoRetries = {
           field={makeFieldInfo(
             ~name="is_auto_retries_enabled",
             ~label="Auto Retries",
-            ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
+            ~customInput=InputFields.switchInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
             ~description="Automatically re-attempts a failed payment using the same payment method details. Our system will continue retrying the transaction on a defined routed list until it is successful or all attempts have been exhausted.",
           )}
         />
@@ -648,7 +648,7 @@ module ClickToPaySection = {
           field={makeFieldInfo(
             ~name="is_click_to_pay_enabled",
             ~label="Click to Pay",
-            ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
+            ~customInput=InputFields.switchInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
             ~description="Click to Pay is a secure, seamless digital payment solution that lets customers checkout quickly using saved cards without entering details",
             ~toolTipPosition=Right,
           )}
@@ -975,7 +975,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false) => {
                     field={makeFieldInfo(
                       ~name="is_connector_agnostic_mit_enabled",
                       ~label="Connector Agnostic",
-                      ~customInput=InputFields.boolInput(
+                      ~customInput=InputFields.switchInput(
                         ~isDisabled=false,
                         ~boolCustomClass="rounded-lg ",
                       ),
@@ -989,7 +989,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false) => {
                     field={makeFieldInfo(
                       ~name="force_3ds_challenge",
                       ~label="Force 3DS Challenge",
-                      ~customInput=InputFields.boolInput(
+                      ~customInput=InputFields.switchInput(
                         ~isDisabled=false,
                         ~boolCustomClass="rounded-lg ",
                       ),
@@ -1003,7 +1003,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false) => {
                     field={makeFieldInfo(
                       ~name="is_network_tokenization_enabled",
                       ~label="Network Tokenization",
-                      ~customInput=InputFields.boolInput(
+                      ~customInput=InputFields.switchInput(
                         ~isDisabled=!featureFlagDetails.networkTokenization,
                         ~boolCustomClass="rounded-lg",
                       ),
@@ -1030,7 +1030,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false) => {
                     field={makeFieldInfo(
                       ~name="always_request_extended_authorization",
                       ~label="Extended Authorization",
-                      ~customInput=InputFields.boolInput(
+                      ~customInput=InputFields.switchInput(
                         ~isDisabled=false,
                         ~boolCustomClass="rounded-lg",
                       ),
@@ -1046,7 +1046,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false) => {
                     field={makeFieldInfo(
                       ~name="always_enable_overcapture",
                       ~label="Always Enable Overcapture",
-                      ~customInput=InputFields.boolInput(
+                      ~customInput=InputFields.switchInput(
                         ~isDisabled=false,
                         ~boolCustomClass="rounded-lg",
                       ),
@@ -1064,7 +1064,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false) => {
                     field={makeFieldInfo(
                       ~name="is_manual_retry_enabled",
                       ~label="Manual Retries",
-                      ~customInput=InputFields.boolInput(
+                      ~customInput=InputFields.switchInput(
                         ~isDisabled=false,
                         ~boolCustomClass="rounded-lg",
                       ),
