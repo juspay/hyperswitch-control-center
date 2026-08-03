@@ -56,6 +56,7 @@ let make = (~previewOnly=false) => {
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filters, setFilters) = React.useState(_ => None)
+  let (transactionViewStatuses, setTransactionViewStatuses) = React.useState(_ => [])
   let (sortAtomValue, setSortAtom) = Recoil.useRecoilState(LoadedTable.sortAtom)
   let (widthClass, heightClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "max-h-96") : ("w-full", "")
@@ -288,6 +289,13 @@ let make = (~previewOnly=false) => {
       submitInputOnEnter=true
       customLeftView={<div className="flex flex-col gap-1"> {searchBarWithInfo} </div>}
       customFilterActions=savedViewsAction
+      setRemoteFilterData={filterData =>
+        setTransactionViewStatuses(_ =>
+          filterData
+          ->getDictFromJsonObject
+          ->getArrayFromDict("status", [])
+          ->getStrArrayFromJsonArray
+        )}
       entityName={switch version {
       | V1 => V1(ORDER_FILTERS)
       | V2 => V2(V2_ORDER_FILTERS)
@@ -382,7 +390,10 @@ let make = (~previewOnly=false) => {
       </div>
       <RenderIf condition={transactionView}>
         <TransactionView
-          entity=TransactionViewTypes.Orders version isAdvancedView=isAdvancedSource
+          entity=TransactionViewTypes.Orders
+          version
+          isAdvancedView=isAdvancedSource
+          allStatuses=transactionViewStatuses
         />
       </RenderIf>
       <div className="flex">
