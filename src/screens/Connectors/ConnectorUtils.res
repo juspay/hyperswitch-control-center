@@ -2538,10 +2538,12 @@ let getConnectorCategory = (connector: connectorTypes): option<connector> =>
 
 let matchesConnectorTypeSearch = (connector: connectorTypes, searchText) => {
   let connectorName = connector->getConnectorNameString
-  let displayName = switch connector->getConnectorCategory {
-  | Some(connectorType) => connectorName->getDisplayNameForConnector(~connectorType)
-  | None => connectorName
-  }
+  let displayName =
+    connector
+    ->getConnectorCategory
+    ->mapOptionOrDefault(connectorName, connectorType =>
+      connectorName->getDisplayNameForConnector(~connectorType)
+    )
 
   [connectorName, displayName]->Array.some(value => isContainingStringLowercase(value, searchText))
 }
