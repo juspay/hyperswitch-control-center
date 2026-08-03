@@ -331,10 +331,6 @@ let getConvertedEntriesFromStagingEntry = (stagingEntry: processingEntryType) =>
       "transformation_id",
       stagingEntry.transformation_config.transformation_config_id->JSON.Encode.string,
     ),
-    (
-      "transformation_name",
-      stagingEntry.transformation_config.transformation_config_name->JSON.Encode.string,
-    ),
   ]
   ->Dict.fromArray
   ->JSON.Encode.object

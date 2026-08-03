@@ -188,16 +188,6 @@ let getInitialValuesForEditEntries = (entryDetails: processingEntryType) => {
     ("account_id", entryDetails.account.account_id->JSON.Encode.string),
     ("account_name", entryDetails.account.account_name->JSON.Encode.string),
   ]
-  let transformationConfig = [
-    (
-      "transformation_config_id",
-      entryDetails.transformation_config.transformation_config_id->JSON.Encode.string,
-    ),
-    (
-      "transformation_config_name",
-      entryDetails.transformation_config.transformation_config_name->JSON.Encode.string,
-    ),
-  ]
   let fields = [
     ("account", account->getJsonFromArrayOfJson),
     ("entry_type", (entryDetails.entry_type :> string)->JSON.Encode.string),
@@ -205,7 +195,10 @@ let getInitialValuesForEditEntries = (entryDetails: processingEntryType) => {
     ("amount", entryDetails.amount->JSON.Encode.float),
     ("order_id", entryDetails.order_id->JSON.Encode.string),
     ("effective_at", entryDetails.effective_at->JSON.Encode.string),
-    ("transformation_config", transformationConfig->getJsonFromArrayOfJson),
+    (
+      "transformation_id",
+      entryDetails.transformation_config.transformation_config_id->JSON.Encode.string,
+    ),
     (
       "metadata",
       entryDetails.metadata
