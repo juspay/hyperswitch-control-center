@@ -1253,12 +1253,10 @@ test.describe("All Payin Connectors", () => {
       await homePage.paymentProcessors.click();
 
       await paymentConnector.connectorSearchInput.fill(connector.label);
-
-      if (connector.label === "hipay") {
-        await paymentConnector.addConnectButton.nth(3).click();
-      } else {
-        await paymentConnector.addConnectButton.nth(2).click();
-      }
+      await page
+        .getByTestId(connector.label)
+        .getByRole("button", { name: "Connect" })
+        .click();
 
       await assertConnectorFieldLabels(page, connector.fields.fieldLabels);
       await fillConnectorFields(page, connector.fields);

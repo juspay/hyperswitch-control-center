@@ -13,7 +13,9 @@ module MetadataView = {
         customTextCss={`${Typography.body.sm.medium} text-nd_gray-600`}
         copyValue={Some(metadata->JSON.stringify)}
       />
-      <PrettyPrintJson jsonToDisplay={metadata->JSON.stringify} />
+      <pre className="overflow-x-auto text-nd_gray-800">
+        {metadata->JSON.stringifyWithIndent(3)->React.string}
+      </pre>
     </div>
   }
 }
@@ -153,13 +155,15 @@ module LineageContent = {
 module ModalContentRenderer = {
   @react.component
   let make = (~content: modalContentType, ~onClose: unit => unit) => {
-    <div className="h-full relative p-6">
-      {switch content {
-      | MetadataContent(metadata) => <MetadataView metadata />
-      | LineageContent(entry) => <LineageContent entry />
-      | UnknownModalContent => React.null
-      }}
-      <div className="absolute bottom-0 left-0 right-0 bg-white p-4">
+    <div className="h-full relative">
+      <div className="absolute inset-0 overflow-y-auto p-6 pb-20">
+        {switch content {
+        | MetadataContent(metadata) => <MetadataView metadata />
+        | LineageContent(entry) => <LineageContent entry />
+        | UnknownModalContent => React.null
+        }}
+      </div>
+      <div className="absolute bottom-0 left-0 right-0 bg-white p-4 border-t border-nd_gray-150">
         <Button
           customButtonStyle="!w-full" buttonType=Button.Primary onClick={_ => onClose()} text="OK"
         />

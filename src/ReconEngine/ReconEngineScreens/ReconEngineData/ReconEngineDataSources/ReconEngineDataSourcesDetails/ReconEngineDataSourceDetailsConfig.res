@@ -8,6 +8,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
   open ReconEngineDataSourcesTypes
 
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let dataDict = config.data->getDictFromJsonObject
   let ingestionType = dataDict->getString("ingestion_type", "")
   let allKeyValuePairs = getKeyValuePairsFromDict(dataDict)
@@ -134,6 +135,10 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
         `${successCount->Int.toString} uploaded, ${failCount->Int.toString} failed.`
       }
       showToast(~message, ~toastType={failCount == 0 ? ToastSuccess : ToastError})
+
+      if successCount > 0 {
+        ReconEngineFilterUtils.refreshEndTimeFilter(updateExistingKeys)
+      }
     }
   }
 

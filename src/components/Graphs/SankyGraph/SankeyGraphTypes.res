@@ -54,6 +54,7 @@ type nodeDataLabels = {
 
 type node = {
   id: string,
+  color?: string,
   dataLabels: nodeDataLabels,
   offset?: int,
   column?: int,
