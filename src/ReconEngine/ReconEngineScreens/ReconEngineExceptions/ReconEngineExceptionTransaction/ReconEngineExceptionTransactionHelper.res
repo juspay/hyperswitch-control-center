@@ -239,14 +239,24 @@ module ExceptionDataDisplay = {
     }
 
     let mismatchedFields = mismatchData->getMismatchedFieldsFromMismatchData
-    let ruleName = currentExceptionDetails.rule.rule_name
-    let headingText =
-      heading->isNonEmptyString && ruleName->isNonEmptyString
-        ? `${heading} in ${ruleName}`
-        : heading
+    let {rule_id: ruleId, rule_name: ruleName} = currentExceptionDetails.rule
+    let isRuleNamed = heading->isNonEmptyString && ruleName->isNonEmptyString
 
     <div className="flex flex-col gap-2">
-      <div className={`text-nd_red-700 ${body.md.semibold}`}> {headingText->React.string} </div>
+      <div className="flex flex-row items-center gap-1.5">
+        <p className={`text-nd_red-700 ${body.md.semibold}`}>
+          {(isRuleNamed ? `${heading} in ${ruleName}` : heading)->React.string}
+        </p>
+        <RenderIf condition={isRuleNamed && ruleId->isNonEmptyString}>
+          <Link to_={GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/rules/${ruleId}`)}>
+            <Icon
+              name="nd-external-link-square"
+              size=14
+              className="text-nd_red-700 hover:text-nd_red-500 cursor-pointer shrink-0"
+            />
+          </Link>
+        </RenderIf>
+      </div>
       <RenderIf condition={mismatchedFields->Array.length == 0}>
         <div className={`${body.md.regular} text-nd_gray-600`}> {subHeading->React.string} </div>
       </RenderIf>
