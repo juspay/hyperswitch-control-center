@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.03.0
+
+### Bug Fixes
+
+- Migrate dashboard controls to Blend ([#5278](https://github.com/juspay/hyperswitch-control-center/pull/5278)) ([`90a5576`](https://github.com/juspay/hyperswitch-control-center/commit/90a5576a2428ab2cb6de499e6cdb780472e61507))
+
+**Full Changelog:** [`2026.07.31.0...2026.08.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.07.31.0...2026.08.03.0)
+
+- - -
+
 ## 2026.07.31.0
 
 ### Bug Fixes
