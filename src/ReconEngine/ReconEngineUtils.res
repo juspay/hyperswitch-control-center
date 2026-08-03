@@ -415,13 +415,10 @@ let linkedTransactionItemToObjMapper = dict => {
 }
 
 let mismatchedFieldItemToObjMapper = (dict): mismatchedFieldType => {
+  // An explicit null is as absent as a missing key, so both land on "N/A"
   let displayValue = key =>
     dict->getMappedValueFromDict(key, "N/A", json =>
-      switch json->JSON.Classify.classify {
-      | Null => "N/A"
-      | String(value) => value
-      | _ => json->JSON.stringify
-      }
+      json->isNullJson ? "N/A" : json->getStringFromJson(json->JSON.stringify)
     )
   {
     field_name: dict->getString("field_name", ""),

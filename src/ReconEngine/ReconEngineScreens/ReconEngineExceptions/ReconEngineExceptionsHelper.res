@@ -539,7 +539,6 @@ module MismatchSummary = {
             <span className={`${body.md.regular} text-nd_gray-600 whitespace-nowrap`}>
               {mismatchedFields->ReconEngineUtils.getMismatchedFieldsDescription->React.string}
             </span>
-            // shrink-0 belongs on parentClass: Icon wraps the svg in a div, and that div is the flex child
             <Icon
               name="nd-chevron-down"
               size=16
