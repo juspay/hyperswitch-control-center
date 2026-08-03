@@ -50,7 +50,7 @@ let make = () => {
             />}
         />
       </AccessControl>
-    | list{"v2", "orchestration", "payment-settings", ..._} => <PaymentSettingsRevamped />
+    | list{"v2", "orchestration", "payment-settings", ..._} => <PaymentSettings />
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
     }}
