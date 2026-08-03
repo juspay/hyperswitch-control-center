@@ -32,6 +32,7 @@ let make = () => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let inputRef = React.useRef(Nullable.null)
   let filtersEnabled = globalSearchFilters
+  let (clipboardSuggestion, setClipboardSuggestion) = React.useState(_ => None)
 
   let redirectOnSelect = element => {
     mixpanelEvent(~eventName="global_search_redirect")
@@ -151,6 +152,21 @@ let make = () => {
     setLocalSearchText(_ => "")
     setFilterText("")
     setSelectedFilter(_ => None)
+    setClipboardSuggestion(_ => None)
+
+    if showModal {
+      let readClipboard = async () => {
+        let clipboardText = await Clipboard.readText()
+        switch clipboardText {
+        | Some(text) =>
+          let suggestion = text->detectClipboardId
+          setClipboardSuggestion(_ => suggestion)
+        | None => ()
+        }
+      }
+      readClipboard()->ignore
+    }
+
     None
   }, [showModal])
 
@@ -200,6 +216,14 @@ let make = () => {
       setFilterText(newFilter)
     }
 
+    revertFocus(~inputRef)
+  }
+
+  let onClipboardSuggestionClicked = (suggestion: clipboardSuggestion) => {
+    let filterKey = (suggestion.idType :> string)->camelToSnake
+    setLocalSearchText(_ => `${filterKey}:${suggestion.id}`)
+    setFilterText("")
+    setClipboardSuggestion(_ => None)
     revertFocus(~inputRef)
   }
 
@@ -286,6 +310,7 @@ let make = () => {
             />
           | FiltersSugsestions =>
             <RenderIf condition={filtersEnabled}>
+              <ClipboardSuggestion clipboardSuggestion onClipboardSuggestionClicked />
               <FilterResultsComponent
                 categorySuggestions
                 activeFilter

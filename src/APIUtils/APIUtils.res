@@ -234,6 +234,22 @@ let useGetURL = () => {
         | _ => ""
         }
 
+      /* BLOCKLIST */
+      | BLOCKLIST_BATCH =>
+        switch methodType {
+        | Get =>
+          switch id {
+          | Some(jobId) => `blocklist/batch/${jobId}`
+          | None =>
+            switch queryParameters {
+            | Some(queryParams) => `blocklist/batch?${queryParams}`
+            | None => `blocklist/batch`
+            }
+          }
+        | Post => `blocklist/batch`
+        | _ => ""
+        }
+
       /* MERCHANT ACCOUNT DETAILS (Get and Post) */
       | MERCHANT_ACCOUNT => `accounts/${merchantId}`
 

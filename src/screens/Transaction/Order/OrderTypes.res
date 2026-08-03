@@ -22,10 +22,12 @@ type frmColType =
 type authenticationColType =
   | AuthenticationFlow
   | DsTransactionId
+  | ChallengeCancelCode
   | ElectronicCommerceIndicator
   | ErrorCode
   | ErrorMessage
   | Status
+  | TransStatusReason
   | Version
 
 type attemptColType =
@@ -274,6 +276,8 @@ type openSearchDisputeStatus = [
 type unsupportedAdvancedPaymentFilter = [#unified_code | #unified_message]
 
 type hiddenAdvancedPaymentFilter = [#first_attempt]
+
+type advancedPaymentSearchParam = [#query]
 
 type advancedPaymentTextListFilter = [
   | #card_last_4
