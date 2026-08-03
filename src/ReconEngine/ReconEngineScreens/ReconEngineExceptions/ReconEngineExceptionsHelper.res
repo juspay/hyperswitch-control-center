@@ -532,13 +532,13 @@ module MismatchSummary = {
 
     <RenderIf condition={mismatchedFields->isNonEmptyArray}>
       <div className="flex flex-col gap-2 w-full">
-        <div
-          className={`flex items-center gap-1.5 w-fit ${hasMultipleFields ? "cursor-pointer" : ""}`}
-          onClick={_ => hasMultipleFields ? setIsExpanded(prev => !prev) : ()}>
-          <span className={`${body.md.regular} text-nd_gray-600`}>
-            {mismatchedFields->ReconEngineUtils.getMismatchedFieldsDescription->React.string}
-          </span>
-          <RenderIf condition={hasMultipleFields}>
+        <RenderIf condition={hasMultipleFields}>
+          <div
+            className="flex items-center gap-1.5 w-fit cursor-pointer"
+            onClick={_ => setIsExpanded(prev => !prev)}>
+            <span className={`${body.md.regular} text-nd_gray-600`}>
+              {mismatchedFields->ReconEngineUtils.getMismatchedFieldsDescription->React.string}
+            </span>
             <Icon
               name="nd-chevron-down"
               size=16
@@ -546,8 +546,8 @@ module MismatchSummary = {
                   ? "rotate-180"
                   : ""}`}
             />
-          </RenderIf>
-        </div>
+          </div>
+        </RenderIf>
         <MismatchFieldList mismatchedFields isExpanded={!hasMultipleFields || isExpanded} />
       </div>
     </RenderIf>
