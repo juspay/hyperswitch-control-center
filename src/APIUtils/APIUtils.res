@@ -234,6 +234,22 @@ let useGetURL = () => {
         | _ => ""
         }
 
+      /* BLOCKLIST */
+      | BLOCKLIST_BATCH =>
+        switch methodType {
+        | Get =>
+          switch id {
+          | Some(jobId) => `blocklist/batch/${jobId}`
+          | None =>
+            switch queryParameters {
+            | Some(queryParams) => `blocklist/batch?${queryParams}`
+            | None => `blocklist/batch`
+            }
+          }
+        | Post => `blocklist/batch`
+        | _ => ""
+        }
+
       /* MERCHANT ACCOUNT DETAILS (Get and Post) */
       | MERCHANT_ACCOUNT => `accounts/${merchantId}`
 
@@ -1281,6 +1297,16 @@ let useGetURL = () => {
             | Some(queryParams) =>
               `${reconBaseURL}/overview/transactions/time_series?${queryParams}`
             | None => `${reconBaseURL}/overview/transactions/time_series`
+            }
+          | _ => ""
+          }
+        | #RULE_ACCOUNT_BREAKDOWN =>
+          switch methodType {
+          | Get =>
+            switch queryParameters {
+            | Some(queryParams) =>
+              `${reconBaseURL}/overview/transactions/rule_account_breakdown?${queryParams}`
+            | None => `${reconBaseURL}/overview/transactions/rule_account_breakdown`
             }
           | _ => ""
           }

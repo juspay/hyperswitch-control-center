@@ -12,7 +12,7 @@ export class PaymentConnector {
   }
 
   get pageBanner(): Locator {
-    return this.page.locator(".flex.flex-col.justify-evenly").first();
+    return this.page.locator(".flex.flex-col.justify-evenly");
   }
 
   get connectNowButton(): Locator {
@@ -70,27 +70,29 @@ export class PaymentConnector {
   }
 
   get connectorCreatedToast(): Locator {
-    return this.page.locator('[data-toast="Connector Created Successfully!"]');
+    return this.page.locator('[data-id="Connector Created Successfully!"]');
   }
 
   get connectorLabelExistsToast(): Locator {
     return this.page
-      .locator('[data-toast*="Connector label already exist!"]')
+      .locator('[data-id="Connector label already exist!"]')
       .first();
   }
 
   get detailsUpdatedToast(): Locator {
-    return this.page.locator('[data-toast*="Details Updated!"]').first();
+    return this.page.locator('[data-id="Details Updated!"]').first();
   }
 
   get paymentMethodToggle(): Locator {
-    return this.page
-      .locator(".flex.items-center.transition.rounded-2\\.5")
-      .first();
+    return this.page.locator("[data-bool-value]").first();
   }
 
   get connectorEnableToggle(): Locator {
-    return this.page.locator(".transition.rounded-full");
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^(Enabled|Disabled)$/ })
+      .locator("[data-bool-value]")
+      .first();
   }
 
   get submitButton(): Locator {

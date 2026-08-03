@@ -130,6 +130,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
           inputText=searchText
           onChange={value => setSearchText(_ => value)}
           placeholder="Search by ID"
+          autoFocus=false
           showTypeSelector=true
           typeSelectorOptions=searchTypeOptions
           onSubmitSearchDropdown=handleSearchSubmit

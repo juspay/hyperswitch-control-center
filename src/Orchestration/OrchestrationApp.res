@@ -59,7 +59,6 @@ let make = (~setScreenState) => {
         <TransactionContainer />
       </AccessControl>
     | list{"analytics-payments"}
-    | list{"performance-monitor"}
     | list{"analytics-refunds"}
     | list{"analytics-disputes"}
     | list{"analytics-authentication"}
@@ -105,6 +104,12 @@ let make = (~setScreenState) => {
         )}
         isEnabled={!checkUserEntity([#Profile])}>
         <KeyManagement />
+      </AccessControl>
+    | list{"blocklist"} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.devBlocklist}
+        authorization={userHasAccess(~groupAccess=AccountManage)}>
+        <Blocklist />
       </AccessControl>
     | list{"compliance"} =>
       <AccessControl isEnabled=featureFlagDetails.complianceCertificate authorization=Access>
