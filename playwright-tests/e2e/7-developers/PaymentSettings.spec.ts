@@ -48,6 +48,7 @@ test.describe("Payment Settings", () => {
       await homePage.paymentSettings.click();
 
       await expect(paymentSettings.paymentBehaviourTab).toBeVisible();
+      await expect(paymentSettings.webhookConfigurationTab).toBeVisible();
       await expect(paymentSettings.threeDSTab).toBeVisible();
       await expect(paymentSettings.customHeadersTab).toBeVisible();
       await expect(paymentSettings.metadataHeadersTab).toBeVisible();
@@ -103,6 +104,9 @@ test.describe("Payment Settings", () => {
 
       await expect(paymentSettings.collectBillingDetailsToggle).toBeVisible();
 
+      await paymentSettings.webhookConfigurationTab.click();
+      await expect(paymentSettings.webhookConfigurationHeader).toBeVisible();
+
       await paymentSettings.threeDSTab.click();
       await expect(paymentSettings.force3DSChallengeToggle).toBeVisible();
 
@@ -138,21 +142,23 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.clickToPayToggle).toBeVisible();
       await expect(paymentSettings.paymentMethodBlocking).toBeVisible();
       await expect(paymentSettings.returnUrlInput).toBeVisible();
-      await expect(paymentSettings.webhookUrlInput).toBeVisible();
       await expect(paymentSettings.updateButton).toBeVisible();
+    });
+
+    test("should display Merchant Category Code dropdown", async ({ page }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await expect(paymentSettings.merchantCategoryCodeDropdown).toBeVisible();
+      // TODO: Assert dropdown options are displayed correctly when clicked and correct value is selected when an option is clicked.
     });
 
     test("should allow entering values in form fields", async ({ page }) => {
       const paymentSettings = new PaymentSettings(page);
 
       await paymentSettings.fillReturnUrl("https://example.com/return");
-      await paymentSettings.fillWebhookUrl("https://example.com/webhook");
 
       await expect(paymentSettings.returnUrlInput).toHaveValue(
         "https://example.com/return",
-      );
-      await expect(paymentSettings.webhookUrlInput).toHaveValue(
-        "https://example.com/webhook",
       );
     });
 
@@ -415,6 +421,25 @@ test.describe("Payment Settings", () => {
         paymentSettings.buttonByName(new RegExp(connectorLabel)),
       ).toBeVisible();
     });
+  });
+
+  test.describe("Webhook Configuration Tab", () => {
+    test.beforeEach(async ({ page }) => {
+      const homePage = new HomePage(page);
+      const paymentSettings = new PaymentSettings(page);
+
+      await homePage.developer.click();
+      await homePage.paymentSettings.click();
+      await paymentSettings.webhookConfigurationTab.click();
+    });
+
+    test("should display webhook configuration header", async ({ page }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await expect(paymentSettings.webhookConfigurationHeader).toBeVisible();
+    });
+
+    // TODO: Assert additional fields for acquirer config settings are visible and can be interacted with.
   });
 
   test.describe("3DS Tab", () => {

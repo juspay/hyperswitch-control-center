@@ -1,4 +1,5 @@
 open PaymentSettingsRevampedUtils
+open PaymentSettingsRevampedTypes
 
 let maxAutoRetries = FormRenderer.makeFieldInfo(
   ~label="Max Auto Retries",
@@ -155,6 +156,82 @@ let vaultTokenList = {
     },
   )
 }
+
+let webhookVersion = FormRenderer.makeFieldInfo(
+  ~label="Webhook Version",
+  ~name="webhook_details.webhook_version",
+  ~placeholder="Enter Webhook Version",
+  ~customInput=InputFields.textInput(~autoComplete="off", ~customStyle="rounded-xl"),
+  ~isRequired=false,
+)
+
+let webhookUsername = FormRenderer.makeFieldInfo(
+  ~label="Webhook Username",
+  ~name="webhook_details.webhook_username",
+  ~placeholder="Enter Webhook Username",
+  ~customInput=InputFields.textInput(~autoComplete="off", ~customStyle="rounded-xl"),
+  ~isRequired=false,
+)
+
+let webhookPassword = FormRenderer.makeFieldInfo(
+  ~label="Webhook Password",
+  ~name="webhook_details.webhook_password",
+  ~placeholder="Enter Webhook Password",
+  ~customInput=InputFields.textInput(~autoComplete="off", ~customStyle="rounded-xl"),
+  ~isRequired=false,
+)
+
+let paymentStatusOptions = webhookPaymentStatusValues->Array.map(status => (status :> string))
+
+let refundStatusOptions = webhookRefundStatusValues->Array.map(status => (status :> string))
+
+let payoutStatusOptions = webhookPayoutStatusValues->Array.map(status => (status :> string))
+
+let makeDropdownOptions = (options: array<string>) =>
+  options->Array.map((item): SelectBox.dropdownOption => {
+    {label: item->LogicUtils.snakeToTitle, value: item}
+  })
+
+let paymentStatusesEnabled = FormRenderer.makeFieldInfo(
+  ~label="Payment Statuses",
+  ~name="webhook_details.payment_statuses_enabled",
+  ~customInput=InputFields.multiSelectInput(
+    ~options=paymentStatusOptions->makeDropdownOptions,
+    ~buttonText="Select Payment Statuses",
+    ~showSelectionAsChips=false,
+    ~customButtonStyle="!rounded-lg",
+    ~fixedDropDownDirection=BottomRight,
+    ~dropdownClassName="!max-h-15-rem !overflow-auto",
+  ),
+  ~isRequired=false,
+)
+
+let refundStatusesEnabled = FormRenderer.makeFieldInfo(
+  ~label="Refund Statuses",
+  ~name="webhook_details.refund_statuses_enabled",
+  ~customInput=InputFields.multiSelectInput(
+    ~options=refundStatusOptions->makeDropdownOptions,
+    ~buttonText="Select Refund Statuses",
+    ~showSelectionAsChips=false,
+    ~customButtonStyle="!rounded-lg",
+    ~fixedDropDownDirection=BottomRight,
+    ~dropdownClassName="!max-h-15-rem !overflow-auto",
+  ),
+  ~isRequired=false,
+)
+
+let payoutStatusesEnabled = FormRenderer.makeFieldInfo(
+  ~label="Payout Statuses",
+  ~name="webhook_details.payout_statuses_enabled",
+  ~customInput=InputFields.multiSelectInput(
+    ~options=payoutStatusOptions->makeDropdownOptions,
+    ~buttonText="Select Payout Statuses",
+    ~showSelectionAsChips=false,
+    ~customButtonStyle="!rounded-lg",
+    ~dropdownClassName="!max-h-15-rem !overflow-auto",
+  ),
+  ~isRequired=false,
+)
 
 let customExternalVaultEnabled = (
   ~input: ReactFinalForm.fieldRenderPropsInput,

@@ -9,6 +9,11 @@ let constructWebhookDetailsObject = webhookDetailsDict => {
   payment_created_enabled: webhookDetailsDict->getOptionBool("payment_created_enabled"),
   payment_succeeded_enabled: webhookDetailsDict->getOptionBool("payment_succeeded_enabled"),
   payment_failed_enabled: webhookDetailsDict->getOptionBool("payment_failed_enabled"),
+  payment_statuses_enabled: webhookDetailsDict->getOptionalArrayFromDict(
+    "payment_statuses_enabled",
+  ),
+  refund_statuses_enabled: webhookDetailsDict->getOptionalArrayFromDict("refund_statuses_enabled"),
+  payout_statuses_enabled: webhookDetailsDict->getOptionalArrayFromDict("payout_statuses_enabled"),
 }
 
 let constructAuthConnectorObject = authConnectorDict => {
