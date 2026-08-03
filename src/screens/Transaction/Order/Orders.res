@@ -68,6 +68,7 @@ let make = (~previewOnly=false) => {
   }
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->getValueFromDict(tableTitle, defaultValue)
+  let resultsPerPage = pageDetail.resultsPerPage
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let {filterValueJson, updateExistingKeys, reset, setfilterKeys} = React.useContext(
     FilterContext.filterContext,
@@ -148,7 +149,7 @@ let make = (~previewOnly=false) => {
         let filterParams = Dict.make()
 
         filterParams->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
-        filterParams->Dict.set("limit", pageDetail.resultsPerPage->Int.toFloat->JSON.Encode.float)
+        filterParams->Dict.set("limit", resultsPerPage->Int.toFloat->JSON.Encode.float)
         let trimmedSearchText = searchText->String.trim
         if trimmedSearchText->isNonEmptyString && !isAdvancedSource {
           filterParams->Dict.set("payment_id", trimmedSearchText->JSON.Encode.string)
@@ -208,7 +209,7 @@ let make = (~previewOnly=false) => {
       fetchOrders()
     }
     None
-  }, (offset, filters, searchText, isAdvancedSource, paymentListSourceResolved))
+  }, (offset, filters, searchText, isAdvancedSource, paymentListSourceResolved, resultsPerPage))
 
   let handleSourceChange = newSource => {
     setSelectedSource(_ => Some(newSource))
@@ -416,7 +417,7 @@ let make = (~previewOnly=false) => {
           title=tableTitle
           actualData=orderData
           entity=tableEntity
-          resultsPerPage=20
+          resultsPerPage
           showSerialNumber=true
           totalResults={previewOnly ? orderData->Array.length : totalCount}
           offset

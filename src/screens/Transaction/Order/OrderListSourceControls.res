@@ -20,8 +20,8 @@ module SourceTabs = {
         tabs
         initialIndex
         disabledTab
-        variant=TabsBinding.Boxed
-        size=TabsBinding.Md
+        variant=Boxed
+        size=Md
         fitContent=true
         onTitleClick={idx =>
           switch paymentListSources->Array.get(idx) {
