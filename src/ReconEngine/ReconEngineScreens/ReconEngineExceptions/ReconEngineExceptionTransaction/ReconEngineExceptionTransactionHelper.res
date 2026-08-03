@@ -239,15 +239,18 @@ module ExceptionDataDisplay = {
     }
 
     let mismatchedFields = mismatchData->getMismatchedFieldsFromMismatchData
+    let ruleName = currentExceptionDetails.rule.rule_name
+    let headingText =
+      heading->isNonEmptyString && ruleName->isNonEmptyString
+        ? `${heading} in ${ruleName}`
+        : heading
 
     <div className="flex flex-col gap-2">
-      <div className={`text-nd_red-700 ${body.md.semibold}`}> {heading->React.string} </div>
+      <div className={`text-nd_red-700 ${body.md.semibold}`}> {headingText->React.string} </div>
       <RenderIf condition={mismatchedFields->Array.length == 0}>
         <div className={`${body.md.regular} text-nd_gray-600`}> {subHeading->React.string} </div>
       </RenderIf>
-      <ReconEngineExceptionsHelper.MismatchSummary
-        mismatchedFields ruleName={currentExceptionDetails.rule.rule_name}
-      />
+      <ReconEngineExceptionsHelper.MismatchSummary mismatchedFields />
     </div>
   }
 }

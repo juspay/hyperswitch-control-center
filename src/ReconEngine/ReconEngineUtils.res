@@ -459,13 +459,10 @@ let getMismatchedFieldsCountText = (fields: array<mismatchedFieldType>) => {
 }
 
 // Counts rather than names the field, since the rows underneath already name it
-let getMismatchedFieldsDescription = (fields: array<mismatchedFieldType>, ~ruleName="") => {
+let getMismatchedFieldsDescription = (fields: array<mismatchedFieldType>) => {
   let count = fields->Array.length
-  let scope = ruleName->isNonEmptyString ? `for ${ruleName}` : "across the transaction entries"
 
-  fields->isEmptyArray
-    ? ""
-    : `${count->Int.toString} field${pluralText(~count)} did not match ${scope}`
+  fields->isEmptyArray ? "" : `${count->Int.toString} field${pluralText(~count)} did not match`
 }
 
 let transactionItemToObjMapper = (dict): transactionType => {

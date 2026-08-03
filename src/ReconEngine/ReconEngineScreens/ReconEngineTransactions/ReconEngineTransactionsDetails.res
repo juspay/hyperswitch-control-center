@@ -99,7 +99,6 @@ let make = (~id) => {
           <div className="px-2 pt-5">
             <ReconEngineExceptionsHelper.MismatchSummary
               mismatchedFields={currentTransactionDetails.data.mismatched_fields}
-              ruleName={currentTransactionDetails.rule.rule_name}
             />
           </div>
         </RenderIf>

@@ -526,7 +526,7 @@ module MismatchFieldList = {
 
 module MismatchSummary = {
   @react.component
-  let make = (~mismatchedFields: array<ReconEngineTypes.mismatchedFieldType>, ~ruleName) => {
+  let make = (~mismatchedFields: array<ReconEngineTypes.mismatchedFieldType>) => {
     let (isExpanded, setIsExpanded) = React.useState(_ => false)
     let hasMultipleFields = mismatchedFields->Array.length > 1
 
@@ -536,9 +536,7 @@ module MismatchSummary = {
           className={`flex items-center gap-1.5 w-fit ${hasMultipleFields ? "cursor-pointer" : ""}`}
           onClick={_ => hasMultipleFields ? setIsExpanded(prev => !prev) : ()}>
           <span className={`${body.md.regular} text-nd_gray-600`}>
-            {mismatchedFields
-            ->ReconEngineUtils.getMismatchedFieldsDescription(~ruleName)
-            ->React.string}
+            {mismatchedFields->ReconEngineUtils.getMismatchedFieldsDescription->React.string}
           </span>
           <RenderIf condition={hasMultipleFields}>
             <Icon
