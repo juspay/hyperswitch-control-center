@@ -39,18 +39,6 @@ let make = () => {
         authorization={userHasAccess(~groupAccess=ReconSourcesView)}>
         <ReconEnginePipelinesContainer />
       </AccessControl>
-    | list{"v1", "recon-engine", "sources", ..._} =>
-      <AccessControl
-        isEnabled={featureFlagDetails.devReconEngineV1}
-        authorization={userHasAccess(~groupAccess=ReconSourcesView)}>
-        <ReconEngineSourcesContainer />
-      </AccessControl>
-    | list{"v1", "recon-engine", "transformation", ..._} =>
-      <AccessControl
-        isEnabled={featureFlagDetails.devReconEngineV1}
-        authorization={userHasAccess(~groupAccess=ReconSourcesView)}>
-        <ReconEngineTransformationContainer />
-      </AccessControl>
     | list{"v1", "recon-engine", "transformed-entries", ..._} =>
       <AccessControl
         isEnabled={featureFlagDetails.devReconEngineV1}
