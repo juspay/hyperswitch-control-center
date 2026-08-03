@@ -415,7 +415,6 @@ let linkedTransactionItemToObjMapper = dict => {
 }
 
 let mismatchedFieldItemToObjMapper = (dict): mismatchedFieldType => {
-  // An explicit null is as absent as a missing key, so both land on "N/A"
   let displayValue = key =>
     dict->getMappedValueFromDict(key, "N/A", json =>
       json->isNullJson ? "N/A" : json->getStringFromJson(json->JSON.stringify)
@@ -461,7 +460,6 @@ let getMismatchedFieldsCountText = (fields: array<mismatchedFieldType>) => {
   subject->isEmptyString ? "" : `${subject} did not match`
 }
 
-// Counts rather than names the field, since the rows underneath already name it
 let getMismatchedFieldsDescription = (fields: array<mismatchedFieldType>) => {
   let count = fields->Array.length
 
