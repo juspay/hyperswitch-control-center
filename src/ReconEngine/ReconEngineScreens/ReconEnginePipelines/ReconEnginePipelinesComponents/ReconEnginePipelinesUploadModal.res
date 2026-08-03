@@ -33,6 +33,7 @@ module UploadDropzone = {
     open ReconEnginePipelinesTypes
 
     let showToast = ToastAdapter.useShowToast()
+    let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
     let (selectedFiles, setSelectedFiles) = React.useState(_ => [])
     let (isUploading, setIsUploading) = React.useState(_ => false)
     let (isDraggingFile, setIsDraggingFile) = React.useState(_ => false)
@@ -133,7 +134,7 @@ module UploadDropzone = {
           selectedFiles
           ->Array.mapWithIndex((item, index) =>
             switch results[index] {
-            | Some(Error(msg)) => Some({...item, status: Failed(msg)})
+            | Some(Error(msg)) => Some({...item, status: UploadFailed(msg)})
             | _ => None
             }
           )
@@ -154,6 +155,9 @@ module UploadDropzone = {
         }
         showToast(~message, ~toastType={failCount == 0 ? ToastSuccess : ToastError})
 
+        if successCount > 0 {
+          ReconEngineFilterUtils.refreshEndTimeFilter(updateExistingKeys)
+        }
         if failCount == 0 {
           onUploadSuccess()
         }
@@ -250,7 +254,7 @@ module UploadDropzone = {
                     {item.file["size"]->formatFileSize->React.string}
                   </span>
                   {switch item.status {
-                  | Failed(msg) =>
+                  | UploadFailed(msg) =>
                     <span className={`${body.xs.light} text-nd_red-500 shrink-0`}>
                       {`Failed: ${msg}`->React.string}
                     </span>
@@ -413,17 +417,14 @@ module UploadModalBody = {
 }
 
 @react.component
-let make = (~accountData: array<ReconEngineTypes.accountType>, ~onClose: unit => unit) => {
+let make = (~accountData: array<ReconEngineTypes.accountType>, ~onModalToggle: unit => unit) => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (showModal, setShowModal) = React.useState(_ => false)
   let authorization = userHasAccess(~groupAccess=UserManagementTypes.ReconSourcesManage)
 
   let handleSetShowModal = (updater: bool => bool) => {
-    let next = updater(showModal)
-    setShowModal(_ => next)
-    if !next {
-      onClose()
-    }
+    setShowModal(_ => updater(showModal))
+    onModalToggle()
   }
 
   <>
@@ -433,7 +434,7 @@ let make = (~accountData: array<ReconEngineTypes.accountType>, ~onClose: unit =>
       buttonType=Primary
       buttonSize=Small
       authorization
-      onClick={_ => setShowModal(_ => true)}
+      onClick={_ => handleSetShowModal(_ => true)}
     />
     <RenderIf condition=showModal>
       <Modal

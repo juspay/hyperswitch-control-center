@@ -8,7 +8,7 @@ let make = (~order: order, ~refetch) => {
 
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let (showModal, setShowModal) = React.useState(_ => false)
   let (selectedStatus, setSelectedStatus) = React.useState(_ => Succeeded)

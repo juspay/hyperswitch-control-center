@@ -74,7 +74,7 @@ let pipelineIngestionHistoryTableEntity = (
     ~getShowLink={
       connectorObj => {
         GroupAccessUtils.linkForGetShowLinkViaAccess(
-          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connectorObj.id}`),
+          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connectorObj.ingestion_history_id}`),
           ~authorization,
         )
       }

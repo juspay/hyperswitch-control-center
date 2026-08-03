@@ -94,6 +94,7 @@ module.exports = {
       },
       minWidth: {
         "25-rem": "25rem",
+        "76-px": "76px",
       },
       maxHeight: {
         "15-rem": "15rem",
@@ -178,6 +179,7 @@ module.exports = {
         325: "325px",
         250: "250px",
         200: "200px",
+        "40-per": "40%",
       },
       lineHeight: {
         14: "14px",

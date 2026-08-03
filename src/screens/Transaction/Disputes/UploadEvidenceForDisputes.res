@@ -13,7 +13,7 @@ module EvidenceUploadForm = {
   let make = (~uploadEvidenceType, ~index, ~fileUploadedDict, ~setFileUploadedDict) => {
     open LogicUtils
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let handleBrowseChange = (event, uploadEvidenceType) => {
       let target = ReactEvent.Form.target(event)
       let fileName = target["files"]["0"]["name"]
