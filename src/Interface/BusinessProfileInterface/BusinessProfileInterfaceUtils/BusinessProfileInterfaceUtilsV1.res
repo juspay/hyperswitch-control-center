@@ -410,6 +410,7 @@ let commonTypeJsonToV1ForRequest: JSON.t => profileEntityRequestType_v1 = json =
   let webhookDetails = dict->getDictfromDict("webhook_details")
   let authProductIds = dict->getJsonObjectFromDict("authentication_product_ids")
   let externalVaultConnectorDetails = dict->getDictfromDict("external_vault_connector_details")
+  let surchargeConnectorDetails = dict->getDictfromDict("surcharge_connector_details")
 
   {
     profile_name: dict->getString("profile_name", ""),
@@ -483,5 +484,8 @@ let commonTypeJsonToV1ForRequest: JSON.t => profileEntityRequestType_v1 = json =
       ? None
       : Some(externalVaultConnectorDetails->externalVaultConnectorDetailsMapper),
     payment_method_blocking: dict->Dict.get("payment_method_blocking"),
+    surcharge_connector_details: surchargeConnectorDetails->isEmptyDict
+      ? None
+      : Some(surchargeConnectorDetails->surchargeConnectorDetailsMapperV1),
   }
 }

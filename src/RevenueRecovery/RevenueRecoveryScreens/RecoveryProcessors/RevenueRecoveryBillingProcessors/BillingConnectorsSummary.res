@@ -247,7 +247,7 @@ module BillingConnectorDetails = {
             condition={connectorName->getConnectorNameTypeFromString(
               ~connectorType=BillingProcessor,
             ) != BillingProcessor(CUSTOMBILLING)}>
-            <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
+            <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.connector_name />
           </RenderIf>
         </div>
         {switch connectorName->getConnectorNameTypeFromString(~connectorType=BillingProcessor) {
@@ -447,7 +447,9 @@ module PaymentConnectorDetails = {
                   <h4 className="text-nd_gray-400 "> {"Profile"->React.string} </h4>
                   {connectorInfodict.profile_id->React.string}
                 </div>
-                <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
+                <ConnectorWebhookPreview
+                  merchantId connectorName=connectorInfodict.connector_name
+                />
               </div>
               <div className="flex flex-col gap-4">
                 <div className="flex justify-between border-b pb-4 px-2 items-end">

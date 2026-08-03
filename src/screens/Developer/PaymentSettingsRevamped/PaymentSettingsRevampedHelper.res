@@ -85,6 +85,21 @@ let vaultConnectors = connectorList => {
   )
 }
 
+let surchargeConnectors = connectorList => {
+  FormRenderer.makeFieldInfo(
+    ~label="Surcharge Connectors",
+    ~name="surcharge_connector_details.surcharge_connector_id",
+    ~customInput=InputFields.selectInput(
+      ~options=connectorList,
+      ~buttonText="Select Field",
+      ~customButtonStyle="!rounded-lg",
+      ~fixedDropDownDirection=BottomRight,
+      ~dropdownClassName="!max-h-15-rem !overflow-auto",
+    ),
+    ~isRequired=true,
+  )
+}
+
 let vault_token_selector_list = [
   "card_number",
   "card_cvc",
@@ -239,7 +254,7 @@ let customExternalVaultEnabled = (
     }
   }
 
-  <BoolInput.BaseComponent
+  <SwitchAdapter
     isSelected={currentValue}
     setIsSelected={handleChange}
     isDisabled=false

@@ -103,18 +103,18 @@ export class ProfilePage {
 
   get passwordChangedSuccessToast(): Locator {
     return this.page
-      .locator('[data-toast="Password Changed Successfully"]')
+      .locator('[data-id="Password Changed Successfully"]')
       .first();
   }
 
   get passwordChangeFailedToast(): Locator {
     return this.page
-      .locator('[data-toast="Password Change Failed, Try again"]')
+      .locator('[data-id="Password Change Failed, Try again"]')
       .first();
   }
 
   toastByMessage(message: string): Locator {
-    return this.page.locator(`[data-toast="${message}"]`).first();
+    return this.page.locator(`[data-id="${message}"]`).first();
   }
 
   async visit(): Promise<void> {

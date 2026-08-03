@@ -1,6 +1,6 @@
 open HSwitchSettingTypes
 
-let platformDocsUrl = "https://docs.hyperswitch.io/explore-hyperswitch/account-management/multiple-accounts-and-profiles/platform-org-and-merchant-setup"
+let platformDocsUrl = "https://docs.hyperswitch.io/integration-guide/account-management/multiple-accounts-and-profiles/platform-organization-concepts#the-platform-api-key"
 
 let validateAPIKeyForm = (
   values: JSON.t,

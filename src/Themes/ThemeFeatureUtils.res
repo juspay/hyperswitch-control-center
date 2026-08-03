@@ -41,6 +41,16 @@ let getFileFromEvent = ev => {
 
 let maxAssetFileSizeBytes = 2 * 1024 * 1024
 
+let isSupportedAssetType = (~fileName, ~accept) => {
+  let lowerFileName = fileName->String.toLowerCase
+  accept
+  ->String.split(",")
+  ->Array.some(ext => {
+    let trimmedExt = ext->String.trim->String.toLowerCase
+    trimmedExt->isNonEmptyString && lowerFileName->String.endsWith(trimmedExt)
+  })
+}
+
 let assetsMapper = (dict): ThemeTypes.assets => {
   let toUrl = url => url->isNonEmptyString ? Some(ThemeTypes.Url(url)) : None
   {
@@ -49,6 +59,15 @@ let assetsMapper = (dict): ThemeTypes.assets => {
     emailLogo: dict->getOptionString("emailLogoUrl")->Option.flatMap(toUrl),
   }
 }
+
+let getAssetDisplayUrl = (asset: option<ThemeTypes.assetValue>): option<string> =>
+  asset->Option.map(value =>
+    switch value {
+    | Url(url) => url
+    | File(file) =>
+      DownloadUtils.createObjectURL((file->Identity.jsonToAnyType: DownloadUtils.blobInstanceType))
+    }
+  )
 
 let buildThemeDataBody = (
   ~settings: HyperSwitchConfigTypes.themeSettings,

@@ -3,6 +3,21 @@ type filterBody = {
   end_time: string,
 }
 
+type connectorFilterData = {
+  connector_label: string,
+  merchant_connector_id: string,
+  connector_type: string,
+}
+
+let connectorFilterItemToObjMapper = (dict): connectorFilterData => {
+  open LogicUtils
+  {
+    connector_label: dict->getString("connector_label", ""),
+    merchant_connector_id: dict->getString("merchant_connector_id", ""),
+    connector_type: dict->getString("connector_type", ""),
+  }
+}
+
 let formatDateString = date => {
   date->Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:ss[Z]")
 }
@@ -10,7 +25,8 @@ let formatDateString = date => {
 let getDateFilteredObject = (~range=7) => {
   let currentDate = Date.make()
 
-  let end_time = currentDate->formatDateString
+  let end_time =
+    Date.fromTime(Math.ceil(currentDate->Date.getTime /. 1000.0) *. 1000.0)->formatDateString
 
   let start_time =
     Js.Date.makeWithYMD(
@@ -53,7 +69,7 @@ let useSetInitialFilters = (
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
       let timeRange =
         origin !== "analytics"
-          ? [(startTimeFilterKey, defaultDate.start_time)]
+          ? [(startTimeFilterKey, defaultDate.start_time), (endTimeFilterKey, defaultDate.end_time)]
           : switch enableCompareTo {
             | Some(_) => {
                 let (compareToStartTime, compareToEndTime) = DateRangeUtils.getComparisonTimePeriod(
@@ -256,19 +272,12 @@ module RemoteTableFilters = {
             let connectorArray =
               response->getDictFromJsonObject->getDictfromDict("connector")->Dict.toArray
 
-            let filteredConnectorKeys = connectorArray->Array.filter(key => {
-              let (name, _) = key
-
-              connectorTypes->Array.some(item => {
-                let list = item->connectorTypeToListMapper
-                let typedName =
-                  name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=item)
-                switch item {
-                | Processor =>
-                  list->Array.some(item => typedName == item) ||
-                    dummyConnectorList(true)->Array.some(item => typedName == item)
-                | _ => list->Array.some(item => typedName == item)
-                }
+            let filteredConnectorKeys = connectorArray->Array.filter(((_, body)) => {
+              body
+              ->getArrayDataFromJson(connectorFilterItemToObjMapper)
+              ->Array.some(item => {
+                let (_, typedConnector) = item.connector_type->connectorTypeTuple
+                connectorTypes->Array.includes(typedConnector)
               })
             })
             let newConnectorDict = filteredConnectorKeys->Dict.fromArray

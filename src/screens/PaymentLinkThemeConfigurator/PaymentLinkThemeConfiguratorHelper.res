@@ -73,7 +73,7 @@ let makeDisplaySdkOnlyField = () => {
   makeFieldInfo(
     ~label="Display SDK Only",
     ~name="display_sdk_only",
-    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
+    ~customInput=InputFields.switchInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
   )
 }
 
@@ -81,7 +81,7 @@ let makeHideCardNicknameField = () => {
   makeFieldInfo(
     ~label="Hide Card Nickname Field",
     ~name="hide_card_nickname_field",
-    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
+    ~customInput=InputFields.switchInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
   )
 }
 
@@ -104,7 +104,7 @@ let makeBrandingVisibilityField = () => {
   makeFieldInfo(
     ~label="Branding Visibility",
     ~name="branding_visibility",
-    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
+    ~customInput=InputFields.switchInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
   )
 }
 

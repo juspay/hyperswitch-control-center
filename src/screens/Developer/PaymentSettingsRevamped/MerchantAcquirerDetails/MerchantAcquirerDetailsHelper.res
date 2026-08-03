@@ -26,7 +26,7 @@ module AccordionTitle = {
               ev->ReactEvent.Mouse.stopPropagation
               onSelect()
             }}>
-            <RadioIcon isSelected />
+            <RadioIconAdapter isSelected />
           </div>
         </RenderIf>
         <span className={`${body.lg.semibold} text-nd_gray-800`}>

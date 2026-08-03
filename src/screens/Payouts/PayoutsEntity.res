@@ -391,6 +391,7 @@ let getCell = (payoutData, colType: payoutsColType, merchantId, orgId): Table.ce
         url={`/payouts/${payoutData.payout_id}/${payoutData.profile_id}/${merchantId}/${orgId}`}
         displayValue={payoutData.payout_id}
         copyValue={Some(payoutData.payout_id)}
+        endValue={HSwitchOrderUtils.idCellEndValue}
       />,
       "",
     )
