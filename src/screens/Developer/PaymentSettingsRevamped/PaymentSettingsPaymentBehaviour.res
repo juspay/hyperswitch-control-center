@@ -95,9 +95,10 @@ module AutoRetries = {
           field={makeFieldInfo(
             ~name="is_auto_retries_enabled",
             ~label="Auto Retries",
-            ~customInput=InputFields.boolInput(
+            ~customInput=InputFields.switchInput(
               ~isDisabled=false,
               ~boolCustomClass="rounded-lg",
+              ~toggleBorder="border-nd_primary_blue-450",
               ~toggleEnableColor="bg-nd_primary_blue-450",
             ),
             ~description="Automatically re-attempts a failed payment using the same payment method details. Our system will continue retrying the transaction on a defined routed list until it is successful or all attempts have been exhausted.",
@@ -149,9 +150,10 @@ module ClickToPaySection = {
               field={makeFieldInfo(
                 ~name="is_click_to_pay_enabled",
                 ~label="Click to Pay",
-                ~customInput=InputFields.boolInput(
+                ~customInput=InputFields.switchInput(
                   ~isDisabled=false,
                   ~boolCustomClass="rounded-lg",
+                  ~toggleBorder="border-nd_primary_blue-450",
                   ~toggleEnableColor="bg-nd_primary_blue-450",
                 ),
                 ~description="Click to Pay is a secure, seamless digital payment solution that lets customers checkout quickly using saved cards without entering details",
@@ -433,9 +435,10 @@ let make = () => {
             field={makeFieldInfo(
               ~name="is_manual_retry_enabled",
               ~label="Manual Retries",
-              ~customInput=InputFields.boolInput(
+              ~customInput=InputFields.switchInput(
                 ~isDisabled=false,
                 ~boolCustomClass="rounded-lg",
+                ~toggleBorder="border-nd_primary_blue-450",
                 ~toggleEnableColor="bg-nd_primary_blue-450",
               ),
               ~description="Allows you to manually re-attempt a failed payment using its original payment ID. You can retry with the same payment method details or provide a different payment method for the new attempt.",
@@ -450,9 +453,10 @@ let make = () => {
             field={makeFieldInfo(
               ~name="always_request_extended_authorization",
               ~label="Extended Authorization",
-              ~customInput=InputFields.boolInput(
+              ~customInput=InputFields.switchInput(
                 ~isDisabled=false,
                 ~boolCustomClass="rounded-lg",
+                ~toggleBorder="border-nd_primary_blue-450",
                 ~toggleEnableColor="bg-nd_primary_blue-450",
               ),
               ~description="This will enable extended authorization for all payments through connectors and payment methods that support it",
@@ -468,9 +472,10 @@ let make = () => {
             field={makeFieldInfo(
               ~name="always_enable_overcapture",
               ~label="Always Enable Overcapture",
-              ~customInput=InputFields.boolInput(
+              ~customInput=InputFields.switchInput(
                 ~isDisabled=false,
                 ~boolCustomClass="rounded-lg",
+                ~toggleBorder="border-nd_primary_blue-450",
                 ~toggleEnableColor="bg-nd_primary_blue-450",
               ),
               ~description="Allow capturing more than the originally authorized amount within connector limits",
@@ -521,9 +526,10 @@ let make = () => {
           field={makeFieldInfo(
             ~name="is_connector_agnostic_mit_enabled",
             ~label="Connector Agnostic",
-            ~customInput=InputFields.boolInput(
+            ~customInput=InputFields.switchInput(
               ~isDisabled=false,
               ~boolCustomClass="rounded-lg",
+              ~toggleBorder="border-nd_primary_blue-450",
               ~toggleEnableColor="bg-nd_primary_blue-450",
             ),
           )}
@@ -537,9 +543,10 @@ let make = () => {
           field={makeFieldInfo(
             ~name="is_network_tokenization_enabled",
             ~label="Network Tokenization",
-            ~customInput=InputFields.boolInput(
+            ~customInput=InputFields.switchInput(
               ~isDisabled=!featureFlagDetails.networkTokenization,
               ~boolCustomClass="rounded-lg",
+              ~toggleBorder="border-nd_primary_blue-450",
               ~toggleEnableColor="bg-nd_primary_blue-450",
             ),
           )}
