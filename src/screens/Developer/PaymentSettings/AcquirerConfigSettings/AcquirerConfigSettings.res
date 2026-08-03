@@ -58,7 +58,7 @@ module SettingsForm = {
       let defaultErrorMessage = "Failed to process acquirer config"
       let errorMessage = switch Exn.message(e) {
       | Some(err) => {
-          let errorCode = err->safeParse->getDictFromJsonObject->LogicUtils.getString("code", "")
+          let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
           switch errorCode {
           | "IR_38" => "Duplicate entry found"
           | _ => defaultErrorMessage
