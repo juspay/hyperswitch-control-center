@@ -17,6 +17,9 @@ let getStepName = step => {
   | AutomaticFlow => "AutomaticFlow"
   }
 }
+// Any connector added to these lists must also be added to the matching
+// connector_list_for_live / connector_list_for_sandbox key in config/config.toml,
+// otherwise it won't appear once the config-driven list takes over.
 
 let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(ADYEN),

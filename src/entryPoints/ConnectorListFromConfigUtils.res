@@ -1,10 +1,11 @@
+open LogicUtils
+open ConnectorListFromConfigTypes
+
 let extractTypedConnectorValueFromConfig = (
   ~connectorDict,
   ~key,
   ~connectorType: ConnectorTypes.connector,
 ) => {
-  open LogicUtils
-
   connectorDict
   ->getArrayFromDict(key, [])
   ->Array.map(item =>
@@ -23,11 +24,10 @@ let extractTypedConnectorValueFromConfig = (
 // provided default list when the config has no (valid) entries for it.
 let resolveConnectorListFromConfig = (~connectorDict, ~key, ~connectorType, ~fallback) => {
   let fromConfig = extractTypedConnectorValueFromConfig(~connectorDict, ~key, ~connectorType)
-  fromConfig->LogicUtils.isNonEmptyArray ? fromConfig : fallback
+  fromConfig->isNonEmptyArray ? fromConfig : fallback
 }
 
-let getConnectorListForLive = (list: JSON.t): ConnectorListFromConfigTypes.connectorListForLive => {
-  open LogicUtils
+let getConnectorListForLive = (list: JSON.t): connectorListForLive => {
   open ConnectorUtils
   let connectorDict = list->getDictFromJsonObject->getDictfromDict("connector_list_for_live")
   {
@@ -58,10 +58,7 @@ let getConnectorListForLive = (list: JSON.t): ConnectorListFromConfigTypes.conne
   }
 }
 
-let getConnectorListForSandbox = (
-  list: JSON.t,
-): ConnectorListFromConfigTypes.connectorListForSandbox => {
-  open LogicUtils
+let getConnectorListForSandbox = (list: JSON.t): connectorListForSandbox => {
   open ConnectorUtils
   let connectorDict = list->getDictFromJsonObject->getDictfromDict("connector_list_for_sandbox")
   {
