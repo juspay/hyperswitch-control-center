@@ -160,14 +160,12 @@ module OperatorInput = {
       ...comparisonInput,
       value: (selectValue :> string)->JSON.Encode.string,
       onChange: ev =>
-        switch choices->Array.find(c =>
-          (c.selectValue :> string) === ev->Identity.formReactEventToString
-        ) {
-        | Some(c) =>
+        choices
+        ->Array.find(c => (c.selectValue :> string) === ev->Identity.formReactEventToString)
+        ->mapOptionOrDefault((), c => {
           comparisonInput.onChange(c.comparison->operatorToBEKey->Identity.stringToFormReactEvent)
           onOperatorChange(c)
-        | None => ()
-        },
+        }),
     }
 
     <div className="flex items-center bg-white rounded-lg shadow-sm">
@@ -443,7 +441,7 @@ module OutcomeWrapper = {
           />
         </div>
       </div>
-      <RenderIf condition={ids->Array.length > 0}>
+      <RenderIf condition={ids->isNonEmptyArray}>
         <div className="flex flex-wrap gap-2 items-center">
           {ids
           ->Array.mapWithIndex((mcaId, i) =>
@@ -489,7 +487,7 @@ module OutcomeWrapper = {
           ->React.array}
         </div>
       </RenderIf>
-      <RenderIf condition={ids->Array.length > 0}>
+      <RenderIf condition={ids->isNonEmptyArray}>
         <div className="flex items-center gap-2">
           <CheckBoxIconAdapter
             isSelected=isDistribute
