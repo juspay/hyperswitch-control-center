@@ -63,32 +63,6 @@ let allowedDomainsToArray = allowedDomainsOpt => {
   allowedDomains->Array.length === 0 ? None : Some(allowedDomains->getJsonFromArrayOfString)
 }
 
-type cssRulesKey =
-  | SdkUiRules
-  | PaymentLinkUiRules
-
-type cssInputType =
-  | CssColor
-  | CssText
-  | CssPxNumber
-  | CssFontWeight
-
-type cssFieldDefinition = {
-  rulesKey: cssRulesKey,
-  selectorKey: string,
-  selector: string,
-  cssProperty: string,
-  label: string,
-  inputType: cssInputType,
-  placeholder: string,
-  important: bool,
-}
-
-type cssAccordionDefinition = {
-  title: string,
-  fields: array<cssFieldDefinition>,
-}
-
 let cssRulesKeyToString = rulesKey =>
   switch rulesKey {
   | SdkUiRules => "sdk_ui_rules"

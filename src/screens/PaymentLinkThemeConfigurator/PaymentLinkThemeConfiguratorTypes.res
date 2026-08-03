@@ -50,6 +50,32 @@ type detailsLayout =
   | @as("layout1") Layout1
   | @as("layout2") Layout2
 
+type cssRulesKey =
+  | SdkUiRules
+  | PaymentLinkUiRules
+
+type cssInputType =
+  | CssColor
+  | CssText
+  | CssPxNumber
+  | CssFontWeight
+
+type cssFieldDefinition = {
+  rulesKey: cssRulesKey,
+  selectorKey: string,
+  selector: string,
+  cssProperty: string,
+  label: string,
+  inputType: cssInputType,
+  placeholder: string,
+  important: bool,
+}
+
+type cssAccordionDefinition = {
+  title: string,
+  fields: array<cssFieldDefinition>,
+}
+
 @unboxed
 type cssFontWeight =
   | @as("100") FontWeight100
