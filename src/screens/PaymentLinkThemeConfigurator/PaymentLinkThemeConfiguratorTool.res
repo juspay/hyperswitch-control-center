@@ -44,9 +44,25 @@ module ConfiguratorForm = {
       (a, b) => a == b,
     )
 
+    let fetchMerchantDetails = MerchantDetailsHook.useFetchMerchantDetails(~showErrorToast=false)
     let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(
       HyperswitchAtom.merchantDetailsValueAtom,
     )
+    let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+
+    React.useEffect(() => {
+      if merchantDetailsTypedValue.publishable_key->isEmptyString {
+        let loadDetails = async () => {
+          try {
+            let _ = await fetchMerchantDetails(~version)
+          } catch {
+          | _ => ()
+          }
+        }
+        loadDetails()->ignore
+      }
+      None
+    }, [])
     let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
       HyperswitchAtom.businessProfileFromIdAtomInterface,
     )
