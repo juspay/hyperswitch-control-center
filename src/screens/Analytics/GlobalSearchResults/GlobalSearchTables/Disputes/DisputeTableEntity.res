@@ -15,8 +15,8 @@ type disputesObject = {
   connector_dispute_id: string,
   connector_reason: string,
   connector_reason_code: int,
-  challenge_required_by: int,
-  connector_created_at: int,
+  challenge_required_by: float,
+  connector_created_at: float,
   connector_updated_at: int,
   created_at: float,
   modified_at: float,
@@ -111,8 +111,8 @@ let tableItemToObjMapper: Dict.t<JSON.t> => disputesObject = dict => {
     connector_dispute_id: dict->getString(ConnectorDisputeId->colMapper, "NA"),
     connector_reason: dict->getString(ConnectorReason->colMapper, "NA"),
     connector_reason_code: dict->getInt(ConnectorReasonCode->colMapper, 0),
-    challenge_required_by: dict->getInt(ChallengeRequiredBy->colMapper, 0),
-    connector_created_at: dict->getInt(ConnectorCreatedAt->colMapper, 0),
+    challenge_required_by: dict->getFloat(ChallengeRequiredBy->colMapper, 0.0),
+    connector_created_at: dict->getFloat(ConnectorCreatedAt->colMapper, 0.0),
     connector_updated_at: dict->getInt(ConnectorUpdatedAt->colMapper, 0),
     created_at: dict->getFloat(CreatedAt->colMapper, 0.0),
     modified_at: dict->getFloat(ModifiedAt->colMapper, 0.0),
@@ -229,8 +229,8 @@ let getCell = (disputeObj: disputesObject, colType): Table.cell => {
   | ConnectorDisputeId => Text(disputeObj.connector_dispute_id)
   | ConnectorReason => Text(disputeObj.connector_reason)
   | ConnectorReasonCode => Text(disputeObj.connector_reason_code->Int.toString)
-  | ChallengeRequiredBy => Text(disputeObj.challenge_required_by->Int.toString)
-  | ConnectorCreatedAt => Text(disputeObj.connector_created_at->Int.toString)
+  | ChallengeRequiredBy => Date(disputeObj.challenge_required_by->DateTimeUtils.unixToISOString)
+  | ConnectorCreatedAt => Date(disputeObj.connector_created_at->DateTimeUtils.unixToISOString)
   | ConnectorUpdatedAt => Text(disputeObj.connector_updated_at->Int.toString)
   | CreatedAt => Date(disputeObj.created_at->DateTimeUtils.unixToISOString)
   | ModifiedAt => Date(disputeObj.modified_at->DateTimeUtils.unixToISOString)
