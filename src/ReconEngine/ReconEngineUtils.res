@@ -416,7 +416,13 @@ let linkedTransactionItemToObjMapper = dict => {
 
 let mismatchedFieldItemToObjMapper = (dict): mismatchedFieldType => {
   let displayValue = key =>
-    dict->getMappedValueFromDict(key, "N/A", json => json->getStringFromJson(json->JSON.stringify))
+    dict->getMappedValueFromDict(key, "N/A", json =>
+      switch json->JSON.Classify.classify {
+      | Null => "N/A"
+      | String(value) => value
+      | _ => json->JSON.stringify
+      }
+    )
   {
     field_name: dict->getString("field_name", ""),
     field_label: dict->getOptionString("label"),

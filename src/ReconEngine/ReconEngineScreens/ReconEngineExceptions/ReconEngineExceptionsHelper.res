@@ -536,13 +536,15 @@ module MismatchSummary = {
           <div
             className="flex items-center gap-1.5 w-fit cursor-pointer"
             onClick={_ => setIsExpanded(prev => !prev)}>
-            <span className={`${body.md.regular} text-nd_gray-600`}>
+            <span className={`${body.md.regular} text-nd_gray-600 whitespace-nowrap`}>
               {mismatchedFields->ReconEngineUtils.getMismatchedFieldsDescription->React.string}
             </span>
+            // shrink-0 belongs on parentClass: Icon wraps the svg in a div, and that div is the flex child
             <Icon
               name="nd-chevron-down"
               size=16
-              className={`shrink-0 text-nd_gray-500 transition-transform duration-200 ease-in-out ${isExpanded
+              parentClass="flex items-center shrink-0"
+              className={`text-nd_gray-500 transition-transform duration-200 ease-in-out ${isExpanded
                   ? "rotate-180"
                   : ""}`}
             />
