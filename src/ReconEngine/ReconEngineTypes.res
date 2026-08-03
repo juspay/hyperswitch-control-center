@@ -199,10 +199,18 @@ type matchedDataType =
   | @as("manual") Manual
   | @as("unknown") UnknownMatchedDataType
 
+type mismatchedFieldType = {
+  field_name: string,
+  field_label: option<string>,
+  expected_value: string,
+  actual_value: string,
+}
+
 type transactionDataType = {
   status: transactionStatus,
   matched_data_type: option<matchedDataType>,
   reason: option<string>,
+  mismatched_fields: array<mismatchedFieldType>,
 }
 
 @unboxed

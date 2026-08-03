@@ -131,7 +131,6 @@ let make = (
 
   <div className="flex flex-col gap-4 mt-6 mb-16">
     <ReconEngineExceptionTransactionResolution
-      accountInfoMap
       exceptionStage
       setExceptionStage
       selectedRows

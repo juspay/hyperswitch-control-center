@@ -414,6 +414,57 @@ let linkedTransactionItemToObjMapper = dict => {
   }
 }
 
+let mismatchedFieldItemToObjMapper = (dict): mismatchedFieldType => {
+  let displayValue = key =>
+    dict->getMappedValueFromDict(key, "N/A", json => json->getStringFromJson(json->JSON.stringify))
+  {
+    field_name: dict->getString("field_name", ""),
+    field_label: dict->getOptionString("label"),
+    expected_value: displayValue("expected_value"),
+    actual_value: displayValue("actual_value"),
+  }
+}
+
+let getMismatchedFieldLabel = (field: mismatchedFieldType) =>
+  switch field.field_label {
+  | Some(label) if label->isNonEmptyString => label
+  | _ => {
+      let parts = field.field_name->String.split(".")
+      parts->getValueFromArray(parts->Array.length - 1, field.field_name)->snakeToTitle
+    }
+  }
+
+let getMismatchedFieldsFromDict = dataDict =>
+  dataDict
+  ->getArrayFromDict("mismatched_fields", [])
+  ->Array.map(json => json->getDictFromJsonObject->mismatchedFieldItemToObjMapper)
+
+let getMismatchedFieldsSubject = (fields: array<mismatchedFieldType>) => {
+  let count = fields->Array.length
+
+  if fields->isEmptyArray {
+    ""
+  } else if count == 1 {
+    fields
+    ->getValueFromArray(0, Dict.make()->mismatchedFieldItemToObjMapper)
+    ->getMismatchedFieldLabel
+  } else {
+    `${count->Int.toString} fields`
+  }
+}
+
+let getMismatchedFieldsCountText = (fields: array<mismatchedFieldType>) => {
+  let subject = fields->getMismatchedFieldsSubject
+  subject->isEmptyString ? "" : `${subject} did not match`
+}
+
+let getMismatchedFieldsDescription = (fields: array<mismatchedFieldType>, ~ruleName="") => {
+  let subject = fields->getMismatchedFieldsSubject
+  let scope = ruleName->isNonEmptyString ? `for ${ruleName}` : "across the transaction entries"
+
+  subject->isEmptyString ? "" : `${subject} did not match ${scope}`
+}
+
 let transactionItemToObjMapper = (dict): transactionType => {
   let linkedTransactionDict = dict->getDictfromDict("linked_transaction")
   {
@@ -443,6 +494,9 @@ let transactionItemToObjMapper = (dict): transactionType => {
       reason: dict
       ->getDictfromDict("data")
       ->getOptionString("reason"),
+      mismatched_fields: dict
+      ->getDictfromDict("data")
+      ->getMismatchedFieldsFromDict,
     },
     discarded_status: dict
     ->getDictfromDict("discarded_status")

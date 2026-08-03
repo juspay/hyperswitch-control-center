@@ -95,6 +95,14 @@ let make = (~id) => {
           currentTransactionDetails={currentTransactionDetails}
           detailsFields=[TransactionId, Status, Variance, CreatedAt, RuleName]
         />
+        <RenderIf condition={currentTransactionDetails.data.mismatched_fields->isNonEmptyArray}>
+          <div className="px-2 pt-5">
+            <ReconEngineExceptionsHelper.MismatchSummary
+              mismatchedFields={currentTransactionDetails.data.mismatched_fields}
+              ruleName={currentTransactionDetails.rule.rule_name}
+            />
+          </div>
+        </RenderIf>
         <Tabs tabs />
       </div>
     </PageLoaderWrapper>

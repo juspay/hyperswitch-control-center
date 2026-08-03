@@ -499,3 +499,59 @@ let metadataCustomInputField = (
     )}
   />
 }
+
+module MismatchFieldList = {
+  @react.component
+  let make = (~mismatchedFields: array<ReconEngineTypes.mismatchedFieldType>, ~isExpanded) => {
+    open ReconEngineUtils
+
+    <div
+      className={`flex flex-col gap-1.5 overflow-y-auto pr-1 transition-[max-height] duration-300 ease-in-out ${isExpanded
+          ? "max-h-48"
+          : "max-h-0"}`}>
+      {mismatchedFields
+      ->Array.mapWithIndex((field, index) =>
+        <p key={index->Int.toString} className={`${body.md.regular} text-nd_red-600 break-words`}>
+          <span className={body.md.semibold}> {field->getMismatchedFieldLabel->React.string} </span>
+          {" doesn't match: source has "->React.string}
+          <span className={code.lg.medium}> {field.expected_value->React.string} </span>
+          {", target has "->React.string}
+          <span className={code.lg.medium}> {field.actual_value->React.string} </span>
+        </p>
+      )
+      ->React.array}
+    </div>
+  }
+}
+
+module MismatchSummary = {
+  @react.component
+  let make = (~mismatchedFields: array<ReconEngineTypes.mismatchedFieldType>, ~ruleName) => {
+    let (isExpanded, setIsExpanded) = React.useState(_ => false)
+    let hasMultipleFields = mismatchedFields->Array.length > 1
+
+    <RenderIf condition={mismatchedFields->isNonEmptyArray}>
+      <div className="flex flex-col gap-2 w-full">
+        <RenderIf condition={hasMultipleFields}>
+          <div
+            className="flex items-center gap-1.5 w-fit cursor-pointer"
+            onClick={_ => setIsExpanded(prev => !prev)}>
+            <span className={`${body.md.regular} text-nd_gray-600`}>
+              {mismatchedFields
+              ->ReconEngineUtils.getMismatchedFieldsDescription(~ruleName)
+              ->React.string}
+            </span>
+            <Icon
+              name="nd-chevron-down"
+              size=16
+              className={`shrink-0 text-nd_gray-500 transition-transform duration-200 ease-in-out ${isExpanded
+                  ? "rotate-180"
+                  : ""}`}
+            />
+          </div>
+        </RenderIf>
+        <MismatchFieldList mismatchedFields isExpanded={!hasMultipleFields || isExpanded} />
+      </div>
+    </RenderIf>
+  }
+}

@@ -169,7 +169,6 @@ module ExceptionDataDisplay = {
   let make = (
     ~currentExceptionDetails: ReconEngineTypes.transactionType,
     ~entryDetails: array<ReconEngineTypes.entryType>,
-    ~accountInfoMap: Dict.t<accountInfo>=Dict.make(),
   ) => {
     let mismatchData = React.useMemo(() => {
       switch currentExceptionDetails.transaction_status {
@@ -208,7 +207,7 @@ module ExceptionDataDisplay = {
     | SplitMismatch
     | OverAmount(Mismatch)
     | UnderAmount(Mismatch) =>
-      getHeadingAndSubHeadingForMismatch(mismatchData, ~accountInfoMap)
+      getHeadingAndSubHeadingForMismatch(mismatchData)
     | Expected | OverAmount(Expected) | UnderAmount(Expected) => (
         "Expected",
         `This transaction is marked as expected since ${currentExceptionDetails.created_at->DateTimeUtils.getFormattedDate(
@@ -239,9 +238,16 @@ module ExceptionDataDisplay = {
     | UnknownDomainTransactionStatus => ("", "")
     }
 
-    <div className="flex flex-col">
-      <div className={`text-nd_red-700 ${body.md.semibold} mb-2`}> {heading->React.string} </div>
-      <div className={`${body.md.regular} text-nd_gray-600`}> {subHeading->React.string} </div>
+    let mismatchedFields = mismatchData->getMismatchedFieldsFromMismatchData
+
+    <div className="flex flex-col gap-2">
+      <div className={`text-nd_red-700 ${body.md.semibold}`}> {heading->React.string} </div>
+      <RenderIf condition={mismatchedFields->Array.length == 0}>
+        <div className={`${body.md.regular} text-nd_gray-600`}> {subHeading->React.string} </div>
+      </RenderIf>
+      <ReconEngineExceptionsHelper.MismatchSummary
+        mismatchedFields ruleName={currentExceptionDetails.rule.rule_name}
+      />
     </div>
   }
 }
