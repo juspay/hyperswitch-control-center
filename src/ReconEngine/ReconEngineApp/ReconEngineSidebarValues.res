@@ -50,29 +50,11 @@ let reconEngineSidebars = (
     selectedIcon: "nd-reports-fill",
   })
 
-  let sources = SubLevelLink({
-    name: "Sources",
-    link: "/v1/recon-engine/sources",
-    access: userHasResourceAccess(~resourceAccess=ReconIngestion),
-  })
-
-  let transformation = SubLevelLink({
-    name: "Transformation",
-    link: "/v1/recon-engine/transformation",
-    access: userHasResourceAccess(~resourceAccess=ReconTransformation),
-  })
-
-  let transformedEntries = SubLevelLink({
+  let reconTransformedEntries = Link({
     name: "Transformed Entries",
-    link: "/v1/recon-engine/transformed-entries",
+    link: `/v1/recon-engine/transformed-entries`,
     access: userHasResourceAccess(~resourceAccess=ReconStagingEntry),
-  })
-
-  let reconData = Section({
-    name: "Data",
     icon: "nd-connectors",
-    showSection: userHasAccess(~groupAccess=ReconSourcesView) == Access,
-    links: [sources, transformation, transformedEntries],
     selectedIcon: "nd-connectors-fill",
   })
 
@@ -89,7 +71,7 @@ let reconEngineSidebars = (
   if isReconEnginePipelinesEnabled {
     sidebars->Array.push(reconPipelines)
   }
-  sidebars->Array.push(reconData)
+  sidebars->Array.push(reconTransformedEntries)
 
   sidebars
 }
