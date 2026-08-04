@@ -39,6 +39,7 @@ let make = (
   ~version: UserInfoTypes.version=V1,
   ~isAdvancedView=false,
   ~containerClassName="mb-8",
+  ~allStatuses=[],
 ) => {
   open APIUtils
   open APIUtilsTypes
@@ -50,7 +51,7 @@ let make = (
   let showToast = ToastAdapter.useShowToast()
   let {getResolvedUserInfo} = React.useContext(UserInfoProvider.defaultContext)
   let {transactionEntity} = getResolvedUserInfo()
-  let {updateExistingKeys, removeKeys, filterValueJson, filterValue, setfilterKeys} =
+  let {updateExistingKeys, removeKeys, filterValueJson, filterValue, filterKeys, setfilterKeys} =
     FilterContext.filterContext->React.useContext
   let {devClickhouseAggregate} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (aggregateResponse, setAggregateResponse) = React.useState(_ =>
@@ -62,21 +63,25 @@ let make = (
 
   let customFilterKey = getCustomFilterKey(entity)
   let isAdvancedOrdersView = isAdvancedView && entity == Orders
+  let getStatusFilterForView = (view: TransactionViewTypes.viewTypes) =>
+    view == All && allStatuses->isNonEmptyArray
+      ? allStatuses->Array.joinWith(",")
+      : view->getViewFilterValue(aggregateResponse, entity)
 
   let updateViewsFilterValue = (view: TransactionViewTypes.viewTypes) => {
     let (filterEntries, removedFilterKeys) = getFilterUpdateForView(
       ~view,
       ~isAdvancedOrdersView,
       ~customFilterKey,
-      ~customFilter=`[${view->getViewFilterValue(aggregateResponse, entity)}]`,
+      ~customFilter=`[${view->getStatusFilterForView}]`,
     )
 
     removedFilterKeys->isNonEmptyArray ? removeKeys(removedFilterKeys) : ()
 
     updateExistingKeys(Dict.fromArray(filterEntries))
-    setfilterKeys(prev =>
+    setfilterKeys(_ =>
       mergeFilterKeysForView(
-        ~existingKeys=prev,
+        ~existingKeys=filterKeys,
         ~removedFilterKeys,
         ~filterEntryKeys=filterEntries->Array.map(((key, _)) => key),
       )
@@ -153,13 +158,17 @@ let make = (
       filterValueJson->getArrayFromDict(OrderUIUtils.firstAttemptFilterKey, [])
     let appliedStatusFilter = filterValueJson->getArrayFromDict(customFilterKey, [])
 
+    let allViewStatuses =
+      allStatuses->isNonEmptyArray
+        ? allStatuses
+        : aggregateResponse
+          ->getDictFromJsonObject
+          ->getDictfromDict("status_with_count")
+          ->Dict.keysToArray
+
     let isAllViewSelected =
       appliedStatusFilter->getStrArrayFromJsonArray->Array.toSorted(compareLogic) ==
-        aggregateResponse
-        ->getDictFromJsonObject
-        ->getDictfromDict("status_with_count")
-        ->Dict.keysToArray
-        ->Array.toSorted(compareLogic)
+        allViewStatuses->Array.toSorted(compareLogic)
 
     if isAdvancedOrdersView && appliedRefundsFilter->isNonEmptyArray {
       setActiveView(_ => Refunded)
@@ -190,7 +199,7 @@ let make = (
   React.useEffect(() => {
     syncActiveViewFromFilter()
     None
-  }, (filterValue, aggregateResponse))
+  }, (filterValue, aggregateResponse, allStatuses))
 
   React.useEffect(() => {
     if startTime->isNonEmptyString && endTime->isNonEmptyString {

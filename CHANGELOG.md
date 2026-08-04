@@ -3,6 +3,33 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.04.0
+
+### Features
+
+- Move payment details page to tabs ([#5199](https://github.com/juspay/hyperswitch-control-center/pull/5199)) ([`f99b5f0`](https://github.com/juspay/hyperswitch-control-center/commit/f99b5f00e34f2966a6b59344187b45dea6999960))
+- Enable advanced payments list ([#5255](https://github.com/juspay/hyperswitch-control-center/pull/5255)) ([`25e42c0`](https://github.com/juspay/hyperswitch-control-center/commit/25e42c0dc7fff69ca3b840f4ebb87c6e2306180b))
+
+### Bug Fixes
+
+- Preserve wallet settings on accordion expand/collapse ([#4933](https://github.com/juspay/hyperswitch-control-center/pull/4933)) ([`89b9bf6`](https://github.com/juspay/hyperswitch-control-center/commit/89b9bf63e102e043b0c0bfbf8c3dec30b62ec9b0))
+- Raise recon pipelines upload file size limit - 8MB to 25MB ([#5284](https://github.com/juspay/hyperswitch-control-center/pull/5284)) ([`e19412e`](https://github.com/juspay/hyperswitch-control-center/commit/e19412e11c6ae1c86188917328d3017dce122e5f))
+- Prevent api key name column text wrapping ([#5264](https://github.com/juspay/hyperswitch-control-center/pull/5264)) ([`97ac7ae`](https://github.com/juspay/hyperswitch-control-center/commit/97ac7ae6a530d1d80d3192273f200ac78e30d53d))
+- Use accurate platform analytics banner copy for org filter ([#5301](https://github.com/juspay/hyperswitch-control-center/pull/5301)) ([`24d3e2b`](https://github.com/juspay/hyperswitch-control-center/commit/24d3e2b68a33eb6c5a2b6961bf809a68289834bd))
+- Show all payout attempts on payout details page ([#5272](https://github.com/juspay/hyperswitch-control-center/pull/5272)) ([`38b6b49`](https://github.com/juspay/hyperswitch-control-center/commit/38b6b496c2bf92f49d086eb623089a58d031793b))
+
+### Refactors
+
+- Promote Transformed Entries to a top-level recon sidebar tab ([#5287](https://github.com/juspay/hyperswitch-control-center/pull/5287)) ([`782feca`](https://github.com/juspay/hyperswitch-control-center/commit/782feca77d459a97ecb1a39615be077588ca57b7))
+
+### Miscellaneous Tasks
+
+- Remove old payment settings code ([#5047](https://github.com/juspay/hyperswitch-control-center/pull/5047)) ([`b1acfdc`](https://github.com/juspay/hyperswitch-control-center/commit/b1acfdc46f87739c8aecfc232b561d8e9677575b))
+
+**Full Changelog:** [`2026.08.03.0...2026.08.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.03.0...2026.08.04.0)
+
+- - -
+
 ## 2026.08.03.0
 
 ### Bug Fixes
