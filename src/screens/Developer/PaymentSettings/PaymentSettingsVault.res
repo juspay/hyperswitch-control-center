@@ -1,12 +1,12 @@
 open Typography
-open PaymentSettingsRevampedUtils
+open PaymentSettingsUtils
 
 module VaultFields = {
   @react.component
   let make = () => {
     open FormRenderer
     open HSwitchUtils
-    open PaymentSettingsRevampedHelper
+    open PaymentSettingsHelper
     open LogicUtils
 
     let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(

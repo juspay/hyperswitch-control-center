@@ -65,7 +65,6 @@ sample_data_analytics=false
 acquirer_config_settings=true
 payment_link_theme_configurator=false
 allow_connected_merchants=false
-payment_settings_revamped=true
 network_tokenization=false
 vault_psp_tokenization=false
 dev_click_to_pay=true
