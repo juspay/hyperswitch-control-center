@@ -16,6 +16,7 @@
   "plugins": ["react-hooks"],
   "ignorePatterns": [
     "*.res.js",
+    "*.resi.js",
     "dist/",
     "coverage/",
     "public/",

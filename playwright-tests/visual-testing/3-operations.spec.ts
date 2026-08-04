@@ -79,7 +79,7 @@ test.describe("Visual Testing - Payment Operations", () => {
         context.request,
         page,
       );
-      const paymentData = await createPaymentAPI(
+      await createPaymentAPI(
         merchantId,
         context.request,
         undefined,
@@ -480,7 +480,6 @@ test.describe("Visual Testing - Dispute Operations", () => {
     await mockV2MerchantList(page);
 
     const homePage = new HomePage(page);
-    const paymentOperations = new PaymentOperations(page);
     const disputesOperations = new DisputesOperations(page);
 
     const email = generateUniqueEmail();

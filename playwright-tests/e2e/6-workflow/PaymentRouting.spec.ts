@@ -311,17 +311,19 @@ test.describe("Rule based routing", () => {
     );
 
     await ruleBasedConfiguration.selectFieldButton.click();
-    await page.getByRole('searchbox', { name: 'Search options...' }).fill("currency");
-    await page.getByText('currency', { exact: true }).click();
+    await page
+      .getByRole("searchbox", { name: "Search options..." })
+      .fill("currency");
+    await page.getByText("currency", { exact: true }).click();
 
     await ruleBasedConfiguration.selectOperatorButton.click();
-    await page.getByText('IS', { exact: true }).click();
+    await page.getByText("IS", { exact: true }).click();
 
     await ruleBasedConfiguration.selectValueButton.click();
-    await page.getByText('USD', { exact: true }).click();
+    await page.getByText("USD", { exact: true }).click();
 
     await ruleBasedConfiguration.addProcessorsButton.click();
-    await page.getByText('stripe_operator_test', { exact: true }).click();
+    await page.getByText("stripe_operator_test", { exact: true }).click();
 
     await expect(
       ruleBasedConfiguration.firstAddConditionRowButton,
@@ -343,25 +345,43 @@ test.describe("Rule based routing", () => {
     );
 
     await ruleBasedConfiguration.selectFieldButton.click();
-    await page.getByText('currency', { exact: true }).click();
-    await expect(page.getByText('surcharge_amount', { exact: true })).not.toBeVisible();
-    await expect(page.getByRole('button', { name: 'currency' })).toBeVisible();
+    await page.getByText("currency", { exact: true }).click();
+    await expect(
+      page.getByText("surcharge_amount", { exact: true }),
+    ).not.toBeVisible();
+    await expect(page.getByRole("button", { name: "currency" })).toBeVisible();
     await ruleBasedConfiguration.selectOperatorButton.click();
-    await expect(page.locator("div").filter({ hasText: /^ISCONTAINSIS_NOTNOT_CONTAINS$/ }).nth(1)).toBeVisible();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^ISCONTAINSIS_NOTNOT_CONTAINS$/ })
+        .nth(1),
+    ).toBeVisible();
 
     await page.getByRole("button", { name: "currency" }).click();
     await page.locator('[data-id="amount"]').first().click({ force: true });
-    await expect(page.getByText('surcharge_amount', { exact: true })).not.toBeVisible();
-    await expect(page.getByRole('button', { name: 'amount' })).toBeVisible();
+    await expect(
+      page.getByText("surcharge_amount", { exact: true }),
+    ).not.toBeVisible();
+    await expect(page.getByRole("button", { name: "amount" })).toBeVisible();
     await ruleBasedConfiguration.selectOperatorButton.click();
-    await expect(page.getByText('EQUAL TOGREATER THANLESS THAN')).toBeVisible();
+    await expect(page.getByText("EQUAL TOGREATER THANLESS THAN")).toBeVisible();
 
     await page.getByRole("button", { name: "amount" }).click();
-    await page.getByText('business_label', { exact: true }).click();
-    await expect(page.getByText('surcharge_amount', { exact: true })).not.toBeVisible();
-    await expect(page.getByRole('button', { name: 'business_label' })).toBeVisible();
+    await page.getByText("business_label", { exact: true }).click();
+    await expect(
+      page.getByText("surcharge_amount", { exact: true }),
+    ).not.toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "business_label" }),
+    ).toBeVisible();
     await ruleBasedConfiguration.selectOperatorButton.click();
-    await expect(page.locator("div").filter({ hasText: /^EQUAL TONOT EQUAL_TO$/ }).first()).toBeVisible();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^EQUAL TONOT EQUAL_TO$/ })
+        .first(),
+    ).toBeVisible();
   });
 
   test("Rule editor logical operator AND OR toggle - changes logical operator value", async ({
@@ -466,9 +486,21 @@ test.describe("Payment default fallback", () => {
     await homePage.routing.click();
     await paymentRouting.defaultFallbackManageButton.click();
 
-    await expect(page.getByRole('button', { name: '1 STRIPE_TEST Stripe_test (stripe_test_1)' })).toBeVisible();
-    await expect(page.getByRole('button', { name: '2 STRIPE_TEST Stripe_test (stripe_test_2)' })).toBeVisible();
-    await expect(page.getByRole('button', { name: '3 STRIPE_TEST Stripe_test (stripe_test_3)' })).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: "1 STRIPE_TEST Stripe_test (stripe_test_1)",
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: "2 STRIPE_TEST Stripe_test (stripe_test_2)",
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: "3 STRIPE_TEST Stripe_test (stripe_test_3)",
+      }),
+    ).toBeVisible();
 
     const firstConnector = defaultFallback.connectorAt(0);
     const secondConnector = defaultFallback.connectorAt(1);
@@ -493,9 +525,21 @@ test.describe("Payment default fallback", () => {
     await page.mouse.up();
     await page.waitForTimeout(300);
 
-    await expect(page.getByRole('button', { name: '1 STRIPE_TEST Stripe_test (stripe_test_2)' })).toBeVisible();
-    await expect(page.getByRole('button', { name: '2 STRIPE_TEST Stripe_test (stripe_test_1)' })).toBeVisible();
-    await expect(page.getByRole('button', { name: '3 STRIPE_TEST Stripe_test (stripe_test_3)' })).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: "1 STRIPE_TEST Stripe_test (stripe_test_2)",
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: "2 STRIPE_TEST Stripe_test (stripe_test_1)",
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: "3 STRIPE_TEST Stripe_test (stripe_test_3)",
+      }),
+    ).toBeVisible();
 
     await defaultFallback.saveChangesButton.click();
 
@@ -506,10 +550,21 @@ test.describe("Payment default fallback", () => {
     await defaultFallback.yesSaveItButton.click();
 
     await expect(defaultFallback.configurationSavedToast).toBeVisible();
-    await expect(page.getByRole('button', { name: '1 STRIPE_TEST Stripe_test (stripe_test_2)' })).toBeVisible();
-    await expect(page.getByRole('button', { name: '2 STRIPE_TEST Stripe_test (stripe_test_1)' })).toBeVisible();
-    await expect(page.getByRole('button', { name: '3 STRIPE_TEST Stripe_test (stripe_test_3)' })).toBeVisible();
-
+    await expect(
+      page.getByRole("button", {
+        name: "1 STRIPE_TEST Stripe_test (stripe_test_2)",
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: "2 STRIPE_TEST Stripe_test (stripe_test_1)",
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: "3 STRIPE_TEST Stripe_test (stripe_test_3)",
+      }),
+    ).toBeVisible();
   });
 });
 
@@ -897,16 +952,16 @@ test.describe("Routing list - Configuration History", () => {
     );
 
     await ruleBasedConfiguration.selectFieldButton.click();
-    await page.getByText('currency', { exact: true }).click();
+    await page.getByText("currency", { exact: true }).click();
 
     await ruleBasedConfiguration.selectOperatorButton.click();
-    await page.getByText('IS', { exact: true }).click();
+    await page.getByText("IS", { exact: true }).click();
 
     await ruleBasedConfiguration.selectValueButton.click();
-    await page.getByText('USD', { exact: true }).click();
+    await page.getByText("USD", { exact: true }).click();
 
     await ruleBasedConfiguration.addProcessorsButton.click();
-    await page.getByText('stripe_routing_edit', { exact: true }).click();
+    await page.getByText("stripe_routing_edit", { exact: true }).click();
 
     await ruleBasedConfiguration.configureRuleButton.click();
 
@@ -926,7 +981,7 @@ test.describe("Routing list - Configuration History", () => {
     await nameInput.fill("Rule edit updated");
 
     await page.getByRole("button", { name: "USD" }).click();
-    await page.getByText('EUR', { exact: true }).click();
+    await page.getByText("EUR", { exact: true }).click();
     await ruleBasedConfiguration.configureRuleButton.click();
 
     await ruleBasedConfiguration.saveAndActivateRuleButton.click();
@@ -993,8 +1048,8 @@ test.describe("Advanced rule connector selection modes", () => {
 
     // Select two connectors and enable distribute
     await ruleBasedConfiguration.addProcessorsButton.click();
-    await page.getByText('stripe_rule_test_a', { exact: true }).click();
-    await page.getByText('stripe_rule_test_b', { exact: true }).click();
+    await page.getByText("stripe_rule_test_a", { exact: true }).click();
+    await page.getByText("stripe_rule_test_b", { exact: true }).click();
 
     // Verify distribute checkbox is now visible
     await expect(ruleBasedConfiguration.distributeText).toBeVisible();
@@ -1030,8 +1085,8 @@ test.describe("Advanced rule connector selection modes", () => {
 
     // Select multiple connectors
     await ruleBasedConfiguration.addProcessorsButton.click();
-    await page.getByRole('option', { name: 'stripe_rule_test_a' }).click();
-    await page.getByRole('option', { name: 'stripe_rule_test_b' }).click();
+    await page.getByRole("option", { name: "stripe_rule_test_a" }).click();
+    await page.getByRole("option", { name: "stripe_rule_test_b" }).click();
     // Verify split fields are NOT visible before toggling distribute
     let percentageInputs = page.locator('input[name="1"], input[name="2"]');
     await expect(percentageInputs).toHaveCount(0);
@@ -1061,9 +1116,9 @@ test.describe("Advanced rule connector selection modes", () => {
 
     // Select three connectors
     await ruleBasedConfiguration.addProcessorsButton.click();
-    await page.getByRole('option', { name: 'stripe_rule_test_a' }).click();
-    await page.getByRole('option', { name: 'stripe_rule_test_b' }).click();
-    await page.getByRole('option', { name: 'stripe_rule_test_c' }).click();
+    await page.getByRole("option", { name: "stripe_rule_test_a" }).click();
+    await page.getByRole("option", { name: "stripe_rule_test_b" }).click();
+    await page.getByRole("option", { name: "stripe_rule_test_c" }).click();
 
     // Toggle distribute ON
     await ruleBasedConfiguration.distributeCheckboxNotSelected.nth(0).click();
@@ -1101,8 +1156,8 @@ test.describe("Advanced rule connector selection modes", () => {
 
     // Select two connectors
     await ruleBasedConfiguration.addProcessorsButton.click();
-    await page.getByRole('option', { name: 'stripe_rule_test_a' }).click();
-    await page.getByRole('option', { name: 'stripe_rule_test_b' }).click();
+    await page.getByRole("option", { name: "stripe_rule_test_a" }).click();
+    await page.getByRole("option", { name: "stripe_rule_test_b" }).click();
 
     // Toggle distribute ON
     await ruleBasedConfiguration.distributeCheckboxNotSelected.click();
@@ -1121,8 +1176,8 @@ test.describe("Advanced rule connector selection modes", () => {
     await expect(percentageInputs).toHaveCount(0);
 
     // Verify connectors are still displayed
-    await expect(page.getByText('1stripe_rule_test_a')).toBeVisible();
-    await expect(page.getByText('2stripe_rule_test_b')).toBeVisible();
+    await expect(page.getByText("1stripe_rule_test_a")).toBeVisible();
+    await expect(page.getByText("2stripe_rule_test_b")).toBeVisible();
   });
 
   test("should allow manual editing of split percentages", async ({
@@ -1134,8 +1189,8 @@ test.describe("Advanced rule connector selection modes", () => {
 
     // Select two connectors and enable distribute
     await ruleBasedConfiguration.addProcessorsButton.click();
-    await page.getByRole('option', { name: 'stripe_rule_test_a' }).click();
-    await page.getByRole('option', { name: 'stripe_rule_test_b' }).click();
+    await page.getByRole("option", { name: "stripe_rule_test_a" }).click();
+    await page.getByRole("option", { name: "stripe_rule_test_b" }).click();
 
     await ruleBasedConfiguration.distributeCheckboxNotSelected.click();
     await page.waitForTimeout(300);
@@ -1168,9 +1223,9 @@ test.describe("Advanced rule connector selection modes", () => {
 
     // Select three connectors and enable distribute
     await ruleBasedConfiguration.addProcessorsButton.click();
-    await page.getByRole('option', { name: 'stripe_rule_test_a' }).click();
-    await page.getByRole('option', { name: 'stripe_rule_test_b' }).click();
-    await page.getByRole('option', { name: 'stripe_rule_test_c' }).click();
+    await page.getByRole("option", { name: "stripe_rule_test_a" }).click();
+    await page.getByRole("option", { name: "stripe_rule_test_b" }).click();
+    await page.getByRole("option", { name: "stripe_rule_test_c" }).click();
 
     await ruleBasedConfiguration.distributeCheckboxNotSelected.click();
     await page.waitForTimeout(300);
@@ -1211,7 +1266,7 @@ test.describe("Advanced rule connector selection modes", () => {
 
     // Select a connector
     await ruleBasedConfiguration.addProcessorsButton.click();
-    await page.getByRole('option', { name: 'stripe_rule_test_a' }).click();
+    await page.getByRole("option", { name: "stripe_rule_test_a" }).click();
 
     // Focus and blur the configuration name field without entering value
     const nameInput = ruleBasedConfiguration.configurationNameInput;

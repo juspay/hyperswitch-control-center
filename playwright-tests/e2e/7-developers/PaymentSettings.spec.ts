@@ -79,11 +79,12 @@ test.describe("Payment Settings", () => {
       await homePage.surchargeConnectors.click();
       await expect(page).toHaveURL(/.*dashboard\/surcharge-processor/);
 
-      await expect(
-        surchargeProcessor.connectNowOrConnectButton,
-      ).toBeVisible();
+      await expect(surchargeProcessor.connectNowOrConnectButton).toBeVisible();
       await surchargeProcessor.connectNowOrConnectButton.click();
-      await page.locator('[name*="api_key"]').first().fill("interpayments_test_api_key");
+      await page
+        .locator('[name*="api_key"]')
+        .first()
+        .fill("interpayments_test_api_key");
       await surchargeProcessor.connectAndProceedButton.click();
       await surchargeProcessor.doneButton.click();
 
@@ -465,7 +466,6 @@ test.describe("Payment Settings", () => {
       const paymentSettings = new PaymentSettings(page);
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
-      const connectorName = "juspaythreedsserver";
       if (merchantId) {
         await createAuthenticationConnectorAPI(
           merchantId,
@@ -495,7 +495,7 @@ test.describe("Payment Settings", () => {
       const requestorAppUrl = "https://example.com/3ds-requestor-app";
 
       await paymentSettings.selectFieldDropdown().click();
-      await page.getByRole('option', { name: 'juspaythreedsserver' }).click();
+      await page.getByRole("option", { name: "juspaythreedsserver" }).click();
       await page.keyboard.press("Escape");
 
       await paymentSettings.threeDsRequestorUrlInput.fill(requestorUrl);
@@ -522,9 +522,11 @@ test.describe("Payment Settings", () => {
       );
 
       // Verify the connector is the selected option in the multi-select
-      await page.getByRole('button', { name: 'Select Field1' }).click();
+      await page.getByRole("button", { name: "Select Field1" }).click();
       await expect(
-        page.getByRole('option', { name: 'juspaythreedsserver' }).getByRole('checkbox')
+        page
+          .getByRole("option", { name: "juspaythreedsserver" })
+          .getByRole("checkbox"),
       ).toHaveAttribute("data-state", "checked");
     });
   });

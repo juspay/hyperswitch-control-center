@@ -15,7 +15,6 @@ import {
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 const columnSize = 24;
-const requiredColumnsSize = 14;
 let email: string;
 
 type PaymentListRequest = {
@@ -200,7 +199,9 @@ test.describe("Payment Operations", () => {
         await expect(paymentOperations.orderCell(1, 8)).toContainText(
           paymentData.payment_method_type,
         );
-        await expect(paymentOperations.orderCell(1, 9)).toContainText(/^(Visa|N\/A)$/);
+        await expect(paymentOperations.orderCell(1, 9)).toContainText(
+          /^(Visa|N\/A)$/,
+        );
         await expect(paymentOperations.orderCell(1, 10)).toContainText(
           paymentData.connector_transaction_id,
         );
@@ -748,7 +749,7 @@ test.describe("Payment Operations", () => {
             undefined,
             undefined,
             page,
-          ).catch(() => { });
+          ).catch(() => {});
         }
       }
 
@@ -1648,9 +1649,7 @@ test.describe("Payment Operations", () => {
       await expect(
         page.getByText("123.45 USD").filter({ visible: true }).nth(1),
       ).toBeVisible();
-      await expect(
-        page.getByText('SUCCEEDED').nth(3),
-      ).toBeVisible();
+      await expect(page.getByText("SUCCEEDED").nth(3)).toBeVisible();
 
       await expect(paymentOperations.dataLabel("Created")).toContainText(
         "Created",
@@ -1774,7 +1773,7 @@ test.describe("Payment Operations", () => {
         }
       }
 
-      const refundsTab = page.getByRole('tab', { name: 'Refunds' });
+      const refundsTab = page.getByRole("tab", { name: "Refunds" });
       await expect(refundsTab).toBeVisible();
       await refundsTab.click();
 
@@ -2248,7 +2247,7 @@ test.describe("Payment Operations", () => {
         page.getByRole("button", { name: "Initiate Refund" }),
       ).not.toBeVisible();
 
-      await page.getByRole('tab', { name: 'Refunds' }).click();
+      await page.getByRole("tab", { name: "Refunds" }).click();
 
       await expect(paymentOperations.refundCell(1, 4)).toContainText("50");
       await expect(paymentOperations.refundCell(1, 5)).toContainText(
@@ -2295,7 +2294,7 @@ test.describe("Payment Operations", () => {
         page.getByRole("button", { name: "Initiate Refund" }),
       ).not.toBeVisible();
 
-      await page.getByRole('tab', { name: 'Refunds' }).click();
+      await page.getByRole("tab", { name: "Refunds" }).click();
 
       await expect(paymentOperations.refundCell(1, 4)).toContainText("123.45");
       await expect(paymentOperations.refundCell(1, 5)).toContainText(
@@ -2509,7 +2508,9 @@ test.describe("Payment Operations", () => {
       await paymentOperations.captureAmountInput.fill("0");
       await paymentOperations.captureAmountInput.press("Enter");
       await expect(
-        page.locator('[data-form-error="Please enter capture amount greater than zero"]'),
+        page.locator(
+          '[data-form-error="Please enter capture amount greater than zero"]',
+        ),
       ).toBeVisible();
     });
 
@@ -2530,7 +2531,9 @@ test.describe("Payment Operations", () => {
       await paymentOperations.captureAmountInput.fill("999.99");
       await paymentOperations.captureAmountInput.press("Enter");
       await expect(
-        page.locator('[data-form-error="Capture amount should not exceed 123.45"]'),
+        page.locator(
+          '[data-form-error="Capture amount should not exceed 123.45"]',
+        ),
       ).toBeVisible();
     });
 

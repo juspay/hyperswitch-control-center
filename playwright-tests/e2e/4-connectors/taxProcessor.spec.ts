@@ -62,7 +62,6 @@ test.describe("All Tax Processors", () => {
 
   for (const [key, processor] of taxProcessors) {
     test(`should setup and verify ${key} tax processor`, async ({ page }) => {
-      const homePage = new HomePage(page);
       const taxProcessor = new TaxProcessor(page);
 
       await expect(page).toHaveURL(/.*dashboard\/tax-processor/);

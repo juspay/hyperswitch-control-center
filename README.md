@@ -108,7 +108,7 @@ Then stage the changes and commit again.
 
 | Check                                                  | Local `git commit` | CI (Pull Request)                           |
 | ------------------------------------------------------ | ------------------ | ------------------------------------------- |
-| `.res` / `.resi` formatting                            | ✅ Hook            | ✅ `npm run re:format:check`                |
+| `.res` / `.resi` formatting                            | ✅ Hook            | ✅ `npm run re:format:check` (check-only)   |
 | `.res` compiler warnings                               | ❌ not in hook     | ✅ `npm run re:build` (warnings are errors) |
 | `.js` / `.jsx` / `.json` / `.yml` / `.yaml` formatting | ✅ Hook            | ✅ `npm run format:check`                   |
 | `.ts` / `.tsx` formatting                              | ❌ not in hook     | ✅ `npm run format:check`                   |

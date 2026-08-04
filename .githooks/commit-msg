@@ -3,11 +3,11 @@
 echo "*****~~~~~ Commit hook initiated ~~~~~~*****"
 
 commit_msg_file=$1
-if [ -n "$commit_msg_file" ]; then
-  commit_msg=$(cat "$commit_msg_file")
-else
-  commit_msg=""
+if [ -z "$commit_msg_file" ]; then
+  echo "Error: No commit message file provided."
+  exit 1
 fi
+commit_msg=$(head -n 1 "$commit_msg_file")
 
 echo
 echo "*****~~~~~ Formatting - Check for unformatted files ~~~~~~*****"
@@ -47,11 +47,11 @@ echo
 echo "*****~~~~~ Commit message validation! ~~~~~*****"
 echo
 
-commit_regex="^(Merge (branch|pull request|remote-tracking branch|tag)|(feat|fix|chore|refactor|docs|test|style|enhancement|ci):).+"
+commit_regex="^(Merge (branch|pull request|remote-tracking branch|tag).+|(feat|fix|chore|refactor|docs|test|style|enhancement|ci)(\([[:alnum:]_.\/, -]+\))?!?: .+)"
 
 if ! echo "$commit_msg" | grep -Ei "$commit_regex" >/dev/null; then
   echo "Aborting commit. Your commit message does not follow the conventional format."
-  echo "The commit message should begin with one of the following keywords followed by a colon: 'feat', 'fix', 'chore', 'refactor', 'docs', 'test', 'ci' or 'style'. For example, it should be formatted like this: 'feat: <subject> - <description>'"
+  echo "Use a supported conventional type, an optional scope, and an optional breaking-change marker. For example: 'feat(checkout): add saved cards' or 'fix!: remove legacy API'."
   exit 1
 fi
 
