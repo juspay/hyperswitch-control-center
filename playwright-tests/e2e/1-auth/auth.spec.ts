@@ -524,7 +524,7 @@ test.describe("Forgot password", () => {
     { tag: "@mail" },
     async ({ page, context }) => {
       const email = generateUniqueEmail();
-      const newPassword = "Test@123";
+      const newPassword = "Test@1234567";
 
       const signinPage = new SignInPage(page);
       const resetPasswordPage = new ResetPasswordPage(page);
@@ -572,12 +572,12 @@ test.describe("Forgot password", () => {
       const weakPasswords = [
         {
           password: "Weak1!",
-          expectedError: "Password must be at least 8 characters long.",
+          expectedError: "Password must be at least 12 characters long.",
         },
         { password: "password123!", expectedError: /uppercase/ },
         { password: "PASSWORD123!", expectedError: /lowercase/ },
-        { password: "Password!@#", expectedError: /numeric/ },
-        { password: "Password123", expectedError: /special/ },
+        { password: "Password!@#>", expectedError: /numeric/ },
+        { password: "Password1234", expectedError: /special/ },
       ];
 
       await signupUser(email, PLAYWRIGHT_PASSWORD);
