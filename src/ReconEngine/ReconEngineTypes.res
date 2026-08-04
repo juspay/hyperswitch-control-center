@@ -34,6 +34,11 @@ type accountRefType = {
   account_name: string,
 }
 
+type transformationConfigRefType = {
+  transformation_config_id: string,
+  transformation_config_name: string,
+}
+
 type reconRuleAccountRefType = {
   id: string,
   account_id: string,
@@ -323,7 +328,7 @@ type processingEntryType = {
   status: processingEntryStatus,
   processing_mode: string,
   metadata: Js.Json.t,
-  transformation_id: string,
+  transformation_config: transformationConfigRefType,
   transformation_history_id: string,
   effective_at: string,
   order_id: string,
