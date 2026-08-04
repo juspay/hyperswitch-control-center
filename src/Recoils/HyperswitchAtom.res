@@ -18,12 +18,6 @@ let connectorListAtom: Recoil.recoilAtom<
   array<ConnectorTypes.connectorPayloadCommonType>,
 > = Recoil.atom("connectorListAtom", [])
 
-//Todo: remove this once we start using businessProfileInterface
-let businessProfileFromIdAtom = Recoil.atom(
-  "businessProfileFromIdAtom",
-  JSON.Encode.null->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1,
-)
-
 let businessProfileFromIdAtomInterface = Recoil.atom(
   "businessProfileFromIdAtomInterface",
   JSON.Encode.null->BusinessProfileInterfaceUtils.mapJsontoCommonType,

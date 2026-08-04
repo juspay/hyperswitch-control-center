@@ -3444,13 +3444,13 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
   },
 
   bambora_apac: {
-    label: "bambora",
+    label: "bamboraapac",
     fields: {
       default: "test_value",
       overrides: {
         "Enter Connector label": "bambora_apac_default",
       },
-      fieldLabels: ["Passcode *", "Merchant Id *"],
+      fieldLabels: ["Username *", "Account Number *", "Password *"],
     },
     paymentSections: {
       Credit: {

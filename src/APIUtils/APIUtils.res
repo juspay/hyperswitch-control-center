@@ -548,7 +548,11 @@ let useGetURL = () => {
         switch methodType {
         | Get =>
           switch id {
-          | Some(payout_id) => `payouts/${payout_id}`
+          | Some(payout_id) =>
+            switch queryParameters {
+            | Some(queryParams) => `payouts/${payout_id}?${queryParams}`
+            | None => `payouts/${payout_id}`
+            }
           | None =>
             switch transactionEntity {
             | #Merchant => `payouts/list?limit=100`
