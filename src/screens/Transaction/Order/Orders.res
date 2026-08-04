@@ -67,6 +67,7 @@ let make = (~previewOnly=false) => {
     sortType: ASC,
   }
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
+  let setPageDetails = Recoil.useSetRecoilState(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->getValueFromDict(tableTitle, defaultValue)
   let resultsPerPage = pageDetail.resultsPerPage
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
@@ -74,6 +75,16 @@ let make = (~previewOnly=false) => {
     FilterContext.filterContext,
   )
   let startTime = filterValueJson->getString(startTimeFilterKey(version), "")
+  let setSearchTextAndResetOffset = updateSearchText => {
+    setPageDetails(prev => {
+      let currentPageDetail = prev->getValueFromDict(tableTitle, defaultValue)
+      let newDict = prev->Dict.toArray->Dict.fromArray
+      newDict->Dict.set(tableTitle, {...currentPageDetail, offset: 0})
+      newDict
+    })
+    setOffset(_ => 0)
+    setSearchText(updateSearchText)
+  }
 
   let handleExtendDateButtonClick = _ => {
     let startDateObj = startTime->DayJs.getDayJsForString
@@ -249,7 +260,7 @@ let make = (~previewOnly=false) => {
       : "Search by payment ID"
     let searchBar =
       <SearchBarFilter
-        placeholder=searchPlaceholder setSearchVal=setSearchText searchVal=searchText
+        placeholder=searchPlaceholder setSearchVal=setSearchTextAndResetOffset searchVal=searchText
       />
     let searchBarWithInfo =
       <div className="flex items-center gap-2">
