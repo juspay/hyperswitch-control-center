@@ -630,12 +630,10 @@ let setData = (
   setScreenState,
   previewOnly,
 ) => {
-  let arr = Array.make(~length=offset, Dict.make()->PaymentInterfaceUtils.mapDictToPaymentPayload)
-  if total <= offset {
+  if offset > 0 && total <= offset {
     setOffset(_ => 0)
-  }
-
-  if total > 0 {
+  } else if total > 0 {
+    let arr = Array.make(~length=offset, Dict.make()->PaymentInterfaceUtils.mapDictToPaymentPayload)
     let orderData =
       arr
       ->Array.concat(data)
@@ -651,6 +649,11 @@ let setData = (
     setScreenState(_ => PageLoaderWrapper.Custom)
   }
 }
+
+let getSelectedPaymentRows = selectedRows =>
+  selectedRows->Array.filter(row =>
+    row->getDictFromJsonObject->getString("payment_id", "")->isNonEmptyString
+  )
 
 let isNonEmptyValue = value => {
   value->Option.getOr(Dict.make())->Dict.toArray->Array.length > 0

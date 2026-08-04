@@ -305,11 +305,13 @@ let make = (~previewOnly=false) => {
     />
   }, (searchText, version, isAdvancedSource, devSavedViews))
 
+  let selectedPaymentRows = selectedRows->getSelectedPaymentRows
+
   let downloadData = () => {
     let currentDate = Date.make()->Date.toISOString->dateFormat("YYYY-MM-DD")
     DownloadUtils.downloadTableAsCsv(
       ~csvHeaders,
-      ~rawData=selectedRows,
+      ~rawData=selectedPaymentRows,
       ~tableItemToObjMapper=dict => dict,
       ~itemToCSVMapping=mapOrderDictToCsvRow,
       ~fileName=`payments_${currentDate}.csv`,
@@ -317,7 +319,7 @@ let make = (~previewOnly=false) => {
     )
   }
 
-  let hasSelectedRows = selectedRows->isNonEmptyArray
+  let hasSelectedRows = selectedPaymentRows->isNonEmptyArray
   let canExportSelectedRows = isAdvancedSource && hasSelectedRows
   let exportButtonState: Button.buttonState = canExportSelectedRows ? Normal : Disabled
   let exportTooltipText = !isAdvancedSource
@@ -375,7 +377,7 @@ let make = (~previewOnly=false) => {
               rightIcon={CustomIcon(
                 <span
                   className={`inline-flex h-5 w-5 items-center justify-center rounded-full bg-white bg-opacity-20 ${body.md.medium} ${selectedRowsCountClass}`}>
-                  {selectedRows->Array.length->Int.toString->React.string}
+                  {selectedPaymentRows->Array.length->Int.toString->React.string}
                 </span>,
               )}
               onClick={_ => canExportSelectedRows ? downloadData() : ()}
