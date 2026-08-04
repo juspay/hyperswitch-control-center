@@ -99,7 +99,7 @@ let make = () => {
         let selectedEventTypes =
           filterValueJson->getArrayFromDict(eventTypeFilterKey, [])->getStrArrayFromJsonArray
 
-        if selectedEventClasses->Array.length > 0 {
+        if selectedEventClasses->isNonEmptyArray {
           payload->Dict.set(
             "event_classes",
             selectedEventClasses->Array.map(eventClass =>
@@ -112,7 +112,7 @@ let make = () => {
           ~eventClasses=selectedEventClasses,
           ~eventTypes=selectedEventTypes,
         )
-        if eventTypesToSend->Array.length > 0 {
+        if eventTypesToSend->isNonEmptyArray {
           payload->Dict.set(
             "event_types",
             eventTypesToSend->Array.map(JSON.Encode.string)->JSON.Encode.array,

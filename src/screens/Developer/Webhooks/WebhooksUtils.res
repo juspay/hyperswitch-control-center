@@ -55,9 +55,6 @@ let webhookEventTypeToString = eventType =>
   | InvoicePaid => "invoice_paid"
   }
 
-// Mirrors backend `EventClass::event_types()` (crates/common_enums/src/enums.rs) — the
-// single source of truth for which event types belong to which event class. Keep in sync
-// with the backend if that mapping changes.
 let eventTypesForClass = eventClass =>
   switch eventClass {
   | Payments => [
@@ -246,11 +243,8 @@ let webhookLocalFilters = (): array<EntityType.initialFilters<'t>> => [
   },
 ]
 
-// Keeps `event_types` a subset of the selected `event_classes`, mirroring the backend
-// validation in `finalize_event_types` (crates/router/src/core/webhooks/webhook_events.rs),
-// which rejects the request otherwise.
 let restrictEventTypesToClasses = (~eventClasses: array<eventClass>, ~eventTypes: array<string>) => {
-  if eventClasses->Array.length === 0 {
+  if eventClasses->isEmptyArray {
     eventTypes
   } else {
     let allowed =

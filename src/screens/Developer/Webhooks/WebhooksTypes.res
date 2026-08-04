@@ -2,10 +2,8 @@ type tabs = Request | Response
 
 type eventRecipient = Merchant | Connector
 
-// Mirrors backend `common_enums::EventClass` (crates/common_enums/src/enums.rs)
 type eventClass = Payments | Refunds | Disputes | Mandates | Payouts | Subscriptions
 
-// Mirrors backend `common_enums::EventType` (crates/common_enums/src/enums.rs)
 type webhookEventType =
   | PaymentSucceeded
   | PaymentFailed
