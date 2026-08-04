@@ -92,8 +92,6 @@ let eventTypesForClass = eventClass =>
   | Subscriptions => [InvoicePaid]
   }
 
-let allWebhookEventTypes = allEventClasses->Array.flatMap(eventTypesForClass)
-
 let eventClassFilterKey = "event_classes"
 let eventTypeFilterKey = "event_types"
 
@@ -208,8 +206,28 @@ let initialFixedFilter = () => [
   ),
 ]
 
-let webhookLocalFilters = (): array<EntityType.initialFilters<'t>> => [
-  {
+let stringToEventClass = str =>
+  allEventClasses->Array.find(eventClass => eventClass->eventClassToString === str)
+
+let selectedEventClassesFromFilterValueJson = filterValueJson =>
+  filterValueJson
+  ->getArrayFromDict(eventClassFilterKey, [])
+  ->getStrArrayFromJsonArray
+  ->Array.filterMap(stringToEventClass)
+
+let eventTypeStringsForSelectedClasses = selectedEventClasses =>
+  selectedEventClasses
+  ->Array.flatMap(eventTypesForClass)
+  ->Array.map(webhookEventTypeToString)
+
+let eventTypeOptionsForSelectedClasses = selectedEventClasses =>
+  selectedEventClasses
+  ->eventTypeStringsForSelectedClasses
+  ->FilterSelectBox.makeOptions(~isTitle=true)
+
+let webhookLocalFilters = (filterValueJson): array<EntityType.initialFilters<'t>> => {
+  let selectedEventClasses = filterValueJson->selectedEventClassesFromFilterValueJson
+  let eventClassFilter: EntityType.initialFilters<'t> = {
     field: FormRenderer.makeFieldInfo(
       ~label="Event Class",
       ~name=eventClassFilterKey,
@@ -224,15 +242,13 @@ let webhookLocalFilters = (): array<EntityType.initialFilters<'t>> => [
       ),
     ),
     localFilter: None,
-  },
-  {
+  }
+  let eventTypeFilter: EntityType.initialFilters<'t> = {
     field: FormRenderer.makeFieldInfo(
       ~label="Event Type",
       ~name=eventTypeFilterKey,
       ~customInput=InputFields.filterMultiSelectInput(
-        ~options=allWebhookEventTypes
-        ->Array.map(webhookEventTypeToString)
-        ->FilterSelectBox.makeOptions(~isTitle=true),
+        ~options=selectedEventClasses->eventTypeOptionsForSelectedClasses,
         ~buttonText="Event Type",
         ~showSelectionAsChips=false,
         ~searchable=true,
@@ -240,20 +256,7 @@ let webhookLocalFilters = (): array<EntityType.initialFilters<'t>> => [
       ),
     ),
     localFilter: None,
-  },
-]
-
-let restrictEventTypesToClasses = (~eventClasses: array<eventClass>, ~eventTypes: array<string>) => {
-  if eventClasses->isEmptyArray {
-    eventTypes
-  } else {
-    let allowed =
-      eventClasses
-      ->Array.flatMap(eventTypesForClass)
-      ->Array.map(webhookEventTypeToString)
-    eventTypes->Array.filter(eventType => allowed->Array.includes(eventType))
   }
-}
 
-let stringToEventClass = str =>
-  allEventClasses->Array.find(eventClass => eventClass->eventClassToString === str)
+  selectedEventClasses->isEmptyArray ? [eventClassFilter] : [eventClassFilter, eventTypeFilter]
+}

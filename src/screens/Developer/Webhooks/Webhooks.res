@@ -91,31 +91,23 @@ let make = () => {
         payload->Dict.set("created_after", start_time->JSON.Encode.string)
         payload->Dict.set("created_before", end_time->JSON.Encode.string)
 
-        let selectedEventClasses =
-          filterValueJson
-          ->getArrayFromDict(eventClassFilterKey, [])
-          ->getStrArrayFromJsonArray
-          ->Array.filterMap(stringToEventClass)
+        let selectedEventClasses = filterValueJson->selectedEventClassesFromFilterValueJson
         let selectedEventTypes =
           filterValueJson->getArrayFromDict(eventTypeFilterKey, [])->getStrArrayFromJsonArray
 
         if selectedEventClasses->isNonEmptyArray {
           payload->Dict.set(
             "event_classes",
-            selectedEventClasses->Array.map(eventClass =>
-              eventClass->eventClassToString->JSON.Encode.string
-            )->JSON.Encode.array,
+            selectedEventClasses
+            ->Array.map(eventClass => eventClass->eventClassToString->JSON.Encode.string)
+            ->JSON.Encode.array,
           )
         }
 
-        let eventTypesToSend = restrictEventTypesToClasses(
-          ~eventClasses=selectedEventClasses,
-          ~eventTypes=selectedEventTypes,
-        )
-        if eventTypesToSend->isNonEmptyArray {
+        if selectedEventTypes->isNonEmptyArray {
           payload->Dict.set(
             "event_types",
-            eventTypesToSend->Array.map(JSON.Encode.string)->JSON.Encode.array,
+            selectedEventTypes->Array.map(JSON.Encode.string)->JSON.Encode.array,
           )
         }
       }
@@ -180,13 +172,18 @@ let make = () => {
       defaultFilters={""->JSON.Encode.string}
       fixedFilters={initialFixedFilter()}
       requiredSearchFieldsList=[]
-      localFilters={webhookLocalFilters()}
+      localFilters={webhookLocalFilters(filterValueJson)}
       localOptions=[]
       remoteOptions=[]
-      remoteFilters={webhookLocalFilters()}
+      remoteFilters={webhookLocalFilters(filterValueJson)}
       autoApply=false
       submitInputOnEnter=true
-      defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey, eventClassFilterKey, eventTypeFilterKey]
+      defaultFilterKeys=[
+        startTimeFilterKey,
+        endTimeFilterKey,
+        eventClassFilterKey,
+        eventTypeFilterKey,
+      ]
       updateUrlWith={updateExistingKeys}
       clearFilters={() => reset()}
       customLeftView={<SearchInput
