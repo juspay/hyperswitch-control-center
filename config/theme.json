@@ -1,23 +1,23 @@
 {
   "settings": {
     "colors": {
-      "primary": "#00387a"
+      "primary": "#003976"
     },
     "sidebar": {
-      "primary": "#00387a",
-      "textColor": "#f4f4f2",
-      "textColorPrimary": "#1C6DEA"
+      "primary": "#003976",
+      "textColor": "#A9BCD3",
+      "textColorPrimary": "#FFFFFF"
     },
     "buttons": {
       "primary": {
-        "backgroundColor": "#00387a",
-        "textColor": "#ffffff",
-        "hoverBackgroundColor": "#0860dd"
+        "backgroundColor": "#003976",
+        "textColor": "#FFFFFF",
+        "hoverBackgroundColor": "#004A9E"
       },
       "secondary": {
-        "backgroundColor": "#00387a",
-        "textColor": "#ffffff",
-        "hoverBackgroundColor": "#fcfcfd"
+        "backgroundColor": "#F2F3F5",
+        "textColor": "#003976",
+        "hoverBackgroundColor": "#E3E5E9"
       }
     }
   },
