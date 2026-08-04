@@ -1,28 +1,28 @@
 {
   "settings": {
     "colors": {
-      "primary": "#006DF9"
+      "primary": "#00387a"
     },
     "sidebar": {
-      "primary": "#FCFCFD",
-      "textColor": "#525866",
+      "primary": "#00387a",
+      "textColor": "#f4f4f2",
       "textColorPrimary": "#1C6DEA"
     },
     "buttons": {
       "primary": {
-        "backgroundColor": "#1272f9",
+        "backgroundColor": "#00387a",
         "textColor": "#ffffff",
         "hoverBackgroundColor": "#0860dd"
       },
       "secondary": {
-        "backgroundColor": "#f3f3f3",
-        "textColor": "#626168",
+        "backgroundColor": "#00387a",
+        "textColor": "#ffffff",
         "hoverBackgroundColor": "#fcfcfd"
       }
     }
   },
   "urls": {
-    "faviconUrl": "",
-    "logoUrl": ""
+    "faviconUrl": "https://app.fnb-payments.com/demo-merchant-icons/favicon_fnb.png",
+    "logoUrl": "https://app.fnb-payments.com/demo-merchant-icons/fnb_logo.png"
   }
 }
