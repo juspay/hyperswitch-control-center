@@ -234,32 +234,6 @@ type paymentListSource =
   | @as("Normal") Normal
   | @as("Advanced") Advanced
 
-type openSearchCsvColumn =
-  | CsvPaymentId
-  | CsvStatus
-  | CsvAmount
-  | CsvCurrency
-  | CsvConnector
-  | CsvPaymentMethod
-  | CsvPaymentMethodType
-  | CsvProfileId
-  | CsvMerchantId
-  | CsvCustomerId
-  | CsvActiveAttemptId
-  | CsvMerchantConnectorId
-  | CsvCardLast4
-  | CsvCardNetwork
-  | CsvCardIssuer
-  | CsvRefundsStatus
-  | CsvRefundsCount
-  | CsvDisputeStatus
-  | CsvDisputeCount
-  | CsvRoutingApproach
-  | CsvUnifiedCode
-  | CsvUnifiedMessage
-  | CsvCreated
-  | CsvModified
-
 type openSearchRefundStatus = [#partial_refunded | #full_refunded]
 
 type openSearchDisputeStatus = [
