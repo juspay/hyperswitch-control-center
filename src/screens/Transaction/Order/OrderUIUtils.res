@@ -650,11 +650,6 @@ let setData = (
   }
 }
 
-let getSelectedPaymentRows = selectedRows =>
-  selectedRows->Array.filter(row =>
-    row->getDictFromJsonObject->getString("payment_id", "")->isNonEmptyString
-  )
-
 let isNonEmptyValue = value => {
   value->Option.getOr(Dict.make())->Dict.toArray->Array.length > 0
 }

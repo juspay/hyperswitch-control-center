@@ -305,7 +305,10 @@ let make = (~previewOnly=false) => {
     />
   }, (searchText, version, isAdvancedSource, devSavedViews))
 
-  let selectedPaymentRows = selectedRows->getSelectedPaymentRows
+  let selectedPaymentRows =
+    selectedRows->Array.filter(row =>
+      row->getDictFromJsonObject->getString("payment_id", "")->isNonEmptyString
+    )
 
   let downloadData = () => {
     let currentDate = Date.make()->Date.toISOString->dateFormat("YYYY-MM-DD")
