@@ -184,12 +184,18 @@ module PlatformAggregatedDataBanner = {
   @react.component
   let make = () => {
     let {isCurrentMerchantPlatform} = OMPSwitchHooks.useOMPType()
+    let {getResolvedUserInfo} = React.useContext(UserInfoProvider.defaultContext)
+    let {analyticsEntity} = getResolvedUserInfo()
+    let description = switch analyticsEntity {
+    | #Organization => "You are viewing aggregated data from all merchant accounts under your organization, including both platform-connected and standard merchants."
+    | _ => "You are viewing aggregated data from all merchant accounts connected to your platform account."
+    }
     <RenderIf condition={isCurrentMerchantPlatform}>
       <div className="my-3 w-full">
         <AlertV2Binding
           alertType=Primary
           slot={{slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />}}
-          description="You are viewing aggregated data from all merchant accounts connected to your platform account."
+          description
         />
       </div>
     </RenderIf>

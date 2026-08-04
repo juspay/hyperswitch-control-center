@@ -357,8 +357,7 @@ module ApiKeysTable = {
       let appendString = str => str->String.concat(String.repeat("*", 10))
 
       switch colType {
-      | Name =>
-        Table.CustomCell(<div className="whitespace-nowrap"> {item.name->React.string} </div>, "")
+      | Name => EllipsisText(item.name, "max-w-xs")
       | Description => Text(item.description)
       | Prefix => Text(item.prefix->appendString)
       | Created => Date(item.created)

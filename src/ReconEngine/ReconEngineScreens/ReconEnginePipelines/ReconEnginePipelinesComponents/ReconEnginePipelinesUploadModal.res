@@ -228,7 +228,7 @@ module UploadDropzone = {
               {"Choose files or drag & drop them here"->React.string}
             </div>
             <div className={`${body.md.medium} text-nd_gray-500`}>
-              {`.csv,.ext,.xlsx,.txt only | Max size 8 MB | Up to ${maxFilesCount->Int.toString} files`->React.string}
+              {`.csv,.ext,.xlsx,.txt only | Max size 25 MB | Up to ${maxFilesCount->Int.toString} files`->React.string}
             </div>
           </div>
           <div
