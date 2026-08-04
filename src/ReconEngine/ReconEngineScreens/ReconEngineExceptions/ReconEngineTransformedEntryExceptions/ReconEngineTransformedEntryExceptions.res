@@ -177,8 +177,8 @@ let make = () => {
             remoteSortEnabled=true
             showPagination=false
             showResultsPerPageSelector=false
-            tableDataLoading={screenState === PageLoaderWrapper.Loading}
-            dataLoading={screenState === PageLoaderWrapper.Loading}
+            tableDataLoading={screenState === Loading}
+            dataLoading={screenState === Loading}
             filters={<SearchInput
               inputText=searchText
               onChange={value => setSearchText(_ => value)}
@@ -191,7 +191,7 @@ let make = () => {
             />}
             bottomActions={<ReconEngineCursorPaginationButtons
               cursors
-              isLoading={screenState === PageLoaderWrapper.Loading}
+              isLoading={screenState === Loading}
               hasData={processingEntries->isNonEmptyArray}
               onPrev={() => {
                 setSelectedRows(_ => [])

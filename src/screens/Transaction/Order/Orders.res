@@ -66,7 +66,7 @@ let make = (~previewOnly=false) => {
     sortKey: "",
     sortType: ASC,
   }
-  let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
+  let (pageDetailDict, setPageDetails) = Recoil.useRecoilState(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->getValueFromDict(tableTitle, defaultValue)
   let resultsPerPage = pageDetail.resultsPerPage
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
@@ -74,6 +74,16 @@ let make = (~previewOnly=false) => {
     FilterContext.filterContext,
   )
   let startTime = filterValueJson->getString(startTimeFilterKey(version), "")
+  let setSearchTextAndResetOffset = updateSearchText => {
+    setPageDetails(prev => {
+      let currentPageDetail = prev->getValueFromDict(tableTitle, defaultValue)
+      let updatedPageDetails = prev->Dict.toArray->Dict.fromArray
+      updatedPageDetails->Dict.set(tableTitle, {...currentPageDetail, offset: 0})
+      updatedPageDetails
+    })
+    setOffset(_ => 0)
+    setSearchText(updateSearchText)
+  }
 
   let handleExtendDateButtonClick = _ => {
     let startDateObj = startTime->DayJs.getDayJsForString
@@ -249,7 +259,7 @@ let make = (~previewOnly=false) => {
       : "Search by payment ID"
     let searchBar =
       <SearchBarFilter
-        placeholder=searchPlaceholder setSearchVal=setSearchText searchVal=searchText
+        placeholder=searchPlaceholder setSearchVal=setSearchTextAndResetOffset searchVal=searchText
       />
     let searchBarWithInfo =
       <div className="flex items-center gap-2">
@@ -305,11 +315,16 @@ let make = (~previewOnly=false) => {
     />
   }, (searchText, version, isAdvancedSource, devSavedViews))
 
+  let selectedPaymentRows =
+    selectedRows->Array.filter(row =>
+      row->getDictFromJsonObject->getString("payment_id", "")->isNonEmptyString
+    )
+
   let downloadData = () => {
     let currentDate = Date.make()->Date.toISOString->dateFormat("YYYY-MM-DD")
     DownloadUtils.downloadTableAsCsv(
       ~csvHeaders,
-      ~rawData=selectedRows,
+      ~rawData=selectedPaymentRows,
       ~tableItemToObjMapper=dict => dict,
       ~itemToCSVMapping=mapOrderDictToCsvRow,
       ~fileName=`payments_${currentDate}.csv`,
@@ -317,7 +332,7 @@ let make = (~previewOnly=false) => {
     )
   }
 
-  let hasSelectedRows = selectedRows->isNonEmptyArray
+  let hasSelectedRows = selectedPaymentRows->isNonEmptyArray
   let canExportSelectedRows = isAdvancedSource && hasSelectedRows
   let exportButtonState: Button.buttonState = canExportSelectedRows ? Normal : Disabled
   let exportTooltipText = !isAdvancedSource
@@ -375,7 +390,7 @@ let make = (~previewOnly=false) => {
               rightIcon={CustomIcon(
                 <span
                   className={`inline-flex h-5 w-5 items-center justify-center rounded-full bg-white bg-opacity-20 ${body.md.medium} ${selectedRowsCountClass}`}>
-                  {selectedRows->Array.length->Int.toString->React.string}
+                  {selectedPaymentRows->Array.length->Int.toString->React.string}
                 </span>,
               )}
               onClick={_ => canExportSelectedRows ? downloadData() : ()}
