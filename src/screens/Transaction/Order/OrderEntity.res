@@ -456,45 +456,84 @@ let openSearchBaseColumns: array<colType> = [
 
 let openSearchAllColumns = openSearchBaseColumns->Array.concat(openSearchNewColumns)
 
-let openSearchCsvColumns = [
-  "payment_id",
-  "attempt_id",
-  "status",
-  "amount",
-  "currency",
-  "connector",
-  "connector_transaction_id",
-  "amount_to_capture",
-  "customer_id",
-  "created_at",
-  "order_details",
-  "error_message",
-  "capture_method",
-  "authentication_type",
-  "mandate_id",
-  "payment_method",
-  "payment_method_type",
-  "metadata",
-  "setup_future_usage",
-  "statement_descriptor_name",
-  "description",
-  "off_session",
-  "business_country",
-  "business_label",
-  "business_sub_label",
-  "allowed_payment_method_types",
-  "payment_method_data",
-  "card_network",
-  "fingerprint_id",
-  "modified_at",
-  "error_code",
-  "payment_method_id",
-  "card_holder_name",
-  "merchant_order_reference_id",
-  "profile_id",
+let openSearchCsvColumns: array<openSearchCsvColumn> = [
+  CsvPaymentId,
+  CsvAttemptId,
+  CsvStatus,
+  CsvAmount,
+  CsvCurrency,
+  CsvConnector,
+  CsvConnectorTransactionId,
+  CsvAmountToCapture,
+  CsvCustomerId,
+  CsvCreatedAt,
+  CsvOrderDetails,
+  CsvErrorMessage,
+  CsvCaptureMethod,
+  CsvAuthenticationType,
+  CsvMandateId,
+  CsvPaymentMethod,
+  CsvPaymentMethodType,
+  CsvMetadata,
+  CsvSetupFutureUsage,
+  CsvStatementDescriptorName,
+  CsvDescription,
+  CsvOffSession,
+  CsvBusinessCountry,
+  CsvBusinessLabel,
+  CsvBusinessSubLabel,
+  CsvAllowedPaymentMethodTypes,
+  CsvPaymentMethodData,
+  CsvCardNetwork,
+  CsvFingerprintId,
+  CsvModifiedAt,
+  CsvErrorCode,
+  CsvPaymentMethodId,
+  CsvCardHolderName,
+  CsvMerchantOrderReferenceId,
+  CsvProfileId,
 ]
 
-let getOpenSearchCsvValue = (dict: Dict.t<JSON.t>, key) => {
+let getOpenSearchCsvKey = column =>
+  switch column {
+  | CsvPaymentId => "payment_id"
+  | CsvAttemptId => "attempt_id"
+  | CsvStatus => "status"
+  | CsvAmount => "amount"
+  | CsvCurrency => "currency"
+  | CsvConnector => "connector"
+  | CsvConnectorTransactionId => "connector_transaction_id"
+  | CsvAmountToCapture => "amount_to_capture"
+  | CsvCustomerId => "customer_id"
+  | CsvCreatedAt => "created_at"
+  | CsvOrderDetails => "order_details"
+  | CsvErrorMessage => "error_message"
+  | CsvCaptureMethod => "capture_method"
+  | CsvAuthenticationType => "authentication_type"
+  | CsvMandateId => "mandate_id"
+  | CsvPaymentMethod => "payment_method"
+  | CsvPaymentMethodType => "payment_method_type"
+  | CsvMetadata => "metadata"
+  | CsvSetupFutureUsage => "setup_future_usage"
+  | CsvStatementDescriptorName => "statement_descriptor_name"
+  | CsvDescription => "description"
+  | CsvOffSession => "off_session"
+  | CsvBusinessCountry => "business_country"
+  | CsvBusinessLabel => "business_label"
+  | CsvBusinessSubLabel => "business_sub_label"
+  | CsvAllowedPaymentMethodTypes => "allowed_payment_method_types"
+  | CsvPaymentMethodData => "payment_method_data"
+  | CsvCardNetwork => "card_network"
+  | CsvFingerprintId => "fingerprint_id"
+  | CsvModifiedAt => "modified_at"
+  | CsvErrorCode => "error_code"
+  | CsvPaymentMethodId => "payment_method_id"
+  | CsvCardHolderName => "card_holder_name"
+  | CsvMerchantOrderReferenceId => "merchant_order_reference_id"
+  | CsvProfileId => "profile_id"
+  }
+
+let getOpenSearchCsvValue = (dict: Dict.t<JSON.t>, column) => {
   let amountToString = amount =>
     CurrencyUtils.convertCurrencyFromLowestDenomination(
       ~amount,
@@ -506,51 +545,57 @@ let getOpenSearchCsvValue = (dict: Dict.t<JSON.t>, key) => {
       dict->getMappedValueFromDict(key, "", json => json->JSON.stringifyAny->Option.getOr("")),
     )
 
-  let value = switch key {
-  | "attempt_id" => dict->getString("attempt_id", dict->getString("active_attempt_id", ""))
-  | "amount" => dict->getOptionFloat("amount")->Option.mapOr("", amountToString)
-  | "connector_transaction_id" =>
+  let value = switch column {
+  | CsvAttemptId => dict->getString("attempt_id", dict->getString("active_attempt_id", ""))
+  | CsvAmount => dict->getOptionFloat("amount")->Option.mapOr("", amountToString)
+  | CsvConnectorTransactionId =>
     dict->getString("connector_transaction_id", dict->getString("connector_payment_id", ""))
-  | "amount_to_capture" =>
+  | CsvAmountToCapture =>
     switch dict->getOptionFloat("amount_to_capture") {
     | Some(amount) => amount->amountToString
     | None => dict->getOptionFloat("amount_capturable")->Option.mapOr("", amountToString)
     }
-  | "order_details" => jsonToString("order_details")
-  | "error_message" =>
+  | CsvOrderDetails => jsonToString("order_details")
+  | CsvErrorMessage =>
     dict->getString("error_message", dict->getStringFromNestedDict("error", "error_message", ""))
-  | "statement_descriptor_name" =>
+  | CsvStatementDescriptorName =>
     dict->getString("statement_descriptor_name", dict->getString("statement_descriptor", ""))
-  | "off_session" => dict->getString("off_session", dict->getString("customer_present", ""))
-  | "allowed_payment_method_types" => jsonToString("allowed_payment_method_types")
-  | "payment_method_data" => jsonToString("payment_method_data")
-  | "metadata" => jsonToString("metadata")
-  | "card_network" =>
+  | CsvOffSession => dict->getString("off_session", dict->getString("customer_present", ""))
+  | CsvAllowedPaymentMethodTypes => jsonToString("allowed_payment_method_types")
+  | CsvPaymentMethodData => jsonToString("payment_method_data")
+  | CsvMetadata => jsonToString("metadata")
+  | CsvCardNetwork =>
     dict->getString(
       "card_network",
       dict->getDictFromNestedDict("payment_method_data", "card")->getString("card_network", ""),
     )
-  | "error_code" =>
+  | CsvErrorCode =>
     dict->getString("error_code", dict->getStringFromNestedDict("error", "error_code", ""))
-  | "card_holder_name" =>
+  | CsvCardHolderName =>
     dict->getString(
       "card_holder_name",
       dict
       ->getDictFromNestedDict("payment_method_data", "card")
       ->getString("card_holder_name", ""),
     )
-  | "merchant_order_reference_id" =>
+  | CsvMerchantOrderReferenceId =>
     dict->getString("merchant_order_reference_id", dict->getString("merchant_reference_id", ""))
-  | key => dict->getString(key, "")
+  | column => dict->getString(column->getOpenSearchCsvKey, "")
   }
   value->JSON.Encode.string
 }
 
-let csvHeaders = openSearchCsvColumns->Array.map(key => (key, key))
+let csvHeaders = openSearchCsvColumns->Array.map(column => {
+  let key = column->getOpenSearchCsvKey
+  (key, key)
+})
 
 let mapOrderDictToCsvRow = (dict: Dict.t<JSON.t>) =>
   openSearchCsvColumns
-  ->Array.map(key => (key, getOpenSearchCsvValue(dict, key)))
+  ->Array.map(column => {
+    let key = column->getOpenSearchCsvKey
+    (key, getOpenSearchCsvValue(dict, column))
+  })
   ->getJsonFromArrayOfJson
 
 let getHeading = (~devSortEnabled, colType: colType) => {

@@ -66,8 +66,7 @@ let make = (~previewOnly=false) => {
     sortKey: "",
     sortType: ASC,
   }
-  let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
-  let setPageDetails = Recoil.useSetRecoilState(LoadedTable.table_pageDetails)
+  let (pageDetailDict, setPageDetails) = Recoil.useRecoilState(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->getValueFromDict(tableTitle, defaultValue)
   let resultsPerPage = pageDetail.resultsPerPage
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
@@ -78,9 +77,9 @@ let make = (~previewOnly=false) => {
   let setSearchTextAndResetOffset = updateSearchText => {
     setPageDetails(prev => {
       let currentPageDetail = prev->getValueFromDict(tableTitle, defaultValue)
-      let newDict = prev->Dict.toArray->Dict.fromArray
-      newDict->Dict.set(tableTitle, {...currentPageDetail, offset: 0})
-      newDict
+      let updatedPageDetails = prev->Dict.toArray->Dict.fromArray
+      updatedPageDetails->Dict.set(tableTitle, {...currentPageDetail, offset: 0})
+      updatedPageDetails
     })
     setOffset(_ => 0)
     setSearchText(updateSearchText)
