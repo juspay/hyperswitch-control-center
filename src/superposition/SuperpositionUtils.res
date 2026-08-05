@@ -1,7 +1,7 @@
 open SuperpositionTypes
 
 let displayConfigs = [
-  ShouldPerformEligibilty,
+  ShouldPerformEligibility,
   ShouldCallPMModularService,
   EnableExtendedCardBin,
   ShouldStoreEligibilityCheckDataForAuthentication,
@@ -16,7 +16,7 @@ let getDimensionsForFixedContext = entity =>
 
 let configEnumToString = configEnum =>
   switch configEnum {
-  | ShouldPerformEligibilty => "should_perform_eligibility"
+  | ShouldPerformEligibility => "should_perform_eligibility"
   | ShouldCallPMModularService => "should_call_pm_modular_service"
   | EnableExtendedCardBin => "enable_extended_card_bin"
   | ShouldStoreEligibilityCheckDataForAuthentication => "should_store_eligibility_check_data_for_authentication"

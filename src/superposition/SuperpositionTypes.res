@@ -4,7 +4,7 @@ type dimensionEntity =
   | Profile
 
 type configEnums =
-  | ShouldPerformEligibilty
+  | ShouldPerformEligibility
   | ShouldCallPMModularService
   | EnableExtendedCardBin
   | ShouldStoreEligibilityCheckDataForAuthentication
