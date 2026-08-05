@@ -16,7 +16,15 @@ let make = (~previewOnly=false) => {
   let getSignal = AbortControllerHook.useAbortController()
   let showToast = ToastAdapter.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let {devOpensearch, devSavedViews, transactionView, generateReport, email, devSortEnabled} =
+  let {
+    devOpensearch,
+    devAdvancedPaymentsList,
+    devSavedViews,
+    transactionView,
+    generateReport,
+    email,
+    devSortEnabled,
+  } =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
@@ -27,10 +35,11 @@ let make = (~previewOnly=false) => {
 
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
   let userGroupACL = HyperswitchAtom.userGroupACLAtom->Recoil.useRecoilValueFromAtom
+  let advancedPaymentListAvailable = devAdvancedPaymentsList && devOpensearch && version == V1
   let advancedPaymentListEnabled =
-    devOpensearch && version == V1 && userHasResourceAccess(~resourceAccess=Analytics) === Access
+    advancedPaymentListAvailable && userHasResourceAccess(~resourceAccess=Analytics) === Access
   let paymentListSourceResolved =
-    !(devOpensearch && version == V1) || userGroupACL->Option.isSome || advancedPaymentListEnabled
+    !advancedPaymentListAvailable || userGroupACL->Option.isSome || advancedPaymentListEnabled
   let (selectedSource, setSelectedSource) = React.useState(_ => None)
   let source =
     selectedSource->mapOptionOrDefault(advancedPaymentListEnabled ? Advanced : Normal, userSource =>
@@ -371,32 +380,36 @@ let make = (~previewOnly=false) => {
         <div
           className="flex flex-nowrap justify-end gap-2 items-center whitespace-nowrap overflow-x-auto no-scrollbar">
           <div className="shrink-0">
-            <OrderListSourceControls.SourceTabs
-              source setSource=handleSourceChange advancedEnabled=advancedPaymentListEnabled
-            />
+            <RenderIf condition={advancedPaymentListAvailable}>
+              <OrderListSourceControls.SourceTabs
+                source setSource=handleSourceChange advancedEnabled=advancedPaymentListEnabled
+              />
+            </RenderIf>
           </div>
-          <ToolTip
-            description=exportTooltipText
-            toolTipFor={<Button
-              text="Export"
-              buttonType=Primary
-              buttonState=exportButtonState
-              buttonSize=Small
-              showBorder=false
-              customButtonStyle="justify-start !w-28"
-              customIconMargin="ml-2"
-              customTextPaddingClass="!pl-2 !pr-0"
-              leftIcon={CustomIcon(<Icon name="nd-download-bar-down" size=16 />)}
-              rightIcon={CustomIcon(
-                <span
-                  className={`inline-flex h-5 w-5 items-center justify-center rounded-full bg-white bg-opacity-20 ${body.md.medium} ${selectedRowsCountClass}`}>
-                  {selectedPaymentRows->Array.length->Int.toString->React.string}
-                </span>,
-              )}
-              onClick={_ => canExportSelectedRows ? downloadData() : ()}
-            />}
-            toolTipPosition=Top
-          />
+          <RenderIf condition={advancedPaymentListAvailable}>
+            <ToolTip
+              description=exportTooltipText
+              toolTipFor={<Button
+                text="Export"
+                buttonType=Primary
+                buttonState=exportButtonState
+                buttonSize=Small
+                showBorder=false
+                customButtonStyle="justify-start !w-28"
+                customIconMargin="ml-2"
+                customTextPaddingClass="!pl-2 !pr-0"
+                leftIcon={CustomIcon(<Icon name="nd-download-bar-down" size=16 />)}
+                rightIcon={CustomIcon(
+                  <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full bg-white bg-opacity-20 ${body.md.medium} ${selectedRowsCountClass}`}>
+                    {selectedPaymentRows->Array.length->Int.toString->React.string}
+                  </span>,
+                )}
+                onClick={_ => canExportSelectedRows ? downloadData() : ()}
+              />}
+              toolTipPosition=Top
+            />
+          </RenderIf>
           <RenderIf condition=showGenerateReportAction>
             <div className="shrink-0">
               <GenerateReport entityName={V1(PAYMENT_REPORT)} disableReport=disableGenerateReport />
