@@ -32,7 +32,7 @@ let jsonValueToString = (key, jsonValue) =>
       ->Array.map(primitiveJsonToString)
       ->Array.toSorted(String.compare)
     advancedPaymentTextListFilterTypes->Array.map(getValueFromFilterType)->Array.includes(key)
-      ? sortedStrArr->Array.get(0)->Option.getOr("")
+      ? sortedStrArr->getValueFromArray(0, "")
       : "[" ++ sortedStrArr->Array.joinWith(",") ++ "]"
   | None => jsonValue->primitiveJsonToString
   }
