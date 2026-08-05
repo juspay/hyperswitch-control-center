@@ -458,110 +458,144 @@ let openSearchAllColumns = openSearchBaseColumns->Array.concat(openSearchNewColu
 
 let openSearchCsvColumns: array<openSearchCsvColumn> = [
   CsvPaymentId,
+  CsvAttemptId,
   CsvStatus,
   CsvAmount,
   CsvCurrency,
   CsvConnector,
+  CsvConnectorTransactionId,
+  CsvAmountToCapture,
+  CsvCustomerId,
+  CsvCreatedAt,
+  CsvOrderDetails,
+  CsvErrorMessage,
+  CsvCaptureMethod,
+  CsvAuthenticationType,
+  CsvMandateId,
   CsvPaymentMethod,
   CsvPaymentMethodType,
-  CsvProfileId,
-  CsvMerchantId,
-  CsvCustomerId,
-  CsvActiveAttemptId,
-  CsvMerchantConnectorId,
-  CsvCardLast4,
+  CsvMetadata,
+  CsvSetupFutureUsage,
+  CsvStatementDescriptorName,
+  CsvDescription,
+  CsvOffSession,
+  CsvBusinessCountry,
+  CsvBusinessLabel,
+  CsvBusinessSubLabel,
+  CsvAllowedPaymentMethodTypes,
+  CsvPaymentMethodData,
   CsvCardNetwork,
-  CsvCardIssuer,
-  CsvRefundsStatus,
-  CsvRefundsCount,
-  CsvDisputeStatus,
-  CsvDisputeCount,
-  CsvRoutingApproach,
-  CsvUnifiedCode,
-  CsvUnifiedMessage,
-  CsvCreated,
-  CsvModified,
+  CsvFingerprintId,
+  CsvModifiedAt,
+  CsvErrorCode,
+  CsvPaymentMethodId,
+  CsvCardHolderName,
+  CsvMerchantOrderReferenceId,
+  CsvProfileId,
 ]
 
 let getOpenSearchCsvKey = column =>
   switch column {
   | CsvPaymentId => "payment_id"
+  | CsvAttemptId => "attempt_id"
   | CsvStatus => "status"
   | CsvAmount => "amount"
   | CsvCurrency => "currency"
   | CsvConnector => "connector"
+  | CsvConnectorTransactionId => "connector_transaction_id"
+  | CsvAmountToCapture => "amount_to_capture"
+  | CsvCustomerId => "customer_id"
+  | CsvCreatedAt => "created_at"
+  | CsvOrderDetails => "order_details"
+  | CsvErrorMessage => "error_message"
+  | CsvCaptureMethod => "capture_method"
+  | CsvAuthenticationType => "authentication_type"
+  | CsvMandateId => "mandate_id"
   | CsvPaymentMethod => "payment_method"
   | CsvPaymentMethodType => "payment_method_type"
-  | CsvProfileId => "profile_id"
-  | CsvMerchantId => "merchant_id"
-  | CsvCustomerId => "customer_id"
-  | CsvActiveAttemptId => "active_attempt_id"
-  | CsvMerchantConnectorId => "merchant_connector_id"
-  | CsvCardLast4 => "card_last_4"
+  | CsvMetadata => "metadata"
+  | CsvSetupFutureUsage => "setup_future_usage"
+  | CsvStatementDescriptorName => "statement_descriptor_name"
+  | CsvDescription => "description"
+  | CsvOffSession => "off_session"
+  | CsvBusinessCountry => "business_country"
+  | CsvBusinessLabel => "business_label"
+  | CsvBusinessSubLabel => "business_sub_label"
+  | CsvAllowedPaymentMethodTypes => "allowed_payment_method_types"
+  | CsvPaymentMethodData => "payment_method_data"
   | CsvCardNetwork => "card_network"
-  | CsvCardIssuer => "card_issuer"
-  | CsvRefundsStatus => "refunds_status"
-  | CsvRefundsCount => "refunds_count"
-  | CsvDisputeStatus => "dispute_status"
-  | CsvDisputeCount => "dispute_count"
-  | CsvRoutingApproach => "routing_approach"
-  | CsvUnifiedCode => "unified_code"
-  | CsvUnifiedMessage => "unified_message"
-  | CsvCreated => "created"
-  | CsvModified => "modified"
+  | CsvFingerprintId => "fingerprint_id"
+  | CsvModifiedAt => "modified_at"
+  | CsvErrorCode => "error_code"
+  | CsvPaymentMethodId => "payment_method_id"
+  | CsvCardHolderName => "card_holder_name"
+  | CsvMerchantOrderReferenceId => "merchant_order_reference_id"
+  | CsvProfileId => "profile_id"
   }
 
-let getOpenSearchCsvHeader = column =>
-  switch column {
-  | CsvPaymentId => "Payment ID"
-  | CsvStatus => "Payment Status"
-  | CsvAmount => "Amount"
-  | CsvCurrency => "Currency"
-  | CsvConnector => "Connector"
-  | CsvPaymentMethod => "Payment Method"
-  | CsvPaymentMethodType => "Payment Method Type"
-  | CsvProfileId => "Profile ID"
-  | CsvMerchantId => "Merchant ID"
-  | CsvCustomerId => "Customer ID"
-  | CsvActiveAttemptId => "Active Attempt ID"
-  | CsvMerchantConnectorId => "Merchant Connector ID"
-  | CsvCardLast4 => "Card Last 4"
-  | CsvCardNetwork => "Card Network"
-  | CsvCardIssuer => "Card Issuer"
-  | CsvRefundsStatus => "Refund Status"
-  | CsvRefundsCount => "Refund Count"
-  | CsvDisputeStatus => "Dispute Status"
-  | CsvDisputeCount => "Dispute Count"
-  | CsvRoutingApproach => "Routing Approach"
-  | CsvUnifiedCode => "Unified Code"
-  | CsvUnifiedMessage => "Unified Message"
-  | CsvCreated => "Created"
-  | CsvModified => "Modified"
-  }
+let getOpenSearchCsvValue = (dict: Dict.t<JSON.t>, column) => {
+  let amountToString = amount =>
+    CurrencyUtils.convertCurrencyFromLowestDenomination(
+      ~amount,
+      ~currency=dict->getString("currency", ""),
+    )->Float.toString
+  let jsonToString = key =>
+    dict->getString(
+      key,
+      dict->getMappedValueFromDict(key, "", json => json->JSON.stringifyAny->Option.getOr("")),
+    )
 
-let getOpenSearchCsvValue = (dict: Dict.t<JSON.t>, column) =>
-  switch column {
-  | CsvAmount => dict->getFloat("amount", 0.0)->Float.toString->JSON.Encode.string
-  | CsvRefundsCount => dict->getInt("refunds_count", 0)->Int.toString->JSON.Encode.string
-  | CsvDisputeCount => dict->getInt("dispute_count", 0)->Int.toString->JSON.Encode.string
-  | CsvMerchantConnectorId =>
-    dict
-    ->getString("merchant_connector_id", dict->getString("connector_id", ""))
-    ->JSON.Encode.string
-  | CsvCreated => dict->getString("created_at", "")->JSON.Encode.string
-  | CsvModified => dict->getString("modified_at", "")->JSON.Encode.string
-  | column => dict->getString(column->getOpenSearchCsvKey, "")->JSON.Encode.string
+  let value = switch column {
+  | CsvAttemptId => dict->getString("attempt_id", dict->getString("active_attempt_id", ""))
+  | CsvAmount => dict->getOptionFloat("amount")->Option.mapOr("", amountToString)
+  | CsvConnectorTransactionId =>
+    dict->getString("connector_transaction_id", dict->getString("connector_payment_id", ""))
+  | CsvAmountToCapture =>
+    switch dict->getOptionFloat("amount_to_capture") {
+    | Some(amount) => amount->amountToString
+    | None => dict->getOptionFloat("amount_capturable")->Option.mapOr("", amountToString)
+    }
+  | CsvOrderDetails => jsonToString("order_details")
+  | CsvErrorMessage =>
+    dict->getString("error_message", dict->getStringFromNestedDict("error", "error_message", ""))
+  | CsvStatementDescriptorName =>
+    dict->getString("statement_descriptor_name", dict->getString("statement_descriptor", ""))
+  | CsvOffSession => dict->getString("off_session", dict->getString("customer_present", ""))
+  | CsvAllowedPaymentMethodTypes => jsonToString("allowed_payment_method_types")
+  | CsvPaymentMethodData => jsonToString("payment_method_data")
+  | CsvMetadata => jsonToString("metadata")
+  | CsvCardNetwork =>
+    dict->getString(
+      "card_network",
+      dict->getDictFromNestedDict("payment_method_data", "card")->getString("card_network", ""),
+    )
+  | CsvErrorCode =>
+    dict->getString("error_code", dict->getStringFromNestedDict("error", "error_code", ""))
+  | CsvCardHolderName =>
+    dict->getString(
+      "card_holder_name",
+      dict
+      ->getDictFromNestedDict("payment_method_data", "card")
+      ->getString("card_holder_name", ""),
+    )
+  | CsvMerchantOrderReferenceId =>
+    dict->getString("merchant_order_reference_id", dict->getString("merchant_reference_id", ""))
+  | column => dict->getString(column->getOpenSearchCsvKey, "")
   }
+  value->JSON.Encode.string
+}
 
-let csvHeaders =
-  openSearchCsvColumns->Array.map(column => (
-    column->getOpenSearchCsvKey,
-    column->getOpenSearchCsvHeader,
-  ))
+let csvHeaders = openSearchCsvColumns->Array.map(column => {
+  let key = column->getOpenSearchCsvKey
+  (key, key)
+})
 
 let mapOrderDictToCsvRow = (dict: Dict.t<JSON.t>) =>
   openSearchCsvColumns
-  ->Array.map(column => (column->getOpenSearchCsvKey, getOpenSearchCsvValue(dict, column)))
+  ->Array.map(column => {
+    let key = column->getOpenSearchCsvKey
+    (key, getOpenSearchCsvValue(dict, column))
+  })
   ->getJsonFromArrayOfJson
 
 let getHeading = (~devSortEnabled, colType: colType) => {
@@ -669,7 +703,7 @@ let useGetStatus = (order: order) => {
 }
 
 let formatActivityCount = (count, label) => {
-  `${count->Int.toString} ${pluralize(~count, ~singular=label)}`
+  `${count->Int.toString} ${label}${count > 1 ? "S" : ""}`
 }
 
 let getActivityTags = (order: order) => {
@@ -698,7 +732,7 @@ let getActivitiesCell = (order: order): Table.cell => {
   CustomCell(
     <>
       <RenderIf condition={activityTags->isEmptyArray}>
-        <div className="w-32 whitespace-nowrap text-nd_gray-400"> {"-"->React.string} </div>
+        <div className="whitespace-nowrap"> {"-"->React.string} </div>
       </RenderIf>
       <RenderIf condition={activityTags->isNonEmptyArray}>
         <ToolTip
@@ -1047,8 +1081,22 @@ let getCell = (order: order, colType: colType, merchantId, orgId): Table.cell =>
       />,
       "",
     )
-  | AmountCapturable => Currency(order.amount_capturable /. conversionFactor, order.currency)
-  | AmountReceived => Currency(order.amount_captured /. conversionFactor, order.currency)
+  | AmountCapturable =>
+    CustomCell(
+      <CurrencyCell
+        amount={(order.amount_capturable /. conversionFactor)->Float.toString}
+        currency={order.currency}
+      />,
+      "",
+    )
+  | AmountReceived =>
+    CustomCell(
+      <CurrencyCell
+        amount={(order.amount_captured /. conversionFactor)->Float.toString}
+        currency={order.currency}
+      />,
+      "",
+    )
   | ClientSecret => Text(order.client_secret)
   | Created => Date(order.created_at)
   | Modified => Date(order.modified_at)
@@ -1139,14 +1187,16 @@ let getCell = (order: order, colType: colType, merchantId, orgId): Table.cell =>
     | None => Text("N/A")
     }
   | MerchantConnectorId =>
-    CustomCell(
-      <CopyTextCustomComp
-        customTextCss="w-44 truncate whitespace-nowrap"
-        displayValue=Some(order.connector_id)
-        showTooltip=true
-      />,
-      "",
-    )
+    order.connector_id->isNonEmptyString
+      ? CustomCell(
+          <CopyTextCustomComp
+            customTextCss="w-44 truncate whitespace-nowrap"
+            displayValue=Some(order.connector_id)
+            showTooltip=true
+          />,
+          order.connector_id,
+        )
+      : Text("NA")
   | ActiveAttemptId =>
     CustomCell(
       <CopyTextCustomComp
@@ -1157,15 +1207,19 @@ let getCell = (order: order, colType: colType, merchantId, orgId): Table.cell =>
       order.active_attempt_id->Option.getOr(""),
     )
   | CardLast4 => EllipsisText(order.card_last_4->Option.getOr(""), "w-20")
-  | CardIssuer =>
-    CustomCell(
-      <CopyTextCustomComp
-        customTextCss="w-36 truncate whitespace-nowrap"
-        displayValue=Some(order.card_issuer->Option.getOr(""))
-        showTooltip=true
-      />,
-      "",
-    )
+  | CardIssuer => {
+      let cardIssuer = order.card_issuer->Option.getOr("")
+      cardIssuer->isNonEmptyString
+        ? CustomCell(
+            <CopyTextCustomComp
+              customTextCss="w-36 truncate whitespace-nowrap"
+              displayValue=Some(cardIssuer)
+              showTooltip=true
+            />,
+            cardIssuer,
+          )
+        : Text("NA")
+    }
   | RefundsStatus =>
     EllipsisText(order.refunds_status->Option.getOr("")->formatAdvancedDisplayValue, "w-28")
   | RefundsCount => EllipsisText(order.refunds_count->Option.getOr(0)->Int.toString, "w-20")
