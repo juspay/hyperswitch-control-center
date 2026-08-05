@@ -23,7 +23,7 @@ let primitiveJsonToString = jsonValue =>
     }
   }
 
-let jsonValueToString = jsonValue =>
+let jsonValueToString = (key, jsonValue) =>
   switch jsonValue->getOptionStrArrayFromJson {
   | Some(_) =>
     let sortedStrArr =
@@ -31,7 +31,9 @@ let jsonValueToString = jsonValue =>
       ->getArrayFromJson([])
       ->Array.map(primitiveJsonToString)
       ->Array.toSorted(String.compare)
-    "[" ++ sortedStrArr->Array.joinWith(",") ++ "]"
+    advancedPaymentTextListFilterTypes->Array.map(getValueFromFilterType)->Array.includes(key)
+      ? sortedStrArr->Array.get(0)->Option.getOr("")
+      : "[" ++ sortedStrArr->Array.joinWith(",") ++ "]"
   | None => jsonValue->primitiveJsonToString
   }
 
@@ -89,7 +91,7 @@ let flattenToDict = (dictToSet, key, value) => {
           filtersToFlatten->Array.push((flattenedKey, nestedValue))->ignore
         })
       | _ =>
-        let strVal = jsonValueToString(v)
+        let strVal = jsonValueToString(k, v)
         if strVal->isNonEmptyString {
           dictToSet->Dict.set(k, strVal)
         }

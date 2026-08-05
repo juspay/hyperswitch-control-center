@@ -242,6 +242,9 @@ let make = (
     switch entity {
     | Payment
     | PaymentAdvanced =>
+      advancedPaymentTextListFilterTypes
+      ->Array.map(getValueFromFilterType)
+      ->Array.forEach(key => filtersDict->setStringListFilter(key))
       filtersDict->setBoolListFilter(firstAttemptFilterKey)
     | _ => ()
     }
