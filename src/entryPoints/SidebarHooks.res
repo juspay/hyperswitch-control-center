@@ -9,8 +9,7 @@ let useGetHsSidebarValues = () => {
   let connectorListForLive = connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
   let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let {userEntity, email} = getResolvedUserInfo()
-  let isJuspayUser = email->HyperSwitchUtils.checkIsJuspayUser
+  let {userEntity} = getResolvedUserInfo()
   let {
     frm,
     payOut,
@@ -113,7 +112,7 @@ let useGetHsSidebarValues = () => {
       ~devUsers,
       ~isCurrentMerchantPlatform,
     ),
-    superposition(userHasResourceAccess, devSuperposition && isJuspayUser),
+    superposition(userHasResourceAccess, devSuperposition),
   ]
 }
 

@@ -8,9 +8,6 @@ let make = (~setScreenState) => {
     isFeatureEnabledForDenyListMerchant,
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
-  let {getResolvedUserInfo} = React.useContext(UserInfoProvider.defaultContext)
-  let {email} = getResolvedUserInfo()
-  let isJuspayUser = email->HyperSwitchUtils.checkIsJuspayUser
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {isCurrentMerchantPlatform, isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
@@ -200,7 +197,7 @@ let make = (~setScreenState) => {
       </AccessControl>
     | list{"configuration-management", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=ConfigurationsView)}>
-        <RenderIf condition={featureFlagDetails.devSuperposition && isJuspayUser}>
+        <RenderIf condition={featureFlagDetails.devSuperposition}>
           <SuperpositionApp remainingPath />
         </RenderIf>
       </AccessControl>

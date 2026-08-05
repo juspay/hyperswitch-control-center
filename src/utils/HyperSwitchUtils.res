@@ -46,6 +46,3 @@ let checkIsTenantAdmin = roleId => {
   open UserManagementUtils
   roleId->stringToVariantMapperTenantAdmin == TenantAdmin
 }
-
-let checkIsJuspayUser = email =>
-  email->String.trim->String.toLowerCase->String.endsWith("@juspay.in")
