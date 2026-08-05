@@ -177,6 +177,8 @@ test.describe("Payment Settings", () => {
       await paymentSettings.dropdownValueByText("Credit").click();
       await page.keyboard.press("Escape");
 
+      await expect(paymentSettings.dropdownValueByText("Credit")).not.toBeVisible();
+
       await paymentSettings
         .paymentMethodBlockingCardTypesDropdown("Google Pay")
         .click();

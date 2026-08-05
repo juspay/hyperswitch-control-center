@@ -159,7 +159,7 @@ export class PaymentSettings {
   }
 
   dropdownValueByText(text: string): Locator {
-    return this.page.getByRole("menuitem", { name: text });
+    return this.page.getByRole('option', { name: text });
   }
 
   selectFieldDropdown(): Locator {
