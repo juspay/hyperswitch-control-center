@@ -157,6 +157,7 @@ let make = (
   ~updateUrlWith=?,
   ~showCustomFilter=true,
   ~customLeftView=React.null,
+  ~customFilterActions=React.null,
   ~filterButtonStyle="",
   ~moduleName="",
   ~customFilterKey="",
@@ -234,6 +235,7 @@ let make = (
       defaultFilterKeys
       customRightView=customFilters
       customLeftView
+      customFilterActions
       ?updateUrlWith
       ?setOffset
       clearFilters

@@ -110,7 +110,7 @@ let parseResolutionActions = (json: JSON.t): array<resolvingException> => {
   ->Array.filter(action => action !== NoTransformedEntryResolutionNeeded)
 }
 
-let initialDisplayFilters = (~accountOptions) => {
+let initialDisplayFilters = () => {
   let entryTypeOptions: array<FilterSelectBox.dropdownOption> = [
     {label: "Credit", value: "credit"},
     {label: "Debit", value: "debit"},
@@ -125,26 +125,6 @@ let initialDisplayFilters = (~accountOptions) => {
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=entryTypeOptions,
             ~buttonText="Select Entry Type",
-            ~showSelectionAsChips=false,
-            ~searchable=true,
-            ~showToolTip=true,
-            ~showNameAsToolTip=true,
-            ~customButtonStyle="bg-none",
-            ~fixedDropDownDirection=BottomRight,
-            (),
-          ),
-        ),
-        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
-      }: EntityType.initialFilters<'t>
-    ),
-    (
-      {
-        field: FormRenderer.makeFieldInfo(
-          ~label="Account",
-          ~name="account_ids",
-          ~customInput=InputFields.filterMultiSelectInput(
-            ~options=accountOptions,
-            ~buttonText="Select Account",
             ~showSelectionAsChips=false,
             ~searchable=true,
             ~showToolTip=true,
