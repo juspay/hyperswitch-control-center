@@ -33,7 +33,7 @@ fi
 if [ -n "$(git diff --cached --name-only --diff-filter=ACM -- '*.res' '*.resi')" ]; then
   if ! git diff --cached --name-only -z --diff-filter=ACM -- \
          '*.res' '*.resi' \
-         | xargs -0 rescript format -check; then
+         | xargs -0 npx --no-install rescript format -check; then
     echo "Error: Unformatted staged ReScript files found. Run 'npm run re:format' and stage the changes."
     exit 1
   fi
