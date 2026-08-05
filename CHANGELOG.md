@@ -3,6 +3,23 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.05.0
+
+### Bug Fixes
+
+- Search connectors by display name ([#5170](https://github.com/juspay/hyperswitch-control-center/pull/5170)) ([`3505561`](https://github.com/juspay/hyperswitch-control-center/commit/35055611345111badaa53e41b7dcc40f3fa53b60))
+- Correct data-calender-date typo to data-calendar-date ([#5296](https://github.com/juspay/hyperswitch-control-center/pull/5296)) ([`d61e09a`](https://github.com/juspay/hyperswitch-control-center/commit/d61e09a796a9dfd0ae189ef6b0a16ab293297093))
+- Homepage product navigation ([#4949](https://github.com/juspay/hyperswitch-control-center/pull/4949)) ([`0a5ec6c`](https://github.com/juspay/hyperswitch-control-center/commit/0a5ec6c2a49d2117fd484b6708b4e12be2034827))
+- Handle advanced payment list pagination edge cases ([#5308](https://github.com/juspay/hyperswitch-control-center/pull/5308)) ([`f89a014`](https://github.com/juspay/hyperswitch-control-center/commit/f89a014ce988a1ddb9d24bb9fc0f7dbec9e61231))
+
+### Miscellaneous Tasks
+
+- Added transformation config name in transformation exception ([#5283](https://github.com/juspay/hyperswitch-control-center/pull/5283)) ([`36e8064`](https://github.com/juspay/hyperswitch-control-center/commit/36e8064e4142bc489d8010ceb85200b4d3e5d3c8))
+
+**Full Changelog:** [`2026.08.04.0...2026.08.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.04.0...2026.08.05.0)
+
+- - -
+
 ## 2026.08.04.0
 
 ### Features
