@@ -3,10 +3,10 @@ type passwordCheck = {
   lowercase: bool,
   uppercase: bool,
   specialChar: bool,
-  minEightChars: bool,
+  minChars: bool,
 }
 
-type chipType = Number | Lowercase | Uppercase | SpecialChar | MinEightChars
+type chipType = Number | Lowercase | Uppercase | SpecialChar | MinChars
 
 module PasswordChip = {
   @react.component
@@ -19,7 +19,7 @@ module PasswordChip = {
     | Lowercase => (passwordChecks.lowercase, "Lowercase Letters")
     | Uppercase => (passwordChecks.uppercase, "Uppercase Letters")
     | SpecialChar => (passwordChecks.specialChar, "Special Characters")
-    | MinEightChars => (passwordChecks.minEightChars, "8 Characters")
+    | MinChars => (passwordChecks.minChars, "12 Characters")
     }
 
     let textClass = isCheckPassed ? "text-green-700 font-medium" : "font-base dark:text-gray-100"
@@ -50,7 +50,7 @@ let make = (
     lowercase: false,
     uppercase: false,
     specialChar: false,
-    minEightChars: false,
+    minChars: false,
   }
   let (passwordChecks, setPasswordChecks) = React.useState(_ => initialPasswordState)
   let (showValidation, setShowValidation) = React.useState(_ => false)
@@ -65,10 +65,10 @@ let make = (
   )
 
   let validateFunc = strVal => {
-    if strVal->String.length >= 8 {
+    if strVal->String.length >= 12 {
       setPasswordChecks(prev => {
         ...prev,
-        minEightChars: true,
+        minChars: true,
       })
     }
     if RegExp.test(%re("/^(?=.*[A-Z])/"), strVal) {
@@ -114,7 +114,7 @@ let make = (
     },
   }
 
-  let passwordChips = [MinEightChars, Lowercase, Number, SpecialChar, Uppercase]
+  let passwordChips = [MinChars, Lowercase, Number, SpecialChar, Uppercase]
 
   <>
     <TextInputAdapter
