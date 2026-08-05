@@ -446,7 +446,7 @@ test.describe("Payment Settings", () => {
 
       await expect(paymentSettings.clickToPayConnectorDropdown).toBeVisible();
       await paymentSettings.clickToPayConnectorDropdown.click();
-      await page.getByRole('menuitem', { name: 'juspaythreedsserver_default' }).click();
+      await page.getByRole('menuitem', { name: connectorLabel }).click();
 
       await paymentSettings.clickUpdate();
       await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
