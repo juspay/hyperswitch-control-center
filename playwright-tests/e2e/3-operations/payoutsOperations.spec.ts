@@ -13,6 +13,116 @@ import {
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 let email: string;
 
+const MOCK_PAYOUT_DETAILS = {
+  payout_id: "payout_ndGlsfZuxg6MTbEeamHC",
+  merchant_id: "merchant_1716980605",
+  merchant_order_reference_id: null,
+  amount: 4100,
+  currency: "USD",
+  connector: "adyen",
+  payout_type: "card",
+  payout_method_data: {
+    card: {
+      card_issuer: "Conotoxia Sp Z Oo",
+      card_network: "Visa",
+      card_type: "DEBIT",
+      card_issuing_country: "POLAND",
+      bank_code: "JP_JPM",
+      last4: "1111",
+      card_isin: "411111",
+      card_extended_bin: null,
+      card_exp_month: "3",
+      card_exp_year: "2030",
+      card_holder_name: "John Doe",
+    },
+  },
+  source_bank_data: null,
+  billing: {
+    address: {
+      city: "San Fransico",
+      country: "US",
+      line1: "1467",
+      line2: "Harrison Street",
+      line3: "Harrison Street",
+      zip: "94122",
+      state: "CA",
+      first_name: "John",
+      last_name: "Doe",
+      origin_zip: null,
+    },
+    phone: { number: "8056594427", country_code: "+91" },
+    email: null,
+  },
+  auto_fulfill: true,
+  customer_id: "new_cust",
+  customer: {
+    id: "new_cust",
+    name: "John Doe",
+    email: "payout_customer@example.com",
+    phone: "999999999",
+    phone_country_code: "+65",
+    customer_document_details: null,
+  },
+  client_secret:
+    "payout_payout_ndGlsfZuxg6MTbEeamHC_secret_FfO1JjYL2MZTo5KssSzS",
+  return_url: null,
+  business_country: null,
+  business_label: null,
+  description: "Its my first payout request",
+  billing_descriptor: null,
+  entity_type: "Individual",
+  recurring: true,
+  metadata: { ref: "123" },
+  merchant_connector_id: "mca_HLwapRJuOubwr4hgai4Z",
+  status: "failed",
+  error_message: "HTTP Status Response - Unauthorized",
+  error_code: "000",
+  profile_id: "pro_E1IC4o9y3QusxV8PXOwX",
+  created: "2026-02-13T09:14:19.013Z",
+  connector_transaction_id: null,
+  priority: null,
+  attempts: [
+    {
+      attempt_id: "payout_ndGlsfZuxg6MTbEeamHC_1",
+      status: "failed",
+      amount: 4100,
+      currency: "USD",
+      connector: "adyen",
+      error_code: "000",
+      error_message: "HTTP Status Response - Unauthorized",
+      payment_method: "card",
+      payout_method_type: null,
+      connector_transaction_id: null,
+      cancellation_reason: null,
+      unified_code: "UE_9000",
+      unified_message: "Something went wrong",
+    },
+    {
+      attempt_id: "payout_ndGlsfZuxg6MTbEeamHC_2",
+      status: "success",
+      amount: 4100,
+      currency: "USD",
+      connector: "adyen",
+      error_code: null,
+      error_message: null,
+      payment_method: "card",
+      payout_method_type: null,
+      connector_transaction_id: "connector_transaction_2",
+      cancellation_reason: null,
+      unified_code: null,
+      unified_message: null,
+    },
+  ],
+  payout_link: null,
+  email: "payout_customer@example.com",
+  name: "John Doe",
+  phone: "999999999",
+  phone_country_code: "+65",
+  unified_code: "UE_9000",
+  unified_message: "Something went wrong",
+  payout_method_id: null,
+};
+
 const setupPayout = async (
   page: Page,
   homePage: HomePage,
@@ -41,6 +151,19 @@ const goToPayouts = async (page: Page, homePage: HomePage) => {
   await homePage.operations.click();
   await homePage.payoutsOperations.click();
   await expect(page).toHaveURL(/\/payouts/);
+};
+
+const mockPayoutDetails = async (page: Page) => {
+  await page.route(
+    /\/payouts\/[^/?]+\?expand_attempts=true$/,
+    async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(MOCK_PAYOUT_DETAILS),
+      });
+    },
+  );
 };
 
 test.describe("Payouts Operations", () => {
@@ -684,7 +807,8 @@ test.describe("Payouts Operations", () => {
     }) => {
       const homePage = new HomePage(page);
       const payoutOperations = new PayoutOperations(page);
-      const { payout } = await setupPayout(page, homePage, context.request);
+      await setupPayout(page, homePage, context.request);
+      await mockPayoutDetails(page);
 
       await goToPayouts(page, homePage);
       await payoutOperations.payoutCell(1, 1).click();
@@ -699,8 +823,8 @@ test.describe("Payouts Operations", () => {
 
       // Accordion sections rendered after the Summary block (ShowPayout.res:337–398).
       // Payout Method Details renders only when payout_type === "card" + payout_method_data
-      // is present; Payout Metadata renders only when metadata is non-empty. createPayoutAPI
-      // satisfies both (card payout + metadata={key: "value"}).
+      // is present; Payout Metadata renders only when metadata is non-empty.
+      // The mocked payout detail response satisfies both conditions.
       await expect(
         page.getByText("Customer Details", { exact: true }),
       ).toBeVisible();
@@ -715,9 +839,9 @@ test.describe("Payouts Operations", () => {
       ).toBeVisible();
 
       // Big amount header + status badge (ShowPayout.res:117–128).
-      await expect(page.getByText("123.45 EUR").first()).toBeVisible();
+      await expect(page.getByText("41 USD").first()).toBeVisible();
       await expect(
-        page.getByText(payout.status.toUpperCase(), { exact: true }).first(),
+        page.getByText("FAILED", { exact: true }).first(),
       ).toBeVisible();
 
       // Summary detailsFields=[Created, AmountReceived, PayoutId, ConnectorTransactionID, ErrorMessage].
@@ -755,16 +879,45 @@ test.describe("Payouts Operations", () => {
         "Currency",
         "Connector",
       ];
-      const attemptsTable = page
-        .locator('table[data-expandable-table="Attempts"]')
-        .first();
+      const attemptsTable = payoutOperations.payoutAttemptsTable;
       for (let i = 0; i < expectedAttemptHeaders.length; i++) {
         await expect(attemptsTable.locator("thead tr th").nth(i)).toHaveText(
           expectedAttemptHeaders[i],
         );
       }
-      // First attempt row should render with the data we created.
-      await expect(payoutOperations.attemptCell(1, 1)).toBeVisible();
+      const expectedAttempts = [
+        {
+          row: 1,
+          id: "payout_ndGlsfZuxg6MTbEeamHC_1",
+          status: "FAILED",
+        },
+        {
+          row: 2,
+          id: "payout_ndGlsfZuxg6MTbEeamHC_2",
+          status: "SUCCESS",
+        },
+      ];
+
+      for (const attempt of expectedAttempts) {
+        await expect(
+          payoutOperations.attemptCell(attempt.row, 1),
+        ).toContainText(`${attempt.row}`);
+        await expect(
+          payoutOperations.attemptCell(attempt.row, 2),
+        ).toContainText(attempt.id);
+        await expect(
+          payoutOperations.attemptCell(attempt.row, 3),
+        ).toContainText(attempt.status);
+        await expect(
+          payoutOperations.attemptCell(attempt.row, 4),
+        ).toContainText("41 USD");
+        await expect(
+          payoutOperations.attemptCell(attempt.row, 5),
+        ).toContainText("USD");
+        await expect(
+          payoutOperations.attemptCell(attempt.row, 6),
+        ).toContainText("Adyen");
+      }
 
       // Expand each collapsible accordion and assert its inner fields render.
       // The accordion <header> is the only element with the exact section name;
@@ -827,7 +980,7 @@ test.describe("Payouts Operations", () => {
       await payoutMetadata.click();
       await expect(
         page.getByRole("region", { name: "Payout Metadata" }).locator("pre"),
-      ).toContainText("key");
+      ).toContainText("ref");
     });
 
     test.describe("Events and logs", () => {

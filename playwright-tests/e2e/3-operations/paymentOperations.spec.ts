@@ -1352,6 +1352,12 @@ test.describe("Payment Operations", () => {
       await expect(page.getByText("Date Range *")).toBeVisible();
       await expect(page.getByText("Report Type")).toBeVisible();
       await expect(page.getByText("Additional Recipients")).toBeVisible();
+      await expect(
+        page.getByText(
+          "Each generated report is limited to 50,000 rows. Narrow the date range if needed.",
+          { exact: true },
+        ),
+      ).toBeVisible();
       await page.getByRole("button", { name: "Generate", exact: true }).click();
     });
 

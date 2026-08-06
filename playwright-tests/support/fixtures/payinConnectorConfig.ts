@@ -2649,6 +2649,48 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
     },
   },
 
+  tsys_transit: {
+    label: "tsys_transit",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "tsys_transit_default",
+      },
+      fieldLabels: [
+        "Device Id *",
+        "Transaction Key *",
+        "Developer Id *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
   worldline: {
     label: "worldline",
     fields: {
