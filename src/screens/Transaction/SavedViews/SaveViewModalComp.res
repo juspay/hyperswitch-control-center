@@ -172,6 +172,7 @@ let make = (
   let (selectedViewToOverwrite, setSelectedViewToOverwrite) = React.useState(_ => "")
   let (includeDate, setIncludeDate) = React.useState(_ => false)
   let (savedViews: array<SavedViewTypes.savedView>, setSavedViews) = React.useState(_ => [])
+  let showToast = ToastAdapter.useShowToast()
 
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let {values: formValues} = ReactFinalForm.useFormState(
@@ -225,7 +226,7 @@ let make = (
       fetchSavedViews()->ignore
     }
     None
-  }, showModal)
+  }, [showModal])
 
   let buildFilters = () => {
     let filtersDict = mergedFilters->Dict.copy
@@ -259,8 +260,15 @@ let make = (
   )
   let handleCreate = async () => {
     let trimmedName = viewName->String.trim
-    let filters = buildFilters()
-    await handleCreateHook(trimmedName, filters)
+    if savedViews->Array.length >= SavedViewsUtils.maxViews {
+      showToast(
+        ~message=`Maximum ${SavedViewsUtils.maxViews->Int.toString} views allowed. Please update or delete an existing view.`,
+        ~toastType=ToastError,
+      )
+    } else if trimmedName->isNonEmptyString {
+      let filters = buildFilters()
+      await handleCreateHook(trimmedName, filters)
+    }
   }
 
   let handleOverwriteHook = SavedViewsHooks.useOverwriteSavedView(

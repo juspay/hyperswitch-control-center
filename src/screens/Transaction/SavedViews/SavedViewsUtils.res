@@ -1,8 +1,13 @@
 open LogicUtils
 open OrderUIUtils
 open SavedViewTypes
+open OrderTypes
 
 let maxViews = 5
+
+let connectorFilterKey = (#connector: filter)->getValueFromFilterType
+let connectorLabelKey = (#connector_label: filter)->getLabelFromFilterType
+let connectorLabelValueKey = (#connector_label: filter)->getValueFromFilterType
 
 let versionToSavedViewVersion = (version: UserInfoTypes.version): savedViewVersion =>
   switch version {
@@ -121,6 +126,12 @@ let getApplyFilters = (~filterDict, ~filterValue, ~version) => {
   ->Dict.toArray
   ->Array.forEach(((key, value)) => flattenToDict(newFiltersDict, key, value))
 
+  switch filterDict->getOptionValFromDict(connectorLabelValueKey) {
+  | Some(value) if newFiltersDict->getValueFromDict(connectorFilterKey, "")->isNonEmptyString =>
+    newFiltersDict->Dict.set(connectorLabelValueKey, jsonValueToString(connectorLabelKey, value))
+  | Some(_) | None => ()
+  }
+
   let startTimeKey = startTimeFilterKey(version)
   let endTimeKey = endTimeFilterKey(version)
   let savedHasDates = newFiltersDict->getOptionValFromDict(startTimeKey)->Option.isSome
@@ -209,6 +220,15 @@ let findMatchingView = (~savedViews: array<savedView>, ~currentFiltersDict, ~ver
     savedFilters
     ->Dict.toArray
     ->Array.forEach(((key, value)) => flattenToDict(savedFiltersStringDict, key, value))
+    switch savedFilters->getOptionValFromDict(connectorLabelValueKey) {
+    | Some(value)
+      if savedFiltersStringDict->getValueFromDict(connectorFilterKey, "")->isNonEmptyString =>
+      savedFiltersStringDict->Dict.set(
+        connectorLabelValueKey,
+        jsonValueToString(connectorLabelKey, value),
+      )
+    | Some(_) | None => ()
+    }
     let startTimeKey = startTimeFilterKey(version)
     let endTimeKey = endTimeFilterKey(version)
     if savedFiltersStringDict->getOptionValFromDict(startTimeKey)->Option.isNone {
