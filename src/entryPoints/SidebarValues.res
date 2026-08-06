@@ -696,3 +696,39 @@ let developers = (
       })
     : emptyComponent
 }
+
+let superposition = (userHasResourceAccess, isEnabled) =>
+  isEnabled
+    ? Section({
+        name: "Configuration Management",
+        icon: "nd-settings",
+        showSection: true,
+        links: [
+          SubLevelLink({
+            name: "Default Configs",
+            link: "/configuration-management/default-config",
+            access: userHasResourceAccess(~resourceAccess=SuperpositionConfigs),
+            searchOptions: [("View default configurations", "")],
+          }),
+          SubLevelLink({
+            name: "Overrides",
+            link: "/configuration-management/overrides",
+            access: userHasResourceAccess(~resourceAccess=SuperpositionConfigs),
+            searchOptions: [("View context overrides", "")],
+          }),
+          SubLevelLink({
+            name: "Dimensions",
+            link: "/configuration-management/dimensions",
+            access: userHasResourceAccess(~resourceAccess=SuperpositionConfigs),
+            searchOptions: [("View dimensions", "")],
+          }),
+          SubLevelLink({
+            name: "Audit Log",
+            link: "/configuration-management/audit",
+            access: userHasResourceAccess(~resourceAccess=SuperpositionConfigs),
+            searchOptions: [("View audit log", "")],
+          }),
+        ],
+        selectedIcon: "nd-settings-fill",
+      })
+    : emptyComponent
