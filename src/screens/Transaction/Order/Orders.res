@@ -18,7 +18,7 @@ let make = (~previewOnly=false) => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {
     devOpensearch,
-    devAdvancedPaymentsList,
+    devAdvancedPaymentsView,
     devSavedViews,
     transactionView,
     generateReport,
@@ -34,19 +34,22 @@ let make = (~previewOnly=false) => {
   let {merchantId, orgId, version} = getCommonSessionDetails()
 
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
-  let userGroupACL = HyperswitchAtom.userGroupACLAtom->Recoil.useRecoilValueFromAtom
-  let advancedPaymentListAvailable = devAdvancedPaymentsList && devOpensearch && version == V1
-  let advancedPaymentListEnabled =
-    advancedPaymentListAvailable && userHasResourceAccess(~resourceAccess=Analytics) === Access
-  let paymentListSourceResolved =
-    !advancedPaymentListAvailable || userGroupACL->Option.isSome || advancedPaymentListEnabled
+
+  //enablement of open search
+  let isOpenSearchEnabled = devOpensearch && version == V1
+  //enablement of advanced view
+  let isAdvancedViewEnabled = isOpenSearchEnabled && devAdvancedPaymentsView
+  //access to advanced view
+  let hasAdvancedViewAccess =
+    isAdvancedViewEnabled && userHasResourceAccess(~resourceAccess=Analytics) === Access
+
   let (selectedSource, setSelectedSource) = React.useState(_ => None)
   let source =
-    selectedSource->mapOptionOrDefault(advancedPaymentListEnabled ? Advanced : Normal, userSource =>
+    selectedSource->mapOptionOrDefault(hasAdvancedViewAccess ? Advanced : Normal, userSource =>
       userSource
     )
-  let isAdvancedSource = source === Advanced && advancedPaymentListEnabled
-  let (tableTitle, savedViewsEntity) = isAdvancedSource
+  let isAdvancedView = source === Advanced && hasAdvancedViewAccess
+  let (tableTitle, savedViewsEntity) = isAdvancedView
     ? (advancedOrdersTableTitle, PaymentAdvanced)
     : (ordersTableTitle, Payment)
   let ompViewPortalName = `${tableTitle}OMPView`
@@ -54,7 +57,7 @@ let make = (~previewOnly=false) => {
   let hasOmpViewPortal = portalNodes->getOptionValFromDict(ompViewPortalName)->Option.isSome
 
   let fetchOrdersWithSource = (~payload, ~version, ~signal) => {
-    isAdvancedSource
+    isOpenSearchEnabled
       ? fetchAnalyticsOrdersHook(~payload, ~version, ~signal)
       : fetchNormalOrdersHook(~payload, ~version, ~signal)
   }
@@ -170,7 +173,7 @@ let make = (~previewOnly=false) => {
         filterParams->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
         filterParams->Dict.set("limit", resultsPerPage->Int.toFloat->JSON.Encode.float)
         let trimmedSearchText = searchText->String.trim
-        if trimmedSearchText->isNonEmptyString && !isAdvancedSource {
+        if trimmedSearchText->isNonEmptyString && !isOpenSearchEnabled {
           filterParams->Dict.set("payment_id", trimmedSearchText->JSON.Encode.string)
         }
 
@@ -194,11 +197,11 @@ let make = (~previewOnly=false) => {
         })
         //to delete unused keys
         filterParams->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
-        if !isAdvancedSource {
+        if !isOpenSearchEnabled {
           advancedPaymentFilterCleanupKeys->Array.forEach(key => filterParams->Dict.delete(key))
         }
 
-        let requestPayload = isAdvancedSource
+        let requestPayload = isOpenSearchEnabled
           ? buildAdvancedPaymentListPayload(
               ~filterParams,
               ~searchText,
@@ -224,11 +227,11 @@ let make = (~previewOnly=false) => {
 
   React.useEffect(() => {
     setSelectedRows(_ => [])
-    if paymentListSourceResolved && filters->isNonEmptyValue {
+    if filters->isNonEmptyValue {
       fetchOrders()
     }
     None
-  }, (offset, filters, searchText, isAdvancedSource, paymentListSourceResolved, resultsPerPage))
+  }, (offset, filters, searchText, resultsPerPage))
 
   let handleSourceChange = newSource => {
     setSelectedSource(_ => Some(newSource))
@@ -239,11 +242,11 @@ let make = (~previewOnly=false) => {
   }
 
   React.useEffect(() => {
-    if isAdvancedSource {
+    if isAdvancedView {
       mixpanelEvent(~eventName="advanced_payment_list_viewed")
     }
     None
-  }, [isAdvancedSource])
+  }, [isAdvancedView])
 
   React.useEffect(() => {
     setSortAtom(_ =>
@@ -263,7 +266,7 @@ let make = (~previewOnly=false) => {
     />
   let hasSearchText = searchText->isNonEmptyString
   let filtersUI = React.useMemo(() => {
-    let searchPlaceholder = isAdvancedSource
+    let searchPlaceholder = isAdvancedView
       ? "Search ID, email, card last 4..."
       : "Search by payment ID"
     let searchBar =
@@ -273,7 +276,7 @@ let make = (~previewOnly=false) => {
     let searchBarWithInfo =
       <div className="flex items-center gap-2">
         {searchBar}
-        <RenderIf condition={isAdvancedSource}>
+        <RenderIf condition={isAdvancedView}>
           <ToolTip
             description=advancedPaymentSearchDescription
             toolTipFor={<span className="inline-flex h-10 items-center text-nd_gray-500">
@@ -296,7 +299,7 @@ let make = (~previewOnly=false) => {
       startTimeFilterKey={startTimeFilterKey(version)}
       initialFilters={(json, filterValues, removeKeys, filterKeys, setfilterKeys, version) =>
         initialFiltersWithSource(
-          ~isAdvancedSource,
+          ~isAdvancedView,
           json,
           filterValues,
           removeKeys,
@@ -322,7 +325,7 @@ let make = (~previewOnly=false) => {
       }}
       version
     />
-  }, (searchText, version, isAdvancedSource, devSavedViews))
+  }, (searchText, version, isAdvancedView, devSavedViews))
 
   let selectedPaymentRows =
     selectedRows->Array.filter(row =>
@@ -342,9 +345,9 @@ let make = (~previewOnly=false) => {
   }
 
   let hasSelectedRows = selectedPaymentRows->isNonEmptyArray
-  let canExportSelectedRows = isAdvancedSource && hasSelectedRows
+  let canExportSelectedRows = isAdvancedView && hasSelectedRows
   let exportButtonState: Button.buttonState = canExportSelectedRows ? Normal : Disabled
-  let exportTooltipText = !isAdvancedSource
+  let exportTooltipText = !isAdvancedView
     ? "CSV export is available in Advanced after selecting payments."
     : hasSelectedRows
     ? "Export selected payments as CSV."
@@ -355,14 +358,14 @@ let make = (~previewOnly=false) => {
     ~showBorder=false,
   )
 
-  let tableEntity = isAdvancedSource
+  let tableEntity = isAdvancedView
     ? openSearchOrderEntity(merchantId, orgId, ~devSortEnabled)
     : orderEntity(merchantId, orgId, ~version, ~devSortEnabled)
-  let customColumnMapper = isAdvancedSource
+  let customColumnMapper = isAdvancedView
     ? TableAtoms.ordersAdvancedMapDefaultCols
     : TableAtoms.ordersMapDefaultCols
-  let defaultColumns = isAdvancedSource ? openSearchDefaultColumns : defaultColumns
-  let checkBoxProps = isAdvancedSource
+  let defaultColumns = isAdvancedView ? openSearchDefaultColumns : defaultColumns
+  let checkBoxProps = isAdvancedView
     ? Some({
         LoadedTable.showCheckBox: true,
         selectedData: selectedRows,
@@ -379,11 +382,11 @@ let make = (~previewOnly=false) => {
         <PageUtils.PageHeading title="Payment Operations" subTitle="" customTitleStyle />
         <div
           className="flex flex-nowrap justify-end gap-2 items-center whitespace-nowrap overflow-x-auto no-scrollbar">
-          <RenderIf condition={advancedPaymentListAvailable}>
+          <RenderIf condition={isAdvancedViewEnabled}>
             {<>
               <div className="shrink-0">
                 <OrderListSourceControls.SourceTabs
-                  source setSource=handleSourceChange advancedEnabled=advancedPaymentListEnabled
+                  source setSource=handleSourceChange advancedEnabled=hasAdvancedViewAccess
                 />
               </div>
               <ToolTip
@@ -421,7 +424,7 @@ let make = (~previewOnly=false) => {
         <TransactionView
           entity=TransactionViewTypes.Orders
           version
-          isAdvancedView=isAdvancedSource
+          isAdvancedView
           allStatuses=transactionViewStatuses
         />
       </RenderIf>

@@ -1,13 +1,8 @@
 open LogicUtils
 open OrderUIUtils
 open SavedViewTypes
-open OrderTypes
 
 let maxViews = 5
-
-let connectorFilterKey = (#connector: filter)->getValueFromFilterType
-let connectorLabelKey = (#connector_label: filter)->getLabelFromFilterType
-let connectorLabelValueKey = (#connector_label: filter)->getValueFromFilterType
 
 let versionToSavedViewVersion = (version: UserInfoTypes.version): savedViewVersion =>
   switch version {
@@ -29,17 +24,14 @@ let primitiveJsonToString = jsonValue =>
   }
 
 let jsonValueToString = (key, jsonValue) =>
-  switch jsonValue->getOptionStrArrayFromJson {
-  | Some(_) =>
-    let sortedStrArr =
-      jsonValue
-      ->getArrayFromJson([])
-      ->Array.map(primitiveJsonToString)
-      ->Array.toSorted(String.compare)
-    advancedPaymentTextListFilterTypes->Array.map(getValueFromFilterType)->Array.includes(key)
-      ? sortedStrArr->getValueFromArray(0, "")
-      : "[" ++ sortedStrArr->Array.joinWith(",") ++ "]"
-  | None => jsonValue->primitiveJsonToString
+  switch jsonValue->JSON.Classify.classify {
+  | Array(arr) =>
+    let sortedStrArr = arr->Array.map(primitiveJsonToString)->Array.toSorted(String.compare)
+    switch (advancedPaymentTextListFilterKeys->Array.includes(key), sortedStrArr) {
+    | (true, [single]) => single
+    | _ => RemoteFiltersUtils.getStrFromJson(key, sortedStrArr->getJsonFromArrayOfString)
+    }
+  | _ => jsonValue->primitiveJsonToString
   }
 
 let foldAmountOption = filtersDict => {
@@ -125,14 +117,6 @@ let getApplyFilters = (~filterDict, ~filterValue, ~version) => {
   filterDict
   ->Dict.toArray
   ->Array.forEach(((key, value)) => flattenToDict(newFiltersDict, key, value))
-
-  filterDict
-  ->getOptionValFromDict(connectorLabelValueKey)
-  ->mapOptionOrDefault((), value => {
-    if newFiltersDict->getValueFromDict(connectorFilterKey, "")->isNonEmptyString {
-      newFiltersDict->Dict.set(connectorLabelValueKey, jsonValueToString(connectorLabelKey, value))
-    }
-  })
 
   let startTimeKey = startTimeFilterKey(version)
   let endTimeKey = endTimeFilterKey(version)
@@ -222,17 +206,6 @@ let findMatchingView = (~savedViews: array<savedView>, ~currentFiltersDict, ~ver
     savedFilters
     ->Dict.toArray
     ->Array.forEach(((key, value)) => flattenToDict(savedFiltersStringDict, key, value))
-
-    savedFilters
-    ->getOptionValFromDict(connectorLabelValueKey)
-    ->mapOptionOrDefault((), value => {
-      if savedFiltersStringDict->getValueFromDict(connectorFilterKey, "")->isNonEmptyString {
-        savedFiltersStringDict->Dict.set(
-          connectorLabelValueKey,
-          jsonValueToString(connectorLabelKey, value),
-        )
-      }
-    })
 
     let startTimeKey = startTimeFilterKey(version)
     let endTimeKey = endTimeFilterKey(version)
