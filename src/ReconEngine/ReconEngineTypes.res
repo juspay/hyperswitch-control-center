@@ -3,7 +3,6 @@ type balanceType = {
   currency: string,
 }
 
-@unboxed
 type accountTypeVariant =
   | @as("credit") Credit
   | @as("debit") Debit
@@ -52,7 +51,6 @@ type reconRuleType = {
   targets: array<reconRuleAccountRefType>,
 }
 
-@unboxed
 type mismatchType =
   | @as("amount_mismatch") AmountMismatch
   | @as("balance_direction_mismatch") BalanceDirectionMismatch
@@ -161,7 +159,6 @@ type ruleType = {
   rule_name: string,
 }
 
-@unboxed
 type transactionStatus =
   | @as("posted") Posted
   | @as("matched") Matched
@@ -172,13 +169,11 @@ type transactionStatus =
   | @as("partially_reconciled") PartiallyReconciled
   | @as("unknown") UnknownTransactionStatus
 
-@unboxed
 type entryDirectionType =
   | @as("debit") Debit
   | @as("credit") Credit
   | UnknownEntryDirectionType
 
-@unboxed
 type entryStatus =
   | @as("posted") Posted
   | @as("matched") Matched
@@ -218,7 +213,6 @@ type transactionDataType = {
   mismatched_fields: array<mismatchedFieldType>,
 }
 
-@unboxed
 type domainTransactionMatchedStatus =
   | Auto
   | Manual
@@ -226,12 +220,10 @@ type domainTransactionMatchedStatus =
   | WithTolerance
   | UnknownDomainTransactionMatchedStatus
 
-@unboxed
 type domainTransactionPostedStatus =
   | Manual
   | UnknownDomainTransactionPostedStatus
 
-@unboxed
 type domainTransactionAmountMismatchStatus =
   | Expected
   | Mismatch
@@ -303,7 +295,6 @@ type processingEntryStatus =
   | @as("void") Void
   | @as("unknown") UnknownProcessingEntryStatus
 
-@unboxed
 type needsManualReviewType =
   | @as("no_rules_found") NoRulesFound
   | @as("staging_entry_currency_mismatch") StagingEntryCurrencyMismatch
@@ -591,7 +582,6 @@ type stagingEntryOverviewStatusAmount = {
 
 type accountStagingEntriesOverview = {status_breakdown: array<stagingEntryOverviewStatusAmount>}
 
-@unboxed
 type ruleAccountTypeVariant =
   | @as("source") Source
   | @as("target") Target
