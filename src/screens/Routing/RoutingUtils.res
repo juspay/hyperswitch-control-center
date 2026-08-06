@@ -237,7 +237,11 @@ let validateConditionsFor3ds = dict => {
   let decisionValue = dict->getDictfromDict("connectorSelection")->getString("override_3ds", "")
 
   conditionsArray->Array.every(value => {
-    value->validateConditionJson(["comparison", "lhs"])
+    value->validateConditionJson(["comparison", "lhs"]) &&
+      value
+      ->getDictFromJsonObject
+      ->AdvancedRoutingUtils.statementTypeMapper
+      ->AdvancedRoutingUtils.isStatementMandatoryFieldsPresent
   }) && decisionValue->isNonEmptyString
 }
 
