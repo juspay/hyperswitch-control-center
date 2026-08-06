@@ -411,6 +411,11 @@ test.describe("3DS Exemption Manager", () => {
       await expect(page.getByText(ruleName, { exact: true })).toBeVisible();
       await expect(exemption.viewAndManageButton).toBeVisible();
 
+      // The landing page intentionally renders a compact active-configuration
+      // card. Open the manage view before asserting the full rule preview.
+      await exemption.viewAndManageButton.click();
+      await expect(page).toHaveURL(/dashboard\/3ds-exemption\?type=manage$/);
+
       // RulePreviewer body — one rule with two statements rendered as
       // <field> <operator> <value> tokens, separated by the AND/OR logical.
       const previewer = page.locator('[data-component="rulePreviewer"]');
