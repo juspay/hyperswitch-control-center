@@ -379,36 +379,36 @@ let make = (~previewOnly=false) => {
         <PageUtils.PageHeading title="Payment Operations" subTitle="" customTitleStyle />
         <div
           className="flex flex-nowrap justify-end gap-2 items-center whitespace-nowrap overflow-x-auto no-scrollbar">
-          <div className="shrink-0">
-            <RenderIf condition={advancedPaymentListAvailable}>
-              <OrderListSourceControls.SourceTabs
-                source setSource=handleSourceChange advancedEnabled=advancedPaymentListEnabled
-              />
-            </RenderIf>
-          </div>
           <RenderIf condition={advancedPaymentListAvailable}>
-            <ToolTip
-              description=exportTooltipText
-              toolTipFor={<Button
-                text="Export"
-                buttonType=Primary
-                buttonState=exportButtonState
-                buttonSize=Small
-                showBorder=false
-                customButtonStyle="justify-start !w-28"
-                customIconMargin="ml-2"
-                customTextPaddingClass="!pl-2 !pr-0"
-                leftIcon={CustomIcon(<Icon name="nd-download-bar-down" size=16 />)}
-                rightIcon={CustomIcon(
-                  <span
-                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full bg-white bg-opacity-20 ${body.md.medium} ${selectedRowsCountClass}`}>
-                    {selectedPaymentRows->Array.length->Int.toString->React.string}
-                  </span>,
-                )}
-                onClick={_ => canExportSelectedRows ? downloadData() : ()}
-              />}
-              toolTipPosition=Top
-            />
+            {<>
+              <div className="shrink-0">
+                <OrderListSourceControls.SourceTabs
+                  source setSource=handleSourceChange advancedEnabled=advancedPaymentListEnabled
+                />
+              </div>
+              <ToolTip
+                description=exportTooltipText
+                toolTipFor={<Button
+                  text="Export"
+                  buttonType=Primary
+                  buttonState=exportButtonState
+                  buttonSize=Small
+                  showBorder=false
+                  customButtonStyle="justify-start !w-28"
+                  customIconMargin="ml-2"
+                  customTextPaddingClass="!pl-2 !pr-0"
+                  leftIcon={CustomIcon(<Icon name="nd-download-bar-down" size=16 />)}
+                  rightIcon={CustomIcon(
+                    <span
+                      className={`inline-flex h-5 w-5 items-center justify-center rounded-full bg-white bg-opacity-20 ${body.md.medium} ${selectedRowsCountClass}`}>
+                      {selectedPaymentRows->Array.length->Int.toString->React.string}
+                    </span>,
+                  )}
+                  onClick={_ => canExportSelectedRows ? downloadData() : ()}
+                />}
+                toolTipPosition=Top
+              />
+            </>}
           </RenderIf>
           <RenderIf condition=showGenerateReportAction>
             <div className="shrink-0">
