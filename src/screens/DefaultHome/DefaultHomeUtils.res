@@ -53,7 +53,7 @@ module DefaultHomeCard = {
         onClick={_ => {
           switch action {
           | InternalRoute =>
-            if product === activeProduct {
+            if product == activeProduct {
               let productUrl = ProductUtils.getProductUrl(~productType=product, ~isLiveMode)
               RescriptReactRouter.replace(productUrl)
             } else {
