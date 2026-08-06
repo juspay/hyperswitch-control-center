@@ -126,7 +126,9 @@ let getApplyFilters = (~filterDict, ~filterValue, ~version) => {
   ->Dict.toArray
   ->Array.forEach(((key, value)) => flattenToDict(newFiltersDict, key, value))
 
-  filterDict->getOptionValFromDict(connectorLabelValueKey)->mapOptionOrDefault((), value => {
+  filterDict
+  ->getOptionValFromDict(connectorLabelValueKey)
+  ->mapOptionOrDefault((), value => {
     if newFiltersDict->getValueFromDict(connectorFilterKey, "")->isNonEmptyString {
       newFiltersDict->Dict.set(connectorLabelValueKey, jsonValueToString(connectorLabelKey, value))
     }
@@ -221,7 +223,9 @@ let findMatchingView = (~savedViews: array<savedView>, ~currentFiltersDict, ~ver
     ->Dict.toArray
     ->Array.forEach(((key, value)) => flattenToDict(savedFiltersStringDict, key, value))
 
-    savedFilters->getOptionValFromDict(connectorLabelValueKey)->mapOptionOrDefault((), value => {
+    savedFilters
+    ->getOptionValFromDict(connectorLabelValueKey)
+    ->mapOptionOrDefault((), value => {
       if savedFiltersStringDict->getValueFromDict(connectorFilterKey, "")->isNonEmptyString {
         savedFiltersStringDict->Dict.set(
           connectorLabelValueKey,
@@ -229,7 +233,7 @@ let findMatchingView = (~savedViews: array<savedView>, ~currentFiltersDict, ~ver
         )
       }
     })
-    
+
     let startTimeKey = startTimeFilterKey(version)
     let endTimeKey = endTimeFilterKey(version)
     if savedFiltersStringDict->getOptionValFromDict(startTimeKey)->Option.isNone {
