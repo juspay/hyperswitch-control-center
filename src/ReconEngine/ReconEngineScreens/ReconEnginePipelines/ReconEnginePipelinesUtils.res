@@ -66,7 +66,7 @@ let getPipelineStatCards = (
       pipelineStatCardIcon: CustomIcon(
         <Icon name="nd-upload-file" size=14 className="text-nd_gray-500" />,
       ),
-      pipelineStatCardDescription: `${processingCount->Int.toString} processing now`,
+      pipelineStatCardDescription: CountWithText(processingCount, "processing now"),
       pipelineStatCardType: Info,
       pipelineStatCardClickAction: ClearStatusFilter,
     },
@@ -76,7 +76,9 @@ let getPipelineStatCards = (
       pipelineStatCardIcon: CustomIcon(
         <Icon name="nd-alert-triangle-outline" size=14 className="text-nd_gray-500" />,
       ),
-      pipelineStatCardDescription: failedCount > 0 ? "needs attention" : "all runs clean",
+      pipelineStatCardDescription: DescriptionText(
+        failedCount > 0 ? "needs attention" : "all runs clean",
+      ),
       pipelineStatCardType: Attention,
       pipelineStatCardClickAction: SetStatusFilter(failedStatusValue),
     },
@@ -86,7 +88,7 @@ let getPipelineStatCards = (
       pipelineStatCardIcon: CustomIcon(
         <Icon name="nd-check-circle-outline" size=14 className="text-nd_gray-500" />,
       ),
-      pipelineStatCardDescription: `${processedRate} of runs`,
+      pipelineStatCardDescription: DescriptionText(`${processedRate} of runs`),
       pipelineStatCardType: Info,
       pipelineStatCardClickAction: SetStatusFilter(processedStatusValue),
     },
@@ -96,7 +98,9 @@ let getPipelineStatCards = (
       pipelineStatCardIcon: CustomIcon(
         <Icon name="nd-information-triangle" size=14 className="text-nd_gray-500" />,
       ),
-      pipelineStatCardDescription: `${needsManualReviewRate} of transformed entries`,
+      pipelineStatCardDescription: DescriptionText(
+        `${needsManualReviewRate} of transformed entries`,
+      ),
       pipelineStatCardType: Attention,
       pipelineStatCardClickAction: NavigateToPath(
         GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions/transformed-entries"),
