@@ -80,25 +80,25 @@ let flattenToDict = (dictToSet, key, value) => {
   let idx = ref(0)
   while idx.contents < filtersToFlatten->Array.length {
     switch filtersToFlatten->Array.get(idx.contents) {
-    | Some((k, v)) =>
+    | Some((flattenedKey, flattenedValue)) =>
       idx := idx.contents + 1
-      switch v->JSON.Classify.classify {
+      switch flattenedValue->JSON.Classify.classify {
       | Null => ()
-      | _ if ["limit", "offset"]->Array.includes(k) => ()
+      | _ if ["limit", "offset"]->Array.includes(flattenedKey) => ()
       | Object(dict) =>
         dict
         ->Dict.toArray
         ->Array.forEach(((nestedKey, nestedValue)) => {
-          let flattenedKey = switch classifyFilterKey(k) {
+          let flattenedKey = switch classifyFilterKey(flattenedKey) {
           | FlattenRoot => nestedKey
           | Prefixed(prefix) => `${prefix}.${nestedKey}`
           }
           filtersToFlatten->Array.push((flattenedKey, nestedValue))->ignore
         })
       | _ =>
-        let strVal = jsonValueToString(k, v)
+        let strVal = jsonValueToString(flattenedKey, flattenedValue)
         if strVal->isNonEmptyString {
-          dictToSet->Dict.set(k, strVal)
+          dictToSet->Dict.set(flattenedKey, strVal)
         }
       }
     | None => idx := idx.contents + 1
@@ -126,11 +126,11 @@ let getApplyFilters = (~filterDict, ~filterValue, ~version) => {
   ->Dict.toArray
   ->Array.forEach(((key, value)) => flattenToDict(newFiltersDict, key, value))
 
-  switch filterDict->getOptionValFromDict(connectorLabelValueKey) {
-  | Some(value) if newFiltersDict->getValueFromDict(connectorFilterKey, "")->isNonEmptyString =>
-    newFiltersDict->Dict.set(connectorLabelValueKey, jsonValueToString(connectorLabelKey, value))
-  | Some(_) | None => ()
-  }
+  filterDict->getOptionValFromDict(connectorLabelValueKey)->mapOptionOrDefault((), value => {
+    if newFiltersDict->getValueFromDict(connectorFilterKey, "")->isNonEmptyString {
+      newFiltersDict->Dict.set(connectorLabelValueKey, jsonValueToString(connectorLabelKey, value))
+    }
+  })
 
   let startTimeKey = startTimeFilterKey(version)
   let endTimeKey = endTimeFilterKey(version)
@@ -220,15 +220,16 @@ let findMatchingView = (~savedViews: array<savedView>, ~currentFiltersDict, ~ver
     savedFilters
     ->Dict.toArray
     ->Array.forEach(((key, value)) => flattenToDict(savedFiltersStringDict, key, value))
-    switch savedFilters->getOptionValFromDict(connectorLabelValueKey) {
-    | Some(value)
-      if savedFiltersStringDict->getValueFromDict(connectorFilterKey, "")->isNonEmptyString =>
-      savedFiltersStringDict->Dict.set(
-        connectorLabelValueKey,
-        jsonValueToString(connectorLabelKey, value),
-      )
-    | Some(_) | None => ()
-    }
+
+    savedFilters->getOptionValFromDict(connectorLabelValueKey)->mapOptionOrDefault((), value => {
+      if savedFiltersStringDict->getValueFromDict(connectorFilterKey, "")->isNonEmptyString {
+        savedFiltersStringDict->Dict.set(
+          connectorLabelValueKey,
+          jsonValueToString(connectorLabelKey, value),
+        )
+      }
+    })
+    
     let startTimeKey = startTimeFilterKey(version)
     let endTimeKey = endTimeFilterKey(version)
     if savedFiltersStringDict->getOptionValFromDict(startTimeKey)->Option.isNone {
