@@ -561,6 +561,7 @@ module ProductTypeSectionItem = {
                   isSidebarExpanded
                   setOpenItem
                   onItemClickCustom=handleClick
+                  showIcon=true
                 />
               }
             | LinkWithTag(record) => {
@@ -571,6 +572,7 @@ module ProductTypeSectionItem = {
                   tabInfo
                   isSelected
                   isSidebarExpanded
+                  showIcon=true
                 />
               }
             | Section(thisSection) =>
@@ -586,6 +588,7 @@ module ProductTypeSectionItem = {
                   setOpenItem
                   isSectionAutoCollapseEnabled=true
                   onItemClickCustom={Some(handleClick)}
+                  showIcon=true
                 />
               </RenderIf>
             | Heading(headingOptions) =>
