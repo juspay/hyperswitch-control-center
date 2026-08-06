@@ -15,7 +15,7 @@ let defaultGroup: statement = {condition: [defaultCondition]}
 let defaultConnectorSelection: connectorSelection = Priority({data: []})
 
 let newDefaultRule = (): rule => {
-  id: `rule_${LogicUtils.randomString(~length=6)}`,
+  id: `rule_${randomString(~length=6)}`,
   name: "",
   connectorSelection: defaultConnectorSelection,
   statements: [defaultGroup],

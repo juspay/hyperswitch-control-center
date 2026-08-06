@@ -2,6 +2,7 @@ open LogicUtils
 open RuleBasedUtils
 open Typography
 open RuleBasedTypes
+open ConnectorTypes
 
 let boxBtnStyle = "!bg-transparent !border-0 !shadow-none !rounded-lg !px-3 !py-2.5 !w-full"
 let boxTextStyle = `${body.md.medium} text-nd_gray-600`
@@ -332,7 +333,7 @@ module ConditionGroupWrapper = {
       <div className="flex items-center gap-6 pl-1">
         <Button
           text="Add condition"
-          buttonType=Button.FilterAdd
+          buttonType=FilterAdd
           buttonSize=Small
           textStyle="text-nd_primary_blue-500"
           leftIcon={CustomIcon(
@@ -343,7 +344,7 @@ module ConditionGroupWrapper = {
         <RenderIf condition={isLast}>
           <Button
             text="Add condition group"
-            buttonType=Button.FilterAdd
+            buttonType=FilterAdd
             buttonSize=Small
             textStyle="text-nd_primary_blue-500"
             leftIcon={CustomIcon(
@@ -356,7 +357,7 @@ module ConditionGroupWrapper = {
           <div className="ml-auto">
             <Button
               text="Delete"
-              buttonType=Button.FilterAdd
+              buttonType=FilterAdd
               buttonSize=Small
               textStyle="text-nd_gray-500"
               leftIcon={CustomIcon(<Icon name="trash" size=14 className="text-nd_gray-500" />)}
@@ -373,15 +374,15 @@ module OutcomeWrapper = {
   @react.component
   let make = (~prefix) => {
     let url = RescriptReactRouter.useUrl()
-    let connectorType: ConnectorTypes.connectorTypeVariants = switch url->RoutingUtils.urlToVariantMapper {
-    | PayoutRouting => ConnectorTypes.PayoutProcessor
-    | _ => ConnectorTypes.PaymentProcessor
+    let connectorType: connectorTypeVariants = switch url->RoutingUtils.urlToVariantMapper {
+    | PayoutRouting => PayoutProcessor
+    | _ => PaymentProcessor
     }
     let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=connectorType)
 
     let gatewayOptions = connectorList->Array.map((c): SelectBox.dropdownOption => {
       label: c.disabled ? `${c.connector_label} (disabled)` : c.connector_label,
-      value: c.id,
+      value: c.ConnectorTypes.id,
     })
 
     let selectionInput = ReactFinalForm.useField(`${prefix}.connectorSelection`).input
@@ -422,16 +423,14 @@ module OutcomeWrapper = {
         <Icon name="nd-arrow-right" size=16 className="text-nd_gray-400 shrink-0" />
         <span className={`${body.md.medium} text-nd_gray-500 shrink-0`}>
           {(
-            connectorType == ConnectorTypes.PayoutProcessor
-              ? "Route payouts to"
-              : "Route payments to"
+            connectorType == PayoutProcessor ? "Route payouts to" : "Route payments to"
           )->React.string}
         </span>
         <div className="flex-1 min-w-0">
           <SelectBoxAdapter.BaseDropdown
             allowMultiSelect=true
             buttonText="Select processors"
-            buttonType=Button.SecondaryFilled
+            buttonType=SecondaryFilled
             hideMultiSelectButtons=true
             customButtonStyle="!bg-white !w-full !border !border-nd_gray-200 !rounded-lg"
             input=dropdownInput
@@ -620,7 +619,7 @@ module ConditionSummaryView = {
     let vType = valueDict->getString("type", "")
     let valueJson = valueDict->Dict.get("value")->Option.getOr(JSON.Encode.null)
     let opLabel = operatorLabelForStoredValue(~lhs, ~comparison=cmpStr, ~valueType=vType)
-    let metaKey =
+    let metadataKey =
       vType === "metadata_variant" ? valueJson->getDictFromJsonObject->getString("key", "") : ""
     let valueText = switch valueJson->JSON.Classify.classify {
     | Array(arr) => arr->Array.joinWithUnsafe(", ")
@@ -635,8 +634,8 @@ module ConditionSummaryView = {
         <span className={`${body.sm.semibold} text-nd_gray-500`}> {"AND"->React.string} </span>
       </RenderIf>
       <span className={`${body.sm.medium} text-nd_gray-700`}> {lhs->React.string} </span>
-      <RenderIf condition={metaKey->isNonEmptyString}>
-        <span className={`${body.sm.medium} text-nd_gray-700`}> {metaKey->React.string} </span>
+      <RenderIf condition={metadataKey->isNonEmptyString}>
+        <span className={`${body.sm.medium} text-nd_gray-700`}> {metadataKey->React.string} </span>
       </RenderIf>
       <span className={`${body.sm.semibold} text-nd_primary_blue-500`}>
         {opLabel->React.string}
@@ -655,7 +654,7 @@ module RuleSummary = {
     let headingText = name->isNonEmptyString ? `Rule ${ruleNo} · ${name}` : `Rule ${ruleNo}`
     let statements = ruleDict->getArrayFromDict("statements", [])
     let connectorSelection =
-      ruleDict->Dict.get("connectorSelection")->Option.getOr(Dict.make()->JSON.Encode.object)
+      ruleDict->getValueFromDict("connectorSelection", Dict.make()->JSON.Encode.object)
 
     <div className="border border-nd_gray-200 rounded-xl bg-white p-4 flex flex-col gap-3">
       <span className={`${body.md.semibold} text-nd_gray-800`}> {headingText->React.string} </span>
@@ -689,9 +688,9 @@ module PreviewView = {
   @react.component
   let make = (~values: JSON.t) => {
     let url = RescriptReactRouter.useUrl()
-    let connectorType: ConnectorTypes.connectorTypeVariants = switch url->RoutingUtils.urlToVariantMapper {
-    | PayoutRouting => ConnectorTypes.PayoutProcessor
-    | _ => ConnectorTypes.PaymentProcessor
+    let connectorType: connectorTypeVariants = switch url->RoutingUtils.urlToVariantMapper {
+    | PayoutRouting => PayoutProcessor
+    | _ => PaymentProcessor
     }
     let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=connectorType)
 
@@ -701,7 +700,7 @@ module PreviewView = {
     let data = dict->getDictFromNestedDict("algorithm", "data")
     let rules = data->getArrayFromDict("rules", [])
     let defaultSelection =
-      data->Dict.get("defaultSelection")->Option.getOr(Dict.make()->JSON.Encode.object)
+      data->getValueFromDict("defaultSelection", Dict.make()->JSON.Encode.object)
 
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
