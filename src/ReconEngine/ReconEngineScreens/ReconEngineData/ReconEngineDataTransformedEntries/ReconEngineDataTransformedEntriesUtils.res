@@ -48,6 +48,7 @@ let buildProcessingEntriesV2Body = (
   ~order: processingEntrySortOrder=Desc,
   ~limit=10,
   ~transformationHistoryIds: array<string>=[],
+  ~transformationConfigIds: array<string>=[],
 ) => {
   let statusFilter = filterValueJson->getStrArrayFromDict("status", [])
   let statusValues =
@@ -81,6 +82,13 @@ let buildProcessingEntriesV2Body = (
     filtersDict->Dict.set(
       "transformation_history_ids",
       transformationHistoryIds->getJsonFromArrayOfString,
+    )
+  }
+
+  if transformationConfigIds->isNonEmptyArray {
+    filtersDict->Dict.set(
+      "transformation_config_ids",
+      transformationConfigIds->getJsonFromArrayOfString,
     )
   }
 
