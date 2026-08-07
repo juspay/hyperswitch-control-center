@@ -135,12 +135,11 @@ export class PaymentSettings {
   }
 
   dropdownValue(value: string): Locator {
-    return this.page.getByRole('menuitem', { name: value });
+    return this.page.getByRole("menuitem", { name: value });
   }
 
   dropdownValueByText(text: string): Locator {
-    return this.page
-      .getByRole('menuitem', { name: text });
+    return this.page.getByRole("menuitem", { name: text });
   }
 
   selectFieldDropdown(): Locator {
@@ -234,24 +233,24 @@ export class PaymentSettings {
     return modal.locator(`[data-input-name="${name}"] input`);
   }
 
-  acquirerMerchantNameInput(modal: Locator): Locator {
-    return this.page.getByRole('textbox', { name: 'e.g. Demo Merchant' });
+  acquirerMerchantNameInput(_modal: Locator): Locator {
+    return this.page.getByRole("textbox", { name: "e.g. Demo Merchant" });
   }
 
-  acquirerMerchantIdInput(modal: Locator): Locator {
-    return this.page.getByRole('textbox', { name: 'e.g. 00004500000' });
+  acquirerMerchantIdInput(_modal: Locator): Locator {
+    return this.page.getByRole("textbox", { name: "e.g. 00004500000" });
   }
 
-  acquirerBinInput(modal: Locator): Locator {
-    return this.page.getByRole('spinbutton', { name: 'e.g.' }).first();
+  acquirerBinInput(_modal: Locator): Locator {
+    return this.page.getByRole("spinbutton", { name: "e.g." }).first();
   }
 
-  acquirerIcaInput(modal: Locator): Locator {
-    return this.page.getByRole('spinbutton', { name: 'e.g.' }).nth(1);
+  acquirerIcaInput(_modal: Locator): Locator {
+    return this.page.getByRole("spinbutton", { name: "e.g." }).nth(1);
   }
 
-  acquirerFraudRateInput(modal: Locator): Locator {
-    return this.page.getByRole('spinbutton', { name: 'e.g. 25' });
+  acquirerFraudRateInput(_modal: Locator): Locator {
+    return this.page.getByRole("spinbutton", { name: "e.g. 25" });
   }
 
   acquirerNetworkDropdownInModal(modal: Locator): Locator {
@@ -281,7 +280,9 @@ export class PaymentSettings {
 
   // Validation errors
   get acquirerBinError(): Locator {
-    return this.page.locator('[data-form-error="Acquirer BIN must be between 4 and 20 digits"]');
+    return this.page.locator(
+      '[data-form-error="Acquirer BIN must be between 4 and 20 digits"]',
+    );
   }
 
   get fraudRateError(): Locator {
@@ -424,8 +425,9 @@ export class PaymentSettings {
 
   async selectFirstMerchantCategoryCode(): Promise<string> {
     await this.merchantCategoryCodeDropdown.click();
-    const firstOption = this.page
-      .getByRole('menuitem', { name: 'Wine producers' })
+    const firstOption = this.page.getByRole("menuitem", {
+      name: "Wine producers",
+    });
     const optionText = (await firstOption.getAttribute("data-value")) ?? "";
     await firstOption.click();
     return optionText;

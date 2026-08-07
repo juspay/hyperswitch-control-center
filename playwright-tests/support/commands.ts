@@ -13,7 +13,7 @@ import { execFileSync } from "child_process";
 import fs from "fs";
 import path from "path";
 
-const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000";
+const _BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000";
 const API_URL = process.env.HYPERSWITCH_API_URL || "http://localhost:8080";
 const MAIL_URL = process.env.PLAYWRIGHT_MAIL_URL || "http://localhost:8025";
 const ADMIN_API_KEY = process.env.HYPERSWITCH_ADMIN_API_KEY || "test_admin";
@@ -135,7 +135,7 @@ export async function createAPIKey(
   let response: Awaited<ReturnType<typeof attempt>>;
   try {
     response = await attempt();
-  } catch (err) {
+  } catch (_err) {
     response = await attempt();
   }
 
@@ -1271,12 +1271,12 @@ export async function createThreeDsExemptionAPI(
     name: string;
     description: string;
     authType:
-    | "no_three_ds"
-    | "challenge_requested"
-    | "challenge_preferred"
-    | "three_ds_exemption_requested_tra"
-    | "three_ds_exemption_requested_low_value"
-    | "issuer_three_ds_exemption_requested";
+      | "no_three_ds"
+      | "challenge_requested"
+      | "challenge_preferred"
+      | "three_ds_exemption_requested_tra"
+      | "three_ds_exemption_requested_low_value"
+      | "issuer_three_ds_exemption_requested";
   }> = {},
 ): Promise<{
   name: string;
@@ -1766,7 +1766,7 @@ export async function mockMagicLinkSigninSuccess(
   page: Page,
   userEmail?: string,
 ): Promise<void> {
-  const email = userEmail || process.env.PLAYWRIGHT_USERNAME || "";
+  const _email = userEmail || process.env.PLAYWRIGHT_USERNAME || "";
 
   await page.route(
     "**/api/user/connect_account?auth_id=&domain=",

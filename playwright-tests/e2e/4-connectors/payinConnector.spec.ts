@@ -20,7 +20,6 @@ import {
   generateCerts,
 } from "../../support/commands";
 import { connectorConfig } from "../../support/fixtures/payinConnectorConfig";
-import { exec } from "node:child_process";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
@@ -28,7 +27,7 @@ const CONNECTOR_SETUP_TIMEOUT = 60000;
 
 async function signupAndLogin(
   page: Page,
-  context: BrowserContext,
+  _context: BrowserContext,
 ): Promise<void> {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -690,7 +689,9 @@ test.describe("Payin Connector tests", () => {
     await paymentConnector.connectAndProceedButton.click();
 
     await page.getByText("Google Pay").locator("visible=true").first().click();
-    await expect(page.getByText('Payment Gateway').locator("visible=true").first()).toBeVisible();
+    await expect(
+      page.getByText("Payment Gateway").locator("visible=true").first(),
+    ).toBeVisible();
     await page.getByRole("button", { name: "Continue" }).click();
 
     await expect(
@@ -969,7 +970,7 @@ test.describe("Payin Connector tests", () => {
     page,
   }) => {
     test.setTimeout(CONNECTOR_SETUP_TIMEOUT);
-    const homePage = new HomePage(page);
+    const _homePage = new HomePage(page);
     const paymentConnector = new PaymentConnector(page);
 
     // --- Setup Stripe payment connector ---
@@ -1100,7 +1101,11 @@ test.describe("Payin Connector tests", () => {
       page.getByRole("button", { name: "Proceed" }).nth(1),
     ).toBeDisabled();
 
-    await page.getByRole('heading').nth(1).locator('[data-checkbox="checkbox"]').click();
+    await page
+      .getByRole("heading")
+      .nth(1)
+      .locator('[data-checkbox="checkbox"]')
+      .click();
     await expect(
       page.getByRole("button", { name: "Select PM Authentication" }),
     ).not.toBeDisabled();
@@ -1216,7 +1221,11 @@ test.describe("Payin Connector tests", () => {
       page.getByRole("button", { name: "Proceed" }).nth(1),
     ).toBeDisabled();
 
-    await page.getByRole('heading').nth(1).locator('[data-checkbox="checkbox"]').click();
+    await page
+      .getByRole("heading")
+      .nth(1)
+      .locator('[data-checkbox="checkbox"]')
+      .click();
     await page
       .getByRole("button", { name: "Proceed" })
       .nth(1)
@@ -1235,7 +1244,7 @@ test.describe("Payin Connector tests", () => {
 });
 
 test.describe("All Payin Connectors", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -1273,13 +1282,13 @@ test.describe("All Payin Connectors", () => {
       await expect(
         page.getByTestId(
           connector.fields.overrides["Enter Connector label"] ||
-          connector.label,
+            connector.label,
         ),
       ).toBeVisible();
       await page
         .getByTestId(
           connector.fields.overrides["Enter Connector label"] ||
-          connector.label,
+            connector.label,
         )
         .click();
     });
@@ -1566,9 +1575,7 @@ test.describe("All Payin Connectors", () => {
     await paymentConnector.pmtProceedButton.click();
 
     await expect(page.getByText("APPLE PAYUSDEncryptDecrypt")).toBeVisible();
-    await expect(
-      page.getByText("USDThree DsNo Three Ds"),
-    ).toBeVisible();
+    await expect(page.getByText("USDThree DsNo Three Ds")).toBeVisible();
 
     await page
       .locator("div")
