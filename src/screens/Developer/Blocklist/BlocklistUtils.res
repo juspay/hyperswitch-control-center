@@ -7,6 +7,7 @@ extended_card_bin,41111100,
 fingerprint,fp_abc123,`
 
 let maxBlocklistCsvFileSize = 5 * 1024 * 1024
+let maxBlocklistCsvDataRows = 100000
 let bytesPerKilobyte = 1024
 let bytesPerMegabyte = bytesPerKilobyte * 1024
 
@@ -76,6 +77,12 @@ let isValidBlocklistCsvFile = file =>
   file["name"]->isCsvFileName && file["type"]->isValidBlocklistCsvMimeType
 
 let isBlocklistCsvFileSizeAllowed = file => file["size"] <= maxBlocklistCsvFileSize
+
+let isBlocklistCsvRowCountAllowed = fileContents => {
+  let parsedCsv = PapaParse.parse(fileContents, {"skipEmptyLines": true})
+  let dataRowCount = parsedCsv.data->Array.length - 1
+  dataRowCount <= maxBlocklistCsvDataRows
+}
 
 let getFileName = file =>
   switch file {
