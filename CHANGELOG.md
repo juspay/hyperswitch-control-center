@@ -3,6 +3,31 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.07.0
+
+### Features
+
+- Connector list for sandbox from config ([#5072](https://github.com/juspay/hyperswitch-control-center/pull/5072)) ([`1f663ef`](https://github.com/juspay/hyperswitch-control-center/commit/1f663ef8f9f5fb1667a39bfda67061d11270e72d))
+
+### Bug Fixes
+
+- Fetch transformation status on deep link to transformed entry ([#5334](https://github.com/juspay/hyperswitch-control-center/pull/5334)) ([`27af104`](https://github.com/juspay/hyperswitch-control-center/commit/27af104ce2659a07f24f4b6f3cd8f86fe5b667d4))
+
+**Full Changelog:** [`2026.08.05.1...2026.08.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.05.1...2026.08.07.0)
+
+- - -
+
+## 2026.08.05.1
+
+### Bug Fixes
+
+- Raise minimum password length to 12 characters ([#5314](https://github.com/juspay/hyperswitch-control-center/pull/5314)) ([`f6e2803`](https://github.com/juspay/hyperswitch-control-center/commit/f6e2803db2dd85242844a2862b419c258c1788ee))
+- Default webhooks time range to today ([#5331](https://github.com/juspay/hyperswitch-control-center/pull/5331)) ([`46c559c`](https://github.com/juspay/hyperswitch-control-center/commit/46c559cad5dfd9c4764204d9b0bb9de060ee5b18))
+
+**Full Changelog:** [`2026.08.05.0...2026.08.05.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.05.0...2026.08.05.1)
+
+- - -
+
 ## 2026.08.05.0
 
 ### Bug Fixes

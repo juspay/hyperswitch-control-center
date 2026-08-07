@@ -125,21 +125,9 @@ let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
   | Actions => CustomCell(<ReconEngineDataTransformedEntriesActions processingEntry=data />, "")
   | ExceptionType => EllipsisText((data.data.needs_manual_review_type :> string)->snakeToTitle, "")
   | TransformationConfigName =>
-    CustomCell(
-      <>
-        <RenderIf
-          condition={data.transformation_config.transformation_config_name->isNonEmptyString}>
-          <HelperComponents.CopyTextCustomComp
-            customParentClass="flex flex-row items-center gap-2"
-            customTextCss="truncate whitespace-nowrap max-w-36"
-            displayValue=Some(data.transformation_config.transformation_config_name)
-          />
-        </RenderIf>
-        <RenderIf condition={data.transformation_config.transformation_config_name->isEmptyString}>
-          <p className="text-nd_gray-600"> {"N/A"->React.string} </p>
-        </RenderIf>
-      </>,
-      "",
+    EllipsisText(
+      data.transformation_config.transformation_config_name->getNonEmptyString->Option.getOr("N/A"),
+      "max-w-36",
     )
   }
 }

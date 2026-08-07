@@ -74,7 +74,7 @@ let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
 
 let getAllowedDateRange = {
   let endDate = Date.now()->Js.Date.fromFloat->DateTimeUtils.toUtc->DayJs.getDayJsForJsDate //->Date.toISOString->JSON.Encode.string
-  let startDate = endDate.subtract(90, "day")
+  let startDate = endDate.subtract(3, "day")
 
   let dateObject: Calendar.dateObj = {
     startDate: startDate.toString(),
@@ -110,7 +110,7 @@ let initialFixedFilter = () => [
           ],
           ~numMonths=2,
           ~disableApply=false,
-          ~dateRangeLimit=90,
+          ~dateRangeLimit=3,
           ~allowedDateRange=getAllowedDateRange,
         ),
         ~inputFields=[],
