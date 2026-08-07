@@ -10,19 +10,27 @@ let make = (
     cursor->Option.isNone || isLoading ? Button.Disabled : Button.Normal
 
   <RenderIf condition=hasData>
-    <div className="flex flex-row justify-end items-center gap-3 py-4">
+    <div className="flex flex-row justify-end items-center gap-2 py-4">
       <Button
-        text="Prev"
+        leftIcon={FontAwesome("chevron-left")}
         buttonType=Secondary
         buttonSize=Small
         buttonState={getButtonState(cursors.prev)}
+        customButtonStyle="!w-8 !px-0"
+        customIconMargin=""
+        showTooltip=true
+        tooltipText="Previous page"
         onClick={_ => onPrev()}
       />
       <Button
-        text="Next"
-        buttonType=Primary
+        leftIcon={FontAwesome("chevron-right")}
+        buttonType=Secondary
         buttonSize=Small
         buttonState={getButtonState(cursors.next)}
+        customButtonStyle="!w-8 !px-0"
+        customIconMargin=""
+        showTooltip=true
+        tooltipText="Next page"
         onClick={_ => onNext()}
       />
     </div>
