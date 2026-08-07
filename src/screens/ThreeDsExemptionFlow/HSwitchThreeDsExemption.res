@@ -103,15 +103,17 @@ module ActiveConfigurationCard = {
 
     <div className="relative flex flex-col gap-6 border rounded-lg p-4 pt-10 bg-white">
       <div
-        className="absolute top-0 left-0 flex items-center w-fit bg-green-200 text-green-800 py-1 px-2 rounded-tl-lg rounded-br-md">
+        className="absolute top-0 left-0 flex items-center w-fit bg-nd_green-100 text-nd_green-600 py-1 px-2 rounded-tl-lg rounded-br-md">
         <Icon name="check" size=8 className="mr-1" />
-        <span className="text-sm font-semibold"> {"Active"->React.string} </span>
+        <span className={Typography.body.md.semibold}> {"Active"->React.string} </span>
       </div>
       <div className="flex flex-col gap-2">
-        <p className="text-base font-semibold text-nd_gray-600">
+        <p className={`${Typography.body.lg.semibold} text-nd_gray-600`}>
           {name->capitalizeString->React.string}
         </p>
-        <p className="text-sm text-nd_gray-600 opacity-50"> {description->React.string} </p>
+        <p className={`${Typography.body.md.regular} text-nd_gray-600 opacity-50`}>
+          {description->React.string}
+        </p>
       </div>
       <ACLButton
         authorization={userHasAccess(~groupAccess=WorkflowsView)}
@@ -496,10 +498,10 @@ let make = () => {
             </RenderIf>
             <RenderIf condition={initialRule->Option.isNone}>
               <div className="w-full border p-6 flex flex-col gap-6 bg-white rounded-md">
-                <p className="text-base font-semibold text-grey-700">
+                <p className={`${Typography.body.lg.semibold} text-grey-700`}>
                   {pageConfig.configureTitle->React.string}
                 </p>
-                <p className="text-base font-normal text-grey-700 opacity-50">
+                <p className={`${Typography.body.lg.regular} text-grey-700 opacity-50`}>
                   {pageConfig.configureDescription->React.string}
                 </p>
                 <ACLButton
