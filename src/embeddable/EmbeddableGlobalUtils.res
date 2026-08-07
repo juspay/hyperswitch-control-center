@@ -5,7 +5,8 @@ let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.urlConfig = dict
     mixpanelToken: dict->getString("mixpanel_token", ""),
     sdkBaseUrl: dict->getString("sdk_url", "")->getNonEmptyString,
     agreementUrl: dict->getString("agreement_url", "")->getNonEmptyString,
-    dssCertificateUrl: dict->getString("dss_certificate_url", "")->getNonEmptyString,
+    dssCertificateUsUrl: dict->getString("dss_certificate_us_url", "")->getNonEmptyString,
+    dssCertificateEuUrl: dict->getString("dss_certificate_eu_url", "")->getNonEmptyString,
     dynamoSimulationTemplateUrl: dict
     ->getString("dynamo_simulation_template_url", "")
     ->getNonEmptyString,
