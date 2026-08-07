@@ -58,6 +58,28 @@ export class PaymentSettings {
     return this.page.getByRole("tab", { name: "Surcharge", exact: true });
   }
 
+  // Surcharge Tab Elements
+  get surchargeConnectorsLabel(): Locator {
+    return this.page.getByText('Surcharge Connectors *', { exact: true });
+  }
+
+  get surchargeConnectorDropdown(): Locator {
+    return this.page.getByRole("button", { name: "Select Field" });
+  }
+
+  surchargeConnectorOption(connectorLabel: string): Locator {
+    return this.page
+      .getByRole("menuitem")
+      .filter({ hasText: connectorLabel })
+      .first();
+  }
+
+  selectedSurchargeConnector(connectorLabel: string): Locator {
+    return this.page.getByRole("button", {
+      name: new RegExp(connectorLabel),
+    });
+  }
+
   // Payment Behaviour Tab Elements
   get collectBillingDetailsToggle(): Locator {
     return this.page.getByText("Collect billing details from wallets");

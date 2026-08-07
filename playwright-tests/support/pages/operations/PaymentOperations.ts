@@ -290,6 +290,135 @@ export class PaymentOperations {
     return this.page.locator('[data-id="Failed to capture payment"]');
   }
 
+  // Void modal (opened from payment details for requires_capture payments)
+  get addVoidButton(): Locator {
+    return this.page.locator('[data-button-text="+ Void"]');
+  }
+
+  get voidModalHeading(): Locator {
+    return this.page.getByText("Confirm Void Payment", { exact: true });
+  }
+
+  get voidWarning(): Locator {
+    return this.page.getByText(
+      "This action is irreversible and cannot be undone.",
+      { exact: true },
+    );
+  }
+
+  get voidPaymentStatus(): Locator {
+    return this.page
+      .getByText('REQUIRES_CAPTURE').nth(1)
+      .filter({ visible: true })
+      .last();
+  }
+
+  get cancellationReasonInput(): Locator {
+    return this.page.locator('[name="cancellation_reason"]');
+  }
+
+  get confirmVoidButton(): Locator {
+    return this.page.getByRole("button", { name: "Confirm Void" });
+  }
+
+  get cancelVoidButton(): Locator {
+    return this.page.getByRole("button", { name: "Cancel", exact: true });
+  }
+
+  get voidSuccessToast(): Locator {
+    return this.page.locator('[data-id="Payment voided successfully"]');
+  }
+
+  get voidErrorToast(): Locator {
+    return this.page.locator('[data-id="Failed to void payment"]');
+  }
+
+  // Manual status update for payments in Review state
+  get manualAttentionHeading(): Locator {
+    return this.page.getByText("This payment needs manual attention", {
+      exact: true,
+    });
+  }
+
+  get manualAttentionDescription(): Locator {
+    return this.page.getByText(
+      "Hyperswitch received an anomalous response from the connector for this payment. Review it and update the status to Succeeded or Failed.",
+      { exact: true },
+    );
+  }
+
+  get updatePaymentStatusButton(): Locator {
+    return this.page.getByRole("button", { name: "Update Payment Status" });
+  }
+
+  get updatePaymentStatusModal(): Locator {
+    return this.page.locator(
+      '[data-component="modal:Update Payment Status"]',
+    );
+  }
+
+  get updatePaymentStatusModalHeading(): Locator {
+    return this.updatePaymentStatusModal.getByText("Update Payment Status", {
+      exact: true,
+    });
+  }
+
+  get updatePaymentStatusModalDescription(): Locator {
+    return this.updatePaymentStatusModal.getByText(
+      "Manually set the status for this payment.",
+      { exact: true },
+    );
+  }
+
+  get newStatusLabel(): Locator {
+    return this.updatePaymentStatusModal.getByText("New Status", {
+      exact: true,
+    });
+  }
+
+  get reviewStatusDropdown(): Locator {
+    return this.updatePaymentStatusModal.getByRole('button', { name: 'New Status' });
+  }
+
+  reviewStatusOption(status: "Succeeded" | "Failed"): Locator {
+    return this.page.getByRole("menuitem", { name: status, exact: true });
+  }
+
+  get updateStatusButton(): Locator {
+    return this.updatePaymentStatusModal.getByRole('button', { name: 'Update Status' });
+  }
+
+  get cancelStatusUpdateButton(): Locator {
+    return this.updatePaymentStatusModal.getByRole('button', { name: 'Cancel' });
+  }
+
+  get confirmStatusUpdateHeading(): Locator {
+    return this.page.getByText("Confirm Status Update?", { exact: true });
+  }
+
+  get confirmStatusUpdateButton(): Locator {
+    return this.page.getByRole("button", { name: "Confirm", exact: true });
+  }
+
+  confirmStatusUpdateDescription(status: "Succeeded" | "Failed"): Locator {
+    return this.page.getByText(
+      `You are about to mark this payment as ${status}. This action is final and cannot be undone. Please confirm to proceed.`,
+      { exact: true },
+    );
+  }
+
+  get cancelStatusConfirmationButton(): Locator {
+    return this.page.getByRole("button", { name: "Cancel", exact: true });
+  }
+
+  manualStatusSuccessToast(status: "Succeeded" | "Failed"): Locator {
+    return this.page.locator(`[data-id="Payment marked as ${status}"]`);
+  }
+
+  get manualStatusErrorToast(): Locator {
+    return this.page.locator('[data-id="Failed to update payment status"]');
+  }
+
   // Generate Payment Reports modal
   get generatePaymentReportsModal(): Locator {
     return this.page.locator(
@@ -301,7 +430,12 @@ export class PaymentOperations {
     return this.generatePaymentReportsModal;
   }
 
-  // Payment details accordions / section headers
+  // Payment details tabs
+  paymentDetailsTab(name: string): Locator {
+    return this.page.getByRole("tab", { name, exact: true });
+  }
+
+  // Payment details tab content / accordion section headers
   get eventsAndLogsSection(): Locator {
     return this.page
       .locator("div")

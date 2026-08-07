@@ -2,7 +2,7 @@ import { test, expect } from "../../support/test";
 import type { Page } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { PaymentOperations } from "../../support/pages/operations/PaymentOperations";
-import { DisputesOperations } from "../../support/pages/operations/DisputesOperations";
+import { DisputeOperations } from "../../support/pages/operations/DisputeOperations";
 import { generateUniqueEmail } from "../../support/helper";
 import {
   signupUser,
@@ -48,7 +48,7 @@ test.describe("Disputes List page", () => {
   }) => {
     const homePage = new HomePage(page);
     const paymentOperations = new PaymentOperations(page);
-    const disputesOperations = new DisputesOperations(page);
+    const disputesOperations = new DisputeOperations(page);
 
     const dispute = sampleDispute();
     await mockDisputesList(page, [dispute]);
@@ -83,7 +83,7 @@ test.describe("Disputes List page", () => {
   }) => {
     const homePage = new HomePage(page);
     const paymentOperations = new PaymentOperations(page);
-    const disputesOperations = new DisputesOperations(page);
+    const disputesOperations = new DisputeOperations(page);
 
     await mockDisputesList(page, []);
     await goToDisputes(page, homePage);
@@ -100,7 +100,7 @@ test.describe("Disputes List page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
 
       const target = sampleDispute({
         dispute_id: "dp_playwright_search_target",
@@ -126,7 +126,7 @@ test.describe("Disputes List page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
 
       const target = sampleDispute({
         dispute_id: "dp_playwright_pay_search",
@@ -152,7 +152,7 @@ test.describe("Disputes List page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
 
       await mockDisputesList(page, [sampleDispute()]);
       await goToDisputes(page, homePage);
@@ -260,7 +260,7 @@ test.describe("Disputes List page", () => {
     }) => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
 
       await mockDisputesList(page, [sampleDispute()]);
       await goToDisputes(page, homePage);
@@ -275,7 +275,7 @@ test.describe("Disputes List page", () => {
     }) => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
 
       const opened = sampleDispute({
         dispute_id: "dp_playwright_opened",
@@ -392,7 +392,7 @@ test.describe("Dispute detail page", () => {
   const openDisputeDetail = async (
     page: Page,
     homePage: HomePage,
-    disputesOperations: DisputesOperations,
+    disputesOperations: DisputeOperations,
     dispute: ReturnType<typeof sampleDispute>,
   ) => {
     const { profileId } = await ompLineage(page);
@@ -422,7 +422,7 @@ test.describe("Dispute detail page", () => {
   }) => {
     const homePage = new HomePage(page);
     const paymentOperations = new PaymentOperations(page);
-    const disputesOperations = new DisputesOperations(page);
+    const disputesOperations = new DisputeOperations(page);
     const dispute = sampleDispute();
 
     await openDisputeDetail(page, homePage, disputesOperations, dispute);
@@ -496,7 +496,7 @@ test.describe("Dispute detail page", () => {
     page,
   }) => {
     const homePage = new HomePage(page);
-    const disputesOperations = new DisputesOperations(page);
+    const disputesOperations = new DisputeOperations(page);
     const dispute = sampleDispute({ is_already_refunded: true });
 
     // Inline the openDisputeDetail flow so we can land on the list page
@@ -535,7 +535,7 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "stripe",
         dispute_status: "dispute_opened",
@@ -556,7 +556,7 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "checkout",
         dispute_status: "dispute_opened",
@@ -577,7 +577,7 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "adyen",
         dispute_status: "dispute_opened",
@@ -598,7 +598,7 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "checkout",
         dispute_status: "dispute_opened",
@@ -630,7 +630,7 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "checkout",
         dispute_status: "dispute_opened",
@@ -686,7 +686,7 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "stripe",
         dispute_status: "dispute_opened",
@@ -737,7 +737,7 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "stripe",
         dispute_status: "dispute_opened",
@@ -837,7 +837,7 @@ test.describe("Dispute detail page", () => {
   test.describe("Events and logs accordion", () => {
     test("should be visible when audit_trail flag is ON", async ({ page }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute();
 
       await page.route("**/dashboard/config/feature?domain=", async (route) => {
@@ -855,7 +855,7 @@ test.describe("Dispute detail page", () => {
 
     test("should be hidden when audit_trail flag is OFF", async ({ page }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute();
 
       await page.route("**/dashboard/config/feature?domain=", async (route) => {

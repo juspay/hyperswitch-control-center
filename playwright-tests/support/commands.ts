@@ -967,6 +967,51 @@ export async function mockPaymentRequiresCapture(
   );
 }
 
+// Override the amounts returned by the payment-detail endpoint so the Summary
+// assertions can cover surcharge data without depending on a configured
+// surcharge decision rule in the test environment. Support both API shapes:
+// V1 returns the values at the top level, while V2 nests them in amount_details.
+export async function mockPaymentSummaryAmounts(
+  page: Page,
+  paymentId: string,
+  netAmount: number,
+  surchargeAmount: number,
+): Promise<void> {
+  await page.route(
+    new RegExp(`/payments/${paymentId}(\\?|$)`),
+    async (route) => {
+      if (route.request().method() !== "GET") {
+        await route.continue();
+        return;
+      }
+
+      const response = await route.fetch();
+      const json = await response.json();
+
+      await route.fulfill({
+        response,
+        json: {
+          ...json,
+          net_amount: netAmount,
+          surcharge_details: {
+            ...(json.surcharge_details ?? {}),
+            surcharge_amount: surchargeAmount,
+          },
+          ...(json.amount_details
+            ? {
+                amount_details: {
+                  ...json.amount_details,
+                  net_amount: netAmount,
+                  surcharge_amount: surchargeAmount,
+                },
+              }
+            : {}),
+        },
+      });
+    },
+  );
+}
+
 export async function createRefundAPI(
   merchantId: string,
   paymentId: string,
@@ -1888,7 +1933,7 @@ export async function assertConnectorFieldLabels(
   fieldLabels: string[],
 ): Promise<void> {
   for (const label of fieldLabels) {
-    const labelElement = page.locator("label", { hasText: label });
+    const labelElement = page.getByText(label, { exact: true });
     await labelElement.waitFor({ state: "attached", timeout: 10000 });
     await labelElement.scrollIntoViewIfNeeded();
     await expect(labelElement).toBeVisible({
@@ -1910,7 +1955,9 @@ export async function fillConnectorFields(
   },
 ): Promise<void> {
   const inputs = page
-    .locator('.grid.grid-cols-2 input[type="text"]')
+    .locator(
+      '.grid.grid-cols-2 input[type="text"], .grid.grid-cols-2 input[type="number"]',
+    )
     .locator("visible=true");
 
   const count = await inputs.count();

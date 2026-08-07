@@ -16,7 +16,7 @@ import { HomePage } from "../support/pages/homepage/HomePage";
 import { PaymentOperations } from "../support/pages/operations/PaymentOperations";
 import { RefundOperations } from "../support/pages/operations/RefundOperations";
 import { CustomerOperations } from "../support/pages/operations/CustomerOperations";
-import { DisputesOperations } from "../support/pages/operations/DisputesOperations";
+import { DisputeOperations } from "../support/pages/operations/DisputeOperations";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
@@ -481,7 +481,7 @@ test.describe("Visual Testing - Dispute Operations", () => {
 
     const homePage = new HomePage(page);
     const paymentOperations = new PaymentOperations(page);
-    const disputesOperations = new DisputesOperations(page);
+    const disputesOperations = new DisputeOperations(page);
 
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);

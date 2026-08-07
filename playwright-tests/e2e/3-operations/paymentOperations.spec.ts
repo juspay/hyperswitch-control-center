@@ -10,6 +10,7 @@ import {
   createPaymentAPI,
   createRequiresCapturePaymentAPI,
   mockPaymentRequiresCapture,
+  mockPaymentSummaryAmounts,
   ompLineage,
 } from "../../support/commands";
 
@@ -1606,12 +1607,18 @@ test.describe("Payment Operations", () => {
           context.request,
           page,
         );
-        await createPaymentAPI(
+        const paymentData = await createPaymentAPI(
           merchantId,
           context.request,
           undefined,
           undefined,
           page,
+        );
+        await mockPaymentSummaryAmounts(
+          page,
+          paymentData.payment_id,
+          12001,
+          344,
         );
       }
 
@@ -1650,6 +1657,12 @@ test.describe("Payment Operations", () => {
       await expect(
         paymentOperations.dataLabel("Amount Received"),
       ).toContainText("Amount Received");
+      await expect(paymentOperations.dataLabel("Net Amount")).toContainText(
+        "Net Amount120.01 USD",
+      );
+      await expect(
+        paymentOperations.dataLabel("Surcharge Amount"),
+      ).toContainText("Surcharge Amount3.44 USD");
       await expect(
         paymentOperations.dataLabel("Payment ID").first(),
       ).toContainText("Payment ID");
@@ -1688,8 +1701,11 @@ test.describe("Payment Operations", () => {
 
       await expect(page.getByText("Events and logs")).toBeVisible();
 
-      await expect(page.getByText("Payment Attempts")).toBeVisible();
-      await page.getByText(/^Payment Attempts$/).click();
+      const paymentAttemptsTab =
+        paymentOperations.paymentDetailsTab("Payment Attempts");
+      await expect(paymentAttemptsTab).toBeVisible();
+      await paymentAttemptsTab.click();
+      await expect(paymentAttemptsTab).toHaveAttribute("aria-selected", "true");
 
       const expectedAttemptColumns = [
         "S.No",
@@ -1763,9 +1779,10 @@ test.describe("Payment Operations", () => {
         }
       }
 
-      const refundsTab = page.getByRole('tab', { name: 'Refunds' });
+      const refundsTab = paymentOperations.paymentDetailsTab("Refunds");
       await expect(refundsTab).toBeVisible();
       await refundsTab.click();
+      await expect(refundsTab).toHaveAttribute("aria-selected", "true");
 
       const expectedRefundAttemptColumns = [
         "S.No",
@@ -1829,7 +1846,27 @@ test.describe("Payment Operations", () => {
       await homePage.paymentOperations.click();
       await paymentOperations.orderCell(1, 1).click();
 
-      await page.getByText("Customer Details").click();
+      const expectedPaymentDetailsTabs = [
+        "Event and Logs",
+        "Payment Attempts",
+        "Customer Details",
+        "Payment Method Details",
+        "FRM Details",
+      ];
+      for (const tabName of expectedPaymentDetailsTabs) {
+        await expect(
+          paymentOperations.paymentDetailsTab(tabName),
+        ).toBeVisible();
+      }
+
+      const eventAndLogsTab =
+        paymentOperations.paymentDetailsTab("Event and Logs");
+      await expect(eventAndLogsTab).toHaveAttribute("aria-selected", "true");
+
+      const customerDetailsTab =
+        paymentOperations.paymentDetailsTab("Customer Details");
+      await customerDetailsTab.click();
+      await expect(customerDetailsTab).toHaveAttribute("aria-selected", "true");
 
       const assertSectionFields = async (
         sectionName: string,
@@ -1884,10 +1921,14 @@ test.describe("Payment Operations", () => {
         paymentOperations.dataLabel("Message").first(),
       ).toContainText("N/A");
 
-      await page
-        .getByText(/^Payment Method Details$/)
-        .first()
-        .click();
+      const paymentMethodDetailsTab = paymentOperations.paymentDetailsTab(
+        "Payment Method Details",
+      );
+      await paymentMethodDetailsTab.click();
+      await expect(paymentMethodDetailsTab).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
 
       for (const [label, value] of Object.entries({
         "Amount Capturable": "",
@@ -1935,7 +1976,9 @@ test.describe("Payment Operations", () => {
         page.getByText('Payment Metadata1{ 2 "key": "'),
       ).toContainText("value");
 
-      await page.getByText(/^FRM Details$/).click();
+      const frmDetailsTab = paymentOperations.paymentDetailsTab("FRM Details");
+      await frmDetailsTab.click();
+      await expect(frmDetailsTab).toHaveAttribute("aria-selected", "true");
 
       for (const [label, value] of Object.entries({
         "Payment ID": "",
@@ -2608,6 +2651,511 @@ test.describe("Payment Operations", () => {
       await page.getByRole("button", { name: "Cancel" }).click();
 
       await expect(page.getByText("Confirm Capture Payment")).not.toBeVisible();
+    });
+  });
+
+  // Void cases
+  test.describe("Void cases", () => {
+    const setupRequiresCapturePayment = async (
+      page: Page,
+      merchantId: string,
+      request: Parameters<typeof createDummyConnectorAPI>[2],
+    ) => {
+      await createDummyConnectorAPI(merchantId, "stripe_test_1", request, page);
+      const payment = await createRequiresCapturePaymentAPI(
+        merchantId,
+        request,
+        undefined,
+        page,
+      );
+      await mockPaymentRequiresCapture(page, payment.payment_id);
+      return payment;
+    };
+
+    const openVoidModal = async (
+      page: Page,
+      homePage: HomePage,
+      paymentOperations: PaymentOperations,
+    ) => {
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+      await paymentOperations.addVoidButton.click();
+      await expect(paymentOperations.voidModalHeading).toBeVisible();
+    };
+
+    test("should display Void button for a requires_capture payment", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+
+      await expect(paymentOperations.addVoidButton).toBeVisible();
+    });
+
+    test("should not display Void button for a succeeded payment", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await createDummyConnectorAPI(
+          merchantId,
+          "stripe_test_1",
+          context.request,
+          page,
+        );
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
+      }
+
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+      await expect(
+        page.getByText('SUCCEEDED').nth(3),
+      ).toBeVisible();
+
+      await expect(paymentOperations.addVoidButton).not.toBeVisible();
+    });
+
+    test("should display all fields in the void payment modal", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await openVoidModal(page, homePage, paymentOperations);
+
+      await expect(paymentOperations.voidWarning).toBeVisible();
+      await expect(paymentOperations.voidPaymentStatus).toBeVisible();
+      await expect(page.getByText('Amount123.45 USD').nth(1).first()).toContainText(
+        "123.45 USD",
+      );
+      await expect(
+        page.locator('[data-label="Payment ID"]:visible').first(),
+      ).toBeVisible();
+      await expect(
+        page.getByText('Customer IDtest_customer').nth(1),
+      ).toBeVisible();
+      await expect(page.getByText('Customer Emailabc@test.com').nth(1)).toBeVisible();
+      await expect(paymentOperations.cancellationReasonInput).toHaveAttribute(
+        "placeholder",
+        "Enter Cancellation Reason (optional)",
+      );
+      await expect(paymentOperations.cancelVoidButton).toBeVisible();
+      await expect(paymentOperations.confirmVoidButton).toBeVisible();
+    });
+
+    test("should void the payment with the supplied cancellation reason", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      let cancellationRequestMethod = "";
+      let cancellationRequest: Record<string, unknown> | null = null;
+      await page.route(/\/payments\/[^/]+\/cancel/, async (route) => {
+        cancellationRequestMethod = route.request().method();
+        cancellationRequest = route.request().postDataJSON();
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ status: "cancelled" }),
+        });
+      });
+
+      await openVoidModal(page, homePage, paymentOperations);
+      await paymentOperations.cancellationReasonInput.fill(
+        "Customer requested cancellation",
+      );
+      await paymentOperations.confirmVoidButton.click();
+
+      await expect(paymentOperations.voidSuccessToast).toBeVisible();
+      expect(cancellationRequestMethod).toBe("POST");
+      expect(cancellationRequest).toEqual({
+        cancellation_reason: "Customer requested cancellation",
+      });
+      await expect(paymentOperations.voidModalHeading).not.toBeVisible();
+    });
+
+    test("should show an error when the void payment API fails", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await page.route(/\/payments\/[^/]+\/cancel/, async (route) => {
+        await route.fulfill({
+          status: 500,
+          contentType: "application/json",
+          body: JSON.stringify({ error: { message: "Internal server error" } }),
+        });
+      });
+
+      await openVoidModal(page, homePage, paymentOperations);
+      await paymentOperations.confirmVoidButton.click();
+
+      await expect(paymentOperations.voidErrorToast).toBeVisible();
+      await expect(paymentOperations.voidModalHeading).not.toBeVisible();
+    });
+
+    test("should close the void payment modal on Cancel click", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await openVoidModal(page, homePage, paymentOperations);
+      await paymentOperations.cancelVoidButton.click();
+
+      await expect(paymentOperations.voidModalHeading).not.toBeVisible();
+    });
+  });
+
+  test.describe("Manual status update", () => {
+    const setupPaymentWithStatus = async (
+      page: Page,
+      homePage: HomePage,
+      request: Parameters<typeof createDummyConnectorAPI>[2],
+      initialStatus: string,
+    ) => {
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (!merchantId) {
+        throw new Error("Merchant ID is required to create a payment");
+      }
+
+      await createDummyConnectorAPI(
+        merchantId,
+        "stripe_test_1",
+        request,
+        page,
+      );
+      const payment = await createPaymentAPI(
+        merchantId,
+        request,
+        undefined,
+        undefined,
+        page,
+      );
+      let mockedStatus = initialStatus;
+
+      await page.route(
+        new RegExp(`/payments/${payment.payment_id}(\\?|$)`),
+        async (route) => {
+          if (route.request().method() !== "GET") {
+            await route.continue();
+            return;
+          }
+
+          const response = await route.fetch();
+          const json = await response.json();
+          await route.fulfill({
+            response,
+            json: { ...json, status: mockedStatus },
+          });
+        },
+      );
+
+      return {
+        setStatus: (status: string) => {
+          mockedStatus = status;
+        },
+      };
+    };
+
+    const openPaymentDetails = async (
+      page: Page,
+      homePage: HomePage,
+      paymentOperations: PaymentOperations,
+    ) => {
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+      await expect(page.getByText("Summary", { exact: true })).toBeVisible();
+    };
+
+    const mockManualStatusUpdate = async (
+      page: Page,
+      responseStatus: number,
+    ) => {
+      const capturedRequest: {
+        method: string;
+        body: Record<string, unknown> | null;
+      } = { method: "", body: null };
+
+      await page.route(
+        /\/payments\/[^/]+\/manual-status-update/,
+        async (route) => {
+          capturedRequest.method = route.request().method();
+          capturedRequest.body = route.request().postDataJSON();
+          await route.fulfill({
+            status: responseStatus,
+            contentType: "application/json",
+            body: JSON.stringify(
+              responseStatus >= 400
+                ? { error: { message: "Internal server error" } }
+                : { status: "succeeded" },
+            ),
+          });
+        },
+      );
+
+      return capturedRequest;
+    };
+
+    const openStatusUpdateModal = async (
+      paymentOperations: PaymentOperations,
+    ) => {
+      await paymentOperations.updatePaymentStatusButton.click();
+      await expect(
+        paymentOperations.updatePaymentStatusModalHeading,
+      ).toBeVisible();
+    };
+
+    test("should display the manual-attention banner for a payment in Review state", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      await setupPaymentWithStatus(
+        page,
+        homePage,
+        context.request,
+        "review",
+      );
+      await openPaymentDetails(page, homePage, paymentOperations);
+
+      await expect(paymentOperations.manualAttentionHeading).toBeVisible();
+      await expect(paymentOperations.manualAttentionDescription).toBeVisible();
+      await expect(paymentOperations.updatePaymentStatusButton).toBeVisible();
+    });
+
+    test("should not display the manual-attention banner for non-Review payment statuses", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      const paymentStatus = await setupPaymentWithStatus(
+        page,
+        homePage,
+        context.request,
+        "succeeded",
+      );
+      await openPaymentDetails(page, homePage, paymentOperations);
+
+      const nonReviewStatuses = [
+        "succeeded",
+        "failed",
+        "requires_capture",
+        "cancelled",
+      ];
+
+      for (const status of nonReviewStatuses) {
+        await test.step(`banner is hidden for ${status}`, async () => {
+          paymentStatus.setStatus(status);
+          await page.reload();
+          await expect(
+            page.getByText("Summary", { exact: true }),
+          ).toBeVisible();
+          await expect(
+            paymentOperations.manualAttentionHeading,
+          ).not.toBeVisible();
+          await expect(
+            paymentOperations.updatePaymentStatusButton,
+          ).not.toBeVisible();
+        });
+      }
+    });
+
+    test("should display all elements in the Update Payment Status modal", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      await setupPaymentWithStatus(
+        page,
+        homePage,
+        context.request,
+        "review",
+      );
+      await openPaymentDetails(page, homePage, paymentOperations);
+      await openStatusUpdateModal(paymentOperations);
+
+      await expect(
+        paymentOperations.updatePaymentStatusModalDescription,
+      ).toBeVisible();
+      await expect(paymentOperations.newStatusLabel).toBeVisible();
+      await expect(paymentOperations.reviewStatusDropdown).toBeVisible();
+      await expect(paymentOperations.cancelStatusUpdateButton).toBeVisible();
+      await expect(paymentOperations.updateStatusButton).toBeVisible();
+
+      await paymentOperations.reviewStatusDropdown.click();
+      await expect(
+        paymentOperations.reviewStatusOption("Succeeded"),
+      ).toBeVisible();
+      await expect(
+        paymentOperations.reviewStatusOption("Failed"),
+      ).toBeVisible();
+    });
+
+    test("should successfully mark a Review payment as Succeeded", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      await setupPaymentWithStatus(
+        page,
+        homePage,
+        context.request,
+        "review",
+      );
+      const capturedRequest = await mockManualStatusUpdate(page, 200);
+      await openPaymentDetails(page, homePage, paymentOperations);
+      await openStatusUpdateModal(paymentOperations);
+
+      await paymentOperations.updateStatusButton.click();
+      await expect(paymentOperations.confirmStatusUpdateHeading).toBeVisible();
+      await expect(
+        paymentOperations.confirmStatusUpdateDescription("Succeeded"),
+      ).toBeVisible();
+      await paymentOperations.confirmStatusUpdateButton.click();
+
+      await expect(
+        paymentOperations.manualStatusSuccessToast("Succeeded"),
+      ).toBeVisible();
+      expect(capturedRequest.method).toBe("POST");
+      expect(capturedRequest.body).toEqual({ intent_status: "succeeded" });
+    });
+
+    test("should successfully mark a Review payment as Failed", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      await setupPaymentWithStatus(
+        page,
+        homePage,
+        context.request,
+        "review",
+      );
+      const capturedRequest = await mockManualStatusUpdate(page, 200);
+      await openPaymentDetails(page, homePage, paymentOperations);
+      await openStatusUpdateModal(paymentOperations);
+
+      await paymentOperations.reviewStatusDropdown.click();
+      await paymentOperations.reviewStatusOption("Failed").click();
+      await paymentOperations.updateStatusButton.click();
+      await expect(paymentOperations.confirmStatusUpdateHeading).toBeVisible();
+      await expect(
+        paymentOperations.confirmStatusUpdateDescription("Failed"),
+      ).toBeVisible();
+      await paymentOperations.confirmStatusUpdateButton.click();
+
+      await expect(
+        paymentOperations.manualStatusSuccessToast("Failed"),
+      ).toBeVisible();
+      expect(capturedRequest.method).toBe("POST");
+      expect(capturedRequest.body).toEqual({ intent_status: "failed" });
+    });
+
+    test("should close the status update modal and confirmation popup on Cancel", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      await setupPaymentWithStatus(
+        page,
+        homePage,
+        context.request,
+        "review",
+      );
+      await openPaymentDetails(page, homePage, paymentOperations);
+      await openStatusUpdateModal(paymentOperations);
+
+      await paymentOperations.cancelStatusUpdateButton.click();
+      await expect(paymentOperations.updatePaymentStatusModal).not.toBeVisible();
+
+      await openStatusUpdateModal(paymentOperations);
+      await paymentOperations.updateStatusButton.click();
+      await expect(paymentOperations.confirmStatusUpdateHeading).toBeVisible();
+      await paymentOperations.cancelStatusConfirmationButton.click();
+      await expect(
+        paymentOperations.confirmStatusUpdateHeading,
+      ).not.toBeVisible();
+    });
+
+    test("should show an error when the manual status update API fails", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      await setupPaymentWithStatus(
+        page,
+        homePage,
+        context.request,
+        "review",
+      );
+      const capturedRequest = await mockManualStatusUpdate(page, 500);
+      await openPaymentDetails(page, homePage, paymentOperations);
+      await openStatusUpdateModal(paymentOperations);
+
+      await paymentOperations.updateStatusButton.click();
+      await expect(paymentOperations.confirmStatusUpdateHeading).toBeVisible();
+      await paymentOperations.confirmStatusUpdateButton.click();
+
+      await expect(paymentOperations.manualStatusErrorToast).toBeVisible();
+      expect(capturedRequest.method).toBe("POST");
+      expect(capturedRequest.body).toEqual({ intent_status: "succeeded" });
     });
   });
 });
