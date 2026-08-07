@@ -821,6 +821,7 @@ let make = (
     connectors
     ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
     ->Array.filter(item => item.profile_id === profile)
+    ->RoutingUtils.sortConnectorsWithDisabledLast
     ->Array.map((item): SelectBox.dropdownOption => {
       {
         label: item.disabled ? `${item.connector_label} (disabled)` : item.connector_label,
