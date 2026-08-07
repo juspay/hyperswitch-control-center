@@ -182,7 +182,9 @@ export class HomePage {
   }
 
   get routing(): Locator {
-    return this.page.getByTestId('workflow').getByRole('link', { name: 'Routing', exact: true });
+    return this.page
+      .getByTestId("workflow")
+      .getByRole("link", { name: "Routing", exact: true });
   }
 
   get surchargeRouting(): Locator {

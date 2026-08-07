@@ -2649,6 +2649,48 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
     },
   },
 
+  tsys_transit: {
+    label: "tsys_transit",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "tsys_transit_default",
+      },
+      fieldLabels: [
+        "Device Id *",
+        "Transaction Key *",
+        "Developer Id *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
   worldline: {
     label: "worldline",
     fields: {
@@ -3551,6 +3593,97 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
       Debit: {
         label: "Debit",
         methods: ["Visa", "Mastercard", "AmericanExpress", "Discover"],
+      },
+    },
+  },
+
+  authipay: {
+    label: "authipay",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "authipay_default",
+      },
+      fieldLabels: [
+        "API Key *",
+        "Merchant ID *",
+        "API Secret *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: ["Mastercard", "Visa"],
+      },
+      Debit: {
+        label: "Debit",
+        methods: ["Mastercard", "Visa"],
+      },
+    },
+  },
+
+  coingate: {
+    label: "coingate",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "coingate_default",
+        "Enter ID of the currency in which the refund will be issued": "123",
+        "Enter Platform ID of the currency in which the refund will be issued":
+          "456",
+      },
+      fieldLabels: [
+        "API Key *",
+        "Merchant Token *",
+        "ID of the currency in which the refund will be issued *",
+        "Platform ID of the currency in which the refund will be issued *",
+        "ID of the trader balance associated with the currency in which the refund will be issued *",
+      ],
+    },
+    paymentSections: {
+      Crypto: {
+        label: "Crypto",
+        methods: ["crypto_currency"],
+      },
+    },
+  },
+
+  imerchantsolutions: {
+    label: "imerchantsolutions",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "imerchantsolutions_default",
+      },
+      fieldLabels: ["API Key *", "Source verification key"],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "UnionPay",
+        ],
+      },
+      Wallet: {
+        label: "Wallet",
+        methods: ["google_pay", "apple_pay"],
       },
     },
   },

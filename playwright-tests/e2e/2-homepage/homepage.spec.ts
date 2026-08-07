@@ -914,6 +914,36 @@ test.describe("Organization Chart Tree", () => {
     );
   });
 
+  test("should display organization hierarchy information for standard and platform organizations", async ({
+    page,
+  }) => {
+    const orgChart = new OrganizationChartPage(page);
+    await orgChart.visit();
+
+    await expect(orgChart.learnMoreButton).toBeVisible();
+    await orgChart.learnMoreButton.click();
+
+    await expect(orgChart.infoModalHeading).toBeVisible();
+    await expect(orgChart.infoModalDescription).toBeVisible();
+    await expect(orgChart.standardOrganizationsTab).toBeVisible();
+    await expect(orgChart.platformOrganizationsTab).toBeVisible();
+
+    await expect(orgChart.standardOrganizationDiagram).toBeVisible();
+    await expect(orgChart.firstStandardMerchantAccount).toBeVisible();
+    await expect(orgChart.secondStandardMerchantAccount).toBeVisible();
+
+    await orgChart.platformOrganizationsTab.click();
+
+    await expect(orgChart.platformOrganizationDiagram).toBeVisible();
+    await expect(orgChart.platformMerchantAccount).toBeVisible();
+    await expect(orgChart.connectedMerchantAccounts).toBeVisible();
+    await expect(orgChart.connectedProfiles).toBeVisible();
+    await expect(orgChart.standardMerchantAccount).toBeVisible();
+
+    await orgChart.infoModalCloseIcon.click();
+    await expect(orgChart.infoModalHeading).not.toBeVisible();
+  });
+
   test("should render chart with newly created merchant and profile highlighting selected options", async ({
     page,
     context,
@@ -981,8 +1011,12 @@ test.describe("Organization Chart Tree", () => {
 
     // 1st Merchant - Profile
     await expect(merchantOneProfileName).toBeVisible();
-    await expect(merchantOneProfileName).toHaveClass(/border-nd_primary_blue-600/);
-    await expect(merchantOneProfileName).toHaveClass(/text-nd_primary_blue-600/);
+    await expect(merchantOneProfileName).toHaveClass(
+      /border-nd_primary_blue-600/,
+    );
+    await expect(merchantOneProfileName).toHaveClass(
+      /text-nd_primary_blue-600/,
+    );
 
     //Switch merchant
     await merchantTwoName.click();
@@ -1009,8 +1043,12 @@ test.describe("Organization Chart Tree", () => {
     await expect(merchantOneProfileName).toHaveClass(/text-nd_gray-600/);
 
     await expect(merchantTwoProfileTwoName).toBeVisible();
-    await expect(merchantTwoProfileTwoName).toHaveClass(/border-nd_primary_blue-600/);
-    await expect(merchantTwoProfileTwoName).toHaveClass(/text-nd_primary_blue-600/);
+    await expect(merchantTwoProfileTwoName).toHaveClass(
+      /border-nd_primary_blue-600/,
+    );
+    await expect(merchantTwoProfileTwoName).toHaveClass(
+      /text-nd_primary_blue-600/,
+    );
 
     //Switch profile to "default"
     await merchantOneProfileName.click();
@@ -1032,8 +1070,12 @@ test.describe("Organization Chart Tree", () => {
 
     // "default" is now selected
     await expect(merchantOneProfileName).toBeVisible();
-    await expect(merchantOneProfileName).toHaveClass(/border-nd_primary_blue-600/);
-    await expect(merchantOneProfileName).toHaveClass(/text-nd_primary_blue-600/);
+    await expect(merchantOneProfileName).toHaveClass(
+      /border-nd_primary_blue-600/,
+    );
+    await expect(merchantOneProfileName).toHaveClass(
+      /text-nd_primary_blue-600/,
+    );
 
     // "new-test-profile" is now unselected
     await expect(merchantTwoProfileTwoName).toBeVisible();

@@ -75,14 +75,12 @@ test.describe("New Analytics - Insights Payments", () => {
       ),
     ).toBeVisible();
     await expect(
-      page.getByRole('button', { name: 'Last 7 days' }),
+      page.getByRole("button", { name: "Last 7 days" }),
     ).toBeVisible();
     await expect(
-      page.getByRole('button', { name: 'No Comparison' }),
+      page.getByRole("button", { name: "No Comparison" }),
     ).toBeVisible();
-    await expect(
-      page.getByText('View data for:playwright_20'),
-    ).toBeVisible();
+    await expect(page.getByText("View data for:playwright_20")).toBeVisible();
 
     await expect(insights.pageHeading).toBeVisible({ timeout: 10000 });
     await expect(insights.paymentsTab).toBeVisible({ timeout: 10000 });
@@ -326,14 +324,18 @@ test.describe("New Analytics - Insights Payments - Date Range Selector", () => {
 
   // NA-026 — Custom range. Pick two days in the calendar and apply; the
   // selector reflects the chosen dates and the charts refresh.
-  test("should apply a custom date range from the calendar", async ({ page }) => {
+  test("should apply a custom date range from the calendar", async ({
+    page,
+  }) => {
     await insights.customRangeOption.click();
 
     // Frozen clock pins "today" to 2026-05-15, so May 5 → May 12 are valid
     // past days within the 180-day limit.
-    await expect(page.getByRole('button', { name: 'Tuesday, May 5,' })).toBeVisible();
-    await page.getByRole('button', { name: 'Tuesday, May 5,' }).click();
-    await page.getByRole('button', { name: 'Tuesday, May 12,' }).click();
+    await expect(
+      page.getByRole("button", { name: "Tuesday, May 5," }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Tuesday, May 5," }).click();
+    await page.getByRole("button", { name: "Tuesday, May 12," }).click();
 
     await insights.applyDateRangeButton.click();
     await insights.page.waitForLoadState("networkidle");
