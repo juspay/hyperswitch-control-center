@@ -39,7 +39,7 @@ export class ResetPasswordPage {
   }
 
   get minimumPasswordLengthRequirement(): Locator {
-    return this.page.getByText('Password must be at least 12 characters long.');
+    return this.page.getByText("Password must be at least 12 characters long.");
   }
 
   get minimumPasswordLengthCheckIcon(): Locator {

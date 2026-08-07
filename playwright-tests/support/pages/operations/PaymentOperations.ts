@@ -275,7 +275,9 @@ export class PaymentOperations {
   }
 
   get captureAmountInput(): Locator {
-    return this.page.getByRole('spinbutton', { name: 'Enter Amount to Capture' });
+    return this.page.getByRole("spinbutton", {
+      name: "Enter Amount to Capture",
+    });
   }
 
   get confirmCaptureButton(): Locator {
@@ -308,7 +310,8 @@ export class PaymentOperations {
 
   get voidPaymentStatus(): Locator {
     return this.page
-      .getByText('REQUIRES_CAPTURE').nth(1)
+      .getByText("REQUIRES_CAPTURE")
+      .nth(1)
       .filter({ visible: true })
       .last();
   }
@@ -352,9 +355,7 @@ export class PaymentOperations {
   }
 
   get updatePaymentStatusModal(): Locator {
-    return this.page.locator(
-      '[data-component="modal:Update Payment Status"]',
-    );
+    return this.page.locator('[data-component="modal:Update Payment Status"]');
   }
 
   get updatePaymentStatusModalHeading(): Locator {
@@ -377,7 +378,9 @@ export class PaymentOperations {
   }
 
   get reviewStatusDropdown(): Locator {
-    return this.updatePaymentStatusModal.getByRole('button', { name: 'New Status' });
+    return this.updatePaymentStatusModal.getByRole("button", {
+      name: "New Status",
+    });
   }
 
   reviewStatusOption(status: "Succeeded" | "Failed"): Locator {
@@ -385,11 +388,15 @@ export class PaymentOperations {
   }
 
   get updateStatusButton(): Locator {
-    return this.updatePaymentStatusModal.getByRole('button', { name: 'Update Status' });
+    return this.updatePaymentStatusModal.getByRole("button", {
+      name: "Update Status",
+    });
   }
 
   get cancelStatusUpdateButton(): Locator {
-    return this.updatePaymentStatusModal.getByRole('button', { name: 'Cancel' });
+    return this.updatePaymentStatusModal.getByRole("button", {
+      name: "Cancel",
+    });
   }
 
   get confirmStatusUpdateHeading(): Locator {

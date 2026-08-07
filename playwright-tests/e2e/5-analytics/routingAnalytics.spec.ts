@@ -192,10 +192,19 @@ test.describe("Analytics - Routing - Dimension Filters", () => {
     const paymentOperations = new PaymentOperations(page);
     for (const { label, key } of DIMENSION_FILTERS) {
       await page.getByRole("button", { name: "Add Filters" }).click();
-      await expect(page.getByLabel("Add Filters").getByText(`${label}`, { exact: true })).toBeVisible();
-      await page.getByLabel("Add Filters").getByText(`${label}`, { exact: true }).click({ force: true });
-      await expect(paymentOperations.filterChipArea(label).first()).toContainText(`Select ${label}`);
-      await expect(page.getByLabel("Add Filters").getByText("Routing Approach")).not.toBeVisible();
+      await expect(
+        page.getByLabel("Add Filters").getByText(`${label}`, { exact: true }),
+      ).toBeVisible();
+      await page
+        .getByLabel("Add Filters")
+        .getByText(`${label}`, { exact: true })
+        .click({ force: true });
+      await expect(
+        paymentOperations.filterChipArea(label).first(),
+      ).toContainText(`Select ${label}`);
+      await expect(
+        page.getByLabel("Add Filters").getByText("Routing Approach"),
+      ).not.toBeVisible();
     }
   });
 });

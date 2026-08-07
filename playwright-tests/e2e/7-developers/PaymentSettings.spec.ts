@@ -179,8 +179,7 @@ test.describe("Payment Settings", () => {
 
       const connectorOptionValue =
         await connectorOption.getAttribute("data-id");
-      const connectorId =
-        connectorOptionValue?.match(/mca_[A-Za-z0-9]+/)?.[0];
+      const connectorId = connectorOptionValue?.match(/mca_[A-Za-z0-9]+/)?.[0];
       expect(connectorId).toMatch(/^mca_/);
       await connectorOption.click();
 
@@ -591,7 +590,7 @@ test.describe("Payment Settings", () => {
       const requestorAppUrl = "https://example.com/3ds-requestor-app";
 
       await paymentSettings.selectFieldDropdown().click();
-      await page.getByRole('option', { name: 'juspaythreedsserver' }).click();
+      await page.getByRole("option", { name: "juspaythreedsserver" }).click();
       await page.keyboard.press("Escape");
 
       await paymentSettings.threeDsRequestorUrlInput.fill(requestorUrl);
@@ -618,9 +617,11 @@ test.describe("Payment Settings", () => {
       );
 
       // Verify the connector is the selected option in the multi-select
-      await page.getByRole('button', { name: 'Select Field1' }).click();
+      await page.getByRole("button", { name: "Select Field1" }).click();
       await expect(
-        page.getByRole('option', { name: 'juspaythreedsserver' }).getByRole('checkbox')
+        page
+          .getByRole("option", { name: "juspaythreedsserver" })
+          .getByRole("checkbox"),
       ).toHaveAttribute("data-state", "checked");
     });
   });

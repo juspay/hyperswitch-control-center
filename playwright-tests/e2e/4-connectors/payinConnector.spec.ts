@@ -155,9 +155,7 @@ async function selectCloneDestination(
 ): Promise<void> {
   const paymentConnector = new PaymentConnector(page);
   await paymentConnector.cloneDestinationProfileButton.click();
-  await page
-    .getByRole("menuitem", { name: profileName, exact: true })
-    .click();
+  await page.getByRole("menuitem", { name: profileName, exact: true }).click();
 }
 
 async function cloneConnector(
@@ -824,7 +822,9 @@ test.describe("Payin Connector tests", () => {
     await paymentConnector.connectAndProceedButton.click();
 
     await page.getByText("Google Pay").locator("visible=true").first().click();
-    await expect(page.getByText('Payment Gateway').locator("visible=true").first()).toBeVisible();
+    await expect(
+      page.getByText("Payment Gateway").locator("visible=true").first(),
+    ).toBeVisible();
     await page.getByRole("button", { name: "Continue" }).click();
 
     await expect(
@@ -1234,7 +1234,11 @@ test.describe("Payin Connector tests", () => {
       page.getByRole("button", { name: "Proceed" }).nth(1),
     ).toBeDisabled();
 
-    await page.getByRole('heading').nth(1).locator('[data-checkbox="checkbox"]').click();
+    await page
+      .getByRole("heading")
+      .nth(1)
+      .locator('[data-checkbox="checkbox"]')
+      .click();
     await expect(
       page.getByRole("button", { name: "Select PM Authentication" }),
     ).not.toBeDisabled();
@@ -1350,7 +1354,11 @@ test.describe("Payin Connector tests", () => {
       page.getByRole("button", { name: "Proceed" }).nth(1),
     ).toBeDisabled();
 
-    await page.getByRole('heading').nth(1).locator('[data-checkbox="checkbox"]').click();
+    await page
+      .getByRole("heading")
+      .nth(1)
+      .locator('[data-checkbox="checkbox"]')
+      .click();
     await page
       .getByRole("button", { name: "Proceed" })
       .nth(1)
@@ -1391,7 +1399,9 @@ test.describe("Clone a connector across profiles", () => {
     await expect(paymentConnector.cloneConnectorButton).toBeVisible();
 
     await openConfiguredConnector(page, "stripe_not_cloneable");
-    await expect(page.getByRole('heading', { name: 'Stripe', exact: true })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Stripe", exact: true }),
+    ).toBeVisible();
     await expect(paymentConnector.cloneConnectorButton).not.toBeAttached();
   });
 
@@ -1556,13 +1566,13 @@ test.describe("All Payin Connectors", () => {
       await expect(
         page.getByTestId(
           connector.fields.overrides["Enter Connector label"] ||
-          connector.label,
+            connector.label,
         ),
       ).toBeVisible();
       await page
         .getByTestId(
           connector.fields.overrides["Enter Connector label"] ||
-          connector.label,
+            connector.label,
         )
         .click();
     });
@@ -1849,9 +1859,7 @@ test.describe("All Payin Connectors", () => {
     await paymentConnector.pmtProceedButton.click();
 
     await expect(page.getByText("APPLE PAYUSDEncryptDecrypt")).toBeVisible();
-    await expect(
-      page.getByText("USDThree DsNo Three Ds"),
-    ).toBeVisible();
+    await expect(page.getByText("USDThree DsNo Three Ds")).toBeVisible();
 
     await page
       .locator("div")
