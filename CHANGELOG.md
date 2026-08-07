@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.07.1
+
+### Features
+
+- Show mismatched field details on recon exception and transaction pages ([#5304](https://github.com/juspay/hyperswitch-control-center/pull/5304)) ([`3678ecb`](https://github.com/juspay/hyperswitch-control-center/commit/3678ecb0bf5c231eba901181e576cc8a1b84f93c))
+
+### Refactors
+
+- Replace recon cursor pagination Prev/Next buttons with arrow icons ([#5341](https://github.com/juspay/hyperswitch-control-center/pull/5341)) ([`92ac325`](https://github.com/juspay/hyperswitch-control-center/commit/92ac32564d4cfadfb590ff1c62ad66562cc6fb8c))
+
+**Full Changelog:** [`2026.08.07.0...2026.08.07.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.07.0...2026.08.07.1)
+
+- - -
+
 ## 2026.08.07.0
 
 ### Features
