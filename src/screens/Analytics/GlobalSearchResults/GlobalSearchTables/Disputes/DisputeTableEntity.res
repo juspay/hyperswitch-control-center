@@ -1,6 +1,7 @@
 let domain = "disputes"
 
 open LogicUtils
+open DateTimeUtils
 type disputesObject = {
   dispute_id: string,
   dispute_amount: float,
@@ -229,11 +230,11 @@ let getCell = (disputeObj: disputesObject, colType): Table.cell => {
   | ConnectorDisputeId => Text(disputeObj.connector_dispute_id)
   | ConnectorReason => Text(disputeObj.connector_reason)
   | ConnectorReasonCode => Text(disputeObj.connector_reason_code->Int.toString)
-  | ChallengeRequiredBy => Date(disputeObj.challenge_required_by->DateTimeUtils.unixToISOString)
-  | ConnectorCreatedAt => Date(disputeObj.connector_created_at->DateTimeUtils.unixToISOString)
+  | ChallengeRequiredBy => Date(disputeObj.challenge_required_by->unixToISOString)
+  | ConnectorCreatedAt => Date(disputeObj.connector_created_at->unixToISOString)
   | ConnectorUpdatedAt => Text(disputeObj.connector_updated_at->Int.toString)
-  | CreatedAt => Date(disputeObj.created_at->DateTimeUtils.unixToISOString)
-  | ModifiedAt => Date(disputeObj.modified_at->DateTimeUtils.unixToISOString)
+  | CreatedAt => Date(disputeObj.created_at->unixToISOString)
+  | ModifiedAt => Date(disputeObj.modified_at->unixToISOString)
   | Connector => Text(disputeObj.connector)
   | Evidence => Text(disputeObj.evidence)
   | ProfileId => Text(disputeObj.profile_id)
