@@ -95,6 +95,7 @@ type entityName =
   | OIDC_AUTHORIZE
   | PAYMENTS_LIST
   | BLOCKLIST_BATCH
+  | BLOCKLIST
 
 type v2entityNameType =
   | CUSTOMERS
