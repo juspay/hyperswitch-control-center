@@ -89,6 +89,74 @@ let getFileSize = file =>
   | None => 0
   }
 
+let blocklistDataKindToString = dataKind => {
+  switch dataKind {
+  | CardBin => "card_bin"
+  | ExtendedCardBin => "extended_card_bin"
+  | Fingerprint => "fingerprint"
+  }
+}
+
+let blocklistDataKindOptions: array<MultiSelectBindings.selectMenuGroupType> = [
+  {
+    items: [
+      {label: "Card BIN", value: CardBin->blocklistDataKindToString},
+      {label: "Extended Card BIN", value: ExtendedCardBin->blocklistDataKindToString},
+      {label: "Fingerprint", value: Fingerprint->blocklistDataKindToString},
+    ],
+  },
+]
+
+let blocklistEntryItemToObjMapper = dict => {
+  {
+    BlocklistTypes.fingerprint_id: dict->getString("fingerprint_id", ""),
+    data_kind: dict->getString("data_kind", ""),
+    created_at: dict->getString("created_at", ""),
+  }
+}
+
+let blocklistEntryBody = (~dataKind, ~data) => {
+  [("type", dataKind->JSON.Encode.string), ("data", data->JSON.Encode.string)]
+  ->Dict.fromArray
+  ->JSON.Encode.object
+}
+
+let cardBinRegex = %re("/^\d{6}$/")
+let extendedCardBinRegex = %re("/^\d{8}$/")
+
+let blocklistEntryDataHint = dataKind => {
+  switch dataKind {
+  | CardBin => "Must be exactly 6 digits, e.g. 411111"
+  | ExtendedCardBin => "Must be exactly 8 digits, e.g. 41111100"
+  | Fingerprint => "e.g. fp_abc123"
+  }
+}
+
+let getBlocklistDataKindFromString = dataKind => {
+  switch dataKind {
+  | "card_bin" => CardBin
+  | "extended_card_bin" => ExtendedCardBin
+  | _ => Fingerprint
+  }
+}
+
+let validateBlocklistEntryData = (~dataKind, ~data) => {
+  let trimmedData = data->String.trim
+  if trimmedData->isNonEmptyString->not {
+    Some("Please enter a value to block.")
+  } else {
+    switch dataKind->getBlocklistDataKindFromString {
+    | CardBin =>
+      cardBinRegex->RegExp.test(trimmedData) ? None : Some("Card BIN must be exactly 6 digits.")
+    | ExtendedCardBin =>
+      extendedCardBinRegex->RegExp.test(trimmedData)
+        ? None
+        : Some("Extended Card BIN must be exactly 8 digits.")
+    | Fingerprint => None
+    }
+  }
+}
+
 let formatFileSize = fileSize => {
   if fileSize >= bytesPerMegabyte {
     let size = fileSize->Int.toFloat /. bytesPerMegabyte->Int.toFloat
