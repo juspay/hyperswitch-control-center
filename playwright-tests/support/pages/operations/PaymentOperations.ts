@@ -186,6 +186,45 @@ export class PaymentOperations {
     return this.page.locator('[data-element="preset-selector"]');
   }
 
+  // Saved views
+  get saveCurrentViewButton(): Locator {
+    return this.page.getByRole("button", { name: "Save Current View" });
+  }
+
+  get savedViewsButton(): Locator {
+    return this.page.getByRole("button", { name: "Saved Views" });
+  }
+
+  get saveViewModal(): Locator {
+    return this.page.locator('[data-component="modal:Save View"]');
+  }
+
+  get savedViewNameInput(): Locator {
+    return this.saveViewModal.locator('[name="viewName"]');
+  }
+
+  get includeDateRangeCheckbox(): Locator {
+    return this.saveViewModal.getByText(/Include date range/i);
+  }
+
+  get saveNewViewButton(): Locator {
+    return this.saveViewModal.getByRole("button", { name: "Save New View" });
+  }
+
+  get overwriteExistingViewButton(): Locator {
+    return this.saveViewModal.getByRole("button", {
+      name: "Overwrite Existing View",
+    });
+  }
+
+  savedViewOption(name: string): Locator {
+    return this.page.locator(`[data-options="${name}"]`);
+  }
+
+  get savedViewDeleteIcon(): Locator {
+    return this.page.locator('[data-icon="trash-outline"]');
+  }
+
   // Filters
   filterChipArea(key: string): Locator {
     return this.page.getByRole("button", { name: `Select ${key}` });
@@ -215,7 +254,7 @@ export class PaymentOperations {
   }
 
   dataToast(text: string): Locator {
-    return this.page.locator(`[data-toast="${text}"]`);
+    return this.page.locator(`[data-id="${text}"]`);
   }
 
   // Data labels (generic)

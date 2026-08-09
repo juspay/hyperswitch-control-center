@@ -14,7 +14,7 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 let email: string;
 
 const MOCK_PAYOUT_DETAILS = {
-  payout_id: "payout_ndGlsfZuxg6MTbEeamHC",
+  payout_id: "payout_LdGlsfZuxg6MTbEeamHC",
   merchant_id: "merchant_1716980605",
   merchant_order_reference_id: null,
   amount: 4100,
@@ -64,7 +64,7 @@ const MOCK_PAYOUT_DETAILS = {
     customer_document_details: null,
   },
   client_secret:
-    "payout_payout_ndGlsfZuxg6MTbEeamHC_secret_FfO1JjYL2MZTo5KssSzS",
+    "payout_payout_LdGlsfZuxg6MTbEeamHC_secret_FfO1JjYL2MZTo5KssSzS",
   return_url: null,
   business_country: null,
   business_label: null,
@@ -83,7 +83,7 @@ const MOCK_PAYOUT_DETAILS = {
   priority: null,
   attempts: [
     {
-      attempt_id: "payout_ndGlsfZuxg6MTbEeamHC_1",
+      attempt_id: "payout_LdGlsfZuxg6MTbEeamHC_1",
       status: "failed",
       amount: 4100,
       currency: "USD",
@@ -98,7 +98,7 @@ const MOCK_PAYOUT_DETAILS = {
       unified_message: "Something went wrong",
     },
     {
-      attempt_id: "payout_ndGlsfZuxg6MTbEeamHC_2",
+      attempt_id: "payout_LdGlsfZuxg6MTbEeamHC_2",
       status: "success",
       amount: 4100,
       currency: "USD",
@@ -888,12 +888,12 @@ test.describe("Payouts Operations", () => {
       const expectedAttempts = [
         {
           row: 1,
-          id: "payout_ndGlsfZuxg6MTbEeamHC_1",
+          id: "payout_LdGlsfZuxg6MTbEeamHC_1",
           status: "FAILED",
         },
         {
           row: 2,
-          id: "payout_ndGlsfZuxg6MTbEeamHC_2",
+          id: "payout_LdGlsfZuxg6MTbEeamHC_2",
           status: "SUCCESS",
         },
       ];

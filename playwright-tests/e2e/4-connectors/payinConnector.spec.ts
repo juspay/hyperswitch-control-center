@@ -1538,16 +1538,13 @@ test.describe("All Payin Connectors", () => {
   for (const [key, connector] of connectors) {
     test(`should setup and verify ${key} connector`, async ({ page }) => {
       const paymentConnector = new PaymentConnector(page);
-      const homePage = new HomePage(page);
 
-      await homePage.connectors.click();
-      await homePage.paymentProcessors.click();
+      await gotoConnectorList(page);
 
       await paymentConnector.connectorSearchInput.fill(connector.label);
-      await page
-        .getByTestId(connector.label)
-        .getByRole("button", { name: "Connect" })
-        .click();
+      const connectorCard = page.getByTestId(connector.label);
+      await expect(connectorCard).toBeVisible({ timeout: 10000 });
+      await connectorCard.getByRole("button", { name: "Connect" }).click();
 
       await assertConnectorFieldLabels(page, connector.fields.fieldLabels);
       await fillConnectorFields(page, connector.fields);
@@ -1566,13 +1563,13 @@ test.describe("All Payin Connectors", () => {
       await expect(
         page.getByTestId(
           connector.fields.overrides["Enter Connector label"] ||
-            connector.label,
+          connector.label,
         ),
       ).toBeVisible();
       await page
         .getByTestId(
           connector.fields.overrides["Enter Connector label"] ||
-            connector.label,
+          connector.label,
         )
         .click();
     });

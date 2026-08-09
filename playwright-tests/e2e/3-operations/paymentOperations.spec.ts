@@ -19,6 +19,113 @@ const columnSize = 24;
 const requiredColumnsSize = 14;
 let email: string;
 
+type SavedViewFilters = Record<string, unknown>;
+
+type SavedViewApiItem = {
+  view_id: string;
+  view_name: string;
+  data: {
+    entity: string;
+    version: string;
+    filters: SavedViewFilters;
+  };
+  created_at: string;
+  updated_at: string;
+};
+
+type SavedViewAction = {
+  type: "Create" | "Update" | "Delete";
+  data: {
+    view_id?: string;
+    view_name?: string;
+    entity: string;
+    version?: string;
+    filters?: SavedViewFilters;
+  };
+};
+
+const savedViewApiItem = (
+  viewName: string,
+  filters: SavedViewFilters,
+  viewId = `view-${viewName.toLowerCase().replaceAll(" ", "-")}`,
+): SavedViewApiItem => ({
+  view_id: viewId,
+  view_name: viewName,
+  data: {
+    entity: "payment_views",
+    version: "v1",
+    filters,
+  },
+  created_at: "2025-06-15T10:00:00.000Z",
+  updated_at: "2025-06-15T10:00:00.000Z",
+});
+
+async function mockSavedViewsApi(
+  page: Page,
+  options: { initialViews?: SavedViewApiItem[]; failCreate?: boolean } = {},
+) {
+  const views = [...(options.initialViews ?? [])];
+  const actions: SavedViewAction[] = [];
+
+  await page.route(/\/user\/data(?:\?|$)/, async (route) => {
+    const request = route.request();
+    const url = new URL(request.url());
+
+    if (
+      request.method() === "GET" &&
+      url.searchParams.get("keys") === "PaymentViews"
+    ) {
+      await route.fulfill({ json: [{ PaymentViews: views }] });
+      return;
+    }
+
+    if (request.method() === "POST") {
+      const payload = request.postDataJSON() as {
+        PaymentViews?: SavedViewAction;
+      };
+      const action = payload.PaymentViews;
+      if (!action) {
+        await route.continue();
+        return;
+      }
+
+      actions.push(action);
+      if (options.failCreate && action.type === "Create") {
+        await route.fulfill({ status: 500, json: { error: "save failed" } });
+        return;
+      }
+
+      if (
+        action.type === "Create" &&
+        action.data.view_name &&
+        action.data.filters
+      ) {
+        views.push(
+          savedViewApiItem(action.data.view_name, action.data.filters),
+        );
+      } else if (action.type === "Delete" && action.data.view_id) {
+        const index = views.findIndex(
+          (view) => view.view_id === action.data.view_id,
+        );
+        if (index !== -1) views.splice(index, 1);
+      }
+
+      await route.fulfill({ json: {} });
+      return;
+    }
+
+    await route.continue();
+  });
+
+  return { views, actions };
+}
+
+async function openPaymentOperations(page: Page) {
+  const homePage = new HomePage(page);
+  await homePage.operations.click();
+  await homePage.paymentOperations.click();
+}
+
 test.describe("Payment Operations", () => {
   test.beforeEach(async ({ page, context }) => {
     email = generateUniqueEmail();
@@ -33,6 +140,7 @@ test.describe("Payment Operations", () => {
         dev_opensearch: false,
         dev_clickhouse_aggregate: false,
         dev_sort_enabled: true,
+        dev_saved_views: true,
       };
       await route.fulfill({ response, json });
     });
@@ -734,7 +842,7 @@ test.describe("Payment Operations", () => {
             undefined,
             undefined,
             page,
-          ).catch(() => {});
+          ).catch(() => { });
         }
       }
 
@@ -1073,6 +1181,268 @@ test.describe("Payment Operations", () => {
         "SUCCEEDED",
       );
       await expect(paymentOperations.orderCell(1, 5)).toContainText("USD");
+    });
+  });
+
+  test.describe("Saved Views", () => {
+    test("should keep transaction filter controls visible and hide saved views when the feature flag is off", async ({
+      page,
+    }) => {
+      await page.route("**/dashboard/config/feature?domain=", async (route) => {
+        const response = await route.fetch();
+        const json = await response.json();
+        json.features = { ...json.features, dev_saved_views: false };
+        await route.fulfill({ response, json });
+      });
+      await page.reload();
+
+      const paymentOperations = new PaymentOperations(page);
+      await openPaymentOperations(page);
+
+      await expect(paymentOperations.dateSelector).toBeVisible();
+      await expect(paymentOperations.addFilters).toBeVisible();
+      await expect(paymentOperations.saveCurrentViewButton).toBeHidden();
+      await expect(paymentOperations.savedViewsButton).toBeHidden();
+    });
+
+    test("should display all create and overwrite modal elements", async ({
+      page,
+    }) => {
+      await mockSavedViewsApi(page, {
+        initialViews: [
+          savedViewApiItem("Existing View", { status: ["succeeded"] }),
+        ],
+      });
+      const paymentOperations = new PaymentOperations(page);
+      await openPaymentOperations(page);
+
+      await expect(paymentOperations.saveCurrentViewButton).toBeVisible();
+      await expect(paymentOperations.savedViewsButton).toBeVisible();
+      await paymentOperations.saveCurrentViewButton.click();
+
+      const modal = paymentOperations.saveViewModal;
+      await expect(modal).toBeVisible();
+      await expect(modal.getByText("Save View", { exact: true })).toBeVisible();
+      await expect(
+        modal.getByText("Create New View", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("Overwrite Existing View", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("View Name", { exact: false }),
+      ).toBeVisible();
+      await expect(paymentOperations.savedViewNameInput).toHaveAttribute(
+        "placeholder",
+        "Enter view name",
+      );
+      await expect(paymentOperations.includeDateRangeCheckbox).toBeVisible();
+      await expect(modal.getByRole("button", { name: "Cancel" })).toBeVisible();
+      await expect(paymentOperations.saveNewViewButton).toBeDisabled();
+
+      await modal.getByText("Overwrite Existing View", { exact: true }).click();
+      await expect(
+        modal.getByText("Search View Name to Overwrite", { exact: false }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("Select View", { exact: true }),
+      ).toBeVisible();
+      await expect(paymentOperations.includeDateRangeCheckbox).toBeVisible();
+      await expect(modal.getByRole("button", { name: "Cancel" })).toBeVisible();
+      await expect(
+        paymentOperations.overwriteExistingViewButton,
+      ).toBeDisabled();
+
+      await modal.getByRole("button", { name: "Cancel" }).click();
+      await paymentOperations.savedViewsButton.click();
+      await expect(
+        page.getByRole("menu", { name: "Saved Views" }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("menu", { name: "Saved Views" }),
+      ).toContainText("Default View");
+      await expect(
+        page.getByRole("menu", { name: "Saved Views" }),
+      ).toContainText("Existing View");
+    });
+
+    test("should save combined filters, clear filters, and apply the saved view", async ({
+      page,
+    }) => {
+      const savedViewsApi = await mockSavedViewsApi(page);
+      const paymentOperations = new PaymentOperations(page);
+      await openPaymentOperations(page);
+
+      await paymentOperations.addFilters.click();
+      await page
+        .getByLabel("Add Filters")
+        .getByText("Status", { exact: true })
+        .click();
+      await paymentOperations.statusFieldWrapper.click();
+      await page.getByRole("option", { name: "Succeeded" }).click();
+      await paymentOperations.applyButton.click();
+      await expect(
+        page.getByRole("option", { name: "Succeeded" }),
+      ).not.toBeVisible();
+
+      await paymentOperations.addFilters.click();
+      await page
+        .getByLabel("Add Filters")
+        .getByText("Currency", { exact: true })
+        .click();
+      await expect(
+        page.getByRole("searchbox", { name: "Search options..." }),
+      ).not.toBeVisible();
+      await page.getByText("Select Currency").click();
+      await page
+        .getByRole("searchbox", { name: "Search options..." })
+        .fill("USD");
+      await page.getByRole("option", { name: "USD" }).click();
+      await paymentOperations.applyButton.click();
+      await expect(
+        page.getByRole("searchbox", { name: "Search options..." }),
+      ).not.toBeVisible();
+
+      await paymentOperations.saveCurrentViewButton.click();
+      await paymentOperations.savedViewNameInput.fill("Successful payments");
+      await paymentOperations.saveNewViewButton.click();
+      await expect(
+        paymentOperations.dataToast(
+          "New View 'Successful payments' created successfully!",
+        ),
+      ).toBeVisible();
+
+      expect(savedViewsApi.actions).toHaveLength(1);
+      expect(savedViewsApi.actions[0]).toMatchObject({
+        type: "Create",
+        data: { view_name: "Successful payments" },
+      });
+      expect(savedViewsApi.actions[0].data.filters).toMatchObject({
+        currency: ["USD"],
+        status: ["succeeded"],
+      });
+
+      await page.getByRole("button", { name: "Clear All" }).click();
+      await page.getByRole("button", { name: "Saved Views" }).click();
+      await paymentOperations.savedViewOption("Successful payments").click();
+      await page.getByRole("button", { name: "Successful payments" }).click();
+      await expect(
+        paymentOperations.savedViewOption("Successful payments"),
+      ).not.toBeVisible();
+
+      await expect(
+        page.getByRole("button", { name: "Select Status1" }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: "Select Currency1" }),
+      ).toBeVisible();
+    });
+
+    test("should save and restore the currently selected time range", async ({
+      page,
+    }) => {
+      const pinnedDate = new Date("2025-06-15T10:00:00.000Z");
+      await page.clock.setFixedTime(pinnedDate);
+      const savedViewsApi = await mockSavedViewsApi(page);
+      const paymentOperations = new PaymentOperations(page);
+      await openPaymentOperations(page);
+
+      await paymentOperations.customDateRangeButton.click();
+      await paymentOperations.predefinedDateOptions
+        .getByText("Last 7 days", { exact: true })
+        .click();
+      await expect(
+        paymentOperations.predefinedDateOptions.getByText("Last 7 days", {
+          exact: true,
+        }),
+      ).not.toBeVisible();
+
+      await paymentOperations.saveCurrentViewButton.click();
+      await paymentOperations.savedViewNameInput.fill("Last week");
+      await paymentOperations.includeDateRangeCheckbox.click();
+      await paymentOperations.saveNewViewButton.click();
+      await expect(
+        paymentOperations.dataToast(
+          "New View 'Last week' created successfully!",
+        ),
+      ).toBeVisible();
+
+      const savedFilters = savedViewsApi.actions[0].data.filters;
+      expect(savedFilters).toMatchObject({
+        start_time: expect.any(String),
+        end_time: expect.any(String),
+      });
+
+      await page.getByRole("button", { name: "Last 7 days" }).click();
+      await page.getByRole("menuitem", { name: "Last 30 minutes" }).click();
+      await paymentOperations.savedViewsButton.click();
+
+      await paymentOperations.savedViewOption("Last week").click();
+      await page.getByRole("button", { name: "Last week" }).click();
+      await expect(
+        paymentOperations.savedViewOption("Last week"),
+      ).not.toBeVisible();
+
+      await expect(
+        page.getByRole("button", {
+          name: "Date range picker, Jun 9, 2025, 12:00 AM - Jun 15, 2025, 3:30 PM",
+        }),
+      ).toBeVisible();
+    });
+
+    test("should show an error when the save view API fails", async ({
+      page,
+    }) => {
+      const savedViewsApi = await mockSavedViewsApi(page, { failCreate: true });
+      const paymentOperations = new PaymentOperations(page);
+      await openPaymentOperations(page);
+
+      await paymentOperations.saveCurrentViewButton.click();
+      await paymentOperations.savedViewNameInput.fill("Unavailable view");
+      await paymentOperations.saveNewViewButton.click();
+
+      await expect(
+        paymentOperations.dataToast(
+          "Failed to create view 'Unavailable view'. Please try again.",
+        ),
+      ).toBeVisible();
+      await expect(paymentOperations.saveViewModal).toBeVisible();
+      expect(savedViewsApi.actions).toHaveLength(1);
+      expect(savedViewsApi.actions[0].type).toBe("Create");
+    });
+
+    test("should delete a saved view successfully", async ({ page }) => {
+      const view = savedViewApiItem("View to delete", {
+        status: ["succeeded"],
+      });
+      const savedViewsApi = await mockSavedViewsApi(page, {
+        initialViews: [view],
+      });
+      const paymentOperations = new PaymentOperations(page);
+      await openPaymentOperations(page);
+
+      await paymentOperations.savedViewsButton.click();
+      await expect(
+        paymentOperations.savedViewOption("View to delete"),
+      ).toBeVisible();
+      await paymentOperations.savedViewDeleteIcon.click();
+      await expect(
+        page.getByText("Delete 'View to delete'?", { exact: true }),
+      ).toBeVisible();
+      await page.getByRole("button", { name: "Delete Saved View" }).click();
+
+      await expect(
+        paymentOperations.dataToast(
+          "'View to delete' has been deleted successfully!",
+        ),
+      ).toBeVisible();
+      expect(savedViewsApi.actions.at(-1)).toMatchObject({
+        type: "Delete",
+        data: { view_id: view.view_id },
+      });
+      await expect(
+        paymentOperations.savedViewOption("View to delete"),
+      ).toHaveCount(0);
     });
   });
 
@@ -1644,7 +2014,7 @@ test.describe("Payment Operations", () => {
 
       await expect(page.getByText("Summary")).toBeVisible();
       await expect(
-        page.getByText("123.45 USD").filter({ visible: true }).nth(1),
+        page.getByText('123.45 USD SUCCEEDED'),
       ).toBeVisible();
       await expect(page.getByText("SUCCEEDED").nth(3)).toBeVisible();
 
@@ -1657,15 +2027,15 @@ test.describe("Payment Operations", () => {
       await expect(
         paymentOperations.dataLabel("Amount Received"),
       ).toContainText("Amount Received");
+      await expect(
+        paymentOperations.dataLabel("Payment ID").first(),
+      ).toContainText("Payment ID");
       await expect(paymentOperations.dataLabel("Net Amount")).toContainText(
         "Net Amount120.01 USD",
       );
       await expect(
         paymentOperations.dataLabel("Surcharge Amount"),
       ).toContainText("Surcharge Amount3.44 USD");
-      await expect(
-        paymentOperations.dataLabel("Payment ID").first(),
-      ).toContainText("Payment ID");
       await expect(
         paymentOperations.dataLabel("Connector Transaction ID"),
       ).toContainText("Connector Transaction ID");
@@ -1811,7 +2181,7 @@ test.describe("Payment Operations", () => {
       };
 
       for (const [label, value] of Object.entries(expectedRefundValues)) {
-        await expect(paymentOperations.dataLabel(label).first()).toContainText(
+        await expect(paymentOperations.dataLabel(label).first()).toContainText( //getByLabel('Payment Attempts')
           value,
         );
       }

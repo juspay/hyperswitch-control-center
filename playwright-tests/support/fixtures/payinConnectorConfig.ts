@@ -3474,7 +3474,7 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
         "Username *",
         "Password *",
         "Private Key(Base64 encoded) *",
-        "Trustly's public key",
+        "Trustly's public key(Base64 encoded)",
       ],
     },
     paymentSections: {
@@ -3583,7 +3583,7 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
       overrides: {
         "Enter Connector label": "payconex_default",
       },
-      fieldLabels: ["API Key *", "Account ID *"],
+      fieldLabels: ["API Key *", "Account Id *"],
     },
     paymentSections: {
       Credit: {
@@ -3593,32 +3593,6 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
       Debit: {
         label: "Debit",
         methods: ["Visa", "Mastercard", "AmericanExpress", "Discover"],
-      },
-    },
-  },
-
-  authipay: {
-    label: "authipay",
-    fields: {
-      default: "test_value",
-      overrides: {
-        "Enter Connector label": "authipay_default",
-      },
-      fieldLabels: [
-        "API Key *",
-        "Merchant ID *",
-        "API Secret *",
-        "Source verification key",
-      ],
-    },
-    paymentSections: {
-      Credit: {
-        label: "Credit",
-        methods: ["Mastercard", "Visa"],
-      },
-      Debit: {
-        label: "Debit",
-        methods: ["Mastercard", "Visa"],
       },
     },
   },
