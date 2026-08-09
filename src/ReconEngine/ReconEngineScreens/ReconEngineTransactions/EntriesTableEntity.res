@@ -59,10 +59,10 @@ let transactionEntriesDetailFields = [
   Amount,
   Currency,
   Status,
-  EntryId,
   OrderID,
   EffectiveAt,
   CreatedAt,
+  EntryId,
   Actions,
 ]
 
@@ -76,8 +76,8 @@ let getHeading = (colType: entryColType) => {
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
   | Metadata => Table.makeHeaderInfo(~key="metadata", ~title="Metadata")
-  | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
-  | EffectiveAt => Table.makeHeaderInfo(~key="effective_at", ~title="Effective At")
+  | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At (System)")
+  | EffectiveAt => Table.makeHeaderInfo(~key="effective_at", ~title="Effective At (File)")
   | OrderID => Table.makeHeaderInfo(~key="order_id", ~title="Order ID")
   | Actions => Table.makeHeaderInfo(~key="actions", ~title="Actions")
   }

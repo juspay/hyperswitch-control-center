@@ -19,7 +19,6 @@ type hierarchicalColType =
 let defaultColumns: array<hierarchicalColType> = [
   Flow,
   Date,
-  TransactionId,
   Status,
   EntryId,
   OrderId,
@@ -28,12 +27,12 @@ let defaultColumns: array<hierarchicalColType> = [
   Currency,
   DebitAmount,
   CreditAmount,
+  TransactionId,
 ]
 
 let allColumns: array<hierarchicalColType> = [
   Flow,
   Date,
-  TransactionId,
   Status,
   EntryId,
   OrderId,
@@ -42,6 +41,7 @@ let allColumns: array<hierarchicalColType> = [
   Currency,
   DebitAmount,
   CreditAmount,
+  TransactionId,
 ]
 
 let getHeading = (colType: hierarchicalColType) => {
