@@ -73,6 +73,8 @@ let make = (
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {paymentProcessorsLiveList} =
     HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
+  let {paymentProcessorsSandboxList} =
+    HyperswitchAtom.connectorListForSandboxAtom->Recoil.useRecoilValueFromAtom
 
   let getConnectorListAndUpdateState = async () => {
     try {
@@ -120,7 +122,7 @@ let make = (
 
   let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
     ? paymentProcessorsLiveList
-    : connectorList
+    : paymentProcessorsSandboxList
 
   <div>
     <PageLoaderWrapper screenState>

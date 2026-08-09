@@ -79,9 +79,14 @@ type surchargeConnectorDetails = {surcharge_connector_id: string}
 
 type paymentMethodBlockingEntry = {card_types: option<array<string>>}
 
+type paymentMethodBlockingWallet = {
+  apple_pay: option<paymentMethodBlockingEntry>,
+  google_pay: option<paymentMethodBlockingEntry>,
+}
+
 type paymentMethodBlocking = {
   card: option<paymentMethodBlockingEntry>,
-  wallet: option<paymentMethodBlockingEntry>,
+  wallet: option<paymentMethodBlockingWallet>,
 }
 
 type commonProfileEntity = {

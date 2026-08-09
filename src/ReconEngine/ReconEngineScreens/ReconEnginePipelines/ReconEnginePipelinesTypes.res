@@ -18,7 +18,7 @@ type pipelineStatCardData = {
   pipelineStatCardTitle: pipelineStatCardTitle,
   pipelineStatCardValue: valueType,
   pipelineStatCardIcon: Button.iconType,
-  pipelineStatCardDescription: string,
+  pipelineStatCardDescription: statCardDescriptionType,
   pipelineStatCardType: statCardType,
   pipelineStatCardClickAction: pipelineStatCardClickAction,
 }
