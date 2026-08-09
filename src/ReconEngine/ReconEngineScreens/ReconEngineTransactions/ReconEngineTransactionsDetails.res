@@ -102,6 +102,9 @@ let make = (~id) => {
             />
           </div>
         </RenderIf>
+        <div className="pt-5">
+          <EntryMatchSummary entriesList />
+        </div>
         <Tabs tabs />
       </div>
     </PageLoaderWrapper>

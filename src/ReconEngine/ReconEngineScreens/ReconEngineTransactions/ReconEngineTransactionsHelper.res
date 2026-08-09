@@ -214,6 +214,152 @@ module EntryAuditTrailInfo = {
   }
 }
 
+module EntryMatchSummary = {
+  // Groups a transaction's entries by their source account and, when the
+  // transaction spans exactly two accounts (the common recon case), renders
+  // them as two connected cards instead of raw tables — so the reader sees
+  // "these entries matched those entries" at a glance instead of having to
+  // cross-reference Order ID across separate tables themselves.
+  open ReconEngineTypes
+
+  // Entry-level detail only earns its place on screen while it's still
+  // scannable — past a handful of entries, listing every row just
+  // reproduces the table below. So this card shows the aggregate (total +
+  // Credit/Debit counts) always, and only expands to per-entry rows when
+  // there are few enough to actually read at a glance.
+  let maxVisibleEntries = 4
+
+  let formatEntryAmount = amount => amount->Float.toFixedWithPrecision(~digits=2)
+
+  module EntrySideCard = {
+    @react.component
+    let make = (~group: ReconEngineTransactionsTypes.accountGroup) => {
+      open LogicUtils
+
+      let currency = switch group.entries->Array.get(0) {
+      | Some(entry) => entry.currency
+      | None => ""
+      }
+      let total = group.entries->Array.reduce(0.0, (sum, entry) => sum +. entry.amount)
+      let creditCount = group.entries->Array.filter(entry => entry.entry_type == Credit)->Array.length
+      let debitCount = group.entries->Array.filter(entry => entry.entry_type == Debit)->Array.length
+      let entryCount = group.entries->Array.length
+      let showRows = entryCount <= maxVisibleEntries
+      let visibleEntries = if showRows {
+        group.entries
+      } else {
+        []
+      }
+
+      <div className="flex-1 min-w-0 max-w-sm border border-nd_gray-150 rounded-xl p-4 flex flex-col gap-3">
+        <p className={`${body.sm.medium} text-nd_gray-500 truncate`}>
+          {group.accountName->React.string}
+        </p>
+        <div className="flex items-baseline gap-1.5">
+          <span className={`${heading.sm.semibold} text-nd_gray-800 tabular-nums`}>
+            {total->formatEntryAmount->React.string}
+          </span>
+          <span className={`${body.sm.regular} text-nd_gray-500`}> {currency->React.string} </span>
+        </div>
+        <div className="flex items-center gap-1.5 -mt-1.5">
+          <RenderIf condition={creditCount > 0}>
+            <span className={`${body.xs.medium} text-nd_green-600 whitespace-nowrap`}>
+              {`${creditCount->Int.toString} Credit`->React.string}
+            </span>
+          </RenderIf>
+          <RenderIf condition={creditCount > 0 && debitCount > 0}>
+            <span className="text-nd_gray-300"> {"·"->React.string} </span>
+          </RenderIf>
+          <RenderIf condition={debitCount > 0}>
+            <span className={`${body.xs.medium} text-nd_primary_blue-600 whitespace-nowrap`}>
+              {`${debitCount->Int.toString} Debit`->React.string}
+            </span>
+          </RenderIf>
+        </div>
+        <RenderIf condition={showRows}>
+          <div className="flex flex-col">
+            {visibleEntries
+            ->Array.mapWithIndex((entry, index) =>
+              <div
+                key={index->Int.toString}
+                className="flex items-center justify-between gap-3 py-2 border-t border-nd_gray-100 first:border-t-0 first:pt-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <TagBinding
+                    text={(entry.entry_type :> string)->capitalizeString}
+                    variant=Subtle
+                    size=Xs
+                    color={entry.entry_type == Credit ? Success : Primary}
+                  />
+                  <span
+                    className={`${code.md.medium} text-nd_gray-700 tabular-nums whitespace-nowrap`}>
+                    {entry.amount->formatEntryAmount->React.string}
+                  </span>
+                </div>
+                <HelperComponents.CopyTextCustomComp
+                  customTextCss="max-w-32 truncate text-nd_gray-500"
+                  displayValue=Some(entry.order_id)
+                />
+              </div>
+            )
+            ->React.array}
+          </div>
+        </RenderIf>
+        <RenderIf condition={!showRows}>
+          <p className={`${body.xs.regular} text-nd_gray-400 pt-2 border-t border-nd_gray-100`}>
+            {`${entryCount->Int.toString} entries — see full list in Entries below`->React.string}
+          </p>
+        </RenderIf>
+      </div>
+    }
+  }
+
+  @react.component
+  let make = (~entriesList: array<entryType>) => {
+    open LogicUtils
+
+    let accountGroups = React.useMemo(() => {
+      let groupedByAccount = entriesList->Array.reduce(Dict.make(), (acc, entry) => {
+        let accountId = entry.account_id
+        let existing = acc->getValueFromDict(accountId, [])
+        acc->Dict.set(accountId, [...existing, entry])
+        acc
+      })
+
+      groupedByAccount
+      ->Dict.toArray
+      ->Array.map(((accountId, entries)) => {
+        let accountName = switch entries->Array.get(0) {
+        | Some(entry) => entry.account_name
+        | None => ""
+        }
+        ({accountId, accountName, entries}: ReconEngineTransactionsTypes.accountGroup)
+      })
+    }, [entriesList])
+
+    <RenderIf condition={accountGroups->Array.length == 2}>
+      {switch (accountGroups->Array.get(0), accountGroups->Array.get(1)) {
+      | (Some(left), Some(right)) =>
+        <div className="w-full border border-nd_gray-150 rounded-xl p-4">
+          <p className={`${body.sm.medium} text-nd_gray-500 mb-3`}>
+            {"Matched entries"->React.string}
+          </p>
+          <div className="flex flex-col md:flex-row items-center gap-3">
+            <EntrySideCard group=left />
+            <div className="flex md:flex-col items-center justify-center gap-1 px-1 shrink-0">
+              <Icon name="nd-swap-arrow-horizontal" size=18 className="text-nd_gray-400" />
+              <p className={`${body.xs.medium} text-nd_gray-500 whitespace-nowrap`}>
+                {"Matched on Order ID"->React.string}
+              </p>
+            </div>
+            <EntrySideCard group=right />
+          </div>
+        </div>
+      | _ => React.null
+      }}
+    </RenderIf>
+  }
+}
+
 module HierarchicalEntryRenderer = {
   @react.component
   let make = (~fieldValue: string) => {
