@@ -49,7 +49,7 @@ let make = () => {
     ~compareToStartTimeKey="",
     ~compareToEndTimeKey="",
     ~comparisonKey="",
-    ~range=30,
+    ~range=0,
     ~origin="orders",
     (),
   )
@@ -78,7 +78,7 @@ let make = () => {
   let fetchWebhooks = async (~searchType=?) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
+      let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=0)
       let start_time = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
       let end_time = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
 
