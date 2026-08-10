@@ -7,6 +7,7 @@ open HyperswitchAtom
 let useGetHsSidebarValues = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let connectorListForLive = connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
+  let connectorListForSandbox = connectorListForSandboxAtom->Recoil.useRecoilValueFromAtom
   let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {userEntity} = getResolvedUserInfo()
@@ -82,6 +83,7 @@ let useGetHsSidebarValues = () => {
       ~isCurrentMerchantPlatform,
       ~isCurrentMerchantConnected,
       ~connectorListForLive,
+      ~connectorListForSandbox,
     ),
     default->analytics(
       disputeAnalytics,
