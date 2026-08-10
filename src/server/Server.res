@@ -5,7 +5,7 @@ external env: Dict.t<string> = "env"
 
 let port = switch appName {
 | "embedded" => 9001
-| _ => 9002
+| _ => 9000
 }
 
 open NodeJs
