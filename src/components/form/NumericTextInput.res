@@ -1,3 +1,4 @@
+open LogicUtils
 let getFloat = strJson => strJson->JSON.Decode.string->Option.flatMap(val => val->Float.fromString)
 
 @react.component
@@ -35,7 +36,7 @@ let make = (
         let size =
           elem
           ->Webapi.Dom.Element.getAttribute("placeholder")
-          ->Option.mapOr(length, str => Math.Int.max(length, str->String.length))
+          ->mapOptionOrDefault(length, str => Math.Int.max(length, str->String.length))
           ->Int.toString
 
         elem->Webapi.Dom.Element.setAttribute("size", size)
@@ -57,7 +58,7 @@ let make = (
 
         let isIntegerPrecision = precision == Some(0)
         let cleanableStrValue = isIntegerPrecision
-          ? strValue->String.split(".")->Array.get(0)->Option.getOr("")
+          ? strValue->String.split(".")->getValueFromArray(0, "")
           : strValue
 
         let cleanedValue = switch cleanableStrValue->Js.String2.match_(
@@ -71,9 +72,8 @@ let make = (
             ->String.split(".")
             ->Array.slice(~start=0, ~end=2)
           let result = if removeLeadingZeroes {
-            str[0] = str[0]->Option.getOr("")->String.replaceRegExp(%re("/\b0+/g"), "")
-            str[0] =
-              str[0]->Option.getOr("")->LogicUtils.isEmptyString ? "0" : str[0]->Option.getOr("")
+            let stripped = str->getValueFromArray(0, "")->String.replaceRegExp(%re("/\b0+/g"), "")
+            str[0] = stripped->isEmptyString ? "0" : stripped
             str->Array.joinWith(".")
           } else {
             str->Array.joinWith(".")
@@ -92,14 +92,13 @@ let make = (
         | None => ""
         }
 
-        let finalVal =
-          precisionCheckedVal->LogicUtils.isNonEmptyString ? precisionCheckedVal : cleanedValue
+        let finalVal = precisionCheckedVal->isNonEmptyString ? precisionCheckedVal : cleanedValue
         setLocalStrValue(_ => finalVal->JSON.Encode.string)
 
         switch finalVal->JSON.Encode.string->getFloat {
         | Some(num) => input.onChange(num->Identity.anyTypeToReactEvent)
         | None =>
-          if value->LogicUtils.isEmptyString {
+          if value->isEmptyString {
             input.onChange(JSON.Encode.null->Identity.anyTypeToReactEvent)
           }
         }

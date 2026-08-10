@@ -18,7 +18,7 @@ let make = (
   let cleanNumericString = rawValue => {
     let isIntegerPrecision = precision == Some(0)
     let cleanableRawValue = isIntegerPrecision
-      ? rawValue->String.split(".")->Array.get(0)->Option.getOr("")
+      ? rawValue->String.split(".")->getValueFromArray(0, "")
       : rawValue
 
     let cleanedValue = switch cleanableRawValue->Js.String2.match_(
@@ -47,7 +47,8 @@ let make = (
     precisionCheckedVal->getNonEmptyString->Option.getOr(cleanedValue)
   }
 
-  let blendValue = input.value->getOptionFloatFromJson->Option.mapOr(Nullable.null, Nullable.make)
+  let blendValue =
+    input.value->getOptionFloatFromJson->mapOptionOrDefault(Nullable.null, Nullable.make)
   let step = precision == Some(0) ? Some(1.0) : None
 
   let blendOnChange = ev => {

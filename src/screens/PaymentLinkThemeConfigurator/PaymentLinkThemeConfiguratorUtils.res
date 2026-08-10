@@ -2,28 +2,30 @@ open LogicUtils
 open PaymentLinkThemeConfiguratorTypes
 
 let defaultStyleId = (Default: PaymentLinkThemeConfiguratorTypes.styleType :> string)
+let defaultPaymentLinkTheme = "#006DF9"
 let styleIdMaxLength = 32
 let styleIdRegex = RegExp.fromString("^([a-zA-Z0-9_\\s-]+)$")
 
-let makeDropdownOption = (~label, ~value): SelectBox.dropdownOption => {label, value}
+let showCardTermsOptions: array<SelectBox.dropdownOption> = [
+  Always,
+  Auto,
+  Never,
+]->Array.map(item => {
+  let value = (item :> string)
+  let option: SelectBox.dropdownOption = {label: value->capitalizeString, value}
+  option
+})
 
-let makeDropdownOptions = values =>
-  values->Array.map(value => makeDropdownOption(~label=value, ~value))
+let sdkLayoutOptions: array<SelectBox.dropdownOption> = [
+  {label: "Accordion", value: (Accordion :> string)},
+  {label: "Tabs", value: (Tabs :> string)},
+  {label: "Spaced Accordion", value: (SpacedAccordion :> string)},
+]
 
-let showCardTermsOptions: array<SelectBox.dropdownOption> =
-  [Always, Auto, Never]
-  ->Array.map(item => (item :> string))
-  ->makeDropdownOptions
-
-let sdkLayoutOptions: array<SelectBox.dropdownOption> =
-  [Accordion, Tabs, SpacedAccordion]
-  ->Array.map(item => (item :> string))
-  ->makeDropdownOptions
-
-let detailsLayoutOptions: array<SelectBox.dropdownOption> =
-  [Layout1, Layout2]
-  ->Array.map(item => (item :> string))
-  ->makeDropdownOptions
+let detailsLayoutOptions: array<SelectBox.dropdownOption> = [
+  {label: "Layout 1", value: (Layout1 :> string)},
+  {label: "Layout 2", value: (Layout2 :> string)},
+]
 
 let cssFontWeightOptions: array<SelectBox.dropdownOption> =
   [
@@ -38,7 +40,7 @@ let cssFontWeightOptions: array<SelectBox.dropdownOption> =
     FontWeight900,
   ]
   ->Array.map(item => (item :> string))
-  ->makeDropdownOptions
+  ->SelectBox.makeOptions
 
 let previewModeMeta = mode =>
   switch mode {
@@ -60,33 +62,7 @@ let allowedDomainsToArray = allowedDomainsOpt => {
     ->String.split(",")
     ->Array.map(String.trim)
     ->Array.filter(isNonEmptyString)
-  allowedDomains->Array.length === 0 ? None : Some(allowedDomains->getJsonFromArrayOfString)
-}
-
-type cssRulesKey =
-  | SdkUiRules
-  | PaymentLinkUiRules
-
-type cssInputType =
-  | CssColor
-  | CssText
-  | CssPxNumber
-  | CssFontWeight
-
-type cssFieldDefinition = {
-  rulesKey: cssRulesKey,
-  selectorKey: string,
-  selector: string,
-  cssProperty: string,
-  label: string,
-  inputType: cssInputType,
-  placeholder: string,
-  important: bool,
-}
-
-type cssAccordionDefinition = {
-  title: string,
-  fields: array<cssFieldDefinition>,
+  allowedDomains->isEmptyArray ? None : Some(allowedDomains->getJsonFromArrayOfString)
 }
 
 let cssRulesKeyToString = rulesKey =>
@@ -369,43 +345,37 @@ let cssFieldDefinitions =
 let stripCssImportant = value =>
   value->String.replaceRegExp(%re("/\s*!important\s*/gi"), "")->String.trim
 
-let firstCssNumber: string => string = value =>
-  switch value->stripCssImportant->String.match(%re("/-?\d+(\.\d+)?/")) {
-  | Some(values) =>
-    values
-    ->Array.get(0)
-    ->Option.flatMap(Float.fromString)
-    ->Option.map(number => number->Math.round->Float.toInt->Int.toString)
-    ->Option.getOr("")
-  | None => ""
-  }
+let roundNumberString = value =>
+  value
+  ->Float.fromString
+  ->Option.map(number => number->Math.round->Float.toInt->Int.toString)
+  ->Option.getOr("")
 
-let cssPaddingSideFromShorthand: (string, string) => string = (value, side) => {
+let firstCssNumber: string => string = value => {
+  let numberMatches = value->stripCssImportant->String.match(%re("/-?\d+(\.\d+)?/"))
+
+  numberMatches->mapOptionOrDefault("", values =>
+    values->getValueFromArray(0, "")->roundNumberString
+  )
+}
+
+let cssPaddingSideFromShorthand: (string, cssPaddingSide) => string = (value, side) => {
   switch value->stripCssImportant->String.match(%re("/-?\d+(\.\d+)?/g")) {
-  | Some(values) if values->Array.length > 0 =>
+  | Some(values) if values->isNonEmptyArray =>
     let index = switch (side, values->Array.length) {
-    | ("top", _) => Some(0)
-    | ("right", 1) => Some(0)
-    | ("right", _) => Some(1)
-    | ("bottom", 1) => Some(0)
-    | ("bottom", 2) => Some(0)
-    | ("bottom", _) => Some(2)
-    | ("left", 1) => Some(0)
-    | ("left", 2) => Some(1)
-    | ("left", 3) => Some(1)
-    | ("left", _) => Some(3)
-    | _ => None
+    | (PaddingTop, _) => Some(0)
+    | (PaddingRight, 1) => Some(0)
+    | (PaddingRight, _) => Some(1)
+    | (PaddingBottom, 1) => Some(0)
+    | (PaddingBottom, 2) => Some(0)
+    | (PaddingBottom, _) => Some(2)
+    | (PaddingLeft, 1) => Some(0)
+    | (PaddingLeft, 2) => Some(1)
+    | (PaddingLeft, 3) => Some(1)
+    | (PaddingLeft, _) => Some(3)
     }
 
-    switch index {
-    | Some(index) =>
-      values
-      ->Array.get(index)
-      ->Option.flatMap(Float.fromString)
-      ->Option.map(number => number->Math.round->Float.toInt->Int.toString)
-      ->Option.getOr("")
-    | None => ""
-    }
+    index->mapOptionOrDefault("", index => values->getValueFromArray(index, "")->roundNumberString)
   | _ => ""
   }
 }
@@ -451,21 +421,19 @@ let normalizeCssColorForPicker: string => string = value => {
   if RegExp.test(%re("/^#[0-9a-fA-F]{6}$/"), strippedValue) {
     strippedValue->String.toUpperCase
   } else {
-    switch strippedValue->String.match(
-      %re("/^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i"),
-    ) {
-    | Some(matches) =>
+    strippedValue
+    ->String.match(%re("/^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i"))
+    ->mapOptionOrDefault("", matches =>
       switch (
-        matches->Array.get(1)->Option.flatMap(value => value->Int.fromString),
-        matches->Array.get(2)->Option.flatMap(value => value->Int.fromString),
-        matches->Array.get(3)->Option.flatMap(value => value->Int.fromString),
+        matches->getValueFromArray(1, "")->Int.fromString,
+        matches->getValueFromArray(2, "")->Int.fromString,
+        matches->getValueFromArray(3, "")->Int.fromString,
       ) {
       | (Some(red), Some(green), Some(blue)) =>
         `#${red->byteToHex}${green->byteToHex}${blue->byteToHex}`
       | _ => ""
       }
-    | None => ""
-    }
+    )
   }
 }
 
@@ -497,68 +465,77 @@ let formatCssValueForRules = (field, value) => {
   appendCssImportant(~important=field.important, formattedValue)
 }
 
-let getCssFormValue = (formValuesDict, fieldName) => {
-  switch formValuesDict->Dict.get(fieldName) {
-  | Some(value) =>
-    switch value->getOptionIntFromJson {
-    | Some(intValue) => intValue->Int.toString
-    | None => value->getStringFromJson("")
-    }
-  | None => ""
+let getCssFormValueFromJson = value =>
+  switch value->getOptionIntFromJson {
+  | Some(intValue) => intValue->Int.toString
+  | None => value->getStringFromJson("")
   }
-}
+
+let getCssFormValue = (formValuesDict, fieldName) =>
+  formValuesDict->getOptionValFromDict(fieldName)->mapOptionOrDefault("", getCssFormValueFromJson)
+
+let cssPaddingSideFromProperty = property =>
+  switch property {
+  | "paddingTop" => Some(PaddingTop)
+  | "paddingRight" => Some(PaddingRight)
+  | "paddingBottom" => Some(PaddingBottom)
+  | "paddingLeft" => Some(PaddingLeft)
+  | _ => None
+  }
 
 let getStyleSpecificRulesFromProfile = (
   ~paymentLinkConfig: BusinessProfileInterfaceTypes.paymentLinkConfig,
   ~selectedStyleId,
 ) => {
   let businessSpecificConfigsDict =
-    paymentLinkConfig.business_specific_configs->Option.mapOr(Dict.make(), json =>
+    paymentLinkConfig.business_specific_configs->mapOptionOrDefault(Dict.make(), json =>
       json->getDictFromJsonObject
     )
   let styleConfig = businessSpecificConfigsDict->getJsonFromDict(selectedStyleId)
   let styleConfigDict = styleConfig->getDictFromJsonObject
 
-  (styleConfigDict->Dict.get(sdkUiRulesKey), styleConfigDict->Dict.get(paymentLinkUiRulesKey))
+  (
+    styleConfigDict->getOptionValFromDict(sdkUiRulesKey),
+    styleConfigDict->getOptionValFromDict(paymentLinkUiRulesKey),
+  )
 }
 
 let flattenRulesForFields = (~formDict, ~rulesKey, ~rulesJson) => {
-  switch rulesJson {
-  | Some(rules) =>
+  rulesJson->mapOptionOrDefault((), rules => {
     let rulesDict = rules->getDictFromJsonObject
     cssFieldDefinitions
     ->Array.filter(field => cssRulesKeyEquals(field.rulesKey, rulesKey))
     ->Array.forEach(field => {
-      switch rulesDict->Dict.get(field.selector) {
-      | Some(selectorProps) =>
-        let propsDict = selectorProps->getDictFromJsonObject
-        let value = switch (propsDict->getString(field.cssProperty, ""), field.cssProperty) {
-        | (value, _) if value->isNonEmptyString => value
-        | (_, "paddingTop") =>
-          propsDict->getString("padding", "")->cssPaddingSideFromShorthand("top")
-        | (_, "paddingRight") =>
-          propsDict->getString("padding", "")->cssPaddingSideFromShorthand("right")
-        | (_, "paddingBottom") =>
-          propsDict->getString("padding", "")->cssPaddingSideFromShorthand("bottom")
-        | (_, "paddingLeft") =>
-          propsDict->getString("padding", "")->cssPaddingSideFromShorthand("left")
-        | _ => ""
-        }
-        let formattedValue = formatCssValueForForm(field, value)
-        formattedValue->isNonEmptyString
-          ? Dict.set(formDict, field->cssFieldName, formattedValue->JSON.Encode.string)
-          : ()
-      | None => ()
-      }
+      rulesDict
+      ->getOptionValFromDict(field.selector)
+      ->mapOptionOrDefault(
+        (),
+        selectorProps => {
+          let propsDict = selectorProps->getDictFromJsonObject
+          let value = switch (propsDict->getString(field.cssProperty, ""), field.cssProperty) {
+          | (value, _) if value->isNonEmptyString => value
+          | (_, property) =>
+            property
+            ->cssPaddingSideFromProperty
+            ->mapOptionOrDefault(
+              "",
+              side => propsDict->getString("padding", "")->cssPaddingSideFromShorthand(side),
+            )
+          }
+          let formattedValue = formatCssValueForForm(field, value)
+          formattedValue->isNonEmptyString
+            ? Dict.set(formDict, field->cssFieldName, formattedValue->JSON.Encode.string)
+            : ()
+        },
+      )
     })
-  | None => ()
-  }
+  })
 }
 
 let flattenCssRulesIntoFormValues = (~formValues) => {
   let formDict = formValues->getDictFromJsonObject->Dict.copy
-  let fieldSdkRules = formDict->Dict.get(sdkUiRulesKey)
-  let fieldPlRules = formDict->Dict.get(paymentLinkUiRulesKey)
+  let fieldSdkRules = formDict->getOptionValFromDict(sdkUiRulesKey)
+  let fieldPlRules = formDict->getOptionValFromDict(paymentLinkUiRulesKey)
 
   flattenRulesForFields(~formDict, ~rulesKey=SdkUiRules, ~rulesJson=fieldSdkRules)
   flattenRulesForFields(~formDict, ~rulesKey=PaymentLinkUiRules, ~rulesJson=fieldPlRules)
@@ -567,26 +544,45 @@ let flattenCssRulesIntoFormValues = (~formValues) => {
 }
 
 let buildCssRulesFromFormValues = (~baseRules: option<JSON.t>, ~rulesKey, formValuesDict) => {
-  let rulesDict = switch baseRules {
-  | Some(json) => json->getDictFromJsonObject->Dict.copy
-  | None => Dict.make()
-  }
+  let rulesDict =
+    baseRules->mapOptionOrDefault(Dict.make(), json => json->getDictFromJsonObject->Dict.copy)
 
   cssFieldDefinitions
   ->Array.filter(field => cssRulesKeyEquals(field.rulesKey, rulesKey))
   ->Array.forEach(field => {
-    let value = formatCssValueForRules(field, formValuesDict->getCssFormValue(field->cssFieldName))
-    if value->isNonEmptyString {
-      let selectorProps = switch rulesDict->Dict.get(field.selector) {
-      | Some(props) => props->getDictFromJsonObject->Dict.copy
-      | None => Dict.make()
+    formValuesDict
+    ->getOptionValFromDict(field->cssFieldName)
+    ->mapOptionOrDefault((), formValue => {
+      let value = formatCssValueForRules(field, formValue->getCssFormValueFromJson)
+      let selectorProps =
+        rulesDict
+        ->getOptionValFromDict(field.selector)
+        ->mapOptionOrDefault(Dict.make(), props => props->getDictFromJsonObject->Dict.copy)
+
+      field.cssProperty
+      ->cssPaddingSideFromProperty
+      ->mapOptionOrDefault(
+        (),
+        _ => {
+          selectorProps->Dict.delete("padding")
+        },
+      )
+
+      if value->isNonEmptyString {
+        Dict.set(selectorProps, field.cssProperty, value->JSON.Encode.string)
+      } else {
+        selectorProps->Dict.delete(field.cssProperty)
       }
-      Dict.set(selectorProps, field.cssProperty, value->JSON.Encode.string)
-      Dict.set(rulesDict, field.selector, selectorProps->JSON.Encode.object)
-    }
+
+      if selectorProps->Dict.keysToArray->isEmptyArray {
+        rulesDict->Dict.delete(field.selector)
+      } else {
+        Dict.set(rulesDict, field.selector, selectorProps->JSON.Encode.object)
+      }
+    })
   })
 
-  rulesDict->Dict.keysToArray->Array.length === 0 ? None : Some(rulesDict->JSON.Encode.object)
+  rulesDict->Dict.keysToArray->isEmptyArray ? None : Some(rulesDict->JSON.Encode.object)
 }
 
 let buildSdkUiRulesFromFormValues = (~baseRules, formValuesDict) =>
@@ -594,6 +590,11 @@ let buildSdkUiRulesFromFormValues = (~baseRules, formValuesDict) =>
 
 let buildPaymentLinkUiRulesFromFormValues = (~baseRules, formValuesDict) =>
   buildCssRulesFromFormValues(~baseRules, ~rulesKey=PaymentLinkUiRules, formValuesDict)
+
+let getThemeValueOrDefault = formValuesDict => {
+  let themeValue = formValuesDict->getString("theme", "")
+  themeValue->isNonEmptyString ? themeValue : defaultPaymentLinkTheme
+}
 
 let constructBusinessProfileBody = (~paymentLinkConfig, ~styleID) => {
   open BusinessProfileInterfaceUtils
@@ -629,14 +630,8 @@ let constructBusinessProfileBodyFromJson = (~json, ~paymentLinkConfig, ~styleID)
   cssFieldDefinitions->Array.forEach(field => {
     jsonDict->Dict.delete(field->cssFieldName)
   })
-  switch styleSdkRules {
-  | Some(rules) => jsonDict->Dict.set(sdkUiRulesKey, rules)
-  | None => ()
-  }
-  switch stylePlRules {
-  | Some(rules) => jsonDict->Dict.set(paymentLinkUiRulesKey, rules)
-  | None => ()
-  }
+  styleSdkRules->mapOptionOrDefault((), rules => jsonDict->Dict.set(sdkUiRulesKey, rules))
+  stylePlRules->mapOptionOrDefault((), rules => jsonDict->Dict.set(paymentLinkUiRulesKey, rules))
   let updatedJson = jsonDict->JSON.Encode.object
 
   let businessSpecificConfigs =
@@ -659,7 +654,6 @@ let generateWasmPayload = (
   ~styleSdkRules,
   ~stylePlRules,
 ) => {
-  let defaultPaymentLinkTheme = "#ffffff"
   let paymentDetailsDict = paymentDetails->getDictFromJsonObject
   let formValuesDict = formValues->getDictFromJsonObject
 
@@ -690,7 +684,7 @@ let generateWasmPayload = (
     return_url: getString(formValuesDict, "return_url", "https://google.com"),
     merchant_name: getNonEmptyValue(formValuesDict, "seller_name", "Seller Name"),
     max_items_visible_after_collapse: formValuesDict->getInt("max_items_visible_after_collapse", 3),
-    theme: getNonEmptyValue(formValuesDict, "theme", defaultPaymentLinkTheme),
+    theme: formValuesDict->getThemeValueOrDefault,
     sdk_layout: getNonEmptyValue(formValuesDict, "sdk_layout", "accordion"),
     display_sdk_only: formValuesDict->getBool("display_sdk_only", false),
     hide_card_nickname_field: formValuesDict->getBool("hide_card_nickname_field", false),

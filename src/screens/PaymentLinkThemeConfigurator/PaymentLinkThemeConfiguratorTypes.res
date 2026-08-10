@@ -2,7 +2,6 @@ type stepType =
   | Checkout
   | Configurator
 
-@unboxed
 type styleType =
   | @as("default") Default
   | @as("") Custom
@@ -28,29 +27,56 @@ type previewContentConfig = {
   iframeHeight: string,
 }
 
-@unboxed
 type setupFutureUsage =
   | @as("off_session") OffSession
   | @as("on_session") OnSession
 
-@unboxed
 type showCardTerms =
   | @as("always") Always
   | @as("auto") Auto
   | @as("never") Never
 
-@unboxed
 type sdkLayout =
   | @as("accordion") Accordion
   | @as("tabs") Tabs
   | @as("spaced_accordion") SpacedAccordion
 
-@unboxed
 type detailsLayout =
   | @as("layout1") Layout1
   | @as("layout2") Layout2
 
-@unboxed
+type cssRulesKey =
+  | SdkUiRules
+  | PaymentLinkUiRules
+
+type cssInputType =
+  | CssColor
+  | CssText
+  | CssPxNumber
+  | CssFontWeight
+
+type cssPaddingSide =
+  | PaddingTop
+  | PaddingRight
+  | PaddingBottom
+  | PaddingLeft
+
+type cssFieldDefinition = {
+  rulesKey: cssRulesKey,
+  selectorKey: string,
+  selector: string,
+  cssProperty: string,
+  label: string,
+  inputType: cssInputType,
+  placeholder: string,
+  important: bool,
+}
+
+type cssAccordionDefinition = {
+  title: string,
+  fields: array<cssFieldDefinition>,
+}
+
 type cssFontWeight =
   | @as("100") FontWeight100
   | @as("200") FontWeight200

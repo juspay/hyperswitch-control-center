@@ -20,13 +20,14 @@ let make = (
     | _ => None
     }
 
+  let fallbackColor = "#006DF9"
+
   let initialColor = switch input.value->getValidHexColor {
   | Some(val) => val
   | None =>
-    switch defaultValue {
-    | Some(val) if val->isNonEmptyString && isValidHexCode(val) => val
-    | _ => ""
-    }
+    defaultValue->mapOptionOrDefault("", val =>
+      val->isNonEmptyString && isValidHexCode(val) ? val : ""
+    )
   }
 
   let (color, setColor) = React.useState(() => initialColor->String.toUpperCase)
@@ -50,7 +51,7 @@ let make = (
       // Reset to last valid color or default
       let validColor = initialColor->String.toUpperCase
       setColor(_ => validColor)
-      setIsValid(_ => true)
+      setIsValid(_ => validColor->isNonEmptyString)
       input.onChange(validColor->Identity.anyTypeToReactEvent)
     }
   }
@@ -64,7 +65,18 @@ let make = (
   | (true, false) => false
   | (false, _) => !isValid
   }
-  let pickerColor = isValid ? color : initialColor->isNonEmptyString ? initialColor : "#006DF9"
+  let displayColor = if isValid {
+    Some(color)
+  } else if initialColor->isNonEmptyString {
+    Some(initialColor)
+  } else {
+    None
+  }
+  let pickerColor = displayColor->Option.getOr(fallbackColor)
+  let swatchStyle = switch displayColor {
+  | Some(color) => ReactDOMStyle.make(~backgroundColor=color, ())
+  | None => ReactDOMStyle.make(~backgroundColor="transparent", ())
+  }
 
   <div
     className={`relative flex flex-col ${fullWidth ? "w-full" : ""} ${customWrapperClassName}`}
@@ -95,11 +107,11 @@ let make = (
           }
         }}
         className="flex-1 bg-transparent outline-none text-sm text-jp-gray-800 dark:text-jp-gray-text_darktheme"
-        placeholder="#FFFFFF"
+        placeholder=fallbackColor
       />
       <div
         className="h-5 w-5 border ml-2 rounded-sm border-jp-gray-500 dark:border-jp-gray-960"
-        style={ReactDOMStyle.make(~backgroundColor=isValid ? color : initialColor, ())}
+        style=swatchStyle
       />
     </div>
     <RenderIf condition={showError}>

@@ -14,18 +14,24 @@ module PreviewModeToggle = {
         let meta = mode->previewModeMeta
         let isActive = selectedPreviewMode == mode
         let buttonClass = isActive
-          ? "bg-white text-nd_gray-800 border-nd_gray-100 shadow-sm"
-          : "bg-transparent text-nd_gray-400 border-transparent hover:text-nd_gray-600"
+          ? "!bg-white !text-nd_gray-800 !border !border-nd_gray-100 shadow-sm"
+          : "!bg-transparent !text-nd_gray-400 !border !border-transparent hover:!text-nd_gray-600"
 
-        <button
+        <Button
           key={meta.key}
-          type_="button"
-          title={meta.label}
           ariaLabel={meta.label}
-          className={`h-8 w-8 rounded-md border flex items-center justify-center transition-colors ${buttonClass}`}
-          onClick={_ => setSelectedPreviewMode(_ => mode)}>
-          <Icon name={meta.icon} size=14 />
-        </button>
+          leftIcon={CustomIcon(<Icon name={meta.icon} size=14 />)}
+          showTooltip=true
+          tooltipText={meta.label}
+          toolTipPosition=Top
+          buttonSize=XSmall
+          allowButtonTextMinWidth=false
+          showBorder=false
+          customPaddingClass="p-0"
+          customRoundedClass="rounded-md"
+          customButtonStyle={`!h-8 !w-8 transition-colors ${buttonClass}`}
+          onClick={_ => setSelectedPreviewMode(_ => mode)}
+        />
       })
       ->React.array}
     </div>
@@ -349,7 +355,7 @@ module ConfiguratorForm = {
                           field={makeThemeField(
                             ~defaultValue=initialValues
                             ->getDictFromJsonObject
-                            ->getString("theme", ""),
+                            ->getThemeValueOrDefault,
                           )}
                           fieldWrapperClass="!w-full"
                         />
@@ -585,7 +591,7 @@ module StyleIdSelection = {
             dropdownOption
           })
 
-          stylesList->Array.length == 0 ? [defaultOption] : stylesList
+          stylesList->isEmptyArray ? [defaultOption] : stylesList
         }
       | None => [defaultOption]
       }
@@ -600,7 +606,7 @@ module StyleIdSelection = {
         let hasDefault = availableStyles->Array.some(opt => opt.value == defaultStyleId)
         let autoSelect = hasDefault
           ? defaultStyleId
-          : availableStyles->Array.get(0)->Option.mapOr("", opt => opt.value)
+          : (availableStyles->getValueFromArray(0, defaultOption)).value
 
         if autoSelect->isNonEmptyString && autoSelect != selectedStyleId {
           setSelectedStyleId(_ => autoSelect)
@@ -684,7 +690,7 @@ let make = () => {
       )
 
     let businessSpecificConfigsDict =
-      paymentLinkConfig.business_specific_configs->Option.mapOr(Dict.make(), json =>
+      paymentLinkConfig.business_specific_configs->mapOptionOrDefault(Dict.make(), json =>
         json->getDictFromJsonObject
       )
     let styleConfig = businessSpecificConfigsDict->getJsonFromDict(selectedStyleId)
