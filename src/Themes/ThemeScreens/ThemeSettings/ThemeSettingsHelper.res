@@ -20,12 +20,20 @@ module BrandSettings = {
       ~customInput=InputFields.textInput(),
     )
 
+    let productNameField = makeFieldInfo(
+      ~label="Product Name",
+      ~name="theme_data.identity.productName",
+      ~placeholder="Enter the product name shown in the dashboard.",
+      ~customInput=InputFields.textInput(),
+    )
+
     <div className="flex flex-col gap-4">
       <div className={`${body.lg.semibold}`}> {React.string("Brand Settings")} </div>
       <div className="space-y-4">
         <RenderIf condition={!isUpdatePage}>
           <FormRenderer.FieldRenderer field=themeNameField labelClass />
         </RenderIf>
+        <FormRenderer.FieldRenderer field=productNameField labelClass />
         <FormRenderer.FieldRenderer field=primaryColor labelClass />
       </div>
     </div>
@@ -140,7 +148,8 @@ module EmailSettings = {
         ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
       ).values->LogicUtils.getDictFromJsonObject
 
-    let emailFromForm = ThemePreviewUtils.getEmailFormValues(~formValues)
+    let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let emailFromForm = ThemePreviewUtils.getEmailFormValues(~formValues, ~branding)
 
     let labelClass = `${body.md.medium} text-nd_gray-700`
 

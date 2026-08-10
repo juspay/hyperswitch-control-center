@@ -364,6 +364,10 @@ module ConnectorConfigurationFields = {
     ~connectorLabelDetailField,
     ~connectorAdditionalMerchantData,
   ) => {
+    let {hyperswitchResources} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let connectorLabelDescription = hyperswitchResources
+      ? "This is a unique label you can generate and pass to identify this connector account on your Hyperswitch dashboard and reports. For example, if your profile label is 'default', the connector label can be 'stripe_default'."
+      : "This is a unique label you can generate and pass to identify this connector account on your dashboard and reports. For example, if your profile label is 'default', the connector label can be 'stripe_default'."
     <div className="flex flex-col">
       {switch connector {
       | Processors(CASHTOCODE) =>
@@ -385,7 +389,7 @@ module ConnectorConfigurationFields = {
         connector
         selectedConnector
         isLabelNested=false
-        description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'"
+        description=connectorLabelDescription
       />
       <ConnectorMetaData connectorMetaDataFields />
       <ConnectorAdditionalMerchantData connector connectorAdditionalMerchantData />

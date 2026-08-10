@@ -1,4 +1,7 @@
-let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.urlConfig = dict => {
+let getConfigFromDict = (
+  dict: Dict.t<JSON.t>,
+  ~complianceDict: Dict.t<JSON.t>,
+): HyperSwitchConfigTypes.urlConfig => {
   open LogicUtils
   {
     apiBaseUrl: dict->getString("api_url", ""),
@@ -17,6 +20,19 @@ let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.urlConfig = dict
     urlThemeConfig: {
       faviconUrl: dict->getString("favicon_url", "")->getNonEmptyString,
       logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
+    },
+    whitelabelComplianceConfig: {
+      applePayInstructions: complianceDict
+      ->getString("apple_pay_instructions", "")
+      ->getNonEmptyString,
+      applePayRequestTemplate: complianceDict
+      ->getString("apple_pay_request_template", "")
+      ->getNonEmptyString,
+      supportEmail: complianceDict->getString("support_email", "")->getNonEmptyString,
+      certificateTitle: complianceDict->getString("certificate_title", "")->getNonEmptyString,
+      certificateDownloadFilename: complianceDict
+      ->getString("certificate_download_filename", "")
+      ->getNonEmptyString,
     },
     hypersenseUrl: dict->getString("hypersense_url", ""),
   }

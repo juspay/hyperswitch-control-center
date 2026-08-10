@@ -30,6 +30,7 @@
     "pw:report": "playwright show-report",
     "pw:coverage": "cross-env CI=1 PW_COVERAGE=1 playwright test",
     "lint:hooks": "eslint src/ --max-warnings 0",
+    "audit:whitelabel": "node scripts/audit-whitelabel-copy.mjs",
     "lint:fix": "eslint src/ --fix && prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "husky": {

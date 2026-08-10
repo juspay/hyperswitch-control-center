@@ -8,7 +8,8 @@ let make = (~emailLogoUrl: option<string>=?) => {
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
   let formValues = formState.values->LogicUtils.getDictFromJsonObject
-  let emailConfig = getEmailFormValues(~formValues)
+  let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let emailConfig = getEmailFormValues(~formValues, ~branding)
 
   <div className="rounded-lg overflow-hidden w-full h-3/4 shadow-xl p-4 bg-nd_gray-50 ">
     <div

@@ -11,7 +11,7 @@ let workflowCardsData: array<cardDetails> = [
   },
 ]
 
-let getStepsForWorkflow = (workflowTitle): array<stepDetails> => {
+let getStepsForWorkflow = (~hyperswitchResources, workflowTitle): array<stepDetails> => {
   open Typography
   switch workflowTitle {
   | #ExploreSmartRetries => [
@@ -19,18 +19,22 @@ let getStepsForWorkflow = (workflowTitle): array<stepDetails> => {
         title: "Get Started",
         description: <span className={`${body.md.medium} text-nd_gray-600`}>
           {React.string(
-            "This guide uses pre-configured dummy processors and test cards to simulate Smart Retry. For real connectors, refer to docs.",
+            hyperswitchResources
+              ? "This guide uses pre-configured dummy processors and test cards to simulate Smart Retry. For real connectors, refer to docs."
+              : "This guide uses pre-configured dummy processors and test cards to simulate Smart Retry.",
           )}
         </span>,
         videoPath: None,
         sectionTrackingEvent: "explore_smart_retries_get_started",
-        cta: Some((
-          "Refer Docs →",
-          ExternalLink({
-            url: "https://docs.hyperswitch.io/",
-            trackingEvent: "external_redirect_to_docs",
-          }),
-        )),
+        cta: hyperswitchResources
+          ? Some((
+              "Refer Docs →",
+              ExternalLink({
+                url: "https://docs.hyperswitch.io/",
+                trackingEvent: "external_redirect_to_docs",
+              }),
+            ))
+          : None,
       },
       {
         title: "Step 1: Enable Auto Retries",
@@ -77,7 +81,7 @@ let getStepsForWorkflow = (workflowTitle): array<stepDetails> => {
   }
 }
 
-let getCurrentWorkflowDetails = (workflowType: workflowTypes): (
+let getCurrentWorkflowDetails = (~hyperswitchResources, workflowType: workflowTypes): (
   string,
   string,
   array<stepDetails>,
@@ -86,9 +90,13 @@ let getCurrentWorkflowDetails = (workflowType: workflowTypes): (
   | #ExploreSmartRetries => (
       "Smart Retry Setup Guide",
       "Automatically re-attempt failed payments using fallback processors to improve your success rate.",
-      getStepsForWorkflow(workflowType),
+      getStepsForWorkflow(~hyperswitchResources, workflowType),
     )
-  | #ExploreRouting => ("Explore Routing", "", getStepsForWorkflow(workflowType))
+  | #ExploreRouting => (
+      "Explore Routing",
+      "",
+      getStepsForWorkflow(~hyperswitchResources, workflowType),
+    )
   }
 }
 

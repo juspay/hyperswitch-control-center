@@ -2,6 +2,13 @@
 let make = () => {
   open PageUtils
   open AltPaymentMethodsUtils
+  let {hyperswitchResources} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let visibleConfiguration = alternatePaymentConfiguration->Array.filter(item =>
+    switch item.action {
+    | InternalRoute(_) => true
+    | ExternalLink(_) => hyperswitchResources
+    }
+  )
   <div className="flex flex-1 flex-col gap-8  w-5/6 h-screen">
     <PageHeading
       customHeadingStyle="gap-2 flex flex-col "
@@ -19,7 +26,7 @@ let make = () => {
         alt="alternatePaymentMethodsOnboarding"
       />
     </div>
-    {alternatePaymentConfiguration
+    {visibleConfiguration
     ->Array.mapWithIndex((item, idx) =>
       <APMConfigureStep
         index=idx

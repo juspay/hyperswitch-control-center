@@ -4,6 +4,7 @@ let make = () => {
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let {hyperswitchResources} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let userHasCreateMerchantAccess = OMPCreateAccessHook.useOMPCreateAccessHook([
     #tenant_admin,
@@ -22,7 +23,9 @@ let make = () => {
         title="Securely store your users' sensitive data"
         customTitleStyle="text-2xl text-center font-bold text-nd_gray-700 font-500"
         customSubTitleStyle="text-fs-16 font-normal text-center max-w-700"
-        subTitle="Learn how to vault cards from your Server if you're PCI compliant and learn how to vault cards using Hyperswitch's Checkout if you're non-PCI compliant"
+        subTitle={hyperswitchResources
+          ? "Learn how to vault cards from your Server if you're PCI compliant and learn how to vault cards using Hyperswitch's Checkout if you're non-PCI compliant"
+          : "Learn how to vault cards from your server if you're PCI compliant, or use the hosted checkout if you're non-PCI compliant"}
       />
       <ACLButton
         authorization={userHasCreateMerchantAccess}

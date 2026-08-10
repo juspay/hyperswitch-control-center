@@ -46,6 +46,7 @@ let parseThemeJson = (
   let dict = uiConfig->getDictFromJsonObject
   let settings = dict->getDictfromDict("settings")
   let url = dict->getDictfromDict("urls")
+  let identity = dict->getDictfromDict("identity")
   let colorsConfig = settings->getDictfromDict("colors")
   let sidebarConfig = settings->getDictfromDict("sidebar")
   let typography = settings->getDictfromDict("typography")
@@ -126,5 +127,6 @@ let parseThemeJson = (
       faviconUrl: url->getOptionString("faviconUrl"),
       logoUrl: url->getOptionString("logoUrl"),
     },
+    identity: {productName: identity->getOptionString("productName")},
   }
 }

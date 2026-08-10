@@ -112,7 +112,10 @@ let make = (~setScreenState) => {
         <Blocklist />
       </AccessControl>
     | list{"compliance"} =>
-      <AccessControl isEnabled=featureFlagDetails.complianceCertificate authorization=Access>
+      <AccessControl
+        isEnabled={featureFlagDetails.complianceCertificate &&
+        (featureFlagDetails.hyperswitchResources || WhitelabelUtils.isCustomComplianceAvailable())}
+        authorization=Access>
         <Compliance />
       </AccessControl>
     | list{"3ds"} =>

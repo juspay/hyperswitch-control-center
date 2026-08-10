@@ -14,7 +14,7 @@ let keysToValidateForHyperswitch = [
 let businessName = FormRenderer.makeFieldInfo(
   ~label="Business name",
   ~name="merchant_name",
-  ~placeholder="Eg: HyperSwitch Pvt Ltd",
+  ~placeholder="Eg: Acme Pvt Ltd",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
 )
@@ -75,13 +75,13 @@ let aboutBusiness = FormRenderer.makeFieldInfo(
 )
 
 let hyperswitchUsage = FormRenderer.makeFieldInfo(
-  ~label="How are you planning to use Hyperswitch?",
+  ~label="How are you planning to use the platform?",
   ~name="hyperswitch.hyperswitch_req",
   ~customInput=InputFields.radioInput(
     ~options=[
-      "Looking to use Hyperswitch SaaS/Cloud hosted solution for payments",
-      "Looking to self-host Hyperswitch's open-source version for payments",
-      "Looking to resell Hyperswitch's open-source solution",
+      "Looking to use a cloud-hosted solution for payments",
+      "Looking to self-host the open-source version for payments",
+      "Looking to resell the open-source solution",
     ]->SelectBox.makeOptions,
     ~buttonText="Business Size",
   ),
@@ -89,7 +89,7 @@ let hyperswitchUsage = FormRenderer.makeFieldInfo(
 )
 
 let hyperswitchFeatures = FormRenderer.makeFieldInfo(
-  ~label="Hyperswitch features required",
+  ~label="Platform features required",
   ~name="hyperswitch.required_features",
   ~customInput=InputFields.checkboxInput(
     ~options=[
@@ -126,7 +126,7 @@ let processorRequired = FormRenderer.makeFieldInfo(
 )
 
 let plannedGoLiveDate = FormRenderer.makeFieldInfo(
-  ~label="Planned go-live date with Hyperswitch",
+  ~label="Planned go-live date",
   ~name="hyperswitch.planned_live_date",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,

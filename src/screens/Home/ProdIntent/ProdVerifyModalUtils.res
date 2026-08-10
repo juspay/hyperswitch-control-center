@@ -22,7 +22,7 @@ let getStringFromVariant = key => {
 let businessName = FormRenderer.makeFieldInfo(
   ~label="Legal Business Name",
   ~name=BusinessName->getStringFromVariant,
-  ~placeholder="Eg: HyperSwitch Pvt Ltd",
+  ~placeholder="Eg: Acme Pvt Ltd",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
 )
@@ -46,7 +46,7 @@ let pocName = FormRenderer.makeFieldInfo(
 let pocEmail = FormRenderer.makeFieldInfo(
   ~label="Contact Email",
   ~name=POCemail->getStringFromVariant,
-  ~placeholder="Eg: jackryan@hyperswitch.io",
+  ~placeholder="Eg: user@example.com",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
 )

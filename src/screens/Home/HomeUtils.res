@@ -133,6 +133,7 @@ module ControlCenter = {
   @react.component
   let make = () => {
     let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {hyperswitchResources} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
     let connectorUrl = RouteUtils.getPath(~path="/connectors", version)
@@ -182,6 +183,7 @@ module DevResources = {
   open Typography
   @react.component
   let make = () => {
+    let {hyperswitchResources} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
     let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -219,26 +221,28 @@ module DevResources = {
             />
           </CardLayout>
         </RenderIf>
-        <CardLayout width="" customStyle="flex-1 rounded-xl p-6 gap-4">
-          <div className="flex flex-col gap-4 ">
-            <CardHeader
-              heading="Developer docs"
-              subHeading="Everything you need to know to get the SDK up and running is right here."
-              customHeadingStyle={`!${heading.sm.semibold}`}
-              customSubHeadingStyle="!text-fs-14 !text-nd_gray-400 !opacity-100 !-mt-0.5"
+        <RenderIf condition=hyperswitchResources>
+          <CardLayout width="" customStyle="flex-1 rounded-xl p-6 gap-4">
+            <div className="flex flex-col gap-4 ">
+              <CardHeader
+                heading="Developer docs"
+                subHeading="Everything you need to know to get the SDK up and running is right here."
+                customHeadingStyle={`!${heading.sm.semibold}`}
+                customSubHeadingStyle="!text-fs-14 !text-nd_gray-400 !opacity-100 !-mt-0.5"
+              />
+              <img alt="devdocs" src="/assets/DevDocs.png" />
+            </div>
+            <Button
+              text="Visit"
+              buttonType={Secondary}
+              buttonSize={Medium}
+              onClick={_ => {
+                mixpanelEvent(~eventName=`dev_docs`)
+                "https://hyperswitch.io/docs"->Window._open
+              }}
             />
-            <img alt="devdocs" src="/assets/DevDocs.png" />
-          </div>
-          <Button
-            text="Visit"
-            buttonType={Secondary}
-            buttonSize={Medium}
-            onClick={_ => {
-              mixpanelEvent(~eventName=`dev_docs`)
-              "https://hyperswitch.io/docs"->Window._open
-            }}
-          />
-        </CardLayout>
+          </CardLayout>
+        </RenderIf>
       </div>
     </div>
   }

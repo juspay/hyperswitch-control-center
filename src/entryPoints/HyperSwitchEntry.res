@@ -30,7 +30,9 @@ module HyperSwitchEntryComponent = {
       open LogicUtils
       open HyperSwitchConfigTypes
       try {
-        let dict = urlConfig->getDictFromJsonObject->getDictfromDict("endpoints")
+        let configDict = urlConfig->getDictFromJsonObject
+        let dict = configDict->getDictfromDict("endpoints")
+        let complianceDict = configDict->getDictfromDict("whitelabel_compliance")
         let value: urlConfig = {
           apiBaseUrl: dict->getString("api_url", ""),
           mixpanelToken: dict->getString("mixpanel_token", ""),
@@ -48,6 +50,21 @@ module HyperSwitchEntryComponent = {
           urlThemeConfig: {
             faviconUrl: dict->getString("favicon_url", "")->getNonEmptyString,
             logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
+          },
+          whitelabelComplianceConfig: {
+            applePayInstructions: complianceDict
+            ->getString("apple_pay_instructions", "")
+            ->getNonEmptyString,
+            applePayRequestTemplate: complianceDict
+            ->getString("apple_pay_request_template", "")
+            ->getNonEmptyString,
+            supportEmail: complianceDict->getString("support_email", "")->getNonEmptyString,
+            certificateTitle: complianceDict
+            ->getString("certificate_title", "")
+            ->getNonEmptyString,
+            certificateDownloadFilename: complianceDict
+            ->getString("certificate_download_filename", "")
+            ->getNonEmptyString,
           },
           hypersenseUrl: dict->getString("hypersense_url", ""),
         }

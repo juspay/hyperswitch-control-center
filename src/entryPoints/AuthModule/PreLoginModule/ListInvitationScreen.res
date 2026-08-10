@@ -15,10 +15,13 @@ let make = () => {
   let (acceptedInvites, setAcceptedInvites) = React.useState(_ => [])
   let (pendindInvites, setPendingInvites) = React.useState(_ => [])
   let handleLogout = useHandleLogout()
+  let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let productName = WhitelabelUtils.useResolvedProductName()
   let (logoVariant, iconUrl) = switch Window.env.urlThemeConfig.logoUrl {
   | Some(url) => (IconWithURL, Some(url))
   | _ => (IconWithText, None)
   }
+  let showLogo = !branding || iconUrl->Option.getOr("")->isNonEmptyString
 
   let getListOfMerchantIds = async () => {
     try {
@@ -76,11 +79,15 @@ let make = () => {
     <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6">
       <div className="bg-white h-35-rem w-200 rounded-2xl">
         <div className="p-6 border-b-2">
-          <HyperSwitchLogo logoHeight="h-6" logoVariant iconUrl />
+          <RenderIf condition=showLogo>
+            <HyperSwitchLogo logoHeight="h-6" logoVariant iconUrl />
+          </RenderIf>
         </div>
         <div className="p-6 flex flex-col gap-2">
           <p className={`${textHeadingClass} text-grey-900`}>
-            {"Hey there, welcome to Hyperswitch!"->React.string}
+            {productName
+            ->Option.mapOr("Hey there, welcome!", name => `Hey there, welcome to ${name}!`)
+            ->React.string}
           </p>
           <p className=textSubHeadingClass>
             {"Please accept your pending invitations"->React.string}
@@ -95,7 +102,11 @@ let make = () => {
               <div className="flex items-center gap-5">
                 <Icon size=40 name="group-users" />
                 <div>
-                  {`You've been invited to the Hyperswitch dashboard by `->React.string}
+                  {productName
+                  ->Option.mapOr(`You've been invited to the dashboard by `, name =>
+                    `You've been invited to the ${name} dashboard by `
+                  )
+                  ->React.string}
                   <span className="font-bold"> {{ele.entityId}->React.string} </span>
                   {` as `->React.string}
                   <span className="font-bold"> {{ele.roleId}->React.string} </span>

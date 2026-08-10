@@ -43,7 +43,7 @@ let mockValues: mockValues = {
   secondaryButtonText: "Secondary Button",
   logoPlaceholder: "Your Logo Here",
   browserTabTitle: "Dashboard",
-  browserUrl: "app.hyperswitch.io/dashboard",
+  browserUrl: "dashboard.example.com",
   emailLogoPlaceholder: "Your Logo Here",
   emailGreeting: "Dear User, we are thrilled to welcome you into our community!",
   emailLinkExpireText: name =>

@@ -3,6 +3,7 @@ let p1MediumTextStyle = HSwitchUtils.getTextClass((P1, Medium))
 module CantFindProcessor = {
   @react.component
   let make = (~showRequestConnectorBtn) => {
+    let {hyperswitchResources} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let isOrchestrationVault = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orchestrationVaultAtom)
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let handleClick = () => {
@@ -14,7 +15,7 @@ module CantFindProcessor = {
       )
       "https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"->Window._open
     }
-    <RenderIf condition={showRequestConnectorBtn}>
+    <RenderIf condition={showRequestConnectorBtn && hyperswitchResources}>
       <div
         className="flex flex-row items-center gap-2 text-primary cursor-pointer font-semibold"
         onClick={_ => handleClick()}>

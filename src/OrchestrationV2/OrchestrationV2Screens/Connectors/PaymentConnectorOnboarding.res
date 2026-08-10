@@ -16,6 +16,7 @@ let make = () => {
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let showToast = ToastAdapter.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let {hyperswitchResources} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
     ~entityName=V2(V2_CONNECTOR),
     ~version=V2,
@@ -199,7 +200,9 @@ let make = () => {
           <PageUtils.PageHeading
             showPermLink=false
             title="Authenticate Processor"
-            subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely."
+            subTitle={hyperswitchResources
+              ? "Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely."
+              : "Configure your credentials from your processor dashboard. These credentials are encrypted and stored securely."}
             customSubTitleStyle="font-500 font-normal text-nd_gray-700"
           />
           <PageLoaderWrapper screenState>

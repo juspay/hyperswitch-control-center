@@ -221,6 +221,7 @@ module DisputesInfoBarComponent = {
     open APIUtils
     open LogicUtils
     open PageLoaderWrapper
+    let {hyperswitchResources} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let getURL = useGetURL()
     let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
       ThemeProvider.themeContext,
@@ -286,22 +287,24 @@ module DisputesInfoBarComponent = {
                     {"The customer claims that they did not authorise this purchase."->React.string}
                   </p>
                 </div>
-                <div
-                  className="flex gap-2 group items-center cursor-pointer"
-                  onClick={_ =>
-                    Window._open(
-                      "https://docs.hyperswitch.io/features/merchant-controls/disputes",
-                    )}>
-                  <p className={`${p1MediumText}  ${textColor.primaryNormal}`}>
-                    {"Learn how to respond"->React.string}
-                  </p>
-                  <Icon
-                    name="thin-right-arrow"
-                    size=20
-                    className="group-hover:scale-125 transition duration-200 ease-in-out"
-                    customIconColor={textColor.primaryNormal}
-                  />
-                </div>
+                <RenderIf condition=hyperswitchResources>
+                  <div
+                    className="flex gap-2 group items-center cursor-pointer"
+                    onClick={_ =>
+                      Window._open(
+                        "https://docs.hyperswitch.io/features/merchant-controls/disputes",
+                      )}>
+                    <p className={`${p1MediumText}  ${textColor.primaryNormal}`}>
+                      {"Learn how to respond"->React.string}
+                    </p>
+                    <Icon
+                      name="thin-right-arrow"
+                      size=20
+                      className="group-hover:scale-125 transition duration-200 ease-in-out"
+                      customIconColor={textColor.primaryNormal}
+                    />
+                  </div>
+                </RenderIf>
               </div>
             | EvidencePresent =>
               <div className="flex flex-col gap-8">

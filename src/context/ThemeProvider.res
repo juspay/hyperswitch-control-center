@@ -15,8 +15,8 @@ type customUIConfig = {
   configCustomDomainTheme: JSON.t => unit,
   getThemesJson: (~themesID: option<string>, ~domain: option<string>=?) => promise<JSON.t>,
   logoURL: option<string>,
+  productName: option<string>,
 }
-open HyperSwitchConfigTypes
 
 // Fallback theme when theme.json fails to load or lacks properties. Keep in sync with config/theme.json.
 let fallbackThemeConfig: HyperSwitchConfigTypes.customStylesTheme = {
@@ -64,14 +64,26 @@ let fallbackThemeConfig: HyperSwitchConfigTypes.customStylesTheme = {
     faviconUrl: Some("/HyperswitchFavicon.png"),
     logoUrl: Some(""),
   },
+  identity: {productName: None},
 }
 
-let defaultEmailConfig: emailConfig = {
+let defaultEmailConfig: HyperSwitchConfigTypes.emailConfig = {
   entity_name: "Hyperswitch",
   entity_logo_url: "https://app.hyperswitch.io/email-assets/HyperswitchLogo.png",
   primary_color: "#006DF9",
   foreground_color: "#111326",
   background_color: "#FFFFFF",
+}
+let getDefaultEmailConfig = (~branding, ~productName: option<string>=None) => {
+  let entityName = switch productName->Option.flatMap(LogicUtils.getNonEmptyString) {
+  | Some(name) => name
+  | None => branding ? "Your company" : defaultEmailConfig.entity_name
+  }
+  {
+    ...defaultEmailConfig,
+    entity_name: entityName,
+    entity_logo_url: branding ? "" : defaultEmailConfig.entity_logo_url,
+  }
 }
 
 let themeContext = {
@@ -85,6 +97,7 @@ let themeContext = {
     }
   },
   logoURL: Some(""),
+  productName: None,
 }
 
 let themeContext = React.createContext(themeContext)
@@ -103,6 +116,7 @@ let make = (~children) => {
   let fetchApi = AuthHooks.useApiFetcher()
   let isCurrentlyDark = MatchMedia.useMatchMedia("(prefers-color-scheme: dark)")
   let (contextLogoUrl, setContextLogoUrl) = React.useState(() => Some(""))
+  let (contextProductName, setContextProductName) = React.useState(() => None)
 
   let initialTheme = Light
 
@@ -165,6 +179,7 @@ let make = (~children) => {
     open HyperSwitchConfigTypes
     try {
       let urlsDict = themesData->getDictFromJsonObject->getDictfromDict("urls")
+      let identityDict = themesData->getDictFromJsonObject->getDictfromDict("identity")
       let existingEnv = DOMUtils.window._env_
       let getUrl = (key, defaultVal, existingVal) => {
         let value = urlsDict->getJsonObjectFromDict(key)
@@ -208,6 +223,7 @@ let make = (~children) => {
       DOMUtils.window._env_ = updatedUrlConfig
       configureFavIcon(faviconUrlWithVersion)
       setContextLogoUrl(_ => logoUrlWithVersion)
+      setContextProductName(_ => identityDict->getOptionString("productName"))
     } catch {
     | _ => Exn.raiseError("Error while updating theme URL and favicon")
     }
@@ -217,6 +233,7 @@ let make = (~children) => {
     let defaultStyle = {
       "settings": fallbackThemeConfig.settings,
       "urls": fallbackThemeConfig.urls,
+      "identity": fallbackThemeConfig.identity,
     }->Identity.genericTypeToJson
     defaultStyle
   }
@@ -322,8 +339,9 @@ let make = (~children) => {
       configCustomDomainTheme,
       getThemesJson,
       logoURL: contextLogoUrl,
+      productName: contextProductName,
     }
-  }, (theme, setTheme, contextLogoUrl))
+  }, (theme, setTheme, contextLogoUrl, contextProductName))
 
   React.useEffect(() => {
     Window.addEventListener("message", handleInitConfigMessage)

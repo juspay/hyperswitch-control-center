@@ -23,8 +23,14 @@ let make = () => {
   let showToast = ToastAdapter.useShowToast()
   let fetchApi = AuthHooks.useApiFetcher()
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
-  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader, hyperswitchResources} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let customCompliance = WhitelabelUtils.getApprovedComplianceConfig()
+  let isComplianceAvailable = hyperswitchResources || customCompliance->Option.isSome
+  let certificateTitle = switch customCompliance {
+  | Some(config) if !hyperswitchResources => config.certificateTitle
+  | _ => "Hyperswitch's PCI Attestation of Compliance"
+  }
   let downloadPDF = _ => {
     setButtonState(_ => Button.Loading)
     let currentDate =
@@ -33,7 +39,16 @@ let make = () => {
       ->Date.toISOString
       ->TimeZoneHook.formattedISOString("YYYY-MM-DD HH:mm:ss")
 
-    let downloadURL = Window.env.dssCertificateUrl->Option.getOr("")
+    let (downloadURL, fileName) = switch customCompliance {
+    | Some(config) if !hyperswitchResources => (
+        config.certificateUrl,
+        config.certificateDownloadFilename,
+      )
+    | _ => (
+        Window.env.dssCertificateUrl->Option.getOr(""),
+        `HyperswitchPCICertificate-${currentDate}.pdf`,
+      )
+    }
 
     // For local testing this condition is added
     if downloadURL->LogicUtils.isNonEmptyString {
@@ -43,11 +58,7 @@ let make = () => {
         Fetch.Response.blob(resp)
       })
       ->then(content => {
-        DownloadUtils.download(
-          ~fileName=`HyperswitchPCICertificate-${currentDate}.pdf`,
-          ~content,
-          ~fileType="application/pdf",
-        )
+        DownloadUtils.download(~fileName, ~content, ~fileType="application/pdf")
         showToast(
           ~toastType=ToastSuccess,
           ~message="PCI Attestation of Compliance certificate download complete",
@@ -70,14 +81,16 @@ let make = () => {
     }
   }
 
-  <div className="flex flex-col gap-12">
-    <PageUtils.PageHeading
-      title="Compliance" subTitle="Achieve and Maintain Industry Compliance Standards"
-    />
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
-      <DownloadCertificateTile
-        header="Hyperswitch's PCI Attestation of Compliance" onClick=downloadPDF buttonState
+  if !isComplianceAvailable {
+    React.null
+  } else {
+    <div className="flex flex-col gap-12">
+      <PageUtils.PageHeading
+        title="Compliance" subTitle="Achieve and Maintain Industry Compliance Standards"
       />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
+        <DownloadCertificateTile header=certificateTitle onClick=downloadPDF buttonState />
+      </div>
     </div>
-  </div>
+  }
 }

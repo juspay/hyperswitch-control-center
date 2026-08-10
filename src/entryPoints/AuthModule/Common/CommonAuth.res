@@ -44,6 +44,7 @@ module Header = {
   let make = (~authType, ~setAuthType, ~email) => {
     open CommonAuthTypes
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
+    let productName = WhitelabelUtils.useResolvedProductName()
     let {isSignUpAllowed} = AuthModuleHooks.useAuthMethods()
     let form = ReactFinalForm.useForm()
     let {email: isMagicLinkEnabled} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -59,7 +60,7 @@ module Header = {
 
     let cardHeaderText = switch authType {
     | LoginWithPassword | LoginWithEmail => "Hey there, Welcome back!"
-    | SignUP => "Welcome to Hyperswitch"
+    | SignUP => productName->Option.mapOr("Welcome", name => `Welcome to ${name}`)
     | MagicLinkEmailSent
     | ForgetPasswordEmailSent
     | ResendVerifyEmailSent => "Please check your inbox"
@@ -127,7 +128,7 @@ module Header = {
       | LoginWithPassword | LoginWithEmail =>
         <RenderIf condition={signUpAllowed}>
           {getHeaderLink(
-            ~prefix="New to Hyperswitch?",
+            ~prefix={productName->Option.mapOr("New here?", name => `New to ${name}?`)},
             ~authType=SignUP,
             ~path="/register",
             ~suffix="Sign up",
@@ -136,7 +137,9 @@ module Header = {
 
       | SignUP =>
         getHeaderLink(
-          ~prefix="Already using Hyperswitch?",
+          ~prefix={
+            productName->Option.mapOr("Already have an account?", name => `Already using ${name}?`)
+          },
           ~authType=isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword,
           ~path=`/login?auth_id=${authId}`,
           ~suffix="Sign in",

@@ -5,6 +5,7 @@ let make = (~showModal, ~setShowModal) => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {hyperswitchResources} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let handleUpdate = async () => {
     try {
       let body =
@@ -34,12 +35,14 @@ let make = (~showModal, ~setShowModal) => {
       <div className={`${body.md.medium} text-nd_gray-600 pt-6 pb-2`}>
         <span>
           {"To get started with least-cost routing, ensure connectors with local network support are configured "->React.string}
-          <a
-            href="https://docs.hyperswitch.io/explore-hyperswitch/payment-orchestration/smart-router/least-cost-routing#supported-configuration-for-least-cost-routing"
-            target="_blank"
-            className="inline-flex items-center">
-            <Icon name="external-link-alt" size=10 className="ml-1 text-blue-500" />
-          </a>
+          <RenderIf condition=hyperswitchResources>
+            <a
+              href="https://docs.hyperswitch.io/explore-hyperswitch/payment-orchestration/smart-router/least-cost-routing#supported-configuration-for-least-cost-routing"
+              target="_blank"
+              className="inline-flex items-center">
+              <Icon name="external-link-alt" size=10 className="ml-1 text-blue-500" />
+            </a>
+          </RenderIf>
         </span>
       </div>
       <div className="flex justify-end gap-4 pb-8 pt-2">

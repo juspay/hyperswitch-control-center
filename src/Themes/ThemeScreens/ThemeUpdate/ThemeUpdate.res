@@ -13,8 +13,9 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
     ~merchantId=merchantId->Option.getOr(""),
     ~profileId=profileId->Option.getOr(""),
   )
+  let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (initialValues, setInitialValues) = React.useState(() =>
-    defaultCreate(~lineage)->Identity.genericTypeToJson
+    defaultCreate(~lineage, ~branding)->Identity.genericTypeToJson
   )
   let {getUserInfo} = OMPSwitchHooks.useUserInfo()
   let {setApplicationState} = React.useContext(UserInfoProvider.defaultContext)
@@ -133,7 +134,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
       setScreenState(_ => Loading)
-      let {theme_data: {settings}, email_config} = values->themeBodyMapper
+      let {theme_data: {settings, identity}, email_config} = values->themeBodyMapper
       let processed = if (
         assets.logo->Option.isSome ||
         assets.favicon->Option.isSome ||
@@ -150,6 +151,7 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
       let requestBody = buildThemeDataBody(
         ~settings,
         ~urls=processed.urls,
+        ~identity,
         ~emailConfig=updatedEmailConfig,
       )
 

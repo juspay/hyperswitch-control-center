@@ -2,10 +2,19 @@
 let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
   open HSwitchUtils
   open LogicUtils
+  open CommonAuthTypes
 
   let textHeadingClass = getTextClass((H2, Optional))
   let textSubHeadingClass = getTextClass((P1, Regular))
   let handleLogout = APIUtils.useHandleLogout()
+  let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {logoURL} = React.useContext(ThemeProvider.themeContext)
+  let productName = WhitelabelUtils.useResolvedProductName()
+  let (logoVariant, iconUrl) = switch logoURL {
+  | Some(url) => (IconWithURL, Some(url))
+  | None => (IconWithText, None)
+  }
+  let showLogo = !branding || iconUrl->Option.getOr("")->isNonEmptyString
   let isAtleastOneAccept = React.useMemo(() => {
     merchantData
     ->Array.find(ele => ele->getDictFromJsonObject->getBool("is_active", false))
@@ -18,11 +27,15 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
     <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6">
       <div className="bg-white h-35-rem w-200 rounded-2xl">
         <div className="p-6 border-b-2">
-          <img alt="logo-with-text" src={`assets/Light/juspayHyperswitchLogoIconWithText.svg`} />
+          <RenderIf condition=showLogo>
+            <HyperSwitchLogo logoHeight="h-6" logoVariant iconUrl />
+          </RenderIf>
         </div>
         <div className="p-6 flex flex-col gap-2">
           <p className={`${textHeadingClass} text-grey-900`}>
-            {"Hey there, welcome to Hyperswitch!"->React.string}
+            {productName
+            ->Option.mapOr("Hey there, welcome!", name => `Hey there, welcome to ${name}!`)
+            ->React.string}
           </p>
           <p className=textSubHeadingClass>
             {"Please accept your pending invitations"->React.string}
@@ -41,7 +54,11 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
               <div className="flex items-center gap-5">
                 <Icon size=40 name="group-users" />
                 <div>
-                  {`You've been invited to the Hyperswitch dashboard by `->React.string}
+                  {productName
+                  ->Option.mapOr(`You've been invited to the dashboard by `, name =>
+                    `You've been invited to the ${name} dashboard by `
+                  )
+                  ->React.string}
                   <span className="font-bold">
                     {{merchantName->String.length > 0 ? merchantName : merchantId}->React.string}
                   </span>

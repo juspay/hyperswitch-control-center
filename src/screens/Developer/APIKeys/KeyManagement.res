@@ -5,6 +5,7 @@ let make = () => {
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {isCurrentMerchantPlatform, isCurrentOrganizationPlatform} = OMPSwitchHooks.useOMPType()
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let {hyperswitchResources} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let redirectToDocs = _ => {
     mixpanelEvent(~eventName="api_keys_banner_learn_more")
@@ -28,19 +29,23 @@ let make = () => {
     />
     <RenderIf condition={isCurrentOrganizationPlatform}>
       <div className="py-4">
-        <AlertV2Binding
-          alertType=Warning
-          slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
-          heading={isCurrentMerchantPlatform ? "Platform Merchant Account:" : ""}
-          description=bannerText
-          actions={{
-            position: Bottom,
-            primaryAction: {
-              text: "Learn More",
-              onClick: redirectToDocs,
-            },
-          }}
-        />
+        {hyperswitchResources
+          ? <AlertV2Binding
+              alertType=Warning
+              slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
+              heading={isCurrentMerchantPlatform ? "Platform Merchant Account:" : ""}
+              description=bannerText
+              actions={{
+                position: Bottom,
+                primaryAction: {text: "Learn More", onClick: redirectToDocs},
+              }}
+            />
+          : <AlertV2Binding
+              alertType=Warning
+              slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
+              heading={isCurrentMerchantPlatform ? "Platform Merchant Account:" : ""}
+              description=bannerText
+            />}
       </div>
     </RenderIf>
     <ApiKeysTable />

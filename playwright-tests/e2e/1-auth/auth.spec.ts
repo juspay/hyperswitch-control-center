@@ -888,8 +888,8 @@ test.describe("TOTP flows", () => {
   });
 });
 
-test.describe("Branding flag", () => {
-  test("should show T&C and footer links on auth pages when branding flag is OFF", async ({
+test.describe("Whitelabel auth configuration", () => {
+  test("should show hosted resources independently of custom branding", async ({
     page,
   }) => {
     const signinPage = new SignInPage(page);
@@ -898,7 +898,8 @@ test.describe("Branding flag", () => {
       const response = await route.fetch();
       const json = await response.json();
       if (json && json.features) {
-        json.features.branding = false;
+        json.features.branding = true;
+        json.features.hyperswitch_resources = true;
       }
       await route.fulfill({ response, json });
     });
@@ -909,7 +910,7 @@ test.describe("Branding flag", () => {
     await expect(signinPage.footerText).toBeVisible();
   });
 
-  test("should hide T&C and footer links on auth pages when branding flag is ON", async ({
+  test("should hide hosted resources without requiring custom branding", async ({
     page,
   }) => {
     const signinPage = new SignInPage(page);
@@ -918,7 +919,8 @@ test.describe("Branding flag", () => {
       const response = await route.fetch();
       const json = await response.json();
       if (json && json.features) {
-        json.features.branding = true;
+        json.features.branding = false;
+        json.features.hyperswitch_resources = false;
       }
       await route.fulfill({ response, json });
     });
@@ -930,6 +932,23 @@ test.describe("Branding flag", () => {
     );
     await expect(signinPage.tcText).not.toBeAttached();
     await expect(signinPage.footerText).not.toBeAttached();
+  });
+
+  test("should use the theme product name on signup", async ({ page }) => {
+    const signupPage = new SignUpPage(page);
+
+    await page.route("**/config/theme", async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      json.identity = { productName: "Acme Payments" };
+      await route.fulfill({ response, json });
+    });
+
+    await visitSignupPage(page);
+
+    await expect(signupPage.headerText).toContainText(
+      "Welcome to Acme Payments",
+    );
   });
 });
 

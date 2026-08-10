@@ -1,6 +1,8 @@
 module Render = {
   @react.component
   let make = (~connector, ~showModal, ~setShowModal) => {
+    let {hyperswitchResources} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let dashboardName = hyperswitchResources ? "Hyperswitch dashboard" : "dashboard"
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let integrationSteps = switch connector->ConnectorUtils.getConnectorNameTypeFromString {
     | Processors(STRIPE) =>
@@ -23,7 +25,7 @@ module Render = {
           </li>
           <li className="mb-8">
             {React.string(
-              "Copy the Secret and Public keys and add them to the Hyperswitch dashboard under Stripe",
+              `Copy the Secret and Public keys and add them to the ${dashboardName} under Stripe`,
             )}
           </li>
         </ol>
@@ -40,7 +42,9 @@ module Render = {
             </li>
             <li className="mb-4">
               {React.string(
-                "Currently, Hyperswitch supports the latest Payments Intent APIs of Stripe API that is created after 2019",
+                hyperswitchResources
+                  ? "Currently, Hyperswitch supports the latest Payment Intents APIs of Stripe created after 2019"
+                  : "This integration supports the latest Stripe Payment Intents APIs created after 2019",
               )}
             </li>
             <li className="mb-4">
@@ -82,7 +86,7 @@ module Render = {
           </li>
           <li className="mb-4">
             {React.string(
-              "Copy the API key and Merchant Account ID and add them to the Hyperswitch dashboard under Adyen.",
+              `Copy the API key and Merchant Account ID and add them to the ${dashboardName} under Adyen.`,
             )}
           </li>
         </ol>
@@ -112,12 +116,14 @@ module Render = {
           </li>
           <li className="mb-8">
             {React.string(
-              "Click on Update key (top-right). In the Processing channels section copy the Channel ID and add them to Hyperswitch dashboard under Checkout",
+              `Click on Update key (top-right). In the Processing channels section copy the Channel ID and add it to the ${dashboardName} under Checkout`,
             )}
           </li>
           <li className="mb-8">
-            {React.string("Use the Public key and Secret key generated during the creation of the Checkout's API key and add them to the Hyperswitch dashboard. 
-                For the hint about the key Click on the Developer tab and navigate to Keys")}
+            {React.string(
+              `Use the Public key and Secret key generated during the creation of the Checkout's API key and add them to the ${dashboardName}.
+                For the hint about the key Click on the Developer tab and navigate to Keys`,
+            )}
           </li>
         </ol>
         <div
@@ -140,7 +146,7 @@ module Render = {
             <span className="font-bold"> {React.string("\"API credentials\"")} </span>
             {React.string(" tab ")}
             <a
-              className={`$ underline`}
+              className={`${textColor.primaryNormal} underline`}
               href="https://developer.paypal.com/dashboard/applications/sandbox"
               target="_blank">
               {React.string("here")}

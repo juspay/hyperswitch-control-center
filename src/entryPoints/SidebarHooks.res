@@ -38,7 +38,10 @@ let useGetHsSidebarValues = () => {
     devTheme,
     devVault,
     devUsers,
+    hyperswitchResources,
   } = featureFlagDetails
+  let showComplianceCertificate =
+    complianceCertificate && (hyperswitchResources || WhitelabelUtils.isCustomComplianceAvailable())
   let {
     isFeatureEnabledForDenyListMerchant,
     merchantSpecificConfig,
@@ -107,7 +110,7 @@ let useGetHsSidebarValues = () => {
       ~userHasResourceAccess,
       ~userHasAccess,
       ~checkUserEntity,
-      ~complianceCertificate,
+      ~complianceCertificate=showComplianceCertificate,
       ~devModularityV2Enabled=devModularityV2,
       ~devThemeEnabled=devTheme,
       ~devUsers,

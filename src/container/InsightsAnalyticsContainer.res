@@ -168,7 +168,7 @@ let make = () => {
           onChange={updateAnalytcisEntity}
           entityMapper=UserInfoUtils.analyticsEntityMapper
           disabled=isSampleDataEnabled
-          disabledDisplayName="Hyperswitch_test"
+          disabledDisplayName="Test processor"
         />
       </Portal>
       <Tabs initialIndex={url->getPageIndex} tabs onTitleClick={tabId => setTabIndex(_ => tabId)} />

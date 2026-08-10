@@ -17,8 +17,9 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (showUploadModal, setShowUploadModal) = React.useState(_ => false)
   let (themeId, setThemeId) = React.useState(_ => "")
+  let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (initialValues, setInitialValues) = React.useState(() =>
-    defaultCreate(~lineage)->Identity.genericTypeToJson
+    defaultCreate(~lineage, ~branding)->Identity.genericTypeToJson
   )
 
   let redirectToList = () => {
@@ -29,10 +30,28 @@ let make = () => {
     try {
       setScreenState(_ => Loading)
       let themeURL = getURL(~entityName=V1(USERS), ~methodType=Post, ~id=None, ~userType=#THEME)
-      let res = await updateDetails(themeURL, values, Post)
+      let valuesDict = values->getDictFromJsonObject
+      let productName =
+        valuesDict
+        ->getDictfromDict("theme_data")
+        ->getDictfromDict("identity")
+        ->getOptionString("productName")
+        ->Option.flatMap(getNonEmptyString)
+      let emailDict = valuesDict->getDictfromDict("email_config")
+      let emailEntityName = emailDict->getString("entity_name", "")
+      switch productName {
+      | Some(productName)
+        if emailEntityName === "Hyperswitch" ||
+        emailEntityName === "Your company" ||
+        emailEntityName->isEmptyString =>
+        emailDict->Dict.set("entity_name", productName->JSON.Encode.string)
+      | _ => ()
+      }
+      let requestBody = valuesDict->JSON.Encode.object
+      let res = await updateDetails(themeURL, requestBody, Post)
       let newThemeId = res->getDictFromJsonObject->getString("theme_id", "")
       setThemeId(_ => newThemeId)
-      setInitialValues(_ => values)
+      setInitialValues(_ => requestBody)
       setScreenState(_ => Success)
       setShowUploadModal(_ => true)
     } catch {

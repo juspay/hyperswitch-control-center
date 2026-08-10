@@ -16,7 +16,8 @@ let make = (
   open RevenueRecoveryOnboardingUtils
   open ConnectProcessorsHelper
   open Typography
-  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+  let {isLiveMode, hyperswitchResources} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let getURL = useGetURL()
   let showToast = ToastAdapter.useShowToast()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
@@ -218,9 +219,12 @@ let make = (
       </p>
       <div className="p-2">
         <ReadOnlyOptionsList list=recoveryConnectorListProd headerText="Payment Gateways" />
-        <ReadOnlyOptionsList
-          list=RecoveryConnectorUtils.recoveryConnectorInHouseList headerText="Payment Orchestrator"
-        />
+        <RenderIf condition=hyperswitchResources>
+          <ReadOnlyOptionsList
+            list=RecoveryConnectorUtils.recoveryConnectorInHouseList
+            headerText="Payment Orchestrator"
+          />
+        </RenderIf>
       </div>
     </RenderIf>
   }

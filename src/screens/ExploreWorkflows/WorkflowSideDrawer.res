@@ -51,6 +51,7 @@ let make = () => {
     GlobalProvider.defaultContext,
   )
   let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
+  let {hyperswitchResources} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let isSmallerScreen = MatchMedia.useScreenSizeChecker(~screenSize="1279")
 
   let workflowTitle = switch workflowDrawerState {
@@ -58,7 +59,10 @@ let make = () => {
   | Closed => #ExploreSmartRetries
   }
 
-  let (drawerHeading, subHeading, steps) = getCurrentWorkflowDetails(workflowTitle)
+  let (drawerHeading, subHeading, steps) = getCurrentWorkflowDetails(
+    ~hyperswitchResources,
+    workflowTitle,
+  )
 
   let accordionItems = steps->Array.map(step => {
     let accItem: AccordionAdapter.accordion = {

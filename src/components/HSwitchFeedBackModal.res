@@ -51,7 +51,7 @@ let make = (
         <FormRenderer.FieldRenderer field=selectFeedbackType />
       </div>
       <div className="text-md w-full font-medium mt-3 ml-2 -mb-1 text-dark_black opacity-80 my-5">
-        {"How can we improve your hyperswitch experience?"->React.string}
+        {"How can we improve your experience?"->React.string}
       </div>
       <div className="mt-2">
         <FormRenderer.FieldRenderer field={feedbackTextBox} />

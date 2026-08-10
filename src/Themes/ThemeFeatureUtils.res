@@ -72,10 +72,18 @@ let getAssetDisplayUrl = (asset: option<ThemeTypes.assetValue>): option<string> 
 let buildThemeDataBody = (
   ~settings: HyperSwitchConfigTypes.themeSettings,
   ~urls: HyperSwitchConfigTypes.urlThemeConfig,
+  ~identity: HyperSwitchConfigTypes.identityConfig,
   ~emailConfig: HyperSwitchConfigTypes.emailConfig,
 ): JSON.t => {
+  let emailConfig = switch identity.productName->Option.flatMap(LogicUtils.getNonEmptyString) {
+  | Some(productName)
+    if emailConfig.entity_name === "Hyperswitch" ||
+    emailConfig.entity_name === "Your company" ||
+    emailConfig.entity_name->LogicUtils.isEmptyString => {...emailConfig, entity_name: productName}
+  | _ => emailConfig
+  }
   let body: ThemeUpdateType.themeUpdate = {
-    theme_data: {settings, urls},
+    theme_data: {settings, urls, identity},
     email_config: emailConfig,
   }
   body->Identity.genericTypeToJson

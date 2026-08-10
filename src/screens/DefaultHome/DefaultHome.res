@@ -5,6 +5,7 @@ let make = () => {
   open HyperswitchAtom
   let {devVaultV2Product, devRecoveryV2Product, devReconv2Product, devHypersenseV2Product} =
     featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {hyperswitchResources} = featureFlagAtom->Recoil.useRecoilValueFromAtom
   <div
     className="flex flex-1 flex-col gap-6 md:gap-8 w-full h-screen items-center overflow-auto p-4">
     <div className="flex flex-col w-full gap-3 items-center justify-center cursor-pointer">
@@ -26,15 +27,17 @@ let make = () => {
       //   </span>
       // </div>
     </div>
-    <div className="flex flex-col md:flex-row gap-4 w-full max-w-5xl">
-      {defaultHomeActionArray
-      ->Array.map(item =>
-        <DefaultActionItem
-          heading=item.heading description=item.description img=item.imgSrc action=item.action
-        />
-      )
-      ->React.array}
-    </div>
+    <RenderIf condition=hyperswitchResources>
+      <div className="flex flex-col md:flex-row gap-4 w-full max-w-5xl">
+        {defaultHomeActionArray
+        ->Array.map(item =>
+          <DefaultActionItem
+            heading=item.heading description=item.description img=item.imgSrc action=item.action
+          />
+        )
+        ->React.array}
+      </div>
+    </RenderIf>
     <div className="flex flex-col gap-4 md:gap-6 w-full max-w-5xl">
       <p className="text-fs-20 leading-24 font-semibold">
         {"Explore composable services"->React.string}

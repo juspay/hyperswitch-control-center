@@ -8,7 +8,10 @@ type themeCreateSettings = {
   buttons: buttonConfig,
 }
 
-type themeCreateData = {settings: themeCreateSettings}
+type themeCreateData = {
+  settings: themeCreateSettings,
+  identity: identityConfig,
+}
 
 type themeCreate = {
   entity_type: string,
@@ -21,7 +24,7 @@ type themeCreate = {
   email_config: option<emailConfig>,
 }
 
-let defaultCreate = (~lineage: lineage) => {
+let defaultCreate = (~lineage: lineage, ~branding=false) => {
   entity_type: lineage.entity_type,
   tenant_id: lineage.tenant_id,
   org_id: lineage.org_id,
@@ -34,6 +37,7 @@ let defaultCreate = (~lineage: lineage) => {
       sidebar: {fallbackThemeConfig.settings.sidebar},
       buttons: {fallbackThemeConfig.settings.buttons},
     },
+    identity: {productName: None},
   },
-  email_config: Some(defaultEmailConfig),
+  email_config: Some(getDefaultEmailConfig(~branding)),
 }

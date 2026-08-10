@@ -14,6 +14,7 @@ let make = (~getClientSecret) => {
     isGuestMode,
   } = React.useContext(SDKProvider.defaultContext)
   let showToast = ToastAdapter.useShowToast()
+  let {hyperswitchResources} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
     ThemeProvider.themeContext,
   )
@@ -45,15 +46,17 @@ let make = (~getClientSecret) => {
     <FieldRenderer field=selectLayoutField fieldWrapperClass="!w-full" />
     <FieldRenderer field=selectLabelsField fieldWrapperClass="!w-full" />
     <FieldRenderer field={enterPrimaryColorValue("#006DF9")} fieldWrapperClass="!w-full" />
-    <div className={`flex items-center mt-4 ${primaryNormal} ${body.md.medium}`}>
-      <Icon name="blue-info" className="mt-1" />
-      <a
-        className="cursor-pointer"
-        target="_blank"
-        href={"https://docs.hyperswitch.io/explore-hyperswitch/merchant-controls/integration-guide/web/customization"}>
-        {"Learn More About Customization"->React.string}
-      </a>
-    </div>
+    <RenderIf condition=hyperswitchResources>
+      <div className={`flex items-center mt-4 ${primaryNormal} ${body.md.medium}`}>
+        <Icon name="blue-info" className="mt-1" />
+        <a
+          className="cursor-pointer"
+          target="_blank"
+          href={"https://docs.hyperswitch.io/explore-hyperswitch/merchant-controls/integration-guide/web/customization"}>
+          {"Learn More About Customization"->React.string}
+        </a>
+      </div>
+    </RenderIf>
     <SubmitButton
       text="Show preview"
       disabledParameter={paymentConnectorList->Array.length === 0}

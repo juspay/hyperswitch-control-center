@@ -7,7 +7,8 @@ let make = () => {
   open APIUtils
 
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+  let {isLiveMode, hyperswitchResources} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
   let {id: orgId, name: orgName} =
     HyperswitchAtom.organizationDetailsValueAtom->Recoil.useRecoilValueFromAtom
@@ -183,7 +184,7 @@ let make = () => {
                 />
               </RenderIf>
             </div>
-            <RenderIf condition={isLiveMode}> {contactUsBanner} </RenderIf>
+            <RenderIf condition={isLiveMode && hyperswitchResources}> {contactUsBanner} </RenderIf>
           </div>
         </div>
         <div className="p-6 bg-white border border-nd_br_gray-200 rounded-lg">
@@ -196,7 +197,7 @@ let make = () => {
             <p className={`text-nd_gray-600 ${body.md.regular}`}>
               {"To convert your existing organization to a platform organization, please contact your administrator. This action requires elevated permissions and cannot be performed directly."->React.string}
             </p>
-            {contactUsBanner}
+            <RenderIf condition=hyperswitchResources> {contactUsBanner} </RenderIf>
           </div>
         </div>
       </div>

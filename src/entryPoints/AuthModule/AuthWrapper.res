@@ -4,7 +4,8 @@ module AuthHeaderWrapper = {
     open FramerMotion.Motion
     open CommonAuthTypes
 
-    let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {branding, hyperswitchResources} =
+      HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {logoURL} = React.useContext(ThemeProvider.themeContext)
     let (logoVariant, iconUrl) = switch (logoURL, branding) {
     | (Some(url), true) => (IconWithURL, Some(url))
@@ -26,7 +27,7 @@ module AuthHeaderWrapper = {
             <Div layoutId="border" className="border-b w-full" />
             <div className={`p-7 ${childrenStyle}`}> {children} </div>
           </Div>
-          <RenderIf condition={!branding}>
+          <RenderIf condition=hyperswitchResources>
             <Div
               layoutId="footer-links"
               className="justify-center text-sm mobile:text-base flex flex-col mobile:flex-row mobile:gap-3 items-center w-full max-w-xl text-center">
@@ -34,7 +35,7 @@ module AuthHeaderWrapper = {
             </Div>
           </RenderIf>
         </div>
-        <RenderIf condition={!branding}>
+        <RenderIf condition=hyperswitchResources>
           <CommonAuth.PageFooterSection />
         </RenderIf>
       </div>

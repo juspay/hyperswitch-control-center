@@ -19,6 +19,7 @@ let make = () => {
   ).getCommonSessionDetails()
   let (screenState, setScreenState) = React.useState(_ => Success)
   let showToast = ToastAdapter.useShowToast()
+  let {hyperswitchResources} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let connectorInfo = initialValues->LogicUtils.getDictFromJsonObject
   let connectorInfoDict = ConnectorInterface.mapDictToTypedConnectorPayload(
@@ -163,7 +164,9 @@ let make = () => {
       <div className="flex flex-col w-1/2 px-10 ">
         <PageUtils.PageHeading
           title="Authenticate Processor"
-          subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely."
+          subTitle={hyperswitchResources
+            ? "Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely."
+            : "Configure your credentials from your processor dashboard. These credentials are encrypted and stored securely."}
           customSubTitleStyle="font-500 font-normal text-nd_gray-700"
         />
         <PageLoaderWrapper screenState>

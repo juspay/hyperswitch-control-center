@@ -2,6 +2,14 @@ type urlThemeConfig = {
   faviconUrl: option<string>,
   logoUrl: option<string>,
 }
+type identityConfig = {productName: option<string>}
+type whitelabelComplianceConfig = {
+  applePayInstructions: option<string>,
+  applePayRequestTemplate: option<string>,
+  supportEmail: option<string>,
+  certificateTitle: option<string>,
+  certificateDownloadFilename: option<string>,
+}
 type emailConfig = {
   entity_name: string,
   entity_logo_url: string,
@@ -20,6 +28,7 @@ type urlConfig = {
   dssCertificateUrl: option<string>,
   dynamoSimulationTemplateUrl: option<string>,
   urlThemeConfig: urlThemeConfig,
+  whitelabelComplianceConfig: whitelabelComplianceConfig,
   hypersenseUrl: string,
 }
 
@@ -77,4 +86,5 @@ type themeSettings = {
 type customStylesTheme = {
   settings: themeSettings,
   urls: urlThemeConfig,
+  identity: identityConfig,
 }

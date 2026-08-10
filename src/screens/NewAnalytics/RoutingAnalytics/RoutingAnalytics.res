@@ -88,7 +88,7 @@ let make = () => {
           selectedEntity={analyticsEntity}
           onChange={updateAnalytcisEntity}
           entityMapper=UserInfoUtils.analyticsEntityMapper
-          disabledDisplayName="Hyperswitch_test"
+          disabledDisplayName="Test processor"
         />
       </div>
     </div>

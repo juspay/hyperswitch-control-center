@@ -242,6 +242,10 @@ let make = (
   let updateConnectorAccountDetails = PayPalFlowUtils.useDeleteConnectorAccountDetails()
   let deleteTrackingDetails = PayPalFlowUtils.useDeleteTrackingDetails()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let {hyperswitchResources} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let connectorLabelDescription = hyperswitchResources
+    ? "This is a unique label you can generate and pass to identify this connector account on your Hyperswitch dashboard and reports. For example, if your profile label is 'default', the connector label can be 'stripe_default'."
+    : "This is a unique label you can generate and pass to identify this connector account on your dashboard and reports. For example, if your profile label is 'default', the connector label can be 'stripe_default'."
 
   let (setupAccountStatus, setSetupAccountStatus) = Recoil.useRecoilState(
     HyperswitchAtom.paypalAccountStatusAtom,
@@ -466,7 +470,7 @@ let make = (
                       selectedConnector
                       isLabelNested=false
                       disabled={isUpdateFlow}
-                      description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'"
+                      description=connectorLabelDescription
                     />
                   </div>
                   <ConnectorAccountDetailsHelper.BusinessProfileRender
@@ -493,7 +497,11 @@ let make = (
       <div className="bg-jp-gray-light_gray_bg flex py-4 px-10 gap-2">
         <img alt="paypal" src="/assets/PayPalFullLogo.svg" />
         <p className=p2RedularTextClass>
-          {"| Hyperswitch is PayPal's trusted partner, your credentials are secure & never stored with us."->React.string}
+          {React.string(
+            hyperswitchResources
+              ? "| Hyperswitch is PayPal's trusted partner, your credentials are secure & never stored with us."
+              : "| Your credentials are encrypted and never stored in plain text.",
+          )}
         </p>
       </div>
     </PageLoaderWrapper>

@@ -5,11 +5,12 @@ let make = () => {
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let providerName = featureFlagDetails.hyperswitchResources ? "Hyperswitch" : "The platform"
 
   let vaultPspTokenizationTabElement = {
     <div className="flex gap-2 items-center">
       <ToolTip
-        description="Hyperswitch securely converts card details into tokens from your existing PSP accounts (Stripe, Adyen, Worldpay, etc.), allowing you to process payments through these providers using these tokens rather than raw card data."
+        description={`${providerName} securely converts card details into tokens from your existing PSP accounts (Stripe, Adyen, Worldpay, etc.), allowing you to process payments through these providers using these tokens rather than raw card data.`}
       />
       {"PSP Tokenisation"->React.string}
     </div>
@@ -17,7 +18,7 @@ let make = () => {
   let vaultNetworkTokenizationTabElement = {
     <div className="flex gap-2 items-center">
       <ToolTip
-        description="Hyperswitch securely replaces card details with network tokens from card networks (Visa, Mastercard, Amex, etc.), allowing you to process payments with enhanced security and authorization rates while reducing processing costs, fraud risk and compliance requirements."
+        description={`${providerName} securely replaces card details with network tokens from card networks (Visa, Mastercard, Amex, etc.), allowing you to process payments with enhanced security and authorization rates while reducing processing costs, fraud risk and compliance requirements.`}
       />
       {"Network Tokenisation"->React.string}
     </div>
@@ -57,21 +58,25 @@ let make = () => {
       customTitleStyle={`${heading.lg.semibold}`}
       customHeadingStyle="py-0"
     />
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <p className="text-xl font-semibold"> {"PCI Vault Configuration"->React.string} </p>
-        <p className="text-base text-nd_gray-400">
-          {"Apart from tokenizing cards during payments flow, you can also directly tokenize and secure your customers’ card data in our PCI-compliant vault"->React.string}
-        </p>
+    <RenderIf condition=featureFlagDetails.hyperswitchResources>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <p className="text-xl font-semibold"> {"PCI Vault Configuration"->React.string} </p>
+          <p className="text-base text-nd_gray-400">
+            {"Apart from tokenizing cards during payments flow, you can also directly tokenize and secure your customers’ card data in our PCI-compliant vault"->React.string}
+          </p>
+        </div>
+        <div className="grid grid-cols-3 gap-8 w-full">
+          {VaultHomeUtils.vaultActionArray
+          ->Array.map(item =>
+            <VaultHomeUtils.VaultActionItem
+              heading=item.heading img=item.imgSrc action=item.action
+            />
+          )
+          ->React.array}
+        </div>
       </div>
-      <div className="grid grid-cols-3 gap-8 w-full">
-        {VaultHomeUtils.vaultActionArray
-        ->Array.map(item =>
-          <VaultHomeUtils.VaultActionItem heading=item.heading img=item.imgSrc action=item.action />
-        )
-        ->React.array}
-      </div>
-    </div>
+    </RenderIf>
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <p className="text-xl font-semibold"> {"Advanced Vault configuration"->React.string} </p>

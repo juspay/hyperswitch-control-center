@@ -319,7 +319,7 @@ let make = () => {
             onChange={updateAnalytcisEntity}
             entityMapper=UserInfoUtils.analyticsEntityMapper
             disabled=isSampleDataEnabled
-            disabledDisplayName="Hyperswitch_test"
+            disabledDisplayName="Test processor"
           />
         </Portal>
       </div>
