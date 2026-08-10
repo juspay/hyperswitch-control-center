@@ -471,8 +471,8 @@ module ExceptionDataDisplay = {
         "No corresponding expectation entry was found for the transformed entry.",
       )
     | MultipleExpectedEntriesFound => (
-        "Multiple Excepted Entries Found",
-        "Multiple excepted entries were found for the transformed entry.",
+        "Multiple Expected Entries Found",
+        "Multiple expected entries were found for the transformed entry.",
       )
     | MissingMatchField => (
         "Missing Match Field",
