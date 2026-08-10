@@ -90,6 +90,26 @@ let make = () => {
         payload->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
         payload->Dict.set("created_after", start_time->JSON.Encode.string)
         payload->Dict.set("created_before", end_time->JSON.Encode.string)
+
+        let selectedEventClasses = filterValueJson->selectedEventClassesFromFilterValueJson
+        let selectedEventTypes =
+          filterValueJson->getArrayFromDict(eventTypeFilterKey, [])->getStrArrayFromJsonArray
+
+        if selectedEventClasses->isNonEmptyArray {
+          payload->Dict.set(
+            "event_classes",
+            selectedEventClasses
+            ->Array.map(eventClass => eventClass->eventClassToString->JSON.Encode.string)
+            ->JSON.Encode.array,
+          )
+        }
+
+        if selectedEventTypes->isNonEmptyArray {
+          payload->Dict.set(
+            "event_types",
+            selectedEventTypes->Array.map(JSON.Encode.string)->JSON.Encode.array,
+          )
+        }
       }
       payload->Dict.set("recipient", Merchant->eventRecipientToString->JSON.Encode.string)
 
@@ -152,13 +172,18 @@ let make = () => {
       defaultFilters={""->JSON.Encode.string}
       fixedFilters={initialFixedFilter()}
       requiredSearchFieldsList=[]
-      localFilters=[]
+      localFilters={webhookLocalFilters(filterValueJson)}
       localOptions=[]
       remoteOptions=[]
-      remoteFilters=[]
+      remoteFilters={webhookLocalFilters(filterValueJson)}
       autoApply=false
       submitInputOnEnter=true
-      defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+      defaultFilterKeys=[
+        startTimeFilterKey,
+        endTimeFilterKey,
+        eventClassFilterKey,
+        eventTypeFilterKey,
+      ]
       updateUrlWith={updateExistingKeys}
       clearFilters={() => reset()}
       customLeftView={<SearchInput
