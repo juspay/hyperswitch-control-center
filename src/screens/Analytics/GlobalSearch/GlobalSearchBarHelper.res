@@ -235,16 +235,15 @@ module NoResults = {
 }
 
 module ClipboardSuggestion = {
-  open GlobalSearchBarUtils
   open FramerMotion.Motion
   @react.component
   let make = (~clipboardSuggestion, ~onClipboardSuggestionClicked) => {
     switch clipboardSuggestion {
-    | Some(suggestion: clipboardSuggestion) =>
+    | Some(suggestion: string) =>
       let filter: categoryOption = {
         categoryType: Payment_id,
-        options: [suggestion.id],
-        placeholder: suggestion.id,
+        options: [suggestion],
+        placeholder: suggestion,
       }
 
       <Div
@@ -258,7 +257,7 @@ module ClipboardSuggestion = {
         <div>
           <FilterOption
             onClick={_ => onClipboardSuggestionClicked(suggestion)}
-            value={suggestion.id}
+            value={suggestion}
             placeholder={Some("Click to search")}
             filter
             viewType=FiltersSugsestions

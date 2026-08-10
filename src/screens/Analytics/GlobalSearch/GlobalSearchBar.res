@@ -219,8 +219,8 @@ let make = () => {
     revertFocus(~inputRef)
   }
 
-  let onClipboardSuggestionClicked = (suggestion: clipboardSuggestion) => {
-    setLocalSearchText(_ => suggestion.id)
+  let onClipboardSuggestionClicked = (suggestion: string) => {
+    setLocalSearchText(_ => suggestion)
     setFilterText("")
     setClipboardSuggestion(_ => None)
     revertFocus(~inputRef)
