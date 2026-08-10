@@ -18,7 +18,7 @@ let getStepName = step => {
   }
 }
 // Any connector added to these lists must also be added to the matching
-// connector_list_for_live key in config/config.toml, otherwise it won't appear
+// connector_list_for_live key in the env config otherwise it won't appear
 // once the config-driven list takes over. These lists remain the fallback used
 // when a category is missing from the config.
 
