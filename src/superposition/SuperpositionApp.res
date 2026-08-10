@@ -4,18 +4,12 @@ open SuperpositionBindings
 open SuperpositionUtils
 open LogicUtils
 
-@react.component
-let make = (~remainingPath: list<string>) => {
-  let superpositionConfigs = switch Window.env.superpositionConfigs {
-  | Some(config)
-    if config.organization_id->isNonEmptyString && config.workspace->isNonEmptyString =>
-    Some(config)
-  | _ => None
-  }
-
-  switch superpositionConfigs {
-  | None => <NoDataFound message="Superposition configuration is missing" renderType=NotFound />
-  | Some(superpositionConfigs) =>
+module ConfiguredSuperpositionApp = {
+  @react.component
+  let make = (
+    ~superpositionConfigs: HyperSwitchConfigTypes.superpositionConfig,
+    ~remainingPath: list<string>,
+  ) => {
     let {getCommonSessionDetails} = React.useContext(UserInfoProvider.defaultContext)
     let {orgId, merchantId, profileId} = getCommonSessionDetails()
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -33,7 +27,7 @@ let make = (~remainingPath: list<string>) => {
     | list{"overrides", ..._} => <OverrideManager />
     | list{"dimensions", ..._} => <DimensionManager editable=false />
     | list{"audit", ..._} => <AuditTrail />
-    | _ => <ConfigManager showResolvedValues=true />
+    | _ => <ConfigManager showResolvedValues=true editable=false />
     }
 
     let leftSearchTablePageConfig: tablePageConfig = {
@@ -132,5 +126,20 @@ let make = (~remainingPath: list<string>) => {
       }}>
       <AlertProvider> {content} </AlertProvider>
     </SuperpositionUIProvider>
+  }
+}
+
+@react.component
+let make = (~remainingPath: list<string>) => {
+  let superpositionConfigs = switch Window.env.superpositionConfigs {
+  | Some(config)
+    if config.organization_id->isNonEmptyString && config.workspace->isNonEmptyString =>
+    Some(config)
+  | _ => None
+  }
+
+  switch superpositionConfigs {
+  | None => <NoDataFound message="Superposition configuration is missing" renderType=NotFound />
+  | Some(superpositionConfigs) => <ConfiguredSuperpositionApp superpositionConfigs remainingPath />
   }
 }
