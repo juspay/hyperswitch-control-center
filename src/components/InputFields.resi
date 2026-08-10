@@ -325,6 +325,12 @@ let boolInput: (
   ~boolCustomClass: string=?,
   ~toggleEnableColor: string=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element
+let switchInput: (
+  ~isDisabled: bool,
+  ~boolCustomClass: string=?,
+  ~toggleBorder: string=?,
+  ~toggleEnableColor: string=?,
+) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element
 let colorPickerInput: (
   ~defaultValue: string=?,
   ~showErrorWhenEmpty: bool=?,

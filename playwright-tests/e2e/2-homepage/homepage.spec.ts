@@ -30,6 +30,7 @@ test.describe("Homepage", () => {
       const json = await response.json();
       if (json && json.features) {
         json.features.global_search = true;
+        json.features.dev_blocklist = true;
       }
       await route.fulfill({ response, json });
     });
@@ -245,6 +246,10 @@ test.describe("Homepage", () => {
     await homePage.webhooks.click();
     await expect(page).toHaveURL(/.*dashboard\/webhooks/);
 
+    await expect(homePage.blocklist).toBeVisible();
+    await homePage.blocklist.click();
+    await expect(page).toHaveURL(/.*dashboard\/blocklist/);
+
     await expect(homePage.settings).toBeVisible();
     await homePage.settings.click();
     await expect(homePage.configurePMT).toBeVisible();
@@ -404,7 +409,29 @@ test.describe("DefaultHome product cards", () => {
       .getByRole("button", { name: "Learn More" })
       .click();
 
+    await expect(page).toHaveURL(/.*dashboard\/home/);
+
+    // Product Cost Observability: Learn More navigates to /dashboard/home
+    await homePage.homeV2.click();
     await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
+
+    await homePage
+      .productCard("Cost Observability")
+      .getByRole("button", { name: "Learn More" })
+      .click();
+
+    await expect(page).toHaveURL(/.*dashboard\/v2\/cost-observability\/home/);
+
+    // Product Orchestrator: Learn More navigates to /dashboard/home
+    await homePage.homeV2.click();
+    await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
+
+    await homePage
+      .productCard("Orchestrator")
+      .getByRole("button", { name: "Learn More" })
+      .click();
+
+    await expect(page).toHaveURL(/.*dashboard\/home/);
   });
 });
 

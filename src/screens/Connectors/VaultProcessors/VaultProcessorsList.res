@@ -10,6 +10,8 @@ let make = () => {
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
   let {vaultProcessorsLiveList} =
     HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
+  let {vaultProcessorsSandboxList} =
+    HyperswitchAtom.connectorListForSandboxAtom->Recoil.useRecoilValueFromAtom
 
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
@@ -21,9 +23,11 @@ let make = () => {
       list->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
-          isContainingStringLowercase(obj.connector_name, searchText) ||
-          isContainingStringLowercase(obj.id, searchText) ||
-          isContainingStringLowercase(obj.connector_label, searchText)
+          ConnectorUtils.matchesConnectorSearch(
+            ~connectorType=ConnectorTypes.VaultProcessor,
+            obj,
+            searchText,
+          )
         | None => false
         }
       })
@@ -54,7 +58,7 @@ let make = () => {
   }, [])
   let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
     ? vaultProcessorsLiveList
-    : ConnectorUtils.vaultProcessorList
+    : vaultProcessorsSandboxList
   <div>
     <PageUtils.PageHeading
       title={"Vault Processor"} subTitle={"Connect and configure Vault Processor"}

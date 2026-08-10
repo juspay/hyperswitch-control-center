@@ -73,6 +73,8 @@ let make = (
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {paymentProcessorsLiveList} =
     HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
+  let {paymentProcessorsSandboxList} =
+    HyperswitchAtom.connectorListForSandboxAtom->Recoil.useRecoilValueFromAtom
 
   let getConnectorListAndUpdateState = async () => {
     try {
@@ -108,10 +110,7 @@ let make = (
     let filteredList = if searchText->isNonEmptyString {
       list->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(obj) {
-        | Some(obj) =>
-          isContainingStringLowercase(obj.connector_name, searchText) ||
-          isContainingStringLowercase(obj.id, searchText) ||
-          isContainingStringLowercase(obj.connector_label, searchText)
+        | Some(obj) => matchesConnectorSearch(obj, searchText)
         | None => false
         }
       })
@@ -123,7 +122,7 @@ let make = (
 
   let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
     ? paymentProcessorsLiveList
-    : connectorList
+    : paymentProcessorsSandboxList
 
   <div>
     <PageLoaderWrapper screenState>

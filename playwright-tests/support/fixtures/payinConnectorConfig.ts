@@ -3444,13 +3444,13 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
   },
 
   bambora_apac: {
-    label: "bambora",
+    label: "bamboraapac",
     fields: {
       default: "test_value",
       overrides: {
         "Enter Connector label": "bambora_apac_default",
       },
-      fieldLabels: ["Passcode *", "Merchant Id *"],
+      fieldLabels: ["Username *", "Account Number *", "Password *"],
     },
     paymentSections: {
       Credit: {
@@ -3551,6 +3551,43 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
       Debit: {
         label: "Debit",
         methods: ["Visa", "Mastercard", "AmericanExpress", "Discover"],
+      },
+    },
+  },
+
+  givepayments: {
+    label: "givepayments",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "givepayments_default",
+      },
+      fieldLabels: ["API Key *", "Source verification key"],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "DinersClub",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "DinersClub",
+          "UnionPay",
+        ],
       },
     },
   },

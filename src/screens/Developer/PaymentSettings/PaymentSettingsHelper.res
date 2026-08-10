@@ -1,4 +1,4 @@
-open PaymentSettingsRevampedUtils
+open PaymentSettingsUtils
 
 let maxAutoRetries = FormRenderer.makeFieldInfo(
   ~label="Max Auto Retries",
@@ -177,7 +177,7 @@ let customExternalVaultEnabled = (
     }
   }
 
-  <BoolInput.BaseComponent
+  <SwitchAdapter
     isSelected={currentValue}
     setIsSelected={handleChange}
     isDisabled=false

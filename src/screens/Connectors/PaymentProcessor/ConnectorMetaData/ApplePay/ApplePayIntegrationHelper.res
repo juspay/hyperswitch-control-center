@@ -2,11 +2,9 @@ open ApplePayIntegrationTypes
 module SimplifiedHelper = {
   @react.component
   let make = (~customElement=?, ~heading="", ~stepNumber="1", ~subText=None) => {
-    let {globalUIConfig: {backgroundColor, font: {textColor}}} = React.useContext(
-      ThemeProvider.themeContext,
-    )
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let bgColor = "bg-white"
-    let stepColor = `${backgroundColor} text-white py-px px-2`
+    let stepColor = "bg-nd_gray-150 text-nd_gray-700 border border-nd_gray-200 rounded py-px px-2"
 
     <div className={`flex flex-col py-8 px-6 gap-3 ${bgColor} cursor-pointer`}>
       <div className={"flex justify-between "}>

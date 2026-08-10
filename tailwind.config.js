@@ -94,6 +94,7 @@ module.exports = {
       },
       minWidth: {
         "25-rem": "25rem",
+        "76-px": "76px",
       },
       maxHeight: {
         "15-rem": "15rem",
@@ -109,6 +110,7 @@ module.exports = {
       minHeight: {
         "500-px": "500px",
         "40-rem": "40rem",
+        "50-vh": "50vh",
         "80-vh": "80vh",
       },
       inset: {
@@ -178,6 +180,7 @@ module.exports = {
         325: "325px",
         250: "250px",
         200: "200px",
+        "40-per": "40%",
       },
       lineHeight: {
         14: "14px",
@@ -514,6 +517,14 @@ module.exports = {
           200: "#F3E8FF",
           300: "#AD46FF",
           700: "#8200DB",
+        },
+        nd_pink: {
+          100: "#FCE7F3",
+          500: "#EC4899",
+        },
+        nd_teal: {
+          100: "#CCFBF1",
+          500: "#14B8A6",
         },
       },
       borderRadius: {

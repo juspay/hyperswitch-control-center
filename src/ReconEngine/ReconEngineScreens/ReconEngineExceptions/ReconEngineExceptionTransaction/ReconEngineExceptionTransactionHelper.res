@@ -169,7 +169,6 @@ module ExceptionDataDisplay = {
   let make = (
     ~currentExceptionDetails: ReconEngineTypes.transactionType,
     ~entryDetails: array<ReconEngineTypes.entryType>,
-    ~accountInfoMap: Dict.t<accountInfo>=Dict.make(),
   ) => {
     let mismatchData = React.useMemo(() => {
       switch currentExceptionDetails.transaction_status {
@@ -208,7 +207,7 @@ module ExceptionDataDisplay = {
     | SplitMismatch
     | OverAmount(Mismatch)
     | UnderAmount(Mismatch) =>
-      getHeadingAndSubHeadingForMismatch(mismatchData, ~accountInfoMap)
+      getHeadingAndSubHeadingForMismatch(mismatchData)
     | Expected | OverAmount(Expected) | UnderAmount(Expected) => (
         "Expected",
         `This transaction is marked as expected since ${currentExceptionDetails.created_at->DateTimeUtils.getFormattedDate(
@@ -239,9 +238,29 @@ module ExceptionDataDisplay = {
     | UnknownDomainTransactionStatus => ("", "")
     }
 
-    <div className="flex flex-col">
-      <div className={`text-nd_red-700 ${body.md.semibold} mb-2`}> {heading->React.string} </div>
-      <div className={`${body.md.regular} text-nd_gray-600`}> {subHeading->React.string} </div>
+    let mismatchedFields = mismatchData->getMismatchedFieldsFromMismatchData
+    let {rule_id: ruleId, rule_name: ruleName} = currentExceptionDetails.rule
+    let isRuleNamed = heading->isNonEmptyString && ruleName->isNonEmptyString
+
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-row items-center gap-1.5">
+        <p className={`text-nd_red-700 ${body.md.semibold}`}>
+          {(isRuleNamed ? `${heading} in ${ruleName}` : heading)->React.string}
+        </p>
+        <RenderIf condition={isRuleNamed && ruleId->isNonEmptyString}>
+          <Link to_={GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/rules/${ruleId}`)}>
+            <Icon
+              name="nd-external-link-square"
+              size=14
+              className="text-nd_red-700 hover:text-nd_red-500 cursor-pointer shrink-0"
+            />
+          </Link>
+        </RenderIf>
+      </div>
+      <RenderIf condition={mismatchedFields->Array.length == 0}>
+        <div className={`${body.md.regular} text-nd_gray-600`}> {subHeading->React.string} </div>
+      </RenderIf>
+      <ReconEngineExceptionsHelper.MismatchSummary mismatchedFields />
     </div>
   }
 }

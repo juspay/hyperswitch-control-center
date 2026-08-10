@@ -16,7 +16,7 @@ let useGetIngestionHistory = () => {
       )
       let res = await fetchDetails(url)
       let ingestionHistory = res->getArrayDataFromJson(ingestionHistoryItemToObjMapper)
-      ingestionHistory->Array.sort((a, b) => compareLogic(a.created_at, b.created_at))
+      ingestionHistory->Array.sort((a, b) => compareLogic(b.created_at, a.created_at))
       ingestionHistory
     } catch {
     | _ => Exn.raiseError("Something went wrong")
@@ -264,6 +264,25 @@ let useFetchMetadataSchema = () => {
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#TRANSFORMATION_CONFIG_WITH_METADATA,
+        ~id=Some(transformationId),
+      )
+      await fetchDetails(url)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetTransformationConfig = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~transformationId: string) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#TRANSFORMATION_CONFIG,
         ~id=Some(transformationId),
       )
       await fetchDetails(url)

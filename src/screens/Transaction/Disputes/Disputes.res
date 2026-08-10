@@ -13,6 +13,7 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (offset, setOffset) = React.useState(_ => 0)
   let (filters, setFilters) = React.useState(_ => None)
+  let (transactionViewStatuses, setTransactionViewStatuses) = React.useState(_ => [])
 
   let {generateReport, email, transactionView} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -102,6 +103,13 @@ let make = () => {
       initialFilters
       initialFixedFilter
       setOffset
+      setRemoteFilterData={filterData =>
+        setTransactionViewStatuses(_ =>
+          filterData
+          ->getDictFromJsonObject
+          ->getArrayFromDict("dispute_status", [])
+          ->getStrArrayFromJsonArray
+        )}
       customLeftView={<SearchBarFilter
         placeholder="Search for dispute ID" setSearchVal=setSearchText searchVal=searchText
       />}
@@ -127,9 +135,7 @@ let make = () => {
       </div>
     </div>
     <RenderIf condition={transactionView}>
-      <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8">
-        <TransactionView entity=TransactionViewTypes.Disputes />
-      </div>
+      <TransactionView entity=TransactionViewTypes.Disputes allStatuses=transactionViewStatuses />
     </RenderIf>
     <div className="flex-1"> {filtersUI} </div>
     <RenderIf

@@ -146,7 +146,7 @@ module StatCard = {
     ~title: string,
     ~value: valueType,
     ~icon: Button.iconType,
-    ~description,
+    ~description: statCardDescriptionType,
     ~cardType: statCardType,
     ~onStatCardClick=() => (),
     ~isActive=false,
@@ -198,7 +198,23 @@ module StatCard = {
           | SlashOutOf(v1, v2) => <SlashOutOfCell value1=v1 value2=v2 />
           }}
         </p>
-        <p className={`${body.sm.medium} text-nd_gray-500`}> {description->React.string} </p>
+        <p className={`${body.sm.medium} text-nd_gray-500 flex flex-row items-center gap-1`}>
+          {switch description {
+          | DescriptionText(text) => text->React.string
+          | MatchedOutOf(matchedCount, totalCount) =>
+            <>
+              <NumberCell value=matchedCount />
+              {"of"->React.string}
+              <NumberCell value=totalCount />
+              {"matched"->React.string}
+            </>
+          | CountWithText(count, text) =>
+            <>
+              <NumberCell value=count />
+              {text->React.string}
+            </>
+          }}
+        </p>
       </div>
     </div>
   }
@@ -321,7 +337,7 @@ module ExceptionTriageRow = {
           <PercentageCell value=pct />
         </p>
         <p className={`${body.xs.regular} text-nd_gray-500`}>
-          {item.total->formatNumber->React.string}
+          <NumberCell value={item.total} />
         </p>
       </div>
     </div>

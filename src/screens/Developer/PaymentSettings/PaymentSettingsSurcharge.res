@@ -1,12 +1,12 @@
 open Typography
-open PaymentSettingsRevampedUtils
+open PaymentSettingsUtils
 
 module SurchargeFields = {
   @react.component
   let make = () => {
     open FormRenderer
     open HSwitchUtils
-    open PaymentSettingsRevampedHelper
+    open PaymentSettingsHelper
 
     let surchargeConnectorsList = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=SurchargeProcessor,

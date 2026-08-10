@@ -17,6 +17,9 @@ let getStepName = step => {
   | AutomaticFlow => "AutomaticFlow"
   }
 }
+// Any connector added to these lists must also be added to the matching
+// connector_list_for_live / connector_list_for_sandbox key in config/config.toml,
+// otherwise it won't appear once the config-driven list takes over.
 
 let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(ADYEN),
@@ -189,6 +192,7 @@ let connectorList: array<connectorTypes> = [
   Processors(IMERCHANTSOLUTIONS),
   Processors(PAYCONEX),
   Processors(TSYSTRANSIT),
+  Processors(GIVEPAYMENTS),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -741,6 +745,10 @@ let tsystransitInfo = {
   description: "TransIT is a RESTful payment gateway for processing transactions and value-added services with real-time reporting.",
 }
 
+let givepaymentsInfo = {
+  description: "GivePayments connects providers, merchants, and customers through a fully integrated ecosystem of payment tools and services with built-in chargeback prevention, automated underwriting, and PCI DSS 4.0-level security.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -1026,6 +1034,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | IMERCHANTSOLUTIONS => "imerchantsolutions"
   | PAYCONEX => "payconex"
   | TSYSTRANSIT => "tsys_transit"
+  | GIVEPAYMENTS => "givepayments"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1237,6 +1246,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "imerchantsolutions" => Processors(IMERCHANTSOLUTIONS)
     | "payconex" => Processors(PAYCONEX)
     | "tsys_transit" => Processors(TSYSTRANSIT)
+    | "givepayments" => Processors(GIVEPAYMENTS)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1424,6 +1434,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | IMERCHANTSOLUTIONS => imerchantsolutionsInfo
   | PAYCONEX => payconexInfo
   | TSYSTRANSIT => tsystransitInfo
+  | GIVEPAYMENTS => givepaymentsInfo
   }
 }
 
@@ -2434,6 +2445,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | IMERCHANTSOLUTIONS => "iMerchant Solutions"
   | PAYCONEX => "PayConex"
   | TSYSTRANSIT => "TSYS Transit"
+  | GIVEPAYMENTS => "GivePayments"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2523,6 +2535,47 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
     surchargeProcessor->getDisplayNameForSurchargeProcessor
   | UnknownConnector(str) => str
   }
+}
+
+let getConnectorCategory = (connector: connectorTypes): option<connector> =>
+  switch connector {
+  | Processors(_) => Some(Processor)
+  | PayoutProcessor(_) => Some(PayoutProcessor)
+  | ThreeDsAuthenticator(_) => Some(ThreeDsAuthenticator)
+  | FRM(_) => Some(FRMPlayer)
+  | PMAuthenticationProcessor(_) => Some(PMAuthenticationProcessor)
+  | TaxProcessor(_) => Some(TaxProcessor)
+  | BillingProcessor(_) => Some(BillingProcessor)
+  | VaultProcessor(_) => Some(VaultProcessor)
+  | SurchargeProcessor(_) => Some(SurchargeProcessor)
+  | UnknownConnector(_) => None
+  }
+
+let matchesConnectorTypeSearch = (connector: connectorTypes, searchText) => {
+  let connectorName = connector->getConnectorNameString
+  let displayName =
+    connector
+    ->getConnectorCategory
+    ->mapOptionOrDefault(connectorName, connectorType =>
+      connectorName->getDisplayNameForConnector(~connectorType)
+    )
+
+  [connectorName, displayName]->Array.some(value => isContainingStringLowercase(value, searchText))
+}
+
+let matchesConnectorSearch = (
+  ~connectorType=ConnectorTypes.Processor,
+  connector: connectorPayloadCommonType,
+  searchText,
+) => {
+  let displayName = connector.connector_name->getDisplayNameForConnector(~connectorType)
+
+  [
+    connector.connector_name,
+    displayName,
+    connector.id,
+    connector.connector_label,
+  ]->Array.some(value => isContainingStringLowercase(value, searchText))
 }
 
 let getConnectorFilterOptions = (

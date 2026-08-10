@@ -65,7 +65,6 @@ sample_data_analytics=false
 acquirer_config_settings=true
 payment_link_theme_configurator=false
 allow_connected_merchants=false
-payment_settings_revamped=true
 network_tokenization=false
 vault_psp_tokenization=false
 dev_click_to_pay=true
@@ -80,6 +79,7 @@ dev_orchestration_v2_product=false
 dev_sidebar_v2=true
 dev_debit_routing=true
 dev_webhooks=true
+dev_blocklist=false
 recon_engine_permissions=true
 dev_recon_engine_v1=false
 dev_recon_engine_pipelines=false
@@ -101,6 +101,16 @@ paymentProcessors = ["adyen","authorizedotnet","archipel","airwallex","bankofame
 threedsAuthProcessors = ["netcetera","juspaythreedsserver","ctp_visa"]
 payoutProcessors = ["adyen","adyenplatform","cybersource","ebanx","paypal","stripe","wise","nomupay","nuvei","gigadat","loonio","worldpay","worldpayxml"]
 vaultProcessors = ["vgs"]
+
+[default.connector_list_for_sandbox]
+paymentProcessors = ["stripe","paypal","aci","adyen","affirm","airwallex","authorizedotnet","bankofamerica","bambora","billwerk","bitpay","blackhawknetwork","bluesnap","braintree","cashtocode","checkbook","checkout","coinbase","coingate","cryptopay","cybersource","datatrans","dlocal","dwolla","elavon","fiserv","fiservemea","forte","globalpay","globepay","gocardless","helcim","iatapay","klarna","mifinity","mollie","multisafepay","nexinets","nmi","noon","nuvei","opennode","payjustnow","payme","payu","peachpayments","powertranz","prophetpay","rapyd","shift4","stax","trustpay","tsys","volt","worldline","worldpay","worldpayxml","zen","zsl","placetopay","razorpay","bamboraapac","itaubank","plaid","square","paybox","fiuu","wellsfargo","novalnet","deutschebank","nexixpay","nordea","jpmorgan","xendit","inespay","moneris","redsys","hipay","paystack","facilitapay","archipel","authipay","worldpayvantiv","barclaycard","silverflow","tokenio","payload","paytm","phonepe","flexiti","breadpay","calida","paysafe","gigadat","loonio","tesouro","finix","zift","payjustnowinstore","fiservcommercehub","amazonpay","worldpaymodular","santander","revolv3","truelayer","trustly","imerchantsolutions","payconex","tsys_transit","givepayments"]
+threedsAuthProcessors = ["threedsecureio","netcetera","ctp_mastercard","juspaythreedsserver","ctp_visa","cardinal"]
+payoutProcessors = ["adyen","adyenplatform","cybersource","ebanx","itaubank","paypal","stripe","wise","nomupay","nuvei","gigadat","loonio","worldpay","worldpayxml","truelayer","envoy","trustly"]
+vaultProcessors = ["vgs"]
+pmAuthProcessors = ["plaid"]
+billingProcessors = ["chargebee"]
+surchargeProcessors = ["interpayments"]
+taxProcessors = ["taxjar"]
 
 [default.connector_clone]
 paymentProcessors = ["peachpayments"]

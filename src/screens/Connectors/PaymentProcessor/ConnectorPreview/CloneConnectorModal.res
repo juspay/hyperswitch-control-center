@@ -15,7 +15,8 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload) => {
   let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchProfileList = ProfileListHook.useFetchProfileList()
-  let businessProfile = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let businessProfile =
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   let (showModal, setShowModal) = React.useState(_ => false)
   let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
 

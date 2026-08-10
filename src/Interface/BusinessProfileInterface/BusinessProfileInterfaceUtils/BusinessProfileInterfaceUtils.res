@@ -62,7 +62,7 @@ let getOptionalHeadersWithEmptyValParsing = (~dict, ~key) => {
     dict
     ->Dict.get(key)
     ->Option.mapOr(JSON.Encode.null, _ => {
-      let parsedValue = PaymentSettingsRevampedUtils.removeEmptyValues(~dict, ~key)
+      let parsedValue = PaymentSettingsUtils.removeEmptyValues(~dict, ~key)
       parsedValue->Identity.genericTypeToJson
     }),
   )
@@ -196,12 +196,33 @@ let paymentMethodBlockingEntryMapper: Dict.t<JSON.t> => paymentMethodBlockingEnt
   card_types: entryDict->getOptionStrArrayFromDict("card_types"),
 }
 
+let paymentMethodBlockingWalletEntryMapper = (walletDict, key, legacyEntry) => {
+  let entryDict = walletDict->getDictfromDict(key)
+  entryDict->isEmptyDict ? legacyEntry : 
+    Some(entryDict->paymentMethodBlockingEntryMapper)
+}
+
+let paymentMethodBlockingWalletMapper: Dict.t<
+  JSON.t,
+> => paymentMethodBlockingWallet = walletDict => {
+  let legacyEntry =
+    walletDict
+    ->getOptionStrArrayFromDict("card_types")
+    ->Option.map(cardTypes => {
+      card_types: Some(cardTypes),
+    })
+  {
+    apple_pay: paymentMethodBlockingWalletEntryMapper(walletDict, "apple_pay", legacyEntry),
+    google_pay: paymentMethodBlockingWalletEntryMapper(walletDict, "google_pay", legacyEntry),
+  }
+}
+
 let paymentMethodBlockingMapper: Dict.t<JSON.t> => paymentMethodBlocking = pmbDict => {
   let cardDict = pmbDict->getDictfromDict("card")
   let walletDict = pmbDict->getDictfromDict("wallet")
   {
     card: cardDict->isEmptyDict ? None : Some(cardDict->paymentMethodBlockingEntryMapper),
-    wallet: walletDict->isEmptyDict ? None : Some(walletDict->paymentMethodBlockingEntryMapper),
+    wallet: walletDict->isEmptyDict ? None : Some(walletDict->paymentMethodBlockingWalletMapper),
   }
 }
 
