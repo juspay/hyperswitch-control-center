@@ -129,6 +129,26 @@ export class PaymentSettings {
     return this.page.getByText("Payment Method Blocking");
   }
 
+  get applePayPaymentMethodBlocking(): Locator {
+    return this.page.getByText("Apple Pay", { exact: true });
+  }
+
+  get googlePayPaymentMethodBlocking(): Locator {
+    return this.page.getByText("Google Pay", { exact: true });
+  }
+
+  paymentMethodBlockingCardTypesDropdown(label: string): Locator {
+    return this.page
+      .locator("div", {
+        has: this.page.getByText(label, { exact: true }),
+      })
+      .filter({
+        has: this.page.getByRole("button", { name: "Select Card Types" }),
+      })
+      .last()
+      .getByRole("button", { name: "Select Card Types" });
+  }
+
   get maxAutoRetriesInput(): Locator {
     return this.page.getByPlaceholder("Enter number of max auto retries");
   }
@@ -161,7 +181,7 @@ export class PaymentSettings {
   }
 
   dropdownValueByText(text: string): Locator {
-    return this.page.getByRole("menuitem", { name: text });
+    return this.page.getByRole("option", { name: text });
   }
 
   selectFieldDropdown(): Locator {

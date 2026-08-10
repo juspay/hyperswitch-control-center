@@ -232,6 +232,10 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.merchantCategoryCodeDropdown).toBeVisible();
       await expect(paymentSettings.clickToPayToggle).toBeVisible();
       await expect(paymentSettings.paymentMethodBlocking).toBeVisible();
+      await expect(paymentSettings.applePayPaymentMethodBlocking).toBeVisible();
+      await expect(
+        paymentSettings.googlePayPaymentMethodBlocking,
+      ).toBeVisible();
       await expect(paymentSettings.returnUrlInput).toBeVisible();
       await expect(paymentSettings.webhookUrlInput).toBeVisible();
       await expect(paymentSettings.updateButton).toBeVisible();
@@ -249,6 +253,52 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.webhookUrlInput).toHaveValue(
         "https://example.com/webhook",
       );
+    });
+
+    test("should submit nested wallet payment method blocking payload", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await expect(paymentSettings.applePayPaymentMethodBlocking).toBeVisible();
+      await expect(
+        paymentSettings.googlePayPaymentMethodBlocking,
+      ).toBeVisible();
+
+      await paymentSettings
+        .paymentMethodBlockingCardTypesDropdown("Apple Pay")
+        .click();
+      await paymentSettings.dropdownValueByText("Credit").click();
+      await page.keyboard.press("Escape");
+
+      await expect(
+        paymentSettings.dropdownValueByText("Credit"),
+      ).not.toBeVisible();
+
+      await paymentSettings
+        .paymentMethodBlockingCardTypesDropdown("Google Pay")
+        .click();
+      await paymentSettings.dropdownValueByText("Debit").click();
+      await page.keyboard.press("Escape");
+
+      const updateRequestPromise = page.waitForRequest(
+        (request) =>
+          request.method() === "POST" &&
+          request.url().includes("/business_profile/"),
+      );
+
+      await paymentSettings.clickUpdate();
+
+      const updateRequest = await updateRequestPromise;
+      const payload = updateRequest.postDataJSON();
+      const walletBlocking = payload.payment_method_blocking.wallet;
+
+      expect(walletBlocking.card_types).toBeUndefined();
+      expect(walletBlocking.apple_pay.card_types).toEqual(["credit"]);
+      expect(walletBlocking.google_pay.card_types).toEqual(["debit"]);
+      await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
+        timeout: 10000,
+      });
     });
 
     test("should save toggle, form, and dropdown values when Update is clicked", async ({
@@ -492,7 +542,7 @@ test.describe("Payment Settings", () => {
 
       await expect(paymentSettings.clickToPayConnectorDropdown).toBeVisible();
       await paymentSettings.clickToPayConnectorDropdown.click();
-      await paymentSettings.dropdownValueByText(connectorLabel).click();
+      await page.getByRole("menuitem", { name: connectorLabel }).click();
 
       await paymentSettings.clickUpdate();
       await expect(paymentSettings.detailsUpdatedToast).toBeVisible({

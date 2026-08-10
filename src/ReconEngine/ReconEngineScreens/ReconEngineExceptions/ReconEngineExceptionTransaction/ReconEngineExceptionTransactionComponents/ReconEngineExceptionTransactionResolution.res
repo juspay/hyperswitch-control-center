@@ -611,7 +611,6 @@ module LinkStagingEntryModalContent = {
 
 @react.component
 let make = (
-  ~accountInfoMap: Dict.t<accountInfo>,
   ~exceptionStage,
   ~setExceptionStage,
   ~selectedRows,
@@ -848,11 +847,10 @@ let make = (
     />}
     customLoader={<Shimmer styleClass="h-24 w-full rounded-xl" />}>
     <div
-      className="flex flex-row items-center justify-between gap-3 w-full bg-nd_gray-50 border border-nd_gray-150 rounded-lg p-4 mb-6">
+      className="flex flex-row items-start justify-between gap-6 w-full bg-nd_gray-50 border border-nd_gray-150 rounded-lg p-4 mb-6">
       <ExceptionDataDisplay
         currentExceptionDetails
         entryDetails={updatedEntriesList->Array.map(getEntryTypeFromExceptionEntryType)}
-        accountInfoMap
       />
       <RenderIf
         condition={exceptionStage == ShowResolutionOptions(FixEntries) ||

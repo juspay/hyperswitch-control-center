@@ -337,7 +337,7 @@ module ExceptionTriageRow = {
           <PercentageCell value=pct />
         </p>
         <p className={`${body.xs.regular} text-nd_gray-500`}>
-          {item.total->formatNumber->React.string}
+          <NumberCell value={item.total} />
         </p>
       </div>
     </div>

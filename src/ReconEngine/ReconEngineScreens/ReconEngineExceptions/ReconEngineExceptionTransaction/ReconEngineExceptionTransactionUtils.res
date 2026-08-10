@@ -104,10 +104,14 @@ let getBalanceByAccountType = (
   (balance, firstEntry.currency)
 }
 
-let getHeadingAndSubHeadingForMismatch = (
-  mismatchData: Js.Json.t,
-  ~accountInfoMap: Dict.t<ReconEngineExceptionTransactionTypes.accountInfo>,
-): (string, string) => {
+let getMismatchedFieldsFromMismatchData = (mismatchData: Js.Json.t) =>
+  mismatchData
+  ->getDictFromJsonObject
+  ->getJsonObjectFromDict("mismatch_data")
+  ->getDictFromJsonObject
+  ->getMismatchedFieldsFromDict
+
+let getHeadingAndSubHeadingForMismatch = (mismatchData: Js.Json.t): (string, string) => {
   let mismatchType =
     mismatchData
     ->getDictFromJsonObject
@@ -115,7 +119,6 @@ let getHeadingAndSubHeadingForMismatch = (
     ->getMismatchTypeVariantFromString
   let mismatchedDataDict =
     mismatchData->getDictFromJsonObject->getJsonObjectFromDict("mismatch_data")
-  let accountNames = accountInfoMap->Dict.valuesToArray->Array.map(info => info.account_info_name)
 
   let expectedAmount =
     mismatchedDataDict
@@ -138,6 +141,9 @@ let getHeadingAndSubHeadingForMismatch = (
   let mismatchAmount = Math.abs(expectedAmount -. actualAmount)
   let mismatchHeading = (mismatchType :> string)->snakeToTitle
 
+  let mismatchedFieldsCountText =
+    mismatchData->getMismatchedFieldsFromMismatchData->getMismatchedFieldsCountText
+
   let mismatchSubHeading = switch mismatchType {
   | AmountMismatch =>
     `There is a ${mismatchHeading} of ${CurrencyFormatUtils.valueFormatter(
@@ -145,12 +151,12 @@ let getHeadingAndSubHeadingForMismatch = (
         AmountWithSuffix,
         ~currency,
       )} found between the transaction entries`
-  | MetadataMismatch =>
-    `There is a ${mismatchHeading} found between ${accountNames->Array.joinWith(", ")}`
-  | BalanceDirectionMismatch =>
-    `There is a ${mismatchHeading} found between ${accountNames->Array.joinWith(", ")}`
+  | MetadataMismatch
+  | BalanceDirectionMismatch
   | CurrencyMismatch =>
-    `There is a ${mismatchHeading} found between ${accountNames->Array.joinWith(", ")}`
+    mismatchedFieldsCountText->isNonEmptyString
+      ? mismatchedFieldsCountText
+      : `There is a ${mismatchHeading} found between the transaction entries`
   | UnknownMismatchType => "Mismatch details are unavailable."
   }
 
