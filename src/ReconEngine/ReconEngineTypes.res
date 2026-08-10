@@ -116,6 +116,10 @@ type skipConditionOperator =
   | NotEquals
   | Contains
   | NotContains
+  | StartsWith
+  | NotStartsWith
+  | EndsWith
+  | NotEndsWith
   | UnknownSkipConditionOperator
 
 type skipCondition = {
