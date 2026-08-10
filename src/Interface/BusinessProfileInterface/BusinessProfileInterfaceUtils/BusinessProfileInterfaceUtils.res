@@ -198,8 +198,7 @@ let paymentMethodBlockingEntryMapper: Dict.t<JSON.t> => paymentMethodBlockingEnt
 
 let paymentMethodBlockingWalletEntryMapper = (walletDict, key, legacyEntry) => {
   let entryDict = walletDict->getDictfromDict(key)
-  entryDict->isEmptyDict ? legacyEntry : 
-    Some(entryDict->paymentMethodBlockingEntryMapper)
+  entryDict->isEmptyDict ? legacyEntry : Some(entryDict->paymentMethodBlockingEntryMapper)
 }
 
 let paymentMethodBlockingWalletMapper: Dict.t<

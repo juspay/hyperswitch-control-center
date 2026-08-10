@@ -10,11 +10,8 @@ let make = () => {
   let (processorModal, setProcessorModal) = React.useState(_ => false)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=PayoutProcessor)
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {payoutProcessorsLiveList} =
-    HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
-  let {payoutProcessorsSandboxList} =
-    HyperswitchAtom.connectorListForSandboxAtom->Recoil.useRecoilValueFromAtom
+  let {payoutProcessorsList: payoutConnectorList} =
+    HyperswitchAtom.connectorDisplayListAtom->Recoil.useRecoilValueFromAtom
 
   let getConnectorListAndUpdateState = async () => {
     try {
@@ -63,10 +60,6 @@ let make = () => {
     }
     setFilteredConnectorData(_ => filteredList)
   }, ~wait=200)
-
-  let payoutConnectorList = featureFlagDetails.isLiveMode
-    ? payoutProcessorsLiveList
-    : payoutProcessorsSandboxList
 
   <div>
     <PageLoaderWrapper screenState>
