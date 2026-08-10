@@ -129,25 +129,35 @@ let operations = (
     : emptyComponent
 }
 
-let paymentProcessor = (isLiveMode, userHasResourceAccess, ~paymentProcessorsLiveList) => {
+let paymentProcessor = (
+  isLiveMode,
+  userHasResourceAccess,
+  ~paymentProcessorsLiveList,
+  ~paymentProcessorsSandboxList,
+) => {
   SubLevelLink({
     name: "Payment Processors",
     link: `/connectors`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: getSearchOptionsForProcessors(
-      ~processorList=isLiveMode ? paymentProcessorsLiveList : connectorList,
+      ~processorList=isLiveMode ? paymentProcessorsLiveList : paymentProcessorsSandboxList,
       ~getNameFromString=getConnectorNameString,
     ),
   })
 }
 
-let payoutConnectors = (~isLiveMode, ~userHasResourceAccess, ~payoutProcessorsLiveList) => {
+let payoutConnectors = (
+  ~isLiveMode,
+  ~userHasResourceAccess,
+  ~payoutProcessorsLiveList,
+  ~payoutProcessorsSandboxList,
+) => {
   SubLevelLink({
     name: "Payout Processors",
     link: `/payoutconnectors`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: getSearchOptionsForProcessors(
-      ~processorList=isLiveMode ? payoutProcessorsLiveList : payoutConnectorList,
+      ~processorList=isLiveMode ? payoutProcessorsLiveList : payoutProcessorsSandboxList,
       ~getNameFromString=getConnectorNameString,
     ),
   })
@@ -166,73 +176,81 @@ let threeDsConnector = (
   ~isLiveMode,
   ~userHasResourceAccess,
   ~threeDsAuthenticatorProcessorsLiveList,
+  ~threeDsAuthenticatorProcessorsSandboxList,
 ) => {
   SubLevelLink({
     name: "3DS Authenticators",
     link: "/3ds-authenticators",
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: getSearchOptionsForProcessors(
-      ~processorList=isLiveMode ? threeDsAuthenticatorProcessorsLiveList : threedsAuthenticatorList,
+      ~processorList=isLiveMode
+        ? threeDsAuthenticatorProcessorsLiveList
+        : threeDsAuthenticatorProcessorsSandboxList,
       ~getNameFromString=getConnectorNameString,
     ),
   })
 }
 
-let pmAuthenticationProcessor = (~userHasResourceAccess) => {
+let pmAuthenticationProcessor = (~userHasResourceAccess, ~pmAuthProcessorsSandboxList) => {
   SubLevelLink({
     name: "PM Auth Processor",
     link: `/pm-authentication-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: getSearchOptionsForProcessors(
-      ~processorList=pmAuthenticationConnectorList,
+      ~processorList=pmAuthProcessorsSandboxList,
       ~getNameFromString=getConnectorNameString,
     ),
   })
 }
 
-let taxProcessor = (~userHasResourceAccess) => {
+let taxProcessor = (~userHasResourceAccess, ~taxProcessorsSandboxList) => {
   SubLevelLink({
     name: "Tax Processor",
     link: `/tax-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: getSearchOptionsForProcessors(
-      ~processorList=taxProcessorList,
+      ~processorList=taxProcessorsSandboxList,
       ~getNameFromString=getConnectorNameString,
     ),
   })
 }
 
-let billingProcessor = (~userHasResourceAccess) => {
+let billingProcessor = (~userHasResourceAccess, ~billingProcessorsSandboxList) => {
   SubLevelLink({
     name: "Billing Processor",
     link: `/billing-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: getSearchOptionsForProcessors(
-      ~processorList=billingProcessorList,
+      ~processorList=billingProcessorsSandboxList,
       ~getNameFromString=getConnectorNameString,
     ),
   })
 }
 
-let vaultProcessor = (~isLiveMode, ~userHasResourceAccess, ~vaultProcessorsLiveList) => {
+let vaultProcessor = (
+  ~isLiveMode,
+  ~userHasResourceAccess,
+  ~vaultProcessorsLiveList,
+  ~vaultProcessorsSandboxList,
+) => {
   SubLevelLink({
     name: "Vault Processor",
     link: `/vault-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: getSearchOptionsForProcessors(
-      ~processorList=isLiveMode ? vaultProcessorsLiveList : vaultProcessorList,
+      ~processorList=isLiveMode ? vaultProcessorsLiveList : vaultProcessorsSandboxList,
       ~getNameFromString=getConnectorNameString,
     ),
   })
 }
 
-let surchargeProcessor = (~userHasResourceAccess) => {
+let surchargeProcessor = (~userHasResourceAccess, ~surchargeProcessorsSandboxList) => {
   SubLevelLink({
     name: "Surcharge Processor",
     link: `/surcharge-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: getSearchOptionsForProcessors(
-      ~processorList=surchargeProcessorList,
+      ~processorList=surchargeProcessorsSandboxList,
       ~getNameFromString=getConnectorNameString,
     ),
   })
@@ -252,7 +270,8 @@ let connectors = (
   ~userHasResourceAccess,
   ~isCurrentMerchantPlatform,
   ~isCurrentMerchantConnected,
-  ~connectorListForLive: ConnectorListForLiveFromConfigTypes.connectorListForLive,
+  ~connectorListForLive: ConnectorListFromConfigTypes.connectorListForLive,
+  ~connectorListForSandbox: ConnectorListFromConfigTypes.connectorListForSandbox,
 ) => {
   let {
     paymentProcessorsLiveList,
@@ -260,20 +279,51 @@ let connectors = (
     threeDsAuthenticatorProcessorsLiveList,
     vaultProcessorsLiveList,
   } = connectorListForLive
+  let {
+    paymentProcessorsSandboxList,
+    payoutProcessorsSandboxList,
+    threeDsAuthenticatorProcessorsSandboxList,
+    vaultProcessorsSandboxList,
+    pmAuthProcessorsSandboxList,
+    billingProcessorsSandboxList,
+    surchargeProcessorsSandboxList,
+    taxProcessorsSandboxList,
+  } = connectorListForSandbox
   let connectorLinkArray = if isCurrentMerchantPlatform {
     let links = []
     if isVaultProcessor {
       links
-      ->Array.push(vaultProcessor(~isLiveMode, ~userHasResourceAccess, ~vaultProcessorsLiveList))
+      ->Array.push(
+        vaultProcessor(
+          ~isLiveMode,
+          ~userHasResourceAccess,
+          ~vaultProcessorsLiveList,
+          ~vaultProcessorsSandboxList,
+        ),
+      )
       ->ignore
     }
     links
   } else {
-    let links = [paymentProcessor(isLiveMode, userHasResourceAccess, ~paymentProcessorsLiveList)]
+    let links = [
+      paymentProcessor(
+        isLiveMode,
+        userHasResourceAccess,
+        ~paymentProcessorsLiveList,
+        ~paymentProcessorsSandboxList,
+      ),
+    ]
 
     if isPayoutsEnabled {
       links
-      ->Array.push(payoutConnectors(~isLiveMode, ~userHasResourceAccess, ~payoutProcessorsLiveList))
+      ->Array.push(
+        payoutConnectors(
+          ~isLiveMode,
+          ~userHasResourceAccess,
+          ~payoutProcessorsLiveList,
+          ~payoutProcessorsSandboxList,
+        ),
+      )
       ->ignore
     }
     if isThreedsConnectorEnabled {
@@ -283,6 +333,7 @@ let connectors = (
           ~isLiveMode,
           ~userHasResourceAccess,
           ~threeDsAuthenticatorProcessorsLiveList,
+          ~threeDsAuthenticatorProcessorsSandboxList,
         ),
       )
       ->ignore
@@ -293,23 +344,36 @@ let connectors = (
     }
 
     if isPMAuthenticationProcessor {
-      links->Array.push(pmAuthenticationProcessor(~userHasResourceAccess))->ignore
+      links
+      ->Array.push(pmAuthenticationProcessor(~userHasResourceAccess, ~pmAuthProcessorsSandboxList))
+      ->ignore
     }
 
     if isTaxProcessor {
-      links->Array.push(taxProcessor(~userHasResourceAccess))->ignore
+      links->Array.push(taxProcessor(~userHasResourceAccess, ~taxProcessorsSandboxList))->ignore
     }
     if isBillingProcessor {
-      links->Array.push(billingProcessor(~userHasResourceAccess))->ignore
+      links
+      ->Array.push(billingProcessor(~userHasResourceAccess, ~billingProcessorsSandboxList))
+      ->ignore
     }
 
     if isSurchargeProcessor {
-      links->Array.push(surchargeProcessor(~userHasResourceAccess))->ignore
+      links
+      ->Array.push(surchargeProcessor(~userHasResourceAccess, ~surchargeProcessorsSandboxList))
+      ->ignore
     }
 
     if isVaultProcessor && !isCurrentMerchantConnected {
       links
-      ->Array.push(vaultProcessor(~isLiveMode, ~userHasResourceAccess, ~vaultProcessorsLiveList))
+      ->Array.push(
+        vaultProcessor(
+          ~isLiveMode,
+          ~userHasResourceAccess,
+          ~vaultProcessorsLiveList,
+          ~vaultProcessorsSandboxList,
+        ),
+      )
       ->ignore
     }
     links

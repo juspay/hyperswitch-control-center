@@ -409,7 +409,29 @@ test.describe("DefaultHome product cards", () => {
       .getByRole("button", { name: "Learn More" })
       .click();
 
+    await expect(page).toHaveURL(/.*dashboard\/home/);
+
+    // Product Cost Observability: Learn More navigates to /dashboard/home
+    await homePage.homeV2.click();
     await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
+
+    await homePage
+      .productCard("Cost Observability")
+      .getByRole("button", { name: "Learn More" })
+      .click();
+
+    await expect(page).toHaveURL(/.*dashboard\/v2\/cost-observability\/home/);
+
+    // Product Orchestrator: Learn More navigates to /dashboard/home
+    await homePage.homeV2.click();
+    await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
+
+    await homePage
+      .productCard("Orchestrator")
+      .getByRole("button", { name: "Learn More" })
+      .click();
+
+    await expect(page).toHaveURL(/.*dashboard\/home/);
   });
 });
 

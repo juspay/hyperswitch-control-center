@@ -17,6 +17,9 @@ let getStepName = step => {
   | AutomaticFlow => "AutomaticFlow"
   }
 }
+// Any connector added to these lists must also be added to the matching
+// connector_list_for_live / connector_list_for_sandbox key in config/config.toml,
+// otherwise it won't appear once the config-driven list takes over.
 
 let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(ADYEN),
@@ -2520,6 +2523,47 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
     surchargeProcessor->getDisplayNameForSurchargeProcessor
   | UnknownConnector(str) => str
   }
+}
+
+let getConnectorCategory = (connector: connectorTypes): option<connector> =>
+  switch connector {
+  | Processors(_) => Some(Processor)
+  | PayoutProcessor(_) => Some(PayoutProcessor)
+  | ThreeDsAuthenticator(_) => Some(ThreeDsAuthenticator)
+  | FRM(_) => Some(FRMPlayer)
+  | PMAuthenticationProcessor(_) => Some(PMAuthenticationProcessor)
+  | TaxProcessor(_) => Some(TaxProcessor)
+  | BillingProcessor(_) => Some(BillingProcessor)
+  | VaultProcessor(_) => Some(VaultProcessor)
+  | SurchargeProcessor(_) => Some(SurchargeProcessor)
+  | UnknownConnector(_) => None
+  }
+
+let matchesConnectorTypeSearch = (connector: connectorTypes, searchText) => {
+  let connectorName = connector->getConnectorNameString
+  let displayName =
+    connector
+    ->getConnectorCategory
+    ->mapOptionOrDefault(connectorName, connectorType =>
+      connectorName->getDisplayNameForConnector(~connectorType)
+    )
+
+  [connectorName, displayName]->Array.some(value => isContainingStringLowercase(value, searchText))
+}
+
+let matchesConnectorSearch = (
+  ~connectorType=ConnectorTypes.Processor,
+  connector: connectorPayloadCommonType,
+  searchText,
+) => {
+  let displayName = connector.connector_name->getDisplayNameForConnector(~connectorType)
+
+  [
+    connector.connector_name,
+    displayName,
+    connector.id,
+    connector.connector_label,
+  ]->Array.some(value => isContainingStringLowercase(value, searchText))
 }
 
 let getConnectorFilterOptions = (

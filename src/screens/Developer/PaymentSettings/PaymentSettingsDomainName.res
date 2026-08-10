@@ -4,7 +4,7 @@ module PaymentLinkDomainFields = {
     open Typography
     open FormRenderer
     open LogicUtils
-    open PaymentSettingsRevampedHelper
+    open PaymentSettingsHelper
 
     let (showModal, setShowModal) = React.useState(_ => false)
     let (isDisabled, setDisabled) = React.useState(_ => true)
@@ -149,9 +149,7 @@ let make = () => {
             <Button
               buttonType=Button.Secondary
               onClick={_ =>
-                RescriptReactRouter.push(
-                  GlobalVars.appendDashboardPath(~url="/payment-settings-new"),
-                )}
+                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/payment-settings"))}
               text="Cancel"
             />
           </RenderIf>

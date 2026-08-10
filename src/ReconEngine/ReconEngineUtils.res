@@ -338,6 +338,10 @@ let skipConditionOperatorMapper = (str): skipConditionOperator => {
   | "not_equals" => NotEquals
   | "contains" => Contains
   | "not_contains" => NotContains
+  | "starts_with" => StartsWith
+  | "not_starts_with" => NotStartsWith
+  | "ends_with" => EndsWith
+  | "not_ends_with" => NotEndsWith
   | _ => UnknownSkipConditionOperator
   }
 }
@@ -414,6 +418,58 @@ let linkedTransactionItemToObjMapper = dict => {
   }
 }
 
+let mismatchedFieldItemToObjMapper = (dict): mismatchedFieldType => {
+  let displayValue = key =>
+    dict->getMappedValueFromDict(key, "N/A", json =>
+      json->isNullJson ? "N/A" : json->getStringFromJson(json->JSON.stringify)
+    )
+  {
+    field_name: dict->getString("field_name", ""),
+    field_label: dict->getOptionString("label"),
+    expected_value: displayValue("expected_value"),
+    actual_value: displayValue("actual_value"),
+  }
+}
+
+let getMismatchedFieldLabel = (field: mismatchedFieldType) =>
+  switch field.field_label {
+  | Some(label) if label->isNonEmptyString => label
+  | _ => {
+      let parts = field.field_name->String.split(".")
+      parts->getValueFromArray(parts->Array.length - 1, field.field_name)->snakeToTitle
+    }
+  }
+
+let getMismatchedFieldsFromDict = dataDict =>
+  dataDict
+  ->getArrayFromDict("mismatched_fields", [])
+  ->Array.map(json => json->getDictFromJsonObject->mismatchedFieldItemToObjMapper)
+
+let getMismatchedFieldsSubject = (fields: array<mismatchedFieldType>) => {
+  let count = fields->Array.length
+
+  if fields->isEmptyArray {
+    ""
+  } else if count == 1 {
+    fields
+    ->getValueFromArray(0, Dict.make()->mismatchedFieldItemToObjMapper)
+    ->getMismatchedFieldLabel
+  } else {
+    `${count->Int.toString} fields`
+  }
+}
+
+let getMismatchedFieldsCountText = (fields: array<mismatchedFieldType>) => {
+  let subject = fields->getMismatchedFieldsSubject
+  subject->isEmptyString ? "" : `${subject} did not match`
+}
+
+let getMismatchedFieldsDescription = (fields: array<mismatchedFieldType>) => {
+  let count = fields->Array.length
+
+  fields->isEmptyArray ? "" : `${count->Int.toString} field${pluralText(~count)} did not match`
+}
+
 let transactionItemToObjMapper = (dict): transactionType => {
   let linkedTransactionDict = dict->getDictfromDict("linked_transaction")
   {
@@ -443,6 +499,9 @@ let transactionItemToObjMapper = (dict): transactionType => {
       reason: dict
       ->getDictfromDict("data")
       ->getOptionString("reason"),
+      mismatched_fields: dict
+      ->getDictfromDict("data")
+      ->getMismatchedFieldsFromDict,
     },
     discarded_status: dict
     ->getDictfromDict("discarded_status")
@@ -497,6 +556,13 @@ let processingEntryDiscardedDataItemToObjMapper = (dataDict): processingEntryDis
   }
 }
 
+let transformationConfigRefTypeMapper = (dict): transformationConfigRefType => {
+  {
+    transformation_config_id: dict->getString("transformation_config_id", ""),
+    transformation_config_name: dict->getString("transformation_config_name", ""),
+  }
+}
+
 let processingItemToObjMapper = (dict): processingEntryType => {
   let discardedDataDict =
     dict->getDictfromDict("discarded_data")->processingEntryDiscardedDataItemToObjMapper
@@ -513,7 +579,9 @@ let processingItemToObjMapper = (dict): processingEntryType => {
     effective_at: dict->getString("effective_at", ""),
     processing_mode: dict->getString("processing_mode", ""),
     metadata: dict->getJsonObjectFromDict("metadata"),
-    transformation_id: dict->getString("transformation_id", ""),
+    transformation_config: dict
+    ->getDictfromDict("transformation_config")
+    ->transformationConfigRefTypeMapper,
     transformation_history_id: dict->getString("transformation_history_id", ""),
     order_id: dict->getString("order_id", ""),
     version: dict->getInt("version", 0),
