@@ -271,16 +271,6 @@ let filterConnectorList = (
   )
 }
 
-// Stable: preserves the existing order within the enabled and disabled groups
-let sortConnectorsWithDisabledLast = (items: array<ConnectorTypes.connectorPayloadCommonType>) =>
-  items->Array.toSorted((connector1, connector2) =>
-    switch (connector1.disabled, connector2.disabled) {
-    | (true, false) => 1.
-    | (false, true) => -1.
-    | _ => 0.
-    }
-  )
-
 let filterConnectorListJson = (json, ~retainInList) => {
   json
   ->getArrayFromJson([])

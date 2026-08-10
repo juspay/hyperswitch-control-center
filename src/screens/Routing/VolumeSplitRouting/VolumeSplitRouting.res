@@ -100,10 +100,12 @@ module VolumeRoutingView = {
     }
 
     let connectorOptions = React.useMemo(() => {
-      connectors
-      ->Array.filter(item => item.profile_id === profile)
-      ->RoutingUtils.sortConnectorsWithDisabledLast
-      ->Array.map((item): SelectBox.dropdownOption => {
+      let filteredConnectors = connectors->Array.filter(item => item.profile_id === profile)
+      ConnectorUtils.sortByDisableField(filteredConnectors, connectorPayload =>
+        connectorPayload.disabled
+      )
+
+      filteredConnectors->Array.map((item): SelectBox.dropdownOption => {
         {
           label: item.disabled ? `${item.connector_label} (disabled)` : item.connector_label,
           value: item.id,
