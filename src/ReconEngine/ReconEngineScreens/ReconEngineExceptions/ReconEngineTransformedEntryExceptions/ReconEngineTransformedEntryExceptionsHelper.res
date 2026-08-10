@@ -470,7 +470,7 @@ module ExceptionDataDisplay = {
         "No Expectation Entry Found",
         "No corresponding expectation entry was found for the transformed entry.",
       )
-    | MultipleExceptedEntriesFound => (
+    | MultipleExpectedEntriesFound => (
         "Multiple Excepted Entries Found",
         "Multiple excepted entries were found for the transformed entry.",
       )

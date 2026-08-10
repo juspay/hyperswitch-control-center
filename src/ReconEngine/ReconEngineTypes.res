@@ -301,7 +301,7 @@ type needsManualReviewType =
   | @as("missing_search_identifier_value") MissingSearchIdentifierValue
   | @as("duplicate_entry") DuplicateEntry
   | @as("no_expectation_entry_found") NoExpectationEntryFound
-  | @as("multiple_excepted_entries_found") MultipleExceptedEntriesFound
+  | @as("multiple_expected_entries_found") MultipleExpectedEntriesFound
   | @as("missing_match_field") MissingMatchField
   | @as("missing_unique_field") MissingUniqueField
   | @as("missing_grouping_field") MissingGroupingField
