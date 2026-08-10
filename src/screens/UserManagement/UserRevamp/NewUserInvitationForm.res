@@ -173,18 +173,18 @@ let make = () => {
 
   <div className="flex flex-col h-full">
     <div
-      className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 xl:gap-6 items-end p-6 !pb-10 border-b">
+      className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 xl:gap-6 items-start p-6 !pb-10 border-b">
       <div className="col-span-1 sm:col-span-2 lg:col-span-5 w-full">
         <FormRenderer.FieldRenderer
           field=inviteEmail labelClass="!text-black !text-base !-ml-[0.5px]"
         />
       </div>
-      <div className="col-span-1 sm:col-span-1 lg:col-span-1 w-full p-1">
+      <div className="col-span-1 sm:col-span-1 lg:col-span-1 w-full p-1 sm:pt-11">
         <FormRenderer.SubmitButton
           text={"Send Invite"}
           loadingText="Loading..."
           buttonSize={Small}
-          customSubmitButtonStyle="w-full !h-12"
+          customSubmitButtonStyle="!h-12"
         />
       </div>
     </div>

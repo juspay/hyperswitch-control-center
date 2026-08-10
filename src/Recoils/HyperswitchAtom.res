@@ -18,12 +18,6 @@ let connectorListAtom: Recoil.recoilAtom<
   array<ConnectorTypes.connectorPayloadCommonType>,
 > = Recoil.atom("connectorListAtom", [])
 
-//Todo: remove this once we start using businessProfileInterface
-let businessProfileFromIdAtom = Recoil.atom(
-  "businessProfileFromIdAtom",
-  JSON.Encode.null->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1,
-)
-
 let businessProfileFromIdAtomInterface = Recoil.atom(
   "businessProfileFromIdAtomInterface",
   JSON.Encode.null->BusinessProfileInterfaceUtils.mapJsontoCommonType,
@@ -38,10 +32,16 @@ let featureFlagAtom: Recoil.recoilAtom<FeatureFlagUtils.featureFlag> = Recoil.at
   JSON.Encode.null->FeatureFlagUtils.featureFlagType,
 )
 let connectorListForLiveAtom: Recoil.recoilAtom<
-  ConnectorListForLiveFromConfigTypes.connectorListForLive,
+  ConnectorListFromConfigTypes.connectorListForLive,
 > = Recoil.atom(
   "connectorListForLive",
-  JSON.Encode.null->ConnectorListForLiveFromConfigUtils.getConnectorListForLive,
+  JSON.Encode.null->ConnectorListFromConfigUtils.getConnectorListForLive,
+)
+let connectorListForSandboxAtom: Recoil.recoilAtom<
+  ConnectorListFromConfigTypes.connectorListForSandbox,
+> = Recoil.atom(
+  "connectorListForSandbox",
+  JSON.Encode.null->ConnectorListFromConfigUtils.getConnectorListForSandbox,
 )
 let connectorCloneAllowListAtom: Recoil.recoilAtom<array<string>> = Recoil.atom(
   "connectorCloneAllowList",

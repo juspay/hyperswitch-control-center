@@ -241,12 +241,10 @@ module ClipboardSuggestion = {
   let make = (~clipboardSuggestion, ~onClipboardSuggestionClicked) => {
     switch clipboardSuggestion {
     | Some(suggestion: clipboardSuggestion) =>
-      let label = (suggestion.idType :> string)->camelToSnake
-      let displayValue = `${label} ${filterSeparator} ${suggestion.id}`
       let filter: categoryOption = {
         categoryType: Payment_id,
         options: [suggestion.id],
-        placeholder: `${label}:${suggestion.id}`,
+        placeholder: suggestion.id,
       }
 
       <Div
@@ -260,7 +258,7 @@ module ClipboardSuggestion = {
         <div>
           <FilterOption
             onClick={_ => onClipboardSuggestionClicked(suggestion)}
-            value=displayValue
+            value={suggestion.id}
             placeholder={Some("Click to search")}
             filter
             viewType=FiltersSugsestions
