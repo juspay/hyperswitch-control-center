@@ -112,7 +112,7 @@ let useGetHsSidebarValues = () => {
       ~devUsers,
       ~isCurrentMerchantPlatform,
     ),
-    superposition(userHasResourceAccess, devSuperposition),
+    superposition(~userHasResourceAccess, ~isEnabled=devSuperposition),
   ]
 }
 

@@ -1,5 +1,4 @@
 %%raw(`require("tailwindcss/tailwind.css")`)
-%%raw(`require("superposition-embeddable-ui/styles.css")`)
 
 module ContextWrapper = {
   @react.component

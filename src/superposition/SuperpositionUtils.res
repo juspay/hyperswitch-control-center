@@ -7,15 +7,15 @@ let displayConfigs = [
   ShouldStoreEligibilityCheckDataForAuthentication,
 ]
 
-let getDimensionsForFixedContext = entity =>
-  switch entity {
+let getDimensionsForFixedContext = dimensionEntity =>
+  switch dimensionEntity {
   | Org => "organization_id"
   | Merchant => "processor_merchant_id"
   | Profile => "profile_id"
   }
 
-let configEnumToString = configEnum =>
-  switch configEnum {
+let configEnumToString = config =>
+  switch config {
   | ShouldPerformEligibility => "should_perform_eligibility"
   | ShouldCallPMModularService => "should_call_pm_modular_service"
   | EnableExtendedCardBin => "enable_extended_card_bin"

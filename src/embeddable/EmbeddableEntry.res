@@ -23,7 +23,7 @@ module EmbeddableEntryComponent = {
       try {
         let dict = urlConfig->getDictFromJsonObject->getDictfromDict("endpoints")
         let value = dict->EmbeddableGlobalUtils.getConfigFromDict
-        DOMUtils.window._env_ = value
+        DOMUtils.embeddableWindow._env_ = value
         value
       } catch {
       | _ => Exn.raiseError("Error on configuring endpoint")

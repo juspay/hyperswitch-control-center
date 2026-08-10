@@ -1,15 +1,6 @@
 open LogicUtils
 
-let getSuperpositionConfigMapper: Dict.t<
-  JSON.t,
-> => HyperSwitchConfigTypes.superpositionConfig = dict => {
-  {
-    organization_id: dict->getString("organization_id", ""),
-    workspace: dict->getString("workspace", ""),
-  }
-}
-
-let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.urlConfig = dict => {
+let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.embeddableUrlConfig = dict => {
   {
     apiBaseUrl: dict->getString("api_url", ""),
     mixpanelToken: dict->getString("mixpanel_token", ""),
@@ -29,13 +20,6 @@ let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.urlConfig = dict
       logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
     },
     hypersenseUrl: dict->getString("hypersense_url", ""),
-    superpositionConfigs: dict->isEmptyDict
-      ? None
-      : Some(
-          dict
-          ->getDictfromDict("superposition_configs")
-          ->getSuperpositionConfigMapper,
-        ),
   }
 }
 

@@ -15,7 +15,7 @@ type superpositionConfig = {
   workspace: string,
 }
 
-type urlConfig = {
+type baseUrlConfig = {
   apiBaseUrl: string,
   mixpanelToken: string,
   sdkBaseUrl: option<string>,
@@ -27,8 +27,14 @@ type urlConfig = {
   dynamoSimulationTemplateUrl: option<string>,
   urlThemeConfig: urlThemeConfig,
   hypersenseUrl: string,
+}
+
+type appUrlConfig = {
+  ...baseUrlConfig,
   superpositionConfigs: option<superpositionConfig>,
 }
+
+type embeddableUrlConfig = baseUrlConfig
 
 // Type definition for themes
 type colorPalette = {

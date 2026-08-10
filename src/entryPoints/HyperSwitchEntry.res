@@ -32,7 +32,7 @@ module HyperSwitchEntryComponent = {
         let dict = urlConfig->getDictFromJsonObject->getDictfromDict("endpoints")
         let superpositionDict =
           urlConfig->getDictFromJsonObject->getDictfromDict("superposition_configs")
-        let value: urlConfig = {
+        let value: appUrlConfig = {
           apiBaseUrl: dict->getString("api_url", ""),
           mixpanelToken: dict->getString("mixpanel_token", ""),
           sdkBaseUrl: dict->getString("sdk_url", "")->getNonEmptyString,
