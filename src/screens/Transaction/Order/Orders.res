@@ -36,19 +36,17 @@ let make = (~previewOnly=false) => {
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
 
   //enablement of open search
-  let isOpenSearchEnabled = devOpensearch && version == V1
+  let isOpenSearchEnabled =
+    devOpensearch && version == V1 && userHasResourceAccess(~resourceAccess=Analytics) === Access
   //enablement of advanced view
   let isAdvancedViewEnabled = isOpenSearchEnabled && devAdvancedPaymentsView
-  //access to advanced view
-  let hasAdvancedViewAccess =
-    isAdvancedViewEnabled && userHasResourceAccess(~resourceAccess=Analytics) === Access
 
   let (selectedSource, setSelectedSource) = React.useState(_ => None)
   let source =
-    selectedSource->mapOptionOrDefault(hasAdvancedViewAccess ? Advanced : Normal, userSource =>
+    selectedSource->mapOptionOrDefault(isAdvancedViewEnabled ? Advanced : Normal, userSource =>
       userSource
     )
-  let isAdvancedView = source === Advanced && hasAdvancedViewAccess
+  let isAdvancedView = source === Advanced && isAdvancedViewEnabled
   let (tableTitle, savedViewsEntity) = isAdvancedView
     ? (advancedOrdersTableTitle, PaymentAdvanced)
     : (ordersTableTitle, Payment)
@@ -386,7 +384,7 @@ let make = (~previewOnly=false) => {
             {<>
               <div className="shrink-0">
                 <OrderListSourceControls.SourceTabs
-                  source setSource=handleSourceChange advancedEnabled=hasAdvancedViewAccess
+                  source setSource=handleSourceChange advancedEnabled=isAdvancedViewEnabled
                 />
               </div>
               <ToolTip
