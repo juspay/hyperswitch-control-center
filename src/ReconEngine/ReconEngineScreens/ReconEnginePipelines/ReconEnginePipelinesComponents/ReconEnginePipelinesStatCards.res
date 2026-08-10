@@ -45,7 +45,7 @@ let make = (~refreshTrigger=false) => {
       setStagingOverviewData(_ => stagingOverviewData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
 
