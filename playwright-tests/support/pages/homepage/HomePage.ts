@@ -638,13 +638,6 @@ export class HomePage {
     return this.page.getByText("FROM CLIPBOARD", { exact: true });
   }
 
-  globalSearchClipboardSuggestion(
-    idType: "payment_id" | "refund_id",
-    id: string,
-  ): Locator {
-    return this.page.getByText(`${idType} : ${id}`, { exact: true });
-  }
-
   get globalSearchValidationError(): Locator {
     return this.page.getByText(
       "Only one free-text search is allowed and additional text will be ignored.",

@@ -573,13 +573,6 @@ test.describe("Global Search - Clipboard ID suggestions", () => {
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
-  async function setClipboardText(page: Page, text: string): Promise<void> {
-    await page.evaluate(
-      (clipboardText) => navigator.clipboard.writeText(clipboardText),
-      text,
-    );
-  }
-
   for (const { idType, id, clipboardText } of [
     {
       idType: "payment_id" as const,
@@ -596,11 +589,14 @@ test.describe("Global Search - Clipboard ID suggestions", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      await setClipboardText(page, clipboardText);
+      await page.evaluate(
+        (text) => navigator.clipboard.writeText(text),
+        clipboardText,
+      );
       await homePage.globalSearchInput.click();
 
       await expect(homePage.globalSearchClipboardHeader).toBeVisible();
-      const suggestion = homePage.globalSearchClipboardSuggestion(idType, id);
+      const suggestion = page.getByText(id, { exact: true });
       await expect(suggestion).toBeVisible();
       await expect(
         page.getByText("Click to search", { exact: true }),
@@ -613,21 +609,20 @@ test.describe("Global Search - Clipboard ID suggestions", () => {
       );
       await suggestion.click();
 
-      await expect(homePage.globalSearchModalInput).toHaveValue(
-        `${idType}:${id}`,
-      );
+      await expect(homePage.globalSearchModalInput).toHaveValue(id);
       await expect(homePage.globalSearchClipboardHeader).not.toBeVisible();
 
       expect((await searchRequest).postDataJSON()).toEqual({
-        filters: { [idType]: [id] },
-        query: "",
+        query: id,
       });
     });
   }
 
   test("should not suggest unsupported clipboard content", async ({ page }) => {
     const homePage = new HomePage(page);
-    await setClipboardText(page, "payout_clipboard_123ABC");
+    await page.evaluate(() =>
+      navigator.clipboard.writeText("payout_clipboard_123ABC"),
+    );
     await homePage.globalSearchInput.click();
 
     await expect(homePage.globalSearchSuggestedFiltersHeader).toBeVisible();

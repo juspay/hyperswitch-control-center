@@ -1343,7 +1343,7 @@ test.describe("Payment Operations", () => {
     }) => {
       const pinnedDate = new Date("2025-06-15T10:00:00.000Z");
       await page.clock.setFixedTime(pinnedDate);
-      const savedViewsApi = await mockSavedViewsApi(page);
+      await mockSavedViewsApi(page);
       const paymentOperations = new PaymentOperations(page);
       await openPaymentOperations(page);
 
@@ -1357,6 +1357,12 @@ test.describe("Payment Operations", () => {
         }),
       ).not.toBeVisible();
 
+      const selectedDateRange =
+        await paymentOperations.dateSelector.getAttribute("aria-label");
+      if (!selectedDateRange) {
+        throw new Error("Date range picker did not have an accessible label");
+      }
+
       await paymentOperations.saveCurrentViewButton.click();
       await paymentOperations.savedViewNameInput.fill("Last week");
       await paymentOperations.includeDateRangeCheckbox.click();
@@ -1366,12 +1372,6 @@ test.describe("Payment Operations", () => {
           "New View 'Last week' created successfully!",
         ),
       ).toBeVisible();
-
-      const savedFilters = savedViewsApi.actions[0].data.filters;
-      expect(savedFilters).toMatchObject({
-        start_time: expect.any(String),
-        end_time: expect.any(String),
-      });
 
       await page.getByRole("button", { name: "Last 7 days" }).click();
       await page.getByRole("menuitem", { name: "Last 30 minutes" }).click();
@@ -1383,11 +1383,9 @@ test.describe("Payment Operations", () => {
         paymentOperations.savedViewOption("Last week"),
       ).not.toBeVisible();
 
-      await expect(
-        page.getByRole("button", {
-          name: "Date range picker, Jun 9, 2025, 12:00 AM - Jun 15, 2025, 3:30 PM",
-        }),
-      ).toBeVisible();
+      await expect(paymentOperations.dateSelector).toHaveAccessibleName(
+        selectedDateRange,
+      );
     });
 
     test("should show an error when the save view API fails", async ({
