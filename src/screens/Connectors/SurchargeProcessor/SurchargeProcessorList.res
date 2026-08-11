@@ -3,8 +3,8 @@ let make = () => {
   let connectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=SurchargeProcessor,
   )
-  let {surchargeProcessorsSandboxList} =
-    HyperswitchAtom.connectorListForSandboxAtom->Recoil.useRecoilValueFromAtom
+  let {surchargeProcessorsList} =
+    HyperswitchAtom.connectorDisplayListAtom->Recoil.useRecoilValueFromAtom
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -92,7 +92,7 @@ let make = () => {
             ConnectorTypes.SurchargeProcessor,
             configuredConnectors,
           )}
-          connectorsAvailableForIntegration={surchargeProcessorsSandboxList}
+          connectorsAvailableForIntegration={surchargeProcessorsList}
           urlPrefix="surcharge-processor/new"
           connectorType=ConnectorTypes.SurchargeProcessor
         />
