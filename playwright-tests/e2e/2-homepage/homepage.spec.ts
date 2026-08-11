@@ -697,8 +697,8 @@ test.describe("SDK Payment", () => {
         .filter({ hasText: /^Color Picker Input$/ })
         .nth(1),
     ).toBeVisible();
-    await expect(page.getByRole("textbox", { name: "#FFFFFF" })).toBeVisible();
-    await expect(page.getByRole("textbox", { name: "#FFFFFF" })).toHaveValue(
+    await expect(page.getByRole("textbox", { name: "#006DF9" })).toBeVisible();
+    await expect(page.getByRole("textbox", { name: "#006DF9" })).toHaveValue(
       "#006DF9",
     );
     await expect(
