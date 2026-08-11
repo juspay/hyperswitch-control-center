@@ -27,14 +27,8 @@ type baseUrlConfig = {
   dynamoSimulationTemplateUrl: option<string>,
   urlThemeConfig: urlThemeConfig,
   hypersenseUrl: string,
-}
-
-type appUrlConfig = {
-  ...baseUrlConfig,
   superpositionConfigs: option<superpositionConfig>,
 }
-
-type embeddableUrlConfig = baseUrlConfig
 
 // Type definition for themes
 type colorPalette = {
