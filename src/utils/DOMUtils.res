@@ -1,5 +1,5 @@
 type document = {mutable title: string}
-type window = {mutable _env_: HyperSwitchConfigTypes.baseUrlConfig}
+type window = {mutable _env_: HyperSwitchConfigTypes.baseConfig}
 @val external document: document = "document"
 @send external getElementById: (document, string) => Dom.element = "getElementById"
 @send external createElement: (document, string) => Dom.element = "createElement"

@@ -1,6 +1,6 @@
 open LogicUtils
 
-let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.baseUrlConfig = dict => {
+let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.baseConfig = dict => {
   {
     apiBaseUrl: dict->getString("api_url", ""),
     mixpanelToken: dict->getString("mixpanel_token", ""),

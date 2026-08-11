@@ -15,7 +15,7 @@ type superpositionConfig = {
   workspace: string,
 }
 
-type baseUrlConfig = {
+type baseConfig = {
   apiBaseUrl: string,
   mixpanelToken: string,
   sdkBaseUrl: option<string>,
