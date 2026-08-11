@@ -1756,6 +1756,19 @@ test.describe("Payment Operations", () => {
         );
       }
 
+      await page.route("**/dashboard/config/feature*", async (route) => {
+        const response = await route.fetch();
+        const json = await response.json();
+        if (json?.features) {
+          json.features.generate_report = false;
+        }
+        await route.fulfill({ response, json });
+      });
+
+      // Initialize the feature atom from the mocked response instead of
+      // inheriting flags enabled in the target environment.
+      await page.reload();
+
       await homePage.operations.click();
       await homePage.paymentOperations.click();
 
