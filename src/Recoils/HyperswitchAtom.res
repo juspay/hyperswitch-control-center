@@ -31,17 +31,13 @@ let featureFlagAtom: Recoil.recoilAtom<FeatureFlagUtils.featureFlag> = Recoil.at
   "featureFlag",
   JSON.Encode.null->FeatureFlagUtils.featureFlagType,
 )
-let connectorListForLiveAtom: Recoil.recoilAtom<
-  ConnectorListFromConfigTypes.connectorListForLive,
+// Seeded with the sandbox defaults since the feature flags are not resolved yet
+// at module init; HyperSwitchEntry overwrites this once the config is fetched.
+let connectorDisplayListAtom: Recoil.recoilAtom<
+  ConnectorListFromConfigTypes.connectorDisplayList,
 > = Recoil.atom(
-  "connectorListForLive",
-  JSON.Encode.null->ConnectorListFromConfigUtils.getConnectorListForLive,
-)
-let connectorListForSandboxAtom: Recoil.recoilAtom<
-  ConnectorListFromConfigTypes.connectorListForSandbox,
-> = Recoil.atom(
-  "connectorListForSandbox",
-  JSON.Encode.null->ConnectorListFromConfigUtils.getConnectorListForSandbox,
+  "connectorDisplayList",
+  JSON.Encode.null->ConnectorListFromConfigUtils.getConnectorDisplayList(~isLiveMode=false),
 )
 let connectorCloneAllowListAtom: Recoil.recoilAtom<array<string>> = Recoil.atom(
   "connectorCloneAllowList",

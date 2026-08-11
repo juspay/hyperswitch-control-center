@@ -845,8 +845,8 @@ let useGetURL = () => {
         switch methodType {
         | Post =>
           switch transactionEntity {
-          | #Merchant => `analytics/v1/payments/list`
-          | #Profile => `analytics/v1/profile/payments/list`
+          | #Merchant => `payments/advanced/list`
+          | #Profile => `payments/profile/advanced/list`
           | _ => `payments/list`
           }
 

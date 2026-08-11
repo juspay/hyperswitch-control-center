@@ -3,6 +3,51 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.11.1
+
+### Bug Fixes
+
+- Handle saved view text filters ([#5328](https://github.com/juspay/hyperswitch-control-center/pull/5328)) ([`c624862`](https://github.com/juspay/hyperswitch-control-center/commit/c624862ce7a65371a0bc1e5f5d1542b83ff6c402))
+
+### Refactors
+
+- Unify live and sandbox connector lists into a single config source ([#5361](https://github.com/juspay/hyperswitch-control-center/pull/5361)) ([`023931a`](https://github.com/juspay/hyperswitch-control-center/commit/023931a18323a64957b9cfe2c5e4dcc9a381a7b7))
+
+**Full Changelog:** [`2026.08.11.0...2026.08.11.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.11.0...2026.08.11.1)
+
+- - -
+
+## 2026.08.11.0
+
+### Features
+
+- Add event class and event type filters to webhooks list ([#5294](https://github.com/juspay/hyperswitch-control-center/pull/5294)) ([`66417df`](https://github.com/juspay/hyperswitch-control-center/commit/66417df2178b59e41d25201c5d8aa0cefbfab538))
+- Support prefix and suffix operators in recon transformation skip rules ([#5359](https://github.com/juspay/hyperswitch-control-center/pull/5359)) ([`89059b1`](https://github.com/juspay/hyperswitch-control-center/commit/89059b1aa6d74e4693c12b9a2e1b65eee36bb600))
+
+### Bug Fixes
+
+- Show disabled connectors at the bottom in volume and rule based routing ([#5337](https://github.com/juspay/hyperswitch-control-center/pull/5337)) ([`9e27a55`](https://github.com/juspay/hyperswitch-control-center/commit/9e27a559339a0b936f5866089d976cec4d9a3be9))
+- Recon engine map multiple expected entries found exception ([#5357](https://github.com/juspay/hyperswitch-control-center/pull/5357)) ([`857ec75`](https://github.com/juspay/hyperswitch-control-center/commit/857ec758daa7d8190d6fe7dee48faa0e261bdcfa))
+
+**Full Changelog:** [`2026.08.10.0...2026.08.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.10.0...2026.08.11.0)
+
+- - -
+
+## 2026.08.10.0
+
+### Features
+
+- Add wallet-specific payment method blocking ([#5315](https://github.com/juspay/hyperswitch-control-center/pull/5315)) ([`dcb220d`](https://github.com/juspay/hyperswitch-control-center/commit/dcb220d890b6f3ee7dcae63ec94e5751d33518bb))
+
+### Bug Fixes
+
+- Resolve dashboard UI and global search regressions ([#5306](https://github.com/juspay/hyperswitch-control-center/pull/5306)) ([`c82376f`](https://github.com/juspay/hyperswitch-control-center/commit/c82376f0e1bf0ea4074515b9ba097297af374515))
+- Prevent api key description text wrapping ([#5321](https://github.com/juspay/hyperswitch-control-center/pull/5321)) ([`5ec828d`](https://github.com/juspay/hyperswitch-control-center/commit/5ec828d15489a34489923b7abb0ef27f2cab5cb4))
+
+**Full Changelog:** [`2026.08.07.1...2026.08.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.07.1...2026.08.10.0)
+
+- - -
+
 ## 2026.08.07.1
 
 ### Features
