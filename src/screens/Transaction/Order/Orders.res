@@ -198,7 +198,10 @@ let make = (~previewOnly=false) => {
       submitInputOnEnter=true
       customLeftView={<div className="flex flex-col gap-1">
         <SearchBarFilter
-          placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
+          placeholder="Search for payment ID"
+          setSearchVal=setSearchText
+          searchVal=searchText
+          sanitizeSearchInput=HSwitchRemoteFilter.sanitizeTransactionId
         />
       </div>}
       customFilterActions={devSavedViews

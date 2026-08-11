@@ -103,7 +103,10 @@ let make = () => {
       initialFixedFilter
       setOffset
       customLeftView={<SearchBarFilter
-        placeholder="Search for dispute ID" setSearchVal=setSearchText searchVal=searchText
+        placeholder="Search for dispute ID"
+        setSearchVal=setSearchText
+        searchVal=searchText
+        sanitizeSearchInput=HSwitchRemoteFilter.sanitizeTransactionId
       />}
       entityName=V1(DISPUTE_FILTERS)
       title="Disputes"

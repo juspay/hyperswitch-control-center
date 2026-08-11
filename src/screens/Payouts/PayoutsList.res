@@ -115,7 +115,10 @@ let make = () => {
             initialFixedFilter
             setOffset
             customLeftView={<SearchBarFilter
-              placeholder="Search for payout ID" setSearchVal=setSearchText searchVal=searchText
+              placeholder="Search for payout ID"
+              setSearchVal=setSearchText
+              searchVal=searchText
+              sanitizeSearchInput=HSwitchRemoteFilter.sanitizeTransactionId
             />}
             entityName=V1(PAYOUTS_FILTERS)
             connectorTypes=[PayoutProcessor]

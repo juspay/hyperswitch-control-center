@@ -108,13 +108,16 @@ let useSetInitialFilters = (
   }
 }
 
+let sanitizeTransactionId = value => value->String.replaceRegExp(%re("/[^a-zA-Z0-9_-]/g"), "")
+
 module SearchBarFilter = {
   @react.component
-  let make = (~placeholder, ~setSearchVal, ~searchVal) => {
+  let make = (~placeholder, ~setSearchVal, ~searchVal, ~sanitizeSearchInput=?) => {
+    let sanitizeSearchInput = sanitizeSearchInput->Option.getOr(value => value)
     let (baseValue, setBaseValue) = React.useState(_ => "")
     let onChange = ev => {
       let value = ReactEvent.Form.target(ev)["value"]
-      setBaseValue(_ => value)
+      setBaseValue(_ => value->sanitizeSearchInput)
     }
 
     React.useEffect(() => {
