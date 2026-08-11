@@ -499,10 +499,10 @@ let make = () => {
             </RenderIf>
             <RenderIf condition={initialRule->Option.isNone}>
               <div className="w-full border p-6 flex flex-col gap-6 bg-white rounded-md">
-                <p className={`${body.lg.semibold} text-grey-700`}>
+                <p className={`${body.lg.semibold} text-nd_gray-600`}>
                   {pageConfig.configureTitle->React.string}
                 </p>
-                <p className={`${body.lg.regular} text-grey-700 opacity-50`}>
+                <p className={`${body.lg.regular} text-nd_gray-600 opacity-50`}>
                   {pageConfig.configureDescription->React.string}
                 </p>
                 <ACLButton
