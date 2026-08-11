@@ -28,8 +28,12 @@ export class APISettings {
     return this.page.getByRole("button", { name: "Create New API Key" });
   }
 
+  get applyButton(): Locator {
+    return this.page.getByRole('button', { name: 'Apply' });
+  }
+
   get createButton(): Locator {
-    return this.page.getByRole("button", { name: "Create", exact: true });
+    return this.page.getByRole('button', { name: 'Create', exact: true });
   }
 
   get updateButton(): Locator {
@@ -50,10 +54,6 @@ export class APISettings {
 
   get selectDateButton(): Locator {
     return this.page.getByRole("button", { name: "Select Date" });
-  }
-
-  get chevronRight(): Locator {
-    return this.page.locator('[data-icon="chevron-right"]').first();
   }
 
   get yesDeleteItButton(): Locator {

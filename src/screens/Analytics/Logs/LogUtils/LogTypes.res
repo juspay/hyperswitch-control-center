@@ -23,6 +23,8 @@ type sdkFilter = AllSdk | SdkUserEvent | SdkApiCall
 
 type webhookDirection = Incoming | Outgoing | NoDirection
 
+type connectorDestination = [#unified_connector_service | #ucs | #connector]
+
 type urls = {
   url: string,
   apiMethod: Fetch.requestMethod,

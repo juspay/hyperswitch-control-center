@@ -70,9 +70,8 @@ let make = (
     ~retainInList=PaymentProcessor,
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {paymentProcessorsLiveList} =
-    HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
+  let {paymentProcessorsList: connectorsAvailableForIntegration} =
+    HyperswitchAtom.connectorDisplayListAtom->Recoil.useRecoilValueFromAtom
 
   let getConnectorListAndUpdateState = async () => {
     try {
@@ -108,10 +107,7 @@ let make = (
     let filteredList = if searchText->isNonEmptyString {
       list->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(obj) {
-        | Some(obj) =>
-          isContainingStringLowercase(obj.connector_name, searchText) ||
-          isContainingStringLowercase(obj.id, searchText) ||
-          isContainingStringLowercase(obj.connector_label, searchText)
+        | Some(obj) => matchesConnectorSearch(obj, searchText)
         | None => false
         }
       })
@@ -120,10 +116,6 @@ let make = (
     }
     setFilteredConnectorData(_ => filteredList)
   }, ~wait=200)
-
-  let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
-    ? paymentProcessorsLiveList
-    : connectorList
 
   <div>
     <PageLoaderWrapper screenState>

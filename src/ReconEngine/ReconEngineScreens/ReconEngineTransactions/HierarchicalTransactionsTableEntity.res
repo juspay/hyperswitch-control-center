@@ -47,7 +47,7 @@ let allColumns: array<hierarchicalColType> = [
 let getHeading = (colType: hierarchicalColType) => {
   switch colType {
   | Flow => makeHeaderInfo(~key="flow", ~title="", ~customWidth="!w-28")
-  | Date => makeHeaderInfo(~key="date", ~title="Date", ~customWidth="!w-24")
+  | Date => makeHeaderInfo(~key="date", ~title="Date", ~customWidth="!w-24", ~showSort=true)
   | TransactionId => makeHeaderInfo(~key="transaction_id", ~title="Transaction ID")
   | Status => makeHeaderInfo(~key="status", ~title="Status")
   | EntryId => makeHeaderInfo(~key="entry_id", ~title="Entry ID")
@@ -60,30 +60,19 @@ let getHeading = (colType: hierarchicalColType) => {
   }
 }
 
-let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
-  Table.Label({
-    title: status->TransactionsTableEntity.getDomainTransactionStatusString->String.toUpperCase,
-    color: switch status {
-    | Posted(Manual) | Matched(Force) | Matched(Manual) | Matched(Auto) | Matched(WithTolerance) =>
-      LabelGreen
-    | OverAmount(Mismatch)
-    | UnderAmount(Mismatch)
-    | DataMismatch
-    | CurrencyMismatch
-    | SplitMismatch =>
-      LabelRed
-    | Expected | UnderAmount(Expected) | OverAmount(Expected) => LabelBlue
-    | Archived => LabelGray
-    | PartiallyReconciled | Missing => LabelOrange
-    | Void
-    | UnknownDomainTransactionStatus
-    | Matched(UnknownDomainTransactionMatchedStatus)
-    | Posted(UnknownDomainTransactionPostedStatus)
-    | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
-    | UnderAmount(UnknownDomainTransactionAmountMismatchStatus) =>
-      LabelLightGray
-    },
-  })
+let getStatusLabel = (status: domainTransactionStatus, ~mismatchedFields=[]): Table.cell => {
+  let title = status->TransactionsTableEntity.getDomainTransactionStatusString->String.toUpperCase
+
+  CustomCell(
+    <ToolTip
+      description={mismatchedFields->ReconEngineUtils.getMismatchedFieldsCountText}
+      toolTipPosition=ToolTip.Top
+      toolTipFor={<TableUtils.LabelCell
+        labelColor={ReconEngineTransactionsUtils.getTransactionStatusLabelColor(status)} text=title
+      />}
+    />,
+    title,
+  )
 }
 
 let getTransactionFlowBadge = (
@@ -121,9 +110,10 @@ let getCell = (
   | Date => DateWithoutTime(transaction.effective_at)
   | TransactionId => DisplayCopyCell(transaction.transaction_id)
   | Status =>
+    let mismatchedFields = transaction.data.mismatched_fields
     switch transaction.discarded_status {
-    | Some(status) => getStatusLabel(status)
-    | None => getStatusLabel(transaction.transaction_status)
+    | Some(status) => getStatusLabel(status, ~mismatchedFields)
+    | None => getStatusLabel(transaction.transaction_status, ~mismatchedFields)
     }
   | EntryId =>
     let entryIdContent =

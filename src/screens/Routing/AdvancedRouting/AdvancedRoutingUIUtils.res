@@ -2,6 +2,17 @@ open AdvancedRoutingUtils
 open LogicUtils
 open FormRenderer
 
+let extraThreeDsExemptionKeys = ["card_bin", "extended_card_bin", "metadata", "business_country"]
+
+let getFallbackOptionDescription = key =>
+  switch key {
+  | "card_bin" => "Match a card BIN (first 6 digits of the card number)."
+  | "extended_card_bin" => "Match an extended card BIN (first 8 digits of the card number)."
+  | "metadata" => "Match against a metadata key/value pair."
+  | "business_country" => "Match against the business country associated with the payment."
+  | _ => ""
+  }
+
 module LogicalOps = {
   @react.component
   let make = (~id) => {
@@ -120,7 +131,6 @@ module ValueInp = {
     let typeField = (fieldsArray[3]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
 
     let isCardBinType = keyType->variantTypeMapper === FixedNumber
-
     React.useEffect(() => {
       typeField.onChange(
         if keyType->variantTypeMapper === Metadata_value {
@@ -138,7 +148,7 @@ module ValueInp = {
         }->Identity.anyTypeToReactEvent,
       )
       None
-    }, [valueField.value])
+    }, (valueField.value, opField.value, keyType))
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
@@ -311,30 +321,48 @@ module FieldInp = {
       keyDescriptionMapper->convertMapObjectToDict
     }, [])
 
-    let options = React.useMemo(() =>
-      convertedValue
-      ->Dict.keysToArray
-      ->Array.reduce([], (acc, ele) => {
+    let options = React.useMemo(() => {
+      let optionsFromDescriptionCategory =
         convertedValue
-        ->getArrayFromDict(ele, [])
-        ->Array.forEach(
-          value => {
-            let dictValue = value->getDictFromJsonObject
-            let kindValue = dictValue->getString("kind", "")
-            if methodKeys->Array.includes(kindValue) {
-              let generatedSelectBoxOptionType: SelectBox.dropdownOption = {
-                label: kindValue,
-                value: kindValue,
-                description: dictValue->getString("description", ""),
-                optGroup: ele,
+        ->Dict.keysToArray
+        ->Array.reduce([], (acc, ele) => {
+          convertedValue
+          ->getArrayFromDict(ele, [])
+          ->Array.forEach(
+            value => {
+              let dictValue = value->getDictFromJsonObject
+              let kindValue = dictValue->getString("kind", "")
+              if methodKeys->Array.includes(kindValue) {
+                let generatedSelectBoxOptionType: SelectBox.dropdownOption = {
+                  label: kindValue,
+                  value: kindValue,
+                  description: dictValue->getString("description", ""),
+                  optGroup: ele,
+                }
+                acc->Array.push(generatedSelectBoxOptionType)->ignore
               }
-              acc->Array.push(generatedSelectBoxOptionType)->ignore
-            }
-          },
-        )
-        acc
-      })
-    , [])
+            },
+          )
+          acc
+        })
+
+      let existingOptionValues =
+        optionsFromDescriptionCategory->Array.map(option => option.value)->Set.fromArray
+
+      let fallbackOptions =
+        methodKeys
+        ->Array.filter(key => !(existingOptionValues->Set.has(key)))
+        ->Array.map((key): SelectBox.dropdownOption => {
+          {
+            label: key,
+            value: key,
+            description: getFallbackOptionDescription(key),
+            optGroup: "Additional Fields",
+          }
+        })
+
+      optionsFromDescriptionCategory->Array.concat(fallbackOptions)
+    }, [])
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
@@ -413,6 +441,8 @@ module RuleFieldBase = {
         Window.getThreeDsKeys()
       } else if isFrom3DsExemptions {
         Window.getThreeDsDecisionRuleKeys()
+        ->Array.concat(extraThreeDsExemptionKeys)
+        ->uniqueObjectFromArrayOfObjects(item => item)
       } else if isFromSurcharge {
         Window.getSurchargeKeys()
       } else {

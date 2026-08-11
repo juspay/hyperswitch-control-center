@@ -6,28 +6,29 @@ type amountType =
   | PendingAmount
   | MismatchedAmount
 
-type accountTransactionCounts = {
-  matched_confirmation_count: int,
-  pending_confirmation_count: int,
-  mismatched_confirmation_count: int,
-  matched_transaction_count: int,
-  pending_transaction_count: int,
-  mismatched_transaction_count: int,
+type balancePair = {
+  debit: balanceType,
+  credit: balanceType,
+}
+
+type accountBalanceRow = {
+  accountName: string,
+  matched: balancePair,
+  pending: balancePair,
+  mismatched: balancePair,
+}
+
+type balanceCountPair = {
+  debit_count: int,
+  debit: balanceType,
+  credit_count: int,
+  credit: balanceType,
 }
 
 type accountTransactionData = {
-  matched_confirmation_count: int,
-  pending_confirmation_count: int,
-  mismatched_confirmation_count: int,
-  matched_transaction_count: int,
-  pending_transaction_count: int,
-  mismatched_transaction_count: int,
-  matched_confirmation_amount: balanceType,
-  pending_confirmation_amount: balanceType,
-  mismatched_confirmation_amount: balanceType,
-  matched_transaction_amount: balanceType,
-  pending_transaction_amount: balanceType,
-  mismatched_transaction_amount: balanceType,
+  matched: balanceCountPair,
+  pending: balanceCountPair,
+  mismatched: balanceCountPair,
 }
 
 @unboxed
@@ -36,10 +37,10 @@ type subHeaderType =
   | CreditAmount
 
 type reconData = {
-  inAmount: string,
-  outAmount: string,
-  inTxns: string,
-  outTxns: string,
+  inAmount: balanceType,
+  outAmount: balanceType,
+  inTxns: int,
+  outTxns: int,
 }
 
 type reconStatusData = {
@@ -96,8 +97,12 @@ type viewType =
   | Graph
   | Table
 
-type seriesType =
-  ReconciledSeriesType | MismatchedSeriesType | ExpectedSeriesType | UnknownSeriesType
+type reconciliationSeriesType =
+  | MatchedSeries
+  | ExceptionSeries
+  | ExpectedSeries
+  | MissingSeries
+  | UnknownReconciliationSeriesType
 
 type valueType =
   | Percentage(float)
@@ -117,12 +122,18 @@ type statCardsTitle =
   | @as("Open Exceptions") OpenExceptions
   | @as("Value at Risk") ValueAtRisk
   | @as("Expected Value") ExpectedValue
+  | @as("Matched Amount") MatchedAmountValue
+
+type statCardDescriptionType =
+  | DescriptionText(string)
+  | MatchedOutOf(int, int)
+  | CountWithText(int, string)
 
 type statCardData = {
   statCardTitle: statCardsTitle,
   statCardValue: valueType,
   statCardIcon: Button.iconType,
-  statCardDescription: string,
+  statCardDescription: statCardDescriptionType,
   statCardType: statCardType,
   statCardPath: option<string>,
 }
@@ -134,10 +145,16 @@ type connectedStatCardsTitle =
   | @as("Failed Transformations") FailedTransformations
   | @as("Failed Ingestions") FailedIngestions
   | @as("Manual Corrections") ManualCorrections
+  | @as("Match Rate") MatchRate
+  | @as("Open Exceptions") OpenExceptions
+  | @as("Value at Risk") ValueAtRisk
+  | @as("Expected Value") ExpectedValue
+  | @as("Matched Amount") MatchedAmountValue
 
 type connectedStatCardData = {
   connectedStatCardTitle: connectedStatCardsTitle,
   connectedStatCardValue: valueType,
+  connectedStatCardType: statCardType,
   connectedStatCardPath: option<string>,
 }
 
@@ -168,8 +185,6 @@ type exceptionTriageItem = {
   label: string,
   total: int,
 }
-
-type triageTab = Transactions | Staging
 
 type ruleActivityItem = {
   overview_rule: ReconEngineTypes.overviewRulesResponse,

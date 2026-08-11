@@ -126,9 +126,11 @@ let make = () => {
       arr->Array.filter((frmPlayer: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(frmPlayer) {
         | Some(frmPlayer) =>
-          isContainingStringLowercase(frmPlayer.connector_name, searchText) ||
-          isContainingStringLowercase(frmPlayer.id, searchText) ||
-          isContainingStringLowercase(frmPlayer.connector_label, searchText)
+          ConnectorUtils.matchesConnectorSearch(
+            ~connectorType=ConnectorTypes.FRMPlayer,
+            frmPlayer,
+            searchText,
+          )
         | None => false
         }
       })

@@ -141,7 +141,7 @@ let initialDisplayFilters = (~accountOptions) => {
       {
         field: FormRenderer.makeFieldInfo(
           ~label="Account",
-          ~name="account_id",
+          ~name="account_ids",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=accountOptions,
             ~buttonText="Select Account",
@@ -195,7 +195,10 @@ let getInitialValuesForEditEntries = (entryDetails: processingEntryType) => {
     ("amount", entryDetails.amount->JSON.Encode.float),
     ("order_id", entryDetails.order_id->JSON.Encode.string),
     ("effective_at", entryDetails.effective_at->JSON.Encode.string),
-    ("transformation_id", entryDetails.transformation_id->JSON.Encode.string),
+    (
+      "transformation_id",
+      entryDetails.transformation_config.transformation_config_id->JSON.Encode.string,
+    ),
     (
       "metadata",
       entryDetails.metadata
@@ -216,7 +219,10 @@ let hasFormValuesChanged = (
   let isAccountChanged =
     currentAccountData->getString("account_id", "") != initialEntryDetails.account.account_id
   let isTransformationConfigChanged =
-    currentData->getString("transformation_id", "") != initialEntryDetails.transformation_id
+    currentData
+    ->getDictfromDict("transformation_config")
+    ->getString("transformation_config_id", "") !=
+      initialEntryDetails.transformation_config.transformation_config_id
   let isEntryTypeChanged =
     currentData->getString("entry_type", "") != (initialEntryDetails.entry_type :> string)
   let isAmountChanged = currentData->getFloat("amount", 0.0) != initialEntryDetails.amount
@@ -310,7 +316,14 @@ let getUpdatedEntry = (~entryDetails: processingEntryType, ~formData): processin
     status: Pending,
     processing_mode: entryDetails.processing_mode,
     metadata: formData->getJsonObjectFromDict("metadata"),
-    transformation_id: formData->getString("transformation_id", ""),
+    transformation_config: {
+      transformation_config_id: formData
+      ->getDictfromDict("transformation_config")
+      ->getString("transformation_config_id", ""),
+      transformation_config_name: formData
+      ->getDictfromDict("transformation_config")
+      ->getString("transformation_config_name", ""),
+    },
     transformation_history_id: entryDetails.transformation_history_id,
     effective_at: formData->getString("effective_at", ""),
     order_id: formData->getString("order_id", ""),
@@ -360,8 +373,11 @@ let generateResolutionSummary = (
     summary->Array.push(message)
   }
 
-  if currentEntry.transformation_id != updatedEntry.transformation_id {
-    let message = `Transformation Config changed to ${updatedEntry.transformation_id}.`
+  if (
+    currentEntry.transformation_config.transformation_config_id !=
+      updatedEntry.transformation_config.transformation_config_id
+  ) {
+    let message = `Transformation Config changed to ${updatedEntry.transformation_config.transformation_config_id}.`
     summary->Array.push(message)
   }
 
@@ -394,7 +410,10 @@ let constructManualReconciliationBody = (~updatedEntry: processingEntryType, ~va
     ("currency", updatedEntry.currency->JSON.Encode.string),
     ("order_id", updatedEntry.order_id->JSON.Encode.string),
     ("effective_at", updatedEntry.effective_at->JSON.Encode.string),
-    ("transformation_id", updatedEntry.transformation_id->JSON.Encode.string),
+    (
+      "transformation_id",
+      updatedEntry.transformation_config.transformation_config_id->JSON.Encode.string,
+    ),
     ("metadata", updatedEntry.metadata),
   ]
   ->Dict.fromArray

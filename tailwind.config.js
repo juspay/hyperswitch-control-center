@@ -94,6 +94,7 @@ module.exports = {
       },
       minWidth: {
         "25-rem": "25rem",
+        "76-px": "76px",
       },
       maxHeight: {
         "15-rem": "15rem",
@@ -104,10 +105,12 @@ module.exports = {
         "62-vh": "62vh",
         "68-vh": "68vh",
         "74-vh": "74vh",
+        "85-vh": "85vh",
       },
       minHeight: {
         "500-px": "500px",
         "40-rem": "40rem",
+        "50-vh": "50vh",
         "80-vh": "80vh",
       },
       inset: {
@@ -154,6 +157,7 @@ module.exports = {
         "298-px": "298px",
         "334-px": "334px",
         "420-px": "420px",
+        "440-px": "440px",
         "499-px": "499px",
         "540-px": "540px",
         "500-px": "500px",
@@ -176,6 +180,7 @@ module.exports = {
         325: "325px",
         250: "250px",
         200: "200px",
+        "40-per": "40%",
       },
       lineHeight: {
         14: "14px",
@@ -361,6 +366,9 @@ module.exports = {
           light: "#F8B3AA",
         },
         "yellow-bg": "#F7D59B4D",
+        yellow: {
+          pending_page_bg: "#FDF4DD",
+        },
         "profile-sidebar-blue": "#16488F",
         "status-green": "#36AF47",
         "popover-background": "#334264",
@@ -509,6 +517,14 @@ module.exports = {
           200: "#F3E8FF",
           300: "#AD46FF",
           700: "#8200DB",
+        },
+        nd_pink: {
+          100: "#FCE7F3",
+          500: "#EC4899",
+        },
+        nd_teal: {
+          100: "#CCFBF1",
+          500: "#14B8A6",
         },
       },
       borderRadius: {

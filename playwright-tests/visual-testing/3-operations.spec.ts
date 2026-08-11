@@ -50,6 +50,18 @@ test.describe("Visual Testing - Payment Operations", () => {
   }) => {
     await mockV2MerchantList(page);
 
+    await page.route("**/dashboard/config/feature?domain=", async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      json.features = {
+        ...json.features,
+        dev_opensearch: false,
+        dev_clickhouse_aggregate: false,
+      };
+      await route.fulfill({ response, json });
+    });
+    await page.reload();
+
     const homePage = new HomePage(page);
     const paymentOperations = new PaymentOperations(page);
 
@@ -65,8 +77,15 @@ test.describe("Visual Testing - Payment Operations", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
-      const paymentData = await createPaymentAPI(merchantId, context.request);
+      const paymentData = await createPaymentAPI(
+        merchantId,
+        context.request,
+        undefined,
+        undefined,
+        page,
+      );
     }
 
     await homePage.operations.click();
@@ -181,6 +200,18 @@ test.describe("Visual Testing - Payment Operations", () => {
   }) => {
     await mockV2MerchantList(page);
 
+    await page.route("**/dashboard/config/feature?domain=", async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      json.features = {
+        ...json.features,
+        dev_opensearch: false,
+        dev_clickhouse_aggregate: false,
+      };
+      await route.fulfill({ response, json });
+    });
+    await page.reload();
+
     const homePage = new HomePage(page);
     const paymentOperations = new PaymentOperations(page);
 
@@ -196,8 +227,15 @@ test.describe("Visual Testing - Payment Operations", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
-      await createPaymentAPI(merchantId, context.request);
+      await createPaymentAPI(
+        merchantId,
+        context.request,
+        undefined,
+        undefined,
+        page,
+      );
     }
 
     await homePage.operations.click();
@@ -247,6 +285,18 @@ test.describe("Visual Testing - Refund Operations", () => {
   }) => {
     await mockV2MerchantList(page);
 
+    await page.route("**/dashboard/config/feature?domain=", async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      json.features = {
+        ...json.features,
+        dev_opensearch: false,
+        dev_clickhouse_aggregate: false,
+      };
+      await route.fulfill({ response, json });
+    });
+    await page.reload();
+
     const homePage = new HomePage(page);
     const refundOperations = new RefundOperations(page);
 
@@ -260,8 +310,15 @@ test.describe("Visual Testing - Refund Operations", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
-      await createPaymentAPI(merchantId, context.request);
+      await createPaymentAPI(
+        merchantId,
+        context.request,
+        undefined,
+        undefined,
+        page,
+      );
     }
 
     await homePage.operations.click();
@@ -340,8 +397,9 @@ test.describe("Visual Testing - Payout Operations", () => {
         merchantId,
         "adyen_test_1",
         context.request,
+        page,
       );
-      await createPayoutAPI(merchantId, context.request);
+      await createPayoutAPI(merchantId, context.request, page);
     }
 
     await homePage.operations.click();
@@ -517,8 +575,15 @@ test.describe("Visual Testing - Customers", () => {
         merchantId,
         "stripe_test_1",
         context.request,
+        page,
       );
-      await createPaymentAPI(merchantId, context.request);
+      await createPaymentAPI(
+        merchantId,
+        context.request,
+        undefined,
+        undefined,
+        page,
+      );
     }
 
     await homePage.operations.click();

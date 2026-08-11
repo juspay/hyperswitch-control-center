@@ -11,6 +11,7 @@ let make = () => {
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filters, setFilters) = React.useState(_ => None)
+  let (transactionViewStatuses, setTransactionViewStatuses) = React.useState(_ => [])
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Refunds")->Option.getOr(defaultValue)
@@ -108,9 +109,7 @@ let make = () => {
         </div>
       </div>
       <RenderIf condition={transactionView}>
-        <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 mb-8">
-          <TransactionView entity=TransactionViewTypes.Refunds />
-        </div>
+        <TransactionView entity=TransactionViewTypes.Refunds allStatuses=transactionViewStatuses />
       </RenderIf>
       <div className="flex justify-between gap-3">
         <div className="flex-1">
@@ -121,6 +120,13 @@ let make = () => {
             initialFilters
             initialFixedFilter={version => initialFixedFilter(version, ~disable=hasSearchText)}
             setOffset
+            setRemoteFilterData={filterData =>
+              setTransactionViewStatuses(_ =>
+                filterData
+                ->getDictFromJsonObject
+                ->getArrayFromDict("refund_status", [])
+                ->getStrArrayFromJsonArray
+              )}
             customLeftView={<div className="flex flex-col gap-1">
               <SearchBarFilter
                 placeholder="Search for payment ID or refund ID"
@@ -152,6 +158,10 @@ let make = () => {
           sortingBasedOnDisabled=false
           showAutoScroll=true
           isDraggable=true
+          visitedRows={{
+            getId: refund => refund.refund_id,
+            prefix_key: "refund",
+          }}
         />
       </PageLoaderWrapper>
     </div>

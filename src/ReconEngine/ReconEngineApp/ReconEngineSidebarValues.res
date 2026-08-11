@@ -4,6 +4,7 @@ open UserManagementTypes
 let reconEngineSidebars = (
   ~userHasResourceAccess: (~resourceAccess: resourceAccessType) => CommonAuthTypes.authorization,
   ~userHasAccess: (~groupAccess: groupAccessType) => CommonAuthTypes.authorization,
+  ~isReconEnginePipelinesEnabled: bool,
 ) => {
   let reconOverview = Link({
     name: "Overview",
@@ -49,31 +50,28 @@ let reconEngineSidebars = (
     selectedIcon: "nd-reports-fill",
   })
 
-  let sources = SubLevelLink({
-    name: "Sources",
-    link: "/v1/recon-engine/sources",
-    access: userHasResourceAccess(~resourceAccess=ReconIngestion),
-  })
-
-  let transformation = SubLevelLink({
-    name: "Transformation",
-    link: "/v1/recon-engine/transformation",
-    access: userHasResourceAccess(~resourceAccess=ReconTransformation),
-  })
-
-  let transformedEntries = SubLevelLink({
+  let reconTransformedEntries = Link({
     name: "Transformed Entries",
-    link: "/v1/recon-engine/transformed-entries",
+    link: `/v1/recon-engine/transformed-entries`,
     access: userHasResourceAccess(~resourceAccess=ReconStagingEntry),
-  })
-
-  let reconData = Section({
-    name: "Data",
     icon: "nd-connectors",
-    showSection: userHasAccess(~groupAccess=ReconSourcesView) == Access,
-    links: [sources, transformation, transformedEntries],
     selectedIcon: "nd-connectors-fill",
   })
 
-  [reconOverview, reconTransactions, exceptions, reconRuleCreation, reconData]
+  let reconPipelines = Link({
+    name: "Pipelines",
+    link: `/v1/recon-engine/pipelines`,
+    access: userHasAccess(~groupAccess=ReconSourcesView),
+    icon: "nd-pipelines",
+    selectedIcon: "nd-pipelines-fill",
+  })
+
+  let sidebars = [reconOverview, reconTransactions, exceptions, reconRuleCreation]
+
+  if isReconEnginePipelinesEnabled {
+    sidebars->Array.push(reconPipelines)
+  }
+  sidebars->Array.push(reconTransformedEntries)
+
+  sidebars
 }

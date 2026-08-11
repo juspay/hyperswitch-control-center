@@ -16,7 +16,7 @@ let getDetailFieldsForTableSections = [
   CreatedAt,
 ]
 
-let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
+let initialDisplayFilters = () => {
   let statusOptions = getGroupedTransactionStatusOptions([
     OverAmount(Mismatch),
     OverAmount(Expected),
@@ -38,44 +38,6 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=statusOptions,
             ~buttonText="Select Transaction Status",
-            ~showSelectionAsChips=false,
-            ~searchable=true,
-            ~showToolTip=true,
-            ~showNameAsToolTip=true,
-            ~customButtonStyle="bg-none",
-            (),
-          ),
-        ),
-        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
-      }: EntityType.initialFilters<'t>
-    ),
-    (
-      {
-        field: FormRenderer.makeFieldInfo(
-          ~label="source_account",
-          ~name="source_account",
-          ~customInput=InputFields.filterMultiSelectInput(
-            ~options=creditAccountOptions,
-            ~buttonText="Select Source Account",
-            ~showSelectionAsChips=false,
-            ~searchable=true,
-            ~showToolTip=true,
-            ~showNameAsToolTip=true,
-            ~customButtonStyle="bg-none",
-            (),
-          ),
-        ),
-        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
-      }: EntityType.initialFilters<'t>
-    ),
-    (
-      {
-        field: FormRenderer.makeFieldInfo(
-          ~label="target_account",
-          ~name="target_account",
-          ~customInput=InputFields.filterMultiSelectInput(
-            ~options=debitAccountOptions,
-            ~buttonText="Select Target Account",
             ~showSelectionAsChips=false,
             ~searchable=true,
             ~showToolTip=true,
@@ -142,10 +104,14 @@ let getBalanceByAccountType = (
   (balance, firstEntry.currency)
 }
 
-let getHeadingAndSubHeadingForMismatch = (
-  mismatchData: Js.Json.t,
-  ~accountInfoMap: Dict.t<ReconEngineExceptionTransactionTypes.accountInfo>,
-): (string, string) => {
+let getMismatchedFieldsFromMismatchData = (mismatchData: Js.Json.t) =>
+  mismatchData
+  ->getDictFromJsonObject
+  ->getJsonObjectFromDict("mismatch_data")
+  ->getDictFromJsonObject
+  ->getMismatchedFieldsFromDict
+
+let getHeadingAndSubHeadingForMismatch = (mismatchData: Js.Json.t): (string, string) => {
   let mismatchType =
     mismatchData
     ->getDictFromJsonObject
@@ -153,7 +119,6 @@ let getHeadingAndSubHeadingForMismatch = (
     ->getMismatchTypeVariantFromString
   let mismatchedDataDict =
     mismatchData->getDictFromJsonObject->getJsonObjectFromDict("mismatch_data")
-  let accountNames = accountInfoMap->Dict.valuesToArray->Array.map(info => info.account_info_name)
 
   let expectedAmount =
     mismatchedDataDict
@@ -176,6 +141,9 @@ let getHeadingAndSubHeadingForMismatch = (
   let mismatchAmount = Math.abs(expectedAmount -. actualAmount)
   let mismatchHeading = (mismatchType :> string)->snakeToTitle
 
+  let mismatchedFieldsCountText =
+    mismatchData->getMismatchedFieldsFromMismatchData->getMismatchedFieldsCountText
+
   let mismatchSubHeading = switch mismatchType {
   | AmountMismatch =>
     `There is a ${mismatchHeading} of ${CurrencyFormatUtils.valueFormatter(
@@ -183,12 +151,12 @@ let getHeadingAndSubHeadingForMismatch = (
         AmountWithSuffix,
         ~currency,
       )} found between the transaction entries`
-  | MetadataMismatch =>
-    `There is a ${mismatchHeading} found between ${accountNames->Array.joinWith(", ")}`
-  | BalanceDirectionMismatch =>
-    `There is a ${mismatchHeading} found between ${accountNames->Array.joinWith(", ")}`
+  | MetadataMismatch
+  | BalanceDirectionMismatch
   | CurrencyMismatch =>
-    `There is a ${mismatchHeading} found between ${accountNames->Array.joinWith(", ")}`
+    mismatchedFieldsCountText->isNonEmptyString
+      ? mismatchedFieldsCountText
+      : `There is a ${mismatchHeading} found between the transaction entries`
   | UnknownMismatchType => "Mismatch details are unavailable."
   }
 
@@ -203,7 +171,7 @@ let getSumOfAmountWithCurrency = (
   (totalAmount, entry.currency)
 }
 
-let exceptionTransactionProcessingEntryItemToObjMapper = dict => {
+let exceptionTransactionProcessingEntryItemToObjMapper = (dict): processingEntryType => {
   let discardedDataDict =
     dict->getDictfromDict("discarded_data")->processingEntryDiscardedDataItemToObjMapper
   {
@@ -220,7 +188,9 @@ let exceptionTransactionProcessingEntryItemToObjMapper = dict => {
     ->getString("status", "")
     ->camelToSnake
     ->getProcessingEntryStatusVariantFromString,
-    transformation_id: dict->getString("transformation_id", ""),
+    transformation_config: dict
+    ->getDictfromDict("transformation_config")
+    ->transformationConfigRefTypeMapper,
     transformation_history_id: dict->getString("transformation_history_id", ""),
     order_id: dict->getString("order_id", ""),
     version: dict->getInt("version", 0),
@@ -363,6 +333,10 @@ let getConvertedEntriesFromStagingEntry = (stagingEntry: processingEntryType) =>
     ("status", "pending"->JSON.Encode.string),
     ("data", [("status", "pending"->JSON.Encode.string)]->getJsonFromArrayOfJson),
     ("entry_key", uniqueId->JSON.Encode.string),
+    (
+      "transformation_id",
+      stagingEntry.transformation_config.transformation_config_id->JSON.Encode.string,
+    ),
   ]
   ->Dict.fromArray
   ->JSON.Encode.object
@@ -607,6 +581,13 @@ let constructManualReconciliationBody = (
         },
       ),
       ("data", backendEntry.data),
+      (
+        "transformation_id",
+        switch backendEntry.transformation_id {
+        | Some(id) => id->JSON.Encode.string
+        | None => JSON.Encode.null
+        },
+      ),
     ]
     ->Dict.fromArray
     ->JSON.Encode.object

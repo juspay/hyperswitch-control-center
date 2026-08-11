@@ -73,9 +73,13 @@ module EditEntryModalContent = {
             res->getArrayDataFromJson(transformationConfigItemToObjMapper)
           )
         }
-        if entryDetails.transformation_id->isNonEmptyString {
+        if entryDetails.transformation_config.transformation_config_id->isNonEmptyString {
           let schema =
-            (await fetchMetadataSchema(~transformationId=entryDetails.transformation_id))
+            (
+              await fetchMetadataSchema(
+                ~transformationId=entryDetails.transformation_config.transformation_config_id,
+              )
+            )
             ->getDictFromJsonObject
             ->metadataSchemaItemToObjMapper
           setMetadataSchema(_ => schema)

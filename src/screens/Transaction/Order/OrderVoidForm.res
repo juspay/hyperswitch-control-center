@@ -7,7 +7,7 @@ open HSwitchOrderUtils
 let make = (~order: PaymentInterfaceTypes.order, ~setShowModal, ~refetch) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (isLoading, setIsLoading) = React.useState(_ => false)
 
   let {merchantId, orgId} = React.useContext(
@@ -61,8 +61,7 @@ let make = (~order: PaymentInterfaceTypes.order, ~setShowModal, ~refetch) => {
         </div>
         <div className="mt-3">
           <AlertV2Binding
-            alertType=Warning
-            description="This action is irreversible and cannot be undone."
+            alertType=Warning description="This action is irreversible and cannot be undone."
           />
         </div>
       </div>

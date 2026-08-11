@@ -1,5 +1,6 @@
 module HyperSwitchEntryComponent = {
   open HyperswitchAtom
+  open ConnectorListFromConfigUtils
   @react.component
   let make = () => {
     open HyperSwitchEntryUtils
@@ -7,7 +8,7 @@ module HyperSwitchEntryComponent = {
     let url = RescriptReactRouter.useUrl()
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = featureFlagAtom->Recoil.useSetRecoilState
-    let setConnectorListForLive = connectorListForLiveAtom->Recoil.useSetRecoilState
+    let setConnectorDisplayList = connectorDisplayListAtom->Recoil.useSetRecoilState
     let setConnectorCloneAllowList = connectorCloneAllowListAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
@@ -81,10 +82,10 @@ module HyperSwitchEntryComponent = {
           )}` // todo: domain shall be removed from query params later
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
-        let connectorListForLive = res->ConnectorListForLiveFromConfigUtils.getConnectorListForLive
+        let connectorDisplayList = res->getConnectorDisplayList(~isLiveMode=featureFlags.isLiveMode)
         let connectorCloneAllowList = res->ConnectorCloneConfigUtils.getConnectorCloneAllowList
         setFeatureFlag(_ => featureFlags)
-        setConnectorListForLive(_ => connectorListForLive)
+        setConnectorDisplayList(_ => connectorDisplayList)
         setConnectorCloneAllowList(_ => connectorCloneAllowList)
         let _ = configEnv(res) // to set initial env
         let _ = await getThemesJson(~themesID=themeId, ~domain)

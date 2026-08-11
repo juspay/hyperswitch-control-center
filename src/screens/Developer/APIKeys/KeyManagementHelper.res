@@ -199,11 +199,8 @@ module ApiKeyAddBtn = {
       <ApiEditModal showModal setShowModal initialValues getAPIKeyDetails />
       <ACLButton
         text="Create New API Key"
-        leftIcon={CustomIcon(
-          <Icon
-            name="plus" size=12 className="jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
-          />,
-        )}
+        leftIcon={CustomIcon(<Icon name="nd-plus" size={isMobileView ? 12 : 16} />)}
+        customIconMargin={isMobileView ? "ml-1 -mr-1" : "ml-3 -mr-1"}
         // TODO: Remove `MerchantDetailsManage` permission in future
         authorization={hasAnyGroupAccess(
           userHasAccess(~groupAccess=MerchantDetailsManage),
@@ -361,7 +358,7 @@ module ApiKeysTable = {
 
       switch colType {
       | Name => EllipsisText(item.name, "max-w-xs")
-      | Description => Text(item.description)
+      | Description => EllipsisText(item.description, "max-w-xs")
       | Prefix => Text(item.prefix->appendString)
       | Created => Date(item.created)
       | Expiration =>
