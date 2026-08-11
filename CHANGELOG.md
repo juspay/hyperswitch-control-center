@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.11.1
+
+### Bug Fixes
+
+- Handle saved view text filters ([#5328](https://github.com/juspay/hyperswitch-control-center/pull/5328)) ([`c624862`](https://github.com/juspay/hyperswitch-control-center/commit/c624862ce7a65371a0bc1e5f5d1542b83ff6c402))
+
+### Refactors
+
+- Unify live and sandbox connector lists into a single config source ([#5361](https://github.com/juspay/hyperswitch-control-center/pull/5361)) ([`023931a`](https://github.com/juspay/hyperswitch-control-center/commit/023931a18323a64957b9cfe2c5e4dcc9a381a7b7))
+
+**Full Changelog:** [`2026.08.11.0...2026.08.11.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.11.0...2026.08.11.1)
+
+- - -
+
 ## 2026.08.11.0
 
 ### Features
