@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.11.0
+
+### Features
+
+- Add event class and event type filters to webhooks list ([#5294](https://github.com/juspay/hyperswitch-control-center/pull/5294)) ([`66417df`](https://github.com/juspay/hyperswitch-control-center/commit/66417df2178b59e41d25201c5d8aa0cefbfab538))
+- Support prefix and suffix operators in recon transformation skip rules ([#5359](https://github.com/juspay/hyperswitch-control-center/pull/5359)) ([`89059b1`](https://github.com/juspay/hyperswitch-control-center/commit/89059b1aa6d74e4693c12b9a2e1b65eee36bb600))
+
+### Bug Fixes
+
+- Show disabled connectors at the bottom in volume and rule based routing ([#5337](https://github.com/juspay/hyperswitch-control-center/pull/5337)) ([`9e27a55`](https://github.com/juspay/hyperswitch-control-center/commit/9e27a559339a0b936f5866089d976cec4d9a3be9))
+- Recon engine map multiple expected entries found exception ([#5357](https://github.com/juspay/hyperswitch-control-center/pull/5357)) ([`857ec75`](https://github.com/juspay/hyperswitch-control-center/commit/857ec758daa7d8190d6fe7dee48faa0e261bdcfa))
+
+**Full Changelog:** [`2026.08.10.0...2026.08.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.10.0...2026.08.11.0)
+
+- - -
+
 ## 2026.08.10.0
 
 ### Features
