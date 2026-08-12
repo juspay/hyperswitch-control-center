@@ -31,6 +31,10 @@ type blocklistDataKind =
   | ExtendedCardBin
   | Fingerprint
 
+type blocklistEntryOperation =
+  | AddBlocklistEntry
+  | DeleteBlocklistEntry
+
 type blocklistEntry = {
   fingerprint_id: string,
   data_kind: string,

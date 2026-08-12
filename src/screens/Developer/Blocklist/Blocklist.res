@@ -1,4 +1,3 @@
-open BlocklistTypes
 open BlocklistUtils
 open FormDataUtils
 open LogicUtils
@@ -24,14 +23,6 @@ let make = () => {
   let (selectedFile, setSelectedFile) = React.useState(_ => None)
   let (uploadButtonState, setUploadButtonState) = React.useState(_ => Button.Normal)
   let inputRef = React.useRef(Nullable.null)
-  let (entryDataKind, setEntryDataKind) = React.useState(_ => CardBin->blocklistDataKindToString)
-  let (entryData, setEntryData) = React.useState(_ => "")
-  let (entryDataError, setEntryDataError) = React.useState(_ => None)
-  let (addEntryButtonState, setAddEntryButtonState) = React.useState(_ => Button.Normal)
-  let (deleteDataKind, setDeleteDataKind) = React.useState(_ => CardBin->blocklistDataKindToString)
-  let (deleteData, setDeleteData) = React.useState(_ => "")
-  let (deleteDataError, setDeleteDataError) = React.useState(_ => None)
-  let (deleteEntryButtonState, setDeleteEntryButtonState) = React.useState(_ => Button.Normal)
 
   let clearFileInput = () => {
     inputRef.current
@@ -169,93 +160,6 @@ let make = () => {
     }
   }
 
-  let addEntry = async () => {
-    switch validateBlocklistEntryData(~dataKind=entryDataKind, ~data=entryData) {
-    | Some(validationError) => setEntryDataError(_ => Some(validationError))
-    | None =>
-      setEntryDataError(_ => None)
-      try {
-        setAddEntryButtonState(_ => Button.Loading)
-        let url = getURL(~entityName=V1(BLOCKLIST), ~methodType=Post)
-        let body = blocklistEntryBody(~dataKind=entryDataKind, ~data=entryData->String.trim)
-        let response = await updateDetails(url, body, Post)
-        let entry = response->getDictFromJsonObject->blocklistEntryItemToObjMapper
-        showToast(~message=`Added ${entry.fingerprint_id} to blocklist.`, ~toastType=ToastSuccess)
-        setEntryData(_ => "")
-      } catch {
-      | Exn.Error(e) =>
-        let rawErrorMessage = Exn.message(e)->Option.getOr("Failed to add entry to blocklist")
-        let errorDict = rawErrorMessage->safeParse->getDictFromJsonObject
-        let errorMessage =
-          errorDict
-          ->getObj("error", errorDict)
-          ->getString("message", rawErrorMessage)
-        showToast(~message=errorMessage, ~toastType=ToastError)
-      }
-      setAddEntryButtonState(_ => Button.Normal)
-    }
-  }
-
-  let onAddEntryClick = _ => {
-    mixpanelEvent(~eventName="blocklist_add_entry")
-    addEntry()->ignore
-  }
-
-  let onEntryDataKindSelect = value => {
-    setEntryDataKind(_ => value)
-    setEntryDataError(_ => None)
-  }
-
-  let onEntryDataChange = ev => {
-    setEntryData(_ => ReactEvent.Form.target(ev)["value"])
-    setEntryDataError(_ => None)
-  }
-
-  let deleteEntry = async () => {
-    switch validateBlocklistEntryData(~dataKind=deleteDataKind, ~data=deleteData) {
-    | Some(validationError) => setDeleteDataError(_ => Some(validationError))
-    | None =>
-      setDeleteDataError(_ => None)
-      try {
-        setDeleteEntryButtonState(_ => Button.Loading)
-        let url = getURL(~entityName=V1(BLOCKLIST), ~methodType=Delete)
-        let body = blocklistEntryBody(~dataKind=deleteDataKind, ~data=deleteData->String.trim)
-        let response = await updateDetails(url, body, Delete)
-        let entry = response->getDictFromJsonObject->blocklistEntryItemToObjMapper
-        showToast(
-          ~message=`Removed ${entry.fingerprint_id} from blocklist.`,
-          ~toastType=ToastSuccess,
-        )
-        setDeleteData(_ => "")
-      } catch {
-      | Exn.Error(e) =>
-        let rawErrorMessage = Exn.message(e)->Option.getOr("Failed to remove entry from blocklist")
-        let errorDict = rawErrorMessage->safeParse->getDictFromJsonObject
-        let errorMessage =
-          errorDict
-          ->getObj("error", errorDict)
-          ->getString("message", rawErrorMessage)
-        showToast(~message=errorMessage, ~toastType=ToastError)
-      }
-      setDeleteEntryButtonState(_ => Button.Normal)
-    }
-  }
-
-  let onDeleteEntryClick = _ => {
-    mixpanelEvent(~eventName="blocklist_delete_entry")
-    deleteEntry()->ignore
-  }
-
-  let onDeleteDataKindSelect = value => {
-    setDeleteDataKind(_ => value)
-    setDeleteDataError(_ => None)
-  }
-
-  let onDeleteDataChange = ev => {
-    setDeleteData(_ => ReactEvent.Form.target(ev)["value"])
-    setDeleteDataError(_ => None)
-  }
-
   let selectedFileName = selectedFile->getFileName
   let selectedFileSize = selectedFile->getFileSize->formatFileSize
 
@@ -269,6 +173,20 @@ let make = () => {
   <>
     <PageUtils.PageHeading
       title="Blocklist" subTitle="Upload blocklist CSV files and track batch processing status."
+    />
+    <BlocklistEntryCard
+      operation=AddBlocklistEntry
+      title="Add to Blocklist"
+      description="Block a single card BIN, extended card BIN, or fingerprint."
+      buttonText="Add Entry"
+      eventName="blocklist_add_entry"
+    />
+    <BlocklistEntryCard
+      operation=DeleteBlocklistEntry
+      title="Remove from Blocklist"
+      description="Unblock a single card BIN, extended card BIN, or fingerprint."
+      buttonText="Remove Entry"
+      eventName="blocklist_delete_entry"
     />
     <div className="flex flex-col gap-6">
       <div className="max-w-3xl">
@@ -349,102 +267,6 @@ let make = () => {
               />
             </div>
           </RenderIf>
-        </section>
-      </div>
-      <div className="max-w-3xl">
-        <section className="border border-nd_gray-200 rounded-lg bg-white p-5 flex flex-col gap-4">
-          <div>
-            <h2 className={`text-nd_gray-700 ${body.lg.semibold}`}>
-              {"Add to Blocklist"->React.string}
-            </h2>
-            <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
-              {"Block a single card BIN, extended card BIN, or fingerprint."->React.string}
-            </p>
-          </div>
-          <div className="flex items-end gap-4">
-            <div className="w-52">
-              <SingleSelectBinding
-                selected=entryDataKind
-                onSelect=onEntryDataKindSelect
-                items=blocklistDataKindOptions
-                label="Type"
-                placeholder="Select type"
-                fullWidth=true
-              />
-            </div>
-            <div className="flex-1">
-              <TextInputBinding
-                value=entryData
-                onChange=onEntryDataChange
-                label="Data"
-                error={entryDataError->Option.isSome}
-                placeholder="e.g. 411111"
-              />
-            </div>
-            <ACLButton
-              text="Add to Blocklist"
-              buttonType=Primary
-              onClick=onAddEntryClick
-              buttonState=addEntryButtonState
-              authorization={userHasAccess(~groupAccess=AccountManage)}
-            />
-          </div>
-          <p
-            className={`${entryDataError->Option.isSome
-                ? "text-nd_red-500"
-                : "text-nd_gray-500"} ${body.sm.medium}`}>
-            {entryDataError
-            ->Option.getOr(entryDataKind->getBlocklistDataKindFromString->blocklistEntryDataHint)
-            ->React.string}
-          </p>
-        </section>
-      </div>
-      <div className="max-w-3xl">
-        <section className="border border-nd_gray-200 rounded-lg bg-white p-5 flex flex-col gap-4">
-          <div>
-            <h2 className={`text-nd_gray-700 ${body.lg.semibold}`}>
-              {"Remove from Blocklist"->React.string}
-            </h2>
-            <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
-              {"Unblock a single card BIN, extended card BIN, or fingerprint."->React.string}
-            </p>
-          </div>
-          <div className="flex items-end gap-4">
-            <div className="w-52">
-              <SingleSelectBinding
-                selected=deleteDataKind
-                onSelect=onDeleteDataKindSelect
-                items=blocklistDataKindOptions
-                label="Type"
-                placeholder="Select type"
-                fullWidth=true
-              />
-            </div>
-            <div className="flex-1">
-              <TextInputBinding
-                value=deleteData
-                onChange=onDeleteDataChange
-                label="Data"
-                error={deleteDataError->Option.isSome}
-                placeholder="e.g. 411111"
-              />
-            </div>
-            <ACLButton
-              text="Remove from Blocklist"
-              buttonType=Secondary
-              onClick=onDeleteEntryClick
-              buttonState=deleteEntryButtonState
-              authorization={userHasAccess(~groupAccess=AccountManage)}
-            />
-          </div>
-          <p
-            className={`${deleteDataError->Option.isSome
-                ? "text-nd_red-500"
-                : "text-nd_gray-500"} ${body.sm.medium}`}>
-            {deleteDataError
-            ->Option.getOr(deleteDataKind->getBlocklistDataKindFromString->blocklistEntryDataHint)
-            ->React.string}
-          </p>
         </section>
       </div>
       <PageLoaderWrapper screenState sectionHeight="h-60-vh">
