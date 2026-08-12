@@ -6,6 +6,7 @@ module BlendDateRangeField = {
   let make = (
     ~startKey: string,
     ~endKey: string,
+    ~showTime: bool,
     ~disable: bool,
     ~disablePastDates: bool,
     ~disableFutureDates: bool,
@@ -50,11 +51,12 @@ module BlendDateRangeField = {
     <DateRangePickerBinding
       value=?blendValue
       onChange=handleChange
-      showDateTimePicker=true
+      showDateTimePicker=showTime
       isDisabled=disable
       disableFutureDates
       disablePastDates
       customPresets
+      formatConfig={includeTime: showTime}
     />
   }
 }
@@ -94,6 +96,7 @@ let make = (
       <BlendDateRangeField
         startKey
         endKey
+        showTime
         disable
         disablePastDates
         disableFutureDates
