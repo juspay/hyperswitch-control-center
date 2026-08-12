@@ -86,7 +86,7 @@ test.describe("3DS Exemption Manager", () => {
       await expect(exemption.createNewButton).toBeVisible();
     });
 
-    test("should display the active rule card with name and ACTIVE badge", async ({
+    test("should display the active rule card with name and manage action", async ({
       page,
       context,
     }) => {
@@ -104,7 +104,8 @@ test.describe("3DS Exemption Manager", () => {
       await expect(
         page.getByText(name.charAt(0).toUpperCase() + name.slice(1)),
       ).toBeVisible();
-      await expect(exemption.deleteIcon).toBeVisible();
+      await expect(exemption.viewAndManageButton).toBeVisible();
+      await expect(exemption.createNewButton).toHaveCount(0);
     });
 
     test("Delete icon opens the confirmation popup and removes the rule on Confirm", async ({
@@ -117,6 +118,8 @@ test.describe("3DS Exemption Manager", () => {
       await createThreeDsExemptionAPI(page, context.request);
       await goToExemption(page, homePage);
 
+      await exemption.viewAndManageButton.click();
+      await page.waitForURL(/3ds-exemption\?type=manage/);
       await exemption.deleteIcon.click();
 
       // Popup body (HSwitchThreeDsExemption.res:48-56).
@@ -138,24 +141,6 @@ test.describe("3DS Exemption Manager", () => {
       // After delete the page swaps back to the empty-state branch.
       await expect(exemption.configureSectionHeading).toBeVisible();
       await expect(exemption.createNewButton).toBeVisible();
-    });
-
-    test("Create New on top of an existing rule opens the override-warning modal", async ({
-      page,
-      context,
-    }) => {
-      const homePage = new HomePage(page);
-      const exemption = new ThreeDSExemptionManager(page);
-
-      await createThreeDsExemptionAPI(page, context.request);
-      await goToExemption(page, homePage);
-
-      await exemption.createNewButton.click();
-
-      // handleCreateNew shows the override popup only when initialRule is Some
-      // (HSwitchThreeDsExemption.res:339-358).
-      await expect(exemption.overrideWarningHeading).toBeVisible();
-      await expect(exemption.overrideWarningDescription).toBeVisible();
     });
   });
 
@@ -325,6 +310,10 @@ test.describe("3DS Exemption Manager", () => {
       { label: "Mandate 3DS Challenge", value: "challenge_requested" },
       { label: "Prefer 3DS Challenge", value: "challenge_preferred" },
       {
+        label: "No Preference",
+        value: "no_preference",
+      },
+      {
         label: "Request 3DS Exemption, Type: TRA",
         value: "three_ds_exemption_requested_tra",
       },
@@ -420,7 +409,12 @@ test.describe("3DS Exemption Manager", () => {
       // capitalizeString only uppercases the first character, so a name that
       // already starts uppercase renders verbatim.
       await expect(page.getByText(ruleName, { exact: true })).toBeVisible();
-      await expect(exemption.deleteIcon).toBeVisible();
+      await expect(exemption.viewAndManageButton).toBeVisible();
+
+      // The landing page intentionally renders a compact active-configuration
+      // card. Open the manage view before asserting the full rule preview.
+      await exemption.viewAndManageButton.click();
+      await expect(page).toHaveURL(/dashboard\/3ds-exemption\?type=manage$/);
 
       // RulePreviewer body — one rule with two statements rendered as
       // <field> <operator> <value> tokens, separated by the AND/OR logical.
