@@ -26,9 +26,7 @@ type customPresetConfig = {
   visible: bool,
 }
 
-type dateFormatConfig = {
-  includeTime: bool,
-}
+type dateFormatConfig = {includeTime: bool}
 
 module PresetsConfig = {
   type t
