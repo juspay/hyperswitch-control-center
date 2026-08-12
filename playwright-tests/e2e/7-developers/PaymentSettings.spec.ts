@@ -177,7 +177,9 @@ test.describe("Payment Settings", () => {
       await paymentSettings.dropdownValueByText("Credit").click();
       await page.keyboard.press("Escape");
 
-      await expect(paymentSettings.dropdownValueByText("Credit")).not.toBeVisible();
+      await expect(
+        paymentSettings.dropdownValueByText("Credit"),
+      ).not.toBeVisible();
 
       await paymentSettings
         .paymentMethodBlockingCardTypesDropdown("Google Pay")
@@ -446,7 +448,7 @@ test.describe("Payment Settings", () => {
 
       await expect(paymentSettings.clickToPayConnectorDropdown).toBeVisible();
       await paymentSettings.clickToPayConnectorDropdown.click();
-      await page.getByRole('menuitem', { name: connectorLabel }).click();
+      await page.getByRole("menuitem", { name: connectorLabel }).click();
 
       await paymentSettings.clickUpdate();
       await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
