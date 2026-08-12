@@ -492,15 +492,16 @@ test.describe("Payin Connector tests", () => {
   test("should setup and verify ABSA Sanlam connector", async ({ page }) => {
     const paymentConnector = new PaymentConnector(page);
 
-    // ABSA Sanlam is not part of the default sandbox allowlist. Enable it for
-    // this focused connector test, mirroring a deployment that opts it in.
     await page.route("**/dashboard/config/feature?domain=", async (route) => {
       const response = await route.fetch();
       const json = await response.json();
-      json.connector_list_for_sandbox = {
-        ...(json.connector_list_for_sandbox ?? {}),
-        paymentProcessors: ["absa_sanlam"],
-      };
+      if (json) {
+        json.features = { ...(json.features ?? {}), is_live_mode: true };
+        json.connector_list_for_live = {
+          ...(json.connector_list_for_live ?? {}),
+          paymentProcessors: ["absa_sanlam"],
+        };
+      }
       await route.fulfill({ response, json });
     });
 
