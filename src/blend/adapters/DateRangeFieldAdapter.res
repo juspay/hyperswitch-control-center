@@ -6,7 +6,7 @@ module BlendDateRangeField = {
   let make = (
     ~startKey: string,
     ~endKey: string,
-    ~showTime: bool,
+    ~showTime=true,
     ~disable: bool,
     ~disablePastDates: bool,
     ~disableFutureDates: bool,
