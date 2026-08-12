@@ -40,6 +40,7 @@ let make = () => {
     items: processingEntries,
     cursors,
     screenState,
+    isFetching,
     goToFirstPage,
     goToNextPage,
     goToPrevPage,
@@ -62,7 +63,7 @@ let make = () => {
         ~order=sortOrder,
       ),
     )
-  }, ~persistKey="recon-engine-transformed-entry-exceptions")
+  }, ~persistKey=Some("recon-engine-transformed-entry-exceptions"))
 
   let fetchAccounts = async () => {
     try {
@@ -177,8 +178,8 @@ let make = () => {
             remoteSortEnabled=true
             showPagination=false
             showResultsPerPageSelector=false
-            tableDataLoading={screenState === Loading}
-            dataLoading={screenState === Loading}
+            tableDataLoading={isFetching}
+            dataLoading={isFetching}
             filters={<SearchInput
               inputText=searchText
               onChange={value => setSearchText(_ => value)}
@@ -191,7 +192,7 @@ let make = () => {
             />}
             bottomActions={<ReconEngineCursorPaginationButtons
               cursors
-              isLoading={screenState === Loading}
+              isLoading={isFetching}
               hasData={processingEntries->isNonEmptyArray}
               onPrev={() => {
                 setSelectedRows(_ => [])

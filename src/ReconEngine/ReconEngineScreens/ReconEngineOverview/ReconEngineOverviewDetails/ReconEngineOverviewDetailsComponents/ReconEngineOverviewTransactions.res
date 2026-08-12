@@ -52,12 +52,13 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
     items: transactions,
     cursors,
     screenState,
+    isFetching,
     goToFirstPage,
     goToNextPage,
     goToPrevPage,
   } = ReconEngineCursorPaginationHook.useCursorPagination(
     ~fetchPage,
-    ~persistKey=`recon-engine-overview-transactions-${ruleDetails.rule_id}`,
+    ~persistKey=Some(`recon-engine-overview-transactions-${ruleDetails.rule_id}`),
   )
 
   let handleSearchSubmit = (selectedType: option<string>) => {
@@ -120,8 +121,8 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
         remoteSortEnabled=true
         showPagination=false
         showResultsPerPageSelector=false
-        tableDataLoading={screenState === PageLoaderWrapper.Loading}
-        dataLoading={screenState === PageLoaderWrapper.Loading}
+        tableDataLoading={isFetching}
+        dataLoading={isFetching}
         customizeColumnButtonIcon="nd-filter-horizontal"
         hideRightTitleElement=true
         showAutoScroll=true
@@ -139,7 +140,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
         />}
         bottomActions={<ReconEngineCursorPaginationButtons
           cursors
-          isLoading={screenState === PageLoaderWrapper.Loading}
+          isLoading={isFetching}
           hasData={transactions->isNonEmptyArray}
           onPrev=goToPrevPage
           onNext=goToNextPage

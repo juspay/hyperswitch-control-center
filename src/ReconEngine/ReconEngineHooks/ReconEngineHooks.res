@@ -53,9 +53,14 @@ let useGetCursorPage = (
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
 
-  async (~body: JSON.t): ReconEngineTypes.cursorPage<'item> => {
+  async (~body: JSON.t, ~id: option<string>=None): ReconEngineTypes.cursorPage<'item> => {
     try {
-      let url = getURL(~entityName=V1(HYPERSWITCH_RECON), ~methodType=Post, ~hyperswitchReconType)
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Post,
+        ~hyperswitchReconType,
+        ~id,
+      )
       let res = await updateDetails(url, body, Post)
       let dict = res->getDictFromJsonObject
       {

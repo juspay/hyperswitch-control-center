@@ -31,6 +31,7 @@ let make = () => {
     items: processingEntries,
     cursors,
     screenState,
+    isFetching,
     goToFirstPage,
     goToNextPage,
     goToPrevPage,
@@ -45,7 +46,7 @@ let make = () => {
         ~order=sortOrder,
       ),
     )
-  }, ~persistKey="recon-engine-transformed-entries")
+  }, ~persistKey=Some("recon-engine-transformed-entries"))
 
   let (accountData, setAccountData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -181,8 +182,8 @@ let make = () => {
           remoteSortEnabled=true
           showPagination=false
           showResultsPerPageSelector=false
-          tableDataLoading={screenState === PageLoaderWrapper.Loading}
-          dataLoading={screenState === PageLoaderWrapper.Loading}
+          tableDataLoading={isFetching}
+          dataLoading={isFetching}
           filters={<SearchInput
             inputText=searchText
             onChange={value => setSearchText(_ => value)}
@@ -195,7 +196,7 @@ let make = () => {
           />}
           bottomActions={<ReconEngineCursorPaginationButtons
             cursors
-            isLoading={screenState === PageLoaderWrapper.Loading}
+            isLoading={isFetching}
             hasData={processingEntries->isNonEmptyArray}
             onPrev=goToPrevPage
             onNext=goToNextPage

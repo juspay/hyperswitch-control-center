@@ -49,7 +49,7 @@ let make = (~ingestionHistoryId: string) => {
   let {
     items: stagingEntries,
     cursors: stagingCursors,
-    screenState: stagingScreenState,
+    isFetching: stagingIsFetching,
     goToFirstPage: goToFirstStagingPage,
     goToNextPage: goToNextStagingPage,
     goToPrevPage: goToPrevStagingPage,
@@ -73,7 +73,7 @@ let make = (~ingestionHistoryId: string) => {
         ~order=sortOrder,
       ),
     )
-  }, ~persistKey=`recon-engine-pipeline-details-staging-entries-${ingestionHistoryId}`)
+  }, ~persistKey=Some(`recon-engine-pipeline-details-staging-entries-${ingestionHistoryId}`))
 
   let handleSearchSubmit = (selectedType: option<string>) => {
     searchTypeRef.current =
@@ -303,8 +303,8 @@ let make = (~ingestionHistoryId: string) => {
                 remoteSortEnabled=true
                 showPagination=false
                 showResultsPerPageSelector=false
-                tableDataLoading={stagingScreenState === PageLoaderWrapper.Loading}
-                dataLoading={stagingScreenState === PageLoaderWrapper.Loading}
+                tableDataLoading={stagingIsFetching}
+                dataLoading={stagingIsFetching}
                 filters={<SearchInput
                   inputText=searchText
                   onChange={value => setSearchText(_ => value)}
@@ -317,7 +317,7 @@ let make = (~ingestionHistoryId: string) => {
                 />}
                 bottomActions={<ReconEngineCursorPaginationButtons
                   cursors=stagingCursors
-                  isLoading={stagingScreenState === PageLoaderWrapper.Loading}
+                  isLoading={stagingIsFetching}
                   hasData={stagingEntries->isNonEmptyArray}
                   onPrev=goToPrevStagingPage
                   onNext=goToNextStagingPage

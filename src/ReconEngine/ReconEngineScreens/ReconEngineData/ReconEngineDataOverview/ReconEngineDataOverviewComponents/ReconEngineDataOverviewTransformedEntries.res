@@ -41,6 +41,7 @@ let make = (
     items: processingEntries,
     cursors,
     screenState,
+    isFetching,
     goToFirstPage,
     goToNextPage,
     goToPrevPage,
@@ -56,7 +57,9 @@ let make = (
         ~transformationHistoryIds=[selectedTransformationHistoryId],
       ),
     )
-  }, ~persistKey=`recon-engine-data-overview-transformed-entries-${selectedTransformationHistoryId}`)
+  }, ~persistKey=Some(
+    `recon-engine-data-overview-transformed-entries-${selectedTransformationHistoryId}`,
+  ))
 
   let checkNeedsManualReview = async () => {
     await onNeedsManualReviewPresent->mapOptionOrDefault(Promise.resolve(), async callback => {
@@ -170,8 +173,8 @@ let make = (
         remoteSortEnabled=true
         showPagination=false
         showResultsPerPageSelector=false
-        tableDataLoading={screenState === PageLoaderWrapper.Loading}
-        dataLoading={screenState === PageLoaderWrapper.Loading}
+        tableDataLoading={isFetching}
+        dataLoading={isFetching}
         filters={<SearchInput
           inputText=searchText
           onChange={value => setSearchText(_ => value)}
@@ -184,7 +187,7 @@ let make = (
         />}
         bottomActions={<ReconEngineCursorPaginationButtons
           cursors
-          isLoading={screenState === PageLoaderWrapper.Loading}
+          isLoading={isFetching}
           hasData={processingEntries->isNonEmptyArray}
           onPrev=goToPrevPage
           onNext=goToNextPage

@@ -31,6 +31,7 @@ let make = (
     items: transactions,
     cursors,
     screenState,
+    isFetching,
     goToFirstPage,
     goToNextPage,
     goToPrevPage,
@@ -46,7 +47,7 @@ let make = (
         ~order=sortOrder,
       ),
     )
-  }, ~persistKey=`recon-engine-transactions-${rule.rule_id}`)
+  }, ~persistKey=Some(`recon-engine-transactions-${rule.rule_id}`))
   let (offset, setOffset) = React.useState(_ => 0)
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
 
@@ -131,8 +132,8 @@ let make = (
         showPagination=false
         showResultsPerPageSelector=false
         remoteSortEnabled=true
-        tableDataLoading={screenState === PageLoaderWrapper.Loading}
-        dataLoading={screenState === PageLoaderWrapper.Loading}
+        tableDataLoading={isFetching}
+        dataLoading={isFetching}
         tableheadingClass="bg-gray-50"
         showAutoScroll=true
         hideCustomisableColumnButton=true
@@ -154,7 +155,7 @@ let make = (
         }}
         bottomActions={<ReconEngineCursorPaginationButtons
           cursors
-          isLoading={screenState === PageLoaderWrapper.Loading}
+          isLoading={isFetching}
           hasData={transactions->isNonEmptyArray}
           onPrev=goToPrevPage
           onNext=goToNextPage

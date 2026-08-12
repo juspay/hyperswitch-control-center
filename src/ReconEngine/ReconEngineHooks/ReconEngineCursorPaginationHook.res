@@ -11,6 +11,7 @@ type cursorPaginationResult<'item> = {
   items: array<'item>,
   cursors: cursors,
   screenState: PageLoaderWrapper.viewType,
+  isFetching: bool,
   goToFirstPage: unit => unit,
   goToNextPage: unit => unit,
   goToPrevPage: unit => unit,
@@ -50,33 +51,41 @@ let restorePersistedCursor = (persistKey): option<(cursor, cursorDirection)> => 
 
 let useCursorPagination = (
   ~fetchPage: (~sortBy: cursor, ~direction: cursorDirection) => promise<cursorPage<'item>>,
-  ~persistKey: string,
+  ~persistKey: option<string>=None,
 ) => {
   open SessionStorage
 
   let (items, setItems) = React.useState(_ => [])
   let (cursors, setCursors) = React.useState((_): cursors => {next: None, prev: None})
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (isFetching, setIsFetching) = React.useState(_ => false)
   let hasRestoredRef = React.useRef(false)
 
   let goTo = async (~sortBy, ~direction) => {
-    setScreenState(_ => PageLoaderWrapper.Loading)
+    setIsFetching(_ => true)
     try {
       let page = await fetchPage(~sortBy, ~direction)
       setItems(_ => page.items)
       setCursors(_ => page.cursors)
-      sessionStorage.setItem(
-        persistKey,
-        ({sortBy, direction}: persistedCursorState)->Identity.genericTypeToJson->JSON.stringify,
-      )
+      switch persistKey {
+      | Some(key) =>
+        sessionStorage.setItem(
+          key,
+          ({sortBy, direction}: persistedCursorState)->Identity.genericTypeToJson->JSON.stringify,
+        )
+      | None => ()
+      }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
+    setIsFetching(_ => false)
   }
 
   let goToFirstPage = () => {
-    let restored = hasRestoredRef.current ? None : restorePersistedCursor(persistKey)
+    let restored = hasRestoredRef.current
+      ? None
+      : persistKey->Option.flatMap(key => restorePersistedCursor(key))
     hasRestoredRef.current = true
     switch restored {
     | Some(sortBy, direction) => goTo(~sortBy, ~direction)->ignore
@@ -96,5 +105,5 @@ let useCursorPagination = (
     | None => ()
     }
 
-  {items, cursors, screenState, goToFirstPage, goToNextPage, goToPrevPage}
+  {items, cursors, screenState, isFetching, goToFirstPage, goToNextPage, goToPrevPage}
 }
