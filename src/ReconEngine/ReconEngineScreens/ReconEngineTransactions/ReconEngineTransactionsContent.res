@@ -20,6 +20,11 @@ let make = (
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let effectiveFilterValueJson = ReconEngineFilterUtils.mergeGlobalDateFilters(
+    ~filterValueJson,
+    ~globalDateFilters,
+  )
 
   let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
   let title = "Transactions"
@@ -37,7 +42,7 @@ let make = (
   } = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=(~sortBy, ~direction) => {
     getTransactionsV2(
       ~body=buildTransactionsV2Body(
-        ~filterValueJson,
+        ~filterValueJson=effectiveFilterValueJson,
         ~searchType=searchTypeRef.current,
         ~searchText,
         ~ruleId=rule.rule_id,
@@ -50,11 +55,6 @@ let make = (
   let (offset, setOffset) = React.useState(_ => 0)
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
 
-  let mixpanelEvent = MixpanelHook.useSendEvent()
-  let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="recon_engine_transactions_date_filter_opened")
-  }
-
   let topFilterUi =
     <div className="flex flex-row -ml-1.5">
       <DynamicFilter
@@ -62,11 +62,8 @@ let make = (
         initialFilters={statusDisplayFilters()}
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields(
-          null,
-          ~events=dateDropDownTriggerMixpanelCallback,
-        )}
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+        initialFixedFilters=[]
+        defaultFilterKeys=[]
         tabNames=filterKeys
         key="ReconEngineTransactionsFilters"
         updateUrlWith=updateExistingKeys
@@ -87,26 +84,12 @@ let make = (
     goToFirstPage()
   }
 
-  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~updateExistingKeys,
-    ~startTimeFilterKey,
-    ~endTimeFilterKey,
-    ~range=180,
-    ~origin="recon_engine_transactions",
-    (),
-  )
-
   React.useEffect(() => {
-    setInitialFilters()
-    None
-  }, [])
-
-  React.useEffect(() => {
-    if !(filterValue->isEmptyDict) {
+    if ReconEngineFilterUtils.shouldFetchWithGlobalDateFilters(~globalDateFilters) {
       goToFirstPage()
     }
     None
-  }, (filterValue, sortOrder))
+  }, (filterValue, sortOrder, globalDateFilters))
 
   <div className="flex flex-col gap-4 mt-3">
     <PageLoaderWrapper screenState>

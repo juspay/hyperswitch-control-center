@@ -201,7 +201,11 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   let getRuleAccountBreakdown = ReconEngineHooks.useGetRuleAccountBreakdown()
   let (reactFlowNodes, setNodes, onNodesChange) = useNodesState([])
   let (reactFlowEdges, setEdges, onEdgesChange) = useEdgesState([])
-  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let effectiveFilterValueJson = ReconEngineFilterUtils.mergeGlobalDateFilters(
+    ~filterValueJson=Dict.make(),
+    ~globalDateFilters,
+  )
   let (isFullscreen, setIsFullscreen) = React.useState(_ => false)
 
   let toggleFullscreen = () => setIsFullscreen(prev => !prev)
@@ -232,7 +236,9 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
 
-      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
+        ~filterValueJson=effectiveFilterValueJson,
+      )
       let ruleAccountsOverview = await getRuleAccountBreakdown(~queryParameters=Some(queryString))
 
       setAllData(_ => Some(ruleAccountsOverview))
@@ -257,11 +263,11 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   }
 
   React.useEffect(() => {
-    if !(filterValue->isEmptyDict) {
+    if ReconEngineFilterUtils.shouldFetchWithGlobalDateFilters(~globalDateFilters) {
       getAccountsData()->ignore
     }
     None
-  }, [filterValue])
+  }, [globalDateFilters])
 
   React.useEffect(() => {
     switch allData {

@@ -14,6 +14,11 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let effectiveFilterValueJson = ReconEngineFilterUtils.mergeGlobalDateFilters(
+    ~filterValueJson,
+    ~globalDateFilters,
+  )
   let showToast = ToastAdapter.useShowToast()
 
   let (accountData, setAccountData) = React.useState(_ => [])
@@ -37,7 +42,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   let fetchPage = (~sortBy, ~direction) =>
     getTransactionsV2(
       ~body=buildTransactionsV2Body(
-        ~filterValueJson,
+        ~filterValueJson=effectiveFilterValueJson,
         ~searchType=searchTypeRef.current,
         ~searchText,
         ~ruleId=ruleDetails.rule_id,
@@ -72,11 +77,11 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   }, [])
 
   React.useEffect(() => {
-    if !(filterValue->isEmptyDict) {
+    if ReconEngineFilterUtils.shouldFetchWithGlobalDateFilters(~globalDateFilters) {
       goToFirstPage()
     }
     None
-  }, (filterValue, sortOrder))
+  }, (filterValue, sortOrder, globalDateFilters))
 
   let statusFilterUi =
     <div className="flex flex-row">

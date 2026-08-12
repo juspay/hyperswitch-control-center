@@ -10,12 +10,19 @@ let make = (~ruleDetails: rulePayload) => {
   let (ruleAccountsOverview, setRuleAccountsOverview) = React.useState(_ => [])
   let getRuleAccountBreakdown = ReconEngineHooks.useGetRuleAccountBreakdown()
   let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let effectiveFilterValueJson = ReconEngineFilterUtils.mergeGlobalDateFilters(
+    ~filterValueJson,
+    ~globalDateFilters,
+  )
 
   let getAccountAndTransactionData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
 
-      let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+      let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
+        ~filterValueJson=effectiveFilterValueJson,
+      )
       let suffix = `rule_ids=${ruleDetails.rule_id}`
       let queryString = baseQueryString->isNonEmptyString ? `${baseQueryString}&${suffix}` : suffix
 
@@ -28,11 +35,11 @@ let make = (~ruleDetails: rulePayload) => {
   }
 
   React.useEffect(() => {
-    if !(filterValue->isEmptyDict) {
+    if ReconEngineFilterUtils.shouldFetchWithGlobalDateFilters(~globalDateFilters) {
       getAccountAndTransactionData()->ignore
     }
     None
-  }, [filterValue])
+  }, (filterValue, globalDateFilters))
 
   let (sourceAccountData, targetAccountsData) = React.useMemo(() => {
     getSourceAndTargetAccounts(ruleAccountsOverview, ~ruleId=ruleDetails.rule_id)

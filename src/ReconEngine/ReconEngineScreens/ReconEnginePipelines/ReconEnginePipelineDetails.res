@@ -25,6 +25,11 @@ let make = (~ingestionHistoryId: string) => {
   let {filterValueJson, filterValue, updateExistingKeys, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let mergedFilterValueJson = ReconEngineFilterUtils.mergeGlobalDateFilters(
+    ~filterValueJson,
+    ~globalDateFilters,
+  )
   let transformationFilterKey = "transformation_history_ids"
   let stagingTableTitle = "Transformed Entries"
 
@@ -54,8 +59,8 @@ let make = (~ingestionHistoryId: string) => {
     goToNextPage: goToNextStagingPage,
     goToPrevPage: goToPrevStagingPage,
   } = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=(~sortBy, ~direction) => {
-    let effectiveFilterValueJson = Dict.copy(filterValueJson)
-    if filterValueJson->getStrArrayFromDict(transformationFilterKey, [])->isEmptyArray {
+    let effectiveFilterValueJson = Dict.copy(mergedFilterValueJson)
+    if effectiveFilterValueJson->getStrArrayFromDict(transformationFilterKey, [])->isEmptyArray {
       effectiveFilterValueJson->Dict.set(
         transformationFilterKey,
         transformations
@@ -133,11 +138,14 @@ let make = (~ingestionHistoryId: string) => {
   }, [ingestionHistoryId])
 
   React.useEffect(() => {
-    if transformations->isNonEmptyArray {
+    if (
+      transformations->isNonEmptyArray &&
+        ReconEngineFilterUtils.shouldFetchWithGlobalDateFilters(~globalDateFilters)
+    ) {
       goToFirstStagingPage()
     }
     None
-  }, (filterValue, sortOrder, transformations))
+  }, (filterValue, sortOrder, transformations, globalDateFilters))
 
   let accountName = ReconEnginePipelinesTableEntity.getAccountName(
     ~accountData,
@@ -164,16 +172,21 @@ let make = (~ingestionHistoryId: string) => {
             ? historyItem.file_name
             : ingestionHistoryId}
         />
-        <RenderIf condition={historyItem.id->isNonEmptyString}>
-          <Button
-            text="Download file"
-            leftIcon={CustomIcon(<Icon name="nd-download-down" size=12 />)}
-            buttonType=Button.Secondary
-            buttonSize=Small
-            onClick={_ => onDownloadFile(~fileName=historyItem.file_name)->ignore}
-            maxButtonWidth="!w-fit"
+        <div className="flex items-center gap-4">
+          <PortalCapture
+            name=ReconEngineFilterUtils.globalDateFilterPortalName customStyle="-mt-1"
           />
-        </RenderIf>
+          <RenderIf condition={historyItem.id->isNonEmptyString}>
+            <Button
+              text="Download file"
+              leftIcon={CustomIcon(<Icon name="nd-download-down" size=12 />)}
+              buttonType=Button.Secondary
+              buttonSize=Small
+              onClick={_ => onDownloadFile(~fileName=historyItem.file_name)->ignore}
+              maxButtonWidth="!w-fit"
+            />
+          </RenderIf>
+        </div>
       </div>
       <RenderIf condition={historyItem.id->isNonEmptyString}>
         <div className="flex flex-col gap-6">
