@@ -48,6 +48,8 @@ module BlendDateRangeField = {
 
     let customPresets = predefinedDays->Array.map(day => toBlendPreset(day, ~disableFutureDates))
 
+    let formatConfig = showTime ? None : Some({DateRangePickerBinding.includeTime: false})
+
     <DateRangePickerBinding
       value=?blendValue
       onChange=handleChange
@@ -56,7 +58,7 @@ module BlendDateRangeField = {
       disableFutureDates
       disablePastDates
       customPresets
-      formatConfig={includeTime: showTime}
+      ?formatConfig
     />
   }
 }
