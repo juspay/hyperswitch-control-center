@@ -41,7 +41,6 @@ let make = (
     items: processingEntries,
     cursors,
     screenState,
-    isFetching,
     goToFirstPage,
     goToNextPage,
     goToPrevPage,
@@ -173,8 +172,8 @@ let make = (
         remoteSortEnabled=true
         showPagination=false
         showResultsPerPageSelector=false
-        tableDataLoading={isFetching}
-        dataLoading={isFetching}
+        tableDataLoading={screenState === PageLoaderWrapper.Loading}
+        dataLoading={screenState === PageLoaderWrapper.Loading}
         filters={<SearchInput
           inputText=searchText
           onChange={value => setSearchText(_ => value)}
@@ -187,7 +186,7 @@ let make = (
         />}
         bottomActions={<ReconEngineCursorPaginationButtons
           cursors
-          isLoading={isFetching}
+          isLoading={screenState === PageLoaderWrapper.Loading}
           hasData={processingEntries->isNonEmptyArray}
           onPrev=goToPrevPage
           onNext=goToNextPage

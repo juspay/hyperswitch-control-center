@@ -446,7 +446,6 @@ module LinkStagingEntryModalContent = {
       items: linkableStagingEntries,
       cursors,
       screenState,
-      isFetching,
       goToFirstPage,
       goToNextPage,
       goToPrevPage,
@@ -589,7 +588,7 @@ module LinkStagingEntryModalContent = {
             />
             <ReconEngineCursorPaginationButtons
               cursors
-              isLoading=isFetching
+              isLoading={screenState === PageLoaderWrapper.Loading}
               hasData={linkableStagingEntries->isNonEmptyArray}
               onPrev={() => {
                 setSelectedRows(_ => [])

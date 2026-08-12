@@ -52,7 +52,6 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
     items: transactions,
     cursors,
     screenState,
-    isFetching,
     goToFirstPage,
     goToNextPage,
     goToPrevPage,
@@ -121,8 +120,8 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
         remoteSortEnabled=true
         showPagination=false
         showResultsPerPageSelector=false
-        tableDataLoading={isFetching}
-        dataLoading={isFetching}
+        tableDataLoading={screenState === PageLoaderWrapper.Loading}
+        dataLoading={screenState === PageLoaderWrapper.Loading}
         customizeColumnButtonIcon="nd-filter-horizontal"
         hideRightTitleElement=true
         showAutoScroll=true
@@ -140,7 +139,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
         />}
         bottomActions={<ReconEngineCursorPaginationButtons
           cursors
-          isLoading={isFetching}
+          isLoading={screenState === PageLoaderWrapper.Loading}
           hasData={transactions->isNonEmptyArray}
           onPrev=goToPrevPage
           onNext=goToNextPage

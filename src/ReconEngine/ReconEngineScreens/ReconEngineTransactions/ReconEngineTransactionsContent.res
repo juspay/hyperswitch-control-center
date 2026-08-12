@@ -31,7 +31,6 @@ let make = (
     items: transactions,
     cursors,
     screenState,
-    isFetching,
     goToFirstPage,
     goToNextPage,
     goToPrevPage,
@@ -132,8 +131,8 @@ let make = (
         showPagination=false
         showResultsPerPageSelector=false
         remoteSortEnabled=true
-        tableDataLoading={isFetching}
-        dataLoading={isFetching}
+        tableDataLoading={screenState === PageLoaderWrapper.Loading}
+        dataLoading={screenState === PageLoaderWrapper.Loading}
         tableheadingClass="bg-gray-50"
         showAutoScroll=true
         hideCustomisableColumnButton=true
@@ -155,7 +154,7 @@ let make = (
         }}
         bottomActions={<ReconEngineCursorPaginationButtons
           cursors
-          isLoading={isFetching}
+          isLoading={screenState === PageLoaderWrapper.Loading}
           hasData={transactions->isNonEmptyArray}
           onPrev=goToPrevPage
           onNext=goToNextPage

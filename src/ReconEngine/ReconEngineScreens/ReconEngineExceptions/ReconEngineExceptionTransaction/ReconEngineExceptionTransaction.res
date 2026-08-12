@@ -87,7 +87,6 @@ let make = (~ruleId: string) => {
     items: transactions,
     cursors,
     screenState,
-    isFetching,
     goToFirstPage,
     goToNextPage,
     goToPrevPage,
@@ -217,8 +216,8 @@ let make = (~ruleId: string) => {
           remoteSortEnabled=true
           showPagination=false
           showResultsPerPageSelector=false
-          tableDataLoading={isFetching}
-          dataLoading={isFetching}
+          tableDataLoading={screenState === PageLoaderWrapper.Loading}
+          dataLoading={screenState === PageLoaderWrapper.Loading}
           customizeColumnButtonIcon="nd-filter-horizontal"
           hideRightTitleElement=true
           showAutoScroll=true
@@ -240,7 +239,7 @@ let make = (~ruleId: string) => {
           }}
           bottomActions={<ReconEngineCursorPaginationButtons
             cursors
-            isLoading={isFetching}
+            isLoading={screenState === PageLoaderWrapper.Loading}
             hasData={transactions->isNonEmptyArray}
             onPrev=goToPrevPage
             onNext=goToNextPage

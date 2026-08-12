@@ -11,7 +11,6 @@ type cursorPaginationResult<'item> = {
   items: array<'item>,
   cursors: cursors,
   screenState: PageLoaderWrapper.viewType,
-  isFetching: bool,
   goToFirstPage: unit => unit,
   goToNextPage: unit => unit,
   goToPrevPage: unit => unit,
@@ -58,11 +57,10 @@ let useCursorPagination = (
   let (items, setItems) = React.useState(_ => [])
   let (cursors, setCursors) = React.useState((_): cursors => {next: None, prev: None})
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (isFetching, setIsFetching) = React.useState(_ => false)
   let hasRestoredRef = React.useRef(false)
 
   let goTo = async (~sortBy, ~direction) => {
-    setIsFetching(_ => true)
+    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let page = await fetchPage(~sortBy, ~direction)
       setItems(_ => page.items)
@@ -79,7 +77,6 @@ let useCursorPagination = (
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
-    setIsFetching(_ => false)
   }
 
   let goToFirstPage = () => {
@@ -105,5 +102,5 @@ let useCursorPagination = (
     | None => ()
     }
 
-  {items, cursors, screenState, isFetching, goToFirstPage, goToNextPage, goToPrevPage}
+  {items, cursors, screenState, goToFirstPage, goToNextPage, goToPrevPage}
 }

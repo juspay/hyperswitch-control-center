@@ -49,7 +49,7 @@ let make = (~ingestionHistoryId: string) => {
   let {
     items: stagingEntries,
     cursors: stagingCursors,
-    isFetching: stagingIsFetching,
+    screenState: stagingScreenState,
     goToFirstPage: goToFirstStagingPage,
     goToNextPage: goToNextStagingPage,
     goToPrevPage: goToPrevStagingPage,
@@ -303,8 +303,8 @@ let make = (~ingestionHistoryId: string) => {
                 remoteSortEnabled=true
                 showPagination=false
                 showResultsPerPageSelector=false
-                tableDataLoading={stagingIsFetching}
-                dataLoading={stagingIsFetching}
+                tableDataLoading={stagingScreenState === PageLoaderWrapper.Loading}
+                dataLoading={stagingScreenState === PageLoaderWrapper.Loading}
                 filters={<SearchInput
                   inputText=searchText
                   onChange={value => setSearchText(_ => value)}
@@ -317,7 +317,7 @@ let make = (~ingestionHistoryId: string) => {
                 />}
                 bottomActions={<ReconEngineCursorPaginationButtons
                   cursors=stagingCursors
-                  isLoading={stagingIsFetching}
+                  isLoading={stagingScreenState === PageLoaderWrapper.Loading}
                   hasData={stagingEntries->isNonEmptyArray}
                   onPrev=goToPrevStagingPage
                   onNext=goToNextStagingPage
