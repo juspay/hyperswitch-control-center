@@ -358,7 +358,7 @@ module ApiKeysTable = {
 
       switch colType {
       | Name => EllipsisText(item.name, "max-w-xs")
-      | Description => Text(item.description)
+      | Description => EllipsisText(item.description, "max-w-xs")
       | Prefix => Text(item.prefix->appendString)
       | Created => Date(item.created)
       | Expiration =>

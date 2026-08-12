@@ -1,4 +1,5 @@
 open RoutingTypes
+open AdvancedRoutingUtils
 open LogicUtils
 external toWasm: Dict.t<JSON.t> => wasmModule = "%identity"
 
@@ -237,7 +238,8 @@ let validateConditionsFor3ds = dict => {
   let decisionValue = dict->getDictfromDict("connectorSelection")->getString("override_3ds", "")
 
   conditionsArray->Array.every(value => {
-    value->validateConditionJson(["comparison", "lhs"])
+    value->validateConditionJson(["comparison", "lhs"]) &&
+      value->getDictFromJsonObject->statementTypeMapper->isStatementMandatoryFieldsPresent
   }) && decisionValue->isNonEmptyString
 }
 

@@ -1274,6 +1274,7 @@ export async function createThreeDsExemptionAPI(
       | "no_three_ds"
       | "challenge_requested"
       | "challenge_preferred"
+      | "no_preference"
       | "three_ds_exemption_requested_tra"
       | "three_ds_exemption_requested_low_value"
       | "issuer_three_ds_exemption_requested";
