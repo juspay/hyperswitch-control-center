@@ -73,7 +73,7 @@ let make = (~ingestionHistoryId: string) => {
         ~order=sortOrder,
       ),
     )
-  }, ~persistKey=`recon-engine-pipeline-details-staging-entries-${ingestionHistoryId}`)
+  }, ~persistKey=Some(`recon-engine-pipeline-details-staging-entries-${ingestionHistoryId}`))
 
   let handleSearchSubmit = (selectedType: option<string>) => {
     searchTypeRef.current =

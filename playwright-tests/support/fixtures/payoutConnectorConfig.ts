@@ -287,6 +287,29 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
     },
   },
 
+  santander: {
+    label: "santander",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "santander_default",
+      },
+      fieldLabels: [
+        "Certificate *",
+        "Certificate Key *",
+        "Client Id *",
+        "Client Secret *",
+        "Workspace Id *",
+      ],
+    },
+    paymentSections: {
+      BankTransfer: {
+        label: "Bank Transfer",
+        methods: ["pix", "pix_key", "pix_emv"],
+      },
+    },
+  },
+
   stripe: {
     label: "stripe",
     fields: {

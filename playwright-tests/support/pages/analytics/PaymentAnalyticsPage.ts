@@ -206,7 +206,7 @@ export class PaymentAnalyticsPage {
   }
 
   get filterSearchInput(): Locator {
-    return this.page.getByRole('searchbox', { name: 'Search options...' });
+    return this.page.getByRole("searchbox", { name: "Search options..." });
   }
 
   // A dimension row inside the open Add Filters popup. Each row carries
@@ -269,12 +269,12 @@ export class PaymentAnalyticsPage {
 
   // The predefined-options column inside the open date picker dropdown.
   get predefinedDateOptions(): Locator {
-    return this.page.getByText('Last 30 minutesLast 1');
+    return this.page.getByText("Last 30 minutesLast 1");
   }
 
   // A single preset row (e.g. "Last 7 Days", "Last 30 Days", "This Month").
   predefinedDateOption(label: string): Locator {
-    return this.page.getByRole('menuitem', { name: `${label}` });
+    return this.page.getByRole("menuitem", { name: `${label}` });
   }
 
   get customRangeOption(): Locator {

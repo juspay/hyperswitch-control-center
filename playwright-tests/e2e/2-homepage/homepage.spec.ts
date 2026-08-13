@@ -13,7 +13,6 @@ import {
   createBusinessProfileAPI,
   createMerchantAPI,
   switchMerchantAPI,
-  createStripeGooglePayConnectorAPI,
 } from "../../support/commands";
 import UsersPage from "../../support/pages/settings/UsersPage";
 
@@ -21,7 +20,7 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 let email = "";
 
 test.describe("Homepage", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
 
@@ -496,7 +495,7 @@ test.describe("Live Mode and Test mode Behavior", () => {
 });
 
 test.describe("Production access form", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -697,8 +696,8 @@ test.describe("SDK Payment", () => {
         .filter({ hasText: /^Color Picker Input$/ })
         .nth(1),
     ).toBeVisible();
-    await expect(page.getByRole("textbox", { name: "#FFFFFF" })).toBeVisible();
-    await expect(page.getByRole("textbox", { name: "#FFFFFF" })).toHaveValue(
+    await expect(page.getByRole("textbox", { name: "#006DF9" })).toBeVisible();
+    await expect(page.getByRole("textbox", { name: "#006DF9" })).toHaveValue(
       "#006DF9",
     );
     await expect(
@@ -736,7 +735,7 @@ test.describe("SDK Payment", () => {
 
   test.fixme("should make a successful payment using SDK", async ({
     page,
-    context,
+    context: _context,
   }) => {
     const homePage = new HomePage(page);
 
@@ -981,8 +980,12 @@ test.describe("Organization Chart Tree", () => {
 
     // 1st Merchant - Profile
     await expect(merchantOneProfileName).toBeVisible();
-    await expect(merchantOneProfileName).toHaveClass(/border-nd_primary_blue-600/);
-    await expect(merchantOneProfileName).toHaveClass(/text-nd_primary_blue-600/);
+    await expect(merchantOneProfileName).toHaveClass(
+      /border-nd_primary_blue-600/,
+    );
+    await expect(merchantOneProfileName).toHaveClass(
+      /text-nd_primary_blue-600/,
+    );
 
     //Switch merchant
     await merchantTwoName.click();
@@ -1009,8 +1012,12 @@ test.describe("Organization Chart Tree", () => {
     await expect(merchantOneProfileName).toHaveClass(/text-nd_gray-600/);
 
     await expect(merchantTwoProfileTwoName).toBeVisible();
-    await expect(merchantTwoProfileTwoName).toHaveClass(/border-nd_primary_blue-600/);
-    await expect(merchantTwoProfileTwoName).toHaveClass(/text-nd_primary_blue-600/);
+    await expect(merchantTwoProfileTwoName).toHaveClass(
+      /border-nd_primary_blue-600/,
+    );
+    await expect(merchantTwoProfileTwoName).toHaveClass(
+      /text-nd_primary_blue-600/,
+    );
 
     //Switch profile to "default"
     await merchantOneProfileName.click();
@@ -1032,8 +1039,12 @@ test.describe("Organization Chart Tree", () => {
 
     // "default" is now selected
     await expect(merchantOneProfileName).toBeVisible();
-    await expect(merchantOneProfileName).toHaveClass(/border-nd_primary_blue-600/);
-    await expect(merchantOneProfileName).toHaveClass(/text-nd_primary_blue-600/);
+    await expect(merchantOneProfileName).toHaveClass(
+      /border-nd_primary_blue-600/,
+    );
+    await expect(merchantOneProfileName).toHaveClass(
+      /text-nd_primary_blue-600/,
+    );
 
     // "new-test-profile" is now unselected
     await expect(merchantTwoProfileTwoName).toBeVisible();

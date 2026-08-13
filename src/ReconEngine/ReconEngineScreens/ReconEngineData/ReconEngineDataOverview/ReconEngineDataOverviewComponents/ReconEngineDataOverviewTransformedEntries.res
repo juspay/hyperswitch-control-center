@@ -51,7 +51,9 @@ let make = (
         ~transformationHistoryIds=[selectedTransformationHistoryId],
       ),
     )
-  }, ~persistKey=`recon-engine-data-overview-transformed-entries-${selectedTransformationHistoryId}`)
+  }, ~persistKey=Some(
+    `recon-engine-data-overview-transformed-entries-${selectedTransformationHistoryId}`,
+  ))
 
   let checkNeedsManualReview = async () => {
     await onNeedsManualReviewPresent->mapOptionOrDefault(Promise.resolve(), async callback => {

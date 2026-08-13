@@ -58,7 +58,7 @@ let make = () => {
         ~order=sortOrder,
       ),
     )
-  }, ~persistKey="recon-engine-transformed-entry-exceptions")
+  }, ~persistKey=Some("recon-engine-transformed-entry-exceptions"))
 
   let fetchAccounts = async () => {
     try {

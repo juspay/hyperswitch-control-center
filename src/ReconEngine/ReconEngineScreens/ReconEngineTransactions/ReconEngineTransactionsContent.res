@@ -51,7 +51,7 @@ let make = (
         ~order=sortOrder,
       ),
     )
-  }, ~persistKey=`recon-engine-transactions-${rule.rule_id}`)
+  }, ~persistKey=Some(`recon-engine-transactions-${rule.rule_id}`))
   let (offset, setOffset) = React.useState(_ => 0)
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
 

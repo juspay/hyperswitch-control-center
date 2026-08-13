@@ -9,7 +9,13 @@ type emailConfig = {
   foreground_color: string,
   background_color: string,
 }
-type urlConfig = {
+
+type superpositionConfig = {
+  organization_id: string,
+  workspace: string,
+}
+
+type baseConfig = {
   apiBaseUrl: string,
   mixpanelToken: string,
   sdkBaseUrl: option<string>,
@@ -21,6 +27,7 @@ type urlConfig = {
   dynamoSimulationTemplateUrl: option<string>,
   urlThemeConfig: urlThemeConfig,
   hypersenseUrl: string,
+  superpositionConfigs: option<superpositionConfig>,
 }
 
 // Type definition for themes

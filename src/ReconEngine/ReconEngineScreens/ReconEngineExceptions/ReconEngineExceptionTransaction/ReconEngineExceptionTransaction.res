@@ -94,7 +94,7 @@ let make = (~ruleId: string) => {
     goToPrevPage,
   } = ReconEngineCursorPaginationHook.useCursorPagination(
     ~fetchPage,
-    ~persistKey=`recon-engine-exception-transactions-${ruleId}`,
+    ~persistKey=Some(`recon-engine-exception-transactions-${ruleId}`),
   )
 
   let handleSearchSubmit = (selectedType: option<string>) => {
