@@ -63,7 +63,7 @@ let make = (~accountId: string) => {
         ~order=sortOrder,
       ),
     )
-  }, ~persistKey=`recon-engine-transformed-entry-exceptions-${accountId}`)
+  }, ~persistKey=Some(`recon-engine-transformed-entry-exceptions-${accountId}`))
 
   let fetchTransformationFilters = async () => {
     try {
