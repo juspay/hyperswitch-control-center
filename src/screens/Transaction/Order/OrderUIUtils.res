@@ -15,7 +15,6 @@ let getStoredPaymentListSource = (~defaultSource) =>
   | None => defaultSource
   }
 
-
 let getFilterTypeFromString = (filterType): filter => {
   switch filterType {
   | "connector" => #connector
