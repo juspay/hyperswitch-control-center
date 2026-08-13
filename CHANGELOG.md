@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.13.0
+
+### Features
+
+- Add Santander payout connector ([#5378](https://github.com/juspay/hyperswitch-control-center/pull/5378)) ([`6cbbfb1`](https://github.com/juspay/hyperswitch-control-center/commit/6cbbfb1adcb580fa49e9f84fb4cd19503028a814))
+
+**Full Changelog:** [`2026.08.11.2...2026.08.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.11.2...2026.08.13.0)
+
+- - -
+
 ## 2026.08.11.2
 
 ### Refactors
