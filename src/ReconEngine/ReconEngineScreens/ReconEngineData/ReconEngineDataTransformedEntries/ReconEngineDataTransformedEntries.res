@@ -14,6 +14,7 @@ let make = () => {
     ~itemMapper=ReconEngineUtils.processingItemToObjMapper,
   )
   let getAccounts = useGetAccounts()
+  let getTransformationConfigs = useGetTransformationConfigs()
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
@@ -50,6 +51,7 @@ let make = () => {
   }, ~persistKey=Some("recon-engine-transformed-entries"))
 
   let (accountData, setAccountData) = React.useState(_ => [])
+  let (transformationConfigData, setTransformationConfigData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
 
   let accountOptions =
@@ -58,6 +60,14 @@ let make = () => {
     ): FilterSelectBox.dropdownOption => {
       label: account.account_name,
       value: account.account_id,
+    })
+
+  let transformationConfigOptions =
+    transformationConfigData->Array.map((
+      config: ReconEngineTypes.transformationConfigType,
+    ): FilterSelectBox.dropdownOption => {
+      label: config.name,
+      value: config.transformation_id,
     })
 
   let fetchAccounts = async () => {
@@ -69,6 +79,15 @@ let make = () => {
     }
   }
 
+  let fetchTransformationConfigs = async () => {
+    try {
+      let transformationConfigs = await getTransformationConfigs()
+      setTransformationConfigData(_ => transformationConfigs)
+    } catch {
+    | _ => showToast(~message="Failed to fetch transformations", ~toastType=ToastError)
+    }
+  }
+
   let handleSearchSubmit = (selectedType: option<string>) => {
     let newSearchType = selectedType->mapOptionOrDefault(SearchStagingEntryId, searchTypeFromString)
     searchTypeRef.current = newSearchType
@@ -77,6 +96,7 @@ let make = () => {
 
   React.useEffect(() => {
     fetchAccounts()->ignore
+    fetchTransformationConfigs()->ignore
     None
   }, [])
 
@@ -91,7 +111,7 @@ let make = () => {
     <div className="flex flex-row -ml-1.5">
       <DynamicFilter
         title="ReconEngineDataTransformedEntriesFilters"
-        initialFilters={initialDisplayFilters(~accountOptions)}
+        initialFilters={initialDisplayFilters(~accountOptions, ~transformationConfigOptions)}
         options=[]
         popupFilterFields=[]
         initialFixedFilters=[]
