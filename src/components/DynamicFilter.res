@@ -166,6 +166,7 @@ let make = (
   ~showSelectFiltersSearch=false,
   ~refreshFilters=true,
   ~setOffset=?,
+  ~mandatoryRemoteKeys=[],
 ) => {
   open LogicUtils
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
@@ -228,6 +229,7 @@ let make = (
       localOptions=[]
       remoteOptions
       remoteFilters=initialFilters
+      mandatoryRemoteKeys
       popupFilterFields
       autoApply=false
       addFilterStyle="pt-4"

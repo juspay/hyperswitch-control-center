@@ -1,5 +1,7 @@
 open Typography
 
+let transformationConfigFilterKey = "transformation_config_ids"
+
 @react.component
 let make = (~accountId: string) => {
   open LogicUtils
@@ -103,10 +105,14 @@ let make = (~accountId: string) => {
       !(filterValueJson->isEmptyDict) &&
       filterValueJson->getOptionValFromDict("account_ids")->Option.isNone
     ) {
-      setSelectedRows(_ => [])
-      goToFirstPage()
+      let timeoutId = setTimeout(() => {
+        setSelectedRows(_ => [])
+        goToFirstPage()
+      }, 0)
+      Some(() => clearTimeout(timeoutId))
+    } else {
+      None
     }
-    None
   }, (appliedFilters, sortOrder))
 
   let topFilterUi = {
@@ -120,8 +126,8 @@ let make = (~accountId: string) => {
     let transformationConfigFilter =
       <FormRenderer.FieldRenderer
         field={FormRenderer.makeFieldInfo(
-          ~label="transformation_config_ids",
-          ~name="transformation_config_ids",
+          ~label=transformationConfigFilterKey,
+          ~name=transformationConfigFilterKey,
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=transformationConfigOptions,
             ~buttonText="Select Transformation Config",
@@ -155,6 +161,7 @@ let make = (~accountId: string) => {
         filterFieldsPortalName={filterFieldsPortalName}
         showCustomFilter=false
         customFilterActions=transformationConfigFilter
+        mandatoryRemoteKeys=[transformationConfigFilterKey]
         refreshFilters=false
       />
     </div>
@@ -170,70 +177,72 @@ let make = (~accountId: string) => {
       </p>
     </div>
 
-  <PageLoaderWrapper screenState=tableScreenState>
-    <div className="flex flex-col gap-4">
-      <div className="flex-shrink-0 mt-3"> {topFilterUi} </div>
-      <LoadedTable
-        title
-        hideTitle=true
-        actualData={processingEntries->Array.map(Nullable.make)}
-        entity={ReconEngineExceptionEntity.transformedEntryExceptionTableEntity(
-          `v1/recon-engine/exceptions/transformed-entries`,
-          ~authorization=Access,
-        )}
-        resultsPerPage=10
-        totalResults={processingEntries->Array.length}
-        offset=0
-        setOffset={_ => ()}
-        currentFetchCount={processingEntries->Array.length}
-        dataNotFoundComponent=noExceptionsFoundComponent
-        tableheadingClass="h-12"
-        tableHeadingTextClass="!font-normal"
-        nonFrozenTableParentClass="!rounded-lg"
-        loadedTableParentClass="flex flex-col"
-        enableEqualWidthCol=false
-        showAutoScroll=true
-        remoteSortEnabled=true
-        showPagination=false
-        showResultsPerPageSelector=false
-        tableDataLoading={tableScreenState === Loading}
-        dataLoading={tableScreenState === Loading}
-        filters={<SearchInput
-          inputText=searchText
-          onChange={value => setSearchText(_ => value)}
-          placeholder="Search by ID"
-          showTypeSelector=true
-          typeSelectorOptions=searchTypeOptionsWithTransformationHistory
-          onSubmitSearchDropdown=handleSearchSubmit
-          showSearchIcon=true
-          widthClass="w-max"
-        />}
-        bottomActions={<ReconEngineCursorPaginationButtons
-          cursors
-          isLoading={tableScreenState === Loading}
-          hasData={processingEntries->isNonEmptyArray}
-          onPrev={() => {
-            setSelectedRows(_ => [])
-            goToPrevPage()
+  <div className="flex flex-col gap-4">
+    <div className="flex-shrink-0 mt-3"> {topFilterUi} </div>
+    <PageLoaderWrapper screenState=tableScreenState>
+      <div className="flex flex-col gap-4">
+        <LoadedTable
+          title
+          hideTitle=true
+          actualData={processingEntries->Array.map(Nullable.make)}
+          entity={ReconEngineExceptionEntity.transformedEntryExceptionTableEntity(
+            `v1/recon-engine/exceptions/transformed-entries`,
+            ~authorization=Access,
+          )}
+          resultsPerPage=10
+          totalResults={processingEntries->Array.length}
+          offset=0
+          setOffset={_ => ()}
+          currentFetchCount={processingEntries->Array.length}
+          dataNotFoundComponent=noExceptionsFoundComponent
+          tableheadingClass="h-12"
+          tableHeadingTextClass="!font-normal"
+          nonFrozenTableParentClass="!rounded-lg"
+          loadedTableParentClass="flex flex-col"
+          enableEqualWidthCol=false
+          showAutoScroll=true
+          remoteSortEnabled=true
+          showPagination=false
+          showResultsPerPageSelector=false
+          tableDataLoading={tableScreenState === Loading}
+          dataLoading={tableScreenState === Loading}
+          filters={<SearchInput
+            inputText=searchText
+            onChange={value => setSearchText(_ => value)}
+            placeholder="Search by ID"
+            showTypeSelector=true
+            typeSelectorOptions=searchTypeOptionsWithTransformationHistory
+            onSubmitSearchDropdown=handleSearchSubmit
+            showSearchIcon=true
+            widthClass="w-max"
+          />}
+          bottomActions={<ReconEngineCursorPaginationButtons
+            cursors
+            isLoading={tableScreenState === Loading}
+            hasData={processingEntries->isNonEmptyArray}
+            onPrev={() => {
+              setSelectedRows(_ => [])
+              goToPrevPage()
+            }}
+            onNext={() => {
+              setSelectedRows(_ => [])
+              goToNextPage()
+            }}
+          />}
+          checkBoxProps={{
+            showCheckBox: true,
+            selectedData: selectedRows,
+            setSelectedData: setSelectedRows,
           }}
-          onNext={() => {
-            setSelectedRows(_ => [])
-            goToNextPage()
-          }}
-        />}
-        checkBoxProps={{
-          showCheckBox: true,
-          selectedData: selectedRows,
-          setSelectedData: setSelectedRows,
-        }}
-      />
-      <RenderIf condition={selectedRows->isNonEmptyArray}>
-        <ReconEngineTransformedEntryBulkActions
-          selectedRows={selectedRows->Array.map(json => json->Identity.jsonToAnyType)}
-          setSelectedRows
-          refreshList={() => goToFirstPage()}
         />
-      </RenderIf>
-    </div>
-  </PageLoaderWrapper>
+        <RenderIf condition={selectedRows->isNonEmptyArray}>
+          <ReconEngineTransformedEntryBulkActions
+            selectedRows={selectedRows->Array.map(json => json->Identity.jsonToAnyType)}
+            setSelectedRows
+            refreshList={() => goToFirstPage()}
+          />
+        </RenderIf>
+      </div>
+    </PageLoaderWrapper>
+  </div>
 }
