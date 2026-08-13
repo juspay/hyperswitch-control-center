@@ -46,8 +46,8 @@ type detailsLayout =
   | @as("layout2") Layout2
 
 type cssRulesKey =
-  | SdkUiRules
-  | PaymentLinkUiRules
+  | @as("sdk_ui_rules") SdkUiRules
+  | @as("payment_link_ui_rules") PaymentLinkUiRules
 
 type cssInputType =
   | CssColor

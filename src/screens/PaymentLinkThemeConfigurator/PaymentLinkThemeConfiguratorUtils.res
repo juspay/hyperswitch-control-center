@@ -17,10 +17,14 @@ let showCardTermsOptions: array<SelectBox.dropdownOption> = [
 })
 
 let sdkLayoutOptions: array<SelectBox.dropdownOption> = [
-  {label: "Accordion", value: (Accordion :> string)},
-  {label: "Tabs", value: (Tabs :> string)},
-  {label: "Spaced Accordion", value: (SpacedAccordion :> string)},
-]
+  Accordion,
+  Tabs,
+  SpacedAccordion,
+]->Array.map(item => {
+  let value = (item :> string)
+  let option: SelectBox.dropdownOption = {label: value->snakeToTitle, value}
+  option
+})
 
 let detailsLayoutOptions: array<SelectBox.dropdownOption> = [
   {label: "Layout 1", value: (Layout1 :> string)},
@@ -65,18 +69,9 @@ let allowedDomainsToArray = allowedDomainsOpt => {
   allowedDomains->isEmptyArray ? None : Some(allowedDomains->getJsonFromArrayOfString)
 }
 
-let cssRulesKeyToString = rulesKey =>
-  switch rulesKey {
-  | SdkUiRules => "sdk_ui_rules"
-  | PaymentLinkUiRules => "payment_link_ui_rules"
-  }
+let cssRulesKeyToString = (rulesKey: cssRulesKey) => (rulesKey :> string)
 
-let cssRulesKeyEquals = (left, right) =>
-  switch (left, right) {
-  | (SdkUiRules, SdkUiRules) => true
-  | (PaymentLinkUiRules, PaymentLinkUiRules) => true
-  | _ => false
-  }
+let cssRulesKeyEquals = (left: cssRulesKey, right: cssRulesKey) => left == right
 
 let makeCssFieldName = (~rulesKey, ~selectorKey, ~property) =>
   `${rulesKey->cssRulesKeyToString}__${selectorKey}__${property}`
@@ -362,20 +357,24 @@ let firstCssNumber: string => string = value => {
 let cssPaddingSideFromShorthand: (string, cssPaddingSide) => string = (value, side) => {
   switch value->stripCssImportant->String.match(%re("/-?\d+(\.\d+)?/g")) {
   | Some(values) if values->isNonEmptyArray =>
-    let index = switch (side, values->Array.length) {
-    | (PaddingTop, _) => Some(0)
-    | (PaddingRight, 1) => Some(0)
-    | (PaddingRight, _) => Some(1)
-    | (PaddingBottom, 1) => Some(0)
-    | (PaddingBottom, 2) => Some(0)
-    | (PaddingBottom, _) => Some(2)
-    | (PaddingLeft, 1) => Some(0)
-    | (PaddingLeft, 2) => Some(1)
-    | (PaddingLeft, 3) => Some(1)
-    | (PaddingLeft, _) => Some(3)
+    // CSS shorthand fallbacks, as (top, right, bottom, left) indices into the parsed values:
+    // 1 value applies to every side, 2 is [vertical, horizontal],
+    // 3 is [top, horizontal, bottom], 4+ is [top, right, bottom, left]
+    let (top, right, bottom, left) = switch values->Array.length {
+    | 1 => (0, 0, 0, 0)
+    | 2 => (0, 1, 0, 1)
+    | 3 => (0, 1, 2, 1)
+    | _ => (0, 1, 2, 3)
     }
 
-    index->mapOptionOrDefault("", index => values->getValueFromArray(index, "")->roundNumberString)
+    let index = switch side {
+    | PaddingTop => top
+    | PaddingRight => right
+    | PaddingBottom => bottom
+    | PaddingLeft => left
+    }
+
+    values->getValueFromArray(index, "")->roundNumberString
   | _ => ""
   }
 }
@@ -500,35 +499,34 @@ let getStyleSpecificRulesFromProfile = (
   )
 }
 
+let cssValueFromRules = (~rulesDict, ~field: cssFieldDefinition) => {
+  let propsDict =
+    rulesDict
+    ->getOptionValFromDict(field.selector)
+    ->mapOptionOrDefault(Dict.make(), getDictFromJsonObject)
+
+  switch propsDict->getString(field.cssProperty, "") {
+  | value if value->isNonEmptyString => value
+  | _ =>
+    field.cssProperty
+    ->cssPaddingSideFromProperty
+    ->mapOptionOrDefault("", side =>
+      propsDict->getString("padding", "")->cssPaddingSideFromShorthand(side)
+    )
+  }
+}
+
 let flattenRulesForFields = (~formDict, ~rulesKey, ~rulesJson) => {
-  rulesJson->mapOptionOrDefault((), rules => {
-    let rulesDict = rules->getDictFromJsonObject
-    cssFieldDefinitions
-    ->Array.filter(field => cssRulesKeyEquals(field.rulesKey, rulesKey))
-    ->Array.forEach(field => {
-      rulesDict
-      ->getOptionValFromDict(field.selector)
-      ->mapOptionOrDefault(
-        (),
-        selectorProps => {
-          let propsDict = selectorProps->getDictFromJsonObject
-          let value = switch (propsDict->getString(field.cssProperty, ""), field.cssProperty) {
-          | (value, _) if value->isNonEmptyString => value
-          | (_, property) =>
-            property
-            ->cssPaddingSideFromProperty
-            ->mapOptionOrDefault(
-              "",
-              side => propsDict->getString("padding", "")->cssPaddingSideFromShorthand(side),
-            )
-          }
-          let formattedValue = formatCssValueForForm(field, value)
-          formattedValue->isNonEmptyString
-            ? Dict.set(formDict, field->cssFieldName, formattedValue->JSON.Encode.string)
-            : ()
-        },
-      )
-    })
+  let rulesDict = rulesJson->mapOptionOrDefault(Dict.make(), getDictFromJsonObject)
+
+  cssFieldDefinitions
+  ->Array.filter(field => cssRulesKeyEquals(field.rulesKey, rulesKey))
+  ->Array.forEach(field => {
+    let formattedValue = formatCssValueForForm(field, cssValueFromRules(~rulesDict, ~field))
+
+    if formattedValue->isNonEmptyString {
+      Dict.set(formDict, field->cssFieldName, formattedValue->JSON.Encode.string)
+    }
   })
 }
 

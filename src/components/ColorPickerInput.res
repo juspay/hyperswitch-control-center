@@ -14,20 +14,15 @@ let make = (
     Re.test(Js.Re.fromString("^#([0-9A-Fa-f]{6})$"), value)
   }
 
-  let getValidHexColor = value =>
-    switch JSON.Decode.string(value) {
-    | Some(str) if str->isNonEmptyString && isValidHexCode(str) => Some(str)
-    | _ => None
-    }
+  let toValidHexColor = value => value->isNonEmptyString && isValidHexCode(value) ? value : ""
+
+  let getValidHexColor = value => value->JSON.Decode.string->mapOptionOrDefault("", toValidHexColor)
 
   let fallbackColor = "#006DF9"
 
   let initialColor = switch input.value->getValidHexColor {
-  | Some(val) => val
-  | None =>
-    defaultValue->mapOptionOrDefault("", val =>
-      val->isNonEmptyString && isValidHexCode(val) ? val : ""
-    )
+  | "" => defaultValue->mapOptionOrDefault("", toValidHexColor)
+  | hexColor => hexColor
   }
 
   let (color, setColor) = React.useState(() => initialColor->String.toUpperCase)
