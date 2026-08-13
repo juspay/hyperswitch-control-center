@@ -140,7 +140,7 @@ export class PaymentOperations {
     return this.dropdownValue(value);
   }
 
-  visibleDropdownValue(value: string): Locator {
+  visibleDropdownValue(_value: string): Locator {
     return this.page.locator('[data-element="menu-content"]');
   }
 
@@ -275,7 +275,9 @@ export class PaymentOperations {
   }
 
   get captureAmountInput(): Locator {
-    return this.page.getByRole('spinbutton', { name: 'Enter Amount to Capture' });
+    return this.page.getByRole("spinbutton", {
+      name: "Enter Amount to Capture",
+    });
   }
 
   get confirmCaptureButton(): Locator {

@@ -342,6 +342,29 @@ let getConvertedEntriesFromStagingEntry = (stagingEntry: processingEntryType) =>
   ->JSON.Encode.object
 }
 
+let buildLinkableStagingEntriesV2Body = (
+  ~sortBy: cursor,
+  ~direction: cursorDirection,
+  ~searchType: ReconEnginePipelinesTypes.stagingEntrySearchType,
+  ~searchText: string,
+  ~limit=10,
+) => {
+  let filtersDict = Dict.make()
+  if searchText->isNonEmptyString {
+    filtersDict->Dict.set((searchType :> string), searchText->String.trim->JSON.Encode.string)
+  }
+  let cursorPayload: ReconEnginePipelinesTypes.stagingEntriesCursorPayload = {
+    limit,
+    direction,
+    order: ReconEnginePipelinesTypes.Desc,
+    sortBy,
+  }
+  [
+    ("filters", filtersDict->JSON.Encode.object),
+    ("cursor_payload", cursorPayload->Identity.genericTypeToJson),
+  ]->getJsonFromArrayOfJson
+}
+
 let getInitialValuesForNewEntries = () => {
   let todayDate = Js.Date.make()->Js.Date.toISOString
 

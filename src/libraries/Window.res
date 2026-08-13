@@ -277,7 +277,7 @@ type boundingClient = {x: int, y: int, width: int, height: int, left: int}
 external appendStyle: HyperSwitchConfigTypes.customStylesTheme => unit = "appendStyle"
 
 @val @scope("window")
-external env: HyperSwitchConfigTypes.urlConfig = "_env_"
+external env: HyperSwitchConfigTypes.baseConfig = "_env_"
 
 @val @scope("window")
 external validateExtract: (Js.TypedArray2.Uint8Array.t, JSON.t, JSON.t) => JSON.t =

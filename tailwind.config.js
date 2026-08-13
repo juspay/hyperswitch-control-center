@@ -36,6 +36,7 @@ module.exports = {
         "dot-pattern-size": "16px 16px",
       },
       scale: {
+        78: "0.78",
         400: "4",
       },
       margin: {
@@ -79,6 +80,8 @@ module.exports = {
         "195-px": "195px",
         "344-px": "344px",
         "400-px": "400px",
+        "460-px": "460px",
+        "540-px": "540px",
         "590-px": "590px",
         "650-px": "650px",
         "700-px": "700px",
@@ -161,6 +164,8 @@ module.exports = {
         "499-px": "499px",
         "540-px": "540px",
         "500-px": "500px",
+        "749-px": "749px",
+        "960-px": "960px",
         "1034-px": "1034px",
         "306-px": "306px",
         modalOverlay: "calc(100vw + 7rem)",

@@ -45,7 +45,7 @@ let make = () => {
         ~order=sortOrder,
       ),
     )
-  }, ~persistKey="recon-engine-transformed-entries")
+  }, ~persistKey=Some("recon-engine-transformed-entries"))
 
   let (accountData, setAccountData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
