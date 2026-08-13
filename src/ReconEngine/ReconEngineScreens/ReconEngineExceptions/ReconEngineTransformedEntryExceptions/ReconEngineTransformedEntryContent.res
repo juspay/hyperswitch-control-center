@@ -173,7 +173,7 @@ let make = (~accountId: string) => {
 
   <PageLoaderWrapper screenState=tableScreenState>
     <div className="flex flex-col gap-4">
-      <div className="flex-shrink-0"> {topFilterUi} </div>
+      <div className="flex-shrink-0 mt-3"> {topFilterUi} </div>
       <LoadedTable
         title
         hideTitle=true

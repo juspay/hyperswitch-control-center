@@ -119,7 +119,7 @@ let make = () => {
     })
   }, [accountData])
 
-  <div className="flex flex-col gap-5 w-full">
+  <div className="flex flex-col w-full">
     <div className="flex flex-row justify-between items-center">
       <PageUtils.PageHeading
         title="Transformed Entry Exceptions"
