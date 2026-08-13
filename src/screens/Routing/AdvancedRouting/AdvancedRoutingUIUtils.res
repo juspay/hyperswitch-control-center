@@ -2,10 +2,12 @@ open AdvancedRoutingUtils
 open LogicUtils
 open FormRenderer
 
-let extraThreeDsExemptionKeys = ["metadata", "business_country"]
+let extraThreeDsExemptionKeys = ["card_bin", "extended_card_bin", "metadata", "business_country"]
 
 let getFallbackOptionDescription = key =>
   switch key {
+  | "card_bin" => "Match a card BIN (first 6 digits of the card number)."
+  | "extended_card_bin" => "Match an extended card BIN (first 8 digits of the card number)."
   | "metadata" => "Match against a metadata key/value pair."
   | "business_country" => "Match against the business country associated with the payment."
   | _ => ""
@@ -129,7 +131,6 @@ module ValueInp = {
     let typeField = (fieldsArray[3]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
 
     let isCardBinType = keyType->variantTypeMapper === FixedNumber
-
     React.useEffect(() => {
       typeField.onChange(
         if keyType->variantTypeMapper === Metadata_value {
@@ -147,7 +148,7 @@ module ValueInp = {
         }->Identity.anyTypeToReactEvent,
       )
       None
-    }, [valueField.value])
+    }, (valueField.value, opField.value, keyType))
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
