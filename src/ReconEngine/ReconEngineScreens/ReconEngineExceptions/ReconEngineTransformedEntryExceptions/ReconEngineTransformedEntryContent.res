@@ -24,6 +24,8 @@ let make = (~accountId: string) => {
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let filterValueJsonWithGlobalDate = mergeGlobalDateFilters(~filterValueJson, ~globalDateFilters)
 
   let searchTypeRef = React.useRef(SearchStagingEntryId)
   let (searchText, setSearchText) = React.useState(_ => "")
@@ -44,8 +46,8 @@ let make = (~accountId: string) => {
     goToNextPage,
     goToPrevPage,
   } = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=(~sortBy, ~direction) => {
-    let enhancedFilterValueJson = Dict.copy(filterValueJson)
-    let statusFilter = filterValueJson->getArrayFromDict("status", [])
+    let enhancedFilterValueJson = Dict.copy(filterValueJsonWithGlobalDate)
+    let statusFilter = filterValueJsonWithGlobalDate->getArrayFromDict("status", [])
     enhancedFilterValueJson->Dict.set("account_ids", [accountId]->getJsonFromArrayOfString)
     if statusFilter->isEmptyArray {
       enhancedFilterValueJson->Dict.set(
@@ -100,14 +102,15 @@ let make = (~accountId: string) => {
 
   React.useEffect(() => {
     if (
-      !(filterValueJson->isEmptyDict) &&
-      filterValueJson->getOptionValFromDict("account_ids")->Option.isNone
+      (!(filterValueJson->isEmptyDict) &&
+      filterValueJson->getOptionValFromDict("account_ids")->Option.isNone) ||
+        hasGlobalDateFilterValue(~globalDateFilters)
     ) {
       setSelectedRows(_ => [])
       goToFirstPage()
     }
     None
-  }, (filterValue, sortOrder))
+  }, (filterValue, sortOrder, globalDateFilters))
 
   let topFilterUi = {
     let transformationConfigOptions = transformationConfigs->Array.map((
@@ -148,7 +151,7 @@ let make = (~accountId: string) => {
         options=[]
         popupFilterFields=[]
         initialFixedFilters=[]
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+        defaultFilterKeys=[]
         mandatoryRemoteKeys=[transformationConfigFilterKey]
         tabNames=filterKeys
         key="ReconEngineTransformedEntriesExceptionsFilters"

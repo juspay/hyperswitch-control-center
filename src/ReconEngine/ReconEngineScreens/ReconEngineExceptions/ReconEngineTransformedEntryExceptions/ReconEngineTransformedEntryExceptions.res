@@ -8,10 +8,7 @@ let make = () => {
   open HSAnalyticsUtils
 
   let getAccounts = useGetAccounts()
-  let mixpanelEvent = MixpanelHook.useSendEvent()
-  let {updateExistingKeys, removeKeys, filterValueJson} = React.useContext(
-    FilterContext.filterContext,
-  )
+  let {removeKeys, filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
   let url = RescriptReactRouter.useUrl()
   let basePath = GlobalVars.appendDashboardPath(
     ~url="/v1/recon-engine/exceptions/transformed-entries",
@@ -43,30 +40,20 @@ let make = () => {
     }
   }
 
-  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~updateExistingKeys,
-    ~startTimeFilterKey,
-    ~endTimeFilterKey,
-    ~origin="recon_engine_transformed_entries_exceptions",
-    ~range=180,
-    (),
-  )
-
   React.useEffect(() => {
     fetchAccounts()->ignore
     None
   }, [])
 
   React.useEffect(() => {
-    if selectedAccountId->isNonEmptyString {
-      if filterValueJson->getOptionValFromDict("account_ids")->Option.isSome {
-        removeKeys(["account_ids"])
-      } else if filterValueJson->isEmptyDict {
-        setInitialFilters()
-      }
+    if (
+      selectedAccountId->isNonEmptyString &&
+        filterValueJson->getOptionValFromDict("account_ids")->Option.isSome
+    ) {
+      removeKeys(["account_ids"])
     }
     None
-  }, (selectedAccountId, filterValueJson))
+  }, (selectedAccountId, filterValue))
 
   React.useEffect(() => {
     if selectedAccountId->isNonEmptyString {
@@ -86,10 +73,6 @@ let make = () => {
         ->Option.getOr(0)
       : 0
   }, (selectedAccountId, accountData))
-
-  let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="recon_engine_transformed_entries_exceptions_date_filter_opened")
-  }
 
   let resetFiltersForAccountSwitch = () => {
     let keysToRemove =
@@ -129,25 +112,7 @@ let make = () => {
         customTitleStyle={`${heading.lg.semibold}`}
         customHeadingStyle="py-0"
       />
-      <div className="flex flex-row -ml-1.5">
-        <DynamicFilter
-          title="ReconEngineTransformedEntryExceptionsDateFilter"
-          initialFilters=[]
-          options=[]
-          popupFilterFields=[]
-          initialFixedFilters={initialFixedFilterFields(
-            null,
-            ~events=dateDropDownTriggerMixpanelCallback,
-          )}
-          defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-          tabNames=[]
-          key="ReconEngineTransformedEntryExceptionsDateFilter"
-          updateUrlWith=updateExistingKeys
-          filterFieldsPortalName={filterFieldsPortalName}
-          showCustomFilter=false
-          refreshFilters=false
-        />
-      </div>
+      <PortalCapture name=ReconEngineFilterUtils.globalDateFilterPortalName customStyle="-mt-1" />
     </div>
     <PageLoaderWrapper screenState>
       <RenderIf condition={accountData->isEmptyArray}>
