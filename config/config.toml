@@ -97,6 +97,7 @@ dev_blend_enabled=true
 dev_sort_enabled=true
 dev_saved_views=false
 dev_clickhouse_aggregate=false
+dev_superposition=false
 [default.connector_list_for_live]
 paymentProcessors = []
 threedsAuthProcessors = []
@@ -109,7 +110,9 @@ taxProcessors = []
 
 [default.connector_clone]
 paymentProcessors = ["peachpayments"]
-
+[default.superposition_configs]
+organization_id=""
+workspace=""
 [default.merchant_config]
 [default.merchant_config.allowlist]
 [default.merchant_config.allowlist.dev_recon_engine_v1]
