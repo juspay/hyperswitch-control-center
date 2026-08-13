@@ -1229,10 +1229,10 @@ let useGetURL = () => {
           }
         | #LINKABLE_STAGING_ENTRIES =>
           switch methodType {
-          | Get =>
+          | Post =>
             switch id {
             | Some(transactionId) =>
-              `${reconBaseURL}/exception_management/transactions/${transactionId}/linkable_staging_entries`
+              `${reconBaseURL}/exception_management/transactions/${transactionId}/linkable_staging_entries/v2/list`
             | None => ``
             }
           | _ => ""
