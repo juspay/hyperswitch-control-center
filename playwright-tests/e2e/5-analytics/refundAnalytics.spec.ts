@@ -160,7 +160,7 @@ test.describe("Analytics - Refunds - Dimension Filters", () => {
 
   test("should add and clear each dimension filter chip", async ({ page }) => {
     const paymentOperations = new PaymentOperations(page);
-    for (const { label, key } of DIMENSION_FILTERS) {
+    for (const { label } of DIMENSION_FILTERS) {
       await page.getByRole("button", { name: "Add Filters" }).click();
       await expect(
         page.getByLabel("Add Filters").getByText(`${label}`, { exact: true }),

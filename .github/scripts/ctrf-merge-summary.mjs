@@ -137,7 +137,10 @@ const section = (map, title, count, open) => {
     return String(a).localeCompare(String(b));
   })) {
     const items = map.get(shard);
-    out.push(`**${typeof shard === "number" ? `Shard ${shard}/4` : "Visual Tests"}** (${items.length})`, "");
+    out.push(
+      `**${typeof shard === "number" ? `Shard ${shard}/4` : "Visual Tests"}** (${items.length})`,
+      "",
+    );
     for (const item of items) out.push(`- \`${item}\``);
     out.push("");
   }

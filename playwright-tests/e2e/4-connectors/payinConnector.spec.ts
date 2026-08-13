@@ -20,7 +20,6 @@ import {
   generateCerts,
 } from "../../support/commands";
 import { connectorConfig } from "../../support/fixtures/payinConnectorConfig";
-import { exec } from "node:child_process";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
@@ -28,7 +27,7 @@ const CONNECTOR_SETUP_TIMEOUT = 60000;
 
 async function signupAndLogin(
   page: Page,
-  context: BrowserContext,
+  _context: BrowserContext,
 ): Promise<void> {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -1104,7 +1103,7 @@ test.describe("Payin Connector tests", () => {
     page,
   }) => {
     test.setTimeout(CONNECTOR_SETUP_TIMEOUT);
-    const homePage = new HomePage(page);
+    const _homePage = new HomePage(page);
     const paymentConnector = new PaymentConnector(page);
 
     // --- Setup Stripe payment connector ---
@@ -1529,7 +1528,7 @@ test.describe("Clone a connector across profiles", () => {
 });
 
 test.describe("All Payin Connectors", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -1564,13 +1563,13 @@ test.describe("All Payin Connectors", () => {
       await expect(
         page.getByTestId(
           connector.fields.overrides["Enter Connector label"] ||
-          connector.label,
+            connector.label,
         ),
       ).toBeVisible();
       await page
         .getByTestId(
           connector.fields.overrides["Enter Connector label"] ||
-          connector.label,
+            connector.label,
         )
         .click();
     });
@@ -1856,12 +1855,36 @@ test.describe("All Payin Connectors", () => {
     await expect(page.getByText("Wallet")).toBeVisible();
     await paymentConnector.pmtProceedButton.click();
 
-    await expect(page.getByText("APPLE PAYUSDEncryptDecrypt")).toBeVisible();
+    await expect(page.getByText("APPLE PAY")).toBeVisible();
+    await expect(page.getByText("USDEncryptDecrypt")).toBeVisible();
+    await expect(page.getByText("EUREncryptDecrypt")).toBeVisible();
     await expect(page.getByText("USDThree DsNo Three Ds")).toBeVisible();
+
+    await expect(page.getByText("CARD", { exact: true })).toBeVisible();
+    await expect(
+      page.getByText("USDThree DsNo Three Ds", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("EURThree DsNo Three Ds", { exact: true }),
+    ).toBeVisible();
+
+    await expect(page.getByText("INTERAC")).toBeVisible();
+    await expect(page.getByText("CADThree Ds").first()).toBeVisible();
+
+    await expect(page.getByText("PAY SAFE CARD")).toBeVisible();
+    await expect(page.getByText("USDThree Ds").first()).toBeVisible();
+    await expect(page.getByText("EURThree Ds").first()).toBeVisible();
+    await expect(page.getByText("CADThree Ds").nth(1)).toBeVisible();
+
+    await expect(page.getByText("SKRILL")).toBeVisible();
+    await expect(page.getByText("USDThree Ds").nth(1)).toBeVisible();
+    await expect(page.getByText("EURThree Ds").nth(1)).toBeVisible();
+    await expect(page.getByText("CADThree Ds").nth(2)).toBeVisible();
 
     await page
       .locator("div")
       .filter({ hasText: /^Encrypt$/ })
+      .first()
       .click();
 
     await page

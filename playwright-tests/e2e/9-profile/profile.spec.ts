@@ -470,6 +470,7 @@ test.describe("Profile - Two Factor Authentication - TOTP", () => {
     let newSecret = "";
     await page.route("**/2fa/totp/reset", async (route) => {
       const response = await route.fetch();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const body = await response.json().catch(() => ({}) as any);
       const totpUrl: string = body?.secret?.totp_url ?? "";
       const match = totpUrl.match(/[?&]secret=([^&]+)/);
@@ -555,6 +556,7 @@ test.describe("Profile - Two Factor Authentication - TOTP", () => {
     let newSecret = "";
     await page.route("**/2fa/totp/reset", async (route) => {
       const response = await route.fetch();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const body = await response.json().catch(() => ({}) as any);
       const totpUrl: string = body?.secret?.totp_url ?? "";
       const match = totpUrl.match(/[?&]secret=([^&]+)/);

@@ -1,6 +1,5 @@
 import { test, expect } from "../../support/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
-import { ProductionAccessPage } from "../../support/pages/homepage/ProductionAccessPage";
 import { generateUniqueEmail } from "../../support/helper";
 import { signupUser, loginUI } from "../../support/commands";
 

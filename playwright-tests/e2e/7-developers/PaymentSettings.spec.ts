@@ -37,7 +37,7 @@ async function configureInterPaymentsSurchargeProcessor(
 }
 
 test.describe("Payment Settings", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -610,7 +610,6 @@ test.describe("Payment Settings", () => {
       const paymentSettings = new PaymentSettings(page);
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
-      const connectorName = "juspaythreedsserver";
       if (merchantId) {
         await createAuthenticationConnectorAPI(
           merchantId,

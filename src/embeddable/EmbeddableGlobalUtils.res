@@ -1,5 +1,6 @@
-let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.urlConfig = dict => {
-  open LogicUtils
+open LogicUtils
+
+let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.baseConfig = dict => {
   {
     apiBaseUrl: dict->getString("api_url", ""),
     mixpanelToken: dict->getString("mixpanel_token", ""),
@@ -19,6 +20,7 @@ let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.urlConfig = dict
       logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
     },
     hypersenseUrl: dict->getString("hypersense_url", ""),
+    superpositionConfigs: None,
   }
 }
 

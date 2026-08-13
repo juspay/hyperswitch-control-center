@@ -13,7 +13,6 @@ import {
   createBusinessProfileAPI,
   createMerchantAPI,
   switchMerchantAPI,
-  createStripeGooglePayConnectorAPI,
 } from "../../support/commands";
 import UsersPage from "../../support/pages/settings/UsersPage";
 
@@ -21,7 +20,7 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 let email = "";
 
 test.describe("Homepage", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
 
@@ -496,7 +495,7 @@ test.describe("Live Mode and Test mode Behavior", () => {
 });
 
 test.describe("Production access form", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -697,8 +696,8 @@ test.describe("SDK Payment", () => {
         .filter({ hasText: /^Color Picker Input$/ })
         .nth(1),
     ).toBeVisible();
-    await expect(page.getByRole("textbox", { name: "#FFFFFF" })).toBeVisible();
-    await expect(page.getByRole("textbox", { name: "#FFFFFF" })).toHaveValue(
+    await expect(page.getByRole("textbox", { name: "#006DF9" })).toBeVisible();
+    await expect(page.getByRole("textbox", { name: "#006DF9" })).toHaveValue(
       "#006DF9",
     );
     await expect(
@@ -736,7 +735,7 @@ test.describe("SDK Payment", () => {
 
   test.fixme("should make a successful payment using SDK", async ({
     page,
-    context,
+    context: _context,
   }) => {
     const homePage = new HomePage(page);
 

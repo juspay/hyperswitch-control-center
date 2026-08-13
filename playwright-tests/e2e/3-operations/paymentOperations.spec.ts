@@ -16,7 +16,6 @@ import {
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 const columnSize = 24;
-const requiredColumnsSize = 14;
 let email: string;
 
 type SavedViewFilters = Record<string, unknown>;
@@ -126,8 +125,26 @@ async function openPaymentOperations(page: Page) {
   await homePage.paymentOperations.click();
 }
 
+type PaymentListRequest = {
+  order?: {
+    on: string;
+    by: string;
+  };
+};
+
+type PaymentListItem = {
+  payment_id: string;
+  attempt_count?: number;
+  [key: string]: unknown;
+};
+
+type PaymentListResponse = {
+  data?: PaymentListItem[];
+  [key: string]: unknown;
+};
+
 test.describe("Payment Operations", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -725,26 +742,25 @@ test.describe("Payment Operations", () => {
       // (1, 2, 3) and returns data sorted by the requested attempt_count order.
       await page.route(/\/payments\/list/, async (route) => {
         const request = route.request();
-        const postData = request.postDataJSON() as Record<string, any>;
+        const postData = request.postDataJSON() as PaymentListRequest;
         const response = await route.fetch();
-        const json = (await response.json()) as Record<string, any>;
+        const json = (await response.json()) as PaymentListResponse;
 
         const attemptCounts: Record<string, number> = {};
         payments.forEach((payment, index) => {
           attemptCounts[payment.payment_id] = index + 1;
         });
 
-        const data = (json.data ?? []) as Record<string, any>[];
+        const data = json.data ?? [];
         const patched = data.map((item) => ({
           ...item,
           attempt_count: attemptCounts[item.payment_id] ?? item.attempt_count,
         }));
 
-        const order = postData?.order as { on: string; by: string } | undefined;
+        const order = postData.order;
         if (order?.on === "attempt_count") {
           patched.sort((a, b) => {
-            const diff =
-              (a.attempt_count as number) - (b.attempt_count as number);
+            const diff = (a.attempt_count ?? 0) - (b.attempt_count ?? 0);
             return order.by === "desc" ? -diff : diff;
           });
         }
@@ -842,7 +858,7 @@ test.describe("Payment Operations", () => {
             undefined,
             undefined,
             page,
-          ).catch(() => { });
+          ).catch(() => {});
         }
       }
 
@@ -2025,7 +2041,7 @@ test.describe("Payment Operations", () => {
 
       await expect(page.getByText("Summary")).toBeVisible();
       await expect(
-        page.getByText('123.45 USD SUCCEEDED'),
+        page.getByText("123.45 USD").filter({ visible: true }).nth(1),
       ).toBeVisible();
       await expect(page.getByText("SUCCEEDED").nth(3)).toBeVisible();
 
@@ -2192,7 +2208,8 @@ test.describe("Payment Operations", () => {
       };
 
       for (const [label, value] of Object.entries(expectedRefundValues)) {
-        await expect(paymentOperations.dataLabel(label).first()).toContainText( //getByLabel('Payment Attempts')
+        await expect(paymentOperations.dataLabel(label).first()).toContainText(
+          //getByLabel('Payment Attempts')
           value,
         );
       }

@@ -5,8 +5,6 @@ import {
   loginUI,
   mockV2MerchantList,
   createDummyConnectorAPI,
-  createPayoutConnectorAPI,
-  createAuthenticationConnectorAPI,
   assertConnectorFieldLabels,
   fillConnectorFields,
   assertPaymentMethodTypes,

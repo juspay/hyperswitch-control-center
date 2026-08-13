@@ -44,7 +44,9 @@ const json = (route: Route, body: unknown) =>
 
 // Returns the first element of an analytics request body (the body is a
 // single-element array `[{ ... }]`); falls back to the raw object.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function firstQuery(route: Route): Record<string, any> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let body: any;
   try {
     body = route.request().postDataJSON();
@@ -183,6 +185,7 @@ const SMART_RETRY_ROW = {
 };
 
 // Authorised-uncaptured count is read off the status-grouped "authorized" row.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function statusRows(withBucket: boolean): Array<Record<string, any>> {
   const rows = [
     { status: "authorized", payment_count: 42 },
@@ -195,6 +198,7 @@ function statusRows(withBucket: boolean): Array<Record<string, any>> {
 }
 
 // Per-connector rows for the Payments Trends chart + summary table.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function connectorRows(withBucket: boolean): Array<Record<string, any>> {
   const rows = CONNECTORS.map((connector, i) => ({
     connector,
@@ -228,6 +232,7 @@ const DIMENSION_SAMPLES: Record<string, string[]> = {
 function dimensionRows(
   dim: string,
   withBucket: boolean,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Array<Record<string, any>> {
   const rows = (DIMENSION_SAMPLES[dim] ?? ["sample"]).map((value, i) => ({
     [dim]: value,
@@ -241,10 +246,12 @@ function dimensionRows(
 }
 
 // Spread an aggregate row across every day bucket for the timeSeries query.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function asSeries(row: Record<string, any>): Array<Record<string, any>> {
   return dayBuckets().map((time_bucket) => ({ ...row, time_bucket }));
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const wrap = (queryData: Array<Record<string, any>>, metaData = V1_META) => ({
   queryData,
   metaData,
@@ -254,6 +261,7 @@ const wrap = (queryData: Array<Record<string, any>>, metaData = V1_META) => ({
 // Dispatchers
 // ---------------------------------------------------------------------------
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function v1MetricsResponse(q: Record<string, any>) {
   const metrics: string[] = q.metrics ?? [];
   const groupBy: string[] = q.groupByNames ?? [];
@@ -294,6 +302,7 @@ function v1MetricsResponse(q: Record<string, any>) {
   return wrap(isSeries ? asSeries(OVERVIEW_ROW) : [OVERVIEW_ROW]);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function v2MetricsResponse(q: Record<string, any>) {
   const groupBy: string[] = q.groupByNames ?? [];
   const isSeries = !!q.timeSeries;
