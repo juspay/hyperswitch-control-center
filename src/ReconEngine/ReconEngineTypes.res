@@ -289,6 +289,7 @@ type entryType = {
   effective_at: string,
   staging_entry_id: option<string>,
   transformation_id: option<string>,
+  transformation_name: option<string>,
 }
 
 type processingEntryStatus =

@@ -9,6 +9,7 @@ type entryColType =
   | Amount
   | Currency
   | Status
+  | Transformation
   | Metadata
   | CreatedAt
   | EffectiveAt
@@ -59,6 +60,7 @@ let transactionEntriesDetailFields = [
   Amount,
   Currency,
   Status,
+  Transformation,
   EntryId,
   OrderID,
   EffectiveAt,
@@ -75,6 +77,7 @@ let getHeading = (colType: entryColType) => {
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
+  | Transformation => Table.makeHeaderInfo(~key="transformation", ~title="Transformation")
   | Metadata => Table.makeHeaderInfo(~key="metadata", ~title="Metadata")
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
   | EffectiveAt => Table.makeHeaderInfo(~key="effective_at", ~title="Effective At")
@@ -113,6 +116,19 @@ let getCell = (entry: entryType, colType: entryColType): Table.cell => {
       getStatusLabel(discardedStatus->ReconEngineUtils.getEntryStatusVariantFromString)
     | None => getStatusLabel(entry.status)
     }
+  | Transformation =>
+    CustomCell(
+      switch entry.transformation_name {
+      | Some(name) =>
+        <p
+          className="w-fit max-w-40 truncate whitespace-nowrap px-2 py-0.5 rounded-full bg-nd_gray-100 text-nd_gray-700 border border-nd_gray-200"
+          title=name>
+          {name->React.string}
+        </p>
+      | None => <p className="text-nd_gray-600"> {"N/A"->React.string} </p>
+      },
+      "",
+    )
   | Metadata => Text(entry.metadata->JSON.stringify)
   | CreatedAt => Date(entry.created_at)
   | EffectiveAt => Date(entry.effective_at)

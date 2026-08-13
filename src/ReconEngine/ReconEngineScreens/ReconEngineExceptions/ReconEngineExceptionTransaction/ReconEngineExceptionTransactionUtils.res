@@ -74,6 +74,7 @@ let exceptionTransactionEntryItemToItemMapper = (
     effective_at: dict->getString("effective_at", ""),
     staging_entry_id: dict->getOptionString("staging_entry_id"),
     transformation_id: dict->getOptionString("transformation_id"),
+    transformation_name: dict->getOptionString("transformation_name"),
   }
 }
 
@@ -551,6 +552,7 @@ let getExceptionEntryTypeFromEntryType = (
     staging_entry_id: entry.staging_entry_id,
     entry_key: randomString(~length=16),
     transformation_id: entry.transformation_id,
+    transformation_name: entry.transformation_name,
   }
 }
 
@@ -575,6 +577,7 @@ let getEntryTypeFromExceptionEntryType = (
     effective_at: entry.effective_at,
     staging_entry_id: entry.staging_entry_id,
     transformation_id: entry.transformation_id,
+    transformation_name: entry.transformation_name,
   }
 }
 
@@ -703,6 +706,7 @@ let getUpdatedEntry = (
     staging_entry_id: entryDetails.staging_entry_id,
     entry_key: entryDetails.entry_key,
     transformation_id: formData->getOptionString("transformation_id"),
+    transformation_name: entryDetails.transformation_name,
   }
 }
 
@@ -733,6 +737,7 @@ let getNewEntry = (
     staging_entry_id: None,
     entry_key: uniqueId,
     transformation_id: formData->getOptionString("transformation_id"),
+    transformation_name: None,
   }
 }
 

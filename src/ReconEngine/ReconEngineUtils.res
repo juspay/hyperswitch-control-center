@@ -537,6 +537,7 @@ let entryItemToObjMapper = dict => {
     effective_at: dict->getString("effective_at", ""),
     staging_entry_id: dict->getOptionString("staging_entry_id"),
     transformation_id: dict->getOptionString("transformation_id"),
+    transformation_name: dict->getOptionString("transformation_name"),
   }
 }
 
