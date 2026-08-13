@@ -1574,12 +1574,32 @@ test.describe("All Payin Connectors", () => {
     await expect(page.getByText("Wallet")).toBeVisible();
     await paymentConnector.pmtProceedButton.click();
 
-    await expect(page.getByText("APPLE PAYUSDEncryptDecrypt")).toBeVisible();
-    await expect(page.getByText("USDThree DsNo Three Ds")).toBeVisible();
+    await expect(page.getByText("APPLE PAY")).toBeVisible();
+    await expect(page.getByText("USDEncryptDecrypt")).toBeVisible();
+    await expect(page.getByText("EUREncryptDecrypt")).toBeVisible();
+    await expect(
+      page.getByText("USDThree DsNo Three Ds"),
+    ).toBeVisible();
+
+    await expect(page.getByText('CARD', { exact: true })).toBeVisible();
+    await expect(page.getByText("USDThree DsNo Three Ds", { exact: true })).toBeVisible();
+    await expect(page.getByText("EURThree DsNo Three Ds", { exact: true })).toBeVisible();
+
+    await expect(page.getByText("INTERAC")).toBeVisible();
+    await expect(page.getByText("CADThree Ds").first()).toBeVisible();
+
+    await expect(page.getByText("PAY SAFE CARD")).toBeVisible();
+    await expect(page.getByText("USDThree Ds").first()).toBeVisible();
+    await expect(page.getByText("EURThree Ds").first()).toBeVisible();
+    await expect(page.getByText("CADThree Ds").nth(1)).toBeVisible();
+
+    await expect(page.getByText("SKRILL")).toBeVisible();
+    await expect(page.getByText("USDThree Ds").nth(1)).toBeVisible();
+    await expect(page.getByText("EURThree Ds").nth(1)).toBeVisible();
+    await expect(page.getByText("CADThree Ds").nth(2)).toBeVisible();
 
     await page
-      .locator("div")
-      .filter({ hasText: /^Encrypt$/ })
+      .locator('div').filter({ hasText: /^Encrypt$/ }).first()
       .click();
 
     await page
