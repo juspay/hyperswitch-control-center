@@ -48,7 +48,6 @@ let buildProcessingEntriesV2Body = (
   ~order: processingEntrySortOrder=Desc,
   ~limit=10,
   ~transformationHistoryIds: array<string>=[],
-  ~transformationConfigIds: array<string>=[],
 ) => {
   let statusFilter = filterValueJson->getStrArrayFromDict("status", [])
   let statusValues =
@@ -58,6 +57,8 @@ let buildProcessingEntriesV2Body = (
 
   let entryTypeFilter = filterValueJson->getStrArrayFromDict("entry_type", [])
   let accountIdFilter = filterValueJson->getStrArrayFromDict("account_ids", [])
+  let transformationConfigIdFilter =
+    filterValueJson->getStrArrayFromDict("transformation_config_ids", [])
 
   let startTime = filterValueJson->getString("startTime", "")
   let endTime = filterValueJson->getString("endTime", "")
@@ -85,10 +86,10 @@ let buildProcessingEntriesV2Body = (
     )
   }
 
-  if transformationConfigIds->isNonEmptyArray {
+  if transformationConfigIdFilter->isNonEmptyArray {
     filtersDict->Dict.set(
       "transformation_config_ids",
-      transformationConfigIds->getJsonFromArrayOfString,
+      transformationConfigIdFilter->getJsonFromArrayOfString,
     )
   }
 
