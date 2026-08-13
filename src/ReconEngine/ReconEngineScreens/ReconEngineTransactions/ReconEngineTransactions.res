@@ -76,16 +76,19 @@ let make = () => {
         customTitleStyle={`${heading.lg.semibold}`}
         customHeadingStyle="py-0 !mb-2"
       />
-      <div className="flex-shrink-0">
-        <Button
-          text="Generate Report"
-          buttonType=Primary
-          buttonSize=Large
-          buttonState=Disabled
-          onClick={_ => {
-            mixpanelEvent(~eventName="recon_engine_transactions_generate_reports_clicked")
-          }}
-        />
+      <div className="flex flex-row items-center gap-4">
+        <PortalCapture name=ReconEngineFilterUtils.globalDateFilterPortalName customStyle="-mt-1" />
+        <div className="flex-shrink-0">
+          <Button
+            text="Generate Report"
+            buttonType=Primary
+            buttonSize=Large
+            buttonState=Disabled
+            onClick={_ => {
+              mixpanelEvent(~eventName="recon_engine_transactions_generate_reports_clicked")
+            }}
+          />
+        </div>
       </div>
     </div>
     <PageLoaderWrapper screenState>

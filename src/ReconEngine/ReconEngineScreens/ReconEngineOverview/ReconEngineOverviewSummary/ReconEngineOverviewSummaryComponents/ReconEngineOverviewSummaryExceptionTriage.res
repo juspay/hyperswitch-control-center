@@ -8,7 +8,11 @@ let make = () => {
   open ReconEngineOverviewSummaryHelper
 
   let getOverviewRules = ReconEngineHooks.useGetOverviewRules()
-  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let filterValueJsonWithGlobalDate = ReconEngineFilterUtils.mergeGlobalDateFilters(
+    ~filterValueJson=Dict.make(),
+    ~globalDateFilters,
+  )
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (txnItems, setTxnItems) = React.useState(_ => [])
@@ -17,7 +21,7 @@ let make = () => {
     open ReconEngineFilterUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let queryParams = buildQueryStringFromFilters(~filterValueJson)
+      let queryParams = buildQueryStringFromFilters(~filterValueJson=filterValueJsonWithGlobalDate)
       let overviewRules = await getOverviewRules(~queryParameters=Some(queryParams))
       setTxnItems(_ => getExceptionTriageItems(~overviewRules))
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -27,11 +31,11 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if !(filterValue->isEmptyDict) {
+    if ReconEngineFilterUtils.hasGlobalDateFilterValue(~globalDateFilters) {
       fetchTriageData()->ignore
     }
     None
-  }, [filterValue])
+  }, [globalDateFilters])
 
   let activeTotal = txnItems->Array.reduce(0, (acc, item) => acc + item.total)
 
