@@ -4,11 +4,7 @@ import { HomePage } from "../../support/pages/homepage/HomePage";
 import { UsersPage } from "../../support/pages/settings/UsersPage";
 import { SignInPage } from "../../support/pages/auth/SignInPage";
 import { ResetPasswordPage } from "../../support/pages/auth/ResetPasswordPage";
-import {
-  generateUniqueEmail,
-  getInvalidEmails,
-  generateDateTimeString,
-} from "../../support/helper";
+import { generateUniqueEmail } from "../../support/helper";
 import {
   signupUser,
   loginUI,
@@ -17,11 +13,11 @@ import {
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 const MAIL_URL = process.env.PLAYWRIGHT_MAIL_URL || "http://localhost:8025";
-const email = "playwright@test.com";
+const _email = "playwright@test.com";
 
 async function setupAndNavigate(
   page: Page,
-  context: BrowserContext,
+  _context: BrowserContext,
 ): Promise<{ email: string; usersPage: UsersPage }> {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -32,7 +28,7 @@ async function setupAndNavigate(
 }
 
 test.describe("Users - UI", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -60,7 +56,10 @@ test.describe("Users - UI", () => {
     await expect(usersPage.inviteUsersRoleButton).toBeEnabled();
   });
 
-  test("Search filters the users table by email", async ({ page, context }) => {
+  test("Search filters the users table by email", async ({
+    page,
+    context: _context,
+  }) => {
     const usersPage = new UsersPage(page);
     const searchInput = usersPage.searchInput;
     await expect(searchInput).toBeAttached();
@@ -132,33 +131,67 @@ test.describe("Users - UI", () => {
     const rows = usersPage.usersTableRows;
     await expect(rows).toHaveCount(3);
     await expect(rows.filter({ hasText: "Organization Admin" })).toHaveCount(1);
-    await expect(rows.filter({ hasText: merchantInvitee }).filter({ hasText: "Merchant Developer" })).toHaveCount(1);
-    await expect(rows.filter({ hasText: profileInvitee }).filter({ hasText: "Profile Developer" })).toHaveCount(1);
+    await expect(
+      rows
+        .filter({ hasText: merchantInvitee })
+        .filter({ hasText: "Merchant Developer" }),
+    ).toHaveCount(1);
+    await expect(
+      rows
+        .filter({ hasText: profileInvitee })
+        .filter({ hasText: "Profile Developer" }),
+    ).toHaveCount(1);
 
     const applyFilter = async (filterLabel: string) => {
       await usersPage.settingsNewIcon.click({ force: true });
-      await page
-        .getByRole('menuitem', { name: filterLabel })
-        .click();
+      await page.getByRole("menuitem", { name: filterLabel }).click();
     };
 
     // Filter by Organization → Org Admin shows
     await applyFilter("(Organization)");
     await expect(rows.filter({ hasText: "Organization Admin" })).toHaveCount(1);
-    await expect(rows.filter({ hasText: merchantInvitee }).filter({ hasText: "Merchant Developer" })).not.toBeVisible();
-    await expect(rows.filter({ hasText: profileInvitee }).filter({ hasText: "Profile Developer" })).not.toBeVisible();
+    await expect(
+      rows
+        .filter({ hasText: merchantInvitee })
+        .filter({ hasText: "Merchant Developer" }),
+    ).not.toBeVisible();
+    await expect(
+      rows
+        .filter({ hasText: profileInvitee })
+        .filter({ hasText: "Profile Developer" }),
+    ).not.toBeVisible();
 
     // Filter by Merchant → Merchant Developer shows with the right role
     await applyFilter("(Merchant)");
-    await expect(rows.filter({ hasText: merchantInvitee }).filter({ hasText: "Merchant Developer" })).toHaveCount(1);
-    await expect(rows.filter({ hasText: "Organization Admin" })).not.toBeVisible();
-    await expect(rows.filter({ hasText: profileInvitee }).filter({ hasText: "Profile Developer" })).not.toBeVisible();
+    await expect(
+      rows
+        .filter({ hasText: merchantInvitee })
+        .filter({ hasText: "Merchant Developer" }),
+    ).toHaveCount(1);
+    await expect(
+      rows.filter({ hasText: "Organization Admin" }),
+    ).not.toBeVisible();
+    await expect(
+      rows
+        .filter({ hasText: profileInvitee })
+        .filter({ hasText: "Profile Developer" }),
+    ).not.toBeVisible();
 
     // Filter by Profile → Profile Developer shows with the right role
     await applyFilter("(Profile)");
-    await expect(rows.filter({ hasText: profileInvitee }).filter({ hasText: "Profile Developer" })).toHaveCount(1);
-    await expect(rows.filter({ hasText: "Organization Admin" })).not.toBeVisible();
-    await expect(rows.filter({ hasText: merchantInvitee }).filter({ hasText: "Merchant Developer" })).not.toBeVisible();
+    await expect(
+      rows
+        .filter({ hasText: profileInvitee })
+        .filter({ hasText: "Profile Developer" }),
+    ).toHaveCount(1);
+    await expect(
+      rows.filter({ hasText: "Organization Admin" }),
+    ).not.toBeVisible();
+    await expect(
+      rows
+        .filter({ hasText: merchantInvitee })
+        .filter({ hasText: "Merchant Developer" }),
+    ).not.toBeVisible();
 
     // Reset to default view → all 3 rows visible again
     await applyFilter("(Default)");
@@ -167,7 +200,7 @@ test.describe("Users - UI", () => {
 });
 
 test.describe("Users - Invite Users", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -230,11 +263,10 @@ test.describe("Users - Invite Users", () => {
     },
   );
 
-  test("should redirect to login when accepting invite with an invalid or expired token",
+  test(
+    "should redirect to login when accepting invite with an invalid or expired token",
     { tag: "@mail" },
-    async ({
-      page,
-    }) => {
+    async ({ page }) => {
       const homePage = new HomePage(page);
       const usersPage = new UsersPage(page);
       const invitedEmail = generateUniqueEmail();
@@ -267,11 +299,12 @@ test.describe("Users - Invite Users", () => {
       await expect(page.getByTestId("card-header")).toHaveText(
         "Hey there, Welcome back!",
       );
-    });
+    },
+  );
 
   test("should accept multiple emails as pills in invite list", async ({
     page,
-    context,
+    context: _context,
   }) => {
     const usersPage = new UsersPage(page);
     const email1 = generateUniqueEmail();
@@ -290,7 +323,7 @@ test.describe("Users - Invite Users", () => {
 
   test("Send Invite button is disabled when invite list is empty", async ({
     page,
-    context,
+    context: _context,
   }) => {
     const usersPage = new UsersPage(page);
 
@@ -573,13 +606,13 @@ test.describe("Users - Details", () => {
     page,
     context,
   }) => {
-    const { email, usersPage } = await setupAndNavigate(page, context);
+    const { _email, usersPage } = await setupAndNavigate(page, context);
 
     const homePage = new HomePage(page);
-    const signinPage = new SignInPage(page);
-    const resetPasswordPage = new ResetPasswordPage(page);
+    const _signinPage = new SignInPage(page);
+    const _resetPasswordPage = new ResetPasswordPage(page);
     const invitedEmail = generateUniqueEmail();
-    const password = "Playwright00#";
+    const _password = "Playwright00#";
     const newMerchantName = `pwMerchant${Date.now()}`;
 
     await page.getByRole("link", { name: "Overview" }).click();
@@ -637,9 +670,9 @@ test.describe("Users - Details", () => {
     context,
   }) => {
     test.setTimeout(60000);
-    const homePage = new HomePage(page);
+    const _homePage = new HomePage(page);
     const invitedEmail = generateUniqueEmail();
-    const { email, usersPage } = await setupAndNavigate(page, context);
+    const { _email, usersPage } = await setupAndNavigate(page, context);
     await usersPage.inviteUser(invitedEmail);
 
     await usersPage.visit();
@@ -1017,9 +1050,7 @@ test.describe("Users - Roles Tab", () => {
     ): Promise<ApiRole[]> => {
       const responsePromise = waitForRolesResponse(entityKey);
       await usersPage.settingsNewIcon.click({ force: true });
-      await page
-        .getByRole('menuitem', { name: entityLabel })
-        .click();
+      await page.getByRole("menuitem", { name: entityLabel }).click();
       return (await (await responsePromise).json()) as ApiRole[];
     };
 
@@ -1172,8 +1203,10 @@ test.describe("Users - Create Custom Role", () => {
       // and would wipe any role_name we'd already filled. Selecting the same
       // value as current is a no-op (handleEntityTypeChange:230 short-circuits).
       await usersPage.entityTypeButton.click();
-      await page.getByRole('menuitem', { name: r.entity }).click();
-      await expect(page.getByRole('menuitem', { name: r.entity })).not.toBeVisible();
+      await page.getByRole("menuitem", { name: r.entity }).click();
+      await expect(
+        page.getByRole("menuitem", { name: r.entity }),
+      ).not.toBeVisible();
 
       // Wait for the permission table to be (re)rendered for the new entity
       // before touching downstream fields.
@@ -1191,7 +1224,7 @@ test.describe("Users - Create Custom Role", () => {
       // UserManagementUtils.res:30. SelectBox options carry
       // data-dropdown-value=<labelText>.
       await usersPage.roleScopeButton.click();
-      await page.getByRole('menuitem', { name: r.scope }).click();
+      await page.getByRole("menuitem", { name: r.scope }).click();
 
       // Form validation requires at least one parent_group with a non-empty
       // scope. AddDataAttributes spreads `data-selected-checkbox` onto the
@@ -1199,7 +1232,7 @@ test.describe("Users - Create Custom Role", () => {
       // the element also has `cursor-pointer`. Modules whose API scopes lack
       // "read"/"write" render with `cursor-not-allowed` and ignore clicks —
       // pick the first ENABLED checkbox anywhere in the table.
-      const firstEnabledCheckbox = page.getByRole('checkbox').nth(1);
+      const firstEnabledCheckbox = page.getByRole("checkbox").nth(1);
       // .locator(
       //   "div.border.border-nd_gray-150.rounded-lg [data-selected-checkbox][class*='cursor-pointer']",
       // )

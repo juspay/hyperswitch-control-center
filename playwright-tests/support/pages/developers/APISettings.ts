@@ -29,11 +29,11 @@ export class APISettings {
   }
 
   get applyButton(): Locator {
-    return this.page.getByRole('button', { name: 'Apply' });
+    return this.page.getByRole("button", { name: "Apply" });
   }
 
   get createButton(): Locator {
-    return this.page.getByRole('button', { name: 'Create', exact: true });
+    return this.page.getByRole("button", { name: "Create", exact: true });
   }
 
   get updateButton(): Locator {
