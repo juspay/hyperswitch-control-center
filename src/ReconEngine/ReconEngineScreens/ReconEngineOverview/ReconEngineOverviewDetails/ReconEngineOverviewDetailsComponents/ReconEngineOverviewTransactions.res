@@ -57,7 +57,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
     goToPrevPage,
   } = ReconEngineCursorPaginationHook.useCursorPagination(
     ~fetchPage,
-    ~persistKey=`recon-engine-overview-transactions-${ruleDetails.rule_id}`,
+    ~persistKey=Some(`recon-engine-overview-transactions-${ruleDetails.rule_id}`),
   )
 
   let handleSearchSubmit = (selectedType: option<string>) => {
