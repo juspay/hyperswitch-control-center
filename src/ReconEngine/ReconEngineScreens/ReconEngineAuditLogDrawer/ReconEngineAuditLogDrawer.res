@@ -157,6 +157,7 @@ module AuditTrailFilteredContent = {
 @react.component
 let make = (~showDrawer: bool) => {
   let transitionClass = showDrawer ? "translate-x-0" : "translate-x-full"
+  let initialValues = React.useMemo(() => getInitialValues(), [])
 
   <div
     className={`fixed right-0 top-0 h-full w-500-px bg-white shadow-2xl rounded-l-xl overflow-hidden transform transition-all duration-300 ease-in-out flex flex-col z-20 ${transitionClass}`}>
@@ -164,7 +165,7 @@ let make = (~showDrawer: bool) => {
       <Icon name="notification_bell" size=20 className="text-nd_gray-600" />
       <div className={`${heading.sm.semibold} text-nd_gray-700`}> {"Activity"->React.string} </div>
     </div>
-    <Form initialValues={getInitialValues()} formClass="flex flex-col flex-1 overflow-hidden">
+    <Form initialValues formClass="flex flex-col flex-1 overflow-hidden">
       <AuditTrailFilteredContent showDrawer />
     </Form>
   </div>
