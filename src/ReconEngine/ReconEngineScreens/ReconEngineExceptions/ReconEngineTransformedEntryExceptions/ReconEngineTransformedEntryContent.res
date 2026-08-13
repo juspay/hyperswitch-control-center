@@ -105,14 +105,10 @@ let make = (~accountId: string) => {
       !(filterValueJson->isEmptyDict) &&
       filterValueJson->getOptionValFromDict("account_ids")->Option.isNone
     ) {
-      let timeoutId = setTimeout(() => {
-        setSelectedRows(_ => [])
-        goToFirstPage()
-      }, 0)
-      Some(() => clearTimeout(timeoutId))
-    } else {
-      None
+      setSelectedRows(_ => [])
+      goToFirstPage()
     }
+    None
   }, (appliedFilters, sortOrder))
 
   let topFilterUi = {
@@ -161,7 +157,6 @@ let make = (~accountId: string) => {
         filterFieldsPortalName={filterFieldsPortalName}
         showCustomFilter=false
         customFilterActions=transformationConfigFilter
-        mandatoryRemoteKeys=[transformationConfigFilterKey]
         refreshFilters=false
       />
     </div>
