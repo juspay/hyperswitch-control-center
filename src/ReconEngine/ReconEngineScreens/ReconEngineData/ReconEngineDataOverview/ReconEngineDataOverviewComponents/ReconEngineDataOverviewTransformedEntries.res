@@ -9,6 +9,7 @@ let make = (
   open ReconEngineDataTransformedEntriesTypes
   open ReconEngineTypes
   open ReconEngineHooks
+  open ReconEngineFilterUtils
 
   let getProcessingEntriesV2 = useGetCursorPage(
     ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST_V2,
@@ -24,18 +25,12 @@ let make = (
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
-  let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
-  let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let filterValueJsonWithGlobalDate = mergeGlobalDateFilters(~filterValueJson, ~globalDateFilters)
 
   let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
   let title = "Transformed Entries"
   let sortOrder = sortDict->getMappedValueFromDict(title, Desc, getSortOrder)
-
-  let mixpanelEvent = MixpanelHook.useSendEvent()
-
-  let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="recon_engine_exception_staging_date_filter_opened")
-  }
 
   let {
     items: processingEntries,
@@ -47,7 +42,7 @@ let make = (
   } = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=(~sortBy, ~direction) => {
     getProcessingEntriesV2(
       ~body=buildProcessingEntriesV2Body(
-        ~filterValueJson,
+        ~filterValueJson=filterValueJsonWithGlobalDate,
         ~searchType=searchTypeRef.current,
         ~searchText,
         ~sortBy,
@@ -63,14 +58,12 @@ let make = (
   let checkNeedsManualReview = async () => {
     await onNeedsManualReviewPresent->mapOptionOrDefault(Promise.resolve(), async callback => {
       try {
-        let enhancedFilterValueJson = Dict.copy(filterValueJson)
+        let enhancedFilterValueJson = Dict.copy(filterValueJsonWithGlobalDate)
         enhancedFilterValueJson->Dict.set(
           "transformation_history_ids",
           selectedTransformationHistoryId->JSON.Encode.string,
         )
-        let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
-          ~filterValueJson=enhancedFilterValueJson,
-        )
+        let queryString = buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson)
         let stagingOverview = await getStagingEntriesOverview(~queryParameters=Some(queryString))
         callback(stagingOverview->getTotalNeedsManualReviewEntries > 0.0)
       } catch {
@@ -100,28 +93,18 @@ let make = (
     goToFirstPage()
   }
 
-  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~updateExistingKeys,
-    ~startTimeFilterKey,
-    ~endTimeFilterKey,
-    ~origin="recon_engine_exception_staging",
-    ~range=180,
-    (),
-  )
-
   React.useEffect(() => {
-    setInitialFilters()
     fetchAccounts()->ignore
     None
   }, [])
 
   React.useEffect(() => {
-    if !(filterValue->isEmptyDict) {
+    if hasGlobalDateFilterValue(~globalDateFilters) {
       goToFirstPage()
       checkNeedsManualReview()->ignore
     }
     None
-  }, (filterValue, sortOrder))
+  }, (filterValue, sortOrder, globalDateFilters))
 
   let topFilterUi = {
     <div className="flex flex-row -ml-1.5">
@@ -130,11 +113,8 @@ let make = (
         initialFilters={initialDisplayFilters(~accountOptions)}
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
-          null,
-          ~events=dateDropDownTriggerMixpanelCallback,
-        )}
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+        initialFixedFilters=[]
+        defaultFilterKeys=[]
         tabNames=filterKeys
         key="ReconEngineExceptionStagingFilters"
         updateUrlWith=updateExistingKeys
