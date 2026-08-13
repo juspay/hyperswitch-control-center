@@ -408,7 +408,6 @@ module LinkStagingEntryModalContent = {
     ~onSubmit,
     ~updatedEntriesList: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
   ) => {
-    open APIUtils
     open LogicUtils
     open ReconEngineExceptionTransactionHelper
     open ReconEngineExceptionTransactionUtils
@@ -424,74 +423,68 @@ module LinkStagingEntryModalContent = {
     ]
 
     let stagingEntriesDetailsFields: array<ReconEngineExceptionEntity.processingColType> = [
+      OrderId,
       EntryType,
       Amount,
       Currency,
+      AccountName,
       Status,
       StagingEntryId,
-      AccountName,
       EffectiveAt,
     ]
 
-    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-    let getURL = useGetURL()
-    let fetchDetails = useGetMethod()
-    let (linkableStagingEntries, setLinkableStagingEntries) = React.useState(_ => [])
-    let (filteredStagingEntries, setFilteredStagingEntries) = React.useState(_ => [])
     let (selectedRows, setSelectedRows) = React.useState(_ => [])
     let (searchText, setSearchText) = React.useState(_ => "")
+    let searchTypeRef = React.useRef(ReconEnginePipelinesTypes.SearchStagingEntryId)
 
-    let filterLogic = ReactDebounce.useDebounced(ob => {
-      let (searchText, arr) = ob
-      let filteredList = if searchText->isNonEmptyString {
-        arr->Array.filter((obj: ReconEngineTypes.processingEntryType) => {
-          isContainingStringLowercase(obj.staging_entry_id, searchText) ||
-          isContainingStringLowercase(obj.entry_type, searchText)
-        })
-      } else {
-        arr
+    let getLinkableStagingEntriesV2 = ReconEngineHooks.useGetCursorPage(
+      ~hyperswitchReconType=#LINKABLE_STAGING_ENTRIES,
+      ~itemMapper=ReconEngineUtils.processingItemToObjMapper,
+    )
+
+    let {
+      items: linkableStagingEntries,
+      cursors,
+      screenState,
+      goToFirstPage,
+      goToNextPage,
+      goToPrevPage,
+    } = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=async (
+      ~sortBy,
+      ~direction,
+    ) => {
+      let linkedStagingEntryIds =
+        updatedEntriesList->Array.filterMap(entry => entry.staging_entry_id)->Set.fromArray
+
+      let page = await getLinkableStagingEntriesV2(
+        ~body=buildLinkableStagingEntriesV2Body(
+          ~sortBy,
+          ~direction,
+          ~searchType=searchTypeRef.current,
+          ~searchText,
+        ),
+        ~id=Some(currentExceptionDetails.id),
+      )
+      {
+        ...page,
+        items: page.items->Array.filter(entry => !(linkedStagingEntryIds->Set.has(entry.id))),
       }
-      setFilteredStagingEntries(_ => filteredList)
-    }, ~wait=200)
+    })
 
-    let fetchLinkableStagingEntries = async () => {
-      try {
-        setScreenState(_ => PageLoaderWrapper.Loading)
-        let url = getURL(
-          ~entityName=V1(HYPERSWITCH_RECON),
-          ~hyperswitchReconType=#LINKABLE_STAGING_ENTRIES,
-          ~methodType=Get,
-          ~id=Some(currentExceptionDetails.id),
+    let handleSearchSubmit = (selectedType: option<string>) => {
+      let newSearchType =
+        selectedType->mapOptionOrDefault(
+          ReconEnginePipelinesTypes.SearchStagingEntryId,
+          ReconEnginePipelinesUtils.stagingEntrySearchTypeFromString,
         )
-        let response = await fetchDetails(url)
-        let stagingEntries =
-          response->getArrayDataFromJson(ReconEngineUtils.processingItemToObjMapper)
-
-        let linkedStagingEntryIds =
-          updatedEntriesList
-          ->Array.filterMap(entry => entry.staging_entry_id)
-          ->Set.fromArray
-
-        let availableStagingEntries =
-          stagingEntries->Array.filter(stagingEntry =>
-            !(linkedStagingEntryIds->Set.has(stagingEntry.id))
-          )
-
-        if availableStagingEntries->Array.length > 0 {
-          setLinkableStagingEntries(_ => availableStagingEntries)
-          setFilteredStagingEntries(_ => availableStagingEntries)
-          setScreenState(_ => PageLoaderWrapper.Success)
-        } else {
-          setScreenState(_ => PageLoaderWrapper.Custom)
-        }
-      } catch {
-      | _ => setScreenState(_ => PageLoaderWrapper.Custom)
-      }
+      searchTypeRef.current = newSearchType
+      setSelectedRows(_ => [])
+      goToFirstPage()
     }
 
     React.useEffect(() => {
       if activeModal == Some(LinkStagingEntriesModal) {
-        fetchLinkableStagingEntries()->ignore
+        goToFirstPage()
       }
       None
     }, (currentExceptionDetails.id, updatedEntriesList))
@@ -526,7 +519,7 @@ module LinkStagingEntryModalContent = {
     }, (linkableStagingEntries, stagingEntriesDetailsFields))
 
     let stagingEntriesSections = (_sectionIndex: int, rowIndex: int) => {
-      getStagingEntryDetails(~rowIndex, ~stagingEntries=filteredStagingEntries)
+      getStagingEntryDetails(~rowIndex, ~stagingEntries=linkableStagingEntries)
     }
 
     let formValues = React.useMemo(() => {
@@ -561,36 +554,52 @@ module LinkStagingEntryModalContent = {
           onRowSelect={_ => ()}
           sections=entriesTableSections
         />
+        <p className={`${body.lg.semibold} text-nd_gray-700`}>
+          {"Select entry to match"->React.string}
+        </p>
+        <SearchInput
+          inputText=searchText
+          onChange={value => setSearchText(_ => value)}
+          placeholder="Search by ID"
+          showTypeSelector=true
+          typeSelectorOptions=ReconEnginePipelinesUtils.stagingEntrySearchTypeOptions
+          onSubmitSearchDropdown=handleSearchSubmit
+          showSearchIcon=true
+          widthClass="w-full"
+        />
         <PageLoaderWrapper
-          screenState
-          customLoader={<Shimmer styleClass="h-96 w-full rounded-xl" />}
-          customUI={<NewAnalyticsHelper.NoData
-            height="h-96" message="No linkable transformed entries found."
-          />}>
-          <p className={`${body.lg.semibold} text-nd_gray-700`}>
-            {"Select entry to match"->React.string}
-          </p>
-          <ReconEngineCustomExpandableSelectionTable
-            title=""
-            heading={stagingEntriesDetailsFields->Array.map(
-              ReconEngineExceptionEntity.getProcessingHeading,
-            )}
-            getSectionRowDetails=stagingEntriesSections
-            showOptions=true
-            selectedRows
-            onRowSelect={handleRowSelect}
-            sections=stagingEntriesTableSections
-            showSearchFilter=true
-            searchFilterElement={<TableSearchFilter
-              data={linkableStagingEntries}
-              filterLogic
-              placeholder="Search by Transformed Entry ID or Entry Type"
-              customSearchBarWrapperWidth="w-full"
-              customInputBoxWidth="w-full rounded-xl"
-              searchVal=searchText
-              setSearchVal=setSearchText
-            />}
-          />
+          screenState customLoader={<Shimmer styleClass="h-96 w-full rounded-xl" />}>
+          <RenderIf condition={linkableStagingEntries->isEmptyArray}>
+            <NewAnalyticsHelper.NoData
+              height="h-96" message="No linkable transformed entries found."
+            />
+          </RenderIf>
+          <RenderIf condition={linkableStagingEntries->isNonEmptyArray}>
+            <ReconEngineCustomExpandableSelectionTable
+              title=""
+              heading={stagingEntriesDetailsFields->Array.map(
+                ReconEngineExceptionEntity.getProcessingHeading,
+              )}
+              getSectionRowDetails=stagingEntriesSections
+              showOptions=true
+              selectedRows
+              onRowSelect={handleRowSelect}
+              sections=stagingEntriesTableSections
+            />
+            <ReconEngineCursorPaginationButtons
+              cursors
+              isLoading={screenState === PageLoaderWrapper.Loading}
+              hasData={linkableStagingEntries->isNonEmptyArray}
+              onPrev={() => {
+                setSelectedRows(_ => [])
+                goToPrevPage()
+              }}
+              onNext={() => {
+                setSelectedRows(_ => [])
+                goToNextPage()
+              }}
+            />
+          </RenderIf>
         </PageLoaderWrapper>
         <div className="flex justify-end gap-3 my-4 items-center">
           <Button

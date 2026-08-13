@@ -6,7 +6,6 @@ import {
   signupUser,
   loginUI,
   mockPaymentFilters,
-  ompLineage,
 } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
@@ -29,7 +28,7 @@ const MOCK_PAYMENT_SEARCH_RESPONSE = [
   },
 ];
 
-const MOCK_MULTI_CATEGORY_SEARCH_RESPONSE = [
+const _MOCK_MULTI_CATEGORY_SEARCH_RESPONSE = [
   {
     index: "payment_attempts",
     count: 1,
@@ -411,7 +410,7 @@ const MOCK_CUSTOMER_DETAILS = {
   metadata: {},
 };
 
-const MOCK_FILTER_RESPONSE = {
+const _MOCK_FILTER_RESPONSE = {
   queryData: [
     { dimension: "status", values: ["succeeded", "failed", "processing"] },
     { dimension: "currency", values: ["USD", "EUR", "GBP"] },
