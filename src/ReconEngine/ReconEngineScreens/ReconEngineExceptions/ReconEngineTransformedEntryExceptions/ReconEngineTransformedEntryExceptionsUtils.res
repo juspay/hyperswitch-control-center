@@ -116,6 +116,13 @@ let initialDisplayFilters = (~accountOptions) => {
     {label: "Debit", value: "debit"},
   ]
 
+  let statusOptions = ReconEngineFilterUtils.getStagingEntryStatusOptions([
+    NeedsManualReview,
+    Processed,
+    Pending,
+    Void,
+  ])
+
   [
     (
       {
@@ -125,6 +132,26 @@ let initialDisplayFilters = (~accountOptions) => {
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=entryTypeOptions,
             ~buttonText="Select Entry Type",
+            ~showSelectionAsChips=false,
+            ~searchable=true,
+            ~showToolTip=true,
+            ~showNameAsToolTip=true,
+            ~customButtonStyle="bg-none",
+            ~fixedDropDownDirection=BottomRight,
+            (),
+          ),
+        ),
+        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+      }: EntityType.initialFilters<'t>
+    ),
+    (
+      {
+        field: FormRenderer.makeFieldInfo(
+          ~label="status",
+          ~name="status",
+          ~customInput=InputFields.filterMultiSelectInput(
+            ~options=statusOptions,
+            ~buttonText="Select Status",
             ~showSelectionAsChips=false,
             ~searchable=true,
             ~showToolTip=true,
