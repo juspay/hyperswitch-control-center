@@ -8,9 +8,6 @@ let globalDateFilterKeys = [startTimeFilterKey, endTimeFilterKey]
 
 let globalDateFilterPortalName = "reconGlobalDateFilter"
 
-// Only the list screens render a PortalCapture for the picker, so detail screens
-// have to be excluded explicitly: Portal falls back to rendering inline when no
-// capture is registered. Keep this in sync with the PortalCapture placements.
 let showsGlobalDateFilter = path =>
   switch path {
   | list{"v1", "recon-engine", "overview"}
