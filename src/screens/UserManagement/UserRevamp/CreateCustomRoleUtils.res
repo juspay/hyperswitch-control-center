@@ -15,9 +15,7 @@ let updateScope = (scopes, action, targetScope: groupScopeType) => {
 let configurationsParentGroup = "Configurations"
 
 let configurationsGroups =
-  [ConfigurationsView, ConfigurationsManage]->Array.map(
-    GroupACLMapper.mapGroupAccessTypeToString,
-  )
+  [ConfigurationsView, ConfigurationsManage]->Array.map(GroupACLMapper.mapGroupAccessTypeToString)
 
 let configurationsOnlyRoleError = "Configurations cannot be the only module in a role. Select at least one more module."
 
