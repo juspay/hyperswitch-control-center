@@ -112,12 +112,15 @@ let make = () => {
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     accountData->Array.map((account): Tabs.tab => {
       title: account.account_name,
-      renderContent: () =>
-        <ReconEngineTransformedEntryContent
-          key={account.account_id} accountId={account.account_id}
-        />,
+      renderContent: () => {
+        <RenderIf condition={selectedAccountId === account.account_id}>
+          <ReconEngineTransformedEntryContent
+            key={account.account_id} accountId={account.account_id}
+          />
+        </RenderIf>
+      },
     })
-  }, [accountData])
+  }, (accountData, selectedAccountId))
 
   <div className="flex flex-col w-full">
     <div className="flex flex-row justify-between items-center">

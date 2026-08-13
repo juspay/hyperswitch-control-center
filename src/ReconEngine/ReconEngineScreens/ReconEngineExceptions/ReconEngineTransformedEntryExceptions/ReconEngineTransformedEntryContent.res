@@ -21,7 +21,7 @@ let make = (~accountId: string) => {
     ~itemMapper=ReconEngineUtils.processingItemToObjMapper,
   )
   let showToast = ToastAdapter.useShowToast()
-  let {updateExistingKeys, filterValueJson, filterKeys} = React.useContext(
+  let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
 
@@ -98,8 +98,6 @@ let make = (~accountId: string) => {
     None
   }, [accountId])
 
-  let appliedFilters = buildQueryStringFromFilters(~filterValueJson)
-
   React.useEffect(() => {
     if (
       !(filterValueJson->isEmptyDict) &&
@@ -109,7 +107,7 @@ let make = (~accountId: string) => {
       goToFirstPage()
     }
     None
-  }, (appliedFilters, sortOrder))
+  }, (filterValue, sortOrder))
 
   let topFilterUi = {
     let transformationConfigOptions = transformationConfigs->Array.map((
