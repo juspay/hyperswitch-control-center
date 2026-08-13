@@ -8,16 +8,6 @@ let globalDateFilterKeys = [startTimeFilterKey, endTimeFilterKey]
 
 let globalDateFilterPortalName = "reconGlobalDateFilter"
 
-let showsGlobalDateFilter = path =>
-  switch path {
-  | list{"v1", "recon-engine", "overview"}
-  | list{"v1", "recon-engine", "transactions"}
-  | list{"v1", "recon-engine", "exceptions", "recon"}
-  | list{"v1", "recon-engine", "exceptions", "transformed-entries"}
-  | list{"v1", "recon-engine", "transformed-entries"} => true
-  | _ => false
-  }
-
 let getGlobalDateFilterFromDict = (dict: Dict.t<string>): globalDateFilter => {
   startTime: dict->getValueFromDict(startTimeFilterKey, ""),
   endTime: dict->getValueFromDict(endTimeFilterKey, ""),
