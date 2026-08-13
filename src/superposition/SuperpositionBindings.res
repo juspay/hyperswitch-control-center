@@ -29,36 +29,12 @@ type tableAlign =
   | @as("center") Center
   | @as("right") Right
 
-// ─── Abstract Web API types ──────────────────────────────────────────────────
-// These are opaque JS objects; typed only enough to pass through callbacks.
-
-type fetchRequestInit
-type fetchResponse
-
 // ─── Sub-config types ────────────────────────────────────────────────────────
 
 type authConfig = {
   mode: authMode,
   token?: string,
   headers?: Js.Dict.t<string>,
-}
-
-type requestCtx = {
-  url: string,
-  init: fetchRequestInit,
-}
-
-type responseCtx = {
-  request: requestCtx,
-  response: fetchResponse,
-}
-
-type networkConfig = {
-  interceptRequest?: requestCtx => promise<requestCtx>,
-  interceptResponse?: responseCtx => promise<fetchResponse>,
-  onUnauthorized?: fetchResponse => unit,
-  onForbidden?: fetchResponse => unit,
-  onApiError?: JSON.t => unit,
 }
 
 type scopeConfig = {
@@ -231,7 +207,6 @@ type embeddableConfig = {
   orgId: string,
   workspace: string,
   auth?: authConfig,
-  network?: networkConfig,
   scope?: scopeConfig,
   filters?: filtersConfig,
   capabilities?: capabilitiesConfig,
