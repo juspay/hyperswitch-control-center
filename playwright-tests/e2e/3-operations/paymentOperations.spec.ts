@@ -858,7 +858,7 @@ test.describe("Payment Operations", () => {
             undefined,
             undefined,
             page,
-          ).catch(() => { });
+          ).catch(() => {});
         }
       }
 
@@ -2040,9 +2040,7 @@ test.describe("Payment Operations", () => {
       await refreshResponse;
 
       await expect(page.getByText("Summary")).toBeVisible();
-      await expect(
-        page.getByText('123.45 USD SUCCEEDED'),
-      ).toBeVisible();
+      await expect(page.getByText("123.45 USD SUCCEEDED")).toBeVisible();
       await expect(page.getByText("SUCCEEDED").nth(3)).toBeVisible();
 
       await expect(paymentOperations.dataLabel("Created")).toContainText(
