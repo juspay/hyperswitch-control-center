@@ -13,7 +13,7 @@ let make = (~selectedTransformationHistoryId: option<string>) => {
     setfilterKeys,
   } = React.useContext(FilterContext.filterContext)
   let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
-  let effectiveFilterValueJson = ReconEngineFilterUtils.mergeGlobalDateFilters(
+  let filterValueJsonWithGlobalDate = ReconEngineFilterUtils.mergeGlobalDateFilters(
     ~filterValueJson,
     ~globalDateFilters,
   )
@@ -25,8 +25,8 @@ let make = (~selectedTransformationHistoryId: option<string>) => {
   let getStagingEntriesOverview = useGetStagingEntriesOverview()
 
   let customFilterKey = "status"
-  let startTime = effectiveFilterValueJson->getString("startTime", "")
-  let endTime = effectiveFilterValueJson->getString("endTime", "")
+  let startTime = filterValueJsonWithGlobalDate->getString("startTime", "")
+  let endTime = filterValueJsonWithGlobalDate->getString("endTime", "")
 
   let updateViewsFilterValue = (view: transformedEntriesViewType) => {
     let statusFilter = view->getViewStatusFilter

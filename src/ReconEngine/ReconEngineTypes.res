@@ -634,8 +634,3 @@ type cursorPage<'item> = {
   items: array<'item>,
   cursors: cursors,
 }
-
-type globalDateFilter = {
-  startTime: string,
-  endTime: string,
-}

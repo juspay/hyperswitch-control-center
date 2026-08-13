@@ -9,7 +9,7 @@ let make = () => {
 
   let getOverviewRules = ReconEngineHooks.useGetOverviewRules()
   let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
-  let effectiveFilterValueJson = ReconEngineFilterUtils.mergeGlobalDateFilters(
+  let filterValueJsonWithGlobalDate = ReconEngineFilterUtils.mergeGlobalDateFilters(
     ~filterValueJson=Dict.make(),
     ~globalDateFilters,
   )
@@ -21,7 +21,7 @@ let make = () => {
     open ReconEngineFilterUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let queryParams = buildQueryStringFromFilters(~filterValueJson=effectiveFilterValueJson)
+      let queryParams = buildQueryStringFromFilters(~filterValueJson=filterValueJsonWithGlobalDate)
       let overviewRules = await getOverviewRules(~queryParameters=Some(queryParams))
       setTxnItems(_ => getExceptionTriageItems(~overviewRules))
       setScreenState(_ => PageLoaderWrapper.Success)

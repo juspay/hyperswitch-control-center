@@ -11,7 +11,7 @@ let make = () => {
   let getIngestionHistory = ReconEngineHooks.useGetIngestionHistory()
 
   let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
-  let effectiveFilterValueJson = ReconEngineFilterUtils.mergeGlobalDateFilters(
+  let filterValueJsonWithGlobalDate = ReconEngineFilterUtils.mergeGlobalDateFilters(
     ~filterValueJson=Dict.make(),
     ~globalDateFilters,
   )
@@ -25,7 +25,7 @@ let make = () => {
     open ReconEngineFilterUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let queryParams = buildQueryStringFromFilters(~filterValueJson=effectiveFilterValueJson)
+      let queryParams = buildQueryStringFromFilters(~filterValueJson=filterValueJsonWithGlobalDate)
 
       let ingestionTransformationStatusList = getIngestionTransformationHistoryStatusValueFromStatusList([
         Failed,

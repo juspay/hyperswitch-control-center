@@ -10,11 +10,6 @@ let make = (~accountData: array<ReconEngineTypes.accountType>, ~refreshTrigger=f
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
-  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
-  let effectiveFilterValueJson = ReconEngineFilterUtils.mergeGlobalDateFilters(
-    ~filterValueJson,
-    ~globalDateFilters,
-  )
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (offset, setOffset) = React.useState(_ => 0)
@@ -46,8 +41,8 @@ let make = (~accountData: array<ReconEngineTypes.accountType>, ~refreshTrigger=f
   let fetchIngestionHistoryData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let enhancedFilterValueJson = Dict.copy(effectiveFilterValueJson)
-      let statusFilter = effectiveFilterValueJson->getArrayFromDict("status", [])
+      let enhancedFilterValueJson = Dict.copy(filterValueJson)
+      let statusFilter = filterValueJson->getArrayFromDict("status", [])
       if statusFilter->Array.length === 0 {
         let activeStatusList = ReconEngineFilterUtils.getIngestionTransformationHistoryStatusValueFromStatusList([
           Pending,
@@ -71,11 +66,11 @@ let make = (~accountData: array<ReconEngineTypes.accountType>, ~refreshTrigger=f
   }
 
   React.useEffect(() => {
-    if ReconEngineFilterUtils.shouldFetchWithGlobalDateFilters(~globalDateFilters) {
+    if !(filterValue->isEmptyDict) {
       fetchIngestionHistoryData()->ignore
     }
     None
-  }, (filterValue, refreshTrigger, globalDateFilters))
+  }, (filterValue, refreshTrigger))
 
   let sortedHistoryData = React.useMemo(() => {
     filteredHistoryData->sortIngestionHistory(sortOption)

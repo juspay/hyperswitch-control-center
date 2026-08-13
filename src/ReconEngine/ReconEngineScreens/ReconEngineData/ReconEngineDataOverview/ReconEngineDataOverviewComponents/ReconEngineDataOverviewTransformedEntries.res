@@ -25,7 +25,7 @@ let make = (
     FilterContext.filterContext,
   )
   let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
-  let effectiveFilterValueJson = ReconEngineFilterUtils.mergeGlobalDateFilters(
+  let filterValueJsonWithGlobalDate = ReconEngineFilterUtils.mergeGlobalDateFilters(
     ~filterValueJson,
     ~globalDateFilters,
   )
@@ -44,7 +44,7 @@ let make = (
   } = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=(~sortBy, ~direction) => {
     getProcessingEntriesV2(
       ~body=buildProcessingEntriesV2Body(
-        ~filterValueJson=effectiveFilterValueJson,
+        ~filterValueJson=filterValueJsonWithGlobalDate,
         ~searchType=searchTypeRef.current,
         ~searchText,
         ~sortBy,
@@ -58,7 +58,7 @@ let make = (
   let checkNeedsManualReview = async () => {
     await onNeedsManualReviewPresent->mapOptionOrDefault(Promise.resolve(), async callback => {
       try {
-        let enhancedFilterValueJson = Dict.copy(effectiveFilterValueJson)
+        let enhancedFilterValueJson = Dict.copy(filterValueJsonWithGlobalDate)
         enhancedFilterValueJson->Dict.set(
           "transformation_history_ids",
           selectedTransformationHistoryId->JSON.Encode.string,

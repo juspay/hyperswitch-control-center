@@ -20,7 +20,7 @@ let make = () => {
     FilterContext.filterContext,
   )
   let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
-  let effectiveFilterValueJson = mergeGlobalDateFilters(~filterValueJson, ~globalDateFilters)
+  let filterValueJsonWithGlobalDate = mergeGlobalDateFilters(~filterValueJson, ~globalDateFilters)
 
   let (accountData, setAccountData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -40,8 +40,8 @@ let make = () => {
     goToNextPage,
     goToPrevPage,
   } = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=(~sortBy, ~direction) => {
-    let enhancedFilterValueJson = Dict.copy(effectiveFilterValueJson)
-    let statusFilter = effectiveFilterValueJson->getArrayFromDict("status", [])
+    let enhancedFilterValueJson = Dict.copy(filterValueJsonWithGlobalDate)
+    let statusFilter = filterValueJsonWithGlobalDate->getArrayFromDict("status", [])
     if statusFilter->isEmptyArray {
       enhancedFilterValueJson->Dict.set(
         "status",

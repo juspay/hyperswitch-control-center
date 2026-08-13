@@ -13,7 +13,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   let getOverviewRules = ReconEngineHooks.useGetOverviewRules()
   let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
   let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
-  let effectiveFilterValueJson = ReconEngineFilterUtils.mergeGlobalDateFilters(
+  let filterValueJsonWithGlobalDate = ReconEngineFilterUtils.mergeGlobalDateFilters(
     ~filterValueJson,
     ~globalDateFilters,
   )
@@ -22,7 +22,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
-        ~filterValueJson=effectiveFilterValueJson,
+        ~filterValueJson=filterValueJsonWithGlobalDate,
       )
       let queryString =
         baseQueryString->isNonEmptyString

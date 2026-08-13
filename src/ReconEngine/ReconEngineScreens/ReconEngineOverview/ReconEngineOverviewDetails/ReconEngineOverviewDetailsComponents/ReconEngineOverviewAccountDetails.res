@@ -11,7 +11,7 @@ let make = (~ruleDetails: rulePayload) => {
   let getRuleAccountBreakdown = ReconEngineHooks.useGetRuleAccountBreakdown()
   let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
   let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
-  let effectiveFilterValueJson = ReconEngineFilterUtils.mergeGlobalDateFilters(
+  let filterValueJsonWithGlobalDate = ReconEngineFilterUtils.mergeGlobalDateFilters(
     ~filterValueJson,
     ~globalDateFilters,
   )
@@ -21,7 +21,7 @@ let make = (~ruleDetails: rulePayload) => {
       setScreenState(_ => PageLoaderWrapper.Loading)
 
       let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
-        ~filterValueJson=effectiveFilterValueJson,
+        ~filterValueJson=filterValueJsonWithGlobalDate,
       )
       let suffix = `rule_ids=${ruleDetails.rule_id}`
       let queryString = baseQueryString->isNonEmptyString ? `${baseQueryString}&${suffix}` : suffix

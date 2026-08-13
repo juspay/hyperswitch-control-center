@@ -148,7 +148,7 @@ let make = () => {
   let (accountsData, setAccountsData) = React.useState(_ => [])
   let getRuleAccountBreakdown = ReconEngineHooks.useGetRuleAccountBreakdown()
   let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
-  let effectiveFilterValueJson = ReconEngineFilterUtils.mergeGlobalDateFilters(
+  let filterValueJsonWithGlobalDate = ReconEngineFilterUtils.mergeGlobalDateFilters(
     ~filterValueJson=Dict.make(),
     ~globalDateFilters,
   )
@@ -158,7 +158,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
 
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
-        ~filterValueJson=effectiveFilterValueJson,
+        ~filterValueJson=filterValueJsonWithGlobalDate,
       )
       let ruleAccountsOverview = await getRuleAccountBreakdown(~queryParameters=Some(queryString))
 

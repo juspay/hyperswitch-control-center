@@ -5,6 +5,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   open LogicUtils
   open ReconEngineTransactionsUtils
   open ReconEngineTransactionsTypes
+  open ReconEngineFilterUtils
 
   let getTransactionsV2 = ReconEngineHooks.useGetCursorPage(
     ~hyperswitchReconType=#TRANSACTIONS_LIST_V2,
@@ -15,10 +16,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
     FilterContext.filterContext,
   )
   let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
-  let effectiveFilterValueJson = ReconEngineFilterUtils.mergeGlobalDateFilters(
-    ~filterValueJson,
-    ~globalDateFilters,
-  )
+  let filterValueJsonWithGlobalDate = mergeGlobalDateFilters(~filterValueJson, ~globalDateFilters)
   let showToast = ToastAdapter.useShowToast()
 
   let (accountData, setAccountData) = React.useState(_ => [])
@@ -42,7 +40,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   let fetchPage = (~sortBy, ~direction) =>
     getTransactionsV2(
       ~body=buildTransactionsV2Body(
-        ~filterValueJson=effectiveFilterValueJson,
+        ~filterValueJson=filterValueJsonWithGlobalDate,
         ~searchType=searchTypeRef.current,
         ~searchText,
         ~ruleId=ruleDetails.rule_id,
@@ -77,7 +75,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   }, [])
 
   React.useEffect(() => {
-    if ReconEngineFilterUtils.shouldFetchWithGlobalDateFilters(~globalDateFilters) {
+    if shouldFetchWithGlobalDateFilters(~globalDateFilters) {
       goToFirstPage()
     }
     None

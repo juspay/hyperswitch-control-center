@@ -1,11 +1,26 @@
 open LogicUtils
 open ReconEngineTypes
+open ReconEngineFilterTypes
 open HSAnalyticsUtils
 
 let globalDateFilterContextIndex = "recon-engine-global-date"
 let globalDateFilterKeys = [startTimeFilterKey, endTimeFilterKey]
 
 let globalDateFilterPortalName = "reconGlobalDateFilter"
+
+// Only the list screens render a PortalCapture for the picker, so detail screens
+// have to be excluded explicitly: Portal falls back to rendering inline when no
+// capture is registered. Keep this in sync with the PortalCapture placements.
+let showsGlobalDateFilter = path =>
+  switch path {
+  | list{"v1", "recon-engine", "overview"}
+  | list{"v1", "recon-engine", "transactions"}
+  | list{"v1", "recon-engine", "exceptions", "recon"}
+  | list{"v1", "recon-engine", "exceptions", "transformed-entries"}
+  | list{"v1", "recon-engine", "transformed-entries"} => true
+  | _ => false
+  }
+
 let getGlobalDateFilterFromDict = (dict: Dict.t<string>): globalDateFilter => {
   startTime: dict->getValueFromDict(startTimeFilterKey, ""),
   endTime: dict->getValueFromDict(endTimeFilterKey, ""),

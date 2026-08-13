@@ -33,7 +33,7 @@ let make = (~ruleId: string) => {
     setfilterKeys,
   } = React.useContext(FilterContext.filterContext)
   let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
-  let effectiveFilterValueJson = mergeGlobalDateFilters(~filterValueJson, ~globalDateFilters)
+  let filterValueJsonWithGlobalDate = mergeGlobalDateFilters(~filterValueJson, ~globalDateFilters)
   let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
   let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
 
@@ -66,8 +66,8 @@ let make = (~ruleId: string) => {
   }
 
   let fetchPage = (~sortBy, ~direction) => {
-    let enhancedFilterValueJson = Dict.copy(effectiveFilterValueJson)
-    let statusFilter = effectiveFilterValueJson->getArrayFromDict("status", [])
+    let enhancedFilterValueJson = Dict.copy(filterValueJsonWithGlobalDate)
+    let statusFilter = filterValueJsonWithGlobalDate->getArrayFromDict("status", [])
     if statusFilter->isEmptyArray {
       enhancedFilterValueJson->Dict.set("status", exceptionStatusList->getJsonFromArrayOfString)
     }

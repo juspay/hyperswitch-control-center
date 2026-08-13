@@ -15,11 +15,6 @@ let make = (~refreshTrigger=false) => {
     removeKeys,
     setfilterKeys,
   } = React.useContext(FilterContext.filterContext)
-  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
-  let effectiveFilterValueJson = ReconEngineFilterUtils.mergeGlobalDateFilters(
-    ~filterValueJson,
-    ~globalDateFilters,
-  )
   let customFilterKey = "status"
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -31,7 +26,7 @@ let make = (~refreshTrigger=false) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let dateRangeFilterValueJson =
-        effectiveFilterValueJson
+        filterValueJson
         ->Dict.toArray
         ->Array.filter(((key, _)) => [startTimeFilterKey, endTimeFilterKey]->Array.includes(key))
         ->Dict.fromArray
@@ -55,11 +50,11 @@ let make = (~refreshTrigger=false) => {
   }
 
   React.useEffect(() => {
-    if ReconEngineFilterUtils.shouldFetchWithGlobalDateFilters(~globalDateFilters) {
+    if !(filterValue->isEmptyDict) {
       fetchPipelinesStatsData()->ignore
     }
     None
-  }, (filterValue, refreshTrigger, globalDateFilters))
+  }, (filterValue, refreshTrigger))
 
   let statCards = React.useMemo(() => {
     getPipelineStatCards(~ingestionHistory, ~stagingOverviewData)

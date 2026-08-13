@@ -1,4 +1,4 @@
-let globalDateFiltersAtom: Recoil.recoilAtom<ReconEngineTypes.globalDateFilter> = Recoil.atom(
+let globalDateFiltersAtom: Recoil.recoilAtom<ReconEngineFilterTypes.globalDateFilter> = Recoil.atom(
   "reconEngineGlobalDateFilters",
-  ({startTime: "", endTime: ""}: ReconEngineTypes.globalDateFilter),
+  ({startTime: "", endTime: ""}: ReconEngineFilterTypes.globalDateFilter),
 )

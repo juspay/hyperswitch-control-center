@@ -44,25 +44,27 @@ let make = () => {
   }, [filterValue])
 
   <>
-    <Portal to=globalDateFilterPortalName>
-      <DynamicFilter
-        title="ReconEngineGlobalDateFilter"
-        initialFilters=[]
-        options=[]
-        popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields(
-          null,
-          ~events=dateDropDownTriggerMixpanelCallback,
-        )}
-        defaultFilterKeys=globalDateFilterKeys
-        tabNames=filterKeys
-        key="ReconEngineGlobalDateFilter"
-        updateUrlWith=updateExistingKeys
-        filterFieldsPortalName
-        showCustomFilter=false
-        refreshFilters=false
-      />
-    </Portal>
+    <RenderIf condition={url.path->urlPath->showsGlobalDateFilter}>
+      <Portal to=globalDateFilterPortalName>
+        <DynamicFilter
+          title="ReconEngineGlobalDateFilter"
+          initialFilters=[]
+          options=[]
+          popupFilterFields=[]
+          initialFixedFilters={initialFixedFilterFields(
+            null,
+            ~events=dateDropDownTriggerMixpanelCallback,
+          )}
+          defaultFilterKeys=globalDateFilterKeys
+          tabNames=filterKeys
+          key="ReconEngineGlobalDateFilter"
+          updateUrlWith=updateExistingKeys
+          filterFieldsPortalName
+          showCustomFilter=false
+          refreshFilters=false
+        />
+      </Portal>
+    </RenderIf>
     {switch url.path->urlPath {
     | list{"v1", "recon-engine", "overview"} =>
       <AccessControl isEnabled={featureFlagDetails.devReconEngineV1} authorization=Access>
@@ -79,13 +81,6 @@ let make = () => {
         isEnabled={featureFlagDetails.devReconEngineV1}
         authorization={userHasAccess(~groupAccess=ReconExceptionsView)}>
         <ReconEngineExceptionContainer />
-      </AccessControl>
-    | list{"v1", "recon-engine", "pipelines", ..._} =>
-      <AccessControl
-        isEnabled={featureFlagDetails.devReconEngineV1 &&
-        featureFlagDetails.devReconEnginePipelines}
-        authorization={userHasAccess(~groupAccess=ReconSourcesView)}>
-        <ReconEnginePipelinesContainer />
       </AccessControl>
     | list{"v1", "recon-engine", "transformed-entries", ..._} =>
       <AccessControl

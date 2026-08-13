@@ -17,6 +17,13 @@ let make = () => {
         authorization={userHasAccess(~groupAccess=ReconRulesView)}>
         <ReconEngineRulesContainer />
       </AccessControl>
+    | list{"v1", "recon-engine", "pipelines", ..._} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.devReconEngineV1 &&
+        featureFlagDetails.devReconEnginePipelines}
+        authorization={userHasAccess(~groupAccess=ReconSourcesView)}>
+        <ReconEnginePipelinesContainer />
+      </AccessControl>
     | _ =>
       <FilterContext
         key=globalDateFilterContextIndex index=globalDateFilterContextIndex persistOnUnmount=true>
