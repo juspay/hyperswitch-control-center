@@ -15,6 +15,8 @@ type hierarchicalColType =
   | Currency
   | DebitAmount
   | CreditAmount
+  | RuleName
+  | CreatedAt
 
 let defaultColumns: array<hierarchicalColType> = [
   Flow,
@@ -30,11 +32,16 @@ let defaultColumns: array<hierarchicalColType> = [
   CreditAmount,
 ]
 
+// Columns the customize-columns modal renders as locked (non-hideable)
+let mandatoryColumns: array<hierarchicalColType> = [TransactionId, Status]
+
 let allColumns: array<hierarchicalColType> = [
   Flow,
   Date,
   TransactionId,
   Status,
+  RuleName,
+  CreatedAt,
   EntryId,
   OrderId,
   Account,
@@ -43,6 +50,24 @@ let allColumns: array<hierarchicalColType> = [
   DebitAmount,
   CreditAmount,
 ]
+
+// Entry-level columns render one nested row per entry; used to compute where the
+// transaction-level / entry-level visual separation falls for a given visible set
+let entryLevelColumns: array<hierarchicalColType> = [
+  EntryId,
+  OrderId,
+  Account,
+  EntryStatus,
+  Currency,
+  DebitAmount,
+  CreditAmount,
+]
+
+let getCustomSeparation = (visibleColumns: array<hierarchicalColType>): array<(int, int)> => {
+  let firstEntryIndex =
+    visibleColumns->Array.findIndex(col => entryLevelColumns->Array.includes(col))
+  firstEntryIndex > 0 ? [(firstEntryIndex - 1, firstEntryIndex)] : []
+}
 
 let getHeading = (colType: hierarchicalColType) => {
   switch colType {
@@ -57,6 +82,8 @@ let getHeading = (colType: hierarchicalColType) => {
   | Currency => makeHeaderInfo(~key="currency", ~title="Currency")
   | DebitAmount => makeHeaderInfo(~key="debit_amount", ~title="Debit Amount")
   | CreditAmount => makeHeaderInfo(~key="credit_amount", ~title="Credit Amount")
+  | RuleName => makeHeaderInfo(~key="rule_name", ~title="Rule Name")
+  | CreatedAt => makeHeaderInfo(~key="created_at", ~title="Created At", ~customWidth="!w-24")
   }
 }
 
@@ -221,6 +248,8 @@ let getCell = (
         ->React.array}
       </div>
     CustomCell(creditAmountContent, "")
+  | RuleName => Text(transaction.rule.rule_name)
+  | CreatedAt => DateWithoutTime(transaction.created_at)
   }
 }
 
