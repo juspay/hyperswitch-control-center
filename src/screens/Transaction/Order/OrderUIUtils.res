@@ -2,19 +2,6 @@ open LogicUtils
 open OrderTypes
 open CommonAuthUtils
 
-let getPaymentListSourceFromString = (~defaultSource, source) =>
-  switch source {
-  | "Normal" => Normal
-  | "Advanced" => Advanced
-  | _ => defaultSource
-  }
-
-let getStoredPaymentListSource = (~defaultSource) =>
-  switch HSLocalStorage.getPaymentListSourcefromLocalStorage() {
-  | Some(source) => source->getPaymentListSourceFromString(~defaultSource)
-  | None => defaultSource
-  }
-
 let getFilterTypeFromString = (filterType): filter => {
   switch filterType {
   | "connector" => #connector
