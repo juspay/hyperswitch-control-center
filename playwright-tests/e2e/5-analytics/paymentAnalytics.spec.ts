@@ -213,12 +213,21 @@ test.describe("Analytics - Payments - Dimension Filters", () => {
 
   test("should add and clear each dimension filter chip", async ({ page }) => {
     const paymentOperations = new PaymentOperations(page);
-    for (const { label, key } of DIMENSION_FILTERS) {
+    for (const { label } of DIMENSION_FILTERS) {
       await page.getByRole("button", { name: "Add Filters" }).click();
-      await expect(page.getByLabel("Add Filters").getByText(`${label}`, { exact: true })).toBeVisible();
-      await page.getByLabel("Add Filters").getByText(`${label}`, { exact: true }).click({ force: true });
-      await expect(paymentOperations.filterChipArea(label).first()).toContainText(`Select ${label}`);
-      await expect(page.getByLabel("Add Filters").getByText("Routing Approach")).not.toBeVisible();
+      await expect(
+        page.getByLabel("Add Filters").getByText(`${label}`, { exact: true }),
+      ).toBeVisible();
+      await page
+        .getByLabel("Add Filters")
+        .getByText(`${label}`, { exact: true })
+        .click({ force: true });
+      await expect(
+        paymentOperations.filterChipArea(label).first(),
+      ).toContainText(`Select ${label}`);
+      await expect(
+        page.getByLabel("Add Filters").getByText("Routing Approach"),
+      ).not.toBeVisible();
     }
   });
 });

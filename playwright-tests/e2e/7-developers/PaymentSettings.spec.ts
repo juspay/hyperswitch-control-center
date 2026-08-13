@@ -15,7 +15,7 @@ import { vaultProcessorConfig } from "../../support/fixtures/vaultProcessorConfi
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 test.describe("Payment Settings", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -177,7 +177,9 @@ test.describe("Payment Settings", () => {
       await paymentSettings.dropdownValueByText("Credit").click();
       await page.keyboard.press("Escape");
 
-      await expect(paymentSettings.dropdownValueByText("Credit")).not.toBeVisible();
+      await expect(
+        paymentSettings.dropdownValueByText("Credit"),
+      ).not.toBeVisible();
 
       await paymentSettings
         .paymentMethodBlockingCardTypesDropdown("Google Pay")
@@ -446,7 +448,7 @@ test.describe("Payment Settings", () => {
 
       await expect(paymentSettings.clickToPayConnectorDropdown).toBeVisible();
       await paymentSettings.clickToPayConnectorDropdown.click();
-      await page.getByRole('menuitem', { name: connectorLabel }).click();
+      await page.getByRole("menuitem", { name: connectorLabel }).click();
 
       await paymentSettings.clickUpdate();
       await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
@@ -514,7 +516,6 @@ test.describe("Payment Settings", () => {
       const paymentSettings = new PaymentSettings(page);
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
-      const connectorName = "juspaythreedsserver";
       if (merchantId) {
         await createAuthenticationConnectorAPI(
           merchantId,

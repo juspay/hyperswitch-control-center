@@ -1,5 +1,35 @@
 open LogicUtils
 open ReconEngineTypes
+open ReconEngineFilterTypes
+open HSAnalyticsUtils
+
+let globalDateFilterContextIndex = "recon-engine-global-date"
+let globalDateFilterKeys = [startTimeFilterKey, endTimeFilterKey]
+
+let globalDateFilterPortalName = "reconGlobalDateFilter"
+
+let getGlobalDateFilterFromDict = (dict: Dict.t<string>): globalDateFilter => {
+  startTime: dict->getValueFromDict(startTimeFilterKey, ""),
+  endTime: dict->getValueFromDict(endTimeFilterKey, ""),
+}
+
+let mergeGlobalDateFilters = (
+  ~filterValueJson: Dict.t<JSON.t>,
+  ~globalDateFilters: globalDateFilter,
+) => {
+  let dateEntries =
+    [
+      (startTimeFilterKey, globalDateFilters.startTime),
+      (endTimeFilterKey, globalDateFilters.endTime),
+    ]
+    ->Array.filter(((_, value)) => value->isNonEmptyString)
+    ->Array.map(((key, value)) => (key, value->UrlFetchUtils.getFilterValue))
+
+  Array.concat(filterValueJson->Dict.toArray, dateEntries)->Dict.fromArray
+}
+
+let hasGlobalDateFilterValue = (~globalDateFilters: globalDateFilter) =>
+  globalDateFilters.startTime->isNonEmptyString && globalDateFilters.endTime->isNonEmptyString
 
 let getAccountOptionsFromTransactions = (
   transactions: array<transactionType>,
@@ -38,9 +68,7 @@ let getEntryTypeAccountOptions = (
 
 let refreshEndTimeFilter = updateExistingKeys => {
   updateExistingKeys(
-    Dict.fromArray([
-      (HSAnalyticsUtils.endTimeFilterKey, HSwitchRemoteFilter.getDateFilteredObject().end_time),
-    ]),
+    Dict.fromArray([(endTimeFilterKey, HSwitchRemoteFilter.getDateFilteredObject().end_time)]),
   )
 }
 

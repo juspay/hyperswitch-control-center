@@ -194,6 +194,7 @@ module FlowWithLayoutControls = {
 let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   open ReconEngineOverviewSummaryUtils
   open ReactFlow
+  open ReconEngineFilterUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (selectedNodeId, setSelectedNodeId) = React.useState(_ => None)
@@ -201,7 +202,11 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   let getRuleAccountBreakdown = ReconEngineHooks.useGetRuleAccountBreakdown()
   let (reactFlowNodes, setNodes, onNodesChange) = useNodesState([])
   let (reactFlowEdges, setEdges, onEdgesChange) = useEdgesState([])
-  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let filterValueJsonWithGlobalDate = mergeGlobalDateFilters(
+    ~filterValueJson=Dict.make(),
+    ~globalDateFilters,
+  )
   let (isFullscreen, setIsFullscreen) = React.useState(_ => false)
 
   let toggleFullscreen = () => setIsFullscreen(prev => !prev)
@@ -232,7 +237,7 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
 
-      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+      let queryString = buildQueryStringFromFilters(~filterValueJson=filterValueJsonWithGlobalDate)
       let ruleAccountsOverview = await getRuleAccountBreakdown(~queryParameters=Some(queryString))
 
       setAllData(_ => Some(ruleAccountsOverview))
@@ -257,11 +262,11 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   }
 
   React.useEffect(() => {
-    if !(filterValue->isEmptyDict) {
+    if hasGlobalDateFilterValue(~globalDateFilters) {
       getAccountsData()->ignore
     }
     None
-  }, [filterValue])
+  }, [globalDateFilters])
 
   React.useEffect(() => {
     switch allData {
