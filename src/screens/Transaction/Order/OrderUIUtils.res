@@ -1,6 +1,25 @@
 open LogicUtils
 open OrderTypes
 open CommonAuthUtils
+
+let paymentListSourceStorageKey = "selectedPaymentListSource"
+
+let getPaymentListSourceFromString = (~defaultSource, source) =>
+  switch source {
+  | "Normal" => Normal
+  | "Advanced" => Advanced
+  | _ => defaultSource
+  }
+
+let getStoredPaymentListSource = (~defaultSource) =>
+  switch LocalStorage.getItem(paymentListSourceStorageKey)->Nullable.toOption {
+  | Some(source) => source->getPaymentListSourceFromString(~defaultSource)
+  | None => defaultSource
+  }
+
+let setStoredPaymentListSource = (newSource: paymentListSource) =>
+  LocalStorage.setItem(paymentListSourceStorageKey, (newSource :> string))
+
 let getFilterTypeFromString = (filterType): filter => {
   switch filterType {
   | "connector" => #connector

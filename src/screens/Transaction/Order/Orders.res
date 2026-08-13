@@ -1,5 +1,3 @@
-let paymentListSourceStorageKey = "selectedPaymentListSource"
-
 @react.component
 let make = (~previewOnly=false) => {
   open HSwitchRemoteFilter
@@ -43,17 +41,8 @@ let make = (~previewOnly=false) => {
   //enablement of advanced view
   let isAdvancedViewEnabled = isOpenSearchEnabled && devAdvancedPaymentsView
 
-  let (selectedSource, setSelectedSource) = React.useState(_ => {
-    switch LocalStorage.getItem(paymentListSourceStorageKey)->Nullable.toOption {
-    | Some("Normal") => Some(Normal)
-    | Some("Advanced") => Some(Advanced)
-    | Some(_) | None => None
-    }
-  })
-  let source =
-    selectedSource->mapOptionOrDefault(isAdvancedViewEnabled ? Advanced : Normal, userSource =>
-      userSource
-    )
+  let defaultSource = isAdvancedViewEnabled ? Advanced : Normal
+  let (source, setSource) = React.useState(_ => getStoredPaymentListSource(~defaultSource))
   let isAdvancedView = source === Advanced && isAdvancedViewEnabled
   let (tableTitle, savedViewsEntity) = isAdvancedView
     ? (advancedOrdersTableTitle, PaymentAdvanced)
@@ -240,8 +229,8 @@ let make = (~previewOnly=false) => {
   }, (offset, filters, searchText, resultsPerPage))
 
   let handleSourceChange = (newSource: paymentListSource) => {
-    LocalStorage.setItem(paymentListSourceStorageKey, (newSource :> string))
-    setSelectedSource(_ => Some(newSource))
+    newSource->setStoredPaymentListSource
+    setSource(_ => newSource)
     setOffset(_ => 0)
     setFilters(_ => None)
     reset()
