@@ -579,6 +579,10 @@ let describeSkipConditionOperator = (operator: skipConditionOperator): string =>
   | NotEquals => "≠"
   | Contains => "contains"
   | NotContains => "does not contain"
+  | StartsWith => "starts with"
+  | NotStartsWith => "does not start with"
+  | EndsWith => "ends with"
+  | NotEndsWith => "does not end with"
   | UnknownSkipConditionOperator => "unknown"
   }
 

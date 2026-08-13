@@ -70,11 +70,8 @@ let make = (
     ~retainInList=PaymentProcessor,
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {paymentProcessorsLiveList} =
-    HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
-  let {paymentProcessorsSandboxList} =
-    HyperswitchAtom.connectorListForSandboxAtom->Recoil.useRecoilValueFromAtom
+  let {paymentProcessorsList: connectorsAvailableForIntegration} =
+    HyperswitchAtom.connectorDisplayListAtom->Recoil.useRecoilValueFromAtom
 
   let getConnectorListAndUpdateState = async () => {
     try {
@@ -119,10 +116,6 @@ let make = (
     }
     setFilteredConnectorData(_ => filteredList)
   }, ~wait=200)
-
-  let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
-    ? paymentProcessorsLiveList
-    : paymentProcessorsSandboxList
 
   <div>
     <PageLoaderWrapper screenState>

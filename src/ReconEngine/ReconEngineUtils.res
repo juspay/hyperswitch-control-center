@@ -338,6 +338,10 @@ let skipConditionOperatorMapper = (str): skipConditionOperator => {
   | "not_equals" => NotEquals
   | "contains" => Contains
   | "not_contains" => NotContains
+  | "starts_with" => StartsWith
+  | "not_starts_with" => NotStartsWith
+  | "ends_with" => EndsWith
+  | "not_ends_with" => NotEndsWith
   | _ => UnknownSkipConditionOperator
   }
 }
