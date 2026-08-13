@@ -135,6 +135,14 @@ let buildAggregateMetricsUrl = (~metricConfig, ~transactionEntity) => {
   `${Window.env.apiBaseUrl}/${metricConfig.urlPrefix}/${scope}/metrics/${metricConfig.domain}`
 }
 
+let buildSankeyMetricsUrl = transactionEntity => {
+  let scope = switch transactionEntity {
+  | #Profile => "profile"
+  | _ => "merchant"
+  }
+  `${Window.env.apiBaseUrl}/analytics/v1/${scope}/metrics/sankey`
+}
+
 let getEntityName = (~entity: operationsTypes, ~version: UserInfoTypes.version) => {
   open APIUtilsTypes
   switch entity {

@@ -1,3 +1,5 @@
+let paymentListSourceStorageKey = "selectedPaymentListSource"
+
 @react.component
 let make = (~previewOnly=false) => {
   open HSwitchRemoteFilter
@@ -41,7 +43,13 @@ let make = (~previewOnly=false) => {
   //enablement of advanced view
   let isAdvancedViewEnabled = isOpenSearchEnabled && devAdvancedPaymentsView
 
-  let (selectedSource, setSelectedSource) = React.useState(_ => None)
+  let (selectedSource, setSelectedSource) = React.useState(_ => {
+    switch LocalStorage.getItem(paymentListSourceStorageKey)->Nullable.toOption {
+    | Some("Normal") => Some(Normal)
+    | Some("Advanced") => Some(Advanced)
+    | Some(_) | None => None
+    }
+  })
   let source =
     selectedSource->mapOptionOrDefault(isAdvancedViewEnabled ? Advanced : Normal, userSource =>
       userSource
@@ -231,7 +239,8 @@ let make = (~previewOnly=false) => {
     None
   }, (offset, filters, searchText, resultsPerPage))
 
-  let handleSourceChange = newSource => {
+  let handleSourceChange = (newSource: paymentListSource) => {
+    LocalStorage.setItem(paymentListSourceStorageKey, (newSource :> string))
     setSelectedSource(_ => Some(newSource))
     setOffset(_ => 0)
     setFilters(_ => None)
@@ -379,7 +388,7 @@ let make = (~previewOnly=false) => {
       <div className="flex flex-wrap justify-between gap-3 items-start">
         <PageUtils.PageHeading title="Payment Operations" subTitle="" customTitleStyle />
         <div
-          className="flex flex-nowrap justify-end gap-2 items-center whitespace-nowrap overflow-x-auto no-scrollbar">
+          className="flex flex-nowrap justify-end gap-2 items-center whitespace-nowrap overflow-x-auto no-scrollbar pr-px">
           <RenderIf condition={isAdvancedViewEnabled}>
             {<>
               <div className="shrink-0">
