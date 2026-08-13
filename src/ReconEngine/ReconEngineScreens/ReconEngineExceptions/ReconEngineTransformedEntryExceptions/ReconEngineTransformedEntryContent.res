@@ -149,6 +149,7 @@ let make = (~accountId: string) => {
         popupFilterFields=[]
         initialFixedFilters=[]
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+        mandatoryRemoteKeys=[transformationConfigFilterKey]
         tabNames=filterKeys
         key="ReconEngineTransformedEntriesExceptionsFilters"
         updateUrlWith=updateExistingKeys
