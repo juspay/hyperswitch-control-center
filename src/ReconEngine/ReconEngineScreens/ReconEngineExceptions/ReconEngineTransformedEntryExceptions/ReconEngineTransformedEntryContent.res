@@ -23,7 +23,6 @@ let make = (~accountId: string) => {
     FilterContext.filterContext,
   )
 
-  let (offset, setOffset) = React.useState(_ => 0)
   let searchTypeRef = React.useRef(SearchStagingEntryId)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
@@ -184,8 +183,8 @@ let make = (~accountId: string) => {
         )}
         resultsPerPage=10
         totalResults={processingEntries->Array.length}
-        offset
-        setOffset
+        offset=0
+        setOffset={_ => ()}
         currentFetchCount={processingEntries->Array.length}
         dataNotFoundComponent=noExceptionsFoundComponent
         tableheadingClass="h-12"
