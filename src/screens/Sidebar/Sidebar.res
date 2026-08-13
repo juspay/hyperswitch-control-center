@@ -185,13 +185,13 @@ module SidebarItem = {
           <Link to_={GlobalVars.appendDashboardPath(~url=`${link}${getSearchParamByLink(link)}`)}>
             <div
               onClick={_ => isMobileView ? setIsSidebarExpanded(_ => false) : ()}
-              className={`${textColor} flex flex-row items-center cursor-pointer transition duration-300 ${selectedClass} px-3 py-1.5 mx-1 ${hoverColor}`}>
-              <SidebarOption name icon isSidebarExpanded isSelected />
+              className={`${textColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer ${hoverColor} ${selectedClass}`}>
+              <SidebarOption name icon isSidebarExpanded isSelected showIcon />
               <RenderIf condition={isSidebarExpanded}>
                 <Icon
                   size={iconSize->Option.getOr(26)}
                   name=iconTag
-                  className={`ml-2 ${iconStyles->Option.getOr("w-26 h-26")}`}
+                  className={iconStyles->Option.getOr("w-26 h-26")}
                 />
               </RenderIf>
             </div>

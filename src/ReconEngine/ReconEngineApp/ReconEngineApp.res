@@ -14,6 +14,10 @@ let make = () => {
       <AccessControl isEnabled={featureFlagDetails.devReconEngineV1} authorization=Access>
         <ReconEngineOverviewContainer />
       </AccessControl>
+    | list{"v1", "recon-engine", "setup"} =>
+      <AccessControl isEnabled={featureFlagDetails.devReconEngineV1} authorization=Access>
+        <ReconEngineSetupExplainerPage />
+      </AccessControl>
     | list{"v1", "recon-engine", "transactions", ..._} =>
       <AccessControl
         isEnabled={featureFlagDetails.devReconEngineV1}
@@ -48,5 +52,6 @@ let make = () => {
     | _ => <EmptyPage path="/v1/recon-engine/overview" />
     }}
     <ReconEngineActivityFAB />
+    <ReconEngineSetupExplainerTrigger />
   </>
 }

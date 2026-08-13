@@ -14,6 +14,14 @@ let reconEngineSidebars = (
     selectedIcon: "nd-overview-fill",
   })
 
+  let reconSetupMap = LinkWithTag({
+    name: "Setup Map",
+    link: `/v1/recon-engine/setup`,
+    access: Access,
+    icon: "nd-workflow",
+    iconTag: "betaTag",
+  })
+
   let reconTransactions = Link({
     name: "Transactions",
     link: `/v1/recon-engine/transactions`,
@@ -66,7 +74,7 @@ let reconEngineSidebars = (
     selectedIcon: "nd-pipelines-fill",
   })
 
-  let sidebars = [reconOverview, reconTransactions, exceptions, reconRuleCreation]
+  let sidebars = [reconOverview, reconSetupMap, reconTransactions, exceptions, reconRuleCreation]
 
   if isReconEnginePipelinesEnabled {
     sidebars->Array.push(reconPipelines)
