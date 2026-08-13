@@ -2654,7 +2654,7 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
     fields: {
       default: "test_value",
       overrides: {
-        "Enter Connector label": "tsys_transit_default",
+        "Enter merchant url": "https://example.com",
       },
       fieldLabels: [
         "Device Id *",

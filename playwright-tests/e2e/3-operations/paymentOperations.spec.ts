@@ -858,7 +858,7 @@ test.describe("Payment Operations", () => {
             undefined,
             undefined,
             page,
-          ).catch(() => {});
+          ).catch(() => { });
         }
       }
 
@@ -2041,7 +2041,7 @@ test.describe("Payment Operations", () => {
 
       await expect(page.getByText("Summary")).toBeVisible();
       await expect(
-        page.getByText("123.45 USD").filter({ visible: true }).nth(1),
+        page.getByText('123.45 USD SUCCEEDED'),
       ).toBeVisible();
       await expect(page.getByText("SUCCEEDED").nth(3)).toBeVisible();
 
@@ -2209,7 +2209,6 @@ test.describe("Payment Operations", () => {
 
       for (const [label, value] of Object.entries(expectedRefundValues)) {
         await expect(paymentOperations.dataLabel(label).first()).toContainText(
-          //getByLabel('Payment Attempts')
           value,
         );
       }
