@@ -1,7 +1,6 @@
 open LogicUtils
 open OrderTypes
 open CommonAuthUtils
-
 let getFilterTypeFromString = (filterType): filter => {
   switch filterType {
   | "connector" => #connector
