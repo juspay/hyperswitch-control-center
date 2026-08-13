@@ -5,22 +5,20 @@ let make = (~ruleDetails: rulePayload) => {
   open ReconEngineOverviewSummaryUtils
   open ReconEngineOverviewHelper
   open LogicUtils
+  open ReconEngineFilterUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (ruleAccountsOverview, setRuleAccountsOverview) = React.useState(_ => [])
   let getRuleAccountBreakdown = ReconEngineHooks.useGetRuleAccountBreakdown()
   let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
   let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
-  let filterValueJsonWithGlobalDate = ReconEngineFilterUtils.mergeGlobalDateFilters(
-    ~filterValueJson,
-    ~globalDateFilters,
-  )
+  let filterValueJsonWithGlobalDate = mergeGlobalDateFilters(~filterValueJson, ~globalDateFilters)
 
   let getAccountAndTransactionData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
 
-      let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
+      let baseQueryString = buildQueryStringFromFilters(
         ~filterValueJson=filterValueJsonWithGlobalDate,
       )
       let suffix = `rule_ids=${ruleDetails.rule_id}`
@@ -35,7 +33,7 @@ let make = (~ruleDetails: rulePayload) => {
   }
 
   React.useEffect(() => {
-    if ReconEngineFilterUtils.shouldFetchWithGlobalDateFilters(~globalDateFilters) {
+    if hasGlobalDateFilterValue(~globalDateFilters) {
       getAccountAndTransactionData()->ignore
     }
     None

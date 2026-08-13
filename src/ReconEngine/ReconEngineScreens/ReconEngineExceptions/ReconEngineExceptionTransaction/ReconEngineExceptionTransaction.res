@@ -126,7 +126,7 @@ let make = (~ruleId: string) => {
   }, [])
 
   React.useEffect(() => {
-    if shouldFetchWithGlobalDateFilters(~globalDateFilters) {
+    if hasGlobalDateFilterValue(~globalDateFilters) {
       goToFirstPage()
     }
     None

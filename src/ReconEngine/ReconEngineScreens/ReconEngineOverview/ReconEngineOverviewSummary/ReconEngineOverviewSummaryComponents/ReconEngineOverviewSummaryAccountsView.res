@@ -179,7 +179,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if ReconEngineFilterUtils.shouldFetchWithGlobalDateFilters(~globalDateFilters) {
+    if ReconEngineFilterUtils.hasGlobalDateFilterValue(~globalDateFilters) {
       getAccountsData()->ignore
     }
     None

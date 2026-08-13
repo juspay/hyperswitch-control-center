@@ -75,7 +75,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   }, [])
 
   React.useEffect(() => {
-    if shouldFetchWithGlobalDateFilters(~globalDateFilters) {
+    if hasGlobalDateFilterValue(~globalDateFilters) {
       goToFirstPage()
     }
     None

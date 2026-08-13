@@ -7,6 +7,7 @@ let make = () => {
   open ReconEngineDataTransformedEntriesUtils
   open ReconEngineDataTransformedEntriesTypes
   open ReconEngineHooks
+  open ReconEngineFilterUtils
 
   let getProcessingEntriesV2 = useGetCursorPage(
     ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST_V2,
@@ -19,10 +20,7 @@ let make = () => {
     FilterContext.filterContext,
   )
   let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
-  let filterValueJsonWithGlobalDate = ReconEngineFilterUtils.mergeGlobalDateFilters(
-    ~filterValueJson,
-    ~globalDateFilters,
-  )
+  let filterValueJsonWithGlobalDate = mergeGlobalDateFilters(~filterValueJson, ~globalDateFilters)
   let searchTypeRef = React.useRef(SearchStagingEntryId)
   let (searchText, setSearchText) = React.useState(_ => "")
 
@@ -83,7 +81,7 @@ let make = () => {
   }, [])
 
   React.useEffect(() => {
-    if ReconEngineFilterUtils.shouldFetchWithGlobalDateFilters(~globalDateFilters) {
+    if hasGlobalDateFilterValue(~globalDateFilters) {
       goToFirstPage()
     }
     None
@@ -139,7 +137,7 @@ let make = () => {
         customTitleStyle={`${heading.lg.semibold}`}
         customHeadingStyle="py-0"
       />
-      <PortalCapture name=ReconEngineFilterUtils.globalDateFilterPortalName customStyle="-mt-4" />
+      <PortalCapture name=globalDateFilterPortalName customStyle="-mt-4" />
     </div>
     <ReconEngineDataTransformedEntriesOverviewCards selectedTransformationHistoryId=None />
     <PageLoaderWrapper screenState>

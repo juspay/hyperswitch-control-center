@@ -85,7 +85,7 @@ let make = (
   }
 
   React.useEffect(() => {
-    if ReconEngineFilterUtils.shouldFetchWithGlobalDateFilters(~globalDateFilters) {
+    if ReconEngineFilterUtils.hasGlobalDateFilterValue(~globalDateFilters) {
       goToFirstPage()
     }
     None

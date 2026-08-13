@@ -9,6 +9,7 @@ let make = (
   open ReconEngineDataTransformedEntriesTypes
   open ReconEngineTypes
   open ReconEngineHooks
+  open ReconEngineFilterUtils
 
   let getProcessingEntriesV2 = useGetCursorPage(
     ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST_V2,
@@ -25,10 +26,7 @@ let make = (
     FilterContext.filterContext,
   )
   let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
-  let filterValueJsonWithGlobalDate = ReconEngineFilterUtils.mergeGlobalDateFilters(
-    ~filterValueJson,
-    ~globalDateFilters,
-  )
+  let filterValueJsonWithGlobalDate = mergeGlobalDateFilters(~filterValueJson, ~globalDateFilters)
 
   let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
   let title = "Transformed Entries"
@@ -63,9 +61,7 @@ let make = (
           "transformation_history_ids",
           selectedTransformationHistoryId->JSON.Encode.string,
         )
-        let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
-          ~filterValueJson=enhancedFilterValueJson,
-        )
+        let queryString = buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson)
         let stagingOverview = await getStagingEntriesOverview(~queryParameters=Some(queryString))
         callback(stagingOverview->getTotalNeedsManualReviewEntries > 0.0)
       } catch {
@@ -101,7 +97,7 @@ let make = (
   }, [])
 
   React.useEffect(() => {
-    if ReconEngineFilterUtils.shouldFetchWithGlobalDateFilters(~globalDateFilters) {
+    if hasGlobalDateFilterValue(~globalDateFilters) {
       goToFirstPage()
       checkNeedsManualReview()->ignore
     }

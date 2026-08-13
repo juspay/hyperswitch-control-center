@@ -194,6 +194,7 @@ module FlowWithLayoutControls = {
 let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   open ReconEngineOverviewSummaryUtils
   open ReactFlow
+  open ReconEngineFilterUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (selectedNodeId, setSelectedNodeId) = React.useState(_ => None)
@@ -202,7 +203,7 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   let (reactFlowNodes, setNodes, onNodesChange) = useNodesState([])
   let (reactFlowEdges, setEdges, onEdgesChange) = useEdgesState([])
   let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
-  let filterValueJsonWithGlobalDate = ReconEngineFilterUtils.mergeGlobalDateFilters(
+  let filterValueJsonWithGlobalDate = mergeGlobalDateFilters(
     ~filterValueJson=Dict.make(),
     ~globalDateFilters,
   )
@@ -236,9 +237,7 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
 
-      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
-        ~filterValueJson=filterValueJsonWithGlobalDate,
-      )
+      let queryString = buildQueryStringFromFilters(~filterValueJson=filterValueJsonWithGlobalDate)
       let ruleAccountsOverview = await getRuleAccountBreakdown(~queryParameters=Some(queryString))
 
       setAllData(_ => Some(ruleAccountsOverview))
@@ -263,7 +262,7 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   }
 
   React.useEffect(() => {
-    if ReconEngineFilterUtils.shouldFetchWithGlobalDateFilters(~globalDateFilters) {
+    if hasGlobalDateFilterValue(~globalDateFilters) {
       getAccountsData()->ignore
     }
     None

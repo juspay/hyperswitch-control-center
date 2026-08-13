@@ -45,7 +45,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   }
 
   React.useEffect(() => {
-    if ReconEngineFilterUtils.shouldFetchWithGlobalDateFilters(~globalDateFilters) {
+    if ReconEngineFilterUtils.hasGlobalDateFilterValue(~globalDateFilters) {
       fetchReconciliationVolume()->ignore
     }
     None

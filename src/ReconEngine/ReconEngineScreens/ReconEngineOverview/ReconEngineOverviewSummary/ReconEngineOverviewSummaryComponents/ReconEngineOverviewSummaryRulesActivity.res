@@ -30,7 +30,7 @@ let make = (~onRuleClick: string => unit) => {
   }
 
   React.useEffect(() => {
-    if ReconEngineFilterUtils.shouldFetchWithGlobalDateFilters(~globalDateFilters) {
+    if ReconEngineFilterUtils.hasGlobalDateFilterValue(~globalDateFilters) {
       fetchRulesActivity()->ignore
     }
     None

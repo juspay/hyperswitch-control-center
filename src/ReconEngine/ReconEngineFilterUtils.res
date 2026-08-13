@@ -28,7 +28,7 @@ let mergeGlobalDateFilters = (
   Array.concat(filterValueJson->Dict.toArray, dateEntries)->Dict.fromArray
 }
 
-let shouldFetchWithGlobalDateFilters = (~globalDateFilters: globalDateFilter) =>
+let hasGlobalDateFilterValue = (~globalDateFilters: globalDateFilter) =>
   globalDateFilters.startTime->isNonEmptyString && globalDateFilters.endTime->isNonEmptyString
 
 let getAccountOptionsFromTransactions = (
