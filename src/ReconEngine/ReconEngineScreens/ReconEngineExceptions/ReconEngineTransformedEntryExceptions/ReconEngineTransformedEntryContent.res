@@ -35,12 +35,6 @@ let make = (~accountId: string) => {
   let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
   let sortOrder = sortDict->getMappedValueFromDict(title, Desc, getSortOrder)
 
-  let mixpanelEvent = MixpanelHook.useSendEvent()
-
-  let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="recon_engine_transformed_entries_exceptions_date_filter_opened")
-  }
-
   let {
     items: processingEntries,
     cursors,
@@ -154,10 +148,7 @@ let make = (~accountId: string) => {
         initialFilters={ReconEngineTransformedEntryExceptionsUtils.initialDisplayFilters()}
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields(
-          null,
-          ~events=dateDropDownTriggerMixpanelCallback,
-        )}
+        initialFixedFilters=[]
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames=filterKeys
         key="ReconEngineTransformedEntriesExceptionsFilters"

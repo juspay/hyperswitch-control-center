@@ -8,6 +8,7 @@ let make = () => {
   open HSAnalyticsUtils
 
   let getAccounts = useGetAccounts()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {updateExistingKeys, removeKeys, filterValueJson} = React.useContext(
     FilterContext.filterContext,
   )
@@ -25,9 +26,9 @@ let make = () => {
     switch accountData->Array.find(account => account.account_id === accountIdFromUrl) {
     | Some(account) => account.account_id
     | None =>
-      accountData
-      ->Array.get(0)
-      ->mapOptionOrDefault("", account => account.account_id)
+      (
+        accountData->getValueFromArray(0, Dict.make()->ReconEngineUtils.accountItemToObjMapper)
+      ).account_id
     }
   }, (url.search, accountData))
 
@@ -86,6 +87,10 @@ let make = () => {
       : 0
   }, (selectedAccountId, accountData))
 
+  let dateDropDownTriggerMixpanelCallback = () => {
+    mixpanelEvent(~eventName="recon_engine_transformed_entries_exceptions_date_filter_opened")
+  }
+
   let resetFiltersForAccountSwitch = () => {
     let keysToRemove =
       filterValueJson
@@ -121,6 +126,25 @@ let make = () => {
         customTitleStyle={`${heading.lg.semibold}`}
         customHeadingStyle="py-0"
       />
+      <div className="flex flex-row -ml-1.5">
+        <DynamicFilter
+          title="ReconEngineTransformedEntryExceptionsDateFilter"
+          initialFilters=[]
+          options=[]
+          popupFilterFields=[]
+          initialFixedFilters={initialFixedFilterFields(
+            null,
+            ~events=dateDropDownTriggerMixpanelCallback,
+          )}
+          defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+          tabNames=[]
+          key="ReconEngineTransformedEntryExceptionsDateFilter"
+          updateUrlWith=updateExistingKeys
+          filterFieldsPortalName={filterFieldsPortalName}
+          showCustomFilter=false
+          refreshFilters=false
+        />
+      </div>
     </div>
     <PageLoaderWrapper screenState>
       <RenderIf condition={accountData->isEmptyArray}>
