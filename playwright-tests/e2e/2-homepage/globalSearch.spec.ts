@@ -551,6 +551,84 @@ test.describe("Global Search Bar - Global search filters ON", () => {
   });
 });
 
+test.describe("Global Search - Clipboard ID suggestions", () => {
+  test.beforeEach(async ({ page, context }) => {
+    const email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    await page.route("**/dashboard/config/feature*", async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      if (json?.features) {
+        json.features.global_search = true;
+        json.features.global_search_filters = true;
+      }
+      await route.fulfill({ response, json });
+    });
+    await mockPaymentFilters(page);
+    await page.route("**/analytics/v1/search", async (route) => {
+      await route.fulfill({ status: 200, json: [] });
+    });
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+  });
+
+  for (const { idType, id, clipboardText } of [
+    {
+      idType: "payment_id" as const,
+      id: "pay_clipboard_123ABC",
+      clipboardText: "  pay_clipboard_123ABC\n",
+    },
+    {
+      idType: "refund_id" as const,
+      id: "ref_clipboard_456XYZ",
+      clipboardText: "ref_clipboard_456XYZ",
+    },
+  ]) {
+    test(`should suggest and search the ${idType.replace("_", " ")} from the clipboard`, async ({
+      page,
+    }) => {
+      const homePage = new HomePage(page);
+      await page.evaluate(
+        (text) => navigator.clipboard.writeText(text),
+        clipboardText,
+      );
+      await homePage.globalSearchInput.click();
+
+      await expect(homePage.globalSearchClipboardHeader).toBeVisible();
+      const suggestion = page.getByText(id, { exact: true });
+      await expect(suggestion).toBeVisible();
+      await expect(
+        page.getByText("Click to search", { exact: true }),
+      ).toBeVisible();
+
+      const searchRequest = page.waitForRequest(
+        (request) =>
+          request.url().includes("/analytics/v1/search") &&
+          request.method() === "POST",
+      );
+      await suggestion.click();
+
+      await expect(homePage.globalSearchModalInput).toHaveValue(id);
+      await expect(homePage.globalSearchClipboardHeader).not.toBeVisible();
+
+      expect((await searchRequest).postDataJSON()).toEqual({
+        query: id,
+      });
+    });
+  }
+
+  test("should not suggest unsupported clipboard content", async ({ page }) => {
+    const homePage = new HomePage(page);
+    await page.evaluate(() =>
+      navigator.clipboard.writeText("payout_clipboard_123ABC"),
+    );
+    await homePage.globalSearchInput.click();
+
+    await expect(homePage.globalSearchSuggestedFiltersHeader).toBeVisible();
+    await expect(homePage.globalSearchClipboardHeader).not.toBeAttached();
+  });
+});
+
 test.describe("Global Search Results navigation", () => {
   let email = "";
 

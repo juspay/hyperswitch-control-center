@@ -147,7 +147,7 @@ module EditEntryModalContent = {
             <FormRenderer.SubmitButton
               text="Save changes"
               buttonType={Primary}
-              showToolTip=false
+              toolTipFullWidth=true
               customSubmitButtonStyle="!w-full"
             />
           </div>
