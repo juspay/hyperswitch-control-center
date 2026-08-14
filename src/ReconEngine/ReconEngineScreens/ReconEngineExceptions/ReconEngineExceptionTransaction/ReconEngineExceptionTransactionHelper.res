@@ -93,7 +93,8 @@ module ResolutionModal = {
     | (ResolvingException(EditEntry), Some(EditEntryModal))
     | (ResolvingException(CreateNewEntry), Some(CreateEntryModal))
     | (ResolvingException(MarkAsReceived), Some(MarkAsReceivedModal))
-    | (ResolvingException(LinkStagingEntriesToTransaction), Some(LinkStagingEntriesModal)) => true
+    | (ResolvingException(ReplaceStagingEntryToTransaction), Some(LinkStagingEntriesModal))
+    | (ResolvingException(LinkStagingEntryToTransaction), Some(LinkStagingEntriesModal)) => true
     | _ => false
     }
 
@@ -135,6 +136,10 @@ module ResolutionModal = {
         }
       | ResolvingException(CreateNewEntry) => {
           setExceptionStage(_ => ShowResolutionOptions(NoResolutionOptionNeeded))
+          setActiveModal(_ => None)
+        }
+      | ResolvingException(LinkStagingEntryToTransaction) => {
+          setExceptionStage(_ => ShowResolutionOptions(FixEntries))
           setActiveModal(_ => None)
         }
       | _ => ()
