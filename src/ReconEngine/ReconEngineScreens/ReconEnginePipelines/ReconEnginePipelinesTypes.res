@@ -25,6 +25,8 @@ type pipelineStatCardData = {
 
 type fileUploadStatus = Idle | UploadFailed(string)
 
+type filePreviewState = PreviewLoading | PreviewLoaded(string) | PreviewFailed
+
 type selectedFileItem<'file> = {
   fileId: string,
   file: 'file,

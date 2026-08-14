@@ -41,6 +41,8 @@ let make = (~ingestionHistoryId: string) => {
   let (selectedTransformation, setSelectedTransformation) = React.useState(_ =>
     Dict.make()->transformationHistoryItemToObjMapper
   )
+  let (showFilePreview, setShowFilePreview) = React.useState(_ => false)
+  let (previewState, setPreviewState) = React.useState(_ => PreviewLoading)
 
   let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
   let sortOrder =
@@ -108,6 +110,37 @@ let make = (~ingestionHistoryId: string) => {
     }
   }
 
+  let onPreviewFile = async (~historyItem: ingestionHistoryType) => {
+    setShowFilePreview(_ => true)
+    setPreviewState(_ => PreviewLoading)
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~hyperswitchReconType=#DOWNLOAD_INGESTION_HISTORY_FILE,
+        ~methodType=Get,
+        ~id=Some(historyItem.id),
+      )
+      let res = await fetchApi(
+        url,
+        ~method_=Get,
+        ~xFeatureRoute,
+        ~forceCookies,
+        ~sendV1DummyApiKeyHeader,
+      )
+      let content = switch historyItem.file_name->ReconEnginePipelinesUploadUtils.fileExtensionOf {
+      | Some(Xlsx) =>
+        let buf = await res->Fetch.Response.arrayBuffer
+        Xlsx.firstSheetToCsv(buf)
+      | _ => await res->Fetch.Response.text
+      }
+      setPreviewState(_ => PreviewLoaded(content))
+    } catch {
+    | _ =>
+      setPreviewState(_ => PreviewFailed)
+      showToast(~message="Failed to load file preview. Please try again.", ~toastType=ToastError)
+    }
+  }
+
   let fetchPipelineDetails = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -169,14 +202,24 @@ let make = (~ingestionHistoryId: string) => {
             : ingestionHistoryId}
         />
         <RenderIf condition={historyItem.id->isNonEmptyString}>
-          <Button
-            text="Download file"
-            leftIcon={CustomIcon(<Icon name="nd-download-down" size=12 />)}
-            buttonType=Button.Secondary
-            buttonSize=Small
-            onClick={_ => onDownloadFile(~historyItem)->ignore}
-            maxButtonWidth="!w-fit"
-          />
+          <div className="flex items-center gap-2">
+            <Button
+              text="Preview"
+              leftIcon={CustomIcon(<Icon name="nd-eye-on" size=12 />)}
+              buttonType=Button.Secondary
+              buttonSize=Small
+              onClick={_ => onPreviewFile(~historyItem)->ignore}
+              maxButtonWidth="!w-fit"
+            />
+            <Button
+              text="Download file"
+              leftIcon={CustomIcon(<Icon name="nd-download-down" size=12 />)}
+              buttonType=Button.Secondary
+              buttonSize=Small
+              onClick={_ => onDownloadFile(~historyItem)->ignore}
+              maxButtonWidth="!w-fit"
+            />
+          </div>
         </RenderIf>
       </div>
       <RenderIf condition={historyItem.id->isNonEmptyString}>
@@ -337,6 +380,12 @@ let make = (~ingestionHistoryId: string) => {
       setShowModal=setShowTransformationRunDetails
       selectedTransformation
       accountData
+    />
+    <ReconEnginePipelinesFilePreviewDrawer
+      showModal=showFilePreview
+      setShowModal=setShowFilePreview
+      fileName=historyItem.file_name
+      previewState
     />
   </PageLoaderWrapper>
 }

@@ -108,6 +108,7 @@
     "recoil": "^0.1.2",
     "rescript-webapi": "0.10.0",
     "superposition-embeddable-ui": "https://github.com/juspay/superposition-embeddable-ui/releases/download/v0.1.4/superposition-embeddable-ui-0.1.4.tgz",
-    "tailwindcss": "^3.0.0"
+    "tailwindcss": "^3.0.0",
+    "xlsx": "^0.18.5"
   }
 }

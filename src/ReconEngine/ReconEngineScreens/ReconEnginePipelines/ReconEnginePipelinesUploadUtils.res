@@ -13,12 +13,14 @@ let bytesPerMegabyte = bytesPerKilobyte * 1000
 let maxFileSizeBytes = 25 * bytesPerMegabyte
 let maxFilesCount = 3
 
-let isSupportedFileType = (fileName: string): bool => {
+let fileExtensionOf = (fileName: string): option<supportedFileExtensions> => {
   let lowerFileName = fileName->String.toLowerCase
-  supportedFileTypes
-  ->Array.map(ft => `.${(ft :> string)->String.toLowerCase}`)
-  ->Array.find(ext => lowerFileName->String.endsWith(ext)) != None
+  supportedFileTypes->Array.find(ft =>
+    lowerFileName->String.endsWith(`.${(ft :> string)->String.toLowerCase}`)
+  )
 }
+
+let isSupportedFileType = (fileName: string): bool => fileName->fileExtensionOf != None
 
 let fileListToArray = fileList => {
   Array.fromInitializer(~length=fileList->Array.length, i => fileList[i])->Array.filterMap(x => x)

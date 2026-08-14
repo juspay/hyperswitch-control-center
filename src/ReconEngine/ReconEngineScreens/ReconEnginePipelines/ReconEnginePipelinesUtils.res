@@ -2,6 +2,12 @@ open ReconEngineTypes
 open LogicUtils
 open ReconEnginePipelinesTypes
 
+let getMonacoLanguageFromFileName = (fileName: string): string => {
+  switch fileName->ReconEnginePipelinesUploadUtils.fileExtensionOf {
+  | Some(Csv | Ext | Xlsx | Txt) | None => "plaintext"
+  }
+}
+
 let getIngestionCounts = (ingestionHistory: array<ingestionHistoryType>) =>
   ingestionHistory->Array.reduce((0, 0, 0, 0), ((total, processed, failed, processing), item) =>
     switch item.status {
