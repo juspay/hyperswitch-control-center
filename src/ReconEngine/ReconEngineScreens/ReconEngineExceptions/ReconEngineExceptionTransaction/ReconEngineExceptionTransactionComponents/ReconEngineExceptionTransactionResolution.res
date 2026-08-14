@@ -701,7 +701,14 @@ module LinkStagingEntryModalContent = {
     }, (currentExceptionDetails.id, updatedEntriesList))
 
     let handleRowSelect = (updateFn: array<JSON.t> => array<JSON.t>) => {
-      setSelectedRows(updateFn)
+      setSelectedRows(prev => {
+        let updated = updateFn(prev)
+        updated->Array.length > 1
+          ? updated
+            ->Array.get(updated->Array.length - 1)
+            ->Option.mapOr([], row => [row])
+          : updated
+      })
     }
 
     let stagingEntriesTableSections = React.useMemo(() => {
@@ -727,7 +734,7 @@ module LinkStagingEntryModalContent = {
       if valuesDict->isEmptyDict {
         errors->Dict.set(
           "staging_entry",
-          "Please select at least one transformed entry."->JSON.Encode.string,
+          "Please select a transformed entry to link."->JSON.Encode.string,
         )
       }
       errors->JSON.Encode.object
