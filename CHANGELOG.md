@@ -3,6 +3,31 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.14.1
+
+### Features
+
+- Add date range filter in recon engine activity FAB ([#5366](https://github.com/juspay/hyperswitch-control-center/pull/5366)) ([`51bf511`](https://github.com/juspay/hyperswitch-control-center/commit/51bf5117f836a68f9442b059b214386d0249cd15))
+- Add link staging entry exception resolution ([#5375](https://github.com/juspay/hyperswitch-control-center/pull/5375)) ([`1557a27`](https://github.com/juspay/hyperswitch-control-center/commit/1557a27f8ce613d6a6fbfb7c0f96ec3336b31907))
+- Add CUG routing header to dashboard API requests ([#5397](https://github.com/juspay/hyperswitch-control-center/pull/5397)) ([`106d84a`](https://github.com/juspay/hyperswitch-control-center/commit/106d84a25280fcc7bed9f4ffd1bb9e242a2dd43a))
+
+### Bug Fixes
+
+- Revamp transformed entry exceptions UI ([#5332](https://github.com/juspay/hyperswitch-control-center/pull/5332)) ([`be86645`](https://github.com/juspay/hyperswitch-control-center/commit/be86645ad6b19927203faf6d36272b9d8c37bf53))
+- Persist payment list source selection ([#5379](https://github.com/juspay/hyperswitch-control-center/pull/5379)) ([`6f4af59`](https://github.com/juspay/hyperswitch-control-center/commit/6f4af591d8c0260c1bcc3d64e0608aace658c415))
+
+### Testing
+
+- Expand Playwright end-to-end coverage ([#5344](https://github.com/juspay/hyperswitch-control-center/pull/5344)) ([`de91b06`](https://github.com/juspay/hyperswitch-control-center/commit/de91b0604da32f7ebba5665288f495e334785a92))
+
+### Miscellaneous Tasks
+
+- Send and format datetime without converting ([#5395](https://github.com/juspay/hyperswitch-control-center/pull/5395)) ([`45f6520`](https://github.com/juspay/hyperswitch-control-center/commit/45f652077b2630f281b71c53fb61222585385189))
+
+**Full Changelog:** [`2026.08.14.0...2026.08.14.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.14.0...2026.08.14.1)
+
+- - -
+
 ## 2026.08.14.0
 
 ### Features
