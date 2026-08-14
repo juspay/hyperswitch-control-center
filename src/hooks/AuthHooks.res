@@ -22,6 +22,7 @@ let getHeaders = (
   ~merchantId,
   ~profileId,
   ~sendV1DummyApiKeyHeader,
+  ~cugUser,
   ~version: UserInfoTypes.version,
 ) => {
   let isMixpanel = uri->String.includes("mixpanel")
@@ -48,6 +49,9 @@ let getHeaders = (
     }
     if xFeatureRoute {
       headersForXFeature(~headers, ~uri)
+    }
+    if cugUser {
+      headers->Dict.set("x-cug-user", "true")
     }
 
     // this header is specific to Intelligent Routing (Dynamic Routing)
@@ -86,6 +90,7 @@ let useApiFetcher = () => {
   let url = RescriptReactRouter.useUrl()
   let setReqProgress = Recoil.useSetRecoilState(ApiProgressHooks.pendingRequestCount)
   let {setEmbeddedStateToError} = React.useContext(EmbeddedCheckProvider.embeddedContext)
+  let {cugUser} = FeatureFlagAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   React.useCallback(
     (
@@ -151,6 +156,7 @@ let useApiFetcher = () => {
               ~merchantId,
               ~profileId,
               ~sendV1DummyApiKeyHeader,
+              ~cugUser,
               ~version,
             ),
             ~signal?, // to be used in case of aborting requests
@@ -202,6 +208,6 @@ let useApiFetcher = () => {
         )
       })
     },
-    [],
+    [cugUser],
   )
 }

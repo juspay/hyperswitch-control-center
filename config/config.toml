@@ -15,6 +15,7 @@ dynamo_simulation_template_url=""
 branding=false
 connector_clone=false
 send_v1_dummy_api_key_header=false
+cug_user=false
 mixpanel=false
 test_live_toggle=false
 is_live_mode=false
