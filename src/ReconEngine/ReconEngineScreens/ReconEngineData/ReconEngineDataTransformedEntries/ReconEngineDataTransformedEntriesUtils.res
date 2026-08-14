@@ -50,10 +50,10 @@ let buildProcessingEntriesV2Body = (
   ~transformationHistoryIds: array<string>=[],
 ) => {
   let statusFilter = filterValueJson->getStrArrayFromDict("status", [])
-  let statusValues =
+  let detailedStatuses =
     statusFilter->isEmptyArray
-      ? getProcessingEntryStatusValueFromStatusList([Pending, Processed, NeedsManualReview, Void])
-      : statusFilter
+      ? [Pending, Processed, Void, NeedsManualReview(UnknownStagingEntryManualReviewData)]
+      : statusFilter->Array.map(getStagingEntryDetailedStatusFromValue)
 
   let entryTypeFilter = filterValueJson->getStrArrayFromDict("entry_type", [])
   let accountIdFilter = filterValueJson->getStrArrayFromDict("account_ids", [])
@@ -65,7 +65,7 @@ let buildProcessingEntriesV2Body = (
   let hasTimeRange = startTime->isNonEmptyString && endTime->isNonEmptyString
 
   let filtersDict = Dict.make()
-  filtersDict->Dict.set("status", statusValues->getJsonFromArrayOfString)
+  filtersDict->Dict.set("detailed_status", detailedStatuses->getStagingEntryDetailedStatusPayload)
 
   if entryTypeFilter->isNonEmptyArray {
     filtersDict->Dict.set("entry_type", entryTypeFilter->getJsonFromArrayOfString)
@@ -131,7 +131,7 @@ let getProcessingEntryPayloadFromDict = dict => {
 
 let sumStagingOverviewStatusCount = (
   accountsOverview: array<accountStagingEntriesOverview>,
-  ~matchesStatus: processingEntryStatus => bool,
+  ~matchesStatus: domainStagingEntryStatus => bool,
 ): float => {
   accountsOverview
   ->Array.reduce(0, (acc, account) => {
@@ -146,7 +146,14 @@ let getTotalNeedsManualReviewEntries = (
   accountsOverview: array<accountStagingEntriesOverview>,
 ): float => {
   accountsOverview->sumStagingOverviewStatusCount(~matchesStatus=status =>
-    status == NeedsManualReview
+    switch status {
+    | NeedsManualReview(_) => true
+    | Pending
+    | Processed
+    | Void
+    | Archived
+    | UnknownDomainStagingEntryStatus => false
+    }
   )
 }
 
@@ -256,7 +263,9 @@ let initialDisplayFilters = (~accountOptions) => {
     {label: "Debit", value: "debit"},
   ]
 
-  let statusOptions = getStagingEntryStatusOptions([Processed, Pending, NeedsManualReview, Void])
+  let statusOptions = getGroupedStagingEntryDetailedStatusOptions(
+    stagingEntryDetailedStatusFilterOptions,
+  )
 
   [
     (

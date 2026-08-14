@@ -1,5 +1,6 @@
 open ReconEngineTypes
 open LogicUtils
+open ReconEngineFilterUtils
 open ReconEnginePipelinesTypes
 
 let getIngestionCounts = (ingestionHistory: array<ingestionHistoryType>) =>
@@ -20,8 +21,8 @@ let getStagingOverviewCounts = (stagingOverviewData: array<accountStagingEntries
       statusAmount,
     ) =>
       switch statusAmount.status {
-      | Archived | Void | UnknownProcessingEntryStatus => (total, needsManualReview)
-      | NeedsManualReview => (total + statusAmount.count, needsManualReview + statusAmount.count)
+      | Archived | Void | UnknownDomainStagingEntryStatus => (total, needsManualReview)
+      | NeedsManualReview(_) => (total + statusAmount.count, needsManualReview + statusAmount.count)
       | Pending | Processed => (total + statusAmount.count, needsManualReview)
       }
     )
@@ -51,13 +52,9 @@ let getPipelineStatCards = (
     )->CurrencyFormatUtils.valueFormatter(Rate)
 
   let processedStatusValue =
-    ReconEngineFilterUtils.getIngestionTransformationHistoryStatusValueFromStatusList([
-      Processed,
-    ])->Array.joinWith(",")
+    getIngestionTransformationHistoryStatusValueFromStatusList([Processed])->Array.joinWith(",")
   let failedStatusValue =
-    ReconEngineFilterUtils.getIngestionTransformationHistoryStatusValueFromStatusList([
-      Failed,
-    ])->Array.joinWith(",")
+    getIngestionTransformationHistoryStatusValueFromStatusList([Failed])->Array.joinWith(",")
 
   [
     {
@@ -185,22 +182,17 @@ let buildStagingEntriesV2Body = (
   ~limit=10,
 ) => {
   let statusFilter = filterValueJson->getStrArrayFromDict("status", [])
-  let statusValues =
+  let detailedStatuses =
     statusFilter->isEmptyArray
-      ? ReconEngineFilterUtils.getProcessingEntryStatusValueFromStatusList([
-          Pending,
-          Processed,
-          NeedsManualReview,
-          Void,
-        ])
-      : statusFilter
+      ? [Pending, Processed, Void, NeedsManualReview(UnknownStagingEntryManualReviewData)]
+      : statusFilter->Array.map(getStagingEntryDetailedStatusFromValue)
 
   let entryTypeFilter = filterValueJson->getStrArrayFromDict("entry_type", [])
   let transformationHistoryIds =
     filterValueJson->getStrArrayFromDict("transformation_history_ids", [])
 
   let filtersDict = Dict.make()
-  filtersDict->Dict.set("status", statusValues->getJsonFromArrayOfString)
+  filtersDict->Dict.set("detailed_status", detailedStatuses->getStagingEntryDetailedStatusPayload)
 
   if entryTypeFilter->isNonEmptyArray {
     filtersDict->Dict.set("entry_type", entryTypeFilter->getJsonFromArrayOfString)
@@ -278,12 +270,9 @@ let initialStagingEntriesFilters = (
     {label: "Credit", value: "credit"},
     {label: "Debit", value: "debit"},
   ]
-  let statusOptions = ReconEngineFilterUtils.getStagingEntryStatusOptions([
-    Processed,
-    Pending,
-    NeedsManualReview,
-    Void,
-  ])
+  let statusOptions = getGroupedStagingEntryDetailedStatusOptions(
+    stagingEntryDetailedStatusFilterOptions,
+  )
 
   [
     (
