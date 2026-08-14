@@ -32,6 +32,12 @@ let make = () => {
     ->Option.forEach(elem => elem->DOMUtils.toInputElement->DOMUtils.setInputValue(""))
   }
 
+  let rejectFile = message => {
+    clearFileInput()
+    setSelectedFile(_ => None)
+    showToast(~message, ~toastType=ToastError)
+  }
+
   let fetchJobs = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -96,38 +102,29 @@ let make = () => {
           fileReader.onload = event => {
             if fileSelectionTokenRef.current === currentSelectionToken {
               let fileContents = ReactEvent.Form.target(event)["result"]
-              if fileContents->isBlocklistCsvRowCountAllowed {
+              let dataRowCount = fileContents->getBlocklistCsvDataRowCount
+              if dataRowCount->isBlocklistCsvDataRowCountAllowed {
                 setSelectedFile(_ => Some(file))
               } else {
-                clearFileInput()
-                setSelectedFile(_ => None)
-                showToast(
-                  ~message="CSV files with more than 1,00,000 rows or larger than 5 MB cannot be processed.",
-                  ~toastType=ToastError,
-                )
+                let errorMessage =
+                  dataRowCount < 1
+                    ? "CSV file must contain at least one data row."
+                    : "CSV files with more than 1,00,000 rows cannot be processed."
+                rejectFile(errorMessage)
               }
             }
           }
           fileReader.onerror = _ => {
             if fileSelectionTokenRef.current === currentSelectionToken {
-              clearFileInput()
-              setSelectedFile(_ => None)
-              showToast(~message="Unable to read the CSV file.", ~toastType=ToastError)
+              rejectFile("Unable to read the CSV file.")
             }
           }
           fileReader.readAsText(file)
         } else {
-          clearFileInput()
-          setSelectedFile(_ => None)
-          showToast(
-            ~message="CSV files with more than 1,00,000 rows or larger than 5 MB cannot be processed.",
-            ~toastType=ToastError,
-          )
+          rejectFile("CSV files larger than 5 MB cannot be processed.")
         }
       } else {
-        clearFileInput()
-        setSelectedFile(_ => None)
-        showToast(~message="Please upload a valid CSV file.", ~toastType=ToastError)
+        rejectFile("Please upload a valid CSV file.")
       }
     | None => setSelectedFile(_ => None)
     }

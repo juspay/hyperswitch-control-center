@@ -78,11 +78,13 @@ let isValidBlocklistCsvFile = file =>
 
 let isBlocklistCsvFileSizeAllowed = file => file["size"] <= maxBlocklistCsvFileSize
 
-let isBlocklistCsvRowCountAllowed = fileContents => {
+let getBlocklistCsvDataRowCount = fileContents => {
   let parsedCsv = PapaParse.parse(fileContents, {"skipEmptyLines": true})
-  let dataRowCount = parsedCsv.data->Array.length - 1
-  dataRowCount <= maxBlocklistCsvDataRows
+  parsedCsv.data->Array.length - 1
 }
+
+let isBlocklistCsvDataRowCountAllowed = dataRowCount =>
+  dataRowCount >= 1 && dataRowCount <= maxBlocklistCsvDataRows
 
 let getFileName = file =>
   switch file {

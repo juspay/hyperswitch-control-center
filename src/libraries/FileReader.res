@@ -9,7 +9,7 @@ type read = {
   readAsArrayBuffer: file => unit,
   readAsDataURL: file => unit,
   result: string,
-  mutable onerror: Webapi.Dom.ProgressEvent.t => unit,
+  mutable onerror: arg => unit,
 }
 
 @new external reader: read = "FileReader"
