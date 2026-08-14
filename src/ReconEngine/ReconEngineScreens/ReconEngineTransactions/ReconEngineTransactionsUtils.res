@@ -60,8 +60,8 @@ let buildTransactionsV2Body = (
         ])
       : finalStatusFilter->Array.map(v => v->getStringFromJson(""))
 
-  let startTime = filterValueJson->getString("startTime", "")
-  let endTime = filterValueJson->getString("endTime", "")
+  let startTime = filterValueJson->getString("startTime", "")->toReconTimeString
+  let endTime = filterValueJson->getString("endTime", "")->toReconTimeString
   let hasStartTime = startTime->isNonEmptyString
   let hasEndTime = endTime->isNonEmptyString
   let hasBothTimeRanges = hasStartTime && hasEndTime

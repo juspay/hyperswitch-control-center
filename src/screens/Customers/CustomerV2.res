@@ -48,7 +48,10 @@ let make = () => {
         listDict
       }
 
-      let queryParams = buildQueryStringFromFilters(~filterValueJson=localFilterValue)
+      let queryParams = buildQueryStringFromFilters(
+        ~filterValueJson=localFilterValue,
+        ~convertToLocal=false,
+      )
 
       if queryParams === lastApiCallParams {
         setScreenState(_ => PageLoaderWrapper.Success)

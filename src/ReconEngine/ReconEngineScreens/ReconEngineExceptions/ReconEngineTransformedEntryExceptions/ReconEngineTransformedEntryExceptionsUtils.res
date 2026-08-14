@@ -346,8 +346,7 @@ let generateResolutionSummary = (
   }
 
   if currentEntry.effective_at != updatedEntry.effective_at {
-    let message = `Effective at changed to ${DateTimeUtils.getFormattedDate(
-        updatedEntry.effective_at,
+    let message = `Effective at changed to ${updatedEntry.effective_at->dateFormat(
         "DD MMMM YYYY, hh:mm A",
       )}.`
     summary->Array.push(message)
@@ -389,7 +388,10 @@ let constructManualReconciliationBody = (~updatedEntry: processingEntryType, ~va
     ("amount", updatedEntry.amount->JSON.Encode.float),
     ("currency", updatedEntry.currency->JSON.Encode.string),
     ("order_id", updatedEntry.order_id->JSON.Encode.string),
-    ("effective_at", updatedEntry.effective_at->JSON.Encode.string),
+    (
+      "effective_at",
+      updatedEntry.effective_at->ReconEngineFilterUtils.toReconTimeString->JSON.Encode.string,
+    ),
     (
       "transformation_id",
       updatedEntry.transformation_config.transformation_config_id->JSON.Encode.string,
