@@ -7,7 +7,6 @@ let make = (~previewOnly=false) => {
   open SavedViewTypes
   open OrderEntity
   open Typography
-  open HSLocalStorage
 
   let ordersTableTitle = "Orders"
   let advancedOrdersTableTitle = "OrdersAdvanced"
@@ -42,20 +41,8 @@ let make = (~previewOnly=false) => {
   //enablement of advanced view
   let isAdvancedViewEnabled = isOpenSearchEnabled && devAdvancedPaymentsView
 
-  let getPaymentListSourceFromString = (~defaultSource, source) =>
-    switch source {
-    | "Normal" => Normal
-    | "Advanced" => Advanced
-    | _ => defaultSource
-    }
-
   let defaultSource = isAdvancedViewEnabled ? Advanced : Normal
-  let (source, setSource) = React.useState(_ =>
-    switch getPaymentListSourcefromLocalStorage() {
-    | Some(source) => source->getPaymentListSourceFromString(~defaultSource)
-    | None => defaultSource
-    }
-  )
+  let (source, setSource) = React.useState(_ => getStoredPaymentListSource(~defaultSource))
   let isAdvancedView = source === Advanced && isAdvancedViewEnabled
   let (tableTitle, savedViewsEntity) = isAdvancedView
     ? (advancedOrdersTableTitle, PaymentAdvanced)
@@ -242,7 +229,7 @@ let make = (~previewOnly=false) => {
   }, (offset, filters, searchText, resultsPerPage))
 
   let handleSourceChange = (newSource: paymentListSource) => {
-    setPaymentListSourceInLocalStorage((newSource :> string))
+    HSLocalStorage.setPaymentListSourceInLocalStorage((newSource :> string))
     setSource(_ => newSource)
     setOffset(_ => 0)
     setFilters(_ => None)
