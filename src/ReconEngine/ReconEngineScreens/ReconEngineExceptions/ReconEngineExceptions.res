@@ -58,7 +58,7 @@ let make = () => {
     }
   }, (url.search, reconRulesList))
 
-  <div className="flex flex-col gap-4 w-full">
+  <div className="flex flex-col w-full">
     <div className="flex flex-row justify-between items-center">
       <PageUtils.PageHeading
         title="Recon Exceptions"
