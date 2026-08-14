@@ -91,6 +91,85 @@ async function setupConfiguredStripeConnector(
   return label;
 }
 
+async function enableConnectorCloneForZift(page: Page): Promise<void> {
+  await page.route("**/dashboard/config/feature?domain=", async (route) => {
+    const response = await route.fetch();
+    const json = await response.json();
+    json.features = { ...(json.features ?? {}), connector_clone: true };
+    json.connector_clone = {
+      ...(json.connector_clone ?? {}),
+      paymentProcessors: ["zift"],
+    };
+    await route.fulfill({ response, json });
+  });
+
+  await page.reload();
+  await page.waitForLoadState("networkidle");
+}
+
+async function setupConfiguredZiftConnector(
+  page: Page,
+  label: string = "zift_clone_source",
+): Promise<string> {
+  const paymentConnector = new PaymentConnector(page);
+  const connector = connectorConfig.zift;
+  const fields = {
+    ...connector.fields,
+    overrides: {
+      ...connector.fields.overrides,
+      "Enter Connector label": label,
+    },
+  };
+
+  await gotoConnectorList(page);
+  await paymentConnector.connectorSearchInput.fill(connector.label);
+  await page
+    .getByTestId(connector.label)
+    .getByRole("button", { name: "Connect" })
+    .click();
+  await fillConnectorFields(page, fields);
+  await paymentConnector.connectAndProceedButton.click();
+  await paymentConnector.pmtProceedButton.click();
+  await expect(paymentConnector.connectorCreatedToast).toBeVisible({
+    timeout: 10000,
+  });
+  await paymentConnector.connectorSetupDone.click();
+  await expect(page.getByTestId(label)).toBeVisible({ timeout: 10000 });
+
+  return label;
+}
+
+async function openConfiguredConnector(
+  page: Page,
+  connectorLabel: string,
+): Promise<void> {
+  await gotoConnectorList(page);
+  await page.getByTestId(connectorLabel).click();
+  await page.waitForLoadState("networkidle");
+}
+
+async function selectCloneDestination(
+  page: Page,
+  profileName: string,
+): Promise<void> {
+  const paymentConnector = new PaymentConnector(page);
+  await paymentConnector.cloneDestinationProfileButton.click();
+  await page.getByRole("menuitem", { name: profileName, exact: true }).click();
+}
+
+async function cloneConnector(
+  page: Page,
+  destinationProfileName: string,
+  connectorLabel: string,
+): Promise<void> {
+  const paymentConnector = new PaymentConnector(page);
+  await paymentConnector.cloneConnectorButton.click();
+  await expect(paymentConnector.cloneConnectorModal).toBeVisible();
+  await selectCloneDestination(page, destinationProfileName);
+  await paymentConnector.cloneConnectorLabelInput.fill(connectorLabel);
+  await paymentConnector.cloneConnectorSubmitButton.click();
+}
+
 test.describe("Payin Connector tests", () => {
   test.beforeEach(async ({ page, context }) => {
     await signupAndLogin(page, context);
@@ -407,6 +486,60 @@ test.describe("Payin Connector tests", () => {
 
     await expect(page.getByTestId("adyen")).toBeVisible({ timeout: 15000 });
     await expect(page.getByTestId("affirm")).not.toBeAttached();
+  });
+
+  test("should setup and verify ABSA Sanlam connector", async ({ page }) => {
+    const paymentConnector = new PaymentConnector(page);
+
+    await page.route("**/dashboard/config/feature?domain=", async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      if (json) {
+        json.features = { ...(json.features ?? {}), is_live_mode: true };
+        json.connector_list_for_live = {
+          ...(json.connector_list_for_live ?? {}),
+          paymentProcessors: ["absa_sanlam"],
+        };
+      }
+      await route.fulfill({ response, json });
+    });
+
+    const configResponse = page.waitForResponse(
+      (response) => response.url().includes("/config/feature") && response.ok(),
+    );
+    await page.reload();
+    await configResponse;
+    await gotoConnectorList(page);
+
+    await paymentConnector.connectorSearchInput.fill("absa");
+    const absaSanlam = page.getByTestId("absa_sanlam");
+    await expect(absaSanlam).toBeVisible({ timeout: 10000 });
+    await absaSanlam.getByRole("button", { name: "Connect" }).click();
+
+    await assertConnectorFieldLabels(page, [
+      "API Key *",
+      "Merchant Id *",
+      "Connector label *",
+    ]);
+    await fillConnectorFields(page, {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "absa_sanlam_default",
+      },
+    });
+
+    await paymentConnector.connectAndProceedButton.click();
+    await expect(page.getByText("Bank Debit", { exact: true })).toBeVisible();
+    await expect(page.getByTestId("bank_debit_eft_debit_order")).toBeVisible();
+
+    await paymentConnector.pmtProceedButton.click();
+    await expect(paymentConnector.connectorCreatedToast).toBeVisible({
+      timeout: 10000,
+    });
+    await paymentConnector.connectorSetupDone.click();
+
+    await expect(page).toHaveURL(/.*dashboard\/connectors/);
+    await expect(page.getByTestId("absa_sanlam_default")).toBeVisible();
   });
 
   test("should validate field-level error for connector credentials page", async ({
@@ -1243,6 +1376,157 @@ test.describe("Payin Connector tests", () => {
   });
 });
 
+test.describe("Clone a connector across profiles", () => {
+  const sourceLabel = "zift_clone_source";
+  const destinationProfileName = "clone_destination";
+  const clonedLabel = "zift_cloned";
+
+  test.beforeEach(async ({ page, context }) => {
+    test.setTimeout(90000);
+    await signupAndLogin(page, context);
+    await enableConnectorCloneForZift(page);
+  });
+
+  test("should show clone for allowlisted Zift but not Stripe", async ({
+    page,
+    context,
+  }) => {
+    await setupConfiguredStripeConnector(page, context, "stripe_not_cloneable");
+    await setupConfiguredZiftConnector(page, sourceLabel);
+    const paymentConnector = new PaymentConnector(page);
+
+    await openConfiguredConnector(page, sourceLabel);
+    await expect(paymentConnector.cloneConnectorButton).toBeVisible();
+
+    await openConfiguredConnector(page, "stripe_not_cloneable");
+    await expect(
+      page.getByRole("heading", { name: "Stripe", exact: true }),
+    ).toBeVisible();
+    await expect(paymentConnector.cloneConnectorButton).not.toBeAttached();
+  });
+
+  test("should show every clone modal element and close the modal", async ({
+    page,
+    context,
+  }) => {
+    const { merchantId } = await ompLineage(page);
+    await createBusinessProfileAPI(
+      merchantId,
+      destinationProfileName,
+      context.request,
+      page,
+    );
+    await setupConfiguredZiftConnector(page, sourceLabel);
+    await openConfiguredConnector(page, sourceLabel);
+
+    const paymentConnector = new PaymentConnector(page);
+    await paymentConnector.cloneConnectorButton.click();
+    const modal = paymentConnector.cloneConnectorModal;
+
+    await expect(modal).toBeVisible();
+    await expect(
+      modal.getByText("Clone connector", { exact: true }).first(),
+    ).toBeVisible();
+    await expect(
+      modal.getByText("Copy this configuration into another profile.", {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(modal.getByText("SOURCE", { exact: true })).toBeVisible();
+    await expect(modal.getByText("DESTINATION", { exact: true })).toBeVisible();
+    await expect(modal.getByText(/Zift/).first()).toBeVisible();
+    await expect(paymentConnector.cloneDestinationProfileButton).toBeVisible();
+    await expect(
+      modal.getByText("New connector label", { exact: false }),
+    ).toBeVisible();
+    await expect(paymentConnector.cloneConnectorLabelInput).toBeVisible();
+    await expect(
+      modal.getByText("INCLUDED IN THE CLONE", { exact: true }),
+    ).toBeVisible();
+    for (const item of ["Credentials", "Webhook", "Payment methods"]) {
+      await expect(modal.getByText(item, { exact: true })).toBeVisible();
+    }
+    await expect(
+      modal.getByText("NOT INCLUDED", { exact: true }),
+    ).toBeVisible();
+    await expect(modal.getByText("Bank debits", { exact: true })).toBeVisible();
+    await expect(
+      modal.getByText(
+        "Bank debits require manual setup — they aren't included when cloning a connector.",
+        { exact: true },
+      ),
+    ).toBeVisible();
+    await expect(modal.getByRole("button", { name: "Cancel" })).toBeVisible();
+    await expect(paymentConnector.cloneConnectorSubmitButton).toBeVisible();
+
+    await modal.getByRole("button", { name: "Cancel" }).click();
+    await expect(modal).not.toBeAttached();
+  });
+
+  test("should clone Zift to another profile and show it after switching profiles", async ({
+    page,
+    context,
+  }) => {
+    const homePage = new HomePage(page);
+    const paymentConnector = new PaymentConnector(page);
+    const { merchantId } = await ompLineage(page);
+    await createBusinessProfileAPI(
+      merchantId,
+      destinationProfileName,
+      context.request,
+      page,
+    );
+    await setupConfiguredZiftConnector(page, sourceLabel);
+    await openConfiguredConnector(page, sourceLabel);
+
+    await cloneConnector(page, destinationProfileName, clonedLabel);
+    await expect(paymentConnector.cloneConnectorSuccessToast).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(paymentConnector.cloneConnectorModal).not.toBeAttached();
+
+    await homePage.profileDropdown.click();
+    await homePage.profileDropdownList
+      .getByText(destinationProfileName, { exact: false })
+      .first()
+      .click();
+    await page.waitForLoadState("networkidle");
+    await gotoConnectorList(page);
+    await expect(page.getByTestId(clonedLabel)).toBeVisible({ timeout: 10000 });
+  });
+
+  test("should show an error when the connector label already exists", async ({
+    page,
+    context,
+  }) => {
+    const paymentConnector = new PaymentConnector(page);
+    const { merchantId } = await ompLineage(page);
+    await createBusinessProfileAPI(
+      merchantId,
+      destinationProfileName,
+      context.request,
+      page,
+    );
+    await setupConfiguredZiftConnector(page, sourceLabel);
+    await openConfiguredConnector(page, sourceLabel);
+
+    await cloneConnector(page, destinationProfileName, clonedLabel);
+    await expect(paymentConnector.cloneConnectorSuccessToast).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(paymentConnector.cloneConnectorModal).not.toBeAttached();
+
+    await cloneConnector(page, destinationProfileName, clonedLabel);
+    await expect(paymentConnector.cloneConnectorLabelExistsToast).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(paymentConnector.cloneConnectorModal).toBeVisible();
+    await expect(paymentConnector.cloneConnectorLabelInput).toHaveValue(
+      clonedLabel,
+    );
+  });
+});
+
 test.describe("All Payin Connectors", () => {
   test.beforeEach(async ({ page, context: _context }) => {
     const email = generateUniqueEmail();
@@ -1254,16 +1538,13 @@ test.describe("All Payin Connectors", () => {
   for (const [key, connector] of connectors) {
     test(`should setup and verify ${key} connector`, async ({ page }) => {
       const paymentConnector = new PaymentConnector(page);
-      const homePage = new HomePage(page);
 
-      await homePage.connectors.click();
-      await homePage.paymentProcessors.click();
+      await gotoConnectorList(page);
 
       await paymentConnector.connectorSearchInput.fill(connector.label);
-      await page
-        .getByTestId(connector.label)
-        .getByRole("button", { name: "Connect" })
-        .click();
+      const connectorCard = page.getByTestId(connector.label);
+      await expect(connectorCard).toBeVisible({ timeout: 10000 });
+      await connectorCard.getByRole("button", { name: "Connect" }).click();
 
       await assertConnectorFieldLabels(page, connector.fields.fieldLabels);
       await fillConnectorFields(page, connector.fields);
@@ -1651,7 +1932,7 @@ test.describe("All Payin Connectors", () => {
     await expect(page.getByText("affirm_default")).toBeVisible();
   });
 
-  test.skip("should setup and verify santander connector", async ({ page }) => {
+  test("should setup and verify santander connector", async ({ page }) => {
     const { certBase64, keyBase64 } = await generateCerts();
     const homePage = new HomePage(page);
     const paymentConnector = new PaymentConnector(page);
@@ -1660,7 +1941,10 @@ test.describe("All Payin Connectors", () => {
     await homePage.paymentProcessors.click();
 
     await paymentConnector.connectorSearchInput.fill("santander");
-    await paymentConnector.addConnectButton.nth(2).click();
+    await page
+      .getByTestId("santander")
+      .getByRole("button", { name: "Connect" })
+      .click();
 
     await page
       .getByRole("textbox", {
@@ -1691,136 +1975,209 @@ test.describe("All Payin Connectors", () => {
       .filter({ hasText: /^Pix Qr$/ })
       .nth(1)
       .click();
-    await expect(page.getByText("Client ID *").first()).toBeVisible();
+    const pixQrRegion = page.getByRole("region", { name: "Pix Qr" });
+    await expect(pixQrRegion.getByText("Client ID *")).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: "Enter your Client Id" }),
+      pixQrRegion.getByRole("textbox", { name: "Enter your Client Id" }),
     ).toBeVisible();
-    await expect(page.getByText("Client Secret *").first()).toBeVisible();
+    await expect(pixQrRegion.getByText("Client Secret *")).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: "Enter your Client Secret" }),
+      pixQrRegion.getByRole("textbox", { name: "Enter your Client Secret" }),
     ).toBeVisible();
-    await expect(page.getByText("Chave Key Type *").first()).toBeVisible();
+    await expect(pixQrRegion.getByText("Chave Key Type *")).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Select Value" }),
+      pixQrRegion.getByRole("button", { name: "Select Value" }),
     ).toBeVisible();
-    await page.getByRole("button", { name: "Select Value" }).click();
+    await pixQrRegion.getByRole("button", { name: "Select Value" }).click();
     await expect(
       page
         .locator("div")
         .filter({ hasText: /^CPFCNPJEMAILCELLULAREVP$/ })
         .nth(1),
     ).toBeVisible();
-    await expect(page.getByText("Chave Key *").first()).toBeVisible();
+    await expect(pixQrRegion.getByText("Chave Key *")).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: "Enter your Chave/Pix Key" }),
+      pixQrRegion.getByRole("textbox", { name: "Enter your Chave/Pix Key" }),
     ).toBeVisible();
-    await expect(page.getByText("Merchant City *").first()).toBeVisible();
+    await expect(pixQrRegion.getByText("Merchant City *")).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: "Enter the city the merchant" }),
+      pixQrRegion.getByRole("textbox", {
+        name: "Enter the city the merchant",
+      }),
     ).toBeVisible();
-    await expect(page.getByText("Merchant Name *").nth(2)).toBeVisible();
+    await expect(pixQrRegion.getByText("Merchant Name *")).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: "Enter the merchant name" }),
+      pixQrRegion.getByRole("textbox", { name: "Enter the merchant name" }),
     ).toBeVisible();
-    await expect(page.getByText("CancelContinue").first()).toBeVisible();
+    await expect(pixQrRegion.getByText("CancelContinue")).toBeVisible();
 
     await page
       .locator("div")
       .filter({ hasText: /^Pix Automatico Push$/ })
       .nth(1)
       .click();
-    await expect(page.getByText("Client ID *").nth(1)).toBeVisible();
+    const pixAutomaticoPushRegion = page.getByRole("region", {
+      name: "Pix Automatico Push",
+    });
     await expect(
-      page.getByRole("textbox", { name: "Enter your Client Id" }),
+      pixAutomaticoPushRegion.getByText("Client ID *"),
     ).toBeVisible();
-    await expect(page.getByText("Client Secret *").nth(1)).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: "Enter your Client Secret" }),
+      pixAutomaticoPushRegion.getByRole("textbox", {
+        name: "Enter your Client Id",
+      }),
     ).toBeVisible();
-    await expect(page.getByText("Chave Key Type *").nth(1)).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Select Value" }).first(),
+      pixAutomaticoPushRegion.getByText("Client Secret *"),
     ).toBeVisible();
-    await page.getByRole("button", { name: "Select Value" }).first().click();
+    await expect(
+      pixAutomaticoPushRegion.getByRole("textbox", {
+        name: "Enter your Client Secret",
+      }),
+    ).toBeVisible();
+    await expect(
+      pixAutomaticoPushRegion.getByText("Chave Key Type *"),
+    ).toBeVisible();
+    await expect(
+      pixAutomaticoPushRegion
+        .getByRole("button", { name: "Select Value" })
+        .first(),
+    ).toBeVisible();
+    await pixAutomaticoPushRegion
+      .getByRole("button", { name: "Select Value" })
+      .first()
+      .click();
     await expect(
       page
         .locator("div")
         .filter({ hasText: /^CPFCNPJEMAILCELLULAREVP$/ })
         .nth(1),
     ).toBeVisible();
-    await expect(page.getByText("Chave Key *").nth(1)).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: "Enter your Chave/Pix Key" }),
+      pixAutomaticoPushRegion.getByText("Chave Key *"),
     ).toBeVisible();
-    await expect(page.getByText("Account Number").nth(1)).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: "Enter your Account Number" }),
+      pixAutomaticoPushRegion.getByRole("textbox", {
+        name: "Enter your Chave/Pix Key",
+      }),
     ).toBeVisible();
-    await expect(page.getByText("Account Type").nth(1)).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Select Value" }).nth(1),
+      pixAutomaticoPushRegion.getByText("Account Number"),
     ).toBeVisible();
-    await page.getByRole("button", { name: "Select Value" }).nth(1).click();
+    await expect(
+      pixAutomaticoPushRegion.getByRole("textbox", {
+        name: "Enter your Account Number",
+      }),
+    ).toBeVisible();
+    await expect(
+      pixAutomaticoPushRegion.getByText("Account Type"),
+    ).toBeVisible();
+    await expect(
+      pixAutomaticoPushRegion
+        .getByRole("button", { name: "Select Value" })
+        .nth(1),
+    ).toBeVisible();
+    await pixAutomaticoPushRegion
+      .getByRole("button", { name: "Select Value" })
+      .nth(1)
+      .click();
     await expect(
       page
         .locator("div")
         .filter({ hasText: /^currentsavingspayment$/ })
         .nth(1),
     ).toBeVisible();
-    await expect(page.getByText("Branch Code").nth(1)).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: "Enter your branch code" }),
+      pixAutomaticoPushRegion.getByText("Branch Code"),
     ).toBeVisible();
-    await expect(page.getByText("CancelContinue").nth(1)).toBeVisible();
+    await expect(
+      pixAutomaticoPushRegion.getByRole("textbox", {
+        name: "Enter your branch code",
+      }),
+    ).toBeVisible();
+    await expect(
+      pixAutomaticoPushRegion.getByText("CancelContinue"),
+    ).toBeVisible();
 
     await page
       .locator("div")
       .filter({ hasText: /^Pix Automatico Qr$/ })
       .nth(1)
       .click();
-    await expect(page.getByText("Client ID *").nth(2)).toBeVisible();
+    const pixAutomaticoQrRegion = page.getByRole("region", {
+      name: "Pix Automatico Qr",
+    });
+    await expect(pixAutomaticoQrRegion.getByText("Client ID *")).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: "Enter your Client Id" }),
+      pixAutomaticoQrRegion.getByRole("textbox", {
+        name: "Enter your Client Id",
+      }),
     ).toBeVisible();
-    await expect(page.getByText("Client Secret *").nth(2)).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: "Enter your Client Secret" }),
+      pixAutomaticoQrRegion.getByText("Client Secret *"),
     ).toBeVisible();
-    await expect(page.getByText("Chave Key Type *").nth(2)).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Select Value" }).first(),
+      pixAutomaticoQrRegion.getByRole("textbox", {
+        name: "Enter your Client Secret",
+      }),
     ).toBeVisible();
-    await page.getByRole("button", { name: "Select Value" }).first().click();
+    await expect(
+      pixAutomaticoQrRegion.getByText("Chave Key Type *"),
+    ).toBeVisible();
+    await expect(
+      pixAutomaticoQrRegion
+        .getByRole("button", { name: "Select Value" })
+        .first(),
+    ).toBeVisible();
+    await pixAutomaticoQrRegion
+      .getByRole("button", { name: "Select Value" })
+      .first()
+      .click();
     await expect(
       page
         .locator("div")
         .filter({ hasText: /^CPFCNPJEMAILCELLULAREVP$/ })
         .nth(2),
     ).toBeVisible();
-    await expect(page.getByText("Chave Key *").nth(2)).toBeVisible();
+    await expect(pixAutomaticoQrRegion.getByText("Chave Key *")).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: "Enter your Chave/Pix Key" }),
+      pixAutomaticoQrRegion.getByRole("textbox", {
+        name: "Enter your Chave/Pix Key",
+      }),
     ).toBeVisible();
-    await expect(page.getByText("Account Number").nth(2)).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: "Enter your Account Number" }),
+      pixAutomaticoQrRegion.getByText("Account Number"),
     ).toBeVisible();
-    await expect(page.getByText("Account Type").nth(2)).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Select Value" }).nth(1),
+      pixAutomaticoQrRegion.getByRole("textbox", {
+        name: "Enter your Account Number",
+      }),
     ).toBeVisible();
-    await page.getByRole("button", { name: "Select Value" }).nth(1).click();
+    await expect(pixAutomaticoQrRegion.getByText("Account Type")).toBeVisible();
+    await expect(
+      pixAutomaticoQrRegion
+        .getByRole("button", { name: "Select Value" })
+        .nth(1),
+    ).toBeVisible();
+    await pixAutomaticoQrRegion
+      .getByRole("button", { name: "Select Value" })
+      .nth(1)
+      .click();
     await expect(
       page
         .locator("div")
         .filter({ hasText: /^currentsavingspayment$/ })
         .nth(2),
     ).toBeVisible();
-    await expect(page.getByText("Branch Code").nth(2)).toBeVisible();
+    await expect(pixAutomaticoQrRegion.getByText("Branch Code")).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: "Enter your branch code" }),
+      pixAutomaticoQrRegion.getByRole("textbox", {
+        name: "Enter your branch code",
+      }),
     ).toBeVisible();
-    await expect(page.getByText("CancelContinue").nth(2)).toBeVisible();
+    await expect(
+      pixAutomaticoQrRegion.getByText("CancelContinue"),
+    ).toBeVisible();
 
     await paymentConnector.pmtProceedButton.click();
 
@@ -1832,7 +2189,7 @@ test.describe("All Payin Connectors", () => {
     await expect(page.getByText("santander_default")).toBeVisible();
   });
 
-  test.skip("should setup and verify tokenio connector", async ({ page }) => {
+  test("should setup and verify tokenio connector", async ({ page }) => {
     const homePage = new HomePage(page);
     const paymentConnector = new PaymentConnector(page);
 
@@ -1840,7 +2197,10 @@ test.describe("All Payin Connectors", () => {
     await homePage.paymentProcessors.click();
 
     await paymentConnector.connectorSearchInput.fill("tokenio");
-    await paymentConnector.addConnectButton.nth(2).click();
+    await page
+      .getByTestId("tokenio")
+      .getByRole("button", { name: "Connect" })
+      .click();
 
     await page
       .getByRole("textbox", { name: "Enter Key Id" })
@@ -1853,7 +2213,7 @@ test.describe("All Payin Connectors", () => {
       .fill("test_value");
     await page
       .getByRole("textbox", { name: "Enter Key Algorithm" })
-      .fill("test_value");
+      .fill("RS256");
 
     await paymentConnector.connectAndProceedButton.click();
 

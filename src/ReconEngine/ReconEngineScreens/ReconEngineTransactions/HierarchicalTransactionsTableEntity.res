@@ -107,7 +107,15 @@ let getCell = (
         ~accountData,
       )->getTransactionFlowBadge
     CustomCell(<div className="flex items-center justify-center"> {flowBadge} </div>, "")
-  | Date => DateWithoutTime(transaction.effective_at)
+  | Date =>
+    transaction.effective_at->isNonEmptyString
+      ? CustomCell(
+          <TableUtils.DateCell
+            timestamp=transaction.effective_at textAlign=Left hideTimeZone=true convertToLocal=false
+          />,
+          transaction.effective_at,
+        )
+      : Text("-")
   | TransactionId => DisplayCopyCell(transaction.transaction_id)
   | Status =>
     let mismatchedFields = transaction.data.mismatched_fields

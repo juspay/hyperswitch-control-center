@@ -115,6 +115,26 @@ let useGetIngestionConfigs = () => {
   }
 }
 
+let useGetTransformationConfigs = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~queryParameters=None) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#TRANSFORMATION_CONFIG,
+        ~queryParameters,
+      )
+      let res = await fetchDetails(url)
+      res->getArrayDataFromJson(transformationConfigItemToObjMapper)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
 let useGetReconRuleList = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()

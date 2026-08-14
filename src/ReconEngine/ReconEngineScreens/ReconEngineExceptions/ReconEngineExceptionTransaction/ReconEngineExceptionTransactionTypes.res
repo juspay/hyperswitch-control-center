@@ -6,7 +6,8 @@ type resolvingException =
   | EditEntry
   | MarkAsReceived
   | CreateNewEntry
-  | LinkStagingEntriesToTransaction
+  | ReplaceStagingEntryToTransaction
+  | LinkStagingEntryToTransaction
   | NoResolutionActionNeeded
 
 type activeModal =

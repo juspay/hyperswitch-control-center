@@ -107,7 +107,7 @@ module AccountComboSelectInput = {
         let prevAccountId = prevAccountIdRef.current
         if accountId !== prevAccountId && accountId->isNonEmptyString {
           prevAccountIdRef.current = accountId
-          formApi.change("transformation_id", ""->JSON.Encode.string)
+          formApi.change("transformation", Dict.make()->JSON.Encode.object)
           fetchTransformationConfigs(accountId)->ignore
         }
       },
@@ -140,6 +140,96 @@ let accountComboSelectInputField = (
     />
   }
   {fn, names: ["account.account_id", "account.account_name"]}
+}
+
+module TransformationComboSelectInput = {
+  @react.component
+  let make = (
+    ~transformationsList: array<transformationConfigType>,
+    ~disabled: bool,
+    ~fieldsArray: array<ReactFinalForm.fieldRenderProps>,
+    ~setMetadataSchema,
+    ~setIsMetadataLoading,
+  ) => {
+    open ReconEngineHooks
+
+    let transformationIdField = (
+      fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)
+    ).input
+    let transformationNameField = (
+      fieldsArray[1]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)
+    ).input
+    let formApi = ReactFinalForm.useForm()
+    let fetchMetadataSchema = useFetchMetadataSchema()
+
+    let handleFetchMetadataSchema = async (transformationId: string) => {
+      try {
+        setIsMetadataLoading(_ => true)
+        let schema =
+          (await fetchMetadataSchema(~transformationId))
+          ->getDictFromJsonObject
+          ->metadataSchemaItemToObjMapper
+        setMetadataSchema(_ => schema)
+        setIsMetadataLoading(_ => false)
+      } catch {
+      | _ => {
+          setMetadataSchema(_ => Dict.make()->metadataSchemaItemToObjMapper)
+          setIsMetadataLoading(_ => false)
+        }
+      }
+    }
+
+    let input: ReactFinalForm.fieldRenderPropsInput = {
+      ...transformationIdField,
+      onChange: ev => {
+        let transformationId = ev->Identity.formReactEventToString
+        let transformationName =
+          transformationsList
+          ->Array.find(config => config.transformation_id == transformationId)
+          ->Option.mapOr("", config => config.name)
+        transformationIdField.onChange(transformationId->Identity.anyTypeToReactEvent)
+        transformationNameField.onChange(transformationName->Identity.anyTypeToReactEvent)
+        formApi.change("metadata", Dict.make()->JSON.Encode.object)
+
+        if transformationId->isNonEmptyString {
+          handleFetchMetadataSchema(transformationId)->ignore
+        } else {
+          setMetadataSchema(_ => Dict.make()->metadataSchemaItemToObjMapper)
+          setIsMetadataLoading(_ => false)
+        }
+      },
+    }
+
+    <SelectBoxAdapter
+      input
+      options={transformationsList->Array.map((config): SelectBox.dropdownOption => {
+        {
+          value: config.transformation_id,
+          label: config.name,
+        }
+      })}
+      buttonText="Select transformation config"
+      allowMultiSelect=false
+      deselectDisable=false
+      isHorizontal=true
+      disableSelect=disabled
+      fullLength=true
+    />
+  }
+}
+
+let transformationComboSelectInputField = (
+  ~transformationsList: array<transformationConfigType>,
+  ~disabled: bool=false,
+  ~setMetadataSchema,
+  ~setIsMetadataLoading,
+): InputFields.comboCustomInputRecord => {
+  let fn = (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+    <TransformationComboSelectInput
+      transformationsList disabled fieldsArray setMetadataSchema setIsMetadataLoading
+    />
+  }
+  {fn, names: ["transformation.transformation_id", "transformation.transformation_name"]}
 }
 
 let entryTypeSelectInputField = (~disabled: bool=false) => {
@@ -588,7 +678,8 @@ let getSectionRowDetails = (~sectionIndex: int, ~rowIndex: int, ~groupedEntries)
 
   <RenderIf condition={hasEntryMetadata}>
     <div className="p-4">
-      <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll !max-h-60 py-2 px-6">
+      <div
+        className="w-0 min-w-full bg-nd_gray-50 rounded-xl overflow-x-auto overflow-y-scroll !max-h-60 py-2 px-6">
         <PrettyPrintJson
           jsonToDisplay={filteredEntryMetadata->JSON.Encode.object->JSON.stringify}
         />

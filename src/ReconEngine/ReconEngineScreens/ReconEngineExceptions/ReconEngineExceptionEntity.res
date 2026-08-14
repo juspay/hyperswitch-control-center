@@ -105,7 +105,15 @@ let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
     | Some(status) => getStatusLabel(status->getProcessingEntryStatusVariantFromString)
     | None => getStatusLabel(data.status)
     }
-  | EffectiveAt => Date(data.effective_at)
+  | EffectiveAt =>
+    data.effective_at->isNonEmptyString
+      ? CustomCell(
+          <TableUtils.DateCell
+            timestamp=data.effective_at textAlign=Left hideTimeZone=true convertToLocal=false
+          />,
+          data.effective_at,
+        )
+      : Text("-")
   | OrderId =>
     CustomCell(
       <>

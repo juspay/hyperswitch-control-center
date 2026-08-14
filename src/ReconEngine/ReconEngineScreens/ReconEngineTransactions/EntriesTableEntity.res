@@ -131,7 +131,15 @@ let getCell = (entry: entryType, colType: entryColType): Table.cell => {
     )
   | Metadata => Text(entry.metadata->JSON.stringify)
   | CreatedAt => Date(entry.created_at)
-  | EffectiveAt => Date(entry.effective_at)
+  | EffectiveAt =>
+    entry.effective_at->isNonEmptyString
+      ? CustomCell(
+          <TableUtils.DateCell
+            timestamp=entry.effective_at textAlign=Left hideTimeZone=true convertToLocal=false
+          />,
+          entry.effective_at,
+        )
+      : Text("-")
   | OrderID =>
     CustomCell(
       <>

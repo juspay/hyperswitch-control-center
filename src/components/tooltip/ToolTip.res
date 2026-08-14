@@ -10,6 +10,7 @@ let make = (
   ~visibleOnClick=false,
   ~enableTooltipDelay=false,
   ~tooltipDelay: option<int>=?,
+  ~fullWidth=false,
   (),
 ) => {
   let (isOpen, setIsOpen) = React.useState(_ => false)
@@ -61,11 +62,13 @@ let make = (
       delayDuration
       open_=isOpen
       onOpenChange={v => setIsOpen(_ => v)}
-      disableInteractive={!hoverOnToolTip}>
+      disableInteractive={!hoverOnToolTip}
+      fullWidth>
       triggerElement
     </ToolTipBinding>
   } else {
-    <ToolTipBinding content size=Lg ?side ?align delayDuration disableInteractive={!hoverOnToolTip}>
+    <ToolTipBinding
+      content size=Lg ?side ?align delayDuration disableInteractive={!hoverOnToolTip} fullWidth>
       triggerElement
     </ToolTipBinding>
   }

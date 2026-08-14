@@ -213,15 +213,16 @@ let hasFormValuesChanged = (currentValues: JSON.t, initialEntryDetails: entryTyp
   let isEntryTypeChanged =
     currentData->getString("entry_type", "") != (initialEntryDetails.entry_type :> string)
   let isAmountChanged = currentData->getFloat("amount", 0.0) != initialEntryDetails.amount
+  let isCurrencyChanged = currentData->getString("currency", "") != initialEntryDetails.currency
   let isEffectiveAtChanged =
     currentData->getString("effective_at", "") != initialEntryDetails.effective_at
+
   let isMetadataChanged = {
-    let currentMetadataArray = currentData->getDictfromDict("metadata")->Dict.toArray
-    let initialMetadataArray = initialMetadata->Dict.toArray
-    currentMetadataArray->Array.length != initialMetadataArray->Array.length ||
-      currentMetadataArray->Array.some(((key, value)) => {
-        initialMetadata->Dict.get(key)->Option.mapOr(true, initialValue => initialValue != value)
-      })
+    let currentMetadata = currentData->getDictfromDict("metadata")
+    currentMetadata
+    ->Dict.keysToArray
+    ->Array.concat(initialMetadata->Dict.keysToArray)
+    ->Array.some(key => currentMetadata->getString(key, "") != initialMetadata->getString(key, ""))
   }
   let isOrderIdChanged = currentData->getString("order_id", "") != initialEntryDetails.order_id
 
@@ -229,6 +230,7 @@ let hasFormValuesChanged = (currentValues: JSON.t, initialEntryDetails: entryTyp
   isTransformationConfigChanged ||
   isEntryTypeChanged ||
   isAmountChanged ||
+  isCurrencyChanged ||
   isEffectiveAtChanged ||
   isMetadataChanged ||
   isOrderIdChanged
@@ -425,8 +427,7 @@ let generateResolutionSummary = (initialEntry: entryType, updatedEntry: entryTyp
   }
 
   if initialEntry.effective_at != updatedEntry.effective_at {
-    let message = `Effective at changed to ${DateTimeUtils.getFormattedDate(
-        updatedEntry.effective_at,
+    let message = `Effective at changed to ${updatedEntry.effective_at->dateFormat(
         "DD MMMM YYYY, hh:mm A",
       )} in ${updatedEntry.account_name} account.`
     summary->Array.push(message)
@@ -507,17 +508,20 @@ let getUniqueAccountOptionsFromEntries = (entries: array<entryType>): array<
   })
 }
 
-let mapResolutionActionFromString = (
-  str: string,
-): ReconEngineExceptionTransactionTypes.resolvingException => {
+let mapResolutionActionsFromString = (str: string): array<
+  ReconEngineExceptionTransactionTypes.resolvingException,
+> => {
   open ReconEngineExceptionTransactionTypes
   switch str {
-  | "void_transaction" => VoidTransaction
-  | "link_staging_entries_to_transaction" => LinkStagingEntriesToTransaction
-  | "replace_entries" => EditEntry
-  | "create_entries" => CreateNewEntry
-  | "force_reconcile" => ForceReconcile
-  | _ => NoResolutionActionNeeded
+  | "void_transaction" => [VoidTransaction]
+  | "link_staging_entries_to_transaction" => [
+      ReplaceStagingEntryToTransaction,
+      LinkStagingEntryToTransaction,
+    ]
+  | "replace_entries" => [EditEntry]
+  | "create_entries" => [CreateNewEntry]
+  | "force_reconcile" => [ForceReconcile]
+  | _ => []
   }
 }
 
@@ -526,8 +530,7 @@ let parseResolutionActions = (json: JSON.t): array<
 > => {
   json
   ->getArrayFromJson([])
-  ->Array.map(item => item->getStringFromJson("")->mapResolutionActionFromString)
-  ->Array.filter(action => action !== NoResolutionActionNeeded)
+  ->Array.flatMap(item => item->getStringFromJson("")->mapResolutionActionsFromString)
 }
 
 let getExceptionEntryTypeFromEntryType = (
@@ -597,7 +600,7 @@ let constructManualReconciliationBody = (
       ("amount", backendEntry.amount->JSON.Encode.float),
       ("currency", backendEntry.currency->JSON.Encode.string),
       ("order_id", backendEntry.order_id->JSON.Encode.string),
-      ("effective_at", backendEntry.effective_at->JSON.Encode.string),
+      ("effective_at", backendEntry.effective_at->toReconTimeString->JSON.Encode.string),
       ("metadata", backendEntry.metadata),
       (
         "staging_entry_id",
@@ -658,9 +661,15 @@ let getResolutionModalConfig = (
       layout: SidePanelModal,
       closeOnOutsideClick: false,
     }
-  | ResolvingException(LinkStagingEntriesToTransaction) => {
+  | ResolvingException(ReplaceStagingEntryToTransaction) => {
       heading: "Match with an existing transformed entry",
       description: "Allows you to replace the existing entry with the correct transformed entries",
+      layout: ExpandedSidePanelModal,
+      closeOnOutsideClick: false,
+    }
+  | ResolvingException(LinkStagingEntryToTransaction) => {
+      heading: "Link a transformed entry",
+      description: "Allows you to add a new transformed entry to this transaction",
       layout: ExpandedSidePanelModal,
       closeOnOutsideClick: false,
     }
@@ -872,8 +881,19 @@ let getFixEntriesButtons = (
       text: "Replace Entry",
       icon: "nd-swap-arrow-horizontal",
       iconClass: "text-nd_gray-600",
-      condition: isResolutionAvailable(LinkStagingEntriesToTransaction),
-      onClick: () => setExceptionStage(_ => ResolvingException(LinkStagingEntriesToTransaction)),
+      condition: isResolutionAvailable(ReplaceStagingEntryToTransaction),
+      onClick: () => setExceptionStage(_ => ResolvingException(ReplaceStagingEntryToTransaction)),
+      buttonType: Secondary,
+    },
+    {
+      text: "Link Entry",
+      icon: "nd-permalink",
+      iconClass: "text-nd_gray-600",
+      condition: isResolutionAvailable(LinkStagingEntryToTransaction),
+      onClick: () => {
+        setExceptionStage(_ => ResolvingException(LinkStagingEntryToTransaction))
+        setActiveModal(_ => Some(LinkStagingEntriesModal))
+      },
       buttonType: Secondary,
     },
   ]
@@ -927,7 +947,7 @@ let getBottomBarConfig = (~exceptionStage, ~selectedRows, ~setActiveModal) => {
       buttonEnabled: selectedRows->Array.length > 0,
       onClick: () => setActiveModal(_ => Some(MarkAsReceivedModal)),
     })
-  | ResolvingException(LinkStagingEntriesToTransaction) =>
+  | ResolvingException(ReplaceStagingEntryToTransaction) =>
     Some({
       prompt: "Select entry to replace",
       buttonText: "Continue",
