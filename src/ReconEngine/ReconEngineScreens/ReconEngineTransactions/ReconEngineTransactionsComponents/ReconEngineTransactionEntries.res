@@ -11,6 +11,7 @@ let make = (
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+  let showToast = ToastAdapter.useShowToast()
   let (transformationNameMap, setTransformationNameMap) = React.useState(_ => Dict.make())
 
   let fetchTransformationConfigs = async () => {
@@ -26,7 +27,7 @@ let make = (
       configs->Array.forEach(config => nameMap->Dict.set(config.transformation_id, config.name))
       setTransformationNameMap(_ => nameMap)
     } catch {
-    | _ => ()
+    | _ => showToast(~message="Failed to fetch transformation configs", ~toastType=ToastError)
     }
   }
 
