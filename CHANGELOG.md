@@ -3,6 +3,19 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.14.0
+
+### Features
+
+- Superposition integration in dashboard ([#5292](https://github.com/juspay/hyperswitch-control-center/pull/5292)) ([`d5b33ca`](https://github.com/juspay/hyperswitch-control-center/commit/d5b33caaa2d5ccf89cbd1bc49844aa93aead085b))
+- Added payment link css rules in configurator ([#5258](https://github.com/juspay/hyperswitch-control-center/pull/5258)) ([`5493e17`](https://github.com/juspay/hyperswitch-control-center/commit/5493e179ad9274c502e6d574f0e4fb844f3ee989))
+- Add cursor pagination in linkable staging entries ([#5372](https://github.com/juspay/hyperswitch-control-center/pull/5372)) ([`ba4efc2`](https://github.com/juspay/hyperswitch-control-center/commit/ba4efc2cd714c40a0900c7560b6b946e34508b83))
+- Add global date filter in recon engine ([#5368](https://github.com/juspay/hyperswitch-control-center/pull/5368)) ([`bbbf9df`](https://github.com/juspay/hyperswitch-control-center/commit/bbbf9dfb69f9868e9000c41362de6963017a24d8))
+
+**Full Changelog:** [`2026.08.13.0...2026.08.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.13.0...2026.08.14.0)
+
+- - -
+
 ## 2026.08.13.0
 
 ### Features
