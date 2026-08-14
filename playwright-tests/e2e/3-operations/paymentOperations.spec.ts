@@ -10,12 +10,120 @@ import {
   createPaymentAPI,
   createRequiresCapturePaymentAPI,
   mockPaymentRequiresCapture,
+  mockPaymentSummaryAmounts,
   ompLineage,
 } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 const columnSize = 24;
 let email: string;
+
+type SavedViewFilters = Record<string, unknown>;
+
+type SavedViewApiItem = {
+  view_id: string;
+  view_name: string;
+  data: {
+    entity: string;
+    version: string;
+    filters: SavedViewFilters;
+  };
+  created_at: string;
+  updated_at: string;
+};
+
+type SavedViewAction = {
+  type: "Create" | "Update" | "Delete";
+  data: {
+    view_id?: string;
+    view_name?: string;
+    entity: string;
+    version?: string;
+    filters?: SavedViewFilters;
+  };
+};
+
+const savedViewApiItem = (
+  viewName: string,
+  filters: SavedViewFilters,
+  viewId = `view-${viewName.toLowerCase().replaceAll(" ", "-")}`,
+): SavedViewApiItem => ({
+  view_id: viewId,
+  view_name: viewName,
+  data: {
+    entity: "payment_views",
+    version: "v1",
+    filters,
+  },
+  created_at: "2025-06-15T10:00:00.000Z",
+  updated_at: "2025-06-15T10:00:00.000Z",
+});
+
+async function mockSavedViewsApi(
+  page: Page,
+  options: { initialViews?: SavedViewApiItem[]; failCreate?: boolean } = {},
+) {
+  const views = [...(options.initialViews ?? [])];
+  const actions: SavedViewAction[] = [];
+
+  await page.route(/\/user\/data(?:\?|$)/, async (route) => {
+    const request = route.request();
+    const url = new URL(request.url());
+
+    if (
+      request.method() === "GET" &&
+      url.searchParams.get("keys") === "PaymentViews"
+    ) {
+      await route.fulfill({ json: [{ PaymentViews: views }] });
+      return;
+    }
+
+    if (request.method() === "POST") {
+      const payload = request.postDataJSON() as {
+        PaymentViews?: SavedViewAction;
+      };
+      const action = payload.PaymentViews;
+      if (!action) {
+        await route.continue();
+        return;
+      }
+
+      actions.push(action);
+      if (options.failCreate && action.type === "Create") {
+        await route.fulfill({ status: 500, json: { error: "save failed" } });
+        return;
+      }
+
+      if (
+        action.type === "Create" &&
+        action.data.view_name &&
+        action.data.filters
+      ) {
+        views.push(
+          savedViewApiItem(action.data.view_name, action.data.filters),
+        );
+      } else if (action.type === "Delete" && action.data.view_id) {
+        const index = views.findIndex(
+          (view) => view.view_id === action.data.view_id,
+        );
+        if (index !== -1) views.splice(index, 1);
+      }
+
+      await route.fulfill({ json: {} });
+      return;
+    }
+
+    await route.continue();
+  });
+
+  return { views, actions };
+}
+
+async function openPaymentOperations(page: Page) {
+  const homePage = new HomePage(page);
+  await homePage.operations.click();
+  await homePage.paymentOperations.click();
+}
 
 type PaymentListRequest = {
   order?: {
@@ -49,6 +157,7 @@ test.describe("Payment Operations", () => {
         dev_opensearch: false,
         dev_clickhouse_aggregate: false,
         dev_sort_enabled: true,
+        dev_saved_views: true,
       };
       await route.fulfill({ response, json });
     });
@@ -1091,6 +1200,266 @@ test.describe("Payment Operations", () => {
     });
   });
 
+  test.describe("Saved Views", () => {
+    test("should keep transaction filter controls visible and hide saved views when the feature flag is off", async ({
+      page,
+    }) => {
+      await page.route("**/dashboard/config/feature?domain=", async (route) => {
+        const response = await route.fetch();
+        const json = await response.json();
+        json.features = { ...json.features, dev_saved_views: false };
+        await route.fulfill({ response, json });
+      });
+      await page.reload();
+
+      const paymentOperations = new PaymentOperations(page);
+      await openPaymentOperations(page);
+
+      await expect(paymentOperations.dateSelector).toBeVisible();
+      await expect(paymentOperations.addFilters).toBeVisible();
+      await expect(paymentOperations.saveCurrentViewButton).toBeHidden();
+      await expect(paymentOperations.savedViewsButton).toBeHidden();
+    });
+
+    test("should display all create and overwrite modal elements", async ({
+      page,
+    }) => {
+      await mockSavedViewsApi(page, {
+        initialViews: [
+          savedViewApiItem("Existing View", { status: ["succeeded"] }),
+        ],
+      });
+      const paymentOperations = new PaymentOperations(page);
+      await openPaymentOperations(page);
+
+      await expect(paymentOperations.saveCurrentViewButton).toBeVisible();
+      await expect(paymentOperations.savedViewsButton).toBeVisible();
+      await paymentOperations.saveCurrentViewButton.click();
+
+      const modal = paymentOperations.saveViewModal;
+      await expect(modal).toBeVisible();
+      await expect(modal.getByText("Save View", { exact: true })).toBeVisible();
+      await expect(
+        modal.getByText("Create New View", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("Overwrite Existing View", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("View Name", { exact: false }),
+      ).toBeVisible();
+      await expect(paymentOperations.savedViewNameInput).toHaveAttribute(
+        "placeholder",
+        "Enter view name",
+      );
+      await expect(paymentOperations.includeDateRangeCheckbox).toBeVisible();
+      await expect(modal.getByRole("button", { name: "Cancel" })).toBeVisible();
+      await expect(paymentOperations.saveNewViewButton).toBeDisabled();
+
+      await modal.getByText("Overwrite Existing View", { exact: true }).click();
+      await expect(
+        modal.getByText("Search View Name to Overwrite", { exact: false }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("Select View", { exact: true }),
+      ).toBeVisible();
+      await expect(paymentOperations.includeDateRangeCheckbox).toBeVisible();
+      await expect(modal.getByRole("button", { name: "Cancel" })).toBeVisible();
+      await expect(
+        paymentOperations.overwriteExistingViewButton,
+      ).toBeDisabled();
+
+      await modal.getByRole("button", { name: "Cancel" }).click();
+      await paymentOperations.savedViewsButton.click();
+      await expect(
+        page.getByRole("menu", { name: "Saved Views" }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("menu", { name: "Saved Views" }),
+      ).toContainText("Default View");
+      await expect(
+        page.getByRole("menu", { name: "Saved Views" }),
+      ).toContainText("Existing View");
+    });
+
+    test("should save combined filters, clear filters, and apply the saved view", async ({
+      page,
+    }) => {
+      const savedViewsApi = await mockSavedViewsApi(page);
+      const paymentOperations = new PaymentOperations(page);
+      await openPaymentOperations(page);
+
+      await paymentOperations.addFilters.click();
+      await page
+        .getByLabel("Add Filters")
+        .getByText("Status", { exact: true })
+        .click();
+      await paymentOperations.statusFieldWrapper.click();
+      await page.getByRole("option", { name: "Succeeded" }).click();
+      await paymentOperations.applyButton.click();
+      await expect(
+        page.getByRole("option", { name: "Succeeded" }),
+      ).not.toBeVisible();
+
+      await paymentOperations.addFilters.click();
+      await page
+        .getByLabel("Add Filters")
+        .getByText("Currency", { exact: true })
+        .click();
+      await expect(
+        page.getByRole("searchbox", { name: "Search options..." }),
+      ).not.toBeVisible();
+      await page.getByText("Select Currency").click();
+      await page
+        .getByRole("searchbox", { name: "Search options..." })
+        .fill("USD");
+      await page.getByRole("option", { name: "USD" }).click();
+      await paymentOperations.applyButton.click();
+      await expect(
+        page.getByRole("searchbox", { name: "Search options..." }),
+      ).not.toBeVisible();
+
+      await paymentOperations.saveCurrentViewButton.click();
+      await paymentOperations.savedViewNameInput.fill("Successful payments");
+      await paymentOperations.saveNewViewButton.click();
+      await expect(
+        paymentOperations.dataToast(
+          "New View 'Successful payments' created successfully!",
+        ),
+      ).toBeVisible();
+
+      expect(savedViewsApi.actions).toHaveLength(1);
+      expect(savedViewsApi.actions[0]).toMatchObject({
+        type: "Create",
+        data: { view_name: "Successful payments" },
+      });
+      expect(savedViewsApi.actions[0].data.filters).toMatchObject({
+        currency: ["USD"],
+        status: ["succeeded"],
+      });
+
+      await page.getByRole("button", { name: "Clear All" }).click();
+      await page.getByRole("button", { name: "Saved Views" }).click();
+      await paymentOperations.savedViewOption("Successful payments").click();
+      await page.getByRole("button", { name: "Successful payments" }).click();
+      await expect(
+        paymentOperations.savedViewOption("Successful payments"),
+      ).not.toBeVisible();
+
+      await expect(
+        page.getByRole("button", { name: "Select Status1" }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: "Select Currency1" }),
+      ).toBeVisible();
+    });
+
+    test("should save and restore the currently selected time range", async ({
+      page,
+    }) => {
+      const pinnedDate = new Date("2025-06-15T10:00:00.000Z");
+      await page.clock.setFixedTime(pinnedDate);
+      await mockSavedViewsApi(page);
+      const paymentOperations = new PaymentOperations(page);
+      await openPaymentOperations(page);
+
+      await paymentOperations.customDateRangeButton.click();
+      await paymentOperations.predefinedDateOptions
+        .getByText("Last 7 days", { exact: true })
+        .click();
+      await expect(
+        paymentOperations.predefinedDateOptions.getByText("Last 7 days", {
+          exact: true,
+        }),
+      ).not.toBeVisible();
+
+      const selectedDateRange =
+        await paymentOperations.dateSelector.getAttribute("aria-label");
+      if (!selectedDateRange) {
+        throw new Error("Date range picker did not have an accessible label");
+      }
+
+      await paymentOperations.saveCurrentViewButton.click();
+      await paymentOperations.savedViewNameInput.fill("Last week");
+      await paymentOperations.includeDateRangeCheckbox.click();
+      await paymentOperations.saveNewViewButton.click();
+      await expect(
+        paymentOperations.dataToast(
+          "New View 'Last week' created successfully!",
+        ),
+      ).toBeVisible();
+
+      await page.getByRole("button", { name: "Last 7 days" }).click();
+      await page.getByRole("menuitem", { name: "Last 30 minutes" }).click();
+      await paymentOperations.savedViewsButton.click();
+
+      await paymentOperations.savedViewOption("Last week").click();
+      await page.getByRole("button", { name: "Last week" }).click();
+      await expect(
+        paymentOperations.savedViewOption("Last week"),
+      ).not.toBeVisible();
+
+      await expect(paymentOperations.dateSelector).toHaveAccessibleName(
+        selectedDateRange,
+      );
+    });
+
+    test("should show an error when the save view API fails", async ({
+      page,
+    }) => {
+      const savedViewsApi = await mockSavedViewsApi(page, { failCreate: true });
+      const paymentOperations = new PaymentOperations(page);
+      await openPaymentOperations(page);
+
+      await paymentOperations.saveCurrentViewButton.click();
+      await paymentOperations.savedViewNameInput.fill("Unavailable view");
+      await paymentOperations.saveNewViewButton.click();
+
+      await expect(
+        paymentOperations.dataToast(
+          "Failed to create view 'Unavailable view'. Please try again.",
+        ),
+      ).toBeVisible();
+      await expect(paymentOperations.saveViewModal).toBeVisible();
+      expect(savedViewsApi.actions).toHaveLength(1);
+      expect(savedViewsApi.actions[0].type).toBe("Create");
+    });
+
+    test("should delete a saved view successfully", async ({ page }) => {
+      const view = savedViewApiItem("View to delete", {
+        status: ["succeeded"],
+      });
+      const savedViewsApi = await mockSavedViewsApi(page, {
+        initialViews: [view],
+      });
+      const paymentOperations = new PaymentOperations(page);
+      await openPaymentOperations(page);
+
+      await paymentOperations.savedViewsButton.click();
+      await expect(
+        paymentOperations.savedViewOption("View to delete"),
+      ).toBeVisible();
+      await paymentOperations.savedViewDeleteIcon.click();
+      await expect(
+        page.getByText("Delete 'View to delete'?", { exact: true }),
+      ).toBeVisible();
+      await page.getByRole("button", { name: "Delete Saved View" }).click();
+
+      await expect(
+        paymentOperations.dataToast(
+          "'View to delete' has been deleted successfully!",
+        ),
+      ).toBeVisible();
+      expect(savedViewsApi.actions.at(-1)).toMatchObject({
+        type: "Delete",
+        data: { view_id: view.view_id },
+      });
+      await expect(
+        paymentOperations.savedViewOption("View to delete"),
+      ).toHaveCount(0);
+    });
+  });
+
   test.describe("Date Selector", () => {
     test("should extend the time range by 90 days when no payments are listed", async ({
       page,
@@ -1370,6 +1739,12 @@ test.describe("Payment Operations", () => {
       await expect(page.getByText("Date Range *")).toBeVisible();
       await expect(page.getByText("Report Type")).toBeVisible();
       await expect(page.getByText("Additional Recipients")).toBeVisible();
+      await expect(
+        page.getByText(
+          "Each generated report is limited to 50,000 rows. Narrow the date range if needed.",
+          { exact: true },
+        ),
+      ).toBeVisible();
       await page.getByRole("button", { name: "Generate", exact: true }).click();
     });
 
@@ -1396,6 +1771,19 @@ test.describe("Payment Operations", () => {
           page,
         );
       }
+
+      await page.route("**/dashboard/config/feature*", async (route) => {
+        const response = await route.fetch();
+        const json = await response.json();
+        if (json?.features) {
+          json.features.generate_report = false;
+        }
+        await route.fulfill({ response, json });
+      });
+
+      // Initialize the feature atom from the mocked response instead of
+      // inheriting flags enabled in the target environment.
+      await page.reload();
 
       await homePage.operations.click();
       await homePage.paymentOperations.click();
@@ -1618,12 +2006,18 @@ test.describe("Payment Operations", () => {
           context.request,
           page,
         );
-        await createPaymentAPI(
+        const paymentData = await createPaymentAPI(
           merchantId,
           context.request,
           undefined,
           undefined,
           page,
+        );
+        await mockPaymentSummaryAmounts(
+          page,
+          paymentData.payment_id,
+          12001,
+          344,
         );
       }
 
@@ -1646,9 +2040,7 @@ test.describe("Payment Operations", () => {
       await refreshResponse;
 
       await expect(page.getByText("Summary")).toBeVisible();
-      await expect(
-        page.getByText("123.45 USD").filter({ visible: true }).nth(1),
-      ).toBeVisible();
+      await expect(page.getByText("123.45 USD SUCCEEDED")).toBeVisible();
       await expect(page.getByText("SUCCEEDED").nth(3)).toBeVisible();
 
       await expect(paymentOperations.dataLabel("Created")).toContainText(
@@ -1663,6 +2055,12 @@ test.describe("Payment Operations", () => {
       await expect(
         paymentOperations.dataLabel("Payment ID").first(),
       ).toContainText("Payment ID");
+      await expect(paymentOperations.dataLabel("Net Amount")).toContainText(
+        "Net Amount120.01 USD",
+      );
+      await expect(
+        paymentOperations.dataLabel("Surcharge Amount"),
+      ).toContainText("Surcharge Amount3.44 USD");
       await expect(
         paymentOperations.dataLabel("Connector Transaction ID"),
       ).toContainText("Connector Transaction ID");
@@ -1698,8 +2096,11 @@ test.describe("Payment Operations", () => {
 
       await expect(page.getByText("Events and logs")).toBeVisible();
 
-      await expect(page.getByText("Payment Attempts")).toBeVisible();
-      await page.getByText(/^Payment Attempts$/).click();
+      const paymentAttemptsTab =
+        paymentOperations.paymentDetailsTab("Payment Attempts");
+      await expect(paymentAttemptsTab).toBeVisible();
+      await paymentAttemptsTab.click();
+      await expect(paymentAttemptsTab).toHaveAttribute("aria-selected", "true");
 
       const expectedAttemptColumns = [
         "S.No",
@@ -1773,9 +2174,10 @@ test.describe("Payment Operations", () => {
         }
       }
 
-      const refundsTab = page.getByRole("tab", { name: "Refunds" });
+      const refundsTab = paymentOperations.paymentDetailsTab("Refunds");
       await expect(refundsTab).toBeVisible();
       await refundsTab.click();
+      await expect(refundsTab).toHaveAttribute("aria-selected", "true");
 
       const expectedRefundAttemptColumns = [
         "S.No",
@@ -1839,7 +2241,27 @@ test.describe("Payment Operations", () => {
       await homePage.paymentOperations.click();
       await paymentOperations.orderCell(1, 1).click();
 
-      await page.getByText("Customer Details").click();
+      const expectedPaymentDetailsTabs = [
+        "Event and Logs",
+        "Payment Attempts",
+        "Customer Details",
+        "Payment Method Details",
+        "FRM Details",
+      ];
+      for (const tabName of expectedPaymentDetailsTabs) {
+        await expect(
+          paymentOperations.paymentDetailsTab(tabName),
+        ).toBeVisible();
+      }
+
+      const eventAndLogsTab =
+        paymentOperations.paymentDetailsTab("Event and Logs");
+      await expect(eventAndLogsTab).toHaveAttribute("aria-selected", "true");
+
+      const customerDetailsTab =
+        paymentOperations.paymentDetailsTab("Customer Details");
+      await customerDetailsTab.click();
+      await expect(customerDetailsTab).toHaveAttribute("aria-selected", "true");
 
       const assertSectionFields = async (
         sectionName: string,
@@ -1894,10 +2316,14 @@ test.describe("Payment Operations", () => {
         paymentOperations.dataLabel("Message").first(),
       ).toContainText("N/A");
 
-      await page
-        .getByText(/^Payment Method Details$/)
-        .first()
-        .click();
+      const paymentMethodDetailsTab = paymentOperations.paymentDetailsTab(
+        "Payment Method Details",
+      );
+      await paymentMethodDetailsTab.click();
+      await expect(paymentMethodDetailsTab).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
 
       for (const [label, value] of Object.entries({
         "Amount Capturable": "",
@@ -1945,7 +2371,9 @@ test.describe("Payment Operations", () => {
         page.getByText('Payment Metadata1{ 2 "key": "'),
       ).toContainText("value");
 
-      await page.getByText(/^FRM Details$/).click();
+      const frmDetailsTab = paymentOperations.paymentDetailsTab("FRM Details");
+      await frmDetailsTab.click();
+      await expect(frmDetailsTab).toHaveAttribute("aria-selected", "true");
 
       for (const [label, value] of Object.entries({
         "Payment ID": "",
@@ -2622,6 +3050,478 @@ test.describe("Payment Operations", () => {
       await page.getByRole("button", { name: "Cancel" }).click();
 
       await expect(page.getByText("Confirm Capture Payment")).not.toBeVisible();
+    });
+  });
+
+  // Void cases
+  test.describe("Void cases", () => {
+    const setupRequiresCapturePayment = async (
+      page: Page,
+      merchantId: string,
+      request: Parameters<typeof createDummyConnectorAPI>[2],
+    ) => {
+      await createDummyConnectorAPI(merchantId, "stripe_test_1", request, page);
+      const payment = await createRequiresCapturePaymentAPI(
+        merchantId,
+        request,
+        undefined,
+        page,
+      );
+      await mockPaymentRequiresCapture(page, payment.payment_id);
+      return payment;
+    };
+
+    const openVoidModal = async (
+      page: Page,
+      homePage: HomePage,
+      paymentOperations: PaymentOperations,
+    ) => {
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+      await paymentOperations.addVoidButton.click();
+      await expect(paymentOperations.voidModalHeading).toBeVisible();
+    };
+
+    test("should display Void button for a requires_capture payment", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+
+      await expect(paymentOperations.addVoidButton).toBeVisible();
+    });
+
+    test("should not display Void button for a succeeded payment", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await createDummyConnectorAPI(
+          merchantId,
+          "stripe_test_1",
+          context.request,
+          page,
+        );
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
+      }
+
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+      await expect(page.getByText("SUCCEEDED").nth(3)).toBeVisible();
+
+      await expect(paymentOperations.addVoidButton).not.toBeVisible();
+    });
+
+    test("should display all fields in the void payment modal", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await openVoidModal(page, homePage, paymentOperations);
+
+      await expect(paymentOperations.voidWarning).toBeVisible();
+      await expect(paymentOperations.voidPaymentStatus).toBeVisible();
+      await expect(
+        page.getByText("Amount123.45 USD").nth(1).first(),
+      ).toContainText("123.45 USD");
+      await expect(
+        page.locator('[data-label="Payment ID"]:visible').first(),
+      ).toBeVisible();
+      await expect(
+        page.getByText("Customer IDtest_customer").nth(1),
+      ).toBeVisible();
+      await expect(
+        page.getByText("Customer Emailabc@test.com").nth(1),
+      ).toBeVisible();
+      await expect(paymentOperations.cancellationReasonInput).toHaveAttribute(
+        "placeholder",
+        "Enter Cancellation Reason (optional)",
+      );
+      await expect(paymentOperations.cancelVoidButton).toBeVisible();
+      await expect(paymentOperations.confirmVoidButton).toBeVisible();
+    });
+
+    test("should void the payment with the supplied cancellation reason", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      let cancellationRequestMethod = "";
+      let cancellationRequest: Record<string, unknown> | null = null;
+      await page.route(/\/payments\/[^/]+\/cancel/, async (route) => {
+        cancellationRequestMethod = route.request().method();
+        cancellationRequest = route.request().postDataJSON();
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ status: "cancelled" }),
+        });
+      });
+
+      await openVoidModal(page, homePage, paymentOperations);
+      await paymentOperations.cancellationReasonInput.fill(
+        "Customer requested cancellation",
+      );
+      await paymentOperations.confirmVoidButton.click();
+
+      await expect(paymentOperations.voidSuccessToast).toBeVisible();
+      expect(cancellationRequestMethod).toBe("POST");
+      expect(cancellationRequest).toEqual({
+        cancellation_reason: "Customer requested cancellation",
+      });
+      await expect(paymentOperations.voidModalHeading).not.toBeVisible();
+    });
+
+    test("should show an error when the void payment API fails", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await page.route(/\/payments\/[^/]+\/cancel/, async (route) => {
+        await route.fulfill({
+          status: 500,
+          contentType: "application/json",
+          body: JSON.stringify({ error: { message: "Internal server error" } }),
+        });
+      });
+
+      await openVoidModal(page, homePage, paymentOperations);
+      await paymentOperations.confirmVoidButton.click();
+
+      await expect(paymentOperations.voidErrorToast).toBeVisible();
+      await expect(paymentOperations.voidModalHeading).not.toBeVisible();
+    });
+
+    test("should close the void payment modal on Cancel click", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await openVoidModal(page, homePage, paymentOperations);
+      await paymentOperations.cancelVoidButton.click();
+
+      await expect(paymentOperations.voidModalHeading).not.toBeVisible();
+    });
+  });
+
+  test.describe("Manual status update", () => {
+    const setupPaymentWithStatus = async (
+      page: Page,
+      homePage: HomePage,
+      request: Parameters<typeof createDummyConnectorAPI>[2],
+      initialStatus: string,
+    ) => {
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (!merchantId) {
+        throw new Error("Merchant ID is required to create a payment");
+      }
+
+      await createDummyConnectorAPI(merchantId, "stripe_test_1", request, page);
+      const payment = await createPaymentAPI(
+        merchantId,
+        request,
+        undefined,
+        undefined,
+        page,
+      );
+      let mockedStatus = initialStatus;
+
+      await page.route(
+        new RegExp(`/payments/${payment.payment_id}(\\?|$)`),
+        async (route) => {
+          if (route.request().method() !== "GET") {
+            await route.continue();
+            return;
+          }
+
+          const response = await route.fetch();
+          const json = await response.json();
+          await route.fulfill({
+            response,
+            json: { ...json, status: mockedStatus },
+          });
+        },
+      );
+
+      return {
+        setStatus: (status: string) => {
+          mockedStatus = status;
+        },
+      };
+    };
+
+    const openPaymentDetails = async (
+      page: Page,
+      homePage: HomePage,
+      paymentOperations: PaymentOperations,
+    ) => {
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+      await expect(page.getByText("Summary", { exact: true })).toBeVisible();
+    };
+
+    const mockManualStatusUpdate = async (
+      page: Page,
+      responseStatus: number,
+    ) => {
+      const capturedRequest: {
+        method: string;
+        body: Record<string, unknown> | null;
+      } = { method: "", body: null };
+
+      await page.route(
+        /\/payments\/[^/]+\/manual-status-update/,
+        async (route) => {
+          capturedRequest.method = route.request().method();
+          capturedRequest.body = route.request().postDataJSON();
+          await route.fulfill({
+            status: responseStatus,
+            contentType: "application/json",
+            body: JSON.stringify(
+              responseStatus >= 400
+                ? { error: { message: "Internal server error" } }
+                : { status: "succeeded" },
+            ),
+          });
+        },
+      );
+
+      return capturedRequest;
+    };
+
+    const openStatusUpdateModal = async (
+      paymentOperations: PaymentOperations,
+    ) => {
+      await paymentOperations.updatePaymentStatusButton.click();
+      await expect(
+        paymentOperations.updatePaymentStatusModalHeading,
+      ).toBeVisible();
+    };
+
+    test("should display the manual-attention banner for a payment in Review state", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      await setupPaymentWithStatus(page, homePage, context.request, "review");
+      await openPaymentDetails(page, homePage, paymentOperations);
+
+      await expect(paymentOperations.manualAttentionHeading).toBeVisible();
+      await expect(paymentOperations.manualAttentionDescription).toBeVisible();
+      await expect(paymentOperations.updatePaymentStatusButton).toBeVisible();
+    });
+
+    test("should not display the manual-attention banner for non-Review payment statuses", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      const paymentStatus = await setupPaymentWithStatus(
+        page,
+        homePage,
+        context.request,
+        "succeeded",
+      );
+      await openPaymentDetails(page, homePage, paymentOperations);
+
+      const nonReviewStatuses = [
+        "succeeded",
+        "failed",
+        "requires_capture",
+        "cancelled",
+      ];
+
+      for (const status of nonReviewStatuses) {
+        await test.step(`banner is hidden for ${status}`, async () => {
+          paymentStatus.setStatus(status);
+          await page.reload();
+          await expect(
+            page.getByText("Summary", { exact: true }),
+          ).toBeVisible();
+          await expect(
+            paymentOperations.manualAttentionHeading,
+          ).not.toBeVisible();
+          await expect(
+            paymentOperations.updatePaymentStatusButton,
+          ).not.toBeVisible();
+        });
+      }
+    });
+
+    test("should display all elements in the Update Payment Status modal", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      await setupPaymentWithStatus(page, homePage, context.request, "review");
+      await openPaymentDetails(page, homePage, paymentOperations);
+      await openStatusUpdateModal(paymentOperations);
+
+      await expect(
+        paymentOperations.updatePaymentStatusModalDescription,
+      ).toBeVisible();
+      await expect(paymentOperations.newStatusLabel).toBeVisible();
+      await expect(paymentOperations.reviewStatusDropdown).toBeVisible();
+      await expect(paymentOperations.cancelStatusUpdateButton).toBeVisible();
+      await expect(paymentOperations.updateStatusButton).toBeVisible();
+
+      await paymentOperations.reviewStatusDropdown.click();
+      await expect(
+        paymentOperations.reviewStatusOption("Succeeded"),
+      ).toBeVisible();
+      await expect(
+        paymentOperations.reviewStatusOption("Failed"),
+      ).toBeVisible();
+    });
+
+    test("should successfully mark a Review payment as Succeeded", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      await setupPaymentWithStatus(page, homePage, context.request, "review");
+      const capturedRequest = await mockManualStatusUpdate(page, 200);
+      await openPaymentDetails(page, homePage, paymentOperations);
+      await openStatusUpdateModal(paymentOperations);
+
+      await paymentOperations.updateStatusButton.click();
+      await expect(paymentOperations.confirmStatusUpdateHeading).toBeVisible();
+      await expect(
+        paymentOperations.confirmStatusUpdateDescription("Succeeded"),
+      ).toBeVisible();
+      await paymentOperations.confirmStatusUpdateButton.click();
+
+      await expect(
+        paymentOperations.manualStatusSuccessToast("Succeeded"),
+      ).toBeVisible();
+      expect(capturedRequest.method).toBe("POST");
+      expect(capturedRequest.body).toEqual({ intent_status: "succeeded" });
+    });
+
+    test("should successfully mark a Review payment as Failed", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      await setupPaymentWithStatus(page, homePage, context.request, "review");
+      const capturedRequest = await mockManualStatusUpdate(page, 200);
+      await openPaymentDetails(page, homePage, paymentOperations);
+      await openStatusUpdateModal(paymentOperations);
+
+      await paymentOperations.reviewStatusDropdown.click();
+      await paymentOperations.reviewStatusOption("Failed").click();
+      await paymentOperations.updateStatusButton.click();
+      await expect(paymentOperations.confirmStatusUpdateHeading).toBeVisible();
+      await expect(
+        paymentOperations.confirmStatusUpdateDescription("Failed"),
+      ).toBeVisible();
+      await paymentOperations.confirmStatusUpdateButton.click();
+
+      await expect(
+        paymentOperations.manualStatusSuccessToast("Failed"),
+      ).toBeVisible();
+      expect(capturedRequest.method).toBe("POST");
+      expect(capturedRequest.body).toEqual({ intent_status: "failed" });
+    });
+
+    test("should close the status update modal and confirmation popup on Cancel", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      await setupPaymentWithStatus(page, homePage, context.request, "review");
+      await openPaymentDetails(page, homePage, paymentOperations);
+      await openStatusUpdateModal(paymentOperations);
+
+      await paymentOperations.cancelStatusUpdateButton.click();
+      await expect(
+        paymentOperations.updatePaymentStatusModal,
+      ).not.toBeVisible();
+
+      await openStatusUpdateModal(paymentOperations);
+      await paymentOperations.updateStatusButton.click();
+      await expect(paymentOperations.confirmStatusUpdateHeading).toBeVisible();
+      await paymentOperations.cancelStatusConfirmationButton.click();
+      await expect(
+        paymentOperations.confirmStatusUpdateHeading,
+      ).not.toBeVisible();
+    });
+
+    test("should show an error when the manual status update API fails", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      await setupPaymentWithStatus(page, homePage, context.request, "review");
+      const capturedRequest = await mockManualStatusUpdate(page, 500);
+      await openPaymentDetails(page, homePage, paymentOperations);
+      await openStatusUpdateModal(paymentOperations);
+
+      await paymentOperations.updateStatusButton.click();
+      await expect(paymentOperations.confirmStatusUpdateHeading).toBeVisible();
+      await paymentOperations.confirmStatusUpdateButton.click();
+
+      await expect(paymentOperations.manualStatusErrorToast).toBeVisible();
+      expect(capturedRequest.method).toBe("POST");
+      expect(capturedRequest.body).toEqual({ intent_status: "succeeded" });
     });
   });
 });

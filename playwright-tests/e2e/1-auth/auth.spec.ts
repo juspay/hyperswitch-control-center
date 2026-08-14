@@ -562,18 +562,17 @@ test.describe("Forgot password", () => {
   );
 
   test(
-    "should display validation error for weak password or mismatched confirmation on reset",
+    "should display validation error for invalid password or mismatched confirmation on reset",
     { tag: "@mail" },
     async ({ page, context: _context }) => {
       const email = generateUniqueEmail();
       const signinPage = new SignInPage(page);
       const resetPasswordPage = new ResetPasswordPage(page);
 
+      const elevenCharacterPassword = "Valid@12345";
+      const twelveCharacterPassword = "Valid@123456";
+
       const weakPasswords = [
-        {
-          password: "Weak1!",
-          expectedError: "Password must be at least 12 characters long.",
-        },
         { password: "password123!", expectedError: /uppercase/ },
         { password: "PASSWORD123!", expectedError: /lowercase/ },
         { password: "Password!@#>", expectedError: /numeric/ },
@@ -593,6 +592,47 @@ test.describe("Forgot password", () => {
       );
 
       await signinPage.skip2FAButton.click();
+
+      await resetPasswordPage.newPasswordField.fill(elevenCharacterPassword);
+      await resetPasswordPage.newPasswordField.blur();
+      await expect(
+        resetPasswordPage.minimumPasswordLengthRequirement,
+      ).toBeVisible();
+      await expect(
+        resetPasswordPage.minimumPasswordLengthCheckIcon,
+      ).not.toBeAttached();
+      await resetPasswordPage.confirmPasswordField.fill(
+        elevenCharacterPassword,
+      );
+
+      await expect(resetPasswordPage.weakPasswordError).toContainText(
+        "Password must be at least 12 characters long.",
+      );
+      await resetPasswordPage.confirmButton.click();
+      await expect(resetPasswordPage.confirmButton).toBeDisabled();
+
+      await resetPasswordPage.newPasswordField.fill(twelveCharacterPassword);
+      await resetPasswordPage.confirmPasswordField.fill(
+        twelveCharacterPassword,
+      );
+
+      await expect(resetPasswordPage.weakPasswordError).not.toBeVisible();
+      await expect(resetPasswordPage.confirmButton).toBeEnabled();
+
+      await resetPasswordPage.newPasswordField.fill(elevenCharacterPassword);
+      await expect(
+        resetPasswordPage.minimumPasswordLengthCheckIcon,
+      ).not.toBeAttached();
+      await resetPasswordPage.newPasswordField.blur();
+      await resetPasswordPage.confirmPasswordField.fill(
+        elevenCharacterPassword,
+      );
+      await resetPasswordPage.confirmPasswordField.blur();
+
+      await expect(resetPasswordPage.weakPasswordError).toContainText(
+        "Password must be at least 12 characters long.",
+      );
+      await expect(resetPasswordPage.confirmButton).toBeDisabled();
 
       for (const { password, expectedError } of weakPasswords) {
         await resetPasswordPage.newPasswordField.fill(password);

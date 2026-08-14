@@ -127,12 +127,20 @@ let getClickhouseAggregateMetric = entity =>
     None
   }
 
-let buildAggregateMetricsUrl = (~metricConfig, ~transactionEntity) => {
-  let scope = switch transactionEntity {
+let getMetricsScope = transactionEntity =>
+  switch transactionEntity {
   | #Profile => "profile"
   | _ => "merchant"
   }
+
+let buildAggregateMetricsUrl = (~metricConfig, ~transactionEntity) => {
+  let scope = transactionEntity->getMetricsScope
   `${Window.env.apiBaseUrl}/${metricConfig.urlPrefix}/${scope}/metrics/${metricConfig.domain}`
+}
+
+let buildSankeyMetricsUrl = transactionEntity => {
+  let scope = transactionEntity->getMetricsScope
+  `${Window.env.apiBaseUrl}/analytics/v1/${scope}/metrics/sankey`
 }
 
 let getEntityName = (~entity: operationsTypes, ~version: UserInfoTypes.version) => {
