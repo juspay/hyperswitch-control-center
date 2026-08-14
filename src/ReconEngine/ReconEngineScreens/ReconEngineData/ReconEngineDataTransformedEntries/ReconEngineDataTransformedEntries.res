@@ -70,21 +70,16 @@ let make = () => {
       value: config.transformation_id,
     })
 
-  let fetchAccounts = async () => {
+  let fetchAccountAndTransformationConfigs = async () => {
     try {
-      let accounts = await getAccounts()
+      let (accounts, transformationConfigs) = await Promise.all2((
+        getAccounts(),
+        getTransformationConfigs(),
+      ))
       setAccountData(_ => accounts)
-    } catch {
-    | _ => showToast(~message="Failed to fetch accounts", ~toastType=ToastError)
-    }
-  }
-
-  let fetchTransformationConfigs = async () => {
-    try {
-      let transformationConfigs = await getTransformationConfigs()
       setTransformationConfigData(_ => transformationConfigs)
     } catch {
-    | _ => showToast(~message="Failed to fetch transformations", ~toastType=ToastError)
+    | _ => showToast(~message="Failed to fetch accounts or transformations", ~toastType=ToastError)
     }
   }
 
@@ -95,8 +90,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    fetchAccounts()->ignore
-    fetchTransformationConfigs()->ignore
+    fetchAccountAndTransformationConfigs()->ignore
     None
   }, [])
 

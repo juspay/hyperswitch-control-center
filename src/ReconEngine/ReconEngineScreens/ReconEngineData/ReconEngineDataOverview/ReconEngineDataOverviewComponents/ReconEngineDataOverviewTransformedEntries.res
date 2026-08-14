@@ -17,8 +17,10 @@ let make = (
   )
   let getStagingEntriesOverview = useGetStagingEntriesOverview()
   let getAccounts = useGetAccounts()
+  let getTransformationConfigs = useGetTransformationConfigs()
   let showToast = ToastAdapter.useShowToast()
   let (accountData, setAccountData) = React.useState(_ => [])
+  let (transformationConfigData, setTransformationConfigData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let searchTypeRef = React.useRef(SearchStagingEntryId)
   let (searchText, setSearchText) = React.useState(_ => stagingEntryId->Option.getOr(""))
@@ -72,12 +74,16 @@ let make = (
     })
   }
 
-  let fetchAccounts = async () => {
+  let fetchAccountAndTransformationConfigs = async () => {
     try {
-      let accounts = await getAccounts()
+      let (accounts, transformationConfigs) = await Promise.all2((
+        getAccounts(),
+        getTransformationConfigs(),
+      ))
       setAccountData(_ => accounts)
+      setTransformationConfigData(_ => transformationConfigs)
     } catch {
-    | _ => showToast(~message="Failed to fetch accounts", ~toastType=ToastError)
+    | _ => showToast(~message="Failed to fetch accounts or transformations", ~toastType=ToastError)
     }
   }
 
@@ -87,6 +93,14 @@ let make = (
       value: account.account_id,
     })
 
+  let transformationConfigOptions =
+    transformationConfigData->Array.map((
+      config: ReconEngineTypes.transformationConfigType,
+    ): FilterSelectBox.dropdownOption => {
+      label: config.name,
+      value: config.transformation_id,
+    })
+
   let handleSearchSubmit = (selectedType: option<string>) => {
     let newSearchType = selectedType->mapOptionOrDefault(SearchStagingEntryId, searchTypeFromString)
     searchTypeRef.current = newSearchType
@@ -94,7 +108,7 @@ let make = (
   }
 
   React.useEffect(() => {
-    fetchAccounts()->ignore
+    fetchAccountAndTransformationConfigs()->ignore
     None
   }, [])
 
@@ -110,7 +124,7 @@ let make = (
     <div className="flex flex-row -ml-1.5">
       <DynamicFilter
         title="ReconEngineExceptionStagingFilters"
-        initialFilters={initialDisplayFilters(~accountOptions)}
+        initialFilters={initialDisplayFilters(~accountOptions, ~transformationConfigOptions)}
         options=[]
         popupFilterFields=[]
         initialFixedFilters=[]

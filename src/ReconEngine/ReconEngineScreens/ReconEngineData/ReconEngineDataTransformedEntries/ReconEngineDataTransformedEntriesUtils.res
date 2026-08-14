@@ -250,42 +250,13 @@ let getLineageSections = (~ingestionHistoryData, ~transformationHistoryData, ~en
   },
 ]
 
-let initialDisplayFilters = (
-  ~transformationConfigOptions: array<FilterSelectBox.dropdownOption>=[],
-  ~accountOptions,
-) => {
+let initialDisplayFilters = (~transformationConfigOptions, ~accountOptions) => {
   let entryTypeOptions: array<FilterSelectBox.dropdownOption> = [
     {label: "Credit", value: "credit"},
     {label: "Debit", value: "debit"},
   ]
 
   let statusOptions = getStagingEntryStatusOptions([Processed, Pending, NeedsManualReview, Void])
-
-  let transformationConfigFilter =
-    transformationConfigOptions->isNonEmptyArray
-      ? [
-          (
-            {
-              field: FormRenderer.makeFieldInfo(
-                ~label="Transformation",
-                ~name="transformation_config_ids",
-                ~customInput=InputFields.filterMultiSelectInput(
-                  ~options=transformationConfigOptions,
-                  ~buttonText="Select Transformation",
-                  ~showSelectionAsChips=false,
-                  ~searchable=true,
-                  ~showToolTip=true,
-                  ~showNameAsToolTip=true,
-                  ~customButtonStyle="bg-none",
-                  ~fixedDropDownDirection=BottomRight,
-                  (),
-                ),
-              ),
-              localFilter: Some((_, _) => []->Array.map(Nullable.make)),
-            }: EntityType.initialFilters<'t>
-          ),
-        ]
-      : []
 
   [
     (
@@ -348,5 +319,25 @@ let initialDisplayFilters = (
         localFilter: Some((_, _) => []->Array.map(Nullable.make)),
       }: EntityType.initialFilters<'t>
     ),
-  ]->Array.concat(transformationConfigFilter)
+    (
+      {
+        field: FormRenderer.makeFieldInfo(
+          ~label="Transformation",
+          ~name="transformation_config_ids",
+          ~customInput=InputFields.filterMultiSelectInput(
+            ~options=transformationConfigOptions,
+            ~buttonText="Select Transformation",
+            ~showSelectionAsChips=false,
+            ~searchable=true,
+            ~showToolTip=true,
+            ~showNameAsToolTip=true,
+            ~customButtonStyle="bg-none",
+            ~fixedDropDownDirection=BottomRight,
+            (),
+          ),
+        ),
+        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+      }: EntityType.initialFilters<'t>
+    ),
+  ]
 }
