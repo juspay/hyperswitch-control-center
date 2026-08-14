@@ -634,6 +634,10 @@ export class HomePage {
     return this.page.getByText("SUGGESTED FILTERS", { exact: true });
   }
 
+  get globalSearchClipboardHeader(): Locator {
+    return this.page.getByText("FROM CLIPBOARD", { exact: true });
+  }
+
   get globalSearchValidationError(): Locator {
     return this.page.getByText(
       "Only one free-text search is allowed and additional text will be ignored.",
