@@ -93,6 +93,13 @@ let buildProcessingEntriesV2Body = (
     )
   }
 
+  if transformationConfigIdFilter->isNonEmptyArray {
+    filtersDict->Dict.set(
+      "transformation_config_ids",
+      transformationConfigIdFilter->getJsonFromArrayOfString,
+    )
+  }
+
   if hasTimeRange {
     filtersDict->Dict.set(
       "time_range",
