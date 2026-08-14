@@ -124,12 +124,23 @@ module EditEntryModalContent = {
                 ~isRequired=true,
               )}
             />
-            {transformationConfigSelectInputField(
-              ~transformationsList,
-              ~disabled=false,
-              ~setMetadataSchema,
-              ~setIsMetadataLoading,
-            )}
+            <FormRenderer.FieldRenderer
+              labelClass="font-semibold"
+              field={FormRenderer.makeMultiInputFieldInfo(
+                ~label="Transformation Config",
+                ~comboCustomInput=transformationComboSelectInputField(
+                  ~transformationsList,
+                  ~disabled=false,
+                  ~setMetadataSchema,
+                  ~setIsMetadataLoading,
+                ),
+                ~inputFields=[
+                  FormRenderer.makeInputFieldInfo(~name="transformation.transformation_id"),
+                  FormRenderer.makeInputFieldInfo(~name="transformation.transformation_name"),
+                ],
+                ~isRequired=true,
+              )}
+            />
             {entryTypeSelectInputField(~disabled=false)}
             {currencySelectInputField(~entryDetails, ~disabled=false)}
             {amountTextInputField(~disabled=false)}

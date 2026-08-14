@@ -212,15 +212,16 @@ let hasFormValuesChanged = (currentValues: JSON.t, initialEntryDetails: entryTyp
   let isEntryTypeChanged =
     currentData->getString("entry_type", "") != (initialEntryDetails.entry_type :> string)
   let isAmountChanged = currentData->getFloat("amount", 0.0) != initialEntryDetails.amount
+  let isCurrencyChanged = currentData->getString("currency", "") != initialEntryDetails.currency
   let isEffectiveAtChanged =
     currentData->getString("effective_at", "") != initialEntryDetails.effective_at
+
   let isMetadataChanged = {
-    let currentMetadataArray = currentData->getDictfromDict("metadata")->Dict.toArray
-    let initialMetadataArray = initialMetadata->Dict.toArray
-    currentMetadataArray->Array.length != initialMetadataArray->Array.length ||
-      currentMetadataArray->Array.some(((key, value)) => {
-        initialMetadata->Dict.get(key)->Option.mapOr(true, initialValue => initialValue != value)
-      })
+    let currentMetadata = currentData->getDictfromDict("metadata")
+    currentMetadata
+    ->Dict.keysToArray
+    ->Array.concat(initialMetadata->Dict.keysToArray)
+    ->Array.some(key => currentMetadata->getString(key, "") != initialMetadata->getString(key, ""))
   }
   let isOrderIdChanged = currentData->getString("order_id", "") != initialEntryDetails.order_id
 
@@ -228,6 +229,7 @@ let hasFormValuesChanged = (currentValues: JSON.t, initialEntryDetails: entryTyp
   isTransformationConfigChanged ||
   isEntryTypeChanged ||
   isAmountChanged ||
+  isCurrencyChanged ||
   isEffectiveAtChanged ||
   isMetadataChanged ||
   isOrderIdChanged
