@@ -81,10 +81,13 @@ let getNeedsManualReviewTypeVariantFromString = (reviewType: string): needsManua
   switch reviewType->String.toLowerCase {
   | "no_rules_found" => NoRulesFound
   | "staging_entry_currency_mismatch" => StagingEntryCurrencyMismatch
+  | "missing_search_identifier_value" => MissingSearchIdentifierValue
   | "duplicate_entry" => DuplicateEntry
   | "no_expectation_entry_found" => NoExpectationEntryFound
-  | "missing_search_identifier_value" => MissingSearchIdentifierValue
+  | "multiple_expected_entries_found" => MultipleExpectedEntriesFound
+  | "missing_match_field" => MissingMatchField
   | "missing_unique_field" => MissingUniqueField
+  | "missing_grouping_field" => MissingGroupingField
   | _ => UnknownNeedsManualReviewType
   }
 }
