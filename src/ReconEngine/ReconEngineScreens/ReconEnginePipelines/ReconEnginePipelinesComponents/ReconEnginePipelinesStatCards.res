@@ -32,6 +32,7 @@ let make = (~refreshTrigger=false) => {
         ->Dict.fromArray
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
         ~filterValueJson=dateRangeFilterValueJson,
+        ~convertToLocal=false,
       )
       let ingestionHistoryFetch = getIngestionHistory(~queryParameters=Some(queryString))
       let stagingEntriesOverviewFetch = getStagingEntriesOverview(

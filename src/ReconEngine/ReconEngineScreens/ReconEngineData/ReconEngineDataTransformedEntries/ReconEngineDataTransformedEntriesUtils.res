@@ -60,8 +60,8 @@ let buildProcessingEntriesV2Body = (
   let transformationConfigIdFilter =
     filterValueJson->getStrArrayFromDict("transformation_config_ids", [])
 
-  let startTime = filterValueJson->getString("startTime", "")
-  let endTime = filterValueJson->getString("endTime", "")
+  let startTime = filterValueJson->getString("startTime", "")->toReconTimeString
+  let endTime = filterValueJson->getString("endTime", "")->toReconTimeString
   let hasTimeRange = startTime->isNonEmptyString && endTime->isNonEmptyString
 
   let filtersDict = Dict.make()
