@@ -27,10 +27,7 @@ let themeListAtom: Recoil.recoilAtom<JSON.t> = Recoil.atom("themeListAtom", JSON
 
 let enumVariantAtom = Recoil.atom("enumVariantDetails", "")
 
-let featureFlagAtom: Recoil.recoilAtom<FeatureFlagUtils.featureFlag> = Recoil.atom(
-  "featureFlag",
-  JSON.Encode.null->FeatureFlagUtils.featureFlagType,
-)
+let featureFlagAtom = FeatureFlagAtom.featureFlagAtom
 let connectorListForLiveAtom: Recoil.recoilAtom<
   ConnectorListForLiveFromConfigTypes.connectorListForLive,
 > = Recoil.atom(

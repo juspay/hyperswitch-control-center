@@ -87,6 +87,7 @@ type featureFlag = {
   devClickhouseAggregate: bool,
   connectorClone: bool,
   sendV1DummyApiKeyHeader: bool,
+  cugUser: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -176,6 +177,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devClickhouseAggregate: dict->getBool("dev_clickhouse_aggregate", false),
     connectorClone: dict->getBool("connector_clone", false),
     sendV1DummyApiKeyHeader,
+    cugUser: dict->getBool("cug_user", false),
   }
 }
 
