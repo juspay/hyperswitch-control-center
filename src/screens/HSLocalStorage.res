@@ -49,3 +49,15 @@ let getCustomTableColumnsfromLocalStorage = () => {
   let customTableColumns = LocalStorage.getItem("tableColumnsOrder")->Nullable.toOption
   customTableColumns
 }
+
+let setPaymentListSourceInLocalStorage = val => {
+  let val = val->LogicUtils.getNonEmptyString
+  if val->Option.isSome {
+    LocalStorage.setItem("selectedPaymentListSource", val->Option.getOr(""))
+  }
+}
+
+let getPaymentListSourcefromLocalStorage = () => {
+  let paymentListSource = LocalStorage.getItem("selectedPaymentListSource")->Nullable.toOption
+  paymentListSource
+}

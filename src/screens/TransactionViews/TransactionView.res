@@ -42,7 +42,6 @@ let make = (
   ~allStatuses=[],
 ) => {
   open APIUtils
-  open APIUtilsTypes
   open LogicUtils
   open TransactionViewUtils
   let getURL = useGetURL()
@@ -109,7 +108,7 @@ let make = (
   let loadAggregateCounts = async () => {
     try {
       if isAdvancedOrdersView {
-        let url = getURL(~entityName=V1(ANALYTICS_SANKEY), ~methodType=Post)
+        let url = transactionEntity->buildSankeyMetricsUrl
         let body =
           [
             ("startTime", startTime->JSON.Encode.string),
