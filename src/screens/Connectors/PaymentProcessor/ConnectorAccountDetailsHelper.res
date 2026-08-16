@@ -176,6 +176,8 @@ module CashToCodeSelectBox = {
   ) => {
     open LogicUtils
     open Typography
+    open ConnectorUtils
+
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
@@ -188,16 +190,22 @@ module CashToCodeSelectBox = {
         ->getDictfromDict("auth_key_map")
         ->getDictfromDict(country)
 
-      let wasmValues =
-        dict
-        ->getDictfromDict(country)
-        ->getDictfromDict((selectedCashToCodeMthd: cashToCodeMthd :> string)->String.toLowerCase)
-        ->Dict.keysToArray
+      let methods = dict->getDictfromDict(country)->Dict.keysToArray
 
-      wasmValues
-      ->Array.find(ele => formValues->getString(ele, "")->String.length <= 0)
-      ->Option.isNone
+      methods->Array.every(method => {
+        let wasmValues =
+          dict
+          ->getDictfromDict(country)
+          ->getDictfromDict(method)
+          ->Dict.keysToArray
+          ->Array.filter(field => checkAuthKeyMapRequiredFields(Processors(CASHTOCODE), field))
+
+        wasmValues
+        ->Array.find(ele => formValues->getString(ele, "")->String.trim->String.length <= 0)
+        ->Option.isNone
+      })
     }
+
     let accordionItems = opts->Array.map(country => {
       let countryTitle = country->snakeToTitle
       let isCountrySelected = country->isSelected
