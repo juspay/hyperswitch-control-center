@@ -168,6 +168,16 @@ let getInitialValuesForEditEntries = (entryDetails: processingEntryType) => {
     ("account_id", entryDetails.account.account_id->JSON.Encode.string),
     ("account_name", entryDetails.account.account_name->JSON.Encode.string),
   ]
+  let transformation = [
+    (
+      "transformation_id",
+      entryDetails.transformation_config.transformation_config_id->JSON.Encode.string,
+    ),
+    (
+      "transformation_name",
+      entryDetails.transformation_config.transformation_config_name->JSON.Encode.string,
+    ),
+  ]
   let fields = [
     ("account", account->getJsonFromArrayOfJson),
     ("entry_type", (entryDetails.entry_type :> string)->JSON.Encode.string),
@@ -175,10 +185,7 @@ let getInitialValuesForEditEntries = (entryDetails: processingEntryType) => {
     ("amount", entryDetails.amount->JSON.Encode.float),
     ("order_id", entryDetails.order_id->JSON.Encode.string),
     ("effective_at", entryDetails.effective_at->JSON.Encode.string),
-    (
-      "transformation_id",
-      entryDetails.transformation_config.transformation_config_id->JSON.Encode.string,
-    ),
+    ("transformation", transformation->getJsonFromArrayOfJson),
     (
       "metadata",
       entryDetails.metadata
@@ -199,29 +206,28 @@ let hasFormValuesChanged = (
   let isAccountChanged =
     currentAccountData->getString("account_id", "") != initialEntryDetails.account.account_id
   let isTransformationConfigChanged =
-    currentData
-    ->getDictfromDict("transformation_config")
-    ->getString("transformation_config_id", "") !=
+    currentData->getDictfromDict("transformation")->getString("transformation_id", "") !=
       initialEntryDetails.transformation_config.transformation_config_id
   let isEntryTypeChanged =
     currentData->getString("entry_type", "") != (initialEntryDetails.entry_type :> string)
   let isAmountChanged = currentData->getFloat("amount", 0.0) != initialEntryDetails.amount
+  let isCurrencyChanged = currentData->getString("currency", "") != initialEntryDetails.currency
   let isEffectiveAtChanged =
     currentData->getString("effective_at", "") != initialEntryDetails.effective_at
 
   let isMetadataChanged = {
-    let currentMetadataArray = currentData->getDictfromDict("metadata")->Dict.toArray
-    let initialMetadataArray = initialMetadata->Dict.toArray
-    currentMetadataArray->Array.length != initialMetadataArray->Array.length ||
-      currentMetadataArray->Array.some(((key, value)) => {
-        initialMetadata->Dict.get(key)->Option.mapOr(true, initialValue => initialValue != value)
-      })
+    let currentMetadata = currentData->getDictfromDict("metadata")
+    currentMetadata
+    ->Dict.keysToArray
+    ->Array.concat(initialMetadata->Dict.keysToArray)
+    ->Array.some(key => currentMetadata->getString(key, "") != initialMetadata->getString(key, ""))
   }
   let isOrderIdChanged = currentData->getString("order_id", "") != initialEntryDetails.order_id
   isAccountChanged ||
   isTransformationConfigChanged ||
   isEntryTypeChanged ||
   isAmountChanged ||
+  isCurrencyChanged ||
   isEffectiveAtChanged ||
   isMetadataChanged ||
   isOrderIdChanged
@@ -234,6 +240,7 @@ let validateEditEntryDetails = (
 ): JSON.t => {
   let data = values->getDictFromJsonObject
   let accountData = data->getDictfromDict("account")
+  let transformationData = data->getDictfromDict("transformation")
 
   let validationRules = [
     (
@@ -242,7 +249,12 @@ let validateEditEntryDetails = (
         ? requiredString("account.account_id", "Account cannot be empty!")
         : _ => None,
     ),
-    ("transformation_id", requiredString("transformation_id", "Cannot be empty!")),
+    (
+      "transformation",
+      transformationData->getString("transformation_id", "")->isEmptyString
+        ? requiredString("transformation.transformation_id", "Cannot be empty!")
+        : _ => None,
+    ),
     ("entry_type", requiredString("entry_type", "Cannot be empty!")),
     ("currency", requiredString("currency", "Cannot be empty!")),
     ("order_id", requiredString("order_id", "Cannot be empty!")),
@@ -283,6 +295,7 @@ let validateEditEntryDetails = (
 
 let getUpdatedEntry = (~entryDetails: processingEntryType, ~formData): processingEntryType => {
   let accountData = formData->getDictfromDict("account")
+  let transformationData = formData->getDictfromDict("transformation")
   {
     id: entryDetails.id,
     staging_entry_id: entryDetails.staging_entry_id,
@@ -297,12 +310,8 @@ let getUpdatedEntry = (~entryDetails: processingEntryType, ~formData): processin
     processing_mode: entryDetails.processing_mode,
     metadata: formData->getJsonObjectFromDict("metadata"),
     transformation_config: {
-      transformation_config_id: formData
-      ->getDictfromDict("transformation_config")
-      ->getString("transformation_config_id", ""),
-      transformation_config_name: formData
-      ->getDictfromDict("transformation_config")
-      ->getString("transformation_config_name", ""),
+      transformation_config_id: transformationData->getString("transformation_id", ""),
+      transformation_config_name: transformationData->getString("transformation_name", ""),
     },
     transformation_history_id: entryDetails.transformation_history_id,
     effective_at: formData->getString("effective_at", ""),
@@ -345,8 +354,7 @@ let generateResolutionSummary = (
   }
 
   if currentEntry.effective_at != updatedEntry.effective_at {
-    let message = `Effective at changed to ${DateTimeUtils.getFormattedDate(
-        updatedEntry.effective_at,
+    let message = `Effective at changed to ${updatedEntry.effective_at->dateFormat(
         "DD MMMM YYYY, hh:mm A",
       )}.`
     summary->Array.push(message)
@@ -388,7 +396,10 @@ let constructManualReconciliationBody = (~updatedEntry: processingEntryType, ~va
     ("amount", updatedEntry.amount->JSON.Encode.float),
     ("currency", updatedEntry.currency->JSON.Encode.string),
     ("order_id", updatedEntry.order_id->JSON.Encode.string),
-    ("effective_at", updatedEntry.effective_at->JSON.Encode.string),
+    (
+      "effective_at",
+      updatedEntry.effective_at->ReconEngineFilterUtils.toReconTimeString->JSON.Encode.string,
+    ),
     (
       "transformation_id",
       updatedEntry.transformation_config.transformation_config_id->JSON.Encode.string,

@@ -118,13 +118,6 @@ let validateCurrencyField = (value: string): option<string> => {
   isValid ? None : Some("Must be a valid currency code (e.g., USD, EUR, INR)")
 }
 
-let validateDateTimeField = (value: string): option<string> => {
-  let dateTimePattern = %re("/^\d{2}-\d{2}-\d{4}(\s\d{2}:\d{2}:\d{2})?$/")
-  dateTimePattern->RegExp.test(value)
-    ? None
-    : Some("Must be in format DD-MM-YYYY or DD-MM-YYYY HH:mm:ss")
-}
-
 let validateBalanceDirectionField = (
   value: string,
   credit_values: array<string>,
@@ -166,7 +159,7 @@ let validateMetadataFieldValue = (
         | NumberField(rules) => validateNumberField(value, rules)
         | MinorUnitField(rules) => validateMinorUnitField(value, rules)
         | CurrencyField => validateCurrencyField(value)
-        | DateTimeField => validateDateTimeField(value)
+        | DateTimeField => None
         | BalanceDirectionField({credit_values, debit_values}) =>
           validateBalanceDirectionField(value, credit_values, debit_values)
         | UnknownFieldType => None
