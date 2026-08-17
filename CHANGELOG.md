@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.17.0
+
+### Features
+
+- Add transformation config filter on transformed entries screen ([#5390](https://github.com/juspay/hyperswitch-control-center/pull/5390)) ([`c3748f8`](https://github.com/juspay/hyperswitch-control-center/commit/c3748f86e22630a70e6657d7149aec0e4eec65a9))
+
+### Bug Fixes
+
+- Edit entry resolution in staging entry exceptions ([#5399](https://github.com/juspay/hyperswitch-control-center/pull/5399)) ([`ec3bb3d`](https://github.com/juspay/hyperswitch-control-center/commit/ec3bb3df816b87f64830bde42c8c20e053106507))
+
+**Full Changelog:** [`2026.08.14.1...2026.08.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.14.1...2026.08.17.0)
+
+- - -
+
 ## 2026.08.14.1
 
 ### Features
