@@ -196,6 +196,19 @@ let getGroupedTransactionStatusOptions = (statusList: array<domainTransactionSta
   })
 }
 
+let allStagingEntryManualReviewStatuses: array<domainStagingEntryStatus> = [
+  NeedsManualReview(NoRulesFound),
+  NeedsManualReview(CurrencyMismatch),
+  NeedsManualReview(MissingSearchIdentifierValue),
+  NeedsManualReview(DuplicateEntry),
+  NeedsManualReview(NoExpectationEntryFound),
+  NeedsManualReview(MultipleExpectedEntriesFound),
+  NeedsManualReview(MissingMatchField),
+  NeedsManualReview(MissingUniqueField),
+  NeedsManualReview(MissingGroupingField),
+  NeedsManualReview(InternalError),
+]
+
 let getStagingEntryStatusGroupedValueAndLabel = (status: domainStagingEntryStatus): (
   string,
   string,
