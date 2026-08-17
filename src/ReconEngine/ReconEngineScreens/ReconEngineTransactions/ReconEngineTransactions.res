@@ -91,6 +91,7 @@ let make = () => {
         </div>
       </div>
     </div>
+    <ReconEngineHelper.GlobalDateFilterBanner />
     <PageLoaderWrapper screenState>
       <RenderIf condition={reconRulesList->isEmptyArray}>
         <div className="my-4">
