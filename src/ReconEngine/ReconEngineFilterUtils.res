@@ -155,21 +155,6 @@ let getTransactionStatusGroupedValueAndLabel = (status: domainTransactionStatus)
   }
 }
 
-let getProcessingEntryStatusValueAndLabel = (status: processingEntryStatus): (string, string) => {
-  let value: string = (status :> string)->camelToSnake
-  let label = (status :> string)->snakeToTitle
-  (value, label)
-}
-
-let getProcessingEntryStatusValueFromStatusList = (statusList: array<processingEntryStatus>): array<
-  string,
-> => {
-  statusList->Array.map(status => {
-    let (value, _) = getProcessingEntryStatusValueAndLabel(status)
-    value
-  })
-}
-
 let getIngestionTransformationHistoryStatusValueFromStatusList = (
   statusList: array<ingestionTransformationStatusType>,
 ): array<string> => {
@@ -211,15 +196,99 @@ let getGroupedTransactionStatusOptions = (statusList: array<domainTransactionSta
   })
 }
 
-let getStagingEntryStatusOptions = (statusList: array<processingEntryStatus>): array<
+let allStagingEntryManualReviewStatuses: array<domainStagingEntryStatus> = [
+  NeedsManualReview(NoRulesFound),
+  NeedsManualReview(CurrencyMismatch),
+  NeedsManualReview(MissingSearchIdentifierValue),
+  NeedsManualReview(DuplicateEntry),
+  NeedsManualReview(NoExpectationEntryFound),
+  NeedsManualReview(MultipleExpectedEntriesFound),
+  NeedsManualReview(MissingMatchField),
+  NeedsManualReview(MissingUniqueField),
+  NeedsManualReview(MissingGroupingField),
+  NeedsManualReview(InternalError),
+]
+
+let allStagingEntryStatuses: array<domainStagingEntryStatus> = [
+  Pending,
+  Processed,
+  Void,
+  ...allStagingEntryManualReviewStatuses,
+]
+
+let getStagingEntryStatusGroupedValueAndLabel = (status: domainStagingEntryStatus): (
+  string,
+  string,
+  string,
+) => {
+  switch status {
+  | Pending => ("pending", "Pending", "Entry Status")
+  | Processed => ("processed", "Processed", "Entry Status")
+  | Void => ("void", "Void", "Entry Status")
+  | Archived => ("archived", "Archived", "Entry Status")
+  | NeedsManualReview(UnknownStagingEntryManualReviewData)
+  | UnknownDomainStagingEntryStatus => ("", "", "")
+  | NeedsManualReview(reason) => {
+      let reasonValue = (reason :> string)
+      (`needs_manual_review_${reasonValue}`, reasonValue->snakeToTitle, "Needs Manual Review")
+    }
+  }
+}
+
+let getStagingEntryStatusFromValue = (
+  value: string,
+  statusList: array<domainStagingEntryStatus>,
+): domainStagingEntryStatus =>
+  statusList
+  ->Array.find(status => {
+    let (statusValue, _, _) = getStagingEntryStatusGroupedValueAndLabel(status)
+    statusValue === value
+  })
+  ->Option.getOr(UnknownDomainStagingEntryStatus)
+
+let getStagingEntryStatusValueFromStatusList = (statusList: array<domainStagingEntryStatus>): array<
+  string,
+> => {
+  statusList->Array.filterMap(status => {
+    let (value, _, _) = getStagingEntryStatusGroupedValueAndLabel(status)
+    value->isNonEmptyString ? Some(value) : None
+  })
+}
+
+let getStagingEntryStatusPayload = (statusList: array<domainStagingEntryStatus>): array<JSON.t> => {
+  let encode = (coarseStatus, subStatus) => {
+    let fields = [("status", coarseStatus->JSON.Encode.string)]
+    switch subStatus {
+    | Some(sub) => fields->Array.push(("sub_status", sub->JSON.Encode.string))
+    | None => ()
+    }
+    Some(fields->getJsonFromArrayOfJson)
+  }
+
+  statusList->Array.filterMap(status =>
+    switch status {
+    | Pending => encode("pending", None)
+    | Processed => encode("processed", None)
+    | Void => encode("void", None)
+    | Archived => encode("archived", None)
+    | NeedsManualReview(UnknownStagingEntryManualReviewData)
+    | UnknownDomainStagingEntryStatus =>
+      None
+    | NeedsManualReview(reason) => encode("needs_manual_review", Some((reason :> string)))
+    }
+  )
+}
+
+let getGroupedStagingEntryStatusOptions = (statusList: array<domainStagingEntryStatus>): array<
   FilterSelectBox.dropdownOption,
 > => {
   statusList->Array.map(status => {
-    let (value, label) = getProcessingEntryStatusValueAndLabel(status)
+    let (value, label, optGroup) = getStagingEntryStatusGroupedValueAndLabel(status)
 
     {
       FilterSelectBox.label,
       value,
+      optGroup,
     }
   })
 }

@@ -153,6 +153,7 @@ let make = () => {
       />
       <PortalCapture name=globalDateFilterPortalName customStyle="-mt-4" />
     </div>
+    <ReconEngineHelper.GlobalDateFilterBanner />
     <ReconEngineDataTransformedEntriesOverviewCards selectedTransformationHistoryId=None />
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-4">

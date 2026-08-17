@@ -114,6 +114,7 @@ let make = () => {
       />
       <PortalCapture name=ReconEngineFilterUtils.globalDateFilterPortalName customStyle="-mt-1" />
     </div>
+    <ReconEngineHelper.GlobalDateFilterBanner />
     <PageLoaderWrapper screenState>
       <RenderIf condition={accountData->isEmptyArray}>
         <div className="my-4">

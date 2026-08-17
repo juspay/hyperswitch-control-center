@@ -19,10 +19,11 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     | Processors(NMI)
     | Processors(STRIPE)
     | Processors(WORLDPAYXML)
-    | Processors(IMERCHANTSOLUTIONS) =>
+    | Processors(IMERCHANTSOLUTIONS)
+    | Processors(CHECKOUT) =>
       <GPayFlow connector closeAccordionFn update onCloseClickCustomFun />
 
-    | Processors(ADYEN) | Processors(CHECKOUT) =>
+    | Processors(ADYEN) =>
       <GPayFlowMetadata connector closeAccordionFn update onCloseClickCustomFun />
 
     | _ => <GooglePayFlow connector closeAccordionFn update onCloseClickCustomFun />
