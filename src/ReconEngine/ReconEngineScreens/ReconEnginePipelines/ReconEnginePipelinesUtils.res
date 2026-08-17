@@ -182,50 +182,30 @@ let buildStagingEntriesV2Body = (
   ~limit=10,
 ) => {
   let statusFilter = filterValueJson->getStrArrayFromDict("status", [])
-  let statusOptions: array<domainStagingEntryStatus> = [
-    Pending,
-    Processed,
-    Void,
-    NeedsManualReview(NoRulesFound),
-    NeedsManualReview(CurrencyMismatch),
-    NeedsManualReview(MissingSearchIdentifierValue),
-    NeedsManualReview(DuplicateEntry),
-    NeedsManualReview(NoExpectationEntryFound),
-    NeedsManualReview(MultipleExpectedEntriesFound),
-    NeedsManualReview(MissingMatchField),
-    NeedsManualReview(MissingUniqueField),
-    NeedsManualReview(MissingGroupingField),
-    NeedsManualReview(InternalError),
-  ]
   let detailedStatuses =
     statusFilter->isEmptyArray
-      ? statusOptions
-      : statusFilter->Array.map(value => getStagingEntryStatusFromValue(value, statusOptions))
+      ? allStagingEntryStatuses
+      : statusFilter->Array.map(value =>
+          getStagingEntryStatusFromValue(value, allStagingEntryStatuses)
+        )
 
   let entryTypeFilter = filterValueJson->getStrArrayFromDict("entry_type", [])
   let transformationHistoryIds =
     filterValueJson->getStrArrayFromDict("transformation_history_ids", [])
 
   let filtersDict = Dict.make()
-  filtersDict->Dict.set(
-    "detailed_status",
-    detailedStatuses->getStagingEntryStatusPayload->JSON.Encode.array,
+  let detailedStatusPayload = detailedStatuses->getStagingEntryStatusPayload
+
+  filtersDict->setOptionArray("detailed_status", detailedStatusPayload->getNonEmptyArray)
+  filtersDict->setOptionArray(
+    "entry_type",
+    entryTypeFilter->Array.map(JSON.Encode.string)->getNonEmptyArray,
   )
-
-  if entryTypeFilter->isNonEmptyArray {
-    filtersDict->Dict.set("entry_type", entryTypeFilter->getJsonFromArrayOfString)
-  }
-
-  if transformationHistoryIds->isNonEmptyArray {
-    filtersDict->Dict.set(
-      "transformation_history_ids",
-      transformationHistoryIds->getJsonFromArrayOfString,
-    )
-  }
-
-  if searchText->isNonEmptyString {
-    filtersDict->Dict.set((searchType :> string), searchText->String.trim->JSON.Encode.string)
-  }
+  filtersDict->setOptionArray(
+    "transformation_history_ids",
+    transformationHistoryIds->Array.map(JSON.Encode.string)->getNonEmptyArray,
+  )
+  filtersDict->setOptionString((searchType :> string), searchText->String.trim->getNonEmptyString)
 
   [
     ("filters", filtersDict->JSON.Encode.object),
@@ -288,21 +268,7 @@ let initialStagingEntriesFilters = (
     {label: "Credit", value: "credit"},
     {label: "Debit", value: "debit"},
   ]
-  let statusOptions = getGroupedStagingEntryStatusOptions([
-    Pending,
-    Processed,
-    Void,
-    NeedsManualReview(NoRulesFound),
-    NeedsManualReview(CurrencyMismatch),
-    NeedsManualReview(MissingSearchIdentifierValue),
-    NeedsManualReview(DuplicateEntry),
-    NeedsManualReview(NoExpectationEntryFound),
-    NeedsManualReview(MultipleExpectedEntriesFound),
-    NeedsManualReview(MissingMatchField),
-    NeedsManualReview(MissingUniqueField),
-    NeedsManualReview(MissingGroupingField),
-    NeedsManualReview(InternalError),
-  ])
+  let statusOptions = getGroupedStagingEntryStatusOptions(allStagingEntryStatuses)
 
   [
     (

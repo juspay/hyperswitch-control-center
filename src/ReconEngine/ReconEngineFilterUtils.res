@@ -209,6 +209,13 @@ let allStagingEntryManualReviewStatuses: array<domainStagingEntryStatus> = [
   NeedsManualReview(InternalError),
 ]
 
+let allStagingEntryStatuses: array<domainStagingEntryStatus> = [
+  Pending,
+  Processed,
+  Void,
+  ...allStagingEntryManualReviewStatuses,
+]
+
 let getStagingEntryStatusGroupedValueAndLabel = (status: domainStagingEntryStatus): (
   string,
   string,
