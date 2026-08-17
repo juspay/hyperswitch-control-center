@@ -87,6 +87,7 @@ let make = () => {
       />
       <PortalCapture name=ReconEngineFilterUtils.globalDateFilterPortalName customStyle="-mt-2" />
     </div>
+    <ReconEngineHelper.GlobalDateFilterBanner />
     <PageLoaderWrapper screenState>
       <RenderIf condition={reconRulesList->Array.length == 0}>
         <div className="my-4">
