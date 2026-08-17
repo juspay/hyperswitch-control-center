@@ -1,18 +1,19 @@
 module DownloadCertificateTile = {
   @react.component
-  let make = (~header, ~onClick, ~buttonState) => {
+  let make = (~header, ~onClick) => {
     <div
       className="flex flex-col bg-white pt-6 pl-6 pr-8 pb-8 justify-between gap-10 border border-jp-gray-border_gray rounded">
       <div>
         <p className="text-fs-16 font-semibold m-2"> {header->React.string} </p>
       </div>
       <Button
-        buttonState
-        text="Download"
-        buttonSize={Medium}
-        buttonType={Primary}
-        rightIcon={FontAwesome("download-api-key")}
+        text="View"
+        buttonSize=Medium
+        buttonType=Primary
+        rightIcon=FontAwesome("nd-external-link-square")
         onClick
+        customButtonStyle="!w-fit"
+        customTextPaddingClass="!pr-0"
       />
     </div>
   }
@@ -21,56 +22,6 @@ module DownloadCertificateTile = {
 @react.component
 let make = () => {
   open LogicUtils
-
-  let showToast = ToastAdapter.useShowToast()
-  let fetchApi = AuthHooks.useApiFetcher()
-  let (usButtonState, setUsButtonState) = React.useState(_ => Button.Normal)
-  let (euButtonState, setEuButtonState) = React.useState(_ => Button.Normal)
-  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
-  let downloadPDF = (~downloadURL, ~region, ~setButtonState) => _ => {
-    setButtonState(_ => Button.Loading)
-    let currentDate =
-      Date.now()
-      ->Js.Date.fromFloat
-      ->Date.toISOString
-      ->TimeZoneHook.formattedISOString("YYYY-MM-DD HH:mm:ss")
-
-    // For local testing this condition is added
-    if downloadURL->LogicUtils.isNonEmptyString {
-      open Promise
-      fetchApi(downloadURL, ~method_=Get, ~xFeatureRoute, ~forceCookies, ~sendV1DummyApiKeyHeader)
-      ->then(resp => {
-        Fetch.Response.blob(resp)
-      })
-      ->then(content => {
-        DownloadUtils.download(
-          ~fileName=`Hyperswitch-PCICertificate-${region}-${currentDate}.pdf`,
-          ~content,
-          ~fileType="application/pdf",
-        )
-        showToast(
-          ~toastType=ToastSuccess,
-          ~message=`${region} PCI Attestation of Compliance certificate download complete`,
-        )
-
-        resolve()
-      })
-      ->catch(_ => {
-        showToast(
-          ~toastType=ToastError,
-          ~message="Oops, something went wrong with the download. Please try again.",
-        )
-        resolve()
-      })
-      ->ignore
-      setButtonState(_ => Button.Normal)
-    } else {
-      showToast(~toastType=ToastError, ~message="Oops, something went wrong with the download.")
-      setButtonState(_ => Button.Normal)
-    }
-  }
 
   let usCertificateUrl = Window.env.dssCertificateUsUrl->Option.getOr("")
   let euCertificateUrl = Window.env.dssCertificateEuUrl->Option.getOr("")
@@ -83,23 +34,13 @@ let make = () => {
       <RenderIf condition={usCertificateUrl->isNonEmptyString}>
         <DownloadCertificateTile
           header="Hyperswitch's PCI Attestation of Compliance (US)"
-          onClick={downloadPDF(
-            ~downloadURL=usCertificateUrl,
-            ~region="US",
-            ~setButtonState=setUsButtonState,
-          )}
-          buttonState=usButtonState
+          onClick={_ => usCertificateUrl->Window._open}
         />
       </RenderIf>
       <RenderIf condition={euCertificateUrl->isNonEmptyString}>
         <DownloadCertificateTile
           header="Hyperswitch's PCI Attestation of Compliance (EU)"
-          onClick={downloadPDF(
-            ~downloadURL=euCertificateUrl,
-            ~region="EU",
-            ~setButtonState=setEuButtonState,
-          )}
-          buttonState=euButtonState
+          onClick={_ => euCertificateUrl->Window._open}
         />
       </RenderIf>
     </div>
