@@ -50,7 +50,10 @@ let getHeaders = (
     if xFeatureRoute {
       headersForXFeature(~headers, ~uri)
     }
-    if cugUser {
+
+    // TODO: this header is scoped to Webhook events APIs for now;
+    // remove the uri condition once webhook CUG testing is done so it applies to all APIs
+    if cugUser && uri->String.includes("/events/") {
       headers->Dict.set("x-cug-user", "true")
     }
 
