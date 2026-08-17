@@ -182,14 +182,12 @@ module TransformationCard = {
     let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
       HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let showToast = ToastAdapter.useShowToast()
-    let (isDownloading, setIsDownloading) = React.useState(_ => false)
 
     let errorCount = transformation.data.errors->Array.length
     let duration = formatDuration(transformation.created_at, transformation.processed_at)
 
     let onDownloadReport = async (~format: reportFormat) => {
       try {
-        setIsDownloading(_ => true)
         let url = getURL(
           ~entityName=V1(HYPERSWITCH_RECON),
           ~hyperswitchReconType=#DOWNLOAD_TRANSFORMATION_REPORT,
@@ -218,7 +216,6 @@ module TransformationCard = {
       | _ =>
         showToast(~message="Failed to download report. Please try again.", ~toastType=ToastError)
       }
-      setIsDownloading(_ => false)
     }
 
     <div
@@ -280,29 +277,15 @@ module TransformationCard = {
         </div>
         <RenderIf condition={transformation.status->isReportDownloadable}>
           <div className="flex-shrink-0" onClick={ev => ev->ReactEvent.Mouse.stopPropagation}>
-            <HeadlessUISelectBox
-              options=reportFormatOptions
-              setValue={value =>
-                if !isDownloading {
-                  onDownloadReport(~format=value->reportFormatFromString)->ignore
-                }}
-              dropdownPosition=Left
-              showTick=false
-              closeListOnClick=true
-              dropDownClass="w-32">
-              <div
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 border border-nd_gray-200 rounded-lg bg-white hover:bg-nd_gray-100 cursor-pointer text-nd_gray-700 whitespace-nowrap ${body.sm.medium}`}>
-                {if isDownloading {
-                  <span className="flex items-center animate-spin">
-                    <Loadericon size=12 />
-                  </span>
-                } else {
-                  <Icon name="nd-download-down" size=12 />
-                }}
-                <span> {"Download report"->React.string} </span>
-                <Icon name="chevron-down" size=10 className="opacity-50" />
-              </div>
-            </HeadlessUISelectBox>
+            <Button
+              text="Transformation summary"
+              leftIcon={CustomIcon(<Icon name="nd-download-down" size=12 />)}
+              customIconMargin="ml-3"
+              buttonType=Button.Secondary
+              buttonSize=Small
+              onClick={_ => onDownloadReport(~format=Csv)->ignore}
+              maxButtonWidth="!w-fit"
+            />
           </div>
         </RenderIf>
       </div>

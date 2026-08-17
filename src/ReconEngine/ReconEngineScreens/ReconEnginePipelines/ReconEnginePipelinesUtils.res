@@ -628,33 +628,10 @@ let isReportDownloadable = (status: ingestionTransformationStatusType): bool =>
   | _ => false
   }
 
-let reportFormats: array<reportFormat> = [Csv, Json]
-
-let reportFormatFromString = (str): reportFormat =>
-  switch str {
-  | "json" => Json
-  | _ => Csv
-  }
-
 let reportFormatFileType = (format: reportFormat): string =>
   switch format {
   | Csv => "text/csv"
-  | Json => "application/json"
   }
-
-let reportFormatOptions: array<
-  HeadlessUISelectBox.updatedOptionWithIcons,
-> = reportFormats->Array.map((format): HeadlessUISelectBox.updatedOptionWithIcons => {
-  label: (format :> string)->String.toUpperCase,
-  value: (format :> string),
-  isDisabled: false,
-  leftIcon: Button.NoIcon,
-  customTextStyle: None,
-  customIconStyle: None,
-  rightIcon: Button.NoIcon,
-  description: None,
-  customComponent: None,
-})
 
 let getTransformationReportFileName = (
   ~transformation: transformationHistoryType,
