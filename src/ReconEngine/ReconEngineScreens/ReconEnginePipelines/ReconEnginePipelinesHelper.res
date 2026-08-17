@@ -175,11 +175,51 @@ module TransformationCard = {
     ~transformation: ReconEngineTypes.transformationHistoryType,
     ~onOpen: unit => unit,
   ) => {
+    open ReconEnginePipelinesUtils
+
+    let getURL = APIUtils.useGetURL()
+    let fetchApi = AuthHooks.useApiFetcher()
+    let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+      HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let showToast = ToastAdapter.useShowToast()
+    let (isDownloading, setIsDownloading) = React.useState(_ => false)
+
     let errorCount = transformation.data.errors->Array.length
-    let duration = ReconEnginePipelinesUtils.formatDuration(
-      transformation.created_at,
-      transformation.processed_at,
-    )
+    let duration = formatDuration(transformation.created_at, transformation.processed_at)
+
+    let onDownloadReport = async (~format: reportFormat) => {
+      try {
+        setIsDownloading(_ => true)
+        let url = getURL(
+          ~entityName=V1(HYPERSWITCH_RECON),
+          ~hyperswitchReconType=#DOWNLOAD_TRANSFORMATION_REPORT,
+          ~methodType=Get,
+          ~id=Some(transformation.transformation_history_id),
+          ~queryParameters=Some((format :> string)),
+        )
+        let res = await fetchApi(
+          url,
+          ~method_=Get,
+          ~xFeatureRoute,
+          ~forceCookies,
+          ~sendV1DummyApiKeyHeader,
+        )
+        if res->Fetch.Response.status >= 300 {
+          Exn.raiseError("Failed to download report")
+        }
+        let content = await res->Fetch.Response.blob
+        DownloadUtils.download(
+          ~fileName=getTransformationReportFileName(~transformation, ~format),
+          ~content,
+          ~fileType=reportFormatFileType(format),
+        )
+        showToast(~message="Report downloaded successfully", ~toastType=ToastSuccess)
+      } catch {
+      | _ =>
+        showToast(~message="Failed to download report. Please try again.", ~toastType=ToastError)
+      }
+      setIsDownloading(_ => false)
+    }
 
     <div
       className="group border border-nd_gray-150 rounded-xl flex flex-col gap-2.5 px-5 py-4 bg-white cursor-pointer hover:bg-nd_gray-50 transition-colors"
@@ -214,27 +254,56 @@ module TransformationCard = {
           />
         </div>
       </div>
-      <div className={`flex items-center flex-wrap gap-1.5 ${body.sm.medium} text-nd_gray-600`}>
-        <span>
-          <span className={`${body.sm.semibold} text-nd_gray-800`}>
-            {transformation.data.transformed_count->Int.toString->React.string}
+      <div className="flex items-end justify-between gap-4">
+        <div className={`flex items-center flex-wrap gap-1.5 ${body.sm.medium} text-nd_gray-600`}>
+          <span>
+            <span className={`${body.sm.semibold} text-nd_gray-800`}>
+              {transformation.data.transformed_count->Int.toString->React.string}
+            </span>
+            {` / ${transformation.data.total_count->Int.toString} transformed`->React.string}
           </span>
-          {` / ${transformation.data.total_count->Int.toString} transformed`->React.string}
-        </span>
-        <StatDot> {`${duration} run`->React.string} </StatDot>
-        <RenderIf condition={transformation.data.ignored_count > 0}>
-          <StatDot>
-            <span className={`${body.sm.medium} text-nd_orange-600`}>
-              {`${transformation.data.ignored_count->Int.toString} ignored`->React.string}
-            </span>
-          </StatDot>
-        </RenderIf>
-        <RenderIf condition={errorCount > 0}>
-          <StatDot>
-            <span className={`${body.xs.medium} text-nd_red-500`}>
-              {`${errorCount->Int.toString} error${errorCount == 1 ? "" : "s"}`->React.string}
-            </span>
-          </StatDot>
+          <StatDot> {`${duration} run`->React.string} </StatDot>
+          <RenderIf condition={transformation.data.ignored_count > 0}>
+            <StatDot>
+              <span className={`${body.sm.medium} text-nd_orange-600`}>
+                {`${transformation.data.ignored_count->Int.toString} ignored`->React.string}
+              </span>
+            </StatDot>
+          </RenderIf>
+          <RenderIf condition={errorCount > 0}>
+            <StatDot>
+              <span className={`${body.xs.medium} text-nd_red-500`}>
+                {`${errorCount->Int.toString} error${errorCount == 1 ? "" : "s"}`->React.string}
+              </span>
+            </StatDot>
+          </RenderIf>
+        </div>
+        <RenderIf condition={transformation.status->isReportDownloadable}>
+          <div className="flex-shrink-0" onClick={ev => ev->ReactEvent.Mouse.stopPropagation}>
+            <HeadlessUISelectBox
+              options=reportFormatOptions
+              setValue={value =>
+                if !isDownloading {
+                  onDownloadReport(~format=value->reportFormatFromString)->ignore
+                }}
+              dropdownPosition=Left
+              showTick=false
+              closeListOnClick=true
+              dropDownClass="w-32">
+              <div
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 border border-nd_gray-200 rounded-lg bg-white hover:bg-nd_gray-100 cursor-pointer text-nd_gray-700 whitespace-nowrap ${body.sm.medium}`}>
+                {if isDownloading {
+                  <span className="flex items-center animate-spin">
+                    <Loadericon size=12 />
+                  </span>
+                } else {
+                  <Icon name="nd-download-down" size=12 />
+                }}
+                <span> {"Download report"->React.string} </span>
+                <Icon name="chevron-down" size=10 className="opacity-50" />
+              </div>
+            </HeadlessUISelectBox>
+          </div>
         </RenderIf>
       </div>
     </div>

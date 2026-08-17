@@ -622,6 +622,52 @@ let formatDuration = (startIso: string, endIso: string): string => {
   }
 }
 
+let isReportDownloadable = (status: ingestionTransformationStatusType): bool =>
+  switch status {
+  | Processed => true
+  | _ => false
+  }
+
+let reportFormats: array<reportFormat> = [Csv, Json]
+
+let reportFormatFromString = (str): reportFormat =>
+  switch str {
+  | "json" => Json
+  | _ => Csv
+  }
+
+let reportFormatFileType = (format: reportFormat): string =>
+  switch format {
+  | Csv => "text/csv"
+  | Json => "application/json"
+  }
+
+let reportFormatOptions: array<
+  HeadlessUISelectBox.updatedOptionWithIcons,
+> = reportFormats->Array.map((format): HeadlessUISelectBox.updatedOptionWithIcons => {
+  label: (format :> string)->String.toUpperCase,
+  value: (format :> string),
+  isDisabled: false,
+  leftIcon: Button.NoIcon,
+  customTextStyle: None,
+  customIconStyle: None,
+  rightIcon: Button.NoIcon,
+  description: None,
+  customComponent: None,
+})
+
+let getTransformationReportFileName = (
+  ~transformation: transformationHistoryType,
+  ~format: reportFormat,
+): string => {
+  let name =
+    transformation.transformation_name->isNonEmptyString
+      ? transformation.transformation_name
+      : transformation.transformation_history_id
+  let sanitizedName = name->String.replaceRegExp(%re("/[^a-zA-Z0-9-_]+/g"), "_")
+  `${sanitizedName}_report.${(format :> string)}`
+}
+
 let entryFieldTarget = (field: entryField): string =>
   switch field {
   | Metadata(key) => `metadata.${key}`
