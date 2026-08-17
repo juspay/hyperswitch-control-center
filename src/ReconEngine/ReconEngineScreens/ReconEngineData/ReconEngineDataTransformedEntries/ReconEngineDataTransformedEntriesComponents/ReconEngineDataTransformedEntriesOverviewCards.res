@@ -76,27 +76,9 @@ let make = (~selectedTransformationHistoryId: option<string>) => {
   }
 
   let settingActiveView = () => {
-    let appliedStatusFilter = filterValueJson->getArrayFromDict(customFilterKey, [])
-    let appliedStatusArray = appliedStatusFilter->getStrArrayFromJsonArray
-
-    let allViewStatuses = AllViewType->getViewStatusFilter->String.split(",")
-    let isAllView =
-      appliedStatusArray->Array.toSorted(compareLogic) ==
-        allViewStatuses->Array.toSorted(compareLogic)
-
-    if isAllView {
-      setActiveView(_ => AllViewType)
-    } else if appliedStatusFilter->Array.length == 1 {
-      let status =
-        appliedStatusFilter
-        ->getValueFromArray(0, ""->JSON.Encode.string)
-        ->getStringFromJson("")
-
-      let viewType = status->getViewTypeFromStatus
-      setActiveView(_ => viewType)
-    } else {
-      setActiveView(_ => UnknownTransformedEntriesViewType)
-    }
+    let appliedStatusArray =
+      filterValueJson->getArrayFromDict(customFilterKey, [])->getStrArrayFromJsonArray
+    setActiveView(_ => appliedStatusArray->getViewTypeFromStatusFilter)
   }
 
   React.useEffect(() => {

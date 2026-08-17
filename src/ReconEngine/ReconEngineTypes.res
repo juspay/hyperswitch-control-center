@@ -291,17 +291,11 @@ type entryType = {
   transformation_id: option<string>,
 }
 
-type processingEntryStatus =
-  | @as("pending") Pending
-  | @as("processed") Processed
-  | @as("needs_manual_review") NeedsManualReview
-  | @as("archived") Archived
-  | @as("void") Void
-  | @as("unknown") UnknownProcessingEntryStatus
+type processingEntryDiscardedDataType = {reason: string}
 
-type needsManualReviewType =
+type stagingEntryManualReviewData =
   | @as("no_rules_found") NoRulesFound
-  | @as("staging_entry_currency_mismatch") StagingEntryCurrencyMismatch
+  | @as("currency_mismatch") CurrencyMismatch
   | @as("missing_search_identifier_value") MissingSearchIdentifierValue
   | @as("duplicate_entry") DuplicateEntry
   | @as("no_expectation_entry_found") NoExpectationEntryFound
@@ -309,17 +303,16 @@ type needsManualReviewType =
   | @as("missing_match_field") MissingMatchField
   | @as("missing_unique_field") MissingUniqueField
   | @as("missing_grouping_field") MissingGroupingField
-  | @as("unknown") UnknownNeedsManualReviewType
+  | @as("internal_error") InternalError
+  | @as("unknown") UnknownStagingEntryManualReviewData
 
-type processingEntryDataType = {
-  status: processingEntryStatus,
-  needs_manual_review_type: needsManualReviewType,
-}
-
-type processingEntryDiscardedDataType = {
-  status: processingEntryStatus,
-  reason: string,
-}
+type domainStagingEntryStatus =
+  | Pending
+  | NeedsManualReview(stagingEntryManualReviewData)
+  | Processed
+  | Void
+  | Archived
+  | UnknownDomainStagingEntryStatus
 
 type processingEntryType = {
   id: string,
@@ -328,7 +321,7 @@ type processingEntryType = {
   entry_type: string,
   amount: float,
   currency: string,
-  status: processingEntryStatus,
+  status: domainStagingEntryStatus,
   processing_mode: string,
   metadata: Js.Json.t,
   transformation_config: transformationConfigRefType,
@@ -336,8 +329,7 @@ type processingEntryType = {
   effective_at: string,
   order_id: string,
   version: int,
-  discarded_status: option<string>,
-  data: processingEntryDataType,
+  discarded_status: option<domainStagingEntryStatus>,
   discarded_data: option<processingEntryDiscardedDataType>,
 }
 
@@ -580,7 +572,7 @@ type overviewRulesTimeSeriesResponse = {
 }
 
 type stagingEntryOverviewStatusAmount = {
-  status: processingEntryStatus,
+  status: domainStagingEntryStatus,
   count: int,
 }
 

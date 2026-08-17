@@ -52,7 +52,9 @@ let make = (~accountId: string) => {
     if statusFilter->isEmptyArray {
       enhancedFilterValueJson->Dict.set(
         "status",
-        getProcessingEntryStatusValueFromStatusList([NeedsManualReview])->getJsonFromArrayOfString,
+        allStagingEntryManualReviewStatuses
+        ->getStagingEntryStatusValueFromStatusList
+        ->getJsonFromArrayOfString,
       )
     }
     getProcessingEntriesV2(

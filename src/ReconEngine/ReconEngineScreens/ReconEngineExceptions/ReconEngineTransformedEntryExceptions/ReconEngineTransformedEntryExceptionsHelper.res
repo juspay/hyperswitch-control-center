@@ -363,13 +363,13 @@ module CustomToastElement = {
         `exceptions/transformed-entries/${processingEntry.staging_entry_id}`,
         "See Entry",
       )
-    | NeedsManualReview => (
+    | NeedsManualReview(_) => (
         "Transformed entry marked for manual review",
         "Please review the entry in the transformed entry exceptions page",
         `exceptions/transformed-entries/${processingEntry.staging_entry_id}`,
         "See Entry",
       )
-    | Archived | UnknownProcessingEntryStatus => (
+    | Archived | UnknownDomainStagingEntryStatus => (
         "Transformed entry processed successfully",
         "The entry has been moved to transformation entry page",
         `transformed-entries/ingestion-history/${ingestionHistoryId}?transformationHistoryId=${processingEntry.transformation_history_id}&stagingEntryId=${processingEntry.staging_entry_id}`,
@@ -539,44 +539,53 @@ module AuditTrail = {
 module ExceptionDataDisplay = {
   @react.component
   let make = (~currentTransformedEntryDetails: ReconEngineTypes.processingEntryType) => {
-    let (
-      heading,
-      subHeading,
-    ) = switch currentTransformedEntryDetails.data.needs_manual_review_type {
-    | NoRulesFound => ("No Rules Found", "The transformed entry did not match any existing rules.")
-    | StagingEntryCurrencyMismatch => (
+    let (heading, subHeading) = switch currentTransformedEntryDetails.status {
+    | NeedsManualReview(NoRulesFound) => (
+        "No Rules Found",
+        "The transformed entry did not match any existing rules.",
+      )
+    | NeedsManualReview(CurrencyMismatch) => (
         "Currency Mismatch",
         "The currency of the transformed entry does not match the expected currency.",
       )
-    | MissingSearchIdentifierValue => (
+    | NeedsManualReview(MissingSearchIdentifierValue) => (
         "Missing Search Identifier Value",
         "The transformed entry is missing a required search identifier value.",
       )
-    | DuplicateEntry => (
+    | NeedsManualReview(DuplicateEntry) => (
         "Duplicate Entry",
         "The transformed entry is identified as a duplicate of an existing entry.",
       )
-    | NoExpectationEntryFound => (
+    | NeedsManualReview(NoExpectationEntryFound) => (
         "No Expectation Entry Found",
         "No corresponding expectation entry was found for the transformed entry.",
       )
-    | MultipleExpectedEntriesFound => (
+    | NeedsManualReview(MultipleExpectedEntriesFound) => (
         "Multiple Expected Entries Found",
         "Multiple expected entries were found for the transformed entry.",
       )
-    | MissingMatchField => (
+    | NeedsManualReview(MissingMatchField) => (
         "Missing Match Field",
         "The transformed entry is missing a required match field.",
       )
-    | MissingUniqueField => (
+    | NeedsManualReview(MissingUniqueField) => (
         "Missing Unique Field",
         "The transformed entry is missing a unique field required for processing.",
       )
-    | MissingGroupingField => (
+    | NeedsManualReview(MissingGroupingField) => (
         "Missing Grouping Field",
         "The transformed entry is missing a required grouping field.",
       )
-    | UnknownNeedsManualReviewType => (
+    | NeedsManualReview(InternalError) => (
+        "Internal Error",
+        "The transformed entry could not be processed because of an internal error.",
+      )
+    | NeedsManualReview(UnknownStagingEntryManualReviewData)
+    | Pending
+    | Processed
+    | Void
+    | Archived
+    | UnknownDomainStagingEntryStatus => (
         "Unknown",
         "Please review the details and take necessary actions.",
       )
