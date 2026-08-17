@@ -50,10 +50,23 @@ let make = (~accountId: string) => {
     let statusFilter = filterValueJsonWithGlobalDate->getArrayFromDict("status", [])
     enhancedFilterValueJson->Dict.set("account_ids", [accountId]->getJsonFromArrayOfString)
     if statusFilter->isEmptyArray {
-      let (manualReviewValue, _, _) = getStagingEntryDetailedStatusGroupedValueAndLabel(
-        NeedsManualReview(UnknownStagingEntryManualReviewData),
+      enhancedFilterValueJson->Dict.set(
+        "status",
+        [
+          NeedsManualReview(NoRulesFound),
+          NeedsManualReview(CurrencyMismatch),
+          NeedsManualReview(MissingSearchIdentifierValue),
+          NeedsManualReview(DuplicateEntry),
+          NeedsManualReview(NoExpectationEntryFound),
+          NeedsManualReview(MultipleExpectedEntriesFound),
+          NeedsManualReview(MissingMatchField),
+          NeedsManualReview(MissingUniqueField),
+          NeedsManualReview(MissingGroupingField),
+          NeedsManualReview(InternalError),
+        ]
+        ->getStagingEntryStatusValueFromStatusList
+        ->getJsonFromArrayOfString,
       )
-      enhancedFilterValueJson->Dict.set("status", [manualReviewValue]->getJsonFromArrayOfString)
     }
     getProcessingEntriesV2(
       ~body=buildProcessingEntriesV2Body(

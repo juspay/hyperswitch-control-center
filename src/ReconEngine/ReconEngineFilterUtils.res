@@ -192,64 +192,46 @@ let getGroupedTransactionStatusOptions = (statusList: array<domainTransactionSta
   })
 }
 
-let stagingEntryManualReviewReasons: array<stagingEntryManualReviewData> = [
-  NoRulesFound,
-  CurrencyMismatch,
-  MissingSearchIdentifierValue,
-  DuplicateEntry,
-  NoExpectationEntryFound,
-  MultipleExpectedEntriesFound,
-  MissingMatchField,
-  MissingUniqueField,
-  MissingGroupingField,
-  InternalError,
-]
-
-let stagingEntryStatusOptGroup = "Entry Status"
-let manualReviewOptGroup = "Needs Manual Review"
-
-let getStagingEntryDetailedStatusGroupedValueAndLabel = (status: domainStagingEntryStatus): (
+let getStagingEntryStatusGroupedValueAndLabel = (status: domainStagingEntryStatus): (
   string,
   string,
   string,
 ) => {
   switch status {
-  | Pending => ("pending", "Pending", stagingEntryStatusOptGroup)
-  | Processed => ("processed", "Processed", stagingEntryStatusOptGroup)
-  | Void => ("void", "Void", stagingEntryStatusOptGroup)
-  | Archived => ("archived", "Archived", stagingEntryStatusOptGroup)
-  | NeedsManualReview(UnknownStagingEntryManualReviewData) => (
-      "needs_manual_review",
-      "Needs Manual Review",
-      stagingEntryStatusOptGroup,
-    )
+  | Pending => ("pending", "Pending", "Entry Status")
+  | Processed => ("processed", "Processed", "Entry Status")
+  | Void => ("void", "Void", "Entry Status")
+  | Archived => ("archived", "Archived", "Entry Status")
+  | NeedsManualReview(UnknownStagingEntryManualReviewData)
+  | UnknownDomainStagingEntryStatus => ("", "", "")
   | NeedsManualReview(reason) => {
       let reasonValue = (reason :> string)
-      (`needs_manual_review_${reasonValue}`, reasonValue->snakeToTitle, manualReviewOptGroup)
+      (`needs_manual_review_${reasonValue}`, reasonValue->snakeToTitle, "Needs Manual Review")
     }
-  | UnknownDomainStagingEntryStatus => ("", "", "")
   }
 }
 
-let stagingEntryDetailedStatusFilterOptions: array<domainStagingEntryStatus> = Array.concat(
-  [Pending, Processed, Void],
-  stagingEntryManualReviewReasons->Array.map(reason => NeedsManualReview(reason)),
-)
-
-let stagingEntryDetailedStatuses: array<domainStagingEntryStatus> = Array.concat(
-  [NeedsManualReview(UnknownStagingEntryManualReviewData)],
-  stagingEntryDetailedStatusFilterOptions,
-)
-
-let getStagingEntryDetailedStatusFromValue = (value: string): domainStagingEntryStatus =>
-  stagingEntryDetailedStatuses
+let getStagingEntryStatusFromValue = (
+  value: string,
+  statusList: array<domainStagingEntryStatus>,
+): domainStagingEntryStatus =>
+  statusList
   ->Array.find(status => {
-    let (statusValue, _, _) = getStagingEntryDetailedStatusGroupedValueAndLabel(status)
+    let (statusValue, _, _) = getStagingEntryStatusGroupedValueAndLabel(status)
     statusValue === value
   })
   ->Option.getOr(UnknownDomainStagingEntryStatus)
 
-let encodeStagingEntryDetailedStatus = (status: domainStagingEntryStatus): option<JSON.t> => {
+let getStagingEntryStatusValueFromStatusList = (statusList: array<domainStagingEntryStatus>): array<
+  string,
+> => {
+  statusList->Array.filterMap(status => {
+    let (value, _, _) = getStagingEntryStatusGroupedValueAndLabel(status)
+    value->isNonEmptyString ? Some(value) : None
+  })
+}
+
+let getStagingEntryStatusPayload = (statusList: array<domainStagingEntryStatus>): array<JSON.t> => {
   let encode = (coarseStatus, subStatus) => {
     let fields = [("status", coarseStatus->JSON.Encode.string)]
     switch subStatus {
@@ -259,25 +241,25 @@ let encodeStagingEntryDetailedStatus = (status: domainStagingEntryStatus): optio
     Some(fields->getJsonFromArrayOfJson)
   }
 
-  switch status {
-  | Pending => encode("pending", None)
-  | Processed => encode("processed", None)
-  | Void => encode("void", None)
-  | Archived => encode("archived", None)
-  | NeedsManualReview(UnknownStagingEntryManualReviewData) => encode("needs_manual_review", None)
-  | NeedsManualReview(reason) => encode("needs_manual_review", Some((reason :> string)))
-  | UnknownDomainStagingEntryStatus => None
-  }
+  statusList->Array.filterMap(status =>
+    switch status {
+    | Pending => encode("pending", None)
+    | Processed => encode("processed", None)
+    | Void => encode("void", None)
+    | Archived => encode("archived", None)
+    | NeedsManualReview(UnknownStagingEntryManualReviewData)
+    | UnknownDomainStagingEntryStatus =>
+      None
+    | NeedsManualReview(reason) => encode("needs_manual_review", Some((reason :> string)))
+    }
+  )
 }
 
-let getStagingEntryDetailedStatusPayload = (statusList: array<domainStagingEntryStatus>): JSON.t =>
-  statusList->Array.filterMap(encodeStagingEntryDetailedStatus)->JSON.Encode.array
-
-let getGroupedStagingEntryDetailedStatusOptions = (
-  statusList: array<domainStagingEntryStatus>,
-): array<FilterSelectBox.dropdownOption> => {
+let getGroupedStagingEntryStatusOptions = (statusList: array<domainStagingEntryStatus>): array<
+  FilterSelectBox.dropdownOption,
+> => {
   statusList->Array.map(status => {
-    let (value, label, optGroup) = getStagingEntryDetailedStatusGroupedValueAndLabel(status)
+    let (value, label, optGroup) = getStagingEntryStatusGroupedValueAndLabel(status)
 
     {
       FilterSelectBox.label,

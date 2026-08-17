@@ -74,9 +74,12 @@ let getStagingEntryManualReviewDataFromString = (
   }
 }
 
-let getDomainStagingEntryStatus = (dict: Dict.t<JSON.t>): domainStagingEntryStatus => {
+let getDomainStagingEntryStatus = (
+  status: string,
+  dict: Js.Dict.t<Js.Json.t>,
+): domainStagingEntryStatus => {
   let subStatus = dict->getString("sub_status", "")
-  switch dict->getString("status", "")->String.toLowerCase {
+  switch status->String.toLowerCase {
   | "pending" => Pending
   | "needs_manual_review" => NeedsManualReview(subStatus->getStagingEntryManualReviewDataFromString)
   | "processed" => Processed
@@ -563,6 +566,7 @@ let transformationConfigRefTypeMapper = (dict): transformationConfigRefType => {
 let processingItemToObjMapper = (dict): processingEntryType => {
   let discardedDataDict = dict->getDictfromDict("discarded_data")
   let discardedStatusDict = dict->getDictfromDict("detailed_discarded_status")
+  let statusDict = dict->getDictfromDict("detailed_status")
   {
     id: dict->getString("id", ""),
     staging_entry_id: dict->getString("staging_entry_id", ""),
@@ -572,7 +576,7 @@ let processingItemToObjMapper = (dict): processingEntryType => {
     entry_type: dict->getString("entry_type", ""),
     amount: dict->getDictfromDict("amount")->getFloat("value", 0.0),
     currency: dict->getDictfromDict("amount")->getString("currency", ""),
-    status: dict->getDictfromDict("detailed_status")->getDomainStagingEntryStatus,
+    status: statusDict->getString("status", "")->getDomainStagingEntryStatus(statusDict),
     effective_at: dict->getString("effective_at", ""),
     processing_mode: dict->getString("processing_mode", ""),
     metadata: dict->getJsonObjectFromDict("metadata"),
@@ -584,7 +588,11 @@ let processingItemToObjMapper = (dict): processingEntryType => {
     version: dict->getInt("version", 0),
     discarded_status: discardedStatusDict->isEmptyDict
       ? None
-      : Some(discardedStatusDict->getDomainStagingEntryStatus),
+      : Some(
+          discardedStatusDict
+          ->getString("status", "")
+          ->getDomainStagingEntryStatus(discardedStatusDict),
+        ),
     discarded_data: discardedDataDict->isEmptyDict
       ? None
       : Some(discardedDataDict->processingEntryDiscardedDataItemToObjMapper),
@@ -1130,7 +1138,7 @@ let stagingEntryOverviewStatusAmountMapper: Dict.t<
   JSON.t,
 > => stagingEntryOverviewStatusAmount = dict => {
   {
-    status: dict->getDomainStagingEntryStatus,
+    status: dict->getString("status", "")->getDomainStagingEntryStatus(dict),
     count: dict->getInt("count", 0),
   }
 }

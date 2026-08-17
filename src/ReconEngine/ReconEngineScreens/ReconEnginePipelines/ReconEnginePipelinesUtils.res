@@ -182,17 +182,35 @@ let buildStagingEntriesV2Body = (
   ~limit=10,
 ) => {
   let statusFilter = filterValueJson->getStrArrayFromDict("status", [])
+  let statusOptions: array<domainStagingEntryStatus> = [
+    Pending,
+    Processed,
+    Void,
+    NeedsManualReview(NoRulesFound),
+    NeedsManualReview(CurrencyMismatch),
+    NeedsManualReview(MissingSearchIdentifierValue),
+    NeedsManualReview(DuplicateEntry),
+    NeedsManualReview(NoExpectationEntryFound),
+    NeedsManualReview(MultipleExpectedEntriesFound),
+    NeedsManualReview(MissingMatchField),
+    NeedsManualReview(MissingUniqueField),
+    NeedsManualReview(MissingGroupingField),
+    NeedsManualReview(InternalError),
+  ]
   let detailedStatuses =
     statusFilter->isEmptyArray
-      ? [Pending, Processed, Void, NeedsManualReview(UnknownStagingEntryManualReviewData)]
-      : statusFilter->Array.map(getStagingEntryDetailedStatusFromValue)
+      ? statusOptions
+      : statusFilter->Array.map(value => getStagingEntryStatusFromValue(value, statusOptions))
 
   let entryTypeFilter = filterValueJson->getStrArrayFromDict("entry_type", [])
   let transformationHistoryIds =
     filterValueJson->getStrArrayFromDict("transformation_history_ids", [])
 
   let filtersDict = Dict.make()
-  filtersDict->Dict.set("detailed_status", detailedStatuses->getStagingEntryDetailedStatusPayload)
+  filtersDict->Dict.set(
+    "detailed_status",
+    detailedStatuses->getStagingEntryStatusPayload->JSON.Encode.array,
+  )
 
   if entryTypeFilter->isNonEmptyArray {
     filtersDict->Dict.set("entry_type", entryTypeFilter->getJsonFromArrayOfString)
@@ -270,9 +288,21 @@ let initialStagingEntriesFilters = (
     {label: "Credit", value: "credit"},
     {label: "Debit", value: "debit"},
   ]
-  let statusOptions = getGroupedStagingEntryDetailedStatusOptions(
-    stagingEntryDetailedStatusFilterOptions,
-  )
+  let statusOptions = getGroupedStagingEntryStatusOptions([
+    Pending,
+    Processed,
+    Void,
+    NeedsManualReview(NoRulesFound),
+    NeedsManualReview(CurrencyMismatch),
+    NeedsManualReview(MissingSearchIdentifierValue),
+    NeedsManualReview(DuplicateEntry),
+    NeedsManualReview(NoExpectationEntryFound),
+    NeedsManualReview(MultipleExpectedEntriesFound),
+    NeedsManualReview(MissingMatchField),
+    NeedsManualReview(MissingUniqueField),
+    NeedsManualReview(MissingGroupingField),
+    NeedsManualReview(InternalError),
+  ])
 
   [
     (

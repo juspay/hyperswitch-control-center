@@ -50,10 +50,25 @@ let buildProcessingEntriesV2Body = (
   ~transformationHistoryIds: array<string>=[],
 ) => {
   let statusFilter = filterValueJson->getStrArrayFromDict("status", [])
+  let statusOptions: array<domainStagingEntryStatus> = [
+    Pending,
+    Processed,
+    Void,
+    NeedsManualReview(NoRulesFound),
+    NeedsManualReview(CurrencyMismatch),
+    NeedsManualReview(MissingSearchIdentifierValue),
+    NeedsManualReview(DuplicateEntry),
+    NeedsManualReview(NoExpectationEntryFound),
+    NeedsManualReview(MultipleExpectedEntriesFound),
+    NeedsManualReview(MissingMatchField),
+    NeedsManualReview(MissingUniqueField),
+    NeedsManualReview(MissingGroupingField),
+    NeedsManualReview(InternalError),
+  ]
   let detailedStatuses =
     statusFilter->isEmptyArray
-      ? [Pending, Processed, Void, NeedsManualReview(UnknownStagingEntryManualReviewData)]
-      : statusFilter->Array.map(getStagingEntryDetailedStatusFromValue)
+      ? statusOptions
+      : statusFilter->Array.map(value => getStagingEntryStatusFromValue(value, statusOptions))
 
   let entryTypeFilter = filterValueJson->getStrArrayFromDict("entry_type", [])
   let accountIdFilter = filterValueJson->getStrArrayFromDict("account_ids", [])
@@ -65,7 +80,10 @@ let buildProcessingEntriesV2Body = (
   let hasTimeRange = startTime->isNonEmptyString && endTime->isNonEmptyString
 
   let filtersDict = Dict.make()
-  filtersDict->Dict.set("detailed_status", detailedStatuses->getStagingEntryDetailedStatusPayload)
+  filtersDict->Dict.set(
+    "detailed_status",
+    detailedStatuses->getStagingEntryStatusPayload->JSON.Encode.array,
+  )
 
   if entryTypeFilter->isNonEmptyArray {
     filtersDict->Dict.set("entry_type", entryTypeFilter->getJsonFromArrayOfString)
@@ -169,20 +187,47 @@ let getTotalEntries = (accountsOverview: array<accountStagingEntriesOverview>): 
 
 let getViewStatusFilter = (view: transformedEntriesViewType): string => {
   switch view {
-  | AllViewType => "pending,processed,needs_manual_review,void"
-  | ProcessedViewType => "processed"
-  | NeedsManualReviewViewType => "needs_manual_review"
-  | UnknownTransformedEntriesViewType => ""
+  | AllViewType => [
+      Pending,
+      Processed,
+      Void,
+      NeedsManualReview(NoRulesFound),
+      NeedsManualReview(CurrencyMismatch),
+      NeedsManualReview(MissingSearchIdentifierValue),
+      NeedsManualReview(DuplicateEntry),
+      NeedsManualReview(NoExpectationEntryFound),
+      NeedsManualReview(MultipleExpectedEntriesFound),
+      NeedsManualReview(MissingMatchField),
+      NeedsManualReview(MissingUniqueField),
+      NeedsManualReview(MissingGroupingField),
+      NeedsManualReview(InternalError),
+    ]
+  | ProcessedViewType => [Processed]
+  | NeedsManualReviewViewType => [
+      NeedsManualReview(NoRulesFound),
+      NeedsManualReview(CurrencyMismatch),
+      NeedsManualReview(MissingSearchIdentifierValue),
+      NeedsManualReview(DuplicateEntry),
+      NeedsManualReview(NoExpectationEntryFound),
+      NeedsManualReview(MultipleExpectedEntriesFound),
+      NeedsManualReview(MissingMatchField),
+      NeedsManualReview(MissingUniqueField),
+      NeedsManualReview(MissingGroupingField),
+      NeedsManualReview(InternalError),
+    ]
+  | UnknownTransformedEntriesViewType => []
   }
+  ->getStagingEntryStatusValueFromStatusList
+  ->Array.joinWith(",")
 }
 
-let getViewTypeFromStatus = (status: string): transformedEntriesViewType => {
-  switch status {
-  | "processed" => ProcessedViewType
-  | "needs_manual_review" => NeedsManualReviewViewType
-  | "pending,processed,needs_manual_review,void" => AllViewType
-  | _ => UnknownTransformedEntriesViewType
-  }
+let getViewTypeFromStatusFilter = (appliedStatuses: array<string>): transformedEntriesViewType => {
+  let sorted = appliedStatuses->Array.toSorted(compareLogic)
+  [AllViewType, ProcessedViewType, NeedsManualReviewViewType]
+  ->Array.find(view =>
+    view->getViewStatusFilter->String.split(",")->Array.toSorted(compareLogic) == sorted
+  )
+  ->Option.getOr(UnknownTransformedEntriesViewType)
 }
 
 let cardDetails = (~stagingOverviewData: array<accountStagingEntriesOverview>) => {
@@ -263,9 +308,21 @@ let initialDisplayFilters = (~accountOptions) => {
     {label: "Debit", value: "debit"},
   ]
 
-  let statusOptions = getGroupedStagingEntryDetailedStatusOptions(
-    stagingEntryDetailedStatusFilterOptions,
-  )
+  let statusOptions = getGroupedStagingEntryStatusOptions([
+    Pending,
+    Processed,
+    Void,
+    NeedsManualReview(NoRulesFound),
+    NeedsManualReview(CurrencyMismatch),
+    NeedsManualReview(MissingSearchIdentifierValue),
+    NeedsManualReview(DuplicateEntry),
+    NeedsManualReview(NoExpectationEntryFound),
+    NeedsManualReview(MultipleExpectedEntriesFound),
+    NeedsManualReview(MissingMatchField),
+    NeedsManualReview(MissingUniqueField),
+    NeedsManualReview(MissingGroupingField),
+    NeedsManualReview(InternalError),
+  ])
 
   [
     (
