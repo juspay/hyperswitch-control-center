@@ -1,5 +1,6 @@
 open ReconEngineTypes
 open LogicUtils
+open ReconEngineFilterUtils
 open ReconEngineTransformedEntryExceptionsTypes
 open ReconEngineExceptionsUtils
 open ReconEngineTransactionsUtils
@@ -116,6 +117,8 @@ let initialDisplayFilters = () => {
     {label: "Debit", value: "debit"},
   ]
 
+  let statusOptions = getGroupedStagingEntryStatusOptions(allStagingEntryManualReviewStatuses)
+
   [
     (
       {
@@ -125,6 +128,26 @@ let initialDisplayFilters = () => {
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=entryTypeOptions,
             ~buttonText="Select Entry Type",
+            ~showSelectionAsChips=false,
+            ~searchable=true,
+            ~showToolTip=true,
+            ~showNameAsToolTip=true,
+            ~customButtonStyle="bg-none",
+            ~fixedDropDownDirection=BottomRight,
+            (),
+          ),
+        ),
+        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+      }: EntityType.initialFilters<'t>
+    ),
+    (
+      {
+        field: FormRenderer.makeFieldInfo(
+          ~label="status",
+          ~name="status",
+          ~customInput=InputFields.filterMultiSelectInput(
+            ~options=statusOptions,
+            ~buttonText="Select Status",
             ~showSelectionAsChips=false,
             ~searchable=true,
             ~showToolTip=true,
@@ -318,7 +341,6 @@ let getUpdatedEntry = (~entryDetails: processingEntryType, ~formData): processin
     order_id: formData->getString("order_id", ""),
     discarded_status: entryDetails.discarded_status,
     version: entryDetails.version,
-    data: entryDetails.data,
     discarded_data: entryDetails.discarded_data,
   }
 }

@@ -172,8 +172,9 @@ let getSumOfAmountWithCurrency = (
 }
 
 let exceptionTransactionProcessingEntryItemToObjMapper = (dict): processingEntryType => {
-  let discardedDataDict =
-    dict->getDictfromDict("discarded_data")->processingEntryDiscardedDataItemToObjMapper
+  let discardedDataDict = dict->getDictfromDict("discarded_data")
+  let discardedStatusDict = dict->getDictfromDict("detailed_discarded_status")
+  let statusDict = dict->getDictfromDict("detailed_status")
   {
     id: dict->getString("id", ""),
     staging_entry_id: dict->getString("staging_entry_id", ""),
@@ -184,21 +185,23 @@ let exceptionTransactionProcessingEntryItemToObjMapper = (dict): processingEntry
     effective_at: dict->getString("effective_at", ""),
     metadata: dict->getJsonObjectFromDict("metadata"),
     processing_mode: dict->getString("processing_mode", ""),
-    status: dict
-    ->getString("status", "")
-    ->camelToSnake
-    ->getProcessingEntryStatusVariantFromString,
+    status: statusDict->getString("status", "")->getDomainStagingEntryStatus(statusDict),
     transformation_config: dict
     ->getDictfromDict("transformation_config")
     ->transformationConfigRefTypeMapper,
     transformation_history_id: dict->getString("transformation_history_id", ""),
     order_id: dict->getString("order_id", ""),
     version: dict->getInt("version", 0),
-    discarded_status: dict->getOptionString("discarded_status"),
-    data: dict->getDictfromDict("data")->processingEntryDataItemToObjMapper,
-    discarded_data: discardedDataDict.status != UnknownProcessingEntryStatus
-      ? Some(discardedDataDict)
-      : None,
+    discarded_status: discardedStatusDict->isEmptyDict
+      ? None
+      : Some(
+          discardedStatusDict
+          ->getString("status", "")
+          ->getDomainStagingEntryStatus(discardedStatusDict),
+        ),
+    discarded_data: discardedDataDict->isEmptyDict
+      ? None
+      : Some(discardedDataDict->processingEntryDiscardedDataItemToObjMapper),
   }
 }
 

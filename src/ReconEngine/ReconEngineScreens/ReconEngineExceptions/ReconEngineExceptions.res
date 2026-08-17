@@ -80,6 +80,7 @@ let make = () => {
         </div>
       </div>
     </div>
+    <ReconEngineHelper.GlobalDateFilterBanner />
     <PageLoaderWrapper screenState>
       <RenderIf condition={reconRulesList->Array.length == 0}>
         <div className="my-4">

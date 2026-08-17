@@ -3,6 +3,32 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.17.2
+
+### Features
+
+- Scope x-cug-user header to webhook events APIs ([#5407](https://github.com/juspay/hyperswitch-control-center/pull/5407)) ([`402247b`](https://github.com/juspay/hyperswitch-control-center/commit/402247b1a62ccc720c8599bebb7af65786261269))
+- Add download report for transformation histories ([#5405](https://github.com/juspay/hyperswitch-control-center/pull/5405)) ([`fcdb235`](https://github.com/juspay/hyperswitch-control-center/commit/fcdb235f0c7024f023eeac1a26b724056e4f11d1))
+
+**Full Changelog:** [`2026.08.17.1...2026.08.17.2`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.17.1...2026.08.17.2)
+
+- - -
+
+## 2026.08.17.1
+
+### Features
+
+- Add substatus level filters in transformed entries ([#5401](https://github.com/juspay/hyperswitch-control-center/pull/5401)) ([`1e007cd`](https://github.com/juspay/hyperswitch-control-center/commit/1e007cd39dfedfdb946499c863f72afcf2d4c63e))
+
+### Miscellaneous Tasks
+
+- Add direct flow for stripe , checkout googlepay ([#5393](https://github.com/juspay/hyperswitch-control-center/pull/5393)) ([`5d7ce65`](https://github.com/juspay/hyperswitch-control-center/commit/5d7ce654bfb12bbf91cb43a3eab2a7546465b077))
+- Add source record date filter banner ([#5403](https://github.com/juspay/hyperswitch-control-center/pull/5403)) ([`dc78839`](https://github.com/juspay/hyperswitch-control-center/commit/dc78839e78c3f04047d9cf696b1b253f797f5237))
+
+**Full Changelog:** [`2026.08.17.0...2026.08.17.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.17.0...2026.08.17.1)
+
+- - -
+
 ## 2026.08.17.0
 
 ### Features
