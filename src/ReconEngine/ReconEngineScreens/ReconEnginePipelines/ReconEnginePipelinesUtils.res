@@ -637,11 +637,10 @@ let getTransformationReportFileName = (
   ~transformation: transformationHistoryType,
   ~format: reportFormat,
 ): string => {
-  let name =
-    transformation.transformation_name->isNonEmptyString
-      ? transformation.transformation_name
-      : transformation.transformation_history_id
-  let sanitizedName = name->String.replaceRegExp(%re("/[^a-zA-Z0-9-_]+/g"), "_")
+  let sanitizedName =
+    transformation.transformation_name
+    ->String.replaceRegExp(%re("/[^a-zA-Z0-9-_]+/g"), "_")
+    ->String.toLowerCase
   `${sanitizedName}_report.${(format :> string)}`
 }
 
