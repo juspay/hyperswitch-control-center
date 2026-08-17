@@ -1,5 +1,35 @@
 open LogicUtils
 open ReconEngineTypes
+open ReconEngineFilterTypes
+open HSAnalyticsUtils
+
+let globalDateFilterContextIndex = "recon-engine-global-date"
+let globalDateFilterKeys = [startTimeFilterKey, endTimeFilterKey]
+
+let globalDateFilterPortalName = "reconGlobalDateFilter"
+
+let getGlobalDateFilterFromDict = (dict: Dict.t<string>): globalDateFilter => {
+  startTime: dict->getValueFromDict(startTimeFilterKey, ""),
+  endTime: dict->getValueFromDict(endTimeFilterKey, ""),
+}
+
+let mergeGlobalDateFilters = (
+  ~filterValueJson: Dict.t<JSON.t>,
+  ~globalDateFilters: globalDateFilter,
+) => {
+  let dateEntries =
+    [
+      (startTimeFilterKey, globalDateFilters.startTime),
+      (endTimeFilterKey, globalDateFilters.endTime),
+    ]
+    ->Array.filter(((_, value)) => value->isNonEmptyString)
+    ->Array.map(((key, value)) => (key, value->UrlFetchUtils.getFilterValue))
+
+  Array.concat(filterValueJson->Dict.toArray, dateEntries)->Dict.fromArray
+}
+
+let hasGlobalDateFilterValue = (~globalDateFilters: globalDateFilter) =>
+  globalDateFilters.startTime->isNonEmptyString && globalDateFilters.endTime->isNonEmptyString
 
 let getAccountOptionsFromTransactions = (
   transactions: array<transactionType>,
@@ -36,22 +66,32 @@ let getEntryTypeAccountOptions = (
   getAccountOptionsFromTransactions(transactions, entryType)
 }
 
-let buildQueryStringFromFilters = (~filterValueJson: Dict.t<JSON.t>) => {
+let refreshEndTimeFilter = updateExistingKeys => {
+  updateExistingKeys(
+    Dict.fromArray([(endTimeFilterKey, HSwitchRemoteFilter.getDateFilteredObject().end_time)]),
+  )
+}
+
+let toReconTimeString = value =>
+  value->isNonEmptyString ? value->dateFormat("YYYY-MM-DDTHH:mm:ss[Z]") : value
+
+let buildQueryStringFromFilters = (~filterValueJson: Dict.t<JSON.t>, ~convertToLocal=true) => {
   let queryParts = []
+  let formatTime = convertToLocal ? toReconTimeString : v => v
 
   filterValueJson
   ->Dict.toArray
   ->Array.forEach(((key, value)) => {
-    let apiKey = switch key {
-    | "startTime" => "start_time"
-    | "endTime" => "end_time"
-    | _ => key
+    let (apiKey, formatValue) = switch key {
+    | "startTime" => ("start_time", formatTime)
+    | "endTime" => ("end_time", formatTime)
+    | _ => (key, v => v)
     }
 
     switch value->JSON.Classify.classify {
     | String(str) =>
       if str->isNonEmptyString {
-        queryParts->Array.push(`${apiKey}=${str}`)
+        queryParts->Array.push(`${apiKey}=${str->formatValue}`)
       }
     | Number(num) => queryParts->Array.push(`${apiKey}=${num->Float.toString}`)
     | Array(arr) => {

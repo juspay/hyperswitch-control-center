@@ -93,7 +93,8 @@ module ResolutionModal = {
     | (ResolvingException(EditEntry), Some(EditEntryModal))
     | (ResolvingException(CreateNewEntry), Some(CreateEntryModal))
     | (ResolvingException(MarkAsReceived), Some(MarkAsReceivedModal))
-    | (ResolvingException(LinkStagingEntriesToTransaction), Some(LinkStagingEntriesModal)) => true
+    | (ResolvingException(ReplaceStagingEntryToTransaction), Some(LinkStagingEntriesModal))
+    | (ResolvingException(LinkStagingEntryToTransaction), Some(LinkStagingEntriesModal)) => true
     | _ => false
     }
 
@@ -137,6 +138,10 @@ module ResolutionModal = {
           setExceptionStage(_ => ShowResolutionOptions(NoResolutionOptionNeeded))
           setActiveModal(_ => None)
         }
+      | ResolvingException(LinkStagingEntryToTransaction) => {
+          setExceptionStage(_ => ShowResolutionOptions(FixEntries))
+          setActiveModal(_ => None)
+        }
       | _ => ()
       }
     }
@@ -169,7 +174,6 @@ module ExceptionDataDisplay = {
   let make = (
     ~currentExceptionDetails: ReconEngineTypes.transactionType,
     ~entryDetails: array<ReconEngineTypes.entryType>,
-    ~accountInfoMap: Dict.t<accountInfo>=Dict.make(),
   ) => {
     let mismatchData = React.useMemo(() => {
       switch currentExceptionDetails.transaction_status {
@@ -208,7 +212,7 @@ module ExceptionDataDisplay = {
     | SplitMismatch
     | OverAmount(Mismatch)
     | UnderAmount(Mismatch) =>
-      getHeadingAndSubHeadingForMismatch(mismatchData, ~accountInfoMap)
+      getHeadingAndSubHeadingForMismatch(mismatchData)
     | Expected | OverAmount(Expected) | UnderAmount(Expected) => (
         "Expected",
         `This transaction is marked as expected since ${currentExceptionDetails.created_at->DateTimeUtils.getFormattedDate(
@@ -239,9 +243,29 @@ module ExceptionDataDisplay = {
     | UnknownDomainTransactionStatus => ("", "")
     }
 
-    <div className="flex flex-col">
-      <div className={`text-nd_red-700 ${body.md.semibold} mb-2`}> {heading->React.string} </div>
-      <div className={`${body.md.regular} text-nd_gray-600`}> {subHeading->React.string} </div>
+    let mismatchedFields = mismatchData->getMismatchedFieldsFromMismatchData
+    let {rule_id: ruleId, rule_name: ruleName} = currentExceptionDetails.rule
+    let isRuleNamed = heading->isNonEmptyString && ruleName->isNonEmptyString
+
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-row items-center gap-1.5">
+        <p className={`text-nd_red-700 ${body.md.semibold}`}>
+          {(isRuleNamed ? `${heading} in ${ruleName}` : heading)->React.string}
+        </p>
+        <RenderIf condition={isRuleNamed && ruleId->isNonEmptyString}>
+          <Link to_={GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/rules/${ruleId}`)}>
+            <Icon
+              name="nd-external-link-square"
+              size=14
+              className="text-nd_red-700 hover:text-nd_red-500 cursor-pointer shrink-0"
+            />
+          </Link>
+        </RenderIf>
+      </div>
+      <RenderIf condition={mismatchedFields->Array.length == 0}>
+        <div className={`${body.md.regular} text-nd_gray-600`}> {subHeading->React.string} </div>
+      </RenderIf>
+      <ReconEngineExceptionsHelper.MismatchSummary mismatchedFields />
     </div>
   }
 }
@@ -553,7 +577,8 @@ let getSectionRowDetails = (~sectionIndex: int, ~rowIndex: int, ~groupedEntries)
 
   <RenderIf condition={hasEntryMetadata}>
     <div className="p-4">
-      <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll !max-h-60 py-2 px-6">
+      <div
+        className="w-0 min-w-full bg-nd_gray-50 rounded-xl overflow-x-auto overflow-y-scroll !max-h-60 py-2 px-6">
         <PrettyPrintJson
           jsonToDisplay={filteredEntryMetadata->JSON.Encode.object->JSON.stringify}
         />
@@ -574,7 +599,8 @@ let getStagingEntryDetails = (~rowIndex: int, ~stagingEntries) => {
 
   <RenderIf condition={hasMetadata}>
     <div className="p-4">
-      <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll !max-h-60 py-2 px-6">
+      <div
+        className="w-0 min-w-full bg-nd_gray-50 rounded-xl overflow-x-auto overflow-y-scroll !max-h-60 py-2 px-6">
         <PrettyPrintJson jsonToDisplay={filteredMetadata->JSON.Encode.object->JSON.stringify} />
       </div>
     </div>

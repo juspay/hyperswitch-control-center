@@ -143,6 +143,7 @@ type processorTypes =
   | IMERCHANTSOLUTIONS
   | PAYCONEX
   | TSYSTRANSIT
+  | GIVEPAYMENTS
 
 type payoutProcessorTypes =
   | ADYEN
@@ -162,6 +163,7 @@ type payoutProcessorTypes =
   | TRUELAYER
   | ENVOY
   | TRUSTLY
+  | SANTANDER
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO

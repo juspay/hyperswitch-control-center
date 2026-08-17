@@ -1,11 +1,16 @@
 open LogicUtils
-open ReconEnginePipelinesTypes
+
+type supportedFileExtensions =
+  | Csv
+  | Ext
+  | Xlsx
+  | Txt
 
 let supportedFileTypes: array<supportedFileExtensions> = [Csv, Ext, Xlsx, Txt]
 
 let bytesPerKilobyte = 1000
 let bytesPerMegabyte = bytesPerKilobyte * 1000
-let maxFileSizeBytes = 8 * bytesPerMegabyte
+let maxFileSizeBytes = 25 * bytesPerMegabyte
 let maxFilesCount = 3
 
 let isSupportedFileType = (fileName: string): bool => {
@@ -24,7 +29,7 @@ let classifyFile = (file, ~existingCount, ~seenKeys) => {
   if !isSupportedFileType(fileName->String.toLowerCase) {
     Error(`${fileName}: unsupported file type`)
   } else if file["size"] > maxFileSizeBytes {
-    Error(`${fileName}: exceeds 8 MB`)
+    Error(`${fileName}: exceeds 25 MB`)
   } else if seenKeys->Array.includes(fileName) {
     Error(`${fileName}: already selected`)
   } else if existingCount >= maxFilesCount {

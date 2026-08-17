@@ -104,10 +104,14 @@ let getBalanceByAccountType = (
   (balance, firstEntry.currency)
 }
 
-let getHeadingAndSubHeadingForMismatch = (
-  mismatchData: Js.Json.t,
-  ~accountInfoMap: Dict.t<ReconEngineExceptionTransactionTypes.accountInfo>,
-): (string, string) => {
+let getMismatchedFieldsFromMismatchData = (mismatchData: Js.Json.t) =>
+  mismatchData
+  ->getDictFromJsonObject
+  ->getJsonObjectFromDict("mismatch_data")
+  ->getDictFromJsonObject
+  ->getMismatchedFieldsFromDict
+
+let getHeadingAndSubHeadingForMismatch = (mismatchData: Js.Json.t): (string, string) => {
   let mismatchType =
     mismatchData
     ->getDictFromJsonObject
@@ -115,7 +119,6 @@ let getHeadingAndSubHeadingForMismatch = (
     ->getMismatchTypeVariantFromString
   let mismatchedDataDict =
     mismatchData->getDictFromJsonObject->getJsonObjectFromDict("mismatch_data")
-  let accountNames = accountInfoMap->Dict.valuesToArray->Array.map(info => info.account_info_name)
 
   let expectedAmount =
     mismatchedDataDict
@@ -138,6 +141,9 @@ let getHeadingAndSubHeadingForMismatch = (
   let mismatchAmount = Math.abs(expectedAmount -. actualAmount)
   let mismatchHeading = (mismatchType :> string)->snakeToTitle
 
+  let mismatchedFieldsCountText =
+    mismatchData->getMismatchedFieldsFromMismatchData->getMismatchedFieldsCountText
+
   let mismatchSubHeading = switch mismatchType {
   | AmountMismatch =>
     `There is a ${mismatchHeading} of ${CurrencyFormatUtils.valueFormatter(
@@ -145,12 +151,12 @@ let getHeadingAndSubHeadingForMismatch = (
         AmountWithSuffix,
         ~currency,
       )} found between the transaction entries`
-  | MetadataMismatch =>
-    `There is a ${mismatchHeading} found between ${accountNames->Array.joinWith(", ")}`
-  | BalanceDirectionMismatch =>
-    `There is a ${mismatchHeading} found between ${accountNames->Array.joinWith(", ")}`
+  | MetadataMismatch
+  | BalanceDirectionMismatch
   | CurrencyMismatch =>
-    `There is a ${mismatchHeading} found between ${accountNames->Array.joinWith(", ")}`
+    mismatchedFieldsCountText->isNonEmptyString
+      ? mismatchedFieldsCountText
+      : `There is a ${mismatchHeading} found between the transaction entries`
   | UnknownMismatchType => "Mismatch details are unavailable."
   }
 
@@ -165,7 +171,7 @@ let getSumOfAmountWithCurrency = (
   (totalAmount, entry.currency)
 }
 
-let exceptionTransactionProcessingEntryItemToObjMapper = dict => {
+let exceptionTransactionProcessingEntryItemToObjMapper = (dict): processingEntryType => {
   let discardedDataDict =
     dict->getDictfromDict("discarded_data")->processingEntryDiscardedDataItemToObjMapper
   {
@@ -182,7 +188,9 @@ let exceptionTransactionProcessingEntryItemToObjMapper = dict => {
     ->getString("status", "")
     ->camelToSnake
     ->getProcessingEntryStatusVariantFromString,
-    transformation_id: dict->getString("transformation_id", ""),
+    transformation_config: dict
+    ->getDictfromDict("transformation_config")
+    ->transformationConfigRefTypeMapper,
     transformation_history_id: dict->getString("transformation_history_id", ""),
     order_id: dict->getString("order_id", ""),
     version: dict->getInt("version", 0),
@@ -204,15 +212,16 @@ let hasFormValuesChanged = (currentValues: JSON.t, initialEntryDetails: entryTyp
   let isEntryTypeChanged =
     currentData->getString("entry_type", "") != (initialEntryDetails.entry_type :> string)
   let isAmountChanged = currentData->getFloat("amount", 0.0) != initialEntryDetails.amount
+  let isCurrencyChanged = currentData->getString("currency", "") != initialEntryDetails.currency
   let isEffectiveAtChanged =
     currentData->getString("effective_at", "") != initialEntryDetails.effective_at
+
   let isMetadataChanged = {
-    let currentMetadataArray = currentData->getDictfromDict("metadata")->Dict.toArray
-    let initialMetadataArray = initialMetadata->Dict.toArray
-    currentMetadataArray->Array.length != initialMetadataArray->Array.length ||
-      currentMetadataArray->Array.some(((key, value)) => {
-        initialMetadata->Dict.get(key)->Option.mapOr(true, initialValue => initialValue != value)
-      })
+    let currentMetadata = currentData->getDictfromDict("metadata")
+    currentMetadata
+    ->Dict.keysToArray
+    ->Array.concat(initialMetadata->Dict.keysToArray)
+    ->Array.some(key => currentMetadata->getString(key, "") != initialMetadata->getString(key, ""))
   }
   let isOrderIdChanged = currentData->getString("order_id", "") != initialEntryDetails.order_id
 
@@ -220,6 +229,7 @@ let hasFormValuesChanged = (currentValues: JSON.t, initialEntryDetails: entryTyp
   isTransformationConfigChanged ||
   isEntryTypeChanged ||
   isAmountChanged ||
+  isCurrencyChanged ||
   isEffectiveAtChanged ||
   isMetadataChanged ||
   isOrderIdChanged
@@ -325,9 +335,36 @@ let getConvertedEntriesFromStagingEntry = (stagingEntry: processingEntryType) =>
     ("status", "pending"->JSON.Encode.string),
     ("data", [("status", "pending"->JSON.Encode.string)]->getJsonFromArrayOfJson),
     ("entry_key", uniqueId->JSON.Encode.string),
+    (
+      "transformation_id",
+      stagingEntry.transformation_config.transformation_config_id->JSON.Encode.string,
+    ),
   ]
   ->Dict.fromArray
   ->JSON.Encode.object
+}
+
+let buildLinkableStagingEntriesV2Body = (
+  ~sortBy: cursor,
+  ~direction: cursorDirection,
+  ~searchType: ReconEnginePipelinesTypes.stagingEntrySearchType,
+  ~searchText: string,
+  ~limit=10,
+) => {
+  let filtersDict = Dict.make()
+  if searchText->isNonEmptyString {
+    filtersDict->Dict.set((searchType :> string), searchText->String.trim->JSON.Encode.string)
+  }
+  let cursorPayload: ReconEnginePipelinesTypes.stagingEntriesCursorPayload = {
+    limit,
+    direction,
+    order: ReconEnginePipelinesTypes.Desc,
+    sortBy,
+  }
+  [
+    ("filters", filtersDict->JSON.Encode.object),
+    ("cursor_payload", cursorPayload->Identity.genericTypeToJson),
+  ]->getJsonFromArrayOfJson
 }
 
 let getInitialValuesForNewEntries = () => {
@@ -389,8 +426,7 @@ let generateResolutionSummary = (initialEntry: entryType, updatedEntry: entryTyp
   }
 
   if initialEntry.effective_at != updatedEntry.effective_at {
-    let message = `Effective at changed to ${DateTimeUtils.getFormattedDate(
-        updatedEntry.effective_at,
+    let message = `Effective at changed to ${updatedEntry.effective_at->dateFormat(
         "DD MMMM YYYY, hh:mm A",
       )} in ${updatedEntry.account_name} account.`
     summary->Array.push(message)
@@ -471,17 +507,20 @@ let getUniqueAccountOptionsFromEntries = (entries: array<entryType>): array<
   })
 }
 
-let mapResolutionActionFromString = (
-  str: string,
-): ReconEngineExceptionTransactionTypes.resolvingException => {
+let mapResolutionActionsFromString = (str: string): array<
+  ReconEngineExceptionTransactionTypes.resolvingException,
+> => {
   open ReconEngineExceptionTransactionTypes
   switch str {
-  | "void_transaction" => VoidTransaction
-  | "link_staging_entries_to_transaction" => LinkStagingEntriesToTransaction
-  | "replace_entries" => EditEntry
-  | "create_entries" => CreateNewEntry
-  | "force_reconcile" => ForceReconcile
-  | _ => NoResolutionActionNeeded
+  | "void_transaction" => [VoidTransaction]
+  | "link_staging_entries_to_transaction" => [
+      ReplaceStagingEntryToTransaction,
+      LinkStagingEntryToTransaction,
+    ]
+  | "replace_entries" => [EditEntry]
+  | "create_entries" => [CreateNewEntry]
+  | "force_reconcile" => [ForceReconcile]
+  | _ => []
   }
 }
 
@@ -490,8 +529,7 @@ let parseResolutionActions = (json: JSON.t): array<
 > => {
   json
   ->getArrayFromJson([])
-  ->Array.map(item => item->getStringFromJson("")->mapResolutionActionFromString)
-  ->Array.filter(action => action !== NoResolutionActionNeeded)
+  ->Array.flatMap(item => item->getStringFromJson("")->mapResolutionActionsFromString)
 }
 
 let getExceptionEntryTypeFromEntryType = (
@@ -559,7 +597,7 @@ let constructManualReconciliationBody = (
       ("amount", backendEntry.amount->JSON.Encode.float),
       ("currency", backendEntry.currency->JSON.Encode.string),
       ("order_id", backendEntry.order_id->JSON.Encode.string),
-      ("effective_at", backendEntry.effective_at->JSON.Encode.string),
+      ("effective_at", backendEntry.effective_at->toReconTimeString->JSON.Encode.string),
       ("metadata", backendEntry.metadata),
       (
         "staging_entry_id",
@@ -569,6 +607,13 @@ let constructManualReconciliationBody = (
         },
       ),
       ("data", backendEntry.data),
+      (
+        "transformation_id",
+        switch backendEntry.transformation_id {
+        | Some(id) => id->JSON.Encode.string
+        | None => JSON.Encode.null
+        },
+      ),
     ]
     ->Dict.fromArray
     ->JSON.Encode.object
@@ -613,9 +658,15 @@ let getResolutionModalConfig = (
       layout: SidePanelModal,
       closeOnOutsideClick: false,
     }
-  | ResolvingException(LinkStagingEntriesToTransaction) => {
+  | ResolvingException(ReplaceStagingEntryToTransaction) => {
       heading: "Match with an existing transformed entry",
       description: "Allows you to replace the existing entry with the correct transformed entries",
+      layout: ExpandedSidePanelModal,
+      closeOnOutsideClick: false,
+    }
+  | ResolvingException(LinkStagingEntryToTransaction) => {
+      heading: "Link a transformed entry",
+      description: "Allows you to add a new transformed entry to this transaction",
       layout: ExpandedSidePanelModal,
       closeOnOutsideClick: false,
     }
@@ -825,8 +876,19 @@ let getFixEntriesButtons = (
       text: "Replace Entry",
       icon: "nd-swap-arrow-horizontal",
       iconClass: "text-nd_gray-600",
-      condition: isResolutionAvailable(LinkStagingEntriesToTransaction),
-      onClick: () => setExceptionStage(_ => ResolvingException(LinkStagingEntriesToTransaction)),
+      condition: isResolutionAvailable(ReplaceStagingEntryToTransaction),
+      onClick: () => setExceptionStage(_ => ResolvingException(ReplaceStagingEntryToTransaction)),
+      buttonType: Secondary,
+    },
+    {
+      text: "Link Entry",
+      icon: "nd-permalink",
+      iconClass: "text-nd_gray-600",
+      condition: isResolutionAvailable(LinkStagingEntryToTransaction),
+      onClick: () => {
+        setExceptionStage(_ => ResolvingException(LinkStagingEntryToTransaction))
+        setActiveModal(_ => Some(LinkStagingEntriesModal))
+      },
       buttonType: Secondary,
     },
   ]
@@ -880,7 +942,7 @@ let getBottomBarConfig = (~exceptionStage, ~selectedRows, ~setActiveModal) => {
       buttonEnabled: selectedRows->Array.length > 0,
       onClick: () => setActiveModal(_ => Some(MarkAsReceivedModal)),
     })
-  | ResolvingException(LinkStagingEntriesToTransaction) =>
+  | ResolvingException(ReplaceStagingEntryToTransaction) =>
     Some({
       prompt: "Select entry to replace",
       buttonText: "Continue",

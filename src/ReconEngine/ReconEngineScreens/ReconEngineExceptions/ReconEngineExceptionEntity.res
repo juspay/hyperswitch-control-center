@@ -14,18 +14,20 @@ type processingColType =
   | OrderId
   | Actions
   | ExceptionType
+  | TransformationConfigName
 
 let processingDefaultColumns = [
   EffectiveAt,
+  OrderId,
+  EntryType,
+  Amount,
   StagingEntryId,
   Status,
   ExceptionType,
-  EntryType,
-  OrderId,
-  Amount,
   Currency,
   AccountName,
   TransformationHistoryId,
+  TransformationConfigName,
   Actions,
 ]
 
@@ -43,6 +45,8 @@ let getProcessingHeading = colType => {
   | OrderId => Table.makeHeaderInfo(~key="order_id", ~title="Order ID")
   | Actions => Table.makeHeaderInfo(~key="actions", ~title="Actions")
   | ExceptionType => Table.makeHeaderInfo(~key="exception_type", ~title="Exception Type")
+  | TransformationConfigName =>
+    Table.makeHeaderInfo(~key="transformation_config", ~title="Transformation Config Name")
   }
 }
 
@@ -101,7 +105,15 @@ let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
     | Some(status) => getStatusLabel(status->getProcessingEntryStatusVariantFromString)
     | None => getStatusLabel(data.status)
     }
-  | EffectiveAt => Date(data.effective_at)
+  | EffectiveAt =>
+    data.effective_at->isNonEmptyString
+      ? CustomCell(
+          <TableUtils.DateCell
+            timestamp=data.effective_at textAlign=Left hideTimeZone=true convertToLocal=false
+          />,
+          data.effective_at,
+        )
+      : Text("-")
   | OrderId =>
     CustomCell(
       <>
@@ -120,6 +132,11 @@ let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
     )
   | Actions => CustomCell(<ReconEngineDataTransformedEntriesActions processingEntry=data />, "")
   | ExceptionType => EllipsisText((data.data.needs_manual_review_type :> string)->snakeToTitle, "")
+  | TransformationConfigName =>
+    EllipsisText(
+      data.transformation_config.transformation_config_name->getNonEmptyString->Option.getOr("N/A"),
+      "max-w-36",
+    )
   }
 }
 

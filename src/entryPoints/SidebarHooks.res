@@ -6,7 +6,7 @@ open HyperswitchAtom
 
 let useGetHsSidebarValues = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let connectorListForLive = connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
+  let connectorDisplayList = connectorDisplayListAtom->Recoil.useRecoilValueFromAtom
   let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {userEntity} = getResolvedUserInfo()
@@ -15,7 +15,6 @@ let useGetHsSidebarValues = () => {
     payOut,
     default,
     surcharge: isSurchargeEnabled,
-    isLiveMode,
     threedsAuthenticator,
     disputeAnalytics,
     configurePmts,
@@ -26,6 +25,7 @@ let useGetHsSidebarValues = () => {
     authenticationAnalytics,
     devAltPaymentMethods,
     devWebhooks,
+    devBlocklist,
     threedsExemptionRules,
     routingAnalytics,
     billingProcessor,
@@ -36,6 +36,7 @@ let useGetHsSidebarValues = () => {
     devTheme,
     devVault,
     devUsers,
+    devSuperposition,
   } = featureFlagDetails
   let {
     isFeatureEnabledForDenyListMerchant,
@@ -68,7 +69,6 @@ let useGetHsSidebarValues = () => {
       ~isCurrentMerchantPlatform,
     ),
     default->connectors(
-      ~isLiveMode,
       ~isFrmEnabled=frm,
       ~isPayoutsEnabled=payOut,
       ~isThreedsConnectorEnabled=threedsAuthenticator,
@@ -80,7 +80,7 @@ let useGetHsSidebarValues = () => {
       ~isSurchargeProcessor=surchargeProcessor,
       ~isCurrentMerchantPlatform,
       ~isCurrentMerchantConnected,
-      ~connectorListForLive,
+      ~connectorDisplayList,
     ),
     default->analytics(
       disputeAnalytics,
@@ -92,7 +92,9 @@ let useGetHsSidebarValues = () => {
     ...standardModules,
     default->developers(
       ~isWebhooksEnabled=devWebhooks,
+      ~isBlocklistEnabled=devBlocklist,
       ~userHasResourceAccess,
+      ~userHasAccess,
       ~checkUserEntity,
       ~paymentLinkThemeConfigurator,
       ~isCurrentMerchantPlatform,
@@ -108,6 +110,7 @@ let useGetHsSidebarValues = () => {
       ~devUsers,
       ~isCurrentMerchantPlatform,
     ),
+    superposition(~userHasResourceAccess, ~isEnabled=devSuperposition),
   ]
 }
 

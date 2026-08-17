@@ -47,7 +47,7 @@ let buildProcessingEntriesV2Body = (
   ~direction: cursorDirection,
   ~order: processingEntrySortOrder=Desc,
   ~limit=10,
-  ~transformationHistoryId="",
+  ~transformationHistoryIds: array<string>=[],
 ) => {
   let statusFilter = filterValueJson->getStrArrayFromDict("status", [])
   let statusValues =
@@ -57,9 +57,11 @@ let buildProcessingEntriesV2Body = (
 
   let entryTypeFilter = filterValueJson->getStrArrayFromDict("entry_type", [])
   let accountIdFilter = filterValueJson->getStrArrayFromDict("account_ids", [])
+  let transformationConfigIdFilter =
+    filterValueJson->getStrArrayFromDict("transformation_config_ids", [])
 
-  let startTime = filterValueJson->getString("startTime", "")
-  let endTime = filterValueJson->getString("endTime", "")
+  let startTime = filterValueJson->getString("startTime", "")->toReconTimeString
+  let endTime = filterValueJson->getString("endTime", "")->toReconTimeString
   let hasTimeRange = startTime->isNonEmptyString && endTime->isNonEmptyString
 
   let filtersDict = Dict.make()
@@ -73,12 +75,29 @@ let buildProcessingEntriesV2Body = (
     filtersDict->Dict.set("account_ids", accountIdFilter->getJsonFromArrayOfString)
   }
 
+  if transformationConfigIdFilter->isNonEmptyArray {
+    filtersDict->Dict.set(
+      "transformation_config_ids",
+      transformationConfigIdFilter->getJsonFromArrayOfString,
+    )
+  }
+
   if searchText->isNonEmptyString {
     filtersDict->Dict.set((searchType :> string), searchText->String.trim->JSON.Encode.string)
   }
 
-  if transformationHistoryId->isNonEmptyString {
-    filtersDict->Dict.set("transformation_history_id", transformationHistoryId->JSON.Encode.string)
+  if transformationHistoryIds->isNonEmptyArray {
+    filtersDict->Dict.set(
+      "transformation_history_ids",
+      transformationHistoryIds->getJsonFromArrayOfString,
+    )
+  }
+
+  if transformationConfigIdFilter->isNonEmptyArray {
+    filtersDict->Dict.set(
+      "transformation_config_ids",
+      transformationConfigIdFilter->getJsonFromArrayOfString,
+    )
   }
 
   if hasTimeRange {
@@ -238,7 +257,7 @@ let getLineageSections = (~ingestionHistoryData, ~transformationHistoryData, ~en
   },
 ]
 
-let initialDisplayFilters = (~accountOptions) => {
+let initialDisplayFilters = (~transformationConfigOptions, ~accountOptions) => {
   let entryTypeOptions: array<FilterSelectBox.dropdownOption> = [
     {label: "Credit", value: "credit"},
     {label: "Debit", value: "debit"},
@@ -295,6 +314,26 @@ let initialDisplayFilters = (~accountOptions) => {
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=accountOptions,
             ~buttonText="Select Account",
+            ~showSelectionAsChips=false,
+            ~searchable=true,
+            ~showToolTip=true,
+            ~showNameAsToolTip=true,
+            ~customButtonStyle="bg-none",
+            ~fixedDropDownDirection=BottomRight,
+            (),
+          ),
+        ),
+        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+      }: EntityType.initialFilters<'t>
+    ),
+    (
+      {
+        field: FormRenderer.makeFieldInfo(
+          ~label="Transformation",
+          ~name="transformation_config_ids",
+          ~customInput=InputFields.filterMultiSelectInput(
+            ~options=transformationConfigOptions,
+            ~buttonText="Select Transformation",
             ~showSelectionAsChips=false,
             ~searchable=true,
             ~showToolTip=true,

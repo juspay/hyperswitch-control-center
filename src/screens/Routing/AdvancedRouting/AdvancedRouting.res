@@ -57,6 +57,7 @@ module Add3DSConditionForThreeDsExemption = {
       {value: "no_three_ds", label: "Request No-3DS"},
       {value: "challenge_requested", label: "Mandate 3DS Challenge"},
       {value: "challenge_preferred", label: "Prefer 3DS Challenge"},
+      {value: "no_preference", label: "No Preference"},
       {value: "three_ds_exemption_requested_tra", label: "Request 3DS Exemption, Type: TRA"},
       {
         value: "three_ds_exemption_requested_low_value",
@@ -818,10 +819,16 @@ let make = (
   }
 
   let connectorOptions = React.useMemo(() => {
-    connectors
-    ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
-    ->Array.filter(item => item.profile_id === profile)
-    ->Array.map((item): SelectBox.dropdownOption => {
+    let filteredConnectors =
+      connectors
+      ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
+      ->Array.filter(item => item.profile_id === profile)
+
+    ConnectorUtils.sortByDisableField(filteredConnectors, connectorPayload =>
+      connectorPayload.disabled
+    )
+
+    filteredConnectors->Array.map((item): SelectBox.dropdownOption => {
       {
         label: item.disabled ? `${item.connector_label} (disabled)` : item.connector_label,
         value: item.id,

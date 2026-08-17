@@ -3,7 +3,6 @@ type balanceType = {
   currency: string,
 }
 
-@unboxed
 type accountTypeVariant =
   | @as("credit") Credit
   | @as("debit") Debit
@@ -34,6 +33,11 @@ type accountRefType = {
   account_name: string,
 }
 
+type transformationConfigRefType = {
+  transformation_config_id: string,
+  transformation_config_name: string,
+}
+
 type reconRuleAccountRefType = {
   id: string,
   account_id: string,
@@ -47,7 +51,6 @@ type reconRuleType = {
   targets: array<reconRuleAccountRefType>,
 }
 
-@unboxed
 type mismatchType =
   | @as("amount_mismatch") AmountMismatch
   | @as("balance_direction_mismatch") BalanceDirectionMismatch
@@ -97,6 +100,38 @@ type ingestionConfigType = {
   created_at: string,
 }
 
+type sheetSelection =
+  | ByIndex(int)
+  | ByName(string)
+  | UnknownSheetSelection
+
+type parsingConfig =
+  | CsvParsingConfig
+  | XlsxParsingConfig({headerRowIndex: int, sheetSelection: sheetSelection})
+  | FixedWidthParsingConfig
+  | UnknownParsingConfig
+
+type skipConditionOperator =
+  | Equals
+  | NotEquals
+  | Contains
+  | NotContains
+  | StartsWith
+  | NotStartsWith
+  | EndsWith
+  | NotEndsWith
+  | UnknownSkipConditionOperator
+
+type skipCondition = {
+  identifier: string,
+  operator: skipConditionOperator,
+  value: string,
+}
+
+type skipConfig =
+  | RowSkipConfig({lineNumber: int})
+  | ConditionalSkipConfig({conditions: array<skipCondition>})
+
 type transformationConfigType = {
   transformation_id: string,
   profile_id: string,
@@ -128,7 +163,6 @@ type ruleType = {
   rule_name: string,
 }
 
-@unboxed
 type transactionStatus =
   | @as("posted") Posted
   | @as("matched") Matched
@@ -139,13 +173,11 @@ type transactionStatus =
   | @as("partially_reconciled") PartiallyReconciled
   | @as("unknown") UnknownTransactionStatus
 
-@unboxed
 type entryDirectionType =
   | @as("debit") Debit
   | @as("credit") Credit
   | UnknownEntryDirectionType
 
-@unboxed
 type entryStatus =
   | @as("posted") Posted
   | @as("matched") Matched
@@ -171,13 +203,20 @@ type matchedDataType =
   | @as("manual") Manual
   | @as("unknown") UnknownMatchedDataType
 
+type mismatchedFieldType = {
+  field_name: string,
+  field_label: option<string>,
+  expected_value: string,
+  actual_value: string,
+}
+
 type transactionDataType = {
   status: transactionStatus,
   matched_data_type: option<matchedDataType>,
   reason: option<string>,
+  mismatched_fields: array<mismatchedFieldType>,
 }
 
-@unboxed
 type domainTransactionMatchedStatus =
   | Auto
   | Manual
@@ -185,12 +224,10 @@ type domainTransactionMatchedStatus =
   | WithTolerance
   | UnknownDomainTransactionMatchedStatus
 
-@unboxed
 type domainTransactionPostedStatus =
   | Manual
   | UnknownDomainTransactionPostedStatus
 
-@unboxed
 type domainTransactionAmountMismatchStatus =
   | Expected
   | Mismatch
@@ -262,14 +299,13 @@ type processingEntryStatus =
   | @as("void") Void
   | @as("unknown") UnknownProcessingEntryStatus
 
-@unboxed
 type needsManualReviewType =
   | @as("no_rules_found") NoRulesFound
   | @as("staging_entry_currency_mismatch") StagingEntryCurrencyMismatch
   | @as("missing_search_identifier_value") MissingSearchIdentifierValue
   | @as("duplicate_entry") DuplicateEntry
   | @as("no_expectation_entry_found") NoExpectationEntryFound
-  | @as("multiple_excepted_entries_found") MultipleExceptedEntriesFound
+  | @as("multiple_expected_entries_found") MultipleExpectedEntriesFound
   | @as("missing_match_field") MissingMatchField
   | @as("missing_unique_field") MissingUniqueField
   | @as("missing_grouping_field") MissingGroupingField
@@ -295,7 +331,7 @@ type processingEntryType = {
   status: processingEntryStatus,
   processing_mode: string,
   metadata: Js.Json.t,
-  transformation_id: string,
+  transformation_config: transformationConfigRefType,
   transformation_history_id: string,
   effective_at: string,
   order_id: string,
@@ -332,6 +368,124 @@ type minorUnitValidationRule =
   | MaxValueMinorUnit(int)
   | UnknownMinorUnitValidationRule
 
+type majorUnitValidationRule =
+  | PositiveOnlyMajorUnit
+  | MinValueMajorUnit(float)
+  | MaxValueMajorUnit(float)
+  | UnknownMajorUnitValidationRule
+
+type replaceMode =
+  | ReplaceAll
+  | ReplaceSingle({occurrence: int, fromEnd: bool})
+  | UnknownReplaceMode
+
+type stringTransformationRule =
+  | StrDefaultValue(string)
+  | StrToUpperCase
+  | StrToLowerCase
+  | StrStripPrefix(string)
+  | StrStripSuffix(string)
+  | StrTrim
+  | StrJsonExtract(string)
+  | StrRegex({pattern: string, group: option<int>})
+  | UnknownStringTransformationRule
+
+type currencyTransformationRule =
+  | CurrencyDefaultValue(string)
+  | CurrencyTrim
+  | CurrencyJsonExtract(string)
+  | UnknownCurrencyTransformationRule
+
+type balanceDirectionTransformationRule =
+  | BalanceDirectionDefaultValue(string)
+  | BalanceDirectionTrim
+  | BalanceDirectionJsonExtract(string)
+  | BalanceDirectionStartsWith({prefix: string, thenValue: string, otherwise: string})
+  | UnknownBalanceDirectionTransformationRule
+
+type numberTransformationRule =
+  | NumberTrim
+  | NumberJsonExtract(string)
+  | UnknownNumberTransformationRule
+
+type minorUnitTransformationRule =
+  | MinorUnitTrim
+  | MinorUnitJsonExtract(string)
+  | MinorUnitAbsolute
+  | UnknownMinorUnitTransformationRule
+
+type majorUnitTransformationRule =
+  | MajorUnitTrim
+  | MajorUnitJsonExtract(string)
+  | MajorUnitNegate
+  | MajorUnitAbsolute
+  | MajorUnitReplaceChar({fromChar: string, toChar: option<string>, mode: replaceMode})
+  | UnknownMajorUnitTransformationRule
+
+type dateTimeTransformationRule =
+  | DateTimeTrim
+  | DateTimeJsonExtract(string)
+  | UnknownDateTimeTransformationRule
+
+type enumTransformationRule =
+  | EnumTrim
+  | EnumJsonExtract(string)
+  | UnknownEnumTransformationRule
+
+type durationUnit =
+  | @as("minutes") Minutes
+  | @as("hours") Hours
+  | @as("days") Days
+  | @as("unknown") UnknownDurationUnit
+
+type dateTimeDuration = {value: int, unit: durationUnit}
+
+type truncationPrecision =
+  | @as("start_of_hour") StartOfHour
+  | @as("start_of_day") StartOfDay
+  | @as("start_of_month") StartOfMonth
+  | @as("start_of_year") StartOfYear
+  | @as("unknown") UnknownTruncationPrecision
+
+type dateTimePostParseRule =
+  | PostParseTruncate(truncationPrecision)
+  | PostParseAddDuration(dateTimeDuration)
+  | PostParseSubtractDuration(dateTimeDuration)
+  | UnknownDateTimePostParseRule
+
+type amountDelimiter = DelimiterDot | DelimiterComma | UnknownAmountDelimiter
+
+type fieldRules =
+  | StringRules({
+      validation: array<stringValidationRule>,
+      transformation: array<stringTransformationRule>,
+    })
+  | NumberRules({
+      validation: array<numberValidationRule>,
+      transformation: array<numberTransformationRule>,
+    })
+  | CurrencyRules({transformation: array<currencyTransformationRule>})
+  | MinorUnitRules({
+      validation: array<minorUnitValidationRule>,
+      transformation: array<minorUnitTransformationRule>,
+    })
+  | MajorUnitRules({
+      delimiter: amountDelimiter,
+      validation: array<majorUnitValidationRule>,
+      transformation: array<majorUnitTransformationRule>,
+    })
+  | DateTimeRules({
+      transformation: array<dateTimeTransformationRule>,
+      postParse: array<dateTimePostParseRule>,
+    })
+  | BalanceDirectionRules({
+      creditValues: array<string>,
+      debitValues: array<string>,
+      transformation: array<balanceDirectionTransformationRule>,
+    })
+  | EnumRules({mappings: Dict.t<string>, transformation: array<enumTransformationRule>})
+  | UnknownFieldRules
+
 type fieldTypeVariant =
   | StringField(array<stringValidationRule>)
   | NumberField(array<numberValidationRule>)
@@ -351,6 +505,7 @@ type metadataFieldType = {
   field_type: fieldTypeVariant,
   required: bool,
   description: string,
+  rules: fieldRules,
 }
 
 type mainFieldType = {
@@ -358,6 +513,7 @@ type mainFieldType = {
   identifier: string,
   credit_values: option<array<string>>,
   debit_values: option<array<string>>,
+  rules: fieldRules,
 }
 
 type uniqueConstraintTypeVariant =
@@ -430,7 +586,6 @@ type stagingEntryOverviewStatusAmount = {
 
 type accountStagingEntriesOverview = {status_breakdown: array<stagingEntryOverviewStatusAmount>}
 
-@unboxed
 type ruleAccountTypeVariant =
   | @as("source") Source
   | @as("target") Target

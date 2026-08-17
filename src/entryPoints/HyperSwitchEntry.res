@@ -1,5 +1,8 @@
 module HyperSwitchEntryComponent = {
   open HyperswitchAtom
+  open ConnectorListFromConfigUtils
+  open LogicUtils
+
   @react.component
   let make = () => {
     open HyperSwitchEntryUtils
@@ -7,7 +10,7 @@ module HyperSwitchEntryComponent = {
     let url = RescriptReactRouter.useUrl()
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = featureFlagAtom->Recoil.useSetRecoilState
-    let setConnectorListForLive = connectorListForLiveAtom->Recoil.useSetRecoilState
+    let setConnectorDisplayList = connectorDisplayListAtom->Recoil.useSetRecoilState
     let setConnectorCloneAllowList = connectorCloneAllowListAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
@@ -25,11 +28,12 @@ module HyperSwitchEntryComponent = {
     }
 
     let configEnv = (urlConfig: JSON.t) => {
-      open LogicUtils
       open HyperSwitchConfigTypes
       try {
         let dict = urlConfig->getDictFromJsonObject->getDictfromDict("endpoints")
-        let value: urlConfig = {
+        let superpositionDict =
+          urlConfig->getDictFromJsonObject->getDictfromDict("superposition_configs")
+        let value: baseConfig = {
           apiBaseUrl: dict->getString("api_url", ""),
           mixpanelToken: dict->getString("mixpanel_token", ""),
           sdkBaseUrl: dict->getString("sdk_url", "")->getNonEmptyString,
@@ -49,6 +53,9 @@ module HyperSwitchEntryComponent = {
             logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
           },
           hypersenseUrl: dict->getString("hypersense_url", ""),
+          superpositionConfigs: superpositionDict->isEmptyDict
+            ? None
+            : Some(superpositionDict->getSuperpositionConfigMapper),
         }
         DOMUtils.window._env_ = value
         configureFavIcon(value.urlThemeConfig.faviconUrl)->ignore
@@ -59,7 +66,7 @@ module HyperSwitchEntryComponent = {
     }
 
     let fetchThemeAndDomainFromUrl = () => {
-      let params = url.search->LogicUtils.getDictFromUrlSearchParams
+      let params = url.search->getDictFromUrlSearchParams
       let themeID = params->Dict.get("theme_id")
       let domainUrl = params->Dict.get("domain")
 
@@ -82,10 +89,10 @@ module HyperSwitchEntryComponent = {
           )}` // todo: domain shall be removed from query params later
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
-        let connectorListForLive = res->ConnectorListForLiveFromConfigUtils.getConnectorListForLive
+        let connectorDisplayList = res->getConnectorDisplayList(~isLiveMode=featureFlags.isLiveMode)
         let connectorCloneAllowList = res->ConnectorCloneConfigUtils.getConnectorCloneAllowList
         setFeatureFlag(_ => featureFlags)
-        setConnectorListForLive(_ => connectorListForLive)
+        setConnectorDisplayList(_ => connectorDisplayList)
         setConnectorCloneAllowList(_ => connectorCloneAllowList)
         let _ = configEnv(res) // to set initial env
         let _ = await getThemesJson(~themesID=themeId, ~domain)
@@ -110,7 +117,7 @@ module HyperSwitchEntryComponent = {
     }, [])
 
     let setPageName = pageTitle => {
-      let page = pageTitle->LogicUtils.snakeToTitle
+      let page = pageTitle->snakeToTitle
       let title = `${page} - Dashboard`
       DOMUtils.document.title = title
       GoogleAnalytics.send({hitType: "pageview", page})

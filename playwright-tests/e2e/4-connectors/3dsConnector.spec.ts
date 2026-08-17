@@ -3,17 +3,11 @@ import type { Page, BrowserContext } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { ThreeDSAuthenticator } from "../../support/pages/connector/ThreeDSAuthenticator";
 import { generateUniqueEmail } from "../../support/helper";
-import {
-  signupUser,
-  loginUI,
-  assertConnectorFieldLabels,
-  fillConnectorFields,
-  generateCerts,
-} from "../../support/commands";
+import { signupUser, loginUI, generateCerts } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
-async function signupAndLogin(page: Page, context: BrowserContext) {
+async function signupAndLogin(page: Page, _context: BrowserContext) {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -96,7 +90,7 @@ test.describe("3DS Authenticators Module", () => {
 });
 
 test.describe("3DS Authenticators Setup", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -137,11 +131,6 @@ test.describe("3DS Authenticators Setup", () => {
         .nth(2),
     ).toBeVisible();
     await threeDSAuthenticator.connectorLabelTextbox.fill("netcetera_default");
-
-    await expect(page.getByText("Live endpoint prefix *")).toBeVisible();
-    await page
-      .getByRole("textbox", { name: "string that will replace '{" })
-      .fill("test_value");
 
     await expect(
       page.locator("div").filter({ hasText: /^MCC$/ }).nth(2),

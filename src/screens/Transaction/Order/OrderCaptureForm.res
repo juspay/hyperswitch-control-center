@@ -8,7 +8,7 @@ open CurrencyUtils
 let make = (~order: PaymentInterfaceTypes.order, ~setShowModal, ~refetch) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (isLoading, setIsLoading) = React.useState(_ => false)
 
   let {merchantId, orgId} = React.useContext(

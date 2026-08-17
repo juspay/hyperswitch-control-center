@@ -60,30 +60,19 @@ let getHeading = (colType: hierarchicalColType) => {
   }
 }
 
-let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
-  Table.Label({
-    title: status->TransactionsTableEntity.getDomainTransactionStatusString->String.toUpperCase,
-    color: switch status {
-    | Posted(Manual) | Matched(Force) | Matched(Manual) | Matched(Auto) | Matched(WithTolerance) =>
-      LabelGreen
-    | OverAmount(Mismatch)
-    | UnderAmount(Mismatch)
-    | DataMismatch
-    | CurrencyMismatch
-    | SplitMismatch =>
-      LabelRed
-    | Expected | UnderAmount(Expected) | OverAmount(Expected) => LabelBlue
-    | Archived => LabelGray
-    | PartiallyReconciled | Missing => LabelOrange
-    | Void
-    | UnknownDomainTransactionStatus
-    | Matched(UnknownDomainTransactionMatchedStatus)
-    | Posted(UnknownDomainTransactionPostedStatus)
-    | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
-    | UnderAmount(UnknownDomainTransactionAmountMismatchStatus) =>
-      LabelLightGray
-    },
-  })
+let getStatusLabel = (status: domainTransactionStatus, ~mismatchedFields=[]): Table.cell => {
+  let title = status->TransactionsTableEntity.getDomainTransactionStatusString->String.toUpperCase
+
+  CustomCell(
+    <ToolTip
+      description={mismatchedFields->ReconEngineUtils.getMismatchedFieldsCountText}
+      toolTipPosition=ToolTip.Top
+      toolTipFor={<TableUtils.LabelCell
+        labelColor={ReconEngineTransactionsUtils.getTransactionStatusLabelColor(status)} text=title
+      />}
+    />,
+    title,
+  )
 }
 
 let getTransactionFlowBadge = (
@@ -118,12 +107,21 @@ let getCell = (
         ~accountData,
       )->getTransactionFlowBadge
     CustomCell(<div className="flex items-center justify-center"> {flowBadge} </div>, "")
-  | Date => DateWithoutTime(transaction.effective_at)
+  | Date =>
+    transaction.effective_at->isNonEmptyString
+      ? CustomCell(
+          <TableUtils.DateCell
+            timestamp=transaction.effective_at textAlign=Left hideTimeZone=true convertToLocal=false
+          />,
+          transaction.effective_at,
+        )
+      : Text("-")
   | TransactionId => DisplayCopyCell(transaction.transaction_id)
   | Status =>
+    let mismatchedFields = transaction.data.mismatched_fields
     switch transaction.discarded_status {
-    | Some(status) => getStatusLabel(status)
-    | None => getStatusLabel(transaction.transaction_status)
+    | Some(status) => getStatusLabel(status, ~mismatchedFields)
+    | None => getStatusLabel(transaction.transaction_status, ~mismatchedFields)
     }
   | EntryId =>
     let entryIdContent =

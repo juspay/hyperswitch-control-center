@@ -32,6 +32,8 @@ let make = (~ruleId: string) => {
     filterKeys,
     setfilterKeys,
   } = React.useContext(FilterContext.filterContext)
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let filterValueJsonWithGlobalDate = mergeGlobalDateFilters(~filterValueJson, ~globalDateFilters)
   let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
   let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
 
@@ -64,8 +66,8 @@ let make = (~ruleId: string) => {
   }
 
   let fetchPage = (~sortBy, ~direction) => {
-    let enhancedFilterValueJson = Dict.copy(filterValueJson)
-    let statusFilter = filterValueJson->getArrayFromDict("status", [])
+    let enhancedFilterValueJson = Dict.copy(filterValueJsonWithGlobalDate)
+    let statusFilter = filterValueJsonWithGlobalDate->getArrayFromDict("status", [])
     if statusFilter->isEmptyArray {
       enhancedFilterValueJson->Dict.set("status", exceptionStatusList->getJsonFromArrayOfString)
     }
@@ -92,7 +94,7 @@ let make = (~ruleId: string) => {
     goToPrevPage,
   } = ReconEngineCursorPaginationHook.useCursorPagination(
     ~fetchPage,
-    ~persistKey=`recon-engine-exception-transactions-${ruleId}`,
+    ~persistKey=Some(`recon-engine-exception-transactions-${ruleId}`),
   )
 
   let handleSearchSubmit = (selectedType: option<string>) => {
@@ -124,11 +126,11 @@ let make = (~ruleId: string) => {
   }, [])
 
   React.useEffect(() => {
-    if !(filterValue->isEmptyDict) {
+    if hasGlobalDateFilterValue(~globalDateFilters) {
       goToFirstPage()
     }
     None
-  }, (filterValue, sortOrder))
+  }, (filterValue, sortOrder, globalDateFilters))
 
   let urlPathString = url.path->List.toArray->Array.joinWith("/")
 
@@ -169,7 +171,7 @@ let make = (~ruleId: string) => {
         options=[]
         popupFilterFields=[]
         initialFixedFilters=[]
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+        defaultFilterKeys=[]
         tabNames=filterKeys
         key="ReconEngineExceptionTransactionFilters"
         updateUrlWith=customUpdateUrlWith

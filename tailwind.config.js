@@ -36,6 +36,7 @@ module.exports = {
         "dot-pattern-size": "16px 16px",
       },
       scale: {
+        78: "0.78",
         400: "4",
       },
       margin: {
@@ -79,6 +80,8 @@ module.exports = {
         "195-px": "195px",
         "344-px": "344px",
         "400-px": "400px",
+        "460-px": "460px",
+        "540-px": "540px",
         "590-px": "590px",
         "650-px": "650px",
         "700-px": "700px",
@@ -94,6 +97,7 @@ module.exports = {
       },
       minWidth: {
         "25-rem": "25rem",
+        "76-px": "76px",
       },
       maxHeight: {
         "15-rem": "15rem",
@@ -109,6 +113,7 @@ module.exports = {
       minHeight: {
         "500-px": "500px",
         "40-rem": "40rem",
+        "50-vh": "50vh",
         "80-vh": "80vh",
       },
       inset: {
@@ -159,6 +164,8 @@ module.exports = {
         "499-px": "499px",
         "540-px": "540px",
         "500-px": "500px",
+        "749-px": "749px",
+        "960-px": "960px",
         "1034-px": "1034px",
         "306-px": "306px",
         modalOverlay: "calc(100vw + 7rem)",
@@ -178,6 +185,7 @@ module.exports = {
         325: "325px",
         250: "250px",
         200: "200px",
+        "40-per": "40%",
       },
       lineHeight: {
         14: "14px",
@@ -514,6 +522,14 @@ module.exports = {
           200: "#F3E8FF",
           300: "#AD46FF",
           700: "#8200DB",
+        },
+        nd_pink: {
+          100: "#FCE7F3",
+          500: "#EC4899",
+        },
+        nd_teal: {
+          100: "#CCFBF1",
+          500: "#14B8A6",
         },
       },
       borderRadius: {

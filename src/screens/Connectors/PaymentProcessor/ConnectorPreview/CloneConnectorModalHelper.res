@@ -86,7 +86,7 @@ module CloneScopeSummary = {
           {"NOT INCLUDED"->React.string}
         </p>
         <div className="flex flex-wrap gap-2">
-          {["Wallets", "Bank debits"]
+          {["Bank debits"]
           ->Array.map(item =>
             <TagBinding
               key=item
@@ -101,7 +101,7 @@ module CloneScopeSummary = {
           ->React.array}
         </div>
         <p className={`${body.sm.regular} text-nd_gray-500`}>
-          {"These payment methods aren't copied. Enable them manually if needed."->React.string}
+          {"Bank debits require manual setup — they aren't included when cloning a connector."->React.string}
         </p>
       </div>
     </div>

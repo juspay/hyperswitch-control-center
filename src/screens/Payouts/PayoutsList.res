@@ -11,6 +11,7 @@ let make = () => {
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filters, setFilters) = React.useState(_ => None)
+  let (transactionViewStatuses, setTransactionViewStatuses) = React.useState(_ => [])
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Payouts")->Option.getOr(defaultValue)
@@ -99,9 +100,7 @@ let make = () => {
         </RenderIf>
       </div>
       <RenderIf condition={transactionView}>
-        <div className="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-3 grid-cols-2 gap-6 mb-8">
-          <TransactionView entity=TransactionViewTypes.Payouts />
-        </div>
+        <TransactionView entity=TransactionViewTypes.Payouts allStatuses=transactionViewStatuses />
       </RenderIf>
       <div className="flex justify-between gap-3">
         <div className="flex-1">
@@ -114,6 +113,13 @@ let make = () => {
             initialFilters
             initialFixedFilter
             setOffset
+            setRemoteFilterData={filterData =>
+              setTransactionViewStatuses(_ =>
+                filterData
+                ->getDictFromJsonObject
+                ->getArrayFromDict("status", [])
+                ->getStrArrayFromJsonArray
+              )}
             customLeftView={<SearchBarFilter
               placeholder="Search for payout ID" setSearchVal=setSearchText searchVal=searchText
             />}

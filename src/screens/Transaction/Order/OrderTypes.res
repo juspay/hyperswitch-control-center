@@ -22,10 +22,12 @@ type frmColType =
 type authenticationColType =
   | AuthenticationFlow
   | DsTransactionId
+  | ChallengeCancelCode
   | ElectronicCommerceIndicator
   | ErrorCode
   | ErrorMessage
   | Status
+  | TransStatusReason
   | Version
 
 type attemptColType =
@@ -175,6 +177,43 @@ type otherDetailsColType =
   | RequestExtendedAuth
   | HyperswitchErrorDescription
 
+type openSearchCsvColumn =
+  | CsvPaymentId
+  | CsvAttemptId
+  | CsvStatus
+  | CsvAmount
+  | CsvCurrency
+  | CsvConnector
+  | CsvConnectorTransactionId
+  | CsvAmountToCapture
+  | CsvCustomerId
+  | CsvCreatedAt
+  | CsvOrderDetails
+  | CsvErrorMessage
+  | CsvCaptureMethod
+  | CsvAuthenticationType
+  | CsvMandateId
+  | CsvPaymentMethod
+  | CsvPaymentMethodType
+  | CsvMetadata
+  | CsvSetupFutureUsage
+  | CsvStatementDescriptorName
+  | CsvDescription
+  | CsvOffSession
+  | CsvBusinessCountry
+  | CsvBusinessLabel
+  | CsvBusinessSubLabel
+  | CsvAllowedPaymentMethodTypes
+  | CsvPaymentMethodData
+  | CsvCardNetwork
+  | CsvFingerprintId
+  | CsvModifiedAt
+  | CsvErrorCode
+  | CsvPaymentMethodId
+  | CsvCardHolderName
+  | CsvMerchantOrderReferenceId
+  | CsvProfileId
+
 type optionObj = {
   urlKey: string,
   label: string,
@@ -232,32 +271,6 @@ type paymentListSource =
   | @as("Normal") Normal
   | @as("Advanced") Advanced
 
-type openSearchCsvColumn =
-  | CsvPaymentId
-  | CsvStatus
-  | CsvAmount
-  | CsvCurrency
-  | CsvConnector
-  | CsvPaymentMethod
-  | CsvPaymentMethodType
-  | CsvProfileId
-  | CsvMerchantId
-  | CsvCustomerId
-  | CsvActiveAttemptId
-  | CsvMerchantConnectorId
-  | CsvCardLast4
-  | CsvCardNetwork
-  | CsvCardIssuer
-  | CsvRefundsStatus
-  | CsvRefundsCount
-  | CsvDisputeStatus
-  | CsvDisputeCount
-  | CsvRoutingApproach
-  | CsvUnifiedCode
-  | CsvUnifiedMessage
-  | CsvCreated
-  | CsvModified
-
 type openSearchRefundStatus = [#partial_refunded | #full_refunded]
 
 type openSearchDisputeStatus = [
@@ -274,6 +287,8 @@ type openSearchDisputeStatus = [
 type unsupportedAdvancedPaymentFilter = [#unified_code | #unified_message]
 
 type hiddenAdvancedPaymentFilter = [#first_attempt]
+
+type advancedPaymentSearchParam = [#query]
 
 type advancedPaymentTextListFilter = [
   | #card_last_4

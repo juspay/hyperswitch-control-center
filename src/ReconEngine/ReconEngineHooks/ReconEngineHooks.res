@@ -16,7 +16,7 @@ let useGetIngestionHistory = () => {
       )
       let res = await fetchDetails(url)
       let ingestionHistory = res->getArrayDataFromJson(ingestionHistoryItemToObjMapper)
-      ingestionHistory->Array.sort((a, b) => compareLogic(a.created_at, b.created_at))
+      ingestionHistory->Array.sort((a, b) => compareLogic(b.created_at, a.created_at))
       ingestionHistory
     } catch {
     | _ => Exn.raiseError("Something went wrong")
@@ -53,9 +53,14 @@ let useGetCursorPage = (
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
 
-  async (~body: JSON.t): ReconEngineTypes.cursorPage<'item> => {
+  async (~body: JSON.t, ~id: option<string>=None): ReconEngineTypes.cursorPage<'item> => {
     try {
-      let url = getURL(~entityName=V1(HYPERSWITCH_RECON), ~methodType=Post, ~hyperswitchReconType)
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Post,
+        ~hyperswitchReconType,
+        ~id,
+      )
       let res = await updateDetails(url, body, Post)
       let dict = res->getDictFromJsonObject
       {
@@ -104,6 +109,26 @@ let useGetIngestionConfigs = () => {
       )
       let res = await fetchDetails(url)
       res->getArrayDataFromJson(ingestionConfigItemToObjMapper)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetTransformationConfigs = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~queryParameters=None) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#TRANSFORMATION_CONFIG,
+        ~queryParameters,
+      )
+      let res = await fetchDetails(url)
+      res->getArrayDataFromJson(transformationConfigItemToObjMapper)
     } catch {
     | _ => Exn.raiseError("Something went wrong")
     }
@@ -264,6 +289,25 @@ let useFetchMetadataSchema = () => {
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#TRANSFORMATION_CONFIG_WITH_METADATA,
+        ~id=Some(transformationId),
+      )
+      await fetchDetails(url)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useGetTransformationConfig = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~transformationId: string) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#TRANSFORMATION_CONFIG,
         ~id=Some(transformationId),
       )
       await fetchDetails(url)

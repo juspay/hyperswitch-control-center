@@ -199,11 +199,8 @@ module ApiKeyAddBtn = {
       <ApiEditModal showModal setShowModal initialValues getAPIKeyDetails />
       <ACLButton
         text="Create New API Key"
-        leftIcon={CustomIcon(
-          <Icon
-            name="plus" size=12 className="jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
-          />,
-        )}
+        leftIcon={CustomIcon(<Icon name="nd-plus" size={isMobileView ? 12 : 16} />)}
+        customIconMargin={isMobileView ? "ml-1 -mr-1" : "ml-3 -mr-1"}
         // TODO: Remove `MerchantDetailsManage` permission in future
         authorization={hasAnyGroupAccess(
           userHasAccess(~groupAccess=MerchantDetailsManage),
@@ -360,9 +357,8 @@ module ApiKeysTable = {
       let appendString = str => str->String.concat(String.repeat("*", 10))
 
       switch colType {
-      | Name =>
-        Table.CustomCell(<div className="whitespace-nowrap"> {item.name->React.string} </div>, "")
-      | Description => Text(item.description)
+      | Name => EllipsisText(item.name, "max-w-xs")
+      | Description => EllipsisText(item.description, "max-w-xs")
       | Prefix => Text(item.prefix->appendString)
       | Created => Date(item.created)
       | Expiration =>

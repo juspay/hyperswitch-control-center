@@ -32,6 +32,7 @@ let make = (~refreshTrigger=false) => {
         ->Dict.fromArray
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
         ~filterValueJson=dateRangeFilterValueJson,
+        ~convertToLocal=false,
       )
       let ingestionHistoryFetch = getIngestionHistory(~queryParameters=Some(queryString))
       let stagingEntriesOverviewFetch = getStagingEntriesOverview(
@@ -45,7 +46,7 @@ let make = (~refreshTrigger=false) => {
       setStagingOverviewData(_ => stagingOverviewData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
 
@@ -69,6 +70,7 @@ let make = (~refreshTrigger=false) => {
           prev->Array.includes(customFilterKey) ? prev : prev->Array.concat([customFilterKey])
         )
       }
+    | NavigateToPath(path) => RescriptReactRouter.push(path)
     | NoAction => ()
     }
   }
@@ -90,7 +92,7 @@ let make = (~refreshTrigger=false) => {
     switch card.pipelineStatCardClickAction {
     | ClearStatusFilter => activeStatusFilter->isEmptyString
     | SetStatusFilter(status) => activeStatusFilter == status
-    | NoAction => false
+    | NavigateToPath(_) | NoAction => false
     }
 
   <div

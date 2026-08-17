@@ -234,6 +234,22 @@ let useGetURL = () => {
         | _ => ""
         }
 
+      /* BLOCKLIST */
+      | BLOCKLIST_BATCH =>
+        switch methodType {
+        | Get =>
+          switch id {
+          | Some(jobId) => `blocklist/batch/${jobId}`
+          | None =>
+            switch queryParameters {
+            | Some(queryParams) => `blocklist/batch?${queryParams}`
+            | None => `blocklist/batch`
+            }
+          }
+        | Post => `blocklist/batch`
+        | _ => ""
+        }
+
       /* MERCHANT ACCOUNT DETAILS (Get and Post) */
       | MERCHANT_ACCOUNT => `accounts/${merchantId}`
 
@@ -532,7 +548,11 @@ let useGetURL = () => {
         switch methodType {
         | Get =>
           switch id {
-          | Some(payout_id) => `payouts/${payout_id}`
+          | Some(payout_id) =>
+            switch queryParameters {
+            | Some(queryParams) => `payouts/${payout_id}?${queryParams}`
+            | None => `payouts/${payout_id}`
+            }
           | None =>
             switch transactionEntity {
             | #Merchant => `payouts/list?limit=100`
@@ -820,8 +840,8 @@ let useGetURL = () => {
         switch methodType {
         | Post =>
           switch transactionEntity {
-          | #Merchant => `analytics/v1/payments/list`
-          | #Profile => `analytics/v1/profile/payments/list`
+          | #Merchant => `payments/advanced/list`
+          | #Profile => `payments/profile/advanced/list`
           | _ => `payments/list`
           }
 
@@ -1209,10 +1229,10 @@ let useGetURL = () => {
           }
         | #LINKABLE_STAGING_ENTRIES =>
           switch methodType {
-          | Get =>
+          | Post =>
             switch id {
             | Some(transactionId) =>
-              `${reconBaseURL}/exception_management/transactions/${transactionId}/linkable_staging_entries`
+              `${reconBaseURL}/exception_management/transactions/${transactionId}/linkable_staging_entries/v2/list`
             | None => ``
             }
           | _ => ""

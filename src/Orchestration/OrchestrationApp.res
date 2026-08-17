@@ -105,6 +105,12 @@ let make = (~setScreenState) => {
         isEnabled={!checkUserEntity([#Profile])}>
         <KeyManagement />
       </AccessControl>
+    | list{"blocklist"} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.devBlocklist}
+        authorization={userHasAccess(~groupAccess=AccountManage)}>
+        <Blocklist />
+      </AccessControl>
     | list{"compliance"} =>
       <AccessControl isEnabled=featureFlagDetails.complianceCertificate authorization=Access>
         <Compliance />
@@ -188,6 +194,12 @@ let make = (~setScreenState) => {
           userHasAccess(~groupAccess=AccountView),
         )}>
         <ChatBot />
+      </AccessControl>
+    | list{"configuration-management", ...remainingPath} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.devSuperposition}
+        authorization={userHasAccess(~groupAccess=ConfigurationsView)}>
+        <SuperpositionApp remainingPath />
       </AccessControl>
     | _ => <EmptyPage path="/home" />
     }

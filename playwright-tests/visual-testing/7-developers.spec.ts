@@ -194,14 +194,13 @@ test.describe("Visual Testing - Developers", () => {
         .getByRole("textbox", { name: "e.g. Demo Merchant" })
         .fill("Hyperswitch");
       await page
-        .getByRole('textbox', { name: 'e.g. 00004500000' })
+        .getByRole("textbox", { name: "e.g. 00004500000" })
         .fill("12345678");
       await page.getByRole("button", { name: "Select Network" }).click();
+      await page.getByRole("menuitem", { name: "Visa" }).click();
       await page
-        .getByRole('menuitem', { name: 'Visa' })
-        .click();
-      await page
-        .getByRole('spinbutton', { name: 'e.g.' }).first()
+        .getByRole("spinbutton", { name: "e.g." })
+        .first()
         .fill("12345678");
       await page.getByRole("button", { name: "Save" }).click();
 
@@ -305,7 +304,7 @@ test.describe("Visual Testing - Developers", () => {
         fullPage: true,
         animations: "disabled",
         maxDiffPixelRatio: 0.01,
-        mask: [webhooks.dateRangeFilter],
+        mask: [webhooks.dateRangePresetSelector, webhooks.dateRangeFilter],
       });
     });
 
@@ -389,7 +388,7 @@ test.describe("Visual Testing - Developers", () => {
           fullPage: true,
           animations: "disabled",
           maxDiffPixelRatio: 0.01,
-          mask: [webhooks.dateRangeFilter],
+          mask: [webhooks.dateRangePresetSelector, webhooks.dateRangeFilter],
         },
       );
 

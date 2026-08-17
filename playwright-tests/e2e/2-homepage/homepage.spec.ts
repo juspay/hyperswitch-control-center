@@ -13,7 +13,6 @@ import {
   createBusinessProfileAPI,
   createMerchantAPI,
   switchMerchantAPI,
-  createStripeGooglePayConnectorAPI,
 } from "../../support/commands";
 import UsersPage from "../../support/pages/settings/UsersPage";
 
@@ -21,7 +20,7 @@ const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 let email = "";
 
 test.describe("Homepage", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
 
@@ -30,6 +29,7 @@ test.describe("Homepage", () => {
       const json = await response.json();
       if (json && json.features) {
         json.features.global_search = true;
+        json.features.dev_blocklist = true;
       }
       await route.fulfill({ response, json });
     });
@@ -245,6 +245,10 @@ test.describe("Homepage", () => {
     await homePage.webhooks.click();
     await expect(page).toHaveURL(/.*dashboard\/webhooks/);
 
+    await expect(homePage.blocklist).toBeVisible();
+    await homePage.blocklist.click();
+    await expect(page).toHaveURL(/.*dashboard\/blocklist/);
+
     await expect(homePage.settings).toBeVisible();
     await homePage.settings.click();
     await expect(homePage.configurePMT).toBeVisible();
@@ -404,7 +408,29 @@ test.describe("DefaultHome product cards", () => {
       .getByRole("button", { name: "Learn More" })
       .click();
 
+    await expect(page).toHaveURL(/.*dashboard\/home/);
+
+    // Product Cost Observability: Learn More navigates to /dashboard/home
+    await homePage.homeV2.click();
     await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
+
+    await homePage
+      .productCard("Cost Observability")
+      .getByRole("button", { name: "Learn More" })
+      .click();
+
+    await expect(page).toHaveURL(/.*dashboard\/v2\/cost-observability\/home/);
+
+    // Product Orchestrator: Learn More navigates to /dashboard/home
+    await homePage.homeV2.click();
+    await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
+
+    await homePage
+      .productCard("Orchestrator")
+      .getByRole("button", { name: "Learn More" })
+      .click();
+
+    await expect(page).toHaveURL(/.*dashboard\/home/);
   });
 });
 
@@ -469,7 +495,7 @@ test.describe("Live Mode and Test mode Behavior", () => {
 });
 
 test.describe("Production access form", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -670,8 +696,8 @@ test.describe("SDK Payment", () => {
         .filter({ hasText: /^Color Picker Input$/ })
         .nth(1),
     ).toBeVisible();
-    await expect(page.getByRole("textbox", { name: "#FFFFFF" })).toBeVisible();
-    await expect(page.getByRole("textbox", { name: "#FFFFFF" })).toHaveValue(
+    await expect(page.getByRole("textbox", { name: "#006DF9" })).toBeVisible();
+    await expect(page.getByRole("textbox", { name: "#006DF9" })).toHaveValue(
       "#006DF9",
     );
     await expect(
@@ -709,7 +735,7 @@ test.describe("SDK Payment", () => {
 
   test.fixme("should make a successful payment using SDK", async ({
     page,
-    context,
+    context: _context,
   }) => {
     const homePage = new HomePage(page);
 
@@ -887,6 +913,36 @@ test.describe("Organization Chart Tree", () => {
     );
   });
 
+  test("should display organization hierarchy information for standard and platform organizations", async ({
+    page,
+  }) => {
+    const orgChart = new OrganizationChartPage(page);
+    await orgChart.visit();
+
+    await expect(orgChart.learnMoreButton).toBeVisible();
+    await orgChart.learnMoreButton.click();
+
+    await expect(orgChart.infoModalHeading).toBeVisible();
+    await expect(orgChart.infoModalDescription).toBeVisible();
+    await expect(orgChart.standardOrganizationsTab).toBeVisible();
+    await expect(orgChart.platformOrganizationsTab).toBeVisible();
+
+    await expect(orgChart.standardOrganizationDiagram).toBeVisible();
+    await expect(orgChart.firstStandardMerchantAccount).toBeVisible();
+    await expect(orgChart.secondStandardMerchantAccount).toBeVisible();
+
+    await orgChart.platformOrganizationsTab.click();
+
+    await expect(orgChart.platformOrganizationDiagram).toBeVisible();
+    await expect(orgChart.platformMerchantAccount).toBeVisible();
+    await expect(orgChart.connectedMerchantAccounts).toBeVisible();
+    await expect(orgChart.connectedProfiles).toBeVisible();
+    await expect(orgChart.standardMerchantAccount).toBeVisible();
+
+    await orgChart.infoModalCloseIcon.click();
+    await expect(orgChart.infoModalHeading).not.toBeVisible();
+  });
+
   test("should render chart with newly created merchant and profile highlighting selected options", async ({
     page,
     context,
@@ -954,8 +1010,12 @@ test.describe("Organization Chart Tree", () => {
 
     // 1st Merchant - Profile
     await expect(merchantOneProfileName).toBeVisible();
-    await expect(merchantOneProfileName).toHaveClass(/border-nd_primary_blue-600/);
-    await expect(merchantOneProfileName).toHaveClass(/text-nd_primary_blue-600/);
+    await expect(merchantOneProfileName).toHaveClass(
+      /border-nd_primary_blue-600/,
+    );
+    await expect(merchantOneProfileName).toHaveClass(
+      /text-nd_primary_blue-600/,
+    );
 
     //Switch merchant
     await merchantTwoName.click();
@@ -982,8 +1042,12 @@ test.describe("Organization Chart Tree", () => {
     await expect(merchantOneProfileName).toHaveClass(/text-nd_gray-600/);
 
     await expect(merchantTwoProfileTwoName).toBeVisible();
-    await expect(merchantTwoProfileTwoName).toHaveClass(/border-nd_primary_blue-600/);
-    await expect(merchantTwoProfileTwoName).toHaveClass(/text-nd_primary_blue-600/);
+    await expect(merchantTwoProfileTwoName).toHaveClass(
+      /border-nd_primary_blue-600/,
+    );
+    await expect(merchantTwoProfileTwoName).toHaveClass(
+      /text-nd_primary_blue-600/,
+    );
 
     //Switch profile to "default"
     await merchantOneProfileName.click();
@@ -1005,8 +1069,12 @@ test.describe("Organization Chart Tree", () => {
 
     // "default" is now selected
     await expect(merchantOneProfileName).toBeVisible();
-    await expect(merchantOneProfileName).toHaveClass(/border-nd_primary_blue-600/);
-    await expect(merchantOneProfileName).toHaveClass(/text-nd_primary_blue-600/);
+    await expect(merchantOneProfileName).toHaveClass(
+      /border-nd_primary_blue-600/,
+    );
+    await expect(merchantOneProfileName).toHaveClass(
+      /text-nd_primary_blue-600/,
+    );
 
     // "new-test-profile" is now unselected
     await expect(merchantTwoProfileTwoName).toBeVisible();

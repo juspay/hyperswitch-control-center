@@ -54,9 +54,9 @@ type featureFlag = {
   devIntelligentRoutingV2: bool,
   googlePayDirectFlow: bool,
   devWebhooks: bool,
+  devBlocklist: bool,
   sampleDataAnalytics: bool,
   threedsExemptionRules: bool,
-  paymentSettingsRevamped: bool,
   acquirerConfigSettings: bool,
   exploreRecipes: bool,
   devOrchestrationV2Product: bool,
@@ -77,6 +77,7 @@ type featureFlag = {
   devUsers: bool,
   allowConnectedMerchants: bool,
   devOpensearch: bool,
+  devAdvancedPaymentsView: bool,
   devVault: bool,
   networkTokenization: bool,
   vaultPspTokenization: bool,
@@ -87,6 +88,8 @@ type featureFlag = {
   devClickhouseAggregate: bool,
   connectorClone: bool,
   sendV1DummyApiKeyHeader: bool,
+  cugUser: bool,
+  devSuperposition: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -143,6 +146,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devIntelligentRoutingV2: dict->getBool("dev_intelligent_routing_v2", false),
     googlePayDirectFlow: dict->getBool("google_pay_direct_flow", false),
     devWebhooks: dict->getBool("dev_webhooks", false),
+    devBlocklist: dict->getBool("dev_blocklist", false),
     sampleDataAnalytics: dict->getBool("sample_data_analytics", false),
     acquirerConfigSettings: dict->getBool("acquirer_config_settings", false),
     exploreRecipes: dict->getBool("explore_recipes", false),
@@ -165,8 +169,8 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devUsers: dict->getBool("dev_users", false),
     allowConnectedMerchants: dict->getBool("allow_connected_merchants", false),
     devOpensearch: dict->getBool("dev_opensearch", false),
+    devAdvancedPaymentsView: dict->getBool("dev_advanced_payments_view", false),
     devVault: dict->getBool("dev_vault", false),
-    paymentSettingsRevamped: dict->getBool("payment_settings_revamped", false),
     networkTokenization: dict->getBool("network_tokenization", false),
     vaultPspTokenization: dict->getBool("vault_psp_tokenization", false),
     devBlendEnabled: dict->getBool("dev_blend_enabled", false),
@@ -176,6 +180,8 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devClickhouseAggregate: dict->getBool("dev_clickhouse_aggregate", false),
     connectorClone: dict->getBool("connector_clone", false),
     sendV1DummyApiKeyHeader,
+    cugUser: dict->getBool("cug_user", false),
+    devSuperposition: dict->getBool("dev_superposition", false),
   }
 }
 

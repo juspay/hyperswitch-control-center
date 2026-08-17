@@ -129,25 +129,25 @@ let operations = (
     : emptyComponent
 }
 
-let paymentProcessor = (isLiveMode, userHasResourceAccess, ~paymentProcessorsLiveList) => {
+let paymentProcessor = (userHasResourceAccess, ~paymentProcessorsList) => {
   SubLevelLink({
     name: "Payment Processors",
     link: `/connectors`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: getSearchOptionsForProcessors(
-      ~processorList=isLiveMode ? paymentProcessorsLiveList : connectorList,
+      ~processorList=paymentProcessorsList,
       ~getNameFromString=getConnectorNameString,
     ),
   })
 }
 
-let payoutConnectors = (~isLiveMode, ~userHasResourceAccess, ~payoutProcessorsLiveList) => {
+let payoutConnectors = (~userHasResourceAccess, ~payoutProcessorsList) => {
   SubLevelLink({
     name: "Payout Processors",
     link: `/payoutconnectors`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: getSearchOptionsForProcessors(
-      ~processorList=isLiveMode ? payoutProcessorsLiveList : payoutConnectorList,
+      ~processorList=payoutProcessorsList,
       ~getNameFromString=getConnectorNameString,
     ),
   })
@@ -162,77 +162,73 @@ let fraudAndRisk = (~userHasResourceAccess) => {
   })
 }
 
-let threeDsConnector = (
-  ~isLiveMode,
-  ~userHasResourceAccess,
-  ~threeDsAuthenticatorProcessorsLiveList,
-) => {
+let threeDsConnector = (~userHasResourceAccess, ~threeDsAuthenticatorProcessorsList) => {
   SubLevelLink({
     name: "3DS Authenticators",
     link: "/3ds-authenticators",
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: getSearchOptionsForProcessors(
-      ~processorList=isLiveMode ? threeDsAuthenticatorProcessorsLiveList : threedsAuthenticatorList,
+      ~processorList=threeDsAuthenticatorProcessorsList,
       ~getNameFromString=getConnectorNameString,
     ),
   })
 }
 
-let pmAuthenticationProcessor = (~userHasResourceAccess) => {
+let pmAuthenticationProcessor = (~userHasResourceAccess, ~pmAuthProcessorsList) => {
   SubLevelLink({
     name: "PM Auth Processor",
     link: `/pm-authentication-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: getSearchOptionsForProcessors(
-      ~processorList=pmAuthenticationConnectorList,
+      ~processorList=pmAuthProcessorsList,
       ~getNameFromString=getConnectorNameString,
     ),
   })
 }
 
-let taxProcessor = (~userHasResourceAccess) => {
+let taxProcessor = (~userHasResourceAccess, ~taxProcessorsList) => {
   SubLevelLink({
     name: "Tax Processor",
     link: `/tax-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: getSearchOptionsForProcessors(
-      ~processorList=taxProcessorList,
+      ~processorList=taxProcessorsList,
       ~getNameFromString=getConnectorNameString,
     ),
   })
 }
 
-let billingProcessor = (~userHasResourceAccess) => {
+let billingProcessor = (~userHasResourceAccess, ~billingProcessorsList) => {
   SubLevelLink({
     name: "Billing Processor",
     link: `/billing-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: getSearchOptionsForProcessors(
-      ~processorList=billingProcessorList,
+      ~processorList=billingProcessorsList,
       ~getNameFromString=getConnectorNameString,
     ),
   })
 }
 
-let vaultProcessor = (~isLiveMode, ~userHasResourceAccess, ~vaultProcessorsLiveList) => {
+let vaultProcessor = (~userHasResourceAccess, ~vaultProcessorsList) => {
   SubLevelLink({
     name: "Vault Processor",
     link: `/vault-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: getSearchOptionsForProcessors(
-      ~processorList=isLiveMode ? vaultProcessorsLiveList : vaultProcessorList,
+      ~processorList=vaultProcessorsList,
       ~getNameFromString=getConnectorNameString,
     ),
   })
 }
 
-let surchargeProcessor = (~userHasResourceAccess) => {
+let surchargeProcessor = (~userHasResourceAccess, ~surchargeProcessorsList) => {
   SubLevelLink({
     name: "Surcharge Processor",
     link: `/surcharge-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: getSearchOptionsForProcessors(
-      ~processorList=surchargeProcessorList,
+      ~processorList=surchargeProcessorsList,
       ~getNameFromString=getConnectorNameString,
     ),
   })
@@ -240,7 +236,6 @@ let surchargeProcessor = (~userHasResourceAccess) => {
 
 let connectors = (
   isConnectorsEnabled,
-  ~isLiveMode,
   ~isFrmEnabled,
   ~isPayoutsEnabled,
   ~isThreedsConnectorEnabled,
@@ -252,39 +247,33 @@ let connectors = (
   ~userHasResourceAccess,
   ~isCurrentMerchantPlatform,
   ~isCurrentMerchantConnected,
-  ~connectorListForLive: ConnectorListForLiveFromConfigTypes.connectorListForLive,
+  ~connectorDisplayList: ConnectorListFromConfigTypes.connectorDisplayList,
 ) => {
   let {
-    paymentProcessorsLiveList,
-    payoutProcessorsLiveList,
-    threeDsAuthenticatorProcessorsLiveList,
-    vaultProcessorsLiveList,
-  } = connectorListForLive
+    paymentProcessorsList,
+    payoutProcessorsList,
+    threeDsAuthenticatorProcessorsList,
+    vaultProcessorsList,
+    pmAuthProcessorsList,
+    billingProcessorsList,
+    surchargeProcessorsList,
+    taxProcessorsList,
+  } = connectorDisplayList
   let connectorLinkArray = if isCurrentMerchantPlatform {
     let links = []
     if isVaultProcessor {
-      links
-      ->Array.push(vaultProcessor(~isLiveMode, ~userHasResourceAccess, ~vaultProcessorsLiveList))
-      ->ignore
+      links->Array.push(vaultProcessor(~userHasResourceAccess, ~vaultProcessorsList))->ignore
     }
     links
   } else {
-    let links = [paymentProcessor(isLiveMode, userHasResourceAccess, ~paymentProcessorsLiveList)]
+    let links = [paymentProcessor(userHasResourceAccess, ~paymentProcessorsList)]
 
     if isPayoutsEnabled {
-      links
-      ->Array.push(payoutConnectors(~isLiveMode, ~userHasResourceAccess, ~payoutProcessorsLiveList))
-      ->ignore
+      links->Array.push(payoutConnectors(~userHasResourceAccess, ~payoutProcessorsList))->ignore
     }
     if isThreedsConnectorEnabled {
       links
-      ->Array.push(
-        threeDsConnector(
-          ~isLiveMode,
-          ~userHasResourceAccess,
-          ~threeDsAuthenticatorProcessorsLiveList,
-        ),
-      )
+      ->Array.push(threeDsConnector(~userHasResourceAccess, ~threeDsAuthenticatorProcessorsList))
       ->ignore
     }
 
@@ -293,24 +282,26 @@ let connectors = (
     }
 
     if isPMAuthenticationProcessor {
-      links->Array.push(pmAuthenticationProcessor(~userHasResourceAccess))->ignore
+      links
+      ->Array.push(pmAuthenticationProcessor(~userHasResourceAccess, ~pmAuthProcessorsList))
+      ->ignore
     }
 
     if isTaxProcessor {
-      links->Array.push(taxProcessor(~userHasResourceAccess))->ignore
+      links->Array.push(taxProcessor(~userHasResourceAccess, ~taxProcessorsList))->ignore
     }
     if isBillingProcessor {
-      links->Array.push(billingProcessor(~userHasResourceAccess))->ignore
+      links->Array.push(billingProcessor(~userHasResourceAccess, ~billingProcessorsList))->ignore
     }
 
     if isSurchargeProcessor {
-      links->Array.push(surchargeProcessor(~userHasResourceAccess))->ignore
+      links
+      ->Array.push(surchargeProcessor(~userHasResourceAccess, ~surchargeProcessorsList))
+      ->ignore
     }
 
     if isVaultProcessor && !isCurrentMerchantConnected {
-      links
-      ->Array.push(vaultProcessor(~isLiveMode, ~userHasResourceAccess, ~vaultProcessorsLiveList))
-      ->ignore
+      links->Array.push(vaultProcessor(~userHasResourceAccess, ~vaultProcessorsList))->ignore
     }
     links
   }
@@ -556,8 +547,7 @@ let organizationSettings = (userHasAccess, checkUserEntity) => {
     name: "Organization Settings",
     link: `/organization-settings`,
     access: {
-      userHasAccess(~groupAccess=AccountManage) == CommonAuthTypes.Access &&
-        checkUserEntity([#Organization])
+      userHasAccess(~groupAccess=AccountManage) == Access && checkUserEntity([#Organization])
         ? Access
         : NoAccess
     },
@@ -590,7 +580,7 @@ let settings = (
     ->Array.push(ThemeSidebarValues.themeSublevelLinks(~userHasResourceAccess))
     ->ignore
   }
-  if userHasAccess(~groupAccess=AccountManage) == CommonAuthTypes.Access {
+  if userHasAccess(~groupAccess=AccountManage) == Access {
     settingsLinkArray->Array.push(organizationSettings(userHasAccess, checkUserEntity))->ignore
   }
   if !(devUsers && devModularityV2Enabled) {
@@ -633,6 +623,15 @@ let webhooks = userHasResourceAccess => {
   })
 }
 
+let blocklist = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Blocklist",
+    link: `/blocklist`,
+    access: userHasResourceAccess(~resourceAccess=Account),
+    searchOptions: [("View blocklist", ""), ("Upload blocklist CSV", "")],
+  })
+}
+
 let paymentLinkTheme = {
   SubLevelLink({
     name: "Payment Link Theme",
@@ -645,7 +644,9 @@ let paymentLinkTheme = {
 let developers = (
   isDevelopersEnabled,
   ~isWebhooksEnabled,
+  ~isBlocklistEnabled,
   ~userHasResourceAccess,
+  ~userHasAccess,
   ~checkUserEntity,
   ~paymentLinkThemeConfigurator,
   ~isCurrentMerchantPlatform,
@@ -653,6 +654,7 @@ let developers = (
   let apiKeys = apiKeys(userHasResourceAccess)
   let webhooks = webhooks(userHasResourceAccess)
   let paymentSettings = paymentSettings(userHasResourceAccess)
+  let blocklist = blocklist(userHasResourceAccess)
 
   let links = if isCurrentMerchantPlatform {
     [paymentSettings, apiKeys, webhooks]
@@ -666,6 +668,9 @@ let developers = (
     }
     if isWebhooksEnabled {
       defaultDevelopersOptions->Array.push(webhooks)
+    }
+    if isBlocklistEnabled && userHasAccess(~groupAccess=AccountManage) == Access {
+      defaultDevelopersOptions->Array.push(blocklist)
     }
     if paymentLinkThemeConfigurator {
       defaultDevelopersOptions->Array.push(paymentLinkTheme)
@@ -682,3 +687,47 @@ let developers = (
       })
     : emptyComponent
 }
+
+let superpositionDefaultConfigs = userHasResourceAccess => SubLevelLink({
+  name: "Default Configs",
+  link: "/configuration-management/default-config",
+  access: userHasResourceAccess(~resourceAccess=SuperpositionConfigs),
+  searchOptions: [("View default configurations", "")],
+})
+
+let superpositionOverrides = userHasResourceAccess => SubLevelLink({
+  name: "Overrides",
+  link: "/configuration-management/overrides",
+  access: userHasResourceAccess(~resourceAccess=SuperpositionConfigs),
+  searchOptions: [("View context overrides", "")],
+})
+
+let superpositionDimensions = userHasResourceAccess => SubLevelLink({
+  name: "Dimensions",
+  link: "/configuration-management/dimensions",
+  access: userHasResourceAccess(~resourceAccess=SuperpositionConfigs),
+  searchOptions: [("View dimensions", "")],
+})
+
+let superpositionAuditLog = userHasResourceAccess => SubLevelLink({
+  name: "Audit Log",
+  link: "/configuration-management/audit",
+  access: userHasResourceAccess(~resourceAccess=SuperpositionConfigs),
+  searchOptions: [("View audit log", "")],
+})
+
+let superposition = (~userHasResourceAccess, ~isEnabled) =>
+  isEnabled
+    ? Section({
+        name: "Configuration Management",
+        icon: "nd-settings",
+        showSection: true,
+        links: [
+          superpositionDefaultConfigs(userHasResourceAccess),
+          superpositionOverrides(userHasResourceAccess),
+          superpositionDimensions(userHasResourceAccess),
+          superpositionAuditLog(userHasResourceAccess),
+        ],
+        selectedIcon: "nd-settings-fill",
+      })
+    : emptyComponent

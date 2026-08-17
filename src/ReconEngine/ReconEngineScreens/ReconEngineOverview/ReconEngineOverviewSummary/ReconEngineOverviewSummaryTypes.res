@@ -124,11 +124,16 @@ type statCardsTitle =
   | @as("Expected Value") ExpectedValue
   | @as("Matched Amount") MatchedAmountValue
 
+type statCardDescriptionType =
+  | DescriptionText(string)
+  | MatchedOutOf(int, int)
+  | CountWithText(int, string)
+
 type statCardData = {
   statCardTitle: statCardsTitle,
   statCardValue: valueType,
   statCardIcon: Button.iconType,
-  statCardDescription: string,
+  statCardDescription: statCardDescriptionType,
   statCardType: statCardType,
   statCardPath: option<string>,
 }

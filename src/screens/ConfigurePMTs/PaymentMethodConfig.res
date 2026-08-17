@@ -36,6 +36,7 @@ module PmtConfigInp = {
       buttonText="Select Value"
       input
       options
+      showSelectAll=true
       hideMultiSelectButtons=true
       showSelectionAsChips={false}
       customButtonStyle="w-full"
