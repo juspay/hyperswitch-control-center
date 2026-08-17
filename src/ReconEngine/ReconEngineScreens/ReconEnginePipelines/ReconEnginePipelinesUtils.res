@@ -607,6 +607,28 @@ let formatDuration = (startIso: string, endIso: string): string => {
   }
 }
 
+let isReportDownloadable = (status: ingestionTransformationStatusType): bool =>
+  switch status {
+  | Processed => true
+  | _ => false
+  }
+
+let reportFormatFileType = (format: reportFormat): string =>
+  switch format {
+  | Csv => "text/csv"
+  }
+
+let getTransformationReportFileName = (
+  ~transformation: transformationHistoryType,
+  ~format: reportFormat,
+): string => {
+  let sanitizedName =
+    transformation.transformation_name
+    ->String.replaceRegExp(%re("/[^a-zA-Z0-9-_]+/g"), "_")
+    ->String.toLowerCase
+  `${sanitizedName}_report.${(format :> string)}`
+}
+
 let entryFieldTarget = (field: entryField): string =>
   switch field {
   | Metadata(key) => `metadata.${key}`

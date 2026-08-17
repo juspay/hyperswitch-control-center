@@ -1247,6 +1247,16 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #DOWNLOAD_TRANSFORMATION_REPORT =>
+          switch methodType {
+          | Get =>
+            switch (id, queryParameters) {
+            | (Some(transformationHistoryId), Some(reportFormat)) =>
+              `${reconBaseURL}/transformations/history/${transformationHistoryId}/reports/${reportFormat}`
+            | _ => ``
+            }
+          | _ => ""
+          }
         | #AUDIT_TRAIL =>
           switch methodType {
           | Get =>
