@@ -82,7 +82,7 @@ module SampleEmail = {
     <div className="flex flex-col">
       <span className="mt-2 text-base  font-normal">
         <span className="text-hyperswitch_black opacity-50">
-          {"Since the Apple Pay Web Domain flow involves decryption at Hyperswitch, you would need to write to Stripe support (support@stripe.com) to get this feature enabled for your Stripe account. You can use the following text in the email, attach our"->React.string}
+          {"Since the Apple Pay Web Domain flow involves decryption at Rezolve, you would need to write to Stripe support (support@stripe.com) to get this feature enabled for your Stripe account. You can use the following text in the email, attach our"->React.string}
         </span>
         <Link
           to_={`/compliance`}

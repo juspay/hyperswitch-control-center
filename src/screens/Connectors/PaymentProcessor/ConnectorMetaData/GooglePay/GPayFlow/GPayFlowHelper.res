@@ -13,7 +13,7 @@ module DirectFlowLandingCard = {
         isSelected={googlePayIntegrationType === #direct}
         customCardHeaderStyle={`border rounded-md !bg-white ${shadowClass}`}>
         <div className={`${body.md.medium}  text-nd_gray-400 mt-2`}>
-          {"Google Pay Decryption at Hyperswitch: Unlock from PSP dependency."->React.string}
+          {"Google Pay Decryption at Rezolve: Unlock from PSP dependency."->React.string}
         </div>
         <div className="flex gap-2 mt-4">
           <CustomTag tagText="For Web & Mobile" tagSize=4 tagLeftIcon=Some("ellipse-green") />

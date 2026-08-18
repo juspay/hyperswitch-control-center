@@ -493,7 +493,7 @@ let make = (
       <div className="bg-jp-gray-light_gray_bg flex py-4 px-10 gap-2">
         <img alt="paypal" src="/assets/PayPalFullLogo.svg" />
         <p className=p2RedularTextClass>
-          {"| Hyperswitch is PayPal's trusted partner, your credentials are secure & never stored with us."->React.string}
+          {"| Rezolve is PayPal's trusted partner, your credentials are secure & never stored with us."->React.string}
         </p>
       </div>
     </PageLoaderWrapper>
