@@ -1,28 +1,28 @@
 {
   "settings": {
     "colors": {
-      "primary": "#006DF9"
+      "primary": "#5A8AC3"
     },
     "sidebar": {
-      "primary": "#FCFCFD",
-      "textColor": "#525866",
-      "textColorPrimary": "#1C6DEA"
+      "primary": "#5A8AC3",
+      "textColor": "#DCE7F4",
+      "textColorPrimary": "#FFFFFF"
     },
     "buttons": {
       "primary": {
-        "backgroundColor": "#1272f9",
-        "textColor": "#ffffff",
-        "hoverBackgroundColor": "#0860dd"
+        "backgroundColor": "#5A8AC3",
+        "textColor": "#FFFFFF",
+        "hoverBackgroundColor": "#4A76A8"
       },
       "secondary": {
-        "backgroundColor": "#f3f3f3",
-        "textColor": "#626168",
-        "hoverBackgroundColor": "#fcfcfd"
+        "backgroundColor": "#F2F3F5",
+        "textColor": "#5A8AC3",
+        "hoverBackgroundColor": "#E3E5E9"
       }
     }
   },
   "urls": {
-    "faviconUrl": "",
-    "logoUrl": ""
+    "faviconUrl": "https://app.rezolvepayments.online/demo-merchant-icons/favicon_rzl.png",
+    "logoUrl": "https://app.rezolvepayments.online/demo-merchant-icons/rzl_logo.png"
   }
 }
