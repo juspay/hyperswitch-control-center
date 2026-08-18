@@ -25,24 +25,32 @@ let make = () => {
 
   let usCertificateUrl = Window.env.dssCertificateUsUrl->Option.getOr("")
   let euCertificateUrl = Window.env.dssCertificateEuUrl->Option.getOr("")
+  let hasCertificates = usCertificateUrl->isNonEmptyString || euCertificateUrl->isNonEmptyString
 
   <div className="flex flex-col gap-12">
     <PageUtils.PageHeading
       title="Compliance" subTitle="Achieve and Maintain Industry Compliance Standards"
     />
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
-      <RenderIf condition={usCertificateUrl->isNonEmptyString}>
-        <DownloadCertificateTile
-          header="Hyperswitch's PCI Attestation of Compliance (US)"
-          onClick={_ => usCertificateUrl->Window._open}
-        />
-      </RenderIf>
-      <RenderIf condition={euCertificateUrl->isNonEmptyString}>
-        <DownloadCertificateTile
-          header="Hyperswitch's PCI Attestation of Compliance (EU)"
-          onClick={_ => euCertificateUrl->Window._open}
-        />
-      </RenderIf>
-    </div>
+    <RenderIf condition={hasCertificates}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
+        <RenderIf condition={usCertificateUrl->isNonEmptyString}>
+          <DownloadCertificateTile
+            header="Hyperswitch's PCI Attestation of Compliance (US)"
+            onClick={_ => usCertificateUrl->Window._open}
+          />
+        </RenderIf>
+        <RenderIf condition={euCertificateUrl->isNonEmptyString}>
+          <DownloadCertificateTile
+            header="Hyperswitch's PCI Attestation of Compliance (EU)"
+            onClick={_ => euCertificateUrl->Window._open}
+          />
+        </RenderIf>
+      </div>
+    </RenderIf>
+    <RenderIf condition={!hasCertificates}>
+      <NoDataFound
+        message="No compliance certificates are available at the moment. Please contact support if you need access."
+      />
+    </RenderIf>
   </div>
 }
