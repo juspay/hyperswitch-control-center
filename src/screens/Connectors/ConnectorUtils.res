@@ -2157,7 +2157,7 @@ let onSubmit = async (
 }
 
 let getWebhooksUrl = (~connectorName, ~merchantId) => {
-  `${Window.env.apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
+  `${APIUtilsTypes.getBaseUrl(OLTP)}/webhooks/${merchantId}/${connectorName}`
 }
 
 let itemToPMAuthMapper = dict => {

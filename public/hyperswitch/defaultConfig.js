@@ -6,5 +6,9 @@ window._env_ = {
   },
   endpoints: {
     api_url: "",
+    oltp_prefix: "",
+    olap_prefix: "",
+    recon_prefix: "hyperswitch-recon-engine",
+    revenue_recovery_prefix: "revenue-recovery-demo",
   },
 };

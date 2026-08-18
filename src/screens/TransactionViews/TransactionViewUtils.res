@@ -1,6 +1,7 @@
 open TransactionViewTypes
 open LogicUtils
 open OrderUIUtils
+open APIUtilsTypes
 let paymentViewsArray: array<viewTypes> = [
   All,
   Succeeded,
@@ -135,16 +136,15 @@ let getMetricsScope = transactionEntity =>
 
 let buildAggregateMetricsUrl = (~metricConfig, ~transactionEntity) => {
   let scope = transactionEntity->getMetricsScope
-  `${Window.env.apiBaseUrl}/${metricConfig.urlPrefix}/${scope}/metrics/${metricConfig.domain}`
+  `${getBaseUrl(OLAP)}/${metricConfig.urlPrefix}/${scope}/metrics/${metricConfig.domain}`
 }
 
 let buildSankeyMetricsUrl = transactionEntity => {
   let scope = transactionEntity->getMetricsScope
-  `${Window.env.apiBaseUrl}/analytics/v1/${scope}/metrics/sankey`
+  `${getBaseUrl(OLAP)}/analytics/v1/${scope}/metrics/sankey`
 }
 
 let getEntityName = (~entity: operationsTypes, ~version: UserInfoTypes.version) => {
-  open APIUtilsTypes
   switch entity {
   | Orders =>
     switch version {

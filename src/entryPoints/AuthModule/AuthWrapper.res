@@ -110,7 +110,13 @@ let make = (~children) => {
   let handleLoginWithSso = id => {
     switch id {
     | Some(method_id) =>
-      Window.Location.replace(`${Window.env.apiBaseUrl}/user/auth/url?id=${method_id}`)
+      let authUrl = getURL(
+        ~entityName=V1(USERS),
+        ~userType=#AUTH_URL,
+        ~methodType=Get,
+        ~queryParameters=Some(`id=${method_id}`),
+      )
+      Window.Location.replace(authUrl)
     | _ => ()
     }
   }

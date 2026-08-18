@@ -20,7 +20,7 @@ let make = (~children, ~isEmbeddableApp=false) => {
   let getUserInfo = async () => {
     open LogicUtils
 
-    let url = `${Window.env.apiBaseUrl}/user`
+    let url = `${APIUtilsTypes.getBaseUrl(OLTP)}/user`
     try {
       let res = await fetchApi(
         `${url}`,
@@ -124,7 +124,7 @@ let make = (~children, ~isEmbeddableApp=false) => {
   let getEmbeddableUserInfo = async () => {
     open LogicUtils
     try {
-      let url = `${Window.env.apiBaseUrl}/embedded`
+      let url = `${APIUtilsTypes.getBaseUrl(OLTP)}/embedded`
       let res = await fetchApi(
         `${url}`,
         ~method_=Get,

@@ -192,6 +192,7 @@ type userType = [
   | #GET_AUTH_LIST
   | #AUTH_SELECT
   | #SIGN_IN_WITH_SSO
+  | #AUTH_URL
   | #CHANGE_PASSWORD
   | #SWITCH_ORG
   | #LAUNCH_SAGE
@@ -230,3 +231,25 @@ type getUrlTypes = (
   ~hypersenseType: hypersenseType=?,
   ~queryParameters: option<string>=?,
 ) => string
+
+type service = OLTP | OLAP | RECON | REVENUE_RECOVERY
+
+type endpoint = {
+  path: string,
+  service: service,
+}
+
+let oltp = path => {path, service: OLTP}
+let olap = path => {path, service: OLAP}
+let recon = path => {path, service: RECON}
+let revenueRecovery = path => {path, service: REVENUE_RECOVERY}
+
+let getBaseUrl = service => {
+  let prefix = switch service {
+  | OLTP => Window.env.oltpPrefix
+  | OLAP => Window.env.olapPrefix
+  | RECON => Window.env.reconPrefix
+  | REVENUE_RECOVERY => Window.env.revenueRecoveryPrefix
+  }
+  prefix->String.length > 0 ? `${Window.env.apiBaseUrl}/${prefix}` : Window.env.apiBaseUrl
+}

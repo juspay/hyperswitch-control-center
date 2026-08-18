@@ -14,7 +14,8 @@ let useUserInfo = () => {
   } = React.useContext(UserInfoProvider.defaultContext)
   let {profileId, merchantId} = getCommonSessionDetails()
 
-  let url = `${Window.env.apiBaseUrl}/user`
+  let getURL = APIUtils.useGetURL()
+  let url = getURL(~entityName=V1(USERS), ~userType=#USER_INFO, ~methodType=Get)
   let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 

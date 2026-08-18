@@ -14,7 +14,7 @@ module ConfiguredSuperpositionApp = {
     let {orgId, merchantId, profileId} = getCommonSessionDetails()
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let canManageConfigurations = userHasAccess(~groupAccess=ConfigurationsManage) == Access
-    let superpositionApiBaseUrl = `${Window.env.apiBaseUrl}/v1/superposition`
+    let superpositionApiBaseUrl = `${APIUtilsTypes.getBaseUrl(OLTP)}/v1/superposition`
     let token = AuthUtils.getUserInfoDetailsFromLocalStorage().token->Option.getOr("")
 
     let content = switch remainingPath {

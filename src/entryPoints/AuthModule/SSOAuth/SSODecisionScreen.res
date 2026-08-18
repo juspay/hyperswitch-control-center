@@ -39,6 +39,8 @@ module SSOFromRedirect = {
 @react.component
 let make = (~auth_id: option<string>) => {
   open SSOTypes
+  open APIUtils
+  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let path = url.path->List.toArray->Array.joinWith("/")
   let (localSSOState, setLocalSSOState) = React.useState(_ => LOADING)
@@ -56,7 +58,14 @@ let make = (~auth_id: option<string>) => {
   React.useEffect(() => {
     switch (url.path, auth_id) {
     | (list{"redirect", "oidc", "okta"}, _) => oktaMethod()
-    | (_, Some(str)) => Window.Location.replace(`${Window.env.apiBaseUrl}/user/auth/url?id=${str}`)
+    | (_, Some(str)) =>
+      let authUrl = getURL(
+        ~entityName=V1(USERS),
+        ~userType=#AUTH_URL,
+        ~methodType=Get,
+        ~queryParameters=Some(`id=${str}`),
+      )
+      Window.Location.replace(authUrl)
     | _ => ()
     }
     None

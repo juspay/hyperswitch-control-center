@@ -17,6 +17,10 @@ type superpositionConfig = {
 
 type baseConfig = {
   apiBaseUrl: string,
+  oltpPrefix: string,
+  olapPrefix: string,
+  reconPrefix: string,
+  revenueRecoveryPrefix: string,
   mixpanelToken: string,
   sdkBaseUrl: option<string>,
   agreementUrl: option<string>,

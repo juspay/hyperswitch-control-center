@@ -11,41 +11,41 @@ let getV2Url = (
   ~merchantId,
   ~transactionEntity,
   ~queryParameters: option<string>=None,
-) => {
+): endpoint => {
   let connectorBaseURL = "v2/connector-accounts"
   let paymentsBaseURL = "v2/payments"
 
   switch entityName {
   | CUSTOMERS =>
     switch (methodType, id) {
-    | (Get, None) => "v1/customers/list"
-    | (Get, Some(customerId)) => `v1/customers/${customerId}`
-    | _ => ""
+    | (Get, None) => olap("v1/customers/list")
+    | (Get, Some(customerId)) => oltp(`v1/customers/${customerId}`)
+    | _ => oltp("")
     }
   | CUSTOMERS_COUNT =>
     switch (methodType, id) {
-    | (Get, None) => "v1/customers/list_with_count"
-    | (Get, Some(customerId)) => `v1/customers/${customerId}`
-    | _ => ""
+    | (Get, None) => olap("v1/customers/list_with_count")
+    | (Get, Some(customerId)) => oltp(`v1/customers/${customerId}`)
+    | _ => oltp("")
     }
   | V2_CONNECTOR =>
     switch methodType {
     | Get =>
       switch id {
-      | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
-      | None => `v2/profiles/${profileId}/connector-accounts`
+      | Some(connectorID) => olap(`${connectorBaseURL}/${connectorID}`)
+      | None => olap(`v2/profiles/${profileId}/connector-accounts`)
       }
     | Put =>
       switch id {
-      | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
-      | None => connectorBaseURL
+      | Some(connectorID) => olap(`${connectorBaseURL}/${connectorID}`)
+      | None => olap(connectorBaseURL)
       }
     | Post =>
       switch id {
-      | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
-      | None => connectorBaseURL
+      | Some(connectorID) => olap(`${connectorBaseURL}/${connectorID}`)
+      | None => olap(connectorBaseURL)
       }
-    | _ => ""
+    | _ => oltp("")
     }
   | V2_ORDERS_LIST =>
     switch methodType {
@@ -53,16 +53,16 @@ let getV2Url = (
       switch id {
       | Some(key_id) =>
         switch queryParameters {
-        | Some(queryParams) => `${paymentsBaseURL}/${key_id}?${queryParams}`
-        | None => `${paymentsBaseURL}/${key_id}`
+        | Some(queryParams) => oltp(`${paymentsBaseURL}/${key_id}?${queryParams}`)
+        | None => oltp(`${paymentsBaseURL}/${key_id}`)
         }
       | None =>
         switch queryParameters {
-        | Some(queryParams) => `${paymentsBaseURL}/list?${queryParams}`
-        | None => `${paymentsBaseURL}/list?limit=100`
+        | Some(queryParams) => olap(`${paymentsBaseURL}/list?${queryParams}`)
+        | None => olap(`${paymentsBaseURL}/list?limit=100`)
         }
       }
-    | _ => ""
+    | _ => oltp("")
     }
   | V2_RECOVERY_INVOICES_LIST =>
     switch methodType {
@@ -70,124 +70,125 @@ let getV2Url = (
       switch id {
       | Some(key_id) =>
         switch queryParameters {
-        | Some(queryParams) => `${paymentsBaseURL}/${key_id}?${queryParams}`
-        | None => `${paymentsBaseURL}/${key_id}/get-revenue-recovery-intent`
+        | Some(queryParams) => oltp(`${paymentsBaseURL}/${key_id}?${queryParams}`)
+        | None => olap(`${paymentsBaseURL}/${key_id}/get-revenue-recovery-intent`)
         }
       | None =>
         switch queryParameters {
-        | Some(queryParams) => `${paymentsBaseURL}/recovery-list?${queryParams}`
-        | None => `${paymentsBaseURL}/recovery-list?limit=100`
+        | Some(queryParams) => olap(`${paymentsBaseURL}/recovery-list?${queryParams}`)
+        | None => olap(`${paymentsBaseURL}/recovery-list?limit=100`)
         }
       }
-    | _ => ""
+    | _ => oltp("")
     }
   /* REPORTS */
   | REVENUE_RECOVERY_REPORT =>
     switch transactionEntity {
     | #Tenant
-    | #Organization => `v2/analytics/org/report/payments`
-    | #Merchant => `v2/analytics/merchant/report/payments`
-    | #Profile => `v2/analytics/profile/report/payments`
+    | #Organization =>
+      olap(`v2/analytics/org/report/payments`)
+    | #Merchant => olap(`v2/analytics/merchant/report/payments`)
+    | #Profile => olap(`v2/analytics/profile/report/payments`)
     }
   | V2_ATTEMPTS_LIST =>
     switch methodType {
     | Get =>
       switch id {
-      | Some(key_id) => `${paymentsBaseURL}/${key_id}/list_attempts`
-      | None => ""
+      | Some(key_id) => olap(`${paymentsBaseURL}/${key_id}/list_attempts`)
+      | None => oltp("")
       }
-    | _ => ""
+    | _ => oltp("")
     }
   | PROCESS_TRACKER =>
     switch methodType {
     | Get =>
       switch id {
-      | Some(key_id) => `v2/process_tracker/revenue_recovery_workflow/${key_id}`
-      | None => "v2/process_tracker/revenue_recovery_workflow"
+      | Some(key_id) => olap(`v2/process_tracker/revenue_recovery_workflow/${key_id}`)
+      | None => olap("v2/process_tracker/revenue_recovery_workflow")
       }
-    | _ => ""
+    | _ => oltp("")
     }
-  | V2_ORDER_FILTERS => "v2/payments/profile/filter"
+  | V2_ORDER_FILTERS => olap("v2/payments/profile/filter")
   | V2_ORDERS_AGGREGATE =>
     switch methodType {
     | Get =>
       switch queryParameters {
       | Some(queryParams) =>
         switch transactionEntity {
-        | #Merchant => `v2/payments/aggregate?${queryParams}`
-        | #Profile => `v2/payments/profile/aggregate?${queryParams}`
-        | _ => `v2/payments/aggregate?${queryParams}`
+        | #Merchant => olap(`v2/payments/aggregate?${queryParams}`)
+        | #Profile => olap(`v2/payments/profile/aggregate?${queryParams}`)
+        | _ => olap(`v2/payments/aggregate?${queryParams}`)
         }
-      | None => ``
+      | None => oltp(``)
       }
-    | _ => ``
+    | _ => oltp(``)
     }
   | PAYMENT_METHOD_LIST =>
     switch id {
-    | Some(customerId) => `v1/customers/${customerId}/saved-payment-methods`
-    | None => ""
+    | Some(customerId) => olap(`v1/customers/${customerId}/saved-payment-methods`)
+    | None => oltp("")
     }
-  | TOTAL_TOKEN_COUNT => `v1/customers/total-payment-methods`
+  | TOTAL_TOKEN_COUNT => olap(`v1/customers/total-payment-methods`)
   | RETRIEVE_PAYMENT_METHOD =>
     switch id {
-    | Some(paymentMethodId) => `v1/payment-methods/${paymentMethodId}/details`
-    | None => ""
+    | Some(paymentMethodId) => olap(`v1/payment-methods/${paymentMethodId}/details`)
+    | None => oltp("")
     }
   /* MERCHANT ACCOUNT DETAILS (Get,Post and Put) */
-  | MERCHANT_ACCOUNT => `v2/merchant-accounts/${merchantId}`
+  | MERCHANT_ACCOUNT => olap(`v2/merchant-accounts/${merchantId}`)
   | USERS =>
     let userUrl = `user`
     switch userType {
     | #CREATE_MERCHANT =>
       switch queryParameters {
-      | Some(params) => `v2/${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
-      | None => `v2/${userUrl}/${(userType :> string)->String.toLowerCase}`
+      | Some(params) => olap(`v2/${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`)
+      | None => olap(`v2/${userUrl}/${(userType :> string)->String.toLowerCase}`)
       }
-    | #LIST_MERCHANT => `v2/${userUrl}/list/merchant`
-    | #SWITCH_MERCHANT_NEW => `v2/${userUrl}/switch/merchant`
-    | #SWITCH_PROFILE_NEW => `v2/${userUrl}/switch/profile`
+    | #LIST_MERCHANT => olap(`v2/${userUrl}/list/merchant`)
+    | #SWITCH_MERCHANT_NEW => olap(`v2/${userUrl}/switch/merchant`)
+    | #SWITCH_PROFILE_NEW => olap(`v2/${userUrl}/switch/profile`)
 
-    | #LIST_PROFILE => `v2/${userUrl}/list/profile`
-    | _ => ""
+    | #LIST_PROFILE => olap(`v2/${userUrl}/list/profile`)
+    | _ => oltp("")
     }
   /* API KEYS */
   | API_KEYS =>
     switch methodType {
-    | Get => `v2/api-keys/list`
+    | Get => olap(`v2/api-keys/list`)
     | Post
     | Put
     | Delete =>
       switch id {
-      | Some(key_id) => `v2/api-keys/${key_id}`
-      | None => `v2/api-keys`
+      | Some(key_id) => olap(`v2/api-keys/${key_id}`)
+      | None => olap(`v2/api-keys`)
       }
-    | _ => ""
+    | _ => oltp("")
     }
   | BUSINESS_PROFILE =>
     switch methodType {
     | Get =>
       switch id {
-      | Some(id) => `v2/profiles/${id}`
-      | None => `v2/profiles`
+      | Some(id) => olap(`v2/profiles/${id}`)
+      | None => olap(`v2/profiles`)
       }
 
     | Post =>
       switch id {
-      | Some(id) => `v2/profiles/${id}`
-      | None => `v2/profiles`
+      | Some(id) => olap(`v2/profiles/${id}`)
+      | None => olap(`v2/profiles`)
       }
     | Put =>
       switch id {
-      | Some(id) => `v2/profiles/${id}`
-      | None => `v2/profiles`
+      | Some(id) => olap(`v2/profiles/${id}`)
+      | None => olap(`v2/profiles`)
       }
 
-    | _ => `v2/profiles`
+    | _ => olap(`v2/profiles`)
     }
   | REFUNDS =>
     switch methodType {
-    | Post => `v2/refunds`
-    | _ => ""
+    | Post => oltp(`v2/refunds`)
+    | _ => oltp("")
     }
   }
 }
@@ -217,10 +218,8 @@ let useGetURL = () => {
     }
 
     let connectorBaseURL = `account/${merchantId}/connectors`
-    let recoveryAnalyticsDemo = "revenue-recovery-demo"
-    let reconBaseURL = `hyperswitch-recon-engine`
 
-    let endpoint = switch entityName {
+    let endpoint: endpoint = switch entityName {
     | V1(entityNameType) =>
       switch entityNameType {
       /* GLOBAL SEARCH */
@@ -228,10 +227,10 @@ let useGetURL = () => {
         switch methodType {
         | Post =>
           switch id {
-          | Some(topic) => `analytics/v1/search/${topic}`
-          | None => `analytics/v1/search`
+          | Some(topic) => olap(`analytics/v1/search/${topic}`)
+          | None => olap(`analytics/v1/search`)
           }
-        | _ => ""
+        | _ => oltp("")
         }
 
       /* BLOCKLIST */
@@ -239,34 +238,34 @@ let useGetURL = () => {
         switch methodType {
         | Get =>
           switch id {
-          | Some(jobId) => `blocklist/batch/${jobId}`
+          | Some(jobId) => olap(`blocklist/batch/${jobId}`)
           | None =>
             switch queryParameters {
-            | Some(queryParams) => `blocklist/batch?${queryParams}`
-            | None => `blocklist/batch`
+            | Some(queryParams) => olap(`blocklist/batch?${queryParams}`)
+            | None => olap(`blocklist/batch`)
             }
           }
-        | Post => `blocklist/batch`
-        | _ => ""
+        | Post => olap(`blocklist/batch`)
+        | _ => oltp("")
         }
 
       /* MERCHANT ACCOUNT DETAILS (Get and Post) */
-      | MERCHANT_ACCOUNT => `accounts/${merchantId}`
+      | MERCHANT_ACCOUNT => olap(`accounts/${merchantId}`)
 
       /* ORGANIZATION UPDATE */
       | ORGANIZATION_RETRIEVE =>
         switch methodType {
         | Get =>
           switch id {
-          | Some(id) => `organization/${id}`
-          | None => ``
+          | Some(id) => olap(`organization/${id}`)
+          | None => oltp(``)
           }
         | Put =>
           switch id {
-          | Some(id) => `organization/${id}`
-          | None => `organization`
+          | Some(id) => olap(`organization/${id}`)
+          | None => olap(`organization`)
           }
-        | _ => ""
+        | _ => oltp("")
         }
 
       /* CUSTOMERS DETAILS */
@@ -274,41 +273,41 @@ let useGetURL = () => {
         switch methodType {
         | Get =>
           switch id {
-          | Some(customerId) => `customers/${customerId}`
+          | Some(customerId) => oltp(`customers/${customerId}`)
           | None =>
             switch queryParameters {
-            | Some(queryParams) => `customers/list?${queryParams}`
-            | None => `customers/list?limit=500`
+            | Some(queryParams) => olap(`customers/list?${queryParams}`)
+            | None => olap(`customers/list?limit=500`)
             }
           }
-        | _ => ""
+        | _ => oltp("")
         }
       | CUSTOMERS_COUNT =>
         switch methodType {
         | Get =>
           switch id {
-          | Some(customerId) => `customers/${customerId}`
+          | Some(customerId) => oltp(`customers/${customerId}`)
           | None =>
             switch queryParameters {
-            | Some(queryParams) => `customers/list_with_count?${queryParams}`
-            | None => `customers/list_with_count`
+            | Some(queryParams) => olap(`customers/list_with_count?${queryParams}`)
+            | None => olap(`customers/list_with_count`)
             }
           }
-        | _ => ""
+        | _ => oltp("")
         }
       | PAYMENT_METHODS =>
         switch methodType {
-        | Get => "payment_methods"
-        | _ => ""
+        | Get => oltp("payment_methods")
+        | _ => oltp("")
         }
       | PAYMENT_METHODS_DETAILS =>
         switch methodType {
         | Get =>
           switch id {
-          | Some(id) => `payment_methods/${id}`
-          | None => `payment_methods`
+          | Some(id) => oltp(`payment_methods/${id}`)
+          | None => oltp(`payment_methods`)
           }
-        | _ => ""
+        | _ => oltp("")
         }
 
       /* CONNECTORS & FRAUD AND RISK MANAGEMENT */
@@ -316,26 +315,26 @@ let useGetURL = () => {
         switch methodType {
         | Get =>
           switch id {
-          | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
+          | Some(connectorID) => olap(`${connectorBaseURL}/${connectorID}`)
           | None =>
             switch userEntity {
             | #Tenant
             | #Organization
             | #Merchant
             | #Profile =>
-              `account/${merchantId}/profile/connectors`
+              olap(`account/${merchantId}/profile/connectors`)
             }
           }
         | Post | Delete =>
           switch connector {
-          | Some(_con) => `account/connectors/verify`
+          | Some(_con) => olap(`account/connectors/verify`)
           | None =>
             switch id {
-            | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
-            | None => connectorBaseURL
+            | Some(connectorID) => olap(`${connectorBaseURL}/${connectorID}`)
+            | None => olap(connectorBaseURL)
             }
           }
-        | _ => ""
+        | _ => oltp("")
         }
 
       /* OPERATIONS */
@@ -343,45 +342,46 @@ let useGetURL = () => {
         switch methodType {
         | Get =>
           switch transactionEntity {
-          | #Merchant => `refunds/v2/filter`
-          | #Profile => `refunds/v2/profile/filter`
-          | _ => `refunds/v2/filter`
+          | #Merchant => olap(`refunds/v2/filter`)
+          | #Profile => olap(`refunds/v2/profile/filter`)
+          | _ => olap(`refunds/v2/filter`)
           }
 
-        | _ => ""
+        | _ => oltp("")
         }
       | ORDER_FILTERS =>
         switch methodType {
         | Get =>
           switch transactionEntity {
-          | #Merchant => `payments/v2/filter`
-          | #Profile => `payments/v2/profile/filter`
-          | _ => `payments/v2/filter`
+          | #Merchant => olap(`payments/v2/filter`)
+          | #Profile => olap(`payments/v2/profile/filter`)
+          | _ => olap(`payments/v2/filter`)
           }
 
-        | _ => ""
+        | _ => oltp("")
         }
       | DISPUTE_FILTERS =>
         switch methodType {
         | Get =>
           switch transactionEntity {
-          | #Profile => `disputes/profile/filter`
+          | #Profile => olap(`disputes/profile/filter`)
           | #Merchant
-          | _ => `disputes/filter`
+          | _ =>
+            olap(`disputes/filter`)
           }
 
-        | _ => ""
+        | _ => oltp("")
         }
       | PAYOUTS_FILTERS =>
         switch methodType {
         | Post =>
           switch transactionEntity {
-          | #Merchant => `payouts/filter`
-          | #Profile => `payouts/profile/filter`
-          | _ => `payouts/filter`
+          | #Merchant => olap(`payouts/filter`)
+          | #Profile => olap(`payouts/profile/filter`)
+          | _ => olap(`payouts/filter`)
           }
 
-        | _ => ""
+        | _ => oltp("")
         }
       | ORDERS =>
         switch methodType {
@@ -389,35 +389,35 @@ let useGetURL = () => {
           switch id {
           | Some(key_id) =>
             switch queryParameters {
-            | Some(queryParams) => `payments/${key_id}?${queryParams}`
-            | None => `payments/${key_id}`
+            | Some(queryParams) => oltp(`payments/${key_id}?${queryParams}`)
+            | None => oltp(`payments/${key_id}`)
             }
 
           | None =>
             switch transactionEntity {
-            | #Merchant => `payments/list?limit=100`
-            | #Profile => `payments/profile/list?limit=100`
-            | _ => `payments/list?limit=100`
+            | #Merchant => olap(`payments/list?limit=100`)
+            | #Profile => olap(`payments/profile/list?limit=100`)
+            | _ => olap(`payments/list?limit=100`)
             }
           }
         | Post =>
           switch transactionEntity {
-          | #Merchant => `payments/list`
-          | #Profile => `payments/profile/list`
-          | _ => `payments/list`
+          | #Merchant => olap(`payments/list`)
+          | #Profile => olap(`payments/profile/list`)
+          | _ => olap(`payments/list`)
           }
 
-        | _ => ""
+        | _ => oltp("")
         }
       | PAYMENT_CANCEL =>
         switch (methodType, id) {
-        | (Post, Some(payment_id)) => `payments/${payment_id}/cancel`
-        | _ => ""
+        | (Post, Some(payment_id)) => oltp(`payments/${payment_id}/cancel`)
+        | _ => oltp("")
         }
       | PAYMENT_CAPTURE =>
         switch (methodType, id) {
-        | (Post, Some(payment_id)) => `payments/${payment_id}/capture`
-        | _ => ""
+        | (Post, Some(payment_id)) => oltp(`payments/${payment_id}/capture`)
+        | _ => oltp("")
         }
       | ORDERS_AGGREGATE =>
         switch methodType {
@@ -425,22 +425,22 @@ let useGetURL = () => {
           switch queryParameters {
           | Some(queryParams) =>
             switch transactionEntity {
-            | #Merchant => `payments/aggregate?${queryParams}`
-            | #Profile => `payments/profile/aggregate?${queryParams}`
-            | _ => `payments/aggregate?${queryParams}`
+            | #Merchant => olap(`payments/aggregate?${queryParams}`)
+            | #Profile => olap(`payments/profile/aggregate?${queryParams}`)
+            | _ => olap(`payments/aggregate?${queryParams}`)
             }
-          | None => `payments/aggregate`
+          | None => olap(`payments/aggregate`)
           }
-        | _ => `payments/aggregate`
+        | _ => olap(`payments/aggregate`)
         }
       | MANUAL_STATUS_UPDATE =>
         switch methodType {
         | Post =>
           switch id {
-          | Some(payment_id) => `payments/${payment_id}/manual-status-update`
-          | None => ""
+          | Some(payment_id) => olap(`payments/${payment_id}/manual-status-update`)
+          | None => oltp("")
           }
-        | _ => ""
+        | _ => oltp("")
         }
       | REFUNDS =>
         switch methodType {
@@ -448,32 +448,32 @@ let useGetURL = () => {
           switch id {
           | Some(key_id) =>
             switch queryParameters {
-            | Some(queryParams) => `refunds/${key_id}?${queryParams}`
-            | None => `refunds/${key_id}`
+            | Some(queryParams) => oltp(`refunds/${key_id}?${queryParams}`)
+            | None => oltp(`refunds/${key_id}`)
             }
 
           | None =>
             switch queryParameters {
             | Some(queryParams) =>
               switch transactionEntity {
-              | #Merchant => `refunds/list?${queryParams}`
-              | #Profile => `refunds/profile/list?limit=100`
-              | _ => `refunds/list?limit=100`
+              | #Merchant => olap(`refunds/list?${queryParams}`)
+              | #Profile => olap(`refunds/profile/list?limit=100`)
+              | _ => olap(`refunds/list?limit=100`)
               }
-            | None => `refunds/list?limit=100`
+            | None => olap(`refunds/list?limit=100`)
             }
           }
         | Post =>
           switch id {
           | Some(_keyid) =>
             switch transactionEntity {
-            | #Merchant => `refunds/list`
-            | #Profile => `refunds/profile/list`
-            | _ => `refunds/list`
+            | #Merchant => olap(`refunds/list`)
+            | #Profile => olap(`refunds/profile/list`)
+            | _ => olap(`refunds/list`)
             }
-          | None => `refunds`
+          | None => oltp(`refunds`)
           }
-        | _ => ""
+        | _ => oltp("")
         }
       | REFUNDS_AGGREGATE =>
         switch methodType {
@@ -481,38 +481,39 @@ let useGetURL = () => {
           switch queryParameters {
           | Some(queryParams) =>
             switch transactionEntity {
-            | #Profile => `refunds/profile/aggregate?${queryParams}`
+            | #Profile => olap(`refunds/profile/aggregate?${queryParams}`)
             | #Merchant
             | _ =>
-              `refunds/aggregate?${queryParams}`
+              olap(`refunds/aggregate?${queryParams}`)
             }
-          | None => `refunds/aggregate`
+          | None => olap(`refunds/aggregate`)
           }
-        | _ => `refunds/aggregate`
+        | _ => olap(`refunds/aggregate`)
         }
       | DISPUTES =>
         switch methodType {
         | Get =>
           switch id {
-          | Some(dispute_id) => `disputes/${dispute_id}`
+          | Some(dispute_id) => olap(`disputes/${dispute_id}`)
           | None =>
             switch queryParameters {
             | Some(queryParams) =>
               switch transactionEntity {
-              | #Profile => `disputes/profile/list?${queryParams}&limit=10000`
+              | #Profile => olap(`disputes/profile/list?${queryParams}&limit=10000`)
               | #Merchant
               | _ =>
-                `disputes/list?${queryParams}&limit=10000`
+                olap(`disputes/list?${queryParams}&limit=10000`)
               }
             | None =>
               switch transactionEntity {
-              | #Profile => `disputes/profile/list?limit=10000`
+              | #Profile => olap(`disputes/profile/list?limit=10000`)
               | #Merchant
-              | _ => `disputes/list?limit=10000`
+              | _ =>
+                olap(`disputes/list?limit=10000`)
               }
             }
           }
-        | _ => ""
+        | _ => oltp("")
         }
       | DISPUTES_AGGREGATE =>
         switch methodType {
@@ -520,14 +521,14 @@ let useGetURL = () => {
           switch queryParameters {
           | Some(queryParams) =>
             switch transactionEntity {
-            | #Profile => `disputes/profile/aggregate?${queryParams}`
+            | #Profile => olap(`disputes/profile/aggregate?${queryParams}`)
             | #Merchant
             | _ =>
-              `disputes/aggregate?${queryParams}`
+              olap(`disputes/aggregate?${queryParams}`)
             }
-          | None => `disputes/aggregate`
+          | None => olap(`disputes/aggregate`)
           }
-        | _ => `disputes/aggregate`
+        | _ => olap(`disputes/aggregate`)
         }
       | PAYOUTS_AGGREGATE =>
         switch methodType {
@@ -535,14 +536,14 @@ let useGetURL = () => {
           switch queryParameters {
           | Some(queryParams) =>
             switch transactionEntity {
-            | #Profile => `payouts/profile/aggregate?${queryParams}`
+            | #Profile => olap(`payouts/profile/aggregate?${queryParams}`)
             | #Merchant
             | _ =>
-              `payouts/aggregate?${queryParams}`
+              olap(`payouts/aggregate?${queryParams}`)
             }
-          | None => `payouts/aggregate`
+          | None => olap(`payouts/aggregate`)
           }
-        | _ => `payouts/aggregate`
+        | _ => olap(`payouts/aggregate`)
         }
       | PAYOUTS =>
         switch methodType {
@@ -550,90 +551,97 @@ let useGetURL = () => {
           switch id {
           | Some(payout_id) =>
             switch queryParameters {
-            | Some(queryParams) => `payouts/${payout_id}?${queryParams}`
-            | None => `payouts/${payout_id}`
+            | Some(queryParams) => oltp(`payouts/${payout_id}?${queryParams}`)
+            | None => oltp(`payouts/${payout_id}`)
             }
           | None =>
             switch transactionEntity {
-            | #Merchant => `payouts/list?limit=100`
-            | #Profile => `payouts/profile/list?limit=10000`
-            | _ => `payouts/list?limit=100`
+            | #Merchant => olap(`payouts/list?limit=100`)
+            | #Profile => olap(`payouts/profile/list?limit=10000`)
+            | _ => olap(`payouts/list?limit=100`)
             }
           }
         | Post =>
           switch transactionEntity {
-          | #Merchant => `payouts/list`
-          | #Profile => `payouts/profile/list`
-          | _ => `payouts/list`
+          | #Merchant => olap(`payouts/list`)
+          | #Profile => olap(`payouts/profile/list`)
+          | _ => olap(`payouts/list`)
           }
 
-        | _ => ""
+        | _ => oltp("")
         }
 
       /* ROUTING */
-      | DEFAULT_FALLBACK => `routing/default`
+      | DEFAULT_FALLBACK => olap(`routing/default`)
       | ROUTING =>
         switch methodType {
         | Get =>
           switch id {
-          | Some(routingId) => `routing/${routingId}`
+          | Some(routingId) => olap(`routing/${routingId}`)
           | None =>
             switch userEntity {
             | #Tenant
             | #Organization
             | #Merchant
-            | #Profile => `routing/list/profile`
+            | #Profile =>
+              olap(`routing/list/profile`)
             }
           }
         | Post =>
           switch id {
-          | Some(routing_id) => `routing/${routing_id}/activate`
-          | _ => `routing`
+          | Some(routing_id) => olap(`routing/${routing_id}/activate`)
+          | _ => olap(`routing`)
           }
-        | _ => ""
+        | _ => oltp("")
         }
-      | ACTIVE_ROUTING => `routing/active`
+      | ACTIVE_ROUTING => olap(`routing/active`)
       | CREATE_AUTH_RATE_ROUTING =>
         switch methodType {
         | Post =>
           switch queryParameters {
           | Some(param) =>
-            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/success_based/create?${param}`
-          | None => ""
+            olap(
+              `account/${merchantId}/business_profile/${profileId}/dynamic_routing/success_based/create?${param}`,
+            )
+          | None => oltp("")
           }
-        | _ => ""
+        | _ => oltp("")
         }
       | ACTIVATE_AUTH_RATE_ROUTING =>
         switch methodType {
         | Post =>
           switch id {
-          | Some(id) => `routing/${id}/activate`
-          | None => ""
+          | Some(id) => olap(`routing/${id}/activate`)
+          | None => oltp("")
           }
-        | _ => ""
+        | _ => oltp("")
         }
       | SET_VOLUME_SPLIT =>
         switch methodType {
         | Post =>
           switch queryParameters {
           | Some(param) =>
-            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/set_volume_split?${param}`
-          | None => ""
+            olap(
+              `account/${merchantId}/business_profile/${profileId}/dynamic_routing/set_volume_split?${param}`,
+            )
+          | None => oltp("")
           }
-        | _ => ""
+        | _ => oltp("")
         }
       | GET_VOLUME_SPLIT =>
         switch methodType {
         | Get =>
-          `account/${merchantId}/business_profile/${profileId}/dynamic_routing/get_volume_split`
-        | _ => ""
+          olap(
+            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/get_volume_split`,
+          )
+        | _ => oltp("")
         }
 
       /* OIDC */
       | OIDC_AUTHORIZE =>
         switch methodType {
-        | Get => `oidc/authorize`
-        | _ => ""
+        | Get => olap(`oidc/authorize`)
+        | _ => oltp("")
         }
       /* ANALYTICS V2 */
 
@@ -645,14 +653,14 @@ let useGetURL = () => {
             switch analyticsEntity {
             | #Tenant
             | #Organization =>
-              `analytics/v2/org/metrics/${domain}`
-            | #Merchant => `analytics/v2/merchant/metrics/${domain}`
-            | #Profile => `analytics/v2/profile/metrics/${domain}`
+              olap(`analytics/v2/org/metrics/${domain}`)
+            | #Merchant => olap(`analytics/v2/merchant/metrics/${domain}`)
+            | #Profile => olap(`analytics/v2/profile/metrics/${domain}`)
             }
 
-          | _ => ""
+          | _ => oltp("")
           }
-        | _ => ""
+        | _ => oltp("")
         }
 
       /* ANALYTICS */
@@ -669,12 +677,12 @@ let useGetURL = () => {
             switch analyticsEntity {
             | #Tenant
             | #Organization =>
-              `analytics/v1/org/${domain}/info`
-            | #Merchant => `analytics/v1/merchant/${domain}/info`
-            | #Profile => `analytics/v1/profile/${domain}/info`
+              olap(`analytics/v1/org/${domain}/info`)
+            | #Merchant => olap(`analytics/v1/merchant/${domain}/info`)
+            | #Profile => olap(`analytics/v1/profile/${domain}/info`)
             }
 
-          | _ => ""
+          | _ => oltp("")
           }
         | Post =>
           switch id {
@@ -682,44 +690,47 @@ let useGetURL = () => {
             switch analyticsEntity {
             | #Tenant
             | #Organization =>
-              `analytics/v1/org/metrics/${domain}`
-            | #Merchant => `analytics/v1/merchant/metrics/${domain}`
-            | #Profile => `analytics/v1/profile/metrics/${domain}`
+              olap(`analytics/v1/org/metrics/${domain}`)
+            | #Merchant => olap(`analytics/v1/merchant/metrics/${domain}`)
+            | #Profile => olap(`analytics/v1/profile/metrics/${domain}`)
             }
 
-          | _ => ""
+          | _ => oltp("")
           }
-        | _ => ""
+        | _ => oltp("")
         }
       | ANALYTICS_AUTHENTICATION_V2 =>
         switch methodType {
         | Get =>
           switch analyticsEntity {
           | #Tenant
-          | #Organization => `analytics/v1/org/auth_events/info`
-          | #Merchant => `analytics/v1/merchant/auth_events/info`
-          | #Profile => `analytics/v1/profile/auth_events/info`
+          | #Organization =>
+            olap(`analytics/v1/org/auth_events/info`)
+          | #Merchant => olap(`analytics/v1/merchant/auth_events/info`)
+          | #Profile => olap(`analytics/v1/profile/auth_events/info`)
           }
         | Post =>
           switch analyticsEntity {
           | #Tenant
-          | #Organization => `analytics/v1/org/metrics/auth_events`
-          | #Merchant => `analytics/v1/merchant/metrics/auth_events`
-          | #Profile => `analytics/v1/profile/metrics/auth_events`
+          | #Organization =>
+            olap(`analytics/v1/org/metrics/auth_events`)
+          | #Merchant => olap(`analytics/v1/merchant/metrics/auth_events`)
+          | #Profile => olap(`analytics/v1/profile/metrics/auth_events`)
           }
 
-        | _ => ""
+        | _ => oltp("")
         }
       | ANALYTICS_AUTHENTICATION_V2_FILTERS =>
         switch methodType {
         | Post =>
           switch analyticsEntity {
           | #Tenant
-          | #Organization => `analytics/v1/org/filters/auth_events`
-          | #Merchant => `analytics/v1/merchant/filters/auth_events`
-          | #Profile => `analytics/v1/profile/filters/auth_events`
+          | #Organization =>
+            olap(`analytics/v1/org/filters/auth_events`)
+          | #Merchant => olap(`analytics/v1/merchant/filters/auth_events`)
+          | #Profile => olap(`analytics/v1/profile/filters/auth_events`)
           }
-        | _ => ""
+        | _ => oltp("")
         }
       | ANALYTICS_FILTERS =>
         switch methodType {
@@ -729,81 +740,84 @@ let useGetURL = () => {
             switch analyticsEntity {
             | #Tenant
             | #Organization =>
-              `analytics/v1/org/filters/${domain}`
-            | #Merchant => `analytics/v1/merchant/filters/${domain}`
-            | #Profile => `analytics/v1/profile/filters/${domain}`
+              olap(`analytics/v1/org/filters/${domain}`)
+            | #Merchant => olap(`analytics/v1/merchant/filters/${domain}`)
+            | #Profile => olap(`analytics/v1/profile/filters/${domain}`)
             }
 
-          | _ => ""
+          | _ => oltp("")
           }
-        | _ => ""
+        | _ => oltp("")
         }
 
       | API_EVENT_LOGS =>
         switch methodType {
         | Get =>
           switch queryParameters {
-          | Some(params) => `analytics/v1/profile/api_event_logs?${params}`
-          | None => ``
+          | Some(params) => olap(`analytics/v1/profile/api_event_logs?${params}`)
+          | None => oltp(``)
           }
-        | _ => ""
+        | _ => oltp("")
         }
       | ANALYTICS_SANKEY =>
         switch methodType {
         | Post =>
           switch analyticsEntity {
           | #Tenant
-          | #Organization => `analytics/v1/org/metrics/sankey`
-          | #Merchant => `analytics/v1/merchant/metrics/sankey`
-          | #Profile => `analytics/v1/profile/metrics/sankey`
+          | #Organization =>
+            olap(`analytics/v1/org/metrics/sankey`)
+          | #Merchant => olap(`analytics/v1/merchant/metrics/sankey`)
+          | #Profile => olap(`analytics/v1/profile/metrics/sankey`)
           }
 
-        | _ => ""
+        | _ => oltp("")
         }
       | ANALYTICS_SCA_EXEMPTION_SANKEY =>
         switch methodType {
         | Post =>
           switch analyticsEntity {
           | #Tenant
-          | #Organization => `analytics/v1/org/metrics/auth_events/sankey`
-          | #Merchant => `analytics/v1/merchant/metrics/auth_events/sankey`
-          | #Profile => `analytics/v1/profile/metrics/auth_events/sankey`
+          | #Organization =>
+            olap(`analytics/v1/org/metrics/auth_events/sankey`)
+          | #Merchant => olap(`analytics/v1/merchant/metrics/auth_events/sankey`)
+          | #Profile => olap(`analytics/v1/profile/metrics/auth_events/sankey`)
           }
 
-        | _ => ""
+        | _ => oltp("")
         }
       /* PAYOUTS ROUTING */
-      | PAYOUT_DEFAULT_FALLBACK => `routing/payouts/default`
+      | PAYOUT_DEFAULT_FALLBACK => olap(`routing/payouts/default`)
       | PAYOUT_ROUTING =>
         switch methodType {
         | Get =>
           switch id {
-          | Some(routingId) => `routing/${routingId}`
+          | Some(routingId) => olap(`routing/${routingId}`)
           | _ =>
             switch userEntity {
             | #Tenant
             | #Organization
             | #Merchant
-            | #Profile => `routing/payouts/list/profile`
+            | #Profile =>
+              olap(`routing/payouts/list/profile`)
             }
           }
 
         | Put =>
           switch id {
-          | Some(routingId) => `routing/${routingId}`
-          | _ => `routing/payouts`
+          | Some(routingId) => olap(`routing/${routingId}`)
+          | _ => olap(`routing/payouts`)
           }
         | Post =>
           switch id {
-          | Some(routing_id) => `routing/payouts/${routing_id}/activate`
-          | _ => `routing/payouts`
+          | Some(routing_id) => olap(`routing/payouts/${routing_id}/activate`)
+          | _ => olap(`routing/payouts`)
           }
-        | _ => ""
+        | _ => oltp("")
         }
-      | ACTIVE_PAYOUT_ROUTING => `routing/payouts/active`
+      | ACTIVE_PAYOUT_ROUTING => olap(`routing/payouts/active`)
 
       /* THREE DS ROUTING */
-      | THREE_DS => `routing/decision`
+      | THREE_DS => olap(`routing/decision`)
 
       /* THREE DS ROUTING */
 
@@ -811,175 +825,180 @@ let useGetURL = () => {
         switch methodType {
         | Get =>
           switch id {
-          | Some(routingId) => `routing/${routingId}`
-          | None => `routing/active?transaction_type=three_ds_authentication&limit=100`
+          | Some(routingId) => olap(`routing/${routingId}`)
+          | None => olap(`routing/active?transaction_type=three_ds_authentication&limit=100`)
           }
         | Post =>
           switch id {
-          | Some(routing_id) => `routing/${routing_id}/activate`
-          | _ => "routing"
+          | Some(routing_id) => olap(`routing/${routing_id}/activate`)
+          | _ => olap("routing")
           }
-        | _ => ""
+        | _ => oltp("")
         }
-      | THREE_DS_EXEMPTION_DELETE_RULE => `routing/deactivate`
+      | THREE_DS_EXEMPTION_DELETE_RULE => olap(`routing/deactivate`)
 
       /* SURCHARGE ROUTING */
-      | SURCHARGE => `routing/decision/surcharge`
+      | SURCHARGE => olap(`routing/decision/surcharge`)
 
-      | HYPERSENSE => `hypersense/${(hypersenseType :> string)->String.toLowerCase}`
+      | HYPERSENSE => oltp(`hypersense/${(hypersenseType :> string)->String.toLowerCase}`)
 
       /* REPORTS */
       | PAYMENT_REPORT =>
         switch transactionEntity {
         | #Tenant
-        | #Organization => `analytics/v1/org/report/payments`
-        | #Merchant => `analytics/v1/merchant/report/payments`
-        | #Profile => `analytics/v1/profile/report/payments`
+        | #Organization =>
+          olap(`analytics/v1/org/report/payments`)
+        | #Merchant => olap(`analytics/v1/merchant/report/payments`)
+        | #Profile => olap(`analytics/v1/profile/report/payments`)
         }
       | PAYMENTS_LIST =>
         switch methodType {
         | Post =>
           switch transactionEntity {
-          | #Merchant => `payments/advanced/list`
-          | #Profile => `payments/profile/advanced/list`
-          | _ => `payments/list`
+          | #Merchant => olap(`payments/advanced/list`)
+          | #Profile => olap(`payments/profile/advanced/list`)
+          | _ => olap(`payments/list`)
           }
 
-        | _ => ""
+        | _ => oltp("")
         }
       | PAYOUT_REPORT =>
         switch transactionEntity {
         | #Tenant
-        | #Organization => `analytics/v1/org/report/payouts`
-        | #Merchant => `analytics/v1/merchant/report/payouts`
-        | #Profile => `analytics/v1/profile/report/payouts`
+        | #Organization =>
+          olap(`analytics/v1/org/report/payouts`)
+        | #Merchant => olap(`analytics/v1/merchant/report/payouts`)
+        | #Profile => olap(`analytics/v1/profile/report/payouts`)
         }
 
       | REFUND_REPORT =>
         switch transactionEntity {
         | #Tenant
-        | #Organization => `analytics/v1/org/report/refunds`
-        | #Merchant => `analytics/v1/merchant/report/refunds`
-        | #Profile => `analytics/v1/profile/report/refunds`
+        | #Organization =>
+          olap(`analytics/v1/org/report/refunds`)
+        | #Merchant => olap(`analytics/v1/merchant/report/refunds`)
+        | #Profile => olap(`analytics/v1/profile/report/refunds`)
         }
 
       | DISPUTE_REPORT =>
         switch transactionEntity {
         | #Tenant
-        | #Organization => `analytics/v1/org/report/dispute`
-        | #Merchant => `analytics/v1/merchant/report/dispute`
-        | #Profile => `analytics/v1/profile/report/dispute`
+        | #Organization =>
+          olap(`analytics/v1/org/report/dispute`)
+        | #Merchant => olap(`analytics/v1/merchant/report/dispute`)
+        | #Profile => olap(`analytics/v1/profile/report/dispute`)
         }
 
       | AUTHENTICATION_REPORT =>
         switch transactionEntity {
         | #Tenant
-        | #Organization => `analytics/v1/org/report/authentications`
-        | #Merchant => `analytics/v1/merchant/report/authentications`
-        | #Profile => `analytics/v1/profile/report/authentications`
+        | #Organization =>
+          olap(`analytics/v1/org/report/authentications`)
+        | #Merchant => olap(`analytics/v1/merchant/report/authentications`)
+        | #Profile => olap(`analytics/v1/profile/report/authentications`)
         }
 
       /* EVENT LOGS */
-      | SDK_EVENT_LOGS => `analytics/v1/profile/sdk_event_logs`
+      | SDK_EVENT_LOGS => olap(`analytics/v1/profile/sdk_event_logs`)
 
-      | WEBHOOK_EVENTS => `events/profile/list`
+      | WEBHOOK_EVENTS => olap(`events/profile/list`)
       | WEBHOOK_EVENTS_ATTEMPTS =>
         switch id {
-        | Some(id) => `events/${merchantId}/${id}/attempts`
-        | None => `events/${merchantId}/attempts`
+        | Some(id) => olap(`events/${merchantId}/${id}/attempts`)
+        | None => olap(`events/${merchantId}/attempts`)
         }
       | WEBHOOKS_EVENTS_RETRY =>
         switch id {
-        | Some(id) => `events/${merchantId}/${id}/retry`
-        | None => `events/${merchantId}/retry`
+        | Some(id) => olap(`events/${merchantId}/${id}/retry`)
+        | None => olap(`events/${merchantId}/retry`)
         }
       | WEBHOOKS_EVENT_LOGS =>
         switch methodType {
         | Get =>
           switch queryParameters {
-          | Some(params) => `analytics/v1/profile/outgoing_webhook_event_logs?${params}`
-          | None => `analytics/v1/outgoing_webhook_event_logs`
+          | Some(params) => olap(`analytics/v1/profile/outgoing_webhook_event_logs?${params}`)
+          | None => olap(`analytics/v1/outgoing_webhook_event_logs`)
           }
-        | _ => ""
+        | _ => oltp("")
         }
       | CONNECTOR_EVENT_LOGS =>
         switch methodType {
         | Get =>
           switch queryParameters {
-          | Some(params) => `analytics/v1/profile/connector_event_logs?${params}`
-          | None => `analytics/v1/connector_event_logs`
+          | Some(params) => olap(`analytics/v1/profile/connector_event_logs?${params}`)
+          | None => olap(`analytics/v1/connector_event_logs`)
           }
-        | _ => ""
+        | _ => oltp("")
         }
       | PRISM_CONNECTOR_EVENT_LOGS =>
         switch methodType {
         | Get =>
           switch queryParameters {
-          | Some(params) => `analytics/v1/profile/prism_connector_event_logs?${params}`
-          | None => `analytics/v1/prism_connector_event_logs`
+          | Some(params) => olap(`analytics/v1/profile/prism_connector_event_logs?${params}`)
+          | None => olap(`analytics/v1/prism_connector_event_logs`)
           }
-        | _ => ""
+        | _ => oltp("")
         }
       | ROUTING_EVENT_LOGS =>
         switch methodType {
         | Get =>
           switch queryParameters {
-          | Some(params) => `analytics/v1/profile/routing_event_logs?${params}`
-          | None => `analytics/v1/routing_event_logs`
+          | Some(params) => olap(`analytics/v1/profile/routing_event_logs?${params}`)
+          | None => olap(`analytics/v1/routing_event_logs`)
           }
-        | _ => ""
+        | _ => oltp("")
         }
       /* SAMPLE DATA */
-      | GENERATE_SAMPLE_DATA => `user/sample_data`
+      | GENERATE_SAMPLE_DATA => olap(`user/sample_data`)
 
       /* VERIFY APPLE PAY */
       | VERIFY_APPLE_PAY =>
         switch id {
-        | Some(merchant_id) => `verify/apple_pay/${merchant_id}`
-        | None => `verify/apple_pay`
+        | Some(merchant_id) => olap(`verify/apple_pay/${merchant_id}`)
+        | None => olap(`verify/apple_pay`)
         }
 
       /* PAYPAL ONBOARDING */
-      | PAYPAL_ONBOARDING => `connector_onboarding`
-      | PAYPAL_ONBOARDING_SYNC => `connector_onboarding/sync`
-      | ACTION_URL => `connector_onboarding/action_url`
-      | RESET_TRACKING_ID => `connector_onboarding/reset_tracking_id`
+      | PAYPAL_ONBOARDING => olap(`connector_onboarding`)
+      | PAYPAL_ONBOARDING_SYNC => olap(`connector_onboarding/sync`)
+      | ACTION_URL => olap(`connector_onboarding/action_url`)
+      | RESET_TRACKING_ID => olap(`connector_onboarding/reset_tracking_id`)
 
       /* BUSINESS PROFILE */
       | BUSINESS_PROFILE =>
         switch methodType {
         | Get =>
           switch id {
-          | Some(id) => `account/${merchantId}/business_profile/${id}`
+          | Some(id) => olap(`account/${merchantId}/business_profile/${id}`)
           | None =>
             switch userEntity {
             | #Tenant
             | #Organization
             | #Merchant
             | #Profile =>
-              `account/${merchantId}/profile`
+              olap(`account/${merchantId}/profile`)
             }
           }
 
         | Post =>
           switch id {
-          | Some(id) => `account/${merchantId}/business_profile/${id}`
-          | None => `account/${merchantId}/business_profile`
+          | Some(id) => olap(`account/${merchantId}/business_profile/${id}`)
+          | None => olap(`account/${merchantId}/business_profile`)
           }
-        | _ => `account/${merchantId}/business_profile`
+        | _ => olap(`account/${merchantId}/business_profile`)
         }
 
       /* API KEYS */
       | API_KEYS =>
         switch methodType {
-        | Get => `api_keys/${merchantId}/list`
+        | Get => olap(`api_keys/${merchantId}/list`)
         | Post =>
           switch id {
-          | Some(key_id) => `api_keys/${merchantId}/${key_id}`
-          | None => `api_keys/${merchantId}`
+          | Some(key_id) => olap(`api_keys/${merchantId}/${key_id}`)
+          | None => olap(`api_keys/${merchantId}`)
           }
-        | Delete => `api_keys/${merchantId}/${id->Option.getOr("")}`
-        | _ => ""
+        | Delete => olap(`api_keys/${merchantId}/${id->Option.getOr("")}`)
+        | _ => oltp("")
         }
 
       /* MERCHANT ACQUIRER */
@@ -987,26 +1006,26 @@ let useGetURL = () => {
         switch methodType {
         | Post =>
           switch id {
-          | Some(acquirerId) => `profile_acquirer/${profileId}/${acquirerId}`
-          | None => `profile_acquirer`
+          | Some(acquirerId) => olap(`profile_acquirer/${profileId}/${acquirerId}`)
+          | None => olap(`profile_acquirer`)
           }
-        | _ => ""
+        | _ => oltp("")
         }
 
       /* DISPUTES EVIDENCE */
       | ACCEPT_DISPUTE =>
         switch id {
-        | Some(id) => `disputes/accept/${id}`
-        | None => `disputes`
+        | Some(id) => olap(`disputes/accept/${id}`)
+        | None => olap(`disputes`)
         }
       | DISPUTES_ATTACH_EVIDENCE =>
         switch id {
-        | Some(id) => `disputes/evidence/${id}`
-        | _ => `disputes/evidence`
+        | Some(id) => olap(`disputes/evidence/${id}`)
+        | _ => olap(`disputes/evidence`)
         }
 
       /* PMTS COUNTRY-CURRENCY DETAILS */
-      | PAYMENT_METHOD_CONFIG => `payment_methods/filter`
+      | PAYMENT_METHOD_CONFIG => olap(`payment_methods/filter`)
 
       /* USER MANAGEMENT REVAMP */
       | USER_MANAGEMENT => {
@@ -1014,20 +1033,20 @@ let useGetURL = () => {
           switch userRoleTypes {
           | USER_LIST =>
             switch queryParameters {
-            | Some(queryParams) => `${userUrl}/user/list?${queryParams}`
-            | None => `${userUrl}/user/list`
+            | Some(queryParams) => olap(`${userUrl}/user/list?${queryParams}`)
+            | None => olap(`${userUrl}/user/list`)
             }
           | ROLE_LIST =>
             switch queryParameters {
-            | Some(queryParams) => `${userUrl}/role/list?${queryParams}`
-            | None => `${userUrl}/role/list`
+            | Some(queryParams) => olap(`${userUrl}/role/list?${queryParams}`)
+            | None => olap(`${userUrl}/role/list`)
             }
           | ROLE_ID =>
             switch id {
-            | Some(key_id) => `${userUrl}/role/${key_id}/v2`
-            | None => ""
+            | Some(key_id) => olap(`${userUrl}/role/${key_id}/v2`)
+            | None => oltp("")
             }
-          | _ => ""
+          | _ => oltp("")
           }
         }
 
@@ -1037,37 +1056,37 @@ let useGetURL = () => {
           switch methodType {
           | Post =>
             switch id {
-            | Some(ingestionId) => `${reconBaseURL}/ingestions/${ingestionId}/upload`
-            | None => ``
+            | Some(ingestionId) => recon(`ingestions/${ingestionId}/upload`)
+            | None => oltp(``)
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #ACCOUNTS_LIST =>
           switch methodType {
           | Get =>
             switch id {
-            | Some(accountId) => `${reconBaseURL}/accounts/${accountId}`
-            | None => `${reconBaseURL}/accounts`
+            | Some(accountId) => recon(`accounts/${accountId}`)
+            | None => recon(`accounts`)
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #TRANSACTIONS_LIST =>
           switch methodType {
           | Get =>
             switch id {
-            | Some(transactionID) => `${reconBaseURL}/transactions/${transactionID}`
+            | Some(transactionID) => recon(`transactions/${transactionID}`)
             | None =>
               switch queryParameters {
-              | Some(queryParams) => `${reconBaseURL}/transactions?${queryParams}`
-              | None => `${reconBaseURL}/transactions`
+              | Some(queryParams) => recon(`transactions?${queryParams}`)
+              | None => recon(`transactions`)
               }
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #TRANSACTIONS_LIST_V2 =>
           switch methodType {
-          | Post => `${reconBaseURL}/transactions/v2/list`
-          | _ => ""
+          | Post => recon(`transactions/v2/list`)
+          | _ => oltp("")
           }
         | #PROCESSED_ENTRIES_LIST_WITH_ACCOUNT =>
           switch methodType {
@@ -1075,283 +1094,282 @@ let useGetURL = () => {
             switch id {
             | Some(accountId) =>
               switch queryParameters {
-              | Some(queryParams) => `${reconBaseURL}/accounts/${accountId}/entries?${queryParams}`
-              | None => `${reconBaseURL}/accounts/${accountId}/entries`
+              | Some(queryParams) => recon(`accounts/${accountId}/entries?${queryParams}`)
+              | None => recon(`accounts/${accountId}/entries`)
               }
-            | None => ""
+            | None => oltp("")
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #PROCESSED_ENTRIES_LIST_WITH_TRANSACTION =>
           switch methodType {
           | Get =>
             switch id {
-            | Some(transactionId) => `${reconBaseURL}/transactions/${transactionId}/entries`
-            | None => `${reconBaseURL}/entries`
+            | Some(transactionId) => recon(`transactions/${transactionId}/entries`)
+            | None => recon(`entries`)
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #PROCESSING_ENTRIES_LIST_V2 =>
           switch methodType {
-          | Post => `${reconBaseURL}/staging_entries/v2/list`
-          | _ => ""
+          | Post => recon(`staging_entries/v2/list`)
+          | _ => oltp("")
           }
         | #PROCESSING_ENTRIES_LIST =>
           switch methodType {
           | Get =>
             switch queryParameters {
-            | Some(queryParams) => `${reconBaseURL}/staging_entries?${queryParams}`
+            | Some(queryParams) => recon(`staging_entries?${queryParams}`)
             | None =>
               switch id {
-              | Some(processingEntryId) => `${reconBaseURL}/staging_entries/${processingEntryId}`
-              | None => `${reconBaseURL}/staging_entries`
+              | Some(processingEntryId) => recon(`staging_entries/${processingEntryId}`)
+              | None => recon(`staging_entries`)
               }
             }
           | Put =>
             switch id {
-            | Some(processingEntryId) => `${reconBaseURL}/staging_entries/${processingEntryId}`
-            | None => ""
+            | Some(processingEntryId) => recon(`staging_entries/${processingEntryId}`)
+            | None => oltp("")
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #RECON_RULES =>
           switch methodType {
           | Get =>
             switch id {
-            | Some(ruleId) => `${reconBaseURL}/recon_rules/v2/${ruleId}`
-            | None => `${reconBaseURL}/recon_rules/v2`
+            | Some(ruleId) => recon(`recon_rules/v2/${ruleId}`)
+            | None => recon(`recon_rules/v2`)
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #INGESTION_HISTORY =>
           switch methodType {
           | Get =>
             switch queryParameters {
-            | Some(queryParams) => `${reconBaseURL}/ingestions/history?${queryParams}`
+            | Some(queryParams) => recon(`ingestions/history?${queryParams}`)
             | None =>
               switch id {
-              | Some(ingestionHistoryId) =>
-                `${reconBaseURL}/ingestions/history/${ingestionHistoryId}`
-              | None => `${reconBaseURL}/ingestions/history`
+              | Some(ingestionHistoryId) => recon(`ingestions/history/${ingestionHistoryId}`)
+              | None => recon(`ingestions/history`)
               }
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #INGESTION_CONFIG =>
           switch methodType {
           | Get =>
             switch id {
-            | Some(ingestionId) => `${reconBaseURL}/ingestions/config/${ingestionId}`
+            | Some(ingestionId) => recon(`ingestions/config/${ingestionId}`)
             | None =>
               switch queryParameters {
-              | Some(queryParams) => `${reconBaseURL}/ingestions/config?${queryParams}`
-              | None => `${reconBaseURL}/ingestions/config`
+              | Some(queryParams) => recon(`ingestions/config?${queryParams}`)
+              | None => recon(`ingestions/config`)
               }
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #TRANSFORMATION_HISTORY =>
           switch methodType {
           | Get =>
             switch queryParameters {
-            | Some(queryParams) => `${reconBaseURL}/transformations/history?${queryParams}`
+            | Some(queryParams) => recon(`transformations/history?${queryParams}`)
             | None =>
               switch id {
               | Some(transformationHistoryId) =>
-                `${reconBaseURL}/transformations/history/${transformationHistoryId}`
-              | None => `${reconBaseURL}/transformations/history`
+                recon(`transformations/history/${transformationHistoryId}`)
+              | None => recon(`transformations/history`)
               }
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #TRANSFORMATION_CONFIG =>
           switch methodType {
           | Get =>
             switch id {
-            | Some(transformationId) =>
-              `${reconBaseURL}/transformations/configs/${transformationId}`
+            | Some(transformationId) => recon(`transformations/configs/${transformationId}`)
             | None =>
               switch queryParameters {
-              | Some(queryParams) => `${reconBaseURL}/transformations/configs?${queryParams}`
-              | None => `${reconBaseURL}/transformations/configs`
+              | Some(queryParams) => recon(`transformations/configs?${queryParams}`)
+              | None => recon(`transformations/configs`)
               }
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #TRANSFORMATION_CONFIG_WITH_METADATA =>
           switch methodType {
           | Get =>
             switch id {
             | Some(transformationId) =>
-              `${reconBaseURL}/transformations/configs/${transformationId}/metadata_schema`
-            | None => ""
+              recon(`transformations/configs/${transformationId}/metadata_schema`)
+            | None => oltp("")
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #VOID_TRANSACTION =>
           switch methodType {
           | Put =>
             switch id {
-            | Some(transactionId) => `${reconBaseURL}/transactions/${transactionId}/void`
-            | None => ``
+            | Some(transactionId) => recon(`transactions/${transactionId}/void`)
+            | None => oltp(``)
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #FORCE_RECONCILE_TRANSACTION =>
           switch methodType {
           | Put =>
             switch id {
             | Some(transactionId) =>
-              `${reconBaseURL}/exception_management/transactions/${transactionId}/force_reconcile`
-            | None => ``
+              recon(`exception_management/transactions/${transactionId}/force_reconcile`)
+            | None => oltp(``)
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #TRANSACTION_RESOLUTIONS =>
           switch methodType {
           | Get =>
             switch id {
             | Some(transactionId) =>
-              `${reconBaseURL}/exception_management/transactions/${transactionId}/resolutions`
-            | None => ``
+              recon(`exception_management/transactions/${transactionId}/resolutions`)
+            | None => oltp(``)
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #MANUAL_RECONCILIATION =>
           switch methodType {
           | Post =>
             switch id {
             | Some(transactionId) =>
-              `${reconBaseURL}/exception_management/transactions/${transactionId}/manual_reconciliation`
-            | None => ``
+              recon(`exception_management/transactions/${transactionId}/manual_reconciliation`)
+            | None => oltp(``)
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #LINKABLE_STAGING_ENTRIES =>
           switch methodType {
           | Post =>
             switch id {
             | Some(transactionId) =>
-              `${reconBaseURL}/exception_management/transactions/${transactionId}/linkable_staging_entries/v2/list`
-            | None => ``
+              recon(
+                `exception_management/transactions/${transactionId}/linkable_staging_entries/v2/list`,
+              )
+            | None => oltp(``)
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #DOWNLOAD_INGESTION_HISTORY_FILE =>
           switch methodType {
           | Get =>
             switch id {
-            | Some(ingestionHistoryId) =>
-              `${reconBaseURL}/ingestions/history/${ingestionHistoryId}/download`
-            | None => ``
+            | Some(ingestionHistoryId) => recon(`ingestions/history/${ingestionHistoryId}/download`)
+            | None => oltp(``)
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #AUDIT_TRAIL =>
           switch methodType {
           | Get =>
             switch queryParameters {
-            | Some(queryParams) => `${reconBaseURL}/audit_trail?${queryParams}`
-            | None => `${reconBaseURL}/audit_trail`
+            | Some(queryParams) => recon(`audit_trail?${queryParams}`)
+            | None => recon(`audit_trail`)
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #PROCESSING_ENTRY_RESOLUTIONS =>
           switch methodType {
           | Get =>
             switch id {
             | Some(processingEntryId) =>
-              `${reconBaseURL}/exception_management/staging_entries/${processingEntryId}/resolutions`
-            | None => ``
+              recon(`exception_management/staging_entries/${processingEntryId}/resolutions`)
+            | None => oltp(``)
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #VOID_PROCESSING_ENTRY =>
           switch methodType {
           | Put =>
             switch id {
-            | Some(processingEntryId) => `${reconBaseURL}/staging_entries/${processingEntryId}/void`
-            | None => ``
+            | Some(processingEntryId) => recon(`staging_entries/${processingEntryId}/void`)
+            | None => oltp(``)
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #TRANSACTION_BULK_OPERATIONS =>
           switch methodType {
-          | Post => `${reconBaseURL}/transactions/bulk_operations`
-          | _ => ""
+          | Post => recon(`transactions/bulk_operations`)
+          | _ => oltp("")
           }
         | #STAGING_ENTRY_BULK_OPERATIONS =>
           switch methodType {
-          | Post => `${reconBaseURL}/staging_entries/bulk_operations`
-          | _ => ""
+          | Post => recon(`staging_entries/bulk_operations`)
+          | _ => oltp("")
           }
         | #OVERVIEW_RULES =>
           switch methodType {
           | Get =>
             switch queryParameters {
-            | Some(queryParams) => `${reconBaseURL}/overview/transactions?${queryParams}`
-            | None => `${reconBaseURL}/overview/transactions`
+            | Some(queryParams) => recon(`overview/transactions?${queryParams}`)
+            | None => recon(`overview/transactions`)
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #OVERVIEW_RULES_TIME_SERIES =>
           switch methodType {
           | Get =>
             switch queryParameters {
-            | Some(queryParams) =>
-              `${reconBaseURL}/overview/transactions/time_series?${queryParams}`
-            | None => `${reconBaseURL}/overview/transactions/time_series`
+            | Some(queryParams) => recon(`overview/transactions/time_series?${queryParams}`)
+            | None => recon(`overview/transactions/time_series`)
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #RULE_ACCOUNT_BREAKDOWN =>
           switch methodType {
           | Get =>
             switch queryParameters {
             | Some(queryParams) =>
-              `${reconBaseURL}/overview/transactions/rule_account_breakdown?${queryParams}`
-            | None => `${reconBaseURL}/overview/transactions/rule_account_breakdown`
+              recon(`overview/transactions/rule_account_breakdown?${queryParams}`)
+            | None => recon(`overview/transactions/rule_account_breakdown`)
             }
-          | _ => ""
+          | _ => oltp("")
           }
         | #STAGING_ENTRIES_OVERVIEW =>
           switch methodType {
           | Get =>
             switch queryParameters {
-            | Some(queryParams) => `${reconBaseURL}/overview/staging_entries?${queryParams}`
-            | None => `${reconBaseURL}/overview/staging_entries`
+            | Some(queryParams) => recon(`overview/staging_entries?${queryParams}`)
+            | None => recon(`overview/staging_entries`)
             }
-          | _ => ""
+          | _ => oltp("")
           }
-        | #NONE => ""
+        | #NONE => oltp("")
         }
 
       /* INTELLIGENT ROUTING */
-      | GET_REVIEW_FIELDS => `dynamic-routing/simulate/baseline-review-fields`
+      | GET_REVIEW_FIELDS => oltp(`dynamic-routing/simulate/baseline-review-fields`)
       | SIMULATE_INTELLIGENT_ROUTING =>
         switch queryParameters {
-        | Some(queryParams) => `dynamic-routing/simulate/${merchantId}?${queryParams}`
-        | None => `dynamic-routing/simulate/${merchantId}`
+        | Some(queryParams) => oltp(`dynamic-routing/simulate/${merchantId}?${queryParams}`)
+        | None => oltp(`dynamic-routing/simulate/${merchantId}`)
         }
       | INTELLIGENT_ROUTING_RECORDS =>
         switch queryParameters {
-        | Some(queryParams) => `dynamic-routing/simulate/${merchantId}/get-records?${queryParams}`
-        | None => `dynamic-routing/simulate/${merchantId}/get-records`
+        | Some(queryParams) =>
+          oltp(`dynamic-routing/simulate/${merchantId}/get-records?${queryParams}`)
+        | None => oltp(`dynamic-routing/simulate/${merchantId}/get-records`)
         }
       | INTELLIGENT_ROUTING_GET_STATISTICS =>
-        `dynamic-routing/simulate/${merchantId}/get-statistics`
+        oltp(`dynamic-routing/simulate/${merchantId}/get-statistics`)
 
       /* Revenue Recovery */
-      | TRANSACTION_OVERVIEW => `${recoveryAnalyticsDemo}/analytics/transaction_overview`
-      | RETRY_PERFORMANCE => `${recoveryAnalyticsDemo}/analytics/retry_performance`
-      | MONTHLY_RETRY_SUCCESS => `${recoveryAnalyticsDemo}/analytics/monthly_retry_success`
-      | RETRY_ATTEMPTS_TREND => `${recoveryAnalyticsDemo}/analytics/retry_attempts_trend`
-      | ERROR_CATEGORY_ANALYSIS => `${recoveryAnalyticsDemo}/analytics/error_category_analysis`
-      | RECOVERY_INVOICES => `${recoveryAnalyticsDemo}/list-invoices`
+      | TRANSACTION_OVERVIEW => revenueRecovery(`analytics/transaction_overview`)
+      | RETRY_PERFORMANCE => revenueRecovery(`analytics/retry_performance`)
+      | MONTHLY_RETRY_SUCCESS => revenueRecovery(`analytics/monthly_retry_success`)
+      | RETRY_ATTEMPTS_TREND => revenueRecovery(`analytics/retry_attempts_trend`)
+      | ERROR_CATEGORY_ANALYSIS => revenueRecovery(`analytics/error_category_analysis`)
+      | RECOVERY_INVOICES => revenueRecovery(`list-invoices`)
       | RECOVERY_ATTEMPTS =>
         switch queryParameters {
-        | Some(queryParams) => `${recoveryAnalyticsDemo}/list-attempts/${queryParams}`
-        | None => `${recoveryAnalyticsDemo}/list-attempts`
+        | Some(queryParams) => revenueRecovery(`list-attempts/${queryParams}`)
+        | None => revenueRecovery(`list-attempts`)
         }
 
       /* USERS */
@@ -1362,12 +1380,12 @@ let useGetURL = () => {
         // DASHBOARD LOGIN / SIGNUP
         | #CONNECT_ACCOUNT =>
           switch queryParameters {
-          | Some(params) => `${userUrl}/connect_account?${params}`
-          | None => `${userUrl}/connect_account`
+          | Some(params) => olap(`${userUrl}/connect_account?${params}`)
+          | None => olap(`${userUrl}/connect_account`)
           }
-        | #SIGNINV2 => `${userUrl}/v2/signin`
-        | #LAUNCH_SAGE => `${userUrl}/launch_sage`
-        | #CHANGE_PASSWORD => `${userUrl}/change_password`
+        | #SIGNINV2 => olap(`${userUrl}/v2/signin`)
+        | #LAUNCH_SAGE => olap(`${userUrl}/launch_sage`)
+        | #CHANGE_PASSWORD => olap(`${userUrl}/change_password`)
         | #SIGNUP
         | #SIGNOUT
         | #RESET_PASSWORD
@@ -1375,191 +1393,197 @@ let useGetURL = () => {
         | #FORGOT_PASSWORD
         | #ROTATE_PASSWORD =>
           switch queryParameters {
-          | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
-          | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
+          | Some(params) => olap(`${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`)
+          | None => olap(`${userUrl}/${(userType :> string)->String.toLowerCase}`)
           }
 
         // POST LOGIN QUESTIONNAIRE
         | #SET_METADATA =>
           switch queryParameters {
-          | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
-          | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
+          | Some(params) => olap(`${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`)
+          | None => olap(`${userUrl}/${(userType :> string)->String.toLowerCase}`)
           }
 
         // USER DATA
         | #USER_DATA =>
           switch queryParameters {
-          | Some(params) => `${userUrl}/data?${params}`
-          | None => `${userUrl}/data`
+          | Some(params) => olap(`${userUrl}/data?${params}`)
+          | None => olap(`${userUrl}/data`)
           }
-        | #MERCHANT_DATA => `${userUrl}/data`
-        | #USER_INFO => userUrl
+        | #MERCHANT_DATA => olap(`${userUrl}/data`)
+        | #USER_INFO => olap(userUrl)
 
         // USER GROUP ACCESS
-        | #GET_GROUP_ACL => `${userUrl}/role/v2`
+        | #GET_GROUP_ACL => olap(`${userUrl}/role/v2`)
         | #ROLE_INFO =>
           switch queryParameters {
-          | Some(params) => `${userUrl}/parent/list?${params}`
-          | None => `${userUrl}/parent/list`
+          | Some(params) => olap(`${userUrl}/parent/list?${params}`)
+          | None => olap(`${userUrl}/parent/list`)
           }
 
         | #GROUP_ACCESS_INFO =>
           switch queryParameters {
-          | Some(params) => `${userUrl}/permission_info?${params}`
-          | None => `${userUrl}/permission_info`
+          | Some(params) => olap(`${userUrl}/permission_info?${params}`)
+          | None => olap(`${userUrl}/permission_info`)
           }
 
         // USER ACTIONS
-        | #USER_DELETE => `${userUrl}/user/delete`
-        | #USER_UPDATE => `${userUrl}/update`
-        | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
+        | #USER_DELETE => olap(`${userUrl}/user/delete`)
+        | #USER_UPDATE => olap(`${userUrl}/update`)
+        | #UPDATE_ROLE => olap(`${userUrl}/user/${(userType :> string)->String.toLowerCase}`)
 
         // INVITATION INSIDE DASHBOARD
         | #RESEND_INVITE =>
           switch queryParameters {
-          | Some(params) => `${userUrl}/user/resend_invite?${params}`
-          | None => `${userUrl}/user/resend_invite`
+          | Some(params) => olap(`${userUrl}/user/resend_invite?${params}`)
+          | None => olap(`${userUrl}/user/resend_invite`)
           }
-        | #ACCEPT_INVITATION_HOME => `${userUrl}/user/invite/accept`
+        | #ACCEPT_INVITATION_HOME => olap(`${userUrl}/user/invite/accept`)
         | #INVITE_MULTIPLE =>
           switch queryParameters {
-          | Some(params) => `${userUrl}/user/${(userType :> string)->String.toLowerCase}?${params}`
-          | None => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
+          | Some(params) =>
+            olap(`${userUrl}/user/${(userType :> string)->String.toLowerCase}?${params}`)
+          | None => olap(`${userUrl}/user/${(userType :> string)->String.toLowerCase}`)
           }
 
         // ACCEPT INVITE PRE_LOGIN
-        | #ACCEPT_INVITATION_PRE_LOGIN => `${userUrl}/user/invite/accept/pre_auth`
+        | #ACCEPT_INVITATION_PRE_LOGIN => olap(`${userUrl}/user/invite/accept/pre_auth`)
 
         // CREATE_ORG
-        | #CREATE_ORG => `user/create_org`
+        | #CREATE_ORG => olap(`user/create_org`)
         // CREATE_PLATFORM
-        | #CREATE_PLATFORM => `user/create_platform`
+        | #CREATE_PLATFORM => olap(`user/create_platform`)
         // CREATE MERCHANT
         | #CREATE_MERCHANT =>
           switch queryParameters {
-          | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
-          | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
+          | Some(params) => olap(`${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`)
+          | None => olap(`${userUrl}/${(userType :> string)->String.toLowerCase}`)
           }
-        | #SWITCH_ORG => `${userUrl}/switch/org`
-        | #SWITCH_MERCHANT_NEW => `${userUrl}/switch/merchant`
-        | #SWITCH_PROFILE | #SWITCH_PROFILE_NEW => `${userUrl}/switch/profile`
+        | #SWITCH_ORG => olap(`${userUrl}/switch/org`)
+        | #SWITCH_MERCHANT_NEW => olap(`${userUrl}/switch/merchant`)
+        | #SWITCH_PROFILE | #SWITCH_PROFILE_NEW => olap(`${userUrl}/switch/profile`)
 
         // Org-Merchant-Profile List
-        | #LIST_ORG => `${userUrl}/list/org`
-        | #LIST_MERCHANT => `${userUrl}/list/merchant`
-        | #LIST_PROFILE => `${userUrl}/list/profile`
+        | #LIST_ORG => olap(`${userUrl}/list/org`)
+        | #LIST_MERCHANT => olap(`${userUrl}/list/merchant`)
+        | #LIST_PROFILE => olap(`${userUrl}/list/profile`)
 
         // Clone connector across profiles of the same merchant
-        | #CLONE_CONNECTOR => `${userUrl}/clone_connector`
+        | #CLONE_CONNECTOR => olap(`${userUrl}/clone_connector`)
 
         // CREATE ROLES
-        | #CREATE_CUSTOM_ROLE => `${userUrl}/role`
-        | #CREATE_CUSTOM_ROLE_V2 => `${userUrl}/role/v2`
+        | #CREATE_CUSTOM_ROLE => olap(`${userUrl}/role`)
+        | #CREATE_CUSTOM_ROLE_V2 => olap(`${userUrl}/role/v2`)
         // EMAIL FLOWS
-        | #FROM_EMAIL => `${userUrl}/from_email`
-        | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email`
+        | #FROM_EMAIL => olap(`${userUrl}/from_email`)
+        | #VERIFY_EMAILV2 => olap(`${userUrl}/v2/verify_email`)
         | #ACCEPT_INVITE_FROM_EMAIL =>
           switch queryParameters {
-          | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
-          | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
+          | Some(params) => olap(`${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`)
+          | None => olap(`${userUrl}/${(userType :> string)->String.toLowerCase}`)
           }
-        | #TERMINATE_ACCEPT_INVITE => `${userUrl}/terminate_accept_invite`
+        | #TERMINATE_ACCEPT_INVITE => olap(`${userUrl}/terminate_accept_invite`)
 
         // SPT FLOWS (Totp)
-        | #BEGIN_TOTP => `${userUrl}/2fa/totp/begin`
-        | #CHECK_TWO_FACTOR_AUTH_STATUS_V2 => `${userUrl}/2fa/v2`
-        | #VERIFY_TOTP => `${userUrl}/2fa/totp/verify`
-        | #VERIFY_RECOVERY_CODE => `${userUrl}/2fa/recovery_code/verify`
-        | #GENERATE_RECOVERY_CODES => `${userUrl}/2fa/recovery_code/generate`
+        | #BEGIN_TOTP => olap(`${userUrl}/2fa/totp/begin`)
+        | #CHECK_TWO_FACTOR_AUTH_STATUS_V2 => olap(`${userUrl}/2fa/v2`)
+        | #VERIFY_TOTP => olap(`${userUrl}/2fa/totp/verify`)
+        | #VERIFY_RECOVERY_CODE => olap(`${userUrl}/2fa/recovery_code/verify`)
+        | #GENERATE_RECOVERY_CODES => olap(`${userUrl}/2fa/recovery_code/generate`)
         | #TERMINATE_TWO_FACTOR_AUTH =>
           switch queryParameters {
-          | Some(params) => `${userUrl}/2fa/terminate?${params}`
-          | None => `${userUrl}/2fa/terminate`
+          | Some(params) => olap(`${userUrl}/2fa/terminate?${params}`)
+          | None => olap(`${userUrl}/2fa/terminate`)
           }
 
-        | #CHECK_TWO_FACTOR_AUTH_STATUS => `${userUrl}/2fa`
-        | #RESET_TOTP => `${userUrl}/2fa/totp/reset`
+        | #CHECK_TWO_FACTOR_AUTH_STATUS => olap(`${userUrl}/2fa`)
+        | #RESET_TOTP => olap(`${userUrl}/2fa/totp/reset`)
 
         // SPT FLOWS (SSO)
         | #GET_AUTH_LIST =>
           switch queryParameters {
-          | Some(params) => `${userUrl}/auth/list?${params}`
-          | None => `${userUrl}/auth/list`
+          | Some(params) => olap(`${userUrl}/auth/list?${params}`)
+          | None => olap(`${userUrl}/auth/list`)
           }
-        | #SIGN_IN_WITH_SSO => `${userUrl}/oidc`
-        | #AUTH_SELECT => `${userUrl}/auth/select`
+        | #SIGN_IN_WITH_SSO => olap(`${userUrl}/oidc`)
+        | #AUTH_URL =>
+          switch queryParameters {
+          | Some(params) => olap(`${userUrl}/auth/url?${params}`)
+          | None => olap(`${userUrl}/auth/url`)
+          }
+        | #AUTH_SELECT => olap(`${userUrl}/auth/select`)
 
         // user-management revamp
         | #LIST_ROLES_FOR_INVITE =>
           switch queryParameters {
-          | Some(params) => `${userUrl}/role/list/invite?${params}`
-          | None => ""
+          | Some(params) => olap(`${userUrl}/role/list/invite?${params}`)
+          | None => oltp("")
           }
-        | #LIST_INVITATION => `${userUrl}/list/invitation`
-        | #USER_DETAILS => `${userUrl}/user`
+        | #LIST_INVITATION => olap(`${userUrl}/list/invitation`)
+        | #USER_DETAILS => olap(`${userUrl}/user`)
         | #LIST_ROLES_FOR_ROLE_UPDATE =>
           switch queryParameters {
-          | Some(params) => `${userUrl}/role/list/update?${params}`
-          | None => ""
+          | Some(params) => olap(`${userUrl}/role/list/update?${params}`)
+          | None => oltp("")
           }
         | #THEME =>
           switch methodType {
           | Get =>
             switch id {
-            | Some(themeId) => `${userUrl}/theme/${themeId}`
-            | None => `${userUrl}/theme`
+            | Some(themeId) => olap(`${userUrl}/theme/${themeId}`)
+            | None => olap(`${userUrl}/theme`)
             }
-          | Post => `${userUrl}/theme`
+          | Post => olap(`${userUrl}/theme`)
           | Put =>
             switch id {
-            | Some(themeId) => `${userUrl}/theme/${themeId}`
-            | None => `${userUrl}/theme`
+            | Some(themeId) => olap(`${userUrl}/theme/${themeId}`)
+            | None => olap(`${userUrl}/theme`)
             }
           | Delete =>
             switch id {
-            | Some(themeId) => `${userUrl}/theme/${themeId}`
-            | None => `${userUrl}/theme`
+            | Some(themeId) => olap(`${userUrl}/theme/${themeId}`)
+            | None => olap(`${userUrl}/theme`)
             }
-          | _ => ""
+          | _ => oltp("")
           }
 
         | #THEME_LIST =>
           switch methodType {
           | Get =>
             switch queryParameters {
-            | Some(params) => `${userUrl}/theme/list?${params}`
-            | None => `${userUrl}/theme/list`
+            | Some(params) => olap(`${userUrl}/theme/list?${params}`)
+            | None => olap(`${userUrl}/theme/list`)
             }
-          | _ => ""
+          | _ => oltp("")
           }
 
         | #THEME_BY_LINEAGE =>
           switch methodType {
           | Get =>
             switch queryParameters {
-            | Some(params) => `${userUrl}/theme?${params}`
-            | None => `${userUrl}/theme`
+            | Some(params) => olap(`${userUrl}/theme?${params}`)
+            | None => olap(`${userUrl}/theme`)
             }
-          | _ => ""
+          | _ => oltp("")
           }
 
         | #THEME_UPLOAD_ASSET =>
           switch methodType {
           | Post =>
             switch id {
-            | Some(themeId) => `${userUrl}/theme/${themeId}`
-            | None => `${userUrl}/theme`
+            | Some(themeId) => olap(`${userUrl}/theme/${themeId}`)
+            | None => olap(`${userUrl}/theme`)
             }
-          | _ => ""
+          | _ => oltp("")
           }
 
-        | #NONE => ""
+        | #NONE => oltp("")
         }
 
       /* TO BE CHECKED */
-      | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
-      | SDK_PAYMENT => "payments"
-      | CHAT_BOT => `chat/ai/data`
+      | INTEGRATION_DETAILS => olap(`user/get_sandbox_integration_details`)
+      | SDK_PAYMENT => oltp("payments")
+      | CHAT_BOT => olap(`chat/ai/data`)
       }
 
     | V2(entityNameForv2) =>
@@ -1575,7 +1599,7 @@ let useGetURL = () => {
       )
     }
 
-    `${Window.env.apiBaseUrl}/${endpoint}`
+    `${getBaseUrl(endpoint.service)}/${endpoint.path}`
   }
   getUrl
 }

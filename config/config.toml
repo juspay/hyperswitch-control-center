@@ -1,5 +1,9 @@
 [default.endpoints]
 api_url="http://localhost:9000/api"
+oltp_prefix=""
+olap_prefix=""
+recon_prefix="hyperswitch-recon-engine"
+revenue_recovery_prefix="revenue-recovery-demo"
 sdk_url="http://localhost:9050/HyperLoader.js"
 apple_pay_certificate_url=""
 dss_certificate_url=""
