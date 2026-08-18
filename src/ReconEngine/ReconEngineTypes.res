@@ -254,6 +254,12 @@ type linkedTransactionType = {
   transaction_status: domainTransactionStatus,
 }
 
+type modifiedByType = {
+  id: string,
+  name: string,
+  email: string,
+}
+
 type transactionType = {
   id: string,
   transaction_id: string,
@@ -269,6 +275,7 @@ type transactionType = {
   effective_at: string,
   data: transactionDataType,
   linked_transaction: option<linkedTransactionType>,
+  modified_by: option<modifiedByType>,
 }
 
 type entryType = {
