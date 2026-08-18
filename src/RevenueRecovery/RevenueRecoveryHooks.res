@@ -26,8 +26,7 @@ let useMitSupportedConnectors = () => {
     : RecoveryConnectorUtils.recoveryConnectorList
 
   let onboardableConnectorNames = React.useMemo(() => {
-    let list = isLiveMode ? ConnectorUtils.connectorListForLive : ConnectorUtils.connectorList
-    list->Array.map(ConnectorUtils.getConnectorNameString)
+    fallbackConnectors->Array.map(ConnectorUtils.getConnectorNameString)
   }, [isLiveMode])
 
   let (connectors, setConnectors) = React.useState(_ => fallbackConnectors)
