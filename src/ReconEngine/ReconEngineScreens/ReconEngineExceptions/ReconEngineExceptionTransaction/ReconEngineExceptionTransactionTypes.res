@@ -50,6 +50,6 @@ type accountSection = {
   accountId: string,
   accountInfo: accountInfo,
   accountEntries: array<exceptionResolutionEntryType>,
-  totalAmount: float,
+  accountTotalAmount: float,
   accountCurrency: string,
 }

@@ -820,7 +820,7 @@ let calculateSectionData = (
       )
     let accountEntries = groupedEntries->getValueFromDict(accountId, [])
 
-    let (totalAmount, accountCurrency) = if (
+    let (accountTotalAmount, accountCurrency) = if (
       accountInfo.account_info_type != UnknownAccountTypeVariant
     ) {
       getBalanceByAccountType(accountEntries, accountInfo.account_info_type)
@@ -828,7 +828,7 @@ let calculateSectionData = (
       getSumOfAmountWithCurrency(accountEntries)
     }
 
-    {accountId, accountInfo, accountEntries, totalAmount, accountCurrency}
+    {accountId, accountInfo, accountEntries, accountTotalAmount, accountCurrency}
   })
 }
 
@@ -840,8 +840,8 @@ let calculateOverallBalance = (
     section,
   ) => {
     switch section.accountInfo.account_info_type {
-    | Credit => (creditSum +. section.totalAmount, debitSum)
-    | Debit => (creditSum, debitSum +. section.totalAmount)
+    | Credit => (creditSum +. section.accountTotalAmount, debitSum)
+    | Debit => (creditSum, debitSum +. section.accountTotalAmount)
     | UnknownAccountTypeVariant => (creditSum, debitSum)
     }
   })
