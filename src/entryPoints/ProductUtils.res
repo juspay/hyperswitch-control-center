@@ -103,18 +103,13 @@ let productTypeIconMapper = productType => {
   }
 }
 
-let getProductUrl = (~productType: ProductTypes.productTypes, ~isLiveMode) => {
+let getProductUrl = (~productType: ProductTypes.productTypes, ~isLiveMode as _) => {
   open GlobalVars
   switch productType {
   | Orchestration(V1) => appendDashboardPath(~url="home")
   | Recon(V2) => appendDashboardPath(~url="v2/recon/overview")
   | Recon(V1) => appendDashboardPath(~url="v1/recon-engine/overview")
-  | Recovery =>
-    if isLiveMode {
-      appendDashboardPath(~url="v2/recovery/invoices")
-    } else {
-      appendDashboardPath(~url="v2/recovery/overview")
-    }
+  | Recovery => appendDashboardPath(~url="v2/recovery/invoices")
   | DynamicRouting => appendDashboardPath(~url=`v2/${productType->getProductRouteName}`)
   | Vault
   | CostObservability

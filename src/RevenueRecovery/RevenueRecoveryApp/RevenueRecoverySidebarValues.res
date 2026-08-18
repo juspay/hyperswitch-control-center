@@ -9,15 +9,6 @@ let revenueRecoveryHome = {
   })
 }
 
-let revenueRecoveryPayments = {
-  Link({
-    name: "Overview",
-    link: `/v2/recovery/overview`,
-    access: Access,
-    icon: "nd-operations",
-  })
-}
-
 let revenueRecoveryInvoices = {
   Link({
     name: "Invoices",
@@ -36,12 +27,6 @@ let revenueRecoverySummary = {
   })
 }
 
-let recoverySidebars = isLiveMode => {
-  let links = [revenueRecoveryInvoices, revenueRecoverySummary]
-
-  if !isLiveMode {
-    links->Array.unshift(revenueRecoveryPayments)
-  }
-
-  links
+let recoverySidebars = _isLiveMode => {
+  [revenueRecoveryInvoices, revenueRecoverySummary]
 }
