@@ -26,6 +26,10 @@ let make = (
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => Success)
+  let (
+    mitSupportedConnectors,
+    isMitConnectorListLoading,
+  ) = RevenueRecoveryHooks.useMitSupportedConnectors()
   let (arrow, setArrow) = React.useState(_ => false)
   let (showModal, setShowModal) = React.useState(_ => false)
 
@@ -188,10 +192,7 @@ let make = (
     checked: true,
   }
 
-  let options = {
-    open RecoveryConnectorUtils
-    isLiveMode ? recoveryConnectorProdList : recoveryConnectorList
-  }->getOptions
+  let options = mitSupportedConnectors->getOptions
 
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
   let dropdownContainerStyle = "rounded-md border border-1 !w-full"
@@ -334,7 +335,7 @@ let make = (
         title="Where do you process your payments"
         subTitle="Link the payment processor you use for handling subscription transactions.">
         <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
-          <PageLoaderWrapper screenState>
+          <PageLoaderWrapper screenState={isMitConnectorListLoading ? Loading : screenState}>
             <Form onSubmit initialValues validate=validateMandatoryField>
               <SelectBoxAdapter.BaseDropdown
                 allowMultiSelect=false
