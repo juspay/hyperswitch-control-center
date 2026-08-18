@@ -480,8 +480,17 @@ let getMismatchedFieldsDescription = (fields: array<mismatchedFieldType>) => {
   fields->isEmptyArray ? "" : `${count->Int.toString} field${pluralText(~count)} did not match`
 }
 
+let modifiedByItemToObjMapper = (dict): modifiedByType => {
+  {
+    id: dict->getString("id", ""),
+    name: dict->getString("name", ""),
+    email: dict->getString("email", ""),
+  }
+}
+
 let transactionItemToObjMapper = (dict): transactionType => {
   let linkedTransactionDict = dict->getDictfromDict("linked_transaction")
+  let modifiedByDict = dict->getDictfromDict("modified_by")
   {
     id: dict->getString("id", ""),
     transaction_id: dict->getString("transaction_id", ""),
@@ -525,6 +534,9 @@ let transactionItemToObjMapper = (dict): transactionType => {
     linked_transaction: linkedTransactionDict->isEmptyDict
       ? None
       : Some(linkedTransactionDict->linkedTransactionItemToObjMapper),
+    modified_by: modifiedByDict->isEmptyDict
+      ? None
+      : Some(modifiedByDict->modifiedByItemToObjMapper),
   }
 }
 
