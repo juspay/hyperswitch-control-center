@@ -78,9 +78,7 @@ let getOptions: array<ConnectorTypes.connectorTypes> => array<
 }
 
 open ConnectorTypes
-let recoveryConnectorList: array<connectorTypes> = [Processors(STRIPE), Processors(WORLDPAYVANTIV)]
-
-// processors the backend supports for MIT in live mode
+// processors the backend supports for MIT
 let recoveryConnectorProdList: array<connectorTypes> = [
   Processors(ACI),
   Processors(ADYEN),
@@ -129,6 +127,8 @@ let recoveryConnectorProdList: array<connectorTypes> = [
   Processors(XENDIT),
   Processors(ZIFT),
 ]
+
+let recoveryConnectorList: array<connectorTypes> = recoveryConnectorProdList
 
 let recoveryConnectorListProd: array<connectorTypes> = [
   Processors(ADYEN),
