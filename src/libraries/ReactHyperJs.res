@@ -60,6 +60,7 @@ type checkoutElementOptions = {
   showCardFormByDefault?: bool,
   wallets?: wallets,
   displaySavedPaymentMethods?: bool,
+  branding?: string,
 }
 
 type variables = {

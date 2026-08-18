@@ -23,6 +23,7 @@ let getOptionReturnUrl = (~themeConfig, ~returnUrl, ~showSavedCards) => {
       radios: true,
       spacedAccordionItems: isSpacedLayout,
     },
+    branding: "never",
   }
 }
 @react.component
