@@ -194,6 +194,18 @@ let paymentLinkConfigMapper = paymentLinkConfigDict => {
 
 let paymentMethodBlockingEntryMapper: Dict.t<JSON.t> => paymentMethodBlockingEntry = entryDict => {
   card_types: entryDict->getOptionStrArrayFromDict("card_types"),
+  card_networks: entryDict->getOptionStrArrayFromDict("card_networks"),
+  funding_sources: entryDict->getOptionStrArrayFromDict("funding_sources"),
+  card_segment_types: entryDict->getOptionStrArrayFromDict("card_segment_types"),
+  issuing_country: entryDict->getOptionStrArrayFromDict("issuing_country"),
+  issuers: entryDict->getOptionStrArrayFromDict("issuers"),
+  card_subtypes: entryDict->getOptionStrArrayFromDict("card_subtypes"),
+  block_if_bin_info_unavailable: entryDict->getOptionBool("block_if_bin_info_unavailable"),
+  block_virtual_cards: entryDict->getOptionBool("block_virtual_cards"),
+  block_non_reloadable_prepaid_cards: entryDict->getOptionBool(
+    "block_non_reloadable_prepaid_cards",
+  ),
+  gambling_blocked: entryDict->getOptionBool("gambling_blocked"),
 }
 
 let paymentMethodBlockingWalletEntryMapper = (walletDict, key, legacyEntry) => {
@@ -207,9 +219,7 @@ let paymentMethodBlockingWalletMapper: Dict.t<
   let legacyEntry =
     walletDict
     ->getOptionStrArrayFromDict("card_types")
-    ->Option.map(cardTypes => {
-      card_types: Some(cardTypes),
-    })
+    ->Option.map(_ => walletDict->paymentMethodBlockingEntryMapper)
   {
     apple_pay: paymentMethodBlockingWalletEntryMapper(walletDict, "apple_pay", legacyEntry),
     google_pay: paymentMethodBlockingWalletEntryMapper(walletDict, "google_pay", legacyEntry),

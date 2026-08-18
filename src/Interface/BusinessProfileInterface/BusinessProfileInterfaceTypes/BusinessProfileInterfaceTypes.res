@@ -77,7 +77,19 @@ type externalVaultConnectorDetails = {
 
 type surchargeConnectorDetails = {surcharge_connector_id: string}
 
-type paymentMethodBlockingEntry = {card_types: option<array<string>>}
+type paymentMethodBlockingEntry = {
+  card_types: option<array<string>>,
+  card_networks: option<array<string>>,
+  funding_sources: option<array<string>>,
+  card_segment_types: option<array<string>>,
+  issuing_country: option<array<string>>,
+  issuers: option<array<string>>,
+  card_subtypes: option<array<string>>,
+  block_if_bin_info_unavailable: option<bool>,
+  block_virtual_cards: option<bool>,
+  block_non_reloadable_prepaid_cards: option<bool>,
+  gambling_blocked: option<bool>,
+}
 
 type paymentMethodBlockingWallet = {
   apple_pay: option<paymentMethodBlockingEntry>,

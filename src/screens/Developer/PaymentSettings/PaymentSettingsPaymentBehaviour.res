@@ -187,90 +187,6 @@ module ClickToPaySection = {
   }
 }
 
-module PaymentMethodBlocking = {
-  @react.component
-  let make = () => {
-    open FormRenderer
-
-    let cardTypeOptions: array<SelectBox.dropdownOption> = ["credit", "debit"]->Array.map(item => {
-      SelectBox.label: item->LogicUtils.snakeToTitle,
-      value: item,
-    })
-
-    let blocklistCardTypes = makeFieldInfo(
-      ~label="Card Types",
-      ~name="payment_method_blocking.card.card_types",
-      ~customInput=InputFields.multiSelectInput(
-        ~options=cardTypeOptions,
-        ~buttonText="Select Card Types",
-        ~showSelectionAsChips=false,
-        ~customButtonStyle="!rounded-lg",
-        ~fixedDropDownDirection=BottomRight,
-        ~searchable=true,
-      ),
-    )
-
-    let makeBlocklistWalletTypes = (walletType, label) =>
-      makeFieldInfo(
-        ~label,
-        ~name=`payment_method_blocking.wallet.${walletType}.card_types`,
-        ~customInput=InputFields.multiSelectInput(
-          ~options=cardTypeOptions,
-          ~buttonText="Select Card Types",
-          ~showSelectionAsChips=false,
-          ~customButtonStyle="!rounded-lg",
-          ~fixedDropDownDirection=BottomRight,
-          ~searchable=true,
-        ),
-      )
-
-    let blocklistApplePayCardTypes = makeBlocklistWalletTypes("apple_pay", "Card Types")
-    let blocklistGooglePayCardTypes = makeBlocklistWalletTypes("google_pay", "Card Types")
-
-    <DesktopRow itemWrapperClass="mx-1">
-      <div className="w-full py-8 flex flex-col gap-6">
-        <div>
-          <p className={`${body.lg.semibold} text-nd_gray-700`}>
-            {"Payment Method Blocking"->React.string}
-          </p>
-          <p className={`${body.md.medium} text-nd_gray-400 pt-2`}>
-            {"Block specific card types for card, Apple Pay, and Google Pay payment methods"->React.string}
-          </p>
-        </div>
-        <div className="flex flex-col gap-2">
-          <p className={`${body.md.semibold} text-nd_gray-700`}> {"Card"->React.string} </p>
-          <FieldRenderer
-            field={blocklistCardTypes}
-            labelClass={`!${body.md.medium} !text-nd-gray-600`}
-            fieldWrapperClass="max-w-xl"
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <p className={`${body.md.semibold} text-nd_gray-700`}> {"Wallet"->React.string} </p>
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <p className={`${body.md.medium} text-nd_gray-600`}> {"Apple Pay"->React.string} </p>
-              <FieldRenderer
-                field={blocklistApplePayCardTypes}
-                labelClass={`!${body.md.medium} !text-nd-gray-600`}
-                fieldWrapperClass="max-w-xl"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <p className={`${body.md.medium} text-nd_gray-600`}> {"Google Pay"->React.string} </p>
-              <FieldRenderer
-                field={blocklistGooglePayCardTypes}
-                labelClass={`!${body.md.medium} !text-nd-gray-600`}
-                fieldWrapperClass="max-w-xl"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </DesktopRow>
-  }
-}
-
 module WebHook = {
   @react.component
   let make = () => {
@@ -590,7 +506,7 @@ let make = () => {
       <ClickToPaySection />
       <hr />
       <RenderIfVersion visibleForVersion=V1>
-        <PaymentMethodBlocking />
+        <PaymentSettingsPaymentMethodBlocking />
         <hr />
       </RenderIfVersion>
       <ReturnUrl />
