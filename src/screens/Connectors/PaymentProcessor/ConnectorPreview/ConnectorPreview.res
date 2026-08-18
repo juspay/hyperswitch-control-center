@@ -39,6 +39,7 @@ module DeleteConnectorMenu = {
   @react.component
   let make = (~pageName="connector", ~connectorInfo: ConnectorTypes.connectorPayload) => {
     open APIUtils
+
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let deleteConnector = async () => {
@@ -72,59 +73,6 @@ module DeleteConnectorMenu = {
   }
 }
 
-// TODO: Remove this module - replaced by ConnectorPreviewHelper.EnableDisableConnectorToggle
-module MenuOption = {
-  open HeadlessUI
-  @react.component
-  let make = (
-    ~updateStepValue=ConnectorTypes.IntegFields,
-    ~disableConnector,
-    ~isConnectorDisabled,
-    ~pageName="connector",
-  ) => {
-    let showPopUp = PopUpState.useShowPopUp()
-    let openConfirmationPopUp = _ => {
-      showPopUp({
-        popUpType: (Warning, WithIcon),
-        heading: "Confirm Action ? ",
-        description: `You are about to ${isConnectorDisabled
-            ? "Enable"
-            : "Disable"->String.toLowerCase} this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
-        handleConfirm: {
-          text: "Confirm",
-          onClick: _ => disableConnector(isConnectorDisabled)->ignore,
-        },
-        handleCancel: {text: "Cancel"},
-      })
-    }
-
-    let connectorStatusAvailableToSwitch = isConnectorDisabled ? "Enable" : "Disable"
-
-    <Popover \"as"="div" className="relative inline-block text-left">
-      {_popoverProps => <>
-        <Popover.Button> {_ => <Icon name="menu-option" size=28 />} </Popover.Button>
-        <Popover.Panel className="absolute z-20 right-5 top-4">
-          {panelProps => {
-            <div
-              id="neglectTopbarTheme"
-              className="relative flex flex-col bg-white py-1 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
-              {<>
-                <Navbar.MenuOption
-                  text={connectorStatusAvailableToSwitch}
-                  onClick={_ => {
-                    panelProps["close"]()
-                    openConfirmationPopUp()
-                  }}
-                />
-              </>}
-            </div>
-          }}
-        </Popover.Panel>
-      </>}
-    </Popover>
-  }
-}
-
 module ConnectorSummaryGrid = {
   open CommonAuthHooks
   @react.component
@@ -133,10 +81,13 @@ module ConnectorSummaryGrid = {
     ~connector,
     ~setCurrentStep,
     ~updateStepValue=None,
+    ~webhookStepValue=None,
     ~getConnectorDetails=None,
   ) => {
     open ConnectorUtils
     open ConnectorPreviewTypes
+    open LogicUtils
+    open Typography
 
     let url = RescriptReactRouter.useUrl()
     let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -157,7 +108,7 @@ module ConnectorSummaryGrid = {
 
     let connectorDetails = React.useMemo(() => {
       try {
-        if connectorName->LogicUtils.isNonEmptyString {
+        if connectorName->isNonEmptyString {
           let dict = switch processorType {
           | PaymentProcessor => Window.getConnectorConfig(connectorName)
           | PayoutProcessor => Window.getPayoutConnectorConfig(connectorName)
@@ -196,7 +147,7 @@ module ConnectorSummaryGrid = {
 
     <>
       <div className="grid grid-cols-4 border-b md:px-10 py-8">
-        <h4 className="text-lg font-semibold"> {"Integration status"->React.string} </h4>
+        <h4 className={heading.sm.semibold}> {"Integration status"->React.string} </h4>
         <AddDataAttributes attributes=[("data-testid", "connector_status"->String.toLowerCase)]>
           <TagBinding
             text={connectorInfo.status->String.toUpperCase}
@@ -209,7 +160,7 @@ module ConnectorSummaryGrid = {
       </div>
       <div className="grid grid-cols-4 border-b md:px-10 py-8">
         <div className="flex items-start">
-          <h4 className="text-lg font-semibold"> {"Webhook Endpoint"->React.string} </h4>
+          <h4 className={heading.sm.semibold}> {"Webhook Endpoint"->React.string} </h4>
           <ToolTip
             description="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor"
             toolTipFor={<Icon name="tooltip_info" className={`mt-1 ml-1`} />}
@@ -221,14 +172,14 @@ module ConnectorSummaryGrid = {
         </div>
       </div>
       <div className="grid grid-cols-4 border-b  md:px-10 py-8">
-        <h4 className="text-lg font-semibold"> {"Profile"->React.string} </h4>
+        <h4 className={heading.sm.semibold}> {"Profile"->React.string} </h4>
         <div className="col-span-3 font-semibold text-base text-grey-700 opacity-70">
           {`${businessProfileRecoilVal.profile_name} - ${connectorInfo.profile_id}`->React.string}
         </div>
       </div>
       <div className="grid grid-cols-4 border-b  md:px-10">
         <div className="flex items-start">
-          <h4 className="text-lg font-semibold py-8"> {"Credentials"->React.string} </h4>
+          <h4 className={`${heading.sm.semibold} py-8`}> {"Credentials"->React.string} </h4>
         </div>
         <div className="flex flex-col gap-6  col-span-3">
           <div className="flex gap-12">
@@ -283,7 +234,7 @@ module ConnectorSummaryGrid = {
       | Some(state) =>
         <div className="grid grid-cols-4 border-b md:px-10 py-8">
           <div className="flex items-start">
-            <h4 className="text-lg font-semibold"> {"PMTs"->React.string} </h4>
+            <h4 className={heading.sm.semibold}> {"PMTs"->React.string} </h4>
           </div>
           <div className="flex flex-col gap-6 col-span-3">
             <div className="flex gap-12">
@@ -292,7 +243,7 @@ module ConnectorSummaryGrid = {
                 ->Array.mapWithIndex((field, index) => {
                   <InfoField
                     key={index->Int.toString}
-                    label={field.payment_method->LogicUtils.snakeToTitle}
+                    label={field.payment_method->snakeToTitle}
                     render={Some(
                       field.payment_method_types
                       ->Array.map(item => item.payment_method_type->getPaymentMethodDisplayName)
@@ -346,6 +297,14 @@ module ConnectorSummaryGrid = {
 
       | None => React.null
       }}
+      // TODO: Gate webhook details on the WASM value. Blocked: useGetFilterDictFromUrl is initially empty when the WASM value is called.
+      <RenderIf
+        condition={connectorInfo.connector_name->getConnectorNameTypeFromString ==
+          Processors(SANTANDER)}>
+        <ConnectorPreviewHelper.RegisteredWebhooks
+          connectorInfo connector setCurrentStep webhookStepValue isUpdateFlow
+        />
+      </RenderIf>
     </>
   }
 }
@@ -478,6 +437,7 @@ let make = (
         connector
         setCurrentStep
         updateStepValue={Some(ConnectorTypes.PaymentMethods)}
+        webhookStepValue={Some(ConnectorTypes.WebhookRegistration)}
         getConnectorDetails
       />
     </div>
