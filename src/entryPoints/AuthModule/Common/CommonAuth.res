@@ -127,7 +127,7 @@ module Header = {
       | LoginWithPassword | LoginWithEmail =>
         <RenderIf condition={signUpAllowed}>
           {getHeaderLink(
-            ~prefix="New to Hyperswitch?",
+            ~prefix="New to Rezolve Payments?",
             ~authType=SignUP,
             ~path="/register",
             ~suffix="Sign up",
@@ -136,7 +136,7 @@ module Header = {
 
       | SignUP =>
         getHeaderLink(
-          ~prefix="Already using Hyperswitch?",
+          ~prefix="Already using Rezolve Payments?",
           ~authType=isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword,
           ~path=`/login?auth_id=${authId}`,
           ~suffix="Sign in",
