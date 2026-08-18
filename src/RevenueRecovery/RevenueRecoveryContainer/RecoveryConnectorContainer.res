@@ -52,18 +52,6 @@ let make = () => {
           />
         </div>}
       </AccessControl>
-    | list{"v2", "recovery", "overview", ...remainingPath} =>
-      if hasConfiguredBillingConnector {
-        <EntityScaffold
-          entityName="Payments"
-          remainingPath
-          access=Access
-          renderList={() => <RevenueRecoveryAnalytics />}
-          renderCustomWithOMP={(_, _, _, _) => <RevenueRecoveryAnalytics />}
-        />
-      } else {
-        <RevenueRecoveryOnboardingLanding createMerchant=false />
-      }
     | list{"v2", "recovery", "invoices", ...remainingPath} =>
       if hasConfiguredBillingConnector {
         <EntityScaffold
