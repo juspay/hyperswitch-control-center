@@ -66,6 +66,8 @@ let make = (
   ~onCardClick: option<string => unit>=?,
   ~mixpanelEventPrefix="orchestration_v2_connector_click",
   ~heading="Connect a new processor",
+  ~showRequestConnector=true,
+  ~showDummyConnector=true,
 ) => {
   open ConnectorUtils
 
@@ -106,14 +108,16 @@ let make = (
     ~showRequestConnectorBtn,
     ~showSearch=true,
     ~showDummyConnectorButton=false,
+    ~isPrimaryList=false,
     (),
   ) => {
     if connectorList->Array.length > 0 {
       connectorList->Array.sort(sortByName)
     }
 
-    let marginClass = showDummyConnectorButton ? "mt-4 mb-4" : ""
-    let customStyleClass = showDummyConnectorButton ? "2xl:grid-cols-4 lg:grid-cols-3" : ""
+    // the main connector grid is denser than the test processor strip below it
+    let marginClass = isPrimaryList ? "mt-4 mb-4" : ""
+    let customStyleClass = isPrimaryList ? "2xl:grid-cols-4 lg:grid-cols-3" : ""
 
     <>
       <AddDataAttributes
@@ -205,8 +209,9 @@ let make = (
       <div className="flex flex-col gap-4">
         {connectorListFiltered->descriptedConnectors(
           ~heading,
-          ~showRequestConnectorBtn=true,
-          ~showDummyConnectorButton=true,
+          ~showRequestConnectorBtn=showRequestConnector,
+          ~showDummyConnectorButton=showDummyConnector,
+          ~isPrimaryList=true,
           (),
         )}
       </div>

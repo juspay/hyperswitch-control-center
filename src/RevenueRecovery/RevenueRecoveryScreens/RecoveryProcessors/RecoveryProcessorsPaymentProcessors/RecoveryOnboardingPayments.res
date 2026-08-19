@@ -177,6 +177,8 @@ let make = (
           <PaymentProcessorCards
             connectorsAvailableForIntegration=RecoveryConnectorUtils.recoverySupportedConnectors
             configuredConnectors=[]
+            showRequestConnector=false
+            showDummyConnector=false
             heading="Choose a processor"
             mixpanelEventPrefix="recovery_connector_click"
             onCardClick={connectorName => {
