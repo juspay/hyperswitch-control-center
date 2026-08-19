@@ -315,20 +315,6 @@ module PaymentConnectorDetails = {
     let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
     let (currentActiveSection, setCurrentActiveSection) = React.useState(_ => None)
 
-    let handleClick = (section: option<connectorSummarySection>) => {
-      if section->Option.isNone {
-        setInitialValues(_ => JSON.stringify(initialValues)->safeParse)
-      }
-      setCurrentActiveSection(_ => section)
-    }
-
-    let checkCurrentEditState = (section: connectorSummarySection) => {
-      switch currentActiveSection {
-      | Some(active) => active == section
-      | _ => false
-      }
-    }
-
     let getConnectorDetails = async () => {
       try {
         setScreenState(_ => Loading)
@@ -487,39 +473,6 @@ module PaymentConnectorDetails = {
                   connectorAccountFields={connectorAccountFields}
                   customContainerStyle="grid grid-cols-2 gap-12 flex-wrap max-w-3xl "
                   customElementStyle="px-2 "
-                />
-              </div>
-              <div className="flex flex-col gap-4">
-                <div className="flex justify-between border-b pb-4 px-2 items-end">
-                  <p className={`${heading.sm.semibold} text-nd_gray-600`}>
-                    {"Payment Methods"->React.string}
-                  </p>
-                  <div className="flex gap-4">
-                    {if checkCurrentEditState(PMTs) {
-                      <>
-                        <Button
-                          text="Cancel"
-                          onClick={_ => handleClick(None)}
-                          buttonType={Secondary}
-                          buttonSize={Small}
-                          customButtonStyle="w-fit"
-                        />
-                        <FormRenderer.SubmitButton
-                          text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
-                        />
-                      </>
-                    } else {
-                      <div
-                        className="flex gap-2 items-center cursor-pointer"
-                        onClick={_ => handleClick(Some(PMTs))}>
-                        <Icon name="nd-edit" size=14 />
-                        <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
-                      </div>
-                    }}
-                  </div>
-                </div>
-                <ConnectorPaymentMethodV2
-                  initialValues isInEditState={checkCurrentEditState(PMTs)}
                 />
               </div>
             </div>
