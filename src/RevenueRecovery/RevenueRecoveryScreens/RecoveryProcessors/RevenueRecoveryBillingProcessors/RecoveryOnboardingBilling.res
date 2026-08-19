@@ -237,6 +237,10 @@ let make = (
           <ConnectorWebhookPreview
             merchantId
             connectorName=connectorInfoDict.connector_name
+            version=V2
+            profileId=connectorInfoDict.profile_id
+            connectorId=connectorInfoDict.id
+            isRecoveryWebhook=true
             textCss="border border-nd_gray-400 font-medium rounded-xl px-4 py-2 text-nd_gray-400 w-full !font-jetbrains-mono"
             containerClass="flex flex-row items-center justify-between"
             displayTextLength=38
