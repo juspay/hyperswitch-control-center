@@ -232,7 +232,15 @@ type getUrlTypes = (
   ~queryParameters: option<string>=?,
 ) => string
 
-let olap = path => {
-  let prefix = Window.env.olapPrefix
-  prefix->String.length > 0 ? `${prefix}/${path}` : path
-}
+// Endpoints on the infra OLAP routing allowlist are tagged `Olap` and get the configured
+// `olap_prefix` prepended; everything else is `Default` and hits the normal API path.
+type endpoint =
+  | Olap(string)
+  | Default(string)
+
+let resolveEndpoint = endpoint =>
+  switch endpoint {
+  | Olap(path) =>
+    Window.env.olapPrefix->String.length > 0 ? `${Window.env.olapPrefix}/${path}` : path
+  | Default(path) => path
+  }
