@@ -10,8 +10,8 @@ let reconEngineSidebars = (
     name: "Overview",
     link: `/v1/recon-engine/overview`,
     access: Access,
-    icon: "nd-overview",
-    selectedIcon: "nd-overview-fill",
+    icon: "nd-home",
+    selectedIcon: "nd-fill-home",
   })
 
   let reconTransactions = Link({

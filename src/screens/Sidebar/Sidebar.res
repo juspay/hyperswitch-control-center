@@ -592,8 +592,7 @@ module ProductTypeSectionItem = {
               </RenderIf>
             | Heading(headingOptions) =>
               <RenderIf condition={isSidebarExpanded} key={Int.toString(index)}>
-                <div
-                  className={`px-3 mx-1 pt-3 pb-1 text-nd_gray-400 tracking-widest ${body.sm.semibold}`}>
+                <div className={`px-3 pt-2 text-nd_gray-400 tracking-widest ${body.sm.semibold}`}>
                   {React.string(headingOptions.name->String.toUpperCase)}
                 </div>
               </RenderIf>
@@ -796,7 +795,7 @@ let make = (
                   | Heading(headingOptions) =>
                     <RenderIf condition={isSidebarExpanded} key={Int.toString(index)}>
                       <div
-                        className={`px-3 mx-2 pt-4 pb-1 text-nd_gray-400 tracking-widest ${body.sm.semibold}`}>
+                        className={`px-3 pt-2 text-nd_gray-400 tracking-widest ${body.sm.semibold}`}>
                         {React.string(headingOptions.name->String.toUpperCase)}
                       </div>
                     </RenderIf>
