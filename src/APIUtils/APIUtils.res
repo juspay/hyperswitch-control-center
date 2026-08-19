@@ -194,6 +194,13 @@ let getV2Url = (
   }
 }
 
+let resolveEndpoint = endpoint =>
+  switch endpoint {
+  | Olap(path) =>
+    Window.env.olapPrefix->String.length > 0 ? `${Window.env.olapPrefix}/${path}` : path
+  | Default(path) => path
+  }
+
 let useGetURL = () => {
   let {getCommonSessionDetails, state} = React.useContext(UserInfoProvider.defaultContext)
   let {merchantId, profileId} = getCommonSessionDetails()

@@ -236,10 +236,3 @@ type getUrlTypes = (
 type endpoint =
   | Olap(string)
   | Default(string)
-
-let resolveEndpoint = endpoint =>
-  switch endpoint {
-  | Olap(path) =>
-    Window.env.olapPrefix->String.length > 0 ? `${Window.env.olapPrefix}/${path}` : path
-  | Default(path) => path
-  }
