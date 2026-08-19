@@ -108,7 +108,7 @@ let make = (
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
         if errorCode === "HE_01" {
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
-          setNextStep(_ => RevenueRecoveryOnboardingUtils.defaultStepBilling)
+          setNextStep(_ => defaultStepBilling)
           setScreenState(_ => Success)
         } else {
           showToast(~message=errorMessage, ~toastType=ToastError)
@@ -153,10 +153,7 @@ let make = (
     let revenue_recovery =
       valueDict->getDictfromDict("feature_metadata")->getDictfromDict("revenue_recovery")
 
-    if (
-      currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant ==
-        (#addAPlatform, #processorSetUp)
-    ) {
+    if currentStep->getSectionVariant == (#addAPlatform, #processorSetUp) {
       let billing_connector_retry_threshold =
         revenue_recovery->getInt("billing_connector_retry_threshold", 0)
       let max_retry_count = revenue_recovery->getInt("max_retry_count", 0)
@@ -192,10 +189,7 @@ let make = (
       }
     }
 
-    if (
-      currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant ==
-        (#addAPlatform, #processorSetUp)
-    ) {
+    if currentStep->getSectionVariant == (#addAPlatform, #processorSetUp) {
       let billing_account_reference =
         revenue_recovery->getObj("billing_account_reference", Dict.make())
 
@@ -223,15 +217,15 @@ let make = (
 
   <div>
     <Form onSubmit initialValues>
-      {switch currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant {
+      {switch currentStep->getSectionVariant {
       | (#addAPlatform, #selectAPlatform) =>
-        <RevenueRecoveryOnboardingUtils.PageWrapper
+        <PageWrapper
           title="Choose your Billing Platform"
           subTitle="Select your subscription management platform to get started.">
           <PaymentProcessorCards
             connectorsAvailableForIntegration={isLiveMode
-              ? RevenueRecoveryOnboardingUtils.prodBillingConnectorList
-              : RevenueRecoveryOnboardingUtils.billingConnectorList}
+              ? prodBillingConnectorList
+              : billingConnectorList}
             configuredConnectors=[]
             connectorType=ConnectorTypes.BillingProcessor
             heading="Choose a platform"
@@ -241,7 +235,7 @@ let make = (
               handleClick()
             }}
           />
-        </RevenueRecoveryOnboardingUtils.PageWrapper>
+        </PageWrapper>
       | (#addAPlatform, #authenticateBilling) =>
         <BillingConnectorAuthKeys
           initialValues

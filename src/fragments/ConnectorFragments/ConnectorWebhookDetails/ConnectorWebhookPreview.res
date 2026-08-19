@@ -3,7 +3,6 @@ let make = (
   ~merchantId,
   ~connectorName,
   ~version: UserInfoTypes.version=V1,
-  ~profileId="",
   ~connectorId="",
   ~isRecoveryWebhook=false,
   ~textCss="",
@@ -15,6 +14,7 @@ let make = (
   ~truncateDisplayValue=false,
 ) => {
   let showToast = ToastAdapter.useShowToast()
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   // v2 webhooks are addressed by profile and merchant connector account id, not connector name
   let copyValueOfWebhookEndpoint = switch version {
   | V2 =>

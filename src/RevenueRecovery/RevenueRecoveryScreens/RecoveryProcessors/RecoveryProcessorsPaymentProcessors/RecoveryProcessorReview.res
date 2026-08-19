@@ -65,7 +65,6 @@ let make = (~connectorInfo) => {
           merchantId
           connectorName=connectorInfodict.connector_name
           version=V2
-          profileId=connectorInfodict.profile_id
           connectorId=connectorInfodict.id
         />
       </div>

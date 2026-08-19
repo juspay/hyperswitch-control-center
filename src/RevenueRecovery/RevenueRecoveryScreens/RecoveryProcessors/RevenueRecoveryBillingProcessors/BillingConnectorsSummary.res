@@ -258,7 +258,6 @@ module BillingConnectorDetails = {
               merchantId
               connectorName=connectorInfodict.connector_name
               version=V2
-              profileId=connectorInfodict.profile_id
               connectorId=connectorInfodict.id
               isRecoveryWebhook=true
             />
@@ -472,7 +471,6 @@ module PaymentConnectorDetails = {
                   merchantId
                   connectorName=connectorInfodict.connector_name
                   version=V2
-                  profileId=connectorInfodict.profile_id
                   connectorId=connectorInfodict.id
                 />
               </div>
@@ -560,12 +558,10 @@ module RetriesConfiguration = {
           ~methodType=Put,
           ~id=Some(connectorID),
         )
-        let dict = values->getDictFromJsonObject
-        dict->Dict.delete("profile_id")
-        dict->Dict.delete("id")
-        dict->Dict.delete("connector_name")
-        dict->Dict.delete("connector_account_details")
-        dict->Dict.set("merchant_id", merchantId->JSON.Encode.string)
+        let dict = RecoveryConnectorUtils.getUpdatableConnectorBody(
+          ~valuesDict=values->getDictFromJsonObject,
+          ~merchantId,
+        )
         let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
         setInitialValues(_ => response->removeFieldsFromResponse)
         setIsEditMode(_ => false)

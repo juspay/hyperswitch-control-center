@@ -175,9 +175,7 @@ let make = (
         subTitle="Link the payment processor you use for handling subscription transactions.">
         <PageLoaderWrapper screenState>
           <PaymentProcessorCards
-            connectorsAvailableForIntegration={isLiveMode
-              ? RecoveryConnectorUtils.recoveryConnectorProdList
-              : RecoveryConnectorUtils.recoveryConnectorList}
+            connectorsAvailableForIntegration=RecoveryConnectorUtils.recoverySupportedConnectors
             configuredConnectors=[]
             heading="Choose a processor"
             mixpanelEventPrefix="recovery_connector_click"

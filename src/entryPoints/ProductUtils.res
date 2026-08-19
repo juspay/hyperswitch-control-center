@@ -103,7 +103,7 @@ let productTypeIconMapper = productType => {
   }
 }
 
-let getProductUrl = (~productType: ProductTypes.productTypes, ~isLiveMode as _) => {
+let getProductUrl = (~productType: ProductTypes.productTypes) => {
   open GlobalVars
   switch productType {
   | Orchestration(V1) => appendDashboardPath(~url="home")

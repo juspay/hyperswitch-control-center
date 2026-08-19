@@ -1,5 +1,7 @@
 open SidebarTypes
 
+let defaultPath = "/v2/recovery/invoices"
+
 let revenueRecoveryHome = {
   Link({
     name: "Home",

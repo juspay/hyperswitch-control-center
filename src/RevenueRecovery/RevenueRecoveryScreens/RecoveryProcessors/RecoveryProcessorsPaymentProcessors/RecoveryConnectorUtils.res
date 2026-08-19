@@ -78,8 +78,8 @@ let getOptions: array<ConnectorTypes.connectorTypes> => array<
 }
 
 open ConnectorTypes
-// processors the backend supports for MIT
-let recoveryConnectorProdList: array<connectorTypes> = [
+// processors supported for MIT, offered in both test and live mode
+let recoverySupportedConnectors: array<connectorTypes> = [
   Processors(ACI),
   Processors(ADYEN),
   Processors(AIRWALLEX),
@@ -128,23 +128,6 @@ let recoveryConnectorProdList: array<connectorTypes> = [
   Processors(ZIFT),
 ]
 
-let recoveryConnectorList: array<connectorTypes> = recoveryConnectorProdList
-
-let recoveryConnectorListProd: array<connectorTypes> = [
-  Processors(ADYEN),
-  Processors(CYBERSOURCE),
-  Processors(GLOBEPAY),
-  Processors(NOON),
-  Processors(BANKOFAMERICA),
-]
-
-let recoveryConnectorInHouseList: array<BillingProcessorsUtils.optionType> = [
-  {
-    name: "Hyperswitch",
-    icon: "/assets/Light/hyperswitchLogoIcon.svg",
-  },
-]
-
 /* ConnectorAuthKeys only stamps auth_type onto connector_account_details when
    updateAccountDetails is set, which it is not in sandbox. Connectors carrying
    dummy data bring their own auth_type; every other one would be submitted
@@ -165,4 +148,34 @@ let ensureAuthType = (~connectorDetails, ~valuesDict) => {
     valuesDict->Dict.set("connector_account_details", accountDetails->JSON.Encode.object)
   }
   valuesDict
+}
+
+/* the connector update endpoint accepts a fixed set of fields and rejects
+   anything else, so build the body from what it knows rather than stripping
+   what it does not - a read response carries more than the write accepts. */
+let updatableConnectorFields = [
+  "connector_type",
+  "connector_label",
+  "payment_methods_enabled",
+  "connector_webhook_details",
+  "metadata",
+  "disabled",
+  "frm_configs",
+  "pm_auth_config",
+  "status",
+  "additional_merchant_data",
+  "connector_wallets_details",
+  "feature_metadata",
+]
+
+let getUpdatableConnectorBody = (~valuesDict, ~merchantId) => {
+  let body = Dict.make()
+  updatableConnectorFields->Array.forEach(field => {
+    switch valuesDict->Dict.get(field) {
+    | Some(value) => body->Dict.set(field, value)
+    | None => ()
+    }
+  })
+  body->Dict.set("merchant_id", merchantId->JSON.Encode.string)
+  body
 }
