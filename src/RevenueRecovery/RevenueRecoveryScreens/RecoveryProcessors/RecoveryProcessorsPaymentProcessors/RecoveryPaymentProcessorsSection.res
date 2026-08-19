@@ -29,6 +29,16 @@ let make = (~billingConnectorId, ~billingConnectorName, ~merchantId) => {
     isMitConnectorListLoading,
   ) = RevenueRecoveryHooks.useMitSupportedConnectors()
 
+  /* ConnectorAuthKeys and friends read the connector from the url's name param,
+   so selecting a card has to put it there for their fields to render */
+  let setSelectedConnectorInUrl = connectorName => {
+    let url =
+      connectorName->isNonEmptyString
+        ? `/v2/recovery/summary?name=${connectorName}`
+        : `/v2/recovery/summary`
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url))
+  }
+
   let (mode, setMode) = React.useState(_ => ListProcessors)
   let (screenState, setScreenState) = React.useState(_ => Success)
   let (connector, setConnector) = React.useState(_ => "")
@@ -185,6 +195,7 @@ let make = (~billingConnectorId, ~billingConnectorName, ~merchantId) => {
       setBillingAccountReference(_ => updatedReference)
       fetchConnectorListResponse()->ignore
       setConnector(_ => "")
+      setSelectedConnectorInUrl("")
       setInitialValues(_ => Dict.make()->JSON.Encode.object)
       setMode(_ => ListProcessors)
       showToast(~message="Payment processor added", ~toastType=ToastState.ToastSuccess)
@@ -288,6 +299,7 @@ let make = (~billingConnectorId, ~billingConnectorName, ~merchantId) => {
             text="Cancel"
             onClick={_ => {
               setConnector(_ => "")
+              setSelectedConnectorInUrl("")
               setMode(_ => ListProcessors)
             }}
             buttonType={Secondary}
@@ -315,6 +327,7 @@ let make = (~billingConnectorId, ~billingConnectorName, ~merchantId) => {
             mixpanelEventPrefix="recovery_add_connector_click"
             onCardClick={connectorName => {
               setConnector(_ => connectorName)
+              setSelectedConnectorInUrl(connectorName)
               setMode(_ => AuthenticateProcessor)
             }}
           />
