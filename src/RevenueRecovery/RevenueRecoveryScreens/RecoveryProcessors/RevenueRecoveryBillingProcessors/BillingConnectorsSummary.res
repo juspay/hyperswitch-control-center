@@ -629,55 +629,56 @@ module RetriesConfiguration = {
           <div className="flex justify-between border-b pb-4 px-2 items-end">
             <p className={heading.md.semibold}> {"Retries configuration"->React.string} </p>
             <div className="flex gap-4">
-              {if isEditMode {
-                <>
-                  <Button
-                    text="Cancel"
-                    onClick={_ => setIsEditMode(_ => false)}
-                    buttonType={Secondary}
-                    buttonSize={Small}
-                    customButtonStyle="w-fit"
-                  />
-                  <FormRenderer.SubmitButton
-                    text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
-                  />
-                </>
-              } else {
+              <RenderIf condition={isEditMode}>
+                <Button
+                  text="Cancel"
+                  onClick={_ => setIsEditMode(_ => false)}
+                  buttonType={Secondary}
+                  buttonSize={Small}
+                  customButtonStyle="w-fit"
+                />
+                <FormRenderer.SubmitButton
+                  text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
+                />
+              </RenderIf>
+              <RenderIf condition={!isEditMode}>
                 <div
                   className="flex gap-2 items-center cursor-pointer"
                   onClick={_ => setIsEditMode(_ => true)}>
                   <Icon name="nd-edit" size=14 />
                   <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
                 </div>
-              }}
+              </RenderIf>
             </div>
           </div>
           <div className="grid grid-cols-3 px-2 gap-4">
             <div className="flex flex-col gap-2 ">
               <h4 className="text-nd_gray-400 "> {"Connector Retry Threshold"->React.string} </h4>
-              {if isEditMode {
+              <RenderIf condition={isEditMode}>
                 <FormRenderer.FieldRenderer
                   field={retryField(
                     ~name="feature_metadata.revenue_recovery.billing_connector_retry_threshold",
                     ~placeholder="ex 3",
                   )}
                 />
-              } else {
-                billing_connector_retry_threshold->Int.toString->React.string
-              }}
+              </RenderIf>
+              <RenderIf condition={!isEditMode}>
+                {billing_connector_retry_threshold->Int.toString->React.string}
+              </RenderIf>
             </div>
             <div className="flex flex-col gap-2 ">
               <h4 className="text-nd_gray-400 "> {"Max Retry Count"->React.string} </h4>
-              {if isEditMode {
+              <RenderIf condition={isEditMode}>
                 <FormRenderer.FieldRenderer
                   field={retryField(
                     ~name="feature_metadata.revenue_recovery.max_retry_count",
                     ~placeholder="ex 15",
                   )}
                 />
-              } else {
-                max_retry_count->Int.toString->React.string
-              }}
+              </RenderIf>
+              <RenderIf condition={!isEditMode}>
+                {max_retry_count->Int.toString->React.string}
+              </RenderIf>
             </div>
           </div>
         </div>

@@ -288,10 +288,14 @@ let make = (
       </div>
       <div className="flex flex-col gap-1">
         <h4 className="text-nd_gray-400"> {"Status"->React.string} </h4>
-        {switch details {
-        | Some(item) => <p className="text-nd_gray-600"> {item.status->React.string} </p>
-        | None => <p className="text-nd_gray-400"> {"Not available"->React.string} </p>
-        }}
+        <RenderIf condition={details->Option.isSome}>
+          <p className="text-nd_gray-600">
+            {details->Option.mapOr("", item => item.status)->React.string}
+          </p>
+        </RenderIf>
+        <RenderIf condition={details->Option.isNone}>
+          <p className="text-nd_gray-400"> {"Not available"->React.string} </p>
+        </RenderIf>
       </div>
     </div>
   }
@@ -307,15 +311,15 @@ let make = (
             </p>
           </RenderIf>
         </div>
-        {switch mode {
-        | ListProcessors =>
+        <RenderIf condition={mode == ListProcessors}>
           <div
             className="flex gap-2 items-center cursor-pointer"
             onClick={_ => setMode(_ => SelectProcessor)}>
             <Icon name="nd-plus" size=14 />
             <a className="text-primary cursor-pointer"> {"Add processor"->React.string} </a>
           </div>
-        | _ =>
+        </RenderIf>
+        <RenderIf condition={mode != ListProcessors}>
           <Button
             text="Cancel"
             onClick={_ => {
@@ -327,7 +331,7 @@ let make = (
             buttonSize={Small}
             customButtonStyle="w-fit"
           />
-        }}
+        </RenderIf>
       </div>
       {switch mode {
       | ListProcessors =>
