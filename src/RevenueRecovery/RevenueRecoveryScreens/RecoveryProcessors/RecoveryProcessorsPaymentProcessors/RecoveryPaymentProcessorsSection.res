@@ -202,6 +202,7 @@ let make = (
       let valuesDict = values->getDictFromJsonObject
       let enteredReference = valuesDict->getString("processor_reference_id", "")
       valuesDict->Dict.delete("processor_reference_id")
+      let valuesDict = RecoveryConnectorUtils.ensureAuthType(~connectorDetails, ~valuesDict)
 
       let createUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Put, ~id=None)
       let response = await updateAPIHook(

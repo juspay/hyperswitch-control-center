@@ -110,6 +110,11 @@ let make = (
     try {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Put, ~id=None)
+      let values =
+        RecoveryConnectorUtils.ensureAuthType(
+          ~connectorDetails,
+          ~valuesDict=values->getDictFromJsonObject,
+        )->JSON.Encode.object
       let response = await updateAPIHook(connectorUrl, values, Post, ~version=V2)
       setInitialValues(_ => response)
 

@@ -144,3 +144,25 @@ let recoveryConnectorInHouseList: array<BillingProcessorsUtils.optionType> = [
     icon: "/assets/Light/hyperswitchLogoIcon.svg",
   },
 ]
+
+/* ConnectorAuthKeys only stamps auth_type onto connector_account_details when
+   updateAccountDetails is set, which it is not in sandbox. Connectors carrying
+   dummy data bring their own auth_type; every other one would be submitted
+   without it and rejected, so take it from the wasm config. */
+let ensureAuthType = (~connectorDetails, ~valuesDict) => {
+  open LogicUtils
+  let bodyType =
+    connectorDetails
+    ->getDictFromJsonObject
+    ->getDictfromDict("connector_auth")
+    ->Dict.keysToArray
+    ->getValueFromArray(0, "")
+
+  let accountDetails = valuesDict->getObj("connector_account_details", Dict.make())->Dict.copy
+
+  if bodyType->isNonEmptyString && accountDetails->getString("auth_type", "")->isEmptyString {
+    accountDetails->Dict.set("auth_type", bodyType->JSON.Encode.string)
+    valuesDict->Dict.set("connector_account_details", accountDetails->JSON.Encode.object)
+  }
+  valuesDict
+}
