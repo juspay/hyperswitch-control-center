@@ -36,6 +36,10 @@ let getSections = isLiveMode => {
       id: (#selectAPlatform: revenueRecoverySubsections :> string),
       name: #selectAPlatform->getStepName,
     },
+    {
+      id: (#authenticateBilling: revenueRecoverySubsections :> string),
+      name: #authenticateBilling->getStepName,
+    },
   ]
 
   if !isLiveMode {
