@@ -315,6 +315,20 @@ module PaymentConnectorDetails = {
     let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
     let (currentActiveSection, setCurrentActiveSection) = React.useState(_ => None)
 
+    let handleClick = (section: option<connectorSummarySection>) => {
+      if section->Option.isNone {
+        setInitialValues(_ => JSON.stringify(initialValues)->safeParse)
+      }
+      setCurrentActiveSection(_ => section)
+    }
+
+    let checkCurrentEditState = (section: connectorSummarySection) => {
+      switch currentActiveSection {
+      | Some(active) => active == section
+      | _ => false
+      }
+    }
+
     let getConnectorDetails = async () => {
       try {
         setScreenState(_ => Loading)
@@ -475,6 +489,39 @@ module PaymentConnectorDetails = {
                   customElementStyle="px-2 "
                 />
               </div>
+              <div className="flex flex-col gap-4">
+                <div className="flex justify-between border-b pb-4 px-2 items-end">
+                  <p className={`${heading.sm.semibold} text-nd_gray-600`}>
+                    {"Payment Methods"->React.string}
+                  </p>
+                  <div className="flex gap-4">
+                    {if checkCurrentEditState(PMTs) {
+                      <>
+                        <Button
+                          text="Cancel"
+                          onClick={_ => handleClick(None)}
+                          buttonType={Secondary}
+                          buttonSize={Small}
+                          customButtonStyle="w-fit"
+                        />
+                        <FormRenderer.SubmitButton
+                          text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
+                        />
+                      </>
+                    } else {
+                      <div
+                        className="flex gap-2 items-center cursor-pointer"
+                        onClick={_ => handleClick(Some(PMTs))}>
+                        <Icon name="nd-edit" size=14 />
+                        <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
+                      </div>
+                    }}
+                  </div>
+                </div>
+                <ConnectorPaymentMethodV2
+                  initialValues isInEditState={checkCurrentEditState(PMTs)}
+                />
+              </div>
             </div>
           </Form>
         </div>
@@ -491,8 +538,11 @@ module RetriesConfiguration = {
   let make = (~removeFieldsFromResponse) => {
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
+    let updateAPIHook = useUpdateMethod(~showErrorToast=false)
+    let showToast = ToastAdapter.useShowToast()
     let (screenState, setScreenState) = React.useState(_ => Loading)
     let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
+    let (isEditMode, setIsEditMode) = React.useState(_ => false)
 
     let billingConnectorListFromRecoil = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=BillingProcessor,
@@ -535,22 +585,139 @@ module RetriesConfiguration = {
     let billing_connector_retry_threshold =
       revenueRecovery->getInt("billing_connector_retry_threshold", 0)
 
+    let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
+      try {
+        setScreenState(_ => Loading)
+        let connectorUrl = getURL(
+          ~entityName=V2(V2_CONNECTOR),
+          ~methodType=Put,
+          ~id=Some(connectorID),
+        )
+        let dict = values->getDictFromJsonObject
+        dict->Dict.delete("profile_id")
+        dict->Dict.delete("id")
+        dict->Dict.delete("connector_name")
+        dict->Dict.delete("connector_account_details")
+        let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
+        setInitialValues(_ => response->removeFieldsFromResponse)
+        setIsEditMode(_ => false)
+        showToast(~message="Retries configuration updated", ~toastType=ToastState.ToastSuccess)
+        setScreenState(_ => Success)
+      } catch {
+      | _ => {
+          setScreenState(_ => Success)
+          showToast(~message="Failed to update", ~toastType=ToastState.ToastError)
+        }
+      }
+      Nullable.null
+    }
+
+    /* mirrors the bounds the onboarding retry step enforces */
+    let validateRetryFields = values => {
+      let errors = Dict.make()
+      let retryValues =
+        values
+        ->getDictFromJsonObject
+        ->getDictfromDict("feature_metadata")
+        ->getDictfromDict("revenue_recovery")
+      let threshold = retryValues->getInt("billing_connector_retry_threshold", 0)
+      let maxRetry = retryValues->getInt("max_retry_count", 0)
+
+      if threshold === 0 {
+        errors->Dict.set(
+          "feature_metadata.revenue_recovery.billing_connector_retry_threshold",
+          "Please enter start retry count"->JSON.Encode.string,
+        )
+      } else if threshold > 15 {
+        errors->Dict.set(
+          "feature_metadata.revenue_recovery.billing_connector_retry_threshold",
+          "Start retry count should be less than 15"->JSON.Encode.string,
+        )
+      }
+
+      if maxRetry === 0 {
+        errors->Dict.set(
+          "feature_metadata.revenue_recovery.max_retry_count",
+          "Please enter max retry count"->JSON.Encode.string,
+        )
+      } else if maxRetry > 15 {
+        errors->Dict.set(
+          "feature_metadata.revenue_recovery.max_retry_count",
+          "Max retry count should be less than 15"->JSON.Encode.string,
+        )
+      }
+
+      errors->JSON.Encode.object
+    }
+
+    let retryField = (~name, ~placeholder) =>
+      FormRenderer.makeFieldInfo(
+        ~label="",
+        ~name,
+        ~placeholder,
+        ~customInput=InputFields.numericTextInput(~customStyle="rounded-xl"),
+        ~isRequired=true,
+      )
+
     <PageLoaderWrapper screenState>
-      <div className="flex flex-col gap-7">
-        <div className="flex justify-between border-b pb-4 px-2 items-end">
-          <p className={heading.md.semibold}> {"Retries configuration"->React.string} </p>
-        </div>
-        <div className="grid grid-cols-3 px-2">
-          <div className="flex flex-col gap-2 ">
-            <h4 className="text-nd_gray-400 "> {"Connector Retry Threshold"->React.string} </h4>
-            {billing_connector_retry_threshold->Int.toString->React.string}
+      <Form onSubmit initialValues validate=validateRetryFields>
+        <div className="flex flex-col gap-7">
+          <div className="flex justify-between border-b pb-4 px-2 items-end">
+            <p className={heading.md.semibold}> {"Retries configuration"->React.string} </p>
+            <div className="flex gap-4">
+              {if isEditMode {
+                <>
+                  <Button
+                    text="Cancel"
+                    onClick={_ => setIsEditMode(_ => false)}
+                    buttonType={Secondary}
+                    buttonSize={Small}
+                    customButtonStyle="w-fit"
+                  />
+                  <FormRenderer.SubmitButton
+                    text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
+                  />
+                </>
+              } else {
+                <div
+                  className="flex gap-2 items-center cursor-pointer"
+                  onClick={_ => setIsEditMode(_ => true)}>
+                  <Icon name="nd-edit" size=14 />
+                  <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
+                </div>
+              }}
+            </div>
           </div>
-          <div className="flex flex-col gap-2 ">
-            <h4 className="text-nd_gray-400 "> {"Max Retry Count"->React.string} </h4>
-            {max_retry_count->Int.toString->React.string}
+          <div className="grid grid-cols-3 px-2 gap-4">
+            <div className="flex flex-col gap-2 ">
+              <h4 className="text-nd_gray-400 "> {"Connector Retry Threshold"->React.string} </h4>
+              {if isEditMode {
+                <FormRenderer.FieldRenderer
+                  field={retryField(
+                    ~name="feature_metadata.revenue_recovery.billing_connector_retry_threshold",
+                    ~placeholder="ex 3",
+                  )}
+                />
+              } else {
+                billing_connector_retry_threshold->Int.toString->React.string
+              }}
+            </div>
+            <div className="flex flex-col gap-2 ">
+              <h4 className="text-nd_gray-400 "> {"Max Retry Count"->React.string} </h4>
+              {if isEditMode {
+                <FormRenderer.FieldRenderer
+                  field={retryField(
+                    ~name="feature_metadata.revenue_recovery.max_retry_count",
+                    ~placeholder="ex 15",
+                  )}
+                />
+              } else {
+                max_retry_count->Int.toString->React.string
+              }}
+            </div>
           </div>
         </div>
-      </div>
+      </Form>
     </PageLoaderWrapper>
   }
 }
