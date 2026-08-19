@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.19.1
+
+### Features
+
+- Add Deutsche Bank payout connector ([#5418](https://github.com/juspay/hyperswitch-control-center/pull/5418)) ([`a85c6d4`](https://github.com/juspay/hyperswitch-control-center/commit/a85c6d4a182ccee9f6009e27f7374e0c6fd11918))
+
+**Full Changelog:** [`2026.08.19.0...2026.08.19.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.19.0...2026.08.19.1)
+
+- - -
+
 ## 2026.08.19.0
 
 ### Features
