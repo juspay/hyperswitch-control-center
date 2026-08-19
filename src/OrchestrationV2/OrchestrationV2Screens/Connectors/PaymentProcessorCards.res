@@ -61,8 +61,11 @@ let make = (
   ~showAllConnectors=true,
   ~connectorType=ConnectorTypes.Processor,
   ~setProcessorModal=_ => (),
-  ~urlPrefix: string,
+  ~urlPrefix: string="",
   ~showTestProcessor=false,
+  ~onCardClick: option<string => unit>=?,
+  ~mixpanelEventPrefix="orchestration_v2_connector_click",
+  ~heading="Connect a new processor",
 ) => {
   open ConnectorUtils
 
@@ -80,11 +83,16 @@ let make = (
     )
 
   let handleClick = connectorName => {
-    mixpanelEvent(~eventName=`orchestration_v2_connector_click_${connectorName}`)
-    setShowSideBar(_ => false)
-    RescriptReactRouter.push(
-      GlobalVars.appendDashboardPath(~url=`/${urlPrefix}?name=${connectorName}`),
-    )
+    mixpanelEvent(~eventName=`${mixpanelEventPrefix}_${connectorName}`)
+    switch onCardClick {
+    | Some(onClick) => onClick(connectorName)
+    | None => {
+        setShowSideBar(_ => false)
+        RescriptReactRouter.push(
+          GlobalVars.appendDashboardPath(~url=`/${urlPrefix}?name=${connectorName}`),
+        )
+      }
+    }
   }
   let unConfiguredConnectorsCount = unConfiguredConnectors->Array.length
   let handleSearch = event => {
@@ -196,7 +204,7 @@ let make = (
     <RenderIf condition={showAllConnectors}>
       <div className="flex flex-col gap-4">
         {connectorListFiltered->descriptedConnectors(
-          ~heading="Connect a new processor",
+          ~heading,
           ~showRequestConnectorBtn=true,
           ~showDummyConnectorButton=true,
           (),

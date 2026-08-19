@@ -228,13 +228,14 @@ let make = (
         <RevenueRecoveryOnboardingUtils.PageWrapper
           title="Choose your Billing Platform"
           subTitle="Select your subscription management platform to get started.">
-          <RecoveryProcessorCards
+          <PaymentProcessorCards
             connectorsAvailableForIntegration={isLiveMode
               ? RevenueRecoveryOnboardingUtils.prodBillingConnectorList
               : RevenueRecoveryOnboardingUtils.billingConnectorList}
             configuredConnectors=[]
             connectorType=ConnectorTypes.BillingProcessor
             heading="Choose a platform"
+            mixpanelEventPrefix="recovery_billing_connector_click"
             onCardClick={connectorName => {
               setConnectorName(_ => connectorName)
               handleClick()

@@ -178,10 +178,11 @@ let make = (
         title="Where do you process your payments"
         subTitle="Link the payment processor you use for handling subscription transactions.">
         <PageLoaderWrapper screenState={isMitConnectorListLoading ? Loading : screenState}>
-          <RecoveryProcessorCards
+          <PaymentProcessorCards
             connectorsAvailableForIntegration=mitSupportedConnectors
             configuredConnectors=[]
             heading="Choose a processor"
+            mixpanelEventPrefix="recovery_connector_click"
             onCardClick={connectorName => {
               setConnectorName(_ => connectorName)
               RescriptReactRouter.replace(
