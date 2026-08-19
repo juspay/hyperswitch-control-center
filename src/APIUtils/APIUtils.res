@@ -277,8 +277,8 @@ let useGetURL = () => {
           | Some(customerId) => `customers/${customerId}`
           | None =>
             switch queryParameters {
-            | Some(queryParams) => `customers/list?${queryParams}`
-            | None => `customers/list?limit=500`
+            | Some(queryParams) => olap(`customers/list?${queryParams}`)
+            | None => olap(`customers/list?limit=500`)
             }
           }
         | _ => ""
@@ -323,7 +323,7 @@ let useGetURL = () => {
             | #Organization
             | #Merchant
             | #Profile =>
-              `account/${merchantId}/profile/connectors`
+              olap(`account/${merchantId}/profile/connectors`)
             }
           }
         | Post | Delete =>
@@ -376,9 +376,9 @@ let useGetURL = () => {
         switch methodType {
         | Post =>
           switch transactionEntity {
-          | #Merchant => `payouts/filter`
-          | #Profile => `payouts/profile/filter`
-          | _ => `payouts/filter`
+          | #Merchant => olap(`payouts/filter`)
+          | #Profile => olap(`payouts/profile/filter`)
+          | _ => olap(`payouts/filter`)
           }
 
         | _ => ""
@@ -395,16 +395,16 @@ let useGetURL = () => {
 
           | None =>
             switch transactionEntity {
-            | #Merchant => `payments/list?limit=100`
-            | #Profile => `payments/profile/list?limit=100`
-            | _ => `payments/list?limit=100`
+            | #Merchant => olap(`payments/list?limit=100`)
+            | #Profile => olap(`payments/profile/list?limit=100`)
+            | _ => olap(`payments/list?limit=100`)
             }
           }
         | Post =>
           switch transactionEntity {
-          | #Merchant => `payments/list`
-          | #Profile => `payments/profile/list`
-          | _ => `payments/list`
+          | #Merchant => olap(`payments/list`)
+          | #Profile => olap(`payments/profile/list`)
+          | _ => olap(`payments/list`)
           }
 
         | _ => ""
@@ -467,9 +467,9 @@ let useGetURL = () => {
           switch id {
           | Some(_keyid) =>
             switch transactionEntity {
-            | #Merchant => `refunds/list`
-            | #Profile => `refunds/profile/list`
-            | _ => `refunds/list`
+            | #Merchant => olap(`refunds/list`)
+            | #Profile => olap(`refunds/profile/list`)
+            | _ => olap(`refunds/list`)
             }
           | None => `refunds`
           }
@@ -499,16 +499,17 @@ let useGetURL = () => {
             switch queryParameters {
             | Some(queryParams) =>
               switch transactionEntity {
-              | #Profile => `disputes/profile/list?${queryParams}&limit=10000`
+              | #Profile => olap(`disputes/profile/list?${queryParams}&limit=10000`)
               | #Merchant
               | _ =>
-                `disputes/list?${queryParams}&limit=10000`
+                olap(`disputes/list?${queryParams}&limit=10000`)
               }
             | None =>
               switch transactionEntity {
-              | #Profile => `disputes/profile/list?limit=10000`
+              | #Profile => olap(`disputes/profile/list?limit=10000`)
               | #Merchant
-              | _ => `disputes/list?limit=10000`
+              | _ =>
+                olap(`disputes/list?limit=10000`)
               }
             }
           }
@@ -555,16 +556,16 @@ let useGetURL = () => {
             }
           | None =>
             switch transactionEntity {
-            | #Merchant => `payouts/list?limit=100`
-            | #Profile => `payouts/profile/list?limit=10000`
-            | _ => `payouts/list?limit=100`
+            | #Merchant => olap(`payouts/list?limit=100`)
+            | #Profile => olap(`payouts/profile/list?limit=10000`)
+            | _ => olap(`payouts/list?limit=100`)
             }
           }
         | Post =>
           switch transactionEntity {
-          | #Merchant => `payouts/list`
-          | #Profile => `payouts/profile/list`
-          | _ => `payouts/list`
+          | #Merchant => olap(`payouts/list`)
+          | #Profile => olap(`payouts/profile/list`)
+          | _ => olap(`payouts/list`)
           }
 
         | _ => ""
@@ -582,7 +583,8 @@ let useGetURL = () => {
             | #Tenant
             | #Organization
             | #Merchant
-            | #Profile => `routing/list/profile`
+            | #Profile =>
+              olap(`routing/list/profile`)
             }
           }
         | Post =>
@@ -842,7 +844,7 @@ let useGetURL = () => {
           switch transactionEntity {
           | #Merchant => `payments/advanced/list`
           | #Profile => `payments/profile/advanced/list`
-          | _ => `payments/list`
+          | _ => olap(`payments/list`)
           }
 
         | _ => ""
@@ -882,10 +884,10 @@ let useGetURL = () => {
       /* EVENT LOGS */
       | SDK_EVENT_LOGS => `analytics/v1/profile/sdk_event_logs`
 
-      | WEBHOOK_EVENTS => `events/profile/list`
+      | WEBHOOK_EVENTS => olap(`events/profile/list`)
       | WEBHOOK_EVENTS_ATTEMPTS =>
         switch id {
-        | Some(id) => `events/${merchantId}/${id}/attempts`
+        | Some(id) => olap(`events/${merchantId}/${id}/attempts`)
         | None => `events/${merchantId}/attempts`
         }
       | WEBHOOKS_EVENTS_RETRY =>
@@ -957,7 +959,7 @@ let useGetURL = () => {
             | #Organization
             | #Merchant
             | #Profile =>
-              `account/${merchantId}/profile`
+              olap(`account/${merchantId}/profile`)
             }
           }
 
@@ -1006,7 +1008,7 @@ let useGetURL = () => {
         }
 
       /* PMTS COUNTRY-CURRENCY DETAILS */
-      | PAYMENT_METHOD_CONFIG => `payment_methods/filter`
+      | PAYMENT_METHOD_CONFIG => olap(`payment_methods/filter`)
 
       /* USER MANAGEMENT REVAMP */
       | USER_MANAGEMENT => {
@@ -1014,13 +1016,13 @@ let useGetURL = () => {
           switch userRoleTypes {
           | USER_LIST =>
             switch queryParameters {
-            | Some(queryParams) => `${userUrl}/user/list?${queryParams}`
-            | None => `${userUrl}/user/list`
+            | Some(queryParams) => olap(`${userUrl}/user/list?${queryParams}`)
+            | None => olap(`${userUrl}/user/list`)
             }
           | ROLE_LIST =>
             switch queryParameters {
-            | Some(queryParams) => `${userUrl}/role/list?${queryParams}`
-            | None => `${userUrl}/role/list`
+            | Some(queryParams) => olap(`${userUrl}/role/list?${queryParams}`)
+            | None => olap(`${userUrl}/role/list`)
             }
           | ROLE_ID =>
             switch id {
@@ -1455,9 +1457,9 @@ let useGetURL = () => {
         | #SWITCH_PROFILE | #SWITCH_PROFILE_NEW => `${userUrl}/switch/profile`
 
         // Org-Merchant-Profile List
-        | #LIST_ORG => `${userUrl}/list/org`
-        | #LIST_MERCHANT => `${userUrl}/list/merchant`
-        | #LIST_PROFILE => `${userUrl}/list/profile`
+        | #LIST_ORG => olap(`${userUrl}/list/org`)
+        | #LIST_MERCHANT => olap(`${userUrl}/list/merchant`)
+        | #LIST_PROFILE => olap(`${userUrl}/list/profile`)
 
         // Clone connector across profiles of the same merchant
         | #CLONE_CONNECTOR => `${userUrl}/clone_connector`
@@ -1493,8 +1495,8 @@ let useGetURL = () => {
         // SPT FLOWS (SSO)
         | #GET_AUTH_LIST =>
           switch queryParameters {
-          | Some(params) => `${userUrl}/auth/list?${params}`
-          | None => `${userUrl}/auth/list`
+          | Some(params) => olap(`${userUrl}/auth/list?${params}`)
+          | None => olap(`${userUrl}/auth/list`)
           }
         | #SIGN_IN_WITH_SSO => `${userUrl}/oidc`
         | #AUTH_SELECT => `${userUrl}/auth/select`
@@ -1502,14 +1504,14 @@ let useGetURL = () => {
         // user-management revamp
         | #LIST_ROLES_FOR_INVITE =>
           switch queryParameters {
-          | Some(params) => `${userUrl}/role/list/invite?${params}`
+          | Some(params) => olap(`${userUrl}/role/list/invite?${params}`)
           | None => ""
           }
         | #LIST_INVITATION => `${userUrl}/list/invitation`
-        | #USER_DETAILS => `${userUrl}/user`
+        | #USER_DETAILS => olap(`${userUrl}/user`)
         | #LIST_ROLES_FOR_ROLE_UPDATE =>
           switch queryParameters {
-          | Some(params) => `${userUrl}/role/list/update?${params}`
+          | Some(params) => olap(`${userUrl}/role/list/update?${params}`)
           | None => ""
           }
         | #THEME =>

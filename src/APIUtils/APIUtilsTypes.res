@@ -231,3 +231,8 @@ type getUrlTypes = (
   ~hypersenseType: hypersenseType=?,
   ~queryParameters: option<string>=?,
 ) => string
+
+let olap = path => {
+  let prefix = Window.env.olapPrefix
+  prefix->String.length > 0 ? `${prefix}/${path}` : path
+}
