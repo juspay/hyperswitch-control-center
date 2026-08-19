@@ -213,7 +213,11 @@ let cardDetails = (~stagingOverviewData: array<accountStagingEntriesOverview>) =
   ]
 }
 
-let getLineageSections = (~ingestionHistoryData, ~transformationHistoryData, ~entry) => [
+let getLineageSections = (
+  ~ingestionHistoryData: ingestionHistoryType,
+  ~transformationHistoryData: transformationHistoryType,
+  ~entry: processingEntryType,
+) => [
   {
     lineageSectionTitle: "Source",
     lineageSectionFields: [

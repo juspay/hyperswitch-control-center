@@ -72,7 +72,7 @@ type transformationData = {
   transformed_count: int,
   ignored_count: int,
   staging_entry_ids: array<string>,
-  errors: array<string>,
+  failed_count: int,
 }
 
 type ingestionHistoryType = {
@@ -296,6 +296,7 @@ type entryType = {
   effective_at: string,
   staging_entry_id: option<string>,
   transformation_id: option<string>,
+  transformation_name: option<string>,
 }
 
 type processingEntryDiscardedDataType = {reason: string}

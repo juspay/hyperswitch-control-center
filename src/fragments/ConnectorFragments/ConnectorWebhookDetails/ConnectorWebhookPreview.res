@@ -2,6 +2,9 @@
 let make = (
   ~merchantId,
   ~connectorName,
+  ~version: UserInfoTypes.version=V1,
+  ~connectorId="",
+  ~isRecoveryWebhook=false,
   ~textCss="",
   ~showFullText=false,
   ~showFullCopy=false,
@@ -11,13 +14,26 @@ let make = (
   ~truncateDisplayValue=false,
 ) => {
   let showToast = ToastAdapter.useShowToast()
-  let copyValueOfWebhookEndpoint = `${Window.env.apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
-  let displayValueOfWebhookEndpoint = `${Window.env.apiBaseUrl}...${connectorName}`
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  // v2 webhooks are addressed by profile and merchant connector account id, not connector name
+  let copyValueOfWebhookEndpoint = switch version {
+  | V2 =>
+    isRecoveryWebhook
+      ? `${Window.env.apiBaseUrl}/v2/webhooks/recovery/${merchantId}/${profileId}/${connectorId}`
+      : `${Window.env.apiBaseUrl}/v2/webhooks/${merchantId}/${profileId}/${connectorId}`
+  | V1 => `${Window.env.apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
+  }
+  // the last path segment differs by version: connector name (v1) vs connector id (v2)
+  let webhookEndpointTail = switch version {
+  | V2 => connectorId
+  | V1 => connectorName
+  }
+  let displayValueOfWebhookEndpoint = `${Window.env.apiBaseUrl}...${webhookEndpointTail}`
   let baseurl = `${Window.env.apiBaseUrl}`
   let shortDisplayValueofWebhookEndpoint = `${baseurl->String.slice(
       ~start=0,
       ~end=9,
-    )}...${connectorName}`
+    )}...${webhookEndpointTail}`
 
   let displayValueOfWebhookEndpoint = switch displayTextLength {
   | Some(end) =>

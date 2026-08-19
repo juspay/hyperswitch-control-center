@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.19.2
+
+### Features
+
+- Show transformation name on transaction entries table ([#5392](https://github.com/juspay/hyperswitch-control-center/pull/5392)) ([`52e151c`](https://github.com/juspay/hyperswitch-control-center/commit/52e151c4a7b64d4e18199a1c7431bdf2c1aeb0db))
+- Increase the connectors to revenue recovery flow ([#5423](https://github.com/juspay/hyperswitch-control-center/pull/5423)) ([`16e8a59`](https://github.com/juspay/hyperswitch-control-center/commit/16e8a59ae4e56dd8e1f7153d914e7a043bc35cb3))
+
+### Miscellaneous Tasks
+
+- Make recon engine audit trail default to 31 days ([#5414](https://github.com/juspay/hyperswitch-control-center/pull/5414)) ([`bfe9199`](https://github.com/juspay/hyperswitch-control-center/commit/bfe91998ea2af8501c4b19f891b835b743e0dc32))
+- Remove error details from recon engine transformations ([#5421](https://github.com/juspay/hyperswitch-control-center/pull/5421)) ([`70dd208`](https://github.com/juspay/hyperswitch-control-center/commit/70dd208c97072b4e865629fe0c61b85758520836))
+
+**Full Changelog:** [`2026.08.19.1...2026.08.19.2`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.19.1...2026.08.19.2)
+
+- - -
+
 ## 2026.08.19.1
 
 ### Features

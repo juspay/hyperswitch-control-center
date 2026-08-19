@@ -222,8 +222,7 @@ let getPipelineDetailStatCards = (~transformationHistory: array<transformationHi
   let totalTransformed =
     transformationHistory->Array.reduce(0, (acc, t) => acc + t.data.transformed_count)
   let totalIgnored = transformationHistory->Array.reduce(0, (acc, t) => acc + t.data.ignored_count)
-  let totalErrors =
-    transformationHistory->Array.reduce(0, (acc, t) => acc + t.data.errors->Array.length)
+  let totalErrors = transformationHistory->Array.reduce(0, (acc, t) => acc + t.data.failed_count)
   let transformationRuns = transformationHistory->Array.length
   let allTxProcessed =
     transformationRuns > 0 && transformationHistory->Array.every(t => t.status === Processed)
