@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.19.0
+
+### Features
+
+- Add support for both US and EU PCI certificates ([#5060](https://github.com/juspay/hyperswitch-control-center/pull/5060)) ([`634a8f3`](https://github.com/juspay/hyperswitch-control-center/commit/634a8f3329a0b911072e811cbaeca2189e805ff3))
+
+### Bug Fixes
+
+- Round exception entry balances to currency precision ([#5410](https://github.com/juspay/hyperswitch-control-center/pull/5410)) ([`6ecf882`](https://github.com/juspay/hyperswitch-control-center/commit/6ecf882f2572d60688a2d67a3754048d5e93b7a8))
+
+### Miscellaneous Tasks
+
+- Add `modified_by` in transactions audit trail ([#5412](https://github.com/juspay/hyperswitch-control-center/pull/5412)) ([`7535253`](https://github.com/juspay/hyperswitch-control-center/commit/7535253e5b174e34b244cb8be4b4c6c1f92bf2ce))
+
+**Full Changelog:** [`2026.08.17.2...2026.08.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.17.2...2026.08.19.0)
+
+- - -
+
 ## 2026.08.17.2
 
 ### Features
