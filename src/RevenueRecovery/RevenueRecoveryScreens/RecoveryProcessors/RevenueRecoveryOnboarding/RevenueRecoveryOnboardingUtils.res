@@ -2,7 +2,6 @@ open RevenueRecoveryOnboardingTypes
 
 let getMainStepName = step => {
   switch step {
-  | #chooseDataSource => "Choose Your Data Source"
   | #connectProcessor => "Connect Processor"
   | #addAPlatform => "Add a Platform"
   | #reviewDetails => "Review Details"
@@ -22,7 +21,6 @@ let getStepName = (step: revenueRecoverySubsections) => {
 
 let getIcon = step => {
   switch step {
-  | #chooseDataSource => "nd-shield"
   | #connectProcessor => "nd-inbox"
   | #addAPlatform => "nd-plugin"
   | #reviewDetails => "nd-flag"
@@ -83,29 +81,13 @@ let getSections = isLiveMode => {
     },
   ]
 
-  if !isLiveMode {
-    defaultSteps->Array.unshift({
-      id: (#chooseDataSource: revenueRecoverySections :> string),
-      name: #chooseDataSource->getMainStepName,
-      VerticalStepIndicatorTypes.icon: #chooseDataSource->getIcon,
-      subSections: None,
-    })
-  }
-
   defaultSteps
 }
 
-let getDefaultStep = isLiveMode => {
-  if isLiveMode {
-    {
-      sectionId: (#connectProcessor: revenueRecoverySections :> string),
-      subSectionId: (#selectProcessor: revenueRecoverySubsections :> string)->Some,
-    }
-  } else {
-    {
-      sectionId: (#chooseDataSource: revenueRecoverySections :> string),
-      subSectionId: None,
-    }
+let getDefaultStep = _isLiveMode => {
+  {
+    sectionId: (#connectProcessor: revenueRecoverySections :> string),
+    subSectionId: (#selectProcessor: revenueRecoverySubsections :> string)->Some,
   }
 }
 
@@ -139,7 +121,6 @@ let onPreviousClick = (currentStep, setNextStep, isLiveMode) => {
 
 let getSectionVariant = ({sectionId, subSectionId}) => {
   let mainSection = switch sectionId {
-  | "chooseDataSource" => #chooseDataSource
   | "connectProcessor" => #connectProcessor
   | "addAPlatform" => #addAPlatform
   | "reviewDetails" | _ => #reviewDetails
