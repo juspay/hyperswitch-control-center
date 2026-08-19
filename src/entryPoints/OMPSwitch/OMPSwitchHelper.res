@@ -661,6 +661,13 @@ let generateDropdownOptionsCustomComponent: (
           toolTipPosition=ToolTip.TopRight
         />,
       ),
+      optGroup: {
+        let displayName =
+          item.productType
+          ->Option.getOr(ProductTypes.Orchestration(UserInfoTypes.V1))
+          ->ProductUtils.getProductDisplayName
+        (displayName->isEmptyString ? "Others" : displayName)->String.toUpperCase
+      },
     }
     isPlatformOrg ? platformOptions : merchantOptions
   })
