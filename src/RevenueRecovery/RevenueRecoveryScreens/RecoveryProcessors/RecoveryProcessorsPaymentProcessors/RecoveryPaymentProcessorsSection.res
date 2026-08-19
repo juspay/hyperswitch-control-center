@@ -285,7 +285,7 @@ let make = (
     <div
       key={paymentConnectorId}
       onClick={_ => onSelectProcessor(paymentConnectorId)}
-      className={`grid grid-cols-3 px-2 py-4 border-b items-center last:border-b-0 cursor-pointer hover:bg-nd_gray-50 ${isSelected
+      className={`grid grid-cols-4 px-2 py-4 border-b items-center last:border-b-0 cursor-pointer hover:bg-nd_gray-50 ${isSelected
           ? "bg-nd_gray-50"
           : ""}`}>
       <div className="flex gap-3 items-center">
@@ -297,6 +297,13 @@ let make = (
               : paymentConnectorId
           )->React.string}
         </p>
+      </div>
+      <div className="flex flex-col gap-1">
+        <h4 className="text-nd_gray-400"> {"Merchant Connector ID"->React.string} </h4>
+        <HelperComponents.CopyTextCustomComp
+          displayValue={Some(paymentConnectorId)}
+          customTextCss="!font-jetbrains-mono text-nd_gray-600"
+        />
       </div>
       <div className="flex flex-col gap-1">
         <h4 className="text-nd_gray-400"> {"Processor Reference"->React.string} </h4>

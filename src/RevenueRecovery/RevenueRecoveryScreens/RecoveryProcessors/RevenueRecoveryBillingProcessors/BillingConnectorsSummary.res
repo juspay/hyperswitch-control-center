@@ -243,6 +243,13 @@ module BillingConnectorDetails = {
               {connectorName->React.string}
             </div>
           </div>
+          <div className="flex flex-col gap-2 ">
+            <h4 className="text-nd_gray-400 "> {"Merchant Connector ID"->React.string} </h4>
+            <HelperComponents.CopyTextCustomComp
+              displayValue={Some(connectorInfodict.id)}
+              customTextCss="!font-jetbrains-mono text-nd_gray-600"
+            />
+          </div>
           <RenderIf
             condition={connectorName->getConnectorNameTypeFromString(
               ~connectorType=BillingProcessor,
@@ -453,6 +460,13 @@ module PaymentConnectorDetails = {
                 <div className="flex flex-col gap-2 ">
                   <h4 className="text-nd_gray-400 "> {"Profile"->React.string} </h4>
                   {connectorInfodict.profile_id->React.string}
+                </div>
+                <div className="flex flex-col gap-2 ">
+                  <h4 className="text-nd_gray-400 "> {"Merchant Connector ID"->React.string} </h4>
+                  <HelperComponents.CopyTextCustomComp
+                    displayValue={Some(connectorInfodict.id)}
+                    customTextCss="!font-jetbrains-mono text-nd_gray-600"
+                  />
                 </div>
                 <ConnectorWebhookPreview
                   merchantId
