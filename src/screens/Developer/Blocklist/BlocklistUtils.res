@@ -89,6 +89,144 @@ let getFileSize = file =>
   | None => 0
   }
 
+let blocklistDataKindToString = dataKind => {
+  switch dataKind {
+  | CardBin => "card_bin"
+  | ExtendedCardBin => "extended_card_bin"
+  | Fingerprint => "fingerprint"
+  }
+}
+
+let blocklistDataKindToLabel = dataKind => {
+  switch dataKind {
+  | CardBin => "Card BIN"
+  | ExtendedCardBin => "Extended Card BIN"
+  | Fingerprint => "Fingerprint"
+  }
+}
+
+let allBlocklistDataKinds = [CardBin, ExtendedCardBin, Fingerprint]
+
+let blocklistDataKindOptions: array<SelectBox.dropdownOption> = allBlocklistDataKinds->Array.map((
+  dataKind
+): SelectBox.dropdownOption => {
+  label: dataKind->blocklistDataKindToLabel,
+  value: dataKind->blocklistDataKindToString,
+})
+
+let blocklistEntryItemToObjMapper = dict => {
+  {
+    BlocklistTypes.fingerprint_id: dict->getString("fingerprint_id", ""),
+    data_kind: dict->getString("data_kind", ""),
+    created_at: dict->getString("created_at", ""),
+  }
+}
+
+let blocklistEntryBody = (~dataKind, ~data) => {
+  [
+    ("type", dataKind->blocklistDataKindToString->JSON.Encode.string),
+    ("data", data->JSON.Encode.string),
+  ]
+  ->Dict.fromArray
+  ->JSON.Encode.object
+}
+
+let cardBinRegex = %re("/^\d{6}$/")
+let extendedCardBinRegex = %re("/^\d{8}$/")
+let digitOnlyRegex = %re("/^\d*$/")
+
+let isDigitOnlyBlocklistDataKind = dataKind => {
+  switch dataKind {
+  | CardBin | ExtendedCardBin => true
+  | Fingerprint => false
+  }
+}
+
+let isValidBlocklistEntryInput = (~dataKind, ~data) => {
+  dataKind->isDigitOnlyBlocklistDataKind ? digitOnlyRegex->RegExp.test(data) : true
+}
+
+let blocklistEntryDataHint = dataKind => {
+  switch dataKind {
+  | CardBin => "Must be exactly 6 digits, e.g. 411111"
+  | ExtendedCardBin => "Must be exactly 8 digits, e.g. 41111100"
+  | Fingerprint => "e.g. fp_abc123"
+  }
+}
+
+let blocklistEntryPlaceholder = dataKind => {
+  switch dataKind {
+  | CardBin => "411111"
+  | ExtendedCardBin => "41111100"
+  | Fingerprint => "fp_abc123"
+  }
+}
+
+let blocklistEntryInputMode = dataKind => {
+  switch dataKind {
+  | CardBin | ExtendedCardBin => "numeric"
+  | Fingerprint => "text"
+  }
+}
+
+let blocklistEntryMaxLength = dataKind => {
+  switch dataKind {
+  | CardBin => Some(6)
+  | ExtendedCardBin => Some(8)
+  | Fingerprint => None
+  }
+}
+
+let getBlocklistDataKindFromString = dataKind => {
+  switch dataKind {
+  | "card_bin" => CardBin
+  | "extended_card_bin" => ExtendedCardBin
+  | _ => Fingerprint
+  }
+}
+
+let validateBlocklistEntryData = (~dataKind, ~data, ~operation) => {
+  let trimmedData = data->String.trim
+  if trimmedData->isEmptyString {
+    switch operation {
+    | AddBlocklistEntry => Some("Please enter a value to block.")
+    | DeleteBlocklistEntry => Some("Please enter a value to unblock.")
+    }
+  } else {
+    switch dataKind {
+    | CardBin =>
+      cardBinRegex->RegExp.test(trimmedData) ? None : Some("Card BIN must be exactly 6 digits.")
+    | ExtendedCardBin =>
+      extendedCardBinRegex->RegExp.test(trimmedData)
+        ? None
+        : Some("Extended Card BIN must be exactly 8 digits.")
+    | Fingerprint => None
+    }
+  }
+}
+
+let getBlocklistEntryMethod = operation => {
+  switch operation {
+  | AddBlocklistEntry => Fetch.Post
+  | DeleteBlocklistEntry => Fetch.Delete
+  }
+}
+
+let getBlocklistEntryFallbackError = operation => {
+  switch operation {
+  | AddBlocklistEntry => "Failed to add entry to blocklist"
+  | DeleteBlocklistEntry => "Failed to remove entry from blocklist"
+  }
+}
+
+let getBlocklistEntrySuccessMessage = (~operation, ~submittedData, ~fingerprintId) => {
+  let displayValue = fingerprintId->getNonEmptyString->Option.getOr(submittedData)
+  switch operation {
+  | AddBlocklistEntry => `Added ${displayValue} to blocklist.`
+  | DeleteBlocklistEntry => `Removed ${displayValue} from blocklist.`
+  }
+}
+
 let formatFileSize = fileSize => {
   if fileSize >= bytesPerMegabyte {
     let size = fileSize->Int.toFloat /. bytesPerMegabyte->Int.toFloat
