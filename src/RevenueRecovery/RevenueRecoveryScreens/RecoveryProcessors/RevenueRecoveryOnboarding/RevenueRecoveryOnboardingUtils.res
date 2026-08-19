@@ -61,10 +61,6 @@ let getSections = isLiveMode => {
           id: (#authenticateProcessor: revenueRecoverySubsections :> string),
           name: #authenticateProcessor->getStepName,
         },
-        {
-          id: (#activePaymentMethods: revenueRecoverySubsections :> string),
-          name: #activePaymentMethods->getStepName,
-        },
       ]),
     },
     {

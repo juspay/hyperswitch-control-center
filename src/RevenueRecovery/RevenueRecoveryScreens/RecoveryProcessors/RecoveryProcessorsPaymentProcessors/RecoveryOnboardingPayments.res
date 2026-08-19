@@ -105,11 +105,6 @@ let make = (
     onNextClick(currentStep, setNextStep, isLiveMode)->ignore
   }
 
-  let handleStepOnlySubmit = async (_, _) => {
-    handleClick()
-    Nullable.null
-  }
-
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
     try {
@@ -211,23 +206,6 @@ let make = (
                 <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
                 <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
                 <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
-                <FormRenderer.SubmitButton
-                  text="Next" buttonSize={Small} customSubmitButtonStyle="!w-full mt-8"
-                />
-              </div>
-            </Form>
-          </PageLoaderWrapper>
-        </div>
-      </PageWrapper>
-    | (#connectProcessor, #activePaymentMethods) =>
-      <PageWrapper
-        title="Payment Methods"
-        subTitle="These payment methods will be used when retrying failed payments.">
-        <div className="mb-10 flex flex-col gap-7 w-540-px">
-          <PageLoaderWrapper screenState>
-            <Form onSubmit={handleStepOnlySubmit} initialValues>
-              <div className="flex flex-col mb-5 gap-3 ">
-                <ConnectorPaymentMethodV2 initialValues isInEditState=false />
                 <FormRenderer.SubmitButton
                   text="Next" buttonSize={Small} customSubmitButtonStyle="!w-full mt-8"
                 />
