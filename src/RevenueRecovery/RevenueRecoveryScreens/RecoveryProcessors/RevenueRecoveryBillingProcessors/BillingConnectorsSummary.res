@@ -535,7 +535,7 @@ module RetriesConfiguration = {
   open LogicUtils
   open APIUtils
   @react.component
-  let make = (~removeFieldsFromResponse) => {
+  let make = (~removeFieldsFromResponse, ~merchantId) => {
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
     let updateAPIHook = useUpdateMethod(~showErrorToast=false)
@@ -598,6 +598,7 @@ module RetriesConfiguration = {
         dict->Dict.delete("id")
         dict->Dict.delete("connector_name")
         dict->Dict.delete("connector_account_details")
+        dict->Dict.set("merchant_id", merchantId->JSON.Encode.string)
         let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
         setInitialValues(_ => response->removeFieldsFromResponse)
         setIsEditMode(_ => false)
@@ -760,7 +761,7 @@ let make = () => {
       title: "Retries Configuration",
       renderContent: () => {
         <div className="flex flex-col gap-20 mt-10">
-          <RetriesConfiguration removeFieldsFromResponse />
+          <RetriesConfiguration removeFieldsFromResponse merchantId />
         </div>
       },
     })
