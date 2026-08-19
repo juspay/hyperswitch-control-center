@@ -47,11 +47,6 @@ let getV2Url = (
       }
     | _ => ""
     }
-  | V2_FEATURE_MATRIX =>
-    switch methodType {
-    | Get => "v2/feature-matrix"
-    | _ => ""
-    }
   | V2_ORDERS_LIST =>
     switch methodType {
     | Get =>

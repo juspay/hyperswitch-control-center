@@ -24,10 +24,6 @@ let make = (
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => Success)
-  let (
-    mitSupportedConnectors,
-    isMitConnectorListLoading,
-  ) = RevenueRecoveryHooks.useMitSupportedConnectors()
 
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
@@ -177,9 +173,11 @@ let make = (
       <PageWrapper
         title="Where do you process your payments"
         subTitle="Link the payment processor you use for handling subscription transactions.">
-        <PageLoaderWrapper screenState={isMitConnectorListLoading ? Loading : screenState}>
+        <PageLoaderWrapper screenState>
           <PaymentProcessorCards
-            connectorsAvailableForIntegration=mitSupportedConnectors
+            connectorsAvailableForIntegration={isLiveMode
+              ? RecoveryConnectorUtils.recoveryConnectorProdList
+              : RecoveryConnectorUtils.recoveryConnectorList}
             configuredConnectors=[]
             heading="Choose a processor"
             mixpanelEventPrefix="recovery_connector_click"

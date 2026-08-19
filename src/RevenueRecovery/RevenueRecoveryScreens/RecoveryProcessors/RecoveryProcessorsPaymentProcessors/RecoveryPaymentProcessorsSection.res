@@ -30,10 +30,6 @@ let make = (
     ~version=V2,
   )
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
-  let (
-    mitSupportedConnectors,
-    isMitConnectorListLoading,
-  ) = RevenueRecoveryHooks.useMitSupportedConnectors()
 
   /* ConnectorAuthKeys and friends read the connector from the url's name param,
    so selecting a card has to put it there for their fields to render */
@@ -363,9 +359,11 @@ let make = (
           {registeredProcessorIds->Array.map(processorRow)->React.array}
         </div>
       | SelectProcessor =>
-        <PageLoaderWrapper screenState={isMitConnectorListLoading ? Loading : Success}>
+        <PageLoaderWrapper screenState=Success>
           <PaymentProcessorCards
-            connectorsAvailableForIntegration=mitSupportedConnectors
+            connectorsAvailableForIntegration={isLiveMode
+              ? RecoveryConnectorUtils.recoveryConnectorProdList
+              : RecoveryConnectorUtils.recoveryConnectorList}
             configuredConnectors=[]
             heading="Choose a processor"
             mixpanelEventPrefix="recovery_add_connector_click"
