@@ -288,7 +288,7 @@ let transformationDataMapper = (dict): transformationData => {
     transformation_result: dict->getString("transformation_result", ""),
     ignored_count: dict->getInt("ignored_count", 0),
     staging_entry_ids: dict->getStrArrayFromDict("staging_entry_ids", []),
-    errors: dict->getStrArrayFromDict("errors", []),
+    failed_count: dict->getInt("failed_count", 0),
   }
 }
 

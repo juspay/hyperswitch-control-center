@@ -54,7 +54,6 @@ let make = (
     TransformationHistoryId,
     TransformationStats,
     TransformedAt,
-    TransformationComments,
   ]
 
   let getActiveTabIndex = React.useMemo(() => {
