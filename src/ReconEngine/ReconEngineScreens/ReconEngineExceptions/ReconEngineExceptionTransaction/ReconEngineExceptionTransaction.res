@@ -22,6 +22,7 @@ let make = (~ruleId: string) => {
   let (reconRulesList, setReconRulesList) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
+  let (lastFetchedSearchText, setLastFetchedSearchText) = React.useState(_ => "")
   let searchTypeRef = React.useRef(SearchTransactionId)
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
   let url = RescriptReactRouter.useUrl()
@@ -65,12 +66,17 @@ let make = (~ruleId: string) => {
     }
   }
 
-  let fetchPage = (~sortBy, ~direction) => {
-    let enhancedFilterValueJson = Dict.copy(filterValueJsonWithGlobalDate)
+  let enhancedFilterValueJson = {
+    let enhanced = Dict.copy(filterValueJsonWithGlobalDate)
     let statusFilter = filterValueJsonWithGlobalDate->getArrayFromDict("status", [])
     if statusFilter->isEmptyArray {
-      enhancedFilterValueJson->Dict.set("status", exceptionStatusList->getJsonFromArrayOfString)
+      enhanced->Dict.set("status", exceptionStatusList->getJsonFromArrayOfString)
     }
+    enhanced
+  }
+
+  let fetchPage = (~sortBy, ~direction) => {
+    setLastFetchedSearchText(_ => searchText)
     getTransactionsV2(
       ~body=buildTransactionsV2Body(
         ~filterValueJson=enhancedFilterValueJson,
@@ -102,6 +108,16 @@ let make = (~ruleId: string) => {
     searchTypeRef.current = newSearchType
     goToFirstPage()
   }
+
+  let isSearchActive = lastFetchedSearchText->isNonEmptyString
+
+  let bulkSelectionFilters = isSearchActive
+    ? None
+    : Some(buildTransactionBulkSelectionFilters(~filterValueJson=enhancedFilterValueJson, ~ruleId))
+
+  let bulkFilterScopeCopy = buildFilterScopeCopy(
+    ~userSelectedFilterValueJson=filterValueJsonWithGlobalDate,
+  )
 
   React.useEffect(() => {
     fetchAccountsAndRules()->ignore
@@ -255,6 +271,10 @@ let make = (~ruleId: string) => {
         setSelectedRows
         showVoidButton=true
         refreshList={() => goToFirstPage()}
+        selectionFilters=?bulkSelectionFilters
+        filterScopeCopy=bulkFilterScopeCopy
+        currentPageCount={transactions->Array.length}
+        isSinglePage={cursors.next->Option.isNone && cursors.prev->Option.isNone}
       />
     </RenderIf>
   </div>
