@@ -38,6 +38,9 @@ let make = (~ruleId: string) => {
   let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
 
   let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
+  let visibleColumns = Recoil.useRecoilValueFromAtom(
+    TableAtoms.exceptionTransactionsHierarchicalDefaultCols,
+  )
   let title = "Exception Transactions"
   let sortOrder = sortDict->getMappedValueFromDict(title, Desc, getSortOrder)
 
@@ -179,6 +182,9 @@ let make = (~ruleId: string) => {
         showCustomFilter=false
         refreshFilters=false
       />
+      <PortalCapture
+        key={`${title}CustomizeColumn`} name={`${title}CustomizeColumn`} customStyle="ml-auto"
+      />
     </div>
   }
 
@@ -211,8 +217,8 @@ let make = (~ruleId: string) => {
           offset
           setOffset
           currentFetchCount={transactions->Array.length}
-          customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
-          defaultColumns
+          customColumnMapper=TableAtoms.exceptionTransactionsHierarchicalDefaultCols
+          defaultColumns=mandatoryColumns
           showSerialNumberInCustomizeColumns=false
           sortingBasedOnDisabled=false
           remoteSortEnabled=true
@@ -221,9 +227,8 @@ let make = (~ruleId: string) => {
           tableDataLoading={screenState === PageLoaderWrapper.Loading}
           dataLoading={screenState === PageLoaderWrapper.Loading}
           customizeColumnButtonIcon="nd-filter-horizontal"
-          hideRightTitleElement=true
           showAutoScroll=true
-          customSeparation=[(3, 4)]
+          customSeparation={getCustomSeparation(visibleColumns)}
           filters={<SearchInput
             inputText=searchText
             onChange={value => setSearchText(_ => value)}

@@ -44,3 +44,8 @@ let transactionsHierarchicalDefaultCols = Recoil.atom(
   "transactionsHierarchicalDefaultCols",
   HierarchicalTransactionsTableEntity.defaultColumns,
 )
+
+let exceptionTransactionsHierarchicalDefaultCols = Recoil.atom(
+  "exceptionTransactionsHierarchicalDefaultCols",
+  HierarchicalTransactionsTableEntity.defaultColumns,
+)
