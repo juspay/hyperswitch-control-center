@@ -246,6 +246,7 @@ let make = () => {
       deselectDisable=true
       options={updatedMerchantList->generateDropdownOptionsCustomComponent(
         ~isPlatformOrg=isCurrentOrganizationPlatform,
+        ~groupByProduct=true,
       )}
       marginTop={`mt-16 ${borderColor} shadow-generic_shadow ml-2`}
       hideMultiSelectButtons=true
@@ -270,9 +271,23 @@ let make = () => {
       customSearchStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} ${borderColor}`}
       searchInputPlaceHolder="Search Merchant Account or ID"
       placeholderCss={`text-fs-13 ${backgroundColor.sidebarSecondary}`}
-      customSortOrder={[#platform, #connected, #standard]->Array.map(ompType =>
-        ompType->OMPSwitchUtils.ompTypeHeading->String.toUpperCase
-      )}
+      customSortOrder={isCurrentOrganizationPlatform
+        ? [#platform, #connected, #standard]->Array.map(ompType =>
+            ompType->OMPSwitchUtils.ompTypeHeading->String.toUpperCase
+          )
+        : {
+            open ProductTypes
+            [
+              Orchestration(V1),
+              Orchestration(V2),
+              Recon(V1),
+              Recon(V2),
+              Recovery,
+              Vault,
+              CostObservability,
+              DynamicRouting,
+            ]->Array.map(product => product->ProductUtils.getProductDisplayName->String.toUpperCase)
+          }}
     />
     <NewMerchantCreationModal setShowModal showModal />
     <LoaderModal

@@ -620,10 +620,11 @@ let generateDropdownOptions: (
   options
 }
 
-let generateDropdownOptionsCustomComponent: (
-  array<OMPSwitchTypes.ompListTypesCustom>,
-  ~isPlatformOrg: bool,
-) => array<SelectBox.dropdownOption> = (dropdownList, ~isPlatformOrg) => {
+let generateDropdownOptionsCustomComponent = (
+  dropdownList: array<OMPSwitchTypes.ompListTypesCustom>,
+  ~isPlatformOrg,
+  ~groupByProduct=false,
+): array<SelectBox.dropdownOption> => {
   let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
     item
   ): SelectBox.dropdownOption => {
@@ -661,13 +662,17 @@ let generateDropdownOptionsCustomComponent: (
           toolTipPosition=ToolTip.TopRight
         />,
       ),
-      optGroup: {
-        let displayName =
-          item.productType
-          ->Option.getOr(ProductTypes.Orchestration(UserInfoTypes.V1))
-          ->ProductUtils.getProductDisplayName
-        (displayName->isEmptyString ? "Others" : displayName)->String.toUpperCase
-      },
+      optGroup: ?(
+        if groupByProduct {
+          let displayName =
+            item.productType
+            ->Option.getOr(ProductTypes.Orchestration(UserInfoTypes.V1))
+            ->ProductUtils.getProductDisplayName
+          Some((displayName->isEmptyString ? "Others" : displayName)->String.toUpperCase)
+        } else {
+          None
+        }
+      ),
     }
     isPlatformOrg ? platformOptions : merchantOptions
   })
