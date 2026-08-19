@@ -254,6 +254,35 @@ let make = (
     </>
   }
 
+  /* Custom billing has no "Processor Reference ID" input - the reference is the payment
+   connector's merchant connector account id, so seed it the way custom_feature_metadata does. */
+  let billingSetUpInitialValues = {
+    let isCustomBilling =
+      connector->getConnectorNameTypeFromString(~connectorType=BillingProcessor) ==
+        BillingProcessor(CUSTOMBILLING)
+
+    if isCustomBilling && connectorID->isNonEmptyString {
+      let valuesDict = initialValues->getDictFromJsonObject
+      let featureMetadata = valuesDict->getObj("feature_metadata", Dict.make())->Dict.copy
+      let revenueRecovery = featureMetadata->getObj("revenue_recovery", Dict.make())->Dict.copy
+      let billingAccountReference =
+        revenueRecovery->getObj("billing_account_reference", Dict.make())->Dict.copy
+
+      billingAccountReference->Dict.set(connectorID, connectorID->JSON.Encode.string)
+      revenueRecovery->Dict.set(
+        "billing_account_reference",
+        billingAccountReference->JSON.Encode.object,
+      )
+      featureMetadata->Dict.set("revenue_recovery", revenueRecovery->JSON.Encode.object)
+
+      let updatedValues = valuesDict->Dict.copy
+      updatedValues->Dict.set("feature_metadata", featureMetadata->JSON.Encode.object)
+      updatedValues->JSON.Encode.object
+    } else {
+      initialValues
+    }
+  }
+
   let authKeysSubmit = isLiveMode ? onSubmit : handleAuthKeySubmit
 
   <div>
@@ -273,7 +302,7 @@ let make = (
       | (#addAPlatform, #processorSetUp) =>
         <>
           <BillingProcessorsSetUp
-            initialValues
+            initialValues=billingSetUpInitialValues
             validateMandatoryField
             connector={paymentConnectorName}
             billingConnector=connector

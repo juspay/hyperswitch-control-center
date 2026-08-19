@@ -23,6 +23,16 @@ let make = () => {
   let (billingConnectorName, setBillingConnectorName) = React.useState(() => "")
   let defaultPath = RevenueRecoveryHooks.useGetDefaultPath()
 
+  /* connectorList is fetched asynchronously, so the state above initialises from an empty list
+   on first render. Adopt the existing payment connector once the list resolves. */
+  React.useEffect(() => {
+    if paymentConnectorID->LogicUtils.isEmptyString && connectorID->LogicUtils.isNonEmptyString {
+      setPaymentConnectorID(_ => connectorID)
+      setPaymentConnectorName(_ => connectorName)
+    }
+    None
+  }, [connectorID])
+
   React.useEffect(() => {
     setShowSideBar(_ => false)
 
