@@ -70,7 +70,7 @@ let reconEngineSidebars = (
     Heading({name: "Operate"}),
     reconOverview,
     exceptions,
-    Heading({name: "Explore"}),
+    Heading({name: "Monitor"}),
     reconTransactions,
     reconTransformedEntries,
   ]
