@@ -146,31 +146,43 @@ let make = (
   )
 
   let registerReference = async (~paymentConnectorId, ~reference) => {
-    let url = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Get, ~id=Some(billingConnectorId))
-    let billingConnector = await fetchDetails(url, ~version=V2)
-    let billingDict = billingConnector->getDictFromJsonObject
-    let featureMetadata = billingDict->getObj("feature_metadata", Dict.make())->Dict.copy
-    let revenueRecovery = featureMetadata->getObj("revenue_recovery", Dict.make())->Dict.copy
-    let updatedReference =
-      revenueRecovery->getObj("billing_account_reference", Dict.make())->Dict.copy
+    try {
+      let url = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Get, ~id=Some(billingConnectorId))
+      let billingConnector = await fetchDetails(url, ~version=V2)
+      let billingDict = billingConnector->getDictFromJsonObject
+      let featureMetadata = billingDict->getObj("feature_metadata", Dict.make())->Dict.copy
+      let revenueRecovery = featureMetadata->getObj("revenue_recovery", Dict.make())->Dict.copy
+      let updatedReference =
+        revenueRecovery->getObj("billing_account_reference", Dict.make())->Dict.copy
 
-    updatedReference->Dict.set(paymentConnectorId, reference->JSON.Encode.string)
-    revenueRecovery->Dict.set("billing_account_reference", updatedReference->JSON.Encode.object)
-    featureMetadata->Dict.set("revenue_recovery", revenueRecovery->JSON.Encode.object)
+      updatedReference->Dict.set(paymentConnectorId, reference->JSON.Encode.string)
+      revenueRecovery->Dict.set("billing_account_reference", updatedReference->JSON.Encode.object)
+      featureMetadata->Dict.set("revenue_recovery", revenueRecovery->JSON.Encode.object)
 
-    let body = RecoveryConnectorUtils.getUpdatableConnectorBody(
-      ~valuesDict=billingDict,
-      ~merchantId,
-    )
-    body->Dict.set("feature_metadata", featureMetadata->JSON.Encode.object)
+      let body = RecoveryConnectorUtils.getUpdatableConnectorBody(
+        ~valuesDict=billingDict,
+        ~merchantId,
+      )
+      body->Dict.set("feature_metadata", featureMetadata->JSON.Encode.object)
 
-    let updateUrl = getURL(
-      ~entityName=V2(V2_CONNECTOR),
-      ~methodType=Put,
-      ~id=Some(billingConnectorId),
-    )
-    let _ = await updateAPIHook(updateUrl, body->JSON.Encode.object, Put, ~version=V2)
-    updatedReference
+      let updateUrl = getURL(
+        ~entityName=V2(V2_CONNECTOR),
+        ~methodType=Put,
+        ~id=Some(billingConnectorId),
+      )
+      let _ = await updateAPIHook(updateUrl, body->JSON.Encode.object, Put, ~version=V2)
+      updatedReference
+    } catch {
+    | Exn.Error(e) => {
+        /* the processor exists at this point, it is only the link to the biller
+         that failed, so say so rather than reporting a failed creation */
+        let err = Exn.message(e)->Option.getOr("")
+        let message = err->safeParse->getDictFromJsonObject->getString("message", err)
+        Exn.raiseError(
+          `Processor created, but linking it for retries failed. ${message}`->String.trim,
+        )
+      }
+    }
   }
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
