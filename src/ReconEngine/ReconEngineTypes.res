@@ -72,7 +72,7 @@ type transformationData = {
   transformed_count: int,
   ignored_count: int,
   staging_entry_ids: array<string>,
-  errors: array<string>,
+  failed_count: int,
 }
 
 type ingestionHistoryType = {
