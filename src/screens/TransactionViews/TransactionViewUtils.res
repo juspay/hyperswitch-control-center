@@ -136,12 +136,12 @@ let getMetricsScope = transactionEntity =>
 
 let buildAggregateMetricsUrl = (~metricConfig, ~transactionEntity) => {
   let scope = transactionEntity->getMetricsScope
-  `${getBaseUrl(OLAP)}/${metricConfig.urlPrefix}/${scope}/metrics/${metricConfig.domain}`
+  `${getBaseUrl(OLTP)}/${metricConfig.urlPrefix}/${scope}/metrics/${metricConfig.domain}`
 }
 
 let buildSankeyMetricsUrl = transactionEntity => {
   let scope = transactionEntity->getMetricsScope
-  `${getBaseUrl(OLAP)}/analytics/v1/${scope}/metrics/sankey`
+  `${getBaseUrl(OLTP)}/analytics/v1/${scope}/metrics/sankey`
 }
 
 let getEntityName = (~entity: operationsTypes, ~version: UserInfoTypes.version) => {
