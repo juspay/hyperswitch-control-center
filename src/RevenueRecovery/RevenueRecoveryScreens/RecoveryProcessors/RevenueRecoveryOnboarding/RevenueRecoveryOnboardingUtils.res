@@ -12,8 +12,10 @@ let getMainStepName = step => {
 let getStepName = (step: revenueRecoverySubsections) => {
   switch step {
   | #selectProcessor => "Select a Processor"
-  | #activePaymentMethods => "Active Payment Methods"
+  | #authenticateProcessor => "Authenticate"
+  | #activePaymentMethods => "Payment Methods"
   | #selectAPlatform => "Select a Platform"
+  | #authenticateBilling => "Authenticate"
   | #processorSetUp => "Billing Processor Set-up"
   }
 }
@@ -133,8 +135,10 @@ let getSectionVariant = ({sectionId, subSectionId}) => {
 
   let subSection: revenueRecoverySubsections = switch subSectionId {
   | Some("selectProcessor") => #selectProcessor
+  | Some("authenticateProcessor") => #authenticateProcessor
   | Some("activePaymentMethods") => #activePaymentMethods
   | Some("selectAPlatform") => #selectAPlatform
+  | Some("authenticateBilling") => #authenticateBilling
   | Some("processorSetUp") | _ => #processorSetUp
   }
 

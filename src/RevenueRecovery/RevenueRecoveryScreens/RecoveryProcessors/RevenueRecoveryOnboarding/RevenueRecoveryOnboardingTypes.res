@@ -7,8 +7,10 @@ type revenueRecoverySections = [
 
 type revenueRecoverySubsections = [
   | #selectProcessor
+  | #authenticateProcessor
   | #activePaymentMethods
   | #selectAPlatform
+  | #authenticateBilling
   | #processorSetUp
 ]
 
