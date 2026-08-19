@@ -6,7 +6,13 @@
 type sectionMode = ListProcessors | SelectProcessor | AuthenticateProcessor
 
 @react.component
-let make = (~billingConnectorId, ~billingConnectorName, ~merchantId) => {
+let make = (
+  ~billingConnectorId,
+  ~billingConnectorName,
+  ~merchantId,
+  ~selectedProcessorId,
+  ~onSelectProcessor,
+) => {
   open APIUtils
   open LogicUtils
   open ConnectorUtils
@@ -210,6 +216,7 @@ let make = (~billingConnectorId, ~billingConnectorName, ~merchantId) => {
       let updatedReference = await registerReference(~paymentConnectorId, ~reference)
 
       setBillingAccountReference(_ => updatedReference)
+      onSelectProcessor(paymentConnectorId)
       fetchConnectorListResponse()->ignore
       setConnector(_ => "")
       setSelectedConnectorInUrl("")
@@ -272,9 +279,14 @@ let make = (~billingConnectorId, ~billingConnectorName, ~merchantId) => {
     }
     let reference = billingAccountReference->getString(paymentConnectorId, "")
 
+    let isSelected = selectedProcessorId === paymentConnectorId
+
     <div
       key={paymentConnectorId}
-      className="grid grid-cols-3 px-2 py-4 border-b items-center last:border-b-0">
+      onClick={_ => onSelectProcessor(paymentConnectorId)}
+      className={`grid grid-cols-3 px-2 py-4 border-b items-center last:border-b-0 cursor-pointer hover:bg-nd_gray-50 ${isSelected
+          ? "bg-nd_gray-50"
+          : ""}`}>
       <div className="flex gap-3 items-center">
         <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-7 h-7 rounded-sm" />
         <p className={body.md.medium}>
@@ -302,7 +314,14 @@ let make = (~billingConnectorId, ~billingConnectorName, ~merchantId) => {
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-7">
       <div className="flex justify-between border-b pb-4 px-2 items-end">
-        <p className={heading.md.semibold}> {"Payment Processors"->React.string} </p>
+        <div className="flex flex-col gap-1">
+          <p className={heading.md.semibold}> {"Payment Processors"->React.string} </p>
+          <RenderIf condition={registeredProcessorIds->Array.length > 1}>
+            <p className="text-nd_gray-400">
+              {"Select a processor to see its details below"->React.string}
+            </p>
+          </RenderIf>
+        </div>
         {switch mode {
         | ListProcessors =>
           <div

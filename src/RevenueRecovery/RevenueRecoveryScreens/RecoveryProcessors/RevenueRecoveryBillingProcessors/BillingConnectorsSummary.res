@@ -707,7 +707,13 @@ let make = () => {
         <div className="flex flex-col gap-20 mt-10">
           <BillingConnectorDetails removeFieldsFromResponse merchantId setPaymentConnectorId />
           <RenderIf condition={billingConnectorId->isNonEmptyString}>
-            <RecoveryPaymentProcessorsSection billingConnectorId billingConnectorName merchantId />
+            <RecoveryPaymentProcessorsSection
+              billingConnectorId
+              billingConnectorName
+              merchantId
+              selectedProcessorId=paymentConnectorId
+              onSelectProcessor={id => setPaymentConnectorId(_ => id)}
+            />
           </RenderIf>
           <PaymentConnectorDetails
             connectorId=paymentConnectorId removeFieldsFromResponse merchantId
