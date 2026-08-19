@@ -156,13 +156,30 @@ let make = (~billingConnectorId, ~billingConnectorName, ~merchantId) => {
     revenueRecovery->Dict.set("billing_account_reference", updatedReference->JSON.Encode.object)
     featureMetadata->Dict.set("revenue_recovery", revenueRecovery->JSON.Encode.object)
 
-    let body = billingDict->Dict.copy
+    /* the update endpoint accepts a fixed set of fields and rejects anything else,
+     so carry over only what it knows rather than the whole fetched connector */
+    let updatableFields = [
+      "connector_type",
+      "connector_label",
+      "payment_methods_enabled",
+      "connector_webhook_details",
+      "metadata",
+      "disabled",
+      "frm_configs",
+      "pm_auth_config",
+      "status",
+      "additional_merchant_data",
+      "connector_wallets_details",
+    ]
+    let body = Dict.make()
+    updatableFields->Array.forEach(field => {
+      switch billingDict->Dict.get(field) {
+      | Some(value) => body->Dict.set(field, value)
+      | None => ()
+      }
+    })
     body->Dict.set("feature_metadata", featureMetadata->JSON.Encode.object)
     body->Dict.set("merchant_id", merchantId->JSON.Encode.string)
-    body->Dict.delete("profile_id")
-    body->Dict.delete("id")
-    body->Dict.delete("connector_name")
-    body->Dict.delete("connector_account_details")
 
     let updateUrl = getURL(
       ~entityName=V2(V2_CONNECTOR),
