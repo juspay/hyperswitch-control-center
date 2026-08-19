@@ -683,6 +683,12 @@ let make = () => {
   let (paymentConnectorId, setPaymentConnectorId) = React.useState(_ => "")
   let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
+  let billingConnectorListFromRecoil = ConnectorListInterface.useFilteredConnectorList(
+    ~retainInList=BillingProcessor,
+  )
+  let (billingConnectorId, billingConnectorName) =
+    billingConnectorListFromRecoil->BillingProcessorsUtils.getConnectorDetails
+
   let removeFieldsFromResponse = json => {
     let dict = json->getDictFromJsonObject
     dict->Dict.delete("applepay_verified_domains")
@@ -700,6 +706,9 @@ let make = () => {
       renderContent: () => {
         <div className="flex flex-col gap-20 mt-10">
           <BillingConnectorDetails removeFieldsFromResponse merchantId setPaymentConnectorId />
+          <RenderIf condition={billingConnectorId->isNonEmptyString}>
+            <RecoveryPaymentProcessorsSection billingConnectorId billingConnectorName merchantId />
+          </RenderIf>
           <PaymentConnectorDetails
             connectorId=paymentConnectorId removeFieldsFromResponse merchantId
           />
