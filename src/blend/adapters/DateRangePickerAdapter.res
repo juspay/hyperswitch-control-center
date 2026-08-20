@@ -100,6 +100,44 @@ let toBlendPreset = (
 let formatIsoToFormat = (date: Date.t, format: string) =>
   date->Date.toISOString->TimeZoneHook.formattedISOString(format)
 
+// Widest span a preset can cover, in days. Blend's maxRangeDays only guards the
+// calendar grid, so presets beyond the limit must be filtered out ourselves.
+let presetSpanDays = (day: DateRangeUtils.customDateRange) => {
+  let now = Date.make()
+  switch day {
+  | Today | Yesterday | Tomorrow => 1.
+  | ThisMonth => now->Date.getDate->Int.toFloat
+  | LastMonth =>
+    Date.makeWithYMD(~year=now->Date.getFullYear, ~month=now->Date.getMonth, ~date=0)
+    ->Date.getDate
+    ->Int.toFloat
+  | NextMonth =>
+    Date.makeWithYMD(~year=now->Date.getFullYear, ~month=now->Date.getMonth + 2, ~date=0)
+    ->Date.getDate
+    ->Int.toFloat
+  | LastSixMonths => {
+      let sixMonthsAgo = Date.make()
+      Date.setMonth(sixMonthsAgo, Date.getMonth(sixMonthsAgo) - 6)
+      (now->Date.getTime -. sixMonthsAgo->Date.getTime) /. 86400000.
+    }
+  | Hour(x) => x /. 24.
+  | Day(x) => x
+  }
+}
+
+let filterPresetsByLimit = (predefinedDays, dateRangeLimit) =>
+  dateRangeLimit->mapOptionOrDefault(predefinedDays, limit =>
+    predefinedDays->Array.filter(day => presetSpanDays(day) <= limit->Int.toFloat)
+  )
+
+let allowedRangeBounds = (allowedDateRange: option<Calendar.dateObj>) => {
+  let toDate = s => s->getNonEmptyString->Option.map(Date.fromString)
+  (
+    allowedDateRange->Option.flatMap(r => r.startDate->toDate),
+    allowedDateRange->Option.flatMap(r => r.endDate->toDate),
+  )
+}
+
 module BlendDateRangePicker = {
   @react.component
   let make = (
@@ -112,6 +150,7 @@ module BlendDateRangePicker = {
     ~predefinedDays: array<DateRangeUtils.customDateRange>,
     ~format: string,
     ~dateRangeLimit: option<int>,
+    ~allowedDateRange: option<Calendar.dateObj>,
   ) => {
     let startInput = useField(startKey).input
     let endInput = useField(endKey).input
@@ -139,7 +178,12 @@ module BlendDateRangePicker = {
       endInput.onChange(formatIsoToFormat(endDate, format)->Identity.stringToFormReactEvent)
     }, (startInput.onChange, endInput.onChange, format))
 
-    let customPresets = predefinedDays->Array.map(day => toBlendPreset(day, ~disableFutureDates))
+    let customPresets =
+      predefinedDays
+      ->filterPresetsByLimit(dateRangeLimit)
+      ->Array.map(day => toBlendPreset(day, ~disableFutureDates))
+
+    let (minDate, maxDate) = allowedRangeBounds(allowedDateRange)
 
     let formatConfig = showTime ? None : Some({DateRangePickerBinding.includeTime: false})
 
@@ -152,6 +196,8 @@ module BlendDateRangePicker = {
       disablePastDates
       customPresets
       maxRangeDays=?dateRangeLimit
+      ?minDate
+      ?maxDate
       ?formatConfig
     />
   }
@@ -198,6 +244,7 @@ let make = (
         predefinedDays
         format
         dateRangeLimit
+        allowedDateRange
       />
     </RenderIf>
     <RenderIf condition={!isBlendEnabled}>

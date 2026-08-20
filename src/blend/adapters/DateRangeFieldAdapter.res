@@ -13,6 +13,7 @@ module BlendDateRangeField = {
     ~predefinedDays: array<DateRangeUtils.customDateRange>,
     ~format: string,
     ~dateRangeLimit: option<int>,
+    ~allowedDateRange: option<Calendar.dateObj>,
   ) => {
     let startInput = useField(startKey).input
     let endInput = useField(endKey).input
@@ -40,7 +41,12 @@ module BlendDateRangeField = {
       endInput.onChange(formatIsoToFormat(endDate, format)->Identity.stringToFormReactEvent)
     }, (startInput.onChange, endInput.onChange, format))
 
-    let customPresets = predefinedDays->Array.map(day => toBlendPreset(day, ~disableFutureDates))
+    let customPresets =
+      predefinedDays
+      ->filterPresetsByLimit(dateRangeLimit)
+      ->Array.map(day => toBlendPreset(day, ~disableFutureDates))
+
+    let (minDate, maxDate) = allowedRangeBounds(allowedDateRange)
 
     let formatConfig = showTime ? None : Some({DateRangePickerBinding.includeTime: false})
 
@@ -53,6 +59,8 @@ module BlendDateRangeField = {
       disablePastDates
       customPresets
       maxRangeDays=?dateRangeLimit
+      ?minDate
+      ?maxDate
       ?formatConfig
     />
   }
@@ -100,6 +108,7 @@ let make = (
         predefinedDays
         format
         dateRangeLimit
+        allowedDateRange
       />
     </RenderIf>
     <RenderIf condition={!isBlendEnabled}>
