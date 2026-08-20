@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.20.0
+
+### Features
+
+- Add configurable OLAP prefix for allowlisted dashboard endpoints ([#5419](https://github.com/juspay/hyperswitch-control-center/pull/5419)) ([`2083184`](https://github.com/juspay/hyperswitch-control-center/commit/2083184e71e915e4fa6464f719b4720cdbe1d90f))
+
+### Miscellaneous Tasks
+
+- Remove CSV export from advanced payments list ([#5433](https://github.com/juspay/hyperswitch-control-center/pull/5433)) ([`5a9aede`](https://github.com/juspay/hyperswitch-control-center/commit/5a9aede65eacd18da0996f405e36d477a312efff))
+
+**Full Changelog:** [`2026.08.19.2...2026.08.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.19.2...2026.08.20.0)
+
+- - -
+
 ## 2026.08.19.2
 
 ### Features
