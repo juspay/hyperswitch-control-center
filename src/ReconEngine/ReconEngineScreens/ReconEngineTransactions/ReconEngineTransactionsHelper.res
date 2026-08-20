@@ -295,6 +295,7 @@ module AuditTrail = {
           setShowModal(_ => true)
         },
         reasonText,
+        modifiedBy: transaction.modified_by,
       }
       customComponent
     })

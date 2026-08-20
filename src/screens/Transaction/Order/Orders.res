@@ -6,7 +6,6 @@ let make = (~previewOnly=false) => {
   open OrderTypes
   open SavedViewTypes
   open OrderEntity
-  open Typography
 
   let ordersTableTitle = "Orders"
   let advancedOrdersTableTitle = "OrdersAdvanced"
@@ -14,7 +13,6 @@ let make = (~previewOnly=false) => {
   let fetchNormalOrdersHook = OrdersHook.useFetchOrdersHook()
   let fetchAnalyticsOrdersHook = AnalyticsOrdersHook.useFetchAnalyticsOrdersHook()
   let getSignal = AbortControllerHook.useAbortController()
-  let showToast = ToastAdapter.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {
     devOpensearch,
@@ -59,7 +57,6 @@ let make = (~previewOnly=false) => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (orderData, setOrdersData) = React.useState(_ => [])
-  let (selectedRows, setSelectedRows) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filters, setFilters) = React.useState(_ => None)
@@ -221,7 +218,6 @@ let make = (~previewOnly=false) => {
   }
 
   React.useEffect(() => {
-    setSelectedRows(_ => [])
     if filters->isNonEmptyValue {
       fetchOrders()
     }
@@ -323,37 +319,6 @@ let make = (~previewOnly=false) => {
     />
   }, (searchText, version, isAdvancedView, devSavedViews))
 
-  let selectedPaymentRows =
-    selectedRows->Array.filter(row =>
-      row->getDictFromJsonObject->getString("payment_id", "")->isNonEmptyString
-    )
-
-  let downloadData = () => {
-    let currentDate = Date.make()->Date.toISOString->dateFormat("YYYY-MM-DD")
-    DownloadUtils.downloadTableAsCsv(
-      ~csvHeaders,
-      ~rawData=selectedPaymentRows,
-      ~tableItemToObjMapper=dict => dict,
-      ~itemToCSVMapping=mapOrderDictToCsvRow,
-      ~fileName=`payments_${currentDate}.csv`,
-      ~toast=(~message, ~toastType) => showToast(~message, ~toastType),
-    )
-  }
-
-  let hasSelectedRows = selectedPaymentRows->isNonEmptyArray
-  let canExportSelectedRows = isAdvancedView && hasSelectedRows
-  let exportButtonState: Button.buttonState = canExportSelectedRows ? Normal : Disabled
-  let exportTooltipText = !isAdvancedView
-    ? "CSV export is available in Advanced after selecting payments."
-    : hasSelectedRows
-    ? "Export selected payments as CSV."
-    : "Select one or more payments to export CSV."
-  let selectedRowsCountClass = Button.useGetTextColor(
-    ~buttonType=Primary,
-    ~buttonState=exportButtonState,
-    ~showBorder=false,
-  )
-
   let tableEntity = isAdvancedView
     ? openSearchOrderEntity(merchantId, orgId, ~devSortEnabled)
     : orderEntity(merchantId, orgId, ~version, ~devSortEnabled)
@@ -361,13 +326,6 @@ let make = (~previewOnly=false) => {
     ? TableAtoms.ordersAdvancedMapDefaultCols
     : TableAtoms.ordersMapDefaultCols
   let defaultColumns = isAdvancedView ? openSearchDefaultColumns : defaultColumns
-  let checkBoxProps = isAdvancedView
-    ? Some({
-        LoadedTable.showCheckBox: true,
-        selectedData: selectedRows,
-        setSelectedData: setSelectedRows,
-      })
-    : None
   let showGenerateReportAction = generateReport && email && version == V1
   let disableGenerateReport = orderData->isEmptyArray
 
@@ -379,35 +337,11 @@ let make = (~previewOnly=false) => {
         <div
           className="flex flex-nowrap justify-end gap-2 items-center whitespace-nowrap overflow-x-auto no-scrollbar pr-px">
           <RenderIf condition={isAdvancedViewEnabled}>
-            {<>
-              <div className="shrink-0">
-                <OrderListSourceControls.SourceTabs
-                  source setSource=handleSourceChange advancedEnabled=isAdvancedViewEnabled
-                />
-              </div>
-              <ToolTip
-                description=exportTooltipText
-                toolTipFor={<Button
-                  text="Export"
-                  buttonType=Primary
-                  buttonState=exportButtonState
-                  buttonSize=Small
-                  showBorder=false
-                  customButtonStyle="justify-start !w-28"
-                  customIconMargin="ml-2"
-                  customTextPaddingClass="!pl-2 !pr-0"
-                  leftIcon={CustomIcon(<Icon name="nd-download-bar-down" size=16 />)}
-                  rightIcon={CustomIcon(
-                    <span
-                      className={`inline-flex h-5 w-5 items-center justify-center rounded-full bg-white bg-opacity-20 ${body.md.medium} ${selectedRowsCountClass}`}>
-                      {selectedPaymentRows->Array.length->Int.toString->React.string}
-                    </span>,
-                  )}
-                  onClick={_ => canExportSelectedRows ? downloadData() : ()}
-                />}
-                toolTipPosition=Top
+            <div className="shrink-0">
+              <OrderListSourceControls.SourceTabs
+                source setSource=handleSourceChange advancedEnabled=isAdvancedViewEnabled
               />
-            </>}
+            </div>
           </RenderIf>
           <RenderIf condition=showGenerateReportAction>
             <div className="shrink-0">
@@ -461,7 +395,6 @@ let make = (~previewOnly=false) => {
           isDraggable=true
           isNewColumn=isOpenSearchNewColumn
           getNewColumnDescription=getOpenSearchNewColumnDescription
-          ?checkBoxProps
           visitedRows={{
             getId: (order: PaymentInterfaceTypes.order) => order.payment_id,
             prefix_key: "orders",

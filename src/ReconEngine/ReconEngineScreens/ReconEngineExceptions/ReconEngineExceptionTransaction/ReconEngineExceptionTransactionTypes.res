@@ -45,3 +45,11 @@ type exceptionResolutionEntryType = {
   ...entryType,
   entry_key: string,
 }
+
+type accountSection = {
+  accountId: string,
+  accountInfo: accountInfo,
+  accountEntries: array<exceptionResolutionEntryType>,
+  accountTotalAmount: float,
+  accountCurrency: string,
+}

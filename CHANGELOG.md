@@ -3,6 +3,50 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.19.2
+
+### Features
+
+- Show transformation name on transaction entries table ([#5392](https://github.com/juspay/hyperswitch-control-center/pull/5392)) ([`52e151c`](https://github.com/juspay/hyperswitch-control-center/commit/52e151c4a7b64d4e18199a1c7431bdf2c1aeb0db))
+- Increase the connectors to revenue recovery flow ([#5423](https://github.com/juspay/hyperswitch-control-center/pull/5423)) ([`16e8a59`](https://github.com/juspay/hyperswitch-control-center/commit/16e8a59ae4e56dd8e1f7153d914e7a043bc35cb3))
+
+### Miscellaneous Tasks
+
+- Make recon engine audit trail default to 31 days ([#5414](https://github.com/juspay/hyperswitch-control-center/pull/5414)) ([`bfe9199`](https://github.com/juspay/hyperswitch-control-center/commit/bfe91998ea2af8501c4b19f891b835b743e0dc32))
+- Remove error details from recon engine transformations ([#5421](https://github.com/juspay/hyperswitch-control-center/pull/5421)) ([`70dd208`](https://github.com/juspay/hyperswitch-control-center/commit/70dd208c97072b4e865629fe0c61b85758520836))
+
+**Full Changelog:** [`2026.08.19.1...2026.08.19.2`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.19.1...2026.08.19.2)
+
+- - -
+
+## 2026.08.19.1
+
+### Features
+
+- Add Deutsche Bank payout connector ([#5418](https://github.com/juspay/hyperswitch-control-center/pull/5418)) ([`a85c6d4`](https://github.com/juspay/hyperswitch-control-center/commit/a85c6d4a182ccee9f6009e27f7374e0c6fd11918))
+
+**Full Changelog:** [`2026.08.19.0...2026.08.19.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.19.0...2026.08.19.1)
+
+- - -
+
+## 2026.08.19.0
+
+### Features
+
+- Add support for both US and EU PCI certificates ([#5060](https://github.com/juspay/hyperswitch-control-center/pull/5060)) ([`634a8f3`](https://github.com/juspay/hyperswitch-control-center/commit/634a8f3329a0b911072e811cbaeca2189e805ff3))
+
+### Bug Fixes
+
+- Round exception entry balances to currency precision ([#5410](https://github.com/juspay/hyperswitch-control-center/pull/5410)) ([`6ecf882`](https://github.com/juspay/hyperswitch-control-center/commit/6ecf882f2572d60688a2d67a3754048d5e93b7a8))
+
+### Miscellaneous Tasks
+
+- Add `modified_by` in transactions audit trail ([#5412](https://github.com/juspay/hyperswitch-control-center/pull/5412)) ([`7535253`](https://github.com/juspay/hyperswitch-control-center/commit/7535253e5b174e34b244cb8be4b4c6c1f92bf2ce))
+
+**Full Changelog:** [`2026.08.17.2...2026.08.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.17.2...2026.08.19.0)
+
+- - -
+
 ## 2026.08.17.2
 
 ### Features

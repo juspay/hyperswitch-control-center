@@ -1,8 +1,10 @@
 [default.endpoints]
 api_url="http://localhost:9000/api"
+olap_prefix=""
 sdk_url="http://localhost:9050/HyperLoader.js"
 apple_pay_certificate_url=""
-dss_certificate_url=""
+dss_certificate_us_url=""
+dss_certificate_eu_url=""
 logo_url=""
 favicon_url=""
 recon_iframe_url=""
