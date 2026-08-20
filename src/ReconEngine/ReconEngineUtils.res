@@ -288,7 +288,7 @@ let transformationDataMapper = (dict): transformationData => {
     transformation_result: dict->getString("transformation_result", ""),
     ignored_count: dict->getInt("ignored_count", 0),
     staging_entry_ids: dict->getStrArrayFromDict("staging_entry_ids", []),
-    errors: dict->getStrArrayFromDict("errors", []),
+    failed_count: dict->getInt("failed_count", 0),
   }
 }
 
@@ -480,8 +480,17 @@ let getMismatchedFieldsDescription = (fields: array<mismatchedFieldType>) => {
   fields->isEmptyArray ? "" : `${count->Int.toString} field${pluralText(~count)} did not match`
 }
 
+let modifiedByItemToObjMapper = (dict): modifiedByType => {
+  {
+    id: dict->getString("id", ""),
+    name: dict->getString("name", ""),
+    email: dict->getString("email", ""),
+  }
+}
+
 let transactionItemToObjMapper = (dict): transactionType => {
   let linkedTransactionDict = dict->getDictfromDict("linked_transaction")
+  let modifiedByDict = dict->getDictfromDict("modified_by")
   {
     id: dict->getString("id", ""),
     transaction_id: dict->getString("transaction_id", ""),
@@ -525,6 +534,9 @@ let transactionItemToObjMapper = (dict): transactionType => {
     linked_transaction: linkedTransactionDict->isEmptyDict
       ? None
       : Some(linkedTransactionDict->linkedTransactionItemToObjMapper),
+    modified_by: modifiedByDict->isEmptyDict
+      ? None
+      : Some(modifiedByDict->modifiedByItemToObjMapper),
   }
 }
 
@@ -547,6 +559,7 @@ let entryItemToObjMapper = dict => {
     effective_at: dict->getString("effective_at", ""),
     staging_entry_id: dict->getOptionString("staging_entry_id"),
     transformation_id: dict->getOptionString("transformation_id"),
+    transformation_name: dict->getOptionString("transformation_name"),
   }
 }
 

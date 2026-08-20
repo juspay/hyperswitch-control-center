@@ -526,6 +526,7 @@ module AuditTrail = {
           discardedData.reason->isNonEmptyString ? Some(discardedData.reason) : None
         | None => None
         },
+        modifiedBy: None,
       }
       customComponent
     })

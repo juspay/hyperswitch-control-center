@@ -183,7 +183,7 @@ module TransformationCard = {
       HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let showToast = ToastAdapter.useShowToast()
 
-    let errorCount = transformation.data.errors->Array.length
+    let errorCount = transformation.data.failed_count
     let duration = formatDuration(transformation.created_at, transformation.processed_at)
 
     let onDownloadReport = async (~format: reportFormat) => {

@@ -41,6 +41,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(ENVOY),
   PayoutProcessor(TRUSTLY),
   PayoutProcessor(SANTANDER),
+  PayoutProcessor(DEUTSCHEBANK),
 ]
 
 let payoutConnectorListForLive: array<connectorTypes> = [
@@ -1059,6 +1060,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | ENVOY => "envoy"
   | TRUSTLY => "trustly"
   | SANTANDER => "santander"
+  | DEUTSCHEBANK => "deutschebank"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -1272,6 +1274,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "envoy" => PayoutProcessor(ENVOY)
     | "trustly" => PayoutProcessor(TRUSTLY)
     | "santander" => PayoutProcessor(SANTANDER)
+    | "deutschebank" => PayoutProcessor(DEUTSCHEBANK)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1462,6 +1465,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | ENVOY => envoyInfo
   | TRUSTLY => trustlyInfo
   | SANTANDER => santanderInfo
+  | DEUTSCHEBANK => deutscheBankInfo
   }
 }
 
@@ -2461,6 +2465,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | ENVOY => "Worldpay Envoy"
   | TRUSTLY => "Trustly"
   | SANTANDER => "Santander"
+  | DEUTSCHEBANK => "Deutsche Bank"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>

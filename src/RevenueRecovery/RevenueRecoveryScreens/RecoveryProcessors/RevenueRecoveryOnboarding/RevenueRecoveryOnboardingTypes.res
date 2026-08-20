@@ -1,5 +1,4 @@
 type revenueRecoverySections = [
-  | #chooseDataSource
   | #connectProcessor
   | #addAPlatform
   | #reviewDetails
@@ -7,8 +6,10 @@ type revenueRecoverySections = [
 
 type revenueRecoverySubsections = [
   | #selectProcessor
+  | #authenticateProcessor
   | #activePaymentMethods
   | #selectAPlatform
+  | #authenticateBilling
   | #processorSetUp
 ]
 

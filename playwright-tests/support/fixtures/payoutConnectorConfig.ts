@@ -135,6 +135,28 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
     },
   },
 
+  deutschebank: {
+    label: "deutschebank",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "deutschebank_default",
+      },
+      fieldLabels: [
+        "Customer Identifier *",
+        "Key ID *",
+        "Signing Private Key (PEM) *",
+        "Client Certificate Bundle (PEM cert + key concatenated) *",
+      ],
+    },
+    paymentSections: {
+      BankTransfer: {
+        label: "Bank Transfer",
+        methods: ["sepa_bank_transfer"],
+      },
+    },
+  },
+
   ebanx: {
     label: "ebanx",
     fields: {

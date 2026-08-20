@@ -61,8 +61,13 @@ let make = (
   ~showAllConnectors=true,
   ~connectorType=ConnectorTypes.Processor,
   ~setProcessorModal=_ => (),
-  ~urlPrefix: string,
+  ~urlPrefix: string="",
   ~showTestProcessor=false,
+  ~onCardClick: option<string => unit>=?,
+  ~mixpanelEventPrefix="orchestration_v2_connector_click",
+  ~heading="Connect a new processor",
+  ~showRequestConnector=true,
+  ~showDummyConnector=true,
 ) => {
   open ConnectorUtils
 
@@ -80,11 +85,16 @@ let make = (
     )
 
   let handleClick = connectorName => {
-    mixpanelEvent(~eventName=`orchestration_v2_connector_click_${connectorName}`)
-    setShowSideBar(_ => false)
-    RescriptReactRouter.push(
-      GlobalVars.appendDashboardPath(~url=`/${urlPrefix}?name=${connectorName}`),
-    )
+    mixpanelEvent(~eventName=`${mixpanelEventPrefix}_${connectorName}`)
+    switch onCardClick {
+    | Some(onClick) => onClick(connectorName)
+    | None => {
+        setShowSideBar(_ => false)
+        RescriptReactRouter.push(
+          GlobalVars.appendDashboardPath(~url=`/${urlPrefix}?name=${connectorName}`),
+        )
+      }
+    }
   }
   let unConfiguredConnectorsCount = unConfiguredConnectors->Array.length
   let handleSearch = event => {
@@ -98,14 +108,16 @@ let make = (
     ~showRequestConnectorBtn,
     ~showSearch=true,
     ~showDummyConnectorButton=false,
+    ~isPrimaryList=false,
     (),
   ) => {
     if connectorList->Array.length > 0 {
       connectorList->Array.sort(sortByName)
     }
 
-    let marginClass = showDummyConnectorButton ? "mt-4 mb-4" : ""
-    let customStyleClass = showDummyConnectorButton ? "2xl:grid-cols-4 lg:grid-cols-3" : ""
+    // the main connector grid is denser than the test processor strip below it
+    let marginClass = isPrimaryList ? "mt-4 mb-4" : ""
+    let customStyleClass = isPrimaryList ? "2xl:grid-cols-4 lg:grid-cols-3" : ""
 
     <>
       <AddDataAttributes
@@ -196,9 +208,10 @@ let make = (
     <RenderIf condition={showAllConnectors}>
       <div className="flex flex-col gap-4">
         {connectorListFiltered->descriptedConnectors(
-          ~heading="Connect a new processor",
-          ~showRequestConnectorBtn=true,
-          ~showDummyConnectorButton=true,
+          ~heading,
+          ~showRequestConnectorBtn=showRequestConnector,
+          ~showDummyConnectorButton=showDummyConnector,
+          ~isPrimaryList=true,
           (),
         )}
       </div>

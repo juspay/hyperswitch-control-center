@@ -114,7 +114,7 @@ module AuditTrailFilteredContent = {
               ~showTime=false,
               ~disablePastDates=false,
               ~disableFutureDates=true,
-              ~dateRangeLimit=30,
+              ~dateRangeLimit=31,
             ),
             ~inputFields=[],
           )}

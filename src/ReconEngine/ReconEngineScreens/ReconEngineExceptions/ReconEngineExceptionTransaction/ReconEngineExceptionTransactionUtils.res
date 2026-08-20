@@ -74,7 +74,17 @@ let exceptionTransactionEntryItemToItemMapper = (
     effective_at: dict->getString("effective_at", ""),
     staging_entry_id: dict->getOptionString("staging_entry_id"),
     transformation_id: dict->getOptionString("transformation_id"),
+    transformation_name: dict->getOptionString("transformation_name"),
   }
+}
+
+let roundToCurrencyPrecision = (~amount: float, ~currency: string) => {
+  open CurrencyUtils
+
+  convertCurrencyFromLowestDenomination(
+    ~amount=convertCurrencyToLowestDenomination(~amount, ~currency)->Math.round,
+    ~currency,
+  )
 }
 
 let getBalanceByAccountType = (
@@ -101,7 +111,7 @@ let getBalanceByAccountType = (
   let firstEntry =
     entries->getValueFromArray(0, Dict.make()->exceptionTransactionEntryItemToItemMapper)
 
-  (balance, firstEntry.currency)
+  (roundToCurrencyPrecision(~amount=balance, ~currency=firstEntry.currency), firstEntry.currency)
 }
 
 let getMismatchedFieldsFromMismatchData = (mismatchData: Js.Json.t) =>
@@ -168,7 +178,7 @@ let getSumOfAmountWithCurrency = (
 ): (float, string) => {
   let totalAmount = entries->Array.reduce(0.0, (acc, entry) => acc +. entry.amount)
   let entry = entries->getValueFromArray(0, Dict.make()->exceptionTransactionEntryItemToItemMapper)
-  (totalAmount, entry.currency)
+  (roundToCurrencyPrecision(~amount=totalAmount, ~currency=entry.currency), entry.currency)
 }
 
 let exceptionTransactionProcessingEntryItemToObjMapper = (dict): processingEntryType => {
@@ -557,6 +567,7 @@ let getExceptionEntryTypeFromEntryType = (
     staging_entry_id: entry.staging_entry_id,
     entry_key: randomString(~length=16),
     transformation_id: entry.transformation_id,
+    transformation_name: entry.transformation_name,
   }
 }
 
@@ -581,6 +592,7 @@ let getEntryTypeFromExceptionEntryType = (
     effective_at: entry.effective_at,
     staging_entry_id: entry.staging_entry_id,
     transformation_id: entry.transformation_id,
+    transformation_name: entry.transformation_name,
   }
 }
 
@@ -715,6 +727,7 @@ let getUpdatedEntry = (
     staging_entry_id: entryDetails.staging_entry_id,
     entry_key: entryDetails.entry_key,
     transformation_id: formData->getOptionString("transformation_id"),
+    transformation_name: entryDetails.transformation_name,
   }
 }
 
@@ -745,6 +758,7 @@ let getNewEntry = (
     staging_entry_id: None,
     entry_key: uniqueId,
     transformation_id: formData->getOptionString("transformation_id"),
+    transformation_name: None,
   }
 }
 
@@ -798,7 +812,7 @@ let calculateSectionData = (
   ~accountInfoMap,
   ~getBalanceByAccountType,
   ~getSumOfAmountWithCurrency,
-) => {
+): array<ReconEngineExceptionTransactionTypes.accountSection> => {
   open ReconEngineExceptionTransactionTypes
 
   groupedEntries
@@ -811,33 +825,36 @@ let calculateSectionData = (
       )
     let accountEntries = groupedEntries->getValueFromDict(accountId, [])
 
-    let (totalAmount, currency) = if accountInfo.account_info_type != UnknownAccountTypeVariant {
+    let (accountTotalAmount, accountCurrency) = if (
+      accountInfo.account_info_type != UnknownAccountTypeVariant
+    ) {
       getBalanceByAccountType(accountEntries, accountInfo.account_info_type)
     } else {
       getSumOfAmountWithCurrency(accountEntries)
     }
 
-    (accountId, accountInfo, accountEntries, totalAmount, currency)
+    {accountId, accountInfo, accountEntries, accountTotalAmount, accountCurrency}
   })
 }
 
-let calculateOverallBalance = sectionData => {
-  open ReconEngineExceptionTransactionTypes
-
+let calculateOverallBalance = (
+  sectionData: array<ReconEngineExceptionTransactionTypes.accountSection>,
+) => {
   let (totalCreditAccounts, totalDebitAccounts) = sectionData->Array.reduce((0.0, 0.0), (
     (creditSum, debitSum),
-    (_, accountInfo, _, amount, _),
+    section,
   ) => {
-    if accountInfo.account_info_type == Credit {
-      (creditSum +. amount, debitSum)
-    } else if accountInfo.account_info_type == Debit {
-      (creditSum, debitSum +. amount)
-    } else {
-      (creditSum, debitSum)
+    switch section.accountInfo.account_info_type {
+    | Credit => (creditSum +. section.accountTotalAmount, debitSum)
+    | Debit => (creditSum, debitSum +. section.accountTotalAmount)
+    | UnknownAccountTypeVariant => (creditSum, debitSum)
     }
   })
 
-  totalCreditAccounts -. totalDebitAccounts
+  let currency =
+    sectionData->Array.map(section => section.accountCurrency)->getValueFromArray(0, "")
+
+  roundToCurrencyPrecision(~amount=totalCreditAccounts -. totalDebitAccounts, ~currency)
 }
 
 let getFixEntriesButtons = (
