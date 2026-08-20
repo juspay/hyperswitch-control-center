@@ -110,6 +110,47 @@ let buildTransactionsV2Body = (
   ]->getJsonFromArrayOfJson
 }
 
+let buildTransactionRetrievalBody = (~transactionId: string) => {
+  let cursorPayload: transactionsV2CursorPayload = {
+    limit: 1,
+    direction: #next,
+    order: Desc,
+    sortBy: {sortField: "id", cursorValue: None},
+  }
+
+  [
+    ("filters", [("transaction_id", transactionId->JSON.Encode.string)]->getJsonFromArrayOfJson),
+    ("cursor_payload", cursorPayload->Identity.genericTypeToJson),
+  ]->getJsonFromArrayOfJson
+}
+
+let buildEntriesListBody = (
+  ~primaryTransactionId: string,
+  ~accountIds: array<string>,
+  ~sortBy: cursor,
+  ~direction: cursorDirection,
+  ~limit=10,
+) => {
+  let filtersDict = Dict.make()
+  filtersDict->Dict.set("primary_transaction_id", primaryTransactionId->JSON.Encode.string)
+  filtersDict->setOptionArray(
+    "account_ids",
+    accountIds->Array.map(JSON.Encode.string)->getNonEmptyArray,
+  )
+
+  let cursorPayload: entriesListCursorPayload = {
+    limit,
+    direction,
+    order: Desc,
+    sortBy,
+  }
+
+  [
+    ("filters", filtersDict->JSON.Encode.object),
+    ("cursor_payload", cursorPayload->Identity.genericTypeToJson),
+  ]->getJsonFromArrayOfJson
+}
+
 let buildTransactionBulkSelectionFilters = (~filterValueJson: Dict.t<JSON.t>, ~ruleId: string) => {
   let statusValues = getEffectiveStatusValues(~filterValueJson)
   let startTime = filterValueJson->getString("startTime", "")->toReconTimeString
