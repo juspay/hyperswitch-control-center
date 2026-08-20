@@ -439,18 +439,42 @@ module ConfiguratorForm = {
   }
 }
 
+// Rendered inside the dropdown menu (blend menuFooter / legacy bottomComponent), so it
+// must stay a plain trigger: the modal itself lives outside the dropdown because the
+// Radix popover content is CSS-transformed, which breaks position:fixed descendants.
+module CreateNewStyleIDButton = {
+  @react.component
+  let make = (~setShowModal) => {
+    open Typography
+    let customStyle = "text-primary bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full"
+
+    <ACLDiv
+      authorization=Access
+      noAccessDescription="You do not have the required permissions for this action. Please contact your admin."
+      onClick={_ => setShowModal(_ => true)}
+      className="cursor-pointer w-full"
+      showTooltip=true>
+      {<>
+        <hr />
+        <div className={`flex items-center gap-2 px-3.5 py-3 ${body.md.medium} ${customStyle}`}>
+          <Icon name="nd-plus" size=15 />
+          {`Create new`->React.string}
+        </div>
+      </>}
+    </ACLDiv>
+  }
+}
+
 module CreateNewStyleID = {
   @react.component
-  let make = (~setSelectedStyleId) => {
+  let make = (~setSelectedStyleId, ~showModal, ~setShowModal) => {
     open FormRenderer
     open Typography
     let showToast = ToastAdapter.useShowToast()
-    let (showModal, setShowModal) = React.useState(() => false)
     let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
       HyperswitchAtom.businessProfileFromIdAtomInterface,
     )
     let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
-    let customStyle = "text-primary bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full"
 
     let styleIdField = makeFieldInfo(
       ~label="Payment Link Config ID",
@@ -536,31 +560,15 @@ module CreateNewStyleID = {
       </>
     }
 
-    <>
-      <ACLDiv
-        authorization=Access
-        noAccessDescription="You do not have the required permissions for this action. Please contact your admin."
-        onClick={_ => setShowModal(_ => true)}
-        className="cursor-pointer w-full"
-        showTooltip=true>
-        {<>
-          <hr />
-          <div className={`flex items-center gap-2 px-3.5 py-3 ${body.md.medium} ${customStyle}`}>
-            <Icon name="nd-plus" size=15 />
-            {`Create new`->React.string}
-          </div>
-        </>}
-      </ACLDiv>
-      <Modal
-        showModal
-        closeOnOutsideClick=true
-        setShowModal
-        childClass="p-0"
-        borderBottom=true
-        modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
-        modalBody
-      </Modal>
-    </>
+    <Modal
+      showModal
+      closeOnOutsideClick=true
+      setShowModal
+      childClass="p-0"
+      borderBottom=true
+      modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
+      modalBody
+    </Modal>
   }
 }
 
@@ -568,6 +576,7 @@ module StyleIdSelection = {
   @react.component
   let make = (~selectedStyleId, ~setSelectedStyleId) => {
     open Typography
+    let (showCreateModal, setShowCreateModal) = React.useState(() => false)
     let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
       HyperswitchAtom.businessProfileFromIdAtomInterface,
     )
@@ -650,7 +659,10 @@ module StyleIdSelection = {
         customDropdownOuterClass="!border-none"
         customScrollStyle
         dropdownContainerStyle
-        bottomComponent={<CreateNewStyleID setSelectedStyleId />}
+        bottomComponent={<CreateNewStyleIDButton setShowModal=setShowCreateModal />}
+      />
+      <CreateNewStyleID
+        setSelectedStyleId showModal=showCreateModal setShowModal=setShowCreateModal
       />
     </div>
   }
