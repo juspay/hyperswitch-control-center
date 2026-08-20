@@ -21,6 +21,13 @@ type transactionsV2CursorPayload = {
   @as("sort_by") sortBy: cursor,
 }
 
+type entriesListCursorPayload = {
+  limit: int,
+  direction: cursorDirection,
+  order: transactionSortOrder,
+  @as("sort_by") sortBy: cursor,
+}
+
 type entriesMetadataKeysToExclude = Amount | Currency
 
 type accountGroup = {

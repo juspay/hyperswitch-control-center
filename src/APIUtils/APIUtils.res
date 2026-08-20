@@ -1098,6 +1098,11 @@ let useGetURL = () => {
           | Post => Default(`${reconBaseURL}/transactions/v2/list`)
           | _ => Default("")
           }
+        | #PROCESSED_ENTRIES_LIST =>
+          switch methodType {
+          | Post => Default(`${reconBaseURL}/entries/list`)
+          | _ => Default("")
+          }
         | #PROCESSED_ENTRIES_LIST_WITH_ACCOUNT =>
           switch methodType {
           | Get =>
