@@ -22,7 +22,7 @@ let make = (~ruleId: string) => {
   let (reconRulesList, setReconRulesList) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
-  let (lastFetchedSearchText, setLastFetchedSearchText) = React.useState(_ => "")
+  let (appliedSearchText, setAppliedSearchText) = React.useState(_ => "")
   let searchTypeRef = React.useRef(SearchTransactionId)
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
   let url = RescriptReactRouter.useUrl()
@@ -76,7 +76,7 @@ let make = (~ruleId: string) => {
   }
 
   let fetchPage = (~sortBy, ~direction) => {
-    setLastFetchedSearchText(_ => searchText)
+    setAppliedSearchText(_ => searchText)
     getTransactionsV2(
       ~body=buildTransactionsV2Body(
         ~filterValueJson=enhancedFilterValueJson,
@@ -109,13 +109,13 @@ let make = (~ruleId: string) => {
     goToFirstPage()
   }
 
-  let isSearchActive = lastFetchedSearchText->isNonEmptyString
+  let isSearchActive = appliedSearchText->isNonEmptyString
 
   let bulkSelectionFilters = isSearchActive
     ? None
     : Some(buildTransactionBulkSelectionFilters(~filterValueJson=enhancedFilterValueJson, ~ruleId))
 
-  let bulkFilterScopeCopy = buildFilterScopeCopy(
+  let selectionFilterScopeText = buildSelectionFilterScopeText(
     ~userSelectedFilterValueJson=filterValueJsonWithGlobalDate,
   )
 
@@ -198,72 +198,71 @@ let make = (~ruleId: string) => {
     </div>
   }
 
-  <div className="flex flex-col gap-4 mt-3">
+  let noExceptionsFoundComponent =
+    <div className="h-40-vh flex flex-col justify-center items-center gap-2">
+      <p className={`${heading.sm.semibold} text-nd_gray-800`}>
+        {"No exceptions to show."->React.string}
+      </p>
+      <p className={`${body.md.medium} text-nd_gray-500`}>
+        {"All transactions are matched successfully across this system."->React.string}
+      </p>
+    </div>
+
+  <div className="flex flex-col gap-4">
+    <div className="flex-shrink-0 mt-3"> {topFilterUi} </div>
     <PageLoaderWrapper screenState>
-      <div className="flex-shrink-0"> {topFilterUi} </div>
-      <RenderIf condition={transactions->isEmptyArray}>
-        <div className="h-40-vh flex flex-col justify-center items-center gap-2">
-          <p className={`${heading.sm.semibold} text-nd_gray-800`}>
-            {"No exceptions to show."->React.string}
-          </p>
-          <p className={`${body.md.medium} text-nd_gray-500`}>
-            {"All transactions are matched successfully across this system."->React.string}
-          </p>
-        </div>
-      </RenderIf>
-      <RenderIf condition={transactions->isNonEmptyArray}>
-        <LoadedTableWithCustomColumns
-          title
-          hideTitle=true
-          actualData={transactions->Array.map(Nullable.make)}
-          totalResults={transactions->Array.length}
-          entity={hierarchicalTransactionsLoadedTableEntity(
-            "v1/recon-engine/exceptions/recon",
-            ~authorization=Access,
-            ~reconRulesList,
-            ~accountData,
-          )}
-          resultsPerPage=4
-          offset
-          setOffset
-          currentFetchCount={transactions->Array.length}
-          customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
-          defaultColumns
-          showSerialNumberInCustomizeColumns=false
-          sortingBasedOnDisabled=false
-          remoteSortEnabled=true
-          showPagination=false
-          showResultsPerPageSelector=false
-          tableDataLoading={screenState === PageLoaderWrapper.Loading}
-          dataLoading={screenState === PageLoaderWrapper.Loading}
-          customizeColumnButtonIcon="nd-filter-horizontal"
-          hideRightTitleElement=true
-          showAutoScroll=true
-          customSeparation=[(3, 4)]
-          filters={<SearchInput
-            inputText=searchText
-            onChange={value => setSearchText(_ => value)}
-            placeholder="Search by ID"
-            showTypeSelector=true
-            typeSelectorOptions=searchTypeOptions
-            onSubmitSearchDropdown=handleSearchSubmit
-            showSearchIcon=true
-            widthClass="w-max"
-          />}
-          checkBoxProps={{
-            showCheckBox: true,
-            selectedData: selectedRows,
-            setSelectedData: setSelectedRows,
-          }}
-          bottomActions={<ReconEngineCursorPaginationButtons
-            cursors
-            isLoading={screenState === PageLoaderWrapper.Loading}
-            hasData={transactions->isNonEmptyArray}
-            onPrev=goToPrevPage
-            onNext=goToNextPage
-          />}
-        />
-      </RenderIf>
+      <LoadedTableWithCustomColumns
+        title
+        hideTitle=true
+        actualData={transactions->Array.map(Nullable.make)}
+        totalResults={transactions->Array.length}
+        entity={hierarchicalTransactionsLoadedTableEntity(
+          "v1/recon-engine/exceptions/recon",
+          ~authorization=Access,
+          ~reconRulesList,
+          ~accountData,
+        )}
+        resultsPerPage=4
+        offset
+        setOffset
+        currentFetchCount={transactions->Array.length}
+        customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
+        defaultColumns
+        showSerialNumberInCustomizeColumns=false
+        sortingBasedOnDisabled=false
+        remoteSortEnabled=true
+        showPagination=false
+        showResultsPerPageSelector=false
+        tableDataLoading={screenState === PageLoaderWrapper.Loading}
+        dataLoading={screenState === PageLoaderWrapper.Loading}
+        customizeColumnButtonIcon="nd-filter-horizontal"
+        hideRightTitleElement=true
+        showAutoScroll=true
+        customSeparation=[(3, 4)]
+        dataNotFoundComponent=noExceptionsFoundComponent
+        filters={<SearchInput
+          inputText=searchText
+          onChange={value => setSearchText(_ => value)}
+          placeholder="Search by ID"
+          showTypeSelector=true
+          typeSelectorOptions=searchTypeOptions
+          onSubmitSearchDropdown=handleSearchSubmit
+          showSearchIcon=true
+          widthClass="w-max"
+        />}
+        checkBoxProps={{
+          showCheckBox: true,
+          selectedData: selectedRows,
+          setSelectedData: setSelectedRows,
+        }}
+        bottomActions={<ReconEngineCursorPaginationButtons
+          cursors
+          isLoading={screenState === PageLoaderWrapper.Loading}
+          hasData={transactions->isNonEmptyArray}
+          onPrev=goToPrevPage
+          onNext=goToNextPage
+        />}
+      />
     </PageLoaderWrapper>
     <RenderIf condition={selectedRows->isNonEmptyArray}>
       <ReconEngineTransactionsBulkActions
@@ -272,7 +271,7 @@ let make = (~ruleId: string) => {
         showVoidButton=true
         refreshList={() => goToFirstPage()}
         selectionFilters=?bulkSelectionFilters
-        filterScopeCopy=bulkFilterScopeCopy
+        filterScopeCopy=selectionFilterScopeText
         currentPageCount={transactions->Array.length}
         isSinglePage={cursors.next->Option.isNone && cursors.prev->Option.isNone}
       />

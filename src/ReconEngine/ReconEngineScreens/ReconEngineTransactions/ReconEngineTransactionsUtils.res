@@ -133,7 +133,7 @@ let getTransactionStatusLabels = (statusValues: array<string>) => {
   })
 }
 
-let buildFilterScopeCopy = (~userSelectedFilterValueJson: Dict.t<JSON.t>): filterScopeCopy => {
+let buildSelectionFilterScopeText = (~userSelectedFilterValueJson: Dict.t<JSON.t>): filterScopeCopy => {
   let selectedStatuses =
     userSelectedFilterValueJson
     ->getArrayFromDict("status", [])
@@ -626,8 +626,6 @@ let getBulkActionSuccessModalConfig = (
   }
 }
 
-let bulkActionRecordLimitErrorCode = "RE_1401"
-
 let bulkActionRecordLimitModalConfig: bulkActionModalConfig = {
   bulkActionModal: {
     modalHeading: "Too Many Transactions Matched",
@@ -640,6 +638,14 @@ let bulkActionRecordLimitModalConfig: bulkActionModalConfig = {
     bulkActionIconName: "nd-alert-triangle",
     bulkActionIconClass: "text-nd_orange-300",
   },
+}
+
+let bulkActionFailureMessage = (action: actionType) => {
+  switch action {
+  | BulkTransactionPost => "Failed to post transactions. Please try again."
+  | BulkTransactionVoid => "Failed to ignore transactions. Please try again."
+  | UnknownBulkTransactionActionType => "Something went wrong. Please try again."
+  }
 }
 
 let downloadBulkActionReport = (

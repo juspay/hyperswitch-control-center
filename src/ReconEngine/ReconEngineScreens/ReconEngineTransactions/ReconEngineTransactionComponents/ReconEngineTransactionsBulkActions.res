@@ -93,14 +93,6 @@ let make = (
     setActionType(_ => UnknownBulkTransactionActionType)
   }
 
-  let bulkActionFailureMessage = (action: actionType) => {
-    switch action {
-    | BulkTransactionPost => "Failed to post transactions. Please try again."
-    | BulkTransactionVoid => "Failed to ignore transactions. Please try again."
-    | UnknownBulkTransactionActionType => "Something went wrong. Please try again."
-    }
-  }
-
   let resolveSelection = () => {
     switch (isFilterSelection, selectionFilters) {
     | (true, Some(filters)) => SelectionByFilters(filters)
@@ -134,7 +126,7 @@ let make = (
       setShowSuccessModal(_ => true)
     } catch {
     | Exn.Error(err) =>
-      if err->getErrorCodeFromExn === bulkActionRecordLimitErrorCode {
+      if err->getErrorCodeFromExn === "RE_1401" {
         setShowRecordLimitError(_ => true)
       } else {
         showFailure()
