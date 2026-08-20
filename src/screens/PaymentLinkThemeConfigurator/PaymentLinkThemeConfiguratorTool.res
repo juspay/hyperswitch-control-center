@@ -564,7 +564,7 @@ module CreateNewStyleID = {
       setShowModal
       childClass="p-0"
       borderBottom=true
-      zIndexClass="z-[1200]"
+      zIndexClass="z-above-blend-menu"
       modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
       modalBody
     </Modal>
