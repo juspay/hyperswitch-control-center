@@ -139,6 +139,15 @@ let getStringFromJson = (json: JSON.t, default) => {
   json->JSON.Decode.string->Option.getOr(default)
 }
 
+let getErrorCodeFromExn = exn => {
+  exn
+  ->Exn.message
+  ->Option.getOr("")
+  ->safeParse
+  ->getDictFromJsonObject
+  ->getString("code", "")
+}
+
 let getBoolFromJson = (json, defaultValue) => {
   json->JSON.Decode.bool->Option.getOr(defaultValue)
 }
