@@ -117,7 +117,7 @@ let presetSpanDays = (day: DateRangeUtils.customDateRange) => {
   | LastSixMonths => {
       let sixMonthsAgo = Date.make()
       Date.setMonth(sixMonthsAgo, Date.getMonth(sixMonthsAgo) - 6)
-      (now->Date.getTime -. sixMonthsAgo->Date.getTime) /. 86400000.
+      getDaysDiffForDates(~startDate=sixMonthsAgo->Date.getTime, ~endDate=now->Date.getTime)
     }
   | Hour(x) => x /. 24.
   | Day(x) => x
