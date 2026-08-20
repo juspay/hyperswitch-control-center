@@ -1134,6 +1134,29 @@ module BaseSelectButton = {
   }
 }
 
+let selectBoxScrollbarCss = `
+  @supports (-webkit-appearance: none) {
+    .selectbox-scrollbar {
+     scrollbar-width: auto;
+      scrollbar-color: #CACFD8;
+    }
+    .selectbox-scrollbar::-webkit-scrollbar {
+      display: block;
+      overflow: scroll;
+      height: 5px;
+      width: 5px;
+    }
+    .selectbox-scrollbar::-webkit-scrollbar-thumb {
+      background-color: #CACFD8;
+      border-radius: 3px;
+    }
+
+    .selectbox-scrollbar::-webkit-scrollbar-track {
+      display: none;
+    }
+  }
+`
+
 module RenderListItemInBaseRadio = {
   @react.component
   let make = (
@@ -1249,28 +1272,6 @@ module RenderListItemInBaseRadio = {
       })
       ->React.array
 
-    let selectBoxScrollbarCss = `
-      @supports (-webkit-appearance: none) {
-        .selectbox-scrollbar {
-         scrollbar-width: auto;
-          scrollbar-color: #CACFD8;
-        }
-        .selectbox-scrollbar::-webkit-scrollbar {
-          display: block;
-          overflow: scroll;
-          height: 5px;
-          width: 5px;
-        }
-        .selectbox-scrollbar::-webkit-scrollbar-thumb {
-          background-color: #CACFD8;
-          border-radius: 3px;
-        }
-
-        .selectbox-scrollbar::-webkit-scrollbar-track {
-          display: none;
-        }
-      }
-    `
     let (className, styleElement) = switch (customScrollStyle, isHorizontal) {
     | (None, false) => ("", React.null)
     | (Some(style), false) => (
@@ -1590,8 +1591,8 @@ module BaseRadio = {
             customSelectionIcon
           />
         } else {
-          <>
-            {optgroupKeys
+          let groupedList =
+            optgroupKeys
             ->Array.mapWithIndex((ele, index) => {
               <React.Fragment key={index->Int.toString}>
                 <h2 className="py-1.5 pl-3 font-semibold text-nd_gray-400 text-xs leading-14">
@@ -1619,12 +1620,20 @@ module BaseRadio = {
                   textEllipsisForDropDownOptions
                   isHorizontal
                   customMarginStyleOfListItem="ml-8 mx-3 py-2 gap-2"
-                  ?customScrollStyle
                   shouldDisplaySelectedOnTop
                 />
               </React.Fragment>
             })
-            ->React.array}
+            ->React.array
+          <>
+            {switch customScrollStyle {
+            | Some(style) =>
+              <div className={`${style} selectbox-scrollbar`}>
+                <style> {React.string(selectBoxScrollbarCss)} </style>
+                groupedList
+              </div>
+            | None => groupedList
+            }}
             <div className="sticky bottom-0">
               <span> {bottomComponent} </span>
             </div>
