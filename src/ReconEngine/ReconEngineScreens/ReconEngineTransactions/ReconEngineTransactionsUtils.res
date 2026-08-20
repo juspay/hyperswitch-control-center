@@ -133,7 +133,9 @@ let getTransactionStatusLabels = (statusValues: array<string>) => {
   })
 }
 
-let buildSelectionFilterScopeText = (~userSelectedFilterValueJson: Dict.t<JSON.t>): filterScopeCopy => {
+let buildSelectionFilterScopeText = (
+  ~userSelectedFilterValueJson: Dict.t<JSON.t>,
+): filterScopeCopy => {
   let selectedStatuses =
     userSelectedFilterValueJson
     ->getArrayFromDict("status", [])
