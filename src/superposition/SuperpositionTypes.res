@@ -3,6 +3,8 @@ type dimensionEntity =
   | Merchant
   | Profile
 
+type configFolder = | @as("payments") Payments
+
 type configEnums =
   | @as("should_perform_eligibility") ShouldPerformEligibility
   | @as("should_call_pm_modular_service") ShouldCallPMModularService
