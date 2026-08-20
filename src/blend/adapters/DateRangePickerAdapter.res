@@ -100,8 +100,7 @@ let toBlendPreset = (
 let formatIsoToFormat = (date: Date.t, format: string) =>
   date->Date.toISOString->TimeZoneHook.formattedISOString(format)
 
-// Widest span a preset can cover, in days. Blend's maxRangeDays only guards the
-// calendar grid, so presets beyond the limit must be filtered out ourselves.
+// Widest span a preset can cover, in days (maxRangeDays doesn't filter presets).
 let presetSpanDays = (day: DateRangeUtils.customDateRange) => {
   let now = Date.make()
   switch day {

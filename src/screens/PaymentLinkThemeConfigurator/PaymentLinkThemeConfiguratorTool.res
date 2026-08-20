@@ -439,9 +439,7 @@ module ConfiguratorForm = {
   }
 }
 
-// Rendered inside the dropdown menu (blend menuFooter / legacy bottomComponent), so it
-// must stay a plain trigger: the modal itself lives outside the dropdown because the
-// Radix popover content is CSS-transformed, which breaks position:fixed descendants.
+// Trigger only — modal lives outside the dropdown (transformed ancestor breaks position:fixed).
 module CreateNewStyleIDButton = {
   @react.component
   let make = (~setShowModal) => {
@@ -566,7 +564,6 @@ module CreateNewStyleID = {
       setShowModal
       childClass="p-0"
       borderBottom=true
-      // Above the blend dropdown menu, so the open menu dims under the backdrop
       zIndexClass="z-[1200]"
       modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
       modalBody
