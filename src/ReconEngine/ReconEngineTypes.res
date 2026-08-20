@@ -276,6 +276,7 @@ type transactionType = {
   data: transactionDataType,
   linked_transaction: option<linkedTransactionType>,
   modified_by: option<modifiedByType>,
+  has_more_entries: bool,
 }
 
 type entryType = {
