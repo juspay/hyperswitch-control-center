@@ -109,7 +109,7 @@ let make = () => {
                 let errorMessage =
                   dataRowCount < 1
                     ? "CSV file must contain at least one data row."
-                    : "CSV files with more than 1,00,000 rows cannot be processed."
+                    : `CSV files with more than ${maxBlocklistCsvDataRowsLabel} rows cannot be processed.`
                 rejectFile(errorMessage)
               }
             }
@@ -121,7 +121,7 @@ let make = () => {
           }
           fileReader.readAsText(file)
         } else {
-          rejectFile("CSV files larger than 5 MB cannot be processed.")
+          rejectFile(`CSV files larger than ${maxBlocklistCsvFileSizeLabel} cannot be processed.`)
         }
       } else {
         rejectFile("Please upload a valid CSV file.")
@@ -262,7 +262,7 @@ let make = () => {
                 </div>
                 <div className="min-w-0">
                   <p className={`text-nd_gray-700 ${body.md.medium}`}>
-                    {"Upload a CSV file with up to 1,00,000 rows and a maximum size of 5 MB"->React.string}
+                    {`Upload a CSV file with up to ${maxBlocklistCsvDataRowsLabel} rows and a maximum size of ${maxBlocklistCsvFileSizeLabel}`->React.string}
                   </p>
                   <p className={`text-nd_gray-500 mt-1 ${body.sm.medium}`}>
                     {"CSV files above either limit cannot be processed. Only .csv files are supported."->React.string}

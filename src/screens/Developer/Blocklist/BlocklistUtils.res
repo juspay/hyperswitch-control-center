@@ -109,3 +109,10 @@ let formatFileSize = fileSize => {
     `${fileSize->Int.toString} B`
   }
 }
+
+@send external toLocaleStringWithLocale: (int, string) => string = "toLocaleString"
+
+// The limits quoted in the upload copy and error toasts are derived from the
+// same constants the validations read, so the two cannot drift apart.
+let maxBlocklistCsvDataRowsLabel = maxBlocklistCsvDataRows->toLocaleStringWithLocale("en-IN")
+let maxBlocklistCsvFileSizeLabel = maxBlocklistCsvFileSize->formatFileSize
