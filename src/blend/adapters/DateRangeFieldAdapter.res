@@ -16,7 +16,6 @@ module BlendDateRangeField = {
   ) => {
     let startInput = useField(startKey).input
     let endInput = useField(endKey).input
-    let showToast = ToastAdapter.useShowToast()
     let blendValue = switch (
       startInput.value->getStringFromJson("")->getNonEmptyString,
       endInput.value->getStringFromJson("")->getNonEmptyString,
@@ -34,17 +33,12 @@ module BlendDateRangeField = {
     }
 
     let handleChange = React.useCallback((range: DateRangePickerBinding.dateRange) => {
-      let (endDate, limitMessage) = clampEndDate(
-        ~dateRangeLimit,
-        ~startDate=range.startDate,
-        ~endDate=range.endDate->Option.getOr(range.startDate),
-      )
+      let endDate = range.endDate->Option.getOr(range.startDate)
       startInput.onChange(
         formatIsoToFormat(range.startDate, format)->Identity.stringToFormReactEvent,
       )
       endInput.onChange(formatIsoToFormat(endDate, format)->Identity.stringToFormReactEvent)
-      limitMessage->Option.forEach(message => showToast(~message, ~toastType=ToastState.ToastError))
-    }, (startInput.onChange, endInput.onChange, format, dateRangeLimit, showToast))
+    }, (startInput.onChange, endInput.onChange, format))
 
     let customPresets = predefinedDays->Array.map(day => toBlendPreset(day, ~disableFutureDates))
 
@@ -58,6 +52,7 @@ module BlendDateRangeField = {
       disableFutureDates
       disablePastDates
       customPresets
+      maxRangeDays=?dateRangeLimit
       ?formatConfig
     />
   }

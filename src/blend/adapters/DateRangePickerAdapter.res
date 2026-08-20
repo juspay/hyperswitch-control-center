@@ -100,14 +100,6 @@ let toBlendPreset = (
 let formatIsoToFormat = (date: Date.t, format: string) =>
   date->Date.toISOString->TimeZoneHook.formattedISOString(format)
 
-let clampEndDate = (~dateRangeLimit, ~startDate, ~endDate) =>
-  dateRangeLimit->mapOptionOrDefault((endDate, None), days => {
-    let maxEndDate = (startDate->DayJs.getDayJsForJsDate).add(days, "day").toDate()
-    endDate->Date.getTime > maxEndDate->Date.getTime
-      ? (maxEndDate, Some(`Date range should not exceed ${days->Int.toString} days`))
-      : (endDate, None)
-  })
-
 module BlendDateRangePicker = {
   @react.component
   let make = (
@@ -123,7 +115,6 @@ module BlendDateRangePicker = {
   ) => {
     let startInput = useField(startKey).input
     let endInput = useField(endKey).input
-    let showToast = ToastAdapter.useShowToast()
     let blendValue = switch (
       startInput.value->getStringFromJson("")->getNonEmptyString,
       endInput.value->getStringFromJson("")->getNonEmptyString,
@@ -141,17 +132,12 @@ module BlendDateRangePicker = {
     }
 
     let handleChange = React.useCallback((range: DateRangePickerBinding.dateRange) => {
-      let (endDate, limitMessage) = clampEndDate(
-        ~dateRangeLimit,
-        ~startDate=range.startDate,
-        ~endDate=range.endDate->Option.getOr(range.startDate),
-      )
+      let endDate = range.endDate->Option.getOr(range.startDate)
       startInput.onChange(
         formatIsoToFormat(range.startDate, format)->Identity.stringToFormReactEvent,
       )
       endInput.onChange(formatIsoToFormat(endDate, format)->Identity.stringToFormReactEvent)
-      limitMessage->Option.forEach(message => showToast(~message, ~toastType=ToastState.ToastError))
-    }, (startInput.onChange, endInput.onChange, format, dateRangeLimit, showToast))
+    }, (startInput.onChange, endInput.onChange, format))
 
     let customPresets = predefinedDays->Array.map(day => toBlendPreset(day, ~disableFutureDates))
 
@@ -165,6 +151,7 @@ module BlendDateRangePicker = {
       disableFutureDates
       disablePastDates
       customPresets
+      maxRangeDays=?dateRangeLimit
       ?formatConfig
     />
   }
