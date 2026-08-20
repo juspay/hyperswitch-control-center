@@ -1,4 +1,5 @@
 open FormRenderer
+open PaymentLinkThemeConfiguratorUtils
 
 let defaultForbiddenCharsRegex = %re("/[<>{}|\\`]/g")
 let nameForbiddenCharsRegex = %re("/[<>{}|\\`=;*@^~]/g")
@@ -13,7 +14,7 @@ let makeSanitizedTextField = (
   ~placeholder,
   ~forbiddenCharsRegex=defaultForbiddenCharsRegex,
 ) =>
-  makeFieldInfo(~label, ~name, ~customInput=(~input, ~placeholder as _) =>
+  makeFieldInfo(~label, ~name, ~placeholder, ~customInput=(~input, ~placeholder as _) =>
     InputFields.textInput()(
       ~input={
         ...input,
@@ -28,14 +29,22 @@ let makeSanitizedTextField = (
     )
   )
 
-let makeThemeField = (~defaultValue) => {
+let makeColorField = (~label, ~name, ~defaultValue=?, ~placeholder="") => {
   makeFieldInfo(
+    ~label,
+    ~name,
+    ~placeholder,
+    ~customInput=InputFields.colorPickerInput(~defaultValue?, ~showErrorWhenEmpty=false),
+  )
+}
+
+let makeThemeField = (~defaultValue) =>
+  makeColorField(
     ~label="Theme Color",
     ~name="theme",
     ~placeholder="Select Theme Color",
-    ~customInput=InputFields.colorPickerInput(~defaultValue, ~showErrorWhenEmpty=false),
+    ~defaultValue,
   )
-}
 
 let makeLogoField = () =>
   makeSanitizedTextField(
@@ -53,21 +62,27 @@ let makeSellerNameField = () =>
     ~forbiddenCharsRegex=nameForbiddenCharsRegex,
   )
 
-let makeSdkLayoutField = () => {
-  let layoutOptions = ["accordion", "tabs", "spaced_accordion"]->SelectBox.makeOptions
-
+let makeSelectField = (~label, ~name, ~options, ~buttonText) =>
   makeFieldInfo(
-    ~label="SDK Layout",
-    ~name="sdk_layout",
+    ~label,
+    ~name,
     ~customInput=InputFields.selectInput(
-      ~options=layoutOptions,
-      ~buttonText="Select Layout",
+      ~options,
+      ~buttonText,
       ~deselectDisable=true,
       ~customButtonStyle="!w-full pr-4 pl-2 !rounded-md",
+      ~dropdownCustomWidth="!w-full",
       ~fullLength=true,
     ),
   )
-}
+
+let makeSdkLayoutField = () =>
+  makeSelectField(
+    ~label="SDK Layout",
+    ~name="sdk_layout",
+    ~options=sdkLayoutOptions,
+    ~buttonText="Select Layout",
+  )
 
 let makeDisplaySdkOnlyField = () => {
   makeFieldInfo(
@@ -108,48 +123,26 @@ let makeBrandingVisibilityField = () => {
   )
 }
 
-let makePaymentButtonColorField = (~defaultValue) => {
-  makeFieldInfo(
-    ~label="Payment Button Color",
-    ~name="payment_button_colour",
-    ~placeholder="",
-    ~customInput=InputFields.colorPickerInput(~defaultValue, ~showErrorWhenEmpty=false),
-  )
-}
+let makePaymentButtonColorField = (~defaultValue) =>
+  makeColorField(~label="Payment Button Color", ~name="payment_button_colour", ~defaultValue)
 
-let makePaymentButtonTextColorField = (~defaultValue) => {
-  makeFieldInfo(
+let makePaymentButtonTextColorField = (~defaultValue) =>
+  makeColorField(
     ~label="Payment Button Text Color",
     ~name="payment_button_text_colour",
-    ~placeholder="",
-    ~customInput=InputFields.colorPickerInput(~defaultValue, ~showErrorWhenEmpty=false),
+    ~defaultValue,
   )
-}
 
-let makeBackgroundColorField = (~defaultValue) => {
-  makeFieldInfo(
-    ~label="Background Colour",
-    ~name="background_colour",
-    ~placeholder="",
-    ~customInput=InputFields.colorPickerInput(~defaultValue, ~showErrorWhenEmpty=false),
-  )
-}
+let makeBackgroundColorField = (~defaultValue) =>
+  makeColorField(~label="Background Colour", ~name="background_colour", ~defaultValue)
 
-let makeDetailsLayoutField = () => {
-  let layoutOptions = ["layout1", "layout2"]->SelectBox.makeOptions
-
-  makeFieldInfo(
+let makeDetailsLayoutField = () =>
+  makeSelectField(
     ~label="Details Layout",
     ~name="details_layout",
-    ~customInput=InputFields.selectInput(
-      ~options=layoutOptions,
-      ~buttonText="Select Details Layout",
-      ~deselectDisable=true,
-      ~customButtonStyle="!w-full pr-4 pl-2 !rounded-md",
-      ~fullLength=true,
-    ),
+    ~options=detailsLayoutOptions,
+    ~buttonText="Select Details Layout",
   )
-}
 
 let makeCustomMessageForCardTermsField = () =>
   makeSanitizedTextField(
@@ -158,32 +151,42 @@ let makeCustomMessageForCardTermsField = () =>
     ~placeholder="Enter custom message for card terms",
   )
 
-let makeColorIconCardCvcErrorField = (~defaultValue) => {
-  makeFieldInfo(
+let makeColorIconCardCvcErrorField = (~defaultValue) =>
+  makeColorField(
     ~label="Color Icon Card CVC Error",
     ~name="color_icon_card_cvc_error",
-    ~placeholder="",
-    ~customInput=InputFields.colorPickerInput(~defaultValue, ~showErrorWhenEmpty=false),
-  )
-}
-
-let makeSelectField = (~label, ~name, ~options, ~buttonText) =>
-  makeFieldInfo(
-    ~label,
-    ~name,
-    ~customInput=InputFields.selectInput(
-      ~options,
-      ~buttonText,
-      ~deselectDisable=true,
-      ~customButtonStyle="!w-full pr-4 pl-2 !rounded-md",
-      ~fullLength=true,
-    ),
+    ~defaultValue,
   )
 
 let makeShowCardTermsField = () =>
   makeSelectField(
     ~label="Show Card Terms",
     ~name="show_card_terms",
-    ~options=PaymentLinkThemeConfiguratorUtils.showCardTermsOptions,
+    ~options=showCardTermsOptions,
     ~buttonText="Select Show Card Terms",
   )
+
+let makeCssColorField = (~label, ~name) => makeColorField(~label, ~name)
+
+let makeCssDimensionField = (~label, ~name, ~placeholder) =>
+  makeSanitizedTextField(
+    ~label,
+    ~name,
+    ~placeholder,
+    ~forbiddenCharsRegex=defaultForbiddenCharsRegex,
+  )
+
+let makeCssPxNumberField = (~label, ~name, ~placeholder) =>
+  makeFieldInfo(
+    ~label=`${label} (px)`,
+    ~name,
+    ~placeholder,
+    ~customInput=InputFields.numericTextInput(
+      ~precision=0,
+      ~removeLeadingZeroes=true,
+      ~maxLength=4,
+    ),
+  )
+
+let makeCssFontWeightField = (~label, ~name) =>
+  makeSelectField(~label, ~name, ~options=cssFontWeightOptions, ~buttonText="Select Font Weight")

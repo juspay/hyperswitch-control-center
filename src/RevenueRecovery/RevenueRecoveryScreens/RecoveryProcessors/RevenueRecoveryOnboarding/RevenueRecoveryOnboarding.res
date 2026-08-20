@@ -21,7 +21,6 @@ let make = () => {
   let (paymentConnectorName, setPaymentConnectorName) = React.useState(() => connectorName)
   let (paymentConnectorID, setPaymentConnectorID) = React.useState(() => connectorID)
   let (billingConnectorName, setBillingConnectorName) = React.useState(() => "")
-  let defaultPath = RevenueRecoveryHooks.useGetDefaultPath()
 
   React.useEffect(() => {
     setShowSideBar(_ => false)
@@ -39,10 +38,12 @@ let make = () => {
       sections={getSections(isLiveMode)}
       currentStep
       backClick={() => {
-        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=defaultPath))
+        RescriptReactRouter.replace(
+          GlobalVars.appendDashboardPath(~url=RevenueRecoverySidebarValues.defaultPath),
+        )
       }}
     />
-    <div className="flex flex-row ml-14 mt-16 w-540-px">
+    <div className="flex flex-row ml-14 mt-16 w-full pr-14">
       <RecoveryOnboardingPayments
         currentStep
         setConnectorID={setPaymentConnectorID}

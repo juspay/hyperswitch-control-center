@@ -8,6 +8,7 @@ import {
   assertConnectorFieldLabels,
   fillConnectorFields,
   assertPaymentMethodTypes,
+  generateCerts,
 } from "../../support/commands";
 import { payoutConnectorConfig } from "../../support/fixtures/payoutConnectorConfig";
 
@@ -17,7 +18,7 @@ test.describe("Payout Connector", () => {
   let email: string;
 
   const payoutConnectors = Object.entries(payoutConnectorConfig);
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -45,7 +46,19 @@ test.describe("Payout Connector", () => {
         .click();
 
       await assertConnectorFieldLabels(page, connector.fields.fieldLabels);
-      await fillConnectorFields(page, connector.fields);
+      if (key === "santander") {
+        const { certBase64, keyBase64 } = await generateCerts();
+        await fillConnectorFields(page, {
+          ...connector.fields,
+          overrides: {
+            ...connector.fields.overrides,
+            "Enter Certificate": certBase64,
+            "Enter Certificate Key": keyBase64,
+          },
+        });
+      } else {
+        await fillConnectorFields(page, connector.fields);
+      }
 
       await payoutConnector.connectAndProceedButton.click();
 

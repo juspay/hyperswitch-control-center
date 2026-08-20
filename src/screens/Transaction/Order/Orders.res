@@ -41,11 +41,8 @@ let make = (~previewOnly=false) => {
   //enablement of advanced view
   let isAdvancedViewEnabled = isOpenSearchEnabled && devAdvancedPaymentsView
 
-  let (selectedSource, setSelectedSource) = React.useState(_ => None)
-  let source =
-    selectedSource->mapOptionOrDefault(isAdvancedViewEnabled ? Advanced : Normal, userSource =>
-      userSource
-    )
+  let defaultSource = isAdvancedViewEnabled ? Advanced : Normal
+  let (source, setSource) = React.useState(_ => getStoredPaymentListSource(~defaultSource))
   let isAdvancedView = source === Advanced && isAdvancedViewEnabled
   let (tableTitle, savedViewsEntity) = isAdvancedView
     ? (advancedOrdersTableTitle, PaymentAdvanced)
@@ -231,8 +228,9 @@ let make = (~previewOnly=false) => {
     None
   }, (offset, filters, searchText, resultsPerPage))
 
-  let handleSourceChange = newSource => {
-    setSelectedSource(_ => Some(newSource))
+  let handleSourceChange = (newSource: paymentListSource) => {
+    HSLocalStorage.setPaymentListSourceInLocalStorage((newSource :> string))
+    setSource(_ => newSource)
     setOffset(_ => 0)
     setFilters(_ => None)
     reset()
@@ -382,7 +380,7 @@ let make = (~previewOnly=false) => {
       <div className="flex flex-wrap justify-between gap-3 items-start">
         <PageUtils.PageHeading title="Payment Operations" subTitle="" customTitleStyle />
         <div
-          className="flex flex-nowrap justify-end gap-2 items-center whitespace-nowrap overflow-x-auto no-scrollbar">
+          className="flex flex-nowrap justify-end gap-2 items-center whitespace-nowrap overflow-x-auto no-scrollbar pr-px">
           <RenderIf condition={isAdvancedViewEnabled}>
             {<>
               <div className="shrink-0">

@@ -1,5 +1,6 @@
 open ReconEngineTypes
 open LogicUtils
+open ReconEngineFilterUtils
 open ReconEnginePipelinesTypes
 
 let getIngestionCounts = (ingestionHistory: array<ingestionHistoryType>) =>
@@ -20,8 +21,8 @@ let getStagingOverviewCounts = (stagingOverviewData: array<accountStagingEntries
       statusAmount,
     ) =>
       switch statusAmount.status {
-      | Archived | Void | UnknownProcessingEntryStatus => (total, needsManualReview)
-      | NeedsManualReview => (total + statusAmount.count, needsManualReview + statusAmount.count)
+      | Archived | Void | UnknownDomainStagingEntryStatus => (total, needsManualReview)
+      | NeedsManualReview(_) => (total + statusAmount.count, needsManualReview + statusAmount.count)
       | Pending | Processed => (total + statusAmount.count, needsManualReview)
       }
     )
@@ -51,13 +52,9 @@ let getPipelineStatCards = (
     )->CurrencyFormatUtils.valueFormatter(Rate)
 
   let processedStatusValue =
-    ReconEngineFilterUtils.getIngestionTransformationHistoryStatusValueFromStatusList([
-      Processed,
-    ])->Array.joinWith(",")
+    getIngestionTransformationHistoryStatusValueFromStatusList([Processed])->Array.joinWith(",")
   let failedStatusValue =
-    ReconEngineFilterUtils.getIngestionTransformationHistoryStatusValueFromStatusList([
-      Failed,
-    ])->Array.joinWith(",")
+    getIngestionTransformationHistoryStatusValueFromStatusList([Failed])->Array.joinWith(",")
 
   [
     {
@@ -185,37 +182,30 @@ let buildStagingEntriesV2Body = (
   ~limit=10,
 ) => {
   let statusFilter = filterValueJson->getStrArrayFromDict("status", [])
-  let statusValues =
+  let detailedStatuses =
     statusFilter->isEmptyArray
-      ? ReconEngineFilterUtils.getProcessingEntryStatusValueFromStatusList([
-          Pending,
-          Processed,
-          NeedsManualReview,
-          Void,
-        ])
-      : statusFilter
+      ? allStagingEntryStatuses
+      : statusFilter->Array.map(value =>
+          getStagingEntryStatusFromValue(value, allStagingEntryStatuses)
+        )
 
   let entryTypeFilter = filterValueJson->getStrArrayFromDict("entry_type", [])
   let transformationHistoryIds =
     filterValueJson->getStrArrayFromDict("transformation_history_ids", [])
 
   let filtersDict = Dict.make()
-  filtersDict->Dict.set("status", statusValues->getJsonFromArrayOfString)
+  let detailedStatusPayload = detailedStatuses->getStagingEntryStatusPayload
 
-  if entryTypeFilter->isNonEmptyArray {
-    filtersDict->Dict.set("entry_type", entryTypeFilter->getJsonFromArrayOfString)
-  }
-
-  if transformationHistoryIds->isNonEmptyArray {
-    filtersDict->Dict.set(
-      "transformation_history_ids",
-      transformationHistoryIds->getJsonFromArrayOfString,
-    )
-  }
-
-  if searchText->isNonEmptyString {
-    filtersDict->Dict.set((searchType :> string), searchText->String.trim->JSON.Encode.string)
-  }
+  filtersDict->setOptionArray("detailed_status", detailedStatusPayload->getNonEmptyArray)
+  filtersDict->setOptionArray(
+    "entry_type",
+    entryTypeFilter->Array.map(JSON.Encode.string)->getNonEmptyArray,
+  )
+  filtersDict->setOptionArray(
+    "transformation_history_ids",
+    transformationHistoryIds->Array.map(JSON.Encode.string)->getNonEmptyArray,
+  )
+  filtersDict->setOptionString((searchType :> string), searchText->String.trim->getNonEmptyString)
 
   [
     ("filters", filtersDict->JSON.Encode.object),
@@ -232,8 +222,7 @@ let getPipelineDetailStatCards = (~transformationHistory: array<transformationHi
   let totalTransformed =
     transformationHistory->Array.reduce(0, (acc, t) => acc + t.data.transformed_count)
   let totalIgnored = transformationHistory->Array.reduce(0, (acc, t) => acc + t.data.ignored_count)
-  let totalErrors =
-    transformationHistory->Array.reduce(0, (acc, t) => acc + t.data.errors->Array.length)
+  let totalErrors = transformationHistory->Array.reduce(0, (acc, t) => acc + t.data.failed_count)
   let transformationRuns = transformationHistory->Array.length
   let allTxProcessed =
     transformationRuns > 0 && transformationHistory->Array.every(t => t.status === Processed)
@@ -278,12 +267,7 @@ let initialStagingEntriesFilters = (
     {label: "Credit", value: "credit"},
     {label: "Debit", value: "debit"},
   ]
-  let statusOptions = ReconEngineFilterUtils.getStagingEntryStatusOptions([
-    Processed,
-    Pending,
-    NeedsManualReview,
-    Void,
-  ])
+  let statusOptions = getGroupedStagingEntryStatusOptions(allStagingEntryStatuses)
 
   [
     (
@@ -620,6 +604,28 @@ let formatDuration = (startIso: string, endIso: string): string => {
   } else {
     "—"
   }
+}
+
+let isReportDownloadable = (status: ingestionTransformationStatusType): bool =>
+  switch status {
+  | Processed => true
+  | _ => false
+  }
+
+let reportFormatFileType = (format: reportFormat): string =>
+  switch format {
+  | Csv => "text/csv"
+  }
+
+let getTransformationReportFileName = (
+  ~transformation: transformationHistoryType,
+  ~format: reportFormat,
+): string => {
+  let sanitizedName =
+    transformation.transformation_name
+    ->String.replaceRegExp(%re("/[^a-zA-Z0-9-_]+/g"), "_")
+    ->String.toLowerCase
+  `${sanitizedName}_report.${(format :> string)}`
 }
 
 let entryFieldTarget = (field: entryField): string =>

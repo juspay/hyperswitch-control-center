@@ -54,7 +54,9 @@ const json = (route: Route, body: unknown) =>
 
 // Returns the first element of the analytics request body (the body is a
 // single-element array `[{ timeRange, metrics, groupByNames, timeSeries, ... }]`).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function firstQuery(route: Route): Record<string, any> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let body: any;
   try {
     body = route.request().postDataJSON();

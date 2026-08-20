@@ -121,7 +121,7 @@ let initialFixedFilter = _ => [
           ~startKey=startTimeFilterKey,
           ~endKey=endTimeFilterKey,
           ~format="YYYY-MM-DDTHH:mm:ss[Z]",
-          ~showTime=false,
+          ~showTime=true,
           ~disablePastDates={false},
           ~disableFutureDates={true},
           ~predefinedDays=[

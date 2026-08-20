@@ -1,6 +1,8 @@
 module HyperSwitchEntryComponent = {
   open HyperswitchAtom
   open ConnectorListFromConfigUtils
+  open LogicUtils
+
   @react.component
   let make = () => {
     open HyperSwitchEntryUtils
@@ -26,16 +28,18 @@ module HyperSwitchEntryComponent = {
     }
 
     let configEnv = (urlConfig: JSON.t) => {
-      open LogicUtils
       open HyperSwitchConfigTypes
       try {
         let dict = urlConfig->getDictFromJsonObject->getDictfromDict("endpoints")
-        let value: urlConfig = {
+        let superpositionDict =
+          urlConfig->getDictFromJsonObject->getDictfromDict("superposition_configs")
+        let value: baseConfig = {
           apiBaseUrl: dict->getString("api_url", ""),
           mixpanelToken: dict->getString("mixpanel_token", ""),
           sdkBaseUrl: dict->getString("sdk_url", "")->getNonEmptyString,
           agreementUrl: dict->getString("agreement_url", "")->getNonEmptyString,
-          dssCertificateUrl: dict->getString("dss_certificate_url", "")->getNonEmptyString,
+          dssCertificateUsUrl: dict->getString("dss_certificate_us_url", "")->getNonEmptyString,
+          dssCertificateEuUrl: dict->getString("dss_certificate_eu_url", "")->getNonEmptyString,
           dynamoSimulationTemplateUrl: dict
           ->getString("dynamo_simulation_template_url", "")
           ->getNonEmptyString,
@@ -49,6 +53,9 @@ module HyperSwitchEntryComponent = {
             logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
           },
           hypersenseUrl: dict->getString("hypersense_url", ""),
+          superpositionConfigs: superpositionDict->isEmptyDict
+            ? None
+            : Some(superpositionDict->getSuperpositionConfigMapper),
         }
         DOMUtils.window._env_ = value
         configureFavIcon(value.urlThemeConfig.faviconUrl)->ignore
@@ -59,7 +66,7 @@ module HyperSwitchEntryComponent = {
     }
 
     let fetchThemeAndDomainFromUrl = () => {
-      let params = url.search->LogicUtils.getDictFromUrlSearchParams
+      let params = url.search->getDictFromUrlSearchParams
       let themeID = params->Dict.get("theme_id")
       let domainUrl = params->Dict.get("domain")
 
@@ -110,7 +117,7 @@ module HyperSwitchEntryComponent = {
     }, [])
 
     let setPageName = pageTitle => {
-      let page = pageTitle->LogicUtils.snakeToTitle
+      let page = pageTitle->snakeToTitle
       let title = `${page} - Dashboard`
       DOMUtils.document.title = title
       GoogleAnalytics.send({hitType: "pageview", page})

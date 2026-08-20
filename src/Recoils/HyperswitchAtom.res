@@ -27,10 +27,7 @@ let themeListAtom: Recoil.recoilAtom<JSON.t> = Recoil.atom("themeListAtom", JSON
 
 let enumVariantAtom = Recoil.atom("enumVariantDetails", "")
 
-let featureFlagAtom: Recoil.recoilAtom<FeatureFlagUtils.featureFlag> = Recoil.atom(
-  "featureFlag",
-  JSON.Encode.null->FeatureFlagUtils.featureFlagType,
-)
+let featureFlagAtom = FeatureFlagAtom.featureFlagAtom
 // Seeded with the sandbox defaults since the feature flags are not resolved yet
 // at module init; HyperSwitchEntry overwrites this once the config is fetched.
 let connectorDisplayListAtom: Recoil.recoilAtom<
@@ -46,6 +43,7 @@ let connectorCloneAllowListAtom: Recoil.recoilAtom<array<string>> = Recoil.atom(
 let merchantSpecificConfigAtom: Recoil.recoilAtom<
   FeatureFlagUtils.merchantSpecificConfig,
 > = Recoil.atom("merchantSpecificConfig", JSON.Encode.null->FeatureFlagUtils.merchantSpecificConfig)
+
 let paypalAccountStatusAtom: Recoil.recoilAtom<PayPalFlowTypes.setupAccountStatus> = Recoil.atom(
   "paypalAccountStatusAtom",
   PayPalFlowTypes.Connect_paypal_landing,

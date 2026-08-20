@@ -1229,10 +1229,10 @@ let useGetURL = () => {
           }
         | #LINKABLE_STAGING_ENTRIES =>
           switch methodType {
-          | Get =>
+          | Post =>
             switch id {
             | Some(transactionId) =>
-              `${reconBaseURL}/exception_management/transactions/${transactionId}/linkable_staging_entries`
+              `${reconBaseURL}/exception_management/transactions/${transactionId}/linkable_staging_entries/v2/list`
             | None => ``
             }
           | _ => ""
@@ -1244,6 +1244,16 @@ let useGetURL = () => {
             | Some(ingestionHistoryId) =>
               `${reconBaseURL}/ingestions/history/${ingestionHistoryId}/download`
             | None => ``
+            }
+          | _ => ""
+          }
+        | #DOWNLOAD_TRANSFORMATION_REPORT =>
+          switch methodType {
+          | Get =>
+            switch (id, queryParameters) {
+            | (Some(transformationHistoryId), Some(reportFormat)) =>
+              `${reconBaseURL}/transformations/history/${transformationHistoryId}/reports/${reportFormat}`
+            | _ => ``
             }
           | _ => ""
           }

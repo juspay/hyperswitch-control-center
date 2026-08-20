@@ -7,23 +7,11 @@ let make = () => {
   open ReconEngineRulesUtils
 
   let url = RescriptReactRouter.useUrl()
-  let mixpanelEvent = MixpanelHook.useSendEvent()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (reconRulesList, setReconRulesList) = React.useState(_ => [])
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
-  let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
-  let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
-
-  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~updateExistingKeys,
-    ~startTimeFilterKey,
-    ~endTimeFilterKey,
-    ~range=180,
-    ~origin="recon_engine_exception_transaction",
-    (),
-  )
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let getReconRulesData = async _ => {
     try {
@@ -54,22 +42,8 @@ let make = () => {
 
   React.useEffect(() => {
     getReconRulesData()->ignore
-    let urlFilters = url.search->getDictFromUrlSearchParams
-    let startTime = urlFilters->getValueFromDict(startTimeFilterKey, "")
-    let endTime = urlFilters->getValueFromDict(endTimeFilterKey, "")
-    if startTime->isNonEmptyString || endTime->isNonEmptyString {
-      updateExistingKeys(
-        Dict.fromArray([(startTimeFilterKey, startTime), (endTimeFilterKey, endTime)]),
-      )
-    } else {
-      setInitialFilters()->ignore
-    }
     None
   }, [])
-
-  let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="recon_engine_exception_transaction_date_filter_opened")
-  }
 
   let initialTabIndex = React.useMemo(() => {
     let urlSearch = url.search
@@ -84,7 +58,7 @@ let make = () => {
     }
   }, (url.search, reconRulesList))
 
-  <div className="flex flex-col gap-4 w-full">
+  <div className="flex flex-col w-full">
     <div className="flex flex-row justify-between items-center">
       <PageUtils.PageHeading
         title="Recon Exceptions"
@@ -92,25 +66,7 @@ let make = () => {
         customHeadingStyle="py-0"
       />
       <div className="flex flex-row items-center gap-4">
-        <div className="flex flex-row -ml-1.5">
-          <DynamicFilter
-            title="ReconEngineExceptionTransactionFilters"
-            initialFilters=[]
-            options=[]
-            popupFilterFields=[]
-            initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
-              null,
-              ~events=dateDropDownTriggerMixpanelCallback,
-            )}
-            defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-            tabNames=[]
-            key="ReconEngineExceptionTransactionFilters"
-            updateUrlWith=updateExistingKeys
-            filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
-            showCustomFilter=false
-            refreshFilters=false
-          />
-        </div>
+        <PortalCapture name=ReconEngineFilterUtils.globalDateFilterPortalName customStyle="-mt-1" />
         <div className="flex-shrink-0">
           <Button
             text="Generate Report"
@@ -124,6 +80,7 @@ let make = () => {
         </div>
       </div>
     </div>
+    <ReconEngineHelper.GlobalDateFilterBanner />
     <PageLoaderWrapper screenState>
       <RenderIf condition={reconRulesList->Array.length == 0}>
         <div className="my-4">

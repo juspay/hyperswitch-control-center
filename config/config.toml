@@ -2,7 +2,8 @@
 api_url="http://localhost:9000/api"
 sdk_url="http://localhost:9050/HyperLoader.js"
 apple_pay_certificate_url=""
-dss_certificate_url=""
+dss_certificate_us_url=""
+dss_certificate_eu_url=""
 logo_url=""
 favicon_url=""
 recon_iframe_url=""
@@ -15,6 +16,7 @@ dynamo_simulation_template_url=""
 branding=false
 connector_clone=false
 send_v1_dummy_api_key_header=false
+cug_user=false
 mixpanel=false
 test_live_toggle=false
 is_live_mode=false
@@ -97,6 +99,7 @@ dev_blend_enabled=true
 dev_sort_enabled=true
 dev_saved_views=false
 dev_clickhouse_aggregate=false
+dev_superposition=false
 [default.connector_list_for_live]
 paymentProcessors = []
 threedsAuthProcessors = []
@@ -109,7 +112,9 @@ taxProcessors = []
 
 [default.connector_clone]
 paymentProcessors = ["peachpayments"]
-
+[default.superposition_configs]
+organization_id=""
+workspace=""
 [default.merchant_config]
 [default.merchant_config.allowlist]
 [default.merchant_config.allowlist.dev_recon_engine_v1]
