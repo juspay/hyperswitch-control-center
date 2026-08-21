@@ -555,6 +555,19 @@ let organizationSettings = (userHasAccess, checkUserEntity) => {
   })
 }
 
+let auditTrail = (userHasAccess, checkUserEntity) => {
+  SubLevelLink({
+    name: "Audit Trail",
+    link: `/audit-trail`,
+    access: {
+      userHasAccess(~groupAccess=AnalyticsView) == Access && checkUserEntity([#Organization])
+        ? Access
+        : NoAccess
+    },
+    searchOptions: [("Audit trail", ""), ("Activity log", "")],
+  })
+}
+
 let settings = (
   ~isConfigurePmtsEnabled,
   ~userHasResourceAccess,
@@ -582,6 +595,9 @@ let settings = (
   }
   if userHasAccess(~groupAccess=AccountManage) == Access {
     settingsLinkArray->Array.push(organizationSettings(userHasAccess, checkUserEntity))->ignore
+  }
+  if userHasAccess(~groupAccess=AnalyticsView) == Access && checkUserEntity([#Organization]) {
+    settingsLinkArray->Array.push(auditTrail(userHasAccess, checkUserEntity))->ignore
   }
   if !(devUsers && devModularityV2Enabled) {
     settingsLinkArray->Array.push(userManagement(userHasResourceAccess))->ignore
