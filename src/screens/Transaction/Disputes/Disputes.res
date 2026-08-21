@@ -15,7 +15,7 @@ let make = () => {
   let (filters, setFilters) = React.useState(_ => None)
   let (transactionViewStatuses, setTransactionViewStatuses) = React.useState(_ => [])
 
-  let {generateReport, email, transactionView} =
+  let {generateReport, email, transactionView, devSavedViews} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
@@ -113,6 +113,9 @@ let make = () => {
       customLeftView={<SearchBarFilter
         placeholder="Search for dispute ID" setSearchVal=setSearchText searchVal=searchText
       />}
+      customFilterActions={<RenderIf condition={devSavedViews}>
+        <SavedViewsComponent entity=SavedViewTypes.Dispute />
+      </RenderIf>}
       entityName=V1(DISPUTE_FILTERS)
       title="Disputes"
     />

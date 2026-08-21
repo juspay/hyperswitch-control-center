@@ -87,7 +87,7 @@ let make = () => {
     None
   }, (offset, filters, searchText))
 
-  let {generateReport, transactionView} =
+  let {generateReport, transactionView, devSavedViews} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   <ErrorBoundary>
@@ -134,6 +134,9 @@ let make = () => {
                 searchVal=searchText
               />
             </div>}
+            customFilterActions={<RenderIf condition={devSavedViews}>
+              <SavedViewsComponent entity=SavedViewTypes.Refund />
+            </RenderIf>}
             entityName=V1(REFUND_FILTERS)
             title="Refunds"
           />
