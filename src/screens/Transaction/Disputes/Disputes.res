@@ -16,6 +16,11 @@ let make = () => {
   let (filters, setFilters) = React.useState(_ => None)
   let (transactionViewStatuses, setTransactionViewStatuses) = React.useState(_ => [])
 
+  let handleSearchTextChange = updater => {
+    setOffset(_ => 0)
+    setSearchText(updater)
+  }
+
   let {generateReport, email, transactionView} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
@@ -72,7 +77,7 @@ let make = () => {
       if dataLen == 0 && offset > 0 {
         // Landed past the end of the list - step back to the previous page
         setHasNext(_ => false)
-        setOffset(_ => Js.Math.max_int(0, offset - disputesFetchLimit))
+        setOffset(_ => Math.Int.max(0, offset - disputesFetchLimit))
       } else if dataLen > 0 {
         let padding = Array.make(~length=offset, Dict.make()->DisputesEntity.itemToObjMapper)
         setDisputesData(_ => padding->Array.concat(disputesValue))
@@ -123,7 +128,7 @@ let make = () => {
           ->getStrArrayFromJsonArray
         )}
       customLeftView={<SearchBarFilter
-        placeholder="Search for dispute ID" setSearchVal=setSearchText searchVal=searchText
+        placeholder="Search for dispute ID" setSearchVal=handleSearchTextChange searchVal=searchText
       />}
       entityName=V1(DISPUTE_FILTERS)
       title="Disputes"
@@ -170,13 +175,12 @@ let make = () => {
           setOffset
           currentFetchCount={disputesData->Array.length}
           showPagination=false
-          showResultsPerPageSelector=false
-          bottomActions={<DisputesHelper.PrevNextPagination
+          bottomActions={<PrevNextPaginationButtons
             isLoading={screenState === PageLoaderWrapper.Loading}
             hasData={disputesData->Array.length > 0}
             prevDisabled={offset == 0}
             nextDisabled={!hasNext}
-            onPrev={() => setOffset(prev => Js.Math.max_int(0, prev - disputesFetchLimit))}
+            onPrev={() => setOffset(prev => Math.Int.max(0, prev - disputesFetchLimit))}
             onNext={() => setOffset(prev => prev + disputesFetchLimit)}
           />}
           defaultColumns={DisputesEntity.defaultColumns}
