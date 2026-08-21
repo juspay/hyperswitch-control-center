@@ -10,6 +10,7 @@ let make = () => {
   let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (disputesData, setDisputesData) = React.useState(_ => [])
+  let (hasNext, setHasNext) = React.useState(_ => false)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (offset, setOffset) = React.useState(_ => 0)
   let (filters, setFilters) = React.useState(_ => None)
@@ -57,6 +58,9 @@ let make = () => {
           `${key}=${value}`
         })
         ->Array.joinWith("&")
+      let paginationParams = `limit=${disputesFetchLimit->Int.toString}&offset=${offset->Int.toString}`
+      let queryParam =
+        queryParam->isNonEmptyString ? `${queryParam}&${paginationParams}` : paginationParams
       let disputesUrl = getURL(
         ~entityName=V1(DISPUTES),
         ~methodType=Get,
@@ -64,8 +68,16 @@ let make = () => {
       )
       let response = await fetchDetails(disputesUrl)
       let disputesValue = response->getArrayDataFromJson(DisputesEntity.itemToObjMapper)
-      if disputesValue->Array.length > 0 {
-        setDisputesData(_ => disputesValue)
+      let dataLen = disputesValue->Array.length
+      if dataLen == 0 && offset > 0 {
+        // Landed past the end of the list - step back to the previous page
+        setHasNext(_ => false)
+        setOffset(_ => Js.Math.max_int(0, offset - disputesFetchLimit))
+      } else if dataLen > 0 {
+        let padding = Array.make(~length=offset, Dict.make()->DisputesEntity.itemToObjMapper)
+        setDisputesData(_ => padding->Array.concat(disputesValue))
+        // The list response has no total_count - a full page means more rows may exist
+        setHasNext(_ => dataLen == disputesFetchLimit)
         setScreenState(_ => Success)
       } else {
         setScreenState(_ => Custom)
@@ -85,7 +97,7 @@ let make = () => {
       getDisputesList()->ignore
     }
     None
-  }, (filters, searchText))
+  }, (offset, filters, searchText))
 
   let customUI =
     <NoDataFound
@@ -151,12 +163,22 @@ let make = () => {
           hideTitle=true
           actualData={disputesData->Array.map(Nullable.make)}
           entity={DisputesEntity.disputesEntity(merchantId, orgId)}
-          resultsPerPage=10
+          resultsPerPage=disputesFetchLimit
           showSerialNumber=true
           totalResults={disputesData->Array.length}
           offset
           setOffset
           currentFetchCount={disputesData->Array.length}
+          showPagination=false
+          showResultsPerPageSelector=false
+          bottomActions={<DisputesHelper.PrevNextPagination
+            isLoading={screenState === PageLoaderWrapper.Loading}
+            hasData={disputesData->Array.length > 0}
+            prevDisabled={offset == 0}
+            nextDisabled={!hasNext}
+            onPrev={() => setOffset(prev => Js.Math.max_int(0, prev - disputesFetchLimit))}
+            onNext={() => setOffset(prev => prev + disputesFetchLimit)}
+          />}
           defaultColumns={DisputesEntity.defaultColumns}
           customColumnMapper={TableAtoms.disputesMapDefaultCols}
           showSerialNumberInCustomizeColumns=false
