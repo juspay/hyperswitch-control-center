@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.21.0
+
+### Miscellaneous Tasks
+
+- Version update for superposition embeddable package ([#5434](https://github.com/juspay/hyperswitch-control-center/pull/5434)) ([`2d8dc7f`](https://github.com/juspay/hyperswitch-control-center/commit/2d8dc7f75bccb7ed297e086349edfddc94a6cbb0))
+- Add support for bulk filters in transaction exceptions ([#5429](https://github.com/juspay/hyperswitch-control-center/pull/5429)) ([`3ef4d30`](https://github.com/juspay/hyperswitch-control-center/commit/3ef4d30404162f5fc914cce57211d5f42de22de5))
+
+**Full Changelog:** [`2026.08.20.0...2026.08.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.20.0...2026.08.21.0)
+
+- - -
+
 ## 2026.08.20.0
 
 ### Features
