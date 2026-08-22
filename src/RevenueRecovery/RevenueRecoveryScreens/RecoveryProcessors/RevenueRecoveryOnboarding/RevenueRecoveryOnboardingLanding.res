@@ -5,8 +5,8 @@ let make = (~createMerchant) => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
   let userHasCreateMerchantAccess = OMPCreateAccessHook.useOMPCreateAccessHook([
-    #tenant_admin,
-    #org_admin,
+    #Tenant,
+    #Organization,
   ])
 
   <div className="flex flex-1 flex-col gap-6 items-center w-full">
