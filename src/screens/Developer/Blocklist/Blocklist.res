@@ -24,11 +24,18 @@ let make = () => {
   let (selectedFile, setSelectedFile) = React.useState(_ => None)
   let (uploadButtonState, setUploadButtonState) = React.useState(_ => Button.Normal)
   let inputRef = React.useRef(Nullable.null)
+  let fileSelectionTokenRef = React.useRef(0)
 
   let clearFileInput = () => {
     inputRef.current
     ->getOptionalFromNullable
     ->Option.forEach(elem => elem->DOMUtils.toInputElement->DOMUtils.setInputValue(""))
+  }
+
+  let rejectFile = message => {
+    clearFileInput()
+    setSelectedFile(_ => None)
+    showToast(~message, ~toastType=ToastError)
   }
 
   let fetchJobs = async () => {
@@ -84,21 +91,40 @@ let make = () => {
   }, [offset])
 
   let handleFileChange = ev => {
+    fileSelectionTokenRef.current = fileSelectionTokenRef.current + 1
+    let currentSelectionToken = fileSelectionTokenRef.current
     let files = ReactEvent.Form.target(ev)["files"]
     switch files[0] {
     | Some(file) =>
       if file->isValidBlocklistCsvFile {
         if file->isBlocklistCsvFileSizeAllowed {
-          setSelectedFile(_ => Some(file))
+          let fileReader = FileReader.reader
+          fileReader.onload = event => {
+            if fileSelectionTokenRef.current === currentSelectionToken {
+              let fileContents = ReactEvent.Form.target(event)["result"]
+              let dataRowCount = fileContents->getBlocklistCsvDataRowCount
+              if dataRowCount->isBlocklistCsvDataRowCountAllowed {
+                setSelectedFile(_ => Some(file))
+              } else {
+                let errorMessage =
+                  dataRowCount < 1
+                    ? "CSV file must contain at least one data row."
+                    : `CSV files with more than ${maxBlocklistCsvDataRowsLabel} rows cannot be processed.`
+                rejectFile(errorMessage)
+              }
+            }
+          }
+          fileReader.onerror = _ => {
+            if fileSelectionTokenRef.current === currentSelectionToken {
+              rejectFile("Unable to read the CSV file.")
+            }
+          }
+          fileReader.readAsText(file)
         } else {
-          clearFileInput()
-          setSelectedFile(_ => None)
-          showToast(~message="CSV file size should be less than 5 MB.", ~toastType=ToastError)
+          rejectFile(`CSV files larger than ${maxBlocklistCsvFileSizeLabel} cannot be processed.`)
         }
       } else {
-        clearFileInput()
-        setSelectedFile(_ => None)
-        showToast(~message="Please upload a valid CSV file.", ~toastType=ToastError)
+        rejectFile("Please upload a valid CSV file.")
       }
     | None => setSelectedFile(_ => None)
     }
@@ -109,6 +135,7 @@ let make = () => {
   }
 
   let resetSelectedFile = _ => {
+    fileSelectionTokenRef.current = fileSelectionTokenRef.current + 1
     setSelectedFile(_ => None)
     clearFileInput()
   }
@@ -186,6 +213,9 @@ let make = () => {
               <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
                 {"Upload a CSV file to create an asynchronous blocklist batch job."->React.string}
               </p>
+              <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
+                {"This configuration applies to all profiles in the current merchant account."->React.string}
+              </p>
             </div>
             <Button
               text="Download Sample File"
@@ -232,10 +262,10 @@ let make = () => {
                 </div>
                 <div className="min-w-0">
                   <p className={`text-nd_gray-700 ${body.md.medium}`}>
-                    {"Upload a CSV file up to 5 MB"->React.string}
+                    {`Upload a CSV file with up to ${maxBlocklistCsvDataRowsLabel} rows and a maximum size of ${maxBlocklistCsvFileSizeLabel}`->React.string}
                   </p>
                   <p className={`text-nd_gray-500 mt-1 ${body.sm.medium}`}>
-                    {"Only .csv files are supported for blocklist batch uploads."->React.string}
+                    {"CSV files above either limit cannot be processed. Only .csv files are supported."->React.string}
                   </p>
                 </div>
               </div>

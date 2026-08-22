@@ -7,6 +7,7 @@ extended_card_bin,41111100,
 fingerprint,fp_abc123,`
 
 let maxBlocklistCsvFileSize = 5 * 1024 * 1024
+let maxBlocklistCsvDataRows = 100000
 let bytesPerKilobyte = 1024
 let bytesPerMegabyte = bytesPerKilobyte * 1024
 
@@ -77,6 +78,14 @@ let isValidBlocklistCsvFile = file =>
 
 let isBlocklistCsvFileSizeAllowed = file => file["size"] <= maxBlocklistCsvFileSize
 
+let getBlocklistCsvDataRowCount = fileContents => {
+  let parsedCsv = PapaParse.parse(fileContents, {"skipEmptyLines": true})
+  parsedCsv.data->Array.length - 1
+}
+
+let isBlocklistCsvDataRowCountAllowed = dataRowCount =>
+  dataRowCount >= 1 && dataRowCount <= maxBlocklistCsvDataRows
+
 let getFileName = file =>
   switch file {
   | Some(file) => file["name"]
@@ -100,3 +109,10 @@ let formatFileSize = fileSize => {
     `${fileSize->Int.toString} B`
   }
 }
+
+@send external toLocaleStringWithLocale: (int, string) => string = "toLocaleString"
+
+// The limits quoted in the upload copy and error toasts are derived from the
+// same constants the validations read, so the two cannot drift apart.
+let maxBlocklistCsvDataRowsLabel = maxBlocklistCsvDataRows->toLocaleStringWithLocale("en-IN")
+let maxBlocklistCsvFileSizeLabel = maxBlocklistCsvFileSize->formatFileSize
