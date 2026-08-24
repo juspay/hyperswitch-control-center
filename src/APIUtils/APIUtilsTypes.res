@@ -231,3 +231,8 @@ type getUrlTypes = (
   ~hypersenseType: hypersenseType=?,
   ~queryParameters: option<string>=?,
 ) => string
+
+// Olap = on the infra OLAP allowlist, gets `olap_prefix`; Default = normal API path.
+type endpoint =
+  | Olap(string)
+  | Default(string)
