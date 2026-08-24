@@ -332,7 +332,7 @@ let useGetURL = () => {
             | #Organization
             | #Merchant
             | #Profile =>
-              Default(`account/${merchantId}/profile/connectors`)
+              Olap(`account/${merchantId}/profile/connectors`)
             }
           }
         | Post | Delete =>
