@@ -232,7 +232,7 @@ type getUrlTypes = (
   ~queryParameters: option<string>=?,
 ) => string
 
-// Olap = on the infra OLAP allowlist, gets `olap_prefix`; Default = normal API path.
+// Olap = on the infra OLAP allowlist, served from `olap_url`; Default = normal API path.
 type endpoint =
   | Olap(string)
   | Default(string)
