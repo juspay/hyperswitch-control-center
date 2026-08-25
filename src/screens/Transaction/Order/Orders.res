@@ -6,7 +6,6 @@ let make = (~previewOnly=false) => {
   open OrderTypes
   open SavedViewTypes
   open OrderEntity
-  open Typography
 
   let ordersTableTitle = "Orders"
   let advancedOrdersTableTitle = "OrdersAdvanced"
@@ -14,9 +13,16 @@ let make = (~previewOnly=false) => {
   let fetchNormalOrdersHook = OrdersHook.useFetchOrdersHook()
   let fetchAnalyticsOrdersHook = AnalyticsOrdersHook.useFetchAnalyticsOrdersHook()
   let getSignal = AbortControllerHook.useAbortController()
-  let showToast = ToastAdapter.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let {devOpensearch, devSavedViews, transactionView, generateReport, email, devSortEnabled} =
+  let {
+    devOpensearch,
+    devAdvancedPaymentsView,
+    devSavedViews,
+    transactionView,
+    generateReport,
+    email,
+    devSortEnabled,
+  } =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
@@ -26,18 +32,17 @@ let make = (~previewOnly=false) => {
   let {merchantId, orgId, version} = getCommonSessionDetails()
 
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
-  let userGroupACL = HyperswitchAtom.userGroupACLAtom->Recoil.useRecoilValueFromAtom
-  let advancedPaymentListEnabled =
+
+  //enablement of open search
+  let isOpenSearchEnabled =
     devOpensearch && version == V1 && userHasResourceAccess(~resourceAccess=Analytics) === Access
-  let paymentListSourceResolved =
-    !(devOpensearch && version == V1) || userGroupACL->Option.isSome || advancedPaymentListEnabled
-  let (selectedSource, setSelectedSource) = React.useState(_ => None)
-  let source =
-    selectedSource->mapOptionOrDefault(advancedPaymentListEnabled ? Advanced : Normal, userSource =>
-      userSource
-    )
-  let isAdvancedSource = source === Advanced && advancedPaymentListEnabled
-  let (tableTitle, savedViewsEntity) = isAdvancedSource
+  //enablement of advanced view
+  let isAdvancedViewEnabled = isOpenSearchEnabled && devAdvancedPaymentsView
+
+  let defaultSource = isAdvancedViewEnabled ? Advanced : Normal
+  let (source, setSource) = React.useState(_ => getStoredPaymentListSource(~defaultSource))
+  let isAdvancedView = source === Advanced && isAdvancedViewEnabled
+  let (tableTitle, savedViewsEntity) = isAdvancedView
     ? (advancedOrdersTableTitle, PaymentAdvanced)
     : (ordersTableTitle, Payment)
   let ompViewPortalName = `${tableTitle}OMPView`
@@ -45,14 +50,13 @@ let make = (~previewOnly=false) => {
   let hasOmpViewPortal = portalNodes->getOptionValFromDict(ompViewPortalName)->Option.isSome
 
   let fetchOrdersWithSource = (~payload, ~version, ~signal) => {
-    isAdvancedSource
+    isOpenSearchEnabled
       ? fetchAnalyticsOrdersHook(~payload, ~version, ~signal)
       : fetchNormalOrdersHook(~payload, ~version, ~signal)
   }
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (orderData, setOrdersData) = React.useState(_ => [])
-  let (selectedRows, setSelectedRows) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filters, setFilters) = React.useState(_ => None)
@@ -161,7 +165,7 @@ let make = (~previewOnly=false) => {
         filterParams->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
         filterParams->Dict.set("limit", resultsPerPage->Int.toFloat->JSON.Encode.float)
         let trimmedSearchText = searchText->String.trim
-        if trimmedSearchText->isNonEmptyString && !isAdvancedSource {
+        if trimmedSearchText->isNonEmptyString && !isOpenSearchEnabled {
           filterParams->Dict.set("payment_id", trimmedSearchText->JSON.Encode.string)
         }
 
@@ -185,11 +189,11 @@ let make = (~previewOnly=false) => {
         })
         //to delete unused keys
         filterParams->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
-        if !isAdvancedSource {
+        if !isOpenSearchEnabled {
           advancedPaymentFilterCleanupKeys->Array.forEach(key => filterParams->Dict.delete(key))
         }
 
-        let requestPayload = isAdvancedSource
+        let requestPayload = isOpenSearchEnabled
           ? buildAdvancedPaymentListPayload(
               ~filterParams,
               ~searchText,
@@ -214,15 +218,15 @@ let make = (~previewOnly=false) => {
   }
 
   React.useEffect(() => {
-    setSelectedRows(_ => [])
-    if paymentListSourceResolved && filters->isNonEmptyValue {
+    if filters->isNonEmptyValue {
       fetchOrders()
     }
     None
-  }, (offset, filters, searchText, isAdvancedSource, paymentListSourceResolved, resultsPerPage))
+  }, (offset, filters, searchText, resultsPerPage))
 
-  let handleSourceChange = newSource => {
-    setSelectedSource(_ => Some(newSource))
+  let handleSourceChange = (newSource: paymentListSource) => {
+    HSLocalStorage.setPaymentListSourceInLocalStorage((newSource :> string))
+    setSource(_ => newSource)
     setOffset(_ => 0)
     setFilters(_ => None)
     reset()
@@ -230,11 +234,11 @@ let make = (~previewOnly=false) => {
   }
 
   React.useEffect(() => {
-    if isAdvancedSource {
+    if isAdvancedView {
       mixpanelEvent(~eventName="advanced_payment_list_viewed")
     }
     None
-  }, [isAdvancedSource])
+  }, [isAdvancedView])
 
   React.useEffect(() => {
     setSortAtom(_ =>
@@ -254,7 +258,7 @@ let make = (~previewOnly=false) => {
     />
   let hasSearchText = searchText->isNonEmptyString
   let filtersUI = React.useMemo(() => {
-    let searchPlaceholder = isAdvancedSource
+    let searchPlaceholder = isAdvancedView
       ? "Search ID, email, card last 4..."
       : "Search by payment ID"
     let searchBar =
@@ -264,7 +268,7 @@ let make = (~previewOnly=false) => {
     let searchBarWithInfo =
       <div className="flex items-center gap-2">
         {searchBar}
-        <RenderIf condition={isAdvancedSource}>
+        <RenderIf condition={isAdvancedView}>
           <ToolTip
             description=advancedPaymentSearchDescription
             toolTipFor={<span className="inline-flex h-10 items-center text-nd_gray-500">
@@ -287,7 +291,7 @@ let make = (~previewOnly=false) => {
       startTimeFilterKey={startTimeFilterKey(version)}
       initialFilters={(json, filterValues, removeKeys, filterKeys, setfilterKeys, version) =>
         initialFiltersWithSource(
-          ~isAdvancedSource,
+          ~isAdvancedView,
           json,
           filterValues,
           removeKeys,
@@ -313,53 +317,15 @@ let make = (~previewOnly=false) => {
       }}
       version
     />
-  }, (searchText, version, isAdvancedSource, devSavedViews))
+  }, (searchText, version, isAdvancedView, devSavedViews))
 
-  let selectedPaymentRows =
-    selectedRows->Array.filter(row =>
-      row->getDictFromJsonObject->getString("payment_id", "")->isNonEmptyString
-    )
-
-  let downloadData = () => {
-    let currentDate = Date.make()->Date.toISOString->dateFormat("YYYY-MM-DD")
-    DownloadUtils.downloadTableAsCsv(
-      ~csvHeaders,
-      ~rawData=selectedPaymentRows,
-      ~tableItemToObjMapper=dict => dict,
-      ~itemToCSVMapping=mapOrderDictToCsvRow,
-      ~fileName=`payments_${currentDate}.csv`,
-      ~toast=(~message, ~toastType) => showToast(~message, ~toastType),
-    )
-  }
-
-  let hasSelectedRows = selectedPaymentRows->isNonEmptyArray
-  let canExportSelectedRows = isAdvancedSource && hasSelectedRows
-  let exportButtonState: Button.buttonState = canExportSelectedRows ? Normal : Disabled
-  let exportTooltipText = !isAdvancedSource
-    ? "CSV export is available in Advanced after selecting payments."
-    : hasSelectedRows
-    ? "Export selected payments as CSV."
-    : "Select one or more payments to export CSV."
-  let selectedRowsCountClass = Button.useGetTextColor(
-    ~buttonType=Primary,
-    ~buttonState=exportButtonState,
-    ~showBorder=false,
-  )
-
-  let tableEntity = isAdvancedSource
+  let tableEntity = isAdvancedView
     ? openSearchOrderEntity(merchantId, orgId, ~devSortEnabled)
     : orderEntity(merchantId, orgId, ~version, ~devSortEnabled)
-  let customColumnMapper = isAdvancedSource
+  let customColumnMapper = isAdvancedView
     ? TableAtoms.ordersAdvancedMapDefaultCols
     : TableAtoms.ordersMapDefaultCols
-  let defaultColumns = isAdvancedSource ? openSearchDefaultColumns : defaultColumns
-  let checkBoxProps = isAdvancedSource
-    ? Some({
-        LoadedTable.showCheckBox: true,
-        selectedData: selectedRows,
-        setSelectedData: setSelectedRows,
-      })
-    : None
+  let defaultColumns = isAdvancedView ? openSearchDefaultColumns : defaultColumns
   let showGenerateReportAction = generateReport && email && version == V1
   let disableGenerateReport = orderData->isEmptyArray
 
@@ -369,34 +335,14 @@ let make = (~previewOnly=false) => {
       <div className="flex flex-wrap justify-between gap-3 items-start">
         <PageUtils.PageHeading title="Payment Operations" subTitle="" customTitleStyle />
         <div
-          className="flex flex-nowrap justify-end gap-2 items-center whitespace-nowrap overflow-x-auto no-scrollbar">
-          <div className="shrink-0">
-            <OrderListSourceControls.SourceTabs
-              source setSource=handleSourceChange advancedEnabled=advancedPaymentListEnabled
-            />
-          </div>
-          <ToolTip
-            description=exportTooltipText
-            toolTipFor={<Button
-              text="Export"
-              buttonType=Primary
-              buttonState=exportButtonState
-              buttonSize=Small
-              showBorder=false
-              customButtonStyle="justify-start !w-28"
-              customIconMargin="ml-2"
-              customTextPaddingClass="!pl-2 !pr-0"
-              leftIcon={CustomIcon(<Icon name="nd-download-bar-down" size=16 />)}
-              rightIcon={CustomIcon(
-                <span
-                  className={`inline-flex h-5 w-5 items-center justify-center rounded-full bg-white bg-opacity-20 ${body.md.medium} ${selectedRowsCountClass}`}>
-                  {selectedPaymentRows->Array.length->Int.toString->React.string}
-                </span>,
-              )}
-              onClick={_ => canExportSelectedRows ? downloadData() : ()}
-            />}
-            toolTipPosition=Top
-          />
+          className="flex flex-nowrap justify-end gap-2 items-center whitespace-nowrap overflow-x-auto no-scrollbar pr-px">
+          <RenderIf condition={isAdvancedViewEnabled}>
+            <div className="shrink-0">
+              <OrderListSourceControls.SourceTabs
+                source setSource=handleSourceChange advancedEnabled=isAdvancedViewEnabled
+              />
+            </div>
+          </RenderIf>
           <RenderIf condition=showGenerateReportAction>
             <div className="shrink-0">
               <GenerateReport entityName={V1(PAYMENT_REPORT)} disableReport=disableGenerateReport />
@@ -408,7 +354,7 @@ let make = (~previewOnly=false) => {
         <TransactionView
           entity=TransactionViewTypes.Orders
           version
-          isAdvancedView=isAdvancedSource
+          isAdvancedView
           allStatuses=transactionViewStatuses
         />
       </RenderIf>
@@ -449,7 +395,6 @@ let make = (~previewOnly=false) => {
           isDraggable=true
           isNewColumn=isOpenSearchNewColumn
           getNewColumnDescription=getOpenSearchNewColumnDescription
-          ?checkBoxProps
           visitedRows={{
             getId: (order: PaymentInterfaceTypes.order) => order.payment_id,
             prefix_key: "orders",

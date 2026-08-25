@@ -1,13 +1,12 @@
 @react.component
 let make = () => {
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
-  let {threeDsAuthenticatorProcessorsLiveList} =
-    HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
+  let {threeDsAuthenticatorProcessorsList} =
+    HyperswitchAtom.connectorDisplayListAtom->Recoil.useRecoilValueFromAtom
   let (
     filteredConnectorData: array<
       RescriptCore.Nullable.t<ConnectorTypes.connectorPayloadCommonType>,
@@ -101,9 +100,7 @@ let make = () => {
             ConnectorTypes.ThreeDsAuthenticator,
             configuredConnectors,
           )}
-          connectorsAvailableForIntegration={featureFlagDetails.isLiveMode
-            ? threeDsAuthenticatorProcessorsLiveList
-            : ConnectorUtils.threedsAuthenticatorList}
+          connectorsAvailableForIntegration={threeDsAuthenticatorProcessorsList}
           urlPrefix="3ds-authenticators/new"
           connectorType=ConnectorTypes.ThreeDsAuthenticator
         />

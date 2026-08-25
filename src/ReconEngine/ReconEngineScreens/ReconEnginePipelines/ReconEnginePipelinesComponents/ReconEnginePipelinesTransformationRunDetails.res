@@ -24,7 +24,6 @@ let make = (
   let (transformationConfig, setTransformationConfig) = React.useState(_ =>
     Dict.make()->transformationConfigItemToObjMapper
   )
-  let (showErrors, setShowErrors) = React.useState(_ => false)
 
   let fetchDetails = async () => {
     let requestedId = selectedTransformation.transformation_id
@@ -145,8 +144,8 @@ let make = (
               />
               <FunnelStat
                 label="Errors"
-                value={selectedTransformation.data.errors->Array.length}
-                valueColor={selectedTransformation.data.errors->isNonEmptyArray
+                value={selectedTransformation.data.failed_count}
+                valueColor={selectedTransformation.data.failed_count > 0
                   ? "text-nd_red-500"
                   : "text-nd_gray-800"}
               />
@@ -187,43 +186,6 @@ let make = (
               />
             </div>
             <div className="h-px bg-nd_gray-150" />
-            <RenderIf condition={selectedTransformation.data.errors->isNonEmptyArray}>
-              <div className="flex flex-col gap-2">
-                <div
-                  className="flex items-center gap-1.5 w-fit cursor-pointer"
-                  onClick={_ => setShowErrors(prev => !prev)}>
-                  <SectionTitle count={selectedTransformation.data.errors->Array.length}>
-                    {"Errors"->React.string}
-                  </SectionTitle>
-                  <Icon
-                    name="nd-chevron-down"
-                    size=16
-                    className={`shrink-0 text-nd_gray-500 transition-transform duration-200 ease-in-out ${showErrors
-                        ? "rotate-180"
-                        : ""}`}
-                  />
-                </div>
-                <div
-                  className={`flex flex-col gap-1.5 overflow-y-auto pr-1 transition-[max-height] duration-300 ease-in-out ${showErrors
-                      ? "max-h-48"
-                      : "max-h-0"}`}>
-                  {selectedTransformation.data.errors
-                  ->Array.mapWithIndex((error, index) =>
-                    <div
-                      key={index->Int.toString}
-                      className={`flex items-start gap-1.5 ${body.xs.regular} bg-nd_red-50 border border-nd_red-100 rounded-lg px-2.5 py-1.5 text-nd_red-600 break-words`}>
-                      <Icon
-                        name="nd-alert-triangle-outline"
-                        size=12
-                        className="text-nd_red-400 shrink-0 mt-0.5"
-                      />
-                      <span> {error->React.string} </span>
-                    </div>
-                  )
-                  ->React.array}
-                </div>
-              </div>
-            </RenderIf>
             <div className="flex flex-col gap-2">
               <SectionTitle> {"Parsing"->React.string} </SectionTitle>
               <div className="flex flex-col gap-1.5">

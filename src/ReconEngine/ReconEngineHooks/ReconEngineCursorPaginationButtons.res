@@ -6,25 +6,12 @@ let make = (
   ~onPrev: unit => unit,
   ~onNext: unit => unit,
 ) => {
-  let getButtonState = (cursor): Button.buttonState =>
-    cursor->Option.isNone || isLoading ? Button.Disabled : Button.Normal
-
-  <RenderIf condition=hasData>
-    <div className="flex flex-row justify-end items-center gap-3 py-4">
-      <Button
-        text="Prev"
-        buttonType=Secondary
-        buttonSize=Small
-        buttonState={getButtonState(cursors.prev)}
-        onClick={_ => onPrev()}
-      />
-      <Button
-        text="Next"
-        buttonType=Primary
-        buttonSize=Small
-        buttonState={getButtonState(cursors.next)}
-        onClick={_ => onNext()}
-      />
-    </div>
-  </RenderIf>
+  <PrevNextPaginationButtons
+    isLoading
+    hasData
+    prevDisabled={cursors.prev->Option.isNone}
+    nextDisabled={cursors.next->Option.isNone}
+    onPrev
+    onNext
+  />
 }

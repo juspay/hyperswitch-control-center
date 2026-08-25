@@ -18,7 +18,7 @@ type pipelineStatCardData = {
   pipelineStatCardTitle: pipelineStatCardTitle,
   pipelineStatCardValue: valueType,
   pipelineStatCardIcon: Button.iconType,
-  pipelineStatCardDescription: string,
+  pipelineStatCardDescription: statCardDescriptionType,
   pipelineStatCardType: statCardType,
   pipelineStatCardClickAction: pipelineStatCardClickAction,
 }
@@ -59,6 +59,8 @@ type stagingEntriesCursorPayload = {
   order: stagingEntrySortOrder,
   @as("sort_by") sortBy: ReconEngineTypes.cursor,
 }
+
+type reportFormat = | @as("csv") Csv
 
 type displayField = {
   label: string,

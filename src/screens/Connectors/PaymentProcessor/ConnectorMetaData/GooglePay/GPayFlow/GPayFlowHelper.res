@@ -113,7 +113,7 @@ module Landing = {
           <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
           <DirectFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
         </>
-      | Processors(NUVEI) | Processors(NMI) | Processors(STRIPE) =>
+      | Processors(NUVEI) | Processors(NMI) =>
         <>
           <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
           <PaymentGatewayFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
@@ -129,6 +129,7 @@ module Landing = {
           <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
           <PaymentGatewayFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
           <DirectFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
+          <PaymentGatewayPreDecryptFlow setGooglePayIntegrationType googlePayIntegrationType />
         </>
       }}
       <div className={`flex gap-2 justify-end`}>

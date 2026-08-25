@@ -85,6 +85,40 @@ Follow these simple steps to set up Hyperswitch on your local machine.
 
 ---
 
+## Git Hooks and Code Quality
+
+A `commit-msg` hook is automatically installed when you run `npm install` (`postinstall` sets `core.hooksPath` to `.githooks` and makes the hook executable). The hook runs on every `git commit` and checks:
+
+- **Formatting** of staged JavaScript, JSON, and YAML files with Prettier.
+- **Formatting** of staged ReScript files (`*.res`, `*.resi`).
+- **Conventional commit** message format (`feat:`, `fix:`, `chore:`, `refactor:`, `docs:`, `test:`, `style:`, `enhancement:`, `ci:`).
+
+TypeScript formatting (`*.ts`, `*.tsx`) and ESLint checks run in CI rather than in the hook, to keep local commits fast.
+
+If the hook reports unformatted files, fix them with:
+
+```bash
+npx prettier --write .
+npm run re:format
+```
+
+Then stage the changes and commit again.
+
+### What is checked where?
+
+| Check                                                  | Local `git commit` | CI (Pull Request)                           |
+| ------------------------------------------------------ | ------------------ | ------------------------------------------- |
+| `.res` / `.resi` formatting                            | ✅ Hook            | ✅ `npm run re:format:check` (check-only)   |
+| `.res` compiler warnings                               | ❌ not in hook     | ✅ `npm run re:build` (warnings are errors) |
+| `.js` / `.jsx` / `.json` / `.yml` / `.yaml` formatting | ✅ Hook            | ✅ `npm run format:check`                   |
+| `.ts` / `.tsx` formatting                              | ❌ not in hook     | ✅ `npm run format:check`                   |
+| TypeScript lint (`src/`)                               | ❌ not in hook     | ✅ `npm run lint:hooks`                     |
+| TypeScript lint (`playwright-tests/`)                  | ❌ not in hook     | ✅ `npm run lint:tests`                     |
+
+> Tip: You can bypass the hook with `git commit --no-verify`, but CI will still enforce the checks, so only use it in exceptional cases.
+
+---
+
 ## Feature Flags
 
 Feature flags allow the users to enable or disable certain functionalities or flows in the control center.

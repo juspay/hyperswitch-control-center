@@ -10,7 +10,6 @@ let make = () => {
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
-  let defaultPath = RevenueRecoveryHooks.useGetDefaultPath()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
@@ -52,18 +51,6 @@ let make = () => {
           />
         </div>}
       </AccessControl>
-    | list{"v2", "recovery", "overview", ...remainingPath} =>
-      if hasConfiguredBillingConnector {
-        <EntityScaffold
-          entityName="Payments"
-          remainingPath
-          access=Access
-          renderList={() => <RevenueRecoveryAnalytics />}
-          renderCustomWithOMP={(_, _, _, _) => <RevenueRecoveryAnalytics />}
-        />
-      } else {
-        <RevenueRecoveryOnboardingLanding createMerchant=false />
-      }
     | list{"v2", "recovery", "invoices", ...remainingPath} =>
       if hasConfiguredBillingConnector {
         <EntityScaffold
@@ -86,7 +73,7 @@ let make = () => {
         <RevenueRecoveryOnboardingLanding createMerchant=false />
       }
     | list{"unauthorized"} => <UnauthorizedPage />
-    | _ => <EmptyPage path=defaultPath />
+    | _ => <EmptyPage path=RevenueRecoverySidebarValues.defaultPath />
     }}
   </PageLoaderWrapper>
 }

@@ -1,4 +1,5 @@
 import { test, expect } from "../../support/test";
+import type { Page } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { PaymentSettings } from "../../support/pages/developers/PaymentSettings";
 import { SurchargeProcessor } from "../../support/pages/connector/SurchargeProcessor";
@@ -14,8 +15,29 @@ import { vaultProcessorConfig } from "../../support/fixtures/vaultProcessorConfi
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
+async function configureInterPaymentsSurchargeProcessor(
+  page: Page,
+): Promise<void> {
+  const homePage = new HomePage(page);
+  const surchargeProcessor = new SurchargeProcessor(page);
+
+  await homePage.connectors.click();
+  await homePage.surchargeConnectors.click();
+  await expect(page).toHaveURL(/.*dashboard\/surcharge-processor/);
+
+  await expect(surchargeProcessor.connectNowOrConnectButton).toBeVisible();
+  await surchargeProcessor.connectNowOrConnectButton.click();
+  await page
+    .locator('[name*="api_key"]')
+    .first()
+    .fill("interpayments_test_api_key");
+  await surchargeProcessor.connectAndProceedButton.click();
+  await surchargeProcessor.doneButton.click();
+  await expect(page.getByTestId("interpayments_default")).toBeVisible();
+}
+
 test.describe("Payment Settings", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -62,7 +84,6 @@ test.describe("Payment Settings", () => {
       const homePage = new HomePage(page);
       const paymentSettings = new PaymentSettings(page);
       const vaultProcessor = new VaultProcessor(page);
-      const surchargeProcessor = new SurchargeProcessor(page);
 
       await homePage.connectors.click();
       await homePage.vaultConnectors.click();
@@ -75,17 +96,7 @@ test.describe("Payment Settings", () => {
       await page.waitForLoadState("networkidle");
       await vaultProcessor.doneButton.click();
 
-      await homePage.connectors.click();
-      await homePage.surchargeConnectors.click();
-      await expect(page).toHaveURL(/.*dashboard\/surcharge-processor/);
-
-      await expect(
-        surchargeProcessor.connectNowOrConnectButton,
-      ).toBeVisible();
-      await surchargeProcessor.connectNowOrConnectButton.click();
-      await page.locator('[name*="api_key"]').first().fill("interpayments_test_api_key");
-      await surchargeProcessor.connectAndProceedButton.click();
-      await surchargeProcessor.doneButton.click();
+      await configureInterPaymentsSurchargeProcessor(page);
 
       await homePage.developer.click();
       await homePage.paymentSettings.click();
@@ -117,6 +128,90 @@ test.describe("Payment Settings", () => {
     });
   });
 
+  test.describe("Surcharge Tab", () => {
+    const connectorLabel = "interpayments_default";
+
+    test.beforeEach(async ({ page }) => {
+      await page.route("**/dashboard/config/feature*", async (route) => {
+        const response = await route.fetch();
+        const json = await response.json();
+        if (json.features) {
+          json.features.surcharge_processor = true;
+        }
+        await route.fulfill({ response, json });
+      });
+      await page.reload({ waitUntil: "domcontentloaded" });
+
+      await configureInterPaymentsSurchargeProcessor(page);
+
+      const homePage = new HomePage(page);
+      const paymentSettings = new PaymentSettings(page);
+      await homePage.developer.click();
+      await homePage.paymentSettings.click();
+      await expect(paymentSettings.surchargeTab).toBeVisible();
+      await paymentSettings.surchargeTab.click();
+    });
+
+    test("should display the configured surcharge processor in Payment Settings", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await expect(paymentSettings.surchargeConnectorsLabel).toBeVisible();
+      await expect(paymentSettings.surchargeConnectorDropdown).toBeVisible();
+      await expect(paymentSettings.updateButton).toBeVisible();
+
+      await paymentSettings.surchargeConnectorDropdown.click();
+      await expect(
+        paymentSettings.surchargeConnectorOption(connectorLabel),
+      ).toBeVisible();
+    });
+
+    test("should update and persist the surcharge processor on the business profile", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await paymentSettings.surchargeConnectorDropdown.click();
+      const connectorOption =
+        paymentSettings.surchargeConnectorOption(connectorLabel);
+      await expect(connectorOption).toBeVisible();
+
+      const connectorOptionValue =
+        await connectorOption.getAttribute("data-id");
+      const connectorId = connectorOptionValue?.match(/mca_[A-Za-z0-9]+/)?.[0];
+      expect(connectorId).toMatch(/^mca_/);
+      await connectorOption.click();
+
+      await expect(
+        paymentSettings.selectedSurchargeConnector(connectorLabel),
+      ).toBeVisible();
+
+      const updateRequestPromise = page.waitForRequest(
+        (request) =>
+          request.method() === "POST" &&
+          /\/account\/[^/]+\/business_profile\/[^/?]+$/.test(request.url()),
+      );
+      await paymentSettings.clickUpdate();
+      const updateRequest = await updateRequestPromise;
+      const requestBody = updateRequest.postDataJSON();
+
+      expect(requestBody.surcharge_connector_details).toEqual({
+        surcharge_connector_id: connectorId,
+      });
+      await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
+        timeout: 10000,
+      });
+
+      await page.reload();
+      await paymentSettings.surchargeTab.click();
+
+      await expect(
+        paymentSettings.selectedSurchargeConnector(connectorLabel),
+      ).toBeVisible();
+    });
+  });
+
   test.describe("Payment Behaviour Tab", () => {
     test.beforeEach(async ({ page }) => {
       const homePage = new HomePage(page);
@@ -137,6 +232,10 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.merchantCategoryCodeDropdown).toBeVisible();
       await expect(paymentSettings.clickToPayToggle).toBeVisible();
       await expect(paymentSettings.paymentMethodBlocking).toBeVisible();
+      await expect(paymentSettings.applePayPaymentMethodBlocking).toBeVisible();
+      await expect(
+        paymentSettings.googlePayPaymentMethodBlocking,
+      ).toBeVisible();
       await expect(paymentSettings.returnUrlInput).toBeVisible();
       await expect(paymentSettings.webhookUrlInput).toBeVisible();
       await expect(paymentSettings.updateButton).toBeVisible();
@@ -154,6 +253,52 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.webhookUrlInput).toHaveValue(
         "https://example.com/webhook",
       );
+    });
+
+    test("should submit nested wallet payment method blocking payload", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await expect(paymentSettings.applePayPaymentMethodBlocking).toBeVisible();
+      await expect(
+        paymentSettings.googlePayPaymentMethodBlocking,
+      ).toBeVisible();
+
+      await paymentSettings
+        .paymentMethodBlockingCardTypesDropdown("Apple Pay")
+        .click();
+      await paymentSettings.dropdownValueByText("Credit").click();
+      await page.keyboard.press("Escape");
+
+      await expect(
+        paymentSettings.dropdownValueByText("Credit"),
+      ).not.toBeVisible();
+
+      await paymentSettings
+        .paymentMethodBlockingCardTypesDropdown("Google Pay")
+        .click();
+      await paymentSettings.dropdownValueByText("Debit").click();
+      await page.keyboard.press("Escape");
+
+      const updateRequestPromise = page.waitForRequest(
+        (request) =>
+          request.method() === "POST" &&
+          request.url().includes("/business_profile/"),
+      );
+
+      await paymentSettings.clickUpdate();
+
+      const updateRequest = await updateRequestPromise;
+      const payload = updateRequest.postDataJSON();
+      const walletBlocking = payload.payment_method_blocking.wallet;
+
+      expect(walletBlocking.card_types).toBeUndefined();
+      expect(walletBlocking.apple_pay.card_types).toEqual(["credit"]);
+      expect(walletBlocking.google_pay.card_types).toEqual(["debit"]);
+      await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
+        timeout: 10000,
+      });
     });
 
     test("should save toggle, form, and dropdown values when Update is clicked", async ({
@@ -397,7 +542,7 @@ test.describe("Payment Settings", () => {
 
       await expect(paymentSettings.clickToPayConnectorDropdown).toBeVisible();
       await paymentSettings.clickToPayConnectorDropdown.click();
-      await paymentSettings.dropdownValueByText(connectorLabel).click();
+      await page.getByRole("menuitem", { name: connectorLabel }).click();
 
       await paymentSettings.clickUpdate();
       await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
@@ -465,7 +610,6 @@ test.describe("Payment Settings", () => {
       const paymentSettings = new PaymentSettings(page);
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
-      const connectorName = "juspaythreedsserver";
       if (merchantId) {
         await createAuthenticationConnectorAPI(
           merchantId,
@@ -495,7 +639,7 @@ test.describe("Payment Settings", () => {
       const requestorAppUrl = "https://example.com/3ds-requestor-app";
 
       await paymentSettings.selectFieldDropdown().click();
-      await page.getByRole('option', { name: 'juspaythreedsserver' }).click();
+      await page.getByRole("option", { name: "juspaythreedsserver" }).click();
       await page.keyboard.press("Escape");
 
       await paymentSettings.threeDsRequestorUrlInput.fill(requestorUrl);
@@ -522,9 +666,11 @@ test.describe("Payment Settings", () => {
       );
 
       // Verify the connector is the selected option in the multi-select
-      await page.getByRole('button', { name: 'Select Field1' }).click();
+      await page.getByRole("button", { name: "Select Field1" }).click();
       await expect(
-        page.getByRole('option', { name: 'juspaythreedsserver' }).getByRole('checkbox')
+        page
+          .getByRole("option", { name: "juspaythreedsserver" })
+          .getByRole("checkbox"),
       ).toHaveAttribute("data-state", "checked");
     });
   });

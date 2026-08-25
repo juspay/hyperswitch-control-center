@@ -1,6 +1,20 @@
 open LogicUtils
 open OrderTypes
 open CommonAuthUtils
+
+let getPaymentListSourceFromString = (~defaultSource, source) =>
+  switch source {
+  | "Normal" => Normal
+  | "Advanced" => Advanced
+  | _ => defaultSource
+  }
+
+let getStoredPaymentListSource = (~defaultSource) =>
+  switch HSLocalStorage.getPaymentListSourcefromLocalStorage() {
+  | Some(source) => source->getPaymentListSourceFromString(~defaultSource)
+  | None => defaultSource
+  }
+
 let getFilterTypeFromString = (filterType): filter => {
   switch filterType {
   | "connector" => #connector
@@ -306,7 +320,6 @@ let advancedPaymentFilterTypes: array<filter> = [
   #customer_email,
   #card_last_4,
   #active_attempt_id,
-  #merchant_connector_id,
   #refunds_status,
   #dispute_status,
   #routing_approach,
@@ -352,9 +365,11 @@ let getAdvancedPaymentFilterDescription = key =>
 let advancedPaymentTextListFilterTypes: array<filter> = [
   #card_last_4,
   #active_attempt_id,
-  #merchant_connector_id,
   #card_issuer,
 ]
+
+let advancedPaymentTextListFilterKeys =
+  advancedPaymentTextListFilterTypes->Array.map(getValueFromFilterType)
 
 let advancedRoutingApproaches: array<advancedRoutingApproach> = [
   #default_fallback,
@@ -408,6 +423,11 @@ let setBoolListFilter = (dict, key) =>
   | None => ()
   }
 
+let normalizeAdvancedPaymentListFilters = dict => {
+  advancedPaymentTextListFilterKeys->Array.forEach(key => dict->setStringListFilter(key))
+  dict->setBoolListFilter(firstAttemptFilterKey)
+}
+
 let buildAdvancedPaymentListPayload = (
   ~filterParams: Dict.t<JSON.t>,
   ~searchText,
@@ -418,10 +438,7 @@ let buildAdvancedPaymentListPayload = (
   let body = filterParams->Dict.copy
 
   unsupportedAdvancedPaymentFilterKeys->Array.forEach(key => body->Dict.delete(key))
-  advancedPaymentTextListFilterTypes
-  ->Array.map(getValueFromFilterType)
-  ->Array.forEach(key => body->setStringListFilter(key))
-  body->setBoolListFilter(firstAttemptFilterKey)
+  body->normalizeAdvancedPaymentListFilters
 
   if trimmedSearchText->isNonEmptyString {
     body->Dict.delete(startTimeKey)
@@ -446,7 +463,7 @@ let buildAdvancedPaymentListPayload = (
 }
 
 let initialFiltersWithSource = (
-  ~isAdvancedSource=false,
+  ~isAdvancedView=false,
   json,
   filterValues,
   removeKeys,
@@ -470,7 +487,7 @@ let initialFiltersWithSource = (
 
   let additionalFilters =
     [#payment_method_type, #customer_id, #amount, #merchant_order_reference_id]
-    ->Array.concat(isAdvancedSource ? advancedPaymentFilterTypes : [])
+    ->Array.concat(isAdvancedView ? advancedPaymentFilterTypes : [])
     ->Array.map(getLabelFromFilterType)
 
   let allFiltersArray = filtersArray->Array.concat(additionalFilters)
@@ -502,15 +519,15 @@ let initialFiltersWithSource = (
       advancedRoutingApproaches->Array.map(routingApproach => (routingApproach :> string))
     | _ => []
     }
-    let values = isAdvancedSource
+    let values = isAdvancedView
       ? Array.concat(values, staticValues)->Array.filter(isNonEmptyString)->getUniqueArray
       : values
 
     let title = `Select ${key->snakeToTitle}`
     let filterKey = filterType->getValueFromFilterType
     let labelRightComponent =
-      isAdvancedSource &&
-      advancedPaymentOnlyFilterKeys->Array.includes(filterKey) &&
+      isAdvancedView &&
+      advancedPaymentFilterTypes->Array.includes(filterType) &&
       !(filterKeys->Array.includes(filterKey))
         ? Some(<NewFeatureTag description={filterKey->getAdvancedPaymentFilterDescription} />)
         : None
@@ -527,7 +544,6 @@ let initialFiltersWithSource = (
     | #customer_email
     | #card_last_4
     | #active_attempt_id
-    | #merchant_connector_id
     | #card_issuer =>
       (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) =>
         InputFields.textInput(
@@ -575,7 +591,7 @@ let initialFiltersWithSource = (
 
 let initialFilters = (json, filterValues, removeKeys, filterKeys, setfilterKeys, version) =>
   initialFiltersWithSource(
-    ~isAdvancedSource=false,
+    ~isAdvancedView=false,
     json,
     filterValues,
     removeKeys,

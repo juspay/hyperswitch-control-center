@@ -7,14 +7,13 @@ import {
   signupUser,
   loginUI,
   createDummyConnectorAPI,
-  createMerchantAPI,
 } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 async function loginAndVisit(
   page: Page,
-  flagEnabled = true,
+  _flagEnabled = true,
 ): Promise<ConfigurePMTPage> {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD);

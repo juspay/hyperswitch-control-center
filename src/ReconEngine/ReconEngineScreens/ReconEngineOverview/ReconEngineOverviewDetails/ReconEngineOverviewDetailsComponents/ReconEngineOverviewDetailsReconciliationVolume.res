@@ -9,18 +9,25 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   let getOverviewRulesTimeSeries = ReconEngineHooks.useGetOverviewRulesTimeSeries()
 
   let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let filterValueJsonWithGlobalDate = ReconEngineFilterUtils.mergeGlobalDateFilters(
+    ~filterValueJson,
+    ~globalDateFilters,
+  )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (chartPoints, setChartPoints) = React.useState(_ => [])
 
-  let startTime = filterValueJson->getString(startTimeFilterKey, "")
-  let endTime = filterValueJson->getString(endTimeFilterKey, "")
+  let startTime = filterValueJsonWithGlobalDate->getString(startTimeFilterKey, "")
+  let endTime = filterValueJsonWithGlobalDate->getString(endTimeFilterKey, "")
 
   let fetchReconciliationVolume = async () => {
     open ReconEngineFilterUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let granularity = getOverviewChartGranularity(~startTime, ~endTime)
-      let baseQueryParams = buildQueryStringFromFilters(~filterValueJson)
+      let baseQueryParams = buildQueryStringFromFilters(
+        ~filterValueJson=filterValueJsonWithGlobalDate,
+      )
       let granularityParam = `granularity=${(granularity :> string)}&rule_ids=${ruleDetails.rule_id}`
       let queryParams =
         baseQueryParams->isNonEmptyString
@@ -38,11 +45,11 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   }
 
   React.useEffect(() => {
-    if !(filterValue->isEmptyDict) {
+    if ReconEngineFilterUtils.hasGlobalDateFilterValue(~globalDateFilters) {
       fetchReconciliationVolume()->ignore
     }
     None
-  }, [filterValue])
+  }, (filterValue, globalDateFilters))
 
   let onPointClick = seriesName => {
     let statusFilter = getOverviewChartSeriesStatusFilter(seriesName)

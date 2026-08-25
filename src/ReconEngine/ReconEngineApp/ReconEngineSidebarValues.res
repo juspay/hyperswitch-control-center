@@ -66,12 +66,17 @@ let reconEngineSidebars = (
     selectedIcon: "nd-pipelines-fill",
   })
 
-  let sidebars = [reconOverview, reconTransactions, exceptions, reconRuleCreation]
+  let sidebars = [
+    reconOverview,
+    reconTransactions,
+    exceptions,
+    reconTransformedEntries,
+    reconRuleCreation,
+  ]
 
   if isReconEnginePipelinesEnabled {
     sidebars->Array.push(reconPipelines)
   }
-  sidebars->Array.push(reconTransformedEntries)
 
   sidebars
 }

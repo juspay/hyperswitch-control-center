@@ -77,6 +77,7 @@ type featureFlag = {
   devUsers: bool,
   allowConnectedMerchants: bool,
   devOpensearch: bool,
+  devAdvancedPaymentsView: bool,
   devVault: bool,
   networkTokenization: bool,
   vaultPspTokenization: bool,
@@ -87,6 +88,8 @@ type featureFlag = {
   devClickhouseAggregate: bool,
   connectorClone: bool,
   sendV1DummyApiKeyHeader: bool,
+  cugUser: bool,
+  devSuperposition: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -166,6 +169,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devUsers: dict->getBool("dev_users", false),
     allowConnectedMerchants: dict->getBool("allow_connected_merchants", false),
     devOpensearch: dict->getBool("dev_opensearch", false),
+    devAdvancedPaymentsView: dict->getBool("dev_advanced_payments_view", false),
     devVault: dict->getBool("dev_vault", false),
     networkTokenization: dict->getBool("network_tokenization", false),
     vaultPspTokenization: dict->getBool("vault_psp_tokenization", false),
@@ -176,6 +180,8 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devClickhouseAggregate: dict->getBool("dev_clickhouse_aggregate", false),
     connectorClone: dict->getBool("connector_clone", false),
     sendV1DummyApiKeyHeader,
+    cugUser: dict->getBool("cug_user", false),
+    devSuperposition: dict->getBool("dev_superposition", false),
   }
 }
 

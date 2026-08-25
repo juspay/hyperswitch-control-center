@@ -32,6 +32,7 @@ let make = (~refreshTrigger=false) => {
         ->Dict.fromArray
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
         ~filterValueJson=dateRangeFilterValueJson,
+        ~convertToLocal=false,
       )
       let ingestionHistoryFetch = getIngestionHistory(~queryParameters=Some(queryString))
       let stagingEntriesOverviewFetch = getStagingEntriesOverview(
@@ -45,7 +46,7 @@ let make = (~refreshTrigger=false) => {
       setStagingOverviewData(_ => stagingOverviewData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
 

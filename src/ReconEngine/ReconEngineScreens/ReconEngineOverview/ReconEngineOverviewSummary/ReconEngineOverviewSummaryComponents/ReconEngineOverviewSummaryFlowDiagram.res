@@ -194,6 +194,7 @@ module FlowWithLayoutControls = {
 let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   open ReconEngineOverviewSummaryUtils
   open ReactFlow
+  open ReconEngineFilterUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (selectedNodeId, setSelectedNodeId) = React.useState(_ => None)
@@ -201,46 +202,27 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   let getRuleAccountBreakdown = ReconEngineHooks.useGetRuleAccountBreakdown()
   let (reactFlowNodes, setNodes, onNodesChange) = useNodesState([])
   let (reactFlowEdges, setEdges, onEdgesChange) = useEdgesState([])
-  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
-  let graphContainerRef = React.useRef(Nullable.null)
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let filterValueJsonWithGlobalDate = mergeGlobalDateFilters(
+    ~filterValueJson=Dict.make(),
+    ~globalDateFilters,
+  )
   let (isFullscreen, setIsFullscreen) = React.useState(_ => false)
 
-  let syncFullscreenState = _ => {
-    let isGraphFullscreen = switch (
-      Webapi.Dom.document->Document.Fullscreen.getElement,
-      graphContainerRef.current->Nullable.toOption,
-    ) {
-    | (Some(fullscreenElement), Some(graphElement)) => fullscreenElement === graphElement
-    | _ => false
-    }
-    setIsFullscreen(_ => isGraphFullscreen)
-  }
-
-  let toggleFullscreen = () => {
-    let fullscreenAction = switch Webapi.Dom.document->Document.Fullscreen.getElement {
-    | Some(_) => Webapi.Dom.document->Document.Fullscreen.exit
-    | None =>
-      switch graphContainerRef.current->Nullable.toOption {
-      | Some(graphElement) => graphElement->Document.Fullscreen.request
-      | None => Promise.resolve()
-      }
-    }
-    fullscreenAction->Promise.catch(_ => Promise.resolve())->ignore
-  }
+  let toggleFullscreen = () => setIsFullscreen(prev => !prev)
 
   React.useEffect(() => {
-    Webapi.Dom.document->Webapi.Dom.Document.addEventListener(
-      "fullscreenchange",
-      syncFullscreenState,
-    )
-    Some(
-      () =>
-        Webapi.Dom.document->Webapi.Dom.Document.removeEventListener(
-          "fullscreenchange",
-          syncFullscreenState,
-        ),
-    )
-  }, [])
+    let handleKeyUp = ev => {
+      open ReactEvent.Keyboard
+      if ev->key === "Escape" || ev->keyCode === 27 {
+        setIsFullscreen(_ => false)
+      }
+    }
+    if isFullscreen {
+      Window.addEventListener("keyup", handleKeyUp)
+    }
+    Some(() => Window.removeEventListener("keyup", handleKeyUp))
+  }, [isFullscreen])
 
   let handleNodeClick = (nodeId: string) => {
     setSelectedNodeId(prev => {
@@ -255,7 +237,7 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
 
-      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+      let queryString = buildQueryStringFromFilters(~filterValueJson=filterValueJsonWithGlobalDate)
       let ruleAccountsOverview = await getRuleAccountBreakdown(~queryParameters=Some(queryString))
 
       setAllData(_ => Some(ruleAccountsOverview))
@@ -280,11 +262,11 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   }
 
   React.useEffect(() => {
-    if !(filterValue->isEmptyDict) {
+    if hasGlobalDateFilterValue(~globalDateFilters) {
       getAccountsData()->ignore
     }
     None
-  }, [filterValue])
+  }, [globalDateFilters])
 
   React.useEffect(() => {
     switch allData {
@@ -305,11 +287,11 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
     None
   }, [selectedNodeId])
 
-  let fullScreenClass = isFullscreen ? "h-screen w-screen" : "h-30-rem w-full"
+  let fullScreenClass = isFullscreen
+    ? "fixed inset-0 z-50 h-screen w-screen rounded-none"
+    : "h-30-rem w-full rounded-xl"
 
-  <div
-    ref={graphContainerRef->ReactDOM.Ref.domRef}
-    className={`border rounded-xl border-nd_gray-200 overflow-auto bg-white ${fullScreenClass}`}>
+  <div className={`border border-nd_gray-200 overflow-auto bg-white ${fullScreenClass}`}>
     <PageLoaderWrapper
       screenState
       customUI={<NewAnalyticsHelper.NoData height="h-30-rem" message="No data available." />}

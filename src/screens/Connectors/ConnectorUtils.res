@@ -17,6 +17,10 @@ let getStepName = step => {
   | AutomaticFlow => "AutomaticFlow"
   }
 }
+// Any connector added to these lists must also be added to the matching
+// connector_list_for_live key in the env config otherwise it won't appear
+// once the config-driven list takes over. These lists remain the fallback used
+// when a category is missing from the config.
 
 let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(ADYEN),
@@ -36,6 +40,8 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(TRUELAYER),
   PayoutProcessor(ENVOY),
   PayoutProcessor(TRUSTLY),
+  PayoutProcessor(SANTANDER),
+  PayoutProcessor(DEUTSCHEBANK),
 ]
 
 let payoutConnectorListForLive: array<connectorTypes> = [
@@ -1053,6 +1059,8 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | TRUELAYER => "truelayer"
   | ENVOY => "envoy"
   | TRUSTLY => "trustly"
+  | SANTANDER => "santander"
+  | DEUTSCHEBANK => "deutschebank"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -1265,6 +1273,8 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "truelayer" => PayoutProcessor(TRUELAYER)
     | "envoy" => PayoutProcessor(ENVOY)
     | "trustly" => PayoutProcessor(TRUSTLY)
+    | "santander" => PayoutProcessor(SANTANDER)
+    | "deutschebank" => PayoutProcessor(DEUTSCHEBANK)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1454,6 +1464,8 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | TRUELAYER => truelayerInfo
   | ENVOY => envoyInfo
   | TRUSTLY => trustlyInfo
+  | SANTANDER => santanderInfo
+  | DEUTSCHEBANK => deutscheBankInfo
   }
 }
 
@@ -2452,6 +2464,8 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | TRUELAYER => "Truelayer"
   | ENVOY => "Worldpay Envoy"
   | TRUSTLY => "Trustly"
+  | SANTANDER => "Santander"
+  | DEUTSCHEBANK => "Deutsche Bank"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>

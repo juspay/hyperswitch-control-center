@@ -3,7 +3,6 @@ type balanceType = {
   currency: string,
 }
 
-@unboxed
 type accountTypeVariant =
   | @as("credit") Credit
   | @as("debit") Debit
@@ -52,7 +51,6 @@ type reconRuleType = {
   targets: array<reconRuleAccountRefType>,
 }
 
-@unboxed
 type mismatchType =
   | @as("amount_mismatch") AmountMismatch
   | @as("balance_direction_mismatch") BalanceDirectionMismatch
@@ -74,7 +72,7 @@ type transformationData = {
   transformed_count: int,
   ignored_count: int,
   staging_entry_ids: array<string>,
-  errors: array<string>,
+  failed_count: int,
 }
 
 type ingestionHistoryType = {
@@ -118,6 +116,10 @@ type skipConditionOperator =
   | NotEquals
   | Contains
   | NotContains
+  | StartsWith
+  | NotStartsWith
+  | EndsWith
+  | NotEndsWith
   | UnknownSkipConditionOperator
 
 type skipCondition = {
@@ -161,7 +163,6 @@ type ruleType = {
   rule_name: string,
 }
 
-@unboxed
 type transactionStatus =
   | @as("posted") Posted
   | @as("matched") Matched
@@ -172,13 +173,11 @@ type transactionStatus =
   | @as("partially_reconciled") PartiallyReconciled
   | @as("unknown") UnknownTransactionStatus
 
-@unboxed
 type entryDirectionType =
   | @as("debit") Debit
   | @as("credit") Credit
   | UnknownEntryDirectionType
 
-@unboxed
 type entryStatus =
   | @as("posted") Posted
   | @as("matched") Matched
@@ -204,13 +203,20 @@ type matchedDataType =
   | @as("manual") Manual
   | @as("unknown") UnknownMatchedDataType
 
+type mismatchedFieldType = {
+  field_name: string,
+  field_label: option<string>,
+  expected_value: string,
+  actual_value: string,
+}
+
 type transactionDataType = {
   status: transactionStatus,
   matched_data_type: option<matchedDataType>,
   reason: option<string>,
+  mismatched_fields: array<mismatchedFieldType>,
 }
 
-@unboxed
 type domainTransactionMatchedStatus =
   | Auto
   | Manual
@@ -218,12 +224,10 @@ type domainTransactionMatchedStatus =
   | WithTolerance
   | UnknownDomainTransactionMatchedStatus
 
-@unboxed
 type domainTransactionPostedStatus =
   | Manual
   | UnknownDomainTransactionPostedStatus
 
-@unboxed
 type domainTransactionAmountMismatchStatus =
   | Expected
   | Mismatch
@@ -250,6 +254,12 @@ type linkedTransactionType = {
   transaction_status: domainTransactionStatus,
 }
 
+type modifiedByType = {
+  id: string,
+  name: string,
+  email: string,
+}
+
 type transactionType = {
   id: string,
   transaction_id: string,
@@ -265,6 +275,8 @@ type transactionType = {
   effective_at: string,
   data: transactionDataType,
   linked_transaction: option<linkedTransactionType>,
+  modified_by: option<modifiedByType>,
+  has_more_entries: bool,
 }
 
 type entryType = {
@@ -285,38 +297,31 @@ type entryType = {
   effective_at: string,
   staging_entry_id: option<string>,
   transformation_id: option<string>,
+  transformation_name: option<string>,
 }
 
-type processingEntryStatus =
-  | @as("pending") Pending
-  | @as("processed") Processed
-  | @as("needs_manual_review") NeedsManualReview
-  | @as("archived") Archived
-  | @as("void") Void
-  | @as("unknown") UnknownProcessingEntryStatus
+type processingEntryDiscardedDataType = {reason: string}
 
-@unboxed
-type needsManualReviewType =
+type stagingEntryManualReviewData =
   | @as("no_rules_found") NoRulesFound
-  | @as("staging_entry_currency_mismatch") StagingEntryCurrencyMismatch
+  | @as("currency_mismatch") CurrencyMismatch
   | @as("missing_search_identifier_value") MissingSearchIdentifierValue
   | @as("duplicate_entry") DuplicateEntry
   | @as("no_expectation_entry_found") NoExpectationEntryFound
-  | @as("multiple_excepted_entries_found") MultipleExceptedEntriesFound
+  | @as("multiple_expected_entries_found") MultipleExpectedEntriesFound
   | @as("missing_match_field") MissingMatchField
   | @as("missing_unique_field") MissingUniqueField
   | @as("missing_grouping_field") MissingGroupingField
-  | @as("unknown") UnknownNeedsManualReviewType
+  | @as("internal_error") InternalError
+  | @as("unknown") UnknownStagingEntryManualReviewData
 
-type processingEntryDataType = {
-  status: processingEntryStatus,
-  needs_manual_review_type: needsManualReviewType,
-}
-
-type processingEntryDiscardedDataType = {
-  status: processingEntryStatus,
-  reason: string,
-}
+type domainStagingEntryStatus =
+  | Pending
+  | NeedsManualReview(stagingEntryManualReviewData)
+  | Processed
+  | Void
+  | Archived
+  | UnknownDomainStagingEntryStatus
 
 type processingEntryType = {
   id: string,
@@ -325,7 +330,7 @@ type processingEntryType = {
   entry_type: string,
   amount: float,
   currency: string,
-  status: processingEntryStatus,
+  status: domainStagingEntryStatus,
   processing_mode: string,
   metadata: Js.Json.t,
   transformation_config: transformationConfigRefType,
@@ -333,8 +338,7 @@ type processingEntryType = {
   effective_at: string,
   order_id: string,
   version: int,
-  discarded_status: option<string>,
-  data: processingEntryDataType,
+  discarded_status: option<domainStagingEntryStatus>,
   discarded_data: option<processingEntryDiscardedDataType>,
 }
 
@@ -577,13 +581,12 @@ type overviewRulesTimeSeriesResponse = {
 }
 
 type stagingEntryOverviewStatusAmount = {
-  status: processingEntryStatus,
+  status: domainStagingEntryStatus,
   count: int,
 }
 
 type accountStagingEntriesOverview = {status_breakdown: array<stagingEntryOverviewStatusAmount>}
 
-@unboxed
 type ruleAccountTypeVariant =
   | @as("source") Source
   | @as("target") Target

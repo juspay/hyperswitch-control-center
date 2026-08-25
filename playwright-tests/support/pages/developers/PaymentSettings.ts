@@ -58,6 +58,28 @@ export class PaymentSettings {
     return this.page.getByRole("tab", { name: "Surcharge", exact: true });
   }
 
+  // Surcharge Tab Elements
+  get surchargeConnectorsLabel(): Locator {
+    return this.page.getByText("Surcharge Connectors *", { exact: true });
+  }
+
+  get surchargeConnectorDropdown(): Locator {
+    return this.page.getByRole("button", { name: "Select Field" });
+  }
+
+  surchargeConnectorOption(connectorLabel: string): Locator {
+    return this.page
+      .getByRole("menuitem")
+      .filter({ hasText: connectorLabel })
+      .first();
+  }
+
+  selectedSurchargeConnector(connectorLabel: string): Locator {
+    return this.page.getByRole("button", {
+      name: new RegExp(connectorLabel),
+    });
+  }
+
   // Payment Behaviour Tab Elements
   get collectBillingDetailsToggle(): Locator {
     return this.page.getByText("Collect billing details from wallets");
@@ -107,6 +129,26 @@ export class PaymentSettings {
     return this.page.getByText("Payment Method Blocking");
   }
 
+  get applePayPaymentMethodBlocking(): Locator {
+    return this.page.getByText("Apple Pay", { exact: true });
+  }
+
+  get googlePayPaymentMethodBlocking(): Locator {
+    return this.page.getByText("Google Pay", { exact: true });
+  }
+
+  paymentMethodBlockingCardTypesDropdown(label: string): Locator {
+    return this.page
+      .locator("div", {
+        has: this.page.getByText(label, { exact: true }),
+      })
+      .filter({
+        has: this.page.getByRole("button", { name: "Select Card Types" }),
+      })
+      .last()
+      .getByRole("button", { name: "Select Card Types" });
+  }
+
   get maxAutoRetriesInput(): Locator {
     return this.page.getByPlaceholder("Enter number of max auto retries");
   }
@@ -135,12 +177,11 @@ export class PaymentSettings {
   }
 
   dropdownValue(value: string): Locator {
-    return this.page.getByRole('menuitem', { name: value });
+    return this.page.getByRole("menuitem", { name: value });
   }
 
   dropdownValueByText(text: string): Locator {
-    return this.page
-      .getByRole('menuitem', { name: text });
+    return this.page.getByRole("option", { name: text });
   }
 
   selectFieldDropdown(): Locator {
@@ -235,23 +276,23 @@ export class PaymentSettings {
   }
 
   acquirerMerchantNameInput(modal: Locator): Locator {
-    return this.page.getByRole('textbox', { name: 'e.g. Demo Merchant' });
+    return modal.getByRole("textbox", { name: "e.g. Demo Merchant" });
   }
 
   acquirerMerchantIdInput(modal: Locator): Locator {
-    return this.page.getByRole('textbox', { name: 'e.g. 00004500000' });
+    return modal.getByRole("textbox", { name: "e.g. 00004500000" });
   }
 
   acquirerBinInput(modal: Locator): Locator {
-    return this.page.getByRole('spinbutton', { name: 'e.g.' }).first();
+    return modal.getByRole("spinbutton", { name: "e.g." }).first();
   }
 
   acquirerIcaInput(modal: Locator): Locator {
-    return this.page.getByRole('spinbutton', { name: 'e.g.' }).nth(1);
+    return modal.getByRole("spinbutton", { name: "e.g." }).nth(1);
   }
 
   acquirerFraudRateInput(modal: Locator): Locator {
-    return this.page.getByRole('spinbutton', { name: 'e.g. 25' });
+    return modal.getByRole("spinbutton", { name: "e.g. 25" });
   }
 
   acquirerNetworkDropdownInModal(modal: Locator): Locator {
@@ -281,7 +322,9 @@ export class PaymentSettings {
 
   // Validation errors
   get acquirerBinError(): Locator {
-    return this.page.locator('[data-form-error="Acquirer BIN must be between 4 and 20 digits"]');
+    return this.page.locator(
+      '[data-form-error="Acquirer BIN must be between 4 and 20 digits"]',
+    );
   }
 
   get fraudRateError(): Locator {
@@ -424,8 +467,9 @@ export class PaymentSettings {
 
   async selectFirstMerchantCategoryCode(): Promise<string> {
     await this.merchantCategoryCodeDropdown.click();
-    const firstOption = this.page
-      .getByRole('menuitem', { name: 'Wine producers' })
+    const firstOption = this.page.getByRole("menuitem", {
+      name: "Wine producers",
+    });
     const optionText = (await firstOption.getAttribute("data-value")) ?? "";
     await firstOption.click();
     return optionText;
