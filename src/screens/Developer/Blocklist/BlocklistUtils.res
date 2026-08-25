@@ -1,6 +1,5 @@
 open BlocklistTypes
 open LogicUtils
-open CurrencyFormatUtils
 
 let sampleCsv = `type,data,metadata
 card_bin,411111,source=fraud_team;reason=chargeback
@@ -103,10 +102,9 @@ let formatFileSize = fileSize => {
   }
 }
 
-let maxBlocklistCsvDataRowsLabel = shortNum(
-  ~labelValue=maxBlocklistCsvDataRows->Int.toFloat,
-  ~numberFormat=getDefaultNumberFormat(),
-)
+@send external toLocaleStringWithLocale: (int, string) => string = "toLocaleString"
+
+let maxBlocklistCsvDataRowsLabel = maxBlocklistCsvDataRows->toLocaleStringWithLocale("en-US")
 let maxBlocklistCsvFileSizeLabel = maxBlocklistCsvFileSize->formatFileSize
 
 let getBlocklistCsvFileError = file =>

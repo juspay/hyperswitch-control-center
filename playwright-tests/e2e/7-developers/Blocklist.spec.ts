@@ -450,7 +450,9 @@ test.describe("Blocklist", () => {
     });
 
     await expect(
-      page.getByText("CSV files with more than 100K rows cannot be processed."),
+      page.getByText(
+        "CSV files with more than 100,000 rows cannot be processed.",
+      ),
     ).toBeVisible();
     await expect(blocklist.uploadButton).toBeHidden();
   });

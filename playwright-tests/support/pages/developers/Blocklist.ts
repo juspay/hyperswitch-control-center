@@ -34,7 +34,7 @@ export class Blocklist {
 
   get uploadFileText(): Locator {
     return this.page.getByText(
-      "Upload a CSV file with up to 100K rows and a maximum size of 5 MB",
+      "Upload a CSV file with up to 100,000 rows and a maximum size of 5 MB",
     );
   }
 
