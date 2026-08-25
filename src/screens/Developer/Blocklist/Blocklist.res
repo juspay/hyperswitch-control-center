@@ -108,7 +108,7 @@ let make = () => {
         rejectFile("Unable to read the CSV file.")
       }
     }
-    fileReader->readBlocklistCsvAsText(file)
+    fileReader->FileReader.readFileAsText(file)
   }
 
   let handleFileChange = ev => {

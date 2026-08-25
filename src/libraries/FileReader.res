@@ -14,5 +14,7 @@ type read = {
 
 @new external reader: read = "FileReader"
 
+@send external readFileAsText: (read, 'file) => unit = "readAsText"
+
 @new
 external makeUint8Array: Js.TypedArray2.ArrayBuffer.t => Js.TypedArray2.Uint8Array.t = "Uint8Array"

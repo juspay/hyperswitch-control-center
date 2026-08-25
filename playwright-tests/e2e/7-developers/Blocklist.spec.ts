@@ -402,7 +402,7 @@ test.describe("Blocklist", () => {
     await expect(blocklist.uploadButton).toBeHidden();
   });
 
-  test("should accept a CSV file with exactly 1,00,000 rows", async ({
+  test("should accept a CSV file with exactly 100,000 rows", async ({
     page,
   }) => {
     await page.route("**/blocklist/batch?**", async (route) => {
@@ -428,7 +428,7 @@ test.describe("Blocklist", () => {
     await expect(blocklist.uploadButton).toBeVisible();
   });
 
-  test("should reject a CSV file with 1,00,001 rows", async ({ page }) => {
+  test("should reject a CSV file with 100,001 rows", async ({ page }) => {
     await page.route("**/blocklist/batch?**", async (route) => {
       await route.fulfill({
         status: 200,
@@ -450,9 +450,7 @@ test.describe("Blocklist", () => {
     });
 
     await expect(
-      page.getByText(
-        "CSV files with more than 1,00,000 rows cannot be processed.",
-      ),
+      page.getByText("CSV files with more than 100K rows cannot be processed."),
     ).toBeVisible();
     await expect(blocklist.uploadButton).toBeHidden();
   });

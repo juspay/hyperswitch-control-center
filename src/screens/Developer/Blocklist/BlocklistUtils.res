@@ -1,5 +1,6 @@
 open BlocklistTypes
 open LogicUtils
+open CurrencyFormatUtils
 
 let sampleCsv = `type,data,metadata
 card_bin,411111,source=fraud_team;reason=chargeback
@@ -78,13 +79,6 @@ let isValidBlocklistCsvFile = file =>
 
 let isBlocklistCsvFileSizeAllowed = file => file["size"] <= maxBlocklistCsvFileSize
 
-@send external readBlocklistCsvAsText: (FileReader.read, 'file) => unit = "readAsText"
-
-let getBlocklistCsvDataRowCount = fileContents => {
-  let parsedCsv = PapaParse.parse(fileContents, {"skipEmptyLines": true})
-  parsedCsv.data->Array.length - 1
-}
-
 let getFileName = file =>
   switch file {
   | Some(file) => file["name"]
@@ -109,9 +103,10 @@ let formatFileSize = fileSize => {
   }
 }
 
-@send external toLocaleStringWithLocale: (int, string) => string = "toLocaleString"
-
-let maxBlocklistCsvDataRowsLabel = maxBlocklistCsvDataRows->toLocaleStringWithLocale("en-IN")
+let maxBlocklistCsvDataRowsLabel = shortNum(
+  ~labelValue=maxBlocklistCsvDataRows->Int.toFloat,
+  ~numberFormat=getDefaultNumberFormat(),
+)
 let maxBlocklistCsvFileSizeLabel = maxBlocklistCsvFileSize->formatFileSize
 
 let getBlocklistCsvFileError = file =>
@@ -122,6 +117,11 @@ let getBlocklistCsvFileError = file =>
   } else {
     None
   }
+
+let getBlocklistCsvDataRowCount = fileContents => {
+  let parsedCsv = PapaParse.parse(fileContents, {"skipEmptyLines": true})
+  parsedCsv.data->Array.length - 1
+}
 
 let getBlocklistCsvDataRowCountError = fileContents => {
   let dataRowCount = fileContents->getBlocklistCsvDataRowCount
