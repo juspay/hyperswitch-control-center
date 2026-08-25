@@ -584,44 +584,19 @@ let getExceptionAgingDataFromTimeSeries = (
 let getExceptionTriageItems = (~overviewRules: array<overviewRulesResponse>): array<
   exceptionTriageItem,
 > => {
-  open ReconEngineFilterUtils
-
-  let dataMismatchFilter =
-    getTransactionStatusValueFromStatusList([DataMismatch])->Array.joinWith(",")
-  let underAmountFilter =
-    getTransactionStatusValueFromStatusList([
-      UnderAmount(Mismatch),
-      UnderAmount(Expected),
-    ])->Array.joinWith(",")
-  let overAmountFilter =
-    getTransactionStatusValueFromStatusList([
-      OverAmount(Mismatch),
-      OverAmount(Expected),
-    ])->Array.joinWith(",")
-  let missingFilter = getTransactionStatusValueFromStatusList([Missing])->Array.joinWith(",")
-  let splitMismatchFilter =
-    getTransactionStatusValueFromStatusList([SplitMismatch])->Array.joinWith(",")
-  let currencyMismatchFilter =
-    getTransactionStatusValueFromStatusList([CurrencyMismatch])->Array.joinWith(",")
-  let partiallyReconciledFilter =
-    getTransactionStatusValueFromStatusList([PartiallyReconciled])->Array.joinWith(",")
-
-  let counts: Dict.t<(string, int)> = Dict.make()
-  let add = (label, statusFilter, count) => {
-    let prevTotal = counts->Dict.get(label)->Option.mapOr(0, ((_, total)) => total)
-    counts->Dict.set(label, (statusFilter, prevTotal + count))
-  }
+  let counts = Dict.make()
+  let add = (label, count) => counts->Dict.set(label, counts->getValueFromDict(label, 0) + count)
 
   overviewRules->Array.forEach(rule =>
     rule.status_breakdown->Array.forEach(status =>
       switch status.status {
-      | DataMismatch => add("Data mismatch", dataMismatchFilter, status.count)
-      | UnderAmount(_) => add("Under amount", underAmountFilter, status.count)
-      | OverAmount(_) => add("Over amount", overAmountFilter, status.count)
-      | Missing => add("Missing", missingFilter, status.count)
-      | SplitMismatch => add("Split mismatch", splitMismatchFilter, status.count)
-      | CurrencyMismatch => add("Currency mismatch", currencyMismatchFilter, status.count)
-      | PartiallyReconciled => add("Partially reconciled", partiallyReconciledFilter, status.count)
+      | DataMismatch => add("Data mismatch", status.count)
+      | UnderAmount(_) => add("Under amount", status.count)
+      | OverAmount(_) => add("Over amount", status.count)
+      | Missing => add("Missing", status.count)
+      | SplitMismatch => add("Split mismatch", status.count)
+      | CurrencyMismatch => add("Currency mismatch", status.count)
+      | PartiallyReconciled => add("Partially reconciled", status.count)
       | _ => ()
       }
     )
@@ -629,7 +604,7 @@ let getExceptionTriageItems = (~overviewRules: array<overviewRulesResponse>): ar
 
   counts
   ->Dict.toArray
-  ->Array.map(((label, (statusFilter, total))): exceptionTriageItem => {label, total, statusFilter})
+  ->Array.map(((label, total)): exceptionTriageItem => {label, total})
   ->Array.filter(item => item.total > 0)
   ->Array.toSorted((a, b) => Int.compare(b.total, a.total))
 }

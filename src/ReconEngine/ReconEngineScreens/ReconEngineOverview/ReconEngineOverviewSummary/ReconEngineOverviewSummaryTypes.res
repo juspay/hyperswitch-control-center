@@ -184,10 +184,6 @@ type exceptionAgingData = {
 type exceptionTriageItem = {
   label: string,
   total: int,
-  // the "status" query value this category navigates to (e.g. from a Details-page click) -
-  // derived directly from the domainTransactionStatus variant(s) it was grouped from, not
-  // reverse-parsed from `label`.
-  statusFilter: string,
 }
 
 type ruleActivityItem = {
