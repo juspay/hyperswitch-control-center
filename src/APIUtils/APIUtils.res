@@ -287,7 +287,7 @@ let useGetURL = () => {
           | None =>
             switch queryParameters {
             | Some(queryParams) => Olap(`customers/list?${queryParams}`)
-            | None => Olap(`customers/list?limit=500`)
+            | None => Olap(`customers/list?limit=100`)
             }
           }
         | _ => Default("")
@@ -509,17 +509,17 @@ let useGetURL = () => {
             switch queryParameters {
             | Some(queryParams) =>
               switch transactionEntity {
-              | #Profile => Olap(`disputes/profile/list?${queryParams}&limit=10000`)
+              | #Profile => Olap(`disputes/profile/list?${queryParams}`)
               | #Merchant
               | _ =>
-                Olap(`disputes/list?${queryParams}&limit=10000`)
+                Olap(`disputes/list?${queryParams}`)
               }
             | None =>
               switch transactionEntity {
-              | #Profile => Olap(`disputes/profile/list?limit=10000`)
+              | #Profile => Olap(`disputes/profile/list?limit=100`)
               | #Merchant
               | _ =>
-                Olap(`disputes/list?limit=10000`)
+                Olap(`disputes/list?limit=100`)
               }
             }
           }
@@ -567,7 +567,7 @@ let useGetURL = () => {
           | None =>
             switch transactionEntity {
             | #Merchant => Olap(`payouts/list?limit=100`)
-            | #Profile => Olap(`payouts/profile/list?limit=10000`)
+            | #Profile => Olap(`payouts/profile/list?limit=100`)
             | _ => Olap(`payouts/list?limit=100`)
             }
           }
