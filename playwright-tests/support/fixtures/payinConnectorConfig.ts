@@ -3772,4 +3772,25 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
       },
     },
   },
+
+  worldpayraft: {
+    label: "worldpayraft",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "worldpayraft_default",
+      },
+      fieldLabels: ["Worldpay License *", "Worldpay Merchant ID *"],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: ["Visa", "Mastercard", "AmericanExpress", "DinersClub"],
+      },
+      Debit: {
+        label: "Debit",
+        methods: ["Visa", "Mastercard", "AmericanExpress", "DinersClub"],
+      },
+    },
+  },
 };

@@ -198,6 +198,7 @@ let connectorList: array<connectorTypes> = [
   Processors(GIVEPAYMENTS),
   Processors(CITIGATE),
   Processors(ILIXIUM),
+  Processors(WORLDPAYRAFT),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -755,11 +756,15 @@ let givepaymentsInfo = {
 }
 
 let citigateInfo = {
-  description: "Citigate is a card payment gateway supporting one-time payments, with non-3DS and 3DS redirect authentication.",
+  description: "Citigate is a multi-interface payment gateway for card transactions and post-authorisation operations, with 3D Secure support and standardised bank response codes.",
 }
 
 let ilixiumInfo = {
-  description: "Ilixium is a payment platform with an automated routing engine, supporting cards, bank transfers and alternative payment methods across 90+ countries and 25 currencies.",
+  description: "Ilixium is a secure payment platform for processing card transactions and transaction operations, with tokenisation to ease PCI compliance and native 3D Secure authentication.",
+}
+
+let worldpayraftInfo = {
+  description: "Native RAFT is Worldpay's RESTful API for direct access to their core authorization processing platform, supporting credit, debit, gift card, and alternate payment methods for enterprise merchants in the USA.",
 }
 
 let signifydInfo = {
@@ -1050,6 +1055,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | GIVEPAYMENTS => "givepayments"
   | CITIGATE => "citigate"
   | ILIXIUM => "ilixium"
+  | WORLDPAYRAFT => "worldpayraft"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1266,6 +1272,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "givepayments" => Processors(GIVEPAYMENTS)
     | "citigate" => Processors(CITIGATE)
     | "ilixium" => Processors(ILIXIUM)
+    | "worldpayraft" => Processors(WORLDPAYRAFT)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1458,6 +1465,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | GIVEPAYMENTS => givepaymentsInfo
   | CITIGATE => citigateInfo
   | ILIXIUM => ilixiumInfo
+  | WORLDPAYRAFT => worldpayraftInfo
   }
 }
 
@@ -2461,6 +2469,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | GIVEPAYMENTS => "GivePayments"
   | CITIGATE => "Citigate"
   | ILIXIUM => "Ilixium"
+  | WORLDPAYRAFT => "Worldpay Raft"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>

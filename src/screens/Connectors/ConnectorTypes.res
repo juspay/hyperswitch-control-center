@@ -146,6 +146,7 @@ type processorTypes =
   | GIVEPAYMENTS
   | CITIGATE
   | ILIXIUM
+  | WORLDPAYRAFT
 
 type payoutProcessorTypes =
   | ADYEN
