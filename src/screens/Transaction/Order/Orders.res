@@ -266,7 +266,9 @@ let make = (~previewOnly=false) => {
         placeholder=searchPlaceholder
         setSearchVal=setSearchTextAndResetOffset
         searchVal=searchText
-        sanitizeSearchInput=?{isAdvancedView ? None : Some(HSwitchRemoteFilter.sanitizeTransactionId)}
+        sanitizeSearchInput=?{isAdvancedView
+          ? None
+          : Some(HSwitchRemoteFilter.sanitizeTransactionId)}
       />
     let searchBarWithInfo =
       <div className="flex items-center gap-2">
