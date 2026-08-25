@@ -82,7 +82,7 @@ module AccountEntriesSection = {
       })
     }, (groupedEntries, accountInfoMap))
 
-    <RenderIf condition={screenState !== PageLoaderWrapper.Success || entriesList->isNonEmptyArray}>
+    <RenderIf condition={entriesList->isNonEmptyArray}>
       <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="h-40 w-full rounded-xl" />}>
         <div className="flex flex-col">
           <ReconEngineCustomExpandableSelectionTable

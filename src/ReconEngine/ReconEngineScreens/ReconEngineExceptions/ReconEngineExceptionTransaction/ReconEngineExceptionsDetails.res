@@ -3,7 +3,6 @@ let make = (~id) => {
   open LogicUtils
   open ReconEngineTransactionsUtils
   open ReconEngineTransactionsHelper
-  open ReconEngineRulesUtils
   open APIUtils
 
   let getURL = useGetURL()
@@ -12,43 +11,48 @@ let make = (~id) => {
   let (currentExceptionsDetails, setCurrentExceptionDetails) = React.useState(_ =>
     Dict.make()->getTransactionsPayloadFromDict
   )
+  let (allExceptionDetails, setAllExceptionDetails) = React.useState(_ => [
+    Dict.make()->getTransactionsPayloadFromDict,
+  ])
+  let (entriesList, setEntriesList) = React.useState(_ => [
+    Dict.make()->transactionsEntryItemToObjMapperFromDict,
+  ])
   let (accountsData, setAccountsData) = React.useState(_ => [])
-  let (ruleAccountIds, setRuleAccountIds) = React.useState(_ => [])
-  let getTransactionsV2 = ReconEngineHooks.useGetCursorPage(
-    ~hyperswitchReconType=#TRANSACTIONS_LIST_V2,
-    ~itemMapper=ReconEngineUtils.transactionItemToObjMapper,
-  )
+  let getTransactions = ReconEngineHooks.useGetTransactions()
   let getAccounts = ReconEngineHooks.useGetAccounts()
 
   let getExceptionDetails = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let transactionsPage = await getTransactionsV2(
-        ~body=buildTransactionRetrievalBody(~transactionId=id),
+      let exceptions = await getTransactions(~queryParameters=Some(`transaction_id=${id}`))
+      exceptions->Array.sort(sortByVersion)
+      let currentExceptionDetails =
+        exceptions->getValueFromArray(0, Dict.make()->getTransactionsPayloadFromDict)
+      let entriesUrl = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#PROCESSED_ENTRIES_LIST_WITH_TRANSACTION,
+        ~id=Some(currentExceptionDetails.transaction_id),
       )
-      switch transactionsPage.items->Array.get(0) {
-      | Some(currentExceptionDetails) => {
-          let ruleUrl = getURL(
-            ~entityName=V1(HYPERSWITCH_RECON),
-            ~methodType=Get,
-            ~hyperswitchReconType=#RECON_RULES,
-            ~id=Some(currentExceptionDetails.rule.rule_id),
-          )
-          let (ruleRes, accountData) = await Promise.all2((fetchDetails(ruleUrl), getAccounts()))
-          let rule = ruleRes->getDictFromJsonObject->ruleItemToObjMapper
-          let (sourceAccountId, targetAccounts) = getSourceAndTargetAccountDetails(rule.strategy)
-          let accountIds =
-            [sourceAccountId]
-            ->Array.concat(targetAccounts->Array.map(target => target.account_id))
-            ->Array.filter(isNonEmptyString)
-            ->getUniqueArray
-          setCurrentExceptionDetails(_ => currentExceptionDetails)
-          setRuleAccountIds(_ => accountIds)
-          setAccountsData(_ => accountData)
-          setScreenState(_ => PageLoaderWrapper.Success)
+      let entriesRes = await fetchDetails(entriesUrl)
+      let entriesList = entriesRes->getArrayDataFromJson(transactionsEntryItemToObjMapperFromDict)
+      let entriesDataArray = currentExceptionDetails.entries->Array.map(entry => {
+        let foundEntry =
+          entriesList
+          ->Array.find(e => entry.entry_id == e.entry_id)
+          ->Option.getOr(Dict.make()->transactionsEntryItemToObjMapperFromDict)
+
+        {
+          ...foundEntry,
+          account_name: entry.account.account_name,
         }
-      | None => setScreenState(_ => PageLoaderWrapper.Custom)
-      }
+      })
+      let accountData = await getAccounts()
+      setEntriesList(_ => entriesDataArray)
+      setCurrentExceptionDetails(_ => currentExceptionDetails)
+      setAllExceptionDetails(_ => exceptions)
+      setAccountsData(_ => accountData)
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch transaction details"))
     }
@@ -66,18 +70,17 @@ let make = (~id) => {
         title: "Entries",
         renderContent: () =>
           <ReconEngineExceptionTransactionEntries
-            accountIds=ruleAccountIds
+            entriesList={entriesList}
             currentExceptionDetails={currentExceptionsDetails}
             accountsData
           />,
       },
       {
         title: "Audit Trail",
-        renderContent: () =>
-          <AuditTrailTab transactionId={currentExceptionsDetails.transaction_id} />,
+        renderContent: () => <AuditTrail allTransactionDetails={allExceptionDetails} />,
       },
     ]
-  }, (currentExceptionsDetails, ruleAccountIds, accountsData))
+  }, (allExceptionDetails, entriesList, accountsData))
 
   <div>
     <div className="flex flex-col gap-4 mb-6">

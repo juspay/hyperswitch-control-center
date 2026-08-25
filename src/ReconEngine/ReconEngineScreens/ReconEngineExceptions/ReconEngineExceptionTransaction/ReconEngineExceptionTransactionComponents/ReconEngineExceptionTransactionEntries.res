@@ -2,7 +2,7 @@ open Typography
 
 @react.component
 let make = (
-  ~accountIds: array<string>,
+  ~entriesList: array<ReconEngineTypes.entryType>,
   ~currentExceptionDetails: ReconEngineTypes.transactionType,
   ~accountsData: array<ReconEngineTypes.accountType>,
 ) => {
@@ -20,64 +20,12 @@ let make = (
   ))
   let showToast = ToastAdapter.useShowToast()
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
-  let (fullEntriesList, setFullEntriesList) = React.useState(_ => [])
-  let (updatedEntriesList, setUpdatedEntriesList) = React.useState(_ => [])
-  let (resolutionScreenState, setResolutionScreenState) = React.useState(_ =>
-    PageLoaderWrapper.Loading
+  let (updatedEntriesList, setUpdatedEntriesList) = React.useState(_ =>
+    entriesList->addUniqueIdsToEntries
   )
-  let hasFetchedFullEntriesRef = React.useRef(false)
   let (showConfirmationModal, setShowConfirmationModal) = React.useState(_ => false)
   let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
-
-  let fetchAllEntries = async () => {
-    try {
-      setResolutionScreenState(_ => PageLoaderWrapper.Loading)
-      let entriesUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#PROCESSED_ENTRIES_LIST_WITH_TRANSACTION,
-        ~id=Some(currentExceptionDetails.transaction_id),
-      )
-      let entriesRes = await fetchDetails(entriesUrl)
-      let entries =
-        entriesRes
-        ->getArrayDataFromJson(
-          ReconEngineTransactionsUtils.transactionsEntryItemToObjMapperFromDict,
-        )
-        ->Array.filter(entry =>
-          entry.version == currentExceptionDetails.version && entry.status != Archived
-        )
-        ->Array.map(entry => {
-          ...entry,
-          account_name: accountsData
-          ->Array.find(account => account.account_id == entry.account_id)
-          ->mapOptionOrDefault(entry.account_name, account => account.account_name),
-        })
-      setFullEntriesList(_ => entries)
-      setUpdatedEntriesList(_ => entries->addUniqueIdsToEntries)
-      setResolutionScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    | _ => setResolutionScreenState(_ => PageLoaderWrapper.Error("Failed to fetch entries"))
-    }
-  }
-
-  React.useEffect(() => {
-    if (
-      exceptionStage != ShowResolutionOptions(NoResolutionOptionNeeded) &&
-        !hasFetchedFullEntriesRef.current
-    ) {
-      hasFetchedFullEntriesRef.current = true
-      fetchAllEntries()->ignore
-    }
-    None
-  }, [exceptionStage])
-
-  let isResolvingView = switch exceptionStage {
-  | ResolvingException(_) | ConfirmResolution(_) | ExceptionResolved => true
-  | ShowResolutionOptions(_) => false
-  }
 
   let handleRowSelect = (updateFn: array<JSON.t> => array<JSON.t>) => {
     setSelectedRows(prev => {
@@ -157,10 +105,10 @@ let make = (
 
   let summaryItems = React.useMemo(() => {
     generateAllResolutionSummaries(
-      fullEntriesList,
+      entriesList,
       updatedEntriesList->Array.map(getEntryTypeFromExceptionEntryType),
     )
-  }, (fullEntriesList, updatedEntriesList))
+  }, (entriesList, updatedEntriesList))
 
   let onCloseClickCustomFun = () => {
     setExceptionStage(_ => ConfirmResolution(exceptionStage->getInnerVariant))
@@ -191,32 +139,21 @@ let make = (
       setUpdatedEntriesList
       currentExceptionDetails
       accountsData
-      oldEntriesList={fullEntriesList->addUniqueIdsToEntries}
+      oldEntriesList={entriesList->addUniqueIdsToEntries}
     />
-    <RenderIf condition={!isResolvingView}>
-      <ReconEngineTransactionEntries
-        primaryTransactionId={currentExceptionDetails.id} accountIds accountsData
-      />
-    </RenderIf>
-    <RenderIf condition={isResolvingView}>
-      <PageLoaderWrapper
-        screenState=resolutionScreenState
-        customLoader={<Shimmer styleClass="h-40 w-full rounded-xl" />}>
-        <ReconEngineCustomExpandableSelectionTable
-          title=""
-          heading={getDetailFieldsForTableSections->Array.map(getHeading)}
-          getSectionRowDetails=sectionDetails
-          showScrollBar=true
-          showOptions={exceptionStage == ResolvingException(EditEntry) ||
-          exceptionStage == ResolvingException(MarkAsReceived) ||
-          exceptionStage == ResolvingException(ReplaceStagingEntryToTransaction)}
-          selectedRows
-          onRowSelect=handleRowSelect
-          sections=tableSections
-          ?isRowSelectable
-        />
-      </PageLoaderWrapper>
-    </RenderIf>
+    <ReconEngineCustomExpandableSelectionTable
+      title=""
+      heading={getDetailFieldsForTableSections->Array.map(getHeading)}
+      getSectionRowDetails=sectionDetails
+      showScrollBar=true
+      showOptions={exceptionStage == ResolvingException(EditEntry) ||
+      exceptionStage == ResolvingException(MarkAsReceived) ||
+      exceptionStage == ResolvingException(ReplaceStagingEntryToTransaction)}
+      selectedRows
+      onRowSelect=handleRowSelect
+      sections=tableSections
+      ?isRowSelectable
+    />
     <RenderIf
       condition={exceptionStage == ConfirmResolution(EditEntry) ||
       exceptionStage == ConfirmResolution(CreateNewEntry) ||
@@ -232,7 +169,7 @@ let make = (
             customButtonStyle="!w-full"
             onClick={_ => {
               setExceptionStage(_ => ShowResolutionOptions(NoResolutionOptionNeeded))
-              setUpdatedEntriesList(_ => fullEntriesList->addUniqueIdsToEntries)
+              setUpdatedEntriesList(_ => entriesList->addUniqueIdsToEntries)
               setSelectedRows(_ => [])
             }}
           />
