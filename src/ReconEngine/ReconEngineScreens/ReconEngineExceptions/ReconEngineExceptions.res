@@ -15,8 +15,7 @@ let make = () => {
   let getAccountsAndRulesData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let accounts = await getAccounts()
-      let ruleDetails = await getReconRuleList()
+      let (accounts, ruleDetails) = await Promise.all2((getAccounts(), getReconRuleList()))
       setAccountData(_ => accounts)
       setReconRulesList(_ => ruleDetails)
       setScreenState(_ => PageLoaderWrapper.Success)
