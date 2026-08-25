@@ -78,13 +78,12 @@ let isValidBlocklistCsvFile = file =>
 
 let isBlocklistCsvFileSizeAllowed = file => file["size"] <= maxBlocklistCsvFileSize
 
+@send external readBlocklistCsvAsText: (FileReader.read, 'file) => unit = "readAsText"
+
 let getBlocklistCsvDataRowCount = fileContents => {
   let parsedCsv = PapaParse.parse(fileContents, {"skipEmptyLines": true})
   parsedCsv.data->Array.length - 1
 }
-
-let isBlocklistCsvDataRowCountAllowed = dataRowCount =>
-  dataRowCount >= 1 && dataRowCount <= maxBlocklistCsvDataRows
 
 let getFileName = file =>
   switch file {
@@ -112,7 +111,25 @@ let formatFileSize = fileSize => {
 
 @send external toLocaleStringWithLocale: (int, string) => string = "toLocaleString"
 
-// The limits quoted in the upload copy and error toasts are derived from the
-// same constants the validations read, so the two cannot drift apart.
 let maxBlocklistCsvDataRowsLabel = maxBlocklistCsvDataRows->toLocaleStringWithLocale("en-IN")
 let maxBlocklistCsvFileSizeLabel = maxBlocklistCsvFileSize->formatFileSize
+
+let getBlocklistCsvFileError = file =>
+  if !(file->isValidBlocklistCsvFile) {
+    Some("Please upload a valid CSV file.")
+  } else if !(file->isBlocklistCsvFileSizeAllowed) {
+    Some(`CSV files larger than ${maxBlocklistCsvFileSizeLabel} cannot be processed.`)
+  } else {
+    None
+  }
+
+let getBlocklistCsvDataRowCountError = fileContents => {
+  let dataRowCount = fileContents->getBlocklistCsvDataRowCount
+  if dataRowCount < 1 {
+    Some("CSV file must contain at least one data row.")
+  } else if dataRowCount > maxBlocklistCsvDataRows {
+    Some(`CSV files with more than ${maxBlocklistCsvDataRowsLabel} rows cannot be processed.`)
+  } else {
+    None
+  }
+}

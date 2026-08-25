@@ -90,43 +90,38 @@ let make = () => {
     None
   }, [offset])
 
+  let validateFileContents = (~file, ~selectionToken, event) => {
+    if fileSelectionTokenRef.current === selectionToken {
+      let fileContents = ReactEvent.Form.target(event)["result"]
+      switch fileContents->getBlocklistCsvDataRowCountError {
+      | Some(errorMessage) => rejectFile(errorMessage)
+      | None => setSelectedFile(_ => Some(file))
+      }
+    }
+  }
+
+  let readFileContents = (~file, ~selectionToken) => {
+    let fileReader = FileReader.reader
+    fileReader.onload = event => validateFileContents(~file, ~selectionToken, event)
+    fileReader.onerror = _ => {
+      if fileSelectionTokenRef.current === selectionToken {
+        rejectFile("Unable to read the CSV file.")
+      }
+    }
+    fileReader->readBlocklistCsvAsText(file)
+  }
+
   let handleFileChange = ev => {
     fileSelectionTokenRef.current = fileSelectionTokenRef.current + 1
-    let currentSelectionToken = fileSelectionTokenRef.current
+    let selectionToken = fileSelectionTokenRef.current
     let files = ReactEvent.Form.target(ev)["files"]
     switch files[0] {
-    | Some(file) =>
-      if file->isValidBlocklistCsvFile {
-        if file->isBlocklistCsvFileSizeAllowed {
-          let fileReader = FileReader.reader
-          fileReader.onload = event => {
-            if fileSelectionTokenRef.current === currentSelectionToken {
-              let fileContents = ReactEvent.Form.target(event)["result"]
-              let dataRowCount = fileContents->getBlocklistCsvDataRowCount
-              if dataRowCount->isBlocklistCsvDataRowCountAllowed {
-                setSelectedFile(_ => Some(file))
-              } else {
-                let errorMessage =
-                  dataRowCount < 1
-                    ? "CSV file must contain at least one data row."
-                    : `CSV files with more than ${maxBlocklistCsvDataRowsLabel} rows cannot be processed.`
-                rejectFile(errorMessage)
-              }
-            }
-          }
-          fileReader.onerror = _ => {
-            if fileSelectionTokenRef.current === currentSelectionToken {
-              rejectFile("Unable to read the CSV file.")
-            }
-          }
-          fileReader.readAsText(file)
-        } else {
-          rejectFile(`CSV files larger than ${maxBlocklistCsvFileSizeLabel} cannot be processed.`)
-        }
-      } else {
-        rejectFile("Please upload a valid CSV file.")
-      }
     | None => setSelectedFile(_ => None)
+    | Some(file) =>
+      switch file->getBlocklistCsvFileError {
+      | Some(errorMessage) => rejectFile(errorMessage)
+      | None => readFileContents(~file, ~selectionToken)
+      }
     }
   }
 
