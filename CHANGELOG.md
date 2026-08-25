@@ -3,6 +3,43 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.25.1
+
+### Features
+
+- Enable report generation in recon engine transactions and exceptions ([#5456](https://github.com/juspay/hyperswitch-control-center/pull/5456)) ([`a9ac54c`](https://github.com/juspay/hyperswitch-control-center/commit/a9ac54c8c4f292930555522e862d937fc042fab1))
+
+### Bug Fixes
+
+- Send profile connector list and customer list to the OLAP endpoint ([#5450](https://github.com/juspay/hyperswitch-control-center/pull/5450)) ([`a28e1b5`](https://github.com/juspay/hyperswitch-control-center/commit/a28e1b56e0c0a9fb5c365200c773bbff6134579b))
+
+### Testing
+
+- **playwright:** Split custom-role matrix into independent tests and fix vacuous live-mode connector assertions ([#5439](https://github.com/juspay/hyperswitch-control-center/pull/5439)) ([`5ef97c2`](https://github.com/juspay/hyperswitch-control-center/commit/5ef97c2192e62b2194b60c29b24d489114a02c76))
+
+### Miscellaneous Tasks
+
+- Recon exceptions update navigations from overview and handling ([#5455](https://github.com/juspay/hyperswitch-control-center/pull/5455)) ([`804244a`](https://github.com/juspay/hyperswitch-control-center/commit/804244a7dd077f9a6c9931a3f65e58741ff35d58))
+- Revamp recon engine sidebar with grouped sections ([#5427](https://github.com/juspay/hyperswitch-control-center/pull/5427)) ([`7e8ca05`](https://github.com/juspay/hyperswitch-control-center/commit/7e8ca05919a893c094541496289cd797a8d6a7bc))
+
+**Full Changelog:** [`2026.08.25.0...2026.08.25.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.25.0...2026.08.25.1)
+
+- - -
+
+## 2026.08.25.0
+
+### Bug Fixes
+
+- Server-side pagination for disputes list to satisfy backend limit validation ([#5445](https://github.com/juspay/hyperswitch-control-center/pull/5445)) ([`7d6ecc4`](https://github.com/juspay/hyperswitch-control-center/commit/7d6ecc4f1d926ab065a5c6140063a4a82cb64672))
+
+### Miscellaneous Tasks
+
+- Show truncation note when a transaction has more entries ([#5440](https://github.com/juspay/hyperswitch-control-center/pull/5440)) ([`2d5d13e`](https://github.com/juspay/hyperswitch-control-center/commit/2d5d13e46fcaf274e847bd1ec1b328682d0fce89))
+
+**Full Changelog:** [`2026.08.21.0...2026.08.25.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.21.0...2026.08.25.0)
+
+- - -
+
 ## 2026.08.21.0
 
 ### Miscellaneous Tasks

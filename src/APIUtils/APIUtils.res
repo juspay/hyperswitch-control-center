@@ -287,7 +287,7 @@ let useGetURL = () => {
           | None =>
             switch queryParameters {
             | Some(queryParams) => Olap(`customers/list?${queryParams}`)
-            | None => Olap(`customers/list?limit=500`)
+            | None => Olap(`customers/list?limit=100`)
             }
           }
         | _ => Default("")
@@ -299,8 +299,8 @@ let useGetURL = () => {
           | Some(customerId) => Default(`customers/${customerId}`)
           | None =>
             switch queryParameters {
-            | Some(queryParams) => Default(`customers/list_with_count?${queryParams}`)
-            | None => Default(`customers/list_with_count`)
+            | Some(queryParams) => Olap(`customers/list_with_count?${queryParams}`)
+            | None => Olap(`customers/list_with_count`)
             }
           }
         | _ => Default("")
@@ -332,7 +332,7 @@ let useGetURL = () => {
             | #Organization
             | #Merchant
             | #Profile =>
-              Default(`account/${merchantId}/profile/connectors`)
+              Olap(`account/${merchantId}/profile/connectors`)
             }
           }
         | Post | Delete =>
@@ -509,17 +509,17 @@ let useGetURL = () => {
             switch queryParameters {
             | Some(queryParams) =>
               switch transactionEntity {
-              | #Profile => Olap(`disputes/profile/list?${queryParams}&limit=10000`)
+              | #Profile => Olap(`disputes/profile/list?${queryParams}`)
               | #Merchant
               | _ =>
-                Olap(`disputes/list?${queryParams}&limit=10000`)
+                Olap(`disputes/list?${queryParams}`)
               }
             | None =>
               switch transactionEntity {
-              | #Profile => Olap(`disputes/profile/list?limit=10000`)
+              | #Profile => Olap(`disputes/profile/list?limit=100`)
               | #Merchant
               | _ =>
-                Olap(`disputes/list?limit=10000`)
+                Olap(`disputes/list?limit=100`)
               }
             }
           }
@@ -567,7 +567,7 @@ let useGetURL = () => {
           | None =>
             switch transactionEntity {
             | #Merchant => Olap(`payouts/list?limit=100`)
-            | #Profile => Olap(`payouts/profile/list?limit=10000`)
+            | #Profile => Olap(`payouts/profile/list?limit=100`)
             | _ => Olap(`payouts/list?limit=100`)
             }
           }
@@ -1154,6 +1154,16 @@ let useGetURL = () => {
             | Some(ruleId) => Default(`${reconBaseURL}/recon_rules/v2/${ruleId}`)
             | None => Default(`${reconBaseURL}/recon_rules/v2`)
             }
+          | _ => Default("")
+          }
+        | #GENERATE_TRANSACTION_REPORT =>
+          switch methodType {
+          | Post => Default(`${reconBaseURL}/report/transactions`)
+          | _ => Default("")
+          }
+        | #GENERATE_EXCEPTION_REPORT =>
+          switch methodType {
+          | Post => Default(`${reconBaseURL}/report/exceptions`)
           | _ => Default("")
           }
         | #INGESTION_HISTORY =>

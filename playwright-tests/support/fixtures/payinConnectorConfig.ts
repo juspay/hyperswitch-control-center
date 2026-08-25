@@ -3699,6 +3699,27 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
     },
   },
 
+  authipay: {
+    label: "authipay",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "authipay_default",
+      },
+      fieldLabels: ["API Key *", "API Secret *", "Source verification key"],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: ["Mastercard", "Visa"],
+      },
+      Debit: {
+        label: "Debit",
+        methods: ["Mastercard", "Visa"],
+      },
+    },
+  },
+
   citigate: {
     label: "citigate",
     fields: {
