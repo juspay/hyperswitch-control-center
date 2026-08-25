@@ -3,6 +3,45 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.25.0
+
+### Bug Fixes
+
+- Server-side pagination for disputes list to satisfy backend limit validation ([#5445](https://github.com/juspay/hyperswitch-control-center/pull/5445)) ([`7d6ecc4`](https://github.com/juspay/hyperswitch-control-center/commit/7d6ecc4f1d926ab065a5c6140063a4a82cb64672))
+
+### Miscellaneous Tasks
+
+- Show truncation note when a transaction has more entries ([#5440](https://github.com/juspay/hyperswitch-control-center/pull/5440)) ([`2d5d13e`](https://github.com/juspay/hyperswitch-control-center/commit/2d5d13e46fcaf274e847bd1ec1b328682d0fce89))
+
+**Full Changelog:** [`2026.08.21.0...2026.08.25.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.21.0...2026.08.25.0)
+
+- - -
+
+## 2026.08.21.0
+
+### Miscellaneous Tasks
+
+- Version update for superposition embeddable package ([#5434](https://github.com/juspay/hyperswitch-control-center/pull/5434)) ([`2d8dc7f`](https://github.com/juspay/hyperswitch-control-center/commit/2d8dc7f75bccb7ed297e086349edfddc94a6cbb0))
+- Add support for bulk filters in transaction exceptions ([#5429](https://github.com/juspay/hyperswitch-control-center/pull/5429)) ([`3ef4d30`](https://github.com/juspay/hyperswitch-control-center/commit/3ef4d30404162f5fc914cce57211d5f42de22de5))
+
+**Full Changelog:** [`2026.08.20.0...2026.08.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.20.0...2026.08.21.0)
+
+- - -
+
+## 2026.08.20.0
+
+### Features
+
+- Add configurable OLAP prefix for allowlisted dashboard endpoints ([#5419](https://github.com/juspay/hyperswitch-control-center/pull/5419)) ([`2083184`](https://github.com/juspay/hyperswitch-control-center/commit/2083184e71e915e4fa6464f719b4720cdbe1d90f))
+
+### Miscellaneous Tasks
+
+- Remove CSV export from advanced payments list ([#5433](https://github.com/juspay/hyperswitch-control-center/pull/5433)) ([`5a9aede`](https://github.com/juspay/hyperswitch-control-center/commit/5a9aede65eacd18da0996f405e36d477a312efff))
+
+**Full Changelog:** [`2026.08.19.2...2026.08.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.19.2...2026.08.20.0)
+
+- - -
+
 ## 2026.08.19.2
 
 ### Features

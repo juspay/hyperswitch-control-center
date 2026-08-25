@@ -1,5 +1,6 @@
 open SuperpositionTypes
 open SuperpositionBindings
+open LogicUtils
 
 let displayConfigs = [
   ShouldPerformEligibility,
@@ -7,6 +8,20 @@ let displayConfigs = [
   EnableExtendedCardBin,
   ShouldStoreEligibilityCheckDataForAuthentication,
 ]
+
+let getConfigFolder = config =>
+  switch config {
+  | ShouldPerformEligibility
+  | EnableExtendedCardBin
+  | ShouldStoreEligibilityCheckDataForAuthentication =>
+    Some(Payments)
+  | ShouldCallPMModularService => None
+  }
+
+let getConfigKey = config =>
+  config
+  ->getConfigFolder
+  ->mapOptionOrDefault((config :> string), folder => `${(folder :> string)}.${(config :> string)}`)
 
 let getDimensionsForFixedContext = dimensionEntity =>
   switch dimensionEntity {
@@ -34,7 +49,7 @@ let defaultTableConfig: tableConfig = {
 }
 
 let defaultFiltersConfig: filtersConfig = {
-  defaultConfigPrefix: displayConfigs->Array.map(config => (config :> string)),
+  defaultConfigPrefix: displayConfigs->Array.map(getConfigKey),
 }
 
 let defaultThemeConfig: spThemeConfig = {

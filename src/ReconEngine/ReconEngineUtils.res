@@ -537,6 +537,7 @@ let transactionItemToObjMapper = (dict): transactionType => {
     modified_by: modifiedByDict->isEmptyDict
       ? None
       : Some(modifiedByDict->modifiedByItemToObjMapper),
+    has_more_entries: dict->getBool("has_more_entries", false),
   }
 }
 

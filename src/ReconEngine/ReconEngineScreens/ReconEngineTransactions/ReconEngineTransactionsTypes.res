@@ -46,6 +46,19 @@ type actionType =
   | @as("bulk_void") BulkTransactionVoid
   | @as("unknown") UnknownBulkTransactionActionType
 
+type bulkSelectionMode =
+  | @as("ids") ByIds
+  | @as("filters") ByFilters
+
+type transactionBulkSelection =
+  | SelectionByIds(array<transactionType>)
+  | SelectionByFilters(JSON.t)
+
+type filterScopeCopy = {
+  optionLabel: string,
+  optionDescription: string,
+}
+
 type iconType = {
   bulkActionIconName: string,
   bulkActionIconClass: string,

@@ -144,6 +144,10 @@ let getCell = (
           </React.Fragment>
         })
         ->React.array}
+        <HierarchicalMoreEntriesRenderer
+          hasMoreEntries=transaction.has_more_entries
+          text={`Only ${transaction.entries->Array.length->Int.toString} entries shown`}
+        />
       </div>
     CustomCell(entryIdContent, "")
   | OrderId =>
@@ -167,6 +171,7 @@ let getCell = (
           </React.Fragment>
         })
         ->React.array}
+        <HierarchicalMoreEntriesRenderer hasMoreEntries=transaction.has_more_entries />
       </div>
     CustomCell(orderIdContent, "")
   | Account =>
@@ -177,6 +182,7 @@ let getCell = (
           <HierarchicalEntryRenderer fieldValue=entry.account.account_name key={entry.entry_id} />
         })
         ->React.array}
+        <HierarchicalMoreEntriesRenderer hasMoreEntries=transaction.has_more_entries />
       </div>
     CustomCell(accountContent, "")
   | EntryStatus =>
@@ -189,6 +195,7 @@ let getCell = (
           />
         })
         ->React.array}
+        <HierarchicalMoreEntriesRenderer hasMoreEntries=transaction.has_more_entries />
       </div>
     CustomCell(entryStatusContent, "")
   | Currency =>
@@ -199,6 +206,7 @@ let getCell = (
           <HierarchicalEntryRenderer fieldValue=entry.amount.currency key={entry.entry_id} />
         })
         ->React.array}
+        <HierarchicalMoreEntriesRenderer hasMoreEntries=transaction.has_more_entries />
       </div>
     CustomCell(currencyContent, "")
   | DebitAmount =>
@@ -213,6 +221,7 @@ let getCell = (
           <HierarchicalEntryRenderer fieldValue=amount key={entry.entry_id} />
         })
         ->React.array}
+        <HierarchicalMoreEntriesRenderer hasMoreEntries=transaction.has_more_entries />
       </div>
     CustomCell(debitAmountContent, "")
   | CreditAmount =>
@@ -227,6 +236,7 @@ let getCell = (
           <HierarchicalEntryRenderer fieldValue=amount key={entry.entry_id} />
         })
         ->React.array}
+        <HierarchicalMoreEntriesRenderer hasMoreEntries=transaction.has_more_entries />
       </div>
     CustomCell(creditAmountContent, "")
   }
