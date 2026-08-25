@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.25.0
+
+### Bug Fixes
+
+- Server-side pagination for disputes list to satisfy backend limit validation ([#5445](https://github.com/juspay/hyperswitch-control-center/pull/5445)) ([`7d6ecc4`](https://github.com/juspay/hyperswitch-control-center/commit/7d6ecc4f1d926ab065a5c6140063a4a82cb64672))
+
+### Miscellaneous Tasks
+
+- Show truncation note when a transaction has more entries ([#5440](https://github.com/juspay/hyperswitch-control-center/pull/5440)) ([`2d5d13e`](https://github.com/juspay/hyperswitch-control-center/commit/2d5d13e46fcaf274e847bd1ec1b328682d0fce89))
+
+**Full Changelog:** [`2026.08.21.0...2026.08.25.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.21.0...2026.08.25.0)
+
+- - -
+
 ## 2026.08.21.0
 
 ### Miscellaneous Tasks
