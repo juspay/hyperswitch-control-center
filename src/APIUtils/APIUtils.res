@@ -299,8 +299,8 @@ let useGetURL = () => {
           | Some(customerId) => Default(`customers/${customerId}`)
           | None =>
             switch queryParameters {
-            | Some(queryParams) => Default(`customers/list_with_count?${queryParams}`)
-            | None => Default(`customers/list_with_count`)
+            | Some(queryParams) => Olap(`customers/list_with_count?${queryParams}`)
+            | None => Olap(`customers/list_with_count`)
             }
           }
         | _ => Default("")
@@ -332,7 +332,7 @@ let useGetURL = () => {
             | #Organization
             | #Merchant
             | #Profile =>
-              Default(`account/${merchantId}/profile/connectors`)
+              Olap(`account/${merchantId}/profile/connectors`)
             }
           }
         | Post | Delete =>
