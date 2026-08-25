@@ -3698,4 +3698,78 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
       },
     },
   },
+
+  citigate: {
+    label: "citigate",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "citigate_default",
+      },
+      fieldLabels: ["Merchant Name *", "Merchant Password *"],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Visa",
+          "Mastercard",
+          "AmericanExpress",
+          "DinersClub",
+          "Maestro",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Visa",
+          "Mastercard",
+          "AmericanExpress",
+          "DinersClub",
+          "Maestro",
+        ],
+      },
+    },
+  },
+
+  ilixium: {
+    label: "ilixium",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "ilixium_default",
+      },
+      fieldLabels: [
+        "Digest Calculation Password *",
+        "Merchant Id *",
+        "Account Id *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "DinersClub",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "DinersClub",
+          "UnionPay",
+        ],
+      },
+    },
+  },
 };

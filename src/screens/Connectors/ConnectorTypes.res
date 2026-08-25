@@ -144,6 +144,8 @@ type processorTypes =
   | PAYCONEX
   | TSYSTRANSIT
   | GIVEPAYMENTS
+  | CITIGATE
+  | ILIXIUM
 
 type payoutProcessorTypes =
   | ADYEN

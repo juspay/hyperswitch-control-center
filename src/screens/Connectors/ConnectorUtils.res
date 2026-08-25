@@ -196,6 +196,8 @@ let connectorList: array<connectorTypes> = [
   Processors(PAYCONEX),
   Processors(TSYSTRANSIT),
   Processors(GIVEPAYMENTS),
+  Processors(CITIGATE),
+  Processors(ILIXIUM),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -752,6 +754,14 @@ let givepaymentsInfo = {
   description: "GivePayments connects providers, merchants, and customers through a fully integrated ecosystem of payment tools and services with built-in chargeback prevention, automated underwriting, and PCI DSS 4.0-level security.",
 }
 
+let citigateInfo = {
+  description: "Citigate is a card payment gateway supporting one-time payments, with non-3DS and 3DS redirect authentication.",
+}
+
+let ilixiumInfo = {
+  description: "Ilixium is a payment platform with an automated routing engine, supporting cards, bank transfers and alternative payment methods across 90+ countries and 25 currencies.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -1038,6 +1048,8 @@ let getConnectorNameString = (connector: processorTypes) =>
   | PAYCONEX => "payconex"
   | TSYSTRANSIT => "tsys_transit"
   | GIVEPAYMENTS => "givepayments"
+  | CITIGATE => "citigate"
+  | ILIXIUM => "ilixium"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1252,6 +1264,8 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "payconex" => Processors(PAYCONEX)
     | "tsys_transit" => Processors(TSYSTRANSIT)
     | "givepayments" => Processors(GIVEPAYMENTS)
+    | "citigate" => Processors(CITIGATE)
+    | "ilixium" => Processors(ILIXIUM)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1442,6 +1456,8 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | PAYCONEX => payconexInfo
   | TSYSTRANSIT => tsystransitInfo
   | GIVEPAYMENTS => givepaymentsInfo
+  | CITIGATE => citigateInfo
+  | ILIXIUM => ilixiumInfo
   }
 }
 
@@ -2443,6 +2459,8 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | PAYCONEX => "PayConex"
   | TSYSTRANSIT => "TSYS Transit"
   | GIVEPAYMENTS => "GivePayments"
+  | CITIGATE => "Citigate"
+  | ILIXIUM => "Ilixium"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
