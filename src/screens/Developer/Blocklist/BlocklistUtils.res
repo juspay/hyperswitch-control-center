@@ -102,9 +102,8 @@ let formatFileSize = fileSize => {
   }
 }
 
-@send external toLocaleStringWithLocale: (int, string) => string = "toLocaleString"
-
-let maxBlocklistCsvDataRowsLabel = maxBlocklistCsvDataRows->toLocaleStringWithLocale("en-US")
+let maxBlocklistCsvDataRowsLabel =
+  maxBlocklistCsvDataRows->DateTimeUtils.toLocaleStringWithLocale("en-US")
 let maxBlocklistCsvFileSizeLabel = maxBlocklistCsvFileSize->formatFileSize
 
 let getBlocklistCsvFileError = file =>
