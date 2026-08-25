@@ -12,6 +12,7 @@ let make = () => {
   let (accountData, setAccountData) = React.useState(_ => [])
   let (reconRulesList, setReconRulesList) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (reportModal, setReportModal) = React.useState(_ => false)
   let getAccounts = useGetAccounts()
   let getReconRuleList = useGetReconRuleList()
 
@@ -35,6 +36,8 @@ let make = () => {
       0
     }
   }, (url.search, reconRulesList))
+
+  let selectedRule = reconRulesList->Array.get(initialTabIndex)
 
   let getAccountsData = async _ => {
     try {
@@ -82,14 +85,24 @@ let make = () => {
             text="Generate Report"
             buttonType=Primary
             buttonSize=Large
-            buttonState=Disabled
+            buttonState={selectedRule->Option.isSome ? Normal : Disabled}
             onClick={_ => {
+              setReportModal(_ => true)
               mixpanelEvent(~eventName="recon_engine_transactions_generate_reports_clicked")
             }}
           />
         </div>
       </div>
     </div>
+    {selectedRule->mapOptionOrDefault(React.null, rule =>
+      <ReconEngineGenerateReportModal
+        showModal=reportModal
+        setShowModal=setReportModal
+        rule
+        hyperswitchReconType=#GENERATE_TRANSACTION_REPORT
+        modalHeading="Generate Transaction Report"
+      />
+    )}
     <ReconEngineHelper.GlobalDateFilterBanner />
     <PageLoaderWrapper screenState>
       <RenderIf condition={reconRulesList->isEmptyArray}>
