@@ -1,3 +1,5 @@
+open Typography
+
 module AccountEntriesSection = {
   @react.component
   let make = (
@@ -5,17 +7,24 @@ module AccountEntriesSection = {
     ~accountId: string,
     ~accountsData: array<ReconEngineTypes.accountType>,
     ~transformationNameMap: Dict.t<string>,
+    ~currencyOptions: array<FilterSelectBox.dropdownOption>,
   ) => {
     open LogicUtils
     open EntriesTableEntity
     open ReconEngineExceptionTransactionUtils
     open ReconEngineExceptionTransactionHelper
+    open ReconEngineTransactionsTypes
     open ReconEngineTransactionsUtils
 
     let getEntries = ReconEngineHooks.useGetCursorPage(
       ~hyperswitchReconType=#PROCESSED_ENTRIES_LIST,
       ~itemMapper=transactionsEntryItemToObjMapperFromDict,
     )
+    let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
+      FilterContext.filterContext,
+    )
+    let (searchText, setSearchText) = React.useState(_ => "")
+    let searchTypeRef = React.useRef(SearchEntryOrderId)
 
     let {
       items: entriesList,
@@ -31,6 +40,9 @@ module AccountEntriesSection = {
           ~accountIds=[accountId],
           ~sortBy,
           ~direction,
+          ~filterValueJson,
+          ~searchType=searchTypeRef.current,
+          ~searchText,
         ),
       )
     })
@@ -38,7 +50,48 @@ module AccountEntriesSection = {
     React.useEffect(() => {
       goToFirstPage()
       None
-    }, [])
+    }, [filterValue])
+
+    let handleSearchSubmit = (selectedType: option<string>) => {
+      searchTypeRef.current =
+        selectedType->mapOptionOrDefault(SearchEntryOrderId, entrySearchTypeFromString)
+      goToFirstPage()
+    }
+
+    let accountName =
+      accountsData
+      ->Array.find(account => account.account_id == accountId)
+      ->mapOptionOrDefault(accountId, account => account.account_name)
+
+    let filterSearchRowUi =
+      <div className="flex flex-row justify-between items-center gap-4">
+        <div className="flex flex-row -ml-1.5">
+          <DynamicFilter
+            title={`ReconEngineTransactionEntriesFilters-${accountId}`}
+            initialFilters={entriesDisplayFilters(~currencyOptions)}
+            options=[]
+            popupFilterFields=[]
+            initialFixedFilters=[]
+            defaultFilterKeys=[]
+            tabNames=filterKeys
+            key={`ReconEngineTransactionEntriesFilters-${accountId}`}
+            updateUrlWith=updateExistingKeys
+            filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+            showCustomFilter=false
+            refreshFilters=false
+          />
+        </div>
+        <SearchInput
+          inputText=searchText
+          onChange={value => setSearchText(_ => value)}
+          placeholder="Search by ID"
+          showTypeSelector=true
+          typeSelectorOptions=entrySearchTypeOptions
+          onSubmitSearchDropdown=handleSearchSubmit
+          showSearchIcon=true
+          widthClass="w-max"
+        />
+      </div>
 
     let enrichedEntriesList = React.useMemo(() => {
       entriesList->Array.map(entry => {
@@ -75,36 +128,46 @@ module AccountEntriesSection = {
       sections->Array.mapWithIndex((section, index) => {
         let accountId = accountIds->getValueFromArray(index, "")
         let entriesWithUniqueId = groupedEntries->getValueFromDict(accountId, [])
-        {
-          ...section,
-          rowData: entriesWithUniqueId->Array.map(entry => entry->Identity.genericTypeToJson),
-        }
+
+        (
+          {
+            rows: section.rows,
+            rowData: entriesWithUniqueId->Array.map(entry => entry->Identity.genericTypeToJson),
+          }: ReconEngineExceptionTransactionTypes.tableSection
+        )
       })
     }, (groupedEntries, accountInfoMap))
 
-    <RenderIf condition={entriesList->isNonEmptyArray}>
+    <div className="flex flex-col gap-2">
+      <p className={`text-nd_gray-700 ${body.lg.semibold}`}> {accountName->React.string} </p>
+      {filterSearchRowUi}
       <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="h-40 w-full rounded-xl" />}>
-        <div className="flex flex-col">
-          <ReconEngineCustomExpandableSelectionTable
-            title=""
-            heading={transactionEntriesDetailFields->Array.map(getHeading)}
-            getSectionRowDetails=sectionDetails
-            showScrollBar=true
-            showOptions=false
-            selectedRows=[]
-            onRowSelect={_ => ()}
-            sections=tableSections
-          />
-          <ReconEngineCursorPaginationButtons
-            cursors
-            isLoading={screenState === PageLoaderWrapper.Loading}
-            hasData={entriesList->isNonEmptyArray}
-            onPrev=goToPrevPage
-            onNext=goToNextPage
-          />
-        </div>
+        <RenderIf condition={entriesList->isNonEmptyArray}>
+          <div className="flex flex-col">
+            <ReconEngineCustomExpandableSelectionTable
+              title=""
+              heading={transactionEntriesDetailFields->Array.map(getHeading)}
+              getSectionRowDetails=sectionDetails
+              showScrollBar=true
+              showOptions=false
+              selectedRows=[]
+              onRowSelect={_ => ()}
+              sections=tableSections
+            />
+            <ReconEngineCursorPaginationButtons
+              cursors
+              isLoading={screenState === PageLoaderWrapper.Loading}
+              hasData={entriesList->isNonEmptyArray}
+              onPrev=goToPrevPage
+              onNext=goToNextPage
+            />
+          </div>
+        </RenderIf>
+        <RenderIf condition={entriesList->isEmptyArray}>
+          <NoDataFound customCssClass="my-4" message="No Data Available" renderType=Painting />
+        </RenderIf>
       </PageLoaderWrapper>
-    </RenderIf>
+    </div>
   }
 }
 
@@ -116,11 +179,16 @@ let make = (
 ) => {
   open APIUtils
   open LogicUtils
+  open ReconEngineTransactionsUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastAdapter.useShowToast()
   let (transformationNameMap, setTransformationNameMap) = React.useState(_ => Dict.make())
+
+  let currencyOptions = React.useMemo(() => {
+    getCurrencyOptionsFromAccounts(accountsData, ~accountIds)
+  }, (accountsData, accountIds))
 
   let fetchTransformationConfigs = async () => {
     try {
@@ -144,15 +212,19 @@ let make = (
     None
   }, [])
 
-  <div className="flex flex-col gap-4 mt-6 mb-16">
+  <div className="flex flex-col gap-8 mt-6 mb-16">
     <RenderIf condition={accountIds->isEmptyArray}>
       <NoDataFound customCssClass="my-6" message="No Data Available" renderType=Painting />
     </RenderIf>
     {accountIds
     ->Array.map(accountId =>
-      <AccountEntriesSection
-        key=accountId primaryTransactionId accountId accountsData transformationNameMap
-      />
+      <FilterContext
+        key=accountId
+        index={`recon-engine-transaction-entries-${primaryTransactionId}-${accountId}`}>
+        <AccountEntriesSection
+          primaryTransactionId accountId accountsData transformationNameMap currencyOptions
+        />
+      </FilterContext>
     )
     ->React.array}
   </div>

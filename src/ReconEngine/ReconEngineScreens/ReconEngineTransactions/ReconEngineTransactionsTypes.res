@@ -10,6 +10,11 @@ type transactionSearchType =
   | @as("order_id") SearchOrderId
   | @as("unknown") UnknownTransactionSearchType
 
+type entrySearchType =
+  | @as("order_ids") SearchEntryOrderId
+  | @as("staging_entry_ids") SearchEntryStagingEntryId
+  | @as("unknown") UnknownEntrySearchType
+
 type transactionSortOrder =
   | @as("asc") Asc
   | @as("desc") Desc

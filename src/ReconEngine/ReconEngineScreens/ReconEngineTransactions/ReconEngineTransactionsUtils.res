@@ -22,6 +22,24 @@ let searchTypeOptions: array<SearchInput.searchTypeOption> = [
   }
 })
 
+let entrySearchTypeFromString = str => {
+  switch str {
+  | "order_ids" => SearchEntryOrderId
+  | "staging_entry_ids" => SearchEntryStagingEntryId
+  | _ => UnknownEntrySearchType
+  }
+}
+
+let entrySearchTypeOptions: array<SearchInput.searchTypeOption> = [
+  (SearchEntryOrderId, "Order ID"),
+  (SearchEntryStagingEntryId, "Staging Entry ID"),
+]->Array.map(((searchType, label)): SearchInput.searchTypeOption => {
+  {
+    label,
+    value: (searchType :> string),
+  }
+})
+
 let getSortOrder = (sortOb: LoadedTable.sortOb): transactionSortOrder => {
   sortOb.sortKey === "date" && sortOb.sortType === LoadedTable.ASC ? Asc : Desc
 }
@@ -124,11 +142,118 @@ let buildTransactionRetrievalBody = (~transactionId: string) => {
   ]->getJsonFromArrayOfJson
 }
 
+let allEntryFilterStatuses: array<entryStatus> = [
+  Posted,
+  Matched,
+  Mismatched,
+  Expected,
+  Pending,
+  Void,
+  Archived,
+]
+
+let getCurrencyOptionsFromAccounts = (
+  accountsData: array<accountType>,
+  ~accountIds: array<string>,
+): array<FilterSelectBox.dropdownOption> => {
+  accountsData
+  ->Array.filter(account => accountIds->Array.includes(account.account_id))
+  ->Array.map(account => account.currency)
+  ->Array.filter(isNonEmptyString)
+  ->getUniqueArray
+  ->Array.map(currency => {
+    {
+      FilterSelectBox.label: currency,
+      value: currency,
+    }
+  })
+}
+
+let entriesDisplayFilters = (~currencyOptions) => {
+  let entryTypeOptions: array<FilterSelectBox.dropdownOption> = [
+    {label: "Credit", value: "credit"},
+    {label: "Debit", value: "debit"},
+  ]
+
+  let statusOptions = allEntryFilterStatuses->Array.map((
+    status
+  ): FilterSelectBox.dropdownOption => {
+    label: (status :> string)->snakeToTitle,
+    value: (status :> string),
+  })
+
+  [
+    (
+      {
+        field: FormRenderer.makeFieldInfo(
+          ~label="entry_type",
+          ~name="entry_type",
+          ~customInput=InputFields.filterMultiSelectInput(
+            ~options=entryTypeOptions,
+            ~buttonText="Select Entry Type",
+            ~showSelectionAsChips=false,
+            ~searchable=true,
+            ~showToolTip=true,
+            ~showNameAsToolTip=true,
+            ~customButtonStyle="bg-none",
+            ~fixedDropDownDirection=BottomRight,
+            (),
+          ),
+        ),
+        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+      }: EntityType.initialFilters<'t>
+    ),
+    (
+      {
+        field: FormRenderer.makeFieldInfo(
+          ~label="status",
+          ~name="status",
+          ~customInput=InputFields.filterMultiSelectInput(
+            ~options=statusOptions,
+            ~buttonText="Select Status",
+            ~showSelectionAsChips=false,
+            ~searchable=true,
+            ~showToolTip=true,
+            ~showNameAsToolTip=true,
+            ~customButtonStyle="bg-none",
+            ~fixedDropDownDirection=BottomRight,
+            (),
+          ),
+        ),
+        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+      }: EntityType.initialFilters<'t>
+    ),
+    (
+      {
+        field: FormRenderer.makeFieldInfo(
+          ~label="currency",
+          ~name="currency",
+          ~customInput=InputFields.filterMultiSelectInput(
+            ~options=currencyOptions,
+            ~buttonText="Select Currency",
+            ~showSelectionAsChips=false,
+            ~searchable=true,
+            ~showToolTip=true,
+            ~showNameAsToolTip=true,
+            ~customButtonStyle="bg-none",
+            ~fixedDropDownDirection=BottomRight,
+            (),
+          ),
+        ),
+        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+      }: EntityType.initialFilters<'t>
+    ),
+  ]
+}
+
 let buildEntriesListBody = (
   ~primaryTransactionId: string,
   ~accountIds: array<string>,
   ~sortBy: cursor,
   ~direction: cursorDirection,
+  ~filterValueJson: Dict.t<JSON.t>,
+  ~searchType: entrySearchType,
+  ~searchText: string,
   ~limit=10,
 ) => {
   let filtersDict = Dict.make()
@@ -137,6 +262,31 @@ let buildEntriesListBody = (
     "account_ids",
     accountIds->Array.map(JSON.Encode.string)->getNonEmptyArray,
   )
+
+  let getSelectedValues = key =>
+    filterValueJson
+    ->getArrayFromDict(key, [])
+    ->Array.map(value => value->getStringFromJson(""))
+    ->Array.filter(isNonEmptyString)
+
+  filtersDict->setOptionArray(
+    "status",
+    getSelectedValues("status")->Array.map(JSON.Encode.string)->getNonEmptyArray,
+  )
+  filtersDict->setOptionArray(
+    "currency",
+    getSelectedValues("currency")->Array.map(JSON.Encode.string)->getNonEmptyArray,
+  )
+
+  switch getSelectedValues("entry_type") {
+  | [entryType] => filtersDict->Dict.set("entry_type", entryType->JSON.Encode.string)
+  | _ => ()
+  }
+
+  let trimmedSearchText = searchText->String.trim
+  if trimmedSearchText->isNonEmptyString && searchType != UnknownEntrySearchType {
+    filtersDict->Dict.set((searchType :> string), [trimmedSearchText]->getJsonFromArrayOfString)
+  }
 
   let cursorPayload: entriesListCursorPayload = {
     limit,
