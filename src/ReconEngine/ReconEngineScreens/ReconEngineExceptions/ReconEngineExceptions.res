@@ -3,14 +3,25 @@ open Typography
 @react.component
 let make = () => {
   open LogicUtils
+  open ReconEngineRulesTypes
 
   let url = RescriptReactRouter.useUrl()
+  let basePath = GlobalVars.appendDashboardPath(~url="v1/recon-engine/exceptions/recon")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (accountData, setAccountData) = React.useState(_ => [])
   let (reconRulesList, setReconRulesList) = React.useState(_ => [])
+  let (reportModal, setReportModal) = React.useState(_ => false)
   let getAccounts = ReconEngineHooks.useGetAccounts()
   let getReconRuleList = ReconEngineHooks.useGetReconRuleList()
   let mixpanelEvent = MixpanelHook.useSendEvent()
+
+  let onTitleClick = idx => {
+    let url =
+      reconRulesList
+      ->Array.get(idx)
+      ->mapOptionOrDefault(basePath, rule => `${basePath}?rule_id=${rule.rule_id}`)
+    RescriptReactRouter.push(url)
+  }
 
   let getAccountsAndRulesData = async _ => {
     try {
@@ -58,6 +69,8 @@ let make = () => {
     }
   }, (url.search, reconRulesList))
 
+  let selectedRule = reconRulesList->Array.get(initialTabIndex)
+
   <div className="flex flex-col w-full">
     <div className="flex flex-row justify-between items-center">
       <PageUtils.PageHeading
@@ -72,14 +85,24 @@ let make = () => {
             text="Generate Report"
             buttonType=Primary
             buttonSize=Large
-            buttonState=Disabled
+            buttonState={selectedRule->Option.isSome ? Normal : Disabled}
             onClick={_ => {
+              setReportModal(_ => true)
               mixpanelEvent(~eventName="recon_engine_exceptions_generate_reports_clicked")
             }}
           />
         </div>
       </div>
     </div>
+    {selectedRule->mapOptionOrDefault(React.null, rule =>
+      <ReconEngineGenerateReportModal
+        showModal=reportModal
+        setShowModal=setReportModal
+        rule
+        hyperswitchReconType=#GENERATE_EXCEPTION_REPORT
+        modalHeading="Generate Exception Report"
+      />
+    )}
     <ReconEngineHelper.GlobalDateFilterBanner />
     <PageLoaderWrapper screenState>
       <RenderIf condition={reconRulesList->Array.length == 0}>
@@ -92,7 +115,7 @@ let make = () => {
         </div>
       </RenderIf>
       <RenderIf condition={reconRulesList->Array.length > 0}>
-        <Tabs tabs initialIndex={initialTabIndex} />
+        <Tabs tabs initialIndex={initialTabIndex} onTitleClick />
       </RenderIf>
     </PageLoaderWrapper>
   </div>

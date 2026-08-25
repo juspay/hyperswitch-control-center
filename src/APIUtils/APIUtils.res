@@ -1156,6 +1156,16 @@ let useGetURL = () => {
             }
           | _ => Default("")
           }
+        | #GENERATE_TRANSACTION_REPORT =>
+          switch methodType {
+          | Post => Default(`${reconBaseURL}/report/transactions`)
+          | _ => Default("")
+          }
+        | #GENERATE_EXCEPTION_REPORT =>
+          switch methodType {
+          | Post => Default(`${reconBaseURL}/report/exceptions`)
+          | _ => Default("")
+          }
         | #INGESTION_HISTORY =>
           switch methodType {
           | Get =>
