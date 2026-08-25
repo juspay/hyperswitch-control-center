@@ -584,19 +584,44 @@ let getExceptionAgingDataFromTimeSeries = (
 let getExceptionTriageItems = (~overviewRules: array<overviewRulesResponse>): array<
   exceptionTriageItem,
 > => {
-  let counts = Dict.make()
-  let add = (label, count) => counts->Dict.set(label, counts->getValueFromDict(label, 0) + count)
+  open ReconEngineFilterUtils
+
+  let dataMismatchFilter =
+    getTransactionStatusValueFromStatusList([DataMismatch])->Array.joinWith(",")
+  let underAmountFilter =
+    getTransactionStatusValueFromStatusList([
+      UnderAmount(Mismatch),
+      UnderAmount(Expected),
+    ])->Array.joinWith(",")
+  let overAmountFilter =
+    getTransactionStatusValueFromStatusList([
+      OverAmount(Mismatch),
+      OverAmount(Expected),
+    ])->Array.joinWith(",")
+  let missingFilter = getTransactionStatusValueFromStatusList([Missing])->Array.joinWith(",")
+  let splitMismatchFilter =
+    getTransactionStatusValueFromStatusList([SplitMismatch])->Array.joinWith(",")
+  let currencyMismatchFilter =
+    getTransactionStatusValueFromStatusList([CurrencyMismatch])->Array.joinWith(",")
+  let partiallyReconciledFilter =
+    getTransactionStatusValueFromStatusList([PartiallyReconciled])->Array.joinWith(",")
+
+  let counts: Dict.t<(string, int)> = Dict.make()
+  let add = (label, statusFilter, count) => {
+    let prevTotal = counts->Dict.get(label)->Option.mapOr(0, ((_, total)) => total)
+    counts->Dict.set(label, (statusFilter, prevTotal + count))
+  }
 
   overviewRules->Array.forEach(rule =>
     rule.status_breakdown->Array.forEach(status =>
       switch status.status {
-      | DataMismatch => add("Data mismatch", status.count)
-      | UnderAmount(_) => add("Under amount", status.count)
-      | OverAmount(_) => add("Over amount", status.count)
-      | Missing => add("Missing", status.count)
-      | SplitMismatch => add("Split mismatch", status.count)
-      | CurrencyMismatch => add("Currency mismatch", status.count)
-      | PartiallyReconciled => add("Partially reconciled", status.count)
+      | DataMismatch => add("Data mismatch", dataMismatchFilter, status.count)
+      | UnderAmount(_) => add("Under amount", underAmountFilter, status.count)
+      | OverAmount(_) => add("Over amount", overAmountFilter, status.count)
+      | Missing => add("Missing", missingFilter, status.count)
+      | SplitMismatch => add("Split mismatch", splitMismatchFilter, status.count)
+      | CurrencyMismatch => add("Currency mismatch", currencyMismatchFilter, status.count)
+      | PartiallyReconciled => add("Partially reconciled", partiallyReconciledFilter, status.count)
       | _ => ()
       }
     )
@@ -604,7 +629,7 @@ let getExceptionTriageItems = (~overviewRules: array<overviewRulesResponse>): ar
 
   counts
   ->Dict.toArray
-  ->Array.map(((label, total)): exceptionTriageItem => {label, total})
+  ->Array.map(((label, (statusFilter, total))): exceptionTriageItem => {label, total, statusFilter})
   ->Array.filter(item => item.total > 0)
   ->Array.toSorted((a, b) => Int.compare(b.total, a.total))
 }
@@ -807,7 +832,7 @@ let getConnectedStatCards = (
       connectedStatCardTitle: FailedIngestions,
       connectedStatCardValue: Number(failedIngestionHistory->Array.length),
       connectedStatCardType: Info,
-      connectedStatCardPath: Some(appendDashboardPath(~url="v1/recon-engine/sources")),
+      connectedStatCardPath: Some(appendDashboardPath(~url="v1/recon-engine/pipelines")),
     },
     {
       connectedStatCardTitle: MissingTransactions,
@@ -819,7 +844,7 @@ let getConnectedStatCards = (
       connectedStatCardTitle: FailedTransformations,
       connectedStatCardValue: Number(failedTransformationHistory->Array.length),
       connectedStatCardType: Info,
-      connectedStatCardPath: Some(appendDashboardPath(~url="v1/recon-engine/transformation")),
+      connectedStatCardPath: Some(appendDashboardPath(~url="v1/recon-engine/pipelines")),
     },
     {
       connectedStatCardTitle: ManualCorrections,

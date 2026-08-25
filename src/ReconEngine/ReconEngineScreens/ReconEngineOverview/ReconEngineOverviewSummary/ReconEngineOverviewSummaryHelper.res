@@ -318,11 +318,15 @@ module ExceptionAgingBar = {
 
 module ExceptionTriageRow = {
   @react.component
-  let make = (~item: exceptionTriageItem, ~total: int, ~index: int) => {
+  let make = (~item: exceptionTriageItem, ~total: int, ~index: int, ~onClick=?) => {
     let color = getTriageColor(index)
     let pct = ReconEngineOverviewUtils.getPercentage(~count=item.total, ~total)
+    let clickableClass =
+      onClick->Option.isSome ? "cursor-pointer hover:bg-nd_gray-50 -mx-1 px-1 rounded" : ""
+    let handleClick = _ => onClick->Option.forEach(fn => fn())
 
-    <div className="flex items-center justify-between gap-3">
+    <div
+      className={`flex items-center justify-between gap-3 ${clickableClass}`} onClick=handleClick>
       <div className="flex items-center gap-2 min-w-0">
         <span
           className="w-2.5 h-2.5 rounded-sm shrink-0"
