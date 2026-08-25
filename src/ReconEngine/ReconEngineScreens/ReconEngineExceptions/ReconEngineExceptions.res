@@ -2,27 +2,21 @@ open Typography
 
 @react.component
 let make = () => {
-  open APIUtils
   open LogicUtils
-  open ReconEngineRulesUtils
 
   let url = RescriptReactRouter.useUrl()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (accountData, setAccountData) = React.useState(_ => [])
   let (reconRulesList, setReconRulesList) = React.useState(_ => [])
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
+  let getAccounts = ReconEngineHooks.useGetAccounts()
+  let getReconRuleList = ReconEngineHooks.useGetReconRuleList()
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
-  let getReconRulesData = async _ => {
+  let getAccountsAndRulesData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~hyperswitchReconType=#RECON_RULES,
-        ~methodType=Get,
-      )
-      let res = await fetchDetails(url)
-      let ruleDetails = res->getArrayDataFromJson(ruleItemToObjMapper)
+      let (accounts, ruleDetails) = await Promise.all2((getAccounts(), getReconRuleList()))
+      setAccountData(_ => accounts)
       setReconRulesList(_ => ruleDetails)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -35,13 +29,19 @@ let make = () => {
     reconRulesList->Array.map(ruleDetails => {
       title: ruleDetails.rule_name,
       renderContent: () => {
-        <ReconEngineExceptionTransaction ruleId={ruleDetails.rule_id} />
+        <FilterContext
+          key={`recon-engine-exception-${ruleDetails.rule_id}`}
+          index={`recon-engine-exception-${ruleDetails.rule_id}`}>
+          <ReconEngineExceptionTransaction
+            ruleId={ruleDetails.rule_id} accountData reconRulesList
+          />
+        </FilterContext>
       },
     })
-  }, [reconRulesList])
+  }, (accountData, reconRulesList))
 
   React.useEffect(() => {
-    getReconRulesData()->ignore
+    getAccountsAndRulesData()->ignore
     None
   }, [])
 
