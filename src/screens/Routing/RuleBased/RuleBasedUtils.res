@@ -40,6 +40,8 @@ let defaultConfig = (): config => {
   },
 }
 
+let defaultInitialValues = (): JSON.t => defaultConfig()->Identity.genericTypeToJson
+
 let cardBinFieldFromLhs = (lhs: string): option<cardBinField> =>
   switch lhs {
   | "card_bin" => Some(CardBin)
@@ -284,17 +286,49 @@ let stringifyStrValueNumber = (conditionDict: Dict.t<JSON.t>) => {
 let normalizeStrValueNumbers = (data: Dict.t<JSON.t>) =>
   data->forEachCondition(stringifyStrValueNumber)
 
+let removeRuleIds = (data: Dict.t<JSON.t>) => {
+  let rules =
+    data
+    ->getArrayFromDict("rules", [])
+    ->Array.map(ruleJson =>
+      ruleJson
+      ->getDictFromJsonObject
+      ->Dict.toArray
+      ->Array.filter(((key, _)) => key !== "id")
+      ->Dict.fromArray
+      ->JSON.Encode.object
+    )
+  data->Dict.set("rules", rules->JSON.Encode.array)
+}
+
 let normalizeRulePayload = (json: JSON.t): JSON.t => {
-  let data = json->getDictFromJsonObject->getDictFromNestedDict("algorithm", "data")
+  // work on a copy — rule ids are FE-only and must survive in form state
+  let payload = json->JSON.stringify->safeParse
+  let data = payload->getDictFromJsonObject->getDictFromNestedDict("algorithm", "data")
   data->ensureMetadataObject
   data->normalizeStrValueNumbers
-  json
+  data->removeRuleIds
+  payload
+}
+
+let ensureRuleIds = (values: JSON.t): JSON.t => {
+  values
+  ->getDictFromJsonObject
+  ->getDictFromNestedDict("algorithm", "data")
+  ->getArrayFromDict("rules", [])
+  ->Array.forEach(ruleJson => {
+    let dict = ruleJson->getDictFromJsonObject
+    if dict->getString("id", "")->isEmptyString {
+      dict->Dict.set("id", `rule_${randomString(~length=6)}`->JSON.Encode.string)
+    }
+  })
+  values
 }
 
 let forDuplicate = (values: JSON.t): JSON.t => {
   let dict = values->getDictFromJsonObject
   dict->Dict.set("name", ""->JSON.Encode.string)
-  dict->JSON.Encode.object
+  dict->JSON.Encode.object->ensureRuleIds
 }
 
 let idOfRule = (ruleJson: JSON.t): string => {ruleJson->getDictFromJsonObject->getString("id", "")}
