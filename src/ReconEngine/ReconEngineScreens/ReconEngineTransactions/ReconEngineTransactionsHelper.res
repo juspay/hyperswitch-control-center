@@ -293,7 +293,10 @@ module AuditTrail = {
     }
 
     let sections = allTransactionDetails->Array.map((transaction: transactionType) => {
-      let reasonText = transaction.data.reason->Option.mapOr(None, reason => Some(reason))
+      let reasonText = switch transaction.data.reason {
+      | Some(reason) if reason->isNonEmptyString => Some(reason)
+      | _ => transaction.discarded_data->Option.flatMap(discardedData => discardedData.reason)
+      }
 
       let customComponent = {
         id: transaction.version->Int.toString,
