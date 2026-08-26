@@ -426,6 +426,7 @@ type majorUnitTransformationRule =
 type dateTimeTransformationRule =
   | DateTimeTrim
   | DateTimeJsonExtract(string)
+  | DateTimeRegex({pattern: string, group: option<int>})
   | UnknownDateTimeTransformationRule
 
 type enumTransformationRule =
