@@ -127,9 +127,7 @@ let blocklistEntryBody = (~dataKind, ~data) => {
   [
     ("type", dataKind->blocklistDataKindToString->JSON.Encode.string),
     ("data", data->JSON.Encode.string),
-  ]
-  ->Dict.fromArray
-  ->JSON.Encode.object
+  ]->getJsonFromArrayOfJson
 }
 
 let cardBinRegex = %re("/^\d{6}$/")
@@ -180,12 +178,12 @@ let blocklistEntryMaxLength = dataKind => {
 
 let getBlocklistDataKindFromString = dataKind => {
   switch dataKind {
-  | "card_bin" => CardBin
-  | "extended_card_bin" => ExtendedCardBin
-  | _ => Fingerprint
+  | "card_bin" => Some(CardBin)
+  | "extended_card_bin" => Some(ExtendedCardBin)
+  | "fingerprint" => Some(Fingerprint)
+  | _ => None
   }
 }
-
 let validateBlocklistEntryData = (~dataKind, ~data, ~operation) => {
   let trimmedData = data->String.trim
   if trimmedData->isEmptyString {
@@ -218,6 +216,13 @@ let getBlocklistEntryFallbackError = operation => {
   | AddBlocklistEntry => "Failed to add entry to blocklist"
   | DeleteBlocklistEntry => "Failed to remove entry from blocklist"
   }
+}
+
+let parseBlocklistErrorMessage = rawErrorMessage => {
+  let errorDict = rawErrorMessage->safeParse->getDictFromJsonObject
+  errorDict
+  ->getObj("error", errorDict)
+  ->getString("message", rawErrorMessage)
 }
 
 let getBlocklistEntrySuccessMessage = (~operation, ~submittedData, ~fingerprintId) => {
