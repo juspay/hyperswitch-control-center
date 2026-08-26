@@ -223,6 +223,20 @@ module HierarchicalEntryRenderer = {
   }
 }
 
+module HierarchicalMoreEntriesRenderer = {
+  @react.component
+  let make = (~hasMoreEntries: bool, ~text: string="") => {
+    <RenderIf condition={hasMoreEntries}>
+      <div className="px-8 py-3.5">
+        <div
+          className={`truncate max-w-48 whitespace-nowrap h-7 text-nd_gray-500 ${body.sm.medium}`}>
+          {text->React.string}
+        </div>
+      </div>
+    </RenderIf>
+  }
+}
+
 module AuditTrail = {
   @react.component
   let make = (~allTransactionDetails) => {
