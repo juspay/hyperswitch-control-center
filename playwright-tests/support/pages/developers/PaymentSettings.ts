@@ -58,6 +58,28 @@ export class PaymentSettings {
     return this.page.getByRole("tab", { name: "Surcharge", exact: true });
   }
 
+  // Surcharge Tab Elements
+  get surchargeConnectorsLabel(): Locator {
+    return this.page.getByText("Surcharge Connectors *", { exact: true });
+  }
+
+  get surchargeConnectorDropdown(): Locator {
+    return this.page.getByRole("button", { name: "Select Field" });
+  }
+
+  surchargeConnectorOption(connectorLabel: string): Locator {
+    return this.page
+      .getByRole("menuitem")
+      .filter({ hasText: connectorLabel })
+      .first();
+  }
+
+  selectedSurchargeConnector(connectorLabel: string): Locator {
+    return this.page.getByRole("button", {
+      name: new RegExp(connectorLabel),
+    });
+  }
+
   // Payment Behaviour Tab Elements
   get collectBillingDetailsToggle(): Locator {
     return this.page.getByText("Collect billing details from wallets");
@@ -159,7 +181,7 @@ export class PaymentSettings {
   }
 
   dropdownValueByText(text: string): Locator {
-    return this.page.getByRole('option', { name: text });
+    return this.page.getByRole("option", { name: text });
   }
 
   selectFieldDropdown(): Locator {
@@ -254,23 +276,23 @@ export class PaymentSettings {
   }
 
   acquirerMerchantNameInput(modal: Locator): Locator {
-    return this.page.getByRole("textbox", { name: "e.g. Demo Merchant" });
+    return modal.getByRole("textbox", { name: "e.g. Demo Merchant" });
   }
 
   acquirerMerchantIdInput(modal: Locator): Locator {
-    return this.page.getByRole("textbox", { name: "e.g. 00004500000" });
+    return modal.getByRole("textbox", { name: "e.g. 00004500000" });
   }
 
   acquirerBinInput(modal: Locator): Locator {
-    return this.page.getByRole("spinbutton", { name: "e.g." }).first();
+    return modal.getByRole("spinbutton", { name: "e.g." }).first();
   }
 
   acquirerIcaInput(modal: Locator): Locator {
-    return this.page.getByRole("spinbutton", { name: "e.g." }).nth(1);
+    return modal.getByRole("spinbutton", { name: "e.g." }).nth(1);
   }
 
   acquirerFraudRateInput(modal: Locator): Locator {
-    return this.page.getByRole("spinbutton", { name: "e.g. 25" });
+    return modal.getByRole("spinbutton", { name: "e.g. 25" });
   }
 
   acquirerNetworkDropdownInModal(modal: Locator): Locator {

@@ -10,8 +10,8 @@ let reconEngineSidebars = (
     name: "Overview",
     link: `/v1/recon-engine/overview`,
     access: Access,
-    icon: "nd-overview",
-    selectedIcon: "nd-overview-fill",
+    icon: "nd-home",
+    selectedIcon: "nd-fill-home",
   })
 
   let reconTransactions = Link({
@@ -36,18 +36,18 @@ let reconEngineSidebars = (
 
   let exceptions = Section({
     name: "Exceptions",
-    icon: "nd-operations",
+    icon: "nd-inbox",
     showSection: true,
     links: [reconExceptions, transformedEntriesExceptions],
-    selectedIcon: "nd-operations-fill",
+    selectedIcon: "nd-inbox",
   })
 
   let reconRuleCreation = Link({
     name: "Rules Library",
     link: `/v1/recon-engine/rules`,
     access: userHasResourceAccess(~resourceAccess=ReconRule),
-    icon: "nd-reports",
-    selectedIcon: "nd-reports-fill",
+    icon: "nd-settings",
+    selectedIcon: "nd-settings-fill",
   })
 
   let reconTransformedEntries = Link({
@@ -62,16 +62,25 @@ let reconEngineSidebars = (
     name: "Pipelines",
     link: `/v1/recon-engine/pipelines`,
     access: userHasAccess(~groupAccess=ReconSourcesView),
-    icon: "nd-pipelines",
-    selectedIcon: "nd-pipelines-fill",
+    icon: "nd-workflow",
+    selectedIcon: "nd-workflow-fill",
   })
 
-  let sidebars = [reconOverview, reconTransactions, exceptions, reconRuleCreation]
+  let sidebars = [
+    Heading({name: "Operate"}),
+    reconOverview,
+    exceptions,
+    Heading({name: "Monitor"}),
+    reconTransactions,
+    reconTransformedEntries,
+  ]
 
   if isReconEnginePipelinesEnabled {
     sidebars->Array.push(reconPipelines)
   }
-  sidebars->Array.push(reconTransformedEntries)
+
+  sidebars->Array.push(Heading({name: "Configure"}))
+  sidebars->Array.push(reconRuleCreation)
 
   sidebars
 }

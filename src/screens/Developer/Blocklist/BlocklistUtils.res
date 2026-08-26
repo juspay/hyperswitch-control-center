@@ -7,6 +7,7 @@ extended_card_bin,41111100,
 fingerprint,fp_abc123,`
 
 let maxBlocklistCsvFileSize = 5 * 1024 * 1024
+let maxBlocklistCsvDataRows = 100000
 let bytesPerKilobyte = 1024
 let bytesPerMegabyte = bytesPerKilobyte * 1024
 
@@ -236,5 +237,34 @@ let formatFileSize = fileSize => {
     `${size->Float.toFixedWithPrecision(~digits=1)->removeTrailingZero} KB`
   } else {
     `${fileSize->Int.toString} B`
+  }
+}
+
+let maxBlocklistCsvDataRowsLabel =
+  maxBlocklistCsvDataRows->DateTimeUtils.toLocaleStringWithLocale("en-US")
+let maxBlocklistCsvFileSizeLabel = maxBlocklistCsvFileSize->formatFileSize
+
+let getBlocklistCsvFileError = file =>
+  if !(file->isValidBlocklistCsvFile) {
+    Some("Please upload a valid CSV file.")
+  } else if !(file->isBlocklistCsvFileSizeAllowed) {
+    Some(`CSV files larger than ${maxBlocklistCsvFileSizeLabel} cannot be processed.`)
+  } else {
+    None
+  }
+
+let getBlocklistCsvDataRowCount = fileContents => {
+  let parsedCsv = PapaParse.parse(fileContents, {"skipEmptyLines": true})
+  parsedCsv.data->Array.length - 1
+}
+
+let getBlocklistCsvDataRowCountError = fileContents => {
+  let dataRowCount = fileContents->getBlocklistCsvDataRowCount
+  if dataRowCount < 1 {
+    Some("CSV file must contain at least one data row.")
+  } else if dataRowCount > maxBlocklistCsvDataRows {
+    Some(`CSV files with more than ${maxBlocklistCsvDataRowsLabel} rows cannot be processed.`)
+  } else {
+    None
   }
 }

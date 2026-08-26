@@ -163,6 +163,8 @@ type payoutProcessorTypes =
   | TRUELAYER
   | ENVOY
   | TRUSTLY
+  | SANTANDER
+  | DEUTSCHEBANK
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO

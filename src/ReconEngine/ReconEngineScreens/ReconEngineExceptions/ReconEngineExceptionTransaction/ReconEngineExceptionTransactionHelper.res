@@ -93,7 +93,8 @@ module ResolutionModal = {
     | (ResolvingException(EditEntry), Some(EditEntryModal))
     | (ResolvingException(CreateNewEntry), Some(CreateEntryModal))
     | (ResolvingException(MarkAsReceived), Some(MarkAsReceivedModal))
-    | (ResolvingException(LinkStagingEntriesToTransaction), Some(LinkStagingEntriesModal)) => true
+    | (ResolvingException(ReplaceStagingEntryToTransaction), Some(LinkStagingEntriesModal))
+    | (ResolvingException(LinkStagingEntryToTransaction), Some(LinkStagingEntriesModal)) => true
     | _ => false
     }
 
@@ -135,6 +136,10 @@ module ResolutionModal = {
         }
       | ResolvingException(CreateNewEntry) => {
           setExceptionStage(_ => ShowResolutionOptions(NoResolutionOptionNeeded))
+          setActiveModal(_ => None)
+        }
+      | ResolvingException(LinkStagingEntryToTransaction) => {
+          setExceptionStage(_ => ShowResolutionOptions(FixEntries))
           setActiveModal(_ => None)
         }
       | _ => ()
@@ -525,26 +530,26 @@ let getEntriesSections = (
 
   let amountColorClass = overallBalance == 0.0 ? "text-nd_green-600" : "text-nd_red-600"
 
-  sectionData->Array.map(((_accountId, accountInfo, accountEntries, totalAmount, currency)) => {
+  sectionData->Array.map(section => {
     let accountRows =
-      accountEntries->Array.map(entry =>
+      section.accountEntries->Array.map(entry =>
         detailsFields->Array.map(
           colType => EntriesTableEntity.getCell(entry->getEntryTypeFromExceptionEntryType, colType),
         )
       )
-    let rowData = accountEntries->Array.map(entry => entry->Identity.genericTypeToJson)
+    let rowData = section.accountEntries->Array.map(entry => entry->Identity.genericTypeToJson)
 
     let titleElement =
       <div className="flex justify-between items-center mb-4">
         <p className={`text-nd_gray-700 ${body.lg.semibold}`}>
-          {accountInfo.account_info_name->React.string}
+          {section.accountInfo.account_info_name->React.string}
         </p>
         <RenderIf condition={showTotalAmount}>
           <div className={`${amountColorClass} ${body.lg.medium}`}>
             {CurrencyFormatUtils.valueFormatter(
-              totalAmount,
+              section.accountTotalAmount,
               AmountWithSuffix,
-              ~currency,
+              ~currency=section.accountCurrency,
             )->React.string}
           </div>
         </RenderIf>
@@ -572,7 +577,8 @@ let getSectionRowDetails = (~sectionIndex: int, ~rowIndex: int, ~groupedEntries)
 
   <RenderIf condition={hasEntryMetadata}>
     <div className="p-4">
-      <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll !max-h-60 py-2 px-6">
+      <div
+        className="w-0 min-w-full bg-nd_gray-50 rounded-xl overflow-x-auto overflow-y-scroll !max-h-60 py-2 px-6">
         <PrettyPrintJson
           jsonToDisplay={filteredEntryMetadata->JSON.Encode.object->JSON.stringify}
         />
@@ -593,7 +599,8 @@ let getStagingEntryDetails = (~rowIndex: int, ~stagingEntries) => {
 
   <RenderIf condition={hasMetadata}>
     <div className="p-4">
-      <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll !max-h-60 py-2 px-6">
+      <div
+        className="w-0 min-w-full bg-nd_gray-50 rounded-xl overflow-x-auto overflow-y-scroll !max-h-60 py-2 px-6">
         <PrettyPrintJson jsonToDisplay={filteredMetadata->JSON.Encode.object->JSON.stringify} />
       </div>
     </div>

@@ -1,5 +1,35 @@
 open LogicUtils
 open ReconEngineTypes
+open ReconEngineFilterTypes
+open HSAnalyticsUtils
+
+let globalDateFilterContextIndex = "recon-engine-global-date"
+let globalDateFilterKeys = [startTimeFilterKey, endTimeFilterKey]
+
+let globalDateFilterPortalName = "reconGlobalDateFilter"
+
+let getGlobalDateFilterFromDict = (dict: Dict.t<string>): globalDateFilter => {
+  startTime: dict->getValueFromDict(startTimeFilterKey, ""),
+  endTime: dict->getValueFromDict(endTimeFilterKey, ""),
+}
+
+let mergeGlobalDateFilters = (
+  ~filterValueJson: Dict.t<JSON.t>,
+  ~globalDateFilters: globalDateFilter,
+) => {
+  let dateEntries =
+    [
+      (startTimeFilterKey, globalDateFilters.startTime),
+      (endTimeFilterKey, globalDateFilters.endTime),
+    ]
+    ->Array.filter(((_, value)) => value->isNonEmptyString)
+    ->Array.map(((key, value)) => (key, value->UrlFetchUtils.getFilterValue))
+
+  Array.concat(filterValueJson->Dict.toArray, dateEntries)->Dict.fromArray
+}
+
+let hasGlobalDateFilterValue = (~globalDateFilters: globalDateFilter) =>
+  globalDateFilters.startTime->isNonEmptyString && globalDateFilters.endTime->isNonEmptyString
 
 let getAccountOptionsFromTransactions = (
   transactions: array<transactionType>,
@@ -38,28 +68,30 @@ let getEntryTypeAccountOptions = (
 
 let refreshEndTimeFilter = updateExistingKeys => {
   updateExistingKeys(
-    Dict.fromArray([
-      (HSAnalyticsUtils.endTimeFilterKey, HSwitchRemoteFilter.getDateFilteredObject().end_time),
-    ]),
+    Dict.fromArray([(endTimeFilterKey, HSwitchRemoteFilter.getDateFilteredObject().end_time)]),
   )
 }
 
-let buildQueryStringFromFilters = (~filterValueJson: Dict.t<JSON.t>) => {
+let toReconTimeString = value =>
+  value->isNonEmptyString ? value->dateFormat("YYYY-MM-DDTHH:mm:ss[Z]") : value
+
+let buildQueryStringFromFilters = (~filterValueJson: Dict.t<JSON.t>, ~convertToLocal=true) => {
   let queryParts = []
+  let formatTime = convertToLocal ? toReconTimeString : v => v
 
   filterValueJson
   ->Dict.toArray
   ->Array.forEach(((key, value)) => {
-    let apiKey = switch key {
-    | "startTime" => "start_time"
-    | "endTime" => "end_time"
-    | _ => key
+    let (apiKey, formatValue) = switch key {
+    | "startTime" => ("start_time", formatTime)
+    | "endTime" => ("end_time", formatTime)
+    | _ => (key, v => v)
     }
 
     switch value->JSON.Classify.classify {
     | String(str) =>
       if str->isNonEmptyString {
-        queryParts->Array.push(`${apiKey}=${str}`)
+        queryParts->Array.push(`${apiKey}=${str->formatValue}`)
       }
     | Number(num) => queryParts->Array.push(`${apiKey}=${num->Float.toString}`)
     | Array(arr) => {
@@ -123,21 +155,6 @@ let getTransactionStatusGroupedValueAndLabel = (status: domainTransactionStatus)
   }
 }
 
-let getProcessingEntryStatusValueAndLabel = (status: processingEntryStatus): (string, string) => {
-  let value: string = (status :> string)->camelToSnake
-  let label = (status :> string)->snakeToTitle
-  (value, label)
-}
-
-let getProcessingEntryStatusValueFromStatusList = (statusList: array<processingEntryStatus>): array<
-  string,
-> => {
-  statusList->Array.map(status => {
-    let (value, _) = getProcessingEntryStatusValueAndLabel(status)
-    value
-  })
-}
-
 let getIngestionTransformationHistoryStatusValueFromStatusList = (
   statusList: array<ingestionTransformationStatusType>,
 ): array<string> => {
@@ -179,15 +196,99 @@ let getGroupedTransactionStatusOptions = (statusList: array<domainTransactionSta
   })
 }
 
-let getStagingEntryStatusOptions = (statusList: array<processingEntryStatus>): array<
+let allStagingEntryManualReviewStatuses: array<domainStagingEntryStatus> = [
+  NeedsManualReview(NoRulesFound),
+  NeedsManualReview(CurrencyMismatch),
+  NeedsManualReview(MissingSearchIdentifierValue),
+  NeedsManualReview(DuplicateEntry),
+  NeedsManualReview(NoExpectationEntryFound),
+  NeedsManualReview(MultipleExpectedEntriesFound),
+  NeedsManualReview(MissingMatchField),
+  NeedsManualReview(MissingUniqueField),
+  NeedsManualReview(MissingGroupingField),
+  NeedsManualReview(InternalError),
+]
+
+let allStagingEntryStatuses: array<domainStagingEntryStatus> = [
+  Pending,
+  Processed,
+  Void,
+  ...allStagingEntryManualReviewStatuses,
+]
+
+let getStagingEntryStatusGroupedValueAndLabel = (status: domainStagingEntryStatus): (
+  string,
+  string,
+  string,
+) => {
+  switch status {
+  | Pending => ("pending", "Pending", "Entry Status")
+  | Processed => ("processed", "Processed", "Entry Status")
+  | Void => ("void", "Void", "Entry Status")
+  | Archived => ("archived", "Archived", "Entry Status")
+  | NeedsManualReview(UnknownStagingEntryManualReviewData)
+  | UnknownDomainStagingEntryStatus => ("", "", "")
+  | NeedsManualReview(reason) => {
+      let reasonValue = (reason :> string)
+      (`needs_manual_review_${reasonValue}`, reasonValue->snakeToTitle, "Needs Manual Review")
+    }
+  }
+}
+
+let getStagingEntryStatusFromValue = (
+  value: string,
+  statusList: array<domainStagingEntryStatus>,
+): domainStagingEntryStatus =>
+  statusList
+  ->Array.find(status => {
+    let (statusValue, _, _) = getStagingEntryStatusGroupedValueAndLabel(status)
+    statusValue === value
+  })
+  ->Option.getOr(UnknownDomainStagingEntryStatus)
+
+let getStagingEntryStatusValueFromStatusList = (statusList: array<domainStagingEntryStatus>): array<
+  string,
+> => {
+  statusList->Array.filterMap(status => {
+    let (value, _, _) = getStagingEntryStatusGroupedValueAndLabel(status)
+    value->isNonEmptyString ? Some(value) : None
+  })
+}
+
+let getStagingEntryStatusPayload = (statusList: array<domainStagingEntryStatus>): array<JSON.t> => {
+  let encode = (coarseStatus, subStatus) => {
+    let fields = [("status", coarseStatus->JSON.Encode.string)]
+    switch subStatus {
+    | Some(sub) => fields->Array.push(("sub_status", sub->JSON.Encode.string))
+    | None => ()
+    }
+    Some(fields->getJsonFromArrayOfJson)
+  }
+
+  statusList->Array.filterMap(status =>
+    switch status {
+    | Pending => encode("pending", None)
+    | Processed => encode("processed", None)
+    | Void => encode("void", None)
+    | Archived => encode("archived", None)
+    | NeedsManualReview(UnknownStagingEntryManualReviewData)
+    | UnknownDomainStagingEntryStatus =>
+      None
+    | NeedsManualReview(reason) => encode("needs_manual_review", Some((reason :> string)))
+    }
+  )
+}
+
+let getGroupedStagingEntryStatusOptions = (statusList: array<domainStagingEntryStatus>): array<
   FilterSelectBox.dropdownOption,
 > => {
   statusList->Array.map(status => {
-    let (value, label) = getProcessingEntryStatusValueAndLabel(status)
+    let (value, label, optGroup) = getStagingEntryStatusGroupedValueAndLabel(status)
 
     {
       FilterSelectBox.label,
       value,
+      optGroup,
     }
   })
 }

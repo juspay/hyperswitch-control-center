@@ -356,7 +356,7 @@ test.describe("API Key Management", () => {
 
     await apiSettings.selectDateButton.click();
 
-    await page.getByRole('button', { name: 'Monday, July 20,' }).click();
+    await page.getByRole("button", { name: "Monday, July 20," }).click();
     await apiSettings.applyButton.click();
     await apiSettings.createButton.click();
 

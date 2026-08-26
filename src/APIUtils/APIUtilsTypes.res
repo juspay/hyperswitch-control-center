@@ -142,6 +142,7 @@ type hyperswitchReconType = [
   | #MANUAL_RECONCILIATION
   | #LINKABLE_STAGING_ENTRIES
   | #DOWNLOAD_INGESTION_HISTORY_FILE
+  | #DOWNLOAD_TRANSFORMATION_REPORT
   | #AUDIT_TRAIL
   | #PROCESSING_ENTRY_RESOLUTIONS
   | #VOID_PROCESSING_ENTRY
@@ -151,6 +152,8 @@ type hyperswitchReconType = [
   | #OVERVIEW_RULES_TIME_SERIES
   | #RULE_ACCOUNT_BREAKDOWN
   | #STAGING_ENTRIES_OVERVIEW
+  | #GENERATE_TRANSACTION_REPORT
+  | #GENERATE_EXCEPTION_REPORT
   | #NONE
 ]
 
@@ -231,3 +234,8 @@ type getUrlTypes = (
   ~hypersenseType: hypersenseType=?,
   ~queryParameters: option<string>=?,
 ) => string
+
+// Olap = on the infra OLAP allowlist, gets `olap_prefix`; Default = normal API path.
+type endpoint =
+  | Olap(string)
+  | Default(string)

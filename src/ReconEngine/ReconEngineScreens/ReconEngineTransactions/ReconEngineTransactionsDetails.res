@@ -67,13 +67,13 @@ let make = (~id) => {
     open Tabs
     [
       {
-        title: "Audit Trail",
-        renderContent: () => <AuditTrail allTransactionDetails={allTransactionDetails} />,
-      },
-      {
         title: "Entries",
         renderContent: () =>
           <ReconEngineTransactionEntries entriesList={entriesList} accountsData />,
+      },
+      {
+        title: "Audit Trail",
+        renderContent: () => <AuditTrail allTransactionDetails={allTransactionDetails} />,
       },
     ]
   }, (allTransactionDetails, entriesList, accountsData))
