@@ -164,7 +164,7 @@ module AccountEntriesSection = {
           </div>
         </RenderIf>
         <RenderIf condition={entriesList->isEmptyArray}>
-          <NoDataFound customCssClass="my-4" message="No Data Available" renderType=Painting />
+          <NewAnalyticsHelper.NoData height="h-40" message="No data available." />
         </RenderIf>
       </PageLoaderWrapper>
     </div>

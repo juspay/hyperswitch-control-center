@@ -10,10 +10,11 @@ let make = (~id) => {
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (accountsData, setAccountsData) = React.useState(_ => [])
+  let (ruleAccountIds, setRuleAccountIds) = React.useState(_ => [])
   let (currentTransactionDetails, setCurrentTransactionDetails) = React.useState(_ =>
     Dict.make()->getTransactionsPayloadFromDict
   )
-  let (ruleAccountIds, setRuleAccountIds) = React.useState(_ => [])
+
   let getTransactionsV2 = ReconEngineHooks.useGetCursorPage(
     ~hyperswitchReconType=#TRANSACTIONS_LIST_V2,
     ~itemMapper=ReconEngineUtils.transactionItemToObjMapper,
