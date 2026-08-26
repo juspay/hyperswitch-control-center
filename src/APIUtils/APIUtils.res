@@ -260,8 +260,8 @@ let useGetURL = () => {
         }
       | BLOCKLIST =>
         switch methodType {
-        | Post | Delete => `blocklist`
-        | _ => ""
+        | Post | Delete => Default(`blocklist`)
+        | _ => Default("")
         }
 
       /* MERCHANT ACCOUNT DETAILS (Get and Post) */
