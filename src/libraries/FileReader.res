@@ -9,10 +9,12 @@ type read = {
   readAsArrayBuffer: file => unit,
   readAsDataURL: file => unit,
   result: string,
-  onerror: string => unit,
+  mutable onerror: arg => unit,
 }
 
 @new external reader: read = "FileReader"
+
+@send external readFileAsText: (read, 'file) => unit = "readAsText"
 
 @new
 external makeUint8Array: Js.TypedArray2.ArrayBuffer.t => Js.TypedArray2.Uint8Array.t = "Uint8Array"

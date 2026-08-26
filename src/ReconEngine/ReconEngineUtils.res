@@ -38,14 +38,54 @@ let getEntryStatusVariantFromString = (entryType: string): entryStatus => {
   }
 }
 
-let getProcessingEntryStatusVariantFromString = (status: string): processingEntryStatus => {
+let cursorFromDict = (dict): cursor => {
+  let cursorValueDict = dict->getDictfromDict("cursor_value")
+  {
+    sortField: dict->getString("sort_field", "effective_at"),
+    cursorValue: Some({
+      effectiveAt: cursorValueDict->getString("effective_at", ""),
+      cursorId: cursorValueDict->getString("id", ""),
+    }),
+  }
+}
+
+let defaultCursorSortBy: cursor = {sortField: "effective_at", cursorValue: None}
+
+let cursorsFromDict = (dict): cursors => {
+  let getCursor = key => dict->getOptionObj(key)->Option.map(cursorFromDict)
+  {next: getCursor("next_cursor"), prev: getCursor("prev_cursor")}
+}
+
+let getStagingEntryManualReviewDataFromString = (
+  subStatus: string,
+): stagingEntryManualReviewData => {
+  switch subStatus->String.toLowerCase {
+  | "no_rules_found" => NoRulesFound
+  | "currency_mismatch" => CurrencyMismatch
+  | "missing_search_identifier_value" => MissingSearchIdentifierValue
+  | "duplicate_entry" => DuplicateEntry
+  | "no_expectation_entry_found" => NoExpectationEntryFound
+  | "multiple_expected_entries_found" => MultipleExpectedEntriesFound
+  | "missing_match_field" => MissingMatchField
+  | "missing_unique_field" => MissingUniqueField
+  | "missing_grouping_field" => MissingGroupingField
+  | "internal_error" => InternalError
+  | _ => UnknownStagingEntryManualReviewData
+  }
+}
+
+let getDomainStagingEntryStatus = (
+  status: string,
+  dict: Js.Dict.t<Js.Json.t>,
+): domainStagingEntryStatus => {
+  let subStatus = dict->getString("sub_status", "")
   switch status->String.toLowerCase {
   | "pending" => Pending
+  | "needs_manual_review" => NeedsManualReview(subStatus->getStagingEntryManualReviewDataFromString)
   | "processed" => Processed
-  | "archived" => Archived
-  | "needs_manual_review" => NeedsManualReview
   | "void" => Void
-  | _ => UnknownProcessingEntryStatus
+  | "archived" => Archived
+  | _ => UnknownDomainStagingEntryStatus
   }
 }
 
@@ -56,18 +96,6 @@ let getMismatchTypeVariantFromString = (mismatchType: string): mismatchType => {
   | "currency_mismatch" => CurrencyMismatch
   | "metadata_mismatch" => MetadataMismatch
   | _ => UnknownMismatchType
-  }
-}
-
-let getNeedsManualReviewTypeVariantFromString = (reviewType: string): needsManualReviewType => {
-  switch reviewType->String.toLowerCase {
-  | "no_rules_found" => NoRulesFound
-  | "staging_entry_currency_mismatch" => StagingEntryCurrencyMismatch
-  | "duplicate_entry" => DuplicateEntry
-  | "no_expectation_entry_found" => NoExpectationEntryFound
-  | "missing_search_identifier_value" => MissingSearchIdentifierValue
-  | "missing_unique_field" => MissingUniqueField
-  | _ => UnknownNeedsManualReviewType
   }
 }
 
@@ -146,6 +174,14 @@ let getAccountTypeVariantFromString = (accountType: string): accountTypeVariant 
   | "credit" => Credit
   | "debit" => Debit
   | _ => UnknownAccountTypeVariant
+  }
+}
+
+let getRuleAccountTypeVariantFromString = (ruleAccountType: string): ruleAccountTypeVariant => {
+  switch ruleAccountType->String.toLowerCase {
+  | "source" => Source
+  | "target" => Target
+  | _ => UnknownRuleAccountType
   }
 }
 
@@ -252,7 +288,7 @@ let transformationDataMapper = (dict): transformationData => {
     transformation_result: dict->getString("transformation_result", ""),
     ignored_count: dict->getInt("ignored_count", 0),
     staging_entry_ids: dict->getStrArrayFromDict("staging_entry_ids", []),
-    errors: dict->getStrArrayFromDict("errors", []),
+    failed_count: dict->getInt("failed_count", 0),
   }
 }
 
@@ -282,6 +318,62 @@ let ingestionConfigItemToObjMapper = (dict): ingestionConfigType => {
     last_synced_at: dict->getString("last_synced_at", ""),
     data: dict->getJsonObjectFromDict("data"),
     created_at: dict->getString("created_at", ""),
+  }
+}
+
+let sheetSelectionMapper = (dict): sheetSelection => {
+  switch dict->getString("sheet_selection_type", "") {
+  | "by_index" => ByIndex(dict->getInt("value", 0))
+  | "by_name" => ByName(dict->getString("value", ""))
+  | _ => UnknownSheetSelection
+  }
+}
+
+let parsingConfigMapper = (dict): parsingConfig => {
+  switch dict->getString("file_format", "") {
+  | "csv" => CsvParsingConfig
+  | "xlsx" =>
+    XlsxParsingConfig({
+      headerRowIndex: dict->getInt("header_row_index", 0),
+      sheetSelection: dict->getDictfromDict("sheet_selection")->sheetSelectionMapper,
+    })
+  | "fixed_width" => FixedWidthParsingConfig
+  | _ => UnknownParsingConfig
+  }
+}
+
+let skipConditionOperatorMapper = (str): skipConditionOperator => {
+  switch str {
+  | "equals" => Equals
+  | "not_equals" => NotEquals
+  | "contains" => Contains
+  | "not_contains" => NotContains
+  | "starts_with" => StartsWith
+  | "not_starts_with" => NotStartsWith
+  | "ends_with" => EndsWith
+  | "not_ends_with" => NotEndsWith
+  | _ => UnknownSkipConditionOperator
+  }
+}
+
+let skipConditionMapper = (dict): skipCondition => {
+  {
+    identifier: dict->getString("identifier", ""),
+    operator: dict->getString("operator", "")->skipConditionOperatorMapper,
+    value: dict->getString("value", ""),
+  }
+}
+
+let skipConfigMapper = (dict): skipConfig => {
+  if dict->getString("skip_type", "") === "row_skip" {
+    RowSkipConfig({lineNumber: dict->getInt("line_number", 0)})
+  } else {
+    ConditionalSkipConfig({
+      conditions: dict
+      ->getArrayFromDict("conditions", [])
+      ->Array.map(getDictFromJsonObject)
+      ->Array.map(skipConditionMapper),
+    })
   }
 }
 
@@ -336,8 +428,69 @@ let linkedTransactionItemToObjMapper = dict => {
   }
 }
 
+let mismatchedFieldItemToObjMapper = (dict): mismatchedFieldType => {
+  let displayValue = key =>
+    dict->getMappedValueFromDict(key, "N/A", json =>
+      json->isNullJson ? "N/A" : json->getStringFromJson(json->JSON.stringify)
+    )
+  {
+    field_name: dict->getString("field_name", ""),
+    field_label: dict->getOptionString("label"),
+    expected_value: displayValue("expected_value"),
+    actual_value: displayValue("actual_value"),
+  }
+}
+
+let getMismatchedFieldLabel = (field: mismatchedFieldType) =>
+  switch field.field_label {
+  | Some(label) if label->isNonEmptyString => label
+  | _ => {
+      let parts = field.field_name->String.split(".")
+      parts->getValueFromArray(parts->Array.length - 1, field.field_name)->snakeToTitle
+    }
+  }
+
+let getMismatchedFieldsFromDict = dataDict =>
+  dataDict
+  ->getArrayFromDict("mismatched_fields", [])
+  ->Array.map(json => json->getDictFromJsonObject->mismatchedFieldItemToObjMapper)
+
+let getMismatchedFieldsSubject = (fields: array<mismatchedFieldType>) => {
+  let count = fields->Array.length
+
+  if fields->isEmptyArray {
+    ""
+  } else if count == 1 {
+    fields
+    ->getValueFromArray(0, Dict.make()->mismatchedFieldItemToObjMapper)
+    ->getMismatchedFieldLabel
+  } else {
+    `${count->Int.toString} fields`
+  }
+}
+
+let getMismatchedFieldsCountText = (fields: array<mismatchedFieldType>) => {
+  let subject = fields->getMismatchedFieldsSubject
+  subject->isEmptyString ? "" : `${subject} did not match`
+}
+
+let getMismatchedFieldsDescription = (fields: array<mismatchedFieldType>) => {
+  let count = fields->Array.length
+
+  fields->isEmptyArray ? "" : `${count->Int.toString} field${pluralText(~count)} did not match`
+}
+
+let modifiedByItemToObjMapper = (dict): modifiedByType => {
+  {
+    id: dict->getString("id", ""),
+    name: dict->getString("name", ""),
+    email: dict->getString("email", ""),
+  }
+}
+
 let transactionItemToObjMapper = (dict): transactionType => {
   let linkedTransactionDict = dict->getDictfromDict("linked_transaction")
+  let modifiedByDict = dict->getDictfromDict("modified_by")
   {
     id: dict->getString("id", ""),
     transaction_id: dict->getString("transaction_id", ""),
@@ -365,6 +518,9 @@ let transactionItemToObjMapper = (dict): transactionType => {
       reason: dict
       ->getDictfromDict("data")
       ->getOptionString("reason"),
+      mismatched_fields: dict
+      ->getDictfromDict("data")
+      ->getMismatchedFieldsFromDict,
     },
     discarded_status: dict
     ->getDictfromDict("discarded_status")
@@ -378,6 +534,10 @@ let transactionItemToObjMapper = (dict): transactionType => {
     linked_transaction: linkedTransactionDict->isEmptyDict
       ? None
       : Some(linkedTransactionDict->linkedTransactionItemToObjMapper),
+    modified_by: modifiedByDict->isEmptyDict
+      ? None
+      : Some(modifiedByDict->modifiedByItemToObjMapper),
+    has_more_entries: dict->getBool("has_more_entries", false),
   }
 }
 
@@ -400,28 +560,27 @@ let entryItemToObjMapper = dict => {
     effective_at: dict->getString("effective_at", ""),
     staging_entry_id: dict->getOptionString("staging_entry_id"),
     transformation_id: dict->getOptionString("transformation_id"),
-  }
-}
-
-let processingEntryDataItemToObjMapper = (dataDict): processingEntryDataType => {
-  {
-    status: dataDict->getString("status", "")->getProcessingEntryStatusVariantFromString,
-    needs_manual_review_type: dataDict
-    ->getString("needs_manual_review_type", "")
-    ->getNeedsManualReviewTypeVariantFromString,
+    transformation_name: dict->getOptionString("transformation_name"),
   }
 }
 
 let processingEntryDiscardedDataItemToObjMapper = (dataDict): processingEntryDiscardedDataType => {
   {
     reason: dataDict->getString("reason", ""),
-    status: dataDict->getString("status", "")->getProcessingEntryStatusVariantFromString,
+  }
+}
+
+let transformationConfigRefTypeMapper = (dict): transformationConfigRefType => {
+  {
+    transformation_config_id: dict->getString("transformation_config_id", ""),
+    transformation_config_name: dict->getString("transformation_config_name", ""),
   }
 }
 
 let processingItemToObjMapper = (dict): processingEntryType => {
-  let discardedDataDict =
-    dict->getDictfromDict("discarded_data")->processingEntryDiscardedDataItemToObjMapper
+  let discardedDataDict = dict->getDictfromDict("discarded_data")
+  let discardedStatusDict = dict->getDictfromDict("detailed_discarded_status")
+  let statusDict = dict->getDictfromDict("detailed_status")
   {
     id: dict->getString("id", ""),
     staging_entry_id: dict->getString("staging_entry_id", ""),
@@ -431,19 +590,26 @@ let processingItemToObjMapper = (dict): processingEntryType => {
     entry_type: dict->getString("entry_type", ""),
     amount: dict->getDictfromDict("amount")->getFloat("value", 0.0),
     currency: dict->getDictfromDict("amount")->getString("currency", ""),
-    status: dict->getString("status", "")->getProcessingEntryStatusVariantFromString,
+    status: statusDict->getString("status", "")->getDomainStagingEntryStatus(statusDict),
     effective_at: dict->getString("effective_at", ""),
     processing_mode: dict->getString("processing_mode", ""),
     metadata: dict->getJsonObjectFromDict("metadata"),
-    transformation_id: dict->getString("transformation_id", ""),
+    transformation_config: dict
+    ->getDictfromDict("transformation_config")
+    ->transformationConfigRefTypeMapper,
     transformation_history_id: dict->getString("transformation_history_id", ""),
     order_id: dict->getString("order_id", ""),
     version: dict->getInt("version", 0),
-    discarded_status: dict->getOptionString("discarded_status"),
-    data: dict->getDictfromDict("data")->processingEntryDataItemToObjMapper,
-    discarded_data: discardedDataDict.status != UnknownProcessingEntryStatus
-      ? Some(discardedDataDict)
-      : None,
+    discarded_status: discardedStatusDict->isEmptyDict
+      ? None
+      : Some(
+          discardedStatusDict
+          ->getString("status", "")
+          ->getDomainStagingEntryStatus(discardedStatusDict),
+        ),
+    discarded_data: discardedDataDict->isEmptyDict
+      ? None
+      : Some(discardedDataDict->processingEntryDiscardedDataItemToObjMapper),
   }
 }
 
@@ -472,6 +638,316 @@ let minorUnitValidationRuleMapper = (dict): minorUnitValidationRule => {
   | "min_value" => MinValueMinorUnit(dict->getInt("value", 0))
   | "max_value" => MaxValueMinorUnit(dict->getInt("value", 0))
   | _ => UnknownMinorUnitValidationRule
+  }
+}
+
+let majorUnitValidationRuleMapper = (dict): majorUnitValidationRule => {
+  switch dict->getString("validation_rule_type", "") {
+  | "positive_only" => PositiveOnlyMajorUnit
+  | "min_value" => MinValueMajorUnit(dict->getFloat("value", 0.0))
+  | "max_value" => MaxValueMajorUnit(dict->getFloat("value", 0.0))
+  | _ => UnknownMajorUnitValidationRule
+  }
+}
+
+let replaceModeMapper = (dict): replaceMode => {
+  switch dict->getString("mode_type", "") {
+  | "all" => ReplaceAll
+  | "single" =>
+    ReplaceSingle({
+      occurrence: dict->getInt("occurrence", 0),
+      fromEnd: dict->getBool("from_end", false),
+    })
+  | _ => UnknownReplaceMode
+  }
+}
+
+let amountDelimiterMapper = (str): amountDelimiter => {
+  switch str {
+  | "dot" => DelimiterDot
+  | "comma" => DelimiterComma
+  | _ => UnknownAmountDelimiter
+  }
+}
+
+let stringTransformationRuleMapper = (dict): stringTransformationRule => {
+  switch dict->getString("transformation_rule_type", "") {
+  | "default_value" => StrDefaultValue(dict->getString("value", ""))
+  | "to_upper_case" => StrToUpperCase
+  | "to_lower_case" => StrToLowerCase
+  | "strip_prefix" => StrStripPrefix(dict->getString("prefix", ""))
+  | "strip_suffix" => StrStripSuffix(dict->getString("suffix", ""))
+  | "trim" => StrTrim
+  | "json_extract" => StrJsonExtract(dict->getString("pointer", ""))
+  | "regex" =>
+    StrRegex({pattern: dict->getString("pattern", ""), group: dict->getOptionInt("group")})
+  | _ => UnknownStringTransformationRule
+  }
+}
+
+let currencyTransformationRuleMapper = (dict): currencyTransformationRule => {
+  switch dict->getString("transformation_rule_type", "") {
+  | "default_value" => CurrencyDefaultValue(dict->getString("currency", ""))
+  | "trim" => CurrencyTrim
+  | "json_extract" => CurrencyJsonExtract(dict->getString("pointer", ""))
+  | _ => UnknownCurrencyTransformationRule
+  }
+}
+
+let balanceDirectionTransformationRuleMapper = (dict): balanceDirectionTransformationRule => {
+  switch dict->getString("transformation_rule_type", "") {
+  | "default_value" => BalanceDirectionDefaultValue(dict->getString("direction", ""))
+  | "trim" => BalanceDirectionTrim
+  | "json_extract" => BalanceDirectionJsonExtract(dict->getString("pointer", ""))
+  | "starts_with" =>
+    BalanceDirectionStartsWith({
+      prefix: dict->getString("prefix", ""),
+      thenValue: dict->getString("then", ""),
+      otherwise: dict->getString("otherwise", ""),
+    })
+  | _ => UnknownBalanceDirectionTransformationRule
+  }
+}
+
+let numberTransformationRuleMapper = (dict): numberTransformationRule => {
+  switch dict->getString("transformation_rule_type", "") {
+  | "trim" => NumberTrim
+  | "json_extract" => NumberJsonExtract(dict->getString("pointer", ""))
+  | _ => UnknownNumberTransformationRule
+  }
+}
+
+let minorUnitTransformationRuleMapper = (dict): minorUnitTransformationRule => {
+  switch dict->getString("transformation_rule_type", "") {
+  | "trim" => MinorUnitTrim
+  | "json_extract" => MinorUnitJsonExtract(dict->getString("pointer", ""))
+  | "absolute" => MinorUnitAbsolute
+  | _ => UnknownMinorUnitTransformationRule
+  }
+}
+
+let majorUnitTransformationRuleMapper = (dict): majorUnitTransformationRule => {
+  switch dict->getString("transformation_rule_type", "") {
+  | "trim" => MajorUnitTrim
+  | "json_extract" => MajorUnitJsonExtract(dict->getString("pointer", ""))
+  | "negate" => MajorUnitNegate
+  | "absolute" => MajorUnitAbsolute
+  | "replace_char" =>
+    MajorUnitReplaceChar({
+      fromChar: dict->getString("from", ""),
+      toChar: dict->getOptionString("to"),
+      mode: dict->getDictfromDict("mode")->replaceModeMapper,
+    })
+  | _ => UnknownMajorUnitTransformationRule
+  }
+}
+
+let dateTimeTransformationRuleMapper = (dict): dateTimeTransformationRule => {
+  switch dict->getString("transformation_rule_type", "") {
+  | "trim" => DateTimeTrim
+  | "json_extract" => DateTimeJsonExtract(dict->getString("pointer", ""))
+  | _ => UnknownDateTimeTransformationRule
+  }
+}
+
+let enumTransformationRuleMapper = (dict): enumTransformationRule => {
+  switch dict->getString("transformation_rule_type", "") {
+  | "trim" => EnumTrim
+  | "json_extract" => EnumJsonExtract(dict->getString("pointer", ""))
+  | _ => UnknownEnumTransformationRule
+  }
+}
+
+let durationUnitMapper = (str): durationUnit => {
+  switch str {
+  | "minutes" => Minutes
+  | "hours" => Hours
+  | "days" => Days
+  | _ => UnknownDurationUnit
+  }
+}
+
+let dateTimeDurationMapper = (dict): dateTimeDuration => {
+  {
+    value: dict->getInt("value", 0),
+    unit: dict->getString("unit", "")->durationUnitMapper,
+  }
+}
+
+let truncationPrecisionMapper = (str): truncationPrecision => {
+  switch str {
+  | "start_of_hour" => StartOfHour
+  | "start_of_day" => StartOfDay
+  | "start_of_month" => StartOfMonth
+  | "start_of_year" => StartOfYear
+  | _ => UnknownTruncationPrecision
+  }
+}
+
+let dateTimePostParseRuleMapper = (dict): dateTimePostParseRule => {
+  switch dict->getString("post_parse_rule_type", "") {
+  | "truncate" => PostParseTruncate(dict->getString("precision", "")->truncationPrecisionMapper)
+  | "add_duration" =>
+    PostParseAddDuration(dict->getDictfromDict("duration")->dateTimeDurationMapper)
+  | "subtract_duration" =>
+    PostParseSubtractDuration(dict->getDictfromDict("duration")->dateTimeDurationMapper)
+  | _ => UnknownDateTimePostParseRule
+  }
+}
+
+let getTransformationRulesArray = (dict, key, mapper) =>
+  dict->getArrayFromDict(key, [])->Array.map(item => item->getDictFromJsonObject->mapper)
+
+let stringMappingsFromDict = dict =>
+  dict
+  ->Dict.toArray
+  ->Array.map(((key, value)) => (key, value->getStringFromJson("")))
+  ->Dict.fromArray
+
+let fieldRulesForMainField = (dict, fieldName): fieldRules => {
+  switch fieldName {
+  | "currency" =>
+    CurrencyRules({
+      transformation: dict->getTransformationRulesArray(
+        "transformation_rules",
+        currencyTransformationRuleMapper,
+      ),
+    })
+  | "amount" =>
+    switch dict->getString("unit_type", "") {
+    | "major_unit" =>
+      MajorUnitRules({
+        delimiter: dict->getString("delimiter", "")->amountDelimiterMapper,
+        validation: dict->getTransformationRulesArray(
+          "validation_rules",
+          majorUnitValidationRuleMapper,
+        ),
+        transformation: dict->getTransformationRulesArray(
+          "transformation_rules",
+          majorUnitTransformationRuleMapper,
+        ),
+      })
+    | _ =>
+      MinorUnitRules({
+        validation: dict->getTransformationRulesArray(
+          "validation_rules",
+          minorUnitValidationRuleMapper,
+        ),
+        transformation: dict->getTransformationRulesArray(
+          "transformation_rules",
+          minorUnitTransformationRuleMapper,
+        ),
+      })
+    }
+  | "effective_at" =>
+    DateTimeRules({
+      transformation: dict->getTransformationRulesArray(
+        "transformation_rules",
+        dateTimeTransformationRuleMapper,
+      ),
+      postParse: dict->getTransformationRulesArray(
+        "post_parse_transformations",
+        dateTimePostParseRuleMapper,
+      ),
+    })
+  | "balance_direction" =>
+    BalanceDirectionRules({
+      creditValues: dict->getStrArrayFromDict("credit_values", []),
+      debitValues: dict->getStrArrayFromDict("debit_values", []),
+      transformation: dict->getTransformationRulesArray(
+        "transformation_rules",
+        balanceDirectionTransformationRuleMapper,
+      ),
+    })
+  | "order_id" =>
+    StringRules({
+      validation: [],
+      transformation: dict->getTransformationRulesArray(
+        "transformation_rules",
+        stringTransformationRuleMapper,
+      ),
+    })
+  | _ => UnknownFieldRules
+  }
+}
+
+let fieldRulesForMetadataField = (dict): fieldRules => {
+  switch dict->getString("field_type", "") {
+  | "string" =>
+    StringRules({
+      validation: dict->getTransformationRulesArray("validation_rules", stringValidationRuleMapper),
+      transformation: dict->getTransformationRulesArray(
+        "transformation_rules",
+        stringTransformationRuleMapper,
+      ),
+    })
+  | "number" =>
+    NumberRules({
+      validation: dict->getTransformationRulesArray("validation_rules", numberValidationRuleMapper),
+      transformation: dict->getTransformationRulesArray(
+        "transformation_rules",
+        numberTransformationRuleMapper,
+      ),
+    })
+  | "currency" =>
+    CurrencyRules({
+      transformation: dict->getTransformationRulesArray(
+        "transformation_rules",
+        currencyTransformationRuleMapper,
+      ),
+    })
+  | "minor_unit" =>
+    MinorUnitRules({
+      validation: dict->getTransformationRulesArray(
+        "validation_rules",
+        minorUnitValidationRuleMapper,
+      ),
+      transformation: dict->getTransformationRulesArray(
+        "transformation_rules",
+        minorUnitTransformationRuleMapper,
+      ),
+    })
+  | "major_unit" =>
+    MajorUnitRules({
+      delimiter: dict->getString("delimiter", "")->amountDelimiterMapper,
+      validation: dict->getTransformationRulesArray(
+        "validation_rules",
+        majorUnitValidationRuleMapper,
+      ),
+      transformation: dict->getTransformationRulesArray(
+        "transformation_rules",
+        majorUnitTransformationRuleMapper,
+      ),
+    })
+  | "date_time" =>
+    DateTimeRules({
+      transformation: dict->getTransformationRulesArray(
+        "transformation_rules",
+        dateTimeTransformationRuleMapper,
+      ),
+      postParse: dict->getTransformationRulesArray(
+        "post_parse_transformations",
+        dateTimePostParseRuleMapper,
+      ),
+    })
+  | "balance_direction" =>
+    BalanceDirectionRules({
+      creditValues: dict->getStrArrayFromDict("credit_values", []),
+      debitValues: dict->getStrArrayFromDict("debit_values", []),
+      transformation: dict->getTransformationRulesArray(
+        "transformation_rules",
+        balanceDirectionTransformationRuleMapper,
+      ),
+    })
+  | "enum" =>
+    EnumRules({
+      mappings: dict->getDictfromDict("mappings")->stringMappingsFromDict,
+      transformation: dict->getTransformationRulesArray(
+        "transformation_rules",
+        enumTransformationRuleMapper,
+      ),
+    })
+  | _ => UnknownFieldRules
   }
 }
 
@@ -527,6 +1003,7 @@ let metadataFieldItemToObjMapper = (dict): metadataFieldType => {
     field_type: dict->fieldTypeMapper,
     required: dict->getBool("required", false),
     description: dict->getString("description", ""),
+    rules: dict->fieldRulesForMetadataField,
   }
 }
 
@@ -540,6 +1017,7 @@ let mainFieldItemToObjMapper = (dict): mainFieldType => {
     debit_values: dict->getArrayFromDict("debit_values", [])->Array.length > 0
       ? Some(dict->getStrArrayFromDict("debit_values", []))
       : None,
+    rules: dict->fieldRulesForMainField(dict->getString("field_name", "")),
   }
 }
 
@@ -667,5 +1145,56 @@ let overviewRulesTimeSeriesResponseMapper: Dict.t<
     time_series: dict
     ->getArrayFromDict("time_series", [])
     ->Array.map(timeSeries => timeSeries->getDictFromJsonObject->overviewRulesTimeSeriesMapper),
+  }
+}
+
+let stagingEntryOverviewStatusAmountMapper: Dict.t<
+  JSON.t,
+> => stagingEntryOverviewStatusAmount = dict => {
+  {
+    status: dict->getString("status", "")->getDomainStagingEntryStatus(dict),
+    count: dict->getInt("count", 0),
+  }
+}
+
+let accountStagingEntriesOverviewMapper: Dict.t<JSON.t> => accountStagingEntriesOverview = dict => {
+  {
+    status_breakdown: dict
+    ->getArrayFromDict("detailed_status_breakdown", [])
+    ->Array.map(status => status->getDictFromJsonObject->stagingEntryOverviewStatusAmountMapper),
+  }
+}
+
+let accountStatusBreakdownMapper: Dict.t<JSON.t> => accountStatusBreakdown = dict => {
+  {
+    status: dict->getString("status", "")->overviewTransactionStatusTypeFromString,
+    credit_txn_count: dict->getInt("credit_count", 0),
+    debit_txn_count: dict->getInt("debit_count", 0),
+    credit_amount: dict->getDictfromDict("credit_amount")->getAmountPayload,
+    debit_amount: dict->getDictfromDict("debit_amount")->getAmountPayload,
+  }
+}
+
+let accountStatusOverviewMapper: Dict.t<JSON.t> => accountStatusOverview = dict => {
+  {
+    account_id: dict->getString("account_id", ""),
+    account_name: dict->getString("account_name", ""),
+    account_type: dict->getString("account_type", "")->getAccountTypeVariantFromString,
+    rule_account_type: dict
+    ->getString("rule_account_type", "")
+    ->getRuleAccountTypeVariantFromString,
+    status_breakdown: dict
+    ->getArrayFromDict("status_breakdown", [])
+    ->Array.map(status => status->getDictFromJsonObject->accountStatusBreakdownMapper),
+  }
+}
+
+let ruleAccountsOverviewMapper: Dict.t<JSON.t> => ruleAccountsOverview = dict => {
+  {
+    rule_id: dict->getString("rule_id", ""),
+    rule_name: dict->getString("rule_name", ""),
+    accounts: dict
+    ->getArrayFromDict("accounts", [])
+    ->Array.map(account => account->getDictFromJsonObject->accountStatusOverviewMapper),
   }
 }

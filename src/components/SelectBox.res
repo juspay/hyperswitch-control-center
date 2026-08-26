@@ -205,9 +205,7 @@ module ListItem = {
           {if !isDropDown {
             if showToggle {
               <div className={toggleClass ++ toggleProps} onClick>
-                <BoolInput.BaseComponent
-                  isSelected=toggleSelect size=optionSize setIsSelected=onToggleSelect isDisabled
-                />
+                <SwitchAdapter isSelected=toggleSelect setIsSelected=onToggleSelect isDisabled />
               </div>
             } else if multiSelect {
               <span className=toggleClass>
@@ -413,6 +411,12 @@ let useTransformed = options => {
 
 type allSelectType = Icon | Text
 
+let isLeftIcon = (icon: Button.iconType) =>
+  switch icon {
+  | NoIcon | CustomRightIcon(_) => false
+  | FontAwesome(_) | CustomIcon(_) | Euler(_) => true
+  }
+
 type opt = {name_: string}
 
 let makeOptions = (options: array<string>): array<dropdownOption> => {
@@ -590,7 +594,7 @@ module BaseSelect = {
     } else {
       `${minWidth} ${dropdownCustomWidth}`
     }
-    let textIconPresent = options->Array.some(op => op.icon->Option.getOr(NoIcon) !== NoIcon)
+    let textIconPresent = options->Array.some(op => op.icon->Option.getOr(NoIcon)->isLeftIcon)
 
     let _ = if sortingBasedOnDisabled {
       options->Array.toSorted((m1, m2) => {
@@ -864,11 +868,10 @@ module BaseSelect = {
               <div className="flex  mr-5 justify-end">
                 {switch allSelectType {
                 | Icon =>
-                  <BoolInput.BaseComponent
+                  <SwitchAdapter
                     isSelected=isChooseAllToggleSelected
                     setIsSelected=toggleSelectAll
                     isDisabled=disableSelect
-                    size=optionSize
                   />
                 | Text =>
                   <AddDataAttributes
@@ -1028,7 +1031,7 @@ module BaseSelectButton = {
     let width = isHorizontal ? "w-auto" : "w-full md:w-72"
     let inlineClass = isHorizontal ? "inline-flex" : ""
 
-    let textIconPresent = options->Array.some(op => op.icon !== NoIcon)
+    let textIconPresent = options->Array.some(op => op.icon->isLeftIcon)
 
     let onButtonClick = itemdata => {
       switch onAssignClick {
@@ -1459,7 +1462,7 @@ module BaseRadio = {
 
     let inlineClass = isHorizontal ? "inline-flex" : ""
 
-    let textIconPresent = options->Array.some(op => op.icon !== NoIcon)
+    let textIconPresent = options->Array.some(op => op.icon->isLeftIcon)
 
     React.useEffect(() => {
       searchRef.current->Nullable.toOption->Option.forEach(input => input->focus)

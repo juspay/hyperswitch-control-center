@@ -131,7 +131,6 @@ let make = (
 
   <div className="flex flex-col gap-4 mt-6 mb-16">
     <ReconEngineExceptionTransactionResolution
-      accountInfoMap
       exceptionStage
       setExceptionStage
       selectedRows
@@ -149,7 +148,7 @@ let make = (
       showScrollBar=true
       showOptions={exceptionStage == ResolvingException(EditEntry) ||
       exceptionStage == ResolvingException(MarkAsReceived) ||
-      exceptionStage == ResolvingException(LinkStagingEntriesToTransaction)}
+      exceptionStage == ResolvingException(ReplaceStagingEntryToTransaction)}
       selectedRows
       onRowSelect=handleRowSelect
       sections=tableSections
@@ -159,7 +158,8 @@ let make = (
       condition={exceptionStage == ConfirmResolution(EditEntry) ||
       exceptionStage == ConfirmResolution(CreateNewEntry) ||
       exceptionStage == ConfirmResolution(MarkAsReceived) ||
-      exceptionStage == ConfirmResolution(LinkStagingEntriesToTransaction)}>
+      exceptionStage == ConfirmResolution(ReplaceStagingEntryToTransaction) ||
+      exceptionStage == ConfirmResolution(LinkStagingEntryToTransaction)}>
       <div
         className="flex flex-row items-center gap-3 fixed left-1/2 -translate-x-1/2 bottom-4 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl p-3">
         <div className="flex gap-3">

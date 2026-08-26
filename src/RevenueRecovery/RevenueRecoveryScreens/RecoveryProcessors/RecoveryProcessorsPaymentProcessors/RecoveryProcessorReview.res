@@ -61,7 +61,12 @@ let make = (~connectorInfo) => {
         <div className="flex flex-col ">
           <ConnectorHelperV2.PreviewCreds connectorInfo=connectorInfodict connectorAccountFields />
         </div>
-        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.connector_name />
+        <ConnectorWebhookPreview
+          merchantId
+          connectorName=connectorInfodict.connector_name
+          version=V2
+          connectorId=connectorInfodict.id
+        />
       </div>
     </div>
     <ACLButton

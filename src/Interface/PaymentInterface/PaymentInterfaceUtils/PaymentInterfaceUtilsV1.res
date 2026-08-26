@@ -101,7 +101,7 @@ let mapDictToPaymentPayload: dict<JSON.t> => order_v1 = dict => {
     client_secret: dict->getString("client_secret", ""),
     created: dict->getString("created", ""),
     modified_at: dict->getString("modified_at", ""),
-    last_updated: dict->getString("last_updated", ""),
+    last_updated: dict->getString("last_updated", dict->getString("modified_at", "")),
     currency: dict->getString("currency", ""),
     customer_id: dict->getString("customer_id", ""),
     description: dict->getString("description", ""),

@@ -3,6 +3,98 @@ open LogicUtils
 
 let tabkeys: array<tabs> = [Request, Response]
 
+let eventRecipientToString = recipient =>
+  switch recipient {
+  | Merchant => "merchant"
+  | Connector => "connector"
+  }
+
+let eventClassToString = eventClass =>
+  switch eventClass {
+  | Payments => "payments"
+  | Refunds => "refunds"
+  | Disputes => "disputes"
+  | Mandates => "mandates"
+  | Payouts => "payouts"
+  | Subscriptions => "subscriptions"
+  }
+
+let allEventClasses = [Payments, Refunds, Disputes, Mandates, Payouts, Subscriptions]
+
+let webhookEventTypeToString = eventType =>
+  switch eventType {
+  | PaymentSucceeded => "payment_succeeded"
+  | PaymentFailed => "payment_failed"
+  | PaymentProcessing => "payment_processing"
+  | PaymentCancelled => "payment_cancelled"
+  | PaymentCancelledPostCapture => "payment_cancelled_post_capture"
+  | PaymentAuthorized => "payment_authorized"
+  | PaymentCaptured => "payment_captured"
+  | PaymentExpired => "payment_expired"
+  | ActionRequired => "action_required"
+  | SurchargePaymentSucceeded => "surcharge_payment_succeeded"
+  | RefundSucceeded => "refund_succeeded"
+  | RefundFailed => "refund_failed"
+  | SurchargeRefundSucceeded => "surcharge_refund_succeeded"
+  | DisputeOpened => "dispute_opened"
+  | DisputeExpired => "dispute_expired"
+  | DisputeAccepted => "dispute_accepted"
+  | DisputeCancelled => "dispute_cancelled"
+  | DisputeChallenged => "dispute_challenged"
+  | DisputeWon => "dispute_won"
+  | DisputeLost => "dispute_lost"
+  | MandateActive => "mandate_active"
+  | MandateRevoked => "mandate_revoked"
+  | PayoutSuccess => "payout_success"
+  | PayoutFailed => "payout_failed"
+  | PayoutInitiated => "payout_initiated"
+  | PayoutProcessing => "payout_processing"
+  | PayoutCancelled => "payout_cancelled"
+  | PayoutExpired => "payout_expired"
+  | PayoutReversed => "payout_reversed"
+  | InvoicePaid => "invoice_paid"
+  }
+
+let eventTypesForClass = eventClass =>
+  switch eventClass {
+  | Payments => [
+      PaymentSucceeded,
+      PaymentFailed,
+      PaymentProcessing,
+      PaymentCancelled,
+      PaymentCancelledPostCapture,
+      PaymentAuthorized,
+      PaymentCaptured,
+      PaymentExpired,
+      ActionRequired,
+      SurchargePaymentSucceeded,
+    ]
+  | Refunds => [RefundSucceeded, RefundFailed, SurchargeRefundSucceeded]
+  | Disputes => [
+      DisputeOpened,
+      DisputeExpired,
+      DisputeAccepted,
+      DisputeCancelled,
+      DisputeChallenged,
+      DisputeWon,
+      DisputeLost,
+    ]
+  | Mandates => [MandateActive, MandateRevoked]
+  | Payouts => [
+      PayoutSuccess,
+      PayoutFailed,
+      PayoutInitiated,
+      PayoutProcessing,
+      PayoutCancelled,
+      PayoutExpired,
+      PayoutReversed,
+    ]
+  | Subscriptions => [InvoicePaid]
+  }
+
+let eventClassFilterKey = "event_classes"
+let eventTypeFilterKey = "event_types"
+
 let labelColor = (statusCode): TableUtils.labelColor => {
   switch statusCode {
   | 200 => LabelGreen
@@ -68,7 +160,7 @@ let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
 
 let getAllowedDateRange = {
   let endDate = Date.now()->Js.Date.fromFloat->DateTimeUtils.toUtc->DayJs.getDayJsForJsDate //->Date.toISOString->JSON.Encode.string
-  let startDate = endDate.subtract(90, "day")
+  let startDate = endDate.subtract(3, "day")
 
   let dateObject: Calendar.dateObj = {
     startDate: startDate.toString(),
@@ -87,7 +179,7 @@ let initialFixedFilter = () => [
           ~startKey=startTimeFilterKey,
           ~endKey=endTimeFilterKey,
           ~format="YYYY-MM-DDTHH:mm:ss[Z]",
-          ~showTime=false,
+          ~showTime=true,
           ~disablePastDates={false},
           ~disableFutureDates={true},
           ~predefinedDays=[
@@ -104,7 +196,7 @@ let initialFixedFilter = () => [
           ],
           ~numMonths=2,
           ~disableApply=false,
-          ~dateRangeLimit=90,
+          ~dateRangeLimit=3,
           ~allowedDateRange=getAllowedDateRange,
         ),
         ~inputFields=[],
@@ -113,3 +205,58 @@ let initialFixedFilter = () => [
     }: EntityType.initialFilters<'t>
   ),
 ]
+
+let stringToEventClass = str =>
+  allEventClasses->Array.find(eventClass => eventClass->eventClassToString === str)
+
+let selectedEventClassesFromFilterValueJson = filterValueJson =>
+  filterValueJson
+  ->getArrayFromDict(eventClassFilterKey, [])
+  ->getStrArrayFromJsonArray
+  ->Array.filterMap(stringToEventClass)
+
+let eventTypeStringsForSelectedClasses = selectedEventClasses =>
+  selectedEventClasses
+  ->Array.flatMap(eventTypesForClass)
+  ->Array.map(webhookEventTypeToString)
+
+let eventTypeOptionsForSelectedClasses = selectedEventClasses =>
+  selectedEventClasses
+  ->eventTypeStringsForSelectedClasses
+  ->FilterSelectBox.makeOptions(~isTitle=true)
+
+let webhookLocalFilters = (filterValueJson): array<EntityType.initialFilters<'t>> => {
+  let selectedEventClasses = filterValueJson->selectedEventClassesFromFilterValueJson
+  let eventClassFilter: EntityType.initialFilters<'t> = {
+    field: FormRenderer.makeFieldInfo(
+      ~label="Event Class",
+      ~name=eventClassFilterKey,
+      ~customInput=InputFields.filterMultiSelectInput(
+        ~options=allEventClasses
+        ->Array.map(eventClassToString)
+        ->FilterSelectBox.makeOptions(~isTitle=true),
+        ~buttonText="Event Class",
+        ~showSelectionAsChips=false,
+        ~searchable=true,
+        (),
+      ),
+    ),
+    localFilter: None,
+  }
+  let eventTypeFilter: EntityType.initialFilters<'t> = {
+    field: FormRenderer.makeFieldInfo(
+      ~label="Event Type",
+      ~name=eventTypeFilterKey,
+      ~customInput=InputFields.filterMultiSelectInput(
+        ~options=selectedEventClasses->eventTypeOptionsForSelectedClasses,
+        ~buttonText="Event Type",
+        ~showSelectionAsChips=false,
+        ~searchable=true,
+        (),
+      ),
+    ),
+    localFilter: None,
+  }
+
+  selectedEventClasses->isEmptyArray ? [eventClassFilter] : [eventClassFilter, eventTypeFilter]
+}

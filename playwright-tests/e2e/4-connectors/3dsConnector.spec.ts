@@ -3,17 +3,11 @@ import type { Page, BrowserContext } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { ThreeDSAuthenticator } from "../../support/pages/connector/ThreeDSAuthenticator";
 import { generateUniqueEmail } from "../../support/helper";
-import {
-  signupUser,
-  loginUI,
-  assertConnectorFieldLabels,
-  fillConnectorFields,
-  generateCerts,
-} from "../../support/commands";
+import { signupUser, loginUI, generateCerts } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
-async function signupAndLogin(page: Page, context: BrowserContext) {
+async function signupAndLogin(page: Page, _context: BrowserContext) {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -55,9 +49,6 @@ test.describe("3DS Authenticators Module", () => {
     await gotoThreeDS(page);
     const threeDSAuthenticator = new ThreeDSAuthenticator(page);
     const cta = threeDSAuthenticator.requestProcessorButton;
-    if (!(await cta.isVisible().catch(() => false))) {
-      test.skip(true, "Request a Processor CTA not exposed");
-    }
     await expect(cta).toBeVisible({ timeout: 10000 });
   });
 
@@ -67,9 +58,6 @@ test.describe("3DS Authenticators Module", () => {
     await gotoThreeDS(page);
     const threeDSAuthenticator = new ThreeDSAuthenticator(page);
     const searchInput = threeDSAuthenticator.authenticatorSearchInput;
-    if (!(await searchInput.isVisible().catch(() => false))) {
-      test.skip(true, "Search input not exposed on 3DS list");
-    }
     await searchInput.fill("threedsecureio");
     await page.waitForTimeout(500);
     await expect(searchInput).toHaveValue("threedsecureio");
@@ -81,9 +69,6 @@ test.describe("3DS Authenticators Module", () => {
     await gotoThreeDS(page);
     const threeDSAuthenticator = new ThreeDSAuthenticator(page);
     const searchInput = threeDSAuthenticator.authenticatorSearchInput;
-    if (!(await searchInput.isVisible().catch(() => false))) {
-      test.skip(true, "Search input not exposed on 3DS list");
-    }
     await searchInput.fill("notarealauthenticator_zzz");
     await page.waitForTimeout(1000);
     await expect(searchInput).toHaveValue("notarealauthenticator_zzz");
@@ -95,9 +80,6 @@ test.describe("3DS Authenticators Module", () => {
     await gotoThreeDS(page);
     const threeDSAuthenticator = new ThreeDSAuthenticator(page);
     const connectButtons = threeDSAuthenticator.connectButton;
-    if ((await connectButtons.count().catch(() => 0)) === 0) {
-      test.skip(true, "No 3DS authenticators exposed");
-    }
     await connectButtons.nth(0).click();
     await expect(page.getByText("API Key *")).toBeVisible();
     await expect(page.getByText("Organization Unit ID *")).toBeVisible();
@@ -108,7 +90,7 @@ test.describe("3DS Authenticators Module", () => {
 });
 
 test.describe("3DS Authenticators Setup", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -128,7 +110,7 @@ test.describe("3DS Authenticators Setup", () => {
         .getByText("Base64 encoded PEM formatted"),
     ).toBeVisible();
     await page
-      .getByTestId("connector_account_details.certificate")
+      .getByTestId("base64_encoded_pem_formatted_certificate_chain")
       .getByRole("textbox", { name: "Enter Base64 encoded PEM" })
       .fill(certBase64);
 
@@ -138,7 +120,7 @@ test.describe("3DS Authenticators Setup", () => {
         .getByText("Base64 encoded PEM formatted"),
     ).toBeVisible();
     await page
-      .getByTestId("connector_account_details.private_key")
+      .getByTestId("base64_encoded_pem_formatted_private_key")
       .getByRole("textbox", { name: "Enter Base64 encoded PEM" })
       .fill(keyBase64);
 
@@ -149,11 +131,6 @@ test.describe("3DS Authenticators Setup", () => {
         .nth(2),
     ).toBeVisible();
     await threeDSAuthenticator.connectorLabelTextbox.fill("netcetera_default");
-
-    await expect(page.getByText("Live endpoint prefix *")).toBeVisible();
-    await page
-      .getByRole("textbox", { name: "string that will replace '{" })
-      .fill("test_value");
 
     await expect(
       page.locator("div").filter({ hasText: /^MCC$/ }).nth(2),

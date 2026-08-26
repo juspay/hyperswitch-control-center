@@ -69,8 +69,8 @@ export class ProductionAccessPage {
     return this.page.getByText("Please enter a valid email address");
   }
 
-  countryOption(name: string | RegExp, index: number = 4): Locator {
-    return this.page.locator("div").filter({ hasText: name }).nth(index);
+  get countryOption(): Locator {
+    return this.page.getByRole("menuitem", { name: "Aland Islands" });
   }
 }
 

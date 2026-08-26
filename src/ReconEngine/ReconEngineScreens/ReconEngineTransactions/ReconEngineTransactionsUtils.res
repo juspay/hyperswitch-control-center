@@ -4,10 +4,162 @@ open ReconEngineTypes
 open ReconEngineUtils
 open ReconEngineTransactionsTypes
 
+let searchTypeFromString = str => {
+  switch str {
+  | "order_id" => SearchOrderId
+  | "transaction_id" => SearchTransactionId
+  | _ => UnknownTransactionSearchType
+  }
+}
+
+let searchTypeOptions: array<SearchInput.searchTypeOption> = [
+  SearchTransactionId,
+  SearchOrderId,
+]->Array.map((txnType): SearchInput.searchTypeOption => {
+  {
+    label: (txnType :> string)->snakeToTitle,
+    value: (txnType :> string),
+  }
+})
+
+let getSortOrder = (sortOb: LoadedTable.sortOb): transactionSortOrder => {
+  sortOb.sortKey === "date" && sortOb.sortType === LoadedTable.ASC ? Asc : Desc
+}
+
+let allTransactionStatuses: array<domainTransactionStatus> = [
+  Expected,
+  Missing,
+  OverAmount(Mismatch),
+  UnderAmount(Mismatch),
+  OverAmount(Expected),
+  UnderAmount(Expected),
+  Posted(Manual),
+  Matched(Auto),
+  Matched(Manual),
+  Matched(WithTolerance),
+  Matched(Force),
+  Void,
+  PartiallyReconciled,
+  DataMismatch,
+  SplitMismatch,
+  CurrencyMismatch,
+]
+
+let getEffectiveStatusValues = (~filterValueJson: Dict.t<JSON.t>): array<string> => {
+  let statusFilter = filterValueJson->getArrayFromDict("status", [])
+  let finalStatusFilter = getMergedMatchedTransactionStatusFilter(statusFilter)
+  finalStatusFilter->isEmptyArray
+    ? getTransactionStatusValueFromStatusList(allTransactionStatuses)
+    : finalStatusFilter->Array.map(v => v->getStringFromJson(""))
+}
+
+let buildTransactionsV2Body = (
+  ~filterValueJson: Dict.t<JSON.t>,
+  ~searchType: transactionSearchType,
+  ~searchText: string,
+  ~ruleId: string,
+  ~sortBy: cursor,
+  ~direction: cursorDirection,
+  ~order: transactionSortOrder=Desc,
+  ~limit=4,
+) => {
+  let statusValues = getEffectiveStatusValues(~filterValueJson)
+
+  let startTime = filterValueJson->getString("startTime", "")->toReconTimeString
+  let endTime = filterValueJson->getString("endTime", "")->toReconTimeString
+  let hasStartTime = startTime->isNonEmptyString
+  let hasEndTime = endTime->isNonEmptyString
+  let hasBothTimeRanges = hasStartTime && hasEndTime
+  let filters =
+    [
+      ruleId->isNonEmptyString ? Some(("rule_id", ruleId->JSON.Encode.string)) : None,
+      Some(("status", statusValues->getJsonFromArrayOfString)),
+      if hasBothTimeRanges {
+        Some((
+          "time_range",
+          [
+            ("start_time", startTime->JSON.Encode.string),
+            ("end_time", endTime->JSON.Encode.string),
+          ]->getJsonFromArrayOfJson,
+        ))
+      } else if hasStartTime {
+        Some((
+          "time_range",
+          [("start_time", startTime->JSON.Encode.string)]->getJsonFromArrayOfJson,
+        ))
+      } else {
+        None
+      },
+      searchText->isNonEmptyString
+        ? Some(((searchType :> string), searchText->String.trim->JSON.Encode.string))
+        : None,
+    ]
+    ->Array.filterMap(entry => entry)
+    ->getJsonFromArrayOfJson
+
+  let cursorPayload: transactionsV2CursorPayload = {
+    limit,
+    direction,
+    order,
+    sortBy,
+  }
+
+  [
+    ("filters", filters),
+    ("cursor_payload", cursorPayload->Identity.genericTypeToJson),
+  ]->getJsonFromArrayOfJson
+}
+
+let buildTransactionBulkSelectionFilters = (~filterValueJson: Dict.t<JSON.t>, ~ruleId: string) => {
+  let statusValues = getEffectiveStatusValues(~filterValueJson)
+  let startTime = filterValueJson->getString("startTime", "")->toReconTimeString
+  let endTime = filterValueJson->getString("endTime", "")->toReconTimeString
+
+  [
+    ruleId->isNonEmptyString ? Some(("rule_id", ruleId->JSON.Encode.string)) : None,
+    Some(("status", statusValues->Array.joinWith(",")->JSON.Encode.string)),
+    startTime->isNonEmptyString ? Some(("start_time", startTime->JSON.Encode.string)) : None,
+    endTime->isNonEmptyString ? Some(("end_time", endTime->JSON.Encode.string)) : None,
+  ]
+  ->Array.filterMap(entry => entry)
+  ->getJsonFromArrayOfJson
+}
+
+let getTransactionStatusLabels = (statusValues: array<string>) => {
+  statusValues->Array.filterMap(value => {
+    let (_, label, _) =
+      value->overviewTransactionStatusTypeFromString->getTransactionStatusGroupedValueAndLabel
+    label->getNonEmptyString
+  })
+}
+
+let buildSelectionFilterScopeText = (
+  ~userSelectedFilterValueJson: Dict.t<JSON.t>,
+): filterScopeCopy => {
+  let selectedStatuses =
+    userSelectedFilterValueJson
+    ->getArrayFromDict("status", [])
+    ->Array.map(v => v->getStringFromJson(""))
+
+  if selectedStatuses->isEmptyArray {
+    {
+      optionLabel: "All exceptions, including those on other pages",
+      optionDescription: "Applies to every exception listed for this rule",
+    }
+  } else {
+    {
+      optionLabel: "All transactions with the selected statuses, including those on other pages",
+      optionDescription: `Applies to: ${selectedStatuses
+        ->getTransactionStatusLabels
+        ->Array.joinWith(", ")}`,
+    }
+  }
+}
+
 let constructTransactionBulkRequestBody = (
   ~bulkActionType: actionType,
   ~valuesDict,
-  ~selectedRows,
+  ~selection: transactionBulkSelection,
 ) => {
   let postAction =
     [
@@ -35,17 +187,23 @@ let constructTransactionBulkRequestBody = (
   | UnknownBulkTransactionActionType => JSON.Encode.null
   }
 
-  let selection = [
-    ("selection_type", "ids"->JSON.Encode.string),
-    (
-      "ids",
-      selectedRows
-      ->Array.map((txn: transactionType) => txn.id->JSON.Encode.string)
-      ->JSON.Encode.array,
-    ),
-  ]->getJsonFromArrayOfJson
+  let selectionJson = switch selection {
+  | SelectionByIds(rows) =>
+    [
+      ("selection_type", (ByIds :> string)->JSON.Encode.string),
+      (
+        "ids",
+        rows->Array.map((txn: transactionType) => txn.id->JSON.Encode.string)->JSON.Encode.array,
+      ),
+    ]->getJsonFromArrayOfJson
+  | SelectionByFilters(filters) =>
+    [
+      ("selection_type", (ByFilters :> string)->JSON.Encode.string),
+      ("filters", filters),
+    ]->getJsonFromArrayOfJson
+  }
 
-  [("action", action), ("selection", selection)]->getJsonFromArrayOfJson
+  [("action", action), ("selection", selectionJson)]->getJsonFromArrayOfJson
 }
 
 let getTransactionBulkActionsCount = (
@@ -150,7 +308,7 @@ let getTransactionFlowType = (
   }
 }
 
-let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
+let statusDisplayFilters = (): array<EntityType.initialFilters<'t>> => {
   let statusOptions = getGroupedTransactionStatusOptions([
     Posted(Manual),
     Matched(Auto),
@@ -170,63 +328,23 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
   ])
 
   [
-    (
-      {
-        field: FormRenderer.makeFieldInfo(
-          ~label="transaction_status",
-          ~name="status",
-          ~customInput=InputFields.filterMultiSelectInput(
-            ~options=statusOptions,
-            ~buttonText="Select Transaction Status",
-            ~showSelectionAsChips=false,
-            ~searchable=true,
-            ~showToolTip=true,
-            ~showNameAsToolTip=true,
-            ~customButtonStyle="bg-none",
-            (),
-          ),
+    {
+      field: FormRenderer.makeFieldInfo(
+        ~label="transaction_status",
+        ~name="status",
+        ~customInput=InputFields.filterMultiSelectInput(
+          ~options=statusOptions,
+          ~buttonText="Select Transaction Status",
+          ~showSelectionAsChips=false,
+          ~searchable=true,
+          ~showToolTip=true,
+          ~showNameAsToolTip=true,
+          ~customButtonStyle="bg-none",
+          (),
         ),
-        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
-      }: EntityType.initialFilters<'t>
-    ),
-    (
-      {
-        field: FormRenderer.makeFieldInfo(
-          ~label="source_account",
-          ~name="source_account",
-          ~customInput=InputFields.filterMultiSelectInput(
-            ~options=creditAccountOptions,
-            ~buttonText="Select Source Account",
-            ~showSelectionAsChips=false,
-            ~searchable=true,
-            ~showToolTip=true,
-            ~showNameAsToolTip=true,
-            ~customButtonStyle="bg-none",
-            (),
-          ),
-        ),
-        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
-      }: EntityType.initialFilters<'t>
-    ),
-    (
-      {
-        field: FormRenderer.makeFieldInfo(
-          ~label="target_account",
-          ~name="target_account",
-          ~customInput=InputFields.filterMultiSelectInput(
-            ~options=debitAccountOptions,
-            ~buttonText="Select Target Account",
-            ~showSelectionAsChips=false,
-            ~searchable=true,
-            ~showToolTip=true,
-            ~showNameAsToolTip=true,
-            ~customButtonStyle="bg-none",
-            (),
-          ),
-        ),
-        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
-      }: EntityType.initialFilters<'t>
-    ),
+      ),
+      localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+    },
   ]
 }
 
@@ -344,22 +462,28 @@ let bulkActionPostingModalConfig = (~count: int) => {
   },
 }
 
-let bulkActionVoidingModalConfig = (~count: int) => {
+let bulkActionVoidingModalConfig = (~count: int, ~hasSelectionChoice: bool) => {
   bulkActionModal: {
     modalHeading: "Ignore Transaction",
-    modalDescription: `This will permanently ignore ${count->Int.toString} transaction${pluralText(
-        ~count,
-      )} and exclude them from the ledger. These actions cannot be undone. Are you sure you want to proceed?`,
+    modalDescription: hasSelectionChoice
+      ? "Ignored transactions are excluded from the ledger and cannot be restored. Choose what this should apply to."
+      : `This will permanently ignore ${count->Int.toString} transaction${pluralText(
+            ~count,
+          )} and exclude them from the ledger. These actions cannot be undone. Are you sure you want to proceed?`,
     modalConfirmButtonText: "Ignore Transaction",
     modalConfirmButtonType: Delete,
     modalLoadingText: `Ignoring transaction${pluralText(~count)}...`,
   },
 }
 
-let getBulkActionModalConfig = (~action: actionType, ~count: int): bulkActionModalConfig => {
+let getBulkActionModalConfig = (
+  ~action: actionType,
+  ~count: int,
+  ~hasSelectionChoice: bool=false,
+): bulkActionModalConfig => {
   switch action {
   | BulkTransactionPost => bulkActionPostingModalConfig(~count)
-  | BulkTransactionVoid => bulkActionVoidingModalConfig(~count)
+  | BulkTransactionVoid => bulkActionVoidingModalConfig(~count, ~hasSelectionChoice)
   | UnknownBulkTransactionActionType => {
       bulkActionModal: {
         modalHeading: "",
@@ -501,6 +625,28 @@ let getBulkActionSuccessModalConfig = (
       },
       bulkActionIcon: {bulkActionIconName: "", bulkActionIconClass: ""},
     }
+  }
+}
+
+let bulkActionRecordLimitModalConfig: bulkActionModalConfig = {
+  bulkActionModal: {
+    modalHeading: "Too Many Transactions Matched",
+    modalDescription: "This action matched more transactions than can be processed at once. Narrow your filters and try again — nothing was changed.",
+    modalConfirmButtonText: "Close",
+    modalConfirmButtonType: Primary,
+    modalLoadingText: "",
+  },
+  bulkActionIcon: {
+    bulkActionIconName: "nd-alert-triangle",
+    bulkActionIconClass: "text-nd_orange-300",
+  },
+}
+
+let bulkActionFailureMessage = (action: actionType) => {
+  switch action {
+  | BulkTransactionPost => "Failed to post transactions. Please try again."
+  | BulkTransactionVoid => "Failed to ignore transactions. Please try again."
+  | UnknownBulkTransactionActionType => "Something went wrong. Please try again."
   }
 }
 

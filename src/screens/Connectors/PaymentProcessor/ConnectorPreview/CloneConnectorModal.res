@@ -6,7 +6,7 @@ open CloneConnectorModalUtils
 let make = (~connectorInfo: ConnectorTypes.connectorPayload) => {
   open APIUtils
   let updateDetails = useUpdateMethod(~showErrorToast=false)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let getURL = useGetURL()
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -15,7 +15,8 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload) => {
   let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchProfileList = ProfileListHook.useFetchProfileList()
-  let businessProfile = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let businessProfile =
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   let (showModal, setShowModal) = React.useState(_ => false)
   let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
 
@@ -66,14 +67,26 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload) => {
       let _ = await updateDetails(url, body, Post)
       setShowModal(_ => false)
       showToast(~message="Connector cloned successfully.", ~toastType=ToastSuccess)
+      Nullable.null
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to clone connector")
-      let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
+      let errorCode =
+        err
+        ->safeParse
+        ->getDictFromJsonObject
+        ->getString("code", "")
+        ->CommonAuthUtils.errorSubCodeMapper
       let message = errorCode->getCloneErrorMessage
       showToast(~message, ~toastType=ToastError)
+      switch errorCode {
+      | UR_59 =>
+        let errors = Dict.make()
+        Dict.set(errors, "connector_label", message->JSON.Encode.string)
+        errors->JSON.Encode.object->Nullable.make
+      | _ => Nullable.null
+      }
     }
-    Nullable.null
   }
 
   <RenderIf condition={showCloneButton}>

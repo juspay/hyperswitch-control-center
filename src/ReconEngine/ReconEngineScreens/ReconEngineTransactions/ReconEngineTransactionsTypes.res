@@ -1,14 +1,32 @@
+open ReconEngineTypes
+
 type transactionFlowType =
   | InFlow
   | OutFlow
   | UnknownTransactionFlowType
+
+type transactionSearchType =
+  | @as("transaction_id") SearchTransactionId
+  | @as("order_id") SearchOrderId
+  | @as("unknown") UnknownTransactionSearchType
+
+type transactionSortOrder =
+  | @as("asc") Asc
+  | @as("desc") Desc
+
+type transactionsV2CursorPayload = {
+  limit: int,
+  direction: cursorDirection,
+  order: transactionSortOrder,
+  @as("sort_by") sortBy: cursor,
+}
 
 type entriesMetadataKeysToExclude = Amount | Currency
 
 type accountGroup = {
   accountId: string,
   accountName: string,
-  entries: array<ReconEngineTypes.entryType>,
+  entries: array<entryType>,
 }
 
 type lineageFieldType = {
@@ -27,6 +45,19 @@ type actionType =
   | @as("bulk_post") BulkTransactionPost
   | @as("bulk_void") BulkTransactionVoid
   | @as("unknown") UnknownBulkTransactionActionType
+
+type bulkSelectionMode =
+  | @as("ids") ByIds
+  | @as("filters") ByFilters
+
+type transactionBulkSelection =
+  | SelectionByIds(array<transactionType>)
+  | SelectionByFilters(JSON.t)
+
+type filterScopeCopy = {
+  optionLabel: string,
+  optionDescription: string,
+}
 
 type iconType = {
   bulkActionIconName: string,

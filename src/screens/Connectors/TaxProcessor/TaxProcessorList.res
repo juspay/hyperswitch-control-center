@@ -1,6 +1,7 @@
 @react.component
 let make = () => {
   let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=TaxProcessor)
+  let {taxProcessorsList} = HyperswitchAtom.connectorDisplayListAtom->Recoil.useRecoilValueFromAtom
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -15,9 +16,11 @@ let make = () => {
       list->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
-          isContainingStringLowercase(obj.connector_name, searchText) ||
-          isContainingStringLowercase(obj.id, searchText) ||
-          isContainingStringLowercase(obj.connector_label, searchText)
+          ConnectorUtils.matchesConnectorSearch(
+            ~connectorType=ConnectorTypes.TaxProcessor,
+            obj,
+            searchText,
+          )
         | None => false
         }
       })
@@ -85,7 +88,7 @@ let make = () => {
             ConnectorTypes.TaxProcessor,
             configuredConnectors,
           )}
-          connectorsAvailableForIntegration=ConnectorUtils.taxProcessorList
+          connectorsAvailableForIntegration={taxProcessorsList}
           urlPrefix="tax-processor/new"
           connectorType=ConnectorTypes.TaxProcessor
         />

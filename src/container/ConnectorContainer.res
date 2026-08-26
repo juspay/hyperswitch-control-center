@@ -13,7 +13,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
-  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
+  let {isCurrentMerchantPlatform} = OMPSwitchHooks.useOMPType()
 
   let setUpConnectoreContainer = async () => {
     try {
@@ -187,27 +187,14 @@ let make = () => {
         />
       </AccessControl>
     | list{"payment-settings", ...remainingPath} =>
-      <>
-        <RenderIf condition={featureFlagDetails.paymentSettingsRevamped}>
-          <AccessControl authorization=Access>
-            <EntityScaffold
-              entityName="PaymentSettingsRevamped"
-              remainingPath
-              renderList={() =>
-                isCurrentMerchantPlatform
-                  ? <PlatformPaymentSettings />
-                  : <PaymentSettingsRevamped />}
-            />
-          </AccessControl>
-        </RenderIf>
-        <RenderIf condition={!featureFlagDetails.paymentSettingsRevamped}>
-          <AccessControl authorization=Access>
-            <EntityScaffold
-              entityName="PaymentSettings" remainingPath renderList={() => <PaymentSettings />}
-            />
-          </AccessControl>
-        </RenderIf>
-      </>
+      <AccessControl authorization=Access>
+        <EntityScaffold
+          entityName="PaymentSettings"
+          remainingPath
+          renderList={() =>
+            isCurrentMerchantPlatform ? <PlatformPaymentSettings /> : <PaymentSettings />}
+        />
+      </AccessControl>
     | list{"sdk"} =>
       <AccessControl
         isEnabled={!featureFlagDetails.isLiveMode}

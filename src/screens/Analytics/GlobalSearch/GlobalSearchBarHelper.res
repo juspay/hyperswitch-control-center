@@ -1,5 +1,7 @@
 open LogicUtils
 open GlobalSearchTypes
+open Typography
+
 module RenderedComponent = {
   open String
   @react.component
@@ -229,6 +231,42 @@ module NoResults = {
   @react.component
   let make = () => {
     <div className="text-sm p-2"> {"No Results"->React.string} </div>
+  }
+}
+
+module ClipboardSuggestion = {
+  open GlobalSearchBarUtils
+  open FramerMotion.Motion
+  @react.component
+  let make = (~clipboardSuggestion, ~onClipboardSuggestionClicked) => {
+    switch clipboardSuggestion {
+    | Some(suggestion: clipboardSuggestion) =>
+      let filter: categoryOption = {
+        categoryType: Payment_id,
+        options: [suggestion.id],
+        placeholder: suggestion.id,
+      }
+
+      <Div
+        initial={{opacity: 0.5}}
+        animate={{opacity: 0.5}}
+        layoutId="clipboard-section"
+        className="px-2 pt-2 border-t dark:border-nd_gray-950">
+        <Div layoutId="clipboard-title" className={`${body.md.bold} px-2`}>
+          {"FROM CLIPBOARD"->React.string}
+        </Div>
+        <div>
+          <FilterOption
+            onClick={_ => onClipboardSuggestionClicked(suggestion)}
+            value={suggestion.id}
+            placeholder={Some("Click to search")}
+            filter
+            viewType=FiltersSugsestions
+          />
+        </div>
+      </Div>
+    | None => React.null
+    }
   }
 }
 

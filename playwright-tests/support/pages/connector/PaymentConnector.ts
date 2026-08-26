@@ -12,7 +12,7 @@ export class PaymentConnector {
   }
 
   get pageBanner(): Locator {
-    return this.page.locator(".flex.flex-col.justify-evenly").first();
+    return this.page.locator(".flex.flex-col.justify-evenly");
   }
 
   get connectNowButton(): Locator {
@@ -70,27 +70,66 @@ export class PaymentConnector {
   }
 
   get connectorCreatedToast(): Locator {
-    return this.page.locator('[data-toast="Connector Created Successfully!"]');
+    return this.page.locator('[data-id="Connector Created Successfully!"]');
   }
 
   get connectorLabelExistsToast(): Locator {
     return this.page
-      .locator('[data-toast*="Connector label already exist!"]')
+      .locator('[data-id="Connector label already exist!"]')
       .first();
+  }
+
+  get cloneConnectorButton(): Locator {
+    return this.page.getByRole("button", {
+      name: "Clone connector",
+      exact: true,
+    });
+  }
+
+  get cloneConnectorModal(): Locator {
+    return this.page.locator('[data-component="modal:Clone connector"]');
+  }
+
+  get cloneDestinationProfileButton(): Locator {
+    return this.cloneConnectorModal.getByRole("button", {
+      name: "Select a profile",
+      exact: true,
+    });
+  }
+
+  get cloneConnectorLabelInput(): Locator {
+    return this.cloneConnectorModal.getByPlaceholder("Enter connector label");
+  }
+
+  get cloneConnectorSubmitButton(): Locator {
+    return this.cloneConnectorModal.getByRole("button", {
+      name: "Clone connector",
+      exact: true,
+    });
+  }
+
+  get cloneConnectorSuccessToast(): Locator {
+    return this.page.locator('[data-id="Connector cloned successfully."]');
+  }
+
+  get cloneConnectorLabelExistsToast(): Locator {
+    return this.page.locator('[data-id="Connector label already exists."]');
   }
 
   get detailsUpdatedToast(): Locator {
-    return this.page.locator('[data-toast*="Details Updated!"]').first();
+    return this.page.locator('[data-id="Details Updated!"]').first();
   }
 
   get paymentMethodToggle(): Locator {
-    return this.page
-      .locator(".flex.items-center.transition.rounded-2\\.5")
-      .first();
+    return this.page.locator("[data-bool-value]").first();
   }
 
   get connectorEnableToggle(): Locator {
-    return this.page.locator(".transition.rounded-full");
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^(Enabled|Disabled)$/ })
+      .locator("[data-bool-value]")
+      .first();
   }
 
   get submitButton(): Locator {

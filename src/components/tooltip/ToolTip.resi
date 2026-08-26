@@ -10,4 +10,5 @@ let make: (
   ~visibleOnClick: bool=?,
   ~enableTooltipDelay: bool=?,
   ~tooltipDelay: int=?,
+  ~fullWidth: bool=?,
 ) => React.element

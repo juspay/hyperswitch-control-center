@@ -1,18 +1,19 @@
 module DownloadCertificateTile = {
   @react.component
-  let make = (~header, ~onClick, ~buttonState) => {
+  let make = (~header, ~onClick) => {
     <div
       className="flex flex-col bg-white pt-6 pl-6 pr-8 pb-8 justify-between gap-10 border border-jp-gray-border_gray rounded">
       <div>
         <p className="text-fs-16 font-semibold m-2"> {header->React.string} </p>
       </div>
       <Button
-        buttonState
-        text="Download"
-        buttonSize={Medium}
-        buttonType={Primary}
-        rightIcon={FontAwesome("download-api-key")}
+        text="View"
+        buttonSize=Medium
+        buttonType=Primary
+        rightIcon=FontAwesome("nd-external-link-square")
         onClick
+        customButtonStyle="!w-fit"
+        customTextPaddingClass="!pr-0"
       />
     </div>
   }
@@ -20,63 +21,36 @@ module DownloadCertificateTile = {
 
 @react.component
 let make = () => {
-  let showToast = ToastAdapter.useShowToast()
-  let fetchApi = AuthHooks.useApiFetcher()
-  let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let downloadPDF = _ => {
-    setButtonState(_ => Button.Loading)
-    let currentDate =
-      Date.now()
-      ->Js.Date.fromFloat
-      ->Date.toISOString
-      ->TimeZoneHook.formattedISOString("YYYY-MM-DD HH:mm:ss")
+  open LogicUtils
 
-    let downloadURL = Window.env.dssCertificateUrl->Option.getOr("")
-
-    // For local testing this condition is added
-    if downloadURL->LogicUtils.isNonEmptyString {
-      open Promise
-      fetchApi(downloadURL, ~method_=Get, ~xFeatureRoute, ~forceCookies)
-      ->then(resp => {
-        Fetch.Response.blob(resp)
-      })
-      ->then(content => {
-        DownloadUtils.download(
-          ~fileName=`HyperswitchPCICertificate-${currentDate}.pdf`,
-          ~content,
-          ~fileType="application/pdf",
-        )
-        showToast(
-          ~toastType=ToastSuccess,
-          ~message="PCI Attestation of Compliance certificate download complete",
-        )
-
-        resolve()
-      })
-      ->catch(_ => {
-        showToast(
-          ~toastType=ToastError,
-          ~message="Oops, something went wrong with the download. Please try again.",
-        )
-        resolve()
-      })
-      ->ignore
-      setButtonState(_ => Button.Normal)
-    } else {
-      showToast(~toastType=ToastError, ~message="Oops, something went wrong with the download.")
-      setButtonState(_ => Button.Normal)
-    }
-  }
+  let usCertificateUrl = Window.env.dssCertificateUsUrl->Option.getOr("")
+  let euCertificateUrl = Window.env.dssCertificateEuUrl->Option.getOr("")
+  let hasCertificates = usCertificateUrl->isNonEmptyString || euCertificateUrl->isNonEmptyString
 
   <div className="flex flex-col gap-12">
     <PageUtils.PageHeading
       title="Compliance" subTitle="Achieve and Maintain Industry Compliance Standards"
     />
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
-      <DownloadCertificateTile
-        header="Hyperswitch's PCI Attestation of Compliance" onClick=downloadPDF buttonState
+    <RenderIf condition={hasCertificates}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
+        <RenderIf condition={usCertificateUrl->isNonEmptyString}>
+          <DownloadCertificateTile
+            header="Hyperswitch's PCI Attestation of Compliance (US)"
+            onClick={_ => usCertificateUrl->Window._open}
+          />
+        </RenderIf>
+        <RenderIf condition={euCertificateUrl->isNonEmptyString}>
+          <DownloadCertificateTile
+            header="Hyperswitch's PCI Attestation of Compliance (EU)"
+            onClick={_ => euCertificateUrl->Window._open}
+          />
+        </RenderIf>
+      </div>
+    </RenderIf>
+    <RenderIf condition={!hasCertificates}>
+      <NoDataFound
+        message="No compliance certificates are available at the moment. Please contact support if you need access."
       />
-    </div>
+    </RenderIf>
   </div>
 }

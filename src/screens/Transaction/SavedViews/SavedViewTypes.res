@@ -3,22 +3,14 @@ type tab = {
   render: unit => React.element,
 }
 
-module FilterKeys = {
-  let amountOption = "amount_option"
-  let amount = "amount"
-  let startAmount = "start_amount"
-  let endAmount = "end_amount"
-}
-
-let isReservedKey = key => {
-  [FilterKeys.amountOption, FilterKeys.amount]->Array.includes(key)
-}
+type amountFilter
 
 type entity =
   | Member
   | Merchant
   | Organization
   | Payment
+  | PaymentAdvanced
   | Payout
   | Refund
   | Dispute
@@ -26,6 +18,7 @@ type entity =
 let entityToKey = (entity: entity) =>
   switch entity {
   | Payment => "PaymentViews"
+  | PaymentAdvanced => "PaymentAdvancedViews"
   | Refund => "RefundViews"
   | Dispute => "DisputeViews"
   | Payout => "PayoutViews"
@@ -36,7 +29,8 @@ let entityToKey = (entity: entity) =>
 
 let entityToString = (entity: entity) =>
   switch entity {
-  | Payment => "payment_views"
+  | Payment
+  | PaymentAdvanced => "payment_views"
   | Refund => "refund_views"
   | Dispute => "dispute_views"
   | Payout => "payout_views"
@@ -50,6 +44,11 @@ type action =
   | Update
   | Delete
 
+type savedViewsPanelState =
+  | NoActiveInteraction
+  | RenamingViewAtIndex(int)
+  | SaveViewModalOpen
+
 let actionToString = action =>
   switch action {
   | Create => "Create"
@@ -57,10 +56,13 @@ let actionToString = action =>
   | Delete => "Delete"
   }
 
+type savedViewVersion = [#v1 | #v2]
+
 type savedView = {
   view_id: string,
   view_name: string,
   entity: string,
+  version: UserInfoTypes.version,
   filters: JSON.t,
   created_at: string,
   updated_at: string,
@@ -70,6 +72,13 @@ type savedViewsResponse = {
   count: int,
   views: array<savedView>,
 }
+
+type filterKey = [
+  | #amount_option
+  | #amount
+  | #start_amount
+  | #end_amount
+]
 
 type filterKeyKind =
   | FlattenRoot

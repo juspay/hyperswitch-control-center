@@ -25,7 +25,8 @@ let formatDateString = date => {
 let getDateFilteredObject = (~range=7) => {
   let currentDate = Date.make()
 
-  let end_time = currentDate->formatDateString
+  let end_time =
+    Date.fromTime(Math.ceil(currentDate->Date.getTime /. 1000.0) *. 1000.0)->formatDateString
 
   let start_time =
     Js.Date.makeWithYMD(
@@ -68,7 +69,7 @@ let useSetInitialFilters = (
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
       let timeRange =
         origin !== "analytics"
-          ? [(startTimeFilterKey, defaultDate.start_time)]
+          ? [(startTimeFilterKey, defaultDate.start_time), (endTimeFilterKey, defaultDate.end_time)]
           : switch enableCompareTo {
             | Some(_) => {
                 let (compareToStartTime, compareToEndTime) = DateRangeUtils.getComparisonTimePeriod(
@@ -181,6 +182,7 @@ module RemoteTableFilters = {
     ~version=UserInfoTypes.V1,
     ~connectorTypes: array<ConnectorTypes.connector>=[Processor, ThreeDsAuthenticator],
     ~customFilterActions=React.null,
+    ~setRemoteFilterData=_ => (),
     (),
   ) => {
     open LogicUtils
@@ -229,6 +231,7 @@ module RemoteTableFilters = {
       try {
         let filterUrl = getURL(~entityName, ~methodType=apiType)
         setFilterDataJson(_ => None)
+        setRemoteFilterData(Dict.make()->JSON.Encode.object)
         let response = switch apiType {
         | Post => {
             let body =
@@ -291,6 +294,7 @@ module RemoteTableFilters = {
         }
 
         setFilterDataJson(_ => Some(filterDataResponse))
+        setRemoteFilterData(filterDataResponse)
       } catch {
       | _ => showToast(~message="Failed to load filters", ~toastType=ToastError)
       }

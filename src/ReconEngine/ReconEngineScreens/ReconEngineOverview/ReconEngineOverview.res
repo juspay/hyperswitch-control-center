@@ -60,17 +60,15 @@ let make = () => {
       {
         title: "Overview",
         renderContent: () =>
-          <FilterContext key="recon-engine-overview-summary" index="recon-engine-overview-summary">
-            <ReconEngineOverviewSummary
-              reconRulesList
-              onRuleClick={ruleId => RescriptReactRouter.push(`${basePath}?rule_id=${ruleId}`)}
-            />
-          </FilterContext>,
+          <ReconEngineOverviewSummary
+            reconRulesList
+            onRuleClick={ruleId => RescriptReactRouter.push(`${basePath}?rule_id=${ruleId}`)}
+          />,
       },
       ...reconRulesList->Array.map(ruleDetails => {
         title: ruleDetails.rule_name,
         renderContent: () =>
-          <FilterContext key="recon-engine-overview-details" index="recon-engine-overview-details">
+          <FilterContext key={ruleDetails.rule_id} index="recon-engine-overview">
             <ReconEngineOverviewDetails ruleDetails />
           </FilterContext>,
       }),
@@ -83,9 +81,13 @@ let make = () => {
   }, [])
 
   <div className="flex flex-col w-full">
-    <PageUtils.PageHeading
-      title="Recon Overview" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
-    />
+    <div className="flex flex-row justify-between items-center">
+      <PageUtils.PageHeading
+        title="Recon Overview" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
+      />
+      <PortalCapture name=ReconEngineFilterUtils.globalDateFilterPortalName customStyle="-mt-2" />
+    </div>
+    <ReconEngineHelper.GlobalDateFilterBanner />
     <PageLoaderWrapper screenState>
       <RenderIf condition={reconRulesList->Array.length == 0}>
         <div className="my-4">

@@ -5,6 +5,10 @@ let isEmptyString = str => str->String.length === 0
 
 let isNonEmptyString = str => str->String.length > 0
 
+let getErrorMessage = (~message, ~error, ~fallback="Something went wrong") => {
+  message->isNonEmptyString ? message : error->isNonEmptyString ? error : fallback
+}
+
 let methodStr = (method: Fetch.requestMethod) => {
   switch method {
   | Get => "GET"
@@ -133,6 +137,15 @@ let getString = (dict, key, default) => {
 
 let getStringFromJson = (json: JSON.t, default) => {
   json->JSON.Decode.string->Option.getOr(default)
+}
+
+let getErrorCodeFromExn = exn => {
+  exn
+  ->Exn.message
+  ->Option.getOr("")
+  ->safeParse
+  ->getDictFromJsonObject
+  ->getString("code", "")
 }
 
 let getBoolFromJson = (json, defaultValue) => {
@@ -338,6 +351,10 @@ let getFloat = (dict, key, default) => {
 
 let getObj = (dict, key, default) => {
   dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.object)->Option.getOr(default)
+}
+
+let getOptionObj = (dict, key) => {
+  dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.object)
 }
 
 let getMappedValueFromDict = (dict, key, default, mapper) =>
@@ -587,6 +604,9 @@ let getTitle = name => {
   ->Array.joinWith(" ")
 }
 
+let pluralize = (~count, ~singular, ~plural=?) =>
+  count == 1 ? singular : plural->Option.getOr(`${singular}s`)
+
 // Regex to check if a string contains a substring
 let regex = (positionToCheckFrom, searchString) => {
   let searchStringNew =
@@ -673,7 +693,7 @@ let removeTrailingSlash = str => {
 }
 
 let getMappedValueFromArrayOfJson = (array, itemToObjMapper) =>
-  array->Belt.Array.keepMap(JSON.Decode.object)->Array.map(itemToObjMapper)
+  array->Array.filterMap(JSON.Decode.object)->Array.map(itemToObjMapper)
 
 let uniqueObjectFromArrayOfObjects = (arr, keyExtractor) => {
   let uniqueDict = Dict.make()

@@ -6,14 +6,18 @@ let make = () => {
   open ReconEngineOverviewSummaryUtils
 
   let getOverviewRules = ReconEngineHooks.useGetOverviewRules()
-  let getProcessingEntries = ReconEngineHooks.useGetProcessingEntries()
+  let getStagingEntriesOverview = ReconEngineHooks.useGetStagingEntriesOverview()
   let getTransformationHistory = ReconEngineHooks.useGetTransformationHistory()
   let getIngestionHistory = ReconEngineHooks.useGetIngestionHistory()
 
-  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let filterValueJsonWithGlobalDate = ReconEngineFilterUtils.mergeGlobalDateFilters(
+    ~filterValueJson=Dict.make(),
+    ~globalDateFilters,
+  )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (overviewRules, setOverviewRules) = React.useState(_ => [])
-  let (processingEntries, setProcessingEntries) = React.useState(_ => [])
+  let (stagingOverviewData, setStagingOverviewData) = React.useState(_ => [])
   let (failedTransformationHistory, setFailedTransformationHistory) = React.useState(_ => [])
   let (failedIngestionHistory, setFailedIngestionHistory) = React.useState(_ => [])
 
@@ -21,16 +25,13 @@ let make = () => {
     open ReconEngineFilterUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let queryParams = buildQueryStringFromFilters(~filterValueJson)
+      let queryParams = buildQueryStringFromFilters(~filterValueJson=filterValueJsonWithGlobalDate)
 
-      let statusList = getProcessingEntryStatusValueFromStatusList([NeedsManualReview])
       let ingestionTransformationStatusList = getIngestionTransformationHistoryStatusValueFromStatusList([
         Failed,
       ])
       let overviewRulesFetch = getOverviewRules(~queryParameters=Some(queryParams))
-      let processingEntriesFetch = getProcessingEntries(
-        ~queryParameters=Some(`${queryParams}&status=${statusList->Array.joinWith(",")}`),
-      )
+      let stagingOverviewFetch = getStagingEntriesOverview(~queryParameters=Some(queryParams))
       let failedTransformationHistoryFetch = getTransformationHistory(
         ~queryParameters=Some(
           `${queryParams}&status=${ingestionTransformationStatusList->Array.joinWith(",")}`,
@@ -44,18 +45,18 @@ let make = () => {
 
       let (
         overviewRules,
-        processingEntries,
+        stagingOverviewData,
         failedTransformationHistory,
         failedIngestionHistory,
       ) = await Promise.all4((
         overviewRulesFetch,
-        processingEntriesFetch,
+        stagingOverviewFetch,
         failedTransformationHistoryFetch,
         failedIngestionHistoryFetch,
       ))
 
       setOverviewRules(_ => overviewRules)
-      setProcessingEntries(_ => processingEntries)
+      setStagingOverviewData(_ => stagingOverviewData)
       setFailedTransformationHistory(_ => failedTransformationHistory)
       setFailedIngestionHistory(_ => failedIngestionHistory)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -65,18 +66,18 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if !(filterValue->isEmptyDict) {
+    if ReconEngineFilterUtils.hasGlobalDateFilterValue(~globalDateFilters) {
       fetchOverviewRules()->ignore
     }
     None
-  }, [filterValue])
+  }, [globalDateFilters])
 
   let (statCards, connectedStatCards) = React.useMemo(() => {
     (
-      getStatCards(~overviewRules, ~processingEntries),
+      getStatCards(~overviewRules, ~stagingOverviewData),
       getConnectedStatCards(~overviewRules, ~failedTransformationHistory, ~failedIngestionHistory),
     )
-  }, (overviewRules, processingEntries, failedTransformationHistory, failedIngestionHistory))
+  }, (overviewRules, stagingOverviewData, failedTransformationHistory, failedIngestionHistory))
 
   <div className="flex flex-col gap-6">
     <div
@@ -89,13 +90,13 @@ let make = () => {
           customLoader={<Shimmer styleClass="h-40 w-full rounded-xl" />}>
           <StatCard
             key={index->Int.toString}
-            title=card.statCardTitle
+            title={(card.statCardTitle :> string)}
             value=card.statCardValue
             icon=card.statCardIcon
             description=card.statCardDescription
             cardType=card.statCardType
             onStatCardClick={() =>
-              card.statCardPath->Option.mapOr((), path => RescriptReactRouter.push(path))}
+              card.statCardPath->mapOptionOrDefault((), path => RescriptReactRouter.push(path))}
           />
         </PageLoaderWrapper>
       })
@@ -111,10 +112,13 @@ let make = () => {
           customLoader={<Shimmer styleClass="h-24 w-full" />}>
           <ConnectedStatCard
             key={index->Int.toString}
-            title=card.connectedStatCardTitle
+            title={(card.connectedStatCardTitle :> string)}
             value=card.connectedStatCardValue
+            cardType=card.connectedStatCardType
             onConnectedStatCardClick={() => {
-              card.connectedStatCardPath->Option.mapOr((), path => RescriptReactRouter.push(path))
+              card.connectedStatCardPath->mapOptionOrDefault((), path =>
+                RescriptReactRouter.push(path)
+              )
             }}
           />
         </PageLoaderWrapper>

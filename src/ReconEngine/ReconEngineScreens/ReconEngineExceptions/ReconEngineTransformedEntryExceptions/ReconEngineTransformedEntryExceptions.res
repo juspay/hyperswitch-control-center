@@ -3,184 +3,131 @@ open Typography
 @react.component
 let make = () => {
   open ReconEngineHooks
-  open ReconEngineFilterUtils
   open LogicUtils
   open ReconEngineTypes
-  open ReconEngineTransformedEntryExceptionsUtils
   open HSAnalyticsUtils
 
-  let getGetProcessingEntries = useGetProcessingEntries()
-  let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
-    FilterContext.filterContext,
+  let getAccounts = useGetAccounts()
+  let {removeKeys, filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
+  let url = RescriptReactRouter.useUrl()
+  let basePath = GlobalVars.appendDashboardPath(
+    ~url="/v1/recon-engine/exceptions/transformed-entries",
   )
 
-  let (stagingData, setStagingData) = React.useState(_ => [])
-  let (filteredStagingData, setFilteredStagingData) = React.useState(_ => [])
-  let (offset, setOffset) = React.useState(_ => 0)
-  let (searchText, setSearchText) = React.useState(_ => "")
+  let (accountData, setAccountData) = React.useState((_): array<accountType> => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (selectedRows, setSelectedRows) = React.useState(_ => [])
 
-  let mixpanelEvent = MixpanelHook.useSendEvent()
-
-  let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="recon_engine_transformed_entries_exceptions_date_filter_opened")
-  }
-
-  let accountOptions = React.useMemo(() => {
-    getAccountOptionsFromStagingEntries(stagingData)
-  }, [stagingData])
-
-  let filterLogic = ReactDebounce.useDebounced(ob => {
-    let (searchText, arr) = ob
-    let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<processingEntryType>) => {
-        switch Nullable.toOption(obj) {
-        | Some(obj) =>
-          isContainingStringLowercase(obj.staging_entry_id, searchText) ||
-          isContainingStringLowercase((obj.status :> string), searchText) ||
-          isContainingStringLowercase(obj.order_id, searchText)
-        | None => false
-        }
-      })
-    } else {
-      arr
+  let selectedAccountId = React.useMemo(() => {
+    let accountIdFromUrl =
+      url.search->getDictFromUrlSearchParams->getValueFromDict("account_id", "")
+    switch accountData->Array.find(account => account.account_id === accountIdFromUrl) {
+    | Some(account) => account.account_id
+    | None =>
+      (
+        accountData->getValueFromArray(0, Dict.make()->ReconEngineUtils.accountItemToObjMapper)
+      ).account_id
     }
-    setFilteredStagingData(_ => filteredList)
-  }, ~wait=200)
+  }, (url.search, accountData))
 
-  let fetchStagingData = async () => {
+  let fetchAccounts = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let enhancedFilterValueJson = Dict.copy(filterValueJson)
-      let statusFilter = filterValueJson->getArrayFromDict("status", [])
-      let statusList = getProcessingEntryStatusValueFromStatusList([NeedsManualReview])
-      if statusFilter->isEmptyArray {
-        enhancedFilterValueJson->Dict.set("status", statusList->getJsonFromArrayOfString)
-      }
-      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
-        ~filterValueJson=enhancedFilterValueJson,
-      )
-
-      let stagingList = await getGetProcessingEntries(~queryParameters=Some(queryString))
-      setStagingData(_ => stagingList)
-      setFilteredStagingData(_ => stagingList->Array.map(Nullable.make))
-
+      let accounts = await getAccounts()
+      setAccountData(_ => accounts)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch accounts"))
     }
   }
 
-  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~updateExistingKeys,
-    ~startTimeFilterKey,
-    ~endTimeFilterKey,
-    ~origin="recon_engine_transformed_entries_exceptions",
-    ~range=180,
-    (),
-  )
-
   React.useEffect(() => {
-    setInitialFilters()
+    fetchAccounts()->ignore
     None
   }, [])
 
   React.useEffect(() => {
-    if !(filterValue->isEmptyDict) {
-      fetchStagingData()->ignore
+    if (
+      selectedAccountId->isNonEmptyString &&
+        filterValueJson->getOptionValFromDict("account_ids")->Option.isSome
+    ) {
+      removeKeys(["account_ids"])
     }
     None
-  }, [filterValue])
+  }, (selectedAccountId, filterValue))
 
-  let topFilterUi = {
-    <div className="flex flex-row -ml-1.5">
-      <DynamicFilter
-        title="ReconEngineTransformedEntriesExceptionsFilters"
-        initialFilters={initialDisplayFilters(~accountOptions)}
-        options=[]
-        popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields(
-          null,
-          ~events=dateDropDownTriggerMixpanelCallback,
-        )}
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        tabNames=filterKeys
-        key="ReconEngineTransformedEntriesExceptionsFilters"
-        updateUrlWith=updateExistingKeys
-        filterFieldsPortalName={filterFieldsPortalName}
-        showCustomFilter=false
-        refreshFilters=false
-        setOffset
-      />
-    </div>
+  React.useEffect(() => {
+    if selectedAccountId->isNonEmptyString {
+      let accountIdFromUrl =
+        url.search->getDictFromUrlSearchParams->getValueFromDict("account_id", "")
+      if accountIdFromUrl !== selectedAccountId {
+        RescriptReactRouter.replace(`${basePath}?account_id=${selectedAccountId}`)
+      }
+    }
+    None
+  }, (selectedAccountId, url.search))
+
+  let initialTabIndex = React.useMemo(() => {
+    selectedAccountId->isNonEmptyString
+      ? accountData
+        ->Array.findIndexOpt(account => account.account_id === selectedAccountId)
+        ->Option.getOr(0)
+      : 0
+  }, (selectedAccountId, accountData))
+
+  let resetFiltersForAccountSwitch = () => {
+    let keysToRemove =
+      filterValueJson
+      ->Dict.keysToArray
+      ->Array.filter(key => key !== startTimeFilterKey && key !== endTimeFilterKey)
+      ->Array.concat(["account_ids"])
+    removeKeys(keysToRemove)
   }
 
-  <div className="flex flex-col gap-5 w-full">
+  let onTitleClick = idx => {
+    switch accountData->Array.get(idx) {
+    | Some(account) =>
+      RescriptReactRouter.push(`${basePath}?account_id=${account.account_id}`)
+      resetFiltersForAccountSwitch()
+    | None => ()
+    }
+  }
+
+  let tabs: array<Tabs.tab> = React.useMemo(() => {
+    accountData->Array.map((account): Tabs.tab => {
+      title: account.account_name,
+      renderContent: () => {
+        <RenderIf condition={selectedAccountId === account.account_id}>
+          <ReconEngineTransformedEntryContent
+            key={account.account_id} accountId={account.account_id}
+          />
+        </RenderIf>
+      },
+    })
+  }, (accountData, selectedAccountId))
+
+  <div className="flex flex-col w-full">
     <div className="flex flex-row justify-between items-center">
       <PageUtils.PageHeading
         title="Transformed Entry Exceptions"
         customTitleStyle={`${heading.lg.semibold}`}
         customHeadingStyle="py-0"
       />
+      <PortalCapture name=ReconEngineFilterUtils.globalDateFilterPortalName customStyle="-mt-1" />
     </div>
+    <ReconEngineHelper.GlobalDateFilterBanner />
     <PageLoaderWrapper screenState>
-      <div className="flex flex-col gap-4">
-        <div className="flex-shrink-0"> {topFilterUi} </div>
-        <RenderIf condition={stagingData->isEmptyArray}>
-          <div className="h-40-vh flex flex-col justify-center items-center gap-2">
-            <p className={`${heading.sm.semibold} text-gray-800`}>
-              {"No exceptions to show."->React.string}
-            </p>
-            <p className={`${body.md.medium} text-gray-500`}>
-              {"All transformed entries have been processed successfully and entered into the reconciliation engine."->React.string}
-            </p>
-          </div>
-        </RenderIf>
-        <RenderIf condition={stagingData->isNonEmptyArray}>
-          <LoadedTable
-            title="Transformed Entries"
-            hideTitle=true
-            actualData={filteredStagingData}
-            entity={ReconEngineExceptionEntity.transformedEntryExceptionTableEntity(
-              `v1/recon-engine/exceptions/transformed-entries`,
-              ~authorization=Access,
-            )}
-            resultsPerPage=10
-            totalResults={filteredStagingData->Array.length}
-            offset
-            setOffset
-            currentFetchCount={filteredStagingData->Array.length}
-            tableheadingClass="h-12"
-            tableHeadingTextClass="!font-normal"
-            nonFrozenTableParentClass="!rounded-lg"
-            loadedTableParentClass="flex flex-col"
-            enableEqualWidthCol=false
-            showAutoScroll=true
-            filters={<TableSearchFilter
-              data={stagingData->Array.map(Nullable.make)}
-              filterLogic
-              placeholder="Search Transformed Entry ID or Order ID or Status"
-              customSearchBarWrapperWidth="w-full lg:w-1/3"
-              customInputBoxWidth="w-full rounded-xl"
-              searchVal=searchText
-              setSearchVal=setSearchText
-            />}
-            checkBoxProps={{
-              showCheckBox: true,
-              selectedData: selectedRows,
-              setSelectedData: setSelectedRows,
-            }}
+      <RenderIf condition={accountData->isEmptyArray}>
+        <div className="my-4">
+          <NoDataFound
+            message="No accounts found. Please create an account to view the sources."
+            renderType={Painting}
+            customMessageCss={`${body.lg.semibold} text-nd_gray-400`}
           />
-        </RenderIf>
-      </div>
+        </div>
+      </RenderIf>
+      <RenderIf condition={accountData->isNonEmptyArray}>
+        <Tabs tabs initialIndex=initialTabIndex onTitleClick />
+      </RenderIf>
     </PageLoaderWrapper>
-    <RenderIf condition={selectedRows->isNonEmptyArray}>
-      <ReconEngineTransformedEntryBulkActions
-        selectedRows={selectedRows->Array.map(json => json->Identity.jsonToAnyType)}
-        setSelectedRows
-        refreshList={() => fetchStagingData()->ignore}
-      />
-    </RenderIf>
   </div>
 }

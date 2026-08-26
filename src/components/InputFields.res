@@ -625,7 +625,9 @@ let multiLineTextInput = (
   ~leftIcon=?,
   ~maxLength=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
-  <MultiLineTextInput ?maxLength input placeholder isDisabled ?rows ?cols customClass ?leftIcon />
+  <MultiLineTextInputAdapter
+    ?maxLength input placeholder isDisabled ?rows ?cols customClass ?leftIcon
+  />
 }
 
 let iconFieldWithMessageDes = (mainInputField, ~description="") => (
@@ -705,9 +707,33 @@ let boolInput = (
   <BoolInput input isDisabled isCheckBox boolCustomClass toggleEnableColor />
 }
 
-let colorPickerInput = (~defaultValue="", ~showErrorWhenEmpty=true) => (
+let switchInput = (
+  ~isDisabled,
+  ~boolCustomClass="",
+  ~toggleBorder="border-green-950",
+  ~toggleEnableColor="bg-green-950",
+) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
+  let boolInput = input->BoolInput.ffInputToBoolInput
+  let boolValue: JSON.t = boolInput.value
+  let isSelected = switch boolValue->JSON.Classify.classify {
+  | Bool(true) => true
+  | String(value) => value === "true"
+  | _ => false
+  }
+
+  <SwitchAdapter
+    isSelected
+    setIsSelected=boolInput.onChange
+    isDisabled
+    boolCustomClass
+    toggleBorder
+    toggleEnableColor
+  />
+}
+
+let colorPickerInput = (~defaultValue=?, ~showErrorWhenEmpty=true) => (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder as _,
 ) => {
-  <ColorPickerInput input defaultValue showErrorWhenEmpty />
+  <ColorPickerInput input ?defaultValue showErrorWhenEmpty />
 }

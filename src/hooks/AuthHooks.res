@@ -21,6 +21,8 @@ let getHeaders = (
   ~token,
   ~merchantId,
   ~profileId,
+  ~sendV1DummyApiKeyHeader,
+  ~cugUser,
   ~version: UserInfoTypes.version,
 ) => {
   let isMixpanel = uri->String.includes("mixpanel")
@@ -34,7 +36,9 @@ let getHeaders = (
     switch (token, version) {
     | (Some(str), V1) => {
         headers->Dict.set("authorization", `Bearer ${str}`)
-        headers->Dict.set("api-key", `hyperswitch`)
+        if sendV1DummyApiKeyHeader {
+          headers->Dict.set("api-key", `hyperswitch`)
+        }
       }
     | (Some(str), V2) => headers->Dict.set("authorization", `Bearer ${str}`)
     | _ => ()
@@ -45,6 +49,12 @@ let getHeaders = (
     }
     if xFeatureRoute {
       headersForXFeature(~headers, ~uri)
+    }
+
+    // TODO: this header is scoped to Webhook events APIs for now;
+    // remove the uri condition once webhook CUG testing is done so it applies to all APIs
+    if cugUser && uri->String.includes("/events/") {
+      headers->Dict.set("x-cug-user", "true")
     }
 
     // this header is specific to Intelligent Routing (Dynamic Routing)
@@ -83,6 +93,7 @@ let useApiFetcher = () => {
   let url = RescriptReactRouter.useUrl()
   let setReqProgress = Recoil.useSetRecoilState(ApiProgressHooks.pendingRequestCount)
   let {setEmbeddedStateToError} = React.useContext(EmbeddedCheckProvider.embeddedContext)
+  let {cugUser} = FeatureFlagAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   React.useCallback(
     (
@@ -95,6 +106,7 @@ let useApiFetcher = () => {
       ~contentType=Headers("application/json"),
       ~xFeatureRoute,
       ~forceCookies,
+      ~sendV1DummyApiKeyHeader=false,
       ~merchantId="",
       ~profileId="",
       ~version=UserInfoTypes.V1,
@@ -146,6 +158,8 @@ let useApiFetcher = () => {
               ~xFeatureRoute,
               ~merchantId,
               ~profileId,
+              ~sendV1DummyApiKeyHeader,
+              ~cugUser,
               ~version,
             ),
             ~signal?, // to be used in case of aborting requests
@@ -197,6 +211,6 @@ let useApiFetcher = () => {
         )
       })
     },
-    [],
+    [cugUser],
   )
 }

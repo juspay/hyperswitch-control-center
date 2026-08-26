@@ -12,7 +12,7 @@ let scaExemptionEntity: moduleEntity = {
       #authentication_attempt_count,
     ],
   },
-  title: "Exemption Flowchart",
+  title: "Authentication Flowchart",
   description: "Breakdown of ThreeDS 2.0 Journey",
   domain: #payments,
 }

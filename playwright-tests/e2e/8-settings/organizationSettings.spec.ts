@@ -1,7 +1,6 @@
 import { test, expect } from "../../support/test";
 import type { Page } from "@playwright/test";
 import { OrganizationSettingsPage } from "../../support/pages/settings/OrganizationSettingsPage";
-import { HomePage } from "../../support/pages/homepage/HomePage";
 import { generateUniqueEmail } from "../../support/helper";
 import { signupUser, loginUI } from "../../support/commands";
 

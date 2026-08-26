@@ -2,7 +2,6 @@ open RevenueRecoveryOnboardingTypes
 
 let getMainStepName = step => {
   switch step {
-  | #chooseDataSource => "Choose Your Data Source"
   | #connectProcessor => "Connect Processor"
   | #addAPlatform => "Add a Platform"
   | #reviewDetails => "Review Details"
@@ -12,15 +11,16 @@ let getMainStepName = step => {
 let getStepName = (step: revenueRecoverySubsections) => {
   switch step {
   | #selectProcessor => "Select a Processor"
-  | #activePaymentMethods => "Active Payment Methods"
+  | #authenticateProcessor => "Authenticate"
+  | #activePaymentMethods => "Payment Methods"
   | #selectAPlatform => "Select a Platform"
+  | #authenticateBilling => "Authenticate"
   | #processorSetUp => "Billing Processor Set-up"
   }
 }
 
 let getIcon = step => {
   switch step {
-  | #chooseDataSource => "nd-shield"
   | #connectProcessor => "nd-inbox"
   | #addAPlatform => "nd-plugin"
   | #reviewDetails => "nd-flag"
@@ -33,6 +33,10 @@ let getSections = isLiveMode => {
     {
       id: (#selectAPlatform: revenueRecoverySubsections :> string),
       name: #selectAPlatform->getStepName,
+    },
+    {
+      id: (#authenticateBilling: revenueRecoverySubsections :> string),
+      name: #authenticateBilling->getStepName,
     },
   ]
 
@@ -47,51 +51,39 @@ let getSections = isLiveMode => {
     {
       id: (#connectProcessor: revenueRecoverySections :> string),
       name: #connectProcessor->getMainStepName,
-      icon: #connectProcessor->getIcon,
+      VerticalStepIndicatorTypes.icon: #connectProcessor->getIcon,
       subSections: Some([
         {
           id: (#selectProcessor: revenueRecoverySubsections :> string),
           name: #selectProcessor->getStepName,
+        },
+        {
+          id: (#authenticateProcessor: revenueRecoverySubsections :> string),
+          name: #authenticateProcessor->getStepName,
         },
       ]),
     },
     {
       id: (#addAPlatform: revenueRecoverySections :> string),
       name: #addAPlatform->getMainStepName,
-      icon: #addAPlatform->getIcon,
+      VerticalStepIndicatorTypes.icon: #addAPlatform->getIcon,
       subSections: Some(platformSubsectionsDefaultSteps),
     },
     {
       id: (#reviewDetails: revenueRecoverySections :> string),
       name: #reviewDetails->getMainStepName,
-      icon: #reviewDetails->getIcon,
+      VerticalStepIndicatorTypes.icon: #reviewDetails->getIcon,
       subSections: None,
     },
   ]
 
-  if !isLiveMode {
-    defaultSteps->Array.unshift({
-      id: (#chooseDataSource: revenueRecoverySections :> string),
-      name: #chooseDataSource->getMainStepName,
-      icon: #chooseDataSource->getIcon,
-      subSections: None,
-    })
-  }
-
   defaultSteps
 }
 
-let getDefaultStep = isLiveMode => {
-  if isLiveMode {
-    {
-      sectionId: (#connectProcessor: revenueRecoverySections :> string),
-      subSectionId: (#selectProcessor: revenueRecoverySubsections :> string)->Some,
-    }
-  } else {
-    {
-      sectionId: (#chooseDataSource: revenueRecoverySections :> string),
-      subSectionId: None,
-    }
+let getDefaultStep = _isLiveMode => {
+  {
+    sectionId: (#connectProcessor: revenueRecoverySections :> string),
+    subSectionId: (#selectProcessor: revenueRecoverySubsections :> string)->Some,
   }
 }
 
@@ -125,7 +117,6 @@ let onPreviousClick = (currentStep, setNextStep, isLiveMode) => {
 
 let getSectionVariant = ({sectionId, subSectionId}) => {
   let mainSection = switch sectionId {
-  | "chooseDataSource" => #chooseDataSource
   | "connectProcessor" => #connectProcessor
   | "addAPlatform" => #addAPlatform
   | "reviewDetails" | _ => #reviewDetails
@@ -133,8 +124,10 @@ let getSectionVariant = ({sectionId, subSectionId}) => {
 
   let subSection: revenueRecoverySubsections = switch subSectionId {
   | Some("selectProcessor") => #selectProcessor
+  | Some("authenticateProcessor") => #authenticateProcessor
   | Some("activePaymentMethods") => #activePaymentMethods
   | Some("selectAPlatform") => #selectAPlatform
+  | Some("authenticateBilling") => #authenticateBilling
   | Some("processorSetUp") | _ => #processorSetUp
   }
 
@@ -223,3 +216,34 @@ let getMixpanelEventName = currentStep => {
   | _ => ""
   }
 }
+
+let features: array<feature> = [
+  {
+    icon: "nd-workflow",
+    bgColor: "bg-nd_orange-150",
+    iconColor: "text-nd_orange-300",
+    title: "ML-Powered Retry Engine",
+    description: "Minimizes recurring payment failures using data and machine learning for optimized retries.",
+  },
+  {
+    icon: "nd-settings",
+    bgColor: "bg-nd_purple-200",
+    iconColor: "text-nd_purple-300",
+    title: "Configurable Retry Strategies",
+    description: "Customize recovery plans via dashboard with 20+ parameters.",
+  },
+  {
+    icon: "recovery-home",
+    bgColor: "bg-nd_pink-100",
+    iconColor: "text-nd_pink-500",
+    title: "Reduce Involuntary Churn",
+    description: "Improves retention by recovering failed payments that would otherwise lead to churn.",
+  },
+  {
+    icon: "nd-swap-arrow-horizontal",
+    bgColor: "bg-nd_teal-100",
+    iconColor: "text-nd_teal-500",
+    title: "Smart Retry Optimization",
+    description: "Targets specific errors and subscription types for maximum success.",
+  },
+]
