@@ -7,18 +7,21 @@ let make = () => {
   open ReconEngineDataTransformedEntriesUtils
   open ReconEngineDataTransformedEntriesTypes
   open ReconEngineHooks
-  open HSAnalyticsUtils
+  open ReconEngineFilterUtils
 
   let getProcessingEntriesV2 = useGetCursorPage(
     ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST_V2,
     ~itemMapper=ReconEngineUtils.processingItemToObjMapper,
   )
   let getAccounts = useGetAccounts()
+  let getTransformationConfigs = useGetTransformationConfigs()
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let filterValueJsonWithGlobalDate = mergeGlobalDateFilters(~filterValueJson, ~globalDateFilters)
   let searchTypeRef = React.useRef(SearchStagingEntryId)
   let (searchText, setSearchText) = React.useState(_ => "")
 
@@ -37,7 +40,7 @@ let make = () => {
   } = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=(~sortBy, ~direction) => {
     getProcessingEntriesV2(
       ~body=buildProcessingEntriesV2Body(
-        ~filterValueJson,
+        ~filterValueJson=filterValueJsonWithGlobalDate,
         ~searchType=searchTypeRef.current,
         ~searchText,
         ~sortBy,
@@ -45,16 +48,11 @@ let make = () => {
         ~order=sortOrder,
       ),
     )
-  }, ~persistKey="recon-engine-transformed-entries")
+  }, ~persistKey=Some("recon-engine-transformed-entries"))
 
   let (accountData, setAccountData) = React.useState(_ => [])
+  let (transformationConfigData, setTransformationConfigData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
-
-  let mixpanelEvent = MixpanelHook.useSendEvent()
-
-  let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="recon_engine_accounts_transformed_entries_date_filter_opened")
-  }
 
   let accountOptions =
     accountData->Array.map((
@@ -64,12 +62,24 @@ let make = () => {
       value: account.account_id,
     })
 
-  let fetchAccounts = async () => {
+  let transformationConfigOptions =
+    transformationConfigData->Array.map((
+      config: ReconEngineTypes.transformationConfigType,
+    ): FilterSelectBox.dropdownOption => {
+      label: config.name,
+      value: config.transformation_id,
+    })
+
+  let fetchAccountAndTransformationConfigs = async () => {
     try {
-      let accounts = await getAccounts()
+      let (accounts, transformationConfigs) = await Promise.all2((
+        getAccounts(),
+        getTransformationConfigs(),
+      ))
       setAccountData(_ => accounts)
+      setTransformationConfigData(_ => transformationConfigs)
     } catch {
-    | _ => showToast(~message="Failed to fetch accounts", ~toastType=ToastError)
+    | _ => showToast(~message="Failed to fetch accounts or transformations", ~toastType=ToastError)
     }
   }
 
@@ -79,40 +89,27 @@ let make = () => {
     goToFirstPage()
   }
 
-  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~updateExistingKeys,
-    ~startTimeFilterKey,
-    ~endTimeFilterKey,
-    ~origin="recon_engine_accounts_transformed_entries",
-    ~range=180,
-    (),
-  )
-
   React.useEffect(() => {
-    setInitialFilters()
-    fetchAccounts()->ignore
+    fetchAccountAndTransformationConfigs()->ignore
     None
   }, [])
 
   React.useEffect(() => {
-    if !(filterValue->isEmptyDict) {
+    if hasGlobalDateFilterValue(~globalDateFilters) {
       goToFirstPage()
     }
     None
-  }, (filterValue, sortOrder))
+  }, (filterValue, sortOrder, globalDateFilters))
 
   let topFilterUi = {
     <div className="flex flex-row -ml-1.5">
       <DynamicFilter
         title="ReconEngineDataTransformedEntriesFilters"
-        initialFilters={initialDisplayFilters(~accountOptions)}
+        initialFilters={initialDisplayFilters(~accountOptions, ~transformationConfigOptions)}
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
-          null,
-          ~events=dateDropDownTriggerMixpanelCallback,
-        )}
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+        initialFixedFilters=[]
+        defaultFilterKeys=[]
         tabNames=filterKeys
         key="ReconEngineDataTransformedEntriesFilters"
         updateUrlWith=updateExistingKeys
@@ -154,7 +151,9 @@ let make = () => {
         customTitleStyle={`${heading.lg.semibold}`}
         customHeadingStyle="py-0"
       />
+      <PortalCapture name=globalDateFilterPortalName customStyle="-mt-4" />
     </div>
+    <ReconEngineHelper.GlobalDateFilterBanner />
     <ReconEngineDataTransformedEntriesOverviewCards selectedTransformationHistoryId=None />
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-4">

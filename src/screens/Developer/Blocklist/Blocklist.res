@@ -23,11 +23,18 @@ let make = () => {
   let (selectedFile, setSelectedFile) = React.useState(_ => None)
   let (uploadButtonState, setUploadButtonState) = React.useState(_ => Button.Normal)
   let inputRef = React.useRef(Nullable.null)
+  let fileSelectionTokenRef = React.useRef(0)
 
   let clearFileInput = () => {
     inputRef.current
     ->getOptionalFromNullable
     ->Option.forEach(elem => elem->DOMUtils.toInputElement->DOMUtils.setInputValue(""))
+  }
+
+  let rejectFile = message => {
+    clearFileInput()
+    setSelectedFile(_ => None)
+    showToast(~message, ~toastType=ToastError)
   }
 
   let fetchJobs = async () => {
@@ -82,24 +89,38 @@ let make = () => {
     None
   }, [offset])
 
+  let validateFileContents = (~file, ~selectionToken, event) => {
+    if fileSelectionTokenRef.current === selectionToken {
+      let fileContents = ReactEvent.Form.target(event)["result"]
+      switch fileContents->getBlocklistCsvDataRowCountError {
+      | Some(errorMessage) => rejectFile(errorMessage)
+      | None => setSelectedFile(_ => Some(file))
+      }
+    }
+  }
+
+  let readFileContents = (~file, ~selectionToken) => {
+    let fileReader = FileReader.reader
+    fileReader.onload = event => validateFileContents(~file, ~selectionToken, event)
+    fileReader.onerror = _ => {
+      if fileSelectionTokenRef.current === selectionToken {
+        rejectFile("Unable to read the CSV file.")
+      }
+    }
+    fileReader->FileReader.readFileAsText(file)
+  }
+
   let handleFileChange = ev => {
+    fileSelectionTokenRef.current = fileSelectionTokenRef.current + 1
+    let selectionToken = fileSelectionTokenRef.current
     let files = ReactEvent.Form.target(ev)["files"]
     switch files[0] {
-    | Some(file) =>
-      if file->isValidBlocklistCsvFile {
-        if file->isBlocklistCsvFileSizeAllowed {
-          setSelectedFile(_ => Some(file))
-        } else {
-          clearFileInput()
-          setSelectedFile(_ => None)
-          showToast(~message="CSV file size should be less than 5 MB.", ~toastType=ToastError)
-        }
-      } else {
-        clearFileInput()
-        setSelectedFile(_ => None)
-        showToast(~message="Please upload a valid CSV file.", ~toastType=ToastError)
-      }
     | None => setSelectedFile(_ => None)
+    | Some(file) =>
+      switch file->getBlocklistCsvFileError {
+      | Some(errorMessage) => rejectFile(errorMessage)
+      | None => readFileContents(~file, ~selectionToken)
+      }
     }
   }
 
@@ -108,6 +129,7 @@ let make = () => {
   }
 
   let resetSelectedFile = _ => {
+    fileSelectionTokenRef.current = fileSelectionTokenRef.current + 1
     setSelectedFile(_ => None)
     clearFileInput()
   }
@@ -197,6 +219,9 @@ let make = () => {
               <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
                 {"Upload a CSV file to create an asynchronous blocklist batch job."->React.string}
               </p>
+              <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
+                {"This configuration applies to all profiles in the current merchant account."->React.string}
+              </p>
             </div>
             <Button
               text="Download Sample File"
@@ -243,10 +268,10 @@ let make = () => {
                 </div>
                 <div className="min-w-0">
                   <p className={`text-nd_gray-700 ${body.md.medium}`}>
-                    {"Upload a CSV file up to 5 MB"->React.string}
+                    {`Upload a CSV file with up to ${maxBlocklistCsvDataRowsLabel} rows and a maximum size of ${maxBlocklistCsvFileSizeLabel}`->React.string}
                   </p>
                   <p className={`text-nd_gray-500 mt-1 ${body.sm.medium}`}>
-                    {"Only .csv files are supported for blocklist batch uploads."->React.string}
+                    {"CSV files above either limit cannot be processed. Only .csv files are supported."->React.string}
                   </p>
                 </div>
               </div>

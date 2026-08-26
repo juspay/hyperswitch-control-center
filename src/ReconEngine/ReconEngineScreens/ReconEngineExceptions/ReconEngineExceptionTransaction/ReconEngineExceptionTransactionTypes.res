@@ -6,7 +6,8 @@ type resolvingException =
   | EditEntry
   | MarkAsReceived
   | CreateNewEntry
-  | LinkStagingEntriesToTransaction
+  | ReplaceStagingEntryToTransaction
+  | LinkStagingEntryToTransaction
   | NoResolutionActionNeeded
 
 type activeModal =
@@ -43,4 +44,12 @@ type tableSection = {
 type exceptionResolutionEntryType = {
   ...entryType,
   entry_key: string,
+}
+
+type accountSection = {
+  accountId: string,
+  accountInfo: accountInfo,
+  accountEntries: array<exceptionResolutionEntryType>,
+  accountTotalAmount: float,
+  accountCurrency: string,
 }

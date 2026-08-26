@@ -9,18 +9,27 @@ type emailConfig = {
   foreground_color: string,
   background_color: string,
 }
-type urlConfig = {
+
+type superpositionConfig = {
+  organization_id: string,
+  workspace: string,
+}
+
+type baseConfig = {
   apiBaseUrl: string,
+  olapPrefix: string,
   mixpanelToken: string,
   sdkBaseUrl: option<string>,
   agreementUrl: option<string>,
   agreementVersion: option<string>,
   applePayCertificateUrl: option<string>,
   reconIframeUrl: option<string>,
-  dssCertificateUrl: option<string>,
+  dssCertificateUsUrl: option<string>,
+  dssCertificateEuUrl: option<string>,
   dynamoSimulationTemplateUrl: option<string>,
   urlThemeConfig: urlThemeConfig,
   hypersenseUrl: string,
+  superpositionConfigs: option<superpositionConfig>,
 }
 
 // Type definition for themes

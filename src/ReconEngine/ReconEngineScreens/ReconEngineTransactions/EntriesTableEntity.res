@@ -9,6 +9,7 @@ type entryColType =
   | Amount
   | Currency
   | Status
+  | TransformationConfig
   | Metadata
   | CreatedAt
   | EffectiveAt
@@ -59,6 +60,7 @@ let transactionEntriesDetailFields = [
   Amount,
   Currency,
   Status,
+  TransformationConfig,
   EntryId,
   OrderID,
   EffectiveAt,
@@ -75,6 +77,8 @@ let getHeading = (colType: entryColType) => {
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
+  | TransformationConfig =>
+    Table.makeHeaderInfo(~key="transformation_config", ~title="Transformation Config")
   | Metadata => Table.makeHeaderInfo(~key="metadata", ~title="Metadata")
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
   | EffectiveAt => Table.makeHeaderInfo(~key="effective_at", ~title="Effective At")
@@ -113,9 +117,18 @@ let getCell = (entry: entryType, colType: entryColType): Table.cell => {
       getStatusLabel(discardedStatus->ReconEngineUtils.getEntryStatusVariantFromString)
     | None => getStatusLabel(entry.status)
     }
+  | TransformationConfig => EllipsisText(entry.transformation_name->Option.getOr("N/A"), "max-w-36")
   | Metadata => Text(entry.metadata->JSON.stringify)
   | CreatedAt => Date(entry.created_at)
-  | EffectiveAt => Date(entry.effective_at)
+  | EffectiveAt =>
+    entry.effective_at->isNonEmptyString
+      ? CustomCell(
+          <TableUtils.DateCell
+            timestamp=entry.effective_at textAlign=Left hideTimeZone=true convertToLocal=false
+          />,
+          entry.effective_at,
+        )
+      : Text("-")
   | OrderID =>
     CustomCell(
       <>

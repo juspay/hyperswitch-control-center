@@ -807,7 +807,7 @@ let getConnectedStatCards = (
       connectedStatCardTitle: FailedIngestions,
       connectedStatCardValue: Number(failedIngestionHistory->Array.length),
       connectedStatCardType: Info,
-      connectedStatCardPath: Some(appendDashboardPath(~url="v1/recon-engine/sources")),
+      connectedStatCardPath: Some(appendDashboardPath(~url="v1/recon-engine/pipelines")),
     },
     {
       connectedStatCardTitle: MissingTransactions,
@@ -819,7 +819,7 @@ let getConnectedStatCards = (
       connectedStatCardTitle: FailedTransformations,
       connectedStatCardValue: Number(failedTransformationHistory->Array.length),
       connectedStatCardType: Info,
-      connectedStatCardPath: Some(appendDashboardPath(~url="v1/recon-engine/transformation")),
+      connectedStatCardPath: Some(appendDashboardPath(~url="v1/recon-engine/pipelines")),
     },
     {
       connectedStatCardTitle: ManualCorrections,

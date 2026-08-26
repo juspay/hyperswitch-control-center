@@ -22,6 +22,7 @@ let getHeaders = (
   ~merchantId,
   ~profileId,
   ~sendV1DummyApiKeyHeader,
+  ~cugUser,
   ~version: UserInfoTypes.version,
 ) => {
   let isMixpanel = uri->String.includes("mixpanel")
@@ -48,6 +49,12 @@ let getHeaders = (
     }
     if xFeatureRoute {
       headersForXFeature(~headers, ~uri)
+    }
+
+    // TODO: this header is scoped to Webhook events APIs for now;
+    // remove the uri condition once webhook CUG testing is done so it applies to all APIs
+    if cugUser && uri->String.includes("/events/") {
+      headers->Dict.set("x-cug-user", "true")
     }
 
     // this header is specific to Intelligent Routing (Dynamic Routing)
@@ -86,6 +93,7 @@ let useApiFetcher = () => {
   let url = RescriptReactRouter.useUrl()
   let setReqProgress = Recoil.useSetRecoilState(ApiProgressHooks.pendingRequestCount)
   let {setEmbeddedStateToError} = React.useContext(EmbeddedCheckProvider.embeddedContext)
+  let {cugUser} = FeatureFlagAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   React.useCallback(
     (
@@ -151,6 +159,7 @@ let useApiFetcher = () => {
               ~merchantId,
               ~profileId,
               ~sendV1DummyApiKeyHeader,
+              ~cugUser,
               ~version,
             ),
             ~signal?, // to be used in case of aborting requests
@@ -202,6 +211,6 @@ let useApiFetcher = () => {
         )
       })
     },
-    [],
+    [cugUser],
   )
 }

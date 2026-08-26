@@ -54,6 +54,7 @@ let make = (~accountData: array<ReconEngineTypes.accountType>, ~refreshTrigger=f
       }
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
         ~filterValueJson=enhancedFilterValueJson,
+        ~convertToLocal=false,
       )
       let ingestionHistoryList = await getIngestionHistory(~queryParameters=Some(queryString))
       let ingestionHistoryData = ingestionHistoryList->Array.map(Nullable.make)

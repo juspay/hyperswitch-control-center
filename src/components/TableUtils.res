@@ -458,6 +458,7 @@ module DateCell = {
     ~customDateStyle="",
     ~hideTime=false,
     ~hideTimeZone=false,
+    ~convertToLocal=true,
   ) => {
     let isMobileView = MatchMedia.useMobileChecker()
     let dateFormat = React.useContext(DateFormatProvider.dateFormatContext)
@@ -473,8 +474,9 @@ module DateCell = {
     let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZoneInFloat()
     let getFormattedDate = dateStr => {
       try {
-        let customTimeZone = isoStringToCustomTimeZone(dateStr)
-        let formattedDate = TimeZoneHook.formattedDateTimeFloat(customTimeZone, dateFormat)
+        let formattedDate = convertToLocal
+          ? TimeZoneHook.formattedDateTimeFloat(dateStr->isoStringToCustomTimeZone, dateFormat)
+          : dateStr->TimeZoneHook.formattedISOString(dateFormat)
         showMilliseconds
           ? formattedDate->String.replace(".000", `.${millisecondsPart}`)
           : formattedDate

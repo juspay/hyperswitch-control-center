@@ -45,14 +45,12 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
     )
   }
 
-  let recoveryDefaultPath = RevenueRecoveryHooks.useGetDefaultPath()
-
   if devRecoveryV2Product {
     sideBarValues->Array.push(
       Link({
         name: Recovery->getProductDisplayName,
         icon: "recovery-home",
-        link: recoveryDefaultPath,
+        link: RevenueRecoverySidebarValues.defaultPath,
         access: Access,
       }),
     )
