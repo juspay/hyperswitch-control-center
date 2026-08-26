@@ -444,7 +444,7 @@ module CreateNewStyleIDButton = {
   @react.component
   let make = (~setShowModal) => {
     open Typography
-    let customStyle = "text-primary bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full"
+    let customStyle = "text-primary bg-white dark:bg-nd_gray-800 hover:bg-nd_gray-50 text-nowrap w-full"
 
     <ACLDiv
       authorization=Access
