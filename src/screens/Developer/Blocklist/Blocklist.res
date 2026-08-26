@@ -148,12 +148,10 @@ let make = () => {
         offset === 0 ? await fetchJobs() : setOffset(_ => 0)
       } catch {
       | Exn.Error(e) =>
-        let rawErrorMessage = Exn.message(e)->Option.getOr("Failed to upload blocklist CSV")
-        let errorDict = rawErrorMessage->safeParse->getDictFromJsonObject
         let errorMessage =
-          errorDict
-          ->getObj("error", errorDict)
-          ->getString("message", rawErrorMessage)
+          Exn.message(e)
+          ->Option.getOr("Failed to upload blocklist CSV")
+          ->parseBlocklistErrorMessage
         showToast(~message=errorMessage, ~toastType=ToastError)
       }
       setUploadButtonState(_ => Button.Normal)

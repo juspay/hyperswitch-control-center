@@ -47,13 +47,10 @@ let make = (~operation, ~title, ~description, ~buttonText, ~eventName) => {
         setData(_ => "")
       } catch {
       | Exn.Error(e) =>
-        let rawErrorMessage =
-          Exn.message(e)->Option.getOr(operation->getBlocklistEntryFallbackError)
-        let errorDict = rawErrorMessage->safeParse->getDictFromJsonObject
         let errorMessage =
-          errorDict
-          ->getObj("error", errorDict)
-          ->getString("message", rawErrorMessage)
+          Exn.message(e)
+          ->Option.getOr(operation->getBlocklistEntryFallbackError)
+          ->parseBlocklistErrorMessage
         showToast(~message=errorMessage, ~toastType=ToastError)
       }
       setButtonState(_ => Button.Normal)
@@ -106,9 +103,8 @@ let make = (~operation, ~title, ~description, ~buttonText, ~eventName) => {
         <h2 className={`text-nd_gray-700 ${body.lg.semibold}`}> {title->React.string} </h2>
         <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}> {description->React.string} </p>
       </div>
-      <div
-        className="grid grid-cols-1 sm:grid-cols-[180px_320px_auto] gap-4 sm:gap-y-1 sm:items-end">
-        <div className="w-full sm:w-44 min-w-0">
+      <div className="flex flex-col sm:flex-row gap-4 sm:items-end">
+        <div className="w-full sm:w-44 min-w-0 sm:mb-6">
           <p className={`text-nd_gray-700 mb-1 ${body.sm.medium}`}> {"Type"->React.string} </p>
           <SelectBoxAdapter.BaseDropdown
             buttonText="Select type"
@@ -126,7 +122,7 @@ let make = (~operation, ~title, ~description, ~buttonText, ~eventName) => {
             fixedDropDownDirection=BottomRight
           />
         </div>
-        <div className="w-full sm:w-auto min-w-0">
+        <div className="w-full sm:w-80 min-w-0">
           <p className={`text-nd_gray-700 mb-1 ${body.sm.medium}`}> {"Data"->React.string} </p>
           <TextInputAdapter
             input=dataInput
@@ -137,11 +133,11 @@ let make = (~operation, ~title, ~description, ~buttonText, ~eventName) => {
             shouldSubmitForm=false
             customWidth="w-full"
           />
+          <p className={`mt-1 min-h-5 ${dataHelperClass} ${body.sm.medium}`}>
+            {dataHelperText->React.string}
+          </p>
         </div>
-        <p className={`min-h-5 sm:col-start-2 sm:row-start-2 ${dataHelperClass} ${body.sm.medium}`}>
-          {dataHelperText->React.string}
-        </p>
-        <div className="w-full min-w-0 sm:col-start-3 sm:row-start-1">
+        <div className="w-full sm:w-auto min-w-0 sm:mb-6">
           <ACLButton
             text=buttonText
             onClick

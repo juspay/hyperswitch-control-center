@@ -217,6 +217,13 @@ let getBlocklistEntryFallbackError = operation => {
   }
 }
 
+let parseBlocklistErrorMessage = rawErrorMessage => {
+  let errorDict = rawErrorMessage->safeParse->getDictFromJsonObject
+  errorDict
+  ->getObj("error", errorDict)
+  ->getString("message", rawErrorMessage)
+}
+
 let getBlocklistEntrySuccessMessage = (~operation, ~submittedData, ~fingerprintId) => {
   let displayValue = fingerprintId->getNonEmptyString->Option.getOr(submittedData)
   switch operation {
