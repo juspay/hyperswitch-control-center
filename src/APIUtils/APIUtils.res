@@ -258,6 +258,11 @@ let useGetURL = () => {
         | Post => Default(`blocklist/batch`)
         | _ => Default("")
         }
+      | BLOCKLIST =>
+        switch methodType {
+        | Post | Delete => Default(`blocklist`)
+        | _ => Default("")
+        }
 
       /* MERCHANT ACCOUNT DETAILS (Get and Post) */
       | MERCHANT_ACCOUNT => Default(`accounts/${merchantId}`)
