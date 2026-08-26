@@ -1933,12 +1933,7 @@ export async function assertConnectorFieldLabels(
   page: Page,
   fieldLabels: string[],
 ): Promise<void> {
-  /* Scope to the connector field grid rather than the whole page. Generic
-     credential labels collide with the org/merchant switcher forms, which stay
-     mounted behind the connector screen -- "Merchant Name" (citigate) matches
-     three elements page-wide and trips strict mode. This is the same container
-     fillConnectorFields targets, and it holds every connector field: account,
-     metadata, webhook, label and additional merchant data. */
+  // Scoped: generic labels like "Merchant Name" also match the merchant switcher forms.
   const connectorFields = page.locator(".grid.grid-cols-2");
 
   for (const label of fieldLabels) {
