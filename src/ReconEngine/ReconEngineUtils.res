@@ -746,6 +746,8 @@ let dateTimeTransformationRuleMapper = (dict): dateTimeTransformationRule => {
   switch dict->getString("transformation_rule_type", "") {
   | "trim" => DateTimeTrim
   | "json_extract" => DateTimeJsonExtract(dict->getString("pointer", ""))
+  | "regex" =>
+    DateTimeRegex({pattern: dict->getString("pattern", ""), group: dict->getOptionInt("group")})
   | _ => UnknownDateTimeTransformationRule
   }
 }
