@@ -174,21 +174,21 @@ let make = () => {
     <PageUtils.PageHeading
       title="Blocklist" subTitle="Upload blocklist CSV files and track batch processing status."
     />
-    <BlocklistEntryCard
-      operation=AddBlocklistEntry
-      title="Add to Blocklist"
-      description="Block a single card BIN, extended card BIN, or fingerprint."
-      buttonText="Add Entry"
-      eventName="blocklist_add_entry"
-    />
-    <BlocklistEntryCard
-      operation=DeleteBlocklistEntry
-      title="Remove from Blocklist"
-      description="Unblock a single card BIN, extended card BIN, or fingerprint."
-      buttonText="Remove Entry"
-      eventName="blocklist_delete_entry"
-    />
     <div className="flex flex-col gap-6">
+      <BlocklistEntryCard
+        operation=AddBlocklistEntry
+        title="Add to Blocklist"
+        description="Block a single card BIN, extended card BIN, or fingerprint."
+        buttonText="Add Entry"
+        eventName="blocklist_add_entry"
+      />
+      <BlocklistEntryCard
+        operation=DeleteBlocklistEntry
+        title="Remove from Blocklist"
+        description="Unblock a single card BIN, extended card BIN, or fingerprint."
+        buttonText="Remove Entry"
+        eventName="blocklist_delete_entry"
+      />
       <div className="max-w-3xl">
         <section className="border border-nd_gray-200 rounded-lg bg-white p-5 flex flex-col gap-4">
           <div className="flex items-start justify-between gap-4">

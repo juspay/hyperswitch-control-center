@@ -21,6 +21,12 @@ let make = (~operation, ~title, ~description, ~buttonText, ~eventName) => {
     | Some(validationError) => setDataError(_ => Some(validationError))
     | None =>
       setDataError(_ => None)
+      mixpanelEvent(
+        ~eventName,
+        ~metadata=[
+          ("data_kind", dataKind->blocklistDataKindToString->JSON.Encode.string),
+        ]->getJsonFromArrayOfJson,
+      )
       let trimmedData = data->String.trim
       try {
         setButtonState(_ => Button.Loading)
@@ -55,8 +61,12 @@ let make = (~operation, ~title, ~description, ~buttonText, ~eventName) => {
   }
 
   let onDataKindSelect = value => {
-    setDataKind(_ => value->getBlocklistDataKindFromString)
-    setDataError(_ => None)
+    switch value->getBlocklistDataKindFromString {
+    | Some(selectedDataKind) =>
+      setDataKind(_ => selectedDataKind)
+      setDataError(_ => None)
+    | None => ()
+    }
   }
 
   let onDataChange = ev => {
@@ -67,10 +77,7 @@ let make = (~operation, ~title, ~description, ~buttonText, ~eventName) => {
     }
   }
 
-  let onClick = _ => {
-    mixpanelEvent(~eventName)
-    submitBlocklistEntry()->ignore
-  }
+  let onClick = _ => submitBlocklistEntry()->ignore
 
   let isDataEmpty = data->String.trim->isEmptyString
   let actionButtonState = isDataEmpty ? Button.Disabled : buttonState
@@ -99,7 +106,8 @@ let make = (~operation, ~title, ~description, ~buttonText, ~eventName) => {
         <h2 className={`text-nd_gray-700 ${body.lg.semibold}`}> {title->React.string} </h2>
         <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}> {description->React.string} </p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-[180px_320px_auto] gap-4 sm:items-start">
+      <div
+        className="grid grid-cols-1 sm:grid-cols-[180px_320px_auto] gap-4 sm:gap-y-1 sm:items-end">
         <div className="w-full sm:w-44 min-w-0">
           <p className={`text-nd_gray-700 mb-1 ${body.sm.medium}`}> {"Type"->React.string} </p>
           <SelectBoxAdapter.BaseDropdown
@@ -117,7 +125,6 @@ let make = (~operation, ~title, ~description, ~buttonText, ~eventName) => {
             dropdownCustomWidth="w-44"
             fixedDropDownDirection=BottomRight
           />
-          <div className="mt-1 min-h-5" />
         </div>
         <div className="w-full sm:w-auto min-w-0">
           <p className={`text-nd_gray-700 mb-1 ${body.sm.medium}`}> {"Data"->React.string} </p>
@@ -130,19 +137,17 @@ let make = (~operation, ~title, ~description, ~buttonText, ~eventName) => {
             shouldSubmitForm=false
             customWidth="w-full"
           />
-          <p className={`mt-1 min-h-5 ${dataHelperClass} ${body.sm.medium}`}>
-            {dataHelperText->React.string}
-          </p>
         </div>
-        <div className="w-full min-w-0">
-          <p className={`mb-1 invisible ${body.sm.medium}`}> {"Action"->React.string} </p>
+        <p className={`min-h-5 sm:col-start-2 sm:row-start-2 ${dataHelperClass} ${body.sm.medium}`}>
+          {dataHelperText->React.string}
+        </p>
+        <div className="w-full min-w-0 sm:col-start-3 sm:row-start-1">
           <ACLButton
             text=buttonText
             onClick
             buttonState=actionButtonState
             authorization={userHasAccess(~groupAccess=AccountManage)}
           />
-          <div className="mt-1 min-h-5" />
         </div>
       </div>
     </section>
