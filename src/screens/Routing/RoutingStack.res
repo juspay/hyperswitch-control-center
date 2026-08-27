@@ -28,21 +28,18 @@ let make = (~remainingPath, ~previewOnly=false) => {
   }, [previewOnly])
 
   let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-  let connectorFragment = React.useMemo(
-    () => connectorList->RoutingUtils.decisionEngineConnectorFragment(~profileId),
-    (connectorList, profileId),
-  )
 
   // Hyperswitch mints the deep-link but knows nothing about what DE needs to render, so append the
   // profile's connectors ourselves before opening the tab. See RoutingUtils for why it's a fragment.
-  let openDecisionEngineRoutingPage = async target => {
+  let openDecisionEngineRoutingPage = async (target, ruleId) => {
     open LogicUtils
     try {
       let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
       let res = await updateDetails(`${entryUrl}?target=${target}`, JSON.Encode.null, Post)
       let redirectUrl = res->getDictFromJsonObject->getString("redirect_url", "")
       if redirectUrl->isNonEmptyString {
-        `${redirectUrl}${connectorFragment}`->Window._open
+        let handoff = connectorList->RoutingUtils.decisionEngineHandoffFragment(~profileId, ~ruleId)
+        `${redirectUrl}${handoff}`->Window._open
       }
     } catch {
     | Exn.Error(_) =>
@@ -63,7 +60,8 @@ let make = (~remainingPath, ~previewOnly=false) => {
           <ActiveRouting
             routingType
             isCutover
-            onDecisionEngineRedirect={target => openDecisionEngineRoutingPage(target)->ignore}
+            onDecisionEngineRedirect={(target, ruleId) =>
+              openDecisionEngineRoutingPage(target, ruleId)->ignore}
           />,
       },
     ]
@@ -84,7 +82,9 @@ let make = (~remainingPath, ~previewOnly=false) => {
           },
         ])
       : baseTabs
-  }, (routingType, debitRoutingValue, isCutover))
+    // connectorList is a dep because the Active configuration tab's redirect closure reads it to
+    // build the hand-off; without it a list that arrives late would be captured as empty.
+  }, (routingType, debitRoutingValue, isCutover, connectorList))
 
   let fetchRoutingRecords = async activeIds => {
     try {
@@ -193,7 +193,8 @@ let make = (~remainingPath, ~previewOnly=false) => {
           types=[AUTH_RATE_ROUTING, ADVANCED, VOLUME_SPLIT, DEFAULTFALLBACK]
           onRedirectBaseUrl="routing"
           isCutover
-          onDecisionEngineRedirect={target => openDecisionEngineRoutingPage(target)->ignore}
+          onDecisionEngineRedirect={(target, ruleId) =>
+            openDecisionEngineRoutingPage(target, ruleId)->ignore}
         />
       </div>
       <RenderIf condition={!previewOnly}>

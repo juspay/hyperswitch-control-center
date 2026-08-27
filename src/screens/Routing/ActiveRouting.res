@@ -29,7 +29,7 @@ module ActionButtons = {
     ~routeType: routingType,
     ~onRedirectBaseUrl,
     ~isCutover=false,
-    ~onDecisionEngineRedirect=_ => (),
+    ~onDecisionEngineRedirect=(_, _) => (),
   ) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -46,7 +46,7 @@ module ActionButtons = {
         buttonSize=Small
         onClick={_ => {
           if isCutover {
-            onDecisionEngineRedirect(routeType->decisionEngineRoutingTarget)
+            onDecisionEngineRedirect(routeType->decisionEngineRoutingTarget, "")
           } else {
             RescriptReactRouter.push(
               GlobalVars.appendDashboardPath(
@@ -86,7 +86,7 @@ module ActiveSection = {
     ~activeRoutingId,
     ~onRedirectBaseUrl,
     ~isCutover=false,
-    ~onDecisionEngineRedirect=_ => (),
+    ~onDecisionEngineRedirect=(_, _) => (),
   ) => {
     open LogicUtils
     let {profileId: currentprofileId} = React.useContext(
@@ -142,7 +142,7 @@ module ActiveSection = {
             // Cut-over profiles manage the active rule in the Decision Engine, so deep-link there.
             // Default Fallback has no DE page (empty target) and keeps the local Hyperswitch flow.
             if isCutover && decisionEngineTarget->isNonEmptyString {
-              onDecisionEngineRedirect(decisionEngineTarget)
+              onDecisionEngineRedirect(decisionEngineTarget, activeRoutingId)
             } else {
               switch activeRoutingType {
               | DEFAULTFALLBACK =>
@@ -174,7 +174,7 @@ module LevelWiseRoutingSection = {
     ~types: array<routingType>,
     ~onRedirectBaseUrl,
     ~isCutover=false,
-    ~onDecisionEngineRedirect=_ => (),
+    ~onDecisionEngineRedirect=(_, _) => (),
   ) => {
     let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let renderCard = (value, key) =>
@@ -215,7 +215,11 @@ module LevelWiseRoutingSection = {
 }
 
 @react.component
-let make = (~routingType: array<JSON.t>, ~isCutover=false, ~onDecisionEngineRedirect=_ => ()) => {
+let make = (
+  ~routingType: array<JSON.t>,
+  ~isCutover=false,
+  ~onDecisionEngineRedirect=(_, _) => (),
+) => {
   let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let debitRoutingValue =
     (

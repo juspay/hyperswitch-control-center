@@ -273,13 +273,21 @@ let filterConnectorList = (
   )
 }
 
-// The Decision Engine dashboard has no way to read a profile's connectors: its rule builder only
-// suggests gateways already used in existing DE rules, so a freshly cut-over profile gets an empty
-// list. Hand the profile's enabled connectors over in the deep-link's URL fragment — fragments are
-// never sent to a server, so this stays out of DE's access logs and request-line limits.
-let decisionEngineConnectorFragment = (
+// Everything the Decision Engine needs about this profile but cannot look up for itself, handed
+// over in the deep link's URL fragment. A fragment is never sent to a server, so this stays out of
+// DE's access logs and request-line limits.
+//
+// `connectors`: DE's rule builder only suggests gateways already named in existing DE rules, so a
+// freshly cut-over profile would otherwise be offered the whole connector catalogue instead of the
+// handful the merchant actually has.
+// `rule_id`: Hyperswitch's redirect lands on DE's rule *list*; the id is what lets DE open the one
+// rule the merchant clicked.
+//
+// The two are independent — a profile with no connectors must still hand over its rule id.
+let decisionEngineHandoffFragment = (
   connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
   ~profileId,
+  ~ruleId="",
 ) => {
   let connectors =
     connectorList
@@ -299,9 +307,20 @@ let decisionEngineConnectorFragment = (
       ->JSON.Encode.object
     )
 
-  switch connectors->Array.length {
+  let params = []
+  if connectors->Array.length > 0 {
+    params->Array.push((
+      "connectors",
+      connectors->JSON.Encode.array->JSON.stringify->encodeURIComponent,
+    ))
+  }
+  if ruleId->isNonEmptyString {
+    params->Array.push(("rule_id", ruleId->encodeURIComponent))
+  }
+
+  switch params->Array.length {
   | 0 => ""
-  | _ => `#connectors=${connectors->JSON.Encode.array->JSON.stringify->encodeURIComponent}`
+  | _ => `#${params->Array.map(((key, value)) => `${key}=${value}`)->Array.joinWith("&")}`
   }
 }
 
