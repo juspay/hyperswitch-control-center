@@ -149,7 +149,7 @@ let make = () => {
                       headerActions={<div className="relative flex space-around gap-4 my-2 ">
                         <div className="flex gap-4 items-center">
                           <RenderIf condition={showReconEngineStatus}>
-                            <ReconEngineHelper.ReconEngineStatusIndicator />
+                            <ReconEngineStatusIndicator />
                           </RenderIf>
                           <RenderIf condition={showGlobalSearchBar}>
                             <GlobalSearchBar />

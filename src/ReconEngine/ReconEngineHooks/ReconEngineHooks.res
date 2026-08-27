@@ -316,22 +316,3 @@ let useGetTransformationConfig = () => {
     }
   }
 }
-
-let useGetReconEngineStatus = () => {
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod(~showErrorToast=false)
-
-  async (): ReconEngineTypes.reconEngineStatusType => {
-    try {
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#RECON_ENGINE_STATUS,
-      )
-      let res = await fetchDetails(url)
-      res->getDictFromJsonObject->reconEngineStatusItemToObjMapper
-    } catch {
-    | _ => Exn.raiseError("Something went wrong")
-    }
-  }
-}
