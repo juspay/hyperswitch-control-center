@@ -7,7 +7,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let url = RescriptReactRouter.useUrl()
   let pathVar = url.path->List.toArray->Array.joinWith("/")
 
-  let refreshing = React.useRef(false)
   let (records, setRecords) = React.useState(_ => [])
   let (activeRoutingIds, setActiveRoutingIds) = React.useState(_ => [])
   let (routingType, setRoutingType) = React.useState(_ => [])
@@ -83,11 +82,9 @@ let make = (~remainingPath, ~previewOnly=false) => {
       : baseTabs
   }, (routingType, debitRoutingValue, isCutover, connectorList, profileId))
 
-  let fetchRoutingRecords = async (activeIds, ~showLoader) => {
+  let fetchRoutingRecords = async activeIds => {
     try {
-      if showLoader {
-        setScreenState(_ => PageLoaderWrapper.Loading)
-      }
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let routingUrl = `${getURL(~entityName=V1(ROUTING), ~methodType=Get)}?limit=100`
       let routingJson = await fetchDetails(routingUrl)
       let configuredRules = routingJson->RoutingUtils.getRecordsObject
@@ -121,12 +118,10 @@ let make = (~remainingPath, ~previewOnly=false) => {
     }
   }
 
-  let fetchActiveRouting = async (~showLoader=true) => {
+  let fetchActiveRouting = async () => {
     open LogicUtils
     try {
-      if showLoader {
-        setScreenState(_ => PageLoaderWrapper.Loading)
-      }
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let activeRoutingUrl = getURL(~entityName=V1(ACTIVE_ROUTING), ~methodType=Get)
       let routingJson = await fetchDetails(activeRoutingUrl)
 
@@ -138,21 +133,19 @@ let make = (~remainingPath, ~previewOnly=false) => {
           let id = ele->getDictFromJsonObject->getString("id", "")
           currentActiveIds->Array.push(id)
         })
-        await fetchRoutingRecords(currentActiveIds, ~showLoader)
+        await fetchRoutingRecords(currentActiveIds)
         setActiveRoutingIds(_ => currentActiveIds)
         setRoutingType(_ => routingArr)
       } else {
-        await fetchRoutingRecords([], ~showLoader)
+        await fetchRoutingRecords([])
         let defaultFallback = [("kind", "default"->JSON.Encode.string)]->Dict.fromArray
         setRoutingType(_ => [defaultFallback->JSON.Encode.object])
         setScreenState(_ => PageLoaderWrapper.Success)
       }
     } catch {
     | Exn.Error(e) =>
-      if showLoader {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        setScreenState(_ => PageLoaderWrapper.Error(err))
-      }
+      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+      setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
 
@@ -161,23 +154,31 @@ let make = (~remainingPath, ~previewOnly=false) => {
     None
   }, (pathVar, url.search, debitRoutingValue))
 
-  React.useEffect(() => {
-    let refresh = _ =>
-      if Document.visibilityState === "visible" && !refreshing.current {
-        refreshing.current = true
-        fetchActiveRouting(~showLoader=false)
-        ->Promise.finally(() => refreshing.current = false)
-        ->ignore
-      }
+  let refreshActiveRouting = async () => {
+    open LogicUtils
+    try {
+      let activeRoutingUrl = getURL(~entityName=V1(ACTIVE_ROUTING), ~methodType=Get)
+      let routingJson = await fetchDetails(activeRoutingUrl)
+      let routingArr = routingJson->getArrayFromJson([])
 
-    Window.addEventListener("visibilitychange", refresh)
-    Window.addEventListener("focus", refresh)
-    Some(
-      () => {
-        Window.removeEventListener("visibilitychange", refresh)
-        Window.removeEventListener("focus", refresh)
-      },
-    )
+      if routingArr->Array.length > 0 {
+        setActiveRoutingIds(_ =>
+          routingArr->Array.map(ele => ele->getDictFromJsonObject->getString("id", ""))
+        )
+        setRoutingType(_ => routingArr)
+      } else {
+        let defaultFallback = [("kind", "default"->JSON.Encode.string)]->getJsonFromArrayOfJson
+        setRoutingType(_ => [defaultFallback])
+      }
+    } catch {
+    | Exn.Error(_) => ()
+    }
+  }
+
+  React.useEffect(() => {
+    let onFocus = _ => refreshActiveRouting()->ignore
+    Window.addEventListener("focus", onFocus)
+    Some(() => Window.removeEventListener("focus", onFocus))
   }, (pathVar, url.search, debitRoutingValue))
 
   let checkRoutingEntry = async () => {
