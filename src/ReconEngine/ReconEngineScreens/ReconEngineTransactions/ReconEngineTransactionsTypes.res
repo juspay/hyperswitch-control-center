@@ -10,11 +10,23 @@ type transactionSearchType =
   | @as("order_id") SearchOrderId
   | @as("unknown") UnknownTransactionSearchType
 
+type entrySearchType =
+  | @as("order_ids") SearchEntryOrderId
+  | @as("staging_entry_ids") SearchEntryStagingEntryId
+  | @as("unknown") UnknownEntrySearchType
+
 type transactionSortOrder =
   | @as("asc") Asc
   | @as("desc") Desc
 
 type transactionsV2CursorPayload = {
+  limit: int,
+  direction: cursorDirection,
+  order: transactionSortOrder,
+  @as("sort_by") sortBy: cursor,
+}
+
+type entriesListCursorPayload = {
   limit: int,
   direction: cursorDirection,
   order: transactionSortOrder,

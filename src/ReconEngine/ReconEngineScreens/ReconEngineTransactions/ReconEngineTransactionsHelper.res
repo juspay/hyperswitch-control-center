@@ -397,3 +397,35 @@ module AuditTrail = {
     </>
   }
 }
+
+module AuditTrailTab = {
+  @react.component
+  let make = (~transactionId: string) => {
+    let getTransactions = ReconEngineHooks.useGetTransactions()
+    let (allTransactionDetails, setAllTransactionDetails) = React.useState(_ => [])
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+
+    let fetchTransactionVersions = async () => {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      try {
+        let transactionsList = await getTransactions(
+          ~queryParameters=Some(`transaction_id=${transactionId}`),
+        )
+        setAllTransactionDetails(_ => transactionsList)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch transaction details"))
+      }
+    }
+
+    React.useEffect(() => {
+      fetchTransactionVersions()->ignore
+      None
+    }, [])
+
+    <PageLoaderWrapper
+      screenState customLoader={<Shimmer styleClass="h-40 w-full mt-8 rounded-xl" />}>
+      <AuditTrail allTransactionDetails />
+    </PageLoaderWrapper>
+  }
+}
