@@ -420,7 +420,8 @@ module AuditTrailTab = {
       None
     }, [])
 
-    <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="h-40 w-full rounded-xl" />}>
+    <PageLoaderWrapper
+      screenState customLoader={<Shimmer styleClass="h-40 w-full mt-8 rounded-xl" />}>
       <AuditTrail allTransactionDetails />
     </PageLoaderWrapper>
   }

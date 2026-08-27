@@ -39,9 +39,7 @@ let make = (~id) => {
       let latestTransaction =
         transactionsPage.items->getValueFromArray(0, Dict.make()->getTransactionsPayloadFromDict)
 
-      if transactionsPage.items->isEmptyArray {
-        setScreenState(_ => PageLoaderWrapper.Custom)
-      } else {
+      if latestTransaction.id->isNonEmptyString {
         let ruleUrl = getURL(
           ~entityName=V1(HYPERSWITCH_RECON),
           ~methodType=Get,
@@ -60,6 +58,8 @@ let make = (~id) => {
         setRuleAccountIds(_ => accountIds)
         setAccountsData(_ => accountData)
         setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
       }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch transaction details"))
