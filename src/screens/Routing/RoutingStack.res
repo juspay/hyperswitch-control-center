@@ -7,6 +7,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let url = RescriptReactRouter.useUrl()
   let pathVar = url.path->List.toArray->Array.joinWith("/")
 
+  let refreshing = React.useRef(false)
   let (records, setRecords) = React.useState(_ => [])
   let (activeRoutingIds, setActiveRoutingIds) = React.useState(_ => [])
   let (routingType, setRoutingType) = React.useState(_ => [])
@@ -82,9 +83,11 @@ let make = (~remainingPath, ~previewOnly=false) => {
       : baseTabs
   }, (routingType, debitRoutingValue, isCutover, connectorList, profileId))
 
-  let fetchRoutingRecords = async activeIds => {
+  let fetchRoutingRecords = async (activeIds, ~showLoader) => {
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
+      if showLoader {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+      }
       let routingUrl = `${getURL(~entityName=V1(ROUTING), ~methodType=Get)}?limit=100`
       let routingJson = await fetchDetails(routingUrl)
       let configuredRules = routingJson->RoutingUtils.getRecordsObject
@@ -118,10 +121,12 @@ let make = (~remainingPath, ~previewOnly=false) => {
     }
   }
 
-  let fetchActiveRouting = async () => {
+  let fetchActiveRouting = async (~showLoader=true) => {
     open LogicUtils
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
+      if showLoader {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+      }
       let activeRoutingUrl = getURL(~entityName=V1(ACTIVE_ROUTING), ~methodType=Get)
       let routingJson = await fetchDetails(activeRoutingUrl)
 
@@ -133,25 +138,52 @@ let make = (~remainingPath, ~previewOnly=false) => {
           let id = ele->getDictFromJsonObject->getString("id", "")
           currentActiveIds->Array.push(id)
         })
-        await fetchRoutingRecords(currentActiveIds)
+        await fetchRoutingRecords(currentActiveIds, ~showLoader)
         setActiveRoutingIds(_ => currentActiveIds)
         setRoutingType(_ => routingArr)
       } else {
-        await fetchRoutingRecords([])
+        await fetchRoutingRecords([], ~showLoader)
         let defaultFallback = [("kind", "default"->JSON.Encode.string)]->Dict.fromArray
         setRoutingType(_ => [defaultFallback->JSON.Encode.object])
         setScreenState(_ => PageLoaderWrapper.Success)
       }
     } catch {
     | Exn.Error(e) =>
-      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      setScreenState(_ => PageLoaderWrapper.Error(err))
+      if showLoader {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        setScreenState(_ => PageLoaderWrapper.Error(err))
+      }
     }
   }
 
   React.useEffect(() => {
     fetchActiveRouting()->ignore
     None
+  }, (pathVar, url.search, debitRoutingValue))
+
+  // A cut-over profile is managed in the Decision Engine, which opens in its own tab, so the active
+  // configuration can change while this page sits untouched. Re-read it when the tab comes back to
+  // the foreground, without the loader — the page is already showing usable data.
+  React.useEffect(() => {
+    let refresh = _ =>
+      if Document.visibilityState === "visible" && !refreshing.current {
+        refreshing.current = true
+        fetchActiveRouting(~showLoader=false)
+        ->Promise.finally(() => refreshing.current = false)
+        ->ignore
+      }
+
+    // Two events, because the two dashboards can be either two tabs or two windows: switching tabs
+    // fires visibilitychange, while side-by-side windows stay "visible" throughout and only fire
+    // focus. The in-flight guard keeps the overlap between them to one request.
+    Window.addEventListener("visibilitychange", refresh)
+    Window.addEventListener("focus", refresh)
+    Some(
+      () => {
+        Window.removeEventListener("visibilitychange", refresh)
+        Window.removeEventListener("focus", refresh)
+      },
+    )
   }, (pathVar, url.search, debitRoutingValue))
 
   let checkRoutingEntry = async () => {

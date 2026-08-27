@@ -7,6 +7,8 @@ type document = {querySelectorAll: string => array<domElement>}
 external querySelector: string => Nullable.t<domElement> = "querySelector"
 @val @scope("document")
 external activeElement: Dom.element = "activeElement"
+@val @scope("document")
+external visibilityState: string = "visibilityState"
 
 @send external click: (domElement, unit) => unit = "click"
 @get external offsetWidth: Dom.element => int = "offsetWidth"
