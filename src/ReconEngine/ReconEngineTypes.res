@@ -274,6 +274,7 @@ type transactionType = {
   created_at: string,
   effective_at: string,
   data: transactionDataType,
+  discarded_data: option<transactionDataType>,
   linked_transaction: option<linkedTransactionType>,
   modified_by: option<modifiedByType>,
   has_more_entries: bool,
