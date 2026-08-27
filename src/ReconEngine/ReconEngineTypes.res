@@ -635,3 +635,13 @@ type cursorPage<'item> = {
   items: array<'item>,
   cursors: cursors,
 }
+
+type reconProcessorStatus =
+  | Running
+  | Stopped
+  | UnknownReconProcessorStatus
+
+type reconEngineStatusType = {
+  processor_status: reconProcessorStatus,
+  pending_staging_entries: int,
+}

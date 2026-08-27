@@ -117,6 +117,11 @@ let make = () => {
   | _ => false
   }
 
+  let showReconEngineStatus = switch activeProduct {
+  | Recon(V1) => featureFlagDetails.devReconEngineV1
+  | _ => false
+  }
+
   let onAskPulseClick = () => {
     mixpanelEvent(~eventName="ask_pulse_clicked")
     RescriptReactRouter.push(appendDashboardPath(~url="/chat-bot"))
@@ -143,6 +148,9 @@ let make = () => {
                     <Navbar
                       headerActions={<div className="relative flex space-around gap-4 my-2 ">
                         <div className="flex gap-4 items-center">
+                          <RenderIf condition={showReconEngineStatus}>
+                            <ReconEngineHelper.ReconEngineStatusIndicator />
+                          </RenderIf>
                           <RenderIf condition={showGlobalSearchBar}>
                             <GlobalSearchBar />
                           </RenderIf>
