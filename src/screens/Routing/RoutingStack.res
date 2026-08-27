@@ -161,7 +161,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
       let routingJson = await fetchDetails(activeRoutingUrl)
       let routingArr = routingJson->getArrayFromJson([])
 
-      if routingArr->Array.length > 0 {
+      if routingArr->isNonEmptyArray {
         setActiveRoutingIds(_ =>
           routingArr->Array.map(ele => ele->getDictFromJsonObject->getString("id", ""))
         )
