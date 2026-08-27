@@ -81,7 +81,13 @@ module ActionButtons = {
 
 module ActiveSection = {
   @react.component
-  let make = (~activeRouting, ~activeRoutingId, ~onRedirectBaseUrl, ~isCutover=false) => {
+  let make = (
+    ~activeRouting,
+    ~activeRoutingId,
+    ~onRedirectBaseUrl,
+    ~isCutover=false,
+    ~onDecisionEngineRedirect=_ => (),
+  ) => {
     open LogicUtils
     let {profileId: currentprofileId} = React.useContext(
       UserInfoProvider.defaultContext,
@@ -131,21 +137,29 @@ module ActiveSection = {
           customButtonStyle="w-4/3"
           buttonSize={Small}
           onClick={_ => {
-            switch activeRoutingType {
-            | DEFAULTFALLBACK =>
-              RescriptReactRouter.push(
-                GlobalVars.appendDashboardPath(
-                  ~url=`/${onRedirectBaseUrl}/${routingTypeName(activeRoutingType)}`,
-                ),
-              )
-            | _ =>
-              RescriptReactRouter.push(
-                GlobalVars.appendDashboardPath(
-                  ~url=`/${onRedirectBaseUrl}/${routingTypeName(
-                      activeRoutingType,
-                    )}?id=${activeRoutingId}&isActive=true`,
-                ),
-              )
+            let decisionEngineTarget = activeRoutingType->decisionEngineRoutingTarget
+
+            // Cut-over profiles manage the active rule in the Decision Engine, so deep-link there.
+            // Default Fallback has no DE page (empty target) and keeps the local Hyperswitch flow.
+            if isCutover && decisionEngineTarget->isNonEmptyString {
+              onDecisionEngineRedirect(decisionEngineTarget)
+            } else {
+              switch activeRoutingType {
+              | DEFAULTFALLBACK =>
+                RescriptReactRouter.push(
+                  GlobalVars.appendDashboardPath(
+                    ~url=`/${onRedirectBaseUrl}/${routingTypeName(activeRoutingType)}`,
+                  ),
+                )
+              | _ =>
+                RescriptReactRouter.push(
+                  GlobalVars.appendDashboardPath(
+                    ~url=`/${onRedirectBaseUrl}/${routingTypeName(
+                        activeRoutingType,
+                      )}?id=${activeRoutingId}&isActive=true`,
+                  ),
+                )
+              }
             }
           }}
         />
@@ -201,7 +215,7 @@ module LevelWiseRoutingSection = {
 }
 
 @react.component
-let make = (~routingType: array<JSON.t>, ~isCutover=false) => {
+let make = (~routingType: array<JSON.t>, ~isCutover=false, ~onDecisionEngineRedirect=_ => ()) => {
   let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let debitRoutingValue =
     (
@@ -220,6 +234,7 @@ let make = (~routingType: array<JSON.t>, ~isCutover=false) => {
         activeRoutingId={id}
         onRedirectBaseUrl="routing"
         isCutover
+        onDecisionEngineRedirect
       />
     })
     ->React.array}

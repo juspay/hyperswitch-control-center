@@ -273,6 +273,38 @@ let filterConnectorList = (
   )
 }
 
+// The Decision Engine dashboard has no way to read a profile's connectors: its rule builder only
+// suggests gateways already used in existing DE rules, so a freshly cut-over profile gets an empty
+// list. Hand the profile's enabled connectors over in the deep-link's URL fragment — fragments are
+// never sent to a server, so this stays out of DE's access logs and request-line limits.
+let decisionEngineConnectorFragment = (
+  connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
+  ~profileId,
+) => {
+  let connectors =
+    connectorList
+    ->filterConnectorList(~retainInList=PaymentConnector)
+    ->Array.filter(connector =>
+      connector.profile_id === profileId &&
+      !connector.disabled &&
+      connector.connector_name !== "applepay"
+    )
+    ->Array.map(connector =>
+      [
+        ("merchant_connector_id", connector.id->JSON.Encode.string),
+        ("connector_name", connector.connector_name->JSON.Encode.string),
+        ("connector_label", connector.connector_label->JSON.Encode.string),
+      ]
+      ->Dict.fromArray
+      ->JSON.Encode.object
+    )
+
+  switch connectors->Array.length {
+  | 0 => ""
+  | _ => `#connectors=${connectors->JSON.Encode.array->JSON.stringify->encodeURIComponent}`
+  }
+}
+
 let filterConnectorListJson = (json, ~retainInList) => {
   json
   ->getArrayFromJson([])

@@ -27,13 +27,44 @@ let make = (~remainingPath, ~previewOnly=false) => {
     previewOnly ? ("w-full", "mx-auto") : ("w-full", "mx-auto ")
   }, [previewOnly])
 
+  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+  let connectorFragment = React.useMemo(
+    () => connectorList->RoutingUtils.decisionEngineConnectorFragment(~profileId),
+    (connectorList, profileId),
+  )
+
+  // Hyperswitch mints the deep-link but knows nothing about what DE needs to render, so append the
+  // profile's connectors ourselves before opening the tab. See RoutingUtils for why it's a fragment.
+  let openDecisionEngineRoutingPage = async target => {
+    open LogicUtils
+    try {
+      let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
+      let res = await updateDetails(`${entryUrl}?target=${target}`, JSON.Encode.null, Post)
+      let redirectUrl = res->getDictFromJsonObject->getString("redirect_url", "")
+      if redirectUrl->isNonEmptyString {
+        `${redirectUrl}${connectorFragment}`->Window._open
+      }
+    } catch {
+    | Exn.Error(_) =>
+      showToast(
+        ~message="Failed to open Decision Engine routing. Please try again.",
+        ~toastType=ToastState.ToastError,
+      )
+    }
+  }
+
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
     let hasWorkflowsManageAccess = userHasAccess(~groupAccess=WorkflowsManage) === Access
     let baseTabs = [
       {
         title: "Active configuration",
-        renderContent: () => <ActiveRouting routingType isCutover />,
+        renderContent: () =>
+          <ActiveRouting
+            routingType
+            isCutover
+            onDecisionEngineRedirect={target => openDecisionEngineRoutingPage(target)->ignore}
+          />,
       },
     ]
     hasWorkflowsManageAccess
@@ -136,24 +167,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
       setCutoverStatus(_ => Some(cutover))
     } catch {
     | Exn.Error(_) => setCutoverStatus(_ => Some(false))
-    }
-  }
-
-  let openDecisionEngineRoutingPage = async target => {
-    open LogicUtils
-    try {
-      let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
-      let res = await updateDetails(`${entryUrl}?target=${target}`, JSON.Encode.null, Post)
-      let redirectUrl = res->getDictFromJsonObject->getString("redirect_url", "")
-      if redirectUrl->isNonEmptyString {
-        redirectUrl->Window._open
-      }
-    } catch {
-    | Exn.Error(_) =>
-      showToast(
-        ~message="Failed to open Decision Engine routing. Please try again.",
-        ~toastType=ToastState.ToastError,
-      )
     }
   }
 
