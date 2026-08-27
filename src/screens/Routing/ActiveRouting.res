@@ -107,6 +107,32 @@ module ActiveSection = {
       activeRouting->getDictFromJsonObject->getString("profile_id", "")
     }
 
+    let activeRuleTypeUrl = `/${onRedirectBaseUrl}/${routingTypeName(activeRoutingType)}`
+
+    let handleViewAndManage = _ => {
+      let decisionEngineTarget = activeRoutingType->decisionEngineRoutingTarget
+
+      let ruleId = switch activeRoutingType {
+      | ADVANCED | VOLUME_SPLIT => activeRoutingId
+      | _ => ""
+      }
+
+      if isCutover && decisionEngineTarget->isNonEmptyString {
+        onDecisionEngineRedirect(decisionEngineTarget, ruleId)
+      } else {
+        switch activeRoutingType {
+        | DEFAULTFALLBACK =>
+          RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=activeRuleTypeUrl))
+        | _ =>
+          RescriptReactRouter.push(
+            GlobalVars.appendDashboardPath(
+              ~url=`${activeRuleTypeUrl}?id=${activeRoutingId}&isActive=true`,
+            ),
+          )
+        }
+      }
+    }
+
     <div className="flex flex-1">
       <div className="relative flex flex-1 flex-col bg-white border rounded-lg p-4 pt-10 gap-8">
         <div className=" flex flex-1 flex-col gap-7">
@@ -136,35 +162,7 @@ module ActiveSection = {
           buttonType=Secondary
           customButtonStyle="w-4/3"
           buttonSize={Small}
-          onClick={_ => {
-            let decisionEngineTarget = activeRoutingType->decisionEngineRoutingTarget
-
-            let ruleId = switch activeRoutingType {
-            | ADVANCED | VOLUME_SPLIT => activeRoutingId
-            | _ => ""
-            }
-
-            if isCutover && decisionEngineTarget->isNonEmptyString {
-              onDecisionEngineRedirect(decisionEngineTarget, ruleId)
-            } else {
-              switch activeRoutingType {
-              | DEFAULTFALLBACK =>
-                RescriptReactRouter.push(
-                  GlobalVars.appendDashboardPath(
-                    ~url=`/${onRedirectBaseUrl}/${routingTypeName(activeRoutingType)}`,
-                  ),
-                )
-              | _ =>
-                RescriptReactRouter.push(
-                  GlobalVars.appendDashboardPath(
-                    ~url=`/${onRedirectBaseUrl}/${routingTypeName(
-                        activeRoutingType,
-                      )}?id=${activeRoutingId}&isActive=true`,
-                  ),
-                )
-              }
-            }
-          }}
+          onClick=handleViewAndManage
         />
       </div>
     </div>

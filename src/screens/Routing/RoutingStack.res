@@ -161,9 +161,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
     None
   }, (pathVar, url.search, debitRoutingValue))
 
-  // A cut-over profile is managed in the Decision Engine, which opens in its own tab, so the active
-  // configuration can change while this page sits untouched. Re-read it when the tab comes back to
-  // the foreground, without the loader — the page is already showing usable data.
   React.useEffect(() => {
     let refresh = _ =>
       if Document.visibilityState === "visible" && !refreshing.current {
@@ -173,9 +170,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
         ->ignore
       }
 
-    // Two events, because the two dashboards can be either two tabs or two windows: switching tabs
-    // fires visibilitychange, while side-by-side windows stay "visible" throughout and only fire
-    // focus. The in-flight guard keeps the overlap between them to one request.
     Window.addEventListener("visibilitychange", refresh)
     Window.addEventListener("focus", refresh)
     Some(
