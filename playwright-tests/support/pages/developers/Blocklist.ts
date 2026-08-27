@@ -9,7 +9,9 @@ export class Blocklist {
 
   get pageHeading(): Locator {
     return this.page
-      .getByText("Upload blocklist CSV files and track batch processing status.")
+      .getByText(
+        "Upload blocklist CSV files and track batch processing status.",
+      )
       .locator("..")
       .getByText("Blocklist", { exact: true });
   }
@@ -31,12 +33,20 @@ export class Blocklist {
   }
 
   get uploadFileText(): Locator {
-    return this.page.getByText("Upload a CSV file up to 5 MB");
+    return this.page.getByText(
+      "Upload a CSV file with up to 100,000 rows and a maximum size of 5 MB",
+    );
   }
 
   get supportedFileText(): Locator {
     return this.page.getByText(
-      "Only .csv files are supported for blocklist batch uploads.",
+      "CSV files above either limit cannot be processed. Only .csv files are supported.",
+    );
+  }
+
+  get accountWideConfigText(): Locator {
+    return this.page.getByText(
+      "This configuration applies to all profiles in the current merchant account.",
     );
   }
 

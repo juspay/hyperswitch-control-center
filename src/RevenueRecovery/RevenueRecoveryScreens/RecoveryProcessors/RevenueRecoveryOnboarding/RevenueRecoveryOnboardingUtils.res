@@ -2,7 +2,6 @@ open RevenueRecoveryOnboardingTypes
 
 let getMainStepName = step => {
   switch step {
-  | #chooseDataSource => "Choose Your Data Source"
   | #connectProcessor => "Connect Processor"
   | #addAPlatform => "Add a Platform"
   | #reviewDetails => "Review Details"
@@ -12,15 +11,16 @@ let getMainStepName = step => {
 let getStepName = (step: revenueRecoverySubsections) => {
   switch step {
   | #selectProcessor => "Select a Processor"
-  | #activePaymentMethods => "Active Payment Methods"
+  | #authenticateProcessor => "Authenticate"
+  | #activePaymentMethods => "Payment Methods"
   | #selectAPlatform => "Select a Platform"
+  | #authenticateBilling => "Authenticate"
   | #processorSetUp => "Billing Processor Set-up"
   }
 }
 
 let getIcon = step => {
   switch step {
-  | #chooseDataSource => "nd-shield"
   | #connectProcessor => "nd-inbox"
   | #addAPlatform => "nd-plugin"
   | #reviewDetails => "nd-flag"
@@ -33,6 +33,10 @@ let getSections = isLiveMode => {
     {
       id: (#selectAPlatform: revenueRecoverySubsections :> string),
       name: #selectAPlatform->getStepName,
+    },
+    {
+      id: (#authenticateBilling: revenueRecoverySubsections :> string),
+      name: #authenticateBilling->getStepName,
     },
   ]
 
@@ -53,6 +57,10 @@ let getSections = isLiveMode => {
           id: (#selectProcessor: revenueRecoverySubsections :> string),
           name: #selectProcessor->getStepName,
         },
+        {
+          id: (#authenticateProcessor: revenueRecoverySubsections :> string),
+          name: #authenticateProcessor->getStepName,
+        },
       ]),
     },
     {
@@ -69,29 +77,13 @@ let getSections = isLiveMode => {
     },
   ]
 
-  if !isLiveMode {
-    defaultSteps->Array.unshift({
-      id: (#chooseDataSource: revenueRecoverySections :> string),
-      name: #chooseDataSource->getMainStepName,
-      VerticalStepIndicatorTypes.icon: #chooseDataSource->getIcon,
-      subSections: None,
-    })
-  }
-
   defaultSteps
 }
 
-let getDefaultStep = isLiveMode => {
-  if isLiveMode {
-    {
-      sectionId: (#connectProcessor: revenueRecoverySections :> string),
-      subSectionId: (#selectProcessor: revenueRecoverySubsections :> string)->Some,
-    }
-  } else {
-    {
-      sectionId: (#chooseDataSource: revenueRecoverySections :> string),
-      subSectionId: None,
-    }
+let getDefaultStep = _isLiveMode => {
+  {
+    sectionId: (#connectProcessor: revenueRecoverySections :> string),
+    subSectionId: (#selectProcessor: revenueRecoverySubsections :> string)->Some,
   }
 }
 
@@ -125,7 +117,6 @@ let onPreviousClick = (currentStep, setNextStep, isLiveMode) => {
 
 let getSectionVariant = ({sectionId, subSectionId}) => {
   let mainSection = switch sectionId {
-  | "chooseDataSource" => #chooseDataSource
   | "connectProcessor" => #connectProcessor
   | "addAPlatform" => #addAPlatform
   | "reviewDetails" | _ => #reviewDetails
@@ -133,8 +124,10 @@ let getSectionVariant = ({sectionId, subSectionId}) => {
 
   let subSection: revenueRecoverySubsections = switch subSectionId {
   | Some("selectProcessor") => #selectProcessor
+  | Some("authenticateProcessor") => #authenticateProcessor
   | Some("activePaymentMethods") => #activePaymentMethods
   | Some("selectAPlatform") => #selectAPlatform
+  | Some("authenticateBilling") => #authenticateBilling
   | Some("processorSetUp") | _ => #processorSetUp
   }
 

@@ -1,6 +1,6 @@
 import { Page, Locator } from "@playwright/test";
 
-export class DisputesOperations {
+export class DisputeOperations {
   readonly page: Page;
 
   constructor(page: Page) {
@@ -76,4 +76,4 @@ export class DisputesOperations {
   }
 }
 
-export default DisputesOperations;
+export default DisputeOperations;

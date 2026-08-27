@@ -27,84 +27,56 @@ let resolveConnectorListFromConfig = (~connectorDict, ~key, ~connectorType, ~fal
   fromConfig->isNonEmptyArray ? fromConfig : fallback
 }
 
-let getConnectorListForLive = (list: JSON.t): connectorListForLive => {
+// Single source of truth for the connectors shown across the app. The config
+// table is read as-is; `isLiveMode` only decides which hardcoded list stands in
+// when a category is absent or has no valid entries in the config.
+let getConnectorDisplayList = (~isLiveMode, list: JSON.t): connectorDisplayList => {
   open ConnectorUtils
   let connectorDict = list->getDictFromJsonObject->getDictfromDict("connector_list_for_live")
   {
-    paymentProcessorsLiveList: resolveConnectorListFromConfig(
+    paymentProcessorsList: resolveConnectorListFromConfig(
       ~connectorDict,
       ~key="paymentProcessors",
       ~connectorType=Processor,
-      ~fallback=connectorListForLive,
+      ~fallback=isLiveMode ? connectorListForLive : connectorList,
     ),
-    payoutProcessorsLiveList: resolveConnectorListFromConfig(
+    payoutProcessorsList: resolveConnectorListFromConfig(
       ~connectorDict,
       ~key="payoutProcessors",
       ~connectorType=PayoutProcessor,
-      ~fallback=payoutConnectorListForLive,
+      ~fallback=isLiveMode ? payoutConnectorListForLive : payoutConnectorList,
     ),
-    threeDsAuthenticatorProcessorsLiveList: resolveConnectorListFromConfig(
+    threeDsAuthenticatorProcessorsList: resolveConnectorListFromConfig(
       ~connectorDict,
       ~key="threedsAuthProcessors",
       ~connectorType=ThreeDsAuthenticator,
-      ~fallback=threedsAuthenticatorListForLive,
+      ~fallback=isLiveMode ? threedsAuthenticatorListForLive : threedsAuthenticatorList,
     ),
-    vaultProcessorsLiveList: resolveConnectorListFromConfig(
+    vaultProcessorsList: resolveConnectorListFromConfig(
       ~connectorDict,
       ~key="vaultProcessors",
       ~connectorType=VaultProcessor,
       ~fallback=vaultProcessorList,
     ),
-  }
-}
-
-let getConnectorListForSandbox = (list: JSON.t): connectorListForSandbox => {
-  open ConnectorUtils
-  let connectorDict = list->getDictFromJsonObject->getDictfromDict("connector_list_for_sandbox")
-  {
-    paymentProcessorsSandboxList: resolveConnectorListFromConfig(
-      ~connectorDict,
-      ~key="paymentProcessors",
-      ~connectorType=Processor,
-      ~fallback=connectorList,
-    ),
-    payoutProcessorsSandboxList: resolveConnectorListFromConfig(
-      ~connectorDict,
-      ~key="payoutProcessors",
-      ~connectorType=PayoutProcessor,
-      ~fallback=payoutConnectorList,
-    ),
-    threeDsAuthenticatorProcessorsSandboxList: resolveConnectorListFromConfig(
-      ~connectorDict,
-      ~key="threedsAuthProcessors",
-      ~connectorType=ThreeDsAuthenticator,
-      ~fallback=threedsAuthenticatorList,
-    ),
-    vaultProcessorsSandboxList: resolveConnectorListFromConfig(
-      ~connectorDict,
-      ~key="vaultProcessors",
-      ~connectorType=VaultProcessor,
-      ~fallback=vaultProcessorList,
-    ),
-    pmAuthProcessorsSandboxList: resolveConnectorListFromConfig(
+    pmAuthProcessorsList: resolveConnectorListFromConfig(
       ~connectorDict,
       ~key="pmAuthProcessors",
       ~connectorType=PMAuthenticationProcessor,
       ~fallback=pmAuthenticationConnectorList,
     ),
-    billingProcessorsSandboxList: resolveConnectorListFromConfig(
+    billingProcessorsList: resolveConnectorListFromConfig(
       ~connectorDict,
       ~key="billingProcessors",
       ~connectorType=BillingProcessor,
       ~fallback=billingProcessorList,
     ),
-    surchargeProcessorsSandboxList: resolveConnectorListFromConfig(
+    surchargeProcessorsList: resolveConnectorListFromConfig(
       ~connectorDict,
       ~key="surchargeProcessors",
       ~connectorType=SurchargeProcessor,
       ~fallback=surchargeProcessorList,
     ),
-    taxProcessorsSandboxList: resolveConnectorListFromConfig(
+    taxProcessorsList: resolveConnectorListFromConfig(
       ~connectorDict,
       ~key="taxProcessors",
       ~connectorType=TaxProcessor,

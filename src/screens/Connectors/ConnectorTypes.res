@@ -144,6 +144,9 @@ type processorTypes =
   | PAYCONEX
   | TSYSTRANSIT
   | GIVEPAYMENTS
+  | CITIGATE
+  | ILIXIUM
+  | WORLDPAYRAFT
 
 type payoutProcessorTypes =
   | ADYEN
@@ -163,6 +166,8 @@ type payoutProcessorTypes =
   | TRUELAYER
   | ENVOY
   | TRUSTLY
+  | SANTANDER
+  | DEUTSCHEBANK
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO

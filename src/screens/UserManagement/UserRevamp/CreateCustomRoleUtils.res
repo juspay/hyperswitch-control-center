@@ -9,6 +9,16 @@ let updateScope = (scopes, action, targetScope: groupScopeType) => {
   }
 }
 
+// The `Configurations` parent group maps to the `SuperpositionConfig` resource alone, so a role
+// built out of it and nothing else carries no `Account` resource and lands the user on a dashboard
+// that cannot bootstrap. It has to be paired with at least one other module.
+let configurationsParentGroup = "Configurations"
+
+let configurationsGroups =
+  [ConfigurationsView, ConfigurationsManage]->Array.map(GroupACLMapper.mapGroupAccessTypeToString)
+
+let configurationsOnlyRoleError = "Configurations cannot be the only module in a role. Select at least one more module."
+
 let getInitialValuesForForm = (entityType: UserInfoTypes.entity) =>
   [
     ("role_scope", "merchant"->JSON.Encode.string),
@@ -30,23 +40,31 @@ let validateCustomRoleForm = (values, ~permissionModules=[], ~isV2=false) => {
   }
 
   if isV2 && permissionModules->Array.length > 0 {
-    let parentGroups = valuesDict->getArrayFromDict("parent_groups", [])
-    let hasPermissions = parentGroups->Array.some(groupJson => {
-      let groupDict = groupJson->getDictFromJsonObject
-      let scopes = getStrArrayFromJson(getJsonObjectFromDict(groupDict, "scopes"))
-      scopes->Array.length > 0
-    })
+    let selectedParentGroups =
+      valuesDict
+      ->getArrayFromDict("parent_groups", [])
+      ->Array.filterMap(groupJson => {
+        let groupDict = groupJson->getDictFromJsonObject
+        let scopes = getStrArrayFromJson(getJsonObjectFromDict(groupDict, "scopes"))
+        scopes->Array.length > 0 ? Some(groupDict->getString("name", "")) : None
+      })
 
-    if !hasPermissions {
+    if selectedParentGroups->Array.length === 0 {
       Dict.set(
         errors,
         "permissions",
         "At least one permission must be selected"->JSON.Encode.string,
       )
+    } else if selectedParentGroups->Array.every(name => name === configurationsParentGroup) {
+      Dict.set(errors, "permissions", configurationsOnlyRoleError->JSON.Encode.string)
     }
   } else if !isV2 {
-    if valuesDict->getArrayFromDict("groups", [])->Array.length === 0 {
+    let selectedGroups = valuesDict->getArrayFromDict("groups", [])->getStrArrayFromJsonArray
+
+    if selectedGroups->Array.length === 0 {
       Dict.set(errors, "groups", "Roles required"->JSON.Encode.string)
+    } else if selectedGroups->Array.every(group => configurationsGroups->Array.includes(group)) {
+      Dict.set(errors, "groups", configurationsOnlyRoleError->JSON.Encode.string)
     }
   }
 

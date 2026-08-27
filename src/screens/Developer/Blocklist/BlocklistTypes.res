@@ -25,3 +25,18 @@ type blocklistBatchColType =
   | CreatedAt
   | UpdatedAt
   | Actions
+
+type blocklistDataKind =
+  | CardBin
+  | ExtendedCardBin
+  | Fingerprint
+
+type blocklistEntryOperation =
+  | AddBlocklistEntry
+  | DeleteBlocklistEntry
+
+type blocklistEntry = {
+  fingerprint_id: string,
+  data_kind: string,
+  created_at: string,
+}

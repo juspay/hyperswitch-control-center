@@ -1,6 +1,5 @@
 open ReconEngineTypes
 open LogicUtils
-open ReconEngineUtils
 
 type processingColType =
   | StagingEntryId
@@ -50,14 +49,25 @@ let getProcessingHeading = colType => {
   }
 }
 
-let getStatusLabel = (status: processingEntryStatus): Table.cell => {
+let getDomainStagingEntryStatusString = (status: domainStagingEntryStatus) => {
+  switch status {
+  | Pending => "Pending"
+  | Processed => "Processed"
+  | Void => "Void"
+  | Archived => "Archived"
+  | NeedsManualReview(_) => "Needs Manual Review"
+  | UnknownDomainStagingEntryStatus => "Unknown"
+  }
+}
+
+let getStatusLabel = (status: domainStagingEntryStatus): Table.cell => {
   Label({
-    title: (status :> string)->String.toUpperCase,
+    title: status->getDomainStagingEntryStatusString->String.toUpperCase,
     color: switch status {
     | Pending => LabelBlue
     | Processed => LabelGreen
-    | NeedsManualReview => LabelOrange
-    | Archived | Void | UnknownProcessingEntryStatus => LabelGray
+    | NeedsManualReview(_) => LabelOrange
+    | Archived | Void | UnknownDomainStagingEntryStatus => LabelGray
     },
   })
 }
@@ -102,10 +112,18 @@ let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
   | Currency => Text(data.currency)
   | Status =>
     switch data.discarded_status {
-    | Some(status) => getStatusLabel(status->getProcessingEntryStatusVariantFromString)
+    | Some(status) => getStatusLabel(status)
     | None => getStatusLabel(data.status)
     }
-  | EffectiveAt => Date(data.effective_at)
+  | EffectiveAt =>
+    data.effective_at->isNonEmptyString
+      ? CustomCell(
+          <TableUtils.DateCell
+            timestamp=data.effective_at textAlign=Left hideTimeZone=true convertToLocal=false
+          />,
+          data.effective_at,
+        )
+      : Text("-")
   | OrderId =>
     CustomCell(
       <>
@@ -123,7 +141,18 @@ let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
       "",
     )
   | Actions => CustomCell(<ReconEngineDataTransformedEntriesActions processingEntry=data />, "")
-  | ExceptionType => EllipsisText((data.data.needs_manual_review_type :> string)->snakeToTitle, "")
+  | ExceptionType =>
+    EllipsisText(
+      switch data.status {
+      | NeedsManualReview(reason) => (reason :> string)->snakeToTitle
+      | Pending
+      | Processed
+      | Void
+      | Archived
+      | UnknownDomainStagingEntryStatus => "N/A"
+      },
+      "",
+    )
   | TransformationConfigName =>
     EllipsisText(
       data.transformation_config.transformation_config_name->getNonEmptyString->Option.getOr("N/A"),

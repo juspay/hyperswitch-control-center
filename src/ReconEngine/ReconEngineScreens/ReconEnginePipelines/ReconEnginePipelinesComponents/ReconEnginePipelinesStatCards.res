@@ -32,6 +32,7 @@ let make = (~refreshTrigger=false) => {
         ->Dict.fromArray
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
         ~filterValueJson=dateRangeFilterValueJson,
+        ~convertToLocal=false,
       )
       let ingestionHistoryFetch = getIngestionHistory(~queryParameters=Some(queryString))
       let stagingEntriesOverviewFetch = getStagingEntriesOverview(
@@ -45,7 +46,7 @@ let make = (~refreshTrigger=false) => {
       setStagingOverviewData(_ => stagingOverviewData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
 
@@ -95,7 +96,7 @@ let make = (~refreshTrigger=false) => {
     }
 
   <div
-    className="grid xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-x-4 gap-y-6 mt-6">
+    className="grid xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-x-4 gap-y-6 mt-10">
     {statCards
     ->Array.mapWithIndex((card, index) => {
       <PageLoaderWrapper

@@ -34,6 +34,12 @@ const makeBlocklistJobs = (count: number) =>
     makeBlocklistJob(`blkbatch_${String(index + 1).padStart(2, "0")}`),
   );
 
+const makeBlocklistCsvWithDataRows = (rowCount: number) =>
+  `type,data,metadata\n${Array.from(
+    { length: rowCount },
+    () => "card_bin,411111,",
+  ).join("\n")}`;
+
 test.describe("Blocklist", () => {
   test.beforeEach(async ({ page }) => {
     const email = generateUniqueEmail();
@@ -65,6 +71,7 @@ test.describe("Blocklist", () => {
     await expect(blocklist.uploadCsvHeading).toBeVisible();
     await expect(blocklist.uploadFileText).toBeVisible();
     await expect(blocklist.supportedFileText).toBeVisible();
+    await expect(blocklist.accountWideConfigText).toBeVisible();
     await expect(blocklist.downloadSampleFileButton).toBeVisible();
     await expect(blocklist.chooseFileButton).toHaveCount(1);
     await expect(blocklist.chooseFileButton).toBeVisible();
@@ -121,17 +128,17 @@ test.describe("Blocklist", () => {
           data:
             listRequestCount > 1
               ? [
-                {
-                  job_id: "blockbatch_test",
-                  merchant_id: "merchant_test",
-                  status: "initiated",
-                  total_rows: 3,
-                  succeeded_rows: 0,
-                  failed_rows: 0,
-                  created_at: "2026-05-06T06:08:47.617Z",
-                  updated_at: "2026-05-06T06:08:47.617Z",
-                },
-              ]
+                  {
+                    job_id: "blockbatch_test",
+                    merchant_id: "merchant_test",
+                    status: "initiated",
+                    total_rows: 3,
+                    succeeded_rows: 0,
+                    failed_rows: 0,
+                    created_at: "2026-05-06T06:08:47.617Z",
+                    updated_at: "2026-05-06T06:08:47.617Z",
+                  },
+                ]
               : [],
           total_count: listRequestCount > 1 ? 1 : 0,
         }),
@@ -190,7 +197,9 @@ test.describe("Blocklist", () => {
       blocklist.uploadButton.click(),
     ]);
 
-    await expect(page.getByText('blockbatch_test', { exact: true })).toBeVisible();
+    await expect(
+      page.getByText("blockbatch_test", { exact: true }),
+    ).toBeVisible();
   });
 
   test("should request and render the second page using item offset", async ({
@@ -225,7 +234,7 @@ test.describe("Blocklist", () => {
     await homePage.blocklist.click();
     await expect(page.getByText("blkbatch_01")).toBeVisible();
 
-    await page.getByRole('button', { name: '2', exact: true }).click();
+    await page.getByRole("button", { name: "2", exact: true }).click();
 
     await expect(page.getByText("blkbatch_21")).toBeVisible();
     expect(secondPageRequestUrl).toContain("limit=20");
@@ -362,8 +371,90 @@ test.describe("Blocklist", () => {
     });
 
     await expect(
-      page.getByText("CSV file size should be less than 5 MB."),
+      page.getByText("CSV files larger than 5 MB cannot be processed."),
     ).toBeVisible();
+  });
+
+  test("should reject an empty CSV file", async ({ page }) => {
+    await page.route("**/blocklist/batch?**", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ data: [], total_count: 0 }),
+      });
+    });
+
+    const homePage = new HomePage(page);
+    const blocklist = new Blocklist(page);
+
+    await homePage.developer.click();
+    await homePage.blocklist.click();
+
+    await blocklist.fileInput.setInputFiles({
+      name: "blocklist.csv",
+      mimeType: "text/csv",
+      buffer: Buffer.from(""),
+    });
+
+    await expect(
+      page.getByText("CSV file must contain at least one data row."),
+    ).toBeVisible();
+    await expect(blocklist.uploadButton).toBeHidden();
+  });
+
+  test("should accept a CSV file with exactly 100,000 rows", async ({
+    page,
+  }) => {
+    await page.route("**/blocklist/batch?**", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ data: [], total_count: 0 }),
+      });
+    });
+
+    const homePage = new HomePage(page);
+    const blocklist = new Blocklist(page);
+
+    await homePage.developer.click();
+    await homePage.blocklist.click();
+
+    await blocklist.fileInput.setInputFiles({
+      name: "blocklist.csv",
+      mimeType: "text/csv",
+      buffer: Buffer.from(makeBlocklistCsvWithDataRows(100_000)),
+    });
+
+    await expect(blocklist.uploadButton).toBeVisible();
+  });
+
+  test("should reject a CSV file with 100,001 rows", async ({ page }) => {
+    await page.route("**/blocklist/batch?**", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ data: [], total_count: 0 }),
+      });
+    });
+
+    const homePage = new HomePage(page);
+    const blocklist = new Blocklist(page);
+
+    await homePage.developer.click();
+    await homePage.blocklist.click();
+
+    await blocklist.fileInput.setInputFiles({
+      name: "blocklist.csv",
+      mimeType: "text/csv",
+      buffer: Buffer.from(makeBlocklistCsvWithDataRows(100_001)),
+    });
+
+    await expect(
+      page.getByText(
+        "CSV files with more than 100,000 rows cannot be processed.",
+      ),
+    ).toBeVisible();
+    await expect(blocklist.uploadButton).toBeHidden();
   });
 });
 

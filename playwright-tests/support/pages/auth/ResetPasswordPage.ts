@@ -37,6 +37,14 @@ export class ResetPasswordPage {
   get weakPasswordError(): Locator {
     return this.page.getByText("Your password is not strong");
   }
+
+  get minimumPasswordLengthRequirement(): Locator {
+    return this.page.getByText("Password must be at least 12 characters long.");
+  }
+
+  get minimumPasswordLengthCheckIcon(): Locator {
+    return this.minimumPasswordLengthRequirement.locator('[data-icon="check"]');
+  }
 }
 
 export default ResetPasswordPage;

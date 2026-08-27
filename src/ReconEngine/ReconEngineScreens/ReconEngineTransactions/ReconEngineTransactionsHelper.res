@@ -223,6 +223,20 @@ module HierarchicalEntryRenderer = {
   }
 }
 
+module HierarchicalMoreEntriesRenderer = {
+  @react.component
+  let make = (~hasMoreEntries: bool, ~text: string="") => {
+    <RenderIf condition={hasMoreEntries}>
+      <div className="px-8 py-3.5">
+        <div
+          className={`truncate max-w-48 whitespace-nowrap h-7 text-nd_gray-500 ${body.sm.medium}`}>
+          {text->React.string}
+        </div>
+      </div>
+    </RenderIf>
+  }
+}
+
 module AuditTrail = {
   @react.component
   let make = (~allTransactionDetails) => {
@@ -279,7 +293,10 @@ module AuditTrail = {
     }
 
     let sections = allTransactionDetails->Array.map((transaction: transactionType) => {
-      let reasonText = transaction.data.reason->Option.mapOr(None, reason => Some(reason))
+      let reasonText = switch transaction.data.reason {
+      | Some(reason) if reason->isNonEmptyString => Some(reason)
+      | _ => transaction.discarded_data->Option.flatMap(discardedData => discardedData.reason)
+      }
 
       let customComponent = {
         id: transaction.version->Int.toString,
@@ -295,6 +312,7 @@ module AuditTrail = {
           setShowModal(_ => true)
         },
         reasonText,
+        modifiedBy: transaction.modified_by,
       }
       customComponent
     })

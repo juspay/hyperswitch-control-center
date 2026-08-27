@@ -60,6 +60,8 @@ type stagingEntriesCursorPayload = {
   @as("sort_by") sortBy: ReconEngineTypes.cursor,
 }
 
+type reportFormat = | @as("csv") Csv
+
 type displayField = {
   label: string,
   target: string,

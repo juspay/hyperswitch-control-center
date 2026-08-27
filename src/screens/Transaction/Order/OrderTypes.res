@@ -177,43 +177,6 @@ type otherDetailsColType =
   | RequestExtendedAuth
   | HyperswitchErrorDescription
 
-type openSearchCsvColumn =
-  | CsvPaymentId
-  | CsvAttemptId
-  | CsvStatus
-  | CsvAmount
-  | CsvCurrency
-  | CsvConnector
-  | CsvConnectorTransactionId
-  | CsvAmountToCapture
-  | CsvCustomerId
-  | CsvCreatedAt
-  | CsvOrderDetails
-  | CsvErrorMessage
-  | CsvCaptureMethod
-  | CsvAuthenticationType
-  | CsvMandateId
-  | CsvPaymentMethod
-  | CsvPaymentMethodType
-  | CsvMetadata
-  | CsvSetupFutureUsage
-  | CsvStatementDescriptorName
-  | CsvDescription
-  | CsvOffSession
-  | CsvBusinessCountry
-  | CsvBusinessLabel
-  | CsvBusinessSubLabel
-  | CsvAllowedPaymentMethodTypes
-  | CsvPaymentMethodData
-  | CsvCardNetwork
-  | CsvFingerprintId
-  | CsvModifiedAt
-  | CsvErrorCode
-  | CsvPaymentMethodId
-  | CsvCardHolderName
-  | CsvMerchantOrderReferenceId
-  | CsvProfileId
-
 type optionObj = {
   urlKey: string,
   label: string,
