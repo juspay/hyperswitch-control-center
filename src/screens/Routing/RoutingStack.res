@@ -118,16 +118,19 @@ let make = (~remainingPath, ~previewOnly=false) => {
     }
   }
 
+  let getActiveRoutingList = async () => {
+    let activeRoutingUrl = getURL(~entityName=V1(ACTIVE_ROUTING), ~methodType=Get)
+    let routingJson = await fetchDetails(activeRoutingUrl)
+    routingJson->LogicUtils.getArrayFromJson([])
+  }
+
   let fetchActiveRouting = async () => {
     open LogicUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let activeRoutingUrl = getURL(~entityName=V1(ACTIVE_ROUTING), ~methodType=Get)
-      let routingJson = await fetchDetails(activeRoutingUrl)
+      let routingArr = await getActiveRoutingList()
 
-      let routingArr = routingJson->getArrayFromJson([])
-
-      if routingArr->Array.length > 0 {
+      if routingArr->isNonEmptyArray {
         let currentActiveIds = []
         routingArr->Array.forEach(ele => {
           let id = ele->getDictFromJsonObject->getString("id", "")
@@ -157,14 +160,9 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let refreshActiveRouting = async () => {
     open LogicUtils
     try {
-      let activeRoutingUrl = getURL(~entityName=V1(ACTIVE_ROUTING), ~methodType=Get)
-      let routingJson = await fetchDetails(activeRoutingUrl)
-      let routingArr = routingJson->getArrayFromJson([])
+      let routingArr = await getActiveRoutingList()
 
       if routingArr->isNonEmptyArray {
-        setActiveRoutingIds(_ =>
-          routingArr->Array.map(ele => ele->getDictFromJsonObject->getString("id", ""))
-        )
         setRoutingType(_ => routingArr)
       } else {
         let defaultFallback = [("kind", "default"->JSON.Encode.string)]->getJsonFromArrayOfJson
@@ -176,10 +174,14 @@ let make = (~remainingPath, ~previewOnly=false) => {
   }
 
   React.useEffect(() => {
-    let onFocus = _ => refreshActiveRouting()->ignore
-    Window.addEventListener("focus", onFocus)
-    Some(() => Window.removeEventListener("focus", onFocus))
-  }, (pathVar, url.search, debitRoutingValue))
+    if isCutover && !previewOnly {
+      let onFocus = _ => refreshActiveRouting()->ignore
+      Window.addEventListener("focus", onFocus)
+      Some(() => Window.removeEventListener("focus", onFocus))
+    } else {
+      None
+    }
+  }, (isCutover, previewOnly, profileId))
 
   let checkRoutingEntry = async () => {
     open LogicUtils
