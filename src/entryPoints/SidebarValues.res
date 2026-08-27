@@ -610,7 +610,13 @@ let paymentSettings = userHasResourceAccess => {
     name: "Payment Settings",
     link: `/payment-settings`,
     access: userHasResourceAccess(~resourceAccess=Account),
-    searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
+    searchOptions: [
+      ("View payment settings", ""),
+      ("View webhooks", ""),
+      ("View return url", ""),
+      ("View blocklist", ""),
+      ("Upload blocklist CSV", ""),
+    ],
   })
 }
 
@@ -620,15 +626,6 @@ let webhooks = userHasResourceAccess => {
     link: `/webhooks`,
     access: userHasResourceAccess(~resourceAccess=WebhookEvent),
     searchOptions: [("Webhooks", ""), ("Retry webhooks", "")],
-  })
-}
-
-let blocklist = userHasResourceAccess => {
-  SubLevelLink({
-    name: "Blocklist",
-    link: `/blocklist`,
-    access: userHasResourceAccess(~resourceAccess=Account),
-    searchOptions: [("View blocklist", ""), ("Upload blocklist CSV", "")],
   })
 }
 
@@ -644,9 +641,7 @@ let paymentLinkTheme = {
 let developers = (
   isDevelopersEnabled,
   ~isWebhooksEnabled,
-  ~isBlocklistEnabled,
   ~userHasResourceAccess,
-  ~userHasAccess,
   ~checkUserEntity,
   ~paymentLinkThemeConfigurator,
   ~isCurrentMerchantPlatform,
@@ -654,7 +649,6 @@ let developers = (
   let apiKeys = apiKeys(userHasResourceAccess)
   let webhooks = webhooks(userHasResourceAccess)
   let paymentSettings = paymentSettings(userHasResourceAccess)
-  let blocklist = blocklist(userHasResourceAccess)
 
   let links = if isCurrentMerchantPlatform {
     [paymentSettings, apiKeys, webhooks]
@@ -668,9 +662,6 @@ let developers = (
     }
     if isWebhooksEnabled {
       defaultDevelopersOptions->Array.push(webhooks)
-    }
-    if isBlocklistEnabled && userHasAccess(~groupAccess=AccountManage) == Access {
-      defaultDevelopersOptions->Array.push(blocklist)
     }
     if paymentLinkThemeConfigurator {
       defaultDevelopersOptions->Array.push(paymentLinkTheme)

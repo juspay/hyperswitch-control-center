@@ -20,6 +20,7 @@ let make = () => {
   ).getCommonSessionDetails()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let isBusinessProfileHasThreeds =
     threedsConnectorList->Array.some(item => item.profile_id == profileId)
   let isBusinessProfileHasVault =
@@ -53,6 +54,11 @@ let make = () => {
     renderContent: () => <PaymentSettingsDomainName />,
   }
 
+  let blocklistTab: Tabs.tab = {
+    title: "Block List",
+    renderContent: () => <Blocklist />,
+  }
+
   let additionalTabs: array<Tabs.tab> = [
     {
       title: "Custom Headers",
@@ -82,6 +88,14 @@ let make = () => {
 
     if version == V1 && featureFlagDetails.surchargeProcessor && isBusinessProfileHasSurcharge {
       baseTabs->Array.push(surchargeTab)
+    }
+
+    if (
+      version == V1 &&
+      featureFlagDetails.devBlocklist &&
+      userHasAccess(~groupAccess=AccountManage) == Access
+    ) {
+      baseTabs->Array.push(blocklistTab)
     }
 
     baseTabs->Array.pushMany(additionalTabs)
