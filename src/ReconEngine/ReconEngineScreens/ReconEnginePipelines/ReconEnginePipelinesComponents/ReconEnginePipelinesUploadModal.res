@@ -304,6 +304,10 @@ module UploadModalBody = {
         setConfigsLoading(_ => true)
         let configs = await getIngestionConfigs(~queryParameters=Some(`account_id=${accountId}`))
         setIngestionConfigs(_ => configs)
+        switch configs->Array.filter(isManualIngestionConfig) {
+        | [singleConfig] => setSelectedIngestionId(_ => singleConfig.ingestion_id)
+        | _ => ()
+        }
       } catch {
       | _ => setIngestionConfigs(_ => [])
       }
