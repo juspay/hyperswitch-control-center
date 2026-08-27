@@ -20,7 +20,6 @@ let make = () => {
   ).getCommonSessionDetails()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let isBusinessProfileHasThreeds =
     threedsConnectorList->Array.some(item => item.profile_id == profileId)
   let isBusinessProfileHasVault =
@@ -90,11 +89,7 @@ let make = () => {
       baseTabs->Array.push(surchargeTab)
     }
 
-    if (
-      version == V1 &&
-      featureFlagDetails.devBlocklist &&
-      userHasAccess(~groupAccess=AccountManage) == Access
-    ) {
+    if version == V1 && featureFlagDetails.devBlocklist {
       baseTabs->Array.push(blocklistTab)
     }
 
