@@ -488,9 +488,22 @@ let modifiedByItemToObjMapper = (dict): modifiedByType => {
   }
 }
 
+let transactionDataItemToObjMapper = (dict): transactionDataType => {
+  {
+    status: dict->getString("status", "")->getTransactionStatusVariantFromString,
+    matched_data_type: switch dict->getOptionString("matched_data_type") {
+    | Some(matchedDataType) => Some(matchedDataType->getMatchedDataTypeVariantFromString)
+    | None => None
+    },
+    reason: dict->getOptionString("reason"),
+    mismatched_fields: dict->getMismatchedFieldsFromDict,
+  }
+}
+
 let transactionItemToObjMapper = (dict): transactionType => {
   let linkedTransactionDict = dict->getDictfromDict("linked_transaction")
   let modifiedByDict = dict->getDictfromDict("modified_by")
+  let discardedDataDict = dict->getDictfromDict("discarded_data")
   {
     id: dict->getString("id", ""),
     transaction_id: dict->getString("transaction_id", ""),
@@ -504,24 +517,10 @@ let transactionItemToObjMapper = (dict): transactionType => {
     transaction_status: dict
     ->getString("status", "")
     ->getDomainTransactionStatus(dict),
-    data: {
-      status: dict
-      ->getDictfromDict("data")
-      ->getString("status", "")
-      ->getTransactionStatusVariantFromString,
-      matched_data_type: switch dict
-      ->getDictfromDict("data")
-      ->getOptionString("matched_data_type") {
-      | Some(matchedDataType) => Some(matchedDataType->getMatchedDataTypeVariantFromString)
-      | None => None
-      },
-      reason: dict
-      ->getDictfromDict("data")
-      ->getOptionString("reason"),
-      mismatched_fields: dict
-      ->getDictfromDict("data")
-      ->getMismatchedFieldsFromDict,
-    },
+    data: dict->getDictfromDict("data")->transactionDataItemToObjMapper,
+    discarded_data: discardedDataDict->isEmptyDict
+      ? None
+      : Some(discardedDataDict->transactionDataItemToObjMapper),
     discarded_status: dict
     ->getDictfromDict("discarded_status")
     ->getOptionString("status")
@@ -746,6 +745,8 @@ let dateTimeTransformationRuleMapper = (dict): dateTimeTransformationRule => {
   switch dict->getString("transformation_rule_type", "") {
   | "trim" => DateTimeTrim
   | "json_extract" => DateTimeJsonExtract(dict->getString("pointer", ""))
+  | "regex" =>
+    DateTimeRegex({pattern: dict->getString("pattern", ""), group: dict->getOptionInt("group")})
   | _ => UnknownDateTimeTransformationRule
   }
 }

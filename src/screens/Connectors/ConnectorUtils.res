@@ -196,6 +196,9 @@ let connectorList: array<connectorTypes> = [
   Processors(PAYCONEX),
   Processors(TSYSTRANSIT),
   Processors(GIVEPAYMENTS),
+  Processors(CITIGATE),
+  Processors(ILIXIUM),
+  Processors(WORLDPAYRAFT),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -752,6 +755,18 @@ let givepaymentsInfo = {
   description: "GivePayments connects providers, merchants, and customers through a fully integrated ecosystem of payment tools and services with built-in chargeback prevention, automated underwriting, and PCI DSS 4.0-level security.",
 }
 
+let citigateInfo = {
+  description: "Citigate is a multi-interface payment gateway for card transactions and post-authorisation operations, with 3D Secure support and standardised bank response codes.",
+}
+
+let ilixiumInfo = {
+  description: "Ilixium is a secure payment platform for processing card transactions and transaction operations, with tokenisation to ease PCI compliance and native 3D Secure authentication.",
+}
+
+let worldpayraftInfo = {
+  description: "Native RAFT is Worldpay's RESTful API for direct access to their core authorization processing platform, supporting credit, debit, gift card, and alternate payment methods for enterprise merchants in the USA.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -1038,6 +1053,9 @@ let getConnectorNameString = (connector: processorTypes) =>
   | PAYCONEX => "payconex"
   | TSYSTRANSIT => "tsys_transit"
   | GIVEPAYMENTS => "givepayments"
+  | CITIGATE => "citigate"
+  | ILIXIUM => "ilixium"
+  | WORLDPAYRAFT => "worldpayraft"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1252,6 +1270,9 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "payconex" => Processors(PAYCONEX)
     | "tsys_transit" => Processors(TSYSTRANSIT)
     | "givepayments" => Processors(GIVEPAYMENTS)
+    | "citigate" => Processors(CITIGATE)
+    | "ilixium" => Processors(ILIXIUM)
+    | "worldpayraft" => Processors(WORLDPAYRAFT)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1442,6 +1463,9 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | PAYCONEX => payconexInfo
   | TSYSTRANSIT => tsystransitInfo
   | GIVEPAYMENTS => givepaymentsInfo
+  | CITIGATE => citigateInfo
+  | ILIXIUM => ilixiumInfo
+  | WORLDPAYRAFT => worldpayraftInfo
   }
 }
 
@@ -2443,6 +2467,9 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | PAYCONEX => "PayConex"
   | TSYSTRANSIT => "TSYS Transit"
   | GIVEPAYMENTS => "GivePayments"
+  | CITIGATE => "Citigate"
+  | ILIXIUM => "Ilixium"
+  | WORLDPAYRAFT => "Worldpay Raft"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>

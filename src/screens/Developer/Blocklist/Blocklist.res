@@ -1,4 +1,3 @@
-open BlocklistTypes
 open BlocklistUtils
 open FormDataUtils
 open LogicUtils
@@ -171,12 +170,10 @@ let make = () => {
         offset === 0 ? await fetchJobs() : setOffset(_ => 0)
       } catch {
       | Exn.Error(e) =>
-        let rawErrorMessage = Exn.message(e)->Option.getOr("Failed to upload blocklist CSV")
-        let errorDict = rawErrorMessage->safeParse->getDictFromJsonObject
         let errorMessage =
-          errorDict
-          ->getObj("error", errorDict)
-          ->getString("message", rawErrorMessage)
+          Exn.message(e)
+          ->Option.getOr("Failed to upload blocklist CSV")
+          ->parseBlocklistErrorMessage
         showToast(~message=errorMessage, ~toastType=ToastError)
       }
       setUploadButtonState(_ => Button.Normal)
@@ -198,6 +195,20 @@ let make = () => {
       title="Blocklist" subTitle="Upload blocklist CSV files and track batch processing status."
     />
     <div className="flex flex-col gap-6">
+      <BlocklistEntryCard
+        operation=AddBlocklistEntry
+        title="Add to Blocklist"
+        description="Block a single card BIN, extended card BIN, or fingerprint."
+        buttonText="Add Entry"
+        eventName="blocklist_add_entry"
+      />
+      <BlocklistEntryCard
+        operation=DeleteBlocklistEntry
+        title="Remove from Blocklist"
+        description="Unblock a single card BIN, extended card BIN, or fingerprint."
+        buttonText="Remove Entry"
+        eventName="blocklist_delete_entry"
+      />
       <div className="max-w-3xl">
         <section className="border border-nd_gray-200 rounded-lg bg-white p-5 flex flex-col gap-4">
           <div className="flex items-start justify-between gap-4">

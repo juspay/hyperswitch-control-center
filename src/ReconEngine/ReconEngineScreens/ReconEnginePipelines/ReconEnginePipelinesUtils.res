@@ -421,6 +421,8 @@ let describeDateTimeTransformationRule = (rule: dateTimeTransformationRule): str
   switch rule {
   | DateTimeTrim => "Trim"
   | DateTimeJsonExtract(pointer) => `JSON extract (${pointer})`
+  | DateTimeRegex({pattern, group}) =>
+    `Regex (${pattern}${group->mapOptionOrDefault("", g => `, group ${g->Int.toString}`)})`
   | UnknownDateTimeTransformationRule => "Unknown rule"
   }
 
