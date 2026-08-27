@@ -129,6 +129,9 @@ let filterPresetsByLimit = (predefinedDays, dateRangeLimit) =>
     predefinedDays->Array.filter(day => presetSpanDays(day) <= limit->Int.toFloat)
   )
 
+// blend's maxRangeDays allows diff == max, so it spans one day more than dateRangeLimit.
+let toMaxRangeDays = dateRangeLimit => dateRangeLimit->Option.map(limit => limit - 1)
+
 let allowedRangeBounds = (allowedDateRange: option<Calendar.dateObj>) => {
   let toDate = s => s->getNonEmptyString->Option.map(Date.fromString)
   (
@@ -194,7 +197,7 @@ module BlendDateRangePicker = {
       disableFutureDates
       disablePastDates
       customPresets
-      maxRangeDays=?dateRangeLimit
+      maxRangeDays=?{dateRangeLimit->toMaxRangeDays}
       ?minDate
       ?maxDate
       ?formatConfig

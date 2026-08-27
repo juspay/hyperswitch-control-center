@@ -58,7 +58,7 @@ module BlendDateRangeField = {
       disableFutureDates
       disablePastDates
       customPresets
-      maxRangeDays=?dateRangeLimit
+      maxRangeDays=?{dateRangeLimit->toMaxRangeDays}
       ?minDate
       ?maxDate
       ?formatConfig
