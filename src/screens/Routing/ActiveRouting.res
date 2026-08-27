@@ -139,8 +139,6 @@ module ActiveSection = {
           onClick={_ => {
             let decisionEngineTarget = activeRoutingType->decisionEngineRoutingTarget
 
-            // Cut-over profiles manage the active rule in the Decision Engine, so deep-link there.
-            // Default Fallback has no DE page (empty target) and keeps the local Hyperswitch flow.
             if isCutover && decisionEngineTarget->isNonEmptyString {
               onDecisionEngineRedirect(decisionEngineTarget, activeRoutingId)
             } else {

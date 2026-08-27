@@ -29,8 +29,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
   let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
 
-  // Hyperswitch mints the deep-link but knows nothing about what DE needs to render, so append the
-  // profile's connectors ourselves before opening the tab. See RoutingUtils for why it's a fragment.
   let openDecisionEngineRoutingPage = async (target, ruleId) => {
     open LogicUtils
     try {
@@ -82,8 +80,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
           },
         ])
       : baseTabs
-    // connectorList is a dep because the Active configuration tab's redirect closure reads it to
-    // build the hand-off; without it a list that arrives late would be captured as empty.
   }, (routingType, debitRoutingValue, isCutover, connectorList))
 
   let fetchRoutingRecords = async activeIds => {

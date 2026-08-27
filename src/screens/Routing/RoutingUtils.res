@@ -273,17 +273,6 @@ let filterConnectorList = (
   )
 }
 
-// Everything the Decision Engine needs about this profile but cannot look up for itself, handed
-// over in the deep link's URL fragment. A fragment is never sent to a server, so this stays out of
-// DE's access logs and request-line limits.
-//
-// `connectors`: DE's rule builder only suggests gateways already named in existing DE rules, so a
-// freshly cut-over profile would otherwise be offered the whole connector catalogue instead of the
-// handful the merchant actually has.
-// `rule_id`: Hyperswitch's redirect lands on DE's rule *list*; the id is what lets DE open the one
-// rule the merchant clicked.
-//
-// The two are independent — a profile with no connectors must still hand over its rule id.
 let decisionEngineHandoffFragment = (
   connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
   ~profileId,
