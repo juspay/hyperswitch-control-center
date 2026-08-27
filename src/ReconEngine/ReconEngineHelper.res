@@ -1,3 +1,6 @@
+open Typography
+open LogicUtils
+
 module GlobalDateFilterBanner = {
   @react.component
   let make = () => {
@@ -59,9 +62,7 @@ module ReconEngineStatusIndicator = {
     }, [profileId])
 
     let isActive =
-      statusData->LogicUtils.mapOptionOrDefault(false, status =>
-        status.processor_status->isProcessorActive
-      )
+      statusData->mapOptionOrDefault(false, status => status.processor_status->isProcessorActive)
     let dotColor = isActive ? "bg-nd_green-400" : "bg-nd_gray-400"
     let boxClass = "h-8 bg-white border border-nd_gray-300 rounded-lg"
 
@@ -78,11 +79,11 @@ module ReconEngineStatusIndicator = {
     let hasData = statusData->Option.isSome
     let isReloading = isFetching && hasData
     let dotDescription =
-      statusData->LogicUtils.mapOptionOrDefault("", status =>
+      statusData->mapOptionOrDefault("", status =>
         status.processor_status->processorStatusDescription
       )
     let pendingText =
-      statusData->LogicUtils.mapOptionOrDefault("", status =>
+      statusData->mapOptionOrDefault("", status =>
         `${status.pending_staging_entries->Int.toString} Pending`
       )
 
@@ -94,7 +95,7 @@ module ReconEngineStatusIndicator = {
                 ? "opacity-50"
                 : ""}`}>
             <ToolTip toolTipPosition=Bottom description=dotDescription toolTipFor=statusDot />
-            <span className={`${Typography.body.sm.semibold} text-nd_gray-600`}>
+            <span className={`${body.sm.semibold} text-nd_gray-600`}>
               {pendingText->React.string}
             </span>
           </div>
