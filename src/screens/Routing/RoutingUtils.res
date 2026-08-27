@@ -291,9 +291,7 @@ let decisionEngineHandoffFragment = (
         ("merchant_connector_id", connector.id->JSON.Encode.string),
         ("connector_name", connector.connector_name->JSON.Encode.string),
         ("connector_label", connector.connector_label->JSON.Encode.string),
-      ]
-      ->Dict.fromArray
-      ->JSON.Encode.object
+      ]->getJsonFromArrayOfJson
     )
 
   let params = []
