@@ -80,6 +80,7 @@ let buildTransactionsV2Body = (
   ~direction: cursorDirection,
   ~order: transactionSortOrder=Desc,
   ~limit=4,
+  ~includeStatusFilter=true,
 ) => {
   let statusValues = getEffectiveStatusValues(~filterValueJson)
 
@@ -91,7 +92,7 @@ let buildTransactionsV2Body = (
   let filters =
     [
       ruleId->isNonEmptyString ? Some(("rule_id", ruleId->JSON.Encode.string)) : None,
-      Some(("status", statusValues->getJsonFromArrayOfString)),
+      includeStatusFilter ? Some(("status", statusValues->getJsonFromArrayOfString)) : None,
       if hasBothTimeRanges {
         Some((
           "time_range",
@@ -124,20 +125,6 @@ let buildTransactionsV2Body = (
 
   [
     ("filters", filters),
-    ("cursor_payload", cursorPayload->Identity.genericTypeToJson),
-  ]->getJsonFromArrayOfJson
-}
-
-let buildTransactionRetrievalBody = (~transactionId: string) => {
-  let cursorPayload: transactionsV2CursorPayload = {
-    limit: 1,
-    direction: #next,
-    order: Desc,
-    sortBy: {sortField: "id", cursorValue: None},
-  }
-
-  [
-    ("filters", [("transaction_id", transactionId->JSON.Encode.string)]->getJsonFromArrayOfJson),
     ("cursor_payload", cursorPayload->Identity.genericTypeToJson),
   ]->getJsonFromArrayOfJson
 }

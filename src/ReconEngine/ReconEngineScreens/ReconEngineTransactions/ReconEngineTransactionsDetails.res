@@ -25,30 +25,41 @@ let make = (~id) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let transactionsPage = await getTransactionsV2(
-        ~body=buildTransactionRetrievalBody(~transactionId=id),
+        ~body=buildTransactionsV2Body(
+          ~filterValueJson=Dict.make(),
+          ~searchType=SearchTransactionId,
+          ~searchText=id,
+          ~ruleId="",
+          ~sortBy={sortField: "id", cursorValue: None},
+          ~direction=#next,
+          ~limit=1,
+          ~includeStatusFilter=false,
+        ),
       )
-      switch transactionsPage.items->Array.get(0) {
-      | Some(currentTransaction) => {
-          let ruleUrl = getURL(
-            ~entityName=V1(HYPERSWITCH_RECON),
-            ~methodType=Get,
-            ~hyperswitchReconType=#RECON_RULES,
-            ~id=Some(currentTransaction.rule.rule_id),
-          )
-          let (ruleRes, accountData) = await Promise.all2((fetchDetails(ruleUrl), getAccounts()))
-          let rule = ruleRes->getDictFromJsonObject->ruleItemToObjMapper
-          let (sourceAccountId, targetAccounts) = getSourceAndTargetAccountDetails(rule.strategy)
-          let accountIds =
-            [sourceAccountId]
-            ->Array.concat(targetAccounts->Array.map(target => target.account_id))
-            ->Array.filter(isNonEmptyString)
-            ->getUniqueArray
-          setCurrentTransactionDetails(_ => currentTransaction)
-          setRuleAccountIds(_ => accountIds)
-          setAccountsData(_ => accountData)
-          setScreenState(_ => PageLoaderWrapper.Success)
-        }
-      | None => setScreenState(_ => PageLoaderWrapper.Custom)
+      let latestTransaction =
+        transactionsPage.items->getValueFromArray(0, Dict.make()->getTransactionsPayloadFromDict)
+
+      if transactionsPage.items->isEmptyArray {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      } else {
+        let ruleUrl = getURL(
+          ~entityName=V1(HYPERSWITCH_RECON),
+          ~methodType=Get,
+          ~hyperswitchReconType=#RECON_RULES,
+          ~id=Some(latestTransaction.rule.rule_id),
+        )
+        let (ruleRes, accountData) = await Promise.all2((fetchDetails(ruleUrl), getAccounts()))
+        let rule = ruleRes->getDictFromJsonObject->ruleItemToObjMapper
+        let (sourceAccountId, targetAccounts) = getSourceAndTargetAccountDetails(rule.strategy)
+        let accountIds =
+          [sourceAccountId]
+          ->Array.concat(targetAccounts->Array.map(target => target.account_id))
+          ->Array.filter(isNonEmptyString)
+          ->getUniqueArray
+        setCurrentTransactionDetails(_ => latestTransaction)
+        setRuleAccountIds(_ => accountIds)
+        setAccountsData(_ => accountData)
+        setScreenState(_ => PageLoaderWrapper.Success)
       }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch transaction details"))
